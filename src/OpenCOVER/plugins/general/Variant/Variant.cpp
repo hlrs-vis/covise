@@ -31,11 +31,14 @@ Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa
     varName = var_Name;
     VarNode = new osg::MatrixTransform;
     VarNode->setName(var_Name.c_str());
-    VarNode->addChild(node);
-    attachedNodesList.push_back(node);
-    for (osg::Node::ParentList::iterator parent = parents.begin(); parent != parents.end(); ++parent)
+    if (node)
     {
-        (*parent)->removeChild(node);
+        VarNode->addChild(node);
+        attachedNodesList.push_back(node);
+        for (osg::Node::ParentList::iterator parent = parents.begin(); parent != parents.end(); ++parent)
+        {
+            (*parent)->removeChild(node);
+        }
     }
     origin_matrix = VarNode->getMatrix();
     createVRLabel();
@@ -57,7 +60,7 @@ Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa
     qDE_Variant->appendChild(qDE_Variant_item);
     std::string cnName = "_clNode_";
     cnName.append(varName);
-    cn = boi->createCipNode(cnName);
+    cn = boi->createClipNode(cnName);
 }
 //------------------------------------------------------------------------------
 
@@ -96,9 +99,16 @@ void Variant::releaseNode(osg::Node *node)
 
 void Variant::attachNode(osg::Node *node)
 {
-    VarNode->addChild(node);
-    attachedNodesList.push_back(node);
-    cover->getObjectsRoot()->removeChild(node);
+    if (node)
+    {
+        node->ref();
+        while (node->getNumParents() > 0)
+            node->getParent(0)->removeChild(node);
+        attachedNodesList.push_back(node);
+        cover->getObjectsRoot()->removeChild(node);
+        VarNode->addChild(node);
+        node->unref();
+    }
 }
 
 //------------------------------------------------------------------------------

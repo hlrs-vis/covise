@@ -67,7 +67,7 @@ class coVRBoxOfInterest
 public:
     coVRBoxOfInterest(VariantPlugin *plug, coTrackerButtonInteraction *_interactionA);
     ~coVRBoxOfInterest();
-    osg::ClipNode *createCipNode(std::string cnName);
+    osg::ClipNode *createClipNode(std::string cnName);
     void showHide(bool state);
     void setMatrix(osg::Matrix mat);
     //TODO std::string getActiveSensorName();
