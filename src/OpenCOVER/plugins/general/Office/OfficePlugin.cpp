@@ -149,7 +149,7 @@ OfficeConnection::handleMessage(Message *m)
 void
 OfficePlugin::handleMessage(OfficeConnection *oc,Message *m)
 {
-    enum MessageTypes type = (enum MessageTypes)m->type;
+    enum Message::Type type = (enum Message::Type)m->type;
     if(oc)
     {
         switch (type)
