@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <OpenSCENARIO xmlns:osc="http://www.w3.org/2001/XInclude">
 
-  <fileHeader revMajor="1" revMinor="0" date="2016-01-22T11:55:00+01:00" description="OpenSCENARIO - testScenario" author="MK">
+
+  <fileHeader revMajor="1" revMinor="1" date="2016-02-29T11:45:00+01:00" description="OpenSCENARIO - testScenario" author="MK">
     <userDataList>
       <userData code="df" value="hhry"/>
       <userData code="h56u56" value="uyk"/>
@@ -1224,9 +1225,5 @@
 
   </scenarioEnd>
 
-
-<!--
-  <osc:include href="testScenario/testScenario_test.xosc"/>
--->
 
 </OpenSCENARIO>

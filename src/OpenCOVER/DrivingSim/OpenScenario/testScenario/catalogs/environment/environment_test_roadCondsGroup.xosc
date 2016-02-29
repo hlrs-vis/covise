@@ -6,9 +6,9 @@
     <roadCondition effect="leaves" intensity="0.45"/>
     <roadCondition effect="oil" intensity="0.2"/>
 
-    <osc:include href="testScenario_test-environment_roadCond-1.xosc"/>
+    <osc:include href="environment_test_roadCond-1.xosc"/>
 
-    <osc:include href="testScenario_test-environment_roadCond-2.xosc"/>
+    <osc:include href="environment_test_roadCond-2.xosc"/>
 
   </roadConditions>
 </roadConditionsGroup>

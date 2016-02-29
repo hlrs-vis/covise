@@ -23,7 +23,7 @@
       <intensity ambient="0.5" diffuse="2.6" specular="6.46"/>
     </sun>
 -->
-    <osc:include href="testScenario_test-environment_sun.xosc"/>
+    <osc:include href="environment_test_sun.xosc"/>
 
     <fog>
       <color b="56.67" g="82.9" r="179.3"/>
@@ -55,7 +55,7 @@
     </roadConditions>
   </roadConditionsGroup>
 -->
-  <osc:include href="testScenario_test-environment_roadCondsGroup.xosc"/>
+  <osc:include href="environment_test_roadCondsGroup.xosc"/>
 
 
   <userDataList>
