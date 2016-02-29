@@ -31,7 +31,6 @@
 #include "oscFactory.h"
 #include "OpenScenarioBase.h"
 #include "oscObjectBase.h"
-#include "oscObject.h"
 #include "oscFileHeader.h"
 
 
@@ -95,7 +94,7 @@ OSCParser::~OSCParser()
 *
 */
 bool
-OSCParser::parseXOSC(const QString &filename)
+OSCParser::parseXOSC(const QString &filename, const QString &fileType)
 {
 
     // Mode //
@@ -108,18 +107,22 @@ OSCParser::parseXOSC(const QString &filename)
 	factory.create(tr("Driver").toStdString());*/
 
 
-	if (openScenarioBase_->loadFile(filename.toStdString())== false)
+	if (openScenarioBase_->loadFile(filename.toStdString(), fileType.toStdString()) == false)
     {
         qDebug() << "failed to load OpenScenarioBase from file " << filename;
         return false;
     }
     // <OpenSCENARIO> //
     //
-	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString());
+	// TODO: validation of files should be selectable
+	//
+	//enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
+	openScenarioBase_->setValidation(true);
+	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), fileType.toStdString());
 
 	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
 
-    if (tagName != "OpenScenario")
+    if (tagName != "OpenSCENARIO")
     {
         QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
                              tr("Root element is not <OpenSCENARIO>!"));
