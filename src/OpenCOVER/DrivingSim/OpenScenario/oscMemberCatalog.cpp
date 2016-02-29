@@ -10,6 +10,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscSourceFile.h"
 #include "oscUtilities.h"
 
+#include <iostream>
+
 #include <boost/algorithm/string.hpp>
 
 #include <xercesc/dom/DOMAttr.hpp>
