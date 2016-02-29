@@ -119,7 +119,7 @@ private:
     double recordingTime;
     int recordingFrames;
     int frameCount;
-    PixelFormat capture_fmt;
+    AVPixelFormat capture_fmt;
     bool captureActive;
     bool captureAnimActive;
     int captureAnimFrame;

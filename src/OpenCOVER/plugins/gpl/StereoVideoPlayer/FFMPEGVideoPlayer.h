@@ -48,6 +48,28 @@ extern "C" {
 #endif
 };
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
+typedef PixelFormat AVPixelFormat;
+
+#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
+
+#define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
+#define AV_CODEC_ID_FFV1 CODEC_ID_FFV1
+#define AV_CODEC_ID_JPEGLS CODEC_ID_JPEGLS
+#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+#define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
+#define AV_CODEC_ID_MPEG4 CODEC_ID_MPEG4
+#define AV_CODEC_ID_FLV1 CODEC_ID_FLV1
+#define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
+
+#define AV_CODEC_FLAG_QSCALE CODEC_FLAG_QSCALE
+#define AV_CODEC_FLAG_LOW_DELAY CODEC_FLAG_LOW_DELAY
+
+#define av_frame_alloc avcodec_alloc_frame
+#endif
+
 class StereoVideoPlayerPlugin;
 
 #ifdef HAVE_SDL
@@ -143,9 +165,9 @@ public:
     VideoStream();
     ~VideoStream();
 
-    bool openMovieCodec(const std::string, PixelFormat *);
+    bool openMovieCodec(const std::string, AVPixelFormat *);
     bool allocateFrame();
-    bool allocateRGBFrame(PixelFormat);
+    bool allocateRGBFrame(AVPixelFormat);
     void setRGBBuffer(uint8_t *);
     uint8_t *getRGBFrame()
     {

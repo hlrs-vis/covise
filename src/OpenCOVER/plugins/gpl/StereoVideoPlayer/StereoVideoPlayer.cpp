@@ -113,7 +113,7 @@ bool StereoVideoPlayerPlugin::openMovie(const string filename, MovieData *movieD
 {
 
     VideoStream *vStream = movieDat->getStream();
-    PixelFormat pixFormat = PIX_FMT_RGB24;
+    AVPixelFormat pixFormat = AV_PIX_FMT_RGB24;
     if (!vStream->openMovieCodec(filename, &pixFormat))
         return false;
     movieDat->setGLFormat(pixFormat);
@@ -691,9 +691,9 @@ MovieData::~MovieData()
     delete vStream;
 }
 
-void MovieData::setGLFormat(PixelFormat pixFormat)
+void MovieData::setGLFormat(AVPixelFormat pixFormat)
 {
-    if (pixFormat == PIX_FMT_BGR24)
+    if (pixFormat == AV_PIX_FMT_BGR24)
         glFormat = GL_BGR;
     else
         glFormat = GL_RGB;

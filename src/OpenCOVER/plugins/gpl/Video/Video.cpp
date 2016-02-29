@@ -348,10 +348,10 @@ bool VideoPlugin::init()
     GL_fmt = GL_BGR_EXT;
 #else
 #ifdef HAVE_SWSCALE_H
-#ifdef PIX_FMT_RGBA32
-    capture_fmt = PIX_FMT_RGBA32;
+#ifdef AV_PIX_FMT_RGBA32
+    capture_fmt = AV_PIX_FMT_RGBA32;
 #else
-    capture_fmt = PIX_FMT_RGB32;
+    capture_fmt = AV_PIX_FMT_RGB32;
 #endif
     GL_fmt = GL_BGRA;
 #endif

@@ -235,6 +235,7 @@ int VideoStream::audioDecodeFrame(VideoStream *vStream, uint8_t *buffer, int siz
     static int audioPktSize = 0;
     int len1, bytesDecoded;
     static double diff = 0.0;
+    int bps = av_get_bytes_per_sample(vStream->audioCodecCtx->codec->sample_fmts[0]);
 
     for (;;)
     {
@@ -243,8 +244,17 @@ int VideoStream::audioDecodeFrame(VideoStream *vStream, uint8_t *buffer, int siz
             bytesDecoded = size;
 #if LIBAVCODEC_VERSION_MAJOR < 53
             len1 = avcodec_decode_audio2(vStream->audioCodecCtx, (int16_t *)buffer, &bytesDecoded, audioPkt.data, audioPkt.size);
-#else
+#elif LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
             len1 = avcodec_decode_audio3(vStream->audioCodecCtx, (int16_t *)buffer, &bytesDecoded, &audioPkt);
+#else
+            AVFrame *frame = av_frame_alloc();
+            if (!frame) {
+                audioPkt.size = 0;
+                break;
+            }
+            int got_output = 0;
+            int ret = avcodec_decode_audio4(vStream->audioCodecCtx, frame, &got_output, &audioPkt);
+            len1 = got_output? frame->nb_samples * vStream->audioCodecCtx->channels * bps : 0;
 #endif
             if (len1 < 0) /* Error, skip frame */
             {
@@ -414,7 +424,7 @@ VideoStream::~VideoStream()
     delete vq;
 }
 
-bool VideoStream::openMovieCodec(const std::string filename, PixelFormat *pixFormat)
+bool VideoStream::openMovieCodec(const std::string filename, AVPixelFormat *pixFormat)
 {
 #if LIBAVFORMAT_VERSION_INT <= AV_VERSION_INT(52, 64, 2)
     if (av_open_input_file(&oc, filename.c_str(), NULL, 0, NULL) != 0)
@@ -539,10 +549,10 @@ bool VideoStream::openMovieCodec(const std::string filename, PixelFormat *pixFor
     if (codecCtx->time_base.num > 1000 && codecCtx->time_base.den == 1)
         codecCtx->time_base.den = 1000;
 
-    if (codecCtx->pix_fmt == PIX_FMT_BGR24)
+    if (codecCtx->pix_fmt == AV_PIX_FMT_BGR24)
         *pixFormat = codecCtx->pix_fmt;
     else
-        *pixFormat = PIX_FMT_RGB24;
+        *pixFormat = AV_PIX_FMT_RGB24;
     swsConvertCtx = sws_getContext(codecCtx->width, codecCtx->height,
                                    codecCtx->pix_fmt, codecCtx->width, codecCtx->height, *pixFormat, SWS_BICUBIC, NULL, NULL, NULL);
     if (swsConvertCtx == NULL)
@@ -557,7 +567,7 @@ bool VideoStream::openMovieCodec(const std::string filename, PixelFormat *pixFor
 
 bool VideoStream::allocateFrame()
 {
-    pFrame = avcodec_alloc_frame();
+    pFrame = av_frame_alloc();
 
     if (!pFrame)
     {
@@ -568,9 +578,9 @@ bool VideoStream::allocateFrame()
     return true;
 }
 
-bool VideoStream::allocateRGBFrame(PixelFormat pixFormat)
+bool VideoStream::allocateRGBFrame(AVPixelFormat pixFormat)
 {
-    dispFrameRGB = avcodec_alloc_frame();
+    dispFrameRGB = av_frame_alloc();
 
     numBytesRGB = avpicture_get_size(pixFormat, codecCtx->width, codecCtx->height);
     uint8_t *frameRGBBuffer = new uint8_t[numBytesRGB];

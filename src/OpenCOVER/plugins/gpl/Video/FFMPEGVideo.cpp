@@ -154,9 +154,9 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
 
     codecCtx->gop_size = 12; /* emit one intra frame every twelve frames at most */
 
-    if (codec->id == CODEC_ID_RAWVIDEO)
+    if (codec->id == AV_CODEC_ID_RAWVIDEO)
     {
-        codecCtx->pix_fmt = PIX_FMT_YUV420P;
+        codecCtx->pix_fmt = AV_PIX_FMT_YUV420P;
     }
     else if (!codec || !codec->pix_fmts || (codec->pix_fmts[0] == -1)) // pix_fmts is terminated by -1
     {
@@ -177,13 +177,13 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
     return true;
 }
 
-AVFrame *FFMPEGPlugin::alloc_picture(PixelFormat pix_fmt, int width, int height)
+AVFrame *FFMPEGPlugin::alloc_picture(AVPixelFormat pix_fmt, int width, int height)
 {
     AVFrame *picture;
     uint8_t *picture_buf;
     int size;
 
-    picture = avcodec_alloc_frame();
+    picture = av_frame_alloc();
     if (!picture)
         return NULL;
     size = avpicture_get_size(pix_fmt, width, height);
@@ -240,7 +240,7 @@ bool FFMPEGPlugin::open_video(AVCodec *codec)
     /* if the output format is not RGBA32, then a temporary YUV420P
       picture is needed too. It is then converted to the required
       output format */
-    inPicture = avcodec_alloc_frame();
+    inPicture = av_frame_alloc();
     if (!inPicture)
     {
         fprintf(stderr, "Could not allocate temporary picture\n");
@@ -530,10 +530,10 @@ bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const stri
             }
         }
         if (itlist == (*it).second.end())
-            fmt->video_codec = CODEC_ID_NONE;
+            fmt->video_codec = AV_CODEC_ID_NONE;
 
         /* Configure video stream */
-        if (fmt->video_codec != CODEC_ID_NONE)
+        if (fmt->video_codec != AV_CODEC_ID_NONE)
         {
             if (!add_video_stream(codec, myPlugin->outWidth, myPlugin->outHeight, myPlugin->time_base,
                                   bitrateField->getValue() * 1000, maxBitrateField->getValue() * 1000))
@@ -562,9 +562,9 @@ bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const stri
         video_st = NULL;
         fmt->video_codec = codec->id;
 
-        if (fmt->video_codec != CODEC_ID_NONE)
+        if (fmt->video_codec != AV_CODEC_ID_NONE)
         {
-            if (fmt->video_codec == CODEC_ID_DVVIDEO)
+            if (fmt->video_codec == AV_CODEC_ID_DVVIDEO)
             {
                 if (!add_video_stream(codec, 720, 576, 25, 6000000, 9000000))
                     return false;
@@ -708,7 +708,7 @@ int VideoPlugin::ImgConvertScale(int width, int height)
     for (y = height; y > 0; y--)
         memcpy(&mirroredpixels[(height - y) * linesize], &pixels[(y - 1) * linesize], linesize);
 
-    if (codecCtx->pix_fmt == PIX_FMT_YUV420P)
+    if (codecCtx->pix_fmt == AV_PIX_FMT_YUV420P)
     {
         avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
 
@@ -769,7 +769,21 @@ int FFMPEGPlugin::SwConvertScale(int width, int height)
     result->pts = myPlugin->frameCount;
 
     /* encode the image */
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
     return avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, result);
+#else
+  AVPacket pkt;
+  av_init_packet(&pkt);
+  pkt.data = (uint8_t*)video_outbuf;
+  pkt.size = video_outbuf_size;
+  int got_output=0;
+  int ret = avcodec_encode_video2(codecCtx, &pkt, inPicture, &got_output);
+  if (ret < 0)
+  {
+    return -1;
+  }
+  return got_output ? pkt.size : 0;
+#endif
 }
 #endif
 
@@ -884,9 +898,9 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
                 for (it = codecList.begin(); it != codecList.end(); it++)
                 {
 #if LIBAVFORMAT_VERSION_INT < (53 << 16)
-                    if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == CODEC_ID_RAWVIDEO) || (av_codec_get_tag((const struct AVCodecTag **)format->codec_tag, (*it)->id) > 0)) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
+                    if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag((const struct AVCodecTag **)format->codec_tag, (*it)->id) > 0)) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
 #else
-                    if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == CODEC_ID_RAWVIDEO) || (av_codec_get_tag(format->codec_tag, (*it)->id) > 0)) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
+                    if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag(format->codec_tag, (*it)->id) > 0)) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
 #endif
                     {
 
