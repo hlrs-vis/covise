@@ -1143,13 +1143,13 @@ Number of starting points
 startpoint1
 FloatVector
 First start point
--0.4 0.3 0.05
+-0.4 0.3 0.049
 
 -1
 startpoint2
 FloatVector
 Last start point
--0.4 0.5 0.05
+-0.4 0.5 0.049
 
 -1
 direction
