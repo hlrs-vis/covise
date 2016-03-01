@@ -11,7 +11,7 @@
 #include <covise/covise.h>
 #include <config/CoviseConfig.h>
 #include <util/coTimer.h>
-#include "covise/covise_version.h"
+#include <util/covise_version.h>
 #include <net/covise_connect.h>
 #include <covise/covise_msg.h>
 #include <util/coFileUtil.h>

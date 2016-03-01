@@ -18,7 +18,7 @@
 #include <QTime>
 
 #include <covise/covise_msg.h>
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 
 #include "MEModuleTree.h"
 #include "MEUserInterface.h"

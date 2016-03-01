@@ -5,12 +5,11 @@
 
  * License: LGPL 2+ */
 
-#include <covise/covise.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "coVRDOMDocument.h"
 #include <cover/coVRPluginSupport.h>
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 
 #include <QDomDocument>
 #include <QFile>

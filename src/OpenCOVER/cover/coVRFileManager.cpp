@@ -1070,6 +1070,12 @@ void coVRFileManager::SetDefaultFB(coTUIFileBrowserButton *fb)
 {
     this->mDefaultFB = fb;
 }
+
+void coVRFileManager::setViewPointFile(const std::string &file)
+{
+    viewPointFile = file;
+}
+
 std::string coVRFileManager::getViewPointFile()
 {
     return viewPointFile;

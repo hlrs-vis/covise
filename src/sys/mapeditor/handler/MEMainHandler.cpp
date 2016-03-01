@@ -32,7 +32,7 @@
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
 #include <covise/covise_appproc.h>
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 
 #include "MEMainHandler.h"
 #include "MEMessageHandler.h"

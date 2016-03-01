@@ -36,7 +36,7 @@
 #ifdef _WIN32
 #include <util/XGetOpt.h>
 #endif
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 #ifndef _WIN32
 #include <unistd.h>
 #include <dirent.h>

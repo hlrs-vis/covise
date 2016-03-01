@@ -57,7 +57,6 @@ public:
     virtual void preFrame();
     virtual void addNode(osg::Node *, RenderObject *);
     virtual void key(int type, int keySym, int mod);
-    virtual void param(const char *paramName, bool inMapLoading);
     virtual void guiToRenderMsg(const char *msg);
     virtual void message(int type, int length, const void *data);
     virtual coMenuItem *getMenuButton(const std::string &buttonName);

@@ -26,6 +26,7 @@ ENDIF(APPLE)
 
 SET(UTIL_SOURCES
   covise_regexp.cpp
+  covise_version.cpp
   coMatrix.cpp
   coSignal.cpp
   coStringTable.cpp
@@ -50,6 +51,7 @@ SET(UTIL_SOURCES
 
 SET(UTIL_HEADERS
   covise_regexp.h
+  covise_version.h
   coSignal.h
   coStringTable.h
   coTimer.h
@@ -133,6 +135,9 @@ ENDIF(WIN32)
 IF("${ARCHSUFFIX}" STREQUAL "mingw")
   SET(EXTRA_LIBS ${EXTRA_LIBS} stdc++)
 ENDIF()
+
+# generate covise_version_autogen.h
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/covise_version_autogen.h.in" "${CMAKE_CURRENT_BINARY_DIR}/covise_version_autogen.h" @ONLY)
 
 ADD_COVISE_LIBRARY(coUtil ${COVISE_LIB_TYPE} ${UTIL_SOURCES} ${UTIL_HEADERS} ${SYSDEP_HEADERS})
 TARGET_LINK_LIBRARIES(coUtil ${EXTRA_LIBS})

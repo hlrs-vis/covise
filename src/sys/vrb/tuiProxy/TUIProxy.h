@@ -5,11 +5,9 @@
 
  * License: LGPL 2+ */
 
-#ifndef YAC
-#include "covise/covise.h"
-#include <covise/covise_version.h>
+#include <covise/covise.h>
+#include <util/covise_version.h>
 #include <net/covise_connect.h>
-#endif
 
 namespace covise
 {

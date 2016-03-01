@@ -28,6 +28,8 @@
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
+#include <net/message_types.h>
+#include <net/message.h>
 #include <grmsg/coGRMsg.h>
 #include <grmsg/coGRCreateViewpointMsg.h>
 #include <grmsg/coGRCreateDefaultViewpointMsg.h>
@@ -45,7 +47,6 @@
 #include <cover/OpenCOVER.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRConfig.h>
-#include <appl/RenderInterface.h>
 #include <osg/ClipNode>
 
 using namespace osg;
@@ -750,36 +751,6 @@ void ViewPoints::addNode(Node *n, RenderObject *)
     }
 }
 
-void ViewPoints::param(const char *paramName, bool)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "ViewPoints::param paramName=[%s]", paramName);
-
-    if (!strcmp(paramName, "Viewpoints"))
-    {
-        if (coVRMSController::instance()->isMaster())
-        {
-            const char *tmp;
-            CoviseBase::get_reply_browser(&tmp);
-            int length = strlen(tmp);
-            coVRMSController::instance()->sendSlaves(&length, sizeof(int));
-            coVRMSController::instance()->sendSlaves(tmp, length);
-            vwpPath = tmp;
-        }
-        else
-        {
-            int length;
-            coVRMSController::instance()->readMaster(&length, sizeof(int));
-            char *tmp = new char[length + 1];
-            coVRMSController::instance()->readMaster(tmp, length);
-            tmp[length] = 0;
-            vwpPath = tmp;
-            delete[] tmp;
-        }
-        readFromDom();
-    }
-}
-
 void ViewPoints::message(int, int, const void *data)
 {
     const char *chbuf = (const char *)data;
@@ -830,6 +801,11 @@ void ViewPoints::message(int, int, const void *data)
     if (strncmp(chbuf, "stoppingCapture", strlen("stoppingCapture")) == 0)
     {
         videoBeingCaptured = false;
+    }
+
+    if (strncmp(chbuf, "readViewpointsFile", strlen("readViewpointsFile")) == 0)
+    {
+        init2();
     }
 }
 
@@ -1269,7 +1245,7 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
     saveAllViewPoints();
 }
 
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 
 void ViewPoints::saveAllViewPoints()
 {

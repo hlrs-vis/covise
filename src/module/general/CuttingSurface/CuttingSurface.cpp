@@ -25,7 +25,7 @@
 
 #include "CuttingSurface.h"
 #include <alg/coCuttingSurface.h>
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 #include <config/CoviseConfig.h>
 #include <do/coDoSet.h>
 #include <do/coDoPolygons.h>

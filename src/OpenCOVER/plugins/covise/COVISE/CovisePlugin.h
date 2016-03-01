@@ -29,6 +29,7 @@ public:
     ~CovisePlugin();
 
     bool init();
+    void param(const char *paramName, bool inMapLoading);
     void preFrame();
     void removeNode(osg::Node *group, bool isGroup, osg::Node *node);
     void requestQuit(bool killSession);
