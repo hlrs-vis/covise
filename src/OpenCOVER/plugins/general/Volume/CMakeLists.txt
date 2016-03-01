@@ -12,7 +12,6 @@ SET(HEADERS
   coPinEditor.h
   coPresetButtonGeometry.h
   coPreviewCube.h
-  coVolumeDrawable.h
 )
 SET(SOURCES
   VolumePlugin.cpp 
@@ -26,7 +25,6 @@ SET(SOURCES
   coPinEditor.cpp 
   coPresetButtonGeometry.cpp 
   coPreviewCube.cpp 
-  coVolumeDrawable.cpp
 )
 
 INCLUDE_DIRECTORIES(

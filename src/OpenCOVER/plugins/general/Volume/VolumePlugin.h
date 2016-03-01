@@ -23,6 +23,8 @@
 #include <virvo/vvvecmath.h>
 #include <virvo/vvtransfunc.h>
 
+#include <virvo/osg/VolumeDrawable.h>
+
 #include <osg/Matrix>
 #include <osg/Vec3>
 #include <osg/Geode>
@@ -33,8 +35,6 @@
 #include <cover/coVRPlugin.h>
 
 #include <boost/scoped_ptr.hpp>
-
-#include "coVolumeDrawable.h"
 
 namespace covise
 {
@@ -198,7 +198,7 @@ private:
         bool inScene;
         osg::ref_ptr<osg::MatrixTransform> transform; ///< transform node for side-by-side display
         osg::ref_ptr<osg::Geode> node; ///< node volume is attached to
-        osg::ref_ptr<coVolumeDrawable> drawable;
+        osg::ref_ptr<virvo::VolumeDrawable> drawable;
         void addToScene();
         osg::Geode *createImage(string &);
         void removeFromScene();
@@ -210,7 +210,7 @@ private:
         bool lighting;
         bool interpolation;
         bool boundaries;
-        coVolumeDrawable::BlendMode blendMode;
+        virvo::VolumeDrawable::BlendMode blendMode;
         std::string filename;
         std::vector<vvTransFunc> tf;
         int curChannel;
@@ -249,13 +249,13 @@ private:
     struct TFApplyCBData
     {
         Volume *volume;
-        coVolumeDrawable *drawable;
+        virvo::VolumeDrawable *drawable;
         coDefaultFunctionEditor *tfe;
     };
 
     TFApplyCBData tfApplyCBData;
 
-    coVolumeDrawable *getCurrentDrawable();
+    virvo::VolumeDrawable *getCurrentDrawable();
 
     void updateTFEData();
     bool computeHistogram;
