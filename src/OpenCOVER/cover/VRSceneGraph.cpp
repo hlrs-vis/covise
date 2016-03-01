@@ -105,7 +105,6 @@ VRSceneGraph *VRSceneGraph::instance()
 
 VRSceneGraph::VRSceneGraph()
     : m_vectorInteractor(0)
-    , m_oldHandLocked(false)
     , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
     , m_handLocked(false)
@@ -1019,8 +1018,6 @@ VRSceneGraph::update()
         m.setTrans(trans);
         m_objectsTransform->setMatrix(m);
     }
-
-    m_oldHandLocked = m_handLocked;
 }
 
 void
@@ -1512,11 +1509,13 @@ VRSceneGraph::manipulate(buttonSpecCell *spec)
     }
 }
 
+#ifdef PHANTOM_TRACKER
 void
 VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
 {
     ((VRSceneGraph *)sceneGraph)->manipulate(spec);
 }
+#endif
 
 void
 VRSceneGraph::viewallCallback(void *sceneGraph, buttonSpecCell *)
@@ -1596,12 +1595,6 @@ void
 VRSceneGraph::reloadFileCallback(void *, buttonSpecCell *)
 {
     coVRFileManager::instance()->reloadFile();
-}
-
-void
-VRSceneGraph::sliderCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    ((VRSceneGraph *)sceneGraph)->manipulate(spec);
 }
 
 void

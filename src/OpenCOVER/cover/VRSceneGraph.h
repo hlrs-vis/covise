@@ -57,8 +57,9 @@ public:
     static void coordAxisCallback(void *sceneGraph, buttonSpecCell *spec);
     static void storeCallback(void *sceneGraph, buttonSpecCell *spec);
     static void reloadFileCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void sliderCallback(void *sceneGraph, buttonSpecCell *spec);
+#ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
+#endif
     static void scalePlusCallback(void *sceneGraph, buttonSpecCell *spec);
     static void scaleMinusCallback(void *sceneGraph, buttonSpecCell *spec);
 
@@ -233,7 +234,6 @@ public:
     void protectScenegraph();
 
     int m_vectorInteractor; //< don't use - for COVISE plugin only
-    bool m_oldHandLocked; //< don't use - for COVISE plugin only
 
     bool KeyButton[4];
 
