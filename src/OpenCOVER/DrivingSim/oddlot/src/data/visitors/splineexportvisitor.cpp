@@ -55,10 +55,9 @@ SplineExportVisitor::visit(RSystemElementRoad *road)
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
-        qDebug(QString("Cannot write file %1:\n%2.")
-                   .arg(fileName)
-                   .arg(file.errorString())
-                   .toUtf8());
+        qDebug("Cannot write file %s:\n%s.",
+                fileName.toUtf8().constData(),
+                file.errorString().toUtf8().constData());
         //		QMessageBox::warning(this, tr("ODD"),
         //			tr("Cannot write file %1:\n%2.")
         //			.arg(fileName)

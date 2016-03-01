@@ -38,7 +38,7 @@
 
 SignalManager::SignalManager(QObject *parent)
     : QObject(parent),
-	selectedSignalContainer_(NULL)
+   selectedSignalContainer_(NULL)
 {
 }
 
@@ -63,21 +63,21 @@ SignalManager::addObject(const QString &country, const QString &name, const QStr
 }
 
 void
-	SignalManager::addCountry(const QString &country)
+   SignalManager::addCountry(const QString &country)
 {
-	if (!countries_.contains(country))
-	{
-		countries_.append(country);
-	}
+   if (!countries_.contains(country))
+   {
+      countries_.append(country);
+   }
 }
 
 void
-	SignalManager::addCategory(const QString &category)
+   SignalManager::addCategory(const QString &category)
 {
-	if (!categories_.contains(category))
-	{
-		categories_.append(category);
-	}
+   if (!categories_.contains(category))
+   {
+      categories_.append(category);
+   }
 }
 
 ObjectContainer *
@@ -94,29 +94,29 @@ SignalManager::getObjectContainer(const QString &type)
    }
 
    return NULL;
-} 
+}
 
-QString 
+QString
 SignalManager::getCountry(SignalContainer *signalContainer)
 {
-	return signals_.key(signalContainer, "");
+   return signals_.key(signalContainer, "");
 
 }
 
-QString 
+QString
 SignalManager::getCountry(ObjectContainer *objectContainer)
 {
-	return objects_.key(objectContainer, "");
+   return objects_.key(objectContainer, "");
 
 }
 
-SignalContainer * 
+SignalContainer *
 SignalManager::getSignalContainer(int type, const QString &typeSubclass, int subType)
 {
    QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
    while (iter != signals_.constEnd())
    {
-	   if ((iter.value()->getSignalType() == type) && (iter.value()->getSignalSubType() == subType) && (iter.value()->getSignalTypeSubclass() == typeSubclass))
+      if ((iter.value()->getSignalType() == type) && (iter.value()->getSignalSubType() == subType) && (iter.value()->getSignalTypeSubclass() == typeSubclass))
       {
          return iter.value();
       }
@@ -124,15 +124,15 @@ SignalManager::getSignalContainer(int type, const QString &typeSubclass, int sub
    }
 
    return NULL;
-} 
+}
 
-SignalContainer * 
+SignalContainer *
 SignalManager::getSignalContainer(const QString &name)
 {
    QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
    while (iter != signals_.constEnd())
    {
-	   if (iter.value()->getSignalName() == name)
+      if (iter.value()->getSignalName() == name)
       {
          return iter.value();
       }
@@ -140,7 +140,7 @@ SignalManager::getSignalContainer(const QString &name)
    }
 
    return NULL;
-} 
+}
 
 
 bool
@@ -148,7 +148,7 @@ SignalManager::loadSignals(const QString &fileName)
 {
     // Print //
     //
-    qDebug("Loading file: " + fileName.toUtf8());
+    qDebug("Loading file: %s", fileName.toUtf8().constData());
 
     // Open file //
     //
@@ -158,7 +158,7 @@ SignalManager::loadSignals(const QString &fileName)
         //		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
         //		.arg(fileName)
         //		.arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
 

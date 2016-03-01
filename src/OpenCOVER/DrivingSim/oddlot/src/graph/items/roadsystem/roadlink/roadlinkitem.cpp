@@ -100,7 +100,7 @@ RoadLinkItem::init()
         targetRoad_ = roadLink_->getProjectData()->getRoadSystem()->getRoad(roadLink_->getElementId());
         if (!targetRoad_)
         {
-            qDebug(tr("Error 1011191315! RoadLinkItem::init() road not found: ").append(roadLink_->getElementId()).toUtf8());
+            qDebug("%s", tr("Error 1011191315! RoadLinkItem::init() road not found: ").append(roadLink_->getElementId()).toUtf8().constData());
         }
         else
         {
@@ -112,7 +112,7 @@ RoadLinkItem::init()
         targetJunction_ = roadLink_->getProjectData()->getRoadSystem()->getJunction(roadLink_->getElementId());
         if (!targetJunction_)
         {
-            qDebug(tr("Error 1011191316! RoadLinkItem::init() junction not found: ").append(roadLink_->getElementId()).toUtf8());
+            qDebug("%s", tr("Error 1011191316! RoadLinkItem::init() junction not found: ").append(roadLink_->getElementId()).toUtf8().constData());
         }
         else
         {
@@ -123,7 +123,7 @@ RoadLinkItem::init()
                 RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
                 if (!path)
                 {
-                    qDebug(tr("Error 1011191314! RoadLinkItem::init() road not found: ").append(connection->getConnectingRoad()).toUtf8());
+                    qDebug("%s", tr("Error 1011191314! RoadLinkItem::init() road not found: ").append(connection->getConnectingRoad()).toUtf8().constData());
                 }
                 else
                 {
@@ -160,7 +160,7 @@ RoadLinkItem::updateType()
 {
     if (roadLink_)
     {
-        qDebug(tr("Error 1011261638! RoadLinkItem::updateType() not implemented yet.").toUtf8());
+        qDebug("%s", tr("Error 1011261638! RoadLinkItem::updateType() not implemented yet.").toUtf8().constData());
         //		type_ = roadLink_->getRoadLinkType();
         //		updateTransform();
         //		updateColor();
@@ -172,7 +172,7 @@ RoadLinkItem::updateParentRoad()
 {
     if (roadLink_)
     {
-        qDebug(tr("Error 1011261639! RoadLinkItem::updateParentRoad() not implemented yet.").toUtf8());
+        qDebug("%s", tr("Error 1011261639! RoadLinkItem::updateParentRoad() not implemented yet.").toUtf8().constData());
         //		parentRoad_ = roadLink_->getParentRoad();
         //		updateTransform();
         //		updateColor();
@@ -191,7 +191,7 @@ RoadLinkItem::updatePathList()
             RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
             if (!path)
             {
-                qDebug(tr("Error 1011261640! RoadLinkItem::updatePathList() road not found: ").append(path->getID()).toUtf8());
+                qDebug("%s", tr("Error 1011261640! RoadLinkItem::updatePathList() road not found: ").append(path->getID()).toUtf8().constData());
             }
             else
             {
@@ -326,7 +326,7 @@ RoadLinkItem::createPath()
                 RSystemElementRoad *targetRoad = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
                 if (!targetRoad)
                 {
-                    qDebug(tr("Error 1011191310! RoadLinkItem::createPath() road not found: ").append(connection->getConnectingRoad()).toUtf8());
+                    qDebug("%s", tr("Error 1011191310! RoadLinkItem::createPath() road not found: ").append(connection->getConnectingRoad()).toUtf8().constData());
                     continue;
                 }
 

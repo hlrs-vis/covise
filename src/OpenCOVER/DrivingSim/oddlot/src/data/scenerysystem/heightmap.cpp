@@ -48,7 +48,7 @@ Heightmap::loadHeightmapDataFile()
     if (!file.open(QIODevice::ReadOnly))
     {
         qDebug("ERROR 1010121154! File could not be loaded!");
-        qDebug(heightmapFilename_.toUtf8());
+        qDebug("%s", heightmapFilename_.toUtf8().constData());
         heightmapDataLoaded_ = false;
         return false;
     }

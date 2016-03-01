@@ -38,7 +38,7 @@ LaneRoadMark::parseRoadMarkType(const QString &type)
         return LaneRoadMark::RMT_BROKEN_SOLID;
     else
     {
-        qDebug(("WARNING: unknown road mark type: " + type).toUtf8());
+        qDebug("WARNING: unknown road mark type: %s", type.toUtf8().constData());
         return LaneRoadMark::RMT_NONE;
     }
 };
@@ -74,7 +74,7 @@ LaneRoadMark::parseRoadMarkWeight(const QString &type)
         return LaneRoadMark::RMW_BOLD;
     else
     {
-        qDebug(("WARNING: unknown road mark weight type: " + type).toUtf8());
+        qDebug("WARNING: unknown road mark weight type: %s", type.toUtf8().constData());
         return LaneRoadMark::RMW_STANDARD;
     }
 };
@@ -102,7 +102,7 @@ LaneRoadMark::parseRoadMarkColor(const QString &type)
         return LaneRoadMark::RMC_YELLOW;
     else
     {
-        qDebug(("WARNING: unknown road mark color type: " + type).toUtf8());
+        qDebug("WARNING: unknown road mark color type: %s", type.toUtf8().constData());
         return LaneRoadMark::RMC_STANDARD;
     }
 };
@@ -134,7 +134,7 @@ LaneRoadMark::parseRoadMarkLaneChange(const QString &type)
         return LaneRoadMark::RMLC_NONE;
     else
     {
-        qDebug(("WARNING: unknown road mark lane change type: " + type).toUtf8());
+        qDebug("WARNING: unknown road mark lane change type: %s", type.toUtf8().constData());
         return LaneRoadMark::RMLC_BOTH;
     }
 }

@@ -145,7 +145,7 @@ SceneryMap::loadFile()
     if (image_.isNull())
     {
         qDebug("ERROR 1010081652! Image could not be loaded!");
-        qDebug(filename_.toUtf8());
+        qDebug("%s", filename_.toUtf8().constData());
         loaded_ = false;
         return false;
     }

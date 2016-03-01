@@ -174,7 +174,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectData_->setVehicleSystem(new VehicleSystem());
     projectData_->setPedestrianSystem(new PedestrianSystem());
     projectData_->setScenerySystem(new ScenerySystem());
-	projectData_->setOSCBase(new OSCBase());
+   projectData_->setOSCBase(new OSCBase());
 
     // VIEW: Graph //
     //
@@ -222,7 +222,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
-	editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
+   editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
 
     // VIEW: Tree //
     //
@@ -339,16 +339,16 @@ ProjectWidget::setEditor(ODD::EditorId id)
             heightGraph_->hide();
         }
 
-		// Signal tree //
-		//
-		if (id == ODD::ESG)
-		{
-			mainWindow_->showSignalsDock(true);
-		}
-		else
-		{
-			mainWindow_->showSignalsDock(false);
-		}
+      // Signal tree //
+      //
+      if (id == ODD::ESG)
+      {
+         mainWindow_->showSignalsDock(true);
+      }
+      else
+      {
+         mainWindow_->showSignalsDock(false);
+      }
 
         topviewGraph_->postEditorChange();
     }
@@ -409,7 +409,7 @@ ProjectWidget::loadFile(const QString &fileName)
 {
     // Print //
     //
-    qDebug("Loading file: " + fileName.toUtf8());
+    qDebug("Loading file: %s", fileName.toUtf8().constData());
 
     // Open file //
     //
@@ -419,7 +419,7 @@ ProjectWidget::loadFile(const QString &fileName)
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
                                                   .arg(fileName)
                                                   .arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
 
@@ -431,21 +431,21 @@ ProjectWidget::loadFile(const QString &fileName)
     DomParser *parser = new DomParser(projectData_);
     bool success = parser->parseXODR(&file);
 
-	if (!success)		// try OpenScenario
-	{
-		// Create a Tile
-		Tile *tile = new Tile("Tile0", "0");
-		projectData_->getTileSystem()->addTile(tile);
-		projectData_->getTileSystem()->setCurrentTile(tile);
+   if (!success)		// try OpenScenario
+   {
+      // Create a Tile
+      Tile *tile = new Tile("Tile0", "0");
+      projectData_->getTileSystem()->addTile(tile);
+      projectData_->getTileSystem()->setCurrentTile(tile);
 
-		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-		if (openScenarioBase)
-		{
-			OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
-			success = oscParser->parseXOSC(fileName);
-		}
+      OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+      if (openScenarioBase)
+      {
+         OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+         success = oscParser->parseXOSC(fileName);
+      }
 
-	}
+   }
 
     topviewGraph_->updateSceneSize();
     delete parser;
@@ -473,7 +473,7 @@ ProjectWidget::loadFile(const QString &fileName)
 bool
 ProjectWidget::loadTile(const QString &fileName)
 {
-    qDebug("Loading Tile from file: " + fileName.toUtf8());
+    qDebug("Loading Tile from file: %s", fileName.toUtf8().constData());
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -481,7 +481,7 @@ ProjectWidget::loadTile(const QString &fileName)
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
                                                   .arg(fileName)
                                                   .arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
 
@@ -503,17 +503,17 @@ ProjectWidget::loadTile(const QString &fileName)
 }
 
 CatalogTreeWidget *
-	ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
+   ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
 {
-	// add a catalog tree
-	//
-	CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
-	QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
-	CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
+   // add a catalog tree
+   //
+   CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
+   QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
+   CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
-	QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
+   QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
 
-	return catalogTree;
+   return catalogTree;
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)
@@ -690,7 +690,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());
-    
+
     bool maximizeCurveRadius = ImportSettings::instance()->maximizeCurveRadius();
 
     double dxs = 0;
@@ -743,7 +743,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
         }
         else
         {
-            
+
             double dxs = XVector[i + len - 1] - XVector[i];
             double dys = YVector[i + len - 1] - YVector[i];
             if(lastLineElement!=NULL) // two line elements should never follow each other. what we have to do is go back a little until we can fit an arc
@@ -847,7 +847,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
                         double currentLen = sqrt(dx*dx + dy*dy);
                         double minLen = std::min(currentLen*0.9,2.5);
                         minLen= std::min(minLen,currentLen);
-                        
+
                         dx = (dx / currentLen) * minLen;
                         dy = (dy / currentLen) * minLen;
                         XVector[i] += dx;
@@ -939,20 +939,20 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     road->setElevationSections(newSections);
     QString typeName="osm:"+osmWay::getTypeName(type)+":"+QString::number(numLanes);
-    
+
     RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
-  
+
     road->superposePrototype(osmPrototype);
     if(maxspeed>=0)
     {
         TypeSection *ts = road->getTypeSection(0);
         if(ts==NULL)
         {
-            // default entry 
+            // default entry
             ts = new TypeSection(0.0, TypeSection::RTP_UNKNOWN);
             road->addTypeSection(ts);
         }
@@ -983,7 +983,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     ts->setRoadType(rt);
 
     roadSystem->addRoad(road); // This may change the ID!
-    
+
     if(bridge)
     {
         Bridge *bridge = new Bridge("osmBridge","","",0,0.0,road->getLength());
@@ -1043,7 +1043,7 @@ ProjectWidget::importIntermapFile(const QString &fileName)
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
                                                   .arg(fileName)
                                                   .arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
     QTextStream in(&file);
@@ -1118,7 +1118,7 @@ ProjectWidget::importCSVFile(const QString &fileName)
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
                                                   .arg(fileName)
                                                   .arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
     QTextStream in(&file);
@@ -1190,12 +1190,12 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
                                                   .arg(fileName)
                                                   .arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
     QTextStream in(&file);
     std::vector<float> segsize;
-    
+
     QString line = in.readLine();
     while (!line.isNull())
     {
@@ -1267,7 +1267,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
     // split road into segments
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Split Track and Road"));
-    
+
     for(int i=0;i<segsize.size();i++)
     {
         if(segsize[i]< road->getLength()-0.5)
@@ -1282,7 +1282,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
     }
 
     getProjectData()->getUndoStack()->endMacro();
-    
+
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("addSignals"));
     file.close();
     if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -1290,7 +1290,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
                                                   .arg(fileName)
                                                   .arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
     QTextStream inf(&file);
@@ -1318,14 +1318,14 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                 }
                 if(strncmp(linestr,"#MARKER",7)==0)
                 {
-                    
+
                     if(strncmp(linestr+8,"TrfSign",7)==0)
                     {
                         float s,t,dummy;
                         char signName[100],signDir[100],unknown[100];
                         int di;
                         float speed;
-                        // #MARKER TrfSign 491.045 0.0 SpeedLimit 0.5 r p M 2.5 0 0 60  0 - M 0 0 - M 0 0 
+                        // #MARKER TrfSign 491.045 0.0 SpeedLimit 0.5 r p M 2.5 0 0 60  0 - M 0 0 - M 0 0
                         sscanf(linestr+16,"%f %f %s %f %s %s %s %f %d %d %f",&s,&dummy,signName,&t, signDir, unknown, unknown, &dummy, &di, &di, &speed);
                         int type=-1;
                         int subType=-1;
@@ -1394,7 +1394,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             type = 114;
                         }
-                        
+
                         Signal::OrientationType dir= Signal::BOTH_DIRECTIONS;
                         if(strcmp(signDir,"r")==0)
                         {
@@ -1413,7 +1413,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
         }
         line = inf.readLine();
     }
-    
+
     getProjectData()->getUndoStack()->endMacro();
 
     topviewGraph_->updateSceneSize();

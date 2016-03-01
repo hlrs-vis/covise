@@ -72,7 +72,7 @@ PrototypeManager::loadPrototypes(const QString &fileName)
 {
     // Print //
     //
-    qDebug("Loading file: " + fileName.toUtf8());
+    qDebug("Loading file: %s", fileName.toUtf8().constData());
 
     // Open file //
     //
@@ -82,7 +82,7 @@ PrototypeManager::loadPrototypes(const QString &fileName)
         //		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
         //		.arg(fileName)
         //		.arg(file.errorString()));
-        qDebug("Loading file failed: " + fileName.toUtf8());
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
 
