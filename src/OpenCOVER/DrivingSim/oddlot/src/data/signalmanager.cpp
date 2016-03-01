@@ -38,7 +38,7 @@
 
 SignalManager::SignalManager(QObject *parent)
     : QObject(parent),
-   selectedSignalContainer_(NULL)
+      selectedSignalContainer_(NULL)
 {
 }
 
@@ -63,83 +63,83 @@ SignalManager::addObject(const QString &country, const QString &name, const QStr
 }
 
 void
-   SignalManager::addCountry(const QString &country)
+SignalManager::addCountry(const QString &country)
 {
-   if (!countries_.contains(country))
-   {
-      countries_.append(country);
-   }
+    if (!countries_.contains(country))
+    {
+        countries_.append(country);
+    }
 }
 
 void
-   SignalManager::addCategory(const QString &category)
+SignalManager::addCategory(const QString &category)
 {
-   if (!categories_.contains(category))
-   {
-      categories_.append(category);
-   }
+    if (!categories_.contains(category))
+    {
+        categories_.append(category);
+    }
 }
 
 ObjectContainer *
 SignalManager::getObjectContainer(const QString &type)
 {
-   QMultiMap<QString, ObjectContainer *>::const_iterator iter = objects_.constBegin();
-   while (iter != objects_.constEnd())
-   {
-      if (iter.value()->getObjectType() == type)
-      {
-         return iter.value();
-      }
-   iter++;
-   }
+    QMultiMap<QString, ObjectContainer *>::const_iterator iter = objects_.constBegin();
+    while (iter != objects_.constEnd())
+    {
+        if (iter.value()->getObjectType() == type)
+        {
+            return iter.value();
+        }
+        iter++;
+    }
 
-   return NULL;
+    return NULL;
 }
 
 QString
 SignalManager::getCountry(SignalContainer *signalContainer)
 {
-   return signals_.key(signalContainer, "");
+    return signals_.key(signalContainer, "");
 
 }
 
 QString
 SignalManager::getCountry(ObjectContainer *objectContainer)
 {
-   return objects_.key(objectContainer, "");
+    return objects_.key(objectContainer, "");
 
 }
 
 SignalContainer *
 SignalManager::getSignalContainer(int type, const QString &typeSubclass, int subType)
 {
-   QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
-   while (iter != signals_.constEnd())
-   {
-      if ((iter.value()->getSignalType() == type) && (iter.value()->getSignalSubType() == subType) && (iter.value()->getSignalTypeSubclass() == typeSubclass))
-      {
-         return iter.value();
-      }
-   iter++;
-   }
+    QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
+    while (iter != signals_.constEnd())
+    {
+        if ((iter.value()->getSignalType() == type) && (iter.value()->getSignalSubType() == subType) && (iter.value()->getSignalTypeSubclass() == typeSubclass))
+        {
+            return iter.value();
+        }
+        iter++;
+    }
 
-   return NULL;
+    return NULL;
 }
 
 SignalContainer *
 SignalManager::getSignalContainer(const QString &name)
 {
-   QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
-   while (iter != signals_.constEnd())
-   {
-      if (iter.value()->getSignalName() == name)
-      {
-         return iter.value();
-      }
-   iter++;
-   }
+    QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
+    while (iter != signals_.constEnd())
+    {
+        if (iter.value()->getSignalName() == name)
+        {
+            return iter.value();
+        }
+        iter++;
+    }
 
-   return NULL;
+    return NULL;
 }
 
 

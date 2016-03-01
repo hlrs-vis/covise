@@ -174,7 +174,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectData_->setVehicleSystem(new VehicleSystem());
     projectData_->setPedestrianSystem(new PedestrianSystem());
     projectData_->setScenerySystem(new ScenerySystem());
-   projectData_->setOSCBase(new OSCBase());
+    projectData_->setOSCBase(new OSCBase());
 
     // VIEW: Graph //
     //
@@ -222,7 +222,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
-   editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
+    editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
 
     // VIEW: Tree //
     //
@@ -339,16 +339,16 @@ ProjectWidget::setEditor(ODD::EditorId id)
             heightGraph_->hide();
         }
 
-      // Signal tree //
-      //
-      if (id == ODD::ESG)
-      {
-         mainWindow_->showSignalsDock(true);
-      }
-      else
-      {
-         mainWindow_->showSignalsDock(false);
-      }
+        // Signal tree //
+        //
+        if (id == ODD::ESG)
+        {
+            mainWindow_->showSignalsDock(true);
+        }
+        else
+        {
+            mainWindow_->showSignalsDock(false);
+        }
 
         topviewGraph_->postEditorChange();
     }
@@ -431,21 +431,21 @@ ProjectWidget::loadFile(const QString &fileName)
     DomParser *parser = new DomParser(projectData_);
     bool success = parser->parseXODR(&file);
 
-   if (!success)		// try OpenScenario
-   {
-      // Create a Tile
-      Tile *tile = new Tile("Tile0", "0");
-      projectData_->getTileSystem()->addTile(tile);
-      projectData_->getTileSystem()->setCurrentTile(tile);
+    if (!success)		// try OpenScenario
+    {
+        // Create a Tile
+        Tile *tile = new Tile("Tile0", "0");
+        projectData_->getTileSystem()->addTile(tile);
+        projectData_->getTileSystem()->setCurrentTile(tile);
 
-      OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-      if (openScenarioBase)
-      {
-         OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
-         success = oscParser->parseXOSC(fileName);
-      }
+        OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+        if (openScenarioBase)
+        {
+            OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+            success = oscParser->parseXOSC(fileName);
+        }
 
-   }
+    }
 
     topviewGraph_->updateSceneSize();
     delete parser;
@@ -503,17 +503,17 @@ ProjectWidget::loadTile(const QString &fileName)
 }
 
 CatalogTreeWidget *
-   ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
+ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
 {
-   // add a catalog tree
-   //
-   CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
-   QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
-   CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
+    // add a catalog tree
+    //
+    CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
+    QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
+    CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
-   QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
+    QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
 
-   return catalogTree;
+    return catalogTree;
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)
