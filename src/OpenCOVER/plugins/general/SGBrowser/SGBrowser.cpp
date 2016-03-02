@@ -229,16 +229,12 @@ SGBrowser::SGBrowser()
     , texvis(NULL)
     , linked(false)
 {
+    assert(plugin == NULL);
+    plugin = this;
 }
 
 bool SGBrowser::init()
 {
-
-    if (plugin)
-        return false;
-
-    plugin = this;
-
     sGBrowserTab = new coTUISGBrowserTab("Scenegraph-Browser", coVRTui::instance()->mainFolder->getID());
     sGBrowserTab->setPos(0, 0);
 
@@ -269,6 +265,8 @@ SGBrowser::~SGBrowser()
     delete texvis;
     delete sGBrowserTab;
     delete restraint;
+
+    plugin = NULL;
 }
 
 void SGBrowser::tabletReleaseEvent(coTUIElement *tUIItem)
