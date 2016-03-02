@@ -1582,6 +1582,7 @@ void SGBrowser::message(int type, int len, const void *buf)
                 if (!switchGroup)
                 {
                     mySwitch = new osg::Switch();
+                    mySwitch->setName("SGBrowser:Switch");
                     if (type == PluginMessageTypes::SGBrowserShowNode)
                         selectionManager->insertHelperNode(parent, myNode, mySwitch, selectionManager->SHOWHIDE, true);
                     else

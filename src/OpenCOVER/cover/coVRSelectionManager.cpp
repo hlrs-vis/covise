@@ -422,6 +422,7 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
         {
             // apply material
             selectionNode = new osg::Group();
+            selectionNode->setName("Selection:Filled");
             osg::StateSet *ss = selectionNode->getOrCreateStateSet();
             osg::PolygonMode *polymode = new osg::PolygonMode();
             polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL);
@@ -441,6 +442,7 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
         {
             // apply material
             selectionNode = new osg::Group();
+            selectionNode->setName("Selection:Wire-Sel");
             osg::StateSet *ss = selectionNode->getOrCreateStateSet();
             osg::PolygonMode *polymode = new osg::PolygonMode();
             polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
@@ -451,6 +453,7 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
         {
             // apply material
             selectionNode = new osg::Group();
+            selectionNode->setName("Selection:Wire-Obj");
             osg::StateSet *ss = selectionNode->getOrCreateStateSet();
             osg::PolygonMode *polymode = new osg::PolygonMode();
             polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
@@ -468,6 +471,7 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
     else
     {
         selectionNode = new osg::Group();
+        selectionNode->setName("Selection:None");
     }
 
     /*if(!existNode)*/
