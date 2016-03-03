@@ -569,6 +569,10 @@ std::string getFoamHeader(std::istream &stream)
            break;
         std::string line;
         std::getline(stream, line);
+        if (boost::algorithm::starts_with(line, "boundaryField"))
+        {
+            std::cerr << "Current line is boundaryFields, most probably we just skipped internalField which is not given by a nonuniform List as expected "<< std::endl;
+        }
         header.append(line);
         header.append("\n");
     }
@@ -945,6 +949,7 @@ std::istream &operator>>(std::istream &stream, std::vector<T> &vec)
     return stream;
 }
 
+
 template <typename D>
 bool readArrayChunkBinary(std::istream &stream, D *buf, const size_t num)
 {
@@ -1034,6 +1039,19 @@ bool readArrayBinary(std::istream &stream, T *p, const size_t lines)
 }
 
 template <typename T>
+bool readListBinary(std::istream &stream, std::vector<T> &vec)
+{
+
+    size_t n;
+    stream >> n;
+    stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+    vec.resize(n);
+    readArrayBinary(stream, &vec[0], n);
+    stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+    return stream.good();
+}
+
+template <typename T>
 bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
 {
     for (size_t i = 0; i < lines; ++i)
@@ -1042,6 +1060,22 @@ bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
         if (!stream.good())
         {
            std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
+           return false;
+        }
+    }
+    expect('\n');
+    return stream.good();
+}
+
+template <typename T>
+bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const size_t lines)
+{
+    for (size_t i = 0; i < lines; ++i)
+    {
+        readListBinary(stream, p[i]);
+        if (!stream.good())
+        {
+           std::cerr << "readIndexListArrayBinary: failure at element " << i << " of " << lines << std::endl;
            return false;
         }
     }
@@ -1078,13 +1112,13 @@ bool readIndexArray(const HeaderInfo &info, std::istream &stream, index_t *p, co
 }
 
 template <typename T>
-bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const size_t lines)
+bool readIndexCompactListArrayBinary(std::istream &stream, std::vector<T> *p, const size_t lines)
 {
     expect('(');
     std::vector<FoamIndex> faceIndex(lines);
     if (!readArrayBinary<FoamIndex>(stream, &faceIndex[0], lines))
     {
-        std::cerr << "readIndexListArrayBinary: readArrayBinary<FoamIndex> for index array failed" << std::endl;
+        std::cerr << "readIndexCompactListArrayBinary: readArrayBinary<FoamIndex> for index array failed" << std::endl;
         return false;
     }
     expect(')');
@@ -1095,7 +1129,7 @@ bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const siz
     const size_t totalIndices = atol(line.c_str());
     if (faceIndex[lines-1] != totalIndices)
     {
-        std::cerr << "readIndexListArrayBinary: expecting last faceIndex[" << lines-1 << "] == " << totalIndices << std::endl;
+        std::cerr << "readIndexCompactListArrayBinary: expecting last faceIndex[" << lines-1 << "] == " << totalIndices << std::endl;
         return false;
     }
 
@@ -1106,7 +1140,7 @@ bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const siz
        p[i].resize(n);
        if (!readArrayBinary<index_t>(stream, &p[i][0], n))
        {
-           std::cerr << "readIndexListArrayBinary: readArrayBinary<index_t> failed to read index list " << i << std::endl;
+           std::cerr << "readIndexCompactListArrayBinary: readArrayBinary<index_t> failed to read index list " << i << std::endl;
            return false;
        }
     }
@@ -1127,7 +1161,14 @@ bool readIndexListArray(const HeaderInfo &info, std::istream &stream, std::vecto
    {
       if (info.fieldclass == "faceCompactList")
       {
-         return readIndexListArrayBinary<index_t>(stream, p, lines);
+         return readIndexCompactListArrayBinary<index_t>(stream, p, lines);
+      }
+      else if (info.fieldclass == "faceList")
+      {
+          expect('(');
+          if(!readIndexListArrayBinary<index_t>(stream, p, lines))
+              return false;
+          expect(')');
       }
       else
       {
