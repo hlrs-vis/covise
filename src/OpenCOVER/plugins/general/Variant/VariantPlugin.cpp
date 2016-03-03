@@ -48,6 +48,9 @@ coRowMenu *VariantPlugin::variants_menu = NULL;
 
 VariantPlugin::VariantPlugin()
 {
+    assert(plugin == NULL);
+    plugin = this;
+
     interActing = false;
     _interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "MoveMode", coInteraction::Medium);
     tmpVec.set(1, 1, 1);
@@ -57,22 +60,18 @@ VariantPlugin::VariantPlugin()
 
 bool VariantPlugin::init()
 {
-    fprintf(stderr, "VariantPlugin::VariantPlugin\n");
-    if (plugin)
-    {
-        fprintf(stderr, "already have an instance of VariantPlugin\n");
-    }
-    plugin = this;
+    cover->addPlugin("SGBrowser"); // required for hiding/showing nodes
+
     cover_menu = NULL;
     VRMenu *menu = VRPinboard::instance()->namedMenu("COVER");
     if (menu)
     {
         cover_menu = menu->getCoMenu();
-        button = new coSubMenuItem("Variant");
-        variant_menu = new coRowMenu("variants");
+        button = new coSubMenuItem("Variants");
+        variant_menu = new coRowMenu("Variants");
 
-        variants = new coSubMenuItem("variants");
-        variants_menu = new coRowMenu("variants");
+        variants = new coSubMenuItem("Variants");
+        variants_menu = new coRowMenu("Variants");
         variants->setMenu(variants_menu);
         variants->setMenuListener(this);
 
@@ -80,21 +79,21 @@ bool VariantPlugin::init()
         button->setMenu(variants_menu);
         cover_menu->add(button);
 
-        options = new coSubMenuItem("options");
-        options_menu = new coRowMenu("options");
+        options = new coSubMenuItem("Options");
+        options_menu = new coRowMenu("Options");
         options->setMenu(options_menu);
-        showHideLabels = new coCheckboxMenuItem("show Labels", false);
+        showHideLabels = new coCheckboxMenuItem("Show Labels", false);
         showHideLabels->setMenuListener(this);
         options_menu->add(showHideLabels);
         variants_menu->add(options);
 
-        roi = new coSubMenuItem("region of Interest");
-        roi_menue = new coRowMenu("region of Interest");
+        roi = new coSubMenuItem("Region of Interest");
+        roi_menue = new coRowMenu("Region of Interest");
         roi->setMenu(roi_menue);
-        define_roi = new coCheckboxMenuItem("define", false);
+        define_roi = new coCheckboxMenuItem("Define", false);
         define_roi->setMenuListener(this);
         roi_menue->add(define_roi);
-        active_roi = new coCheckboxMenuItem("active", false);
+        active_roi = new coCheckboxMenuItem("Active", false);
         active_roi->setMenuListener(this);
         roi_menue->add(active_roi);
         variants_menu->add(roi);
@@ -102,9 +101,9 @@ bool VariantPlugin::init()
 
     coVRSelectionManager::instance()->addListener(this);
     //tuTab
-    VariantPluginTab = new coTUITab("Variant", coVRTui::instance()->mainFolder->getID());
+    VariantPluginTab = new coTUITab("Variants", coVRTui::instance()->mainFolder->getID());
     VariantPluginTab->setPos(0, 0);
-    coTUILabel *lbl_VariantPlugins = new coTUILabel("Variant", VariantPluginTab->getID());
+    coTUILabel *lbl_VariantPlugins = new coTUILabel("Variants", VariantPluginTab->getID());
     lbl_VariantPlugins->setPos(0, 0);
     coTUIToggleButton *lbl_X = new coTUIToggleButton("X-trans", VariantPluginTab->getID());
     lbl_X->setPos(1, 0);
@@ -117,16 +116,16 @@ bool VariantPlugin::init()
     lbl_Z->setEventListener(this);
     coTUILabel *space = new coTUILabel("                     ", VariantPluginTab->getID());
     space->setPos(4, 0);
-    saveXML = new coTUIFileBrowserButton("save", VariantPluginTab->getID());
+    saveXML = new coTUIFileBrowserButton("Save", VariantPluginTab->getID());
     saveXML->setPos(5, 0);
     saveXML->setEventListener(this);
     saveXML->setFilterList("*.xml");
-    readXML = new coTUIFileBrowserButton("read", VariantPluginTab->getID());
+    readXML = new coTUIFileBrowserButton("Read", VariantPluginTab->getID());
     readXML->setPos(5, 1);
     readXML->setEventListener(this);
     readXML->setFilterList("*.xml");
 
-    tui_showLabel = new coTUIToggleButton("show Labels", VariantPluginTab->getID());
+    tui_showLabel = new coTUIToggleButton("Show Labels", VariantPluginTab->getID());
     tui_showLabel->setPos(6, 0);
     tui_showLabel->setState(false);
     tui_showLabel->setEventListener(this);
@@ -174,55 +173,6 @@ VariantPlugin::~VariantPlugin()
 
     delete VariantPluginTab;
     delete boi;
-}
-//------------------------------------------------------------------------------------------------------------------------------
-
-void VariantPlugin::newInteractor(RenderObject *container, coInteractor *i)
-{
-    (void)container;
-    (void)i;
-    //fprintf ( stderr,"VariantPlugin::newInteractor\n" );
-}
-//------------------------------------------------------------------------------------------------------------------------------
-
-void VariantPlugin::addObject(RenderObject *container,
-                              RenderObject *obj, RenderObject *normObj,
-                              RenderObject *colorObj, RenderObject *texObj,
-                              osg::Group *root,
-                              int numCol, int colorBinding, int colorPacking,
-                              float *r, float *g, float *b, int *packedCol,
-                              int numNormals, int normalBinding,
-                              float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
-    //fprintf ( stderr,"VariantPlugin::addObject\n" );
-}
-//------------------------------------------------------------------------------------------------------------------------------
-
-void
-VariantPlugin::removeObject(const char *objName, bool replace)
-{
-    (void)objName;
-    (void)replace;
-    //fprintf ( stderr,"VariantPlugin::removeObject\n" );
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
