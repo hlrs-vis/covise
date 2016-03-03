@@ -584,14 +584,6 @@
 
             <maneuver name="sdhjhjty">
 
-              <fileHeader revMajor="1" revMinor="0" date="2016-01-22T13:55:00+01:00" description="maneuver 1 - testScenario" author="MK">
-                <userDataList>
-                  <userData code="jty" value="fgj7i"/>
-                  <userData code="h56u56" value="ir6qw"/>
-                  <userData code="bnhkug" value="ffdhyr"/>
-                </userDataList>
-              </fileHeader>
-
               <parameterList>
                 <parameter name="iuhs" value="gkyu"/>
                 <parameter name="gdser" value="sdf"/>
@@ -863,13 +855,6 @@
             </refActors>
 
             <maneuver name="kuiore">
-
-              <fileHeader revMajor="1" revMinor="0" date="2016-01-22T15:55:00+01:00" description="maneuver 2 - testScenario" author="MK">
-                <userDataList>
-                  <userData code="vbnd" value="a34"/>
-                  <userData code="dfgh76" value="af46"/>
-                </userDataList>
-              </fileHeader>
 
               <parameterList>
                 <parameter name="sg" value="gfd"/>

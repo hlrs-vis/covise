@@ -395,7 +395,7 @@
 
 <xsd:complexType name="OSCManeuver">
     <xsd:all>
-        <xsd:element name="fileHeader" type="OSCFileHeader"/>
+        <xsd:element name="fileHeader" type="OSCFileHeader" minOccurs="0" maxOccurs="1"/>
         <xsd:element name="parameterList">
             <xsd:complexType>
                 <xsd:sequence>
