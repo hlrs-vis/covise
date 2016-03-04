@@ -70,10 +70,10 @@ void XMLConfigWriter::numPipesWindowsScreensStereo(const int& pipes,
    QDomElement numPipes = findCreateSpecElem(gCover, "NumPipes");
    numPipes.setAttribute("value", pipes);
 
-   QDomElement numWindows = findCreateSpecElem(gCover, "numWindows");
+   QDomElement numWindows = findCreateSpecElem(gCover, "NumWindows");
    numWindows.setAttribute("value", windows);
 
-   QDomElement numScreens = findCreateSpecElem(gCover, "numScreens");
+   QDomElement numScreens = findCreateSpecElem(gCover, "NumScreens");
    numScreens.setAttribute("value", screens);
 
    QDomElement stereo = findCreateSpecElem(gCover, "Stereo");
