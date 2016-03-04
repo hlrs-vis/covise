@@ -31,29 +31,50 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
+void oscSourceFile::setSrcFileHref(const bf::path &sfhr)
+{
+    srcFileHref = convertToGenericFormat(sfhr);
+}
+
 void oscSourceFile::setSrcFileHref(const std::string &sfhr)
 {
-    srcFileHref = sfhr;
+    srcFileHref = convertToGenericFormat(sfhr);
 }
 
 void oscSourceFile::setSrcFileHref(const XMLCh *sfhr)
 {
-    srcFileHref = xercesc::XMLString::transcode(sfhr);
+    std::string tmp_sfhr = xercesc::XMLString::transcode(sfhr);
+    srcFileHref = convertToGenericFormat(tmp_sfhr);
+}
+
+void oscSourceFile::setSrcFileName(const bf::path &sfn)
+{
+    srcFileName = convertToGenericFormat(sfn);
 }
 
 void oscSourceFile::setSrcFileName(const std::string &sfn)
 {
-    srcFileName = sfn;
+    srcFileName = convertToGenericFormat(sfn);
+}
+
+void oscSourceFile::setMainDocPath(const bf::path &mdp)
+{
+    mainDocPath = convertToGenericFormat(mdp);
 }
 
 void oscSourceFile::setMainDocPath(const std::string &mdp)
 {
-    mainDocPath = mdp;
+    mainDocPath = convertToGenericFormat(mdp);
+}
+
+void oscSourceFile::setRelPathFromMainDoc(const bf::path &rpfmd)
+{
+    relPathFromMainDoc = convertToGenericFormat(rpfmd);
 }
 
 void oscSourceFile::setRelPathFromMainDoc(const std::string &rpfmd)
 {
-    relPathFromMainDoc = rpfmd;
+    relPathFromMainDoc = convertToGenericFormat(rpfmd);
 }
 
 void oscSourceFile::setRootElementName(const std::string &ren)
@@ -75,7 +96,7 @@ void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
 //
 std::string oscSourceFile::getSrcFileHrefAsStr() const
 {
-    return srcFileHref;
+    return srcFileHref.generic_string();
 }
 
 const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
@@ -83,17 +104,17 @@ const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
     return xercesc::XMLString::transcode(srcFileHref.c_str());
 }
 
-std::string oscSourceFile::getSrcFileName() const
+bf::path oscSourceFile::getSrcFileName() const
 {
     return srcFileName;
 }
 
-std::string oscSourceFile::getMainDocPath() const
+bf::path oscSourceFile::getMainDocPath() const
 {
     return mainDocPath;
 }
 
-std::string oscSourceFile::getRelPathFromMainDoc() const
+bf::path oscSourceFile::getRelPathFromMainDoc() const
 {
     return relPathFromMainDoc;
 }
@@ -115,9 +136,8 @@ xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
 
 
 //
-fileNamePath *oscSourceFile::getFileNamePath(const std::string &fnp)
+bf::path oscSourceFile::getFileNamePath(const std::string &fnp)
 {
-    fileNamePath *fileNP = new fileNamePath();
     const std::string FILE = "file://";
     std::string fnpToUse;
 
@@ -132,19 +152,22 @@ fileNamePath *oscSourceFile::getFileNamePath(const std::string &fnp)
         fnpToUse = fnp;
     }
 
-    //find last slash as delimiter (between path and filename)
-    size_t delimiter = fnpToUse.find_last_of("/");
-    if (delimiter == std::string::npos)
-    {
-        fileNP->fileName = fnpToUse;
-        fileNP->path = "";
-    }
-    else
-    {
-        fileNP->fileName = fnpToUse.substr(delimiter + 1);
-        //set path with slash as delimiter at the end
-        fileNP->path = fnpToUse.substr(0, delimiter + 1);
-    }
+    return convertToGenericFormat(fnpToUse);
+}
 
-    return fileNP;
+
+
+/*****
+ * private functions
+ *****/
+
+bf::path oscSourceFile::convertToGenericFormat(const bf::path &boostPath)
+{
+    return boostPath.generic_string();
+}
+
+bf::path oscSourceFile::convertToGenericFormat(const std::string &strPath)
+{
+    bf::path pathName = strPath;
+    return pathName.generic_string();
 }

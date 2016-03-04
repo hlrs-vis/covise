@@ -75,7 +75,7 @@ oscMemberCatalog::~oscMemberCatalog()
 std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path &pathToDirectory)
 {
     //output vector
-    std::vector<bf::path> filenames;
+    std::vector<bf::path> fileNames;
 
     try
     {
@@ -86,18 +86,18 @@ std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path
                 //bf::recursive_directory_iterator() constructs the end iterator
                 for (bf::recursive_directory_iterator it(pathToDirectory); it != bf::recursive_directory_iterator(); it++)
                 {
-                    bf::path name = it->path();
+                    bf::path contentName = it->path();
 
-                    if (bf::is_regular_file(name))
+                    if (bf::is_regular_file(contentName))
                     {
-                        std::string lowerName = name.string();
+                        std::string lowerName = contentName.generic_string();
                         ba::to_lower(lowerName);
                         std::string extension = ".xosc";
                         std::size_t startPos = lowerName.size() - extension.size();
 
                         if (lowerName.compare(startPos, std::string::npos, extension) == 0)
                         {
-                            filenames.push_back(name);
+                            fileNames.push_back(contentName);
                         }
                     }
                 }
@@ -117,7 +117,7 @@ std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path
         std::cerr << "getXoscFilesFromDirectory(): " << fse.what() << std::endl;
     }
 
-    return filenames;
+    return fileNames;
 }
 
 void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
@@ -126,7 +126,7 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
 
     for (size_t i = 0; i < filenames.size(); i++)
     {
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].string(), m_catalogType);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogType);
 
         if (rootElem)
         {
@@ -260,7 +260,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
 
         //in fullReadCatalogObjectWithName no validation should be done,
         //because during fastReadCatalogObjects validation is done
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.string(), m_catalogType, false);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogType, false);
         if (rootElem)
         {
             std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
@@ -271,16 +271,17 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
                 if (found != m_catalogTypeToTypeName.end())
                 {
                     //sourceFile for objectName
-                    oscSourceFile * srcFile = new oscSourceFile;
-                    fileNamePath *fnPath = srcFile->getFileNamePath(filePath.string());
+                    oscSourceFile *srcFile = new oscSourceFile();
                     //
                     //if filePath is absolute, it must be checked during write: TODO!
                     //
-                    srcFile->setSrcFileHref(filePath.string());
-                    srcFile->setSrcFileName(fnPath->fileName);
+                    srcFile->setSrcFileHref(filePath);
+                    srcFile->setSrcFileName(filePath.filename());
                     srcFile->setMainDocPath(owner->getSource()->getMainDocPath());
                     //if relative paths are used
-                    srcFile->setRelPathFromMainDoc(owner->getSource()->getRelPathFromMainDoc() + fnPath->path);
+                    bf::path relPathFromMainDoc = owner->getSource()->getRelPathFromMainDoc();
+                    relPathFromMainDoc /= filePath.parent_path();
+                    srcFile->setRelPathFromMainDoc(relPathFromMainDoc);
                     srcFile->setRootElementName(rootElemName);
 
                     //object for objectName

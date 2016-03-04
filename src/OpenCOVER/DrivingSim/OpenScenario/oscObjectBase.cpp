@@ -515,30 +515,30 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
         newSrc->setSrcFileHref(memElemAttrXmlBase->getValue());
 
         //filename and path
-        fileNamePath *fnPath = newSrc->getFileNamePath(newSrc->getSrcFileHrefAsStr());
+        bf::path fnPath = newSrc->getFileNamePath(newSrc->getSrcFileHrefAsStr());
 
         //new srcFileName
-        newSrc->setSrcFileName(fnPath->fileName);
+        newSrc->setSrcFileName(fnPath.filename());
 
         //new mainDocPath and relPathFromMainDoc
         if (base->getSrcFileVec().size() == 1) //only sourceFile of OpenScenario is present
         {
             newSrc->setMainDocPath(base->source->getMainDocPath());
-            newSrc->setRelPathFromMainDoc(fnPath->path);
+            newSrc->setRelPathFromMainDoc(fnPath.parent_path());
         }
         else
         {
             newSrc->setMainDocPath(srcF->getMainDocPath());
 
-            std::string srcRelPathFromMainDoc = srcF->getRelPathFromMainDoc();
-            std::string newSrcRelPathFromMainDoc = fnPath->path;
+            bf::path srcRelPathFromMainDoc = srcF->getRelPathFromMainDoc();
+            bf::path newSrcRelPathFromMainDoc = fnPath.parent_path();
 
-            std::string relPathFromMainDocToUse;
-            if (srcRelPathFromMainDoc == "")
+            bf::path relPathFromMainDocToUse;
+            if (srcRelPathFromMainDoc.empty())
             {
-                if (newSrcRelPathFromMainDoc == "")
+                if (newSrcRelPathFromMainDoc.empty())
                 {
-                    relPathFromMainDocToUse = "";
+                    relPathFromMainDocToUse = bf::path();
                 }
                 else
                 {
@@ -547,13 +547,14 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
             }
             else
             {
-                if (newSrcRelPathFromMainDoc == "")
+                if (newSrcRelPathFromMainDoc.empty())
                 {
                     relPathFromMainDocToUse = srcRelPathFromMainDoc;
                 }
                 else
                 {
-                    relPathFromMainDocToUse = srcRelPathFromMainDoc + newSrcRelPathFromMainDoc;
+                    relPathFromMainDocToUse = srcRelPathFromMainDoc;
+                    relPathFromMainDocToUse /= newSrcRelPathFromMainDoc;
                 }
             }
 

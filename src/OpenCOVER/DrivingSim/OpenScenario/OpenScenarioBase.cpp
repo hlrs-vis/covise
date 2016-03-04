@@ -186,18 +186,19 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     for (int i = 0; i < srcFileVec.size(); i++)
     {
         //get the relative path from main doc to the file to write
-        std::string relFilePath = srcFileVec[i]->getRelPathFromMainDoc();
+        bf::path relFilePath = srcFileVec[i]->getRelPathFromMainDoc();
         //get the file name to write
-        std::string srcFileName = srcFileVec[i]->getSrcFileName();
+        bf::path srcFileName = srcFileVec[i]->getSrcFileName();
 
         //for testing: generate a new filename
         if (srcFileName != fileName)
         {
-            srcFileName = srcFileName + "_out.xml";
+            srcFileName += "_out.xml";
         }
 
         //file name and path for writing
-        std::string pathFileNameToWrite = relFilePath + srcFileName;
+        bf::path pathFileNameToWrite = relFilePath;
+        pathFileNameToWrite /= srcFileName;
 
         //xml document to write
         xercesc::DOMDocument *xmlSrcDoc = srcFileVec[i]->getXmlDoc();
@@ -442,12 +443,12 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
     source = new oscSourceFile();
-    source->setSrcFileHref("");
+    source->setSrcFileHref(bf::path());
     std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
-    fileNamePath *fnPath = source->getFileNamePath(fileNamePathStr);
-    source->setSrcFileName(fnPath->fileName);
-    source->setMainDocPath(fnPath->path);
-    source->setRelPathFromMainDoc("");
+    bf::path fnPath = source->getFileNamePath(fileNamePathStr);
+    source->setSrcFileName(fnPath.filename());
+    source->setMainDocPath(fnPath.parent_path());
+    source->setRelPathFromMainDoc(bf::path());
     source->setRootElementName(rootElement->getNodeName());
     addToSrcFileVec(source);
 

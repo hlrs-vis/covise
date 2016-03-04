@@ -18,17 +18,6 @@ namespace OpenScenario
 {
 
 //
-struct fileNamePath
-{
-    fileNamePath() { };
-    ~fileNamePath() { };
-
-    std::string fileName;
-    std::string path;
-};
-
-
-//
 class ParserErrorHandler: public xercesc::ErrorHandler
 {
 public:
