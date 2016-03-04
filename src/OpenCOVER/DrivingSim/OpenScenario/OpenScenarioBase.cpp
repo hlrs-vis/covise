@@ -185,19 +185,32 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        //get the relative path from main doc to the file to write
-        bf::path relFilePath = srcFileVec[i]->getRelPathFromMainDoc();
+        bf::path absRelPathToFile;
+
+        if (srcFileVec[i]->getSrcFileHref().is_absolute())
+        {
+            absRelPathToFile = srcFileVec[i]->getSrcFileHref().parent_path();
+        }
+        else
+        {
+            absRelPathToFile = srcFileVec[i]->getRelPathFromMainDoc();
+        }
+
         //get the file name to write
         bf::path srcFileName = srcFileVec[i]->getSrcFileName();
 
+        //////
         //for testing: generate a new filename
+        //
         if (srcFileName != fileName)
         {
             srcFileName += "_out.xml";
         }
+        //
+        //////
 
         //file name and path for writing
-        bf::path pathFileNameToWrite = relFilePath;
+        bf::path pathFileNameToWrite = absRelPathToFile;
         pathFileNameToWrite /= srcFileName;
 
         //xml document to write

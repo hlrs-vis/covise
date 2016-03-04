@@ -104,6 +104,11 @@ const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
     return xercesc::XMLString::transcode(m_srcFileHref.c_str());
 }
 
+bf::path oscSourceFile::getSrcFileHref() const
+{
+    return m_srcFileHref;
+}
+
 bf::path oscSourceFile::getSrcFileName() const
 {
     return m_srcFileName;

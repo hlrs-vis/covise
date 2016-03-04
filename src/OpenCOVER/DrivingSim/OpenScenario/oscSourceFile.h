@@ -30,11 +30,11 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscSourceFile
 {
 protected:
-    bf::path m_srcFileHref; ///< reference to the file that is imported (relative path from parent and filename)
+    bf::path m_srcFileHref; ///< reference to the file that is imported (relative path from parent or absolute path and filename)
     bf::path m_srcFileName; ///< filename of the imported file
-    bf::path m_mainDocPath; ///< absolute path to the main document
+    bf::path m_mainDocPath; ///< absolute path to the main document (file with root element OpenSCENARO)
     bf::path m_relPathFromMainDoc; ///< path from the location of main xosc document to the imported file
-    std::string m_rootElementName; ///< of the file that is read in
+    std::string m_rootElementName; ///< root element of the file that is read in
     xercesc::DOMDocument *m_xmlDoc;
 
 public:
@@ -56,6 +56,7 @@ public:
 
     std::string getSrcFileHrefAsStr() const;
     const XMLCh *getSrcFileHrefAsXmlCh() const;
+    bf::path getSrcFileHref() const;
     bf::path getSrcFileName() const;
     bf::path getMainDocPath() const;
     bf::path getRelPathFromMainDoc() const;

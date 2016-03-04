@@ -413,7 +413,8 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 if (cm)
                 {
                     //catalog type
-                    std::string catalogType = cm->getName().erase(cm->getName().length() - std::string("Catalog").length());
+                    std::string catalogType = cm->getName();
+                    catalogType.erase(catalogType.length() - std::string("Catalog").length());
                     cm->setCatalogType(catalogType);
 
                     //path to directory
@@ -425,26 +426,12 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
                     bf::path pathToCatalogDir(pathMemberStrVal->getValue());
 
-                    //
-                    //path has to be checked: TODO!
-                    // it can be a absolute path
-                    // or relative to the path of the file which the XML element memberElem contains
-                    //
-                    //maybe it is not important for writing the files:
-                    // then the pathToCatalogDir is used as sourceFilePath and with an empty relPathFromMainDoc
-                    //
-
-                    //for now it is assumed that
-                    //the binary oscTest and testScenario.xosc are in the same directory,
-                    // the path is relative to testScenario.xosc and
-                    // the element catalog and its children are part of this file and not included
+                    //get all catalog object filenames
                     std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDir);
 
-
-                    //parse file
+                    //parse all files
                     //store object name and filename in map
                     cm->fastReadCatalogObjects(filenames);
-
 
                     //////
                     //for testing only

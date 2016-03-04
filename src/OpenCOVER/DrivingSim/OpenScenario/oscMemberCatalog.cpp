@@ -272,15 +272,21 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
                 {
                     //sourceFile for objectName
                     oscSourceFile *srcFile = new oscSourceFile();
-                    //
-                    //if filePath is absolute, it must be checked during write: TODO!
-                    //
+
+                    //set variables for srcFile, differentiate between absolute and relative path for catalog object
                     srcFile->setSrcFileHref(filePath);
                     srcFile->setSrcFileName(filePath.filename());
                     srcFile->setMainDocPath(owner->getSource()->getMainDocPath());
-                    //if relative paths are used
-                    bf::path relPathFromMainDoc = owner->getSource()->getRelPathFromMainDoc();
-                    relPathFromMainDoc /= filePath.parent_path();
+                    bf::path relPathFromMainDoc;
+                    if (filePath.is_absolute())
+                    {
+                        relPathFromMainDoc = bf::path();
+                    }
+                    else
+                    {
+                        relPathFromMainDoc = owner->getSource()->getRelPathFromMainDoc();
+                        relPathFromMainDoc /= filePath.parent_path();
+                    }
                     srcFile->setRelPathFromMainDoc(relPathFromMainDoc);
                     srcFile->setRootElementName(rootElemName);
 
