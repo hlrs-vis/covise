@@ -5,14 +5,12 @@
 
  * License: LGPL 2+ */
 
-#ifndef YAC
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 #include "alg/coComplexModules.h"
 #include "covise/covise_objalg.h"
 #include <api/coFeedback.h>
 #include <util/coWristWatch.h>
 #include <do/coDoGeometry.h>
-#endif
 #include <do/coDoPoints.h>
 #include <util/coviseCompat.h>
 #include <config/CoviseConfig.h>

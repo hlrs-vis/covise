@@ -16,7 +16,6 @@ SET(CORE_SOURCES
   covise_process.cpp
   covise_signal.cpp
   covise_time.cpp
-  covise_version.cpp
   covise_msg.cpp
 )
 
@@ -25,7 +24,6 @@ SET(CORE_HEADERS
   covise_appproc.h
   covise_objalg.h
   Covise_Util.h
-  covise_version.h
   covise_converter.h
   covise_conv.h
   covise_process.h
@@ -34,9 +32,6 @@ SET(CORE_HEADERS
   covise_msg.h
   covise.h
 )
-
-# generate covise_version_autogen.h
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/covise_version_autogen.h.in" "${CMAKE_CURRENT_BINARY_DIR}/covise_version_autogen.h" @ONLY)
 
 ADD_COVISE_LIBRARY(coCore ${COVISE_LIB_TYPE} ${CORE_SOURCES} ${CORE_HEADERS})
 TARGET_LINK_LIBRARIES(coCore coConfig coNet coShm ${EXTRA_LIBS})

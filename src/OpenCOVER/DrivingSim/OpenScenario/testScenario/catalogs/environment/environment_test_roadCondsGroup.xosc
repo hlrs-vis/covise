@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roadConditionsGroup frictionScale="7.452" xmlns:osc="http://www.w3.org/2001/XInclude">
+  <roadConditions>
+
+    <roadCondition effect="dirt" intensity="0.7"/>
+    <roadCondition effect="leaves" intensity="0.45"/>
+    <roadCondition effect="oil" intensity="0.2"/>
+
+    <osc:include href="environment_test_roadCond-1.xosc"/>
+
+    <osc:include href="environment_test_roadCond-2.xosc"/>
+
+  </roadConditions>
+</roadConditionsGroup>

@@ -26,7 +26,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(cancelConditions, "oscCancelConditionsTypeA");
     };
 
-    oscCancelConditionsTypeAArrayMember cancelConditions;
+    oscCancelConditionsTypeAMemberArray cancelConditions;
 };
 
 typedef oscObjectVariable<oscCancelConditionsGroupTypeA *> oscCancelConditionsGroupTypeAMember;

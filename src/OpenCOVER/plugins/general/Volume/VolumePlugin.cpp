@@ -74,7 +74,7 @@ VolumePlugin::Volume::Volume()
     std::string rendererName = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.Renderer");
     std::string voxType = covise::coCoviseConfig::getEntry("voxelType", "COVER.Plugin.Volume.Renderer");
 
-    drawable = new coVolumeDrawable(rendererName, voxType);
+    drawable = new virvo::VolumeDrawable(rendererName, voxType);
     drawable->enableFlatDisplay(coVRConfig::instance()->haveFlatDisplay());
     drawable->setROIPosition(Vec3(0., 0., 0.));
 
@@ -114,7 +114,7 @@ VolumePlugin::Volume::Volume()
     preIntegration = false;
     lighting = false;
     interpolation = true;
-    blendMode = coVolumeDrawable::AlphaBlend;
+    blendMode = virvo::VolumeDrawable::AlphaBlend;
 }
 
 /** This creates an empty icon texture.
@@ -1087,7 +1087,7 @@ void VolumePlugin::message(int type, int len, const void *buf)
         {
             currentVolume->second.roiPosObj.set(pd->x, pd->y, pd->z);
 
-            coVolumeDrawable *drawable = getCurrentDrawable();
+            virvo::VolumeDrawable *drawable = getCurrentDrawable();
             if (drawable)
             {
                 drawable->setROIPosition(currentVolume->second.roiPosObj);
@@ -1375,7 +1375,7 @@ void VolumePlugin::cropVolume()
     if (currentVolume == volumes.end())
         return;
 
-    coVolumeDrawable *drawable = currentVolume->second.drawable.get();
+    virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
     if (!drawable)
         return;
 
@@ -1442,7 +1442,7 @@ void VolumePlugin::saveVolume()
     if (currentVolume == volumes.end())
         return;
 
-    coVolumeDrawable *drawable = currentVolume->second.drawable.get();
+    virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
     if (!drawable)
         return;
 
@@ -1541,7 +1541,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, const st
         volume = volumes.find(name);
     }
 
-    coVolumeDrawable *drawable = volume->second.drawable.get();
+    virvo::VolumeDrawable *drawable = volume->second.drawable.get();
     if (vd != drawable->getVolumeDescription())
     {
         VRViewer::instance()->culling(false);
@@ -1568,7 +1568,7 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
 {
     if (currentVolume != volumes.end())
     {
-        coVolumeDrawable *drawable = currentVolume->second.drawable.get();
+        virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
         if (drawable)
             drawable->setBoundariesActive(false);
         const int curChan = editor->getActiveChannel();
@@ -1578,7 +1578,7 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
     currentVolume = it;
     if (currentVolume != volumes.end())
     {
-        coVolumeDrawable *drawable = currentVolume->second.drawable.get();
+        virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
         drawable->setBoundariesActive(true);
         Vec3 &roiPosObj = currentVolume->second.roiPosObj;
         Vec3 &min = currentVolume->second.min;
@@ -1599,7 +1599,7 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
         boundItem->setState(currentVolume->second.boundaries);
         interpolItem->setState(currentVolume->second.interpolation);
 
-        if (currentVolume->second.blendMode == coVolumeDrawable::AlphaBlend)
+        if (currentVolume->second.blendMode == virvo::VolumeDrawable::AlphaBlend)
         {
             alphaDefBlendItem->setState(backgroundColor == BgDefault);
             alphaDarkBlendItem->setState(backgroundColor == BgDark);
@@ -1611,8 +1611,8 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
             alphaDarkBlendItem->setState(false);
             alphaLightBlendItem->setState(false);
         }
-        maxIntensityItem->setState(currentVolume->second.blendMode == coVolumeDrawable::MaximumIntensity);
-        minIntensityItem->setState(currentVolume->second.blendMode == coVolumeDrawable::MinimumIntensity);
+        maxIntensityItem->setState(currentVolume->second.blendMode == virvo::VolumeDrawable::MaximumIntensity);
+        minIntensityItem->setState(currentVolume->second.blendMode == virvo::VolumeDrawable::MinimumIntensity);
 
         std::string displayName = currentVolume->second.filename;
         std::string::size_type slash = displayName.rfind('/');
@@ -1710,7 +1710,7 @@ void VolumePlugin::preFrame()
 
     if (editor)
     {
-        coVolumeDrawable *drawable = getCurrentDrawable();
+        virvo::VolumeDrawable *drawable = getCurrentDrawable();
         if (drawable)
         {
             if (instantMode != drawable->getInstantMode())
@@ -1856,7 +1856,7 @@ void VolumePlugin::preFrame()
         objDirObj.normalize();
         //cerr << "Vec: " << objDirObj[0] << "   "<< objDirObj[1] << "   " << objDirObj[2] << endl;
 
-        coVolumeDrawable *drawable = it->second.drawable.get();
+        virvo::VolumeDrawable *drawable = it->second.drawable.get();
         // Adjust image quality, viewing & object direction
         if (drawable)
         {
@@ -1909,7 +1909,7 @@ void VolumePlugin::preFrame()
         }
     }
 
-    coVolumeDrawable *drawable = getCurrentDrawable();
+    virvo::VolumeDrawable *drawable = getCurrentDrawable();
 
     // Process ROI mode:
     bool mouse = false;
@@ -2077,7 +2077,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
 
     for (VolumeMap::iterator it = allVolumesActive ? volumes.begin() : currentVolume; it != volumes.end(); ++it)
     {
-        coVolumeDrawable *drawable = it->second.drawable;
+        virvo::VolumeDrawable *drawable = it->second.drawable;
         if (!drawable)
             continue;
 
@@ -2115,11 +2115,11 @@ void VolumePlugin::menuEvent(coMenuItem *item)
                  || item == maxIntensityItem.get()
                  || item == minIntensityItem.get())
         {
-            coVolumeDrawable::BlendMode mode = coVolumeDrawable::AlphaBlend;
+            virvo::VolumeDrawable::BlendMode mode = virvo::VolumeDrawable::AlphaBlend;
             if (minIntensityItem->getState())
-                mode = coVolumeDrawable::MinimumIntensity;
+                mode = virvo::VolumeDrawable::MinimumIntensity;
             else if (maxIntensityItem->getState())
-                mode = coVolumeDrawable::MaximumIntensity;
+                mode = virvo::VolumeDrawable::MaximumIntensity;
 
             drawable->setBlendMode(mode);
             it->second.blendMode = mode;
@@ -2127,7 +2127,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
             Vec4 bg(0., 0., 0., 1.);
             switch (mode)
             {
-            case coVolumeDrawable::AlphaBlend:
+            case virvo::VolumeDrawable::AlphaBlend:
                 if (alphaDefBlendItem->getState())
                 {
                     backgroundColor = BgDefault;
@@ -2146,10 +2146,10 @@ void VolumePlugin::menuEvent(coMenuItem *item)
                     bg[0] = bg[1] = bg[2] = 0.75f;
                 }
                 break;
-            case coVolumeDrawable::MinimumIntensity:
+            case virvo::VolumeDrawable::MinimumIntensity:
                 bg[0] = bg[1] = bg[2] = 1.;
                 break;
-            case coVolumeDrawable::MaximumIntensity:
+            case virvo::VolumeDrawable::MaximumIntensity:
                 bg[0] = bg[1] = bg[2] = 0.;
                 break;
             }
@@ -2161,7 +2161,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
             break;
     }
 
-    coVolumeDrawable *drawable = getCurrentDrawable();
+    virvo::VolumeDrawable *drawable = getCurrentDrawable();
 
     if (item == ROIItem.get())
     {
@@ -2335,7 +2335,7 @@ void VolumePlugin::setROIMode(bool newMode)
 #endif
     }
 
-    coVolumeDrawable *drawable = getCurrentDrawable();
+    virvo::VolumeDrawable *drawable = getCurrentDrawable();
     if (drawable)
     {
         drawable->setROISize(roiCellSize);
@@ -2355,14 +2355,14 @@ void VolumePlugin::setClippingMode(bool newMode)
 {
     vvDebugMsg::msg(1, "VolumePlugin::setClippingMode()");
 
-    coVolumeDrawable *drawable = getCurrentDrawable();
+    virvo::VolumeDrawable *drawable = getCurrentDrawable();
     if (drawable)
     {
         drawable->setClipping(newMode);
     }
 }
 
-coVolumeDrawable *VolumePlugin::getCurrentDrawable()
+virvo::VolumeDrawable *VolumePlugin::getCurrentDrawable()
 {
     if (currentVolume != volumes.end())
         return currentVolume->second.drawable.get();

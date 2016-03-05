@@ -65,7 +65,7 @@ Lane::parseLaneType(const QString &type)
         return Lane::LT_SPECIAL3;
     else
     {
-        qDebug(("WARNING: unknown lane type: " + type).toUtf8());
+        qDebug("WARNING: unknown lane type: %s", type.toUtf8().constData());
         return Lane::LT_NONE;
     }
 }

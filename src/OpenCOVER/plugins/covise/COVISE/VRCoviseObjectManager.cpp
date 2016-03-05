@@ -36,6 +36,7 @@
 #include <cover/coVRFileManager.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRShader.h>
+#include "CoviseSG.h"
 #include "VRRotator.h"
 #include "VRSlider.h"
 #include "coVRTUIParam.h"
@@ -47,6 +48,7 @@
 #include <PluginUtil/coSphere.h>
 #include <cover/coVRPluginSupport.h>
 #include "coCoviseInteractor.h"
+#include "CoviseSG.h"
 #include <cover/coVRAnimationManager.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
@@ -90,6 +92,7 @@ ObjectManager *ObjectManager::instance()
 
 ObjectManager::ObjectManager()
     : materialList(NULL)
+    , coviseSG(new CoviseSG)
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "new ObjectManager\n");
@@ -145,6 +148,7 @@ ObjectManager::removeButtonsForContainer(const char *container)
 
 ObjectManager::~ObjectManager()
 {
+    delete coviseSG;
     if (cover->debugLevel(2))
         fprintf(stderr, "delete ObjectManager\n");
     delete interactionA;
@@ -412,7 +416,7 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
             // also send container object 'ro' for plugin usage
             if (osg::Node *n = addGeometry(object, NULL, ro, NULL, NULL, NULL, NULL, ro, NULL))
             {
-                VRSceneGraph::instance()->addNode(n, (osg::Group *)NULL, ro);
+                coviseSG->addNode(n, (osg::Group *)NULL, ro);
             }
         }
     }
@@ -526,7 +530,7 @@ void ObjectManager::removeGeometry(const char *name, bool groupobject)
     removeButtonsForContainer(name);
 
     coVRPluginList::instance()->removeObject(name, CoviseRender::isReplace());
-    VRSceneGraph::instance()->deleteNode(name, groupobject);
+    coviseSG->deleteNode(name, groupobject);
 }
 
 //======================================================================
@@ -1064,7 +1068,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
 #if 0
       if (container->isAssignedToMe())
-         VRSceneGraph::instance()->addNode ( groupNode,root,geometry );
+         coviseSG->addNode ( groupNode,root,geometry );
 #endif
 
         // might have to add AnimationSpeed and SteadyCam Feedback to
@@ -1633,7 +1637,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
                 if (!ignore)
                 {
-                    VRSceneGraph::instance()->nodeHasSpecialBounds(newNode, bs);
+                    VRSceneGraph::instance()->setNodeBounds(newNode, &bs);
                 }
             }
 
@@ -1738,7 +1742,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                     modelNode = coVRFileManager::instance()->loadFile(modelName, NULL, NULL, geometry->getName());
                 }
 
-                VRSceneGraph::instance()->attachNode(object, modelNode);
+                coviseSG->attachNode(object, modelNode);
             }
             /*.----------------------------------------------------------------------------------------------------------------------------
            Attributes for read and modifying CAD-Datafiles, e.g. JT-Data-Files
@@ -1814,13 +1818,13 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 //reading CAD-File and adding the new CAD-File structure under the <mt> node
                 coVRFileManager::instance()->loadFile(CAD_FILE, NULL, mt, geometry->getName());
                 //attaching <mt> with <object> to get the correct name of the node in the SceneGraphBrowser
-                VRSceneGraph::instance()->attachNode(object, mt);
+                coviseSG->attachNode(object, mt);
             }
             //..----------------------------------------------------------------------------------------------------------------------------------
             //------------------------------------------------------------------------------------------------------------------------------------
             if (const char *label = geometry->getAttribute("LABEL"))
             {
-                VRSceneGraph::instance()->attachLabel(object, label);
+                coviseSG->attachLabel(object, label);
             }
 
             // ---------------------------------------------------------------------------------

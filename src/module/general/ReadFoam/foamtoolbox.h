@@ -20,6 +20,14 @@
 // this header should contain typedefs for index_t and scalar_t
 #include "foamtypes.h"
 
+#if __cplusplus >= 201103L
+#include <unordered_set>
+typedef std::unordered_set<index_t> vertex_set;
+#else
+#include <set>
+typedef std::set<index_t> vertex_set;
+#endif
+
 struct HeaderInfo
 {
     HeaderInfo()
@@ -70,7 +78,7 @@ struct CaseInfo
     }
 
     std::map<double, std::string> timedirs; //Map of all the Time Directories
-    std::map<double, std::string> completeMeshDirs; //Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
+	std::map<double, std::string> completeMeshDirs; //Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
     std::map<std::string, int> varyingFields, constantFields;
     std::string constantdir;
     int numblocks;
@@ -179,7 +187,7 @@ bool isPointingInwards(index_t face,
                        index_t ninternalFaces,
                        const std::vector<index_t> &owners,
                        const std::vector<index_t> &neighbors);
-std::vector<index_t> getVerticesForCell(const std::vector<index_t> &cellfaces,
+vertex_set getVerticesForCell(const std::vector<index_t> &cellfaces,
                                         const std::vector<std::vector<index_t> > &faces);
 
 #endif

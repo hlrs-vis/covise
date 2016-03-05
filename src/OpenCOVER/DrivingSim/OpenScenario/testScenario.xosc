@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <OpenSCENARIO xmlns:osc="http://www.w3.org/2001/XInclude">
 
-  <fileHeader revMajor="1" revMinor="0" date="2016-01-22T11:55:00+01:00" description="OpenSCENARIO - testScenario" author="MK">
+
+  <fileHeader revMajor="1" revMinor="1" date="2016-02-29T11:45:00+01:00" description="OpenSCENARIO - testScenario" author="MK">
     <userDataList>
       <userData code="df" value="hhry"/>
       <userData code="h56u56" value="uyk"/>
@@ -16,7 +17,7 @@
     <objectCatalog>
 
       <vehicleCatalog>
-        <directory path="vehicle.xml"/>
+        <directory path="testScenario/catalogs/vehicle"/>
         <userDataList>
           <userData code="aaa" value="bbb"/>
           <userData code="rrr" value="hh"/>
@@ -25,7 +26,7 @@
       </vehicleCatalog>
 
       <driverCatalog>
-        <directory path="driver.xml"/>
+        <directory path="testScenario/catalogs/driver"/>
         <userDataList>
           <userData code="aaa" value="bbb"/>
           <userData code="ccc" value="ddd"/>
@@ -34,7 +35,7 @@
       </driverCatalog>
 
       <observerCatalog>
-        <directory path="observer.xml"/>
+        <directory path="testScenario/catalogs/observer"/>
         <userDataList>
           <userData code="zzz" value="abb"/>
           <userData code="eee" value="fff"/>
@@ -43,7 +44,7 @@
       </observerCatalog>
 
       <pedestrianCatalog>
-        <directory path="pedestrian.xml"/>
+        <directory path="testScenario/catalogs/pedestrian"/>
         <userDataList>
           <userData code="aaa" value="bbb"/>
           <userData code="ccc" value="ddd"/>
@@ -52,7 +53,7 @@
       </pedestrianCatalog>
 
       <miscObjectCatalog>
-        <directory path="miscObject.xml"/>
+        <directory path="testScenario/catalogs/miscObject"/>
         <userDataList>
           <userData code="iii" value="jjj"/>
           <userData code="ccc" value="ddd"/>
@@ -63,7 +64,7 @@
     </objectCatalog>
 
     <entityCatalog>
-      <directory path="entity.xml"/>
+      <directory path="testScenario/catalogs/entity"/>
       <userDataList>
         <userData code="aaa" value="bbb"/>
         <userData code="kkk" value="lll"/>
@@ -72,7 +73,7 @@
     </entityCatalog>
 
     <environmentCatalog>
-      <directory path="environment.xml"/>
+      <directory path="testScenario/catalogs/environment"/>
       <userDataList>
         <userData code="aaa" value="bbb"/>
         <userData code="ooo" value="ppp"/>
@@ -81,7 +82,7 @@
     </environmentCatalog>
 
     <maneuverCatalog>
-      <directory path="maneuver.xml"/>
+      <directory path="testScenario/catalogs/maneuver"/>
       <userDataList>
         <userData code="qqq" value="rrr"/>
         <userData code="ccc" value="ddd"/>
@@ -90,7 +91,7 @@
     </maneuverCatalog>
 
     <routingCatalog>
-      <directory path="routing.xml"/>
+      <directory path="testScenario/catalogs/routing"/>
       <userDataList>
         <userData code="aaa" value="bbb"/>
         <userData code="sss" value="ttt"/>
@@ -583,14 +584,6 @@
 
             <maneuver name="sdhjhjty">
 
-              <fileHeader revMajor="1" revMinor="0" date="2016-01-22T13:55:00+01:00" description="maneuver 1 - testScenario" author="MK">
-                <userDataList>
-                  <userData code="jty" value="fgj7i"/>
-                  <userData code="h56u56" value="ir6qw"/>
-                  <userData code="bnhkug" value="ffdhyr"/>
-                </userDataList>
-              </fileHeader>
-
               <parameterList>
                 <parameter name="iuhs" value="gkyu"/>
                 <parameter name="gdser" value="sdf"/>
@@ -682,6 +675,15 @@
                         <dynamics shape="ghthk" maxLateralAcc="3246.89" duration="345.879"/>
                         <absoluteLaneChange target="23266"/>
                       </laneChange>
+                    </action>
+
+                    <action>
+                      <followRoute routeId="bfr3nj">
+                        <longitudinal>
+                          <timing domain="relative" scale="-346.3" offset="3456.78"/>
+                        </longitudinal>
+                        <lateral purpose="steering"/>
+                      </followRoute>
                     </action>
 
                     <action>
@@ -853,13 +855,6 @@
             </refActors>
 
             <maneuver name="kuiore">
-
-              <fileHeader revMajor="1" revMinor="0" date="2016-01-22T15:55:00+01:00" description="maneuver 2 - testScenario" author="MK">
-                <userDataList>
-                  <userData code="vbnd" value="a34"/>
-                  <userData code="dfgh76" value="af46"/>
-                </userDataList>
-              </fileHeader>
 
               <parameterList>
                 <parameter name="sg" value="gfd"/>
@@ -1214,10 +1209,6 @@
     </userDataList>
 
   </scenarioEnd>
-
-
-
-  <osc:include href="testScenario/testScenario_test.xosc"/>
 
 
 </OpenSCENARIO>

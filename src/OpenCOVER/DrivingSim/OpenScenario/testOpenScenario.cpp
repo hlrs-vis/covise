@@ -90,7 +90,6 @@ int main(int argc, char **argv)
     //
     bool writeToConsole = false;
     bool writeCompleteXML = false;
-    bool validate = true;
     std::string writeCompleteXmlToFile = "complete_osc-document.xml";
     std::string readFileToUse;
     std::string writeFileToUse;
@@ -114,7 +113,7 @@ int main(int argc, char **argv)
             }
             else if (getopt(argv[i],"nv") == true)
             {
-                validate = false;
+                osdb->setValidation(false);
             }
             else
             {
@@ -143,7 +142,7 @@ int main(int argc, char **argv)
     //read file
     std::cerr << "trying to load " << readFileToUse << std::endl;
     std::cerr << std::endl;
-    if(osdb->loadFile(readFileToUse, validate) == false)
+    if(osdb->loadFile(readFileToUse, "OpenSCENARIO") == false)
     {
         std::cerr << std::endl;
         std::cerr << "failed to load OpenSCENARIO from file " << readFileToUse << std::endl;

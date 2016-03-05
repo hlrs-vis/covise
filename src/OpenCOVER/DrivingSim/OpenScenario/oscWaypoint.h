@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
+#include "oscVariables.h"
 #include "oscPosition.h"
 #include "oscContinuation.h"
 
@@ -24,10 +25,12 @@ class OPENSCENARIOEXPORT oscWaypoint: public oscObjectBase
 public:
     oscWaypoint()
     {
+        OSC_ADD_MEMBER(timestamp);
         OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
         OSC_OBJECT_ADD_MEMBER(continuation, "oscContinuation");
     };
 
+    oscDouble timestamp;
     oscPositionMember position;
     oscContinuationMember continuation;
 };

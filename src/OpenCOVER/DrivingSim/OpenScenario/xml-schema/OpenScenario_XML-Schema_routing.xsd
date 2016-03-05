@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFileHeader.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPosition.xsd"/>
+
+
+
+<!-- -->
+<!-- routing -->
+<!-- -->
+
+<xsd:element name="routing" type="OSCRouting"/>
+
+
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_TBD">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="to be defined" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_shape_purpose">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="steering" />
+    <xsd:enumeration value="positioning" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_route_strategy">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="fastest" />
+    <xsd:enumeration value="shortest" />
+    <xsd:enumeration value="leastIntersections" />
+    <xsd:enumeration value="random" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+
+<!-- -->
+<!-- ComplexType -->
+<!-- -->
+
+<xsd:complexType name="OSCRouting">
+    <xsd:all>
+        <xsd:element name="fileHeader"  type="OSCFileHeader"/>
+        <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
+        <xsd:element name="observer">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="general">
+                        <xsd:complexType>
+                            <xsd:all>
+                                <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
+                            </xsd:all>
+                            <xsd:attribute name="name"      type="xsd:string" use="required"/>
+                            <xsd:attribute name="closed"    type="xsd:boolean" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="waypoints">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="waypoint" minOccurs="2" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:all>
+                                            <xsd:element name="position"    type="OSCPosition"/>
+                                            <xsd:element name="continuation">
+                                                <xsd:complexType>
+                                                    <xsd:choice>
+                                                        <xsd:element name="shape">
+                                                            <xsd:complexType>
+                                                                <xsd:choice>
+                                                                    <xsd:element name="polyline"/>
+                                                                    <xsd:element name="clothoid">
+                                                                        <xsd:complexType>
+                                                                            <xsd:attribute name="curvature"     type="xsd:double" use="required"/>
+                                                                            <xsd:attribute name="curvatureDot"  type="xsd:double" use="required"/>
+                                                                            <xsd:attribute name="length"        type="xsd:double" use="required"/>
+                                                                            <xsd:attribute ref="xml:base"/>
+                                                                        </xsd:complexType>
+                                                                    </xsd:element>
+                                                                    <xsd:element name="spline">
+                                                                        <xsd:complexType>
+                                                                            <xsd:all>
+                                                                                <xsd:element name="controlPoint1">
+                                                                                    <xsd:complexType>
+                                                                                        <xsd:attribute name="status"   type="Enum_TBD" use="required"/>
+                                                                                    </xsd:complexType>
+                                                                                  </xsd:element>
+                                                                                <xsd:element name="controlPoint2">
+                                                                                    <xsd:complexType>
+                                                                                        <xsd:attribute name="status"   type="Enum_TBD" use="required"/>
+                                                                                    </xsd:complexType>
+                                                                                </xsd:element>
+                                                                            </xsd:all>
+                                                                            <xsd:attribute ref="xml:base"/>
+                                                                        </xsd:complexType>
+                                                                    </xsd:element>
+                                                                </xsd:choice>
+                                                                <xsd:attribute name="purpose"   type="Enum_shape_purpose" use="required"/>
+                                                                <xsd:attribute ref="xml:base"/>
+                                                            </xsd:complexType>
+                                                        </xsd:element>
+                                                        <xsd:element name="route">
+                                                            <xsd:complexType>
+                                                                <xsd:attribute name="strategy"  type="Enum_route_strategy" use="required"/>
+                                                                <xsd:attribute ref="xml:base"/>
+                                                            </xsd:complexType>
+                                                        </xsd:element>
+                                                        <xsd:element name="none">
+                                                            <xsd:complexType>
+                                                                <xsd:attribute ref="xml:base"/>
+                                                            </xsd:complexType>
+                                                        </xsd:element>
+                                                    </xsd:choice>
+                                                    <xsd:attribute ref="xml:base"/>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:all>
+                                        <xsd:attribute name="timestamp"  type="xsd:double" use="optional"/>
+                                        <xsd:attribute ref="xml:base"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:all>
+                <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                <xsd:attribute name="refId" type="xsd:int" use="required"/>
+                <xsd:attribute name="type"  type="xsd:string" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:all>
+    <xsd:attribute name="name"  type="xsd:string" use="required"/>
+    <xsd:attribute name="refId" type="xsd:int" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+
+
+</xsd:schema>

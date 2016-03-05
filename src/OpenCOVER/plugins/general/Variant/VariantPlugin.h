@@ -68,21 +68,8 @@ public:
     virtual bool selectionChanged();
     virtual bool pickedObjChanged();
 
-    // this will be called if an object with feedback arrives
-    void newInteractor(RenderObject *container, coInteractor *i);
     void menuEvent(coMenuItem *menu_VariantPluginitem);
     // this will be called if a COVISE object arrives
-    void addObject(RenderObject *container,
-                   RenderObject *obj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
-                   osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn, float transparency);
-
-    // this will be called if a COVISE object has to be removed
-    void removeObject(const char *objName, bool replace);
     bool init();
     void addNode(osg::Node *, RenderObject *);
     void removeNode(osg::Node *node, bool /*isGroup*/, osg::Node *realNode);

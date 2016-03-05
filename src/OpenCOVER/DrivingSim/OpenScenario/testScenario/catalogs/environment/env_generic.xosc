@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<environment name="day_generic">
+
+
+  <fileHeader author="MK" date="2016-02-15T15:00:00+01:00" description="environment - testScenario" revMajor="1" revMinor="1">
+    <userDataList>
+      <userData code="bdrty" value="yu76"/>
+      <userData code="xxr4" value="dh5"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <timeOfDay animation="false">
+    <time hour="15" min="47" sec="8.89"/>
+    <date day="15" month="02" year="2016"/>
+  </timeOfDay>
+
+
+  <weather cloudState="sky off">
+
+    <sun>
+      <color r="56.8" g="95.06" b="211.4"/>
+      <intensity ambient="3.89" diffuse="8.3" specular="34.1"/>
+    </sun>
+
+    <fog>
+      <color b="1.9" g="2.8" r="7.3"/>
+<!--
+      <boundingBox>
+        <center h="7.9" x="23.6" y="-34.8" z="2.4"/>
+        <dimension height="23856.456" length="3556.89" width="276.6"/>
+      </boundingBox>
+-->
+      <visualRange value="239.35"/>
+
+    </fog>
+
+    <precipitation intensity="85.06" type="snow"/>
+
+  </weather>
+
+
+  <roadConditionsGroup frictionScale="3445.7">
+    <roadConditions>
+
+      <roadCondition effect="water" intensity="-7689.4"/>
+      <roadCondition effect="leaves" intensity="34.678"/>
+      <roadCondition effect="oil" intensity="-5678.4"/>
+      <roadCondition effect="oil" intensity="63.3"/>
+      <roadCondition effect="water" intensity="456.651"/>
+
+    </roadConditions>
+  </roadConditionsGroup>
+
+
+  <userDataList>
+    <userData code="vdxs34" value="mjtyj"/>
+    <userData code="xfs" value="hdr54"/>
+  </userDataList>
+
+
+</environment>

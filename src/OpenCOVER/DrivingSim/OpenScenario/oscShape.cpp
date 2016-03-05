@@ -11,19 +11,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-purposeType::purposeType()
+purposeShapeType::purposeShapeType()
 {
     addEnum("steering", oscShape::steering);
     addEnum("positioning", oscShape::positioning);
 }
 
-purposeType *purposeType::instance()
+purposeShapeType *purposeShapeType::instance()
 {
     if(inst == NULL)
     {
-        inst = new purposeType();
+        inst = new purposeShapeType();
     }
     return inst;
 }
 
-purposeType *purposeType::inst = NULL;
+purposeShapeType *purposeShapeType::inst = NULL;

@@ -30,6 +30,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPluginList.h>
+#include <cover/coVRFileManager.h>
 
 using namespace covise;
 using namespace opencover;
@@ -100,6 +101,39 @@ CovisePlugin::~CovisePlugin()
     delete VRCoviseConnection::covconn;
     VRCoviseConnection::covconn = NULL;
 }
+
+void CovisePlugin::param(const char *paramName, bool)
+{
+    if (cover->debugLevel(3))
+        fprintf(stderr, "ViewPoints::param paramName=[%s]", paramName);
+
+    if (!strcmp(paramName, "Viewpoints"))
+    {
+        std::string vwpPath;
+        if (coVRMSController::instance()->isMaster())
+        {
+            const char *tmp = NULL;
+            CoviseBase::get_reply_browser(&tmp);
+            int length = strlen(tmp);
+            coVRMSController::instance()->sendSlaves(&length, sizeof(int));
+            coVRMSController::instance()->sendSlaves(tmp, length);
+            vwpPath = tmp;
+        }
+        else
+        {
+            int length;
+            coVRMSController::instance()->readMaster(&length, sizeof(int));
+            char *tmp = new char[length + 1];
+            coVRMSController::instance()->readMaster(tmp, length);
+            tmp[length] = 0;
+            vwpPath = tmp;
+            delete[] tmp;
+        }
+        coVRFileManager::instance()->setViewPointFile(vwpPath);
+        cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, strlen("readViewpointsFile"), "readViewpointsFile");
+    }
+}
+
 
 static void updateScenegraph()
 {

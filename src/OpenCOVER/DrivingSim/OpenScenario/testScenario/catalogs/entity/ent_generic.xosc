@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<entity name="entity_generic" refId="8956">
+
+
+  <objectChoice>
+
+    <vehicle name="nfgh" refId="236"/>
+<!--
+    <pedestrian name="mgm" refId="4006778"/>
+
+    <miscObject name="vne" refId="69023"/>
+-->
+  </objectChoice>
+
+
+  <controllerChoice>
+<!--
+    <driverReference name="bfggh45" refId="355"/>
+-->
+    <pedestrianController motion="jog"/>
+
+  </controllerChoice>
+
+
+  <observer name="bvdg" refId="365" iid="6774">
+    <coord>
+      <position x="68.23" y="-0.47" z="-46.4"/>
+      <orientation h="48.789" p="78.8" r="34.224"/>
+    </coord>
+  </observer>
+
+
+</entity>

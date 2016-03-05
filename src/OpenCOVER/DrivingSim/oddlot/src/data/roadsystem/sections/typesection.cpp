@@ -181,7 +181,7 @@ TypeSection::parseRoadType(const QString &type)
         return TypeSection::RTP_PEDESTRIAN;
     else
     {
-        qDebug(("WARNING 1003151045! Unknown road type: " + type).toUtf8());
+        qDebug("WARNING 1003151045! Unknown road type: %s", type.toUtf8().constData());
         return TypeSection::RTP_UNKNOWN;
     }
 };

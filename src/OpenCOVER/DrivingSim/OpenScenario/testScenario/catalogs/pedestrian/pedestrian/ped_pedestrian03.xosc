@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="anna" refId="3495" category="pedestrian" model="jkbcf" mass="67.23">
+
+
+  <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1">
+    <userDataList>
+      <userData code="cvbhrt" value="dfger54"/>
+      <userData code="zw34" value="jk76"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <dimension front="96.567" rear="342.78" left="-35.78" right="841.907" bottom="53.7" top="4535.7"/>
+
+
+  <geometry URL="pedestrian-anna_geom.xml"/>
+
+
+  <behavior politeness="324.3" alertness="8.3"/>
+
+
+</pedestrian>

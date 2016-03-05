@@ -11,19 +11,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-reachPosConditionType::reachPosConditionType()
+conditionReachPositionType::conditionReachPositionType()
 {
     addEnum("exceed", oscReachPosition::exceed);
     addEnum("deceed", oscReachPosition::deceed);
 }
 
-reachPosConditionType *reachPosConditionType::instance()
+conditionReachPositionType *conditionReachPositionType::instance()
 {
     if(inst == NULL)
     {
-        inst = new reachPosConditionType();
+        inst = new conditionReachPositionType();
     }
     return inst;
 }
 
-reachPosConditionType *reachPosConditionType::inst = NULL;
+conditionReachPositionType *conditionReachPositionType::inst = NULL;

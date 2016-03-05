@@ -117,7 +117,7 @@ void DrawCallback::operator()(const osg::Camera &cam) const
             }
             else
             {
-                plugin->tuiSavedFile->setLabel("failed to wirite: " + std::string(coDirectory::canonical(plugin->filename.c_str())));
+                plugin->tuiSavedFile->setLabel("failed to write: " + std::string(coDirectory::canonical(plugin->filename.c_str())));
                 plugin->tuiSavedFile->setColor(Qt::red);
             }
         }
@@ -130,7 +130,7 @@ void DrawCallback::operator()(const osg::Camera &cam) const
             }
             else
             {
-                plugin->tuiSavedFile->setLabel("failed to wirite: " + std::string(coDirectory::canonical(plugin->filename.c_str())));
+                plugin->tuiSavedFile->setLabel("failed to write: " + std::string(coDirectory::canonical(plugin->filename.c_str())));
                 plugin->tuiSavedFile->setColor(Qt::red);
             }
         }

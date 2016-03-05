@@ -31,8 +31,8 @@ public:
     };
 
     oscString name;
-    oscStartConditionsGroupsTypeCArrayMember startConditionGroups;
-    oscActionsArrayMember actions;
+    oscStartConditionsGroupsTypeCMemberArray startConditionGroups;
+    oscActionsMemberArray actions;
 };
 
 typedef oscObjectVariable<oscEvent *> oscEventMember;

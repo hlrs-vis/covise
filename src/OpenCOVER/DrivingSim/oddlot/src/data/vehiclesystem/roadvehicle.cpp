@@ -126,7 +126,7 @@ RoadVehicle::parseRoadVehicleType(const QString &type)
     //		return RoadVehicle::DRV_XX;
     else
     {
-        qDebug(("WARNING: unknown road vehicle type: " + type).toUtf8());
+        qDebug("WARNING: unknown road vehicle type: %s", type.toUtf8().constData());
         return RoadVehicle::DRV_NONE;
     }
 }
@@ -154,7 +154,7 @@ RoadVehicle::parseRoadVehicleIntelligenceType(const QString &type)
         return RoadVehicle::DRVI_AGENT;
     else
     {
-        qDebug(("WARNING: unknown road vehicle type: " + type).toUtf8());
+        qDebug("WARNING: unknown road vehicle type: %s", type.toUtf8().constData());
         return RoadVehicle::DRVI_NONE;
     }
 }

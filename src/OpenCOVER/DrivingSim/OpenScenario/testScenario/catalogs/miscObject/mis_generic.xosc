@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<miscObject name="miscObject_generic" type="mghj" mass="1.57">
+
+
+  <fileHeader author="MK" date="2016-02-15T15:10:00+01:00" description="miscObject - testScenario" revMajor="1" revMinor="1">
+    <userDataList>
+      <userData code="bcvb" value="h45"/>
+      <userData code="nnngfh" value="zjur5y6"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <dimension front="3456.67" rear="45345.6" left="-0.34" right="57.789" bottom="45.789" top="895.4"/>
+
+
+  <geometry URL="miscObject_generic_geom.xml"/>
+
+
+</miscObject>

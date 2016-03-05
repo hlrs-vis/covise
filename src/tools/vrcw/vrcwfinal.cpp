@@ -709,9 +709,9 @@ void VRCWFinal::genChannelViewportConfig()
                {
                   case passive:
                   {
-                     widthAdaptedBE = leftBE + widthAdapted;
+                     widthAdaptedBE = widthAdapted;
 
-                     heightAdaptedBE = bottomBE + heightAdapted;
+                     heightAdaptedBE = heightAdapted;
                      break;
                   }
                   case active:
@@ -721,19 +721,19 @@ void VRCWFinal::genChannelViewportConfig()
                   case hInterlaced:
                   case rInterleave:
                   {
-                     widthAdaptedBE = leftBE + widthAdapted;
+                     widthAdaptedBE = widthAdapted;
 
-                     heightAdaptedBE = bottomBE + heightAdapted;
+                     heightAdaptedBE = heightAdapted;
 
                      stereoModeBE = stereoMode;
                      break;
                   }
                   case topBottom:
                   {
-                     widthAdaptedBE = leftBE + widthAdapted;
+                     widthAdaptedBE = widthAdapted;
 
                      bottomBE = bottomTb * 3 + heightAdaptedTb;
-                     heightAdaptedBE = bottomBE + heightAdaptedTb;
+                     heightAdaptedBE = heightAdaptedTb;
                      break;
                   }
                   case sideBySide:
@@ -741,7 +741,7 @@ void VRCWFinal::genChannelViewportConfig()
                      leftBE = leftSbS;
                      widthAdaptedBE = widthAdaptedSbS;
 
-                     heightAdaptedBE = bottomBE + heightAdapted;
+                     heightAdaptedBE = heightAdapted;
                      break;
                   }
                }
@@ -756,9 +756,9 @@ void VRCWFinal::genChannelViewportConfig()
                   case passive:
                   {
                      leftBE = left + width;
-                     widthAdaptedBE = leftBE + widthAdapted;
+                     widthAdaptedBE = widthAdapted;
 
-                     heightAdaptedBE = bottomBE + heightAdapted;
+                     heightAdaptedBE = heightAdapted;
                      break;
                   }
                   case active:
@@ -768,16 +768,16 @@ void VRCWFinal::genChannelViewportConfig()
                   case hInterlaced:
                   case rInterleave:
                   {
-                     widthAdaptedBE = leftBE + widthAdapted;
+                     widthAdaptedBE = widthAdapted;
 
-                     heightAdaptedBE = bottomBE + heightAdapted;
+                     heightAdaptedBE = heightAdapted;
 
                      stereoModeBE = stereoMode;
                      break;
                   }
                   case topBottom:
                   {
-                     widthAdaptedBE = leftBE + widthAdapted;
+                     widthAdaptedBE = widthAdapted;
 
                      bottomBE = bottomTb;
                      heightAdaptedBE = heightAdaptedTb;
@@ -786,9 +786,9 @@ void VRCWFinal::genChannelViewportConfig()
                   case sideBySide:
                   {
                      leftBE = leftSbS * 3 + widthAdaptedSbS;
-                     widthAdaptedBE = leftBE + widthAdaptedSbS;
+                     widthAdaptedBE = widthAdaptedSbS;
 
-                     heightAdaptedBE = bottomBE + heightAdapted;
+                     heightAdaptedBE = heightAdapted;
                      break;
                   }
                }

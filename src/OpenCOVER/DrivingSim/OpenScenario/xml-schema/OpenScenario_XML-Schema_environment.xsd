@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFileHeader.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCLight.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
+
+
+
+<!-- -->
+<!-- environment -->
+<!-- -->
+
+<xsd:element name="environment" type="OSCEnvironment"/>
+
+
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_precipitation_type">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="dry" />
+    <xsd:enumeration value="rain" />
+    <xsd:enumeration value="snow" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_cloudState">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="sky off" />
+    <xsd:enumeration value="free" />
+    <xsd:enumeration value="cloudy" />
+    <xsd:enumeration value="overcast" />
+    <xsd:enumeration value="rainy" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_roadCondition_effect">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="dry" />
+    <xsd:enumeration value="water" />
+    <xsd:enumeration value="snow" />
+    <xsd:enumeration value="oil" />
+    <xsd:enumeration value="dirt" />
+    <xsd:enumeration value="leaves" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+
+<!-- -->
+<!-- Choice -->
+<!-- -->
+
+<xsd:element name="CHOICE_boundingBox_visualRange" abstract="true"/>
+<!-- -->
+<xsd:element name="boundingBox"   substitutionGroup="CHOICE_boundingBox_visualRange">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="center">
+                <xsd:complexType>
+                    <xsd:attribute name="x" type="xsd:double" use="required"/>
+                    <xsd:attribute name="y" type="xsd:double" use="required"/>
+                    <xsd:attribute name="z" type="xsd:double" use="required"/>
+                    <xsd:attribute name="h" type="xsd:float" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="dimension">
+                <xsd:complexType>
+                    <xsd:attribute name="width"     type="xsd:double" use="required"/>
+                    <xsd:attribute name="length"    type="xsd:double" use="required"/>
+                    <xsd:attribute name="height"    type="xsd:double" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="visualRange"   substitutionGroup="CHOICE_boundingBox_visualRange">
+    <xsd:complexType>
+        <xsd:attribute name="value" type="xsd:float" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+
+
+
+<!-- -->
+<!-- ComplexType -->
+<!-- -->
+
+<xsd:complexType name="OSCEnvironment">
+    <xsd:all>
+        <xsd:element name="fileHeader"  type="OSCFileHeader"/>
+        <xsd:element name="timeOfDay">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="time">
+                        <xsd:complexType>
+                            <xsd:attribute name="hour"  type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="min"   type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="sec"   type="xsd:double" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="date">
+                        <xsd:complexType>
+                            <xsd:attribute name="day"   type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="month" type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="year"  type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:all>
+                <xsd:attribute name="animation" type="xsd:boolean" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="weather">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="sun" type="OSCLight"/>
+                    <xsd:element name="fog">
+                        <xsd:complexType>
+                            <xsd:all>
+                                <xsd:element name="color">
+                                    <xsd:complexType>
+                                        <xsd:attribute name="r" type="xsd:float" use="required"/>
+                                        <xsd:attribute name="g" type="xsd:float" use="required"/>
+                                        <xsd:attribute name="b" type="xsd:float" use="required"/>
+                                        <xsd:attribute ref="xml:base"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element ref="CHOICE_boundingBox_visualRange"/>
+                            </xsd:all>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="precipitation">
+                        <xsd:complexType>
+                            <xsd:attribute name="type"      type="Enum_precipitation_type" use="required"/>
+                            <xsd:attribute name="intensity" type="xsd:float" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:all>
+                <xsd:attribute name="cloudState" type="Enum_cloudState" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="roadConditionsGroup">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="roadConditions">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="roadCondition" minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:attribute name="effect"    type="Enum_roadCondition_effect" use="required"/>
+                                        <xsd:attribute name="intensity" type="xsd:float" use="required"/>
+                                        <xsd:attribute ref="xml:base"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:all>
+                <xsd:attribute name="frictionScale" type="xsd:float" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
+    </xsd:all>
+    <xsd:attribute name="name"  type="xsd:string" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+
+
+</xsd:schema>

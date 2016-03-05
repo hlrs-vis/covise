@@ -29,7 +29,7 @@ public:
     };
 
     oscString name;
-    oscManeuversTypeCArrayMember maneuvers;
+    oscManeuversTypeCMemberArray maneuvers;
 };
 
 typedef oscObjectVariable<oscRefActorTypeA *> oscRefActorTypeAMember;

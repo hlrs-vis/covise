@@ -14,7 +14,7 @@
 #include <pwd.h>
 #include <dirent.h>
 #endif
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 #include "CTRLHandler.h"
 #include "CTRLGlobal.h"
 #include "control_modlist.h"

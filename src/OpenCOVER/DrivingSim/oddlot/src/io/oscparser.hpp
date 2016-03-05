@@ -60,7 +60,7 @@ public:
 
     // XODR //
     //
-    bool parseXOSC(const QString &filename);
+    bool parseXOSC(const QString &filename, const QString &fileType = "OpenSCENARIO");
 	void createElements(const OpenScenario::oscObjectBase *oscObjectBase);
 
 protected:

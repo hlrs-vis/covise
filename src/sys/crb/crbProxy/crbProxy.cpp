@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 #include "CRBConnection.h"
 #include <dmgr/dmgr.h>
 #include <covise/Covise_Util.h>

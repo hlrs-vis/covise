@@ -24,10 +24,32 @@ extern "C" {
 
 #include <xercesc/dom/DOM.hpp>
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
+typedef PixelFormat AVPixelFormat;
+
+#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
+
+#define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
+#define AV_CODEC_ID_FFV1 CODEC_ID_FFV1
+#define AV_CODEC_ID_JPEGLS CODEC_ID_JPEGLS
+#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+#define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
+#define AV_CODEC_ID_MPEG4 CODEC_ID_MPEG4
+#define AV_CODEC_ID_FLV1 CODEC_ID_FLV1
+#define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
+
+#define AV_CODEC_FLAG_QSCALE CODEC_FLAG_QSCALE
+#define AV_CODEC_FLAG_LOW_DELAY CODEC_FLAG_LOW_DELAY
+
+#define av_frame_alloc avcodec_alloc_frame
+#endif
+
 #include "Video.h"
 
 #define STREAM_FRAME_RATE 25 /* 25 images/s */
-#define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
+#define STREAM_PIX_FMT AV_PIX_FMT_YUV420P /* default pix_fmt */
 
 typedef std::list<AVCodec *> AVCodecList;
 
@@ -77,7 +99,7 @@ private:
     void unInitialize();
     void close_video();
     void close_all(bool stream = false, int format = 0);
-    AVFrame *alloc_picture(PixelFormat pix_fmt, int width, int height);
+    AVFrame *alloc_picture(AVPixelFormat pix_fmt, int width, int height);
     bool add_video_stream(AVCodec *codec, int w, int h, int frame_base, int bitrate, int maxBitrate);
     void video_tag(const char *cname);
     int SwConvertScale(int width, int height);

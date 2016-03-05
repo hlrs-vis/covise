@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFile.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFileHeader.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
+
+
+
+<!-- -->
+<!-- driver -->
+<!-- -->
+
+<xsd:element name="driver" type="OSCDriver"/>
+
+
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_sex">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="male" />
+    <xsd:enumeration value="female" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+
+<!-- -->
+<!-- ComplexType -->
+<!-- -->
+
+<xsd:complexType name="OSCDriver">
+    <xsd:all>
+        <xsd:element name="fileHeader"  type="OSCFileHeader"/>
+        <xsd:element name="body">
+            <xsd:complexType>
+                <xsd:attribute name="weight"        type="xsd:double" use="required"/>
+                <xsd:attribute name="height"        type="xsd:double" use="required"/>
+                <xsd:attribute name="eyeDistance"   type="xsd:double" use="required"/>
+                <xsd:attribute name="sex"           type="Enum_sex" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
+        <xsd:element name="geometry"    type="OSCFile"/>
+    </xsd:all>
+    <xsd:attribute name="name"                      type="xsd:string" use="required"/>
+    <xsd:attribute name="obeyTrafficLights"         type="xsd:boolean" use="required"/>
+    <xsd:attribute name="obeyTrafficSigns"          type="xsd:boolean" use="required"/>
+    <xsd:attribute name="steeringDistance"          type="xsd:double" use="required"/>
+    <xsd:attribute name="foresightDistance"         type="xsd:double" use="required"/>
+    <xsd:attribute name="respondToTailgating"       type="xsd:double" use="required"/>
+    <xsd:attribute name="urgeToOvertake"            type="xsd:double" use="required"/>
+    <xsd:attribute name="useOfIndicator"            type="xsd:double" use="required"/>
+    <xsd:attribute name="keepRightRule"             type="xsd:double" use="required"/>
+    <xsd:attribute name="laneChangeDynamic"         type="xsd:double" use="required"/>
+    <xsd:attribute name="speedKeeping"              type="xsd:double" use="required"/>
+    <xsd:attribute name="laneKeeping"               type="xsd:double" use="required"/>
+    <xsd:attribute name="distanceKeeping"           type="xsd:double" use="required"/>
+    <xsd:attribute name="observeSpeedLimits"        type="xsd:double" use="required"/>
+    <xsd:attribute name="curveSpeed"                type="xsd:double" use="required"/>
+    <xsd:attribute name="desiredDeceleration"       type="xsd:double" use="required"/>
+    <xsd:attribute name="desiredAcceleration"       type="xsd:double" use="required"/>
+    <xsd:attribute name="desiredVelocity"           type="xsd:double" use="required"/>
+    <xsd:attribute name="politeness"                type="xsd:double" use="required"/>
+    <xsd:attribute name="alertness"                 type="xsd:double" use="required"/>
+    <xsd:attribute name="adaptToVehicleType"        type="xsd:double" use="required"/>
+    <xsd:attribute name="adaptToTimeOfDay"          type="xsd:double" use="required"/>
+    <xsd:attribute name="adaptToRoadConditions"     type="xsd:double" use="required"/>
+    <xsd:attribute name="adaptToWeatherConditions"  type="xsd:double" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+
+
+</xsd:schema>

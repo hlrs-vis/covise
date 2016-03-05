@@ -34,7 +34,7 @@ CrossfallSection::parseCrossfallSide(const QString &side)
         return CrossfallSection::DCF_SIDE_BOTH;
     else
     {
-        qDebug(("WARNING: unknown crossfall side: " + side).toUtf8());
+        qDebug("WARNING: unknown crossfall side: %s", side.toUtf8().constData());
         return CrossfallSection::DCF_SIDE_NONE;
     }
 };

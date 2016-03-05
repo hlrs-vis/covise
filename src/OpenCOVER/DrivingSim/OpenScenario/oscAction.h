@@ -9,12 +9,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_ACTION_H
 
 #include "oscExport.h"
-#include "oscNamedObject.h"
+#include "oscNameUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscAutonomous.h"
 #include "oscSpeed.h"
 #include "oscLaneChange.h"
+#include "oscFollowRoute.h"
 #include "oscLaneOffset.h"
 #include "oscPosition.h"
 #include "oscDistanceLateral.h"
@@ -39,7 +40,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscAction: public oscNamedObject
+class OPENSCENARIOEXPORT oscAction: public oscNameUserData
 {
 public:
     oscAction()
@@ -47,6 +48,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(autonomous, "oscAutonomous");
         OSC_OBJECT_ADD_MEMBER(speed, "oscSpeed");
         OSC_OBJECT_ADD_MEMBER(laneChange, "oscLaneChange");
+        OSC_OBJECT_ADD_MEMBER(followRoute, "oscFollowRoute");
         OSC_OBJECT_ADD_MEMBER(laneOffset, "oscLaneOffset");
         OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
         OSC_OBJECT_ADD_MEMBER(distanceLateral, "oscDistanceLateral");
@@ -71,6 +73,7 @@ public:
     oscAutonomousMember autonomous;
     oscSpeedMember speed;
     oscLaneChangeMember laneChange;
+    oscFollowRouteMember followRoute;
     oscLaneOffsetMember laneOffset;
     oscPositionMember position;
     oscDistanceLateralMember distanceLateral;
@@ -89,7 +92,7 @@ public:
     oscUserDefinedCommandMember userDefinedCommand;
     oscUserScriptMember userScript;
     oscNotifyMember notify;
-    oscUserDataListArrayMember userDataList;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscAction *> oscActionMember;

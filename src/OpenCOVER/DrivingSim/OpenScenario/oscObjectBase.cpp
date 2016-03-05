@@ -8,7 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "OpenScenarioBase.h"
 #include "oscSourceFile.h"
-#include "utilities.h"
+#include "oscUtilities.h"
 
 #include <iostream>
 
@@ -128,8 +128,8 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     xercesc::DOMDocument *docToUse;
                     xercesc::DOMElement *elementToUse;
 
-                    //arrayMember
-                    oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
+                    //memberArray
+                    oscMemberArray *aMember = dynamic_cast<oscMemberArray *>(member);
 
                     //xml document for member
                     xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
@@ -142,20 +142,20 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
                         addXInclude(currentElement, document, fileHref);
 
-                        //member and arrayMember use a new document and the root element of this document
+                        //member and memberArray use a new document and the root element of this document
                         docToUse = srcXmlDoc;
                         elementToUse = docToUse->getDocumentElement();
                     }
                     else
                     {
-                        //member and arrayMember use the same document
+                        //member and memberArray use the same document
                         docToUse = document;
 
                         if (aMember)
                         {
-                            //write arrayMember (the container)
-                            //(and the arrayMembers are written under this element in the write function)
-                            elementToUse = aMember->writeArrayMemberToDOM(currentElement, docToUse);
+                            //write memberArray (the container)
+                            //(and the memberArrays are written under this element in the write function)
+                            elementToUse = aMember->writeMemberArrayToDOM(currentElement, docToUse);
                         }
                         else
                         {
@@ -167,7 +167,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     //
                     if (aMember)
                     {
-                        //for arrayMember there is no differentiation if document != srcXmlDoc is true or false
+                        //for memberArray there is no differentiation if document != srcXmlDoc is true or false
                         for (int i = 0; i < aMember->size(); i++)
                         {
                             std::string aMemChildElemName = aMember->at(i)->getOwnMember()->getName();
@@ -193,11 +193,24 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                             member->writeToDOM(elementToUse, docToUse);
                         }
                     }
+
+                    //memberCatalog
+                    oscMemberCatalog *cMember = dynamic_cast<oscMemberCatalog *>(member);
+                    if(cMember)
+                    {
+                        for (unordered_map<std::string, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
+                        {
+                            oscObjectBase *objFromCatalog = it->second;
+                            xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
+                            xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
+                            objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
+                        }
+                    }
                 }
             }
             else
             {
-                oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
+                oscMemberArray *am = dynamic_cast<oscMemberArray *>(member);
                 if(am)
                 {
                     std::cerr << "Array values not yet implemented" << std::endl;
@@ -235,7 +248,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 oscMember *m = members[attributeName];
                 if(m)
                 {
-                    oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
+                    oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
                     if(am)
                     {
                         std::cerr << "Array values not yet implemented" << std::endl;
@@ -287,9 +300,9 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 std::string memTypeName = m->getTypeName();
                 oscSourceFile *srcToUse = determineSrcFile(memberElem, src);
 
-                //oscArrayMember
+                //oscMemberArray
                 //
-                oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
+                oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
                 if(am)
                 {
                     //check if array member has attributes
@@ -312,7 +325,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //member has no value (value doesn't exist)
                     if ( !m->exists() )
                     {
-                        //generate the object for oscArrayMember
+                        //generate the object for oscMemberArray
                         //(it's the container for the array members)
                         oscObjectBase *objAMCreated = oscFactories::instance()->objectFactory->create(memTypeName);
 
@@ -328,7 +341,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         }
                     }
 
-                    //object for oscArrayMember
+                    //object for oscMemberArray
                     oscObjectBase *objAM = m->getObject();
                     if(objAM)
                     {
@@ -390,6 +403,60 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             std::cerr << "could not create an object member of type " << memTypeName << std::endl;
                         }
                     }
+                }
+
+
+                //handle catalogs
+                //read files from directory structure
+                //
+                oscMemberCatalog *cm = dynamic_cast<oscMemberCatalog *>(m);
+                if (cm)
+                {
+                    //catalog type
+                    std::string catalogType = cm->getName().erase(cm->getName().length() - std::string("Catalog").length());
+                    cm->setCatalogType(catalogType);
+
+                    //path to directory
+                    //object/member is of type oscCatalogBase and has a member directory,
+                    // directory is of type oscDirectory and has a member path with a value of type string
+                    oscMember *dirMember = cm->getObject()->getMember("directory");
+                    oscMember *pathMember = dirMember->getObject()->getMember("path");
+                    oscMemberValue *pathMemberValue = pathMember->getValue();
+                    oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
+                    bf::path pathToCatalogDir(pathMemberStrVal->getValue());
+
+                    //
+                    //path has to be checked: TODO!
+                    // it can be a absolute path
+                    // or relative to the path of the file which the XML element memberElem contains
+                    //
+                    //maybe it is not important for writing the files:
+                    // then the pathToCatalogDir is used as sourceFilePath and with an empty relPathFromMainDoc
+                    //
+
+                    //for now it is assumed that
+                    //the binary oscTest and testScenario.xosc are in the same directory,
+                    // the path is relative to testScenario.xosc and
+                    // the element catalog and its children are part of this file and not included
+                    std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDir);
+
+
+                    //parse file
+                    //store object name and filename in map
+                    cm->fastReadCatalogObjects(filenames);
+
+
+                    //////
+                    //for testing only
+                    //
+                    //generate the objects for this catalog and store them
+                    unordered_map<std::string, bf::path> availableObjectsMap = cm->getAvailableObjectsMap();
+                    for (unordered_map<std::string, bf::path>::const_iterator it = availableObjectsMap.begin(); it != availableObjectsMap.end(); it++)
+                    {
+                        cm->fullReadCatalogObjectWithName(it->first);
+                    }
+                    //
+                    //////
                 }
             }
             //no member

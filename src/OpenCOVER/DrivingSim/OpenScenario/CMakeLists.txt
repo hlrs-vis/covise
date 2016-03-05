@@ -4,18 +4,17 @@ ENDIF()
 
 USING(PROJ4)
 USING(XERCESC)
+USING(BOOST)
 
 SET(HEADERS
    OpenScenarioBase.h
    oscAbsoluteTypeA.h
    oscAbsoluteTypeB.h
-   oscAcceleration.h
    oscAction.h
    oscActions.h
    oscAdditionalAxles.h
    oscAerodynamics.h
    oscAfterManeuvers.h
-   oscArrayMember.h
    oscAutonomous.h
    oscAxles.h
    oscBehavior.h
@@ -25,14 +24,16 @@ SET(HEADERS
    oscCancelConditionsGroupTypeA.h
    oscCancelConditionsTypeA.h
    oscCancelConditionsTypeB.h
-   oscCancelConditionTypeA.h
-   oscCancelConditionTypeB.h
+   oscCatalogBase.h
+   oscCatalogObject.h
    oscCatalogReferenceTypeA.h
    oscCatalogs.h
    oscCenter.h
    oscCharacterAppearance.h
    oscCharacterGesture.h
    oscCharacterMotion.h
+   oscChoiceController.h
+   oscChoiceObject.h
    oscClothoid.h
    oscCog.h
    oscCollision.h
@@ -44,7 +45,6 @@ SET(HEADERS
    oscConditionTypeA.h
    oscConditionTypeB.h
    oscContinuation.h
-   oscControllerChoice.h
    oscControlPoint.h
    oscCoord.h
    oscCurrentPosition.h
@@ -56,24 +56,18 @@ SET(HEADERS
    oscDistanceLateral.h
    oscDistanceLongitudinal.h
    oscDriver.h
-   oscDriverCatalog.h
-   oscDriverRef.h
    oscEndConditionsGroupsTypeA.h
    oscEndConditionsGroupTypeA.h
    oscEndConditionsTypeA.h
    oscEndConditionsTypeB.h
-   oscEndConditionTypeA.h
-   oscEndConditionTypeB.h
    oscEndOfRoad.h
    oscEngine.h
    oscEntities.h
    oscEntity.h
    oscEntityAdd.h
-   oscEntityCatalog.h
    oscEntityDelete.h
    oscEnvironment.h
-   oscEnvironmentCatalog.h
-   oscEnvironmentRef.h
+   oscEnvironmentReference.h
    oscEvent.h
    oscEvents.h
    oscExport.h
@@ -88,11 +82,11 @@ SET(HEADERS
    oscFilter.h
    oscFilters.h
    oscFog.h
+   oscFollowRoute.h
    oscFrustum.h
    oscGearbox.h
    oscGeneral.h
    oscInitDynamics.h
-   oscInitPosition.h
    oscInitState.h
    oscIntensity.h
    oscLaneChange.h
@@ -100,10 +94,11 @@ SET(HEADERS
    oscLaneDynamics.h
    oscLaneOffset.h
    oscLaneOffsetDynamics.h
+   oscLateral.h
    oscLight.h
    oscLighting.h
    oscLights.h
-   oscManeuverCatalog.h
+   oscLongitudinal.h
    oscManeuverGroupsTypeAB.h
    oscManeuverGroupTypeAB.h
    oscManeuversTypeB.h
@@ -112,26 +107,23 @@ SET(HEADERS
    oscManeuverTypeB.h
    oscManeuverTypeC.h
    oscMember.h
+   oscMemberArray.h
+   oscMemberCatalog.h
    oscMemberValue.h
    oscMirror.h
    oscMirrors.h
    oscMiscObject.h
-   oscMiscObjectCatalog.h
-   oscMiscObjectRef.h
-   oscNamedObject.h
-   oscNamedPriority.h
+   oscNamePriority.h
    oscNameRefId.h
+   oscNameUserData.h
    oscNone.h
    oscNotify.h
    oscNumericCondition.h
    oscObject.h
-   oscObjectArrayVariable.h
    oscObjectBase.h
-   oscObjectCatalog.h
-   oscObjectChoice.h
    oscObjects.h
    oscObjectVariable.h
-   oscObserverCatalog.h
+   oscObjectVariableArray.h
    oscObserverId.h
    oscObserverTypeA.h
    oscObserverTypeB.h
@@ -144,9 +136,6 @@ SET(HEADERS
    oscPartnerObject.h
    oscPartnerType.h
    oscPedestrian.h
-   oscPedestrianCatalog.h
-   oscPedestrianController.h
-   oscPedestrianRef.h
    oscPerformance.h
    oscPolyline.h
    oscPosition.h
@@ -176,7 +165,6 @@ SET(HEADERS
    oscRoadNetwork.h
    oscRoute.h
    oscRouting.h
-   oscRoutingCatalog.h
    oscScenarioEnd.h
    oscSetController.h
    oscSetState.h
@@ -194,8 +182,6 @@ SET(HEADERS
    oscStartConditionsTypeA.h
    oscStartConditionsTypeB.h
    oscStartConditionsTypeC.h
-   oscStartConditionTypeA.h
-   oscStartConditionTypeB.h
    oscStartConditionTypeC.h
    oscStoppingDistance.h
    oscStoryboard.h
@@ -204,6 +190,7 @@ SET(HEADERS
    oscTimeHeadway.h
    oscTimeOfDay.h
    oscTimeToCollision.h
+   oscTiming.h
    oscTrafficJam.h
    oscTrafficLight.h
    oscTrafficSink.h
@@ -214,31 +201,30 @@ SET(HEADERS
    oscUserDefinedAction.h
    oscUserDefinedCommand.h
    oscUserScript.h
+   oscUtilities.h
    oscVariables.h
    oscVehicle.h
    oscVehicleAxle.h
-   oscVehicleCatalog.h
-   oscVehicleRef.h
-   oscVelocity.h
    oscVisibility.h
    oscVisualRange.h
    oscWaypoint.h
    oscWaypoints.h
    oscWeather.h
-   utilities.h
 )
 
 SET(SOURCES
    OpenScenarioBase.cpp
-   oscArrayMember.cpp
    oscBody.cpp
    oscConditionChoiceBase.cpp
    oscConditionChoiceTypeA.cpp
    oscControlPoint.cpp
    oscFactories.cpp
+   oscLateral.cpp
    oscMember.cpp
+   oscMemberArray.cpp
+   oscMemberCatalog.cpp
    oscMemberValue.cpp
-   oscNamedPriority.cpp
+   oscNamePriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp
    oscPartnerType.cpp
@@ -252,12 +238,13 @@ SET(SOURCES
    oscRoute.cpp
    oscShape.cpp
    oscSourceFile.cpp
+   oscTiming.cpp
    oscTrafficSource.cpp
    oscUserScript.cpp
+   oscUtilities.cpp
    oscVariables.cpp
    oscVehicle.cpp
    oscWeather.cpp
-   utilities.cpp
 )
 
 IF(WIN32)

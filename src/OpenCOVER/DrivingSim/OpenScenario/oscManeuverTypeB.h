@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_MANEUVER_TYPE_B_H
 
 #include "oscExport.h"
-#include "oscNamedPriority.h"
+#include "oscNamePriority.h"
 #include "oscObjectVariable.h"
 
 #include "oscRefActorsTypeB.h"
@@ -20,7 +20,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscManeuverTypeB: public oscNamedPriority
+class OPENSCENARIOEXPORT oscManeuverTypeB: public oscNamePriority
 {
 public:
     oscManeuverTypeB()
@@ -30,7 +30,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
-    oscRefActorsTypeBArrayMember refActors;
+    oscRefActorsTypeBMemberArray refActors;
     oscCatalogReferenceTypeAMember catalogReference;
     oscManeuverTypeAMember maneuver;
 };

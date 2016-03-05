@@ -37,7 +37,7 @@ public:
     oscString description;
     oscString date;
     oscString author;
-    oscUserDataListArrayMember userDataList;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscFileHeader *> oscFileHeaderMember;

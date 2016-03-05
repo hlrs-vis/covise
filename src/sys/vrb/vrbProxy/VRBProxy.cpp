@@ -7,9 +7,7 @@
 
 #include "VRBProxy.h"
 #include <config/CoviseConfig.h>
-#ifndef YAC
-#include <covise/covise_version.h>
-#endif
+#include <util/covise_version.h>
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
 #include <util/unixcompat.h>
@@ -51,7 +49,6 @@ VRBProxy::VRBProxy(int argc, char **argv)
                 debugOn = true;
                 break;
             }
-#ifndef YAC
             case 'v':
                 printf("VRBProxy 1.0, Covise: %s\n", CoviseVersion::shortVersion());
                 exit(0);
@@ -60,7 +57,6 @@ VRBProxy::VRBProxy(int argc, char **argv)
                 printf("VRBProxy 1.0, Covise: %s\n", CoviseVersion::longVersion());
                 exit(0);
                 break;
-#endif
             default:
             {
                 cerr << "Unrecognized Option -" << argv[i][1] << " \n";

@@ -44,6 +44,7 @@ namespace vrui
 {
 class coTrackerButtonInteraction;
 }
+class CoviseSG;
 class CoviseRenderObject;
 namespace opencover
 {
@@ -59,6 +60,7 @@ class ObjectManager
 {
 private:
     covise::coMaterialList *materialList;
+    CoviseSG *coviseSG;
 
     typedef std::map<std::string, std::vector<buttonSpecCell *> > ButtonsMap;
     ButtonsMap buttonsMap;

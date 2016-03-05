@@ -30,13 +30,13 @@ Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa
     parents = pa;
     varName = var_Name;
     VarNode = new osg::MatrixTransform;
-    VarNode->setName(var_Name.c_str());
-    VarNode->addChild(node);
-    attachedNodesList.push_back(node);
-    for (osg::Node::ParentList::iterator parent = parents.begin(); parent != parents.end(); ++parent)
+    VarNode->setName("Variant:"+var_Name);
+
+    if (node)
     {
-        (*parent)->removeChild(node);
+        attachNode(node);
     }
+
     origin_matrix = VarNode->getMatrix();
     createVRLabel();
     ui = new VariantUI(var_Name, Variant_menu, VariantPluginTab);
@@ -57,7 +57,7 @@ Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa
     qDE_Variant->appendChild(qDE_Variant_item);
     std::string cnName = "_clNode_";
     cnName.append(varName);
-    cn = boi->createCipNode(cnName);
+    cn = boi->createClipNode(cnName);
 }
 //------------------------------------------------------------------------------
 
@@ -96,9 +96,16 @@ void Variant::releaseNode(osg::Node *node)
 
 void Variant::attachNode(osg::Node *node)
 {
-    VarNode->addChild(node);
-    attachedNodesList.push_back(node);
-    cover->getObjectsRoot()->removeChild(node);
+    if (node)
+    {
+        node->ref();
+        while (node->getNumParents() > 0)
+            node->getParent(0)->removeChild(node);
+        attachedNodesList.push_back(node);
+        cover->getObjectsRoot()->removeChild(node);
+        VarNode->addChild(node);
+        node->unref();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -131,7 +138,7 @@ void Variant::createVRLabel()
 {
     //Create VRLabel
     osg::MatrixTransform *mtn = new osg::MatrixTransform;
-    mtn->setName("Label");
+    mtn->setName("Variant:Label");
     mtn->setMatrix((mtn->getMatrix()).scale(0.1, 0.1, 0.1));
     VarLabel = new coVRLabel(varName.c_str(), 5, 10.0, osg::Vec4(1, 1, 1, 1), osg::Vec4(0.1, 0.1, 0.1, 1));
     VarLabel->reAttachTo(mtn);

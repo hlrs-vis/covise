@@ -26,7 +26,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(endConditions, "oscEndConditionsTypeA");
     };
 
-    oscEndConditionsTypeAArrayMember endConditions;
+    oscEndConditionsTypeAMemberArray endConditions;
 };
 
 typedef oscObjectVariable<oscEndConditionsGroupTypeA *> oscEndConditionsGroupTypeAMember;

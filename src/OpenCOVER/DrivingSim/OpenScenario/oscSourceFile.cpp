@@ -6,7 +6,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 * License: LGPL 2+ */
 
 #include "oscSourceFile.h"
-#include "utilities.h"
+#include "oscUtilities.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/util/XMLString.hpp>

@@ -396,7 +396,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             for (index_t i = 0; i < num_elem; i++)
             {
                 const std::vector<index_t> &cellfaces = cellfacemap[i];
-                const std::vector<index_t> cellvertices = getVerticesForCell(cellfaces, faces);
+                const vertex_set cellvertices = getVerticesForCell(cellfaces, faces);
                 bool onlySimpleFaces = true; //Simple Face = Triangle or Square
                 for (index_t j = 0; j < cellfaces.size(); ++j)
                 { //check if Cell has only Triangular and/or Square Faces
@@ -957,6 +957,19 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 {
     (void)port;
     m_case = getCaseInfo(casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactorParam->getValue());
+    if (m_case.timedirs.size()==0) // create dummy timestep to read mesh at least once and create processorID data port if selected 
+    {
+        std::string bn = "0";
+        double t = atof(bn.c_str()); 
+        num_boundary_data_ports=0;
+        if (portChoice[0]->getValue()==1)
+        {
+            num_ports=1;
+        }
+        else
+            num_ports=0;
+        m_case.timedirs[t] = bn;
+    }
     //Mesh
     checkPolyMeshDirContent(m_case, casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactorParam->getValue());
     int skipfactor = skipfactorParam->getValue();
@@ -978,7 +991,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     coDoSet *boundarySet=NULL, *boundarySubSet=NULL;
     std::vector<std::vector<coDistributedObject *> > portSubSets(num_ports);
     coDoSet *portSet=NULL, *portSubSet=NULL;
-    std::vector<std::vector<coDistributedObject *> > boundPortSubSets(num_ports);
+    std::vector<std::vector<coDistributedObject *> > boundPortSubSets(num_boundary_data_ports);
     coDoSet *boundPortSet=NULL, *boundPortSubSet=NULL;
 
     std::vector <std::string> lastmeshdir(std::max(1,m_case.numblocks));
@@ -1008,7 +1021,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     std::vector<coDistributedObject *> tempSetMesh;
                     std::vector<coDistributedObject *> tempSetBoundary;
                     std::vector<std::vector<coDistributedObject *> > tempSetPort(num_ports);
-                    std::vector<std::vector<coDistributedObject *> > tempSetBoundPort(num_ports);
+                    std::vector<std::vector<coDistributedObject *> > tempSetBoundPort(num_boundary_data_ports);
                     for (index_t j = 0;( j < m_case.numblocks || j==0); j++)
                     { //fill vector:tempSet with all the mesh parts of all processors even if its just one
                         //std::cerr << " processor" << j;

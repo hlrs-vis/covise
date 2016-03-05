@@ -20,13 +20,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT purposeType: public oscEnumType
+class OPENSCENARIOEXPORT purposeShapeType: public oscEnumType
 {
 public:
-    static purposeType *instance(); 
+    static purposeShapeType *instance();
 private:
-    purposeType();
-    static purposeType *inst;
+    purposeShapeType();
+    static purposeShapeType *inst;
 };
 
 /// \class This class represents a generic OpenScenario Object
@@ -40,7 +40,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(clothoid, "oscClothoid");
         OSC_OBJECT_ADD_MEMBER(spline, "oscSpline");
 
-        purpose.enumType = purposeType::instance();
+        purpose.enumType = purposeShapeType::instance();
     };
 
     oscEnum purpose;
@@ -48,7 +48,7 @@ public:
     oscClothoidMember clothoid;
     oscSplineMember spline;
 
-    enum purpose
+    enum purposeShape
     {
         steering,
         positioning,

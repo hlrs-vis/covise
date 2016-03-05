@@ -38,7 +38,7 @@ public:
     {
         return image;
     };
-    void setGLFormat(PixelFormat);
+    void setGLFormat(AVPixelFormat);
     GLenum getGLFormat()
     {
         return glFormat;

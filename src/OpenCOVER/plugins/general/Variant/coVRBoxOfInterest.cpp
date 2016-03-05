@@ -78,7 +78,7 @@ coVRBoxOfInterest::coVRBoxOfInterest(VariantPlugin *plug, coTrackerButtonInterac
     bMt->addChild(lines);
     boiNode->addChild(bMt);
     bSphere = new interactorSpheres(boiNode, center, length, _interactionA);
-    // createCipNode("myCNNode");
+    // createClipNode("myCNNode");
     cover->getObjectsRoot()->addChild(boiNode);
 }
 //-----------------------------------------------------------
@@ -91,14 +91,14 @@ coVRBoxOfInterest::~coVRBoxOfInterest()
     delete bSphere;
 }
 //-----------------------------------------------------------
-osg::ClipNode *coVRBoxOfInterest::createCipNode(std::string cnName)
+osg::ClipNode *coVRBoxOfInterest::createClipNode(std::string cnName)
 {
     osg::ClipNode *mycn = new osg::ClipNode;
     // cover->getObjectsRoot()->addChild(boiNode);
 
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
-        cp[i] = cover->getClipPlane(0);
+        cp[i] = cover->getClipPlane(i);
         mycn->addClipPlane(cp[i].get());
     }
 
@@ -445,13 +445,6 @@ void coVRBoxOfInterest::updateClippingPlanes()
     osg::Vec3d vecee = -(centerVec + diree);
     osg::Vec3d vecff = -(centerVec + dirff);
 
-    osg::Plane plane1;
-    osg::Plane plane2;
-    osg::Plane plane3;
-    osg::Plane plane4;
-    osg::Plane plane5;
-    osg::Plane plane6;
-
     osg::Vec3d tmpaa = diraa / diraa.length();
     float abst_aa = vecaa * tmpaa;
     osg::Vec3d tmpcc = dircc / dircc.length();
@@ -465,19 +458,19 @@ void coVRBoxOfInterest::updateClippingPlanes()
     osg::Vec3d tmpff = dirff / dirff.length();
     float abst_ff = vecff * tmpff;
 
-    plane1.set(-tmpaa, -abst_aa);
-    plane2.set(-tmpcc, -abst_cc);
-    plane3.set(-tmpbb, -abst_bb);
-    plane4.set(-tmpdd, -abst_dd);
-    plane5.set(-tmpee, -abst_ee);
-    plane6.set(-tmpff, -abst_ff);
+    osg::Plane plane[6];
+    plane[0].set(-tmpaa, -abst_aa);
+    plane[1].set(-tmpcc, -abst_cc);
+    plane[2].set(-tmpbb, -abst_bb);
+    plane[3].set(-tmpdd, -abst_dd);
+    plane[4].set(-tmpee, -abst_ee);
+    plane[5].set(-tmpff, -abst_ff);
 
-    cp[0]->setClipPlane(plane1);
-    cp[1]->setClipPlane(plane2);
-    cp[2]->setClipPlane(plane3);
-    cp[3]->setClipPlane(plane4);
-    cp[4]->setClipPlane(plane5);
-    cp[5]->setClipPlane(plane6);
+    for (int i=0; i<6; ++i)
+    {
+        if (cp[i])
+            cp[i]->setClipPlane(plane[i]);
+    }
 }
 //-----------------------------------------------------------
 

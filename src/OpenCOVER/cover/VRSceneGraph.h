@@ -42,9 +42,7 @@ class ClipNode;
 
 namespace opencover
 {
-class coVRLabel;
 class buttonSpecCell;
-class RenderObject;
 class coVRStatsDisplay;
 
 class COVEREXPORT VRSceneGraph
@@ -59,8 +57,9 @@ public:
     static void coordAxisCallback(void *sceneGraph, buttonSpecCell *spec);
     static void storeCallback(void *sceneGraph, buttonSpecCell *spec);
     static void reloadFileCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void sliderCallback(void *sceneGraph, buttonSpecCell *spec);
+#ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
+#endif
     static void scalePlusCallback(void *sceneGraph, buttonSpecCell *spec);
     static void scaleMinusCallback(void *sceneGraph, buttonSpecCell *spec);
 
@@ -127,11 +126,7 @@ public:
 
     osg::BoundingSphere getBoundingSphere();
 
-    void addNode(osg::Node *node, osg::Group *parent, RenderObject *ro);
-    void addNode(osg::Node *node, const char *parentName, RenderObject *ro);
-    void deleteNode(const char *nodeName, bool isGroup);
-    osg::Node *findNode(const std::string &name);
-    void nodeHasSpecialBounds(osg::Node *node, const osg::BoundingSphere &bs);
+    void setNodeBounds(osg::Node *node, const osg::BoundingSphere *bs);
 
     template <class T>
     T *findFirstNode(const char *name, bool startsWith = false, osg::Node * rootNode = NULL)
@@ -170,10 +165,6 @@ public:
             return NULL;
         }
     }
-
-    // attach a node to another (the attached node will be deleted with the other node)
-    void attachNode(const char *attacheeName, osg::Node *attached);
-    void attachLabel(const char *attacheeName, const char *label);
 
     float scaleMode()
     {
@@ -221,8 +212,6 @@ public:
         return m_handSphere;
     }
 
-    typedef std::map<std::string, osg::Node *> NodeList;
-    typedef std::map<std::string, coVRLabel *> LabelList;
     void setMultisampling(osg::Multisample::Mode);
 
     void setScaleFromButton(float direction);
@@ -245,7 +234,6 @@ public:
     void protectScenegraph();
 
     int m_vectorInteractor; //< don't use - for COVISE plugin only
-    bool m_oldHandLocked; //< don't use - for COVISE plugin only
 
     bool KeyButton[4];
 
@@ -283,8 +271,6 @@ private:
 
     bool showSmallSceneAxis_;
     bool transparentPointer_;
-    NodeList m_addedNodeList, m_attachedNodeList;
-    LabelList m_attachedLabelList;
 
     osg::StateSet *m_rootStateSet;
     osg::ClipNode *m_objectsRoot;
@@ -328,8 +314,8 @@ private:
     osg::MatrixTransform *m_objectsTransform;
     osg::ref_ptr<osg::Multisample> m_Multisample;
     coVRStatsDisplay *statsDisplay;
-    typedef std::map<osg::Node *, osg::Node *> SpecialBoundsNodeList;
-    SpecialBoundsNodeList m_specialBoundsNodeList;
+    typedef std::set<osg::Node *> NodeSet;
+    NodeSet m_specialBoundsNodeList;
     void dirtySpecialBounds();
 
     bool menusAreHidden;
@@ -338,8 +324,6 @@ private:
     osg::Vec3 transTraversingInteractors;
     bool isFirstTraversal;
 
-    bool sgDebug_; /// scenegraph debug prints
-    const char *hostName_;
     bool storeWithMenu;
     bool isScenegraphProtected_;
 

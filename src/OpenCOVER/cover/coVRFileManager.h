@@ -81,6 +81,9 @@ public:
 
     osg::Node *getLastModelNode();
 
+    // set name of a file to store Viewpoints; if unset, this is derived from the loaded FileName
+    void setViewPointFile(const std::string &viewPointFile);
+
     // getName of a file to store Viewpoints
     // this is derived from the loaded FileName
     std::string getViewPointFile();

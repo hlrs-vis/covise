@@ -29,7 +29,7 @@
 #include <do/covise_gridmethods.h>
 #include <util/coviseCompat.h>
 #include <config/CoviseConfig.h>
-#include <covise/covise_version.h>
+#include <util/covise_version.h>
 #include <api/coFeedback.h>
 #include <do/coDoText.h>
 #include <do/coDoData.h>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="bob" refId="345" category="pedestrian" model="hjgyj" mass="112.7">
+
+
+  <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1"/>
+
+
+  <dimension front="34.67" rear="345.68" left="34.6" right="234.567" bottom="0.34" top="248.56"/>
+
+
+  <geometry URL="pedestrian-bob_geom.xml"/>
+
+
+  <behavior politeness="356.789" alertness="3.89"/>
+
+
+</pedestrian>

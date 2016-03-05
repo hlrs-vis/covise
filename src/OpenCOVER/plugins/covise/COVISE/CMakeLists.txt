@@ -17,6 +17,7 @@ covise_install_target(COVISEPluginUtil)
 SET(HEADERS
    CovisePlugin.h
    CoviseRenderObject.h
+   CoviseSG.h
    VRCoviseConnection.h
    VRCoviseObjectManager.h
    VRSlider.h
@@ -32,6 +33,7 @@ SET(HEADERS
 SET(SOURCES
    CovisePlugin.cpp
    CoviseRenderObject.cpp
+   CoviseSG.cpp
    VRCoviseConnection.cpp
    VRCoviseObjectManager.cpp
    VRSlider.cpp
