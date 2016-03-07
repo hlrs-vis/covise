@@ -19,4 +19,5 @@ ENDIF(APPLE)
 covise_add_library(mpicover MODULE ../main/OpenCOVERMain.cpp)
 target_link_libraries(mpicover coOpenCOVER ${COVISE_VRBCLIENT_LIBRARY}
    ${COVISE_GRMSG_LIBRRARY} ${COVISE_UTIL_LIBRARY} ${EXTRA_LIBS})
+qt_use_modules(mpicover Core)
 covise_install_target(mpicover)
