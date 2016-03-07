@@ -1264,7 +1264,7 @@ void ViewPoints::saveAllViewPoints()
 
     doc.appendChild(rootElement);
     // loop over all viewpoints
-    for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+    for (vector<ViewDesc *>::iterator it = viewpoints.begin() + numberOfDefaultVP; it < viewpoints.end(); it++)
     {
         
         ViewDesc *viewDesc = (*it);
