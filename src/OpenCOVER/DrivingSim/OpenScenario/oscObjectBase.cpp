@@ -437,10 +437,12 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //for testing only
                     //
                     //generate the objects for this catalog and store them
-                    unordered_map<std::string, bf::path> availableObjectsMap = cm->getAvailableObjectsMap();
-                    for (unordered_map<std::string, bf::path>::const_iterator it = availableObjectsMap.begin(); it != availableObjectsMap.end(); it++)
+//                    unordered_map<std::string, bf::path> mapAvailableObjects = cm->getMapAvailableObjects();
+//                    for (unordered_map<std::string, bf::path>::const_iterator it = mapAvailableObjects.begin(); it != mapAvailableObjects.end(); it++)
+                    for (auto &it : cm->getMapAvailableObjects())
                     {
-                        cm->fullReadCatalogObjectWithName(it->first);
+//                        cm->fullReadCatalogObjectWithName(it->first);
+                        cm->fullReadCatalogObjectWithName(it.first);
                     }
                     //
                     //////
