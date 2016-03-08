@@ -41,6 +41,7 @@ public:
     virtual ~oscMember(); ///< destructor
 
     void registerWith(oscObjectBase *owner);
+    void registerChoiceWith(oscObjectBase *objBase);
 
     void setName(const char *n);
     void setName(std::string &n);

@@ -111,6 +111,24 @@ oscMember *oscObjectBase::getOwnMember() const
 
 
 //
+void oscObjectBase::addMemberToChoice(oscMember *m)
+{
+    choice.push_back(m);
+}
+
+bool oscObjectBase::hasChoice() const
+{
+    //for a choice at least two elements are required
+    return (choice.size() > 1) ? true : false;
+}
+
+std::vector<oscMember *> oscObjectBase::getChoice() const
+{
+    return choice;
+}
+
+
+//
 bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
 {
     for(MemberMap::iterator it = members.begin();it != members.end(); it++)

@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscTrafficLight: public oscObjectBase
 public:
     oscTrafficLight()
     {
-        OSC_OBJECT_ADD_MEMBER(setState, "oscSetState");
-        OSC_OBJECT_ADD_MEMBER(setController, "oscSetController");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(setState, "oscSetState");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(setController, "oscSetController");
     };
 
     oscSetStateMember setState;

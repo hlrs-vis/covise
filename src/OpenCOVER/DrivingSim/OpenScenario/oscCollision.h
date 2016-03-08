@@ -26,8 +26,8 @@ public:
     oscCollision()
     {
         OSC_ADD_MEMBER(object);
-        OSC_OBJECT_ADD_MEMBER(partnerObject, "oscPartnerObject");
-        OSC_OBJECT_ADD_MEMBER(partnerType, "oscPartnerType");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(partnerObject, "oscPartnerObject");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(partnerType, "oscPartnerType");
     };
 
     oscString object;

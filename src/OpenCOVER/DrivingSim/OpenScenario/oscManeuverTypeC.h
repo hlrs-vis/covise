@@ -30,8 +30,8 @@ public:
         OSC_OBJECT_ADD_MEMBER(startConditions, "oscStartConditionsTypeB");
         OSC_OBJECT_ADD_MEMBER(endConditions, "oscEndConditionsTypeB");
         OSC_OBJECT_ADD_MEMBER(cancelConditions, "oscCancelConditionsTypeB");
-        OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
-        OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(catalogReference, "oscCatalogReferenceTypeA");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(maneuver, "oscManeuverTypeA");
     };
 
     oscStartConditionsTypeBMemberArray startConditions;

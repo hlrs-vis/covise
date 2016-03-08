@@ -28,9 +28,9 @@ public:
     {
         OSC_ADD_MEMBER(routeId);
         OSC_ADD_MEMBER(relativeOrientation);
-        OSC_OBJECT_ADD_MEMBER(currentPosition, "oscCurrentPosition");
-        OSC_OBJECT_ADD_MEMBER(roadCoord, "oscRoadCoord");
-        OSC_OBJECT_ADD_MEMBER(laneCoord, "oscLaneCoord");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(currentPosition, "oscCurrentPosition");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(roadCoord, "oscRoadCoord");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(laneCoord, "oscLaneCoord");
     };
 
     oscString routeId;

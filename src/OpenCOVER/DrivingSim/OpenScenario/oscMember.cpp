@@ -35,6 +35,11 @@ void oscMember::registerWith(oscObjectBase* o)
     owner->addMember(this);
 }
 
+void oscMember::registerChoiceWith(oscObjectBase *objBase)
+{
+    objBase->addMemberToChoice(this);
+}
+
 
 //
 void oscMember::setName(const char *n)

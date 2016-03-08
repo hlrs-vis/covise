@@ -36,9 +36,9 @@ public:
     oscShape()
     {
         OSC_ADD_MEMBER(purpose);
-        OSC_OBJECT_ADD_MEMBER(polyline, "oscPolyline");
-        OSC_OBJECT_ADD_MEMBER(clothoid, "oscClothoid");
-        OSC_OBJECT_ADD_MEMBER(spline, "oscSpline");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(polyline, "oscPolyline");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(clothoid, "oscClothoid");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(spline, "oscSpline");
 
         purpose.enumType = purposeShapeType::instance();
     };

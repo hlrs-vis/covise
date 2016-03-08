@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscChoiceController: public oscObjectBase
 public:
     oscChoiceController()
     {
-        OSC_OBJECT_ADD_MEMBER(driverReference, "oscNameRefId");
-        OSC_OBJECT_ADD_MEMBER(pedestrianController, "oscPedestrianController");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(driverReference, "oscNameRefId");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(pedestrianController, "oscPedestrianController");
     };
 
     oscNameRefIdMember driverReference;
