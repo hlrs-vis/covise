@@ -49,7 +49,6 @@ class oscSourceFile;
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
 {
 protected: 
-    xercesc::DOMElement *rootElement; ///< DOM Root element
     xercesc::XercesDOMParser *parser; ///< validating parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files

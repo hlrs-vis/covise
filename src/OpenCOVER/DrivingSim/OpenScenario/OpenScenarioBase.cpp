@@ -32,7 +32,6 @@ using namespace OpenScenario;
 
 OpenScenarioBase::OpenScenarioBase():oscObjectBase()
 {
-    rootElement = NULL;
     parser = NULL;
     xmlDoc = NULL;
     oscFactories::instance();
@@ -52,7 +51,19 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     ownMem->setName("OpenSCENARIO");
     ownMem->setTypeName("OpenScenarioBase");
     ownMem->setValue(this);
+
+    try
+    {
+        xercesc::XMLPlatformUtils::Initialize();
+    }
+    catch (const xercesc::XMLException &toCatch)
+    {
+        char *message = xercesc::XMLString::transcode(toCatch.getMessage());
+        std::cerr << "Error during initialization! :\n" << message << std::endl;
+        xercesc::XMLString::release(&message);
+    }
 }
+
 
 
 /*****
@@ -118,7 +129,8 @@ void OpenScenarioBase::setValidation(const bool validate)
 //
 bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &fileType)
 {
-    if(getRootElement(fileName, fileType) == NULL)
+    xercesc::DOMElement *rootElement = getRootElement(fileName, fileType);
+    if(rootElement == NULL)
     {
         return false;
     }
@@ -284,18 +296,6 @@ xercesc::MemBufFormatTarget *OpenScenarioBase::writeFileToMemory(xercesc::DOMDoc
 
 xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileName, const std::string &fileType, const bool validate)
 {
-    try
-    {
-        xercesc::XMLPlatformUtils::Initialize();
-    }
-    catch (const xercesc::XMLException &toCatch)
-    {
-        char *message = xercesc::XMLString::transcode(toCatch.getMessage());
-        std::cerr << "Error during initialization! :\n" << message << std::endl;
-        xercesc::XMLString::release(&message);
-        return NULL;
-    }
-
     //
     //parsing a file is done in two steps
     // -first step with enabled XInclude and disabled validation
@@ -428,13 +428,15 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     if (tmpXmlDoc)
     {
         xmlDoc = tmpXmlDoc;
-        rootElement = tmpRootElem;
+        xercesc::DOMElement *rootElement = tmpRootElem;
 
         //to ensure that the DOM view of a document is the same as if it were saved and re-loaded
         rootElement->normalize();
+
+        return rootElement;
     }
 
-    return rootElement;
+    return NULL;
 }
 
 
