@@ -62,6 +62,16 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
         std::cerr << "Error during initialization! :\n" << message << std::endl;
         xercesc::XMLString::release(&message);
     }
+
+    //new parser, error handler, generic settings
+    //
+    parser = new xercesc::XercesDOMParser();
+    //error handler
+    ParserErrorHandler parserErrorHandler;
+    parser->setErrorHandler(&parserErrorHandler);
+
+    //namespaces needed for XInclude and validation
+    parser->setDoNamespaces(true);
 }
 
 
@@ -305,18 +315,6 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     // then the validation is done before XInclude. But we want validate the
     // whole document with all elements included in one document
     //
-
-    //new parser, error handler, generic settings
-    //
-    parser = new xercesc::XercesDOMParser();
-
-    //error handler
-    ParserErrorHandler parserErrorHandler;
-    parser->setErrorHandler(&parserErrorHandler);
-
-    //namespaces needed for XInclude and validation
-    parser->setDoNamespaces(true);
-
 
     //parse file with enabled XInclude and disabled validation
     //
