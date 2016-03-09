@@ -1298,6 +1298,8 @@ void coPinEditor::updatePinList(float minv, float maxv)
             cpy.mapTo01(minv, maxv);
 
             coAlphaHatPin *pin = new coAlphaHatPin(pinDCS.get(), H, W, pyrPin);
+            pin->setTopWidth(cpy.top()[0]);
+            pin->setBotWidth(cpy.bottom()[0]);
             pin->setPos(cpy.pos()[0]);
             pinList.push_back(pin);
         }
@@ -1307,6 +1309,7 @@ void coPinEditor::updatePinList(float minv, float maxv)
             cpy.mapTo01(minv, maxv);
 
             coAlphaBlankPin *pin = new coAlphaBlankPin(pinDCS.get(), H, W, skipPin);
+            pin->setWidth(cpy.size()[0]);
             pin->setPos(cpy.pos()[0]);
             pinList.push_back(pin);
         }
