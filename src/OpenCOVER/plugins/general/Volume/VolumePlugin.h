@@ -103,7 +103,7 @@ public:
     void postFrame();
     void setTimestep(int);
     void key(int type, int keySym, int mod);
-    bool updateVolume(const std::string &name, vvVolDesc *vd, const std::string &filename = std::string());
+    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string());
     void saveVolume();
     void cropVolume();
 

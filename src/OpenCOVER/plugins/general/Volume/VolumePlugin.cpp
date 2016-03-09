@@ -838,6 +838,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                             it->second.curChannel = tfe->getActiveChannel();
                             it->second.tf[tfe->getActiveChannel()] = func;
                             it->second.drawable->setTransferFunctions(it->second.tf);
+                            it->second.drawable->mapTransferFunctionsFrom01();
                         }
                     }
                 }
@@ -948,6 +949,7 @@ void VolumePlugin::applyAllTransferFunctions(void *userData)
             {
                 it->second.tf = tfe->getTransferFuncs();
                 it->second.drawable->setTransferFunctions(it->second.tf);
+                it->second.drawable->mapTransferFunctionsFrom01();
             }
         }
     }
@@ -1052,7 +1054,7 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
     editor->show();
     // a volumefile will be loaded now , so show the TFE
 
-    updateVolume(fileName, vd, fileName);
+    updateVolume(fileName, vd, false, fileName);
 
     return 1;
 }
@@ -1476,7 +1478,7 @@ void VolumePlugin::saveVolume()
     }
 }
 
-bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, const std::string &filename)
+bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename)
 {
     if (!vd)
     {
@@ -1558,6 +1560,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, const st
     makeVolumeCurrent(volume);
 
     drawable->setTransferFunctions(volume->second.tf);
+    if (mapTF) drawable->mapTransferFunctionsFrom01();
     drawable->setPreintegration(volume->second.preIntegration);
     drawable->setLighting(volume->second.lighting);
 
@@ -1656,6 +1659,7 @@ void VolumePlugin::updateTFEData()
                     editor->setTransferFuncs(currentVolume->second.tf);
                     editor->setActiveChannel(currentVolume->second.curChannel);
                     tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
+                    tfApplyCBData.drawable->mapTransferFunctionsFrom01();
 
                     for (int c = 0; c < vd->chan; ++c)
                     {
