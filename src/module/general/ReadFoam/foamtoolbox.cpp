@@ -298,13 +298,13 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 }
 
 
-bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double mintime, double maxtime, int skipfactor)
+bool checkPolyMeshDirContent(CaseInfo &info)
 {
 	// start out with 
 	std::stringstream s;
     if (info.numblocks>0)
 		s << "/processor0" << "/";
-	std::string basedir = casedir;
+    std::string basedir = info.casedir;
 	basedir += s.str(); 
 	std::string fullMeshDir = info.constantdir;
 
@@ -320,33 +320,12 @@ bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double 
 		std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
 	}
 
-    // if numblocks>0 -> casedir/processor0/timedir/polyMesh
-    // else casedir/timedir/polyMesh
-    // checkSubDirectory
-    // if (varingGrid)
-    // {
-    // 
-    // }
-/*	int counter = 0;
-	for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
-	{
-		next = it;
-		++next;
-		if (counter % skipfactor != 0)
-		{
-			std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
-			info.timedirs.erase(it);
-			--num_timesteps;
-		}
-		++counter;
-	}*/
-
     return true;
 }
 
 
 
-bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare, double mintime, double maxtime, int skipfactor, bool exact)
+bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare, bool exact)
 {
 
     std::cerr << "reading casedir: " << casedir << std::endl;
@@ -388,7 +367,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
 
     if (num_processors > 0)
     {
-        bool result = checkCaseDirectory(info, casedir + "/processor0", false, mintime, maxtime, skipfactor, exact);
+        bool result = checkCaseDirectory(info, casedir + "/processor0", false, exact);
         if (!result)
         {
             std::cerr << "failed to read case directory for processor 0" << std::endl;
@@ -401,7 +380,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             {
                 std::stringstream s;
                 s << casedir << "/processor" << i;
-                bool result = checkCaseDirectory(info, s.str(), true, mintime, maxtime, skipfactor, exact);
+                bool result = checkCaseDirectory(info, s.str(), true, exact);
                 if (!result)
                     return false;
             }
@@ -453,24 +432,6 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             }
         }
     }
-// ignore skipfactor in checkCaseDirectory for now
-/*
-    if (!compare)
-    {
-        int counter = 0;
-        for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
-        {
-            next = it;
-            ++next;
-            if (counter % skipfactor != 0)
-            {
-                std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
-				info.timedirs.erase(it);
-                --num_timesteps;
-            }
-            ++counter;
-        }
-    }*/
 
     bool varyingChecked = false, constantChecked = false;
     for (bf::directory_iterator it(dir);
@@ -535,11 +496,12 @@ bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
     return !ignored;
 }
 
-CaseInfo getCaseInfo(const std::string &casedir, double mintime, double maxtime, int skipfactor, bool exact)
+CaseInfo getCaseInfo(const std::string &casedir, bool exact)
 {
 
     CaseInfo info;
-    info.valid = checkCaseDirectory(info, casedir, false, mintime, maxtime, skipfactor, exact);
+    info.casedir = casedir;
+    info.valid = checkCaseDirectory(info, casedir, false, exact);
 
     std::cerr << " "
               << "casedir: " << casedir << " " << std::endl

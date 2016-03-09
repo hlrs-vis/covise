@@ -177,7 +177,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
             skipfactorParam->setValue(1);
         }
 
-        m_case = getCaseInfo(casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactor);
+        m_case = getCaseInfo(casedir);
         if (!m_case.valid)
         {
             coModule::sendError("%s is not a valid OpenFOAM case", casedir);
@@ -956,7 +956,7 @@ coDoFloat *ReadFOAM::loadBoundaryScalarField(const std::string &timedir,
 int ReadFOAM::compute(const char *port) //Compute is called when Module is executed
 {
     (void)port;
-    m_case = getCaseInfo(casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactorParam->getValue());
+    m_case = getCaseInfo(casedir);
     if (m_case.timedirs.size()==0) // create dummy timestep to read mesh at least once and create processorID data port if selected 
     {
         std::string bn = "0";
@@ -971,7 +971,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         m_case.timedirs[t] = bn;
     }
     //Mesh
-    checkPolyMeshDirContent(m_case, casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactorParam->getValue());
+    checkPolyMeshDirContent(m_case);
     int skipfactor = skipfactorParam->getValue();
     if (skipfactor < 1)
     {
