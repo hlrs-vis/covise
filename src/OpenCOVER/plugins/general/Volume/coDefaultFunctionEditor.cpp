@@ -326,7 +326,7 @@ void coDefaultFunctionEditor::updateBackground(unsigned char *texture)
 void coDefaultFunctionEditor::updatePinList()
 {
     pinedit->setTransFuncPtr(&theTransferFunc[activeChannel]);
-    pinedit->updatePinList();
+    pinedit->updatePinList(minValue[activeChannel], maxValue[activeChannel]);
 }
 
 void coDefaultFunctionEditor::updateColorBar()

@@ -1261,7 +1261,7 @@ void coPinEditor::setBackgroundType(int mo)
     backgroundGeometry->dirtyDisplayList();
 }
 
-void coPinEditor::updatePinList()
+void coPinEditor::updatePinList(float minv, float maxv)
 {
 
     for (list<coPin *>::iterator pin = pinList.begin(); pin != pinList.end(); ++pin)
@@ -1281,24 +1281,33 @@ void coPinEditor::updatePinList()
         vvTFSkip *skipPin = dynamic_cast<vvTFSkip *>(jPin);
         if (colPin)
         {
+            vvTFColor cpy = *colPin;
+            cpy.mapTo01(minv, maxv);
+
             float h, s, v;
-            colPin->_col.getHSB(h, s, v);
+            cpy._col.getHSB(h, s, v);
 
             coHSVPin *pin = new coHSVPin(pinDCS.get(), H, W, colPin);
             pin->setColor(h, s, v);
-            pin->setPos(jPin->_pos[0]);
+            pin->setPos(cpy.pos()[0]);
             pinList.push_back(pin);
         }
         else if (pyrPin)
         {
+            vvTFPyramid cpy = *pyrPin;
+            cpy.mapTo01(minv, maxv);
+
             coAlphaHatPin *pin = new coAlphaHatPin(pinDCS.get(), H, W, pyrPin);
-            pin->setPos(jPin->_pos[0]);
+            pin->setPos(cpy.pos()[0]);
             pinList.push_back(pin);
         }
         else if (skipPin)
         {
+            vvTFSkip cpy = *skipPin;
+            cpy.mapTo01(minv, maxv);
+
             coAlphaBlankPin *pin = new coAlphaBlankPin(pinDCS.get(), H, W, skipPin);
-            pin->setPos(jPin->_pos[0]);
+            pin->setPos(cpy.pos()[0]);
             pinList.push_back(pin);
         }
     }
