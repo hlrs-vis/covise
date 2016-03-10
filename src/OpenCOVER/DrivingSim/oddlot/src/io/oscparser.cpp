@@ -117,8 +117,8 @@ OSCParser::parseXOSC(const QString &filename, const QString &fileType)
 	// TODO: validation of files should be selectable
 	//
 	//enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
-	openScenarioBase_->setValidation(true);
-	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), fileType.toStdString());
+	bool validate = openScenarioBase_->getValidation();
+	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), fileType.toStdString(), validate);
 
 	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
 

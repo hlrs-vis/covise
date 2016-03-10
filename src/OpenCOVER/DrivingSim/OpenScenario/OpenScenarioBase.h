@@ -52,7 +52,7 @@ protected:
     xercesc::XercesDOMParser *parser; ///< validating parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
-    static bool m_validate;
+    bool m_validate;
     static const unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> m_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)
 
 public:
@@ -69,6 +69,7 @@ public:
     ~OpenScenarioBase(); /// destructor, terminate xerces-c
 
     void setValidation(const bool validate); ///< turn on/off validation
+    bool getValidation() const;
 
     bool loadFile(const std::string &fileName, const std::string &fileType); /*!< load an OpenScenario databas file in xml format
                                                                                  \param fileName file to load.
@@ -80,7 +81,7 @@ public:
 
     bool writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite);
     xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
-    xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate = m_validate); ///< init xerces, create validating parser and parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
+    xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate); ///< init xerces, create validating parser and parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successful
 

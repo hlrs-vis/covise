@@ -123,10 +123,11 @@ std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path
 void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 {
     OpenScenarioBase *oscBase = new OpenScenarioBase();
+    bool validate = owner->getBase()->getValidation();
 
     for (size_t i = 0; i < filenames.size(); i++)
     {
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogType);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogType, validate);
 
         if (rootElem)
         {
@@ -482,7 +483,8 @@ std::string oscMemberCatalog::getObjectNameFromFile(const bf::path &fileNamePath
 {
     std::string objectName;
     OpenScenarioBase *oscBase = new OpenScenarioBase;
-    xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogType);
+    bool validate = owner->getBase()->getValidation();
+    xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogType, validate);
 
     if (rootElem)
     {

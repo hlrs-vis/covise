@@ -30,10 +30,10 @@ using namespace OpenScenario;
  * constructor
  *****/
 
-OpenScenarioBase::OpenScenarioBase():oscObjectBase()
+OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
+        xmlDoc(NULL),
+        m_validate(true)
 {
-    parser = NULL;
-    xmlDoc = NULL;
     oscFactories::instance();
 
     OSC_OBJECT_ADD_MEMBER(fileHeader,"oscFileHeader");
@@ -86,9 +86,6 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
  * initialization static variables
  *****/
 
-bool OpenScenarioBase::m_validate = true;
-
-//
 unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> initFuncFileTypeToXsd()
 {
     //set the XSD Schema file name for possible file types
@@ -141,11 +138,16 @@ void OpenScenarioBase::setValidation(const bool validate)
     m_validate = validate;
 }
 
+bool OpenScenarioBase::getValidation() const
+{
+    return m_validate;
+}
+
 
 //
 bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &fileType)
 {
-    xercesc::DOMElement *rootElement = getRootElement(fileName, fileType);
+    xercesc::DOMElement *rootElement = getRootElement(fileName, fileType, m_validate);
     if(rootElement == NULL)
     {
         return false;
