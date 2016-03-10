@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
+#include "oscUtilities.h"
 
 #include "oscFileHeader.h"
 #include "oscCatalogs.h"
@@ -53,6 +54,7 @@ public:
 
 protected: 
     xercesc::XercesDOMParser *parser; ///< validating parser
+    ParserErrorHandler *parserErrorHandler; ///< error handler for parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
     bool m_validate;

@@ -8,7 +8,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
 #include "oscSourceFile.h"
-#include "oscUtilities.h"
 
 #include <iostream>
 
@@ -52,6 +51,8 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
     ownMem->setTypeName("OpenScenarioBase");
     ownMem->setValue(this);
 
+    //in order to work with the Xerces-C++ parser, the XML subsystem must be initialized first
+    //every call of XMLPlatformUtils::Initialize() must have a matching call of XMLPlatformUtils::Terminate() (see destructor)
     try
     {
         xercesc::XMLPlatformUtils::Initialize();
@@ -63,20 +64,20 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
         xercesc::XMLString::release(&message);
     }
 
-    //new parser, error handler, generic settings
-    //
+    //parser
     parser = new xercesc::XercesDOMParser();
     //error handler
-    ParserErrorHandler parserErrorHandler;
-    parser->setErrorHandler(&parserErrorHandler);
+    parserErrorHandler = new ParserErrorHandler();
 
+    //generic settings for parser
+    //
+    parser->setErrorHandler(parserErrorHandler);
+    parser->setExitOnFirstFatalError(true);
     //namespaces needed for XInclude and validation
     parser->setDoNamespaces(true);
-
     //settings for validation
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
     parser->setValidationConstraintFatal(true);
-    parser->setExitOnFirstFatalError(true);
     parser->cacheGrammarFromParse(true);
 }
 
@@ -113,7 +114,9 @@ const OpenScenarioBase::FileTypeXsdFileNameMap OpenScenarioBase::s_fileTypeToXsd
 
 OpenScenarioBase::~OpenScenarioBase()
 {
+    delete parserErrorHandler;
     delete parser;
+    //match the call of XMLPlatformUtils::Initialize() from constructor
     try
     {
         xercesc::XMLPlatformUtils::Terminate();
