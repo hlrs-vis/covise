@@ -437,33 +437,38 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
                     //path to directory
                     //object/member is of type oscCatalogBase and has a member directory,
-                    // directory is of type oscDirectory and has a member path with a value of type string
                     oscMember *dirMember = cm->getObject()->getMember("directory");
-                    oscMember *pathMember = dirMember->getObject()->getMember("path");
-                    oscMemberValue *pathMemberValue = pathMember->getValue();
-                    oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
-                    bf::path pathToCatalogDir(pathMemberStrVal->getValue());
-
-                    //get all catalog object filenames
-                    std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDir);
-
-                    //parse all files
-                    //store object name and filename in map
-                    cm->fastReadCatalogObjects(filenames);
-
-                    //////
-                    //for testing only
-                    //
-                    //generate the objects for this catalog and store them
-//                    unordered_map<std::string, bf::path> mapAvailableObjects = cm->getMapAvailableObjects();
-//                    for (unordered_map<std::string, bf::path>::const_iterator it = mapAvailableObjects.begin(); it != mapAvailableObjects.end(); it++)
-                    for (auto &it : cm->getMapAvailableObjects())
+                    oscObjectBase *dirMemberObj = dirMember->getObject();
+                    if (dirMemberObj)/*true if xosc file has an element directory*/
                     {
-//                        cm->fullReadCatalogObjectWithName(it->first);
-                        cm->fullReadCatalogObjectWithName(it.first);
+                        // directory is of type oscDirectory and has a member path with a value of type string
+                        oscMember *pathMember = dirMember->getObject()->getMember("path");
+                        oscMemberValue *pathMemberValue = pathMember->getValue();
+                        oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
+                        if (pathMemberStrVal)/*true if element directory has an attribute path*/
+                        {
+                            //set variable pathToCatalogDir with type bf::path from std::string
+                            bf::path pathToCatalogDir(pathMemberStrVal->getValue());
+
+                            //get all catalog object filenames
+                            std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDir);
+
+                            //parse all files
+                            //store object name and filename in map
+                            cm->fastReadCatalogObjects(filenames);
+
+                            //////
+                            //for testing only
+                            //
+                            //generate the objects for this catalog and store them
+                            for (auto &it : cm->getMapAvailableObjects())
+                            {
+                                cm->fullReadCatalogObjectWithName(it.first);
+                            }
+                            //
+                            //////
+                        }
                     }
-                    //
-                    //////
                 }
             }
             //no member
