@@ -1251,7 +1251,7 @@ void ViewPoints::saveAllViewPoints()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::saveAllViewPoints()\n");
-    
+    int numVPs=0;
     QDomDocument doc;
     QDomElement rootElement;
     // create a dom
@@ -1266,7 +1266,7 @@ void ViewPoints::saveAllViewPoints()
     // loop over all viewpoints
     for (vector<ViewDesc *>::iterator it = viewpoints.begin() + numberOfDefaultVP; it < viewpoints.end(); it++)
     {
-        
+        numVPs++;
         ViewDesc *viewDesc = (*it);
             // add new viewpoint to dom
             // append something
@@ -1380,7 +1380,7 @@ void ViewPoints::saveAllViewPoints()
 
     }
     
-    if (coVRMSController::instance()->isMaster())
+    if (coVRMSController::instance()->isMaster() && numVPs>0) // only write a file if we have more than 0 non default viewpoints
     {
         
         if(vwpPath == "")
