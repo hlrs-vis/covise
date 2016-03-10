@@ -37,10 +37,10 @@ oscMemberCatalog::oscMemberCatalog(): oscMember()
  * initialization static variables
  *****/
 
-unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> initFuncCatToType()
+oscMemberCatalog::CatalogTypeTypeNameMap initFuncCatToType()
 {
     //set the typeName for possible catalogTypes
-    unordered_map<std::string, std::string> catToType;
+    oscMemberCatalog::CatalogTypeTypeNameMap catToType;
     catToType.emplace("driver", "oscDriver");
     catToType.emplace("entity", "oscEntity");
     catToType.emplace("environment", "oscEnvironment");
@@ -54,7 +54,7 @@ unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> in
     return catToType;
 }
 
-const unordered_map<std::string, std::string> oscMemberCatalog::m_catalogTypeToTypeName = initFuncCatToType();
+const oscMemberCatalog::CatalogTypeTypeNameMap oscMemberCatalog::s_catalogTypeToTypeName = initFuncCatToType();
 
 
 /*****
@@ -139,7 +139,7 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
                 if (attribute)
                 {
                     std::string objectName = xercesc::XMLString::transcode(attribute->getValue());
-                    unordered_map<std::string, bf::path>::const_iterator found = m_availableObjects.find(objectName);
+                    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectName);
 
                     if (objectName.empty())
                     {
@@ -180,12 +180,12 @@ std::string oscMemberCatalog::getCatalogType() const
 
 
 //
-void oscMemberCatalog::setMapAvailableObjects(const unordered_map<std::string , bf::path> &availableObjects)
+void oscMemberCatalog::setMapAvailableObjects(const AvailableObjectsMap &availableObjects)
 {
     m_availableObjects = availableObjects;
 }
 
-unordered_map<std::string , bf::path> oscMemberCatalog::getMapAvailableObjects() const
+oscMemberCatalog::AvailableObjectsMap oscMemberCatalog::getMapAvailableObjects() const
 {
     return m_availableObjects;
 }
@@ -198,14 +198,14 @@ bool oscMemberCatalog::addObjToMapAvailableObjects(const std::string &objectName
         return false;
     }
 
-    unordered_map<std::string, bf::path>::const_iterator found = m_availableObjects.find(objectName);
+    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectName);
     if (found != m_availableObjects.end())
     {
         std::cerr << "Error! Object with name " << objectName << " exists and is defined in file " << found->second << std::endl;
         return false;
     }
 
-    std::pair<unordered_map<std::string, bf::path>::const_iterator, bool> returnVal = m_availableObjects.emplace(objectName, fileNamePath);
+    std::pair<AvailableObjectsMap::const_iterator, bool> returnVal = m_availableObjects.emplace(objectName, fileNamePath);
     if (returnVal.second == false)
     {
         std::cerr << "Error! Can't insert " << objectName << " from file " << fileNamePath << "into map of available objects." << std::endl;
@@ -243,7 +243,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
         return false;
     }
 
-    unordered_map<std::string, bf::path>::const_iterator found = m_availableObjects.find(objectName);
+    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectName);
     if (found == m_availableObjects.end())
     {
         std::cerr << "Error! Object with name " << objectName << " isn't available. No file to read." << std::endl;
@@ -266,8 +266,8 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
 
             if (rootElemName == m_catalogType)
             {
-                unordered_map<std::string, std::string>::const_iterator found = m_catalogTypeToTypeName.find(m_catalogType);
-                if (found != m_catalogTypeToTypeName.end())
+                CatalogTypeTypeNameMap::const_iterator found = s_catalogTypeToTypeName.find(m_catalogType);
+                if (found != s_catalogTypeToTypeName.end())
                 {
                     //sourceFile for objectName
                     oscSourceFile *srcFile = new oscSourceFile();
@@ -400,8 +400,8 @@ bool oscMemberCatalog::addCatalogObject(const std::string &objectName, oscObject
 
     if (objectName != "" && objectBase != NULL && !fileNamePath.empty())
     {
-        unordered_map<std::string, bf::path>::const_iterator foundAvailableObjects = m_availableObjects.find(objectName);
-        unordered_map<std::string, oscObjectBase *>::const_iterator foundObjectsInMemory = this->find(objectName);
+        AvailableObjectsMap::const_iterator foundAvailableObjects = m_availableObjects.find(objectName);
+        ObjectsInMemoryMap::const_iterator foundObjectsInMemory = this->find(objectName);
 
         if (foundAvailableObjects == m_availableObjects.end())
         {
@@ -411,7 +411,7 @@ bool oscMemberCatalog::addCatalogObject(const std::string &objectName, oscObject
                 if (addObjToMapAvailableObjects(objectName, fileNamePath))
                 {
                     //add objectName and objectPtr to oscMemberCatalog map (objects in memory)
-                    std::pair<unordered_map<std::string, oscObjectBase *>::const_iterator, bool> returnValObjInMem = this->emplace(objectName, objectBase);
+                    std::pair<ObjectsInMemoryMap::const_iterator, bool> returnValObjInMem = this->emplace(objectName, objectBase);
                     if (returnValObjInMem.second == true)
                     {
                         success = true;
@@ -442,7 +442,7 @@ bool oscMemberCatalog::addCatalogObject(const std::string &objectName, oscObject
 
 bool oscMemberCatalog::removeCatalogObject(const std::string &objectName)
 {
-    unordered_map<std::string, oscObjectBase *>::const_iterator found = this->find(objectName);
+    ObjectsInMemoryMap::const_iterator found = this->find(objectName);
     if (found != this->end())
     {
         this->erase(found);
@@ -457,7 +457,7 @@ bool oscMemberCatalog::removeCatalogObject(const std::string &objectName)
 
 oscObjectBase *oscMemberCatalog::getCatalogObject(const std::string &objectName)
 {
-    unordered_map<std::string, oscObjectBase *>::const_iterator found = this->find(objectName);
+    ObjectsInMemoryMap::const_iterator found = this->find(objectName);
     if (found != this->end())
     {
         return found->second;

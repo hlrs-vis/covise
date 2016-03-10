@@ -86,10 +86,10 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
  * initialization static variables
  *****/
 
-unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> initFuncFileTypeToXsd()
+OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 {
     //set the XSD Schema file name for possible file types
-    unordered_map<std::string, std::string> fileTypeToXsd;
+    OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
     fileTypeToXsd.emplace("OpenSCENARIO", "xml-schema/OpenScenario_XML-Schema_OpenSCENARIO.xsd");
     fileTypeToXsd.emplace("driver", "xml-schema/OpenScenario_XML-Schema_driver.xsd");
     fileTypeToXsd.emplace("entity", "xml-schema/OpenScenario_XML-Schema_entity.xsd");
@@ -104,7 +104,7 @@ unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> initFunc
     return fileTypeToXsd;
 }
 
-const unordered_map<std::string, std::string> OpenScenarioBase::m_fileTypeToXsdFileName = initFuncFileTypeToXsd();
+const OpenScenarioBase::FileTypeXsdFileNameMap OpenScenarioBase::s_fileTypeToXsdFileName = initFuncFileTypeToXsd();
 
 
 /*****
@@ -376,8 +376,8 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     {
         //name of XML Schema
         const char *xsdFileName;
-        unordered_map<std::string, std::string>::const_iterator found = m_fileTypeToXsdFileName.find(fileType);
-        if (found != m_fileTypeToXsdFileName.end())
+        FileTypeXsdFileNameMap::const_iterator found = s_fileTypeToXsdFileName.find(fileType);
+        if (found != s_fileTypeToXsdFileName.end())
         {
             xsdFileName = found->second.c_str();
         }

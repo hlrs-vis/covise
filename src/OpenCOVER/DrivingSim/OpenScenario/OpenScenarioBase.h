@@ -48,12 +48,15 @@ class oscSourceFile;
 /// \class This class represents an OpenScenario database
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
 {
+public:
+    typedef unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> FileTypeXsdFileNameMap;
+
 protected: 
     xercesc::XercesDOMParser *parser; ///< validating parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
     bool m_validate;
-    static const unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> m_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)
+    static const FileTypeXsdFileNameMap s_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)
 
 public:
     oscFileHeaderMember fileHeader;

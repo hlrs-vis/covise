@@ -35,10 +35,15 @@ class oscObjectBase;
 /// \class This class represents a Member variable storing values of one kind of catalog
 class OPENSCENARIOEXPORT oscMemberCatalog: public oscMember, public unordered_map<std::string /*objectName*/, oscObjectBase *>
 {
+public:
+    typedef unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> CatalogTypeTypeNameMap;
+    typedef unordered_map<std::string /*objectName*/, bf::path /*fileName*/> AvailableObjectsMap;
+    typedef unordered_map<std::string /*objectName*/, oscObjectBase *> ObjectsInMemoryMap;
+
 protected:
     std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
-    static const unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> m_catalogTypeToTypeName; ///< typeName of the objects for catalogType
-    unordered_map<std::string /*objectName*/, bf::path /*fileName*/> m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
+    static const CatalogTypeTypeNameMap s_catalogTypeToTypeName; ///< typeName of the objects for catalogType
+    AvailableObjectsMap m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
 
 public:
     oscMemberCatalog(); ///< constructor
@@ -53,8 +58,8 @@ public:
     std::string getCatalogType() const;
 
     //m_availableObjects
-    void setMapAvailableObjects(const unordered_map<std::string , bf::path> &availableObjects);
-    unordered_map<std::string , bf::path> getMapAvailableObjects() const;
+    void setMapAvailableObjects(const AvailableObjectsMap &availableObjects);
+    AvailableObjectsMap getMapAvailableObjects() const;
     bool addObjToMapAvailableObjects(const std::string &objectName, const bf::path &fileNamePath);
     bool removeObjFromMapAvailableObjects(const std::string &objectName);
     void deleteMapAvailableObject();
