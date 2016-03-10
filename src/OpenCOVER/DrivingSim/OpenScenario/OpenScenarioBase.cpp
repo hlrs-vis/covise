@@ -72,6 +72,12 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
 
     //namespaces needed for XInclude and validation
     parser->setDoNamespaces(true);
+
+    //settings for validation
+    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+    parser->setValidationConstraintFatal(true);
+    parser->setExitOnFirstFatalError(true);
+    parser->cacheGrammarFromParse(true);
 }
 
 
@@ -399,11 +405,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
         //settings for validation
         parser->setDoXInclude(false); //disable XInclude for validation
-        parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
         parser->setDoSchema(true);
-        parser->setValidationConstraintFatal(true);
-        parser->setExitOnFirstFatalError(true);
-        parser->cacheGrammarFromParse(true);
 
         //write xml document got from parser to memory buffer
         xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(tmpXmlDoc);
