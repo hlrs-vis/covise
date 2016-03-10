@@ -374,20 +374,27 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                 std::string arrayMemElemName = xercesc::XMLString::transcode(arrayMemElem->getNodeName());
 
                                 oscMember *ame = objAM->getMembers()[arrayMemElemName];
-                                std::string arrayMemTypeName = ame->getTypeName();
-
-                                oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
-                                if(obj)
+                                if (ame)
                                 {
-                                    oscSourceFile *arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
-                                    obj->initialize(base, objAM, ame, arrayElemSrcToUse);
-                                    am->push_back(obj);
-                                    ame->setParentMember(objAM->getOwnMember());
-                                    obj->parseFromXML(arrayMemElem, arrayElemSrcToUse);
+                                    std::string arrayMemTypeName = ame->getTypeName();
+
+                                    oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
+                                    if(obj)
+                                    {
+                                        oscSourceFile *arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
+                                        obj->initialize(base, objAM, ame, arrayElemSrcToUse);
+                                        am->push_back(obj);
+                                        ame->setParentMember(objAM->getOwnMember());
+                                        obj->parseFromXML(arrayMemElem, arrayElemSrcToUse);
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "could not create an object array of type " << arrayMemTypeName << std::endl;
+                                    }
                                 }
                                 else
                                 {
-                                    std::cerr << "could not create an object array of type " << arrayMemTypeName << std::endl;
+                                    std::cerr << "Node " << xercesc::XMLString::transcode(memberElem->getNodeName()) << " does not have any member called " << arrayMemElemName << std::endl;
                                 }
                             }
                         }
