@@ -44,6 +44,7 @@ do
     echo -e "${MENU} ${OPT} 31)  ${MENU} Stuttgarter Autohaus      "
     echo -e "${MENU} ${OPT} 32)  ${MENU} HLRS & Campus             "
     echo -e "${MENU} ${OPT} 33)  ${MENU} DC Filiale                "
+    echo -e "${MENU} ${OPT} 34)  ${MENU} Adidas WOS                "
 
     echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
@@ -192,6 +193,10 @@ do
 	33)
 	    echo -e "starting DC Filiale"
             opencover /data/dc/desire/arbeitsstand_20050301/praesentation.wrl
+ 	    ;;
+	34)
+	    echo -e "Adidas"
+            opencover /data/strabag/Adidas/OUT/praesentation.wrl
  	    ;;
 
 # LKA
