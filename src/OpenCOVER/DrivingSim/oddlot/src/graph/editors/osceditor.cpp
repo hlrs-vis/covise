@@ -87,6 +87,7 @@ OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData
 {
 	mainWindow_ = projectWidget->getMainWindow();
 	oscBase_ = projectData->getOSCBase();
+    oscRoadSystemItem_ = NULL;
 }
 
 OpenScenarioEditor::~OpenScenarioEditor()
