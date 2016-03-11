@@ -146,6 +146,9 @@ macro(covise_find_component comp)
    if (${comp} STREQUAL virvo)
        set(complib virvo)
        set(compvar VIRVO)
+   elseif (${comp} STREQUAL virvo_osg)
+       set(complib virvo_osg)
+       set(compvar VIRVO_OSG)
    elseif (${comp} STREQUAL Alg)
        set(complib coAlg)
        set(compvar ALG)
@@ -169,7 +172,7 @@ macro(covise_find_component comp)
    endif()
 
    set(COVISE_COMP_VARS ${COVISE_COMP_VARS};COVISE_${compvar}_LIBRARY)
-
+   
    covise_find_library(COVISE_${compvar} ${complib})
    find_package_handle_standard_args(COVISE_${compvar} DEFAULT_MSG COVISE_${compvar}_LIBRARY COVISE_INCLUDE_DIR)
 
@@ -177,7 +180,7 @@ macro(covise_find_component comp)
       set(COVISE_${compvar}_INCLUDE_DIRS ${COVISE_INCLUDE_DIR})
       set(COVISE_${compvar}_LIBRARIES ${COVISE_${compvar}_LIBRARY} ${ADD_LIBS})
    else()
-      #message("COVISE ${comp} not available.")
+      message("COVISE ${comp} not available.")
    endif()
 endmacro()
 
@@ -197,6 +200,7 @@ else()
 
    if (COVISE_USE_VIRVO)
       covise_find_component(virvo)
+      covise_find_component(virvo_osg)
    endif()
 
    if (COVISE_BUILD_WEBSERVICE)
