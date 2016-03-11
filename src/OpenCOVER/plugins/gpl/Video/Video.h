@@ -119,7 +119,16 @@ private:
     double recordingTime;
     int recordingFrames;
     int frameCount;
+#ifdef WIN32
+typedef PixelFormat AVPixelFormat;
+
+#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
     AVPixelFormat capture_fmt;
+#else
+    AVPixelFormat capture_fmt;
+#endif
     bool captureActive;
     bool captureAnimActive;
     int captureAnimFrame;
