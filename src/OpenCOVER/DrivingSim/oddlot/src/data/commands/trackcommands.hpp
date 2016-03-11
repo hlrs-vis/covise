@@ -285,6 +285,44 @@ private:
     QPointF newPos_;
 };
 
+
+//##########################//
+// SetGlobalTrackPosCommand //
+//##########################//
+
+class SetTrackLengthCommand : public DataCommand
+{
+public:
+    explicit SetTrackLengthCommand(TrackComponent *track, double newLength, DataCommand *parent = NULL);
+    virtual ~SetTrackLengthCommand();
+
+    virtual int id() const
+    {
+        return 0x113;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+    virtual bool mergeWith(const QUndoCommand *other);
+
+private:
+    SetTrackLengthCommand()
+        : DataCommand()
+    { /* not allowed */
+    }
+    SetTrackLengthCommand(const SetTrackLengthCommand &)
+        : DataCommand()
+    { /* not allowed */
+    }
+    SetTrackLengthCommand &operator=(const SetTrackLengthCommand &); /* not allowed */
+
+private:
+    TrackComponent *track_;
+
+    double oldLength_;
+    double newLength_;
+};
 //##########################//
 // TrackComponentHeadingCommand //
 //##########################//

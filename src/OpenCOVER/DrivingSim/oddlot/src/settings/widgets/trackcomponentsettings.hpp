@@ -53,6 +53,7 @@ private:
 
 private slots:
     void on_factorBox_editingFinished();
+    void on_lengthBox_editingFinished();
 
     //################//
     // PROPERTIES     //

@@ -33,7 +33,7 @@ public:
 
     // Track Element //
     //
-    void setLength(double length);
+    virtual void setLength(double length);
     virtual void setSStart(double s);
 
     // Track Component //

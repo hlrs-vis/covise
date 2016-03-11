@@ -207,6 +207,16 @@ TrackComponentSettings::on_factorBox_editingFinished()
     }
 }
 
+void
+TrackComponentSettings::on_lengthBox_editingFinished()
+{
+    double newValue = ui->lengthBox->value();
+    if (newValue != trackComponent_->getLength())
+    {
+        SetTrackLengthCommand *command = new SetTrackLengthCommand(trackComponent_, newValue, NULL);
+        getProjectSettings()->executeCommand(command);
+    }
+}
 //##################//
 // Observer Pattern //
 //##################//

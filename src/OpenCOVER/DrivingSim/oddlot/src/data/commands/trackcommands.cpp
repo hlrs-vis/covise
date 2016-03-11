@@ -1029,6 +1029,82 @@ SetGlobalTrackPosCommand::mergeWith(const QUndoCommand *other)
 }
 
 //##########################//
+// SetTrackLengthCommand //
+//##########################//
+
+  
+SetTrackLengthCommand::SetTrackLengthCommand(TrackComponent *track, double newLength, DataCommand *parent)
+    : DataCommand(parent)
+    , track_(track)
+    , newLength_(newLength)
+{
+    if (!track)
+    {
+        setInvalid();
+        setText(QObject::tr("Set Translation: invalid parameters! No track given."));
+    }
+
+    oldLength_ = track_->getLength();
+
+    if (oldLength_ == newLength_)
+    {
+        setInvalid();
+        setText(QObject::tr("Set Length: no change. Command ignored."));
+    }
+
+    setValid();
+    setText(QObject::tr("Set Length"));
+}
+
+SetTrackLengthCommand::~SetTrackLengthCommand()
+{
+}
+
+void
+SetTrackLengthCommand::redo()
+{
+    track_->setLength(newLength_);
+    
+    track_->getParentRoad()->rebuildTrackComponentList();
+    setRedone();
+}
+
+void
+SetTrackLengthCommand::undo()
+{
+    track_->setLength(oldLength_);
+    
+    track_->getParentRoad()->rebuildTrackComponentList();
+    setUndone();
+}
+
+bool
+SetTrackLengthCommand::mergeWith(const QUndoCommand *other)
+{
+    // Check Ids //
+    //
+    if (other->id() != id())
+    {
+        return false;
+    }
+
+    const SetTrackLengthCommand *command = static_cast<const SetTrackLengthCommand *>(other);
+
+    // Check tracks //
+    //
+    if (track_ == command->track_)
+    {
+        newLength_ = command->newLength_;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+//##########################//
 // TrackComponentHeadingCommand //
 //##########################//
 #if 0

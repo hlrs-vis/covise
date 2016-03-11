@@ -247,6 +247,13 @@ TrackComponent::setLocalTransform(const QPointF &pos, double angleDegrees)
     addTrackComponentChanges(TrackComponent::CTC_TransformChange);
 }
 
+/** Set the length of the track.
+	*/
+void
+TrackComponent::setLength(double len)
+{
+}
+    void setLength(float length);
 /** Set the matrix of the component.
 	*/
 //void

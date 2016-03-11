@@ -72,6 +72,7 @@ public:
     virtual double getSStart() const = 0;
     virtual double getSEnd() const = 0;
     virtual double getLength() const = 0;
+    virtual void setLength(double length);
 
     virtual int getStartPosDOF() const = 0;
     virtual int getEndPosDOF() const = 0;
@@ -103,6 +104,7 @@ public:
 
     void setGlobalTranslation(const QPointF &pos);
     void setGlobalRotation(double angleDegrees);
+    
 
     void setLocalTransform(const QPointF &pos, double angleDegrees);
     void setLocalTransform(double x, double y, double angleDegrees);
