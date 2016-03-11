@@ -611,10 +611,20 @@ namespace OpenCOVERPlugin
          MessageBuffer mb = new MessageBuffer();
          mb.add(elem.Id.IntegerValue);
          mb.add(elem.Name + "__" + elem.UniqueId.ToString());
-         mb.add(geomInstance.Transform.BasisX.Multiply(geomInstance.Transform.Scale));
-         mb.add(geomInstance.Transform.BasisY.Multiply(geomInstance.Transform.Scale));
-         mb.add(geomInstance.Transform.BasisZ.Multiply(geomInstance.Transform.Scale));
-         mb.add(geomInstance.Transform.Origin);
+         try
+         {
+             mb.add(geomInstance.Transform.BasisX.Multiply(geomInstance.Transform.Scale));
+             mb.add(geomInstance.Transform.BasisY.Multiply(geomInstance.Transform.Scale));
+             mb.add(geomInstance.Transform.BasisZ.Multiply(geomInstance.Transform.Scale));
+             mb.add(geomInstance.Transform.Origin);
+         }
+         catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+         {
+             mb.add(new XYZ(1, 0, 0));
+             mb.add(new XYZ(0, 1, 0));
+             mb.add(new XYZ(0, 0, 1));
+             mb.add(new XYZ(0, 0, 0));
+         }
          sendMessage(mb.buf, MessageTypes.NewTransform);
          //Autodesk.Revit.DB.GeometryElement ge = geomInstance.GetInstanceGeometry(geomInstance.Transform);
          Autodesk.Revit.DB.GeometryElement ge = geomInstance.GetSymbolGeometry();
