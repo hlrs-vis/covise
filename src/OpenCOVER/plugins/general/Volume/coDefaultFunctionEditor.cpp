@@ -104,6 +104,11 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     scalarMax = new coLabel();
     scalarMin->setFontSize(5);
     scalarMax->setFontSize(5);
+    for (int i=0; i<MaxChannels; ++i)
+    {
+        minValue[i] = 0.;
+        maxValue[i] = 1.;
+    }
     setMin(0.);
     setMax(1.);
     scalarMin->setPos(15, -59, 1);
@@ -205,7 +210,8 @@ void coDefaultFunctionEditor::setTransferFuncs(const std::vector<vvTransFunc> &f
     setNumChannels(theTransferFunc.size());
     if (activeChannel > numChannels)
         setActiveChannel(0);
-    updatePinList();
+    else
+        setActiveChannel(activeChannel);
 }
 
 void coDefaultFunctionEditor::setTransferFunc(const vvTransFunc &func, int channel)
@@ -336,7 +342,7 @@ void coDefaultFunctionEditor::updateColorBar()
 
 void coDefaultFunctionEditor::setDiscreteColors(int nc)
 {
-    theTransferFunc[0].setDiscreteColors(nc);
+    theTransferFunc[activeChannel].setDiscreteColors(nc);
 }
 
 void coDefaultFunctionEditor::setColor(float h, float s, float v, int context)
@@ -349,12 +355,14 @@ void coDefaultFunctionEditor::setMin(float m)
 {
     minValue[activeChannel] = m;
     updateLabels();
+    updatePinList();
 }
 
 void coDefaultFunctionEditor::setMax(float m)
 {
     maxValue[activeChannel] = m;
     updateLabels();
+    updatePinList();
 }
 
 float coDefaultFunctionEditor::getMin()
@@ -502,9 +510,9 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
         {
             cerr << "Loaded transfer-function file: " << _transfuncFilenames.front() << endl;
             putUndoBuffer();
-            for (int i = 0; i < vd->tf.size(); ++i)
+            for (int i = 0; i < vd->tf.size() && i < theTransferFunc.size(); ++i)
             {
-                theTransferFunc[0] = vd->tf[0];
+                theTransferFunc[i] = vd->tf[i];
             }
             updatePinList();
             const char *tmp = _transfuncFilenames.front();

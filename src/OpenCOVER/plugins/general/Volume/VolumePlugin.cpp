@@ -115,6 +115,7 @@ VolumePlugin::Volume::Volume()
     lighting = false;
     interpolation = true;
     blendMode = virvo::VolumeDrawable::AlphaBlend;
+    mapTF = true;
 }
 
 /** This creates an empty icon texture.
@@ -213,8 +214,8 @@ void VolumePlugin::Volume::removeFromScene()
 
 VolumePlugin::Volume::~Volume()
 {
-    //if (cover->debugLevel(3))
-    cerr << "delete volume" << endl;
+    if (cover->debugLevel(3))
+        cerr << "delete volume" << endl;
 }
 
 FileEntry::FileEntry(const char *fN, const char *mN)
@@ -838,7 +839,8 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                             it->second.curChannel = tfe->getActiveChannel();
                             it->second.tf[tfe->getActiveChannel()] = func;
                             it->second.drawable->setTransferFunctions(it->second.tf);
-                            it->second.drawable->mapTransferFunctionsFrom01();
+                            if (it->second.mapTF)
+                                it->second.drawable->mapTransferFunctionsFrom01();
                         }
                     }
                 }
@@ -949,7 +951,8 @@ void VolumePlugin::applyAllTransferFunctions(void *userData)
             {
                 it->second.tf = tfe->getTransferFuncs();
                 it->second.drawable->setTransferFunctions(it->second.tf);
-                it->second.drawable->mapTransferFunctionsFrom01();
+                if (it->second.mapTF)
+                    it->second.drawable->mapTransferFunctionsFrom01();
             }
         }
     }
@@ -1512,6 +1515,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         volumes[name].multiDimTF = vd->chan == 1;
         volumes[name].preIntegration = preintItem->getState();
         volumes[name].lighting = lightingItem->getState();
+        volumes[name].mapTF = mapTF;
         if (volumes[name].multiDimTF)
         {
             volumes[name].tf.resize(1);
@@ -1657,9 +1661,6 @@ void VolumePlugin::updateTFEData()
                     editor->setNumChannels(vd->chan);
 
                     editor->setTransferFuncs(currentVolume->second.tf);
-                    editor->setActiveChannel(currentVolume->second.curChannel);
-                    tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
-                    tfApplyCBData.drawable->mapTransferFunctionsFrom01();
 
                     for (int c = 0; c < vd->chan; ++c)
                     {
@@ -1669,6 +1670,9 @@ void VolumePlugin::updateTFEData()
                     }
 
                     editor->setActiveChannel(currentVolume->second.curChannel);
+                    tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
+                    if (tfApplyCBData.volume->mapTF)
+                        tfApplyCBData.drawable->mapTransferFunctionsFrom01();
 
                     instantMode = tfApplyCBData.drawable->getInstantMode();
                     editor->setInstantMode(instantMode);
@@ -1692,11 +1696,6 @@ void VolumePlugin::updateTFEData()
                         else
                             vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, 0, 1);
                     }
-
-#if 0
-               setMultiDimTF(false);
-               setMultiChannelTF(vd->chan > 1);
-#endif
                 }
             }
         }
