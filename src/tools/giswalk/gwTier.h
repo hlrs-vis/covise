@@ -8,18 +8,8 @@
 #ifndef GWTIER_H
 #define GWTIER_H
 
-#include <util/coExport.h>
 #include "giswalk.h"
-
-#ifdef WIN32
-#ifdef GWAPP_EXPORT
-#define GWAPPEXPORT COEXPORT
-#else
-#define GWAPPEXPORT COIMPORT
-#endif
-#else
-#define GWAPPEXPORT
-#endif
+#include "gwExport.h"
 
 class GWAPPEXPORT gwTier
 {

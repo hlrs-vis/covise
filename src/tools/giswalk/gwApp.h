@@ -8,15 +8,7 @@
 #ifndef GWAPP_H
 #define GWAPP_H
 
-#ifdef WIN32
-#ifdef GWAPP_EXPORT
-#define APPEXPORT __declspec(dllexport)
-#else
-#define APPEXPORT __declspec(dllimport)
-#endif
-#else
-#define APPEXPORT
-#endif
+#include "gwExport.h"
 
 #include "giswalk.h"
 #include "gwTier.h"

@@ -112,7 +112,7 @@ namespace OpenScenario
 	typedef oscVariable<bool> oscBool;
 	typedef oscVariable<float> oscFloat;
 	//
-    class oscEnum: public oscVariable<int>
+    class OPENSCENARIOEXPORT oscEnum: public oscVariable<int>
     {
     public:
         oscEnumType *enumType;
@@ -132,7 +132,7 @@ namespace OpenScenario
     typedef oscValue<float> oscFloatValue;
     typedef oscValue<oscObjectBase *> oscObjectValue;
     //
-    class oscEnumValue: public oscValue<int>
+    class OPENSCENARIOEXPORT oscEnumValue: public oscValue<int>
     {
     public:
         oscEnumType *enumType;

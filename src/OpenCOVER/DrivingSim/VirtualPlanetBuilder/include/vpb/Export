@@ -33,6 +33,8 @@
     #  else
     #    define VPB_EXPORT   __declspec(dllimport)
     #  endif
+#elif(defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
+    #  define VPB_EXPORT __attribute__((visibility("default")))
 #else
     #  define VPB_EXPORT
 #endif
