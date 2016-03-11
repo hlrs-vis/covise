@@ -26,23 +26,23 @@ namespace OpenScenario
 {
     //
     template<typename T>
-    class oscValue: public oscMemberValue 
+    class OPENSCENARIOEXPORT oscValue: public oscMemberValue 
     {
     protected:
         T value;
     public:
         oscValue(){};
         oscValue(T &t){value = t;};
-        OPENSCENARIOEXPORT virtual bool initialize(xercesc::DOMAttr *);
+         virtual bool initialize(xercesc::DOMAttr *);
         virtual oscValue<T>& operator=(T t){value = t; return *this;};
         virtual const T &getValue() const {return value;};
         virtual void setValue(const T &t){value = t;};
-        OPENSCENARIOEXPORT virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name);
+        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name);
     };
     
     //
     template<typename T>
-    class oscVariable: public oscMember
+    class OPENSCENARIOEXPORT oscVariable: public oscMember
     {
        T defaultValue;
     public:
@@ -88,7 +88,7 @@ namespace OpenScenario
             }
             return true;
         };
-        OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
+         virtual oscMemberValue::MemberTypes getValueType();
 
     };
 
@@ -116,7 +116,7 @@ namespace OpenScenario
     {
     public:
         oscEnumType *enumType;
-        OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
+        virtual oscMemberValue::MemberTypes getValueType();
         void setValueWStr(const std::string &strVal); ///<set the value with the string of the value
         std::string getValueAsStr(const int &val) const; ///<get the value as a string
     };
@@ -136,8 +136,8 @@ namespace OpenScenario
     {
     public:
         oscEnumType *enumType;
-        OPENSCENARIOEXPORT virtual bool initialize(xercesc::DOMAttr *);
-        OPENSCENARIOEXPORT virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name);
+        virtual bool initialize(xercesc::DOMAttr *);
+        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name);
     };
 }
 
