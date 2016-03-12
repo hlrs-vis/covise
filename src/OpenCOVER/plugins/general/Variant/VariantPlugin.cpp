@@ -35,6 +35,8 @@
 #include <vector>
 #include <iterator>
 #include <numeric>
+#include "VrmlNodeVariant.h"
+#include <vrml97/vrml/VrmlNamespace.h>
 
 using namespace covise;
 using namespace opencover;
@@ -55,6 +57,8 @@ VariantPlugin::VariantPlugin()
     _interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "MoveMode", coInteraction::Medium);
     tmpVec.set(1, 1, 1);
     boi = NULL;
+    
+    VrmlNamespace::addBuiltIn(VrmlNodeVariant::defineType());
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -447,6 +451,14 @@ Variant *VariantPlugin::getVariant(osg::Node *varNode)
     }
     return NULL;
 }
+
+void VariantPlugin::setVariant(std::string var)
+{
+        VariantPlugin::plugin->HideAllVariants();
+        TokenBuffer tb;
+        tb << var;
+        cover->sendMessage(this, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+}
 //------------------------------------------------------------------------------------------------------------------------------
 
 Variant *VariantPlugin::getVariantbyAttachedNode(osg::Node *node)
@@ -622,6 +634,7 @@ void VariantPlugin::message(int type, int len, const void *buf)
             }
             else
             {
+                VrmlNodeVariant::instance()->setVariant(VariantName);
                 cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb2.get_length(), tb2.get_data());
                 setMenuItem(var, (true));
                 setQDomElemState(var, true);
