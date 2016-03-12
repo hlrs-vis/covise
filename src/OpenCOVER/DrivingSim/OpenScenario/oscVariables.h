@@ -49,7 +49,7 @@ namespace OpenScenario
         oscVariable(){};
         virtual bool initialize(xercesc::DOMAttr *){return false;};
         virtual T& operator=(T &tv){setValue(tv); return tv;};
-        oscValue<T> *getMemberValue() const {return value;};
+        oscValue<T> *getMemberValue() const {return dynamic_cast<oscValue<T>*>(value);};
         void setMemberValue(oscMemberValue *v) {value = v;};
         const T& getValue() const
         {

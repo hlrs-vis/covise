@@ -16,6 +16,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 
 namespace OpenScenario {
+    
+template class  OPENSCENARIOEXPORT oscVariable<short>;
+template class  OPENSCENARIOEXPORT oscVariable<int>;
+template class  OPENSCENARIOEXPORT oscVariable<unsigned int>;
+template class  OPENSCENARIOEXPORT oscVariable<unsigned short>;
+template class  OPENSCENARIOEXPORT oscVariable<std::string>;
+template class  OPENSCENARIOEXPORT oscVariable<double>;
+template class  OPENSCENARIOEXPORT oscVariable<time_t>;
+template class  OPENSCENARIOEXPORT oscVariable<bool>;
+template class  OPENSCENARIOEXPORT oscVariable<float>;
 
 template<>
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getValueType(){return oscMemberValue::INT;};
