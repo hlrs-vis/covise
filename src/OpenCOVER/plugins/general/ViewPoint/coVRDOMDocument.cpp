@@ -143,7 +143,7 @@ coVRDOMDocument::read(const char *f)
                     fprintf(stderr, "dom exists already\n");
             }
             file.setFileName(vwpPath);
-            if (!file.open(QIODevice::WriteOnly))
+         /*   if (!file.open(QIODevice::WriteOnly))
             {
                 fprintf(stderr, "ERROR: could not open file=[%s] for write\n", vwpPath);
                 return (false);
@@ -159,7 +159,7 @@ coVRDOMDocument::read(const char *f)
                 stream << doc.toString();
                 file.close();
                 //fprintf(stderr,"saved dom to file\n");
-            }
+            }*/
         }
     }
 
