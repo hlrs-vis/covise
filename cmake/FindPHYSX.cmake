@@ -1,0 +1,80 @@
+# - Find PHYSX
+# Find the PHYSX includes and library
+#
+#  PHYSX_INCLUDE_DIR - Where to find PHYSX includes
+#  PHYSX_LIBRARIES   - List of libraries when using PHYSX
+#  PHYSX_FOUND       - True if PHYSX was found
+
+IF(PHYSX_INCLUDE_DIR)
+  SET(PHYSX_FIND_QUIETLY TRUE)
+ENDIF(PHYSX_INCLUDE_DIR)
+
+FIND_PATH(PHYSX_INCLUDE_DIR "PxPhysicsAPI.h"
+  PATHS
+  $ENV{PHYSX_HOME}/include
+  $ENV{EXTERNLIBS}/PhysX/include
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
+  DOC "PHYSX - Headers"
+)
+
+SET(PHYSX_NAMES PhysX3_x64 PhysX3)
+SET(PHYSX_DBG_NAMES PhysX3DEBUG_x64 PhysX3DEBUG)
+
+FIND_LIBRARY(PHYSX_LIBRARY NAMES ${PHYSX_NAMES}
+  PATHS
+  $ENV{PHYSX_HOME}
+  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
+  $ENV{EXTERNLIBS}/PhysX/lib/
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  PATH_SUFFIXES lib lib64
+  DOC "PHYSX - Library"
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+
+IF(MSVC)
+  # VisualStudio needs a debug version
+  FIND_LIBRARY(PHYSX_LIBRARY_DEBUG NAMES ${PHYSX_DBG_NAMES}
+    PATHS
+    $ENV{PHYSX_HOME}
+  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
+  $ENV{EXTERNLIBS}/PhysX/lib/
+    PATH_SUFFIXES lib lib64
+    DOC "PHYSX - Library (Debug)"
+  )
+  
+  IF(PHYSX_LIBRARY_DEBUG AND PHYSX_LIBRARY)
+    SET(PHYSX_LIBRARIES optimized ${PHYSX_LIBRARY} debug ${PHYSX_LIBRARY_DEBUG})
+  ENDIF(PHYSX_LIBRARY_DEBUG AND PHYSX_LIBRARY)
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(PHYSX DEFAULT_MSG PHYSX_LIBRARY PHYSX_LIBRARY_DEBUG PHYSX_INCLUDE_DIR)
+
+  MARK_AS_ADVANCED(PHYSX_LIBRARY PHYSX_LIBRARY_DEBUG PHYSX_INCLUDE_DIR)
+  
+ELSE(MSVC)
+  # rest of the world
+  SET(PHYSX_LIBRARIES ${PHYSX_LIBRARY})
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(PHYSX DEFAULT_MSG PHYSX_LIBRARY PHYSX_INCLUDE_DIR)
+  
+  MARK_AS_ADVANCED(PHYSX_LIBRARY PHYSX_INCLUDE_DIR)
+  
+ENDIF(MSVC)
+
+IF(PHYSX_FOUND)
+  SET(PHYSX_INCLUDE_DIRS ${PHYSX_INCLUDE_DIR})
+ENDIF(PHYSX_FOUND)
