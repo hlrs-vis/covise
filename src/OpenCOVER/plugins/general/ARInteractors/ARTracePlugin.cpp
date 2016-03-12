@@ -422,6 +422,16 @@ ARTracePlugin::ARTracePlugin()
 {
     fprintf(stderr, "ARTracePlugin::ARTracePlugin\n");
     plugin = this;
+    timestepMarker = NULL;
+    pinboardEntry = NULL;
+    arMenu = NULL;
+    enabledToggle = NULL;
+    TracerModulesLabel = NULL;
+    arTraceTab = NULL;
+}
+
+bool ARTracePlugin::init()
+{
     arTraceTab = new coTUITab("ARTrace", coVRTui::instance()->mainFolder->getID());
     arTraceTab->setPos(0, 0);
     TracerModulesLabel = new coTUILabel("TracerModules", arTraceTab->getID());
@@ -438,6 +448,7 @@ ARTracePlugin::ARTracePlugin()
     enabledToggle = new coCheckboxMenuItem("enabled", enabled);
     enabledToggle->setMenuListener(this);
     arMenu->add(enabledToggle);
+    return true;
 }
 
 // this is called if the plugin is removed at runtime

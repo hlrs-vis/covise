@@ -100,6 +100,7 @@ class ARTracePlugin : public coVRPlugin, public coMenuListener, public coMenuFoc
 public:
     ARTracePlugin();
     virtual ~ARTracePlugin();
+    virtual bool init();
     coSubMenuItem *pinboardEntry;
     coRowMenu *arMenu;
     coCheckboxMenuItem *enabledToggle;
