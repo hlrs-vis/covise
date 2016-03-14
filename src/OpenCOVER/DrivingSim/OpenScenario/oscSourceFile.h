@@ -32,8 +32,9 @@ class OPENSCENARIOEXPORT oscSourceFile
 protected:
     bf::path m_srcFileHref; ///< reference to the file that is imported (relative path from parent or absolute path and filename)
     bf::path m_srcFileName; ///< filename of the imported file
-    bf::path m_mainDocPath; ///< absolute path to the main document (file with root element OpenSCENARO)
-    bf::path m_relPathFromMainDoc; ///< path from the location of main xosc document to the imported file
+    bf::path m_pathFromCurrentDirToMainDir; ///< path from current directory to the directory with the file with OpenSCENARIO root element (given by the executable (e.g. `oscTest path/to/mainDir/tescScenario.xosc` or by oddlot))
+    bf::path m_absPathToMainDir; ///< absolute path to directory with the main document (file with root element OpenSCENARO) or the directory of a catalog file
+    bf::path m_relPathFromMainDir; ///< relative path from directory specified in m_absPathToMainDir to the imported file (if the absolute path points to a catalog file, relPath is empty)
     std::string m_rootElementName; ///< root element of the file that is read in
     xercesc::DOMDocument *m_xmlDoc;
 
@@ -46,10 +47,12 @@ public:
     void setSrcFileHref(const XMLCh *srcFileHref);
     void setSrcFileName(const bf::path &srcFileName);
     void setSrcFileName(const std::string &srcFileName);
-    void setMainDocPath(const bf::path &mainDocPath);
-    void setMainDocPath(const std::string &mainDocPath);
-    void setRelPathFromMainDoc(const bf::path &relPathFromMainDoc);
-    void setRelPathFromMainDoc(const std::string &relPathFromMainDoc);
+    void setPathFromCurrentDirToMainDir(const bf::path &pathFromExeToMainDir);
+    void setPathFromCurrentDirToMainDir(const std::string &pathFromExeToMainDir);
+    void setAbsPathToMainDir(const bf::path &mainDirPath);
+    void setAbsPathToMainDir(const std::string &mainDirPath);
+    void setRelPathFromMainDir(const bf::path &relPathFromMainDir);
+    void setRelPathFromMainDir(const std::string &relPathFromMainDir);
     void setRootElementName(const std::string &rootElementName);
     void setRootElementName(const XMLCh *rootElementName);
     void setXmlDoc(xercesc::DOMDocument *xmlDoc);
@@ -58,8 +61,9 @@ public:
     const XMLCh *getSrcFileHrefAsXmlCh() const;
     bf::path getSrcFileHref() const;
     bf::path getSrcFileName() const;
-    bf::path getMainDocPath() const;
-    bf::path getRelPathFromMainDoc() const;
+    bf::path getPathFromCurrentDirToMainDir() const;
+    bf::path getAbsPathToMainDir() const;
+    bf::path getRelPathFromMainDir() const;
     std::string getRootElementNameAsStr() const;
     const XMLCh *getRootElementNameAsXmlCh() const;
     xercesc::DOMDocument *getXmlDoc() const;

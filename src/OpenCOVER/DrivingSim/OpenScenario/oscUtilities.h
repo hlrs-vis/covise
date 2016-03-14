@@ -14,6 +14,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/sax/SAXParseException.hpp>
 
 
+#define BOOST_FILESYSTEM_NO_DEPRECATED
+#include <boost/filesystem.hpp>
+
+
+namespace bf = boost::filesystem;
+
+
 namespace OpenScenario
 {
 
@@ -32,8 +39,8 @@ private:
 
 
 //
+bf::path getEnvVariable(const std::string &envVar);
 std::string generateRandomString(const size_t numOfChars);
-
 }
 
 #endif /* OSC_UTILITIES_H */

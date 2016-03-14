@@ -57,24 +57,34 @@ void oscSourceFile::setSrcFileName(const std::string &srcFileName)
     m_srcFileName = convertToGenericFormat(srcFileName);
 }
 
-void oscSourceFile::setMainDocPath(const bf::path &mainDocPath)
+void oscSourceFile::setPathFromCurrentDirToMainDir (const bf::path &pathFromExeToMainDir)
 {
-    m_mainDocPath = convertToGenericFormat(mainDocPath);
+    m_pathFromCurrentDirToMainDir = pathFromExeToMainDir;
 }
 
-void oscSourceFile::setMainDocPath(const std::string &mainDocPath)
+void oscSourceFile::setPathFromCurrentDirToMainDir (const std::string &pathFromExeToMainDir)
 {
-    m_mainDocPath = convertToGenericFormat(mainDocPath);
+    m_pathFromCurrentDirToMainDir = convertToGenericFormat(pathFromExeToMainDir);
 }
 
-void oscSourceFile::setRelPathFromMainDoc(const bf::path &rpfmd)
+void oscSourceFile::setAbsPathToMainDir(const bf::path &mainDirPath)
 {
-    m_relPathFromMainDoc = convertToGenericFormat(rpfmd);
+    m_absPathToMainDir = convertToGenericFormat(mainDirPath);
 }
 
-void oscSourceFile::setRelPathFromMainDoc(const std::string &relPathFromMainDoc)
+void oscSourceFile::setAbsPathToMainDir(const std::string &mainDirPath)
 {
-    m_relPathFromMainDoc = convertToGenericFormat(relPathFromMainDoc);
+    m_absPathToMainDir = convertToGenericFormat(mainDirPath);
+}
+
+void oscSourceFile::setRelPathFromMainDir(const bf::path &rpfmd)
+{
+    m_relPathFromMainDir = convertToGenericFormat(rpfmd);
+}
+
+void oscSourceFile::setRelPathFromMainDir(const std::string &relPathFromMainDir)
+{
+    m_relPathFromMainDir = convertToGenericFormat(relPathFromMainDir);
 }
 
 void oscSourceFile::setRootElementName(const std::string &rootElementName)
@@ -114,14 +124,19 @@ bf::path oscSourceFile::getSrcFileName() const
     return m_srcFileName;
 }
 
-bf::path oscSourceFile::getMainDocPath() const
+bf::path oscSourceFile::getPathFromCurrentDirToMainDir() const
 {
-    return m_mainDocPath;
+    return m_pathFromCurrentDirToMainDir;
 }
 
-bf::path oscSourceFile::getRelPathFromMainDoc() const
+bf::path oscSourceFile::getAbsPathToMainDir() const
 {
-    return m_relPathFromMainDoc;
+    return m_absPathToMainDir;
+}
+
+bf::path oscSourceFile::getRelPathFromMainDir() const
+{
+    return m_relPathFromMainDir;
 }
 
 std::string oscSourceFile::getRootElementNameAsStr() const

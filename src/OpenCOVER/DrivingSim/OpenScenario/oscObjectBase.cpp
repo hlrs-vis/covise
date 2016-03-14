@@ -139,7 +139,6 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
             if(member->getType() == oscMemberValue::OBJECT)
             {
                 oscObjectBase *obj = member->getObject();
-
                 if (obj)
                 {
                     //xml document and element used for writing
@@ -219,9 +218,12 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         for (unordered_map<std::string, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
                         {
                             oscObjectBase *objFromCatalog = it->second;
-                            xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
-                            xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
-                            objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
+                            if (objFromCatalog)
+                            {
+                                xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
+                                xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
+                                objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
+                            }
                         }
                     }
                 }
@@ -260,7 +262,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
             //attributes "xmlns", "xmlns:osc" and "xml:base" are generated and/or used with namespaces and XInclude
             //they have no representation in the object structure
-            //only "xml:base" is evaluated during the determination of the source file
+            //"xml:base" is only evaluated during the determination of the source file
             if (attributeName != "xmlns" && attributeName != "xmlns:osc" && attributeName != "xml:base")
             {
                 oscMember *m = members[attributeName];
@@ -457,15 +459,27 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             //set variable pathToCatalogDir with type bf::path from std::string
                             bf::path pathToCatalogDir(pathMemberStrVal->getValue());
 
+                            bf::path pathToCatalogDirToUse;
+                            //check if path is absolute or relative
+                            if (pathToCatalogDir.is_absolute())
+                            {
+                                pathToCatalogDirToUse = pathToCatalogDir;
+                            }
+                            else
+                            {
+                                pathToCatalogDirToUse = source->getPathFromCurrentDirToMainDir();
+                                pathToCatalogDirToUse /= pathToCatalogDir;
+                            }
+
                             //get all catalog object filenames
-                            std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDir);
+                            std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDirToUse);
 
                             //parse all files
                             //store object name and filename in map
                             cm->fastReadCatalogObjects(filenames);
 
                             //////
-                            //for testing only
+                            //only for testing
                             //
                             //generate the objects for this catalog and store them
                             for (auto &it : cm->getMapAvailableObjects())
@@ -539,45 +553,47 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
         //new srcFileName
         newSrc->setSrcFileName(fnPath.filename());
 
-        //new mainDocPath and relPathFromMainDoc
+        //new pathFromExeToMainDir, absPathToMainDir and relPathFromMainDir
         if (base->getSrcFileVec().size() == 1) //only sourceFile of OpenScenario is present
         {
-            newSrc->setMainDocPath(base->source->getMainDocPath());
-            newSrc->setRelPathFromMainDoc(fnPath.parent_path());
+            newSrc->setPathFromCurrentDirToMainDir(base->source->getPathFromCurrentDirToMainDir());
+            newSrc->setAbsPathToMainDir(base->source->getAbsPathToMainDir());
+            newSrc->setRelPathFromMainDir(fnPath.parent_path());
         }
         else
         {
-            newSrc->setMainDocPath(srcF->getMainDocPath());
+            newSrc->setPathFromCurrentDirToMainDir(srcF->getPathFromCurrentDirToMainDir());
+            newSrc->setAbsPathToMainDir(srcF->getAbsPathToMainDir());
 
-            bf::path srcRelPathFromMainDoc = srcF->getRelPathFromMainDoc();
-            bf::path newSrcRelPathFromMainDoc = fnPath.parent_path();
+            bf::path srcRelPathFromMainDir = srcF->getRelPathFromMainDir();
+            bf::path newSrcRelPathFromMainDir = fnPath.parent_path();
 
-            bf::path relPathFromMainDocToUse;
-            if (srcRelPathFromMainDoc.empty())
+            bf::path relPathFromMainDirToUse;
+            if (srcRelPathFromMainDir.empty())
             {
-                if (newSrcRelPathFromMainDoc.empty())
+                if (newSrcRelPathFromMainDir.empty())
                 {
-                    relPathFromMainDocToUse = bf::path();
+                    relPathFromMainDirToUse = bf::path();
                 }
                 else
                 {
-                    relPathFromMainDocToUse = newSrcRelPathFromMainDoc;
+                    relPathFromMainDirToUse = newSrcRelPathFromMainDir;
                 }
             }
             else
             {
-                if (newSrcRelPathFromMainDoc.empty())
+                if (newSrcRelPathFromMainDir.empty())
                 {
-                    relPathFromMainDocToUse = srcRelPathFromMainDoc;
+                    relPathFromMainDirToUse = srcRelPathFromMainDir;
                 }
                 else
                 {
-                    relPathFromMainDocToUse = srcRelPathFromMainDoc;
-                    relPathFromMainDocToUse /= newSrcRelPathFromMainDoc;
+                    relPathFromMainDirToUse = srcRelPathFromMainDir;
+                    relPathFromMainDirToUse /= newSrcRelPathFromMainDir;
                 }
             }
 
-            newSrc->setRelPathFromMainDoc(relPathFromMainDocToUse);
+            newSrc->setRelPathFromMainDir(relPathFromMainDirToUse);
         }
 
         //new rootElementName

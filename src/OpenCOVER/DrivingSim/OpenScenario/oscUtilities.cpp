@@ -8,6 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscUtilities.h"
 
 #include <iostream>
+#include <cstdlib>
 
 
 using namespace OpenScenario;
@@ -57,6 +58,19 @@ void ParserErrorHandler::reportParseException(const xercesc::SAXParseException &
 
 
 //////
+//
+
+//get environment variable
+//
+bf::path OpenScenario::getEnvVariable(const std::string &envVar)
+{
+   //getenv aus <cstdlib>
+   const char *val = std::getenv(envVar.c_str());
+
+   return val == NULL ? "" : bf::path(val);
+}
+
+//random string
 //
 std::string OpenScenario::generateRandomString(const size_t numOfChars)
 {

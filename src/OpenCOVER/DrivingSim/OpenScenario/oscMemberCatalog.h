@@ -41,8 +41,8 @@ public:
     typedef unordered_map<std::string /*objectName*/, oscObjectBase *> ObjectsInMemoryMap;
 
 protected:
-    std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
     static const CatalogTypeTypeNameMap s_catalogTypeToTypeName; ///< typeName of the objects for catalogType
+    std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
     AvailableObjectsMap m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
 
 public:

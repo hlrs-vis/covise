@@ -104,12 +104,12 @@ std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path
             }
             else
             {
-                std::cerr << "Error! " << pathToDirectory << " is not a path to a directory." << std::endl;
+                std::cerr << "Warning! " << pathToDirectory << " is not a path to a directory." << std::endl;
             }
         }
         else
         {
-            std::cerr << "Error! File or directory " << pathToDirectory << " do not exist." << std::endl;
+            std::cerr << "Warning! File or directory " << pathToDirectory << " do not exist." << std::endl;
         }
     }
     catch (const bf::filesystem_error& fse)
@@ -143,7 +143,7 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
 
                     if (objectName.empty())
                     {
-                        std::cerr << "Error! Object for catalog " << m_catalogType << " in " << filenames[i] << " has an empty name and can't be used." << std::endl;
+                        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << filenames[i] << " has an empty name and can't be used." << std::endl;
                     }
                     else if (found != m_availableObjects.end())
                     {
@@ -157,7 +157,7 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
                 }
                 else
                 {
-                    std::cerr << "Error! Can't find an object for catalog " << m_catalogType << " in file " << filenames[i] << " with attribute 'name'." << std::endl;
+                    std::cerr << "Warning! Can't find an object for catalog " << m_catalogType << " in file " << filenames[i] << " with attribute 'name'." << std::endl;
                 }
             }
         }
@@ -275,18 +275,34 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
                     //set variables for srcFile, differentiate between absolute and relative path for catalog object
                     srcFile->setSrcFileHref(filePath);
                     srcFile->setSrcFileName(filePath.filename());
-                    srcFile->setMainDocPath(owner->getSource()->getMainDocPath());
-                    bf::path relPathFromMainDoc;
+                    srcFile->setPathFromCurrentDirToMainDir(owner->getSource()->getPathFromCurrentDirToMainDir());
+                    bf::path absPathToMainDir;
+                    bf::path relPathFromMainDir;
                     if (filePath.is_absolute())
                     {
-                        relPathFromMainDoc = bf::path();
+                        //absPathToMainDir is path to the directory with the imported catalog file
+                        absPathToMainDir = filePath.parent_path();
+                        relPathFromMainDir = bf::path(); // relative path is empty
                     }
                     else
                     {
-                        relPathFromMainDoc = owner->getSource()->getRelPathFromMainDoc();
-                        relPathFromMainDoc /= filePath.parent_path();
+                        //absPathToMainDir is path to directory with the file with OpenSCENARIO root element
+                        absPathToMainDir = owner->getSource()->getAbsPathToMainDir();
+
+                        //relative path is path from directory from absPathToMainDir to the directory with the imported file
+                        std::string pathFromExeToMainDir = owner->getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
+                        std::string tmpRelPathFromMainDir = filePath.parent_path().generic_string();
+                        if (pathFromExeToMainDir.empty())
+                        {
+                            relPathFromMainDir = tmpRelPathFromMainDir;
+                        }
+                        else
+                        {
+                            relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
+                        }
                     }
-                    srcFile->setRelPathFromMainDoc(relPathFromMainDoc);
+                    srcFile->setAbsPathToMainDir(absPathToMainDir);
+                    srcFile->setRelPathFromMainDir(relPathFromMainDir);
                     srcFile->setRootElementName(rootElemName);
 
                     //object for objectName
@@ -311,7 +327,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
                 }
                 else
                 {
-                    std::cerr << "Error! Can't determine an typeName for catalog " << m_catalogType << std::endl;
+                    std::cerr << "Warning! Can't determine an typeName for catalog " << m_catalogType << std::endl;
                 }
             }
         }
@@ -345,7 +361,7 @@ bool oscMemberCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePat
     }
     else
     {
-        std::cerr << "Error: Object for catalog " << m_catalogType << " in " << fileNamePath << " has an empty name and can't be used." << std::endl;
+        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << fileNamePath << " has an empty name and can't be used." << std::endl;
     }
 
     return success;
@@ -381,7 +397,7 @@ bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
 
         if (fileNamePath.empty())
         {
-            std::cerr << "Error: Can't determine filename and path to write the object." << std::endl;
+            std::cerr << "Error! Can't determine filename and path to write the object." << std::endl;
             return false;
         }
 
@@ -389,7 +405,7 @@ bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
     }
     else
     {
-        std::cerr << "Error: Given pointer to object isn't accessible." << std::endl;
+        std::cerr << "Error! Given pointer to object isn't accessible." << std::endl;
         return false;
     }
 }
@@ -418,23 +434,23 @@ bool oscMemberCatalog::addCatalogObject(const std::string &objectName, oscObject
                     }
                     else
                     {
-                        std::cerr << "Error! Can't insert object with name" << objectName << " to catalog " << m_catalogType << std::endl;
+                        std::cerr << "Warning! Can't insert object with name" << objectName << " to catalog " << m_catalogType << std::endl;
                     }
                 }
             }
             else
             {
-                std::cerr << "Error: Can't add catalog object "  << objectName << ". An object with this name is already registered." << std::endl;
+                std::cerr << "Warning: Can't add catalog object "  << objectName << ". An object with this name is already registered." << std::endl;
             }
         }
         else
         {
-            std::cerr << "Error: Can't add catalog object " << objectName << ". Object is read from file " << foundAvailableObjects->second << std::endl;
+            std::cerr << "Warning! Can't add catalog object " << objectName << ". Object is read from file " << foundAvailableObjects->second << std::endl;
         }
     }
     else
     {
-        std::cerr << "Error: Can't add catalog object " << objectName << ". Empty objectName or filename or no pointer to object." << std::endl;
+        std::cerr << "Warning! Can't add catalog object " << objectName << ". Empty objectName or filename or no pointer to object." << std::endl;
     }
 
     return success;
@@ -450,7 +466,7 @@ bool oscMemberCatalog::removeCatalogObject(const std::string &objectName)
     }
     else
     {
-        std::cerr << "Error: Can't remove object with name " << objectName << " from catalog " << m_catalogType << ". Object not found." << std::endl;
+        std::cerr << "Error! Can't remove object with name " << objectName << " from catalog " << m_catalogType << ". Object not found." << std::endl;
         return false;
     }
 }
