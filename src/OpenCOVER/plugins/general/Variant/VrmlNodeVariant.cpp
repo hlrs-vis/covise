@@ -40,8 +40,11 @@
 VrmlNodeVariant *VrmlNodeVariant::theVariantNode=NULL;
 VrmlNodeVariant *VrmlNodeVariant::instance()
 {
-    if(theVariantNode==NULL)
-        theVariantNode=new VrmlNodeVariant();
+    if (System::the)
+    {
+        if(theVariantNode==NULL)
+            theVariantNode=new VrmlNodeVariant();
+    }
     return theVariantNode;
 }
 
