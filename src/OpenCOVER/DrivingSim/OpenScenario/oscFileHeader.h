@@ -29,7 +29,7 @@ public:
         OSC_ADD_MEMBER(description);
         OSC_ADD_MEMBER(date);
         OSC_ADD_MEMBER(author);
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscShort revMajor;

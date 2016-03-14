@@ -42,7 +42,7 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
     OSC_OBJECT_ADD_MEMBER(entities,"oscEntities");
     OSC_OBJECT_ADD_MEMBER(storyboard,"oscStoryboard");
     OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscScenarioEnd");
-	OSC_OBJECT_ADD_MEMBER(test,"oscTest");
+    OSC_OBJECT_ADD_MEMBER_OPTIONAL(test,"oscTest");
 
     base = this;
 

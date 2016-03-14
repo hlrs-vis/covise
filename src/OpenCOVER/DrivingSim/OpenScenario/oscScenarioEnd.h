@@ -25,7 +25,7 @@ public:
     oscScenarioEnd()
     {
         OSC_OBJECT_ADD_MEMBER(endConditionGroups, "oscEndConditionsGroupsTypeA");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscEndConditionsGroupsTypeAMemberArray endConditionGroups;

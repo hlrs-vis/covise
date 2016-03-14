@@ -26,7 +26,7 @@ public:
     oscEnvironmentReference()
     {
         OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscCatalogReferenceTypeAMember catalogReference;

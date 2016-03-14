@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_POSITION_ROAD_H
 
 #include "oscExport.h"
-#include "oscOrientation.h"
+#include "oscOrientationOptional.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -18,7 +18,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPositionRoad: public oscOrientation
+class OPENSCENARIOEXPORT oscPositionRoad: public oscOrientationOptional
 {
 public:
     oscPositionRoad()

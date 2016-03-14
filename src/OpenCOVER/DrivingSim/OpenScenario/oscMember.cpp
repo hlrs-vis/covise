@@ -29,6 +29,7 @@ oscMember::~oscMember()
 }
 
 
+//
 void oscMember::registerWith(oscObjectBase* o)
 {
     owner = o;
@@ -38,6 +39,11 @@ void oscMember::registerWith(oscObjectBase* o)
 void oscMember::registerChoiceWith(oscObjectBase *objBase)
 {
     objBase->addMemberToChoice(this);
+}
+
+void oscMember::registerOptionalWith(oscObjectBase *objBase)
+{
+    objBase->addMemberToOptional(this);
 }
 
 

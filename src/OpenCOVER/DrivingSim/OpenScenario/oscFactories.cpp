@@ -119,6 +119,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObserverTypeB.h"
 #include "oscOffroad.h"
 #include "oscOrientation.h"
+#include "oscOrientationOptional.h"
 #include "oscParameterListTypeA.h"
 #include "oscParameterListTypeB.h"
 #include "oscParameterTypeA.h"
@@ -338,6 +339,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscObserverTypeB>("oscObserverTypeB");
     staticObjectFactory.registerType<oscOffroad>("oscOffroad");
     staticObjectFactory.registerType<oscOrientation>("oscOrientation");
+    staticObjectFactory.registerType<oscOrientationOptional>("oscOrientationOptional");
     staticObjectFactory.registerType<oscParameterListTypeA>("oscParameterListTypeA");
     staticObjectFactory.registerType<oscParameterListTypeB>("oscParameterListTypeB");
     staticObjectFactory.registerType<oscParameterTypeA>("oscParameterTypeA");

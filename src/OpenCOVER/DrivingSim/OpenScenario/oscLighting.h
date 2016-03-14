@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscLighting : public oscObjectBase
 public:
     oscLighting()
     {
-        OSC_OBJECT_ADD_MEMBER(light, "oscLights");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(light, "oscLights");
     };
 
     oscLightsMember light;

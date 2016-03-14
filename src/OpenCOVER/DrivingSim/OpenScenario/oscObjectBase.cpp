@@ -122,9 +122,26 @@ bool oscObjectBase::hasChoice() const
     return (choice.size() > 1) ? true : false;
 }
 
-std::vector<oscMember *> oscObjectBase::getChoice() const
+oscObjectBase::MemberChoice oscObjectBase::getChoice() const
 {
     return choice;
+}
+
+
+//
+void oscObjectBase::addMemberToOptional(oscMember *m)
+{
+    optional.push_back(m);
+}
+
+bool oscObjectBase::hasOptional() const
+{
+    return (optional.size() > 0) ? true : false;
+}
+
+oscObjectBase::MemberOptional oscObjectBase::getOptional() const
+{
+    return optional;
 }
 
 

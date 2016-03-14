@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscLongitudinal: public oscObjectBase
 public:
     oscLongitudinal()
     {
-        OSC_OBJECT_ADD_MEMBER(timing, "oscTiming");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(timing, "oscTiming");
     };
 
     oscTimingMember timing;

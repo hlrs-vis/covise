@@ -25,7 +25,7 @@ public:
     oscCatalogBase()
     {
         OSC_OBJECT_ADD_MEMBER(directory, "oscDirectory");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscDirectoryMember directory;

@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_RELATIVE_POSITION_LANE_H
 
 #include "oscExport.h"
-#include "oscOrientation.h"
+#include "oscOrientationOptional.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -18,7 +18,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRelativePositionLane: public oscOrientation
+class OPENSCENARIOEXPORT oscRelativePositionLane: public oscOrientationOptional
 {
 public:
     oscRelativePositionLane()
@@ -26,8 +26,8 @@ public:
         OSC_ADD_MEMBER(refObject);
         OSC_ADD_MEMBER(dLane);
         OSC_ADD_MEMBER(ds);
-        OSC_ADD_MEMBER(offset);
-        OSC_ADD_MEMBER(relativeOrientation);
+        OSC_ADD_MEMBER_OPTIONAL(offset);
+        OSC_ADD_MEMBER_OPTIONAL(relativeOrientation);
     };
 
     oscString refObject;

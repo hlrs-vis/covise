@@ -25,7 +25,7 @@ public:
     {
         OSC_ADD_MEMBER(pathS);
         OSC_ADD_MEMBER(laneId);
-        OSC_ADD_MEMBER(laneOffset);
+        OSC_ADD_MEMBER_OPTIONAL(laneOffset);
     };
 
     oscDouble pathS;

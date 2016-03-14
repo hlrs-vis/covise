@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscObjects: public oscObjectBase
 public:
     oscObjects()
     {
-        OSC_OBJECT_ADD_MEMBER(object, "oscObject");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(object, "oscObject");
     };
 
     oscObjectMember object;

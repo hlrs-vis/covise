@@ -25,7 +25,7 @@ public:
     oscEntities()
     {
         OSC_OBJECT_ADD_MEMBER(objects, "oscObjects");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscObjectsMemberArray objects;

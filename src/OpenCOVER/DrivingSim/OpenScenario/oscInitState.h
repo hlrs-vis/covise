@@ -23,8 +23,8 @@ class OPENSCENARIOEXPORT oscInitState: public oscObjectBase
 public:
     oscInitState()
     {
-        OSC_ADD_MEMBER(trafficLightPhase);
-        OSC_ADD_MEMBER(dynamicTrafficSignState);
+        OSC_ADD_MEMBER_OPTIONAL(trafficLightPhase);
+        OSC_ADD_MEMBER_OPTIONAL(dynamicTrafficSignState);
     };
 
     oscString trafficLightPhase;

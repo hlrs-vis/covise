@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscEndConditionsTypeB: public oscObjectBase
 public:
     oscEndConditionsTypeB()
     {
-        OSC_OBJECT_ADD_MEMBER(endCondition, "oscConditionTypeB");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(endCondition, "oscConditionTypeB");
     };
 
     oscConditionTypeBMember endCondition;

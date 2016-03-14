@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscParameterListTypeB: public oscObjectBase
 public:
     oscParameterListTypeB()
     {
-        OSC_OBJECT_ADD_MEMBER(parameter, "oscParameterTypeB");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(parameter, "oscParameterTypeB");
     };
 
     oscParameterTypeBMember parameter;

@@ -129,6 +129,7 @@ SET(HEADERS
    oscObserverTypeB.h
    oscOffroad.h
    oscOrientation.h
+   oscOrientationOptional.h
    oscParameterListTypeA.h
    oscParameterListTypeB.h
    oscParameterTypeA.h

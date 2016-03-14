@@ -25,7 +25,7 @@ class OPENSCENARIOEXPORT oscWaypoint: public oscObjectBase
 public:
     oscWaypoint()
     {
-        OSC_ADD_MEMBER(timestamp);
+        OSC_ADD_MEMBER_OPTIONAL(timestamp);
         OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
         OSC_OBJECT_ADD_MEMBER(continuation, "oscContinuation");
     };

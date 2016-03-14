@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscMirrors: public oscObjectBase
 public:
     oscMirrors()
     {
-        OSC_OBJECT_ADD_MEMBER(mirror, "oscMirror");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(mirror, "oscMirror");
     };
 
     oscMirrorMember mirror;

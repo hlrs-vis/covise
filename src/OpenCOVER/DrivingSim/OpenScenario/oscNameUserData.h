@@ -28,7 +28,7 @@ public:
     oscNameUserData()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     }
 
     oscString name;

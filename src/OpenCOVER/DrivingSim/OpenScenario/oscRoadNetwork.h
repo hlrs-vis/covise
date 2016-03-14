@@ -26,7 +26,7 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(openDrive, "oscFile");
         OSC_OBJECT_ADD_MEMBER(sceneGraph, "oscFile");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscFileMember openDrive;
