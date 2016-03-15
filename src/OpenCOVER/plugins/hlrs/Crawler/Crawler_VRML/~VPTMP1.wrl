@@ -1,0 +1,986 @@
+#VRML V2.0 utf8
+
+Transform{scale 0.5 0.5 0.5 children[Inline{url "Koordinatensystem_VRML.wrl"}]}
+
+DEF NavInfo NavigationInfo
+{
+avatarSize[0.40,1.6,0.75]
+headlight FALSE
+speed 10
+type "WALK"
+visibilityLimit 1000
+}
+
+DEF Licht1 DirectionalLight
+{
+direction 0.0 -1.0 0.0
+ambientIntensity 0.997
+color 1.0 1.0 1.0
+intensity 0.5
+on TRUE
+}
+
+Transform
+{
+translation	-4 2.5 5
+rotation	0 1 0 -0.873
+children
+[
+
+Viewpoint{position 0 0 0 orientation 1 0 0 -0.262 description "Viewpoint 1"}
+]
+}
+
+Transform
+{
+translation	-4 2.5 5
+rotation	0 0 0 0
+children
+[
+
+Viewpoint{position 0 0 0 orientation 1 0 0 -0.262 description "Viewpoint 2"}
+]
+}
+
+
+DEF	Ebene Transform
+{
+translation	0 0 0
+children
+[
+Shape
+{
+appearance Appearance
+{
+texture	ImageTexture{repeatS TRUE repeatT TRUE url "img/checker.png"}
+textureTransform TextureTransform{scale 5 5}
+material DEF FarbeEbene Material
+{
+diffuseColor 0.5 0.5 0.5
+transparency 0.0
+}
+}
+geometry IndexedFaceSet
+{
+ccw FALSE
+solid TRUE
+coord Coordinate{point[
+-10 0 10,
+-10 0 -10,
+10 0 -10,
+10 0 10
+]
+}
+coordIndex[0,1,2,3,-1]
+}
+}
+]
+}
+
+
+DEF Lander Transform
+{
+translation	0 0.015 0
+children
+[
+Inline{url	"Tetraeder.wrl"}
+DEF	Bottom_Flap_System Transform
+{
+rotation 0 0 1	1.570796327	
+translation	0 -0.005 0	
+children
+[
+Transform
+{
+rotation 1 0 0	2.617993878	
+translation	0 0.13616 -0.078612	
+children
+[
+DEF	Bottom_Main_Flap_Rotate	Transform
+{
+children
+[
+Inline{url"BottomMainFlap_rotation.WRL"}
+
+DEF	Bottom_Secondary_Flap Transform
+{
+rotation 1 0 0	-2.09439510	
+translation	-0.004 0 0	
+children
+[
+Transform
+{
+translation	0 -0.235836 0.13616	
+children
+[
+DEF	Bottom_Secondary_Flap_Rotate Transform
+{
+children
+[Inline{url"BottomSecondaryFlap_rotation.WRL"}]
+}
+]
+}
+]
+},
+]
+}
+]
+}
+]
+},
+
+DEF	Side_Flap_System1 Transform
+{
+rotation 0 1 0	1.57079632	
+translation	0 0.016734 0	
+children
+[
+Transform
+{
+rotation 0 0 1.0	-0.33983305	
+translation	-0.172592 0 0	
+children
+[
+DEF	Side_Main_Flap_Rotate1 Transform
+{
+children
+[
+Inline{url"SideMainFlap_rotation.WRL"}
+
+DEF	Side_Secondary_Flap1 Transform
+{
+rotation 1 0 0	-2.09439510	
+translation	-0.004 0 0	
+children
+[
+Transform
+{
+translation	0 -0.235836 0.13616	
+children
+[
+DEF	Side_Secondary_Flap_Rotate1 Transform
+{
+children
+[Inline{url "SideSecondaryFlap_rotation.WRL"}]
+}
+]
+}
+]
+},
+]
+}
+]
+}
+]
+},
+
+DEF	Side_Flap_System2 Transform
+{
+rotation 0 1 0	-0.52359877	
+translation	0 0.016734 0	
+children
+[
+Transform
+{
+rotation 0 0 1.0	-0.33983305	
+translation	-0.172592 0 0	
+children
+[
+DEF	Side_Main_Flap_Rotate2 Transform
+{
+children
+[
+Inline{url"SideMainFlap_rotation.WRL"}
+
+DEF	Side_Secondary_Flap2 Transform
+{
+rotation 1 0 0	-2.09439510	
+translation	-0.004 0 0	
+children
+[
+Transform
+{
+translation	0 -0.235836 0.13616	
+children
+[
+DEF	Side_Secondary_Flap_Rotate2 Transform
+{
+children
+[Inline{url "SideSecondaryFlap_rotation.WRL"}]
+}
+]
+}
+]
+},
+]
+}
+]
+}
+]
+},
+
+DEF	Side_Flap_System3 Transform
+{
+rotation 0 1 0	3.66519142	
+translation	0 0.016734 0	
+children
+[
+Transform
+{
+rotation 0 0 1.0	-0.33983305	
+translation	-0.172592 0 0	
+children
+[
+DEF	Side_Main_Flap_Rotate3 Transform
+{
+children
+[
+Inline{url"SideMainFlap_rotation.WRL"}
+
+DEF	Side_Secondary_Flap3 Transform
+{
+rotation 1 0 0	-2.09439510	
+translation	-0.004 0 0	
+children
+[
+Transform
+{
+translation	0 -0.235836 0.13616	
+children
+[
+DEF	Side_Secondary_Flap_Rotate3 Transform
+{
+children
+[Inline{url "SideSecondaryFlap_rotation.WRL"}]
+}
+]
+}
+]
+},
+]
+}
+]
+}
+]
+},
+]
+}
+
+
+
+DEF	Bedienpult_Lander Transform{
+translation	-1 0 -4
+rotation 0 1 0	-3.926990817
+children[
+
+
+Transform
+{
+rotation 0 0 1 0.3490658504
+translation	0.5 0.25 0
+children[Viewpoint{description "Bedienpult" position 1 1.6 0 orientation 0 1 0 1.57 fieldOfView 1.57}]
+}
+
+Inline{url "Bedienpult_Lander.wrl"},
+DEF Schalterflaeche2 Transform{
+translation	0.0375 1.027313 0
+rotation 0 0 1 -0.5235987756
+children[
+
+
+
+DEF	Schieber_BottomMain_Flap Transform{
+translation	0 0 0.9
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Bottom_main_flap.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Bottom_Main_Flap Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_BMF Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Bottom_Main_Flap PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_BottomSecondary_Flap Transform{
+translation	0 0 0.7
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Bottom_secondary_flap.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Bottom_Secondary_Flap Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_BSF Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Bottom_Secondary_Flap PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_SideMain_Flap1 Transform{
+translation	0 0 0.3
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Side_main_flap1.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Side_Main_Flap1 Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_SMF1 Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Side_Main_Flap1 PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_SideSecondary_Flap1 Transform{
+translation	0 0 0.1
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Side_secondary_flap1.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Side_Secondary_Flap1 Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_SSF1 Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Side_Secondary_Flap1 PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_SideMain_Flap2 Transform{
+translation	0 0 -0.1
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Side_main_flap2.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Side_Main_Flap2 Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_SMF2 Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Side_Main_Flap2 PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_SideSecondary_Flap2 Transform{
+translation	0 0 -0.3
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Side_secondary_flap2.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Side_Secondary_Flap2 Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_SSF2 Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Side_Secondary_Flap2 PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_SideMain_Flap3 Transform{
+translation	0 0 -0.5
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Side_main_flap3.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Side_Main_Flap3 Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_SMF3 Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Side_Main_Flap3 PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+
+
+
+DEF	Schieber_SideSecondary_Flap3 Transform{
+translation	0 0 -0.7
+children[
+
+
+Transform{
+rotation 0 1 0 1.57
+translation -0.175 0 0
+children[
+Shape{
+geometry Box{size 0.15 0.02 0.08}
+appearance Appearance{texture ImageTexture{url "img/Side_secondary_flap3.png"}}
+}
+]
+},
+
+
+Transform{
+rotation 0 1 0 1.57
+translation 0 0 0.06
+children[
+Shape{
+geometry Box{size 0.03 0.01 0.22}
+appearance Appearance{texture ImageTexture{url "img/Blattstellung.png"}}
+}
+]
+},
+
+
+Transform{
+translation 0 0 0
+children[
+Shape{
+geometry Box{size 0.2 0.01 0.08}
+appearance Appearance{material Material{diffuseColor 1 1 1}}
+}
+]
+},
+
+
+Transform{
+scale 0.2 0.2 0.2 
+children[
+Transform{
+translation	0.5 0 0
+rotation 0 1 0 3.1415
+children[
+
+DEF	Schieber_Side_Secondary_Flap3 Transform
+{translation 0.0 0 0
+children[
+Shape{
+geometry Box{size 0.1 0.1 0.4}
+appearance Appearance{material DEF Lampe_SSF3 Material{emissiveColor 0 0.6 0}}}]
+},
+DEF	Sensor_Side_Secondary_Flap3 PlaneSensor
+{
+minPosition	0 0
+maxPosition	1 0
+offset 0.0 0.0 0.0
+enabled TRUE
+}
+]
+}
+]
+}
+]
+},
+]
+}
+]
+}
+
+
+DEF	Script_Rotation_Flap_Systems Script
+{
+eventIn	SFVec3f	BMF_Rotate_in	
+eventOut SFRotation BMF_Rotate_out
+eventIn	SFVec3f	BSF_Rotate_in	
+eventOut SFRotation BSF_Rotate_out
+
+eventIn	SFVec3f	SMF1_Rotate_in	
+eventOut SFRotation SMF1_Rotate_out
+eventIn	SFVec3f	SSF1_Rotate_in	
+eventOut SFRotation SSF1_Rotate_out
+
+eventIn	SFVec3f	SMF2_Rotate_in	
+eventOut SFRotation SMF2_Rotate_out
+eventIn	SFVec3f	SSF2_Rotate_in	
+eventOut SFRotation SSF2_Rotate_out
+
+eventIn	SFVec3f	SMF3_Rotate_in	
+eventOut SFRotation SMF3_Rotate_out
+eventIn	SFVec3f	SSF3_Rotate_in	
+eventOut SFRotation SSF3_Rotate_out
+
+url	"javascript:
+function BMF_Rotate_in(k)
+{
+BMF_Rotate_out[0]= 0;
+BMF_Rotate_out[1]= 0;
+BMF_Rotate_out[2]= 1;
+BMF_Rotate_out[3]= 1.910629385*k[0];	
+}
+function BSF_Rotate_in(k)
+{
+BSF_Rotate_out[0]= 0;
+BSF_Rotate_out[1]= 0;
+BSF_Rotate_out[2]= 1;
+BSF_Rotate_out[3]= 1.910629385*k[0];
+}
+
+
+function SMF1_Rotate_in(k)
+{
+SMF1_Rotate_out[0]= 0;
+SMF1_Rotate_out[1]= 0;
+SMF1_Rotate_out[2]= 1;
+SMF1_Rotate_out[3]= 1.910629385*k[0];
+}
+function SSF1_Rotate_in(k)
+{
+SSF1_Rotate_out[0]= 0;
+SSF1_Rotate_out[1]= 0;
+SSF1_Rotate_out[2]= 1;
+SSF1_Rotate_out[3]= 1.910629385*k[0];
+}
+
+
+function SMF2_Rotate_in(k)
+{
+SMF2_Rotate_out[0]= 0;
+SMF2_Rotate_out[1]= 0;
+SMF2_Rotate_out[2]= 1;
+SMF2_Rotate_out[3]= 1.910629385*k[0];
+}
+function SSF2_Rotate_in(k)
+{
+SSF2_Rotate_out[0]= 0;
+SSF2_Rotate_out[1]= 0;
+SSF2_Rotate_out[2]= 1;
+SSF2_Rotate_out[3]= 1.910629385*k[0];
+}
+
+
+function SMF3_Rotate_in(k)
+{
+SMF3_Rotate_out[0]= 0;
+SMF3_Rotate_out[1]= 0;
+SMF3_Rotate_out[2]= 1;
+SMF3_Rotate_out[3]= 1.910629385*k[0];
+}
+function SSF3_Rotate_in(k)
+{
+SSF3_Rotate_out[0]= 0;
+SSF3_Rotate_out[1]= 0;
+SSF3_Rotate_out[2]= 1;
+SSF3_Rotate_out[3]= 1.910629385*k[0];
+}"
+}
+
+
+
+ROUTE Sensor_Bottom_Main_Flap.translation_changed	TO Schieber_Bottom_Main_Flap.translation
+ROUTE Sensor_Bottom_Main_Flap.translation_changed	TO Script_Rotation_Flap_Systems.BMF_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.BMF_Rotate_out	TO Bottom_Main_Flap_Rotate.rotation
+
+
+ROUTE Sensor_Bottom_Secondary_Flap.translation_changed	TO Schieber_Bottom_Secondary_Flap.translation
+ROUTE Sensor_Bottom_Secondary_Flap.translation_changed	TO Script_Rotation_Flap_Systems.BSF_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.BSF_Rotate_out	TO Bottom_Secondary_Flap_Rotate.rotation
+
+
+ROUTE Sensor_Side_Main_Flap1.translation_changed	TO Schieber_Side_Main_Flap1.translation
+ROUTE Sensor_Side_Main_Flap1.translation_changed	TO Script_Rotation_Flap_Systems.SMF1_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.SMF1_Rotate_out	TO Side_Main_Flap_Rotate1.rotation
+
+ROUTE Sensor_Side_Secondary_Flap1.translation_changed TO Schieber_Side_Secondary_Flap1.translation
+ROUTE Sensor_Side_Secondary_Flap1.translation_changed TO Script_Rotation_Flap_Systems.SSF1_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.SSF1_Rotate_out TO Side_Secondary_Flap_Rotate1.rotation
+
+
+ROUTE Sensor_Side_Main_Flap2.translation_changed	TO Schieber_Side_Main_Flap2.translation
+ROUTE Sensor_Side_Main_Flap2.translation_changed	TO Script_Rotation_Flap_Systems.SMF2_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.SMF2_Rotate_out	TO Side_Main_Flap_Rotate2.rotation
+
+ROUTE Sensor_Side_Secondary_Flap2.translation_changed TO Schieber_Side_Secondary_Flap2.translation
+ROUTE Sensor_Side_Secondary_Flap2.translation_changed TO Script_Rotation_Flap_Systems.SSF2_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.SSF2_Rotate_out TO Side_Secondary_Flap_Rotate2.rotation
+
+
+ROUTE Sensor_Side_Main_Flap3.translation_changed	TO Schieber_Side_Main_Flap3.translation
+ROUTE Sensor_Side_Main_Flap3.translation_changed	TO Script_Rotation_Flap_Systems.SMF3_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.SMF3_Rotate_out	TO Side_Main_Flap_Rotate3.rotation
+
+ROUTE Sensor_Side_Secondary_Flap3.translation_changed TO Schieber_Side_Secondary_Flap3.translation
+ROUTE Sensor_Side_Secondary_Flap3.translation_changed TO Script_Rotation_Flap_Systems.SSF3_Rotate_in
+ROUTE Script_Rotation_Flap_Systems.SSF3_Rotate_out TO Side_Secondary_Flap_Rotate3.rotation
