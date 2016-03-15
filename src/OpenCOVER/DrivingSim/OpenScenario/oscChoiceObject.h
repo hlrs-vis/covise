@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscChoiceObject: public oscObjectBase
 public:
     oscChoiceObject()
     {
-        OSC_OBJECT_ADD_MEMBER(vehicle, "oscNameRefId");
-        OSC_OBJECT_ADD_MEMBER(pedestrian, "oscNameRefId");
-        OSC_OBJECT_ADD_MEMBER(miscObject, "oscNameRefId");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(vehicle, "oscNameRefId");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(pedestrian, "oscNameRefId");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(miscObject, "oscNameRefId");
     };
 
     oscNameRefIdMember vehicle;

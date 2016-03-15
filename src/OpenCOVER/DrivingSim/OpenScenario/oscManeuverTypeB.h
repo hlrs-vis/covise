@@ -26,8 +26,8 @@ public:
     oscManeuverTypeB()
     {
         OSC_OBJECT_ADD_MEMBER(refActors, "oscRefActorsTypeB");
-        OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
-        OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(catalogReference, "oscCatalogReferenceTypeA");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(maneuver, "oscManeuverTypeA");
     };
 
     oscRefActorsTypeBMemberArray refActors;

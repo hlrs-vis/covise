@@ -634,7 +634,8 @@ void VariantPlugin::message(int type, int len, const void *buf)
             }
             else
             {
-                VrmlNodeVariant::instance()->setVariant(VariantName);
+                if (VrmlNodeVariant::instance())
+                    VrmlNodeVariant::instance()->setVariant(VariantName);
                 cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb2.get_length(), tb2.get_data());
                 setMenuItem(var, (true));
                 setQDomElemState(var, true);

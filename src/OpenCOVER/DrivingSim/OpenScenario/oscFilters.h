@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscFilters: public oscObjectBase
 public:
     oscFilters()
     {
-        OSC_OBJECT_ADD_MEMBER(filter, "oscFilter");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(filter, "oscFilter");
     };
 
     oscFilterMember filter;

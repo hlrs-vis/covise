@@ -40,8 +40,12 @@ public:
     oscMember(); ///< constructor
     virtual ~oscMember(); ///< destructor
 
+    //
     void registerWith(oscObjectBase *owner);
+    void registerChoiceWith(oscObjectBase *objBase);
+    void registerOptionalWith(oscObjectBase *objBase);
 
+    //
     void setName(const char *n);
     void setName(std::string &n);
     std::string &getName();
@@ -49,6 +53,7 @@ public:
     void setTypeName(std::string &tn);
     std::string getTypeName() const; ///< return the typeName of this member
 
+    //
     virtual void setValue(oscMemberValue *v);
     virtual void setValue(oscObjectBase *t);
     virtual void deleteValue();
@@ -57,6 +62,7 @@ public:
     void setType(oscMemberValue::MemberTypes t);
     oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
+    //
     virtual oscObjectBase *getObject() const;
     virtual oscObjectBase *getGenerateObject();
     virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable...::exists is executed
@@ -64,6 +70,7 @@ public:
     virtual void setParentMember(oscMember *pm);
     virtual oscMember *getParentMember() const;
 
+    //
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 };
 

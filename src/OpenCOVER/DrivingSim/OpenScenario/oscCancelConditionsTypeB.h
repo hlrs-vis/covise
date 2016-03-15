@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscCancelConditionsTypeB: public oscObjectBase
 public:
     oscCancelConditionsTypeB()
     {
-        OSC_OBJECT_ADD_MEMBER(cancelCondition, "oscConditionTypeB");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(cancelCondition, "oscConditionTypeB");
     };
 
     oscConditionTypeBMember cancelCondition;

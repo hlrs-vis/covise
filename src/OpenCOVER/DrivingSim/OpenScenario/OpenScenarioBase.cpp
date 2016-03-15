@@ -8,7 +8,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
 #include "oscSourceFile.h"
-#include "oscUtilities.h"
 
 #include <iostream>
 
@@ -30,10 +29,10 @@ using namespace OpenScenario;
  * constructor
  *****/
 
-OpenScenarioBase::OpenScenarioBase():oscObjectBase()
+OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
+        xmlDoc(NULL),
+        m_validate(true)
 {
-    parser = NULL;
-    xmlDoc = NULL;
     oscFactories::instance();
 
     OSC_OBJECT_ADD_MEMBER(fileHeader,"oscFileHeader");
@@ -43,7 +42,7 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     OSC_OBJECT_ADD_MEMBER(entities,"oscEntities");
     OSC_OBJECT_ADD_MEMBER(storyboard,"oscStoryboard");
     OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscScenarioEnd");
-	OSC_OBJECT_ADD_MEMBER(test,"oscTest");
+    OSC_OBJECT_ADD_MEMBER_OPTIONAL(test,"oscTest");
 
     base = this;
 
@@ -52,6 +51,8 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     ownMem->setTypeName("OpenScenarioBase");
     ownMem->setValue(this);
 
+    //in order to work with the Xerces-C++ parser, the XML subsystem must be initialized first
+    //every call of XMLPlatformUtils::Initialize() must have a matching call of XMLPlatformUtils::Terminate() (see destructor)
     try
     {
         xercesc::XMLPlatformUtils::Initialize();
@@ -63,15 +64,21 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
         xercesc::XMLString::release(&message);
     }
 
-    //new parser, error handler, generic settings
-    //
+    //parser
     parser = new xercesc::XercesDOMParser();
     //error handler
-    ParserErrorHandler parserErrorHandler;
-    parser->setErrorHandler(&parserErrorHandler);
+    parserErrorHandler = new ParserErrorHandler();
 
+    //generic settings for parser
+    //
+    parser->setErrorHandler(parserErrorHandler);
+    parser->setExitOnFirstFatalError(true);
     //namespaces needed for XInclude and validation
     parser->setDoNamespaces(true);
+    //settings for validation
+    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+    parser->setValidationConstraintFatal(true);
+    parser->cacheGrammarFromParse(true);
 }
 
 
@@ -80,28 +87,25 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
  * initialization static variables
  *****/
 
-bool OpenScenarioBase::m_validate = true;
-
-//
-unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> initFuncFileTypeToXsd()
+OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 {
     //set the XSD Schema file name for possible file types
-    unordered_map<std::string, std::string> fileTypeToXsd;
-    fileTypeToXsd.emplace("OpenSCENARIO", "xml-schema/OpenScenario_XML-Schema_OpenSCENARIO.xsd");
-    fileTypeToXsd.emplace("driver", "xml-schema/OpenScenario_XML-Schema_driver.xsd");
-    fileTypeToXsd.emplace("entity", "xml-schema/OpenScenario_XML-Schema_entity.xsd");
-    fileTypeToXsd.emplace("environment", "xml-schema/OpenScenario_XML-Schema_environment.xsd");
-    fileTypeToXsd.emplace("maneuver", "xml-schema/OpenScenario_XML-Schema_maneuver.xsd");
-    fileTypeToXsd.emplace("miscObject", "xml-schema/OpenScenario_XML-Schema_miscObject.xsd");
-    fileTypeToXsd.emplace("observer", "xml-schema/OpenScenario_XML-Schema_observer.xsd");
-    fileTypeToXsd.emplace("pedestrian", "xml-schema/OpenScenario_XML-Schema_pedestrian.xsd");
-    fileTypeToXsd.emplace("routing", "xml-schema/OpenScenario_XML-Schema_routing.xsd");
-    fileTypeToXsd.emplace("vehicle", "xml-schema/OpenScenario_XML-Schema_vehicle.xsd");
+    OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
+    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenScenario_XML-Schema_OpenSCENARIO.xsd"));
+    fileTypeToXsd.emplace("driver", bf::path("OpenScenario_XML-Schema_driver.xsd"));
+    fileTypeToXsd.emplace("entity", bf::path("OpenScenario_XML-Schema_entity.xsd"));
+    fileTypeToXsd.emplace("environment", bf::path("OpenScenario_XML-Schema_environment.xsd"));
+    fileTypeToXsd.emplace("maneuver", bf::path("OpenScenario_XML-Schema_maneuver.xsd"));
+    fileTypeToXsd.emplace("miscObject", bf::path("OpenScenario_XML-Schema_miscObject.xsd"));
+    fileTypeToXsd.emplace("observer", bf::path("OpenScenario_XML-Schema_observer.xsd"));
+    fileTypeToXsd.emplace("pedestrian", bf::path("OpenScenario_XML-Schema_pedestrian.xsd"));
+    fileTypeToXsd.emplace("routing", bf::path("OpenScenario_XML-Schema_routing.xsd"));
+    fileTypeToXsd.emplace("vehicle", bf::path("OpenScenario_XML-Schema_vehicle.xsd"));
 
     return fileTypeToXsd;
 }
 
-const unordered_map<std::string, std::string> OpenScenarioBase::m_fileTypeToXsdFileName = initFuncFileTypeToXsd();
+const OpenScenarioBase::FileTypeXsdFileNameMap OpenScenarioBase::s_fileTypeToXsdFileName = initFuncFileTypeToXsd();
 
 
 /*****
@@ -110,7 +114,9 @@ const unordered_map<std::string, std::string> OpenScenarioBase::m_fileTypeToXsdF
 
 OpenScenarioBase::~OpenScenarioBase()
 {
+    delete parserErrorHandler;
     delete parser;
+    //match the call of XMLPlatformUtils::Initialize() from constructor
     try
     {
         xercesc::XMLPlatformUtils::Terminate();
@@ -130,16 +136,58 @@ OpenScenarioBase::~OpenScenarioBase()
  *****/
 
 //
+xercesc::DOMDocument *OpenScenarioBase::getDocument() const
+{
+    return xmlDoc;
+}
+
+
+//
+void OpenScenarioBase::addToSrcFileVec(oscSourceFile *src)
+{
+    srcFileVec.push_back(src);
+}
+
+std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec() const
+{
+    return srcFileVec;
+}
+
+
+//
 void OpenScenarioBase::setValidation(const bool validate)
 {
     m_validate = validate;
+}
+
+bool OpenScenarioBase::getValidation() const
+{
+    return m_validate;
+}
+
+
+//
+void OpenScenarioBase::setPathFromCurrentDirToDoc(const bf::path &path)
+{
+    m_pathFromCurrentDirToDoc = path.parent_path();
+}
+
+void OpenScenarioBase::setPathFromCurrentDirToDoc(const std::string &path)
+{
+    m_pathFromCurrentDirToDoc = bf::path(path).parent_path();
+}
+
+bf::path OpenScenarioBase::getPathFromCurrentDirToDoc() const
+{
+    return m_pathFromCurrentDirToDoc;
 }
 
 
 //
 bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &fileType)
 {
-    xercesc::DOMElement *rootElement = getRootElement(fileName, fileType);
+    setPathFromCurrentDirToDoc(fileName);
+    xercesc::DOMElement *rootElement = getRootElement(fileName, fileType, m_validate);
     if(rootElement == NULL)
     {
         return false;
@@ -185,19 +233,23 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        //get the relative path from main doc to the file to write
-        std::string relFilePath = srcFileVec[i]->getRelPathFromMainDoc();
         //get the file name to write
-        std::string srcFileName = srcFileVec[i]->getSrcFileName();
+        bf::path srcFileName = srcFileVec[i]->getSrcFileName();
 
+        //////
         //for testing: generate a new filename
+        //
         if (srcFileName != fileName)
         {
-            srcFileName = srcFileName + "_out.xml";
+            srcFileName += "_out.xml";
         }
+        //
+        //////
 
         //file name and path for writing
-        std::string pathFileNameToWrite = relFilePath + srcFileName;
+        bf::path pathFileNameToWrite = srcFileVec[i]->getAbsPathToMainDir();
+        pathFileNameToWrite /= srcFileVec[i]->getRelPathFromMainDir();
+        pathFileNameToWrite /= srcFileName;
 
         //xml document to write
         xercesc::DOMDocument *xmlSrcDoc = srcFileVec[i]->getXmlDoc();
@@ -330,7 +382,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     }
     catch (...)
     {
-        std::cerr << "\nErrors during parse of the document '" << fileName << "'\n" << std::endl;
+        std::cerr << "\nErrors during parse of the document '" << fileName << "'.\n" << std::endl;
 
         return NULL;
     }
@@ -349,47 +401,64 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         tmpRootElemName = xercesc::XMLString::transcode(tmpRootElem->getNodeName());
     }
 
-    //only for tmpRootElementName == fileType validation is reasonable
+    //validation is only reasonable for tmpRootElementName == fileType
     if (validate && tmpRootElemName == fileType)
     {
+        //path to covise directory
+        bf::path coDir = getEnvVariable("COVISEDIR");
+        //relative path from covise directory to OpenSCENARIO
+        bf::path oscDir = bf::path("src/OpenCOVER/DrivingSim/OpenScenario");
+        //path to schema files
+        bf::path xsdDir = bf::path("xml-schema");
+
         //name of XML Schema
-        const char *xsdFileName;
-        unordered_map<std::string, std::string>::const_iterator found = m_fileTypeToXsdFileName.find(fileType);
-        if (found != m_fileTypeToXsdFileName.end())
+        bf::path xsdFileName;
+        FileTypeXsdFileNameMap::const_iterator found = s_fileTypeToXsdFileName.find(fileType);
+        if (found != s_fileTypeToXsdFileName.end())
         {
             xsdFileName = found->second.c_str();
         }
         else
         {
-            std::cerr << "Error! Can't determine a XSD Schema file for fileType " << fileType << ".\n" << std::endl;
+            std::cerr << "Error! Can't determine a XSD Schema file for fileType '" << fileType << "'.\n" << std::endl;
 
             return NULL;
         }
 
-        //set location of schema for elements without namespace
-        // (in schema file no global namespace is used)
-        parser->setExternalNoNamespaceSchemaLocation(xsdFileName);
+        //path and filename of XML Schema *.xsd file
+        bf::path xsdPathFileName = coDir;
+        xsdPathFileName /= oscDir;
+        xsdPathFileName /= xsdDir;
+        xsdPathFileName /= xsdFileName;
 
-        //read the schema grammar file (.xsd) and cache it
-        try
+        //only set schema location and load grammar if file changed
+        if (xsdPathFileName != m_xsdPathFileName)
         {
-            parser->loadGrammar(xsdFileName, xercesc::Grammar::SchemaGrammarType, true);
-        }
-        catch (...)
-        {
-            std::cerr << "\nError: Couldn't load XML Schema '" << xsdFileName << "'\n" << std::endl;
+            m_xsdPathFileName = xsdPathFileName;
+            const char *charXsdPathFileName = m_xsdPathFileName.generic_string().c_str();
 
-            return NULL;
+
+            //set location of schema for elements without namespace
+            // (in schema file no global namespace is used)
+            parser->setExternalNoNamespaceSchemaLocation(charXsdPathFileName);
+
+            //read the schema grammar file (.xsd) and cache it
+            try
+            {
+                parser->loadGrammar(charXsdPathFileName, xercesc::Grammar::SchemaGrammarType, true);
+            }
+            catch (...)
+            {
+                std::cerr << "\nError! Can't load XML Schema '" << m_xsdPathFileName << "'.\n" << std::endl;
+
+                return NULL;
+            }
         }
 
 
         //settings for validation
         parser->setDoXInclude(false); //disable XInclude for validation
-        parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
         parser->setDoSchema(true);
-        parser->setValidationConstraintFatal(true);
-        parser->setExitOnFirstFatalError(true);
-        parser->cacheGrammarFromParse(true);
 
         //write xml document got from parser to memory buffer
         xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(tmpXmlDoc);
@@ -409,7 +478,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         }
         catch (...)
         {
-            std::cerr << "\nErrors during validation of the document " << fileName << "\n" << std::endl;
+            std::cerr << "\nErrors during validation of the document '" << fileName << "'.\n" << std::endl;
 
             delete tmpXmlMemBufFormat;
             delete tmpInputSrc;
@@ -433,8 +502,10 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
         return rootElement;
     }
-
-    return NULL;
+    else
+    {
+        return NULL;
+    }
 }
 
 
@@ -442,33 +513,15 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
     source = new oscSourceFile();
-    source->setSrcFileHref("");
+    source->setSrcFileHref(bf::path());
     std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
-    fileNamePath *fnPath = source->getFileNamePath(fileNamePathStr);
-    source->setSrcFileName(fnPath->fileName);
-    source->setMainDocPath(fnPath->path);
-    source->setRelPathFromMainDoc("");
+    bf::path fnPath = source->getFileNamePath(fileNamePathStr);
+    source->setSrcFileName(fnPath.filename());
+    source->setPathFromCurrentDirToMainDir(m_pathFromCurrentDirToDoc);
+    source->setAbsPathToMainDir(fnPath.parent_path());
+    source->setRelPathFromMainDir(bf::path());
     source->setRootElementName(rootElement->getNodeName());
     addToSrcFileVec(source);
 
     return oscObjectBase::parseFromXML(rootElement, source);
-}
-
-
-//
-xercesc::DOMDocument *OpenScenarioBase::getDocument() const
-{
-    return xmlDoc;
-}
-
-
-//
-void OpenScenarioBase::addToSrcFileVec(oscSourceFile *src)
-{
-    srcFileVec.push_back(src);
-}
-
-std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec() const
-{
-    return srcFileVec;
 }

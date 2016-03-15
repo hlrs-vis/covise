@@ -97,7 +97,7 @@ public:
     void setQDomElemLabels(bool state);
     int parseXML(QDomDocument *qxmlDoc);
     Variant *getVariant(std::string varName);
-    void VariantPlugin::setVariant(std::string var);
+    void setVariant(std::string var);
     Variant *getVariant(osg::Node *varNode);
     Variant *getVariantbyAttachedNode(osg::Node *node);
 

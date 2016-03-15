@@ -25,8 +25,8 @@ public:
     oscConditionTypeB()
     {
         OSC_ADD_MEMBER(iid);
-        OSC_ADD_MEMBER(groupId);
-        OSC_ADD_MEMBER(counter);
+        OSC_ADD_MEMBER_OPTIONAL(groupId);
+        OSC_ADD_MEMBER_OPTIONAL(counter);
         OSC_OBJECT_ADD_MEMBER(condition, "oscConditionBase");
     };
 

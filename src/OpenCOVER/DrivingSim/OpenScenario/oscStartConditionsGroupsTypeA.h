@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscStartConditionsGroupsTypeA: public oscObjectBase
 public:
     oscStartConditionsGroupsTypeA()
     {
-        OSC_OBJECT_ADD_MEMBER(startConditionGroup, "oscStartConditionsGroupTypeA");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(startConditionGroup, "oscStartConditionsGroupTypeA");
     };
 
     oscStartConditionsGroupTypeAMember startConditionGroup;

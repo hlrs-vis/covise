@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscUserDataList: public oscObjectBase
 public:
     oscUserDataList()
     {
-        OSC_OBJECT_ADD_MEMBER(userData, "oscUserData");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userData, "oscUserData");
     };
 
     oscUserDataMember userData;

@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_POSITION_ROUTE_H
 
 #include "oscExport.h"
-#include "oscOrientation.h"
+#include "oscOrientationOptional.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -21,16 +21,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPositionRoute: public oscOrientation
+class OPENSCENARIOEXPORT oscPositionRoute: public oscOrientationOptional
 {
 public:
     oscPositionRoute()
     {
         OSC_ADD_MEMBER(routeId);
-        OSC_ADD_MEMBER(relativeOrientation);
-        OSC_OBJECT_ADD_MEMBER(currentPosition, "oscCurrentPosition");
-        OSC_OBJECT_ADD_MEMBER(roadCoord, "oscRoadCoord");
-        OSC_OBJECT_ADD_MEMBER(laneCoord, "oscLaneCoord");
+        OSC_ADD_MEMBER_OPTIONAL(relativeOrientation);
+        OSC_OBJECT_ADD_MEMBER_CHOICE(currentPosition, "oscCurrentPosition");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(roadCoord, "oscRoadCoord");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(laneCoord, "oscLaneCoord");
     };
 
     oscString routeId;

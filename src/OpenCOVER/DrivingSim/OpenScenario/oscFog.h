@@ -26,8 +26,8 @@ public:
     oscFog()
     {
         OSC_OBJECT_ADD_MEMBER(color, "oscColor");
-        OSC_OBJECT_ADD_MEMBER(boundingBox, "oscBoundingBox");
-        OSC_OBJECT_ADD_MEMBER(visualRange, "oscVisualRange");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(boundingBox, "oscBoundingBox");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(visualRange, "oscVisualRange");
     };
 
     oscColorMember color;

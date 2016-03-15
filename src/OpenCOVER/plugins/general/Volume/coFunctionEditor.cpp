@@ -53,8 +53,8 @@ void coFunctionEditor::setActiveChannel(int chan)
 {
     if (chan > numChannels)
         chan = 0;
-    if (chan < -1)
-        chan = -1;
+    if (chan < 0)
+        chan = 0;
     activeChannel = chan;
 }
 

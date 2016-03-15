@@ -17,7 +17,7 @@ using namespace OpenScenario;
 
 oscSourceFile::oscSourceFile()
 {
-    xmlDoc = NULL;
+    m_xmlDoc = NULL;
 }
 
 oscSourceFile::~oscSourceFile()
@@ -31,120 +31,163 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
-void oscSourceFile::setSrcFileHref(const std::string &sfhr)
+void oscSourceFile::setSrcFileHref(const bf::path &srcFileHref)
 {
-    srcFileHref = sfhr;
+    m_srcFileHref = convertToGenericFormat(srcFileHref);
 }
 
-void oscSourceFile::setSrcFileHref(const XMLCh *sfhr)
+void oscSourceFile::setSrcFileHref(const std::string &srcFileHref)
 {
-    srcFileHref = xercesc::XMLString::transcode(sfhr);
+    m_srcFileHref = convertToGenericFormat(srcFileHref);
 }
 
-void oscSourceFile::setSrcFileName(const std::string &sfn)
+void oscSourceFile::setSrcFileHref(const XMLCh *srcFileHref)
 {
-    srcFileName = sfn;
+    std::string tmpSrcFileHref = xercesc::XMLString::transcode(srcFileHref);
+    m_srcFileHref = convertToGenericFormat(tmpSrcFileHref);
 }
 
-void oscSourceFile::setMainDocPath(const std::string &mdp)
+void oscSourceFile::setSrcFileName(const bf::path &srcFileName)
 {
-    mainDocPath = mdp;
+    m_srcFileName = convertToGenericFormat(srcFileName);
 }
 
-void oscSourceFile::setRelPathFromMainDoc(const std::string &rpfmd)
+void oscSourceFile::setSrcFileName(const std::string &srcFileName)
 {
-    relPathFromMainDoc = rpfmd;
+    m_srcFileName = convertToGenericFormat(srcFileName);
 }
 
-void oscSourceFile::setRootElementName(const std::string &ren)
+void oscSourceFile::setPathFromCurrentDirToMainDir (const bf::path &pathFromExeToMainDir)
 {
-    rootElementName = ren;
+    m_pathFromCurrentDirToMainDir = pathFromExeToMainDir;
 }
 
-void oscSourceFile::setRootElementName(const XMLCh *ren)
+void oscSourceFile::setPathFromCurrentDirToMainDir (const std::string &pathFromExeToMainDir)
 {
-    rootElementName = xercesc::XMLString::transcode(ren);
+    m_pathFromCurrentDirToMainDir = convertToGenericFormat(pathFromExeToMainDir);
 }
 
-void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
+void oscSourceFile::setAbsPathToMainDir(const bf::path &mainDirPath)
 {
-    xmlDoc = xD;
+    m_absPathToMainDir = convertToGenericFormat(mainDirPath);
+}
+
+void oscSourceFile::setAbsPathToMainDir(const std::string &mainDirPath)
+{
+    m_absPathToMainDir = convertToGenericFormat(mainDirPath);
+}
+
+void oscSourceFile::setRelPathFromMainDir(const bf::path &rpfmd)
+{
+    m_relPathFromMainDir = convertToGenericFormat(rpfmd);
+}
+
+void oscSourceFile::setRelPathFromMainDir(const std::string &relPathFromMainDir)
+{
+    m_relPathFromMainDir = convertToGenericFormat(relPathFromMainDir);
+}
+
+void oscSourceFile::setRootElementName(const std::string &rootElementName)
+{
+    m_rootElementName = rootElementName;
+}
+
+void oscSourceFile::setRootElementName(const XMLCh *rootElementName)
+{
+    m_rootElementName = xercesc::XMLString::transcode(rootElementName);
+}
+
+void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xmlDoc)
+{
+    m_xmlDoc = xmlDoc;
 }
 
 
 //
 std::string oscSourceFile::getSrcFileHrefAsStr() const
 {
-    return srcFileHref;
+    return m_srcFileHref.generic_string();
 }
 
 const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
 {
-    return xercesc::XMLString::transcode(srcFileHref.c_str());
+    return xercesc::XMLString::transcode(m_srcFileHref.c_str());
 }
 
-std::string oscSourceFile::getSrcFileName() const
+bf::path oscSourceFile::getSrcFileHref() const
 {
-    return srcFileName;
+    return m_srcFileHref;
 }
 
-std::string oscSourceFile::getMainDocPath() const
+bf::path oscSourceFile::getSrcFileName() const
 {
-    return mainDocPath;
+    return m_srcFileName;
 }
 
-std::string oscSourceFile::getRelPathFromMainDoc() const
+bf::path oscSourceFile::getPathFromCurrentDirToMainDir() const
 {
-    return relPathFromMainDoc;
+    return m_pathFromCurrentDirToMainDir;
+}
+
+bf::path oscSourceFile::getAbsPathToMainDir() const
+{
+    return m_absPathToMainDir;
+}
+
+bf::path oscSourceFile::getRelPathFromMainDir() const
+{
+    return m_relPathFromMainDir;
 }
 
 std::string oscSourceFile::getRootElementNameAsStr() const
 {
-    return rootElementName;
+    return m_rootElementName;
 }
 
 const XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const
 {
-    return xercesc::XMLString::transcode(rootElementName.c_str());
+    return xercesc::XMLString::transcode(m_rootElementName.c_str());
 }
 
 xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
 {
-    return xmlDoc;
+    return m_xmlDoc;
 }
 
 
 //
-fileNamePath *oscSourceFile::getFileNamePath(const std::string &fnp)
+bf::path oscSourceFile::getFileNamePath(const std::string &fileNamePath)
 {
-    fileNamePath *fileNP = new fileNamePath();
     const std::string FILE = "file://";
-    std::string fnpToUse;
+    std::string fileNamePathToUse;
 
     //find possible 'file://' in string and ignore it
-    size_t proto = fnp.find(FILE);
+    size_t proto = fileNamePath.find(FILE);
     if (proto != std::string::npos)
     {
-        fnpToUse = fnp.substr(FILE.length());
+        fileNamePathToUse = fileNamePath.substr(FILE.length());
     }
     else
     {
-        fnpToUse = fnp;
+        fileNamePathToUse = fileNamePath;
     }
 
-    //find last slash as delimiter (between path and filename)
-    size_t delimiter = fnpToUse.find_last_of("/");
-    if (delimiter == std::string::npos)
-    {
-        fileNP->fileName = fnpToUse;
-        fileNP->path = "";
-    }
-    else
-    {
-        fileNP->fileName = fnpToUse.substr(delimiter + 1);
-        //set path with slash as delimiter at the end
-        fileNP->path = fnpToUse.substr(0, delimiter + 1);
-    }
+    return convertToGenericFormat(fileNamePathToUse);
+}
 
-    return fileNP;
+
+
+/*****
+ * private functions
+ *****/
+
+bf::path oscSourceFile::convertToGenericFormat(const bf::path &boostPath)
+{
+    return boostPath.generic_string();
+}
+
+bf::path oscSourceFile::convertToGenericFormat(const std::string &strPath)
+{
+    bf::path pathName = strPath;
+    return pathName.generic_string();
 }

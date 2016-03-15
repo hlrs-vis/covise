@@ -111,6 +111,41 @@ oscMember *oscObjectBase::getOwnMember() const
 
 
 //
+void oscObjectBase::addMemberToChoice(oscMember *m)
+{
+    choice.push_back(m);
+}
+
+bool oscObjectBase::hasChoice() const
+{
+    //for a choice at least two elements are required
+    return (choice.size() > 1) ? true : false;
+}
+
+oscObjectBase::MemberChoice oscObjectBase::getChoice() const
+{
+    return choice;
+}
+
+
+//
+void oscObjectBase::addMemberToOptional(oscMember *m)
+{
+    optional.push_back(m);
+}
+
+bool oscObjectBase::hasOptional() const
+{
+    return (optional.size() > 0) ? true : false;
+}
+
+oscObjectBase::MemberOptional oscObjectBase::getOptional() const
+{
+    return optional;
+}
+
+
+//
 bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
 {
     for(MemberMap::iterator it = members.begin();it != members.end(); it++)
@@ -121,7 +156,6 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
             if(member->getType() == oscMemberValue::OBJECT)
             {
                 oscObjectBase *obj = member->getObject();
-
                 if (obj)
                 {
                     //xml document and element used for writing
@@ -201,9 +235,12 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         for (unordered_map<std::string, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
                         {
                             oscObjectBase *objFromCatalog = it->second;
-                            xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
-                            xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
-                            objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
+                            if (objFromCatalog)
+                            {
+                                xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
+                                xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
+                                objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
+                            }
                         }
                     }
                 }
@@ -242,7 +279,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
             //attributes "xmlns", "xmlns:osc" and "xml:base" are generated and/or used with namespaces and XInclude
             //they have no representation in the object structure
-            //only "xml:base" is evaluated during the determination of the source file
+            //"xml:base" is only evaluated during the determination of the source file
             if (attributeName != "xmlns" && attributeName != "xmlns:osc" && attributeName != "xml:base")
             {
                 oscMember *m = members[attributeName];
@@ -356,20 +393,27 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                 std::string arrayMemElemName = xercesc::XMLString::transcode(arrayMemElem->getNodeName());
 
                                 oscMember *ame = objAM->getMembers()[arrayMemElemName];
-                                std::string arrayMemTypeName = ame->getTypeName();
-
-                                oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
-                                if(obj)
+                                if (ame)
                                 {
-                                    oscSourceFile *arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
-                                    obj->initialize(base, objAM, ame, arrayElemSrcToUse);
-                                    am->push_back(obj);
-                                    ame->setParentMember(objAM->getOwnMember());
-                                    obj->parseFromXML(arrayMemElem, arrayElemSrcToUse);
+                                    std::string arrayMemTypeName = ame->getTypeName();
+
+                                    oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
+                                    if(obj)
+                                    {
+                                        oscSourceFile *arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
+                                        obj->initialize(base, objAM, ame, arrayElemSrcToUse);
+                                        am->push_back(obj);
+                                        ame->setParentMember(objAM->getOwnMember());
+                                        obj->parseFromXML(arrayMemElem, arrayElemSrcToUse);
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "could not create an object array of type " << arrayMemTypeName << std::endl;
+                                    }
                                 }
                                 else
                                 {
-                                    std::cerr << "could not create an object array of type " << arrayMemTypeName << std::endl;
+                                    std::cerr << "Node " << xercesc::XMLString::transcode(memberElem->getNodeName()) << " does not have any member called " << arrayMemElemName << std::endl;
                                 }
                             }
                         }
@@ -413,50 +457,56 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 if (cm)
                 {
                     //catalog type
-                    std::string catalogType = cm->getName().erase(cm->getName().length() - std::string("Catalog").length());
+                    std::string catalogType = cm->getName();
+                    catalogType.erase(catalogType.length() - std::string("Catalog").length());
                     cm->setCatalogType(catalogType);
 
                     //path to directory
                     //object/member is of type oscCatalogBase and has a member directory,
-                    // directory is of type oscDirectory and has a member path with a value of type string
                     oscMember *dirMember = cm->getObject()->getMember("directory");
-                    oscMember *pathMember = dirMember->getObject()->getMember("path");
-                    oscMemberValue *pathMemberValue = pathMember->getValue();
-                    oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
-                    bf::path pathToCatalogDir(pathMemberStrVal->getValue());
-
-                    //
-                    //path has to be checked: TODO!
-                    // it can be a absolute path
-                    // or relative to the path of the file which the XML element memberElem contains
-                    //
-                    //maybe it is not important for writing the files:
-                    // then the pathToCatalogDir is used as sourceFilePath and with an empty relPathFromMainDoc
-                    //
-
-                    //for now it is assumed that
-                    //the binary oscTest and testScenario.xosc are in the same directory,
-                    // the path is relative to testScenario.xosc and
-                    // the element catalog and its children are part of this file and not included
-                    std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDir);
-
-
-                    //parse file
-                    //store object name and filename in map
-                    cm->fastReadCatalogObjects(filenames);
-
-
-                    //////
-                    //for testing only
-                    //
-                    //generate the objects for this catalog and store them
-                    unordered_map<std::string, bf::path> availableObjectsMap = cm->getAvailableObjectsMap();
-                    for (unordered_map<std::string, bf::path>::const_iterator it = availableObjectsMap.begin(); it != availableObjectsMap.end(); it++)
+                    oscObjectBase *dirMemberObj = dirMember->getObject();
+                    if (dirMemberObj)/*true if xosc file has an element directory*/
                     {
-                        cm->fullReadCatalogObjectWithName(it->first);
+                        // directory is of type oscDirectory and has a member path with a value of type string
+                        oscMember *pathMember = dirMember->getObject()->getMember("path");
+                        oscMemberValue *pathMemberValue = pathMember->getValue();
+                        oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
+                        if (pathMemberStrVal)/*true if element directory has an attribute path*/
+                        {
+                            //set variable pathToCatalogDir with type bf::path from std::string
+                            bf::path pathToCatalogDir(pathMemberStrVal->getValue());
+
+                            bf::path pathToCatalogDirToUse;
+                            //check if path is absolute or relative
+                            if (pathToCatalogDir.is_absolute())
+                            {
+                                pathToCatalogDirToUse = pathToCatalogDir;
+                            }
+                            else
+                            {
+                                pathToCatalogDirToUse = source->getPathFromCurrentDirToMainDir();
+                                pathToCatalogDirToUse /= pathToCatalogDir;
+                            }
+
+                            //get all catalog object filenames
+                            std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDirToUse);
+
+                            //parse all files
+                            //store object name and filename in map
+                            cm->fastReadCatalogObjects(filenames);
+
+                            //////
+                            //only for testing
+                            //
+                            //generate the objects for this catalog and store them
+                            for (auto &it : cm->getMapAvailableObjects())
+                            {
+                                cm->fullReadCatalogObjectWithName(it.first);
+                            }
+                            //
+                            //////
+                        }
                     }
-                    //
-                    //////
                 }
             }
             //no member
@@ -515,49 +565,52 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
         newSrc->setSrcFileHref(memElemAttrXmlBase->getValue());
 
         //filename and path
-        fileNamePath *fnPath = newSrc->getFileNamePath(newSrc->getSrcFileHrefAsStr());
+        bf::path fnPath = newSrc->getFileNamePath(newSrc->getSrcFileHrefAsStr());
 
         //new srcFileName
-        newSrc->setSrcFileName(fnPath->fileName);
+        newSrc->setSrcFileName(fnPath.filename());
 
-        //new mainDocPath and relPathFromMainDoc
+        //new pathFromExeToMainDir, absPathToMainDir and relPathFromMainDir
         if (base->getSrcFileVec().size() == 1) //only sourceFile of OpenScenario is present
         {
-            newSrc->setMainDocPath(base->source->getMainDocPath());
-            newSrc->setRelPathFromMainDoc(fnPath->path);
+            newSrc->setPathFromCurrentDirToMainDir(base->source->getPathFromCurrentDirToMainDir());
+            newSrc->setAbsPathToMainDir(base->source->getAbsPathToMainDir());
+            newSrc->setRelPathFromMainDir(fnPath.parent_path());
         }
         else
         {
-            newSrc->setMainDocPath(srcF->getMainDocPath());
+            newSrc->setPathFromCurrentDirToMainDir(srcF->getPathFromCurrentDirToMainDir());
+            newSrc->setAbsPathToMainDir(srcF->getAbsPathToMainDir());
 
-            std::string srcRelPathFromMainDoc = srcF->getRelPathFromMainDoc();
-            std::string newSrcRelPathFromMainDoc = fnPath->path;
+            bf::path srcRelPathFromMainDir = srcF->getRelPathFromMainDir();
+            bf::path newSrcRelPathFromMainDir = fnPath.parent_path();
 
-            std::string relPathFromMainDocToUse;
-            if (srcRelPathFromMainDoc == "")
+            bf::path relPathFromMainDirToUse;
+            if (srcRelPathFromMainDir.empty())
             {
-                if (newSrcRelPathFromMainDoc == "")
+                if (newSrcRelPathFromMainDir.empty())
                 {
-                    relPathFromMainDocToUse = "";
+                    relPathFromMainDirToUse = bf::path();
                 }
                 else
                 {
-                    relPathFromMainDocToUse = newSrcRelPathFromMainDoc;
+                    relPathFromMainDirToUse = newSrcRelPathFromMainDir;
                 }
             }
             else
             {
-                if (newSrcRelPathFromMainDoc == "")
+                if (newSrcRelPathFromMainDir.empty())
                 {
-                    relPathFromMainDocToUse = srcRelPathFromMainDoc;
+                    relPathFromMainDirToUse = srcRelPathFromMainDir;
                 }
                 else
                 {
-                    relPathFromMainDocToUse = srcRelPathFromMainDoc + newSrcRelPathFromMainDoc;
+                    relPathFromMainDirToUse = srcRelPathFromMainDir;
+                    relPathFromMainDirToUse /= newSrcRelPathFromMainDir;
                 }
             }
 
-            newSrc->setRelPathFromMainDoc(relPathFromMainDocToUse);
+            newSrc->setRelPathFromMainDir(relPathFromMainDirToUse);
         }
 
         //new rootElementName

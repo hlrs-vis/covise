@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscRefActorsTypeB: public oscObjectBase
 public:
     oscRefActorsTypeB()
     {
-        OSC_OBJECT_ADD_MEMBER(refActor, "oscRefActorTypeB");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(refActor, "oscRefActorTypeB");
     };
 
     oscRefActorTypeBMember refActor;

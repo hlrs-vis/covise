@@ -213,6 +213,7 @@ private:
         virvo::VolumeDrawable::BlendMode blendMode;
         std::string filename;
         std::vector<vvTransFunc> tf;
+        bool mapTF;
         int curChannel;
         bool multiDimTF;
 

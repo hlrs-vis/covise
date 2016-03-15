@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscFeatures: public oscObjectBase
 public:
     oscFeatures()
     {
-        OSC_OBJECT_ADD_MEMBER(feature, "oscFeature");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(feature, "oscFeature");
     };
 
     oscFeatureMember feature;

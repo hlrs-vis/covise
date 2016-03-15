@@ -27,7 +27,7 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(maneuverGroups, "oscManeuverGroupsTypeAB");
         OSC_OBJECT_ADD_MEMBER(refActors, "oscRefActorsTypeA");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscManeuverGroupsTypeABMemberArray maneuverGroups;

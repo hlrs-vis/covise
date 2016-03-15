@@ -30,7 +30,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscCatalogBase");
         OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscCatalogBase");
         OSC_OBJECT_ADD_MEMBER(routingCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscCatalogObjectMember objectCatalog;

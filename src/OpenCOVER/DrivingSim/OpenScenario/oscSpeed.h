@@ -26,8 +26,8 @@ public:
     oscSpeed()
     {
         OSC_OBJECT_ADD_MEMBER(dynamics, "oscSpeedDynamics");
-        OSC_OBJECT_ADD_MEMBER(relativeSpeed, "oscRelativeTypeC");
-        OSC_OBJECT_ADD_MEMBER(absoluteSpeed, "oscAbsoluteTypeB");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(relativeSpeed, "oscRelativeTypeC");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(absoluteSpeed, "oscAbsoluteTypeB");
     };
 
     oscSpeedDynamicsMember dynamics;

@@ -177,6 +177,9 @@ IF(COVISE_USE_VISIBILITY)
 IF(CMAKE_COMPILER_IS_GNUCXX)
    SET(COVISE_COMPILE_FLAGS "${COVISE_COMPILE_FLAGS} -fvisibility=hidden")
 ENDIF()
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+   SET(COVISE_COMPILE_FLAGS "${COVISE_COMPILE_FLAGS} -fvisibility=hidden")
+ENDIF()
 ENDIF()
   
 # COVISE_WERROR_FLAG should contain the correct "warnings-are-errors" flag for the used compiler

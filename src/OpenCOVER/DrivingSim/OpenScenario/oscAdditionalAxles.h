@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscAdditionalAxles: public oscObjectBase
 public:
     oscAdditionalAxles()
     {
-        OSC_OBJECT_ADD_MEMBER(additional, "oscVehicleAxle");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(additional, "oscVehicleAxle");
     };
 
     oscVehicleAxleMember additional;

@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscManeuversTypeC: public oscObjectBase
 public:
     oscManeuversTypeC()
     {
-        OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeC");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuver, "oscManeuverTypeC");
     };
 
     oscManeuverTypeCMember maneuver;

@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscManeuverGroupsTypeAB: public oscObjectBase
 public:
     oscManeuverGroupsTypeAB()
     {
-        OSC_OBJECT_ADD_MEMBER(maneuverGroup, "oscManeuverGroupTypeAB");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuverGroup, "oscManeuverGroupTypeAB");
     };
 
     oscManeuverGroupTypeABMember maneuverGroup;

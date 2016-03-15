@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
+#include "oscUtilities.h"
 
 #include "oscFileHeader.h"
 #include "oscCatalogs.h"
@@ -48,12 +49,18 @@ class oscSourceFile;
 /// \class This class represents an OpenScenario database
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
 {
+public:
+    typedef unordered_map<std::string /*XmlFileType*/, bf::path /*XsdFileName*/> FileTypeXsdFileNameMap;
+
 protected: 
+    static const FileTypeXsdFileNameMap s_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)
     xercesc::XercesDOMParser *parser; ///< validating parser
+    ParserErrorHandler *parserErrorHandler; ///< error handler for parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
-    static bool m_validate;
-    static const unordered_map<std::string /*XmlFileType*/, std::string /*XsdFileName*/> m_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)
+    bool m_validate; ///< turn on/off validation of imported files (OpenSCENARIO and catalog files)
+    bf::path m_pathFromCurrentDirToDoc; ///< path from current directory to the file with OpenSCENARIO root element (given by the executable (e.g. `oscTest path/to/mainDir/tescScenario.xosc` or by oddlot))
+    bf::path m_xsdPathFileName; ///< store the actual loaded xsd schema grammar file
 
 public:
     oscFileHeaderMember fileHeader;
@@ -65,29 +72,42 @@ public:
     oscScenarioEndMember scenarioEnd;
 	oscTestMember test;
 
-    OpenScenarioBase(); /// constructor, initializes the class and sets a default factory
-    ~OpenScenarioBase(); /// destructor, terminate xerces-c
+    OpenScenarioBase(); /// constructor, initializes the class and sets a default factory, initialize xerces-c, create parser and error handler, generic parser settings
+    ~OpenScenarioBase(); /// destructor, delete parser and error handler, terminate xerces-c
 
+    //
+    xercesc::DOMDocument *getDocument() const;
+
+    //
+    void addToSrcFileVec(oscSourceFile *src);
+    std::vector<oscSourceFile *> getSrcFileVec() const;
+
+    //
     void setValidation(const bool validate); ///< turn on/off validation
+    bool getValidation() const;
 
-    bool loadFile(const std::string &fileName, const std::string &fileType); /*!< load an OpenScenario databas file in xml format
+    //
+    void setPathFromCurrentDirToDoc(const bf::path &path);
+    void setPathFromCurrentDirToDoc(const std::string &path);
+    bf::path getPathFromCurrentDirToDoc() const;
+
+    //
+    bool loadFile(const std::string &fileName, const std::string &fileType); /*!< load an OpenScenario database file in xml format
                                                                                  \param fileName file to load.
+                                                                                 \param fileType type of the imported file.
                                                                                  \return false if loading the file failed.*/
-    bool saveFile(const std::string &fileName, bool overwrite = false);/*!< store an OpenScenario databas to a file in xml format
+    bool saveFile(const std::string &fileName, bool overwrite = false);/*!< store an OpenScenario database to a file in xml format
                                                                       \param fileName file to save to.
                                                                       \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is returned if a file with that name already exists.
                                                                       \return false if writing to the file failed.*/
 
+    //
     bool writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite);
     xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
-    xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate = m_validate); ///< init xerces, create validating parser and parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
-    
+    xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate); ///< parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
+
+    //
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successful
-
-    xercesc::DOMDocument *getDocument() const;
-
-    void addToSrcFileVec(oscSourceFile *src);
-    std::vector<oscSourceFile *> getSrcFileVec() const;
 };
 
 }

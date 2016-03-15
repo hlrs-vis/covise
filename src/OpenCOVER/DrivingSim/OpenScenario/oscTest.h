@@ -31,15 +31,15 @@ class OPENSCENARIOEXPORT oscTest: public oscObjectBase
 public:
     oscTest()
     {
-        OSC_OBJECT_ADD_MEMBER(miscObject, "oscMiscObject");
-        OSC_OBJECT_ADD_MEMBER(pedestrian, "oscPedestrian");
-        OSC_OBJECT_ADD_MEMBER(observer, "oscObserverTypeA");
-        OSC_OBJECT_ADD_MEMBER(entity, "oscEntity");
-        OSC_OBJECT_ADD_MEMBER(routing, "oscRouting");
-        OSC_OBJECT_ADD_MEMBER(driver, "oscDriver");
-        OSC_OBJECT_ADD_MEMBER(environment, "oscEnvironment");
-        OSC_OBJECT_ADD_MEMBER(vehicle, "oscVehicle");
-        OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(miscObject, "oscMiscObject");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(pedestrian, "oscPedestrian");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(observer, "oscObserverTypeA");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(entity, "oscEntity");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(routing, "oscRouting");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(driver, "oscDriver");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(environment, "oscEnvironment");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(vehicle, "oscVehicle");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuver, "oscManeuverTypeA");
     };
 
     oscMiscObjectMember miscObject;

@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_CURRENT_POSITION_H
 
 #include "oscExport.h"
-#include "oscOrientation.h"
+#include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -18,7 +18,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscCurrentPosition: public oscOrientation
+class OPENSCENARIOEXPORT oscCurrentPosition: public oscObjectBase
 {
 public:
     oscCurrentPosition()

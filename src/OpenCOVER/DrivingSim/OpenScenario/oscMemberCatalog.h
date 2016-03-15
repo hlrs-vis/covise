@@ -35,10 +35,15 @@ class oscObjectBase;
 /// \class This class represents a Member variable storing values of one kind of catalog
 class OPENSCENARIOEXPORT oscMemberCatalog: public oscMember, public unordered_map<std::string /*objectName*/, oscObjectBase *>
 {
+public:
+    typedef unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> CatalogTypeTypeNameMap;
+    typedef unordered_map<std::string /*objectName*/, bf::path /*fileName*/> AvailableObjectsMap;
+    typedef unordered_map<std::string /*objectName*/, oscObjectBase *> ObjectsInMemoryMap;
+
 protected:
+    static const CatalogTypeTypeNameMap s_catalogTypeToTypeName; ///< typeName of the objects for catalogType
     std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
-    static const unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> m_catalogTypeToTypeName; ///< typeName of the objects for catalogType
-    unordered_map<std::string /*objectName*/, bf::path /*fileName*/> m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
+    AvailableObjectsMap m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
 
 public:
     oscMemberCatalog(); ///< constructor
@@ -53,18 +58,23 @@ public:
     std::string getCatalogType() const;
 
     //m_availableObjects
-    void setAvailableObjectsMap(const unordered_map<std::string , bf::path> &availableObjects);
-    unordered_map<std::string , bf::path> getAvailableObjectsMap() const;
-    bool addObjToAvailableObjectsMap(const std::string &objectName, const bf::path &pathToFile);
-    bool removeObjFromAvailableObjectsMap(const std::string &objectName);
+    void setMapAvailableObjects(const AvailableObjectsMap &availableObjects);
+    AvailableObjectsMap getMapAvailableObjects() const;
+    bool addObjToMapAvailableObjects(const std::string &objectName, const bf::path &fileNamePath);
+    bool removeObjFromMapAvailableObjects(const std::string &objectName);
+    void deleteMapAvailableObject();
 
     //m_objectsInMemory
-    //read a file into object structure (with object name or with a fileName given)
-    //add an object to map (objectName and oscObjectBase) (and to availableObjects)
-    //get a pointer to object
-    //remove an object from map (objectName and oscObjectBase) and availableObjects
-    //
     bool fullReadCatalogObjectWithName(const std::string &objectName); ///< read file for given objectName, generate the object structure and add object to map m_objectsInMemory
+    bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectName, check and add to m_availableObjects, generate the object structure and add object to map m_objectsInMemory
+    bool addCatalogObject(oscObjectBase *objectBase); ///< read objectName and fileNamePath from oscObjectBase and add entries to m_availableObjects and oscMemberCatalog map
+    bool addCatalogObject(const std::string &objectName, oscObjectBase *objectBase, bf::path &fileNamePath); ///< add objectName and fileName to m_availableObjects, add objectName and objectPtr to oscMemberCatalog map
+    bool removeCatalogObject(const std::string &objectName); ///< remove object with name objectName from oscMemberCatalog map
+    oscObjectBase *getCatalogObject(const std::string &objectName); ///< return pointer to oscObjectBase for objectName from oscMemberCatalog map
+    void deleteMapObjectsInMemory();
+
+private:
+    std::string getObjectNameFromFile(const bf::path &fileNamePath); ///<return name of the catalog object in file fileNamePath
 };
 
 }

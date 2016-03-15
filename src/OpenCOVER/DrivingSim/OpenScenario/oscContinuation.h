@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscContinuation: public oscObjectBase
 public:
     oscContinuation()
     {
-        OSC_OBJECT_ADD_MEMBER(route, "oscRoute");
-        OSC_OBJECT_ADD_MEMBER(shape, "oscShape");
-        OSC_OBJECT_ADD_MEMBER(none, "oscNone");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(route, "oscRoute");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(shape, "oscShape");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(none, "oscNone");
     };
 
     oscRouteMember route;

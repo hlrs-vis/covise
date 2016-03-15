@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_RELATIVE_POSITION_WORLD_H
 
 #include "oscExport.h"
-#include "oscOrientation.h"
+#include "oscOrientationOptional.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -18,7 +18,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRelativePositionWorld: public oscOrientation
+class OPENSCENARIOEXPORT oscRelativePositionWorld: public oscOrientationOptional
 {
 public:
     oscRelativePositionWorld()
@@ -26,7 +26,7 @@ public:
         OSC_ADD_MEMBER(refObject);
         OSC_ADD_MEMBER(dx);
         OSC_ADD_MEMBER(dy);
-        OSC_ADD_MEMBER(dz);
+        OSC_ADD_MEMBER_OPTIONAL(dz);
     };
 
     oscString refObject;

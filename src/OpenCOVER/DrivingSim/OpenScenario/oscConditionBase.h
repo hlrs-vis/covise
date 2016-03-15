@@ -39,24 +39,24 @@ class OPENSCENARIOEXPORT oscConditionBase: public oscObjectBase
 public:
     oscConditionBase()
     {
-        OSC_OBJECT_ADD_MEMBER(simulationTime, "oscSimulationTime");
-        OSC_OBJECT_ADD_MEMBER(timeOfDay, "oscTimeOfDay");
-        OSC_OBJECT_ADD_MEMBER(reachPosition, "oscReachPosition");
-        OSC_OBJECT_ADD_MEMBER(distance, "oscDistance");
-        OSC_OBJECT_ADD_MEMBER(velocity, "oscConditionChoiceTypeA");
-        OSC_OBJECT_ADD_MEMBER(standsStill, "oscStandsStill");
-        OSC_OBJECT_ADD_MEMBER(acceleration, "oscConditionChoiceTypeA");
-        OSC_OBJECT_ADD_MEMBER(stoppingDistance, "oscStoppingDistance");
-        OSC_OBJECT_ADD_MEMBER(timeToCollision, "oscTimeToCollision");
-        OSC_OBJECT_ADD_MEMBER(timeHeadway, "oscTimeHeadway");
-        OSC_OBJECT_ADD_MEMBER(referenceHandling, "oscReferenceHandling");
-        OSC_OBJECT_ADD_MEMBER(offroad, "oscOffroad");
-        OSC_OBJECT_ADD_MEMBER(collision, "oscCollision");
-        OSC_OBJECT_ADD_MEMBER(numericCondition, "oscNumericCondition");
-        OSC_OBJECT_ADD_MEMBER(command, "oscCommand");
-        OSC_OBJECT_ADD_MEMBER(afterManeuvers, "oscAfterManeuvers");
-        OSC_OBJECT_ADD_MEMBER(endOfRoad, "oscEndOfRoad");
-        OSC_OBJECT_ADD_MEMBER(userDefined, "oscUserDefined");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(simulationTime, "oscSimulationTime");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(timeOfDay, "oscTimeOfDay");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(reachPosition, "oscReachPosition");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(distance, "oscDistance");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(velocity, "oscConditionChoiceTypeA");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(standsStill, "oscStandsStill");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(acceleration, "oscConditionChoiceTypeA");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(stoppingDistance, "oscStoppingDistance");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(timeToCollision, "oscTimeToCollision");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(timeHeadway, "oscTimeHeadway");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(referenceHandling, "oscReferenceHandling");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(offroad, "oscOffroad");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(collision, "oscCollision");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(numericCondition, "oscNumericCondition");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(command, "oscCommand");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(afterManeuvers, "oscAfterManeuvers");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(endOfRoad, "oscEndOfRoad");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(userDefined, "oscUserDefined");
     };
 
     oscSimulationTimeMember simulationTime;

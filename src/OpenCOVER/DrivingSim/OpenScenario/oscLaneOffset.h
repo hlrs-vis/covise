@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscLaneOffset: public oscObjectBase
 public:
     oscLaneOffset()
     {
-        OSC_OBJECT_ADD_MEMBER(relativeLaneOffset, "oscRelativeTypeB");
-        OSC_OBJECT_ADD_MEMBER(absoluteLaneOffset, "oscAbsoluteTypeB");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(relativeLaneOffset, "oscRelativeTypeB");
+        OSC_OBJECT_ADD_MEMBER_CHOICE(absoluteLaneOffset, "oscAbsoluteTypeB");
         OSC_OBJECT_ADD_MEMBER(dynamics, "oscLaneOffsetDynamics");
     };
 
