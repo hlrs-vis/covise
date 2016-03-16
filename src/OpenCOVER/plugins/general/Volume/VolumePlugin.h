@@ -216,6 +216,8 @@ private:
         bool mapTF;
         int curChannel;
         bool multiDimTF;
+        bool useChannelWeights;
+        std::vector<float> channelWeights;
 
         Volume();
         ~Volume();

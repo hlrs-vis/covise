@@ -70,6 +70,7 @@ VolumePlugin::Volume::Volume()
     inScene = false;
     curChannel = 0;
     multiDimTF = true;
+    useChannelWeights = true;
 
     std::string rendererName = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.Renderer");
     std::string voxType = covise::coCoviseConfig::getEntry("voxelType", "COVER.Plugin.Volume.Renderer");
@@ -841,6 +842,9 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                             it->second.drawable->setTransferFunctions(it->second.tf);
                             if (it->second.mapTF)
                                 it->second.drawable->mapTransferFunctionsFrom01();
+                            it->second.useChannelWeights = tfe->getUseChannelWeights();
+                            it->second.drawable->setUseChannelWeights(it->second.useChannelWeights);
+                            it->second.channelWeights = tfe->getChannelWeights();
                         }
                     }
                 }
@@ -953,6 +957,10 @@ void VolumePlugin::applyAllTransferFunctions(void *userData)
                 it->second.drawable->setTransferFunctions(it->second.tf);
                 if (it->second.mapTF)
                     it->second.drawable->mapTransferFunctionsFrom01();
+                it->second.useChannelWeights = tfe->getUseChannelWeights();
+                it->second.channelWeights = tfe->getChannelWeights();
+                it->second.drawable->setChannelWeights(it->second.channelWeights);
+                it->second.drawable->setUseChannelWeights(it->second.useChannelWeights);
             }
         }
     }
@@ -1543,6 +1551,13 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 volumes[name].tf = vd->tf;
             }
+
+            if (vd->channelWeights.size() != vd->chan)
+            {
+                vd->channelWeights.resize(vd->chan);
+                std::fill(vd->channelWeights.begin(), vd->channelWeights.end(), 1.0f);
+            }
+            volumes[name].channelWeights = vd->channelWeights;
         }
         volume = volumes.find(name);
     }
@@ -1567,6 +1582,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
     if (mapTF) drawable->mapTransferFunctionsFrom01();
     drawable->setPreintegration(volume->second.preIntegration);
     drawable->setLighting(volume->second.lighting);
+    drawable->setChannelWeights(volume->second.channelWeights);
+    drawable->setUseChannelWeights(volume->second.useChannelWeights);
 
     return true;
 }
@@ -1581,6 +1598,7 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
         const int curChan = editor->getActiveChannel();
         currentVolume->second.curChannel = curChan;
         currentVolume->second.tf = editor->getTransferFuncs();
+        currentVolume->second.channelWeights = editor->getChannelWeights();
     }
     currentVolume = it;
     if (currentVolume != volumes.end())
@@ -1673,6 +1691,9 @@ void VolumePlugin::updateTFEData()
                     tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
                     if (tfApplyCBData.volume->mapTF)
                         tfApplyCBData.drawable->mapTransferFunctionsFrom01();
+
+                    tfApplyCBData.drawable->setChannelWeights(editor->getChannelWeights());
+                    tfApplyCBData.drawable->setUseChannelWeights(editor->getUseChannelWeights());
 
                     instantMode = tfApplyCBData.drawable->getInstantMode();
                     editor->setInstantMode(instantMode);

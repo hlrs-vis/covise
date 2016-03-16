@@ -68,6 +68,7 @@ coPinEditor::coPinEditor(vvTransFunc *transFunc, coDefaultFunctionEditor *functi
     backgroundMode = 1;
     pickTime = -1;
     pickCoordX = pickCoordY = 0;
+    mixChannelsActive = false;
     SELH = 3;
     COLORH = 5;
     OFFSET = 1.0;
@@ -565,7 +566,7 @@ int coPinEditor::hit(vruiHit *hit)
 
     // pin selektieren nach Ablauf der Zeit oder nach grosser Bewegung
 
-    if (interactionA->isRunning() && (!doMove))
+    if (!mixChannelsActive && interactionA->isRunning() && (!doMove))
     {
         if ((pickTime > 0) && ((cover->frameTime() - pickTime) > pickThreshold))
         {
@@ -664,7 +665,7 @@ int coPinEditor::hit(vruiHit *hit)
         }
     }
 
-    if (interactionB->wasStarted() || interactionC->wasStarted())
+    if (!mixChannelsActive && (interactionB->wasStarted() || interactionC->wasStarted()))
     {
         coCoord mouseCoord = cover->getPointerMat();
         lastRoll = mouseCoord.hpr[2];
@@ -1026,6 +1027,8 @@ void coPinEditor::setMode(EditMode newMode)
         myFunctionEditor->panel->hide(myFunctionEditor->botWidth);
         myFunctionEditor->panel->hide(myFunctionEditor->max);
         myFunctionEditor->panel->hide(myFunctionEditor->brightness);
+        myFunctionEditor->panel->hide(myFunctionEditor->mixChannelsButton);
+        myFunctionEditor->panel->hide(myFunctionEditor->mixChannels01);
 
         if (newMode == ADD_PIN)
         {
@@ -1053,6 +1056,14 @@ void coPinEditor::setMode(EditMode newMode)
         {
             myFunctionEditor->botWidth->setPos(CENTER_X, CENTER_Y);
             myFunctionEditor->panel->show(myFunctionEditor->botWidth);
+        }
+        else
+        {
+            if (myFunctionEditor->getNumChannels() == 2)
+            {
+                myFunctionEditor->panel->show(myFunctionEditor->mixChannelsButton);
+                myFunctionEditor->panel->show(myFunctionEditor->mixChannels01);
+            }
         }
         mode = newMode;
     }
@@ -1259,6 +1270,11 @@ void coPinEditor::setBackgroundType(int mo)
         }
     }
     backgroundGeometry->dirtyDisplayList();
+}
+
+void coPinEditor::setMixChannelsActive(bool active)
+{
+    mixChannelsActive = active;
 }
 
 void coPinEditor::updatePinList(float minv, float maxv)

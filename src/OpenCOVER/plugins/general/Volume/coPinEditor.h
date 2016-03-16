@@ -127,6 +127,7 @@ public:
     void sortPins();
     void updateBackground(unsigned char *backgroundTextureData);
     void setBackgroundType(int mode);
+    void setMixChannelsActive(bool active);
 
 protected:
     std::list<coPin *> pinList;
@@ -170,6 +171,7 @@ protected:
     bool doMove;
     double pickTime;
     float pickCoordX, pickCoordY;
+    bool mixChannelsActive;
 
     osg::ref_ptr<osg::Vec4Array> color;
     osg::ref_ptr<osg::Vec3Array> coord;
