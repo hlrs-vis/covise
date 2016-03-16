@@ -71,12 +71,16 @@ public:
     const vvTransFunc &getTransferFunc(int chan = 0) const;
     const std::vector<vvTransFunc> &getTransferFuncs() const;
     void setTransferFuncs(const std::vector<vvTransFunc> &func);
+    bool getUseChannelWeights() const;
+    std::vector<float> getChannelWeights() const;
     coHSVSelector *hsvSel;
     coPreviewCube *cube;
     coUndoValuePoti *topWidth;
     coUndoValuePoti *botWidth;
     coUndoValuePoti *max;
     coUndoValuePoti *brightness;
+    vrui::coToggleButton *mixChannelsButton;
+    coUndoValuePoti *mixChannels01;
     coPinEditor *pinedit;
     vrui::coFrame *panelFrame;
     void setColor(float h, float s, float v, int context = -1);

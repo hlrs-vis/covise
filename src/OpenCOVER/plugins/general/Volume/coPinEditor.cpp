@@ -1026,6 +1026,8 @@ void coPinEditor::setMode(EditMode newMode)
         myFunctionEditor->panel->hide(myFunctionEditor->botWidth);
         myFunctionEditor->panel->hide(myFunctionEditor->max);
         myFunctionEditor->panel->hide(myFunctionEditor->brightness);
+        myFunctionEditor->panel->hide(myFunctionEditor->mixChannelsButton);
+        myFunctionEditor->panel->hide(myFunctionEditor->mixChannels01);
 
         if (newMode == ADD_PIN)
         {
@@ -1033,6 +1035,11 @@ void coPinEditor::setMode(EditMode newMode)
             {
                 (*pin)->deSelect();
             }
+        }
+        else if (newMode == MIX_CHANNELS01)
+        {
+            myFunctionEditor->panel->show(myFunctionEditor->mixChannelsButton);
+            myFunctionEditor->panel->show(myFunctionEditor->mixChannels01);
         }
         else if (newMode == EDIT_COLOR)
         {

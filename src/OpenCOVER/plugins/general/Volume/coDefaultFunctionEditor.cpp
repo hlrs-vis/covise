@@ -5,6 +5,8 @@
 
  * License: LGPL 2+ */
 
+#include <algorithm>
+
 #include <util/common.h>
 #include <util/coFileUtil.h>
 #include <cover/coVRPluginSupport.h>
@@ -16,7 +18,7 @@
 #include <OpenVRUI/coFlatPanelGeometry.h>
 #include <OpenVRUI/coSquareButtonGeometry.h>
 #include <OpenVRUI/coRectButtonGeometry.h>
-#include "coPresetButtonGeometry.h"
+#include <OpenVRUI/coToggleButtonGeometry.h>
 #include <OpenVRUI/coDefaultButtonGeometry.h>
 #include "coHSVSelector.h"
 #include <OpenVRUI/coValuePoti.h>
@@ -125,6 +127,11 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     botWidth->setSize(0.4);
     max->setSize(0.4);
     brightness->setSize(0.4);
+    mixChannelsButton = new coToggleButton(new coSquareButtonGeometry("Volume/mix-channels"), this);
+    mixChannelsButton->setPos(105, -20);
+    mixChannels01 = new coUndoValuePoti("Mix", this, "Volume/valuepoti-bg", VolumeCoim.get(), "MIX_CHANNELS01");
+    mixChannels01->setMin(-1);
+    mixChannels01->setMax( 1);
 
     cube->setPos(114.5, -9.5);
     hsvSel->setPos(103, -44.9);
@@ -132,6 +139,7 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     botWidth->setPos(103, -50);
     max->setPos(103, -50);
     brightness->setPos(108, -70);
+    mixChannels01->setPos(100, -50);
 
     // Add interaction elements:
     panel->addElement(savedFunctions);
@@ -150,6 +158,7 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     panel->addElement(colorButton);
     panel->addElement(alphaPeakButton);
     panel->addElement(alphaBlankButton);
+    panel->addElement(mixChannelsButton);
     panel->addElement(deleteButton);
     panel->addElement(hsvSel);
     panel->addElement(cube);
@@ -157,6 +166,7 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     panel->addElement(botWidth);
     panel->addElement(max);
     panel->addElement(brightness);
+    panel->addElement(mixChannels01);
     panel->addElement(scalarMin);
     panel->addElement(scalarMax);
     panel->addElement(pinedit);
@@ -183,6 +193,7 @@ coDefaultFunctionEditor::~coDefaultFunctionEditor()
     delete botWidth;
     delete max;
     delete brightness;
+    delete mixChannels01;
     delete colorButton;
     delete alphaPeakButton;
     delete alphaBlankButton;
@@ -235,6 +246,27 @@ const vvTransFunc &coDefaultFunctionEditor::getTransferFunc(int chan) const
     assert(theTransferFunc.size() > chan);
 
     return theTransferFunc[chan];
+}
+
+bool coDefaultFunctionEditor::getUseChannelWeights() const
+{
+    return mixChannelsButton->getState();
+}
+
+std::vector<float> coDefaultFunctionEditor::getChannelWeights() const
+{
+    size_t num_channels = theTransferFunc.size();
+    std::vector<float> channelWeights(num_channels);
+    std::fill(channelWeights.begin(), channelWeights.end(), 1.0f);
+
+    if (num_channels == 2 && true)
+    {
+        float s = (mixChannels01->getValue() + 1.0f) / 2.0f;
+        channelWeights[0] = s;
+        channelWeights[1] = 1.0f - s;
+    }
+
+    return channelWeights;
 }
 
 void coDefaultFunctionEditor::enqueueTransfuncFilenames(const char *dirName)
@@ -394,7 +426,10 @@ void coDefaultFunctionEditor::update()
 
 int coDefaultFunctionEditor::getContext()
 {
-    return pinedit->currentPin->getID();
+    if (pinedit->currentPin)
+        return pinedit->currentPin->getID();
+    else
+        return -1;
 }
 
 void coDefaultFunctionEditor::potiValueChanged(float oldVal, float newVal, coValuePoti *poti, int context)
@@ -412,6 +447,10 @@ void coDefaultFunctionEditor::potiValueChanged(float oldVal, float newVal, coVal
     {
         hsvSel->setBrightness(brightness->getValue());
         pinedit->setBrightness(brightness->getValue());
+    }
+    else if (poti == mixChannels01)
+    {
+        pinedit->updateColorBar();
     }
     else if (poti == max)
     {
@@ -595,6 +634,10 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
         colorButton->setState(false);
         alphaPeakButton->setState(false);
     }
+    else if (button == mixChannelsButton)
+    {
+        pinedit->updateColorBar();
+    }
     else if (button == deleteButton)
     {
         putUndoBuffer();
@@ -608,6 +651,9 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
             if (cur >= numChannels)
                 cur = 0;
             setActiveChannel(cur);
+
+            if (numChannels == 2)
+                pinedit->setMode(coPinEditor::MIX_CHANNELS01);
         }
     }
     else if (button == apply)
