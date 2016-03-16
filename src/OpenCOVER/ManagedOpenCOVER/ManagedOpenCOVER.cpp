@@ -64,6 +64,7 @@ coOpenCOVERWindow::coOpenCOVERWindow()
 void coOpenCOVERWindow::testit(float)
 {
 }
+#ifdef OLDSURFACE
 void coOpenCOVERWindow::addedContact(Contact ^ c)
 {
     long Identity = 0;
@@ -94,12 +95,40 @@ void coOpenCOVERWindow::changedContact(Contact ^ c)
     SurfaceContact cont(c->CenterX * m_dScaleX, c->CenterY * m_dScaleY, c->Orientation, c->PhysicalArea, Identity, c->IsFingerRecognized, c->IsTagRecognized, c->Id);
     surfacePlugin->changedContact(cont);
 }
+#else
+void coOpenCOVERWindow::addedContact(TouchPoint^ c)
+{
+	long Identity = 0;
+	if(c->IsTagRecognized)
+		Identity = c->Tag.Value;
+	SurfaceContact cont(c->CenterX*m_dScaleX,c->CenterY*m_dScaleY,c->Orientation,c->PhysicalArea,Identity,c->IsFingerRecognized,c->IsTagRecognized,c->Id);
+	surfacePlugin->addedContact(cont);
+}
+void coOpenCOVERWindow::removedContact(TouchPoint^ c)
+{
+	long Identity = 0;
+	if(c->IsTagRecognized)
+		Identity = c->Tag.Value;
+	SurfaceContact cont(c->CenterX*m_dScaleX,c->CenterY*m_dScaleY,c->Orientation,c->PhysicalArea,Identity,c->IsFingerRecognized,c->IsTagRecognized,c->Id);
+	surfacePlugin->removedContact(cont);
+}
+void coOpenCOVERWindow::changedContact(TouchPoint^ c)
+{
+	long Identity = 0;
+	if(c->IsTagRecognized)
+		Identity = c->Tag.Value;
+	SurfaceContact cont(c->CenterX*m_dScaleX,c->CenterY*m_dScaleY,c->Orientation,c->PhysicalArea,Identity,c->IsFingerRecognized,c->IsTagRecognized,c->Id);
+	surfacePlugin->changedContact(cont);
+}
+#endif
 
+	#ifdef OLDSURFACE
 void coOpenCOVERWindow::manipulation(Affine2DOperationDeltaEventArgs ^ e)
 {
     MotionEvent me(e->AngularVelocity, e->CumulativeExpansion, e->CumulativeRotation, e->CumulativeScale, e->CumulativeTranslationX, e->CumulativeTranslationY, e->DeltaX, e->DeltaY, e->ExpansionDelta, e->ExpansionVelocity, e->ManipulationOriginX, e->ManipulationOriginY, e->RotationDelta, e->ScaleDelta, e->VelocityX, e->VelocityY);
     surfacePlugin->manipulation(me);
 }
+	#endif
 //
 // This is the key method to override
 //
@@ -118,7 +147,11 @@ void coOpenCOVERWindow::init(IntPtr window, array<System::String ^> ^ args)
     char **argv;
     argv = new char *[argc];
     argv[0] = new char[100];
+	#ifdef OLDSURFACE
     strcpy(argv[0], "SurfaceCOVER");
+	#else
+    strcpy(argv[0], "Sur40COVER");
+	#endif
     for (int i = 1; i < argc; i++)
     {
         char *p = (char *)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(args[i - 1]).ToPointer();
@@ -152,6 +185,7 @@ void coOpenCOVERWindow::init(IntPtr window, array<System::String ^> ^ args)
         }
     }
 #endif //_WIN32
+
 
     m_hWnd = (HWND)window.ToPointer();
 

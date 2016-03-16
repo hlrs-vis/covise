@@ -25,11 +25,13 @@
 using namespace System;
 using namespace System::Windows;
 using namespace System::Windows::Interop;
+#ifdef OLDSURFACE
 using namespace System::Windows::Input;
 using namespace System::Windows::Media;
 using namespace System::Runtime::InteropServices;
-using namespace Microsoft::Surface::Core;
 using namespace Microsoft::Surface::Core::Manipulations;
+#endif
+using namespace Microsoft::Surface::Core;
 
 #define UNREF(x) x;
 
@@ -47,10 +49,16 @@ public:
     void frame();
     void testit(float con);
     void shutdown();
+#ifdef OLDSURFACE
     void addedContact(Contact ^ c);
     void removedContact(Contact ^ c);
     void changedContact(Contact ^ c);
     void manipulation(Affine2DOperationDeltaEventArgs ^ e);
+#else
+	void addedContact(TouchPoint^ c);
+	void removedContact(TouchPoint^ c);
+	void changedContact(TouchPoint^ c);
+#endif
     void init(IntPtr hwnd, array<System::String ^> ^ args);
 
 private:
