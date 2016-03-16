@@ -651,9 +651,6 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
             if (cur >= numChannels)
                 cur = 0;
             setActiveChannel(cur);
-
-            if (numChannels == 2)
-                pinedit->setMode(coPinEditor::MIX_CHANNELS01);
         }
     }
     else if (button == apply)
@@ -694,11 +691,20 @@ void coDefaultFunctionEditor::setNumChannels(int num)
     {
         panel->show(channelButton);
         panel->show(channelLabel);
+
+        if (numChannels == 2)
+        {
+            panel->show(mixChannelsButton);
+            panel->show(mixChannels01);
+        }
     }
     else
     {
         panel->hide(channelButton);
         panel->hide(channelLabel);
+
+        panel->hide(mixChannelsButton);
+        panel->hide(mixChannels01);
     }
 }
 

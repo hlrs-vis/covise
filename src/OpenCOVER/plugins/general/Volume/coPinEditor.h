@@ -54,7 +54,6 @@ public:
         EDIT_BLANK = 3, ///< Alpha blank Edit Mode
         EDIT_HAT = 4, ///< Alpha hat Edit Mode
         ADD_PIN = 5, ///< addNew Pin
-        MIX_CHANNELS01 = 6, ///< blend weights for channel 0/1
     };
     enum PinType
     {
