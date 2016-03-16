@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sur40COVER", "Sur40COVER.csproj", "{CC486AE4-F04B-41B0-8626-36E47D7C5387}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC486AE4-F04B-41B0-8626-36E47D7C5387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC486AE4-F04B-41B0-8626-36E47D7C5387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC486AE4-F04B-41B0-8626-36E47D7C5387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC486AE4-F04B-41B0-8626-36E47D7C5387}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

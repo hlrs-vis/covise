@@ -36,6 +36,10 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
 
+#include <osg/LineSegment>
+#include <osg/MatrixTransform>
+#include <osgUtil/IntersectVisitor>
+
 #include <util/byteswap.h>
 
 #include "VrmlNodeMultiTouchSensor.h"
@@ -70,6 +74,8 @@ VrmlNodeType *VrmlNodeMultiTouchSensor::defineType(VrmlNodeType *t)
     VrmlNodeChild::defineType(t); // Parent class
     t->addExposedField("trackObjects", VrmlField::SFBOOL);
     t->addExposedField("freeze", VrmlField::SFBOOL);
+   t->addExposedField("adjustHeight", VrmlField::SFBOOL);
+   t->addExposedField("adjustOrientation", VrmlField::SFBOOL);
     t->addExposedField("enabled", VrmlField::SFBOOL);
     t->addExposedField("currentCamera", VrmlField::SFBOOL);
     t->addExposedField("headingOnly", VrmlField::SFBOOL);
@@ -98,6 +104,8 @@ VrmlNodeType *VrmlNodeMultiTouchSensor::nodeType() const
 VrmlNodeMultiTouchSensor::VrmlNodeMultiTouchSensor(VrmlScene *scene)
     : VrmlNodeChild(scene)
     , d_freeze(false)
+    , d_adjustHeight(false)
+    , d_adjustOrientation(false)
     , d_trackObjects(false)
     , d_enabled(true)
     , d_currentCamera(true)
@@ -143,6 +151,8 @@ void VrmlNodeMultiTouchSensor::addToScene(VrmlScene *s, const char *relUrl)
 VrmlNodeMultiTouchSensor::VrmlNodeMultiTouchSensor(const VrmlNodeMultiTouchSensor &n)
     : VrmlNodeChild(n.d_scene)
     , d_freeze(n.d_freeze)
+    , d_adjustHeight(n.d_adjustHeight)
+    , d_adjustOrientation(n.d_adjustOrientation)
     , d_trackObjects(n.d_trackObjects)
     , d_enabled(n.d_enabled)
     , d_currentCamera(n.d_currentCamera)
@@ -275,6 +285,41 @@ void VrmlNodeMultiTouchSensor::render(Viewer *viewer)
                 || fabs(angle - oldAngle) > d_orientationThreshold.get()
                 || ((timeNow - oldTime) < 1.0))
             {
+			 if(d_adjustHeight.get())
+			 {
+
+				 // move object to ground
+
+				 // down segment
+				 osg::Vec3 p0,q0;
+				 p0.set(pos[0],  pos[1]+100.0,  pos[2]);
+				 q0.set(pos[0],  pos[1]-100.0, pos[2]);
+
+				 osg::ref_ptr<osg::LineSegment> ray = new osg::LineSegment();
+				 ray->set(p0,q0);
+
+
+				 osgUtil::IntersectVisitor visitor;
+				 visitor.setTraversalMask(Isect::Collision);
+				 visitor.addLineSegment(ray.get());
+
+				 ViewerOsg::viewer->VRMLRoot->accept(visitor);
+				 int num1 = visitor.getNumHits(ray.get());
+
+				 //std::cerr << "Hits ray num: " << num1 << ", down (" << ray->start()[0] << ", " << ray->start()[1] <<  ", " << ray->start()[2] << "), up (" << ray->end()[0] << ", " << ray->end()[1] <<  ", " << ray->end()[2] << ")" <<  std::endl;
+				 if (num1)
+				 {
+					 osgUtil::Hit hitInformation1;
+					 hitInformation1 = visitor.getHitList(ray.get()).front();
+
+					 float dist = 0.0;
+					 osg::Vec3 normal(0,0,1);
+					 osg::Vec3 normal2(0,0,1);
+					 normal = hitInformation1.getLocalIntersectNormal();
+					 pos[1] = hitInformation1.getLocalIntersectPoint()[1];
+
+				 }
+			 }
                 d_translation.set(pos[0], pos[1], pos[2]);
                 d_translation.subtract(&d_markerPosition);
                 eventOut(timeNow, "translation_changed", d_translation);
@@ -336,6 +381,8 @@ ostream &VrmlNodeMultiTouchSensor::printFields(ostream &os, int indent)
         PRINT_FIELD(trackObjects);
     if (!d_freeze.get())
         PRINT_FIELD(freeze);
+   if (! d_adjustHeight.get()) PRINT_FIELD(adjustHeight);
+   if (! d_adjustOrientation.get()) PRINT_FIELD(adjustOrientation);
     if (!d_enabled.get())
         PRINT_FIELD(enabled);
     if (!d_currentCamera.get())
@@ -430,6 +477,10 @@ void VrmlNodeMultiTouchSensor::setField(const char *fieldName,
         TRY_FIELD(trackObjects, SFBool)
     else if
         TRY_FIELD(freeze, SFBool)
+    else if 
+        TRY_FIELD(adjustHeight, SFBool)
+    else if 
+	    TRY_FIELD(adjustOrientation, SFBool)
     else if
         TRY_FIELD(enabled, SFBool)
     else if
@@ -462,6 +513,10 @@ const VrmlField *VrmlNodeMultiTouchSensor::getField(const char *fieldName) const
         return &d_trackObjects;
     if (strcmp(fieldName, "freeze") == 0)
         return &d_freeze;
+   if(strcmp(fieldName,"adjustHeight")==0)
+      return &d_adjustHeight;
+   if(strcmp(fieldName,"adjustOrientation")==0)
+      return &d_adjustOrientation;
     else if (strcmp(fieldName, "enabled") == 0)
         return &d_enabled;
     else if (strcmp(fieldName, "currentCamera") == 0)

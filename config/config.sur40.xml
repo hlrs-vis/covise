@@ -9,8 +9,6 @@
     <Server port="31090" />
    </RemoteDaemon>
    <HostConfig>
-    <Host timeout="60" memory="shm" method="RemoteDaemon" name="visent" hostname="visent" />
-    <Host timeout="60" memory="shm" method="RemoteDaemon" name="visavis" hostname="visavis" />
    </HostConfig>
  </System>
 
@@ -190,7 +188,7 @@
     <Position x="150" y="0" z="0" />
     <Orientation h="0" p="-90.0" r="0" />
    </Menu>
-   <ViewerPosition x="0" y="-600" z="1000" />
+   <ViewerPosition x="0" y="0" z="2000" />
    <SceneSize value="500" />
    <DebugLevel value="1" />
    <FPS value="true" />
@@ -209,7 +207,9 @@
 
    <ScreenConfig>
    <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-   <Screen height="457" width="610" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" p="-90.0" r="0.0" name="0" screen="0" />
+   <!--16:9=343  4:3=457 /-->
+   <!--Screen height="343" width="610" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" p="-90.0" r="0.0" name="0" screen="0" /-->
+   <Screen height="500" width="889" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" p="-90.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
   </COVER>
 
@@ -227,5 +227,6 @@
       </Messages--> </GLOBAL>
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
- <!-- this config is required by the OpenSG Renderer-->
+
+
 </COCONFIG>
