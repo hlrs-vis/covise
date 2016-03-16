@@ -99,6 +99,8 @@ public:
 
     void endPinCreation();
     void potiValueChanged(float, float, vrui::coValuePoti *, int context = -1);
+    void potiPressed(vrui::coValuePoti *poti, int context = -1);
+    void potiReleased(vrui::coValuePoti *poti, int context = -1);
     int getContext();
     void setInstantMode(bool);
     void putUndoBuffer();

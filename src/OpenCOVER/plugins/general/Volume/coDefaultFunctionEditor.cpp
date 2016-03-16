@@ -458,6 +458,20 @@ void coDefaultFunctionEditor::potiValueChanged(float oldVal, float newVal, coVal
     }
 }
 
+void coDefaultFunctionEditor::potiPressed(coValuePoti *poti, int context)
+{
+    (void)context;
+    if (poti == mixChannels01)
+        pinedit->setMixChannelsActive(true);
+}
+
+void coDefaultFunctionEditor::potiReleased(coValuePoti *poti, int context)
+{
+    (void)context;
+    if (poti == mixChannels01)
+        pinedit->setMixChannelsActive(false);
+}
+
 void coDefaultFunctionEditor::updateVolume()
 {
     if (instantClassification)
