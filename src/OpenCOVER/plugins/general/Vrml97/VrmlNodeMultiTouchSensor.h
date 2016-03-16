@@ -71,6 +71,8 @@ public:
 private:
     // Fields
     VrmlSFBool d_freeze;
+    VrmlSFBool d_adjustHeight;
+    VrmlSFBool d_adjustOrientation;
     VrmlSFBool d_trackObjects;
     VrmlSFBool d_enabled;
     VrmlSFBool d_currentCamera;
