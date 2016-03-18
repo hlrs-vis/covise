@@ -7,6 +7,7 @@
 
 // ManagedOpenCOVER.h
 #define SURFACE
+
 #include <cover/coVRPlugin.h>
 #include "plugins/hlrs/Surface/SurfacePlugin.h"
 #pragma once

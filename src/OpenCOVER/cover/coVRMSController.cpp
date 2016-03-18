@@ -434,7 +434,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
         }
         stats[0] = NULL;
     }
-
+	
     if (covise::coConfigConstants::getRank() != myID) {
         std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
     }

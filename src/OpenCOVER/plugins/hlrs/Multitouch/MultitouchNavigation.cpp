@@ -106,7 +106,7 @@ void MultitouchNavigation::rotateXY(TouchContact c)
         double angle = angleBetween3DVectors(_previousVector3D, currentPosition3D);
         // calculate rotation axis and rotate according to viewer
         osg::Vec3d axis = _previousVector3D ^ currentPosition3D;
-        osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+        osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
         osg::Matrixd M;
         M.makeRotate(osg::Matrixd::inverse(cam->getViewMatrix()).getRotate());
         axis = axis * M;
@@ -152,7 +152,7 @@ double MultitouchNavigation::angleBetween3DVectors(osg::Vec3 v1, osg::Vec3 v2)
 void MultitouchNavigation::moveXY(TouchContact c)
 {
     // calculate ModelView - Projection - Window Transformation
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
 
@@ -175,7 +175,7 @@ void MultitouchNavigation::moveXY(TouchContact c)
 void MultitouchNavigation::continuousMoveXY(TouchContact c)
 {
     // calculate ModelView - Projection - Window Transformation
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
 
@@ -202,7 +202,7 @@ void MultitouchNavigation::continuousMoveXY(TouchContact c)
             ySign = yDistance / yValue;
         }
         osg::Vec3d trans(xSign * exp(xValue / 50.), ySign * exp(yValue / 50.), 0.);
-        osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+        osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
         osg::Matrixd M;
         M.makeRotate(osg::Matrixd::inverse(cam->getViewMatrix()).getRotate());
         trans = trans * M;
@@ -245,7 +245,7 @@ void MultitouchNavigation::walkXY(TouchContact c)
     osg::Matrix M;
     M.makeRotate(osg::PI_2, osg::X_AXIS);
     velDir = velDir * M;
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrixd M2;
     M2.makeRotate(osg::Matrixd::inverse(cam->getViewMatrix()).getRotate());
     velDir = velDir * M2;
@@ -265,7 +265,7 @@ void MultitouchNavigation::scaleXYZ(std::list<TouchContact> &contacts)
     // calculate center of line between finger1 and finger2
     osg::Vec2d scaleCenter = (currentPosition2DFinger1 + currentPosition2DFinger2) / 2.;
     // calculate ModelView - Projection - Window Transformation
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
     // determine z-plane of Xform in screen coordinates
@@ -305,7 +305,7 @@ void MultitouchNavigation::continuousScaleXYZ(std::list<TouchContact> &contacts)
     // calculate center of line between finger1 and finger2
     osg::Vec2d scaleCenter = (currentPosition2DFinger1 + currentPosition2DFinger2) / 2.;
     // calculate ModelView - Projection - Window Transformation
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
     // determine z-plane of Xform in screen coordinates
@@ -369,7 +369,7 @@ void MultitouchNavigation::rotateZ(std::list<TouchContact> &contacts)
             double y = interception.y() / interception.z();
 
             // calculate ModelView - Projection - Window Transformation
-            osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+            osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
             osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
             osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
             // determine z-plane of Xform in screen coordinates
@@ -409,7 +409,7 @@ void MultitouchNavigation::rotateZ(std::list<TouchContact> &contacts)
 void MultitouchNavigation::moveZ(TouchContact c)
 {
     // calculate ModelView - Projection - Window Matrix to transform screen position to world position:
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
 
@@ -446,7 +446,7 @@ void MultitouchNavigation::continuousMoveZ(TouchContact c)
 {
 
     // calculate ModelView - Projection - Window Matrix to transform screen position to world position:
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
 
@@ -507,7 +507,7 @@ void MultitouchNavigation::walkZ(TouchContact c)
     dcs_mat.postMult(tmp);
     currentVelocity = (c.y - _initial.y()) * driveSpeed * -0.5;
     velDir = osg::Vec3(0.0 * currentVelocity, 1.0 * currentVelocity, 0.0 * currentVelocity);
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrixd M2;
     M2.makeRotate(osg::Matrixd::inverse(cam->getViewMatrix()).getRotate());
     velDir = velDir * M2;

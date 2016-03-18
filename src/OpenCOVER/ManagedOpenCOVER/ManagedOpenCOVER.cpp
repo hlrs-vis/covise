@@ -7,13 +7,13 @@
 
 // This is the main DLL file.
 
-#include "stdafx.h"
 
 #include "ManagedOpenCOVER.h"
 #include "cover/coVRPluginList.h"
 #include "cover/coVRConfig.h"
 #include <config/CoviseConfig.h>
 #include <cover/coCommandLine.h>
+#include <config/coConfigConstants.h>
 
 #include <osgViewer/api/Win32/GraphicsWindowWin32>
 
@@ -23,7 +23,6 @@ using namespace System;
 using namespace System::Threading;
 
 #include <stdio.h>
-
 void coOpenCOVERWindow::ErrorExit(LPTSTR lpszFunction)
 {
     // Retrieve the system error message for the last-error code
@@ -58,6 +57,8 @@ void coOpenCOVERWindow::ErrorExit(LPTSTR lpszFunction)
 coOpenCOVERWindow::coOpenCOVERWindow()
     : m_hWnd(NULL)
 {
+	
+    covise::coConfigConstants::setRank(0);
     openCOVER = NULL;
 }
 

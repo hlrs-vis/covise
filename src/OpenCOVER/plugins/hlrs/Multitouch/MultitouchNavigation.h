@@ -25,7 +25,7 @@
 #include "MultitouchPlugin.h"
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRConfig.h>
-#include <osg/mathUtils.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <osg/io_utils>
 
 class TouchContact;

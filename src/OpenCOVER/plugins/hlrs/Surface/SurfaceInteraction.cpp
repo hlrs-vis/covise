@@ -16,7 +16,7 @@
 
 #include "SurfaceInteraction.h"
 #include <cover/coVRConfig.h>
-#include <osg/mathUtils.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <osg/io_utils>
 
 SurfaceInteraction::SurfaceInteraction()
@@ -86,7 +86,7 @@ void SurfaceInteraction::rotateXY(std::list<SurfaceContact> &contacts)
         double angle = angleBetween3DVectors(_previousVector3D, currentPosition3D);
         // calculate rotation axis and rotate according to viewer
         osg::Vec3d axis = _previousVector3D ^ currentPosition3D;
-        osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+        osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
         osg::Matrixd M;
         M.makeRotate(osg::Matrixd::inverse(cam->getViewMatrix()).getRotate());
         axis = axis * M;
@@ -141,7 +141,7 @@ void SurfaceInteraction::moveXY(std::list<SurfaceContact> &contacts)
     osg::Vec2d currentPosition2DFinger2(contacts.back().CenterX, contacts.back().CenterY);
 
     // calculate ModelView - Projection - Window Transformation
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
 
@@ -217,7 +217,7 @@ void SurfaceInteraction::rotateZ(std::list<SurfaceContact> &contacts)
         osg::Vec3d axis = (_prev3DVec1 - _prev3DVec2) ^ (curr3DVec1 - curr3DVec2);
 
         // figure out rotation
-        osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+        osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
         osg::Matrixd M;
         M.makeRotate(osg::Matrixd::inverse(cam->getViewMatrix()).getRotate());
         axis = axis * M;
@@ -268,7 +268,7 @@ void SurfaceInteraction::moveZ(std::list<SurfaceContact> &contacts)
     double currentYCenter = (yMin + yMax) / 2;
 
     // calculate ModelView - Projection - Window Matrix to transform screen position to world position:
-    osg::Camera *cam = coVRConfig::instance()->screens[0].camera;
+    osg::Camera *cam = coVRConfig::instance()->channels[0].camera;
     osg::Matrix MVPW(cam->getViewMatrix() * cam->getProjectionMatrix() * cam->getViewport()->computeWindowMatrix());
     osg::Matrixd inverseMVPW = osg::Matrixd::inverse(MVPW);
 

@@ -1,0 +1,10 @@
+SET(HEADERS
+  SurfacePlugin.h
+  SurfaceInteraction.h
+)
+SET(SOURCES
+  SurfacePlugin.cpp
+  SurfaceInteraction.cpp
+)
+COVER_ADD_PLUGIN(Surface)
+#COVER_INSTALL_PLUGIN(Surface)

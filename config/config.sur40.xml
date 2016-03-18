@@ -102,10 +102,6 @@
            <FileType name="xodr" plugin="TrafficSimulation" />
       </FileManager>
 
-   <Input>
-    <MouseNav value="ON" />
-    <TrackingSystem value="MOUSE" />
-   </Input>
 
    <Plugin>
 
@@ -188,7 +184,7 @@
     <Position x="150" y="0" z="0" />
     <Orientation h="0" p="-90.0" r="0" />
    </Menu>
-   <ViewerPosition x="0" y="0" z="2000" />
+   <ViewerPosition x="0" y="0" z="1000" />
    <SceneSize value="500" />
    <DebugLevel value="1" />
    <FPS value="true" />
@@ -202,9 +198,11 @@
    </ChannelConfig>
    
    <WindowConfig>
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="true" />
+    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" embedded="true" decoration="true" />
    </WindowConfig>
-
+    <ViewportConfig>
+    <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+   </ViewportConfig>
    <ScreenConfig>
    <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
    <!--16:9=343  4:3=457 /-->

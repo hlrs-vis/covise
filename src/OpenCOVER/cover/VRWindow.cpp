@@ -155,8 +155,11 @@ VRWindow::update()
             float width, height;
             width = (float)origHSize[0];
             height = (float)origVSize[0];
-            float vsize = coVRConfig::instance()->screens[0].hsize * (height / width);
-            coVRConfig::instance()->screens[0].vsize = vsize;
+			if(width >0 && height > 0)
+			{
+                float vsize = coVRConfig::instance()->screens[0].hsize * (height / width);
+                coVRConfig::instance()->screens[0].vsize = vsize;
+			}
             _firstTimeEmbedded = false;
         }
         else if (origWidth != 0)

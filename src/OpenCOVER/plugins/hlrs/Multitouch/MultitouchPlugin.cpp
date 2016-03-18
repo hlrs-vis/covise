@@ -22,6 +22,8 @@
 \****************************************************************************/
 
 #include "MultitouchPlugin.h"
+#include <cover/input/input.h>
+#include <cover/input/coMousePointer.h>
 
 MultitouchPlugin::MultitouchPlugin()
 {
@@ -55,9 +57,9 @@ void MultitouchPlugin::addMouseContact()
     if (_contacts.size() == 1)
     {
         TouchContact c = _contacts.front();
-        cover->handleMouseEvent(osgGA::GUIEventAdapter::MOVE, static_cast<int>(c.x), static_cast<int>(cover->frontWindowVerticalSize - c.y));
+        Input::instance()->mouse()->handleEvent(osgGA::GUIEventAdapter::MOVE, static_cast<int>(c.x), static_cast<int>(cover->frontWindowVerticalSize - c.y));
         _buttonState = 1;
-        cover->handleMouseEvent(osgGA::GUIEventAdapter::PUSH, _buttonState, 0);
+        Input::instance()->mouse()->handleEvent(osgGA::GUIEventAdapter::PUSH, _buttonState, 0);
         _mouseID = c.id; // identify this contact as mouse input
     }
 }
@@ -67,7 +69,7 @@ void MultitouchPlugin::updateContact(TouchContact &c)
     //update mouse, but only if this is the one we used as a mouse input
     if (_mode == MOUSE && c.id == _mouseID)
     {
-        cover->handleMouseEvent(osgGA::GUIEventAdapter::DRAG, static_cast<int>(c.x), static_cast<int>(cover->frontWindowVerticalSize - c.y));
+        Input::instance()->mouse()->handleEvent(osgGA::GUIEventAdapter::DRAG, static_cast<int>(c.x), static_cast<int>(cover->frontWindowVerticalSize - c.y));
     }
 
     // update contact
@@ -103,7 +105,7 @@ void MultitouchPlugin::removeContact(TouchContact &c)
         {
             if (c.id == _mouseID)
             {
-                cover->handleMouseEvent(osgGA::GUIEventAdapter::RELEASE, 0, 0);
+                Input::instance()->mouse()->handleEvent(osgGA::GUIEventAdapter::RELEASE, 0, 0);
                 _buttonState = 0;
                 _mouseID = -1;
             }
