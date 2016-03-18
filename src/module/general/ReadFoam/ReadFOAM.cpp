@@ -1004,7 +1004,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
             ++it)
     {
         double t = it->first;
-        if (t >= starttime && t <= stoptime)
+        if (t >= starttime && t <= (stoptime*(1+1e-6)))
         { 
             if (counter % skipfactor == 0)
             {
@@ -1261,8 +1261,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                 }
                 ++i;
             }
+            counter++;
         }
-        counter++;
     }
     
     if (meshParam->getValue())
