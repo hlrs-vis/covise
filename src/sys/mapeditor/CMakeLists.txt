@@ -181,6 +181,15 @@ if(COVISE_USE_QT4)
    )
 endif()
 
+if (COVISE_USE_WEBENGINE)
+   SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
+     widgets/MEWebEnginePage.h
+   )
+   SET(MAPEDITOR_SOURCES ${MAPEDITOR_SOURCES}
+     widgets/MEWebEnginePage.cpp
+   )
+endif()
+
 # BEGIN: TUI Stuff
 INCLUDE("${TABLETUI_DIR}/tabletUI.cmake")
 
@@ -220,7 +229,14 @@ ADD_COVISE_EXECUTABLE(${TARGETNAME} MACOSX_BUNDLE
   ${MAPEDITOR_RCC_FILES} ${MAPEDITOR_UI_SRCS}
   ${ME_TUI_SOURCES} ${ME_TUI_HEADERS} ${ME_TUI_MOC_SRCS} ${ME_TUI_MOC_HEADERS}
 )
-qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg WebKit UiTools WebKitWidgets PrintSupport)
+qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg UiTools PrintSupport)
+if (COVISE_USE_WEBENGINE)
+  qt_use_modules(${TARGETNAME} WebEngineWidgets)
+  ADD_DEFINITIONS(-DUSE_WEBENGINE)
+elseif (COVISE_USE_WEBKIT)
+  ADD_DEFINITIONS(-DUSE_WEBKIT)
+  qt_use_modules(${TARGETNAME} WebKit WebKitWidgets)
+endif()
 
 if(COVISE_USE_QT4)
    IF(QT_QTWEBKIT_FOUND)
