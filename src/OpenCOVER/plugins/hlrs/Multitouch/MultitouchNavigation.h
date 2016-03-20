@@ -48,9 +48,9 @@ public:
     virtual void moveXY(TouchContact c);
     virtual void continuousMoveXY(TouchContact c);
     virtual void walkXY(TouchContact c);
-    virtual void scaleXYZ(std::list<TouchContact> &contacts);
-    virtual void continuousScaleXYZ(std::list<TouchContact> &contacts);
-    virtual void rotateZ(std::list<TouchContact> &contacts);
+    virtual void scaleXYZ(const std::list<TouchContact> &contacts);
+    virtual void continuousScaleXYZ(const std::list<TouchContact> &contacts);
+    virtual void rotateZ(const std::list<TouchContact> &contacts);
     virtual void moveZ(TouchContact c);
     virtual void continuousMoveZ(TouchContact c);
     virtual void walkZ(TouchContact c);
