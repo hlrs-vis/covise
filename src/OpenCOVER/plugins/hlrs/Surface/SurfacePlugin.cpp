@@ -221,7 +221,7 @@ osg::Vec2 SurfacePlugin::getPosition(int ID) // Ursprung ist links unten X recht
     {
         if (it->Identity == ID)
         {
-            return osg::Vec2(it->CenterX / 1024.0, 1.0 - (it->CenterY / 768.0));
+			return osg::Vec2(it->CenterX/coVRConfig::instance()->windows[0].sx,1.0 - (it->CenterY/coVRConfig::instance()->windows[0].sy));
         }
     }
     return osg::Vec2(0, 0);
