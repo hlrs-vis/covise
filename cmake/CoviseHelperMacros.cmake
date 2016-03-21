@@ -545,6 +545,8 @@ ENDIF(APPLE)
   IF(APPLE)
     ADD_COVISE_LINK_FLAGS(${targetname} "-undefined error")
     ADD_COVISE_LINK_FLAGS(${targetname} "-flat_namespace")
+  ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    ADD_COVISE_LINK_FLAGS(${targetname} "-Wl,--no-undefined")
   ENDIF(APPLE)
   
   UNSET(SOURCES)
