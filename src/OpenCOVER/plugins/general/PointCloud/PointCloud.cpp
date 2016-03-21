@@ -217,6 +217,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
     const char *cfile = filename.c_str();
     if ((strcasecmp(cfile + strlen(cfile) - 3, "pts") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "ptx") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "xyz") == 0))
     {
+        bool imwfLattice = false;
         intensityOnly = false;
         intColor = false;
         polar = false;
@@ -256,6 +257,11 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     }
                     numHeaderLines++;
                 }
+                else if (strstr(buf, "Lattice=") == buf)
+                {
+                    imwfLattice = true;
+                    numHeaderLines++;
+                }
                 else
                     psize++;
             }
@@ -291,7 +297,15 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
             while (!feof(fp))
             {
                 fgets(buf, 1000, fp);
-                if (commaSeparated)
+                if (imwfLattice)
+                {
+                    int id=0;
+                    char type[1000];
+                    float dummy=0.f;
+                    int numValues = sscanf(buf, "%d %s %f %f %f", &id, type, &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &dummy);
+                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
+                }
+                else if (commaSeparated)
                 {
                     int numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r);
                     if (numValues == 4)
