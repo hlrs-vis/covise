@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_VEHICLE_H
 
 #include "oscExport.h"
-#include "oscNameUserData.h"
+#include "oscNameRefIdUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -36,7 +36,7 @@ private:
 };
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscVehicle: public oscNameUserData
+class OPENSCENARIOEXPORT oscVehicle: public oscNameRefIdUserData
 {
 public:
     oscVehicle()

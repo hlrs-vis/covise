@@ -115,6 +115,7 @@ SET(HEADERS
    oscMiscObject.h
    oscNamePriority.h
    oscNameRefId.h
+   oscNameRefIdUserData.h
    oscNameUserData.h
    oscNone.h
    oscNotify.h

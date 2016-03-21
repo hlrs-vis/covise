@@ -582,7 +582,7 @@
               <refActor name="hjkuk"/>
             </refActors>
 
-            <maneuver name="sdhjhjty">
+            <maneuver name="sdhjhjty" refId="3466">
 
               <parameterList>
                 <parameter name="iuhs" value="gkyu"/>
@@ -854,7 +854,7 @@
               <refActor name="sdgrs"/>
             </refActors>
 
-            <maneuver name="kuiore">
+            <maneuver name="kuiore" refId="8976">
 
               <parameterList>
                 <parameter name="sg" value="gfd"/>

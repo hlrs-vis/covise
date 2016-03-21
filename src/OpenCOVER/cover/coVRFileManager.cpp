@@ -105,31 +105,33 @@ osg::Texture2D *coVRFileManager::loadTexture(const char *texture)
 {
     START("coVRFileManager::loadTexture");
 
-    if (coHashIter<const char *, osg::ref_ptr<osg::Texture2D> > texiter = textureList[texture])
+    TextureMap::iterator it = textureList.find(texture);
+    if (it != textureList.end())
     {
-        if (texiter().get())
+        if (it->second.get())
         {
-            if (cover->debugLevel(3))
+            if (cover->debugLevel(4))
                 std::cerr << "Reusing texture " << texture << std::endl;
-            return texiter().get();
+            return it->second.get();
         }
+    }
+    const char *name = buildFileName(texture);
+    if (name == NULL)
+    {
+        if (cover->debugLevel(2))
+            std::cerr << "New texture " << texture << " - not found" << std::endl;
+        return NULL;
     }
     else
     {
-        if (cover->debugLevel(2))
+        if (cover->debugLevel(3))
             std::cerr << "New texture " << texture << std::endl;
     }
-
-    const char *name = buildFileName(texture);
-    if (name == NULL)
-        return NULL;
 
     osg::Texture2D *tex = new osg::Texture2D();
     osg::Image *image = osgDB::readImageFile(name);
     tex->setImage(image);
-    char *texname = new char[strlen(texture) + 1];
-    strcpy(texname, texture);
-    textureList.insert(texname, tex);
+    textureList[texture] = tex;
 
     return tex;
 }
@@ -296,7 +298,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     lastCovise_key = NULL;
     if (handler)
     {
-        fprintf(stderr, "coVRFileManager::loadFile(name=%s)   handler\n", fileName);
+        if (cover->debugLevel(3))
+            fprintf(stderr, "coVRFileManager::loadFile(name=%s)   handler\n", fileName);
         if (handler->loadUrl)
         {
             handler->loadUrl(adjustedFileName, parent, covise_key);
@@ -742,7 +745,6 @@ coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
-    , textureList(NULL)
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -952,7 +954,11 @@ const FileHandler *coVRFileManager::findFileHandler(const char *extension)
              ++it)
         {
             if (!strcasecmp(extension, (*it)->extension))
+            {
+                if (cover->debugLevel(2))
+                    fprintf(stderr, "coVRFileManager::findFileHandler(extension=%s), using plugin %s\n", extension, plugin.c_str());
                 return *it;
+            }
         }
     }
 

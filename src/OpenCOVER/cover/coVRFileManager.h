@@ -23,7 +23,6 @@
 #include <util/coExport.h>
 #include <list>
 #include <limits.h>
-#include <util/coStringMultiHash.h>
 #include <map>
 #include <osg/ref_ptr>
 #include <osg/Texture2D>
@@ -149,7 +148,8 @@ private:
     typedef std::list<coVRIOReader *> IOReaderList;
     IOReaderList ioReaderList;
 
-    covise::coStringMultiHash<osg::ref_ptr<osg::Texture2D> > textureList;
+    typedef std::map<std::string, osg::ref_ptr<osg::Texture2D> > TextureMap;
+    TextureMap textureList;
     std::map<std::string, coTUIFileBrowserButton *> fileFBMap;
     coTUIFileBrowserButton *mDefaultFB;
 

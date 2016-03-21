@@ -135,29 +135,33 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
 
             if (rootElemName == m_catalogType)
             {
-                xercesc::DOMAttr *attribute = rootElem->getAttributeNode(xercesc::XMLString::transcode("name"));
+                xercesc::DOMAttr *attribute = rootElem->getAttributeNode(xercesc::XMLString::transcode("refId"));
                 if (attribute)
                 {
-                    std::string objectName = xercesc::XMLString::transcode(attribute->getValue());
-                    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectName);
+                    SuccessIntVar successIntVar = getIntFromIntAttribute(attribute);
+                    if (successIntVar.first)
+                    {
+                        int objectRefId = successIntVar.second;
+                        AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
 
-                    if (objectName.empty())
-                    {
-                        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << filenames[i] << " has an empty name and can't be used." << std::endl;
-                    }
-                    else if (found != m_availableObjects.end())
-                    {
-                        std::cerr << "Warning! Object for catalog " << m_catalogType << " with name " << objectName << " from " << filenames[i] << " is ignored." << std::endl;
-                        std::cerr << "First appearance from file " << found->second << " is used." << std::endl;
+                        if (found != m_availableObjects.end())
+                        {
+                            std::cerr << "Warning! Object for catalog " << m_catalogType << " with refId " << objectRefId << " from " << filenames[i] << " is ignored." << std::endl;
+                            std::cerr << "First appearance from file " << found->second << " is used." << std::endl;
+                        }
+                        else
+                        {
+                            m_availableObjects.emplace(objectRefId, filenames[i]);
+                        }
                     }
                     else
                     {
-                        m_availableObjects.emplace(objectName, filenames[i]);
+                        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << filenames[i] << " has an invalid refId and can't be used." << std::endl;
                     }
                 }
                 else
                 {
-                    std::cerr << "Warning! Can't find an object for catalog " << m_catalogType << " in file " << filenames[i] << " with attribute 'name'." << std::endl;
+                    std::cerr << "Warning! Can't find an object for catalog " << m_catalogType << " in file " << filenames[i] << " with attribute 'refId'." << std::endl;
                 }
             }
         }
@@ -190,25 +194,19 @@ oscMemberCatalog::AvailableObjectsMap oscMemberCatalog::getMapAvailableObjects()
     return m_availableObjects;
 }
 
-bool oscMemberCatalog::addObjToMapAvailableObjects(const std::string &objectName, const bf::path &fileNamePath)
+bool oscMemberCatalog::addObjToMapAvailableObjects(const int objectRefId, const bf::path &fileNamePath)
 {
-    if (objectName.empty())
-    {
-        std::cerr << "Error! Can't add the object with empty name for file " << fileNamePath << std::endl;
-        return false;
-    }
-
-    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectName);
+    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
     if (found != m_availableObjects.end())
     {
-        std::cerr << "Error! Object with name " << objectName << " exists and is defined in file " << found->second << std::endl;
+        std::cerr << "Error! Object with refId " << objectRefId << " exists and is defined in file " << found->second << std::endl;
         return false;
     }
 
-    std::pair<AvailableObjectsMap::const_iterator, bool> returnVal = m_availableObjects.emplace(objectName, fileNamePath);
+    std::pair<AvailableObjectsMap::const_iterator, bool> returnVal = m_availableObjects.emplace(objectRefId, fileNamePath);
     if (returnVal.second == false)
     {
-        std::cerr << "Error! Can't insert " << objectName << " from file " << fileNamePath << "into map of available objects." << std::endl;
+        std::cerr << "Error! Can't insert refId " << objectRefId << " from file " << fileNamePath << "into map of available objects." << std::endl;
         return false;
     }
     else
@@ -217,15 +215,9 @@ bool oscMemberCatalog::addObjToMapAvailableObjects(const std::string &objectName
     }
 }
 
-bool oscMemberCatalog::removeObjFromMapAvailableObjects(const std::string &objectName)
+bool oscMemberCatalog::removeObjFromMapAvailableObjects(const int objectRefId)
 {
-    if (objectName.empty())
-    {
-        std::cerr << "Error! Can't remove an object without a name." << std::endl;
-        return false;
-    }
-
-    return m_availableObjects.erase(objectName);
+    return m_availableObjects.erase(objectRefId);
 }
 
 void oscMemberCatalog::deleteMapAvailableObject()
@@ -235,18 +227,12 @@ void oscMemberCatalog::deleteMapAvailableObject()
 
 
 //
-bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectName)
+bool oscMemberCatalog::fullReadCatalogObjectWithName(const int objectRefId)
 {
-    if (objectName.empty())
-    {
-        std::cerr << "Error! No object name specified." << std::endl;
-        return false;
-    }
-
-    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectName);
+    AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
     if (found == m_availableObjects.end())
     {
-        std::cerr << "Error! Object with name " << objectName << " isn't available. No file to read." << std::endl;
+        std::cerr << "Error! Object with refId " << objectRefId << " isn't available. No file to read." << std::endl;
         return false;
     }
 
@@ -313,7 +299,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
                         obj->initialize(owner->getBase(), NULL, NULL, srcFile);
                         obj->parseFromXML(rootElem, srcFile);
                         //add objectName and object to map m_objectsInMemory
-                        this->emplace(objectName, obj);
+                        this->emplace(objectRefId, obj);
                         //add sourcFile to vector
                         owner->getBase()->addToSrcFileVec(srcFile);
 
@@ -347,13 +333,13 @@ bool oscMemberCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePat
 {
     bool success = false;
 
-    std::string objectName = getObjectNameFromFile(fileNamePath);
-
-    if (objectName != "")
+    SuccessIntVar successIntVar = getObjectRefIdFromFile(fileNamePath);
+    if (successIntVar.first)
     {
-        if (addObjToMapAvailableObjects(objectName, fileNamePath))
+        int objectRefId = successIntVar.second;
+        if (addObjToMapAvailableObjects(objectRefId, fileNamePath))
         {
-            if (fullReadCatalogObjectWithName(objectName))
+            if (fullReadCatalogObjectWithName(objectRefId))
             {
                 success = true;
             }
@@ -361,7 +347,7 @@ bool oscMemberCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePat
     }
     else
     {
-        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << fileNamePath << " has an empty name and can't be used." << std::endl;
+        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << fileNamePath << " has an empty refId and can't be used." << std::endl;
     }
 
     return success;
@@ -371,20 +357,14 @@ bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
 {
     if (objectBase)
     {
-        //get objectName
-        //every object in a catalog (e.g. driver, vehicle ...) should have a member 'name' of type oscString
-        std::string objectName;
-        oscMember *objectNameMember = objectBase->getMembers()["name"];
-        if (objectNameMember)
+        //get objectRefId
+        //every object in a catalog (e.g. driver, vehicle ...) should have a member 'refId' of type int (oscInt)
+        int objectRefId;
+        oscMember *objectRefIdMember = objectBase->getMembers()["refId"];
+        if (objectRefIdMember)
         {
-            oscStringValue *objNameStringVal = dynamic_cast<oscStringValue *>(objectNameMember->getValue());
-            objectName = objNameStringVal->getValue();
-        }
-
-        if (objectName.empty())
-        {
-            std::cerr << "Error: Can't determine name of the object." << std::endl;
-            return false;
+            oscIntValue *objRefIdIntVal = dynamic_cast<oscIntValue *>(objectRefIdMember->getValue());
+            objectRefId = objRefIdIntVal->getValue();
         }
 
         //get fileName and Path for file to write
@@ -401,7 +381,7 @@ bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
             return false;
         }
 
-        return addCatalogObject(objectName, objectBase, fileNamePath);
+        return addCatalogObject(objectRefId, objectBase, fileNamePath);
     }
     else
     {
@@ -410,55 +390,55 @@ bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
     }
 }
 
-bool oscMemberCatalog::addCatalogObject(const std::string &objectName, oscObjectBase *objectBase, bf::path &fileNamePath)
+bool oscMemberCatalog::addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath)
 {
     bool success = false;
 
-    if (objectName != "" && objectBase != NULL && !fileNamePath.empty())
+    if (objectBase != NULL && !fileNamePath.empty())
     {
-        AvailableObjectsMap::const_iterator foundAvailableObjects = m_availableObjects.find(objectName);
-        ObjectsInMemoryMap::const_iterator foundObjectsInMemory = this->find(objectName);
+        AvailableObjectsMap::const_iterator foundAvailableObjects = m_availableObjects.find(objectRefId);
+        ObjectsInMemoryMap::const_iterator foundObjectsInMemory = this->find(objectRefId);
 
         if (foundAvailableObjects == m_availableObjects.end())
         {
             if (foundObjectsInMemory == this->end())
             {
-                //add objectName and fileName to m_availableObjects
-                if (addObjToMapAvailableObjects(objectName, fileNamePath))
+                //add objectRefId and fileName to m_availableObjects
+                if (addObjToMapAvailableObjects(objectRefId, fileNamePath))
                 {
-                    //add objectName and objectPtr to oscMemberCatalog map (objects in memory)
-                    std::pair<ObjectsInMemoryMap::const_iterator, bool> returnValObjInMem = this->emplace(objectName, objectBase);
+                    //add objectRefId and objectPtr to oscMemberCatalog map (objects in memory)
+                    std::pair<ObjectsInMemoryMap::const_iterator, bool> returnValObjInMem = this->emplace(objectRefId, objectBase);
                     if (returnValObjInMem.second == true)
                     {
                         success = true;
                     }
                     else
                     {
-                        std::cerr << "Warning! Can't insert object with name" << objectName << " to catalog " << m_catalogType << std::endl;
+                        std::cerr << "Warning! Can't insert object with refId" << objectRefId << " to catalog " << m_catalogType << std::endl;
                     }
                 }
             }
             else
             {
-                std::cerr << "Warning: Can't add catalog object "  << objectName << ". An object with this name is already registered." << std::endl;
+                std::cerr << "Warning: Can't add catalog object refId "  << objectRefId << ". An object with this refId is already registered." << std::endl;
             }
         }
         else
         {
-            std::cerr << "Warning! Can't add catalog object " << objectName << ". Object is read from file " << foundAvailableObjects->second << std::endl;
+            std::cerr << "Warning! Can't add catalog object with refId " << objectRefId << ". Object is read from file " << foundAvailableObjects->second << std::endl;
         }
     }
     else
     {
-        std::cerr << "Warning! Can't add catalog object " << objectName << ". Empty objectName or filename or no pointer to object." << std::endl;
+        std::cerr << "Warning! Can't add catalog object with refId " << objectRefId << ". Empty filename or no pointer to object." << std::endl;
     }
 
     return success;
 }
 
-bool oscMemberCatalog::removeCatalogObject(const std::string &objectName)
+bool oscMemberCatalog::removeCatalogObject(const int objectRefId)
 {
-    ObjectsInMemoryMap::const_iterator found = this->find(objectName);
+    ObjectsInMemoryMap::const_iterator found = this->find(objectRefId);
     if (found != this->end())
     {
         this->erase(found);
@@ -466,14 +446,14 @@ bool oscMemberCatalog::removeCatalogObject(const std::string &objectName)
     }
     else
     {
-        std::cerr << "Error! Can't remove object with name " << objectName << " from catalog " << m_catalogType << ". Object not found." << std::endl;
+        std::cerr << "Error! Can't remove object with refId " << objectRefId << " from catalog " << m_catalogType << ". Object not found." << std::endl;
         return false;
     }
 }
 
-oscObjectBase *oscMemberCatalog::getCatalogObject(const std::string &objectName)
+oscObjectBase *oscMemberCatalog::getCatalogObject(const int objectRefId)
 {
-    ObjectsInMemoryMap::const_iterator found = this->find(objectName);
+    ObjectsInMemoryMap::const_iterator found = this->find(objectRefId);
     if (found != this->end())
     {
         return found->second;
@@ -495,9 +475,9 @@ void oscMemberCatalog::deleteMapObjectsInMemory()
  * private functions
  *****/
 
-std::string oscMemberCatalog::getObjectNameFromFile(const bf::path &fileNamePath)
+oscMemberCatalog::SuccessIntVar oscMemberCatalog::getObjectRefIdFromFile(const bf::path &fileNamePath)
 {
-    std::string objectName;
+    SuccessIntVar successIntVar = std::make_pair(false, -1);
     OpenScenarioBase *oscBase = new OpenScenarioBase;
     bool validate = owner->getBase()->getValidation();
     xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogType, validate);
@@ -508,15 +488,33 @@ std::string oscMemberCatalog::getObjectNameFromFile(const bf::path &fileNamePath
 
         if (rootElemName == m_catalogType)
         {
-            xercesc::DOMAttr *attribute = rootElem->getAttributeNode(xercesc::XMLString::transcode("name"));
+            //attribute refId is of type int (oscInt) and store the value of objectRefId
+            xercesc::DOMAttr *attribute = rootElem->getAttributeNode(xercesc::XMLString::transcode("refId"));
             if (attribute)
             {
-                objectName = xercesc::XMLString::transcode(attribute->getValue());
+                successIntVar = getIntFromIntAttribute(attribute);
             }
         }
     }
 
     delete oscBase;
 
-    return objectName;
+    return successIntVar;
+}
+
+oscMemberCatalog::SuccessIntVar oscMemberCatalog::getIntFromIntAttribute(xercesc::DOMAttr *attribute)
+{
+    SuccessIntVar successIntVar = std::make_pair(false, -1);
+    oscMemberValue::MemberTypes memberTypeInt = oscMemberValue::INT;
+    oscMemberValue *memberValInt = oscFactories::instance()->valueFactory->create(memberTypeInt);
+    bool initializeSuccess = memberValInt->initialize(attribute);
+    if (initializeSuccess)
+    {
+        oscIntValue *objIntVal = dynamic_cast<oscIntValue *>(memberValInt);
+        int intVar = objIntVal->getValue();
+
+        successIntVar = std::make_pair(true, intVar);
+    }
+
+    return successIntVar;
 }

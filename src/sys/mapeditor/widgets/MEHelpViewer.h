@@ -10,8 +10,6 @@
 #include <util/coTypes.h>
 
 #include <QMainWindow>
-#include <QWebView>
-
 class QComboBox;
 class QUrl;
 class QAction;
@@ -20,11 +18,9 @@ class QAction;
 #error "QT_VERSION not defined"
 #endif
 
-#if QT_VERSION >= 0x040400 && !defined(QT_NO_WEBKIT)
-#define USE_WEBKIT
-#endif
-
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE)
+class QWebEngineView;
+#elif defined(USE_WEBKIT)
 class QWebView;
 #else
 class METextBrowser;
@@ -46,7 +42,9 @@ public:
 
 private:
     void makeMenu();
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE)
+    QWebEngineView *m_browser;
+#elif defined(USE_WEBKIT)
     QWebView *m_browser;
 #else
     METextBrowser *m_browser;

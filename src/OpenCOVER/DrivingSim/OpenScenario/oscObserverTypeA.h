@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_OBSERVER_TYPE_A_H
 
 #include "oscExport.h"
-#include "oscNameUserData.h"
+#include "oscNameRefIdUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -21,20 +21,18 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObserverTypeA: public oscNameUserData
+class OPENSCENARIOEXPORT oscObserverTypeA: public oscNameRefIdUserData
 {
 public:
     oscObserverTypeA()
     {
         OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
-        OSC_ADD_MEMBER(refId);
         OSC_ADD_MEMBER(type);
         OSC_OBJECT_ADD_MEMBER(frustum, "oscFrustum");
         OSC_OBJECT_ADD_MEMBER(filters, "oscFilters");
     };
 
     oscFileHeaderMember fileHeader;
-    oscInt refId;
     oscString type;
     oscFrustumMember frustum;
     oscFiltersMemberArray filters;

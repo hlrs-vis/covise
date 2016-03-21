@@ -72,19 +72,117 @@ std::string oscEnum::getValueAsStr(const int &val) const
 
 
 template<>
-OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute)
+{
+    try
+    {
+        value = std::stol(xercesc::XMLString::transcode(attribute->getValue()));
+    }
+    catch (const std::invalid_argument &ia)
+    {
+        std::cerr << "Error during initialization of an int value. Invalid argument: " << ia.what() << std::endl;
+        return false;
+    }
+    catch (...)
+    {
+        std::cerr << "Error during initialization of an int value." << std::endl;
+        return false;
+    }
+
+    return true;
+};
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute){value = std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute)
+{
+    try
+    {
+        value = std::stoul(xercesc::XMLString::transcode(attribute->getValue()));
+    }
+    catch (const std::invalid_argument &ia)
+    {
+        std::cerr << "Error during initialization of an unsigned int value. Invalid argument: " << ia.what() << std::endl;
+        return false;
+    }
+    catch (...)
+    {
+        std::cerr << "Error during initialization of an unsigned int value." << std::endl;
+        return false;
+    }
+
+    return true;
+};
 template<>
-OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute){value = (short)std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute)
+{
+    try
+    {
+        value = (short)std::stol(xercesc::XMLString::transcode(attribute->getValue()));
+    }
+    catch (const std::invalid_argument &ia)
+    {
+        std::cerr << "Error during initialization of a shot value. Invalid argument: " << ia.what() << std::endl;
+        return false;
+    }
+    catch (...)
+    {
+        std::cerr << "Error during initialization of a short value." << std::endl;
+        return false;
+    }
+
+    return true;
+};
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute){value = (unsigned short)std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute)
+{
+    try
+    {
+        value = (unsigned short)std::stoul(xercesc::XMLString::transcode(attribute->getValue()));
+    }
+    catch (const std::invalid_argument &ia)
+    {
+        std::cerr << "Error during initialization of an unsigned shot value. Invalid argument: " << ia.what() << std::endl;
+        return false;
+    }
+    catch (...)
+    {
+        std::cerr << "Error during initialization of an unsigned short value." << std::endl;
+        return false;
+    }
+
+    return true;
+};
 template<>
-OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute){value = xercesc::XMLString::transcode(attribute->getValue()); return true;};
+OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute)
+{
+    value = xercesc::XMLString::transcode(attribute->getValue());
+    return true;
+};
 template<>
-OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute){value = std::stod(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute)
+{
+    try
+    {
+        value = std::stod(xercesc::XMLString::transcode(attribute->getValue()));
+    }
+    catch (const std::invalid_argument &ia)
+    {
+        std::cerr << "Error during initialization of a double value. Invalid argument: " << ia.what() << std::endl;
+        return false;
+    }
+    catch (...)
+    {
+        std::cerr << "Error during initialization of a double value." << std::endl;
+        return false;
+    }
+
+    return true;
+};
 template<>
-OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute){ return false;};
+OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute)
+{
+    std::cerr << "Eroor! Trying to initialize a time_t value." << std::endl;
+    return false;
+};
 template<>
 OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
 {
@@ -102,7 +200,7 @@ OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
 
     try
     {
-        value = (std::stol(valueStr)!=0);
+        value = (std::stol(valueStr) != 0);
     }
     catch (...)
     {
@@ -114,7 +212,26 @@ OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute){value = std::stof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute)
+{
+
+    try
+    {
+        value = std::stof(xercesc::XMLString::transcode(attribute->getValue()));
+    }
+    catch (const std::invalid_argument &ia)
+    {
+        std::cerr << "Error during initialization of a float value. Invalid argument: " << ia.what() << std::endl;
+        return false;
+    }
+    catch (...)
+    {
+        std::cerr << "Error during initialization of a float value." << std::endl;
+        return false;
+    }
+
+    return true;
+};
 
 OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
 {

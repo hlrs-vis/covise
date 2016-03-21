@@ -17,7 +17,6 @@
 #include "Road.h"
 #include <osgDB/ReadFile>
 
-using namespace covise;
 using namespace opencover;
 
 RoadObject::RoadObject(const std::string &setId, const std::string &setFile, const std::string &setTextureFile, const std::string &setName, const std::string &setType, const double &setS,

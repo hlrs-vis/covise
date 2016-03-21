@@ -9,10 +9,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_MANEUVER_TYPE_A_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscNameRefId.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
 #include "oscFileHeader.h"
 #include "oscParameterListTypeA.h"
 #include "oscEvents.h"
@@ -21,19 +20,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscManeuverTypeA: public oscObjectBase
+class OPENSCENARIOEXPORT oscManeuverTypeA: public oscNameRefId
 {
 public:
     oscManeuverTypeA()
     {
         OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
-        OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterListTypeA");
         OSC_OBJECT_ADD_MEMBER(events, "oscEvents");
     };
 
     oscFileHeaderMember fileHeader;
-    oscString name;
     oscParameterListTypeAMemberArray parameterList;
     oscEventsMemberArray events;
 };

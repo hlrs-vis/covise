@@ -256,7 +256,7 @@ void MultitouchNavigation::walkXY(TouchContact c)
     _counter++;
 }
 
-void MultitouchNavigation::scaleXYZ(std::list<TouchContact> &contacts)
+void MultitouchNavigation::scaleXYZ(const std::list<TouchContact> &contacts)
 {
     // convert contact coordinates to current vectors
     osg::Vec2d currentPosition2DFinger1(contacts.front().x, cover->frontWindowVerticalSize - contacts.front().y);
@@ -296,7 +296,7 @@ void MultitouchNavigation::scaleXYZ(std::list<TouchContact> &contacts)
     _counter++;
 }
 
-void MultitouchNavigation::continuousScaleXYZ(std::list<TouchContact> &contacts)
+void MultitouchNavigation::continuousScaleXYZ(const std::list<TouchContact> &contacts)
 {
     // convert contact coordinates to current vectors
     osg::Vec2d currentPosition2DFinger1(contacts.front().x, cover->frontWindowVerticalSize - contacts.front().y);
@@ -351,7 +351,7 @@ void MultitouchNavigation::continuousScaleXYZ(std::list<TouchContact> &contacts)
     _counter++;
 }
 
-void MultitouchNavigation::rotateZ(std::list<TouchContact> &contacts)
+void MultitouchNavigation::rotateZ(const std::list<TouchContact> &contacts)
 {
     // get current screen position of finger
     osg::Vec3d curr3DVec1(contacts.front().x, cover->frontWindowVerticalSize - contacts.front().y, 0.);

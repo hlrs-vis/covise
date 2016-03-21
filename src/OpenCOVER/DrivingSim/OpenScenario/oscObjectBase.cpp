@@ -232,7 +232,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     oscMemberCatalog *cMember = dynamic_cast<oscMemberCatalog *>(member);
                     if(cMember)
                     {
-                        for (unordered_map<std::string, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
+                        for (unordered_map<int, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
                         {
                             oscObjectBase *objFromCatalog = it->second;
                             if (objFromCatalog)
@@ -305,8 +305,16 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                     ev->enumType = em->enumType;
                                 }
                             }
-                            v->initialize(attribute);
-                            m->setValue(v);
+
+                            bool initializeSuccess = v->initialize(attribute);
+                            if (initializeSuccess)
+                            {
+                                m->setValue(v);
+                            }
+                            else
+                            {
+                                std::cerr << " No value set for attribute '" << attributeName << "' in element '" << this->getOwnMember()->getName() << "'." << std::endl;
+                            }
                         }
                         else
                         {

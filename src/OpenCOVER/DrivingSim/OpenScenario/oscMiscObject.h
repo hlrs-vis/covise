@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_MISC_OBJECT_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscNameRefId.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -21,20 +21,18 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscMiscObject: public oscObjectBase
+class OPENSCENARIOEXPORT oscMiscObject: public oscNameRefId
 {
 public:
     oscMiscObject()
     {
         OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
-        OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(type);
         OSC_ADD_MEMBER(mass);
         OSC_OBJECT_ADD_MEMBER(dimension, "oscDimensionTypeA");
         OSC_OBJECT_ADD_MEMBER(geometry, "oscFile");
     };
     oscFileHeaderMember fileHeader;
-    oscString name;
     oscString type;
     oscDouble mass;
     oscDimensionTypeAMember dimension;

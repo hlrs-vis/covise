@@ -16,7 +16,11 @@
 #include <QDesktopServices>
 #include <QDebug>
 
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE)
+#include <QWebEngineView>
+#include <QWebEngineHistory>
+#include "MEWebEnginePage.h"
+#elif defined(USE_WEBKIT)
 #include <QWebView>
 #include <QtWebKit>
 #else
@@ -32,6 +36,7 @@
 
 MEHelpViewer::MEHelpViewer()
     : QMainWindow()
+    , m_browser(NULL)
 {
 }
 
@@ -51,7 +56,11 @@ void MEHelpViewer::init()
 {
 
 // create the central widget, the m_browser window
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE)
+    m_browser = new QWebEngineView(this);
+    m_browser->setPage(new MEWebEnginePage);
+
+#elif defined(USE_WEBKIT)
     m_browser = new QWebView(this);
     m_browser->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
     connect(m_browser, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
@@ -89,13 +98,17 @@ void MEHelpViewer::makeMenu()
     m_backwardId = toolbar->addAction(QPixmap(":/icons/previous32.png"), tr("&Backward"));
     m_forwardId = toolbar->addAction(QPixmap(":/icons/next32.png"), tr("&Forward"), m_browser, SLOT(forward()));
     m_homeId = toolbar->addAction(QPixmap(":/icons/home32.png"), tr("&Home"), this, SLOT(home()));
+#ifndef USE_WEBENGINE
     m_printId = toolbar->addAction(QPixmap(":/icons/fileprint32.png"), tr("&Print"), this, SLOT(print()));
-
     m_printId->setShortcut(QKeySequence::Print);
+#endif
     m_backwardId->setShortcut(QKeySequence::Back);
     m_forwardId->setShortcut(QKeySequence::Forward);
 
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE)
+    m_browser->page()->history()->canGoForward();
+    connect(m_backwardId, SIGNAL(triggered()), m_browser, SLOT(back()));
+#elif defined(USE_WEBKIT)
     m_browser->page()->history()->canGoForward();
     connect(m_backwardId, SIGNAL(triggered()), m_browser, SLOT(back()));
 #else
@@ -126,7 +139,7 @@ MEHelpViewer::~MEHelpViewer()
 //!
 void MEHelpViewer::linkClicked(const QUrl &url)
 {
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE) || defined(USE_WEBKIT)
     if (url.host() != "fs.hlrs.de" || !url.path().startsWith("/projects/covise/doc"))
         QDesktopServices::openUrl(url);
     else
@@ -147,7 +160,7 @@ void MEHelpViewer::home()
 void MEHelpViewer::newSource(const QString &newPath)
 {
     if (newPath.startsWith("http"))
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE) || defined(USE_WEBKIT)
         m_browser->load(QUrl(newPath));
     else
         m_browser->load(QUrl("file:///" + newPath));
@@ -182,7 +195,8 @@ void MEHelpViewer::print()
     if (dialog->exec() != QDialog::Accepted)
         return;
 
-#ifdef USE_WEBKIT
+#if defined(USE_WEBENGINE)
+#elif defined(USE_WEBKIT)
     m_browser->print(&printer);
 #else
     QTextEdit *editor = static_cast<QTextBrowser *>(m_browser);
