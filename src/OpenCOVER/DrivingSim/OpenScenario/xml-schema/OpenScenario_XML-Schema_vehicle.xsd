@@ -201,6 +201,7 @@
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
     </xsd:all>
     <xsd:attribute name="name"          type="xsd:string" use="required"/>
+    <xsd:attribute name="refId"         type="xsd:int"    use="required"/>
     <xsd:attribute name="category"      type="Enum_vehicle_category" use="required"/>
     <xsd:attribute name="manufacturer"  type="xsd:string" use="required"/>
     <xsd:attribute name="model"         type="xsd:string" use="required"/>

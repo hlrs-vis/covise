@@ -66,7 +66,7 @@
         </xsd:element>
     </xsd:all>
     <xsd:attribute name="name"     type="xsd:string" use="required"/>
-    <xsd:attribute name="refId"    type="xsd:int" use="required"/>
+    <xsd:attribute name="refId"    type="xsd:int"    use="required"/>
     <xsd:attribute name="category" type="Enum_pedestrian_category" use="required"/>
     <xsd:attribute name="model"    type="xsd:string" use="required"/>
     <xsd:attribute name="mass"     type="xsd:double" use="required"/>

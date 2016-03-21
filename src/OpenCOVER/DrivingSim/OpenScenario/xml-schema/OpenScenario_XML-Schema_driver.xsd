@@ -67,6 +67,7 @@
         <xsd:element name="geometry"    type="OSCFile"/>
     </xsd:all>
     <xsd:attribute name="name"                      type="xsd:string" use="required"/>
+    <xsd:attribute name="refId"                     type="xsd:int"    use="required"/>
     <xsd:attribute name="obeyTrafficLights"         type="xsd:boolean" use="required"/>
     <xsd:attribute name="obeyTrafficSigns"          type="xsd:boolean" use="required"/>
     <xsd:attribute name="steeringDistance"          type="xsd:double" use="required"/>

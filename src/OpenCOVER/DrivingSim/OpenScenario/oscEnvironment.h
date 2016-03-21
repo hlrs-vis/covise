@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_ENVIRONMENT_H
 
 #include "oscExport.h"
-#include "oscNameUserData.h"
+#include "oscNameRefIdUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscFileHeader.h"
@@ -21,7 +21,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscEnvironment: public oscNameUserData
+class OPENSCENARIOEXPORT oscEnvironment: public oscNameRefIdUserData
 {
     
 public:

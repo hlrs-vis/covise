@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<maneuver name="maneuver_generic">
+<maneuver name="maneuver_generic" refId="34976">
 
   <fileHeader revMajor="1" revMinor="1" date="2016-02-15T15:05:00+01:00" description="maneuver - testScenario" author="MK">
     <userDataList>

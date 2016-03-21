@@ -12,7 +12,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscNameUserData.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
 #include "oscFileHeader.h"
 #include "oscObserverTypeB.h"
 
@@ -20,18 +19,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRouting: public oscNameUserData
+class OPENSCENARIOEXPORT oscRouting: public oscNameRefIdUserData
 {
 public:
 	
     oscRouting()
     {
-        OSC_ADD_MEMBER(refId);
         OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_OBJECT_ADD_MEMBER(observer, "oscObserverTypeB");
     };
 
-    oscInt refId;
     oscFileHeaderMember fileHeader;
     oscObserverTypeBMember observer;
 };

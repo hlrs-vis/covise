@@ -107,6 +107,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscMiscObject.h"
 #include "oscNamePriority.h"
 #include "oscNameRefId.h"
+#include "oscNameRefIdUserData.h"
 #include "oscNameUserData.h"
 #include "oscNone.h"
 #include "oscNotify.h"
@@ -328,6 +329,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscMiscObject>("oscMiscObject");
     staticObjectFactory.registerType<oscNamePriority>("oscNamePriority");
     staticObjectFactory.registerType<oscNameRefId>("oscNameRefId");
+    staticObjectFactory.registerType<oscNameRefIdUserData>("oscNameRefIdUserData");
     staticObjectFactory.registerType<oscNameUserData>("oscNameUserData");
     staticObjectFactory.registerType<oscNone>("oscNone");
     staticObjectFactory.registerType<oscNotify>("oscNotify");
