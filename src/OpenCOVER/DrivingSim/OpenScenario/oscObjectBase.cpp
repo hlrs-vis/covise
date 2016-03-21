@@ -305,8 +305,16 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                     ev->enumType = em->enumType;
                                 }
                             }
-                            v->initialize(attribute);
-                            m->setValue(v);
+
+                            bool initializeSuccess = v->initialize(attribute);
+                            if (initializeSuccess)
+                            {
+                                m->setValue(v);
+                            }
+                            else
+                            {
+                                std::cerr << " No value set for attribute '" << attributeName << "' in element '" << this->getOwnMember()->getName() << "'." << std::endl;
+                            }
                         }
                         else
                         {

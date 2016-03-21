@@ -74,8 +74,10 @@ public:
     void deleteMapObjectsInMemory();
 
 private:
-    int getObjectRefIdFromFile(const bf::path &fileNamePath); ///< return refId of the catalog object in file fileNamePath
-    int getIntFromIntAttribute(xercesc::DOMAttr *attribute); ///< read an attribute of type oscMemberValue::INT and return int
+    typedef std::pair<bool, int> SuccessIntVar;
+
+    SuccessIntVar getObjectRefIdFromFile(const bf::path &fileNamePath); ///< return refId of the catalog object in file fileNamePath
+    SuccessIntVar getIntFromIntAttribute(xercesc::DOMAttr *attribute); ///< read an attribute of type oscMemberValue::INT and return int
 };
 
 }
