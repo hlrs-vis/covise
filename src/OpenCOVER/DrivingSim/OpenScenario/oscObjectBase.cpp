@@ -24,12 +24,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscObjectBase::oscObjectBase()
+oscObjectBase::oscObjectBase() :
+        base(NULL),
+        source(NULL),
+        parentObject(NULL),
+        ownMember(NULL)
 {
-    base = NULL;
-    source = NULL;
-    parentObject = NULL;
-    ownMember = NULL;
+
 }
 
 oscObjectBase::~oscObjectBase()

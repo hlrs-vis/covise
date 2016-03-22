@@ -11,6 +11,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <iostream>
 
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/validators/common/Grammar.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
@@ -29,20 +31,21 @@ using namespace OpenScenario;
  * constructor
  *****/
 
-OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
+OpenScenarioBase::OpenScenarioBase() :
+        oscObjectBase(),
         xmlDoc(NULL),
         m_validate(true)
 {
     oscFactories::instance();
 
-    OSC_OBJECT_ADD_MEMBER(fileHeader,"oscFileHeader");
-    OSC_OBJECT_ADD_MEMBER(catalogs,"oscCatalogs");
-    OSC_OBJECT_ADD_MEMBER(roadNetwork,"oscRoadNetwork");
-    OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentReference");
-    OSC_OBJECT_ADD_MEMBER(entities,"oscEntities");
-    OSC_OBJECT_ADD_MEMBER(storyboard,"oscStoryboard");
-    OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscScenarioEnd");
-    OSC_OBJECT_ADD_MEMBER_OPTIONAL(test,"oscTest");
+    OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
+    OSC_OBJECT_ADD_MEMBER(catalogs, "oscCatalogs");
+    OSC_OBJECT_ADD_MEMBER(roadNetwork, "oscRoadNetwork");
+    OSC_OBJECT_ADD_MEMBER(environment, "oscEnvironmentReference");
+    OSC_OBJECT_ADD_MEMBER(entities, "oscEntities");
+    OSC_OBJECT_ADD_MEMBER(storyboard, "oscStoryboard");
+    OSC_OBJECT_ADD_MEMBER(scenarioEnd, "oscScenarioEnd");
+    OSC_OBJECT_ADD_MEMBER_OPTIONAL(test, "oscTest");
 
     base = this;
 
@@ -60,13 +63,13 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
     catch (const xercesc::XMLException &toCatch)
     {
         char *message = xercesc::XMLString::transcode(toCatch.getMessage());
-        std::cerr << "Error during initialization! :\n" << message << std::endl;
+        std::cerr << "Error during xerces initialization! :\n" << message << std::endl;
         xercesc::XMLString::release(&message);
     }
 
-    //parser
+    //parser and error handler have to be initialized _after_ xercesc::XMLPlatformUtils::Initialize()
+    //can't be done in member initializer list
     parser = new xercesc::XercesDOMParser();
-    //error handler
     parserErrorHandler = new ParserErrorHandler();
 
     //generic settings for parser
@@ -106,6 +109,7 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 }
 
 const OpenScenarioBase::FileTypeXsdFileNameMap OpenScenarioBase::s_fileTypeToXsdFileName = initFuncFileTypeToXsd();
+
 
 
 /*****

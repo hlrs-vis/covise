@@ -11,9 +11,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscMemberValue::oscMemberValue()
+oscMemberValue::oscMemberValue() :
+        type(INT)
 {
-    type = INT;
+
 }
 
 oscMemberValue::~oscMemberValue()

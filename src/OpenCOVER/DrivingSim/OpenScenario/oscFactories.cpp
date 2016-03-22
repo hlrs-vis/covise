@@ -211,12 +211,17 @@ oscFactory<oscMemberValue, oscMemberValue::MemberTypes> staticValueFactory;
 
 oscFactories* oscFactories::inst = NULL;
 
-oscFactories::oscFactories()
-{
-    // set default factories
-    objectFactory = &staticObjectFactory;
-    valueFactory = &staticValueFactory;
 
+
+/*****
+ * constructor
+ *****/
+
+oscFactories::oscFactories() :
+        // set default factories
+        objectFactory(&staticObjectFactory),
+        valueFactory(&staticValueFactory)
+{
     // register all built-in types
     staticValueFactory.registerType<oscStringValue>(oscMemberValue::STRING);
     staticValueFactory.registerType<oscIntValue>(oscMemberValue::INT);
@@ -228,6 +233,7 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
+    //register all object types
     // sort alphabetically
     staticObjectFactory.registerType<oscAbsoluteTypeA>("oscAbsoluteTypeA");
     staticObjectFactory.registerType<oscAbsoluteTypeB>("oscAbsoluteTypeB");
@@ -424,11 +430,22 @@ oscFactories::oscFactories()
 //    staticObjectFactory.registerType<>("");
 }
 
+
+
+/*****
+ * destructor
+ *****/
+
 oscFactories::~oscFactories()
 {
 
 }
 
+
+
+/*****
+ * public functions
+ *****/
 
 oscFactories *oscFactories::instance()
 {

@@ -15,9 +15,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscSourceFile::oscSourceFile()
+oscSourceFile::oscSourceFile() :
+        m_xmlDoc(NULL)
 {
-    m_xmlDoc = NULL;
+
 }
 
 oscSourceFile::~oscSourceFile()

@@ -16,7 +16,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscMemberArray::oscMemberArray(): oscMember(), std::vector<oscObjectBase *>()
+oscMemberArray::oscMemberArray() :
+        oscMember(),
+        std::vector<oscObjectBase *>()
 {
 
 }

@@ -66,10 +66,10 @@ void ParserErrorHandler::reportParseException(const xercesc::SAXParseException &
 //
 bf::path OpenScenario::getEnvVariable(const std::string &envVar)
 {
-   //getenv aus <cstdlib>
-   const char *val = std::getenv(envVar.c_str());
+    //getenv aus <cstdlib>
+    const char *val = std::getenv(envVar.c_str());
 
-   return val == NULL ? "" : bf::path(val);
+    return val == NULL ? "" : bf::path(val);
 }
 
 //random string

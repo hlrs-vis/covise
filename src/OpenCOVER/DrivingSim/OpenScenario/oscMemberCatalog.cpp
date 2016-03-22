@@ -27,7 +27,8 @@ using namespace OpenScenario;
  * constructor
  *****/
 
-oscMemberCatalog::oscMemberCatalog(): oscMember()
+oscMemberCatalog::oscMemberCatalog() :
+        oscMember()
 {
 
 }

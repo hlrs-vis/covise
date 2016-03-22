@@ -16,16 +16,18 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscMember::oscMember()
+oscMember::oscMember() :
+        value(NULL),
+        owner(NULL),
+        type(oscMemberValue::MemberTypes::INT),
+        parentMember(NULL)
 {
-    value = NULL;
-    owner = NULL;
-    type = oscMemberValue::MemberTypes::INT;
-    parentMember = NULL;
+
 }
 
 oscMember::~oscMember()
 {
+
 }
 
 
