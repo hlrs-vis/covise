@@ -10,13 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscExport.h"
 
-#include <string>
 #include <map>
-#include <xercesc/util/XercesDefs.hpp>
-XERCES_CPP_NAMESPACE_BEGIN
-class DOMDocument;
-class DOMElement;
-XERCES_CPP_NAMESPACE_END
 
 
 namespace OpenScenario

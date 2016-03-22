@@ -10,6 +10,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <iostream>
 #include <cstdlib>
 
+#include <xercesc/sax/SAXParseException.hpp>
+
 
 using namespace OpenScenario;
 

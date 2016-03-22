@@ -11,8 +11,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <string>
 
 #include <xercesc/sax/ErrorHandler.hpp>
-#include <xercesc/sax/SAXParseException.hpp>
-
+#include <xercesc/util/XercesDefs.hpp>
+XERCES_CPP_NAMESPACE_BEGIN
+class SAXParseException;
+XERCES_CPP_NAMESPACE_END
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
