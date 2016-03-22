@@ -349,8 +349,9 @@ VRViewer::VRViewer()
     reEnableCulling = false;
 
     RenderToTexture = false;
-    const bool glDebug = coCoviseConfig::isOn("GLDebug", false);
+    const bool glDebug = coCoviseConfig::isOn("COVER.GLDebug", false);
     if (glDebug) {
+        std::cerr << "VRViewer: enabling GL debugging" << std::endl;
         setRealizeOperation(new EnableGLDebugOperation());
     }
 
