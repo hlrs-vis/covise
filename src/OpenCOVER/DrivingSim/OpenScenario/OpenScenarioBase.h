@@ -50,7 +50,7 @@ class oscSourceFile;
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
 {
 public:
-    typedef unordered_map<std::string /*XmlFileType*/, bf::path /*XsdFileName*/> FileTypeXsdFileNameMap;
+    typedef unordered_map<std::string /*OscFileType*/, bf::path /*XsdFileName*/> FileTypeXsdFileNameMap;
 
 protected: 
     static const FileTypeXsdFileNameMap s_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)

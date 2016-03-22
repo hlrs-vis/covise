@@ -28,8 +28,8 @@ oscObjectBase::oscObjectBase()
 {
     base = NULL;
     source = NULL;
-    parentObj = NULL;
-    ownMem = NULL;
+    parentObject = NULL;
+    ownMember = NULL;
 }
 
 oscObjectBase::~oscObjectBase()
@@ -42,8 +42,8 @@ oscObjectBase::~oscObjectBase()
 void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s)
 {
     base = b;
-    parentObj = parentObject;
-    ownMem = ownMember;
+    this->parentObject = parentObject;
+    this->ownMember = ownMember;
     source = s;
 }
 
@@ -91,22 +91,22 @@ oscSourceFile *oscObjectBase::getSource() const
 //
 void oscObjectBase::setParentObj(OpenScenarioBase *pObj)
 {
-    parentObj = pObj;
+    parentObject = pObj;
 }
 
 void oscObjectBase::setOwnMember(oscMember *om)
 {
-    ownMem = om;
+    ownMember = om;
 }
 
 oscObjectBase *oscObjectBase::getParentObj() const
 {
-    return parentObj;
+    return parentObject;
 }
 
 oscMember *oscObjectBase::getOwnMember() const
 {
-    return ownMem;
+    return ownMember;
 }
 
 
@@ -378,7 +378,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         {
                             objAMCreated->initialize(base, this, m, srcToUse);
                             m->setValue(objAMCreated);
-                            m->setParentMember(ownMem);
+                            m->setParentMember(ownMember);
                         }
                         else
                         {
@@ -447,7 +447,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         {
                             obj->initialize(base, this, m, srcToUse);
                             m->setValue(obj);
-                            m->setParentMember(ownMem);
+                            m->setParentMember(ownMember);
                             obj->parseFromXML(memberElem, srcToUse);
                         }
                         else

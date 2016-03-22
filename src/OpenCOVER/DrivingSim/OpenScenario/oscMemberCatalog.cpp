@@ -12,9 +12,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <iostream>
 
-#include <boost/algorithm/string.hpp>
-
 #include <xercesc/dom/DOMAttr.hpp>
+
+#include <boost/algorithm/string.hpp>
 
 
 namespace ba = boost::algorithm;

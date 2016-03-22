@@ -9,6 +9,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscFileHeader.h"
 
 #include <iostream>
+#ifdef WIN32
+#include <time.h>
+#endif
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
@@ -18,9 +21,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/dom/DOMLSOutput.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
-#ifdef WIN32
-#include <time.h>
-#endif
 
 
 using namespace OpenScenario;

@@ -60,8 +60,8 @@ protected:
     MemberMap members; ///< list of all member variables
     OpenScenarioBase *base;
     oscSourceFile *source;
-    oscObjectBase *parentObj; ///< the parent of this objectBase
-    oscMember *ownMem; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
+    oscObjectBase *parentObject; ///< the parent of this objectBase
+    oscMember *ownMember; ///< the member which store this objectBase as a valueT in oscObjectVariable, oscObjectVariableArray or oscObjectVariableCatalog
     MemberChoice choice;
     MemberOptional optional;
 

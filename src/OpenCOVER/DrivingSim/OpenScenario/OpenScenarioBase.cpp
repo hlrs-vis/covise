@@ -46,10 +46,10 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase(),
 
     base = this;
 
-    ownMem = new oscMember();
-    ownMem->setName("OpenSCENARIO");
-    ownMem->setTypeName("OpenScenarioBase");
-    ownMem->setValue(this);
+    ownMember = new oscMember();
+    ownMember->setName("OpenSCENARIO");
+    ownMember->setTypeName("OpenScenarioBase");
+    ownMember->setValue(this);
 
     //in order to work with the Xerces-C++ parser, the XML subsystem must be initialized first
     //every call of XMLPlatformUtils::Initialize() must have a matching call of XMLPlatformUtils::Terminate() (see destructor)
