@@ -579,6 +579,8 @@ void coVRMSController::connectToMaster(const char *addr, int port)
 
 void coVRMSController::sendSlaves(const Message *msg)
 {
+    assert(isMaster());
+
     if (syncMode == SYNC_MULTICAST)
     {
 #if !defined(NOMCAST) && defined(HAVE_NORM)
@@ -639,6 +641,8 @@ void coVRMSController::sendSlaves(const Message *msg)
 
 int coVRMSController::readMaster(Message *msg)
 {
+    assert(isSlave());
+
 #if !defined(NOMCAST) && defined(HAVE_NORM)
     if (syncMode == SYNC_MULTICAST)
     {
@@ -754,6 +758,8 @@ int coVRMSController::readMaster(Message *msg)
 
 void coVRMSController::sendMaster(const Message *msg)
 {
+    assert(isSlave());
+
 #ifdef HAS_MPI
     if (syncMode == SYNC_MPI)
     {
@@ -803,6 +809,8 @@ void coVRMSController::sendMaster(const Message *msg)
 // Default for readMaster: if multicast is set, do not send over TCP
 int coVRMSController::readMaster(void *c, int n)
 {
+    assert(isSlave());
+
     return readMaster(c, n, false);
 }
 // bool mcastOverTCP: if using multicast, control whether to read via TCP socket
@@ -810,6 +818,8 @@ int coVRMSController::readMaster(void *c, int n)
 //   SyncMode is Multicast AND (connecting OR syncing)
 int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
 {
+    assert(isSlave());
+
     int ret, read = 0;
     double startTime = 0.0;
 #if defined(NOMCAST) || !defined(HAVE_NORM)
@@ -923,6 +933,8 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
 
 void coVRMSController::sendMaster(const void *c, int n)
 {
+    assert(isSlave());
+
     int ret;
     double startTime = 0.0;
     if (drawStatistics)
@@ -958,11 +970,17 @@ void coVRMSController::sendMaster(const void *c, int n)
 
 int coVRMSController::readSlave(int slaveNum, void *data, int num)
 {
+    assert(isMaster());
+    assert(slaveNum >= 0);
+    assert(slaveNum < getNumSlaves());
+
     return slaves[slaveNum]->read(data, num);
 }
 
 int coVRMSController::readSlaves(SlaveData *c)
 {
+    assert(isMaster());
+
     int i;
     int ret = 0;
     double startTime = 0.0;
@@ -991,6 +1009,8 @@ int coVRMSController::readSlaves(SlaveData *c)
 // Default for readMasterDraw: if multicast is set, do not send over TCP
 int coVRMSController::readMasterDraw(void *c, int n)
 {
+    assert(isSlave());
+
     return readMasterDraw(c, n, false);
 }
 // bool mcastOverTCP: if using multicast, control whether to read via TCP socket
@@ -998,6 +1018,8 @@ int coVRMSController::readMasterDraw(void *c, int n)
 //   SyncMode is Multicast AND (connecting OR syncing)
 int coVRMSController::readMasterDraw(void *c, int n, bool mcastOverTCP)
 {
+    assert(isSlave());
+
 #if defined(NOMCAST) || !defined(HAVE_NORM)
     (void)mcastOverTCP;
 #else
@@ -1045,6 +1067,8 @@ int coVRMSController::readMasterDraw(void *c, int n, bool mcastOverTCP)
 
 void coVRMSController::sendMasterDraw(const void *c, int n)
 {
+    assert(isSlave());
+
 #ifdef HAS_MPI
     if (syncMode == SYNC_MPI)
     {
@@ -1069,6 +1093,8 @@ void coVRMSController::sendMasterDraw(const void *c, int n)
 
 int coVRMSController::readSlavesDraw(void *c, int n)
 {
+    assert(isMaster());
+
     int i;
     int ret;
     for (i = 0; i < numSlaves; i++)
@@ -1095,6 +1121,8 @@ int coVRMSController::readSlavesDraw(void *c, int n)
 
 void coVRMSController::sendSlavesDraw(const void *c, int n)
 {
+    assert(isMaster());
+
 #if !defined(NOMCAST) && defined(HAVE_NORM)
     if (syncMode == SYNC_MULTICAST)
     {
@@ -1269,6 +1297,10 @@ void coVRMSController::syncDraw()
 
 void coVRMSController::sendSlave(int i, const void *c, int n)
 {
+    assert(isMaster());
+    assert(i >= 0);
+    assert(i < getNumSlaves());
+
     double startTime = 0.0;
     if (drawStatistics)
     {
@@ -1292,6 +1324,8 @@ void coVRMSController::sendSlave(int i, const void *c, int n)
 
 void coVRMSController::sendSlaves(const SlaveData &data)
 {
+    assert(isMaster());
+
     int i;
     double startTime = 0.0;
     if (drawStatistics)
@@ -1323,6 +1357,8 @@ void coVRMSController::sendSlaves(const SlaveData &data)
 
 void coVRMSController::sendSlaves(const void *c, int n)
 {
+    assert(isMaster());
+
     int i;
     double startTime = 0.0;
     if (drawStatistics)
