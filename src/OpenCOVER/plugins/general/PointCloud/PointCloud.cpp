@@ -302,7 +302,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     int id=0;
                     char type[1000];
                     float dummy=0.f;
-                    int numValues = sscanf(buf, "%d %s %f %f %f", &id, type, &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &dummy);
+                    int numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &dummy);
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
                 }
                 else if (commaSeparated)
