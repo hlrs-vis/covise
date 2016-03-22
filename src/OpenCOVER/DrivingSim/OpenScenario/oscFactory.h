@@ -21,7 +21,6 @@ namespace OpenScenario
 template <typename T, typename TType>
 class oscFactory
 {
-
 public:
     virtual ~oscFactory() {} ///< destructor
     

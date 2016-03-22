@@ -19,6 +19,7 @@ class oscObjectBase;
 
 class OPENSCENARIOEXPORT oscFactories
 {
+private:
     oscFactories();
     ~oscFactories();
 
