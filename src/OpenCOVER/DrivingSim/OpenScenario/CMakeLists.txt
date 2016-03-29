@@ -125,6 +125,7 @@ SET(HEADERS
    oscObjects.h
    oscObjectVariable.h
    oscObjectVariableArray.h
+   oscObjectVariableBase.h
    oscObjectVariableCatalog.h
    oscObserverId.h
    oscObserverTypeA.h
