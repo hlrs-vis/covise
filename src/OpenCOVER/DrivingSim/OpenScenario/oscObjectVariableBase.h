@@ -43,7 +43,7 @@ public:
         return valueT;
     };
 
-    oscObjectBase *getGenerateObject()
+    oscObjectBase *getOrCreateObject()
     {
         if (valueT == NULL)
         {

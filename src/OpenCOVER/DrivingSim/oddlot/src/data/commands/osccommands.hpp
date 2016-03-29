@@ -273,7 +273,7 @@ public:
 
 	newOSCValue_ = value;
 	OpenScenario::oscMember *member = object->getMember(memberName);
-	v_ = member->getGenerateValue();
+	v_ = member->getOrCreateValue();
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

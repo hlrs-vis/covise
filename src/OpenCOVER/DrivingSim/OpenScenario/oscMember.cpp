@@ -102,7 +102,7 @@ oscMemberValue *oscMember::getValue()
 	return value;
 }
 
-oscMemberValue *oscMember::getGenerateValue()
+oscMemberValue *oscMember::getOrCreateValue()
 {
     if (!value)
     {
@@ -130,7 +130,7 @@ oscObjectBase *oscMember::getObject() const
     return NULL;
 }
 
-oscObjectBase *oscMember::getGenerateObject()
+oscObjectBase *oscMember::getOrCreateObject()
 {
     return NULL;
 }

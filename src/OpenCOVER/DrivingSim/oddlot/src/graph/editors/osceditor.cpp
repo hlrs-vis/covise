@@ -200,9 +200,9 @@ bool
 OpenScenarioEditor::translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t)
 {
 	OSCElement *oscElement = oscBase_->getOSCElement(object);
-	OpenScenario::oscObjectBase *oscPosition = object->getMember("initPosition")->getGenerateObject();
-	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
-	oscStringValue *roadId = dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getGenerateValue());
+	OpenScenario::oscObjectBase *oscPosition = object->getMember("initPosition")->getOrCreateObject();
+	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getOrCreateObject();
+	oscStringValue *roadId = dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getOrCreateValue());
 
 	getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Object"));
 
@@ -270,15 +270,15 @@ OSCElement *
 OpenScenarioEditor::getCatalog(std::string name)
 {
 	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-	OpenScenario::oscObjectBase *catalogObject = openScenarioBase->getMember("catalogs")->getGenerateObject();
+	OpenScenario::oscObjectBase *catalogObject = openScenarioBase->getMember("catalogs")->getOrCreateObject();
 
 	OpenScenario::oscMember *catalogMember = catalogObject->getMember(name);
 	if (!catalogMember)
 	{
-		catalogObject = catalogObject->getMember("objectCatalog")->getGenerateObject();
+		catalogObject = catalogObject->getMember("objectCatalog")->getOrCreateObject();
 		catalogMember = catalogObject->getMember(name);
 	}
-	OpenScenario::oscObjectBase *catalog = catalogMember->getGenerateObject();
+	OpenScenario::oscObjectBase *catalog = catalogMember->getOrCreateObject();
 	oscBase_->getOSCElement(catalogObject);
 	OSCElement *oscElement = oscBase_->getOSCElement(catalog);
 
@@ -336,10 +336,10 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 					{
 						// Create new object //
 						OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-						OpenScenario::oscObjectBase *entitiesObject = openScenarioBase->getMember("entities")->getGenerateObject();
+						OpenScenario::oscObjectBase *entitiesObject = openScenarioBase->getMember("entities")->getOrCreateObject();
 
-						OpenScenario::oscObjectBase *entities = entitiesObject->getMember("objects")->getGenerateObject();
-						OpenScenario::oscObject *entity = dynamic_cast<OpenScenario::oscObject *>(entities->getMember("object")->getGenerateObject());
+						OpenScenario::oscObjectBase *entities = entitiesObject->getMember("objects")->getOrCreateObject();
+						OpenScenario::oscObject *entity = dynamic_cast<OpenScenario::oscObject *>(entities->getMember("object")->getOrCreateObject());
 
 						translateObject(entity, road->getID(), s, t);
 
@@ -354,8 +354,8 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 						// Catalog reference //
 						//
 						std::string type("vehicle");
-						OpenScenario::oscCatalogReferenceTypeA * catalogRefA = dynamic_cast<OpenScenario::oscCatalogReferenceTypeA *>(entity->getMember("catalogReference")->getGenerateObject());
-						dynamic_cast<oscStringValue *>(catalogRefA->getMember("catalogId")->getGenerateValue())->setValue(type);
+						OpenScenario::oscCatalogReferenceTypeA * catalogRefA = dynamic_cast<OpenScenario::oscCatalogReferenceTypeA *>(entity->getMember("catalogReference")->getOrCreateObject());
+						dynamic_cast<oscStringValue *>(catalogRefA->getMember("catalogId")->getOrCreateValue())->setValue(type);
 
 						new OSCElement(QString::fromStdString(type), entity);
 	//					OSCItem *oscItem = new OSCItem(oscRoadSystemItem_, entity, selectedObject, mousePoint);  

@@ -334,7 +334,7 @@ OSCObjectSettings::updateProperties()
 				continue;
 			} 
 
-			OpenScenario::oscMemberValue *value = member->getGenerateValue();
+			OpenScenario::oscMemberValue *value = member->getOrCreateValue();
 
 			if (QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value()))
 			{
@@ -506,7 +506,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 void 
 OSCObjectSettings::onPushButtonPressed(QString name)
 {
-	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->getGenerateObject();
+	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->getOrCreateObject();
 
 	OSCElement *memberElement = base_->getOSCElement(object);
 
