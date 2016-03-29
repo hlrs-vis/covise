@@ -34,7 +34,7 @@
 #include <do/coDoPolygons.h>
 
 ReadCSVPoly::ReadCSVPoly(int argc, char *argv[])
-    : coModule(argc, argv, "Simple Wavefront OBJ Reader")
+    : coModule(argc, argv, "Read polygons stored as CSV")
 {
     // the output port
     polygonPort = addOutputPort("polygons", "Polygons", "geometry polygons");

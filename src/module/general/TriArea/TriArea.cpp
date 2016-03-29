@@ -26,7 +26,7 @@ float vnorm(float* v);
 void xprod(float* a, float* b, float* c);
 
 TriArea::TriArea(int argc, char *argv[])
-    : coSimpleModule(argc, argv, "Work out normals for lines")
+    : coSimpleModule(argc, argv, "Compute triangle area or edge lengths")
 {
     //select normaltype
     p_normalstyle = addChoiceParam("LineNormalStyle", "Which Normal Style For Lines");

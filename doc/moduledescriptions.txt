@@ -49,8 +49,14 @@ Filter/StretchSet:  Stretch data in transient datasets
 Filter/SwitchData:  Output a selectable input object
 Filter/Triangulate:  Delaunay Triangulator
 Filter/VariantMarker:  Set as variant
+General/TGenDat:  Generate timestep data
+HLRS/archflow:  archflow
+HLRS/PLMXMLRechenraum:  PLMXMLRechenraum
 HLRS/ReadSim:  ReadSim Simulation
 HLRS/ReadSim2:  Reads (a set) of VTK-files
+HLRS/Rechenraum:  rechenraum
+HLRS/sc2004booth:  sc2004booth
+HLRS/SurfaceDemo:  SurfaceDemo
 Interpolator/CellToVert:  interpolates per-cell data to per-vertex data
 Interpolator/Interpolate:  Interpolation module
 Interpolator/Sample:  Sample data on points, unstructured and uniform grids to a uniform grid
@@ -58,12 +64,6 @@ IO/CoverDocument:  Cover Document Viewer access module
 IO/ExtractTexCoords:  extract texture coords of polygon objects for LIC
 IO/GenDat:  Generate data
 IO/LoadCadData:  Read CAD data
-IO/ReadIhs:  Read data from Ihs FENFLOSS
-IO/ReadIHS2:  Read data from Ihs FENFLOSS
-IO/ReadIhsGeo:  Read data from Ihs FENFLOSS
-IO/ReadIhsGrid:  Read data from Ihs FENFLOSS
-IO/ReadTecplot:  Tecplot file reader V 1.0b
-IO/SGen_ihs:  IHS Schaufelgenerator
 IO/PerformerScene:  Fake read for Performer Models
 IO/ReadA3R:  Simple ReadA3R Generation Module
 IO/ReadABAQUS:  Read odb ABAQUS-files
@@ -81,6 +81,7 @@ IO/ReadCGNS-ihs:  CGNS Reader
 IO/ReadCGNS-spbgpu:  CGNS Reader alpha
 IO/ReadCOMSOLData:  Read COMSOLData mesh and data
 IO/ReadCSV:  Read CSV data
+IO/ReadCSVPoly:  Read polygons stored as CSV
 IO/ReadDasim:  Dasim Reader
 IO/ReadDyna3D:  Read LS-DYNA3D ptf files
 IO/ReadEAS:  Read iag EAS mesh and data
@@ -97,6 +98,10 @@ IO/ReadIBB:  Read module for IBB GID files
 IO/ReadIdea:  Idea Reader
 IO/ReadIFF:  Read ITT's simulation data
 IO/ReadIFUtxt:  READ IFU Measurements and simulation results
+IO/ReadIhs:  Read data from Ihs FENFLOSS
+IO/ReadIHS2:  Read data from Ihs FENFLOSS
+IO/ReadIhsGeo:  Read data from Ihs FENFLOSS
+IO/ReadIhsGrid:  Read data from Ihs FENFLOSS
 IO/ReadITA:  Read ITA field data
 IO/ReadITT:  Read ITT's simulation data
 IO/ReadIv:  Read Cassified Volumes data
@@ -110,6 +115,7 @@ IO/ReadMeteoCosmo:  Read Meteo Cosmo Data.
 IO/ReadMovieBYU:  Read file MovieBYU  v1.42
 IO/ReadMPAPDB:  Reader for MPA PDB files
 IO/ReadN3s:  Generic ASCII-File Reader for N3S 3.2
+IO/ReadNas:  Read NAS
 IO/ReadNasASC:  Read TECPLOT data
 IO/ReadNastran:  Read NASTRAN output2 files
 IO/ReadNetCDF:  NetCDF Reader
@@ -120,6 +126,7 @@ IO/ReadPlot3D:  Read Plot3D files
 IO/ReadPLUTO:  Read PLUTO
 IO/ReadPLY:  Read Stanford PLY files.
 IO/ReadPress:  Reader for MPA PDB files
+IO/ReadPTV:  Read PTV files containing lists of particle positions and their velocities.
 IO/ReadRel:  File reader for formatted Fluent(R) files V 0.99b
 IO/ReadRFL:  Reads stationary and instationary ANSYS Flotran Result files
 IO/ReadSand:  Read data from ica1
@@ -129,6 +136,7 @@ IO/ReadSoundVol:  SoundVol Reader
 IO/ReadStar:  Read grid from Star-CD File09
 IO/ReadStarDrop:  Star Droplet file reader
 IO/ReadStl:  Read STL
+IO/ReadTecplot:  Tecplot file reader V 1.0b
 IO/ReadTree:  Read Cassified Volumes data
 IO/ReadUFF:  Reader for universal files
 IO/ReadVolume:  Read volume files or create a volume from 2D slice images.
@@ -141,6 +149,7 @@ IO/RW_AVS_TriMesh:  Reads or writes triangle meshes in the INDEX exchange format
 IO/RWCovise:  Read OR Write COVISE Data
 IO/RWCoviseASCII:  Read/write COVISE ASCII files
 IO/RWCoviseGroup:  Read/Write group of COVISE files
+IO/SGen_ihs:  IHS Schaufelgenerator
 IO/WriteASC:  Generate ASCII file from Covise Object
 IO/WriteCGNS:  Write Unstructured Grid to cgns file
 IO/WritePatran:  Writing of Geometry in Patran Format
@@ -163,7 +172,7 @@ Obsolete/TracerUsg:  Generate streamlines from an unstr. data set
 Renderer/IvRenderer:  OpenInventor 2.0 Renderer
 Renderer/OpenCOVER:  VR-Renderer
 Renderer/Plot:  XMGR Plot Module
-Renderer/QtRenderer:  
+Renderer/QtRenderer:  Qt/Coin3D (Inventor) Renderer
 Renderer/VRMLRenderer:  VRML Renderer
 Simulation/CFX:  CFX Simulation
 Simulation/CoolEmAllServerRoom:  rechenraum
@@ -198,6 +207,7 @@ Tools/MergeSets:  merge polygons from set into one object
 Tools/MinMax:  Find Minimum and Maximum values
 Tools/MixColors:  Mix colors according to their tranparency
 Tools/OceanDepth:  Ocean depth level converter
+Tools/ParticleTrails:  Create trails for particles
 Tools/PipelineCollect:  gamble parts of a set
 Tools/PressureLevels:  Hybrid sigma pressure level converter
 Tools/Probe3D:  Probe 3d module
@@ -212,16 +222,12 @@ Tools/SplitGeometry:  Split Geometry objects into grid, colors, normals, and tex
 Tools/TensorScal:  Calculate invariants from Tensors
 Tools/TraceLineExtractor:  Traceline extractor
 Tools/Transform:  transform geometry
+Tools/TriArea:  Compute triangle area or edge lengths
 Tools/Tube:  Make tubes from lines
 Tools/VectorScal:  Convert Vectors to Scalars
+Tools/VolumeCollect:  Combine grid, normals, colors, textures and vertex attributes in one data object for rendering
 Tracer/Tracer:  Tracer
 Tracer/TracerComp:  Tracer
-UnderDev/archflow:  archflow
-UnderDev/PLMXMLRechenraum:  PLMXMLRechenraum
-UnderDev/Rechenraum:  rechenraum
-UnderDev/sc2004booth:  sc2004booth
-UnderDev/SurfaceDemo:  SurfaceDemo
-UnderDev/TGenDat:  Generate timestep data
 Univiz/FieldToLines:  Field To Lines
 Univiz/FLE:  Finite Lyapunov Exponents
 Univiz/FlowTopo:  Flow Topology
