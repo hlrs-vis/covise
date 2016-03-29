@@ -18,6 +18,7 @@
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "lane.hpp"
+#include <cmath>
 
 //####################//
 // Constructors       //

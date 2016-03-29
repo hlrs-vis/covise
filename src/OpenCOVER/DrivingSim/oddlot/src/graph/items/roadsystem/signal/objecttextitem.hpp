@@ -14,7 +14,7 @@
 **************************************************************************/
 
 #ifndef OBJECTTEXTITEM_HPP
-#define OBJECTEXTITEM_HPP
+#define OBJECTTEXTITEM_HPP
 
 #include "src/graph/items/graphelement.hpp"
 

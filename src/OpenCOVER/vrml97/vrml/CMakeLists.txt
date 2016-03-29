@@ -385,6 +385,7 @@ ENDIF()
 
 if(APPLE)
    add_covise_compile_flags(coVRML "-Wno-deprecated")
+   add_covise_compile_flags(coVRML "-Wno-error=shift-negative-value")
 endif()
 
 COVISE_WNOERROR(coVRML BASEARCH chuckwalla stromboli waran gecko skink dornteufel lurchi basilisk neuffen leopard)

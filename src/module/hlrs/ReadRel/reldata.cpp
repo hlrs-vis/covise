@@ -1880,15 +1880,14 @@ int RELDATA::GetFaceID(int *punkte, int size, ECHAIN *neuflaechen, ECHAIN *neuka
     ECHAIN *act;
     //Generates C4189
     //int id=0,
-    int i, k;
-    int *p, *tmp;
-    int *op = new int[size];
-    BOOL equal;
 
-    memcpy(op, punkte, sizeof(int) * size);
-    tmp = MergeSort(op, size);
-    delete op;
-    op = tmp;
+    int *op = NULL;
+    {
+        int *tmp = new int[size];
+        memcpy(tmp, punkte, sizeof(int) * size);
+        op = MergeSort(tmp, size);
+        delete[] tmp;
+    }
 
     // Erst die neue Kette durchsuchen
     if (neuflaechen != NULL)
@@ -1898,21 +1897,20 @@ int RELDATA::GetFaceID(int *punkte, int size, ECHAIN *neuflaechen, ECHAIN *neuka
         {
             if (act->element->e_anz == size)
             {
-                p = GetNodes(act->element);
-                tmp = MergeSort(p, size);
-                delete p;
-                p = tmp;
+                int *tmp = GetNodes(act->element);
+                int *p = MergeSort(tmp, size);
+                delete[] tmp;
                 // Vergleiche p und op
-                equal = TRUE;
-                for (k = 0; k < size && equal == TRUE; ++k)
+                BOOL equal = TRUE;
+                for (int k = 0; k < size && equal == TRUE; ++k)
                 {
                     if (p[k] != op[k])
                         equal = FALSE;
                 }
-                delete p;
+                delete[] p;
                 if (equal)
                 {
-                    delete op;
+                    delete[] op;
                     return (act->id);
                 }
             }
@@ -1921,32 +1919,31 @@ int RELDATA::GetFaceID(int *punkte, int size, ECHAIN *neuflaechen, ECHAIN *neuka
     }
 
     // Jetzt den Bestand
-    for (i = 0; i < anz_eflaechen; ++i)
+    for (int i = 0; i < anz_eflaechen; ++i)
     {
         if (eflaeche[i].e_anz == size)
         {
-            p = GetNodes(&eflaeche[i], neukanten);
-            tmp = MergeSort(p, size);
-            delete p;
-            p = tmp;
+            int *tmp = GetNodes(&eflaeche[i], neukanten);
+            int *p = MergeSort(tmp, size);
+            delete[] tmp;
             // Vergleiche p und op
-            equal = TRUE;
-            for (k = 0; k < size && equal == TRUE; ++k)
+            BOOL equal = TRUE;
+            for (int k = 0; k < size && equal == TRUE; ++k)
             {
                 if (p[k] != op[k])
                     equal = FALSE;
             }
-            delete p;
+            delete[] p;
             if (equal)
             {
-                delete op;
+                delete[] op;
                 return (eflaeche[i].id);
             }
         }
     }
 
     // Nicht gefunden
-    delete op;
+    delete[] op;
     return (0);
 }
 

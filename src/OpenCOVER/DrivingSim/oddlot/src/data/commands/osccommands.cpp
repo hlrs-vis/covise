@@ -277,11 +277,12 @@ AddOSCEnumValueCommand::undo()
 }
 
 
+#if 0
 //#########################//
 // RemoveOSCValueCommand //
 //#########################//
 
-/*RemoveOSCValueCommand::RemoveOSCValueCommand(OSCElement *element, DataCommand *parent) // or oscObjectBase ??
+RemoveOSCValueCommand::RemoveOSCValueCommand(OSCElement *element, DataCommand *parent) // or oscObjectBase ??
     : DataCommand(parent)
 	, element_(element)
 {
@@ -306,7 +307,7 @@ AddOSCEnumValueCommand::undo()
 /*! \brief .
 *
 */
-/*RemoveOSCValueCommand::~RemoveOSCValueCommand()
+RemoveOSCValueCommand::~RemoveOSCValueCommand()
 {
     // Clean up //
     //
@@ -323,7 +324,7 @@ AddOSCEnumValueCommand::undo()
 /*! \brief .
 *
 */
-/*void
+void
 RemoveOSCValueCommand::redo()
 {
     element_->setObjectBase(NULL);				// todo: delete OpenScenario object/member
@@ -337,7 +338,7 @@ RemoveOSCValueCommand::redo()
 /*! \brief
 *
 */
-/*void
+void
 RemoveOSCValueCommand::undo()
 {
     element_->setObjectBase(object_);
@@ -346,7 +347,8 @@ RemoveOSCValueCommand::undo()
 	element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
 
     setUndone();
-}*/
+}
+#endif
 
 
 

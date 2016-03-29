@@ -317,9 +317,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // ProfileGraph //
         //
-        if ((id == ODD::EEL)
-            || (id == ODD::ESE)
-            || (id == ODD::ECF))
+        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF)
         {
             profileGraph_->show();
         }
@@ -330,7 +328,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // HeightGraph //
         //
-        if ((id == ODD::ELN))
+        if (id == ODD::ELN)
         {
             heightGraph_->show();
         }

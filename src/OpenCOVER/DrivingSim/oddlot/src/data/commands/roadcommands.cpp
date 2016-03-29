@@ -1293,7 +1293,7 @@ ChangeLanePrototypeCommand::ChangeLanePrototypeCommand(RSystemElementRoad *road,
 
     // Check for validity //
     //
-    if (!road_ || !prototype_ && !prototype_->getLaneSections().empty())
+    if (!road_ || !prototype_ || prototype_->getLaneSections().empty())
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Change (invalid!)"));
@@ -1413,7 +1413,7 @@ ChangeRoadTypePrototypeCommand::ChangeRoadTypePrototypeCommand(RSystemElementRoa
 
     // Check for validity //
     //
-    if (!road_ || !prototype_ && !prototype_->getTypeSections().empty())
+    if (!road_ || !prototype_ || prototype_->getTypeSections().empty())
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Change (invalid!)"));
@@ -1532,7 +1532,7 @@ ChangeElevationPrototypeCommand::ChangeElevationPrototypeCommand(RSystemElementR
 
     // Check for validity //
     //
-    if (!road_ || !prototype_ && !prototype_->getElevationSections().empty())
+    if (!road_ || !prototype_ || prototype_->getElevationSections().empty())
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Change (invalid!)"));
@@ -1652,7 +1652,7 @@ ChangeSuperelevationPrototypeCommand::ChangeSuperelevationPrototypeCommand(RSyst
 
     // Check for validity //
     //
-    if (!road_ || !prototype_ && !prototype_->getSuperelevationSections().empty())
+    if (!road_ || !prototype_ || prototype_->getSuperelevationSections().empty())
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Change (invalid!)"));
@@ -1772,7 +1772,7 @@ ChangeCrossfallPrototypeCommand::ChangeCrossfallPrototypeCommand(RSystemElementR
 
     // Check for validity //
     //
-    if (!road_ || !prototype_ && !prototype_->getCrossfallSections().empty())
+    if (!road_ || !prototype_ || prototype_->getCrossfallSections().empty())
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Change (invalid!)"));

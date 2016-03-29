@@ -216,6 +216,9 @@ OSCObjectSettings::uiInit()
 					oscSpinBox->setMaximum(USHRT_MAX);
 					break;
 				}
+            default:
+                assert("member->getType() not handled"==0);
+                break;
 			}
 			memberWidgets_.insert(memberName, oscSpinBox);	
 			objectGridLayout->addWidget(oscSpinBox, row, 1);
@@ -251,6 +254,9 @@ OSCObjectSettings::uiInit()
 					oscSpinBox->setMaximum(1.0e+10);
 					break;
 				}
+            default:
+                assert("member->getType() not handled"==0);
+                break;
 			}
 			memberWidgets_.insert(memberName, oscSpinBox);	
 			objectGridLayout->addWidget(oscSpinBox, row, 1);
@@ -489,8 +495,10 @@ OSCObjectSettings::onEditingFinished(QString name)
 
 				break;
 			}
-
-			//TODO: Date, time
+		case OpenScenario::oscMemberValue::MemberTypes::OBJECT:
+		case OpenScenario::oscMemberValue::MemberTypes::DATE_TIME:
+			//TODO
+            break;
 		}
 		valueChanged_ = false;
 	}

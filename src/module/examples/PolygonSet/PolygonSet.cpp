@@ -103,7 +103,7 @@ int PolygonSet::compute(const char *port)
         // cleanup: do NOT delete polygonObjects[i] - coDoSet c'tor did it.
         //          do NOT delete setObject         - assigned to port
         delete polygonObjects;
-        delete objName;
+        delete[] objName;
 
         return CONTINUE_PIPELINE;
     }
