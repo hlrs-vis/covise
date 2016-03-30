@@ -46,8 +46,16 @@ protected:
     enum MemberTypes type;
 
 public:
-    oscMemberValue(); ///< constructor
-    virtual ~oscMemberValue(); ///< destructor
+    oscMemberValue() : ///< constructor
+            type(INT)
+    {
+
+    };
+
+    virtual ~oscMemberValue() ///< destructor
+    {
+
+    };
 
     // set the value with the specified type instead of using initialize(), done in oscValue
     virtual void setValue(const int &t) { };
@@ -60,8 +68,12 @@ public:
     virtual void setValue(const bool &t) { };
     virtual void setValue(const float &t) { };
 
-    MemberTypes getType() const; ///< return the type of this value
-    virtual bool initialize(xercesc::DOMAttr *);
+    MemberTypes getType() const ///< return the type of this value
+    {
+        return type;
+    };
+
+    virtual bool initialize(xercesc::DOMAttr *) = 0;
 
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name) = 0;
 };

@@ -227,7 +227,6 @@ SET(SOURCES
    oscMember.cpp
    oscMemberArray.cpp
    oscMemberCatalog.cpp
-   oscMemberValue.cpp
    oscNamePriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp
