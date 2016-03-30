@@ -29,7 +29,6 @@
 #include <osg/Shape>
 #include <osg/Geode>
 #include <osg/CullFace>
-#include <osg/Switch>
 #include <osg/Sequence>
 #include <osg/Geometry>
 #include <osg/BlendFunc>
@@ -289,8 +288,7 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
         }
     }
 
-    //switchNode=new osg::Sequence();
-    switchNode = new osg::Switch();
+    switchNode=new osg::Sequence();
     if (shaderName.length() > 1)
     {
         cerr << "trying shader " << shaderName << endl;
@@ -785,7 +783,7 @@ int Particles::readBinaryTimestep(int timestep)
         geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
     }
     switchNode->addChild(geode);
-    switchNode->setSingleChildOn(timestep);
+    switchNode->setValue(timestep);
 
     delete[] xc;
     delete[] yc;
@@ -960,12 +958,13 @@ int Particles::readIMWFFile(char *fn, int timestep)
         }
         fseek(fp, 0, SEEK_SET);
 
-        if (timestep % 10 == 0)
+        if (timestep % 30 == 0)
         {
             sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
             OpenCOVER::instance()->hud->setText2(buf);
             OpenCOVER::instance()->hud->redraw();
-            switchNode->setAllChildrenOff();
+            switchNode->setValue(timestep);
+            //switchNode->setAllChildrenOff();
         }
 
         //42 1 1.572263 1.326834 62.641356 14.000000 14.000000 0.000000 0.000000
@@ -1434,9 +1433,9 @@ void Particles::updateColors(unsigned int valueNumber, unsigned int aValueNumber
 void Particles::setTimestep(int i)
 {
     //switchNode->setAllChildrenOff();
-    //switchNode->setValue(i,true);
+    switchNode->setValue(i);
 
-    switchNode->setSingleChildOn(i);
+    //switchNode->setSingleChildOn(i);
 }
 
 //destructor

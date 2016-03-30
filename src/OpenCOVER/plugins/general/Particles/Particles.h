@@ -69,7 +69,7 @@ public:
 
 private:
     int numTimesteps;
-    osg::Switch *switchNode;
+    osg::Sequence *switchNode;
     FILE *fp;
     std::string shaderName;
     std::vector<std::string> variableNames;
