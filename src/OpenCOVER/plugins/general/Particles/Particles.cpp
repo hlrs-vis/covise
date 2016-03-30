@@ -221,22 +221,27 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
     int minNumber;
     ParticleMode = M_PARTICLES;
     lineColor.set(0, 0, 1, 1);
-    imwfFormat = false;
-    std::string suffix;
-    if (filename.length() > 6 && strcmp(filename.c_str() + filename.length() - 5, "coord") == 0)
+    format = Particle;
+    std::string suffix = "particle";
+    if (filename.length() > 6 && strcmp(filename.c_str() + filename.length() - 6, ".coord") == 0)
     {
-        imwfFormat = true;
+        format = IMWF;
         suffix = "coord";
     }
-    if (filename.length() > 6 && strcmp(filename.c_str() + filename.length() - 5, "chkpt") == 0)
+    if (filename.length() > 6 && strcmp(filename.c_str() + filename.length() - 6, ".chkpt") == 0)
     {
-        imwfFormat = true;
+        format = IMWF;
         suffix = "chkpt";
     }
-    if (filename.length() > 6 && strcmp(filename.c_str() + filename.length() - 5, "crist") == 0)
+    if (filename.length() > 6 && strcmp(filename.c_str() + filename.length() - 6, ".crist") == 0)
     {
-        imwfFormat = true;
+        format = IMWF;
         suffix = "crist";
+    }
+    if (filename.length() > 7 && strcmp(filename.c_str() + filename.length() - 7, ".indent") == 0)
+    {
+        format = Indent;
+        suffix = "indent";
     }
     size_t pos = filename.find("line");
     std::string filenamebegin = filename.substr(0, pos);
@@ -307,9 +312,15 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
     size_t found = filenamebegin.rfind('.');
     if (found != string::npos)
     {
-        if (imwfFormat)
+        if (format == IMWF)
         {
             found -= 6;
+        }
+        else if (format == Indent)
+        {
+            found = filenamebegin.rfind('.', found-1);
+            if (found == std::string::npos)
+                found = 0;
         }
 
         sscanf(filenamebegin.c_str() + found + 1, "%d", &minNumber);
@@ -318,9 +329,13 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
         while (true)
         {
             char *tmpFileName = new char[found + 200];
-            if (imwfFormat)
+            if (format == IMWF)
             {
                 sprintf(tmpFileName, "%s%05d.%s", filebeg.c_str(), minNumber + numTimesteps, suffix.c_str());
+            }
+            else if (format == Indent)
+            {
+                sprintf(tmpFileName, "%s%d.%s", filebeg.c_str(), minNumber + numTimesteps, suffix.c_str());
             }
             else
             {
@@ -338,16 +353,36 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                 break;
             }
         }
+        std::cerr << "found " << numTimesteps << " timesteps" << std::endl;
+        int skipfact = 1;
+        if (numTimesteps > 1000)
+        {
+            skipfact = numTimesteps/1000;
+        }
+        if (skipfact < 1)
+            skipfact = 1;
+        numTimesteps /= skipfact;
         if (numTimesteps > 0)
         {
             timesteps = new TimeStepData *[numTimesteps];
             for (int i = 0; i < numTimesteps; i++)
             {
                 char *tmpFileName = new char[found + 200];
-                if (imwfFormat)
+                if (format == IMWF)
                 {
-                    sprintf(tmpFileName, "%s%05d.%s", filebeg.c_str(), minNumber + i, suffix.c_str());
+                    sprintf(tmpFileName, "%s%05d.%s", filebeg.c_str(), minNumber + i*skipfact, suffix.c_str());
                     if (readIMWFFile(tmpFileName, i) > 0)
+                    {
+                    }
+                    else
+                    {
+                        cerr << "could not open" << tmpFileName << endl;
+                    }
+                }
+                else if (format == Indent)
+                {
+                    sprintf(tmpFileName, "%s%d.%s", filebeg.c_str(), minNumber + i*skipfact, suffix.c_str());
+                    if (readIndentFile(tmpFileName, i) > 0)
                     {
                     }
                     else
@@ -357,7 +392,7 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                 }
                 else
                 {
-                    sprintf(tmpFileName, "%s%4d.particle", filebeg.c_str(), minNumber + i);
+                    sprintf(tmpFileName, "%s%4d.particle", filebeg.c_str(), minNumber + i*skipfact);
                     if (readFile(tmpFileName, i) > 0)
                     {
                     }
@@ -368,7 +403,7 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                 }
                 delete[] tmpFileName;
             }
-            if (!imwfFormat)
+            if (format == Particle)
             {
                 summUpTimesteps(interval);
                 updateColors();
@@ -376,7 +411,7 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
         }
     }
 
-    if (numTimesteps == 0 && !imwfFormat) // we did not find a number of files it might be a binary file
+    if (numTimesteps == 0 && format==Particle) // we did not find a number of files it might be a binary file
     {
         fp = fopen(filename.c_str(), "rb");
         if (fp)
@@ -1296,6 +1331,212 @@ int Particles::readIMWFFile(char *fn, int timestep)
         return -1;
     }
     return 0;
+}
+
+int Particles::readIndentFile(char *fn, int timestep)
+{
+    FILE *fp = fopen(fn, "r");
+    if (!fp)
+    {
+        return -1;
+    }
+
+    int numParticles = 0, numLines = 0;
+    char buf[LINE_LEN];
+    osg::Geode *geode = new osg::Geode();
+    int version = 0;
+    while (!feof(fp))
+    {
+        fgets(buf, LINE_LEN, fp);
+        if (numLines == 0) {
+            sscanf(buf, "%d", &numParticles);
+        }
+        ++numLines;
+    }
+    // first 2 lines are header, plus a terminating one
+    if (numLines < 1 || numParticles != numLines-3)
+    {
+        std::cerr << "invalid files: #lines=" << numLines << ", but #particles=" << numParticles << " (should be #lines+2)" << std::endl; 
+        fclose(fp);
+        return -1;
+    }
+    std::cerr << "reading " << numParticles << " particles for timestep " << timestep << std::endl;
+
+    fseek(fp, 0, SEEK_SET);
+    if (timestep % 30 == 0)
+    {
+        sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
+        OpenCOVER::instance()->hud->setText2(buf);
+        OpenCOVER::instance()->hud->redraw();
+        switchNode->setValue(timestep);
+    }
+
+    numInts = 2;
+    numFloats = 2;
+    numHiddenVars = 0;
+
+    variableNames.push_back(std::string("Species"));
+    variableTypes.push_back(T_INT);
+    variableIndex.push_back(0);
+    variableScale.push_back(1.0);
+    variableMin.push_back(0);
+    variableMax.push_back(2);
+
+    variableNames.push_back(std::string("Structure Type"));
+    variableTypes.push_back(T_INT);
+    variableIndex.push_back(1);
+    variableScale.push_back(1.0);
+    variableMin.push_back(0);
+    variableMax.push_back(4);
+
+    variableNames.push_back(std::string("E Pot"));
+    variableTypes.push_back(T_FLOAT);
+    variableIndex.push_back(0);
+    variableScale.push_back(1.0);
+    variableMin.push_back(-3.);
+    variableMax.push_back(-2.5);
+
+    variableNames.push_back(std::string("Delta E Pot"));
+    variableTypes.push_back(T_FLOAT);
+    variableIndex.push_back(1);
+    variableScale.push_back(1.0);
+    variableMin.push_back(-0.1);
+    variableMax.push_back(+0.1);
+
+    timesteps[timestep] = new TimeStepData(numParticles, numFloats, numInts);
+    timesteps[timestep]->numParticles = numParticles;
+    geode->setName(buf);
+
+    float **values = timesteps[timestep]->values;
+    int64_t **Ivalues = timesteps[timestep]->Ivalues;
+    timesteps[timestep]->geode = geode;
+
+    struct particleData oneParticle;
+
+    float *xc = new float[numParticles];
+    float *yc = new float[numParticles];
+    float *zc = new float[numParticles];
+    //float radius = plugin->getRadius();
+    //
+    int i = 0;
+    int n = 0;
+    while (!feof(fp))
+    {
+        if (i > numLines)
+        {
+            cerr << "oops read more than last time..." << endl;
+            break;
+        }
+        fgets(buf, LINE_LEN, fp);
+        if (i >= 2 && i<numParticles+2)
+        {
+            assert(n < numParticles);
+            int species, type;
+            //Type_1 2.11042 2.0290799 -3.4694503e-18 0 -2.93237 -0.00126
+            int nf = sscanf(buf, "Type_%d %f %f %f %d %f %f", &species, xc + n, yc + n, zc + n, &type, values[0] + n, values[1] + n);
+            if (nf != 7)
+            {
+                std::cerr << "read error in line " << i << ": only got " << nf << " values (instead of 7)" << std::endl;
+            }
+            Ivalues[0][n] = species;
+            Ivalues[1][n] = type;
+            if (zc[n] > 0.01)
+            {
+                // ignore label atoms
+                ++n;
+            }
+        }
+        i++;
+    }
+    numParticles = n;
+    fclose(fp);
+
+    //if(iRenderMethod == coSphere::RENDER_METHOD_PARTICLE_CLOUD)
+    //   transparent = true;
+    osg::StateSet *geoState = geode->getOrCreateStateSet();
+    //setDefaultMaterial(geoState, transparent);
+    geoState->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+    osg::BlendFunc *blendFunc = new osg::BlendFunc();
+    blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
+    geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
+    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+
+    geode->setStateSet(geoState);
+
+    coSphere *sphere = new coSphere();
+
+    sphere->setMaxRadius(1);
+
+    timesteps[timestep]->sphere = sphere;
+    //sphere->setColorBinding(colorbinding);
+    sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
+
+    float *r = new float[numParticles];
+    for (int n = 0; n < numParticles; n++)
+    {
+        r[n] = 10.; // should not happen
+
+        int T = Ivalues[0][n];
+        if (T == 0)
+        {
+            r[n] = 0.1;
+        }
+        else if (T == 1)
+        {
+            // aluminum
+            r[n] = 0.5;
+        }
+        else if (T == 2)
+        {
+            // indenter
+            r[n] = 2.0;
+        }
+    }
+
+    sphere->setCoords(numParticles, xc, yc, zc, r);
+    delete[] r;
+    delete[] xc;
+    delete[] yc;
+    delete[] zc;
+
+    float *rc = new float[numParticles];
+    float *gc = new float[numParticles];
+    float *bc = new float[numParticles];
+    for (int n = 0; n < numParticles; n++)
+    {
+        int T = Ivalues[0][n];
+        if (T == 1)
+        {
+            rc[n] = 0.5;
+            gc[n] = 0.5;
+            bc[n] = 1.0;
+        }
+        else if (T == 2)
+        {
+            rc[n] = 1.0;
+            gc[n] = 0.0;
+            bc[n] = 0.0;
+        }
+        else
+        {
+            rc[n] = 1.0;
+            gc[n] = 1.0;
+            bc[n] = 0.0;
+        }
+    }
+    sphere->updateColors(rc, gc, bc);
+
+    delete[] rc;
+    delete[] gc;
+    delete[] bc;
+
+    geode->addDrawable(sphere);
+    switchNode->addChild(geode, true);
+
+    return numParticles;
 }
 
 void Particles::updateRadii(unsigned int valueNumber)

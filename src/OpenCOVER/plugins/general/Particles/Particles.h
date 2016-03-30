@@ -87,13 +87,19 @@ private:
 
     int readFile(char *fn, int timestep);
     int readIMWFFile(char *fn, int timestep);
+    int readIndentFile(char *fn, int timestep);
     int readBinaryTimestep(int timestep);
     int read64(uint64_t &val);
     int read32(int &val);
     TimeStepData **timesteps;
     unsigned int numInts;
     unsigned int numFloats;
-    bool imwfFormat;
+    enum Format {
+        IMWF,
+        Particle,
+        Indent,
+    };
+    Format format;
     unsigned int numHiddenVars;
 
 public:
