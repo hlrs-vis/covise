@@ -129,6 +129,12 @@ int ParticleViewer::loadData(std::string particlepath, osg::Group *parent)
                 }
             }
         }
+
+        coVRAnimationManager::instance()->setNumTimesteps(Part->getTimesteps(), Part);
+    }
+    else
+    {
+        delete Part;
     }
 
     valChoice->setSelectedEntry(0);
@@ -143,6 +149,7 @@ void ParticleViewer::unloadData(std::string particlepath)
     {
         if ((*it)->fileName == particlepath)
         {
+            coVRAnimationManager::instance()->removeTimestepProvider(*it);
             delete *it;
             particles.erase(it);
             return;

@@ -570,11 +570,6 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
             fclose(fp);
         }
     }
-
-    if (numTimesteps > coVRAnimationManager::instance()->getNumTimesteps())
-    {
-        coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
-    }
 }
 
 void Particles::summUpTimesteps(int increment)
