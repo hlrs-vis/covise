@@ -112,7 +112,7 @@ WizardManager::runSuperelevationWizard()
 {
     if (mainWindow_->getActiveProject())
     {
-        ElevationWizard *wizard = new ElevationWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
+        SuperelevationWizard *wizard = new SuperelevationWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
 }

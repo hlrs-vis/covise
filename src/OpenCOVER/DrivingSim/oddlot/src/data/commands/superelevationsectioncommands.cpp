@@ -716,6 +716,8 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
         setText("Apply Heightmap: invalid parameters!");
         return;
     }
+    
+    const double RadToDeg = 180.0/M_PI;
 
     // Sections //
     //
@@ -728,7 +730,6 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     if (sEnd < sStart)
         sEnd = sStart;
 
-#if 1
     double pointsPerMeter = 1.0 / sampleDistance;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter));
     if (pointCount < 2)
@@ -742,44 +743,25 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     // Read superelevations //
     //
     double *sampleSuperelevations = new double[pointCount];
-    double *sampleCrossfalls = new double[pointCount];
     for (int i = 0; i < pointCount; ++i)
     {
         double s = sStart + i * segmentLength; // [sStart, sEnd]
-        sampleSuperelevations[i] = getSuperelevation(s);
-        sampleCrossfalls[i] = getCrossfall(s);
+        sampleSuperelevations[i] = getSuperelevation(s) * RadToDeg;
     }
 
-#if 0
-	// Low pass filter //
-	//
-	double superelevations[pointCount];
-	superelevations[0] = sampleSuperelevations[0];
-	double alpha = lowPassFilter_;
-	for(int i = 1; i < pointCount; ++i)
-	{
-		superelevations[i] = alpha*sampleSuperelevations[i] + (1-alpha)*superelevations[i-1];
-	}
-#endif
 
 #if 1
     // Low pass filter //
     //
     double *superelevations = new double[pointCount];
-    double *crossfalls = new double[pointCount];
     superelevations[0] = sampleSuperelevations[0];
     double alpha = lowPassFilter_;
     for (int i = 1; i < pointCount - 1; ++i)
     {
-        superelevations[i] =
-
-            0.5 * (1 - alpha) * sampleSuperelevations[i - 1] + alpha * sampleSuperelevations[i] + 0.5 * (1 - alpha) * sampleSuperelevations[i + 1];
-        crossfalls[i] = 0.5 * (1 - alpha) * sampleCrossfalls[i - 1] + alpha * sampleCrossfalls[i] + 0.5 * (1 - alpha) * sampleCrossfalls[i + 1];
+        superelevations[i] = 0.5 * (1 - alpha) * sampleSuperelevations[i - 1] + alpha * sampleSuperelevations[i] + 0.5 * (1 - alpha) * sampleSuperelevations[i + 1];
     }
     superelevations[pointCount - 1] = sampleSuperelevations[pointCount - 1];
-    crossfalls[pointCount - 1] = sampleCrossfalls[pointCount - 1];
     delete[] sampleSuperelevations;
-    delete[] sampleCrossfalls;
 #endif
 
     // Cubic approximation //
@@ -811,8 +793,8 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
         {
             double s = sStart + i * segmentLength; // [sStart, sEnd]
 
-            double predictedHeight = lastSection->getSuperelevationRadians(s);
-            double predictedSlope = lastSection->getSuperelevationSlopeRadians(s);
+            double predictedHeight = lastSection->getSuperelevationDegrees(s);
+            double predictedSlope = lastSection->getSuperelevationSlopeDegrees(s);
             if ((fabs(predictedHeight - superelevations[i]) < maxDeviation_)
                 && (fabs(predictedSlope - dsuperelevations[i]) < maxDeviation_ * 0.1))
             {
@@ -820,7 +802,6 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
                 dsuperelevations[i] = predictedSlope;
                 continue;
             }
-
             double d = superelevations[i - 1];
             double c = dsuperelevations[i - 1];
             double a = (dsuperelevations[i] + c - 2.0 * superelevations[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
@@ -834,56 +815,6 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
         }
         delete[] dsuperelevations;
 
-        //Crossfall
-        // Calculate Slopes //
-        //
-        {
-            double *dcrossfalls = new double[pointCount];
-            dcrossfalls[0] = (crossfalls[1] - crossfalls[0]) / segmentLength;
-            for (int i = 1; i < pointCount - 1; ++i)
-            {
-                dcrossfalls[i] = 0.5 * (crossfalls[i] - crossfalls[i - 1]) / segmentLength + 0.5 * (crossfalls[i + 1] - crossfalls[i]) / segmentLength;
-            }
-            dcrossfalls[pointCount - 1] = (crossfalls[pointCount - 1] - crossfalls[pointCount - 2]) / segmentLength;
-
-            // Create First Sections //
-            //
-            double d = crossfalls[0];
-            double c = dcrossfalls[0];
-            double a = (dcrossfalls[1] + c - 2.0 * crossfalls[1] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
-            double b = (crossfalls[1] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-            CrossfallSection *lastSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, d, c, b, a);
-            newCSections_.insert(0.0, lastSection);
-
-            // Create Sections //
-            //
-            for (int i = 2; i < pointCount; ++i)
-            {
-                double s = sStart + i * segmentLength; // [sStart, sEnd]
-
-                double predictedHeight = lastSection->getCrossfallRadians(s);
-                double predictedSlope = lastSection->getCrossfallSlopeRadians(s);
-                if ((fabs(predictedHeight - crossfalls[i]) < maxDeviation_)
-                    && (fabs(predictedSlope - dcrossfalls[i]) < maxDeviation_ * 0.1))
-                {
-                    crossfalls[i] = predictedHeight;
-                    dcrossfalls[i] = predictedSlope;
-                    continue;
-                }
-
-                double d = crossfalls[i - 1];
-                double c = dcrossfalls[i - 1];
-                double a = (dcrossfalls[i] + c - 2.0 * crossfalls[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
-                double b = (crossfalls[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-
-                //		CrossfallSection * section = new CrossfallSection(s, d, c, b, a);
-                CrossfallSection *section = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, s - segmentLength, d, c, b, a);
-                //		newSections_.insert(s, section);
-                newCSections_.insert(s - segmentLength, section);
-                lastSection = section;
-            }
-            delete[] dcrossfalls;
-        }
     }
 
     // Linear approximation //
@@ -934,46 +865,9 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
                 sectionStart = sStart + lastIndex * segmentLength;
                 slope = (superelevations[i] - superelevations[lastIndex]) / segmentLength;
             }
-            //crossfall
-            slope = (crossfalls[i] - crossfalls[lastIndex]) / ((i - lastIndex) * segmentLength);
 
-            for (j = i - 1; j > lastIndex; j--)
-            {
-                double predictedHeight = crossfalls[lastIndex] + slope * (sStart + j * segmentLength);
-                if (fabs(predictedHeight - crossfalls[j]) > maxDeviation) // take the last one
-                {
-                    break;
-                }
-            }
-
-            if ((i != pointCount - 1) && (j == lastIndex))
-            {
-                continue;
-            }
-
-            slope = (crossfalls[i - 1] - crossfalls[lastIndex]) / (((i - 1) - lastIndex) * segmentLength); // slope of the new section refers to the start of the section
-
-            CrossfallSection *csection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, sectionStart, crossfalls[lastIndex], slope, 0.0, 0.0);
-            newCSections_.insert(sectionStart, csection);
-
-            if ((i == pointCount - 1) && (j != lastIndex))
-            {
-                lastIndex = i - 1;
-                sectionStart = sStart + lastIndex * segmentLength;
-                slope = (crossfalls[i] - crossfalls[lastIndex]) / segmentLength;
-
-                CrossfallSection *section = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, sectionStart, crossfalls[lastIndex], slope, 0.0, 0.0);
-                newCSections_.insert(sectionStart, section);
-            }
-            else
-            {
-                lastIndex = i - 1;
-                sectionStart = sStart + lastIndex * segmentLength;
-                slope = (crossfalls[i] - crossfalls[lastIndex]) / segmentLength;
-            }
         }
     }
-#endif
 
 #if 0
 	double pointsPerMeter = 0.1; // BAD: hard coded!
@@ -1035,11 +929,6 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     {
         SuperelevationSection *section = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
         newSections_.insert(0.0, section);
-    }
-    if (newCSections_.isEmpty())
-    {
-        CrossfallSection *section = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
-        newCSections_.insert(0.0, section);
     }
 
     // Done //
@@ -1141,11 +1030,11 @@ ApplyHeightMapSuperelevationCommand::undo()
 double
 ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
 {
-    QPointF posm = road_->getGlobalPoint(s);
-    QPointF posr = road_->getGlobalPoint(s, 1.0);
-    QPointF posl = road_->getGlobalPoint(s, -1.0);
-    double heightm = 0.0;
-    int countm = 0;
+    //QPointF posm = road_->getGlobalPoint(s);
+    QPointF posr = road_->getGlobalPoint(s, 2.0);
+    QPointF posl = road_->getGlobalPoint(s, -2.0);
+ /*   double heightm = 0.0;
+    int countm = 0;*/
     double heightr = 0.0;
     int countr = 0;
     double heightl = 0.0;
@@ -1155,11 +1044,11 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
     //
     foreach (Heightmap *map, maps_)
     {
-        if (map->isIntersectedBy(posm))
+     /*   if (map->isIntersectedBy(posm))
         {
             heightm = heightm + map->getHeightmapValue(posm.x(), posm.y());
             ++countm;
-        }
+        }*/
         if (map->isIntersectedBy(posr))
         {
             heightr = heightr + map->getHeightmapValue(posr.x(), posr.y());
@@ -1171,10 +1060,10 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
             ++countl;
         }
     }
-    if (countm != 0)
+  /*  if (countm != 0)
     {
         heightm = heightm / countm;
-    }
+    }*/
     if (countr != 0)
     {
         heightr = heightr / countr;
@@ -1183,17 +1072,7 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
     {
         heightl = heightl / countl;
     }
-    double superelevation = atan((heightr - heightl) / 2.0);
-    double cfl = atan((heightm - heightl) / 2.0);
-    double cfr = atan((heightm - heightr) / 2.0);
-    lastCrossfall_ = ((cfl + cfr) / 2.0);
+    double superelevation = atan((heightr - heightl) / 4.0);
 
     return superelevation;
-}
-
-double
-ApplyHeightMapSuperelevationCommand::getCrossfall(double s)
-{
-
-    return lastCrossfall_;
 }
