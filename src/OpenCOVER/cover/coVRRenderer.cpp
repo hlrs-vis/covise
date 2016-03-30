@@ -78,6 +78,8 @@ coVRRenderer::coVRRenderer(osg::Camera *camera, int channel)
 
     coVRSceneView *sv1 =  new coVRSceneView(NULL, channel);
     coVRSceneView *sv2 = new coVRSceneView(NULL, channel);
+    sv1->setFrameStamp(new osg::FrameStamp);
+    sv2->setFrameStamp(new osg::FrameStamp);
     _sceneView[0] = sv1;
     _sceneView[1] = sv2;
     unsigned int sceneViewOptions = 0; // no HeadLight
