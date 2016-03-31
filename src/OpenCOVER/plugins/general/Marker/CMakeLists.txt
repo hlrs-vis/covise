@@ -1,6 +1,6 @@
 #OpenCOVER plugins general Marker
 
-USING(Virvo)
+USING(Virvo:fileio)
 
 SET(HEADERS
   Marker.h
