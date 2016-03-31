@@ -1004,6 +1004,74 @@ coSphere::setCoords(int no_of_points, const float *x_c, const float *y_c,
     }
 }
 
+void
+coSphere::setCoords(int no_of_points, const float *x_c, const float *y_c,
+                    const float *z_c, float r)
+{
+    if (no_of_points < 0)
+        no_of_points = 0;
+    setNumberOfSpheres(no_of_points);
+
+    dirtyBound();
+
+    m_maxRadius = r;
+    if (m_useVertexArrays)
+    {
+        for (int i = 0; i < m_numSpheres; i++)
+        {
+            m_coord[i * 12 + 0] = x_c[i];
+            m_coord[i * 12 + 1] = y_c[i];
+            m_coord[i * 12 + 2] = z_c[i];
+            m_coord[i * 12 + 3] = x_c[i];
+            m_coord[i * 12 + 4] = y_c[i];
+            m_coord[i * 12 + 5] = z_c[i];
+            m_coord[i * 12 + 6] = x_c[i];
+            m_coord[i * 12 + 7] = y_c[i];
+            m_coord[i * 12 + 8] = z_c[i];
+            m_coord[i * 12 + 9] = x_c[i];
+            m_coord[i * 12 + 10] = y_c[i];
+            m_coord[i * 12 + 11] = z_c[i];
+            m_radii[i * 12 + 0] = -1.0f;
+            m_radii[i * 12 + 1] = -1.0f;
+            m_radii[i * 12 + 2] = r;
+            m_radii[i * 12 + 3] = 1.0f;
+            m_radii[i * 12 + 4] = -1.0f;
+            m_radii[i * 12 + 5] = r;
+            m_radii[i * 12 + 6] = 1.0f;
+            m_radii[i * 12 + 7] = 1.0f;
+            m_radii[i * 12 + 8] = r;
+            m_radii[i * 12 + 9] = -1.0f;
+            m_radii[i * 12 + 10] = 1.0f;
+            m_radii[i * 12 + 11] = r;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < m_numSpheres; i++)
+        {
+            m_coord[i * 3 + 0] = x_c[i];
+            m_coord[i * 3 + 1] = y_c[i];
+            m_coord[i * 3 + 2] = z_c[i];
+            m_radii[i] = r;
+        }
+    }
+    if (m_extMaxRadius != 0)
+        m_maxRadius = m_extMaxRadius;
+
+    // sorting by radius
+    for (int i = 0; i <= m_maxPointSize; ++i)
+        m_sortedRadiusIndices[i].clear();
+    int bucket = (int)floor(0.5 + r / m_maxRadius * m_maxPointSize);
+    if (bucket < 0)
+        bucket = 0;
+    if (bucket >= m_maxPointSize)
+            bucket = m_maxPointSize - 1;
+    for (int i = 0; i < m_numSpheres; ++i)
+    {
+        m_sortedRadiusIndices[bucket].push_back(i);
+    }
+}
+
 void coSphere::updateNormals(const float *nx, const float *ny, const float *nz)
 {
     if (m_useVertexArrays)
