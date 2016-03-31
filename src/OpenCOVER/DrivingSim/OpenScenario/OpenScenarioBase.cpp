@@ -259,7 +259,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         xercesc::DOMDocument *xmlSrcDoc = srcFileVec[i]->getXmlDoc();
 
         //write xml document to file
-        writeFileToDisk(xmlSrcDoc, pathFileNameToWrite.string().c_str());
+        writeFileToDisk(xmlSrcDoc, pathFileNameToWrite.generic_string().c_str());
     }
 
     return true;
