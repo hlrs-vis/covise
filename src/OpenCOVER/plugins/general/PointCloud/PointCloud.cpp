@@ -260,7 +260,8 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                 else if (strstr(buf, "Lattice=") == buf)
                 {
                     imwfLattice = true;
-                    numHeaderLines++;
+                    fprintf(stderr, "IMWF lattice - rename file to .indent and use Particles plug-in\n");
+                    numHeaderLines = 2;
                 }
                 else
                     psize++;
