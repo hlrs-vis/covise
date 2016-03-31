@@ -717,7 +717,6 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
         return;
     }
     
-    const double RadToDeg = 180.0/M_PI;
 
     // Sections //
     //
@@ -746,7 +745,7 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     for (int i = 0; i < pointCount; ++i)
     {
         double s = sStart + i * segmentLength; // [sStart, sEnd]
-        sampleSuperelevations[i] = getSuperelevation(s) * RadToDeg;
+        sampleSuperelevations[i] = getSuperelevation(s);
     }
 
 
@@ -1031,8 +1030,10 @@ double
 ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
 {
     //QPointF posm = road_->getGlobalPoint(s);
-    QPointF posr = road_->getGlobalPoint(s, 2.0);
-    QPointF posl = road_->getGlobalPoint(s, -2.0);
+    float wr = road_->getMaxWidth(s);
+    float wl = road_->getMinWidth(s);
+    QPointF posr = road_->getGlobalPoint(s, wr);
+    QPointF posl = road_->getGlobalPoint(s, wl);
  /*   double heightm = 0.0;
     int countm = 0;*/
     double heightr = 0.0;
@@ -1072,7 +1073,6 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
     {
         heightl = heightl / countl;
     }
-    double superelevation = atan((heightr - heightl) / 4.0);
 
-    return superelevation;
+    return atan((heightr - heightl) / (wr-wl))*180.0/M_PI;
 }

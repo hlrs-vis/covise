@@ -1323,7 +1323,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
             if (type != "")
             {
                 Object *object = new Object(id, name, type, s, t, zOffset, validLength, orientation,
-                    length, width, radius, height, hdg * 360.0 / (2.0 * M_PI), pitch  * 360.0 / (2.0 * M_PI), roll  * 360.0 / (2.0 * M_PI), pole, repeatS, repeatLength, repeatDistance, textureFile);
+                    length, width, radius, height, hdg * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, repeatS, repeatLength, repeatDistance, textureFile);
 
                 setTile(id, oldTileId);
 
@@ -1605,12 +1605,12 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             hOffset = name.toDouble();
 
             // Construct signal object
-            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 360.0 / (2.0 * M_PI), roll  * 360.0 / (2.0 * M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
         }
         else
         {
             // Construct signal object
-            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 360.0 / (2.0 * M_PI), pitch  * 360.0 / (2.0 * M_PI), roll  * 360.0 / (2.0 * M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
         }
 
 
@@ -1682,10 +1682,10 @@ bool
 DomParser::parseSuperelevationElement(QDomElement &element, RSystemElementRoad *road)
 {
     double s = parseToDouble(element, "s", 0.0, false); // mandatory
-    double a = parseToDouble(element, "a", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
-    double b = parseToDouble(element, "b", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
-    double c = parseToDouble(element, "c", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
-    double d = parseToDouble(element, "d", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
+    double a = parseToDouble(element, "a", 0.0, false) * 180.0 / (M_PI); // mandatory
+    double b = parseToDouble(element, "b", 0.0, false) * 180.0 / (M_PI); // mandatory
+    double c = parseToDouble(element, "c", 0.0, false) * 180.0 / (M_PI); // mandatory
+    double d = parseToDouble(element, "d", 0.0, false) * 180.0 / (M_PI); // mandatory
 
     SuperelevationSection *section = new SuperelevationSection(s, a, b, c, d);
     road->addSuperelevationSection(section);
@@ -1701,10 +1701,10 @@ DomParser::parseCrossfallElement(QDomElement &element, RSystemElementRoad *road)
 {
     QString side = parseToQString(element, "side", "both", true); // optional
     double s = parseToDouble(element, "s", 0.0, false); // mandatory
-    double a = parseToDouble(element, "a", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
-    double b = parseToDouble(element, "b", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
-    double c = parseToDouble(element, "c", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
-    double d = parseToDouble(element, "d", 0.0, false) * 360.0 / (2.0 * M_PI); // mandatory
+    double a = parseToDouble(element, "a", 0.0, false) * 180.0 / (M_PI); // mandatory
+    double b = parseToDouble(element, "b", 0.0, false) * 180.0 / (M_PI); // mandatory
+    double c = parseToDouble(element, "c", 0.0, false) * 180.0 / (M_PI); // mandatory
+    double d = parseToDouble(element, "d", 0.0, false) * 180.0 / (M_PI); // mandatory
 
     CrossfallSection *section = new CrossfallSection(CrossfallSection::parseCrossfallSide(side), s, a, b, c, d);
     road->addCrossfallSection(section);
@@ -1780,7 +1780,7 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
     if (name == "line")
     {
         // <line> //
-        TrackElementLine *line = new TrackElementLine(x, y, hdg / (2.0 * M_PI) * 360.0, s, length);
+        TrackElementLine *line = new TrackElementLine(x, y, hdg / ( M_PI) * 180.0, s, length);
         road->addTrackComponent(line);
     }
     else if (name == "spiral")
@@ -1788,7 +1788,7 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
         // <spiral> //
         double curvStart = parseToDouble(child, "curvStart", 0.0, false); // mandatory
         double curvEnd = parseToDouble(child, "curvEnd", 0.0, false); // mandatory
-        TrackElementSpiral *spiral = new TrackElementSpiral(x, y, hdg / (2.0 * M_PI) * 360.0, s, length, curvStart, curvEnd);
+        TrackElementSpiral *spiral = new TrackElementSpiral(x, y, hdg / ( M_PI) * 180.0, s, length, curvStart, curvEnd);
         road->addTrackComponent(spiral);
     }
     else if (name == "arc")
@@ -1800,7 +1800,7 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
             // TODO //
             qDebug("FEHLER BEIM PARSEN VON KREIS");
         }
-        TrackElementArc *arc = new TrackElementArc(x, y, hdg / (2.0 * M_PI) * 360.0, s, length, curvature);
+        TrackElementArc *arc = new TrackElementArc(x, y, hdg / ( M_PI) * 180.0, s, length, curvature);
         road->addTrackComponent(arc);
     }
     else if (name == "poly3")
@@ -1810,7 +1810,7 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
         double b = parseToDouble(child, "b", 0.0, false); // mandatory
         double c = parseToDouble(child, "c", 0.0, false); // mandatory
         double d = parseToDouble(child, "d", 0.0, false); // mandatory
-        TrackElementPoly3 *poly = new TrackElementPoly3(x, y, hdg / (2.0 * M_PI) * 360.0, s, length, a, b, c, d);
+        TrackElementPoly3 *poly = new TrackElementPoly3(x, y, hdg / ( M_PI) * 180.0, s, length, a, b, c, d);
         road->addTrackComponent(poly);
     }
     else

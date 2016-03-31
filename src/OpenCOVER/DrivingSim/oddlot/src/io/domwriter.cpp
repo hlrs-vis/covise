@@ -279,7 +279,7 @@ DomWriter::visit(Object *object)
             loadObject = true;
         }
 
-        double radHeading = object->getHeading() / 360.0 * (2.0 * M_PI);
+        double radHeading = object->getHeading() / 180.0 * (M_PI);
 
         do
         {
@@ -439,9 +439,9 @@ DomWriter::visit(Object *object)
         objectElement.setAttribute("width", object->getWidth());
         objectElement.setAttribute("radius", object->getRadius());
         objectElement.setAttribute("height", object->getHeight());
-        objectElement.setAttribute("hdg", object->getHeading() / 360.0 * (2.0 * M_PI));
-        objectElement.setAttribute("pitch", object->getPitch() / 360.0 * (2.0 * M_PI));
-        objectElement.setAttribute("roll", object->getRoll() / 360.0 * (2.0 * M_PI));
+        objectElement.setAttribute("hdg", object->getHeading() / 180.0 * (M_PI));
+        objectElement.setAttribute("pitch", object->getPitch() / 180.0 * (M_PI));
+        objectElement.setAttribute("roll", object->getRoll() / 180.0 * (M_PI));
 
         currentObjectsElement_.appendChild(objectElement);
     }
@@ -781,9 +781,9 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("type", signal->getType());
     signalElement.setAttribute("subtype", signal->getSubtype());
     signalElement.setAttribute("value", signal->getValue());
-    signalElement.setAttribute("hOffset", hOffset / 360.0 * (2.0 * M_PI));
-    signalElement.setAttribute("pitch", signal->getPitch() / 360.0 * (2.0 * M_PI));
-    signalElement.setAttribute("roll", signal->getRoll() / 360.0 * (2.0 * M_PI));
+    signalElement.setAttribute("hOffset", hOffset / 180.0 * (M_PI));
+    signalElement.setAttribute("pitch", signal->getPitch() / 180.0 * (M_PI));
+    signalElement.setAttribute("roll", signal->getRoll() / 180.0 * (M_PI));
 
     currentSignalsElement_.appendChild(signalElement);
 
@@ -943,10 +943,10 @@ DomWriter::visit(SuperelevationSection *section)
 {
     QDomElement element = doc_->createElement("superelevation");
     element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA() * 2.0 * M_PI / 360.0);
-    element.setAttribute("b", section->getB() * 2.0 * M_PI / 360.0);
-    element.setAttribute("c", section->getC() * 2.0 * M_PI / 360.0);
-    element.setAttribute("d", section->getD() * 2.0 * M_PI / 360.0);
+    element.setAttribute("a", section->getA() * M_PI / 180.0);
+    element.setAttribute("b", section->getB() * M_PI / 180.0);
+    element.setAttribute("c", section->getC() * M_PI / 180.0);
+    element.setAttribute("d", section->getD() * M_PI / 180.0);
     currentLateralProfileElement_.appendChild(element);
 }
 
@@ -960,10 +960,10 @@ DomWriter::visit(CrossfallSection *section)
     QDomElement element = doc_->createElement("crossfall");
     element.setAttribute("side", CrossfallSection::parseCrossfallSideBack(section->getSide()));
     element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA() * 2.0 * M_PI / 360.0);
-    element.setAttribute("b", section->getB() * 2.0 * M_PI / 360.0);
-    element.setAttribute("c", section->getC() * 2.0 * M_PI / 360.0);
-    element.setAttribute("d", section->getD() * 2.0 * M_PI / 360.0);
+    element.setAttribute("a", section->getA() * M_PI / 180.0);
+    element.setAttribute("b", section->getB() * M_PI / 180.0);
+    element.setAttribute("c", section->getC() * M_PI / 180.0);
+    element.setAttribute("d", section->getD() * M_PI / 180.0);
     currentLateralProfileElement_.appendChild(element);
 }
 
