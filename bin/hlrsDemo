@@ -20,6 +20,8 @@ NORMAL='\033[m'     # white
 
 while [ opt != '' ] 
 do
+
+    if [ -z "$1" ]; then
     echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
     echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
@@ -108,6 +110,10 @@ do
 
     opt=""
     read opt
+    else
+        opt="$1"
+        shift
+    fi
 
     case $opt in
 
