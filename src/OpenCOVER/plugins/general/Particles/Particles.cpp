@@ -42,6 +42,8 @@
 #include <cover/coVRShader.h>
 #include <util/byteswap.h>
 
+static const coSphere::RenderMethod sphereMode = coSphere::RENDER_METHOD_ARB_POINT_SPRITES;
+
 //! Function to clean up a string for further computation
 /*! Remove tabs, multpile whitespaces, comments etc.
  *\param Reference to the string which should be cleared
@@ -154,9 +156,10 @@ using namespace osg;
 TimeStepData::TimeStepData(int numParticles, unsigned int nf, unsigned int ni)
     : values(0)
     , Ivalues(0)
+    , numParticles(numParticles)
+    , numFloats(nf)
+    , numInts(ni)
 {
-    numFloats = nf;
-    numInts = ni;
     if (nf)
     {
         values = new float *[numFloats];
@@ -186,6 +189,7 @@ TimeStepData::~TimeStepData()
         delete[] Ivalues[i];
     }
     delete[] values;
+    delete[] Ivalues;
 }
 
 extern ParticleViewer *plugin;
@@ -355,9 +359,9 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
         }
         std::cerr << "found " << numTimesteps << " timesteps" << std::endl;
         int skipfact = 1;
-        if (numTimesteps > 1000)
+        if (numTimesteps > 2000)
         {
-            skipfact = numTimesteps/1000;
+            skipfact = numTimesteps/2000;
         }
         if (skipfact < 1)
             skipfact = 1;
@@ -653,7 +657,6 @@ int Particles::readBinaryTimestep(int timestep)
         OpenCOVER::instance()->hud->redraw();
     }
     timesteps[timestep] = new TimeStepData(numParticles, numFloats, numInts);
-    timesteps[timestep]->numParticles = numParticles;
     geode->setName(buf);
     float *xc = new float[numParticles];
     float *yc = new float[numParticles];
@@ -767,11 +770,11 @@ int Particles::readBinaryTimestep(int timestep)
     if (ParticleMode == M_PARTICLES)
     {
         coSphere *sphere = new coSphere();
+        sphere->setRenderMethod(sphereMode);
         sphere->setMaxRadius(1);
 
         timesteps[timestep]->sphere = sphere;
         //sphere->setColorBinding(colorbinding);
-        sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
         float *radii = values[1];
         sphere->setCoords(numParticles, xc, yc, zc, radii);
         float f = plugin->getRadius();
@@ -867,7 +870,6 @@ int Particles::readFile(char *fn, int timestep)
             OpenCOVER::instance()->hud->redraw();
         }
         timesteps[timestep] = new TimeStepData(numParticles, numFloats, numInts);
-        timesteps[timestep]->numParticles = numParticles;
         geode->setName(buf);
         float *xc = new float[numParticles];
         float *yc = new float[numParticles];
@@ -935,12 +937,12 @@ int Particles::readFile(char *fn, int timestep)
         geode->setStateSet(geoState);
 
         coSphere *sphere = new coSphere();
+        sphere->setRenderMethod(sphereMode);
 
         sphere->setMaxRadius(1);
 
         timesteps[timestep]->sphere = sphere;
         //sphere->setColorBinding(colorbinding);
-        sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
         sphere->setCoords(numParticles, xc, yc, zc, values[1]);
 
         geode->addDrawable(sphere);
@@ -952,6 +954,9 @@ int Particles::readFile(char *fn, int timestep)
         delete[] xv;
         delete[] yv;
         delete[] zv;
+
+        colorizeAndResize(timestep);
+
         return numParticles;
     }
     else
@@ -993,7 +998,7 @@ int Particles::readIMWFFile(char *fn, int timestep)
         }
         fseek(fp, 0, SEEK_SET);
 
-        if (timestep % 30 == 0)
+        if (timestep % 10 == 0)
         {
             sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
             OpenCOVER::instance()->hud->setText2(buf);
@@ -1106,7 +1111,6 @@ int Particles::readIMWFFile(char *fn, int timestep)
         variableMax.push_back(18.0);
 
         timesteps[timestep] = new TimeStepData(numParticles, numFloats, numInts);
-        timesteps[timestep]->numParticles = numParticles;
         geode->setName(buf);
         float *xc = new float[numParticles];
         float *yc = new float[numParticles];
@@ -1199,131 +1203,23 @@ int Particles::readIMWFFile(char *fn, int timestep)
         geode->setStateSet(geoState);
 
         coSphere *sphere = new coSphere();
+        sphere->setRenderMethod(sphereMode);
 
         sphere->setMaxRadius(1);
 
         timesteps[timestep]->sphere = sphere;
         //sphere->setColorBinding(colorbinding);
-        sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
-
-        float *r = new float[numParticles];
-        for (int n = 0; n < numParticles; n++)
-        {
-
-            int T = Ivalues[1][n];
-            if (T == 0)
-            {
-                r[n] = 0.5;
-            }
-            else if (T == 1)
-            {
-                r[n] = 1.0;
-            }
-            else
-            {
-                r[n] = 2.0;
-            }
-        }
-
-        sphere->setCoords(numParticles, xc, yc, zc, r);
-        delete[] r;
-
-        float *rc = new float[numParticles];
-        float *gc = new float[numParticles];
-        float *bc = new float[numParticles];
-        for (int n = 0; n < numParticles; n++)
-        {
-
-            int K = values[0][n];
-            int T = Ivalues[1][n];
-            if (T == 0)
-            {
-                if (K == 12)
-                {
-                    rc[n] = 0.5;
-                    gc[n] = 0.5;
-                    bc[n] = 1.0;
-                }
-                else if (K > 14)
-                {
-                    rc[n] = 0.0;
-                    gc[n] = 0.0;
-                    bc[n] = 1.0;
-                }
-                else
-                {
-                    rc[n] = 0.0;
-                    gc[n] = 1.0;
-                    bc[n] = 0.0;
-                }
-            }
-            else if (T == 1)
-            {
-                if (K == 14)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.0;
-                    bc[n] = 0.0;
-                }
-                if (K == 12)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 1.0;
-                    bc[n] = 0.0;
-                }
-                else if (K > 14)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.0;
-                    bc[n] = 1.0;
-                }
-                else
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.5;
-                    bc[n] = 0.0;
-                }
-            }
-            else
-            {
-                if (K == 14)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.0;
-                    bc[n] = 0.0;
-                }
-                if (K == 12)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 1.0;
-                    bc[n] = 0.0;
-                }
-                else if (K > 14)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.0;
-                    bc[n] = 1.0;
-                }
-                else
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.5;
-                    bc[n] = 0.0;
-                }
-            }
-        }
-        sphere->updateColors(rc, gc, bc);
-
-        delete[] rc;
-        delete[] gc;
-        delete[] bc;
-
-        geode->addDrawable(sphere);
-        switchNode->addChild(geode, true);
+        sphere->setCoords(numParticles, xc, yc, zc);
 
         delete[] xc;
         delete[] yc;
         delete[] zc;
+
+        geode->addDrawable(sphere);
+        switchNode->addChild(geode, true);
+
+        colorizeAndResize(timestep);
+
         return numParticles;
     }
     else
@@ -1335,42 +1231,6 @@ int Particles::readIMWFFile(char *fn, int timestep)
 
 int Particles::readIndentFile(char *fn, int timestep)
 {
-    FILE *fp = fopen(fn, "r");
-    if (!fp)
-    {
-        return -1;
-    }
-
-    int numParticles = 0, numLines = 0;
-    char buf[LINE_LEN];
-    osg::Geode *geode = new osg::Geode();
-    int version = 0;
-    while (!feof(fp))
-    {
-        fgets(buf, LINE_LEN, fp);
-        if (numLines == 0) {
-            sscanf(buf, "%d", &numParticles);
-        }
-        ++numLines;
-    }
-    // first 2 lines are header, plus a terminating one
-    if (numLines < 1 || numParticles != numLines-3)
-    {
-        std::cerr << "invalid files: #lines=" << numLines << ", but #particles=" << numParticles << " (should be #lines+2)" << std::endl; 
-        fclose(fp);
-        return -1;
-    }
-    std::cerr << "reading " << numParticles << " particles for timestep " << timestep << std::endl;
-
-    fseek(fp, 0, SEEK_SET);
-    if (timestep % 30 == 0)
-    {
-        sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
-        OpenCOVER::instance()->hud->setText2(buf);
-        OpenCOVER::instance()->hud->redraw();
-        switchNode->setValue(timestep);
-    }
-
     numInts = 2;
     numFloats = 2;
     numHiddenVars = 0;
@@ -1403,54 +1263,115 @@ int Particles::readIndentFile(char *fn, int timestep)
     variableMin.push_back(-0.1);
     variableMax.push_back(+0.1);
 
-    timesteps[timestep] = new TimeStepData(numParticles, numFloats, numInts);
-    timesteps[timestep]->numParticles = numParticles;
-    geode->setName(buf);
+    std::string filename(fn);
+    FILE *fp = NULL;
+    bool read = !restore(filename+".dump", timestep);
+    if (read)
+    {
+        fp = fopen(fn, "r");
+        if (!fp)
+        {
+            return -1;
+        }
+
+        int numParticles = 0, numLines = 0;
+        while (!feof(fp))
+        {
+            char buf[LINE_LEN];
+            fgets(buf, LINE_LEN, fp);
+            if (numLines == 0) {
+                sscanf(buf, "%d", &numParticles);
+            }
+            ++numLines;
+        }
+        // first 2 lines are header, plus a terminating one
+        if (numLines < 1 || numParticles != numLines-3)
+        {
+            std::cerr << "invalid files: #lines=" << numLines << ", but #particles=" << numParticles << " (should be #lines+2)" << std::endl; 
+            fclose(fp);
+            return -1;
+        }
+        std::cerr << "reading " << numParticles << " particles for timestep " << timestep << std::endl;
+
+        fseek(fp, 0, SEEK_SET);
+        timesteps[timestep] = new TimeStepData(numParticles, numFloats, numInts);
+
+        osg::Geode *geode = new osg::Geode();
+        geode->setName(fn);
+        timesteps[timestep]->geode = geode;
+
+        coSphere *sphere = new coSphere();
+        sphere->setRenderMethod(sphereMode);
+        sphere->setMaxRadius(1);
+        timesteps[timestep]->sphere = sphere;
+    }
 
     float **values = timesteps[timestep]->values;
     int64_t **Ivalues = timesteps[timestep]->Ivalues;
-    timesteps[timestep]->geode = geode;
+    int numParticles = timesteps[timestep]->numParticles;
 
-    struct particleData oneParticle;
-
-    float *xc = new float[numParticles];
-    float *yc = new float[numParticles];
-    float *zc = new float[numParticles];
-    //float radius = plugin->getRadius();
-    //
-    int i = 0;
-    int n = 0;
-    while (!feof(fp))
+    if (timestep % 10 == 0)
     {
-        if (i > numLines)
-        {
-            cerr << "oops read more than last time..." << endl;
-            break;
-        }
-        fgets(buf, LINE_LEN, fp);
-        if (i >= 2 && i<numParticles+2)
-        {
-            assert(n < numParticles);
-            int species, type;
-            //Type_1 2.11042 2.0290799 -3.4694503e-18 0 -2.93237 -0.00126
-            int nf = sscanf(buf, "Type_%d %f %f %f %d %f %f", &species, xc + n, yc + n, zc + n, &type, values[0] + n, values[1] + n);
-            if (nf != 7)
-            {
-                std::cerr << "read error in line " << i << ": only got " << nf << " values (instead of 7)" << std::endl;
-            }
-            Ivalues[0][n] = species;
-            Ivalues[1][n] = type;
-            if (zc[n] > 0.01)
-            {
-                // ignore label atoms
-                ++n;
-            }
-        }
-        i++;
+        char buf[LINE_LEN];
+        sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
+        OpenCOVER::instance()->hud->setText2(buf);
+        OpenCOVER::instance()->hud->redraw();
+        switchNode->setValue(timestep);
     }
-    numParticles = n;
-    fclose(fp);
 
+    if (read)
+    {
+        float *xc = new float[numParticles];
+        float *yc = new float[numParticles];
+        float *zc = new float[numParticles];
+        //float radius = plugin->getRadius();
+        //
+        int i = 0;
+        int n = 0;
+        while (!feof(fp))
+        {
+            if (n >= numParticles)
+            {
+                break;
+            }
+
+            char buf[LINE_LEN];
+            fgets(buf, LINE_LEN, fp);
+            if (i >= 2 && i<numParticles+2)
+            {
+                assert(n < numParticles);
+                int species, type;
+                //Type_1 2.11042 2.0290799 -3.4694503e-18 0 -2.93237 -0.00126
+                int nf = sscanf(buf, "Type_%d %f %f %f %d %f %f", &species, xc + n, yc + n, zc + n, &type, values[0] + n, values[1] + n);
+                if (nf != 7)
+                {
+                    std::cerr << "read error in line " << i << ": only got " << nf << " values (instead of 7)" << std::endl;
+                }
+                Ivalues[0][n] = species;
+                Ivalues[1][n] = type;
+                if (zc[n] > 0.01)
+                {
+                    // ignore label atoms
+                    ++n;
+                }
+            }
+            i++;
+        }
+        numParticles = n;
+        timesteps[timestep]->numParticles = numParticles;
+        fclose(fp);
+        fp = NULL;
+
+        coSphere *sphere = timesteps[timestep]->sphere;
+        sphere->setCoords(numParticles, xc, yc, zc);
+
+        dump(filename+".dump", timestep, xc, yc, zc);
+        delete[] xc;
+        delete[] yc;
+        delete[] zc;
+    }
+
+    osg::Geode *geode = timesteps[timestep]->geode;
     //if(iRenderMethod == coSphere::RENDER_METHOD_PARTICLE_CLOUD)
     //   transparent = true;
     osg::StateSet *geoState = geode->getOrCreateStateSet();
@@ -1466,75 +1387,12 @@ int Particles::readIndentFile(char *fn, int timestep)
 
     geode->setStateSet(geoState);
 
-    coSphere *sphere = new coSphere();
-
-    sphere->setMaxRadius(1);
-
-    timesteps[timestep]->sphere = sphere;
     //sphere->setColorBinding(colorbinding);
-    sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
 
-    float *r = new float[numParticles];
-    for (int n = 0; n < numParticles; n++)
-    {
-        r[n] = 10.; // should not happen
-
-        int T = Ivalues[0][n];
-        if (T == 0)
-        {
-            r[n] = 0.1;
-        }
-        else if (T == 1)
-        {
-            // aluminum
-            r[n] = 0.5;
-        }
-        else if (T == 2)
-        {
-            // indenter
-            r[n] = 2.0;
-        }
-    }
-
-    sphere->setCoords(numParticles, xc, yc, zc, r);
-    delete[] r;
-    delete[] xc;
-    delete[] yc;
-    delete[] zc;
-
-    float *rc = new float[numParticles];
-    float *gc = new float[numParticles];
-    float *bc = new float[numParticles];
-    for (int n = 0; n < numParticles; n++)
-    {
-        int T = Ivalues[0][n];
-        if (T == 1)
-        {
-            rc[n] = 0.5;
-            gc[n] = 0.5;
-            bc[n] = 1.0;
-        }
-        else if (T == 2)
-        {
-            rc[n] = 1.0;
-            gc[n] = 0.0;
-            bc[n] = 0.0;
-        }
-        else
-        {
-            rc[n] = 1.0;
-            gc[n] = 1.0;
-            bc[n] = 0.0;
-        }
-    }
-    sphere->updateColors(rc, gc, bc);
-
-    delete[] rc;
-    delete[] gc;
-    delete[] bc;
-
-    geode->addDrawable(sphere);
+    geode->addDrawable(timesteps[timestep]->sphere);
     switchNode->addChild(geode, true);
+
+    colorizeAndResize(timestep);
 
     return numParticles;
 }
@@ -1614,7 +1472,7 @@ void Particles::updateColors(unsigned int valueNumber, unsigned int aValueNumber
         else
         {
             osg::Vec4Array *colArr;
-            osg::Geometry *lines = dynamic_cast<osg::Geometry *>(timesteps[i]->lines);
+            osg::Geometry *lines = dynamic_cast<osg::Geometry *>(timesteps[i]->lines.get());
             if (aValueNumber == 0) // constant Color
             {
                 colArr = new osg::Vec4Array();
@@ -1686,4 +1544,298 @@ Particles::~Particles()
     for (int i = 0; i < numTimesteps; i++)
         delete timesteps[i];
     delete[] timesteps;
+}
+
+void Particles::colorizeAndResize(int timestep)
+{
+    int begin=0, end=numTimesteps;
+    if (timestep >= 0)
+    {
+        begin = timestep;
+        end = timestep+1;
+    }
+
+    for (int t=begin; t<end; ++t)
+    {
+        TimeStepData *td = timesteps[t];
+        const int numParticles = td->numParticles;
+        int64_t **Ivalues = td->Ivalues;
+        float **values = td->values;
+
+        if (format == Indent)
+        {
+            float *r = new float[numParticles];
+            for (int n = 0; n < numParticles; n++)
+            {
+                r[n] = 10.; // should not happen
+
+                int T = Ivalues[0][n];
+                if (T == 0)
+                {
+                    r[n] = 0.1;
+                }
+                else if (T == 1)
+                {
+                    // aluminum
+                    r[n] = 0.5;
+                }
+                else if (T == 2)
+                {
+                    // indenter
+                    r[n] = 2.0;
+                }
+            }
+            td->sphere->updateRadii(r);
+            delete[] r;
+
+            float *rc = new float[numParticles];
+            float *gc = new float[numParticles];
+            float *bc = new float[numParticles];
+            for (int n = 0; n < numParticles; n++)
+            {
+                int T = Ivalues[0][n];
+                if (T == 1)
+                {
+                    rc[n] = 0.5;
+                    gc[n] = 0.5;
+                    bc[n] = 1.0;
+                }
+                else if (T == 2)
+                {
+                    rc[n] = 1.0;
+                    gc[n] = 0.0;
+                    bc[n] = 0.0;
+                }
+                else
+                {
+                    rc[n] = 1.0;
+                    gc[n] = 1.0;
+                    bc[n] = 0.0;
+                }
+            }
+            td->sphere->updateColors(rc, gc, bc);
+            delete[] rc;
+            delete[] gc;
+            delete[] bc;
+        }
+        else if (format == IMWF)
+        {
+            float *r = new float[numParticles];
+            for (int n = 0; n < numParticles; n++)
+            {
+
+                int T = Ivalues[1][n];
+                if (T == 0)
+                {
+                    r[n] = 0.5;
+                }
+                else if (T == 1)
+                {
+                    r[n] = 1.0;
+                }
+                else
+                {
+                    r[n] = 2.0;
+                }
+            }
+            td->sphere->updateRadii(r);
+            delete[] r;
+
+            float *rc = new float[numParticles];
+            float *gc = new float[numParticles];
+            float *bc = new float[numParticles];
+            for (int n = 0; n < numParticles; n++)
+            {
+                int K = values[0][n];
+                int T = Ivalues[1][n];
+                if (T == 0)
+                {
+                    if (K == 12)
+                    {
+                        rc[n] = 0.5;
+                        gc[n] = 0.5;
+                        bc[n] = 1.0;
+                    }
+                    else if (K > 14)
+                    {
+                        rc[n] = 0.0;
+                        gc[n] = 0.0;
+                        bc[n] = 1.0;
+                    }
+                    else
+                    {
+                        rc[n] = 0.0;
+                        gc[n] = 1.0;
+                        bc[n] = 0.0;
+                    }
+                }
+                else if (T == 1)
+                {
+                    if (K == 14)
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 0.0;
+                        bc[n] = 0.0;
+                    }
+                    if (K == 12)
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 1.0;
+                        bc[n] = 0.0;
+                    }
+                    else if (K > 14)
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 0.0;
+                        bc[n] = 1.0;
+                    }
+                    else
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 0.5;
+                        bc[n] = 0.0;
+                    }
+                }
+                else
+                {
+                    if (K == 14)
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 0.0;
+                        bc[n] = 0.0;
+                    }
+                    if (K == 12)
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 1.0;
+                        bc[n] = 0.0;
+                    }
+                    else if (K > 14)
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 0.0;
+                        bc[n] = 1.0;
+                    }
+                    else
+                    {
+                        rc[n] = 1.0;
+                        gc[n] = 0.5;
+                        bc[n] = 0.0;
+                    }
+                }
+            }
+            td->sphere->updateColors(rc, gc, bc);
+            delete[] rc;
+            delete[] gc;
+            delete[] bc;
+        }
+    }
+}
+
+template<typename T>
+bool writeArr(const T *arr, size_t n, FILE *fp)
+{
+    int64_t sz = n;
+    fwrite(&sz, sizeof(sz), 1, fp);
+    return fwrite(arr, sizeof(T), n, fp) == n;
+}
+
+template<typename T>
+ssize_t readArr(T *&arr, size_t n, FILE *fp)
+{
+    int64_t sz = 0;
+    if(fread(&sz, sizeof(sz), 1, fp) != 1)
+        return -1;
+    if (n != sz)
+        return -1;
+    return fread(arr, sizeof(T), n, fp);
+}
+
+bool Particles::dump(std::string filename, int timestep, const float *xc, const float *yc, const float *zc) const
+{
+    const TimeStepData *td = timesteps[timestep];
+
+    FILE *fp = fopen(filename.c_str(), "wb");
+    if (!fp)
+        return false;
+    uint32_t endian=0x01020304;
+    fwrite(&endian, sizeof(endian), 1, fp);
+    int numParticles = td->numParticles;
+    fwrite(&numParticles, sizeof(numParticles), 1, fp);
+    fwrite(&numFloats, sizeof(numFloats), 1, fp);
+    fwrite(&numInts, sizeof(numInts), 1, fp);
+
+    writeArr(xc, numParticles, fp);
+    writeArr(yc, numParticles, fp);
+    writeArr(zc, numParticles, fp);
+
+    for (int i=0; i<numFloats; ++i)
+        writeArr(td->values[i], numParticles, fp);
+    for (int i=0; i<numInts; ++i)
+        writeArr(td->Ivalues[i], numParticles, fp);
+
+    fclose(fp);
+    return true;
+}
+
+bool Particles::restore(std::string filename, int timestep)
+{
+    bool ok = false;
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (!fp)
+        return false;
+
+    int numParticles = 0;
+    float *xc=NULL, *yc=NULL, *zc=NULL;
+    TimeStepData *td = NULL;
+    osg::Geode *geode = NULL;
+    coSphere *sphere = NULL;
+    unsigned int ni=0, nf=0;
+
+    uint32_t endian=0;
+    fread(&endian, sizeof(endian), 1, fp);
+    if (endian != 0x01020304)
+        goto end;
+
+    fread(&numParticles, sizeof(numParticles), 1, fp);
+    fread(&nf, sizeof(nf), 1, fp);
+    if (nf != numFloats)
+        goto end;
+    fread(&ni, sizeof(ni), 1, fp);
+    if (ni != numInts)
+        goto end;
+
+    td = new TimeStepData(numParticles, numFloats, numInts);
+    timesteps[timestep] = td;
+
+    geode = new osg::Geode();
+    geode->setName(filename);
+    td->geode = geode;
+
+    sphere = new coSphere();
+    sphere->setRenderMethod(sphereMode);
+    sphere->setMaxRadius(1);
+    td->sphere = sphere;
+
+    xc = new float[numParticles];
+    yc = new float[numParticles];
+    zc = new float[numParticles];
+    readArr(xc, numParticles, fp);
+    readArr(yc, numParticles, fp);
+    readArr(zc, numParticles, fp);
+    sphere->setCoords(numParticles, xc, yc, zc);
+    delete[] xc;
+    delete[] yc;
+    delete[] zc;
+
+    for (int i=0; i<numFloats; ++i)
+        readArr(td->values[i], numParticles, fp);
+    for (int i=0; i<numInts; ++i)
+        readArr(td->Ivalues[i], numParticles, fp);
+
+    //fprintf(stderr, "restored %d particles from %s\n", numParticles, filename.c_str());
+    ok = true;
+end:
+    fclose(fp);
+    return ok;
 }
