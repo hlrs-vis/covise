@@ -22,12 +22,6 @@ USING(XERCESC)
 
 COVISE_FIND_PACKAGE(V8)
 
-INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ../../../DrivingSim/gaalet/include
-   ${V8_INCLUDE_DIR}
-)
-
 COVISE_FIND_PACKAGE(osgTerrain)
 IF(NOT OSGTERRAIN_FOUND)
   RETURN()
@@ -43,6 +37,12 @@ COVISE_FIND_PACKAGE(GDAL)
 
 COVISE_FIND_PACKAGE(FFTW)
 
+IF(NOT V8_FOUND)
+  RETURN()
+ENDIF()
+IF(NOT FFTW_FOUND)
+  RETURN()
+ENDIF()
 IF(NOT GDAL_FOUND)
   RETURN()
 ENDIF()
@@ -50,6 +50,12 @@ ENDIF()
 set(targetname RoadTerrain)
 
 ADD_DEFINITIONS(-DROADTERRAIN_PLUGIN -DIMPORT_PLUGIN)
+
+INCLUDE_DIRECTORIES(
+   ../../../DrivingSim/VehicleUtil
+   ../../../DrivingSim/gaalet/include
+   ${V8_INCLUDE_DIR}
+)
 
 INCLUDE_DIRECTORIES(
  ${GDAL_INCLUDE_DIR}
