@@ -1,6 +1,6 @@
 #OpenCOVER plugins general Schweissen
 
-USING(Virvo)
+USING(Virvo:fileio)
 
 SET(HEADERS
   Schweissen.h

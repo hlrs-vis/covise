@@ -192,7 +192,7 @@ ElevationSettings::on_slopeSpinBox_editingFinished()
 
     // Command //
     //
-    double s = 100 * abs(elevationSection_->getElevation(elevationSection_->getSStart()) - elevationSection_->getElevation(elevationSection_->getSEnd())) / ui->slopeSpinBox->value() + elevationSection_->getSStart();
+    double s = 100 * fabs(elevationSection_->getElevation(elevationSection_->getSStart()) - elevationSection_->getElevation(elevationSection_->getSEnd())) / ui->slopeSpinBox->value() + elevationSection_->getSStart();
     if (s < elevationSection_->getParentRoad()->getLength())
     {
         QPointF dPos = QPointF(s - sectionNext->getSStart(), 0.0);

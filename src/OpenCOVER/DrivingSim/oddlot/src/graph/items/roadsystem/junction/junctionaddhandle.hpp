@@ -14,7 +14,7 @@
 **************************************************************************/
 
 #ifndef JUNCTIONADDHANDLE_HPP
-#define JUNCTIONHANDLE_HPP
+#define JUNCTIONADDHANDLE_HPP
 
 #include "src/graph/items/handles/linkhandle.hpp"
 

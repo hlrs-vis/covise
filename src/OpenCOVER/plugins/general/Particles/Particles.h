@@ -46,10 +46,10 @@ public:
     int numParticles;
     unsigned int numFloats;
     unsigned int numInts;
-    osg::Geode *geode;
-    coSphere *sphere;
-    osg::Drawable *lines;
-    osg::Vec4Array *colors;
+    osg::ref_ptr<osg::Geode> geode;
+    osg::ref_ptr<coSphere> sphere;
+    osg::ref_ptr<osg::Drawable> lines;
+    osg::ref_ptr<osg::Vec4Array> colors;
 };
 
 class Particles
@@ -69,7 +69,7 @@ public:
 
 private:
     int numTimesteps;
-    osg::Switch *switchNode;
+    osg::Sequence *switchNode;
     FILE *fp;
     std::string shaderName;
     std::vector<std::string> variableNames;
@@ -87,13 +87,19 @@ private:
 
     int readFile(char *fn, int timestep);
     int readIMWFFile(char *fn, int timestep);
+    int readIndentFile(char *fn, int timestep);
     int readBinaryTimestep(int timestep);
     int read64(uint64_t &val);
     int read32(int &val);
     TimeStepData **timesteps;
     unsigned int numInts;
     unsigned int numFloats;
-    bool imwfFormat;
+    enum Format {
+        IMWF,
+        Particle,
+        Indent,
+    };
+    Format format;
     unsigned int numHiddenVars;
 
 public:
@@ -130,6 +136,9 @@ public:
     {
         return variableScale[currentValue];
     };
+    void colorizeAndResize(int timestep=-1);
+    bool dump(std::string filename, int timestep, const float *xc, const float *yc, const float *zc) const;
+    bool restore(std::string filename, int timestep);
 
     //destructor
     ~Particles();

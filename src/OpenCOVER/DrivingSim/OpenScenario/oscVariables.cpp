@@ -9,9 +9,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <iostream>
 
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
+#include <xercesc/dom/DOMElement.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 

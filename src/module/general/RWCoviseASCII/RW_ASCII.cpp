@@ -2981,7 +2981,7 @@ RW_ASCII::compute(const char *)
                 //clean up
                 for (int i = 0; i < files.size(); ++i)
                     delete outobjs[i];
-                delete outobjs;
+                delete[] outobjs;
                 return CONTINUE_PIPELINE;
             }
             else

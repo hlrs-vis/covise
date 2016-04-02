@@ -112,21 +112,6 @@ bool OsmImport::parseDoc(QDomDocument &doc)
         ways.append(new osmWay(list.at(i).toElement(), nodes));
     }
     
-    bool importPrimary();
-    bool importSecondary();
-    bool importTertiary();
-    bool importMotorway();
-    bool importService();
-    bool importPath();
-    bool importSteps();
-    bool importTrack();
-    bool importFootway();
-    bool importResidential();
-    bool importLiving_street();
-    bool importCycleway();
-    bool importTurning_circle();
-    bool importPedestrian();
-    bool importUnclassified();
     bool doPrimary = ImportSettings::instance()->importPrimary();
     bool doSecondary = ImportSettings::instance()->importSecondary();
     bool doTertiary = ImportSettings::instance()->importTertiary();

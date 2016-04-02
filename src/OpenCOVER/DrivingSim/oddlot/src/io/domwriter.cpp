@@ -673,11 +673,12 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("name", signalName);
 
     QFile file;
-    bool textureFile;
+    bool textureFile = false;
     QString textureFilename;
     QString dir = projectData_->getProjectWidget()->getMainWindow()->getCovisedir() + "/share/covise/signals/";
-    if (textureFile = file.exists(dir + signal->getCountry() + "/" + signalName + ".png"))
+    if (file.exists(dir + signal->getCountry() + "/" + signalName + ".png"))
     {
+        textureFile = true;
         if (signalName.contains("/"))
         {
             textureFilename += ".png";
@@ -687,8 +688,9 @@ DomWriter::visit(Signal *signal)
             textureFilename = "signals/" +  signal->getCountry() + "/" + signalName + ".png";
         }
     }
-    else if (textureFile = file.exists(dir + signal->getCountry() + "/" + signalName + ".tif"))
+    else if (file.exists(dir + signal->getCountry() + "/" + signalName + ".tif"))
     {
+        textureFile = true;
         if (signalName.contains("/"))
         {
            textureFilename += ".tif";
@@ -709,10 +711,11 @@ DomWriter::visit(Signal *signal)
         signalElement.appendChild(userData);
     }
 
-    bool modelFile;
+    bool modelFile = false;
     QString modelFilename;
-    if (modelFile = file.exists(dir + signal->getCountry() + "/" + signalName + ".osg"))
+    if (file.exists(dir + signal->getCountry() + "/" + signalName + ".osg"))
     {
+        modelFile = true;
         if (signalName.contains("/"))
         {
             modelFilename += ".osg";

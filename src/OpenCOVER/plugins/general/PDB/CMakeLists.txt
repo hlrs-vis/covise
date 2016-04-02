@@ -1,6 +1,6 @@
 #OpenCOVER plugins general PDB
 
-USING(Virvo)
+USING(Virvo:fileio)
 USING(CAVEUI)
 
 SET(HEADERS

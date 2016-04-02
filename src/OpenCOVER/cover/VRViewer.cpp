@@ -1923,6 +1923,19 @@ void VRViewer::addCamera(osg::Camera *camera)
 
     myCameras.push_back(camera);
 
+    osg::GraphicsContext *gc = camera->getGraphicsContext();
+    if (gc && !gc->isRealized())
+    {
+        //OSG_INFO<<"ViewerBase::startThreading() : Realizng window "<<gc<<std::endl;
+        gc->realize();
+        if (_realizeOperation.valid() && gc->valid())
+        {
+            gc->makeCurrent();
+            (*_realizeOperation)(gc);
+            gc->releaseContext();
+        }
+    }
+
     if (threadsWereRuinning)
         startThreading();
 }

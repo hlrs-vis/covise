@@ -17,8 +17,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
-class DOMDocument;
+class DOMAttr;
 class DOMElement;
+class DOMDocument;
 XERCES_CPP_NAMESPACE_END
 
 
@@ -75,11 +76,6 @@ public:
     oscVariable()
     {
 
-    };
-
-    virtual bool initialize(xercesc::DOMAttr *)
-    {
-        return false;
     };
 
     virtual T& operator=(T &tv)

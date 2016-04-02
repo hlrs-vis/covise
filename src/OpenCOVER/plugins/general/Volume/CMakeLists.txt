@@ -1,4 +1,5 @@
 USING(Virvo)
+USING(Virvo:osg)
 
 SET(HEADERS
   VolumePlugin.h

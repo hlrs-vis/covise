@@ -125,6 +125,8 @@ SET(HEADERS
    oscObjects.h
    oscObjectVariable.h
    oscObjectVariableArray.h
+   oscObjectVariableBase.h
+   oscObjectVariableCatalog.h
    oscObserverId.h
    oscObserverTypeA.h
    oscObserverTypeB.h
@@ -225,7 +227,6 @@ SET(SOURCES
    oscMember.cpp
    oscMemberArray.cpp
    oscMemberCatalog.cpp
-   oscMemberValue.cpp
    oscNamePriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp
@@ -256,8 +257,6 @@ ENDIF(WIN32)
 
 INCLUDE_DIRECTORIES(
    ./..
-   ${PROJ4_INCLUDE_DIR}
-   ${V8_INCLUDE_DIR}
 )
 
 ADD_COVISE_LIBRARY(coOpenScenario SHARED ${SOURCES} ${HEADERS})

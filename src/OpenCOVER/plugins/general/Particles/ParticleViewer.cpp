@@ -72,7 +72,12 @@ FileHandler fileHandler[] = {
       ParticleViewer::loadFile,
       ParticleViewer::loadFile,
       ParticleViewer::unloadFile,
-      "chkpt" }
+      "chkpt" },
+    { NULL,
+      ParticleViewer::loadFile,
+      ParticleViewer::loadFile,
+      ParticleViewer::unloadFile,
+      "indent" }
 };
 
 int ParticleViewer::loadFile(const char *fn, osg::Group *parent, const char *)
@@ -129,6 +134,12 @@ int ParticleViewer::loadData(std::string particlepath, osg::Group *parent)
                 }
             }
         }
+
+        coVRAnimationManager::instance()->setNumTimesteps(Part->getTimesteps(), Part);
+    }
+    else
+    {
+        delete Part;
     }
 
     valChoice->setSelectedEntry(0);
@@ -143,6 +154,7 @@ void ParticleViewer::unloadData(std::string particlepath)
     {
         if ((*it)->fileName == particlepath)
         {
+            coVRAnimationManager::instance()->removeTimestepProvider(*it);
             delete *it;
             particles.erase(it);
             return;
@@ -167,6 +179,7 @@ bool ParticleViewer::init()
     coVRFileManager::instance()->registerFileHandler(&fileHandler[1]);
     coVRFileManager::instance()->registerFileHandler(&fileHandler[2]);
     coVRFileManager::instance()->registerFileHandler(&fileHandler[3]);
+    coVRFileManager::instance()->registerFileHandler(&fileHandler[4]);
 
     particleTab = new coTUITab("Particles", coVRTui::instance()->mainFolder->getID());
     particleTab->setPos(0, 0);

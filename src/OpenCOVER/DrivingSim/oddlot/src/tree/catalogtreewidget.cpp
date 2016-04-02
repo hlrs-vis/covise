@@ -136,7 +136,7 @@ CatalogTreeWidget::init()
 	else 
 	{
 		OpenScenario::oscMember *member = openScenarioBase_->getMembers().at("test");
-		testBase_ = base_->getOSCElement(member->getGenerateObject());
+		testBase_ = base_->getOSCElement(member->getOrCreateObject());
 
 		objectBase_ = testBase_->getObject();
 	}
@@ -255,7 +255,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 				currentMember_ = testBase_->getObject()->getMember(text.toStdString());
 				if (currentMember_)
 				{
-					oscElement_ = base_->getOSCElement(currentMember_->getGenerateObject());
+					oscElement_ = base_->getOSCElement(currentMember_->getOrCreateObject());
 					if (oscElement_)
 					{
 						SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
@@ -325,10 +325,10 @@ CatalogTreeWidget::updateObserver()
 
 	if (changes & OSCElement::COE_ParameterChange)
     {
-		OpenScenario::oscMember *member = currentMember_->getGenerateObject()->getMember("name");
+		OpenScenario::oscMember *member = currentMember_->getOrCreateObject()->getMember("name");
 		if (member->exists())
 		{
-			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getGenerateValue());
+			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
 			const std::string text = sv->getValue();
 			if (text != currentSelectedItem_->text(0).toStdString())
 			{

@@ -1,6 +1,6 @@
 # OpenCOVER plugins general Annotation
 
-USING(Virvo)
+USING(Virvo:fileio)
 
 # INCLUDE_DIRECTORIES( )
 

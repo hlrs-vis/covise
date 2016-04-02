@@ -666,7 +666,6 @@ RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
 {
     LaneSection *laneSection = getLaneSection(s);
     double t = 0.0;
-    Lane *nextLane;
     double sSection = s - laneSection->getSStart();
     int i = 0;
     QVector2D normal = getGlobalNormal(s);
@@ -675,7 +674,7 @@ RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
 
     if (QVector2D::dotProduct(normal, vec) < 0)
     {
-        while (nextLane = laneSection->getNextUpper(i))
+        while (Lane *nextLane = laneSection->getNextUpper(i))
         {
             t += nextLane->getWidth(sSection);
             i = nextLane->getId();
@@ -683,7 +682,7 @@ RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
     }
     else
     {
-        while (nextLane = laneSection->getNextLower(i))
+        while (Lane *nextLane = laneSection->getNextLower(i))
         {
             t -= nextLane->getWidth(sSection);
             i = nextLane->getId();

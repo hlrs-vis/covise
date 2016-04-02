@@ -20,6 +20,8 @@ NORMAL='\033[m'     # white
 
 while [ opt != '' ] 
 do
+
+    if [ -z "$1" ]; then
     echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
     echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
@@ -80,15 +82,17 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
-    echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug            "
-    echo -e "${MENU} ${OPT} 87)  ${MENU} Thyssen Turm              "
+    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 82)  ${MENU} Thyssen Turm              "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
-    echo -e "${MENU} ${OPT} 81)  ${MENU} start OpenCOVER           "
-    echo -e "${MENU} ${OPT} 82)  ${MENU} start FaSi                "
     echo -e "${MENU} ${OPT} 83)  ${MENU} kill FaSi                 "
     echo -e "${MENU} ${OPT} 84)  ${MENU} check CAN                 "
-    echo -e "${MENU} ${OPT} 85)  ${MENU} start FaSi elevated                "
+    echo -e "${MENU} ${OPT} 85)  ${MENU} start FaSi elevated       "
+    echo -e "${MENU} ${OPT} 86)  ${MENU} start FaSi: Town          "
+    echo -e "${MENU} ${OPT} 87)  ${MENU} start COVER: Town         "
+    echo -e "${MENU} ${OPT} 88)  ${MENU} start FaSi: Laguna Seca   "
+    echo -e "${MENU} ${OPT} 89)  ${MENU} start COVER: Laguna Seca  "
 
     echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
     echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
@@ -106,6 +110,10 @@ do
 
     opt=""
     read opt
+    else
+        opt="$1"
+        shift
+    fi
 
     case $opt in
 
@@ -273,7 +281,7 @@ do
 	    echo -e "starting knee";
             opencover /data/VolData/vhd/female-knee-marked3.xvf
 	    ;;
-# FASI
+# MISC
 
 	71)
 	    echo -e "starting Draeger OP";
@@ -319,16 +327,18 @@ do
 	    cd /data/Lionel ; opencover /data/Lionel/Labor.wrl
 	    ;;
 
-# MISC
-
 	81)
-	    echo -e "starting OpenCOVER";
-	    opencover /data/porsche/TrafficSimulation/maneuver/sample03Lights/sample03_pedestrians_crg.xodr &
+	    echo -e "Thyssen Aufzug";
+	    covise -e /data/covise_net/2014/ThyssenNeu.net
 	    ;;
+
 	82)
-	    echo -e "starting FaSi";
-	    ssh covise2@192.168.0.74 "cd /data/porsche/TrafficSimulation/maneuver/sample03Lights/ && fasi sample03_pedestrians_crg.xodr > /dev/null"&
+	    echo -e "Thyssen Turm (ohne Tueren)";
+	    opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
 	    ;;
+
+# FASI
+
 	83)
 	    echo -e "killing FaSi";
 	    ssh covise2@192.168.0.74 "killall fasi"
@@ -345,15 +355,22 @@ do
 	    ;;
 
 	86)
-	    echo -e "Thyssen Aufzug";
-	    covise -e /data/covise_net/2014/ThyssenNeu.net
+	    echo -e "starting FaSi: Town";
+	    ssh covise2@192.168.0.74 "cd /data/porsche/TrafficSimulation/maneuver/sample03Lights/ && fasi sample03_pedestrians_crg.xodr > /dev/null 2>&1"&
 	    ;;
-
 	87)
-	    echo -e "Thyssen Turm (ohne Tueren)";
-	    opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
+	    echo -e "starting OpenCOVER: Town";
+	    opencover /data/porsche/TrafficSimulation/maneuver/sample03Lights/sample03_pedestrians_crg.xodr
 	    ;;
+	88)
+	    echo -e "starting FaSi: Laguna Seca";
+	    ssh covise2@192.168.0.74 "cd /data/porsche/lagunaseca/ && fasi lagunaseca9.xodr > /dev/null 2>&1"&
+	    ;;
+	89)
+	    echo -e "starting OpenCOVER: Laguna Seca";
 
+	    opencover /data/porsche/lagunaseca/lagunaseca9.xodr 
+	    ;;
 # SYSTEM
 
 	91)

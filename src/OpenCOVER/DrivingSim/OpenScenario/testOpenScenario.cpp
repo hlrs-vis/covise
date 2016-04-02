@@ -122,11 +122,11 @@ int main(int argc, char **argv)
                 return -1;
             }
         }
-        else if (readFileToUse == "" && argv[i] != "") //first appearance
+        else if (readFileToUse == "" && argv[i][0] != '\0') //first appearance
         {
             readFileToUse = argv[i];
         }
-        else if (writeFileToUse == "" && argv[i] != "") //second appearance
+        else if (writeFileToUse == "" && argv[i][0] != '\0') //second appearance
         {
             writeFileToUse = argv[i];
         }

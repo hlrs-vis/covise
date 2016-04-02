@@ -122,7 +122,7 @@ int StretchSet::compute(const char *)
                     }
                     coDistributedObject *retSet;
                     retSet = new coDoSet(pOutPorts_[i]->getObjName(), setList);
-                    delete setList;
+                    delete[] setList;
                     char buf[16];
                     sprintf(buf, "1 %d", l);
                     retSet->addAttribute("TIMESTEP", buf);

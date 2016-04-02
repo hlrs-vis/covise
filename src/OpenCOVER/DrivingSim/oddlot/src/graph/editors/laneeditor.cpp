@@ -258,7 +258,7 @@ void LaneEditor::setWidth(double w)
             startPointSections.append(highSlot);
         }
     }
-    LaneSetWidthCommand *command = new LaneSetWidthCommand(endPointSections, startPointSections, w, NULL);
+    LaneSetWidthCommand *command = new LaneSetWidthCommand(endPointSections, startPointSections, w, false);
 
     getProjectData()->getUndoStack()->push(command);
 }

@@ -1206,7 +1206,7 @@ ElevationSetHeightCommand::ElevationSetHeightCommand(const QList<ElevationSectio
 {
     // Check for validity //
     //
-    if (absoluteHeight == false && (fabs(newHeight) < NUMERICAL_ZERO8) || (endPointSections_.isEmpty() && startPointSections_.isEmpty()))
+    if ((absoluteHeight == false && (fabs(newHeight) < NUMERICAL_ZERO8)) || (endPointSections_.isEmpty() && startPointSections_.isEmpty()))
     {
         setInvalid(); // Invalid because no change.
         //		setText(QObject::tr("Cannot move elevation point. Nothing to be done."));
@@ -1643,7 +1643,7 @@ ApplyHeightMapElevationCommand::redo()
         ElevationSection *elevationSectionHigh;
         double myDist = radius_;
 
-        while (abs(road_->getLength() - highSEnd) > NUMERICAL_ZERO3)
+        while (fabs(road_->getLength() - highSEnd) > NUMERICAL_ZERO3)
         {
             elevationSectionHigh = road_->getElevationSection(highSEnd);
             elevationSectionLow = road_->getElevationSectionBefore(highSEnd);
@@ -1662,7 +1662,7 @@ ApplyHeightMapElevationCommand::redo()
             double slopeHigh = (elevationSectionHigh->getElevation(elevationSectionHigh->getSEnd()) - elevationSectionHigh->getElevation(elevationSectionHigh->getSStart())) / elevationSectionHigh->getLength();
             double angle = 180.0 - atan((slopeHigh - slopeLow) / (1 + slopeHigh * slopeLow));
             double tanAngle = tan(angle * M_PI / 360);
-            double myRadius = abs(myDist * tanAngle);
+            double myRadius = fabs(myDist * tanAngle);
 
             highSEnd = elevationSectionHigh->getSEnd();
             SmoothElevationSectionCommand *command = new SmoothElevationSectionCommand(elevationSectionLow, elevationSectionHigh, myRadius);

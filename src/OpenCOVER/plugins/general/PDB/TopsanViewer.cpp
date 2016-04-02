@@ -229,7 +229,7 @@ void TopsanViewer::load(string name)
     else
     {
         //cerr << "NOT IN TOPSAN" << endl;
-        delete buffer;
+        delete[] buffer;
         infile.close();
 
         nottopsanData[name] = pair<TopsanViewer::nontopsanData *, int>(parsePDB(name), 1);
@@ -328,7 +328,7 @@ void TopsanViewer::load(string name)
 
     loadedData[name] = pair<struct topsanData *, int>(data, 1);
 
-    delete buffer;
+    delete[] buffer;
     infile.close();
 }
 

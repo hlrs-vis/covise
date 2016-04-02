@@ -1518,7 +1518,7 @@ LaneSetWidthCommand::LaneSetWidthCommand(const QList<LaneWidth *> &endPointWidth
 {
     // Check for validity //
     //
-    if (absoluteWidth == false && (fabs(newWidth) < NUMERICAL_ZERO8) || (endPointWidth_.isEmpty() && startPointWidth_.isEmpty()))
+    if ((absoluteWidth == false && fabs(newWidth) < NUMERICAL_ZERO8) || (endPointWidth_.isEmpty() && startPointWidth_.isEmpty()))
     {
         setInvalid(); // Invalid because no change.
         //		setText(QObject::tr("Cannot move elevation point. Nothing to be done."));

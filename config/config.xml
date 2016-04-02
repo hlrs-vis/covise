@@ -121,6 +121,7 @@
            <FileType name="str" plugin="VRAnim" />
            <FileType name="sensor" plugin="VRAnim" />
            <FileType name="particle" plugin="Particles" />
+           <FileType name="indent" plugin="Particles" />
            <FileType name="coord" plugin="Particles" />
            <FileType name="crist" plugin="Particles" />
            <FileType name="chkpt" plugin="Particles" />

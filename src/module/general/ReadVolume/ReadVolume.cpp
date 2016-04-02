@@ -37,7 +37,7 @@
 #include <virvo/vvfileio.h>
 #include <virvo/vvvoldesc.h>
 #include <virvo/vvtoolshed.h>
-#include <virvo/vvvirvo.h>
+#include <virvo/fileio/feature.h>
 #include "ReadVolume.h"
 
 
@@ -301,7 +301,7 @@ coReadVolume::coReadVolume(int argc, char *argv[])
 
     std::stringstream filetypes;
     filetypes << "*.xvf;*.rvf;*.avf/*.dcm;*.dcom/";
-    if (virvo::hasFeature("nifti"))
+    if (virvo::fileio::hasFeature("nifti"))
     {
         filetypes << "*.nii;*.nii.gz/";
     }

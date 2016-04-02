@@ -223,7 +223,8 @@ private:
 // RemoveOSCValueCommand //
 //#########################//
 
-/*class RemoveOSCValueCommand : public DataCommand
+#if 0
+class RemoveOSCValueCommand : public DataCommand
 {
 public:
     explicit RemoveOSCValueCommand(OSCElement *element,DataCommand *parent = NULL);
@@ -239,16 +240,17 @@ public:
 
 private:
     RemoveOSCValueCommand(); /* not allowed */
- /*   RemoveOSCValueCommand(const RemoveOSCValueCommand &); /* not allowed */
-/*    RemoveOSCValueCommand &operator=(const RemoveOSCValueCommand &); /* not allowed */
+    RemoveOSCValueCommand(const RemoveOSCValueCommand &); /* not allowed */
+    RemoveOSCValueCommand &operator=(const RemoveOSCValueCommand &); /* not allowed */
 
-/*private:
+private:
 	const OpenScenario::OpenScenarioBase * openScenarioBase_;
     const OpenScenario::oscObjectBase *object_;
 
 	OSCBase *oscBase_;
 	OSCElement *element_;
-};*/
+};
+#endif
 
 //#########################//
 // SetOSCObjectPropertiesCommand //
@@ -273,7 +275,7 @@ public:
 
 	newOSCValue_ = value;
 	OpenScenario::oscMember *member = object->getMember(memberName);
-	v_ = member->getGenerateValue();
+	v_ = member->getOrCreateValue();
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

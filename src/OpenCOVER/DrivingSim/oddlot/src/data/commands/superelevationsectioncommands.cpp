@@ -982,7 +982,7 @@ ApplyHeightMapSuperelevationCommand::redo()
         SuperelevationSection *elevationSectionHigh;
         double myDist = radius_;
 
-        while (abs(road_->getLength() - highSEnd) > NUMERICAL_ZERO3)
+        while (fabs(road_->getLength() - highSEnd) > NUMERICAL_ZERO3)
         {
             elevationSectionHigh = road_->getSuperelevationSection(highSEnd);
             elevationSectionLow = road_->getSuperelevationSectionBefore(highSEnd);
@@ -1001,7 +1001,7 @@ ApplyHeightMapSuperelevationCommand::redo()
             double slopeHigh = (elevationSectionHigh->getSuperelevationRadians(elevationSectionHigh->getSEnd()) - elevationSectionHigh->getSuperelevationRadians(elevationSectionHigh->getSStart())) / elevationSectionHigh->getLength();
             double angle = 180.0 - atan((slopeHigh - slopeLow) / (1 + slopeHigh * slopeLow));
             double tanAngle = tan(angle * M_PI / 360);
-            double myRadius = abs(myDist * tanAngle);
+            double myRadius = fabs(myDist * tanAngle);
 
             highSEnd = elevationSectionHigh->getSEnd();
             SmoothSuperelevationSectionCommand *command = new SmoothSuperelevationSectionCommand(elevationSectionLow, elevationSectionHigh, myRadius);

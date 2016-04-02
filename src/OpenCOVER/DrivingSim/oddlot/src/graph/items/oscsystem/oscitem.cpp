@@ -88,7 +88,7 @@ QPainterPath *
 	double width = 10;
 	double height = 10;
 
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getGenerateValue());
+	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getOrCreateValue());
 	if (iv)
 	{
 		switch (iv->getValue())
@@ -159,7 +159,7 @@ OSCItem::init()
     }
 
 	OpenScenario::oscObjectBase *oscPosition = oscObject_->getMember("initPosition")->getObject();
-	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
+	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getOrCreateObject();
 	roadID_ = QString::fromStdString(dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getValue())->getValue());
 	road_ = getProjectData()->getRoadSystem()->getRoad(roadID_);
 	closestRoad_ = road_;
@@ -170,8 +170,8 @@ OSCItem::init()
 
 	// TODO: get type and object from catalog reference //
 	//
-	OpenScenario::oscCatalogReferenceTypeA * catalogRefA = dynamic_cast<OpenScenario::oscCatalogReferenceTypeA *>(oscObject_->getMember("catalogReference")->getGenerateObject());
-	const std::string refId = dynamic_cast<OpenScenario::oscStringValue *>(catalogRefA->getMember("catalogId")->getGenerateValue())->getValue();
+	OpenScenario::oscCatalogReferenceTypeA * catalogRefA = dynamic_cast<OpenScenario::oscCatalogReferenceTypeA *>(oscObject_->getMember("catalogReference")->getOrCreateObject());
+	const std::string refId = dynamic_cast<OpenScenario::oscStringValue *>(catalogRefA->getMember("catalogId")->getOrCreateValue())->getValue();
 	OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(getProjectData()->getProjectWidget()->getProjectEditor());
 
 	selectedObject_ = oscEditor->getCatalog(refId)->getObject();
