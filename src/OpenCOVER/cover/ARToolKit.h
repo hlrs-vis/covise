@@ -159,6 +159,7 @@ public:
     bool videoMirrorRight;
     std::string m_artoolkitVariant;
     std::list<ARToolKitMarker *> markers;
+    void addMarker(ARToolKitMarker *);
     bool doMerge;
     bool testImage;
 };

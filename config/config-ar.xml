@@ -204,10 +204,26 @@
                         <VrmlToPf value="TRUE" />
                     </Marker>
                     -->
+                    <Marker name="ObjectMarker11" >
+                        <Pattern value="29" />
+                        <Size value="250" />
+                        <Offset x="-400" y="-1087" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
 
                 </ARToolKit>
 
+                <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">
+                    <Capture value="on" />
+                    <VideoDevice value="1" width="1920" height="1080" />
+                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+                    <!--
+                    <VideoDevice value="0" width="640" height="480" />
+                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
+                    -->
+                </ALVAR>
+				<ARUCO value="ON">
                     <Capture value="on" />
                     <VideoDevice value="2" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
@@ -215,7 +231,7 @@
                     <VideoDevice value="0" width="640" height="480" />
                     <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
                     -->
-                </ALVAR>
+                </ARUCO>
 
             </Plugin>
         </COVER>

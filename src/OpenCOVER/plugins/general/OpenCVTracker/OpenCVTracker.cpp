@@ -127,7 +127,25 @@ void OpenCVTracker::preFrame()
 {
     if (capture)
     {
+#if (CV_VERSION_MAJOR < 3)
         frame = cvQueryFrame(capture);
+#else
+        IplImage* _img = cvQueryFrame(capture);
+        if( !_img )
+        {
+            frame.release();
+        }
+        else
+        {
+            if(_img->origin == IPL_ORIGIN_TL)
+                cv::cvarrToMat(_img).copyTo(frame);
+            else
+            {
+                Mat temp = cv::cvarrToMat(_img);
+                flip(temp, frame, 0);
+            }
+        }
+#endif
 
         //-- 3. Apply the classifier to the frame
         if (!frame.empty())

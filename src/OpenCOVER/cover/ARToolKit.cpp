@@ -688,6 +688,11 @@ void ARToolKit::update()
     }
 }
 
+void ARToolKit::addMarker(ARToolKitMarker *m)
+{
+    if(m->isObjectMarker())
+        objectMarkers.push_back(m);
+}
 bool ARToolKit::isRunning()
 {
     return running;
