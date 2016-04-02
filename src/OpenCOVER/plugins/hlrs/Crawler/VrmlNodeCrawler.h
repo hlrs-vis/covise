@@ -100,5 +100,11 @@ private:
     VrmlSFBool d_lademodus;
     VrmlSFVec3f d_position;
     VrmlSFRotation d_rotation;
+    VrmlSFFloat d_main0Angle;
+    VrmlSFFloat d_main1Angle;
+    VrmlSFFloat d_main2Angle;
+    VrmlSFFloat d_sec0Angle;
+    VrmlSFFloat d_sec1Angle;
+    VrmlSFFloat d_sec2Angle;
 };
 #endif //_VRMLNODECrawler_

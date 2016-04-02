@@ -68,6 +68,19 @@ VrmlNodeType *VrmlNodeCrawler::defineType(VrmlNodeType *t)
     t->addExposedField("lademodus", VrmlField::SFBOOL);
     t->addEventOut("position",VrmlField::SFVEC3F);
     t->addEventOut("rotation",VrmlField::SFROTATION);
+    t->addEventOut("main0Angle",VrmlField::SFFLOAT);
+    t->addEventOut("main1Angle",VrmlField::SFFLOAT);
+    t->addEventOut("main2Angle",VrmlField::SFFLOAT);
+    t->addEventOut("sec0Angle",VrmlField::SFFLOAT);
+    t->addEventOut("sec1Angle",VrmlField::SFFLOAT);
+    t->addEventOut("sec2Angle",VrmlField::SFFLOAT);
+    
+    VrmlSFFloat d_main0Angle;
+    VrmlSFFloat d_main1Angle;
+    VrmlSFFloat d_main2Angle;
+    VrmlSFFloat d_sec0Angle;
+    VrmlSFFloat d_sec1Angle;
+    VrmlSFFloat d_sec2Angle;
 
     return t;
 }
@@ -83,6 +96,12 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
     , d_lademodus(true)
     , d_position(0,0,0)
     , d_rotation(1,0,0,0)
+    , d_main0Angle(0.0)
+    , d_main1Angle(0.0)
+    , d_main2Angle(0.0)
+    , d_sec0Angle(0.0)
+    , d_sec1Angle(0.0)
+    , d_sec2Angle(0.0)
 {
     setModified();
     
@@ -101,7 +120,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
     PxShape* tetraederShape = CrawlerPlugin::plugin->gPhysics->createShape(PxConvexMeshGeometry(tetraederconvexMesh), &CrawlerPlugin::plugin->gMaterial, PxShapeFlag::eSIMULATION_SHAPE);
     tetraederShape->setContactOffset(0.001);
 
-    PxTransform localPosTetraeder(PxVec3(1.4, 0.014, 1.4));
+    PxTransform localPosTetraeder(PxVec3(1.2, 0.014, 1.2));
     tetraederActor = CrawlerPlugin::plugin->gPhysics->createRigidDynamic(localPosTetraeder);
     tetraederActor->attachShape(*tetraederShape);
     tetraederActor->setMass(19.475);
@@ -294,6 +313,12 @@ VrmlNodeCrawler::VrmlNodeCrawler(const VrmlNodeCrawler &n)
     , d_lademodus(n.d_lademodus)
     , d_position(n.d_position)
     , d_rotation(n.d_rotation)
+    , d_main0Angle(n.d_main0Angle)
+    , d_main1Angle(n.d_main1Angle)
+    , d_main2Angle(n.d_main2Angle)
+    , d_sec0Angle(n.d_sec0Angle)
+    , d_sec1Angle(n.d_sec1Angle)
+    , d_sec2Angle(n.d_sec2Angle)
 {
     setModified();
 }
@@ -321,10 +346,23 @@ void VrmlNodeCrawler::render(Viewer *viewer)
     PxReal angle; PxVec3 axis;
     pos.q.toRadiansAndUnitAxis(angle,axis);
     d_rotation.set(axis[0],axis[1],axis[2],angle);
+    d_main0Angle.set(MainFlap[0].revoluteJoint->getAngle());
+    d_main1Angle.set(MainFlap[1].revoluteJoint->getAngle());
+    d_main2Angle.set(MainFlap[2].revoluteJoint->getAngle());
+    d_sec0Angle.set(SecFlap[0].revoluteJoint->getAngle());
+    d_sec1Angle.set(SecFlap[1].revoluteJoint->getAngle());
+    d_sec2Angle.set(SecFlap[2].revoluteJoint->getAngle());
     
     double timeNow = System::the->time();
     eventOut(timeNow, "position", d_position);
     eventOut(timeNow, "rotation", d_rotation);
+    eventOut(timeNow, "main0Angle", d_main0Angle);
+    eventOut(timeNow, "main1Angle", d_main1Angle);
+    eventOut(timeNow, "main2Angle", d_main2Angle);
+    eventOut(timeNow, "sec0Angle", d_sec0Angle);
+    eventOut(timeNow, "sec1Angle", d_sec1Angle);
+    eventOut(timeNow, "sec2Angle", d_sec2Angle);
+    MainFlap[0].revoluteJoint->getAngle();
     setModified();
 }
 
@@ -338,6 +376,18 @@ ostream &VrmlNodeCrawler::printFields(ostream &os, int indent)
         PRINT_FIELD(position);
     if (!d_rotation.get())
         PRINT_FIELD(rotation);
+    if (!d_main0Angle.get())
+        PRINT_FIELD(main0Angle);
+    if (!d_main1Angle.get())
+        PRINT_FIELD(main1Angle);
+    if (!d_main2Angle.get())
+        PRINT_FIELD(main2Angle);
+    if (!d_sec0Angle.get())
+        PRINT_FIELD(sec0Angle);
+    if (!d_sec1Angle.get())
+        PRINT_FIELD(sec1Angle);
+    if (!d_sec2Angle.get())
+        PRINT_FIELD(sec2Angle);
 
     return os;
 }
@@ -355,6 +405,18 @@ void VrmlNodeCrawler::setField(const char *fieldName,
         TRY_FIELD(position, SFVec3f)
     else if
         TRY_FIELD(rotation, SFRotation)
+    else if
+        TRY_FIELD(main0Angle, SFFloat)
+    else if
+        TRY_FIELD(main1Angle, SFFloat)
+    else if
+        TRY_FIELD(main2Angle, SFFloat)
+    else if
+        TRY_FIELD(sec0Angle, SFFloat)
+    else if
+        TRY_FIELD(sec1Angle, SFFloat)
+    else if
+        TRY_FIELD(sec2Angle, SFFloat)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
 
@@ -370,6 +432,18 @@ const VrmlField *VrmlNodeCrawler::getField(const char *fieldName) const
         return &d_position;
     else if (strcmp(fieldName, "rotation") == 0)
         return &d_rotation;
+    else if (strcmp(fieldName, "main0Angle") == 0)
+        return &d_main0Angle;
+    else if (strcmp(fieldName, "main1Angle") == 0)
+        return &d_main1Angle;
+    else if (strcmp(fieldName, "main2Angle") == 0)
+        return &d_main2Angle;
+    else if (strcmp(fieldName, "sec0Angle") == 0)
+        return &d_sec0Angle;
+    else if (strcmp(fieldName, "sec1Angle") == 0)
+        return &d_sec1Angle;
+    else if (strcmp(fieldName, "sec2Angle") == 0)
+        return &d_sec2Angle;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
