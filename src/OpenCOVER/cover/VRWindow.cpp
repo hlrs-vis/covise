@@ -194,6 +194,10 @@ VRWindow::createWin(int i)
     traits->width = coVRConfig::instance()->windows[i].sx;
     traits->height = coVRConfig::instance()->windows[i].sy;
     traits->windowDecoration = coVRConfig::instance()->windows[i].decoration;
+    if(traits->windowDecoration == false)
+    {
+        traits->overrideRedirect = true; 
+    }
     traits->supportsResize = coVRConfig::instance()->windows[i].resize;
     if(coVRConfig::instance()->glVersion.size()>0)
     {
@@ -216,6 +220,11 @@ VRWindow::createWin(int i)
 
     if (traits->inheritedWindowData != NULL)
         traits->windowDecoration = false;
+    
+    if(traits->windowDecoration == false)
+    {
+        traits->overrideRedirect = true; 
+    }
 
     const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
     if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
