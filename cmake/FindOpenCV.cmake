@@ -15,6 +15,7 @@ ELSE(COVISE_USE_OPENCV3)
 SET(OPENCV_EXTERNLIBS $ENV{EXTERNLIBS}/OpenCV/build/)
 ENDIF(COVISE_USE_OPENCV3)
 
+
 FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
   PATHS
   ${OPENCV_EXTERNLIBS}/include
@@ -28,16 +29,22 @@ FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
   /opt/csw/include # Blastwave
   /opt/include
   DOC "OpenCV - Headers"
+  NO_DEFAULT_PATH
 )
+FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
+  DOC "OpenCV - Headers"
+)
+
 MACRO(FIND_OPENCV_COMPONENT component version)
 
 STRING(TOUPPER ${component} _uppercomponent)
-SET(OPENCV_NAMES opencv_${component}${version})
+SET(OPENCV_NAMES opencv_${component}${version} opencv_${component})
 SET(OPENCV_WOV_NAMES opencv_${component})
 SET(OPENCV_DBG_NAMES opencv_${component}${version}d)
 
 FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   PATHS
+  ${OPENCV_EXTERNLIBS}
   $ENV{OPENCV_HOME}
   ${OPENCV_EXTERNLIBS}/x64/vc12
   ${OPENCV_EXTERNLIBS}/x64/vc11
@@ -51,6 +58,10 @@ FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   /opt/csw
   /opt
   PATH_SUFFIXES lib lib64
+  DOC "OPENCV - Library"
+  NO_DEFAULT_PATH
+)
+FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   DOC "OPENCV - Library"
 )
 
