@@ -10,8 +10,6 @@ endif()
 #
 # @author Uwe Woessner
 
-ADD_SUBDIRECTORY(ARToolKit)
-ADD_SUBDIRECTORY(ARToolKitPlus)
 #ADD_SUBDIRECTORY(FeatureTracking)
 #ADD_SUBDIRECTORY(RRServer)
 #ADD_SUBDIRECTORY(TuioClient)
