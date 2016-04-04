@@ -24,11 +24,14 @@ if( UNIX )
     set( XENOMAI_INCLUDE_DIR ${XENOMAI_DIR}/include )
     set( XENOMAI_INCLUDE_POSIX_DIR ${XENOMAI_DIR}/include/posix )
 
-    if( USE_MERCURY )
+    if( COVISE_USE_MERCURY )
       find_library( XENOMAI_LIBRARY_ALCHEMY  alchemy  ${XENOMAI_DIR}/lib )
+      find_library( XENOMAI_LIBRARY_COPPERPLATE copperplate ${XENOMAI_DIR}/lib )
       find_library( XENOMAI_LIBRARY_MERCURY mercury  ${XENOMAI_DIR}/lib )
       set(XENOMAI_DEFINITIONS "-DMERCURY")
-    else( USE_MERCURY )
+      set( XENOMAI_INCLUDE_DIR ${XENOMAI_DIR}/include  ${XENOMAI_DIR}/include/mercury)
+      set(XENOMAI_LIBRARIES ${XENOMAI_LIBRARY_ALCHEMY} ${XENOMAI_LIBRARY_COPPERPLATE} ${XENOMAI_LIBRARY_MERCURY})
+    else( COVISE_USE_MERCURY )
       find_library( XENOMAI_LIBRARY_NATIVE  native  ${XENOMAI_DIR}/lib )
       find_library( XENOMAI_LIBRARY_PTHREAD_RT pthread_rt rtdm ${XENOMAI_DIR}/lib )
       find_library( XENOMAI_LIBRARY_RTDM    rtdm    ${XENOMAI_DIR}/lib )
@@ -40,7 +43,8 @@ if( UNIX )
 
       # add compile/preprocess options
       set(XENOMAI_DEFINITIONS "-D_GNU_SOURCE -D_REENTRANT -Wall -pipe -D__XENO__")
-    endif( USE_MERCURY )
+      set(XENOMAI_LIBRARIES ${XENOMAI_LIBRARY_NATIVE} ${XENOMAI_LIBRARY_RTDM})
+    endif( COVISE_USE_MERCURY )
 
     set(XENOMAI_FOUND true)
     
