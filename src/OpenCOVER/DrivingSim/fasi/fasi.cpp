@@ -9,14 +9,16 @@
 #include <unistd.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+#include <xenomai/init.h>
 
-int main(int argc, char **argv)
+int main(int argc, char* const* argv)
 {
     if (argc < 2)
     {
         fprintf(stderr, "usage: fasi file.xodr\n");
         return -1;
     }
+    xenomai_init(&argc, &argv); 
     fasi *f = new fasi(argv[1]);
     f->run();
     delete f;
