@@ -92,19 +92,19 @@ ENDIF(ALVAR_USE_CUDA)
 SET(HEADERS
   ALVARTrackerPlugin.h
 #  CvCapture.h
-  RemoteAR.h
+  ../common/RemoteAR.h
 )
 
 SET(SOURCES
   ALVARTrackerPlugin.cpp
 #  CvCapture.cpp
-  RemoteAR.cpp
+  ../common/RemoteAR.cpp
 )
 
 
 IF(ALVAR_USE_CUDA)
 IF(CUDA_FOUND)
-  SET(ALVAR_CUDA_SOURCES dxtc2.cu)
+  SET(ALVAR_CUDA_SOURCES ../common/dxtc2.cu)
   SET(CUDA_NVCC_DEFINITIONS "GLUT_NO_LIB_PRAGMA")
   
   SET(SOURCES  ${SOURCES} ${ALVAR_CUDA_SOURCES})

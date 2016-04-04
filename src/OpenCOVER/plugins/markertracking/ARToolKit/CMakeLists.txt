@@ -91,18 +91,18 @@ ENDIF(ARTOOLKIT_USE_CUDA)
 
 SET(HEADERS
   ARToolKitPlugin.h
-  RemoteAR.h
+  ../common/RemoteAR.h
 )
 
 SET(SOURCES
   ARToolKitPlugin.cpp
-  RemoteAR.cpp
+  ../common/RemoteAR.cpp
 )
 
 
 IF(ARTOOLKIT_USE_CUDA)
 IF(CUDA_FOUND)
-  SET(ARTOOLKIT_CUDA_SOURCES dxtc2.cu)
+  SET(ARTOOLKIT_CUDA_SOURCES ../common/dxtc2.cu)
   SET(CUDA_NVCC_DEFINITIONS "GLUT_NO_LIB_PRAGMA")
   
   SET(SOURCES  ${SOURCES} ${ARTOOLKIT_CUDA_SOURCES})

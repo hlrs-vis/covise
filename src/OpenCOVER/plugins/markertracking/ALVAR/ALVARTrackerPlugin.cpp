@@ -32,13 +32,13 @@
 #endif
 #endif
 #include "ALVARTrackerPlugin.h"
+#include "../common/RemoteAR.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
 #include <cover/ARToolKit.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
-#include "RemoteAR.h"
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <Pose.h>

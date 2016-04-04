@@ -38,7 +38,7 @@
 #include <cover/ARToolKit.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
-#include "RemoteAR.h"
+#include "../common/RemoteAR.h"
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <opencv2/calib3d/calib3d.hpp>
