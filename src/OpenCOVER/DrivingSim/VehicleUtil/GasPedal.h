@@ -32,11 +32,16 @@
 #include "HMIDeviceIface.h"
 #include "XenomaiSocketCan.h"
 #include <iostream>
+#ifdef MERCURY
+#include <alchemy/timer.h>
+#else
 #include <native/timer.h>
+#endif
+
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class GasPedal : public HMIDeviceIface
+class VEHICLEUTILEXPORT GasPedal : public HMIDeviceIface
 {
 public:
     virtual ~GasPedal();

@@ -12,7 +12,7 @@
 
 #include <cstring>
 
-class CanOpenController : public CanController
+class VEHICLEUTILEXPORT CanOpenController : public CanController
 {
 public:
     CanOpenController(const std::string &);

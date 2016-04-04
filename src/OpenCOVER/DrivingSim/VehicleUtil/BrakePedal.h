@@ -35,7 +35,12 @@
 #include "HMIDeviceIface.h"
 #include "XenomaiTask.h"
 
+#ifdef MERCURY
+#include <alchemy/timer.h>
+#else
 #include <native/timer.h>
+#endif
+
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments

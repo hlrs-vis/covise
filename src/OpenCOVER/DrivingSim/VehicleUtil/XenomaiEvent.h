@@ -8,7 +8,13 @@
 #ifndef __XenomaiEvent_h
 #define __XenomaiEvent_h
 
+
+#ifdef MERCURY
+#include <alchemy/event.h>
+#else
 #include <native/event.h>
+#endif
+
 
 class XenomaiEvent
 {
@@ -31,7 +37,11 @@ public:
         }
     }
 
+#ifdef MERCURY
+    int wait(unsigned long mask, unsigned int*rmask = NULL, int mode = EV_ANY, RTIME timeout = TM_INFINITE)
+#else
     int wait(unsigned long mask, unsigned long *rmask = NULL, int mode = EV_ANY, RTIME timeout = TM_INFINITE)
+#endif
     {
         int ret_acquire = rt_event_wait(&rt_event_desc, mask, rmask, mode, timeout);
         if (ret_acquire)
@@ -44,7 +54,11 @@ public:
         return ret_acquire;
     }
 
+#ifdef MERCURY
+    int clear(unsigned long mask, unsigned int *rmask = NULL)
+#else
     int clear(unsigned long mask, unsigned long *rmask = NULL)
+#endif
     {
         int ret_acquire = rt_event_clear(&rt_event_desc, mask, rmask);
         if (ret_acquire)

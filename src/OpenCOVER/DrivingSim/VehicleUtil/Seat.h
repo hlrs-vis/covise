@@ -31,7 +31,7 @@
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class Seat : public HMIDeviceIface, public covise::coUpdateable
+class Seat : public HMIDeviceIface, public vrui::coUpdateable
 {
 public:
     virtual ~Seat();

@@ -31,7 +31,7 @@
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class IgnitionLock : public HMIDeviceIface, public fasiUpdateable
+class VEHICLEUTILEXPORT IgnitionLock : public HMIDeviceIface, public fasiUpdateable
 {
 public:
     virtual ~IgnitionLock();

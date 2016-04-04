@@ -7,7 +7,13 @@
 
 #include "XenomaiSteeringWheel.h"
 
+#ifdef MERCURY
+#include <alchemy/timer.h>
+#else
 #include <native/timer.h>
+#endif
+#include <unistd.h>
+
 #include <cstdlib>
 
 XenomaiSteeringWheelHomingTask::XenomaiSteeringWheelHomingTask(CanOpenController &con, uint8_t id)
@@ -361,7 +367,11 @@ XenomaiSteeringWheel::~XenomaiSteeringWheel()
     RT_TASK_INFO info;
     inquire(info);
 
+#ifdef MERCURY
+    if (info.stat.status & __THREAD_S_STARTED)
+#else
     if (info.status & T_STARTED)
+#endif
     {
         runTask = false;
         while (!taskFinished)

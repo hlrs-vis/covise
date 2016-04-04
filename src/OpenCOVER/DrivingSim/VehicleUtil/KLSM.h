@@ -29,7 +29,7 @@
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class KLSM : public HMIDeviceIface
+class VEHICLEUTILEXPORT KLSM : public HMIDeviceIface
 {
 public:
     virtual ~KLSM();

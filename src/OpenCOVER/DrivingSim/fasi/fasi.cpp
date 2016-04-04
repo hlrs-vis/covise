@@ -30,7 +30,7 @@ fasi::fasi(const char *filename)
 {
     system = NULL;
     myFasi = this;
-    serverConn = new covise::ServerConnection(31880, 1234, covise::UNDEFINED);
+    serverConn = new covise::ServerConnection(31880, 1234, -1);
     if (!serverConn->getSocket())
     {
         std::cout << "tried to open server Port " << 31880 << std::endl;

@@ -25,7 +25,7 @@
 // TAB WIDTH    3
 //--------------------------------------------------------------------
 
-#include "../cover/coShutDownHandler.h"
+#include "cover/coShutDownHandler.h"
 #include "HMIDeviceIface.h"
 #include "CANProvider.h"
 #include <list>
@@ -34,7 +34,7 @@
 class HMIDeviceIface; // fwd declaration
 
 //--------------------------------------------------------------------
-class VehicleUtil : public opencover::coShutDownHandler
+class VEHICLEUTILEXPORT VehicleUtil : public opencover::coShutDownHandler
 {
 public:
     virtual ~VehicleUtil();

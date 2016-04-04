@@ -31,7 +31,7 @@
 #include <cover/coVRPluginSupport.h>
 
 //--------------------------------------------------------------------
-class Chrono : public HMIDeviceIface, public covise::coUpdateable
+class Chrono : public HMIDeviceIface, public vrui::coUpdateable
 {
 public:
     virtual ~Chrono();

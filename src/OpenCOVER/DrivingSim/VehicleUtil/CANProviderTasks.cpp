@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "CANProviderTasks.h"
+#include <unistd.h>
 
 //SendTask////////////////////////////////////////////////////////////
 
@@ -87,7 +88,11 @@ void SendTask::shutdown()
         RT_TASK_INFO info;
         inquire(info);
 
+#ifdef MERCURY
+        if (info.stat.status & __THREAD_S_STARTED)
+#else
         if (info.status & T_STARTED)
+#endif
         {
             stop = true;
             while (isRunning)
@@ -258,7 +263,11 @@ void CANDRecvTask::shutdown()
 
         RT_TASK_INFO info;
         inquire(info);
+#ifdef MERCURY
+        if (info.stat.status & __THREAD_S_STARTED)
+#else
         if (info.status & T_STARTED)
+#endif
         {
             stop = true;
             while (isRunning)
@@ -343,7 +352,11 @@ void CANKRecvTask::shutdown()
 
         RT_TASK_INFO info;
         inquire(info);
+#ifdef MERCURY
+        if (info.stat.status & __THREAD_S_STARTED)
+#else
         if (info.status & T_STARTED)
+#endif
         {
             stop = true;
             while (isRunning)

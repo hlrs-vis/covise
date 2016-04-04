@@ -36,7 +36,7 @@
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class BlinkerTask : public XenomaiTask
+class VEHICLEUTILEXPORT BlinkerTask : public XenomaiTask
 {
 public:
     enum blinkState
@@ -68,7 +68,7 @@ private:
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class KI : public HMIDeviceIface, public fasiUpdateable
+class VEHICLEUTILEXPORT KI : public HMIDeviceIface, public fasiUpdateable
 {
 public:
     enum gearshiftLeverState

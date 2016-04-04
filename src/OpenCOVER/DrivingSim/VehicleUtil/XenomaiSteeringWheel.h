@@ -13,7 +13,7 @@
 #include "XenomaiTask.h"
 #include <deque>
 
-class XenomaiSteeringWheelHomingTask : public CanOpenDevice, public XenomaiTask
+class VEHICLEUTILEXPORT XenomaiSteeringWheelHomingTask : public CanOpenDevice, public XenomaiTask
 {
 public:
     XenomaiSteeringWheelHomingTask(CanOpenController &, uint8_t);
@@ -34,12 +34,12 @@ protected:
     bool done;
     bool success;
 
-    static const double speedRes = 1875.0 / 262144.0; // = 1 bit
-    static const double homingSpeed = 10; //revs/min
-    static const int32_t limitSwitchPosition = -369000; //was -380432;
+    const double speedRes = 1875.0 / 262144.0; // = 1 bit
+    const double homingSpeed = 10; //revs/min
+    const int32_t limitSwitchPosition = -369000; //was -380432;
 };
 
-class XenomaiSteeringWheel : public CanOpenDevice, public XenomaiTask
+class VEHICLEUTILEXPORT XenomaiSteeringWheel : public CanOpenDevice, public XenomaiTask
 {
 public:
     XenomaiSteeringWheel(CanOpenController &, uint8_t);

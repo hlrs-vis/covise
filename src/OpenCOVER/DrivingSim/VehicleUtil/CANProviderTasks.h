@@ -30,7 +30,6 @@
 #include "CanOpenDevice.h"
 #include <stdlib.h>
 #include <list>
-#include <native/mutex.h>
 
 class CanOpenDevice; // forward class declaration
 class CANProvider; // forward class declaration

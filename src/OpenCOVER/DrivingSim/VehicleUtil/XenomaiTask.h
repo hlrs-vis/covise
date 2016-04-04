@@ -9,10 +9,15 @@
 #define __XenomaiTask_h
 
 #include <iostream>
+#include <util/coExport.h>
 
+#ifdef MERCURY
+#include <alchemy/task.h>
+#else
 #include <native/task.h>
+#endif
 
-class XenomaiTask
+class VEHICLEUTILEXPORT XenomaiTask
 {
 public:
     XenomaiTask(const std::string & = "noname", int = 0, int = 99, int = 0);
