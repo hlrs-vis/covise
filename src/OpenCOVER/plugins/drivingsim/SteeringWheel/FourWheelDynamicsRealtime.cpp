@@ -6,6 +6,8 @@
  * License: LGPL 2+ */
 
 #include "FourWheelDynamicsRealtime.h"
+#include <VehicleUtil.h>
+
 
 #include <osg/Shape>
 #include <osg/ShapeDrawable>
@@ -16,7 +18,11 @@
 FourWheelDynamicsRealtime::FourWheelDynamicsRealtime()
     :
 #ifdef __XENO__
+#ifdef MERCURY
+    XenomaiTask::XenomaiTask("FourWheelDynamicsRealtimeTask", 0, 99, 0)
+#else
     XenomaiTask::XenomaiTask("FourWheelDynamicsRealtimeTask", 0, 99, T_FPU | T_CPU(5))
+#endif
     ,
 #endif
     dy(cardyn::getExpressionVector())
@@ -128,7 +134,11 @@ FourWheelDynamicsRealtime::~FourWheelDynamicsRealtime()
         RT_TASK_INFO info;
         inquire(info);
 
-        if (info.status & T_STARTED)
+#ifdef MERCURY
+    if (info.stat.status & __THREAD_S_STARTED)
+#else
+    if (info.status & T_STARTED)
+#endif
         {
             runTask = false;
             while (!taskFinished)

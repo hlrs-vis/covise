@@ -10,9 +10,9 @@
 
 #include "Vehicle.h"
 #include "VehicleDynamics.h"
-#include "XenomaiTask.h"
 #include "ValidateMotionPlatform.h"
 #include "CanOpenController.h"
+#include "XenomaiTask.h"
 #include "XenomaiSteeringWheel.h"
 
 class EinspurDynamikRealtimeState

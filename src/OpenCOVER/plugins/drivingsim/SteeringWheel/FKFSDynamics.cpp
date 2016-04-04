@@ -6,6 +6,10 @@
  * License: LGPL 2+ */
 
 #include "FKFSDynamics.h"
+#ifdef debug
+#undef debug
+#endif
+
 
 #include <config/CoviseConfig.h>
 #include "SteeringWheel.h"

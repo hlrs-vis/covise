@@ -8,7 +8,7 @@
 #ifndef __FourWheelDynamicsRealtime_h
 #define __FourWheelDynamicsRealtime_h
 
-#include "../../../VehicleUtil/gealg/CarDynamics.h"
+#include "gealg/CarDynamics.h"
 //#include "../../../VehicleUtil/gealg/CarDynamicsPA2004.h"
 
 #include "Vehicle.h"
@@ -18,7 +18,11 @@
 #include "ValidateMotionPlatform.h"
 #include "CanOpenController.h"
 #include "XenomaiSteeringWheel.h"
+#ifdef debug
+#undef debug
 #endif
+#endif
+
 
 #include <cover/coVRTui.h>
 
