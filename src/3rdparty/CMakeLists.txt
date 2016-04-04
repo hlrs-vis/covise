@@ -17,7 +17,6 @@ SET(DESKVOX_USE_RAYREND_CSPLINE OFF)
 
 if (COVISE_USE_VIRVO)
    using(GLEW optional)
-   using(OpenSceneGraph optional)
    if (NOT GLEW_FOUND)
       message("Cannot build Virvo: no GLEW - maybe disable COVISE_USE_VIRVO?")
    endif()
