@@ -111,6 +111,7 @@ VRSceneGraph::VRSceneGraph()
     , m_wireFrame(false)
     , m_textured(true)
     , m_showMenu(true)
+    , m_showObjects(true)
     , m_pointerType(0)
     , m_worldTransformer(false)
     , m_worldTransformerEnabled(true)
@@ -245,6 +246,11 @@ void VRSceneGraph::initSceneGraph()
     m_scene = new osgShadow::ShadowedScene();
     m_scene->setName("VR_RENDERER_SCENE_NODE");
     m_scene->setShadowTechnique(NULL);
+
+    m_objectsScene = new osgShadow::ShadowedScene();
+    m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
+    m_objectsScene->setShadowTechnique(NULL);
+
     coVRShadowManager::instance();
 
     // Create a lit scene osg::StateSet for the scene
@@ -258,6 +264,7 @@ void VRSceneGraph::initSceneGraph()
 
     // attach the osg::StateSet to the scene
     m_scene->setStateSet(m_rootStateSet);
+    m_objectsScene->setStateSet(m_rootStateSet);
 
     // create the pointer (hand) DCS node
     // add it to the scene graph as the first child
@@ -298,6 +305,7 @@ void VRSceneGraph::initSceneGraph()
     m_scaleTransform = new osg::MatrixTransform();
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
+    m_objectsScene->addChild(m_objectsTransform);
 
     // root node for all objects
     osg::ClipNode *clipNode = new osg::ClipNode();
@@ -601,6 +609,24 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
         }
     }
     return handled;
+}
+
+void
+VRSceneGraph::setObjects(bool state)
+{
+    m_showObjects = state;
+
+    if (m_showObjects)
+    {
+        if (m_objectsTransform->getNumParents() == 1)
+        {
+            m_scene->addChild(m_objectsTransform.get());
+        }
+    }
+    else
+    {
+        m_scene->removeChild(m_objectsTransform.get());
+    }
 }
 
 void

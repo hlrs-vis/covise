@@ -2207,6 +2207,8 @@ void VRViewer::renderingTraversals()
 
     if (OpenCOVER::instance()->initDone())
     {
+        coVRPluginList::instance()->clusterSyncDraw();
+
         int WindowNum = 0;
         for (itr = contexts.begin();
              itr != contexts.end();

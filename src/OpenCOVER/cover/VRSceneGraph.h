@@ -77,6 +77,7 @@ public:
     void setMenuMode(bool state);
     void applyMenuModeToMenus();
     void manipulate(buttonSpecCell *spec);
+    void setObjects(bool state);
 
     // rotate world
     int numFrames;
@@ -91,13 +92,18 @@ public:
         return m_scene.get();
     };
 
+    osgShadow::ShadowedScene *getObjectsScene()
+    {
+        return m_objectsScene.get();
+    }
+
     void config();
     void init();
     void update();
 
     osg::MatrixTransform *getTransform()
     {
-        return (m_objectsTransform);
+        return m_objectsTransform.get();
     }
     osg::MatrixTransform *getScaleTransform()
     {
@@ -250,7 +256,7 @@ private:
     float m_forceScale;
 #endif
 
-    osg::ref_ptr<osgShadow::ShadowedScene> m_scene;
+    osg::ref_ptr<osgShadow::ShadowedScene> m_scene, m_objectsScene;
     osg::ref_ptr<osg::MatrixTransform> m_handTransform;
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
     osg::ref_ptr<osg::MatrixTransform> m_worldAxis, m_handAxis, m_viewerAxis, m_objectAxis, m_smallSceneAxis;
@@ -281,6 +287,7 @@ private:
     bool m_textured; /* =true: textures are drawn as intended */
     bool m_coordAxis; /* =true: coord Axis will be drawn */
     bool m_showMenu;
+    bool m_showObjects;
 
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
@@ -311,7 +318,7 @@ private:
 
     float wiiPos;
 
-    osg::MatrixTransform *m_objectsTransform;
+    osg::ref_ptr<osg::MatrixTransform> m_objectsTransform;
     osg::ref_ptr<osg::Multisample> m_Multisample;
     coVRStatsDisplay *statsDisplay;
     typedef std::set<osg::Node *> NodeSet;
