@@ -76,11 +76,11 @@ int coVRDynLib::dlclose(CO_SHLIB_HANDLE handle)
 #endif
 }
 
-char *coVRDynLib::dlerror(void)
+const char *coVRDynLib::dlerror(void)
 {
 
 #if defined(SVR4_DYNAMIC_LINKING)
-    return (char *)::dlerror();
+    return ::dlerror();
 
 #elif defined(__hpux)
     return ::strerror(errno);
@@ -111,15 +111,14 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
     const int mode = RTLD_LAZY;
 
     CO_SHLIB_HANDLE handle = NULL;
-    char buf[800], *dirname;
-
+    char buf[800];
     bool absolute = filename[0] == '/';
 
 #ifdef __APPLE__
     std::string bundlepath = getBundlePath();
     if (!absolute && !bundlepath.empty())
     {
-        sprintf(buf, "%s/Contents/PlugIns/%s", bundlepath.c_str(), filename);
+        snprintf(buf, sizeof(buf), "%s/Contents/PlugIns/%s", bundlepath.c_str(), filename);
         handle = ::dlopen(buf, mode);
     }
 #endif
@@ -132,16 +131,16 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
         char *cPath = new char[strlen(covisepath) + 1];
         strcpy(cPath, covisepath);
 #ifdef _WIN32
-        dirname = strtok(cPath, ";");
+        char *dirname = strtok(cPath, ";");
 #else
-        dirname = strtok(cPath, ":");
+        char *dirname = strtok(cPath, ":");
 #endif
         while (dirname != NULL)
         {
 #ifdef _WIN32
             sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins\\%s", dirname, archsuffix, filename);
 #else
-            sprintf(buf, "%s/%s/lib/OpenCOVER/plugins/%s", dirname, archsuffix, filename);
+            snprintf(buf, sizeof(buf), "%s/%s/lib/OpenCOVER/plugins/%s", dirname, archsuffix, filename);
 #endif
 #if defined(SGIDLADD)
             handle = ::sgidladd(buf, mode);
