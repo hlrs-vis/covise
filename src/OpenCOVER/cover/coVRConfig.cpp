@@ -109,9 +109,9 @@ coVRConfig::coVRConfig()
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
     const int numScreens = coCoviseConfig::getInt("COVER.NumScreens", 1);
-    if (numScreens < 1)
+    if (numScreens < 0)
     {
-	std::cerr << "COVER.NumScreens cannot be < 1" << std::endl;
+	std::cerr << "COVER.NumScreens cannot be < 0" << std::endl;
 	exit(1);
     }
     if (numScreens > 50)
@@ -130,9 +130,9 @@ coVRConfig::coVRConfig()
     channels.resize(numChannels);
     
     const int numWindows = coCoviseConfig::getInt("COVER.NumWindows", numScreens);
-    if (numWindows < 1)
+    if (numWindows < 0)
     {
-	std::cerr << "COVER.NumWindows cannot be < 1" << std::endl;
+	std::cerr << "COVER.NumWindows cannot be < 0" << std::endl;
 	exit(1);
     }
     if (numWindows > 50)
@@ -285,8 +285,6 @@ coVRConfig::coVRConfig()
 
     //bool isMaster = coVRMSController::instance()->isMaster();
 
-    windows[0].window = NULL;
-
     m_passiveStereo = false;
     m_flatDisplay = true;
     for (size_t i = 0; i < screens.size(); i++)
@@ -340,6 +338,8 @@ coVRConfig::coVRConfig()
 
     for (size_t i = 0; i < windows.size(); i++)
     {
+        windows[i].window = NULL;
+
         bool state = coCoverConfig::getWindowConfigEntry(i, windows[i].name,
                                                          &windows[i].pipeNum, &windows[i].ox, &windows[i].oy,
                                                          &windows[i].sx, &windows[i].sy, &windows[i].decoration,

@@ -880,16 +880,26 @@ void coVRPluginSupport::update()
     //START("coVRPluginSupport::getInteractorScale");
     if (coVRMSController::instance()->isMaster())
     {
-        // check front screen
-        const screenStruct screen = coVRConfig::instance()->screens[0];
+        frontScreenCenter = osg::Vec3(0., 0., 0.);
+        frontHorizontalSize = 1.;
+        frontVerticalSize = 1.;
 
-        frontScreenCenter = screen.xyz;
-        frontHorizontalSize = screen.hsize;
-        frontVerticalSize = screen.vsize;
+        frontWindowHorizontalSize = 1024;
+        frontWindowVerticalSize = 1024;
 
-        const windowStruct window = coVRConfig::instance()->windows[0];
-        frontWindowHorizontalSize = window.sx;
-        frontWindowVerticalSize = window.sy;
+        if (coVRConfig::instance()->numScreens() > 0)
+        {
+            // check front screen
+            const screenStruct screen = coVRConfig::instance()->screens[0];
+
+            frontScreenCenter = screen.xyz;
+            frontHorizontalSize = screen.hsize;
+            frontVerticalSize = screen.vsize;
+
+            const windowStruct window = coVRConfig::instance()->windows[0];
+            frontWindowHorizontalSize = window.sx;
+            frontWindowVerticalSize = window.sy;
+        }
 
         // get interactor position
         const osg::Vec3d eyePos = cover->getViewerMat().getTrans();
