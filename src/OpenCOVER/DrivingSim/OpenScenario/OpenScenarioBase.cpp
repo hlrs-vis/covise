@@ -34,7 +34,8 @@ using namespace OpenScenario;
 OpenScenarioBase::OpenScenarioBase() :
         oscObjectBase(),
         xmlDoc(NULL),
-        m_validate(true)
+        m_validate(true),
+        m_fullReadCatalogs(false)
 {
     oscFactories::instance();
 
@@ -167,6 +168,16 @@ void OpenScenarioBase::setValidation(const bool validate)
 bool OpenScenarioBase::getValidation() const
 {
     return m_validate;
+}
+
+void OpenScenarioBase::setFullReadCatalogs(const bool fullReadCatalogs)
+{
+    m_fullReadCatalogs = fullReadCatalogs;
+}
+
+bool OpenScenarioBase::getFullReadCatalogs() const
+{
+    return m_fullReadCatalogs;
 }
 
 

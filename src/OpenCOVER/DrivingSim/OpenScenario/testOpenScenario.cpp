@@ -42,6 +42,9 @@ void displayHelp(const char *progName, const std::string &writeCompleteXmlToFile
             << "               with name '" << writeCompleteXmlToFile << "',\n"
             << "               if import with parser (XInclude enabled) was successful\n"
             << "\n"
+            << " -frc         full read of all available catalog objects, store them in\n"
+            << "               the object structure and write them back to files.\n"
+            << "\n"
             << " -h, --help   print this help\n"
             << "\n"
             << " -nv          disable validation\n"
@@ -82,6 +85,7 @@ int main(int argc, char **argv)
     //command line parameter:
     //-c:      write xosc file imported with parser to console
     //-f:      write xosc file imported with parser to another file with name writeComleteXmlToFile
+    //-frc:    full read of catalog objects in oscObjectBase::parseFromXML()
     //-h:      print help message
     //--help:  print help message
     //-nv:     disable validation
@@ -105,6 +109,10 @@ int main(int argc, char **argv)
             else if (getopt(argv[i],"f") == true)
             {
                 writeCompleteXML = true;
+            }
+            else if (getopt(argv[i],"frc") == true)
+            {
+                osdb->setFullReadCatalogs(true);
             }
             else if (getopt(argv[i],"h") == true || getopt(argv[i],"-help") == true)
             {
