@@ -179,7 +179,6 @@ VRSceneGraph::~VRSceneGraph()
             thisNode->getParent(0)->removeChild(thisNode.get());
     }
 
-    m_scene->unref();
     delete statsDisplay;
 }
 
