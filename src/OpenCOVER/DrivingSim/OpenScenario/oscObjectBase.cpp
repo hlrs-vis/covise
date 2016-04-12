@@ -510,7 +510,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             if (base->getFullReadCatalogs())
                             {
                                 //generate the objects for this catalog and store them
-                                for (auto &it : cm->getMapAvailableObjects())
+                                for (auto &it : cm->getAvailableObjectsMap())
                                 {
                                     cm->fullReadCatalogObjectWithName(it.first);
                                 }

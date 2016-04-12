@@ -185,17 +185,17 @@ std::string oscMemberCatalog::getCatalogType() const
 
 
 //
-void oscMemberCatalog::setMapAvailableObjects(const AvailableObjectsMap &availableObjects)
+void oscMemberCatalog::setAvailableObjectsMap(const AvailableObjectsMap &availableObjects)
 {
     m_availableObjects = availableObjects;
 }
 
-oscMemberCatalog::AvailableObjectsMap oscMemberCatalog::getMapAvailableObjects() const
+oscMemberCatalog::AvailableObjectsMap oscMemberCatalog::getAvailableObjectsMap() const
 {
     return m_availableObjects;
 }
 
-bool oscMemberCatalog::addObjToMapAvailableObjects(const int objectRefId, const bf::path &fileNamePath)
+bool oscMemberCatalog::addObjToAvailableObjectsMap(const int objectRefId, const bf::path &fileNamePath)
 {
     AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
     if (found != m_availableObjects.end())
@@ -216,12 +216,12 @@ bool oscMemberCatalog::addObjToMapAvailableObjects(const int objectRefId, const 
     }
 }
 
-bool oscMemberCatalog::removeObjFromMapAvailableObjects(const int objectRefId)
+bool oscMemberCatalog::removeObjFromAvailableObjectsMap(const int objectRefId)
 {
     return m_availableObjects.erase(objectRefId);
 }
 
-void oscMemberCatalog::deleteMapAvailableObject()
+void oscMemberCatalog::deleteAvailableObjectsMap()
 {
     m_availableObjects.clear();
 }
@@ -299,7 +299,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const int objectRefId)
                     {
                         obj->initialize(owner->getBase(), NULL, NULL, srcFile);
                         obj->parseFromXML(rootElem, srcFile);
-                        //add objectName and object to map m_objectsInMemory
+                        //add objectName and object to oscMemberCatalog map
                         this->emplace(objectRefId, obj);
                         //add sourcFile to vector
                         owner->getBase()->addToSrcFileVec(srcFile);
@@ -338,7 +338,7 @@ bool oscMemberCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePat
     if (successIntVar.first)
     {
         int objectRefId = successIntVar.second;
-        if (addObjToMapAvailableObjects(objectRefId, fileNamePath))
+        if (addObjToAvailableObjectsMap(objectRefId, fileNamePath))
         {
             if (fullReadCatalogObjectWithName(objectRefId))
             {
@@ -405,7 +405,7 @@ bool oscMemberCatalog::addCatalogObject(const int objectRefId, oscObjectBase *ob
             if (foundObjectsInMemory == this->end())
             {
                 //add objectRefId and fileName to m_availableObjects
-                if (addObjToMapAvailableObjects(objectRefId, fileNamePath))
+                if (addObjToAvailableObjectsMap(objectRefId, fileNamePath))
                 {
                     //add objectRefId and objectPtr to oscMemberCatalog map (objects in memory)
                     std::pair<ObjectsInMemoryMap::const_iterator, bool> returnValObjInMem = this->emplace(objectRefId, objectBase);
@@ -465,7 +465,7 @@ oscObjectBase *oscMemberCatalog::getCatalogObject(const int objectRefId)
     }
 }
 
-void oscMemberCatalog::deleteMapObjectsInMemory()
+void oscMemberCatalog::deleteOscMemberCatalogMap()
 {
     this->clear();
 }

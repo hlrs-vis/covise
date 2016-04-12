@@ -38,7 +38,7 @@ class OPENSCENARIOEXPORT oscMemberCatalog: public oscMember, public unordered_ma
 public:
     typedef unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> CatalogTypeTypeNameMap;
     typedef unordered_map<int /*object refId*/, bf::path /*fileName*/> AvailableObjectsMap;
-    typedef unordered_map<int /*object refId*/, oscObjectBase *> ObjectsInMemoryMap;
+    typedef unordered_map<int /*object refId*/, oscObjectBase *> ObjectsInMemoryMap; ///< represent the unordered_map from which is oscMemberCatalog derived from
 
 protected:
     static const CatalogTypeTypeNameMap s_catalogTypeToTypeName; ///< typeName of the objects for catalogType
@@ -58,20 +58,20 @@ public:
     std::string getCatalogType() const;
 
     //m_availableObjects
-    void setMapAvailableObjects(const AvailableObjectsMap &availableObjects);
-    AvailableObjectsMap getMapAvailableObjects() const;
-    bool addObjToMapAvailableObjects(const int objectRefId, const bf::path &fileNamePath);
-    bool removeObjFromMapAvailableObjects(const int objectRefId);
-    void deleteMapAvailableObject();
+    void setAvailableObjectsMap(const AvailableObjectsMap &availableObjects);
+    AvailableObjectsMap getAvailableObjectsMap() const;
+    bool addObjToAvailableObjectsMap(const int objectRefId, const bf::path &fileNamePath);
+    bool removeObjFromAvailableObjectsMap(const int objectRefId);
+    void deleteAvailableObjectsMap();
 
-    //m_objectsInMemory
+    //oscMemberCatalog map (ObjectsInMemoryMap)
     bool fullReadCatalogObjectWithName(const int objectRefId); ///< read file for given objectRefId, generate the object structure and add object to oscMemberCatalog map
-    bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to m_availableObjects, generate the object structure and add object to map m_objectsInMemory
+    bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to m_availableObjects, generate the object structure and add object to oscMemberCatalog map
     bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to m_availableObjects and oscMemberCatalog map
     bool addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath); ///< add objectRefId and fileName to m_availableObjects, add objectRefId and objectPtr to oscMemberCatalog map
     bool removeCatalogObject(const int objectRefId); ///< remove object with refId objectRefId from oscMemberCatalog map
     oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from oscMemberCatalog map
-    void deleteMapObjectsInMemory();
+    void deleteOscMemberCatalogMap();
 
 private:
     typedef std::pair<bool, int> SuccessIntVar;
