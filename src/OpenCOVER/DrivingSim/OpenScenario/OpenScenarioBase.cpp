@@ -202,6 +202,7 @@ bf::path OpenScenarioBase::getPathFromCurrentDirToDoc() const
 bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &fileType)
 {
     setPathFromCurrentDirToDoc(fileName);
+
     xercesc::DOMElement *rootElement = getRootElement(fileName, fileType, m_validate);
     if(rootElement == NULL)
     {
