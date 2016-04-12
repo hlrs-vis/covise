@@ -56,7 +56,7 @@ public:
     {
         return value;
     };
-    
+
     virtual void setValue(const T &t)
     {
         value = t;
@@ -123,7 +123,8 @@ public:
         {
             value = oscFactories::instance()->valueFactory->create(type);
         }
-        else
+        //value exists and creation was successful
+        if(value != NULL)
         {
             oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value);
             if(ov != NULL)
