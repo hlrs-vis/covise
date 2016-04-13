@@ -21,8 +21,8 @@
 #include "OpenCOVER.h"
 #include "coHud.h"
 #include "coClusterStat.h"
-#include <vrbclient/VRBClient.h>
 #include "coVRConfig.h"
+#include <vrbclient/VRBClient.h>
 
 #ifdef HAS_MPI
 #include <mpi.h>
@@ -96,7 +96,8 @@ coVRMSController *coVRMSController::instance()
 }
 
 coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, int port)
-    : master(true)
+    : m_debugLevel(2)
+    , master(true)
     , slave(false)
     , myID(0)
     , socket(0)
@@ -118,7 +119,9 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
         myID = AmyID;
     }
 
-    if (coVRConfig::instance()->debugLevel(2))
+    m_debugLevel = covise::coCoviseConfig::getInt("COVER.DebugLevel", m_debugLevel);
+
+    if (debugLevel(2))
         fprintf(stderr, "\nnew coVRMSController\n");
 #ifdef DEBUG_MESSAGES
     debugMessageCounter = 0;
@@ -154,11 +157,18 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     string sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncMode");
     numSlaves = coCoviseConfig::getInt("COVER.MultiPC.NumSlaves", 0);
 
+    if (numSlaves==0 && myID>0)
+    {
+        fprintf(stderr, "coVRMSController: id=%d>0 but numSlaves=0\n", myID);
+        exit(1);
+    }
+    assert(myID==0 || numSlaves>0);
+
     if (forceMpi)
     {
         syncMode = SYNC_MPI;
         MARK0("\tsyncMode: forced MPI");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: MPI\n");
 
 #if !defined(HAS_MPI)
@@ -172,7 +182,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "TCP") == 0)
     {
         MARK0("\tsyncMode: TCP");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: TCP\n");
 
         syncMode = SYNC_TCP;
@@ -180,7 +190,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "SERIAL") == 0)
     {
         MARK0("\tsyncMode: SERIAL");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: SERIAL\n");
 
         syncMode = SYNC_SERIAL;
@@ -188,7 +198,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "MAGIC") == 0)
     {
         MARK0("\tsyncMode: MAGIC");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: MAGIC\n");
 
         syncMode = SYNC_MAGIC;
@@ -196,7 +206,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "TCP_SERIAL") == 0)
     {
         MARK0("\tsyncMode: TCP_SERIAL");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: TCP_SERIAL\n");
 
         syncMode = SYNC_TCP_SERIAL;
@@ -204,7 +214,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "PARALLEL") == 0)
     {
         MARK0("\tsyncMode: PARALLEL");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: PARALLEL\n");
 
         syncMode = SYNC_PARA;
@@ -212,7 +222,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "UDP") == 0)
     {
         MARK0("\tsyncMode: UDP");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: UDP\n");
 
         syncMode = SYNC_UDP;
@@ -220,7 +230,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "MULTICAST") == 0 && numSlaves > 0)
     {
         MARK0("\tsyncMode: MULTICAST");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: MULTICAST\n");
 
 #if defined(NOMCAST) || !defined(HAVE_NORM)
@@ -232,7 +242,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else if (strcasecmp(sm.c_str(), "MPI") == 0)
     {
         MARK0("\tsyncMode: MPI");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: MPI\n");
 
 #if !defined(HAS_MPI)
@@ -245,7 +255,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     }
     else
     {
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncMode: TCP\n");
         MARK0("\tsyncMode TCP");
     }
@@ -254,7 +264,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncProcess");
     if (strcasecmp(sm.c_str(), "APP") == 0)
     {
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncProcess: APP\n");
         syncProcess = SYNC_APP;
 
@@ -263,7 +273,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     else
     {
         MARK0("\tsyncProcess: DRAW");
-        if (coVRConfig::instance()->debugLevel(3))
+        if (debugLevel(3))
             fprintf(stderr, "syncProcess: DRAW\n");
     }
 
@@ -347,7 +357,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
             slave = true;
 
             MARK1("COVER starting as slave %d", myID);
-            if (coVRConfig::instance()->debugLevel(3))
+            if (debugLevel(3))
                 fprintf(stderr, "COVER starting as slave id=%d\n", myID);
 
 #if !defined(NOMCAST) && defined(HAVE_NORM)
@@ -429,7 +439,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
                 }
             }
 #endif
-            if (coVRConfig::instance()->debugLevel(3))
+            if (debugLevel(3))
                 fprintf(stderr, "COVER starting as master\n");
         }
         stats[0] = NULL;
@@ -466,6 +476,12 @@ coVRMSController::~coVRMSController()
         delete multicast;
 #endif
     }
+}
+
+bool
+coVRMSController::debugLevel(int l) const
+{
+    return m_debugLevel >= l;
 }
 
 void
@@ -1365,8 +1381,7 @@ void coVRMSController::startSlaves()
     }
     if (master)
     {
-        int i;
-        for (i = 0; i < numSlaves; i++)
+        for (int i = 0; i < numSlaves; i++)
         {
 //cerr << "new coVRSlave(" << i+1 << ")" << endl;
 #ifdef HAS_MPI
@@ -1380,12 +1395,12 @@ void coVRMSController::startSlaves()
                 slaves[i] = new coVRTcpSlave(i + 1);
             }
         }
-        for (i = 0; i < numSlaves; i++)
+        for (int i = 0; i < numSlaves; i++)
         {
             //cerr << "slaves[" << i << "]->start(" << endl;
             slaves[i]->start();
         }
-        for (i = 0; i < numSlaves; i++)
+        for (int i = 0; i < numSlaves; i++)
         {
             slaves[i]->accept();
         }
@@ -1476,11 +1491,21 @@ void coVRMSController::sendGo()
 
 void coVRMSController::startupSync()
 {
-    if (cover->debugLevel(3))
-        fprintf(stderr, "\ncoVRMSController::startupSync\n");
+    if (debugLevel(3))
+        fprintf(stderr, "\ncoVRMSController::startupSync: numSlaves=%d\n", numSlaves);
+
+    std::string masterName;
+    if (isMaster())
+    {
+        Host local;
+        masterName = local.getName();
+    }
+    masterName = syncString(masterName);
+    covise::coConfigConstants::setMaster(masterName.c_str());
 
     if (numSlaves == 0)
         return;
+
     if ((syncMode == SYNC_SERIAL) || (syncMode == SYNC_MAGIC) || (syncMode == SYNC_PARA))
     {
         waitForSlaves();
@@ -2049,6 +2074,29 @@ bool coVRMSController::syncBool(bool state)
     return state;
 }
 
+std::string coVRMSController::syncString(const std::string &s)
+{
+    if (numSlaves == 0)
+        return s;
+
+    size_t sz = 0;
+    if (isMaster())
+    {
+        sz = s.size();
+        sendSlaves(&sz, sizeof(sz));
+        sendSlaves(s.c_str(), sz);
+        return s;
+    }
+    else
+    {
+        readMaster(&sz, sizeof(sz));
+        std::vector<char> v(sz);
+        readMaster(&v[0], sz);
+        std::string r(&v[0], sz);
+        return r;
+    }
+}
+
 void coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
@@ -2094,7 +2142,7 @@ void coVRMSController::syncVRBMessages()
                 }
 
                 if (vrbc == NULL)
-                    vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile);
+                    vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
                 vrbc->connectToServer();
                 oldSec = curSec;
             }

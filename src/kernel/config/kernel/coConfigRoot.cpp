@@ -41,6 +41,7 @@ coConfigRoot *coConfigRoot::createNew(const QString &name, const QString &filena
 coConfigRoot::coConfigRoot(const QString &name, const QString &filename,
                            bool create, coConfigGroup *group)
     : globalConfig(0)
+    , clusterConfig(0)
     , hostConfig(0)
 {
 
@@ -67,7 +68,9 @@ coConfigXercesRoot::coConfigXercesRoot(const coConfigXercesRoot *source)
     : coConfigRoot(source->configName, source->filename, source->create, 0)
 {
     this->activeHostname = source->activeHostname;
+    this->activeCluster = source->activeCluster;
     this->hostnames = source->hostnames;
+    this->masternames = source->masternames;
 
     this->configName = source->configName;
 
@@ -85,6 +88,19 @@ coConfigXercesRoot::coConfigXercesRoot(const coConfigXercesRoot *source)
         this->hostConfig = this->hostConfigs[this->activeHostname];
     else
         this->hostConfig = 0;
+
+    for (QHash<QString, coConfigEntry *>::const_iterator entry = source->clusterConfigs.begin(); entry != source->clusterConfigs.end(); ++entry)
+    {
+        if (entry.value())
+            this->clusterConfigs.insert(entry.key(), entry.value()->clone());
+        else
+            this->clusterConfigs.insert(entry.key(), 0);
+    }
+
+    if (this->clusterConfigs.contains(this->activeCluster))
+        this->clusterConfig = this->clusterConfigs[this->activeCluster];
+    else
+        this->clusterConfig = 0;
 
     this->create = source->create;
     this->readOnly = source->readOnly;
@@ -131,6 +147,7 @@ void coConfigRoot::init()
 {
 
     activeHostname = coConfigConstants::getHostname();
+    activeCluster = coConfigConstants::getMaster();
     globalConfig = 0;
 }
 
@@ -168,7 +185,48 @@ bool coConfigRoot::setActiveHost(const QString &host)
     else
     {
 
-        COCONFIGLOG("coConfigRoot::setActiveHost warn: could not set active host " << host.toLower());
+        COCONFIGLOG("coConfigRoot::setActiveHost warn: could not set active host " << host.toLower() << ", this: " << this);
+        return false;
+    }
+}
+
+QStringList coConfigRoot::getClusterList() const
+{
+    return masternames;
+}
+
+QString coConfigRoot::getActiveCluster() const
+{
+    return activeCluster;
+}
+
+bool coConfigRoot::setActiveCluster(const QString &master)
+{
+    if (masternames.contains(master.toLower()) || master.isEmpty())
+    {
+        //cerr << "coConfigRoot::setActiveCluster info: setting active master "
+        //     << master << endl;
+        activeCluster = master.toLower();
+
+        if (master.isEmpty())
+        {
+            clusterConfig = 0;
+        }
+        else
+        {
+            clusterConfig = clusterConfigs[activeCluster];
+            if (clusterConfig == 0)
+            {
+                clusterConfigs[activeCluster] = clusterConfig = 0;
+            }
+        }
+
+        return true;
+    }
+    else
+    {
+
+        COCONFIGDBG("coConfigRoot::setActiveCluster warn: could not set active cluster " << master.toLower());
         return false;
     }
 }
@@ -217,19 +275,27 @@ void coConfigXercesRoot::load(bool create)
     {
         hostnames.append(coConfigConstants::getHostname());
     }
+    if (!coConfigConstants::getMaster().isEmpty() && !masternames.contains(coConfigConstants::getMaster()))
+    {
+        masternames.append(coConfigConstants::getMaster());
+    }
 
     if (!hostnames.contains(activeHostname))
     {
         activeHostname = coConfigConstants::getHostname();
     }
+    if (!masternames.contains(activeCluster))
+    {
+        activeCluster = coConfigConstants::getMaster();
+    }
 
+    setActiveCluster(activeCluster);
     setActiveHost(activeHostname);
 }
 
 void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
 {
     //COCONFIGLOG("coConfigRoot::setContentsFromDom info: creating tree from " << configName);
-    COCONFIGDBG("coConfigRoot::setContentsFromDom info: creating tree from " << configName);
 
     if (node)
     {
@@ -310,6 +376,47 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                     }
                 }
             }
+            else if (nodeName == "CLUSTER")
+            {
+
+                // Temporary attributes
+                node->setAttribute(xercesc::XMLString::transcode("scope"),
+                                   xercesc::XMLString::transcode("cluster"));
+
+                node->setAttribute(xercesc::XMLString::transcode("configname"),
+                                   reinterpret_cast<const XMLCh *>(configName.utf16()));
+
+                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("master"))));
+
+                QStringList hosts = hostTemp.split(',', QString::SkipEmptyParts);
+                for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
+                {
+                    QString hostname = (*i).trimmed().toLower();
+                    if (!masternames.contains(hostname))
+                    {
+                        masternames.append(hostname);
+                        clusterConfigs.insert(hostname, coConfigXercesEntry::restoreFromDom(node, configName));
+                    }
+                    else
+                    {
+                        if (clusterConfigs[hostname] == 0)
+                        {
+                            clusterConfigs.insert(hostname, coConfigXercesEntry::restoreFromDom(node, configName));
+                        }
+                        else
+                        {
+                            clusterConfigs[hostname]->merge(coConfigXercesEntry::restoreFromDom(node, configName));
+                        }
+
+                        // Temporary attributes cleanup
+                        if (globalConfig)
+                        {
+                            globalConfig->deleteValue("scope", QString::null);
+                            globalConfig->deleteValue("configname", QString::null);
+                        }
+                    }
+                }
+            }
             else if (nodeName == "INCLUDE")
             {
                 QString filename = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getFirstChild()->getNodeValue())).trimmed();
@@ -358,6 +465,17 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
             }
         }
     }
+
+    if (!coConfigConstants::getMaster().isEmpty() && !masternames.contains(coConfigConstants::getMaster()))
+    {
+        masternames.append(coConfigConstants::getMaster());
+    }
+
+    if (!masternames.contains(activeCluster))
+    {
+        activeCluster = coConfigConstants::getMaster();
+    }
+    setActiveCluster(activeCluster);
     //
     // Set active host
     //
@@ -380,11 +498,15 @@ coConfigEntryStringList coConfigRoot::getScopeList(const QString &section, const
     coConfigEntryStringList global;
     if (globalConfig)
         global = globalConfig->getScopeList(section);
+    coConfigEntryStringList cluster;
+    if (clusterConfig)
+        cluster = clusterConfig->getScopeList(section);
     coConfigEntryStringList host;
     if (hostConfig)
         host = hostConfig->getScopeList(section);
 
-    coConfigEntryStringList merged = global.merge(host);
+    coConfigEntryStringList merged = global.merge(cluster);
+    merged = merged.merge(host);
 
     if (variableName.isEmpty())
     {
@@ -402,11 +524,14 @@ coConfigEntryStringList coConfigRoot::getVariableList(const QString &section) co
     coConfigEntryStringList global;
     if (globalConfig)
         global = globalConfig->getScopeList(section);
+    coConfigEntryStringList cluster;
+    if (clusterConfig)
+        cluster = clusterConfig->getScopeList(section);
     coConfigEntryStringList host;
     if (hostConfig)
         host = hostConfig->getScopeList(section);
 
-    return global.merge(host);
+    return global.merge(cluster).merge(host);
 }
 
 coConfigEntryString coConfigRoot::getValue(const QString &variable,
@@ -442,6 +567,17 @@ coConfigEntryString coConfigRoot::getValue(const QString &variable,
         }
     }
 
+    if (clusterConfig)
+    {
+        coConfigEntryString localItem = clusterConfig->getValue(variable, section);
+
+        if (!localItem.isNull())
+        {
+            localItem.setConfigName(configName);
+            return localItem;
+        }
+    }
+
     if (globalConfig)
     {
         coConfigEntryString globalItem = globalConfig->getValue(variable, section);
@@ -463,6 +599,11 @@ const char *coConfigRoot::getEntry(const char *variable) const
 {
 
     const char *item = hostConfig->getEntry(variable);
+
+    if (!item && clusterConfig)
+    {
+        item = clusterConfig->getEntry(variable);
+    }
 
     if (!item && globalConfig)
     {
@@ -553,6 +694,25 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
         if (globalConfig && !globalConfig->setValue(variable, value, section))
             globalConfig->addValue(variable, value, section);
         break;
+
+    case coConfigConstants::Cluster:
+        if (targetHost == QString::null)
+        {
+            if (!clusterConfig->setValue(variable, value, section))
+                clusterConfig->addValue(variable, value, section);
+        }
+        else
+        {
+            coConfigEntry *clusterConfig = clusterConfigs[coConfigConstants::getMaster()];
+            if (clusterConfig == 0)
+            {
+                createClusterConfig(targetHost);
+            }
+            if (!clusterConfigs[targetHost]->setValue(variable, value, section))
+                clusterConfigs[targetHost]->addValue(variable, value, section);
+        }
+        break;
+
     case coConfigConstants::Host:
         if ((targetHost.toLower() == activeHostname) || (targetHost == QString::null))
         {
@@ -933,15 +1093,25 @@ bool coConfigRoot::isReadOnly() const
 
 void coConfigRoot::clear()
 {
-    QList<QString> keys = hostConfigs.keys();
-    for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
     {
-        delete hostConfigs.take(*key);
+        QList<QString> keys = hostConfigs.keys();
+        for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
+        {
+            delete hostConfigs.take(*key);
+        }
+    }
+    {
+        QList<QString> keys = clusterConfigs.keys();
+        for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
+        {
+            delete clusterConfigs.take(*key);
+        }
     }
 
     delete globalConfig;
 
     globalConfig = 0;
+    clusterConfig = 0;
     hostConfig = 0;
 }
 
@@ -959,13 +1129,26 @@ void coConfigXercesRoot::createGlobalConfig()
 
 void coConfigXercesRoot::createHostConfig(const QString &hostname)
 {
-    COCONFIGDBG("coConfigRoot::createGlobalConfig info: creating local config for host " << hostname);
+    COCONFIGDBG("coConfigRoot::createHostConfig info: creating local config for host " << hostname);
 
     xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
     xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
     xercesc::DOMElement *rootNode = document->getDocumentElement();
     xercesc::DOMElement *localElement = document->createElement(xercesc::XMLString::transcode("LOCAL"));
     localElement->setAttribute(xercesc::XMLString::transcode("host"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
+    rootNode->appendChild(localElement);
+    setContentsFromDom(document->getDocumentElement());
+}
+
+void coConfigXercesRoot::createClusterConfig(const QString &hostname)
+{
+    COCONFIGDBG("coConfigRoot::createClusterConfig info: creating cluster config for master " << hostname);
+
+    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+    xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
+    xercesc::DOMElement *rootNode = document->getDocumentElement();
+    xercesc::DOMElement *localElement = document->createElement(xercesc::XMLString::transcode("CLUSTER"));
+    localElement->setAttribute(xercesc::XMLString::transcode("master"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
     rootNode->appendChild(localElement);
     setContentsFromDom(document->getDocumentElement());
 }
@@ -980,6 +1163,11 @@ coConfigEntry *coConfigRoot::getConfigForHost(const QString &hostname)
     return hostConfigs[hostname.toLower()];
 }
 
+coConfigEntry *coConfigRoot::getConfigForCluster(const QString &masterhost)
+{
+    return clusterConfigs[masterhost.toLower()];
+}
+
 coConfigRoot *coConfigXercesRoot::clone() const
 {
     return new coConfigXercesRoot(this);
@@ -988,6 +1176,19 @@ coConfigRoot *coConfigXercesRoot::clone() const
 void coConfigXercesRoot::merge(const coConfigRoot *with)
 {
     this->globalConfig->merge(with->globalConfig);
+    for (QHash<QString, coConfigEntry *>::const_iterator entry = with->clusterConfigs.begin(); entry != with->clusterConfigs.end(); ++entry)
+    {
+        if (this->clusterConfigs.contains(entry.key()))
+        {
+            if (this->clusterConfigs[entry.key()])
+                this->clusterConfigs[entry.key()]->merge(entry.value());
+        }
+        else
+        {
+            this->clusterConfigs[entry.key()] = entry.value()->clone();
+            this->masternames.append(entry.key());
+        }
+    }
     for (QHash<QString, coConfigEntry *>::const_iterator entry = with->hostConfigs.begin(); entry != with->hostConfigs.end(); ++entry)
     {
         if (this->hostConfigs.contains(entry.key()))
@@ -998,6 +1199,7 @@ void coConfigXercesRoot::merge(const coConfigRoot *with)
         else
         {
             this->hostConfigs[entry.key()] = entry.value()->clone();
+            this->hostnames.append(entry.key());
         }
     }
 }

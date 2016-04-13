@@ -92,11 +92,41 @@ void coConfigEntry::entryChanged()
 
 bool coConfigEntry::matchingAttributes() const
 {
+    if (!matchingMaster())
+        return false;
+
     if (!matchingArch())
         return false;
 
     if (!matchingRank())
         return false;
+
+    return true;
+}
+
+bool coConfigEntry::matchingMaster() const
+{
+    if (coConfigConstants::getMaster().isEmpty())
+        return true;
+
+    QString *master = attributes["master"];
+    if (master)
+    {
+        QStringList masters = master->split(',', QString::SkipEmptyParts);
+        for (QStringList::iterator it = masters.begin(); it != masters.end(); ++it)
+        {
+            QString m = it->trimmed().toLower();
+            if (m == coConfigConstants::getMaster())
+                return true;
+            if (m.section('.', 0, 0) == coConfigConstants::getMaster())
+                return true;
+            if (m == coConfigConstants::getMaster().section('.', 0, 0))
+                return true;
+        }
+
+        COCONFIGDBG("coConfigEntry::matchingMaster info: master " << *master << " not matching " << coConfigConstants::getMaster());
+        return false;
+    }
 
     return true;
 }
@@ -277,6 +307,10 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
         else if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "LOCAL")
         {
             entry->configScope = coConfigConstants::Host;
+        }
+        else if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "CLUSTER")
+        {
+            entry->configScope = coConfigConstants::Cluster;
         }
         else if (!configScope.isNull())
         {

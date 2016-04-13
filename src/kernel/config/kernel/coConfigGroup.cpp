@@ -38,6 +38,8 @@ coConfigGroup::~coConfigGroup()
 coConfigGroup::coConfigGroup(const coConfigGroup *source)
     : activeHostname(source->activeHostname)
     , hostnames(source->hostnames)
+    , masternames(source->masternames)
+    , activeCluster(source->activeCluster)
     , groupName(source->groupName)
     , readOnly(source->readOnly)
 {
@@ -92,6 +94,35 @@ bool coConfigGroup::setActiveHost(const QString &host)
     for (QHash<QString, coConfigRoot *>::iterator i = configs.begin(); i != configs.end(); ++i)
     {
         (*i)->setActiveHost(host);
+    }
+
+    return true;
+}
+
+QStringList coConfigGroup::getClusterList() /*const*/
+{
+    masternames.clear();
+    for (QHash<QString, coConfigRoot *>::const_iterator configRoots = configs.begin(); configRoots != configs.end(); ++configRoots)
+    {
+        masternames += configRoots.value()->getClusterList();
+    }
+    masternames.removeDuplicates();
+    return masternames;
+}
+
+QString coConfigGroup::getActiveCluster() const
+{
+    return activeCluster;
+}
+
+bool coConfigGroup::setActiveCluster(const QString &master)
+{
+
+    activeCluster = master;
+
+    for (QHash<QString, coConfigRoot *>::iterator i = configs.begin(); i != configs.end(); ++i)
+    {
+        (*i)->setActiveCluster(master);
     }
 
     return true;

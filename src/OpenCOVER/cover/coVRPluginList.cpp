@@ -170,7 +170,7 @@ coVRPluginList::coVRPluginList()
             i++; //skip value (may be NULL)
         }
     }
-    if(coVRConfig::instance()->viewpointsFile!=NULL)
+    if(!coVRConfig::instance()->viewpointsFile.empty())
     {
         plugins.push_back("ViewPoint");
     }

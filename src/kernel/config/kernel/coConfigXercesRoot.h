@@ -58,6 +58,7 @@ private:
     virtual void load(bool create = false);
 
     virtual void createGlobalConfig();
+    virtual void createClusterConfig(const QString &hostname);
     virtual void createHostConfig(const QString &hostname);
 };
 }

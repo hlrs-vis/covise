@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <config/CoviseConfig.h>
+#include <config/coConfigConstants.h>
 #include "coVRNavigationManager.h"
 #include "coCoverConfig.h"
 #include "coVRConfig.h"
@@ -88,8 +89,6 @@ coVRConfig::coVRConfig()
 
     m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
     
-    collaborativeOptionsFile = NULL;
-    viewpointsFile = NULL;
     int hsize, vsize, x, y, z;
     m_passiveStereo = false;
 

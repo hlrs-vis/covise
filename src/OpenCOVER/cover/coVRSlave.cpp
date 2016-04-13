@@ -177,14 +177,18 @@ void coVRTcpSlave::start()
     cerr << " Entering start method of coVRSlave.cpp" << endl;
     char cEntry[2000];
     char co[2000];
-    std::string hn = coCoviseConfig::getEntry("COVER.MultiPC.MasterInterface");
-    static char hostname[164];
-
-    if (hn.empty())
+    static char hostname[256] = "";
+    if (hostname[0] == '\0')
     {
         strcpy(hostname, "localhost");
-        gethostname(hostname, 164);
-        hn = hostname;
+        gethostname(hostname, sizeof(hostname));
+    }
+    std::string hn(hostname);
+
+    std::string mi = coCoviseConfig::getEntry("COVER.MultiPC.MasterInterface");
+    if (mi.empty())
+    {
+        mi = hn;
     }
     sprintf(cEntry, "COVER.MultiPC.Startup:%d", myID - 1);
     string command = coCoviseConfig::getEntry(cEntry);
@@ -234,7 +238,7 @@ void coVRTcpSlave::start()
         }
 
         // create command to send to remote daemon
-        sprintf(co, "%s -c %d %s %d\n", command.c_str(), myID, hn.c_str(), port);
+        sprintf(co, "%s -c %d %s %d %s\n", command.c_str(), myID, mi.c_str(), port, hn.c_str());
         cerr << "Sending RemoteDaemon the message: " << co << endl;
 
         clientConn->getSocket()->write(co, (int)strlen(co));
@@ -290,9 +294,9 @@ void coVRTcpSlave::start()
 
 // create command to send to remote daemon
 #ifndef NDEBUG
-            sprintf(co, "OpenCOVER_debug %s -c %d %s %d\n", command.c_str() + 20, myID, hn.c_str(), port);
+            sprintf(co, "OpenCOVER_debug %s -c %d %s %d %s\n", command.c_str() + 20, myID, mi.c_str(), port, hn.c_str());
 #else
-            sprintf(co, "%s -c %d %s %d\n", command.c_str() + 9, myID, hn.c_str(), port);
+            sprintf(co, "%s -c %d %s %d %s\n", command.c_str() + 9, myID, mi.c_str(), port, hn.c_str());
 #endif
 
             cerr << "Sending coVRemote the message: " << co << endl;
@@ -309,7 +313,7 @@ void coVRTcpSlave::start()
     else
     {
         cerr << "Using default ssh remote startup" << endl;
-        sprintf(co, "%s -c %d %s %d &", command.c_str(), myID, hn.c_str(), port);
+        sprintf(co, "%s -c %d %s %d %s&", command.c_str(), myID, mi.c_str(), port, hn.c_str());
         cerr << "DEF starting: " << co << endl;
         if (system(co) == -1)
         {

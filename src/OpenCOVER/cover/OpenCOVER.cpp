@@ -256,6 +256,7 @@ bool OpenCOVER::init()
     vrbHost = NULL;
     vrbPort = 0;
     int c = 0;
+    std::string collaborativeOptionsFile, viewpointsFile;
     while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::")) != -1)
     {
         switch (c)
@@ -265,12 +266,10 @@ bool OpenCOVER::init()
             exit(EXIT_SUCCESS);
             break;
         case 's':
-            coVRConfig::instance()->collaborativeOptionsFile = new char[strlen(optarg) + 1];
-            strcpy(coVRConfig::instance()->collaborativeOptionsFile, optarg);
+            collaborativeOptionsFile = optarg;
             break;
         case 'v':
-            coVRConfig::instance()->viewpointsFile = new char[strlen(optarg) + 1];
-            strcpy(coVRConfig::instance()->viewpointsFile, optarg);
+            viewpointsFile = optarg;
             break;
         case 'C':
         {
@@ -315,6 +314,10 @@ bool OpenCOVER::init()
     }
 
     frameNum = 0;
+
+    new coVRMSController(m_forceMpi, myID, addr, port);
+    coVRMSController::instance()->startSlaves();
+    coVRMSController::instance()->startupSync();
 
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
@@ -413,6 +416,10 @@ bool OpenCOVER::init()
         putenv(envString);
     }
 
+#ifndef _WIN32
+    coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
+#endif
+    cover = new coVRPluginSupport();
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\nnew OpenCOVER\n");
@@ -424,14 +431,7 @@ bool OpenCOVER::init()
         fprintf(stderr, "DISPLAY: %s\n", getenv("DISPLAY"));
         fprintf(stderr, "PWD: %s\n", getenv("PWD"));
     }
-#ifndef _WIN32
-    coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
-#endif
 
-    new coVRMSController(m_forceMpi, myID, addr, port);
-    coVRMSController::instance()->startSlaves();
-
-    cover = new coVRPluginSupport();
     Input::instance()->init();
 
     exitFlag = false;
@@ -468,7 +468,7 @@ bool OpenCOVER::init()
 
     // initialize communication
     bool loadCovisePlugin = false;
-    if (loadFiles == false && coVRConfig::instance()->collaborativeOptionsFile == NULL && coCommandLine::argc() > 3 && vrbHost == NULL)
+    if (loadFiles == false && coVRConfig::instance()->collaborativeOptionsFile.empty() && coCommandLine::argc() > 3 && vrbHost == NULL)
     {
         loadCovisePlugin = true;
         //fprintf(stderr, "need covise connection\n");
@@ -553,7 +553,7 @@ bool OpenCOVER::init()
             hud->setText2("connecting");
             hud->setText3("to VRB");
             hud->redraw();
-            vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile, coVRMSController::instance()->isSlave());
+            vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
             vrbc->connectToServer();
         }
         else
@@ -627,8 +627,6 @@ bool OpenCOVER::init()
     old_fl_time = cover->frameRealTime();
 
     printFPS = coCoviseConfig::isOn("COVER.FPS", false);
-
-    coVRMSController::instance()->startupSync();
 
 #if 0
    sleep(coVRMSController::instance()->getID());

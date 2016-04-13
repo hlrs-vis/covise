@@ -25,6 +25,7 @@ public:
     {
         Default = -1,
         Global = 1,
+        Cluster,
         Host,
         Additional
     };
@@ -32,6 +33,9 @@ public:
     static const QStringList &getArchList();
     static const QString &getHostname();
     static const QString &getBackend();
+
+    static void  setMaster(const QString &hostname);
+    static const QString &getMaster();
 
     static void setBackend(const QString &backend);
     static void setRank(int rank);
@@ -44,6 +48,7 @@ protected:
 private:
     QString backend;
     QString hostname;
+    QString master;
     QStringList archlist;
     int rank;
 

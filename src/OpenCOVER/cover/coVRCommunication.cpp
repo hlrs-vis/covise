@@ -439,7 +439,7 @@ void coVRCommunication::handleVRB(Message *msg)
     //fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
     if (vrbc == NULL)
     {
-        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile, coVRMSController::instance()->isSlave());
+        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
     }
     TokenBuffer tb(msg);
     switch (msg->type)
@@ -643,7 +643,7 @@ void coVRCommunication::handleVRB(Message *msg)
         }
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;
-        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile, coVRMSController::instance()->isSlave());
+        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
     {
@@ -737,7 +737,7 @@ void coVRCommunication::handleVRB(Message *msg)
         }
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;
-        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile, coVRMSController::instance()->isSlave());
+        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         break;
     case COVISE_MESSAGE_VRB_FB_SET:
     {

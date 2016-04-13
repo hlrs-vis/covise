@@ -105,10 +105,17 @@ int main(int argc, char *argv[])
 #endif
     covise::setupEnvironment(argc, argv);
     opencover::coCommandLine(argc, argv);
+    char my_hostname[256];
+    gethostname(my_hostname, 256);
     int myID = 0;
+    std::string mastername(my_hostname);
     if ((opencover::coCommandLine::argc() >= 5) && (!strcmp(opencover::coCommandLine::argv(1), "-c")))
     {
         myID = atoi(opencover::coCommandLine::argv(2));
+        if (opencover::coCommandLine::argc() >= 6)
+        {
+            mastername = opencover::coCommandLine::argv(5);
+        }
     }
 
     if (strcasestr(argv[0], ".mpi") != 0 || forceMpi)
@@ -125,6 +132,7 @@ int main(int argc, char *argv[])
 #endif
     }
     covise::coConfigConstants::setRank(myID);
+    covise::coConfigConstants::setMaster(QString::fromStdString(mastername));
 
     if (!forceMpi)
     {
@@ -299,8 +307,6 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    char my_hostname[256];
-    gethostname(my_hostname, 256);
     //MARK2("COVER STARTING UP on host %s with pid %d", my_hostname, getpid());
 
     int dl = covise::coCoviseConfig::getInt("COVER.DebugLevel", 0);

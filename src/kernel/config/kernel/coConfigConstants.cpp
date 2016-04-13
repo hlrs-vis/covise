@@ -142,6 +142,27 @@ const QString &coConfigConstants::getHostname()
     return instance->hostname;
 }
 
+void coConfigConstants::setMaster(const QString &hostname)
+{
+    if (!instance)
+        new coConfigConstants();
+    instance->master = hostname.toLower();
+    coConfig::getInstance()->setActiveCluster(hostname);
+}
+
+const QString &coConfigConstants::getMaster()
+{
+
+    if (!instance)
+        new coConfigConstants();
+
+    if (instance->master == QString::null)
+    {
+        //COCONFIGLOG("coConfigConstants::getMaster info: master hostname is not set");
+    }
+    return instance->master;
+}
+
 void coConfigConstants::setRank(int rank)
 {
     if (!instance)

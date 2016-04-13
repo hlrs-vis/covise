@@ -147,6 +147,7 @@ public:
     void syncTime();
     int syncData(void *data, int size);
     bool syncBool(bool);
+    std::string syncString(const std::string &s);
     void syncVRBMessages();
     void waitForSlaves();
     void waitForSlavesDraw();
@@ -180,6 +181,8 @@ public:
 #endif
 
 private:
+    bool debugLevel(int l) const;
+    int m_debugLevel;
     bool master;
     bool slave;
     int allChildren; // one bit for each child

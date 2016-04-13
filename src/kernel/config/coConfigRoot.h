@@ -66,6 +66,9 @@ public:
     virtual QStringList getHostnameList() const;
     virtual QString getActiveHost() const;
     virtual bool setActiveHost(const QString &host);
+    virtual QStringList getClusterList() const;
+    virtual QString getActiveCluster() const;
+    virtual bool setActiveCluster(const QString &master);
 
     virtual const QString &getConfigName() const;
 
@@ -79,6 +82,7 @@ public:
 
     QStringList getHosts();
     coConfigEntry *getConfigForHost(const QString &hostname);
+    coConfigEntry *getConfigForCluster(const QString &masterhost);
     coConfigEntry *getGlobalConfig()
     {
         return this->globalConfig;
@@ -106,16 +110,21 @@ protected:
     QString filename;
     QString activeHostname;
     QStringList hostnames;
+    QString activeCluster;
+    QStringList masternames;
 
     QString configName;
 
     coConfigEntry *globalConfig;
+    coConfigEntry *clusterConfig;
     coConfigEntry *hostConfig;
 
     QHash<QString, coConfigEntry *> hostConfigs;
+    QHash<QString, coConfigEntry *> clusterConfigs;
 
     virtual void createGlobalConfig() = 0;
     virtual void createHostConfig(const QString &hostname) = 0;
+    virtual void createClusterConfig(const QString &mastername) = 0;
 
     bool create;
     bool readOnly;

@@ -126,11 +126,7 @@ bool ViewPoints::init()
     isQuickNavEnabled = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.QuickNav", false);
 
     curr_scale = 1.0;
-    vwpPath = "";
-    if(coVRConfig::instance()->viewpointsFile !=NULL)
-    {
-        vwpPath = coVRConfig::instance()->viewpointsFile;
-    }
+    vwpPath = coVRConfig::instance()->viewpointsFile;
     if(vwpPath == "")
     {
         vwpPath = coVRFileManager::instance()->getViewPointFile();

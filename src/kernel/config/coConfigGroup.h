@@ -66,6 +66,10 @@ public:
     virtual QString getActiveHost() const;
     virtual bool setActiveHost(const QString &host);
 
+    virtual QStringList getClusterList() /*const*/;
+    virtual QString getActiveCluster() const;
+    virtual bool setActiveCluster(const QString &master);
+
     virtual const QString &getGroupName() const;
 
     virtual void reload();
@@ -91,6 +95,8 @@ private:
 
     QString activeHostname;
     QStringList hostnames;
+    QString activeCluster;
+    QStringList masternames;
     QString groupName;
 
     bool readOnly;
