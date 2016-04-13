@@ -33,6 +33,7 @@
 namespace osg
 {
 class DisplaySettings;
+class GraphicsContext;
 }
 
 namespace osgViewer
@@ -127,6 +128,7 @@ struct windowStruct
 {
     int ox, oy;
     int sx, sy;
+    osg::GraphicsContext *context;
     osgViewer::GraphicsWindow *window;
     int pipeNum;
     std::string name;
@@ -134,12 +136,14 @@ struct windowStruct
     bool resize;
     bool stereo;
     bool embedded;
+    bool pbuffer;
 
     windowStruct()
     : ox(-1)
     , oy(-1)
     , sx(-1)
     , sy(-1)
+    , context(NULL)
     , window(NULL)
     , pipeNum(-1)
     , name("UninitializedWindow")
@@ -147,6 +151,7 @@ struct windowStruct
     , resize(true)
     , stereo(false)
     , embedded(false)
+    , pbuffer(false)
     {}
 };
 

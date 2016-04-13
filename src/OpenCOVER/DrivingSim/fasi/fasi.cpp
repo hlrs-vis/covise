@@ -9,14 +9,16 @@
 #include <unistd.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+#include <xenomai/init.h>
 
-int main(int argc, char **argv)
+int main(int argc, char* const* argv)
 {
     if (argc < 2)
     {
         fprintf(stderr, "usage: fasi file.xodr\n");
         return -1;
     }
+    xenomai_init(&argc, &argv); 
     fasi *f = new fasi(argv[1]);
     f->run();
     delete f;
@@ -30,7 +32,7 @@ fasi::fasi(const char *filename)
 {
     system = NULL;
     myFasi = this;
-    serverConn = new covise::ServerConnection(31880, 1234, covise::UNDEFINED);
+    serverConn = new covise::ServerConnection(31880, 1234, -1);
     if (!serverConn->getSocket())
     {
         std::cout << "tried to open server Port " << 31880 << std::endl;

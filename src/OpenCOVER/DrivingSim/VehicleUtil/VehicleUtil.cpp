@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "VehicleUtil.h"
+#include <unistd.h>
 
 // VehicleUtil ///////////////////////////////////////////////////////
 
@@ -17,7 +18,7 @@ VehicleUtil::VehicleUtil()
 {
     p_DeviceList = new std::list<HMIDeviceIface *>;
 
-    opencover::coShutDownHandlerList::instance()->addHandler(this);
+    //opencover::coShutDownHandlerList::instance()->addHandler(this);
 
     p_CANProv = CANProvider::instance();
 

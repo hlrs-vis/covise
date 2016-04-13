@@ -25,7 +25,7 @@
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class Klima : public HMIDeviceIface
+class VEHICLEUTILEXPORT Klima : public HMIDeviceIface
 {
 public:
     virtual ~Klima();

@@ -367,6 +367,11 @@ void coVRPluginList::preSwapBuffers(int windowNumber) const
     DOALL(plugin->preSwapBuffers(windowNumber));
 }
 
+void coVRPluginList::clusterSyncDraw() const
+{
+    DOALL(plugin->clusterSyncDraw());
+}
+
 void coVRPluginList::postSwapBuffers(int windowNumber) const
 {
     DOALL(plugin->postSwapBuffers(windowNumber));

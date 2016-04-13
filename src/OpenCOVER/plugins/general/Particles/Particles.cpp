@@ -214,16 +214,21 @@ int Particles::read32(int &val)
 }
 
 Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
+: numTimesteps(0)
+, switchNode(NULL)
+, fp(NULL)
+, interval(20)
+, shader(NULL)
+, doSwap(false)
+, ParticleMode(M_PARTICLES)
+, timesteps(NULL)
+, numInts(0)
+, numFloats(0)
+, format(Particle)
+, numHiddenVars(6)
 {
     (void)maxParticles;
-    numHiddenVars = 6;
     fileName = filename;
-    numTimesteps = 0;
-    interval = 20;
-    numInts = 0;
-    numFloats = 0;
-    int minNumber;
-    ParticleMode = M_PARTICLES;
     lineColor.set(0, 0, 1, 1);
     format = Particle;
     std::string suffix = "particle";
@@ -327,6 +332,7 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                 found = 0;
         }
 
+        int minNumber=0;
         sscanf(filenamebegin.c_str() + found + 1, "%d", &minNumber);
         std::string filebeg = filenamebegin.substr(0, found + 1);
         numTimesteps = 0;
@@ -1569,20 +1575,21 @@ void Particles::colorizeAndResize(int timestep)
             {
                 r[n] = 10.; // should not happen
 
-                int T = Ivalues[0][n];
-                if (T == 0)
+                float dEPot = td->values[1][n];
+                int S = Ivalues[0][n];
+                if (S == 0)
                 {
                     r[n] = 0.1;
                 }
-                else if (T == 1)
+                else if (S == 1)
                 {
                     // aluminum
-                    r[n] = 0.5;
+                    r[n] = 0.1+1.5*dEPot;
                 }
-                else if (T == 2)
+                else if (S == 2)
                 {
                     // indenter
-                    r[n] = 2.0;
+                    r[n] = 0.4;
                 }
             }
             td->sphere->updateRadii(r);
@@ -1593,18 +1600,56 @@ void Particles::colorizeAndResize(int timestep)
             float *bc = new float[numParticles];
             for (int n = 0; n < numParticles; n++)
             {
-                int T = Ivalues[0][n];
-                if (T == 1)
+                int S = td->Ivalues[0][n];
+                int t = td->Ivalues[1][n];
+                if (S == 1)
                 {
+                    // aluminum
+                    switch(t)
+                    {
+                        case 0:
+                            //other, kommen am Rand der Versetzungen/Stapelfehler und an Oberflächen vor                                                                                                                                                                                      
+                            rc[n] = 0.0;
+                            gc[n] = 0.8;
+                            bc[n] = 0.8;
+                            break;
+                        case 1:
+                            //fcc (face centered cubic), ausgeblendet
+                            rc[n] = 1.0;
+                            gc[n] = 1.0;
+                            bc[n] = 1.0;
+                            break;
+                        case 2:
+                            //hcp (hexagonal closed packed), Stepelfehler/Versetzungen 
+                            rc[n] = 1.0;
+                            gc[n] = 0.0;
+                            bc[n] = 0.0;
+                            break;
+                        case 3:
+                            //bcc (body centered cubic), kommt nur vereinzelt vor
+                            rc[n] = 1.0;
+                            gc[n] = 1.0;
+                            bc[n] = 0.0;
+                            break;
+                        case 4:
+                            //icohedral, kommt nur vereinzelt vor
+                            rc[n] = 1.0;
+                            gc[n] = 0.0;
+                            bc[n] = 1.0;
+                            break;
+                        default:
+                            rc[n] = 1.0;
+                            gc[n] = 1.0;
+                            bc[n] = 1.0;
+                            break;
+                    }
+                }
+                else if (S == 2)
+                {
+                    // indenter
                     rc[n] = 0.5;
                     gc[n] = 0.5;
-                    bc[n] = 1.0;
-                }
-                else if (T == 2)
-                {
-                    rc[n] = 1.0;
-                    gc[n] = 0.0;
-                    bc[n] = 0.0;
+                    bc[n] = 0.5;
                 }
                 else
                 {

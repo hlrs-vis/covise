@@ -58,7 +58,8 @@ do
     echo -e "${MENU} ${OPT} 47)  ${MENU} Car Crash                 "
 
     echo -e "${MENU}-----${TYP} MolecularDynamics ${MENU}---------------------"
-    echo -e "${MENU} ${OPT} 51)  ${MENU} imwf      "
+    echo -e "${MENU} ${OPT} 51)  ${MENU} IMWF      "
+    echo -e "${MENU} ${OPT} 52)  ${MENU} IMWF: Aluminum with Berkovich Indenter"
 
     echo -e "${MENU}-----${TYP} Punktwolken ${MENU}---------------------------"
     echo -e "${MENU} ${OPT} 55)  ${MENU} Wasserflugzeug                       "
@@ -243,8 +244,12 @@ do
 # MolecularDynamics
 
 	51)
-	    echo -e "starting imwf";
+	    echo -e "starting IMWF";
             opencover /data/imwf/nptdef.00003.coord
+	    ;;
+	52)
+	    echo -e "starting IMWF indenter";
+            opencover /data/imwf/indenter/indenter.0.indent
 	    ;;
 
 # Pointclouds

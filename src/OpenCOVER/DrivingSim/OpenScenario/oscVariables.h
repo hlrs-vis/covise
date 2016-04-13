@@ -137,7 +137,7 @@ public:
     {
         if(value != NULL)
         {
-            value->writeToDOM(currentElement, document,name.c_str());
+            value->writeToDOM(currentElement, document, name.c_str());
         }
         return true;
     };

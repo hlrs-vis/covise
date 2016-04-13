@@ -44,6 +44,9 @@
 #include "Klima.h"
 #include "Beckhoff.h"
 #include "IgnitionLock.h"
+#ifdef debug
+#undef debug
+#endif
 #endif
 
 class InputDevice

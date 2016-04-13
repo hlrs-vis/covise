@@ -32,13 +32,19 @@
 #include "XenomaiTask.h"
 #include "HMIDeviceIface.h"
 
+
+#ifdef MERCURY
+#include <alchemy/timer.h>
+#else
 #include <native/timer.h>
+#endif
+
 #include <deque>
 #include <cstdlib>
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class Beckhoff : public CanOpenDevice, public HMIDeviceIface
+class VEHICLEUTILEXPORT Beckhoff : public CanOpenDevice, public HMIDeviceIface
 {
 public:
     virtual ~Beckhoff();

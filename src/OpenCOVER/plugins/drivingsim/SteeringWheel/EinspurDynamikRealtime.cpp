@@ -20,7 +20,11 @@
 #include <deque>
 
 EinspurDynamikRealtime::EinspurDynamikRealtime()
+#ifdef MERCURY
+    : XenomaiTask::XenomaiTask("EinspurDynamikRealtimeTask", 0, 99, 0)
+#else
     : XenomaiTask::XenomaiTask("EinspurDynamikRealtimeTask", 0, 99, T_FPU | T_CPU(1))
+#endif
 {
     m = coCoviseConfig::getFloat("mass", "COVER.Plugin.SteeringWheel.EinspurDynamik.inertia", 1500);
     I = coCoviseConfig::getFloat("moiYaw", "COVER.Plugin.SteeringWheel.EinspurDynamik.inertia", 2700);
@@ -128,7 +132,11 @@ EinspurDynamikRealtime::~EinspurDynamikRealtime()
         RT_TASK_INFO info;
         inquire(info);
 
-        if (info.status & T_STARTED)
+#ifdef MERCURY
+    if (info.stat.status & __THREAD_S_STARTED)
+#else
+    if (info.status & T_STARTED)
+#endif
         {
             runTask = false;
             while (!taskFinished)

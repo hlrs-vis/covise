@@ -56,32 +56,44 @@ coMousePointer::coMousePointer()
     mouseButtonTime = mouseTime - 1.0;
     mouseX = mouseY = 0;
 
-    width = coVRConfig::instance()->screens[0].hsize;
-    height = coVRConfig::instance()->screens[0].vsize;
-    if ((coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin) == 0)
+    width = 1;
+    height = 1;
+    screenX = 0.;
+    screenY = 0.;
+    screenZ = 0.;
+    screenH = 0.;
+    screenP = 0.;
+    screenR = 0.;
+
+    if (coVRConfig::instance()->numWindows() > 0 && coVRConfig::instance()->numScreens() > 0)
     {
-        xres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
-        yres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
+        width = coVRConfig::instance()->screens[0].hsize;
+        height = coVRConfig::instance()->screens[0].vsize;
+        if ((coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin) == 0)
+        {
+            xres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+            yres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
+        }
+        else
+        {
+            xres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx * (coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin));
+            yres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy * (coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin));
+        }
+
+        //xres=coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+        //yres=coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
+        xori = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].ox;
+        yori = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].oy;
+
+        //fprintf(stderr,"width: %f, height %f, xres %d , yres %d, xori %d, yori %d\n", width, height, xres,yres,xori,yori);
+
+        screenX = coVRConfig::instance()->screens[0].xyz[0];
+        screenY = coVRConfig::instance()->screens[0].xyz[1];
+        screenZ = coVRConfig::instance()->screens[0].xyz[2];
+        screenH = coVRConfig::instance()->screens[0].hpr[0];
+        screenP = coVRConfig::instance()->screens[0].hpr[1];
+        screenR = coVRConfig::instance()->screens[0].hpr[2];
     }
-    else
-    {
-        xres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx * (coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin));
-        yres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy * (coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin));
-    }
-
-    //xres=coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
-    //yres=coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
-    xori = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].ox;
-    yori = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].oy;
-
-    //fprintf(stderr,"width: %f, height %f, xres %d , yres %d, xori %d, yori %d\n", width, height, xres,yres,xori,yori);
-
-    screenX = coVRConfig::instance()->screens[0].xyz[0];
-    screenY = coVRConfig::instance()->screens[0].xyz[1];
-    screenZ = coVRConfig::instance()->screens[0].xyz[2];
-    screenH = coVRConfig::instance()->screens[0].hpr[0];
-    screenP = coVRConfig::instance()->screens[0].hpr[1];
-    screenR = coVRConfig::instance()->screens[0].hpr[2];
 }
 
 /*______________________________________________________________________*/

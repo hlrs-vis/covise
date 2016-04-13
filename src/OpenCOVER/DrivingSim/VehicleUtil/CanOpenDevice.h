@@ -12,7 +12,7 @@
 
 #include <vector>
 
-class CanOpenDevice
+class VEHICLEUTILEXPORT CanOpenDevice
 {
 public:
     CanOpenDevice(CanOpenController &, uint8_t);

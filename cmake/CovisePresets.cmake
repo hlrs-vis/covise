@@ -120,7 +120,7 @@ if(COVISE_NATIVE_ARCH)
   IF(NOT WIN32)
    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-  ENDIF(WIN32)
+  ENDIF(NOT WIN32)
 endif()
 
 if(COVISE_IGNORE_RETURNED)

@@ -201,6 +201,11 @@ public:
     {
     }
 
+    //! this function is called from the main thread after rendering has finished on all nodes and before any swap buffers happen
+    virtual void clusterSyncDraw()
+    {
+    }
+
     //! this function is called from the draw thread after swapbuffers
     virtual void postSwapBuffers(int /*windowNumber*/)
     {

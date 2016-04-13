@@ -59,6 +59,7 @@ protected:
     xercesc::DOMDocument *xmlDoc; ///< main xml document
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
     bool m_validate; ///< turn on/off validation of imported files (OpenSCENARIO and catalog files)
+    bool m_fullReadCatalogs; ///< turn on/off full read of catalog objects (in oscObjectBase::parseFromXML()) so that they can be written back into files later
     bf::path m_pathFromCurrentDirToDoc; ///< path from current directory to the file with OpenSCENARIO root element (given by the executable (e.g. `oscTest path/to/mainDir/tescScenario.xosc` or by oddlot))
     bf::path m_xsdPathFileName; ///< store the actual loaded xsd schema grammar file
 
@@ -85,6 +86,8 @@ public:
     //
     void setValidation(const bool validate); ///< turn on/off validation
     bool getValidation() const;
+    void setFullReadCatalogs(const bool fullReadCatalogs); ///<  turn on/off full read of catalog objects
+    bool getFullReadCatalogs() const;
 
     //
     void setPathFromCurrentDirToDoc(const bf::path &path);

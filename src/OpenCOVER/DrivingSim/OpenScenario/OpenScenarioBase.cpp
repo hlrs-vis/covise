@@ -34,7 +34,8 @@ using namespace OpenScenario;
 OpenScenarioBase::OpenScenarioBase() :
         oscObjectBase(),
         xmlDoc(NULL),
-        m_validate(true)
+        m_validate(true),
+        m_fullReadCatalogs(false)
 {
     oscFactories::instance();
 
@@ -169,6 +170,16 @@ bool OpenScenarioBase::getValidation() const
     return m_validate;
 }
 
+void OpenScenarioBase::setFullReadCatalogs(const bool fullReadCatalogs)
+{
+    m_fullReadCatalogs = fullReadCatalogs;
+}
+
+bool OpenScenarioBase::getFullReadCatalogs() const
+{
+    return m_fullReadCatalogs;
+}
+
 
 //
 void OpenScenarioBase::setPathFromCurrentDirToDoc(const bf::path &path)
@@ -259,7 +270,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         xercesc::DOMDocument *xmlSrcDoc = srcFileVec[i]->getXmlDoc();
 
         //write xml document to file
-        writeFileToDisk(xmlSrcDoc, pathFileNameToWrite.string().c_str());
+        writeFileToDisk(xmlSrcDoc, pathFileNameToWrite.generic_string().c_str());
     }
 
     return true;
@@ -410,17 +421,17 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     {
         //path to covise directory
         bf::path coDir = getEnvVariable("COVISEDIR");
-        //relative path from covise directory to OpenSCENARIO
-        bf::path oscDir = bf::path("src/OpenCOVER/DrivingSim/OpenScenario");
-        //path to schema files
-        bf::path xsdDir = bf::path("xml-schema");
+        //relative path from covise directory to OpenSCENARIO directory
+        bf::path oscDirRelPath = bf::path("src/OpenCOVER/DrivingSim/OpenScenario");
+        //relative path from OpenSCENARIO directory to directory with schema files
+        bf::path xsdDirRelPath = bf::path("xml-schema");
 
         //name of XML Schema
         bf::path xsdFileName;
         FileTypeXsdFileNameMap::const_iterator found = s_fileTypeToXsdFileName.find(fileType);
         if (found != s_fileTypeToXsdFileName.end())
         {
-            xsdFileName = found->second.c_str();
+            xsdFileName = found->second;
         }
         else
         {
@@ -431,16 +442,15 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
         //path and filename of XML Schema *.xsd file
         bf::path xsdPathFileName = coDir;
-        xsdPathFileName /= oscDir;
-        xsdPathFileName /= xsdDir;
+        xsdPathFileName /= oscDirRelPath;
+        xsdPathFileName /= xsdDirRelPath;
         xsdPathFileName /= xsdFileName;
 
-        //only set schema location and load grammar if file changed
+        //set schema location and load grammar if filename changed
         if (xsdPathFileName != m_xsdPathFileName)
         {
             m_xsdPathFileName = xsdPathFileName;
             const char *charXsdPathFileName = m_xsdPathFileName.generic_string().c_str();
-
 
             //set location of schema for elements without namespace
             // (in schema file no global namespace is used)

@@ -48,7 +48,7 @@ class COVEREXPORT coVRDynLib
 {
 
 public:
-    static char *dlerror(void);
+    static const char *dlerror(void);
     static CO_SHLIB_HANDLE dlopen(const char *filename);
     static CO_SHLIB_HANDLE dlopen(const std::string &filename);
     static void *dlsym(CO_SHLIB_HANDLE handle, const char *symbolname);

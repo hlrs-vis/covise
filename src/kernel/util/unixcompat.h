@@ -78,6 +78,7 @@ WINCOMPATINLINE int strncasecmp(const char *s1, const char *s2, size_t n)
     return strnicmp(s1, s2, n);
 }
 
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 WINCOMPATINLINE int snprintf(char *str, size_t size, const char *format, ...)
 {
     int result;
@@ -88,6 +89,7 @@ WINCOMPATINLINE int snprintf(char *str, size_t size, const char *format, ...)
     str[size - 1] = '\0';
     return result;
 }
+#endif
 #endif
 
 #if defined(_MSC_VER) && (_MSC_VER < 1020)

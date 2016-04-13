@@ -10,13 +10,21 @@
 
 #include <iostream>
 #include <vector>
+#ifdef MERCURY
+typedef int nanosecs_rel_t;
+#include <sys/socket.h>
+#include <linux/can.h>
+typedef canid_t can_id_t;
+#define RTDM_TIMEOUT_INFINITE 0
+#else
 #include <rtdm/rtcan.h>
+#endif
 #include <cerrno>
 #include <cstring>
 #include <util/coExport.h>
 #include <stdio.h>
 
-std::ostream &operator<<(std::ostream &, const can_frame &);
+VEHICLEUTILEXPORT std::ostream &operator<<(std::ostream &, const can_frame &);
 
 class VEHICLEUTILEXPORT XenomaiSocketCan
 {
@@ -40,7 +48,7 @@ public:
     static std::string frameToString(const can_frame &);
 
 private:
-    int socket;
+    int Socket;
     std::string device;
 
     std::vector<can_filter> recvFilterVector;
@@ -48,7 +56,11 @@ private:
 
 inline int XenomaiSocketCan::recvFrame(can_frame &frame, int flags) const
 {
-    int ret_read = rt_dev_recv(socket, (void *)&frame, sizeof(can_frame_t), flags);
+#ifdef MERCURY
+    int ret_read = recv(Socket, (void *)&frame, sizeof(can_frame), flags);
+#else
+    int ret_read = rt_dev_recv(Socket, (void *)&frame, sizeof(can_frame_t), flags);
+#endif
     if (ret_read < 0)
     {
         switch (ret_read)
@@ -76,7 +88,11 @@ inline int XenomaiSocketCan::recvFrame(can_frame &frame, int flags) const
 
 inline int XenomaiSocketCan::sendFrame(const can_frame &frame, int flags) const
 {
-    int ret_send = rt_dev_send(socket, (void *)&frame, sizeof(can_frame_t), flags);
+#ifdef MERCURY
+    int ret_send = send(Socket, (void *)&frame, sizeof(can_frame), flags);
+#else
+    int ret_send = rt_dev_send(Socket, (void *)&frame, sizeof(can_frame_t), flags);
+#endif
     if (ret_send < 0)
     {
         switch (ret_send)

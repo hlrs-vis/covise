@@ -8,7 +8,13 @@
 #include "CanOpenDevice.h"
 
 #include <cstring>
+
+#ifdef MERCURY
+#include <alchemy/timer.h>
+#else
 #include <native/timer.h>
+#endif
+
 
 CanOpenDevice::CanOpenDevice(CanOpenController &setCon, uint8_t setId)
     : controller(&setCon)

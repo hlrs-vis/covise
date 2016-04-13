@@ -505,12 +505,15 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             cm->fastReadCatalogObjects(filenames);
 
                             //////
-                            //only for testing
+                            //enable full read of catalogs in oscTest with argument '-frc'
                             //
-                            //generate the objects for this catalog and store them
-                            for (auto &it : cm->getMapAvailableObjects())
+                            if (base->getFullReadCatalogs())
                             {
-                                cm->fullReadCatalogObjectWithName(it.first);
+                                //generate the objects for this catalog and store them
+                                for (auto &it : cm->getMapAvailableObjects())
+                                {
+                                    cm->fullReadCatalogObjectWithName(it.first);
+                                }
                             }
                             //
                             //////
