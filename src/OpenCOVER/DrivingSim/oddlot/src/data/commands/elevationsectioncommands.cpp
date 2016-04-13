@@ -1441,27 +1441,26 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
         //
         double *dheights = new double[pointCount];
         dheights[0] = (heights[1] - heights[0]) / segmentLength;
-        for (int i = 1; i < pointCount - 1; ++i)
-        {
-            dheights[i] = 0.5 * (heights[i] - heights[i - 1]) / segmentLength + 0.5 * (heights[i + 1] - heights[i]) / segmentLength;
-        }
-        dheights[pointCount - 1] = (heights[pointCount - 1] - heights[pointCount - 2]) / segmentLength;
-
-        // Create First Sections //
-        //
-        double d = heights[0];
-        double c = dheights[0];
-        double a = (dheights[1] + c - 2.0 * heights[1] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
-        double b = (heights[1] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-        ElevationSection *lastSection = new ElevationSection(0.0, d, c, b, a);
-        newSections_.insert(0.0, lastSection);
 
         // Create Sections //
         //
-        for (int i = 2; i < pointCount; ++i)
+        int lastPoint=0;
+        ElevationSection *oldSection=NULL;
+        
+        for (int i = 1; i < pointCount; ++i)
         {
-            double s = sStart + i * segmentLength; // [sStart, sEnd]
-
+            double currentLength = segmentLength*(i-lastPoint);
+            if(i < pointCount - 1)
+            {
+                dheights[i] = 0.5 * (heights[i] - heights[lastPoint]) / (segmentLength*(i-lastPoint)) + 0.5 * (heights[i + 1] - heights[i]) / segmentLength;
+                // evtl. gewichten
+            }
+            else
+            {
+                dheights[pointCount - 1] = (heights[pointCount - 1] - heights[lastPoint]) / (segmentLength*((pointCount - 1)-lastPoint));
+            }
+            double s = sStart + lastPoint * segmentLength; // [sStart, sEnd]
+/*
             double predictedHeight = lastSection->getElevation(s);
             double predictedSlope = lastSection->getSlope(s);
             if ((fabs(predictedHeight - heights[i]) < maxDeviation_)
@@ -1470,20 +1469,48 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
                 heights[i] = predictedHeight;
                 dheights[i] = predictedSlope;
                 continue;
+            }*/
+
+            double d = heights[lastPoint];
+            double c = dheights[lastPoint];
+            double a = (dheights[i] + c - 2.0 * heights[i] / currentLength + 2.0 * d / currentLength) / (currentLength * currentLength);
+            double b = (heights[i] - a * currentLength * currentLength * currentLength - c * currentLength - d) / (currentLength * currentLength);
+
+            double maxDistance=0;
+            
+            ElevationSection *section = new ElevationSection(s, d, c, b, a);
+            for(int n=(lastPoint+1);n<i;n++)
+            {
+                double dist = heights[n] - section->getElevation(n*segmentLength);
+                if(dist > maxDistance)
+                    maxDistance = dist;
+            }
+            if(maxDistance < maxDeviation_)
+            {
+                delete oldSection;
+                oldSection = section;
+            }
+            else
+            {
+                newSections_.insert(s, oldSection);
+                lastPoint = i-1;
+                
+                double d = heights[i-1];
+                double c = dheights[i-1];
+                double a = (dheights[i] + c - 2.0 * heights[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
+                double b = (heights[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
+                double s = sStart + (i-1) * segmentLength; // [sStart, sEnd]
+                oldSection = new ElevationSection(s, d, c, b, a);
+                lastPoint = i-1;
             }
 
-            double d = heights[i - 1];
-            double c = dheights[i - 1];
-            double a = (dheights[i] + c - 2.0 * heights[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
-            double b = (heights[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-
-            //		ElevationSection * section = new ElevationSection(s, d, c, b, a);
-            ElevationSection *section = new ElevationSection(s - segmentLength, d, c, b, a);
-            //		newSections_.insert(s, section);
-            newSections_.insert(s - segmentLength, section);
-            lastSection = section;
         }
         delete[] dheights;
+        if(oldSection)
+        {
+            double s = sStart + lastPoint * segmentLength;
+            newSections_.insert(s, oldSection);
+        }
     }
 
     // Linear approximation //
