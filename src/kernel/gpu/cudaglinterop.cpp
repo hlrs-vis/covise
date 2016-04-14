@@ -53,7 +53,7 @@ bool initCudaGlInterop()
     {
         int num_devices, device;
         cudaGetDeviceCount(&num_devices);
-        if (num_devices > 1)
+        if (num_devices >= 1)
         {
             int max_multiprocessors = 0, max_device = 0;
             for (device = 0; device < num_devices; device++)
@@ -83,9 +83,13 @@ bool initCudaGlInterop()
    {
       fprintf(stderr, "initCudaGlInterop: error choosing device\n");
    }*/
-    if (cudaGLSetGLDevice(dev) != cudaSuccess)
+    if (dev == -1)
     {
-        fprintf(stderr, "initCudaGlInterop: error setting GL device\n");
+        fprintf(stderr, "initCudaGlInterop: did not find a CUDA device\n");
+    }
+    else if (cudaGLSetGLDevice(dev) != cudaSuccess)
+    {
+        fprintf(stderr, "initCudaGlInterop: error setting GL device %d\n", dev);
     }
 #endif
 
