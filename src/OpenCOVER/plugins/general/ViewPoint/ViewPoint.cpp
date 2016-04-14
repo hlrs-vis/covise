@@ -491,11 +491,8 @@ bool ViewPoints::init()
     
     // add quickNavNode to SG
     qnNode = new Geode();
-    qnNode->ref();
     ref_ptr<QuickNavDrawable> qnDraw = new QuickNavDrawable();
-    qnDraw->ref();
     qnNode->addDrawable(qnDraw.get());
-    qnDraw->unref();
     cover->getObjectsRoot()->addChild(qnNode.get());
     activeVP = NULL;
 
@@ -547,8 +544,6 @@ ViewPoints::~ViewPoints()
     delete flightMenu_;
 
     delete viewPointMenu_;
-
-    qnNode->unref();
 
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::~ViewPoints done\n");
@@ -1350,7 +1345,6 @@ void ViewPoints::saveAllViewPoints()
     rootElement.appendChild(viewpointElement);
 
         ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
-        clipNode->ref();
         ssplanes_final << clipNode->getNumClipPlanes() << " ";
 
         for (unsigned int i = 0; i < clipNode->getNumClipPlanes() /*6*/; i++)
@@ -1376,8 +1370,6 @@ void ViewPoints::saveAllViewPoints()
 
             }
         }
-        clipNode->unref();
-
     }
     
     if (coVRMSController::instance()->isMaster() && numVPs>0) // only write a file if we have more than 0 non default viewpoints
@@ -1496,7 +1488,6 @@ void ViewPoints::changeViewDesc(ViewDesc *viewDesc)
     ssplanes_final << "";
 
     ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
-    clipNode->ref();
     ssplanes_final << clipNode->getNumClipPlanes() << " ";
     if (useClipPlanesCheck_->getState())
     {
@@ -1520,7 +1511,6 @@ void ViewPoints::changeViewDesc(ViewDesc *viewDesc)
             ssplanes_final << planeString << " ";
         }
     }
-    clipNode->unref();
     //fprintf(stderr, "PLANE: %s\n", ssplanes_final.str().c_str());
 
     sprintf(guiString, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
@@ -1560,7 +1550,6 @@ void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn,
     ssplanes_final << "";
 
     ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
-    clipNode->ref();
     ssplanes_final << clipNode->getNumClipPlanes() << " ";
     if (useClipPlanesCheck_->getState())
     {
@@ -1584,7 +1573,6 @@ void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn,
             ssplanes_final << planeString << " ";
         }
     }
-    clipNode->unref();
     //fprintf(stderr, "PLANE: %s\n", ssplanes_final.str().c_str());
 
     sprintf(guiString, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
