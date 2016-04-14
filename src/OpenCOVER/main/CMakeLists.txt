@@ -18,6 +18,11 @@ SET(SOURCES
   OpenCOVERMain.cpp
 )
 
+IF (MSVC)
+SET(SOURCES
+  ${SOURCES} dpiaware.manifest
+)
+ENDIF(MSVC) 
 SET(EXTRASOURCES
   
 )
@@ -39,15 +44,6 @@ qt_use_modules(OpenCOVER Core)
 
 
 COVISE_INSTALL_TARGET(OpenCOVER)
-IF (MSVC)
-MESSAGE("Adding Manifes to OpenCOVER")
-ADD_CUSTOM_COMMAND(
-TARGET OpenCOVER
-POST_BUILD
-COMMAND "mt.exe" -manifest "${CMAKE_CURRENT_SOURCE_DIR}[url=file://\\dpiaware.manifest]\\dpiaware.manifest[/url]" -inputresource:"$<TARGET_FILE:OpenCOVER>";#1 -outputresource:"$<TARGET_FILE:OpenCOVER>";#1
-COMMENT "Adding DPI-aware manifest..."
-)
-ENDIF(MSVC) 
 IF(UNIX)
   ADD_CUSTOM_COMMAND(TARGET OpenCOVER 
     POST_BUILD
