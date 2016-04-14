@@ -1481,7 +1481,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
             ElevationSection *section = new ElevationSection(s, d, c, b, a);
             for(int n=(lastPoint+1);n<i;n++)
             {
-                double dist = heights[n] - section->getElevation(n*segmentLength);
+                double dist = fabs(heights[n] - section->getElevation(n*segmentLength));
                 if(dist > maxDistance)
                     maxDistance = dist;
             }
