@@ -98,6 +98,8 @@ public:
     void preDraw(osg::RenderInfo &renderInfo) const;
     //! call preSwapBuffers method of all plugins
     void preSwapBuffers(int windowNumber) const;
+    //! call clusterSyncDraw() method of all plugins
+    void clusterSyncDraw() const;
     //! call postSwapBuffers method of all plugins
     void postSwapBuffers(int windowNumber) const;
     //! call param method of all plugins

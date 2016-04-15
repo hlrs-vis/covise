@@ -500,7 +500,7 @@ void VRViewer::createViewportCameras(int i)
 void VRViewer::createBlendingCameras(int i)
 {
     blendingTextureStruct &bt = coVRConfig::instance()->blendingTextures[i];
-        osg::GraphicsContext *gc = coVRConfig::instance()->windows[bt.window].window;
+        osg::GraphicsContext *gc = coVRConfig::instance()->windows[bt.window].context;
 
         osg::ref_ptr<osg::Camera> cameraBlend = new osg::Camera;
         cameraBlend->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -704,8 +704,6 @@ VRViewer::config()
         fprintf(stderr, "VRViewer::config\n");
     statsHandler = new osgViewer::StatsHandler;
     addEventHandler(statsHandler);
-    scene = NULL;
-    //scene = VRSceneGraph::sg->getScene();
     for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         createChannels(i);
@@ -863,7 +861,6 @@ VRViewer::createChannels(int i)
         osg::notify(osg::NOTICE) << "VRViewer : Error, no WindowSystemInterface available, cannot create windows." << std::endl;
         return;
     }
-    osg::ref_ptr<osgViewer::GraphicsWindow> gw = NULL;
     const int vp = coVRConfig::instance()->channels[i].viewportNum;
     if (vp >= coVRConfig::instance()->numViewports())
     {
@@ -871,6 +868,7 @@ VRViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
+    osg::ref_ptr<osg::GraphicsContext> gc = NULL;
     if(vp >= 0)
     {
         const int win = coVRConfig::instance()->viewports[vp].window;
@@ -880,11 +878,11 @@ VRViewer::createChannels(int i)
             fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", win);
             return;
         }
-        gw = coVRConfig::instance()->windows[win].window;
+        gc = coVRConfig::instance()->windows[win].context;
     }
     else
     {
-        gw = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].window;
+        gc = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].context;
         RenderToTexture = true;
     }
     if (i == 0)
@@ -927,7 +925,7 @@ VRViewer::createChannels(int i)
             renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
 
         renderTargetTexture = new osg::Texture2D;
-        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].window;
+        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].context;
         if (!cg)
         {
             fprintf(stderr, "no graphics context for cover screen %d\n", i);
@@ -946,16 +944,15 @@ VRViewer::createChannels(int i)
 
 
         coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->PBOs[i].PBOsx,
-                                                                                       coVRConfig::instance()->PBOs[i].PBOsy));
-
-        
-
+                    coVRConfig::instance()->PBOs[i].PBOsy));
     }
-    if (gw.get())
+    if (gc.get())
     {
-        coVRConfig::instance()->channels[i].camera->setGraphicsContext(gw.get());
-        const osg::GraphicsContext::Traits *traits = gw->getTraits();
-        gw->getEventQueue()->getCurrentEventState()->setWindowRectangle(traits->x, traits->y, traits->width, traits->height);
+        coVRConfig::instance()->channels[i].camera->setGraphicsContext(gc.get());
+        const osg::GraphicsContext::Traits *traits = gc->getTraits();
+        osg::ref_ptr<osgViewer::GraphicsWindow> gw = dynamic_cast<osgViewer::GraphicsWindow *>(gc.get());
+        if (gw.get())
+            gw->getEventQueue()->getCurrentEventState()->setWindowRectangle(traits->x, traits->y, traits->width, traits->height);
         if(!RenderToTexture)
         {
             // set viewport
@@ -1799,30 +1796,16 @@ void VRViewer::startThreading()
 void VRViewer::getCameras(Cameras &cameras, bool onlyActive)
 {
     cameras.clear();
-    if (myPreRenderCameras.size() > 0)
+    if (_camera.valid() && (!onlyActive || (_camera->getGraphicsContext() && _camera->getGraphicsContext()->valid())))
     {
-        for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myPreRenderCameras.begin();
-             itr != myPreRenderCameras.end();
-             ++itr)
-        {
-            if (!onlyActive || (itr->get()->getGraphicsContext() && itr->get()->getGraphicsContext()->valid()))
-                cameras.push_back((*itr).get());
-        }
+        cameras.push_back(_camera.get());
     }
-    else
+    for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myCameras.begin();
+            itr != myCameras.end();
+            ++itr)
     {
-
-        if (_camera.valid() && (!onlyActive || (_camera->getGraphicsContext() && _camera->getGraphicsContext()->valid())))
-        {
-            cameras.push_back(_camera.get());
-        }
-        for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myCameras.begin();
-             itr != myCameras.end();
-             ++itr)
-        {
-            if (!onlyActive || (itr->get()->getGraphicsContext() && itr->get()->getGraphicsContext()->valid()))
-                cameras.push_back((*itr).get());
-        }
+        if (!onlyActive || (itr->get()->getGraphicsContext() && itr->get()->getGraphicsContext()->valid()))
+            cameras.push_back((*itr).get());
     }
 }
 //from osgUtil Viewer.cpp
@@ -1860,41 +1843,31 @@ void VRViewer::getContexts(Contexts &contexts, bool onlyValid)
     typedef std::set<osg::GraphicsContext *> ContextSet;
     ContextSet contextSet;
     contexts.clear();
-    if (myPreRenderCameras.size() > 0)
+    if (_camera.valid() && _camera->getGraphicsContext() && (_camera->getGraphicsContext()->valid() || !onlyValid))
     {
-        for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myPreRenderCameras.begin();
-             itr != myPreRenderCameras.end();
-             ++itr)
+        if (contextSet.insert(_camera->getGraphicsContext()).second)
+            contexts.push_back(_camera->getGraphicsContext());
+    }
+
+    //if (!onlyValid)
+    {
+        for (size_t i=0; i<coVRConfig::instance()->numWindows(); ++i)
         {
-            if ((*itr)->getGraphicsContext() && ((*itr)->getGraphicsContext()->valid() || !onlyValid))
-            {
-                if (contextSet.find((*itr)->getGraphicsContext()) == contextSet.end()) // only add context if not already in list
-                {
-                    contextSet.insert((*itr)->getGraphicsContext());
-                    contexts.push_back((*itr)->getGraphicsContext());
-                }
-            }
+            if (contextSet.insert(coVRConfig::instance()->windows[i].context).second)
+                contexts.push_back(coVRConfig::instance()->windows[i].context);
         }
     }
-    else
-    {
-        if (_camera.valid() && _camera->getGraphicsContext() && (_camera->getGraphicsContext()->valid() || !onlyValid))
-        {
-            contextSet.insert(_camera->getGraphicsContext());
-            contexts.push_back(_camera->getGraphicsContext());
-        }
 
-        for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myCameras.begin();
-             itr != myCameras.end();
-             ++itr)
+    for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myCameras.begin();
+            itr != myCameras.end();
+            ++itr)
+    {
+        if ((*itr)->getGraphicsContext() && ((*itr)->getGraphicsContext()->valid() || !onlyValid))
         {
-            if ((*itr)->getGraphicsContext() && ((*itr)->getGraphicsContext()->valid() || !onlyValid))
+            if (contextSet.find((*itr)->getGraphicsContext()) == contextSet.end()) // only add context if not already in list
             {
-                if (contextSet.find((*itr)->getGraphicsContext()) == contextSet.end()) // only add context if not already in list
-                {
-                    contextSet.insert((*itr)->getGraphicsContext());
+                if (contextSet.insert((*itr)->getGraphicsContext()).second)
                     contexts.push_back((*itr)->getGraphicsContext());
-                }
             }
         }
     }
@@ -1902,16 +1875,8 @@ void VRViewer::getContexts(Contexts &contexts, bool onlyValid)
 
 void VRViewer::getScenes(Scenes &scenes, bool /*onlyValid*/)
 {
-    /*if(myPreRenderCameras.size()>0)
-   {
     scenes.clear();
-    scenes.push_back(PreRenderScene.get());
-   }
-   else*/
-    {
-        scenes.clear();
-        scenes.push_back(_scene.get());
-    }
+    scenes.push_back(_scene.get());
 }
 
 // OpenCOVER
@@ -1958,37 +1923,6 @@ void VRViewer::removeCamera(osg::Camera *camera)
         }
     }
 
-    if (threadsWereRuinning)
-        startThreading();
-}
-// OpenCOVER
-void VRViewer::addPreRenderCamera(osg::Camera *camera)
-{
-    bool threadsWereRuinning = _threadsRunning;
-    if (threadsWereRuinning)
-        stopThreading();
-    //PreRenderScene = new osgViewer::Scene();
-    //PreRenderScene->setSceneData(camera->getChild(0));
-    myPreRenderCameras.push_back(camera);
-    if (threadsWereRuinning)
-        startThreading();
-}
-// OpenCOVER
-void VRViewer::removePreRenderCamera(osg::Camera *camera)
-{
-    bool threadsWereRuinning = _threadsRunning;
-    if (threadsWereRuinning)
-        stopThreading();
-    for (std::list<osg::ref_ptr<osg::Camera> >::iterator itr = myPreRenderCameras.begin();
-         itr != myPreRenderCameras.end();
-         ++itr)
-    {
-        if (itr->get() == camera)
-        {
-            itr = myPreRenderCameras.erase(itr);
-            break;
-        }
-    }
     if (threadsWereRuinning)
         startThreading();
 }
@@ -2205,8 +2139,12 @@ void VRViewer::renderingTraversals()
         }
     }
 
+    coVRPluginList::instance()->clusterSyncDraw();
+
     if (OpenCOVER::instance()->initDone())
     {
+        coVRPluginList::instance()->clusterSyncDraw();
+
         int WindowNum = 0;
         for (itr = contexts.begin();
              itr != contexts.end();

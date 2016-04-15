@@ -767,52 +767,71 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     //
     if (useCubic_)
     {
+        
         // Calculate Slopes //
         //
         double *dsuperelevations = new double[pointCount];
         dsuperelevations[0] = (superelevations[1] - superelevations[0]) / segmentLength;
-        for (int i = 1; i < pointCount - 1; ++i)
-        {
-            dsuperelevations[i] = 0.5 * (superelevations[i] - superelevations[i - 1]) / segmentLength + 0.5 * (superelevations[i + 1] - superelevations[i]) / segmentLength;
-        }
-        dsuperelevations[pointCount - 1] = (superelevations[pointCount - 1] - superelevations[pointCount - 2]) / segmentLength;
-
-        // Create First Sections //
-        //
-        double d = superelevations[0];
-        double c = dsuperelevations[0];
-        double a = (dsuperelevations[1] + c - 2.0 * superelevations[1] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
-        double b = (superelevations[1] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-        SuperelevationSection *lastSection = new SuperelevationSection(0.0, d, c, b, a);
-        newSections_.insert(0.0, lastSection);
 
         // Create Sections //
         //
-        for (int i = 2; i < pointCount; ++i)
+        int lastPoint=0;
+        SuperelevationSection *oldSection=NULL;
+        
+        for (int i = 1; i < pointCount; ++i)
         {
-            double s = sStart + i * segmentLength; // [sStart, sEnd]
-
-            double predictedHeight = lastSection->getSuperelevationDegrees(s);
-            double predictedSlope = lastSection->getSuperelevationSlopeDegrees(s);
-            if ((fabs(predictedHeight - superelevations[i]) < maxDeviation_)
-                && (fabs(predictedSlope - dsuperelevations[i]) < maxDeviation_ * 0.1))
+            double currentLength = segmentLength*(i-lastPoint);
+            if(i < pointCount - 1)
             {
-                superelevations[i] = predictedHeight;
-                dsuperelevations[i] = predictedSlope;
-                continue;
+                dsuperelevations[i] = 0.5 * (superelevations[i] - superelevations[lastPoint]) / (segmentLength*(i-lastPoint)) + 0.5 * (superelevations[i + 1] - superelevations[i]) / segmentLength;
+                // evtl. gewichten
             }
-            double d = superelevations[i - 1];
-            double c = dsuperelevations[i - 1];
-            double a = (dsuperelevations[i] + c - 2.0 * superelevations[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
-            double b = (superelevations[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
+            else
+            {
+                dsuperelevations[pointCount - 1] = (superelevations[pointCount - 1] - superelevations[lastPoint]) / (segmentLength*((pointCount - 1)-lastPoint));
+            }
+            double s = sStart + lastPoint * segmentLength; // [sStart, sEnd]
 
-            //		SuperelevationSection * section = new SuperelevationSection(s, d, c, b, a);
-            SuperelevationSection *section = new SuperelevationSection(s - segmentLength, d, c, b, a);
-            //		newSections_.insert(s, section);
-            newSections_.insert(s - segmentLength, section);
-            lastSection = section;
+            double d = superelevations[lastPoint];
+            double c = dsuperelevations[lastPoint];
+            double a = (dsuperelevations[i] + c - 2.0 * superelevations[i] / currentLength + 2.0 * d / currentLength) / (currentLength * currentLength);
+            double b = (superelevations[i] - a * currentLength * currentLength * currentLength - c * currentLength - d) / (currentLength * currentLength);
+
+            double maxDistance=0;
+            
+            SuperelevationSection *section = new SuperelevationSection(s, d, c, b, a);
+            for(int n=(lastPoint+1);n<i;n++)
+            {
+                double dist = fabs(superelevations[n] - section->getSuperelevationDegrees(n*segmentLength));
+                if(dist > maxDistance)
+                    maxDistance = dist;
+            }
+            if(maxDistance < maxDeviation_)
+            {
+                delete oldSection;
+                oldSection = section;
+            }
+            else
+            {
+                newSections_.insert(s, oldSection);
+                lastPoint = i-1;
+                
+                double d = superelevations[i-1];
+                double c = dsuperelevations[i-1];
+                double a = (dsuperelevations[i] + c - 2.0 * superelevations[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
+                double b = (superelevations[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
+                double s = sStart + (i-1) * segmentLength; // [sStart, sEnd]
+                oldSection = new SuperelevationSection(s, d, c, b, a);
+                lastPoint = i-1;
+            }
+
         }
         delete[] dsuperelevations;
+        if(oldSection)
+        {
+            double s = sStart + lastPoint * segmentLength;
+            newSections_.insert(s, oldSection);
+        }
 
     }
 

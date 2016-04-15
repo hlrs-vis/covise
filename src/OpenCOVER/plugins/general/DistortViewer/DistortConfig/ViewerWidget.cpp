@@ -71,6 +71,10 @@ osg::Camera *ViewerWidget::createCamera(int x, int y, int w, int h, const std::s
     osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
     traits->windowName = name;
     traits->windowDecoration = windowDecoration;
+    if(windowDecoration == false)
+    {
+        traits->overrideRedirect = true; 
+    }
     traits->x = x;
     traits->y = y;
     traits->width = w;

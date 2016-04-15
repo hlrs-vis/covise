@@ -21,7 +21,7 @@ namespace OpenScenario
 {
 
 template<typename T, typename TBase>
-class OPENSCENARIOEXPORT oscObjectVariableBase : public TBase
+class oscObjectVariableBase : public TBase
 {
 protected:
     T valueT;

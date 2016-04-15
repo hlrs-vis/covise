@@ -112,7 +112,7 @@ std::string oscSourceFile::getSrcFileHrefAsStr() const
 
 const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
 {
-    return xercesc::XMLString::transcode(m_srcFileHref.string().c_str());
+    return xercesc::XMLString::transcode(m_srcFileHref.generic_string().c_str());
 }
 
 bf::path oscSourceFile::getSrcFileHref() const

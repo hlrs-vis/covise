@@ -14,7 +14,6 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRCommunication.h>
 #include <cover/OpenCOVER.h>
-#include <cover/coCoverConfig.h>
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <config/CoviseConfig.h>

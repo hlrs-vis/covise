@@ -41,7 +41,6 @@
 
 #include "coVRPluginSupport.h"
 #include "coVRConfig.h"
-#include "coCoverConfig.h"
 #include <config/CoviseConfig.h>
 #ifdef DOTIMING
 #include <util/coTimer.h>

@@ -19,21 +19,27 @@ using namespace opencover;
 coCoverConfig::~coCoverConfig()
 {
 }
-bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNum, int *ox, int *oy, int *sx, int *sy, bool *decoration, bool *stereo, bool *resize, bool *embedded)
+bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNum, int *ox, int *oy, int *sx, int *sy, bool *decoration, bool *stereo, bool *resize, bool *embedded, bool *pbuffer)
 {
     char str[200];
     sprintf(str, "COVER.WindowConfig.Window:%d", pos);
-    name = coCoviseConfig::getEntry("comment", str, "NoNameWindow");
+    name = coCoviseConfig::getEntry("comment", str, "COVER");
     *pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
     *ox = coCoviseConfig::getInt("left", str, 0);
     *oy = coCoviseConfig::getInt("bottom", str, 0);
     *sx = coCoviseConfig::getInt("width", str, 1024);
     *sy = coCoviseConfig::getInt("height", str, 768);
-    *decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
-    *resize = coCoviseConfig::isOn("resize", str, true);
+    if (decoration)
+        *decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
+    if (resize)
+        *resize = coCoviseConfig::isOn("resize", str, true);
     //*visualID  = coCoviseConfig::getInt("visualID",str,-1);
-    *stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
-    *embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
+    if (stereo)
+        *stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
+    if (embedded)
+        *embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
+    if (pbuffer)
+        *pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
 
     return true;
 }

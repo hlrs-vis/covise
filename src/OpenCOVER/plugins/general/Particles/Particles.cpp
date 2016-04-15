@@ -214,16 +214,21 @@ int Particles::read32(int &val)
 }
 
 Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
+: numTimesteps(0)
+, switchNode(NULL)
+, fp(NULL)
+, interval(20)
+, shader(NULL)
+, doSwap(false)
+, ParticleMode(M_PARTICLES)
+, timesteps(NULL)
+, numInts(0)
+, numFloats(0)
+, format(Particle)
+, numHiddenVars(6)
 {
     (void)maxParticles;
-    numHiddenVars = 6;
     fileName = filename;
-    numTimesteps = 0;
-    interval = 20;
-    numInts = 0;
-    numFloats = 0;
-    int minNumber;
-    ParticleMode = M_PARTICLES;
     lineColor.set(0, 0, 1, 1);
     format = Particle;
     std::string suffix = "particle";
@@ -327,6 +332,7 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                 found = 0;
         }
 
+        int minNumber=0;
         sscanf(filenamebegin.c_str() + found + 1, "%d", &minNumber);
         std::string filebeg = filenamebegin.substr(0, found + 1);
         numTimesteps = 0;

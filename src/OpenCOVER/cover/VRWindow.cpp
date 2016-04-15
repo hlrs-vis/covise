@@ -84,7 +84,7 @@ VRWindow::config()
 {
     if (cover->debugLevel(3))
     {
-        fprintf(stderr, "\nVRWindow::config\n");
+        fprintf(stderr, "\nVRWindow::config: %d windows\n", coVRConfig::instance()->numWindows());
     }
 
     origVSize = new int[coVRConfig::instance()->numWindows()];
@@ -116,8 +116,8 @@ VRWindow::update()
     static float Aspect = 1;
     int currentW, currentH;
     const osg::GraphicsContext::Traits *traits = NULL;
-    if (coVRConfig::instance()->windows[0].window)
-        traits = coVRConfig::instance()->windows[0].window->getTraits();
+    if (coVRConfig::instance()->windows[0].context)
+        traits = coVRConfig::instance()->windows[0].context->getTraits();
     if (!traits)
         return;
     /*
@@ -194,7 +194,12 @@ VRWindow::createWin(int i)
     traits->width = coVRConfig::instance()->windows[i].sx;
     traits->height = coVRConfig::instance()->windows[i].sy;
     traits->windowDecoration = coVRConfig::instance()->windows[i].decoration;
+    if(traits->windowDecoration == false)
+    {
+        traits->overrideRedirect = true; 
+    }
     traits->supportsResize = coVRConfig::instance()->windows[i].resize;
+    traits->pbuffer = coVRConfig::instance()->windows[i].pbuffer;
     if(coVRConfig::instance()->glVersion.size()>0)
     {
         traits->glContextVersion = coVRConfig::instance()->glVersion;
@@ -203,6 +208,7 @@ VRWindow::createWin(int i)
 
     if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[i].embedded))
     {
+        traits->pbuffer = false;
         _eventReceiver = new EventReceiver(7878, 0);
         _firstTimeEmbedded = true;
 #if defined(WIN32)
@@ -216,6 +222,11 @@ VRWindow::createWin(int i)
 
     if (traits->inheritedWindowData != NULL)
         traits->windowDecoration = false;
+    
+    if(traits->windowDecoration == false)
+    {
+        traits->overrideRedirect = true; 
+    }
 
     const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
     if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
@@ -267,7 +278,7 @@ VRWindow::createWin(int i)
             const windowStruct &wi = coVRConfig::instance()->windows[i];
             if (wj.pipeNum == wi.pipeNum)
             {
-                traits->sharedContext = wj.window;
+                traits->sharedContext = wj.context;
                 break;
             }
         }
@@ -286,36 +297,37 @@ VRWindow::createWin(int i)
         traits->sampleBuffers = coVRConfig::instance()->getMultisampleSampleBuffers();
     }
 
-    coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(osg::GraphicsContext::createGraphicsContext(traits.get()));
-    if (coVRConfig::instance()->windows[i].window == NULL)
+    coVRConfig::instance()->windows[i].context = osg::GraphicsContext::createGraphicsContext(traits.get());
+    if (coVRConfig::instance()->windows[i].context == NULL)
     {
         cerr << "No valid Pixel Format found, trying without multisample Buffer" << endl;
         traits->sampleBuffers = 0;
-        coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(osg::GraphicsContext::createGraphicsContext(traits.get()));
-        if (coVRConfig::instance()->windows[i].window == NULL)
+        coVRConfig::instance()->windows[i].context = osg::GraphicsContext::createGraphicsContext(traits.get());
+        if (coVRConfig::instance()->windows[i].context == NULL)
         {
             cerr << "No valid Pixel Format found, trying without stencil" << endl;
             traits->stencil = 0;
-            coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(osg::GraphicsContext::createGraphicsContext(traits.get()));
-            if (coVRConfig::instance()->windows[i].window == NULL)
+            coVRConfig::instance()->windows[i].context = osg::GraphicsContext::createGraphicsContext(traits.get());
+            if (coVRConfig::instance()->windows[i].context == NULL)
             {
                 cerr << "No valid Pixel Format found, trying without alpha" << endl;
                 traits->alpha = 0;
-                coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(osg::GraphicsContext::createGraphicsContext(traits.get()));
+                coVRConfig::instance()->windows[i].context = osg::GraphicsContext::createGraphicsContext(traits.get());
             }
         }
     }
-    if (!coVRConfig::instance()->windows[i].window)
+    if (!coVRConfig::instance()->windows[i].context)
     {
         return false;
     }
+    coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(coVRConfig::instance()->windows[i].context);
 
     if (covise::coCoviseConfig::isOn("COVER.WindowConfig.OpenGL3", false))
     {
         // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
         // you don't need thse two lines on GL3/GL4 and GLES2 specific builds as these will be enable by default.
-        coVRConfig::instance()->windows[i].window->getState()->setUseModelViewAndProjectionUniforms(true);
-        //coVRConfig::instance()->windows[i].window->getState()->setUseVertexAttributeAliasing(true);
+        coVRConfig::instance()->windows[i].context->getState()->setUseModelViewAndProjectionUniforms(true);
+        //coVRConfig::instance()->windows[i].context->getState()->setUseVertexAttributeAliasing(true);
     }
 
 #if 0

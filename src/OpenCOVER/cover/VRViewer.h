@@ -73,8 +73,6 @@ public:
 
     void addCamera(osg::Camera *camera);
     void removeCamera(osg::Camera *camera);
-    void addPreRenderCamera(osg::Camera *camera);
-    void removePreRenderCamera(osg::Camera *camera);
 
     void setClearColor(const osg::Vec4 &color);
     void setRenderToTexture(bool);
@@ -86,9 +84,6 @@ public:
 
 private:
     MSEventHandler *myeh;
-    // channel needs pointer to scene
-    osg::ref_ptr<osg::Group> scene;
-    osg::ref_ptr<osgViewer::Scene> PreRenderScene;
 
     // stereo parameters
     int isQuadbufferStereo;
@@ -136,14 +131,13 @@ private:
     int animateSeparation;
     bool stereoOn;
 
+    std::list<osg::ref_ptr<osg::Camera> > myCameras;
+
 public:
     void setFrustumAndView(int i);
 
     static VRViewer *instance();
     void setSeparation(float stereoSep);
-    std::list<osg::ref_ptr<osg::Camera> > myCameras;
-    std::list<osg::ref_ptr<osg::Camera> > myPreRenderCameras;
-
     VRViewer();
 
     virtual ~VRViewer();
