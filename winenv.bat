@@ -268,6 +268,10 @@ if not defined ALL_EXTLIBS (
   set "PATH=%EXTERNLIBS%\all;%PATH%"
 )
 
+if not defined HDF5_ROOT  (
+   set "HDF5_ROOT=%EXTERNLIBS%\hdf5"
+)
+
 set FRAMEWORK=covise
 set QMAKECOVISEDIR=%COVISEDIR%
 set LOGNAME=covise

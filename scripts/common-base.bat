@@ -252,6 +252,10 @@ if not defined FFMPEG_HOME  (
    set "FFMPEG_LIBS=-L%EXTERNLIBS%\ffmpeg\lib -lavutil -lavcodec -lswscale"
 )
 
+if not defined HDF5_ROOT  (
+   set "HDF5_ROOT=%EXTERNLIBS%\hdf5"
+)
+
 if not defined PCL_HOME  (
    set "PCL_HOME=%EXTERNLIBS%\pcl"
    set "PCL_INCPATH=%EXTERNLIBS%\pcl\include"
