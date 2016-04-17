@@ -111,6 +111,7 @@ DomWriter::runToTheHills()
 {
     // <?xml?> //
     //
+    setlocale(LC_NUMERIC, "C");
     QDomNode xml = doc_->createProcessingInstruction("xml", "version=\"1.0\"");
     doc_->appendChild(xml);
 
