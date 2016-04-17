@@ -28,5 +28,8 @@ if(APPLE)
 endif(APPLE)
 
 TARGET_LINK_LIBRARIES(tabletUI coNet coCore coUtil coConfig ${EXTRA_LIBS})
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  set_property(TARGET tabletUI PROPERTY WIN32_EXECUTABLE true)
+endif()
 
 COVISE_INSTALL_TARGET(tabletUI)
