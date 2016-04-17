@@ -271,6 +271,10 @@ if not defined ALL_EXTLIBS (
 if not defined HDF5_ROOT  (
    set "HDF5_ROOT=%EXTERNLIBS%\hdf5"
 )
+if not defined Qt5WebEngineWidgets_DIR  (
+   set "Qt5WebEngineWidgets_DIR=%EXTERNLIBS%\qt5"
+)
+
 
 set FRAMEWORK=covise
 set QMAKECOVISEDIR=%COVISEDIR%

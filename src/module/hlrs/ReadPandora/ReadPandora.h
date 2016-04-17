@@ -1,14 +1,21 @@
-#ifndef READHDF5_H
-#define READHDF5_H
+#ifndef READPANDORA_H
+#define READPANDORA_H
 
 #include <api/coModule.h>
 #include <api/coFileBrowserParam.h>
+#include <hdf5.h>
+#include <hdf5_hl.h>
 
-class ReadHDF5 : public covise::coModule {
+class ReadPandora : public covise::coModule {
 
 private:
     covise::coFileBrowserParam *filename;
-    covise::coOutputPort *uOut, *pointsOut;
+    covise::coOutputPort *dataOut, *meshOut;
+    
+    int width;
+    int height;
+    int numSteps;
+    int numTasks;
 
     //////////  member functions
 
@@ -16,7 +23,7 @@ private:
     virtual int compute(const char *port);
 
 public:
-    ReadHDF5(int argc, char *argv[]);
+    ReadPandora(int argc, char *argv[]);
     covise::coOutputPort *grid;
 };
 #endif

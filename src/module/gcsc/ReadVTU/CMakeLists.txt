@@ -6,3 +6,4 @@ set(SOURCES
 )
 
 covise_add_module(Test ReadVTU ${HEADERS} ${SOURCES})
+TARGET_LINK_LIBRARIES(ReadVTU coApi coAppl coCore ${EXTRA_LIBS})
