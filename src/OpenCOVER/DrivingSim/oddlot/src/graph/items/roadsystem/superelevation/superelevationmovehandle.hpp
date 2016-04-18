@@ -78,6 +78,7 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
     //################//
     // PROPERTIES     //

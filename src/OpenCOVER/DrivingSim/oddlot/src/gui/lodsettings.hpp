@@ -38,10 +38,16 @@ public:
     double HeightEditorPointsPerMeter;
     double SignalEditorScalingLevel;
 
+    int port;
+    QString hostname;
+
     static LODSettings *instance()
     {
         return inst;
     };
+    bool doConnect();
+    void setConnected(bool c);
+    int getPort();
 
 private:
     static LODSettings *inst;

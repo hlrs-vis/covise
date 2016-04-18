@@ -17,6 +17,7 @@
 
 #include "topviewgraph.hpp"
 #include "graphscene.hpp"
+#include "src/cover/coverconnection.hpp"
 
 //MainWindow //
 //
@@ -276,18 +277,16 @@ GraphView::toolAction(ToolAction *toolAction)
 void
 GraphView::rebuildRulers()
 {
+    QPointF pos = viewportTransform().inverted().map(QPointF(0.0, 0.0));
+    double width = viewport()->size().width() / matrix().m11();
+    double height = viewport()->size().height() / matrix().m22();
+
+    COVERConnection::instance()->resizeMap(pos.x(),pos.y(),width,height);
     if (!rulersActive_)
     {
         return;
     }
-    //	qDebug() << viewportTransform();
-    //	qDebug() << size();
-    //	qDebug() << viewport()->size();
-    //	testrect_->setPos(viewportTransform().inverted().map(QPointF(1.0, 1.0)));
-    QPointF pos = viewportTransform().inverted().map(QPointF(0.0, 0.0));
-    double width = viewport()->size().width() / matrix().m11();
-    double height = viewport()->size().height() / matrix().m22();
-    //	testrect_->setRectF(pos.x(), pos.y(), width, height);
+    
     horizontalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
     verticalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
     update();

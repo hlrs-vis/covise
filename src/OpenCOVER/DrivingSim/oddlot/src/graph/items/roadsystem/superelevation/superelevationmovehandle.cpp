@@ -142,19 +142,17 @@ SuperelevationMoveHandle::setDOF(int dof)
     //
     if (posDOF_ == 2)
     {
-        removeAction_->setEnabled(true);
         smoothAction_->setEnabled(true);
     }
     else if (posDOF_ == 1)
     {
-        removeAction_->setEnabled(false);
         smoothAction_->setEnabled(true);
     }
     else
     {
-        removeAction_->setEnabled(false);
         smoothAction_->setEnabled(false);
     }
+    removeAction_->setEnabled(true);
 }
 
 void
@@ -290,7 +288,10 @@ SuperelevationMoveHandle::removeCorner()
     MergeSuperelevationSectionCommand *command = new MergeSuperelevationSectionCommand(lowSlot_, highSlot_, NULL);
     if (command->isValid())
     {
+        
+    superelevationEditor_->getProfileGraph()->postponeGarbageDisposal();
         lowSlot_->getUndoStack()->push(command);
+    superelevationEditor_->getProfileGraph()->finishGarbageDisposal();
     }
     else
     {
@@ -366,4 +367,12 @@ SuperelevationMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 
     MoveHandle::mouseMoveEvent(event); // pass to baseclass
+}
+
+void
+SuperelevationMoveHandle::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    superelevationEditor_->getProfileGraph()->postponeGarbageDisposal();
+    getContextMenu()->exec(event->screenPos());
+    superelevationEditor_->getProfileGraph()->finishGarbageDisposal();
 }

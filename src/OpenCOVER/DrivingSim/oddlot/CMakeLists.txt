@@ -13,6 +13,7 @@
 #covise_find_package(TIFF)
 #covise_find_package(ZLIB)
 #covise_find_package(JPEG)
+find_package(COVISE)
 
 #INCLUDE(CoviseHelperMacros)
 #INCLUDE(Qt4-5)
@@ -45,7 +46,6 @@ ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
 ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
 
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${TIFF_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
-
 
 
 SET(ODDLOT_SOURCES 
@@ -699,11 +699,23 @@ SET(ODDLOT_OTHER_FILES
      prototypes/prototypes.odd
 	 prototypes/TJunctionTown.odd
 )
+IF(COVISE_FOUND)
+    SET(ODDLOT_SOURCES ${ODDLOT_SOURCES} 
+        src/cover/coverconnection.cpp
+    )
+    SET(ODDLOT_MOC_HEADERS ${ODDLOT_MOC_HEADERS} 
+        src/cover/coverconnection.hpp
+    )
+    INCLUDE_DIRECTORIES("../../plugins/hlrs/OddlotLink") 
+    SET(EXTRA_LIBS ${EXTRA_LIBS} ${COVISE_NET_LIBRARY})
+ENDIF(COVISE_FOUND)
+
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}) 
 
 QT_WRAP_CPP(ODDLOT_MOC_SRCS ${ODDLOT_MOC_HEADERS})
 QT_WRAP_UI(ODDLOT_UI_HEADERS ${ODDLOT_FORMS})
 QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
+
 
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
 qt_use_modules(oddlot Core Widgets Gui Network Xml)
@@ -711,4 +723,6 @@ TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS}
    coOpenScenario
 ) 
+
+source_group("testit" FILES src/cover/coverconnection.cpp coverconnection.cpp .*cover.*)
 covise_install_target(oddlot)

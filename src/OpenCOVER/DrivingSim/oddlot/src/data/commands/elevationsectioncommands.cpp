@@ -23,6 +23,7 @@
 #include "src/data/roadsystem/junctionconnection.hpp"
 
 #include "src/data/scenerysystem/heightmap.hpp"
+#include "src/cover/coverconnection.hpp"
 
 // Utils //
 //
@@ -1401,10 +1402,61 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     // Read Heights //
     //
     double *sampleHeights = new double[pointCount];
-    for (int i = 0; i < pointCount; ++i)
+    if(COVERConnection::instance()->isConnected())
     {
-        double s = sStart + i * segmentLength; // [sStart, sEnd]
-        sampleHeights[i] = getHeight(s) + heightOffset_;
+        covise::TokenBuffer tb;
+        tb << MSG_GetHeight;
+        tb << pointCount;
+        for (int i = 0; i < pointCount; ++i)
+        {
+            double s = sStart + i * segmentLength; // [sStart, sEnd]
+            QPointF pos = road_->getGlobalPoint(s);
+            tb << (float)pos.x();
+            tb << (float)pos.y();
+        }
+        COVERConnection::instance()->send(tb);
+        covise::Message *msg=NULL;
+        if(COVERConnection::instance()->waitForMessage(&msg))
+        {
+            covise::TokenBuffer rtb(msg);
+            int type;
+            rtb >>  type;
+            if(type == MSG_GetHeight)
+            {
+                int pc;
+                rtb >> pc;
+                if(pc == pointCount)
+                {
+                    float h;
+                    for (int i = 0; i < pointCount; ++i)
+                    {
+                        rtb >> h;
+                        sampleHeights[i] = h + heightOffset_;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            pointCount =0;
+        }
+        
+    }
+    else
+    {
+        for (int i = 0; i < pointCount; ++i)
+        {
+            double s = sStart + i * segmentLength; // [sStart, sEnd]
+            sampleHeights[i] = getHeight(s) + heightOffset_;
+        }
     }
 
 #if 0

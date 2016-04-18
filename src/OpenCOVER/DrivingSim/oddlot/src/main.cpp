@@ -16,10 +16,18 @@
 #include <QApplication>
 #include "mainwindow.hpp"
 #include <iostream>
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+#include "cover/coverconnection.hpp"
 
 int main(int argc, char *argv[])
 {
-
+#ifdef _WIN32
+    unsigned short wVersionRequested = MAKEWORD(1, 1);
+    struct WSAData wsaData;
+    int err = WSAStartup(wVersionRequested, &wsaData);
+#endif
     std::cout << "\n\nStarting...\n  ODDlot: The OpenDRIVE Designer for Lanes, Objects and Tracks.\n" << std::endl;
     QApplication a(argc, argv);
     MainWindow w;
@@ -31,6 +39,7 @@ int main(int argc, char *argv[])
     {
         w.open(args.at(1));
     }
+    COVERConnection::instance(); // create a cover connection
 
     return a.exec();
 }

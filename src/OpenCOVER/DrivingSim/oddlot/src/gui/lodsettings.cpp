@@ -25,6 +25,21 @@ void LODSettings::okPressed()
     TopViewEditorPointsPerMeter = ui->LODTopViewEditorSpin->value();
     HeightEditorPointsPerMeter = ui->LODHeightEditorSpin->value();
     SignalEditorScalingLevel = ui->LODSignalEditorSpin->value();
+    port = ui->portSpinBox->value();
+    hostname = ui->hostnameEdit->text();
+}
+
+bool LODSettings::doConnect()
+{
+    return (ui->connectedState->isChecked());
+}
+void LODSettings::setConnected(bool c)
+{
+    ui->connectedState->setChecked(c);
+}
+int LODSettings::getPort()
+{
+    return (ui->portSpinBox->value());
 }
 //################//
 // CONSTRUCTOR    //

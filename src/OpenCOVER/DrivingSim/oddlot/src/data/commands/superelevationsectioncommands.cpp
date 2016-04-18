@@ -22,6 +22,7 @@
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 
 #include "src/data/scenerysystem/heightmap.hpp"
+#include "src/cover/coverconnection.hpp"
 
 // Utils //
 //
@@ -119,9 +120,9 @@ MergeSuperelevationSectionCommand::MergeSuperelevationSectionCommand(Superelevat
 
     // Check for validity //
     //
-    if ((oldSectionLow_->getDegree() > 1)
+    if (/*(oldSectionLow_->getDegree() > 1)
         || (oldSectionHigh_->getDegree() > 1) // only lines allowed
-        || (parentRoad_ != superelevationSectionHigh->getParentRoad()) // not the same parents
+        ||*/ (parentRoad_ != superelevationSectionHigh->getParentRoad()) // not the same parents
         || superelevationSectionHigh != parentRoad_->getSuperelevationSection(superelevationSectionLow->getSEnd()) // not consecutive
         )
     {
@@ -137,13 +138,29 @@ MergeSuperelevationSectionCommand::MergeSuperelevationSectionCommand(Superelevat
 
     // New section //
     //
-    double deltaLength = superelevationSectionHigh->getSEnd() - superelevationSectionLow->getSStart();
+    /*double deltaLength = superelevationSectionHigh->getSEnd() - superelevationSectionLow->getSStart();
     double deltaHeight = superelevationSectionHigh->getSuperelevationDegrees(superelevationSectionHigh->getSEnd()) - superelevationSectionLow->getSuperelevationDegrees(superelevationSectionLow->getSStart());
     newSection_ = new SuperelevationSection(oldSectionLow_->getSStart(), oldSectionLow_->getA(), deltaHeight / deltaLength, 0.0, 0.0);
     if (oldSectionHigh_->isElementSelected() || oldSectionLow_->isElementSelected())
     {
         newSection_->setElementSelected(true); // keep selection
-    }
+    }*/
+    
+    double l = superelevationSectionHigh->getSEnd() - superelevationSectionLow->getSStart();
+
+    double h0 = superelevationSectionLow->getSuperelevationDegrees(superelevationSectionLow->getSStart());
+    double dh0 = superelevationSectionLow->getSuperelevationSlopeDegrees(superelevationSectionLow->getSStart());
+
+    double h1 = superelevationSectionHigh->getSuperelevationDegrees(superelevationSectionHigh->getSEnd());
+    double dh1 = superelevationSectionHigh->getSuperelevationSlopeDegrees(superelevationSectionHigh->getSEnd());
+
+    double d = (dh1 + dh0 - 2.0 * h1 / l + 2.0 * h0 / l) / (l * l);
+    double c = (h1 - d * l * l * l - dh0 * l - h0) / (l * l);
+    newSection_ = new SuperelevationSection(oldSectionLow_->getSStart(), h0, dh0, c, d);
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Merge SuperelevationSection"));
 }
 
 /*! \brief .
@@ -742,10 +759,73 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     // Read superelevations //
     //
     double *sampleSuperelevations = new double[pointCount];
-    for (int i = 0; i < pointCount; ++i)
+    if(COVERConnection::instance()->isConnected())
     {
-        double s = sStart + i * segmentLength; // [sStart, sEnd]
-        sampleSuperelevations[i] = getSuperelevation(s);
+        covise::TokenBuffer tb;
+        tb << MSG_GetHeight;
+        tb << (pointCount*2);
+        for (int i = 0; i < pointCount; ++i)
+        {
+            double s = sStart + i * segmentLength; // [sStart, sEnd]
+            
+            float wr = road_->getMaxWidth(s);
+            float wl = road_->getMinWidth(s);
+            QPointF posr = road_->getGlobalPoint(s, wr);
+            QPointF posl = road_->getGlobalPoint(s, wl);
+            tb << (float)posr.x();
+            tb << (float)posr.y();
+            tb << (float)posl.x();
+            tb << (float)posl.y();
+        }
+        COVERConnection::instance()->send(tb);
+        covise::Message *msg=NULL;
+        if(COVERConnection::instance()->waitForMessage(&msg))
+        {
+            covise::TokenBuffer rtb(msg);
+            int type;
+            rtb >>  type;
+            if(type == MSG_GetHeight)
+            {
+                int pc;
+                rtb >> pc;
+                if((pc/2) == pointCount)
+                {
+                    float hr,hl;
+                    for (int i = 0; i < pointCount; ++i)
+                    {
+                        double s = sStart + i * segmentLength; // [sStart, sEnd]
+
+                        float wr = road_->getMaxWidth(s);
+                        float wl = road_->getMinWidth(s);
+                        rtb >> hr;
+                        rtb >> hl;
+                        
+                        sampleSuperelevations[i] = atan((hr - hl) / (wr-wl))*180.0/M_PI;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            pointCount =0;
+        }
+        
+    }
+    else
+    {
+        for (int i = 0; i < pointCount; ++i)
+        {
+            double s = sStart + i * segmentLength; // [sStart, sEnd]
+            sampleSuperelevations[i] = getSuperelevation(s);
+        }
     }
 
 
