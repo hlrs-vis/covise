@@ -472,7 +472,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
 
         //settings for validation
-        parser->setDoXInclude(false); //disable XInclude for validation
+        parser->setDoXInclude(false); //disable XInclude for validation: to prevent generation of a namespace attribute xmlns:xml for xml:base
         parser->setDoSchema(true);
 
         //write xml document got from parser to memory buffer
