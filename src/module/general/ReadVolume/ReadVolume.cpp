@@ -382,7 +382,7 @@ int coReadVolume::compute(const char *)
     unsigned char *rawData = NULL;
     float width = 0.0, height = 0.0, depth = 0.0;
     int t;
-    int numVoxels;
+    size_t numVoxels;
     const char *pathtemplate = pbrVolumeFile->getValue();
 
     vvFileIO *fio = new vvFileIO();
@@ -590,12 +590,12 @@ int coReadVolume::compute(const char *)
                     {
                         if (fdata)
                         {
-                            for (int i = 0; i < numVoxels; ++i)
+                            for (size_t i = 0; i < numVoxels; ++i)
                                 fdata[i] = float(rawData[i * vd->chan + c]) / 255.0f;
                         }
                         else
                         {
-                            for (int i = 0; i < numVoxels; ++i)
+                            for (size_t i = 0; i < numVoxels; ++i)
                                 bdata[i] = rawData[i * vd->chan + c];
                         }
                     }
@@ -604,7 +604,7 @@ int coReadVolume::compute(const char *)
                         if (bs) //   Big Endian
                         {
                             //low
-                            for (int i = 0; i < numVoxels; ++i)
+                            for (size_t i = 0; i < numVoxels; ++i)
                             {
                                 fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2]))
                                              + ((float)rawData[(vd->chan * i + c) * 2 + 1]))
@@ -614,7 +614,7 @@ int coReadVolume::compute(const char *)
                         }
                         else //    Little Endian
                         {
-                            for (int i = 0; i < numVoxels; ++i)
+                            for (size_t i = 0; i < numVoxels; ++i)
                             {
                                 //high
                                 fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2 + 1]))
@@ -628,7 +628,7 @@ int coReadVolume::compute(const char *)
                     {
                         if (bs)
                         {
-                            for (int i = 0; i < numVoxels; ++i)
+                            for (size_t i = 0; i < numVoxels; ++i)
                             {
                                 uint32_t d = *(uint32_t *)&rawData[(vd->chan * i + c) * 4];
                                 byteSwap(d);
@@ -637,7 +637,7 @@ int coReadVolume::compute(const char *)
                         }
                         else
                         {
-                            for (int i = 0; i < numVoxels; ++i)
+                            for (size_t i = 0; i < numVoxels; ++i)
                             {
                                 fdata[i] = *(float *)&rawData[(vd->chan * i + c) * 4];
                             }
@@ -645,7 +645,7 @@ int coReadVolume::compute(const char *)
                     }
                     else
                     {
-                        for (int i = 0; i < numVoxels; ++i)
+                        for (size_t i = 0; i < numVoxels; ++i)
                             fdata[i] = 0.0f;
                     }
                 }
