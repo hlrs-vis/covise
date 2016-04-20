@@ -16,6 +16,7 @@ IF (WIN32)
 		DOC "The GLEW library")
 ELSE (WIN32)
 	FIND_PATH( GLEW_INCLUDE_DIR GL/glew.h
+                $ENV{EXTERNLIBS}/glew
 		/usr/include
 		/usr/local/include
 		/sw/include
@@ -24,6 +25,7 @@ ELSE (WIN32)
 	FIND_LIBRARY( GLEW_LIBRARY
 		NAMES GLEW glew
 		PATHS
+                $ENV{EXTERNLIBS}/glew
 		/usr/lib64
 		/usr/lib
 		/usr/local/lib64
