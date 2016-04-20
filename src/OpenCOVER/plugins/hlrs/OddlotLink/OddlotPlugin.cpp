@@ -45,7 +45,7 @@
 #include <osg/Array>
 #include <osg/CullFace>
 #include <osg/MatrixTransform>
-#include <osg/lineSegment>
+#include <osg/LineSegment>
 #include <osgUtil/IntersectVisitor>
 
 
