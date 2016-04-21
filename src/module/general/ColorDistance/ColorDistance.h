@@ -35,7 +35,9 @@ private:
     coColorParam *paReferenceColor;
     coFloatSliderParam *paSlider;
     coFloatSliderParam *paSlider2;
+    coFloatVectorParam *paMinMax;
     coChoiceParam *paMetric;
+    coChoiceParam *paColorSpace;
     //coFloatParam*        pfsIgnoreValue;
 
     // Methods:
