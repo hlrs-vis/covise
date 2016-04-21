@@ -787,31 +787,167 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
     for (int c = 0; c < Field::NumChannels; ++c)
     {
         const coDistributedObject *co = cos[c];
+        char type[7] = "";
+        char *name = NULL;
+        int numAttributes = 0;
+        char **attrNames = NULL, **attributes = NULL;
+        size_t size = 0;
 
-        if (co == NULL)
-            continue;
-
-
-        std::string type_c(co->getType());
-
-        if (type_c ==  "BYTEDT")
+        if (cluster && coVRDistributionManager::instance().isActive() && this->assignedTo.empty())
         {
-            coDoByte *bytes = (coDoByte *)co;
-            size = bytes->getNumPoints();
-            bytes->getAddress(&barr[c]);
-        }
-        else if (type_c == "USTSDT")
-        {
-            coDoFloat *volume_sdata = (coDoFloat *)co;
-            size = volume_sdata->getNumPoints();
-            volume_sdata->getAddress(&farr[c]);
+            this->assignedTo = coVRDistributionManager::instance().assign(co);
         }
 
-        const char *min_str = co->getAttribute("MIN");
-        const char *max_str = co->getAttribute("MAX");
+        if (coVRMSController::instance()->isMaster())
+        {
+            TokenBuffer tb;
+            if (co)
+            {
+                memcpy(type, co->getType(), 7);
+                name = new char[strlen(co->getName()) + 1];
+                strcpy(name, co->getName());
+                numAttributes = co->getNumAttributes();
+                attrNames = new char *[numAttributes];
+                attributes = new char *[numAttributes];
+                const char **attrs = NULL, **anames = NULL;
+                co->getAllAttributes(&anames, &attrs);
+                for (int i = 0; i < numAttributes; i++)
+                {
+                    attrNames[i] = new char[strlen(anames[i]) + 1];
+                    strcpy(attrNames[i], anames[i]);
+                    attributes[i] = new char[strlen(attrs[i]) + 1];
+                    strcpy(attributes[i], attrs[i]);
+                }
+                if (cluster)
+                {
+                    tb.addBinary(type, 7);
+                    tb << name;
+                    addInt(numAttributes);
+                    for (int i = 0; i < numAttributes; i++)
+                    {
+                        tb << attrNames[i];
+                        tb << attributes[i];
+                    }
+                }
 
-        min_[c] = min_str ? boost::lexical_cast<float>(min_str) : min_[c];
-        max_[c] = max_str ? boost::lexical_cast<float>(max_str) : max_[c];
+                if (strcmp(type, "BYTEDT") == 0)
+                {
+                    coDoByte *bytes = (coDoByte *)co;
+                    bytes->getAddress(&barr[c]);
+                    size = bytes->getNumPoints();
+                    if (cluster)
+                    {
+                        addInt(size);
+                        tb.addBinary((const char *)barr[c], size);
+                }
+                }
+                else if (strcmp(type, "USTSDT") == 0)
+                {
+                    coDoFloat *volume_sdata = (coDoFloat *)co;
+                    size = volume_sdata->getNumPoints();
+                    volume_sdata->getAddress(&farr[c]);
+                    if (cluster)
+                    {
+                        addInt(size);
+                        tb.addBinary((char *)farr[c], size * sizeof(float));
+                    }
+                }
+            }
+            else
+            {
+                tb.addBinary("EMPTY ", 6);
+                tb << "NoName";
+                int nix = 0;
+                addInt(nix);
+                //send over an empty dataobject
+            }
+
+            if (co)
+            {
+                const char *min_str = co->getAttribute("MIN");
+                const char *max_str = co->getAttribute("MAX");
+
+                min_[c] = min_str ? boost::lexical_cast<float>(min_str) : min_[c];
+                max_[c] = max_str ? boost::lexical_cast<float>(max_str) : max_[c];
+            }
+            addFloat(min_[c]);
+            addFloat(max_[c]);
+
+            Message msg(tb);
+            coVRMSController::instance()->sendSlaves(&msg);
+        } /* endif coVRMSController->isMaster() */
+        else // Slave
+        {
+            // receive a dataobject
+
+            //std::cerr << "CoviseRenderObject::<init> info: read from master" << std::endl;
+
+            Message msg;
+            coVRMSController::instance()->readMaster(&msg);
+            TokenBuffer tb(&msg);
+
+            strncpy(type, tb.getBinary(7), 7);
+            char *n;
+            tb >> n;
+            name = new char[strlen(n) + 1];
+            strcpy(name, n);
+
+            //std::cerr << "CoviseRenderObject::<init> info: object " << (name ? name : "*NULL*") << " assigned to slaves";
+            //for (std::vector<int>::iterator s = this->assignedTo.begin(); s != this->assignedTo.end(); ++s)
+            //   std::cerr << " " << *s;
+            //std::cerr << std::endl;
+
+            copyInt(numAttributes);
+            //cerr <<"Receiving Object " << name << " numAttribs: " << numAttributes << endl;
+            //cerr <<"type " << type << endl;
+            attrNames = new char *[numAttributes];
+            attributes = new char *[numAttributes];
+            for (int i = 0; i < numAttributes; i++)
+            {
+                tb >> n;
+                attrNames[i] = new char[strlen(n) + 1];
+                strcpy(attrNames[i], n);
+                tb >> n;
+                attributes[i] = new char[strlen(n) + 1];
+                strcpy(attributes[i], n);
+            }
+
+            if (strcmp(type, "BYTEDT") == 0)
+            {
+                copyInt(size);
+                barr[c] = new unsigned char[size];
+                memcpy(barr[c], tb.getBinary(size), size);
+            }
+            else if (strcmp(type, "USTSDT") == 0)
+            {
+                copyInt(size);
+                farr[c] = new float[size];
+                memcpy(farr[c], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            }
+
+            copyFloat(min_[c]);
+            copyFloat(max_[c]);
+        }
+
+        if (c == 0)
+        {
+            memcpy(this->type, type, sizeof(this->type));
+            this->name = name;
+            this->numAttributes = numAttributes;
+            this->attrNames = attrNames;
+            this->attributes = attributes;
+            this->size = size;
+        }
+        else
+        {
+            if (size>0 && size!=this->size)
+            {
+                cerr << "size mismatch: channel 0: " << this->size << ", channel " << c << ": " << size << std::endl;
+            }
+            delete[] name;
+            delete[] attrNames;
+            delete[] attributes;
+        }
     }
 }
 
