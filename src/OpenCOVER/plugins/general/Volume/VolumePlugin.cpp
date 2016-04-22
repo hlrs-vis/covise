@@ -323,7 +323,17 @@ FileHandler fileHandler[] = {
       VolumePlugin::loadVolume,
       VolumePlugin::loadVolume,
       VolumePlugin::unloadVolume,
-      "avf" }
+      "avf" },
+    { NULL,
+      VolumePlugin::loadVolume,
+      VolumePlugin::loadVolume,
+      VolumePlugin::unloadVolume,
+      "nii" },
+    { NULL,
+      VolumePlugin::loadVolume,
+      VolumePlugin::loadVolume,
+      VolumePlugin::unloadVolume,
+      "nii.gz" },
 };
 
 /// Constructor
