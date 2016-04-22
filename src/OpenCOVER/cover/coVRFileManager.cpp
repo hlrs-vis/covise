@@ -289,8 +289,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
     }
 
-    const FileHandler *handler = findFileHandler(fileTypeString);
-    coVRIOReader *reader = findIOHandler(fileTypeString);
+    const FileHandler *handler = findFileHandler(adjustedFileName);
+    coVRIOReader *reader = findIOHandler(adjustedFileName);
 
     delete[] lastFileName;
     delete[] lastCovise_key;
@@ -483,8 +483,7 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
     const FileHandler *oldHandler = NULL;
     if (lastFileName)
     {
-        const char *fileTypeString = findFileExt(lastFileName);
-        oldHandler = findFileHandler(fileTypeString);
+        oldHandler = findFileHandler(lastFileName);
     }
 
     if (adjustedFileName == NULL)
@@ -509,8 +508,7 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
         {
             parent = cover->getObjectsRoot();
         }
-        const char *fileTypeString = findFileExt(adjustedFileName);
-        const FileHandler *handler = findFileHandler(fileTypeString);
+        const FileHandler *handler = findFileHandler(adjustedFileName);
         if (handler)
         {
             if (handler == oldHandler && handler->replaceFile)
@@ -707,8 +705,7 @@ void coVRFileManager::reloadFile()
     START("coVRFileManager::reloadFile");
     if (lastFileName && lastCovise_key)
     {
-        const char *fileTypeString = findFileExt(lastFileName);
-        const FileHandler *handler = findFileHandler(fileTypeString);
+        const FileHandler *handler = findFileHandler(lastFileName);
         if (!handler)
             return;
 
@@ -727,8 +724,7 @@ void coVRFileManager::unloadFile()
     START("coVRFileManager::unloadFile");
     if (lastFileName && lastCovise_key)
     {
-        const char *fileTypeString = findFileExt(lastFileName);
-        const FileHandler *handler = getFileHandler(fileTypeString);
+        const FileHandler *handler = findFileHandler(lastFileName);
         if (handler && handler->unloadFile)
             handler->unloadFile(lastFileName, lastCovise_key);
     }
@@ -924,40 +920,47 @@ const FileHandler *coVRFileManager::getFileHandler(const char *extension)
     return NULL;
 }
 
-const FileHandler *coVRFileManager::findFileHandler(const char *extension)
+const FileHandler *coVRFileManager::findFileHandler(const char *pathname)
 {
-    for (FileHandlerList::iterator it = fileHandlerList.begin();
-         it != fileHandlerList.end();
-         ++it)
+    for (const char *p = strchr(pathname, '.'); p; p = strchr(p, '.'))
     {
-        if (!strcasecmp(extension, (*it)->extension))
-            return *it;
-    }
-    int extlen = strlen(extension);
-    char *cEntry = new char[40 + extlen];
-    char *lowerExt = new char[extlen + 1];
-    for (size_t i = 0; i < strlen(extension); i++)
-    {
-        lowerExt[i] = tolower(extension[i]);
-    }
-    lowerExt[extlen] = '\0';
+        ++p;
+        const char *extension = p;
 
-    sprintf(cEntry, "COVER.FileManager.FileType:%s", lowerExt);
-    string plugin = coCoviseConfig::getEntry("plugin", cEntry);
-    delete[] cEntry;
-    delete[] lowerExt;
-    if (plugin.size() > 0)
-    { // load the appropriate plugin and give it another try
-        coVRPluginList::instance()->addPlugin(plugin.c_str());
         for (FileHandlerList::iterator it = fileHandlerList.begin();
-             it != fileHandlerList.end();
-             ++it)
+                it != fileHandlerList.end();
+                ++it)
         {
             if (!strcasecmp(extension, (*it)->extension))
-            {
-                if (cover->debugLevel(2))
-                    fprintf(stderr, "coVRFileManager::findFileHandler(extension=%s), using plugin %s\n", extension, plugin.c_str());
                 return *it;
+        }
+
+        int extlen = strlen(extension);
+        char *cEntry = new char[40 + extlen];
+        char *lowerExt = new char[extlen + 1];
+        for (size_t i = 0; i < extlen; i++)
+        {
+            lowerExt[i] = tolower(extension[i]);
+        }
+        lowerExt[extlen] = '\0';
+
+        sprintf(cEntry, "COVER.FileManager.FileType:%s", lowerExt);
+        string plugin = coCoviseConfig::getEntry("plugin", cEntry);
+        delete[] cEntry;
+        delete[] lowerExt;
+        if (plugin.size() > 0)
+        { // load the appropriate plugin and give it another try
+            coVRPluginList::instance()->addPlugin(plugin.c_str());
+            for (FileHandlerList::iterator it = fileHandlerList.begin();
+                    it != fileHandlerList.end();
+                    ++it)
+            {
+                if (!strcasecmp(extension, (*it)->extension))
+                {
+                    if (cover->debugLevel(2))
+                        fprintf(stderr, "coVRFileManager::findFileHandler(extension=%s), using plugin %s\n", extension, plugin.c_str());
+                    return *it;
+                }
             }
         }
     }
@@ -965,20 +968,36 @@ const FileHandler *coVRFileManager::findFileHandler(const char *extension)
     return NULL;
 }
 
-coVRIOReader *coVRFileManager::findIOHandler(const char *extension)
+coVRIOReader *coVRFileManager::findIOHandler(const char *pathname)
 {
+    coVRIOReader *best = NULL;
+    size_t maxmatch = 0;
+    const std::string file(pathname);
+
     for (IOReaderList::iterator it = ioReaderList.begin();
          it != ioReaderList.end(); ++it)
     {
-        if (find((*it)->getSupportedReadFileExtensions().begin(), (*it)->getSupportedReadFileExtensions().end(), extension) != (*it)->getSupportedReadFileExtensions().end())
+        typedef std::list<std::string> ExtList;
+        const ExtList &extlist = (*it)->getSupportedReadFileExtensions();
+        for (ExtList::const_iterator it2 = extlist.begin();
+                it2 != extlist.end();
+                ++it2)
         {
+            const std::string &ext = *it2;
+            if (ext.length() > file.length())
+                continue;
+            if (std::equal(ext.rbegin(), ext.rend(), file.rbegin()))
+            {
+                if (ext.length() > maxmatch)
+                {
+                    maxmatch = ext.length();
+                    best = *it;
+                }
+            }
 
-            if (cover->debugLevel(3))
-                std::cerr << "coVRFileManager::findIOHandler info: found " << (*it)->getIOHandlerName() << std::endl;
-            return *it;
         }
     }
-    return 0;
+    return best;
 }
 
 int coVRFileManager::registerFileHandler(const FileHandler *handler)
