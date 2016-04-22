@@ -106,6 +106,8 @@
            <FileType name="tiff" plugin="Volume" />
            <FileType name="rvf" plugin="Volume" />
            <FileType name="avf" plugin="Volume" />
+           <FileType name="nii" plugin="Volume" />
+           <FileType name="nii.gz" plugin="Volume" />
            <FileType name="js" plugin="Script" />
            <FileType name="qs" plugin="Script" />
            <FileType name="plmxml" plugin="PLMXML" />
