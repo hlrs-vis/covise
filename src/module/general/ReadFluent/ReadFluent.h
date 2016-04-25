@@ -41,29 +41,10 @@ public:
     ~fluentFile();
     int open(const char *fileName);
     void close();
-    char getChar()
-    {
-        if (numback)
-        {
-            return bBuf[--numback];
-        }
-        if (currentChar > lastChar)
-            fillBuf();
-        return *currentChar++;
-    };
-    void putBack(char c)
-    {
-        bBuf[numback] = c;
-        numback++;
-    };
+    char getChar();
+    void putBack(char c);
     int fillBuf();
-    int eof()
-    {
-        if (lastChar == buf - 1)
-            return 1;
-        else
-            return 0;
-    };
+    int eof();
     int getSection();
     int skipSection();
     int nextSubSection();
@@ -74,7 +55,7 @@ public:
     void readBin(float &);
     void readBin(double &);
     void readBin(int &);
-    int readString(char *);
+    int readString(char *, int maxlen);
     int getCurrentSection()
     {
         return currentSection;
