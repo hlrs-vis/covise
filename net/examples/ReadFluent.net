@@ -4,108 +4,6 @@ LOCAL
 LUSER
 #numModules
 12
-# Module ReadFluent
-ReadFluent
-1
-LOCAL
-IO_Module
-ReadFluent_1
-306
-0
-0
-6
-grid
-StructuredGrid|UnstructuredGrid
-grid
-default
-
-polygons
-Polygons
-geometry polygons
-default
-
-data1
-Float|Vec3
-data1
-default
-
-data2
-Float|Vec3
-data2
-default
-
-data3
-Float|Vec3
-data3
-default
-
-lines
-Lines
-lines
-default
-
-10
-CasePath
-Browser
-filename
-share/covise/example-data/Fluent/fan1.cas
-
-1
-CasePath___filter
-BrowserFilter
-filename
-CasePath *.cas
-
--1
-DataPath
-Browser
-filename
-share/covise/example-data/Fluent/fan1.dat
-
-1
-DataPath___filter
-BrowserFilter
-filename
-DataPath *.dat
-
--1
-select_data_1
-Choice
-Select Output Data
-1 (none) CELL_DATA_PRESSURE FACE_DATA_PRESSURE CELL_DATA_X_VELOCITY CELL_DATA_VELOCITY(Vector) FACE_DATA_X_VELOCITY FACE_DATA_VELOCITY(Vector) CELL_DATA_Y_VELOCITY FACE_DATA_Y_VELOCITY CELL_DATA_Z_VELOCITY FACE_DATA_Z_VELOCITY FACE_DATA_MASS_FLUX CELL_DATA_BODY_FORCES FACE_DATA_WALL_SHEAR FACE_DATA_MACH FACE_DATA_BOUNDARY_HEAT_FLUX FACE_DATA_BOUNDARY_RAD_HEAT_FLUX CELL_DATA_TKE FACE_DATA_TKE CELL_DATA_TED FACE_DATA_TED FACE_DATA_YPLUS FACE_DATA_YPLUS_UTAU CELL_DATA_DENSITY FACE_DATA_DENSITY CELL_DATA_MU_LAM CELL_DATA_MU_TURB
-
-1
-select_data_2
-Choice
-Select Output Data
-1 (none) CELL_DATA_PRESSURE FACE_DATA_PRESSURE CELL_DATA_X_VELOCITY CELL_DATA_VELOCITY(Vector) FACE_DATA_X_VELOCITY FACE_DATA_VELOCITY(Vector) CELL_DATA_Y_VELOCITY FACE_DATA_Y_VELOCITY CELL_DATA_Z_VELOCITY FACE_DATA_Z_VELOCITY FACE_DATA_MASS_FLUX CELL_DATA_BODY_FORCES FACE_DATA_WALL_SHEAR FACE_DATA_MACH FACE_DATA_BOUNDARY_HEAT_FLUX FACE_DATA_BOUNDARY_RAD_HEAT_FLUX CELL_DATA_TKE FACE_DATA_TKE CELL_DATA_TED FACE_DATA_TED FACE_DATA_YPLUS FACE_DATA_YPLUS_UTAU CELL_DATA_DENSITY FACE_DATA_DENSITY CELL_DATA_MU_LAM CELL_DATA_MU_TURB
-
-1
-select_data_3
-Choice
-Select Output Data
-1 (none) CELL_DATA_PRESSURE FACE_DATA_PRESSURE CELL_DATA_X_VELOCITY CELL_DATA_VELOCITY(Vector) FACE_DATA_X_VELOCITY FACE_DATA_VELOCITY(Vector) CELL_DATA_Y_VELOCITY FACE_DATA_Y_VELOCITY CELL_DATA_Z_VELOCITY FACE_DATA_Z_VELOCITY FACE_DATA_MASS_FLUX CELL_DATA_BODY_FORCES FACE_DATA_WALL_SHEAR FACE_DATA_MACH FACE_DATA_BOUNDARY_HEAT_FLUX FACE_DATA_BOUNDARY_RAD_HEAT_FLUX CELL_DATA_TKE FACE_DATA_TKE CELL_DATA_TED FACE_DATA_TED FACE_DATA_YPLUS FACE_DATA_YPLUS_UTAU CELL_DATA_DENSITY FACE_DATA_DENSITY CELL_DATA_MU_LAM CELL_DATA_MU_TURB
-
-1
-timesteps
-IntScalar
-timesteps
-1
-
--1
-file_increment
-IntScalar
-increment in file numbers
-1
-
--1
-skipped_files
-IntScalar
-number of skipped files for each timestep
-0
-
--1
-0
 # Module BoundingBox
 BoundingBox
 1
@@ -206,7 +104,7 @@ Lines
 Isolines
 default
 
-12
+13
 vertex
 FloatVector
 Normal of cuttingplane, center of sphere or point on cylinder axis
@@ -223,6 +121,12 @@ scalar
 FloatScalar
 Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
 -0.120609
+
+-1
+skew
+Boolean
+Modify vertex and point slightly in order to avoid cutting exactly on cell boundaries
+FALSE
 
 -1
 option
@@ -398,7 +302,7 @@ Colors_1
 DataIn0
 Vec3|IntArr|Int|Float|Byte
 scalar data
-opt
+req
 
 DataIn1
 Vec3|IntArr|Int|Float|Byte
@@ -468,6 +372,12 @@ Re-scale and execute immediately
 FALSE
 
 -1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
 annotation
 String
 Colormap Annotation String
@@ -492,12 +402,6 @@ Spike Ratio for high values
 0.050000
 
 -1
-opacityFactor
-FloatScalar
-Global opacity multiplicator
-1.000000
-
--1
 0
 # Module Collect
 Collect
@@ -514,7 +418,7 @@ Grid
 req
 
 DataIn0
-Byte|Float|Vec3|RGBA
+Byte|Float|Vec2|Vec3|RGBA
 Colors or Scalar Data for Volume Visualization
 opt
 
@@ -539,10 +443,16 @@ Geometry
 combined object
 default
 
-3
+4
 varName
 String
 name of variant
+
+
+-1
+attribute
+String
+attributes in the form name=value;name2=value2;...
 
 
 -1
@@ -669,6 +579,12 @@ Re-scale and execute immediately
 FALSE
 
 -1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
 annotation
 String
 Colormap Annotation String
@@ -691,12 +607,6 @@ SpikeTopFract
 FloatScalar
 Spike Ratio for high values
 0.050000
-
--1
-opacityFactor
-FloatScalar
-Global opacity multiplicator
-1.000000
 
 -1
 0
@@ -755,7 +665,7 @@ Lines
 Isolines
 default
 
-12
+13
 vertex
 FloatVector
 Normal of cuttingplane, center of sphere or point on cylinder axis
@@ -772,6 +682,12 @@ scalar
 FloatScalar
 Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
 0.115
+
+-1
+skew
+Boolean
+Modify vertex and point slightly in order to avoid cutting exactly on cell boundaries
+FALSE
 
 -1
 option
@@ -895,61 +811,109 @@ TRUE
 
 -1
 0
-20
+# Module ReadFluent
 ReadFluent
-1
-LOCAL
-grid
-
-BoundingBox
-1
-LOCAL
-GridIn0
-ReadFluent
-1
-LOCAL
-grid
-
-CuttingSurface
-1
-LOCAL
-GridIn0
-ReadFluent
-1
-LOCAL
-grid
-
-CellToVert
-1
-LOCAL
-GridIn0
-ReadFluent
-1
-LOCAL
-grid
-
-CuttingSurface
 2
 LOCAL
-GridIn0
-ReadFluent
-1
-LOCAL
+IO
+ReadFluent_1
+306
+0
+0
+6
 grid
+StructuredGrid|UnstructuredGrid
+grid
+default
 
-DomainSurface
-1
-LOCAL
-GridIn0
-ReadFluent
-1
-LOCAL
+polygons
+Polygons
+geometry polygons
+default
+
 data1
+Float|Vec3
+data1
+default
 
-CellToVert
+data2
+Float|Vec3
+data2
+default
+
+data3
+Float|Vec3
+data3
+default
+
+lines
+Lines
+lines
+default
+
+10
+CasePath
+Browser
+filename
+share/covise/example-data/Fluent/fan1.cas
+
 1
-LOCAL
-DataIn0
+CasePath___filter
+BrowserFilter
+filename
+CasePath *.cas
+
+-1
+DataPath
+Browser
+filename
+share/covise/example-data/Fluent/fan1.dat
+
+1
+DataPath___filter
+BrowserFilter
+filename
+DataPath *.dat
+
+-1
+select_data_1
+Choice
+Select Output Data
+1 (none) CELL_DATA_PRESSURE FACE_DATA_PRESSURE CELL_DATA_X_VELOCITY CELL_DATA_VELOCITY(Vector) FACE_DATA_X_VELOCITY FACE_DATA_VELOCITY(Vector) CELL_DATA_Y_VELOCITY FACE_DATA_Y_VELOCITY CELL_DATA_Z_VELOCITY FACE_DATA_Z_VELOCITY FACE_DATA_MASS_FLUX CELL_DATA_BODY_FORCES FACE_DATA_WALL_SHEAR FACE_DATA_MACH FACE_DATA_BOUNDARY_HEAT_FLUX FACE_DATA_BOUNDARY_RAD_HEAT_FLUX CELL_DATA_TKE FACE_DATA_TKE CELL_DATA_TED FACE_DATA_TED FACE_DATA_YPLUS FACE_DATA_YPLUS_UTAU CELL_DATA_DENSITY FACE_DATA_DENSITY CELL_DATA_MU_LAM CELL_DATA_MU_TURB
+
+1
+select_data_2
+Choice
+Select Output Data
+1 (none) CELL_DATA_PRESSURE FACE_DATA_PRESSURE CELL_DATA_X_VELOCITY CELL_DATA_VELOCITY(Vector) FACE_DATA_X_VELOCITY FACE_DATA_VELOCITY(Vector) CELL_DATA_Y_VELOCITY FACE_DATA_Y_VELOCITY CELL_DATA_Z_VELOCITY FACE_DATA_Z_VELOCITY FACE_DATA_MASS_FLUX CELL_DATA_BODY_FORCES FACE_DATA_WALL_SHEAR FACE_DATA_MACH FACE_DATA_BOUNDARY_HEAT_FLUX FACE_DATA_BOUNDARY_RAD_HEAT_FLUX CELL_DATA_TKE FACE_DATA_TKE CELL_DATA_TED FACE_DATA_TED FACE_DATA_YPLUS FACE_DATA_YPLUS_UTAU CELL_DATA_DENSITY FACE_DATA_DENSITY CELL_DATA_MU_LAM CELL_DATA_MU_TURB
+
+1
+select_data_3
+Choice
+Select Output Data
+1 (none) CELL_DATA_PRESSURE FACE_DATA_PRESSURE CELL_DATA_X_VELOCITY CELL_DATA_VELOCITY(Vector) FACE_DATA_X_VELOCITY FACE_DATA_VELOCITY(Vector) CELL_DATA_Y_VELOCITY FACE_DATA_Y_VELOCITY CELL_DATA_Z_VELOCITY FACE_DATA_Z_VELOCITY FACE_DATA_MASS_FLUX CELL_DATA_BODY_FORCES FACE_DATA_WALL_SHEAR FACE_DATA_MACH FACE_DATA_BOUNDARY_HEAT_FLUX FACE_DATA_BOUNDARY_RAD_HEAT_FLUX CELL_DATA_TKE FACE_DATA_TKE CELL_DATA_TED FACE_DATA_TED FACE_DATA_YPLUS FACE_DATA_YPLUS_UTAU CELL_DATA_DENSITY FACE_DATA_DENSITY CELL_DATA_MU_LAM CELL_DATA_MU_TURB
+
+1
+timesteps
+IntScalar
+timesteps
+1
+
+-1
+file_increment
+IntScalar
+increment in file numbers
+1
+
+-1
+skipped_files
+IntScalar
+number of skipped files for each timestep
+0
+
+-1
+0
+20
 BoundingBox
 1
 LOCAL
@@ -1076,4 +1040,57 @@ Renderer
 1
 LOCAL
 RenderData
-0
+ReadFluent
+2
+LOCAL
+grid
+
+BoundingBox
+1
+LOCAL
+GridIn0
+ReadFluent
+2
+LOCAL
+grid
+
+CuttingSurface
+1
+LOCAL
+GridIn0
+ReadFluent
+2
+LOCAL
+grid
+
+CellToVert
+1
+LOCAL
+GridIn0
+ReadFluent
+2
+LOCAL
+grid
+
+CuttingSurface
+2
+LOCAL
+GridIn0
+ReadFluent
+2
+LOCAL
+grid
+
+DomainSurface
+1
+LOCAL
+GridIn0
+ReadFluent
+2
+LOCAL
+data1
+
+CellToVert
+1
+LOCAL
+DataIn0
