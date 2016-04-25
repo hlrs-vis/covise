@@ -370,7 +370,7 @@ void module::start(char *parameter, Start::Flags flags)
 #ifdef __APPLE__
                     command = "konsole --noclose -e valgrind --trace-children=no --dsymutil=yes";
 #else
-                    command = "xterm -e valgrind --trace-children=no";
+                    command = "xterm -hold -e valgrind --trace-children=no";
 #endif
                     defaultCommand = true;
                 }
