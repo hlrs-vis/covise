@@ -268,7 +268,7 @@ int Fluent::compute(const char *)
 
     if (isTetOnly())
     {
-        sendInfo("buliding Tetrahedra Mesh!");
+        sendInfo("buliding tetrahedra mesh with %d cells!", numCells);
         cellvl = new int[numCells * 4];
 
         for (i = 0; i < numCells * 4; i++)
@@ -320,7 +320,7 @@ int Fluent::compute(const char *)
     }
     else
     {
-        sendInfo("buliding mixed element mesh!");
+        sendInfo("buliding mixed element mesh with %d cells!", numCells);
         //freeElements.noDelete = 1;
         elementTypeList = new int[numCells];
         Elements = new Element *[numCells];
@@ -1780,7 +1780,7 @@ Fluent::readFile(const char *fileName)
             file.readHex(firstIndex);
             file.readHex(lastIndex);
             file.readHex(type);
-            file.readDez(globalElementType);
+            file.readHex(globalElementType);
 
             // 				    cerr << "Zone "
             // 					 << zoneID << " fi " << firstIndex << " li " << lastIndex
@@ -1819,7 +1819,7 @@ Fluent::readFile(const char *fileName)
                     file.endSubSection();
                     file.nextSubSection();
 
-                    if (globalElementType != 0)
+                    if (globalElementType != 0 && globalElementType != 5)
                     {
                         for (i = firstIndex - 1; i < lastIndex; i++)
                         {
@@ -1871,7 +1871,7 @@ Fluent::readFile(const char *fileName)
             file.readHex(firstIndex);
             file.readHex(lastIndex);
             file.readHex(type);
-            file.readDez(globalElementType);
+            file.readHex(globalElementType);
 
             // 	    cerr << "Zone "
             // 		 << zoneID
@@ -1915,7 +1915,7 @@ Fluent::readFile(const char *fileName)
                 {
                     file.endSubSection();
                     file.nextSubSection();
-                    if (globalElementType != 0)
+                    if (globalElementType != 0 && globalElementType != 5)
                     {
                         for (i = firstIndex - 1; i < lastIndex; i++)
                         {
@@ -1972,7 +1972,7 @@ Fluent::readFile(const char *fileName)
             file.readHex(firstIndex);
             file.readHex(lastIndex);
             file.readHex(type);
-            file.readDez(globalElementType);
+            file.readHex(globalElementType);
 
             // 			      cerr << "Zone "
             // 				   << zoneID
@@ -2016,7 +2016,7 @@ Fluent::readFile(const char *fileName)
                 {
                     file.endSubSection();
                     file.nextSubSection();
-                    if (globalElementType != 0)
+                    if (globalElementType != 0 && globalElementType != 5)
                     {
                         for (i = firstIndex - 1; i < lastIndex; i++)
                         {
@@ -2149,9 +2149,9 @@ void Fluent::addFaceVariable(int varNum)
 {
 
     int i;
-    if (varNum > 150)
+    if (varNum > 200)
     {
-        sendInfo("Variables %d (> 150) not supported", varNum);
+        sendInfo("Variables %d (> 200) not supported", varNum);
         return;
     }
     for (i = 0; i < numVars; i++)
