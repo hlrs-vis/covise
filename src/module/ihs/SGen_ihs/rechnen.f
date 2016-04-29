@@ -401,7 +401,7 @@ C                                           A. Kaps  IHS,  01. 02. 99
 
       INCLUDE 'common.f'
 
-      REAL anzkugel
+      INTEGER anzkugel
       INTEGER i
 
       anzkugel=0

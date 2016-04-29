@@ -59,7 +59,7 @@ c
       integer an_kno,bi,ixkn,iykn,izkn
       integer a_3Del,iel1,iel2,iel3,iel4,iel5,iel6,iel7,iel8
       integer i
-      integer anz_kno_mal_t
+      integer anz_kno_mal_t, anz_elm
       integer zero
       real f
       integer e

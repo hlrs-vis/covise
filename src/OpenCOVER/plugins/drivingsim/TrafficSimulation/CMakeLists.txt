@@ -15,8 +15,14 @@ ENDIF()
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
 COVISE_FIND_PACKAGE(GDAL)
-FIND_PACKAGE(V8)
+COVISE_FIND_PACKAGE(V8)
 
+if(NOT GDAL_FOUND)
+    return()
+endif()
+if(NOT V8_FOUND)
+    return()
+endif()
 
 SET(HEADERS
   TrafficSimulationPlugin.h
