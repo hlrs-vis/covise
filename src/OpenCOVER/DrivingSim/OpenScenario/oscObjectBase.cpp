@@ -211,7 +211,8 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                             oscMember *aMemberMember = obj->getMembers().at(aMemChildElemName);
                             aMemberMember->setValue(aMember->at(i));
 
-                            //write array member into root element of new xml document
+                            //write array element into memberArray (the container)
+                            //(it's a root element of a new xml document or the container written with writeMemberArrayToDOM())
                             obj->writeToDOM(elementToUse, docToUse);
                         }
                     }
@@ -229,7 +230,8 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         }
                     }
 
-                    //memberCatalog
+                    //write objects of a memberCatalog
+                    //
                     oscMemberCatalog *cMember = dynamic_cast<oscMemberCatalog *>(member);
                     if(cMember)
                     {
@@ -351,19 +353,19 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
                 if(am)
                 {
-                    //check if array member has attributes
-                    //attributes of an array member are not supported
-                    xercesc::DOMNamedNodeMap *arrayMemAttributes = memberElem->getAttributes();
-                    for (int i = 0; i < arrayMemAttributes->getLength(); i++)
+                    //check if memberArray has attributes
+                    //attributes of a maemberArray are not supported
+                    xercesc::DOMNamedNodeMap *memArrayAttributes = memberElem->getAttributes();
+                    for (int i = 0; i < memArrayAttributes->getLength(); i++)
                     {
-                        xercesc::DOMAttr *attrib = dynamic_cast<xercesc::DOMAttr *>(arrayMemAttributes->item(i));
+                        xercesc::DOMAttr *attrib = dynamic_cast<xercesc::DOMAttr *>(memArrayAttributes->item(i));
                         if(attrib != NULL)
                         {
                             std::string attribName = xercesc::XMLString::transcode(attrib->getName());
                             if (attribName != "xmlns" && attribName != "xmlns:osc" && attribName != "xml:base")
                             {
-                                std::cerr << "\n Array member " << memberName << " has attributes." << std::endl;
-                                std::cerr << " Attributes of an array member are not supported.\n" << std::endl;
+                                std::cerr << "\n MemberArray (container for an array) " << memberName << " has attributes." << std::endl;
+                                std::cerr << " Attributes of a MemberArray are not supported.\n" << std::endl;
                             }
                         }
                     }
@@ -510,7 +512,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             if (base->getFullReadCatalogs())
                             {
                                 //generate the objects for this catalog and store them
-                                for (auto &it : cm->getMapAvailableObjects())
+                                for (auto &it : cm->getAvailableObjectsMap())
                                 {
                                     cm->fullReadCatalogObjectWithName(it.first);
                                 }

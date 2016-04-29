@@ -24,7 +24,7 @@ namespace OpenScenario
 {
 
 /// \class This class represents a member variable value in an oscObject
-class OPENSCENARIOEXPORT oscMemberValue 
+class OPENSCENARIOEXPORT oscMemberValue
 {
 public:
     enum MemberTypes

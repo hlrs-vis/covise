@@ -131,6 +131,8 @@ public:
     const QStringList &getHostnameList() const;
     const QString &getActiveHost() const;
     bool setActiveHost(const QString &host);
+    const QString &getActiveCluster() const;
+    bool setActiveCluster(const QString &master);
 
     virtual void addConfig(const QString &filename, const QString &name, bool create = false);
     virtual void addConfig(coConfigGroup *group);
@@ -186,6 +188,8 @@ private:
     static coConfig *config;
     QString activeHostname;
     QStringList hostnames;
+    QString activeCluster;
+    QStringList masternames;
 
     QHash<QString, coConfigGroup *> configGroups;
 

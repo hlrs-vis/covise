@@ -30,11 +30,11 @@ class OPENSCENARIOEXPORT oscMember
 {
 protected:
     std::string name; ///< name of member
-    std::string typeName; ///< type name of member
-    oscMemberValue *value;
-    oscObjectBase *owner; ///< the parent/owner object of this member
+    std::string typeName; ///< type name of member if type == oscMemberValue::OBJECT
     enum oscMemberValue::MemberTypes type;
+    oscObjectBase *owner; ///< the parent/owner object of this member
     oscMember *parentMember; ///< the parent member of this member
+    oscMemberValue *value;
 
 public:
     oscMember(); ///< constructor
@@ -52,6 +52,11 @@ public:
     void setTypeName(const char *tn);
     void setTypeName(std::string &tn);
     std::string getTypeName() const; ///< return the typeName of this member
+    void setType(oscMemberValue::MemberTypes t);
+    oscMemberValue::MemberTypes getType() const; ///< return the type of this member
+    oscObjectBase *getOwner() const;
+    void setParentMember(oscMember *pm);
+    oscMember *getParentMember() const;
 
     //
     virtual void setValue(oscMemberValue *v);
@@ -59,16 +64,11 @@ public:
     virtual void deleteValue();
     virtual oscMemberValue *getValue();
     virtual oscMemberValue *getOrCreateValue();
-    void setType(oscMemberValue::MemberTypes t);
-    oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
     //
     virtual oscObjectBase *getObject() const;
     virtual oscObjectBase *getOrCreateObject();
     virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable...::exists is executed
-    oscObjectBase *getOwner() const;
-    virtual void setParentMember(oscMember *pm);
-    virtual oscMember *getParentMember() const;
 
     //
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);

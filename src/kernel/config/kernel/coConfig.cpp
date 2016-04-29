@@ -102,6 +102,34 @@ bool coConfig::setActiveHost(const QString &host)
     }
 }
 
+const QString &coConfig::getActiveCluster() const
+{
+    return activeCluster;
+}
+
+bool coConfig::setActiveCluster(const QString &master)
+{
+    if (masternames.contains(master.toLower()) || master.isEmpty())
+    {
+        //cerr << "coConfig::setActiveCluster info: setting active cluster "
+        //     << host << endl;
+        activeCluster = master.toLower();
+
+        for (QHash<QString, coConfigGroup *>::iterator i = configGroups.begin(); i != configGroups.end(); ++i)
+        {
+            (*i)->setActiveCluster(activeCluster);
+        }
+
+        return true;
+    }
+    else
+    {
+
+        COCONFIGDBG("coConfig::setActiveCluster warn: could not set active cluster " << master.toLower());
+        return false;
+    }
+}
+
 void coConfig::reload()
 {
 
@@ -138,7 +166,9 @@ void coConfig::load()
     // Set active host
 
     this->hostnames = mainGroup->getHostnameList();
+    this->masternames = mainGroup->getClusterList();
 
+    setActiveCluster(activeCluster);
     setActiveHost(activeHostname);
 }
 
@@ -898,6 +928,8 @@ void coConfig::addConfig(coConfigGroup *group)
     configGroups.insert(group->getGroupName(), group);
     this->hostnames.append(group->getHostnameList());
     this->hostnames.removeDuplicates();
+    this->masternames.append(group->getClusterList());
+    this->masternames.removeDuplicates();
 }
 
 /**
@@ -910,11 +942,14 @@ void coConfig::removeConfig(const QString &name)
     configGroups["config"]->removeConfig(name);
 
     this->hostnames.clear();
+    this->masternames.clear();
     foreach (coConfigGroup *group, configGroups)
     {
         this->hostnames.append(group->getHostnameList());
+        this->masternames.append(group->getClusterList());
     }
     this->hostnames.removeDuplicates();
+    this->masternames.removeDuplicates();
 }
 
 /**

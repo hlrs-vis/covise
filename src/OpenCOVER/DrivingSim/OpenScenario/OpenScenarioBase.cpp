@@ -202,6 +202,7 @@ bf::path OpenScenarioBase::getPathFromCurrentDirToDoc() const
 bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &fileType)
 {
     setPathFromCurrentDirToDoc(fileName);
+
     xercesc::DOMElement *rootElement = getRootElement(fileName, fileType, m_validate);
     if(rootElement == NULL)
     {
@@ -471,7 +472,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
 
         //settings for validation
-        parser->setDoXInclude(false); //disable XInclude for validation
+        parser->setDoXInclude(false); //disable XInclude for validation: to prevent generation of a namespace attribute xmlns:xml for xml:base
         parser->setDoSchema(true);
 
         //write xml document got from parser to memory buffer

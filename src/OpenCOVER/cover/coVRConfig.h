@@ -286,10 +286,10 @@ public:
     bool colorSceneInMenuMode() const;
 
     // optional Collaborative configuration file (-c option)
-    char *collaborativeOptionsFile;
+    std::string collaborativeOptionsFile;
 
     // optional Collaborative configuration file (-c option)
-    char *viewpointsFile;
+    std::string viewpointsFile;
 
     // returns true if level <= debugLevel
     // debug levels should be used like this

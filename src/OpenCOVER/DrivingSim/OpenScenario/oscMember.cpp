@@ -16,6 +16,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
+/*****
+ * constructor, destructor
+ *****/
+
 oscMember::oscMember() :
         value(NULL),
         owner(NULL),
@@ -30,6 +34,11 @@ oscMember::~oscMember()
 
 }
 
+
+
+/*****
+ * public functions
+ *****/
 
 //
 void oscMember::registerWith(oscObjectBase* o)
@@ -80,7 +89,33 @@ std::string oscMember::getTypeName() const
     return typeName;
 }
 
+void oscMember::setType(oscMemberValue::MemberTypes t)
+{
+    type = t;
+}
 
+oscMemberValue::MemberTypes oscMember::getType() const
+{
+    return type;
+}
+
+oscObjectBase *oscMember::getOwner() const
+{
+    return owner;
+}
+
+void oscMember::setParentMember(oscMember *pm)
+{
+    parentMember = pm;
+}
+
+oscMember *oscMember::getParentMember() const
+{
+    return parentMember;
+}
+
+
+//virtual functions
 //
 void oscMember::setValue(oscMemberValue *v)
 {
@@ -113,16 +148,6 @@ oscMemberValue *oscMember::getOrCreateValue()
     return value;
 }
 
-void oscMember::setType(oscMemberValue::MemberTypes t)
-{
-    type = t;
-}
-
-oscMemberValue::MemberTypes oscMember::getType() const
-{
-    return type;
-}
-
 
 //
 oscObjectBase *oscMember::getObject() const
@@ -138,21 +163,6 @@ oscObjectBase *oscMember::getOrCreateObject()
 bool oscMember::exists() const
 {
     return false;
-}
-
-oscObjectBase *oscMember::getOwner() const
-{
-    return owner;
-}
-
-void oscMember::setParentMember(oscMember *pm)
-{
-    parentMember = pm;
-}
-
-oscMember *oscMember::getParentMember() const
-{
-    return parentMember;
 }
 
 
