@@ -1,0 +1,15 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	surface & Polygons & Surface Polygons\\ 
+\hline
+	cross & Polygons & Cross Section Polygons\\ 
+\hline
+	grid & UnstructuredGrid & Computation grid\\ 
+\hline
+	boco & USR\_FenflossBoco & Boundary Conditions\\ 
+\hline
+	bc\_in & Polygons & Cells at entry\\
+\hline \end{longtable}
+

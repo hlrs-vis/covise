@@ -1,0 +1,38 @@
+INCLUDE_DIRECTORIES(
+..
+)
+
+SET(HEADERS
+  include/ar2cov.h
+  include/ar_condarea.h
+  include/ar_inletarbitrary.h
+  include/axial.h
+  include/ar_angles.h
+  include/ar_contours.h
+  include/ar_intersect.h
+  include/ar_arclenbe.h
+  include/ar_createbe.h
+  include/ar_meridiancont.h
+  include/ar_blademer.h
+  include/ar_initbe.h
+  include/ar_updatemer.h
+)
+SET(SOURCES
+  ar2cov.cpp
+  ar_angles.cpp
+  ar_arclenbe.cpp
+  ar_blademer.cpp
+  ar_condarea.cpp
+  ar_contours.cpp
+  ar_createbe.cpp
+  ar_initbe.cpp
+  ar_inletarbitrary.cpp
+  ar_intersect.cpp
+  ar_io.cpp
+  ar_meridiancont.cpp
+  ar_updatemer.cpp
+)
+covise_add_library(visit_axialrunner STATIC ${EXTRASOURCES} ${SOURCES}
+   ${HEADERS})
+TARGET_LINK_LIBRARIES(visit_axialrunner)
+COVISE_INSTALL_TARGET(visit_axialrunner)

@@ -1,0 +1,63 @@
+INCLUDE_DIRECTORIES(
+..
+)
+SET(HEADERS
+  include/mesh.h
+  include/rr_bcnodes.h
+  include/rr_meshinit.h
+  include/rr_meshreg.h
+  include/new_meshall.h
+  include/rr_elem.h
+  include/rr_meshmisc.h
+  include/rr_meshsmooth.h
+  include/new_meshnod.h
+  include/rr_grid.h
+  include/rr_meshnod.h
+  include/rr_meshwrite.h
+  include/new_meshreg.h
+  include/rr_meshall.h
+  include/rr_meshnodmisc.h
+)
+SET(SOURCES
+ mod_meshps.cpp
+ mod_meshss.cpp
+ new_meshcore.cpp
+ new_meshext.cpp
+ new_meshinlet.cpp
+ new_meshoutlet.cpp
+ new_meshps.cpp
+ new_meshpsgap.cpp
+ new_meshpste.cpp
+ new_meshreg.cpp
+ new_meshss.cpp
+ new_meshssgap.cpp
+ new_meshsste.cpp
+ rr_bcnodes.cpp 
+ rr_elem.cpp
+ rr_g4c.cpp
+ rr_gapelem.cpp
+ rr_grid.cpp
+ rr_meshDT.cpp
+ rr_meshcore.cpp
+ rr_meshext.cpp
+ rr_meshinlet.cpp
+ rr_meshio.cpp
+ rr_meshmisc.cpp
+ rr_meshnodmisc.cpp
+ rr_meshoutlet.cpp
+ rr_meshps.cpp
+ rr_meshpsgap.cpp
+ rr_meshpste.cpp
+ rr_meshreg.cpp
+ rr_meshsmooth.cpp
+ rr_meshss.cpp
+ rr_meshssgap.cpp
+ rr_meshsste.cpp
+ ../General/4all/coeff.cpp
+)
+ADD_DEFINITIONS("-DBL_REF -DRROUTLET_NOGAP -DRROUTLET_NOGAP -DGNUPLOT -DPARA_IN -DPARA_OUT -DGRID_IN_DEFAULT -DRR_IONODES -DBLNODES_OUT -DSURFACES_MODIFIED -DFENFLOSS_OUT -DPATRAN_SES_OUT -DVAR_VECTOR -DCONTOUR_WIREFRAME -DPROGGEO -DGRID4COV -DREADJUST_PERIODIC")
+
+covise_add_library(visit_runnergridgen STATIC ${EXTRASOURCES} ${SOURCES}
+   ${HEADERS})
+TARGET_LINK_LIBRARIES(visit_runnergridgen visit_general visit_bspline)
+COVISE_INSTALL_TARGET(visit_runnergridgen)

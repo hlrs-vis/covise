@@ -50,6 +50,7 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <QUndoStack>
+#include <QImage>
 
 // Utils //
 //
@@ -88,6 +89,12 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     // Zoom to mouse pos //
     //
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
+    // interactive background
+    
+    QPixmap pixmap("d:\\Pictures\\snapshot2.png");
+    backgroundItem = new QGraphicsPixmapItem(pixmap);
+    graphScene->addItem(backgroundItem);
 }
 
 GraphView::~GraphView()
@@ -272,6 +279,24 @@ GraphView::toolAction(ToolAction *toolAction)
     }
 }
 
+
+void GraphView::setMap(float x,float y,float width,float height,int xRes,int yRes,const char *buf)
+{
+    
+   // QPixmap pixmap(xRes,yRes);
+    //pixmap.
+    backgroundItem->setPixmap(QPixmap::fromImage(QImage((uchar *)buf,xRes,yRes,QImage::Format_RGBA8888)));
+    backgroundItem->setPos(x,y);
+    double widthScale = width / backgroundItem->pixmap().width();
+    double heightScale = height / backgroundItem->pixmap().height();
+
+    QTransform trafo;
+    //trafo.rotate(180, Qt::XAxis);
+    trafo.scale(widthScale, heightScale);
+
+    backgroundItem->setTransform(trafo);
+}
+
 /**
 */
 void
@@ -282,6 +307,7 @@ GraphView::rebuildRulers()
     double height = viewport()->size().height() / matrix().m22();
 
     COVERConnection::instance()->resizeMap(pos.x(),pos.y(),width,height);
+
     if (!rulersActive_)
     {
         return;

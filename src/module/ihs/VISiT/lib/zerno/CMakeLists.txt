@@ -1,0 +1,72 @@
+IF(COVISE_USE_FORTRAN)
+enable_language(Fortran)
+
+SET(HEADERS
+)
+SET(SOURCES
+ callback.cpp
+ choice.f
+ color_geb.f
+ dopp_check.f
+ dopp_elem.f
+ dopp_node.f
+ el_check.f
+ erg_dim.f
+ erg_fen_les.f
+ erg_les.f
+ extra_rbe.f
+ extra_rbe_cov.f
+ free_check.f
+ geo_dim.f
+ geo_ident.f
+ geo_les_cov.f
+ geo_les.f
+ graph_dru.f
+ graph_ele.f
+ graph_ende.f
+ graph_geb.f
+ graph_kan.f
+ graph_nod.f
+ halo_elem.f
+ halo_node.f
+ head_read.f
+ kele.f
+ kern_data.f
+ kn_check.f
+ les_stf.f
+ meti.f
+ mpi_routinen.f
+ mit_dim.f
+ mit_les.f
+ ober_2de.f
+ ober_adr.f
+ ober_dim.f
+ ober_print.f
+ ober_sort.f
+ ober_view.f
+ par_les.f
+ print_dim.f
+ print_elpar.f
+ print_erg.f
+ print_geo.f
+ print_geo_cov.f
+ print_mit.f
+ print_par.f
+ print_rbe.f
+ print_rbe_cov.f
+ public_para.f
+ rbe_dim.f
+ rbe_les_cov.f
+ rbe_les.f
+ rel_check.f
+ rkn_check.f
+ test_print_geo.f
+ test_print_rbe.f
+ zeiger_init.f
+ zer_analyse.f
+ zerno.f
+)
+covise_add_library(visit_zerno STATIC ${EXTRASOURCES} ${SOURCES} ${HEADERS})
+TARGET_LINK_LIBRARIES(visit_zerno)
+COVISE_INSTALL_TARGET(visit_zerno)
+ENDIF(COVISE_USE_FORTRAN)

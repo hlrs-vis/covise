@@ -1,0 +1,10 @@
+#### Nachfolgenden Teil 
+#### einfach in die Datei "covise.cofig einfuegen.
+### Werte ANPASSEN !!
+
+VA_TECH
+{
+	EulerWorkingPath			/mnt/fs2/projekte/visit/euler.work
+	EulerCentralFilename		euler.central.datei
+	EulerStartShell				euler.sh
+}

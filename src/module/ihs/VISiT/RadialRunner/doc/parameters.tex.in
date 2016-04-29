@@ -1,0 +1,1661 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	startFile & Browser & Start\_file\\ 
+\hline
+	types & Choice & Select\_type\_of\_parameters\\ 
+\hline
+	discharge & FloatScalar & discharge\\ 
+\hline
+	head & FloatScalar & head\\ 
+\hline
+	revolutions & FloatScalar & revolutions\\ 
+\hline
+	define\_velocity\_ratio & Boolean & define\_velocity\_ratio\\ 
+\hline
+	le\_velocity\_ratio & FloatScalar & le\_velocity\_ratio\\ 
+\hline
+	use\_euler's\_equation & Boolean & use\_euler's\_equation\\ 
+\hline
+	make\_a\_pump & Boolean & make\_a\_pump\\ 
+\hline
+	write\_blade\_data & Boolean & write\_blade\_data\\ 
+\hline
+	rotation\_clockwise & Boolean & rotation\_clockwise\\ 
+\hline
+	force\_maximum\_camber & Boolean & force\_maximum\_camber\\ 
+\hline
+	show\_meridian\_extensions & Boolean & show\_meridian\_extensions\\ 
+\hline
+	select\_camber\_function & Choice & select\_camber\_function\\ 
+\hline
+	extended\_menu & Boolean & extended\_menu\\ 
+\hline
+	hub\_InOut\_straight & Boolean & hub\_InOut\_straight\\ 
+\hline
+	shroud\_InOut\_straight & Boolean & shroud\_InOut\_straight\\ 
+\hline
+	number\_of\_blades & IntScalar & number\_of\_blades\\ 
+\hline
+	outlet\_diameter\_(absolute) & FloatScalar & outlet\_diameter\_(absolute)\\ 
+\hline
+	inlet\_diameter\_(relative) & FloatScalar & inlet\_diameter\_(relative)\\ 
+\hline
+	shroud\_height\_difference & FloatScalar & shroud\_height\_difference\\ 
+\hline
+	conduit\_width(in/out) & FloatVector & conduit\_width(in/out)\\ 
+\hline
+	contour\_angles(in/out) & FloatVector & contour\_angles(in/out)\\ 
+\hline
+	inlet\_opening\_angles\_(hub/shroud) & FloatVector & inlet\_opening\_angles\_(hub/shroud)\\ 
+\hline
+	outlet\_opening\_angles\_(hub/shroud) & FloatVector & outlet\_opening\_angles\_(hub/shroud)\\ 
+\hline
+	hub\_curve\_parameters & FloatVector & hub\_curve\_parameters\\ 
+\hline
+	shroud\_curve\_parameters & FloatVector & shroud\_curve\_parameters\\ 
+\hline
+	hub\_straight\_parameters & FloatVector & hub\_straight\_parameters\\ 
+\hline
+	shroud\_straight\_parameters & FloatVector & shroud\_straight\_parameters\\ 
+\hline
+	extension\_inlet\_angle & FloatScalar & extension\_inlet\_angle\\ 
+\hline
+	extension\_shroud\_height(in/out) & FloatVector & extension\_shroud\_height(in/out)\\ 
+\hline
+	extension\_shroud\_diameter(in/out) & FloatVector & extension\_shroud\_diameter(in/out)\\ 
+\hline
+	extension\_conduit\_width(in/out) & FloatVector & extension\_conduit\_width(in/out)\\ 
+\hline
+	extension\_hub\_curve\_params & FloatVector & extension\_hub\_curve\_params\\ 
+\hline
+	extension\_shroud\_curve\_params & FloatVector & extension\_shroud\_curve\_params\\ 
+\hline
+	leading\_edge\_hub\_parameter & FloatScalar & leading\_edge\_hub\_parameter\\ 
+\hline
+	leading\_edge\_hub\_off\_contour\_angle & FloatScalar & leading\_edge\_hub\_off\_contour\_angle\\ 
+\hline
+	leading\_edge\_shroud\_parameter & FloatScalar & leading\_edge\_shroud\_parameter\\ 
+\hline
+	leading\_edge\_shroud\_off\_contour\_angle & FloatScalar & leading\_edge\_shroud\_off\_contour\_angle\\ 
+\hline
+	leading\_edge\_curve\_parameters & FloatVector & leading\_edge\_curve\_parameters\\ 
+\hline
+	trailing\_edge\_hub\_parameter & FloatScalar & trailing\_edge\_hub\_parameter\\ 
+\hline
+	trailing\_edge\_hub\_off\_contour\_angle & FloatScalar & trailing\_edge\_hub\_off\_contour\_angle\\ 
+\hline
+	trailing\_edge\_shroud\_parameter & FloatScalar & trailing\_edge\_shroud\_parameter\\ 
+\hline
+	trailing\_edge\_shroud\_off\_contour\_angle & FloatScalar & trailing\_edge\_shroud\_off\_contour\_angle\\ 
+\hline
+	trailing\_edge\_curve\_parameters & FloatVector & trailing\_edge\_curve\_parameters\\ 
+\hline
+	number\_of\_blade\_elements & IntScalar & number\_of\_blade\_elements\\ 
+\hline
+	blade\_element\_bias\_factor & FloatScalar & blade\_element\_bias\_factor\\ 
+\hline
+	blade\_element\_bias\_type & IntScalar & blade\_element\_bias\_type\\ 
+\hline
+	blade\_element\_data & Choice & blade\_element\_data\\ 
+\hline
+	meridian\_parameter [1] & FloatScalar & meridian\_parameter [1]\\ 
+\hline
+	inlet\_angle [1] & FloatScalar & inlet\_angle [1]\\ 
+\hline
+	outlet\_angle [1] & FloatScalar & outlet\_angle [1]\\ 
+\hline
+	profile\_thickness [1] & FloatScalar & profile\_thickness [1]\\ 
+\hline
+	trailing\_edge\_thickness [1] & FloatScalar & trailing\_edge\_thickness [1]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [1] & FloatScalar & trailing\_edge\_wrap\_angle [1]\\ 
+\hline
+	blade\_wrap\_angle [1] & FloatScalar & blade\_wrap\_angle [1]\\ 
+\hline
+	blade\_profile\_shift [1] & FloatScalar & blade\_profile\_shift [1]\\ 
+\hline
+	inlet\_angle\_modification [1] & FloatScalar & inlet\_angle\_modification [1]\\ 
+\hline
+	outlet\_angle\_modification [1] & FloatScalar & outlet\_angle\_modification [1]\\ 
+\hline
+	remaining\_swirl [1] & FloatScalar & remaining\_swirl [1]\\ 
+\hline
+	le\_spline\_parameter [1] & FloatScalar & le\_spline\_parameter [1]\\ 
+\hline
+	te\_spline\_parameter [1] & FloatScalar & te\_spline\_parameter [1]\\ 
+\hline
+	centre\_line\_camber [1] & FloatScalar & centre\_line\_camber [1]\\ 
+\hline
+	centre\_line\_camber\_position [1] & FloatScalar & centre\_line\_camber\_position [1]\\ 
+\hline
+	camber\_line\_parametre [1] & FloatScalar & camber\_line\_parametre [1]\\ 
+\hline
+	blade\_length\_factor [1] & FloatScalar & blade\_length\_factor [1]\\ 
+\hline
+	meridian\_parameter [2] & FloatScalar & meridian\_parameter [2]\\ 
+\hline
+	inlet\_angle [2] & FloatScalar & inlet\_angle [2]\\ 
+\hline
+	outlet\_angle [2] & FloatScalar & outlet\_angle [2]\\ 
+\hline
+	profile\_thickness [2] & FloatScalar & profile\_thickness [2]\\ 
+\hline
+	trailing\_edge\_thickness [2] & FloatScalar & trailing\_edge\_thickness [2]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [2] & FloatScalar & trailing\_edge\_wrap\_angle [2]\\ 
+\hline
+	blade\_wrap\_angle [2] & FloatScalar & blade\_wrap\_angle [2]\\ 
+\hline
+	blade\_profile\_shift [2] & FloatScalar & blade\_profile\_shift [2]\\ 
+\hline
+	inlet\_angle\_modification [2] & FloatScalar & inlet\_angle\_modification [2]\\ 
+\hline
+	outlet\_angle\_modification [2] & FloatScalar & outlet\_angle\_modification [2]\\ 
+\hline
+	remaining\_swirl [2] & FloatScalar & remaining\_swirl [2]\\ 
+\hline
+	le\_spline\_parameter [2] & FloatScalar & le\_spline\_parameter [2]\\ 
+\hline
+	te\_spline\_parameter [2] & FloatScalar & te\_spline\_parameter [2]\\ 
+\hline
+	centre\_line\_camber [2] & FloatScalar & centre\_line\_camber [2]\\ 
+\hline
+	centre\_line\_camber\_position [2] & FloatScalar & centre\_line\_camber\_position [2]\\ 
+\hline
+	camber\_line\_parametre [2] & FloatScalar & camber\_line\_parametre [2]\\ 
+\hline
+	blade\_length\_factor [2] & FloatScalar & blade\_length\_factor [2]\\ 
+\hline
+	meridian\_parameter [3] & FloatScalar & meridian\_parameter [3]\\ 
+\hline
+	inlet\_angle [3] & FloatScalar & inlet\_angle [3]\\ 
+\hline
+	outlet\_angle [3] & FloatScalar & outlet\_angle [3]\\ 
+\hline
+	profile\_thickness [3] & FloatScalar & profile\_thickness [3]\\ 
+\hline
+	trailing\_edge\_thickness [3] & FloatScalar & trailing\_edge\_thickness [3]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [3] & FloatScalar & trailing\_edge\_wrap\_angle [3]\\ 
+\hline
+	blade\_wrap\_angle [3] & FloatScalar & blade\_wrap\_angle [3]\\ 
+\hline
+	blade\_profile\_shift [3] & FloatScalar & blade\_profile\_shift [3]\\ 
+\hline
+	inlet\_angle\_modification [3] & FloatScalar & inlet\_angle\_modification [3]\\ 
+\hline
+	outlet\_angle\_modification [3] & FloatScalar & outlet\_angle\_modification [3]\\ 
+\hline
+	remaining\_swirl [3] & FloatScalar & remaining\_swirl [3]\\ 
+\hline
+	le\_spline\_parameter [3] & FloatScalar & le\_spline\_parameter [3]\\ 
+\hline
+	te\_spline\_parameter [3] & FloatScalar & te\_spline\_parameter [3]\\ 
+\hline
+	centre\_line\_camber [3] & FloatScalar & centre\_line\_camber [3]\\ 
+\hline
+	centre\_line\_camber\_position [3] & FloatScalar & centre\_line\_camber\_position [3]\\ 
+\hline
+	camber\_line\_parametre [3] & FloatScalar & camber\_line\_parametre [3]\\ 
+\hline
+	blade\_length\_factor [3] & FloatScalar & blade\_length\_factor [3]\\ 
+\hline
+	meridian\_parameter [4] & FloatScalar & meridian\_parameter [4]\\ 
+\hline
+	inlet\_angle [4] & FloatScalar & inlet\_angle [4]\\ 
+\hline
+	outlet\_angle [4] & FloatScalar & outlet\_angle [4]\\ 
+\hline
+	profile\_thickness [4] & FloatScalar & profile\_thickness [4]\\ 
+\hline
+	trailing\_edge\_thickness [4] & FloatScalar & trailing\_edge\_thickness [4]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [4] & FloatScalar & trailing\_edge\_wrap\_angle [4]\\ 
+\hline
+	blade\_wrap\_angle [4] & FloatScalar & blade\_wrap\_angle [4]\\ 
+\hline
+	blade\_profile\_shift [4] & FloatScalar & blade\_profile\_shift [4]\\ 
+\hline
+	inlet\_angle\_modification [4] & FloatScalar & inlet\_angle\_modification [4]\\ 
+\hline
+	outlet\_angle\_modification [4] & FloatScalar & outlet\_angle\_modification [4]\\ 
+\hline
+	remaining\_swirl [4] & FloatScalar & remaining\_swirl [4]\\ 
+\hline
+	le\_spline\_parameter [4] & FloatScalar & le\_spline\_parameter [4]\\ 
+\hline
+	te\_spline\_parameter [4] & FloatScalar & te\_spline\_parameter [4]\\ 
+\hline
+	centre\_line\_camber [4] & FloatScalar & centre\_line\_camber [4]\\ 
+\hline
+	centre\_line\_camber\_position [4] & FloatScalar & centre\_line\_camber\_position [4]\\ 
+\hline
+	camber\_line\_parametre [4] & FloatScalar & camber\_line\_parametre [4]\\ 
+\hline
+	blade\_length\_factor [4] & FloatScalar & blade\_length\_factor [4]\\ 
+\hline
+	meridian\_parameter [5] & FloatScalar & meridian\_parameter [5]\\ 
+\hline
+	inlet\_angle [5] & FloatScalar & inlet\_angle [5]\\ 
+\hline
+	outlet\_angle [5] & FloatScalar & outlet\_angle [5]\\ 
+\hline
+	profile\_thickness [5] & FloatScalar & profile\_thickness [5]\\ 
+\hline
+	trailing\_edge\_thickness [5] & FloatScalar & trailing\_edge\_thickness [5]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [5] & FloatScalar & trailing\_edge\_wrap\_angle [5]\\ 
+\hline
+	blade\_wrap\_angle [5] & FloatScalar & blade\_wrap\_angle [5]\\ 
+\hline
+	blade\_profile\_shift [5] & FloatScalar & blade\_profile\_shift [5]\\ 
+\hline
+	inlet\_angle\_modification [5] & FloatScalar & inlet\_angle\_modification [5]\\ 
+\hline
+	outlet\_angle\_modification [5] & FloatScalar & outlet\_angle\_modification [5]\\ 
+\hline
+	remaining\_swirl [5] & FloatScalar & remaining\_swirl [5]\\ 
+\hline
+	le\_spline\_parameter [5] & FloatScalar & le\_spline\_parameter [5]\\ 
+\hline
+	te\_spline\_parameter [5] & FloatScalar & te\_spline\_parameter [5]\\ 
+\hline
+	centre\_line\_camber [5] & FloatScalar & centre\_line\_camber [5]\\ 
+\hline
+	centre\_line\_camber\_position [5] & FloatScalar & centre\_line\_camber\_position [5]\\ 
+\hline
+	camber\_line\_parametre [5] & FloatScalar & camber\_line\_parametre [5]\\ 
+\hline
+	blade\_length\_factor [5] & FloatScalar & blade\_length\_factor [5]\\ 
+\hline
+	meridian\_parameter [6] & FloatScalar & meridian\_parameter [6]\\ 
+\hline
+	inlet\_angle [6] & FloatScalar & inlet\_angle [6]\\ 
+\hline
+	outlet\_angle [6] & FloatScalar & outlet\_angle [6]\\ 
+\hline
+	profile\_thickness [6] & FloatScalar & profile\_thickness [6]\\ 
+\hline
+	trailing\_edge\_thickness [6] & FloatScalar & trailing\_edge\_thickness [6]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [6] & FloatScalar & trailing\_edge\_wrap\_angle [6]\\ 
+\hline
+	blade\_wrap\_angle [6] & FloatScalar & blade\_wrap\_angle [6]\\ 
+\hline
+	blade\_profile\_shift [6] & FloatScalar & blade\_profile\_shift [6]\\ 
+\hline
+	inlet\_angle\_modification [6] & FloatScalar & inlet\_angle\_modification [6]\\ 
+\hline
+	outlet\_angle\_modification [6] & FloatScalar & outlet\_angle\_modification [6]\\ 
+\hline
+	remaining\_swirl [6] & FloatScalar & remaining\_swirl [6]\\ 
+\hline
+	le\_spline\_parameter [6] & FloatScalar & le\_spline\_parameter [6]\\ 
+\hline
+	te\_spline\_parameter [6] & FloatScalar & te\_spline\_parameter [6]\\ 
+\hline
+	centre\_line\_camber [6] & FloatScalar & centre\_line\_camber [6]\\ 
+\hline
+	centre\_line\_camber\_position [6] & FloatScalar & centre\_line\_camber\_position [6]\\ 
+\hline
+	camber\_line\_parametre [6] & FloatScalar & camber\_line\_parametre [6]\\ 
+\hline
+	blade\_length\_factor [6] & FloatScalar & blade\_length\_factor [6]\\ 
+\hline
+	meridian\_parameter [7] & FloatScalar & meridian\_parameter [7]\\ 
+\hline
+	inlet\_angle [7] & FloatScalar & inlet\_angle [7]\\ 
+\hline
+	outlet\_angle [7] & FloatScalar & outlet\_angle [7]\\ 
+\hline
+	profile\_thickness [7] & FloatScalar & profile\_thickness [7]\\ 
+\hline
+	trailing\_edge\_thickness [7] & FloatScalar & trailing\_edge\_thickness [7]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [7] & FloatScalar & trailing\_edge\_wrap\_angle [7]\\ 
+\hline
+	blade\_wrap\_angle [7] & FloatScalar & blade\_wrap\_angle [7]\\ 
+\hline
+	blade\_profile\_shift [7] & FloatScalar & blade\_profile\_shift [7]\\ 
+\hline
+	inlet\_angle\_modification [7] & FloatScalar & inlet\_angle\_modification [7]\\ 
+\hline
+	outlet\_angle\_modification [7] & FloatScalar & outlet\_angle\_modification [7]\\ 
+\hline
+	remaining\_swirl [7] & FloatScalar & remaining\_swirl [7]\\ 
+\hline
+	le\_spline\_parameter [7] & FloatScalar & le\_spline\_parameter [7]\\ 
+\hline
+	te\_spline\_parameter [7] & FloatScalar & te\_spline\_parameter [7]\\ 
+\hline
+	centre\_line\_camber [7] & FloatScalar & centre\_line\_camber [7]\\ 
+\hline
+	centre\_line\_camber\_position [7] & FloatScalar & centre\_line\_camber\_position [7]\\ 
+\hline
+	camber\_line\_parametre [7] & FloatScalar & camber\_line\_parametre [7]\\ 
+\hline
+	blade\_length\_factor [7] & FloatScalar & blade\_length\_factor [7]\\ 
+\hline
+	meridian\_parameter [8] & FloatScalar & meridian\_parameter [8]\\ 
+\hline
+	inlet\_angle [8] & FloatScalar & inlet\_angle [8]\\ 
+\hline
+	outlet\_angle [8] & FloatScalar & outlet\_angle [8]\\ 
+\hline
+	profile\_thickness [8] & FloatScalar & profile\_thickness [8]\\ 
+\hline
+	trailing\_edge\_thickness [8] & FloatScalar & trailing\_edge\_thickness [8]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [8] & FloatScalar & trailing\_edge\_wrap\_angle [8]\\ 
+\hline
+	blade\_wrap\_angle [8] & FloatScalar & blade\_wrap\_angle [8]\\ 
+\hline
+	blade\_profile\_shift [8] & FloatScalar & blade\_profile\_shift [8]\\ 
+\hline
+	inlet\_angle\_modification [8] & FloatScalar & inlet\_angle\_modification [8]\\ 
+\hline
+	outlet\_angle\_modification [8] & FloatScalar & outlet\_angle\_modification [8]\\ 
+\hline
+	remaining\_swirl [8] & FloatScalar & remaining\_swirl [8]\\ 
+\hline
+	le\_spline\_parameter [8] & FloatScalar & le\_spline\_parameter [8]\\ 
+\hline
+	te\_spline\_parameter [8] & FloatScalar & te\_spline\_parameter [8]\\ 
+\hline
+	centre\_line\_camber [8] & FloatScalar & centre\_line\_camber [8]\\ 
+\hline
+	centre\_line\_camber\_position [8] & FloatScalar & centre\_line\_camber\_position [8]\\ 
+\hline
+	camber\_line\_parametre [8] & FloatScalar & camber\_line\_parametre [8]\\ 
+\hline
+	blade\_length\_factor [8] & FloatScalar & blade\_length\_factor [8]\\ 
+\hline
+	meridian\_parameter [9] & FloatScalar & meridian\_parameter [9]\\ 
+\hline
+	inlet\_angle [9] & FloatScalar & inlet\_angle [9]\\ 
+\hline
+	outlet\_angle [9] & FloatScalar & outlet\_angle [9]\\ 
+\hline
+	profile\_thickness [9] & FloatScalar & profile\_thickness [9]\\ 
+\hline
+	trailing\_edge\_thickness [9] & FloatScalar & trailing\_edge\_thickness [9]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [9] & FloatScalar & trailing\_edge\_wrap\_angle [9]\\ 
+\hline
+	blade\_wrap\_angle [9] & FloatScalar & blade\_wrap\_angle [9]\\ 
+\hline
+	blade\_profile\_shift [9] & FloatScalar & blade\_profile\_shift [9]\\ 
+\hline
+	inlet\_angle\_modification [9] & FloatScalar & inlet\_angle\_modification [9]\\ 
+\hline
+	outlet\_angle\_modification [9] & FloatScalar & outlet\_angle\_modification [9]\\ 
+\hline
+	remaining\_swirl [9] & FloatScalar & remaining\_swirl [9]\\ 
+\hline
+	le\_spline\_parameter [9] & FloatScalar & le\_spline\_parameter [9]\\ 
+\hline
+	te\_spline\_parameter [9] & FloatScalar & te\_spline\_parameter [9]\\ 
+\hline
+	centre\_line\_camber [9] & FloatScalar & centre\_line\_camber [9]\\ 
+\hline
+	centre\_line\_camber\_position [9] & FloatScalar & centre\_line\_camber\_position [9]\\ 
+\hline
+	camber\_line\_parametre [9] & FloatScalar & camber\_line\_parametre [9]\\ 
+\hline
+	blade\_length\_factor [9] & FloatScalar & blade\_length\_factor [9]\\ 
+\hline
+	meridian\_parameter [10] & FloatScalar & meridian\_parameter [10]\\ 
+\hline
+	inlet\_angle [10] & FloatScalar & inlet\_angle [10]\\ 
+\hline
+	outlet\_angle [10] & FloatScalar & outlet\_angle [10]\\ 
+\hline
+	profile\_thickness [10] & FloatScalar & profile\_thickness [10]\\ 
+\hline
+	trailing\_edge\_thickness [10] & FloatScalar & trailing\_edge\_thickness [10]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [10] & FloatScalar & trailing\_edge\_wrap\_angle [10]\\ 
+\hline
+	blade\_wrap\_angle [10] & FloatScalar & blade\_wrap\_angle [10]\\ 
+\hline
+	blade\_profile\_shift [10] & FloatScalar & blade\_profile\_shift [10]\\ 
+\hline
+	inlet\_angle\_modification [10] & FloatScalar & inlet\_angle\_modification [10]\\ 
+\hline
+	outlet\_angle\_modification [10] & FloatScalar & outlet\_angle\_modification [10]\\ 
+\hline
+	remaining\_swirl [10] & FloatScalar & remaining\_swirl [10]\\ 
+\hline
+	le\_spline\_parameter [10] & FloatScalar & le\_spline\_parameter [10]\\ 
+\hline
+	te\_spline\_parameter [10] & FloatScalar & te\_spline\_parameter [10]\\ 
+\hline
+	centre\_line\_camber [10] & FloatScalar & centre\_line\_camber [10]\\ 
+\hline
+	centre\_line\_camber\_position [10] & FloatScalar & centre\_line\_camber\_position [10]\\ 
+\hline
+	camber\_line\_parametre [10] & FloatScalar & camber\_line\_parametre [10]\\ 
+\hline
+	blade\_length\_factor [10] & FloatScalar & blade\_length\_factor [10]\\ 
+\hline
+	meridian\_parameter [11] & FloatScalar & meridian\_parameter [11]\\ 
+\hline
+	inlet\_angle [11] & FloatScalar & inlet\_angle [11]\\ 
+\hline
+	outlet\_angle [11] & FloatScalar & outlet\_angle [11]\\ 
+\hline
+	profile\_thickness [11] & FloatScalar & profile\_thickness [11]\\ 
+\hline
+	trailing\_edge\_thickness [11] & FloatScalar & trailing\_edge\_thickness [11]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [11] & FloatScalar & trailing\_edge\_wrap\_angle [11]\\ 
+\hline
+	blade\_wrap\_angle [11] & FloatScalar & blade\_wrap\_angle [11]\\ 
+\hline
+	blade\_profile\_shift [11] & FloatScalar & blade\_profile\_shift [11]\\ 
+\hline
+	inlet\_angle\_modification [11] & FloatScalar & inlet\_angle\_modification [11]\\ 
+\hline
+	outlet\_angle\_modification [11] & FloatScalar & outlet\_angle\_modification [11]\\ 
+\hline
+	remaining\_swirl [11] & FloatScalar & remaining\_swirl [11]\\ 
+\hline
+	le\_spline\_parameter [11] & FloatScalar & le\_spline\_parameter [11]\\ 
+\hline
+	te\_spline\_parameter [11] & FloatScalar & te\_spline\_parameter [11]\\ 
+\hline
+	centre\_line\_camber [11] & FloatScalar & centre\_line\_camber [11]\\ 
+\hline
+	centre\_line\_camber\_position [11] & FloatScalar & centre\_line\_camber\_position [11]\\ 
+\hline
+	camber\_line\_parametre [11] & FloatScalar & camber\_line\_parametre [11]\\ 
+\hline
+	blade\_length\_factor [11] & FloatScalar & blade\_length\_factor [11]\\ 
+\hline
+	meridian\_parameter [12] & FloatScalar & meridian\_parameter [12]\\ 
+\hline
+	inlet\_angle [12] & FloatScalar & inlet\_angle [12]\\ 
+\hline
+	outlet\_angle [12] & FloatScalar & outlet\_angle [12]\\ 
+\hline
+	profile\_thickness [12] & FloatScalar & profile\_thickness [12]\\ 
+\hline
+	trailing\_edge\_thickness [12] & FloatScalar & trailing\_edge\_thickness [12]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [12] & FloatScalar & trailing\_edge\_wrap\_angle [12]\\ 
+\hline
+	blade\_wrap\_angle [12] & FloatScalar & blade\_wrap\_angle [12]\\ 
+\hline
+	blade\_profile\_shift [12] & FloatScalar & blade\_profile\_shift [12]\\ 
+\hline
+	inlet\_angle\_modification [12] & FloatScalar & inlet\_angle\_modification [12]\\ 
+\hline
+	outlet\_angle\_modification [12] & FloatScalar & outlet\_angle\_modification [12]\\ 
+\hline
+	remaining\_swirl [12] & FloatScalar & remaining\_swirl [12]\\ 
+\hline
+	le\_spline\_parameter [12] & FloatScalar & le\_spline\_parameter [12]\\ 
+\hline
+	te\_spline\_parameter [12] & FloatScalar & te\_spline\_parameter [12]\\ 
+\hline
+	centre\_line\_camber [12] & FloatScalar & centre\_line\_camber [12]\\ 
+\hline
+	centre\_line\_camber\_position [12] & FloatScalar & centre\_line\_camber\_position [12]\\ 
+\hline
+	camber\_line\_parametre [12] & FloatScalar & camber\_line\_parametre [12]\\ 
+\hline
+	blade\_length\_factor [12] & FloatScalar & blade\_length\_factor [12]\\ 
+\hline
+	meridian\_parameter [13] & FloatScalar & meridian\_parameter [13]\\ 
+\hline
+	inlet\_angle [13] & FloatScalar & inlet\_angle [13]\\ 
+\hline
+	outlet\_angle [13] & FloatScalar & outlet\_angle [13]\\ 
+\hline
+	profile\_thickness [13] & FloatScalar & profile\_thickness [13]\\ 
+\hline
+	trailing\_edge\_thickness [13] & FloatScalar & trailing\_edge\_thickness [13]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [13] & FloatScalar & trailing\_edge\_wrap\_angle [13]\\ 
+\hline
+	blade\_wrap\_angle [13] & FloatScalar & blade\_wrap\_angle [13]\\ 
+\hline
+	blade\_profile\_shift [13] & FloatScalar & blade\_profile\_shift [13]\\ 
+\hline
+	inlet\_angle\_modification [13] & FloatScalar & inlet\_angle\_modification [13]\\ 
+\hline
+	outlet\_angle\_modification [13] & FloatScalar & outlet\_angle\_modification [13]\\ 
+\hline
+	remaining\_swirl [13] & FloatScalar & remaining\_swirl [13]\\ 
+\hline
+	le\_spline\_parameter [13] & FloatScalar & le\_spline\_parameter [13]\\ 
+\hline
+	te\_spline\_parameter [13] & FloatScalar & te\_spline\_parameter [13]\\ 
+\hline
+	centre\_line\_camber [13] & FloatScalar & centre\_line\_camber [13]\\ 
+\hline
+	centre\_line\_camber\_position [13] & FloatScalar & centre\_line\_camber\_position [13]\\ 
+\hline
+	camber\_line\_parametre [13] & FloatScalar & camber\_line\_parametre [13]\\ 
+\hline
+	blade\_length\_factor [13] & FloatScalar & blade\_length\_factor [13]\\ 
+\hline
+	meridian\_parameter [14] & FloatScalar & meridian\_parameter [14]\\ 
+\hline
+	inlet\_angle [14] & FloatScalar & inlet\_angle [14]\\ 
+\hline
+	outlet\_angle [14] & FloatScalar & outlet\_angle [14]\\ 
+\hline
+	profile\_thickness [14] & FloatScalar & profile\_thickness [14]\\ 
+\hline
+	trailing\_edge\_thickness [14] & FloatScalar & trailing\_edge\_thickness [14]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [14] & FloatScalar & trailing\_edge\_wrap\_angle [14]\\ 
+\hline
+	blade\_wrap\_angle [14] & FloatScalar & blade\_wrap\_angle [14]\\ 
+\hline
+	blade\_profile\_shift [14] & FloatScalar & blade\_profile\_shift [14]\\ 
+\hline
+	inlet\_angle\_modification [14] & FloatScalar & inlet\_angle\_modification [14]\\ 
+\hline
+	outlet\_angle\_modification [14] & FloatScalar & outlet\_angle\_modification [14]\\ 
+\hline
+	remaining\_swirl [14] & FloatScalar & remaining\_swirl [14]\\ 
+\hline
+	le\_spline\_parameter [14] & FloatScalar & le\_spline\_parameter [14]\\ 
+\hline
+	te\_spline\_parameter [14] & FloatScalar & te\_spline\_parameter [14]\\ 
+\hline
+	centre\_line\_camber [14] & FloatScalar & centre\_line\_camber [14]\\ 
+\hline
+	centre\_line\_camber\_position [14] & FloatScalar & centre\_line\_camber\_position [14]\\ 
+\hline
+	camber\_line\_parametre [14] & FloatScalar & camber\_line\_parametre [14]\\ 
+\hline
+	blade\_length\_factor [14] & FloatScalar & blade\_length\_factor [14]\\ 
+\hline
+	meridian\_parameter [15] & FloatScalar & meridian\_parameter [15]\\ 
+\hline
+	inlet\_angle [15] & FloatScalar & inlet\_angle [15]\\ 
+\hline
+	outlet\_angle [15] & FloatScalar & outlet\_angle [15]\\ 
+\hline
+	profile\_thickness [15] & FloatScalar & profile\_thickness [15]\\ 
+\hline
+	trailing\_edge\_thickness [15] & FloatScalar & trailing\_edge\_thickness [15]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [15] & FloatScalar & trailing\_edge\_wrap\_angle [15]\\ 
+\hline
+	blade\_wrap\_angle [15] & FloatScalar & blade\_wrap\_angle [15]\\ 
+\hline
+	blade\_profile\_shift [15] & FloatScalar & blade\_profile\_shift [15]\\ 
+\hline
+	inlet\_angle\_modification [15] & FloatScalar & inlet\_angle\_modification [15]\\ 
+\hline
+	outlet\_angle\_modification [15] & FloatScalar & outlet\_angle\_modification [15]\\ 
+\hline
+	remaining\_swirl [15] & FloatScalar & remaining\_swirl [15]\\ 
+\hline
+	le\_spline\_parameter [15] & FloatScalar & le\_spline\_parameter [15]\\ 
+\hline
+	te\_spline\_parameter [15] & FloatScalar & te\_spline\_parameter [15]\\ 
+\hline
+	centre\_line\_camber [15] & FloatScalar & centre\_line\_camber [15]\\ 
+\hline
+	centre\_line\_camber\_position [15] & FloatScalar & centre\_line\_camber\_position [15]\\ 
+\hline
+	camber\_line\_parametre [15] & FloatScalar & camber\_line\_parametre [15]\\ 
+\hline
+	blade\_length\_factor [15] & FloatScalar & blade\_length\_factor [15]\\ 
+\hline
+	meridian\_parameter [16] & FloatScalar & meridian\_parameter [16]\\ 
+\hline
+	inlet\_angle [16] & FloatScalar & inlet\_angle [16]\\ 
+\hline
+	outlet\_angle [16] & FloatScalar & outlet\_angle [16]\\ 
+\hline
+	profile\_thickness [16] & FloatScalar & profile\_thickness [16]\\ 
+\hline
+	trailing\_edge\_thickness [16] & FloatScalar & trailing\_edge\_thickness [16]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [16] & FloatScalar & trailing\_edge\_wrap\_angle [16]\\ 
+\hline
+	blade\_wrap\_angle [16] & FloatScalar & blade\_wrap\_angle [16]\\ 
+\hline
+	blade\_profile\_shift [16] & FloatScalar & blade\_profile\_shift [16]\\ 
+\hline
+	inlet\_angle\_modification [16] & FloatScalar & inlet\_angle\_modification [16]\\ 
+\hline
+	outlet\_angle\_modification [16] & FloatScalar & outlet\_angle\_modification [16]\\ 
+\hline
+	remaining\_swirl [16] & FloatScalar & remaining\_swirl [16]\\ 
+\hline
+	le\_spline\_parameter [16] & FloatScalar & le\_spline\_parameter [16]\\ 
+\hline
+	te\_spline\_parameter [16] & FloatScalar & te\_spline\_parameter [16]\\ 
+\hline
+	centre\_line\_camber [16] & FloatScalar & centre\_line\_camber [16]\\ 
+\hline
+	centre\_line\_camber\_position [16] & FloatScalar & centre\_line\_camber\_position [16]\\ 
+\hline
+	camber\_line\_parametre [16] & FloatScalar & camber\_line\_parametre [16]\\ 
+\hline
+	blade\_length\_factor [16] & FloatScalar & blade\_length\_factor [16]\\ 
+\hline
+	meridian\_parameter [17] & FloatScalar & meridian\_parameter [17]\\ 
+\hline
+	inlet\_angle [17] & FloatScalar & inlet\_angle [17]\\ 
+\hline
+	outlet\_angle [17] & FloatScalar & outlet\_angle [17]\\ 
+\hline
+	profile\_thickness [17] & FloatScalar & profile\_thickness [17]\\ 
+\hline
+	trailing\_edge\_thickness [17] & FloatScalar & trailing\_edge\_thickness [17]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [17] & FloatScalar & trailing\_edge\_wrap\_angle [17]\\ 
+\hline
+	blade\_wrap\_angle [17] & FloatScalar & blade\_wrap\_angle [17]\\ 
+\hline
+	blade\_profile\_shift [17] & FloatScalar & blade\_profile\_shift [17]\\ 
+\hline
+	inlet\_angle\_modification [17] & FloatScalar & inlet\_angle\_modification [17]\\ 
+\hline
+	outlet\_angle\_modification [17] & FloatScalar & outlet\_angle\_modification [17]\\ 
+\hline
+	remaining\_swirl [17] & FloatScalar & remaining\_swirl [17]\\ 
+\hline
+	le\_spline\_parameter [17] & FloatScalar & le\_spline\_parameter [17]\\ 
+\hline
+	te\_spline\_parameter [17] & FloatScalar & te\_spline\_parameter [17]\\ 
+\hline
+	centre\_line\_camber [17] & FloatScalar & centre\_line\_camber [17]\\ 
+\hline
+	centre\_line\_camber\_position [17] & FloatScalar & centre\_line\_camber\_position [17]\\ 
+\hline
+	camber\_line\_parametre [17] & FloatScalar & camber\_line\_parametre [17]\\ 
+\hline
+	blade\_length\_factor [17] & FloatScalar & blade\_length\_factor [17]\\ 
+\hline
+	meridian\_parameter [18] & FloatScalar & meridian\_parameter [18]\\ 
+\hline
+	inlet\_angle [18] & FloatScalar & inlet\_angle [18]\\ 
+\hline
+	outlet\_angle [18] & FloatScalar & outlet\_angle [18]\\ 
+\hline
+	profile\_thickness [18] & FloatScalar & profile\_thickness [18]\\ 
+\hline
+	trailing\_edge\_thickness [18] & FloatScalar & trailing\_edge\_thickness [18]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [18] & FloatScalar & trailing\_edge\_wrap\_angle [18]\\ 
+\hline
+	blade\_wrap\_angle [18] & FloatScalar & blade\_wrap\_angle [18]\\ 
+\hline
+	blade\_profile\_shift [18] & FloatScalar & blade\_profile\_shift [18]\\ 
+\hline
+	inlet\_angle\_modification [18] & FloatScalar & inlet\_angle\_modification [18]\\ 
+\hline
+	outlet\_angle\_modification [18] & FloatScalar & outlet\_angle\_modification [18]\\ 
+\hline
+	remaining\_swirl [18] & FloatScalar & remaining\_swirl [18]\\ 
+\hline
+	le\_spline\_parameter [18] & FloatScalar & le\_spline\_parameter [18]\\ 
+\hline
+	te\_spline\_parameter [18] & FloatScalar & te\_spline\_parameter [18]\\ 
+\hline
+	centre\_line\_camber [18] & FloatScalar & centre\_line\_camber [18]\\ 
+\hline
+	centre\_line\_camber\_position [18] & FloatScalar & centre\_line\_camber\_position [18]\\ 
+\hline
+	camber\_line\_parametre [18] & FloatScalar & camber\_line\_parametre [18]\\ 
+\hline
+	blade\_length\_factor [18] & FloatScalar & blade\_length\_factor [18]\\ 
+\hline
+	meridian\_parameter [19] & FloatScalar & meridian\_parameter [19]\\ 
+\hline
+	inlet\_angle [19] & FloatScalar & inlet\_angle [19]\\ 
+\hline
+	outlet\_angle [19] & FloatScalar & outlet\_angle [19]\\ 
+\hline
+	profile\_thickness [19] & FloatScalar & profile\_thickness [19]\\ 
+\hline
+	trailing\_edge\_thickness [19] & FloatScalar & trailing\_edge\_thickness [19]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [19] & FloatScalar & trailing\_edge\_wrap\_angle [19]\\ 
+\hline
+	blade\_wrap\_angle [19] & FloatScalar & blade\_wrap\_angle [19]\\ 
+\hline
+	blade\_profile\_shift [19] & FloatScalar & blade\_profile\_shift [19]\\ 
+\hline
+	inlet\_angle\_modification [19] & FloatScalar & inlet\_angle\_modification [19]\\ 
+\hline
+	outlet\_angle\_modification [19] & FloatScalar & outlet\_angle\_modification [19]\\ 
+\hline
+	remaining\_swirl [19] & FloatScalar & remaining\_swirl [19]\\ 
+\hline
+	le\_spline\_parameter [19] & FloatScalar & le\_spline\_parameter [19]\\ 
+\hline
+	te\_spline\_parameter [19] & FloatScalar & te\_spline\_parameter [19]\\ 
+\hline
+	centre\_line\_camber [19] & FloatScalar & centre\_line\_camber [19]\\ 
+\hline
+	centre\_line\_camber\_position [19] & FloatScalar & centre\_line\_camber\_position [19]\\ 
+\hline
+	camber\_line\_parametre [19] & FloatScalar & camber\_line\_parametre [19]\\ 
+\hline
+	blade\_length\_factor [19] & FloatScalar & blade\_length\_factor [19]\\ 
+\hline
+	meridian\_parameter [20] & FloatScalar & meridian\_parameter [20]\\ 
+\hline
+	inlet\_angle [20] & FloatScalar & inlet\_angle [20]\\ 
+\hline
+	outlet\_angle [20] & FloatScalar & outlet\_angle [20]\\ 
+\hline
+	profile\_thickness [20] & FloatScalar & profile\_thickness [20]\\ 
+\hline
+	trailing\_edge\_thickness [20] & FloatScalar & trailing\_edge\_thickness [20]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [20] & FloatScalar & trailing\_edge\_wrap\_angle [20]\\ 
+\hline
+	blade\_wrap\_angle [20] & FloatScalar & blade\_wrap\_angle [20]\\ 
+\hline
+	blade\_profile\_shift [20] & FloatScalar & blade\_profile\_shift [20]\\ 
+\hline
+	inlet\_angle\_modification [20] & FloatScalar & inlet\_angle\_modification [20]\\ 
+\hline
+	outlet\_angle\_modification [20] & FloatScalar & outlet\_angle\_modification [20]\\ 
+\hline
+	remaining\_swirl [20] & FloatScalar & remaining\_swirl [20]\\ 
+\hline
+	le\_spline\_parameter [20] & FloatScalar & le\_spline\_parameter [20]\\ 
+\hline
+	te\_spline\_parameter [20] & FloatScalar & te\_spline\_parameter [20]\\ 
+\hline
+	centre\_line\_camber [20] & FloatScalar & centre\_line\_camber [20]\\ 
+\hline
+	centre\_line\_camber\_position [20] & FloatScalar & centre\_line\_camber\_position [20]\\ 
+\hline
+	camber\_line\_parametre [20] & FloatScalar & camber\_line\_parametre [20]\\ 
+\hline
+	blade\_length\_factor [20] & FloatScalar & blade\_length\_factor [20]\\ 
+\hline
+	meridian\_parameter [21] & FloatScalar & meridian\_parameter [21]\\ 
+\hline
+	inlet\_angle [21] & FloatScalar & inlet\_angle [21]\\ 
+\hline
+	outlet\_angle [21] & FloatScalar & outlet\_angle [21]\\ 
+\hline
+	profile\_thickness [21] & FloatScalar & profile\_thickness [21]\\ 
+\hline
+	trailing\_edge\_thickness [21] & FloatScalar & trailing\_edge\_thickness [21]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [21] & FloatScalar & trailing\_edge\_wrap\_angle [21]\\ 
+\hline
+	blade\_wrap\_angle [21] & FloatScalar & blade\_wrap\_angle [21]\\ 
+\hline
+	blade\_profile\_shift [21] & FloatScalar & blade\_profile\_shift [21]\\ 
+\hline
+	inlet\_angle\_modification [21] & FloatScalar & inlet\_angle\_modification [21]\\ 
+\hline
+	outlet\_angle\_modification [21] & FloatScalar & outlet\_angle\_modification [21]\\ 
+\hline
+	remaining\_swirl [21] & FloatScalar & remaining\_swirl [21]\\ 
+\hline
+	le\_spline\_parameter [21] & FloatScalar & le\_spline\_parameter [21]\\ 
+\hline
+	te\_spline\_parameter [21] & FloatScalar & te\_spline\_parameter [21]\\ 
+\hline
+	centre\_line\_camber [21] & FloatScalar & centre\_line\_camber [21]\\ 
+\hline
+	centre\_line\_camber\_position [21] & FloatScalar & centre\_line\_camber\_position [21]\\ 
+\hline
+	camber\_line\_parametre [21] & FloatScalar & camber\_line\_parametre [21]\\ 
+\hline
+	blade\_length\_factor [21] & FloatScalar & blade\_length\_factor [21]\\ 
+\hline
+	meridian\_parameter [22] & FloatScalar & meridian\_parameter [22]\\ 
+\hline
+	inlet\_angle [22] & FloatScalar & inlet\_angle [22]\\ 
+\hline
+	outlet\_angle [22] & FloatScalar & outlet\_angle [22]\\ 
+\hline
+	profile\_thickness [22] & FloatScalar & profile\_thickness [22]\\ 
+\hline
+	trailing\_edge\_thickness [22] & FloatScalar & trailing\_edge\_thickness [22]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [22] & FloatScalar & trailing\_edge\_wrap\_angle [22]\\ 
+\hline
+	blade\_wrap\_angle [22] & FloatScalar & blade\_wrap\_angle [22]\\ 
+\hline
+	blade\_profile\_shift [22] & FloatScalar & blade\_profile\_shift [22]\\ 
+\hline
+	inlet\_angle\_modification [22] & FloatScalar & inlet\_angle\_modification [22]\\ 
+\hline
+	outlet\_angle\_modification [22] & FloatScalar & outlet\_angle\_modification [22]\\ 
+\hline
+	remaining\_swirl [22] & FloatScalar & remaining\_swirl [22]\\ 
+\hline
+	le\_spline\_parameter [22] & FloatScalar & le\_spline\_parameter [22]\\ 
+\hline
+	te\_spline\_parameter [22] & FloatScalar & te\_spline\_parameter [22]\\ 
+\hline
+	centre\_line\_camber [22] & FloatScalar & centre\_line\_camber [22]\\ 
+\hline
+	centre\_line\_camber\_position [22] & FloatScalar & centre\_line\_camber\_position [22]\\ 
+\hline
+	camber\_line\_parametre [22] & FloatScalar & camber\_line\_parametre [22]\\ 
+\hline
+	blade\_length\_factor [22] & FloatScalar & blade\_length\_factor [22]\\ 
+\hline
+	meridian\_parameter [23] & FloatScalar & meridian\_parameter [23]\\ 
+\hline
+	inlet\_angle [23] & FloatScalar & inlet\_angle [23]\\ 
+\hline
+	outlet\_angle [23] & FloatScalar & outlet\_angle [23]\\ 
+\hline
+	profile\_thickness [23] & FloatScalar & profile\_thickness [23]\\ 
+\hline
+	trailing\_edge\_thickness [23] & FloatScalar & trailing\_edge\_thickness [23]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [23] & FloatScalar & trailing\_edge\_wrap\_angle [23]\\ 
+\hline
+	blade\_wrap\_angle [23] & FloatScalar & blade\_wrap\_angle [23]\\ 
+\hline
+	blade\_profile\_shift [23] & FloatScalar & blade\_profile\_shift [23]\\ 
+\hline
+	inlet\_angle\_modification [23] & FloatScalar & inlet\_angle\_modification [23]\\ 
+\hline
+	outlet\_angle\_modification [23] & FloatScalar & outlet\_angle\_modification [23]\\ 
+\hline
+	remaining\_swirl [23] & FloatScalar & remaining\_swirl [23]\\ 
+\hline
+	le\_spline\_parameter [23] & FloatScalar & le\_spline\_parameter [23]\\ 
+\hline
+	te\_spline\_parameter [23] & FloatScalar & te\_spline\_parameter [23]\\ 
+\hline
+	centre\_line\_camber [23] & FloatScalar & centre\_line\_camber [23]\\ 
+\hline
+	centre\_line\_camber\_position [23] & FloatScalar & centre\_line\_camber\_position [23]\\ 
+\hline
+	camber\_line\_parametre [23] & FloatScalar & camber\_line\_parametre [23]\\ 
+\hline
+	blade\_length\_factor [23] & FloatScalar & blade\_length\_factor [23]\\ 
+\hline
+	meridian\_parameter [24] & FloatScalar & meridian\_parameter [24]\\ 
+\hline
+	inlet\_angle [24] & FloatScalar & inlet\_angle [24]\\ 
+\hline
+	outlet\_angle [24] & FloatScalar & outlet\_angle [24]\\ 
+\hline
+	profile\_thickness [24] & FloatScalar & profile\_thickness [24]\\ 
+\hline
+	trailing\_edge\_thickness [24] & FloatScalar & trailing\_edge\_thickness [24]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [24] & FloatScalar & trailing\_edge\_wrap\_angle [24]\\ 
+\hline
+	blade\_wrap\_angle [24] & FloatScalar & blade\_wrap\_angle [24]\\ 
+\hline
+	blade\_profile\_shift [24] & FloatScalar & blade\_profile\_shift [24]\\ 
+\hline
+	inlet\_angle\_modification [24] & FloatScalar & inlet\_angle\_modification [24]\\ 
+\hline
+	outlet\_angle\_modification [24] & FloatScalar & outlet\_angle\_modification [24]\\ 
+\hline
+	remaining\_swirl [24] & FloatScalar & remaining\_swirl [24]\\ 
+\hline
+	le\_spline\_parameter [24] & FloatScalar & le\_spline\_parameter [24]\\ 
+\hline
+	te\_spline\_parameter [24] & FloatScalar & te\_spline\_parameter [24]\\ 
+\hline
+	centre\_line\_camber [24] & FloatScalar & centre\_line\_camber [24]\\ 
+\hline
+	centre\_line\_camber\_position [24] & FloatScalar & centre\_line\_camber\_position [24]\\ 
+\hline
+	camber\_line\_parametre [24] & FloatScalar & camber\_line\_parametre [24]\\ 
+\hline
+	blade\_length\_factor [24] & FloatScalar & blade\_length\_factor [24]\\ 
+\hline
+	meridian\_parameter [25] & FloatScalar & meridian\_parameter [25]\\ 
+\hline
+	inlet\_angle [25] & FloatScalar & inlet\_angle [25]\\ 
+\hline
+	outlet\_angle [25] & FloatScalar & outlet\_angle [25]\\ 
+\hline
+	profile\_thickness [25] & FloatScalar & profile\_thickness [25]\\ 
+\hline
+	trailing\_edge\_thickness [25] & FloatScalar & trailing\_edge\_thickness [25]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [25] & FloatScalar & trailing\_edge\_wrap\_angle [25]\\ 
+\hline
+	blade\_wrap\_angle [25] & FloatScalar & blade\_wrap\_angle [25]\\ 
+\hline
+	blade\_profile\_shift [25] & FloatScalar & blade\_profile\_shift [25]\\ 
+\hline
+	inlet\_angle\_modification [25] & FloatScalar & inlet\_angle\_modification [25]\\ 
+\hline
+	outlet\_angle\_modification [25] & FloatScalar & outlet\_angle\_modification [25]\\ 
+\hline
+	remaining\_swirl [25] & FloatScalar & remaining\_swirl [25]\\ 
+\hline
+	le\_spline\_parameter [25] & FloatScalar & le\_spline\_parameter [25]\\ 
+\hline
+	te\_spline\_parameter [25] & FloatScalar & te\_spline\_parameter [25]\\ 
+\hline
+	centre\_line\_camber [25] & FloatScalar & centre\_line\_camber [25]\\ 
+\hline
+	centre\_line\_camber\_position [25] & FloatScalar & centre\_line\_camber\_position [25]\\ 
+\hline
+	camber\_line\_parametre [25] & FloatScalar & camber\_line\_parametre [25]\\ 
+\hline
+	blade\_length\_factor [25] & FloatScalar & blade\_length\_factor [25]\\ 
+\hline
+	meridian\_parameter [26] & FloatScalar & meridian\_parameter [26]\\ 
+\hline
+	inlet\_angle [26] & FloatScalar & inlet\_angle [26]\\ 
+\hline
+	outlet\_angle [26] & FloatScalar & outlet\_angle [26]\\ 
+\hline
+	profile\_thickness [26] & FloatScalar & profile\_thickness [26]\\ 
+\hline
+	trailing\_edge\_thickness [26] & FloatScalar & trailing\_edge\_thickness [26]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [26] & FloatScalar & trailing\_edge\_wrap\_angle [26]\\ 
+\hline
+	blade\_wrap\_angle [26] & FloatScalar & blade\_wrap\_angle [26]\\ 
+\hline
+	blade\_profile\_shift [26] & FloatScalar & blade\_profile\_shift [26]\\ 
+\hline
+	inlet\_angle\_modification [26] & FloatScalar & inlet\_angle\_modification [26]\\ 
+\hline
+	outlet\_angle\_modification [26] & FloatScalar & outlet\_angle\_modification [26]\\ 
+\hline
+	remaining\_swirl [26] & FloatScalar & remaining\_swirl [26]\\ 
+\hline
+	le\_spline\_parameter [26] & FloatScalar & le\_spline\_parameter [26]\\ 
+\hline
+	te\_spline\_parameter [26] & FloatScalar & te\_spline\_parameter [26]\\ 
+\hline
+	centre\_line\_camber [26] & FloatScalar & centre\_line\_camber [26]\\ 
+\hline
+	centre\_line\_camber\_position [26] & FloatScalar & centre\_line\_camber\_position [26]\\ 
+\hline
+	camber\_line\_parametre [26] & FloatScalar & camber\_line\_parametre [26]\\ 
+\hline
+	blade\_length\_factor [26] & FloatScalar & blade\_length\_factor [26]\\ 
+\hline
+	meridian\_parameter [27] & FloatScalar & meridian\_parameter [27]\\ 
+\hline
+	inlet\_angle [27] & FloatScalar & inlet\_angle [27]\\ 
+\hline
+	outlet\_angle [27] & FloatScalar & outlet\_angle [27]\\ 
+\hline
+	profile\_thickness [27] & FloatScalar & profile\_thickness [27]\\ 
+\hline
+	trailing\_edge\_thickness [27] & FloatScalar & trailing\_edge\_thickness [27]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [27] & FloatScalar & trailing\_edge\_wrap\_angle [27]\\ 
+\hline
+	blade\_wrap\_angle [27] & FloatScalar & blade\_wrap\_angle [27]\\ 
+\hline
+	blade\_profile\_shift [27] & FloatScalar & blade\_profile\_shift [27]\\ 
+\hline
+	inlet\_angle\_modification [27] & FloatScalar & inlet\_angle\_modification [27]\\ 
+\hline
+	outlet\_angle\_modification [27] & FloatScalar & outlet\_angle\_modification [27]\\ 
+\hline
+	remaining\_swirl [27] & FloatScalar & remaining\_swirl [27]\\ 
+\hline
+	le\_spline\_parameter [27] & FloatScalar & le\_spline\_parameter [27]\\ 
+\hline
+	te\_spline\_parameter [27] & FloatScalar & te\_spline\_parameter [27]\\ 
+\hline
+	centre\_line\_camber [27] & FloatScalar & centre\_line\_camber [27]\\ 
+\hline
+	centre\_line\_camber\_position [27] & FloatScalar & centre\_line\_camber\_position [27]\\ 
+\hline
+	camber\_line\_parametre [27] & FloatScalar & camber\_line\_parametre [27]\\ 
+\hline
+	blade\_length\_factor [27] & FloatScalar & blade\_length\_factor [27]\\ 
+\hline
+	meridian\_parameter [28] & FloatScalar & meridian\_parameter [28]\\ 
+\hline
+	inlet\_angle [28] & FloatScalar & inlet\_angle [28]\\ 
+\hline
+	outlet\_angle [28] & FloatScalar & outlet\_angle [28]\\ 
+\hline
+	profile\_thickness [28] & FloatScalar & profile\_thickness [28]\\ 
+\hline
+	trailing\_edge\_thickness [28] & FloatScalar & trailing\_edge\_thickness [28]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [28] & FloatScalar & trailing\_edge\_wrap\_angle [28]\\ 
+\hline
+	blade\_wrap\_angle [28] & FloatScalar & blade\_wrap\_angle [28]\\ 
+\hline
+	blade\_profile\_shift [28] & FloatScalar & blade\_profile\_shift [28]\\ 
+\hline
+	inlet\_angle\_modification [28] & FloatScalar & inlet\_angle\_modification [28]\\ 
+\hline
+	outlet\_angle\_modification [28] & FloatScalar & outlet\_angle\_modification [28]\\ 
+\hline
+	remaining\_swirl [28] & FloatScalar & remaining\_swirl [28]\\ 
+\hline
+	le\_spline\_parameter [28] & FloatScalar & le\_spline\_parameter [28]\\ 
+\hline
+	te\_spline\_parameter [28] & FloatScalar & te\_spline\_parameter [28]\\ 
+\hline
+	centre\_line\_camber [28] & FloatScalar & centre\_line\_camber [28]\\ 
+\hline
+	centre\_line\_camber\_position [28] & FloatScalar & centre\_line\_camber\_position [28]\\ 
+\hline
+	camber\_line\_parametre [28] & FloatScalar & camber\_line\_parametre [28]\\ 
+\hline
+	blade\_length\_factor [28] & FloatScalar & blade\_length\_factor [28]\\ 
+\hline
+	meridian\_parameter [29] & FloatScalar & meridian\_parameter [29]\\ 
+\hline
+	inlet\_angle [29] & FloatScalar & inlet\_angle [29]\\ 
+\hline
+	outlet\_angle [29] & FloatScalar & outlet\_angle [29]\\ 
+\hline
+	profile\_thickness [29] & FloatScalar & profile\_thickness [29]\\ 
+\hline
+	trailing\_edge\_thickness [29] & FloatScalar & trailing\_edge\_thickness [29]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [29] & FloatScalar & trailing\_edge\_wrap\_angle [29]\\ 
+\hline
+	blade\_wrap\_angle [29] & FloatScalar & blade\_wrap\_angle [29]\\ 
+\hline
+	blade\_profile\_shift [29] & FloatScalar & blade\_profile\_shift [29]\\ 
+\hline
+	inlet\_angle\_modification [29] & FloatScalar & inlet\_angle\_modification [29]\\ 
+\hline
+	outlet\_angle\_modification [29] & FloatScalar & outlet\_angle\_modification [29]\\ 
+\hline
+	remaining\_swirl [29] & FloatScalar & remaining\_swirl [29]\\ 
+\hline
+	le\_spline\_parameter [29] & FloatScalar & le\_spline\_parameter [29]\\ 
+\hline
+	te\_spline\_parameter [29] & FloatScalar & te\_spline\_parameter [29]\\ 
+\hline
+	centre\_line\_camber [29] & FloatScalar & centre\_line\_camber [29]\\ 
+\hline
+	centre\_line\_camber\_position [29] & FloatScalar & centre\_line\_camber\_position [29]\\ 
+\hline
+	camber\_line\_parametre [29] & FloatScalar & camber\_line\_parametre [29]\\ 
+\hline
+	blade\_length\_factor [29] & FloatScalar & blade\_length\_factor [29]\\ 
+\hline
+	meridian\_parameter [30] & FloatScalar & meridian\_parameter [30]\\ 
+\hline
+	inlet\_angle [30] & FloatScalar & inlet\_angle [30]\\ 
+\hline
+	outlet\_angle [30] & FloatScalar & outlet\_angle [30]\\ 
+\hline
+	profile\_thickness [30] & FloatScalar & profile\_thickness [30]\\ 
+\hline
+	trailing\_edge\_thickness [30] & FloatScalar & trailing\_edge\_thickness [30]\\ 
+\hline
+	trailing\_edge\_wrap\_angle [30] & FloatScalar & trailing\_edge\_wrap\_angle [30]\\ 
+\hline
+	blade\_wrap\_angle [30] & FloatScalar & blade\_wrap\_angle [30]\\ 
+\hline
+	blade\_profile\_shift [30] & FloatScalar & blade\_profile\_shift [30]\\ 
+\hline
+	inlet\_angle\_modification [30] & FloatScalar & inlet\_angle\_modification [30]\\ 
+\hline
+	outlet\_angle\_modification [30] & FloatScalar & outlet\_angle\_modification [30]\\ 
+\hline
+	remaining\_swirl [30] & FloatScalar & remaining\_swirl [30]\\ 
+\hline
+	le\_spline\_parameter [30] & FloatScalar & le\_spline\_parameter [30]\\ 
+\hline
+	te\_spline\_parameter [30] & FloatScalar & te\_spline\_parameter [30]\\ 
+\hline
+	centre\_line\_camber [30] & FloatScalar & centre\_line\_camber [30]\\ 
+\hline
+	centre\_line\_camber\_position [30] & FloatScalar & centre\_line\_camber\_position [30]\\ 
+\hline
+	camber\_line\_parametre [30] & FloatScalar & camber\_line\_parametre [30]\\ 
+\hline
+	blade\_length\_factor [30] & FloatScalar & blade\_length\_factor [30]\\ 
+\hline
+	reduced\_modification & Choice & reduced\_modification\\ 
+\hline
+	hub\_point [1] & FloatSlider & hub\_point [1]\\ 
+\hline
+	inner\_point [1] & FloatSlider & inner\_point [1]\\ 
+\hline
+	shroud\_point [1] & FloatSlider & shroud\_point [1]\\ 
+\hline
+	hub\_point [2] & FloatSlider & hub\_point [2]\\ 
+\hline
+	inner\_point [2] & FloatSlider & inner\_point [2]\\ 
+\hline
+	shroud\_point [2] & FloatSlider & shroud\_point [2]\\ 
+\hline
+	hub\_point [3] & FloatSlider & hub\_point [3]\\ 
+\hline
+	inner\_point [3] & FloatSlider & inner\_point [3]\\ 
+\hline
+	shroud\_point [3] & FloatSlider & shroud\_point [3]\\ 
+\hline
+	hub\_point [4] & FloatSlider & hub\_point [4]\\ 
+\hline
+	inner\_point [4] & FloatSlider & inner\_point [4]\\ 
+\hline
+	shroud\_point [4] & FloatSlider & shroud\_point [4]\\ 
+\hline
+	hub\_point [5] & FloatSlider & hub\_point [5]\\ 
+\hline
+	inner\_point [5] & FloatSlider & inner\_point [5]\\ 
+\hline
+	shroud\_point [5] & FloatSlider & shroud\_point [5]\\ 
+\hline
+	hub\_point [6] & FloatSlider & hub\_point [6]\\ 
+\hline
+	inner\_point [6] & FloatSlider & inner\_point [6]\\ 
+\hline
+	shroud\_point [6] & FloatSlider & shroud\_point [6]\\ 
+\hline
+	hub\_point [7] & FloatSlider & hub\_point [7]\\ 
+\hline
+	inner\_point [7] & FloatSlider & inner\_point [7]\\ 
+\hline
+	shroud\_point [7] & FloatSlider & shroud\_point [7]\\ 
+\hline
+	hub\_point [8] & FloatSlider & hub\_point [8]\\ 
+\hline
+	inner\_point [8] & FloatSlider & inner\_point [8]\\ 
+\hline
+	shroud\_point [8] & FloatSlider & shroud\_point [8]\\ 
+\hline
+	hub\_point [9] & FloatSlider & hub\_point [9]\\ 
+\hline
+	inner\_point [9] & FloatSlider & inner\_point [9]\\ 
+\hline
+	shroud\_point [9] & FloatSlider & shroud\_point [9]\\ 
+\hline
+	hub\_point [10] & FloatSlider & hub\_point [10]\\ 
+\hline
+	inner\_point [10] & FloatSlider & inner\_point [10]\\ 
+\hline
+	shroud\_point [10] & FloatSlider & shroud\_point [10]\\ 
+\hline
+	hub\_point [11] & FloatSlider & hub\_point [11]\\ 
+\hline
+	inner\_point [11] & FloatSlider & inner\_point [11]\\ 
+\hline
+	shroud\_point [11] & FloatSlider & shroud\_point [11]\\ 
+\hline
+	hub\_point [12] & FloatSlider & hub\_point [12]\\ 
+\hline
+	inner\_point [12] & FloatSlider & inner\_point [12]\\ 
+\hline
+	shroud\_point [12] & FloatSlider & shroud\_point [12]\\ 
+\hline
+	hub\_point [13] & FloatSlider & hub\_point [13]\\ 
+\hline
+	inner\_point [13] & FloatSlider & inner\_point [13]\\ 
+\hline
+	shroud\_point [13] & FloatSlider & shroud\_point [13]\\ 
+\hline
+	hub\_point [14] & FloatSlider & hub\_point [14]\\ 
+\hline
+	inner\_point [14] & FloatSlider & inner\_point [14]\\ 
+\hline
+	shroud\_point [14] & FloatSlider & shroud\_point [14]\\ 
+\hline
+	hub\_point [15] & FloatSlider & hub\_point [15]\\ 
+\hline
+	inner\_point [15] & FloatSlider & inner\_point [15]\\ 
+\hline
+	shroud\_point [15] & FloatSlider & shroud\_point [15]\\ 
+\hline
+	hub\_point [16] & FloatSlider & hub\_point [16]\\ 
+\hline
+	inner\_point [16] & FloatSlider & inner\_point [16]\\ 
+\hline
+	shroud\_point [16] & FloatSlider & shroud\_point [16]\\ 
+\hline
+	makeGrid & Boolean & Make\_a\_grid\_now\\ 
+\hline
+	grid\_type & Choice & grid\_type\\ 
+\hline
+	show\_complete\_grid & Boolean & show\_complete\_grid\\ 
+\hline
+	layers\_to\_show\_(min/max) & IntVector & layers\_to\_show\_(min/max)\\ 
+\hline
+	select\_parameter\_set & Choice & select\_parameter\_set\\ 
+\hline
+	radial\_discretization & FloatVector & radial\_discretization\\ 
+\hline
+	circumferential\_discretization & FloatVector & circumferential\_discretization\\ 
+\hline
+	circumf\_ discr\_at\_leading\_edge & FloatVector & circumf\_ discr\_at\_leading\_edge\\ 
+\hline
+	meridional\_discr\_runner\_inlet & FloatVector & meridional\_discr\_runner\_inlet\\ 
+\hline
+	pressure\_side\_discretization & FloatVector & pressure\_side\_discretization\\ 
+\hline
+	suction\_side\_discretization & FloatVector & suction\_side\_discretization\\ 
+\hline
+	boundary\_layer\_discretization & FloatVector & boundary\_layer\_discretization\\ 
+\hline
+	meridional\_outlet & FloatVector & meridional\_outlet\\ 
+\hline
+	meridional\_inlet\_extension & FloatVector & meridional\_inlet\_extension\\ 
+\hline
+	radial\_skew\_runner\_in/outlet & Boolean & radial\_skew\_runner\_in/outlet\\ 
+\hline
+	angle\_coordinate\_scaling\_factor & FloatVector & angle\_coordinate\_scaling\_factor\\ 
+\hline
+	angle\_factor\_for\_skewed\_inlet & FloatVector & angle\_factor\_for\_skewed\_inlet\\ 
+\hline
+	angle\_factor\_for\_skewed\_outlet & FloatVector & angle\_factor\_for\_skewed\_outlet\\ 
+\hline
+	boundary\_layer\_thickness\_ratio & FloatVector & boundary\_layer\_thickness\_ratio\\ 
+\hline
+	le\_b2b\_spline\_vector\_angles\_(ss/ps) & FloatVector & le\_b2b\_spline\_vector\_angles\_(ss/ps)\\ 
+\hline
+	partition\_bound\_layer\_le\_spline & FloatVector & partition\_bound\_layer\_le\_spline\\ 
+\hline
+	ss\_partition\_ratio\_hub\_shroud & FloatVector & ss\_partition\_ratio\_hub\_shroud\\ 
+\hline
+	ps\_partition\_ratio\_hub\_shroud & FloatVector & ps\_partition\_ratio\_hub\_shroud\\ 
+\hline
+	ratio\_ssle/blade(hub/shroud) & FloatVector & ratio\_ssle/blade(hub/shroud)\\ 
+\hline
+	ratio\_psle/blade(hub/shroud) & FloatVector & ratio\_psle/blade(hub/shroud)\\ 
+\hline
+	circumf\_partition\_outlet & FloatVector & circumf\_partition\_outlet\\ 
+\hline
+	angle\_coord\_scaling\_inlet\_ext & FloatScalar & angle\_coord\_scaling\_inlet\_ext\\ 
+\hline
+	runner\_inlet\_b2b\_angles\_(ss/ps) & FloatVector & runner\_inlet\_b2b\_angles\_(ss/ps)\\ 
+\hline
+	writeGrid & Boolean & Write\_grid\_and\_boco\_to\_file\\ 
+\hline
+	create\_inlet\_bc & Boolean & create\_inlet\_bc\\ 
+\hline
+	mesh\_inlet\_extension & Boolean & mesh\_inlet\_extension\\ 
+\hline
+	all\_walls\_rotating & Boolean & all\_walls\_rotating\\ 
+\hline
+	discharge4CFD & FloatScalar & discharge4CFD\\ 
+\hline
+	use\_Q4BCvalues & Boolean & use\_Q4BCvalues\\ 
+\hline
+	head4CFD & FloatScalar & head4CFD\\ 
+\hline
+	flow\_angle & FloatScalar & flow\_angle\\ 
+\hline
+	use\_this\_angle & Boolean & use\_this\_angle\\ 
+\hline
+	2DPort & Choice & Select\_plot\_port\\ 
+\hline
+	2DPlot\_1 & Choice & Select\_plot\_data\\ 
+\hline
+	show\_view\_1\_1 & Boolean & show\_view\_1\_1\\ 
+\hline
+	show\_view\_1\_2 & Boolean & show\_view\_1\_2\\ 
+\hline
+	show\_view\_1\_3 & Boolean & show\_view\_1\_3\\ 
+\hline
+	show\_view\_1\_4 & Boolean & show\_view\_1\_4\\ 
+\hline
+	show\_view\_1\_5 & Boolean & show\_view\_1\_5\\ 
+\hline
+	show\_view\_1\_6 & Boolean & show\_view\_1\_6\\ 
+\hline
+	show\_view\_1\_7 & Boolean & show\_view\_1\_7\\ 
+\hline
+	show\_view\_1\_8 & Boolean & show\_view\_1\_8\\ 
+\hline
+	show\_view\_1\_9 & Boolean & show\_view\_1\_9\\ 
+\hline
+	show\_view\_1\_10 & Boolean & show\_view\_1\_10\\ 
+\hline
+	show\_view\_1\_11 & Boolean & show\_view\_1\_11\\ 
+\hline
+	show\_view\_1\_12 & Boolean & show\_view\_1\_12\\ 
+\hline
+	show\_view\_1\_13 & Boolean & show\_view\_1\_13\\ 
+\hline
+	show\_view\_1\_14 & Boolean & show\_view\_1\_14\\ 
+\hline
+	show\_view\_1\_15 & Boolean & show\_view\_1\_15\\ 
+\hline
+	show\_view\_1\_16 & Boolean & show\_view\_1\_16\\ 
+\hline
+	show\_view\_1\_17 & Boolean & show\_view\_1\_17\\ 
+\hline
+	show\_view\_1\_18 & Boolean & show\_view\_1\_18\\ 
+\hline
+	show\_view\_1\_19 & Boolean & show\_view\_1\_19\\ 
+\hline
+	show\_view\_1\_20 & Boolean & show\_view\_1\_20\\ 
+\hline
+	show\_view\_1\_21 & Boolean & show\_view\_1\_21\\ 
+\hline
+	show\_view\_1\_22 & Boolean & show\_view\_1\_22\\ 
+\hline
+	show\_view\_1\_23 & Boolean & show\_view\_1\_23\\ 
+\hline
+	show\_view\_1\_24 & Boolean & show\_view\_1\_24\\ 
+\hline
+	show\_view\_1\_25 & Boolean & show\_view\_1\_25\\ 
+\hline
+	show\_view\_1\_26 & Boolean & show\_view\_1\_26\\ 
+\hline
+	show\_view\_1\_27 & Boolean & show\_view\_1\_27\\ 
+\hline
+	show\_view\_1\_28 & Boolean & show\_view\_1\_28\\ 
+\hline
+	show\_view\_1\_29 & Boolean & show\_view\_1\_29\\ 
+\hline
+	show\_view\_1\_30 & Boolean & show\_view\_1\_30\\ 
+\hline
+	show\_camber\_1\_1 & Boolean & show\_camber\_1\_1\\ 
+\hline
+	show\_camber\_1\_2 & Boolean & show\_camber\_1\_2\\ 
+\hline
+	show\_camber\_1\_3 & Boolean & show\_camber\_1\_3\\ 
+\hline
+	show\_camber\_1\_4 & Boolean & show\_camber\_1\_4\\ 
+\hline
+	show\_camber\_1\_5 & Boolean & show\_camber\_1\_5\\ 
+\hline
+	show\_camber\_1\_6 & Boolean & show\_camber\_1\_6\\ 
+\hline
+	show\_camber\_1\_7 & Boolean & show\_camber\_1\_7\\ 
+\hline
+	show\_camber\_1\_8 & Boolean & show\_camber\_1\_8\\ 
+\hline
+	show\_camber\_1\_9 & Boolean & show\_camber\_1\_9\\ 
+\hline
+	show\_camber\_1\_10 & Boolean & show\_camber\_1\_10\\ 
+\hline
+	show\_camber\_1\_11 & Boolean & show\_camber\_1\_11\\ 
+\hline
+	show\_camber\_1\_12 & Boolean & show\_camber\_1\_12\\ 
+\hline
+	show\_camber\_1\_13 & Boolean & show\_camber\_1\_13\\ 
+\hline
+	show\_camber\_1\_14 & Boolean & show\_camber\_1\_14\\ 
+\hline
+	show\_camber\_1\_15 & Boolean & show\_camber\_1\_15\\ 
+\hline
+	show\_camber\_1\_16 & Boolean & show\_camber\_1\_16\\ 
+\hline
+	show\_camber\_1\_17 & Boolean & show\_camber\_1\_17\\ 
+\hline
+	show\_camber\_1\_18 & Boolean & show\_camber\_1\_18\\ 
+\hline
+	show\_camber\_1\_19 & Boolean & show\_camber\_1\_19\\ 
+\hline
+	show\_camber\_1\_20 & Boolean & show\_camber\_1\_20\\ 
+\hline
+	show\_camber\_1\_21 & Boolean & show\_camber\_1\_21\\ 
+\hline
+	show\_camber\_1\_22 & Boolean & show\_camber\_1\_22\\ 
+\hline
+	show\_camber\_1\_23 & Boolean & show\_camber\_1\_23\\ 
+\hline
+	show\_camber\_1\_24 & Boolean & show\_camber\_1\_24\\ 
+\hline
+	show\_camber\_1\_25 & Boolean & show\_camber\_1\_25\\ 
+\hline
+	show\_camber\_1\_26 & Boolean & show\_camber\_1\_26\\ 
+\hline
+	show\_camber\_1\_27 & Boolean & show\_camber\_1\_27\\ 
+\hline
+	show\_camber\_1\_28 & Boolean & show\_camber\_1\_28\\ 
+\hline
+	show\_camber\_1\_29 & Boolean & show\_camber\_1\_29\\ 
+\hline
+	show\_camber\_1\_30 & Boolean & show\_camber\_1\_30\\ 
+\hline
+	show\_normalized\_camber\_1\_1 & Boolean & show\_normalized\_camber\_1\_1\\ 
+\hline
+	show\_normalized\_camber\_1\_2 & Boolean & show\_normalized\_camber\_1\_2\\ 
+\hline
+	show\_normalized\_camber\_1\_3 & Boolean & show\_normalized\_camber\_1\_3\\ 
+\hline
+	show\_normalized\_camber\_1\_4 & Boolean & show\_normalized\_camber\_1\_4\\ 
+\hline
+	show\_normalized\_camber\_1\_5 & Boolean & show\_normalized\_camber\_1\_5\\ 
+\hline
+	show\_normalized\_camber\_1\_6 & Boolean & show\_normalized\_camber\_1\_6\\ 
+\hline
+	show\_normalized\_camber\_1\_7 & Boolean & show\_normalized\_camber\_1\_7\\ 
+\hline
+	show\_normalized\_camber\_1\_8 & Boolean & show\_normalized\_camber\_1\_8\\ 
+\hline
+	show\_normalized\_camber\_1\_9 & Boolean & show\_normalized\_camber\_1\_9\\ 
+\hline
+	show\_normalized\_camber\_1\_10 & Boolean & show\_normalized\_camber\_1\_10\\ 
+\hline
+	show\_normalized\_camber\_1\_11 & Boolean & show\_normalized\_camber\_1\_11\\ 
+\hline
+	show\_normalized\_camber\_1\_12 & Boolean & show\_normalized\_camber\_1\_12\\ 
+\hline
+	show\_normalized\_camber\_1\_13 & Boolean & show\_normalized\_camber\_1\_13\\ 
+\hline
+	show\_normalized\_camber\_1\_14 & Boolean & show\_normalized\_camber\_1\_14\\ 
+\hline
+	show\_normalized\_camber\_1\_15 & Boolean & show\_normalized\_camber\_1\_15\\ 
+\hline
+	show\_normalized\_camber\_1\_16 & Boolean & show\_normalized\_camber\_1\_16\\ 
+\hline
+	show\_normalized\_camber\_1\_17 & Boolean & show\_normalized\_camber\_1\_17\\ 
+\hline
+	show\_normalized\_camber\_1\_18 & Boolean & show\_normalized\_camber\_1\_18\\ 
+\hline
+	show\_normalized\_camber\_1\_19 & Boolean & show\_normalized\_camber\_1\_19\\ 
+\hline
+	show\_normalized\_camber\_1\_20 & Boolean & show\_normalized\_camber\_1\_20\\ 
+\hline
+	show\_normalized\_camber\_1\_21 & Boolean & show\_normalized\_camber\_1\_21\\ 
+\hline
+	show\_normalized\_camber\_1\_22 & Boolean & show\_normalized\_camber\_1\_22\\ 
+\hline
+	show\_normalized\_camber\_1\_23 & Boolean & show\_normalized\_camber\_1\_23\\ 
+\hline
+	show\_normalized\_camber\_1\_24 & Boolean & show\_normalized\_camber\_1\_24\\ 
+\hline
+	show\_normalized\_camber\_1\_25 & Boolean & show\_normalized\_camber\_1\_25\\ 
+\hline
+	show\_normalized\_camber\_1\_26 & Boolean & show\_normalized\_camber\_1\_26\\ 
+\hline
+	show\_normalized\_camber\_1\_27 & Boolean & show\_normalized\_camber\_1\_27\\ 
+\hline
+	show\_normalized\_camber\_1\_28 & Boolean & show\_normalized\_camber\_1\_28\\ 
+\hline
+	show\_normalized\_camber\_1\_29 & Boolean & show\_normalized\_camber\_1\_29\\ 
+\hline
+	show\_normalized\_camber\_1\_30 & Boolean & show\_normalized\_camber\_1\_30\\ 
+\hline
+	2DPlot\_2 & Choice & Select\_plot\_data\\ 
+\hline
+	show\_view\_2\_1 & Boolean & show\_view\_2\_1\\ 
+\hline
+	show\_view\_2\_2 & Boolean & show\_view\_2\_2\\ 
+\hline
+	show\_view\_2\_3 & Boolean & show\_view\_2\_3\\ 
+\hline
+	show\_view\_2\_4 & Boolean & show\_view\_2\_4\\ 
+\hline
+	show\_view\_2\_5 & Boolean & show\_view\_2\_5\\ 
+\hline
+	show\_view\_2\_6 & Boolean & show\_view\_2\_6\\ 
+\hline
+	show\_view\_2\_7 & Boolean & show\_view\_2\_7\\ 
+\hline
+	show\_view\_2\_8 & Boolean & show\_view\_2\_8\\ 
+\hline
+	show\_view\_2\_9 & Boolean & show\_view\_2\_9\\ 
+\hline
+	show\_view\_2\_10 & Boolean & show\_view\_2\_10\\ 
+\hline
+	show\_view\_2\_11 & Boolean & show\_view\_2\_11\\ 
+\hline
+	show\_view\_2\_12 & Boolean & show\_view\_2\_12\\ 
+\hline
+	show\_view\_2\_13 & Boolean & show\_view\_2\_13\\ 
+\hline
+	show\_view\_2\_14 & Boolean & show\_view\_2\_14\\ 
+\hline
+	show\_view\_2\_15 & Boolean & show\_view\_2\_15\\ 
+\hline
+	show\_view\_2\_16 & Boolean & show\_view\_2\_16\\ 
+\hline
+	show\_view\_2\_17 & Boolean & show\_view\_2\_17\\ 
+\hline
+	show\_view\_2\_18 & Boolean & show\_view\_2\_18\\ 
+\hline
+	show\_view\_2\_19 & Boolean & show\_view\_2\_19\\ 
+\hline
+	show\_view\_2\_20 & Boolean & show\_view\_2\_20\\ 
+\hline
+	show\_view\_2\_21 & Boolean & show\_view\_2\_21\\ 
+\hline
+	show\_view\_2\_22 & Boolean & show\_view\_2\_22\\ 
+\hline
+	show\_view\_2\_23 & Boolean & show\_view\_2\_23\\ 
+\hline
+	show\_view\_2\_24 & Boolean & show\_view\_2\_24\\ 
+\hline
+	show\_view\_2\_25 & Boolean & show\_view\_2\_25\\ 
+\hline
+	show\_view\_2\_26 & Boolean & show\_view\_2\_26\\ 
+\hline
+	show\_view\_2\_27 & Boolean & show\_view\_2\_27\\ 
+\hline
+	show\_view\_2\_28 & Boolean & show\_view\_2\_28\\ 
+\hline
+	show\_view\_2\_29 & Boolean & show\_view\_2\_29\\ 
+\hline
+	show\_view\_2\_30 & Boolean & show\_view\_2\_30\\ 
+\hline
+	show\_camber\_2\_1 & Boolean & show\_camber\_2\_1\\ 
+\hline
+	show\_camber\_2\_2 & Boolean & show\_camber\_2\_2\\ 
+\hline
+	show\_camber\_2\_3 & Boolean & show\_camber\_2\_3\\ 
+\hline
+	show\_camber\_2\_4 & Boolean & show\_camber\_2\_4\\ 
+\hline
+	show\_camber\_2\_5 & Boolean & show\_camber\_2\_5\\ 
+\hline
+	show\_camber\_2\_6 & Boolean & show\_camber\_2\_6\\ 
+\hline
+	show\_camber\_2\_7 & Boolean & show\_camber\_2\_7\\ 
+\hline
+	show\_camber\_2\_8 & Boolean & show\_camber\_2\_8\\ 
+\hline
+	show\_camber\_2\_9 & Boolean & show\_camber\_2\_9\\ 
+\hline
+	show\_camber\_2\_10 & Boolean & show\_camber\_2\_10\\ 
+\hline
+	show\_camber\_2\_11 & Boolean & show\_camber\_2\_11\\ 
+\hline
+	show\_camber\_2\_12 & Boolean & show\_camber\_2\_12\\ 
+\hline
+	show\_camber\_2\_13 & Boolean & show\_camber\_2\_13\\ 
+\hline
+	show\_camber\_2\_14 & Boolean & show\_camber\_2\_14\\ 
+\hline
+	show\_camber\_2\_15 & Boolean & show\_camber\_2\_15\\ 
+\hline
+	show\_camber\_2\_16 & Boolean & show\_camber\_2\_16\\ 
+\hline
+	show\_camber\_2\_17 & Boolean & show\_camber\_2\_17\\ 
+\hline
+	show\_camber\_2\_18 & Boolean & show\_camber\_2\_18\\ 
+\hline
+	show\_camber\_2\_19 & Boolean & show\_camber\_2\_19\\ 
+\hline
+	show\_camber\_2\_20 & Boolean & show\_camber\_2\_20\\ 
+\hline
+	show\_camber\_2\_21 & Boolean & show\_camber\_2\_21\\ 
+\hline
+	show\_camber\_2\_22 & Boolean & show\_camber\_2\_22\\ 
+\hline
+	show\_camber\_2\_23 & Boolean & show\_camber\_2\_23\\ 
+\hline
+	show\_camber\_2\_24 & Boolean & show\_camber\_2\_24\\ 
+\hline
+	show\_camber\_2\_25 & Boolean & show\_camber\_2\_25\\ 
+\hline
+	show\_camber\_2\_26 & Boolean & show\_camber\_2\_26\\ 
+\hline
+	show\_camber\_2\_27 & Boolean & show\_camber\_2\_27\\ 
+\hline
+	show\_camber\_2\_28 & Boolean & show\_camber\_2\_28\\ 
+\hline
+	show\_camber\_2\_29 & Boolean & show\_camber\_2\_29\\ 
+\hline
+	show\_camber\_2\_30 & Boolean & show\_camber\_2\_30\\ 
+\hline
+	show\_normalized\_camber\_2\_1 & Boolean & show\_normalized\_camber\_2\_1\\ 
+\hline
+	show\_normalized\_camber\_2\_2 & Boolean & show\_normalized\_camber\_2\_2\\ 
+\hline
+	show\_normalized\_camber\_2\_3 & Boolean & show\_normalized\_camber\_2\_3\\ 
+\hline
+	show\_normalized\_camber\_2\_4 & Boolean & show\_normalized\_camber\_2\_4\\ 
+\hline
+	show\_normalized\_camber\_2\_5 & Boolean & show\_normalized\_camber\_2\_5\\ 
+\hline
+	show\_normalized\_camber\_2\_6 & Boolean & show\_normalized\_camber\_2\_6\\ 
+\hline
+	show\_normalized\_camber\_2\_7 & Boolean & show\_normalized\_camber\_2\_7\\ 
+\hline
+	show\_normalized\_camber\_2\_8 & Boolean & show\_normalized\_camber\_2\_8\\ 
+\hline
+	show\_normalized\_camber\_2\_9 & Boolean & show\_normalized\_camber\_2\_9\\ 
+\hline
+	show\_normalized\_camber\_2\_10 & Boolean & show\_normalized\_camber\_2\_10\\ 
+\hline
+	show\_normalized\_camber\_2\_11 & Boolean & show\_normalized\_camber\_2\_11\\ 
+\hline
+	show\_normalized\_camber\_2\_12 & Boolean & show\_normalized\_camber\_2\_12\\ 
+\hline
+	show\_normalized\_camber\_2\_13 & Boolean & show\_normalized\_camber\_2\_13\\ 
+\hline
+	show\_normalized\_camber\_2\_14 & Boolean & show\_normalized\_camber\_2\_14\\ 
+\hline
+	show\_normalized\_camber\_2\_15 & Boolean & show\_normalized\_camber\_2\_15\\ 
+\hline
+	show\_normalized\_camber\_2\_16 & Boolean & show\_normalized\_camber\_2\_16\\ 
+\hline
+	show\_normalized\_camber\_2\_17 & Boolean & show\_normalized\_camber\_2\_17\\ 
+\hline
+	show\_normalized\_camber\_2\_18 & Boolean & show\_normalized\_camber\_2\_18\\ 
+\hline
+	show\_normalized\_camber\_2\_19 & Boolean & show\_normalized\_camber\_2\_19\\ 
+\hline
+	show\_normalized\_camber\_2\_20 & Boolean & show\_normalized\_camber\_2\_20\\ 
+\hline
+	show\_normalized\_camber\_2\_21 & Boolean & show\_normalized\_camber\_2\_21\\ 
+\hline
+	show\_normalized\_camber\_2\_22 & Boolean & show\_normalized\_camber\_2\_22\\ 
+\hline
+	show\_normalized\_camber\_2\_23 & Boolean & show\_normalized\_camber\_2\_23\\ 
+\hline
+	show\_normalized\_camber\_2\_24 & Boolean & show\_normalized\_camber\_2\_24\\ 
+\hline
+	show\_normalized\_camber\_2\_25 & Boolean & show\_normalized\_camber\_2\_25\\ 
+\hline
+	show\_normalized\_camber\_2\_26 & Boolean & show\_normalized\_camber\_2\_26\\ 
+\hline
+	show\_normalized\_camber\_2\_27 & Boolean & show\_normalized\_camber\_2\_27\\ 
+\hline
+	show\_normalized\_camber\_2\_28 & Boolean & show\_normalized\_camber\_2\_28\\ 
+\hline
+	show\_normalized\_camber\_2\_29 & Boolean & show\_normalized\_camber\_2\_29\\ 
+\hline
+	show\_normalized\_camber\_2\_30 & Boolean & show\_normalized\_camber\_2\_30\\
+\hline \end{longtable}
+

@@ -1,0 +1,36 @@
+INCLUDE_DIRECTORIES(
+..
+)
+SET(HEADERS
+  include/basis.h
+  include/gate.h
+  include/leit.h
+  include/stf.h
+  include/bezier.h
+  include/ggrid.h
+  include/myspline.h
+  include/u_proto.h
+  include/ga2cov.h
+  include/kubsplin.h
+  include/spliwert.h
+  include/vmblock.h
+)
+SET(SOURCES
+  basis.cpp
+  ftdiag.cpp
+  ga2cov.cpp
+  ga_io.cpp
+  kubsplin.cpp
+  spliwert.cpp
+  vmblock.cpp
+  bezier.cpp
+  fzdiag.cpp
+  ga_comp.cpp
+  ggrid.cpp
+  leit_lib.cpp
+  stf.cpp
+)
+ADD_DEFINITIONS("-DGATE")
+covise_add_library(visit_gate STATIC ${EXTRASOURCES} ${SOURCES} ${HEADERS})
+TARGET_LINK_LIBRARIES(visit_gate)
+COVISE_INSTALL_TARGET(visit_gate)

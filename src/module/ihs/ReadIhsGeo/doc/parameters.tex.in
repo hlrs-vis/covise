@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline grid\_path & Browser & Grid file path\\ \hline data\_path & Browser & Data file path\\ \hline numt & IntScalar & Nuber of Timesteps\\
+\hline \end{longtable}
+

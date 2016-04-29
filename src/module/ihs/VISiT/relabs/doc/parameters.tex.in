@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline Rotation axis & Choice & ConnectionMethod\\ \hline U/min & FloatScalar & revolutions per second\\ \hline rel2abs/abs2rel & Choice & Rel2Abs or Abs2Rel\\
+\hline \end{longtable}
+

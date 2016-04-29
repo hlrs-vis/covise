@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline distGrid & UnstructuredGrid & Distributed Grid\\ \hline distBoco1 & USR\_DistFenflossBoco & Distributed Boundary Cond\\ \hline distBoco2 & USR\_DistFenflossBoco & Distributed Boundary Cond\\ \hline bcin & Polygons & Boundary surface of inlet(IN)\\
+\hline \end{longtable}
+

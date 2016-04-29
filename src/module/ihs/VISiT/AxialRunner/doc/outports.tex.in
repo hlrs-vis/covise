@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline blade & Polygons & Blade Polygons\\ \hline hub & Polygons & Hub Polygons\\ \hline shroud & Polygons & Shroud Polygons\\ \hline grid & UnstructuredGrid & Computational grid\\ \hline bcin & Polygons & Cells at entry\\ \hline bcout & Polygons & Outlet\\ \hline bcwall & Polygons & Walls\\ \hline bcblade & Polygons & Blade\\ \hline bcperiodic & Polygons & Periodic borders\\ \hline boco & USR\_FenflossBoco & Boundary Conditions\\ \hline XMGR2DPlot\_1 & Vec2 & XMGR-plot data\\ \hline XMGR2DPlot\_2 & Vec2 & XMGR-plot data\\
+\hline \end{longtable}
+

@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline outletcellUSInPort & Polygons & Upstream Outlet Cells\\ \hline inletcellDSInPort & Polygons & Downstream Inlet Cells\\ \hline distbocoDSInPort & USR\_DistFenflossBoco & Distributed Downstream Boundary Conditions\\ \hline velocityUSInPort & Vec3 & Upstream Velocity\\ \hline distbocoUSInPort & USR\_DistFenflossBoco & Distributed Upstream Boundary Conditions\\ \hline pressureDSInPort & Float & Downstream Pressure\\
+\hline \end{longtable}
+

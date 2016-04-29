@@ -1,0 +1,257 @@
+Ablauf der Simulation
+---------------------
+
+StarCD Simulation                       StarCD Modul
+
+                                   computeCallback
+BCDEF <--------------------------- new BC ? BCDEF aufrufen, kein Objekt erzeugen
+  |
+POSDAT                           
+  |
+iteration                              
+  |
+POSDAT ---------------------------> new data?
+                                    ja: 
+                                       free run?
+                                       ja   : Objekt erzeugen + BCDEF aufrufen
+                                       nein : nicht free run: Objekt erzeugen
+                                    nein: BCDEF aufrufen
+Simulation laeuft los,
+wenn BCDEF aufgerufen wird.
+
+SYNCHRON
+--------
+Im SYNCHRON Modus kommt man in den compute Callback zuerst nur durch
+execute uebers UserInterface oder Feedback. Dann wird BCDEF aufgerufen,
+und, damit der Modul nicht rot bleibt, sofort der compute callback verlassen.
+Sobald Daten da sind, macht der Modul self-execute. Executes uebers
+User Interface in der Zeit werden ignoriert, Parametereinstellungen 
+sind aber moeglich
+
+Verhalten des User Interface im SYNCHRON Modus
+----------------------------------------------
+
+Sollen Parameter einstellbar sein, obwohl jedes damit verbundene execute,
+z. B. durch "execute on change" oder feedback im COVER igoriert wird?
+Wenn ja, muss man den User darueber informieren.
+
+Wenn nein, muessen die Interaktoren sowohl im ControlPanel als auch
+in VR deaktiviert sein.
+
+
+
+FEBRUAR 00
+----------
+Zahlenwert-Anzeige auf dem Pfeil
+
+
+JANUAR 00
+---------
+
+Plugin macht Menueeintrag StarCD
+User clickt auf StarCD
+    -> Regions und Vektor-Interaktoren erscheinen
+    User beruehrt Vektor-Interaktor
+        -> interscetion highlight
+        User drueckt button
+            -> selection highlight, Interaktor bewegt sich mit
+            User laesst button los
+                -> Interaktor bleibt stehen, momentane Position 
+                   wird an Modul geschickt  
+    
+    
+NOVEMBER 99
+-----------
+Start des Plugin 
+-> Button "StarCD ..." im Hauptmenue
+
+"StarCD ..." auswaehlen
+    a) wenn das region set objekte schon da ist 
+       -> Untermenue "Regions" poppt auf
+       -> Region Boundary Patches erscheinen
+       
+    b) wenn das region set noch nicht da ist
+       -> passiert gar nichts
+
+0) bc patches kommen im COVER an
+-> newInteractor(SET)
+   -> RegionListe wird erzeugt, region objekte werden erzeugt
+   
+   
+-> addNode(SET):
+   ->RegionSensorListe wird erzeugt
+   a) wenn zum ersten Mal
+   ->Submenu-Eintraege werden erzeugt
+   b) wenn die Anzahl oder die Namen unterschiedlich sind
+   ->Submenue-Eintraege werden geloescht
+   -> neue Submenue-Eintraege erzeugt
+   c) wenn die anzahl gleich ist
+   -> soll sich gar nichts aendern!!!
+======>>>>> Hier weiter   
+   
+   addNode(REGION):
+  ->RegionSensoren werden erzeugt
+   
+1) Selektieren eines Patches mit dem Pointer
+   -> Popup-Menue "Paramaters" erscheint neben dem Patch
+    
+    oder  
+
+2) Auswaehlen einer Region im Submenue
+   -> Autoplacement der Region in der Naehe des Users eventuell Vergroesserung
+   -> Popup-Menue "Paramaters" erscheint neben dem Patch
+   
+   
+      Auswaehlen eines Vektor-Parameters
+   -> Pfeil erscheint
+   
+   a) Beruehren des Pfeilendes
+      -> Pfeilende bewegt sich mit der Handposition mit
+       
+
+   b) Pfeilende bewegt sich gleich mit und wird fixiert, 
+      wenn der Button gedrueckt wird
+       
+** c) Pfeilende bewegt sich erst, wenn Knopf gedrueckt wird
+      wird fixiert, wenn der Knopf losgelassen wird, muss
+      dazu nicht beruehrt werden
+       
+   d) Pfeilende bewegt sich, wenn es zuerst beruehrt wird 
+      und der Knopf gedrueckt wird, wird fixiert durch loslassen
+ 
+3) COVISE Objekt wird geloescht (wegklicken der Verbindung)
+
+-> bc patch Objekte werden von COVER geloescht
+-> remove node funktion des Plugins wird aufgerufen
+-> sensor wird geloescht
+-> menue callbacks werden deaktiviert
+
+4) COVISE Objekt wird ersetzt
+
+-> objekte werden erst mal geloescht
+
+-> bc patch Objekte werden von COVER gezeichnet
+-> newInteractor wird aufgerufen: regionListe wird angelegt
+-> addNode wird aufgerufen: sensorListe wird aufgerufen, 
+    -> bc patches werdenDRAW trav mask = 0
+
+
+
+
+
+NEW: 
+
+wenn button "StarCD" angeclickt: pc patches zeichen
+ansonsten nicht zeichnen
+
+REPLACE:
+
+wenn menureplace = TRUE
+bc patches nicht zeichenn
+
+wenn menhuReplace = FALSE
+wenn menu schon offen war: showMenu = TRUE -> zeichnen
+wenn menu zu war: showMenu = FALSE -> nicht zeichen
+
+
+
+
+
+Verhalten der Menues
+--------------------
+
+Start des Plugins:
+
+- Button "StarCD ..." im Hauptmenue
+- Submenue "Regions ..."
+- Button "no region" im submenue
+
+
+erstes execute
+- Submenue "Regions ..." bekommt buttons
+- Submenue "Region xy ..." bekommt Parameter
+
+erneutes Execute
+- delete Object(replace = TRUE)
+- addObject
+falls eine neue Konfigurationsdatei eingelesen wurde, koennte sich 
+Anzahl und Beschreibung der Regions und jeweils die anzahl und Art der
+Parameter geandert haben.
+
+Linie wegcklicken oder Modul loeschen
+- delete Object (replace = FALSE)
+- Parameter-Submenues muessen geloescht werden
+
+
+newInteractor()
+info = SET REGIONS 4 Duese links aussen!Duesse links mitte!...
+
+- test ob Region-Namen neu sind, wenn nicht, wird am Menue nichts gemacht,
+  damit es falls schon geoeffnet, stehen bleibt
+
+- test ob das newInteractor auf einen Replace folgt
+  wenn ja, alte Listen loeschen
+
+- neue listen aufbauen  
+  
+  
+  
+------------------------------------
+    
+
+
+AddFeedback
+    SET: info = "numRegions, RegionNames"
+    
+        new regionNameList[numRegions], new regionName
+            
+        new regionList[numRegions],new region(RegionName)
+        
+    ELEM: info = "RegionIndex, numParams, paramNames"
+    
+        new paramList[numParams], new paramName
+        regionList[RegionIndex]->setCoviseObj
+        regionList[RegionIndex]-> new InteractorList[numParams], new Interactor
+        
+
+
+AddNode
+    SET
+        new regionSensorList[numRegions]
+    
+    GEODE
+
+        regionList[i]->setPerfGeode
+        new StarRegionSensor(geode, regionList[i])
+        regionList[i]-> for all params Interactor->setCenterAndNormal
+        regionList[i]-> for all params new InteractorSensor
+
+RemoveObject
+
+
+
+RemoveNode
+
+
+
+PreFrame
+
+
+
+
+----------------------------------------
+
+
+                                    scene
+    
+                                   xformDCS
+    
+                                   scaleDCS 
+                                      
+                                  objectsRoot                          
+    
+        perGroup                                   RegOffsetDSC
+    
+    dcs      dcs    dcs                            RegXformDSC
+    
+    geode   geode   geode                           arrowGeode

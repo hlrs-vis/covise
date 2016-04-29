@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline grid & UnstructuredGrid & Computation Grid\\ \hline blade & Polygons & Blade Polygons\\ \hline hub & Polygons & Hub Polygons\\ \hline shroud & Polygons & Shroud Polygons\\ \hline bladenormals & Normals\newline Vec3 & Blade Normals\\ \hline hubnormals & Normals\newline Vec3 & Hub Normals\\ \hline shroudnormals & Normals\newline Vec3 & Shroud Normals\\ \hline bcin & Polygons & Cells at entry\\ \hline bcout & Polygons & Cells at exit\\ \hline bcwall & Polygons & Cells at walls\\ \hline bcperiodic & Polygons & Cells at periodic borders\\ \hline boco & USR\_FenflossBoco & Boundary Conditions\\ \hline 2dplot & Vec2 & n-Q-diagramm\\
+\hline \end{longtable}
+

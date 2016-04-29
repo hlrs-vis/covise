@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline vu\_vector & Vec3 & Vu (vector)\\ \hline vr\_vector & Vec3 & Vr (vector)\\ \hline vm\_vector & Vec3 & Vm (vector)\\ \hline v & Float & V (scalar)\\ \hline vu & Float & Vu (scalar)\\ \hline vr & Float & Vr (scalar)\\ \hline vm & Float & Vm (scalar)\\ \hline r*vu & Float & r*Vu (scalar)\\
+\hline \end{longtable}
+

@@ -49,6 +49,20 @@ using namespace vrui;
 using namespace opencover;
 using covise::Message;
 using covise::ServerConnection;
+class OddlotPlugin;
+
+class DrawCallback : public osg::Camera::DrawCallback
+{
+public:
+    DrawCallback(OddlotPlugin *plugin)
+        : plugin(plugin)
+    {
+    }
+    virtual void operator()(const osg::Camera &cam) const;
+
+private:
+    OddlotPlugin *plugin;
+};
 
 class OddlotPlugin : public coVRPlugin, public coMenuListener, public coTUIListener
 {
@@ -68,19 +82,31 @@ public:
 
     void destroyMenu();
     void createMenu();
+    
+    void createCamera();
     virtual void menuEvent(coMenuItem *aButton);
     virtual void tabletEvent(coTUIElement *tUIItem);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
 
-    coTUITab *revitTab;
     void sendMessage(Message &m);
     
     void message(int type, int len, const void *buf);
+    void sendImage();
 protected:
+    
+    void setProjection(float xPos, float yPos, float width, float height);
     static OddlotPlugin *plugin;
 
     ServerConnection *serverConn;
     ServerConnection *toOddlot;
+    coTUITab *oddlotTab;
+    osg::ref_ptr<osg::Camera> camera;
+    osg::ref_ptr<osg::Image> image;
+    osg::ref_ptr<DrawCallback> drawCallback;
+    int resX,resY;
+    
+    float x,y,width,height;
+    int xRes,yRes;
     void handleMessage(Message *m);
     Message *msg;
 };

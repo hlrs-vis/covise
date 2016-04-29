@@ -1,0 +1,71 @@
+INCLUDE_DIRECTORIES(
+  ./include
+  ..
+)
+
+SET(HEADERS
+  include/bias.h
+  include/elements.h
+  include/IOChecks.h
+  include/plot.h
+  include/cfg.h
+  include/fatal.h
+  include/iso.h
+  include/points.h
+  include/common.h
+  include/flist.h
+  include/log.h
+  include/profile.h
+  include/coordtrans.h
+  include/geo.h
+  include/mytime.h
+  include/ptlist.h
+  include/cov.h
+  include/geometry.h
+  include/nodes.h
+  include/vector.h
+  include/CreateFileNameParam.h
+  include/ihs_cfg.h
+  include/nonlinpart.h
+  include/v.h
+  include/curve.h
+  include/ihs_debug.h
+  include/parameter.h
+  include/curvepoly.h
+  include/ilist.h
+  include/plane_geo.h
+)
+SET(SOURCES
+  CreateFileNameParam.cpp
+  IOChecks.cpp
+  bias.cpp
+  cfg.cpp
+  coordtrans.cpp
+  cov.cpp
+  curve.cpp
+  curvepoly.cpp
+  elements.cpp
+  fatal.cpp
+  flist.cpp
+  geo.cpp
+  ilist.cpp
+  isocurve.cpp
+  isoread.cpp
+  log.cpp
+  mytime.cpp
+  nodes.cpp
+  parameter.cpp
+  plane_geo.cpp
+  plot.cpp
+  points.cpp
+  profile.cpp
+  ptlist.cpp
+  readcalc.cpp
+  readmeasured.cpp
+  v.cpp
+  vector.cpp
+  4all/cg.cpp
+)
+covise_add_library(visit_general STATIC ${EXTRASOURCES} ${SOURCES} ${HEADERS})
+TARGET_LINK_LIBRARIES(visit_general)
+COVISE_INSTALL_TARGET(visit_general)

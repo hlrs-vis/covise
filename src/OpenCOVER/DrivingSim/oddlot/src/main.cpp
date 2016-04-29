@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     {
         w.open(args.at(1));
     }
-    COVERConnection::instance(); // create a cover connection
+    COVERConnection::instance()->setMainWindow(&w); // create a cover connection
 
     return a.exec();
 }

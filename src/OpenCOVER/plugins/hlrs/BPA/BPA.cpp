@@ -270,7 +270,7 @@ void BPA::calcIntersection()
     sphereDrawable->dirtyDisplayList();
     sphereTrans->setMatrix(osg::Matrix::translate(p));
     char buf[1000];
-    sprintf(buf, "Origin: %f %f %f, deviation=%f", p[0], p[1], p[2], (float)S);
+    sprintf(buf, "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)S,numIntersections);
     originLabel->setLabel(buf);
     }
 }
@@ -426,51 +426,150 @@ float Trajectory::distance(osg::Vec3 &p,osg::Vec3 &p0,osg::Vec3 &p1)
     return((a ^ b).length()/la);
 }
 
-float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1) // p1 is a start estimate
+float Trajectory::distance(Trajectory *t,int gi,int git)
+    // computes distance between p and the line between p0 and p1this trajectory at index gi and t at git
+    //returns 100000 if gi or git are out of range;
 {
-    float minDist = 1000;
+    if((gi > vert->size()-2)||(git > t->vert->size()-2))
+        return 100000;
+    osg::Vec3 tmpP;
+    osg::Vec3 tmpP2;
+    BPA::intersectLines(vert->at(gi),t->vert->at(git),vert->at(gi+1)-vert->at(gi),t->vert->at(git+1)-t->vert->at(git),tmpP,tmpP2);
+    return (tmpP-tmpP2).length2();
+
+}
+float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1) // p1 is a start estimate and also returns the intersection point
+{
+    float minDist = 100000;
     int minI;
     int minN;
 
     if (vert->size() > 0 && t->vert->size() > 0)
     {
         int gi1=0,gi2=0;
-        float len2 = p1.length2();
+        float len2 = p1.length();
         float l2=0;
         for (size_t i = 1; i < vert->size(); i++)
         {
-            l2+= (vert->at(i) - vert->at(i-1)).length2();
+            l2+= (vert->at(i) - vert->at(i-1)).length();
             if(len2 < l2)
             {
                 gi1 = i-1;
+                break;
             }
 
         }
         l2=0;
         for (size_t i = 1; i < t->vert->size(); i++)
         {
-            l2+= (t->vert->at(i) - t->vert->at(i-1)).length2();
+            l2+= (t->vert->at(i) - t->vert->at(i-1)).length();
             if(len2 < l2)
             {
                 gi2 = i-1;
+                break;
             }
 
         }
         float lastDistance = 1000000000.0;
-        float dist = distance(vert->at(gi1),t->vert->at(gi2),t->vert->at(gi2+1));
-        // as long as 
- /*       for (size_t n = 0; n < t->vert->size(); n++)
+        //float dist = distance(vert->at(gi1),t->vert->at(gi2),t->vert->at(gi2+1));
+
+        float d[7];
+        d[0] = distance(t,gi1  ,gi2  );
+        d[1] = distance(t,gi1+1,gi2  );
+        d[2] = distance(t,gi1+1,gi2+1);
+        d[3] = distance(t,gi1  ,gi2+1);
+        d[4] = distance(t,gi1-1,gi2  );
+        d[5] = distance(t,gi1-1,gi2-1);
+        d[6] = distance(t,gi1  ,gi2-1);
+        while(lastDistance > minDist)
+        {
+            lastDistance = minDist;
+            minDist = 100000;
+            int mini = -1;
+            for(int m=0;m<7;m++)
             {
-                float dist = (vert->at(i) - t->vert->at(n)).length2();
-                if (dist < minDist)
+              
+                if(d[m]<minDist)
                 {
-                    minDist = dist;
-                    minI = i;
-                    minN = n;
+                    minDist = d[m];
+                    mini = m;
                 }
-            }*/
-        p1 = (vert->at(minI) + t->vert->at(minN)) / 2.0;
-        return sqrt(minDist);
+            }
+            if(mini == 0) // we are done, we have the closest pair
+            {
+                osg::Vec3 tmpP;
+                osg::Vec3 tmpP2;
+                BPA::intersectLines(vert->at(gi1),t->vert->at(gi2),vert->at(gi1+1)-vert->at(gi1),t->vert->at(gi2+1)-t->vert->at(gi2),tmpP,tmpP2);
+                p1 = (tmpP + tmpP2)/2.0;
+                return sqrt(minDist);
+            }
+            else if(mini == 1)
+            {
+                gi1++;
+                d[0]=d[1];
+                d[3] = d[2];
+                d[4] = d[0];
+                d[5] = d[6];
+                d[1] = distance(t,gi1+1,gi2  );
+                d[2] = distance(t,gi1+1,gi2+1);
+                d[6] = distance(t,gi1  ,gi2-1);
+            }
+            else if(mini == 2)
+            {
+                gi1++; gi2++;
+                d[6] = d[0];
+                d[5] = d[0];
+                d[0] = d[2];
+                d[4] = d[3];
+                d[1] = distance(t,gi1+1,gi2  );
+                d[2] = distance(t,gi1+1,gi2+1);
+                d[3] = distance(t,gi1  ,gi2+1);
+            }
+            else if(mini == 3)
+            {
+                gi2++;
+                d[6] = d[0];
+                d[0] = d[3];
+                d[1] = d[2];
+                d[5] = d[4];
+                d[2] = distance(t,gi1+1,gi2+1);
+                d[3] = distance(t,gi1  ,gi2+1);
+                d[4] = distance(t,gi1-1,gi2  );
+            }
+            else if(mini == 4)
+            {
+                gi1--;
+                d[1] = d[0];
+                d[0] = d[4];
+                d[2] = d[3];
+                d[6] = d[5];
+                d[3] = distance(t,gi1  ,gi2+1);
+                d[4] = distance(t,gi1-1,gi2  );
+                d[5] = distance(t,gi1-1,gi2-1);
+            }
+            else if(mini == 5)
+            {
+                gi1--; gi2--;
+                d[2] = d[0];
+                d[0] = d[5];
+                d[1] = d[6];
+                d[3] = d[4];
+                d[4] = distance(t,gi1-1,gi2  );
+                d[5] = distance(t,gi1-1,gi2-1);
+                d[6] = distance(t,gi1  ,gi2-1);
+            }
+            else if(mini == 6)
+            {
+                gi2--;
+                d[3] = d[0];
+                d[0] = d[6];
+                d[2] = d[1];
+                d[4] = d[5];
+                d[1] = distance(t,gi1+1,gi2  );
+                d[5] = distance(t,gi1-1,gi2-1);
+                d[6] = distance(t,gi1  ,gi2-1);
+            }
+        }
     }
     return -1;
 }
@@ -536,7 +635,7 @@ void Trajectory::recalc()
     osg::Vec3 pos = startPos;
     osg::Vec3 vel = startVelocity;
     bool res = BPAPlugin::plugin->airResistance->getState();
-    while (len < length && pos[2] > bpa->floorHeight)
+    while (len < length && pos[2] >= bpa->floorHeight)
     {
         float v = vel.length();
         if (res)
@@ -609,7 +708,7 @@ BPAPlugin::BPAPlugin()
     angleEdit = new coTUIEditFloatField("angleEdit", BPATab->getID(), 5);
     angleEdit->setEventListener(this);
     angleEdit->setPos(5, 0);
-    angleEdit->setValue(5);
+    angleEdit->setValue(15);
 
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
@@ -776,6 +875,7 @@ void BPA::loadnfix(std::string filename)
     velocity->setMin(0.05);
     velocity->setMax(0.3);
     velocity->setValue(0.15);
+    bool flat=false;
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
     {
@@ -784,31 +884,48 @@ void BPA::loadnfix(std::string filename)
         {
             if (fgets(buf, 1000, fp) != NULL)
             {
-                // 0.564755053	1.4		38.91	-14.63	0	1.789	1.945
-                float W, alpha, beta, gamma, x, y, z, Vol;
-                sscanf(buf, "%f %f %f %f %f %f %f %f", &Vol, &W, &alpha, &gamma, &beta, &x, &y, &z);
-                Trajectory *t = new Trajectory(this);
-                osg::Vec3 pos;
-                pos.set(x, y, z);
-                t->startPos = pos;
-                float a = alpha / 180.0 * M_PI;
-                float b = beta / 180.0 * M_PI;
-                float c = gamma / 180.0 * M_PI;
-                osg::Vec3 v;
-                v.set(sin(a), -sin(c) * cos(a), -cos(c) * cos(a));
-                osg::Matrix m;
-                m.makeRotate(b, osg::Vec3(0, 0, 1));
-                v = osg::Matrix::transform3x3(m, v);
-                v.normalize();
-                t->alpha = a;
-                t->gamma = c;
-                t->W = W / 1000.0;
-                t->Vol = Vol;
-                t->correctVelocity = true;
-                t->computeVelocity();
-                t->startVelocity = v * t->velo;
-                t->length = length->getValue();
-                t->createGeometry();
+                if(buf[0] =='#')
+                {
+                    if(strstr(buf,"flat")!=NULL)
+                    {
+                        flat = true;
+                    }
+                }
+                else
+                {
+                    // 0.564755053	1.4		38.91	-14.63	0	1.789	1.945
+                    float W, alpha, beta, gamma, x, y, z, Vol;
+                    sscanf(buf, "%f %f %f %f %f %f %f %f", &Vol, &W, &alpha, &gamma, &beta, &x, &y, &z);
+                    Trajectory *t = new Trajectory(this);
+                    osg::Vec3 pos;
+                    pos.set(x, y, z);
+                    t->startPos = pos;
+                    float a = alpha / 180.0 * M_PI;
+                    float b = beta / 180.0 * M_PI;
+                    float c = gamma / 180.0 * M_PI;
+                    osg::Vec3 v;
+                    if(flat)
+                    {
+                        v.set(sin(a+M_PI_2), -sin(c) * cos(a+M_PI_2), -cos(c) * cos(a+M_PI_2));
+                    }
+                    else
+                    {
+                        v.set(sin(a), -sin(c) * cos(a), -cos(c) * cos(a));
+                    }
+                    osg::Matrix m;
+                    m.makeRotate(b, osg::Vec3(0, 0, 1));
+                    v = osg::Matrix::transform3x3(m, v);
+                    v.normalize();
+                    t->alpha = a;
+                    t->gamma = c;
+                    t->W = W / 1000.0;
+                    t->Vol = Vol;
+                    t->correctVelocity = true;
+                    t->computeVelocity();
+                    t->startVelocity = v * t->velo;
+                    t->length = length->getValue();
+                    t->createGeometry();
+                }
             }
         }
         fclose(fp);

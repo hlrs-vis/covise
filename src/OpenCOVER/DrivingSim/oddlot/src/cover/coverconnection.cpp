@@ -21,6 +21,9 @@
 #include <net/covise_host.h>
 #include <net/message_types.h>
 #include <net/message.h>
+#include "../gui/projectwidget.hpp"
+#include "../graph/topviewgraph.hpp"
+#include "../graph/graphview.hpp"
 
 // Data //
 
@@ -39,6 +42,12 @@ COVERConnection::COVERConnection()
     toCOVERSN = NULL;
     toCOVER = NULL;
     msg = new covise::Message;
+    mainWindow = NULL;
+}
+
+void COVERConnection::setMainWindow(MainWindow *mw)
+{
+    mainWindow = mw;
 }
 
 COVERConnection::~COVERConnection()
@@ -69,12 +78,16 @@ void COVERConnection::resizeMap(float x, float y, float width, float height)
 {
     if(toCOVER!=NULL)
     {
+        int xRes = 1024;
+        int yRes = 768;
         covise::TokenBuffer tb;
         tb << MSG_GetMap;
         tb << x;
         tb << y;
         tb << width;
         tb << height;
+        tb << xRes;
+        tb << yRes;
         send(tb);
     }
 }
@@ -139,6 +152,7 @@ bool COVERConnection::waitForMessage(covise::Message **m)
             }
         }
     }
+    return true;
 }
 //------------------------------------------------------------------------
 bool COVERConnection::handleClient(covise::Message *msg)
@@ -162,6 +176,23 @@ bool COVERConnection::handleClient(covise::Message *msg)
             case MSG_GetHeight:
                 {
                     std::cerr << "this message should not arrive here, oddlot should wait for this reply " << msg->type  << std::endl;
+                }
+                break;
+            case MSG_GetMap:
+                {
+                    float x,y,width,height;
+                    int xRes,yRes;
+                    tb >> x;
+                    tb >> y;
+                    tb >> width;
+                    tb >> height;
+                    tb >> xRes;
+                    tb >> yRes;
+                    const char *buf = tb.getBinary(xRes*yRes);
+                    if(mainWindow->getActiveProject())
+                    {
+                    mainWindow->getActiveProject()->getTopviewGraph()->getView()->setMap(x,y,width,height,xRes,yRes,buf);
+                    }
                 }
                 break;
             }

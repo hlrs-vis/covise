@@ -116,6 +116,7 @@ public slots:
     void setMapY(double y);
     void setMapWidth(double width, bool keepRatio);
     void setMapHeight(double height, bool keepRatio);
+    void setMap(float x,float y,float width,float height,int xRes,int yRes,const char *buf);
 
     //################//
     // PROPERTIES     //
@@ -146,6 +147,7 @@ private:
     // ScenerySystem //
     //
     ScenerySystemItem *scenerySystemItem_;
+    QGraphicsPixmapItem *backgroundItem;
 
     double scaling_;
 };

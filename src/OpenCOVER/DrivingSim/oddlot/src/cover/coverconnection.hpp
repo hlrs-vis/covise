@@ -20,6 +20,7 @@
 #include <qtimer.h>
 #include "../../plugins/hlrs/OddlotLink/oddlotMessageTypes.h"
 #include <net/tokenbuffer.h>
+#include "../mainwindow.hpp"
 
 class COVERConnection: QObject
 {
@@ -39,6 +40,7 @@ public:
     void resizeMap(float x, float y, float width, float height);
     
     void send(covise::TokenBuffer &tb);
+    void setMainWindow(MainWindow *mw);
 
     static COVERConnection *instance()
     {
@@ -63,6 +65,7 @@ private:
     
     bool handleClient(covise::Message *msg);
     covise::Message *msg;
+    MainWindow *mainWindow;
 
 
 };

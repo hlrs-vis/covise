@@ -76,6 +76,7 @@ public:
     double getX(double v);
     double getDX(double v);
     float distance(osg::Vec3 &p,osg::Vec3 &p0,osg::Vec3 &p1);
+    float distance(Trajectory *t,int gi,int git);
 };
 
 class BPA : public coTUIListener
@@ -116,7 +117,7 @@ public:
     osg::ShapeDrawable *sphereDrawable;
     void calcIntersection();
 
-    void intersectLines(osg::Vec3 p0,osg::Vec3 p1,osg::Vec3 d0,osg::Vec3 d1,osg::Vec3 &c0, osg::Vec3 &c1);
+    static void intersectLines(osg::Vec3 p0,osg::Vec3 p1,osg::Vec3 d0,osg::Vec3 d1,osg::Vec3 &c0, osg::Vec3 &c1);
     inline float distancePointLine(osg::Vec3 p0,osg::Vec3 d0, osg::Vec3 p){ return(d0 ^ (p0-p)).length()/d0.length();};
 
     osg::ref_ptr<osg::Group> trajectoriesGroup;

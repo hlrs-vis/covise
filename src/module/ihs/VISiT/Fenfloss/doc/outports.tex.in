@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline velocity & Vec3 & Geschwindigkeit\\ \hline p & Float & Druck\\ \hline turb & Float & Turbulen\\ \hline out\_bcin & Polygons & Boundary surface of inlet(OUT)\\
+\hline \end{longtable}
+

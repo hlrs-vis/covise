@@ -1,0 +1,78 @@
+
+c     **********************************************************
+      integer              npoin,npoin_max,npoin_ges,knmax_num,
+     *                     nelem,nelem_max,nelem_ges,elmax_num
+
+      integer              ncd,nkd,nrbknie
+
+      common /GEO_DIME/    npoin,npoin_max,npoin_ges,knmax_num,
+     *                     nelem,nelem_max,nelem_ges,elmax_num,
+     *                     ncd,nkd,nrbknie
+c     **********************************************************
+
+
+c     **********************************************************
+      integer          fla_zeig(6,4),fla_wert(6),fla_idie(6),nkd_fla,
+     *                 kan_zeig(12,2),kan_idie(12,3),nkd_kan,
+     *                 eck(8,3)
+
+      common /ZEIGER/  fla_zeig,fla_wert,fla_idie,nkd_fla,
+     *                 kan_zeig,kan_idie,nkd_kan,
+     *                 eck
+c     **********************************************************
+
+
+c     **********************************************************
+      integer              nwand,npres,nsyme,
+     *                     nzykl,nconv,ntemp,nrbpoi
+
+      integer              nelra,nelra_max,ntyp_elra,
+     *                     nknra,nknra_max,ntyp_knra,nwer_knra
+
+      character*35         elra_name(20),knra_name(20)
+
+      common /RBE_DIME/    nwand,npres,nsyme,
+     *                     nzykl,nconv,ntemp,nrbpoi,
+     *                     nelra,nelra_max,ntyp_elra,
+     *                     nknra,nknra_max,ntyp_knra,nwer_knra,
+     *                     elra_name,knra_name
+c     **********************************************************
+
+
+c     **********************************************************
+      integer             myid,numprocs,lupar,luout,lupro,ierr
+
+      logical parallel
+
+      common /PARALLELO/  myid,numprocs,lupar,luout,lupro,ierr,
+     *                    parallel
+c     **********************************************************
+
+
+c     **********************************************************
+      integer         ndrei,nzwei,nl_kompakt
+
+      real            gitter_min,gitter_max,gitter_mit
+
+      common /NOMA/   ndrei,nzwei,nl_kompakt,
+     *                gitter_min,gitter_max,gitter_mit
+c     **********************************************************
+
+
+c     **********************************************************
+      integer         ngebiet
+
+      logical         parti_erg,parti_rbe,parti_geo,parti_les
+      logical         einzelgeo,write_einzgeo,geonameread
+      logical         rbenameread,parti_mit
+      character*100   rbe_used,text_avg
+
+      common /SONST/  parti_erg,parti_rbe,parti_geo,parti_les,
+     *                ngebiet
+      common /SONST/  einzelgeo,write_einzgeo,geonameread
+      common /SONST/  rbenameread,parti_mit
+      common /SONST/  rbe_used,text_avg
+
+c     **********************************************************
+
+

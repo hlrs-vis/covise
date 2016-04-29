@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline numPart & IntScalar & number of Partitions\\ \hline directory & String & Starting directory\\ \hline writeFiles & Boolean & write output Files?\\ \hline memory & IntScalar & Memory for zerno in MB\\
+\hline \end{longtable}
+

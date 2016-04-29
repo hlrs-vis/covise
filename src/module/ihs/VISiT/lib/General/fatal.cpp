@@ -1,0 +1,13 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "include/fatal.h"
+#include "include/log.h"
+
+void my_fatal(const char *src, int line, const char *text)
+{
+   dprintf(0, "source: %s\n", src);
+   dprintf(0, "line  : %d\n", line);
+   dprintf(0, "bug   : %s\n", text);
+   exit(1);
+}
