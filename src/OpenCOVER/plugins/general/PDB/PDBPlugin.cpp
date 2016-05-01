@@ -172,8 +172,8 @@ bool PDBPlugin::init()
     float buttonSize[2] = { 80, 20 };
 
     // get host name
-    char temp[20];
-    if (gethostname(temp, 20) == -1)
+    char temp[2000];
+    if (gethostname(temp, sizeof(temp)) == -1)
     {
         myHost.append("NoName");
     }
