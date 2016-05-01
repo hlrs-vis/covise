@@ -305,7 +305,7 @@ OddlotPlugin::handleMessage(Message *m)
 {
     //cerr << "got Message" << endl;
     //m->print();
-    enum MessageTypes type = (enum MessageTypes)m->type;
+    enum PluginMessageTypes::Type type = (enum PluginMessageTypes::Type)m->type;
     
     switch (type)
     {
