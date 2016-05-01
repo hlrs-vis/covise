@@ -63,7 +63,7 @@ coColorDistance::coColorDistance(int argc, char *argv[])
     paSlider2->setValue(-10, 10, -1);
 }
 
-inline float rgb2hsv(float r, float g, float b, float &h, float &s, float &v)
+inline void rgb2hsv(float r, float g, float b, float &h, float &s, float &v)
 {
     float M = std::max(r, std::max(g, b));
     float m = std::min(r, std::min(g, b));
