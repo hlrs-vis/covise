@@ -134,6 +134,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=rhel6
                elif grep -i -q -s 'Red Hat Enterprise Linux Server release 6..' /etc/issue; then
                    export ARCHSUFFIX=rhel6
+               elif grep -i -q -s 'CentOS release 6..' /etc/issue; then
+                   export ARCHSUFFIX=rhel6
                elif grep -i -q -s 'bullx Linux Server release 6..' /etc/issue; then
                    export ARCHSUFFIX=rhel6
                elif test -f /etc/system-release; then
