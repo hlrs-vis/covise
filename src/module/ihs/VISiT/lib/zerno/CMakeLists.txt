@@ -1,5 +1,4 @@
-IF(COVISE_USE_FORTRAN)
-enable_language(Fortran)
+USING(Fortran)
 
 SET(HEADERS
 )
@@ -69,4 +68,3 @@ SET(SOURCES
 covise_add_library(visit_zerno STATIC ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 TARGET_LINK_LIBRARIES(visit_zerno)
 COVISE_INSTALL_TARGET(visit_zerno)
-ENDIF(COVISE_USE_FORTRAN)
