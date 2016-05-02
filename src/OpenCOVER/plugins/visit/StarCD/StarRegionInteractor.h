@@ -31,7 +31,7 @@
 
 #include <osgText/Text>
 
-#include <kernel/coVRPluginSupport.h>
+#include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
 

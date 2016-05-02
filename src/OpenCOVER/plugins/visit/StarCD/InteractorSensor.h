@@ -1,14 +1,16 @@
 #ifndef _INTERACTOR_SENSOR_H
 #define _INTERACTOR_SENSOR_H
 
-#include <kernel/coVRPluginSupport.h>
+#include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
+using namespace vrui;
 
 
 #include "StarRegionInteractor.h"
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <PluginUtil/coSensor.h>
 
 
 namespace osg

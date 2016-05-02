@@ -14,11 +14,13 @@
  **                                                                          **
 \****************************************************************************/
 
+#include <list>
 #include <osg/MatrixTransform>
 
-#include <kernel/coVRPluginSupport.h>
+#include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
+using namespace vrui;
 
 
 #include "StarRegion.h"
@@ -88,7 +90,8 @@ class StarCDPlugin : public coVRPlugin
    char residualNumbers[200];
 
  public:
-   DLinkList<PluginObject*> pluginObjectList;
+   typedef std::list<PluginObject*> PluginObjectList;
+   PluginObjectList pluginObjectList;
 
    StarCDPlugin();
    ~StarCDPlugin();

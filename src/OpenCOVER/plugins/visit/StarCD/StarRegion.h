@@ -26,7 +26,7 @@
 #include <osg/Geode>
 #include <osg/StateSet>
 
-#include <kernel/coVRPluginSupport.h>
+#include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
 

@@ -4,8 +4,8 @@
 // Di abend eingecheckt
 #include <config/CoviseConfig.h>
 #include "StarRegion.h"
-#include <kernel/RenderObject.h>
-#include <kernel/coInteractor.h>
+#include <cover/RenderObject.h>
+#include <cover/coInteractor.h>
 
 #include <iostream>
 
