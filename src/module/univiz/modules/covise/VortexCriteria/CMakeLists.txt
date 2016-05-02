@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/vortex_criteria
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz VortexCriteria ${EXTRASOURCES} )
+covise_wnoerror(VortexCriteria)
 TARGET_LINK_LIBRARIES(VortexCriteria coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(VortexCriteria)

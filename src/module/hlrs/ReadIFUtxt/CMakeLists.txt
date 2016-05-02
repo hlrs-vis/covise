@@ -5,5 +5,6 @@ SET(SOURCES
   ReadIFUtxt.cpp
 )
 ADD_COVISE_MODULE(IO ReadIFUtxt ${EXTRASOURCES})
+covise_wnoerror(ReadIFUtxt)
 TARGET_LINK_LIBRARIES(ReadIFUtxt coApi coAppl coCore)
 COVISE_INSTALL_TARGET(ReadIFUtxt)

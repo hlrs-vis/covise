@@ -173,7 +173,10 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  // Skip first record control word in .fil file *****************
 	  fseek(fd_fil, file_offset, SEEK_SET);
 
-	  fread(fil_array, sizeof(int64_t), fil_size, fd_fil);
+	  if (fread(fil_array, sizeof(int64_t), fil_size, fd_fil) != fil_size)
+      {
+          sendError("Failed to read %ld records from %s", (long)fil_size, p_filFile->getValue());
+      }
 
 	  // Close ABAQUS result file ************************************
 	  fclose(fd_fil);

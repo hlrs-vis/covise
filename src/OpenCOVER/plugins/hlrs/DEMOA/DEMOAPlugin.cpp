@@ -427,7 +427,10 @@ void DEMOAPlugin::getdata(const char file[], int initframe)
     if (file == NULL)
     {
         std::fprintf(stderr, "New filename: ");
-        std::fscanf(stdin, "%s", cbuf);
+        if (std::fscanf(stdin, "%s", cbuf) != 1)
+        {
+            fprintf(stderr, "Failed to read from stdin...");
+        }
         clear_stdin();
         fname = cbuf;
         if (fname[0] == 27)

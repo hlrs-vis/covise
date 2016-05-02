@@ -339,7 +339,10 @@ int AxialRunner::compute(const char *)
 		p_RunFENFLOSS->setValue(0);                 // push off button
 		sprintf(runsh, "%s %.2f %.2f %.2f %d %s", "runFEN.pl",
 				vnorm,lnorm,omega,geo->ar->nob, name);
-		system(runsh);
+		if (system(runsh) == -1)
+        {
+            dprintf(1, "AxialRunner::system() failed\n");
+        }
 	}
 	// end of CFD-Run.
 	// **************************************************

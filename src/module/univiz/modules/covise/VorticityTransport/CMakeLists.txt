@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/vorticity_transport
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz VorticityTransport ${EXTRASOURCES} )
+covise_wnoerror(VorticityTransport)
 TARGET_LINK_LIBRARIES(VorticityTransport coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(VorticityTransport)

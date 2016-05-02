@@ -332,7 +332,10 @@ bool coFileBrowser::makeFileList(std::string& path, std::vector<std::string>& fi
   sortAlphabetically(_folderNames);
   sortAlphabetically(_fileNames);
 #ifndef WIN32
-  chdir(oldpath);
+  if (chdir(oldpath))
+  {
+      std::cerr << "failed to chdir to " << oldpath << std::endl;
+  }
   closedir(dirHandle);
 #endif
   removePreviews();

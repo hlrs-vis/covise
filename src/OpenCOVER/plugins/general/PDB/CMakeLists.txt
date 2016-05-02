@@ -36,3 +36,4 @@ SET(SOURCES
 )
 
 cover_add_plugin(PDB)
+covise_wnoerror(PDB)

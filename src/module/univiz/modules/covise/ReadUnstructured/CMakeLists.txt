@@ -36,6 +36,7 @@ ${COVISEDIR}/src/module/univiz/libs/covise_ext
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz ReadUnstructured ${EXTRASOURCES} )
+covise_wnoerror(ReadUnstructured)
 TARGET_LINK_LIBRARIES(ReadUnstructured coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(ReadUnstructured)

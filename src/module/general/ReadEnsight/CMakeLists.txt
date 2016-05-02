@@ -60,6 +60,7 @@ INCLUDE_DIRECTORIES(${FLEX_INCLUDE_DIRS})
 
 USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(IO ReadEnsight ${EXTRASOURCES} ${BISONPP_CaseParser_OUTPUTS} ${FLEX_CaseScanner_OUTPUTS})
+covise_wnoerror(ReadEnsight)
 TARGET_LINK_LIBRARIES(ReadEnsight  coReader coAlg coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(ReadEnsight)

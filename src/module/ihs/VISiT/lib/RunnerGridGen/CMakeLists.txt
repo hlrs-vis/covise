@@ -59,5 +59,6 @@ ADD_DEFINITIONS("-DBL_REF -DRROUTLET_NOGAP -DRROUTLET_NOGAP -DGNUPLOT -DPARA_IN 
 
 covise_add_library(visit_runnergridgen STATIC ${EXTRASOURCES} ${SOURCES}
    ${HEADERS})
+covise_wnoerror(visit_runnergridgen)
 TARGET_LINK_LIBRARIES(visit_runnergridgen visit_general visit_bspline)
 COVISE_INSTALL_TARGET(visit_runnergridgen)

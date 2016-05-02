@@ -14,5 +14,6 @@ SET(SOURCES
   CoolEmAllServerRoom.cpp
 )
 ADD_COVISE_MODULE(Simulation CoolEmAllServerRoom ${EXTRASOURCES})
+covise_wnoerror(CoolEmAllServerRoom)
 TARGET_LINK_LIBRARIES(CoolEmAllServerRoom coApi coAppl coCore)
 COVISE_INSTALL_TARGET(CoolEmAllServerRoom)

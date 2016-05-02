@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/write_unstructured
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz WriteUnstructured ${EXTRASOURCES} )
+covise_wnoerror(WriteUnstructured)
 TARGET_LINK_LIBRARIES(WriteUnstructured coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(WriteUnstructured)

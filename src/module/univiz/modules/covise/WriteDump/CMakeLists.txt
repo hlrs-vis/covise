@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/write_dump
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz WriteDump ${EXTRASOURCES} )
+covise_wnoerror(WriteDump)
 TARGET_LINK_LIBRARIES(WriteDump coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(WriteDump)

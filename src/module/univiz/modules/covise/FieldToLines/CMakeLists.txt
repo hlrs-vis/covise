@@ -34,6 +34,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/field_to_lines
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz FieldToLines ${EXTRASOURCES} )
+covise_wnoerror(FieldToLines)
 TARGET_LINK_LIBRARIES(FieldToLines  coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(FieldToLines)

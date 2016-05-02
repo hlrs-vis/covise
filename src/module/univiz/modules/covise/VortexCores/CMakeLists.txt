@@ -38,6 +38,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/vortex_cores
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz VortexCores ${EXTRASOURCES} )
+covise_wnoerror(VortexCores)
 TARGET_LINK_LIBRARIES(VortexCores coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(VortexCores)

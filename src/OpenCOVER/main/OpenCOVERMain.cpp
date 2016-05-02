@@ -269,8 +269,14 @@ int main(int argc, char *argv[])
         std::string filename = covise::coCoviseConfig::getEntry("file", "COVER.Console");
         if (!filename.empty())
         {
-            freopen((filename + ".stderr").c_str(), "w", stderr);
-            freopen((filename + ".stdout").c_str(), "w", stdout);
+            if (!freopen((filename + ".stderr").c_str(), "w", stderr))
+            {
+                std::cerr << "error reopening stderr" << std::endl;
+            }
+            if (!freopen((filename + ".stdout").c_str(), "w", stdout))
+            {
+                std::cerr << "error reopening stdout" << std::endl;
+            }
         }
     }
 #ifdef MPI_COVER
@@ -291,8 +297,14 @@ int main(int argc, char *argv[])
             }
             else
             {
-                freopen((filename + ".stderr").c_str(), "w", stderr);
-                freopen((filename + ".stdout").c_str(), "w", stdout);
+                if (!freopen((filename + ".stderr").c_str(), "w", stderr))
+                {
+                    std::cerr << "error reopening stderr" << std::endl;
+                }
+                if (!freopen((filename + ".stdout").c_str(), "w", stdout))
+                {
+                    std::cerr << "error reopening stdout" << std::endl;
+                }
             }
         }
     }

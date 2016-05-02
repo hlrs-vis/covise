@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/FLE
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz FLE ${EXTRASOURCES} )
+covise_wnoerror(FLE)
 TARGET_LINK_LIBRARIES(FLE coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(FLE)

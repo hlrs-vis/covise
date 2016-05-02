@@ -42,6 +42,7 @@ $ENV{COVISEDIR}/src/module/univiz/modules/impl/dump_cfx
 )
 ADD_DEFINITIONS(-DCOVISE)
 ADD_COVISE_MODULE(Univiz DumpCFX ${EXTRASOURCES} )
+covise_wnoerror(DumpCFX)
 TARGET_LINK_LIBRARIES(DumpCFX coApi coAppl coCore ${CFX_LIBRARIES})
 
 COVISE_INSTALL_TARGET(DumpCFX)

@@ -5,5 +5,6 @@ SET(SOURCES
   ReadSIM2.cpp
 )
 ADD_COVISE_MODULE(HLRS ReadSim2 ${EXTRASOURCES})
+covise_wnoerror(ReadSim2)
 TARGET_LINK_LIBRARIES(ReadSim2 coApi coAppl coCore)
 COVISE_INSTALL_TARGET(ReadSim2)

@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/flow_topo
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz FlowTopo ${EXTRASOURCES} )
+covise_wnoerror(FlowTopo)
 TARGET_LINK_LIBRARIES(FlowTopo coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(FlowTopo)
