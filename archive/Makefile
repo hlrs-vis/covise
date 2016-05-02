@@ -7,7 +7,7 @@ FILESERVERDIR=/var/www/projects/covise/support/download
 RAIDSERVER=visent.hlrs.de
 RAIDDIR=/mnt/raid/var/www/support/download
 
-AUTOGENH= ${COVISEDIR}/${ARCHSUFFIX}/build.covise/src/kernel/covise/covise_version_autogen.h
+AUTOGENH= ${COVISEDIR}/${ARCHSUFFIX}/build.covise/src/kernel/util/covise_version_autogen.h
 MAJOR=`grep "COVISE_VERSION_MAJOR" <  ${AUTOGENH} |  cut -d ' ' -f 3`
 MINOR=`grep "COVISE_VERSION_MINOR" <  ${AUTOGENH} |  cut -d ' ' -f 3`
 PATCH=`grep "COVISE_VERSION_PATCH" <  ${AUTOGENH} |  cut -d ' ' -f 3`
