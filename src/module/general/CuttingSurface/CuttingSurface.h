@@ -44,9 +44,8 @@ private:
     int DataType; // 1 scalar, 0 vector
     bool Polyhedra; // use polyhedra support or not
 
-    coInputPort *p_MeshIn, *p_IsoDataIn, *p_DataIn, *p_IBlankIn;
-    coInputPort *p_IsoMinMaxIn;
-    coOutputPort *p_MeshOut, *p_DataOut, *p_NormalsOut, *p_LinesOut;
+    coInputPort *p_MeshIn, *p_DataIn, *p_IBlankIn;
+    coOutputPort *p_MeshOut, *p_DataOut, *p_NormalsOut;
 #ifdef _COMPLEX_MODULE_
     void getMinMax(const coDistributedObject *obj, float &min, float &max);
     coInputPort *p_ColorMapIn;
@@ -67,10 +66,9 @@ private:
     bool DoPostHandle;
 
     coBooleanParam *p_gennormals, *p_genstrips, *p_genDummyS;
-    coFloatParam *p_scalar, *p_offset, *p_isostart, *p_isoend;
+    coFloatParam *p_scalar;
     coFloatVectorParam *p_vertex, *p_point;
     coBooleanParam *p_skew;
-    coIntScalarParam *p_numiso;
     coChoiceParam *p_option;
 
     coFloatParam *p_vertexratio;
@@ -98,7 +96,6 @@ private:
     coDistributedObject *dummy_data(string name, int noSteps);
     coDistributedObject *dummy_normals(string name, int noSteps,
                                        float *dummyX, float *dummyY, float *dummyZ);
-    coDistributedObject *dummy_isoLines(string name, int noSteps);
     virtual void copyAttributesToOutObj(coInputPort **input_ports,
                                         coOutputPort **output_ports, int i);
     void addFeedbackParams(coDistributedObject *obj);
