@@ -95,6 +95,9 @@ bool coConfigEntry::matchingAttributes() const
     if (!matchingMaster())
         return false;
 
+    if (!matchingHost())
+        return false;
+
     if (!matchingArch())
         return false;
 
@@ -103,6 +106,34 @@ bool coConfigEntry::matchingAttributes() const
 
     return true;
 }
+
+bool coConfigEntry::matchingHost() const
+{
+    if (coConfigConstants::getHostname().isEmpty())
+        return true;
+
+    QString *host = attributes["host"];
+    if (host)
+    {
+        QStringList hosts = host->split(',', QString::SkipEmptyParts);
+        for (QStringList::iterator it = hosts.begin(); it != hosts.end(); ++it)
+        {
+            QString h = it->trimmed().toLower();
+            if (h == coConfigConstants::getHostname())
+                return true;
+            if (h.section('.', 0, 0) == coConfigConstants::getHostname())
+                return true;
+            if (h == coConfigConstants::getHostname().section('.', 0, 0))
+                return true;
+        }
+
+        COCONFIGDBG("coConfigEntry::matchingHost info: host " << *host << " not matching " << coConfigConstants::getHostname());
+        return false;
+    }
+
+    return true;
+}
+
 
 bool coConfigEntry::matchingMaster() const
 {

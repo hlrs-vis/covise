@@ -85,6 +85,7 @@ protected:
 
 private:
     bool matchingAttributes() const;
+    bool matchingHost() const;
     bool matchingMaster() const;
     bool matchingArch() const;
     bool matchingRank() const;
