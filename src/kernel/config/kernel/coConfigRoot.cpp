@@ -11,6 +11,7 @@
 #include <config/coConfigLog.h>
 #include <config/coConfigConstants.h>
 #include "coConfigRootErrorHandler.h"
+#include "coConfigTools.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -419,14 +420,40 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
             }
             else if (nodeName == "INCLUDE")
             {
-                QString filename = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getFirstChild()->getNodeValue())).trimmed();
+                QHash<QString, QString *> attributes;
+                QString arch, host, rank, master;
                 const ushort *archUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("arch")));
-                QString arch;
+                const ushort *rankUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("rank")));
+                const ushort *hostUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("host")));
+                const ushort *masterUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("master")));
                 if (archUtf16)
-                    arch = QString::fromUtf16(archUtf16);
-                if (arch.isEmpty() || coConfigConstants::getArchList().contains(arch))
                 {
+                    arch = QString::fromUtf16(archUtf16);
+                    if (!arch.isEmpty())
+                        attributes["arch"] = &arch;
+                }
+                if (rankUtf16)
+                {
+                    rank = QString::fromUtf16(rankUtf16);
+                    if (!rank.isEmpty())
+                        attributes["rank"] = &rank;
+                }
+                if (hostUtf16)
+                {
+                    host = QString::fromUtf16(hostUtf16);
+                    if (!host.isEmpty())
+                        attributes["host"] = &host;
+                }
+                if (masterUtf16)
+                {
+                    master = QString::fromUtf16(masterUtf16);
+                    if (!master.isEmpty())
+                        attributes["master"] = &master;
+                }
 
+                if (coConfigTools::matchingAttributes(attributes))
+                {
+                    QString filename = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getFirstChild()->getNodeValue())).trimmed();
                     if (!included.contains(filename))
                     {
                         COCONFIGDBG("coConfigRoot::setContentsFromDom info: INCLUDE:  filename: " << filename);
