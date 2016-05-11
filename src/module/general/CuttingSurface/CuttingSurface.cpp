@@ -104,10 +104,6 @@ CuttingSurfaceModule::CuttingSurfaceModule(int argc, char *argv[])
     p_MeshIn = addInputPort("GridIn0", "UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid", "input mesh");
     p_DataIn = addInputPort("DataIn0", "Byte|Float|Vec3", "input data");
     p_DataIn->setRequired(1);
-    p_IsoDataIn = addInputPort("DataIn1", "Float", "Data for isolines");
-    p_IsoDataIn->setRequired(0);
-    p_IsoMinMaxIn = addInputPort("DataIn2", "MinMax_Data", "MinMax values for isolines");
-    p_IsoMinMaxIn->setRequired(0);
     p_IBlankIn = addInputPort("DataIn3", "Text", "this char Array marks cells to be processed or not");
     p_IBlankIn->setRequired(0);
 #ifdef _COMPLEX_MODULE_
@@ -123,8 +119,6 @@ CuttingSurfaceModule::CuttingSurfaceModule(int argc, char *argv[])
     p_MeshOut = addOutputPort("GridOut0", "Polygons|TriangleStrips", "Cuttingplane");
     p_DataOut = addOutputPort("DataOut0", "Float|Vec3", "interpolated data");
     p_NormalsOut = addOutputPort("DataOut1", "Vec3", "Surface normals");
-
-    p_LinesOut = addOutputPort("DataOut2", "Lines", "Isolines");
 
     p_vertex = addFloatVectorParam("vertex", "Normal of cuttingplane, center of sphere or point on cylinder axis");
     p_vertex->setValue(1., 0., 0.);
@@ -150,18 +144,6 @@ CuttingSurfaceModule::CuttingSurfaceModule(int argc, char *argv[])
 
     p_genDummyS = addBooleanParam("genDummyS", "generate a dummy surface if the object hasn't been cut");
     p_genDummyS->setValue(1);
-
-    p_offset = addFloatParam("offset", "Offset of the isolines");
-    p_offset->setValue(.1f);
-
-    p_numiso = addInt32Param("numiso", "Number of isolines");
-    p_numiso->setValue(0);
-
-    p_isostart = addFloatParam("isostart", "First isovalue");
-    p_isostart->setValue(.0);
-
-    p_isoend = addFloatParam("isoend", "Last isovalue");
-    p_isoend->setValue(.1f);
 
 #ifdef _COMPLEX_MODULE_
     p_color_or_texture = addBooleanParam("color_or_texture", "colors or texture");
@@ -671,35 +653,6 @@ CuttingSurfaceModule::dummy_data(string name, int noSteps)
 }
 
 coDistributedObject *
-CuttingSurfaceModule::dummy_isoLines(string name, int noSteps)
-{
-    if (name == "")
-        return NULL;
-    string polyName = name;
-    if (noSteps > 0)
-    {
-        polyName += "_dummy";
-    }
-    coDistributedObject *dummy = new coDoLines(polyName.c_str(), 0, 0, 0);
-    if (noSteps > 0)
-    {
-        coDistributedObject **list = new coDistributedObject *[noSteps + 1];
-        list[noSteps] = NULL;
-        list[0] = dummy;
-        int i;
-        for (i = 1; i < noSteps; ++i)
-        {
-            list[i] = dummy;
-            dummy->incRefCount();
-        }
-        coDoSet *set = new coDoSet(name.c_str(), list);
-        delete[] list;
-        return set;
-    }
-    return dummy;
-}
-
-coDistributedObject *
 CuttingSurfaceModule::dummy_tr_strips(string name, int noSteps,
                                       float **dummyX, float **dummyY, float **dummyZ)
 {
@@ -763,12 +716,8 @@ CuttingSurfaceModule::addFeedbackParams(coDistributedObject *obj)
         feedback.addPara(p_genstrips);
         feedback.addPara(p_genDummyS);
         feedback.addPara(p_scalar);
-        feedback.addPara(p_offset);
-        feedback.addPara(p_isostart);
-        feedback.addPara(p_isoend);
         feedback.addPara(p_vertex);
         feedback.addPara(p_point);
-        feedback.addPara(p_numiso);
         feedback.addPara(p_option);
 #ifdef _COMPLEX_MODULE_
         feedback.addPara(p_scale);
@@ -903,13 +852,11 @@ CuttingSurfaceModule::postHandleObjects(coOutputPort **outPorts)
             attributeContainer *meshOutAttr = new attributeContainer(outPorts[0 + shiftOut]->getCurrentObject());
             attributeContainer *dataOutAttr = new attributeContainer(outPorts[1 + shiftOut]->getCurrentObject());
             attributeContainer *normalsOutAttr = new attributeContainer(outPorts[2 + shiftOut]->getCurrentObject());
-            attributeContainer *linesOutAttr = new attributeContainer(outPorts[3 + shiftOut]->getCurrentObject());
 
             // and destroy invisible objects
             meshOutAttr->clean();
             dataOutAttr->clean();
             normalsOutAttr->clean();
-            linesOutAttr->clean();
 
             // now we may create dummy polygons (or tri-strips)
             coDistributedObject *dummy = NULL;
@@ -949,15 +896,10 @@ CuttingSurfaceModule::postHandleObjects(coOutputPort **outPorts)
                                                               normalsOutAttr->timeSteps(),
                                                               dummyX, dummyY, dummyZ);
             normalsOutAttr->addAttributes(dummyNormals, vector<pair<string, string> >());
-            // now we may create dummy isolines
-            coDistributedObject *dummyIsoLines = dummy_isoLines(linesOutAttr->dummyName(),
-                                                                linesOutAttr->timeSteps());
-            linesOutAttr->addAttributes(dummyIsoLines, vector<pair<string, string> >());
 
             delete meshOutAttr;
             delete dataOutAttr;
             delete normalsOutAttr;
-            delete linesOutAttr;
 
             outPorts[0 + shiftOut]->setCurrentObject(dummy);
 #ifndef _COMPLEX_MODULE_ // in the complex case, only for scalar data
@@ -965,7 +907,6 @@ CuttingSurfaceModule::postHandleObjects(coOutputPort **outPorts)
 #endif
             outPorts[1 + shiftOut]->setCurrentObject(dummyData);
             outPorts[2 + shiftOut]->setCurrentObject(dummyNormals);
-            outPorts[3 + shiftOut]->setCurrentObject(dummyIsoLines);
         }
     }
 #ifdef _COMPLEX_MODULE_
@@ -1221,12 +1162,8 @@ int CuttingSurfaceModule::compute(const char *)
     const char *GridOut = p_MeshOut->getObjName();
     const char *NormalsOut = p_NormalsOut->getObjName();
     const char *DataOut = p_DataOut->getObjName();
-    const char *LinesOut = p_LinesOut->getObjName();
 
     //	get parameter
-
-    float startiso, endiso;
-    int numiso;
 
     float planei, planej, planek;
     float startx, starty, startz;
@@ -1263,14 +1200,6 @@ int CuttingSurfaceModule::compute(const char *)
     gennormals = p_gennormals->getValue();
     genstrips = p_genstrips->getValue();
 
-    numiso = p_numiso->getValue();
-    if (numiso == 1 || numiso < 0)
-    {
-        Covise::sendInfo("numiso may be 0 or a positive number larger than 1: using 2");
-        numiso = 2;
-    }
-
-    float offset = p_offset->getValue();
     radius = myDistance;
     if (param_option == 0)
     {
@@ -1315,13 +1244,8 @@ int CuttingSurfaceModule::compute(const char *)
     const coDistributedObject *grid_object;
     const coDistributedObject *data_object;
     const coDistributedObject *iblank_object;
-    const coDistributedObject *i_data_object;
-    const coDistributedObject *minmax_object;
-
-    coDistributedObject *obj_LinesOut = NULL;
 
     int numelem = 0, numconn, numcoord = 0, data_anz = 0, idata_anz = 0;
-    Isoline *isoline = NULL;
 
     float x_min, x_max, y_min, y_max, z_min, z_max;
     Plane *plane = NULL;
@@ -1351,12 +1275,9 @@ int CuttingSurfaceModule::compute(const char *)
     grid_object = p_MeshIn->getCurrentObject();
     data_object = p_DataIn->getCurrentObject();
     iblank_object = p_IBlankIn->getCurrentObject();
-    i_data_object = p_IsoDataIn->getCurrentObject();
-    minmax_object = p_IsoMinMaxIn->getCurrentObject();
 
     AttributeContainer gridAttrs(grid_object);
     AttributeContainer dataAttrs(data_object);
-    AttributeContainer idataAttrs(i_data_object);
 
     if (iblank_object)
     {
@@ -1464,8 +1385,6 @@ int CuttingSurfaceModule::compute(const char *)
             p_DataOut->setCurrentObject(0);
             if (gennormals)
                 p_NormalsOut->setCurrentObject(0);
-            if (numiso)
-                p_LinesOut->setCurrentObject(0);
             return CONTINUE_PIPELINE;
         }
     }
@@ -1475,65 +1394,8 @@ int CuttingSurfaceModule::compute(const char *)
         return -1;
     }
 
-    //  interval for isolines
-    if (minmax_object)
-    {
-        minmax_data_in = dynamic_cast<const coDoFloat *>(minmax_object);
-        if (minmax_data_in)
-        {
-            int numVal = minmax_data_in->getNumPoints();
-            if (numVal != 2)
-            {
-                sendError("Illegal input at minmax port");
-                return FAIL;
-            }
-            float *mmdata;
-            minmax_data_in->getAddress(&mmdata);
-            p_isostart->setValue(mmdata[0]);
-            p_isoend->setValue(mmdata[1]);
-        }
-        else
-        {
-            sendError("Data object 'isoMinMaxIn' has wrong data type (only scalar data supported)");
-            DoPostHandle = false;
-            return -1;
-        }
-    }
-
-    startiso = p_isostart->getValue();
-    endiso = p_isoend->getValue();
-
     //	retrieve Iso data object from shared memeory
     i_in = NULL; // if no isodata given use normal data
-
-    if (i_data_object)
-    {
-        ui_data_in = dynamic_cast<const coDoFloat *>(i_data_object);
-        if (ui_data_in)
-        {
-            idata_anz = ui_data_in->getNumPoints();
-            ui_data_in->getAddress(&i_in);
-        }
-        else
-        {
-            sendError("Data object 'dataIn' has wrong data type (only scalar data supported)");
-            DoPostHandle = false;
-            return -1;
-        }
-        if (idata_anz == 0)
-        {
-            sendWarning("Data object at the port '%s' is empty", p_IsoDataIn->getName());
-        }
-        else
-        {
-            if (idata_anz != data_anz)
-            {
-                DoPostHandle = false;
-                sendError("Data object '%s' and '%s' have different size", p_DataIn->getName(), p_IsoDataIn->getName());
-                return -1;
-            }
-        }
-    }
 
     if (data_anz != numcoord)
     {
@@ -1615,31 +1477,10 @@ int CuttingSurfaceModule::compute(const char *)
         plane = splane;
     }
 
-    //// prevent crash: if we can't create isolines, we don't do it
-    if (!plane || !i_in)
-        numiso = 0;
-
-    if (numiso)
-    {
-        isoline = new Isoline(plane, numiso, offset, param_option, planei, planej, planek);
-    }
-
-    for (int i = 0; i < numiso; i++)
-    {
-        isoline->createIsoline(startiso + i * (endiso - startiso) / (numiso - 1));
-        isoline->sortIsoline();
-    }
-
     if (DataType)
         plane->createcoDistributedObjects(DataOut, NULL, NormalsOut, GridOut, gridAttrs, dataAttrs);
     else
         plane->createcoDistributedObjects(NULL, DataOut, NormalsOut, GridOut, gridAttrs, dataAttrs);
-
-    if (numiso)
-    {
-        isoline->createcoDistributedObjects(LinesOut, &obj_LinesOut,
-                                            0, idataAttrs);
-    }
 
     if (genstrips)
         p_MeshOut->setCurrentObject(plane->get_obj_strips());
@@ -1651,9 +1492,6 @@ int CuttingSurfaceModule::compute(const char *)
         p_DataOut->setCurrentObject(plane->get_obj_scalar());
     else
         p_DataOut->setCurrentObject(plane->get_obj_vector());
-
-    if (numiso)
-        p_LinesOut->setCurrentObject(obj_LinesOut);
 
     if (grid_in)
     {
@@ -1670,11 +1508,6 @@ int CuttingSurfaceModule::compute(const char *)
     if (sgrid_in)
     {
         delete splane;
-    }
-
-    if (numiso)
-    {
-        delete isoline;
     }
 
     return CONTINUE_PIPELINE;

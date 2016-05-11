@@ -14,5 +14,6 @@ SET(SOURCES
   points.cpp
 )
 ADD_COVISE_MODULE(HLRS archflow ${EXTRASOURCES})
+covise_wnoerror(archflow)
 TARGET_LINK_LIBRARIES(archflow coApi coAppl coCore)
 COVISE_INSTALL_TARGET(archflow)

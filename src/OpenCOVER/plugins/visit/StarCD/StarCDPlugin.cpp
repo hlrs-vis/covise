@@ -26,12 +26,12 @@
 #include <osg/StateSet>
 #include <osg/Material>
 
-#include <kernel/coVRPluginSupport.h>
-#include <kernel/coInteractor.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/coInteractor.h>
 
 #include "StarCDPlugin.h"
 
-#include <kernel/RenderObject.h>
+#include <cover/RenderObject.h>
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 
 using std::cerr;
@@ -46,7 +46,7 @@ void StarCDPlugin::newInteractor(RenderObject *, coInteractor *i)
    const char *moduleName = i->getModuleName();
    if (strcmp(moduleName, "StarCD") == 0)
    {
-      pluginObjectList.append(new PluginObject(i->getObject()));
+      pluginObjectList.push_back(new PluginObject(i->getObject()));
       getFeedbackInfo(i);
    }
 }
@@ -71,7 +71,7 @@ void StarCDPlugin::addObject(RenderObject *,
       if (geomobj->getAttribute("LABEL"))
       {
          fprintf(stderr,"found plot data\n");
-         pluginObjectList.append(new PluginObject(geomobj));
+         pluginObjectList.push_back(new PluginObject(geomobj));
          delete[] residualObjectName;
          residualObjectName = new char[strlen(geomobj->getName())+1];
          strcpy(residualObjectName,geomobj->getName());
@@ -86,64 +86,62 @@ void StarCDPlugin::removeObject(const char *objName, bool r)
 {
 
    cerr << "StarCD::coVRRemoveObject info: removing " << objName << endl;
-   pluginObjectList.reset();
-   while (pluginObjectList.current())
+   for (PluginObjectList::iterator it = pluginObjectList.begin(), next;
+           it != pluginObjectList.end();
+           it = next)
    {
-      if (strcmp(pluginObjectList.current()->objName, objName) == 0)
-      {
-
-         pluginObjectList.remove();
-         if (residualObjectName && (strcmp(objName,residualObjectName) == 0 ))
-            removeResidualMenu();
-         else
-         {
-            getRemoveObjectInfo(objName, r);
-            break;
-         }
-
-      }
-      pluginObjectList.next();
+       next = it+1;
+       PluginObject *p = *it;
+       if (strcmp(p->objName, objName) == 0)
+       {
+           pluginObjectList.erase(it);
+           if (residualObjectName && (strcmp(objName,residualObjectName) == 0 ))
+               removeResidualMenu();
+           else
+           {
+               getRemoveObjectInfo(objName, r);
+               break;
+           }
+       }
    }
-
 }
 
 
 void StarCDPlugin::addNode(osg::Node * node, RenderObject * obj)
 {
-
    cerr << "StarCD::coVRAddNode info: adding node " << obj->getName() << endl;
-   pluginObjectList.reset();
-   while (pluginObjectList.current())
+   for (PluginObjectList::iterator it = pluginObjectList.begin();
+           it != pluginObjectList.end();
+           ++it)
    {
-      if (pluginObjectList.current()->dobj == obj)
-      {
-         pluginObjectList.current()->node = node;
-         getAddNodeInfo(node, obj);
-         break;
-      }
-      pluginObjectList.next();
+       PluginObject *p = *it;
+       if (p->dobj == obj)
+       {
+           p->node = node;
+           getAddNodeInfo(node, obj);
+           break;
+       }
    }
-
 }
 
 
 void StarCDPlugin::removeNode(osg::Node * node, bool /*isGroup*/, osg::Node * /*realNode*/)
 {
-   pluginObjectList.reset();
-   while (pluginObjectList.current())
+   for (PluginObjectList::iterator it = pluginObjectList.begin();
+           it != pluginObjectList.end();
+           ++it)
    {
-      if (pluginObjectList.current()->node == node)
+       PluginObject *p = *it;
+      if (p->node == node)
       {
          cerr << "StarCD::coVRRemoveNode info: removing node "
               << node->asGroup()->getChild(0)->getName().c_str() << endl;
 
-         pluginObjectList.current()->node = 0;
+         p->node = NULL;
          getRemoveNodeInfo(node);
          break;
       }
-      pluginObjectList.next();
    }
-
 }
 
 
@@ -425,7 +423,7 @@ void StarCDPlugin::getFeedbackInfo(coInteractor *inter)
    {
 
       // check if it is the set
-      if (inter->getObject()->isType("SETELE"))
+      if (inter->getObject()->isSet())
       {
          if (debug)
             fprintf(stderr,"\nStarCDPlugin::getFeedbackInfo for the SET\n");

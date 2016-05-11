@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/ridge_surface
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz RidgeSurface ${EXTRASOURCES} )
+covise_wnoerror(RidgeSurface)
 TARGET_LINK_LIBRARIES(RidgeSurface coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(RidgeSurface)

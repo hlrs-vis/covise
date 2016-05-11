@@ -605,7 +605,7 @@ int RWCoviseGroup::compute(const char *)
                 if (obj && i == 0)
                 {
                     // Create file browser feedback
-                    coFeedback feedback("FileBrowser");
+                    coFeedback feedback("FileBrowserParam");
                     feedback.addPara(p_groupFile);
                     feedback.apply(obj);
                 }

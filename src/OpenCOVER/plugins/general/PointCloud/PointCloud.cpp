@@ -232,7 +232,10 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
             int numHeaderLines = 0;
             while (!feof(fp))
             {
-                fgets(buf, 1000, fp);
+                if (!fgets(buf, 1000, fp))
+                {
+                    fprintf(stderr, "failed to get line\n");
+                }
                 if (buf[0] == '#')
                 {
                     if (strstr(buf, "intensityOnly") != NULL)
@@ -269,7 +272,10 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
             fseek(fp, 0, SEEK_SET);
             for (int i = 0; i < numHeaderLines; i++)
             {
-                fgets(buf, 1000, fp);
+                if (!fgets(buf, 1000, fp))
+                {
+                    fprintf(stderr, "failed to get header line %d\n", i);
+                }
             }
 
             cerr << "Total num of points is " << psize << endl;
@@ -297,7 +303,10 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
             int i = 0;
             while (!feof(fp))
             {
-                fgets(buf, 1000, fp);
+                if (!fgets(buf, 1000, fp))
+                {
+                    fprintf(stderr, "failed 2 to get line\n");
+                }
                 if (imwfLattice)
                 {
                     int id=0;

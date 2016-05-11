@@ -14,6 +14,7 @@
 #include <config/coConfigSchemaInfos.h>
 #include "coConfigSchema.h"
 #include "coConfigXercesEntry.h"
+#include "coConfigTools.h"
 
 using namespace covise;
 
@@ -92,103 +93,7 @@ void coConfigEntry::entryChanged()
 
 bool coConfigEntry::matchingAttributes() const
 {
-    if (!matchingMaster())
-        return false;
-
-    if (!matchingArch())
-        return false;
-
-    if (!matchingRank())
-        return false;
-
-    return true;
-}
-
-bool coConfigEntry::matchingMaster() const
-{
-    if (coConfigConstants::getMaster().isEmpty())
-        return true;
-
-    QString *master = attributes["master"];
-    if (master)
-    {
-        QStringList masters = master->split(',', QString::SkipEmptyParts);
-        for (QStringList::iterator it = masters.begin(); it != masters.end(); ++it)
-        {
-            QString m = it->trimmed().toLower();
-            if (m == coConfigConstants::getMaster())
-                return true;
-            if (m.section('.', 0, 0) == coConfigConstants::getMaster())
-                return true;
-            if (m == coConfigConstants::getMaster().section('.', 0, 0))
-                return true;
-        }
-
-        COCONFIGDBG("coConfigEntry::matchingMaster info: master " << *master << " not matching " << coConfigConstants::getMaster());
-        return false;
-    }
-
-    return true;
-}
-
-bool coConfigEntry::matchingArch() const
-{
-    QString *arch = attributes["arch"];
-
-    if (arch && !coConfigConstants::getArchList().contains(*arch))
-    {
-        COCONFIGDBG("coConfigEntry::matchingArch info: arch " << *arch << " not matching");
-        return false;
-    }
-
-    return true;
-}
-
-bool coConfigEntry::matchingRank() const
-{
-    QString *rank = attributes["rank"];
-    if (!rank)
-        return true;
-
-    bool match = false;
-    QString r = rank->simplified();
-    QStringList ranges = r.split(",");
-    for (size_t i =0; i<ranges.size(); ++i)
-    {
-        QString range = ranges[i].simplified();
-        if (range == "-1" || range.toLower() == "all" || range.toLower() == "any")
-        {
-            match = true;
-        }
-        else if (range.contains("-"))
-        {
-            QStringList ext = range.split("-");
-            if (ext.size() != 2)
-            {
-                COCONFIGDBG("coConfigEntry::matchingRank info: cannot parse range of ranks " << range);
-            }
-            else if (coConfigConstants::getRank() < ext[0].toInt() || coConfigConstants::getRank() > ext[1].toInt())
-            {
-                COCONFIGDBG("coConfigEntry::matchingRank info: range of ranks " << range << " not matching");
-            }
-            else
-            {
-                match = true;
-            }
-        }
-        else
-        {
-            if (coConfigConstants::getRank() == range.toInt())
-                match = true;
-        }
-    }
-
-    if (!match)
-    {
-        COCONFIGDBG("coConfigEntry::matchingRank info: rank " << *rank << " not matching");
-    }
-
-    return match;
+    return coConfigTools::matchingAttributes(attributes);
 }
 
 xercesc::DOMNode *coConfigXercesEntry::storeToDom(xercesc::DOMDocument &document, int indent)

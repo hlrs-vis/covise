@@ -612,7 +612,10 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
 	float sh = 1.0;
         while(!feof(fp))
         {
-            fgets(buf,500,fp);
+            if (!fgets(buf,500,fp))
+            {
+                std::cerr << "failed 1 to read line from " << fileName << std::endl;
+            }
             if(strncmp(buf,"ORTHO_LEFT",10)==0)
             {
                 sscanf(buf+10,"%f", &ortholeft);
@@ -633,7 +636,10 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
                 float vx,vy,brightness,tx,ty;
                 for(int i=0;i<numVert;i++)
                 {
-                    fgets(buf,500,fp);
+                    if (!fgets(buf,500,fp))
+                    {
+                        std::cerr << "failed 2 to read line from " << fileName << std::endl;
+                    }
                     sscanf(buf,"%f %f %f %f %f",&vx,&vy,&brightness,&tx, &ty);
                     positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,1.0-(vy/NATIVEYRES),0));
                     textureArray->push_back(osg::Vec2f((tx-ortholeft)*sh,ty));
@@ -642,7 +648,10 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
                 int tr[3];
                 for(int i=0;i<numFaces;i++)
                 {
-                    fgets(buf,500,fp);
+                    if (!fgets(buf,500,fp))
+                    {
+                        std::cerr << "failed 3 to read line from " << fileName << std::endl;
+                    }
                     sscanf(buf,"[ %d %d %d",&tr[0],&tr[1],&tr[2]);
                     indexArray->push_back(tr[0]);
                     indexArray->push_back(tr[1]);

@@ -41,29 +41,10 @@ public:
     ~fluentFile();
     int open(const char *fileName);
     void close();
-    char getChar()
-    {
-        if (numback)
-        {
-            return bBuf[--numback];
-        }
-        if (currentChar > lastChar)
-            fillBuf();
-        return *currentChar++;
-    };
-    void putBack(char c)
-    {
-        bBuf[numback] = c;
-        numback++;
-    };
+    char getChar();
+    void putBack(char c);
     int fillBuf();
-    int eof()
-    {
-        if (lastChar == buf - 1)
-            return 1;
-        else
-            return 0;
-    };
+    int eof();
     int getSection();
     int skipSection();
     int nextSubSection();
@@ -74,7 +55,7 @@ public:
     void readBin(float &);
     void readBin(double &);
     void readBin(int &);
-    int readString(char *);
+    int readString(char *, int maxlen);
     int getCurrentSection()
     {
         return currentSection;
@@ -394,52 +375,52 @@ static const char *FluentVarNames[] = {
     "CELL_DATA_FVAR2_M2", //  147
     "CELL_DATA_PREMIXC_M1", //  148
     "CELL_DATA_PREMIXC_M2", //  149
-    "CELL_DATA_150", //  150
-    "CELL_DATA_151", //  151
-    "CELL_DATA_152", //  152
-    "CELL_DATA_153", //  153
-    "CELL_DATA_154", //  154
+    "VOF", //  150
+    "VOF_1", //  151
+    "VOF_2", //  152
+    "VOF_3", //  153
+    "VOF_4", //  154
     "CELL_DATA_155", //  155
     "CELL_DATA_156", //  156
     "CELL_DATA_157", //  157
     "CELL_DATA_158", //  158
     "CELL_DATA_159" //  159
-    "CELL_DATA_160", //  160
-    "CELL_DATA_161", //  161
-    "CELL_DATA_162", //  162
-    "CELL_DATA_163", //  163
-    "CELL_DATA_164", //  164
+    "VOF_M1", //  160
+    "VOF_1_M1", //  161
+    "VOF_2_M1", //  162
+    "VOF_3_M1", //  163
+    "VOF_4_M1", //  164
     "CELL_DATA_165", //  165
     "CELL_DATA_166", //  166
     "CELL_DATA_167", //  167
     "CELL_DATA_168", //  168
     "CELL_DATA_169" //  169
-    "CELL_DATA_170", //  170
-    "CELL_DATA_171", //  171
-    "CELL_DATA_172", //  172
-    "CELL_DATA_173", //  173
-    "CELL_DATA_174", //  174
+    "VOF_M2", //  170
+    "VOF_1_M2", //  171
+    "VOF_2_M2", //  172
+    "VOF_3_M2", //  173
+    "VOF_4_M2", //  174
     "CELL_DATA_175", //  175
     "CELL_DATA_176", //  176
     "CELL_DATA_177", //  177
     "CELL_DATA_178", //  178
     "CELL_DATA_179" //  179
-    "CELL_DATA_180", //  180
-    "CELL_DATA_181", //  181
-    "CELL_DATA_182", //  182
-    "CELL_DATA_183", //  183
-    "CELL_DATA_184", //  184
-    "CELL_DATA_185", //  185
-    "CELL_DATA_186", //  186
-    "CELL_DATA_187", //  187
-    "CELL_DATA_188", //  188
+    "VOLUME_M2", //  180
+    "WALL_GRID_VELOCITY", //  181
+    "POLLUT7", //  182
+    "POLLUT8", //  183
+    "POLLUT9", //  184
+    "POLLUT10", //  185
+    "POLLUT11", //  186
+    "POLLUT12", //  187
+    "POLLUT13", //  188
     "CELL_DATA_189" //  189
-    "CELL_DATA_190", //  190
-    "CELL_DATA_191", //  191
-    "CELL_DATA_192", //  192
-    "CELL_DATA_193", //  193
-    "CELL_DATA_194", //  194
-    "CELL_DATA_195", //  195
+    "SV_T_AUX", //  190
+    "SV_T_AP_AUX", //  191
+    "TOTAL_PRESSURE", //  192
+    "TOTAL_TEMPERATURE", //  193
+    "NRBC_DC", //  194
+    "DP_TMFR", //  195
     "CELL_DATA_196", //  196
     "CELL_DATA_197", //  197
     "CELL_DATA_198", //  198

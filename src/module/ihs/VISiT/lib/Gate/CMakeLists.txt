@@ -32,5 +32,6 @@ SET(SOURCES
 )
 ADD_DEFINITIONS("-DGATE")
 covise_add_library(visit_gate STATIC ${EXTRASOURCES} ${SOURCES} ${HEADERS})
+covise_wnoerror(visit_gate)
 TARGET_LINK_LIBRARIES(visit_gate)
 COVISE_INSTALL_TARGET(visit_gate)

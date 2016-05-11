@@ -35,6 +35,7 @@ SET(SOURCES
 )
 
 ADD_COVISE_MODULE(Renderer WebGL  ${WSI_RESOURCE_FILES})
+covise_wnoerror(WebGL)
 # setup what we need from Qt
 qt_use_modules(WebGL Widgets)
 

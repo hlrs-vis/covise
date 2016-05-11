@@ -1,4 +1,4 @@
-enable_language(Fortran)
+using(Fortran)
 
 SET(HEADERS
   SGen_ihs.h

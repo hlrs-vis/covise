@@ -1,4 +1,4 @@
-enable_language(Fortran)
+USING(Fortran)
 
 INCLUDE_DIRECTORIES(
 ../lib

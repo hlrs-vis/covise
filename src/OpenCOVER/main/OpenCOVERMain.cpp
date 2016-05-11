@@ -126,6 +126,11 @@ int main(int argc, char *argv[])
             MPI_Init(&argc, &argv);
         forceMpi = true;
         MPI_Comm_rank(MPI_COMM_WORLD, &myID);
+        int len = mastername.size();
+        MPI_Bcast(&len, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        if (myID != 0)
+            mastername.resize(len);
+        MPI_Bcast(&mastername[0], len, MPI_BYTE, 0, MPI_COMM_WORLD);
 #else
         std::cerr << "OpenCOVER: not compiled with MPI support" << std::endl;
         exit(1);
@@ -269,8 +274,14 @@ int main(int argc, char *argv[])
         std::string filename = covise::coCoviseConfig::getEntry("file", "COVER.Console");
         if (!filename.empty())
         {
-            freopen((filename + ".stderr").c_str(), "w", stderr);
-            freopen((filename + ".stdout").c_str(), "w", stdout);
+            if (!freopen((filename + ".stderr").c_str(), "w", stderr))
+            {
+                std::cerr << "error reopening stderr" << std::endl;
+            }
+            if (!freopen((filename + ".stdout").c_str(), "w", stdout))
+            {
+                std::cerr << "error reopening stdout" << std::endl;
+            }
         }
     }
 #ifdef MPI_COVER
@@ -291,8 +302,14 @@ int main(int argc, char *argv[])
             }
             else
             {
-                freopen((filename + ".stderr").c_str(), "w", stderr);
-                freopen((filename + ".stdout").c_str(), "w", stdout);
+                if (!freopen((filename + ".stderr").c_str(), "w", stderr))
+                {
+                    std::cerr << "error reopening stderr" << std::endl;
+                }
+                if (!freopen((filename + ".stdout").c_str(), "w", stdout))
+                {
+                    std::cerr << "error reopening stdout" << std::endl;
+                }
             }
         }
     }

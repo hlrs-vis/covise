@@ -37,6 +37,7 @@ ${COVISEDIR}/src/module/univiz/modules/impl/statistics
 ADD_DEFINITIONS(-DCOVISE)
 
 ADD_COVISE_MODULE(Univiz Statistics ${EXTRASOURCES} )
+covise_wnoerror(Statistics)
 TARGET_LINK_LIBRARIES(Statistics coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(Statistics)

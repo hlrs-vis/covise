@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 
 int bigEndian = 1;
+const int MaxVert = 6;
 
 Fluent::Fluent(int argc, char *argv[])
     : coModule(argc, argv, "Read Fluent data")
@@ -242,11 +243,11 @@ int Fluent::compute(const char *)
     {
         if ((facetype[i] == 3) || (facetype[i] == 1003)) // face is a wall
         {
-            vl[pl[numWalls] + 2] = vertices[i * 4 + 2] - 1;
-            vl[pl[numWalls] + 1] = vertices[i * 4 + 1] - 1;
-            vl[pl[numWalls] + 0] = vertices[i * 4 + 0] - 1;
+            vl[pl[numWalls] + 2] = vertices[i * MaxVert + 2] - 1;
+            vl[pl[numWalls] + 1] = vertices[i * MaxVert + 1] - 1;
+            vl[pl[numWalls] + 0] = vertices[i * MaxVert + 0] - 1;
             if (typelist[i] == 4)
-                vl[pl[numWalls] + 3] = vertices[i * 4 + 3] - 1;
+                vl[pl[numWalls] + 3] = vertices[i * MaxVert + 3] - 1;
             n += typelist[i];
             numWalls++;
         }
@@ -267,7 +268,7 @@ int Fluent::compute(const char *)
 
     if (isTetOnly())
     {
-        sendInfo("buliding Tetrahedra Mesh!");
+        sendInfo("buliding tetrahedra mesh with %d cells!", numCells);
         cellvl = new int[numCells * 4];
 
         for (i = 0; i < numCells * 4; i++)
@@ -319,7 +320,7 @@ int Fluent::compute(const char *)
     }
     else
     {
-        sendInfo("buliding mixed element mesh!");
+        sendInfo("buliding mixed element mesh with %d cells!", numCells);
         //freeElements.noDelete = 1;
         elementTypeList = new int[numCells];
         Elements = new Element *[numCells];
@@ -379,7 +380,7 @@ int Fluent::compute(const char *)
         for (i = 0; i < numElements; ++i)
         {
             if (Elements[i] != (Element *)0x1)
-            {
+           {
                 delete Elements[i];
             }
         }
@@ -1215,12 +1216,12 @@ int Element::checkTet()
 int Element::addFace(int *vertices, int face, int type, int side)
 {
 
-    if ((type != 3) && (type != 4) && (type != 2))
+    if ((type != 3) && (type != 4) && (type != 2) && (type != 5))
     {
         fprintf(stderr, "Element::addFace(..) got unknown type of face: %d\n", type);
         return 0;
     }
-    int *v = vertices + (face * 4);
+    int *v = vertices + (face * MaxVert);
 
     if (side) // right side
     {
@@ -1240,6 +1241,9 @@ int Element::addFace(int *vertices, int face, int type, int side)
             quads[numQuads][3] = v[3] - 1;
             numQuads++;
         }
+        if (type == 5)
+        {
+        }
     }
     else // left side
     {
@@ -1258,6 +1262,9 @@ int Element::addFace(int *vertices, int face, int type, int side)
             quads[numQuads][2] = v[2] - 1;
             quads[numQuads][3] = v[1] - 1;
             numQuads++;
+        }
+        if (type == 5)
+        {
         }
     }
 
@@ -1350,27 +1357,27 @@ void Fluent::addTriangle(int face, int cell)
     int v;
     if (cellvl[ci] == -1) // first triangle of Tetr.
     {
-        cellvl[ci] = vertices[face * 4] - 1;
-        cellvl[ci + 1] = vertices[face * 4 + 1] - 1;
-        cellvl[ci + 2] = vertices[face * 4 + 2] - 1;
+        cellvl[ci] = vertices[face * MaxVert] - 1;
+        cellvl[ci + 1] = vertices[face * MaxVert + 1] - 1;
+        cellvl[ci + 2] = vertices[face * MaxVert + 2] - 1;
     }
     else if (cellvl[ci + 3] == -1)
     {
-        v = vertices[face * 4] - 1;
+        v = vertices[face * MaxVert] - 1;
         if ((cellvl[ci] != v) && (cellvl[ci + 1] != v) && (cellvl[ci + 2] != v))
         {
             cellvl[ci + 3] = v;
         }
         else
         {
-            v = vertices[face * 4 + 1] - 1;
+            v = vertices[face * MaxVert + 1] - 1;
             if ((cellvl[ci] != v) && (cellvl[ci + 1] != v) && (cellvl[ci + 2] != v))
             {
                 cellvl[ci + 3] = v;
             }
             else
             {
-                v = vertices[face * 4 + 2] - 1;
+                v = vertices[face * MaxVert + 2] - 1;
                 if ((cellvl[ci] != v) && (cellvl[ci + 1] != v) && (cellvl[ci + 2] != v))
                 {
                     cellvl[ci + 3] = v;
@@ -1462,7 +1469,7 @@ Fluent::readFile(const char *fileName)
         }
         break;
         case 0: // comment
-            file.readString(tmpBuf);
+            file.readString(tmpBuf, sizeof(tmpBuf));
             sendInfo("%s", tmpBuf);
             file.skipSection();
             break;
@@ -1773,7 +1780,7 @@ Fluent::readFile(const char *fileName)
             file.readHex(firstIndex);
             file.readHex(lastIndex);
             file.readHex(type);
-            file.readDez(globalElementType);
+            file.readHex(globalElementType);
 
             // 				    cerr << "Zone "
             // 					 << zoneID << " fi " << firstIndex << " li " << lastIndex
@@ -1789,7 +1796,7 @@ Fluent::readFile(const char *fileName)
                 delete[] faceFlag;
                 delete[] leftNeighbor;
                 delete[] rightNeighbor;
-                vertices = new int[numFaces * 4];
+                vertices = new int[numFaces * MaxVert];
                 typelist = new int[numFaces];
                 facetype = new int[numFaces];
                 faceFlag = new char[numFaces];
@@ -1812,7 +1819,7 @@ Fluent::readFile(const char *fileName)
                     file.endSubSection();
                     file.nextSubSection();
 
-                    if (globalElementType != 0)
+                    if (globalElementType != 0 && globalElementType != 5)
                     {
                         for (i = firstIndex - 1; i < lastIndex; i++)
                         {
@@ -1823,7 +1830,7 @@ Fluent::readFile(const char *fileName)
                                 faceFlag[i] = 1; // this is a face from nonconformal
                             }
                             for (n = 0; n < globalElementType; n++)
-                                file.readHex(vertices[i * 4 + n]);
+                                file.readHex(vertices[i * MaxVert + n]);
                             //neighborCells
                             file.readHex(leftNeighbor[i]);
                             file.readHex(rightNeighbor[i]);
@@ -1842,7 +1849,7 @@ Fluent::readFile(const char *fileName)
                             }
                             for (n = 0; n < elementType; n++)
                             {
-                                file.readHex(vertices[i * 4 + n]);
+                                file.readHex(vertices[i * MaxVert + n]);
                             }
                             //neighborCells
                             file.readHex(leftNeighbor[i]);
@@ -1864,7 +1871,7 @@ Fluent::readFile(const char *fileName)
             file.readHex(firstIndex);
             file.readHex(lastIndex);
             file.readHex(type);
-            file.readDez(globalElementType);
+            file.readHex(globalElementType);
 
             // 	    cerr << "Zone "
             // 		 << zoneID
@@ -1888,7 +1895,7 @@ Fluent::readFile(const char *fileName)
                 delete[] facetype;
                 delete[] leftNeighbor;
                 delete[] rightNeighbor;
-                vertices = new int[numFaces * 4];
+                vertices = new int[numFaces * MaxVert];
                 typelist = new int[numFaces];
                 facetype = new int[numFaces];
                 leftNeighbor = new int[numFaces];
@@ -1908,15 +1915,20 @@ Fluent::readFile(const char *fileName)
                 {
                     file.endSubSection();
                     file.nextSubSection();
-                    if (globalElementType != 0)
+                    if (globalElementType != 0 && globalElementType != 5)
                     {
                         for (i = firstIndex - 1; i < lastIndex; i++)
                         {
+                            if (globalElementType > MaxVert)
+                            {
+                                cerr << "globalElementType=" << globalElementType << " > 5" << endl;
+                                globalElementType = MaxVert;
+                            }
                             typelist[i] = globalElementType;
                             facetype[i] = type;
                             for (n = 0; n < globalElementType; n++)
                             {
-                                file.readBin(vertices[i * 4 + n]);
+                                file.readBin(vertices[i * MaxVert + n]);
                             }
                             int idat;
                             file.readBin(idat); //neighborCells
@@ -1934,7 +1946,7 @@ Fluent::readFile(const char *fileName)
                             facetype[i] = type;
                             for (n = 0; n < elementType; n++)
                             {
-                                file.readBin(vertices[i * 4 + n]);
+                                file.readBin(vertices[i * MaxVert + n]);
                             }
                             int idat;
                             file.readBin(idat); //neighborCells
@@ -1960,7 +1972,7 @@ Fluent::readFile(const char *fileName)
             file.readHex(firstIndex);
             file.readHex(lastIndex);
             file.readHex(type);
-            file.readDez(globalElementType);
+            file.readHex(globalElementType);
 
             // 			      cerr << "Zone "
             // 				   << zoneID
@@ -1984,7 +1996,7 @@ Fluent::readFile(const char *fileName)
                 delete[] facetype;
                 delete[] leftNeighbor;
                 delete[] rightNeighbor;
-                vertices = new int[numFaces * 4];
+                vertices = new int[numFaces * MaxVert];
                 typelist = new int[numFaces];
                 facetype = new int[numFaces];
                 leftNeighbor = new int[numFaces];
@@ -2004,7 +2016,7 @@ Fluent::readFile(const char *fileName)
                 {
                     file.endSubSection();
                     file.nextSubSection();
-                    if (globalElementType != 0)
+                    if (globalElementType != 0 && globalElementType != 5)
                     {
                         for (i = firstIndex - 1; i < lastIndex; i++)
                         {
@@ -2012,7 +2024,7 @@ Fluent::readFile(const char *fileName)
                             facetype[i] = type;
                             for (n = 0; n < globalElementType; n++)
                             {
-                                file.readBin(vertices[i * 4 + n]);
+                                file.readBin(vertices[i * MaxVert + n]);
                             }
                             //neighborCells
                             file.readBin(leftNeighbor[i]);
@@ -2028,7 +2040,7 @@ Fluent::readFile(const char *fileName)
                             facetype[i] = type;
                             for (n = 0; n < elementType; n++)
                             {
-                                file.readBin(vertices[i * 4 + n]);
+                                file.readBin(vertices[i * MaxVert + n]);
                             }
                             //neighborCells
                             file.readBin(leftNeighbor[i]);
@@ -2137,9 +2149,9 @@ void Fluent::addFaceVariable(int varNum)
 {
 
     int i;
-    if (varNum > 150)
+    if (varNum > 200)
     {
-        sendInfo("Variables %d (> 150) not supported", varNum);
+        sendInfo("Variables %d (> 200) not supported", varNum);
         return;
     }
     for (i = 0; i < numVars; i++)
@@ -2181,7 +2193,7 @@ int Fluent::parseDat(const char *fileName)
         case -1:
             break;
         case 0: // comment
-            file.readString(tmpBuf);
+            file.readString(tmpBuf, sizeof(tmpBuf));
             sendInfo("%s", tmpBuf);
             file.skipSection();
             break;
@@ -2268,7 +2280,7 @@ Fluent::readDat(const char *fileName, float *dest, int var, int type, float *des
         case -1:
             break;
         case 0: // comment
-            file.readString(tmpBuf);
+            file.readString(tmpBuf, sizeof(tmpBuf));
             sendInfo("%s", tmpBuf);
             file.skipSection();
             break;
@@ -2351,38 +2363,38 @@ Fluent::readDat(const char *fileName, float *dest, int var, int type, float *des
                                 if (thisType <= 4)
                                 {
                                     file.readBin(dat);
-                                    dest[vertices[i * 4 + 0] - 1] = dat;
-                                    dest[vertices[i * 4 + 1] - 1] = dat;
-                                    dest[vertices[i * 4 + 2] - 1] = dat;
+                                    dest[vertices[i * MaxVert + 0] - 1] = dat;
+                                    dest[vertices[i * MaxVert + 1] - 1] = dat;
+                                    dest[vertices[i * MaxVert + 2] - 1] = dat;
                                     if (thisType == 4)
-                                        dest[vertices[i * 4 + 3] - 1] = dat;
+                                        dest[vertices[i * MaxVert + 3] - 1] = dat;
 
                                     if (size == 3)
                                     {
                                         file.readBin(dat);
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 0] - 1] = dat;
+                                            dest1[vertices[i * MaxVert + 0] - 1] = dat;
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 1] - 1] = dat;
+                                            dest1[vertices[i * MaxVert + 1] - 1] = dat;
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 2] - 1] = dat;
+                                            dest1[vertices[i * MaxVert + 2] - 1] = dat;
                                         if (thisType == 4)
                                         {
                                             if (dest1)
-                                                dest1[vertices[i * 4 + 3] - 1] = dat;
+                                                dest1[vertices[i * MaxVert + 3] - 1] = dat;
                                         }
 
                                         file.readBin(dat);
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 0] - 1] = dat;
+                                            dest2[vertices[i * MaxVert + 0] - 1] = dat;
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 1] - 1] = dat;
+                                            dest2[vertices[i * MaxVert + 1] - 1] = dat;
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 2] - 1] = dat;
+                                            dest2[vertices[i * MaxVert + 2] - 1] = dat;
                                         if (thisType == 4)
                                         {
                                             if (dest2)
-                                                dest2[vertices[i * 4 + 3] - 1] = dat;
+                                                dest2[vertices[i * MaxVert + 3] - 1] = dat;
                                         }
                                     }
                                 }
@@ -2483,35 +2495,35 @@ Fluent::readDat(const char *fileName, float *dest, int var, int type, float *des
                                 if (thisType <= 4)
                                 {
                                     file.readBin(dat);
-                                    dest[vertices[i * 4 + 0] - 1] = (float)dat;
-                                    dest[vertices[i * 4 + 1] - 1] = (float)dat;
-                                    dest[vertices[i * 4 + 2] - 1] = (float)dat;
+                                    dest[vertices[i * MaxVert + 0] - 1] = (float)dat;
+                                    dest[vertices[i * MaxVert + 1] - 1] = (float)dat;
+                                    dest[vertices[i * MaxVert + 2] - 1] = (float)dat;
                                     if (thisType == 4)
-                                        dest[vertices[i * 4 + 3] - 1] = (float)dat;
+                                        dest[vertices[i * MaxVert + 3] - 1] = (float)dat;
 
                                     if (size == 3)
                                     {
                                         file.readBin(dat);
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 0] - 1] = (float)dat;
+                                            dest1[vertices[i * MaxVert + 0] - 1] = (float)dat;
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 1] - 1] = (float)dat;
+                                            dest1[vertices[i * MaxVert + 1] - 1] = (float)dat;
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 2] - 1] = (float)dat;
+                                            dest1[vertices[i * MaxVert + 2] - 1] = (float)dat;
                                         if (thisType == 4)
                                             if (dest1)
-                                                dest1[vertices[i * 4 + 3] - 1] = (float)dat;
+                                                dest1[vertices[i * MaxVert + 3] - 1] = (float)dat;
 
                                         file.readBin(dat);
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 0] - 1] = (float)dat;
+                                            dest2[vertices[i * MaxVert + 0] - 1] = (float)dat;
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 1] - 1] = (float)dat;
+                                            dest2[vertices[i * MaxVert + 1] - 1] = (float)dat;
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 2] - 1] = (float)dat;
+                                            dest2[vertices[i * MaxVert + 2] - 1] = (float)dat;
                                         if (thisType == 4)
                                             if (dest2)
-                                                dest2[vertices[i * 4 + 3] - 1] = (float)dat;
+                                                dest2[vertices[i * MaxVert + 3] - 1] = (float)dat;
                                     }
                                 }
                             }
@@ -2602,35 +2614,35 @@ Fluent::readDat(const char *fileName, float *dest, int var, int type, float *des
                             if (idx > -1)
                             {
                                 file.readFloat(dat);
-                                dest[vertices[i * 4 + 0] - 1] = dat;
-                                dest[vertices[i * 4 + 1] - 1] = dat;
-                                dest[vertices[i * 4 + 2] - 1] = dat;
+                                dest[vertices[i * MaxVert + 0] - 1] = dat;
+                                dest[vertices[i * MaxVert + 1] - 1] = dat;
+                                dest[vertices[i * MaxVert + 2] - 1] = dat;
                                 if (typelist[i] == 4)
-                                    dest[vertices[i * 4 + 3] - 1] = dat;
+                                    dest[vertices[i * MaxVert + 3] - 1] = dat;
 
                                 if (size == 3)
                                 {
                                     file.readFloat(dat);
                                     if (dest1)
-                                        dest1[vertices[i * 4 + 0] - 1] = dat;
+                                        dest1[vertices[i * MaxVert + 0] - 1] = dat;
                                     if (dest1)
-                                        dest1[vertices[i * 4 + 1] - 1] = dat;
+                                        dest1[vertices[i * MaxVert + 1] - 1] = dat;
                                     if (dest1)
-                                        dest1[vertices[i * 4 + 2] - 1] = dat;
+                                        dest1[vertices[i * MaxVert + 2] - 1] = dat;
                                     if (typelist[i] == 4)
                                         if (dest1)
-                                            dest1[vertices[i * 4 + 3] - 1] = dat;
+                                            dest1[vertices[i * MaxVert + 3] - 1] = dat;
 
                                     file.readFloat(dat);
                                     if (dest2)
-                                        dest2[vertices[i * 4 + 0] - 1] = dat;
+                                        dest2[vertices[i * MaxVert + 0] - 1] = dat;
                                     if (dest2)
-                                        dest2[vertices[i * 4 + 1] - 1] = dat;
+                                        dest2[vertices[i * MaxVert + 1] - 1] = dat;
                                     if (dest2)
-                                        dest2[vertices[i * 4 + 2] - 1] = dat;
+                                        dest2[vertices[i * MaxVert + 2] - 1] = dat;
                                     if (typelist[i] == 4)
                                         if (dest2)
-                                            dest2[vertices[i * 4 + 3] - 1] = dat;
+                                            dest2[vertices[i * MaxVert + 3] - 1] = dat;
                                 }
                             }
                             else
@@ -2660,6 +2672,13 @@ Fluent::readDat(const char *fileName, float *dest, int var, int type, float *des
 }
 
 fluentFile::fluentFile()
+: currentSection(0)
+, currentChar(NULL)
+, lastChar(NULL)
+, numback(0)
+, numOpen(0)
+, fd(-1)
+, gotHeader(0)
 {
     currentChar = buf;
     lastChar = buf - 1;
@@ -2699,7 +2718,7 @@ int fluentFile::open(const char *fileName)
     _fmode = _O_BINARY;
     fd = Covise::open((char *)fileName, _O_RDONLY | _O_BINARY);
     // Set "stdin" to have binary mode:
-    if (fd > 0)
+    if (fd >= 0)
     {
         int result = _setmode(fd, _O_BINARY);
         if (result == -1)
@@ -2715,7 +2734,7 @@ int fluentFile::open(const char *fileName)
     currentChar = buf;
     currentSection = 0;
     lastChar = buf - 1;
-    if (fd > 0)
+    if (fd >= 0)
     {
         fillBuf();
     }
@@ -2724,7 +2743,7 @@ int fluentFile::open(const char *fileName)
 
 void fluentFile::close()
 {
-    if (fd > 0)
+    if (fd >= 0)
         ::close(fd);
 
     currentChar = buf;
@@ -2733,10 +2752,9 @@ void fluentFile::close()
 
 int fluentFile::fillBuf()
 {
-    int numRead = 0, i, numLeft;
-    if (lastChar <= buf)
+    if (lastChar < buf)
     {
-        numRead = read(fd, buf, BUFSIZE);
+        int numRead = read(fd, buf, BUFSIZE);
         if (numRead <= 0)
         {
             currentChar = buf;
@@ -2747,23 +2765,54 @@ int fluentFile::fillBuf()
         lastChar = buf + numRead - 1;
         return numRead;
     }
-    numLeft = (lastChar - currentChar) + 1;
-    for (i = 0; i < numLeft; i++)
+    int numLeft = lastChar+1 - currentChar;
+    for (int i = 0; i < numLeft; i++)
     {
         buf[i] = currentChar[i];
     }
-    numRead = read(fd, buf + numLeft, BUFSIZE - numLeft);
+    currentChar = buf;
+    lastChar = buf+numLeft-1;
+    int numRead = read(fd, buf + numLeft, BUFSIZE - numLeft);
     if (numRead < 0)
     {
-        currentChar = buf;
-        lastChar = buf - 1;
         return -1;
     }
     lastChar = buf + numLeft + numRead - 1;
-    currentChar = buf + numLeft;
     if (eof())
         return -1;
     return numLeft + numRead;
+}
+
+char fluentFile::getChar()
+{
+    assert(!eof());
+    if (numback)
+    {
+        return bBuf[--numback];
+    }
+    if (currentChar > lastChar)
+    {
+        fillBuf();
+    }
+    return *currentChar++;
+}
+
+void fluentFile::putBack(char c)
+{
+    assert(numback < sizeof(bBuf));
+    bBuf[numback] = c;
+    numback++;
+}
+
+int fluentFile::eof()
+{
+    if (numback > 0)
+        return 0;
+
+    if (lastChar == buf - 1)
+        return 1;
+    else
+        return 0;
 }
 
 int fluentFile::getSection()
@@ -2841,6 +2890,8 @@ int fluentFile::skipSection()
     //}
     while (numOpen)
     {
+        if (eof())
+            return -1;
         c = getChar();
 
         if (c == '(')
@@ -2872,6 +2923,8 @@ int fluentFile::skipSection()
             {
                 if (endMarker[i] != c)
                     break;
+                if (eof())
+                    return -1;
                 c = getChar();
             }
             if (i == 21)
@@ -2888,7 +2941,7 @@ int fluentFile::skipSection()
 
 int fluentFile::readDez(int &num)
 {
-    if (readString(tmpBuf) < 0)
+    if (readString(tmpBuf, sizeof(tmpBuf)) < 0)
         return -1;
     if (sscanf(tmpBuf, "%d", &num) < 1)
         return -1;
@@ -2897,7 +2950,7 @@ int fluentFile::readDez(int &num)
 
 int fluentFile::readHex(int &num)
 {
-    if (readString(tmpBuf) < 0)
+    if (readString(tmpBuf, sizeof(tmpBuf)) < 0)
         return -1;
     if (sscanf(tmpBuf, "%x", &num) < 1)
         return -1;
@@ -2906,7 +2959,7 @@ int fluentFile::readHex(int &num)
 
 int fluentFile::readFloat(float &num)
 {
-    if (readString(tmpBuf) < 0)
+    if (readString(tmpBuf, sizeof(tmpBuf)) < 0)
         return -1;
     if (sscanf(tmpBuf, "%f", &num) < 1)
         return -1;
@@ -2989,9 +3042,12 @@ fluentFile::readBin(int &num)
     }
 }
 
-int fluentFile::readString(char *str)
+int fluentFile::readString(char *str, int maxlen)
 {
     char *s = str, c = ' ';
+    int len = 0;
+    if (maxlen <= 0)
+        return -1;
 
     while (!eof() && ((c == ' ') || (c == '\t') || (c == '\r') || (c == '\n')))
     {
@@ -3015,12 +3071,24 @@ int fluentFile::readString(char *str)
             }
             *s = c;
             s++;
+            if (len > maxlen)
+            {
+                *s = '\0';
+                return 0;
+            }
+            ++len;
         }
         *s = '\0';
         return -1;
     }
     *s = c;
     s++;
+    if (len > maxlen)
+    {
+        *s = '\0';
+        return 0;
+    }
+    ++len;
     while (!eof())
     {
         c = getChar();
@@ -3032,6 +3100,12 @@ int fluentFile::readString(char *str)
         }
         *s = c;
         s++;
+        if (len > maxlen)
+        {
+            *s = '\0';
+            return 0;
+        }
+        ++len;
     }
     *s = '\0';
     return -1;
@@ -3075,12 +3149,12 @@ coDoLines *Fluent::makeLines()
                 //for (int i = ctr; ((i != 0) && (!visited[i])); i = rightNeighbor[i]) {
                 //cerr << "Fluent::makeLines info: processing face " << i << endl;
                 //cerr << "Fluent::makeLines info: vertex data: "
-                //     << vertices[i*4] << ", " << vertices[i*4 + 1] << ", " << endl;
+                //     << vertices[i*MaxVert] << ", " << vertices[i*MaxVert + 1] << ", " << endl;
                 //cerr << "Fluent::makeLines info: leftNeighbour = " << faces[leftNeighbor[i]] << endl;
                 //cerr << "Fluent::makeLines info: rightNeighbour = " << faces[rightNeighbor[i]] << endl;
 
-                corners[numCorners++] = vertices[4 * ctr];
-                corners[numCorners++] = vertices[4 * ctr + 1];
+                corners[numCorners++] = vertices[MaxVert * ctr];
+                corners[numCorners++] = vertices[MaxVert * ctr + 1];
 
                 ++visited[ctr];
 

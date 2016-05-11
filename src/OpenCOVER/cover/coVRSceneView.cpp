@@ -48,7 +48,10 @@ coVRSceneView::coVRSceneView(DisplaySettings *ds, int c)
     : osgUtil::SceneView(ds)
 {
     setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-    screen = coVRConfig::instance()->channels[c].screenNum;
+    if (c >= 0)
+        screen = coVRConfig::instance()->channels[c].screenNum;
+    else
+        screen = -1;
     _inheritanceMask &= ~osg::CullSettings::LIGHTING_MODE;
     _inheritanceMask &= ~osg::CullSettings::LIGHT;
 }
@@ -108,7 +111,7 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
                      tmp =  cover->invEnvCorrectMat *invRot *  getViewMatrix();
         coInvEnvCorrectMatrixUniform->set(tmp);
     }
-    if (coVRConfig::instance()->screens[screen].render == false)
+    if (screen > 0 && coVRConfig::instance()->screens[screen].render == false)
         return false;
     // does not work, renderstage is Reset by cullStage renderStage->addPositionedAttribute(NULL,coVRLighting::instance()->headlight->getLight()); // add light which creates shadows
     //_lightingMode = HEADLIGHT;

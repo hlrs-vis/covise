@@ -522,7 +522,7 @@ int coReadVolume::compute(const char *)
         }
         gridData[vd->frames] = NULL;
 
-        coFeedback browserFeedback("FileBrowser");
+        coFeedback browserFeedback("FileBrowserParam");
         browserFeedback.addPara(pbrVolumeFile);
 
         if (vd->frames > 1)
