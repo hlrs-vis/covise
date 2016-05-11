@@ -275,7 +275,11 @@ void OfficePlugin::message(int type, int len, const void *buf)
     {
             std::string fileName;
             tb >> fileName;
+#ifndef WIN32
+            int fileDesc = open(fileName.c_str(), O_RDONLY);
+#else
             int fileDesc = open(fileName.c_str(), O_RDONLY|O_BINARY);
+#endif
             if (fileDesc >= 0)
             {
                 int fileSize = 0;
