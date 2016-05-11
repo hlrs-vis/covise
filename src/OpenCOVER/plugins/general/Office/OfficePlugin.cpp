@@ -70,6 +70,21 @@ OfficeConnection::OfficeConnection(ServerConnection *to)
     lastMessage = new coTUILabel("none",myFrame->getID());
     lastMessage->setPos(0,1);
 }
+OfficeConnection::OfficeConnection(OfficeConnection *to)
+{
+    ServerOc = to;
+    toOffice = NULL;
+    
+    productLabel = new coTUILabel("product",OfficePlugin::instance()->officeTab->getID());
+    productLabel->setPos(OfficePlugin::instance()->officeConnections.size(),0);
+    myFrame = new coTUIFrame("connectionFrame",OfficePlugin::instance()->officeTab->getID());
+    myFrame->setPos(OfficePlugin::instance()->officeConnections.size(),1);
+    commandLine = new coTUIEditField("commandline",myFrame->getID());
+    commandLine->setPos(0,0);
+    commandLine->setEventListener(this);
+    lastMessage = new coTUILabel("none",myFrame->getID());
+    lastMessage->setPos(0,1);
+}
 OfficeConnection::~OfficeConnection()
 {
     delete lastMessage;
@@ -130,9 +145,12 @@ OfficeConnection::handleMessage(Message *m)
         break;
     case OfficePlugin::MSG_ApplicationType:
         {
-            char *at;
+            char *at=NULL;
             tb >> at;
-            applicationType = at;
+            if(at)
+            {
+             applicationType = at;
+            }
             char *pn;
             tb >> pn;
             productName = pn;
@@ -330,7 +348,7 @@ void officeList::checkAndHandleMessages()
     {
         for(iterator it=begin();(it!=end() && deletedConnection==false);it++)
         {
-            while ((*it) && (*it)->toOffice->check_for_input())
+            while ((*it) && (*it)->toOffice!=NULL &&  (*it)->toOffice->check_for_input())
             {
                 (*it)->toOffice->recv_msg(msg);
                 if (msg)
@@ -362,9 +380,27 @@ void officeList::checkAndHandleMessages()
             coVRMSController::instance()->readMaster(&oc, sizeof(oc));
             if (oc != NULL)
             {
+                // find the local oc for this master connection
+                // 
+                OfficeConnection *localOc=NULL;
+                for(iterator it=begin();it!=end();it++)
+                {
+                     if((*it)->ServerOc == oc)
+                     {
+                         localOc = (*it);
+                     }
+                }
+                if(localOc == NULL)
+                {
+                    localOc = new OfficeConnection(oc);
+                    push_back(localOc);
+                }
+                if(localOc)
+                {
                 Message msg;
                 coVRMSController::instance()->readMaster(&msg);
-                OfficePlugin::instance()->handleMessage(oc,&msg);
+                OfficePlugin::instance()->handleMessage(localOc,&msg);
+                }
             }
         } while (oc != NULL);
     }

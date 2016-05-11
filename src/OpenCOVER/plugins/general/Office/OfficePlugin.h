@@ -56,8 +56,10 @@ public:
     std::string applicationType;
     std::string productName;
     OfficeConnection(ServerConnection *toOffice);
+    OfficeConnection(OfficeConnection *ServerOc);
     ~OfficeConnection();
     ServerConnection *toOffice;
+    OfficeConnection *ServerOc;
     void sendMessage(Message &m);
     void handleMessage(Message *m);
     virtual void tabletEvent(coTUIElement *tUIItem);
