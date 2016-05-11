@@ -52,6 +52,7 @@ extern "C" {
 typedef PixelFormat AVPixelFormat;
 
 #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
 #define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
 #define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
 
