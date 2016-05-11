@@ -448,6 +448,7 @@
 
   <COVER>
 
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
@@ -464,6 +465,7 @@
   
 
   <COVER>
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
 
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
@@ -481,6 +483,7 @@
 
  <LOCAL host="viscluster51,viscluster53,viscluster55,visent,visent.hlrs.de" >
   <COVER>
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
 
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
@@ -497,6 +500,7 @@
  <LOCAL host="viscluster57,viscluster59" >
   <COVER>
 
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
