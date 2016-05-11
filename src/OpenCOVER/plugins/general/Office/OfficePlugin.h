@@ -90,6 +90,7 @@ public:
     {
         MSG_String = 700,
         MSG_ApplicationType = 701,
+        MSG_PNGSnapshot = 702,
     };
     OfficePlugin();
     ~OfficePlugin();

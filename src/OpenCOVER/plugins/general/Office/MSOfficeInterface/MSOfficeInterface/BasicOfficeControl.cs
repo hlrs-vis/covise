@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using System.Xml.Linq;
+using Word = Microsoft.Office.Interop.Word;
+using Office = Microsoft.Office.Core;
 
+#pragma warning disable 414
 namespace OfficeConsole
 {
   public interface BasicOfficeControl
@@ -13,4 +18,6 @@ namespace OfficeConsole
 
     void update();
   }
-}
+
+
+  }
