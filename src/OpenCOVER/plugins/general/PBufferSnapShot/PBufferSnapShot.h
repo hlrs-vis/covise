@@ -77,6 +77,7 @@ private:
     bool doInit;
 
     std::string filename;
+    std::string lastSavedFile;
 
     int snapID;
 

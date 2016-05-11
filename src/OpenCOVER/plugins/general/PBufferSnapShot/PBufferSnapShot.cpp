@@ -112,7 +112,11 @@ void DrawCallback::operator()(const osg::Camera &cam) const
 
             if(osgDB::writeImageFile(*(image.get()), plugin->filename))
             {
-                plugin->tuiSavedFile->setLabel(coDirectory::canonical(plugin->filename.c_str()));
+                const char *savedFile = coDirectory::canonical(plugin->filename.c_str()); 
+                plugin->lastSavedFile = savedFile;
+                char *text = new char[strlen(savedFile)+100];
+                sprintf(text,"saved: %s",savedFile);
+                plugin->tuiSavedFile->setLabel(text); // don't just set filename as label, otherwise the image is displayed.
                 plugin->tuiSavedFile->setColor(Qt::black);
             }
             else
@@ -125,7 +129,11 @@ void DrawCallback::operator()(const osg::Camera &cam) const
         {
             if(osgDB::writeImageFile(*(plugin->image.get()), coDirectory::canonical(plugin->filename.c_str())))
             {
-                plugin->tuiSavedFile->setLabel(plugin->filename);
+                const char *savedFile = coDirectory::canonical(plugin->filename.c_str()); 
+                plugin->lastSavedFile = savedFile;
+                char *text = new char[strlen(savedFile)+100];
+                sprintf(text," %s",savedFile);
+                plugin->tuiSavedFile->setLabel(text);
                 plugin->tuiSavedFile->setColor(Qt::black);
             }
             else
@@ -342,7 +350,13 @@ void PBufferSnapShot::preSwapBuffers(int windowNumber)
 
 void PBufferSnapShot::preFrame()
 {
-
+    if(lastSavedFile.length()>0) // if we recently saved a file to disk, inform other plugins such as the Office Plugin about it
+    {
+        TokenBuffer tb;
+        tb << lastSavedFile.c_str();
+        cover->sendMessage((coVRPlugin *)this, coVRPluginSupport::TO_ALL, PluginMessageTypes::PBufferDoneSnapshot, tb.get_length(), tb.get_data());
+        lastSavedFile.clear();
+    }
     //cerr << "PBufferSnapShot::preFrame info: called" << endl;
     if (removeCamera)
     {
