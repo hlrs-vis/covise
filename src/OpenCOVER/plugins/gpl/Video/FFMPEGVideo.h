@@ -1,3 +1,6 @@
+#ifndef FFMPEGVIDEO_H
+#define FFMPEGVIDEO_H
+
 #include <osgViewer/GraphicsWindow>
 
 extern "C" {
@@ -27,8 +30,10 @@ extern "C" {
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
 typedef PixelFormat AVPixelFormat;
 
-#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#ifndef AV_PIX_FMT_RGB32
 #define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
+#endif
+#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
 #define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
 #define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
 
@@ -142,3 +147,5 @@ private:
 
     xercesc::DOMImplementation *impl;
 };
+
+#endif
