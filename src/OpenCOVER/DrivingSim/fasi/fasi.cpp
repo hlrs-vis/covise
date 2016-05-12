@@ -246,37 +246,10 @@ RoadTerrainPlugin::plugin->loadTerrain(xodrDirectory+"/"+vpbString,offset, voidB
         }
         else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("environment")) == 0)
         {
-            /*std::string tessellateRoadsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateRoads")));
-if(tessellateRoadsString=="false" || tessellateRoadsString=="0") {
-   tessellateRoads = false;
-}
-else {
-   tessellateRoads = true;
-}
-
-std::string tessellatePathsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellatePaths")));
-if(tessellatePathsString=="false" || tessellatePathsString=="0") {
-   tessellatePaths = false;
-}
-else {
-tessellatePaths = true;
-}
-
-std::string tessellateBattersString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateBatters")));
-if(tessellateBattersString=="true" ) {
-tessellateBatters = true;
-}
-else {
-tessellateBatters = false;
-}
-
-std::string tessellateObjectsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateObjects")));
-if(tessellateObjectsString=="true") {
-tessellateObjects = true;
-}
-else {
-tessellateObjects = false;
-}*/
+            std::string startRoadString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("startRoad")));
+            if(startRoadString.length()>0)
+            {
+            }
         }
     }
 }

@@ -46,6 +46,7 @@ public:
         Measure1,
         PBufferDoSnap = 100,
         PBufferDoSnapFile = 101,
+        PBufferDoneSnapshot = 102,
         PDBLoadFile = 150,
         PDBLoadAni = 151,
         PDBHighDetail = 154,

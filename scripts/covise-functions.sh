@@ -31,6 +31,7 @@ guess_archsuffix() {
 
    case "$ARCH" in
         Darwin)
+            export ARCHSUFFIX=darwin
             case "`uname -r`" in
                 7.*)
 	            export ARCHSUFFIX=macx
@@ -64,6 +65,7 @@ guess_archsuffix() {
             ;;
      
         Linux)
+        export ARCHSUFFIX=linux
         case "`uname -m`" in
             ia64)
               if grep -i -q -s "SUSE LINUX Enterprise Server 9 (ia64)" /etc/issue; then
@@ -76,6 +78,7 @@ guess_archsuffix() {
               ;;
             
             x86_64)
+               export ARCHSUFFIX=linux64
                if grep -i -q -s stentz /etc/issue; then
                    export ARCHSUFFIX=x64
                elif grep -i -q -s "Fedora Core release 5" /etc/fedora-release; then
@@ -220,6 +223,7 @@ guess_archsuffix() {
                ;;
             
             *)
+               export ARCHSUFFIX=linux32
                if [ -f /lib/libgcc_s.so.1 ]; then
                   if grep -i -q -s stentz /etc/issue; then
                      # rename to ????

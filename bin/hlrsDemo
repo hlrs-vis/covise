@@ -94,16 +94,18 @@ do
     echo -e "${MENU} ${OPT} 87)  ${MENU} start COVER: Town         "
     echo -e "${MENU} ${OPT} 88)  ${MENU} start FaSi: Laguna Seca   "
     echo -e "${MENU} ${OPT} 89)  ${MENU} start COVER: Laguna Seca  "
+    echo -e "${MENU} ${OPT} 90)  ${MENU} start FaSi: Nuerburgring   "
+    echo -e "${MENU} ${OPT} 91)  ${MENU} start COVER: Nuerburgring  "
 
     echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
-    echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
-    echo -e "${MENU} ${OPT} 92)  ${MENU} TiledDisplay ON           "
-    echo -e "${MENU} ${OPT} 93)  ${MENU} TiledDisplay OFF          "
-    echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay 3D_ON        "
-    echo -e "${MENU} ${OPT} 95)  ${MENU} TiledDisplay 3D_OFF       "
-    echo -e "${MENU} ${OPT} 96)  ${MENU} TiledDisplay Video Wall ON"
-    echo -e "${MENU} ${OPT} 97)  ${MENU} CAVE: Frame lock on       "
-    echo -e "${MENU} ${OPT} 98)  ${MENU} CAVE: Frame lock off      "
+    echo -e "${MENU} ${OPT} 92)  ${MENU} kill OpenCOVER            "
+    echo -e "${MENU} ${OPT} 93)  ${MENU} TiledDisplay ON           "
+    echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay OFF          "
+    echo -e "${MENU} ${OPT} 95)  ${MENU} TiledDisplay 3D_ON        "
+    echo -e "${MENU} ${OPT} 96)  ${MENU} TiledDisplay 3D_OFF       "
+    echo -e "${MENU} ${OPT} 97)  ${MENU} TiledDisplay Video Wall ON"
+    echo -e "${MENU} ${OPT} 98)  ${MENU} CAVE: Frame lock on       "
+    echo -e "${MENU} ${OPT} 99)  ${MENU} CAVE: Frame lock off      "
     echo -e "                                                      "
     echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
     echo -e "${MENU}---------------------------------------------"
@@ -369,7 +371,7 @@ do
 	    ;;
 	88)
 	    echo -e "starting FaSi: Laguna Seca";
-	    ssh covise2@192.168.0.74 "cd /data/porsche/lagunaseca/ && fasi lagunaseca9.xodr > /dev/null 2>&1"&
+	    ssh covise2@192.168.0.74 "cd /data/porsche/lagunaseca/ && fasi lagunaseca10.xodr > /dev/null 2>&1"&
 	    ;;
 	89)
 	    echo -e "starting OpenCOVER: Laguna Seca";
@@ -377,41 +379,51 @@ do
 	    opencover /data/porsche/lagunaseca/lagunaseca9.xodr 
 	    ;;
 # SYSTEM
-
+	90)
+	    echo -e "starting FaSi: Nr";
+	    ssh covise2@192.168.0.74 "cd /data/porsche/nr/ && fasi nr10.xodr > /dev/null 2>&1"&
+	    ;;
 	91)
+	    echo -e "starting OpenCOVER: NR";
+
+	    opencover /data/porsche/nr/nr11.xodr 
+	    ;;
+# SYSTEM
+
+	92)
 	    echo -e "killing OpenCOVER";
 	    doallp killall opencover
 	    ;;
-	92)
+	93)
 	    echo -e "turn on tiled display"
 	    samsungctrl power on
         samsungctrl video_wall off
 	    ;;
-	93)
+	94)
 	    echo -e "turn off tiled display"
 	    samsungctrl power off
 	    ;;
-	94)
+	95)
 	    echo -e "turn on 3D mode & frame lock"
             #framelock-powerwall on
             #sleep 3
 	    sasuctrl 3d_on
 	    ;;
-	95)
+	96)
 	    echo -e "turn off 3D mode & frame lock"
 	    sasuctrl 3d_off
 	    #sleep 3
             #framelock-powerwall off
 	    ;;
-	96)
+	97)
 	    echo -e "switch tiled display to video wall mode"
         samsungctrl video_wall on
 	    ;;
-    97)
+    98)
         echo -e "CAVE: Frame lock on"
         framelock-cave on
         ;;
-    98)
+    99)
         echo -e "CAVE: Frame lock off"
         framelock-cave off
         ;;

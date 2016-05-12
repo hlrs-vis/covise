@@ -31,12 +31,14 @@ SET(CONFIG_SOURCES
   CoviseConfig.cpp
   coConfigSchema.cpp
   coConfigSchemaInfos.cpp
+  coConfigTools.cpp
 )
 
 SET(CONFIG_HEADERS
   coConfigRootErrorHandler.h
   coConfigXercesRoot.h
   coConfigSchema.h
+  coConfigTools.h
 )
 
 SET(CONFIG_DEV_HEADERS

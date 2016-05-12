@@ -49,7 +49,7 @@ class COVEREXPORT coVRSceneView : public osgUtil::SceneView
 {
 public:
     /** Construct a default scene view.*/
-    coVRSceneView(osg::DisplaySettings *ds = NULL, int channel = 0);
+    coVRSceneView(osg::DisplaySettings *ds = NULL, int channel = -1);
     void createUniforms(osg::StateSet *stateset);
     static osg::Uniform *coEnvCorrectMatrixUniform;
     static osg::Uniform *coInvEnvCorrectMatrixUniform;

@@ -52,6 +52,7 @@
 #include <net/tokenbuffer.h>
 #include <config/CoviseConfig.h>
 #include "VrmlNodeOffice.h"
+#include <sys/stat.h>
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
@@ -134,6 +135,16 @@ OfficeConnection::handleMessage(Message *m)
             char *line;
             tb >> line;
             lastMessage->setLabel(line);
+            if(strncmp(line,"setViewpoint",12)==0)
+            {
+                float scale=1.0;
+                coCoord coord;
+                sscanf(line+13,"scale=%f,position=%f;%f;%f,orientation=%f;%f;%f",&scale,&coord.xyz[0],&coord.xyz[1],&coord.xyz[2],&coord.hpr[0],&coord.hpr[1],&coord.hpr[2]);
+                osg::Matrix m;
+                coord.makeMat(m);
+                cover->setXformMat(m);
+                cover->setScale(scale);
+            }
             for(std::list<VrmlNodeOffice *>::iterator it = VrmlNodeOffice::allOffice.begin();it != VrmlNodeOffice::allOffice.end();it++)
             {
                 if((*it)->getApplicationType() == applicationType)
@@ -277,14 +288,60 @@ void OfficePlugin::tabletEvent(coTUIElement *tUIItem)
 
 void OfficePlugin::message(int type, int len, const void *buf)
 {
-    if (type == PluginMessageTypes::MoveAddMoveNode)
+    TokenBuffer tb((const char *)buf,len);
+    if (type == PluginMessageTypes::PBufferDoneSnapshot)
     {
-    }
+            std::string fileName;
+            tb >> fileName;
+#ifdef WIN32
+            int fileDesc = open(fileName.c_str(), O_RDONLY|O_BINARY);
+#else
+            int fileDesc = open(fileName.c_str(), O_RDONLY);
+#endif
+            if (fileDesc >= 0)
+            {
+                int fileSize = 0;
+#ifndef WIN32
+                struct stat statbuf;
+                fstat(fileDesc, &statbuf);
+#else
+                struct _stat statbuf;
+                _fstat(fileDesc, &statbuf);
+#endif
+                fileSize = statbuf.st_size;
+                char *buf = new char[fileSize];
+                read(fileDesc,buf,fileSize);
+                TokenBuffer stb;
+                stb << fileSize;
+                stb.addBinary(buf,fileSize);
+                    
+                std::string transform;
+                osg::Matrix m = cover->getObjectsXform()->getMatrix();
+                coCoord coord(m);
+                char *tmps = new char[200];
+                snprintf(tmps,200,"scale=%f,position=%f;%f;%f,orientation=%f;%f;%f",cover->getScale(),coord.xyz[0],coord.xyz[1],coord.xyz[2],coord.hpr[0],coord.hpr[1],coord.hpr[2]);
+                transform = tmps;
+                delete[] tmps;
+                stb << transform;
+                Message message(stb);
+                message.type = (int)OfficePlugin::MSG_PNGSnapshot;
+                sendMessage(message);
+                delete[] buf;
+            }
+            else
+            {
+                fprintf(stderr, "Office Plugin:: failed to open %s\n", fileName.c_str());
+            }
+        }
 }
 
 OfficePlugin *OfficePlugin::plugin = NULL;
 
 
+    void OfficePlugin::sendMessage(Message &m)
+    {
+        officeConnections.sendMessage("Word",m);
+    }
 void
 OfficePlugin::preFrame()
 {

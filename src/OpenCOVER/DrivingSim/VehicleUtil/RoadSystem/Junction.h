@@ -21,7 +21,7 @@
 
 class PathConnection;
 
-struct PathConnectionCompare
+struct VEHICLEUTILEXPORT PathConnectionCompare
 {
     bool operator()(const PathConnection *, const PathConnection *) const;
 };

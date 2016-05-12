@@ -401,16 +401,55 @@ namespace OfficeConsole
                   input = m.message.readString();
                   inputQueue.Enqueue(input);
               }
+              else if ((COVER.MessageTypes)m.messageType == COVER.MessageTypes.MSG_PNGSnapshot)
+              {
+                  int numBytes = m.message.readInt();
+                  string fn = System.IO.Path.GetTempFileName();
+                  fn +=(".png");
+                  Byte[] bytes = m.message.readBytes(numBytes);
+                  ByteArrayToFile(fn,bytes);
+                  if (mode == Mode.Word)
+                  {
+                      word.addImage(fn);
+                  }
+              }
           }
           //Thread.Sleep(10);
         }
-
       }
       //readThread.Abort();
       control.quit();
 
     }
 
+    public bool ByteArrayToFile(string _FileName, byte[] _ByteArray)
+    {
+        try
+        {
+            // Open file for reading
+            System.IO.FileStream _FileStream =
+               new System.IO.FileStream(_FileName, System.IO.FileMode.Create,
+                                        System.IO.FileAccess.Write);
+            System.IO.BinaryWriter bw = new System.IO.BinaryWriter(_FileStream);
+            // Writes a block of bytes to this stream using data from
+            // a byte array.
+            bw.Write(_ByteArray, 0, _ByteArray.Length);
+
+            // close file stream
+            bw.Close();
+
+            return true;
+        }
+        catch (Exception _Exception)
+        {
+            // Error
+            Console.WriteLine("Exception caught in process: {0}",
+                              _Exception.ToString());
+        }
+
+        // error occured, return false
+        return false;
+    }
     public void sendEvent(string eventDescription)
     {
       sendStringMessage(eventDescription);

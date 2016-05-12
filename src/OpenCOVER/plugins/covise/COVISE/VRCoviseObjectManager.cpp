@@ -858,6 +858,161 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     else
         cur_rotator = NULL;
 
+    bool cullBackfaces = false;
+    if (geometry->isAssignedToMe())
+    {
+        //fprintf(stderr,"ObjectManager::addGeometryif NOT SETELE\n");
+        const char *attr = geometry->getAttribute("POINTSIZE");
+        if (attr)
+        {
+            //fprintf ( stderr, "pointsize: %s\n", attr );
+            pointsize = atof(attr);
+        }
+        attr = geometry->getAttribute("CULL_BACKFACES");
+        if (attr)
+        {
+            cullBackfaces = true;
+        }
+        attr = geometry->getAttribute("LINEWIDTH");
+        if (attr)
+        {
+            //fprintf ( stderr, "linewidth: %s\n", attr );
+            linewidth = atof(attr);
+        }
+        // default (see VRSceneGraph) is view all (-1.0)
+        if ((attr = geometry->getAttribute("SCALE")) != NULL)
+        {
+            if (!strcasecmp(attr, "viewAll"))
+                VRSceneGraph::instance()->setScaleMode(-1.0);
+            else if (!strcasecmp(attr, "keep"))
+                VRSceneGraph::instance()->setScaleMode(0.0);
+            else
+            {
+                float scaleMode = 0.f;
+                if (sscanf(attr, "%f", &scaleMode) == 1)
+                {
+                    VRSceneGraph::instance()->setScaleMode(scaleMode);
+                }
+                else
+                {
+                    if (cover->debugLevel(2))
+                        cerr << "ObjectManager::addGeometry: sscanf8 failed" << endl;
+                }
+            }
+        }
+
+        feedback_info = geometry->getAttribute("FEEDBACK");
+        if (feedback_info && !cur_rotator)
+        {
+            const char *name = geometry->getAttribute("OBJECTNAME");
+            if (container->getAttribute("OBJECTNAME"))
+                name = container->getAttribute("OBJECTNAME");
+            if (name != NULL)
+            {
+                this->addFeedbackButton(container->getName(), feedback_info, name);
+            }
+        }
+        // check for VertexOrderStr
+        vertexOrderStr = geometry->getAttribute("vertexOrder");
+        if (vertexOrderStr == NULL)
+            vertexOrder = 0;
+        else
+            vertexOrder = vertexOrderStr[0] - '0';
+
+        // check for Transparency
+        transparencyStr = geometry->getAttribute("TRANSPARENCY");
+        transparency = 0.0;
+        if (transparencyStr != NULL)
+        {
+            if ((transparency = atof(transparencyStr)) < 0.0)
+                transparency = 0.0;
+            if (transparency > 1.0)
+                transparency = 1.0;
+        }
+        material = NULL;
+
+        // check for Material
+        const char *materialStr = geometry->getAttribute("MATERIAL");
+        if (materialStr != NULL)
+        {
+            if (strncmp(materialStr, "MAT:", 4) == 0)
+            {
+                char dummy[32];
+                char material_name[256];
+                float ambientColor[3];
+                float diffuseColor[3];
+                float specularColor[3];
+                float emissiveColor[3];
+                float shininess;
+                float transparency;
+
+                int ret = sscanf(materialStr, "%s%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f",
+                                 dummy, material_name,
+                                 &ambientColor[0], &ambientColor[1], &ambientColor[2],
+                                 &diffuseColor[0], &diffuseColor[1], &diffuseColor[2],
+                                 &specularColor[0], &specularColor[1], &specularColor[2],
+                                 &emissiveColor[0], &emissiveColor[1], &emissiveColor[2],
+                                 &shininess, &transparency);
+                if (ret != 16)
+                {
+                    if (cover->debugLevel(2))
+                        cerr << "ObjectManager::addGeometry: sscanf9 failed" << endl;
+                }
+                const char *mat_colorStr = geometry->getAttribute("MAT_COLOR");
+                if (mat_colorStr != NULL)
+                {
+                    // change base color of material from white to the given color
+                    float r, g, b;
+                    int ri, gi, bi;
+                    if (sscanf(mat_colorStr, "%d %d %d", &ri, &gi, &bi) != 3)
+                    {
+                        if (cover->debugLevel(2))
+                            cerr << "ObjectManager::addGeometry: sscanf10 failed" << endl;
+                    }
+                    r = (float)ri / 255.;
+                    g = (float)gi / 255.;
+                    b = (float)bi / 255.;
+
+                    diffuseColor[0] = r * diffuseColor[0];
+                    diffuseColor[1] = g * diffuseColor[1];
+                    diffuseColor[2] = b * diffuseColor[2];
+                    specularColor[0] = r * specularColor[0];
+                    specularColor[1] = g * specularColor[1];
+                    specularColor[2] = b * specularColor[2];
+                    ambientColor[0] = r * ambientColor[0];
+                    ambientColor[1] = g * ambientColor[1];
+                    ambientColor[2] = b * ambientColor[2];
+                }
+
+                material = new coMaterial(material_name, ambientColor, diffuseColor, specularColor,
+                                          emissiveColor, shininess, transparency);
+            }
+            else
+            {
+                if (!materialList)
+                    materialList = new coMaterialList("metal");
+
+                material = materialList->get(materialStr);
+                if (!material)
+                {
+                    char category[500];
+                    if (sscanf(materialStr, "%s", category) != 1)
+                    {
+                        if (cover->debugLevel(2))
+                            cerr << "ObjectManager::addGeometry: sscanf11 failed" << endl;
+                    }
+                    materialList->add(category);
+                    material = materialList->get(materialStr);
+                    if (!material)
+                    {
+                        if (cover->debugLevel(2))
+                            fprintf(stderr, "Material %s not found!\n", materialStr);
+                    }
+                }
+            }
+        }
+    }
+
     if (strcmp(gtype, "GEOMET") == 0)
     {
         //fprintf(stderr,"ObjectManager::addGeometry if GEOMET\n");
@@ -1099,164 +1254,11 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
     else if (geometry->isAssignedToMe()) // not a set
     {
-        //fprintf(stderr,"ObjectManager::addGeometryif NOT SETELE\n");
-        const char *attr = geometry->getAttribute("POINTSIZE");
-        if (attr)
-        {
-            //fprintf ( stderr, "pointsize: %s\n", attr );
-            pointsize = atof(attr);
-        }
-        bool cullBackfaces = false;
-        attr = geometry->getAttribute("CULL_BACKFACES");
-        if (attr)
-        {
-            cullBackfaces = true;
-        }
-        attr = geometry->getAttribute("LINEWIDTH");
-        if (attr)
-        {
-            //fprintf ( stderr, "linewidth: %s\n", attr );
-            linewidth = atof(attr);
-        }
-        // default (see VRSceneGraph) is view all (-1.0)
-        if ((attr = geometry->getAttribute("SCALE")) != NULL)
-        {
-            if (!strcasecmp(attr, "viewAll"))
-                VRSceneGraph::instance()->setScaleMode(-1.0);
-            else if (!strcasecmp(attr, "keep"))
-                VRSceneGraph::instance()->setScaleMode(0.0);
-            else
-            {
-                float scaleMode = 0.f;
-                if (sscanf(attr, "%f", &scaleMode) == 1)
-                {
-                    VRSceneGraph::instance()->setScaleMode(scaleMode);
-                }
-                else
-                {
-                    if (cover->debugLevel(2))
-                        cerr << "ObjectManager::addGeometry: sscanf8 failed" << endl;
-                }
-            }
-        }
-
         if (texture != NULL)
         {
             colorbinding = Bind::None;
             colorpacking = Pack::Texture;
         }
-
-        feedback_info = geometry->getAttribute("FEEDBACK");
-        if (feedback_info && !cur_rotator)
-        {
-            const char *name = geometry->getAttribute("OBJECTNAME");
-            if (container->getAttribute("OBJECTNAME"))
-                name = container->getAttribute("OBJECTNAME");
-            if (name != NULL)
-            {
-                this->addFeedbackButton(container->getName(), feedback_info, name);
-            }
-        }
-        // check for VertexOrderStr
-        vertexOrderStr = geometry->getAttribute("vertexOrder");
-        if (vertexOrderStr == NULL)
-            vertexOrder = 0;
-        else
-            vertexOrder = vertexOrderStr[0] - '0';
-
-        // check for Transparency
-        transparencyStr = geometry->getAttribute("TRANSPARENCY");
-        transparency = 0.0;
-        if (transparencyStr != NULL)
-        {
-            if ((transparency = atof(transparencyStr)) < 0.0)
-                transparency = 0.0;
-            if (transparency > 1.0)
-                transparency = 1.0;
-        }
-        material = NULL;
-
-        // check for Material
-        const char *materialStr = geometry->getAttribute("MATERIAL");
-        if (materialStr != NULL)
-        {
-            if (strncmp(materialStr, "MAT:", 4) == 0)
-            {
-                char dummy[32];
-                char material_name[256];
-                float ambientColor[3];
-                float diffuseColor[3];
-                float specularColor[3];
-                float emissiveColor[3];
-                float shininess;
-                float transparency;
-
-                int ret = sscanf(materialStr, "%s%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f",
-                                 dummy, material_name,
-                                 &ambientColor[0], &ambientColor[1], &ambientColor[2],
-                                 &diffuseColor[0], &diffuseColor[1], &diffuseColor[2],
-                                 &specularColor[0], &specularColor[1], &specularColor[2],
-                                 &emissiveColor[0], &emissiveColor[1], &emissiveColor[2],
-                                 &shininess, &transparency);
-                if (ret != 16)
-                {
-                    if (cover->debugLevel(2))
-                        cerr << "ObjectManager::addGeometry: sscanf9 failed" << endl;
-                }
-                const char *mat_colorStr = geometry->getAttribute("MAT_COLOR");
-                if (mat_colorStr != NULL)
-                {
-                    // change base color of material from white to the given color
-                    float r, g, b;
-                    int ri, gi, bi;
-                    if (sscanf(mat_colorStr, "%d %d %d", &ri, &gi, &bi) != 3)
-                    {
-                        if (cover->debugLevel(2))
-                            cerr << "ObjectManager::addGeometry: sscanf10 failed" << endl;
-                    }
-                    r = (float)ri / 255.;
-                    g = (float)gi / 255.;
-                    b = (float)bi / 255.;
-
-                    diffuseColor[0] = r * diffuseColor[0];
-                    diffuseColor[1] = g * diffuseColor[1];
-                    diffuseColor[2] = b * diffuseColor[2];
-                    specularColor[0] = r * specularColor[0];
-                    specularColor[1] = g * specularColor[1];
-                    specularColor[2] = b * specularColor[2];
-                    ambientColor[0] = r * ambientColor[0];
-                    ambientColor[1] = g * ambientColor[1];
-                    ambientColor[2] = b * ambientColor[2];
-                }
-
-                material = new coMaterial(material_name, ambientColor, diffuseColor, specularColor,
-                                          emissiveColor, shininess, transparency);
-            }
-            else
-            {
-                if (!materialList)
-                    materialList = new coMaterialList("metal");
-
-                material = materialList->get(materialStr);
-                if (!material)
-                {
-                    char category[500];
-                    if (sscanf(materialStr, "%s", category) != 1)
-                    {
-                        if (cover->debugLevel(2))
-                            cerr << "ObjectManager::addGeometry: sscanf11 failed" << endl;
-                    }
-                    materialList->add(category);
-                    material = materialList->get(materialStr);
-                    if (!material)
-                    {
-                        if (cover->debugLevel(2))
-                            fprintf(stderr, "Material %s not found!\n", materialStr);
-                    }
-                }
-            }
-        }
-
         if (strcmp(gtype, "POLYGN") == 0)
         {
             no_poly = geometry->getNumPolygons();
