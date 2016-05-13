@@ -125,6 +125,7 @@ MACRO(COVISE_FIND_PACKAGE package)
 ENDMACRO(COVISE_FIND_PACKAGE PACKAGE)
 
 include(FindPackageHandleStandardArgs)
+include(Qt4-5)
 
 macro(covise_find_library module library)
    #message("covise_find_library(${module} ${library}: searching ${COVISEDIR}/${COVISE_ARCHSUFFIX}")
@@ -143,6 +144,11 @@ endmacro()
 
 set(COVISE_COMP_VARS "")
 macro(covise_find_component comp)
+   if (${comp} STREQUAL File)
+       set(qtopt "OPTIONAL")
+   elseif (${comp} STREQUAL Util)
+       set(qtopt "OPTIONAL")
+   endif()
    if (${comp} STREQUAL virvo)
        set(complib virvo)
        set(compvar VIRVO)
@@ -170,6 +176,7 @@ macro(covise_find_component comp)
        set(complib co${comp})
        string(TOUPPER "${comp}" compvar)
    endif()
+   find_qt(${qtopt})
 
    set(COVISE_COMP_VARS ${COVISE_COMP_VARS};COVISE_${compvar}_LIBRARY)
    
@@ -183,9 +190,6 @@ macro(covise_find_component comp)
       message("COVISE ${comp} not available.")
    endif()
 endmacro()
-
-include(Qt4-5)
-find_qt()
 
 if(COVISE_FIND_COMPONENTS)
    foreach(comp ${COVISE_FIND_COMPONENTS})
