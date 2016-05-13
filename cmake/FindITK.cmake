@@ -1,5 +1,10 @@
 find_file(ITK_CONFIG_FILE
    NAMES
+   "lib/cmake/ITK-5.2/ITKConfig.cmake"
+   "lib/cmake/ITK-5.1/ITKConfig.cmake"
+   "lib/cmake/ITK-5.0/ITKConfig.cmake"
+   "lib/cmake/ITK-4.12/ITKConfig.cmake"
+   "lib/cmake/ITK-4.11/ITKConfig.cmake"
    "lib/cmake/ITK-4.10/ITKConfig.cmake"
    "lib/cmake/ITK-4.9/ITKConfig.cmake"
    "lib/cmake/ITK-4.8/ITKConfig.cmake"
@@ -15,4 +20,5 @@ find_file(ITK_CONFIG_FILE
 
 if (ITK_CONFIG_FILE)
    include(${ITK_CONFIG_FILE})
+   set(ITK_FOUND TRUE)
 endif()
