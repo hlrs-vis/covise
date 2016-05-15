@@ -21,7 +21,7 @@ namespace cui
 
 class coFileBrowserListener;
 
-class CUIEXPORT coFileBrowser : public CardListener
+class coFileBrowser : public CardListener
 {
   public:
     coFileBrowser(string&, cui::Interaction*);
@@ -63,7 +63,7 @@ class CUIEXPORT coFileBrowser : public CardListener
     void sortAlphabetically(std::vector<std::string>&);
 };
 
-class CUIEXPORT coFileBrowserListener
+class coFileBrowserListener
 {
     public:
       coFileBrowserListener() { _fileBrowser = NULL; }
