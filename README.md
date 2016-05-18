@@ -134,9 +134,13 @@ subdirectories of `covise/src`.
 No installation is required: you can use COVISE directly from the build tree.
 
 ### Windows
-   
-       cd covise
-       common.bat
+       REM set COVISEDIR to location of your COVISE checkout
+       set COVISEDIR=c:/src/covise
+	   REM set EXTERNLIBS to correct location of all your dependancies
+       set EXTERNLIBS=c:\src\externlibs\tamarau
+       cd %COVISEDIR%
+	   REM call winenv.bat with appropriate archsuffix for debug or release
+       call %COVISEDIR%\winenv.bat tamarauopt
        mkdir build.covise
        cd build.covise
        cmake-gui ..
