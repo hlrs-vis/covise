@@ -18,6 +18,9 @@
 #include <api/coModule.h>
 #include "ColorDistance.h"
 #include <do/coDoData.h>
+#ifdef WIN32
+float trunc(float d){ return (d>0) ? floor(d) : ceil(d) ; }
+#endif
 
 #ifdef BYTESWAP
 #define byteSwap(x) (void)(x)
