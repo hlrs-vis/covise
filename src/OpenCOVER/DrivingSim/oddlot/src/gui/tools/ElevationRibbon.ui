@@ -10,6 +10,12 @@
     <height>103</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>78</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -31,6 +37,12 @@
    </property>
    <item>
     <widget class="QGroupBox" name="elevationBox">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="title">
       <string>ElevationSection Tools</string>
      </property>
