@@ -46,6 +46,7 @@
 #include "ARToolKit.h"
 #include "EnableGLDebugOperation.h"
 #include "input/input.h"
+#include "tridelity.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>
@@ -55,6 +56,7 @@
 #include <osg/Material>
 #include <osg/CameraView>
 #include <osg/DeleteHandler>
+#include <osg/TextureRectangle>
 #include <osgDB/DatabasePager>
 #include <osg/CullStack>
 #include <osgText/Text>
@@ -441,60 +443,205 @@ VRViewer::~VRViewer()
 void VRViewer::createViewportCameras(int i)
 {
     viewportStruct &vp = coVRConfig::instance()->viewports[i];
-    if(vp.distortMeshName.length() > 0)
+    if (vp.mode == viewportStruct::Channel)
+        return;
+
+    osg::ref_ptr<osg::Camera> cameraWarp = new osg::Camera;
+    cameraWarp->setName("WarpOrtho");
+    cameraWarp->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    cameraWarp->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    cameraWarp->setRenderOrder(osg::Camera::POST_RENDER);
+    cameraWarp->setAllowEventFocus(false);
+
+    cameraWarp->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+    cameraWarp->setProjectionMatrix(osg::Matrix::ortho2D(0, 1, 0, 1));
+    cameraWarp->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+    switch(vp.mode)
     {
-
-        int PBOnum = vp.PBOnum;
-        osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext();
-
-        osg::ref_ptr<osg::Camera> cameraWarp = new osg::Camera;
-        cameraWarp->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        cameraWarp->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        cameraWarp->setRenderOrder(osg::Camera::POST_RENDER);
-        cameraWarp->setAllowEventFocus(false);
-
-        cameraWarp->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-        cameraWarp->setProjectionMatrix(osg::Matrix::ortho2D(0, 1, 0, 1));
-        cameraWarp->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-
-        if (gc)
-        {
-            cameraWarp->setGraphicsContext(gc);
-        }
-
-
-        cameraWarp->setName("WarpOrtho");
-        cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx,
-            vp.viewportYMin * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy,
-            (vp.viewportXMax - vp.viewportXMin) * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx,
-            (vp.viewportYMax - vp.viewportYMin) * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy));
-
-
-        osg::Geode *geode = distortionMesh(vp.distortMeshName.c_str());
-        osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
-        state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-        state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
-        state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
-        if(vp.blendingTextureName.length()>0)
-        {
-            osg::Image *blendTexImage = osgDB::readImageFile(vp.blendingTextureName.c_str());
-            osg::Texture2D *blendTex = new osg::Texture2D;
-            blendTex->ref();
-            blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
-            blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
-            if (blendTexImage)
+        case viewportStruct::Channel:
+            break;;
+        case viewportStruct::PBO:
             {
-                blendTex->setImage(blendTexImage);
+                int PBOnum = vp.PBOnum;
+                if (PBOnum < 0 || PBOnum > coVRConfig::instance()->numPBOs())
+                {
+                    cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
+                    return;
+                }
+                if (osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext())
+                {
+                    cameraWarp->setGraphicsContext(gc);
+                }
+                else
+                {
+                    cerr << "no GraphicsContext for viewport " << i << endl;
+                }
+
+                const int sx = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx;
+                const int sy = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy;
+                cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
+                            (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
+
+                osg::Geode *geode = distortionMesh(vp.distortMeshName.c_str());
+                osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
+                state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+                state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+                state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
+                if(vp.blendingTextureName.length()>0)
+                {
+                    osg::Image *blendTexImage = osgDB::readImageFile(vp.blendingTextureName.c_str());
+                    osg::Texture2D *blendTex = new osg::Texture2D;
+                    blendTex->ref();
+                    blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
+                    blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
+                    if (blendTexImage)
+                    {
+                        blendTex->setImage(blendTexImage);
+                    }
+                    state->setTextureAttributeAndModes(1, blendTex);
+                }
+
+                geode->setStateSet(state.get());
+
+                cameraWarp->addChild(geode);
             }
-            state->setTextureAttributeAndModes(1, blendTex);
-        }
+            break;
+        case viewportStruct::TridelityML:
+        case viewportStruct::TridelityMV:
+            {
+                assert(vp.pbos.size() == 5);
+                for (size_t i=0; i<vp.pbos.size(); ++i)
+                {
+                    int PBOnum = vp.pbos[i];
+                    if (PBOnum < 0 || PBOnum > coVRConfig::instance()->numPBOs())
+                    {
+                        cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
+                        return;
+                    }
+                }
 
-        geode->setStateSet(state.get());
+                int PBOnum = vp.pbos[2];
+                if (osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext())
+                {
+                    cameraWarp->setGraphicsContext(gc);
+                }
+                else
+                {
+                    cerr << "no GraphicsContext for viewport " << i << endl;
+                }
 
-        cameraWarp->addChild(geode);
+                const int sx = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx;
+                const int sy = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy;
+                cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
+                            (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
 
-        cover->getScene()->addChild(cameraWarp.get());
+                osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+                osg::Vec3Array *positionArray = new osg::Vec3Array;
+                osg::Vec4Array *colorArray = new osg::Vec4Array;
+                osg::Vec2Array *textureArray = new osg::Vec2Array;
+                osg::UShortArray *indexArray = new osg::UShortArray;
+                osg::ref_ptr<osg::DrawElementsUShort> drawElement;
+                osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+                geometry->setUseDisplayList(false);
+                geometry->setUseVertexBufferObjects(true);
+                positionArray->push_back(osg::Vec3f(0,0,0));
+                positionArray->push_back(osg::Vec3f(1,0,0));
+                positionArray->push_back(osg::Vec3f(1,1,0));
+                positionArray->push_back(osg::Vec3f(0,1,0));
+                textureArray->push_back(osg::Vec2f(0,0));
+                textureArray->push_back(osg::Vec2f(1,0));
+                textureArray->push_back(osg::Vec2f(1,1));
+                textureArray->push_back(osg::Vec2f(0,1));
+
+                indexArray->push_back(0);
+                indexArray->push_back(1);
+                indexArray->push_back(2);
+                indexArray->push_back(3);
+                colorArray->push_back(osg::Vec4f(1,1,1,1));
+                colorArray->push_back(osg::Vec4f(1,1,1,1));
+                colorArray->push_back(osg::Vec4f(1,1,1,1));
+                colorArray->push_back(osg::Vec4f(1,1,1,1));
+
+                drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
+
+                geometry->addPrimitiveSet(drawElement);
+                for (int i=0; i<5; ++i)
+                {
+                    geometry->setTexCoordArray(i,textureArray,osg::Array::BIND_PER_VERTEX);
+                }
+                geometry->setVertexArray(positionArray);
+                geometry->setColorArray(colorArray);
+                geometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX); // colors per vertex for blending
+                geode->addDrawable(geometry);
+
+                osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
+                state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+                state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+                for (int i=0; i<5; ++i)
+                {
+                    int p = vp.pbos[i];
+                    state->setTextureAttributeAndModes(i, coVRConfig::instance()->PBOs[p].renderTargetTexture, osg::StateAttribute::ON);
+                }
+
+                osg::TextureRectangle *lookupTex = new osg::TextureRectangle;
+                osg::Image *lookupTexImage = vp.mode==viewportStruct::TridelityML ? tridelityLookupML() : tridelityLookupMV();
+                lookupTex->setImage(lookupTexImage);
+                state->setTextureAttributeAndModes(5, lookupTex);
+
+                osg::Program *lookupProgram = new osg::Program;                                                                          
+                osg::Shader *lookupFrag = new osg::Shader(osg::Shader::FRAGMENT);
+                lookupProgram->addShader(lookupFrag);
+                lookupFrag->setShaderSource(
+						"uniform sampler2D view0;"
+						"uniform sampler2D view1;"
+						"uniform sampler2D view2;"
+						"uniform sampler2D view3;"
+						"uniform sampler2D view4;"
+						"uniform sampler2DRect lookup;"
+						"uniform vec2 lookupSize;"
+                        ""
+						"void main()"
+						"{"
+						"       vec2 coord = vec2(gl_TexCoord[0].x, gl_TexCoord[0].y);"
+                        "       float w = lookupSize.x*0.2;"
+						"       float xx = mod(gl_FragCoord.x, w);"
+						"       float yy = mod(gl_FragCoord.y, lookupSize.y);"
+						"       vec3 c0 = texture2D(view0, coord).rgb;"
+						"       vec3 c1 = texture2D(view1, coord).rgb;"
+						"       vec3 c2 = texture2D(view2, coord).rgb;"
+						"       vec3 c3 = texture2D(view3, coord).rgb;"
+						"       vec3 c4 = texture2D(view4, coord).rgb;"
+						"       vec3 l0 = texture2DRect(lookup, vec2(xx,yy)).rgb;"
+						"       vec3 l1 = texture2DRect(lookup, vec2(xx + w, yy)).rgb;"
+						"       vec3 l2 = texture2DRect(lookup, vec2(xx + 2.0 * w,yy)).rgb;"
+						"       vec3 l3 = texture2DRect(lookup, vec2(xx + 3.0 * w,yy)).rgb;"
+						"       vec3 l4 = texture2DRect(lookup, vec2(xx + 4.0 * w,yy)).rgb;"
+						"       gl_FragColor.rgb = c4*l4 + c3*l3 + c2*l2 + c1*l1 + c0*l0;"
+						"}"
+                        );
+                for (int i=0; i<5; ++i)
+                {
+                    std::stringstream str;
+                    str << "view" << i;
+                    std::string s = str.str();
+                    osg::Uniform *tex = new osg::Uniform(s.c_str(), i);
+                    state->addUniform(tex);
+                }
+                osg::Uniform *lookup = new osg::Uniform("lookup", 5);
+                state->addUniform(lookup);
+                osg::Vec2 size(lookupTexImage->s(), lookupTexImage->t());
+                osg::Uniform *lookupSize = new osg::Uniform("lookupSize", size);
+                state->addUniform(lookupSize);
+                state->setAttributeAndModes(lookupProgram, osg::StateAttribute::ON);
+
+                geode->setStateSet(state.get());
+
+                cameraWarp->addChild(geode);
+            }
+            break;
     }
+    cover->getScene()->addChild(cameraWarp.get());
 }
 
 void VRViewer::createBlendingCameras(int i)
@@ -591,7 +738,7 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
     osg::Vec2Array *textureArray = new osg::Vec2Array;
     osg::UShortArray *indexArray = new osg::UShortArray;
 
-    
+
     osg::ref_ptr<osg::DrawElementsUShort> drawElement;
     // Get triangle indicies
 
@@ -599,17 +746,20 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
     geometry->setUseDisplayList(false);
     geometry->setUseVertexBufferObjects(true);
 
-    FILE *fp = fopen(fileName,"r");
+    FILE *fp = NULL;
+    if (fileName && fileName[0])
+        fp = fopen(fileName,"r");
     if(fp!=NULL)
     {
+        cerr << "reading distortion mesh from " << fileName << std::endl;
         char buf[501];
         int numVert;
         int numFaces;
         int NATIVEYRES;
         int NATIVEXRES;
-	float ortholeft=0;
-	float orthoright=1;
-	float sh = 1.0;
+        float ortholeft=0;
+        float orthoright=1;
+        float sh = 1.0;
         while(!feof(fp))
         {
             if (!fgets(buf,500,fp))
@@ -619,12 +769,12 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
             if(strncmp(buf,"ORTHO_LEFT",10)==0)
             {
                 sscanf(buf+10,"%f", &ortholeft);
-	     sh = 1.0 / (orthoright - ortholeft);
+                sh = 1.0 / (orthoright - ortholeft);
             };
             if(strncmp(buf,"ORTHO_RIGHT",11)==0)
             {
                 sscanf(buf+11,"%f", &orthoright);
-	     sh = 1.0 / (orthoright - ortholeft);
+                sh = 1.0 / (orthoright - ortholeft);
             }
             if(strncmp(buf,"NATIVEXRES",10)==0)
             {
@@ -643,7 +793,7 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
                     sscanf(buf,"%f %f %f %f %f",&vx,&vy,&brightness,&tx, &ty);
                     positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,1.0-(vy/NATIVEYRES),0));
                     textureArray->push_back(osg::Vec2f((tx-ortholeft)*sh,ty));
-		    colorArray->push_back(osg::Vec4f(brightness/255.0,brightness/255.0,brightness/255.0,1));
+                    colorArray->push_back(osg::Vec4f(brightness/255.0,brightness/255.0,brightness/255.0,1));
                 }
                 int tr[3];
                 for(int i=0;i<numFaces;i++)
@@ -668,12 +818,10 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
             }
         }
         drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLES, indexArray->size(), (GLushort *)indexArray->getDataPointer());
-   
+
     }
     else
     {
-        drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
-   
         positionArray->push_back(osg::Vec3f(0,0,0));
         positionArray->push_back(osg::Vec3f(1,0,0));
         positionArray->push_back(osg::Vec3f(1,1,0));
@@ -687,13 +835,15 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
         indexArray->push_back(1);
         indexArray->push_back(2);
         indexArray->push_back(3);
-	colorArray->push_back(osg::Vec4f(1,1,1,1));
-	colorArray->push_back(osg::Vec4f(1,1,1,1));
-	colorArray->push_back(osg::Vec4f(1,1,1,1));
-	colorArray->push_back(osg::Vec4f(1,1,1,1));
+        colorArray->push_back(osg::Vec4f(1,1,1,1));
+        colorArray->push_back(osg::Vec4f(1,1,1,1));
+        colorArray->push_back(osg::Vec4f(1,1,1,1));
+        colorArray->push_back(osg::Vec4f(1,1,1,1));
+
+        drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
     }
 
-     geometry->addPrimitiveSet(drawElement);
+    geometry->addPrimitiveSet(drawElement);
     geometry->setTexCoordArray(0,textureArray,osg::Array::BIND_PER_VERTEX);
     geometry->setTexCoordArray(1,textureArray,osg::Array::BIND_PER_VERTEX);
     geometry->setVertexArray(positionArray);
@@ -878,6 +1028,7 @@ VRViewer::createChannels(int i)
         return;
     }
     osg::ref_ptr<osg::GraphicsContext> gc = NULL;
+    int pboNum = coVRConfig::instance()->channels[i].PBONum;
     if(vp >= 0)
     {
         const int win = coVRConfig::instance()->viewports[vp].window;
@@ -888,12 +1039,19 @@ VRViewer::createChannels(int i)
             return;
         }
         gc = coVRConfig::instance()->windows[win].context;
+        pboNum = -1;
     }
     else
     {
-        gc = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].context;
+        if (pboNum < 0)
+        {
+            cerr << "channel " << i << ": neither viewport nor PBO configured" << endl;
+            return;
+        }
+        gc = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[pboNum].windowNum].context;
         RenderToTexture = true;
     }
+
     if (i == 0)
     {
         coVRConfig::instance()->channels[i].camera = _camera;
@@ -909,7 +1067,7 @@ VRViewer::createChannels(int i)
     {
         osg::Camera::RenderTargetImplementation renderImplementation;
 
-        // Voreingestellte Option f�r Render-Target aus Config auslesen
+        // Voreingestellte Option für Render-Target aus Config auslesen
         std::string buf = coCoviseConfig::getEntry("COVER.Plugin.Vrml97.RTTImplementation");
         if (!buf.empty())
         {
@@ -934,26 +1092,26 @@ VRViewer::createChannels(int i)
             renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
 
         renderTargetTexture = new osg::Texture2D;
-        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].context;
+        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[pboNum].windowNum].context;
         if (!cg)
         {
             fprintf(stderr, "no graphics context for cover screen %d\n", i);
             return;
         }
 
-        renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[i].PBOsx, coVRConfig::instance()->PBOs[i].PBOsy);
+        renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[pboNum].PBOsx, coVRConfig::instance()->PBOs[pboNum].PBOsy);
         renderTargetTexture->setInternalFormat(GL_RGBA);
         //renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);
         //	   renderTargetTexture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::NEAREST);
         renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
         renderTargetTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-        coVRConfig::instance()->PBOs[i].renderTargetTexture = renderTargetTexture;
+        coVRConfig::instance()->PBOs[pboNum].renderTargetTexture = renderTargetTexture;
         coVRConfig::instance()->channels[i].camera->attach(osg::Camera::COLOR_BUFFER, renderTargetTexture);
         coVRConfig::instance()->channels[i].camera->setRenderTargetImplementation(renderImplementation);
 
 
-        coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->PBOs[i].PBOsx,
-                    coVRConfig::instance()->PBOs[i].PBOsy));
+        coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->PBOs[pboNum].PBOsx,
+                    coVRConfig::instance()->PBOs[pboNum].PBOsy));
     }
     if (gc.get())
     {
@@ -970,10 +1128,14 @@ VRViewer::createChannels(int i)
                 coVRConfig::instance()->viewports[viewportNumber].viewportYMin * traits->height,
                 (coVRConfig::instance()->viewports[viewportNumber].viewportXMax - coVRConfig::instance()->viewports[viewportNumber].viewportXMin) * traits->width,
                 (coVRConfig::instance()->viewports[viewportNumber].viewportYMax - coVRConfig::instance()->viewports[viewportNumber].viewportYMin) * traits->height));
+            coVRConfig::instance()->channels[i].camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        }
+        else
+        {
+            coVRConfig::instance()->channels[i].camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
 
-        coVRConfig::instance()->channels[i].camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         coVRConfig::instance()->channels[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
         coVRConfig::instance()->channels[i].camera->setClearStencil(0);
 
@@ -985,10 +1147,10 @@ VRViewer::createChannels(int i)
         coVRConfig::instance()->channels[i].camera->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
        
         coVRConfig::instance()->channels[i].camera->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
-        //coVRConfig::instance()->screens[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
+        //coVRConfig::instance()->channels[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
-        cerr << "window " << coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window << " of screen " << i << " not defined" << endl;
+        cerr << "window " << coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window << " of channel " << i << " not defined" << endl;
 
     osg::DisplaySettings *ds = NULL;
     ds = _displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get();
@@ -1081,268 +1243,276 @@ VRViewer::setFrustumAndView(int i)
     {
         currentChannel->camera->setViewMatrix(currentChannel->rightView);
         currentChannel->camera->setProjectionMatrix(currentChannel->rightProj);
+        return;
+    }
+
+    osg::Vec3 xyz; // center position of the screen
+    osg::Vec3 hpr; // orientation of the screen
+    osg::Matrix mat, trans, euler; // xform screencenter - world origin
+    osg::Matrixf offsetMat;
+    osg::Vec3 leftEye, rightEye, middleEye; // transformed eye position
+    float rc_dist, lc_dist, mc_dist; // dist from eye to screen for left&right chan
+    float rc_left, rc_right, rc_bottom, rc_top; // parameter of right frustum
+    float lc_left, lc_right, lc_bottom, lc_top; // parameter of left frustum
+    float mc_left, mc_right, mc_bottom, mc_top; // parameter of middle frustum
+    float n_over_d; // near over dist -> Strahlensatz
+    float dx, dz; // size of screen
+
+    //othEyesDirOffset; == hpr
+    //osg::Vec3  rightEyePosOffset(0.0,0.0,0.0), leftEyePosOffset(0.0,0.0,0.0);
+
+    osg::Matrixf offsetMatRight;
+    osg::Matrixf offsetMatLeft;
+
+    dx = currentScreen->hsize;
+    dz = currentScreen->vsize;
+
+    hpr = currentScreen->hpr;
+    xyz = currentScreen->xyz;
+
+    // first set pos and yaxis
+    // next set separation and dir from covise.config
+    // which I think workks only if 0 0 0 (dr)
+    rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
+    leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
+    middleViewPos.set(0.0, 0.0, 0.0);
+
+    ////// IWR : get values of moving screen; change only if moved by >1%
+    if (screen_angle && screen_angle[0].screen == i)
+    {
+        float new_angle;
+
+        new_angle = ((*screen_angle[0].value - screen_angle[0].cmin) / (screen_angle[0].cmax - screen_angle[0].cmin)) * (screen_angle[0].maxangle - screen_angle[0].minangle) + screen_angle[0].minangle;
+
+        // change angle only, when change is significant (> 1%)
+        float change_delta = fabs(screen_angle[0].maxangle - screen_angle[0].minangle) * 0.01;
+
+        if (fabs(currentScreen->hpr[screen_angle[0].hpr] - new_angle) > change_delta)
+        {
+            currentScreen->hpr[screen_angle[0].hpr] = new_angle;
+            //		   cerr << "Cereal gives " << *screen_angle[0].value << endl;
+            cerr << "Setting Screen angle " << screen_angle[0].hpr << " to " << new_angle << endl;
+        }
+    }
+
+    if (coco->trackedHMD) // moving HMD
+    {
+        // moving hmd: frustum ist fixed and only a little bit assymetric through stereo
+        rightEye.set(separation / 2.0, 0, 0);
+        leftEye.set(-(separation / 2.0), 0, 0);
+        middleEye.set(0.0, 0, 0);
+
+        // transform the left and right eye with the viewer matrix
+        rightEye = viewMat.preMult(rightEye);
+        leftEye = viewMat.preMult(leftEye);
+        middleEye = viewMat.preMult(middleEye);
+    }
+
+    else if (coco->HMDMode) // weiss nicht was das fuer ein code ist
+        // wenn screen center und dir 000 sind
+    {
+
+        // transform the screen to fit the xz-plane
+
+        trans.makeTranslate(xyz[0], xyz[1], xyz[2]);
+        trans.invert(trans);
+
+        MAKE_EULER_MAT(euler, hpr[0], hpr[1], hpr[2]);
+        euler.invert(euler);
+
+        mat.mult(trans, euler);
+
+        euler.makeRotate(-coco->worldAngle(), osg::X_AXIS);
+        //euler.invertN(euler);
+        mat.mult(euler, mat);
+
+        rightEye.set(separation / 2.0f, 0.0f, 0.0f);
+        leftEye.set(-(separation / 2.0f), 0.0f, 0.0f);
+        middleEye.set(0.0, 0.0, 0.0);
+        rightEye += initialViewPos;
+        leftEye += initialViewPos;
+        middleEye += initialViewPos;
+
+        // transform the left and right eye with this matrix
+        rightEye = viewMat.preMult(rightEye);
+        leftEye = viewMat.preMult(leftEye);
+        middleEye = viewMat.preMult(middleEye);
+
+        rightViewPos += initialViewPos;
+        leftViewPos += initialViewPos;
+
+        // add world angle
+        osg::Matrixf rotAll, newDir;
+        rotAll.makeRotate(-coco->worldAngle(), osg::X_AXIS);
+        newDir.mult(viewMat, rotAll);
+
+        // first set it if both channels were at the position of a mono channel
+        // currentScreen->camera->setOffset(newDir.ptr(),0,0);
+
+        viewPos = newDir.getTrans();
+
+        // for stereo use the pfChanViewOffset to position it correctly
+        // and to set the viewing direction (normal of the screen)
+
+        //rightEyePosOffset=rightViewPos - viewPos;
+        //leftEyePosOffset=leftViewPos - viewPos;
+    }
+
+    else // fixed screens: viewing frustums change with tracking and are asymetric because of tracking and stereo
+    {
+
+        // transform the screen to fit the xz-plane
+        trans.makeTranslate(-xyz[0], -xyz[1], -xyz[2]);
+
+        //euler.makeRotate(hpr[0],osg::Y_AXIS, hpr[1],osg::X_AXIS, hpr[2],osg::Z_AXIS);
+
+        MAKE_EULER_MAT_VEC(euler, hpr);
+        euler.invert(euler);
+
+        mat.mult(trans, euler);
+
+        euler.makeRotate(-coco->worldAngle(), osg::X_AXIS);
+        //euler.invertN(euler);
+        mat.mult(euler, mat);
+        //cerr << "test" << endl;
+
+        const float off = stereoOn ? currentChannel->viewerOffset : 0.f;
+        if (stereoOn)
+        {
+            rightEye.set(separation / 2.0 + off, 0.0, 0.0);
+            leftEye.set(-(separation / 2.0) + off, 0.0, 0.0);
+            middleEye.set(0.0 + off, 0.0, 0.0);
+        }
+        else
+        {
+            rightEye.set(off, 0.0, 0.0);
+            leftEye.set(off, 0.0, 0.0);
+            middleEye.set(off, 0.0, 0.0);
+        }
+
+        // transform the left and right eye with this matrix
+        rightEye = viewMat.preMult(rightEye);
+        leftEye = viewMat.preMult(leftEye);
+        middleEye = viewMat.preMult(middleEye);
+
+        rightEye = mat.preMult(rightEye);
+        leftEye = mat.preMult(leftEye);
+        middleEye = mat.preMult(middleEye);
+
+        // rightEye = (0.5*separation,0,0)*viewMat*eventuell die trafos des screens in den ursprung(cave)
+    }
+
+    offsetMat = mat;
+
+    // compute right frustum
+
+    // dist of right channel eye to screen (absolute)
+    if (coco->trackedHMD)
+    {
+        rc_dist = coco->HMDDistance;
+        if (coco->orthographic())
+        {
+            currentChannel->rightProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
+            currentChannel->leftProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
+            currentChannel->camera->setProjectionMatrixAsOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
+        }
+        else
+        {
+            if (currentScreen->lTan != -1)
+            {
+                float n = coco->nearClip();
+                currentChannel->rightProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
+                currentChannel->leftProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
+                currentChannel->camera->setProjectionMatrixAsFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
+            }
+            else
+            {
+                currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+                currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+                currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+            }
+        }
     }
     else
     {
+        rc_dist = -rightEye[1];
+        lc_dist = -leftEye[1];
+        mc_dist = -middleEye[1];
 
-        osg::Vec3 xyz; // center position of the screen
-        osg::Vec3 hpr; // orientation of the screen
-        osg::Matrix mat, trans, euler; // xform screencenter - world origin
-        osg::Matrixf offsetMat;
-        osg::Vec3 leftEye, rightEye, middleEye; // transformed eye position
-        float rc_dist, lc_dist, mc_dist; // dist from eye to screen for left&right chan
-        float rc_left, rc_right, rc_bottom, rc_top; // parameter of right frustum
-        float lc_left, lc_right, lc_bottom, lc_top; // parameter of left frustum
-        float mc_left, mc_right, mc_bottom, mc_top; // parameter of middle frustum
-        float n_over_d; // near over dist -> Strahlensatz
-        float dx, dz; // size of screen
+        // relation near plane to screen plane
+        if (coco->orthographic())
+            n_over_d = 1.0;
+        else
+            n_over_d = coco->nearClip() / rc_dist;
 
-        //othEyesDirOffset; == hpr
-        //osg::Vec3  rightEyePosOffset(0.0,0.0,0.0), leftEyePosOffset(0.0,0.0,0.0);
+        // parameter of right channel
+        rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
+        rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
+        rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
+        rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
 
-        osg::Matrixf offsetMatRight;
-        osg::Matrixf offsetMatLeft;
+        // compute left frustum
+        if (coco->orthographic())
+            n_over_d = 1.0;
+        else
+            n_over_d = coco->nearClip() / lc_dist;
+        lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
+        lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
+        lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
+        lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
 
-        dx = currentScreen->hsize;
-        dz = currentScreen->vsize;
+        // compute left frustum
+        if (coco->orthographic())
+            n_over_d = 1.0;
+        else
+            n_over_d = coco->nearClip() / mc_dist;
+        mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
+        mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
+        mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
+        mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
 
-        hpr = currentScreen->hpr;
-        xyz = currentScreen->xyz;
-
-        // first set pos and yaxis
-        // next set separation and dir from covise.config
-        // which I think workks only if 0 0 0 (dr)
-        rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-        leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-        middleViewPos.set(0.0, 0.0, 0.0);
-
-        ////// IWR : get values of moving screen; change only if moved by >1%
-        if (screen_angle && screen_angle[0].screen == i)
+        if (coco->orthographic())
         {
-            float new_angle;
-
-            new_angle = ((*screen_angle[0].value - screen_angle[0].cmin) / (screen_angle[0].cmax - screen_angle[0].cmin)) * (screen_angle[0].maxangle - screen_angle[0].minangle) + screen_angle[0].minangle;
-
-            // change angle only, when change is significant (> 1%)
-            float change_delta = fabs(screen_angle[0].maxangle - screen_angle[0].minangle) * 0.01;
-
-            if (fabs(currentScreen->hpr[screen_angle[0].hpr] - new_angle) > change_delta)
-            {
-                currentScreen->hpr[screen_angle[0].hpr] = new_angle;
-                //		   cerr << "Cereal gives " << *screen_angle[0].value << endl;
-                cerr << "Setting Screen angle " << screen_angle[0].hpr << " to " << new_angle << endl;
-            }
-        }
-
-        if (coco->trackedHMD) // moving HMD
-        {
-            // moving hmd: frustum ist fixed and only a little bit assymetric through stereo
-            rightEye.set(separation / 2.0, 0, 0);
-            leftEye.set(-(separation / 2.0), 0, 0);
-            middleEye.set(0.0, 0, 0);
-
-            // transform the left and right eye with the viewer matrix
-            rightEye = viewMat.preMult(rightEye);
-            leftEye = viewMat.preMult(leftEye);
-            middleEye = viewMat.preMult(middleEye);
-        }
-
-        else if (coco->HMDMode) // weiss nicht was das fuer ein code ist
-        // wenn screen center und dir 000 sind
-        {
-
-            // transform the screen to fit the xz-plane
-
-            trans.makeTranslate(xyz[0], xyz[1], xyz[2]);
-            trans.invert(trans);
-
-            MAKE_EULER_MAT(euler, hpr[0], hpr[1], hpr[2]);
-            euler.invert(euler);
-
-            mat.mult(trans, euler);
-
-            euler.makeRotate(-coco->worldAngle(), osg::X_AXIS);
-            //euler.invertN(euler);
-            mat.mult(euler, mat);
-
-            rightEye.set(separation / 2.0f, 0.0f, 0.0f);
-            leftEye.set(-(separation / 2.0f), 0.0f, 0.0f);
-            middleEye.set(0.0, 0.0, 0.0);
-            rightEye += initialViewPos;
-            leftEye += initialViewPos;
-            middleEye += initialViewPos;
-
-            // transform the left and right eye with this matrix
-            rightEye = viewMat.preMult(rightEye);
-            leftEye = viewMat.preMult(leftEye);
-            middleEye = viewMat.preMult(middleEye);
-
-            rightViewPos += initialViewPos;
-            leftViewPos += initialViewPos;
-
-            // add world angle
-            osg::Matrixf rotAll, newDir;
-            rotAll.makeRotate(-coco->worldAngle(), osg::X_AXIS);
-            newDir.mult(viewMat, rotAll);
-
-            // first set it if both channels were at the position of a mono channel
-            // currentScreen->camera->setOffset(newDir.ptr(),0,0);
-
-            viewPos = newDir.getTrans();
-
-            // for stereo use the pfChanViewOffset to position it correctly
-            // and to set the viewing direction (normal of the screen)
-
-            //rightEyePosOffset=rightViewPos - viewPos;
-            //leftEyePosOffset=leftViewPos - viewPos;
-        }
-
-        else // fixed screens: viewing frustums change with tracking and are asymetric because of tracking and stereo
-        {
-
-            // transform the screen to fit the xz-plane
-            trans.makeTranslate(-xyz[0], -xyz[1], -xyz[2]);
-
-            //euler.makeRotate(hpr[0],osg::Y_AXIS, hpr[1],osg::X_AXIS, hpr[2],osg::Z_AXIS);
-
-            MAKE_EULER_MAT_VEC(euler, hpr);
-            euler.invert(euler);
-
-            mat.mult(trans, euler);
-
-            euler.makeRotate(-coco->worldAngle(), osg::X_AXIS);
-            //euler.invertN(euler);
-            mat.mult(euler, mat);
-            //cerr << "test" << endl;
-
-            rightEye.set(separation / 2.0, 0.0, 0.0);
-            leftEye.set(-(separation / 2.0), 0.0, 0.0);
-            middleEye.set(0.0, 0.0, 0.0);
-
-            // transform the left and right eye with this matrix
-            rightEye = viewMat.preMult(rightEye);
-            leftEye = viewMat.preMult(leftEye);
-            middleEye = viewMat.preMult(middleEye);
-
-            rightEye = mat.preMult(rightEye);
-            leftEye = mat.preMult(leftEye);
-            middleEye = mat.preMult(middleEye);
-
-            // rightEye = (0.5*separation,0,0)*viewMat*eventuell die trafos des screens in den ursprung(cave)
-        }
-
-        offsetMat = mat;
-
-        // compute right frustum
-
-        // dist of right channel eye to screen (absolute)
-        if (coco->trackedHMD)
-        {
-            rc_dist = coco->HMDDistance;
-            if (coco->orthographic())
-            {
-                currentChannel->rightProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
-                currentChannel->leftProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
-                currentChannel->camera->setProjectionMatrixAsOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
-            }
-            else
-            {
-                if (currentScreen->lTan != -1)
-                {
-                    float n = coco->nearClip();
-                    currentChannel->rightProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
-                    currentChannel->leftProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
-                    currentChannel->camera->setProjectionMatrixAsFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
-                }
-                else
-                {
-                    currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                    currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                    currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                }
-            }
+            currentChannel->rightProj.makeOrtho(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
+            currentChannel->leftProj.makeOrtho(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
+            currentChannel->camera->setProjectionMatrixAsOrtho(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
         }
         else
         {
-            rc_dist = -rightEye[1];
-            lc_dist = -leftEye[1];
-            mc_dist = -middleEye[1];
-
-            // relation near plane to screen plane
-            if (coco->orthographic())
-                n_over_d = 1.0;
-            else
-                n_over_d = coco->nearClip() / rc_dist;
-
-            // parameter of right channel
-            rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
-            rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
-            rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
-            rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
-
-            // compute left frustum
-            if (coco->orthographic())
-                n_over_d = 1.0;
-            else
-                n_over_d = coco->nearClip() / lc_dist;
-            lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
-            lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
-            lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
-            lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
-
-            // compute left frustum
-            if (coco->orthographic())
-                n_over_d = 1.0;
-            else
-                n_over_d = coco->nearClip() / mc_dist;
-            mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
-            mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
-            mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
-            mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
-
-            if (coco->orthographic())
-            {
-                currentChannel->rightProj.makeOrtho(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
-                currentChannel->leftProj.makeOrtho(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
-                currentChannel->camera->setProjectionMatrixAsOrtho(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
-            }
-            else
-            {
-                currentChannel->rightProj.makeFrustum(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
-                currentChannel->leftProj.makeFrustum(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
-                currentChannel->camera->setProjectionMatrixAsFrustum(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
-            }
+            currentChannel->rightProj.makeFrustum(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
+            currentChannel->leftProj.makeFrustum(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
+            currentChannel->camera->setProjectionMatrixAsFrustum(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
         }
+    }
 
-        // set view
-        if (coco->trackedHMD)
-        {
-            // set the view mat from tracker, translated by separation/2
-            osg::Vec3 viewDir(0, 1, 0), viewUp(0, 0, 1);
-            viewDir = viewMat.transform3x3(viewDir, viewMat);
-            viewDir.normalize();
-            //fprintf(stderr,"viewDir=[%f %f %f]\n", viewDir[0], viewDir[1], viewDir[2]);
-            viewUp = viewMat.transform3x3(viewUp, viewMat);
-            viewUp.normalize();
-            currentChannel->rightView.makeLookAt(rightEye, rightEye + viewDir, viewUp);
-            ///currentScreen->rightView=viewMat;
-            currentChannel->leftView.makeLookAt(leftEye, leftEye + viewDir, viewUp);
-            ///currentScreen->leftView=viewMat;
+    // set view
+    if (coco->trackedHMD)
+    {
+        // set the view mat from tracker, translated by separation/2
+        osg::Vec3 viewDir(0, 1, 0), viewUp(0, 0, 1);
+        viewDir = viewMat.transform3x3(viewDir, viewMat);
+        viewDir.normalize();
+        //fprintf(stderr,"viewDir=[%f %f %f]\n", viewDir[0], viewDir[1], viewDir[2]);
+        viewUp = viewMat.transform3x3(viewUp, viewMat);
+        viewUp.normalize();
+        currentChannel->rightView.makeLookAt(rightEye, rightEye + viewDir, viewUp);
+        ///currentScreen->rightView=viewMat;
+        currentChannel->leftView.makeLookAt(leftEye, leftEye + viewDir, viewUp);
+        ///currentScreen->leftView=viewMat;
 
-            currentChannel->camera->setViewMatrix(osg::Matrix::lookAt(middleEye, middleEye + viewDir, viewUp));
-            ///currentScreen->camera->setViewMatrix(viewMat);
-        }
-        else
-        {
-            // take the normal to the plane as orientation this is (0,1,0)
-            currentChannel->rightView.makeLookAt(osg::Vec3(rightEye[0], rightEye[1], rightEye[2]), osg::Vec3(rightEye[0], rightEye[1] + 1, rightEye[2]), osg::Vec3(0, 0, 1));
-            currentChannel->rightView.preMult(offsetMat);
+        currentChannel->camera->setViewMatrix(osg::Matrix::lookAt(middleEye, middleEye + viewDir, viewUp));
+        ///currentScreen->camera->setViewMatrix(viewMat);
+    }
+    else
+    {
+        // take the normal to the plane as orientation this is (0,1,0)
+        currentChannel->rightView.makeLookAt(osg::Vec3(rightEye[0], rightEye[1], rightEye[2]), osg::Vec3(rightEye[0], rightEye[1] + 1, rightEye[2]), osg::Vec3(0, 0, 1));
+        currentChannel->rightView.preMult(offsetMat);
 
-            currentChannel->leftView.makeLookAt(osg::Vec3(leftEye[0], leftEye[1], leftEye[2]), osg::Vec3(leftEye[0], leftEye[1] + 1, leftEye[2]), osg::Vec3(0, 0, 1));
-            currentChannel->leftView.preMult(offsetMat);
+        currentChannel->leftView.makeLookAt(osg::Vec3(leftEye[0], leftEye[1], leftEye[2]), osg::Vec3(leftEye[0], leftEye[1] + 1, leftEye[2]), osg::Vec3(0, 0, 1));
+        currentChannel->leftView.preMult(offsetMat);
 
-            currentChannel->camera->setViewMatrix(offsetMat * osg::Matrix::lookAt(osg::Vec3(middleEye[0], middleEye[1], middleEye[2]), osg::Vec3(middleEye[0], middleEye[1] + 1, middleEye[2]), osg::Vec3(0, 0, 1)));
-        }
+        currentChannel->camera->setViewMatrix(offsetMat * osg::Matrix::lookAt(osg::Vec3(middleEye[0], middleEye[1], middleEye[2]), osg::Vec3(middleEye[0], middleEye[1] + 1, middleEye[2]), osg::Vec3(0, 0, 1)));
     }
 }
 

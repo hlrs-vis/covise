@@ -8,6 +8,7 @@
 #include <iostream>
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>
+#include <util/string_util.h>
 #include "coVRNavigationManager.h"
 #include "coCoverConfig.h"
 #include "coVRConfig.h"
@@ -31,8 +32,9 @@ float coVRConfig::getSceneSize() const
     return m_sceneSize;
 }
 
-int coVRConfig::parseStereoMode(const char *modeName)
+int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
 {
+    bool st = true;
 
     int stereoMode = osg::DisplaySettings::ANAGLYPHIC;
     if (modeName)
@@ -63,9 +65,8 @@ int coVRConfig::parseStereoMode(const char *modeName)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
         else if (strcasecmp(modeName, "MONO") == 0)
         {
+            st = false;
             stereoMode = osg::DisplaySettings::LEFT_EYE;
-            m_stereoState = false;
-            m_stereoSeparation = 0.f;
         }
         else if (strcasecmp(modeName, "NONE") == 0)
             stereoMode = osg::DisplaySettings::ANAGLYPHIC;
@@ -73,6 +74,11 @@ int coVRConfig::parseStereoMode(const char *modeName)
             stereoMode = osg::DisplaySettings::ANAGLYPHIC;
         else
             cerr << "Unknown stereo mode \"" << modeName << "\"" << endl;
+    }
+
+    if (stereo)
+    {
+        *stereo = st;
     }
     return stereoMode;
 }
@@ -361,7 +367,7 @@ coVRConfig::coVRConfig()
         stereoM = coCoviseConfig::getEntry("stereoMode", str);
         if (!stereoM.empty())
         {
-            channels[i].stereoMode = parseStereoMode(stereoM.c_str());
+            channels[i].stereoMode = parseStereoMode(stereoM.c_str(), &channels[i].stereo);
         }
         else
         {
@@ -386,6 +392,8 @@ coVRConfig::coVRConfig()
         {
             m_stencil = true;
         }
+
+        channels[i].viewerOffset = coCoviseConfig::getFloat("viewerOffset", str, 0.f);
         
         channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
         if(channels[i].PBONum == -1)
@@ -412,9 +420,12 @@ coVRConfig::coVRConfig()
         sprintf(str, "COVER.PBOConfig.PBO:%d", (int)i);
         
         PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
+        PBOs[i].PBOsx = coCoviseConfig::getInt("width", str, PBOs[i].PBOsx);
         PBOs[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
+        PBOs[i].PBOsy = coCoviseConfig::getInt("height", str, PBOs[i].PBOsy);
         PBOs[i].windowNum = coCoviseConfig::getInt("windowIndex", str, -1);
     }
+
     for (size_t i = 0; i < viewports.size(); i++)
     {
         std::string stereoM;
@@ -422,12 +433,35 @@ coVRConfig::coVRConfig()
         char str[200];
         sprintf(str, "COVER.ViewportConfig.Viewport:%d", (int)i);
         viewportStruct &vp = viewports[i];
+        std::string mode = coCoviseConfig::getEntry("mode", str, "");
+        mode = toLower(mode);
+        if (mode.empty() || mode == "channel")
+        {
+            vp.mode = viewportStruct::Channel;
+        }
+        else if (mode == "pbo")
+        {
+            vp.mode = viewportStruct::PBO;
+        }
+        else if (mode == "tridelityml")
+        {
+            vp.mode = viewportStruct::TridelityML;
+        }
+        else if (mode == "tridelitymv")
+        {
+            vp.mode = viewportStruct::TridelityMV;
+        }
+        else
+        {
+            std::cerr << "cannot parse viewport mode \"" << mode << "\" for viewport " << i << std::endl;
+            return;
+        }
         bool exists=false;
-        vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+        vp.window = coCoviseConfig::getInt("windowIndex", str, -1, &exists);
         if(!exists)
         {
             // no viewport config, check for values in channelConfig for backward compatibility
-            
+
             sprintf(str, "COVER.ChannelConfig.Channel:%d", (int)i);
             vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
             if (!exists)
@@ -435,18 +469,51 @@ coVRConfig::coVRConfig()
                 std::cerr << "no ChannelConfig for channel " << i << std::endl;
                 exit(1);
             }
-            vp.PBOnum = i;
-        }
-        else
-        {
-            vp.PBOnum = coCoviseConfig::getInt("PBOIndex", str, -1);
         }
 
+        vp.PBOnum = coCoviseConfig::getInt("PBOIndex", str, -1);
+        switch(vp.mode)
+        {
+            case viewportStruct::Channel:
+            case viewportStruct::PBO:
+                {
+                    if (vp.PBOnum >= 0)
+                    {
+                        vp.mode = viewportStruct::PBO;
+                    }
+                }
+                break;
+            case viewportStruct::TridelityML:
+            case viewportStruct::TridelityMV:
+                {
+                    if (vp.PBOnum >= 0)
+                    {
+                        std::cerr << "PBOIndex given for viewport " << i << " with incompatible mode " << vp.mode << ", use pboList" << std::endl;
+                        return;
+                    }
+
+                    std::string pbolist = coCoviseConfig::getEntry("pboList", str, "");
+                    std::vector<string> pbos = split(pbolist,',');
+                    for (size_t i=0; i<pbos.size(); ++i)
+                    {
+                        int p=0;
+                        std::stringstream s(pbos[i]);
+                        s >> p;
+                        vp.pbos.push_back(p);
+                    }
+                    if (vp.pbos.size() != 5)
+                    {
+                        std::cerr << "need exactly 5 PBOs for TridelityML/TridelityMV mode, but " << vp.pbos.size() << " given" << std::endl;
+                        return;
+                    }
+                }
+                break;
+        }
 
         vp.viewportXMin = coCoviseConfig::getFloat("left", str, 0);
         vp.viewportYMin = coCoviseConfig::getFloat("bottom", str, 0);
 
-	if (vp.window >= 0)
+        if (vp.window >= 0)
         {
             if (vp.viewportXMin > 1.0)
             {
@@ -463,8 +530,8 @@ coVRConfig::coVRConfig()
         if (vp.viewportXMax < 0)
         {
             float w,h;
-            w = coCoviseConfig::getFloat("width", str, 1024);
-            h = coCoviseConfig::getFloat("height", str, 768);
+            w = coCoviseConfig::getFloat("width", str, 1.0);
+            h = coCoviseConfig::getFloat("height", str, 1.0);
             if (vp.window >= 0)
             {
                 if (w > 1.0)
@@ -532,7 +599,7 @@ coVRConfig::coVRConfig()
                     vp.sourceYMax = vp.sourceYMax / ((float)(PBOs[vp.PBOnum].PBOsy));
             }
         }
-        
+
         vp.distortMeshName = coCoviseConfig::getEntry("distortMesh", str, "");
         vp.blendingTextureName = coCoviseConfig::getEntry("blendingTexture", str, "");
 
@@ -683,6 +750,11 @@ int coVRConfig::numBlendingTextures() const
 int coVRConfig::numChannels() const
 {
     return channels.size();
+}
+
+int coVRConfig::numPBOs() const
+{
+    return PBOs.size();
 }
 
 int coVRConfig::numWindows() const

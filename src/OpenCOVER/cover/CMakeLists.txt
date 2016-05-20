@@ -80,6 +80,7 @@ SET(COVER_HEADERS
   coTranslator.h
   VRRegisterSceneGraph.h
   MSEventHandler.h
+  tridelity.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
   coTUIFileBrowser/FileSysAccess.h
@@ -159,6 +160,7 @@ SET(COVER_SOURCES
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
+  tridelity.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )

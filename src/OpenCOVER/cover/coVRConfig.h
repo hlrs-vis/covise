@@ -84,7 +84,9 @@ struct channelStruct
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osgUtil::SceneView> sceneView;
     osg::DisplaySettings *ds;
+    bool stereo;
     int stereoMode;
+    float viewerOffset;
     osg::Matrixd leftView, rightView;
     osg::Matrixd leftProj, rightProj;
 
@@ -94,6 +96,9 @@ struct channelStruct
     , viewportNum(-1)
     , screenNum(-1)
     , ds(NULL)
+    , stereo(true)
+    , stereoMode(osg::DisplaySettings::LEFT_EYE)
+    , viewerOffset(0.f)
     {}
 };
 
@@ -157,7 +162,16 @@ struct windowStruct
 
 struct viewportStruct // describes an OpenGL Viewport
 {  
+    enum Mode
+    {
+        Channel, //< channel renders directly into viewport
+        PBO, //< PBO is copied to viewport
+        TridelityML, //< 5 PBOs are copied interweaved into viewport
+        TridelityMV, //< 5 PBOs are copied interweaved into viewport
+    };
+    Mode mode; //< image source
     int window;
+    std::vector<int> pbos;
     int PBOnum;
     float sourceXMin;
     float sourceYMin;
@@ -173,7 +187,8 @@ struct viewportStruct // describes an OpenGL Viewport
     std::string blendingTextureName;
 
     viewportStruct()
-    : window(-1)
+    : mode(Channel)
+    , window(-1)
     , PBOnum(-1)
     , distortMeshName("NoDistortMesh")
     , blendingTextureName("NoBlendingTexture")
@@ -265,7 +280,7 @@ public:
     float getSceneSize() const;
 
     int stereoMode() const;
-    int parseStereoMode(const char *modeName);
+    int parseStereoMode(const char *modeName, bool *stereo=NULL);
     // have all the screens the same orientation?
     bool haveFlatDisplay() const;
 
