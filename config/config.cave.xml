@@ -12,6 +12,7 @@
  <CLUSTER MASTER="viscluster50">
    <Bicycle>
         <udp value="on"/>
+        <serverHost value="141.58.8.28" />
    </Bicycle>
    <COVER>
      <!--Background r="1" g="1" b="1" /-->
