@@ -1901,15 +1901,16 @@ void VolumePlugin::preFrame()
 
         if (drawable)
         {
-            int maxClipPlanes = drawable->getMaxClipPlanes();
-            bool clip = cover->isClippingOn() && maxClipPlanes > 0;
+            typedef vvRenderState::ParameterType PT;
 
-            int activeClipPlane = -1;
-            if (clip)
+            int maxClipPlanes = drawable->getMaxClipPlanes();
+            int numClipPlanes = 0;
+
+            if (cover->isClippingOn())
             {
                 StateSet *state = drawable->getOrCreateStateSet();
                 ClipNode *cn = cover->getObjectsRoot();
-                for (unsigned int i = 0; i < cn->getNumClipPlanes(); ++i)
+                for (unsigned int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
                 {
                     ClipPlane *cp = cn->getClipPlane(i);
                     Vec4 v = cp->getClipPlane();
@@ -1918,20 +1919,26 @@ void VolumePlugin::preFrame()
                     plane->normal = virvo::vec3(-v.x(), -v.y(), -v.z());
                     plane->offset = v.w();
 
-                    typedef vvRenderState::ParameterType PT;
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
 
                     state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+
+                    ++numClipPlanes;
                 }
 
-                if (cn->getNumClipPlanes() > 0)
-                {
-                    drawable->setParameter(vvRenderState::VV_FOCUS_CLIP_OBJ, cover->getActiveClippingPlane());
-                    drawable->setClipping(true);
-                }
                 drawable->setStateSet(state);
             }
+
+            // Disable all clip objects that are not used
+            for (PT i = PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + numClipPlanes);
+                    i != vvRenderState::VV_CLIP_OBJ_ACTIVE_LAST;
+                    i = PT(i + 1))
+            {
+                drawable->setParameter(i, false);
+            }
+
+            drawable->setParameter(vvRenderState::VV_FOCUS_CLIP_OBJ, cover->getActiveClippingPlane());
         }
     }
 
