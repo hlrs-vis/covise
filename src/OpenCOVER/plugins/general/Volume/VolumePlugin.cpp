@@ -1901,7 +1901,8 @@ void VolumePlugin::preFrame()
 
         if (drawable)
         {
-            bool clip = cover->isClippingOn() && drawable->have3DTextures();
+            int maxClipPlanes = drawable->getMaxClipPlanes();
+            bool clip = cover->isClippingOn() && maxClipPlanes > 0;
 
             StateSet *state = drawable->getOrCreateStateSet();
             int activeClipPlane = -1;
