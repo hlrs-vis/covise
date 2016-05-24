@@ -692,6 +692,7 @@ SET(ODDLOT_FORMS
 	 src/settings/widgets/oscobjectsettings.ui
 )
 SET(ODDLOT_RESOURCES
+   style/style.qrc
    icons/tools/tools.qrc
    ../../../../share/covise/signs/icons/signalIcons.qrc
 )

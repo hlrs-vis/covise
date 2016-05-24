@@ -14,6 +14,8 @@
 **************************************************************************/
 
 #include <QApplication>
+#include <QFile>
+#include <QDebug>
 #include "mainwindow.hpp"
 #include <iostream>
 #ifdef _WIN32
@@ -40,6 +42,15 @@ int main(int argc, char *argv[])
         w.open(args.at(1));
     }
     COVERConnection::instance()->setMainWindow(&w); // create a cover connection
+
+	QFile File(":/oddstylesheet.qss");
+	if (File.open(QFile::ReadOnly))
+	{
+		QString StyleSheet = QLatin1String(File.readAll());
+
+		a.setStyleSheet(StyleSheet);
+		File.close();
+	}
 
     return a.exec();
 }
