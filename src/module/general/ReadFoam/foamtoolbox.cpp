@@ -523,17 +523,19 @@ CaseInfo getCaseInfo(const std::string &casedir, bool exact)
 
 std::string getFoamHeader(std::istream &stream)
 {
+    size_t internalFieldLine = MaxHeaderLines; 
     std::string header;
-    for (size_t i = 0; i < MaxHeaderLines; ++i)
+    for (size_t i = 0; (i < MaxHeaderLines && i< internalFieldLine+2); ++i)
     {
         int c = stream.peek();
         if (c == '(')
            break;
         std::string line;
         std::getline(stream, line);
-        if (boost::algorithm::starts_with(line, "boundaryField"))
+        if (boost::algorithm::starts_with(line, "internalField"))
         {
-            std::cerr << "Current line is boundaryFields, most probably we just skipped internalField which is not given by a nonuniform List as expected "<< std::endl;
+            //std::cerr << "Current line is internalField, we need one line more...  "<< std::endl;
+            internalFieldLine=i;
         }
         header.append(line);
         header.append("\n");
@@ -593,7 +595,7 @@ struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iter
                 >> object
                 >> -dimensions
                 >> -(internalField|boundaryField)
-                >> lines;
+                >> -lines;
 
         version = "version" >> +(ascii::char_ - ';') >> ';';
         format = "format" >> +(ascii::char_ - ';') >> ';';
@@ -601,7 +603,10 @@ struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iter
         location = "location" >> qi::lit('"') >> +(ascii::char_ - '"') >> '"' >> ';';
         object = "object" >> +(ascii::char_ - ';') >> ';';
         dimensions = "dimensions" >> qi::lexeme['[' >> +(ascii::char_ - ']') >> ']' >> ';'];
-        internalField = "internalField" >> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
+        nonUniformField= "nonuniform">> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
+        //uniformField= "uniform">> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
+        uniformField= "uniform">> +(ascii::char_ - ';') >> ';';
+        internalField = "internalField" >> (uniformField|nonUniformField);
         boundaryField = "boundaryField" >> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
         lines = qi::int_;
     }
@@ -615,6 +620,8 @@ struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iter
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > dimensions;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > internalField;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > boundaryField;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > uniformField;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > nonUniformField;
     qi::rule<Iterator, int(), headerSkipper<Iterator> > lines;
 };
 
