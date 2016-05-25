@@ -152,6 +152,7 @@ private:
     scoped_ptr<coSubMenuItem> clipItem;
     scoped_ptr<coCheckboxMenuItem> ROIItem;
     scoped_ptr<coCheckboxMenuItem> clipModeItem;
+    scoped_ptr<coCheckboxMenuItem> clipOutlinesItem;
     scoped_ptr<coCheckboxMenuItem> clipSphereActive0Item;
     scoped_ptr<coCheckboxMenuItem> clipSphereActive1Item;
     scoped_ptr<coCheckboxMenuItem> clipSphereActive2Item;
@@ -193,6 +194,7 @@ private:
 
     std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
+    bool showClipOutlines;
     float lastRoll;
     float roiCellSize;
     float roiMaxSize;

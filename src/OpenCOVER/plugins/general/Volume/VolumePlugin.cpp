@@ -408,6 +408,7 @@ bool VolumePlugin::init()
 
     // Initializations:
     plugin = this;
+    showClipOutlines = true;
     lastRoll = 0.0;
     roiMode = false;
     unregister = false;
@@ -539,6 +540,8 @@ bool VolumePlugin::init()
 
     // Create clipping menu
 
+    clipModeItem.reset(new coCheckboxMenuItem("Opaque Clipping", false));
+    clipOutlinesItem.reset(new coCheckboxMenuItem("Show Box Intersections", true));
     clipSphereActive0Item.reset(new coCheckboxMenuItem("ClipSphere 0 enable", false));
     clipSphereInteractorActive0Item.reset(new coCheckboxMenuItem("ClipSphere 0 Interactor", false));
     clipSphereRadius0Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[0]));
@@ -548,7 +551,6 @@ bool VolumePlugin::init()
     clipSphereActive2Item.reset(new coCheckboxMenuItem("ClipSphere 2 enable", false));
     clipSphereInteractorActive2Item.reset(new coCheckboxMenuItem("ClipSphere 2 Interactor", false));
     clipSphereRadius2Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[2]));
-    clipModeItem.reset(new coCheckboxMenuItem("Opaque Clipping", false));
 
     // Set event listeners
 
@@ -559,6 +561,7 @@ bool VolumePlugin::init()
     unloadItem->setMenuListener(this);
 
     clipModeItem->setMenuListener(this);
+    clipOutlinesItem->setMenuListener(this);
     clipSphereActive0Item->setMenuListener(this);
     clipSphereInteractorActive0Item->setMenuListener(this);
     clipSphereRadius0Item->setMenuListener(this);
@@ -611,6 +614,7 @@ bool VolumePlugin::init()
     volumeMenu->add(allVolumesActiveItem.get());
 
     clipMenu->add(clipModeItem.get());
+    clipMenu->add(clipOutlinesItem.get());
     clipMenu->add(clipSphereActive0Item.get());
     clipMenu->add(clipSphereInteractorActive0Item.get());
     clipMenu->add(clipSphereRadius0Item.get());
@@ -1995,6 +1999,7 @@ void VolumePlugin::preFrame()
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
                     state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
 
@@ -2024,6 +2029,7 @@ void VolumePlugin::preFrame()
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + objId), sphere);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + objId), true);
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
                     ++objId;
                     ++numClipSpheres;
@@ -2301,6 +2307,11 @@ void VolumePlugin::menuEvent(coMenuItem *item)
     if (item == ROIItem.get())
     {
         setROIMode(ROIItem->getState());
+    }
+
+    else if (item == clipOutlinesItem.get())
+    {
+        showClipOutlines = clipOutlinesItem->getState();
     }
 
     else if (item == clipSphereActive0Item.get())
