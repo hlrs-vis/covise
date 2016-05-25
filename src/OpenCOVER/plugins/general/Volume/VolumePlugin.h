@@ -32,9 +32,11 @@
 #include <osg/Switch>
 #include <osg/Geometry>
 #include <list>
+#include <vector>
 #include <cover/coVRPlugin.h>
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace covise
 {
@@ -63,6 +65,7 @@ class RenderObject;
 using namespace vrui;
 using namespace opencover;
 using boost::scoped_ptr;
+using boost::shared_ptr;
 
 #define INITIAL_FPS 20.0f // initially desired frame rate
 #define MIN_QUALITY 0.05f // smallest valid quality
@@ -72,7 +75,10 @@ using boost::scoped_ptr;
 #define INITIAL_POS_Y 0.0f
 #define INITIAL_POS_Z 0.0f
 
+#define INITIAL_CLIP_SPHERE_RADIUS 0.2f // initial scaling factor for clip sphere radius (1.0 == diagonal/2 of volume)
+
 class vvVolDesc;
+class coClipSphere;
 class coDefaultFunctionEditor;
 class FileEntry;
 
@@ -126,6 +132,8 @@ private:
     } backgroundColor;
     std::list<FileEntry *> fileList;
 
+    enum { NumClipSpheres = 3 };
+
     osg::Matrix invStartMove;
     osg::Matrix startBase;
     osg::Vec3 startPointerPosWorld;
@@ -138,10 +146,21 @@ private:
     double start;
 
     scoped_ptr<coMenu> volumeMenu;
+    scoped_ptr<coMenu> clipMenu;
     scoped_ptr<coSubMenuItem> pinboardEntry;
     scoped_ptr<coSubMenuItem> filesItem;
+    scoped_ptr<coSubMenuItem> clipItem;
     scoped_ptr<coCheckboxMenuItem> ROIItem;
     scoped_ptr<coCheckboxMenuItem> clipModeItem;
+    scoped_ptr<coCheckboxMenuItem> clipSphereActive0Item;
+    scoped_ptr<coCheckboxMenuItem> clipSphereActive1Item;
+    scoped_ptr<coCheckboxMenuItem> clipSphereActive2Item;
+    scoped_ptr<coCheckboxMenuItem> clipSphereInteractorActive0Item;
+    scoped_ptr<coCheckboxMenuItem> clipSphereInteractorActive1Item;
+    scoped_ptr<coCheckboxMenuItem> clipSphereInteractorActive2Item;
+    scoped_ptr<coSliderMenuItem> clipSphereRadius0Item;
+    scoped_ptr<coSliderMenuItem> clipSphereRadius1Item;
+    scoped_ptr<coSliderMenuItem> clipSphereRadius2Item;
     scoped_ptr<coCheckboxMenuItem> preintItem;
     scoped_ptr<coCheckboxMenuItem> lightingItem;
     scoped_ptr<coSliderMenuItem> fpsItem;
@@ -171,6 +190,8 @@ private:
     scoped_ptr<coMenu> multiChanMenu;
     scoped_ptr<coCheckboxMenuItem> multiDimTFItem;
     scoped_ptr<coCheckboxMenuItem> singleChannelItem;
+
+    std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
     float lastRoll;
     float roiCellSize;
@@ -248,6 +269,7 @@ private:
     coCombinedButtonInteraction *interactionHQ; ///< interaction for HQ mode
     int fpsMissed;
     float chosenFPS;
+    float radiusScale[NumClipSpheres];
 
     struct TFApplyCBData
     {
