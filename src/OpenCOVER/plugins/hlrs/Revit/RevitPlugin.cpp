@@ -570,19 +570,53 @@ void RevitPlugin::message(int type, int len, const void *buf)
     else if (type == PluginMessageTypes::MoveMoveNodeFinished)
     {
         MoveFinished=true;
-	std::string path;
+        std::string path;
         TokenBuffer tb((const char *)buf, len);
         tb >> path;
         tb >> path;
+
+        osg::Node *selectedNode = coVRSelectionManager::validPath(path);
+        if(selectedNode)
+        {
+            info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+            if(info)
+            {
+                osg::Matrix m;
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        tb >> m(i, j);
+                osg::Matrix currentBaseMat, dcsMat;
+                osg::Group* currentNode = selectedNode->getParent(0);
+                currentBaseMat.makeIdentity();
+                while (currentNode != NULL && currentNode != revitGroup)
+                {
+                    if (dynamic_cast<osg::MatrixTransform *>(currentNode))
+                    {
+                        dcsMat = ((osg::MatrixTransform *)currentNode)->getMatrix();
+                        currentBaseMat.postMult(dcsMat);
+                    }
+                    if (currentNode->getNumParents() > 0)
+                        currentNode = currentNode->getParent(0);
+                    else
+                        currentNode = NULL;
+                }
+                currentBaseMat(3,0)=0;
+                currentBaseMat(3,1)=0;
+                currentBaseMat(3,2)=0;
+                m = m* currentBaseMat;
                 TokenBuffer stb;
                 stb << MovedID;
-                stb << -(double)lastMoveMat.getTrans().x();
-                stb << (double)lastMoveMat.getTrans().y();
-                stb << (double)lastMoveMat.getTrans().z();
+                stb << (double)m.getTrans().x();
+                stb << (double)m.getTrans().y();
+                stb << (double)m.getTrans().z();
 
                 Message message(stb);
                 message.type = (int)RevitPlugin::MSG_SetTransform;
                 RevitPlugin::instance()->sendMessage(message);
+
+            }
+        }
+
     }
     else if (type == PluginMessageTypes::AnnotationMessage) // An AnnotationMessage has been received
     {

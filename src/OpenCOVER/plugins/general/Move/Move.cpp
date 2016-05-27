@@ -579,6 +579,7 @@ void Move::preFrame()
             mat.makeIdentity();
             osg::Node *currentNode;
             currentNode = node;
+            startPickPos = cover->getIntersectionHitPointWorld();
             //cerr << "test: " << node << endl;
             //cerr << "lev: " << level << endl;
             while (currentNode != NULL)
@@ -795,6 +796,7 @@ void Move::preFrame()
         if (interactionA->isRunning() && (moveDCS != NULL))
         { // ongoing interaction (left mousebutton)
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
+
             moveMat.mult(invStartHandMat, cover->getPointerMat());
 
             if (moveDCS->getNumParents() > 0)
@@ -821,7 +823,17 @@ void Move::preFrame()
             // frei
             if (!local->getState())
             {
-                restrict(moveMat, true, false);
+                coCoord coord = moveMat;
+                coord.xyz[0] = coord.xyz[1] = coord.xyz[2] = 0;
+                osg::Matrix rotMat;
+                coord.makeMat(rotMat);
+                restrict(rotMat, true, false);
+                
+                osg::Vec3 newPickPos = startPickPos * moveMat;
+                osg::Matrix transMat = osg::Matrix::translate(newPickPos - startPickPos);
+                restrict(transMat, true, false);
+                moveMat = transMat * rotMat;
+
             }
 
             tmpMat.mult(startCompleteMat, moveMat);
