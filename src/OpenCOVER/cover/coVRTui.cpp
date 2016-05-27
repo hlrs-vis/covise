@@ -10,6 +10,7 @@
 #endif
 
 #include <util/common.h>
+#include <util/string_util.h>
 
 #include "coVRTui.h"
 #include "VRSceneGraph.h"
@@ -105,37 +106,50 @@ void coPluginEntry::tabletReleaseEvent(coTUIElement * /*tUIItem*/)
 coPluginEntryList::coPluginEntryList(coTUITab *tab)
 {
     myTab = tab;
-    const char *coviseDir;
-    const char *archsuffix;
-    coviseDir = getenv("COVISEDIR");
-    archsuffix = getenv("ARCHSUFFIX");
+    const char *coviseDir = getenv("COVISEDIR");
+    const char *archsuffix = getenv("ARCHSUFFIX");
+    const char *covisepath = getenv("COVISE_PATH");
     char buf[1024];
     int n = 0;
+    std::vector<std::string> paths;
 #ifdef __APPLE__
     std::string bundlepath = getBundlePath();
     if (!bundlepath.empty())
     {
         sprintf(buf, "%s/Contents/PlugIns/", bundlepath.c_str());
-        coDirectory *dir = coDirectory::open(buf);
-        for (int i = 0; dir && i < dir->count(); i++)
-        {
-            if (dir->match(dir->name(i), "*.so")
-                && !dir->match(dir->name(i), "*.?.?.so"))
-            {
-                append(new coPluginEntry(dir->name(i), myTab, n));
-                n++;
-            }
-        }
+        paths.push_back(buf);
     }
 #endif
-    if ((coviseDir != NULL) && (archsuffix != NULL))
+    if (covisepath && archsuffix)
+    {
+#ifdef WIN32
+        std::vector<std::string> p = split(covisepath, ';');
+#else
+        std::vector<std::string> p = split(covisepath, ':');
+#endif
+        for (std::vector<std::string>::iterator it = p.begin(); it != p.end(); ++it)
+        {
+#ifdef WIN32
+            sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", it->c_str(), archsuffix);
+#else
+            sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", it->c_str(), archsuffix);
+#endif
+            paths.push_back(buf);
+        }
+    }
+    else if ((coviseDir != NULL) && (archsuffix != NULL))
     {
 #ifdef WIN32
         sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", coviseDir, archsuffix);
 #else
         sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", coviseDir, archsuffix);
 #endif
-        coDirectory *dir = coDirectory::open(buf);
+        paths.push_back(buf);
+    }
+
+    for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
+    {
+        coDirectory *dir = coDirectory::open(it->c_str());
         for (int i = 0; dir && i < dir->count(); i++)
         {
             if (dir->match(dir->name(i),

@@ -86,10 +86,12 @@ public:
                               const index_t saveMapTo = -1);
     coDoVec3 *loadVectorField(const std::string &timedir,
                               const std::string &file,
-                              const std::string &vecObjName);
+                              const std::string &vecObjName,
+                              const std::string &meshdir);
     coDoFloat *loadScalarField(const std::string &timedir,
                                const std::string &file,
-                               const std::string &vecObjName);
+                               const std::string &vecObjName,
+                               const std::string &meshdir);
     coDoVec3 *loadBoundaryVectorField(const std::string &timedir,
                                       const std::string &meshdir,
                                       const std::string &file,

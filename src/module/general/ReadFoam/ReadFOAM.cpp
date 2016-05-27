@@ -370,6 +370,8 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             if (neighbourH.lines != dim.internalFaces)
             {
                 std::cerr << "inconsistency: #internalFaces != #neighbours" << std::endl;
+                std::cerr << " #internalFaces = " << dim.internalFaces << std::endl;
+                std::cerr << " #neighbours = " << neighbourH.lines << std::endl;
             }
             std::vector<index_t> neighbours(neighbourH.lines);
             readIndexArray(neighbourH, *neighborsIn, neighbours.data(), neighbours.size());
@@ -802,40 +804,73 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
 
 coDoVec3 *ReadFOAM::loadVectorField(const std::string &timedir,
                                     const std::string &file,
-                                    const std::string &vecObjName)
+                                    const std::string &vecObjName,
+                                    const std::string &meshdir)
 {
     std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
     boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
+    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+    HeaderInfo ownerH = readFoamHeader(*ownersIn);
+    DimensionInfo dim = parseDimensions(ownerH.header);
+    size_t numberCells=(header.lines>0) ? header.lines : dim.cells;
 
-    coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), header.lines);
+    coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), numberCells);
     float *x, *y, *z;
     vecObj->getAddresses(&x, &y, &z);
 
+    if (header.lines==0)
+    {
+    //std::cerr << std::time(0) << " internalField:" << header.internalField << std::endl;
+    //std::cerr << std::time(0) << " lines:" << header.lines << std::endl;
+            for (int i=0; i<dim.cells; ++i)
+        {
+            x[i] = 0.0;
+            y[i] = 0.0;
+            z[i] = 0.0;
+        }
+    }
+    else
+    { 
     readFloatVectorArray(header, *vecIn, x, y, z, header.lines);
-
+    }
     //std::cerr << std::time(0) << " done!" << std::endl;
     return vecObj;
 }
 
 coDoFloat *ReadFOAM::loadScalarField(const std::string &timedir,
                                      const std::string &file,
-                                     const std::string &vecObjName)
+                                     const std::string &vecObjName,
+                                     const std::string &meshdir)
 {
     std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
     boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
-
-    coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), header.lines);
+    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+    HeaderInfo ownerH = readFoamHeader(*ownersIn);
+    DimensionInfo dim = parseDimensions(ownerH.header);
+    size_t numberCells=(header.lines>0) ? header.lines : dim.cells;
+    coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numberCells);
+    if (header.lines==0)
+    {
+        float *uniformField = vecObj->getAddress();
+        float uniformFieldValue=std::stof(header.internalField,NULL);
+        for (int i=0; i<dim.cells; ++i)
+        {
+            uniformField[i] = uniformFieldValue;
+        }
+    }
+    else
+    { 
     float *x;
     vecObj->getAddress(&x);
 
     readFloatArray(header, *vecIn, x, header.lines);
-
+    }
     //std::cerr << std::time(0) << " done!" << std::endl;
     return vecObj;
 }
@@ -1138,12 +1173,12 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     HeaderInfo header = readFoamHeader(*portIn);
                                     if (header.fieldclass == "volVectorField")
                                     {
-                                        coDoVec3 *v = loadVectorField(datadir, dataFilename, portObjName);
+                                        coDoVec3 *v = loadVectorField(datadir, dataFilename, portObjName, meshdir);
                                         tempSetPort[nPort].push_back(v);
                                     }
                                     else if (header.fieldclass == "volScalarField")
                                     {
-                                        coDoFloat *v = loadScalarField(datadir, dataFilename, portObjName);
+                                        coDoFloat *v = loadScalarField(datadir, dataFilename, portObjName, meshdir);
                                         tempSetPort[nPort].push_back(v);
                                     }
                                     else

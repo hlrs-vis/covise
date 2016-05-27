@@ -86,14 +86,10 @@ private:
     MSEventHandler *myeh;
 
     // stereo parameters
-    int isQuadbufferStereo;
     char stereoCommand[500];
     char monoCommand[500];
-    int stereoMode, oldMode; // MONO, RE_STEREO, IMPACT_STEREO, TB_STEREO
-    int stereoModeChange;
     double lastFrameTime;
 
-    float optDist, dist;
     virtual void renderingTraversals();
 
     // view
