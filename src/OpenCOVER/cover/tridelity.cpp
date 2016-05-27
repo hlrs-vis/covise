@@ -1,3 +1,4 @@
+#include <cstring> // memcpy!
 #include <osg/Image>
 #include "tridelity.h"
 

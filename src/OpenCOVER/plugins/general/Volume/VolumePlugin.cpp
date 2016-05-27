@@ -2321,7 +2321,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
 
     else if (item == clipSphereInteractorActive0Item.get())
     {
-        clipSpheres.at(0)->setInteractorActive(clipSphereActive0Item->getState());
+        clipSpheres.at(0)->setInteractorActive(clipSphereInteractorActive0Item->getState());
     }
 
     else if (item == clipSphereRadius0Item.get())
@@ -2336,7 +2336,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
 
     else if (item == clipSphereInteractorActive1Item.get())
     {
-        clipSpheres.at(1)->setInteractorActive(clipSphereActive1Item->getState());
+        clipSpheres.at(1)->setInteractorActive(clipSphereInteractorActive1Item->getState());
     }
 
     else if (item == clipSphereRadius1Item.get())
@@ -2351,7 +2351,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
 
     else if (item == clipSphereInteractorActive2Item.get())
     {
-        clipSpheres.at(2)->setInteractorActive(clipSphereActive2Item->getState());
+        clipSpheres.at(2)->setInteractorActive(clipSphereInteractorActive2Item->getState());
     }
 
     else if (item == clipSphereRadius2Item.get())
