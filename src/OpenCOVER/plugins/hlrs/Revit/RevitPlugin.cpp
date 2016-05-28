@@ -1442,7 +1442,6 @@ RevitPlugin::preFrame()
             static double lastTime = 0;
             if(cover->frameTime() > lastTime+4)
             {
-                lastTime = cover->frameTime();
                 TokenBuffer stb;
 
                 osg::Matrix mat = cover->getXformMat();
@@ -1468,6 +1467,12 @@ RevitPlugin::preFrame()
                 rotMat.invert(irotMat);
                 mat.postMult(rotMat);
                 osg::Vec3 eyePos = mat.getTrans();
+                static osg::Vec3 oldEyePos(0,0,0);
+                if((eyePos - oldEyePos).length() > 0.3) // if distance to old pos > 30cm
+                {
+                    oldEyePos = eyePos;
+                    lastTime = cover->frameTime();
+
                 double eyePosition[3];
                 double viewDirection[3];
                 eyePosition[0] = -eyePos[0]/0.3048;
@@ -1488,6 +1493,7 @@ RevitPlugin::preFrame()
                 Message message(stb);
                 message.type = (int)RevitPlugin::MSG_AvatarPosition;
                 RevitPlugin::instance()->sendMessage(message);
+                }
             }
         }
         while (toRevit && toRevit->check_for_input())

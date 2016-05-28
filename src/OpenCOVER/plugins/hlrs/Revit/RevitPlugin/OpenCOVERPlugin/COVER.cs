@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Linq;
+using System.IO;
+using System.Windows.Media.Imaging;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -102,22 +104,20 @@ namespace OpenCOVERPlugin
                   }
                   else
                   {
-                      using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(a.ActiveUIDocument.Document))
-                      {
-                          FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
+                      Transaction transaction = new Transaction(a.ActiveUIDocument.Document);
+                      FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
 
-                          failOpt.SetClearAfterRollback(true);
-                          failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
-                          transaction.SetFailureHandlingOptions(failOpt);
-                          if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
+                      failOpt.SetClearAfterRollback(true);
+                      failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
+                      transaction.SetFailureHandlingOptions(failOpt);
+                      if (transaction.Start("changeParameters") == TransactionStatus.Started)
+                      {
+                          COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc);
+                          if (TransactionStatus.Committed != transaction.Commit())
                           {
-                              COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc);
-                              if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
-                              {
-                                  // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
-                                  //an error occured end resolution was cancled thus this change can't be committed.
-                                  // just ignore it and dont bug the user
-                              }
+                              // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                              //an error occured end resolution was cancled thus this change can't be committed.
+                              // just ignore it and dont bug the user
                           }
                       }
                   }
@@ -133,15 +133,34 @@ namespace OpenCOVERPlugin
           }
       }
       externalMessageHandler handler;
-      int callCounter;
       IntPtr ApplicationWindow;
       FamilyInstance avatarObject;
+
+      public PushButton pushButtonConnectToOpenCOVER;
+      public string ButtonIconsFolder = "";
+      BitmapImage connectedImage;
+      BitmapImage disconnectedImage;
 
       COVER()
       {
 
          mOptions = new Autodesk.Revit.DB.Options();
          mOptions.DetailLevel = Autodesk.Revit.DB.ViewDetailLevel.Fine;
+         try
+         {
+             ButtonIconsFolder = System.Environment.GetEnvironmentVariable("COVISEDIR");
+         }
+         catch
+         {
+         }
+         if (ButtonIconsFolder == null || ButtonIconsFolder.Length == 0)
+         {
+             ButtonIconsFolder = "c:/src/covise";
+         }
+         ButtonIconsFolder += "/share/covise/icons";
+         connectedImage = new BitmapImage(new Uri(Path.Combine(ButtonIconsFolder, "cover_connected_32.png"), UriKind.Absolute));
+         disconnectedImage = new BitmapImage(new Uri(Path.Combine(ButtonIconsFolder, "cover_disconnected_32.png"), UriKind.Absolute));
+
 
       }
       /// <summary>
@@ -153,6 +172,15 @@ namespace OpenCOVERPlugin
          {
             return Nested.instance;
          }
+      }
+
+      public void setConnected(bool connected)
+      {
+          if (connected)
+              pushButtonConnectToOpenCOVER.LargeImage = connectedImage;
+          else
+              pushButtonConnectToOpenCOVER.LargeImage = disconnectedImage;
+
       }
       private Level getLevel(Document document, double height)
       {
@@ -1335,19 +1363,30 @@ void TestAllOverloads(
                       {
                           lev = currentLevel.Name;
                       }
-                      Room testRaum = getRoom(doc, ex, ey, ez);
-                      XYZ point = new XYZ(ex, ey, ez);
-                      Room currentRoom = doc.GetRoomAtPoint(point);
-                      if (currentRoom == null)
+                      Room testRaum = null;
+                      Room currentRoom = null;
+                      try
                       {
-                          point = new XYZ(ex, ey, currentLevel.ProjectElevation);
+                          XYZ point = new XYZ(ex, ey, ez);
                           currentRoom = doc.GetRoomAtPoint(point);
-                          if (currentRoom == null)
-                              currentRoom = testRaum;
+                          if (currentRoom == null && (currentLevel != null))
+                          {
+                              point = new XYZ(ex, ey, currentLevel.ProjectElevation);
+                              currentRoom = doc.GetRoomAtPoint(point);
+                              if (currentRoom == null)
+                              {
+                                  testRaum = getRoom(doc, ex, ey, ez);
+                                  currentRoom = testRaum;
+                              }
+
+                          }
+                      }
+                      catch
+                      {
                       }
                       if (currentRoom != null)
                       {
-                          
+
                           string nr = currentRoom.Number;
                           string name = currentRoom.Name;
                           double area = currentRoom.Area;
@@ -1398,9 +1437,10 @@ void TestAllOverloads(
                       {
                           numRead = toCOVER.GetStream().Read(data, len, 16 - len);
                       }
-                      catch (System.IO.IOException e)
+                      catch (System.IO.IOException)
                       {
                           // probably socket closed
+                          setConnected(false);
                           return;
                       }
                       len += numRead;
@@ -1418,9 +1458,10 @@ void TestAllOverloads(
                       {
                           numRead = toCOVER.GetStream().Read(data, len, length - len);
                       }
-                      catch (System.IO.IOException e)
+                      catch (System.IO.IOException)
                       {
                           // probably socket closed
+                          setConnected(false);
                           return;
                       }
                       len += numRead;
@@ -1486,31 +1527,35 @@ void TestAllOverloads(
           Document doc = uiapp.ActiveUIDocument.Document;
           UIDocument uidoc = uiapp.ActiveUIDocument;
 
-          if (COVER.Instance.messageQueue.Count > 0)
+          while (COVER.Instance.messageQueue.Count > 0)
           {
-              using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(doc))
+              COVERMessage m = COVER.Instance.messageQueue.Dequeue();
+
+              if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition)//read only messages
               {
+                  COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc);
+              }
+              else
+              {
+                  Transaction transaction = new Transaction(doc);
+
                   FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
 
                   failOpt.SetClearAfterRollback(true);
-                  failOpt.SetFailuresPreprocessor( new NoWarningsAndErrors());
+                  failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
                   transaction.SetFailureHandlingOptions(failOpt);
 
-                  if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
+                  if (transaction.Start("changeParameters") == TransactionStatus.Started)
                   {
-                      while (COVER.Instance.messageQueue.Count > 0)
+                      COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc);
+                      if (TransactionStatus.Committed != transaction.Commit())
                       {
-                          COVERMessage m = COVER.Instance.messageQueue.Dequeue();
-                          COVER.Instance.handleMessage(m.message, m.messageType,doc,uidoc);
-                          if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
-                          {
-                              // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
-                              //an error occured end resolution was cancled thus this change can't be committed.
-                              // just ignore it and dont bug the user
-                          }
-                          return;
+                          // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                          //an error occured end resolution was cancled thus this change can't be committed.
+                          // just ignore it and dont bug the user
                       }
                   }
+
               }
           }
       }
@@ -1523,7 +1568,6 @@ void TestAllOverloads(
          messageQueue = new Queue<COVERMessage>();
 
          System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName("Revit");
-         callCounter = 0;
 
          if (0 < processes.Length)
          {
@@ -1536,6 +1580,7 @@ void TestAllOverloads(
                  messageThread.Abort(); // stop reading from the old toCOVER connection
                  toCOVER.Close();
                  toCOVER = null;
+                 setConnected(false);
              }
 
              toCOVER = new TcpClient(host, port);
@@ -1555,9 +1600,10 @@ void TestAllOverloads(
                      s.Write(data, 0, 1);
                      //toCOVER.ReceiveTimeout = 10000;
                  }
-                 catch (System.IO.IOException e)
+                 catch (System.IO.IOException)
                  {
                      // probably socket closed
+                     setConnected(false);
                      return false;
                  }
 
@@ -1568,14 +1614,15 @@ void TestAllOverloads(
                      numRead = s.Read(data, 0, 1);
                      //toCOVER.ReceiveTimeout = 10000;
                  }
-                 catch (System.IO.IOException e)
+                 catch (System.IO.IOException)
                  {
                      // probably socket closed
+                     setConnected(false);
                      return false;
                  }
                  if (numRead == 1)
                  {
-
+                     setConnected(true);
                      messageThread = new Thread(new ThreadStart(this.handleMessages));
 
                      // Start the thread
@@ -1588,6 +1635,8 @@ void TestAllOverloads(
          }
          catch
          {
+
+             setConnected(false);
              System.Windows.Forms.MessageBox.Show("Connection error while trying to connect to OpenCOVER on localhost, port 31821");
          }
          return false;

@@ -193,8 +193,8 @@ bool Move::init()
     tiefeEdit->setValue(0.0);
     //ScaleField->setValue(1);
     allowX->setState(true);
-    allowY->setState(false);
-    allowZ->setState(true);
+    allowY->setState(true);
+    allowZ->setState(false);
     allowH->setState(false);
     allowP->setState(false);
     allowR->setState(true);
@@ -229,12 +229,12 @@ bool Move::init()
     moveToggle = new coCheckboxMenuItem("Move", false);
     showNames = new coCheckboxMenuItem("Display Names", false);
     movex = new coCheckboxMenuItem("X", true);
-    movey = new coCheckboxMenuItem("Y", false);
-    movez = new coCheckboxMenuItem("Z", true);
+    movey = new coCheckboxMenuItem("Y", true);
+    movez = new coCheckboxMenuItem("Z", false);
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local", false);
+    local = new coCheckboxMenuItem("local", true);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
@@ -883,7 +883,7 @@ void Move::preFrame()
             }
             else
             {
-                if ((cover->frameTime() - startTime) > 1)
+                if ((cover->frameTime() - startTime) > 0.3)
                     allowMove = true;
             }
         }
@@ -961,7 +961,7 @@ void Move::preFrame()
             }
             else
             {
-                if ((cover->frameTime() - startTime) > 1)
+                if ((cover->frameTime() - startTime) > 0.3)
                     allowMove = true;
             }
         }
