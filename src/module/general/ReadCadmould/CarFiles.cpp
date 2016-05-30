@@ -98,7 +98,7 @@ CarFiles::CarFiles(const char *path)
                     found = -1;
                     pos = AT_END; // position after which we insert new grp into list
 
-                    for (i = 0; i < group.length(); i++)
+                    for (i = 0; i < group.size(); i++)
                     {
                         match = strcmp(grp_name, group[i]->getName());
                         if (match > 0)
@@ -122,17 +122,17 @@ CarFiles::CarFiles(const char *path)
                         grp = new CarGroup(grp_name);
                         if (pos == AT_BEGIN)
                         {
-                            group.set(0);
-                            group.insertBefore(grp);
+                            group.insert(group.begin(), grp);
                         }
-                        else if (pos == AT_END)
+                        else if (pos == AT_END || pos==group.size())
                         {
-                            group.append(grp);
+                            group.push_back(grp);
                         }
                         else
                         {
-                            group.set(pos);
-                            group.insertAfter(grp);
+                            std::vector<CarGroup *>::iterator it = group.begin();
+                            it += pos-1;
+                            group.insert(it, grp);
                         }
                     }
                     else
@@ -165,12 +165,13 @@ CarFiles::~CarFiles()
     {
         delete group[i];
     }
+    group.clear();
 }
 
 int
 CarFiles::numGroups()
 {
-    return group.length();
+    return group.size();
 }
 
 int

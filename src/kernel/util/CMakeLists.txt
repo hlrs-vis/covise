@@ -56,7 +56,6 @@ SET(UTIL_HEADERS
   coStringTable.h
   coTimer.h
   coIdent.h
-  coLinkList.h
   Token.h
   coMatrix.h
   Triangulator.h

@@ -18,9 +18,8 @@
 //
 
 #include <util/coviseCompat.h>
-#include <util/coLinkList.h>
-
-using namespace covise;
+#include <vector>
+#include <string>
 
 /**
  * This Class handles the names of all .car files in one directory.
@@ -81,7 +80,7 @@ private:
     };
 
     /// list of result groups
-    coDLinkList<CarGroup *> group;
+    std::vector<CarGroup *> group;
 
     /// list of all car_files
     CarGroup *cfiles;
@@ -115,26 +114,25 @@ public:
     {
         char *dat = new char[strlen(file) + 1];
         strcpy(dat, file);
-        int i;
-        for (i = files_.length() - 1; i >= 0; i--) // generate sorted list
+        for (int i = files_.size() - 1; i >= 0; i--) // generate sorted list
         {
             if (strcmp(file, files_[i]) > 0)
             {
-                if (i == files_.length() - 1)
+                if (i == files_.size() - 1)
                 {
-                    files_.append(dat);
+                    files_.push_back(dat);
                     return;
                 }
                 else
                 {
-                    files_.set(i);
-                    files_.insertAfter(dat);
+                    std::vector<char *>::iterator it = files_.begin();
+                    it += i+1;
+                    files_.insert(it, dat);
                     return;
                 }
             }
         }
-        files_.set(0);
-        files_.insertBefore(dat);
+        files_.insert(files_.begin(), dat);
     };
 
     const char *getName()
@@ -143,7 +141,7 @@ public:
     };
     int numFiles()
     {
-        return files_.length();
+        return files_.size();
     };
     const char *getFile(int i)
     {
@@ -157,15 +155,14 @@ public:
     };
     ~CarGroup()
     {
-        int i;
-        for (i = 0; i < files_.length(); i++)
+        for (int i = 0; i < files_.size(); i++)
         {
             delete[] files_[i];
         }
-    };
+    }
 
 private:
     char name[6]; // group name
-    coDLinkList<char *> files_; // files in group
+    std::vector<char *> files_; // files in group
 };
 #endif
