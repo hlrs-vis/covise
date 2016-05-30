@@ -1237,8 +1237,16 @@ void VolumePlugin::addObject(RenderObject *container,
 
             int noChan = 0;
 
+            float min[Field::NumChannels], max[Field::NumChannels], irange[Field::NumChannels];
             for (int c = Field::Channel0; c < Field::NumChannels; ++c)
             {
+                min[c] = colorObj->getMin(c);
+                max[c] = colorObj->getMax(c);
+                if (max[c] - min[c] <= 0.f)
+                    irange[c] = 1.f;
+                else
+                    irange[c] = 1.f/(max[c] - min[c]);
+
                 byteChannels[c] = colorObj->getByte((Field::Id)c);
                 if (byteChannels[c])
                     have_byte_chans = true;
@@ -1296,7 +1304,7 @@ void VolumePlugin::addObject(RenderObject *container,
                                 }
                                 else if (floatChannels[c])
                                 {
-                                    *p++ = (uchar)(floatChannels[c][i] * 255.99);
+                                    *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                                 }
                             }
                         }
@@ -1316,9 +1324,9 @@ void VolumePlugin::addObject(RenderObject *container,
                         {
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)(red[i] * 255.99);
-                            *p++ = (uchar)(green[i] * 255.99);
-                            *p++ = (uchar)(blue[i] * 255.99);
+                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                            *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+                            *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
                         }
                     }
                 }
@@ -1336,8 +1344,8 @@ void VolumePlugin::addObject(RenderObject *container,
                         {
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)(red[i] * 255.99);
-                            *p++ = (uchar)(green[i] * 255.99);
+                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                            *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
                         }
                     }
                 }
@@ -1355,7 +1363,7 @@ void VolumePlugin::addObject(RenderObject *container,
                         {
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)(red[i] * 255.99);
+                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
                         }
                     }
                 }
