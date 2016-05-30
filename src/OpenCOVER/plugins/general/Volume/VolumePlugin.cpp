@@ -1413,7 +1413,7 @@ void VolumePlugin::addObject(RenderObject *container,
                 volDesc->real[c][0] = colorObj->getMin(c);
                 volDesc->real[c][1] = colorObj->getMax(c);
 
-                if (volDesc->real[c][1] == 0)
+                if (volDesc->real[c][1] == 0 && volDesc->real[c][0] == 0)
                     volDesc->real[c][1] = 1.0f;
             }
 
