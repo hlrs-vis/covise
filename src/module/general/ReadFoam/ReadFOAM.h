@@ -84,24 +84,15 @@ public:
                               const std::string &selection,
                               const index_t Processor = -1,
                               const index_t saveMapTo = -1);
-    coDoVec3 *loadVectorField(const std::string &timedir,
-                              const std::string &file,
-                              const std::string &vecObjName,
-                              const std::string &meshdir);
-    coDoFloat *loadScalarField(const std::string &timedir,
+    coDistributedObject *loadField(const std::string &timedir,
                                const std::string &file,
                                const std::string &vecObjName,
                                const std::string &meshdir);
-    coDoVec3 *loadBoundaryVectorField(const std::string &timedir,
+    coDistributedObject *loadBoundaryField(const std::string &timedir,
                                       const std::string &meshdir,
                                       const std::string &file,
                                       const std::string &vecObjName,
                                       const std::string &selection);
-    coDoFloat *loadBoundaryScalarField(const std::string &timedir,
-                                       const std::string &meshdir,
-                                       const std::string &file,
-                                       const std::string &vecObjName,
-                                       const std::string &selection);
     std::map<int, coDoUnstructuredGrid *> basemeshs;
     std::map<int, coDoPolygons *> basebounds;
     std::vector<std::map<int, int> > pointmaps;

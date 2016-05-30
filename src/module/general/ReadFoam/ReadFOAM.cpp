@@ -802,50 +802,12 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
     return polyObj;
 }
 
-coDoVec3 *ReadFOAM::loadVectorField(const std::string &timedir,
-                                    const std::string &file,
-                                    const std::string &vecObjName,
-                                    const std::string &meshdir)
-{
-    std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
-    boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
-    if (!vecIn)
-        return NULL;
-    HeaderInfo header = readFoamHeader(*vecIn);
-    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
-    HeaderInfo ownerH = readFoamHeader(*ownersIn);
-    DimensionInfo dim = parseDimensions(ownerH.header);
-    size_t numberCells=(header.lines>0) ? header.lines : dim.cells;
 
-    coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), numberCells);
-    float *x, *y, *z;
-    vecObj->getAddresses(&x, &y, &z);
-
-    if (header.lines==0)
-    {
-    //std::cerr << std::time(0) << " internalField:" << header.internalField << std::endl;
-    //std::cerr << std::time(0) << " lines:" << header.lines << std::endl;
-            for (int i=0; i<dim.cells; ++i)
-        {
-            x[i] = 0.0;
-            y[i] = 0.0;
-            z[i] = 0.0;
-        }
-    }
-    else
-    { 
-    readFloatVectorArray(header, *vecIn, x, y, z, header.lines);
-    }
-    //std::cerr << std::time(0) << " done!" << std::endl;
-    return vecObj;
-}
-
-coDoFloat *ReadFOAM::loadScalarField(const std::string &timedir,
+coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
                                      const std::string &file,
                                      const std::string &vecObjName,
                                      const std::string &meshdir)
 {
-    std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
     boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
@@ -854,34 +816,63 @@ coDoFloat *ReadFOAM::loadScalarField(const std::string &timedir,
     HeaderInfo ownerH = readFoamHeader(*ownersIn);
     DimensionInfo dim = parseDimensions(ownerH.header);
     size_t numberCells=(header.lines>0) ? header.lines : dim.cells;
-    coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numberCells);
-    if (header.lines==0)
+    coDistributedObject *fieldObj;
+    if (header.fieldclass == "volVectorField")
     {
-        float *uniformField = vecObj->getAddress();
-        float uniformFieldValue=std::stof(header.internalField,NULL);
-        for (int i=0; i<dim.cells; ++i)
+        std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
+        coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), numberCells);
+        float *x, *y, *z;
+        vecObj->getAddresses(&x, &y, &z);
+        if (header.lines==0)
         {
-            uniformField[i] = uniformFieldValue;
+            for (int i=0; i<dim.cells; ++i)
+            {
+                x[i] = 0.0;
+                y[i] = 0.0;
+                z[i] = 0.0;
+            }
         }
+        else
+        {
+            readFloatVectorArray(header, *vecIn, x, y, z, header.lines);
+        }
+        fieldObj= vecObj;
+    }
+    else if (header.fieldclass == "volScalarField")
+    {
+        std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
+        coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numberCells);
+            float *x=vecObj->getAddress();
+        if (header.lines==0)
+        {
+            float uniformFieldValue=std::stof(header.internalField,NULL);
+            for (int i=0; i<dim.cells; ++i)
+            {
+                x[i] = uniformFieldValue;
+            }
+        }
+        else
+        { 
+            vecObj->getAddress(&x);
+            readFloatArray(header, *vecIn, x, header.lines);
+        }
+        fieldObj= vecObj;
     }
     else
-    { 
-    float *x;
-    vecObj->getAddress(&x);
-
-    readFloatArray(header, *vecIn, x, header.lines);
+    {
+        std::cerr << "Unknown field type in file: " << file.c_str() << std::endl;
+        return NULL;
     }
+    return fieldObj;
     //std::cerr << std::time(0) << " done!" << std::endl;
-    return vecObj;
 }
 
-coDoVec3 *ReadFOAM::loadBoundaryVectorField(const std::string &timedir,
+coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
                                             const std::string &meshdir,
                                             const std::string &file,
                                             const std::string &vecObjName,
                                             const std::string &selection)
 {
-    std::cerr << std::time(0) << " Reading Boundary VectorField from: " << timedir.c_str() << "//" << file.c_str() << std::endl;
 
     boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
     if (!ownersIn)
@@ -894,99 +885,102 @@ coDoVec3 *ReadFOAM::loadBoundaryVectorField(const std::string &timedir,
     res.add(selection.c_str());
     Boundaries boundaries = loadBoundary(meshdir);
     std::vector<index_t> dataMapping;
-
-    for (std::vector<Boundary>::const_iterator it = boundaries.boundaries.begin();
-         it != boundaries.boundaries.end();
-         ++it)
-    {
-        int boundaryIndex = it->index;
-        if (res(boundaryIndex) || strcmp(selection.c_str(), "all") == 0)
-        {
-            for (index_t i = it->startFace; i < it->startFace + it->numFaces; ++i)
-            {
-                dataMapping.push_back(owners[i]);
-            }
-        }
-    }
-
+    int numBoundaryFaces =0;
     boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
-    std::vector<scalar_t> fullX(header.lines), fullY(header.lines), fullZ(header.lines);
-    readFloatVectorArray(header, *vecIn, fullX.data(), fullY.data(), fullZ.data(), header.lines);
-
-    coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), dataMapping.size());
-    float *x, *y, *z;
-    vecObj->getAddresses(&x, &y, &z);
-
-    for (index_t i = 0; i < dataMapping.size(); ++i)
-    {
-        *x = fullX[dataMapping[i]];
-        ++x;
-        *y = fullY[dataMapping[i]];
-        ++y;
-        *z = fullZ[dataMapping[i]];
-        ++z;
-    }
-
-    //std::cerr << std::time(0) << " done!" << std::endl;
-    return vecObj;
-}
-
-coDoFloat *ReadFOAM::loadBoundaryScalarField(const std::string &timedir,
-                                             const std::string &meshdir,
-                                             const std::string &file,
-                                             const std::string &vecObjName,
-                                             const std::string &selection)
-{
-    std::cerr << std::time(0) << " Reading Boundary ScalarField from: " << timedir.c_str() << "//" << file.c_str() << std::endl;
-    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
-    if (!ownersIn)
-        return NULL;
-    HeaderInfo ownerH = readFoamHeader(*ownersIn);
-    std::vector<index_t> owners(ownerH.lines);
-    readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
-
-    coRestraint res;
-    res.add(selection.c_str());
-    Boundaries boundaries = loadBoundary(meshdir);
-    std::vector<index_t> dataMapping;
-
     for (std::vector<Boundary>::const_iterator it = boundaries.boundaries.begin();
-         it != boundaries.boundaries.end();
-         ++it)
+            it != boundaries.boundaries.end();
+            ++it)
     {
         int boundaryIndex = it->index;
         if (res(boundaryIndex) || strcmp(selection.c_str(), "all") == 0)
         {
-            for (index_t i = it->startFace; i < it->startFace + it->numFaces; ++i)
+            if (header.lines!=0)
             {
-                dataMapping.push_back(owners[i]);
+                for (index_t i = it->startFace; i < it->startFace + it->numFaces; ++i)
+                {
+                    dataMapping.push_back(owners[i]);
+                }
             }
+            numBoundaryFaces+= it->numFaces;
         }
     }
 
-    boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
-    if (!vecIn)
-        return NULL;
-    HeaderInfo header = readFoamHeader(*vecIn);
-    std::vector<scalar_t> fullX(header.lines);
-    readFloatArray(header, *vecIn, fullX.data(), header.lines);
+    coDistributedObject *fieldObj;
 
-    coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), dataMapping.size());
-    float *x;
-    vecObj->getAddress(&x);
-
-    for (index_t i = 0; i < dataMapping.size(); ++i)
+    if (header.fieldclass == "volScalarField")
     {
-        *x = fullX[dataMapping[i]];
-        ++x;
-    }
+        std::cerr << std::time(0) << " Reading Boundary ScalarField from: " << timedir.c_str() << "//" << file.c_str() << std::endl;
 
+        coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numBoundaryFaces);
+        float *x;
+        vecObj->getAddress(&x);
+
+        if (header.lines==0)
+        {
+            float uniformFieldValue=std::stof(header.internalField,NULL);
+            for (int i=0; i<numBoundaryFaces; ++i)
+            {
+                x[i] = uniformFieldValue;
+            }
+        }
+        else
+        {
+            std::vector<scalar_t> fullX(header.lines);
+            readFloatArray(header, *vecIn, fullX.data(), header.lines);
+            for (index_t i = 0; i < dataMapping.size(); ++i)
+            {
+                *x = fullX[dataMapping[i]];
+                ++x;
+            }
+        }
+        fieldObj=vecObj;
+    }
+    else if (header.fieldclass == "volVectorField")
+    {
+        std::cerr << std::time(0) << " Reading Boundary VectorField from: " << timedir.c_str() << "//" << file.c_str() << std::endl;
+
+
+        coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), numBoundaryFaces);
+        float *x, *y, *z;
+        vecObj->getAddresses(&x, &y, &z);
+
+        if (header.lines==0)
+        {
+            for (int i=0; i<numBoundaryFaces; ++i)
+            {
+                x[i] = 0.0;
+                y[i] = 0.0;
+                z[i] = 0.0;
+            }
+        }
+        else
+        {
+            std::vector<scalar_t> fullX(header.lines), fullY(header.lines), fullZ(header.lines);
+            readFloatVectorArray(header, *vecIn, fullX.data(), fullY.data(), fullZ.data(), header.lines);
+            for (index_t i = 0; i < dataMapping.size(); ++i)
+            {
+                *x = fullX[dataMapping[i]];
+                ++x;
+                *y = fullY[dataMapping[i]];
+                ++y;
+                *z = fullZ[dataMapping[i]];
+                ++z;
+            }
+        }
+        fieldObj = vecObj;
+    }
+    else
+    {
+        std::cerr << "Unknown field type in file: " << file.c_str() << std::endl;
+        return NULL;
+    }
     //std::cerr << std::time(0) << " done!" << std::endl;
-    return vecObj;
+    return fieldObj;
 }
+
 
 int ReadFOAM::compute(const char *port) //Compute is called when Module is executed
 {
@@ -1169,22 +1163,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     std::string portObjName = outPorts[nPort]->getObjName();
                                     portObjName += sd.str();
 
-                                    boost::shared_ptr<std::istream> portIn = getStreamForFile(datadir, dataFilename);
-                                    HeaderInfo header = readFoamHeader(*portIn);
-                                    if (header.fieldclass == "volVectorField")
-                                    {
-                                        coDoVec3 *v = loadVectorField(datadir, dataFilename, portObjName, meshdir);
-                                        tempSetPort[nPort].push_back(v);
-                                    }
-                                    else if (header.fieldclass == "volScalarField")
-                                    {
-                                        coDoFloat *v = loadScalarField(datadir, dataFilename, portObjName, meshdir);
-                                        tempSetPort[nPort].push_back(v);
-                                    }
-                                    else
-                                    {
-                                        std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
-                                    }
+                                    coDistributedObject *v = loadField(datadir, dataFilename, portObjName, meshdir);
+                                    tempSetPort[nPort].push_back(v);
                                 }
                             }                           
                         }
@@ -1214,22 +1194,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     std::string portObjName = boundaryDataPorts[nPort]->getObjName();
                                     portObjName += sd.str();
 
-                                    boost::shared_ptr<std::istream> portIn = getStreamForFile(datadir, dataFilename);
-                                    HeaderInfo header = readFoamHeader(*portIn);
-                                    if (header.fieldclass == "volVectorField")
-                                    {
-                                        coDoVec3 *v = loadBoundaryVectorField(datadir, meshdir, dataFilename, portObjName, selection);
-                                        tempSetBoundPort[nPort].push_back(v);
-                                    }
-                                    else if (header.fieldclass == "volScalarField")
-                                    {
-                                        coDoFloat *v = loadBoundaryScalarField(datadir, meshdir, dataFilename, portObjName, selection);
-                                        tempSetBoundPort[nPort].push_back(v);
-                                    }
-                                    else
-                                    {
-                                        std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
-                                    }
+                                    coDistributedObject *v = loadBoundaryField(datadir, meshdir, dataFilename, portObjName, selection);
+                                    tempSetBoundPort[nPort].push_back(v);
                                 }
                             }
                         }
