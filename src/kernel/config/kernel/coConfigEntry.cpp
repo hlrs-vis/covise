@@ -103,7 +103,9 @@ xercesc::DOMNode *coConfigXercesEntry::storeToDom(xercesc::DOMDocument &document
 
     if (xercesc::DOMNode::ELEMENT_NODE == element->getNodeType())
     {
-        if (QString::fromUtf16(reinterpret_cast<const ushort *>(element->getNodeName())) == "INCLUDE")
+        bool include = QString::fromUtf16(reinterpret_cast<const ushort *>(element->getNodeName())) == "INCLUDE";
+        bool tryinclude = QString::fromUtf16(reinterpret_cast<const ushort *>(element->getNodeName())) == "TRYINCLUDE";
+        if (include || tryinclude)
         {
             if (isListNode)
             {

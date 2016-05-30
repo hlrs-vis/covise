@@ -418,7 +418,7 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                     }
                 }
             }
-            else if (nodeName == "INCLUDE")
+            else if (nodeName == "INCLUDE" || nodeName == "TRYINCLUDE")
             {
                 QHash<QString, QString *> attributes;
                 QString arch, host, rank, master;
@@ -476,7 +476,8 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                         if (!includeNode)
                         {
                             COCONFIGLOG("coConfigRoot::setContentsFromDom error: could not open include file " << filename);
-                            exit(1);
+                            if (nodeName != "TRYINCLUDE")
+                                exit(1);
                         }
                         else
                         {
