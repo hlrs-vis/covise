@@ -495,9 +495,9 @@ Sample::compute(const char *)
                         {
                             typeFlag = unstruct_grid::VECTOR;
                         }
-                        else
+                        else if (typeFlag != unstruct_grid::VECTOR)
                         {
-                            sendError("Cannot decide between vector, scalar, and point");
+                            sendError("Cannot decide between vector, scalar, and point 1: typeFlag was %d", typeFlag);
                             return FAIL;
                         }
                     }
@@ -508,9 +508,9 @@ Sample::compute(const char *)
                         {
                             typeFlag = unstruct_grid::SCALAR;
                         }
-                        else
+                        else if (typeFlag != unstruct_grid::SCALAR)
                         {
-                            sendError("Cannot decide between vector, scalar, and point");
+                            sendError("Cannot decide between vector, scalar, and point 2: typeFlag was %d", typeFlag);
                             return FAIL;
                         }
                     }
@@ -520,9 +520,9 @@ Sample::compute(const char *)
                         {
                             typeFlag = unstruct_grid::POINT;
                         }
-                        else
+                        else if (typeFlag != unstruct_grid::POINT)
                         {
-                            sendError("Cannot decide between vector, scalar, and point");
+                            sendError("Cannot decide between vector, scalar, and point 3: typeFlag was %d", typeFlag);
                             return FAIL;
                         }
                     }
@@ -540,9 +540,9 @@ Sample::compute(const char *)
                     {
                         typeFlag = unstruct_grid::SCALAR;
                     }
-                    else if (typeFlag == unstruct_grid::VECTOR)
+                    else if (typeFlag != unstruct_grid::SCALAR)
                     {
-                        sendError("Cannot decide between vector and scalar");
+                        sendError("Cannot decide between vector and scalar 4: typeflag was %d", typeFlag);
                         return FAIL;
                     }
                 }
@@ -556,7 +556,7 @@ Sample::compute(const char *)
                     }
                     else if (typeFlag != unstruct_grid::VECTOR)
                     {
-                        sendError("Cannot decide between vector and scalar");
+                        sendError("Cannot decide between vector and scalar 5: typeFlag was %d", typeFlag);
                         return FAIL;
                     }
                 }
@@ -570,7 +570,7 @@ Sample::compute(const char *)
                     }
                     else if (typeFlag != unstruct_grid::POINT)
                     {
-                        sendError("Cannot decide between vector, scalar and point");
+                        sendError("Cannot decide between vector, scalar and point 6: typeFlag was %d", typeFlag);
                         return FAIL;
                     }
                 }
