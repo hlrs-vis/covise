@@ -349,7 +349,7 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                 node->setAttribute(xercesc::XMLString::transcode("configname"),
                                    reinterpret_cast<const XMLCh *>(configName.utf16()));
 
-                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("host"))));
+                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("HOST"))));
 
                 QStringList hosts = hostTemp.split(',', QString::SkipEmptyParts);
                 for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
@@ -387,7 +387,7 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                 node->setAttribute(xercesc::XMLString::transcode("configname"),
                                    reinterpret_cast<const XMLCh *>(configName.utf16()));
 
-                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("master"))));
+                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("MASTER"))));
 
                 QStringList hosts = hostTemp.split(',', QString::SkipEmptyParts);
                 for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
@@ -430,25 +430,25 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                 {
                     arch = QString::fromUtf16(archUtf16);
                     if (!arch.isEmpty())
-                        attributes["arch"] = &arch;
+                        attributes["ARCH"] = &arch;
                 }
                 if (rankUtf16)
                 {
                     rank = QString::fromUtf16(rankUtf16);
                     if (!rank.isEmpty())
-                        attributes["rank"] = &rank;
+                        attributes["RANK"] = &rank;
                 }
                 if (hostUtf16)
                 {
                     host = QString::fromUtf16(hostUtf16);
                     if (!host.isEmpty())
-                        attributes["host"] = &host;
+                        attributes["HOST"] = &host;
                 }
                 if (masterUtf16)
                 {
                     master = QString::fromUtf16(masterUtf16);
                     if (!master.isEmpty())
-                        attributes["master"] = &master;
+                        attributes["MASTER"] = &master;
                 }
 
                 if (coConfigTools::matchingAttributes(attributes))

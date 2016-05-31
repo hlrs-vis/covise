@@ -63,9 +63,9 @@
 
   <System>
    <CRB>
-    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/Sur40COVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
    </CRB>

@@ -4,12 +4,12 @@
 
  <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
  
- <LOCAL host="vishexa" >
+ <LOCAL HOST="vishexa" >
   <COVER>
   <MultiPC>
     <SyncMode value="TCP" />
    <NumSlaves value="0" />
-     <Startup arch="x11" value="ssh ${USER}@visbits startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+     <Startup ARCH="x11" value="ssh ${USER}@visbits startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
   </MultiPC>
    <ChannelConfig>
     <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="960" left="0" windowIndex="0" bottom="0" name="0" height="1" />

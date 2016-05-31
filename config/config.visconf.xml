@@ -17,9 +17,9 @@
 	<System>
 		<WSInterface value="false" />
 		<CRB>
-			<ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-			<ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-			<ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+			<ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+			<ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+			<ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
 			<ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
 			<ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
 			<ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -311,7 +311,7 @@
 			<Channel value="0" index="0" comment="FRONT0" stereoMode="QUAD_BUFFER" channel="0" right="1920" left="0" windowIndex="0" bottom="0" name="0" top="1200" />
 		</ChannelConfig>
 		<!-- Desktop Fenster
-			<Window arch="windows" width="1024" comment="Desktop" window="0" pipeIndex="0" height="768" left="10" bottom="10" name="0" decoration="true" />
+			<Window ARCH="windows" width="1024" comment="Desktop" window="0" pipeIndex="0" height="768" left="10" bottom="10" name="0" decoration="true" />
 		/-->
 		<!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
 

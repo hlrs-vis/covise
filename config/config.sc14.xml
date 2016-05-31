@@ -14,7 +14,7 @@
   <MultiPC>
     <SyncMode value="TCP" />
    <NumSlaves value="0" />
-     <Startup arch="x11" value="ssh ${USER}@visbits startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+     <Startup ARCH="x11" value="ssh ${USER}@visbits startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
   </MultiPC>
    <ChannelConfig>
     <Channel stereoMode="QUAD_BUFFER" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />

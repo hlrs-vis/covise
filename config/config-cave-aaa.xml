@@ -2,10 +2,10 @@
 
 <COCONFIG version="1" >
 
- <LOCAL host="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
+ <LOCAL HOST="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
    <COVER>
-     <!--Console arch="windows" value="true" file="c:\OpenCOVER" /-->
-    <Console arch="windows" value="true"/>
+     <!--Console ARCH="windows" value="true" file="c:\OpenCOVER" /-->
+    <Console ARCH="windows" value="true"/>
    </COVER>
 
   <COVER>
@@ -56,7 +56,7 @@
  </LOCAL>
 
 
- <LOCAL host="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
+ <LOCAL HOST="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
 
   <System>
 
@@ -106,20 +106,20 @@
     <Host name="4" value="cavefront-l"/>
     <Host name="5" value="cavefront-r"/>
 
-    <Startup arch="windows" value="startOpenCover" name="0" />            
-    <Startup arch="windows" value="startOpenCover" name="1" />   
-    <Startup arch="windows" value="startOpenCover" name="2" />
-    <Startup arch="windows" value="startOpenCover" name="3" />            
-    <Startup arch="windows" value="startOpenCover" name="4" />   
-    <Startup arch="windows" value="startOpenCover" name="5" />
+    <Startup ARCH="windows" value="startOpenCover" name="0" />            
+    <Startup ARCH="windows" value="startOpenCover" name="1" />   
+    <Startup ARCH="windows" value="startOpenCover" name="2" />
+    <Startup ARCH="windows" value="startOpenCover" name="3" />            
+    <Startup ARCH="windows" value="startOpenCover" name="4" />   
+    <Startup ARCH="windows" value="startOpenCover" name="5" />
 
-    <Startup arch="x11" value="ssh ${USER}@caveleft-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="0"/>
-    <Startup arch="x11" value="ssh ${USER}@caveright-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="2"/>
-    <Startup arch="x11" value="ssh ${USER}@cavefront-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="4"/>
+    <Startup ARCH="x11" value="ssh ${USER}@caveleft-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="0"/>
+    <Startup ARCH="x11" value="ssh ${USER}@caveright-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="2"/>
+    <Startup ARCH="x11" value="ssh ${USER}@cavefront-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="4"/>
 
-    <Startup arch="x11" value="ssh ${USER}@caveleft-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="1"/>
-    <Startup arch="x11" value="ssh ${USER}@caveright-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="3"/>
-    <Startup arch="x11" value="ssh ${USER}@cavefront-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="5"/>
+    <Startup ARCH="x11" value="ssh ${USER}@caveleft-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="1"/>
+    <Startup ARCH="x11" value="ssh ${USER}@caveright-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="3"/>
+    <Startup ARCH="x11" value="ssh ${USER}@cavefront-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="5"/>
   
 
  </MultiPC>
@@ -131,7 +131,7 @@
 
 
 
- <LOCAL host="node01" >
+ <LOCAL HOST="node01" >
 
   <COVER>                                                                
 
@@ -148,7 +148,7 @@
 
 
 
- <LOCAL host="cavefront-l" >
+ <LOCAL HOST="cavefront-l" >
 
   <COVER>                                                                
 
@@ -160,7 +160,7 @@
 
  </LOCAL>
 
- <LOCAL host="cavefront-r" >
+ <LOCAL HOST="cavefront-r" >
 
   <COVER>                                                                
 
@@ -173,7 +173,7 @@
  </LOCAL>
  
  
- <LOCAL host="caveleft-l" >
+ <LOCAL HOST="caveleft-l" >
 
   <COVER>
 
@@ -185,7 +185,7 @@
 
  </LOCAL>
 
- <LOCAL host="caveleft-r" >
+ <LOCAL HOST="caveleft-r" >
 
   <COVER>
 
@@ -200,7 +200,7 @@
 
 
 
- <LOCAL host="caveright-l" >
+ <LOCAL HOST="caveright-l" >
 
   <COVER>
 
@@ -212,7 +212,7 @@
 
  </LOCAL>
 
- <LOCAL host="caveright-r" >
+ <LOCAL HOST="caveright-r" >
 
   <COVER>
 
@@ -225,7 +225,7 @@
  </LOCAL>
 
 
- <LOCAL host="cavefront-l, caveleft-l, caveright-l" >
+ <LOCAL HOST="cavefront-l, caveleft-l, caveright-l" >
 
   <COVER>
 
@@ -239,7 +239,7 @@
 
  </LOCAL>
 
- <LOCAL host="cavefront-r, caveleft-r, caveright-r" >
+ <LOCAL HOST="cavefront-r, caveleft-r, caveright-r" >
 
   <COVER>
 
@@ -254,7 +254,7 @@
 
 
 
- <LOCAL host="node01" >
+ <LOCAL HOST="node01" >
 
   <COVER>
    <NumScreens value="1" />   
@@ -272,7 +272,7 @@
 
  </LOCAL>
 
- <LOCAL host="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
+ <LOCAL HOST="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
 
   <COVER>
 

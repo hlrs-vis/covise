@@ -48,9 +48,9 @@
     <!--Server value="visent.hlrs.de" port="31200" /-->
    </VRB>
    <CRB>
-    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
    </CRB>
@@ -111,10 +111,10 @@
      <TrackViewpoint value="OFF" />
      <TrackObjects value="ON" />
      <FlipH value="FALSE" />
-     <!--VideoConfig arch="windows" value="c:\data\WDM_camera_IDS.xml" /-->
-     <!--VideoConfig arch="windows" value="c:\data\WDM_camera_HMD.xml" /-->
-     <!--VideoConfig arch="windows" value="c:\data\WDM_camera_Logitech.xml" /-->
-     <VideoConfig arch="windows" value="-width=1600 -height=1200" />
+     <!--VideoConfig ARCH="windows" value="c:\data\WDM_camera_IDS.xml" /-->
+     <!--VideoConfig ARCH="windows" value="c:\data\WDM_camera_HMD.xml" /-->
+     <!--VideoConfig ARCH="windows" value="c:\data\WDM_camera_Logitech.xml" /-->
+     <VideoConfig ARCH="windows" value="-width=1600 -height=1200" />
      <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
      <Threshold value="110" />
      <Camera value="c:\data\ARToolKit\camera_para.dat" />

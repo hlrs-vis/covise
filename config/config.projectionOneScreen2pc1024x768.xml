@@ -30,7 +30,7 @@
    </GLOBAL>
 
    <!-- master -->
-   <LOCAL host="master" >
+   <LOCAL HOST="master" >
       
       <COVER>
          
@@ -43,7 +43,7 @@
    </LOCAL>
    
    <!-- slave -->
-   <LOCAL host="slave" >
+   <LOCAL HOST="slave" >
       <COVER>
          <ChannelConfig>
             <Channel comment="FRONT" channel="0" windowIndex="0"  left="0" right="1" bottom="0" top="1" name="0" stereoMode="RIGHT"   />

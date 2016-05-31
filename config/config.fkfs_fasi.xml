@@ -2,14 +2,14 @@
 
 <COCONFIG version="1" >
 
- <LOCAL host="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14">
+ <LOCAL HOST="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14">
  
    <COVER>
-     <Console arch="windows" value="true" file="c:\OpenCOVER" />
+     <Console ARCH="windows" value="true" file="c:\OpenCOVER" />
    </COVER>
  </LOCAL>
 
- <LOCAL host="fasi00" >
+ <LOCAL HOST="fasi00" >
 
   <COVER>
 
@@ -62,7 +62,7 @@
  </LOCAL>
 
 
- <LOCAL host="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14">  
+ <LOCAL HOST="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14">  
   <System>
 
    <HostConfig>
@@ -112,25 +112,25 @@
    <MultiPC>
     <SyncMode value="TCP" />
     <NumSlaves value="12" />
-    <Startup arch="x11" value="ssh ${USER}@fasi01 cd `pwd` \;opencover 2\> /tmp/errors.log" name="0"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi02 cd `pwd` \;opencover 2\> /tmp/errors.log" name="1"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi03 cd `pwd` \;opencover 2\> /tmp/errors.log" name="2"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi04 cd `pwd` \;opencover 2\> /tmp/errors.log" name="3"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi05 cd `pwd` \;opencover 2\> /tmp/errors.log" name="4"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi06 cd `pwd` \;opencover 2\> /tmp/errors.log" name="5"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi07 cd `pwd` \;opencover 2\> /tmp/errors.log" name="6"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi08 cd `pwd` \;opencover 2\> /tmp/errors.log" name="7"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi09 cd `pwd` \;opencover 2\> /tmp/errors.log" name="8"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi10 cd `pwd` \;opencover 2\> /tmp/errors.log" name="9"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi11 cd `pwd` \;opencover 2\> /tmp/errors.log" name="10"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi12 cd `pwd` \;opencover 2\> /tmp/errors.log" name="11"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi13 cd `pwd` \;opencover 2\> /tmp/errors.log" name="12"/>
-    <Startup arch="x11" value="ssh ${USER}@fasi14 cd `pwd` \;opencover 2\> /tmp/errors.log" name="13"/>
-    <Startup arch="windows" value="covRemote OpenCOVER 2;" name="0" />
-    <Startup arch="windows" value="covRemote OpenCOVER 3;" name="1" />
-    <Startup arch="windows" value="covRemote OpenCOVER 4;" name="2" />
-    <Startup arch="windows" value="covRemote OpenCOVER 5;" name="3" />
-    <Startup arch="windows" value="covRemote OpenCOVER 6;" name="4" />
+    <Startup ARCH="x11" value="ssh ${USER}@fasi01 cd `pwd` \;opencover 2\> /tmp/errors.log" name="0"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi02 cd `pwd` \;opencover 2\> /tmp/errors.log" name="1"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi03 cd `pwd` \;opencover 2\> /tmp/errors.log" name="2"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi04 cd `pwd` \;opencover 2\> /tmp/errors.log" name="3"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi05 cd `pwd` \;opencover 2\> /tmp/errors.log" name="4"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi06 cd `pwd` \;opencover 2\> /tmp/errors.log" name="5"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi07 cd `pwd` \;opencover 2\> /tmp/errors.log" name="6"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi08 cd `pwd` \;opencover 2\> /tmp/errors.log" name="7"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi09 cd `pwd` \;opencover 2\> /tmp/errors.log" name="8"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi10 cd `pwd` \;opencover 2\> /tmp/errors.log" name="9"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi11 cd `pwd` \;opencover 2\> /tmp/errors.log" name="10"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi12 cd `pwd` \;opencover 2\> /tmp/errors.log" name="11"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi13 cd `pwd` \;opencover 2\> /tmp/errors.log" name="12"/>
+    <Startup ARCH="x11" value="ssh ${USER}@fasi14 cd `pwd` \;opencover 2\> /tmp/errors.log" name="13"/>
+    <Startup ARCH="windows" value="covRemote OpenCOVER 2;" name="0" />
+    <Startup ARCH="windows" value="covRemote OpenCOVER 3;" name="1" />
+    <Startup ARCH="windows" value="covRemote OpenCOVER 4;" name="2" />
+    <Startup ARCH="windows" value="covRemote OpenCOVER 5;" name="3" />
+    <Startup ARCH="windows" value="covRemote OpenCOVER 6;" name="4" />
    </MultiPC>
 
    <PipeConfig>
@@ -143,7 +143,7 @@
  </LOCAL>
 
 
- <LOCAL host="fasi00" >  
+ <LOCAL HOST="fasi00" >  
   <COVER>
    <WindowConfig>
     <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="1920" bottom="120" name="0" decoration="false" />
@@ -155,7 +155,7 @@
   </COVER>
  </LOCAL>
  
- <LOCAL host="fasi01" >  
+ <LOCAL HOST="fasi01" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;105.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -163,7 +163,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi02" >  
+ <LOCAL HOST="fasi02" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;79.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -171,7 +171,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi03" >  
+ <LOCAL HOST="fasi03" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;52.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -179,7 +179,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi04" >  
+ <LOCAL HOST="fasi04" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;26.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -187,7 +187,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi05" >  
+ <LOCAL HOST="fasi05" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -195,7 +195,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi06" >  
+ <LOCAL HOST="fasi06" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;-26.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -203,7 +203,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi07">
+ <LOCAL HOST="fasi07">
    <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;-52.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -211,7 +211,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi08" >  
+ <LOCAL HOST="fasi08" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;-79.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -219,7 +219,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi09" >  
+ <LOCAL HOST="fasi09" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;-105.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -227,7 +227,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi10" >  
+ <LOCAL HOST="fasi10" >  
   <!-- Spiegel rechts -->
   <COVER>
    <Plugin>
@@ -239,7 +239,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi11" >  
+ <LOCAL HOST="fasi11" >  
   <!-- Spiegel innen -->
   <COVER>
    <Plugin>
@@ -251,7 +251,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi12" >  
+ <LOCAL HOST="fasi12" >  
   <!-- Spiegel links -->
   <COVER>
    <Plugin>
@@ -263,7 +263,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi13" >  
+ <LOCAL HOST="fasi13" >  
   <COVER>
    <ScreenConfig>
     <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;8.00;90.00;-32.0000000;32.0000000;-23.0000000;23.0000000;-0.6248694;0.6248694;-0.4244748;0.4244748;1.2497387;0.8489496"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -271,7 +271,7 @@
   </COVER>
  </LOCAL>
 
- <LOCAL host="fasi14" >  
+ <LOCAL HOST="fasi14" >  
   <COVER>
    <ScreenConfig>
    <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;8.00;90.00;-32.0000000;32.0000000;-23.0000000;23.0000000;-0.6248694;0.6248694;-0.4244748;0.4244748;1.2497387;0.8489496"  radius="2800" comment="FRONT" name="0" screen="0" />
@@ -281,7 +281,7 @@
 
 
 
- <LOCAL host="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14"> 
+ <LOCAL HOST="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14"> 
 
   <COVER>
 

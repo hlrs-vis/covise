@@ -2,7 +2,7 @@
 
 <COCONFIG version="1" >
 
- <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >  
+ <LOCAL HOST="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >  
    <COVER>
      <Input>
         <MouseNav value="true" />
@@ -47,14 +47,14 @@
      </Input>
      </COVER>
 </LOCAL>
- <LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >  
+ <LOCAL HOST="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >  
    <COVER>
      <Background r="0.0" g="0.0" b="0.0" />
-     <Console arch="windows" value="true" file="c:\OpenCOVER" />
+     <Console ARCH="windows" value="true" file="c:\OpenCOVER" />
    </COVER>
  </LOCAL>
 
- <LOCAL host="viscluster70">
+ <LOCAL HOST="viscluster70">
 
   <COVER>
    <Background r="0.0" g="0.0" b="0.0" />
@@ -132,7 +132,7 @@
  </LOCAL>
 
 
- <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
+ <LOCAL HOST="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
 
   <System>
 
@@ -243,15 +243,15 @@
     
     <MasterInterface value="192.168.2.170" />
 
-    <Startup arch="x11" value="ssh ${USER}@viscluster71 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster72 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="1"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster73 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="2"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster74 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="3"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster75 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="4"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster76 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="5"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster77 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="6"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster78 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="7"/>
-    <Startup arch="x11" value="ssh ${USER}@viscluster79 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="8"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster71 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster72 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="1"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster73 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="2"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster74 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="3"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster75 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="4"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster76 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="5"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster77 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="6"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster78 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="7"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster79 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="8"/>
 
        
    </MultiPC>
@@ -262,7 +262,7 @@
  </LOCAL>
 
 
- <LOCAL host="viscluster70" >
+ <LOCAL HOST="viscluster70" >
 
   <COVER>
 
@@ -276,7 +276,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster71" >
+ <LOCAL HOST="viscluster71" >
 
   <COVER>
 
@@ -291,7 +291,7 @@
  </LOCAL>
  
 
- <LOCAL host="viscluster72" >
+ <LOCAL HOST="viscluster72" >
 
   <COVER>
 
@@ -305,7 +305,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster73" >
+ <LOCAL HOST="viscluster73" >
 
   <COVER>
 
@@ -319,7 +319,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster74" >
+ <LOCAL HOST="viscluster74" >
 
   <COVER>
 
@@ -333,7 +333,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster75" >
+ <LOCAL HOST="viscluster75" >
 
   <COVER>
 
@@ -347,7 +347,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster76" >
+ <LOCAL HOST="viscluster76" >
 
   <COVER>
 
@@ -361,7 +361,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster77" >
+ <LOCAL HOST="viscluster77" >
 
   <COVER>
 
@@ -375,7 +375,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster78" >
+ <LOCAL HOST="viscluster78" >
 
   <COVER>
 
@@ -389,7 +389,7 @@
 
  </LOCAL>
 
- <LOCAL host="viscluster79" >
+ <LOCAL HOST="viscluster79" >
 
   <COVER>
 
@@ -407,7 +407,7 @@
 
 
 
-<LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
+<LOCAL HOST="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
  
  
 
@@ -417,7 +417,7 @@
     <Channel comment="MAIN" channel="0" width="1920" stereoMode="HORIZONTAL_SPLIT" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
    </ChannelConfig>
    <WindowConfig>
-    <Window arch="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" VisualID="0x23" />
+    <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" VisualID="0x23" />
    </WindowConfig>
 
   </COVER>
@@ -426,14 +426,14 @@
  </LOCAL>
 
 
- <LOCAL host="viscluster70," >
+ <LOCAL HOST="viscluster70," >
   <COVER>
 
    <ChannelConfig>
     <Channel comment="MAIN" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
    </ChannelConfig>
    <WindowConfig>
-   <Window arch="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" VisualID="0x23" />
+   <Window ARCH="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" VisualID="0x23" />
    </WindowConfig>
 
   </COVER>
@@ -443,7 +443,7 @@
 
 
 
- <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
+ <LOCAL HOST="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
 
 
 

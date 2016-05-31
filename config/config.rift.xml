@@ -49,9 +49,9 @@
    <!--<ShmSize value="33554432"/>-->
     <WSInterface value="false" />
    <CRB>
-    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -450,7 +450,7 @@
    <WindowConfig>
     <OpenGL3 value="false" />
 
-    <Window arch="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+    <Window ARCH="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
    </WindowConfig>
 
    <ScreenConfig>
