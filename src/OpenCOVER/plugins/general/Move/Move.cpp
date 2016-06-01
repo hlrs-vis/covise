@@ -234,7 +234,7 @@ bool Move::init()
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local", true);
+    local = new coCheckboxMenuItem("local coords", true);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
@@ -956,7 +956,7 @@ void Move::preFrame()
                     double angle, x, y, z;
                     quat.getRotate(angle, x, y, z);
                     cerr << "translation " << Trans[0] << " " << Trans[1] << " " << Trans[2] << endl;
-                    cerr << "rotation " << x << " " << y << " " << z << " " << (angle / 180.0) * M_PI << endl;
+                    cerr << "rotation " << x << " " << y << " " << z << " " << angle << " (deg: " << angle*180.0/M_PI << ")" << endl;
                 }
             }
             else
