@@ -13,13 +13,13 @@
 
             <NumWindows value="1" />
             <WindowConfig>
-                <Window width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" stereo="false" />
+                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="true" stereo="false" />
             </WindowConfig>
 
             <NumChannels value="5" />
             <ChannelConfig>
                 <Channel name="0" comment="view0" channel="0" stereoMode="MONO" viewerOffset="-60" screenIndex="0" PBOIndex="0" />
-                <Channel name="1" comment="view1" channel="1" stereoMode="MONO" viewerOffset="-20" screenIndex="0" PBOIndex="1" />
+                <Channel name="1" comment="view1" channel="1" stereoMode="MONO" viewerOffset="-30" screenIndex="0" PBOIndex="1" />
                 <Channel name="2" comment="view2" channel="2" stereoMode="MONO" viewerOffset="0" screenIndex="0" PBOIndex="2" />
                 <Channel name="3" comment="view3" channel="3" stereoMode="MONO" viewerOffset="30" screenIndex="0" PBOIndex="3" />
                 <Channel name="4" comment="view4" channel="4" stereoMode="MONO" viewerOffset="60" screenIndex="0" PBOIndex="4" />
