@@ -422,10 +422,10 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
             {
                 QHash<QString, QString *> attributes;
                 QString arch, host, rank, master;
-                const ushort *archUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("arch")));
-                const ushort *rankUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("rank")));
-                const ushort *hostUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("host")));
-                const ushort *masterUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("master")));
+                const ushort *archUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("ARCH")));
+                const ushort *rankUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("RANK")));
+                const ushort *hostUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("HOST")));
+                const ushort *masterUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("MASTER")));
                 if (archUtf16)
                 {
                     arch = QString::fromUtf16(archUtf16);
@@ -1163,7 +1163,7 @@ void coConfigXercesRoot::createHostConfig(const QString &hostname)
     xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
     xercesc::DOMElement *rootNode = document->getDocumentElement();
     xercesc::DOMElement *localElement = document->createElement(xercesc::XMLString::transcode("LOCAL"));
-    localElement->setAttribute(xercesc::XMLString::transcode("host"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
+    localElement->setAttribute(xercesc::XMLString::transcode("HOST"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
     rootNode->appendChild(localElement);
     setContentsFromDom(document->getDocumentElement());
 }
@@ -1176,7 +1176,7 @@ void coConfigXercesRoot::createClusterConfig(const QString &hostname)
     xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
     xercesc::DOMElement *rootNode = document->getDocumentElement();
     xercesc::DOMElement *localElement = document->createElement(xercesc::XMLString::transcode("CLUSTER"));
-    localElement->setAttribute(xercesc::XMLString::transcode("master"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
+    localElement->setAttribute(xercesc::XMLString::transcode("MASTER"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
     rootNode->appendChild(localElement);
     setContentsFromDom(document->getDocumentElement());
 }
