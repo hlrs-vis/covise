@@ -1102,8 +1102,10 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
         }
         else
         {
+#if 0 // this will happen all the time
             COCONFIGDBG("coConfigRoot::loadFile warn: Parse of Schema failed "
                         << "\n");
+#endif
         }
     }
     return globalConfigElement;
