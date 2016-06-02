@@ -419,7 +419,7 @@ void Move::preFrame()
 {
     bool doUndo = false;
     osg::Node *node;
-    coPointerButton *button = cover->getPointerButton();
+    //coPointerButton *button = cover->getPointerButton();
     node = cover->getIntersectedNode();
     const osg::NodePath &intersectedNodePath = cover->getIntersectedNodePath();
     
@@ -761,7 +761,7 @@ void Move::preFrame()
     }
 
     //coVRMSController::instance()->syncInt(1027);
-    if ((selectedNode) && (!(interactionA->isRegistered() || interactionB->isRunning())) && button->getState())
+    if ((selectedNode) && (!(interactionA->isRegistered() || interactionB->isRegistered())) && (interactionA->wasStarted() || interactionB->wasStarted()))
     {
         if (moveSelection)
         {
