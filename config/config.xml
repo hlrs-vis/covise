@@ -71,9 +71,9 @@
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
-     <TabletUI>
-     <Server host="localhost" port="31802" name="0" />
-   </TabletUI>
+     <TabletPC>
+         <Server value="localhost"/>
+       </TabletPC>
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />
