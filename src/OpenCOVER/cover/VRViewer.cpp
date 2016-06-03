@@ -350,7 +350,6 @@ VRViewer::VRViewer()
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
 
-    RenderToTexture = false;
     const bool glDebug = coCoviseConfig::isOn("COVER.GLDebug", false);
     if (glDebug) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
@@ -469,7 +468,8 @@ void VRViewer::createViewportCameras(int i)
                     cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
                     return;
                 }
-                if (osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext())
+                windowStruct &win = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum];
+                if (osg::GraphicsContext *gc = win.context)
                 {
                     cameraWarp->setGraphicsContext(gc);
                 }
@@ -478,8 +478,8 @@ void VRViewer::createViewportCameras(int i)
                     cerr << "no GraphicsContext for viewport " << i << endl;
                 }
 
-                const int sx = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx;
-                const int sy = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy;
+                const int sx = win.sx;
+                const int sy = win.sy;
                 cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
                             (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
 
@@ -522,7 +522,8 @@ void VRViewer::createViewportCameras(int i)
                 }
 
                 int PBOnum = vp.pbos[2];
-                if (osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext())
+                windowStruct &win = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum];
+                if (osg::GraphicsContext *gc = win.context)
                 {
                     cameraWarp->setGraphicsContext(gc);
                 }
@@ -531,8 +532,8 @@ void VRViewer::createViewportCameras(int i)
                     cerr << "no GraphicsContext for viewport " << i << endl;
                 }
 
-                const int sx = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx;
-                const int sy = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy;
+                const int sx = win.sx;
+                const int sy = win.sy;
                 cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
                             (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
 
@@ -875,7 +876,6 @@ VRViewer::config()
     {
         createBlendingCameras(i);
     }
-    
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
@@ -1004,7 +1004,6 @@ VRViewer::flipStereo()
 void
 VRViewer::setRenderToTexture(bool b)
 {
-    RenderToTexture = b;
 }
 
 //OpenCOVER
@@ -1027,6 +1026,7 @@ VRViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
+    bool RenderToTexture = false;
     osg::ref_ptr<osg::GraphicsContext> gc = NULL;
     int pboNum = coVRConfig::instance()->channels[i].PBONum;
     if(vp >= 0)
@@ -1091,7 +1091,6 @@ VRViewer::createChannels(int i)
         else
             renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
 
-        renderTargetTexture = new osg::Texture2D;
         const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[pboNum].windowNum].context;
         if (!cg)
         {
@@ -1099,6 +1098,7 @@ VRViewer::createChannels(int i)
             return;
         }
 
+        osg::Texture2D *renderTargetTexture = new osg::Texture2D;
         renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[pboNum].PBOsx, coVRConfig::instance()->PBOs[pboNum].PBOsy);
         renderTargetTexture->setInternalFormat(GL_RGBA);
         //renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);

@@ -76,10 +76,6 @@ public:
 
     void setClearColor(const osg::Vec4 &color);
     void setRenderToTexture(bool);
-    osg::Texture2D *getTexture()
-    {
-        return renderTargetTexture;
-    };
     void flipStereo();
 
 private:
@@ -98,9 +94,6 @@ private:
     osg::Vec3 leftViewPos, rightViewPos, middleViewPos;
     osg::Matrix viewMat;
     osgViewer::StatsHandler *statsHandler;
-
-    osg::Texture2D *renderTargetTexture;
-    bool RenderToTexture;
 
     angleStruct *screen_angle; // Screen angle: IWR movable screen
 
