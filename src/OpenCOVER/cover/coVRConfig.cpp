@@ -127,11 +127,6 @@ coVRConfig::coVRConfig()
     screens.resize(numScreens);
 
     const int numChannels = coCoviseConfig::getInt("COVER.NumChannels", numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
-    if (numChannels < numScreens)
-    {
-	std::cerr << "COVER.NumChannels cannot be < COVER.NumScreens" << std::endl;
-	exit(1);
-    }
     channels.resize(numChannels);
     
     const int numWindows = coCoviseConfig::getInt("COVER.NumWindows", numScreens);
