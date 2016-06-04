@@ -233,7 +233,7 @@ coVRTui::coVRTui()
     
     ShadowChoice = new coTUIComboBox("shadowChoice",topContainer->getID());
     ShadowChoice->setEventListener(this);
-    ShadowChoice->addEntry("none");
+    ShadowChoice->addEntry("No Shadows");
     ShadowChoice->addEntry("ShadowVolume");
     ShadowChoice->addEntry("ShadowTexture");
     ShadowChoice->addEntry("SoftShadowMap");
@@ -242,6 +242,9 @@ coVRTui::coVRTui()
     ShadowChoice->addEntry("LightSpacePerspectiveShadowMapCB");
     ShadowChoice->addEntry("LightSpacePerspectiveShadowMapDB");
     ShadowChoice->addEntry("ShadowMap");
+
+    FlipStereo = new coTUIToggleButton("Flip eyes", topContainer->getID(), false);
+    FlipStereo->setEventListener(this);
 
     Scale = new coTUIToggleButton("Scale", topContainer->getID());
     Collision = new coTUIToggleButton("Detect collisions", topContainer->getID());
@@ -353,6 +356,7 @@ coVRTui::coVRTui()
     Collision->setPos(0, 5);
     DebugBins->setPos(3, 0);
     ShadowChoice->setPos(3,1);
+    FlipStereo->setPos(3,2);
     DisableIntersection->setPos(1, 5);
     testImage->setPos(2, 5);
 
@@ -537,6 +541,7 @@ coVRTui::~coVRTui()
     delete Collision;
     delete DebugBins;
     delete ShadowChoice;
+    delete FlipStereo;
     delete DisableIntersection;
     delete testImage;
     delete speedLabel;
@@ -1040,6 +1045,10 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         {
             binList->removeAll();
         }
+    }
+    else if (tUIItem == FlipStereo)
+    {
+        VRViewer::instance()->flipStereo();
     }
     else if (tUIItem == ShadowChoice)
     {
