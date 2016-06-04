@@ -113,7 +113,7 @@ private:
     bool overwritePAndV;
     bool reEnableCulling;
     
-    osg::Geode *distortionMesh(const char *fileName);
+    osg::Geometry *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
     void createBlendingCameras(int i);
     float requestedSeparation, separation;
