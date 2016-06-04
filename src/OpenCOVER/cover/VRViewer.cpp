@@ -446,7 +446,9 @@ void VRViewer::createViewportCameras(int i)
         return;
 
     osg::ref_ptr<osg::Camera> cameraWarp = new osg::Camera;
-    cameraWarp->setName("WarpOrtho");
+    std::stringstream str;
+    str << "WarpOrtho/Viewport " << i;
+    cameraWarp->setName(str.str());
     cameraWarp->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
     cameraWarp->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     cameraWarp->setRenderOrder(osg::Camera::POST_RENDER);
@@ -651,6 +653,9 @@ void VRViewer::createBlendingCameras(int i)
         osg::GraphicsContext *gc = coVRConfig::instance()->windows[bt.window].context;
 
         osg::ref_ptr<osg::Camera> cameraBlend = new osg::Camera;
+        std::stringstream str;
+        str << "Blending Texture " << i;
+        cameraBlend->setName(str.str());
         cameraBlend->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
         cameraBlend->setClearMask(0);
         cameraBlend->setRenderOrder(osg::Camera::POST_RENDER);
@@ -1052,13 +1057,17 @@ VRViewer::createChannels(int i)
         RenderToTexture = true;
     }
 
+    std::stringstream str;
+    str << "Channel " << i;
     if (i == 0)
     {
         coVRConfig::instance()->channels[i].camera = _camera;
+        _camera->setName(str.str());
     }
     else
     {
         coVRConfig::instance()->channels[i].camera = new osg::Camera;
+        coVRConfig::instance()->channels[i].camera->setName(str.str());
         coVRConfig::instance()->channels[i].camera->setView(this);
 
         coVRConfig::instance()->channels[i].camera->addChild(this->getScene()->getSceneData());
