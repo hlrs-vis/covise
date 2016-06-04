@@ -86,6 +86,7 @@ struct channelStruct
     osg::DisplaySettings *ds;
     bool stereo;
     int stereoMode;
+    bool fixedViewer;
     float viewerOffset;
     osg::Matrixd leftView, rightView;
     osg::Matrixd leftProj, rightProj;
@@ -98,6 +99,7 @@ struct channelStruct
     , ds(NULL)
     , stereo(true)
     , stereoMode(osg::DisplaySettings::LEFT_EYE)
+    , fixedViewer(false)
     , viewerOffset(0.f)
     {}
 };

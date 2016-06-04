@@ -1393,11 +1393,22 @@ VRViewer::setFrustumAndView(int i)
             leftEye.set(off, 0.0, 0.0);
             middleEye.set(off, 0.0, 0.0);
         }
-
-        // transform the left and right eye with this matrix
-        rightEye = viewMat.preMult(rightEye);
-        leftEye = viewMat.preMult(leftEye);
-        middleEye = viewMat.preMult(middleEye);
+        
+        if (currentChannel->fixedViewer)
+        {
+            osg::Matrix m;
+            m.makeTranslate(initialViewPos);
+            rightEye = m.preMult(rightEye);
+            leftEye = m.preMult(leftEye);
+            middleEye = m.preMult(middleEye);
+        }
+        else
+        {
+            // transform the left and right eye with this matrix
+            rightEye = viewMat.preMult(rightEye);
+            leftEye = viewMat.preMult(leftEye);
+            middleEye = viewMat.preMult(middleEye);
+        }
 
         rightEye = mat.preMult(rightEye);
         leftEye = mat.preMult(leftEye);

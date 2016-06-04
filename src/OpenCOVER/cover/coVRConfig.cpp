@@ -388,6 +388,8 @@ coVRConfig::coVRConfig()
             m_stencil = true;
         }
 
+        bool exists = false;
+        channels[i].fixedViewer = coCoviseConfig::isOn("fixedViewer", str, false, &exists);
         channels[i].viewerOffset = coCoviseConfig::getFloat("viewerOffset", str, 0.f);
         
         channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
