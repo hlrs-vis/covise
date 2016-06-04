@@ -464,7 +464,7 @@ void VRViewer::createViewportCameras(int i)
         case viewportStruct::PBO:
             {
                 int PBOnum = vp.PBOnum;
-                if (PBOnum < 0 || PBOnum > coVRConfig::instance()->numPBOs())
+                if (PBOnum < 0 || PBOnum >= coVRConfig::instance()->numPBOs())
                 {
                     cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
                     return;
@@ -514,7 +514,7 @@ void VRViewer::createViewportCameras(int i)
                 for (size_t i=0; i<vp.pbos.size(); ++i)
                 {
                     int PBOnum = vp.pbos[i];
-                    if (PBOnum < 0 || PBOnum > coVRConfig::instance()->numPBOs())
+                    if (PBOnum < 0 || PBOnum >= coVRConfig::instance()->numPBOs())
                     {
                         cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
                         return;

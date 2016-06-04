@@ -158,7 +158,7 @@ coVRConfig::coVRConfig()
     }
     blendingTextures.resize(numBlendingTextures);
 
-    const int numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", numChannels);
+    const int numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", 0);
     if (numPBOs < 0)
     {
 	std::cerr << "COVER.NumPBOs cannot be negative" << std::endl;
