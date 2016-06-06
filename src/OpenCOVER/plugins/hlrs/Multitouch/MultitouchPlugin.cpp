@@ -25,8 +25,6 @@
 #include <cover/input/input.h>
 #include <cover/input/coMousePointer.h>
 
-using std::isnan;
-
 MultitouchPlugin::MultitouchPlugin()
 {
     fprintf(stderr, "MultitouchPlugin::MultitouchPlugin\n");
@@ -502,7 +500,7 @@ double MultitouchPlugin::angleBetween2DVectors(osg::Vec2 v1, osg::Vec2 v2)
     double angle = acos(dotProduct);
 
     // Here we make sure that the angle is not a -1.#IND0000000 number, which means indefinite
-    if (isnan(angle)) //__isnand(x)
+    if (std::isnan(angle)) //__isnand(x)
         return 0;
 
     // Return the angle in radians
