@@ -7,7 +7,7 @@
             <Stereo value="true" />
             <NumWindows value="1" />
             <WindowConfig>
-                <Window name="0" window="0" width="1920" comment="tridelity" pipeIndex="0" height="1080" left="100" bottom="0" decoration="true" stereo="false" />
+                <Window name="0" window="0" width="1920" comment="tridelity" pipeIndex="0" height="1200" left="1920" bottom="0" decoration="false" stereo="false" />
             </WindowConfig>
 
             <NumScreens value="1" />
@@ -17,25 +17,25 @@
 
             <NumChannels value="5" />
             <ChannelConfig>
-                <Channel name="0" channel="0" screenIndex="0" comment="view0" stereoMode="MONO" fixedViewer="true" viewerOffset="-20" PBOIndex="0" />
-                <Channel name="1" channel="1" screenIndex="0" comment="view1" stereoMode="MONO" fixedViewer="true" viewerOffset="-10" PBOIndex="1" />
+                <Channel name="0" channel="0" screenIndex="0" comment="view0" stereoMode="MONO" fixedViewer="true" viewerOffset="100" PBOIndex="0" />
+                <Channel name="1" channel="1" screenIndex="0" comment="view1" stereoMode="MONO" fixedViewer="true" viewerOffset="50" PBOIndex="1" />
                 <Channel name="2" channel="2" screenIndex="0" comment="view2" stereoMode="MONO" fixedViewer="true" viewerOffset="0"   PBOIndex="2" />
-                <Channel name="3" channel="3" screenIndex="0" comment="view3" stereoMode="MONO" fixedViewer="true" viewerOffset="20"  PBOIndex="3" />
-                <Channel name="4" channel="4" screenIndex="0" comment="view4" stereoMode="MONO" fixedViewer="true" viewerOffset="20"  PBOIndex="4" />
+                <Channel name="3" channel="3" screenIndex="0" comment="view3" stereoMode="MONO" fixedViewer="true" viewerOffset="-50"  PBOIndex="3" />
+                <Channel name="4" channel="4" screenIndex="0" comment="view4" stereoMode="MONO" fixedViewer="true" viewerOffset="-100"  PBOIndex="4" />
             </ChannelConfig>
 
             <NumViewports value="1" />
             <ViewportConfig>
-                <Viewport name="0" windowIndex="0" mode="TridelityML" pboList="0,1,2,3,4" />
+                <Viewport name="0" windowIndex="0" mode="TridelityMV" pboList="0,1,2,3,4" />
             </ViewportConfig>
 
             <NumPBOs value="5" />
             <PBOConfig>
-                <PBO name="0" width="960" height="540" windowIndex="0" />
-                <PBO name="1" width="960" height="540" windowIndex="0" />
-                <PBO name="2" width="960" height="540" windowIndex="0" />
-                <PBO name="3" width="960" height="540" windowIndex="0" />
-                <PBO name="4" width="960" height="540" windowIndex="0" />
+                <PBO name="0" width="960" height="600" windowIndex="0" />
+                <PBO name="1" width="960" height="600" windowIndex="0" />
+                <PBO name="2" width="960" height="600" windowIndex="0" />
+                <PBO name="3" width="960" height="600" windowIndex="0" />
+                <PBO name="4" width="960" height="600" windowIndex="0" />
             </PBOConfig>
         </COVER>
     </GLOBAL>
