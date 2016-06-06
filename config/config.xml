@@ -184,7 +184,7 @@
     <DistortViewer value="off" />
     <Move value="off" menu="true" />
     <ClipPlane value="on" />
-    <PLMXML value="on">
+    <PLMXML value="off">
 	 <LoadSTL value="false" />
 	 <LoadVRML value="true" />
 	 <UndoVRMLRotate value="false" />
@@ -311,7 +311,7 @@
  <!--INCLUDE global="1" configname="input">config.input.xml</INCLUDE-->
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
- <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
+ <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
 </COCONFIG>
