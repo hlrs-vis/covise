@@ -20,7 +20,7 @@ FIND_PATH(TBB_ROOT include/tbb/task_scheduler_init.h
           "C:/Program Files (x86)/Intel/Composer XE/tbb" 
           /opt/intel/composerxe/tbb 
           /usr/local/opt/tbb
-          NO_DEFAULT_PATH
+	  /usr
 )
 UNSET(TBB_INCLUDE_DIR CACHE)
 UNSET(TBB_LIBRARY CACHE)
@@ -62,9 +62,10 @@ ELSE ()
       FIND_LIBRARY(TBB_LIBRARY_MALLOC tbbmalloc PATHS ${TBB_ROOT}/lib NO_DEFAULT_PATH)
     ENDIF()
   ELSE()
+
     FIND_PATH(TBB_INCLUDE_DIR tbb/task_scheduler_init.h PATHS ${TBB_ROOT}/include NO_DEFAULT_PATH)
-    FIND_LIBRARY(TBB_LIBRARY tbb PATHS ${TBB_ROOT}/lib ${TBB_ROOT}/lib64 ${TBB_ROOT}/lib/intel64/gcc4.4 NO_DEFAULT_PATH)
-    FIND_LIBRARY(TBB_LIBRARY_MALLOC tbbmalloc PATHS ${TBB_ROOT}/lib ${TBB_ROOT}/lib64 ${TBB_ROOT}/lib/intel64/gcc4.4 NO_DEFAULT_PATH)
+    FIND_LIBRARY(TBB_LIBRARY tbb PATHS ${TBB_ROOT}/lib ${TBB_ROOT}/lib64 ${TBB_ROOT}/lib/x86_64-linux-gnu ${TBB_ROOT}/lib/intel64/gcc4.4 NO_DEFAULT_PATH)
+    FIND_LIBRARY(TBB_LIBRARY_MALLOC tbbmalloc PATHS ${TBB_ROOT}/lib ${TBB_ROOT}/lib64 ${TBB_ROOT}/lib/x86_64-linux-gnu ${TBB_ROOT}/lib/intel64/gcc4.4 NO_DEFAULT_PATH)
   ENDIF()
 
   FIND_PATH(TBB_INCLUDE_DIR_MIC tbb/task_scheduler_init.h PATHS ${TBB_ROOT}/include NO_DEFAULT_PATH)
