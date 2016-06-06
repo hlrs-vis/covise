@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+#define _ISOC99_SOURCE // for isnan
 #include "coIntersectionUtil.h"
 
 #include "coIntersection.h"
@@ -23,6 +24,7 @@
 
 using namespace osg;
 using namespace osgUtil;
+using std::isnan;
 
 namespace opencover
 {
