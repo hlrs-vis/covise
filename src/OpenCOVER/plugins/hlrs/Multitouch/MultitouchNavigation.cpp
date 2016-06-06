@@ -34,6 +34,8 @@
 
 #include "MultitouchNavigation.h"
 
+using std::isnan;
+
 MultitouchNavigation::MultitouchNavigation()
 {
     cout << "MultitouchNavigation::MultitouchNavigation" << endl;

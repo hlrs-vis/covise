@@ -25,6 +25,8 @@
 #include <cover/input/input.h>
 #include <cover/input/coMousePointer.h>
 
+using std::isnan;
+
 MultitouchPlugin::MultitouchPlugin()
 {
     fprintf(stderr, "MultitouchPlugin::MultitouchPlugin\n");

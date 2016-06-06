@@ -19,6 +19,8 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <osg/io_utils>
 
+using std::isnan;
+
 SurfaceInteraction::SurfaceInteraction()
 {
     cout << "SurfaceInteraction::SurfaceInteraction" << endl;
