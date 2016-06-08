@@ -64,7 +64,7 @@ PointCloudGeometry::PointCloudGeometry(PointSet *pointData)
 
     // after test move stateset higher up in the tree
     stateset = new StateSet();
-    stateset->setMode(GL_PROGRAM_POINT_SIZE_EXT, StateAttribute::ON);
+    //stateset->setMode(GL_PROGRAM_POINT_SIZE_EXT, StateAttribute::ON);
     stateset->setMode(GL_LIGHTING, StateAttribute::OFF);
     stateset->setMode(GL_DEPTH_TEST, StateAttribute::ON);
     stateset->setMode(GL_ALPHA_TEST, StateAttribute::ON);
