@@ -207,7 +207,7 @@ ListenerCover::createPlayer()
     Player *player = 0;
     PlayerFactory *factory = new PlayerFactory(this);
 
-    factory->type = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio", "AServer");
+    factory->type = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio", "None");
 
     factory->host = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio.Host", "localhost");
     factory->port = coCoviseConfig::getInt("port", "COVER.Plugin.Vrml97.Audio.Host", 31231);
