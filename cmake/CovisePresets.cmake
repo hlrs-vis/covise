@@ -118,8 +118,8 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} ${ASAN_LINK_FLAGS}")
 
 if(COVISE_NATIVE_ARCH)
   IF(NOT WIN32)
-   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -fabi-version=6")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -fabi-version=6")
   ENDIF(NOT WIN32)
 endif()
 
