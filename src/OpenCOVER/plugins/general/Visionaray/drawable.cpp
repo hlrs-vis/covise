@@ -770,7 +770,8 @@ struct drawable::impl
 #endif
         mat4                                view_matrix;
         mat4                                proj_matrix;
-        recti                               viewport;
+        int                                 width;
+        int                                 height;
         unsigned                            frame_num       = 0;
     };
 
@@ -928,7 +929,8 @@ void drawable::impl::update_viewing_params(osg::DisplaySettings::StereoMode mode
     // Viewport
 
     auto osg_viewport = osg_cam->getViewport();
-    recti vp(osg_viewport->x(), osg_viewport->y(), osg_viewport->width(), osg_viewport->height());
+    int w = osg_viewport->width();
+    int h = osg_viewport->height();
 
 
     // Reset frame counter on change or if scene is dynamic
@@ -950,7 +952,8 @@ void drawable::impl::update_viewing_params(osg::DisplaySettings::StereoMode mode
     if (
         vparams.view_matrix != view         ||
         vparams.proj_matrix != proj         ||
-        vparams.viewport    != vp
+        vparams.width       != w            ||
+        vparams.height      != h
         )
     {
         vparams.frame_num = 0;
@@ -964,12 +967,13 @@ void drawable::impl::update_viewing_params(osg::DisplaySettings::StereoMode mode
     vparams.view_matrix  = view;
     vparams.proj_matrix  = proj;
 
-    if (vparams.viewport != vp)
+    if (vparams.width != w || vparams.height != h)
     {
-        vparams.viewport = vp;
-        vparams.host_rt.resize(vparams.viewport[2], vparams.viewport[3]);
+        vparams.width = w;
+        vparams.height = h;
+        vparams.host_rt.resize(w, h);
 #ifdef __CUDACC__
-        vparams.device_rt.resize(vparams.viewport[2], vparams.viewport[3]);
+        vparams.device_rt.resize(w, h);
 #endif
     }
 }
@@ -1046,7 +1050,6 @@ void drawable::impl::call_kernel(KParams const& params)
                     vparams.frame_num,
                     vparams.view_matrix,
                     vparams.proj_matrix,
-                    vparams.viewport,
                     vparams.device_rt,
                     device_intersector
                     );
@@ -1062,7 +1065,6 @@ void drawable::impl::call_kernel(KParams const& params)
                     vparams.frame_num,
                     vparams.view_matrix,
                     vparams.proj_matrix,
-                    vparams.viewport,
                     vparams.host_rt,
                     host_intersector
                     );
@@ -1087,7 +1089,6 @@ void drawable::impl::call_kernel_debug(KParams const& params)
         auto sparams = make_sched_params(
                 vparams.view_matrix,
                 vparams.proj_matrix,
-                vparams.viewport,
                 vparams.device_rt
                 );
 
@@ -1116,7 +1117,6 @@ void drawable::impl::call_kernel_debug(KParams const& params)
         auto sparams = make_sched_params(
                 vparams.view_matrix,
                 vparams.proj_matrix,
-                vparams.viewport,
                 vparams.host_rt
                 );
 
@@ -1290,7 +1290,7 @@ void drawable::drawImplementation(osg::RenderInfo& info) const
     }
 
 
-    // Camera matrices, viewport, render target resize
+    // Camera matrices, render target resize
 
     impl_->update_viewing_params(get_stereo_mode(info));
 
