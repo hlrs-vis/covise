@@ -30,7 +30,7 @@
          <Framebuffer  colorSpace="sRGB" />               <!-- colorSpace: "sRGB" | "RGB" -->
          <NumBounces   value="4" min="1" max="10" />      <!-- value:Integer | [min:Integer|max:Integer]  -->
          <Device       value="GPU"     />                 <!-- "CPU"    | "GPU"     -->
-         <CPUScheduler numThreads="16" />                 <!-- numThreads:Integer   -->
+         <CPUScheduler numThreads="7" />                 <!-- numThreads:Integer   -->
        </Visionaray>
        <CompositorIceT value="off" menu="true" />
  <PointCloud>

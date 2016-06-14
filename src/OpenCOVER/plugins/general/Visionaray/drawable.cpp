@@ -904,6 +904,12 @@ void drawable::impl::update_viewing_params(osg::DisplaySettings::StereoMode mode
                 }
             }
             break;
+        case osg::DisplaySettings::LEFT_EYE:
+            current_eye = Left;
+            break;
+        case osg::DisplaySettings::RIGHT_EYE:
+            current_eye = Right;
+            break;
         default:
             break;
         }
