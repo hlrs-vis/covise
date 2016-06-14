@@ -1,5 +1,5 @@
 function(do_cuda_compile outfiles)
-    if(NOT CUDA_FOUND)
+    if(NOT COVISE_USE_CUDA OR NOT CUDA_FOUND)
         return()
     endif()
 
@@ -25,10 +25,8 @@ endif()
 set(VISIONARAY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../3rdparty/visionaray/include")
 
 find_package(Boost COMPONENTS chrono filesystem iostreams system thread REQUIRED)
-find_package(CUDA)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(OpenSceneGraph REQUIRED)
 if (NOT APPLE AND NOT WIN32)
     find_package(PTHREAD REQUIRED)
 endif()
@@ -68,7 +66,7 @@ set(SOURCES
     visionaray_plugin.cpp
 )
 
-if(CUDA_FOUND)
+if(COVISE_USE_CUDA AND CUDA_FOUND)
     include_directories(${CUDA_INCLUDE_DIRS})
     set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
     do_cuda_compile(CUDA_SOURCES drawable.cu)
