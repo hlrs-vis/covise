@@ -132,10 +132,10 @@ if(COVISE_IGNORE_RETURNED)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=unused-result")
 endif()
 
-if(COVISE_BUILD_STATIC)
-   set(COVISE_LIB_TYPE STATIC)
-else()
+if(BUILD_SHARED_LIBS)
    set(COVISE_LIB_TYPE SHARED)
+else()
+   set(COVISE_LIB_TYPE STATIC)
 endif()
 
 # change initial cmake-values such as CMAKE_CXX_FLAGS

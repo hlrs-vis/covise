@@ -25,6 +25,13 @@ endfunction()
 #   return()
 #endif()
 
+set(VISIONARAY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/visionaray/include")
+if(BUILD_SHARED_LIBS)
+    set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_SHARED_LIBRARY_SUFFIX}")
+else()
+    set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif()
+
 find_package(Boost COMPONENTS chrono filesystem iostreams system thread REQUIRED)
 find_package(CUDA)
 find_package(GLEW REQUIRED)

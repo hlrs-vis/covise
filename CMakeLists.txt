@@ -143,7 +143,7 @@ option(COVISE_SANITIZE_ADDRESS "Build with -fsanitize=address" OFF)
 option(COVISE_SANITIZE_THREAD "Build with -fsanitize=thread" OFF)
 option(COVISE_IGNORE_RETURNED "No compile error when return values are ignored" OFF)
 
-OPTION(COVISE_BUILD_STATIC "Build static COVISE libraries" OFF)
+OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 OPTION(COVISE_BUILD_SYS "Build COVISE system applications" ON)
 OPTION(COVISE_BUILD_MODULES "Build COVISE modules" ON)
