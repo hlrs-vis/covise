@@ -160,7 +160,12 @@ OPTION(COVISE_USE_MERCURY "Use MERCURY" ON)
 OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" ON)
 OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
-OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
+if (APPLE)
+    # would break dynamic_casts in Visionary COVER plugin
+    OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" OFF)
+else()
+    OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
+endif()
 
 IF(COVISE_USE_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)

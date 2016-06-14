@@ -77,6 +77,5 @@ else()
     )
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default")
 cover_add_plugin(Visionaray ${HEADERS} ${SOURCES} ${CUDA_SOURCES})
 target_link_libraries(Visionaray ${EXTRA_LIBS})
