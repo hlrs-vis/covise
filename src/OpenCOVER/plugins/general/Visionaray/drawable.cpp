@@ -594,7 +594,8 @@ namespace cover
 
                 if (!visible.is_visible())
                 {
-                    continue;
+                    // no other children will be visible, either
+                    break;
                 }
 
                 unsigned tex_unit = 0;
