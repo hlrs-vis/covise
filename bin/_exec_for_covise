@@ -171,7 +171,7 @@ elif [ "$basename" = "_debug_for_covise" ]; then
         case "$ARCHSUFFIX" in
             lionopt|libc++|libc++opt)
                 DEBUGGER=/Applications/Xcode.app/Contents/Developer/usr/bin/lldb
-                if [ -n -x "$DEBUGGER" ]; then
+                if [ -n "$DEBUGGER" ]; then
                     DEBUGGER=lldb
                 fi
                 ;;
