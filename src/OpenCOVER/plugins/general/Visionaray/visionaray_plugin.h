@@ -11,29 +11,29 @@
 
 #include <cover/coVRPlugin.h>
 
-namespace visionaray { namespace cover {
-
-class Visionaray : public opencover::coVRPlugin
+namespace visionaray
 {
-public:
+namespace cover
+{
 
-    Visionaray();
-   ~Visionaray();
+    class Visionaray : public opencover::coVRPlugin
+    {
+    public:
+        Visionaray();
+        ~Visionaray();
 
-    // COVER plugin interface
+        // COVER plugin interface
 
-    bool init();
-    void preFrame();
-    void expandBoundingSphere(osg::BoundingSphere &bs);
-    void key(int type, int key_sym, int /* mod */);
+        bool init();
+        void preFrame();
+        void expandBoundingSphere(osg::BoundingSphere &bs);
+        void key(int type, int key_sym, int /* mod */);
 
-private:
-
-    struct impl;
-    std::unique_ptr<impl> impl_;
-
-};
-
-}} // namespace visionaray::cover
+    private:
+        struct impl;
+        std::unique_ptr<impl> impl_;
+    };
+}
+} // namespace visionaray::cover
 
 #endif // VSNRAY_COVER_PLUGIN_H
