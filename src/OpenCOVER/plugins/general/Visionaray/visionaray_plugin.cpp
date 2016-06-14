@@ -433,8 +433,11 @@ namespace cover
     Visionaray::~Visionaray()
     {
         opencover::cover->getObjectsRoot()->setNodeMask(impl_->objroot_node_mask);
-        impl_->geode->removeDrawable(impl_->drawable_ptr);
-        opencover::cover->getScene()->removeChild(impl_->geode);
+        if (impl_->geode)
+        {
+            impl_->geode->removeDrawable(impl_->drawable_ptr);
+            opencover::cover->getScene()->removeChild(impl_->geode);
+        }
     }
 
     bool Visionaray::init()
