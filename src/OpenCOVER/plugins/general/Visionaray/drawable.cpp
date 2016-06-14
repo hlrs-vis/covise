@@ -177,6 +177,133 @@ namespace cover
     }
 
     //-------------------------------------------------------------------------------------------------
+    // Get default Visionaray material
+    //
+
+    material_type get_default_material()
+    {
+        plastic<float> vsnray_mat;
+        vsnray_mat.set_ca(from_rgb(0.2f, 0.2f, 0.2f));
+        vsnray_mat.set_cd(from_rgb(0.8f, 0.8f, 0.8f));
+        vsnray_mat.set_cs(from_rgb(0.1f, 0.1f, 0.1f));
+        vsnray_mat.set_ka(1.0f);
+        vsnray_mat.set_kd(1.0f);
+        vsnray_mat.set_ks(1.0f);
+        vsnray_mat.set_specular_exp(32.0f);
+        return material_type(vsnray_mat);
+    }
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Get Visionaray material from osg::Material
+    //
+
+    material_type get_material(osg::Material const *mat)
+    {
+        auto ca = mat->getAmbient(osg::Material::Face::FRONT);
+        auto cd = mat->getDiffuse(osg::Material::Face::FRONT);
+        auto cs = mat->getSpecular(osg::Material::Face::FRONT);
+        auto ce = mat->getEmission(osg::Material::Face::FRONT);
+
+        if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
+        {
+            emissive<float> vsnray_mat;
+            vsnray_mat.set_ce(from_rgb(osg_cast(ce).xyz()));
+            vsnray_mat.set_ls(1.0f);
+            return material_type(vsnray_mat);
+        }
+        else if (cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
+        {
+            matte<float> vsnray_mat;
+            vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
+            vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
+            vsnray_mat.set_ka(1.0f);
+            vsnray_mat.set_kd(1.0f);
+            return material_type(vsnray_mat);
+        }
+        else
+        {
+            plastic<float> vsnray_mat;
+            vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
+            vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
+            vsnray_mat.set_cs(from_rgb(osg_cast(cs).xyz()));
+            vsnray_mat.set_ka(1.0f);
+            vsnray_mat.set_kd(1.0f);
+            vsnray_mat.set_ks(1.0f);
+            vsnray_mat.set_specular_exp(mat->getShininess(osg::Material::Face::FRONT));
+            return material_type(vsnray_mat);
+        }
+    }
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Insert a new texture into a list and return a reference,
+    // or
+    // return a reference to a texture from the list that was already inserted
+    //
+
+    host_tex_type& get_or_insert_texture(osg::Texture2D const* tex, osg::Image const* img, texture_map& textures)
+    {
+        assert(img->isDataContiguous()); // TODO
+
+        auto dest_format = PF_RGBA8;
+        auto source_format = map_gl_format(
+                img->getPixelFormat(),
+                img->getDataType(),
+                osg::Image::computeNumComponents(img->getPixelFormat()) * sizeof(uint8_t) /* TODO */
+                );
+
+        auto source_info = map_pixel_format(source_format);
+
+        assert(source_info.components == 3 || source_info.components == 4);
+
+        std::string filename = img->getFileName();
+
+        if (filename.empty())
+        {
+            filename = std::string("TEXTURE") + std::to_string(textures.size());
+        }
+
+        auto p = textures.emplace(std::make_pair(
+                    filename,
+                    host_tex_type(img->s(), img->t())));
+
+        bool inserted = p.second;
+        auto it = inserted ? p.first : textures.find(img->getFileName());
+        assert(it != textures.end());
+
+        auto &result = it->second;
+
+        if (inserted)
+        {
+            result.set_address_mode(0, osg_cast(tex->getWrap(osg::Texture::WRAP_S)));
+            result.set_address_mode(1, osg_cast(tex->getWrap(osg::Texture::WRAP_T)));
+
+            //                  auto min_filter = tex->getFilter(osg::Texture::MIN_FILTER);
+            auto mag_filter = tex->getFilter(osg::Texture::MAG_FILTER);
+
+            result.set_filter_mode(osg_cast(mag_filter));
+
+            if (source_info.components == 3)
+            {
+                auto data_ptr = reinterpret_cast<vector<3, unorm<8> > const *>(img->data());
+                result.set_data(data_ptr, source_format, dest_format);
+            }
+            else if (source_info.components == 4)
+            {
+                auto data_ptr = reinterpret_cast<vector<4, unorm<8> > const *>(img->data());
+                result.set_data(data_ptr, source_format, dest_format);
+            }
+            else
+            {
+                assert(0); // TODO
+            }
+        }
+
+        return result;
+    }
+
+    //-------------------------------------------------------------------------------------------------
     // Functor that stores triangles from osg::Drawable
     //
 
@@ -411,6 +538,16 @@ namespace cover
 
         void apply(osg::Geode &geode)
         {
+            // State from geode, child state will possibly override this
+            auto parent_set = geode.getStateSet();
+            auto parent_mattr = parent_set ? parent_set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
+            auto parent_mat = dynamic_cast<osg::Material *>(parent_mattr);
+
+            auto parent_tattr = parent_set ? parent_set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
+            auto parent_tex = dynamic_cast<osg::Texture2D *>(parent_tattr);
+            auto parent_img = parent_tex != nullptr ? parent_tex->getImage() : nullptr;
+
+
             for (size_t i = 0; i < geode.getNumDrawables(); ++i)
             {
                 auto drawable = geode.getDrawable(i);
@@ -454,131 +591,45 @@ namespace cover
                 auto node_tex_coords = dynamic_cast<osg::Vec2Array *>(geom->getTexCoordArray(tex_unit));
                 // ok if node_tex_coords == 0
 
-                auto set = geom->getOrCreateStateSet();
+                auto set = geom->getStateSet();
 
                 // material
 
-                auto mattr = set->getAttribute(osg::StateAttribute::MATERIAL);
+                auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
                 auto mat = dynamic_cast<osg::Material *>(mattr);
 
                 if (mat)
                 {
-                    auto ca = mat->getAmbient(osg::Material::Face::FRONT);
-                    auto cd = mat->getDiffuse(osg::Material::Face::FRONT);
-                    auto cs = mat->getSpecular(osg::Material::Face::FRONT);
-                    auto ce = mat->getEmission(osg::Material::Face::FRONT);
-
-                    if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
-                    {
-                        emissive<float> vsnray_mat;
-                        vsnray_mat.set_ce(from_rgb(osg_cast(ce).xyz()));
-                        vsnray_mat.set_ls(1.0f);
-                        materials_.push_back(vsnray_mat);
-                    }
-                    else if (cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
-                    {
-                        matte<float> vsnray_mat;
-                        vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-                        vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-                        vsnray_mat.set_ka(1.0f);
-                        vsnray_mat.set_kd(1.0f);
-                        materials_.push_back(vsnray_mat);
-                    }
-                    else
-                    {
-                        plastic<float> vsnray_mat;
-                        vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-                        vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-                        vsnray_mat.set_cs(from_rgb(osg_cast(cs).xyz()));
-                        vsnray_mat.set_ka(1.0f);
-                        vsnray_mat.set_kd(1.0f);
-                        vsnray_mat.set_ks(1.0f);
-                        vsnray_mat.set_specular_exp(mat->getShininess(osg::Material::Face::FRONT));
-                        materials_.push_back(vsnray_mat);
-                    }
+                    materials_.push_back(get_material(mat));
                 }
                 else
                 {
-                    plastic<float> vsnray_mat;
-                    vsnray_mat.set_ca(from_rgb(0.2f, 0.2f, 0.2f));
-                    vsnray_mat.set_cd(from_rgb(0.8f, 0.8f, 0.8f));
-                    vsnray_mat.set_cs(from_rgb(0.1f, 0.1f, 0.1f));
-                    vsnray_mat.set_ka(1.0f);
-                    vsnray_mat.set_kd(1.0f);
-                    vsnray_mat.set_ks(1.0f);
-                    vsnray_mat.set_specular_exp(32.0f);
-                    materials_.push_back(vsnray_mat);
+                    if (parent_mat)
+                        materials_.push_back(get_material(parent_mat));
+                    else
+                        materials_.push_back(get_default_material());
                 }
 
                 // texture
 
-                auto tattr = set->getTextureAttribute(0, osg::StateAttribute::TEXTURE);
+                auto tattr = set != nullptr ? set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
                 auto tex = dynamic_cast<osg::Texture2D *>(tattr);
                 auto img = tex != nullptr ? tex->getImage() : nullptr;
 
                 if (tex && img)
                 {
-                    assert(img->isDataContiguous()); // TODO
-
-                    auto dest_format = PF_RGBA8;
-                    auto source_format = map_gl_format(
-                        img->getPixelFormat(),
-                        img->getDataType(),
-                        osg::Image::computeNumComponents(img->getPixelFormat()) * sizeof(uint8_t) /* TODO */
-                        );
-
-                    auto source_info = map_pixel_format(source_format);
-
-                    assert(source_info.components == 3 || source_info.components == 4);
-
-                    std::string filename = img->getFileName();
-
-                    if (filename.empty())
-                    {
-                        filename = std::string("TEXTURE") + std::to_string(textures_.size());
-                    }
-
-                    auto p = textures_.emplace(std::make_pair(
-                        filename,
-                        host_tex_type(img->s(), img->t())));
-
-                    bool inserted = p.second;
-                    auto it = inserted ? p.first : textures_.find(img->getFileName());
-                    assert(it != textures_.end());
-
-                    auto &vsnray_tex = it->second;
-
-                    if (inserted)
-                    {
-                        vsnray_tex.set_address_mode(0, osg_cast(tex->getWrap(osg::Texture::WRAP_S)));
-                        vsnray_tex.set_address_mode(1, osg_cast(tex->getWrap(osg::Texture::WRAP_T)));
-
-                        //                  auto min_filter = tex->getFilter(osg::Texture::MIN_FILTER);
-                        auto mag_filter = tex->getFilter(osg::Texture::MAG_FILTER);
-
-                        vsnray_tex.set_filter_mode(osg_cast(mag_filter));
-
-                        if (source_info.components == 3)
-                        {
-                            auto data_ptr = reinterpret_cast<vector<3, unorm<8> > const *>(img->data());
-                            vsnray_tex.set_data(data_ptr, source_format, dest_format);
-                        }
-                        else if (source_info.components == 4)
-                        {
-                            auto data_ptr = reinterpret_cast<vector<4, unorm<8> > const *>(img->data());
-                            vsnray_tex.set_data(data_ptr, source_format, dest_format);
-                        }
-                        else
-                        {
-                            assert(0); // TODO
-                        }
-                    }
-
+                    auto &vsnray_tex = get_or_insert_texture(tex, img, textures_);
                     texture_refs_.emplace_back(vsnray_tex);
                 }
                 else
                 {
-                    texture_refs_.emplace_back(0, 0);
+                    if (parent_tex && parent_img)
+                    {
+                        auto &vsnray_tex = get_or_insert_texture(parent_tex, parent_img, textures_);
+                        texture_refs_.emplace_back(vsnray_tex);
+                    }
+                    else
+                        texture_refs_.emplace_back(0, 0);
                 }
 
                 assert(materials_.size() == texture_refs_.size());
