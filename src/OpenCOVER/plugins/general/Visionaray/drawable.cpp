@@ -538,14 +538,24 @@ namespace cover
 
         void apply(osg::Geode &geode)
         {
-            // State from geode, child state will possibly override this
+            // State from geode is propagated to children
             auto parent_set = geode.getStateSet();
             auto parent_mattr = parent_set ? parent_set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
-            auto parent_mat = dynamic_cast<osg::Material *>(parent_mattr);
+
+            if (auto pmat = dynamic_cast<osg::Material *>(parent_mattr))
+            {
+                parent_mat_ = pmat;
+            }
 
             auto parent_tattr = parent_set ? parent_set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
-            auto parent_tex = dynamic_cast<osg::Texture2D *>(parent_tattr);
-            auto parent_img = parent_tex != nullptr ? parent_tex->getImage() : nullptr;
+            if (auto ptex = dynamic_cast<osg::Texture2D *>(parent_tattr))
+            {
+                if (ptex->getImage())
+                {
+                    parent_tex_ = ptex;
+                    parent_img_ = ptex->getImage();
+                }
+            }
 
 
             for (size_t i = 0; i < geode.getNumDrawables(); ++i)
@@ -604,8 +614,8 @@ namespace cover
                 }
                 else
                 {
-                    if (parent_mat)
-                        materials_.push_back(get_material(parent_mat));
+                    if (parent_mat_)
+                        materials_.push_back(get_material(parent_mat_));
                     else
                         materials_.push_back(get_default_material());
                 }
@@ -623,9 +633,9 @@ namespace cover
                 }
                 else
                 {
-                    if (parent_tex && parent_img)
+                    if (parent_tex_ && parent_img_)
                     {
-                        auto &vsnray_tex = get_or_insert_texture(parent_tex, parent_img, textures_);
+                        auto &vsnray_tex = get_or_insert_texture(parent_tex_, parent_img_, textures_);
                         texture_refs_.emplace_back(vsnray_tex);
                     }
                     else
@@ -669,6 +679,11 @@ namespace cover
         material_list &materials_;
         texture_map &textures_;
         texture_list &texture_refs_;
+
+        // Propagate state to child nodes
+        osg::Material *parent_mat_ = nullptr;
+        osg::Texture2D *parent_tex_ = nullptr;
+        osg::Image *parent_img_ = nullptr;
     };
 
     //-------------------------------------------------------------------------------------------------
