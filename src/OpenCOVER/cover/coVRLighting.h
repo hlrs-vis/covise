@@ -57,6 +57,9 @@ public:
     multimap<string, osg::LightSource *> m;
 
 public:
+
+    enum { MaxNumLights = 8 };
+
     typedef struct
     {
         float r, g, b;
