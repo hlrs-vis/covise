@@ -73,6 +73,8 @@ namespace cover
     using material_list = aligned_vector<material_type>;
     using color_type = vector<3, float>;
     using color_list = aligned_vector<color_type>;
+    using light_type = point_light<float>;
+    using light_list = aligned_vector<light_type>;
 
     using host_tex_type = texture<vector<4, unorm<8> >, NormalizedFloat, 2>;
     using host_tex_ref_type = typename host_tex_type::ref_type;
@@ -685,6 +687,100 @@ namespace cover
         osg::Material *parent_mat_ = nullptr;
         osg::Texture2D *parent_tex_ = nullptr;
         osg::Image *parent_img_ = nullptr;
+    };
+
+    //-------------------------------------------------------------------------------------------------
+    // Visitor to acquire scene lights
+    //
+
+    class get_light_visitor : public osg::NodeVisitor
+    {
+    public:
+        using base_type = osg::NodeVisitor;
+        using base_type::apply;
+
+    public:
+        get_light_visitor(light_list& lights, TraversalMode tm)
+            : base_type(tm)
+            , lights_(lights)
+        {
+        }
+
+        void apply(osg::Node &node)
+        {
+            if (&node == opencover::cover->getMenuGroup())
+                return;
+
+            auto set = node.getStateSet();
+            if (set == nullptr)
+            {
+                base_type::traverse(node);
+                return;
+            }
+
+            // Two ways to find lights:
+            // By calling LightSource::getLight()
+            // By inspecting a general node's stateset
+            if (auto ls = dynamic_cast<osg::LightSource *>(&node))
+            {
+                if (ls != opencover::coVRLighting::instance()->headlight
+                    && ls != opencover::coVRLighting::instance()->spotlight)
+                    process_light(ls->getLight(), set);
+            }
+
+            for (int i = 0; i < opencover::coVRLighting::MaxNumLights; ++i)
+            {
+                if (auto l = dynamic_cast<osg::Light *>(set->getAttribute(osg::StateAttribute::LIGHT, i)))
+                    process_light(l, set);
+            }
+
+            base_type::traverse(node);
+        }
+
+    private:
+
+        light_list& lights_;
+        std::vector<osg::Light *> processed_;
+
+        void process_light(osg::Light *l, osg::StateSet *set)
+        {
+            // Append a visionaray light if this light was
+            // found anew and is turned on
+
+            if (l == nullptr || set == nullptr)
+                return;
+
+            if (std::find(processed_.begin(), processed_.end(), l) != processed_.end())
+                return;
+
+            osg::StateAttribute::GLModeValue mode = set->getMode(GL_LIGHT0 + l->getLightNum());
+            if ((mode & osg::StateAttribute::ON) == osg::StateAttribute::ON)
+            {
+                auto lpos = osg_cast(l->getPosition());
+                auto trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
+                lpos = inverse(osg_cast(trans)) * lpos;
+                auto ldiff = osg_cast(l->getDiffuse());
+
+                // map OpenGL [-1,1] to Visionaray [0,1]
+                ldiff += 1.0f;
+                ldiff /= 2.0f;
+
+                light_type light;
+                light.set_position(lpos.xyz());
+                light.set_cl(ldiff.xyz());
+                light.set_kl(ldiff.w);
+
+                light.set_constant_attenuation(l->getConstantAttenuation());
+                light.set_linear_attenuation(l->getLinearAttenuation());
+                light.set_quadratic_attenuation(l->getQuadraticAttenuation());
+
+                lights_.push_back(light);
+
+                // Intentionally only mark as processed if
+                // the light is turned on
+                processed_.push_back(l);
+            }
+        }
     };
 
     //-------------------------------------------------------------------------------------------------
@@ -1325,43 +1421,11 @@ namespace cover
         auto ambient = osg_cast(light_model->getAmbientIntensity());
 
         using light_type = point_light<float>;
+        light_list lights;
 
-        aligned_vector<light_type> lights;
-
-        auto cover_lights = opencover::coVRLighting::instance()->lightList;
-        for (auto it = cover_lights.begin(); it != cover_lights.end(); ++it)
-        {
-            if ((*it).on)
-            {
-                auto l = (*it).source->getLight();
-
-                // TODO
-                auto lpos = osg_cast(l->getPosition());
-                auto ldiff = osg_cast(l->getDiffuse());
-
-                if ((*it).source->getParent(0) == opencover::VRSceneGraph::instance()->getScene())
-                {
-                    // Light source is fixed to scene (e.g. headlight)
-                    auto trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
-                    lpos = inverse(osg_cast(trans)) * lpos;
-                }
-
-                // map OpenGL [-1,1] to Visionaray [0,1]
-                ldiff += 1.0f;
-                ldiff /= 2.0f;
-
-                point_light<float> light;
-                light.set_position(lpos.xyz());
-                light.set_cl(ldiff.xyz());
-                light.set_kl(ldiff.w);
-
-                light.set_constant_attenuation(l->getConstantAttenuation());
-                light.set_linear_attenuation(l->getLinearAttenuation());
-                light.set_quadratic_attenuation(l->getQuadraticAttenuation());
-
-                lights.push_back(light);
-            }
-        }
+        get_light_visitor lvisitor(lights, osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
+        opencover::cover->getScene()->accept(lvisitor);
+        opencover::cover->getPointer()->accept(lvisitor); // coVRLighting::spotlight may be attached to the pointing device
 
         auto bounds = impl_->host_bvh.node(0).bbox;
         auto diagonal = bounds.max - bounds.min;

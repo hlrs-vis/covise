@@ -543,19 +543,15 @@ osg::LightSource *coVRLighting::switchLight(osg::LightSource *ls, bool on, osg::
                 value = osg::StateAttribute::ON;
             }
 
-            osg::ref_ptr<osg::Node> root = lightList[i].root;
             lightList[i].on = on;
+            osg::ref_ptr<osg::Node> root = limitToBranch;
+            if (!root.get())
+                root = lightList[i].root;
             if (root.get())
             {
                 osg::Light *light = ls->getLight();
-                osg::StateSet *stateset;
-                if (limitToBranch)
-                    stateset = limitToBranch->getOrCreateStateSet();
-                else
-                    stateset = root->getOrCreateStateSet();
+                osg::StateSet *stateset = root->getOrCreateStateSet();
                 stateset->setAttributeAndModes(light, value);
-                ls->setLocalStateSetModes(value);
-                ls->setStateSetModes(*stateset, value);
 
                 //	    // disable lights in menu branch except menulight
                 //	    if (lightList[i].source != menulight)
