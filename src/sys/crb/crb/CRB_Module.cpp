@@ -315,8 +315,12 @@ void module::start(char *parameter, Start::Flags flags)
             std::string covisedir;
             if (getenv("COVISEDIR"))
                 covisedir = getenv("COVISEDIR");
-            std::string arg = "do script with command \"";std::cerr << covisedir << std::endl;
+            std::string archsuffix;
+            if (getenv("ARCHSUFFIX"))
+                archsuffix = getenv("ARCHSUFFIX");
+            std::string arg = "do script with command \"";
             arg += "export COVISEDIR='" + covisedir + "'; ";
+            arg += "export ARCHSUFFIX='" + archsuffix + "'; ";
             arg += "export CO_MODULE_BACKEND=covise; ";
             arg += "source '" + covisedir + "/.covise.sh'; ";
             arg += "source '" + covisedir + "/scripts/covise-env.sh'; ";
