@@ -305,6 +305,11 @@ void module::start(char *parameter, Start::Flags flags)
             char *nargv[120];
 #ifdef __APPLE__
             std::string tool;
+
+            std::string covisedir;
+            if (getenv("COVISEDIR"))
+                covisedir = getenv("COVISEDIR");
+
             std::vector<std::string> args;
             args.push_back("osascript");
             args.push_back("-e");
@@ -312,15 +317,20 @@ void module::start(char *parameter, Start::Flags flags)
             args.push_back("-e");
             args.push_back("activate");
             args.push_back("-e");
-            std::string covisedir;
-            if (getenv("COVISEDIR"))
-                covisedir = getenv("COVISEDIR");
-            std::string archsuffix;
-            if (getenv("ARCHSUFFIX"))
-                archsuffix = getenv("ARCHSUFFIX");
+
+            std::vector<std::string> env;
+            env.push_back("COVISEDIR");
+            env.push_back("ARCHSUFFIX");
+            env.push_back("COCONFIG");
+
             std::string arg = "do script with command \"";
-            arg += "export COVISEDIR='" + covisedir + "'; ";
-            arg += "export ARCHSUFFIX='" + archsuffix + "'; ";
+            for (std::vector<std::string>::iterator it = env.begin();
+                    it != env.end();
+                    ++it)
+            {
+                if (getenv(it->c_str()))
+                    arg += "export " + *it + "='" + getenv(it->c_str()) + "'; ";
+            }
             arg += "export CO_MODULE_BACKEND=covise; ";
             arg += "source '" + covisedir + "/.covise.sh'; ";
             arg += "source '" + covisedir + "/scripts/covise-env.sh'; ";
