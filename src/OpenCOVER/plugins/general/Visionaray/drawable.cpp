@@ -55,6 +55,7 @@
 #include "kernels/tex_coords_kernel.h"
 #include "drawable.h"
 #include "state.h"
+#include "two_array_ref.h"
 
 namespace visionaray
 {
@@ -87,6 +88,10 @@ namespace cover
     using host_sched_type = tiled_sched<host_ray_type>;
 
 #ifdef __CUDACC__
+    using device_normal_list = thrust::device_vector<vec3>;
+    using device_tex_coord_list = thrust::device_vector<vec2>;
+    using device_material_list = thrust::device_vector<material_type>;
+    using device_color_list = thrust::device_vector<color_type>;
     using device_tex_type = cuda_texture<vector<4, unorm<8> >, NormalizedFloat, 2>;
     using device_tex_ref_type = typename device_tex_type::ref_type;
     using device_texture_list = thrust::device_vector<device_tex_ref_type>;
@@ -281,7 +286,7 @@ namespace cover
             result.set_address_mode(0, osg_cast(tex->getWrap(osg::Texture::WRAP_S)));
             result.set_address_mode(1, osg_cast(tex->getWrap(osg::Texture::WRAP_T)));
 
-            //                  auto min_filter = tex->getFilter(osg::Texture::MIN_FILTER);
+//          auto min_filter = tex->getFilter(osg::Texture::MIN_FILTER);
             auto mag_filter = tex->getFilter(osg::Texture::MAG_FILTER);
 
             result.set_filter_mode(osg_cast(mag_filter));
@@ -526,7 +531,8 @@ namespace cover
             material_list &materials,
             texture_map &textures,
             texture_list &texture_refs,
-            TraversalMode tm)
+            const std::vector<osg::Sequence *> &managed_seqs = {},
+            TraversalMode tm = TRAVERSE_ALL_CHILDREN)
             : base_type(tm)
             , triangles_(triangles)
             , normals_(normals)
@@ -535,7 +541,17 @@ namespace cover
             , materials_(materials)
             , textures_(textures)
             , texture_refs_(texture_refs)
+            , managed_seqs_(managed_seqs)
         {
+        }
+
+        void apply(osg::Sequence &seq)
+        {
+            // Ignore sequences that are explicitly marked so
+            if (std::find(managed_seqs_.begin(), managed_seqs_.end(), &seq) != managed_seqs_.end())
+                return;
+
+            base_type::traverse(seq);
         }
 
         void apply(osg::Geode &geode)
@@ -589,16 +605,18 @@ namespace cover
                 auto node_colors = dynamic_cast<osg::Vec4Array *>(geom->getColorArray());
                 // ok if node_colors == 0
 
+
                 // Simple checks are done - traverse parents to see if node is visible
 
                 visibility_visitor visible(&geode);
                 geode.accept(visible);
 
-                if (!visible.is_visible())
+                // TODO: scene is no longer acquired in drawImplementation
+/*                if (!visible.is_visible())
                 {
                     // no other children will be visible, either
                     break;
-                }
+                }*/
 
                 unsigned tex_unit = 0;
                 auto node_tex_coords = dynamic_cast<osg::Vec2Array *>(geom->getTexCoordArray(tex_unit));
@@ -682,6 +700,7 @@ namespace cover
         material_list &materials_;
         texture_map &textures_;
         texture_list &texture_refs_;
+        const std::vector<osg::Sequence *> &managed_seqs_;
 
         // Propagate state to child nodes
         osg::Material *parent_mat_ = nullptr;
@@ -787,10 +806,10 @@ namespace cover
     // TODO: use make_intersector(lambda...) instead
     //
 
-    template <typename Texture>
-    struct mask_intersector : basic_intersector<mask_intersector<Texture> >
+    template <typename TexCoords, typename Texture>
+    struct mask_intersector : basic_intersector<mask_intersector<TexCoords, Texture> >
     {
-        using basic_intersector<mask_intersector<Texture> >::operator();
+        using basic_intersector<mask_intersector<TexCoords, Texture> >::operator();
 
         template <typename R, typename S>
         VSNRAY_FUNC auto operator()(R const &ray, basic_triangle<3, S> const &tri)
@@ -809,8 +828,8 @@ namespace cover
             return hr;
         }
 
-        vec2 const *tex_coords;
-        Texture const *textures;
+        TexCoords tex_coords;
+        Texture textures;
 
     private:
         template <typename HR>
@@ -867,27 +886,31 @@ namespace cover
         {
         }
 
-        triangle_list triangles;
-        normal_list normals;
-        tex_coord_list tex_coords;
-        material_list materials;
-        color_list colors;
-        texture_map textures;
-        texture_list texture_refs;
-        host_bvh_type host_bvh;
-        host_sched_type host_sched;
-        mask_intersector<host_tex_ref_type> host_intersector;
+        std::vector<triangle_list>                              triangles;
+        std::vector<normal_list>                                normals;
+        std::vector<tex_coord_list>                             tex_coords;
+        std::vector<color_list>                                 colors;
+        std::vector<material_list>                              materials;
+        std::vector<texture_list>                               texture_refs;
+        std::vector<host_bvh_type>                              host_bvhs;
+        texture_map                                             textures;
+        host_sched_type                                         host_sched;
+        mask_intersector<
+            two_array_ref<tex_coord_list>,
+            two_array_ref<texture_list>>                        host_intersector;
 
 #ifdef __CUDACC__
-        thrust::device_vector<vec3> device_normals;
-        thrust::device_vector<vec2> device_tex_coords;
-        thrust::device_vector<material_type> device_materials;
-        thrust::device_vector<color_type> device_colors;
-        device_texture_map device_textures;
-        device_texture_list device_texture_refs;
-        device_bvh_type device_bvh;
-        device_sched_type device_sched;
-        mask_intersector<device_tex_ref_type> device_intersector;
+        std::vector<thrust::device_vector<vec3>>                device_normals;
+        std::vector<thrust::device_vector<vec2>>                device_tex_coords;
+        std::vector<thrust::device_vector<color_type>>          device_colors;
+        std::vector<thrust::device_vector<material_type>>       device_materials;
+        std::vector<device_texture_list>                        device_texture_refs;
+        std::vector<device_bvh_type>                            device_bvhs;
+        device_texture_map                                      device_textures;
+        device_sched_type                                       device_sched;
+        mask_intersector<
+            two_array_ref<device_tex_coord_list>,
+            two_array_ref<device_texture_list>>                 device_intersector;
 #endif
 
         enum eye
@@ -1102,35 +1125,65 @@ namespace cover
     void drawable::impl::update_device_data()
     {
 #ifdef __CUDACC__
-        if (state->device == GPU && (state->data_var == Dynamic || state->device != device))
+        if (host_bvhs.size() == 0)
         {
-            device_bvh = device_bvh_type(host_bvh);
-            device_normals = normals;
-            device_colors = colors;
-            device_tex_coords = tex_coords;
-            device_materials = materials;
+            return;
+        }
 
-            device_textures.clear();
-            device_texture_refs.clear();
+        bool equal_size = true;
+        size_t size = host_bvhs.size();
+        if (normals.size() != size)         equal_size = false;
+        size = normals.size();
+        if (tex_coords.size() != size)      equal_size = false;
+        size = tex_coords.size();
+        if (colors.size() != size)          equal_size = false;
+        size = colors.size();
+        if (materials.size() != size)       equal_size = false;
+        size = materials.size();
+        if (texture_refs.size() != size)    equal_size = false;
 
-            device_texture_refs.resize(texture_refs.size());
+        if (!equal_size)
+        {
+            return;
+        }
 
-            for (auto const &pair_host_tex : textures)
+        device_bvhs.resize(size);
+        device_normals.resize(size);
+        device_tex_coords.resize(size);
+        device_colors.resize(size);
+        device_materials.resize(size);
+        device_texture_refs.resize(size);
+
+        for (size_t i = 0; i < size; ++i)
+        {
+            device_bvhs[i]          = device_bvh_type(host_bvhs[i]);
+            device_normals[i]       = normals[i];
+            device_tex_coords[i]    = tex_coords[i];
+            device_colors[i]        = colors[i];
+            device_materials[i]     = materials[i];
+            device_texture_refs[i].resize(texture_refs[i].size());
+        }
+
+        device_textures.clear();
+
+        for (auto const &pair_host_tex : textures)
+        {
+            auto const &host_tex = pair_host_tex.second;
+            device_tex_type device_tex(pair_host_tex.second);
+            auto const &p = device_textures.emplace(pair_host_tex.first, std::move(device_tex));
+
+            assert(p.second /* inserted */);
+
+            auto it = p.first;
+
+            // TODO: construct GPU data during get_scene_visitor traversal
+            for (size_t r = 0; r < texture_refs.size(); ++r)
             {
-                auto const &host_tex = pair_host_tex.second;
-                device_tex_type device_tex(pair_host_tex.second);
-                auto const &p = device_textures.emplace(pair_host_tex.first, std::move(device_tex));
-
-                assert(p.second /* inserted */);
-
-                auto it = p.first;
-
-                // TODO: construct GPU data during get_scene_visitor traversal
-                for (size_t i = 0; i < texture_refs.size(); ++i)
+                for (size_t i = 0; i < texture_refs[r].size(); ++i)
                 {
-                    if (texture_refs[i].data() == host_tex.data())
+                    if (texture_refs[r][i].data() == host_tex.data())
                     {
-                        device_texture_refs[i] = device_tex_ref_type(it->second);
+                        device_texture_refs[r][i] = device_tex_ref_type(it->second);
                     }
                 }
             }
@@ -1266,7 +1319,7 @@ namespace cover
 
     drawable::~drawable()
     {
-        impl_->outlines.destroy();
+//      impl_->outlines.destroy();
     }
 
     void drawable::update_state(
@@ -1276,18 +1329,103 @@ namespace cover
         impl_->update_state(state, dev_state);
     }
 
+    void drawable::acquire_scene_data(const std::vector<osg::Sequence *> &seqs)
+    {
+        // TODO: real dynamic scenes :)
+
+        int max_seq_len = 0;
+        for (const auto &seq : seqs)
+        {
+            max_seq_len = max(max_seq_len, static_cast<int>(seq->getNumFrames()));
+        }
+
+        // static data + sequences
+        int num_frames = 1 + max_seq_len;
+
+        impl_->triangles.clear();
+        impl_->normals.clear();
+        impl_->colors.clear();
+        impl_->tex_coords.clear();
+        impl_->materials.clear();
+        impl_->texture_refs.clear();
+
+        impl_->triangles.resize(num_frames);
+        impl_->normals.resize(num_frames);
+        impl_->colors.resize(num_frames);
+        impl_->tex_coords.resize(num_frames);
+        impl_->materials.resize(num_frames);
+        impl_->texture_refs.resize(num_frames);
+
+        // Acquire static scene data
+        get_scene_visitor visitor(
+                impl_->triangles[0],
+                impl_->normals[0],
+                impl_->colors[0],
+                impl_->tex_coords[0],
+                impl_->materials[0],
+                impl_->textures,
+                impl_->texture_refs[0],
+                seqs
+                );
+       opencover::cover->getObjectsRoot()->accept(visitor); 
+
+        // Acquire dynamic sequence data
+        for (int i = 1; i < num_frames; ++i)
+        {
+            // Ignore sequences that are managed
+            // by coVRAnimationManager
+            get_scene_visitor visitor(
+                    impl_->triangles[i],
+                    impl_->normals[i],
+                    impl_->colors[i],
+                    impl_->tex_coords[i],
+                    impl_->materials[i],
+                    impl_->textures,
+                    impl_->texture_refs[i],
+                    seqs
+                    );
+
+            for (auto &seq : seqs)
+            {
+                if (seq && seq->getChild(i - 1))
+                    seq->getChild(i - 1)->accept(visitor);
+            }
+        }
+
+        impl_->host_bvhs.resize(impl_->triangles.size());
+
+        for (size_t i = 0; i < impl_->triangles.size(); ++i)
+        {
+            if (impl_->triangles[i].empty())
+                continue;
+
+            impl_->host_bvhs[i] = build<host_bvh_type>(
+                    impl_->triangles[i].data(),
+                    impl_->triangles[i].size(),
+                    impl_->state->data_var == Static /* consider spatial splits if scene is static */
+                    );
+//          impl_->outlines.init(impl_->host_bvhs[i]);
+        }
+
+        // Copy BVH, normals, etc. to GPU if necessary
+        impl_->update_device_data();
+    }
+
     void drawable::expandBoundingSphere(osg::BoundingSphere &bs)
     {
         aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
-        for (auto const &tri : impl_->triangles)
+        for (auto const &tris : impl_->triangles)
         {
-            auto v1 = tri.v1;
-            auto v2 = tri.v1 + tri.e1;
-            auto v3 = tri.v1 + tri.e2;
+            for (auto const &tri : tris)
+            {
+                auto v1 = tri.v1;
+                auto v2 = tri.v1 + tri.e1;
+                auto v3 = tri.v1 + tri.e2;
 
-            bounds = combine(bounds, v1);
-            bounds = combine(bounds, v2);
-            bounds = combine(bounds, v3);
+                bounds = combine(bounds, v1);
+                bounds = combine(bounds, v2);
+                bounds = combine(bounds, v3);
+            }
         }
 
         auto c = bounds.center();
@@ -1323,19 +1461,13 @@ namespace cover
     void drawable::drawImplementation(osg::RenderInfo &info) const
     {
         if (!impl_->state || !impl_->dev_state)
-        {
             return;
-        }
 
         if (!impl_->glew_init)
-        {
             impl_->glew_init = glewInit() == GLEW_OK;
-        }
 
         if (!impl_->glew_init)
-        {
             return;
-        }
 
         // Activate debug callback
 
@@ -1360,50 +1492,10 @@ namespace cover
 
         impl_->store_gl_state();
 
-        // Scene data
-
-        if (impl_->state->data_var == Dynamic || impl_->triangles.size() == 0)
-        {
-            // TODO: real dynamic scenes :)
-
-            impl_->triangles.clear();
-            impl_->normals.clear();
-            impl_->colors.clear();
-            impl_->tex_coords.clear();
-            impl_->materials.clear();
-            impl_->texture_refs.clear();
-
-            get_scene_visitor visitor(
-                impl_->triangles,
-                impl_->normals,
-                impl_->colors,
-                impl_->tex_coords,
-                impl_->materials,
-                impl_->textures,
-                impl_->texture_refs,
-                osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
-            opencover::cover->getObjectsRoot()->accept(visitor);
-
-            if (impl_->triangles.size() == 0)
-            {
-                return;
-            }
-
-            impl_->host_bvh = build<host_bvh_type>(
-                impl_->triangles.data(),
-                impl_->triangles.size(),
-                impl_->state->data_var == Static /* consider spatial splits if scene is static */
-                );
-            impl_->outlines.init(impl_->host_bvh);
-        }
 
         // Camera matrices, render target resize
 
         impl_->update_viewing_params(get_stereo_mode(info));
-
-        // Copy BVH, normals, etc. if necessary
-
-        impl_->update_device_data();
 
         // Finally update state variables. Call after any other updates!
 
@@ -1411,8 +1503,7 @@ namespace cover
 
         // Kernel params
 
-        aligned_vector<host_bvh_type::bvh_ref> host_primitives;
-        host_primitives.push_back(impl_->host_bvh.ref());
+        int frame = impl_->state->animation_frame + 1; // first BVH contains static data
 
         auto renderer = dynamic_cast<osgViewer::Renderer *>(opencover::coVRConfig::instance()->channels[0].camera->getRenderer());
         auto scene_view = renderer->getSceneView(0);
@@ -1427,7 +1518,13 @@ namespace cover
         opencover::cover->getScene()->accept(lvisitor);
         opencover::cover->getPointer()->accept(lvisitor); // coVRLighting::spotlight may be attached to the pointing device
 
-        auto bounds = impl_->host_bvh.node(0).bbox;
+        aabb bounds;
+        bounds.invalidate();
+        for (auto &b : impl_->host_bvhs)
+        {
+            if (b.num_nodes())
+                bounds = combine(bounds, b.node(0).bbox);
+        }
         auto diagonal = bounds.max - bounds.min;
         auto bounces = impl_->state->num_bounces;
         auto epsilon = max(1E-3f, length(diagonal) * 1E-5f);
@@ -1446,22 +1543,37 @@ namespace cover
         if (impl_->state->device == GPU)
         {
 #ifdef __CUDACC__
-            thrust::device_vector<device_bvh_type::bvh_ref> device_primitives;
+            thrust::device_vector<device_bvh_type::bvh_ref> primitives;
 
-            device_primitives.push_back(impl_->device_bvh.ref());
+            if (impl_->device_bvhs.size() > 0     && impl_->device_bvhs[0].num_primitives())
+                primitives.push_back(impl_->device_bvhs[0].ref());
+
+            if (impl_->device_bvhs.size() > frame && impl_->device_bvhs[frame].num_primitives())
+                primitives.push_back(impl_->device_bvhs[frame].ref());
 
             thrust::device_vector<light_type> device_lights = lights;
+
+            auto has_prims_func = [&](size_t index)
+            {
+                return impl_->device_bvhs.size() > index && impl_->device_bvhs[index].num_primitives() != 0;
+            };
+
+            two_array_ref<device_normal_list>    normals      = make_two_array_ref(impl_->device_normals, 0, frame, has_prims_func);
+            two_array_ref<device_tex_coord_list> tex_coords   = make_two_array_ref(impl_->device_tex_coords, 0, frame, has_prims_func);
+            two_array_ref<device_material_list>  materials    = make_two_array_ref(impl_->device_materials, 0, frame, has_prims_func);
+            two_array_ref<device_color_list>     colors       = make_two_array_ref(impl_->device_colors, 0, frame, has_prims_func);
+            two_array_ref<device_texture_list>   texture_refs = make_two_array_ref(impl_->device_texture_refs, 0, frame, has_prims_func);
 
             auto kparams = make_kernel_params(
                 normals_per_vertex_binding{},
                 colors_per_vertex_binding{},
-                thrust::raw_pointer_cast(device_primitives.data()),
-                thrust::raw_pointer_cast(device_primitives.data()) + device_primitives.size(),
-                thrust::raw_pointer_cast(impl_->device_normals.data()),
-                thrust::raw_pointer_cast(impl_->device_tex_coords.data()),
-                thrust::raw_pointer_cast(impl_->device_materials.data()),
-                thrust::raw_pointer_cast(impl_->device_colors.data()),
-                thrust::raw_pointer_cast(impl_->device_texture_refs.data()),
+                thrust::raw_pointer_cast(primitives.data()),
+                thrust::raw_pointer_cast(primitives.data()) + primitives.size(),
+                normals,
+                tex_coords,
+                materials,
+                colors,
+                texture_refs,
                 thrust::raw_pointer_cast(device_lights.data()),
                 thrust::raw_pointer_cast(device_lights.data()) + device_lights.size(),
                 bounces,
@@ -1480,16 +1592,35 @@ namespace cover
         else if (impl_->state->device == CPU)
         {
 #ifndef __CUDA_ARCH__
+            aligned_vector<host_bvh_type::bvh_ref> primitives;
+
+            if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
+                primitives.push_back(impl_->host_bvhs[0].ref());
+
+            if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
+                primitives.push_back(impl_->host_bvhs[frame].ref());
+
+            auto has_prims_func = [&](size_t index)
+            {
+                return impl_->host_bvhs.size() > index && impl_->host_bvhs[index].num_primitives() != 0;
+            };
+
+            two_array_ref<normal_list>    normals      = make_two_array_ref(impl_->normals, 0, frame, has_prims_func);
+            two_array_ref<tex_coord_list> tex_coords   = make_two_array_ref(impl_->tex_coords, 0, frame, has_prims_func);
+            two_array_ref<material_list>  materials    = make_two_array_ref(impl_->materials, 0, frame, has_prims_func);
+            two_array_ref<color_list>     colors       = make_two_array_ref(impl_->colors, 0, frame, has_prims_func);
+            two_array_ref<texture_list>   texture_refs = make_two_array_ref(impl_->texture_refs, 0, frame, has_prims_func);
+
             auto kparams = make_kernel_params(
                 normals_per_vertex_binding{},
                 colors_per_vertex_binding{},
-                host_primitives.data(),
-                host_primitives.data() + host_primitives.size(),
-                impl_->normals.data(),
-                impl_->tex_coords.data(),
-                impl_->materials.data(),
-                impl_->colors.data(),
-                impl_->texture_refs.data(),
+                primitives.data(),
+                primitives.data() + primitives.size(),
+                normals,
+                tex_coords,
+                materials,
+                colors,
+                texture_refs,
                 lights.data(),
                 lights.data() + lights.size(),
                 bounces,
@@ -1520,7 +1651,7 @@ namespace cover
             glLoadMatrixf(vparams.view_matrix.data());
 
             glColor3f(1.0f, 1.0f, 1.0f);
-            impl_->outlines.frame();
+//          impl_->outlines.frame();
 
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();

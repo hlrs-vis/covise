@@ -29,6 +29,7 @@ namespace cover
     enum data_variance
     {
         Static,
+        AnimationFrames,
         Dynamic
     };
     enum color_space
@@ -48,9 +49,13 @@ namespace cover
         unsigned max_bounces = 10;
         unsigned num_bounces = 4;
         device_type device = CPU;
-        data_variance data_var = Static;
+        data_variance data_var = AnimationFrames;
         color_space clr_space = sRGB;
         unsigned num_threads = 0;
+
+        // non-persistent state for control flow
+        int animation_frame = 0;
+        bool rebuild = true;
     };
 
     //-------------------------------------------------------------------------------------------------

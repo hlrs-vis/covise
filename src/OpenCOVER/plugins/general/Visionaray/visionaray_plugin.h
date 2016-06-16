@@ -28,6 +28,8 @@ namespace cover
         // COVER plugin interface
 
         bool init();
+        void addNode(osg::Node *node, opencover::RenderObject *obj = NULL);
+        void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode);
         void preFrame();
         void expandBoundingSphere(osg::BoundingSphere &bs);
         void key(int type, int key_sym, int /* mod */);

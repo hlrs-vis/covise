@@ -13,8 +13,11 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <osg/Sequence>
+
 #include <config/CoviseConfig.h>
 
+#include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRViewer.h>
 
@@ -190,7 +193,7 @@ namespace cover
             state->device = CPU;
         }
 
-        state->data_var = data_var_str == "dynamic" ? Dynamic : Static;
+        state->data_var = data_var_str == "dynamic" ? Dynamic : AnimationFrames;
         state->num_threads = num_threads;
 
         if (clr_space_str == "rgb")
@@ -466,8 +469,29 @@ namespace cover
         return true;
     }
 
+    void Visionaray::addNode(osg::Node *node, opencover::RenderObject *obj)
+    {
+        impl_->state->rebuild = true;
+    }
+
+    void Visionaray::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
+    {
+        impl_->state->rebuild = true;
+    }
+
     void Visionaray::preFrame()
     {
+        if (impl_->state->data_var == Dynamic)
+            impl_->state->rebuild = true;
+
+        if (impl_->state->rebuild)
+        {
+            auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
+            impl_->drawable_ptr->acquire_scene_data(seqs);
+            impl_->state->rebuild = false;
+        }
+
+        impl_->state->animation_frame = opencover::coVRAnimationManager::instance()->getAnimationFrame();
     }
 
     void Visionaray::expandBoundingSphere(osg::BoundingSphere &bs)
