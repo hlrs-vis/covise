@@ -577,7 +577,7 @@
 
   </SteeringWheel>
 
-    <Volume value="on" />
+    <Volume value="off" menu="true" />
     <CUDAIsoSurface value="off" />
 
    </Plugin>
