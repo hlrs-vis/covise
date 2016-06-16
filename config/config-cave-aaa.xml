@@ -259,7 +259,7 @@
   <COVER>
    <NumScreens value="1" />   
    <WindowConfig>
-    <Window width="800" comment="MAIN" window="0" pipeIndex="0" height="600" left="0" bottom="0" name="0" decoration="true" />
+    <Window width="800" comment="MAIN" window="0" pipeIndex="0" height="600" left="0" top="0" name="0" decoration="true" />
    </WindowConfig>
    <ChannelConfig>
 
@@ -328,7 +328,7 @@
    </Plugin>
 
    <WindowConfig>
-    <Window width="1024" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" />
+    <Window width="1024" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" />
    </WindowConfig>
 
   </COVER>

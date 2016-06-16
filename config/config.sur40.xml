@@ -198,7 +198,7 @@
    </ChannelConfig>
    
    <WindowConfig>
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" embedded="true" decoration="true" />
+    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" embedded="true" decoration="true" />
    </WindowConfig>
     <ViewportConfig>
     <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />

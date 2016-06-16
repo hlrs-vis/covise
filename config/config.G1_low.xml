@@ -244,7 +244,7 @@
    </ChannelConfig>
    
    <WindowConfig>
-    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="10" bottom="10" name="0" decoration="true" />
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="10" top="10" name="0" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>

@@ -417,7 +417,7 @@
     <Channel comment="MAIN" channel="0" width="1920" stereoMode="HORIZONTAL_SPLIT" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
    </ChannelConfig>
    <WindowConfig>
-    <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" VisualID="0x23" />
+    <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" VisualID="0x23" />
    </WindowConfig>
 
   </COVER>
@@ -433,7 +433,7 @@
     <Channel comment="MAIN" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
    </ChannelConfig>
    <WindowConfig>
-   <Window ARCH="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" VisualID="0x23" />
+   <Window ARCH="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" VisualID="0x23" />
    </WindowConfig>
 
   </COVER>

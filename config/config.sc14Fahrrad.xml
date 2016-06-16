@@ -27,7 +27,7 @@
   </ScreenConfig>
 
    <WindowConfig>
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" stereo="false" />
+    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" stereo="false" />
    </WindowConfig>
    
    <PipeConfig>

@@ -26,8 +26,8 @@
   </ScreenConfig>
 
    <WindowConfig>
-    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="false" stereo="true" />
-    <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="0" top="0" name="0" decoration="false" stereo="true" />
+    <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" top="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
    
    <PipeConfig>
