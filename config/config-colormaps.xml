@@ -84,6 +84,30 @@
          <Point r="0.956" g="0.603" b="0.486" index="3" />
          <Point r="0.705" g="0.015" b="0.149" index="4" />
      </CoolWarm>
+     <StarRGBRedBlue>
+      <Point a="1" b="1" g="0" name="0" r="0" x="0">
+      </Point>
+      <Point a="1" b="1" g="0.4" name="1" r="0" x="0.1">
+      </Point>
+      <Point a="1" b="1" g="0.8" name="2" r="0" x="0.2">
+      </Point>
+      <Point a="1" b="0.8" g="1" name="3" r="0" x="0.3">
+      </Point>
+      <Point a="1" b="0.4" g="1" name="4" r="0" x="0.4">
+      </Point>
+      <Point a="1" b="0" g="1" name="5" r="0" x="0.5">
+      </Point>
+      <Point a="1" b="0" g="1" name="6" r="0.4" x="0.6">
+      </Point>
+      <Point a="1" b="0" g="1" name="7" r="0.8" x="0.7">
+      </Point>
+      <Point a="1" b="0" g="0.8" name="8" r="1" x="0.8">
+      </Point>
+      <Point a="1" b="0" g="0.4" name="9" r="1" x="0.9">
+      </Point>
+      <Point a="1" b="0" g="0" name="10" r="1" x="1">
+      </Point>
+    </StarRGBRedBlue>
   </Colormaps>
 
  </GLOBAL>
