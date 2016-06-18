@@ -29,6 +29,8 @@ public:
 signals:
     void focusChanged(bool);
     void contentChanged();
+    void editingFinished();
+    void returnPressed();
 
 public slots:
     void checkContent();

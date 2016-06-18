@@ -95,6 +95,7 @@ coOnscreenDebug::coOnscreenDebug()
     }
 
     camera = new osg::Camera;
+    camera->setName("On-screen Debug");
 
     camera->setProjectionMatrix(osg::Matrix::ortho2D(0, 1024, 0, 768));
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);

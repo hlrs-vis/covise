@@ -17,7 +17,7 @@
             </PipeConfig>
             
             <WindowConfig>
-               <Window width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="false" stereo="true" />
+               <Window width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="false" stereo="true" />
             </WindowConfig>
             
             <ChannelConfig>

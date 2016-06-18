@@ -76,10 +76,6 @@ public:
 
     void setClearColor(const osg::Vec4 &color);
     void setRenderToTexture(bool);
-    osg::Texture2D *getTexture()
-    {
-        return renderTargetTexture;
-    };
     void flipStereo();
 
 private:
@@ -99,9 +95,6 @@ private:
     osg::Matrix viewMat;
     osgViewer::StatsHandler *statsHandler;
 
-    osg::Texture2D *renderTargetTexture;
-    bool RenderToTexture;
-
     angleStruct *screen_angle; // Screen angle: IWR movable screen
 
     void readConfigFile();
@@ -120,7 +113,7 @@ private:
     bool overwritePAndV;
     bool reEnableCulling;
     
-    osg::Geode *distortionMesh(const char *fileName);
+    osg::Geometry *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
     void createBlendingCameras(int i);
     float requestedSeparation, separation;

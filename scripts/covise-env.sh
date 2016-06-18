@@ -30,7 +30,9 @@ if [ -z "$COENVERROR" ]; then
 fi
 
 if [ -z "$COENVERROR" ]; then
-   guess_archsuffix
+   if [ -z "$ARCHSUFFIX" ]; then
+       guess_archsuffix
+   fi
 
    if [ -z "$ARCHSUFFIX" ]; then
       echo "ARCHSUFFIX is not set"

@@ -127,11 +127,6 @@ coVRConfig::coVRConfig()
     screens.resize(numScreens);
 
     const int numChannels = coCoviseConfig::getInt("COVER.NumChannels", numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
-    if (numChannels < numScreens)
-    {
-	std::cerr << "COVER.NumChannels cannot be < COVER.NumScreens" << std::endl;
-	exit(1);
-    }
     channels.resize(numChannels);
     
     const int numWindows = coCoviseConfig::getInt("COVER.NumWindows", numScreens);
@@ -163,7 +158,7 @@ coVRConfig::coVRConfig()
     }
     blendingTextures.resize(numBlendingTextures);
 
-    const int numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", numChannels);
+    const int numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", 0);
     if (numPBOs < 0)
     {
 	std::cerr << "COVER.NumPBOs cannot be negative" << std::endl;
@@ -393,6 +388,8 @@ coVRConfig::coVRConfig()
             m_stencil = true;
         }
 
+        bool exists = false;
+        channels[i].fixedViewer = coCoviseConfig::isOn("fixedViewer", str, false, &exists);
         channels[i].viewerOffset = coCoviseConfig::getFloat("viewerOffset", str, 0.f);
         
         channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);

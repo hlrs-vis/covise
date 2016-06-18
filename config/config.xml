@@ -49,9 +49,9 @@
    <!--<ShmSize value="33554432"/>-->
     <WSInterface value="false" />
    <CRB>
-    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -184,7 +184,7 @@
     <DistortViewer value="off" />
     <Move value="off" menu="true" />
     <ClipPlane value="on" />
-    <PLMXML value="on">
+    <PLMXML value="off">
 	 <LoadSTL value="false" />
 	 <LoadVRML value="true" />
 	 <UndoVRMLRotate value="false" />
@@ -275,10 +275,10 @@
    <WindowConfig>
     <OpenGL3 value="false" />
 
-    <!--Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" /-->
-    <!--Window arch="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" /-->
-    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" /-->
-    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="0" bottom="0" name="0" decoration="true" />
+    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="0" top="0" name="0" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>
@@ -311,7 +311,7 @@
  <!--INCLUDE global="1" configname="input">config.input.xml</INCLUDE-->
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
- <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
+ <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
 </COCONFIG>

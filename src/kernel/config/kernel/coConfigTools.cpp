@@ -6,19 +6,19 @@ using namespace covise;
 
 bool coConfigTools::matchingAttributes(QHash<QString, QString *> attributes)
 {
-    const QString *master = attributes["master"];
+    const QString *master = attributes["MASTER"];
     if (!matchingMaster(master))
         return false;
 
-    const QString *host = attributes["host"];
+    const QString *host = attributes["HOST"];
     if (!matchingHost(host))
         return false;
 
-    const QString *arch = attributes["arch"];
+    const QString *arch = attributes["ARCH"];
     if (!matchingArch(arch))
         return false;
 
-    const QString *rank = attributes["rank"];
+    const QString *rank = attributes["RANK"];
     if (!matchingRank(rank))
         return false;
 

@@ -63,9 +63,9 @@
 
   <System>
    <CRB>
-    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/Sur40COVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
    </CRB>
@@ -198,7 +198,7 @@
    </ChannelConfig>
    
    <WindowConfig>
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" embedded="true" decoration="true" />
+    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" embedded="true" decoration="true" />
    </WindowConfig>
     <ViewportConfig>
     <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />

@@ -80,3 +80,7 @@ if (COVISE_USE_VIRVO)
    ADD_SUBDIRECTORY(TiledDisplay)
    ADD_SUBDIRECTORY(Volume)
 endif()
+
+if (COVISE_USE_VISIONARAY)
+   ADD_SUBDIRECTORY(Visionaray)
+endif()

@@ -350,7 +350,6 @@ VRViewer::VRViewer()
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
 
-    RenderToTexture = false;
     const bool glDebug = coCoviseConfig::isOn("COVER.GLDebug", false);
     if (glDebug) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
@@ -447,7 +446,9 @@ void VRViewer::createViewportCameras(int i)
         return;
 
     osg::ref_ptr<osg::Camera> cameraWarp = new osg::Camera;
-    cameraWarp->setName("WarpOrtho");
+    std::stringstream str;
+    str << "WarpOrtho/Viewport " << i;
+    cameraWarp->setName(str.str());
     cameraWarp->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
     cameraWarp->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     cameraWarp->setRenderOrder(osg::Camera::POST_RENDER);
@@ -457,36 +458,59 @@ void VRViewer::createViewportCameras(int i)
     cameraWarp->setProjectionMatrix(osg::Matrix::ortho2D(0, 1, 0, 1));
     cameraWarp->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
+    int PBOnum = -1;
+    switch(vp.mode)
+    {
+        case viewportStruct::Channel:
+            break;
+        case viewportStruct::PBO:
+            PBOnum = vp.PBOnum;
+            break;
+        case viewportStruct::TridelityML:
+        case viewportStruct::TridelityMV:
+                assert(vp.pbos.size() == 5);
+                for (size_t i=0; i<vp.pbos.size(); ++i)
+                {
+                    int PBOnum = vp.pbos[i];
+                    if (PBOnum < 0 || PBOnum >= coVRConfig::instance()->numPBOs())
+                    {
+                        cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
+                        return;
+                    }
+                }
+                PBOnum = vp.pbos[0];
+                break;
+    }
+    if (PBOnum < 0 || PBOnum >= coVRConfig::instance()->numPBOs())
+    {
+        cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
+        return;
+    }
+    windowStruct &win = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum];
+    if (osg::GraphicsContext *gc = win.context)
+    {
+        cameraWarp->setGraphicsContext(gc);
+    }
+    else
+    {
+        cerr << "no GraphicsContext for viewport " << i << endl;
+    }
+
+    const int sx = win.sx;
+    const int sy = win.sy;
+    cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
+                (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
+
+    osg::Geode *geode = new osg::Geode;
+    osg::Geometry *geometry = NULL;
     switch(vp.mode)
     {
         case viewportStruct::Channel:
             break;;
         case viewportStruct::PBO:
             {
-                int PBOnum = vp.PBOnum;
-                if (PBOnum < 0 || PBOnum > coVRConfig::instance()->numPBOs())
-                {
-                    cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
-                    return;
-                }
-                if (osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext())
-                {
-                    cameraWarp->setGraphicsContext(gc);
-                }
-                else
-                {
-                    cerr << "no GraphicsContext for viewport " << i << endl;
-                }
-
-                const int sx = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx;
-                const int sy = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy;
-                cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
-                            (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
-
-                osg::Geode *geode = distortionMesh(vp.distortMeshName.c_str());
+                geometry = distortionMesh(vp.distortMeshName.c_str());
                 osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
-                state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-                state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
                 state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
                 if(vp.blendingTextureName.length()>0)
                 {
@@ -501,48 +525,19 @@ void VRViewer::createViewportCameras(int i)
                     }
                     state->setTextureAttributeAndModes(1, blendTex);
                 }
-
                 geode->setStateSet(state.get());
-
-                cameraWarp->addChild(geode);
             }
             break;
         case viewportStruct::TridelityML:
         case viewportStruct::TridelityMV:
             {
-                assert(vp.pbos.size() == 5);
-                for (size_t i=0; i<vp.pbos.size(); ++i)
-                {
-                    int PBOnum = vp.pbos[i];
-                    if (PBOnum < 0 || PBOnum > coVRConfig::instance()->numPBOs())
-                    {
-                        cerr << "invalid PBO index " << PBOnum << " for viewport " << i << endl;
-                        return;
-                    }
-                }
-
-                int PBOnum = vp.pbos[2];
-                if (osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext())
-                {
-                    cameraWarp->setGraphicsContext(gc);
-                }
-                else
-                {
-                    cerr << "no GraphicsContext for viewport " << i << endl;
-                }
-
-                const int sx = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx;
-                const int sy = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy;
-                cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * sx, vp.viewportYMin * sy,
-                            (vp.viewportXMax - vp.viewportXMin) * sx, (vp.viewportYMax - vp.viewportYMin) * sy));
-
-                osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+                osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
                 osg::Vec3Array *positionArray = new osg::Vec3Array;
                 osg::Vec4Array *colorArray = new osg::Vec4Array;
                 osg::Vec2Array *textureArray = new osg::Vec2Array;
                 osg::UShortArray *indexArray = new osg::UShortArray;
                 osg::ref_ptr<osg::DrawElementsUShort> drawElement;
-                osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+                geometry = new osg::Geometry;
                 geometry->setUseDisplayList(false);
                 geometry->setUseVertexBufferObjects(true);
                 positionArray->push_back(osg::Vec3f(0,0,0));
@@ -575,9 +570,6 @@ void VRViewer::createViewportCameras(int i)
                 geometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX); // colors per vertex for blending
                 geode->addDrawable(geometry);
 
-                osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
-                state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-                state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
                 for (int i=0; i<5; ++i)
                 {
                     int p = vp.pbos[i];
@@ -636,10 +628,20 @@ void VRViewer::createViewportCameras(int i)
                 state->setAttributeAndModes(lookupProgram, osg::StateAttribute::ON);
 
                 geode->setStateSet(state.get());
-
-                cameraWarp->addChild(geode);
             }
             break;
+    }
+    if (geometry)
+    {
+        geode->addDrawable(geometry);
+    }
+    if (geode)
+    {
+        osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
+        state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+        geode->setStateSet(state.get());
+        cameraWarp->addChild(geode);
     }
     cover->getScene()->addChild(cameraWarp.get());
 }
@@ -650,6 +652,9 @@ void VRViewer::createBlendingCameras(int i)
         osg::GraphicsContext *gc = coVRConfig::instance()->windows[bt.window].context;
 
         osg::ref_ptr<osg::Camera> cameraBlend = new osg::Camera;
+        std::stringstream str;
+        str << "Blending Texture " << i;
+        cameraBlend->setName(str.str());
         cameraBlend->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
         cameraBlend->setClearMask(0);
         cameraBlend->setRenderOrder(osg::Camera::POST_RENDER);
@@ -728,11 +733,8 @@ void VRViewer::createBlendingCameras(int i)
         cover->getScene()->addChild(cameraBlend.get());
 }
 
-osg::Geode *VRViewer::distortionMesh(const char *fileName)
+osg::Geometry *VRViewer::distortionMesh(const char *fileName)
 {
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-
-
     osg::Vec3Array *positionArray = new osg::Vec3Array;
     osg::Vec4Array *colorArray = new osg::Vec4Array;
     osg::Vec2Array *textureArray = new osg::Vec2Array;
@@ -849,10 +851,9 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
     geometry->setVertexArray(positionArray);
     geometry->setColorArray(colorArray);
     geometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX); // colors per vertex for blending
-    geode->addDrawable(geometry);
 
 
-    return geode.release();
+    return geometry.release();
 }
 
 //OpenCOVER
@@ -875,7 +876,6 @@ VRViewer::config()
     {
         createBlendingCameras(i);
     }
-    
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
@@ -1004,7 +1004,6 @@ VRViewer::flipStereo()
 void
 VRViewer::setRenderToTexture(bool b)
 {
-    RenderToTexture = b;
 }
 
 //OpenCOVER
@@ -1027,6 +1026,7 @@ VRViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
+    bool RenderToTexture = false;
     osg::ref_ptr<osg::GraphicsContext> gc = NULL;
     int pboNum = coVRConfig::instance()->channels[i].PBONum;
     if(vp >= 0)
@@ -1052,13 +1052,17 @@ VRViewer::createChannels(int i)
         RenderToTexture = true;
     }
 
+    std::stringstream str;
+    str << "Channel " << i;
     if (i == 0)
     {
         coVRConfig::instance()->channels[i].camera = _camera;
+        _camera->setName(str.str());
     }
     else
     {
         coVRConfig::instance()->channels[i].camera = new osg::Camera;
+        coVRConfig::instance()->channels[i].camera->setName(str.str());
         coVRConfig::instance()->channels[i].camera->setView(this);
 
         coVRConfig::instance()->channels[i].camera->addChild(this->getScene()->getSceneData());
@@ -1091,7 +1095,6 @@ VRViewer::createChannels(int i)
         else
             renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
 
-        renderTargetTexture = new osg::Texture2D;
         const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[pboNum].windowNum].context;
         if (!cg)
         {
@@ -1099,6 +1102,7 @@ VRViewer::createChannels(int i)
             return;
         }
 
+        osg::Texture2D *renderTargetTexture = new osg::Texture2D;
         renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[pboNum].PBOsx, coVRConfig::instance()->PBOs[pboNum].PBOsy);
         renderTargetTexture->setInternalFormat(GL_RGBA);
         //renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);
@@ -1389,11 +1393,22 @@ VRViewer::setFrustumAndView(int i)
             leftEye.set(off, 0.0, 0.0);
             middleEye.set(off, 0.0, 0.0);
         }
-
-        // transform the left and right eye with this matrix
-        rightEye = viewMat.preMult(rightEye);
-        leftEye = viewMat.preMult(leftEye);
-        middleEye = viewMat.preMult(middleEye);
+        
+        if (currentChannel->fixedViewer)
+        {
+            osg::Matrix m;
+            m.makeTranslate(initialViewPos);
+            rightEye = m.preMult(rightEye);
+            leftEye = m.preMult(leftEye);
+            middleEye = m.preMult(middleEye);
+        }
+        else
+        {
+            // transform the left and right eye with this matrix
+            rightEye = viewMat.preMult(rightEye);
+            leftEye = viewMat.preMult(leftEye);
+            middleEye = viewMat.preMult(middleEye);
+        }
 
         rightEye = mat.preMult(rightEye);
         leftEye = mat.preMult(leftEye);

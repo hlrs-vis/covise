@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+    <LOCAL HOST="visard" >  
+
+        <COVER>
+            <Stereo value="true" />
+            <WindowConfig>
+                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="2560" top="0" name="0" decoration="false" stereo="true" />
+            </WindowConfig>
+
+            <ScreenConfig>
+                <Screen width="520" height="295" comment="zSpace 200" originX="0" originY="0" originZ="0" h="0.0" p="0.0" r="0.0" name="0" screen="0" />
+            </ScreenConfig>
+            <ChannelConfig>
+                <Channel stereoMode="QUAD_BUFFER" comment="FRONT" channel="0" windowIndex="0" viewportIndex="0" screenIndex="0" name="0" />
+            </ChannelConfig>
+
+            <ViewportConfig>
+                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" name="0" channelIndex="0" />
+            </ViewportConfig>
+
+            <Input>
+                <MouseNav value="true" />
+                <Device>
+                    <ZSpace driver="vrpn" host="141.58.8.2" tracker="Tracker0" button="Tracker0">
+                        <Offset x="-0" y="-360" z="200" />
+                        <Orientation h="180" p="60" r="180" />
+                    </ZSpace>
+                </Device>
+
+                <Body>
+                    <Glasses device="ZSpace" bodyIndex="0" >
+                        <Offset x="-0" y="-0" z="-0" />
+                        <Orientation h="0" p="-90" r="0" />
+                    </Glasses>
+
+                    <Stylus device="ZSpace" bodyIndex="1" >
+                        <Offset x="0" y="-0" z="0" />
+                        <Orientation h="0" p="-90" r="0" />
+                    </Stylus>
+                </Body>
+
+                <Buttons>
+                    <Stylus device="ZSpace" >
+                        <Map name="0" value="ACTION_BUTTON" />
+                        <Map name="1" value="XFORM_BUTTON" />
+                        <Map name="2" value="DRIVE_BUTTON" />
+                    </Stylus>
+                </Buttons>
+
+                <Persons>
+                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" />
+                    <Person name="Fixed" head="CaveHead" buttons="CaveMouse" eyeDistance="60" />
+                </Persons>
+            </Input> 
+
+            <SceneSize value="400" />
+            <Menu>
+                <Orientation h="0" p="0" r="0" />
+                <Position x="100" y="0" z="0" />
+            </Menu>
+
+        </COVER>
+    </LOCAL>
+</COCONFIG>
+

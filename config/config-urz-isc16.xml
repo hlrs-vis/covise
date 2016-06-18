@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+    <INCLUDE RANK="0" global="1" configname="zspace" >config-urz-isc16-r0.xml</INCLUDE>
+    <INCLUDE RANK="1" global="1" configname="tridelity" >config-urz-isc16-r1.xml</INCLUDE>
+
+    <GLOBAL>
+        <COVER>
+
+            <SceneSize value="400" />
+            <Menu>
+                <Orientation h="0" p="-30" r="0" />
+                <Position x="170" y="70" z="121" />
+            </Menu>
+	    <ViewerPosition x="0" y="-2500" z="000" />
+        </COVER>
+    </GLOBAL>
+
+
+    <GLOBAL>  
+
+        <COVER>
+            <Plugin>
+                <VncClient menu="true" value="off" rfbHost="visent.hlrs.de" rfbPort="31590" />
+            </Plugin>
+
+            <Snap value="ON" />
+
+            <PointerDepth value="0"/>
+            <PointerAppearance>
+                <IconName value="HandLine"/>
+                <Width value="5"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
+            <Input>
+                <MouseNav value="true" />
+                <Device>
+                    <ZSpace driver="vrpn" host="192.168.17.2" tracker="Tracker0" button="Tracker0">
+                        <!--Offset x="-0" y="-360" z="200" /-->
+                        <Offset x="-0" y="-200" z="340" />
+                        <Orientation h="180" p="90" r="180" />
+                        <!--Orientation h="180" p="60" r="180" /-->
+                    </ZSpace>
+                </Device>
+
+                <Body>
+                    <Glasses device="ZSpace" bodyIndex="0" >
+                        <Offset x="-0" y="-0" z="-0" />
+                        <Orientation h="0" p="-90" r="0" />
+                    </Glasses>
+
+                    <Stylus device="ZSpace" bodyIndex="1" >
+                        <Offset x="0" y="0" z="-10" />
+                        <Orientation h="0" p="-90" r="0" />
+                    </Stylus>
+                </Body>
+
+                <Buttons>
+                    <Stylus device="ZSpace" >
+                        <Map name="0" value="ACTION_BUTTON" />
+                        <Map name="1" value="XFORM_BUTTON" />
+                        <Map name="2" value="DRIVE_BUTTON" />
+                    </Stylus>
+                </Buttons>
+
+                <Persons>
+                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" />
+                </Persons>
+            </Input> 
+
+            <MultiPC>
+                <SyncMode value="TCP" hosts="localhost"/>
+                <NumSlaves value="1" />
+                <Startup value="opencover" name="0"/>
+            </MultiPC>
+        </COVER>
+    </GLOBAL>
+
+    <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+</COCONFIG>
+
