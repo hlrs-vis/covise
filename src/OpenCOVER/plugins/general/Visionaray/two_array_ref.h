@@ -114,7 +114,7 @@ namespace cover
 namespace std
 {
     template <typename Cont>
-    struct std::iterator_traits<visionaray::cover::two_array_ref<Cont>>
+    struct iterator_traits<visionaray::cover::two_array_ref<Cont>>
     {
         using value_type = typename Cont::value_type;
     };
