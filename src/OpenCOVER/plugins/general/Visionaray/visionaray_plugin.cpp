@@ -460,11 +460,6 @@ namespace cover
         impl_->objroot_node_mask = opencover::cover->getObjectsRoot()->getNodeMask();
 
         opencover::cover->getScene()->addChild(impl_->geode);
-        opencover::cover->getObjectsRoot()->setNodeMask(
-            opencover::cover->getObjectsRoot()->getNodeMask()
-            & ~opencover::VRViewer::instance()->getCullMask()
-            & ~opencover::VRViewer::instance()->getCullMaskLeft()
-            & ~opencover::VRViewer::instance()->getCullMaskRight());
 
         return true;
     }

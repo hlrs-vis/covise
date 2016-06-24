@@ -76,6 +76,7 @@ namespace cover
     using color_list = aligned_vector<color_type>;
     using light_type = point_light<float>;
     using light_list = aligned_vector<light_type>;
+    using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
 
     using host_tex_type = texture<vector<4, unorm<8> >, NormalizedFloat, 2>;
     using host_tex_ref_type = typename host_tex_type::ref_type;
@@ -531,6 +532,7 @@ namespace cover
             material_list &materials,
             texture_map &textures,
             texture_list &texture_refs,
+            node_mask_map &node_masks,
             const std::vector<osg::Sequence *> &managed_seqs = {},
             TraversalMode tm = TRAVERSE_ALL_CHILDREN)
             : base_type(tm)
@@ -541,6 +543,7 @@ namespace cover
             , materials_(materials)
             , textures_(textures)
             , texture_refs_(texture_refs)
+            , node_masks_(node_masks)
             , managed_seqs_(managed_seqs)
         {
         }
@@ -575,6 +578,9 @@ namespace cover
                 }
             }
 
+            // Record number of encountered triangles to check if this node
+            // is handled by Visionaray
+            size_t num_triangles = triangles_.size();
 
             for (size_t i = 0; i < geode.getNumDrawables(); ++i)
             {
@@ -689,6 +695,29 @@ namespace cover
                 geom->accept(tif);
             }
 
+            if (triangles_.size() > num_triangles)
+            {
+                // Store old nodemask so we can restore it e.g. when
+                // the plugin is unloaded
+                node_masks_.insert(std::make_pair(&geode, geode.getNodeMask()));
+
+                // Geometry node is handled by Visionaray, cull for rendering
+                geode.setNodeMask(
+                        opencover::cover->getObjectsRoot()->getNodeMask()
+                        & ~opencover::VRViewer::instance()->getCullMask()
+                        & ~opencover::VRViewer::instance()->getCullMaskLeft()
+                        & ~opencover::VRViewer::instance()->getCullMaskRight());
+
+            }
+            else
+            {
+                // Geometry node not handled by Visionaray - if there is
+                // an old nodemask, reset culling accordingly
+                auto it = node_masks_.find(&geode);
+                if (it != node_masks_.end())
+                    geode.setNodeMask(it->second);
+            }
+
             base_type::traverse(geode);
         }
 
@@ -700,6 +729,7 @@ namespace cover
         material_list &materials_;
         texture_map &textures_;
         texture_list &texture_refs_;
+        node_mask_map &node_masks_;
         const std::vector<osg::Sequence *> &managed_seqs_;
 
         // Propagate state to child nodes
@@ -707,6 +737,38 @@ namespace cover
         osg::Texture2D *parent_tex_ = nullptr;
         osg::Image *parent_img_ = nullptr;
     };
+
+    //-------------------------------------------------------------------------------------------------
+    // Visitor to restore original node masks of the scene graph
+    // E.g. called when the plugin gets unloaded
+    //
+
+    class restore_node_masks_visitor : public osg::NodeVisitor
+    {
+    public:
+        using base_type = osg::NodeVisitor;
+        using base_type::apply;
+
+    public:
+        restore_node_masks_visitor(node_mask_map &node_masks, TraversalMode tm = TRAVERSE_ALL_CHILDREN)
+            : base_type(tm)
+            , node_masks_(node_masks)
+        {
+        }
+
+        void apply(osg::Node &node)
+        {
+            auto it = node_masks_.find(&node);
+            if (it != node_masks_.end())
+                node.setNodeMask(it->second);
+
+            base_type::traverse(node);
+        }
+
+    private:
+        node_mask_map &node_masks_;
+    };
+
 
     //-------------------------------------------------------------------------------------------------
     // Visitor to acquire scene lights
@@ -942,6 +1004,10 @@ namespace cover
         detail::algorithm algo_current = detail::Simple;
         unsigned num_bounces = 4;
         device_type device = CPU;
+
+        // Store the scene graph nodes' original node masks
+        // so we can restore them later
+        node_mask_map node_masks;
 
         detail::bvh_outline_renderer outlines;
 
@@ -1319,6 +1385,8 @@ namespace cover
 
     drawable::~drawable()
     {
+        restore_node_masks_visitor visitor(impl_->node_masks);
+        opencover::cover->getObjectsRoot()->accept(visitor);
 //      impl_->outlines.destroy();
     }
 
@@ -1365,6 +1433,7 @@ namespace cover
                 impl_->materials[0],
                 impl_->textures,
                 impl_->texture_refs[0],
+                impl_->node_masks,
                 seqs
                 );
        opencover::cover->getObjectsRoot()->accept(visitor); 
@@ -1382,6 +1451,7 @@ namespace cover
                     impl_->materials[i],
                     impl_->textures,
                     impl_->texture_refs[i],
+                    impl_->node_masks,
                     seqs
                     );
 
