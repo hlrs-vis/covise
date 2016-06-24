@@ -14,7 +14,7 @@
  <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
 
  <INCLUDE global="1" HOST="visavis" configname="visd800" >config.uwe.xml</INCLUDE>
- <INCLUDE global="1" HOST="visard" configname="zspace" >config-zspace.xml</INCLUDE>
+ <!--INCLUDE global="1" HOST="visard" configname="zspace" >config-zspace.xml</INCLUDE-->
  
  <GLOBAL>
 
@@ -24,6 +24,14 @@
 
    <!--Background r="1" g="1" b="1" /-->
    <Plugin>
+       <Visionaray value="off" menu="true">
+         <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
+         <Algorithm    value="simple"  />                 <!-- "simple" | "whitted" -->
+         <Framebuffer  colorSpace="sRGB" />               <!-- colorSpace: "sRGB" | "RGB" -->
+         <NumBounces   value="4" min="1" max="10" />      <!-- value:Integer | [min:Integer|max:Integer]  -->
+         <Device       value="GPU"     />                 <!-- "CPU"    | "GPU"     -->
+         <CPUScheduler numThreads="7" />                 <!-- numThreads:Integer   -->
+       </Visionaray>
        <CompositorIceT value="off" menu="true" />
  <PointCloud>
    <PointSize value="5" />

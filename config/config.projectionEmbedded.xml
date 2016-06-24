@@ -16,7 +16,7 @@
             </PipeConfig>
             
             <WindowConfig>
-               <Window width="1024" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="off" embedded="true"/>
+               <Window width="1024" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="off" embedded="true"/>
             </WindowConfig>
             
             <ChannelConfig>

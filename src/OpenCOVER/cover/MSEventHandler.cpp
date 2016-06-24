@@ -44,6 +44,8 @@
 #ifndef _WIN32
 #include <termios.h>
 #include <unistd.h>
+
+#define CONSOLEINPUT
 #endif
 
 #ifdef __linux__
@@ -58,7 +60,7 @@
 using namespace opencover;
 using namespace covise;
 
-#ifndef _WIN32
+#ifdef CONSOLEINPUT
 // non-blocking input from stdin -- see http://ubuntuforums.org/showthread.php?t=1396108
 static int getch()
 {
@@ -165,7 +167,7 @@ void MSEventHandler::update()
     int numEventsToSync = 0;
     if (coVRMSController::instance()->isMaster())
     {
-#ifndef _WIN32
+#ifdef CONSOLEINPUT
         if (handleTerminal)
         {
             bool escape = false;

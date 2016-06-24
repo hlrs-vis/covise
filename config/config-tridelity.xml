@@ -13,7 +13,7 @@
 
             <NumWindows value="1" />
             <WindowConfig>
-                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="true" stereo="false" />
+                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" stereo="false" />
             </WindowConfig>
 
             <NumChannels value="5" />

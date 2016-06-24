@@ -4,3 +4,6 @@
 [submodule "share/covise/web/noVNC"]
 	path = share/covise/web/noVNC
 	url = git://github.com/kanaka/noVNC.git
+[submodule "src/3rdparty/visionaray"]
+	path = src/3rdparty/visionaray
+	url = git://github.com/szellmann/visionaray.git

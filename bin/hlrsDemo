@@ -67,6 +67,7 @@ do
     echo -e "${MENU} ${OPT} 57)  ${MENU} City (passing through)               "
     echo -e "${MENU} ${OPT} 58)  ${MENU} City (flyover)                       "
     echo -e "${MENU} ${OPT} 59)  ${MENU} Mountain                             "
+    echo -e "${MENU} ${OPT} 60)  ${MENU} Herrenberg                           "
 
     echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
     echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
@@ -275,6 +276,11 @@ do
 	59)
 	    echo -e "starting Mountain";
             opencover /data/pointclouds/riegl/RIEGL_ALS_LMS-Q1560_MountainSorted.ptsb
+	    ;;
+	60)    
+	    echo -e "starting Herrenberg";	    
+	    cd /data/Reallabor/Herrenberg
+	    opencover HB_Kirche_sorted.ptsb MarktplatzSorted.ptsb SchickplatzSorted.ptsb  
 	    ;;
 
 # VolumeRendering

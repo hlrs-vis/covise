@@ -795,7 +795,7 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
         pattID = atoi(pattern.c_str());
         if (pattID <= 0)
         {
-            fprintf(stderr, "pattern load error !!\n");
+            fprintf(stderr, "pattern load error for %s!!\n", pattern.c_str());
             pattID = 0;
         }
         if (pattID > 100)

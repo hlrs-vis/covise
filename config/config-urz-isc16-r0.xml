@@ -7,7 +7,7 @@
             <Stereo value="true" />
             <NumWindows value="1" />
             <WindowConfig>
-                <Window name="0" window="0" width="1920" comment="MAIN" pipeIndex="0" height="1080" left="2560" bottom="0" decoration="false" stereo="true" />
+                <Window name="0" window="0" width="1920" comment="MAIN" pipeIndex="0" height="1080" left="0" top="0" decoration="false" stereo="true" />
             </WindowConfig>
 
             <NumScreens value="1" />

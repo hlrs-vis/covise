@@ -389,8 +389,8 @@
    </ChannelConfig>
             
    <WindowConfig>
-    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" /-->
-    <Window ARCH="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+    <Window ARCH="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" />
 	<OpenGL3 value="true" />
    </WindowConfig>
 

@@ -26,9 +26,13 @@ bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNu
     name = coCoviseConfig::getEntry("comment", str, "COVER");
     *pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
     *ox = coCoviseConfig::getInt("left", str, 0);
-    *oy = coCoviseConfig::getInt("bottom", str, 0);
+    *oy = coCoviseConfig::getInt("top", str, 0);
     *sx = coCoviseConfig::getInt("width", str, 1024);
     *sy = coCoviseConfig::getInt("height", str, 768);
+    bool have_bottom = false;
+    coCoviseConfig::getInt("bottom", str, 0, &have_bottom);
+    if (have_bottom)
+        printf("bottom is ignored in %s, please use top\n", str);
     if (decoration)
         *decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
     if (resize)
