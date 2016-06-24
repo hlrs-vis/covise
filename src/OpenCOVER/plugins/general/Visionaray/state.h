@@ -10,8 +10,6 @@
 #ifndef VSNRAY_COVER_STATE_H
 #define VSNRAY_COVER_STATE_H 1
 
-#include <visionaray/detail/call_kernel.h> // visionaray::detail::algorithm
-
 namespace visionaray
 {
 namespace cover
@@ -37,6 +35,12 @@ namespace cover
         RGB,
         sRGB
     };
+    enum algorithm
+    {
+        Simple,
+        Whitted,
+        Pathtracing
+    };
 
     //-------------------------------------------------------------------------------------------------
     // State that affects rendering of a frame
@@ -44,7 +48,7 @@ namespace cover
 
     struct render_state
     {
-        detail::algorithm algo = detail::Simple;
+        algorithm algo = Simple;
         unsigned min_bounces = 1;
         unsigned max_bounces = 10;
         unsigned num_bounces = 4;

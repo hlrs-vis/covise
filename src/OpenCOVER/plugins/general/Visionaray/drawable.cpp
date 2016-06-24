@@ -33,7 +33,6 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 
-#include <visionaray/detail/call_kernel.h>
 #include <visionaray/detail/render_bvh.h>
 #include <visionaray/gl/debug_callback.h>
 #include <visionaray/math/math.h>
@@ -1001,7 +1000,7 @@ namespace cover
         size_t total_frame_num = 0;
 
         color_space clr_space = RGB;
-        detail::algorithm algo_current = detail::Simple;
+        algorithm algo_current = Simple;
         unsigned num_bounces = 4;
         device_type device = CPU;
 
@@ -1049,10 +1048,6 @@ namespace cover
 
         template <typename KParams>
         void call_kernel(KParams const &params);
-
-    private:
-        template <typename KParams>
-        void call_kernel_debug(KParams const &params);
     };
 
     void drawable::impl::store_gl_state()
@@ -1272,104 +1267,157 @@ namespace cover
     template <typename KParams>
     void drawable::impl::call_kernel(KParams const &params)
     {
-        if (dev_state->debug_mode && (dev_state->show_bvh_costs || dev_state->show_normals || dev_state->show_tex_coords))
+        auto &vparams = eye_params[current_eye];
+
+        if (state->device == GPU)
         {
-            call_kernel_debug(params);
-        }
-        else
-        {
-            auto &vparams = eye_params[current_eye];
-            if (state->device == GPU)
-            {
 #ifdef __CUDACC__
-                visionaray::detail::call_kernel(
-                    state->algo,
-                    device_sched,
-                    params,
-                    vparams.frame_num,
+            // debug kernels
+            if (dev_state->debug_mode && dev_state->show_bvh_costs)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.device_rt);
+
+                bvh_costs_kernel<KParams> k(params);
+                device_sched.frame(k, sparams);
+            }
+            else if (dev_state->debug_mode && dev_state->show_normals)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.device_rt);
+
+                normals_kernel<KParams> k(params);
+                device_sched.frame(k, sparams);
+            }
+            else if (dev_state->debug_mode && dev_state->show_tex_coords)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.device_rt);
+
+                tex_coords_kernel<KParams> k(params);
+                device_sched.frame(k, sparams);
+            }
+
+            // non-debug kernels
+            else if (state->algo == Simple)
+            {
+                auto sparams = make_sched_params(
                     vparams.view_matrix,
                     vparams.proj_matrix,
                     vparams.device_rt,
                     device_intersector);
-#endif
+
+                simple::kernel<KParams> k;
+                k.params = params;
+                device_sched.frame(k, sparams);
             }
-            else
+            else if (state->algo == Whitted)
             {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.device_rt,
+                    device_intersector);
+
+                whitted::kernel<KParams> k;
+                k.params = params;
+                device_sched.frame(k, sparams);
+            }
+            else if (state->algo == Pathtracing)
+            {
+                auto sparams = make_sched_params(
+                    pixel_sampler::jittered_blend_type{},
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.device_rt,
+                    device_intersector);
+
+                pathtracing::kernel<KParams> k;
+                k.params = params;
+                device_sched.frame(k, sparams, ++vparams.frame_num);
+            }
+#endif // __CUDACC__
+        }
+        else
+        {
 #ifndef __CUDA_ARCH__
-                visionaray::detail::call_kernel(
-                    state->algo,
-                    host_sched,
-                    params,
-                    vparams.frame_num,
+            // debug kernels
+            if (dev_state->debug_mode && dev_state->show_bvh_costs)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.host_rt);
+
+                bvh_costs_kernel<KParams> k(params);
+                host_sched.frame(k, sparams);
+            }
+            else if (dev_state->debug_mode && dev_state->show_normals)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.host_rt);
+
+                normals_kernel<KParams> k(params);
+                host_sched.frame(k, sparams);
+            }
+            else if (dev_state->debug_mode && dev_state->show_tex_coords)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.host_rt);
+
+                tex_coords_kernel<KParams> k(params);
+                host_sched.frame(k, sparams);
+            }
+
+            // non-debug kernels
+            else if (state->algo == Simple)
+            {
+                auto sparams = make_sched_params(
                     vparams.view_matrix,
                     vparams.proj_matrix,
                     vparams.host_rt,
                     host_intersector);
-#endif
-            }
-        }
-    }
 
-    //-------------------------------------------------------------------------------------------------
-    // Custom kernels to debug some internal values
-    //
-
-    template <typename KParams>
-    void drawable::impl::call_kernel_debug(KParams const &params)
-    {
-        if (state->device == GPU)
-        {
-#ifdef __CUDACC__
-            auto &vparams = eye_params[current_eye];
-
-            auto sparams = make_sched_params(
-                vparams.view_matrix,
-                vparams.proj_matrix,
-                vparams.device_rt);
-
-            if (dev_state->show_bvh_costs)
-            {
-                bvh_costs_kernel<KParams> k(params);
-                device_sched.frame(k, sparams);
-            }
-            else if (dev_state->show_normals)
-            {
-                normals_kernel<KParams> k(params);
-                device_sched.frame(k, sparams);
-            }
-            else if (dev_state->show_tex_coords)
-            {
-                tex_coords_kernel<KParams> k(params);
-                device_sched.frame(k, sparams);
-            }
-#endif // __CUDACC__
-        }
-        else if (state->device == CPU)
-        {
-#ifndef __CUDA_ARCH__
-            auto &vparams = eye_params[current_eye];
-
-            auto sparams = make_sched_params(
-                vparams.view_matrix,
-                vparams.proj_matrix,
-                vparams.host_rt);
-
-            if (dev_state->show_bvh_costs)
-            {
-                bvh_costs_kernel<KParams> k(params);
+                simple::kernel<KParams> k;
+                k.params = params;
                 host_sched.frame(k, sparams);
             }
-            else if (dev_state->show_normals)
+            else if (state->algo == Whitted)
             {
-                normals_kernel<KParams> k(params);
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.host_rt,
+                    host_intersector);
+
+                whitted::kernel<KParams> k;
+                k.params = params;
                 host_sched.frame(k, sparams);
             }
-            else if (dev_state->show_tex_coords)
+            else if (state->algo == Pathtracing)
             {
-                tex_coords_kernel<KParams> k(params);
-                host_sched.frame(k, sparams);
+                auto sparams = make_sched_params(
+                    pixel_sampler::jittered_blend_type{},
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.host_rt,
+                    host_intersector);
+
+                pathtracing::kernel<KParams> k;
+                k.params = params;
+                host_sched.frame(k, sparams, ++vparams.frame_num);
             }
-#endif // __CUDA_ARCH__
+#endif // !__CUDA_ARCH__
         }
     }
 
@@ -1649,7 +1697,7 @@ namespace cover
                 bounces,
                 epsilon,
                 vec4(0.0f),
-                impl_->state->algo == detail::Pathtracing ? vec4(1.0f) : ambient);
+                impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
 
             impl_->device_intersector.tex_coords = kparams.tex_coords;
             impl_->device_intersector.textures = kparams.textures;
@@ -1696,7 +1744,7 @@ namespace cover
                 bounces,
                 epsilon,
                 vec4(0.0f),
-                impl_->state->algo == detail::Pathtracing ? vec4(1.0f) : ambient);
+                impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
 
             impl_->host_intersector.tex_coords = kparams.tex_coords;
             impl_->host_intersector.textures = kparams.textures;
