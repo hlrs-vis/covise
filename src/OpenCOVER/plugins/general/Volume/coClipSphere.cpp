@@ -36,6 +36,7 @@ coClipSphere::coClipSphere()
     interSize = coCoviseConfig::getFloat("COVER.Plugin.Cuttingsurface.IconSize", interSize);
 
     pickInteractor_.reset(new coVR3DTransRotInteractor(m, interSize, coInteraction::ButtonA, "hand", "ClipSphere", coInteraction::Medium));
+    pickInteractor_->hide();
 }
 
 void coClipSphere::preFrame()

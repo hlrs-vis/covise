@@ -524,6 +524,12 @@ coVRAnimationManager::removeSequence(osg::Sequence *seq)
     }
 }
 
+const std::vector<osg::Sequence *>&
+coVRAnimationManager::getSequences() const
+{
+    return listOfSeq;
+}
+
 void
 coVRAnimationManager::addSequence(osg::Sequence *seq)
 {

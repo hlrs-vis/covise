@@ -38,6 +38,7 @@ class Sequence;
 
 #include <util/coExport.h>
 #include <OpenVRUI/coMenu.h>
+#include <map>
 #include <vector>
 
 namespace opencover
@@ -56,6 +57,8 @@ public:
 
     void addSequence(osg::Sequence *seq);
     void removeSequence(osg::Sequence *seq);
+
+    const std::vector<osg::Sequence *> &getSequences() const;
 
     int getAnimationFrame()
     {
@@ -146,7 +149,7 @@ private:
     static void backwardCallback(void *sceneGraph, buttonSpecCell *spec);
     static void animSpeedCallback(void *sceneGraph, buttonSpecCell *spec);
 
-    typedef map<const void *, int> TimestepMap;
+    typedef std::map<const void *, int> TimestepMap;
     TimestepMap timestepMap;
 
     void sendAnimationStateMessage();

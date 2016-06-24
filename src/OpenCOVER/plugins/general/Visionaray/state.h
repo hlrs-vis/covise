@@ -10,8 +10,6 @@
 #ifndef VSNRAY_COVER_STATE_H
 #define VSNRAY_COVER_STATE_H 1
 
-#include <visionaray/detail/call_kernel.h> // visionaray::detail::algorithm
-
 namespace visionaray
 {
 namespace cover
@@ -29,12 +27,19 @@ namespace cover
     enum data_variance
     {
         Static,
+        AnimationFrames,
         Dynamic
     };
     enum color_space
     {
         RGB,
         sRGB
+    };
+    enum algorithm
+    {
+        Simple,
+        Whitted,
+        Pathtracing
     };
 
     //-------------------------------------------------------------------------------------------------
@@ -43,14 +48,18 @@ namespace cover
 
     struct render_state
     {
-        detail::algorithm algo = detail::Simple;
+        algorithm algo = Simple;
         unsigned min_bounces = 1;
         unsigned max_bounces = 10;
         unsigned num_bounces = 4;
         device_type device = CPU;
-        data_variance data_var = Static;
+        data_variance data_var = AnimationFrames;
         color_space clr_space = sRGB;
         unsigned num_threads = 0;
+
+        // non-persistent state for control flow
+        int animation_frame = 0;
+        bool rebuild = true;
     };
 
     //-------------------------------------------------------------------------------------------------

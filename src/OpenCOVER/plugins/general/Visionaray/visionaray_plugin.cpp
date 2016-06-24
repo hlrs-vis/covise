@@ -13,8 +13,11 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <osg/Sequence>
+
 #include <config/CoviseConfig.h>
 
+#include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRViewer.h>
 
@@ -109,7 +112,7 @@ namespace cover
 
         void set_data_variance(data_variance var);
         void set_color_space(color_space cs);
-        void set_algorithm(detail::algorithm algo);
+        void set_algorithm(algorithm algo);
         void set_num_bounces(unsigned num_bounces);
         void set_device(device_type dev);
         void set_show_bvh(bool show_bvh);
@@ -163,15 +166,15 @@ namespace cover
 
         if (algo_str == "whitted")
         {
-            state->algo = detail::Whitted;
+            state->algo = Whitted;
         }
         else if (algo_str == "pathtracing")
         {
-            state->algo = detail::Pathtracing;
+            state->algo = Pathtracing;
         }
         else
         {
-            state->algo = detail::Simple;
+            state->algo = Simple;
         }
 
         // TODO
@@ -190,7 +193,7 @@ namespace cover
             state->device = CPU;
         }
 
-        state->data_var = data_var_str == "dynamic" ? Dynamic : Static;
+        state->data_var = data_var_str == "dynamic" ? Dynamic : AnimationFrames;
         state->num_threads = num_threads;
 
         if (clr_space_str == "rgb")
@@ -238,15 +241,15 @@ namespace cover
 
         ui.algo_group.reset(new coCheckboxGroup(/* allow empty selection: */ false));
 
-        ui.simple_button.reset(new coCheckboxMenuItem("Simple", state->algo == detail::Simple, ui.algo_group.get()));
+        ui.simple_button.reset(new coCheckboxMenuItem("Simple", state->algo == Simple, ui.algo_group.get()));
         ui.simple_button->setMenuListener(this);
         ui.algo_menu->add(ui.simple_button.get());
 
-        ui.whitted_button.reset(new coCheckboxMenuItem("Whitted", state->algo == detail::Whitted, ui.algo_group.get()));
+        ui.whitted_button.reset(new coCheckboxMenuItem("Whitted", state->algo == Whitted, ui.algo_group.get()));
         ui.whitted_button->setMenuListener(this);
         ui.algo_menu->add(ui.whitted_button.get());
 
-        ui.pathtracing_button.reset(new coCheckboxMenuItem("Pathtracing", state->algo == detail::Pathtracing, ui.algo_group.get()));
+        ui.pathtracing_button.reset(new coCheckboxMenuItem("Pathtracing", state->algo == Pathtracing, ui.algo_group.get()));
         ui.pathtracing_button->setMenuListener(this);
         ui.algo_menu->add(ui.pathtracing_button.get());
 
@@ -314,15 +317,15 @@ namespace cover
         // algorithm submenu
         if (item == ui.simple_button.get())
         {
-            set_algorithm(detail::Simple);
+            set_algorithm(Simple);
         }
         else if (item == ui.whitted_button.get())
         {
-            set_algorithm(detail::Whitted);
+            set_algorithm(Whitted);
         }
         else if (item == ui.pathtracing_button.get())
         {
-            set_algorithm(detail::Pathtracing);
+            set_algorithm(Pathtracing);
         }
 
         if (item == ui.bounces_slider.get())
@@ -376,12 +379,12 @@ namespace cover
         ui.toggle_color_space->setState(cs == sRGB, false);
     }
 
-    void Visionaray::impl::set_algorithm(detail::algorithm algo)
+    void Visionaray::impl::set_algorithm(algorithm algo)
     {
         state->algo = algo;
-        ui.simple_button->setState(algo == detail::Simple, false);
-        ui.whitted_button->setState(algo == detail::Whitted, false);
-        ui.pathtracing_button->setState(algo == detail::Pathtracing, false);
+        ui.simple_button->setState(algo == Simple, false);
+        ui.whitted_button->setState(algo == Whitted, false);
+        ui.pathtracing_button->setState(algo == Pathtracing, false);
     }
 
     void Visionaray::impl::set_num_bounces(unsigned num_bounces)
@@ -457,17 +460,33 @@ namespace cover
         impl_->objroot_node_mask = opencover::cover->getObjectsRoot()->getNodeMask();
 
         opencover::cover->getScene()->addChild(impl_->geode);
-        opencover::cover->getObjectsRoot()->setNodeMask(
-            opencover::cover->getObjectsRoot()->getNodeMask()
-            & ~opencover::VRViewer::instance()->getCullMask()
-            & ~opencover::VRViewer::instance()->getCullMaskLeft()
-            & ~opencover::VRViewer::instance()->getCullMaskRight());
 
         return true;
     }
 
+    void Visionaray::addNode(osg::Node *node, opencover::RenderObject *obj)
+    {
+        impl_->state->rebuild = true;
+    }
+
+    void Visionaray::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
+    {
+        impl_->state->rebuild = true;
+    }
+
     void Visionaray::preFrame()
     {
+        if (impl_->state->data_var == Dynamic)
+            impl_->state->rebuild = true;
+
+        if (impl_->state->rebuild)
+        {
+            auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
+            impl_->drawable_ptr->acquire_scene_data(seqs);
+            impl_->state->rebuild = false;
+        }
+
+        impl_->state->animation_frame = opencover::coVRAnimationManager::instance()->getAnimationFrame();
     }
 
     void Visionaray::expandBoundingSphere(osg::BoundingSphere &bs)
@@ -482,15 +501,15 @@ namespace cover
             switch (key_sym)
             {
             case '1':
-                impl_->set_algorithm(detail::Simple);
+                impl_->set_algorithm(Simple);
                 break;
 
             case '2':
-                impl_->set_algorithm(detail::Whitted);
+                impl_->set_algorithm(Whitted);
                 break;
 
             case '3':
-                impl_->set_algorithm(detail::Pathtracing);
+                impl_->set_algorithm(Pathtracing);
                 break;
             }
         }

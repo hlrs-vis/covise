@@ -15,6 +15,11 @@
 #include <osg/BoundingSphere>
 #include <osg/Drawable>
 
+namespace osg
+{
+    class Sequence;
+}
+
 namespace visionaray
 {
 namespace cover
@@ -34,6 +39,10 @@ namespace cover
         void update_state(
             std::shared_ptr<render_state> const &state,
             std::shared_ptr<debug_state> const &dev_state);
+
+        // Acquire scene data, additionally store the provided
+        // animation sequences in dedicated BVHs
+        void acquire_scene_data(const std::vector<osg::Sequence *> &seqs);
 
     private:
         struct impl;
