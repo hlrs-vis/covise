@@ -257,6 +257,7 @@ void OddlotPlugin::createCamera()
     //pBufferCamera->setNearFarRatio(coVRConfig::instance()->nearClip()/coVRConfig::instance()->farClip());
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     camera->setPostDrawCallback(drawCallback.get());
+    camera->setLODScale(0.0); // always highest LOD
     renderer->getSceneView(0)->setSceneData(cover->getScene());
     renderer->getSceneView(1)->setSceneData(cover->getScene());
 }
