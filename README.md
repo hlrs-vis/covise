@@ -34,6 +34,7 @@ Getting COVISE is as easy as
 Update your existing copy to the current version by
 
       git pull -r
+      git submodule sync
       git submodule update --init --recursive # update submodules to latest required version
 
 ### Windows
