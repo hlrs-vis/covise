@@ -1,4 +1,5 @@
-USE_VISIONARAY()
+USING(Visionaray)
+include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 function(do_cuda_compile outfiles)
     if(NOT COVISE_USE_CUDA OR NOT CUDA_FOUND)
@@ -18,10 +19,6 @@ function(do_cuda_compile outfiles)
         ${out}
         PARENT_SCOPE)
 endfunction()
-
-find_package(OpenSceneGraph REQUIRED)
-include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSCENEGRAPH_LIBRARIES})
 
 set(HEADERS
     kernels/bvh_costs_kernel.h
