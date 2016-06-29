@@ -317,7 +317,7 @@ bool checkPolyMeshDirContent(CaseInfo &info)
 			fullMeshDir = it->second;
 		}
 		info.completeMeshDirs[it->first]=fullMeshDir;
-		std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
+        //std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
 	}
 
     return true;
@@ -400,7 +400,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
-				std::cerr << bn << "is a time directory, " << t  << std::endl;
+                //std::cerr << bn << "is a time directory, " << t  << std::endl;
                 //if (t >= mintime && t <= maxtime)
                 {
                     ++num_timesteps;
@@ -1189,7 +1189,7 @@ index_t findVertexAlongEdge(const index_t point,
                             const std::vector<index_t> &cellfaces,
                             const std::vector<std::vector<index_t> > &faces)
 {
-
+    //find the other 2 faces that include the vertex with index "point"
     index_t pointfaces[2];
     int idx = 0;
     for (index_t i = 0; i < cellfaces.size(); i++)
@@ -1209,6 +1209,8 @@ index_t findVertexAlongEdge(const index_t point,
                 break;
         }
     }
+
+    //use these faces to find the vertex that is along the edge formed by these two faces
     const std::vector<index_t> &a = faces[pointfaces[0]];
     const std::vector<index_t> &b = faces[pointfaces[1]];
     for (index_t i = 0; i < a.size(); i++)
@@ -1233,34 +1235,31 @@ bool isPointingInwards(index_t face,
                        const std::vector<index_t> &owners,
                        const std::vector<index_t> &neighbors)
 {
-
-    //check if the normal vector of the cell is pointing inwards
-    //(in openFOAM it always points into the cell with the higher index)
+    // OpenFOAM uses the right Hand Rule for numbering its faces.
+    // check if the normal vector of a face is pointing into the current cell or the neighbouring cell
+    // (in OpenFOAM it always points into the neighbouring cell with the higher index)
     if (face >= ninternalFaces)
-    { //if face is bigger than the number of internal faces
-        return true; //then face is a boundary-face and normal vector goes inwards by default
+    {
+        // if face is bigger than the number of internal faces
+        // then face is a boundary-face and normal vector goes out of the domain by default
+        return false;
     }
     else
     {
-        index_t j, o, n;
-        o = owners[face];
-        n = neighbors[face];
-        if (o == cell)
-        {
-            j = n;
-        }
-        else
-        {
-            j = o;
-        } //now cell is the index of current cell and j is index of other cell sharing the same face
+        index_t o = owners[face];
+        index_t n = neighbors[face];
+        index_t j = o==cell ? n : o;
+        // cell is the index of current cell and j is index of other cell sharing the same face
+        // if index of cell is higher than index of the "next door" cell
+        // then normal vector points inwards else outwards
         if (cell > j)
         {
             return true;
-        } //if index of active cell is higher than index of "next door" cell
+        }
         else
         {
             return false;
-        } //then normal vector points inwards else outwards
+        }
     }
 }
 
