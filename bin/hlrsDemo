@@ -280,7 +280,7 @@ do
 	60)    
 	    echo -e "starting Herrenberg";	    
 	    cd /data/Reallabor/Herrenberg
-	    opencover HB_Kirche_sorted.ptsb MarktplatzSorted.ptsb SchickplatzSorted.ptsb  
+	    opencover HB_gesamt.wrl  
 	    ;;
 
 # VolumeRendering
