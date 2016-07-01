@@ -1179,6 +1179,11 @@ int covReadSTRGRD(int fd, int xsize, int ysize, int zsize, float *x, float *y, f
     return covIoSTRGRD(fd, READ_COVISE, &xsize, &ysize, &zsize, x, y, z, NULL, NULL, NULL);
 }
 
+int covSkipSTRGRD(int fd, int xsize, int ysize, int zsize)
+{
+    return covIoSTRGRD(fd, SKIP_COVISE, &xsize, &ysize, &zsize, NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
 /*  *********************************
                   USTSDT
     *********************************/
