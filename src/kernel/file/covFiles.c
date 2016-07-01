@@ -1063,12 +1063,21 @@ int covIoRCTGRD(int fd, int mode, int *xsize, int *ysize, int *zsize, float *x, 
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, x, *xsize);
-        SWAP_FLOAT(fd, x, *xsize);
-        COV_READ_FLOAT(fd, y, *ysize);
-        SWAP_FLOAT(fd, y, *ysize);
-        COV_READ_FLOAT(fd, z, *zsize);
-        SWAP_FLOAT(fd, z, *zsize);
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, x, *xsize);
+            COV_SKIP_FLOAT(fd, y, *ysize);
+            COV_SKIP_FLOAT(fd, z, *zsize);
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, x, *xsize);
+            SWAP_FLOAT(fd, x, *xsize);
+            COV_READ_FLOAT(fd, y, *ysize);
+            SWAP_FLOAT(fd, y, *ysize);
+            COV_READ_FLOAT(fd, z, *zsize);
+            SWAP_FLOAT(fd, z, *zsize);
+        }
     }
     else
     {
@@ -1098,6 +1107,11 @@ int covReadRCTGRD(int fd, int xsize, int ysize, int zsize, float *x, float *y, f
     return covIoRCTGRD(fd, READ_COVISE, &xsize, &ysize, &zsize, x, y, z, NULL, NULL, NULL);
 }
 
+int covSkipRCTGRD(int fd, int xsize, int ysize, int zsize)
+{
+    return covIoRCTGRD(fd, SKIP_COVISE, &xsize, &ysize, &zsize, NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
 /*  *********************************
                   STRGRD
     *********************************/
@@ -1119,12 +1133,22 @@ int covIoSTRGRD(int fd, int mode, int *xsize, int *ysize, int *zsize, float *x, 
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+        }
     }
     else
     {
