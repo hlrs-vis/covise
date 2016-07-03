@@ -1374,8 +1374,15 @@ int covIoSTRSDT(int fd, int mode, int *numElem, float *data, int *xsize, int *ys
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+        }
     }
     else
     {
@@ -1405,6 +1412,11 @@ int covReadSTRSDT(int fd, int numElem, float *data, int xsize, int ysize, int zs
     return covIoSTRSDT(fd, READ_COVISE, &numElem, data, &xsize, &ysize, &zsize, NULL, NULL, NULL);
 }
 
+int covSkipSTRSDT(int fd, int numElem, int xsize, int ysize, int zsize)
+{
+    return covIoSTRSDT(fd, SKIP_COVISE, &numElem, NULL, &xsize, &ysize, &zsize, NULL, NULL, NULL);
+}
+
 /*  *********************************
                   STRVDT
     *********************************/
@@ -1427,12 +1439,21 @@ int covIoSTRVDT(int fd, int mode, int *numElem, float *data_x, float *data_y, fl
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+        }
     }
     else
     {
@@ -1462,6 +1483,12 @@ int covReadSizeSTRVDT(int fd, int *numElem, int *xsize, int *ysize, int *zsize)
 int covReadSTRVDT(int fd, int numElem, float *data_x, float *data_y, float *data_z, int xsize, int ysize, int zsize)
 {
     return covIoSTRVDT(fd, READ_COVISE, &numElem, data_x, data_y, data_z, &xsize, &ysize, &zsize,
+                       NULL, NULL, NULL);
+}
+
+int covSkipSTRVDT(int fd, int numElem, int xsize, int ysize, int zsize)
+{
+    return covIoSTRVDT(fd, SKIP_COVISE, &numElem, NULL, NULL, NULL, &xsize, &ysize, &zsize,
                        NULL, NULL, NULL);
 }
 
