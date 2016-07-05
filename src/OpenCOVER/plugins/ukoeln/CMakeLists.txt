@@ -1,2 +1,3 @@
 ADD_SUBDIRECTORY(Utouch3D)
 ADD_SUBDIRECTORY(TouchInteraction)
+ADD_SUBDIRECTORY(PointRayTracer)
