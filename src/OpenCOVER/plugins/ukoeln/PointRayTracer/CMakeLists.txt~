@@ -1,0 +1,8 @@
+SET(HEADERS
+  PointRayTracerPlugin.h
+)
+SET(SOURCES
+  PointRayTracerPlugin.cpp  
+)
+cover_add_plugin(PointRayTracerPlugin ${HEADERS} ${SOURCES})
+SET_TARGET_PROPERTIES(PointRayTracerPlugin PROPERTIES OUTPUT_NAME PointRayTracer)
