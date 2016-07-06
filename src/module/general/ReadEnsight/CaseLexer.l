@@ -184,6 +184,13 @@ TIME[ \t]* {
 }
 
 
+[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]? {
+    // read integer digits
+    strncpy( pToken->token.szValue, yytext, yyleng );
+    pToken->token.szValue[ yyleng ] = '\0';
+    return( CaseParser::IPADDRESS );
+}
+
 [0-9\-]*[\.a-zA-Z_@]+[\.a-zA-Z0-9_@\-]* { 
     // read characters as IDENTIFIER
     strncpy( pToken->token.szValue, yytext, yyleng );
@@ -191,12 +198,6 @@ TIME[ \t]* {
     return( CaseParser::POINT_IDENTIFIER );
 }
 
-[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} {
-    // read integer digits
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::IPADDRESS );
-}
 
 [0-9]+[ \n\t] {
     // read integer digits
@@ -207,7 +208,7 @@ TIME[ \t]* {
     return( CaseParser::INTEGER );
 }
 
-[0-9]+\.[0-9][Ee0-9\+\-]+ {
+[-+]?([0-9]+|[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?[ \n\t] {
     // read double
     pToken->token.dVal = atof(yytext);
     return( CaseParser::DOUBLE );
