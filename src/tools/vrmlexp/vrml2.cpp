@@ -101,9 +101,6 @@ enum elementTypes
 
 int numShaderTextures = 0;
 int shaderTextureChannel[MAX_TEXTURES];
-#ifdef _DEBUG
-#define FUNNY_TEST
-#endif
 
 //#define TEST_MNMESH
 #ifdef TEST_MNMESH
@@ -5601,10 +5598,6 @@ VRML2Export::VrmlOutObject(INode *node, INode *parent, Object *obj, int level,
                             OutputTriObject(node, tri, multiMat, isWire, twoSided,
                                             level + 1, i, mirrored);
 
-#ifndef FUNNY_TEST
-                        if (obj != (Object *)tri)
-                            tri->DeleteThis();
-#endif
 #ifdef GEOMETRY_REUSE_HAST_TO_BE_REIMPLEMENTED
                     }
 #endif
