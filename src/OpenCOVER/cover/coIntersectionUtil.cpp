@@ -21,7 +21,6 @@
 #define isinf(x) (!_finite(x))
 #endif
 
-using namespace std; // for isnan
 using namespace osg;
 using namespace osgUtil;
 
@@ -91,13 +90,13 @@ namespace Private
 
             _s = seg.start();
             _d = seg.end() - seg.start();
-            if (isnan(_s[0]) || isnan(_s[1]) || isnan(_s[2]))
+            if (std::isnan(_s[0]) || std::isnan(_s[1]) || std::isnan(_s[2]))
             {
                 _length = -1;
                 std::cerr << "TriangleIntersect: invalid line segment - start" << std::endl;
                 return;
             }
-            if (isnan(_d[0] || isnan(_d[1]) || isnan(_d[2])))
+            if (std::isnan(_d[0] || std::isnan(_d[1]) || std::isnan(_d[2])))
             {
                 _length = -1;
                 std::cerr << "TriangleIntersect: invalid line segment - direction" << std::endl;
@@ -123,7 +122,7 @@ namespace Private
 #define CHECK(x)
 #else
 #define CHECK(x) \
-            if (isnan(x) || isinf(x)) { \
+            if (std::isnan(x) || std::isinf(x)) { \
                 std::cerr << "not finite: " << #x << "=" << x << std::endl; \
                 std::cerr << "\tv1=" << v1 << ", v2=" << v2 << ", v3=" << v3 << std::endl; \
                 std::cerr << "\t_d=" << _d << ", _s=" << _s << std::endl; \
