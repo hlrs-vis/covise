@@ -18,6 +18,7 @@
 #include <cover/coVRConfig.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <osg/io_utils>
+using namespace std; // for isnan
 
 SurfaceInteraction::SurfaceInteraction()
 {
@@ -122,7 +123,7 @@ double SurfaceInteraction::angleBetween3DVectors(osg::Vec3 v1, osg::Vec3 v2)
     double angle = acos(dotProduct);
 
     // Here we make sure that the angle is not a -1.#IND0000000 number, which means indefinite
-    if (std::isnan(angle)) //__isnand(x)
+    if (isnan(angle)) //__isnand(x)
         return 0;
 
     // Return the angle in radians
