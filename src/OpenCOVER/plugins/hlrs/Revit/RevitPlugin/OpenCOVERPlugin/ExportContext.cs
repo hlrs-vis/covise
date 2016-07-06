@@ -193,14 +193,14 @@ namespace OpenCOVERPlugin
             return;
         }
 
-        public void OnDaylightPortal(DaylightPortalNode node)
-        {
+      //  public void OnDaylightPortal(DaylightPortalNode node)
+        //{
             // Like RPCs, Daylight Portals too have their assets available only.
             // THere is no other public API for them currently available.
 
             
-            return;
-        }
+         //   return;
+        //}
 
         public void OnMaterial(MaterialNode node)
         {
