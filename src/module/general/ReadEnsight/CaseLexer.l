@@ -32,6 +32,7 @@
   Don't allow yywrap. There are no multibuffers allowed.
   */
 %option noyywrap
+%option yylineno
 
 /**
   Use new Name for flexer class
@@ -230,8 +231,7 @@ TIME[ \t]* {
 [ \x0d \t]+  ;            // suppress blanks,tabs
 
 \n {
-    // increment lineno and ignore newline
-    yylineno++;
+    // let flex handle incrementing yylineno
 }
 
 . {     
