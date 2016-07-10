@@ -31,7 +31,6 @@
 #include <float.h>
 #include <math.h>
 
-#define isnan _isnan
 
 /* DBL_MANT_DIG must be less than 4 times of bits of int */
 #ifndef DBL_MANT_DIG
