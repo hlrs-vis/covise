@@ -26,7 +26,7 @@ coMovableBackgroundMenuItem::coMovableBackgroundMenuItem(const char *name, float
         s = 500.0;
     else
         s = size;
-    if (aspect == 0 || isnan(aspect))
+    if (aspect == 0 || std::isnan(aspect))
         aspect = 1;
 
     aspect_ = aspect;
@@ -58,7 +58,7 @@ coMovableBackgroundMenuItem::coMovableBackgroundMenuItem(const char *name, uint 
         s = 500.0;
     else
         s = size;
-    if (aspect == 0 || isnan(aspect))
+    if (aspect == 0 || std::isnan(aspect))
         aspect = 1;
 
     aspect_ = aspect;
