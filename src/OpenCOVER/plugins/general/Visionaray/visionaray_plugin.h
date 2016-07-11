@@ -30,7 +30,7 @@ namespace cover
         bool init();
         void addNode(osg::Node *node, opencover::RenderObject *obj = NULL);
         void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode);
-        void preFrame();
+        void preDraw(osg::RenderInfo &info);
         void expandBoundingSphere(osg::BoundingSphere &bs);
         void key(int type, int key_sym, int /* mod */);
 
