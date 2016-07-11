@@ -7,7 +7,7 @@
 
 #include <coMovableBackgroundMenuItem.h>
 
-#include <math.h>
+#include <cmath>
 #include <util/unixcompat.h>
 
 namespace vrui
