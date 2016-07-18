@@ -22,8 +22,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscCancelConditionsGroupTypeA.h"
 #include "oscCancelConditionsTypeA.h"
 #include "oscCancelConditionsTypeB.h"
-#include "oscCatalogBase.h"
-#include "oscCatalogObject.h"
+#include "oscCatalog.h"
+#include "oscObjectCatalogs.h"
 #include "oscCatalogReferenceTypeA.h"
 #include "oscCatalogs.h"
 #include "oscCenter.h"
@@ -251,8 +251,8 @@ oscFactories::oscFactories() :
     staticObjectFactory.registerType<oscCancelConditionsGroupTypeA>("oscCancelConditionsGroupTypeA");
     staticObjectFactory.registerType<oscCancelConditionsTypeA>("oscCancelConditionsTypeA");
     staticObjectFactory.registerType<oscCancelConditionsTypeB>("oscCancelConditionsTypeB");
-    staticObjectFactory.registerType<oscCatalogBase>("oscCatalogBase");
-    staticObjectFactory.registerType<oscCatalogObject>("oscCatalogObject");
+    staticObjectFactory.registerType<oscCatalog>("oscCatalog");
+    staticObjectFactory.registerType<oscObjectCatalogs>("oscObjectCatalogs");
     staticObjectFactory.registerType<oscCatalogReferenceTypeA>("oscCatalogReferenceTypeA");
     staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
     staticObjectFactory.registerType<oscCenter>("oscCenter");

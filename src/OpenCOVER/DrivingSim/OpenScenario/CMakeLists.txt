@@ -24,8 +24,7 @@ SET(HEADERS
    oscCancelConditionsGroupTypeA.h
    oscCancelConditionsTypeA.h
    oscCancelConditionsTypeB.h
-   oscCatalogBase.h
-   oscCatalogObject.h
+   oscCatalog.h
    oscCatalogReferenceTypeA.h
    oscCatalogs.h
    oscCenter.h
@@ -122,6 +121,7 @@ SET(HEADERS
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
+   oscObjectCatalogs.h
    oscObjects.h
    oscObjectVariable.h
    oscObjectVariableArray.h

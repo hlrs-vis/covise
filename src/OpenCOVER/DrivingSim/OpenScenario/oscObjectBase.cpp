@@ -464,7 +464,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     cm->setCatalogType(catalogType);
 
                     //path to directory
-                    //object/member is of type oscCatalogBase and has a member directory,
+                    //object/member is of type oscCatalog and has a member directory,
                     oscMember *dirMember = cm->getObject()->getMember("directory");
                     oscObjectBase *dirMemberObj = dirMember->getObject();
                     if (dirMemberObj)/*true if xosc file has an element directory*/

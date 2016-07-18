@@ -29,7 +29,7 @@ public:
     oscRefActorTypeBMember refActor;
 };
 
-typedef oscObjectVariableArray<oscRefActorsTypeB *> oscRefActorsTypeBMemberArray;
+typedef oscObjectVariableArray<oscRefActorsTypeB *> oscRefActorsTypeBArrayMember;
 
 }
 

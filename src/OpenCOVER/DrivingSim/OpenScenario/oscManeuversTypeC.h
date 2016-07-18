@@ -29,7 +29,7 @@ public:
     oscManeuverTypeCMember maneuver;
 };
 
-typedef oscObjectVariableArray<oscManeuversTypeC *> oscManeuversTypeCMemberArray;
+typedef oscObjectVariableArray<oscManeuversTypeC *> oscManeuversTypeCArrayMember;
 
 }
 

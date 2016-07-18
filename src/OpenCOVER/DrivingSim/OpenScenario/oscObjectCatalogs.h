@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscCatalogObject: public oscObjectBase
+class OPENSCENARIOEXPORT oscObjectCatalogs: public oscObjectBase
 {
 public:
-    oscCatalogObject()
+    oscObjectCatalogs()
     {
         OSC_OBJECT_ADD_MEMBER(vehicleCatalog, "oscCatalog");
         OSC_OBJECT_ADD_MEMBER(driverCatalog, "oscCatalog");
@@ -37,7 +37,7 @@ public:
     oscCatalogMember miscObjectCatalog;
 };
 
-typedef oscObjectVariable<oscCatalogObject *> oscCatalogObjectMember;
+typedef oscObjectVariable<oscObjectCatalogs *> oscObjectCatalogsMember;
 
 }
 

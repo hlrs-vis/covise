@@ -29,7 +29,7 @@ public:
     oscConditionTypeBMember endCondition;
 };
 
-typedef oscObjectVariableArray<oscEndConditionsTypeB *> oscEndConditionsTypeBMemberArray;
+typedef oscObjectVariableArray<oscEndConditionsTypeB *> oscEndConditionsTypeBArrayMember;
 
 }
 

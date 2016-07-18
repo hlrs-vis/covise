@@ -92,7 +92,7 @@ public:
     oscUserDefinedActionMember userDefinedAction;
     oscUserScriptMember userScript;
     oscNotifyMember notify;
-    oscUserDataListMemberArray userDataList;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscAction *> oscActionMember;

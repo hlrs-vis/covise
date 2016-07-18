@@ -29,7 +29,7 @@ public:
     oscMirrorMember mirror;
 };
 
-typedef oscObjectVariableArray<oscMirrors *> oscMirrorsMemberArray;
+typedef oscObjectVariableArray<oscMirrors *> oscMirrorsArrayMember;
 
 }
 

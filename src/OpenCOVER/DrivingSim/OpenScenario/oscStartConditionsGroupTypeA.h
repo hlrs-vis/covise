@@ -26,7 +26,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(startConditions, "oscStartConditionsTypeA");
     };
 
-    oscStartConditionsTypeAMemberArray startConditions;
+    oscStartConditionsTypeAArrayMember startConditions;
 };
 
 typedef oscObjectVariable<oscStartConditionsGroupTypeA *> oscStartConditionsGroupTypeAMember;
