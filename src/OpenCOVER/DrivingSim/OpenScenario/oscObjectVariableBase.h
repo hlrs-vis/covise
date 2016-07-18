@@ -61,6 +61,10 @@ public:
     {
         valueT = t;
     };
+    void setValue(oscObjectBase *t)
+    {
+        valueT = dynamic_cast<T>(t);
+    };
 
     void deleteValue()
     {
