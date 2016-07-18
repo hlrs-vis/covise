@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include "oscMemberCatalog.h"
+#include "oscCatalogMember.h"
 #include "OpenScenarioBase.h"
 #include "oscSourceFile.h"
 #include "oscUtilities.h"
@@ -27,7 +27,7 @@ using namespace OpenScenario;
  * constructor
  *****/
 
-oscMemberCatalog::oscMemberCatalog() :
+oscCatalogMember::oscCatalogMember() :
         oscMember()
 {
 
@@ -38,10 +38,10 @@ oscMemberCatalog::oscMemberCatalog() :
  * initialization static variables
  *****/
 
-oscMemberCatalog::CatalogTypeTypeNameMap initFuncCatToType()
+oscCatalogMember::CatalogTypeTypeNameMap initFuncCatToType()
 {
     //set the typeName for possible catalogTypes
-    oscMemberCatalog::CatalogTypeTypeNameMap catToType;
+    oscCatalogMember::CatalogTypeTypeNameMap catToType;
     catToType.emplace("driver", "oscDriver");
     catToType.emplace("entity", "oscEntity");
     catToType.emplace("environment", "oscEnvironment");
@@ -55,14 +55,14 @@ oscMemberCatalog::CatalogTypeTypeNameMap initFuncCatToType()
     return catToType;
 }
 
-const oscMemberCatalog::CatalogTypeTypeNameMap oscMemberCatalog::s_catalogTypeToTypeName = initFuncCatToType();
+const oscCatalogMember::CatalogTypeTypeNameMap oscCatalogMember::s_catalogTypeToTypeName = initFuncCatToType();
 
 
 /*****
  * destructor
  *****/
 
-oscMemberCatalog::~oscMemberCatalog()
+oscCatalogMember::~oscCatalogMember()
 {
 
 }
@@ -73,7 +73,7 @@ oscMemberCatalog::~oscMemberCatalog()
  * public functions
  *****/
 
-std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path &pathToDirectory)
+std::vector<bf::path> oscCatalogMember::getXoscFilesFromDirectory(const bf::path &pathToDirectory)
 {
     //output vector
     std::vector<bf::path> fileNames;
@@ -121,7 +121,7 @@ std::vector<bf::path> oscMemberCatalog::getXoscFilesFromDirectory(const bf::path
     return fileNames;
 }
 
-void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
+void oscCatalogMember::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 {
     OpenScenarioBase *oscBase = new OpenScenarioBase();
     bool validate = owner->getBase()->getValidation();
@@ -173,29 +173,29 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
 
 
 //
-void oscMemberCatalog::setCatalogType(const std::string &catalogType)
+void oscCatalogMember::setCatalogType(const std::string &catalogType)
 {
     m_catalogType = catalogType;
 }
 
-std::string oscMemberCatalog::getCatalogType() const
+std::string oscCatalogMember::getCatalogType() const
 {
     return m_catalogType;
 }
 
 
 //
-void oscMemberCatalog::setAvailableObjectsMap(const AvailableObjectsMap &availableObjects)
+void oscCatalogMember::setAvailableObjectsMap(const AvailableObjectsMap &availableObjects)
 {
     m_availableObjects = availableObjects;
 }
 
-oscMemberCatalog::AvailableObjectsMap oscMemberCatalog::getAvailableObjectsMap() const
+oscCatalogMember::AvailableObjectsMap oscCatalogMember::getAvailableObjectsMap() const
 {
     return m_availableObjects;
 }
 
-bool oscMemberCatalog::addObjToAvailableObjectsMap(const int objectRefId, const bf::path &fileNamePath)
+bool oscCatalogMember::addObjToAvailableObjectsMap(const int objectRefId, const bf::path &fileNamePath)
 {
     AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
     if (found != m_availableObjects.end())
@@ -216,24 +216,24 @@ bool oscMemberCatalog::addObjToAvailableObjectsMap(const int objectRefId, const 
     }
 }
 
-bool oscMemberCatalog::removeObjFromAvailableObjectsMap(const int objectRefId)
+bool oscCatalogMember::removeObjFromAvailableObjectsMap(const int objectRefId)
 {
     return m_availableObjects.erase(objectRefId);
 }
 
-void oscMemberCatalog::deleteAvailableObjectsMap()
+void oscCatalogMember::deleteAvailableObjectsMap()
 {
     m_availableObjects.clear();
 }
 
-std::string oscMemberCatalog::getType(const std::string &typeName)
+std::string oscCatalogMember::getType(const std::string &typeName)
 {
 	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogTypeToTypeName.find(typeName);
 	return it->second;
 }
 
 //
-bool oscMemberCatalog::fullReadCatalogObjectWithName(const int objectRefId)
+bool oscCatalogMember::fullReadCatalogObjectWithName(const int objectRefId)
 {
     AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
     if (found == m_availableObjects.end())
@@ -304,7 +304,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const int objectRefId)
                     {
                         obj->initialize(owner->getBase(), NULL, NULL, srcFile);
                         obj->parseFromXML(rootElem, srcFile);
-                        //add objectName and object to oscMemberCatalog map
+                        //add objectName and object to oscCatalogMember map
                         this->emplace(objectRefId, obj);
                         //add sourcFile to vector
                         owner->getBase()->addToSrcFileVec(srcFile);
@@ -335,7 +335,7 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const int objectRefId)
     }
 }
 
-bool oscMemberCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePath)
+bool oscCatalogMember::fullReadCatalogObjectFromFile(const bf::path &fileNamePath)
 {
     bool success = false;
 
@@ -359,7 +359,7 @@ bool oscMemberCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePat
     return success;
 }
 
-bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
+bool oscCatalogMember::addCatalogObject(oscObjectBase *objectBase)
 {
     if (objectBase)
     {
@@ -396,7 +396,7 @@ bool oscMemberCatalog::addCatalogObject(oscObjectBase *objectBase)
     }
 }
 
-bool oscMemberCatalog::addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath)
+bool oscCatalogMember::addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath)
 {
     bool success = false;
 
@@ -412,7 +412,7 @@ bool oscMemberCatalog::addCatalogObject(const int objectRefId, oscObjectBase *ob
                 //add objectRefId and fileName to m_availableObjects
                 if (addObjToAvailableObjectsMap(objectRefId, fileNamePath))
                 {
-                    //add objectRefId and objectPtr to oscMemberCatalog map (objects in memory)
+                    //add objectRefId and objectPtr to oscCatalogMember map (objects in memory)
                     std::pair<ObjectsInMemoryMap::const_iterator, bool> returnValObjInMem = this->emplace(objectRefId, objectBase);
                     if (returnValObjInMem.second == true)
                     {
@@ -442,7 +442,7 @@ bool oscMemberCatalog::addCatalogObject(const int objectRefId, oscObjectBase *ob
     return success;
 }
 
-bool oscMemberCatalog::removeCatalogObject(const int objectRefId)
+bool oscCatalogMember::removeCatalogObject(const int objectRefId)
 {
     ObjectsInMemoryMap::const_iterator found = this->find(objectRefId);
     if (found != this->end())
@@ -457,7 +457,7 @@ bool oscMemberCatalog::removeCatalogObject(const int objectRefId)
     }
 }
 
-oscObjectBase *oscMemberCatalog::getCatalogObject(const int objectRefId)
+oscObjectBase *oscCatalogMember::getCatalogObject(const int objectRefId)
 {
     ObjectsInMemoryMap::const_iterator found = this->find(objectRefId);
     if (found != this->end())
@@ -470,12 +470,12 @@ oscObjectBase *oscMemberCatalog::getCatalogObject(const int objectRefId)
     }
 }
 
-void oscMemberCatalog::deleteOscMemberCatalogMap()
+void oscCatalogMember::deleteoscCatalogMemberMap()
 {
     this->clear();
 }
 
-std::string oscMemberCatalog::getPath(const int objectRefId)
+std::string oscCatalogMember::getPath(const int objectRefId)
 {
 	AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
 	if (found != m_availableObjects.end())
@@ -488,7 +488,7 @@ std::string oscMemberCatalog::getPath(const int objectRefId)
 	}
 }
 
-void oscMemberCatalog::writeCatalogToDOM()
+void oscCatalogMember::writeCatalogToDOM()
 {
 	for (unordered_map<int, oscObjectBase *>::const_iterator it = begin(); it != end(); it++)
 	{
@@ -503,7 +503,7 @@ void oscMemberCatalog::writeCatalogToDOM()
 	}
 }
 
-void oscMemberCatalog::writeCatalogToDisk()
+void oscCatalogMember::writeCatalogToDisk()
 {
 	for (unordered_map<int, oscObjectBase *>::const_iterator it = begin(); it != end(); it++)
 	{
@@ -519,7 +519,7 @@ void oscMemberCatalog::writeCatalogToDisk()
  * private functions
  *****/
 
-oscMemberCatalog::SuccessIntVar oscMemberCatalog::getObjectRefIdFromFile(const bf::path &fileNamePath)
+oscCatalogMember::SuccessIntVar oscCatalogMember::getObjectRefIdFromFile(const bf::path &fileNamePath)
 {
     SuccessIntVar successIntVar = std::make_pair(false, -1);
     OpenScenarioBase *oscBase = new OpenScenarioBase;
@@ -546,7 +546,7 @@ oscMemberCatalog::SuccessIntVar oscMemberCatalog::getObjectRefIdFromFile(const b
     return successIntVar;
 }
 
-oscMemberCatalog::SuccessIntVar oscMemberCatalog::getIntFromIntAttribute(xercesc::DOMAttr *attribute)
+oscCatalogMember::SuccessIntVar oscCatalogMember::getIntFromIntAttribute(xercesc::DOMAttr *attribute)
 {
     SuccessIntVar successIntVar = std::make_pair(false, -1);
     oscMemberValue::MemberTypes memberTypeInt = oscMemberValue::INT;
@@ -563,7 +563,7 @@ oscMemberCatalog::SuccessIntVar oscMemberCatalog::getIntFromIntAttribute(xercesc
     return successIntVar;
 }
 
-int oscMemberCatalog::generateRefId()
+int oscCatalogMember::generateRefId()
 {
 	int refId = 0;
 	ObjectsInMemoryMap::const_iterator found;
