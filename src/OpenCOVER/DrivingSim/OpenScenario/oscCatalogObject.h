@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscCatalogBase.h"
+#include "oscCatalog.h"
 
 
 namespace OpenScenario {
@@ -23,18 +23,18 @@ class OPENSCENARIOEXPORT oscCatalogObject: public oscObjectBase
 public:
     oscCatalogObject()
     {
-        OSC_OBJECT_ADD_MEMBER(vehicleCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(driverCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(observerCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(pedestrianCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(miscObjectCatalog, "oscCatalogBase");
+        OSC_OBJECT_ADD_MEMBER(vehicleCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(driverCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(observerCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(pedestrianCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(miscObjectCatalog, "oscCatalog");
     };
 
-    oscCatalogBaseMemberCatalog vehicleCatalog;
-    oscCatalogBaseMemberCatalog driverCatalog;
-    oscCatalogBaseMemberCatalog observerCatalog;
-    oscCatalogBaseMemberCatalog pedestrianCatalog;
-    oscCatalogBaseMemberCatalog miscObjectCatalog;
+    oscCatalogMember vehicleCatalog;
+    oscCatalogMember driverCatalog;
+    oscCatalogMember observerCatalog;
+    oscCatalogMember pedestrianCatalog;
+    oscCatalogMember miscObjectCatalog;
 };
 
 typedef oscObjectVariable<oscCatalogObject *> oscCatalogObjectMember;
