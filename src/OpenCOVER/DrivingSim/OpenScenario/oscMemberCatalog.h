@@ -63,6 +63,7 @@ public:
     bool addObjToAvailableObjectsMap(const int objectRefId, const bf::path &fileNamePath);
     bool removeObjFromAvailableObjectsMap(const int objectRefId);
     void deleteAvailableObjectsMap();
+	std::string getPath(const int objectRefId);
 
     //oscMemberCatalog map (ObjectsInMemoryMap)
     bool fullReadCatalogObjectWithName(const int objectRefId); ///< read file for given objectRefId, generate the object structure and add object to oscMemberCatalog map
@@ -72,6 +73,16 @@ public:
     bool removeCatalogObject(const int objectRefId); ///< remove object with refId objectRefId from oscMemberCatalog map
     oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from oscMemberCatalog map
     void deleteOscMemberCatalogMap();
+
+	//s_catalogTypeToTypeName
+	std::string getType(const std::string &typeName);
+
+	//generate refId for new object
+	int generateRefId();
+
+	// write all catalog members to catalogs
+	void writeCatalogToDOM();
+	void writeCatalogToDisk();
 
 private:
     typedef std::pair<bool, int> SuccessIntVar;

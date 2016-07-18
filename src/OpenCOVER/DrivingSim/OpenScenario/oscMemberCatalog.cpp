@@ -226,6 +226,11 @@ void oscMemberCatalog::deleteAvailableObjectsMap()
     m_availableObjects.clear();
 }
 
+std::string oscMemberCatalog::getType(const std::string &typeName)
+{
+	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogTypeToTypeName.find(typeName);
+	return it->second;
+}
 
 //
 bool oscMemberCatalog::fullReadCatalogObjectWithName(const int objectRefId)
@@ -470,7 +475,45 @@ void oscMemberCatalog::deleteOscMemberCatalogMap()
     this->clear();
 }
 
+std::string oscMemberCatalog::getPath(const int objectRefId)
+{
+	AvailableObjectsMap::const_iterator found = m_availableObjects.find(objectRefId);
+	if (found != m_availableObjects.end())
+	{
+		return found->second.string();
+	}
+	else
+	{
+		return NULL;
+	}
+}
 
+void oscMemberCatalog::writeCatalogToDOM()
+{
+	for (unordered_map<int, oscObjectBase *>::const_iterator it = begin(); it != end(); it++)
+	{
+		oscObjectBase *objFromCatalog = it->second;
+		if (objFromCatalog)
+		{
+			xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getOrCreateXmlDoc();
+				
+			xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
+			objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
+		}
+	}
+}
+
+void oscMemberCatalog::writeCatalogToDisk()
+{
+	for (unordered_map<int, oscObjectBase *>::const_iterator it = begin(); it != end(); it++)
+	{
+		oscObjectBase *objFromCatalog = it->second;
+		if (objFromCatalog)
+		{
+			objFromCatalog->getSource()->writeFileToDisk();
+		}
+	}
+}
 
 /*****
  * private functions
@@ -518,4 +561,16 @@ oscMemberCatalog::SuccessIntVar oscMemberCatalog::getIntFromIntAttribute(xercesc
     }
 
     return successIntVar;
+}
+
+int oscMemberCatalog::generateRefId()
+{
+	int refId = 0;
+	ObjectsInMemoryMap::const_iterator found;
+	do
+	{
+		found = this->find(++refId);
+	}while(found != this->end());
+
+	return refId;
 }

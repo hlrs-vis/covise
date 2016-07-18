@@ -235,16 +235,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     oscMemberCatalog *cMember = dynamic_cast<oscMemberCatalog *>(member);
                     if(cMember)
                     {
-                        for (unordered_map<int, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
-                        {
-                            oscObjectBase *objFromCatalog = it->second;
-                            if (objFromCatalog)
-                            {
-                                xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
-                                xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
-                                objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
-                            }
-                        }
+						cMember->writeCatalogToDOM();
                     }
                 }
             }
@@ -429,7 +420,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             }
                         }
                     }
-                }
+				}
                 //oscMember
                 //
                 else
