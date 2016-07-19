@@ -3434,6 +3434,10 @@ void ViewerOsg::setModesByName(const char *objectName)
             {
                 applyShader(name+13,NULL,NULL);   
             }
+            else if (strncmp(name, "coShader", 8) == 0)
+            {
+                applyShader(name+8,NULL,NULL);   
+            }
             else if (strncmp(name, "coCgShader", 10) == 0)
             {
 #ifdef HAVE_OSGNV
@@ -3561,7 +3565,7 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
             {
                 if (shader->isTransparent())
                     d_currentObject->transparent = true;
-                if(pGeode != NULL)
+                if(pGeode != NULL && drawable != NULL)
                 {
                     shader->apply(pGeode, drawable);
                 }
@@ -3581,6 +3585,10 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
                         *c = '\0';
                         c++;
                         value = c;
+                        if(c!='\0')
+                        {
+                            c++;
+                        }
                         // search for end of Value
                         while (*c != '\0')
                         {
@@ -3588,9 +3596,6 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
                             {
                                 *c = ' ';
                             }
-                            if (*c == '=')
-                            {
-
                                 while (c != value)
                                 {
                                     if (*c == ' ')
@@ -3614,7 +3619,6 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
                                     }
                                 }
                                 paramName = nextParamName;
-                            }
                             c++;
                         }
                     }
