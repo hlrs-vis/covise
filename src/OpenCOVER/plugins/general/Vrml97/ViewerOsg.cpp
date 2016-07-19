@@ -3585,7 +3585,7 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
                         *c = '\0';
                         c++;
                         value = c;
-                        if(c!='\0')
+                        if(*c!='\0')
                         {
                             c++;
                         }
