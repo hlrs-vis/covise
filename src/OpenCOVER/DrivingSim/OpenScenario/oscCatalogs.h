@@ -39,6 +39,8 @@ public:
     oscCatalogMember maneuverCatalog;
     oscCatalogMember routingCatalog;
     oscUserDataListArrayMember userDataList;
+
+	oscCatalog *getCatalog(const std::string &s);
 };
 
 typedef oscObjectVariable<oscCatalogs *> oscCatalogsMember;

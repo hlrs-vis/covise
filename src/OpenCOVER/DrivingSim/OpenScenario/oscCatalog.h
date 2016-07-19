@@ -37,6 +37,12 @@ namespace OpenScenario {
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscCatalog: public oscObjectBase
 {
+	typedef struct 
+	{
+		bf::path fileName;
+		oscObjectBase *object;
+	} ObjectParams;
+
 public:
     oscCatalog()
     {
@@ -49,38 +55,36 @@ public:
 
 	
     typedef unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> CatalogTypeTypeNameMap;
-    typedef unordered_map<int /*object refId*/, bf::path /*fileName*/> AvailableObjectsMap;
-    typedef unordered_map<int /*object refId*/, oscObjectBase *> ObjectsInMemoryMap; ///< represent the unordered_map from which is oscCatalogMember derived from
+	typedef unordered_map<int, ObjectParams> ObjectsMap; ///< represent the unordered_map of objects
 	
 protected:
     static const CatalogTypeTypeNameMap s_catalogTypeToTypeName; ///< typeName of the objects for catalogType
     std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
-    AvailableObjectsMap m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
-	ObjectsInMemoryMap m_loadedObjects;
+	ObjectsMap m_Objects;
 	
 public:
     //
     std::vector<bf::path> getXoscFilesFromDirectory(const bf::path &pathToDirectory); ///< find xosc file recursively in given directory
-    void fastReadCatalogObjects(const std::vector<bf::path> &filenames); ///< parse files and add objectRefId and filePath to m_availableObjects
+    void fastReadCatalogObjects(const std::vector<bf::path> &filenames); ///< parse files and add objectRefId and filePath to ObjectsMap
 
     //catalogType
     void setCatalogType(const std::string &catalogType);
     std::string getCatalogType() const;
 
-    //m_availableObjects
-    void setAvailableObjectsMap(const AvailableObjectsMap &availableObjects);
-    AvailableObjectsMap getAvailableObjectsMap() const;
-    bool addObjToAvailableObjectsMap(const int objectRefId, const bf::path &fileNamePath);
-    bool removeObjFromAvailableObjectsMap(const int objectRefId);
+    //availableObjects
+    void setObjectsMap(const ObjectsMap &availableObjects);
+    ObjectsMap getObjectsMap() const;
+    bool addObjToObjectsMap(const int objectRefId, const bf::path &fileNamePath, oscObjectBase *object);
+    bool removeObjFromObjectsMap(const int objectRefId);
 	std::string getPath(const int objectRefId);
 
-    //oscCatalogMember map (ObjectsInMemoryMap)
-    bool fullReadCatalogObjectWithName(const int objectRefId); ///< read file for given objectRefId, generate the object structure and add object to oscCatalogMember map
-    bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to m_availableObjects, generate the object structure and add object to oscCatalogMember map
-    bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to m_availableObjects and oscCatalogMember map
-    bool addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath); ///< add objectRefId and fileName to m_availableObjects, add objectRefId and objectPtr to oscCatalogMember map
-    bool removeCatalogObject(const int objectRefId); ///< remove object with refId objectRefId from oscCatalogMember map
-    oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from oscCatalogMember map
+    //ObjectsInMemory
+    bool fullReadCatalogObjectWithName(const int objectRefId); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map
+    bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
+    bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to ObjectsMap
+    bool addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
+    bool removeCatalogObject(const int objectRefId); ///< remove object with refId objectRefId from ObjectsMap
+    oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 
 	//s_catalogTypeToTypeName
 	std::string getType(const std::string &typeName);
