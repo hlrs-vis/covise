@@ -29,7 +29,7 @@ public:
     };
 
     oscString catalogId;
-    oscParameterListTypeBMemberArray parameterList;
+    oscParameterListTypeBArrayMember parameterList;
 };
 
 typedef oscObjectVariable<oscCatalogReferenceTypeA *> oscCatalogReferenceTypeAMember;

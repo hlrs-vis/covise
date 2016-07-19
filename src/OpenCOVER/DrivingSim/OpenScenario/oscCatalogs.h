@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscObjectCatalogs.h"
+#include "oscObjectCatalog.h"
 #include "oscCatalog.h"
 #include "oscUserDataList.h"
 
@@ -25,7 +25,7 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-        OSC_OBJECT_ADD_MEMBER(objectCatalogs, "oscObjectCatalogs");
+        OSC_OBJECT_ADD_MEMBER(objectCatalog, "oscObjectCatalog");
         OSC_OBJECT_ADD_MEMBER(entityCatalog, "oscCatalog");
         OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscCatalog");
         OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscCatalog");
@@ -33,12 +33,12 @@ public:
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
-    oscObjectCatalogsMember objectCatalogs;
+    oscObjectCatalogMember objectCatalog;
     oscCatalogMember entityCatalog;
     oscCatalogMember environmentCatalog;
     oscCatalogMember maneuverCatalog;
     oscCatalogMember routingCatalog;
-    oscUserDataListMemberArray userDataList;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscCatalogs *> oscCatalogsMember;

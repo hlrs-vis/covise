@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_OBJECT_VARIABLE_ARRAY_H
 
 #include "oscExport.h"
-#include "oscMemberArray.h"
+#include "oscArrayMember.h"
 #include "oscObjectVariableBase.h"
 
 
@@ -17,7 +17,7 @@ namespace OpenScenario
 {
 
 template<typename T>
-class OPENSCENARIOEXPORT oscObjectVariableArray : public oscObjectVariableBase<T, oscMemberArray>
+class OPENSCENARIOEXPORT oscObjectVariableArray : public oscObjectVariableBase<T, oscArrayMember>
 {
 
 };

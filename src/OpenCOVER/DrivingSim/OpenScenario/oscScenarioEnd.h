@@ -28,8 +28,8 @@ public:
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
-    oscEndConditionsGroupsTypeAMemberArray endConditionGroups;
-    oscUserDataListMemberArray userDataList;
+    oscEndConditionsGroupsTypeAArrayMember endConditionGroups;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscScenarioEnd *> oscScenarioEndMember;

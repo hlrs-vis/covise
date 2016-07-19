@@ -97,8 +97,8 @@ public:
     MemberOptional getOptional() const;
 
     //
-    bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
-    bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 private:
     void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node

@@ -15,6 +15,7 @@ SET(HEADERS
    oscAdditionalAxles.h
    oscAerodynamics.h
    oscAfterManeuvers.h
+   oscArrayMember.h
    oscAutonomous.h
    oscAxles.h
    oscBehavior.h
@@ -106,8 +107,6 @@ SET(HEADERS
    oscManeuverTypeB.h
    oscManeuverTypeC.h
    oscMember.h
-   oscMemberArray.h
-   oscMemberCatalog.h
    oscMemberValue.h
    oscMirror.h
    oscMirrors.h
@@ -219,6 +218,7 @@ SET(HEADERS
 SET(SOURCES
    OpenScenarioBase.cpp
    oscBody.cpp
+   oscCatalog.cpp
    oscConditionChoiceBase.cpp
    oscConditionChoiceTypeA.cpp
    oscControlPoint.cpp
@@ -226,7 +226,6 @@ SET(SOURCES
    oscLateral.cpp
    oscMember.cpp
    oscMemberArray.cpp
-   oscMemberCatalog.cpp
    oscNamePriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp

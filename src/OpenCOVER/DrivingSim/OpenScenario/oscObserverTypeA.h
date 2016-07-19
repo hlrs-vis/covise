@@ -35,7 +35,7 @@ public:
     oscFileHeaderMember fileHeader;
     oscString type;
     oscFrustumMember frustum;
-    oscFiltersMemberArray filters;
+    oscFiltersArrayMember filters;
 };
 
 typedef oscObjectVariable<oscObserverTypeA *> oscObserverTypeAMember;
