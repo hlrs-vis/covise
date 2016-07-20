@@ -24,6 +24,7 @@ endfunction()
 
 SET(HEADERS
   PointRayTracerGlobals.h
+  PointRayTracerKernel.h
   PointRayTracerPlugin.h
   PointRayTracerDrawable.h
   PointReader.h
