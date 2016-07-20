@@ -51,7 +51,7 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
     // if defined, COVER.IconSize overrides the default
     interSize = coCoviseConfig::getFloat("COVER.IconSize", interSize);
     // if defined, COVERConfigCuttingSurfacePlugin.IconSize overrides both
-    interSize = coCoviseConfig::getFloat("COVER.Plugin.Cuttingsurface.IconSize", interSize) * 10.0;
+    interSize = coCoviseConfig::getFloat("COVER.Plugin.Cuttingsurface.IconSize", interSize);
 
     // extract parameters from covise
     float *p = NULL, *n = NULL;

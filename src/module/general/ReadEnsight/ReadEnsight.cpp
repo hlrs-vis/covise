@@ -504,7 +504,7 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
             objects3d[cnt] = NULL;
 
             // set attribute - realtime
-            for (int i = 0; i < cnt; ++i)
+            for (int i = 0; (i < cnt) && (i < rTimes.size()); ++i)
             {
                 sprintf(ch, "%f", rTimes[i]);
                 objects2d[i]->addAttribute("REALTIME", ch);
@@ -3158,21 +3158,23 @@ ReadEnsight::readData2d(const int &portTok2d,
         {
             coModule::sendInfo("number of time-sets greater than one - COVISE can handle only one time-set");
         }
-
-        vector<float> rTimes(ts[0]->getRealTimes());
-
+        
         objects2d[cnt] = NULL;
-
-        // set attribute - realtime
-        char ch[64];
-        for (int i = 0; i < cnt; ++i)
+        vector<float> rTimes(ts[0]->getRealTimes());
+        if(ts[0]->getRealTimes().size() >= cnt)
         {
-            sprintf(ch, "%f", rTimes[i]);
-            objects2d[i]->addAttribute("REALTIME", ch);
+            // set attribute - realtime
+            char ch[64];
+            for (int i = 0; i < cnt; ++i)
+            {
+                sprintf(ch, "%f", rTimes[i]);
+                objects2d[i]->addAttribute("REALTIME", ch);
+            }
         }
 
         coDoSet *outSet2d = new coDoSet(objNameBase2d.c_str(), (coDistributedObject **)objects2d);
-
+        
+        char ch[64];
         // set attribute - timesteps
         sprintf(ch, "1 %d", cnt);
         string attr(ch);

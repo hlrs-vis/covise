@@ -210,9 +210,9 @@ ts_tval_secc: TIME_VAL ts_tvals
 	     }
 	 }
 
-ts_tvals: DOUBLE
+ts_tvals: ts_tvals DOUBLE
          {
-	     float rt( (float) $<token>1.dVal );
+	     float rt( (float) $<token>2.dVal );
 	     if (actTs_ != NULL) {
 		 actTs_->addRealTimeVal(rt); 
 	     }
@@ -222,9 +222,9 @@ ts_tvals: DOUBLE
 	     }
 	 }
 
-        | ts_tvals DOUBLE
+        | DOUBLE
          {
-	     float rt( (float)$<token>2.dVal );
+	     float rt( (float)$<token>1.dVal );
 	     if (actTs_ != NULL) {
 		 actTs_->addRealTimeVal(rt); 
 	     }
@@ -233,29 +233,7 @@ ts_tvals: DOUBLE
 		 actTs_->addRealTimeVal(rt); 
 	     }
 	 }
-        | INTEGER
-         {
-	     float rt( (float) $<token>1.iVal );
-	     if (actTs_ != NULL) {
-		 actTs_->addRealTimeVal(rt); 
-	     }
-	     else {
-		 actTs_ = caseFile_.getLastTimeSet();
-		 actTs_->addRealTimeVal(rt); 
-	     }
-	 }
-
-        | ts_tvals INTEGER
-         {
-	     float rt( (float) $<token>2.iVal );
-	     if (actTs_ != NULL) {
-		 actTs_->addRealTimeVal(rt); 
-	     }
-	     else {
-		 actTs_ = caseFile_.getLastTimeSet();
-		 actTs_->addRealTimeVal(rt); 
-	     }
-	 }
+	 
 
 
 type_spec: TYPE ENSIGHTV

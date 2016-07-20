@@ -5,7 +5,7 @@
  
 
 
- <LOCAL host="visit,visavis" >
+ <LOCAL HOST="visit,visavis" >
 
   <System>
 
@@ -52,7 +52,7 @@
 
     <Stereo value="off"/>
    <WindowConfig>
-    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" stereo="false" decoration="true" />
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" stereo="false" decoration="true" />
    </WindowConfig>
 
    <ChannelConfig>
@@ -118,7 +118,7 @@
    <DebugLevel value="0" />
    <Stereo value="false" />
    <WindowConfig>
-    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="true" />
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="true" />
    </WindowConfig>
 
   </COVER>

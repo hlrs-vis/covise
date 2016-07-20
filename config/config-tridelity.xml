@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+    <GLOBAL>  
+
+        <COVER>
+            <Stereo value="true" />
+            <NumScreens value="5" />
+            <ScreenConfig>
+                <Screen width="1920" originX="0" originY="0" originZ="0" height="1080" h="0.0" p="0.0" r="0.0" name="0" screen="0" />
+            </ScreenConfig>
+
+            <NumWindows value="1" />
+            <WindowConfig>
+                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" stereo="false" />
+            </WindowConfig>
+
+            <NumChannels value="5" />
+            <ChannelConfig>
+                <Channel name="0" comment="view0" channel="0" stereoMode="MONO" viewerOffset="-60" screenIndex="0" PBOIndex="0" />
+                <Channel name="1" comment="view1" channel="1" stereoMode="MONO" viewerOffset="-30" screenIndex="0" PBOIndex="1" />
+                <Channel name="2" comment="view2" channel="2" stereoMode="MONO" viewerOffset="0" screenIndex="0" PBOIndex="2" />
+                <Channel name="3" comment="view3" channel="3" stereoMode="MONO" viewerOffset="30" screenIndex="0" PBOIndex="3" />
+                <Channel name="4" comment="view4" channel="4" stereoMode="MONO" viewerOffset="60" screenIndex="0" PBOIndex="4" />
+            </ChannelConfig>
+
+            <NumViewports value="1" />
+            <ViewportConfig>
+                <Viewport name="0" windowIndex="0" mode="TridelityML" pboList="0,1,2,3,4" />
+            </ViewportConfig>
+
+            <NumPBOs value="5" />
+            <PBOConfig>
+                <PBO name="0" width="960" height="540" windowIndex="0" />
+                <PBO name="1" width="960" height="540" windowIndex="0" />
+                <PBO name="2" width="960" height="540" windowIndex="0" />
+                <PBO name="3" width="960" height="540" windowIndex="0" />
+                <PBO name="4" width="960" height="540" windowIndex="0" />
+            </PBOConfig>
+
+            <Input>
+                <MouseNav value="true" />
+                <Device>
+                </Device>
+
+                <Body>
+                    <CaveHead>
+                        <Offset x="-0" y="-2000" z="-0" />
+                        <Orientation h="0" p="0" r="0" />
+                    </CaveHead>
+
+                    <CaveHand>
+                        <Offset x="0" y="-0" z="0" />
+                        <Orientation h="0" p="0" r="0" />
+                    </CaveHand>
+                </Body>
+
+                <Buttons>
+                    <CaveMouse device="DTrackCave" >
+                        <Map name="0" value="ACTION_BUTTON" />
+                        <Map name="1" value="XFORM_BUTTON" />
+                        <Map name="2" value="MENU_BUTTON" />
+                        <Map name="3" value="DRIVE_BUTTON" />
+                    </CaveMouse>
+                </Buttons>
+
+                <Persons>
+                    <Person name="Fixed" head="CaveHead" buttons="CaveMouse" eyeDistance="60" />
+                </Persons>
+            </Input> 
+
+        </COVER>
+    </GLOBAL>
+
+    <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+</COCONFIG>
+

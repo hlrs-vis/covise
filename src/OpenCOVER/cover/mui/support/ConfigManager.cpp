@@ -284,14 +284,19 @@ void ConfigManager::preparePos(std::pair<int,int> pos, std::string parentUniqueI
 void ConfigManager::setAutoassignedPos(std::pair<int,int> pos, std::string elementIdentifier, std::string parentUniqueIdentifier)
 {
     deletePosFromPosList(elementIdentifier);
-    if (isElementContainer(elementIdentifier))
+    if (!getElementByIdentifier(elementIdentifier))
+    {
+        std::cerr << "ERROR: ConfigManager::setAutoassignedPos(): " << elementIdentifier << " does not exist" << std::endl;
+    }
+    else if (isElementContainer(elementIdentifier))
     {
         getElementByIdentifier(elementIdentifier)->getTUI()->setPos(pos.first,pos.second);         // Element neu positionieren
     }
     else if(!isElementContainer(elementIdentifier))
     {
         getElementByIdentifier(elementIdentifier)->getTUI()->setPos(pos.first,pos.second);            // Element neu positionieren
-    }else
+    }
+    else
     {
         std::cerr << "ERROR: ConfigManager::setAutoassignedPos(): " << elementIdentifier << " is no Widget or Container" << std::endl;
     }

@@ -570,19 +570,53 @@ void RevitPlugin::message(int type, int len, const void *buf)
     else if (type == PluginMessageTypes::MoveMoveNodeFinished)
     {
         MoveFinished=true;
-	std::string path;
+        std::string path;
         TokenBuffer tb((const char *)buf, len);
         tb >> path;
         tb >> path;
+
+        osg::Node *selectedNode = coVRSelectionManager::validPath(path);
+        if(selectedNode)
+        {
+            info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+            if(info)
+            {
+                osg::Matrix m;
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        tb >> m(i, j);
+                osg::Matrix currentBaseMat, dcsMat;
+                osg::Group* currentNode = selectedNode->getParent(0);
+                currentBaseMat.makeIdentity();
+                while (currentNode != NULL && currentNode != revitGroup)
+                {
+                    if (dynamic_cast<osg::MatrixTransform *>(currentNode))
+                    {
+                        dcsMat = ((osg::MatrixTransform *)currentNode)->getMatrix();
+                        currentBaseMat.postMult(dcsMat);
+                    }
+                    if (currentNode->getNumParents() > 0)
+                        currentNode = currentNode->getParent(0);
+                    else
+                        currentNode = NULL;
+                }
+                currentBaseMat(3,0)=0;
+                currentBaseMat(3,1)=0;
+                currentBaseMat(3,2)=0;
+                m = m* currentBaseMat;
                 TokenBuffer stb;
                 stb << MovedID;
-                stb << -(double)lastMoveMat.getTrans().x();
-                stb << (double)lastMoveMat.getTrans().y();
-                stb << (double)lastMoveMat.getTrans().z();
+                stb << (double)m.getTrans().x();
+                stb << (double)m.getTrans().y();
+                stb << (double)m.getTrans().z();
 
                 Message message(stb);
                 message.type = (int)RevitPlugin::MSG_SetTransform;
                 RevitPlugin::instance()->sendMessage(message);
+
+            }
+        }
+
     }
     else if (type == PluginMessageTypes::AnnotationMessage) // An AnnotationMessage has been received
     {
@@ -1408,7 +1442,6 @@ RevitPlugin::preFrame()
             static double lastTime = 0;
             if(cover->frameTime() > lastTime+4)
             {
-                lastTime = cover->frameTime();
                 TokenBuffer stb;
 
                 osg::Matrix mat = cover->getXformMat();
@@ -1434,6 +1467,12 @@ RevitPlugin::preFrame()
                 rotMat.invert(irotMat);
                 mat.postMult(rotMat);
                 osg::Vec3 eyePos = mat.getTrans();
+                static osg::Vec3 oldEyePos(0,0,0);
+                if((eyePos - oldEyePos).length() > 0.3) // if distance to old pos > 30cm
+                {
+                    oldEyePos = eyePos;
+                    lastTime = cover->frameTime();
+
                 double eyePosition[3];
                 double viewDirection[3];
                 eyePosition[0] = -eyePos[0]/0.3048;
@@ -1454,6 +1493,7 @@ RevitPlugin::preFrame()
                 Message message(stb);
                 message.type = (int)RevitPlugin::MSG_AvatarPosition;
                 RevitPlugin::instance()->sendMessage(message);
+                }
             }
         }
         while (toRevit && toRevit->check_for_input())

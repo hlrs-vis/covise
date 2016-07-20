@@ -6,11 +6,9 @@
  * License: LGPL 2+ */
 
 #ifndef __coMaterial_H
-
 #define __coMaterial_H
 
-//#include "util/coFileUtil.h"
-#include "util/coLinkList.h"
+#include <vector>
 
 class coMaterial
 {
@@ -27,7 +25,7 @@ public:
     ~coMaterial();
 };
 
-class coMaterialList : public coLinkList<coMaterial *>
+class coMaterialList : public std::vector<coMaterial *>
 {
 public:
     coMaterialList(const char *);

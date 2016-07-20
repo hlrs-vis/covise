@@ -376,6 +376,16 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoVec2 *vector_data = (coDoVec2 *)co;
                 size = vector_data->getNumPoints();
                 vector_data->getAddresses(&farr[0], &farr[1]);
+                if (const char *min = vector_data->getAttribute("MIN"))
+                {
+                    std::stringstream s(min);
+                    s >> min_[0] >> min_[1];
+                }
+                if (const char *max = vector_data->getAttribute("MAX"))
+                {
+                    std::stringstream s(max);
+                    s >> max_[0] >> max_[1];
+                }
                 if (cluster)
                 {
                     addInt(size);
@@ -388,6 +398,16 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoVec3 *normal_data = (coDoVec3 *)co;
                 size = normal_data->getNumPoints();
                 normal_data->getAddresses(&farr[0], &farr[1], &farr[2]);
+                if (const char *min = normal_data->getAttribute("MIN"))
+                {
+                    std::stringstream s(min);
+                    s >> min_[0] >> min_[1] >> min_[2];
+                }
+                if (const char *max = normal_data->getAttribute("MAX"))
+                {
+                    std::stringstream s(max);
+                    s >> max_[0] >> max_[1] >> max_[2];
+                }
                 if (cluster)
                 {
                     addInt(size);
@@ -444,6 +464,16 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoFloat *volume_sdata = (coDoFloat *)co;
                 size = volume_sdata->getNumPoints();
                 volume_sdata->getAddress(&farr[0]);
+                if (const char *min = volume_sdata->getAttribute("MIN"))
+                {
+                    std::stringstream s(min);
+                    s >> min_[0];
+                }
+                if (const char *max = volume_sdata->getAttribute("MAX"))
+                {
+                    std::stringstream s(max);
+                    s >> max_[0];
+                }
                 if (cluster)
                 {
                     addInt(size);
@@ -680,17 +710,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
             memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
-        else if (strcmp(type, "USTVDT") == 0)
-        {
-            copyInt(size);
-            farr[0] = new float[size];
-            farr[1] = new float[size];
-            farr[2] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-        }
-        else if (strcmp(type, "STRVDT") == 0)
+        else if (strcmp(type, "USTVDT") == 0 || strcmp(type, "STRVDT") == 0)
         {
             copyInt(size);
             farr[0] = new float[size];
@@ -726,13 +746,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             barr[0] = new unsigned char[size];
             memcpy(barr[0], tb.getBinary(size), size);
         }
-        else if (strcmp(type, "STRSDT") == 0)
-        {
-            copyInt(size);
-            farr[0] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-        }
-        else if (strcmp(type, "USTSDT") == 0)
+        else if (strcmp(type, "STRSDT") == 0 || strcmp(type, "USTSDT") == 0)
         {
             copyInt(size);
             farr[0] = new float[size];

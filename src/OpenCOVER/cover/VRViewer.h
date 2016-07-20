@@ -76,24 +76,16 @@ public:
 
     void setClearColor(const osg::Vec4 &color);
     void setRenderToTexture(bool);
-    osg::Texture2D *getTexture()
-    {
-        return renderTargetTexture;
-    };
     void flipStereo();
 
 private:
     MSEventHandler *myeh;
 
     // stereo parameters
-    int isQuadbufferStereo;
     char stereoCommand[500];
     char monoCommand[500];
-    int stereoMode, oldMode; // MONO, RE_STEREO, IMPACT_STEREO, TB_STEREO
-    int stereoModeChange;
     double lastFrameTime;
 
-    float optDist, dist;
     virtual void renderingTraversals();
 
     // view
@@ -102,9 +94,6 @@ private:
     osg::Vec3 leftViewPos, rightViewPos, middleViewPos;
     osg::Matrix viewMat;
     osgViewer::StatsHandler *statsHandler;
-
-    osg::Texture2D *renderTargetTexture;
-    bool RenderToTexture;
 
     angleStruct *screen_angle; // Screen angle: IWR movable screen
 
@@ -124,7 +113,7 @@ private:
     bool overwritePAndV;
     bool reEnableCulling;
     
-    osg::Geode *distortionMesh(const char *fileName);
+    osg::Geometry *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
     void createBlendingCameras(int i);
     float requestedSeparation, separation;

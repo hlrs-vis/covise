@@ -28,7 +28,7 @@ if(APPLE)
 endif(APPLE)
 
 TARGET_LINK_LIBRARIES(tabletUI coNet coCore coUtil coConfig ${EXTRA_LIBS})
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
   set_property(TARGET tabletUI PROPERTY WIN32_EXECUTABLE true)
 endif()
 

@@ -65,6 +65,7 @@ private:
     coChoiceParam *p_bounding_box; //
     coFloatVectorParam *p_P1bound_manual; //
     coFloatVectorParam *p_P2bound_manual; //
+    coFloatVectorParam *p_rangeMin, *p_rangeMax;
 
     coFloatParam *fillValueParam; // if outside is number
     coFloatParam *epsParam; // eps covers numerical problems

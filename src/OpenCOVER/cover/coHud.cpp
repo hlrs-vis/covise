@@ -163,6 +163,7 @@ coHud::coHud()
     }
 
     camera = new osg::Camera;
+    camera->setName("HUD");
 
     int projx, projy;
     if (width > 1024)

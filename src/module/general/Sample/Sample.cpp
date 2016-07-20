@@ -89,6 +89,11 @@ Sample::Sample(int argc, char *argv[])
     epsParam = addFloatParam("eps", "small value to cover numerical problems");
     epsParam->setValue(0.0);
 
+    p_rangeMin = addFloatVectorParam("range_min", "range of sampled data (MIN attribute)");
+    p_rangeMin->setValue(0., 0., 0.);
+    p_rangeMax = addFloatVectorParam("range_max", "range of sampled data (MAX attribute)");
+    p_rangeMax->setValue(1., 1., 1.);
+
     // add an input port for 'coDoUnstructuredGrid' objects
     Grid_In_Port = addInputPort("GridIn", "UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid|Points", "Grid input");
     Data_In_Port = addInputPort("DataIn", "Float|Vec3", "Data input");
@@ -495,9 +500,9 @@ Sample::compute(const char *)
                         {
                             typeFlag = unstruct_grid::VECTOR;
                         }
-                        else
+                        else if (typeFlag != unstruct_grid::VECTOR)
                         {
-                            sendError("Cannot decide between vector, scalar, and point");
+                            sendError("Cannot decide between vector, scalar, and point 1: typeFlag was %d", typeFlag);
                             return FAIL;
                         }
                     }
@@ -508,9 +513,9 @@ Sample::compute(const char *)
                         {
                             typeFlag = unstruct_grid::SCALAR;
                         }
-                        else
+                        else if (typeFlag != unstruct_grid::SCALAR)
                         {
-                            sendError("Cannot decide between vector, scalar, and point");
+                            sendError("Cannot decide between vector, scalar, and point 2: typeFlag was %d", typeFlag);
                             return FAIL;
                         }
                     }
@@ -520,9 +525,9 @@ Sample::compute(const char *)
                         {
                             typeFlag = unstruct_grid::POINT;
                         }
-                        else
+                        else if (typeFlag != unstruct_grid::POINT)
                         {
-                            sendError("Cannot decide between vector, scalar, and point");
+                            sendError("Cannot decide between vector, scalar, and point 3: typeFlag was %d", typeFlag);
                             return FAIL;
                         }
                     }
@@ -540,9 +545,9 @@ Sample::compute(const char *)
                     {
                         typeFlag = unstruct_grid::SCALAR;
                     }
-                    else if (typeFlag == unstruct_grid::VECTOR)
+                    else if (typeFlag != unstruct_grid::SCALAR)
                     {
-                        sendError("Cannot decide between vector and scalar");
+                        sendError("Cannot decide between vector and scalar 4: typeflag was %d", typeFlag);
                         return FAIL;
                     }
                 }
@@ -556,7 +561,7 @@ Sample::compute(const char *)
                     }
                     else if (typeFlag != unstruct_grid::VECTOR)
                     {
-                        sendError("Cannot decide between vector and scalar");
+                        sendError("Cannot decide between vector and scalar 5: typeFlag was %d", typeFlag);
                         return FAIL;
                     }
                 }
@@ -570,7 +575,7 @@ Sample::compute(const char *)
                     }
                     else if (typeFlag != unstruct_grid::POINT)
                     {
-                        sendError("Cannot decide between vector, scalar and point");
+                        sendError("Cannot decide between vector, scalar and point 6: typeFlag was %d", typeFlag);
                         return FAIL;
                     }
                 }
@@ -909,6 +914,23 @@ Sample::compute(const char *)
             usg[time]->addAttribute("DataObjectName", (*ndata)->getName());
 
             str[time]->copyAllAttributes((*ndata) /*sdata[time][0] */);
+            std::stringstream smin, smax;
+            if (typeFlag == unstruct_grid::SCALAR)
+            {
+                smin << p_rangeMin->getValue(0);
+                smax << p_rangeMax->getValue(0);
+            }
+            else if (typeFlag == unstruct_grid::VECTOR)
+            {
+                smin << p_rangeMin->getValue(0) << " " << p_rangeMin->getValue(1) << " " << p_rangeMin->getValue(2);
+                smax << p_rangeMax->getValue(0) << " " << p_rangeMax->getValue(1) << " " << p_rangeMax->getValue(2);
+            }
+            std::string min = smin.str();
+            if (!min.empty())
+                str[time]->addAttribute("MIN", min.c_str());
+            std::string max = smax.str();
+            if (!max.empty())
+                str[time]->addAttribute("MAX", max.c_str());
         }
 
         delete calc_grid;

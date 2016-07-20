@@ -193,8 +193,8 @@ bool Move::init()
     tiefeEdit->setValue(0.0);
     //ScaleField->setValue(1);
     allowX->setState(true);
-    allowY->setState(false);
-    allowZ->setState(true);
+    allowY->setState(true);
+    allowZ->setState(false);
     allowH->setState(false);
     allowP->setState(false);
     allowR->setState(true);
@@ -229,12 +229,12 @@ bool Move::init()
     moveToggle = new coCheckboxMenuItem("Move", false);
     showNames = new coCheckboxMenuItem("Display Names", false);
     movex = new coCheckboxMenuItem("X", true);
-    movey = new coCheckboxMenuItem("Y", false);
-    movez = new coCheckboxMenuItem("Z", true);
+    movey = new coCheckboxMenuItem("Y", true);
+    movez = new coCheckboxMenuItem("Z", false);
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local", false);
+    local = new coCheckboxMenuItem("local coords", true);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
@@ -579,6 +579,7 @@ void Move::preFrame()
             mat.makeIdentity();
             osg::Node *currentNode;
             currentNode = node;
+            startPickPos = cover->getIntersectionHitPointWorld();
             //cerr << "test: " << node << endl;
             //cerr << "lev: " << level << endl;
             while (currentNode != NULL)
@@ -795,6 +796,7 @@ void Move::preFrame()
         if (interactionA->isRunning() && (moveDCS != NULL))
         { // ongoing interaction (left mousebutton)
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
+
             moveMat.mult(invStartHandMat, cover->getPointerMat());
 
             if (moveDCS->getNumParents() > 0)
@@ -821,7 +823,17 @@ void Move::preFrame()
             // frei
             if (!local->getState())
             {
-                restrict(moveMat, true, false);
+                coCoord coord = moveMat;
+                coord.xyz[0] = coord.xyz[1] = coord.xyz[2] = 0;
+                osg::Matrix rotMat;
+                coord.makeMat(rotMat);
+                restrict(rotMat, true, false);
+                
+                osg::Vec3 newPickPos = startPickPos * moveMat;
+                osg::Matrix transMat = osg::Matrix::translate(newPickPos - startPickPos);
+                restrict(transMat, true, false);
+                moveMat = transMat * rotMat;
+
             }
 
             tmpMat.mult(startCompleteMat, moveMat);
@@ -871,7 +883,7 @@ void Move::preFrame()
             }
             else
             {
-                if ((cover->frameTime() - startTime) > 1)
+                if ((cover->frameTime() - startTime) > 0.3)
                     allowMove = true;
             }
         }
@@ -944,12 +956,12 @@ void Move::preFrame()
                     double angle, x, y, z;
                     quat.getRotate(angle, x, y, z);
                     cerr << "translation " << Trans[0] << " " << Trans[1] << " " << Trans[2] << endl;
-                    cerr << "rotation " << x << " " << y << " " << z << " " << (angle / 180.0) * M_PI << endl;
+                    cerr << "rotation " << x << " " << y << " " << z << " " << angle << " (deg: " << angle*180.0/M_PI << ")" << endl;
                 }
             }
             else
             {
-                if ((cover->frameTime() - startTime) > 1)
+                if ((cover->frameTime() - startTime) > 0.3)
                     allowMove = true;
             }
         }

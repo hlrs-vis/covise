@@ -12,6 +12,8 @@
 
 #include <vector>
 
+#include <boost/make_shared.hpp>
+
 #include "VolumePlugin.h"
 
 #include <util/common.h>
@@ -42,6 +44,7 @@
 
 #include <cover/VRViewer.h>
 
+#include "coClipSphere.h"
 #include "coDefaultFunctionEditor.h"
 #include "coPinEditor.h"
 #include <cover/RenderObject.h>
@@ -405,6 +408,7 @@ bool VolumePlugin::init()
 
     // Initializations:
     plugin = this;
+    showClipOutlines = true;
     lastRoll = 0.0;
     roiMode = false;
     unregister = false;
@@ -416,6 +420,9 @@ bool VolumePlugin::init()
     currentQuality = 1.;
     chosenFPS = INITIAL_FPS;
     allVolumesActive = true;
+    radiusScale[0] = INITIAL_CLIP_SPHERE_RADIUS;
+    radiusScale[1] = INITIAL_CLIP_SPHERE_RADIUS;
+    radiusScale[2] = INITIAL_CLIP_SPHERE_RADIUS;
 
     interactionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "ROIMode", coInteraction::Menu);
     interactionB = new coCombinedButtonInteraction(coInteraction::ButtonB, "ROIMode", coInteraction::Menu);
@@ -491,13 +498,17 @@ bool VolumePlugin::init()
     filesMenu.reset(new coRowMenu("Files", volumeMenu.get()));
     filesItem->setMenu(filesMenu.get());
 
+    clipItem.reset(new coSubMenuItem("Clipping..."));
+    clipMenu.reset(new coRowMenu("Clipping", volumeMenu.get()));
+    clipItem->setMenu(clipMenu.get());
+    volumeMenu->add(clipItem.get());
+
     unloadItem.reset(new coButtonMenuItem("Unload Current File"));
     filesMenu->add(unloadItem.get());
     tfeItem.reset(new coButtonMenuItem("Display TFE"));
     ROIItem.reset(new coCheckboxMenuItem("Region of Interest", false));
     cropItem.reset(new coButtonMenuItem("Crop to ROI"));
     saveItem.reset(new coButtonMenuItem("Save Volume"));
-    clipModeItem.reset(new coCheckboxMenuItem("Opaque Clipping", false));
     fpsItem.reset(new coSliderMenuItem("Frame Rate", 5.0, 60.0, chosenFPS));
     boundItem.reset(new coCheckboxMenuItem("Boundaries", false));
     interpolItem.reset(new coCheckboxMenuItem("Interpolation", false));
@@ -527,12 +538,39 @@ bool VolumePlugin::init()
     blendModeMenu->add(minIntensityItem.get());
     blendModeMenu->add(maxIntensityItem.get());
 
+    // Create clipping menu
+
+    clipModeItem.reset(new coCheckboxMenuItem("Opaque Clipping", false));
+    clipOutlinesItem.reset(new coCheckboxMenuItem("Show Box Intersections", true));
+    clipSphereActive0Item.reset(new coCheckboxMenuItem("ClipSphere 0 enable", false));
+    clipSphereInteractorActive0Item.reset(new coCheckboxMenuItem("ClipSphere 0 Interactor", false));
+    clipSphereRadius0Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[0]));
+    clipSphereActive1Item.reset(new coCheckboxMenuItem("ClipSphere 1 enable", false));
+    clipSphereInteractorActive1Item.reset(new coCheckboxMenuItem("ClipSphere 1 Interactor", false));
+    clipSphereRadius1Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[1]));
+    clipSphereActive2Item.reset(new coCheckboxMenuItem("ClipSphere 2 enable", false));
+    clipSphereInteractorActive2Item.reset(new coCheckboxMenuItem("ClipSphere 2 Interactor", false));
+    clipSphereRadius2Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[2]));
+
+    // Set event listeners
+
     filesItem->setMenuListener(this);
+    clipItem->setMenuListener(this);
     blendModeItem->setMenuListener(this);
     ROIItem->setMenuListener(this);
     unloadItem->setMenuListener(this);
 
     clipModeItem->setMenuListener(this);
+    clipOutlinesItem->setMenuListener(this);
+    clipSphereActive0Item->setMenuListener(this);
+    clipSphereInteractorActive0Item->setMenuListener(this);
+    clipSphereRadius0Item->setMenuListener(this);
+    clipSphereActive1Item->setMenuListener(this);
+    clipSphereInteractorActive1Item->setMenuListener(this);
+    clipSphereRadius1Item->setMenuListener(this);
+    clipSphereActive2Item->setMenuListener(this);
+    clipSphereInteractorActive2Item->setMenuListener(this);
+    clipSphereRadius2Item->setMenuListener(this);
     preintItem->setMenuListener(this);
     preintItem->setState(false);
     lightingItem->setMenuListener(this);
@@ -561,7 +599,6 @@ bool VolumePlugin::init()
     volumeMenu->add(cropItem.get());
     volumeMenu->add(saveItem.get());
 
-    volumeMenu->add(clipModeItem.get());
     volumeMenu->add(interpolItem.get());
     volumeMenu->add(blendModeItem.get());
     volumeMenu->add(preintItem.get());
@@ -575,6 +612,24 @@ bool VolumePlugin::init()
     volumeMenu->add(currentVolumeItem.get());
     volumeMenu->add(sideBySideItem.get());
     volumeMenu->add(allVolumesActiveItem.get());
+
+    clipMenu->add(clipModeItem.get());
+    clipMenu->add(clipOutlinesItem.get());
+    clipMenu->add(clipSphereActive0Item.get());
+    clipMenu->add(clipSphereInteractorActive0Item.get());
+    clipMenu->add(clipSphereRadius0Item.get());
+    clipMenu->add(clipSphereActive1Item.get());
+    clipMenu->add(clipSphereInteractorActive1Item.get());
+    clipMenu->add(clipSphereRadius1Item.get());
+    clipMenu->add(clipSphereActive2Item.get());
+    clipMenu->add(clipSphereInteractorActive2Item.get());
+    clipMenu->add(clipSphereRadius2Item.get());
+
+    // Initialize clip spheres
+    for (int i = 0; i < NumClipSpheres; ++i)
+    {
+        clipSpheres.push_back(boost::make_shared<coClipSphere>());
+    }
 
     // Read volume file entries from covise.config:
     covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.Volume.Files");
@@ -1182,8 +1237,16 @@ void VolumePlugin::addObject(RenderObject *container,
 
             int noChan = 0;
 
+            float min[Field::NumChannels], max[Field::NumChannels], irange[Field::NumChannels];
             for (int c = Field::Channel0; c < Field::NumChannels; ++c)
             {
+                min[c] = colorObj->getMin(c);
+                max[c] = colorObj->getMax(c);
+                if (max[c] - min[c] <= 0.f)
+                    irange[c] = 1.f;
+                else
+                    irange[c] = 1.f/(max[c] - min[c]);
+
                 byteChannels[c] = colorObj->getByte((Field::Id)c);
                 if (byteChannels[c])
                     have_byte_chans = true;
@@ -1241,7 +1304,7 @@ void VolumePlugin::addObject(RenderObject *container,
                                 }
                                 else if (floatChannels[c])
                                 {
-                                    *p++ = (uchar)(floatChannels[c][i] * 255.99);
+                                    *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                                 }
                             }
                         }
@@ -1261,9 +1324,9 @@ void VolumePlugin::addObject(RenderObject *container,
                         {
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)(red[i] * 255.99);
-                            *p++ = (uchar)(green[i] * 255.99);
-                            *p++ = (uchar)(blue[i] * 255.99);
+                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                            *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+                            *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
                         }
                     }
                 }
@@ -1281,8 +1344,8 @@ void VolumePlugin::addObject(RenderObject *container,
                         {
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)(red[i] * 255.99);
-                            *p++ = (uchar)(green[i] * 255.99);
+                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                            *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
                         }
                     }
                 }
@@ -1300,7 +1363,7 @@ void VolumePlugin::addObject(RenderObject *container,
                         {
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)(red[i] * 255.99);
+                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
                         }
                     }
                 }
@@ -1358,7 +1421,7 @@ void VolumePlugin::addObject(RenderObject *container,
                 volDesc->real[c][0] = colorObj->getMin(c);
                 volDesc->real[c][1] = colorObj->getMax(c);
 
-                if (volDesc->real[c][1] == 0)
+                if (volDesc->real[c][1] == 0 && volDesc->real[c][0] == 0)
                     volDesc->real[c][1] = 1.0f;
             }
 
@@ -1760,6 +1823,29 @@ void VolumePlugin::preFrame()
         fprintf(stderr, "no editor\n");
     }
 
+
+    typedef std::vector<boost::shared_ptr<coClipSphere> >::iterator SphereIt;
+    {
+        virvo::VolumeDrawable *drawable = getCurrentDrawable();
+        for (SphereIt it = clipSpheres.begin(); it != clipSpheres.end(); ++it)
+        {
+            boost::shared_ptr<coClipSphere> sphere = *it;
+            if (drawable && sphere->active() && !sphere->valid())
+            {
+                // If this clip sphere is activated for the first time,
+                // start out at the min corner of the volume's bounding box
+                osg::Vec3 min_corner;
+                osg::Vec3 max_corner;
+                drawable->getBoundingBox(&min_corner, &max_corner);
+                osg::Matrix transform = osg::Matrix::translate(min_corner);
+                (void)max_corner;
+                sphere->setMatrix(transform);
+                sphere->setValid(true);
+            }
+            sphere->preFrame();
+        }
+    }
+
     // Measure fps:
     double end = cover->frameTime();
     float fps = INITIAL_FPS;
@@ -1901,45 +1987,74 @@ void VolumePlugin::preFrame()
 
         if (drawable)
         {
-            bool clip = cover->isClippingOn() && drawable->have3DTextures();
+            typedef vvRenderState::ParameterType PT;
 
-            StateSet *state = drawable->getOrCreateStateSet();
-            int activeClipPlane = -1;
-            if (clip)
+            int maxClipPlanes = drawable->getMaxClipPlanes();
+            int numClipPlanes = 0;
+
+            if (cover->isClippingOn())
             {
+                StateSet *state = drawable->getOrCreateStateSet();
                 ClipNode *cn = cover->getObjectsRoot();
-                for (unsigned int i = 0; i < cn->getNumClipPlanes(); ++i)
+                for (unsigned int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
                 {
-                    if (activeClipPlane == -1)
-                        activeClipPlane = i;
                     ClipPlane *cp = cn->getClipPlane(i);
-                    if (cp->getClipPlaneNum() == cover->getActiveClippingPlane())
-                    {
-                        activeClipPlane = i;
-                    }
-                    else
-                    {
-                        state->removeMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum());
-                    }
-                }
-                if (activeClipPlane >= 0)
-                {
-                    ClipPlane *cp = cn->getClipPlane(activeClipPlane);
                     Vec4 v = cp->getClipPlane();
-                    float d = v[3];
-                    //Plane plane(v);
-                    Vec3 normal(v[0], v[1], v[2]);
-                    normal.normalize();
-                    Vec3 point = normal * -d;
-                    //fprintf(stderr, "clip point: (%f %f %f), normal: (%f %f %f)\n", point[0], point[1], point[2], normal[0], normal[1], normal[2]);
 
-                    drawable->setClipPoint(point);
-                    drawable->setClipDirection(normal);
+                    boost::shared_ptr<vvClipPlane> plane = vvClipPlane::create();
+                    plane->normal = virvo::vec3(-v.x(), -v.y(), -v.z());
+                    plane->offset = v.w();
+
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
+
                     state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+
+                    ++numClipPlanes;
+                }
+
+                drawable->setStateSet(state);
+            }
+
+            // Get bounding box diagonal to determine clip sphere radius
+            osg::Vec3 minCorner;
+            osg::Vec3 maxCorner;
+            drawable->getBoundingBox(&minCorner, &maxCorner);
+            osg::Vec3 diagonal = maxCorner - minCorner;
+
+            int numClipSpheres = 0;
+            SphereIt it = clipSpheres.begin();
+            int objId = numClipPlanes;
+            for (int i = numClipPlanes; i < maxClipPlanes && it != clipSpheres.end(); ++i, ++it)
+            {
+                if ((*it)->active())
+                {
+                    osg::Vec3 center = (*it)->getPosition();
+                    boost::shared_ptr<vvClipSphere> sphere = vvClipSphere::create();
+                    sphere->center = virvo::vec3(center.x(), center.y(), center.z());
+                    sphere->radius = diagonal.length() * 0.5f * radiusScale[i - numClipPlanes];
+
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + objId), sphere);
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + objId), true);
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
+
+                    ++objId;
+                    ++numClipSpheres;
                 }
             }
-            drawable->setClipping(activeClipPlane >= 0);
-            drawable->setStateSet(state);
+
+            int numClipObjs = numClipPlanes + numClipSpheres;
+
+            // Disable all clip objects that are not used
+            for (PT i = PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + numClipObjs);
+                    i != vvRenderState::VV_CLIP_OBJ_ACTIVE_LAST;
+                    i = PT(i + 1))
+            {
+                drawable->setParameter(i, false);
+            }
+
+            drawable->setParameter(vvRenderState::VV_FOCUS_CLIP_OBJ, cover->getActiveClippingPlane());
         }
     }
 
@@ -2200,6 +2315,56 @@ void VolumePlugin::menuEvent(coMenuItem *item)
     if (item == ROIItem.get())
     {
         setROIMode(ROIItem->getState());
+    }
+
+    else if (item == clipOutlinesItem.get())
+    {
+        showClipOutlines = clipOutlinesItem->getState();
+    }
+
+    else if (item == clipSphereActive0Item.get())
+    {
+        clipSpheres.at(0)->setActive(clipSphereActive0Item->getState());
+    }
+
+    else if (item == clipSphereInteractorActive0Item.get())
+    {
+        clipSpheres.at(0)->setInteractorActive(clipSphereInteractorActive0Item->getState());
+    }
+
+    else if (item == clipSphereRadius0Item.get())
+    {
+        radiusScale[0] = clipSphereRadius0Item->getValue();
+    }
+
+    else if (item == clipSphereActive1Item.get())
+    {
+        clipSpheres.at(1)->setActive(clipSphereActive1Item->getState());
+    }
+
+    else if (item == clipSphereInteractorActive1Item.get())
+    {
+        clipSpheres.at(1)->setInteractorActive(clipSphereInteractorActive1Item->getState());
+    }
+
+    else if (item == clipSphereRadius1Item.get())
+    {
+        radiusScale[1] = clipSphereRadius1Item->getValue();
+    }
+
+    else if (item == clipSphereActive2Item.get())
+    {
+        clipSpheres.at(2)->setActive(clipSphereActive2Item->getState());
+    }
+
+    else if (item == clipSphereInteractorActive2Item.get())
+    {
+        clipSpheres.at(2)->setInteractorActive(clipSphereInteractorActive2Item->getState());
+    }
+
+    else if (item == clipSphereRadius2Item.get())
+    {
+        radiusScale[2] = clipSphereRadius2Item->getValue();
     }
 
     else if (item == fpsItem.get())

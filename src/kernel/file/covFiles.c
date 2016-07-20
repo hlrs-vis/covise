@@ -1063,12 +1063,21 @@ int covIoRCTGRD(int fd, int mode, int *xsize, int *ysize, int *zsize, float *x, 
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, x, *xsize);
-        SWAP_FLOAT(fd, x, *xsize);
-        COV_READ_FLOAT(fd, y, *ysize);
-        SWAP_FLOAT(fd, y, *ysize);
-        COV_READ_FLOAT(fd, z, *zsize);
-        SWAP_FLOAT(fd, z, *zsize);
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, x, *xsize);
+            COV_SKIP_FLOAT(fd, y, *ysize);
+            COV_SKIP_FLOAT(fd, z, *zsize);
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, x, *xsize);
+            SWAP_FLOAT(fd, x, *xsize);
+            COV_READ_FLOAT(fd, y, *ysize);
+            SWAP_FLOAT(fd, y, *ysize);
+            COV_READ_FLOAT(fd, z, *zsize);
+            SWAP_FLOAT(fd, z, *zsize);
+        }
     }
     else
     {
@@ -1098,6 +1107,11 @@ int covReadRCTGRD(int fd, int xsize, int ysize, int zsize, float *x, float *y, f
     return covIoRCTGRD(fd, READ_COVISE, &xsize, &ysize, &zsize, x, y, z, NULL, NULL, NULL);
 }
 
+int covSkipRCTGRD(int fd, int xsize, int ysize, int zsize)
+{
+    return covIoRCTGRD(fd, SKIP_COVISE, &xsize, &ysize, &zsize, NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
 /*  *********************************
                   STRGRD
     *********************************/
@@ -1119,12 +1133,22 @@ int covIoSTRGRD(int fd, int mode, int *xsize, int *ysize, int *zsize, float *x, 
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, x, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, y, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, z, (*xsize) * (*ysize) * (*zsize));
+        }
     }
     else
     {
@@ -1153,6 +1177,11 @@ int covReadSizeSTRGRD(int fd, int *xsize, int *ysize, int *zsize)
 int covReadSTRGRD(int fd, int xsize, int ysize, int zsize, float *x, float *y, float *z)
 {
     return covIoSTRGRD(fd, READ_COVISE, &xsize, &ysize, &zsize, x, y, z, NULL, NULL, NULL);
+}
+
+int covSkipSTRGRD(int fd, int xsize, int ysize, int zsize)
+{
+    return covIoSTRGRD(fd, SKIP_COVISE, &xsize, &ysize, &zsize, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 /*  *********************************
@@ -1345,8 +1374,15 @@ int covIoSTRSDT(int fd, int mode, int *numElem, float *data, int *xsize, int *ys
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data, (*xsize) * (*ysize) * (*zsize));
+        }
     }
     else
     {
@@ -1376,6 +1412,11 @@ int covReadSTRSDT(int fd, int numElem, float *data, int xsize, int ysize, int zs
     return covIoSTRSDT(fd, READ_COVISE, &numElem, data, &xsize, &ysize, &zsize, NULL, NULL, NULL);
 }
 
+int covSkipSTRSDT(int fd, int numElem, int xsize, int ysize, int zsize)
+{
+    return covIoSTRSDT(fd, SKIP_COVISE, &numElem, NULL, &xsize, &ysize, &zsize, NULL, NULL, NULL);
+}
+
 /*  *********************************
                   STRVDT
     *********************************/
@@ -1398,12 +1439,21 @@ int covIoSTRVDT(int fd, int mode, int *numElem, float *data_x, float *data_y, fl
             SWAP_INT(fd, zsize, 1);
             return CHECK_FOR_ERRORS;
         }
-        COV_READ_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
-        COV_READ_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
-        SWAP_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+        if (mode == SKIP_COVISE)
+        {
+            COV_SKIP_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
+            COV_SKIP_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+        }
+        else
+        {
+            COV_READ_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data_x, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data_y, (*xsize) * (*ysize) * (*zsize));
+            COV_READ_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+            SWAP_FLOAT(fd, data_z, (*xsize) * (*ysize) * (*zsize));
+        }
     }
     else
     {
@@ -1433,6 +1483,12 @@ int covReadSizeSTRVDT(int fd, int *numElem, int *xsize, int *ysize, int *zsize)
 int covReadSTRVDT(int fd, int numElem, float *data_x, float *data_y, float *data_z, int xsize, int ysize, int zsize)
 {
     return covIoSTRVDT(fd, READ_COVISE, &numElem, data_x, data_y, data_z, &xsize, &ysize, &zsize,
+                       NULL, NULL, NULL);
+}
+
+int covSkipSTRVDT(int fd, int numElem, int xsize, int ysize, int zsize)
+{
+    return covIoSTRVDT(fd, SKIP_COVISE, &numElem, NULL, NULL, NULL, &xsize, &ysize, &zsize,
                        NULL, NULL, NULL);
 }
 

@@ -101,9 +101,6 @@ enum elementTypes
 
 int numShaderTextures = 0;
 int shaderTextureChannel[MAX_TEXTURES];
-#ifdef _DEBUG
-#define FUNNY_TEST
-#endif
 
 //#define TEST_MNMESH
 #ifdef TEST_MNMESH
@@ -3957,6 +3954,8 @@ VRML2Export::VrmlOutTUIElement(TabletUIElement *el, INode *node, int level)
         for (int j = 0; j < el->objects.Count(); j++)
         {
             TabletUIObj *tuiobj = (TabletUIObj *)el->objects[j];
+            if(tuiobj->node)
+            {
             Object *o = tuiobj->node->EvalWorldState(mStart).obj;
 
             switch (el->type)
@@ -4057,6 +4056,7 @@ VRML2Export::VrmlOutTUIElement(TabletUIElement *el, INode *node, int level)
             Indent(level);
             MSTREAMPRINTF  ("ROUTE %s.touchTime TO %s-TIMER.startTime\n\n"),el->name.data(),tuiobj->listStr.data());
          }*/
+            }
         }
     }
 
@@ -5601,10 +5601,6 @@ VRML2Export::VrmlOutObject(INode *node, INode *parent, Object *obj, int level,
                             OutputTriObject(node, tri, multiMat, isWire, twoSided,
                                             level + 1, i, mirrored);
 
-#ifndef FUNNY_TEST
-                        if (obj != (Object *)tri)
-                            tri->DeleteThis();
-#endif
 #ifdef GEOMETRY_REUSE_HAST_TO_BE_REIMPLEMENTED
                     }
 #endif
@@ -6848,6 +6844,8 @@ VRML2Export::WriteControllerData(INode *node,
                 for (int j = 0; j < th->elements[i]->objects.Count(); j++)
                 {
                     INode *nd = (INode *)th->elements[i]->objects[j]->node;
+                    if(nd !=NULL)
+                    {
                     Object *o = nd->EvalWorldState(mStart).obj;
 
                     if (nd == node)
@@ -6907,6 +6905,7 @@ VRML2Export::WriteControllerData(INode *node,
                                     mInterpRoutes[l].mType = mInterpRoutes[l].mType | KEY_TABLETUI_TOGGLE;
                                 else if (mInterpRoutes[l].mType == KEY_TABLETUI)
                                     AddInterpolator(mInterpRoutes[l].mInterp.data(), KEY_TIMER | KEY_TABLETUI_TOGGLE, mInterpRoutes[l].mNodeName.data(), nd);
+                    }
                     }
                 }
         }

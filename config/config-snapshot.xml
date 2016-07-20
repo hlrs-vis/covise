@@ -29,7 +29,7 @@
             <NumSlaves value="1" />
             <MasterInterface value="192.168.2.150" />
 
-            <Startup arch="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+            <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
          </MultiPC>
 
          <PipeConfig>
@@ -46,15 +46,15 @@
       </COVER>
    </GLOBAL>
 
-   <LOCAL host="viscluster50,viscluster70" >
+   <LOCAL HOST="viscluster50,viscluster70" >
       <COVER>
          <NumScreens value="2" />
          <NumWindows value="2" />
 
          <WindowConfig>
             <OpenGL3 value="false" />
-            <Window arch="unix" width="900" comment="FRONT_L" window="0" pipeIndex="0" height="800" left="0" bottom="0" name="0" decoration="false" />
-            <Window arch="unix" width="900" comment="FRONT_R" window="1" pipeIndex="0" height="800" left="900" bottom="0" name="1" decoration="false" />
+            <Window ARCH="unix" width="900" comment="FRONT_L" window="0" pipeIndex="0" height="800" left="0" top="0" name="0" decoration="false" />
+            <Window ARCH="unix" width="900" comment="FRONT_R" window="1" pipeIndex="0" height="800" left="900" top="0" name="1" decoration="false" />
          </WindowConfig>
 
          <ScreenConfig>
@@ -64,11 +64,11 @@
       </COVER>
    </LOCAL>
 
-   <LOCAL host="viscluster51,viscluster71" >
+   <LOCAL HOST="viscluster51,viscluster71" >
       <COVER>
          <WindowConfig>
             <OpenGL3 value="false" />
-            <Window arch="unix" width="900" comment="FRONT_R" window="0" pipeIndex="0" height="800" left="1800" bottom="0" name="0" decoration="false" />
+            <Window ARCH="unix" width="900" comment="FRONT_R" window="0" pipeIndex="0" height="800" left="1800" top="0" name="0" decoration="false" />
          </WindowConfig>
 
          <ScreenConfig>

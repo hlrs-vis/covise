@@ -217,8 +217,6 @@ guess_archsuffix() {
                    export ARCHSUFFIX=vervet
                elif grep -i -q -s 'ubuntu.*15\.10' /etc/issue; then
                    export ARCHSUFFIX=werewolf
-               else
-                   export ARCHSUFFIX=amd64
                fi
                ;;
             
@@ -288,22 +286,15 @@ guess_archsuffix() {
                      export ARCHSUFFIX=heiner 
                   elif [ -f /lib/libc-2.5.so ]; then
                      export ARCHSUFFIX=belchen
-                  else
-                     export ARCHSUFFIX=gcc3
                   fi
                elif [ -f /lib/i386-linux-gnu/libgcc_s.so.1 ]; then
                   if grep -i -q -s 'ubuntu.*11\.04' /etc/issue; then
                      export ARCHSUFFIX=natty
                   elif grep -i -q -s 'ubuntu.*11\.10' /etc/issue; then
                      export ARCHSUFFIX=oneiric
-		  elif grep -i -q -s 'ubuntu.*12\.04' /etc/issue; then
+                  elif grep -i -q -s 'ubuntu.*12\.04' /etc/issue; then
                      export ARCHSUFFIX=precise
-                  else
-                     export ARCHSUFFIX=gcc3
                   fi
-
-               else
-		  export ARCHSUFFIX=linux
                fi
                ;;
 

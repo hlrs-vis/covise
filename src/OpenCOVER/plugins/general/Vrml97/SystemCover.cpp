@@ -1110,7 +1110,7 @@ float SystemCover::defaultCreaseAngle()
     static bool firstTime = true;
     if (firstTime)
     {
-        angle = coCoviseConfig::getFloat("COVER.Plugin.Vrml97.DefaultCreaseAngle", 0.0);
+        angle = coCoviseConfig::getFloat("COVER.Plugin.Vrml97.DefaultCreaseAngle", M_PI_4);
         firstTime = false;
     }
     return angle;

@@ -22,6 +22,9 @@
 TUITextCheck::TUITextCheck(QWidget *parent)
     : QTextEdit(parent)
 {
+    setAcceptRichText(false);
+    setTabChangesFocus(true);
+
     connect(this, SIGNAL(editingFinished()), this, SLOT(checkContent()));
     connect(this, SIGNAL(returnPressed()), this, SLOT(checkContent()));
 }
@@ -35,9 +38,16 @@ void TUITextCheck::keyPressEvent(QKeyEvent *e)
     QPalette palette;
 
     if ((e->key() == Qt::Key_Return) || (e->key() == Qt::Key_Enter))
+    {
         palette.setBrush(QPalette::WindowText, Qt::black);
+#if QT_VERSION >= 0x050000
+        emit returnPressed();
+#endif
+    }
     else
+    {
         palette.setBrush(QPalette::WindowText, Qt::red);
+    }
 
     QTextEdit::keyPressEvent(e); // hand on event to base class
     //palette.setBrush(foregroundRole(), Qt::red);
@@ -64,6 +74,9 @@ void TUITextCheck::focusInEvent(QFocusEvent *e)
 //------------------------------------------------------------------------
 void TUITextCheck::focusOutEvent(QFocusEvent *e)
 {
+#if QT_VERSION >= 0x050000
+    emit editingFinished();
+#endif
     emit focusChanged(false);
 
     QTextEdit::focusOutEvent(e);

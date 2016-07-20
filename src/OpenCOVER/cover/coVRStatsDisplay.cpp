@@ -54,6 +54,7 @@ coVRStatsDisplay::coVRStatsDisplay()
     , _statsHeight(1024.0f)
 {
     _camera = new osg::Camera;
+    _camera->setName("Statistics");
     _camera->setRenderer(new osgViewer::Renderer(_camera.get()));
     _camera->setProjectionResizePolicy(osg::Camera::FIXED);
 }

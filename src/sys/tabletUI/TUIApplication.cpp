@@ -275,9 +275,12 @@ void TUIMainWindow::closeServer()
     delete serverSN;
     serverSN = NULL;
 
-    connections->remove(sConn);
-    delete sConn;
-    sConn = NULL;
+    if (sConn)
+    {
+        connections->remove(sConn);
+        delete sConn;
+        sConn = NULL;
+    }
 
     if (clientConn)
     {

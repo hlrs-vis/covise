@@ -4,7 +4,7 @@
 
  <INCLUDE global="1" configname="Both" >config.isc15Common.xml</INCLUDE>
  
- <LOCAL host="vishexa" >
+ <LOCAL HOST="vishexa" >
   <COVER>
    <NumChannels value="2" />
    <ChannelConfig>

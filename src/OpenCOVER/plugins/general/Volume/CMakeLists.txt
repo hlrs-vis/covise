@@ -5,6 +5,7 @@ SET(HEADERS
   VolumePlugin.h
   coAlphaHatPin.h
   coAlphaBlankPin.h
+  coClipSphere.h
   coDefaultFunctionEditor.h
   coFunctionEditor.h
   coHSVPin.h
@@ -18,6 +19,7 @@ SET(SOURCES
   VolumePlugin.cpp 
   coAlphaHatPin.cpp 
   coAlphaBlankPin.cpp 
+  coClipSphere.cpp
   coDefaultFunctionEditor.cpp 
   coFunctionEditor.cpp 
   coHSVPin.cpp 

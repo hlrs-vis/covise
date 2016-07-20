@@ -83,9 +83,9 @@ void COVERConnection::resizeMap(float x, float y, float width, float height)
         covise::TokenBuffer tb;
         tb << MSG_GetMap;
         tb << x;
-        tb << y;
+        tb << y+height;
         tb << width;
-        tb << height;
+        tb << -height;
         tb << xRes;
         tb << yRes;
         send(tb);

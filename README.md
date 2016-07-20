@@ -34,6 +34,7 @@ Getting COVISE is as easy as
 Update your existing copy to the current version by
 
       git pull -r
+      git submodule sync
       git submodule update --init --recursive # update submodules to latest required version
 
 ### Windows
@@ -93,6 +94,14 @@ Build Requirements
   Used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
 - **OpenSceneGraph**:
   3.2 or newer is required for the VR renderer OpenCOVER
+- **Open Inventor**
+  The desktop renderer on Linux requires Open Inventor.
+  The binaries shipped with most Linux distributions do not correctly render fonts on 64
+  bit systems.
+  Install a fixed version:
+        git clone https://github.com/aumuell/open-inventor.git
+        cd open-inventor
+        make IVPREFIX=$EXTERNLIBS/inventor install
 
 Optional dependencies
 ---------------------
@@ -106,7 +115,7 @@ CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
 
 
-Workin with Git
+Working with Git
 ---------------
 
 ### UNIX

@@ -170,7 +170,10 @@ elif [ "$basename" = "_debug_for_covise" ]; then
     if [ -z "$DEBUGGER" ]; then
         case "$ARCHSUFFIX" in
             lionopt|libc++|libc++opt)
-                DEBUGGER=lldb
+                DEBUGGER=/Applications/Xcode.app/Contents/Developer/usr/bin/lldb
+                if [ -n "$DEBUGGER" ]; then
+                    DEBUGGER=lldb
+                fi
                 ;;
             *)
                 DEBUGGER=gdb
@@ -181,10 +184,10 @@ elif [ "$basename" = "_debug_for_covise" ]; then
         dbx)
             exec "$DEBUGGER" -r "$runcmd" "$@"
             ;;
-        gdb|ddd)
+        *gdb|*ddd)
            exec "$DEBUGGER" --args "$runcmd" "$@"
            ;;
-        lldb)
+        *lldb)
            exec "$DEBUGGER" "$runcmd" -- "$@"
            ;;
         cvd)

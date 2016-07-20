@@ -209,6 +209,7 @@ private:
     coTUIToggleButton *AnimOscillate;
     coTUIToggleButton *Walk;
     coTUIToggleButton *DebugBins;
+    coTUIToggleButton *FlipStereo;
     coTUIComboBox *ShadowChoice;
     coTUIToggleButton *Drive;
     coTUIToggleButton *Fly;

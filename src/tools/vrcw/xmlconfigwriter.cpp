@@ -495,7 +495,7 @@ void XMLConfigWriter::generateConfigUser(const QString& coConfNameVrcw)
    global.appendChild(commentUser);
 
    QDomComment commentLocal = domDocUser.createComment("= For LOCAL "
-         "settings start here with: <LOCAL host=\"your-hostname\"> =");
+         "settings start here with: <LOCAL HOST=\"your-hostname\"> =");
    coConfUser.appendChild(commentLocal);
 
    QDomNode xmlNodeUser = domDocUser.createProcessingInstruction("xml",
@@ -533,7 +533,7 @@ QDomElement XMLConfigWriter::findCreateLocalHostElem(const QString& host)
       for (int i = 0; i < localNodes.size(); ++i)
       {
          QDomElement local = localNodes.item(i).toElement();
-         QString localAttrHostValue = local.attribute("host");
+         QString localAttrHostValue = local.attribute("HOST");
 
          if (localAttrHostValue == host)
          {
@@ -547,7 +547,7 @@ QDomElement XMLConfigWriter::findCreateLocalHostElem(const QString& host)
    {
       //LOCAL-Element erzeugen
       localHostElem = domDocVrcw.createElement("LOCAL");
-      localHostElem.setAttribute("host", host);
+      localHostElem.setAttribute("HOST", host);
       coConf.appendChild(localHostElem);
    }
 

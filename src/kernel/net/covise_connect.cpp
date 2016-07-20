@@ -1239,9 +1239,10 @@ void ConnectionList::add(Connection *c) // add a connection and update the
 
 void ConnectionList::remove(Connection *c) // remove a connection and update
 {
+    if (!c)
+        return;
     connlist->remove(c); // the field for the select call
     FD_CLR(c->get_id(), &fdvar);
-    return;
 }
 
 // aw 04/2000: Check whether PPID==1 or no sockets left: prevent hanging
