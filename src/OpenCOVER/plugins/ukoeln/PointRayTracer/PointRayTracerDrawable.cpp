@@ -139,9 +139,10 @@ viewing_params PointRayTracerDrawable::getViewingParams(const osg::RenderInfo& i
 void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
 {
     aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
-    for (auto const &point : m_impl->host_bvh->primitives())
+
+    if (m_impl->host_bvh->num_nodes() > 0)
     {
-        bounds = combine(bounds, point.center);
+        bounds = combine(bounds, m_impl->host_bvh->node(0).bbox);
     }
 
     auto c = bounds.center();
