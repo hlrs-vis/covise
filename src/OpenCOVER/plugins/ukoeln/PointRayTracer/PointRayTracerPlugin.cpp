@@ -5,6 +5,8 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
+#include <iostream>
+#include <ostream>
 #include <GL/glew.h>
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
@@ -36,7 +38,9 @@ bool PointRayTracerPlugin::init()
     if(!m_reader->readFile(filename, pointSize, m_points, m_colors, m_bbox, true)) return false;
 
     //build bvh
+    std::cout << "Creating BVH...\n";
     m_host_bvh = visionaray::build<host_bvh_type>(m_points.data(), m_points.size());
+    std::cout << "Ready\n";
 
     //init geode and add it to the scenegraph
     m_geode = new osg::Geode;

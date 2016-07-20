@@ -154,11 +154,15 @@ void PointRayTracerDrawable::initData(host_bvh_type &bvh, point_vector &points, 
     m_impl->points = &points;
     m_impl->colors = &colors;
 #ifdef __CUDACC__
+    std::cout << "Copy data to GPU...\n";
+
     // Copy data
     m_impl->device_colors = device_color_vector(*m_impl->colors);
     m_impl->device_bvh    = device_bvh_type(bvh);
     // Create refs
     m_impl->bvh_refs.push_back(m_impl->device_bvh.ref());
+
+    std::cout << "Ready\n";
 #else
     m_impl->bvh_refs.push_back(bvh.ref());
 #endif
