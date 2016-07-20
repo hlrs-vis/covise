@@ -36,6 +36,7 @@ struct PointRayTracerDrawable::Impl
     render_target_type              rt;
     point_vector*                   points;
     color_vector*                   colors;
+    host_bvh_type*                  host_bvh;
 
 #ifdef __CUDACC__
     device_bvh_type                 device_bvh;
@@ -138,7 +139,7 @@ viewing_params PointRayTracerDrawable::getViewingParams(const osg::RenderInfo& i
 void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
 {
     aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
-    for (auto const &point : *m_impl->points)
+    for (auto const &point : m_impl->host_bvh->primitives())
     {
         bounds = combine(bounds, point.center);
     }
@@ -151,8 +152,9 @@ void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
 
 void PointRayTracerDrawable::initData(host_bvh_type &bvh, point_vector &points, color_vector &colors)
 {
-    m_impl->points = &points;
-    m_impl->colors = &colors;
+    m_impl->points   = &points;
+    m_impl->colors   = &colors;
+    m_impl->host_bvh = &bvh;
 #ifdef __CUDACC__
     std::cout << "Copy data to GPU...\n";
 
