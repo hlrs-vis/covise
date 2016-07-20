@@ -15,10 +15,10 @@ PointRayTracerPlugin *PointRayTracerPlugin::plugin = NULL;
 
 //-----------------------------------------------------------------------------
 
-PointRayTracerPlugin::PointRayTracerPlugin() : m_scheduler(15)
+PointRayTracerPlugin::PointRayTracerPlugin()
 {
-
-
+    //create drawable
+    m_drawable = new PointRayTracerDrawable;
 }
 
 bool PointRayTracerPlugin::init()
@@ -37,14 +37,6 @@ bool PointRayTracerPlugin::init()
 
     //build bvh
     m_host_bvh = visionaray::build<host_bvh_type>(m_points.data(), m_points.size());
-    m_host_bvh_refs.push_back(m_host_bvh.ref());
-
-    //init drawable and set pointers to data
-    m_drawable = new PointRayTracerDrawable;
-    m_drawable->m_host_bvh_refs = &m_host_bvh_refs;
-    m_drawable->m_points = &m_points;
-    m_drawable->m_colors = &m_colors;
-    m_drawable->m_scheduler = &m_scheduler;
 
     //init geode and add it to the scenegraph
     m_geode = new osg::Geode;
@@ -64,8 +56,14 @@ PointRayTracerPlugin::~PointRayTracerPlugin()
 
 }
 
-void PointRayTracerPlugin::preFrame()
+void PointRayTracerPlugin::preDraw(osg::RenderInfo &info)
 {
+    static bool initialized = false;
+    if (!initialized)
+    {
+        m_drawable->initData(m_host_bvh, m_points, m_colors);
+        initialized = true;
+    }
 //    if (cover->debugLevel(1)) fprintf(stderr, "\n    preFrame PointRayTracerPlugin\n");
 }
 
