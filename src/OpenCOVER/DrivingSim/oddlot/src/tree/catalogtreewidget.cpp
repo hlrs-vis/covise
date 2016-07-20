@@ -54,6 +54,9 @@
 #include "oscObject.h"
 #include "oscObjectBase.h"
 #include "oscMember.h"
+#include "oscMemberValue.h"
+#include "oscCatalogBase.h"
+#include "oscCatalog.h"
 
 #include <QWidget>
 #include <QDockWidget>
@@ -64,16 +67,15 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObjectBase *object, const QString &type)
+CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
 	: QTreeWidget()
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
 	, oscEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
-	, objectBase_(object)
 	, oscElement_(NULL)
-	, currentSelectedItem_(NULL)
 	, type_(type)
+	, catalog_(catalog)
 	, currentMember_(NULL)
 {
     init();
@@ -95,10 +97,11 @@ CatalogTreeWidget::init()
 	//
 
 	projectWidget_ = mainWindow_->getActiveProject();
+	projectData_ = projectWidget_->getProjectData();
 
 	// OpenScenario Element base //
 	//
-	base_ = projectWidget_->getProjectData()->getOSCBase();
+	base_ = projectData_->getOSCBase();
 	openScenarioBase_ = objectBase_->getBase();
 		
 	// Connect with the ToolManager to send the selected signal or object //
@@ -123,25 +126,9 @@ CatalogTreeWidget::init()
 	setHeaderHidden(true);
 	QList<QTreeWidgetItem *> rootList;
 
-	// temporary: make test base
-	if (!openScenarioBase_->test.exists())
-	{
-		testBase_ = new OSCElement("test");
-
-		AddOSCObjectCommand *command = new AddOSCObjectCommand(openScenarioBase_, base_, "test", testBase_, NULL);
-		projectWidget_->getTopviewGraph()->executeCommand(command);
-
-		objectBase_ = testBase_->getObject();
-	}
-	else 
-	{
-		OpenScenario::oscMember *member = openScenarioBase_->getMembers().at("test");
-		testBase_ = base_->getOSCElement(member->getOrCreateObject());
-
-		objectBase_ = testBase_->getObject();
-	}
-
 	type_ = type_.remove("Catalog");
+
+	catalog_->setCatalogType(type_.toStdString());
 
 	createTree();
 }
@@ -161,22 +148,41 @@ CatalogTreeWidget::createTree()
 
 	// add all catalog members //
 	//
-	if (objectBase_)
+	if (catalog_)
 	{
-		OpenScenario::oscObjectBase::MemberMap members = objectBase_->getMembers();
-		for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
-		{
-			QString elementName = QString::fromStdString(it->first);
+			std::string pathToCatalogDir = catalog_->directory->path.getValue();
 
-			if ((elementName == type_) && (it->second->exists()))
+			//get all catalog object filenames
+			std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(pathToCatalogDir);
+
+			//parse all files
+			//store object name and filename in map
+			catalog_->fastReadCatalogObjects(filenames);
+
+			OpenScenario::oscCatalog::ObjectsMap members = catalog_->getObjectsMap();
+			for(OpenScenario::oscCatalog::ObjectsMap::iterator it = members.begin();it != members.end();it++)
 			{
+				QString elementName = QString::number(it->first);
+				OpenScenario::oscObjectBase *obj = catalog_->getCatalogObject(it->first);
+				if (obj)
+				{
+					OpenScenario::oscMember *member = obj->getMember("name");
+					if (member->exists())
+					{
+						oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
+						QString text = QString::fromStdString(sv->getValue());
+						elementName = text + "(" + elementName + ")";
+					}
+				}
+
+
 				QTreeWidgetItem *item = new QTreeWidgetItem();
 				item->setText(0,elementName);
 				item->setFlags(Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 				rootList.append(item);
+				//			}
 			}
-		}
 	}
 
 	insertTopLevelItems(0,rootList);
@@ -205,63 +211,92 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 		if (selectedItems().count() > 0)
 		{
-			currentSelectedItem_ = selectedItems().at(0);
-			const QString text = currentSelectedItem_->text(0);
+			const QString text = selectedItems().at(0)->text(0);
+			currentTool_ = ODD::TOS_ELEMENT;
 
 			if (text == "New Element")
 			{
-				oscElement_ = new OSCElement(type_);
+				oscElement_ = new OSCElement(text);
 
 				if (oscElement_)
 				{
 					oscElement_->attachObserver(this);
+
+					// Group undo commands
+					//
+					projectData_->getUndoStack()->beginMacro(QObject::tr("New Catalog Object"));
+
+					// refid vergeben, path von vehicleCatalog?, neue Basis für catalog?
+					// Element anlegen
+					int refId = catalog_->generateRefId();
+					QString filePath = mainWindow_->getCovisedir() + "/" + type_ + QString::number(refId);
+					OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), type_.toStdString());
+
+					AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getCatalogType(), oscElement_, oscSourceFile);
+					if (command->isValid())
+					{
+						projectWidget_->getTopviewGraph()->executeCommand(command);
+
+						OpenScenario::oscObjectBase *obj = oscElement_->getObject();
+						
+						AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString());
+						if (addCatalogObjectCommand->isValid())
+						{
+							projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand); 
+
+							std::string name = "name";
+							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
+							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);
+
+							projectData_->getUndoStack()->endMacro();
+
+							return;
+
+						}
+					}
+					projectData_->getUndoStack()->endMacro();
 				}
-
-				//			testBase_ only temporary
-				AddOSCObjectCommand *command = new AddOSCObjectCommand(testBase_->getObject(), base_,type_.toStdString(), oscElement_, NULL);
-				projectWidget_->getTopviewGraph()->executeCommand(command);
-
-				/*if (command->isValid()) 
-				{
-					currentMember_ = testBase_->getObject()->getMembers().at(type_.toStdString());
-					oscElement_->setElementSelected(true);
-
-					QTreeWidgetItem *item = new QTreeWidgetItem(); // should be called by observer
-					item->setText(0, type_);
-					insertTopLevelItem(1, item);
-					currentSelectedItem_->setSelected(false);
-					item->setSelected(true);
-				}*/
 			}
 			else
 			{
-				if (oscElement_)
+				// Group undo commands
+				//
+				projectData_->getUndoStack()->beginMacro(QObject::tr("New Catalog Object"));
+
+				if (oscElement_ && oscElement_->isElementSelected())
 				{
 					DeselectDataElementCommand *command = new DeselectDataElementCommand(oscElement_, NULL);
 					projectWidget_->getTopviewGraph()->executeCommand(command);
 				}
 
-				currentTool_ = ODD::TOS_ELEMENT;
-				OpenScenario::oscObjectBase::MemberMap members = objectBase_->getMembers();
-				for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
+			
+				int refId = text.split("(")[1].remove(")").toInt();
+
+				OpenScenario::oscObjectBase *oscObject = catalog_->getCatalogObject(refId);
+				if (oscObject)
 				{
-					QString elementName = QString::fromStdString(it->first);
-					if (elementName == text)
-					{
-						currentMember_ = it->second;
-						break;
-					}
+					oscElement_ = base_->getOSCElement(oscObject);
 				}
-				currentMember_ = testBase_->getObject()->getMember(text.toStdString());
-				if (currentMember_)
+				else
 				{
-					oscElement_ = base_->getOSCElement(currentMember_->getOrCreateObject());
+					oscElement_ = new OSCElement(text);
+
 					if (oscElement_)
 					{
-						SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
-						projectWidget_->getTopviewGraph()->executeCommand(command); 
+						oscElement_->attachObserver(this);
+
+						LoadOSCCatalogObjectCommand *command = new LoadOSCCatalogObjectCommand(catalog_, refId, base_, oscElement_);
+						projectWidget_->getTopviewGraph()->executeCommand(command);
 					}
 				}
+
+				if (oscElement_)
+				{
+					SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
+					projectWidget_->getTopviewGraph()->executeCommand(command); 					
+				}
+
+				projectData_->getUndoStack()->endMacro();
 
 				// Set a tool //
 				//
@@ -291,7 +326,7 @@ CatalogTreeWidget::onVisibilityChanged(bool visible)
 {
 	if (visible && oscEditor_)
 	{
-		oscEditor_->catalogChanged(objectBase_);
+		oscEditor_->catalogChanged(catalog_);
 	}
 
 	clearSelection();
@@ -325,23 +360,32 @@ CatalogTreeWidget::updateObserver()
 
 	if (changes & OSCElement::COE_ParameterChange)
     {
-		OpenScenario::oscMember *member = currentMember_->getOrCreateObject()->getMember("name");
+		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
+		OpenScenario::oscMember *member = obj->getMember("name");
 		if (member->exists())
 		{
 			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
-			const std::string text = sv->getValue();
-			if (text != currentSelectedItem_->text(0).toStdString())
+			QString text = QString::fromStdString(sv->getValue());
+			OpenScenario::oscMember *member = obj->getMember("refId");
+			oscIntValue *v = dynamic_cast<oscIntValue *>(member->getOrCreateValue());
+			text += "(" + QString::number(v->getValue()) + ")";
+			QTreeWidgetItem *currentSelectedItem = selectedItems().at(0); 
+			if (text != currentSelectedItem->text(0))
 			{
-				currentSelectedItem_->setText(0, QString::fromStdString(text));
+				currentSelectedItem->setText(0, text);
 
 				// Update Editor //
 				//
-				OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, QString::fromStdString(text));
+				OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
 				emit toolAction(action);
 				delete action;
 			}
 		}
     }
+	else if (changes & OSCBase::COSC_ElementChange)
+	{
+		createTree();
+	}
 
 	changes = oscElement_->getDataElementChanges();
 	if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))

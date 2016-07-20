@@ -21,6 +21,7 @@
 //#define NULL 0
 
 #define NUMNULL 1.0e-6
-#define FILEEXTENSIONSTR "xodr"
+#define FILEEXTENSIONXODR "xodr"
+#define FILEEXTENSIONXOSC "xosc"
 
 #endif // GLOBALDEFINES_HPP

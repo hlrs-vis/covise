@@ -19,6 +19,8 @@
 #include "src/util/odd.hpp"
 #include "src/data/observer.hpp"
 
+#include "oscCatalog.h"
+
 #include <QTreeWidget>
 
 class ProjectData;
@@ -36,6 +38,7 @@ class oscObject;
 class oscObjectBase;
 class OpenScenarioBase;
 class oscMember;
+class oscCatalog;
 }
 
 class CatalogTreeWidget : public QTreeWidget, public Observer
@@ -47,7 +50,7 @@ class CatalogTreeWidget : public QTreeWidget, public Observer
     //################//
 
 public:
-	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObjectBase *object, const QString &type);
+	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
     virtual ~CatalogTreeWidget();
 
 	void setActiveProject(ProjectWidget *projectWidget)
@@ -112,10 +115,10 @@ private:
 	// temporary: test base
 	OSCElement *testBase_;
 	QString type_; //catalog type
+	OpenScenario::oscCatalog *catalog_;
 
 	OSCElement *oscElement_;
 
-	QTreeWidgetItem *currentSelectedItem_;
 	OpenScenario::oscMember *currentMember_;
 
 	ODD::ToolId currentTool_;

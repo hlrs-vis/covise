@@ -23,7 +23,7 @@
 OSCElement::OSCElement(const QString &id, OpenScenario::oscObjectBase *oscObjectBase)
     : DataElement() 
 	, oscObjectBase_(oscObjectBase)
- //   , rSystemElementChanges_(0x0)
+	, oscElementChanges_(0x0)
 {
 }
 
