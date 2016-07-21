@@ -41,6 +41,7 @@ TracerLine::TracerLine(coInteractor *inter, TracerPlugin *p)
     _newModule = false;
     showPickInteractor_ = false;
     showDirectInteractor_ = false;
+    _wait = false;
 
     // default size for all interactors
     _interSize = -1.f;
@@ -118,6 +119,8 @@ TracerLine::update(coInteractor *inter)
     _s0->updateTransform(computeM0());
 
     updateGeometry();
+
+    _wait = false;
 }
 
 void
@@ -189,6 +192,8 @@ TracerLine::preFrame()
 
     if (showPickInteractor_ || showDirectInteractor_)
     {
+        bool exec = false;
+
         // check if we are in direct interaction or intersection mode
 
         // direct interaction
@@ -223,7 +228,7 @@ TracerLine::preFrame()
         // s2 is moved to line endpoint
         // s1 and s2 are enabled
         if (_directInteractor && _directInteractor->isRegistered()
-            && !_s0->isRunning() && !_s1->isRunning() && !_s2->isRunning())
+                && !_s0->isRunning() && !_s1->isRunning() && !_s2->isRunning())
         {
             if (cover->debugLevel(5))
                 fprintf(stderr, "tracer line direct interaction mode\n");
@@ -288,8 +293,7 @@ TracerLine::preFrame()
                 plugin->getSyncInteractors(_inter);
                 plugin->setVectorParam(TracerInteraction::P_STARTPOINT1, 3, _pos1._v);
                 plugin->setVectorParam(TracerInteraction::P_STARTPOINT2, 3, _pos2._v);
-                if (_execOnChange)
-                    plugin->executeModule();
+                exec = true;
 
                 /// hier nicht, weil coInteractionManager coTrackerButtonInteraction::RunningState nicht kennt
                 /// und daher nicht auf Idle setzt -> abwarten bis zum n�chsten preFrame
@@ -357,8 +361,7 @@ TracerLine::preFrame()
                 _s0->updateTransform(computeM0());
                 plugin->getSyncInteractors(_inter);
                 plugin->setVectorParam(TracerInteraction::P_STARTPOINT1, 3, _pos1._v);
-                if (_execOnChange)
-                    plugin->executeModule();
+                exec = true;
             }
 
             if (_s2->wasStopped())
@@ -372,8 +375,7 @@ TracerLine::preFrame()
                 _s0->updateTransform(computeM0());
                 plugin->getSyncInteractors(_inter);
                 plugin->setVectorParam(TracerInteraction::P_STARTPOINT2, 3, _pos2._v);
-                if (_execOnChange)
-                    plugin->executeModule();
+                exec = true;
             }
 
             if (_s0->wasStopped())
@@ -397,9 +399,14 @@ TracerLine::preFrame()
                 plugin->getSyncInteractors(_inter);
                 plugin->setVectorParam(TracerInteraction::P_STARTPOINT1, 3, _pos1._v);
                 plugin->setVectorParam(TracerInteraction::P_STARTPOINT2, 3, _pos2._v);
-                if (_execOnChange)
-                    plugin->executeModule();
+                exec = true;
             }
+        }
+
+        if (exec && _execOnChange && !_wait)
+        {
+            plugin->executeModule();
+            _wait = true;
         }
     }
 }

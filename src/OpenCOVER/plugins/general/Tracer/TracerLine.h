@@ -57,6 +57,7 @@ private:
     bool showPickInteractor_;
     bool showDirectInteractor_;
     bool _execOnChange; //< Execute on change: read covise.config in C'Tor
+    bool _wait;
     osg::Matrix computeM0();
 
     string initialObjectName_; //we have to save it for the grmsg, because _inter is not always valid

@@ -42,6 +42,9 @@ private:
     visionaray::aabb                                m_bbox;
 
     host_bvh_type                                   m_host_bvh;
+
+    bool loadBvh(std::string filename);
+    bool storeBvh(std::string filename);
 };
 
 

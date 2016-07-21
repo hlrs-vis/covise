@@ -2,6 +2,7 @@
 #include_directories(${VISIONARAY_INCLUDE_DIR})
 
 USING(VISIONARAY)
+include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 function(do_cuda_compile outfiles)
     if(NOT COVISE_USE_CUDA OR NOT CUDA_FOUND)
