@@ -120,12 +120,11 @@ SET(HEADERS
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
-   oscObjectCatalogs.h
+   oscObjectCatalog.h
    oscObjects.h
    oscObjectVariable.h
    oscObjectVariableArray.h
    oscObjectVariableBase.h
-   oscObjectVariableCatalog.h
    oscObserverId.h
    oscObserverTypeA.h
    oscObserverTypeB.h
