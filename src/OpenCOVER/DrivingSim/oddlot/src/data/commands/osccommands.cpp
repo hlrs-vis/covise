@@ -83,7 +83,7 @@ LoadOSCCatalogObjectCommand::redo()
 {
 	catalog_->fullReadCatalogObjectWithName(refId_);
 
-	oscElement_->setObjectBase(objectBase_);
+	oscElement_->setObjectBase(catalog_->getCatalogObject(refId_));
 	oscBase_->addOSCElement(oscElement_);
 	
 	setRedone();
@@ -157,9 +157,9 @@ void
 AddOSCCatalogObjectCommand::redo()
 {
 	// create refId
-/*	OpenScenario::oscMember *member = objectBase_->getMember("refId");
+	OpenScenario::oscMember *member = objectBase_->getMember("refId");
 	OpenScenario::oscMemberValue *v = member->getOrCreateValue();
-	v->setValue(refId_); */
+	v->setValue(refId_); 
 	
 	if (objectBase_)
 	{
@@ -258,7 +258,6 @@ RemoveOSCCatalogObjectCommand::redo()
 	}
 
 	catalog_->removeCatalogObject(refId_);
-	catalog_->removeObjFromObjectsMap(refId_);
 
     setRedone();
 }

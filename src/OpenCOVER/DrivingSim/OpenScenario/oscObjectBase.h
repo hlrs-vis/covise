@@ -96,6 +96,9 @@ public:
     bool hasOptional() const;
     MemberOptional getOptional() const;
 
+	//
+	oscObjectBase *getObjectByName(const std::string &name);
+
     //
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);

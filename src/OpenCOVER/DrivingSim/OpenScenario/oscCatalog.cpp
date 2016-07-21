@@ -410,6 +410,8 @@ bool oscCatalog::removeCatalogObject(const int objectRefId)
     ObjectsMap::const_iterator found = m_Objects.find(objectRefId);
     if (found != m_Objects.end())
     {
+		bf::path objectPath = found->second.fileName;
+		bf::remove(objectPath);
         m_Objects.erase(found);
         return true;
     }

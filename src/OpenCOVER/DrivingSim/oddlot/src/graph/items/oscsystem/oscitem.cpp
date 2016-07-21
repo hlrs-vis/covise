@@ -174,7 +174,7 @@ OSCItem::init()
 	const std::string refId = dynamic_cast<OpenScenario::oscStringValue *>(catalogRefA->getMember("catalogId")->getOrCreateValue())->getValue();
 	OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(getProjectData()->getProjectWidget()->getProjectEditor());
 
-	selectedObject_ = oscEditor->getCatalog(refId)->getObject();
+//	selectedObject_ = oscEditor->getCatalog(refId)->getCatalogObject(refId);
 
 	const std::string typeName = "oscVehicle";
 	if (typeName == "oscVehicle")

@@ -74,6 +74,7 @@ private:
     void init();
 
 	void createTree();
+	QTreeWidgetItem *getItem(const QString &name);
 
     //################//
     // EVENTS         //
@@ -116,6 +117,7 @@ private:
 	OSCElement *testBase_;
 	QString type_; //catalog type
 	OpenScenario::oscCatalog *catalog_;
+	QString directoryPath_;
 
 	OSCElement *oscElement_;
 

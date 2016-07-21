@@ -67,6 +67,10 @@
 #include "oscCatalogs.h"
 #include "oscCatalog.h"
 
+// Boost //
+//
+#include <boost/filesystem.hpp>
+
 
 // Qt //
 //
@@ -272,11 +276,27 @@ OpenScenarioEditor::getCatalog(std::string name)
 {
 	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
 
-	OpenScenario::oscCatalogs *catalogs=openScenarioBase->catalogs.getOrCreateObject();
+	OpenScenario::oscCatalogs *catalogs = openScenarioBase->catalogs.getOrCreateObject();
 	OpenScenario::oscCatalog *catalog = catalogs->getCatalog(name);
+	std::string catalogsDir = (mainWindow_->getCovisedir() + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/").toStdString(); 
+	if (!bf::exists(bf::path(catalogsDir)))
+	{
+		bf::create_directory(catalogsDir);
+	}
 
-	catalog->directory.getValue();
-	
+	OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("directory"));
+	if (dir)
+	{
+		std::string dirName = catalog->directory->path.getValue();
+		if (dirName == "")
+		{
+			dirName = catalog->directory->path = catalogsDir + name;
+			if (!bf::exists(bf::path(dirName)))
+			{
+				bf::create_directory(dirName);
+			}
+		}
+	}
 	OSCElement *oscElement = oscBase_->getOSCElement(catalog);
 
 	return catalog;
@@ -408,7 +428,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			catalogElement_ = action->getText();
 		}
 	}
-	else if (currentTool != lastTool_)
+	else
 	{		
 		if (currentTool == ODD::TOS_SAVE_CATALOG)
 		{

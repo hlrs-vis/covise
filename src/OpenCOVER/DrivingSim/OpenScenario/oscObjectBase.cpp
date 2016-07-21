@@ -145,6 +145,18 @@ oscObjectBase::MemberOptional oscObjectBase::getOptional() const
     return optional;
 }
 
+//
+oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
+{
+	oscMember *member = members[name];
+	if (member)
+	{
+		return member->getOrCreateObject();
+	}
+
+	return NULL;
+}
+
 
 //
 bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)

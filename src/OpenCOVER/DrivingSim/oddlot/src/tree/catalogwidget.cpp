@@ -95,6 +95,7 @@ void
 CatalogWidget::init()
 {
 	projectData_ = mainWindow_->getActiveProject()->getProjectData();
+	base_ = projectData_->getOSCBase();
 
 	// Widget/Layout //
     //
@@ -132,8 +133,6 @@ CatalogWidget::init()
 void 
 CatalogWidget::onDeleteCatalogItem()
 {
-	OSCBase *base = oscElement_->getOSCBase();
-
 	bool deletedSomething = false;
 	do
 	{
@@ -144,7 +143,7 @@ CatalogWidget::onDeleteCatalogItem()
 		{
 			QString text = selectedItems.at(i)->text(0);
 			int refId = text.split("(")[1].remove(")").toInt();
-			OSCElement *element = base->getOSCElement(catalog_->getCatalogObject(refId));
+			OSCElement *element = base_->getOSCElement(catalog_->getCatalogObject(refId));
 
 			RemoveOSCCatalogObjectCommand *command = new RemoveOSCCatalogObjectCommand(catalog_, refId, element);
 			projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
