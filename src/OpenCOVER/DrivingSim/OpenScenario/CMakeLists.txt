@@ -218,6 +218,7 @@ SET(SOURCES
    OpenScenarioBase.cpp
    oscBody.cpp
    oscCatalog.cpp
+   oscCatalogs.cpp
    oscConditionChoiceBase.cpp
    oscConditionChoiceTypeA.cpp
    oscControlPoint.cpp
