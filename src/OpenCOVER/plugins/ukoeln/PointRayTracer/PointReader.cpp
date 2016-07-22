@@ -25,8 +25,8 @@ std::vector<std::string> splitString(const std::string& s, char separator){
     return retVal;
 }
 
-void addPoint(aligned_vector<sphere_type>& points,
-              aligned_vector<vector<3, unorm<8>>, 32>& colors,
+void addPoint(point_vector& points,
+              color_vector& colors,
               std::vector<std::string>& tokens,
               aabb& bbox,
               int count,
@@ -72,8 +72,8 @@ void addPoint(aligned_vector<sphere_type>& points,
 
 
 bool PointReader::readFile(std::string filename, float pointSize,
-                           aligned_vector<sphere_type> &points,
-                           aligned_vector<vector<3, unorm<8>>, 32>& colors,
+                           point_vector &points,
+                           color_vector& colors,
                            aabb &bbox,
                            bool cutUTMdata){
 

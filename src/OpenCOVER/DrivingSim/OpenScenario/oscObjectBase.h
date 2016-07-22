@@ -76,6 +76,7 @@ public:
     void setSource(oscSourceFile *s);
     MemberMap getMembers() const;
 	oscMember *getMember(const std::string &s) const;
+
     OpenScenarioBase *getBase() const;
     oscSourceFile *getSource() const;
 
@@ -95,9 +96,12 @@ public:
     bool hasOptional() const;
     MemberOptional getOptional() const;
 
+	//
+	oscObjectBase *getObjectByName(const std::string &name);
+
     //
-    bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
-    bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 private:
     void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node

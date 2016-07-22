@@ -28,8 +28,8 @@ public:
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
-    oscObjectsMemberArray objects;
-    oscUserDataListMemberArray userDataList;
+    oscObjectsArrayMember objects;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscEntities *> oscEntitiesMember;

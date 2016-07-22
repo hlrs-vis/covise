@@ -50,6 +50,7 @@ class DOEXPORT coDoGeometry : public coDistributedObject
 
 public:
     enum { NumChannels = 8 };
+    enum { NumColorMaps = 2 };
 
 private:
     coIntShm geometry_type;
@@ -62,6 +63,8 @@ private:
     const coDistributedObject *texture;
     coIntShm vertexAttribute_attr;
     const coDistributedObject *vertexAttribute;
+    coIntShm colorMap_attr;
+    const coDistributedObject *colorMap[NumColorMaps];
 
 protected:
     int rebuildFromShm();
@@ -94,6 +97,7 @@ public:
     void setNormals(int nattr, const coDistributedObject *n);
     void setTexture(int tattr, const coDistributedObject *t);
     void setVertexAttribute(int vattr, const coDistributedObject *v);
+    void setColorMap(int cmattr, const coDistributedObject *cm, size_t chan = 0);
 
     coDoGeometry(const coObjInfo &info, coShmArray *arr);
     coDoGeometry(const coObjInfo &info, const coDistributedObject *geo);
@@ -117,6 +121,10 @@ public:
     {
         return vertexAttribute;
     };
+    const coDistributedObject *getColorMap(size_t chan = 0) const
+    {
+        return colorMap[chan];
+    }
 
     int getGeometryType() const
     {
@@ -153,6 +161,14 @@ public:
     void setVertexAttributeAttributes(int vattr)
     {
         vertexAttribute_attr = vattr;
+    }
+    int getColorMapAttributes() const
+    {
+        return colorMap_attr;
+    }
+    void setColorMapAttributes(int cmattr)
+    {
+        colorMap_attr = cmattr;
     }
 };
 }

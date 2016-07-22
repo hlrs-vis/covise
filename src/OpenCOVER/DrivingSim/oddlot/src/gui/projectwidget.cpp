@@ -379,8 +379,9 @@ ProjectWidget::newFile()
     // Create a unique name by counting up numbers.
     static int documentNumber = 0;
     ++documentNumber;
-    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONSTR);
+    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONXODR);
     strippedFileName_ = fileName_;
+	oscFileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONXOSC);
 
     // Set name in window title and project menu.
     setWindowTitle(strippedFileName_ + "[*]"); // [*] is the place for unsaved-marker
@@ -390,6 +391,13 @@ ProjectWidget::newFile()
     Tile *tile = new Tile("Tile0", "0");
     projectData_->getTileSystem()->addTile(tile);
     projectData_->getTileSystem()->setCurrentTile(tile);
+
+	// Create a OpenScenario data base
+	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+	if (openScenarioBase)
+	{
+		openScenarioBase->createSource(oscFileName_.toStdString(), "OpenSCENARIO");
+	}
 
     // Mark this file as untitled and modified.
     isUntitled_ = true;
@@ -501,11 +509,11 @@ ProjectWidget::loadTile(const QString &fileName)
 }
 
 CatalogTreeWidget *
-ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
+ProjectWidget::addCatalogTree(const QString &type, OpenScenario::oscCatalog *catalog)
 {
     // add a catalog tree
     //
-    CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
+    CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, type);
     QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
     CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 

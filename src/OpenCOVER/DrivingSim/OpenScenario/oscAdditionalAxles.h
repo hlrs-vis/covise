@@ -29,7 +29,7 @@ public:
     oscVehicleAxleMember additional;
 };
 
-typedef oscObjectVariableArray<oscAdditionalAxles *> oscAdditionalAxlesMemberArray;
+typedef oscObjectVariableArray<oscAdditionalAxles *> oscAdditionalAxlesArrayMember;
 
 }
 

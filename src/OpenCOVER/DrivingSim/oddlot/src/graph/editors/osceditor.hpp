@@ -30,6 +30,7 @@ namespace OpenScenario
 class OpenScenarioBase;
 class oscObjectBase;
 class oscObject;
+class oscCatalog;
 }
 
 class OSCBaseItem;
@@ -66,12 +67,12 @@ public:
 	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
 	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
 
-	OSCElement *getCatalog(std::string name);
+	OpenScenario::oscCatalog *getCatalog(std::string name);
 
 
 	// Catalog dock widget changed //
 	//
-	void catalogChanged(OpenScenario::oscObjectBase *object);
+	void catalogChanged(OpenScenario::oscCatalog *member);
 
 	// New Object with properties chosen in SignalTreeWidget //
 	//
@@ -118,7 +119,7 @@ private:
 
 	// Selected catalog //
 	//
-	OpenScenario::oscObjectBase *oscCatalog_;
+	OpenScenario::oscCatalog *oscCatalog_;
 
 	ODD::ToolId lastTool_;
 

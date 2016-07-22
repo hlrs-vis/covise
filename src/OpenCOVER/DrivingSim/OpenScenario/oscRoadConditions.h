@@ -29,7 +29,7 @@ public:
 	oscRoadConditionMember roadCondition;
 };
 
-typedef oscObjectVariableArray<oscRoadConditions *> oscRoadConditionsMemberArray;
+typedef oscObjectVariableArray<oscRoadConditions *> oscRoadConditionsArrayMember;
 
 }
 

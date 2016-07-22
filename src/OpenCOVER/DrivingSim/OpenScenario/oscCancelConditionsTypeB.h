@@ -29,7 +29,7 @@ public:
     oscConditionTypeBMember cancelCondition;
 };
 
-typedef oscObjectVariableArray<oscCancelConditionsTypeB *> oscCancelConditionsTypeBMemberArray;
+typedef oscObjectVariableArray<oscCancelConditionsTypeB *> oscCancelConditionsTypeBArrayMember;
 
 }
 

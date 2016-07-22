@@ -29,7 +29,7 @@ public:
     oscEventMember event;
 };
 
-typedef oscObjectVariableArray<oscEvents *> oscEventsMemberArray;
+typedef oscObjectVariableArray<oscEvents *> oscEventsArrayMember;
 
 }
 

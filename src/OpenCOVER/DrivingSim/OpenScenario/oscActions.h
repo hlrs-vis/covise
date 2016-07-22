@@ -29,7 +29,7 @@ public:
     oscActionMember action;
 };
 
-typedef oscObjectVariableArray<oscActions *> oscActionsMemberArray;
+typedef oscObjectVariableArray<oscActions *> oscActionsArrayMember;
 
 }
 

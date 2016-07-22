@@ -33,6 +33,10 @@ class ColorPalette;
 #define NUMERICAL_ZERO7 1.0e-7
 #define NUMERICAL_ZERO8 1.0e-8
 
+#include <stdio.h>
+#include <stdlib.h>
+
+
 /*! \brief This class contains miscellaneous identifiers und global functions.
 */
 class ODD
@@ -57,6 +61,23 @@ public:
     static ProjectWidget *getProjectWidget();
     static ProjectData *getProjectData();
     static ChangeManager *getChangeManager();
+
+	static const float getVersion()
+	{
+		char buf[100];
+		sprintf(buf, "%d%c%d", revMajor_, '.', revMinor_);
+		return atof(buf);
+	}
+
+	static const unsigned short getRevMinor()
+	{
+		return revMinor_;
+	}
+
+	static const unsigned short getRevMajor()
+	{
+		return revMajor_;
+	}
 
     //################//
     // ENUMS          //
@@ -228,6 +249,10 @@ private:
     // Colors //
     //
     ColorPalette *colorPalette_;
+
+	// Version //
+	static const unsigned short revMinor_ = 3;
+	static const unsigned short revMajor_ = 1;
 };
 
 #endif // ODD_HPP

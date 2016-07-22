@@ -29,7 +29,7 @@ public:
     oscLightsMember light;
 };
 
-typedef oscObjectVariableArray<oscLighting *> oscLightingMemberArray;
+typedef oscObjectVariableArray<oscLighting *> oscLightingArrayMember;
 
 }
 

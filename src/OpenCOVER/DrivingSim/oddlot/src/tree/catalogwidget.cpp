@@ -71,15 +71,14 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogWidget::CatalogWidget(MainWindow *mainWindow, OSCElement *element, const QString &type)
+CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
 	: QWidget()
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
-	, oscElement_(element)
+	, catalog_(catalog)
 	, type_(type)
 	, catalogTreeWidget_(NULL)
 {
-	object_ = oscElement_->getObject();
     init();
 }
 
@@ -96,6 +95,7 @@ void
 CatalogWidget::init()
 {
 	projectData_ = mainWindow_->getActiveProject()->getProjectData();
+	base_ = projectData_->getOSCBase();
 
 	// Widget/Layout //
     //
@@ -106,39 +106,74 @@ CatalogWidget::init()
 	toolLayout->addWidget(recycleArea, 0, 2);
 
 
-	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, object_, type_);
+	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_, type_);
 	toolLayout->addWidget(catalogTreeWidget_, 0, 0);
 
+    QPushButton *toolButton;
+    int row = -1; // button row
+
+    // Link Roads by Handles//
+    //
+    toolButton = new QPushButton(tr("Save"));
+    toolButton->setCheckable(false);
+    toolLayout->addWidget(toolButton, 1, 0);
+	connect(toolButton, SIGNAL(clicked()), this, SLOT(handleToolClick()));
+
 	this->setLayout(toolLayout);
+
+	// Connect with the ToolManager to send the selected signal or object //
+    //
+	ToolManager *toolManager = mainWindow_->getToolManager();
+	if (toolManager)
+	{
+		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+	}
 }
 
 void 
 CatalogWidget::onDeleteCatalogItem()
 {
-	OSCBase *base = oscElement_->getOSCBase();
-
 	bool deletedSomething = false;
 	do
 	{
 		deletedSomething = false;
-		QList<DataElement *> selectedElements = projectData_->getSelectedElements();
-		foreach (DataElement * element, selectedElements)
-		{
-			OSCElement *oscElement = dynamic_cast<OSCElement *>(element);
-			if (oscElement)
-			{
-				RemoveOSCObjectCommand *command = new RemoveOSCObjectCommand(oscElement);
-				projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
 
-				if (command->isValid())
-				{
-					deletedSomething = true;
-					break;
-				}
+		QList<QTreeWidgetItem *> selectedItems = catalogTreeWidget_->selectedItems();
+		for ( int i = 0; i < selectedItems.size(); i++)
+		{
+			QString text = selectedItems.at(i)->text(0);
+			int refId = text.split("(")[1].remove(")").toInt();
+			OSCElement *element = base_->getOSCElement(catalog_->getCatalogObject(refId));
+
+			RemoveOSCCatalogObjectCommand *command = new RemoveOSCCatalogObjectCommand(catalog_, refId, element);
+			projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
+
+			if (command->isValid())
+			{
+				deletedSomething = true;
+				break;
 			}
 		}
 	}while(deletedSomething);
 }
+
+//################//
+// SLOTS          //
+//################//
+
+/*! \brief Gets called when a tool has been selected.
+*/
+void
+	CatalogWidget::handleToolClick()
+{
+
+    // Set a tool //
+    //
+    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_SAVE_CATALOG, type_);
+    emit toolAction(action);
+    delete action;
+}
+
  
 
 //#######################################################//

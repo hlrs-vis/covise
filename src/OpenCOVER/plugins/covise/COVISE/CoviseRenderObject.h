@@ -202,12 +202,14 @@ public:
     CoviseRenderObject *getColors() const;
     CoviseRenderObject *getTexture() const;
     CoviseRenderObject *getVertexAttribute() const;
+    CoviseRenderObject *getColorMap(int idx) const;
 
     const covise::coDistributedObject *COVdobj;
     const covise::coDistributedObject *COVnormals;
     const covise::coDistributedObject *COVcolors[Field::NumChannels];
     const covise::coDistributedObject *COVtexture;
     const covise::coDistributedObject *COVvertexAttribute;
+    std::vector<const covise::coDistributedObject *> COVcolorMap;
     const covise::coDistributedObject *coviseObject;
     char type[7];
     char *name;
@@ -233,6 +235,7 @@ public:
     mutable CoviseRenderObject *colorObject;
     mutable CoviseRenderObject *textureObject;
     mutable CoviseRenderObject *vertexAttributeObject;
+    mutable std::vector<CoviseRenderObject *> colorMapObject;
     bool IsTypeField(const std::vector<string> &types, bool strict_case);
 
     std::vector<int> assignedTo;

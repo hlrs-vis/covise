@@ -181,7 +181,10 @@ DomParser::parseXODR(QIODevice *source)
     }
     else
     {
-        parseHeaderElement(child);
+        if (!parseHeaderElement(child))
+		{
+			return false;
+		}
     }
 
     // RoadSystem / Tile //
@@ -748,6 +751,13 @@ DomParser::parseHeaderElement(QDomElement &element)
 
     QString name = parseToQString(element, "name", "Untitled", true); // optional
     float version = parseToFloat(element, "version", 1.0f, true); // optional
+	
+	if ((version > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
+	{
+		qDebug() << "Oddlot only supports OpenDrive versions up to 1.3";
+		return false;
+	}
+
     QString date = parseToQString(element, "date", "", true); // optional
 
     double north = parseToDouble(element, "north", 10000.0, true); // optional

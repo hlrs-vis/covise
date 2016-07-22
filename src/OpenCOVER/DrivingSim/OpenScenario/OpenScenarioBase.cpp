@@ -7,7 +7,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
-#include "oscSourceFile.h"
 
 #include <iostream>
 
@@ -204,9 +203,20 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
     setPathFromCurrentDirToDoc(fileName);
 
     xercesc::DOMElement *rootElement = getRootElement(fileName, fileType, m_validate);
-    if(rootElement == NULL)
+	std::string rootElementName = xercesc::XMLString::transcode(rootElement->getNodeName());
+
+	if (rootElementName != fileType)
+	{
+		return false;
+	}
+
+    if(rootElement == NULL) // create new file
     {
-        return false;
+		if (createSource(fileName, fileType))
+		{
+			return true;
+		}
+		return false;
     }
     else
     {
@@ -262,69 +272,12 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         //
         //////
 
-        //file name and path for writing
-        bf::path pathFileNameToWrite = srcFileVec[i]->getAbsPathToMainDir();
-        pathFileNameToWrite /= srcFileVec[i]->getRelPathFromMainDir();
-        pathFileNameToWrite /= srcFileName;
-
-        //xml document to write
-        xercesc::DOMDocument *xmlSrcDoc = srcFileVec[i]->getXmlDoc();
-
-        //write xml document to file
-        writeFileToDisk(xmlSrcDoc, pathFileNameToWrite.generic_string().c_str());
+		srcFileVec[i]->writeFileToDisk();
     }
 
     return true;
 }
 
-
-//
-bool OpenScenarioBase::writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite)
-{
-    xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
-
-#if (XERCES_VERSION_MAJOR < 3)
-    xercesc::DOMWriter *writer = impl->createDOMWriter();
-#else
-    xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
-    // set the format-pretty-print feature
-    if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
-    {
-        writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
-    }
-#endif
-
-    xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(filenameToWrite);
-
-#if (XERCES_VERSION_MAJOR < 3)
-    if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
-    {
-        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-        delete xmlTarget;
-        delete writer;
-        return false;
-    }
-#else
-    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    output->setByteStream(xmlTarget);
-
-    if (!writer->write(xmlDocToWrite, output))
-    {
-        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-        delete output;
-        delete xmlTarget;
-        delete writer;
-        return false;
-    }
-
-    delete output;
-#endif
-
-    delete xmlTarget;
-    delete writer;
-
-    return true;
-}
 
 xercesc::MemBufFormatTarget *OpenScenarioBase::writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite)
 {
@@ -527,16 +480,29 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 //
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
+	std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
+	createSource(fileNamePathStr, xercesc::XMLString::transcode(rootElement->getNodeName()));
+
+    return oscObjectBase::parseFromXML(rootElement, source);
+}
+
+//
+oscSourceFile *OpenScenarioBase::createSource(const std::string &fileName, const std::string &fileType)
+{
     source = new oscSourceFile();
-    source->setSrcFileHref(bf::path());
-    std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
-    bf::path fnPath = source->getFileNamePath(fileNamePathStr);
+	source->setSrcFileHref(bf::path());
+    bf::path fnPath = source->getFileNamePath(fileName);
     source->setSrcFileName(fnPath.filename());
     source->setPathFromCurrentDirToMainDir(m_pathFromCurrentDirToDoc);
     source->setAbsPathToMainDir(fnPath.parent_path());
     source->setRelPathFromMainDir(bf::path());
-    source->setRootElementName(rootElement->getNodeName());
+	source->setRootElementName(fileType);
+
     addToSrcFileVec(source);
 
-    return oscObjectBase::parseFromXML(rootElement, source);
+	return source;
 }
+
+
+
+

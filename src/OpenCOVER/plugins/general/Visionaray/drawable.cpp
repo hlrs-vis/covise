@@ -77,7 +77,7 @@ namespace cover
     using light_list = aligned_vector<light_type>;
     using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
 
-    using host_tex_type = texture<vector<4, unorm<8> >, NormalizedFloat, 2>;
+    using host_tex_type = texture<vector<4, unorm<8> >, 2>;
     using host_tex_ref_type = typename host_tex_type::ref_type;
     using texture_list = aligned_vector<host_tex_ref_type>;
     using texture_map = std::map<std::string, host_tex_type>;
@@ -92,7 +92,7 @@ namespace cover
     using device_tex_coord_list = thrust::device_vector<vec2>;
     using device_material_list = thrust::device_vector<material_type>;
     using device_color_list = thrust::device_vector<color_type>;
-    using device_tex_type = cuda_texture<vector<4, unorm<8> >, NormalizedFloat, 2>;
+    using device_tex_type = cuda_texture<vector<4, unorm<8> >, 2>;
     using device_tex_ref_type = typename device_tex_type::ref_type;
     using device_texture_list = thrust::device_vector<device_tex_ref_type>;
     using device_texture_map = std::map<std::string, device_tex_type>;

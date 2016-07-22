@@ -61,9 +61,12 @@ public:
     }
 
 protected:
+    void updateState(vruiButtons *button);
+
     RunningState runningState;
     InteractionState oldState;
     int wheelCount;
+    unsigned buttonmask;
 
     vruiButtons *button;
 };

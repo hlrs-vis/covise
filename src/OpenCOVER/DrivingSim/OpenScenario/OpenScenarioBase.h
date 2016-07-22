@@ -19,6 +19,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscEntities.h"
 #include "oscStoryboard.h"
 #include "oscScenarioEnd.h"
+#include "oscSourceFile.h"
 
 #include "oscTest.h"
 
@@ -105,12 +106,12 @@ public:
                                                                       \return false if writing to the file failed.*/
 
     //
-    bool writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite);
     xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
     xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate); ///< parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
 
     //
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successful
+	oscSourceFile *createSource(const std::string &fileName, const std::string &fileType); // create source 
 };
 
 }

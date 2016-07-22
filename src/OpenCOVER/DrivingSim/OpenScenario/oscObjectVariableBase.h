@@ -38,16 +38,16 @@ public:
         return valueT;
     };
 
-    oscObjectBase *getObject() const
+    T getObject() const
     {
         return valueT;
     };
 
-    oscObjectBase *getOrCreateObject()
+    T getOrCreateObject()
     {
         if (valueT == NULL)
         {
-            oscObjectBase *obj = oscFactories::instance()->objectFactory->create(TBase::typeName);
+            T obj = static_cast<T>(oscFactories::instance()->objectFactory->create(TBase::typeName));
             if(obj)
             {
                 obj->initialize(TBase::owner->getBase(), TBase::owner, this, TBase::owner->getSource());
@@ -57,6 +57,10 @@ public:
         return valueT;
     };
 
+    void setValue(T t)
+    {
+        valueT = t;
+    };
     void setValue(oscObjectBase *t)
     {
         valueT = dynamic_cast<T>(t);

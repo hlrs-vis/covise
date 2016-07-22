@@ -29,7 +29,7 @@ public:
     oscStartConditionsGroupTypeCMember startConditionGroup;
 };
 
-typedef oscObjectVariableArray<oscStartConditionsGroupsTypeC *> oscStartConditionsGroupsTypeCMemberArray;
+typedef oscObjectVariableArray<oscStartConditionsGroupsTypeC *> oscStartConditionsGroupsTypeCArrayMember;
 
 }
 

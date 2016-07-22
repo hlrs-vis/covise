@@ -12,8 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscCatalogObject.h"
-#include "oscCatalogBase.h"
+#include "oscObjectCatalog.h"
+#include "oscCatalog.h"
 #include "oscUserDataList.h"
 
 
@@ -25,20 +25,22 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-        OSC_OBJECT_ADD_MEMBER(objectCatalog, "oscCatalogObject");
-        OSC_OBJECT_ADD_MEMBER(entityCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscCatalogBase");
-        OSC_OBJECT_ADD_MEMBER(routingCatalog, "oscCatalogBase");
+        OSC_OBJECT_ADD_MEMBER(objectCatalog, "oscObjectCatalog");
+        OSC_OBJECT_ADD_MEMBER(entityCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(routingCatalog, "oscCatalog");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
-    oscCatalogObjectMember objectCatalog;
-    oscCatalogBaseMemberCatalog entityCatalog;
-    oscCatalogBaseMemberCatalog environmentCatalog;
-    oscCatalogBaseMemberCatalog maneuverCatalog;
-    oscCatalogBaseMemberCatalog routingCatalog;
-    oscUserDataListMemberArray userDataList;
+    oscObjectCatalogMember objectCatalog;
+    oscCatalogMember entityCatalog;
+    oscCatalogMember environmentCatalog;
+    oscCatalogMember maneuverCatalog;
+    oscCatalogMember routingCatalog;
+    oscUserDataListArrayMember userDataList;
+
+	oscCatalog *getCatalog(const std::string &s);
 };
 
 typedef oscObjectVariable<oscCatalogs *> oscCatalogsMember;

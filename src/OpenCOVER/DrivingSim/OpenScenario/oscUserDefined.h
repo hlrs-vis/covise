@@ -29,7 +29,7 @@ public:
     };
 
     oscString uid;
-    oscParameterListTypeBMemberArray parameterList;
+    oscParameterListTypeBArrayMember parameterList;
 };
 
 typedef oscObjectVariable<oscUserDefined *> oscUserDefinedMember;

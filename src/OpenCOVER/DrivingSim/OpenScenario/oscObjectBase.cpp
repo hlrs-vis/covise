@@ -145,6 +145,18 @@ oscObjectBase::MemberOptional oscObjectBase::getOptional() const
     return optional;
 }
 
+//
+oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
+{
+	oscMember *member = members[name];
+	if (member)
+	{
+		return member->getOrCreateObject();
+	}
+
+	return NULL;
+}
+
 
 //
 bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
@@ -163,8 +175,8 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     xercesc::DOMDocument *docToUse;
                     xercesc::DOMElement *elementToUse;
 
-                    //memberArray
-                    oscMemberArray *aMember = dynamic_cast<oscMemberArray *>(member);
+                    //ArrayMember
+                    oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
 
                     //xml document for member
                     xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
@@ -177,20 +189,20 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
                         addXInclude(currentElement, document, fileHref);
 
-                        //member and memberArray use a new document and the root element of this document
+                        //member and ArrayMember use a new document and the root element of this document
                         docToUse = srcXmlDoc;
                         elementToUse = docToUse->getDocumentElement();
                     }
                     else
                     {
-                        //member and memberArray use the same document
+                        //member and ArrayMember use the same document
                         docToUse = document;
 
                         if (aMember)
                         {
-                            //write memberArray (the container)
-                            //(and the memberArrays are written under this element in the write function)
-                            elementToUse = aMember->writeMemberArrayToDOM(currentElement, docToUse);
+                            //write ArrayMember (the container)
+                            //(and the ArrayMembers are written under this element in the write function)
+                            elementToUse = aMember->writeArrayMemberToDOM(currentElement, docToUse);
                         }
                         else
                         {
@@ -202,7 +214,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     //
                     if (aMember)
                     {
-                        //for memberArray there is no differentiation if document != srcXmlDoc is true or false
+                        //for ArrayMember there is no differentiation if document != srcXmlDoc is true or false
                         for (int i = 0; i < aMember->size(); i++)
                         {
                             std::string aMemChildElemName = aMember->at(i)->getOwnMember()->getName();
@@ -211,8 +223,8 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                             oscMember *aMemberMember = obj->getMembers().at(aMemChildElemName);
                             aMemberMember->setValue(aMember->at(i));
 
-                            //write array element into memberArray (the container)
-                            //(it's a root element of a new xml document or the container written with writeMemberArrayToDOM())
+                            //write array element into ArrayMember (the container)
+                            //(it's a root element of a new xml document or the container written with writeArrayMemberToDOM())
                             obj->writeToDOM(elementToUse, docToUse);
                         }
                     }
@@ -230,27 +242,11 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         }
                     }
 
-                    //write objects of a memberCatalog
-                    //
-                    oscMemberCatalog *cMember = dynamic_cast<oscMemberCatalog *>(member);
-                    if(cMember)
-                    {
-                        for (unordered_map<int, oscObjectBase *>::const_iterator it = cMember->begin(); it != cMember->end(); it++)
-                        {
-                            oscObjectBase *objFromCatalog = it->second;
-                            if (objFromCatalog)
-                            {
-                                xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getXmlDoc();
-                                xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
-                                objFromCatalog->writeToDOM(rootElement, objFromCatalogXmlDoc);
-                            }
-                        }
-                    }
                 }
             }
             else
             {
-                oscMemberArray *am = dynamic_cast<oscMemberArray *>(member);
+                oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
                 if(am)
                 {
                     std::cerr << "Array values not yet implemented" << std::endl;
@@ -288,7 +284,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 oscMember *m = members[attributeName];
                 if(m)
                 {
-                    oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
+                    oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
                     if(am)
                     {
                         std::cerr << "Array values not yet implemented" << std::endl;
@@ -348,12 +344,12 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 std::string memTypeName = m->getTypeName();
                 oscSourceFile *srcToUse = determineSrcFile(memberElem, src);
 
-                //oscMemberArray
+                //oscArrayMember
                 //
-                oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
+                oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
                 if(am)
                 {
-                    //check if memberArray has attributes
+                    //check if ArrayMember has attributes
                     //attributes of a maemberArray are not supported
                     xercesc::DOMNamedNodeMap *memArrayAttributes = memberElem->getAttributes();
                     for (int i = 0; i < memArrayAttributes->getLength(); i++)
@@ -364,8 +360,8 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             std::string attribName = xercesc::XMLString::transcode(attrib->getName());
                             if (attribName != "xmlns" && attribName != "xmlns:osc" && attribName != "xml:base")
                             {
-                                std::cerr << "\n MemberArray (container for an array) " << memberName << " has attributes." << std::endl;
-                                std::cerr << " Attributes of a MemberArray are not supported.\n" << std::endl;
+                                std::cerr << "\n ArrayMember (container for an array) " << memberName << " has attributes." << std::endl;
+                                std::cerr << " Attributes of a ArrayMember are not supported.\n" << std::endl;
                             }
                         }
                     }
@@ -373,7 +369,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //member has no value (value doesn't exist)
                     if ( !m->exists() )
                     {
-                        //generate the object for oscMemberArray
+                        //generate the object for oscArrayMember
                         //(it's the container for the array members)
                         oscObjectBase *objAMCreated = oscFactories::instance()->objectFactory->create(memTypeName);
 
@@ -389,7 +385,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         }
                     }
 
-                    //object for oscMemberArray
+                    //object for oscArrayMember
                     oscObjectBase *objAM = m->getObject();
                     if(objAM)
                     {
@@ -429,7 +425,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             }
                         }
                     }
-                }
+				}
                 //oscMember
                 //
                 else
@@ -461,67 +457,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 }
 
 
-                //handle catalogs
-                //read files from directory structure
-                //
-                oscMemberCatalog *cm = dynamic_cast<oscMemberCatalog *>(m);
-                if (cm)
-                {
-                    //catalog type
-                    std::string catalogType = cm->getName();
-                    catalogType.erase(catalogType.length() - std::string("Catalog").length());
-                    cm->setCatalogType(catalogType);
-
-                    //path to directory
-                    //object/member is of type oscCatalogBase and has a member directory,
-                    oscMember *dirMember = cm->getObject()->getMember("directory");
-                    oscObjectBase *dirMemberObj = dirMember->getObject();
-                    if (dirMemberObj)/*true if xosc file has an element directory*/
-                    {
-                        // directory is of type oscDirectory and has a member path with a value of type string
-                        oscMember *pathMember = dirMember->getObject()->getMember("path");
-                        oscMemberValue *pathMemberValue = pathMember->getValue();
-                        oscStringValue *pathMemberStrVal = dynamic_cast<oscStringValue *>(pathMemberValue);
-                        if (pathMemberStrVal)/*true if element directory has an attribute path*/
-                        {
-                            //set variable pathToCatalogDir with type bf::path from std::string
-                            bf::path pathToCatalogDir(pathMemberStrVal->getValue());
-
-                            bf::path pathToCatalogDirToUse;
-                            //check if path is absolute or relative
-                            if (pathToCatalogDir.is_absolute())
-                            {
-                                pathToCatalogDirToUse = pathToCatalogDir;
-                            }
-                            else
-                            {
-                                pathToCatalogDirToUse = source->getPathFromCurrentDirToMainDir();
-                                pathToCatalogDirToUse /= pathToCatalogDir;
-                            }
-
-                            //get all catalog object filenames
-                            std::vector<bf::path> filenames = cm->getXoscFilesFromDirectory(pathToCatalogDirToUse);
-
-                            //parse all files
-                            //store object name and filename in map
-                            cm->fastReadCatalogObjects(filenames);
-
-                            //////
-                            //enable full read of catalogs in oscTest with argument '-frc'
-                            //
-                            if (base->getFullReadCatalogs())
-                            {
-                                //generate the objects for this catalog and store them
-                                for (auto &it : cm->getAvailableObjectsMap())
-                                {
-                                    cm->fullReadCatalogObjectWithName(it.first);
-                                }
-                            }
-                            //
-                            //////
-                        }
-                    }
-                }
+                
             }
             //no member
             //

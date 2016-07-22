@@ -31,12 +31,113 @@ class oscObjectBase;
 class OpenScenarioBase;
 class oscMember;
 class oscMemberValue;
+class oscCatalog;
 template<typename T>
 class oscValue;
+class oscSourceFile;
 }
 
 class OSCBase;
 
+#define BOOST_FILESYSTEM_NO_DEPRECATED
+#include <boost/filesystem.hpp>
+
+
+namespace bf = boost::filesystem;
+
+//#########################//
+// LoadOSCCatalogObjectCommand //
+//#########################//
+
+class LoadOSCCatalogObjectCommand : public DataCommand
+{
+public:
+	explicit LoadOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
+    virtual ~LoadOSCCatalogObjectCommand();
+
+    virtual int id() const
+    {
+        return 0x1014;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    LoadOSCCatalogObjectCommand(); /* not allowed */
+    LoadOSCCatalogObjectCommand(const LoadOSCCatalogObjectCommand &); /* not allowed */
+    LoadOSCCatalogObjectCommand &operator=(const LoadOSCCatalogObjectCommand &); /* not allowed */
+
+private:
+	OpenScenario::oscCatalog * catalog_;
+	OpenScenario::oscObjectBase *objectBase_;
+	int refId_;
+	OSCElement *oscElement_;
+	OSCBase *oscBase_;
+};
+
+//#########################//
+// AddOSCCatalogObjectCommand //
+//#########################//
+
+class AddOSCCatalogObjectCommand : public DataCommand
+{
+public:
+	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, DataCommand *parent = NULL);
+    virtual ~AddOSCCatalogObjectCommand();
+
+    virtual int id() const
+    {
+        return 0x1014;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    AddOSCCatalogObjectCommand(); /* not allowed */
+    AddOSCCatalogObjectCommand(const AddOSCCatalogObjectCommand &); /* not allowed */
+    AddOSCCatalogObjectCommand &operator=(const AddOSCCatalogObjectCommand &); /* not allowed */
+
+private:
+	OpenScenario::oscCatalog * catalog_;
+    std::string path_;
+	int refId_;
+	OpenScenario::oscObjectBase *objectBase_;
+};
+
+//#########################//
+// RemoveOSCCatalogObjectCommand //
+//#########################//
+
+class RemoveOSCCatalogObjectCommand : public DataCommand
+{
+public:
+    explicit RemoveOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCElement *element, DataCommand *parent = NULL);
+    virtual ~RemoveOSCCatalogObjectCommand();
+
+    virtual int id() const
+    {
+        return 0x1015;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    RemoveOSCCatalogObjectCommand(); /* not allowed */
+    RemoveOSCCatalogObjectCommand(const RemoveOSCCatalogObjectCommand &); /* not allowed */
+    RemoveOSCCatalogObjectCommand &operator=(const RemoveOSCCatalogObjectCommand &); /* not allowed */
+
+private:
+	OpenScenario::oscObjectBase * oscObject_;
+    OpenScenario::oscCatalog * catalog_;
+	OSCElement *element_;
+	OSCBase *oscBase_;
+	bf::path path_;
+
+	int refId_;
+};
 
 //#########################//
 // AddOSCObjectCommand //
@@ -45,7 +146,7 @@ class OSCBase;
 class AddOSCObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, DataCommand *parent = NULL);
+	explicit AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, OpenScenario::oscSourceFile *file,  DataCommand *parent = NULL);
     virtual ~AddOSCObjectCommand();
 
     virtual int id() const
@@ -68,6 +169,7 @@ private:
 
 	OSCElement *element_;
 	OSCBase *oscBase_;
+	OpenScenario::oscSourceFile *sourceFile_;
 	OpenScenario::oscMember *member_;
 };
 
@@ -83,7 +185,7 @@ public:
 
     virtual int id() const
     {
-        return 0x1011;
+        return 0x1012;
     }
 
     virtual void undo();
@@ -115,7 +217,7 @@ public:
 
     virtual int id() const
     {
-        return 0x1011;
+        return 0x1013;
     }
 
     virtual void undo();

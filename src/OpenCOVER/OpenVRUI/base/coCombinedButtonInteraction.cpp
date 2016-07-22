@@ -49,50 +49,8 @@ void coCombinedButtonInteraction::update()
         button = mousebutton;
 
     vruiButtons *curbutton = mouse ? mousebutton : button;
-    runningState = StateNotRunning;
-    unsigned int buttonStatus = curbutton->getStatus();
 
-    if (state == Idle)
-    {
-        if (curbutton->wasPressed(1<<type))
-        {
-            if (activate())
-            {
-                runningState = StateStarted;
-                startInteraction();
-            }
-        }
-        if ((type & Wheel) && (buttonStatus & Wheel))
-        {
-            wheelCount = curbutton->getWheelCount();
-            if (activate())
-            {
-                runningState = StateStarted;
-                startInteraction();
-            }
-        }
-    }
-    else if (state == Active)
-    {
-        if ((1<<type) & buttonStatus)
-        {
-            if ((buttonStatus & Wheel) && (type & Wheel))
-                wheelCount = curbutton->getWheelCount();
-            runningState = StateRunning;
-            doInteraction();
-        }
-        else
-        {
-            runningState = StateStopped;
-            stopInteraction();
-            state = Idle;
-        }
-    }
-    else if (state == Stopped) // das soll einen Frame verzoegern
-    {
-        //fprintf(stderr,"coButtonInteraction::update state == Stopped\n");
-        state = Idle;
-    }
+    updateState(curbutton);
 }
 
 bool coCombinedButtonInteraction::is2D() const

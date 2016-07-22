@@ -78,7 +78,7 @@ public:
 
     };
 
-    virtual T& operator=(T &tv)
+    virtual const T &operator=(const T &tv)
     {
         setValue(tv);
         return tv;

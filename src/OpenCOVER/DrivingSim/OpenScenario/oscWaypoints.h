@@ -29,7 +29,7 @@ public:
     oscWaypointMember waypoint;
 };
 
-typedef oscObjectVariableArray<oscWaypoints *> oscWaypointsMemberArray;
+typedef oscObjectVariableArray<oscWaypoints *> oscWaypointsArrayMember;
 
 }
 

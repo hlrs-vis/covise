@@ -65,6 +65,11 @@
 #include "oscObjectBase.h"
 #include "oscObject.h"
 #include "oscCatalogs.h"
+#include "oscCatalog.h"
+
+// Boost //
+//
+#include <boost/filesystem.hpp>
 
 
 // Qt //
@@ -261,28 +266,40 @@ OpenScenarioEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t
 */
 
 void 
-OpenScenarioEditor::catalogChanged(OpenScenario::oscObjectBase *object)
+OpenScenarioEditor::catalogChanged(OpenScenario::oscCatalog * member)
 {
-	oscCatalog_ = object;
+	oscCatalog_ = member;
 }
 
-OSCElement *
+OpenScenario::oscCatalog *
 OpenScenarioEditor::getCatalog(std::string name)
 {
 	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-	OpenScenario::oscObjectBase *catalogObject = openScenarioBase->getMember("catalogs")->getOrCreateObject();
 
-	OpenScenario::oscMember *catalogMember = catalogObject->getMember(name);
-	if (!catalogMember)
+	OpenScenario::oscCatalogs *catalogs = openScenarioBase->catalogs.getOrCreateObject();
+	OpenScenario::oscCatalog *catalog = catalogs->getCatalog(name);
+	std::string catalogsDir = (mainWindow_->getCovisedir() + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/").toStdString(); 
+	if (!bf::exists(bf::path(catalogsDir)))
 	{
-		catalogObject = catalogObject->getMember("objectCatalog")->getOrCreateObject();
-		catalogMember = catalogObject->getMember(name);
+		bf::create_directory(catalogsDir);
 	}
-	OpenScenario::oscObjectBase *catalog = catalogMember->getOrCreateObject();
-	oscBase_->getOSCElement(catalogObject);
+
+	OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("directory"));
+	if (dir)
+	{
+		std::string dirName = catalog->directory->path.getValue();
+		if (dirName == "")
+		{
+			dirName = catalog->directory->path = catalogsDir + name;
+			if (!bf::exists(bf::path(dirName)))
+			{
+				bf::create_directory(dirName);
+			}
+		}
+	}
 	OSCElement *oscElement = oscBase_->getOSCElement(catalog);
 
-	return oscElement;
+	return catalog;
 }
 
 
@@ -394,9 +411,9 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			
 			if (objectName != "")
 			{
-				OSCElement *oscElement = getCatalog(objectName.toStdString());
+				OpenScenario::oscCatalog *oscCatalog = getCatalog(objectName.toStdString());
 
-				catalogTree_ = getProjectWidget()->addCatalogTree(objectName, oscElement);   
+				catalogTree_ = getProjectWidget()->addCatalogTree(objectName, oscCatalog);   
 				catalogTree_->setOpenScenarioEditor(this);
 
 			}
@@ -411,15 +428,42 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			catalogElement_ = action->getText();
 		}
 	}
-	else if (currentTool != lastTool_)
+	else
 	{		
 		if (currentTool == ODD::TOS_SAVE_CATALOG)
 		{
 			// Save catalog //
 			//			if (catalog_ && mainWindow_->getActiveProject()->saveCatalogAs())
-			if (mainWindow_->getActiveProject()->saveAs())
+			/*if (mainWindow_->getActiveProject()->saveAs())
 			{
-				printStatusBarMsg(tr("File has been saved."), 2000);
+			printStatusBarMsg(tr("File has been saved."), 2000);
+			} */
+
+
+			OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
+			if (action)
+			{
+				// Save catalog //
+				oscCatalog_->writeCatalogToDOM();
+				oscCatalog_->writeCatalogToDisk();
+
+
+/*				QString type = action->getText();
+
+				if (type != "")
+				{
+					oscCatalog *catalogMember = dynamic_cast<oscCatalog *>(oscCatalog_->getOwnMember());
+					if (catalogMember->getName().compare(type.toStdString()) != 0)
+					{
+						OSCElement *oscElement = getCatalog(type.toStdString());
+						oscCatalog_ = oscElement->getObject();
+					}
+					OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+	OpenScenario::oscObjectBase *objectCatalog = openScenarioBase->getMember("catalogs")->getObject();
+	objectCatalog = objectCatalog->getMember("objectCatalog")->getObject(); */
+	
+/*	dynamic_cast<OpenScenario::oscCatalog*>(objectCatalog->getMember(type.toStdString()))->writeCatalogToDOM();
+				} */
 			}
 		}
 
