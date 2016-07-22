@@ -55,7 +55,6 @@
 #include "oscObjectBase.h"
 #include "oscMember.h"
 #include "oscMemberValue.h"
-#include "oscCatalogBase.h"
 #include "oscCatalog.h"
 
 #include <QWidget>

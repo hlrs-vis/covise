@@ -15,6 +15,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOMLSOutput.hpp>
 
+#include <iostream>
+
 
 using namespace OpenScenario;
 
