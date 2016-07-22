@@ -27,6 +27,7 @@
 namespace std
 {
     inline int isnan(double X){return _isnan(X);};
+    inline int isinf(double X){return !_finite(X);};
     inline int finite(double X){return _finite(X);};
 }
 #endif
