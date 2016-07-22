@@ -119,8 +119,10 @@ class RContext : public RendContext
 {
 public:
     Matrix3 WorldToCam() const { return Matrix3(1); }
+#if MAX_VERSION_MAJOR < 19
     ShadowBuffer *NewShadowBuffer() const;
     ShadowQuadTree *NewShadowQuadTree() const;
+#endif
     Color GlobalLightLevel() const;
     int Progress(int done, int total)
     {
@@ -1418,6 +1420,7 @@ void SContext::SetView(Point3 v)
 // Shadow buffer
  ***************************************************************************/
 
+#if MAX_VERSION_MAJOR < 19
 ShadowBuffer *RContext::NewShadowBuffer() const
 {
     return NULL;
@@ -1427,7 +1430,7 @@ ShadowQuadTree *RContext::NewShadowQuadTree() const
 {
     return NULL;
 }
-
+#endif
 Color RContext::GlobalLightLevel() const
 {
     return Color(1, 1, 1); // TBD

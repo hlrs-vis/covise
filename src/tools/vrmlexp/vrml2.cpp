@@ -75,6 +75,10 @@ HISTORY: created 7 June, 1996
 #include <windows.h>
 #include <Winuser.h>
 
+#if MAX_VERSION_MAJOR >= 19
+#include "polyshp.h"
+#endif
+
 std::vector<ShaderEffect> shaderEffects;
 
 enum elementTypes
