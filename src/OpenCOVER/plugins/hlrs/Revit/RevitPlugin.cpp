@@ -392,10 +392,15 @@ void RevitPlugin::createMenu()
     updateCameraTUIButton = new coTUIButton("Update Camera", revitTab->getID());
     updateCameraTUIButton->setEventListener(this);
     updateCameraTUIButton->setPos(0, 0);
+    
 
     addCameraTUIButton = new coTUIButton("Add Camera", revitTab->getID());
     addCameraTUIButton->setEventListener(this);
     addCameraTUIButton->setPos(0, 1);
+    
+    viewsCombo = new coTUIComboBox("views", revitTab->getID());
+    viewsCombo->setEventListener(this);
+    viewsCombo->setPos(0, 2);
 }
 
 void RevitPlugin::destroyMenu()
@@ -409,6 +414,7 @@ void RevitPlugin::destroyMenu()
 
     delete addCameraTUIButton;
     delete updateCameraTUIButton;
+    delete viewsCombo;
     delete revitTab;
 }
 
@@ -524,6 +530,16 @@ void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == addCameraTUIButton)
     {
+    }
+    else if(tUIItem == viewsCombo)
+    {
+        TokenBuffer tb;
+        tb << viewsCombo->getSelectedEntry();
+        Message message(tb);
+        message.type = (int)RevitPlugin::MSG_SetView;
+        RevitPlugin::instance()->sendMessage(message);
+        message.type = (int)RevitPlugin::MSG_Resend;
+        RevitPlugin::instance()->sendMessage(message);
     }
     else
     {
@@ -811,6 +827,20 @@ RevitPlugin::handleMessage(Message *m)
 
     switch (type)
     {
+    case MSG_Views:
+        {
+            TokenBuffer tb(m);
+            int numViews;
+            tb >> numViews;
+            viewsCombo->clear();
+            for(int i=0;i<numViews;i++)
+            {
+                std::string ViewName;
+                tb >> ViewName;
+                viewsCombo->addEntry(ViewName);
+            }
+        }
+        break;
     case MSG_RoomInfo:
         {
             TokenBuffer tb(m);

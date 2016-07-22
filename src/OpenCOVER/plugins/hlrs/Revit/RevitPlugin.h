@@ -199,10 +199,9 @@ public:
         MSG_ChangeAnnotation = 520,
         MSG_ChangeAnnotationText = 521,
         MSG_NewAnnotationID = 522,
-        
-
-        
-        
+        MSG_Views = 523,
+        MSG_SetView = 524,
+        MSG_Resend = 525,
     };
     enum ObjectTypes
     {
@@ -253,6 +252,7 @@ protected:
     coButtonMenuItem *updateCameraButton;
     coTUIButton *addCameraTUIButton;
     coTUIButton *updateCameraTUIButton;
+    coTUIComboBox *viewsCombo;
 
     ServerConnection *serverConn;
     ServerConnection *toRevit;
