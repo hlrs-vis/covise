@@ -3619,6 +3619,7 @@
 			<laneSectionPrototype name = "Nagolder Strasse East(1)" icon = "">
 				<road name="Nagolder Strasse East(1)" length="100.0" id="prototype" junction="-1">
 					<lanes>
+						<laneSection s="0.0">
 							<right>
 								<lane id="-1" type="driving" level= "0">
 									<link>
