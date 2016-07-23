@@ -28,6 +28,7 @@
 #include "coVRNavigationManager.h"
 #include "coVRIntersectionInteractorManager.h"
 #include "coIntersectionUtil.h"
+#include "coVRMSController.h"
 
 #include <util/coWristWatch.h>
 #include <numeric>
@@ -101,8 +102,12 @@ void coIntersection::intersect()
 
     cover->intersectedNode = 0;
 
+    // for debug only
+    //coVRMSController::instance()->syncInt(2000);
     if (Input::instance()->isTrackingOn())
     {
+    // for debug only
+    //coVRMSController::instance()->syncInt(2001);
         if (true /*&& !coVRConfig::instance()->useWiiMote() */)
         {
             //fprintf(stderr, "coIntersection::intersect() NOT wiiMode\n");
@@ -135,7 +140,12 @@ void coIntersection::intersect()
     }
 
     if (!cover->intersectedNode && coVRConfig::instance()->mouseNav())
+    {
         intersect(cover->getMouseMat(), true);
+	
+    // for debug only
+    //coVRMSController::instance()->syncInt(2002);
+    }
 
     if (VRViewer::instance()->getStats() && VRViewer::instance()->getStats()->collectStats("isect"))
     {
@@ -305,6 +315,13 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
             //VRUILOG("coIntersection::intersect info: miss");
         }
     }
+   /* // for debug only
+    coVRMSController::instance()->syncInt((int)(cover->intersectedNode!=NULL));
+    if(cover->intersectedNode!=NULL)
+    {
+    coVRMSController::instance()->syncStringStop(cover->intersectedNode.get()->getName());
+    }*/
+    
 }
 
 const char *coIntersection::getClassName() const

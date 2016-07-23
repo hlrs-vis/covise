@@ -1923,6 +1923,118 @@ void coVRMSController::syncApp(int frameNum)
     MARK0("COVER syncApp done");
 }
 
+void coVRMSController::syncInt(int value)
+{
+    if (numSlaves == 0)
+        return;
+    if (master)
+    {
+        sendSlaves(&value, sizeof(value));
+    }
+    else
+    {
+        int masterValue = 0;
+        if (readMaster(&masterValue, sizeof(masterValue)) < 0)
+        {
+            cerr << "bcould not read message from Master" << endl;
+            cerr << "syncInt_exit15a myID=" << myID << endl;
+            exit(0);
+        }
+        if (masterValue != value)
+        {
+            cerr << "values differ master:" << masterValue << "me:" << value <<endl;
+            cerr << "myID=" << myID << endl;
+            while(true)
+{
+ // loop forever so that we can attach a debugger
+}
+        }
+    }
+    sync();
+}
+
+void coVRMSController::syncFloat(float value)
+{
+    if (numSlaves == 0)
+        return;
+    if (master)
+    {
+        sendSlaves(&value, sizeof(value));
+    }
+    else
+    {
+        float masterValue = 0;
+        if (readMaster(&masterValue, sizeof(masterValue)) < 0)
+        {
+            cerr << "bcould not read message from Master" << endl;
+            cerr << "syncInt_exit15a myID=" << myID << endl;
+            exit(0);
+        }
+        if (masterValue != value)
+        {
+            cerr << "values differ master:" << masterValue << "me:" << value <<endl;
+            cerr << "myID=" << myID << endl;
+            while(true)
+{
+ // loop forever so that we can attach a debugger
+}
+        }
+    }
+    sync();
+}
+void coVRMSController::syncStringStop(std::string s)
+{
+    if (numSlaves == 0)
+        return;
+    if (s.length() == 0)
+        return;
+    if (master)
+    {
+        int len = s.length();
+	const char *buf = s.c_str();
+        sendSlaves(&len, sizeof(len));
+        sendSlaves(buf, len+1);
+    }
+    else
+    {
+        int masterValue = 0;
+	std::string str;
+        if (readMaster(&masterValue, sizeof(masterValue)) < 0)
+        {
+            cerr << "bcould not read message from Master" << endl;
+            cerr << "syncInt_exit15a myID=" << myID << endl;
+            exit(0);
+        }
+        if (masterValue != s.length())
+        {
+            cerr << "values differ master:" << masterValue << "me:" << s.length() <<endl;
+            cerr << "myID=" << myID << endl;
+            while(true)
+	    {
+	     // loop forever so that we can attach a debugger
+	    }
+	 }
+char *buf = new char[masterValue+1];
+        if (readMaster(buf, masterValue+1) < 0)
+        {
+            cerr << "bcould not read message from Master" << endl;
+            cerr << "syncInt_exit15a myID=" << myID << endl;
+            exit(0);
+        }
+	str = std::string(buf);
+	
+        if (str != s)
+        {
+            cerr << "values differ master:" << str << "me:" << s <<endl;
+            cerr << "myID=" << myID << endl;
+            while(true)
+	    {
+	     // loop forever so that we can attach a debugger
+	    }
+	 }
+    }
+    sync();
+}
 //sync Time and handle Cluster statistics
 
 void coVRMSController::syncTime()
