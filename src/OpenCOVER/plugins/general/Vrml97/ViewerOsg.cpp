@@ -2401,6 +2401,8 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         }
         geometries[0] = new osg::Geometry;
         geometries[1] = new osg::Geometry;
+        geometries[0]->setStateSet(geom->getStateSet());
+        geometries[1]->setStateSet(geom->getStateSet());
         geometries[0]->addPrimitiveSet(polygonsMin);
         geometries[1]->addPrimitiveSet(polygonsMax);
         geometries[0]->setVertexArray(vertexArrayMin);

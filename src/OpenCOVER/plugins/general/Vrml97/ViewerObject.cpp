@@ -546,25 +546,7 @@ void osgViewerObject::updateTexture()
         {
             StateSet *geostate = geoset->getOrCreateStateSet();
             geostate->setNestRenderBins(false);
- /*           if (numTextures > 1)
-            {
-                for (unsigned int contextID = 0; contextID < osg::DisplaySettings::instance()->getMaxNumberOfGraphicsContexts(); ++contextID)
-                {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 4)
-                    const osg::ref_ptr<osg::GLExtensions> extensions = new osg::GLExtensions(contextID);
-                    if (!extensions->isMultiTexturingSupported)
-                        std::cout << "Multi-texturing not supported by OpenGL drivers" << std::endl;
-#else
-                    Texture::Extensions *textExt = Texture::getExtensions(contextID, false);
-                    if (textExt)
-                    {
-                        if (!textExt->isMultiTexturingSupported())
-                            std::cout << "Multi-texturing not supported by OpenGL drivers" << std::endl;
-                    }
-#endif
-                }
-            }*/
-
+ 
             //fprintf(stderr, "updateTexture: numTextures=%d\n", numTextures);
             for (int i = 0; i < numTextures; i++)
             {
@@ -587,6 +569,11 @@ void osgViewerObject::updateTexture()
                 {
                     //fprintf(stderr, "updateTexture: texture==NULL for unit %d\n", i);
                 }
+            }
+            for(int i=1;i<pGeode->getNumDrawables();i++) // copy the same geostate to the rest of the drawables
+            {
+                osg::Drawable *d = pGeode->getDrawable(i);
+                d->setStateSet(geostate);
             }
         }
     }
@@ -839,6 +826,12 @@ void osgViewerObject::updateMaterial()
                     }
                 }
                 drawable->setStateSet(geostate);
+                
+                for(int i=1;i<pGeode->getNumDrawables();i++) // copy the same geostate to the rest of the drawables
+                {
+                    osg::Drawable *d = pGeode->getDrawable(i);
+                    d->setStateSet(geostate);
+                }
             }
         }
     }
