@@ -143,6 +143,9 @@ public:
     void sync();
     void startupSync();
     void syncApp(int frameNum);
+    void syncInt(int value);
+    void syncFloat(float value);
+    void syncStringStop(std::string name);
     void syncDraw();
     void syncTime();
     int syncData(void *data, int size);
