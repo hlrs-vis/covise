@@ -32,10 +32,10 @@ public:
         OSC_OBJECT_ADD_MEMBER(maneuvers, "oscManeuversTypeB");
     };
 
-    oscStartConditionsGroupsTypeAMemberArray startConditionGroups;
-    oscEndConditionsGroupsTypeAMemberArray endConditionGroups;
-    oscCancelConditionsGroupsTypeAMemberArray cancelConditionGroups;
-    oscManeuversTypeBMemberArray maneuvers;
+    oscStartConditionsGroupsTypeAArrayMember startConditionGroups;
+    oscEndConditionsGroupsTypeAArrayMember endConditionGroups;
+    oscCancelConditionsGroupsTypeAArrayMember cancelConditionGroups;
+    oscManeuversTypeBArrayMember maneuvers;
 };
 
 typedef oscObjectVariable<oscManeuverGroupTypeAB *>oscManeuverGroupTypeABMember;

@@ -71,6 +71,7 @@ struct Field
         Elements,
         Connections,
         Types,
+        ColorMap,
     };
 };
 
@@ -153,6 +154,7 @@ public:
     virtual RenderObject *getColors() const = 0;
     virtual RenderObject *getTexture() const = 0;
     virtual RenderObject *getVertexAttribute() const = 0;
+    virtual RenderObject *getColorMap(int idx) const = 0;
 
     virtual const char *getAttribute(const char *) const = 0;
 

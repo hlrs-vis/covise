@@ -29,7 +29,7 @@ public:
     }
 
     oscString name;
-    oscUserDataListMemberArray userDataList;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscNameUserData *> oscNameUserDataMember;

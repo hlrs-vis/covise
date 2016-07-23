@@ -26,24 +26,271 @@
 #include "oscMemberValue.h"
 #include "oscVariables.h"
 #include "oscCatalogs.h"
+#include "oscCatalog.h"
 
 using namespace OpenScenario;
+
+//#########################//
+// LoadOSCCatalogObjectCommand //
+//#########################//
+
+LoadOSCCatalogObjectCommand::LoadOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCBase *base, OSCElement *element, DataCommand *parent)
+    : DataCommand(parent)
+	, catalog_(catalog)
+	, refId_(refId)
+	, oscElement_(element)
+	, oscBase_(base)
+{
+    // Check for validity //
+    //
+	objectBase_ = catalog_->getCatalogObject(refId_);
+	if (!catalog_ || objectBase_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("LoadOSCCatalogObjectCommand: Internal error! Member or Id not valid."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("AddOSCCatalogObject"));
+    }
+
+}
+
+/*! \brief .
+*
+*/
+LoadOSCCatalogObjectCommand::~LoadOSCCatalogObjectCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+//        delete object_;
+    }
+    else
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+LoadOSCCatalogObjectCommand::redo()
+{
+	catalog_->fullReadCatalogObjectWithName(refId_);
+
+	oscElement_->setObjectBase(catalog_->getCatalogObject(refId_));
+	oscBase_->addOSCElement(oscElement_);
+	
+	setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+	LoadOSCCatalogObjectCommand::undo()
+{
+	catalog_->removeCatalogObject(refId_);
+
+	oscElement_->setObjectBase(NULL);
+	oscBase_->delOSCElement(oscElement_);
+
+	setUndone();
+}
+
+
+//#########################//
+// AddOSCCatalogObjectCommand //
+//#########################//
+
+AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, DataCommand *parent)
+    : DataCommand(parent)
+	, catalog_(catalog)
+	, refId_(refId)
+	, objectBase_(objectBase)
+	, path_(path)
+{
+    // Check for validity //
+    //
+
+	if (!catalog_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("AddOSCCatalogObjectCommand: Internal error! Member not valid."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("AddOSCCatalogObject"));
+    }
+
+
+}
+
+/*! \brief .
+*
+*/
+AddOSCCatalogObjectCommand::~AddOSCCatalogObjectCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+//        delete object_;
+    }
+    else
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+AddOSCCatalogObjectCommand::redo()
+{
+	// create refId
+	OpenScenario::oscMember *member = objectBase_->getMember("refId");
+	OpenScenario::oscMemberValue *v = member->getOrCreateValue();
+	v->setValue(refId_); 
+	
+	if (objectBase_)
+	{
+		catalog_->addCatalogObject(refId_, objectBase_, boost::filesystem::path(path_));
+	}
+	else
+	{
+		catalog_->addObjToObjectsMap(refId_, path_, NULL);
+	}
+	
+	setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+	AddOSCCatalogObjectCommand::undo()
+{
+/*	OpenScenario::oscMember *member = objectBase_->getMember("refId");
+	member->deleteValue(); */
+
+	if (objectBase_)
+	{
+		catalog_->removeCatalogObject(refId_);
+	}
+	else
+	{
+		catalog_->removeObjFromObjectsMap(refId_);
+	}
+
+	setUndone();
+}
+
+//#########################//
+// RemoveOSCCatalogObjectCommand //
+//#########################//
+
+RemoveOSCCatalogObjectCommand::RemoveOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCElement *element ,DataCommand *parent) // or oscObjectBase ??
+    : DataCommand(parent)
+	, catalog_(catalog)
+	, refId_(refId)
+	, element_(element)
+	, oscBase_(NULL)
+{
+    // Check for validity //
+    //
+	
+	if (!catalog_ )
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("RemoveOSCCatalogObjectCommand: Internal error! No valid member or object ID specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("RemoveOSCCatalogObject"));
+    }
+
+	if (element_)
+	{
+		oscBase_ = element_->getOSCBase();
+	}
+
+	oscObject_ = catalog_->getCatalogObject(refId_);
+	path_ = catalog_->getPath(refId_);
+}
+
+/*! \brief .
+*
+*/
+RemoveOSCCatalogObjectCommand::~RemoveOSCCatalogObjectCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+    else
+    {
+//        delete object_;
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+RemoveOSCCatalogObjectCommand::redo()
+{
+	if (oscBase_)
+	{
+		oscBase_->delOSCElement(element_);
+	}
+
+	catalog_->removeCatalogObject(refId_);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+RemoveOSCCatalogObjectCommand::undo()
+{
+	catalog_->addCatalogObject(refId_, oscObject_, path_);
+	element_->setObjectBase(oscObject_);
+	oscBase_->addOSCElement(element_);
+
+    setUndone();
+}
 
 //#########################//
 // AddOSCObjectCommand //
 //#########################//
 
-AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *base, const std::string &name, OSCElement *element, DataCommand *parent)
+AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *base, const std::string &name, OSCElement *element, OpenScenario::oscSourceFile *file, DataCommand *parent)
     : DataCommand(parent)
 	, element_(element)
 	, parentObject_(parentObject)
 	, oscBase_(base)
+	, sourceFile_(file)
 {
     // Check for validity //
     //
 	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
 	member_ = members[name];
-    if ((name == "") || !member_)
+    if (name == "")
     {
         setInvalid(); // Invalid
         setText(QObject::tr("AddOSCObjectCommand: Internal error! No name specified or member already present."));
@@ -55,9 +302,16 @@ AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObje
         setText(QObject::tr("AddOSCObject"));
     }
 
-	typeName_ = member_->getTypeName();
+	if (member_)	// there is no member for a catalog
+	{
+		typeName_ = member_->getTypeName();
+	}
+	else
+	{
+		typeName_ = name;
+	}
 
-	openScenarioBase_ = parentObject_->getBase();
+	openScenarioBase_ = base->getOpenScenarioBase();
 }
 
 /*! \brief .
@@ -87,9 +341,11 @@ AddOSCObjectCommand::redo()
 
 	if(obj)
 	{
-		obj->initialize(openScenarioBase_, parentObject_, member_, NULL);	
-		member_->setValue(obj);
-
+		obj->initialize(openScenarioBase_, parentObject_, member_, sourceFile_);	
+		if (member_)
+		{
+			member_->setValue(obj);
+		}
 
 		element_->setObjectBase(obj);
 		oscBase_->addOSCElement(element_);
@@ -104,14 +360,20 @@ AddOSCObjectCommand::redo()
 void
 AddOSCObjectCommand::undo()
 {
-	const OpenScenario::oscObjectBase *obj = member_->getObject();
-	member_->deleteValue();
+	const OpenScenario::oscObjectBase *obj = element_->getObject();
+	if (member_)
+	{
+		member_->deleteValue();
+	}
 
 	element_->setObjectBase(NULL);
 	oscBase_->delOSCElement(element_);
 
    setUndone();
 }
+
+
+
 
 //#########################//
 // RemoveOSCObjectCommand //

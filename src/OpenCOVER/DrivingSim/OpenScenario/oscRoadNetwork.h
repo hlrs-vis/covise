@@ -31,7 +31,7 @@ public:
 
     oscFileMember openDrive;
     oscFileMember sceneGraph;
-    oscUserDataListMemberArray userDataList;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscRoadNetwork *> oscRoadNetworkMember;

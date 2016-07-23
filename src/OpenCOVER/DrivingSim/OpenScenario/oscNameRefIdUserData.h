@@ -27,7 +27,7 @@ public:
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
-    oscUserDataListMemberArray userDataList;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscNameRefIdUserData *> oscNameRefIdUserDataMember;

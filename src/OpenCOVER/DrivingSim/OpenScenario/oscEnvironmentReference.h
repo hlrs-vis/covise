@@ -30,7 +30,7 @@ public:
     };
 
     oscCatalogReferenceTypeAMember catalogReference;
-    oscUserDataListMemberArray userDataList;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscEnvironmentReference *> oscEnvironmentReferenceMember;

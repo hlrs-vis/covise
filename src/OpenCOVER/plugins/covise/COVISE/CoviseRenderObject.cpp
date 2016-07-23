@@ -14,6 +14,7 @@
 #include <net/message.h>
 #include <net/tokenbuffer.h>
 #include <do/coDistributedObject.h>
+#include <do/coDoColormap.h>
 #include <do/coDoPoints.h>
 #include <do/coDoSpheres.h>
 #include <do/coDoLines.h>
@@ -46,6 +47,7 @@ using namespace covise;
 #define HASTEXTURE 8
 #define HASVERTEXATTRIBUTE 16
 #define HASMULTICOLORS 32
+#define HASCOLORMAP 64
 
 CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std::vector<int> &assignedTo)
     : assignedTo(assignedTo)
@@ -76,6 +78,9 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         COVcolors[c] = NULL;
     COVtexture = NULL;
     COVvertexAttribute = NULL;
+    COVcolorMap.resize(coDoGeometry::NumColorMaps);
+    for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+        COVcolorMap[c] = NULL;
     name = NULL;
     objs = NULL;
     geometryObject = NULL;
@@ -83,6 +88,9 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
     colorObject = NULL;
     textureObject = NULL;
     vertexAttributeObject = NULL;
+    colorMapObject.resize(coDoGeometry::NumColorMaps);
+    for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+        colorMapObject[c] = NULL;
     geometryFlag = 0;
     pc = NULL;
     coviseObject = co;
@@ -137,6 +145,8 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     COVcolors[c] = geometry->getColors(c);
                 COVtexture = geometry->getTexture();
                 COVvertexAttribute = geometry->getVertexAttribute();
+                for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+                    COVcolorMap[c] = geometry->getColorMap(c);
                 if (COVdobj)
                     geometryFlag |= HASOBJ;
                 if (COVnormals)
@@ -156,6 +166,9 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     geometryFlag |= HASTEXTURE;
                 if (COVvertexAttribute)
                     geometryFlag |= HASVERTEXATTRIBUTE;
+                for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+                    if (COVcolorMap[c])
+                        geometryFlag |= HASCOLORMAP;
                 if (cluster)
                 {
                     addInt(geometryFlag);
@@ -477,6 +490,31 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 if (cluster)
                 {
                     addInt(size);
+                    addFloat(min_[0]);
+                    addFloat(max_[0]);
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                }
+            }
+            else if (strcmp(type, "COLMAP") == 0)
+            {
+                coDoColormap *colmap = (coDoColormap *)co;
+                size = colmap->getNumSteps();
+                farr[0] = colmap->getAddress();
+                if (const char *min = colmap->getAttribute("MIN"))
+                {
+                    std::stringstream s(min);
+                    s >> min_[0];
+                }
+                if (const char *max = colmap->getAttribute("MAX"))
+                {
+                    std::stringstream s(max);
+                    s >> max_[0];
+                }
+                if (cluster)
+                {
+                    addInt(size);
+                    addFloat(min_[0]);
+                    addFloat(max_[0]);
                     tb.addBinary((char *)farr[0], size * sizeof(float));
                 }
             }
@@ -752,6 +790,14 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             farr[0] = new float[size];
             memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
+        else if (strcmp(type, "COLMAP") == 0)
+        {
+            copyInt(size);
+            copyFloat(min_[0]);
+            copyFloat(max_[0]);
+            farr[0] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+        }
     }
 }
 
@@ -796,6 +842,14 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
         min_[c] = 0;
         max_[c] = 0;
         COVcolors[c] = NULL;
+    }
+
+    COVcolorMap.resize(coDoGeometry::NumColorMaps);
+    colorMapObject.resize(coDoGeometry::NumColorMaps);
+    for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+    {
+        COVcolorMap[c] = NULL;
+        colorMapObject[c] = NULL;
     }
 
     for (int c = 0; c < Field::NumChannels; ++c)
@@ -853,7 +907,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
                     {
                         addInt(size);
                         tb.addBinary((const char *)barr[c], size);
-                }
+                    }
                 }
                 else if (strcmp(type, "USTSDT") == 0)
                 {
@@ -973,6 +1027,8 @@ CoviseRenderObject::~CoviseRenderObject()
     delete colorObject;
     delete textureObject;
     delete vertexAttributeObject;
+    for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+        delete colorMapObject[c];
     if (!coVRMSController::instance()->isMaster())
     {
         int i;
@@ -1003,6 +1059,8 @@ CoviseRenderObject::~CoviseRenderObject()
             delete COVcolors[c];
         delete COVtexture;
         delete COVvertexAttribute;
+        for (int c = 0; c < coDoGeometry::NumColorMaps; ++c)
+            delete COVcolorMap[c];
         delete[] name;
     }
 }
@@ -1078,6 +1136,22 @@ CoviseRenderObject *CoviseRenderObject::getVertexAttribute() const
     {
         vertexAttributeObject = new CoviseRenderObject(COVvertexAttribute, this->assignedTo);
         return vertexAttributeObject;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+CoviseRenderObject *CoviseRenderObject::getColorMap(int idx) const
+{
+    bool indexValid = idx >= 0 && idx < colorMapObject.size();
+    if (indexValid && colorMapObject[idx])
+        return colorMapObject[idx];
+    if (indexValid && (geometryFlag & HASCOLORMAP))
+    {
+        colorMapObject[idx] = new CoviseRenderObject(COVcolorMap[idx], this->assignedTo);
+        return colorMapObject[idx];
     }
     else
     {

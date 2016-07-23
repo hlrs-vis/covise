@@ -29,7 +29,7 @@ public:
     oscEyepointMember eyepoint;
 };
 
-typedef oscObjectVariableArray<oscEyepoints *> oscEyepointsMemberArray;
+typedef oscObjectVariableArray<oscEyepoints *> oscEyepointsArrayMember;
 
 }
 

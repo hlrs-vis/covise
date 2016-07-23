@@ -29,7 +29,7 @@ public:
     oscParameterTypeAMember parameter;
 };
 
-typedef oscObjectVariableArray<oscParameterListTypeA *> oscParameterListTypeAMemberArray;
+typedef oscObjectVariableArray<oscParameterListTypeA *> oscParameterListTypeAArrayMember;
 
 }
 

@@ -121,6 +121,7 @@ OSCBase::delOSCElement(OSCElement *oscElement)
     if (oscElements_.remove(oscElement->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
     {
         oscElement->setOSCBase(NULL);
+//		addOSCElementChanges(OSCBase::COSC_ElementChange);
         return true;
     }
     else
@@ -128,6 +129,7 @@ OSCBase::delOSCElement(OSCElement *oscElement)
         qDebug("WARNING 1005311350! Delete OpenScenario Element not successful!");
         return false;
     }
+
 }
 
 //##################//
@@ -208,22 +210,22 @@ OSCBase::accept(Visitor *visitor)
 *
 * Resets the change flags to 0x0.
 */
-/*void
-RSystemElement::notificationDone()
+void
+OSCBase::notificationDone()
 {
-    rSystemElementChanges_ = 0x0;
+    oscElementChanges_ = 0x0;
     DataElement::notificationDone(); // pass to base class
-}*/
+}
 
 /*! \brief Add one or more change flags.
 *
 */
-/*void
-RSystemElement::addRSystemElementChanges(int changes)
+void
+OSCBase::addOSCElementChanges(int changes)
 {
     if (changes)
     {
-        rSystemElementChanges_ |= changes;
+        oscElementChanges_ |= changes;
         notifyObservers();
     }
-}*/
+}

@@ -29,7 +29,7 @@ public:
     oscManeuverGroupTypeABMember maneuverGroup;
 };
 
-typedef oscObjectVariableArray<oscManeuverGroupsTypeAB *> oscManeuverGroupsTypeABMemberArray;
+typedef oscObjectVariableArray<oscManeuverGroupsTypeAB *> oscManeuverGroupsTypeABArrayMember;
 
 }
 

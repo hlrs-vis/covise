@@ -31,7 +31,7 @@ public:
 
     oscVehicleAxleMember front;
     oscVehicleAxleMember rear;
-    oscAdditionalAxlesMemberArray additionalAxles;
+    oscAdditionalAxlesArrayMember additionalAxles;
 };
 
 typedef oscObjectVariable<oscAxles *> oscAxlesMember;

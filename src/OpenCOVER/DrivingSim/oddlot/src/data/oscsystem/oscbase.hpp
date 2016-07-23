@@ -48,12 +48,10 @@ public:
         DRE_Object
     };*/
 
-/*    enum RSystemElementChange
+    enum OSCBaseChange
     {
-        CRE_IdChange = 0x1,
-        CRE_NameChange = 0x2,
-        CRE_ParentRoadSystemChange = 0x4
-    };*/
+        COSC_ElementChange = 0x1
+    };
 
     //################//
     // FUNCTIONS      //
@@ -98,12 +96,12 @@ public:
 
     // Observer Pattern //
     //
-  /*  virtual void notificationDone();
-    int getRSystemElementChanges() const
+    virtual void notificationDone();
+/*    int getRSystemElementChanges() const
     {
         return rSystemElementChanges_;
-    }
-    void addRSystemElementChanges(int changes);*/
+    } */
+    void addOSCElementChanges(int changes);
 
 private:
 //    OSCBase(); /* not allowed */
@@ -131,7 +129,7 @@ private:
 
     // Observer Pattern //
     //
-//    int rSystemElementChanges_;
+    int oscElementChanges_;
 };
 
 #endif // OSCBASE_HPP

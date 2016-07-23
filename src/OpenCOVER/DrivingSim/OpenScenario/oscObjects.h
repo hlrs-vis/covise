@@ -29,7 +29,7 @@ public:
     oscObjectMember object;
 };
 
-typedef oscObjectVariableArray<oscObjects *> oscObjectsMemberArray;
+typedef oscObjectVariableArray<oscObjects *> oscObjectsArrayMember;
 
 }
 

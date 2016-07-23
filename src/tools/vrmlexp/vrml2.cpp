@@ -75,6 +75,10 @@ HISTORY: created 7 June, 1996
 #include <windows.h>
 #include <Winuser.h>
 
+#if MAX_VERSION_MAJOR >= 19
+#include "polyshp.h"
+#endif
+
 std::vector<ShaderEffect> shaderEffects;
 
 enum elementTypes
@@ -3954,6 +3958,8 @@ VRML2Export::VrmlOutTUIElement(TabletUIElement *el, INode *node, int level)
         for (int j = 0; j < el->objects.Count(); j++)
         {
             TabletUIObj *tuiobj = (TabletUIObj *)el->objects[j];
+            if(tuiobj->node)
+            {
             Object *o = tuiobj->node->EvalWorldState(mStart).obj;
 
             switch (el->type)
@@ -4054,6 +4060,7 @@ VRML2Export::VrmlOutTUIElement(TabletUIElement *el, INode *node, int level)
             Indent(level);
             MSTREAMPRINTF  ("ROUTE %s.touchTime TO %s-TIMER.startTime\n\n"),el->name.data(),tuiobj->listStr.data());
          }*/
+            }
         }
     }
 
@@ -6841,6 +6848,8 @@ VRML2Export::WriteControllerData(INode *node,
                 for (int j = 0; j < th->elements[i]->objects.Count(); j++)
                 {
                     INode *nd = (INode *)th->elements[i]->objects[j]->node;
+                    if(nd !=NULL)
+                    {
                     Object *o = nd->EvalWorldState(mStart).obj;
 
                     if (nd == node)
@@ -6900,6 +6909,7 @@ VRML2Export::WriteControllerData(INode *node,
                                     mInterpRoutes[l].mType = mInterpRoutes[l].mType | KEY_TABLETUI_TOGGLE;
                                 else if (mInterpRoutes[l].mType == KEY_TABLETUI)
                                     AddInterpolator(mInterpRoutes[l].mInterp.data(), KEY_TIMER | KEY_TABLETUI_TOGGLE, mInterpRoutes[l].mNodeName.data(), nd);
+                    }
                     }
                 }
         }

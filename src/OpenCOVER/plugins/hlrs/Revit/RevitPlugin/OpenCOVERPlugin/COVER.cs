@@ -42,7 +42,7 @@ namespace OpenCOVERPlugin
    public sealed class COVER
    {
 
-       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID };
+       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend };
       public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
       private Thread messageThread;
 
@@ -98,9 +98,9 @@ namespace OpenCOVERPlugin
               while (COVER.Instance.messageQueue.Count > 0)
               {
                   COVERMessage m = COVER.Instance.messageQueue.Dequeue();
-                  if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition)//read only messages
+                  if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition || (MessageTypes)m.messageType == MessageTypes.SetView || (MessageTypes)m.messageType == MessageTypes.Resend)//read only messages
                   {
-                      COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc);
+                      COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc,a);
                   }
                   else
                   {
@@ -112,7 +112,7 @@ namespace OpenCOVERPlugin
                       transaction.SetFailureHandlingOptions(failOpt);
                       if (transaction.Start("changeParameters") == TransactionStatus.Started)
                       {
-                          COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc);
+                          COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc,a);
                           if (TransactionStatus.Committed != transaction.Commit())
                           {
                               // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
@@ -250,21 +250,31 @@ namespace OpenCOVERPlugin
          | ((source & 0xFF000000) >> 24)));
       }
 
-      public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, Autodesk.Revit.DB.Document doc)
+      public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, Autodesk.Revit.UI.UIApplication application)
       {
+         UIDocument uidoc = application.ActiveUIDocument;
+         Application app = application.Application;
+         Document doc = uidoc.Document;
          MessageBuffer mb = new MessageBuffer();
          mb.add(1);
          sendMessage(mb.buf, MessageTypes.ClearAll);
-          // todo use the current or default view
-         iter.Reset();
-         while (iter.MoveNext())
+         View3D = null;
+         if (uidoc.ActiveView is View3D)
          {
-            if (iter.Current is Autodesk.Revit.DB.View3D)
-            {
-                View3D = iter.Current as Autodesk.Revit.DB.View3D;
-              break;
-            }
-            // this one handles Group.
+             View3D = uidoc.ActiveView as View3D;
+         }
+         if (View3D == null)
+         {
+             iter.Reset();
+             while (iter.MoveNext())
+             {
+                 if (iter.Current is Autodesk.Revit.DB.View3D)
+                 {
+                     View3D = iter.Current as Autodesk.Revit.DB.View3D;
+                     break;
+                 }
+                 // this one handles Group.
+             }
          }
           ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
          iter.Reset();
@@ -1158,7 +1168,7 @@ void TestAllOverloads(
       }
 
 
-      void handleMessage(MessageBuffer buf, int msgType,Document doc,UIDocument uidoc)
+      void handleMessage(MessageBuffer buf, int msgType,Document doc,UIDocument uidoc, UIApplication app)
       {
 
           // create Avatar object if not present
@@ -1168,6 +1178,21 @@ void TestAllOverloads(
           }*/
           switch ((MessageTypes)msgType)
           {
+                  
+              case MessageTypes.Resend:
+                  {
+                      Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
+                      COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), app);
+
+                      ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
+                      FilteredElementCollector FamilyCollector = new FilteredElementCollector(uidoc.Document);
+                      ICollection<Element> AllFamilies = FamilyCollector.WherePasses(FamilyFilter).ToElements();
+                      foreach (FamilySymbol Fmly in AllFamilies)
+                      {
+                          COVER.Instance.sendFamilySymbolParameters(Fmly);
+                      }
+                  }
+                  break;
               case MessageTypes.SetParameter:
                   {
                       int elemID = buf.readInt();
@@ -1329,6 +1354,43 @@ void TestAllOverloads(
                           tn.Coord = translationVec;
                       }
 
+                  }
+                  break;
+              case MessageTypes.SetView:
+                  {
+                      int currentView = buf.readInt();
+
+                      List<View3D> views = new List<View3D>(
+          new FilteredElementCollector(doc)
+            .OfClass(typeof(View3D))
+            .Cast<View3D>()
+            .Where<View3D>(v =>
+              v.CanBePrinted && !v.IsTemplate));
+                      int n = 0;
+                      foreach (View3D v in views)
+                      {
+                          if (n == currentView)
+                          {
+                              try
+                              {
+                              uidoc.ActiveView = v;
+                              }
+                              catch (Autodesk.Revit.Exceptions.ArgumentNullException e)
+                              {
+                                  Console.WriteLine("Exception information: {0}", e);
+                              }
+                              catch (Autodesk.Revit.Exceptions.ArgumentException e)
+                              {
+                                  Console.WriteLine("Exception information: {0}", e);
+                              }
+                              catch (Autodesk.Revit.Exceptions.InvalidOperationException e)
+                              {
+                                  Console.WriteLine("Exception information: {0}", e);
+                              }
+                              break;
+                          }
+                          n++;
+                      }
                   }
                   break;
               case MessageTypes.ChangeAnnotationText:
@@ -1531,9 +1593,9 @@ void TestAllOverloads(
           {
               COVERMessage m = COVER.Instance.messageQueue.Dequeue();
 
-              if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition)//read only messages
+              if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition || (MessageTypes)m.messageType == MessageTypes.SetView || (MessageTypes)m.messageType == MessageTypes.Resend)//read only messages
               {
-                  COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc);
+                  COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc,uiapp);
               }
               else
               {
@@ -1547,7 +1609,7 @@ void TestAllOverloads(
 
                   if (transaction.Start("changeParameters") == TransactionStatus.Started)
                   {
-                      COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc);
+                      COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc,uiapp);
                       if (TransactionStatus.Committed != transaction.Commit())
                       {
                           // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
@@ -1620,6 +1682,28 @@ void TestAllOverloads(
                      setConnected(false);
                      return false;
                  }
+
+                 List<View3D> views = new List<View3D>(
+     new FilteredElementCollector(doc)
+       .OfClass(typeof(View3D))
+       .Cast<View3D>()
+       .Where<View3D>(v =>
+         v.CanBePrinted && !v.IsTemplate));
+                 int n = views.Count;
+
+                 if (0 == n)
+                 {
+                     setConnected(false);
+                     return false;
+                 }
+                 MessageBuffer mb = new MessageBuffer();
+                 mb.add(n);
+                 foreach (View3D v in views)
+                 {
+                     mb.add(v.Name);
+                 }
+                 sendMessage(mb.buf, MessageTypes.Views);
+
                  if (numRead == 1)
                  {
                      setConnected(true);
@@ -1627,6 +1711,7 @@ void TestAllOverloads(
 
                      // Start the thread
                      messageThread.Start();
+
                  }
 
                  return true;

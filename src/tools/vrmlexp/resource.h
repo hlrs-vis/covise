@@ -370,7 +370,9 @@
 #define IDC_POLYGON_TYPE 1231
 #define IDC_MY_EDIT 1232
 #define IDC_MY_SPIN 1233
-#define _MSC_VER 1234
+#ifndef _MSC_VER
+#define _MSC_VER 1900
+#endif
 #define IDC_MX_EDIT 1234
 #define IDC_MX_SPIN 1235
 #define IDC_PROGRESS_NNAME 1236

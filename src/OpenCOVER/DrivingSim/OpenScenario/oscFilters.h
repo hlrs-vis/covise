@@ -29,7 +29,7 @@ public:
     oscFilterMember filter;
 };
 
-typedef oscObjectVariableArray<oscFilters *> oscFiltersMemberArray;
+typedef oscObjectVariableArray<oscFilters *> oscFiltersArrayMember;
 
 }
 

@@ -29,7 +29,7 @@ public:
     oscFeatureMember feature;
 };
 
-typedef oscObjectVariableArray<oscFeatures *> oscFeaturesMemberArray;
+typedef oscObjectVariableArray<oscFeatures *> oscFeaturesArrayMember;
 
 }
 

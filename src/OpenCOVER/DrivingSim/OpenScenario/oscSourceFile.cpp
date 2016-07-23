@@ -10,6 +10,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
+
+#include <iostream>
 
 
 using namespace OpenScenario;
@@ -153,6 +159,70 @@ const XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const
 xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
 {
     return m_xmlDoc;
+}
+
+xercesc::DOMDocument *oscSourceFile::getOrCreateXmlDoc()
+{
+	if (!m_xmlDoc)
+	{
+
+		xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+		xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, getRootElementNameAsXmlCh(), 0);
+		m_xmlDoc = xmlSrcDoc;
+	}
+
+    return m_xmlDoc;
+}
+
+
+bool oscSourceFile::writeFileToDisk()
+{
+    xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+	bf::path filenameToWrite = m_absPathToMainDir;
+        filenameToWrite /= m_relPathFromMainDir;
+        filenameToWrite /= m_srcFileName;
+
+#if (XERCES_VERSION_MAJOR < 3)
+    xercesc::DOMWriter *writer = impl->createDOMWriter();
+#else
+    xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+    // set the format-pretty-print feature
+    if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    {
+        writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    }
+#endif
+
+    xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(filenameToWrite.generic_string().c_str());
+
+#if (XERCES_VERSION_MAJOR < 3)
+    if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete xmlTarget;
+        delete writer;
+        return false;
+    }
+#else
+    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+    output->setByteStream(xmlTarget);
+
+    if (!writer->write(m_xmlDoc, output))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete output;
+        delete xmlTarget;
+        delete writer;
+        return false;
+    }
+
+    delete output;
+#endif
+
+    delete xmlTarget;
+    delete writer;
+
+    return true;
 }
 
 

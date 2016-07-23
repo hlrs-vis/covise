@@ -17,6 +17,9 @@
 #define CATALOGWIDGET_HPP
 
 #include "src/util/odd.hpp"
+#include "src/gui/tools/toolaction.hpp"
+
+#include "oscCatalog.h"
 
 #include <QWidget>
 
@@ -45,7 +48,7 @@ class CatalogWidget : public QWidget
     //################//
 
 public:
-	explicit CatalogWidget(MainWindow *mainWindow, OSCElement *element, const QString &type);
+	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
     virtual ~CatalogWidget();
 
 	void setActiveProject(ProjectWidget *projectWidget)
@@ -69,6 +72,20 @@ private:
 
     void init();
 
+//################//
+// SIGNALS        //
+//################//
+
+signals:
+    void toolAction(ToolAction *);	// This widget has to behave like a toolEditor and send the selected tool //
+
+	//################//
+    // SLOTS          //
+    //################//
+
+public slots:
+	void handleToolClick();
+
     //################//
     // PROPERTIES     //
     //################//
@@ -79,6 +96,7 @@ private:
 	MainWindow *mainWindow_;
 
 	CatalogTreeWidget *catalogTreeWidget_;
+	OpenScenario::oscCatalog *catalog_;
 
 	// OpenScenario Base //
 	//

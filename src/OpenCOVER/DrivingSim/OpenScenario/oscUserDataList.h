@@ -29,7 +29,7 @@ public:
     oscUserDataMember userData;
 };
 
-typedef oscObjectVariableArray<oscUserDataList *> oscUserDataListMemberArray;
+typedef oscObjectVariableArray<oscUserDataList *> oscUserDataListArrayMember;
 
 }
 

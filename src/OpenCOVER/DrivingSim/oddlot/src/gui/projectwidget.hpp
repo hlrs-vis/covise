@@ -55,6 +55,7 @@ namespace OpenScenario
 {
 class OpenScenarioBase;
 class oscObject;
+class oscCatalog;
 }
 
 
@@ -112,7 +113,7 @@ public:
 
 	// Add catalogs //
 	//
-	CatalogTreeWidget *addCatalogTree(const QString & type, OSCElement *element);
+	CatalogTreeWidget *addCatalogTree(const QString & type, OpenScenario::oscCatalog *catalog);
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
@@ -241,6 +242,7 @@ private:
 
     QString fileName_;
     QString strippedFileName_;
+	QString oscFileName_;
 
     bool isUntitled_; // used by save vs. saveAs
     bool isModified_;

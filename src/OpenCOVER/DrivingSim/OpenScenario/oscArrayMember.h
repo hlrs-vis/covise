@@ -24,13 +24,13 @@ namespace OpenScenario
 {
 
 /// \class This class represents a Member variable storing an array of one kind of values
-class OPENSCENARIOEXPORT oscMemberArray: public oscMember, public std::vector<oscObjectBase *>
+class OPENSCENARIOEXPORT oscArrayMember: public oscMember, public std::vector<oscObjectBase *>
 {
 public:
-    oscMemberArray(); ///< constructor
-    virtual ~oscMemberArray(); ///< destructor
+    oscArrayMember(); ///< constructor
+    virtual ~oscArrayMember(); ///< destructor
 
-    virtual xercesc::DOMElement *writeMemberArrayToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual xercesc::DOMElement *writeArrayMemberToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 };
 
 }

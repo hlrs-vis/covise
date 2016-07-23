@@ -113,6 +113,8 @@ class VRML97COVEREXPORT ViewerOsg : public Viewer
 private:
     osg::Vec3 viewerPos;
     osg::Vec3 viewerInMirrorCS;
+    
+        unsigned int SubdivideThreshold;
 
 public:
     osg::ref_ptr<osgText::Font> font;
@@ -157,6 +159,9 @@ public:
 
     void setModesByName(const char *objectName = NULL);
     void setDefaultMaterial(osg::StateSet *geoState);
+    
+    void splitGeometry(osg::Geode *geode, unsigned int threshold);
+    void splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geom);
 
     bool addToScene(osgViewerObject *obj);
     void restart();

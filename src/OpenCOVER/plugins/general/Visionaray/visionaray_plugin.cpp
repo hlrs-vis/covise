@@ -474,7 +474,7 @@ namespace cover
         impl_->state->rebuild = true;
     }
 
-    void Visionaray::preFrame()
+    void Visionaray::preDraw(osg::RenderInfo &info)
     {
         if (impl_->state->data_var == Dynamic)
             impl_->state->rebuild = true;

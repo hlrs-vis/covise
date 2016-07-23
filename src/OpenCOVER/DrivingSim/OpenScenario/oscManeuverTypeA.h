@@ -31,8 +31,8 @@ public:
     };
 
     oscFileHeaderMember fileHeader;
-    oscParameterListTypeAMemberArray parameterList;
-    oscEventsMemberArray events;
+    oscParameterListTypeAArrayMember parameterList;
+    oscEventsArrayMember events;
 };
 
 typedef oscObjectVariable<oscManeuverTypeA *>oscManeuverTypeAMember;

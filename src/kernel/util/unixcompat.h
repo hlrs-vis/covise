@@ -23,7 +23,13 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <float.h>
 #if !defined(__MINGW32__)
-#define isnan _isnan
+// don't do this, otherwise std::isnan does not work#define isnan _isnan
+namespace std
+{
+    inline int isnan(double X){return _isnan(X);};
+    inline int isinf(double X){return !_finite(X);};
+    inline int finite(double X){return _finite(X);};
+}
 #endif
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN

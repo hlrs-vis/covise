@@ -29,7 +29,7 @@ public:
     };
 
     oscDouble frictionScale;
-    oscRoadConditionsMemberArray roadConditions;
+    oscRoadConditionsArrayMember roadConditions;
 };
 
 typedef oscObjectVariable<oscRoadConditionsGroup *> oscRoadConditionsGroupMember;
