@@ -2211,6 +2211,7 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
         didSplit = false;
         numLevels++;
         std::list<osg::Geometry *> newDrawables;
+        std::list<osg::Drawable *> oldDrawables;
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Drawable *d = geode->getDrawable(i);
@@ -2226,7 +2227,7 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
                         didSplit=true;
                         osg::Geometry *geometries[2];
                         splitDrawable(geometries,geom);
-                        geode->removeDrawable(d);
+                        oldDrawables.push_back(d);
                         for(int n=0;n<2;n++)
                         {
                             if(geometries[n]!=NULL)
@@ -2237,6 +2238,11 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
                     }
                 }
             }
+        }
+        
+        for(std::list<osg::Drawable *>::iterator it = oldDrawables.begin(); it != oldDrawables.end();it++)
+        {
+            geode->removeDrawable(*it);
         }
         for(std::list<osg::Geometry *>::iterator it = newDrawables.begin(); it != newDrawables.end();it++)
         {
@@ -2338,9 +2344,9 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             tcArrayMin[i] = new Vec2Array();
             tcArrayMax[i] = new Vec2Array();
             tcArrayMin[i]->reserve(nv);
-            tcArrayMin[i]->reserve(colorArray->getNumElements() - nv);
-            tcArrayMax[i]->reserve(nv);
-            tcArrayMax[i]->reserve(colorArray->getNumElements() - nv);
+            tcArrayMax[i]->reserve(tcArray[i]->getNumElements() - nv);
+            tcArrayMin[i]->reserve(nv);
+            tcArrayMax[i]->reserve(tcArray[i]->getNumElements() - nv);
         }
         nv=0;
         vertNum=0;
