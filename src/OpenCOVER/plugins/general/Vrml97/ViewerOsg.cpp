@@ -2265,7 +2265,8 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
     {
         tcArray[i] = dynamic_cast<Vec2Array *>(geom->getTexCoordArray(i));
     }
-    osg::BoundingBox bb = geom->getBoundingBox();
+    osg::BoundingBox bb;
+    bb.expandBy(geom->getBound());
     float xs = bb.xMax() - bb.xMin(); 
     float ys = bb.yMax() - bb.yMin(); 
     float zs = bb.zMax() - bb.zMin(); 
