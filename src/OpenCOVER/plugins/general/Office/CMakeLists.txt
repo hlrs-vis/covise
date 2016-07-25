@@ -10,3 +10,7 @@ SET(SOURCES
   VrmlNodeOffice.cpp
 )
 cover_add_plugin(Office)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_covise_compile_flags(Office "-Wno-error=unused-result")
+endif()
