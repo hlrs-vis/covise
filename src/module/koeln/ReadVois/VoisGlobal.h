@@ -139,6 +139,14 @@ xyz cross(xyz v1, xyz v2){
     return retVal;
 }
 
+//stream xys
+std::ostream& operator<< (std::ostream &out, const xy &v)
+{
+    //out << std::setprecision(9) << std::fixed;
+    out << "(" << v.x << "," << v.y << ")";
+    return out;
+}
+
 //stream xyzs
 std::ostream& operator<< (std::ostream &out, const xyz &v)
 {
