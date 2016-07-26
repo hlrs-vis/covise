@@ -22,6 +22,7 @@
 #include "oscObjectBase.h"
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
+#include "oscArrayMember.h"
 
 // Settings //
 //
@@ -81,11 +82,23 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	base_ = element_->getOSCBase();
     ui->setupUi(this);
 
-	uiInit();
+	//oscArrayMember
+	//
 
-    // Initial Values //
-    //
-    updateProperties();
+	oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(object_->getOwnMember());
+
+	if(oscArrayMember_)
+	{
+		uiInitArray();
+	}
+	else
+	{
+		uiInit();
+		// Initial Values //
+		//
+		updateProperties();
+	}
+
 
     init_ = true;
 	parentStack_->addWidget(this);
@@ -157,34 +170,10 @@ OSCObjectSettings::uiInit()
 		OpenScenario::oscMember *member = it->second;
 		QString memberName = QString::fromStdString(member->getName());
 		QLabel *label = new QLabel(memberName);
-		label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-		if (memberName.size() > 16)
-		{
-			QStringList list = memberName.split(QRegExp("[A-Z]"));
-			QString line;
-			int separator = 16;
-
-			for (int i = 0; i < list.size(); i++)
-			{
-				QString temp = line + list.at(i) + " ";
-				if (temp.size() > 16)
-				{
-					separator = line.size() - 1;
-					break;
-				}
-				line = temp;
-			}
-
-			QString name = memberName.left(separator) + "\n" + memberName.right(memberName.size() - separator);
-			label->setText(name);
-			label->setFixedHeight(20);
-		}
-		else
-		{
-			label->setFixedHeight(25);
-		}
-
+		formatLabel(label, memberName);
 		objectGridLayout->addWidget(label, ++row, 0);
+
+
 		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
 		if (type <= 3) // UINT = 0, INT = 1, USHORT = 2, SHORT = 3
@@ -323,6 +312,126 @@ OSCObjectSettings::uiInit()
 	ui->oscGroupBox->setLayout(objectGridLayout);
 
 
+}
+
+// Create generic interface for array members//
+//
+void
+OSCObjectSettings::uiInitArray()
+{
+	// Widget/Layout //
+	//
+	QGridLayout *objectGridLayout = new QGridLayout();
+	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+	int row = 1;
+	// Close Button //
+	// not for the first element in the stackedWidget //
+	if (parentStack_->getStackSize() == 0)
+	{
+		objectGridLayout->setContentsMargins(4, 30, 4, 9);
+	}
+	else
+	{
+		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
+		closeButton->setObjectName(QStringLiteral("close"));
+        closeButton->setGeometry(QRect(90, 30, 75, 23));
+		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+
+		objectGridLayout->setContentsMargins(4, 60, 4, 9);
+	}
+
+
+	// Signal Mapper for the objects //
+	//
+	QSignalMapper *signalNewArrayMapper = new QSignalMapper(this);
+	connect(signalNewArrayMapper, SIGNAL(mapped(QString)), this, SLOT(onNewArrayElement(QString)));
+
+	// Signal Mapper for the objects //
+	//
+	QSignalMapper *signalPushMapper = new QSignalMapper(this);
+	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
+
+
+	//oscArrayMember
+	//
+	OpenScenario::oscObjectBase::MemberMap map = object_->getMembers();
+	auto it = map.begin();
+	QString memberName = QString::fromStdString(it->first);
+
+	QLabel *label = new QLabel("New " + memberName);
+	formatLabel(label, memberName);
+	objectGridLayout->addWidget(label, ++row, 0);
+
+	QPushButton *newButton = new QPushButton("new", ui->oscGroupBox);
+	newButton->setObjectName(QStringLiteral("new"));
+	newButton->setGeometry(QRect(90, 30, 75, 23));
+	connect(newButton, SIGNAL(pressed()), signalNewArrayMapper, SLOT(map()));
+	signalPushMapper->setMapping(newButton, memberName);
+	objectGridLayout->addWidget(newButton, row, 1);
+
+	//generate the children members
+	for (int i = 0; i < oscArrayMember_->size(); i++)
+	{
+		QString name = memberName + "(" + QString::number(i) + ")";
+		addGridElement(objectGridLayout, ++row, name, signalPushMapper);
+	}
+
+
+	// Finish Layout //
+    //
+    objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
+    objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
+
+	ui->oscGroupBox->setLayout(objectGridLayout);
+
+
+}
+
+void OSCObjectSettings::addGridElement(QGridLayout *gridLayout, int row, const QString &name, QSignalMapper *signalMapper)
+{
+
+	QLabel *label = new QLabel(name);
+	formatLabel(label, name);
+	gridLayout->addWidget(label, row, 0);
+
+	QPushButton *oscPushButton = new QPushButton();
+	oscPushButton->setText("Edit");
+	memberWidgets_.insert(name, oscPushButton);
+	gridLayout->addWidget(oscPushButton, row, 1);
+	connect(oscPushButton, SIGNAL(pressed()), signalMapper, SLOT(map()));
+	signalMapper->setMapping(oscPushButton, name);
+
+}
+
+void OSCObjectSettings::formatLabel(QLabel *label, const QString &memberName)
+{
+	label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	if (memberName.size() > 16)
+	{
+		QStringList list = memberName.split(QRegExp("[A-Z]"));
+		QString line;
+		int separator = 16;
+
+		for (int i = 0; i < list.size(); i++)
+		{
+			QString temp = line + list.at(i) + " ";
+			if (temp.size() > 16)
+			{
+				separator = line.size() - 1;
+				break;
+			}
+			line = temp;
+		}
+
+		QString name = memberName.left(separator) + "\n" + memberName.right(memberName.size() - separator);
+		label->setText(name);
+		label->setFixedHeight(20);
+	}
+	else
+	{
+		label->setFixedHeight(25);
+	}
 }
 
 void
@@ -511,14 +620,52 @@ OSCObjectSettings::onEditingFinished(QString name)
 	}
 }
 
-void 
+OpenScenario::oscObjectBase * 
 OSCObjectSettings::onPushButtonPressed(QString name)
 {
-	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->getOrCreateObject();
+	OpenScenario::oscObjectBase *object = NULL;
+
+	if (name.contains(")"))
+	{
+		int i = name.split("(")[1].remove(")").toInt();
+		object = oscArrayMember_->at(i);
+	}
+	else
+	{
+		object = object_->getMember(name.toStdString())->getOrCreateObject();
+	}
 
 	OSCElement *memberElement = base_->getOSCElement(object);
 
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
+
+	return object;
+}
+
+void
+OSCObjectSettings::onNewArrayElement(QString name)
+{
+
+	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->createObject();
+	name += "(" + QString::number(oscArrayMember_->size()) + ")";
+	oscArrayMember_->push_back(object);
+
+	// Signal Mapper for the objects //
+	//
+	QSignalMapper *signalPushMapper = new QSignalMapper(this);
+	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
+
+	QGridLayout *gridLayout = static_cast<QGridLayout *>(ui->oscGroupBox->layout());
+	int row = gridLayout->rowCount();
+	gridLayout->setRowStretch(row-1, 0);
+	addGridElement(gridLayout, row, name, signalPushMapper);
+
+	gridLayout->setRowStretch(++row, 1);
+
+	OSCElement *memberElement = base_->getOSCElement(object);
+
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
+
 }
 
 

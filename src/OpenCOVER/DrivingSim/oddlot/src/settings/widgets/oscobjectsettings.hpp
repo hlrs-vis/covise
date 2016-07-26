@@ -30,6 +30,7 @@ class OSCObjectSettings;
 namespace OpenScenario
 {
 class oscObjectBase;
+class oscArrayMember;
 }
 
 class OSCElement;
@@ -38,7 +39,11 @@ class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
 class ProjectSettings;
 
+class QLabel;
+class QGridLayout;
+class QSignalMapper;
 #include <QMap>
+
 
 class OSCObjectSettings: public QWidget, public Observer
 {
@@ -59,9 +64,12 @@ public:
 	// Initialize generic user interface //
 	//
 	void uiInit();
+	void uiInitArray();
 
 private:
     void updateProperties();
+	void formatLabel(QLabel *label, const QString &memberName);
+	void addGridElement(QGridLayout *gridLayout, int row, const QString &name, QSignalMapper *signalMapper);
 
 	//################//
 	// SIGNALS        //
@@ -75,7 +83,8 @@ signals:
 
 private slots:
     void onEditingFinished(QString name);
-	void onPushButtonPressed(QString name);
+	OpenScenario::oscObjectBase * onPushButtonPressed(QString name);
+	void onNewArrayElement(QString name);
 	void onValueChanged();
 
     //################//
@@ -88,6 +97,7 @@ private:
 	OSCObjectSettingsStack *parentStack_;
 
     OpenScenario::oscObjectBase *object_;
+	OpenScenario::oscArrayMember *oscArrayMember_;
 	OSCElement *element_;
 	OSCBase *base_;
 

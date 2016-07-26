@@ -160,6 +160,11 @@ oscObjectBase *oscMember::getOrCreateObject()
     return NULL;
 }
 
+oscObjectBase *oscMember::createObject()
+{
+    return NULL;
+}
+
 bool oscMember::exists() const
 {
     return false;
