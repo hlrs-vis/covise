@@ -40,7 +40,8 @@ class OSCObjectSettingsStack;
 class ProjectSettings;
 
 class QLabel;
-class QGridLayout;
+class QTreeWidget;
+class QTreeWidgetItem;
 class QSignalMapper;
 #include <QMap>
 
@@ -69,7 +70,7 @@ public:
 private:
     void updateProperties();
 	void formatLabel(QLabel *label, const QString &memberName);
-	void addGridElement(QGridLayout *gridLayout, int row, const QString &name, QSignalMapper *signalMapper);
+	void addGridElement(QTreeWidget *arrayTree, const QString &name);
 
 	//################//
 	// SIGNALS        //
@@ -84,6 +85,7 @@ signals:
 private slots:
     void onEditingFinished(QString name);
 	OpenScenario::oscObjectBase * onPushButtonPressed(QString name);
+	void onArrayElementClicked(QTreeWidgetItem *item, int column);
 	void onNewArrayElement(QString name);
 	void onValueChanged();
 

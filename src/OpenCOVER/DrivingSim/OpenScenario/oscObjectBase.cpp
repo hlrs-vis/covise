@@ -458,7 +458,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
 
                 
-            }
+			}
             //no member
             //
             else

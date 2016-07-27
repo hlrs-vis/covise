@@ -324,7 +324,6 @@ OSCObjectSettings::uiInitArray()
 	QGridLayout *objectGridLayout = new QGridLayout();
 	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
-	int row = 1;
 	// Close Button //
 	// not for the first element in the stackedWidget //
 	if (parentStack_->getStackSize() == 0)
@@ -342,45 +341,38 @@ OSCObjectSettings::uiInitArray()
 	}
 
 
-	// Signal Mapper for the objects //
+	// Tree for array objects
 	//
-	QSignalMapper *signalNewArrayMapper = new QSignalMapper(this);
-	connect(signalNewArrayMapper, SIGNAL(mapped(QString)), this, SLOT(onNewArrayElement(QString)));
+	QTreeWidget *arrayTree = new QTreeWidget(this);
+	arrayTree->setObjectName("ArrayTree");
+	arrayTree->setHeaderHidden(true);
+	connect(arrayTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(onArrayElementClicked(QTreeWidgetItem *, int)));
 
-	// Signal Mapper for the objects //
-	//
-	QSignalMapper *signalPushMapper = new QSignalMapper(this);
-	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
-
-
+	
 	//oscArrayMember
+	//
+	// emtpy item to create new elements //
 	//
 	OpenScenario::oscObjectBase::MemberMap map = object_->getMembers();
 	auto it = map.begin();
 	QString memberName = QString::fromStdString(it->first);
 
-	QLabel *label = new QLabel("New " + memberName);
-	formatLabel(label, memberName);
-	objectGridLayout->addWidget(label, ++row, 0);
-
-	QPushButton *newButton = new QPushButton("new", ui->oscGroupBox);
-	newButton->setObjectName(QStringLiteral("new"));
-	newButton->setGeometry(QRect(90, 30, 75, 23));
-	connect(newButton, SIGNAL(pressed()), signalNewArrayMapper, SLOT(map()));
-	signalPushMapper->setMapping(newButton, memberName);
-	objectGridLayout->addWidget(newButton, row, 1);
+	QTreeWidgetItem *item = new QTreeWidgetItem();
+	item->setText(0, "New " + memberName);
+	arrayTree->addTopLevelItem(item);
 
 	//generate the children members
 	for (int i = 0; i < oscArrayMember_->size(); i++)
 	{
 		QString name = memberName + "(" + QString::number(i) + ")";
-		addGridElement(objectGridLayout, ++row, name, signalPushMapper);
+		addGridElement(arrayTree, name);
 	}
+	
+	objectGridLayout->addWidget(arrayTree);
 
 
 	// Finish Layout //
     //
-    objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
     objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
@@ -388,19 +380,12 @@ OSCObjectSettings::uiInitArray()
 
 }
 
-void OSCObjectSettings::addGridElement(QGridLayout *gridLayout, int row, const QString &name, QSignalMapper *signalMapper)
+void OSCObjectSettings::addGridElement(QTreeWidget *arrayTree, const QString &name)
 {
 
-	QLabel *label = new QLabel(name);
-	formatLabel(label, name);
-	gridLayout->addWidget(label, row, 0);
-
-	QPushButton *oscPushButton = new QPushButton();
-	oscPushButton->setText("Edit");
-	memberWidgets_.insert(name, oscPushButton);
-	gridLayout->addWidget(oscPushButton, row, 1);
-	connect(oscPushButton, SIGNAL(pressed()), signalMapper, SLOT(map()));
-	signalMapper->setMapping(oscPushButton, name);
+	QTreeWidgetItem *item = new QTreeWidgetItem();
+	item->setText(0, name);
+	arrayTree->addTopLevelItem(item);
 
 }
 
@@ -650,22 +635,27 @@ OSCObjectSettings::onNewArrayElement(QString name)
 	name += "(" + QString::number(oscArrayMember_->size()) + ")";
 	oscArrayMember_->push_back(object);
 
-	// Signal Mapper for the objects //
-	//
-	QSignalMapper *signalPushMapper = new QSignalMapper(this);
-	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
-
-	QGridLayout *gridLayout = static_cast<QGridLayout *>(ui->oscGroupBox->layout());
-	int row = gridLayout->rowCount();
-	gridLayout->setRowStretch(row-1, 0);
-	addGridElement(gridLayout, row, name, signalPushMapper);
-
-	gridLayout->setRowStretch(++row, 1);
+	QTreeWidget *widgetTree = findChild<QTreeWidget *>("ArrayTree");
+	addGridElement(widgetTree, name);
 
 	OSCElement *memberElement = base_->getOSCElement(object);
 
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
 
+}
+
+void
+OSCObjectSettings::onArrayElementClicked(QTreeWidgetItem *item, int column)
+{
+	QString name = item->text(0);
+	if (name.contains("New")) 
+	{
+		onNewArrayElement(name.split(" ")[1]);
+	}
+	else
+	{
+		onPushButtonPressed(name);
+	}
 }
 
 
