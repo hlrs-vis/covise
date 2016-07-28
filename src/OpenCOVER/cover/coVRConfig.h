@@ -144,6 +144,8 @@ struct windowStruct
     bool stereo;
     bool embedded;
     bool pbuffer;
+    int swapGroup;
+    int swapBarrier;
 
     windowStruct()
     : ox(-1)
@@ -159,6 +161,8 @@ struct windowStruct
     , stereo(false)
     , embedded(false)
     , pbuffer(false)
+    , swapGroup(-1)
+    , swapBarrier(-1)
     {}
 };
 
