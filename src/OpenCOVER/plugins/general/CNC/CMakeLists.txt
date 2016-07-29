@@ -17,3 +17,7 @@ SET(SOURCES
 )
 
 cover_add_plugin(CNC)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_covise_compile_flags(CNC "-Wno-error=unused-result")
+endif()

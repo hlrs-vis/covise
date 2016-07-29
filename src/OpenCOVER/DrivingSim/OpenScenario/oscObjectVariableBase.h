@@ -43,16 +43,23 @@ public:
         return valueT;
     };
 
-    T getOrCreateObject()
+    T createObject()
+	{
+		T obj = static_cast<T>(oscFactories::instance()->objectFactory->create(TBase::typeName));
+		if(obj)
+		{
+			obj->initialize(TBase::owner->getBase(), TBase::owner, this, TBase::owner->getSource());
+			setValue(obj);
+		}
+
+		return obj;
+	};
+
+	T getOrCreateObject()
     {
         if (valueT == NULL)
         {
-            T obj = static_cast<T>(oscFactories::instance()->objectFactory->create(TBase::typeName));
-            if(obj)
-            {
-                obj->initialize(TBase::owner->getBase(), TBase::owner, this, TBase::owner->getSource());
-                setValue(obj);
-            }
+			createObject();
         }
         return valueT;
     };

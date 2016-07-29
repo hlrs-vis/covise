@@ -225,7 +225,7 @@ SET(SOURCES
    oscFactories.cpp
    oscLateral.cpp
    oscMember.cpp
-   oscMemberArray.cpp
+   oscArrayMember.cpp
    oscNamePriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp

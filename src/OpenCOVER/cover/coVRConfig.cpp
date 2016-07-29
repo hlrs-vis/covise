@@ -343,7 +343,7 @@ coVRConfig::coVRConfig()
         bool state = coCoverConfig::getWindowConfigEntry(i, windows[i].name,
                                                          &windows[i].pipeNum, &windows[i].ox, &windows[i].oy,
                                                          &windows[i].sx, &windows[i].sy, &windows[i].decoration,
-                                                         &windows[i].stereo, &windows[i].resize, &windows[i].embedded, &windows[i].pbuffer);
+                                                         &windows[i].stereo, &windows[i].resize, &windows[i].embedded, &windows[i].pbuffer, &windows[i].swapGroup, &windows[i].swapBarrier);
         if (!state)
         {
             cerr << "Exit because of erroneous WindowConfig entry." << endl;
