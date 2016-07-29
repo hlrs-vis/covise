@@ -91,6 +91,7 @@ SET(ODDLOT_SOURCES
 	 src/data/roadsystem/sections/tunnelobject.cpp
 	 src/data/roadsystem/sections/sensorobject.cpp
 	 src/util/odd.cpp
+	 src/util/droparea.cpp
 	 src/io/domwriter.cpp
 	 src/graph/editors/roadlinkeditor.cpp
 	 src/graph/editors/trackeditor.cpp
@@ -396,6 +397,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/data/roadsystem/sections/signalobject.hpp
 	 src/data/roadsystem/sections/sensorobject.hpp
 	 src/util/odd.hpp
+	 src/util/droparea.hpp
 	 src/graph/editors/roadlinkeditor.hpp
 	 src/graph/editors/trackeditor.hpp
 	 src/data/observer.hpp

@@ -18,6 +18,7 @@
 
 #include <QWidget>
 #include "src/data/observer.hpp"
+#include "src/util/droparea.hpp"
 
 #include "oscMemberValue.h"
 
@@ -31,6 +32,7 @@ namespace OpenScenario
 {
 class oscObjectBase;
 class oscArrayMember;
+class oscMember;
 }
 
 class OSCElement;
@@ -43,6 +45,7 @@ class QLabel;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QSignalMapper;
+
 #include <QMap>
 
 
@@ -66,11 +69,14 @@ public:
 	//
 	void uiInit();
 	void uiInitArray();
+	void onDeleteArrayElement();
 
 private:
     void updateProperties();
+	void loadProperties(OpenScenario::oscMember *member, QWidget *widget);
 	void formatLabel(QLabel *label, const QString &memberName);
-	void addGridElement(QTreeWidget *arrayTree, const QString &name);
+	void updateTree(QTreeWidget *arrayTree);
+	void addTreeItem(QTreeWidget *arrayTree, int name);
 
 	//################//
 	// SIGNALS        //
@@ -86,7 +92,7 @@ private slots:
     void onEditingFinished(QString name);
 	OpenScenario::oscObjectBase * onPushButtonPressed(QString name);
 	void onArrayElementClicked(QTreeWidgetItem *item, int column);
-	void onNewArrayElement(QString name);
+	void onNewArrayElement();
 	void onValueChanged();
 
     //################//
@@ -106,9 +112,35 @@ private:
     bool init_;
 
 	QMap<QString, QWidget*> memberWidgets_;
+	QString memberName_;
 
     bool valueChanged_;
 
 };
+
+class ArrayDropArea : public DropArea
+{
+	//################//
+    // FUNCTIONS      //
+    //################//
+
+public:
+	explicit ArrayDropArea(OSCObjectSettings *settings, QPixmap *pixmap);
+
+private:
+    ArrayDropArea(); /* not allowed */
+    ArrayDropArea(const OSCObjectSettings &, QPixmap *pixmap); /* not allowed */
+    ArrayDropArea &operator=(const OSCObjectSettings &); /* not allowed */
+
+	//################//
+    // SLOTS          //
+    //################//
+protected:
+    void dropEvent(QDropEvent *event);
+
+private:
+	OSCObjectSettings *settings_;
+};
+
 
 #endif // OSCOBJECTSETTINGS_HPP
