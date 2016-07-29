@@ -19,7 +19,8 @@ using namespace opencover;
 coCoverConfig::~coCoverConfig()
 {
 }
-bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNum, int *ox, int *oy, int *sx, int *sy, bool *decoration, bool *stereo, bool *resize, bool *embedded, bool *pbuffer)
+bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNum, int *ox, int *oy, int *sx, int *sy, bool *decoration, bool *stereo, bool *resize, bool *embedded, bool
+*pbuffer, int *swapGroup, int *swapBarrier)
 {
     char str[200];
     sprintf(str, "COVER.WindowConfig.Window:%d", pos);
@@ -44,6 +45,10 @@ bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNu
         *embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
     if (pbuffer)
         *pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
+    if(swapGroup)
+	*swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
+    if(swapBarrier)
+	*swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
 
     return true;
 }

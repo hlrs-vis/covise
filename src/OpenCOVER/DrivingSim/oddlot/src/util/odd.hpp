@@ -64,8 +64,8 @@ public:
 
 	static const float getVersion()
 	{
-		char buf[10];
-		sprintf(buf, "%d%c%d", revMajor_, ".", revMinor_);
+		char buf[100];
+		sprintf(buf, "%d%c%d", revMajor_, '.', revMinor_);
 		return atof(buf);
 	}
 

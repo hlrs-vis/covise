@@ -1205,6 +1205,17 @@ void VolumePlugin::addObject(RenderObject *container,
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
 
+    // colorMap is not passed as parameter..
+    size_t MaxColorMap = 8;
+    std::vector<RenderObject *> colorMap(MaxColorMap);
+    for (int c = 0; c < colorMap.size(); ++c)
+    {
+        if (container)
+            colorMap[c] = container->getColorMap(c);
+        else
+            colorMap[c] = NULL;
+    }
+
     // Check if valid volume data was added:
     if (geometry && geometry->isUniformGrid())
     {
@@ -1423,6 +1434,35 @@ void VolumePlugin::addObject(RenderObject *container,
 
                 if (volDesc->real[c][1] == 0 && volDesc->real[c][0] == 0)
                     volDesc->real[c][1] = 1.0f;
+            }
+
+            // Append color maps as additional transfer functions
+            for (int c = 0; c < MaxColorMap; ++c)
+            {
+                if (colorMap[c] && colorMap[c]->getNumElements() > 0)
+                {
+                    volDesc->tf.resize(volDesc->tf.size() + 1);
+                    volDesc->real.push_back(virvo::vec2(0.0f, 1.0f));
+
+                    const float* rgbax = colorMap[c]->getFloat((Field::Id)c);
+
+                    for (int i = 0; i < colorMap[c]->getNumElements(); ++i)
+                    {
+                        float r = rgbax[i * 5];
+                        float g = rgbax[i * 5 + 1];
+                        float b = rgbax[i * 5 + 2];
+                        float a = rgbax[i * 5 + 3];
+                        volDesc->tf.back()._widgets.push_back(new vvTFPyramid(
+                                vvColor(r, g, b),
+                                true,       // has own color
+                                a,          // opacity
+                                i / 255.0f, // xpos
+                                1 / 255.0f, // width bottom
+                                1 / 255.0f  // width top
+                                )
+                            );
+                    }
+                }
             }
 
             if (container && container->getName())

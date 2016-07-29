@@ -76,6 +76,12 @@
 #include "coVRMSController.h"
 #include "MSEventHandler.h"
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+#define USE_X11
+#include <osgViewer/api/X11/GraphicsWindowX11>
+#undef Status
+#endif
+
 #ifndef _WIN32
 #include <termios.h>
 #include <unistd.h>
@@ -1828,7 +1834,24 @@ void VRViewer::startThreading()
                 gc->releaseContext();
             }
         }
+	// setup swap groups and swap barriers
+#ifdef USE_X11
+	for(int i=0;i<coVRConfig::instance()->numWindows();i++)
+	{
+	   if(coVRConfig::instance()->windows[i].context == gc)
+	   {
+	      osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window);
+	      
+	      if(coVRConfig::instance()->windows[i].swapGroup > 0)
+	         glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);
+	      if(coVRConfig::instance()->windows[i].swapBarrier > 0)
+	         glXJoinSwapGroupNV(window->getDisplayToUse(),coVRConfig::instance()->windows[i].swapGroup,coVRConfig::instance()->windows[i].swapBarrier);
+	      
+	   }
+	}
+#endif
 
+    
         gc->getState()->setDynamicObjectRenderingCompletedCallback(_endDynamicDrawBlock.get());
 
         // create the a graphics thread for this context

@@ -59,7 +59,7 @@ coDoGeometry::coDoGeometry(const coObjInfo &info, coShmArray *arr)
 
 int coDoGeometry::getObjInfo(int no, coDoInfo **il) const
 {
-    if (no == 9 + NumChannels)
+    if (no == 10 + NumChannels + NumColorMaps)
     {
         (*il)[0].description = "Geometry Type";
         (*il)[1].description = "Geometry";
@@ -72,7 +72,10 @@ int coDoGeometry::getObjInfo(int no, coDoInfo **il) const
         (*il)[6 + NumChannels].description = "Texture";
         (*il)[7 + NumChannels].description = "Vertex Attribute Type";
         (*il)[8 + NumChannels].description = "Vertex Attribute";
-        return 9 + NumChannels;
+        (*il)[9 + NumChannels].description = "Color Map Type";
+        for (int c = 0; c < NumColorMaps; ++c)
+            (*il)[10 + NumChannels + c].description = "ColorMap";
+        return 10 + NumChannels + NumColorMaps;
     }
     else
     {
@@ -93,8 +96,12 @@ coDoGeometry::coDoGeometry(const coObjInfo &info, const coDistributedObject *geo
     normals = NULL;
     texture = NULL;
     vertexAttribute = NULL;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        colorMap[c] = NULL;
+    }
 
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = DISTROBJ;
@@ -118,8 +125,15 @@ coDoGeometry::coDoGeometry(const coObjInfo &info, const coDistributedObject *geo
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = DISTROBJ;
     dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
 
-    new_ok = store_shared_dl(9 + NumChannels, dl) != 0;
+    new_ok = store_shared_dl(10 + NumChannels + NumColorMaps, dl) != 0;
     if (!new_ok)
         return;
     geometry_type = geo->get_type_no();
@@ -127,6 +141,7 @@ coDoGeometry::coDoGeometry(const coObjInfo &info, const coDistributedObject *geo
     normal_attr = NONE;
     texture_attr = NONE;
     vertexAttribute_attr = NONE;
+    colorMap_attr = NONE;
 }
 
 coDoGeometry *coDoGeometry::cloneObject(const coObjInfo &newinfo) const
@@ -138,6 +153,8 @@ coDoGeometry *coDoGeometry::cloneObject(const coObjInfo &newinfo) const
     geo->setNormals(getNormalAttributes(), getNormals());
     geo->setTexture(getTextureAttributes(), getTexture());
     geo->setVertexAttribute(getVertexAttributeAttributes(), getVertexAttribute());
+    for (int c = 0; c < NumColorMaps; ++c)
+        geo->setColorMap(getColorMapAttributes(), getColorMap(c), c);
     return geo;
 }
 
@@ -149,7 +166,7 @@ int coDoGeometry::rebuildFromShm()
         print_exit(__LINE__, __FILE__, 1);
     }
 
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = UNKNOWN;
@@ -173,15 +190,22 @@ int coDoGeometry::rebuildFromShm()
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = COVISE_OPTIONAL;
     dl[8 + NumChannels].ptr  = (void *)&vertexAttribute;
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = COVISE_OPTIONAL;
+        dl[10 + NumChannels + c].ptr  = (void *)&colorMap[c];
+    }
 
-    return restore_shared_dl(9 + NumChannels, dl);
+    return restore_shared_dl(10 + NumChannels + NumColorMaps, dl);
 }
 
 void coDoGeometry::setGeometry(int gtype, const coDistributedObject *geo)
 {
     geometry_type = gtype;
     geometry = geo;
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = DISTROBJ;
@@ -205,14 +229,21 @@ void coDoGeometry::setGeometry(int gtype, const coDistributedObject *geo)
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = DISTROBJ;
     dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
-    update_shared_dl(9 + NumChannels, dl);
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
+    update_shared_dl(10 + NumChannels + NumColorMaps, dl);
 }
 
 void coDoGeometry::setColors(int cattr, const coDistributedObject *c, size_t chan)
 {
     color_attr = cattr;
     colors[chan] = c;
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = DISTROBJ;
@@ -236,14 +267,21 @@ void coDoGeometry::setColors(int cattr, const coDistributedObject *c, size_t cha
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = DISTROBJ;
     dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
-    update_shared_dl(9 + NumChannels, dl);
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
+    update_shared_dl(10 + NumChannels + NumColorMaps, dl);
 }
 
 void coDoGeometry::setNormals(int nattr, const coDistributedObject *n)
 {
     normal_attr = nattr;
     normals = n;
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = DISTROBJ;
@@ -267,14 +305,21 @@ void coDoGeometry::setNormals(int nattr, const coDistributedObject *n)
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = DISTROBJ;
     dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
-    update_shared_dl(9 + NumChannels, dl);
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
+    update_shared_dl(10 + NumChannels + NumColorMaps, dl);
 }
 
 void coDoGeometry::setTexture(int tattr, const coDistributedObject *t)
 {
     texture_attr = tattr;
     texture = t;
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = DISTROBJ;
@@ -298,14 +343,21 @@ void coDoGeometry::setTexture(int tattr, const coDistributedObject *t)
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = DISTROBJ;
     dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
-    update_shared_dl(9 + NumChannels, dl);
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
+    update_shared_dl(10 + NumChannels + NumColorMaps, dl);
 }
 
 void coDoGeometry::setVertexAttribute(int vattr, const coDistributedObject *v)
 {
     vertexAttribute_attr = vattr;
     vertexAttribute = v;
-    covise_data_list dl[9 + NumChannels];
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
     dl[0].type = INTSHM;
     dl[0].ptr  = (void *)&geometry_type;
     dl[1].type = DISTROBJ;
@@ -329,5 +381,50 @@ void coDoGeometry::setVertexAttribute(int vattr, const coDistributedObject *v)
     dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
     dl[8 + NumChannels].type = DISTROBJ;
     dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
-    update_shared_dl(9 + NumChannels, dl);
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
+    update_shared_dl(10 + NumChannels + NumColorMaps, dl);
+}
+
+void coDoGeometry::setColorMap(int cmattr, const coDistributedObject *cm, size_t chan)
+{
+    colorMap_attr = cmattr;
+    colorMap[chan] = cm;
+    covise_data_list dl[10 + NumChannels + NumColorMaps];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < NumChannels; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + NumChannels].type = INTSHM;
+    dl[3 + NumChannels].ptr  = (void *)&normal_attr;
+    dl[4 + NumChannels].type = DISTROBJ;
+    dl[4 + NumChannels].ptr  = (void *)normals;
+    dl[5 + NumChannels].type = INTSHM;
+    dl[5 + NumChannels].ptr  = (void *)&texture_attr;
+    dl[6 + NumChannels].type = DISTROBJ;
+    dl[6 + NumChannels].ptr  = (void *)texture;
+    dl[7 + NumChannels].type = INTSHM;
+    dl[7 + NumChannels].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + NumChannels].type = DISTROBJ;
+    dl[8 + NumChannels].ptr  = (void *)vertexAttribute;
+    dl[9 + NumChannels].type = INTSHM;
+    dl[9 + NumChannels].ptr  = (void *)&colorMap_attr;
+    for (int c = 0; c < NumColorMaps; ++c)
+    {
+        dl[10 + NumChannels + c].type = DISTROBJ;
+        dl[10 + NumChannels + c].ptr  = (void *)colorMap[c];
+    }
+    update_shared_dl(10 + NumChannels + NumColorMaps, dl);
 }

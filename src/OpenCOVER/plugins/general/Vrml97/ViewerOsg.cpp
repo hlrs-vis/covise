@@ -669,6 +669,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     d_selectMode = false;
     UseFieldOfViewForScaling = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseFieldOfViewForScaling", false);
+    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold",10000);
 
     currentTransform.makeIdentity();
 
@@ -2134,6 +2135,7 @@ ViewerOsg::insertShell(unsigned int mask,
             }
             geom->setTexCoordArray(unit, tcArray);
         }
+        
     }
 
     if (strncmp(objName, "Animated", 8) != 0)
@@ -2144,13 +2146,24 @@ ViewerOsg::insertShell(unsigned int mask,
             tess.retessellatePolygons(*geom);
             //cerr << "Convex";
         }
-
+        
+        geom->setName(objName);
+        geode->addDrawable(geom.get());
+        
+        if(((unsigned int)nfaces > SubdivideThreshold) && !((d_currentObject->pNode.get() && (mask & MASK_CONVEX) && !strncmp(objName, "Animated", 8))))
+        {
+            splitGeometry(geode,SubdivideThreshold);
+        }
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
         {
-            /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
-            osgUtil::TriStripVisitor tsv;
-            tsv.stripify(*geom);
+            for(int i=0;i<geode->getNumDrawables();i++)
+            {
+                osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
+                /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
+                osgUtil::TriStripVisitor tsv;
+                tsv.stripify(*geo);
+            }
 
             if (cover->debugLevel(3))
                 cerr << objName << " ";
@@ -2160,9 +2173,11 @@ ViewerOsg::insertShell(unsigned int mask,
         else if (cover->debugLevel(1))
             cerr << "P";
     }
-
-    geode->addDrawable(geom.get());
-    geom->setName(objName);
+    else
+    {
+        geom->setName(objName);
+        geode->addDrawable(geom.get());
+    }
 
     geode->setName(objName);
     geode->setNodeMask(nodeMask);
@@ -2186,6 +2201,242 @@ ViewerOsg::insertShell(unsigned int mask,
         cerr << "   return current Object\n";
 
     return (Object)d_currentObject;
+}
+void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
+{
+    bool didSplit=true;
+    int numLevels = 0;
+    while(didSplit && numLevels < 8)
+    {
+        didSplit = false;
+        numLevels++;
+        std::list<osg::Geometry *> newDrawables;
+        std::list<osg::Drawable *> oldDrawables;
+        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        {
+            osg::Drawable *d = geode->getDrawable(i);
+            osg::Geometry *geom = dynamic_cast<osg::Geometry *>(d);
+            if(geom!=NULL)
+            {
+                osg::PrimitiveSet *ps = geom->getPrimitiveSet(0);
+                osg::DrawArrayLengths *polygons = dynamic_cast<osg::DrawArrayLengths *>(ps);
+                if(polygons!=NULL)
+                {
+                    if(polygons->getNumPrimitives()>threshold)
+                    {
+                        didSplit=true;
+                        osg::Geometry *geometries[2];
+                        splitDrawable(geometries,geom);
+                        oldDrawables.push_back(d);
+                        for(int n=0;n<2;n++)
+                        {
+                            if(geometries[n]!=NULL)
+                            {
+                                newDrawables.push_back(geometries[n]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        for(std::list<osg::Drawable *>::iterator it = oldDrawables.begin(); it != oldDrawables.end();it++)
+        {
+            geode->removeDrawable(*it);
+        }
+        for(std::list<osg::Geometry *>::iterator it = newDrawables.begin(); it != newDrawables.end();it++)
+        {
+            geode->addDrawable(*it);
+        }
+        newDrawables.clear();
+    }
+}
+void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geom)
+{
+    osg::PrimitiveSet *ps = geom->getPrimitiveSet(0);
+    osg::DrawArrayLengths *polygons = dynamic_cast<osg::DrawArrayLengths *>(ps);
+
+    Vec3Array *vertexArray = dynamic_cast<Vec3Array *>(geom->getVertexArray());
+    Vec3Array *normalArray = dynamic_cast<Vec3Array *>(geom->getNormalArray());
+    Vec4Array *colorArray = dynamic_cast<Vec4Array *>(geom->getColorArray());
+    int numTexCoords = geom->getNumTexCoordArrays();
+    Vec2Array **tcArray =new Vec2Array *[numTexCoords];
+    for(int i=0;i<numTexCoords;i++)
+    {
+        tcArray[i] = dynamic_cast<Vec2Array *>(geom->getTexCoordArray(i));
+    }
+    osg::BoundingBox bb;
+    bb.expandBy(geom->getBound());
+    float xs = bb.xMax() - bb.xMin(); 
+    float ys = bb.yMax() - bb.yMin(); 
+    float zs = bb.zMax() - bb.zMin(); 
+    float xm = bb.xMin() + xs/2.0;
+    float ym = bb.yMin() + ys/2.0;
+    float zm = bb.zMin() + zs/2.0;
+    int index= 0;
+    float splitAt;
+    if(xs > ys && xs > zs)
+    {
+        index = 0;
+        splitAt = xm;
+    }
+    else if(ys > xs && ys > zs)
+    {
+        index = 1;
+        splitAt = ym;
+    }
+    else
+    {
+        index = 2;
+        splitAt = zm;
+    }
+
+    if(polygons!=NULL)
+    {
+        // count new num vertices and polygons
+        int nv=0;
+        int np=0;
+        int vertNum=0;
+        int v;
+        for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
+        {
+            v = (*polygons)[i];
+            if((*vertexArray)[vertNum][index] < splitAt)
+            {
+                nv +=v;
+                np++;
+            }
+            vertNum += v;
+        }
+
+        osg::DrawArrayLengths *polygonsMin = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
+        osg::DrawArrayLengths *polygonsMax = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
+        polygonsMin->reserve(np);
+        polygonsMax->reserve(polygons->getNumPrimitives() - np);
+
+        Vec3Array *vertexArrayMin = new Vec3Array();
+        Vec3Array *vertexArrayMax = new Vec3Array();
+        vertexArrayMin->reserve(nv);
+        vertexArrayMax->reserve(vertexArray->getNumElements() - nv);
+        Vec3Array *normalArrayMin=NULL;
+        Vec3Array *normalArrayMax=NULL;
+        if(normalArray!=NULL)
+        {
+            normalArrayMin = new Vec3Array();
+            normalArrayMax = new Vec3Array();
+            normalArrayMin->reserve(nv);
+            normalArrayMax->reserve(normalArray->getNumElements() - nv);
+        }
+        
+        Vec4Array *colorArrayMin=NULL;
+        Vec4Array *colorArrayMax=NULL;
+        if(colorArray!=NULL)
+        {
+            colorArrayMin = new Vec4Array();
+            colorArrayMax = new Vec4Array();
+            colorArrayMin->reserve(nv);
+            colorArrayMax->reserve(colorArray->getNumElements() - nv);
+        }
+
+        Vec2Array **tcArrayMin =new Vec2Array *[numTexCoords];
+        Vec2Array **tcArrayMax =new Vec2Array *[numTexCoords];
+        for(int i=0;i<numTexCoords;i++)
+        {
+            tcArrayMin[i] = new Vec2Array();
+            tcArrayMax[i] = new Vec2Array();
+            tcArrayMin[i]->reserve(nv);
+            tcArrayMax[i]->reserve(tcArray[i]->getNumElements() - nv);
+            tcArrayMin[i]->reserve(nv);
+            tcArrayMax[i]->reserve(tcArray[i]->getNumElements() - nv);
+        }
+        nv=0;
+        vertNum=0;
+        for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
+        {
+            v = (*polygons)[i];
+            if((*vertexArray)[vertNum][index] < splitAt)
+            {
+                polygonsMin->push_back(v);
+                for(int n=0;n<v;n++)
+                {
+                    vertexArrayMin->push_back((*vertexArray)[nv]);
+                    if(colorArrayMin!=NULL)
+                    {
+                        colorArrayMin->push_back((*colorArray)[nv]);
+                    }
+                    if(normalArrayMin!=NULL)
+                    {
+                        normalArrayMin->push_back((*normalArray)[nv]);
+                    }
+                    for(int m=0;m<numTexCoords;m++)
+                    {
+                        tcArrayMin[m]->push_back((*tcArray[m])[nv]);
+                    }
+                    nv++;
+                }
+                np++;
+            }
+            else
+            {
+                polygonsMax->push_back(v);
+                for(int n=0;n<v;n++)
+                {
+                    vertexArrayMax->push_back((*vertexArray)[nv]);
+                    if(colorArrayMax!=NULL)
+                    {
+                        colorArrayMax->push_back((*colorArray)[nv]);
+                    }
+                    if(normalArrayMax!=NULL)
+                    {
+                        normalArrayMax->push_back((*normalArray)[nv]);
+                    }
+                    for(int m=0;m<numTexCoords;m++)
+                    {
+                        tcArrayMax[m]->push_back((*tcArray[m])[nv]);
+                    }
+                    nv++;
+                }
+                np++;
+            }
+            vertNum += v;
+        }
+        geometries[0] = new osg::Geometry;
+        geometries[1] = new osg::Geometry;
+        geometries[0]->setStateSet(geom->getStateSet());
+        geometries[1]->setStateSet(geom->getStateSet());
+        geometries[0]->addPrimitiveSet(polygonsMin);
+        geometries[1]->addPrimitiveSet(polygonsMax);
+        geometries[0]->setVertexArray(vertexArrayMin);
+        geometries[1]->setVertexArray(vertexArrayMax);
+        if(normalArrayMin!=NULL)
+        {
+            geometries[0]->setNormalArray(normalArrayMin);
+            geometries[0]->setNormalBinding(Geometry::BIND_PER_VERTEX);
+        }
+        if(normalArrayMax!=NULL)
+        {
+            geometries[1]->setNormalArray(normalArrayMax);
+            geometries[1]->setNormalBinding(Geometry::BIND_PER_VERTEX);
+        }
+        if(colorArrayMin!=NULL)
+        {
+            geometries[0]->setColorArray(colorArrayMin);
+            geometries[0]->setColorBinding(Geometry::BIND_PER_VERTEX);
+        }
+        if(colorArrayMax!=NULL)
+        {
+            geometries[1]->setColorArray(colorArrayMax);
+            geometries[1]->setColorBinding(Geometry::BIND_PER_VERTEX);
+        }
+        for(int m=0;m<numTexCoords;m++)
+        {
+            geometries[0]->setTexCoordArray(m,tcArrayMin[m]);
+            geometries[1]->setTexCoordArray(m,tcArrayMax[m]);
+        }
+        delete[] tcArrayMin;
+        delete[] tcArrayMax;
+    }
+    delete[] tcArray;
 }
 
 void ViewerOsg::setDefaultMaterial(StateSet *geoState)

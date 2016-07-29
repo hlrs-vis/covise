@@ -377,7 +377,7 @@ bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
     }
 }
 
-bool oscCatalog::addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath)
+bool oscCatalog::addCatalogObject(const int objectRefId, oscObjectBase *objectBase, const bf::path &fileNamePath)
 {
 
 	if (objectBase != NULL && !fileNamePath.empty())

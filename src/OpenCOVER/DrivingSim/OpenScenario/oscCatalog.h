@@ -82,7 +82,7 @@ public:
     bool fullReadCatalogObjectWithName(const int objectRefId); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map
     bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
     bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to ObjectsMap
-    bool addCatalogObject(const int objectRefId, oscObjectBase *objectBase, bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
+    bool addCatalogObject(const int objectRefId, oscObjectBase *objectBase, const bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
     bool removeCatalogObject(const int objectRefId); ///< remove object with refId objectRefId from ObjectsMap
     oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 
