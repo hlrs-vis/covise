@@ -347,8 +347,8 @@ void
 {
 	arrayMember_->erase(arrayMember_->end() - 1);
 
-	oscElement_->setObjectBase(NULL);
 	oscBase_->delOSCElement(oscElement_);
+	oscElement_->setObjectBase(NULL);
 
 	setUndone();
 }
