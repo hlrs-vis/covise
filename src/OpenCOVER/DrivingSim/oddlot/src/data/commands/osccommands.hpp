@@ -443,7 +443,22 @@ public:
 
 	newOSCValue_ = value;
 	OpenScenario::oscMember *member = object->getMember(memberName);
-	v_ = member->getOrCreateValue();
+	v_ = member->getValue();
+	
+	if (!v_)
+	{
+		v_ = member->createValue();
+
+		if(member->getType() == oscMemberValue::ENUM)
+		{
+			oscEnumValue *ev = dynamic_cast<oscEnumValue *>(v_);
+			oscEnum *em = dynamic_cast<oscEnum *>(member);
+			if(ev && em)
+			{
+				ev->enumType = em->enumType;
+			}
+		}
+	}
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

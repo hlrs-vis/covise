@@ -91,7 +91,7 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	{
 		uiInitArray();
 	}
-	else
+	else 
 	{
 		uiInit();
 		// Initial Values //

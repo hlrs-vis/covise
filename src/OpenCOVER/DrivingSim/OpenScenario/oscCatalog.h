@@ -94,6 +94,7 @@ public:
 
 	// write all catalog members to catalogs
 	void writeCatalogToDOM();
+	void clearDOM();
 	void writeCatalogToDisk();
 	
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);

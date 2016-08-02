@@ -68,6 +68,7 @@ public:
     const XMLCh *getRootElementNameAsXmlCh() const;
     xercesc::DOMDocument *getXmlDoc() const;
 	xercesc::DOMDocument *getOrCreateXmlDoc();
+	void clearXmlDoc();
 	bool writeFileToDisk();
 
     bf::path getFileNamePath(const std::string &fnp); ///< return filename and path without file:// (if present in parameter) at beginning

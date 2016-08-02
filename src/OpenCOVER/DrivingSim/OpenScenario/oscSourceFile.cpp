@@ -174,6 +174,12 @@ xercesc::DOMDocument *oscSourceFile::getOrCreateXmlDoc()
     return m_xmlDoc;
 }
 
+void oscSourceFile::clearXmlDoc()
+{
+	delete m_xmlDoc;
+	m_xmlDoc = NULL;
+}
+
 
 bool oscSourceFile::writeFileToDisk()
 {
