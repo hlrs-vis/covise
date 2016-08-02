@@ -71,11 +71,17 @@ public:
 	void uiInitArray();
 	void onDeleteArrayElement();
 
+	OpenScenario::oscArrayMember *getArrayMember()
+	{
+		return oscArrayMember_;
+	}
+
+	void updateTree();
+
 private:
     void updateProperties();
 	void loadProperties(OpenScenario::oscMember *member, QWidget *widget);
 	void formatLabel(QLabel *label, const QString &memberName);
-	void updateTree(QTreeWidget *arrayTree);
 	void addTreeItem(QTreeWidget *arrayTree, int name);
 
 	//################//
@@ -106,6 +112,7 @@ private:
 
     OpenScenario::oscObjectBase *object_;
 	OpenScenario::oscArrayMember *oscArrayMember_;
+	QTreeWidget *arrayTree_;
 	OSCElement *element_;
 	OSCBase *base_;
 
