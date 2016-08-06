@@ -382,7 +382,17 @@ VrmlNode *VrmlNamespace::findNode(const char *name)
     for (n = d_nameList.begin(); n != d_nameList.end(); ++n)
         if (strcmp((*n)->name(), name) == 0)
             return *n;
+    if(strncmp(name,"global::",8)==0) // search in all namespaces
+    {
+        NamespaceList::iterator it;
 
+        for (it = allNamespaces.begin(); it != allNamespaces.end(); it++)
+        {
+                VrmlNode *n = (*it)->findNode(name+8);
+                if(n)
+                    return n;
+        }
+    }
     return 0;
 }
 
