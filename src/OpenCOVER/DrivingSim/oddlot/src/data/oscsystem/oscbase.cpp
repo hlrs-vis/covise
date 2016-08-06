@@ -110,6 +110,7 @@ OSCBase::addOSCElement(OSCElement *oscElement)
     oscElement->setOSCBase(this);
 
     oscElements_.insert(oscElement->getID(), oscElement);
+	oscElement->notifyParent();
  //   addRoadSystemChanges(RoadSystem::CRS_RoadChange);
 }
 
@@ -120,6 +121,7 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 
     if (oscElements_.remove(oscElement->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
     {
+		oscElement->notifyParent();
         oscElement->setOSCBase(NULL);
 //		addOSCElementChanges(OSCBase::COSC_ElementChange);
         return true;

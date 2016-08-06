@@ -463,6 +463,18 @@ void oscCatalog::writeCatalogToDOM()
 	}
 }
 
+void oscCatalog::clearDOM()
+{
+	for (unordered_map<int, ObjectParams>::const_iterator it = m_Objects.begin(); it != m_Objects.end(); it++)
+	{
+		oscObjectBase *objFromCatalog = it->second.object;
+		if (objFromCatalog)
+		{
+			objFromCatalog->getSource()->clearXmlDoc();
+		}
+	}
+}
+
 void oscCatalog::writeCatalogToDisk()
 {
 	for (unordered_map<int, ObjectParams>::const_iterator it = m_Objects.begin(); it != m_Objects.end(); it++)

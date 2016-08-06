@@ -91,7 +91,7 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	{
 		uiInitArray();
 	}
-	else
+	else 
 	{
 		uiInit();
 		// Initial Values //
@@ -343,21 +343,21 @@ OSCObjectSettings::uiInitArray()
 	QPixmap recycleIcon(":/icons/recycle.png");
 
 	ArrayDropArea *recycleArea = new ArrayDropArea(this, &recycleIcon);
-	objectGridLayout->addWidget(recycleArea, 0, 2);
+	objectGridLayout->addWidget(recycleArea, 0, 0);
 
 	OpenScenario::oscObjectBase::MemberMap map = object_->getMembers();
 	auto it = map.begin();
 	memberName_ = QString::fromStdString(it->first);
 	QLabel *label = new QLabel(memberName_);
-	objectGridLayout->addWidget(label, 0, 0);
+	objectGridLayout->addWidget(label, 1, 0);
 
 	// Tree for array objects
 	//
-	QTreeWidget *arrayTree = new QTreeWidget(this);
-	arrayTree->setObjectName("ArrayTree");
-	arrayTree->setHeaderHidden(true);
-	arrayTree->setDragEnabled(true);
-	connect(arrayTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(onArrayElementClicked(QTreeWidgetItem *, int)));
+	arrayTree_ = new QTreeWidget(this);
+	arrayTree_->setObjectName("ArrayTree");
+	arrayTree_->setHeaderHidden(true);
+	arrayTree_->setDragEnabled(true);
+	connect(arrayTree_, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(onArrayElementClicked(QTreeWidgetItem *, int)));
 
 	
 	//oscArrayMember
@@ -365,9 +365,9 @@ OSCObjectSettings::uiInitArray()
 	// emtpy item to create new elements //
 	//
 
-	updateTree(arrayTree);
+	updateTree();
 	
-	objectGridLayout->addWidget(arrayTree, 1, 0);
+	objectGridLayout->addWidget(arrayTree_, 1, 0);
 
 
 	// Finish Layout //
@@ -379,18 +379,18 @@ OSCObjectSettings::uiInitArray()
 
 }
 
-void OSCObjectSettings::updateTree(QTreeWidget *arrayTree)
+void OSCObjectSettings::updateTree()
 {
-	arrayTree->clear();
+	arrayTree_->clear();
 
 	QTreeWidgetItem *item = new QTreeWidgetItem();
 	item->setText(0, "New " + memberName_);
-	arrayTree->addTopLevelItem(item);
+	arrayTree_->addTopLevelItem(item);
 
 	//generate the children members
 	for (int i = 0; i < oscArrayMember_->size(); i++)
 	{
-		addTreeItem(arrayTree, i+1);
+		addTreeItem(arrayTree_, i+1);
 	}
 }
 
@@ -519,16 +519,16 @@ void
 void 
 OSCObjectSettings::onDeleteArrayElement()
 {
-	QTreeWidget *widgetTree = findChild<QTreeWidget *>("ArrayTree");
 
-	QTreeWidgetItem *item = widgetTree->selectedItems().at(0);
-	int j = widgetTree->indexOfTopLevelItem(item);
+	QTreeWidgetItem *item = arrayTree_->selectedItems().at(0);
+	int j = arrayTree_->indexOfTopLevelItem(item);
 	if (j > 0)
 	{
-		oscArrayMember_->erase(oscArrayMember_->begin() + j - 1);
+		OpenScenario::oscObjectBase *object = oscArrayMember_->at(--j);
+		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(oscArrayMember_, object_, j, base_->getOSCElement(object));
+		projectSettings_->executeCommand(command);
 	}
 
-	updateTree(widgetTree);
 }
 
 //################//
@@ -665,17 +665,15 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 void
 OSCObjectSettings::onNewArrayElement()
 {
+	OSCElement *oscElement = new OSCElement(memberName_);
+	if (oscElement)
+	{
 
-	OpenScenario::oscObjectBase *object = object_->getMember(memberName_.toStdString())->createObject();
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, memberName_.toStdString(), base_, oscElement);
+		projectSettings_->executeCommand(command);
 
-	oscArrayMember_->push_back(object);
-
-	QTreeWidget *widgetTree = findChild<QTreeWidget *>("ArrayTree");
-	addTreeItem(widgetTree, oscArrayMember_->size());
-
-	OSCElement *memberElement = base_->getOSCElement(object);
-
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
+		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement);
+	}
 
 }
 
@@ -710,10 +708,24 @@ OSCObjectSettings::updateObserver()
     //
 	int changes = element_->getOSCElementChanges();
 
-    if (changes & OSCElement::COE_ParameterChange)
+	if (changes & OSCElement::COE_ParameterChange)
     {
         updateProperties();
     }
+
+	if (changes & OSCElement::COE_ChildChanged)
+	{
+		if (oscArrayMember_)
+		{
+			updateTree();
+		}
+	}
+
+	changes = element_->getDataElementChanges();
+	if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))
+	{
+
+	}
 }
 
 

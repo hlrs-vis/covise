@@ -63,6 +63,7 @@ public:
     virtual void setValue(oscObjectBase *t);
     virtual void deleteValue();
     virtual oscMemberValue *getValue();
+	virtual oscMemberValue *createValue();
     virtual oscMemberValue *getOrCreateValue();
 
     //
