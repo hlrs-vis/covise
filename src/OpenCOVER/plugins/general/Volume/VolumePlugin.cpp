@@ -1204,6 +1204,7 @@ void VolumePlugin::addObject(RenderObject *container,
                              int, int, float *, float *, float *, float)
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
+    int shader = -1;
 
     // colorMap is not passed as parameter..
     size_t MaxColorMap = 8;
@@ -1214,6 +1215,12 @@ void VolumePlugin::addObject(RenderObject *container,
             colorMap[c] = container->getColorMap(c);
         else
             colorMap[c] = NULL;
+    }
+
+    if (container && container->getAttribute("VOLUME_SHADER"))
+    {
+        std::string s = container->getAttribute("VOLUME_SHADER");
+        shader = atoi(s.c_str());
     }
 
     // Check if valid volume data was added:
@@ -1471,6 +1478,15 @@ void VolumePlugin::addObject(RenderObject *container,
                 updateVolume(geometry->getName(), volDesc);
             else
                 updateVolume("Anonymous COVISE object", volDesc);
+
+            if (shader >= 0 && currentVolume != volumes.end())
+            {
+                virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
+                if (drawable)
+                {
+                    drawable->setShader(shader);
+                }
+            }
         }
 
         // a volume file will be loaded now, so show the TFE
