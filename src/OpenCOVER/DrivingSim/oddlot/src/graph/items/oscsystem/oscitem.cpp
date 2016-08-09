@@ -63,7 +63,7 @@
 #include <QString>
 #include <QKeyEvent>
 
-OSCItem::OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, QPointF &pos, const QString &roadId)
+OSCItem::OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId)
     : GraphElement(oscBaseItem, NULL)
 	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
