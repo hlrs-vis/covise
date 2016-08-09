@@ -559,6 +559,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				int v = spinBox->value();
 				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, object_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::UINT:
@@ -566,6 +567,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				uint v = spinBox->value();
 				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, object_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::USHORT:

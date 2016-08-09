@@ -63,12 +63,14 @@
 #include <QString>
 #include <QKeyEvent>
 
-OSCItem::OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, const QPointF &pos)
+OSCItem::OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, QPointF &pos, const QString &roadId)
     : GraphElement(oscBaseItem, NULL)
 	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
+	, entityCatalog_(entityCatalog)
 	, path_(NULL)
 	, pos_(pos)
+	, roadID_(roadId)
 {
 
     init();
@@ -103,10 +105,6 @@ QPainterPath *
 				path->addEllipse(QPointF(8,-0.1), 0.8, 0.8);
 
 				height = 4;
-				break;
-			}
-		case oscVehicle::van:
-			{
 				break;
 			}
 		default:
@@ -158,10 +156,7 @@ OSCItem::init()
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
-	OpenScenario::oscObjectBase *oscPosition = oscObject_->getMember("initPosition")->getObject();
-	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getOrCreateObject();
-	roadID_ = QString::fromStdString(dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getValue())->getValue());
-	road_ = getProjectData()->getRoadSystem()->getRoad(roadID_);
+	road_ = getProjectGraph()->getProjectData()->getRoadSystem()->getRoad(roadID_);
 	closestRoad_ = road_;
 	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
 
@@ -170,19 +165,40 @@ OSCItem::init()
 
 	// TODO: get type and object from catalog reference //
 	//
-	OpenScenario::oscCatalogReferenceTypeA * catalogRefA = dynamic_cast<OpenScenario::oscCatalogReferenceTypeA *>(oscObject_->getMember("catalogReference")->getOrCreateObject());
-	const std::string refId = dynamic_cast<OpenScenario::oscStringValue *>(catalogRefA->getMember("catalogId")->getOrCreateValue())->getValue();
-	OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(getProjectData()->getProjectWidget()->getProjectEditor());
 
-//	selectedObject_ = oscEditor->getCatalog(refId)->getCatalogObject(refId);
+	const std::string refId = oscObject_->catalogReference->catalogId.getValue();
+	OpenScenario::oscEntity *entityObject = dynamic_cast<OpenScenario::oscEntity *>(entityCatalog_->getCatalogObject(stoi(refId)));
 
-	const std::string typeName = "oscVehicle";
-	if (typeName == "oscVehicle")
+	OpenScenario::oscCatalog *catalog;
+	int id = entityObject->objectChoice->vehicle->refId.getValue();
+
+	if (id > 0)
 	{
 		createPath = createVehiclePath;
+		catalog = oscEditor_->getCatalog("vehicleCatalog");
+		catalog->setCatalogType("vehicle");
 	}
 
-	updateColor(typeName);
+	if (catalog->getObjectsMap().size() == 0)
+	{
+		//get all catalog object filenames
+		std::vector<bf::path> filenames = catalog->getXoscFilesFromDirectory(catalog->directory->path.getValue());
+
+		//parse all files
+		//store object name and filename in map
+		catalog->fastReadCatalogObjects(filenames);
+	}
+
+	selectedObject_ = catalog->getCatalogObject(id);
+	if (!selectedObject_)
+	{
+		catalog->fullReadCatalogObjectWithName(id);
+		selectedObject_ = catalog->getCatalogObject(id);
+	}
+
+	createPath(selectedObject_);
+
+	updateColor("oscVehicle");
     updatePosition();
 }
 

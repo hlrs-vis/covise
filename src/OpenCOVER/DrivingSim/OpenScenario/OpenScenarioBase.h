@@ -105,6 +105,8 @@ public:
                                                                       \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is returned if a file with that name already exists.
                                                                       \return false if writing to the file failed.*/
 
+	void clearDOM();
+
     //
     xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
     xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate); ///< parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy

@@ -437,6 +437,7 @@ ProjectWidget::loadFile(const QString &fileName)
     DomParser *parser = new DomParser(projectData_);
     bool success = parser->parseXODR(&file);
 
+	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
     if (!success)		// try OpenScenario
     {
         // Create a Tile
@@ -444,7 +445,6 @@ ProjectWidget::loadFile(const QString &fileName)
         projectData_->getTileSystem()->addTile(tile);
         projectData_->getTileSystem()->setCurrentTile(tile);
 
-        OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
         if (openScenarioBase)
         {
             OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
@@ -452,6 +452,10 @@ ProjectWidget::loadFile(const QString &fileName)
         }
 
     }
+	else if (openScenarioBase)
+	{
+		openScenarioBase->createSource(oscFileName_.toStdString(), "OpenSCENARIO");
+	}
 
     topviewGraph_->updateSceneSize();
     delete parser;
@@ -1524,6 +1528,12 @@ ProjectWidget::saveFile(const QString &fileName)
     // Set file //
     //
     setFile(fileName);
+
+	// OpenSCENARIO //
+	//
+	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+	openScenarioBase->saveFile((fileName.split(".")[0] + ".xosc").toStdString());
+	openScenarioBase->clearDOM();
 
     return true;
 }
