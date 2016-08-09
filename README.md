@@ -174,7 +174,7 @@ This might help you work around build problems.
 - `COVISE_BUILD_DRIVINGSIM`: enable the road editor oddlot as part of the OpenCOVER CMake project
 - `COVISE_USE_CUDA`: disable use of CUDA
 - `COVISE_USE_QT4`: enable Qt 4
-- `COVISE_NATIVE_ARCH`: disable optimization for the CPU in your computer
+- `COVISE_CPU_ARCH`: set optimization for the CPU in your computer
 - `COVISE_USE_CPP11`: disable compilation in C++11 mode
 - `COVISE_BUILD_RENDERER`: disable building the desktop renderer
 - `COVISE_GENERATE_DOCS`: generate HTML and PDF documentation
