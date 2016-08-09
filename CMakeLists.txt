@@ -136,7 +136,7 @@ ELSE(UNIX)
   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
 ENDIF(UNIX)
 
-set(COVISE_CPU_ARCH "corei7-avx" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
+set(COVISE_CPU_ARCH "native" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
 
 option(COVISE_SANITIZE_UNDEFINED "Build with -fsanitize=undefined" OFF)
 option(COVISE_SANITIZE_ADDRESS "Build with -fsanitize=address" OFF)
