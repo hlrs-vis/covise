@@ -208,11 +208,8 @@ int Collect::compute(const char *)
     size_t num_points = 0;
     for (int c = 0; c < NumChannels; ++c)
     {
-        if (color[c])
+        if (const coDoAbstractData *data = dynamic_cast<const coDoAbstractData *>(color[c]))
         {
-            const coDoAbstractData *data = dynamic_cast<const coDoAbstractData *>(color[c]);
-            assert(data != NULL);
-
             if (num_points == 0)
             {
                 num_points = data->getNumPoints();
