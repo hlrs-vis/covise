@@ -137,7 +137,8 @@ bool DTrackDriver::updateHand(size_t idx)
 	m_buttonStates[0 + m_handButtonBase[idx]] = (dist12>0)&&(dist12<23.0);
 	m_buttonStates[1 + m_handButtonBase[idx]] = (dist12>0)&&(dist13<23.0);
 
-
+    if(m_bodyMatrices.size <= m_handBase+idx)
+        m_bodyMatrices.resize(m_handBase+idx+1);
 	return getDTrackMatrix(m_bodyMatrices[m_handBase+idx],*h);
 }
 bool DTrackDriver::updateBodyMatrix(size_t idx)
