@@ -116,12 +116,14 @@ private:
 	//
 	OSCBase * oscBase_;
 	OSCBaseItem * oscBaseItem_;
+	OpenScenario::OpenScenarioBase *openScenarioBase_;
 
 	// Selected catalog //
 	//
 	OpenScenario::oscCatalog *oscCatalog_;
 
 	ODD::ToolId lastTool_;
+	QString lastOSCObjectName_;
 
 	QString catalogElement_;
 

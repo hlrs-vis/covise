@@ -297,6 +297,18 @@ class makePyMod :
             self.addAllInPorts()
             self.addAllOutPorts()
             self.addAllParameters()
+            if ( self.name_ == "OpenCOVER" ):
+                self.name_ = "VRRenderer"
+                self.header()
+                self.addAllInPorts()
+                self.addAllOutPorts()
+                self.addAllParameters()
+            if ( self.name_ == "QtRenderer" ):
+                self.name_ = "Renderer"
+                self.header()
+                self.addAllInPorts()
+                self.addAllOutPorts()
+                self.addAllParameters()
             return 1
         else:
             return -1

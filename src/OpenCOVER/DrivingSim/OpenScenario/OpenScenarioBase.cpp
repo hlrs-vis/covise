@@ -278,6 +278,14 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     return true;
 }
 
+void OpenScenarioBase::clearDOM()
+{
+	for (int i = 0; i < srcFileVec.size(); i++)
+	{
+		srcFileVec[i]->clearXmlDoc();
+	}
+}
+
 
 xercesc::MemBufFormatTarget *OpenScenarioBase::writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite)
 {

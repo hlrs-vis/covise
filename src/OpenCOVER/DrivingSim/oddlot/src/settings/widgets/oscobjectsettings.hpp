@@ -18,6 +18,7 @@
 
 #include <QWidget>
 #include "src/data/observer.hpp"
+#include "src/util/droparea.hpp"
 
 #include "oscMemberValue.h"
 
@@ -30,6 +31,8 @@ class OSCObjectSettings;
 namespace OpenScenario
 {
 class oscObjectBase;
+class oscArrayMember;
+class oscMember;
 }
 
 class OSCElement;
@@ -38,7 +41,13 @@ class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
 class ProjectSettings;
 
+class QLabel;
+class QTreeWidget;
+class QTreeWidgetItem;
+class QSignalMapper;
+
 #include <QMap>
+
 
 class OSCObjectSettings: public QWidget, public Observer
 {
@@ -59,9 +68,21 @@ public:
 	// Initialize generic user interface //
 	//
 	void uiInit();
+	void uiInitArray();
+	void onDeleteArrayElement();
+
+	OpenScenario::oscArrayMember *getArrayMember()
+	{
+		return oscArrayMember_;
+	}
+
+	void updateTree();
 
 private:
     void updateProperties();
+	void loadProperties(OpenScenario::oscMember *member, QWidget *widget);
+	void formatLabel(QLabel *label, const QString &memberName);
+	void addTreeItem(QTreeWidget *arrayTree, int name);
 
 	//################//
 	// SIGNALS        //
@@ -75,7 +96,9 @@ signals:
 
 private slots:
     void onEditingFinished(QString name);
-	void onPushButtonPressed(QString name);
+	OpenScenario::oscObjectBase * onPushButtonPressed(QString name);
+	void onArrayElementClicked(QTreeWidgetItem *item, int column);
+	void onNewArrayElement();
 	void onValueChanged();
 
     //################//
@@ -88,15 +111,43 @@ private:
 	OSCObjectSettingsStack *parentStack_;
 
     OpenScenario::oscObjectBase *object_;
+	OpenScenario::oscArrayMember *oscArrayMember_;
+	QTreeWidget *arrayTree_;
 	OSCElement *element_;
 	OSCBase *base_;
 
     bool init_;
 
 	QMap<QString, QWidget*> memberWidgets_;
+	QString memberName_;
 
     bool valueChanged_;
 
 };
+
+class ArrayDropArea : public DropArea
+{
+	//################//
+    // FUNCTIONS      //
+    //################//
+
+public:
+	explicit ArrayDropArea(OSCObjectSettings *settings, QPixmap *pixmap);
+
+private:
+    ArrayDropArea(); /* not allowed */
+    ArrayDropArea(const OSCObjectSettings &, QPixmap *pixmap); /* not allowed */
+    ArrayDropArea &operator=(const OSCObjectSettings &); /* not allowed */
+
+	//################//
+    // SLOTS          //
+    //################//
+protected:
+    void dropEvent(QDropEvent *event);
+
+private:
+	OSCObjectSettings *settings_;
+};
+
 
 #endif // OSCOBJECTSETTINGS_HPP

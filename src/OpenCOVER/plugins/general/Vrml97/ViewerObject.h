@@ -73,10 +73,10 @@ public:
     textureData();
     ~textureData();
     int ntc;
+    osg::ref_ptr<osg::Image> texImage; // keep first so that it sticks around longer than texture
     osg::ref_ptr<osg::Texture> texture; // need to be refptrs, otherwise we are in big trouble if geometry gets replaced
     osg::ref_ptr<osg::TexGen> texGen;
     osg::ref_ptr<osg::TexEnv> tEnv;
-    osg::ref_ptr<osg::Image> texImage;
     osg::Matrix newTMat;
     unsigned char mirror; // 1 = vertical 2 = horizontal
 };

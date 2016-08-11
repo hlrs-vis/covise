@@ -76,7 +76,8 @@
 #include "coVRMSController.h"
 #include "MSEventHandler.h"
 
-#ifndef WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
+#define USE_X11
 #include <osgViewer/api/X11/GraphicsWindowX11>
 #undef Status
 #endif
@@ -1834,14 +1835,12 @@ void VRViewer::startThreading()
             }
         }
 	// setup swap groups and swap barriers
-#ifndef WIN32
+#ifdef USE_X11
 	for(int i=0;i<coVRConfig::instance()->numWindows();i++)
 	{
 	   if(coVRConfig::instance()->windows[i].context == gc)
 	   {
 	      osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window);
-	      
-#include <osgViewer/api/X11/GraphicsWindowX11>
 	      
 	      if(coVRConfig::instance()->windows[i].swapGroup > 0)
 	         glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);

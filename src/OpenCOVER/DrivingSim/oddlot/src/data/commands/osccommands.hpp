@@ -140,6 +140,72 @@ private:
 };
 
 //#########################//
+// AddOSCArrayMemberCommand //
+//#########################//
+
+class AddOSCArrayMemberCommand : public DataCommand
+{
+public:
+	explicit AddOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
+    virtual ~AddOSCArrayMemberCommand();
+
+    virtual int id() const
+    {
+        return 0x1014;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    AddOSCArrayMemberCommand(); /* not allowed */
+    AddOSCArrayMemberCommand(const AddOSCArrayMemberCommand &); /* not allowed */
+    AddOSCArrayMemberCommand &operator=(const AddOSCArrayMemberCommand &); /* not allowed */
+
+private:
+	OpenScenario::oscArrayMember *arrayMember_;
+	OpenScenario::oscObjectBase *objectBase_;
+
+    std::string typeName_;
+
+	OSCBase *oscBase_;
+	OSCElement *oscElement_;
+};
+
+//#########################//
+// RemoveOSCArrayMemberCommand //
+//#########################//
+
+class RemoveOSCArrayMemberCommand : public DataCommand
+{
+public:
+    explicit RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, int index, OSCElement *element, DataCommand *parent = NULL);
+    virtual ~RemoveOSCArrayMemberCommand();
+
+    virtual int id() const
+    {
+        return 0x1015;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    RemoveOSCArrayMemberCommand(); /* not allowed */
+    RemoveOSCArrayMemberCommand(const RemoveOSCArrayMemberCommand &); /* not allowed */
+    RemoveOSCArrayMemberCommand &operator=(const RemoveOSCArrayMemberCommand &); /* not allowed */
+
+private:
+	OpenScenario::oscArrayMember *arrayMember_;
+	OpenScenario::oscObjectBase *objectBase_, *oscObject_;
+
+    int index_;
+
+	OSCBase *oscBase_;
+	OSCElement *oscElement_;
+};
+
+//#########################//
 // AddOSCObjectCommand //
 //#########################//
 
@@ -377,7 +443,22 @@ public:
 
 	newOSCValue_ = value;
 	OpenScenario::oscMember *member = object->getMember(memberName);
-	v_ = member->getOrCreateValue();
+	v_ = member->getValue();
+	
+	if (!v_)
+	{
+		v_ = member->createValue();
+
+		if(member->getType() == oscMemberValue::ENUM)
+		{
+			oscEnumValue *ev = dynamic_cast<oscEnumValue *>(v_);
+			oscEnum *em = dynamic_cast<oscEnum *>(member);
+			if(ev && em)
+			{
+				ev->enumType = em->enumType;
+			}
+		}
+	}
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

@@ -27,6 +27,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QSignalMapper>
 
 //################//
 //                //
@@ -79,7 +80,40 @@ OpenScenarioEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     
     ribbonToolGroup->addButton(ui->oscSave, ODD::TOS_SAVE_CATALOG); 
-    
+
+	// add all members of OpenScenarioBase as buttons
+	//
+	//QButtonGroup *memberToolGroup = new QButtonGroup;
+
+	// Signal Mapper for the objects //
+	//
+	QSignalMapper *signalPushMapper = new QSignalMapper(this);
+	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
+
+	QList<QString> openScenarioBaseObjects;
+	openScenarioBaseObjects.append("fileHeader");
+	openScenarioBaseObjects.append("roadNetwork");
+	openScenarioBaseObjects.append("environment");
+	openScenarioBaseObjects.append("entities");
+	openScenarioBaseObjects.append("storyboard");
+	openScenarioBaseObjects.append("scenarioEnd");
+	
+	int column = 0;
+	for (int i = 0; i < openScenarioBaseObjects.size(); i++)
+	{
+		QPushButton *oscPushButton = new QPushButton();
+		oscPushButton->setText(openScenarioBaseObjects.at(i));
+		//			memberWidgets_.insert(memberName, oscPushButton);
+		ui->baseToolsLayout->addWidget(oscPushButton, i%2, column, 1, 1);
+		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
+		signalPushMapper->setMapping(oscPushButton, openScenarioBaseObjects.at(i));
+		if (i%2 == 1)
+		{
+			column++;
+		}
+	}  
+
+   
     toolManager_->addRibbonWidget(ribbonWidget, tr("OpenScenario"));
     connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
@@ -131,6 +165,21 @@ OpenScenarioEditorTool::handleCatalogSelection(int id)
 		// Set a tool //
 		//
 		OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(toolId_, selectedText);
+		emit toolAction(action);
+		delete action;
+	}
+}
+
+void 
+OpenScenarioEditorTool::onPushButtonPressed(QString name)
+{
+	if (name != "")
+	{
+		toolId_ = ODD::TOS_BASE;
+
+		// Set a tool //
+		//
+		OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(toolId_, name);
 		emit toolAction(action);
 		delete action;
 	}

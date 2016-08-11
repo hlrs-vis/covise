@@ -22,6 +22,7 @@
 #include "oscObjectBase.h"
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
+#include "oscArrayMember.h"
 
 // Settings //
 //
@@ -81,11 +82,23 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	base_ = element_->getOSCBase();
     ui->setupUi(this);
 
-	uiInit();
+	//oscArrayMember
+	//
 
-    // Initial Values //
-    //
-    updateProperties();
+	oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(object_->getOwnMember());
+
+	if(oscArrayMember_)
+	{
+		uiInitArray();
+	}
+	else 
+	{
+		uiInit();
+		// Initial Values //
+		//
+		updateProperties();
+	}
+
 
     init_ = true;
 	parentStack_->addWidget(this);
@@ -157,34 +170,10 @@ OSCObjectSettings::uiInit()
 		OpenScenario::oscMember *member = it->second;
 		QString memberName = QString::fromStdString(member->getName());
 		QLabel *label = new QLabel(memberName);
-		label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-		if (memberName.size() > 16)
-		{
-			QStringList list = memberName.split(QRegExp("[A-Z]"));
-			QString line;
-			int separator = 16;
-
-			for (int i = 0; i < list.size(); i++)
-			{
-				QString temp = line + list.at(i) + " ";
-				if (temp.size() > 16)
-				{
-					separator = line.size() - 1;
-					break;
-				}
-				line = temp;
-			}
-
-			QString name = memberName.left(separator) + "\n" + memberName.right(memberName.size() - separator);
-			label->setText(name);
-			label->setFixedHeight(20);
-		}
-		else
-		{
-			label->setFixedHeight(25);
-		}
-
+		formatLabel(label, memberName);
 		objectGridLayout->addWidget(label, ++row, 0);
+
+
 		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
 		if (type <= 3) // UINT = 0, INT = 1, USHORT = 2, SHORT = 3
@@ -325,6 +314,125 @@ OSCObjectSettings::uiInit()
 
 }
 
+// Create generic interface for array members//
+//
+void
+OSCObjectSettings::uiInitArray()
+{
+	// Widget/Layout //
+	//
+	QGridLayout *objectGridLayout = new QGridLayout();
+	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+	// Close Button //
+	// not for the first element in the stackedWidget //
+	if (parentStack_->getStackSize() == 0)
+	{
+		objectGridLayout->setContentsMargins(4, 30, 4, 9);
+	}
+	else
+	{
+		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
+		closeButton->setObjectName(QStringLiteral("close"));
+        closeButton->setGeometry(QRect(90, 30, 75, 23));
+		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+
+		objectGridLayout->setContentsMargins(4, 60, 4, 9);
+	}
+
+	QPixmap recycleIcon(":/icons/recycle.png");
+
+	ArrayDropArea *recycleArea = new ArrayDropArea(this, &recycleIcon);
+	objectGridLayout->addWidget(recycleArea, 0, 0);
+
+	OpenScenario::oscObjectBase::MemberMap map = object_->getMembers();
+	auto it = map.begin();
+	memberName_ = QString::fromStdString(it->first);
+	QLabel *label = new QLabel(memberName_);
+	objectGridLayout->addWidget(label, 1, 0);
+
+	// Tree for array objects
+	//
+	arrayTree_ = new QTreeWidget(this);
+	arrayTree_->setObjectName("ArrayTree");
+	arrayTree_->setHeaderHidden(true);
+	arrayTree_->setDragEnabled(true);
+	connect(arrayTree_, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(onArrayElementClicked(QTreeWidgetItem *, int)));
+
+	
+	//oscArrayMember
+	//
+	// emtpy item to create new elements //
+	//
+
+	updateTree();
+	
+	objectGridLayout->addWidget(arrayTree_, 1, 0);
+
+
+	// Finish Layout //
+    //
+    objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
+
+	ui->oscGroupBox->setLayout(objectGridLayout);
+
+
+}
+
+void OSCObjectSettings::updateTree()
+{
+	arrayTree_->clear();
+
+	QTreeWidgetItem *item = new QTreeWidgetItem();
+	item->setText(0, "New " + memberName_);
+	arrayTree_->addTopLevelItem(item);
+
+	//generate the children members
+	for (int i = 0; i < oscArrayMember_->size(); i++)
+	{
+		addTreeItem(arrayTree_, i+1);
+	}
+}
+
+void OSCObjectSettings::addTreeItem(QTreeWidget *arrayTree, int name)
+{
+
+	QTreeWidgetItem *item = new QTreeWidgetItem();
+	item->setText(0, QString::number(name));
+	arrayTree->addTopLevelItem(item);
+
+}
+
+void OSCObjectSettings::formatLabel(QLabel *label, const QString &memberName)
+{
+	label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	if (memberName.size() > 16)
+	{
+		QStringList list = memberName.split(QRegExp("[A-Z]"));
+		QString line;
+		int separator = 16;
+
+		for (int i = 0; i < list.size(); i++)
+		{
+			QString temp = line + list.at(i) + " ";
+			if (temp.size() > 16)
+			{
+				separator = line.size() - 1;
+				break;
+			}
+			line = temp;
+		}
+
+		QString name = memberName.left(separator) + "\n" + memberName.right(memberName.size() - separator);
+		label->setText(name);
+		label->setFixedHeight(20);
+	}
+	else
+	{
+		label->setFixedHeight(25);
+	}
+}
+
 void
 OSCObjectSettings::updateProperties()
 {
@@ -335,70 +443,92 @@ OSCObjectSettings::updateProperties()
 		for (it = memberWidgets_.constBegin(); it != memberWidgets_.constEnd(); it++)
 		{
 			OpenScenario::oscMember *member = object_->getMember(it.key().toStdString());
+
 			if (!member->exists())
 			{
 				continue;
 			} 
-
-			OpenScenario::oscMemberValue *value = member->getOrCreateValue();
-
-			if (QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value()))
-			{
-			
-				if (oscIntValue *iv = dynamic_cast<oscIntValue *>(value))
-				{
-					spinBox->setValue(iv->getValue());
-				}
-				else if (oscUIntValue *uv = dynamic_cast<oscUIntValue *>(value))
-				{
-					spinBox->setValue(uv->getValue());
-				}
-				else if (oscShortValue *sv = dynamic_cast<oscShortValue *>(value))
-				{
-					spinBox->setValue(sv->getValue());
-				}
-				else if (oscUShortValue *usv = dynamic_cast<oscUShortValue *>(value))
-				{
-					spinBox->setValue(usv->getValue());
-				}
-			}
-			else if (QDoubleSpinBox *doubleSpinBox = dynamic_cast<QDoubleSpinBox *>(it.value()))
-			{
-				if (oscFloatValue *fv = dynamic_cast<oscFloatValue *>(value))
-				{
-					doubleSpinBox->setValue(fv->getValue());
-				}
-				else if (oscDoubleValue *dv = dynamic_cast<oscDoubleValue *>(value))
-				{
-					doubleSpinBox->setValue(dv->getValue());
-				}
-			}
-			else if (QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(it.value()))
-			{
-				oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
-				if (sv)
-				{
-					lineEdit->setText(QString::fromStdString(sv->getValue()));
-				}
-			}
-			else if (QComboBox *comboBox = dynamic_cast<QComboBox *>(it.value()))
-			{
-				oscIntValue *iv = dynamic_cast<oscIntValue *>(value);
-				if (iv)
-				{
-					comboBox->setCurrentIndex(iv->getValue() + 1);
-				}
-			}
-			else if (QCheckBox *checkBox = dynamic_cast<QCheckBox *>(it.value()))
-			{
-				oscBoolValue *iv = dynamic_cast<oscBoolValue *>(value);
-				if (iv)
-				{
-					checkBox->setChecked(iv->getValue());
-				}
-			}
+			loadProperties(member, it.value());
 		}
-    }
+	}
+}
+
+void
+	OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
+{
+
+	OpenScenario::oscMemberValue *value = member->getOrCreateValue();
+
+	if (QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget))
+	{
+
+		if (oscIntValue *iv = dynamic_cast<oscIntValue *>(value))
+		{
+			spinBox->setValue(iv->getValue());
+		}
+		else if (oscUIntValue *uv = dynamic_cast<oscUIntValue *>(value))
+		{
+			spinBox->setValue(uv->getValue());
+		}
+		else if (oscShortValue *sv = dynamic_cast<oscShortValue *>(value))
+		{
+			spinBox->setValue(sv->getValue());
+		}
+		else if (oscUShortValue *usv = dynamic_cast<oscUShortValue *>(value))
+		{
+			spinBox->setValue(usv->getValue());
+		}
+	}
+	else if (QDoubleSpinBox *doubleSpinBox = dynamic_cast<QDoubleSpinBox *>(widget))
+	{
+		if (oscFloatValue *fv = dynamic_cast<oscFloatValue *>(value))
+		{
+			doubleSpinBox->setValue(fv->getValue());
+		}
+		else if (oscDoubleValue *dv = dynamic_cast<oscDoubleValue *>(value))
+		{
+			doubleSpinBox->setValue(dv->getValue());
+		}
+	}
+	else if (QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(widget))
+	{
+		oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
+		if (sv)
+		{
+			lineEdit->setText(QString::fromStdString(sv->getValue()));
+		}
+	}
+	else if (QComboBox *comboBox = dynamic_cast<QComboBox *>(widget))
+	{
+		oscIntValue *iv = dynamic_cast<oscIntValue *>(value);
+		if (iv)
+		{
+			comboBox->setCurrentIndex(iv->getValue() + 1);
+		}
+	}
+	else if (QCheckBox *checkBox = dynamic_cast<QCheckBox *>(widget))
+	{
+		oscBoolValue *iv = dynamic_cast<oscBoolValue *>(value);
+		if (iv)
+		{
+			checkBox->setChecked(iv->getValue());
+		}
+	}
+}
+
+void 
+OSCObjectSettings::onDeleteArrayElement()
+{
+
+	QTreeWidgetItem *item = arrayTree_->selectedItems().at(0);
+	int j = arrayTree_->indexOfTopLevelItem(item);
+	if (j > 0)
+	{
+		OpenScenario::oscObjectBase *object = oscArrayMember_->at(--j);
+		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(oscArrayMember_, object_, j, base_->getOSCElement(object));
+		projectSettings_->executeCommand(command);
+	}
+
 }
 
 //################//
@@ -429,6 +559,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				int v = spinBox->value();
 				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, object_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::UINT:
@@ -436,6 +567,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				uint v = spinBox->value();
 				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, object_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::USHORT:
@@ -511,14 +643,54 @@ OSCObjectSettings::onEditingFinished(QString name)
 	}
 }
 
-void 
+OpenScenario::oscObjectBase * 
 OSCObjectSettings::onPushButtonPressed(QString name)
 {
-	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->getOrCreateObject();
+	OpenScenario::oscObjectBase *object = NULL;
+
+	if (oscArrayMember_)
+	{
+		object = oscArrayMember_->at(name.toInt()-1);
+	}
+	else
+	{
+		object = object_->getMember(name.toStdString())->getOrCreateObject();
+	}
 
 	OSCElement *memberElement = base_->getOSCElement(object);
 
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
+
+	return object;
+}
+
+void
+OSCObjectSettings::onNewArrayElement()
+{
+	OSCElement *oscElement = new OSCElement(memberName_);
+	if (oscElement)
+	{
+
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, memberName_.toStdString(), base_, oscElement);
+		projectSettings_->executeCommand(command);
+
+		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement);
+	}
+
+}
+
+void
+OSCObjectSettings::onArrayElementClicked(QTreeWidgetItem *item, int column)
+{
+	QString name = item->text(0);
+	if (name.contains("New")) 
+	{
+		onNewArrayElement();
+	}
+	else
+	{
+		onPushButtonPressed(name);
+	}
 }
 
 
@@ -538,8 +710,45 @@ OSCObjectSettings::updateObserver()
     //
 	int changes = element_->getOSCElementChanges();
 
-    if (changes & OSCElement::COE_ParameterChange)
+	if (changes & OSCElement::COE_ParameterChange)
     {
         updateProperties();
     }
+
+	if (changes & OSCElement::COE_ChildChanged)
+	{
+		if (oscArrayMember_)
+		{
+			updateTree();
+		}
+	}
+
+	changes = element_->getDataElementChanges();
+	if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))
+	{
+
+	}
+}
+
+
+//###############################//
+// DropArea for the recycle bin //
+//
+//#############################//
+ArrayDropArea::ArrayDropArea(OSCObjectSettings *settings, QPixmap *pixmap)
+    : DropArea(pixmap)
+	, settings_(settings)
+{
+}
+
+//################//
+// EVENTS         //
+//################//
+
+void 
+ArrayDropArea::dropEvent(QDropEvent *event)
+{
+	settings_->onDeleteArrayElement();
+
+	DropArea::dropEvent(event);
 }

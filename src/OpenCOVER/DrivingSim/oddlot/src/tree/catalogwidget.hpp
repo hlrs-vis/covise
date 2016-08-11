@@ -17,6 +17,7 @@
 #define CATALOGWIDGET_HPP
 
 #include "src/util/odd.hpp"
+#include "src/util/droparea.hpp"
 #include "src/gui/tools/toolaction.hpp"
 
 #include "oscCatalog.h"
@@ -51,18 +52,18 @@ public:
 	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
     virtual ~CatalogWidget();
 
-	void setActiveProject(ProjectWidget *projectWidget)
+/*	void setActiveProject(ProjectWidget *projectWidget)
 	{
 		projectWidget_ = projectWidget ;
-	}
+	} */
 
-	void onDeleteCatalogItem();
 
 	CatalogTreeWidget *getCatalogTreeWidget()
 	{
 		return catalogTreeWidget_;
 	}
 
+	void onDeleteCatalogItem();
 
 protected:
 private:
@@ -91,7 +92,6 @@ public slots:
     //################//
 
 private:
-	ProjectWidget *projectWidget_;
     ProjectData *projectData_; // Model, linked
 	MainWindow *mainWindow_;
 
@@ -109,31 +109,29 @@ private:
 
 };
 
-//#######################################################//
-// DropArea for the recycle bin of the catalog widget //
-//
-//#######################################################//
-#include <QLabel>
-
-class DropArea : public QLabel
+class CatalogDropArea : public DropArea
 {
-    Q_OBJECT
+	//################//
+    // FUNCTIONS      //
+    //################//
 
 public:
-    DropArea(const QPixmap &pixmap, CatalogWidget *parent = 0);
+	explicit CatalogDropArea(CatalogWidget *catalogWidget, QPixmap *pixmap);
+
+private:
+    CatalogDropArea(); /* not allowed */
+    CatalogDropArea(const CatalogWidget &, QPixmap *pixmap); /* not allowed */
+    CatalogDropArea &operator=(const CatalogWidget &); /* not allowed */
 
 	//################//
     // SLOTS          //
     //################//
 protected:
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dragLeaveEvent(QDragLeaveEvent *event);
     void dropEvent(QDropEvent *event);
 
-
 private:
-	CatalogWidget *parent_;
+	CatalogWidget *catalogWidget_;
 };
+
 
 #endif // CATALOGWIDGET_HPP

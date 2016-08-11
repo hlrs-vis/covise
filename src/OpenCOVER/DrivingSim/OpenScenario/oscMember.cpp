@@ -137,12 +137,19 @@ oscMemberValue *oscMember::getValue()
 	return value;
 }
 
+oscMemberValue *oscMember::createValue()
+{
+	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
+	setValue(v);
+
+	return value;
+}
+
 oscMemberValue *oscMember::getOrCreateValue()
 {
     if (!value)
     {
-        OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
-        setValue(v);
+        createValue();
     }
 
     return value;
@@ -156,6 +163,11 @@ oscObjectBase *oscMember::getObject() const
 }
 
 oscObjectBase *oscMember::getOrCreateObject()
+{
+    return NULL;
+}
+
+oscObjectBase *oscMember::createObject()
 {
     return NULL;
 }

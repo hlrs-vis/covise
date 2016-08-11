@@ -249,6 +249,7 @@ Name: core; Description: COVISE core system; Types: standard custom
 Name: help; Description: COVISE help and tutorial system; Types: standard custom
 Name: example; Description: COVISE example modules, maps and data; Types: standard custom
 Name: opencover; Description: OpenSceneGraph based VR renderer; Types: standard custom
+Name: python; Description: COVISE python interpreter; Types: standard custom
 Name: vrprepare4; Description: User interface for VR preparation; Types: standard custom
 #if VERSION != "VISENSO"
 Name: surfacecover; Description: MS Surface VR renderer; Types: standard custom
@@ -482,6 +483,9 @@ Source: {#BIN}\Simulation\*.exe; DestDir: {#DBIN}\Simulation; Flags: recursesubd
 Source: {#COVISEDIR}\scripts\windowsEnv.bat; DestDir: {app}; Components: core
 Source: {#COVISEDIR}\bin\*.bat; DestDir: {app}\bin; Components: core
 Source: {#COVISEDIR}\scripts\*; DestDir: {app}\scripts; Components: core
+
+
+Source: {#EXTERNLIBS}\python\*; DestDir: {app}\extern_libs\python; Flags: recursesubdirs skipifsourcedoesntexist; Components: python
 
 #if VERSION != "VISENSO"
 ; we are using Qt version >= 4.5.0 LGPL

@@ -53,10 +53,10 @@ public:
 	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
     virtual ~CatalogTreeWidget();
 
-	void setActiveProject(ProjectWidget *projectWidget)
+/*	void setActiveProject(ProjectWidget *projectWidget)
 	{
 		projectWidget_ = projectWidget ;
-	}
+	} */
 
 	void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
 

@@ -69,6 +69,8 @@ Collect::Collect(int argc, char *argv[])
                                      "Colormap Input");
         p_colorMap[c]->setRequired(false);
     }
+    p_shaderNum = addInt32Param("ShaderNum", "number of virvo shader");
+    p_shaderNum->setValue(-1);
 #else
     p_color = addInputPort("DataIn0", "Byte|Float|Vec2|Vec3|RGBA", "Colors or Scalar Data for Volume Visualization");
     p_color->setRequired(0);
@@ -206,11 +208,8 @@ int Collect::compute(const char *)
     size_t num_points = 0;
     for (int c = 0; c < NumChannels; ++c)
     {
-        if (color[c])
+        if (const coDoAbstractData *data = dynamic_cast<const coDoAbstractData *>(color[c]))
         {
-            const coDoAbstractData *data = dynamic_cast<const coDoAbstractData *>(color[c]);
-            assert(data != NULL);
-
             if (num_points == 0)
             {
                 num_points = data->getNumPoints();
@@ -328,6 +327,15 @@ geom->addAttribute(varVal[0].c_str(), varVal[1].c_str());
     {
         recAddMaterialAttrib(geom, datastring.c_str());
         recAddMaterialAttrib(copied_grid, datastring.c_str());
+    }
+#endif
+#ifdef VOLUME_COLLECT
+    if (p_shaderNum->getValue() >= 0)
+    {
+        std::stringstream str;
+        str << p_shaderNum->getValue();
+        std::string s = str.str();
+        geom->addAttribute("VOLUME_SHADER", s.c_str());
     }
 #endif
 

@@ -38,6 +38,13 @@ public:
 
 	void init();
 
+	 // Graph //
+    //
+    virtual TopviewGraph *getTopviewGraph() const
+    {
+        return topviewGraph_;
+    }
+
 	// RoadSystemItem //
 	//
 	OSCRoadSystemItem *getRoadSystemItem()

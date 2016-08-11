@@ -276,6 +276,165 @@ RemoveOSCCatalogObjectCommand::undo()
 }
 
 //#########################//
+// AddOSCArrayMemberCommand //
+//#########################//
+
+AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent)
+    : DataCommand(parent)
+	, arrayMember_(arrayMember)
+	, typeName_(name)
+	, objectBase_(objectBase)
+	, oscElement_(element)
+	, oscBase_(base)
+{
+    // Check for validity //
+    //
+
+	if (!arrayMember_ || !objectBase_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("AddOSCArrayMemberCommand: Internal error! Member not valid."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("AddOSCArrayMember"));
+    }
+}
+
+/*! \brief .
+*
+*/
+AddOSCArrayMemberCommand::~AddOSCArrayMemberCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+//        delete object_;
+    }
+    else
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+AddOSCArrayMemberCommand::redo()
+{
+	OpenScenario::oscObjectBase *object = objectBase_->getMember(typeName_)->createObject();
+
+	if(object)
+	{
+		oscElement_->setObjectBase(object);
+		oscBase_->addOSCElement(oscElement_);
+
+		arrayMember_->push_back(object);
+	}
+	
+	setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+	AddOSCArrayMemberCommand::undo()
+{
+	arrayMember_->erase(arrayMember_->end() - 1);
+
+	oscBase_->delOSCElement(oscElement_);
+	oscElement_->setObjectBase(NULL);
+
+	setUndone();
+}
+
+//#########################//
+// RemoveOSCArrayMemberCommand //
+//#########################//
+
+RemoveOSCArrayMemberCommand::RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, int index, OSCElement *element, DataCommand *parent) 
+    : DataCommand(parent)
+	, arrayMember_(arrayMember)
+	, index_(index)
+	, objectBase_(objectBase)
+	, oscElement_(element)
+	, oscBase_(NULL)
+{
+    // Check for validity //
+    //
+	oscObject_ = arrayMember_->at(index_);
+
+	if (!arrayMember_ || !objectBase_ || !oscObject_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("RemoveOSCArrayMemberCommand: Internal error! No valid member or object ID specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("RemoveOSCArrayMember"));
+    }
+
+	if (oscElement_)
+	{
+		oscBase_ = oscElement_->getOSCBase();
+	}
+}
+
+/*! \brief .
+*
+*/
+RemoveOSCArrayMemberCommand::~RemoveOSCArrayMemberCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+    else
+    {
+//        delete object_;
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+RemoveOSCArrayMemberCommand::redo()
+{
+	if (oscBase_)
+	{
+		oscBase_->delOSCElement(oscElement_);
+	}
+
+	arrayMember_->erase(arrayMember_->begin() + index_);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+RemoveOSCArrayMemberCommand::undo()
+{
+	oscElement_->setObjectBase(oscObject_);
+	oscBase_->addOSCElement(oscElement_);
+
+	arrayMember_->emplace(arrayMember_->begin() + index_, oscObject_);
+
+	setUndone();
+}
+
+//#########################//
 // AddOSCObjectCommand //
 //#########################//
 
@@ -360,7 +519,6 @@ AddOSCObjectCommand::redo()
 void
 AddOSCObjectCommand::undo()
 {
-	const OpenScenario::oscObjectBase *obj = element_->getObject();
 	if (member_)
 	{
 		member_->deleteValue();

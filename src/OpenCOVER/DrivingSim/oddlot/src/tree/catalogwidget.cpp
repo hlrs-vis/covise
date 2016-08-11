@@ -14,6 +14,7 @@
 **************************************************************************/
 
 #include "catalogwidget.hpp"
+#include "src/util/droparea.hpp"
 
 // Data //
 //
@@ -57,9 +58,6 @@
 #include "oscMember.h"
 
 #include <QWidget>
-#include <QDragEnterEvent>
-#include <QDragLeaveEvent>
-#include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QGridLayout>
 #include <QMenu>
@@ -74,7 +72,6 @@ using namespace OpenScenario;
 CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
 	: QWidget()
 	, mainWindow_(mainWindow)
-	, projectWidget_(NULL)
 	, catalog_(catalog)
 	, type_(type)
 	, catalogTreeWidget_(NULL)
@@ -101,20 +98,18 @@ CatalogWidget::init()
     //
 	QGridLayout *toolLayout = new QGridLayout;
 	QPixmap recycleIcon(":/icons/recycle.png");
-	DropArea *recycleArea = new DropArea(recycleIcon, this);
-	recycleArea->setPixmap(recycleIcon);
+
+	CatalogDropArea *recycleArea = new CatalogDropArea(this, &recycleIcon);
 	toolLayout->addWidget(recycleArea, 0, 2);
 
-
 	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_, type_);
-	toolLayout->addWidget(catalogTreeWidget_, 0, 0);
+	toolLayout->addWidget(catalogTreeWidget_, 0, 0); 
 
-    QPushButton *toolButton;
     int row = -1; // button row
 
     // Link Roads by Handles//
     //
-    toolButton = new QPushButton(tr("Save"));
+    QPushButton * toolButton = new QPushButton(tr("Save"));
     toolButton->setCheckable(false);
     toolLayout->addWidget(toolButton, 1, 0);
 	connect(toolButton, SIGNAL(clicked()), this, SLOT(handleToolClick()));
@@ -127,7 +122,7 @@ CatalogWidget::init()
 	if (toolManager)
 	{
 		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
-	}
+	} 
 }
 
 void 
@@ -174,22 +169,14 @@ void
     delete action;
 }
 
- 
-
-//#######################################################//
-// DropArea for the recycle bin of the catalog widget //
+//###############################//
+// DropArea for the recycle bin //
 //
-//#######################################################//
-DropArea::DropArea(const QPixmap &pixmap, CatalogWidget *parent)
-    : QLabel(parent)
-	, parent_(parent)
+//#############################//
+CatalogDropArea::CatalogDropArea(CatalogWidget *catalogWidget, QPixmap *pixmap)
+    : DropArea(pixmap)
+	, catalogWidget_(catalogWidget)
 {
-    setMaximumSize(20, 20);
-    setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
-    setAlignment(Qt::AlignCenter);
-    setAcceptDrops(true);
-    setAutoFillBackground(true);
-	
 }
 
 //################//
@@ -197,32 +184,12 @@ DropArea::DropArea(const QPixmap &pixmap, CatalogWidget *parent)
 //################//
 
 void 
-DropArea::dragEnterEvent(QDragEnterEvent *event)
+CatalogDropArea::dropEvent(QDropEvent *event)
 {
-    setBackgroundRole(QPalette::Highlight);
+	catalogWidget_->onDeleteCatalogItem();
 
-    event->acceptProposedAction();
+	DropArea::dropEvent(event);
 }
 
-void 
-DropArea::dragMoveEvent(QDragMoveEvent *event)
-{
-    event->acceptProposedAction();
-}
 
-void 
-DropArea::dropEvent(QDropEvent *event)
-{
-	parent_->onDeleteCatalogItem();
-
-	setBackgroundRole(QPalette::Dark);
-    event->acceptProposedAction();
-}
-
-void 
-DropArea::dragLeaveEvent(QDragLeaveEvent *event)
-{
-    clear();
-    event->accept();
-}
-
+ 
