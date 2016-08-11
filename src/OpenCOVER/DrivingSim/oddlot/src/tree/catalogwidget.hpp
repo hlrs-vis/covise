@@ -52,10 +52,10 @@ public:
 	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
     virtual ~CatalogWidget();
 
-	void setActiveProject(ProjectWidget *projectWidget)
+/*	void setActiveProject(ProjectWidget *projectWidget)
 	{
 		projectWidget_ = projectWidget ;
-	}
+	} */
 
 
 	CatalogTreeWidget *getCatalogTreeWidget()
@@ -92,7 +92,6 @@ public slots:
     //################//
 
 private:
-	ProjectWidget *projectWidget_;
     ProjectData *projectData_; // Model, linked
 	MainWindow *mainWindow_;
 

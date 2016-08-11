@@ -209,6 +209,7 @@ public:
 		TOS_CREATE_CATALOG,
 		TOS_SAVE_CATALOG,
 		TOS_ELEMENT,
+		TOS_BASE,
 
         // No Tool
         TNO_TOOL

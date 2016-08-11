@@ -69,7 +69,6 @@ using namespace OpenScenario;
 CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
 	: QTreeWidget()
 	, mainWindow_(mainWindow)
-	, projectWidget_(NULL)
 	, oscEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
 	, oscElement_(NULL)
@@ -416,6 +415,25 @@ CatalogTreeWidget::updateObserver()
 	if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))
 	{
 		createTree();
+	}
+	else if (changes & DataElement::CDE_SelectionChange)
+	{
+		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
+		
+		OpenScenario::oscMember *member = obj->getMember("name");
+		if (member->exists())
+		{
+			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
+			QString text = QString::fromStdString(sv->getValue());
+			OpenScenario::oscMember *member = obj->getMember("refId");
+			oscIntValue *v = dynamic_cast<oscIntValue *>(member->getOrCreateValue());
+			int refId = v->getValue();
+			QString id = "(" + QString::number(refId) + ")";
+			text += id;
+			QTreeWidgetItem *currentEditedItem = getItem(id);
+
+			currentEditedItem->setSelected(oscElement_->isElementSelected());
+		}
 	}
 
 }

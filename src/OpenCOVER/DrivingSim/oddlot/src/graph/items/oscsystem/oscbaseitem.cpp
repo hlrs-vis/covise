@@ -75,7 +75,8 @@ void
 OSCBaseItem::init()
 {
 	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-	OpenScenario::oscCatalog *entityCatalog = openScenarioBase->catalogs->getCatalog("entityCatalog");
+	OpenScenario::oscCatalogs *catalogs = openScenarioBase->catalogs.getOrCreateObject();
+	OpenScenario::oscCatalog *entityCatalog = catalogs->getCatalog("entityCatalog");
 
 	// Root Road item //
     //
