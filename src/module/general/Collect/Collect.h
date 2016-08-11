@@ -46,6 +46,7 @@ private:
 #else
     coInputPort *p_color[NumChannels];
     coInputPort *p_colorMap[NumColorMaps];
+    coIntScalarParam *p_shaderNum;
 #endif
     coOutputPort *p_outPort;
 #ifdef MATERIAL

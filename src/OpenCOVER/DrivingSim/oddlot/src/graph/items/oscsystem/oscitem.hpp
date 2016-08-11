@@ -43,7 +43,7 @@ class OSCItem : public GraphElement
     //################//
 
 public:
-	explicit OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, QPointF &pos, const QString &roadId);
+	explicit OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId);
     virtual ~OSCItem();
 
     // Garbage //
