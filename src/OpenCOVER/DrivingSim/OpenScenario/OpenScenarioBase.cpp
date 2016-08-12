@@ -407,21 +407,21 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         xsdPathFileName /= oscDirRelPath;
         xsdPathFileName /= xsdDirRelPath;
         xsdPathFileName /= xsdFileName;
+		xsdPathFileName.make_preferred();
 
         //set schema location and load grammar if filename changed
         if (xsdPathFileName != m_xsdPathFileName)
         {
             m_xsdPathFileName = xsdPathFileName;
-            const char *charXsdPathFileName = m_xsdPathFileName.generic_string().c_str();
 
             //set location of schema for elements without namespace
             // (in schema file no global namespace is used)
-            parser->setExternalNoNamespaceSchemaLocation(charXsdPathFileName);
+			parser->setExternalNoNamespaceSchemaLocation(m_xsdPathFileName.c_str());
 
             //read the schema grammar file (.xsd) and cache it
             try
             {
-                parser->loadGrammar(charXsdPathFileName, xercesc::Grammar::SchemaGrammarType, true);
+                parser->loadGrammar(m_xsdPathFileName.c_str(), xercesc::Grammar::SchemaGrammarType, true);
             }
             catch (...)
             {
