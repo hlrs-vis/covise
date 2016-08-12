@@ -2351,7 +2351,13 @@ void VRViewer::renderingTraversals()
                 makeCurrent(*itr);
             }
             //cerr << "finish" << endl;
+	    
+            double beginFinish = elapsedTime();
             glFinish();
+            double endFinish = elapsedTime();
+            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
+            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
+            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
             sync = true;
         }
     }
