@@ -23,22 +23,9 @@
 using namespace std;
 using namespace covise;
 
-DTrackDriver::DTrackDriver(const std::string &config)
-    : InputDevice(config)
+
+void DTrackDriver::initArrays()
 {
-    m_isVarying = true;
-    m_is6Dof = true;
-
-    cout << "Initializing DTrack:" << configPath() << endl;
-    int dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
-    dt = new DTrackSDK(dtrack_port);
-
-    if (!dt->isLocalDataPortValid())
-        cout << "Cannot initialize DTrack!" << endl;
-
-    if (!dt->receive())
-        cout << "Error receiving data!" << endl;
-
     m_numFlySticks = dt->getNumFlyStick();
     m_valuatorBase.push_back(0);
     m_buttonBase.push_back(0);
@@ -69,6 +56,25 @@ DTrackDriver::DTrackDriver(const std::string &config)
     }
 
     m_buttonStates.resize(m_handButtonBase.back()); //adding values for hand "buttons"
+}
+
+DTrackDriver::DTrackDriver(const std::string &config)
+    : InputDevice(config)
+{
+    m_isVarying = true;
+    m_is6Dof = true;
+
+    cout << "Initializing DTrack:" << configPath() << endl;
+    int dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
+    dt = new DTrackSDK(dtrack_port);
+
+    if (!dt->isLocalDataPortValid())
+        cout << "Cannot initialize DTrack!" << endl;
+
+    if (!dt->receive())
+        cout << "Error receiving data!" << endl;
+
+    initArrays();
     //
 
 
@@ -137,8 +143,7 @@ bool DTrackDriver::updateHand(size_t idx)
 	m_buttonStates[0 + m_handButtonBase[idx]] = (dist12>0)&&(dist12<23.0);
 	m_buttonStates[1 + m_handButtonBase[idx]] = (dist12>0)&&(dist13<23.0);
 
-    if(m_bodyMatrices.size <= m_handBase+idx)
-        m_bodyMatrices.resize(m_handBase+idx+1);
+
 	return getDTrackMatrix(m_bodyMatrices[m_handBase+idx],*h);
 }
 bool DTrackDriver::updateBodyMatrix(size_t idx)
@@ -241,6 +246,7 @@ bool DTrackDriver::poll()
         m_numFlySticks = dt->getNumFlyStick();
         m_numBodies = dt->getNumBody();
         m_bodyBase = m_numFlySticks;
+	initArrays();
 
         m_numHands = dt->getNumHand();
         m_handBase = m_bodyBase + m_numBodies;

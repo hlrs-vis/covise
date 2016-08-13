@@ -49,6 +49,7 @@ class DTrackDriver : public opencover::InputDevice
 
     bool init();
     virtual bool poll();
+    void initArrays();
 
 public:
     DTrackDriver(const std::string &name);
