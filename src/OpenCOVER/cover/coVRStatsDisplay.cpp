@@ -89,6 +89,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::View *myview)
     viewer->getViewerStats()->collectStats("opencover", false);
     viewer->getViewerStats()->collectStats("sync", false);
     viewer->getViewerStats()->collectStats("swap", false);
+    viewer->getViewerStats()->collectStats("finish", false);
 
     for (osgViewer::ViewerBase::Cameras::iterator itr = cameras.begin();
          itr != cameras.end();
@@ -157,6 +158,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::View *myview)
         viewer->getViewerStats()->collectStats("opencover", true);
         viewer->getViewerStats()->collectStats("sync", true);
         viewer->getViewerStats()->collectStats("swap", true);
+        viewer->getViewerStats()->collectStats("finish", true);
 
         for (osgViewer::ViewerBase::Cameras::iterator itr = cameras.begin();
              itr != cameras.end();
@@ -992,8 +994,12 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     osg::Vec4 colorSyncAlpha(1.0f, 0.0f, 0.0f, 0.5f);
     osg::Vec4 colorSwap(1.0f, 1.0f, 0.0f, 1.0f);
     osg::Vec4 colorSwapAlpha(1.0f, 1.0f, 0.0f, 0.5f);
+    osg::Vec4 colorFinish(0.5f, 1.0f, 0.0f, 1.0f);
+    osg::Vec4 colorFinishAlpha(0.5f, 1.0f, 0.0f, 0.5f);
     osg::Vec4 colorEvent(0.0f, 1.0f, 0.5f, 1.0f);
     osg::Vec4 colorEventAlpha(0.0f, 1.0f, 0.5f, 0.5f);
+    osg::Vec4 colorIsect(0.0f, 0.0f, 1.0f, 1.0f);
+    osg::Vec4 colorIsectAlpha(0.0f, 0.0f, 1.0f, 0.5f);
     osg::Vec4 colorCull(0.0f, 1.0f, 1.0f, 1.0f);
     osg::Vec4 colorCullAlpha(0.0f, 1.0f, 1.0f, 0.5f);
     osg::Vec4 colorDraw(1.0f, 1.0f, 0.0f, 1.0f);
@@ -1099,7 +1105,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             eventValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Isect time taken", -1, false, 1000.0));
 
             pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
+            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorIsectAlpha, _numBlocks);
             geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "Isect begin time", "Isect end time", -1, _numBlocks));
             geode->addDrawable(geometry);
 
@@ -1237,6 +1243,39 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pos.y() -= characterSize * 1.5f;
         }
 
+        {
+            pos.x() = leftPos;
+
+            osg::ref_ptr<osgText::Text> swapLabel = new osgText::Text;
+            geode->addDrawable(swapLabel.get());
+
+            swapLabel->setColor(colorFinish);
+            swapLabel->setFont(font);
+            swapLabel->setCharacterSize(characterSize);
+            swapLabel->setPosition(pos);
+            swapLabel->setText("Finish: ", osgText::String::ENCODING_UTF8);
+
+            pos.x() = swapLabel->getBound().xMax();
+
+            osg::ref_ptr<osgText::Text> swapValue = new osgText::Text;
+            geode->addDrawable(swapValue.get());
+
+            swapValue->setColor(colorFinish);
+            swapValue->setFont(font);
+            swapValue->setCharacterSize(characterSize);
+            swapValue->setPosition(pos);
+            swapValue->setText("0.0", osgText::String::ENCODING_UTF8);
+
+            swapValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "finish time taken", -1, false, 1000.0));
+
+            pos.x() = startBlocks;
+            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorFinishAlpha, _numBlocks);
+            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "finish begin time ", "finish end time ", -1, _numBlocks));
+            geode->addDrawable(geometry);
+
+            pos.y() -= characterSize * 1.5f;
+        }
+
         pos.x() = leftPos;
 
         // add camera stats
@@ -1279,11 +1318,12 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             group->addChild(statsGraph);
 
             statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorFR, 100, "Frame rate");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorEvent, 0.016, "Isect time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorEvent, 0.016, "Plugin time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorUpdate, 0.016, "opencover time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSync, 0.016, "sync time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSwap, 0.016, "swap time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorIsect, 0.008, "Isect time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorEvent, 0.008, "Plugin time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorUpdate, 0.008, "opencover time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSync, 0.002, "sync time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSwap, 0.002, "swap time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorFinish, 0.004, "finish time taken");
 
             for (osgViewer::ViewerBase::Cameras::iterator citr = cameras.begin();
                  citr != cameras.end();

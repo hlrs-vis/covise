@@ -74,6 +74,10 @@ OSCBaseItem::~OSCBaseItem()
 void
 OSCBaseItem::init()
 {
+	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+	OpenScenario::oscCatalogs *catalogs = openScenarioBase->catalogs.getOrCreateObject();
+	OpenScenario::oscCatalog *entityCatalog = catalogs->getCatalog("entityCatalog");
+
 	// Root Road item //
     //
 
@@ -82,15 +86,14 @@ OSCBaseItem::init()
 		OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
 		if (object)
 		{
-			OpenScenario::oscObjectBase *oscPosition = object->getMember("initPosition")->getObject();
-			if (oscPosition->getMember("positionRoad")->exists())
-			{
-				OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getObject();
-				RSystemElementRoad *road = roadSystem_->getRoad(QString::fromStdString(dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getValue())->getValue()));
-				double s = dynamic_cast<oscDoubleValue *>(oscPosRoad->getMember("s")->getValue())->getValue();
-				double t = dynamic_cast<oscDoubleValue *>(oscPosRoad->getMember("t")->getValue())->getValue();
-				new OSCItem(this, object, road->getGlobalPoint(s, t));
-			}
+			OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
+
+			OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
+			QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
+			RSystemElementRoad *road = roadSystem_->getRoad(roadId);
+			double s = oscPosRoad->s.getValue();
+			double t = oscPosRoad->t.getValue();
+			new OSCItem(this, object, entityCatalog, road->getGlobalPoint(s, t), roadId);
 		}
     }
 

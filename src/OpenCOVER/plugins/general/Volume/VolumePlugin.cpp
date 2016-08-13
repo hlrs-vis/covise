@@ -103,6 +103,7 @@ VolumePlugin::Volume::Volume()
     node->addDrawable(drawable.get());
 
     transform = new osg::MatrixTransform();
+    transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)));
     transform->addChild(node);
     transform->setNodeMask(transform->getNodeMask() & ~Isect::Intersection);
 
@@ -1204,6 +1205,7 @@ void VolumePlugin::addObject(RenderObject *container,
                              int, int, float *, float *, float *, float)
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
+    int shader = -1;
 
     // colorMap is not passed as parameter..
     size_t MaxColorMap = 8;
@@ -1214,6 +1216,12 @@ void VolumePlugin::addObject(RenderObject *container,
             colorMap[c] = container->getColorMap(c);
         else
             colorMap[c] = NULL;
+    }
+
+    if (container && container->getAttribute("VOLUME_SHADER"))
+    {
+        std::string s = container->getAttribute("VOLUME_SHADER");
+        shader = atoi(s.c_str());
     }
 
     // Check if valid volume data was added:
@@ -1278,45 +1286,75 @@ void VolumePlugin::addObject(RenderObject *container,
                 noChan = 4;
                 data = new uchar[noVox * 4];
                 uchar *p = data;
-                for (int z = 0; z < sizeZ; z++)
+                for (size_t i=0; i<noVox; ++i)
                 {
-                    for (int y = 0; y < sizeY; y++)
-                    {
-                        for (int x = 0; x < sizeX; x++)
-                        {
-                            // covise index
-                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (packedColor[i] >> 24) & 0xff;
-                            *p++ = (packedColor[i] >> 16) & 0xff;
-                            *p++ = (packedColor[i] >> 8) & 0xff;
-                            *p++ = (packedColor[i] >> 0) & 0xff;
-                        }
-                    }
+                    *p++ = (packedColor[i] >> 24) & 0xff;
+                    *p++ = (packedColor[i] >> 16) & 0xff;
+                    *p++ = (packedColor[i] >> 8) & 0xff;
+                    *p++ = (packedColor[i] >> 0) & 0xff;
                 }
             }
             else if (have_byte_chans || have_float_chans)
             {
                 data = new uchar[noVox * noChan];
                 uchar *p = data;
-                for (int z = 0; z < sizeZ; z++)
+                if (!have_byte_chans)
                 {
-                    for (int y = 0; y < sizeY; y++)
+                    const float *chan[Field::NumChannels];
+                    float range[Field::NumChannels];
+                    int ch=0;
+                    for (int c = Field::Channel0; c < Field::NumChannels; ++c)
                     {
-                        for (int x = 0; x < sizeX; x++)
+                        if (floatChannels[c])
                         {
-                            // covise index
-                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-
-                            for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                            range[ch] = irange[c]*255.99f;
+                            chan[ch] = floatChannels[c];
+                            ++ch;
+                        }
+                    }
+                    assert(ch == noChan);
+                    for (size_t i=0; i<noVox; ++i)
+                    {
+                        for (int c = 0; c<noChan; ++c)
+                        {
+                            *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
+                        }
+                    }
+                }
+                else if (!have_float_chans)
+                {
+                    const uchar *chan[Field::NumChannels];
+                    int ch=0;
+                    for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                    {
+                        if (byteChannels[c])
+                        {
+                            chan[ch] = byteChannels[c];
+                            ++ch;
+                        }
+                    }
+                    assert(ch == noChan);
+                    for (size_t i=0; i<noVox; ++i)
+                    {
+                        for (int c = 0; c<noChan; ++c)
+                        {
+                            *p++ = chan[c][i];
+                        }
+                    }
+                }
+                else
+                {
+                    for (size_t i=0; i<noVox; ++i)
+                    {
+                        for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                        {
+                            if (byteChannels[c])
                             {
-                                if (byteChannels[c])
-                                {
-                                    *p++ = byteChannels[c][i];
-                                }
-                                else if (floatChannels[c])
-                                {
-                                    *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
-                                }
+                                *p++ = byteChannels[c][i];
+                            }
+                            else if (floatChannels[c])
+                            {
+                                *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                             }
                         }
                     }
@@ -1327,19 +1365,11 @@ void VolumePlugin::addObject(RenderObject *container,
                 noChan = 3;
                 data = new uchar[noVox * 3];
                 uchar *p = data;
-                for (int z = 0; z < sizeZ; z++)
+                for (size_t i=0; i<noVox; ++i)
                 {
-                    for (int y = 0; y < sizeY; y++)
-                    {
-                        for (int x = 0; x < sizeX; x++)
-                        {
-                            // covise index
-                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                            *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
-                            *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
-                        }
-                    }
+                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                    *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+                    *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
                 }
             }
             else if (red && green)
@@ -1347,18 +1377,10 @@ void VolumePlugin::addObject(RenderObject *container,
                 noChan = 2;
                 data = new uchar[noVox * 2];
                 uchar *p = data;
-                for (int z = 0; z < sizeZ; z++)
+                for (size_t i=0; i<noVox; ++i)
                 {
-                    for (int y = 0; y < sizeY; y++)
-                    {
-                        for (int x = 0; x < sizeX; x++)
-                        {
-                            // covise index
-                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                            *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
-                        }
-                    }
+                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                    *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
                 }
             }
             else if (red)
@@ -1366,36 +1388,16 @@ void VolumePlugin::addObject(RenderObject *container,
                 noChan = 1;
                 data = new uchar[noVox];
                 uchar *p = data;
-                for (int z = 0; z < sizeZ; z++)
+                for (size_t i=0; i<noVox; ++i)
                 {
-                    for (int y = 0; y < sizeY; y++)
-                    {
-                        for (int x = 0; x < sizeX; x++)
-                        {
-                            // covise index
-                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                        }
-                    }
+                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
                 }
             }
             else if (byteData)
             {
                 noChan = 1;
                 data = new uchar[noVox];
-                uchar *p = data;
-                for (int z = 0; z < sizeZ; z++)
-                {
-                    for (int y = 0; y < sizeY; y++)
-                    {
-                        for (int x = 0; x < sizeX; x++)
-                        {
-                            // covise index
-                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
-                            *p++ = byteData[i];
-                        }
-                    }
-                }
+                memcpy(data, byteData, noVox);
             }
             else
             {
@@ -1414,11 +1416,11 @@ void VolumePlugin::addObject(RenderObject *container,
             else
             {
                 volDesc = new vvVolDesc("COVISEXX",
-                                        sizeX, sizeY, sizeZ, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
-                volDesc->pos = vvVector3(minX + maxX, minY + maxY, minZ + maxZ) * .5f;
-                volDesc->dist[0] = (maxX - minX) / sizeX;
+                                        sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
+                volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, minX+maxX) * .5f;
+                volDesc->dist[0] = (maxZ - minZ) / sizeZ;
                 volDesc->dist[1] = (maxY - minY) / sizeY;
-                volDesc->dist[2] = (maxZ - minZ) / sizeZ;
+                volDesc->dist[2] = (maxX - minX) / sizeX;
             }
 
             if (packedColor)
@@ -1471,6 +1473,15 @@ void VolumePlugin::addObject(RenderObject *container,
                 updateVolume(geometry->getName(), volDesc);
             else
                 updateVolume("Anonymous COVISE object", volDesc);
+
+            if (shader >= 0 && currentVolume != volumes.end())
+            {
+                virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
+                if (drawable)
+                {
+                    drawable->setShader(shader);
+                }
+            }
         }
 
         // a volume file will be loaded now, so show the TFE
@@ -2020,9 +2031,10 @@ void VolumePlugin::preFrame()
         // Adjust image quality, viewing & object direction
         if (drawable)
         {
+            const osg::Matrix &t = it->second.transform->getMatrix();
             drawable->setQuality(currentQuality);
-            drawable->setViewDirection(viewDirObj);
-            drawable->setObjectDirection(objDirObj);
+            drawable->setViewDirection(viewDirObj*t);
+            drawable->setObjectDirection(objDirObj*t);
         }
 
         if (drawable)
@@ -2042,7 +2054,7 @@ void VolumePlugin::preFrame()
                     Vec4 v = cp->getClipPlane();
 
                     boost::shared_ptr<vvClipPlane> plane = vvClipPlane::create();
-                    plane->normal = virvo::vec3(-v.x(), -v.y(), -v.z());
+                    plane->normal = virvo::vec3(-v.z(), v.y(), -v.x());
                     plane->offset = v.w();
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
@@ -2145,7 +2157,7 @@ void VolumePlugin::preFrame()
         moveMat.mult(invStartMove, mouse ? cover->getMouseMat() : cover->getPointerMat());
         roiPosWorld = startPointerPosWorld * moveMat;
         if (currentVolume != volumes.end())
-            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat();
+            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * currentVolume->second.transform->getMatrix();
 
         if (drawable)
         {
@@ -2487,8 +2499,7 @@ void VolumePlugin::menuEvent(coMenuItem *item)
             {
                 osg::Vec3 translate(i * maxSize[0], 0.f, 0.f);
                 translate -= it->second.min;
-                osg::Matrix mat;
-                mat.makeIdentity();
+                osg::Matrix mat = it->second.transform->getMatrix();
                 mat.setTrans(translate);
                 it->second.transform->setMatrix(mat);
                 ++i;
@@ -2500,7 +2511,9 @@ void VolumePlugin::menuEvent(coMenuItem *item)
             ident.makeIdentity();
             for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
             {
-                it->second.transform->setMatrix(ident);
+                osg::Matrix mat = it->second.transform->getMatrix();
+                mat.setTrans(osg::Vec3(0,0,0));
+                it->second.transform->setMatrix(mat);
             }
         }
     }

@@ -63,6 +63,7 @@ public slots:
     void activateEditor();
 	void handleToolClick(int);
 	void handleCatalogSelection(int);
+	void onPushButtonPressed(QString name);
 
     //################//
     // PROPERTIES     //

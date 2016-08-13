@@ -302,7 +302,9 @@ guess_archsuffix() {
    esac
 
     if [ "$basedir" != "" ]; then
-       if [ ! -d "$basedir"/"$ARCHSUFFIX" -a -d "$basedir"/"${ARCHSUFFIX}opt" ]; then
+       if [ -d "$basedir"/"$ARCHSUFFIX" -a ! -d "$basedir"/"${ARCHSUFFIX}opt" ]; then
+          export ARCHSUFFIX="${ARCHSUFFIX}"
+       else
           export ARCHSUFFIX="${ARCHSUFFIX}opt"
        fi
     fi

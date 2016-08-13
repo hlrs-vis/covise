@@ -82,7 +82,7 @@ OSCBase::getOSCElement(OpenScenario::oscObjectBase *oscObjectBase)
 		it++;
 	}
 
-	oscElement = new OSCElement(QString::fromStdString(oscObjectBase->getOwnMember()->getName()));
+	oscElement = new OSCElement("element");
 	oscElement->setObjectBase(oscObjectBase);
 	addOSCElement(oscElement);
 

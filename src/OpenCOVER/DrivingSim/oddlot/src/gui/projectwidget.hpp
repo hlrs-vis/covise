@@ -171,10 +171,6 @@ public:
     {
         return lodSettings;
     }
-	OpenScenario::OpenScenarioBase *getOpenScenarioBase()
-	{
-		return openScenarioBase_;
-	}
 
     void setEditor(ODD::EditorId id);
 
@@ -264,10 +260,6 @@ private:
     // ChangeManager //
     //
     ChangeManager *changeManager_; // owned
-
-	// OpenScenarioBase //
-	//
-	OpenScenario::OpenScenarioBase *openScenarioBase_;
 };
 
 #endif // PROJECTWIDGET_HPP

@@ -72,7 +72,6 @@ using namespace OpenScenario;
 CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
 	: QWidget()
 	, mainWindow_(mainWindow)
-	, projectWidget_(NULL)
 	, catalog_(catalog)
 	, type_(type)
 	, catalogTreeWidget_(NULL)
@@ -104,14 +103,13 @@ CatalogWidget::init()
 	toolLayout->addWidget(recycleArea, 0, 2);
 
 	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_, type_);
-	toolLayout->addWidget(catalogTreeWidget_, 0, 0);
+	toolLayout->addWidget(catalogTreeWidget_, 0, 0); 
 
-    QPushButton *toolButton;
     int row = -1; // button row
 
     // Link Roads by Handles//
     //
-    toolButton = new QPushButton(tr("Save"));
+    QPushButton * toolButton = new QPushButton(tr("Save"));
     toolButton->setCheckable(false);
     toolLayout->addWidget(toolButton, 1, 0);
 	connect(toolButton, SIGNAL(clicked()), this, SLOT(handleToolClick()));
@@ -124,7 +122,7 @@ CatalogWidget::init()
 	if (toolManager)
 	{
 		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
-	}
+	} 
 }
 
 void 

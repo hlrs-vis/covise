@@ -36,7 +36,20 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="Line" name="line_type">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="CatalogBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Catalog Tools</string>
      </property>
@@ -61,10 +74,23 @@
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_type">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+    <widget class="QGroupBox" name="baseTools">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>OpenScenario Base</string>
+     </property>
+     <layout class="QGridLayout" name="baseToolsLayout"/>
     </widget>
    </item>
    <item>
@@ -72,9 +98,12 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>40</width>
+       <width>20</width>
        <height>20</height>
       </size>
      </property>
