@@ -958,7 +958,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
     // check for query time support
     unsigned int numCamerasWithTimerQuerySupport = 0;
-    for (osgViewer::ViewerBase::Cameras::iterator citr = cameras.begin();
+   /* for (osgViewer::ViewerBase::Cameras::iterator citr = cameras.begin();
          citr != cameras.end();
          ++citr)
     {
@@ -976,9 +976,10 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
                 ++numCamerasWithTimerQuerySupport;
             }
         }
-    }
+    }*/
 
     bool acquireGPUStats = numCamerasWithTimerQuerySupport == cameras.size();
+    acquireGPUStats = true;
 
     float leftPos = 10.0f;
     float startBlocks = 150.0f;
