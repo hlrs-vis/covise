@@ -15,9 +15,8 @@
 DataToGrid::DataToGrid(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Transform structured data to a structured grid or unstructured data to points")
 {
-
     // Create ports:
-    piData = addInputPort("DataIn0", "Vec3", "data describing grid or points");
+    piData = addInputPort("DataIn0", "Float|Vec3", "data describing grid or points");
     piTopGrid = addInputPort("GridIn0", "UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid",
                              "grid for copying topology");
     piTopGrid->setRequired(0);
@@ -30,12 +29,15 @@ DataToGrid::DataToGrid(int argc, char *argv[])
     pbStrGrid = addBooleanParam("GenerateGrid", "generate structured grid even when no topology object is available");
     pbStrGrid->setValue(1);
 
-    psDimX = addInt32Param("DimX", "x-dimension of structured output grid");
-    psDimY = addInt32Param("DimY", "x-dimension of structured output grid");
-    psDimZ = addInt32Param("DimZ", "x-dimension of structured output grid");
-    psDimX->setValue(0);
-    psDimY->setValue(0);
-    psDimZ->setValue(0);
+    psResX = addInt32Param("ResX", "x-resolution of structured output grid");
+    psResY = addInt32Param("ResY", "x-resolution of structured output grid");
+    psResZ = addInt32Param("ResZ", "x-resolution of structured output grid");
+    psResX->setValue(0);
+    psResY->setValue(0);
+    psResZ->setValue(0);
+    psSizeX = addFloatParam("SizeX", "x-size of structured output grid");
+    psSizeY = addFloatParam("SizeY", "y-size of structured output grid");
+    psSizeZ = addFloatParam("SizeZ", "z-size of structured output grid");
 }
 
 /// Compute routine: load checkpoint file
@@ -58,10 +60,10 @@ int DataToGrid::compute(const char *)
         sendError("did not receive compatible input data");
         return STOP_PIPELINE;
     }
-
     const coDistributedObject *topObj = piTopGrid->getCurrentObject();
     float *px = NULL, *py = NULL, *pz = NULL;
-    int dimX = 0, dimY = 0, dimZ = 0;
+    int resX = 0, resY = 0, resZ = 0;
+    float sizeX =.0, sizeY=.0, sizeZ=.0;
     coDoUnstructuredGrid *unstr = NULL;
     const coDoUnstructuredGrid *top = dynamic_cast<const coDoUnstructuredGrid *>(topObj);
     if (top)
@@ -104,8 +106,8 @@ int DataToGrid::compute(const char *)
     }
     else if (const coDoAbstractStructuredGrid *str = dynamic_cast<const coDoAbstractStructuredGrid *>(topObj))
     {
-        // create a structured grid, but use dimensions of topology input grid
-        str->getGridSize(&dimX, &dimY, &dimZ);
+        // create a structured grid, but use resolution of topology input grid
+        str->getGridSize(&resX, &resY, &resZ);
     }
     else
     {
@@ -115,11 +117,13 @@ int DataToGrid::compute(const char *)
             sendInfo("topology grid of unknown type, ignoring topology");
         }
 
-        dimX = psDimX->getValue();
-        dimY = psDimY->getValue();
-        dimZ = psDimZ->getValue();
+        resX = psResX->getValue();
+        resY = psResY->getValue();
+        resZ = psResZ->getValue();
+        sizeX = psSizeX->getValue();
+        sizeY = psSizeY->getValue();
+        sizeZ = psSizeZ->getValue();
     }
-
     coDoStructuredGrid *grid = NULL;
     coDoPoints *points = NULL;
     if (const coDoVec3 *data = dynamic_cast<const coDoVec3 *>(obj))
@@ -144,15 +148,15 @@ int DataToGrid::compute(const char *)
         }
         else
         {
-            if (dimX * dimY * dimZ != no_data)
+            if (resX * resY * resZ != no_data)
             {
                 sendError("incompatible data size");
                 return STOP_PIPELINE;
             }
-            grid = new coDoStructuredGrid(poGrid->getObjName(), dimX, dimY, dimZ);
+            grid = new coDoStructuredGrid(poGrid->getObjName(), resX, resY, resZ);
             float *gx, *gy, *gz;
             grid->getAddresses(&gx, &gy, &gz);
-            for (int i = 0; i < dimX * dimY * dimZ; i++)
+            for (int i = 0; i < resX * resY * resZ; i++)
             {
                 gx[i] = dx[i];
                 gy[i] = dy[i];
@@ -165,51 +169,51 @@ int DataToGrid::compute(const char *)
         float *d;
         data->getAddress(&d);
 
-        grid = new coDoStructuredGrid(poGrid->getObjName(), dimX, dimY, dimZ);
+        grid = new coDoStructuredGrid(poGrid->getObjName(), resX, resY, resZ);
         float *gx, *gy, *gz;
         grid->getAddresses(&gx, &gy, &gz);
         switch (pcDataDirection->getValue())
         {
         case 0:
-            for (int i = 0; i < dimX; i++)
+            for (int i = 0; i < resX; i++)
             {
-                for (int j = 0; j < dimY; j++)
+                for (int j = 0; j < resY; j++)
                 {
-                    for (int k = 0; k < dimZ; k++)
+                    for (int k = 0; k < resZ; k++)
                     {
-                        int ind = coIndex(i, j, k, dimX, dimY, dimZ);
+                        int ind = coIndex(i, j, k, resX, resY, resZ);
                         gx[ind] = d[ind];
-                        gy[ind] = float(j);
-                        gz[ind] = float(k);
+                        gy[ind] = float(j)/resY*sizeY;
+                        gz[ind] = float(k)/resZ*sizeZ;
                     }
                 }
             }
             break;
         case 1:
-            for (int i = 0; i < dimX; i++)
+            for (int i = 0; i < resX; i++)
             {
-                for (int j = 0; j < dimY; j++)
+                for (int j = 0; j < resY; j++)
                 {
-                    for (int k = 0; k < dimZ; k++)
+                    for (int k = 0; k < resZ; k++)
                     {
-                        int ind = coIndex(i, j, k, dimX, dimY, dimZ);
-                        gx[ind] = float(i);
+                        int ind = coIndex(i, j, k, resX, resY, resZ);
+                        gx[ind] = float(i)/resX*sizeX;
                         gy[ind] = d[ind];
-                        gz[ind] = float(k);
+                        gz[ind] = float(k)/resZ*sizeZ;
                     }
                 }
             }
             break;
         case 2:
-            for (int i = 0; i < dimX; i++)
+            for (int i = 0; i < resX; i++)
             {
-                for (int j = 0; j < dimY; j++)
+                for (int j = 0; j < resY; j++)
                 {
-                    for (int k = 0; k < dimZ; k++)
+                    for (int k = 0; k < resZ; k++)
                     {
-                        int ind = coIndex(i, j, k, dimX, dimY, dimZ);
-                        gx[ind] = float(i);
-                        gy[ind] = float(j);
+                        int ind = coIndex(i, j, k, resX, resY, resZ);
+                        gx[ind] = float(i)/resX*sizeX;
+                        gy[ind] = float(j)/resY*sizeY;
                         gz[ind] = d[ind];
                     }
                 }

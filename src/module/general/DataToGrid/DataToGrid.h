@@ -32,9 +32,12 @@ private:
     coChoiceParam *pcDataDirection;
     coBooleanParam *pbStrGrid;
 
-    coIntScalarParam *psDimX;
-    coIntScalarParam *psDimY;
-    coIntScalarParam *psDimZ;
+    coIntScalarParam *psResX;
+    coIntScalarParam *psResY;
+    coIntScalarParam *psResZ;
+    coFloatParam *psSizeX;
+    coFloatParam *psSizeY;
+    coFloatParam *psSizeZ;
 
     // Methods:
     virtual int compute(const char *port);
