@@ -24,6 +24,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/ARToolKit.h>
+#include <cover/coTabletUI.h>
 #include <cover/coInteractor.h>
 #include <util/DLinkList.h>
 

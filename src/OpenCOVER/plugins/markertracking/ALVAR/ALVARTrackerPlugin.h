@@ -36,6 +36,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRCollaboration.h>
 #include <cover/ARToolKit.h>
+#include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
