@@ -35,6 +35,7 @@ struct ChannelData {
     osg::ref_ptr<osg::Vec2Array> coord;
     osg::ref_ptr<osg::Uniform> size;
     osg::ref_ptr<osg::Uniform> pixelOffset;
+    osg::ref_ptr<osg::Uniform> withNeighbors;
     osg::ref_ptr<osg::Uniform> reprojMat;
     osg::ref_ptr<osg::Geode> geode;
     osg::ref_ptr<osg::MatrixTransform> scene;
@@ -57,7 +58,7 @@ public:
     ~MultiChannelDrawer();
 
    void switchReprojection(bool reproj);
-   void switchAdaptivePointSize(bool adapt);
+   void switchAdaptivePointSize(bool adapt, bool withNeighbors=true);
    void initChannelData(ChannelData &cd);
    void createGeometry(ChannelData &cd);
    void clearChannelData();

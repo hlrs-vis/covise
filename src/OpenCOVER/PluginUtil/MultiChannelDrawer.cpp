@@ -136,7 +136,8 @@ const char reprojAdaptVert[] =
       "uniform sampler2DRect dep;\n"
       "uniform vec2 size;\n"
       "uniform mat4 ReprojectionMatrix;\n"
-      "uniform vec2 offset;"
+      "uniform vec2 offset;\n"
+      "uniform bool withNeighbors;\n"
       "\n"
 
       "bool is_far(float d) {\n"
@@ -156,8 +157,8 @@ const char reprojAdaptVert[] =
       "   return round(p.xy/p.w*size.xy*0.5+offset);\n"
       "}\n"
 
-      "vec2 sdiff(vec2 xy, vec2 ref) {\n"
-      "   float d = depth(xy);\n"
+      "vec2 sdiff(float dd, vec2 xy, vec2 ref) {\n"
+      "   float d = withNeighbors ? depth(xy) : dd;\n"
       "   if (is_far(d)) return vec2(1.,1.);\n"
       "   return abs(screenpos(pos(xy, d))-ref);\n"
       "}\n"
@@ -179,11 +180,11 @@ const char reprojAdaptVert[] =
       "   gl_FrontColor = color;\n"
 
       "   vec2 spos = screenpos(gl_Position);\n"
-      "   vec2 dxp = sdiff(xy+vec2(1.,0.), spos);\n"
-      "   vec2 dyp = sdiff(xy+vec2(0.,1.), spos);\n"
-      "   vec2 dxm = sdiff(xy+vec2(-1.,0.), spos);\n"
-      "   vec2 dym = sdiff(xy+vec2(0.,-1.), spos);\n"
-      "   vec2 dmax = max(max(dxp,dym),max(dxm,dym));\n"
+      "   vec2 dxp = sdiff(d, xy+vec2(1.,0.), spos);\n"
+      "   vec2 dyp = sdiff(d, xy+vec2(0.,1.), spos);\n"
+      "   vec2 dxm = sdiff(d, xy+vec2(-1.,0.), spos);\n"
+      "   vec2 dym = sdiff(d, xy+vec2(0.,-1.), spos);\n"
+      "   vec2 dmax = max(max(dxp,dxm),max(dyp,dym));\n"
       //"   vec2 dmax = max(dxp,dym);\n"
       "   float ps = max(dmax.x, dmax.y);\n"
       //"   if (ps > 1.00008 && ps < 2.) { ps=2.; }\n"
@@ -234,7 +235,7 @@ MultiChannelDrawer::MultiChannelDrawer(int numChannels, bool flipped)
    }
 
    switchReprojection(false);
-   switchAdaptivePointSize(false);
+   switchAdaptivePointSize(false, false);
 }
 
 MultiChannelDrawer::~MultiChannelDrawer() {
@@ -354,12 +355,14 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       osg::Uniform *depSampler = new osg::Uniform("dep", 1);
       cd.size = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "size");
       cd.pixelOffset = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "offset");
+      cd.withNeighbors = new osg::Uniform(osg::Uniform::BOOL, "withNeighbors");
       cd.reprojMat = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "ReprojectionMatrix");
       cd.reprojMat->set(osg::Matrix::identity());
       stateSet->addUniform(colSampler);
       stateSet->addUniform(depSampler);
       stateSet->addUniform(cd.size);
       stateSet->addUniform(cd.pixelOffset);
+      stateSet->addUniform(cd.withNeighbors);
       stateSet->addUniform(cd.reprojMat);
 
       {
@@ -549,7 +552,7 @@ void MultiChannelDrawer::switchReprojection(bool reproj) {
    }
 }
 
-void MultiChannelDrawer::switchAdaptivePointSize(bool adapt) {
+void MultiChannelDrawer::switchAdaptivePointSize(bool adapt, bool withNeighbors) {
 
    for (size_t i=0; i<m_channelData.size(); ++i) {
        auto &cd = m_channelData[i];
@@ -559,6 +562,7 @@ void MultiChannelDrawer::switchAdaptivePointSize(bool adapt) {
           state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
           state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
           state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::ON);
+          cd.withNeighbors->set(withNeighbors);
        } else {
           state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
           state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);

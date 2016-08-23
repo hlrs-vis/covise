@@ -43,7 +43,7 @@ class coTUIElement;
 #include <net/covise_connect.h>
 #include <net/message.h>
 
-#include "coTabletUI.h"
+#include "coTUIListener.h"
 
 namespace opencover
 {

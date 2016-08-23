@@ -28,6 +28,14 @@
  *									*
  ************************************************************************/
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+#define USE_X11
+#include <GL/glew.h>
+#include <GL/glxew.h>
+#include <osgViewer/api/X11/GraphicsWindowX11>
+#undef Status
+#endif
+
 #include <util/common.h>
 
 #include <osgViewer/View>
@@ -75,12 +83,6 @@
 
 #include "coVRMSController.h"
 #include "MSEventHandler.h"
-
-#if !defined(_WIN32) && !defined(__APPLE__)
-#define USE_X11
-#include <osgViewer/api/X11/GraphicsWindowX11>
-#undef Status
-#endif
 
 #ifndef _WIN32
 #include <termios.h>
@@ -1827,31 +1829,40 @@ void VRViewer::startThreading()
         {
             //OSG_INFO<<"ViewerBase::startThreading() : Realizng window "<<gc<<std::endl;
             gc->realize();
-            if (_realizeOperation.valid() && gc->valid())
+            if (gc->valid())
             {
                 gc->makeCurrent();
-                (*_realizeOperation)(gc);
+#ifdef USE_X11
+                glewInit();
+#endif
+                if (_realizeOperation.valid() && gc->valid())
+                {
+                    (*_realizeOperation)(gc);
+                }
                 gc->releaseContext();
             }
         }
-	// setup swap groups and swap barriers
+        // setup swap groups and swap barriers
 #ifdef USE_X11
-	for(int i=0;i<coVRConfig::instance()->numWindows();i++)
-	{
-	   if(coVRConfig::instance()->windows[i].context == gc)
-	   {
-	      osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window);
-	      
-	      if(coVRConfig::instance()->windows[i].swapGroup > 0)
-	         glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);
-	      if(coVRConfig::instance()->windows[i].swapBarrier > 0)
-	         glXJoinSwapGroupNV(window->getDisplayToUse(),coVRConfig::instance()->windows[i].swapGroup,coVRConfig::instance()->windows[i].swapBarrier);
-	      
-	   }
-	}
+        if (glXJoinSwapGroupNV)
+        {
+            for(int i=0;i<coVRConfig::instance()->numWindows();i++)
+            {
+                if(coVRConfig::instance()->windows[i].context == gc)
+                {
+                    osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window);
+
+                    if(coVRConfig::instance()->windows[i].swapGroup > 0)
+                        glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);
+                    if(coVRConfig::instance()->windows[i].swapBarrier > 0)
+                        glXJoinSwapGroupNV(window->getDisplayToUse(),coVRConfig::instance()->windows[i].swapGroup,coVRConfig::instance()->windows[i].swapBarrier);
+
+                }
+            }
+        }
 #endif
 
-    
+
         gc->getState()->setDynamicObjectRenderingCompletedCallback(_endDynamicDrawBlock.get());
 
         // create the a graphics thread for this context

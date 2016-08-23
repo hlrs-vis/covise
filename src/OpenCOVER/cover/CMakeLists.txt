@@ -7,6 +7,7 @@ set(COVERKERNEL_TARGET coOpenCOVER)
 set(COVERDIR "${COVISEDIR}/src/OpenCOVER")
 
 USING(OpenGL XERCESC)
+USING(GLEW)
 USING(CG optional)
 USING(BOOST)
 USING(VRPN optional)
@@ -141,6 +142,7 @@ SET(COVER_SOURCES
   coHud.cpp
   coOnscreenDebug.cpp
   coTabletUI.cpp
+  coTUIListener.cpp
   RenderObject.cpp
   coVRNavigationManager.cpp
   coVRCollaboration.cpp

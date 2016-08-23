@@ -35,6 +35,7 @@
 //#endif
 
 #include <tui/coAbstractTabletUI.h>
+#include "coTUIListener.h"
 
 #include <QObject>
 #include <QMetaType>
@@ -66,28 +67,6 @@ class SGTextureThread;
 class LocalData;
 class IData;
 class IRemoteData;
-
-/// Action listener for events triggered by any coTUIElement.
-class COVEREXPORT coTUIListener : public covise::coAbstractTUIListener
-{
-
-public:
-    /** Action listener for events triggered by coTUIElement.
-      @param tUIItem pointer to element item which triggered this event
-      */
-    virtual ~coTUIListener()
-    {
-    }
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletSelectEvent(coTUIElement *tUIItem);
-    virtual void tabletChangeModeEvent(coTUIElement *tUIItem);
-    virtual void tabletFindEvent(coTUIElement *tUIItem);
-    virtual void tabletLoadFilesEvent(char *nodeName);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-    virtual void tabletCurrentEvent(coTUIElement *tUIItem);
-    virtual void tabletDataEvent(coTUIElement *tUIItem, covise::TokenBuffer &tb);
-};
 
 /**
  * Tablet PC Userinterface Mamager.
