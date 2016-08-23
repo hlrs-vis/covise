@@ -3485,6 +3485,12 @@ void ViewerOsg::setModesByName(const char *objectName)
                         stateset->setRenderBinDetails(-1, "RenderBin");
                         stateset->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
                     }
+                    else if (strncmp(name, "coNoDepthTest", 11) == 0)
+                    {   
+                        // do no depth test and render as late as possible
+                        stateset->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
+                        stateset->setRenderBinDetails( 11, "RenderBin");
+                    }
                     else if (strncmp(name, "coNoDepth", 9) == 0)
                     {
                         stateset->setRenderBinDetails(-2, "RenderBin");
