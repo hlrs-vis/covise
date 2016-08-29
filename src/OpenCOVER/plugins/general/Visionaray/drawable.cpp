@@ -1283,14 +1283,24 @@ namespace cover
                 bvh_costs_kernel<KParams> k(params);
                 device_sched.frame(k, sparams);
             }
-            else if (dev_state->debug_mode && dev_state->show_normals)
+            else if (dev_state->debug_mode && dev_state->show_geometric_normals)
             {
                 auto sparams = make_sched_params(
                     vparams.view_matrix,
                     vparams.proj_matrix,
                     vparams.device_rt);
 
-                normals_kernel<KParams> k(params);
+                normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
+                device_sched.frame(k, sparams);
+            }
+            else if (dev_state->debug_mode && dev_state->show_shading_normals)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.device_rt);
+
+                normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
                 device_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_tex_coords)
@@ -1358,14 +1368,24 @@ namespace cover
                 bvh_costs_kernel<KParams> k(params);
                 host_sched.frame(k, sparams);
             }
-            else if (dev_state->debug_mode && dev_state->show_normals)
+            else if (dev_state->debug_mode && dev_state->show_geometric_normals)
             {
                 auto sparams = make_sched_params(
                     vparams.view_matrix,
                     vparams.proj_matrix,
                     vparams.host_rt);
 
-                normals_kernel<KParams> k(params);
+                normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
+                host_sched.frame(k, sparams);
+            }
+            else if (dev_state->debug_mode && dev_state->show_shading_normals)
+            {
+                auto sparams = make_sched_params(
+                    vparams.view_matrix,
+                    vparams.proj_matrix,
+                    vparams.host_rt);
+
+                normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
                 host_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_tex_coords)
