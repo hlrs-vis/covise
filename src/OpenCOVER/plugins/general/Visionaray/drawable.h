@@ -43,6 +43,7 @@ namespace cover
         // Acquire scene data, additionally store the provided
         // animation sequences in dedicated BVHs
         void acquire_scene_data(const std::vector<osg::Sequence *> &seqs);
+        void set_suppress_rendering(bool enable);
 
     private:
         struct impl;

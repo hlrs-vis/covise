@@ -738,20 +738,23 @@ namespace cover
     };
 
     //-------------------------------------------------------------------------------------------------
-    // Visitor to restore original node masks of the scene graph
-    // E.g. called when the plugin gets unloaded
+    // Visitor to set node masks of the scene graph
+    // E.g. called when the plugin gets unloaded to restore the original node masks
     //
 
-    class restore_node_masks_visitor : public osg::NodeVisitor
+    class set_node_masks_visitor : public osg::NodeVisitor
     {
     public:
         using base_type = osg::NodeVisitor;
         using base_type::apply;
 
     public:
-        restore_node_masks_visitor(node_mask_map &node_masks, TraversalMode tm = TRAVERSE_ALL_CHILDREN)
+        set_node_masks_visitor(node_mask_map &node_masks,              // the node masks
+                                   node_mask_map *old_masks = nullptr, // optionally store the old masks
+                                   TraversalMode tm = TRAVERSE_ALL_CHILDREN)
             : base_type(tm)
             , node_masks_(node_masks)
+            , old_masks_(old_masks)
         {
         }
 
@@ -759,13 +762,21 @@ namespace cover
         {
             auto it = node_masks_.find(&node);
             if (it != node_masks_.end())
+            {
+                // Optionall store the old node mask before applying the new one
+                if (old_masks_)
+                    old_masks_->insert(std::make_pair(&node, node.getNodeMask()));
+
+                // Set the new mask
                 node.setNodeMask(it->second);
+            }
 
             base_type::traverse(node);
         }
 
     private:
         node_mask_map &node_masks_;
+        node_mask_map *old_masks_;
     };
 
 
@@ -1007,6 +1018,11 @@ namespace cover
         // Store the scene graph nodes' original node masks
         // so we can restore them later
         node_mask_map node_masks;
+
+        // If we suppress ray tracing rendering and let OpenCOVER render
+        // instead, we keep a copy of the ray tracing node masks so that
+        // we can reapply them later on
+        node_mask_map ray_tracing_masks;
 
         detail::bvh_outline_renderer outlines;
 
@@ -1453,7 +1469,7 @@ namespace cover
 
     drawable::~drawable()
     {
-        restore_node_masks_visitor visitor(impl_->node_masks);
+        set_node_masks_visitor visitor(impl_->node_masks);
         opencover::cover->getObjectsRoot()->accept(visitor);
 //      impl_->outlines.destroy();
     }
@@ -1549,6 +1565,27 @@ namespace cover
         impl_->update_device_data();
     }
 
+    void drawable::set_suppress_rendering(bool enable)
+    {
+        if (enable)
+        {
+            // Apply the node masks we stored when acquiring the scene,
+            // store the masks used for ray tracing so we can reapply
+            // them later on
+            set_node_masks_visitor visitor(impl_->node_masks, &impl_->ray_tracing_masks);
+            opencover::cover->getObjectsRoot()->accept(visitor);
+        }
+        else
+        {
+            // Reset to the ray tracing node masks obtained when
+            // acquiring the scene data
+            set_node_masks_visitor visitor(impl_->ray_tracing_masks);
+            opencover::cover->getObjectsRoot()->accept(visitor);
+        }
+
+        impl_->dev_state->suppress_rendering = enable;
+    }
+
     void drawable::expandBoundingSphere(osg::BoundingSphere &bs)
     {
         aabb bounds;
@@ -1599,6 +1636,9 @@ namespace cover
             impl_->glew_init = glewInit() == GLEW_OK;
 
         if (!impl_->glew_init)
+            return;
+
+        if (impl_->dev_state->suppress_rendering)
             return;
 
         // Activate debug callback

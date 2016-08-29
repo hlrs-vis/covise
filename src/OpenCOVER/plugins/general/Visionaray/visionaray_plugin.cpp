@@ -89,6 +89,7 @@ namespace cover
             radio_button gpu_button;
 
             // dev menu
+            check_box suppress_rendering;
             check_box toggle_bvh_display;
             radio_group debug_kernel_group;
             check_box toggle_bvh_costs_display;
@@ -116,6 +117,7 @@ namespace cover
         void set_algorithm(algorithm algo);
         void set_num_bounces(unsigned num_bounces);
         void set_device(device_type dev);
+        void set_suppress_rendering(bool suppress_rendering);
         void set_show_bvh(bool show_bvh);
         void set_show_bvh_costs(bool show_costs);
         void set_show_geometric_normals(bool show_geometric_normals);
@@ -283,6 +285,10 @@ namespace cover
             ui.dev_menu.reset(new coRowMenu("Developer", ui.main_menu.get()));
             ui.dev_menu_entry->setMenu(ui.dev_menu.get());
 
+            ui.suppress_rendering.reset(new coCheckboxMenuItem("Suppress rendering with Visionaray", false));
+            ui.suppress_rendering->setMenuListener(this);
+            ui.dev_menu->add(ui.suppress_rendering.get());
+
             ui.toggle_bvh_display.reset(new coCheckboxMenuItem("Show BVH outlines", false));
             ui.toggle_bvh_display->setMenuListener(this);
             ui.dev_menu->add(ui.toggle_bvh_display.get());
@@ -350,6 +356,11 @@ namespace cover
         }
 
         // dev submenu
+        if (item == ui.suppress_rendering.get())
+        {
+            set_suppress_rendering(ui.suppress_rendering->getState());
+        }
+
         if (item == ui.toggle_bvh_display.get())
         {
             set_show_bvh(ui.toggle_bvh_display->getState());
@@ -408,6 +419,12 @@ namespace cover
         state->device = dev;
         ui.cpu_button->setState(dev == CPU, false);
         ui.gpu_button->setState(dev == GPU, false);
+    }
+
+    void Visionaray::impl::set_suppress_rendering(bool suppress_rendering)
+    {
+        drawable_ptr->set_suppress_rendering(suppress_rendering);
+        ui.suppress_rendering->setState(suppress_rendering, false);
     }
 
     void Visionaray::impl::set_show_bvh(bool show_bvh)
