@@ -1531,19 +1531,13 @@ namespace cover
 
     void drawable::expandBoundingSphere(osg::BoundingSphere &bs)
     {
-        aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
-        for (auto const &tris : impl_->triangles)
-        {
-            for (auto const &tri : tris)
-            {
-                auto v1 = tri.v1;
-                auto v2 = tri.v1 + tri.e1;
-                auto v3 = tri.v1 + tri.e2;
+        aabb bounds;
+        bounds.invalidate();
 
-                bounds = combine(bounds, v1);
-                bounds = combine(bounds, v2);
-                bounds = combine(bounds, v3);
-            }
+        for (auto const &b : impl_->host_bvhs)
+        {
+            if (b.num_nodes() > 0)
+                bounds = combine(bounds, b.node(0).bbox);
         }
 
         auto c = bounds.center();
