@@ -1002,6 +1002,20 @@ namespace cover
             int width;
             int height;
             unsigned frame_num = 0;
+            bool need_clear_frame = false;
+
+            void clear_frame()
+            {
+                frame_num = 0;
+                host_rt.clear_color();
+                host_rt.clear_depth();
+#ifdef __CUDACC__
+                device_rt.clear_color();
+                device_rt.clear_depth();
+#endif
+
+                need_clear_frame = false;
+            }
         };
 
         viewing_params eye_params[2]; // for left and right eye
@@ -1168,17 +1182,25 @@ namespace cover
 
         auto &vparams = eye_params[current_eye];
 
-        if (
-                state->data_var == Dynamic || state->clr_space != clr_space || state->algo != algo_current || state->device != device || state->num_bounces != num_bounces)
+        if (state->data_var == Dynamic || state->clr_space != clr_space || state->algo != algo_current || state->device != device || state->num_bounces != num_bounces)
         {
             eye_params[Left].frame_num = 0;
             eye_params[Right].frame_num = 0;
+
+            if (state->algo == Pathtracing)
+            {
+                eye_params[Left].need_clear_frame = true;
+            }
         }
 
-        if (
-                vparams.view_matrix != view || vparams.proj_matrix != proj || vparams.width != w || vparams.height != h)
+        if (vparams.view_matrix != view || vparams.proj_matrix != proj || vparams.width != w || vparams.height != h)
         {
             vparams.frame_num = 0;
+
+            if (state->algo == Pathtracing)
+            {
+                vparams.need_clear_frame = true;
+            }
         }
 
         // Update
@@ -1673,6 +1695,8 @@ namespace cover
         }
 
         auto &vparams = impl_->eye_params[impl_->current_eye];
+        if (vparams.need_clear_frame)
+            vparams.clear_frame();
 
         if (impl_->state->device == GPU)
         {
