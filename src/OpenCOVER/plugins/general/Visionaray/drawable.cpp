@@ -749,9 +749,9 @@ namespace cover
         using base_type::apply;
 
     public:
-        set_node_masks_visitor(node_mask_map &node_masks,              // the node masks
-                                   node_mask_map *old_masks = nullptr, // optionally store the old masks
-                                   TraversalMode tm = TRAVERSE_ALL_CHILDREN)
+        set_node_masks_visitor(node_mask_map &node_masks,          // the node masks
+                               node_mask_map *old_masks = nullptr, // optionally store the old masks
+                               TraversalMode tm = TRAVERSE_ALL_CHILDREN)
             : base_type(tm)
             , node_masks_(node_masks)
             , old_masks_(old_masks)
@@ -1288,44 +1288,44 @@ namespace cover
         if (state->device == GPU)
         {
 #ifdef __CUDACC__
+
+            // Simple scheduler params
+            auto sparams = make_sched_params(vparams.view_matrix,
+                                             vparams.proj_matrix,
+                                             vparams.device_rt);
+
+            // Scheduler params with intersector for mask textures
+            auto sparams_isect = make_sched_params(vparams.view_matrix,
+                                                   vparams.proj_matrix,
+                                                   vparams.device_rt,
+                                                   device_intersector);
+
+            // Scheduler params with intersector and jittered blend pixel sampling
+            auto sparams_isect_jittered = make_sched_params(pixel_sampler::jittered_blend_type{},
+                                                            vparams.view_matrix,
+                                                            vparams.proj_matrix,
+                                                            vparams.device_rt,
+                                                            device_intersector);
+
+
             // debug kernels
             if (dev_state->debug_mode && dev_state->show_bvh_costs)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt);
-
                 bvh_costs_kernel<KParams> k(params);
                 device_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_geometric_normals)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt);
-
                 normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
                 device_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_shading_normals)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt);
-
                 normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
                 device_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_tex_coords)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt);
-
                 tex_coords_kernel<KParams> k(params);
                 device_sched.frame(k, sparams);
             }
@@ -1333,84 +1333,65 @@ namespace cover
             // non-debug kernels
             else if (state->algo == Simple)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt,
-                    device_intersector);
-
                 simple::kernel<KParams> k;
                 k.params = params;
-                device_sched.frame(k, sparams);
+                device_sched.frame(k, sparams_isect);
             }
             else if (state->algo == Whitted)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt,
-                    device_intersector);
-
                 whitted::kernel<KParams> k;
                 k.params = params;
-                device_sched.frame(k, sparams);
+                device_sched.frame(k, sparams_isect);
             }
             else if (state->algo == Pathtracing)
             {
-                auto sparams = make_sched_params(
-                    pixel_sampler::jittered_blend_type{},
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.device_rt,
-                    device_intersector);
-
                 pathtracing::kernel<KParams> k;
                 k.params = params;
-                device_sched.frame(k, sparams, ++vparams.frame_num);
+                device_sched.frame(k, sparams_isect_jittered, ++vparams.frame_num);
             }
 #endif // __CUDACC__
         }
         else
         {
 #ifndef __CUDA_ARCH__
+
+            // Simple scheduler params
+            auto sparams = make_sched_params(vparams.view_matrix,
+                                             vparams.proj_matrix,
+                                             vparams.host_rt);
+
+            // Scheduler params with intersector for mask textures
+            auto sparams_isect = make_sched_params(vparams.view_matrix,
+                                                   vparams.proj_matrix,
+                                                   vparams.host_rt,
+                                                   host_intersector);
+
+            // Scheduler params with intersector and jittered blend pixel sampling
+            auto sparams_isect_jittered = make_sched_params(pixel_sampler::jittered_blend_type{},
+                                                            vparams.view_matrix,
+                                                            vparams.proj_matrix,
+                                                            vparams.host_rt,
+                                                            host_intersector);
+
+
             // debug kernels
             if (dev_state->debug_mode && dev_state->show_bvh_costs)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt);
-
                 bvh_costs_kernel<KParams> k(params);
                 host_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_geometric_normals)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt);
-
                 normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
                 host_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_shading_normals)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt);
-
                 normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
                 host_sched.frame(k, sparams);
             }
             else if (dev_state->debug_mode && dev_state->show_tex_coords)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt);
-
                 tex_coords_kernel<KParams> k(params);
                 host_sched.frame(k, sparams);
             }
@@ -1418,40 +1399,21 @@ namespace cover
             // non-debug kernels
             else if (state->algo == Simple)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt,
-                    host_intersector);
-
                 simple::kernel<KParams> k;
                 k.params = params;
-                host_sched.frame(k, sparams);
+                host_sched.frame(k, sparams_isect);
             }
             else if (state->algo == Whitted)
             {
-                auto sparams = make_sched_params(
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt,
-                    host_intersector);
-
                 whitted::kernel<KParams> k;
                 k.params = params;
-                host_sched.frame(k, sparams);
+                host_sched.frame(k, sparams_isect);
             }
             else if (state->algo == Pathtracing)
             {
-                auto sparams = make_sched_params(
-                    pixel_sampler::jittered_blend_type{},
-                    vparams.view_matrix,
-                    vparams.proj_matrix,
-                    vparams.host_rt,
-                    host_intersector);
-
                 pathtracing::kernel<KParams> k;
                 k.params = params;
-                host_sched.frame(k, sparams, ++vparams.frame_num);
+                host_sched.frame(k, sparams_isect_jittered, ++vparams.frame_num);
             }
 #endif // !__CUDA_ARCH__
         }
