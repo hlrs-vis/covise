@@ -381,6 +381,12 @@ int main(int argc, char **argv)
             {
                 ReadPTX(argv[i], vec);
             }
+            else 
+            if ((len > 4) && strcmp((argv[i] + len - 4), ".xyz") == 0)
+            {
+                format = FORMAT_RGBI;
+                ReadData(argv[i], vec, format);
+            }
             else
             {
                 ReadData(argv[i], vec, format);
