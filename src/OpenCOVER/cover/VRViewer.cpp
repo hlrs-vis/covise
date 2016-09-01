@@ -1631,7 +1631,7 @@ VRViewer::stereoSepCallback(void *data, buttonSpecCell *spec)
     VRViewer *viewer = static_cast<VRViewer *>(data);
     int status = (int)spec->state;
 
-    viewer->stereoOn = status;
+    viewer->stereoOn = (status!=0);
     viewer->setSeparation(Input::instance()->eyeDistance());
 }
 
