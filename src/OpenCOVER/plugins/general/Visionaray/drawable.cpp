@@ -58,8 +58,6 @@
 
 namespace visionaray
 {
-namespace cover
-{
 
     //-------------------------------------------------------------------------------------------------
     // Type definitions
@@ -1749,5 +1747,5 @@ namespace cover
 
         impl_->restore_gl_state();
     }
-}
-} // namespace visionaray::cover
+
+} // namespace visionaray

@@ -7,16 +7,14 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_PLUGIN_H
-#define VSNRAY_COVER_PLUGIN_H
+#ifndef VSNRAY_PLUGIN_H
+#define VSNRAY_PLUGIN_H
 
 #include <memory>
 
 #include <cover/coVRPlugin.h>
 
 namespace visionaray
-{
-namespace cover
 {
 
     class Visionaray : public opencover::coVRPlugin
@@ -38,7 +36,7 @@ namespace cover
         struct impl;
         std::unique_ptr<impl> impl_;
     };
-}
-} // namespace visionaray::cover
 
-#endif // VSNRAY_COVER_PLUGIN_H
+} // namespace visionaray
+
+#endif // VSNRAY_PLUGIN_H

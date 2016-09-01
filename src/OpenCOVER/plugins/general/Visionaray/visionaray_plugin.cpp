@@ -33,8 +33,6 @@
 
 namespace visionaray
 {
-namespace cover
-{
 
     //-------------------------------------------------------------------------------------------------
     // Private implementation
@@ -547,7 +545,7 @@ namespace cover
             }
         }
     }
-}
-} // namespace visionaray::cover
 
-COVERPLUGIN(visionaray::cover::Visionaray)
+} // namespace visionaray
+
+COVERPLUGIN(visionaray::Visionaray)
