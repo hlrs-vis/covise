@@ -89,10 +89,12 @@ namespace cover
             radio_button gpu_button;
 
             // dev menu
+            check_box suppress_rendering;
             check_box toggle_bvh_display;
             radio_group debug_kernel_group;
             check_box toggle_bvh_costs_display;
-            check_box toggle_normal_display;
+            check_box toggle_geometric_normal_display;
+            check_box toggle_shading_normal_display;
             check_box toggle_tex_coord_display;
         } ui;
 
@@ -115,9 +117,11 @@ namespace cover
         void set_algorithm(algorithm algo);
         void set_num_bounces(unsigned num_bounces);
         void set_device(device_type dev);
+        void set_suppress_rendering(bool suppress_rendering);
         void set_show_bvh(bool show_bvh);
         void set_show_bvh_costs(bool show_costs);
-        void set_show_normals(bool show_normals);
+        void set_show_geometric_normals(bool show_geometric_normals);
+        void set_show_shading_normals(bool show_shading_normals);
         void set_show_tex_coords(bool show_tex_coords);
     };
 
@@ -281,6 +285,10 @@ namespace cover
             ui.dev_menu.reset(new coRowMenu("Developer", ui.main_menu.get()));
             ui.dev_menu_entry->setMenu(ui.dev_menu.get());
 
+            ui.suppress_rendering.reset(new coCheckboxMenuItem("Suppress rendering with Visionaray", false));
+            ui.suppress_rendering->setMenuListener(this);
+            ui.dev_menu->add(ui.suppress_rendering.get());
+
             ui.toggle_bvh_display.reset(new coCheckboxMenuItem("Show BVH outlines", false));
             ui.toggle_bvh_display->setMenuListener(this);
             ui.dev_menu->add(ui.toggle_bvh_display.get());
@@ -291,9 +299,13 @@ namespace cover
             ui.toggle_bvh_costs_display->setMenuListener(this);
             ui.dev_menu->add(ui.toggle_bvh_costs_display.get());
 
-            ui.toggle_normal_display.reset(new coCheckboxMenuItem("Show surface normals", false, ui.debug_kernel_group.get()));
-            ui.toggle_normal_display->setMenuListener(this);
-            ui.dev_menu->add(ui.toggle_normal_display.get());
+            ui.toggle_geometric_normal_display.reset(new coCheckboxMenuItem("Show geometric normals", false, ui.debug_kernel_group.get()));
+            ui.toggle_geometric_normal_display->setMenuListener(this);
+            ui.dev_menu->add(ui.toggle_geometric_normal_display.get());
+
+            ui.toggle_shading_normal_display.reset(new coCheckboxMenuItem("Show shading normals", false, ui.debug_kernel_group.get()));
+            ui.toggle_shading_normal_display->setMenuListener(this);
+            ui.dev_menu->add(ui.toggle_shading_normal_display.get());
 
             ui.toggle_tex_coord_display.reset(new coCheckboxMenuItem("Show texture coordinates", false, ui.debug_kernel_group.get()));
             ui.toggle_tex_coord_display->setMenuListener(this);
@@ -344,6 +356,11 @@ namespace cover
         }
 
         // dev submenu
+        if (item == ui.suppress_rendering.get())
+        {
+            set_suppress_rendering(ui.suppress_rendering->getState());
+        }
+
         if (item == ui.toggle_bvh_display.get())
         {
             set_show_bvh(ui.toggle_bvh_display->getState());
@@ -353,9 +370,13 @@ namespace cover
         {
             set_show_bvh_costs(ui.toggle_bvh_costs_display->getState());
         }
-        else if (item == ui.toggle_normal_display.get())
+        else if (item == ui.toggle_geometric_normal_display.get())
         {
-            set_show_normals(ui.toggle_normal_display->getState());
+            set_show_geometric_normals(ui.toggle_geometric_normal_display->getState());
+        }
+        else if (item == ui.toggle_shading_normal_display.get())
+        {
+            set_show_shading_normals(ui.toggle_shading_normal_display->getState());
         }
         else if (item == ui.toggle_tex_coord_display.get())
         {
@@ -400,6 +421,12 @@ namespace cover
         ui.gpu_button->setState(dev == GPU, false);
     }
 
+    void Visionaray::impl::set_suppress_rendering(bool suppress_rendering)
+    {
+        drawable_ptr->set_suppress_rendering(suppress_rendering);
+        ui.suppress_rendering->setState(suppress_rendering, false);
+    }
+
     void Visionaray::impl::set_show_bvh(bool show_bvh)
     {
         dev_state->show_bvh = show_bvh;
@@ -412,10 +439,16 @@ namespace cover
         ui.toggle_bvh_costs_display->setState(show_costs, false);
     }
 
-    void Visionaray::impl::set_show_normals(bool show_normals)
+    void Visionaray::impl::set_show_geometric_normals(bool show_geometric_normals)
     {
-        dev_state->show_normals = show_normals;
-        ui.toggle_normal_display->setState(show_normals, false);
+        dev_state->show_geometric_normals = show_geometric_normals;
+        ui.toggle_geometric_normal_display->setState(show_geometric_normals, false);
+    }
+
+    void Visionaray::impl::set_show_shading_normals(bool show_shading_normals)
+    {
+        dev_state->show_shading_normals = show_shading_normals;
+        ui.toggle_shading_normal_display->setState(show_shading_normals, false);
     }
 
     void Visionaray::impl::set_show_tex_coords(bool show_tex_coords)

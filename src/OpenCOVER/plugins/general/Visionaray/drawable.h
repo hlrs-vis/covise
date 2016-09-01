@@ -44,6 +44,10 @@ namespace cover
         // animation sequences in dedicated BVHs
         void acquire_scene_data(const std::vector<osg::Sequence *> &seqs);
 
+        // Suppress rendering with Visionaray and resort to OpenGL,
+        // but keep the Visionaray data structures intact
+        void set_suppress_rendering(bool enable);
+
     private:
         struct impl;
         std::unique_ptr<impl> impl_;

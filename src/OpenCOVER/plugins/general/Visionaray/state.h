@@ -69,9 +69,11 @@ namespace cover
     struct debug_state
     {
         bool debug_mode = true;
+        bool suppress_rendering = false;     // Suppress ray tracing and resort to OpenGL
         bool show_bvh = false;
         bool show_bvh_costs = false;
-        bool show_normals = false;
+        bool show_geometric_normals = false;
+        bool show_shading_normals = false;
         bool show_tex_coords = false;
     };
 }
