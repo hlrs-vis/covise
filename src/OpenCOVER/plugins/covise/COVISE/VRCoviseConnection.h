@@ -49,7 +49,7 @@ private:
     void render(void *callbackData);
     void localParam(bool inMapLoading, void *callbackData);
     void receiveRenderMessage();
-    int exitFlag;
+    bool exitFlag;
 
     void hideObject(const char *objName, bool hide);
     void transformSGItem(const char *objName, float *row0, float *row1, float *row2, float *row3);
