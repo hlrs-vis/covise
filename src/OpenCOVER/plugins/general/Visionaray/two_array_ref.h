@@ -7,6 +7,9 @@
 
 #pragma once
 
+#ifndef VSNRAY_PLUGIN_TWO_ARRAY_REF_H
+#define VSNRAY_PLUGIN_TWO_ARRAY_REF_H 1
+
 #include <cstddef>
 #include <iterator>
 
@@ -15,8 +18,6 @@
 #endif
 
 namespace visionaray
-{
-namespace cover
 {
 
     //-------------------------------------------------------------------------------------------------
@@ -107,15 +108,16 @@ namespace cover
             return two_array_ref<typename Cont::value_type>(typename Cont::value_type(), typename Cont::value_type());
     };
 
-} // cover
-} // visionaray
+} // namespace visionaray
 
 
 namespace std
 {
     template <typename Cont>
-    struct iterator_traits<visionaray::cover::two_array_ref<Cont>>
+    struct iterator_traits<visionaray::two_array_ref<Cont>>
     {
         using value_type = typename Cont::value_type;
     };
 }
+
+#endif // VSNRAY_PLUGIN_TWO_ARRAY_REF_H

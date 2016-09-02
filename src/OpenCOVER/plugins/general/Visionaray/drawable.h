@@ -7,8 +7,8 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_DRAWABLE_H
-#define VSNRAY_COVER_DRAWABLE_H 1
+#ifndef VSNRAY_PLUGIN_DRAWABLE_H
+#define VSNRAY_PLUGIN_DRAWABLE_H 1
 
 #include <memory>
 
@@ -21,8 +21,6 @@ namespace osg
 }
 
 namespace visionaray
-{
-namespace cover
 {
 
     struct render_state;
@@ -60,7 +58,7 @@ namespace cover
         drawable(drawable const &rhs, osg::CopyOp const &op = osg::CopyOp::SHALLOW_COPY);
         void drawImplementation(osg::RenderInfo &info) const;
     };
-}
-} // namespace visionaray::cover
 
-#endif // VSNRAY_COVER_DRAWABLE_H
+} // namespace visionaray
+
+#endif // VSNRAY_PLUGIN_DRAWABLE_H

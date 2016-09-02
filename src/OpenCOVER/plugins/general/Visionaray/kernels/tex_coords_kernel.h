@@ -7,13 +7,14 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_TEX_COORDS_KERNEL_H
-#define VSNRAY_COVER_TEX_COORDS_KERNEL_H 1
+#ifndef VSNRAY_PLUGIN_TEX_COORDS_KERNEL_H
+#define VSNRAY_PLUGIN_TEX_COORDS_KERNEL_H 1
 
 #include <visionaray/result_record.h>
 #include <visionaray/traverse.h>
 
-namespace visionaray { namespace cover {
+namespace visionaray
+{
 
 //-------------------------------------------------------------------------------------------------
 // Tex coords debug kernel
@@ -46,6 +47,6 @@ struct tex_coords_kernel
     Params params;
 };
 
-}} // namespace visionaray::cover
+} // namespace visionaray
 
-#endif // VSNRAY_COVER_TEX_COORDS_KERNEL_H
+#endif // VSNRAY_PLUGIN_TEX_COORDS_KERNEL_H

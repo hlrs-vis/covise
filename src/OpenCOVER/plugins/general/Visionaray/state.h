@@ -7,12 +7,10 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_STATE_H
-#define VSNRAY_COVER_STATE_H 1
+#ifndef VSNRAY_PLUGIN_STATE_H
+#define VSNRAY_PLUGIN_STATE_H 1
 
 namespace visionaray
-{
-namespace cover
 {
 
     //-------------------------------------------------------------------------------------------------
@@ -76,7 +74,7 @@ namespace cover
         bool show_shading_normals = false;
         bool show_tex_coords = false;
     };
-}
-} // namespace visionaray::cover
 
-#endif // VSNRAY_COVER_STATE_H
+} // namespace visionaray
+
+#endif // VSNRAY_PLUGIN_STATE_H

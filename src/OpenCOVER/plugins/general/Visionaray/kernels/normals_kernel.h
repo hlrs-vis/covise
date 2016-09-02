@@ -7,14 +7,15 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_NORMALS_KERNEL_H
-#define VSNRAY_COVER_NORMALS_KERNEL_H 1
+#ifndef VSNRAY_PLUGIN_NORMALS_KERNEL_H
+#define VSNRAY_PLUGIN_NORMALS_KERNEL_H 1
 
 #include <visionaray/get_surface.h>
 #include <visionaray/result_record.h>
 #include <visionaray/traverse.h>
 
-namespace visionaray { namespace cover {
+namespace visionaray
+{
 
 //-------------------------------------------------------------------------------------------------
 // Normals debug kernel
@@ -57,6 +58,6 @@ struct normals_kernel
     normal_type type;
 };
 
-}} // namespace visionaray::cover
+} // namespace visionaray
 
-#endif // VSNRAY_COVER_NORMALS_KERNEL_H
+#endif // VSNRAY_PLUGIN_NORMALS_KERNEL_H

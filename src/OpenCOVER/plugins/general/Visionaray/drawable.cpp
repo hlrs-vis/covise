@@ -58,8 +58,6 @@
 
 namespace visionaray
 {
-namespace cover
-{
 
     //-------------------------------------------------------------------------------------------------
     // Type definitions
@@ -1076,8 +1074,8 @@ namespace cover
         void update_device_data();
         void commit_state();
 
-        template <typename KParams>
-        void call_kernel(KParams const &params);
+        template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
+        void call_kernel(Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params);
     };
 
     void drawable::impl::store_gl_state()
@@ -1302,142 +1300,65 @@ namespace cover
     // Call either one of the visionaray kernels or a custom one
     //
 
-    template <typename KParams>
-    void drawable::impl::call_kernel(KParams const &params)
+    template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
+    void drawable::impl::call_kernel(Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params)
     {
         auto &vparams = eye_params[current_eye];
 
-        if (state->device == GPU)
+        // Simple scheduler params
+        auto sparams = make_sched_params(vparams.view_matrix, vparams.proj_matrix, rt);
+
+        // Scheduler params with intersector for mask textures
+        auto sparams_isect = make_sched_params(vparams.view_matrix, vparams.proj_matrix, rt, intersector);
+
+        // Scheduler params with intersector and jittered blend pixel sampling
+        auto sparams_isect_jittered = make_sched_params(pixel_sampler::jittered_blend_type{},
+                                                        vparams.view_matrix,
+                                                        vparams.proj_matrix,
+                                                        rt,
+                                                        intersector);
+
+
+        // debug kernels
+        if (dev_state->debug_mode && dev_state->show_bvh_costs)
         {
-#ifdef __CUDACC__
-
-            // Simple scheduler params
-            auto sparams = make_sched_params(vparams.view_matrix,
-                                             vparams.proj_matrix,
-                                             vparams.device_rt);
-
-            // Scheduler params with intersector for mask textures
-            auto sparams_isect = make_sched_params(vparams.view_matrix,
-                                                   vparams.proj_matrix,
-                                                   vparams.device_rt,
-                                                   device_intersector);
-
-            // Scheduler params with intersector and jittered blend pixel sampling
-            auto sparams_isect_jittered = make_sched_params(pixel_sampler::jittered_blend_type{},
-                                                            vparams.view_matrix,
-                                                            vparams.proj_matrix,
-                                                            vparams.device_rt,
-                                                            device_intersector);
-
-
-            // debug kernels
-            if (dev_state->debug_mode && dev_state->show_bvh_costs)
-            {
-                bvh_costs_kernel<KParams> k(params);
-                device_sched.frame(k, sparams);
-            }
-            else if (dev_state->debug_mode && dev_state->show_geometric_normals)
-            {
-                normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
-                device_sched.frame(k, sparams);
-            }
-            else if (dev_state->debug_mode && dev_state->show_shading_normals)
-            {
-                normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
-                device_sched.frame(k, sparams);
-            }
-            else if (dev_state->debug_mode && dev_state->show_tex_coords)
-            {
-                tex_coords_kernel<KParams> k(params);
-                device_sched.frame(k, sparams);
-            }
-
-            // non-debug kernels
-            else if (state->algo == Simple)
-            {
-                simple::kernel<KParams> k;
-                k.params = params;
-                device_sched.frame(k, sparams_isect);
-            }
-            else if (state->algo == Whitted)
-            {
-                whitted::kernel<KParams> k;
-                k.params = params;
-                device_sched.frame(k, sparams_isect);
-            }
-            else if (state->algo == Pathtracing)
-            {
-                pathtracing::kernel<KParams> k;
-                k.params = params;
-                device_sched.frame(k, sparams_isect_jittered, ++vparams.frame_num);
-            }
-#endif // __CUDACC__
+            bvh_costs_kernel<KParams> k(params);
+            sched.frame(k, sparams);
         }
-        else
+        else if (dev_state->debug_mode && dev_state->show_geometric_normals)
         {
-#ifndef __CUDA_ARCH__
+            normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
+            sched.frame(k, sparams);
+        }
+        else if (dev_state->debug_mode && dev_state->show_shading_normals)
+        {
+            normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
+            sched.frame(k, sparams);
+        }
+        else if (dev_state->debug_mode && dev_state->show_tex_coords)
+        {
+            tex_coords_kernel<KParams> k(params);
+            sched.frame(k, sparams);
+        }
 
-            // Simple scheduler params
-            auto sparams = make_sched_params(vparams.view_matrix,
-                                             vparams.proj_matrix,
-                                             vparams.host_rt);
-
-            // Scheduler params with intersector for mask textures
-            auto sparams_isect = make_sched_params(vparams.view_matrix,
-                                                   vparams.proj_matrix,
-                                                   vparams.host_rt,
-                                                   host_intersector);
-
-            // Scheduler params with intersector and jittered blend pixel sampling
-            auto sparams_isect_jittered = make_sched_params(pixel_sampler::jittered_blend_type{},
-                                                            vparams.view_matrix,
-                                                            vparams.proj_matrix,
-                                                            vparams.host_rt,
-                                                            host_intersector);
-
-
-            // debug kernels
-            if (dev_state->debug_mode && dev_state->show_bvh_costs)
-            {
-                bvh_costs_kernel<KParams> k(params);
-                host_sched.frame(k, sparams);
-            }
-            else if (dev_state->debug_mode && dev_state->show_geometric_normals)
-            {
-                normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
-                host_sched.frame(k, sparams);
-            }
-            else if (dev_state->debug_mode && dev_state->show_shading_normals)
-            {
-                normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
-                host_sched.frame(k, sparams);
-            }
-            else if (dev_state->debug_mode && dev_state->show_tex_coords)
-            {
-                tex_coords_kernel<KParams> k(params);
-                host_sched.frame(k, sparams);
-            }
-
-            // non-debug kernels
-            else if (state->algo == Simple)
-            {
-                simple::kernel<KParams> k;
-                k.params = params;
-                host_sched.frame(k, sparams_isect);
-            }
-            else if (state->algo == Whitted)
-            {
-                whitted::kernel<KParams> k;
-                k.params = params;
-                host_sched.frame(k, sparams_isect);
-            }
-            else if (state->algo == Pathtracing)
-            {
-                pathtracing::kernel<KParams> k;
-                k.params = params;
-                host_sched.frame(k, sparams_isect_jittered, ++vparams.frame_num);
-            }
-#endif // !__CUDA_ARCH__
+        // non-debug kernels
+        else if (state->algo == Simple)
+        {
+            simple::kernel<KParams> k;
+            k.params = params;
+            sched.frame(k, sparams_isect);
+        }
+        else if (state->algo == Whitted)
+        {
+            whitted::kernel<KParams> k;
+            k.params = params;
+            sched.frame(k, sparams_isect);
+        }
+        else if (state->algo == Pathtracing)
+        {
+            pathtracing::kernel<KParams> k;
+            k.params = params;
+            sched.frame(k, sparams_isect_jittered, ++vparams.frame_num);
         }
     }
 
@@ -1742,7 +1663,10 @@ namespace cover
             impl_->device_intersector.tex_coords = kparams.tex_coords;
             impl_->device_intersector.textures = kparams.textures;
 
-            impl_->call_kernel(kparams);
+            impl_->call_kernel(impl_->device_sched,
+                               vparams.device_rt,
+                               impl_->device_intersector,
+                               kparams);
 
             vparams.device_rt.display_color_buffer();
 #endif
@@ -1789,7 +1713,10 @@ namespace cover
             impl_->host_intersector.tex_coords = kparams.tex_coords;
             impl_->host_intersector.textures = kparams.textures;
 
-            impl_->call_kernel(kparams);
+            impl_->call_kernel(impl_->host_sched,
+                               vparams.host_rt,
+                               impl_->host_intersector,
+                               kparams);
 
             vparams.host_rt.display_color_buffer();
 #endif
@@ -1820,5 +1747,5 @@ namespace cover
 
         impl_->restore_gl_state();
     }
-}
-} // namespace visionaray::cover
+
+} // namespace visionaray
