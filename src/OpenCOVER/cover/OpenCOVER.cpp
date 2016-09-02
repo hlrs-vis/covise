@@ -112,7 +112,7 @@ static void handler(int signo)
     {
         case SIGTERM:
             coVRMSController::instance()->killClients();
-            OpenCOVER::instance()->setExitFlag(1);
+            OpenCOVER::instance()->setExitFlag(true);
             break;
         case SIGTTIN:
         case SIGTTOU:
@@ -657,7 +657,8 @@ void OpenCOVER::loop()
 {
     while (!exitFlag && !VRViewer::instance()->done())
     {
-        exitFlag |= VRViewer::instance()->done();
+        if(VRViewer::instance()->done())
+            exitFlag = true;
         exitFlag = coVRMSController::instance()->syncBool(exitFlag);
         if (!exitFlag)
         {
@@ -974,7 +975,7 @@ OpenCOVER::~OpenCOVER()
 #endif
 }
 
-void OpenCOVER::setExitFlag(int flag)
+void OpenCOVER::setExitFlag(bool flag)
 {
     if (cover)
     {
@@ -991,7 +992,7 @@ void OpenCOVER::setExitFlag(int flag)
             if (m_visPlugin)
                 coVRPluginList::instance()->unload(m_visPlugin);
             m_visPlugin = NULL;
-            exitFlag = 0;
+            exitFlag = false;
         }
         else
             exitFlag = flag;
@@ -1020,12 +1021,12 @@ OpenCOVER::readConfigFile()
 void
 OpenCOVER::quitCallback(void * /*sceneGraph*/, buttonSpecCell * /*spec*/)
 {
-    OpenCOVER::instance()->setExitFlag(1);
+    OpenCOVER::instance()->setExitFlag(true);
     coVRPluginList::instance()->requestQuit(true);
     if (vrbc)
         delete vrbc;
     vrbc = NULL;
-    OpenCOVER::instance()->setExitFlag(1);
+    OpenCOVER::instance()->setExitFlag(true);
     // exit COVER, even if COVER has a vrb connection
 }
 

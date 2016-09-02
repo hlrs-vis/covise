@@ -341,6 +341,7 @@ OfficePlugin *OfficePlugin::plugin = NULL;
     void OfficePlugin::sendMessage(Message &m)
     {
         officeConnections.sendMessage("Word",m);
+        officeConnections.sendMessage("PowerPoint",m);
     }
 void
 OfficePlugin::preFrame()

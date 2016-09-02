@@ -7,8 +7,8 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_DRAWABLE_H
-#define VSNRAY_COVER_DRAWABLE_H 1
+#ifndef VSNRAY_PLUGIN_DRAWABLE_H
+#define VSNRAY_PLUGIN_DRAWABLE_H 1
 
 #include <memory>
 
@@ -21,8 +21,6 @@ namespace osg
 }
 
 namespace visionaray
-{
-namespace cover
 {
 
     struct render_state;
@@ -43,6 +41,9 @@ namespace cover
         // Acquire scene data, additionally store the provided
         // animation sequences in dedicated BVHs
         void acquire_scene_data(const std::vector<osg::Sequence *> &seqs);
+
+        // Suppress rendering with Visionaray and resort to OpenGL,
+        // but keep the Visionaray data structures intact
         void set_suppress_rendering(bool enable);
 
     private:
@@ -57,7 +58,7 @@ namespace cover
         drawable(drawable const &rhs, osg::CopyOp const &op = osg::CopyOp::SHALLOW_COPY);
         void drawImplementation(osg::RenderInfo &info) const;
     };
-}
-} // namespace visionaray::cover
 
-#endif // VSNRAY_COVER_DRAWABLE_H
+} // namespace visionaray
+
+#endif // VSNRAY_PLUGIN_DRAWABLE_H

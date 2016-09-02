@@ -97,6 +97,7 @@ public:
     void send(covise::TokenBuffer &tb);
     void tryConnect();
     void close();
+    bool debugTUI();
 
     void lock()
     {
@@ -124,6 +125,7 @@ protected:
     int port;
     int ID;
     float timeout;
+    bool debugTUIState;
 };
 
 /**

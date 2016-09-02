@@ -4780,6 +4780,11 @@ coTUIElement::coTUIElement(const std::string &n, int pID)
     coTabletUI::instance()->addElement(this);
     listener = NULL;
     hidden = false;
+    if(coTabletUI::instance()->debugTUI())
+    {
+        coVRMSController::instance()->syncStringStop(name);
+        coVRMSController::instance()->syncInt(ID);
+    }
 }
 
 coTUIElement::coTUIElement(const std::string &n, int pID, int type)
@@ -5108,6 +5113,7 @@ coTabletUI::coTabletUI()
     connectedHost = NULL;
     serverConn = NULL;
     conn = NULL;
+    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI",false);
     elements.setNoDelete();
     ID = 3;
     timeout = 0.0;
@@ -5131,6 +5137,11 @@ void coTabletUI::close()
 
     tryConnect();
 }
+
+    bool coTabletUI::debugTUI()
+    {
+        return debugTUIState;
+    }
 
 void coTabletUI::tryConnect()
 {

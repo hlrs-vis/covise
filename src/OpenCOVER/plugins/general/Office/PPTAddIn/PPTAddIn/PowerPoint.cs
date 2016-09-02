@@ -43,6 +43,7 @@ namespace PPTAddIn
       this.powerpoint.SlideShowOnPrevious += new EApplication_SlideShowOnPreviousEventHandler(slideShowOnPrevious);
       this.powerpoint.SlideShowNextClick += new EApplication_SlideShowNextClickEventHandler(slideShowNextClick);
       this.powerpoint.SlideShowNextSlide += new EApplication_SlideShowNextSlideEventHandler(slideShowNextSlide);
+      this.powerpoint.WindowSelectionChange += new EApplication_WindowSelectionChangeEventHandler(selectionChanged);
 
     }
 
@@ -241,6 +242,21 @@ namespace PPTAddIn
     void slideShowNextSlide(SlideShowWindow Wn)
     {
         ThisAddIn.The.sendStringMessage("PowerPoint.SlideShowNextSlideEvent " + CurrentSlide);
+    }
+    void selectionChanged(Selection Sel)
+    {
+        ThisAddIn.The.sendStringMessage("PowerPoint.selectionChanged " + Sel.ShapeRange.Count.ToString());
+        if (Sel.Type == PpSelectionType.ppSelectionShapes)
+        {
+            Shape s = Sel.ShapeRange[1];
+            if (s.AlternativeText.Length > 0)
+            {
+                String Viewpoint =
+                s.AlternativeText.ToString().TrimEnd('\r', '\n');
+                ThisAddIn.The.sendViewpointMessage(Viewpoint);
+            }
+
+        }
     }
 
   }

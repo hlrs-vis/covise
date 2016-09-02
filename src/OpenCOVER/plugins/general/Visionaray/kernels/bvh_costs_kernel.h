@@ -7,14 +7,15 @@
 
 #pragma once
 
-#ifndef VSNRAY_COVER_BVH_COSTS_KERNEL_H
-#define VSNRAY_COVER_BVH_COSTS_KERNEL_H 1
+#ifndef VSNRAY_PLUGIN_BVH_COSTS_KERNEL_H
+#define VSNRAY_PLUGIN_BVH_COSTS_KERNEL_H 1
 
 #include <visionaray/intersector.h>
 #include <visionaray/result_record.h>
 #include <visionaray/traverse.h>
 
-namespace visionaray { namespace cover {
+namespace visionaray
+{
 
 //-------------------------------------------------------------------------------------------------
 // Intersector to gather bvh costs
@@ -88,6 +89,6 @@ struct bvh_costs_kernel
     Params params;
 };
 
-}} // namespace visionaray::cover
+} // namespace visionaray
 
-#endif // VSNRAY_COVER_BVH_COSTS_KERNEL_H
+#endif // VSNRAY_PLUGIN_BVH_COSTS_KERNEL_H

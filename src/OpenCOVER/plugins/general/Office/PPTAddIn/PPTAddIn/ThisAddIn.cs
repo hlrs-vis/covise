@@ -144,24 +144,29 @@ namespace PPTAddIn
 
         public void addImage(string path, string transform)
         {
-          /*  this.Application.Selection.EndKey(Microsoft.Office.Interop.Word.WdUnits.wdStory);
+            Microsoft.Office.Interop.PowerPoint.Presentation p = this.Application.ActivePresentation;
+            int numberOfSlides =p.Slides.Count;
+            numberOfSlides++;
 
-            if (path.Length != 0)
+            p.Slides.Add(numberOfSlides,Microsoft.Office.Interop.PowerPoint.PpSlideLayout.ppLayoutObjectAndText);
+            int numShapes = p.Slides[numberOfSlides].Shapes.Count;
+            p.Slides[numberOfSlides].Shapes.AddPicture(path,Microsoft.Office.Core.MsoTriState.msoTrue,Microsoft.Office.Core.MsoTriState.msoTrue,0,0);
+            Microsoft.Office.Interop.PowerPoint.Shape s = p.Slides[numberOfSlides].Shapes[2]; // Shape 2 is the image, 1 the title and 3 the items list to the right
+            s.AlternativeText = transform; 
+            try
             {
-                object tr = Microsoft.Office.Core.MsoTriState.msoTrue;
-                //object fa = Microsoft.Office.Core.MsoTriState.msoFalse;
-                try
-                {
-                    Microsoft.Office.Interop.Word.InlineShape picture = this.Application.Selection.InlineShapes.AddPicture(path, ref tr, ref tr, ref optional);
-
-                    picture.AlternativeText = transform;
-                }
-                catch (Exception e)
-                {
-                    this.Application.Selection.TypeText(e.Message + ": " + path + "\n");
-                }
-                this.Application.Selection.TypeText("\nBildunterschrift\n");
-            }*/
+                var codeModule = p.VBProject.VBComponents.Add(Microsoft.Vbe.Interop.vbext_ComponentType.vbext_ct_StdModule);
+                StringBuilder moduleCode = new StringBuilder();
+                moduleCode.AppendLine("Sub ShowInfo(s AS String)");
+                moduleCode.AppendLine("\t" + @"Msgbox s");
+                moduleCode.AppendLine("End Sub");
+                codeModule.CodeModule.AddFromString(moduleCode.ToString());
+                s.ActionSettings[Microsoft.Office.Interop.PowerPoint.PpMouseActivation.ppMouseClick].Action = Microsoft.Office.Interop.PowerPoint.PpActionType.ppActionRunMacro;
+                s.ActionSettings[Microsoft.Office.Interop.PowerPoint.PpMouseActivation.ppMouseClick].Run = "ShowInfo(\"" + transform + "\")";
+            }
+            catch
+            {
+            }
 
         }
         public bool ByteArrayToFile(string _FileName, byte[] _ByteArray)

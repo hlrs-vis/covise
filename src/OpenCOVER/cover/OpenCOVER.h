@@ -40,7 +40,7 @@ class COVEREXPORT OpenCOVER
 {
 private:
     vrui::coInteractionManager interactionManager;
-    int exitFlag;
+    bool exitFlag;
     void readConfigFile();
     void parseLine(char *line);
     int frameNum;
@@ -70,7 +70,7 @@ public:
     void loop();
     void frame();
     void doneRendering();
-    void setExitFlag(int flag);
+    void setExitFlag(bool flag);
     int getExitFlag()
     {
         return exitFlag;
