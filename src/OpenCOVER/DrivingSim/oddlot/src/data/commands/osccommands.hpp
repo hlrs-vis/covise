@@ -83,7 +83,7 @@ private:
 class AddOSCCatalogObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, DataCommand *parent = NULL);
+	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
     virtual ~AddOSCCatalogObjectCommand();
 
     virtual int id() const
@@ -104,6 +104,8 @@ private:
     std::string path_;
 	int refId_;
 	OpenScenario::oscObjectBase *objectBase_;
+	OSCElement *oscElement_;
+	OSCBase *oscBase_;
 };
 
 //#########################//
@@ -146,7 +148,7 @@ private:
 class AddOSCArrayMemberCommand : public DataCommand
 {
 public:
-	explicit AddOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
+	explicit AddOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, OpenScenario::oscObjectBase *object, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
     virtual ~AddOSCArrayMemberCommand();
 
     virtual int id() const
@@ -164,7 +166,7 @@ private:
 
 private:
 	OpenScenario::oscArrayMember *arrayMember_;
-	OpenScenario::oscObjectBase *objectBase_;
+	OpenScenario::oscObjectBase *objectBase_, *object_;
 
     std::string typeName_;
 
@@ -212,7 +214,7 @@ private:
 class AddOSCObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, OpenScenario::oscSourceFile *file,  DataCommand *parent = NULL);
+	explicit AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, OpenScenario::oscSourceFile *file, DataCommand *parent = NULL);
     virtual ~AddOSCObjectCommand();
 
     virtual int id() const

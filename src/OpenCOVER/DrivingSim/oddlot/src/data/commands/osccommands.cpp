@@ -108,17 +108,19 @@ void
 // AddOSCCatalogObjectCommand //
 //#########################//
 
-AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, DataCommand *parent)
+AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
 	, catalog_(catalog)
 	, refId_(refId)
 	, objectBase_(objectBase)
 	, path_(path)
+	, oscElement_(element)
+	, oscBase_(base)
 {
     // Check for validity //
     //
 
-	if (!catalog_)
+	if (!catalog_ || (objectBase_ && !oscBase_))
     {
         setInvalid(); // Invalid
         setText(QObject::tr("AddOSCCatalogObjectCommand: Internal error! Member not valid."));
@@ -156,14 +158,18 @@ AddOSCCatalogObjectCommand::~AddOSCCatalogObjectCommand()
 void
 AddOSCCatalogObjectCommand::redo()
 {
-	// create refId
-	OpenScenario::oscMember *member = objectBase_->getMember("refId");
-	OpenScenario::oscMemberValue *v = member->getOrCreateValue();
-	v->setValue(refId_); 
-	
+
 	if (objectBase_)
 	{
+		// create refId //
+		//
+		OpenScenario::oscMember *member = objectBase_->getMember("refId");
+		OpenScenario::oscMemberValue *v = member->getOrCreateValue();
+		v->setValue(refId_); 
 		catalog_->addCatalogObject(refId_, objectBase_, boost::filesystem::path(path_));
+
+		oscElement_->setObjectBase(objectBase_);
+		oscBase_->addOSCElement(oscElement_);
 	}
 	else
 	{
@@ -185,6 +191,9 @@ void
 	if (objectBase_)
 	{
 		catalog_->removeCatalogObject(refId_);
+
+		oscElement_->setObjectBase(NULL);
+		oscBase_->delOSCElement(oscElement_);
 	}
 	else
 	{
@@ -279,13 +288,14 @@ RemoveOSCCatalogObjectCommand::undo()
 // AddOSCArrayMemberCommand //
 //#########################//
 
-AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent)
+AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase,  OpenScenario::oscObjectBase *object, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
 	, arrayMember_(arrayMember)
 	, typeName_(name)
 	, objectBase_(objectBase)
 	, oscElement_(element)
 	, oscBase_(base)
+	, object_(object)
 {
     // Check for validity //
     //
@@ -326,14 +336,18 @@ AddOSCArrayMemberCommand::~AddOSCArrayMemberCommand()
 void
 AddOSCArrayMemberCommand::redo()
 {
-	OpenScenario::oscObjectBase *object = objectBase_->getMember(typeName_)->createObject();
-
-	if(object)
+	if (!object_)
 	{
-		oscElement_->setObjectBase(object);
+		object_ = objectBase_->getMember(typeName_)->createObject();
+	}
+
+	if(object_)
+	{
+		oscElement_->setObjectBase(object_);
 		oscBase_->addOSCElement(oscElement_);
 
-		arrayMember_->push_back(object);
+		arrayMember_->push_back(object_);
+		oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
 	}
 	
 	setRedone();
@@ -349,6 +363,8 @@ void
 
 	oscBase_->delOSCElement(oscElement_);
 	oscElement_->setObjectBase(NULL);
+
+	oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
 
 	setUndone();
 }

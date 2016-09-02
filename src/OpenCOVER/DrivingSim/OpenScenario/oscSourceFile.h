@@ -42,6 +42,8 @@ public:
     oscSourceFile(); ///< constructor
     ~oscSourceFile(); ///< destructor
 
+	void setNameAndPath(const std::string &fileName, const std::string &fileType, bf::path pathFromCurrentDirToDoc);
+
     void setSrcFileHref(const bf::path &srcFileHref);
     void setSrcFileHref(const std::string &srcFileHref);
     void setSrcFileHref(const XMLCh *srcFileHref);

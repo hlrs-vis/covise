@@ -48,6 +48,7 @@ void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject,
     source = s;
 }
 
+
 void oscObjectBase::addMember(oscMember *m)
 {
     members[m->getName()]=m;
@@ -179,7 +180,10 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
 
                     //xml document for member
-                    xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
+					xercesc::DOMDocument *srcXmlDoc;
+
+					srcXmlDoc = obj->getSource()->getXmlDoc();
+
 
                     //determine document and element for writing
                     //
@@ -262,7 +266,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
     return true;
 }
 
-bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src)
+bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude)
 {
     xercesc::DOMNodeList *membersList = currentElement->getChildNodes();
     xercesc::DOMNamedNodeMap *attributes = currentElement->getAttributes();
@@ -342,7 +346,12 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
             if(m)
             {
                 std::string memTypeName = m->getTypeName();
-                oscSourceFile *srcToUse = determineSrcFile(memberElem, src);
+
+				oscSourceFile *srcToUse = src;
+				if (saveInclude)
+				{
+					srcToUse = determineSrcFile(memberElem, src);
+				}
 
                 //oscArrayMember
                 //
@@ -375,7 +384,9 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
                         if(objAMCreated)
                         {
-                            objAMCreated->initialize(base, this, m, srcToUse);
+
+							objAMCreated->initialize(base, this, m, srcToUse);
+
                             m->setValue(objAMCreated);
                             m->setParentMember(ownMember);
                         }
@@ -407,7 +418,12 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                     oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
                                     if(obj)
                                     {
-                                        oscSourceFile *arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
+                                        oscSourceFile *arrayElemSrcToUse = src;
+										if (saveInclude)
+										{
+											arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
+										}
+
                                         obj->initialize(base, objAM, ame, arrayElemSrcToUse);
                                         am->push_back(obj);
                                         ame->setParentMember(objAM->getOwnMember());
@@ -471,6 +487,101 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
     return true;
 }
 
+bool oscObjectBase::writeToDisk()
+{
+
+	xercesc::DOMDocument *objFromCatalogXmlDoc = source->getOrCreateXmlDoc();
+	xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
+	if (!writeToDOM(rootElement, objFromCatalogXmlDoc))
+	{
+		return false;
+	}
+	
+	if (!source->writeFileToDisk())
+	{
+		return false;
+	}
+
+	source->clearXmlDoc();
+
+	return true;
+}
+
+oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, std::string &type, std::string &typeName)
+{
+	oscObjectBase *obj = NULL;
+	OpenScenarioBase *oscBase = new OpenScenarioBase;
+
+	//in readDefaultXMLObject no validation should be done,
+	//because default objects are valid
+	xercesc::DOMElement *rootElem = oscBase->getDefaultXML(type);
+	if (rootElem)
+	{
+		std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
+
+		if (rootElemName == type)
+		{
+			//sourceFile for objectName
+			oscSourceFile *srcFile = new oscSourceFile();
+
+			//set variables for srcFile, differentiate between absolute and relative path for catalog object
+			srcFile->setSrcFileHref(destFilePath);
+			srcFile->setSrcFileName(destFilePath.filename());
+			srcFile->setPathFromCurrentDirToMainDir(getSource()->getPathFromCurrentDirToMainDir());
+			bf::path absPathToMainDir;
+			bf::path relPathFromMainDir;
+			if (destFilePath.is_absolute())
+			{
+				//absPathToMainDir is path to the directory with the imported catalog file
+				absPathToMainDir = destFilePath.parent_path();
+				relPathFromMainDir = bf::path(); // relative path is empty
+			}
+			else
+			{
+				//absPathToMainDir is path to directory with the file with OpenSCENARIO root element
+				absPathToMainDir = getSource()->getAbsPathToMainDir();
+				// check if this works!!
+				//relative path is path from directory from absPathToMainDir to the directory with the imported file
+				std::string pathFromExeToMainDir = getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
+				std::string tmpRelPathFromMainDir = destFilePath.parent_path().generic_string();
+				if (pathFromExeToMainDir.empty())
+				{
+					relPathFromMainDir = tmpRelPathFromMainDir;
+				}
+				else
+				{
+					relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
+				}
+			}
+			srcFile->setAbsPathToMainDir(absPathToMainDir);
+			srcFile->setRelPathFromMainDir(relPathFromMainDir);
+			srcFile->setRootElementName(rootElemName);
+
+			//object for objectName
+
+			obj = oscFactories::instance()->objectFactory->create(typeName);
+			if(obj)
+			{
+				obj->initialize(getBase(), NULL, NULL, srcFile);
+				obj->parseFromXML(rootElem, srcFile, false);
+
+				//add sourcFile to vector
+				getBase()->addToSrcFileVec(srcFile);
+
+			}
+			else
+			{
+				std::cerr << "Error! Could not create an object member of type " << typeName << std::endl;
+				delete srcFile;
+			}
+		}
+	}
+
+	delete oscBase;
+
+	return obj;
+
+}
 
 
 /*****

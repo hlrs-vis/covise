@@ -52,9 +52,11 @@ class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
 {
 public:
     typedef unordered_map<std::string /*OscFileType*/, bf::path /*XsdFileName*/> FileTypeXsdFileNameMap;
+	typedef unordered_map<std::string /*OscFileType*/, bf::path /*DefaultFileName*/> DefaultFileTypeNameMap;
 
 protected: 
     static const FileTypeXsdFileNameMap s_fileTypeToXsdFileName; ///< XSD Schema file for file type (OpenSCENARIO or catalog objects)
+	static const DefaultFileTypeNameMap s_defaultFileTypeMap;  ///< Default values for file type
     xercesc::XercesDOMParser *parser; ///< validating parser
     ParserErrorHandler *parserErrorHandler; ///< error handler for parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
@@ -113,6 +115,7 @@ public:
 
     //
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successful
+	xercesc::DOMElement *getDefaultXML(const std::string &fileType);
 	oscSourceFile *createSource(const std::string &fileName, const std::string &fileType); // create source 
 };
 

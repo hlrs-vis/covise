@@ -23,6 +23,7 @@
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
 #include "oscArrayMember.h"
+#include "oscSourceFile.h"
 
 // Settings //
 //
@@ -671,7 +672,9 @@ OSCObjectSettings::onNewArrayElement()
 	if (oscElement)
 	{
 
-		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, memberName_.toStdString(), base_, oscElement);
+		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( object_->getSource()->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName());
+
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, obj, memberName_.toStdString(), base_, oscElement);
 		projectSettings_->executeCommand(command);
 
 		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement);
