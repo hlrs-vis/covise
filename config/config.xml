@@ -101,6 +101,7 @@
 	   <FileType name="mov" plugin="StereoVideoPlayer" />
 	   <FileType name="mp4" plugin="StereoVideoPlayer" />
            <FileType name="xvf" plugin="Volume" />
+           <FileType name="mid" plugin="Midi" />
            <FileType name="tif" plugin="Volume" />
            <FileType name="tiff" plugin="Volume" />
            <FileType name="rvf" plugin="Volume" />
