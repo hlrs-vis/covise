@@ -1,0 +1,77 @@
+# - Find MIDI_FILE
+# Find the MIDI_FILE includes and library
+#
+#  MIDI_FILE_INCLUDE_DIR - Where to find MIDI_FILE includes
+#  MIDI_FILE_LIBRARIES   - List of libraries when using MIDI_FILE
+#  MIDI_FILE_FOUND       - True if MIDI_FILE was found
+
+IF(MIDI_FILE_INCLUDE_DIR)
+  SET(MIDI_FILE_FIND_QUIETLY TRUE)
+ENDIF(MIDI_FILE_INCLUDE_DIR)
+
+FIND_PATH(MIDI_FILE_INCLUDE_DIR "MidiFile.h"
+  PATHS
+  $ENV{MIDI_FILE_HOME}/include
+  $ENV{EXTERNLIBS}/midifile/include
+  ~/Library/Frameworks/include
+  /Library/Frameworks/include
+  /usr/local/include
+  /usr/include
+  /sw/include # Fink
+  /opt/local/include # DarwinPorts
+  /opt/csw/include # Blastwave
+  /opt/include
+  DOC "MIDI_FILE - Headers"
+)
+
+SET(MIDI_FILE_NAMES midifile)
+SET(MIDI_FILE_DBG_NAMES midifiled)
+
+FIND_LIBRARY(MIDI_FILE_LIBRARY NAMES ${MIDI_FILE_NAMES}
+  PATHS
+  $ENV{MIDI_FILE_HOME}
+  $ENV{EXTERNLIBS}/midifile
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  PATH_SUFFIXES lib lib64
+  DOC "MidiFile - Library"
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+
+IF(MSVC)
+  # VisualStudio needs a debug version
+  FIND_LIBRARY(MIDI_FILE_LIBRARY_DEBUG NAMES ${MIDI_FILE_DBG_NAMES}
+    PATHS
+    $ENV{MIDI_FILE_HOME}/lib
+    $ENV{EXTERNLIBS}/midifile/lib
+    DOC "MIDI_FILE - Library (Debug)"
+  )
+  
+  IF(MIDI_FILE_LIBRARY_DEBUG AND MIDI_FILE_LIBRARY)
+    SET(MIDI_FILE_LIBRARIES optimized ${MIDI_FILE_LIBRARY} debug ${MIDI_FILE_LIBRARY_DEBUG})
+  ENDIF(MIDI_FILE_LIBRARY_DEBUG AND MIDI_FILE_LIBRARY)
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(MIDI_FILE DEFAULT_MSG MIDI_FILE_LIBRARY MIDI_FILE_LIBRARY_DEBUG MIDI_FILE_INCLUDE_DIR)
+
+  MARK_AS_ADVANCED(MIDI_FILE_LIBRARY MIDI_FILE_LIBRARY_DEBUG MIDI_FILE_INCLUDE_DIR)
+  
+ELSE(MSVC)
+  # rest of the world
+  SET(MIDI_FILE_LIBRARIES ${MIDI_FILE_LIBRARY})
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(MIDI_FILE DEFAULT_MSG MIDI_FILE_LIBRARY MIDI_FILE_INCLUDE_DIR)
+  
+  MARK_AS_ADVANCED(MIDI_FILE_LIBRARY MIDI_FILE_INCLUDE_DIR)
+  
+ENDIF(MSVC)
+
+IF(MIDI_FILE_FOUND)
+  SET(MIDI_FILE_INCLUDE_DIRS ${MIDI_FILE_INCLUDE_DIR})
+ENDIF(MIDI_FILE_FOUND)
