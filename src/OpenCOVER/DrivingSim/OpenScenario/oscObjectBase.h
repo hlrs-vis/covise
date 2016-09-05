@@ -27,6 +27,12 @@ class DOMDocument;
 class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
+#define BOOST_FILESYSTEM_NO_DEPRECATED
+#include <boost/filesystem.hpp>
+
+
+namespace bf = boost::filesystem;
+
 
 //varName is of type oscMember
 //set the name of varName as string of varName (oscMember[.cpp,.h])
@@ -100,8 +106,11 @@ public:
 	oscObjectBase *getObjectByName(const std::string &name);
 
     //
-    virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude = true);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+	bool writeToDisk();
+
+	oscObjectBase *readDefaultXMLObject(bf::path destFilePath, std::string &type, std::string &typeName);  ///< read default object with specified type and generate an object with source destFilePath
 
 private:
     void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node

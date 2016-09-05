@@ -1,0 +1,14 @@
+using(MIDIFILE)
+
+USE_MIDIFILE()
+    MESSAGE(${MIDIFILE_INCLUDE_DIR})
+    INCLUDE_DIRECTORIES(${MIDIFILE_INCLUDE_DIR})
+    
+SET(HEADERS
+  midiPlugin.h
+)
+SET(SOURCES
+  midiPlugin.cpp
+)
+cover_add_plugin(Midi)
+#COVER_INSTALL_PLUGIN(MIDI)

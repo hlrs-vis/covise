@@ -391,7 +391,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 						OSCElement *oscElement = new OSCElement("object");
 						if (oscElement)
 						{
-							AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscObjectArray, objects, "object", oscBase_, oscElement);
+							AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscObjectArray, objects, NULL, "object", oscBase_, oscElement);
 							getProjectGraph()->executeCommand(command);
 
 							OpenScenario::oscObject *oscObject = static_cast<OpenScenario::oscObject *>(oscElement->getObject());

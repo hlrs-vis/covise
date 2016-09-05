@@ -339,6 +339,7 @@ bool oscCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePath)
     return success;
 }
 
+
 bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
 {
     if (objectBase)
@@ -535,9 +536,9 @@ oscCatalog::SuccessIntVar oscCatalog::getIntFromIntAttribute(xercesc::DOMAttr *a
     return successIntVar;
 }
 
-int oscCatalog::generateRefId()
+int oscCatalog::generateRefId(int startId)
 {
-	int refId = 0;
+	int refId = startId - 1;
 	ObjectsMap::const_iterator found;
 	do
 	{
