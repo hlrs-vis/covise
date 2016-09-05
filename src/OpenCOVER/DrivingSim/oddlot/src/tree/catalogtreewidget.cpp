@@ -246,33 +246,33 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					oscElement_->attachObserver(this);
 
 
-					// refid vergeben, path von vehicleCatalog?, neue Basis für catalog?
+					// refid vergeben, prüfen ob Datei schon vorhanden, path von vehicleCatalog?, neue Basis für catalog?
 					// Element anlegen
-					int refId = catalog_->generateRefId();
-					QString filePath = directoryPath_ + "/" + type_ + QString::number(refId) + ".xosc";
-					OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), type_.toStdString());
-
-					AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getType(type_.toStdString()), oscElement_, oscSourceFile);
-					if (command->isValid())
+					QString filePath;
+					int refId = 0;
+					do
 					{
-						projectWidget_->getTopviewGraph()->executeCommand(command);
+						refId = catalog_->generateRefId(++refId);
+						filePath = directoryPath_ + "/" + type_ + QString::number(refId) + ".xosc";
+					} while (bf::exists(filePath.toStdString())); // test if file exists
+
+					OpenScenario::oscObjectBase *obj = catalog_->readDefaultXMLObject( filePath.toStdString(), type_.toStdString(), catalog_->getType(type_.toStdString()));
+
+					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
+
+					if (addCatalogObjectCommand->isValid())
+					{
+						projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand);
+
 
 						OpenScenario::oscObjectBase *obj = oscElement_->getObject();
-						
-						AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString());
-						if (addCatalogObjectCommand->isValid())
-						{
-							projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand); 
 
-							std::string name = "name";
-							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
-							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);
+						std::string name = "name";
+						SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
+						projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);
 
-							projectData_->getUndoStack()->endMacro();
+						obj->writeToDisk();
 
-							return;
-
-						}
 					}
 				}
 				projectData_->getUndoStack()->endMacro();

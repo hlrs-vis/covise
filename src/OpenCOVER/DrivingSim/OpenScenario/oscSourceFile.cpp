@@ -37,6 +37,16 @@ oscSourceFile::~oscSourceFile()
 /*****
  * public functions
  *****/
+void oscSourceFile::setNameAndPath(const std::string &fileName, const std::string &fileType, bf::path pathFromCurrentDirToDoc)
+{
+	setSrcFileHref(bf::path());
+    bf::path fnPath = getFileNamePath(fileName);
+    setSrcFileName(fnPath.filename());
+    setPathFromCurrentDirToMainDir(pathFromCurrentDirToDoc);
+    setAbsPathToMainDir(fnPath.parent_path());
+    setRelPathFromMainDir(bf::path());
+	setRootElementName(fileType);
+}
 
 void oscSourceFile::setSrcFileHref(const bf::path &srcFileHref)
 {

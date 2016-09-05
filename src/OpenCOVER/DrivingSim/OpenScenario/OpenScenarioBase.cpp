@@ -110,6 +110,23 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 
 const OpenScenarioBase::FileTypeXsdFileNameMap OpenScenarioBase::s_fileTypeToXsdFileName = initFuncFileTypeToXsd();
 
+OpenScenarioBase::DefaultFileTypeNameMap initDefaultFileTypeMap()
+{
+    //set the XSD Schema file name for possible file types
+    OpenScenarioBase::DefaultFileTypeNameMap defaultFileTypeMap;
+	defaultFileTypeMap.emplace("vehicle", bf::path("OpenScenario_XML-Default_vehicle.xosc"));
+	defaultFileTypeMap.emplace("light", bf::path("OpenScenario_XML-Default_OSCLight.xosc"));
+	defaultFileTypeMap.emplace("driver", bf::path("OpenScenario_XML-Default_driver.xosc"));
+	defaultFileTypeMap.emplace("entity", bf::path("OpenScenario_XML-Default_entity.xosc"));
+	defaultFileTypeMap.emplace("environment", bf::path("OpenScenario_XML-Default_environment.xosc"));
+	defaultFileTypeMap.emplace("light", bf::path("OpenScenario_XML-Default_OSCCondition.xosc"));
+
+    return defaultFileTypeMap;
+}
+
+const OpenScenarioBase::FileTypeXsdFileNameMap OpenScenarioBase::s_defaultFileTypeMap = initDefaultFileTypeMap();
+
+
 
 
 /*****
@@ -484,6 +501,67 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     }
 }
 
+xercesc::DOMElement *OpenScenarioBase::getDefaultXML(const std::string &fileType)
+{
+	//path to covise directory
+	bf::path coDir = getEnvVariable("COVISEDIR");
+	//relative path from covise directory to OpenSCENARIO directory
+	bf::path oscDirRelPath = bf::path("src/OpenCOVER/DrivingSim/OpenScenario");
+	//relative path from OpenSCENARIO directory to directory with schema files
+	bf::path xsdDirRelPath = bf::path("xml-default");
+
+	//name of XML Schema
+	bf::path xsdFileName;
+	FileTypeXsdFileNameMap::const_iterator found = s_defaultFileTypeMap.find(fileType);
+	if (found != s_defaultFileTypeMap.end())
+	{
+		xsdFileName = found->second;
+	}
+	else
+	{
+		std::cerr << "Error! Can't determine a XSD Default file for fileType '" << fileType << "'.\n" << std::endl;
+
+		return NULL;
+	}
+
+	//path and filename of XML Schema *.xsd file
+	bf::path xsdPathFileName = coDir;
+	xsdPathFileName /= oscDirRelPath;
+	xsdPathFileName /= xsdDirRelPath;
+	xsdPathFileName /= xsdFileName;
+	xsdPathFileName.make_preferred();
+
+
+	//parse file with enabled XInclude and disabled validation
+    //
+    //parser will process XInclude nodes
+    parser->setDoXInclude(true);
+    //parse without validation
+    parser->setDoSchema(false);
+
+    //parse the file
+    try
+    {
+        parser->parse(xsdPathFileName.c_str());
+    }
+    catch (...)
+    {
+        std::cerr << "\nErrors during parse of the document '" << xsdPathFileName << "'.\n" << std::endl;
+
+        return NULL;
+    }
+
+    xercesc::DOMElement *tmpRootElem = NULL;
+    std::string tmpRootElemName;
+    xercesc::DOMDocument *tmpXmlDoc = parser->getDocument();
+    if (tmpXmlDoc)
+    {
+        return tmpXmlDoc->getDocumentElement();
+    }
+
+	return NULL;
+}
+
 
 //
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
@@ -498,13 +576,7 @@ bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 oscSourceFile *OpenScenarioBase::createSource(const std::string &fileName, const std::string &fileType)
 {
     source = new oscSourceFile();
-	source->setSrcFileHref(bf::path());
-    bf::path fnPath = source->getFileNamePath(fileName);
-    source->setSrcFileName(fnPath.filename());
-    source->setPathFromCurrentDirToMainDir(m_pathFromCurrentDirToDoc);
-    source->setAbsPathToMainDir(fnPath.parent_path());
-    source->setRelPathFromMainDir(bf::path());
-	source->setRootElementName(fileType);
+	source->setNameAndPath(fileName, fileType, m_pathFromCurrentDirToDoc);
 
     addToSrcFileVec(source);
 
