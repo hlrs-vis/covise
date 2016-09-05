@@ -82,7 +82,28 @@ bool coIES::readData()
         if(fgets(buf,1000,fp)!=NULL)
         {
             int numRead = sscanf(buf,"%d %f %f %d %d %d %d %f %f %f",&numLamps,&lumensPerLamp,&multiplier,&numVerticalAngles,&numHorizontalAngles,&photometricType,&unitsType,&width,&length,&height);
-            if(numRead != 10)
+            if(numRead == 3)
+            {
+                if(fgets(buf,1000,fp)!=NULL)
+                {
+                    numRead = sscanf(buf,"%d %d %d %d",&numVerticalAngles,&numHorizontalAngles,&photometricType,&unitsType);
+                    if(numRead != 4)
+                    {
+                        fprintf(stderr,"Error reading header 2 after TILT\n");
+                        return false;
+                    }
+                    if(fgets(buf,1000,fp)!=NULL)
+                    {
+                        numRead = sscanf(buf,"%f %f %f",&width,&length,&height);
+                        if(numRead != 3)
+                        {
+                            fprintf(stderr,"Error reading header 3 after TILT\n");
+                            return false;
+                        }
+                    }
+                }
+            }
+            else if(numRead != 10)
             {
                 fprintf(stderr,"Error reading header after TILT\n");
                 return false;

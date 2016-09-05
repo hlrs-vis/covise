@@ -69,6 +69,7 @@
 #include "VrmlNodeShadowedScene.h"
 #include "VrmlNodePrecipitation.h"
 #include "VrmlNodeMatrixLight.h"
+#include "VrmlNodePhotometricLight.h"
 
 #include <osgGA/GUIEventAdapter>
 #include <osgDB/Registry>
@@ -350,6 +351,7 @@ bool Vrml97Plugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeCOVISEObject::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodePrecipitation::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMatrixLight::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodePhotometricLight::defineType());
 
     VrmlNamespace::addBuiltIn(VrmlNodeARSensor::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMirrorCamera::defineType());
@@ -403,6 +405,7 @@ Vrml97Plugin::preFrame()
     if (System::the)
         System::the->update();
     VrmlNodeMatrixLight::updateAll();
+    VrmlNodePhotometricLight::updateAll();
     if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
     {
         plugin->isNewVRML = false;

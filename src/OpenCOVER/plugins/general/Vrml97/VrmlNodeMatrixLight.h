@@ -64,6 +64,8 @@ public:
 private:
     // Fields
     VrmlSFInt d_lightNumber;
+    VrmlSFInt d_numRows;
+    VrmlSFInt d_numColumns;
     VrmlSFString d_IESFile;
 
     coIES *iesFile;
