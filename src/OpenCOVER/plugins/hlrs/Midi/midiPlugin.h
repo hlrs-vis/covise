@@ -19,6 +19,8 @@
 #include <PluginUtil/coSphere.h>
 #include <cover/coVRPlugin.h>
 #include <MidiFile.h>
+#include <osg/ShapeDrawable>
+#include <osg/ShadeModel>
 
 using namespace opencover;
 using namespace covise;
@@ -42,7 +44,7 @@ public:
      osg::ref_ptr<osg::Group> TrackRoot;
      void update();
      void setVisible(bool state);
-}
+};
 
 class MidiPlugin : public coVRPlugin, public coTUIListener
 {
@@ -76,7 +78,11 @@ public:
     // destructor
     virtual ~MidiPlugin();
     osg::Geode *createGeometry(int i);
-    osg::TessellationHints *hint;
+    osg::ref_ptr<osg::TessellationHints> hint;
+    osg::ref_ptr<osg::StateSet> shadedStateSet;
+    osg::ref_ptr<osg::ShadeModel> shadeModel;
+    osg::ref_ptr<osg::Material> globalmtl;
+    
 
     bool init();
     bool destroy();

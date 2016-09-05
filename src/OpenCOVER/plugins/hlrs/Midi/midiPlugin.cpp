@@ -99,13 +99,13 @@ int MidiPlugin::loadFile(const char *filename, osg::Group *parent)
 
       midifile.read(filename);
 
-   int tracks = midifile.getTrackCount();
+   int numTracks = midifile.getTrackCount();
    cout << "TPQ: " << midifile.getTicksPerQuarterNote() << endl;
-   if (tracks > 1) {
-      cout << "TRACKS: " << tracks << endl;
+   if (numTracks > 1) {
+      cout << "TRACKS: " << numTracks << endl;
    }
-   for (int track=1; track < tracks; track++) {
-      tracks->push_back(new Track(track));
+   for (int track=1; track < numTracks; track++) {
+      tracks.push_back(new Track(track));
      /* if (tracks > 1) {
          cout << "\nTrack " << track << endl;
       }
@@ -157,24 +157,14 @@ MidiPlugin::MidiPlugin()
 osg::Geode *MidiPlugin::createGeometry(int i)
 {
     osg::Geode *geode;
-    float color3[3];
-    int col;
 
     osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 200.0);
     osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint.get());
-    col = geo.ballscolor[ballId];
-    if (col < 0)
-    {
-        ballcolor(color3, str.balldyncolor[str.act_step][ballId]);
-        mySphereDrawable->setColor(osg::Vec4(color3[0], color3[1], color3[2], 1.0f));
-    }
-    else
-    {
         mySphereDrawable->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    }
     geode = new osg::Geode();
     geode->addDrawable(mySphereDrawable);
     geode->setStateSet(shadedStateSet.get());
+    return geode;
 }
 
 bool MidiPlugin::init()
@@ -186,7 +176,29 @@ bool MidiPlugin::init()
     MIDIRoot = new osg::Group;
     MIDIRoot->setName("MIDIRoot");
     cover->getObjectsRoot()->addChild(MIDIRoot.get());
-    noteGeometries->resize(80);
+    
+    globalmtl = new osg::Material;
+    globalmtl->ref();
+    globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+    globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    globalmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+    shadedStateSet = new osg::StateSet();
+    shadedStateSet->ref();
+    shadedStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
+    shadedStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    shadedStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    //for transparency, we need a transparent bin
+    shadedStateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    shadedStateSet->setNestRenderBins(false);
+    shadeModel = new osg::ShadeModel;
+    shadeModel->setMode(osg::ShadeModel::SMOOTH);
+    shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
+
+    noteGeometries.resize(80);
     
     hint = new osg::TessellationHints();
     hint->setDetailRatio(0.1);
