@@ -224,7 +224,7 @@ void triangulatePoly(contour_t contour){
 }
 
 void writePly(){
-    std::string filename = "/home/dwickero/vois.ply";
+    std::string filename = "/home/zellmans/vois.ply";
 
     // open ply file
     FILE *file = NULL;
@@ -321,7 +321,7 @@ int ReadVois::compute(const char *port)
 
             //init some global variables
             for(int i = 0; i < Z_TABLE_SIZE; i++){
-                zTable[i] = i;
+                zTable[i] = i; 
             }
 
             for(int i = 0; i < 4; i++){
@@ -348,7 +348,7 @@ int ReadVois::compute(const char *port)
             if(readFile()){
                 //printVois();
                 if(triangulate()){
-                    //writePly();    //write vertices and triangles to an ascii coded ply-file
+                    writePly();    //write vertices and triangles to an ascii coded ply-file
                     sendDataToCovise();
                 }
                 else
@@ -436,6 +436,16 @@ bool ReadVois::readFile()
         bytes_read += fread(&last_slice,    4,  1, m_file);
         bytes_read += fread(&color,         4,  1, m_file);
 
+#if 0
+        std::cout << "property: " << property << '\n'; 
+        std::cout << "name: " << name << '\n'; 
+        std::cout << "first_slice" << first_slice << '\n'; 
+        std::cout << "last_slice " << last_slice << '\n'; 
+        std::cout << "color " << color << '\n';
+        std::cout << "no slices: " << no_slices << '\n';
+#endif
+
+
         if(voiIsValid(property)){
             voi_t voi;
 
@@ -480,13 +490,15 @@ bool ReadVois::readFile()
                     contour.no_slice = slice + 1;
                     double g_factor = resolution * pixelSize / 1023.0;
 
+
                     int count = 0;
                     for(vector<xy>::iterator point_iter = pointVector.begin(); point_iter != pointVector.end(); point_iter++) {
 
                         // convert from generalized image to image coordinates
                         double value_x   = (511.5 - point_iter->x) * g_factor;
                         double value_y   = (511.5 - point_iter->y) * g_factor;
-                        double value_z   = zTable[slice] * 3.0;
+
+                        double value_z   = zTable[slice];
 
                         //convert from image coordinates to stereotactic coordinate system
                         xyz point_xyz;
@@ -510,16 +522,20 @@ bool ReadVois::readFile()
 
                         point_xyz.index = -1;
 
+                        std::cout << point_xyz << '\n';
+
                         //add coordinates to voi-datastructure
                         contour.points.push_back(point_xyz);
                         count++;
                     }
 
+                    std::cout << '\n';
+
                     voi_iter->contours.push_back(contour);
 
                 } else {
                     sendError("Could not find Voi with index %i in voiVector. VOI invalid?",voi);
-                    return false;
+//                    return false;
                 }
 
             }  // no_contours != 0
