@@ -61,6 +61,8 @@
 
   <COVER>
       <Snap value="ON" />
+      <DebugTUI value="OFF" />
+	  
     <!--LODScale value="0.000000000001" /-->
     <DepthPeeling value="false" />
     <LODScale value="1" />
@@ -99,6 +101,7 @@
 	   <FileType name="mov" plugin="StereoVideoPlayer" />
 	   <FileType name="mp4" plugin="StereoVideoPlayer" />
            <FileType name="xvf" plugin="Volume" />
+           <FileType name="mid" plugin="Midi" />
            <FileType name="tif" plugin="Volume" />
            <FileType name="tiff" plugin="Volume" />
            <FileType name="rvf" plugin="Volume" />
@@ -311,7 +314,7 @@
  <!--INCLUDE global="1" configname="input">config.input.xml</INCLUDE-->
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
- <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
+ <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
 </COCONFIG>

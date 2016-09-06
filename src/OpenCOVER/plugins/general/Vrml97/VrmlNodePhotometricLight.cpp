@@ -10,7 +10,7 @@
 //  Copyright (C) 2001 Uwe Woessner
 //
 //  %W% %G%
-//  VrmlNodeMatrixLight.cpp
+//  VrmlNodePhotometricLight.cpp
 #ifdef _WIN32
 #if (_MSC_VER >= 1300) && !(defined(MIDL_PASS) || defined(RC_INVOKED))
 #define POINTER_64 __ptr64
@@ -38,44 +38,43 @@
 
 #include <util/byteswap.h>
 
-#include "VrmlNodeMatrixLight.h"
+#include "VrmlNodePhotometricLight.h"
 #include "ViewerOsg.h"
 #include <osg/Quat>
-#include <osg/Texture2DArray>
 
 // static initializations
-std::list<VrmlNodeMatrixLight *> VrmlNodeMatrixLight::allMatrixLights;
-osg::ref_ptr<osg::Uniform> VrmlNodeMatrixLight::matrixLightMatrix;
+std::list<VrmlNodePhotometricLight *> VrmlNodePhotometricLight::allPhotometricLights;
+osg::ref_ptr<osg::Uniform> VrmlNodePhotometricLight::photometricLightMatrix;
 
-// MatrixLight factory.
+// PhotometricLight factory.
 
 static VrmlNode *creator(VrmlScene *scene)
 {
-    return new VrmlNodeMatrixLight(scene);
+    return new VrmlNodePhotometricLight(scene);
 }
 
-void VrmlNodeMatrixLight::updateAll()
+void VrmlNodePhotometricLight::updateAll()
 {
-    for(std::list<VrmlNodeMatrixLight *>::iterator it = allMatrixLights.begin();it != allMatrixLights.end(); it++)
+    for(std::list<VrmlNodePhotometricLight *>::iterator it = allPhotometricLights.begin();it != allPhotometricLights.end(); it++)
     {
         (*it)->update();
     }
 }
-void VrmlNodeMatrixLight::update()
+void VrmlNodePhotometricLight::update()
 {
     osg::MatrixList worldMatrices = lightNodeInSceneGraph->getWorldMatrices();
     osg::Matrixf firstMat = worldMatrices[0];
-       // matrixLightMatrix->setElement(d_lightNumber.get(), firstMat); 
+       // photometricLightMatrix->setElement(d_lightNumber.get(), firstMat); 
     osg::Matrixf invFirstMat;
     if(invFirstMat.invert_4x4(firstMat))
     {
-        matrixLightMatrix->setElement(d_lightNumber.get(), invFirstMat); 
+        photometricLightMatrix->setElement(d_lightNumber.get(), invFirstMat); 
     }
 }
 
-// Define the built in VrmlNodeType:: "MatrixLight" fields
+// Define the built in VrmlNodeType:: "PhotometricLight" fields
 
-VrmlNodeType *VrmlNodeMatrixLight::defineType(VrmlNodeType *t)
+VrmlNodeType *VrmlNodePhotometricLight::defineType(VrmlNodeType *t)
 {
     static VrmlNodeType *st = 0;
 
@@ -83,42 +82,38 @@ VrmlNodeType *VrmlNodeMatrixLight::defineType(VrmlNodeType *t)
     {
         if (st)
             return st; // Only define the type once.
-        t = st = new VrmlNodeType("MatrixLight", creator);
+        t = st = new VrmlNodeType("PhotometricLight", creator);
     }
 
     VrmlNodeChild::defineType(t); // Parent class
-    
+
     t->addExposedField("lightNumber", VrmlField::SFINT32);
-    t->addExposedField("numRows", VrmlField::SFINT32);
-    t->addExposedField("numColumns", VrmlField::SFINT32);
     t->addExposedField("IESFile", VrmlField::SFSTRING);
     static osg::Matrixf lightMatrices[MAX_LIGHTS];
-    matrixLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "matrixLightMatrix", MAX_LIGHTS);
+    photometricLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "photometricLightMatrix", MAX_LIGHTS);
     osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
-    state->addUniform(matrixLightMatrix);
+    state->addUniform(photometricLightMatrix);
 
     return t;
 }
 
-VrmlNodeType *VrmlNodeMatrixLight::nodeType() const
+VrmlNodeType *VrmlNodePhotometricLight::nodeType() const
 {
     return defineType(0);
 }
 
-VrmlNodeMatrixLight::VrmlNodeMatrixLight(VrmlScene *scene)
+VrmlNodePhotometricLight::VrmlNodePhotometricLight(VrmlScene *scene)
     : VrmlNodeChild(scene)
     , d_lightNumber(0)
-    , d_numRows(1)
-    , d_numColumns(1)
     , d_viewerObject(0)
     , d_IESFile("")
 {
     setModified();
     lightNodeInSceneGraph = new osg::MatrixTransform();
-    allMatrixLights.push_back(this);
+    allPhotometricLights.push_back(this);
 }
 
-void VrmlNodeMatrixLight::addToScene(VrmlScene *s, const char *relUrl)
+void VrmlNodePhotometricLight::addToScene(VrmlScene *s, const char *relUrl)
 {
     (void)relUrl;
     d_scene = s;
@@ -133,35 +128,33 @@ void VrmlNodeMatrixLight::addToScene(VrmlScene *s, const char *relUrl)
 
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
-VrmlNodeMatrixLight::VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n)
+VrmlNodePhotometricLight::VrmlNodePhotometricLight(const VrmlNodePhotometricLight &n)
     : VrmlNodeChild(n.d_scene)
     , d_lightNumber(n.d_lightNumber)
-    , d_numRows(n.d_numRows)
-    , d_numColumns(n.d_numColumns)
     , d_viewerObject(n.d_viewerObject)
     , d_IESFile(n.d_IESFile)
     , lightNodeInSceneGraph(n.lightNodeInSceneGraph)
 {
-    allMatrixLights.push_back(this);
+    allPhotometricLights.push_back(this);
     setModified();
 }
 
-VrmlNodeMatrixLight::~VrmlNodeMatrixLight()
+VrmlNodePhotometricLight::~VrmlNodePhotometricLight()
 {
-    allMatrixLights.remove(this);
+    allPhotometricLights.remove(this);
 }
 
-VrmlNode *VrmlNodeMatrixLight::cloneMe() const
+VrmlNode *VrmlNodePhotometricLight::cloneMe() const
 {
-    return new VrmlNodeMatrixLight(*this);
+    return new VrmlNodePhotometricLight(*this);
 }
 
-VrmlNodeMatrixLight *VrmlNodeMatrixLight::toMatrixLight() const
+VrmlNodePhotometricLight *VrmlNodePhotometricLight::toPhotometricLight() const
 {
-    return (VrmlNodeMatrixLight *)this;
+    return (VrmlNodePhotometricLight *)this;
 }
 
-void VrmlNodeMatrixLight::render(Viewer *viewer)
+void VrmlNodePhotometricLight::render(Viewer *viewer)
 {
     if (!haveToRender())
         return;
@@ -185,14 +178,10 @@ void VrmlNodeMatrixLight::render(Viewer *viewer)
     clearModified();
 }
 
-ostream &VrmlNodeMatrixLight::printFields(ostream &os, int indent)
+ostream &VrmlNodePhotometricLight::printFields(ostream &os, int indent)
 {
     if (!d_lightNumber.get())
         PRINT_FIELD(lightNumber);
-    if (!d_numRows.get())
-        PRINT_FIELD(numRows);
-    if (!d_numColumns.get())
-        PRINT_FIELD(numColumns);
     if (!d_IESFile.get())
         PRINT_FIELD(IESFile);
 
@@ -201,15 +190,11 @@ ostream &VrmlNodeMatrixLight::printFields(ostream &os, int indent)
 
 // Set the value of one of the node fields.
 
-void VrmlNodeMatrixLight::setField(const char *fieldName,
+void VrmlNodePhotometricLight::setField(const char *fieldName,
                                  const VrmlField &fieldValue)
 {
     if
         TRY_FIELD(lightNumber, SFInt)
-    else if
-        TRY_FIELD(numRows, SFInt)
-    else if
-        TRY_FIELD(numColumns, SFInt)
     else if
         TRY_FIELD(IESFile, SFString)
     else
@@ -220,39 +205,24 @@ void VrmlNodeMatrixLight::setField(const char *fieldName,
     }
     if (strcmp(fieldName, "IESFile") == 0)
     {
-        osg::ref_ptr<osg::Texture2DArray> textureArray = new osg::Texture2DArray;
-        textureArray->setFilter(osg::Texture2DArray::MIN_FILTER, osg::Texture2DArray::NEAREST);
-        textureArray->setFilter(osg::Texture2DArray::MAG_FILTER, osg::Texture2DArray::NEAREST);
-        textureArray->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
-        textureArray->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
-        textureArray->setResizeNonPowerOfTwoHint(false);
-        int numLights = d_numRows.get()*d_numColumns.get();
-        textureArray->setTextureDepth(numLights);
-        std::string filename = d_IESFile.get();
-        std::string dirName = filename.substr(0, filename.find_last_of("\\/"));
-        for(int i=0;i<numLights;i++)
-        {
-            char iesName[2000];
-            snprintf(iesName,2000,"%s/%d.ies",dirName.c_str(),i+1);
-            iesFile = new coIES(iesName);
-
-            textureArray->setImage(i, iesFile->getTexture());
-        }
-
+        iesFile = new coIES(d_IESFile.get());
+        osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
+        lightTexture->setResizeNonPowerOfTwoHint(false);
+        lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+        lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+        lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
+        lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
+        lightTexture->setImage(iesFile->getTexture());
         osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
 
-        state->setTextureAttributeAndModes(5+d_lightNumber.get(), textureArray, osg::StateAttribute::ON);
+        state->setTextureAttributeAndModes(5+d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
     }
 }
 
-const VrmlField *VrmlNodeMatrixLight::getField(const char *fieldName) const
+const VrmlField *VrmlNodePhotometricLight::getField(const char *fieldName) const
 {
     if (strcmp(fieldName, "lightNumber") == 0)
         return &d_lightNumber;
-    if (strcmp(fieldName, "numRows") == 0)
-        return &d_numRows;
-    if (strcmp(fieldName, "numColumns") == 0)
-        return &d_numColumns;
     if (strcmp(fieldName, "IESFile") == 0)
         return &d_IESFile;
     else

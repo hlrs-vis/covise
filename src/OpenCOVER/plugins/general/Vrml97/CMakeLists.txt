@@ -30,6 +30,7 @@ SET(LIB_HEADERS
   VrmlNodeShadowedScene.h
   VrmlNodePrecipitation.h
   VrmlNodeMatrixLight.h
+  VrmlNodePhotometricLight.h
   coPrecipitationEffect.h
   coIES.h
 )
@@ -50,6 +51,7 @@ SET(LIB_SOURCES
   VrmlNodeShadowedScene.cpp
   VrmlNodePrecipitation.cpp
   VrmlNodeMatrixLight.cpp
+  VrmlNodePhotometricLight.cpp
   coPrecipitationEffect.cpp
   coIES.cpp
 )
