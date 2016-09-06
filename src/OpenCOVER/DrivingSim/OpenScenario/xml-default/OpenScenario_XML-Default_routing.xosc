@@ -13,6 +13,7 @@
 
     <waypoints>
       <osc:include href="OpenScenario_XML-Default_OSCWaypoint.xosc" />
+	  <osc:include href="OpenScenario_XML-Default_OSCWaypoint.xosc" />
     </waypoints>
 
   </observer>

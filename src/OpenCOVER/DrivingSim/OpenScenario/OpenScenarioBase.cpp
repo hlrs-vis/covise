@@ -131,6 +131,7 @@ OpenScenarioBase::DefaultFileTypeNameMap initDefaultFileTypeMap()
 	defaultFileTypeMap.emplace("waypoint", bf::path("OpenScenario_XML-Default_OSCWaypoint.xosc"));
 	defaultFileTypeMap.emplace("parameter", bf::path("OpenScenario_XML-Default_OSCParameterTypeA.xosc"));
 	defaultFileTypeMap.emplace("action", bf::path("OpenScenario_XML-Default_OSCAction.xosc"));
+	defaultFileTypeMap.emplace("userData", bf::path("OpenScenario_XML-Default_OSCUserData.xosc"));
 
     return defaultFileTypeMap;
 }
