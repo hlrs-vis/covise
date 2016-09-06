@@ -191,7 +191,7 @@ OSCObjectSettings::uiInit()
 			case OpenScenario::oscMemberValue::MemberTypes::UINT:
 				{
 					oscSpinBox->setMinimum(0);
-					oscSpinBox->setMaximum(UINT_MAX);
+					oscSpinBox->setMaximum(INT_MAX);
 					break;
 				}
 			case OpenScenario::oscMemberValue::MemberTypes::SHORT:
