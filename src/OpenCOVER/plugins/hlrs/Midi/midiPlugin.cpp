@@ -153,18 +153,26 @@ MidiPlugin::MidiPlugin()
 {
     plugin = this;
     MIDITab = NULL;
+    startTime = 0;
 }
 osg::Geode *MidiPlugin::createGeometry(int i)
 {
     osg::Geode *geode;
 
-    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 200.0);
+    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0);
     osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint.get());
         mySphereDrawable->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     geode = new osg::Geode();
     geode->addDrawable(mySphereDrawable);
     geode->setStateSet(shadedStateSet.get());
     return geode;
+}
+
+NoteInfo::NoteInfo(int nN)
+{
+    noteNumber = nN;
+    geometry = MidiPlugin::plugin->createGeometry(nN);
+    MidiPlugin::plugin->nIs.push_back(this);
 }
 
 bool MidiPlugin::init()
@@ -198,49 +206,58 @@ bool MidiPlugin::init()
     shadeModel->setMode(osg::ShadeModel::SMOOTH);
     shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
 
-    noteGeometries.resize(80);
+    noteInfos.resize(80);
     
     hint = new osg::TessellationHints();
-    hint->setDetailRatio(0.1);
+    hint->setDetailRatio(1.0);
     
     for(int i=0;i<80;i++)
-       noteGeometries[i]=NULL;
-    noteGeometries[27] = createGeometry(27);
-    noteGeometries[28] = createGeometry(28);
+       noteInfos[i]=NULL;
+    noteInfos[27] = new NoteInfo(27);
+    noteInfos[28] = new NoteInfo(28);
     
-    noteGeometries[29] = createGeometry(29);
-    noteGeometries[30] = createGeometry(30);
+    noteInfos[29] = new NoteInfo(29);
+    noteInfos[30] = new NoteInfo(30);
     
-    noteGeometries[31] = createGeometry(31);
-    noteGeometries[32] = createGeometry(32);
+    noteInfos[31] = new NoteInfo(31);
+    noteInfos[32] = new NoteInfo(32);
     
-    noteGeometries[36] = createGeometry(36);
+    noteInfos[36] = new NoteInfo(36);
     
-    noteGeometries[38] = createGeometry(38);
+    noteInfos[38] = new NoteInfo(38);
     
-    noteGeometries[40] = createGeometry(40);
+    noteInfos[40] = new NoteInfo(40);
     
-    noteGeometries[41] = createGeometry(41);
-    noteGeometries[39] = createGeometry(39);
+    noteInfos[41] = new NoteInfo(41);
+    noteInfos[39] = new NoteInfo(39);
     
-    noteGeometries[43] = createGeometry(43);
-    noteGeometries[58] = createGeometry(58);
+    noteInfos[43] = new NoteInfo(43);
+    noteInfos[58] = new NoteInfo(58);
     
-    noteGeometries[46] = createGeometry(46);
-    noteGeometries[44] = createGeometry(44);
+    noteInfos[46] = new NoteInfo(46);
+    noteInfos[44] = new NoteInfo(44);
     
-    noteGeometries[48] = createGeometry(48);
+    noteInfos[48] = new NoteInfo(48);
     
-    noteGeometries[49] = createGeometry(49);
-    noteGeometries[55] = createGeometry(55);
+    noteInfos[49] = new NoteInfo(49);
+    noteInfos[55] = new NoteInfo(55);
     
-    noteGeometries[51] = createGeometry(51);
-    noteGeometries[59] = createGeometry(59);
+    noteInfos[51] = new NoteInfo(51);
+    noteInfos[59] = new NoteInfo(59);
     
-    noteGeometries[53] = createGeometry(53);
+    noteInfos[53] = new NoteInfo(53);
     
-    noteGeometries[57] = createGeometry(57);
-    noteGeometries[52] = createGeometry(52);
+    noteInfos[57] = new NoteInfo(57);
+    noteInfos[52] = new NoteInfo(52);
+
+    
+    for(int i=0;i<nIs.size();i++)
+    {
+        float angle = ((float)i/nIs.size())*2.0*M_PI/4.0*3.0;
+        float radius = 300.0+(float)i/nIs.size()*800.0;
+        nIs[i]->initialPosition.set(sin(angle)*radius,cos(angle)*radius,0);
+        nIs[i]->initialVelocity.set(sin(angle)*10.0,cos(angle)*10.0,1000);
+    }
 
     MIDItab_create();
     return true;
@@ -267,6 +284,16 @@ bool MidiPlugin::destroy()
 //------------------------------------------------------------------------------
 void MidiPlugin::preFrame()
 {
+    if(tracks.size() > 0)
+    {
+        if(startTime == 0.0)
+        {
+            tracks[30]->reset();
+            startTime = cover->frameTime();
+            tracks[30]->setVisible(true);
+        }
+        tracks[30]->update();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -341,13 +368,79 @@ COVERPLUGIN(MidiPlugin)
 
 Track::Track(int tn)
 {
+    TrackRoot = new osg::Group();
+    trackNumber = tn;
 }
 Track::~Track()
 {
 }
+void Track::reset()
+{
+    eventNumber = 0;
+}
 void Track::update()
 {
+    double speed = MidiPlugin::plugin->midifile.getTicksPerQuarterNote();
+    double time = cover->frameTime() - MidiPlugin::plugin->startTime;
+    MidiEvent me;
+    do {
+        if(eventNumber < MidiPlugin::plugin->midifile[trackNumber].size())
+        {
+            me = MidiPlugin::plugin->midifile[trackNumber][eventNumber];
+            me.getDurationInSeconds();
+            if(me.isNoteOn())
+            {
+                //fprintf(stderr,"new note %d\n",me.getKeyNumber());
+                if(MidiPlugin::plugin->noteInfos[me.getKeyNumber()]!=NULL)
+                {
+                notes.push_back(new Note(me.getKeyNumber(),this));
+                }
+                else
+                {
+                    
+                //fprintf(stderr,"unknown note %d\n",me.getKeyNumber());
+                }
+            }
+            eventNumber++;
+        }
+    } while(eventNumber < MidiPlugin::plugin->midifile[trackNumber].size() && (me.tick/speed) < time);
+    for(std::list<Note *>::iterator it = notes.begin(); it != notes.end();it++)
+    {
+        (*it)->integrate(cover->frameDuration());
+    }
 }
 void Track::setVisible(bool state)
 {
+    if(state)
+    {
+        MidiPlugin::plugin->MIDIRoot->addChild(TrackRoot);
+    }
+    else
+    {
+        MidiPlugin::plugin->MIDIRoot->removeChild(TrackRoot);
+    }
 }
+
+Note::Note(int number, Track *t)
+{
+    NoteInfo *ni = MidiPlugin::plugin->noteInfos[number];
+    transform = new osg::MatrixTransform();
+    transform->setMatrix(osg::Matrix::translate(ni->initialPosition));
+    transform->addChild(ni->geometry);
+    t->TrackRoot->addChild(transform.get());
+    velo = ni->initialVelocity; 
+}
+Note::~Note()
+{
+}
+void Note::integrate(double time)
+{
+    osg::Matrix nm=transform->getMatrix();
+    osg::Vec3 pos = nm.getTrans();
+    osg::Vec3 a = osg::Vec3(0,0,-500.0);
+    velo = velo + a*time;
+    pos += (velo ) * time;
+    nm.setTrans(pos);
+    transform->setMatrix(nm);
+}
+    

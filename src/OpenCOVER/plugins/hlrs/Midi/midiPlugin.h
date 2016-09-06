@@ -34,36 +34,62 @@ class coCheckboxGroup;
 class coButtonMenuItem;
 class coSliderMenuItem;
 }
+class Track;
+class Note
+{
+public:
+    Note(int number, Track *t);
+    ~Note();
+    void integrate(double time);
+    osg::ref_ptr<osg::MatrixTransform> transform;
+    osg::Vec3 velo;
+};
 class Track
 {
 public:
+    int eventNumber;
      Track(int tn);
      ~Track();
-     std::list<osg::ref_ptr<osg::MatrixTransform>> notes;
+     std::list<Note *> notes;
      
      osg::ref_ptr<osg::Group> TrackRoot;
      void update();
+     void reset();
      void setVisible(bool state);
+     int trackNumber;
+};
+
+class NoteInfo
+{
+    public:
+        NoteInfo(int nN);
+        ~NoteInfo();
+    osg::ref_ptr<osg::Geode> geometry;
+    osg::Vec3 initialPosition;
+    osg::Vec3 initialVelocity;
+    int noteNumber;
 };
 
 class MidiPlugin : public coVRPlugin, public coTUIListener
 {
 private:
-    //scenegraph
-    osg::ref_ptr<osg::Group> MIDIRoot;
-    //tabletUI
-    coTUITab *MIDITab;
-    coTUILabel *infoLabel;
-    std::vector<Track *> tracks;
-    std::vector<osg::ref_ptr<osg::Geode>> noteGeometries;
     
 
 
 
 public:
-
+    
+    //tabletUI
+    coTUITab *MIDITab;
+    coTUILabel *infoLabel;
+    std::vector<Track *> tracks;
+    std::vector<NoteInfo *> noteInfos;
     static MidiPlugin *plugin;
+    //scenegraph
+    osg::ref_ptr<osg::Group> MIDIRoot;
+    std::vector<NoteInfo *> nIs;
     MidiFile midifile;
+    double startTime;
 
     static int unloadMidi(const char *filename, const char *);
     static int loadMidi(const char *filename, osg::Group *parent, const char *);
