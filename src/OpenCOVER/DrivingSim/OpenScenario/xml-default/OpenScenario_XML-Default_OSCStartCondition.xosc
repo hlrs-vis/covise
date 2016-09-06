@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<startCondition name="condition_default" delayTime="0.0">
+  <condition>
+	<simulationTime time="60.0"/>
+  </condition>
+</startCondition>
+

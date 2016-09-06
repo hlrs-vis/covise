@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<environment name="environment_default" refId="9999" xmlns:osc="http://www.w3.org/2001/XInclude">
+
+  <fileHeader author="HLRS" date="2016-09-02T13:00:00+01:00" description="environment - defaultParameters" revMajor="1" revMinor="0">
+  </fileHeader>
+
+
+  <timeOfDay animation="true">
+    <time hour="11" min="15" sec="30.3"/>
+    <date day="26" month="01" year="2016"/>
+  </timeOfDay>
+
+
+  <weather cloudState="free">
+    <sun>
+      <color r="80.0" g="80.0" b="20.0"/>
+      <intensity ambient="0.5" diffuse="2.0" specular="6.0"/>
+    </sun>
+    <fog>
+      <color b="200.0" g="200.0" r="200.0"/>
+      <boundingBox>
+        <center h="0.0" x="0.0" y="0.0" z="0.0"/>
+        <dimension height="20000.0" length="20000.0" width="20000.0"/>
+      </boundingBox>
+    </fog>	
+    <precipitation intensity="10.0" type="dry"/>
+  </weather>
+
+
+	<roadConditionsGroup frictionScale="7.0">
+	  <roadConditions>
+		<osc:include href="OpenScenario_XML-Default_OSCRoadCondition.xosc"/>
+	  </roadConditions>
+	</roadConditionsGroup>
+
+
+</environment>

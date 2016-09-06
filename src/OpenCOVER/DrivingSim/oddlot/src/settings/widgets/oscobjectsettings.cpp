@@ -671,8 +671,8 @@ OSCObjectSettings::onNewArrayElement()
 	OSCElement *oscElement = new OSCElement(memberName_);
 	if (oscElement)
 	{
-
-		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( object_->getSource()->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName());
+		OpenScenario::oscSourceFile *sourceFile = object_->getSource();
+		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
 
 		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, obj, memberName_.toStdString(), base_, oscElement);
 		projectSettings_->executeCommand(command);

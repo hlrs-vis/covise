@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<light type="Spot" frequency="80.0">
+  <coord>
+	<position x="543.78" y="5.78" z="-96.456"/>
+	<orientation h="7.9805" p="125.5" r="-93.6"/>
+  </coord>
+  <light>
+	<color r="67.78" g="88.9" b="246.45"/>
+	<intensity ambient="68.76" diffuse="345.6" specular="-9.58"/>
+  </light>
+</light>
+

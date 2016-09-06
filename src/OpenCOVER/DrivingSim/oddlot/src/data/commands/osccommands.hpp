@@ -167,6 +167,7 @@ private:
 private:
 	OpenScenario::oscArrayMember *arrayMember_;
 	OpenScenario::oscObjectBase *objectBase_, *object_;
+	OpenScenario::oscMember *ownMember_;
 
     std::string typeName_;
 

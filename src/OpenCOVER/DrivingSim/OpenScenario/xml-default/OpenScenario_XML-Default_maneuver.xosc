@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<maneuver name="maneuver_default" refId="9999" xmlns:osc="http://www.w3.org/2001/XInclude">
+
+  <fileHeader revMajor="1" revMinor="0" date="2016-09-05T14:00:00+01:00" description="maneuver - defaultParameters" author="HLRS" xmlns:osc="http://www.w3.org/2001/XInclude">
+  </fileHeader>
+
+  <parameterList>
+    <osc:include href="OpenScenario_XML-Default_OSCParameterTypeA.xosc" />
+  </parameterList>
+
+  <events>
+     <osc:include href="OpenScenario_XML-Default_OSCEvent.xosc" />
+  </events>
+
+</maneuver>

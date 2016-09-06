@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<event name="overtake" priority="following" xmlns:osc="http://www.w3.org/2001/XInclude">
+
+      <startConditionGroups>
+
+        <startConditionGroup>
+          <startConditions>
+			<osc:include href="OpenScenario_XML-Default_OSCStartCondition.xosc"/> 
+          </startConditions>
+        </startConditionGroup>
+		
+	  </startConditionGroups>
+
+
+      <actions>
+
+        <action>
+          <speed>
+            <dynamics shape="Car" rate="400.0" immediate="true"/>
+            <relativeSpeed refObject="otherCar" delta="50.0" factor="700.0"/>
+          </speed>
+        </action>
+
+      </actions>
+
+</event>
+
