@@ -761,7 +761,7 @@ namespace visionaray
             auto it = node_masks_.find(&node);
             if (it != node_masks_.end())
             {
-                // Optionall store the old node mask before applying the new one
+                // Optionally store the old node mask before applying the new one
                 if (old_masks_)
                     old_masks_->insert(std::make_pair(&node, node.getNodeMask()));
 
@@ -788,6 +788,18 @@ namespace visionaray
         using base_type = osg::NodeVisitor;
         using base_type::apply;
 
+        // Two ways to find lights:
+        // By calling LightSource::getLight()
+        // By inspecting a general node's stateset
+
+        enum CheckMode { CheckLightSources, CheckStateSets };
+
+        void setCheckMode(CheckMode cm)
+        {
+            checkMode_ = cm;
+        }
+
+
     public:
         get_light_visitor(light_list& lights, TraversalMode tm)
             : base_type(tm)
@@ -795,10 +807,46 @@ namespace visionaray
         {
         }
 
+        void apply(osg::LightSource &ls)
+        {
+            if (checkMode_ == CheckStateSets)
+            {
+                base_type::traverse(ls);
+                return;
+            }
+
+            bool isOn = false;
+
+            // Ignore what's in the light source,
+            // cover doesn't set that properly
+//          isOn |= lightIsOn(ls.getLight(), ls.getStateSet());
+
+            for (auto &n: getNodePath())
+            {
+                if (n == &ls) // ignore the light source again
+                    continue;
+
+                if (n != nullptr)
+                    isOn |= lightIsOn(ls.getLight(), n->getStateSet());
+            }
+
+            if (isOn)
+                process_light(ls.getLight());
+
+            base_type::traverse(ls);
+            return;
+        }
+
         void apply(osg::Node &node)
         {
             if (&node == opencover::cover->getMenuGroup())
                 return;
+
+            if (checkMode_ == CheckLightSources)
+            {
+                base_type::traverse(node);
+                return;
+            }
 
             auto set = node.getStateSet();
             if (set == nullptr)
@@ -807,20 +855,11 @@ namespace visionaray
                 return;
             }
 
-            // Two ways to find lights:
-            // By calling LightSource::getLight()
-            // By inspecting a general node's stateset
-            if (auto ls = dynamic_cast<osg::LightSource *>(&node))
-            {
-                if (ls != opencover::coVRLighting::instance()->headlight
-                    && ls != opencover::coVRLighting::instance()->spotlight)
-                    process_light(ls->getLight(), set);
-            }
-
             for (int i = 0; i < opencover::coVRLighting::MaxNumLights; ++i)
             {
-                if (auto l = dynamic_cast<osg::Light *>(set->getAttribute(osg::StateAttribute::LIGHT, i)))
-                    process_light(l, set);
+                auto l = dynamic_cast<osg::Light *>(set->getAttribute(osg::StateAttribute::LIGHT, i));
+                if (l != nullptr && lightIsOn(l, set))
+                    process_light(l);
             }
 
             base_type::traverse(node);
@@ -830,24 +869,37 @@ namespace visionaray
 
         light_list& lights_;
         std::vector<osg::Light *> processed_;
+        CheckMode checkMode_ = CheckLightSources;
 
-        void process_light(osg::Light *l, osg::StateSet *set)
+        bool lightIsOn(const osg::Light *l, const osg::StateSet *set) const
         {
-            // Append a visionaray light if this light was
-            // found anew and is turned on
-
             if (l == nullptr || set == nullptr)
+                return false;
+
+            auto mode = set->getMode(GL_LIGHT0 + l->getLightNum());
+
+            if ((mode & osg::StateAttribute::ON) == osg::StateAttribute::ON)
+                return true;
+            else
+                return false;
+        }
+
+        void process_light(osg::Light *l)
+        {
+            // Append a visionaray light if this light was found anew
+
+            if (l == nullptr)
                 return;
 
             if (std::find(processed_.begin(), processed_.end(), l) != processed_.end())
                 return;
 
-            osg::StateAttribute::GLModeValue mode = set->getMode(GL_LIGHT0 + l->getLightNum());
-            if ((mode & osg::StateAttribute::ON) == osg::StateAttribute::ON)
+            if (true)
             {
                 auto lpos = osg_cast(l->getPosition());
-                auto trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
-                lpos = inverse(osg_cast(trans)) * lpos;
+                auto world_trans = osg::computeLocalToWorld(getNodePath());
+                auto obj_trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
+                lpos = inverse(osg_cast(obj_trans)) * osg_cast(world_trans) * lpos;
                 auto ldiff = osg_cast(l->getDiffuse());
 
                 // map OpenGL [-1,1] to Visionaray [0,1]
@@ -1592,8 +1644,18 @@ namespace visionaray
         light_list lights;
 
         get_light_visitor lvisitor(lights, osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
+
+        // Check all light sources
+        lvisitor.setCheckMode(get_light_visitor::CheckLightSources);
         opencover::cover->getScene()->accept(lvisitor);
-        opencover::cover->getPointer()->accept(lvisitor); // coVRLighting::spotlight may be attached to the pointing device
+
+        // Now check all state sets if they contain lights
+        // (lights that are associated with a light source
+        // should already be in the lights list and thus ignored,
+        // order matters here!)
+        lvisitor.setCheckMode(get_light_visitor::CheckStateSets);
+        opencover::cover->getScene()->accept(lvisitor);
+
 
         aabb bounds;
         bounds.invalidate();
