@@ -42,8 +42,8 @@
 #include <visionaray/cpu_buffer_rt.h>
 #include <visionaray/generic_material.h>
 #include <visionaray/kernels.h>
-#include <visionaray/point_light.h>
 #include <visionaray/scheduler.h>
+#include <visionaray/spot_light.h>
 
 #ifdef __CUDACC__
 #include <visionaray/pixel_unpack_buffer_rt.h>
@@ -71,7 +71,7 @@ namespace visionaray
     using material_list = aligned_vector<material_type>;
     using color_type = vector<3, float>;
     using color_list = aligned_vector<color_type>;
-    using light_type = point_light<float>;
+    using light_type = spot_light<float>;
     using light_list = aligned_vector<light_type>;
     using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
 
@@ -897,19 +897,32 @@ namespace visionaray
             if (true)
             {
                 auto lpos = osg_cast(l->getPosition());
+                auto spot_dir = vec4(osg_cast(l->getDirection()), 1.0f);
+
                 auto world_trans = osg::computeLocalToWorld(getNodePath());
                 auto obj_trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
                 lpos = inverse(osg_cast(obj_trans)) * osg_cast(world_trans) * lpos;
+
                 auto ldiff = osg_cast(l->getDiffuse());
+
+                // transform spot dir
+                spot_dir = inverse(transpose(inverse(osg_cast(obj_trans)))) * inverse(transpose(osg_cast(world_trans))) * spot_dir;
+
 
                 // map OpenGL [-1,1] to Visionaray [0,1]
                 ldiff += 1.0f;
                 ldiff /= 2.0f;
 
                 light_type light;
+
                 light.set_position(lpos.xyz());
                 light.set_cl(ldiff.xyz());
                 light.set_kl(ldiff.w);
+
+
+                light.set_spot_direction(normalize(spot_dir.xyz()));
+                light.set_spot_cutoff(l->getSpotCutoff() * constants::degrees_to_radians<float>());
+                light.set_spot_exponent(l->getSpotExponent());
 
                 light.set_constant_attenuation(l->getConstantAttenuation());
                 light.set_linear_attenuation(l->getLinearAttenuation());
@@ -1640,7 +1653,7 @@ namespace visionaray
         auto light_model = dynamic_cast<osg::LightModel *>(stateset->getAttribute(osg::StateAttribute::LIGHTMODEL));
         auto ambient = osg_cast(light_model->getAmbientIntensity());
 
-        using light_type = point_light<float>;
+        using light_type = spot_light<float>;
         light_list lights;
 
         get_light_visitor lvisitor(lights, osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
