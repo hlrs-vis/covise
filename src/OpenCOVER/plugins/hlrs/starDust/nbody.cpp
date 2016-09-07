@@ -38,7 +38,7 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 #include <gpu/helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include <gpu/helper_cuda_gl.h>
 
 #include <helper_functions.h>
 

@@ -1,12 +1,5 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 /**
- * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2013 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -24,12 +17,26 @@
 #include <stdlib.h>
 
 // includes, graphics
-#if defined(__APPLE__) || defined(MACOSX)
+#if defined (__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
+
+#ifndef EXIT_WAIVED
+#define EXIT_WAIVED 2
+#endif
+
+#ifdef __DRIVER_TYPES_H__
+#ifndef DEVICE_RESET
+#define DEVICE_RESET cudaDeviceReset()
+#endif
+#else
+#ifndef DEVICE_RESET
+#define DEVICE_RESET
+#endif
 #endif
 
 #ifdef __CUDA_GL_INTEROP_H__
@@ -55,7 +62,7 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV)
         dev = 0;
     }
 
-    if (dev > deviceCount - 1)
+    if (dev > deviceCount-1)
     {
         fprintf(stderr, "\n");
         fprintf(stderr, ">> %d CUDA capable GPU device(s) detected. <<\n", deviceCount);
@@ -101,7 +108,7 @@ inline int findCudaGLDevice(int argc, const char **argv)
         if (devID < 0)
         {
             printf("no CUDA capable devices found, exiting...\n");
-            cudaDeviceReset();
+            DEVICE_RESET
             exit(EXIT_SUCCESS);
         }
     }
@@ -133,7 +140,7 @@ sdkCheckErrorGL(const char *file, const int line)
 
     if (gl_error != GL_NO_ERROR)
     {
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
         char tmpStr[512];
         // NOTE: "%s(%i) : " allows Visual Studio to directly jump to the file at the right line
         // when the user double clicks on the error line in the Output pane. Like any compile error.
@@ -148,12 +155,11 @@ sdkCheckErrorGL(const char *file, const int line)
     return ret_val;
 }
 
-#define SDK_CHECK_ERROR_GL()                          \
-    if (false == sdkCheckErrorGL(__FILE__, __LINE__)) \
-    {                                                 \
-        exit(EXIT_FAILURE);                           \
+#define SDK_CHECK_ERROR_GL()                                              \
+    if( false == sdkCheckErrorGL( __FILE__, __LINE__)) {                  \
+        DEVICE_RESET                                                      \
+        exit(EXIT_FAILURE);                                               \
     }
-
 #endif
 
 #endif

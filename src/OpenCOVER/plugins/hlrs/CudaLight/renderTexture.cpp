@@ -13,7 +13,7 @@
 #include <cuda_gl_interop.h>
 
 #include <gpu/helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include <gpu/helper_cuda_gl.h>
 
 #include <math.h>
 #include <assert.h>
