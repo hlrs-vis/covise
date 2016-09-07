@@ -393,12 +393,12 @@ void Track::update()
                 //fprintf(stderr,"new note %d\n",me.getKeyNumber());
                 if(MidiPlugin::plugin->noteInfos[me.getKeyNumber()]!=NULL)
                 {
-                notes.push_back(new Note(me.getKeyNumber(),this));
+                    notes.push_back(new Note(me.getKeyNumber(),this));
                 }
                 else
                 {
-                    
-                //fprintf(stderr,"unknown note %d\n",me.getKeyNumber());
+
+                    //fprintf(stderr,"unknown note %d\n",me.getKeyNumber());
                 }
             }
             eventNumber++;
