@@ -199,8 +199,109 @@ const char reprojFrag[] =
         "   gl_FragColor = gl_Color;\n"
         "}\n";
 
+const char reprojMeshVert[] =
+      "void main(void) {\n"
+      "   gl_Position = vec4(gl_Vertex.xy, 0., 1.);\n"
+      "}\n";
+
+const char reprojMeshGeo[] =
+      "#version 120\n"
+      "#extension GL_EXT_geometry_shader4 : enable\n"
+      "#extension GL_ARB_texture_rectangle: enable\n"
+      "\n"
+      "uniform sampler2DRect col;\n"
+      "uniform sampler2DRect dep;\n"
+      "uniform vec2 size;\n"
+      "uniform mat4 ReprojectionMatrix;\n"
+      "uniform bool withHoles;\n"
+      "uniform vec2 offset;\n"
+      "uniform vec2 off[] = vec2[4]( vec2(0,0), vec2(0,1), vec2(1,0), vec2(1,1) );\n"
+      "const float tolerance = 10.f;\n"
+      "\n"
+
+      "float depth(vec2 xy) {\n"
+      "   return texture2DRect(dep, xy).r;\n"
+      "}\n"
+
+      "vec4 pos(vec2 xy, float d) {\n"
+      "   vec4 p = vec4(xy.x/size.x-0.5, 0.5-xy.y/size.y, d-0.5, 0.5)*2.;\n"
+      "   return ReprojectionMatrix * p;\n"
+      "}\n"
+
+      "vec2 screenpos(vec4 p) {\n"
+      "   return p.xy/p.w*size.xy*0.5+offset;\n"
+      "}\n"
+
+      "vec2 pos2d(vec2 xy) {\n"
+      "   float d = depth(xy);\n"
+      "   return screenpos(pos(xy, d));\n"
+      "}\n"
+
+      "bool is_far(float d) {\n"
+      "   return d == 1.;\n"
+      "}\n"
+
+      "void createVertex(vec2 xy) {\n"
+      "   float d = depth(xy);\n"
+      "   if (is_far(d)) return;\n"
+
+      "   vec4 color = texture2DRect(col, xy);\n"
+      "   gl_FrontColor = color;\n"
+      "   gl_Position = pos(xy, d);\n"
+      "   EmitVertex();\n"
+      "}\n"
+
+      "bool checkVertex(vec2 xy, vec2 p0, vec2 p1, float dist) {\n"
+      //"   if (dist < 0.001) return false;\n"
+      //"   if (dist > 1000.) return false;\n"
+      "   float d = depth(xy);\n"
+      "   if (is_far(d)) return false;\n"
+
+      "   vec2 xy0 = pos2d(xy);\n"
+      "   float r0 = distance(p0,xy0)/dist;\n"
+      "   float r1 = distance(p1,xy0)/dist;\n"
+      "   if (r0 < 1./tolerance) return false;\n"
+      "   if (r0 > tolerance) return false;\n"
+      "   if (r1 < 1./tolerance) return false;\n"
+      "   if (r1 > tolerance) return false;\n"
+      "   return true;\n"
+      "}\n"
+
+      "void main() {\n"
+      "   vec2 xy = gl_PositionIn[0].xy;\n"
+      ""
+      "   if (withHoles) {\n"
+      "      vec2 p[4];\n"
+      "      for (int i=0; i<4; ++i)\n"
+      "         p[i] = pos2d(xy+off[i]);\n"
+      "      float mindist = distance(p[0],p[1]), maxdist=mindist;\n"
+      "      for (int i=1; i<4; ++i) {\n"
+      "          for (int j=0; j<i; ++j) {\n"
+      "              float dist = distance(p[i],p[j]);\n"
+      "              mindist = min(mindist, dist);\n"
+      "              maxdist = max(maxdist, dist);\n"
+      "          }\n"
+      "      }\n"
+      //"      bool b2 = checkVertex(xy+off[2], p0, p1, dist);\n"
+      //"      bool b3 = checkVertex(xy+off[3], p0, p1, dist);\n"
+      //"      gl_FrontColor = vec4(1., mindist/maxdist, 1., 1.);\n"
+      "      if (maxdist > 0.001 && mindist*tolerance > maxdist) {\n"
+      //"          gl_FrontColor = vec4(0., mindist/maxdist, 1., 1.);\n"
+      "      }\n"
+      "      if (maxdist > 0.001 && mindist*tolerance > maxdist) {\n"
+      "         for (int i=0; i<4; ++i)\n"
+      "            createVertex(xy+off[i]);\n"
+      "      }\n"
+      "   } else {\n"
+      "      for (int i=0; i<4; ++i)\n"
+      "         createVertex(xy+off[i]);\n"
+      "   }\n"
+      "   EndPrimitive();\n"
+      "}\n";
+
 MultiChannelDrawer::MultiChannelDrawer(int numChannels, bool flipped)
 : m_flipped(flipped)
+, m_mode(MultiChannelDrawer::ReprojectMesh)
 {
    setAllowEventFocus(false);
    setProjectionMatrix(osg::Matrix::identity());
@@ -236,6 +337,7 @@ MultiChannelDrawer::MultiChannelDrawer(int numChannels, bool flipped)
 
    switchReprojection(false);
    switchAdaptivePointSize(false, false);
+   setMode(m_mode);
 }
 
 MultiChannelDrawer::~MultiChannelDrawer() {
@@ -329,9 +431,10 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       cd.reprojGeo->setUseDisplayList( false );
       osg::BoundingBox bb(-0.5,0.,-0.5, 0.5,0.,0.5);
       cd.reprojGeo->setInitialBound(bb);
-      cd.coord = new osg::Vec2Array(1);
-      (*cd.coord)[0].set(0., 0.);
-      cd.reprojGeo->setVertexArray(cd.coord);
+      cd.pointCoord = new osg::Vec2Array(1);
+      (*cd.pointCoord)[0].set(0., 0.);
+      cd.reprojGeo->setVertexArray(cd.pointCoord);
+      cd.quadCoord = new osg::Vec2Array(0);
       cd.reprojGeo->setColorArray(color);
       cd.reprojGeo->setColorBinding(osg::Geometry::BIND_OVERALL);
       cd.reprojGeo->setNormalArray(normal);
@@ -356,6 +459,7 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       cd.size = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "size");
       cd.pixelOffset = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "offset");
       cd.withNeighbors = new osg::Uniform(osg::Uniform::BOOL, "withNeighbors");
+      cd.withHoles = new osg::Uniform(osg::Uniform::BOOL, "withHoles");
       cd.reprojMat = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "ReprojectionMatrix");
       cd.reprojMat->set(osg::Matrix::identity());
       stateSet->addUniform(colSampler);
@@ -363,6 +467,7 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       stateSet->addUniform(cd.size);
       stateSet->addUniform(cd.pixelOffset);
       stateSet->addUniform(cd.withNeighbors);
+      stateSet->addUniform(cd.withHoles);
       stateSet->addUniform(cd.reprojMat);
 
       {
@@ -385,6 +490,24 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
          osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
          reprojFragmentObj->setShaderSource(reprojFrag);
          cd.reprojAdaptProgram->addShader(reprojFragmentObj);
+      }
+
+      {
+          cd.reprojMeshProgram = new osg::Program;
+          osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
+          reprojVertexObj->setShaderSource(reprojMeshVert);
+          cd.reprojMeshProgram->addShader(reprojVertexObj);
+
+          osg::Shader *reprojGeoObj = new osg::Shader( osg::Shader::GEOMETRY );
+          reprojGeoObj->setShaderSource(reprojMeshGeo);
+          cd.reprojMeshProgram->addShader(reprojGeoObj);
+          cd.reprojMeshProgram->setParameter( GL_GEOMETRY_VERTICES_OUT_EXT, 4 );
+          cd.reprojMeshProgram->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
+          cd.reprojMeshProgram->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
+
+          osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
+          reprojFragmentObj->setShaderSource(reprojFrag);
+          cd.reprojMeshProgram->addShader(reprojFragmentObj);
       }
 
       cd.reprojGeo->setStateSet(stateSet);
@@ -497,18 +620,31 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat) {
                 geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
             }
 #else
-            cd.coord->resizeArray(w*h);
+            cd.pointCoord->resizeArray(w*h);
             for (int y=0; y<h; ++y) {
                 for (int x=0; x<w; ++x) {
-                    (*cd.coord)[y*w+x].set(x+0.5f, m_flipped ? y+0.5f : h-y+0.5f);
+                    (*cd.pointCoord)[y*w+x].set(x+0.5f, m_flipped ? y+0.5f : h-y+0.5f);
                 }
             }
-            cd.coord->dirty();
+            cd.pointCoord->dirty();
+            cd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
+
+            cd.quadCoord->resizeArray((w-1)*(h-1));
+            size_t idx=0;
+            for (int y=0; y<h-1; ++y) {
+                for (int x=0; x<w-1; ++x) {
+                    (*cd.quadCoord)[idx++].set(x+0.5f, m_flipped ? y+0.5f : h-y+0.5f);
+                }
+            }
+            cd.quadCoord->dirty();
+            cd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w-1)*(h-1));
+
+            osg::ref_ptr<osg::DrawArrays> arr = (m_mode==ReprojectMesh||m_mode==ReprojectMeshWithHoles) ? cd.quadArr : cd.pointArr;
 
             if (geo->getNumPrimitiveSets() > 0) {
-                geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h));
+                geo->setPrimitiveSet(0, arr);
             } else {
-                geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h));
+                geo->addPrimitiveSet(arr);
             }
             geo->dirtyDisplayList();
 #endif
@@ -567,6 +703,57 @@ void MultiChannelDrawer::switchAdaptivePointSize(bool adapt, bool withNeighbors)
           state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
           state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
           state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::ON);
+       }
+   }
+}
+
+void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
+
+   for (size_t i=0; i<m_channelData.size(); ++i) {
+       auto &cd = m_channelData[i];
+       osg::StateSet *state = cd.reprojGeo->getStateSet();
+       assert(state);
+
+       cd.geode->removeDrawable(cd.fixedGeo);
+       cd.geode->removeDrawable(cd.reprojGeo);
+
+       if (mode == AsIs) {
+           cd.geode->addDrawable(cd.fixedGeo);
+       } else {
+           cd.geode->addDrawable(cd.reprojGeo);
+       }
+
+       switch(mode) {
+           case AsIs:
+               break;
+           case Reproject:
+               cd.reprojGeo->setVertexArray(cd.pointCoord);
+               cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
+               state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::ON);
+               break;
+           case ReprojectAdaptive:
+           case ReprojectAdaptiveWithNeighbors:
+               cd.reprojGeo->setVertexArray(cd.pointCoord);
+               cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
+               state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
+               state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::ON);
+               cd.withNeighbors->set(mode == ReprojectAdaptiveWithNeighbors ? true : false);
+               break;
+           case ReprojectMesh:
+           case ReprojectMeshWithHoles:
+               cd.reprojGeo->setVertexArray(cd.quadCoord);
+               cd.reprojGeo->setPrimitiveSet(0, cd.quadArr);
+               state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
+               state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::ON);
+               cd.withHoles->set(mode == ReprojectMeshWithHoles ? true : false);
+               break;
        }
    }
 }

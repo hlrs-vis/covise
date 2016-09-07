@@ -32,16 +32,20 @@ struct ChannelData {
     osg::ref_ptr<osg::Vec2Array> texcoord;
     osg::ref_ptr<osg::Geometry> fixedGeo;
     osg::ref_ptr<osg::Geometry> reprojGeo;
-    osg::ref_ptr<osg::Vec2Array> coord;
+    osg::ref_ptr<osg::Geometry> meshGeo;
+    osg::ref_ptr<osg::Vec2Array> pointCoord, quadCoord;
+    osg::ref_ptr<osg::DrawArrays> pointArr, quadArr;
     osg::ref_ptr<osg::Uniform> size;
     osg::ref_ptr<osg::Uniform> pixelOffset;
     osg::ref_ptr<osg::Uniform> withNeighbors;
+    osg::ref_ptr<osg::Uniform> withHoles;
     osg::ref_ptr<osg::Uniform> reprojMat;
     osg::ref_ptr<osg::Geode> geode;
     osg::ref_ptr<osg::MatrixTransform> scene;
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osg::Program> reprojConstProgram;
     osg::ref_ptr<osg::Program> reprojAdaptProgram;
+    osg::ref_ptr<osg::Program> reprojMeshProgram;
 
     ChannelData(int channel=-1)
         : channelNum(channel)
@@ -56,9 +60,18 @@ public:
 
     MultiChannelDrawer(int numChannels, bool flipped=false);
     ~MultiChannelDrawer();
+    enum Mode {
+        AsIs,
+        Reproject,
+        ReprojectAdaptive,
+        ReprojectAdaptiveWithNeighbors,
+        ReprojectMesh,
+        ReprojectMeshWithHoles
+    };
 
    void switchReprojection(bool reproj);
    void switchAdaptivePointSize(bool adapt, bool withNeighbors=true);
+   void setMode(Mode mode);
    void initChannelData(ChannelData &cd);
    void createGeometry(ChannelData &cd);
    void clearChannelData();
@@ -71,6 +84,7 @@ public:
 
    std::vector<ChannelData> m_channelData;
    bool m_flipped;
+   Mode m_mode;
 };
 
 }
