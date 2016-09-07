@@ -45,6 +45,7 @@ class QLabel;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QSignalMapper;
+class QComboBox;
 
 #include <QMap>
 
@@ -100,6 +101,7 @@ private slots:
 	void onArrayElementClicked(QTreeWidgetItem *item, int column);
 	void onNewArrayElement();
 	void onValueChanged();
+	void onChoiceChanged(const QString &text);
 
     //################//
     // PROPERTIES     //
@@ -113,6 +115,7 @@ private:
     OpenScenario::oscObjectBase *object_;
 	OpenScenario::oscArrayMember *oscArrayMember_;
 	QTreeWidget *arrayTree_;
+	QComboBox *choiceComboBox_;
 	OSCElement *element_;
 	OSCBase *base_;
 
@@ -120,6 +123,7 @@ private:
 
 	QMap<QString, QWidget*> memberWidgets_;
 	QString memberName_;
+	QString lastComboBoxChoice_;
 
     bool valueChanged_;
 

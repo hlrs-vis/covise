@@ -165,150 +165,174 @@ OSCObjectSettings::uiInit()
 	QSignalMapper *signalPushMapper = new QSignalMapper(this);
 	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
 
+	bool choice = object_->hasChoice();
+	int choiceComboBoxRow = ++row;
+	if (choice)
+	{
+		choiceComboBox_ = new QComboBox();
+		objectGridLayout->addWidget(choiceComboBox_, choiceComboBoxRow, 0);
+		connect(choiceComboBox_, SIGNAL(activated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
+
+		QPushButton *oscPushButton = new QPushButton();
+		oscPushButton->setText("Edit");
+		memberWidgets_.insert("choice", oscPushButton);
+		objectGridLayout->addWidget(oscPushButton, choiceComboBoxRow, 1);
+		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
+		signalPushMapper->setMapping(oscPushButton, "choice");
+	}
+
 	OpenScenario::oscObjectBase::MemberMap members = object_->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 	{
 		OpenScenario::oscMember *member = it->second;
 		QString memberName = QString::fromStdString(member->getName());
-		QLabel *label = new QLabel(memberName);
-		formatLabel(label, memberName);
-		objectGridLayout->addWidget(label, ++row, 0);
 
-
-		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
-
-		if (type <= 3) // UINT = 0, INT = 1, USHORT = 2, SHORT = 3
+		if (choice && object_->isMemberInChoice(member))
 		{
-			QSpinBox * oscSpinBox = new QSpinBox();
-			switch (type)
+			choiceComboBox_->addItem(memberName);
+		}
+		else
+		{
+			QLabel *label = new QLabel(memberName);
+			formatLabel(label, memberName);
+			objectGridLayout->addWidget(label, ++row, 0);
+
+
+			const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
+
+			if (type <= 3) // UINT = 0, INT = 1, USHORT = 2, SHORT = 3
 			{
-			case OpenScenario::oscMemberValue::MemberTypes::INT:
+				QSpinBox * oscSpinBox = new QSpinBox();
+				switch (type)
 				{
-					oscSpinBox->setMinimum(INT_MIN);
-					oscSpinBox->setMaximum(INT_MAX);
-					break;
-				}
-			case OpenScenario::oscMemberValue::MemberTypes::UINT:
-				{
-					oscSpinBox->setMinimum(0);
-					oscSpinBox->setMaximum(INT_MAX);
-					break;
-				}
-			case OpenScenario::oscMemberValue::MemberTypes::SHORT:
-				{
-					oscSpinBox->setMinimum(SHRT_MIN);
-					oscSpinBox->setMaximum(SHRT_MAX);
-					break;
-				}
-			case OpenScenario::oscMemberValue::MemberTypes::USHORT:
-				{
-					oscSpinBox->setMinimum(0);
-					oscSpinBox->setMaximum(USHRT_MAX);
-					break;
-				}
-            default:
-                assert("member->getType() not handled"==0);
-                break;
-			}
-			memberWidgets_.insert(memberName, oscSpinBox);	
-			objectGridLayout->addWidget(oscSpinBox, row, 1);
-			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
-			signalMapper->setMapping(oscSpinBox, memberName);
-			connect(oscSpinBox, SIGNAL(valueChanged(int)), valueChangedMapper, SLOT(map()));
-			valueChangedMapper->setMapping(oscSpinBox, memberName);
-		}
-		else if (type == OpenScenario::oscMemberValue::MemberTypes::STRING)
-		{
-			QLineEdit *oscLineEdit = new QLineEdit();
-			memberWidgets_.insert(memberName, oscLineEdit);
-			objectGridLayout->addWidget(oscLineEdit, row, 1);
-			connect(oscLineEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
-			signalMapper->setMapping(oscLineEdit, memberName);
-			connect(oscLineEdit, SIGNAL(textChanged(QString)), valueChangedMapper, SLOT(map()));
-			valueChangedMapper->setMapping(oscLineEdit, memberName);
-		}
-		else if ((type == OpenScenario::oscMemberValue::MemberTypes::DOUBLE) || (type == OpenScenario::oscMemberValue::MemberTypes::FLOAT))
-		{
-			QDoubleSpinBox *oscSpinBox = new QDoubleSpinBox();
-			switch (type)
-			{
-			case OpenScenario::oscMemberValue::MemberTypes::DOUBLE:
-				{
-					oscSpinBox->setMinimum(-1.0e+10);
-					oscSpinBox->setMaximum(1.0e+10);
-					break;
-				}
-			case OpenScenario::oscMemberValue::MemberTypes::FLOAT:
-				{
-					oscSpinBox->setMinimum(-1.0e+10);
-					oscSpinBox->setMaximum(1.0e+10);
-					break;
-				}
-            default:
-                assert("member->getType() not handled"==0);
-                break;
-			}
-			memberWidgets_.insert(memberName, oscSpinBox);	
-			objectGridLayout->addWidget(oscSpinBox, row, 1);
-			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
-			signalMapper->setMapping(oscSpinBox, memberName);
-			connect(oscSpinBox, SIGNAL(valueChanged(double)), valueChangedMapper, SLOT(map()));
-			valueChangedMapper->setMapping(oscSpinBox, memberName);
-		}
-		else if (type == OpenScenario::oscMemberValue::MemberTypes::OBJECT)
-		{
-			QPushButton *oscPushButton = new QPushButton();
-			oscPushButton->setText("Edit");
-			memberWidgets_.insert(memberName, oscPushButton);
-			objectGridLayout->addWidget(oscPushButton, row, 1);
-			connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
-			signalPushMapper->setMapping(oscPushButton, memberName);
-		}
-		else if (type == OpenScenario::oscMemberValue::MemberTypes::ENUM)
-		{
-			QComboBox *oscComboBox = new QComboBox();
-
-			oscComboBox->addItem("Choose entry ...");
-
-			OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(member);
-			std::map<std::string,int> enumValues = oscVar->enumType->enumValues;
-			for (int i = 0; i < enumValues.size(); i++)
-			{
-				for (std::map<std::string,int>::iterator it=enumValues.begin(); it!=enumValues.end(); ++it)
-				{
-					if (it->second == i)
+				case OpenScenario::oscMemberValue::MemberTypes::INT:
 					{
-						oscComboBox->addItem(QString::fromStdString(it->first));
+						oscSpinBox->setMinimum(INT_MIN);
+						oscSpinBox->setMaximum(INT_MAX);
 						break;
 					}
+				case OpenScenario::oscMemberValue::MemberTypes::UINT:
+					{
+						oscSpinBox->setMinimum(0);
+						oscSpinBox->setMaximum(INT_MAX);
+						break;
+					}
+				case OpenScenario::oscMemberValue::MemberTypes::SHORT:
+					{
+						oscSpinBox->setMinimum(SHRT_MIN);
+						oscSpinBox->setMaximum(SHRT_MAX);
+						break;
+					}
+				case OpenScenario::oscMemberValue::MemberTypes::USHORT:
+					{
+						oscSpinBox->setMinimum(0);
+						oscSpinBox->setMaximum(USHRT_MAX);
+						break;
+					}
+				default:
+					assert("member->getType() not handled"==0);
+					break;
 				}
+				memberWidgets_.insert(memberName, oscSpinBox);	
+				objectGridLayout->addWidget(oscSpinBox, row, 1);
+				connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscSpinBox, memberName);
+				connect(oscSpinBox, SIGNAL(valueChanged(int)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscSpinBox, memberName);
 			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::STRING)
+			{
+				QLineEdit *oscLineEdit = new QLineEdit();
+				memberWidgets_.insert(memberName, oscLineEdit);
+				objectGridLayout->addWidget(oscLineEdit, row, 1);
+				connect(oscLineEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscLineEdit, memberName);
+				connect(oscLineEdit, SIGNAL(textChanged(QString)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscLineEdit, memberName);
+			}
+			else if ((type == OpenScenario::oscMemberValue::MemberTypes::DOUBLE) || (type == OpenScenario::oscMemberValue::MemberTypes::FLOAT))
+			{
+				QDoubleSpinBox *oscSpinBox = new QDoubleSpinBox();
+				switch (type)
+				{
+				case OpenScenario::oscMemberValue::MemberTypes::DOUBLE:
+					{
+						oscSpinBox->setMinimum(-1.0e+10);
+						oscSpinBox->setMaximum(1.0e+10);
+						break;
+					}
+				case OpenScenario::oscMemberValue::MemberTypes::FLOAT:
+					{
+						oscSpinBox->setMinimum(-1.0e+10);
+						oscSpinBox->setMaximum(1.0e+10);
+						break;
+					}
+				default:
+					assert("member->getType() not handled"==0);
+					break;
+				}
+				memberWidgets_.insert(memberName, oscSpinBox);	
+				objectGridLayout->addWidget(oscSpinBox, row, 1);
+				connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscSpinBox, memberName);
+				connect(oscSpinBox, SIGNAL(valueChanged(double)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscSpinBox, memberName);
+			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::OBJECT)
+			{
+				QPushButton *oscPushButton = new QPushButton();
+				oscPushButton->setText("Edit");
+				memberWidgets_.insert(memberName, oscPushButton);
+				objectGridLayout->addWidget(oscPushButton, row, 1);
+				connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
+				signalPushMapper->setMapping(oscPushButton, memberName);
+			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::ENUM)
+			{
+				QComboBox *oscComboBox = new QComboBox();
 
-			memberWidgets_.insert(memberName, oscComboBox);
-			objectGridLayout->addWidget(oscComboBox, row, 1);
-			connect(oscComboBox, SIGNAL(activated(int)), signalMapper, SLOT(map()));
-			signalMapper->setMapping(oscComboBox, memberName);
-			connect(oscComboBox, SIGNAL(currentIndexChanged(int)), valueChangedMapper, SLOT(map()));
-			valueChangedMapper->setMapping(oscComboBox, memberName);
-		}
-		else if (type == OpenScenario::oscMemberValue::MemberTypes::BOOL)
-		{
-			QCheckBox *oscCheckBox = new QCheckBox();
-			memberWidgets_.insert(memberName, oscCheckBox);
-			objectGridLayout->addWidget(oscCheckBox, row, 1);
-			connect(oscCheckBox, SIGNAL(clicked(bool)), signalMapper, SLOT(map()));
-			signalMapper->setMapping(oscCheckBox, memberName);
-			connect(oscCheckBox, SIGNAL(stateChanged(int)), valueChangedMapper, SLOT(map()));
-			valueChangedMapper->setMapping(oscCheckBox, memberName);
+				oscComboBox->addItem("Choose entry ...");
 
+				OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(member);
+				std::map<std::string,int> enumValues = oscVar->enumType->enumValues;
+				for (int i = 0; i < enumValues.size(); i++)
+				{
+					for (std::map<std::string,int>::iterator it=enumValues.begin(); it!=enumValues.end(); ++it)
+					{
+						if (it->second == i)
+						{
+							oscComboBox->addItem(QString::fromStdString(it->first));
+							break;
+						}
+					}
+				}
+
+				memberWidgets_.insert(memberName, oscComboBox);
+				objectGridLayout->addWidget(oscComboBox, row, 1);
+				connect(oscComboBox, SIGNAL(activated(int)), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscComboBox, memberName);
+				connect(oscComboBox, SIGNAL(currentIndexChanged(int)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscComboBox, memberName);
+			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::BOOL)
+			{
+				QCheckBox *oscCheckBox = new QCheckBox();
+				memberWidgets_.insert(memberName, oscCheckBox);
+				objectGridLayout->addWidget(oscCheckBox, row, 1);
+				connect(oscCheckBox, SIGNAL(clicked(bool)), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscCheckBox, memberName);
+				connect(oscCheckBox, SIGNAL(stateChanged(int)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscCheckBox, memberName);
+
+			}
 		}
 
 	}
 
 	// Finish Layout //
-    //
-    objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
-    objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
+	//
+	objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
+	objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
 
@@ -443,20 +467,40 @@ OSCObjectSettings::updateProperties()
 		QMap<QString, QWidget *>::const_iterator it;
 		for (it = memberWidgets_.constBegin(); it != memberWidgets_.constEnd(); it++)
 		{
-			OpenScenario::oscMember *member = object_->getMember(it.key().toStdString());
-
-			if (!member->exists())
+			if (it.key() == "choice")
 			{
-				continue;
-			} 
-			loadProperties(member, it.value());
+				foreach (OpenScenario::oscMember *choiceMember, object_->getChoice())
+				{
+					if (choiceMember->exists())
+					{
+						loadProperties(choiceMember, it.value());
+						break;
+					}
+				}
+			}
+			else
+			{
+				OpenScenario::oscMember *member = object_->getMember(it.key().toStdString());
+
+				if (!member->exists())
+				{
+					continue;
+				} 
+
+				loadProperties(member, it.value());
+			}
 		}
+
 	}
 }
 
 void
 	OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
 {
+	if (object_->isMemberInChoice(member))
+	{
+		choiceComboBox_->setCurrentText(QString::fromStdString(member->getName()));
+	}
 
 	OpenScenario::oscMemberValue *value = member->getOrCreateValue();
 
@@ -644,6 +688,27 @@ OSCObjectSettings::onEditingFinished(QString name)
 	}
 }
 
+void
+OSCObjectSettings::onChoiceChanged(const QString &memberName)
+{
+	if (memberName != lastComboBoxChoice_)
+	{
+		OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
+		OpenScenario::oscObjectBase *obj = member->getOrCreateObject();
+
+		lastComboBoxChoice_ = memberName;
+	}
+
+
+		// read default values
+		//
+	//	OpenScenario::oscSourceFile *sourceFile = object_->getSource();
+	//	OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName.toStdString(), object_->getMember(memberName.toStdString())->getTypeName(), sourceFile);
+	//	AddOSCObjectCommand *command = new AddOSCObjectCommand(object_, base_, 
+
+
+}
+
 OpenScenario::oscObjectBase * 
 OSCObjectSettings::onPushButtonPressed(QString name)
 {
@@ -652,6 +717,11 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 	if (oscArrayMember_)
 	{
 		object = oscArrayMember_->at(name.toInt()-1);
+	}
+	else if (name == "choice")
+	{
+		object = object_->getMember(choiceComboBox_->currentText().toStdString())->getOrCreateObject();
+
 	}
 	else
 	{
