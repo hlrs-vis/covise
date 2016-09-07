@@ -129,6 +129,19 @@ oscObjectBase::MemberChoice oscObjectBase::getChoice() const
     return choice;
 }
 
+bool oscObjectBase::isMemberInChoice(oscMember *m)
+{
+	for (auto it = choice.cbegin(); it != choice.cend(); it++)
+	{
+		if (*it == m)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 //
 void oscObjectBase::addMemberToOptional(oscMember *m)

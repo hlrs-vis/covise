@@ -96,6 +96,7 @@ public:
     void addMemberToChoice(oscMember *m);
     bool hasChoice() const;
     MemberChoice getChoice() const;
+	bool isMemberInChoice(oscMember *m);
 
     //
     void addMemberToOptional(oscMember *m);
