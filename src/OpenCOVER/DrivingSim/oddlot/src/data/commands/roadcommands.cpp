@@ -450,11 +450,12 @@ AppendRoadPrototypeCommand::undo()
 // MergeRoadsCommand //
 //#########################//
 
-MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRoad *road2, bool atStart, DataCommand *parent)
+MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRoad *road2, bool firstSt, bool secondSt, DataCommand *parent)
     : DataCommand(parent)
     , road1_(road1)
     , road2_(road2)
-    , atStart_(atStart)
+    , firstStart(firstSt)
+    , secondStart(secondSt)
 {
     // Check for validity //
     //
@@ -464,7 +465,15 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
         setText(QObject::tr("Append (invalid!)"));
         return;
     }
-
+    
+    if (firstStart==true && secondStart == false)
+    {
+        firstStart=false;
+        secondStart=true;
+        RSystemElementRoad *tmpRoad = road1_;
+        road1_=road2_;
+        road2_=tmpRoad;
+    }
     roadSystem_ = road2_->getRoadSystem();
 
     secondRoadLength_ = road2->getLength();
@@ -474,19 +483,35 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     oldSuperelevationSections_ = road1->getSuperelevationSections();
     oldCrossfallSections_ = road1->getCrossfallSections();
     oldLaneSections_ = road1->getLaneSections();
+    
 
     QTransform road1Trafo, road2Trafo;
 
     double deltaS = road1_->getLength();
     QPointF dPos;
-    if (atStart)
+    if (firstStart==true && secondStart == true)
     {
-        dPos = road1_->getGlobalPoint(0.0) - road2_->getGlobalPoint(0.0);
-        secondEnd_ = road2_->getGlobalPoint(road2_->getLength()) - road2_->getGlobalPoint(0.0);
+        //TODO: reverse first road
+        setInvalid(); // Invalid
+        setText(QObject::tr("Merge invalid! Can only connect start to end"));
+        return;
     }
-    else
+    if (firstStart==false && secondStart == false)
+    {
+        //TODO: reverse second road
+        setInvalid(); // Invalid
+        setText(QObject::tr("Merge invalid! Can only connect start to end"));
+        return;
+    }
+    if (firstStart==false && secondStart == true)
     {
         dPos = road1_->getGlobalPoint(road1_->getLength()) - road2_->getGlobalPoint(0.0);
+    }
+    else // this should not happen
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("Append (invalid!)"));
+        return;
     }
 
     // TrackSections //
@@ -495,10 +520,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     {
         TrackComponent *clone = track->getClone();
         clone->setLocalTranslation(clone->getGlobalPoint(clone->getSStart()) + dPos);
-        if (!atStart)
-        {
-            clone->setSStart(clone->getSStart() + deltaS);
-        }
+        clone->setSStart(clone->getSStart() + deltaS);
         trackSections_.insert(clone->getSStart(), clone);
     }
 
@@ -507,10 +529,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     foreach (TypeSection *section, road2_->getTypeSections())
     {
         TypeSection *clone = section->getClone();
-        if (!atStart_)
-        {
-            clone->setSStart(clone->getSStart() + deltaS);
-        }
+        clone->setSStart(clone->getSStart() + deltaS);
         newTypeSections_.insert(clone->getSStart(), clone);
     }
 
@@ -519,10 +538,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     foreach (ElevationSection *section, road2_->getElevationSections())
     {
         ElevationSection *clone = section->getClone();
-        if (!atStart_)
-        {
-            clone->setSStart(clone->getSStart() + deltaS);
-        }
+        clone->setSStart(clone->getSStart() + deltaS);
         newElevationSections_.insert(clone->getSStart(), clone);
     }
 
@@ -531,10 +547,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     foreach (SuperelevationSection *section, road2_->getSuperelevationSections())
     {
         SuperelevationSection *clone = section->getClone();
-        if (!atStart_)
-        {
-            clone->setSStart(clone->getSStart() + deltaS);
-        }
+        clone->setSStart(clone->getSStart() + deltaS);
         newSuperelevationSections_.insert(clone->getSStart(), clone);
     }
 
@@ -543,10 +556,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     foreach (CrossfallSection *section, road2_->getCrossfallSections())
     {
         CrossfallSection *clone = section->getClone();
-        if (!atStart_)
-        {
-            clone->setSStart(clone->getSStart() + deltaS);
-        }
+        clone->setSStart(clone->getSStart() + deltaS);
         newCrossfallSections_.insert(clone->getSStart(), clone);
     }
 
@@ -555,10 +565,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     foreach (LaneSection *section, road2_->getLaneSections())
     {
         LaneSection *clone = section->getClone();
-        if (!atStart_)
-        {
-            clone->setSStart(clone->getSStart() + deltaS);
-        }
+        clone->setSStart(clone->getSStart() + deltaS);
         newLaneSections_.insert(clone->getSStart(), clone);
     }
 
@@ -615,107 +622,30 @@ void
 MergeRoadsCommand::redo()
 {
     roadSystem_->delRoad(road2_);
-    if (atStart_)
+
+    foreach (TrackComponent *track, trackSections_)
     {
-        QMap<double, TrackComponent *> newTracks = trackSections_;
-        foreach (TrackComponent *track, road1_->getTrackSections())
-        {
-            track->setLocalTranslation(track->getGlobalPoint(track->getSStart()) + secondEnd_);
-            track->setSStart(track->getSStart() + secondRoadLength_);
-            newTracks.insert(track->getSStart(), track);
-        }
-
-        road1_->setTrackComponents(newTracks);
-
-        // Move/Add RoadSections //
-        //
-        if (!newTypeSections_.isEmpty())
-        {
-            // Move old sections //
-            //
-            QMap<double, TypeSection *> newSections = newTypeSections_;
-            foreach (TypeSection *section, oldTypeSections_)
-            {
-                section->setSStart(section->getSStart() + secondRoadLength_);
-                newSections.insert(section->getSStart(), section);
-            }
-            road1_->setTypeSections(newSections);
-        }
-        if (!newElevationSections_.isEmpty())
-        {
-            // Move old sections //
-            //
-            QMap<double, ElevationSection *> newSections = newElevationSections_;
-            foreach (ElevationSection *section, oldElevationSections_)
-            {
-                section->setSStart(section->getSStart() + secondRoadLength_);
-                newSections.insert(section->getSStart(), section);
-            }
-            road1_->setElevationSections(newSections);
-        }
-        if (!newSuperelevationSections_.isEmpty())
-        {
-            // Move old sections //
-            //
-            QMap<double, SuperelevationSection *> newSections = newSuperelevationSections_;
-            foreach (SuperelevationSection *section, oldSuperelevationSections_)
-            {
-                section->setSStart(section->getSStart() + secondRoadLength_);
-                newSections.insert(section->getSStart(), section);
-            }
-            road1_->setSuperelevationSections(newSections);
-        }
-        if (!newCrossfallSections_.isEmpty())
-        {
-            // Move old sections //
-            //
-            QMap<double, CrossfallSection *> newSections = newCrossfallSections_;
-            foreach (CrossfallSection *section, oldCrossfallSections_)
-            {
-                section->setSStart(section->getSStart() + secondRoadLength_);
-                newSections.insert(section->getSStart(), section);
-            }
-            road1_->setCrossfallSections(newSections);
-        }
-        if (!newLaneSections_.isEmpty())
-        {
-            // Move old sections //
-            //
-            QMap<double, LaneSection *> newSections = newLaneSections_;
-            foreach (LaneSection *section, oldLaneSections_)
-            {
-                section->setSStart(section->getSStart() + secondRoadLength_);
-                newSections.insert(section->getSStart(), section);
-            }
-            road1_->setLaneSections(newSections);
-        }
+        road1_->addTrackComponent(track);
     }
-    else
+    foreach (TypeSection *section, newTypeSections_)
     {
-        foreach (TrackComponent *track, trackSections_)
-        {
-            road1_->addTrackComponent(track);
-        }
-        foreach (TypeSection *section, newTypeSections_)
-        {
-            road1_->addTypeSection(section);
-        }
-        foreach (ElevationSection *section, newElevationSections_)
-        {
-            road1_->addElevationSection(section);
-        }
-        foreach (SuperelevationSection *section, newSuperelevationSections_)
-        {
-            road1_->addSuperelevationSection(section);
-        }
-        foreach (CrossfallSection *section, newCrossfallSections_)
-        {
-            road1_->addCrossfallSection(section);
-        }
-        foreach (LaneSection *section, newLaneSections_)
-        {
-            road1_->addLaneSection(section);
-        }
+        road1_->addTypeSection(section);
+    }
+    foreach (ElevationSection *section, newElevationSections_)
+    {
+        road1_->addElevationSection(section);
+    }
+    foreach (SuperelevationSection *section, newSuperelevationSections_)
+    {
+        road1_->addSuperelevationSection(section);
+    }
+    foreach (CrossfallSection *section, newCrossfallSections_)
+    {
+        road1_->addCrossfallSection(section);
+    }
+    foreach (LaneSection *section, newLaneSections_)
+    {
+        road1_->addLaneSection(section);
     }
 
     setRedone();
@@ -727,96 +657,30 @@ MergeRoadsCommand::redo()
 void
 MergeRoadsCommand::undo()
 {
-    if (atStart_)
+    
+    foreach (TrackComponent *track, trackSections_)
     {
-        // TrackComponents //
-        //
-        foreach (TrackComponent *track, trackSections_)
-        {
-            road1_->delTrackComponent(track);
-        }
-        road1_->rebuildTrackComponentList();
-        foreach (TrackComponent *track, road1_->getTrackSections())
-        {
-            track->setLocalTranslation(track->getGlobalPoint(track->getSStart()) - secondEnd_);
-        }
-
-        // TypeSections //
-        //
-        QMap<double, TypeSection *> newTypeSections;
-        foreach (TypeSection *section, oldTypeSections_)
-        {
-            section->setSStart(section->getSStart() - secondRoadLength_);
-            newTypeSections.insert(section->getSStart(), section);
-        }
-        road1_->setTypeSections(newTypeSections);
-
-        // ElevationSections //
-        //
-        QMap<double, ElevationSection *> newElevationSections;
-        foreach (ElevationSection *section, oldElevationSections_)
-        {
-            section->setSStart(section->getSStart() - secondRoadLength_);
-            newElevationSections.insert(section->getSStart(), section);
-        }
-        road1_->setElevationSections(newElevationSections);
-
-        // SuperelevationSections //
-        //
-        QMap<double, SuperelevationSection *> newSuperelevationSections;
-        foreach (SuperelevationSection *section, oldSuperelevationSections_)
-        {
-            section->setSStart(section->getSStart() - secondRoadLength_);
-            newSuperelevationSections.insert(section->getSStart(), section);
-        }
-        road1_->setSuperelevationSections(newSuperelevationSections);
-
-        // CrossfallSections //
-        //
-        QMap<double, CrossfallSection *> newCrossfallSections;
-        foreach (CrossfallSection *section, oldCrossfallSections_)
-        {
-            section->setSStart(section->getSStart() - secondRoadLength_);
-            newCrossfallSections.insert(section->getSStart(), section);
-        }
-        road1_->setCrossfallSections(newCrossfallSections);
-
-        // LaneSections //
-        //
-        QMap<double, LaneSection *> newLaneSections;
-        foreach (LaneSection *section, oldLaneSections_)
-        {
-            section->setSStart(section->getSStart() - secondRoadLength_);
-            newLaneSections.insert(section->getSStart(), section);
-        }
-        road1_->setLaneSections(newLaneSections);
+        road1_->delTrackComponent(track);
     }
-    else
+    foreach (TypeSection *section, newTypeSections_)
     {
-        foreach (TrackComponent *track, trackSections_)
-        {
-            road1_->delTrackComponent(track);
-        }
-        foreach (TypeSection *section, newTypeSections_)
-        {
-            road1_->delTypeSection(section);
-        }
-        foreach (ElevationSection *section, newElevationSections_)
-        {
-            road1_->delElevationSection(section);
-        }
-        foreach (SuperelevationSection *section, newSuperelevationSections_)
-        {
-            road1_->delSuperelevationSection(section);
-        }
-        foreach (CrossfallSection *section, newCrossfallSections_)
-        {
-            road1_->delCrossfallSection(section);
-        }
-        foreach (LaneSection *section, newLaneSections_)
-        {
-            road1_->delLaneSection(section);
-        }
+        road1_->delTypeSection(section);
+    }
+    foreach (ElevationSection *section, newElevationSections_)
+    {
+        road1_->delElevationSection(section);
+    }
+    foreach (SuperelevationSection *section, newSuperelevationSections_)
+    {
+        road1_->delSuperelevationSection(section);
+    }
+    foreach (CrossfallSection *section, newCrossfallSections_)
+    {
+        road1_->delCrossfallSection(section);
+    }
+    foreach (LaneSection *section, newLaneSections_)
+    {
+        road1_->delLaneSection(section);
     }
     roadSystem_->addRoad(road2_);
 
