@@ -60,18 +60,18 @@ public:
 
     MultiChannelDrawer(int numChannels, bool flipped=false);
     ~MultiChannelDrawer();
-    enum Mode {
-        AsIs,
-        Reproject,
-        ReprojectAdaptive,
-        ReprojectAdaptiveWithNeighbors,
-        ReprojectMesh,
-        ReprojectMeshWithHoles
-    };
 
-   void switchReprojection(bool reproj);
-   void switchAdaptivePointSize(bool adapt, bool withNeighbors=true);
+    //! render mode
+    enum Mode {
+        AsIs, //< as is, without reprojection
+        Reproject, //< reproject every pixel as single pixel-sized point
+        ReprojectAdaptive, //< reproject pixels and adapt their size based on viewer distance and reprojection matrix
+        ReprojectAdaptiveWithNeighbors, //< reproject pixels and adapt their size so that gaps to neighbor pixels are filled
+        ReprojectMesh, //< reproject as rectilinear mesh
+        ReprojectMeshWithHoles //< reprjoct as rectilinear mesh, but keep holes where pixels become heavily deformed
+   };
    void setMode(Mode mode);
+
    void initChannelData(ChannelData &cd);
    void createGeometry(ChannelData &cd);
    void clearChannelData();

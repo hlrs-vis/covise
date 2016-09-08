@@ -251,25 +251,10 @@ const char reprojMeshGeo[] =
       "   EmitVertex();\n"
       "}\n"
 
-      "bool checkVertex(vec2 xy, vec2 p0, vec2 p1, float dist) {\n"
-      //"   if (dist < 0.001) return false;\n"
-      //"   if (dist > 1000.) return false;\n"
-      "   float d = depth(xy);\n"
-      "   if (is_far(d)) return false;\n"
-
-      "   vec2 xy0 = pos2d(xy);\n"
-      "   float r0 = distance(p0,xy0)/dist;\n"
-      "   float r1 = distance(p1,xy0)/dist;\n"
-      "   if (r0 < 1./tolerance) return false;\n"
-      "   if (r0 > tolerance) return false;\n"
-      "   if (r1 < 1./tolerance) return false;\n"
-      "   if (r1 > tolerance) return false;\n"
-      "   return true;\n"
-      "}\n"
-
       "void main() {\n"
       "   vec2 xy = gl_PositionIn[0].xy;\n"
       ""
+      "   bool render = true;\n"
       "   if (withHoles) {\n"
       "      vec2 p[4];\n"
       "      for (int i=0; i<4; ++i)\n"
@@ -282,17 +267,11 @@ const char reprojMeshGeo[] =
       "              maxdist = max(maxdist, dist);\n"
       "          }\n"
       "      }\n"
-      //"      bool b2 = checkVertex(xy+off[2], p0, p1, dist);\n"
-      //"      bool b3 = checkVertex(xy+off[3], p0, p1, dist);\n"
-      //"      gl_FrontColor = vec4(1., mindist/maxdist, 1., 1.);\n"
-      "      if (maxdist > 0.001 && mindist*tolerance > maxdist) {\n"
-      //"          gl_FrontColor = vec4(0., mindist/maxdist, 1., 1.);\n"
+      "      if (maxdist < 0.001 || mindist*tolerance < maxdist) {\n"
+      "         render = false;\n"
       "      }\n"
-      "      if (maxdist > 0.001 && mindist*tolerance > maxdist) {\n"
-      "         for (int i=0; i<4; ++i)\n"
-      "            createVertex(xy+off[i]);\n"
-      "      }\n"
-      "   } else {\n"
+      "   }\n"
+      "   if (render) {\n"
       "      for (int i=0; i<4; ++i)\n"
       "         createVertex(xy+off[i]);\n"
       "   }\n"
@@ -335,8 +314,6 @@ MultiChannelDrawer::MultiChannelDrawer(int numChannels, bool flipped)
       }
    }
 
-   switchReprojection(false);
-   switchAdaptivePointSize(false, false);
    setMode(m_mode);
 }
 
@@ -673,38 +650,6 @@ unsigned char *MultiChannelDrawer::rgba(int idx) const {
 unsigned char *MultiChannelDrawer::depth(int idx) const {
     const ChannelData &cd = m_channelData[idx];
     return cd.depthTex->getImage()->data();
-}
-
-void MultiChannelDrawer::switchReprojection(bool reproj) {
-
-   for (size_t i=0; i<m_channelData.size(); ++i) {
-      m_channelData[i].geode->removeDrawable(m_channelData[i].fixedGeo);
-      m_channelData[i].geode->removeDrawable(m_channelData[i].reprojGeo);
-      if (reproj) {
-         m_channelData[i].geode->addDrawable(m_channelData[i].reprojGeo);
-      } else {
-         m_channelData[i].geode->addDrawable(m_channelData[i].fixedGeo);
-      }
-   }
-}
-
-void MultiChannelDrawer::switchAdaptivePointSize(bool adapt, bool withNeighbors) {
-
-   for (size_t i=0; i<m_channelData.size(); ++i) {
-       auto &cd = m_channelData[i];
-       osg::StateSet *state = m_channelData[i].reprojGeo->getStateSet();
-       assert(state);
-       if (adapt) {
-          state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
-          state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
-          state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::ON);
-          cd.withNeighbors->set(withNeighbors);
-       } else {
-          state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
-          state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
-          state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::ON);
-       }
-   }
 }
 
 void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
