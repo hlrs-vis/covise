@@ -940,7 +940,6 @@ static const size_t bufsiz = 16384;
 template <typename T, typename D>
 bool readVectorArrayBinary(std::istream &stream, T *x, T *y, T *z, const size_t lines)
 {
-    expect('(');
     std::vector<D> buf(3*bufsiz);
     for (size_t i=0; i<lines; i+=bufsiz)
     {
@@ -954,32 +953,59 @@ bool readVectorArrayBinary(std::istream &stream, T *x, T *y, T *z, const size_t 
             z[i+j] = buf[j*3+2];
         }
     }
-    expect(')');
+    return stream.good();
+}
+
+template <typename T>
+bool readVectorArrayAscii(std::istream &stream, T *x, T *y, T *z, const size_t lines)
+{
+    expect('\n');
+    for (size_t i = 0; i < lines; ++i)
+    {
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+        stream >> x[i] >> y[i] >> z[i];
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+    }
+    expect('\n');
+
+    return stream.good();
+}
+
+template <>
+bool readVectorArrayAscii(std::istream &stream, float *x, float *y, float *z, const size_t lines)
+{
+    expect('\n');
+    for (size_t i = 0; i < lines; ++i)
+    {
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+        double vx, vy, vz;
+        stream >> vx >> vy >> vz;
+        x[i] = vx;
+        y[i] = vy;
+        z[i] = vz;
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+    }
+    expect('\n');
+
     return stream.good();
 }
 
 template <typename T>
 bool readVectorArray(const HeaderInfo &info, std::istream &stream, T *x, T *y, T *z, const size_t lines)
 {
+    bool ok = true;
+    expect('(');
     if (info.format == "binary")
     {
-        return readVectorArrayBinary<T, typename on_disk<T>::type>(stream, x, y, z, lines);
+        ok = readVectorArrayBinary<T, typename on_disk<T>::type>(stream, x, y, z, lines);
     }
     else
     {
-        expect('(');
-        expect('\n');
-        for (size_t i = 0; i < lines; ++i)
-        {
-            stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
-            stream >> x[i] >> y[i] >> z[i];
-            stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
-        }
-        expect('\n');
-        expect(')');
+        ok = readVectorArrayAscii<T>(stream, x, y, z, lines);
     }
+    expect(')');
 
-    return stream.good();
+    return ok && stream.good();
 }
 
 template <typename T>
@@ -1026,6 +1052,24 @@ bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
     for (size_t i = 0; i < lines; ++i)
     {
         stream >> p[i];
+        if (!stream.good())
+        {
+           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
+           return false;
+        }
+    }
+    expect('\n');
+    return stream.good();
+}
+
+template <>
+bool readArrayAscii(std::istream &stream, float *p, const size_t lines)
+{
+    for (size_t i = 0; i < lines; ++i)
+    {
+        double val;
+        stream >> val;
+        p[i] = val;
         if (!stream.good())
         {
            std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
