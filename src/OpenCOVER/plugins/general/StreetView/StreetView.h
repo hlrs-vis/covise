@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef STREETVIEW_H
-#define STREETVIEW_H
+#ifndef STREET_VIEW_H
+#define STREET_VIEW_H
 
 /****************************************************************************\ 
  **                                                            (C)2016 HLRS  **
@@ -23,6 +23,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include "IndexParser.h"
 
 class StreetView : public opencover::coVRPlugin
 {
@@ -33,6 +34,7 @@ public:
 	bool init();
 
 private:
-	osg::ref_ptr<osg::MatrixTransform> viereckMatrixTransform;
+	IndexParser *indexParser;
+	osg::ref_ptr<osg::Node> viereckMatrixTransform;
 };
 #endif
