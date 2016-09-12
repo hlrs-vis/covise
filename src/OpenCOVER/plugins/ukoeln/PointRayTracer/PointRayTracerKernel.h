@@ -8,22 +8,21 @@
 #ifndef POINT_RAY_TRACER_KERNEL_H
 #define POINT_RAY_TRACER_KERNEL_H
 
-#include <visionaray/get_color.h>
+//#include <visionaray/get_color.h>
 
 #include "PointRayTracerGlobals.h"
 
 // kernel with ray tracing logic
-template <typename BVHs, typename Colors>
+template <typename BVHs>
 struct Kernel
 {
     using R = ray_type;
     using S = R::scalar_type;
     using C = visionaray::vector<4, S>;
 
-    Kernel(BVHs bvhs_begin, BVHs bvhs_end, Colors colors)
+    Kernel(BVHs bvhs_begin, BVHs bvhs_end)
         : m_bvhs_begin(bvhs_begin)
         , m_bvhs_end(bvhs_end)
-        , m_colors(colors)
     {
     }
 
@@ -44,7 +43,7 @@ struct Kernel
         result.hit = hit_rec.hit;
         result.isect_pos = ray.ori + ray.dir * hit_rec.t;
 
-        auto color = get_color(m_colors,hit_rec,bvh_ref(),visionaray::colors_per_face_binding());
+        auto color = hit_rec.color;
 
         result.color = select(
                 hit_rec.hit,
@@ -55,14 +54,8 @@ struct Kernel
         return result;
     }
 
-
-
     BVHs m_bvhs_begin;
     BVHs m_bvhs_end;
-    Colors m_colors;
-    /*const bvh_ref    *m_bvhs_begin;
-    const bvh_ref    *m_bvhs_end;
-    const color_type *m_colors;*/
 };
 
 #endif // POINT_RAY_TRACER_KERNEL_H

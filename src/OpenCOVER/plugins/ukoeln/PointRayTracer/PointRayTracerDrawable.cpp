@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include "ColorSphere.h"
 #include "PointRayTracerDrawable.h"
 #include "PointRayTracerKernel.h"
 #include <iostream>
@@ -34,14 +35,11 @@ struct PointRayTracerDrawable::Impl
 
     sched_type                      scheduler;
     render_target_type              rt;
-    point_vector*                   points;
-    color_vector*                   colors;
-    host_bvh_type*                  host_bvh;
+    std::vector<host_bvh_type>*     host_bvh_vector;
 
 #ifdef __CUDACC__
-    device_bvh_type                 device_bvh;
     thrust::device_vector<bvh_ref>  bvh_refs;
-    device_color_vector             device_colors;
+    std::vector<device_bvh_type>    device_bvh_vector;
 #else
     std::vector<bvh_ref>            bvh_refs;
 #endif
@@ -140,35 +138,91 @@ void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
 {
     aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
 
-    if (m_impl->host_bvh->num_nodes() > 0)
-    {
-        bounds = combine(bounds, m_impl->host_bvh->node(0).bbox);
+    for(int i = 0; i < m_impl->host_bvh_vector->size(); i++){
+
+        if (m_impl->host_bvh_vector->at(i).num_nodes() > 0)
+        {
+            bounds = combine(bounds, m_impl->host_bvh_vector->at(i).node(0).bbox);
+        }
     }
 
     auto c = bounds.center();
     osg::BoundingSphere::vec_type center(c.x, c.y, c.z);
     osg::BoundingSphere::value_type radius = length(c - bounds.min);
     bs.set(center, radius);
+
 }
 
-void PointRayTracerDrawable::initData(host_bvh_type &bvh, point_vector &points, color_vector &colors)
+void PointRayTracerDrawable::initData(std::vector<host_bvh_type> &bvh_vector)
 {
-    m_impl->points   = &points;
-    m_impl->colors   = &colors;
-    m_impl->host_bvh = &bvh;
+    m_impl->host_bvh_vector = &bvh_vector;
+
 #ifdef __CUDACC__
+
     std::cout << "Copy data to GPU...\n";
 
     // Copy data
-    m_impl->device_colors = device_color_vector(*m_impl->colors);
-    m_impl->device_bvh    = device_bvh_type(bvh);
-    // Create refs
-    m_impl->bvh_refs.push_back(m_impl->device_bvh.ref());
+    m_impl->device_bvh_vector.resize(bvh_vector.size());
+    for(size_t i = 0; i < bvh_vector.size(); i++){
+        m_impl->device_bvh_vector[i] = device_bvh_type(bvh_vector[i]);
+    }
 
-    std::cout << "Ready\n";
-#else
-    m_impl->bvh_refs.push_back(bvh.ref());
+    // Create refs
+    m_impl->bvh_refs.push_back(m_impl->device_bvh_vector[0].ref());
+
+#else    
+
+    // Create refs
+    m_impl->bvh_refs.push_back(bvh_vector[0].ref());
+
 #endif
+    std::cout << "Ready\n";
+}
+
+/*
+void PointRayTracerDrawable::setVisibility(std::vector<bool>& visibility){
+
+    if(m_impl->host_bvh_vector->size() != visibility.size()){
+        std::cout << "PointRayTracerDrawable::setVisibility() ERROR: wrong number of visibility infos" << std::endl;
+        return;
+    }
+
+    m_impl->bvh_refs.clear();
+
+#ifdef __CUDACC__
+    for(size_t i = 0; i < m_impl->device_bvh_vector.size(); i++){
+        if(visibility[i]){
+            m_impl->bvh_refs.push_back(m_impl->device_bvh_vector[i].ref());
+        }
+    }
+#else
+    for(size_t i = 0; i < m_impl->host_bvh_vector->size(); i++){
+        if(visibility[i]){
+            m_impl->bvh_refs.push_back(m_impl->host_bvh_vector->at(i).ref());
+        }
+    }
+#endif
+
+}
+*/
+
+void PointRayTracerDrawable::setCurrentPointCloud(int pointCloudID){
+    if(pointCloudID < 0){
+        std::cout << "PointRayTracerDrawable::setCurrentPointCloud pointCloud id < 0 : " << pointCloudID << std::endl;
+        return;
+     } else if (pointCloudID >= m_impl->host_bvh_vector->size()) {
+        std::cout << "PointRayTracerDrawable::setCurrentPointCloud pointCloud too big. pointCloudID: " << pointCloudID << "  host_bvh_vector->size(): " << m_impl->host_bvh_vector->size() << std::endl;
+        return;
+    }
+
+    m_impl->bvh_refs.clear();
+
+#ifdef __CUDACC__
+    m_impl->bvh_refs.push_back(m_impl->device_bvh_vector[pointCloudID].ref());
+#else
+    m_impl->bvh_refs.push_back(m_impl->host_bvh_vector->at(pointCloudID).ref());
+#endif
+
 }
 
 PointRayTracerDrawable::PointRayTracerDrawable(const PointRayTracerDrawable &rhs, const osg::CopyOp &op)
@@ -215,22 +269,18 @@ void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
     using C = visionaray::vector<4, S>;
 
 #ifdef __CUDACC__
-    using B = decltype(thrust::raw_pointer_cast(m_impl->bvh_refs.data()));
-    using CC = decltype(thrust::raw_pointer_cast(m_impl->device_colors.data()));
+    using B = decltype(thrust::raw_pointer_cast(m_impl->bvh_refs.data()));    
 
-    Kernel<B, CC> kernel(
+    Kernel<B> kernel(
         thrust::raw_pointer_cast(m_impl->bvh_refs.data()),
-        thrust::raw_pointer_cast(m_impl->bvh_refs.data()) + m_impl->bvh_refs.size(),
-        thrust::raw_pointer_cast(m_impl->device_colors.data())
+        thrust::raw_pointer_cast(m_impl->bvh_refs.data()) + m_impl->bvh_refs.size()
         );
 #else
-    using B = decltype(m_impl->bvh_refs.data());
-    using CC = decltype(m_impl->colors->data());
+    using B = decltype(m_impl->bvh_refs.data());    
 
     Kernel<B, CC> kernel(
         m_impl->bvh_refs.data(),
-        m_impl->bvh_refs.data() + m_impl->bvh_refs.size(),
-        m_impl->colors->data()
+        m_impl->bvh_refs.data() + m_impl->bvh_refs.size()
         );
 #endif
 

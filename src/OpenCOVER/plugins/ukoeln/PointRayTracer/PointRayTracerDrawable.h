@@ -15,7 +15,9 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
-    void initData(host_bvh_type &bvh, point_vector &points, color_vector &colors);
+    void initData(std::vector<host_bvh_type> &bvh_vector);
+
+    void setCurrentPointCloud(int pointCloudID);
 
 private:
 
@@ -32,9 +34,9 @@ private:
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 
-    mutable size_t             m_total_frame_num = 0;
-    mutable bool               m_glewIsInitialized = false;
 
+    mutable size_t          m_total_frame_num = 0;
+    mutable bool            m_glewIsInitialized = false;
 };
 
 
