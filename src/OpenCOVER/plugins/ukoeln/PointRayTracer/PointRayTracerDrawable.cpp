@@ -278,7 +278,7 @@ void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
 #else
     using B = decltype(m_impl->bvh_refs.data());    
 
-    Kernel<B, CC> kernel(
+    Kernel<B> kernel(
         m_impl->bvh_refs.data(),
         m_impl->bvh_refs.data() + m_impl->bvh_refs.size()
         );

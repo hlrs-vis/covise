@@ -26,15 +26,12 @@ struct ColorSphereHitRecord
 
     M hit = M(false);
     T t = numeric_limits<T>::max();
-    vector<3, unorm<8>> color;
+    vector<3, T> color;
     int u, v, geom_id, prim_id;
 };
 
 
-template <
-    typename T,    
-    typename Cond
-    >
+template <typename T, typename Cond>
 VSNRAY_FUNC
 void update_if(ColorSphereHitRecord<T>& dst, ColorSphereHitRecord<T> const& src, Cond const& cond)
 {    
@@ -94,7 +91,7 @@ inline ColorSphereHitRecord<T> intersect(basic_ray<T> const& ray, ColorSphere co
     ColorSphereHitRecord<T> result;
     result.hit      = valid;
     result.t        = select( valid, select( t1 > t2, t2, t1 ), T(-1.0) );
-    result.color    = select( valid, sphere.color, result.color );
+    result.color    = select( valid, vector<3, T>(sphere.color), result.color );
     //printf("color %f %f %f \n", (float)result.color.x, (float)result.color.y, (float)result.color.z);
     return result;
 }
