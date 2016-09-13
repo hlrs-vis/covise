@@ -23,7 +23,7 @@ Variant *Variant::variantClass = NULL;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa, coRowMenu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xml, QDomElement *qDE_V, coVRBoxOfInterest *boi)
+Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa, coRowMenu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xml, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state)
 {
     myboi = boi;
     variantClass = this;
@@ -47,7 +47,7 @@ Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa
 
     QDomElement qDE_Variant_item = xmlfile->createElement(varName.c_str());
     QDomElement qDE_Variant_item_visible = xmlfile->createElement("visible");
-    qDE_Variant_item_visible.setAttribute("state", true);
+    qDE_Variant_item_visible.setAttribute("state", default_state);
     qDE_Variant_item.appendChild(qDE_Variant_item_visible);
     QDomElement qDE_Variant_translations = xmlfile->createElement("transform");
     qDE_Variant_translations.setAttribute("X", 0);
