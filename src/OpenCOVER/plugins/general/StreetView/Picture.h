@@ -14,6 +14,7 @@ public:
 	Picture(xercesc::DOMNode *pictureNode, Index *index);
 	~Picture();
 	osg::Node *getPanelNode();
+	std::string getCameraSymbol(){return cameraSymbol;};
 	int &getStation(){return station;};
 	double &getLatitude(){return latitude;};
 	double &getLongitude(){return longitude;};
@@ -21,7 +22,7 @@ public:
 private:
 	Camera *camera;
 	Index *index;
-	std::string cameraType;
+	std::string cameraSymbol;
 	int station;
 	std::string fileName;
 	double latitude;

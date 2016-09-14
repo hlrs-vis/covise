@@ -7,7 +7,12 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/XMLString.hpp>
 
+#include <boost/filesystem.hpp>
+
 #include <iostream>
+
+namespace fs = ::boost::filesystem;
+
 
 Index::Index(xercesc::DOMNode *indexNode, IndexParser *indexParser_)
 {
@@ -69,9 +74,59 @@ std::string Index::getAbsolutePicturePath()
 
 bool Index::parsePictureIndex()
 {
-    xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
+	xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
+	// get all files with ".cam" extension in current directory
+	fs::path cameraDirectory = getAbsolutePicturePath()+"/";
+	std::vector<fs::path> cameraFileNames;
+
+	if (!fs::exists(cameraDirectory) || !fs::is_directory(cameraDirectory))
+	{
+		fprintf(stderr, "no such camera directory\n");
+		return false;
+	}
+
+	fs::directory_iterator it(cameraDirectory);
+	fs::directory_iterator endit;
+
+	while(it != endit)
+	{
+		if (fs::is_regular_file(*it) && it->path().extension() == ".cam") 
+		{
+			cameraFileNames.push_back(it->path().filename());
+		}
+		++it;
+	}
+
+	// parse camera files found
+	for (std::vector<fs::path>::iterator it = cameraFileNames.begin(); it != cameraFileNames.end(); it++)
+	{
+		std::string currentCameraFileName = (*it).string();
+		const char currentCameraSymbol = currentCameraFileName.at(1);
+
+		try
+		{
+			parser->parse((getAbsolutePicturePath()+"/"+currentCameraFileName).c_str());
+		}
+		catch (...)
+		{
+			fprintf(stderr, "error parsing cam file\n");
+			return false;
+		}
+		xercesc::DOMDocument *xmlDoc = parser->getDocument();
+		xercesc::DOMElement *rootElement = NULL;
+		if (xmlDoc)
+		{
+			rootElement = xmlDoc->getDocumentElement();
+		}
+		if (rootElement)
+		{
+			cameraList.push_back(new Camera(rootElement, currentCameraSymbol));
+		}
+	}
+
+	// parse pictures in current directory
 	try
     {
         parser->parse((getAbsolutePicturePath()+"/"+"PIC_"+direction+version+".xml").c_str());
@@ -96,10 +151,10 @@ bool Index::parsePictureIndex()
 			if(xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
 			{
 				xercesc::DOMElement *pictureElement = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
-				Picture currentPicture = new Picture(pictureElement,this);
+				Picture *currentPicture = new Picture(pictureElement,this);
 				pictureList.push_back(currentPicture);
-				currentPicture->getCameraName()
-
+				currentPicture->getCameraSymbol();
+				// suche in cameraList nach Camera, set cam for pic
 			}
 		}
 	}
@@ -107,7 +162,7 @@ bool Index::parsePictureIndex()
 	return true;
 }
 
-
+/*/
 bool Index::parseCamerasPerIndex()
 {
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
@@ -213,7 +268,7 @@ bool Index::parseCamerasPerIndex()
 	delete parser;
 	return true;
 }
-
+/*/
 
 void Index::sortPicturesPerStation()
 {
@@ -233,7 +288,7 @@ void Index::sortPicturesPerStation()
 
 // besser: new myStation, insert und methode add, erst nach Bedingung push_back
 
-
+// check!!
 Station *Index::getStation(int stationNumber_)
 {
 	if (stations.count(stationNumber_) == 0)

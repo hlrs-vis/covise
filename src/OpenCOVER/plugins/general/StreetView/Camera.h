@@ -12,7 +12,7 @@ class Index;
 class Camera
 {
 public:
-	Camera(xercesc::DOMElement *cameraElement_, std::string cameraSymbol_);
+	Camera(xercesc::DOMElement *cameraElement_, const char cameraSymbol_);
 	~Camera();
 	std::string &getCameraName(){return cameraName;};
 	std::string &getCameraSymbol(){return cameraSymbol;};

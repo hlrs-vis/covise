@@ -27,7 +27,7 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 			continue;
 		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Buchst"), pictureElement->getTagName()))
 		{
-			cameraType = xercesc::XMLString::transcode(pictureElement->getTextContent());
+			cameraSymbol = xercesc::XMLString::transcode(pictureElement->getTextContent());
 		}
 		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Station"), pictureElement->getTagName()))
 		{
