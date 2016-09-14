@@ -1515,7 +1515,6 @@ namespace visionaray
         }
 
         impl_->host_bvhs.resize(impl_->triangles.size());
-        impl_->outlines.resize(impl_->triangles.size());
 
         for (size_t i = 0; i < impl_->triangles.size(); ++i)
         {
@@ -1527,7 +1526,6 @@ namespace visionaray
                     impl_->triangles[i].size(),
                     impl_->state->data_var == Static /* consider spatial splits if scene is static */
                     );
-            impl_->outlines[i].init(impl_->host_bvhs[i]);
         }
 
         // Copy BVH, normals, etc. to GPU if necessary
@@ -1812,10 +1810,26 @@ namespace visionaray
             glColor3f(1.0f, 1.0f, 1.0f);
 
             if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
-                impl_->outlines[0].frame();
+            {
+                if (impl_->outlines.size() > 0)
+                    impl_->outlines[0].frame();
+                else
+                {
+                    impl_->outlines.resize(1);
+                    impl_->outlines[0].init(impl_->host_bvhs[0]);
+                }
+            }
 
             if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
-                impl_->outlines[frame].frame();
+            {
+                if (impl_->outlines.size() > frame)
+                    impl_->outlines[frame].frame();
+                else
+                {
+                    impl_->outlines.resize(frame + 1);
+                    impl_->outlines[frame].init(impl_->host_bvhs[frame]);
+                }
+            }
 
 
             glMatrixMode(GL_MODELVIEW);
