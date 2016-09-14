@@ -23,7 +23,8 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
-#include "IndexParser.h"
+
+class IndexParser;
 
 class StreetView : public opencover::coVRPlugin
 {
@@ -35,6 +36,6 @@ public:
 
 private:
 	IndexParser *indexParser;
-	osg::ref_ptr<osg::Node> viereckMatrixTransform;
+	osg::ref_ptr<osg::Node> stationNode;
 };
 #endif

@@ -2,21 +2,24 @@
 #define INDEX_PARSER_H
 
 #include "Index.h"
-#include <vector>
+#include "StreetView.h"
 
 class IndexParser
 {
 public:
-	IndexParser(void);
-	~IndexParser(void);
-	/// parse index.xml in directory indexPath
-	bool parseIndex(std::string indexPath);
+	IndexParser();
+	~IndexParser();
+	bool parseIndex(std::string indexPath); 	// parse index.xml in directory indexPath
 	std::string &getIndexPath(){return indexPath;};
 	std::vector<Index *> indexList;
 	void parsePictureIndices();
+	void parseCameras();
 	void removeDuplicateEntries();
+	void IndexParser::sortIndicesPerStation();
+
 private:
 	std::string indexPath;
+	StreetView *streetView;
 };
 #endif
 

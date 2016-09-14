@@ -1,10 +1,6 @@
 #include "Picture.h"
 #include "Index.h"
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "Camera.h"
 
 #include <osgDB/ReadFile>
 
@@ -16,6 +12,7 @@
 
 Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 {
+	station = 0;
 	latitude = 0.0;
 	longitude = 0.0;
 	altitude = 0.0;
@@ -28,6 +25,15 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 		xercesc::DOMElement *pictureElement = dynamic_cast<xercesc::DOMElement *>(pictureNodeList->item(j));
 		if (!pictureElement)
 			continue;
+		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Buchst"), pictureElement->getTagName()))
+		{
+			cameraType = xercesc::XMLString::transcode(pictureElement->getTextContent());
+		}
+		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Station"), pictureElement->getTagName()))
+		{
+			const char *tmp = xercesc::XMLString::transcode(pictureElement->getTextContent());
+			sscanf(tmp, "%d", &station);
+		}	
 		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Filename"), pictureElement->getTagName()))
 		{
 			fileName = xercesc::XMLString::transcode(pictureElement->getTextContent());
@@ -54,6 +60,8 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 		}
 	}
 
+	// Zeiger auf Cam
+
 }
 
 Picture::~Picture()
@@ -62,61 +70,64 @@ Picture::~Picture()
 
 osg::Node *Picture::getPanelNode()
 {
-	osg::Geode *viereck = new osg::Geode();
-	osg::Geometry *viereckGeometry = new osg::Geometry();
-	osg::Vec3Array *viereckVertices = new osg::Vec3Array;
-	viereckVertices->reserve(4);
-	viereckVertices->push_back(osg::Vec3(0,  0,  0));
-	viereckVertices->push_back(osg::Vec3(100,0,  0));
-	viereckVertices->push_back(osg::Vec3(100,0,100));
-	viereckVertices->push_back(osg::Vec3(0,  0,100));
-	viereckGeometry->setVertexArray(viereckVertices);
-	osg::DrawElementsUShort *viereckDraw = 
-		new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, 4);
-	viereckDraw->push_back(0);
-	viereckDraw->push_back(1);
-	viereckDraw->push_back(2);
-	viereckDraw->push_back(3);
-	viereckGeometry->addPrimitiveSet(viereckDraw);
-	viereck->addDrawable(viereckGeometry);
+	osg::Geode *panel = new osg::Geode();
+	panel->setName("Panel");
 
-	osg::Vec3Array *viereckNormals = new osg::Vec3Array;
-	viereckNormals->reserve(4);
-	viereckNormals->push_back(osg::Vec3(0,  -1,  0));
-	viereckNormals->push_back(osg::Vec3(0,  -1,  0));
-	viereckNormals->push_back(osg::Vec3(0,  -1,  0));
-	viereckNormals->push_back(osg::Vec3(0,  -1,  0));
-	viereckGeometry->setNormalArray(viereckNormals);
-	viereckGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+	osg::Geometry *panelGeometry = new osg::Geometry();
 
-	osg::Vec2Array *viereckTexcoords = new osg::Vec2Array(4);
-	(*viereckTexcoords)[0].set(0.0f,0.0f);
-	(*viereckTexcoords)[1].set(1.0f,0.0f);
-	(*viereckTexcoords)[2].set(1.0f,1.0f);
-	(*viereckTexcoords)[3].set(0.0f,1.0f); 
-	viereckGeometry->setTexCoordArray(0,viereckTexcoords);
+	osg::Vec3Array *panelVertices = new osg::Vec3Array;
+	panelVertices->reserve(4);
+	panelVertices->push_back(osg::Vec3(0,  0,  0));
+	panelVertices->push_back(osg::Vec3(100,0,  0));
+	panelVertices->push_back(osg::Vec3(100,0,100));
+	panelVertices->push_back(osg::Vec3(0,  0,100));
+	panelGeometry->setVertexArray(panelVertices);
 
-	// load texture
-	osg::Texture2D* viereckTexture = new osg::Texture2D;
-	viereckTexture->setDataVariance(osg::Object::DYNAMIC); 
-	osg::Image *viereckImage = osgDB::readImageFile(index->getAbsolutePicturePath()+fileName);
-	if (!viereckImage)
+	osg::DrawElementsUShort *panelDraw = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, 4);
+	panelDraw->push_back(0);
+	panelDraw->push_back(1);
+	panelDraw->push_back(2);
+	panelDraw->push_back(3);
+	panelGeometry->addPrimitiveSet(panelDraw);
+	panel->addDrawable(panelGeometry);
+
+	osg::Vec3Array *panelNormals = new osg::Vec3Array;
+	panelNormals->reserve(4);
+	panelNormals->push_back(osg::Vec3(0,  -1,  0));
+	panelNormals->push_back(osg::Vec3(0,  -1,  0));
+	panelNormals->push_back(osg::Vec3(0,  -1,  0));
+	panelNormals->push_back(osg::Vec3(0,  -1,  0));
+	panelGeometry->setNormalArray(panelNormals);
+	panelGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+	osg::Vec2Array *panelTexcoords = new osg::Vec2Array(4);
+	(*panelTexcoords)[0].set(0.0f,0.0f);
+	(*panelTexcoords)[1].set(1.0f,0.0f);
+	(*panelTexcoords)[2].set(1.0f,1.0f);
+	(*panelTexcoords)[3].set(0.0f,1.0f); 
+	panelGeometry->setTexCoordArray(0,panelTexcoords);
+
+	osg::Texture2D* panelTexture = new osg::Texture2D;
+	panelTexture->setDataVariance(osg::Object::DYNAMIC); 
+	osg::Image *panelImage = osgDB::readImageFile(index->getAbsolutePicturePath()+fileName);
+	if (!panelImage)
 	{
 		fprintf(stderr, "Image missing!\n");
 	}
 	else
 	{
-		viereckTexture->setImage(viereckImage);
+		panelTexture->setImage(panelImage);
 	}
 
 	osg::StateSet *stateOne = new osg::StateSet();
-	stateOne->setTextureAttributeAndModes(0,viereckTexture,osg::StateAttribute::ON); 
-	viereck->setStateSet(stateOne);
+	stateOne->setTextureAttributeAndModes(0,panelTexture,osg::StateAttribute::ON); 
+	panel->setStateSet(stateOne);
 
 	// root node
-	viereckMatrixTransform = new osg::MatrixTransform;
-	viereckMatrixTransform->setName("Viereck MatrixTransform");
-	viereckMatrixTransform->setMatrix(osg::Matrix::scale(150, 100, 100));
-	viereckMatrixTransform->addChild(viereck);
-	return viereckMatrixTransform;
+	panelMatrixTransform = new osg::MatrixTransform;
+	panelMatrixTransform->setName("MatrixTransform");
+	panelMatrixTransform->setMatrix(osg::Matrix::scale(150, 100, 100));
+	panelMatrixTransform->addChild(panel);
+
+	return panelMatrixTransform;
 }
