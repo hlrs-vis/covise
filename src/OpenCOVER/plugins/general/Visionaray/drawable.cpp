@@ -1098,7 +1098,7 @@ namespace visionaray
         // we can reapply them later on
         node_mask_map ray_tracing_masks;
 
-        detail::bvh_outline_renderer outlines;
+        std::vector<detail::bvh_outline_renderer> outlines;
 
         gl::debug_callback gl_debug_callback;
 
@@ -1438,7 +1438,8 @@ namespace visionaray
     {
         set_node_masks_visitor visitor(impl_->node_masks);
         opencover::cover->getObjectsRoot()->accept(visitor);
-//      impl_->outlines.destroy();
+        for (auto &o : impl_->outlines)
+            o.destroy();
     }
 
     void drawable::update_state(
@@ -1514,6 +1515,7 @@ namespace visionaray
         }
 
         impl_->host_bvhs.resize(impl_->triangles.size());
+        impl_->outlines.resize(impl_->triangles.size());
 
         for (size_t i = 0; i < impl_->triangles.size(); ++i)
         {
@@ -1525,7 +1527,7 @@ namespace visionaray
                     impl_->triangles[i].size(),
                     impl_->state->data_var == Static /* consider spatial splits if scene is static */
                     );
-//          impl_->outlines.init(impl_->host_bvhs[i]);
+            impl_->outlines[i].init(impl_->host_bvhs[i]);
         }
 
         // Copy BVH, normals, etc. to GPU if necessary
@@ -1808,7 +1810,13 @@ namespace visionaray
             glLoadMatrixf(vparams.view_matrix.data());
 
             glColor3f(1.0f, 1.0f, 1.0f);
-//          impl_->outlines.frame();
+
+            if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
+                impl_->outlines[0].frame();
+
+            if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
+                impl_->outlines[frame].frame();
+
 
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();
