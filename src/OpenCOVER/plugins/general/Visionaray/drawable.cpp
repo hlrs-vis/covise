@@ -1439,8 +1439,9 @@ namespace visionaray
     {
         set_node_masks_visitor visitor(impl_->node_masks);
         opencover::cover->getObjectsRoot()->accept(visitor);
-        for (auto &o : impl_->outlines)
-            o.destroy();
+        for (size_t i = 0; i < impl_->outlines_initialized.size(); ++i)
+            if (impl_->outlines_initialized[i])
+                impl_->outlines[i].destroy();
     }
 
     void drawable::update_state(
