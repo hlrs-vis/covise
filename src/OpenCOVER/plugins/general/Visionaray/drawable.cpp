@@ -894,46 +894,43 @@ namespace visionaray
             if (std::find(processed_.begin(), processed_.end(), l) != processed_.end())
                 return;
 
-            if (true)
-            {
-                auto lpos = osg_cast(l->getPosition());
-                auto spot_dir = vec4(osg_cast(l->getDirection()), 1.0f);
+            auto lpos = osg_cast(l->getPosition());
+            auto spot_dir = vec4(osg_cast(l->getDirection()), 1.0f);
 
-                auto world_trans = osg::computeLocalToWorld(getNodePath());
-                auto obj_trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
-                lpos = inverse(osg_cast(obj_trans)) * osg_cast(world_trans) * lpos;
+            auto world_trans = osg::computeLocalToWorld(getNodePath());
+            auto obj_trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
+            lpos = inverse(osg_cast(obj_trans)) * osg_cast(world_trans) * lpos;
 
-                auto ldiff = osg_cast(l->getDiffuse());
+            auto ldiff = osg_cast(l->getDiffuse());
 
-                // transform spot dir
-                spot_dir = inverse(transpose(inverse(osg_cast(obj_trans)))) * inverse(transpose(osg_cast(world_trans))) * spot_dir;
+            // transform spot dir
+            spot_dir = inverse(transpose(inverse(osg_cast(obj_trans)))) * inverse(transpose(osg_cast(world_trans))) * spot_dir;
 
 
-                // map OpenGL [-1,1] to Visionaray [0,1]
-                ldiff += 1.0f;
-                ldiff /= 2.0f;
+            // map OpenGL [-1,1] to Visionaray [0,1]
+            ldiff += 1.0f;
+            ldiff /= 2.0f;
 
-                light_type light;
+            light_type light;
 
-                light.set_position(lpos.xyz());
-                light.set_cl(ldiff.xyz());
-                light.set_kl(ldiff.w);
+            light.set_position(lpos.xyz());
+            light.set_cl(ldiff.xyz());
+            light.set_kl(ldiff.w);
 
 
-                light.set_spot_direction(normalize(spot_dir.xyz()));
-                light.set_spot_cutoff(l->getSpotCutoff() * constants::degrees_to_radians<float>());
-                light.set_spot_exponent(l->getSpotExponent());
+            light.set_spot_direction(normalize(spot_dir.xyz()));
+            light.set_spot_cutoff(l->getSpotCutoff() * constants::degrees_to_radians<float>());
+            light.set_spot_exponent(l->getSpotExponent());
 
-                light.set_constant_attenuation(l->getConstantAttenuation());
-                light.set_linear_attenuation(l->getLinearAttenuation());
-                light.set_quadratic_attenuation(l->getQuadraticAttenuation());
+            light.set_constant_attenuation(l->getConstantAttenuation());
+            light.set_linear_attenuation(l->getLinearAttenuation());
+            light.set_quadratic_attenuation(l->getQuadraticAttenuation());
 
-                lights_.push_back(light);
+            lights_.push_back(light);
 
-                // Intentionally only mark as processed if
-                // the light is turned on
-                processed_.push_back(l);
-            }
+            // Intentionally only mark as processed if
+            // the light is turned on
+            processed_.push_back(l);
         }
     };
 
@@ -1070,11 +1067,11 @@ namespace visionaray
             void clear_frame()
             {
                 frame_num = 0;
-                host_rt.clear_color();
-                host_rt.clear_depth();
+                host_rt.clear_color_buffer();
+                host_rt.clear_depth_buffer();
 #ifdef __CUDACC__
-                device_rt.clear_color();
-                device_rt.clear_depth();
+                device_rt.clear_color_buffer();
+                device_rt.clear_depth_buffer();
 #endif
 
                 need_clear_frame = false;
