@@ -1099,6 +1099,7 @@ namespace visionaray
         node_mask_map ray_tracing_masks;
 
         std::vector<detail::bvh_outline_renderer> outlines;
+        std::vector<bool> outlines_initialized;
 
         gl::debug_callback gl_debug_callback;
 
@@ -1515,6 +1516,9 @@ namespace visionaray
         }
 
         impl_->host_bvhs.resize(impl_->triangles.size());
+        impl_->outlines.resize(impl_->triangles.size());
+        impl_->outlines_initialized.resize(impl_->triangles.size());
+        std::fill(impl_->outlines_initialized.begin(), impl_->outlines_initialized.end(), false);
 
         for (size_t i = 0; i < impl_->triangles.size(); ++i)
         {
@@ -1811,23 +1815,23 @@ namespace visionaray
 
             if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
             {
-                if (impl_->outlines.size() > 0)
+                if (impl_->outlines_initialized[0])
                     impl_->outlines[0].frame();
                 else
                 {
-                    impl_->outlines.resize(1);
                     impl_->outlines[0].init(impl_->host_bvhs[0]);
+                    impl_->outlines_initialized[0] = true;
                 }
             }
 
             if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
             {
-                if (impl_->outlines.size() > frame)
+                if (impl_->outlines_initialized[frame])
                     impl_->outlines[frame].frame();
                 else
                 {
-                    impl_->outlines.resize(frame + 1);
                     impl_->outlines[frame].init(impl_->host_bvhs[frame]);
+                    impl_->outlines_initialized[frame] = true;
                 }
             }
 
