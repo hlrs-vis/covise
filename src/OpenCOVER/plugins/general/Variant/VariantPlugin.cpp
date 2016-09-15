@@ -374,16 +374,42 @@ void VariantPlugin::addNode(osg::Node *node, RenderObject *render)
 
             if (var_att != "NULL" && var_att != "")
             {
+                bool default_state = false;
+                if(var_att.length()>3 && var_att.compare(var_att.length()-3,3,"_on")==0)
+                {
+                   var_att = var_att.substr(var_att.length()-3);
+                   default_state = true;
+                }
+                if(var_att.length()>4 && var_att.compare(var_att.length()-4,4,"_off")==0)
+                {
+                   var_att = var_att.substr(var_att.length()-4);
+                   default_state = false;
+                }
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {
                     osg::Node::ParentList parents = node->getParents();
-                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi);
+                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi,default_state);
 
                     varlist.push_back(vari);
 
                     vari->AddToScenegraph();
                     vari->hideVRLabel();
+                    if(default_state==false)
+                    {
+                       osg::Node *n = vari->getNode();
+                       if (n)
+                       {
+                           std::string path = coVRSelectionManager::generatePath(n);
+                           std::string pPath = path.substr(0, path.find_last_of(";"));
+                           TokenBuffer tb2;
+                           tb2 << path;
+                           tb2 << pPath;
+                           cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.get_length(), tb2.get_data());
+                           setMenuItem(vari, (false));
+                           setQDomElemState(vari, false);
+                       }
+                    }
                 }
                 else
                 {
