@@ -53,6 +53,7 @@ ReadFOAM::ReadFOAM(int argc, char *argv[]) //Constructor
     //Setup vectors for last used data
     lastDataPortSelection.resize(num_ports);
     lastBoundaryPortSelection.resize(num_boundary_data_ports);
+    lastParticlePortSelection.resize(num_ports);
 
     // file browser parameter
     filenameParam = addFileBrowserParam("casedir", "Data file path");
@@ -100,6 +101,17 @@ ReadFOAM::ReadFOAM(int argc, char *argv[]) //Constructor
         boundaryDataChoice.push_back(choice);
     }
 
+    particleParam = addBooleanParam("load_particles", "set to false to prevent loading of particle data");
+    particleParam->setValue(true);
+    for (int i=0; i<num_ports; ++i)
+    {
+        std::stringstream s, ss;
+        s << "ParticleDataChoice" << i;
+        ss << "Choose data to map to ParticleDataPort " << i;
+        coChoiceParam *choice = addChoiceParam(s.str().c_str(), ss.str().c_str());
+        particleDataChoice.push_back(choice);
+    }
+
     // the output ports
     meshOutPort = addOutputPort("GridOut0", "UnstructuredGrid", "unstructured grid");
     //Data output Ports
@@ -125,6 +137,18 @@ ReadFOAM::ReadFOAM(int argc, char *argv[]) //Constructor
         outPort = addOutputPort(s.str().c_str(), ss.str().c_str(), sss.str().c_str());
         boundaryDataPorts.push_back(outPort);
     }
+    particleOutPort = addOutputPort("GridOut2", "Points", "Particles");
+    //particle data output ports
+    for (int i = 0; i < num_ports; ++i)
+    {
+        coOutputPort *outPort;
+        std::stringstream s, ss, sss;
+        s << "ParticleDataOut" << i;
+        ss << "Vec3|Float|Int";
+        sss << "Outputs data that has been set in Parameter: ParticleDataPort" << i;
+        outPort = addOutputPort(s.str().c_str(), ss.str().c_str(), sss.str().c_str());
+        particleDataPorts.push_back(outPort);
+    }
 }
 
 ReadFOAM::~ReadFOAM() //Destructor
@@ -148,11 +172,31 @@ std::vector<const char *> ReadFOAM::getFieldList()
     {
         choiceVal[i] = it->first.c_str();
         ++i;
-coModule::sendInfo("Added: %s", it->first.c_str());
     }
 
     for (std::map<std::string, int>::iterator it = m_case.constantFields.begin();
          it != m_case.constantFields.end();
+         ++it)
+    {
+        choiceVal[i] = it->first.c_str();
+        ++i;
+    }
+
+    return choiceVal;
+}
+
+std::vector<const char *> ReadFOAM::getParticleFieldList()
+{
+    int num = m_case.particleFields.size()+2;
+    std::vector<const char *> choiceVal(num);
+    int i = 0;
+    choiceVal[i] = "none";
+    ++i;
+    choiceVal[i] = "cellID";
+    ++i;
+
+    for (std::map<std::string, int>::iterator it = m_case.particleFields.begin();
+         it != m_case.particleFields.end();
          ++it)
     {
         choiceVal[i] = it->first.c_str();
@@ -226,37 +270,57 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
         }
 
         //fill the choiceParameters and set them to the previously selected item (if not possible set them to "none")
-        index_t num = m_case.varyingFields.size() + m_case.constantFields.size() + 2;
-        std::vector<const char *> choiceVal;
-        choiceVal = getFieldList();
+        {
+            std::vector<const char *> choiceVal = getFieldList();
+            index_t num = choiceVal.size();
 
-        for (int i = 0; i < num_ports; ++i)
-        {
-            std::string lastSelection = lastDataPortSelection[i];
-            int last = 0;
-            for (int j = 0; j < choiceVal.size(); ++j)
+            for (int i = 0; i < num_ports; ++i)
             {
-                if (strcmp(lastSelection.c_str(), choiceVal[j]) == 0)
+                std::string lastSelection = lastDataPortSelection[i];
+                int last = 0;
+                for (int j = 0; j < choiceVal.size(); ++j)
                 {
-                    last = j;
-                    break;
+                    if (strcmp(lastSelection.c_str(), choiceVal[j]) == 0)
+                    {
+                        last = j;
+                        break;
+                    }
                 }
+                portChoice[i]->setValue(num, &choiceVal[0], last);
             }
-            portChoice[i]->setValue(num, &choiceVal[0], last);
+            for (int i = 0; i < num_boundary_data_ports; ++i)
+            {
+                std::string lastSelection = lastBoundaryPortSelection[i];
+                int last = 0;
+                for (int j = 0; j < choiceVal.size(); ++j)
+                {
+                    if (strcmp(lastSelection.c_str(), choiceVal[j]) == 0)
+                    {
+                        last = j;
+                        break;
+                    }
+                }
+                boundaryDataChoice[i]->setValue(num, &choiceVal[0], last);
+            }
         }
-        for (int i = 0; i < num_boundary_data_ports; ++i)
+
         {
-            std::string lastSelection = lastBoundaryPortSelection[i];
-            int last = 0;
-            for (int j = 0; j < choiceVal.size(); ++j)
+            std::vector<const char *> choiceVal = getParticleFieldList();
+            index_t num = choiceVal.size();
+            for (int i=0; i<num_ports; ++i)
             {
-                if (strcmp(lastSelection.c_str(), choiceVal[j]) == 0)
+                std::string lastSelection = lastParticlePortSelection[i];
+                int last = 0;
+                for (int j = 0; j < choiceVal.size(); ++j)
                 {
-                    last = j;
-                    break;
+                    if (strcmp(lastSelection.c_str(), choiceVal[j]) == 0)
+                    {
+                        last = j;
+                        break;
+                    }
                 }
+                particleDataChoice[i]->setValue(num, &choiceVal[0], last);
             }
-            boundaryDataChoice[i]->setValue(num, &choiceVal[0], last);
         }
         std::cerr << "varyingcoords " << m_case.varyingCoords << " varyinggrid " << m_case.varyingGrid << std::endl;
     }
@@ -281,6 +345,17 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
         {
             index_t portIndex = boundaryDataChoice[i]->getValue();
             std::string portFilename = boundaryDataChoice[i]->getLabel(portIndex);
+            lastBoundaryPortSelection[i] = portFilename;
+        }
+    }
+    for (int i=0; i<num_ports; ++i)
+    {
+        std::stringstream s;
+        s << "ParticleDataChoice" << i;
+        if (string(paramName) == s.str())
+        {
+            index_t portIndex = particleDataChoice[i]->getValue();
+            std::string portFilename = particleDataChoice[i]->getLabel(portIndex);
             lastBoundaryPortSelection[i] = portFilename;
         }
     }
@@ -322,6 +397,21 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
                     }
                 }
                 boundaryDataChoice[i]->setValue(num, &choiceVal[0], last);
+            }
+
+            for (int i = 0; i < num_ports; ++i)
+            {
+                std::string lastSelection = lastParticlePortSelection[i];
+                int last = 0;
+                for (int j = 0; j < choiceVal.size(); ++j)
+                {
+                    if (strcmp(lastSelection.c_str(), choiceVal[j]) == 0)
+                    {
+                        last = j;
+                        break;
+                    }
+                }
+                particleDataChoice[i]->setValue(num, &choiceVal[0], last);
             }
         }
     }
@@ -653,7 +743,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
                                     const index_t Processor,
                                     const index_t saveMapTo)
 {
-    coDoPolygons *polyObj;
+    coDoPolygons *polyObj = NULL;
     if (Processor == -1)
     { //when Processor = -1, the boundary will be read completely
         std::cerr << std::time(0) << " Reading boundary from:             " << meshdir.c_str() << std::endl;
@@ -802,6 +892,43 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
     return polyObj;
 }
 
+coDoPoints *ReadFOAM::loadParticles(const std::string &datadir, const std::string &objName, const std::string &cellIdObjName, coDistributedObject **cellIdsPointer)
+{
+    *cellIdsPointer = NULL;
+    std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
+
+    boost::shared_ptr<std::istream> posIn = getStreamForFile(lagdir, "positions");
+    if (!posIn)
+        return NULL;
+    HeaderInfo posH = readFoamHeader(*posIn);
+    std::cerr << std::time(0) << " Reading positions from " << lagdir << std::endl;
+    std::cerr << "lines: " << posH.lines << ", type: " << posH.fieldclass << std::endl;
+    int num_pos = posH.lines;
+    float *x=NULL, *y=NULL, *z=NULL;
+    coDoPoints *pointObj = NULL;
+    if (!objName.empty())
+    {
+        pointObj = new coDoPoints(objName.c_str(), num_pos);
+        pointObj->getAddresses(&x, &y, &z);
+    }
+    coDoInt *cellIds = NULL;
+    int *cell = NULL;
+    if (!cellIdObjName.empty())
+    {
+        cellIds = new coDoInt(cellIdObjName, num_pos);
+        cell = cellIds->getAddress();
+    }
+    if (!readParticleArray(posH, *posIn, x, y, z, cell, num_pos))
+    {
+        delete pointObj;
+        delete cellIds;
+        return NULL;
+    }
+
+    *cellIdsPointer = cellIds;
+    return pointObj;
+}
+
 
 coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
                                      const std::string &file,
@@ -812,12 +939,16 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
-    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
-    HeaderInfo ownerH = readFoamHeader(*ownersIn);
-    DimensionInfo dim = parseDimensions(ownerH.header);
-    size_t numberCells=(header.lines>0) ? header.lines : dim.cells;
+    size_t numberCells = header.lines;
+    if (numberCells == 0)
+    {
+        boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+        HeaderInfo ownerH = readFoamHeader(*ownersIn);
+        DimensionInfo dim = parseDimensions(ownerH.header);
+        numberCells = dim.cells;
+    }
     coDistributedObject *fieldObj;
-    if (header.fieldclass == "volVectorField")
+    if (header.fieldclass == "volVectorField" || header.fieldclass == "vectorField")
     {
         std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
         coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), numberCells);
@@ -825,7 +956,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
         vecObj->getAddresses(&x, &y, &z);
         if (header.lines==0)
         {
-            for (int i=0; i<dim.cells; ++i)
+            for (int i=0; i<numberCells; ++i)
             {
                 x[i] = 0.0;
                 y[i] = 0.0;
@@ -838,7 +969,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
         }
         fieldObj= vecObj;
     }
-    else if (header.fieldclass == "volScalarField")
+    else if (header.fieldclass == "volScalarField" || header.fieldclass == "scalarField")
     {
         std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
         coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numberCells);
@@ -846,7 +977,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
         if (header.lines==0)
         {
             float uniformFieldValue=std::stof(header.internalField,NULL);
-            for (int i=0; i<dim.cells; ++i)
+            for (int i=0; i<numberCells; ++i)
             {
                 x[i] = uniformFieldValue;
             }
@@ -855,6 +986,25 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
         { 
             vecObj->getAddress(&x);
             readFloatArray(header, *vecIn, x, header.lines);
+        }
+        fieldObj= vecObj;
+    }
+    else if (header.fieldclass == "labelField")
+    {
+        std::cerr << std::time(0) << " Reading labelField from:" << timedir.c_str() << "//" << file.c_str() << std::endl;
+        coDoInt *vecObj = new coDoInt(vecObjName.c_str(), numberCells);
+        int *d=vecObj->getAddress();
+        if (header.lines==0)
+        {
+            int uniformFieldValue=std::stoi(header.internalField,NULL);
+            for (int i=0; i<numberCells; ++i)
+            {
+                d[i] = uniformFieldValue;
+            }
+        }
+        else
+        {
+            readIndexArray(header, *vecIn, d, header.lines);
         }
         fieldObj= vecObj;
     }
@@ -908,15 +1058,14 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
         }
     }
 
-    coDistributedObject *fieldObj;
+    coDistributedObject *fieldObj = NULL;
 
-    if (header.fieldclass == "volScalarField")
+    if (header.fieldclass == "volScalarField" || header.fieldclass == "scalarField")
     {
         std::cerr << std::time(0) << " Reading Boundary ScalarField from: " << timedir.c_str() << "//" << file.c_str() << std::endl;
 
         coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numBoundaryFaces);
-        float *x;
-        vecObj->getAddress(&x);
+        float *x = vecObj->getAddress();
 
         if (header.lines==0)
         {
@@ -938,7 +1087,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
         }
         fieldObj=vecObj;
     }
-    else if (header.fieldclass == "volVectorField")
+    else if (header.fieldclass == "volVectorField" || header.fieldclass == "vectorField")
     {
         std::cerr << std::time(0) << " Reading Boundary VectorField from: " << timedir.c_str() << "//" << file.c_str() << std::endl;
 
@@ -1018,10 +1167,14 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     coDoSet *meshSet=NULL, *meshSubSet=NULL;
     std::vector<coDistributedObject *> boundarySubSets;
     coDoSet *boundarySet=NULL, *boundarySubSet=NULL;
+    std::vector<coDistributedObject *> particleSubSets;
+    coDoSet *particleSet=NULL, *particleSubSet=NULL;
     std::vector<std::vector<coDistributedObject *> > portSubSets(num_ports);
-    coDoSet *portSet=NULL, *portSubSet=NULL;
+    coDoSet *portSubSet=NULL;
     std::vector<std::vector<coDistributedObject *> > boundPortSubSets(num_boundary_data_ports);
-    coDoSet *boundPortSet=NULL, *boundPortSubSet=NULL;
+    coDoSet *boundPortSubSet=NULL;
+    std::vector<std::vector<coDistributedObject *> > particlePortSubSets(num_ports);
+    coDoSet *particlePortSubSet=NULL;
 
     std::vector <std::string> lastmeshdir(std::max(1,m_case.numblocks));
     std::vector <std::string> lastbounddir(std::max(1,m_case.numblocks));
@@ -1037,20 +1190,18 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         { 
             if (counter % skipfactor == 0)
             {
-                if (meshParam->getValue() || boundaryParam->getValue())
+                if (meshParam->getValue() || boundaryParam->getValue() || (m_case.hasParticles && particleParam->getValue()))
                 {
                     coModule::sendInfo("Reading mesh/boundary and data. Please wait ...");
                     std::cerr << std::time(0) << " Reading mesh, boundary and fields for timestep: " << t << std::endl;
                     std::string selection = patchesStringParam->getValString();
 
-                    coDoUnstructuredGrid *meshSub;
-
-                    coDoPolygons *boundarySub;
-
                     std::vector<coDistributedObject *> tempSetMesh;
                     std::vector<coDistributedObject *> tempSetBoundary;
+                    std::vector<coDistributedObject *> tempSetParticles;
                     std::vector<std::vector<coDistributedObject *> > tempSetPort(num_ports);
                     std::vector<std::vector<coDistributedObject *> > tempSetBoundPort(num_boundary_data_ports);
+                    std::vector<std::vector<coDistributedObject *> > tempSetParticlesPort(num_ports);
                     for (index_t j = 0;( j < m_case.numblocks || j==0); j++)
                     { //fill vector:tempSet with all the mesh parts of all processors even if its just one
                         //std::cerr << " processor" << j;
@@ -1083,17 +1234,20 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         std::stringstream sm;
                         std::stringstream sb;
                         std::stringstream sd;
+                        std::stringstream sp;
                         if (m_case.numblocks > 0)
                         {
                             sm << "_timestep_" << i << "_processor_" << j;
                             sb << "_timestep_" << i << "_processor_" << j;
                             sd << "_timestep_" << i << "_processor_" << j;
+                            sp << "_timestep_" << i << "_processor_" << j;
                         }
                         else
                         {
                             sm << "_timestep_" << i << "_mesh";
                             sb << "_timestep_" << i << "_polygon";
                             sd << "_timestep_" << i << "_data";
+                            sp << "_timestep_" << i << "_data";
                         }
 
                         if ((!m_case.varyingCoords && counter==0) || m_case.varyingCoords)
@@ -1102,7 +1256,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             {   
                                 std::string meshObjName = meshOutPort->getObjName();
                                 meshObjName += sm.str();
-                                coDoUnstructuredGrid *m;
+                                coDoUnstructuredGrid *m = NULL;
                                 if (lastmeshdir[j]==meshdir)
                                 {
                                     m = loadMesh(meshdir, pointsdir, meshObjName, j);
@@ -1119,7 +1273,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             {
                                 std::string boundObjName = boundaryOutPort->getObjName();
                                 boundObjName += sb.str();
-                                coDoPolygons *p;
+                                coDoPolygons *p = NULL;
 
                                 if (lastbounddir[j] == meshdir)
                                 {
@@ -1132,6 +1286,50 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     lastbounddir[j]=meshdir;
                                 }
                                 tempSetBoundary.push_back(p);
+                            }
+                        }
+                        std::vector<size_t> cellIdPorts;
+                        for (int nPort = 0; nPort < num_ports; ++nPort)
+                        {
+                            index_t portchoice = particleDataChoice[nPort]->getValue();
+                            if (portchoice > 0 && portchoice <= m_case.particleFields.size()+1)
+                            {
+                                if (portchoice == 1)
+                                {
+                                    cellIdPorts.push_back(nPort);
+                                }
+                                else
+                                {
+                                    std::string dataFilename = particleDataChoice[nPort]->getLabel(portchoice);
+                                    std::string portObjName = particleDataPorts[nPort]->getObjName();
+                                    portObjName += sp.str();
+                                    std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
+                                    coDistributedObject *v = loadField(lagdir, dataFilename, portObjName, meshdir);
+                                    tempSetParticlesPort[nPort].push_back(v);
+                                }
+                            }
+                        }
+                        if (m_case.hasParticles && (particleParam->getValue() || !cellIdPorts.empty()))
+                        {
+                            std::string particleObjName, cellIdObjName;
+                            if (particleParam->getValue())
+                            {
+                                particleObjName = particleOutPort->getObjName();
+                                particleObjName += sp.str();
+                            }
+                            if (!cellIdPorts.empty())
+                            {
+                                cellIdObjName = particleDataPorts[cellIdPorts[0]]->getObjName();
+                                cellIdObjName += sp.str();
+                            }
+                            coDistributedObject *cellIds = NULL;
+                            coDoPoints *p = loadParticles(datadir, particleObjName, cellIdObjName, &cellIds);
+                            if (p)
+                                tempSetParticles.push_back(p);
+                            if (cellIds)
+                            {
+                                for (size_t i=0; i<cellIdPorts.size(); ++i)
+                                    tempSetParticlesPort[cellIdPorts[i]].push_back(cellIds);
                             }
                         }
                         for (int nPort = 0; nPort < num_ports; ++nPort)
@@ -1234,6 +1432,13 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             boundarySubSet->incRefCount();
                         }
                     }
+                    if (m_case.hasParticles && particleParam->getValue())
+                    {
+                        std::string particleSubSetName = particleOutPort->getObjName();
+                        particleSubSetName += s.str();
+                        particleSubSet = new coDoSet(particleSubSetName, tempSetParticles.size(), &tempSetParticles.front());
+                        particleSubSets.push_back(particleSubSet);
+                    }
 
                     for (int nPort = 0; nPort < num_ports; ++nPort)
                     {
@@ -1257,6 +1462,18 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             boundPortSubSetName += s.str();
                             boundPortSubSet = new coDoSet(boundPortSubSetName, tempSetBoundPort[nPort].size(), &tempSetBoundPort[nPort].front());
                             boundPortSubSets[nPort].push_back(boundPortSubSet);
+                        }
+                    }
+                    for (int nPort = 0; nPort < num_ports; ++nPort)
+                    {
+                        index_t portchoice = particleDataChoice[nPort]->getValue();
+                        if (portchoice > 0 && portchoice <= m_case.particleFields.size()+1)
+                        {
+                            //std::cerr << std::time(0) << " Read data for timestep: " << t << std::endl;
+                            std::string portSubSetName = particleDataPorts[nPort]->getObjName();
+                            portSubSetName += s.str();
+                            particlePortSubSet = new coDoSet(portSubSetName, tempSetParticlesPort[nPort].size(), &tempSetParticlesPort[nPort].front());
+                            particlePortSubSets[nPort].push_back(particlePortSubSet);
                         }
                     }
                 }
@@ -1287,10 +1504,20 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         boundarySubSets.clear();
         boundaryOutPort->setCurrentObject(boundarySet);
     }
+    if (m_case.hasParticles && particleParam->getValue())
+    {
+        std::string particleSetName = particleOutPort->getObjName();
+        particleSet = new coDoSet(particleSetName, particleSubSets.size(), &particleSubSets.front());
+        std::stringstream s;
+        s << "0-" << boundarySubSets.size();
+        particleSet->addAttribute("TIMESTEP", s.str().c_str());
+        particleSubSets.clear();
+        particleOutPort->setCurrentObject(particleSet);
+    }
     for (int nPort = 0; nPort < num_ports; ++nPort)
     {
         std::string portSetName = outPorts[nPort]->getObjName();
-        portSet = new coDoSet(portSetName, portSubSets[nPort].size(), &portSubSets[nPort].front());
+        coDoSet *portSet = new coDoSet(portSetName, portSubSets[nPort].size(), &portSubSets[nPort].front());
         if (m_case.timedirs.size() > 1)
         {
             std::stringstream s;
@@ -1303,7 +1530,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     for (int nPort = 0; nPort < num_boundary_data_ports; ++nPort)
     {
         std::string boundPortSetName = boundaryDataPorts[nPort]->getObjName();
-        boundPortSet = new coDoSet(boundPortSetName, boundPortSubSets[nPort].size(), &boundPortSubSets[nPort].front());
+        coDoSet *boundPortSet = new coDoSet(boundPortSetName, boundPortSubSets[nPort].size(), &boundPortSubSets[nPort].front());
         if (m_case.timedirs.size() > 1)
         {
             std::stringstream s;
@@ -1312,6 +1539,19 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         }
         boundPortSubSets[nPort].clear();
         boundaryDataPorts[nPort]->setCurrentObject(boundPortSet);
+    }
+    for (int nPort = 0; nPort < num_ports; ++nPort)
+    {
+        std::string particlePortSetName = particleDataPorts[nPort]->getObjName();
+        coDoSet *portSet = new coDoSet(particlePortSetName, particlePortSubSets[nPort].size(), &particlePortSubSets[nPort].front());
+        if (m_case.timedirs.size() > 1)
+        {
+            std::stringstream s;
+            s << "0-" << particlePortSubSets[nPort].size();
+            portSet->addAttribute("TIMESTEP", s.str().c_str());
+        }
+        particlePortSubSets[nPort].clear();
+        particleDataPorts[nPort]->setCurrentObject(portSet);
     }
 
 
@@ -1334,6 +1574,13 @@ bool ReadFOAM::vectorsAreFilled()
     for (int i = 0; i < lastBoundaryPortSelection.size(); ++i)
     {
         if (lastBoundaryPortSelection[i].empty())
+        {
+            filled = false;
+        }
+    }
+    for (int i=0; i<lastParticlePortSelection.size(); ++i)
+    {
+        if (lastParticlePortSelection[i].empty())
         {
             filled = false;
         }

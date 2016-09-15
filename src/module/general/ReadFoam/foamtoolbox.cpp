@@ -219,6 +219,14 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
                     havePoints = true;
             }
         }
+
+        if (stem == "lagrangian")
+        {
+            if (::is_directory(*it))
+            {
+                info.hasParticles = true;
+            }
+        }
     }
     // 
     if (meshfiles.size() == 4)
@@ -248,6 +256,56 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
     return false;
 }
 
+bool checkLagrangianDirectory(CaseInfo &info, std::string lagdir, bool time)
+{
+    if (info.lagrangiandir.empty())
+    {
+        info.lagrangiandir = "dsmc";
+    }
+    lagdir = lagdir + "/" + info.lagrangiandir;
+    //std::cerr << "checking lagdir " << lagdir << std::endl;
+    bf::path p(lagdir);
+    if (!::is_directory(p))
+    {
+        std::cerr << lagdir << " is not a directory" << std::endl;
+        return false;
+    }
+
+    bool havePositions = false;
+    std::map<std::string, std::string> meshfiles;
+    for (bf::directory_iterator it(p);
+         it != bf::directory_iterator();
+         ++it)
+    {
+        bf::path ent(*it);
+        std::string stem = ent.stem().string();
+        std::string ext = ent.extension().string();
+        if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
+        {
+            if (stem == "positions")
+            {
+                std::cerr << "ignoring " << *it << std::endl;
+            }
+        }
+        else
+        {
+            meshfiles[stem] = bf::path(*it).string();
+            if (stem == "positions")
+                havePositions = true;
+            else
+                ++info.particleFields[stem];
+        }
+    }
+
+    if (!havePositions)
+    {
+        std::cerr << "did not find positions in " << lagdir << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
 bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 {
 
@@ -274,6 +332,11 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
             if (name == "polyMesh")
             {
                 if (!checkMeshDirectory(info, p.string(), time))
+                    return false;
+            }
+            if (name == "lagrangian")
+            {
+                if (!checkLagrangianDirectory(info, p.string(), time))
                     return false;
             }
         }
@@ -548,6 +611,9 @@ std::string getFieldHeader(std::istream &stream)
     std::string header;
     for (size_t i = 0; i < MaxHeaderLines; ++i)
     {
+        int c = stream.peek();
+        if (c == '(')
+           break;
         std::string line;
         std::getline(stream, line);
         if (boost::algorithm::starts_with(line, "("))
@@ -1321,4 +1387,48 @@ vertex_set getVerticesForCell(
         }
     }
     return cellvertices;
+}
+
+template <typename F, typename I>
+bool readParticleArrayAscii(std::istream &stream, F *x, F *y, F *z, I *cell, const size_t lines)
+{
+    expect('\n');
+    for (size_t i = 0; i < lines; ++i)
+    {
+        F vx, vy, vz;
+        I vc;
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+        stream >> vx >> vy >> vz;
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+        stream >> vc;
+        if (x) x[i] = vx;
+        if (y) y[i] = vy;
+        if (z) z[i] = vz;
+        if (cell) cell[i] = vc;
+    }
+    expect('\n');
+
+    return stream.good();
+}
+
+bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, index_t *cell, const size_t lines)
+{
+    if (!stream.good()) {
+        std::cerr << "readParticleArray: stream not good initially" << std::endl;
+        return false;
+    }
+    assert(stream.good());
+    if (info.format == "binary")
+    {
+        std::cerr << "readParticleArray: not implemented for binary data" << std::endl;
+        return false;
+    }
+    else
+    {
+        expect('(');
+        if(!readParticleArrayAscii<scalar_t, index_t>(stream, x, y, z, cell, lines))
+            return false;
+        expect(')');
+    }
+    return true;
 }
