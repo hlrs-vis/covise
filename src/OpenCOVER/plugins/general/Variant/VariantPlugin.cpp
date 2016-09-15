@@ -377,12 +377,12 @@ void VariantPlugin::addNode(osg::Node *node, RenderObject *render)
                 bool default_state = false;
                 if(var_att.length()>3 && var_att.compare(var_att.length()-3,3,"_on")==0)
                 {
-                   var_att = var_att.substr(var_att.length()-3);
+                   var_att = var_att.substr(0,var_att.length()-3);
                    default_state = true;
                 }
                 if(var_att.length()>4 && var_att.compare(var_att.length()-4,4,"_off")==0)
                 {
-                   var_att = var_att.substr(var_att.length()-4);
+                   var_att = var_att.substr(0,var_att.length()-4);
                    default_state = false;
                 }
                 Variant *var = getVariant(var_att);
@@ -430,7 +430,8 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
         cout << "Number of Parents " << var->numParents() << endl;
         if (var->numNodes() == 1)
         {
-            var->removeFromScenegraph(node);
+            //TODO remote TUI and add TUI if a variant comes back
+          /*  var->removeFromScenegraph(node);
             varlist.remove(var);
             delete var;
             std::list<Variant *>::iterator varlIter;
@@ -439,7 +440,7 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
             {
                 (*varlIter)->ui->setPosTUIItems(count);
                 count++;
-            }
+            }*/
         }
         else
         {
