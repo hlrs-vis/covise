@@ -21,6 +21,7 @@
 #include <MidiFile.h>
 #include <osg/ShapeDrawable>
 #include <osg/ShadeModel>
+#include <vrml97/vrml/Player.h>
 
 using namespace opencover;
 using namespace covise;
@@ -38,11 +39,13 @@ class Track;
 class Note
 {
 public:
-    Note(int number, Track *t);
+    Note(MidiEvent &me, Track *t);
     ~Note();
+    Track *track;
     void integrate(double time);
     osg::ref_ptr<osg::MatrixTransform> transform;
     osg::Vec3 velo;
+    MidiEvent event;
 };
 class Track
 {
@@ -57,6 +60,8 @@ public:
      void reset();
      void setVisible(bool state);
      int trackNumber;
+     vrml::Player::Source *trackSource;
+     vrml::Audio *trackAudio;
 };
 
 class NoteInfo
@@ -64,9 +69,11 @@ class NoteInfo
     public:
         NoteInfo(int nN);
         ~NoteInfo();
+	void createGeom();
     osg::ref_ptr<osg::Geode> geometry;
     osg::Vec3 initialPosition;
     osg::Vec3 initialVelocity;
+    osg::Vec4 color;
     int noteNumber;
 };
 
@@ -79,22 +86,27 @@ private:
 
 public:
     
+    double  tempo;
     //tabletUI
     coTUITab *MIDITab;
     coTUILabel *infoLabel;
+    coTUIEditIntField *trackNumber;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
     static MidiPlugin *plugin;
+    vrml::Player *player;
     //scenegraph
     osg::ref_ptr<osg::Group> MIDIRoot;
     std::vector<NoteInfo *> nIs;
     MidiFile midifile;
     double startTime;
+    int currentTrack;
 
     static int unloadMidi(const char *filename, const char *);
     static int loadMidi(const char *filename, osg::Group *parent, const char *);
     int loadFile(const char *filename, osg::Group *parent);
     int unloadFile();
+    void setTempo(int index);
 
     void setTimestep(int t);
 
@@ -124,7 +136,7 @@ public:
     void MIDItab_delete();
     
     //tabletUI
-    //void tabletEvent(coTUIElement *);
+    void tabletEvent(coTUIElement *);
 
 };
 #endif
