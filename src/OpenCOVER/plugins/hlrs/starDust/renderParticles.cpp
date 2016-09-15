@@ -23,7 +23,7 @@
 #include <cuda_gl_interop.h>
 
 #include <gpu/helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include <gpu/helper_cuda_gl.h>
 
 #if defined(__APPLE__) || defined(MACOSX)
 #include <GLUT/glut.h>

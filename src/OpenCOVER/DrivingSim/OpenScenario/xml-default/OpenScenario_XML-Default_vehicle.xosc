@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vehicle name="vehicle_default" refId="9999" category="car" manufacturer="carCompany" model="" color="white" licensePlate="S-X-9999" xmlns:osc="http://www.w3.org/2001/XInclude">
+
+
+  <fileHeader author="HLRS" date="2016-08-30T10:00:00+01:00" description="vehicle - DefaultParameters" revMajor="1" revMinor="1">
+  </fileHeader>
+
+  <osc:include href="OpenScenario_XML-Default_OSCDimension.xosc" />
+  
+  <lighting>
+	<osc:include href="OpenScenario_XML-Default_OSCLight.xosc" />
+  </lighting>
+  
+  <geometry URL="car.wrl" />
+
+  <performance maxSpeed="190.0" maxDeceleration="5.6" overallEfficiency="56.67">
+    <aerodynamics airDragCoefficient="0.567" frontSurfaceEffective="3.78"/>
+    <engine type="TDI" power="110" maxRpm="2343.5"/>
+    <cog positionX="567.76" positionY="345.879" positionZ="56.7" mass="7784.5"/>
+    <gearbox type="manual"/>
+  </performance>
+
+
+  <axles>
+    <front rollingResistance="45.0" maxSteering="45.0" wheelDiameter="45" trackWidth="450.0" positionX="-2000.0" positionZ="3000.0" driven="true"/>
+    <rear rollingResistance="45.0" maxSteering="45.0" wheelDiameter="45" trackWidth="450.0" positionX="2000.0" positionZ="6000.0" driven="true"/>
+	<additionalAxles/>
+  </axles>
+
+
+  <eyepoints>
+
+    <eyepoint type="carPoint">
+      <coord>
+        <position x="46.78" y="45.67" z="45.8"/>
+        <orientation h="44.67" p="-67.9" r="-5.5"/>
+      </coord>
+    </eyepoint>
+
+  </eyepoints>
+
+
+  <mirrors>
+
+    <mirror type="backmirror">
+      <coord>
+        <position x="2345.789" y="456.9" z="67805.4"/>
+        <orientation h="-6.67" p="-7.2" r="-99.4"/>
+      </coord>
+    </mirror>
+
+  </mirrors>
+
+  <features/>
+  <userDataList/>
+  
+
+</vehicle>

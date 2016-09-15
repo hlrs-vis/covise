@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: Main
+OpenIDE-Module-Layer: Main/layer.xml
+OpenIDE-Module-Localizing-Bundle: Main/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0.01
+OpenIDE-Module-Module-Dependencies: star.coremodule > 1.0
+

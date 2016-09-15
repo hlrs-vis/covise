@@ -5,8 +5,9 @@
 #include <visionaray/math/math.h>
 #include <visionaray/aligned_vector.h>
 
-// TODO: consolidate with PointRayTracerGlobals.h (?)
-using sphere_type   = visionaray::basic_sphere<float>;
+#include "PointRayTracerGlobals.h"
+
+//using sphere_type   = visionaray::basic_sphere<float>;
 using color_type    = visionaray::vector<3, visionaray::unorm<8>>;
 
 using point_vector  = visionaray::aligned_vector<sphere_type, 32>;
@@ -14,23 +15,21 @@ using color_vector  = visionaray::aligned_vector<color_type, 32>;
 
 class PointReader {
 public:
-    PointReader();
+
+    static PointReader *instance();
 
     bool readFile(std::string filename,
                   float pointSize,
-                  point_vector& points,
-                  color_vector& colors,
+                  std::vector<host_bvh_type> &bvh_vector,
                   visionaray::aabb& bbox,
+                  bool useCache,
                   bool cutUTMdata = false);
 
-private:
+private:    
+    PointReader();
 
-    /*
-    char* m_filename;
-
-    visionaray::aligned_vector<sphere_type>                     m_points;
-    visionaray::aligned_vector<visionaray::vector<3, visionaray::unorm<8>>, 32>         m_colors;
-    */
+    bool loadBvh(std::string filename, host_bvh_type &bvh);
+    bool storeBvh(std::string filename, host_bvh_type &bvh);
 };
 
 

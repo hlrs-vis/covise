@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="driver_default" refId="9999" obeyTrafficLights="true" obeyTrafficSigns="true" steeringDistance="30000.0" foresightDistance="300.0" respondToTailgating="200.0" urgeToOvertake="50.0" useOfIndicator="-700.0" keepRightRule="50.0" laneChangeDynamic="-45.0" speedKeeping="300.0" laneKeeping="350000.0" distanceKeeping="3.0" observeSpeedLimits="3000.0" curveSpeed="45.0" desiredDeceleration="-7000.0" desiredAcceleration="80000.0" desiredVelocity="500.0" politeness="30.0" alertness="8.0" adaptToVehicleType="7000.0" adaptToTimeOfDay="35.0" adaptToRoadConditions="23000.0" adaptToWeatherConditions="70000.0">
+
+  <fileHeader author="HLRS" date="2016-09-05T09:00:00+01:00" description="driver - defaultParameters" revMajor="1" revMinor="1">
+  </fileHeader>
+
+  <body weight="70.0" height="190.0" eyeDistance="6.0" sex="male"/>
+
+
+  <geometry URL="driver.wrl"/>
+
+
+</driver>

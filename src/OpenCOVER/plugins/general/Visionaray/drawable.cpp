@@ -42,8 +42,8 @@
 #include <visionaray/cpu_buffer_rt.h>
 #include <visionaray/generic_material.h>
 #include <visionaray/kernels.h>
-#include <visionaray/point_light.h>
 #include <visionaray/scheduler.h>
+#include <visionaray/spot_light.h>
 
 #ifdef __CUDACC__
 #include <visionaray/pixel_unpack_buffer_rt.h>
@@ -71,7 +71,7 @@ namespace visionaray
     using material_list = aligned_vector<material_type>;
     using color_type = vector<3, float>;
     using color_list = aligned_vector<color_type>;
-    using light_type = point_light<float>;
+    using light_type = spot_light<float>;
     using light_list = aligned_vector<light_type>;
     using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
 
@@ -761,7 +761,7 @@ namespace visionaray
             auto it = node_masks_.find(&node);
             if (it != node_masks_.end())
             {
-                // Optionall store the old node mask before applying the new one
+                // Optionally store the old node mask before applying the new one
                 if (old_masks_)
                     old_masks_->insert(std::make_pair(&node, node.getNodeMask()));
 
@@ -788,6 +788,18 @@ namespace visionaray
         using base_type = osg::NodeVisitor;
         using base_type::apply;
 
+        // Two ways to find lights:
+        // By calling LightSource::getLight()
+        // By inspecting a general node's stateset
+
+        enum CheckMode { CheckLightSources, CheckStateSets };
+
+        void setCheckMode(CheckMode cm)
+        {
+            checkMode_ = cm;
+        }
+
+
     public:
         get_light_visitor(light_list& lights, TraversalMode tm)
             : base_type(tm)
@@ -795,10 +807,46 @@ namespace visionaray
         {
         }
 
+        void apply(osg::LightSource &ls)
+        {
+            if (checkMode_ == CheckStateSets)
+            {
+                base_type::traverse(ls);
+                return;
+            }
+
+            bool isOn = false;
+
+            // Ignore what's in the light source,
+            // cover doesn't set that properly
+//          isOn |= lightIsOn(ls.getLight(), ls.getStateSet());
+
+            for (auto &n: getNodePath())
+            {
+                if (n == &ls) // ignore the light source again
+                    continue;
+
+                if (n != nullptr)
+                    isOn |= lightIsOn(ls.getLight(), n->getStateSet());
+            }
+
+            if (isOn)
+                process_light(ls.getLight());
+
+            base_type::traverse(ls);
+            return;
+        }
+
         void apply(osg::Node &node)
         {
             if (&node == opencover::cover->getMenuGroup())
                 return;
+
+            if (checkMode_ == CheckLightSources)
+            {
+                base_type::traverse(node);
+                return;
+            }
 
             auto set = node.getStateSet();
             if (set == nullptr)
@@ -807,20 +855,11 @@ namespace visionaray
                 return;
             }
 
-            // Two ways to find lights:
-            // By calling LightSource::getLight()
-            // By inspecting a general node's stateset
-            if (auto ls = dynamic_cast<osg::LightSource *>(&node))
-            {
-                if (ls != opencover::coVRLighting::instance()->headlight
-                    && ls != opencover::coVRLighting::instance()->spotlight)
-                    process_light(ls->getLight(), set);
-            }
-
             for (int i = 0; i < opencover::coVRLighting::MaxNumLights; ++i)
             {
-                if (auto l = dynamic_cast<osg::Light *>(set->getAttribute(osg::StateAttribute::LIGHT, i)))
-                    process_light(l, set);
+                auto l = dynamic_cast<osg::Light *>(set->getAttribute(osg::StateAttribute::LIGHT, i));
+                if (l != nullptr && lightIsOn(l, set))
+                    process_light(l);
             }
 
             base_type::traverse(node);
@@ -830,45 +869,68 @@ namespace visionaray
 
         light_list& lights_;
         std::vector<osg::Light *> processed_;
+        CheckMode checkMode_ = CheckLightSources;
 
-        void process_light(osg::Light *l, osg::StateSet *set)
+        bool lightIsOn(const osg::Light *l, const osg::StateSet *set) const
         {
-            // Append a visionaray light if this light was
-            // found anew and is turned on
-
             if (l == nullptr || set == nullptr)
+                return false;
+
+            auto mode = set->getMode(GL_LIGHT0 + l->getLightNum());
+
+            if ((mode & osg::StateAttribute::ON) == osg::StateAttribute::ON)
+                return true;
+            else
+                return false;
+        }
+
+        void process_light(osg::Light *l)
+        {
+            // Append a visionaray light if this light was found anew
+
+            if (l == nullptr)
                 return;
 
             if (std::find(processed_.begin(), processed_.end(), l) != processed_.end())
                 return;
 
-            osg::StateAttribute::GLModeValue mode = set->getMode(GL_LIGHT0 + l->getLightNum());
-            if ((mode & osg::StateAttribute::ON) == osg::StateAttribute::ON)
-            {
-                auto lpos = osg_cast(l->getPosition());
-                auto trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
-                lpos = inverse(osg_cast(trans)) * lpos;
-                auto ldiff = osg_cast(l->getDiffuse());
+            auto lpos = osg_cast(l->getPosition());
+            auto spot_dir = vec4(osg_cast(l->getDirection()), 1.0f);
 
-                // map OpenGL [-1,1] to Visionaray [0,1]
-                ldiff += 1.0f;
-                ldiff /= 2.0f;
+            auto world_trans = osg::computeLocalToWorld(getNodePath());
+            auto obj_trans = osg::computeLocalToWorld(opencover::cover->getObjectsRoot()->getParentalNodePaths()[0]);
+            lpos = inverse(osg_cast(obj_trans)) * osg_cast(world_trans) * lpos;
 
-                light_type light;
-                light.set_position(lpos.xyz());
-                light.set_cl(ldiff.xyz());
-                light.set_kl(ldiff.w);
+            auto ldiff = osg_cast(l->getDiffuse());
 
-                light.set_constant_attenuation(l->getConstantAttenuation());
-                light.set_linear_attenuation(l->getLinearAttenuation());
-                light.set_quadratic_attenuation(l->getQuadraticAttenuation());
+            // transform spot dir
+            spot_dir = inverse(transpose(inverse(osg_cast(obj_trans)))) * inverse(transpose(osg_cast(world_trans))) * spot_dir;
 
-                lights_.push_back(light);
 
-                // Intentionally only mark as processed if
-                // the light is turned on
-                processed_.push_back(l);
-            }
+            // map OpenGL [-1,1] to Visionaray [0,1]
+            ldiff += 1.0f;
+            ldiff /= 2.0f;
+
+            light_type light;
+
+            light.set_position(lpos.xyz());
+            light.set_cl(ldiff.xyz());
+            light.set_kl(ldiff.w);
+
+
+            light.set_spot_direction(normalize(spot_dir.xyz()));
+            light.set_spot_cutoff(l->getSpotCutoff() * constants::degrees_to_radians<float>());
+            light.set_spot_exponent(l->getSpotExponent());
+
+            light.set_constant_attenuation(l->getConstantAttenuation());
+            light.set_linear_attenuation(l->getLinearAttenuation());
+            light.set_quadratic_attenuation(l->getQuadraticAttenuation());
+
+            lights_.push_back(light);
+
+            // Intentionally only mark as processed if
+            // the light is turned on
+            processed_.push_back(l);
         }
     };
 
@@ -1005,11 +1067,11 @@ namespace visionaray
             void clear_frame()
             {
                 frame_num = 0;
-                host_rt.clear_color();
-                host_rt.clear_depth();
+                host_rt.clear_color_buffer();
+                host_rt.clear_depth_buffer();
 #ifdef __CUDACC__
-                device_rt.clear_color();
-                device_rt.clear_depth();
+                device_rt.clear_color_buffer();
+                device_rt.clear_depth_buffer();
 #endif
 
                 need_clear_frame = false;
@@ -1036,7 +1098,8 @@ namespace visionaray
         // we can reapply them later on
         node_mask_map ray_tracing_masks;
 
-        detail::bvh_outline_renderer outlines;
+        std::vector<detail::bvh_outline_renderer> outlines;
+        std::vector<bool> outlines_initialized;
 
         gl::debug_callback gl_debug_callback;
 
@@ -1376,7 +1439,9 @@ namespace visionaray
     {
         set_node_masks_visitor visitor(impl_->node_masks);
         opencover::cover->getObjectsRoot()->accept(visitor);
-//      impl_->outlines.destroy();
+        for (size_t i = 0; i < impl_->outlines_initialized.size(); ++i)
+            if (impl_->outlines_initialized[i])
+                impl_->outlines[i].destroy();
     }
 
     void drawable::update_state(
@@ -1452,6 +1517,9 @@ namespace visionaray
         }
 
         impl_->host_bvhs.resize(impl_->triangles.size());
+        impl_->outlines.resize(impl_->triangles.size());
+        impl_->outlines_initialized.resize(impl_->triangles.size());
+        std::fill(impl_->outlines_initialized.begin(), impl_->outlines_initialized.end(), false);
 
         for (size_t i = 0; i < impl_->triangles.size(); ++i)
         {
@@ -1463,7 +1531,6 @@ namespace visionaray
                     impl_->triangles[i].size(),
                     impl_->state->data_var == Static /* consider spatial splits if scene is static */
                     );
-//          impl_->outlines.init(impl_->host_bvhs[i]);
         }
 
         // Copy BVH, normals, etc. to GPU if necessary
@@ -1588,12 +1655,22 @@ namespace visionaray
         auto light_model = dynamic_cast<osg::LightModel *>(stateset->getAttribute(osg::StateAttribute::LIGHTMODEL));
         auto ambient = osg_cast(light_model->getAmbientIntensity());
 
-        using light_type = point_light<float>;
+        using light_type = spot_light<float>;
         light_list lights;
 
         get_light_visitor lvisitor(lights, osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
+
+        // Check all light sources
+        lvisitor.setCheckMode(get_light_visitor::CheckLightSources);
         opencover::cover->getScene()->accept(lvisitor);
-        opencover::cover->getPointer()->accept(lvisitor); // coVRLighting::spotlight may be attached to the pointing device
+
+        // Now check all state sets if they contain lights
+        // (lights that are associated with a light source
+        // should already be in the lights list and thus ignored,
+        // order matters here!)
+        lvisitor.setCheckMode(get_light_visitor::CheckStateSets);
+        opencover::cover->getScene()->accept(lvisitor);
+
 
         aabb bounds;
         bounds.invalidate();
@@ -1736,7 +1813,29 @@ namespace visionaray
             glLoadMatrixf(vparams.view_matrix.data());
 
             glColor3f(1.0f, 1.0f, 1.0f);
-//          impl_->outlines.frame();
+
+            if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
+            {
+                if (impl_->outlines_initialized[0])
+                    impl_->outlines[0].frame();
+                else
+                {
+                    impl_->outlines[0].init(impl_->host_bvhs[0]);
+                    impl_->outlines_initialized[0] = true;
+                }
+            }
+
+            if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
+            {
+                if (impl_->outlines_initialized[frame])
+                    impl_->outlines[frame].frame();
+                else
+                {
+                    impl_->outlines[frame].init(impl_->host_bvhs[frame]);
+                    impl_->outlines_initialized[frame] = true;
+                }
+            }
+
 
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();

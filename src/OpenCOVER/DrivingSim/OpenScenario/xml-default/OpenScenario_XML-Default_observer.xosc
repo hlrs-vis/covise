@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<observer name="observer_default" refId="9999" type="OSCObserver" xmlns:osc="http://www.w3.org/2001/XInclude">
+
+
+  <fileHeader author="HLRS" date="2016-09-05T14:00:00+01:00" description="observer_defaultParameters" revMajor="1" revMinor="0">
+  </fileHeader>
+
+
+  <frustum near="-500.0" far="500.0" left="-500.0" right="500.0" bottom="-500.0" top="500.0"/>
+
+
+  <filters>
+    <osc:include href="OpenScenario_XML-Default_OSCFilter.xosc" />
+  </filters>
+
+
+</observer>

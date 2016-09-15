@@ -12,39 +12,84 @@
 #include "PointReader.h"
 #include "PointRayTracerDrawable.h"
 
-#include <cover/coVRPlugin.h>
+#include <OpenVRUI/coMenuItem.h>
+#include <OpenVRUI/coMenu.h>
 
+#include <cover/coVRPlugin.h>
+#include <cover/coVRFileManager.h>
+
+namespace vrui
+{
+class coRowMenu;
+class coSubMenuItem;
+class coButtonMenuItem;
+}
+
+namespace opencover
+{
+class coVRLabel;
+}
+
+using namespace vrui;
 using namespace opencover;
 
 
-
-class PointRayTracerPlugin : public coVRPlugin
+class PointRayTracerPlugin : public coVRPlugin, public coMenuListener
 {
 
 public:
     static PointRayTracerPlugin *plugin;
+    static PointRayTracerPlugin *instance();
 
     PointRayTracerPlugin();
     virtual ~PointRayTracerPlugin();
-    bool init();
-    void preDraw(osg::RenderInfo &info);
-    void expandBoundingSphere(osg::BoundingSphere &bs);
+
+     bool init(); //called before files are loaded
+     bool init2(); //called after all files have been loaded
+
+    static int sloadPts(const char *filename, osg::Group *loadParent, const char *);
+    static int unloadPts(const char *filename, const char *);
+    int loadPts(const char* filename);
+
+     void preDraw(osg::RenderInfo &info);
+     void expandBoundingSphere(osg::BoundingSphere &bs);
+
+     void key(int type, int keySym, int mod);
 
 private:
 
     PointReader* m_reader;
 
+    coSubMenuItem *prtSubMenuEntry;
+    coRowMenu *prtMenu;
+    coButtonMenuItem *nextItem;
+    coButtonMenuItem *prevItem;
+
+
+    void menuEvent(coMenuItem *menuItem);
+
     osg::ref_ptr<osg::Geode> m_geode;
     osg::ref_ptr<PointRayTracerDrawable> m_drawable;
 
-    point_vector                                    m_points;
-    color_vector                                    m_colors;
-    visionaray::aabb                                m_bbox;
+    point_vector                m_points;
+    visionaray::aabb            m_bbox;
 
-    host_bvh_type                                   m_host_bvh;
+    std::vector<host_bvh_type>  m_bvh_vector;
 
-    bool loadBvh(std::string filename);
-    bool storeBvh(std::string filename);
+    float                       m_pointSize;
+    bool                        m_cutUTMdata;
+    bool                        m_useCache;
+
+    int                         m_numPointClouds;
+    int                         m_currentPointCloud;
+    bool                        m_currentPointCloud_has_changed;
+
+    /*
+    bool                        m_visibility_has_changed;
+    std::vector<bool>           m_visibility_vector;
+
+    void toggleVisibility(int index);
+    */
 };
 
 

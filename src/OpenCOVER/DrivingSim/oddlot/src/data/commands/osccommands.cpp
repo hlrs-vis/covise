@@ -296,6 +296,7 @@ AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember 
 	, oscElement_(element)
 	, oscBase_(base)
 	, object_(object)
+	, ownMember_(NULL)
 {
     // Check for validity //
     //
@@ -311,6 +312,11 @@ AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember 
         setValid();
         setText(QObject::tr("AddOSCArrayMember"));
     }
+
+	if (object_)
+	{
+		ownMember_ = arrayMember_->getObject()->getMember(typeName_);
+	}
 }
 
 /*! \brief .
@@ -339,6 +345,7 @@ AddOSCArrayMemberCommand::redo()
 	if (!object_)
 	{
 		object_ = objectBase_->getMember(typeName_)->createObject();
+		ownMember_ = arrayMember_->getObject()->getMember(typeName_);
 	}
 
 	if(object_)
@@ -346,6 +353,7 @@ AddOSCArrayMemberCommand::redo()
 		oscElement_->setObjectBase(object_);
 		oscBase_->addOSCElement(oscElement_);
 
+		object_->setOwnMember(ownMember_);
 		arrayMember_->push_back(object_);
 		oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
 	}

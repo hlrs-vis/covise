@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="pedestrian_default" refId="9999" category="pedestrian" model="man" mass="70.0">
+
+
+  <fileHeader author="HLRS" date="2016-09-05T11:00:00+01:00" description="pedestrian - defaultParameters" revMajor="1" revMinor="0">
+  </fileHeader>
+
+
+  <dimension front="0.0" rear="25.0" left="0.0" right="50.0" bottom="0.0" top="185.0"/>
+
+
+  <geometry URL="pedestrian.wrl"/>
+
+
+  <behavior politeness="0.8" alertness="60.0"/>
+
+
+</pedestrian>

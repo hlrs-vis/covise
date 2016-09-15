@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<routing name="routing_default" refId="9999" xmlns:osc="http://www.w3.org/2001/XInclude">
+
+
+  <fileHeader author="HLRS" date="2016-09-05T15:00:00+01:00" description="routing - defaultParameters" revMajor="1" revMinor="0">
+  </fileHeader>
+
+
+  <observer name="observer_default" refId="9999" type="OSCObserverTypeB">
+
+    <general name="general_default" closed="false">
+    </general>
+
+    <waypoints>
+      <osc:include href="OpenScenario_XML-Default_OSCWaypoint.xosc" />
+	  <osc:include href="OpenScenario_XML-Default_OSCWaypoint.xosc" />
+    </waypoints>
+
+  </observer>
+
+
+</routing>

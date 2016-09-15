@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<miscObject name="miscObject_default" refId="9999" type="OSCMiscObject" mass="400.0">
+
+
+  <fileHeader author="HLRS" date="2016-09-05T15:00:00+01:00" description="miscObject - defaultParameters" revMajor="1" revMinor="0">
+  </fileHeader>
+
+
+  <dimension front="-500.0" rear="500.0" left="-500.0" right="500.0" bottom="-500.0" top="500.0"/>
+
+
+  <geometry URL="miscObject.wrl"/>
+
+
+</miscObject>

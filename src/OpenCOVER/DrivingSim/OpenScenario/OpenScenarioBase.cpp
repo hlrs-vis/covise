@@ -119,7 +119,19 @@ OpenScenarioBase::DefaultFileTypeNameMap initDefaultFileTypeMap()
 	defaultFileTypeMap.emplace("driver", bf::path("OpenScenario_XML-Default_driver.xosc"));
 	defaultFileTypeMap.emplace("entity", bf::path("OpenScenario_XML-Default_entity.xosc"));
 	defaultFileTypeMap.emplace("environment", bf::path("OpenScenario_XML-Default_environment.xosc"));
-	defaultFileTypeMap.emplace("light", bf::path("OpenScenario_XML-Default_OSCCondition.xosc"));
+	defaultFileTypeMap.emplace("roadCondition", bf::path("OpenScenario_XML-Default_OSCRoadCondition.xosc"));
+	defaultFileTypeMap.emplace("pedestrian", bf::path("OpenScenario_XML-Default_pedestrian.xosc"));
+	defaultFileTypeMap.emplace("maneuver", bf::path("OpenScenario_XML-Default_maneuver.xosc"));
+	defaultFileTypeMap.emplace("observer", bf::path("OpenScenario_XML-Default_observer.xosc"));
+	defaultFileTypeMap.emplace("routing", bf::path("OpenScenario_XML-Default_routing.xosc"));
+	defaultFileTypeMap.emplace("miscObject", bf::path("OpenScenario_XML-Default_miscObject.xosc"));
+	defaultFileTypeMap.emplace("filter", bf::path("OpenScenario_XML-Default_OSCFilter.xosc"));
+	defaultFileTypeMap.emplace("event", bf::path("OpenScenario_XML-Default_OSCEvent.xosc"));
+	defaultFileTypeMap.emplace("startCondition", bf::path("OpenScenario_XML-Default_OSCStartCondition.xosc"));
+	defaultFileTypeMap.emplace("waypoint", bf::path("OpenScenario_XML-Default_OSCWaypoint.xosc"));
+	defaultFileTypeMap.emplace("parameter", bf::path("OpenScenario_XML-Default_OSCParameterTypeA.xosc"));
+	defaultFileTypeMap.emplace("action", bf::path("OpenScenario_XML-Default_OSCAction.xosc"));
+	defaultFileTypeMap.emplace("userData", bf::path("OpenScenario_XML-Default_OSCUserData.xosc"));
 
     return defaultFileTypeMap;
 }

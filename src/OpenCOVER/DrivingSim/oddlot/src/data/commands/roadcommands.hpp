@@ -92,7 +92,7 @@ private:
 class MergeRoadsCommand : public DataCommand
 {
 public:
-    explicit MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRoad *road2, bool atStart, DataCommand *parent = NULL);
+    explicit MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRoad *road2, bool firstStart, bool secondStart, DataCommand *parent = NULL);
     virtual ~MergeRoadsCommand();
 
     virtual int id() const
@@ -112,8 +112,9 @@ private:
     RSystemElementRoad *road1_; // linked
     RSystemElementRoad *road2_; // now owned
     RoadSystem *roadSystem_;
-
-    bool atStart_;
+    
+    bool firstStart;//merge start of first road ( end of first road if false)
+    bool secondStart;//to start of second road ( end of second road if false)
 
     double secondRoadLength_;
     QPointF secondEnd_;

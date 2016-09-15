@@ -258,23 +258,24 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 					OpenScenario::oscObjectBase *obj = catalog_->readDefaultXMLObject( filePath.toStdString(), type_.toStdString(), catalog_->getType(type_.toStdString()));
 
-					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
-
-					if (addCatalogObjectCommand->isValid())
+					if (obj)
 					{
-						projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand);
+						AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
+
+						if (addCatalogObjectCommand->isValid())
+						{
+							projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand);
 
 
-						OpenScenario::oscObjectBase *obj = oscElement_->getObject();
+							std::string name = "name";
+							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
+							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);
 
-						std::string name = "name";
-						SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
-						projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);
-
-						obj->writeToDisk();
-
+							obj->writeToDisk();
+						}
 					}
 				}
+
 				projectData_->getUndoStack()->endMacro();
 			}
 			else

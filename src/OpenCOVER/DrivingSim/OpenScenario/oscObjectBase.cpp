@@ -129,6 +129,19 @@ oscObjectBase::MemberChoice oscObjectBase::getChoice() const
     return choice;
 }
 
+bool oscObjectBase::isMemberInChoice(oscMember *m)
+{
+	for (auto it = choice.cbegin(); it != choice.cend(); it++)
+	{
+		if (*it == m)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 //
 void oscObjectBase::addMemberToOptional(oscMember *m)
@@ -427,7 +440,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                         obj->initialize(base, objAM, ame, arrayElemSrcToUse);
                                         am->push_back(obj);
                                         ame->setParentMember(objAM->getOwnMember());
-                                        obj->parseFromXML(arrayMemElem, arrayElemSrcToUse);
+                                        obj->parseFromXML(arrayMemElem, arrayElemSrcToUse, saveInclude);
                                     }
                                     else
                                     {
@@ -463,7 +476,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             obj->initialize(base, this, m, srcToUse);
                             m->setValue(obj);
                             m->setParentMember(ownMember);
-                            obj->parseFromXML(memberElem, srcToUse);
+                            obj->parseFromXML(memberElem, srcToUse, saveInclude);
                         }
                         else
                         {
@@ -507,7 +520,7 @@ bool oscObjectBase::writeToDisk()
 	return true;
 }
 
-oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, std::string &type, std::string &typeName)
+oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const std::string &type, const std::string &typeName, oscSourceFile *srcFile)
 {
 	oscObjectBase *obj = NULL;
 	OpenScenarioBase *oscBase = new OpenScenarioBase;
@@ -521,41 +534,47 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, std::s
 
 		if (rootElemName == type)
 		{
-			//sourceFile for objectName
-			oscSourceFile *srcFile = new oscSourceFile();
+			bool newSourceFile = false;
+			if (!srcFile)
+			{
+				//sourceFile for objectName
+				srcFile = new oscSourceFile();
 
-			//set variables for srcFile, differentiate between absolute and relative path for catalog object
-			srcFile->setSrcFileHref(destFilePath);
-			srcFile->setSrcFileName(destFilePath.filename());
-			srcFile->setPathFromCurrentDirToMainDir(getSource()->getPathFromCurrentDirToMainDir());
-			bf::path absPathToMainDir;
-			bf::path relPathFromMainDir;
-			if (destFilePath.is_absolute())
-			{
-				//absPathToMainDir is path to the directory with the imported catalog file
-				absPathToMainDir = destFilePath.parent_path();
-				relPathFromMainDir = bf::path(); // relative path is empty
-			}
-			else
-			{
-				//absPathToMainDir is path to directory with the file with OpenSCENARIO root element
-				absPathToMainDir = getSource()->getAbsPathToMainDir();
-				// check if this works!!
-				//relative path is path from directory from absPathToMainDir to the directory with the imported file
-				std::string pathFromExeToMainDir = getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
-				std::string tmpRelPathFromMainDir = destFilePath.parent_path().generic_string();
-				if (pathFromExeToMainDir.empty())
+				//set variables for srcFile, differentiate between absolute and relative path for catalog object
+				srcFile->setSrcFileHref(destFilePath);
+				srcFile->setSrcFileName(destFilePath.filename());
+				srcFile->setPathFromCurrentDirToMainDir(getSource()->getPathFromCurrentDirToMainDir());
+				bf::path absPathToMainDir;
+				bf::path relPathFromMainDir;
+				if (destFilePath.is_absolute())
 				{
-					relPathFromMainDir = tmpRelPathFromMainDir;
+					//absPathToMainDir is path to the directory with the imported catalog file
+					absPathToMainDir = destFilePath.parent_path();
+					relPathFromMainDir = bf::path(); // relative path is empty
 				}
 				else
 				{
-					relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
+					//absPathToMainDir is path to directory with the file with OpenSCENARIO root element
+					absPathToMainDir = getSource()->getAbsPathToMainDir();
+					// check if this works!!
+					//relative path is path from directory from absPathToMainDir to the directory with the imported file
+					std::string pathFromExeToMainDir = getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
+					std::string tmpRelPathFromMainDir = destFilePath.parent_path().generic_string();
+					if (pathFromExeToMainDir.empty())
+					{
+						relPathFromMainDir = tmpRelPathFromMainDir;
+					}
+					else
+					{
+						relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
+					}
 				}
+				srcFile->setAbsPathToMainDir(absPathToMainDir);
+				srcFile->setRelPathFromMainDir(relPathFromMainDir);
+				srcFile->setRootElementName(rootElemName);
+
+				newSourceFile = true;
 			}
-			srcFile->setAbsPathToMainDir(absPathToMainDir);
-			srcFile->setRelPathFromMainDir(relPathFromMainDir);
-			srcFile->setRootElementName(rootElemName);
 
 			//object for objectName
 
@@ -569,7 +588,7 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, std::s
 				getBase()->addToSrcFileVec(srcFile);
 
 			}
-			else
+			else if (newSourceFile)
 			{
 				std::cerr << "Error! Could not create an object member of type " << typeName << std::endl;
 				delete srcFile;

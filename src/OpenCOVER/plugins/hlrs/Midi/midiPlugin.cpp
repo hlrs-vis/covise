@@ -536,8 +536,8 @@ void Track::update()
                 }
                 else
                 {
-                    
-                //fprintf(stderr,"unknown note %d\n",me.getKeyNumber());
+
+                    //fprintf(stderr,"unknown note %d\n",me.getKeyNumber());
                 }
             }
             eventNumber++;

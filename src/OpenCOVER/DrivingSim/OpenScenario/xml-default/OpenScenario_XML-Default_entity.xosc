@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<entity name="entity_default" refId="9999">
+
+
+  <objectChoice>
+    <vehicle name="car" refId="9999"/>
+  </objectChoice>
+
+
+  <controllerChoice>
+    <driverReference name="joe" refId="9999"/>
+  </controllerChoice>
+
+
+  <observer name="camera" refId="9999" iid="9999">
+    <coord>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <orientation h="0.0" p="0.0" r="0.0"/>
+    </coord>
+  </observer>
+
+
+</entity>

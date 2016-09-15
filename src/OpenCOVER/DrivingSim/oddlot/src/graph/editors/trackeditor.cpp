@@ -145,7 +145,15 @@ TrackEditor::toolAction(ToolAction *toolAction)
         if (getCurrentTool() == ODD::TTE_SELECT)
         {
         }
-
+        
+        if (getCurrentTool() == ODD::TTE_ROAD_MERGE)
+        {
+            selectedRoads_.clear();
+        }
+        if (getCurrentTool() == ODD::TTE_ROAD_SNAP)
+        {
+            selectedRoads_.clear();
+        }
         // Move and Rotate Tool //
         //
         else if (getCurrentTool() == ODD::TTE_MOVE_ROTATE)
@@ -717,7 +725,22 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                         }
                         else
                         {
-                            MergeRoadsCommand *command = new MergeRoadsCommand(firstRoad, secondRoad, false);
+                            // Find closest positions of the two roads
+                            double distances[4];
+
+                            distances[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
+                            distances[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
+                            distances[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
+                            distances[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
+                            MergeRoadsCommand *command=NULL;
+                            if(distances[0] < distances[1] && distances[0] < distances[2] && distances[0] < distances[3])
+                                command = new MergeRoadsCommand(firstRoad, secondRoad, true,true);
+                            if(distances[1] < distances[0] && distances[1] < distances[2] && distances[1] < distances[3])
+                                command = new MergeRoadsCommand(firstRoad, secondRoad, false,true);
+                            if(distances[2] < distances[0] && distances[2] < distances[1] && distances[2] < distances[3])
+                                command = new MergeRoadsCommand(firstRoad, secondRoad, false,false);
+                            if(distances[3] < distances[0] && distances[3] < distances[1] && distances[3] < distances[2])
+                                command = new MergeRoadsCommand(firstRoad, secondRoad, true,false);
                             getProjectGraph()->executeCommand(command);
                         }
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<action>
+  <speed>
+	<dynamics shape="Car" rate="400.0" immediate="true"/>
+	<relativeSpeed refObject="otherCar" delta="50.0" factor="700.0"/>
+  </speed>
+</action>
+
