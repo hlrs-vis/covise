@@ -559,13 +559,19 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                         if (maybeRoad)
                         {
                             secondRoad = maybeRoad->getParentRoad();
-                            break;
+                            if(secondRoad != firstRoad)
+                                break;
+                            else
+                                secondRoad = NULL;
                         }
                         TrackElementItem *maybeTrack = dynamic_cast<TrackElementItem *>(item);
                         if (maybeTrack)
                         {
                             secondRoad = maybeTrack->getParentTrackRoadItem()->getRoad();
-                            break;
+                            if(secondRoad != firstRoad)
+                                break;
+                            else
+                                secondRoad = NULL;
                         }
                     }
 
@@ -741,7 +747,10 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                                 command = new MergeRoadsCommand(firstRoad, secondRoad, false,false);
                             if(distances[3] < distances[0] && distances[3] < distances[1] && distances[3] < distances[2])
                                 command = new MergeRoadsCommand(firstRoad, secondRoad, true,false);
-                            getProjectGraph()->executeCommand(command);
+                            if(command)
+                            {
+                                getProjectGraph()->executeCommand(command);
+                            }
                         }
 
                         selectedRoads_.clear();
