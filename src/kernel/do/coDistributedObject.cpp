@@ -86,9 +86,9 @@ static coShmArray *getShmArray(const char *name)
                       *(int *)msg->data,
                       *(shmSizeType *)(&msg->data[sizeof(int)]));
 #endif
-    }
-    delete[] msg -> data;
-    msg->data = NULL;
+        delete[] msg -> data;
+        msg->data = NULL;
+    } // else we probably have a socket closed message and should quit.
     delete msg;
 
     return shmarr;
