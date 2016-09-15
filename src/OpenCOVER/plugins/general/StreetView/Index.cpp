@@ -20,7 +20,8 @@ Index::Index(xercesc::DOMNode *indexNode, IndexParser *indexParser_)
 	nachNetzKnoten = 0;
 	version = '0';
 	indexParser = indexParser_;
-	
+
+	// parse a single index node
 	xercesc::DOMNodeList *indexNodeList = indexNode->getChildNodes();
 	for (int j = 0; j < indexNodeList->getLength(); ++j)
 	{
@@ -63,6 +64,13 @@ Index::~Index()
 	{
 		delete *it;
 	}
+
+	for (std::vector<Camera *>::iterator it = cameraList.begin(); it != cameraList.end(); it++)
+	{
+		delete *it;
+	}
+
+	// map stations
 }
 
 
@@ -75,100 +83,9 @@ std::string Index::getAbsolutePicturePath()
 bool Index::parsePictureIndex()
 {
 	xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
-    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
-
-	// get all files with ".cam" extension in current directory
-	fs::path cameraDirectory = getAbsolutePicturePath()+"/";
-	std::vector<fs::path> cameraFileNames;
-
-	if (!fs::exists(cameraDirectory) || !fs::is_directory(cameraDirectory))
-	{
-		fprintf(stderr, "no such camera directory\n");
-		return false;
-	}
-
-	fs::directory_iterator it(cameraDirectory);
-	fs::directory_iterator endit;
-
-	while(it != endit)
-	{
-		if (fs::is_regular_file(*it) && it->path().extension() == ".cam") 
-		{
-			cameraFileNames.push_back(it->path().filename());
-		}
-		++it;
-	}
-
-	// parse camera files found
-	for (std::vector<fs::path>::iterator it = cameraFileNames.begin(); it != cameraFileNames.end(); it++)
-	{
-		std::string currentCameraFileName = (*it).string();
-		const char currentCameraSymbol = currentCameraFileName.at(1);
-
-		try
-		{
-			parser->parse((getAbsolutePicturePath()+"/"+currentCameraFileName).c_str());
-		}
-		catch (...)
-		{
-			fprintf(stderr, "error parsing cam file\n");
-			return false;
-		}
-		xercesc::DOMDocument *xmlDoc = parser->getDocument();
-		xercesc::DOMElement *rootElement = NULL;
-		if (xmlDoc)
-		{
-			rootElement = xmlDoc->getDocumentElement();
-		}
-		if (rootElement)
-		{
-			cameraList.push_back(new Camera(rootElement, currentCameraSymbol));
-		}
-	}
+	parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
 	// parse pictures in current directory
-	try
-    {
-        parser->parse((getAbsolutePicturePath()+"/"+"PIC_"+direction+version+".xml").c_str());
-    }
-    catch (...)
-    {
-		fprintf(stderr, "error parsing xml file\n");
-		return false;
-    }
-
-	xercesc::DOMDocument *xmlDoc = parser->getDocument();
-    xercesc::DOMElement *rootElement = NULL;
-	if (xmlDoc)
-    {
-        rootElement = xmlDoc->getDocumentElement();
-    }
-    if (rootElement)
-    {
-        xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
-		for (int i = 0; i < nodeList->getLength(); ++i)
-        {
-			if(xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
-			{
-				xercesc::DOMElement *pictureElement = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
-				Picture *currentPicture = new Picture(pictureElement,this);
-				pictureList.push_back(currentPicture);
-				currentPicture->getCameraSymbol();
-				// suche in cameraList nach Camera, set cam for pic
-			}
-		}
-	}
-	delete parser;
-	return true;
-}
-
-/*/
-bool Index::parseCamerasPerIndex()
-{
-    xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
-    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
-
-	// parse picture-xml-file in directory for camera symbols
 	try
 	{
 		parser->parse((getAbsolutePicturePath()+"/"+"PIC_"+direction+version+".xml").c_str());
@@ -193,82 +110,73 @@ bool Index::parseCamerasPerIndex()
 			if(xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
 			{
 				xercesc::DOMElement *pictureElement = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
-				xercesc::DOMNodeList *pictureCamNode = pictureElement->getElementsByTagName(xercesc::XMLString::transcode("Buchst"));
-				if (pictureCamNode->item(0))
-				{
-					cameraSymbols.push_back(xercesc::XMLString::transcode(pictureCamNode->item(0)->getTextContent()));
-				}
-			}
-		}
+				Picture *currentPicture = new Picture(pictureElement,this);
+				pictureList.push_back(currentPicture);
+				std::string currentCameraSymbol = currentPicture->getCameraSymbol();
 
-		// remove duplicate entries in cameraSymbols
-		std::vector<std::string>::iterator it = cameraSymbols.begin();
-		if (it != cameraSymbols.end())
-		{
-			std::string currentCameraSymbol = (*it);
-			it++;
-			while (it != cameraSymbols.end())
-			{
-				if (currentCameraSymbol == (*it))
+				// search in cameraList for camera. build one, if not found
+				std::vector<Camera *>::iterator it = cameraList.begin();
+				if (it != cameraList.end())
 				{
-					it = cameraSymbols.erase(it);
+					while ((it != cameraList.end()) && ((*it)->getCameraSymbol() != currentCameraSymbol))
+					{
+						it++;
+					}
+					if (it == cameraList.end())
+					{
+						buildNewCamera(currentCameraSymbol);
+					}
+					else
+					{
+						pictureList.back()->setCamera(*it);
+					}
 				}
 				else
 				{
-					currentCameraSymbol = (*it);
-					it++;
+					buildNewCamera(currentCameraSymbol);
 				}
 			}
 		}
 	}
-
-	// now, parse cameras in directory
-	for (std::vector<std::string>::iterator it = cameraSymbols.begin(); it != cameraSymbols.end(); it++)
-	{
-		try
-		{
-			parser->parse((getAbsolutePicturePath()+direction+(*it)+version+".cam").c_str());
-		}
-		catch (...)
-		{
-			fprintf(stderr, "error parsing xml file\n");
-			return false;
-		}
-		xercesc::DOMDocument *xmlDoc = parser->getDocument();
-		xercesc::DOMElement *rootElement = NULL;
-		if (xmlDoc)
-		{
-			rootElement = xmlDoc->getDocumentElement();
-		}
-		if (rootElement)
-		{
-			cameraList.push_back(new Camera(rootElement, (*it)));
-		}
-	}
-
-		// remove duplicate entries in cameraList
-		std::vector<Camera *>::iterator it = cameraList.begin();
-		if (it != cameraList.end())
-		{
-			std::string currentCamera = (*it)->getCameraName();
-			it++;
-			while (it != cameraList.end())
-			{
-				if (currentCamera == (*it)->getCameraName())
-				{
-					it = cameraList.erase(it);
-				}
-				else
-				{
-					currentCamera = (*it)->getCameraName();
-					it++;
-				}
-			}
-		}
 	delete parser;
 	return true;
 }
-/*/
+
+bool Index::buildNewCamera(std::string currentCameraSymbol_)
+{
+	std::string currentCameraSymbol = currentCameraSymbol_;
+
+	xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
+	parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
+
+	try
+	{
+		parser->parse((getAbsolutePicturePath()+"/"+direction+currentCameraSymbol+version+".cam").c_str());
+	}
+	catch (...)
+	{
+		fprintf(stderr, "error parsing cam file\n");
+		return false;
+	}
+	xercesc::DOMDocument *xmlDoc = parser->getDocument();
+	xercesc::DOMElement *rootElement = NULL;
+	if (xmlDoc)
+	{
+		rootElement = xmlDoc->getDocumentElement();
+	}
+	if (rootElement)
+	{
+		rootElement = rootElement->getFirstElementChild();
+		if (rootElement)
+		{
+			cameraList.push_back(new Camera(rootElement, currentCameraSymbol));
+			pictureList.back()->setCamera(cameraList.back());
+		}
+	}
+	delete parser;
+	return true;
+}
+
 
 void Index::sortPicturesPerStation()
 {
@@ -288,11 +196,15 @@ void Index::sortPicturesPerStation()
 
 // besser: new myStation, insert und methode add, erst nach Bedingung push_back
 
-// check!!
-Station *Index::getStation(int stationNumber_)
+
+osg::Node *Index::getStationNode(int stationNumber_)
 {
-	if (stations.count(stationNumber_) == 0)
+	if (stations.count(stationNumber_) != 0)
 	{
-		return stations.find(stationNumber_)->second;
+		return stations.find(stationNumber_)->second->getStationPanels();
+	}
+	else
+	{
+		return NULL;
 	}
 }

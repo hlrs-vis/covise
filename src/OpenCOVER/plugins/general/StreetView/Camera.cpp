@@ -3,10 +3,18 @@
 #include <iostream>
 
 
-Camera::Camera(xercesc::DOMElement *cameraElement_, const char cameraSymbol_)
+Camera::Camera(xercesc::DOMElement *cameraElement_, std::string cameraSymbol_)
 {
+	rotationPitch = 0.0;
+	rotationRoll = 0.0;
+	rotationAzimuth = 0.0;
+	imageWidth = 0;
+	imageHeight = 0;
+	pixelSizeX = 0.0;
+	pixelSizeY = 0.0;
+
 	cameraSymbol = cameraSymbol_;
-	cameraName = xercesc::XMLString::transcode(cameraElement_->getAttribute(xercesc::XMLString::transcode("name"))); // cameraElement_ = element "Region"
+	cameraName = xercesc::XMLString::transcode(cameraElement_->getAttribute(xercesc::XMLString::transcode("name")));
 
 	xercesc::DOMNodeList *cameraNodeList = cameraElement_->getChildNodes();
 	for (int j = 0; j < cameraNodeList->getLength(); ++j)
@@ -29,39 +37,23 @@ Camera::Camera(xercesc::DOMElement *cameraElement_, const char cameraSymbol_)
 		}
 		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Rotation"), cameraElement->getTagName()))
 		{
-			const char *pitch = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("pitch")));
-			sscanf(pitch, "%lf", &d);
-			rotation.push_back(d);
-			const char *roll = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("roll")));
-			sscanf(roll, "%lf", &d);
-			rotation.push_back(d);
-			const char *azimuth = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("azimut")));
-			sscanf(azimuth, "%lf", &d);
-			rotation.push_back(d);
+			const char *p = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("pitch")));
+			sscanf(p, "%lf", &rotationPitch);
+			const char *r = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("roll")));
+			sscanf(r, "%lf", &rotationRoll);
+			const char *a = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("azimut")));
+			sscanf(a, "%lf", &rotationAzimuth);
 		}
 		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Camera"), cameraElement->getTagName()))
 		{
-			const char *imageWidth = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("imagewidth")));
-			sscanf(imageWidth, "%lf", &d);
-			cameraImage.push_back(d);
-			const char *imageHeight = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("imageheight")));
-			sscanf(imageHeight, "%lf", &d);
-			cameraImage.push_back(d);
-			const char *pixelSizeX = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("pixelsizex")));
-			sscanf(pixelSizeX, "%lf", &d);
-			cameraImage.push_back(d);		
-			const char *pixelSizeY = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("pixelsizey")));
-			sscanf(pixelSizeY, "%lf", &d);
-			cameraImage.push_back(d);
-			const char *ck = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("ck")));
-			sscanf(ck, "%lf", &d);
-			cameraImage.push_back(d);
-			const char *cx = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("cx")));
-			sscanf(cx, "%lf", &d);
-			cameraImage.push_back(d);
-			const char *cy = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("cy")));
-			sscanf(cy, "%lf", &d);
-			cameraImage.push_back(d);
+			const char *iw = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("imagewidth")));
+			sscanf(iw, "%d", &imageWidth);
+			const char *ih = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("imageheight")));
+			sscanf(ih, "%d", &imageHeight);
+			const char *px = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("pixelsizex")));
+			sscanf(px, "%lf", &pixelSizeX);	
+			const char *py = xercesc::XMLString::transcode(cameraElement->getAttribute(xercesc::XMLString::transcode("pixelsizey")));
+			sscanf(py, "%lf", &pixelSizeY);
 		}
 		if(xercesc::XMLString::equals(xercesc::XMLString::transcode("Distortion"), cameraElement->getTagName()))
 		{

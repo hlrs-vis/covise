@@ -5,7 +5,10 @@
 #include <vector>
 #include <map>
 #include <xercesc/dom/DOM.hpp>
-
+namespace osg
+{
+	class Node;
+};
 class IndexParser;
 class Picture;
 class Station;
@@ -22,10 +25,10 @@ public:
 	std::string &getPicturePath(){return picturePath;};
 	std::vector<Picture *> pictureList;
 	bool parsePictureIndex();
-	bool parseCamerasPerIndex();
+	// bool parseCamerasPerIndex();
 	void sortPicturesPerStation();
 	std::vector<Camera *> cameraList;
-	Station *getStation(int stationNumber_);
+	osg::Node *getStationNode(int stationNumber_);
 
 private:
 	int vonNetzKnoten;
@@ -37,6 +40,7 @@ private:
 	IndexParser *indexParser;
 	std::map<int, Station *> stations;
 	std::vector<std::string> cameraSymbols;
+	bool Index::buildNewCamera(std::string currentCameraSymbol_);
 };
 
 #endif

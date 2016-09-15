@@ -83,15 +83,48 @@ void IndexParser::removeDuplicateEntries()
 	}
 }
 
+/*/
+// remove duplicate entries in cameraList
+void IndexParser::removeDuplicateEntriesInCameras()
+{
+	std::vector<Camera *>::iterator it = cameraList.begin();
+	if (it != cameraList.end())
+	{
+		std::string currentCamera = (*it)->getCameraName();
+		it++;
+		while (it != cameraList.end())
+		{
+			if (currentCamera == (*it)->getCameraName())
+			{
+				it = cameraList.erase(it);
+			}
+			else
+			{
+				currentCamera = (*it)->getCameraName();
+				it++;
+			}
+		}
+	}
+}
+/*/
+
+
 
 void IndexParser::parsePictureIndices()
 {
+	if (indexList.begin() != indexList.end())
+	{
+		indexList[0]->parsePictureIndex();
+	}
+	/*/
 	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
 	{
-		(*it)->parsePictureIndex();
+	(*it)->parsePictureIndex();
 	}
+	/*/
 }
 
+/*/
 void IndexParser::parseCameras()
 {
 	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
@@ -99,7 +132,7 @@ void IndexParser::parseCameras()
 		(*it)->parseCamerasPerIndex();
 	}
 }
-
+/*/
 
 void IndexParser::sortIndicesPerStation()
 {

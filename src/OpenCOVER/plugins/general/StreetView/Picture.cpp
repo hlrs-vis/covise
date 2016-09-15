@@ -9,6 +9,7 @@
 #include <osg/Texture2D>
 
 #include <iostream>
+#include <cmath>
 
 Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 {
@@ -18,6 +19,7 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 	altitude = 0.0;
 	heading = 0.0;
 	index = index_;
+	camera = NULL;
 	
 	xercesc::DOMNodeList *pictureNodeList = pictureNode->getChildNodes();
 	for (int j = 0; j < pictureNodeList->getLength(); ++j)
@@ -60,27 +62,31 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 		}
 	}
 
-	// Zeiger auf Cam
-
 }
+
 
 Picture::~Picture()
 {
 }
 
+
 osg::Node *Picture::getPanelNode()
 {
 	osg::Geode *panel = new osg::Geode();
-	panel->setName("Panel");
-
 	osg::Geometry *panelGeometry = new osg::Geometry();
+
+	// a = 2*arctan(g/(2r)) - g = 2r*tan(a/2), double atan (double x);
+	
+	float width = 1280.0;
+	float height = 960.0;
+	float aspect = 1.3333;
 
 	osg::Vec3Array *panelVertices = new osg::Vec3Array;
 	panelVertices->reserve(4);
-	panelVertices->push_back(osg::Vec3(0,  0,  0));
-	panelVertices->push_back(osg::Vec3(100,0,  0));
-	panelVertices->push_back(osg::Vec3(100,0,100));
-	panelVertices->push_back(osg::Vec3(0,  0,100));
+	panelVertices->push_back(osg::Vec3(-width/2.0,  0, -height/2.0));
+	panelVertices->push_back(osg::Vec3( width/2.0,  0, -height/2.0));
+	panelVertices->push_back(osg::Vec3( width/2.0,  0,  height/2.0));
+	panelVertices->push_back(osg::Vec3(-width/2.0,  0,  height/2.0));
 	panelGeometry->setVertexArray(panelVertices);
 
 	osg::DrawElementsUShort *panelDraw = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, 4);
@@ -120,14 +126,33 @@ osg::Node *Picture::getPanelNode()
 	}
 
 	osg::StateSet *stateOne = new osg::StateSet();
-	stateOne->setTextureAttributeAndModes(0,panelTexture,osg::StateAttribute::ON); 
+	stateOne->setTextureAttributeAndModes(0, panelTexture, osg::StateAttribute::ON); 
 	panel->setStateSet(stateOne);
+
+	osg::Matrix rotationMatrix;
+	rotationMatrix.makeRotate(
+		camera->getRotationRoll(), osg::Vec3(0,1,0), 
+		camera->getRotationPitch(), osg::Vec3(1,0,0), 
+		camera->getRotationAzimuth(), osg::Vec3(0,0,1));
 
 	// root node
 	panelMatrixTransform = new osg::MatrixTransform;
-	panelMatrixTransform->setName("MatrixTransform");
-	panelMatrixTransform->setMatrix(osg::Matrix::scale(150, 100, 100));
+	panelMatrixTransform->setName(fileName);
 	panelMatrixTransform->addChild(panel);
+	panelMatrixTransform->setMatrix(rotationMatrix);
 
 	return panelMatrixTransform;
+}
+
+
+std::string Picture::getPictureCameraName() // for testing
+{
+	if (camera)
+	{
+		return camera->getCameraName();
+	}
+	else
+	{
+		return "no camera set";
+	}
 }

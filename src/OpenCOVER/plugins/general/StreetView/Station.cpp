@@ -17,13 +17,17 @@ Station::~Station()
 }
 
 
-osg::Node *Station::getStationPanelGroup()
+osg::Node *Station::getStationPanels()
 {
-	stationPanelGroup = new osg::Group;
-	stationPanelGroup->setName("StationPanelGroup");
+	stationPanels = new osg::Group;
+	stationPanels->setName("Hier kommt der Stationsname rein"); // set name for station
 	for (std::vector<Picture *>::iterator it = stationPictures.begin(); it != stationPictures.end(); it++)
 	{
-		stationPanelGroup->addChild((*it)->getPanelNode());
+		stationPanels->addChild((*it)->getPanelNode());
 	}
-	return stationPanelGroup;
+	osg::MatrixTransform *stationMatrixTransform = new osg::MatrixTransform;
+	stationMatrixTransform->addChild(stationPanels);
+	// stationMatrixTransform->setMatrix(); // add station's position
+
+	return stationMatrixTransform;
 }

@@ -45,13 +45,14 @@ bool StreetView::init()
 	indexParser->removeDuplicateEntries();
 	std::cout << "After removing duplicate entries: " << indexParser->indexList.size() << endl;
 	indexParser->parsePictureIndices();
-	//stationNode = indexParser->indexList[0]->pictureList[0]->getPanelNode();
-	
 	indexParser->sortIndicesPerStation();
+	//stationNode = indexParser->indexList[0]->pictureList[50]->getPanelNode();
+	//std::cout << "Camera's name: " << indexParser->indexList[0]->pictureList[0]->getPictureCameraName() << endl;
+	//std::cout << "Camera's name: " << indexParser->indexList[0]->pictureList[50]->getPictureCameraName() << endl;
+	stationNode = indexParser->indexList[0]->getStationNode(0);
 
-	// generate list with cameras
-	//indexParser->parseCameras();
-	//std::cout << "Camera name: " << indexParser->indexList[0]->cameraList[0]->getCameraName() << endl;
+
+	//indexParser->sortIndicesPerStation();
 
 	cover->getObjectsRoot()->addChild(stationNode); // add root node to cover scenegraph
 

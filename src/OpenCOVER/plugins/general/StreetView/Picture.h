@@ -11,13 +11,15 @@ class Index;
 class Picture
 {
 public:
-	Picture(xercesc::DOMNode *pictureNode, Index *index);
+	Picture(xercesc::DOMNode *pictureNode, Index *index_);
 	~Picture();
 	osg::Node *getPanelNode();
 	std::string getCameraSymbol(){return cameraSymbol;};
 	int &getStation(){return station;};
 	double &getLatitude(){return latitude;};
 	double &getLongitude(){return longitude;};
+	void setCamera(Camera *currentCamera_){camera = currentCamera_;};
+	std::string getPictureCameraName(); // for testing
 
 private:
 	Camera *camera;

@@ -13,7 +13,7 @@ public:
 	Station(Index *index_);
 	Station(Picture *picture_);
 	~Station();
-	osg::Node *getStationPanelGroup();
+	osg::Node *getStationPanels();
 	std::vector<Picture *> stationPictures;
 
 private:
@@ -21,7 +21,7 @@ private:
 	double stationLatitude;
 	double stationLongitude;
 	Picture *picture;
-	osg::ref_ptr<osg::Group> stationPanelGroup;
+	osg::ref_ptr<osg::Group> stationPanels;
 };
 
 #endif

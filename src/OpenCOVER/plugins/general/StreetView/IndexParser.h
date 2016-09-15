@@ -15,7 +15,7 @@ public:
 	void parsePictureIndices();
 	void parseCameras();
 	void removeDuplicateEntries();
-	void IndexParser::sortIndicesPerStation();
+	void sortIndicesPerStation();
 
 private:
 	std::string indexPath;
