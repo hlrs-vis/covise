@@ -22,6 +22,7 @@
  **                                                                        **
 \**************************************************************************/
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -348,7 +349,7 @@ int ReadVois::compute(const char *port)
             if(readFile()){
                 //printVois();
                 if(triangulate()){
-                    writePly();    //write vertices and triangles to an ascii coded ply-file
+                    //writePly();    //write vertices and triangles to an ascii coded ply-file
                     sendDataToCovise();
                 }
                 else
@@ -608,20 +609,22 @@ bool ReadVois::triangulate()
                 vector<contour_t>::iterator upperContour = contourIter + 1;
 
                 //loop over lower and upper contour at the same time
-                vector<xyz>::iterator lowerVertex = lowerContour->points.begin();
-                vector<xyz>::iterator upperVertex = getNearestPoint(*lowerVertex, &(upperContour->points));
+                vector<xyz>::iterator lbegin = lowerContour->points.begin();
+                vector<xyz>::iterator unearest = getNearestPoint(*lbegin, &(upperContour->points));
+                std::rotate(upperContour->points.begin(), unearest, upperContour->points.end());
 
-                vector<xyz>::iterator lowerStart = lowerVertex;
-                vector<xyz>::iterator upperStart = upperVertex;
+                vector<xyz>::iterator lit = lbegin;
+                vector<xyz>::iterator uit = upperContour->points.begin();
 
-                do {
-                    xyz lower1 = *lowerVertex;
-                    xyz lower2 = *(lowerContour->getNextPoint(lowerVertex));
-                    xyz upper1 = *upperVertex;
-                    xyz upper2 = *(upperContour->getNextPoint(upperVertex));
+                while (lit != lowerContour->points.end() && uit != upperContour->points.end()) {
 
-                    bool advanceLower = false;
-                    bool advanceUpper = false;
+                    vector<xyz>::iterator lnext = (lit + 1) == lowerContour->points.end() ? lowerContour->points.begin() : (lit + 1);
+                    vector<xyz>::iterator unext = (uit + 1) == upperContour->points.end() ? upperContour->points.begin() : (uit + 1);
+
+                    xyz lower1 = *lit;
+                    xyz lower2 = *lnext;
+                    xyz upper1 = *uit;
+                    xyz upper2 = *unext;
 
                     double dist_l1u2 = (lower1 - upper2).squaredLength();
                     double dist_u1l2 = (upper1 - lower2).squaredLength();
@@ -630,28 +633,22 @@ bool ReadVois::triangulate()
                     if(        dist_l1u2 <= dist_u1l2 && dist_l1u2 <= dist_l2u2) {
                         //cerr << "dist_l1u2 is the smallest" << endl;
                         makeTriangle(lower1.index, upper2.index, upper1.index);
-                        advanceUpper = true;
+                        ++uit;
 
                     } else if (dist_u1l2 <= dist_l1u2 && dist_u1l2 <= dist_l2u2) {
                         //cerr << "dist_u1l2 is the smallest" << endl;
                         makeTriangle(upper1.index, lower1.index, lower2.index);
-                        advanceLower = true;
-
+                        ++lit;
                     } else if (dist_l2u2 <= dist_l1u2 && dist_l2u2 <= dist_u1l2) {
                         //cerr << "dist_l2u2 is the smallest" << endl;
                         makeQuad(lower1,upper1,lower2,upper2);
-                        advanceLower = true;
-                        advanceUpper = true;
-
+                        ++lit;
+                        ++uit;
                     } else {
                         cerr << "ERROR: no smallest l1u2: " << dist_l1u2 << "  u1l2: " << dist_u1l2 << "  l2u2: " << dist_l2u2 << endl;
                         return false;
                     }
-
-                    if(advanceLower) lowerVertex = lowerContour->getNextPoint(lowerVertex);
-                    if(advanceUpper) upperVertex = upperContour->getNextPoint(upperVertex);
-
-                } while (lowerVertex != lowerStart || upperVertex != upperStart);
+                }
             }
         }//iterate over all contours
     }//iterate over all VOIs
