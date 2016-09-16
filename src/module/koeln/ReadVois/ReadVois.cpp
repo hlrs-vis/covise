@@ -535,7 +535,7 @@ bool ReadVois::readFile()
                     voi_iter->contours.push_back(contour);
 
                 } else {
-                    sendError("Could not find Voi with index %i in voiVector. VOI invalid?",voi);
+                    sendInfo("Could not find Voi with index %i in voiVector. VOI invalid?",voi);
 //                    return false;
                 }
 
