@@ -1188,6 +1188,9 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         double t = it->first;
         if (t >= starttime && t <= (stoptime*(1+1e-6)))
         { 
+            std::stringstream realtime_s;
+            realtime_s << t;
+            std::string realtime = realtime_s.str();
             if (counter % skipfactor == 0)
             {
                 if (meshParam->getValue() || boundaryParam->getValue() || (m_case.hasParticles && particleParam->getValue()))
@@ -1267,6 +1270,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     basemeshs[j] = m;
                                     lastmeshdir[j]=meshdir;
                                 }
+                                if (m_case.varyingCoords)
+                                    m->addAttribute("REALTIME", realtime.c_str());
                                 tempSetMesh.push_back(m);
                             }
                             if (boundaryParam->getValue())
@@ -1285,6 +1290,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     basebounds[j] = p;
                                     lastbounddir[j]=meshdir;
                                 }
+                                if (m_case.varyingCoords)
+                                    p->addAttribute("REALTIME", realtime.c_str());
                                 tempSetBoundary.push_back(p);
                             }
                         }
@@ -1305,6 +1312,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     portObjName += sp.str();
                                     std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
                                     coDistributedObject *v = loadField(lagdir, dataFilename, portObjName, meshdir);
+                                    v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetParticlesPort[nPort].push_back(v);
                                 }
                             }
@@ -1325,9 +1333,13 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             coDistributedObject *cellIds = NULL;
                             coDoPoints *p = loadParticles(datadir, particleObjName, cellIdObjName, &cellIds);
                             if (p)
+                            {
+                                p->addAttribute("REALTIME", realtime.c_str());
                                 tempSetParticles.push_back(p);
+                            }
                             if (cellIds)
                             {
+                                cellIds->addAttribute("REALTIME", realtime.c_str());
                                 for (size_t i=0; i<cellIdPorts.size(); ++i)
                                     tempSetParticlesPort[cellIdPorts[i]].push_back(cellIds);
                             }
@@ -1354,6 +1366,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     {
                                         processorID[i] = j;
                                     }
+                                    v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetPort[nPort].push_back(v);
                                 }
                                 else
@@ -1362,6 +1375,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     portObjName += sd.str();
 
                                     coDistributedObject *v = loadField(datadir, dataFilename, portObjName, meshdir);
+                                    v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetPort[nPort].push_back(v);
                                 }
                             }                           
@@ -1385,6 +1399,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     {
                                         processorID[i] = j;
                                     }
+                                    v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetBoundPort[nPort].push_back(v);*/
                                 }
                                 else
@@ -1393,6 +1408,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     portObjName += sd.str();
 
                                     coDistributedObject *v = loadBoundaryField(datadir, meshdir, dataFilename, portObjName, selection);
+                                    v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetBoundPort[nPort].push_back(v);
                                 }
                             }
@@ -1408,6 +1424,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             std::string meshSubSetName = meshOutPort->getObjName();
                             meshSubSetName += s.str();
                             meshSubSet = new coDoSet(meshSubSetName, tempSetMesh.size(), &tempSetMesh.front());
+                            if (m_case.varyingCoords)
+                                meshSubSet->addAttribute("REALTIME", realtime.c_str());
                             meshSubSets.push_back(meshSubSet);
                         }
                         if (boundaryParam->getValue())
@@ -1416,6 +1434,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             std::string boundSubSetName = boundaryOutPort->getObjName();
                             boundSubSetName += s.str();
                             boundarySubSet = new coDoSet(boundSubSetName, tempSetBoundary.size(), &tempSetBoundary.front());
+                            if (m_case.varyingCoords)
+                                boundarySubSet->addAttribute("REALTIME", realtime.c_str());
                             boundarySubSets.push_back(boundarySubSet);
                         }
                     }
@@ -1437,6 +1457,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         std::string particleSubSetName = particleOutPort->getObjName();
                         particleSubSetName += s.str();
                         particleSubSet = new coDoSet(particleSubSetName, tempSetParticles.size(), &tempSetParticles.front());
+                        particleSubSet->addAttribute("REALTIME", realtime.c_str());
                         particleSubSets.push_back(particleSubSet);
                     }
 
@@ -1449,6 +1470,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             std::string portSubSetName = outPorts[nPort]->getObjName();
                             portSubSetName += s.str();
                             portSubSet = new coDoSet(portSubSetName, tempSetPort[nPort].size(), &tempSetPort[nPort].front());
+                            portSubSet->addAttribute("REALTIME", realtime.c_str());
                             portSubSets[nPort].push_back(portSubSet);
                         }
                     }
@@ -1461,6 +1483,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             std::string boundPortSubSetName = boundaryDataPorts[nPort]->getObjName();
                             boundPortSubSetName += s.str();
                             boundPortSubSet = new coDoSet(boundPortSubSetName, tempSetBoundPort[nPort].size(), &tempSetBoundPort[nPort].front());
+                            boundPortSubSet->addAttribute("REALTIME", realtime.c_str());
                             boundPortSubSets[nPort].push_back(boundPortSubSet);
                         }
                     }
@@ -1473,6 +1496,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             std::string portSubSetName = particleDataPorts[nPort]->getObjName();
                             portSubSetName += s.str();
                             particlePortSubSet = new coDoSet(portSubSetName, tempSetParticlesPort[nPort].size(), &tempSetParticlesPort[nPort].front());
+                            particlePortSubSet->addAttribute("REALTIME", realtime.c_str());
                             particlePortSubSets[nPort].push_back(particlePortSubSet);
                         }
                     }
