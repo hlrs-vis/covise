@@ -630,16 +630,19 @@ bool ReadVois::triangulate()
                     double dist_u1l2 = (upper1 - lower2).squaredLength();
                     double dist_l2u2 = (lower2 - upper2).squaredLength();
 
-                    if(        dist_l1u2 <= dist_u1l2 && dist_l1u2 <= dist_l2u2) {
-                        //cerr << "dist_l1u2 is the smallest" << endl;
+                    bool lcycle = lnext == lowerContour->points.begin();
+                    bool ucycle = unext == upperContour->points.begin();
+
+                    if(        (dist_l1u2 <= dist_u1l2 && dist_l1u2 <= dist_l2u2) || (lcycle && !ucycle)) {
+                        //make a triangle by advancing on the upper contour
                         makeTriangle(lower1.index, upper2.index, upper1.index);
                         ++uit;
 
-                    } else if (dist_u1l2 <= dist_l1u2 && dist_u1l2 <= dist_l2u2) {
-                        //cerr << "dist_u1l2 is the smallest" << endl;
+                    } else if ((dist_u1l2 <= dist_l1u2 && dist_u1l2 <= dist_l2u2) || (!lcycle && ucycle)) {
+                        //make a triangle by advancing on the lower contour
                         makeTriangle(upper1.index, lower1.index, lower2.index);
                         ++lit;
-                    } else if (dist_l2u2 <= dist_l1u2 && dist_l2u2 <= dist_u1l2) {
+                    } else if ((dist_l2u2 <= dist_l1u2 && dist_l2u2 <= dist_u1l2) || (lcycle && ucycle)) {
                         //cerr << "dist_l2u2 is the smallest" << endl;
                         makeQuad(lower1,upper1,lower2,upper2);
                         ++lit;
