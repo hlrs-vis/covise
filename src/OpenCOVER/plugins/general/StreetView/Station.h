@@ -20,8 +20,10 @@ private:
 	int stationNumber;
 	double stationLatitude;
 	double stationLongitude;
+	double stationAltitude;
+	double stationHeading;
 	Picture *picture;
-	osg::ref_ptr<osg::Group> stationPanels;
+	osg::ref_ptr<osg::MatrixTransform> stationMatrixTransform;
 };
 
 #endif

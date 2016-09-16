@@ -182,14 +182,17 @@ void Index::sortPicturesPerStation()
 {
 	for (std::vector<Picture *>::iterator it = pictureList.begin(); it != pictureList.end(); it++)
 	{
-		int stationNumber = (*it)->getStation();
-		if (stations.count(stationNumber) == 0)
+		if ((*it)->getCamera())
 		{
-			stations.insert(std::pair<int, Station *> (stationNumber, new Station(*it)));
-		}
-		else
-		{
-			stations.find(stationNumber)->second->stationPictures.push_back(*it);
+			int stationNumber = (*it)->getStation();
+			if (stations.count(stationNumber) == 0)
+			{
+				stations.insert(std::pair<int, Station *> (stationNumber, new Station(*it)));
+			}
+			else
+			{
+				stations.find(stationNumber)->second->stationPictures.push_back(*it);
+			}
 		}
 	}
 }

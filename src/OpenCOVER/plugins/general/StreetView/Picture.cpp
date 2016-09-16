@@ -74,12 +74,21 @@ osg::Node *Picture::getPanelNode()
 {
 	osg::Geode *panel = new osg::Geode();
 	osg::Geometry *panelGeometry = new osg::Geometry();
-
-	// a = 2*arctan(g/(2r)) - g = 2r*tan(a/2), double atan (double x);
 	
-	float width = 1280.0;
-	float height = 960.0;
-	float aspect = 1.3333;
+	// a = 2*arctan(g/(2r)),  g = 2r*tan(a/2) // r = distance, a = FOV
+	// a = 2*atan(d/f) // general FOV, d = picture diagonal, f = focal length
+	// H = 2*atan(tan(V/2)*(w/h)) // horizontal FOV
+	// V = 2*atan(tan(H/2)*(h/w)) // vertical FOV
+	// H or V = 2*arctan (B/2 * 1/f´) (in rad)
+
+	int focalLength = 50; // assumed
+	double distance = 3; // set, in metres
+	double aspectRatioWH = (1280.0*(camera->getPixelSizeX()))/(960.0*(camera->getPixelSizeY()));
+	double aspectRatioHW = (960.0*(camera->getPixelSizeY()))/(1280.0*(camera->getPixelSizeX()));
+	double alphaV = 7.3; // vertical FOV, based on focalLength
+	double alphaH = 2.0*atan(tan(alphaV/2.0)*(aspectRatioWH)); // horizontal FOV
+	double width = 2.0*distance*tan(alphaH/2.0);
+	double height = 2.0*distance*tan(alphaV/2.0);
 
 	osg::Vec3Array *panelVertices = new osg::Vec3Array;
 	panelVertices->reserve(4);
@@ -131,21 +140,30 @@ osg::Node *Picture::getPanelNode()
 
 	osg::Matrix rotationMatrix;
 	rotationMatrix.makeRotate(
-		camera->getRotationRoll(), osg::Vec3(0,1,0), 
 		camera->getRotationPitch(), osg::Vec3(1,0,0), 
+		camera->getRotationRoll(), osg::Vec3(0,1,0), 
 		camera->getRotationAzimuth(), osg::Vec3(0,0,1));
+
+	osg::Matrix translationMatrix;
+	translationMatrix.makeTranslate(distance, distance, 0.0);
+
+	osg::Matrix rotationMatrix90X;
+	rotationMatrix90X.makeRotate(1.570796, -1, 0, 0);
+
+	osg::Matrix rotationMatrix90Y;
+	rotationMatrix90Y.makeRotate(1.570796, 0, -1, 0);
 
 	// root node
 	panelMatrixTransform = new osg::MatrixTransform;
 	panelMatrixTransform->setName(fileName);
 	panelMatrixTransform->addChild(panel);
-	panelMatrixTransform->setMatrix(rotationMatrix);
+	panelMatrixTransform->setMatrix(rotationMatrix90X*rotationMatrix90Y*translationMatrix*rotationMatrix);
 
 	return panelMatrixTransform;
 }
 
 
-std::string Picture::getPictureCameraName() // for testing
+std::string Picture::getPictureCameraName() // debugging
 {
 	if (camera)
 	{

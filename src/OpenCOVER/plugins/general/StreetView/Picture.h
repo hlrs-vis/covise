@@ -18,8 +18,11 @@ public:
 	int &getStation(){return station;};
 	double &getLatitude(){return latitude;};
 	double &getLongitude(){return longitude;};
+	double &getAltitude(){return altitude;};
+	double &getHeading(){return heading;};
+	Camera *getCamera(){return camera;};
 	void setCamera(Camera *currentCamera_){camera = currentCamera_;};
-	std::string getPictureCameraName(); // for testing
+	std::string getPictureCameraName(); // debugging
 
 private:
 	Camera *camera;

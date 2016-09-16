@@ -112,9 +112,10 @@ void IndexParser::removeDuplicateEntriesInCameras()
 
 void IndexParser::parsePictureIndices()
 {
-	if (indexList.begin() != indexList.end())
+	std::vector<Index *>::iterator it = indexList.begin(); 
+	if (it != indexList.end()) // debugging
 	{
-		indexList[0]->parsePictureIndex();
+		(*it)->parsePictureIndex();
 	}
 	/*/
 	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
@@ -124,20 +125,18 @@ void IndexParser::parsePictureIndices()
 	/*/
 }
 
-/*/
-void IndexParser::parseCameras()
-{
-	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
-	{
-		(*it)->parseCamerasPerIndex();
-	}
-}
-/*/
 
 void IndexParser::sortIndicesPerStation()
 {
+	std::vector<Index *>::iterator it = indexList.begin(); 
+	if (it != indexList.end()) // debugging
+	{
+		(*it)->sortPicturesPerStation();
+	}
+	/*/
 	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
 	{
 		(*it)->sortPicturesPerStation();
 	}
+	/*/
 }

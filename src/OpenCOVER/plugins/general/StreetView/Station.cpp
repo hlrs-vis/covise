@@ -8,6 +8,8 @@ Station::Station(Picture *picture_)
 	stationNumber = picture->getStation();
 	stationLatitude = picture->getLatitude();
 	stationLongitude = picture->getLongitude();
+	stationAltitude = picture->getAltitude();
+	stationHeading = picture->getHeading();
 	stationPictures.push_back(picture);
 }
 
@@ -19,13 +21,13 @@ Station::~Station()
 
 osg::Node *Station::getStationPanels()
 {
-	stationPanels = new osg::Group;
-	stationPanels->setName("Hier kommt der Stationsname rein"); // set name for station
+	osg::Group *stationPanels = new osg::Group();
 	for (std::vector<Picture *>::iterator it = stationPictures.begin(); it != stationPictures.end(); it++)
 	{
 		stationPanels->addChild((*it)->getPanelNode());
 	}
-	osg::MatrixTransform *stationMatrixTransform = new osg::MatrixTransform;
+	stationMatrixTransform = new osg::MatrixTransform;
+	stationMatrixTransform->setName("set name for station"); // set name for station
 	stationMatrixTransform->addChild(stationPanels);
 	// stationMatrixTransform->setMatrix(); // add station's position
 

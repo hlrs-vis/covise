@@ -41,21 +41,15 @@ bool StreetView::init()
 
 	indexParser = new IndexParser();
 	indexParser->parseIndex("\\\\VISFS1/raid/share/projects/reallabor/Herrenberg/Daten/vonHerrenberg/Panorama/P09299_Herrenberg/EBF");
-	std::cout << "Before removing duplicate entries: " << indexParser->indexList.size() << endl;
-	indexParser->removeDuplicateEntries();
-	std::cout << "After removing duplicate entries: " << indexParser->indexList.size() << endl;
+	indexParser->removeDuplicateEntries(); // one index per directory left
 	indexParser->parsePictureIndices();
 	indexParser->sortIndicesPerStation();
 	//stationNode = indexParser->indexList[0]->pictureList[50]->getPanelNode();
 	//std::cout << "Camera's name: " << indexParser->indexList[0]->pictureList[0]->getPictureCameraName() << endl;
 	//std::cout << "Camera's name: " << indexParser->indexList[0]->pictureList[50]->getPictureCameraName() << endl;
-	stationNode = indexParser->indexList[0]->getStationNode(0);
-
-
-	//indexParser->sortIndicesPerStation();
+	stationNode = indexParser->indexList[0]->getStationNode(1);
 
 	cover->getObjectsRoot()->addChild(stationNode); // add root node to cover scenegraph
-
 	return true;
 }
 
