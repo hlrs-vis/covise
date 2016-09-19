@@ -1180,7 +1180,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     std::vector <std::string> lastbounddir(std::max(1,m_case.numblocks));
 
     int counter = 0;
-    index_t i = 0;
+    index_t timestep = 0;
     for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
             it != m_case.timedirs.end();
             ++it)
@@ -1240,17 +1240,17 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         std::stringstream sp;
                         if (m_case.numblocks > 0)
                         {
-                            sm << "_timestep_" << i << "_processor_" << j;
-                            sb << "_timestep_" << i << "_processor_" << j;
-                            sd << "_timestep_" << i << "_processor_" << j;
-                            sp << "_timestep_" << i << "_processor_" << j;
+                            sm << "_timestep_" << timestep << "_processor_" << j;
+                            sb << "_timestep_" << timestep << "_processor_" << j;
+                            sd << "_timestep_" << timestep << "_processor_" << j;
+                            sp << "_timestep_" << timestep << "_processor_" << j;
                         }
                         else
                         {
-                            sm << "_timestep_" << i << "_mesh";
-                            sb << "_timestep_" << i << "_polygon";
-                            sd << "_timestep_" << i << "_data";
-                            sp << "_timestep_" << i << "_data";
+                            sm << "_timestep_" << timestep << "_mesh";
+                            sb << "_timestep_" << timestep << "_polygon";
+                            sd << "_timestep_" << timestep << "_data";
+                            sp << "_timestep_" << timestep << "_data";
                         }
 
                         if ((!m_case.varyingCoords && counter==0) || m_case.varyingCoords)
@@ -1415,7 +1415,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         }
                     }
                     std::stringstream s;
-                    s << "_set_timestep" << i;
+                    s << "_set_timestep" << timestep;
                     if ((!m_case.varyingCoords && counter==0) || m_case.varyingCoords)
                     {
                         if (meshParam->getValue())
@@ -1501,7 +1501,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         }
                     }
                 }
-                ++i;
+                ++timestep;
             }
             counter++;
         }
