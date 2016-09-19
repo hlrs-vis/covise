@@ -219,14 +219,6 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
                     havePoints = true;
             }
         }
-
-        if (stem == "lagrangian")
-        {
-            if (::is_directory(*it))
-            {
-                info.hasParticles = true;
-            }
-        }
     }
     // 
     if (meshfiles.size() == 4)
@@ -296,6 +288,9 @@ bool checkLagrangianDirectory(CaseInfo &info, std::string lagdir, bool time)
                 ++info.particleFields[stem];
         }
     }
+
+    if (havePositions)
+        info.hasParticles = true;
 
     if (!havePositions)
     {
@@ -578,6 +573,16 @@ CaseInfo getCaseInfo(const std::string &casedir, bool exact)
 
     std::cerr << "  varying: ";
     checkFields(info.varyingFields, np * info.timedirs.size(), exact);
+
+    if (info.hasParticles)
+    {
+        std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
+        checkFields(info.particleFields, np * info.timedirs.size(), exact);
+    }
+    else
+    {
+        std::cerr << "  no lagrangian data" << std::endl;
+    }
 
     return info;
 }
