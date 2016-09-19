@@ -1540,42 +1540,51 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     }
     for (int nPort = 0; nPort < num_ports; ++nPort)
     {
-        std::string portSetName = outPorts[nPort]->getObjName();
-        coDoSet *portSet = new coDoSet(portSetName, portSubSets[nPort].size(), &portSubSets[nPort].front());
-        if (m_case.timedirs.size() > 1)
+        if (portChoice[nPort]->getValue() > 0)
         {
-            std::stringstream s;
-            s << "0-" << portSubSets[nPort].size();
-            portSet->addAttribute("TIMESTEP", s.str().c_str());
+            std::string portSetName = outPorts[nPort]->getObjName();
+            coDoSet *portSet = new coDoSet(portSetName, portSubSets[nPort].size(), &portSubSets[nPort].front());
+            if (m_case.timedirs.size() > 1)
+            {
+                std::stringstream s;
+                s << "0-" << portSubSets[nPort].size();
+                portSet->addAttribute("TIMESTEP", s.str().c_str());
+            }
+            outPorts[nPort]->setCurrentObject(portSet);
         }
         portSubSets[nPort].clear();
-        outPorts[nPort]->setCurrentObject(portSet);
     }
     for (int nPort = 0; nPort < num_boundary_data_ports; ++nPort)
     {
-        std::string boundPortSetName = boundaryDataPorts[nPort]->getObjName();
-        coDoSet *boundPortSet = new coDoSet(boundPortSetName, boundPortSubSets[nPort].size(), &boundPortSubSets[nPort].front());
-        if (m_case.timedirs.size() > 1)
+        if (boundaryDataChoice[nPort]->getValue() > 0)
         {
-            std::stringstream s;
-            s << "0-" << boundPortSubSets[nPort].size();
-            boundPortSet->addAttribute("TIMESTEP", s.str().c_str());
+            std::string boundPortSetName = boundaryDataPorts[nPort]->getObjName();
+            coDoSet *boundPortSet = new coDoSet(boundPortSetName, boundPortSubSets[nPort].size(), &boundPortSubSets[nPort].front());
+            if (m_case.timedirs.size() > 1)
+            {
+                std::stringstream s;
+                s << "0-" << boundPortSubSets[nPort].size();
+                boundPortSet->addAttribute("TIMESTEP", s.str().c_str());
+            }
+            boundaryDataPorts[nPort]->setCurrentObject(boundPortSet);
         }
         boundPortSubSets[nPort].clear();
-        boundaryDataPorts[nPort]->setCurrentObject(boundPortSet);
     }
     for (int nPort = 0; nPort < num_ports; ++nPort)
     {
-        std::string particlePortSetName = particleDataPorts[nPort]->getObjName();
-        coDoSet *portSet = new coDoSet(particlePortSetName, particlePortSubSets[nPort].size(), &particlePortSubSets[nPort].front());
-        if (m_case.timedirs.size() > 1)
+        if (particleDataChoice[nPort]->getValue() > 0)
         {
-            std::stringstream s;
-            s << "0-" << particlePortSubSets[nPort].size();
-            portSet->addAttribute("TIMESTEP", s.str().c_str());
+            std::string particlePortSetName = particleDataPorts[nPort]->getObjName();
+            coDoSet *portSet = new coDoSet(particlePortSetName, particlePortSubSets[nPort].size(), &particlePortSubSets[nPort].front());
+            if (m_case.timedirs.size() > 1)
+            {
+                std::stringstream s;
+                s << "0-" << particlePortSubSets[nPort].size();
+                portSet->addAttribute("TIMESTEP", s.str().c_str());
+            }
+            particleDataPorts[nPort]->setCurrentObject(portSet);
         }
         particlePortSubSets[nPort].clear();
-        particleDataPorts[nPort]->setCurrentObject(portSet);
     }
 
 
