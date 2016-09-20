@@ -139,7 +139,6 @@ xyz cross(xyz v1, xyz v2){
     return retVal;
 }
 
-//stream xys
 std::ostream& operator<< (std::ostream &out, const xy &v)
 {
     //out << std::setprecision(9) << std::fixed;
@@ -243,7 +242,7 @@ struct triangle_t {
     int vertex3;
 };
 
-//stream xyzs
+//stream triangles
 std::ostream& operator<< (std::ostream &out, const triangle_t &t)
 {
     out << "(" << t.vertex1 << "," << t.vertex2 << "," << t.vertex3 << ")";
