@@ -1337,7 +1337,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     portObjName += sd.str();
 
                                     coDistributedObject *v = loadField(datadir, dataFilename, portObjName, meshdir);
-                                    v->addAttribute("REALTIME", realtime.c_str());
+                                    if (v)
+                                        v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetPort[nPort].push_back(v);
                                 }
                             }                           
@@ -1370,38 +1371,58 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                     portObjName += sd.str();
 
                                     coDistributedObject *v = loadBoundaryField(datadir, meshdir, dataFilename, portObjName, selection);
-                                    v->addAttribute("REALTIME", realtime.c_str());
+                                    if (v)
+                                        v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetBoundPort[nPort].push_back(v);
                                 }
                             }
                         }
 
                         // lagrangian/particle data
-                        if (m_case.hasParticles && (particleParam->getValue() || !cellIdPorts.empty()))
+                        if (m_case.hasParticles)
                         {
-                            std::string particleObjName, cellIdObjName;
-                            if (particleParam->getValue())
+                            if (particleParam->getValue() || !cellIdPorts.empty())
                             {
-                                particleObjName = particleOutPort->getObjName();
-                                particleObjName += sp.str();
+                                std::string particleObjName, cellIdObjName;
+                                if (particleParam->getValue())
+                                {
+                                    particleObjName = particleOutPort->getObjName();
+                                    particleObjName += sp.str();
+                                }
+                                if (!cellIdPorts.empty())
+                                {
+                                    cellIdObjName = particleDataPorts[cellIdPorts[0]]->getObjName();
+                                    cellIdObjName += sp.str();
+                                }
+                                coDistributedObject *cellIds = NULL;
+                                coDoPoints *p = loadParticles(datadir, particleObjName, cellIdObjName, &cellIds);
+                                if (p)
+                                {
+                                    p->addAttribute("REALTIME", realtime.c_str());
+                                    tempSetParticles.push_back(p);
+                                }
+                                if (cellIds)
+                                {
+                                    cellIds->addAttribute("REALTIME", realtime.c_str());
+                                    for (size_t i=0; i<cellIdPorts.size(); ++i)
+                                        tempSetParticlesPort[cellIdPorts[i]].push_back(cellIds);
+                                }
                             }
-                            if (!cellIdPorts.empty())
+                            for (int nPort = 0; nPort < num_ports; ++nPort)
                             {
-                                cellIdObjName = particleDataPorts[cellIdPorts[0]]->getObjName();
-                                cellIdObjName += sp.str();
-                            }
-                            coDistributedObject *cellIds = NULL;
-                            coDoPoints *p = loadParticles(datadir, particleObjName, cellIdObjName, &cellIds);
-                            if (p)
-                            {
-                                p->addAttribute("REALTIME", realtime.c_str());
-                                tempSetParticles.push_back(p);
-                            }
-                            if (cellIds)
-                            {
-                                cellIds->addAttribute("REALTIME", realtime.c_str());
-                                for (size_t i=0; i<cellIdPorts.size(); ++i)
-                                    tempSetParticlesPort[cellIdPorts[i]].push_back(cellIds);
+                                index_t portchoice = particleDataChoice[nPort]->getValue();
+                                if (portchoice > 1 && portchoice <= m_case.particleFields.size()+1)
+                                {
+                                    std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
+                                    std::string dataFilename = particleDataChoice[nPort]->getLabel(portchoice);
+                                    std::string portObjName = particleDataPorts[nPort]->getObjName();
+                                    portObjName += sp.str();
+
+                                    coDistributedObject *v = loadField(lagdir, dataFilename, portObjName, meshdir);
+                                    if (v)
+                                        v->addAttribute("REALTIME", realtime.c_str());
+                                    tempSetParticlesPort[nPort].push_back(v);
+                                }
                             }
                         }
                     }
