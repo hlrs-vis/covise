@@ -51,6 +51,7 @@ public:
     static int unloadPts(const char *filename, const char *);
     int loadPts(const char* filename);
 
+     void preFrame();
      void preDraw(osg::RenderInfo &info);
      void expandBoundingSphere(osg::BoundingSphere &bs);
 
@@ -83,6 +84,8 @@ private:
     int                         m_numPointClouds;
     int                         m_currentPointCloud;
     bool                        m_currentPointCloud_has_changed;
+    void                        showNextPointCloud();
+    void			showPreviousPointCloud();
 
     /*
     bool                        m_visibility_has_changed;
