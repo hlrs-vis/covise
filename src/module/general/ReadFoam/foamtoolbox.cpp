@@ -1416,6 +1416,32 @@ bool readParticleArrayAscii(std::istream &stream, F *x, F *y, F *z, I *cell, con
     return stream.good();
 }
 
+template <typename F, typename I>
+bool readParticleArrayBinary(std::istream &stream, F *x, F *y, F *z, I *cell, const size_t lines)
+{
+    typedef typename on_disk<F>::type Float;
+    typedef typename on_disk<I>::type Index;
+    std::vector<Float> fbuf(3);
+    std::vector<Index> ibuf(4);
+    expect('\n');
+    for (size_t i=0; i<lines; ++i)
+    {
+        expect('(');
+        if (!readArrayChunkBinary(stream, &fbuf[0], fbuf.size()))
+            return false;
+        if (!readArrayChunkBinary(stream, &ibuf[0], ibuf.size()))
+            return false;
+        if (x) x[i] = fbuf[0];
+        if (y) y[i] = fbuf[1];
+        if (z) z[i] = fbuf[2];
+        if (cell) cell[i] = ibuf[0];
+        expect(')');
+        expect('\n');
+    }
+
+    return stream.good();
+}
+
 bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, index_t *cell, const size_t lines)
 {
     if (!stream.good()) {
@@ -1423,17 +1449,17 @@ bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x
         return false;
     }
     assert(stream.good());
+    expect('(');
     if (info.format == "binary")
     {
-        std::cerr << "readParticleArray: not implemented for binary data" << std::endl;
-        return false;
+        if(!readParticleArrayBinary<scalar_t, index_t>(stream, x, y, z, cell, lines))
+            return false;
     }
     else
     {
-        expect('(');
         if(!readParticleArrayAscii<scalar_t, index_t>(stream, x, y, z, cell, lines))
             return false;
-        expect(')');
     }
-    return true;
+    expect(')');
+    return stream.good();
 }
