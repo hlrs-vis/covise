@@ -749,6 +749,8 @@ coVRFileManager::coVRFileManager()
     lastCovise_key = NULL;
     if (cover != NULL)
         cover->getUpdateManager()->add(this);
+
+    osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
 }
 
 coVRFileManager::~coVRFileManager()
