@@ -83,7 +83,7 @@ static FileHandler handlers[] = {
       "oct_idx" }
 };
 
-int PCLPlugin::sloadPCD(const char *filename, osg::Group *loadParent)
+int PCLPlugin::sloadPCD(const char *filename, osg::Group *loadParent, const char *)
 {
 
     instance()->loadPCD(filename, loadParent);
@@ -141,7 +141,7 @@ int PCLPlugin::loadPCD(const char *filename, osg::Group *loadParent)
     ;
     return 0;
 }
-int PCLPlugin::sloadOCT(const char *filename, osg::Group *loadParent)
+int PCLPlugin::sloadOCT(const char *filename, osg::Group *loadParent, const char *)
 {
 
     instance()->loadOCT(filename, loadParent);
@@ -290,14 +290,14 @@ int PCLPlugin::loadOCT(const char *filename, osg::Group *loadParent)
 	parentNode->addChild(lod.get());;*/
 }
 
-int PCLPlugin::unloadPCD(const char *filename)
+int PCLPlugin::unloadPCD(const char *filename, const char *)
 {
     (void)filename;
 
     return 0;
 }
 
-int PCLPlugin::unloadOCT(const char *filename)
+int PCLPlugin::unloadOCT(const char *filename, const char *)
 {
     (void)filename;
 
