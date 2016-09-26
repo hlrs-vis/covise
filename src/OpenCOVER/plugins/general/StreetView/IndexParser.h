@@ -11,11 +11,11 @@ public:
 	~IndexParser();
 	bool parseIndex(std::string indexPath); 	// parse index.xml in directory indexPath
 	std::string &getIndexPath(){return indexPath;};
-	std::vector<Index *> indexList;
 	void parsePictureIndices();
 	void parseCameras();
 	void removeDuplicateEntries();
 	void sortIndicesPerStation();
+	std::vector<Index *> indexList;
 
 private:
 	std::string indexPath;

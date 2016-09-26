@@ -22,7 +22,6 @@ public:
 	double &getHeading(){return heading;};
 	Camera *getCamera(){return camera;};
 	void setCamera(Camera *currentCamera_){camera = currentCamera_;};
-	std::string getPictureCameraName(); // debugging
 
 private:
 	Camera *camera;

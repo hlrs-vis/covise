@@ -1,6 +1,8 @@
 #include "Station.h"
 #include "Picture.h"
 
+#include <string>
+
 
 Station::Station(Picture *picture_)
 {
@@ -27,9 +29,14 @@ osg::Node *Station::getStationPanels()
 		stationPanels->addChild((*it)->getPanelNode());
 	}
 	stationMatrixTransform = new osg::MatrixTransform;
-	stationMatrixTransform->setName("set name for station"); // set name for station
+	stationMatrixTransform->setName("Latitude_" + std::to_string(stationLatitude));
 	stationMatrixTransform->addChild(stationPanels);
-	// stationMatrixTransform->setMatrix(); // add station's position
+	
+	/*/ check
+	osg::Matrix rotationMatrix;
+	rotationMatrix.makeRotate((stationHeading * M_PI / 180), 0, 0, 1);
+	stationMatrixTransform->setMatrix(rotationMatrix);
+	/*/
 
 	return stationMatrixTransform;
 }

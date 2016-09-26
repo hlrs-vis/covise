@@ -49,6 +49,8 @@ bool StreetView::init()
 	//std::cout << "Camera's name: " << indexParser->indexList[0]->pictureList[50]->getPictureCameraName() << endl;
 	stationNode = indexParser->indexList[0]->getStationNode(1);
 
+	// osg::Matrix &getViewerMat(); // tranformation matrix with viewer's position
+
 	cover->getObjectsRoot()->addChild(stationNode); // add root node to cover scenegraph
 	return true;
 }

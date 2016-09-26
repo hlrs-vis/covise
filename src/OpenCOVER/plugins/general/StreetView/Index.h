@@ -23,12 +23,11 @@ public:
 	std::string &getVersion(){return version;};
 	std::string getAbsolutePicturePath();
 	std::string &getPicturePath(){return picturePath;};
-	std::vector<Picture *> pictureList;
 	bool parsePictureIndex();
-	// bool parseCamerasPerIndex();
 	void sortPicturesPerStation();
-	std::vector<Camera *> cameraList;
 	osg::Node *getStationNode(int stationNumber_);
+	std::vector<Camera *> cameraList;
+	std::vector<Picture *> pictureList;
 
 private:
 	int vonNetzKnoten;
@@ -40,7 +39,7 @@ private:
 	IndexParser *indexParser;
 	std::map<int, Station *> stations;
 	std::vector<std::string> cameraSymbols;
-	bool Index::buildNewCamera(std::string currentCameraSymbol_);
+	bool buildNewCamera(std::string currentCameraSymbol_);
 };
 
 #endif

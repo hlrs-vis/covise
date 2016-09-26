@@ -194,6 +194,20 @@ void Index::sortPicturesPerStation()
 				stations.find(stationNumber)->second->stationPictures.push_back(*it);
 			}
 		}
+		/*/ mapping with latitude
+		if ((*it)->getCamera())
+		{
+			int stationLatitude = (*it)->getStationLatitude();
+			if (stations.count(stationLatitude) == 0)
+			{
+				stations.insert(std::pair<double, Station *> (stationLatitude, new Station(*it)));
+			}
+			else
+			{
+				stations.find(stationLatitude)->second->stationPictures.push_back(*it);
+			}
+		}
+		/*/
 	}
 }
 

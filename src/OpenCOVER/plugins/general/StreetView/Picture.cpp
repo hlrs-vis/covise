@@ -82,7 +82,7 @@ osg::Node *Picture::getPanelNode()
 	// H or V = 2*arctan (B/2 * 1/f´) (in rad)
 
 	int focalLength = 50; // assumed
-	double distance = 3; // set, in metres
+	double distance = 4; // set, in metres
 	double aspectRatioWH = (1280.0*(camera->getPixelSizeX()))/(960.0*(camera->getPixelSizeY()));
 	double aspectRatioHW = (960.0*(camera->getPixelSizeY()))/(1280.0*(camera->getPixelSizeX()));
 	double alphaV = 7.3; // vertical FOV, based on focalLength
@@ -145,7 +145,7 @@ osg::Node *Picture::getPanelNode()
 		camera->getRotationAzimuth(), osg::Vec3(0,0,1));
 
 	osg::Matrix translationMatrix;
-	translationMatrix.makeTranslate(distance, distance, 0.0);
+	translationMatrix.makeTranslate(distance, distance, 0);
 
 	osg::Matrix rotationMatrix90X;
 	rotationMatrix90X.makeRotate(1.570796, -1, 0, 0);

@@ -11,7 +11,6 @@ set(HEADERS
   IndexParser.h
   Index.h
   Camera.h
-  Station.h
 )
 set(SOURCES
   StreetView.cpp

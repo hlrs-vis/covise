@@ -10,10 +10,10 @@ class Index;
 class Station
 {
 public:
-	Station(Index *index_);
 	Station(Picture *picture_);
 	~Station();
 	osg::Node *getStationPanels();
+	double &getStationLatitude(){return stationLatitude;};
 	std::vector<Picture *> stationPictures;
 
 private:
