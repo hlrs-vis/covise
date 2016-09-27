@@ -24,26 +24,30 @@
             <Input>
                 <MouseNav value="true" />
                 <Device>
-                    <ZSpace driver="vrpn" host="141.58.8.2" tracker="Tracker0" button="Tracker0">
-                        <Offset x="-0" y="-360" z="200" />
+                    <ZSpaceHead driver="vrpn" host="192.168.122.90" tracker="HeadTracker0" >
+                        <Offset x="0" y="0" z="0" />
                         <Orientation h="180" p="60" r="180" />
-                    </ZSpace>
+                    </ZSpaceHead>
+                    <ZSpaceHand driver="vrpn" host="192.168.122.90" tracker="StylusTracker0" button="Buttons0" >
+                        <Offset x="0" y="0" z="0" />
+                        <Orientation h="180" p="60" r="180" />
+                    </ZSpaceHand>
                 </Device>
 
                 <Body>
-                    <Glasses device="ZSpace" bodyIndex="0" >
+                    <Glasses device="ZSpaceHead" bodyIndex="0" >
                         <Offset x="-0" y="-0" z="-0" />
                         <Orientation h="0" p="-90" r="0" />
                     </Glasses>
 
-                    <Stylus device="ZSpace" bodyIndex="1" >
+                    <Stylus device="ZSpaceHand" bodyIndex="0" >
                         <Offset x="0" y="-0" z="0" />
                         <Orientation h="0" p="-90" r="0" />
                     </Stylus>
                 </Body>
 
                 <Buttons>
-                    <Stylus device="ZSpace" >
+                    <Stylus device="ZSpaceHand" >
                         <Map name="0" value="ACTION_BUTTON" />
                         <Map name="1" value="XFORM_BUTTON" />
                         <Map name="2" value="DRIVE_BUTTON" />
