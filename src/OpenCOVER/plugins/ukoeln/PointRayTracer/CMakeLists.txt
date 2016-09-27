@@ -24,6 +24,7 @@ function(do_cuda_compile outfiles)
 endfunction()
 
 SET(HEADERS
+  ColorSphere.h
   PointRayTracerGlobals.h
   PointRayTracerKernel.h
   PointRayTracerPlugin.h

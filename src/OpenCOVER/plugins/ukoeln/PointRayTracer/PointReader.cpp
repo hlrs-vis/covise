@@ -3,7 +3,18 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/filesystem.hpp>
+
 using namespace visionaray;
+
+PointReader *
+PointReader::instance()
+{
+    static PointReader *singleton = NULL;
+    if (!singleton)
+        singleton = new PointReader;
+    return singleton;
+}
 
 PointReader::PointReader(){
 
@@ -26,9 +37,9 @@ std::vector<std::string> splitString(const std::string& s, char separator){
 }
 
 void addPoint(point_vector& points,
-              color_vector& colors,
               std::vector<std::string>& tokens,
               aabb& bbox,
+              float pointSize,
               int count,
               bool cutUTMdata){
 
@@ -57,13 +68,10 @@ void addPoint(point_vector& points,
 //        std::cout << "x: " << x << "  y: " << y << "  z: " << z << "    r: " << r << "  g: " << g << "  b: " << b << std::endl << std::endl;
 
     sphere_type sp;
-    sp.radius = 0.01f;
+    sp.radius = pointSize;
     sp.center = vec3(x,y,z);
-    sp.prim_id = count;
-    sp.geom_id = 0;
+    sp.color = visionaray::vector<3, visionaray::unorm<8>>((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
     points.push_back(sp);
-    colors.emplace_back((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
-
 
     if(x < bbox.min.x) bbox.min.x = x; else if(x > bbox.max.x) bbox.max.x = x;
     if(y < bbox.min.y) bbox.min.y = y; else if(y > bbox.max.y) bbox.max.y = y;
@@ -71,54 +79,90 @@ void addPoint(point_vector& points,
 }
 
 
-bool PointReader::readFile(std::string filename, float pointSize,
-                           point_vector &points,
-                           color_vector& colors,
+bool PointReader::readFile(std::string filename,
+                           float pointSize,
+                           std::vector<host_bvh_type> &bvh_vector,
                            aabb &bbox,
+                           bool useCache,
                            bool cutUTMdata){
 
-    //open the file
-    FILE * f = fopen(filename.c_str(),"r");
-    if(f == NULL){
-        std::cerr << "PointReader::readFile() Could not open file: " << filename.c_str() << std::endl;
-        return false;
+    //optionally load data from cache
+    bool binaryLoaded = false;
+
+    //path to binary cache file
+    static const std::string cacheDir = "/var/tmp/";
+    boost::filesystem::path p(filename);
+    std::string basename = p.stem().string();
+    std::string binaryPath = cacheDir + basename;
+
+    if(useCache && boost::filesystem::exists(binaryPath)){
+        std::cout << "Load binary data from " << binaryPath << '\n';
+        host_bvh_type bvh;
+        binaryLoaded = loadBvh(binaryPath, bvh);
+        if(binaryLoaded) bvh_vector.push_back(bvh);
+        std::cout << "Ready\n";
     }
 
-    //data storage for ascii lines
-    char line[200];
+    if (!binaryLoaded)
+    {
+        std::cout << "PointReader::readFile() reading file " << filename.c_str() << std::endl;
 
-    //read the first line. Sometimes it contains the total number of points in the file
-    if(!fgets(line,200,f)) {
-        std::cout << "Could not read first line from file " << filename.c_str() << std::endl;
-        return false;
-    }
-
-    int numPoints = 0;
-    int count = 0;
-    std::vector<std::string> tokens = splitString(line, ' ');
-
-    if(tokens.size() != 7){
-        numPoints = std::stoi(tokens[0]);
-        if(numPoints != 0) std::cout << "PointReader::readFile() reading " << numPoints << "points" << std::endl;
-    } else {
-        addPoint(points,colors,tokens,bbox,count,cutUTMdata);
-        count++;
-    }
-
-    while(fgets(line,200,f)){
-
-        tokens = splitString(line,' ');
-        if(tokens.size() != 7) {
-            std::cout << "PointReader::readFile() ERROR: number of tokens not 7 in line " << count << " of file " << filename.c_str() << std::endl;
-            break;
+        //open the file
+        FILE * f = fopen(filename.c_str(),"r");
+        if(f == NULL){
+            std::cerr << "PointReader::readFile() Could not open file: " << filename.c_str() << std::endl;
+            return false;
         }
 
-        addPoint(points,colors,tokens,bbox,count,cutUTMdata);
-        count++;
+        //data storage for ascii lines
+        char line[200];
 
-        if(count % 100000 == 0) std::cout << "PointReader::readFile() reading line " << count << std::endl;
+        //read the first line. Sometimes it contains the total number of points in the file
+        if(!fgets(line,200,f)) {
+            std::cout << "PointReader::readFile() Could not read first line from file " << filename.c_str() << std::endl;
+            return false;
+        }
+
+        int numPoints = 0;
+        int count = 0;
+        point_vector points;
+
+        std::vector<std::string> tokens = splitString(line, ' ');
+
+        if(tokens.size() != 7){
+            numPoints = std::stoi(tokens[0]);
+            if(numPoints != 0) std::cout << "PointReader::readFile() reading " << numPoints << " points" << std::endl;
+        } else {
+            addPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
+            count++;
+        }
+
+        while(fgets(line,200,f)){
+
+            tokens = splitString(line,' ');
+            if(tokens.size() != 7) {
+                std::cout << "PointReader::readFile() ERROR: number of tokens not 7 in line " << count << " of file " << filename.c_str() << std::endl;
+                break;
+            }
+
+            addPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
+            count++;
+
+            if(count % 100000 == 0) std::cout << "PointReader::readFile() reading line " << count << std::endl;
+        }
+
+        std::cout << "PointReader::readFile() building bvh for file " << filename.c_str() << std::endl;
+        bvh_vector.emplace_back(visionaray::build<host_bvh_type>(points.data(), points.size()));
+
+
+        if (useCache && !boost::filesystem::exists(binaryPath)) //don't overwrite..
+        {
+            std::cout << "Storing binary file to " << binaryPath << "...\n";
+            storeBvh(binaryPath, bvh_vector.back());
+            std::cout << "Ready\n";
+        }
+
     }
-
 
     /*
     //filename = "/data/KleinAltendorf/ausschnitte/test_UTM_KLA2506_2015.pts";
@@ -167,6 +211,64 @@ bool PointReader::readFile(std::string filename, float pointSize,
     stream.close();
     std::cout << "done reading" << std::endl;
     */
+
+    return true;
+}
+
+bool PointReader::loadBvh(std::string filename, host_bvh_type &bvh)
+{
+
+    std::ifstream stream;
+    stream.open(filename, std::ios::in | std::ios::binary);
+
+    if(!stream.is_open())
+    {
+        std::cerr << "Could not open file: " << filename << std::endl;
+        return false;
+    }
+
+    uint64_t num_primitives = 0;
+    uint64_t num_indices = 0;
+    uint64_t num_nodes = 0;    
+
+    stream.read((char*)&num_primitives, sizeof(num_primitives));
+    stream.read((char*)&num_indices, sizeof(num_indices));
+    stream.read((char*)&num_nodes, sizeof(num_nodes));    
+
+    bvh.primitives().resize(num_primitives);
+    bvh.indices().resize(num_indices);
+    bvh.nodes().resize(num_nodes);    
+
+    stream.read((char*)bvh.primitives().data(), num_primitives * sizeof(host_bvh_type::primitive_type));
+    stream.read((char*)bvh.indices().data(), num_indices * sizeof(int));
+    stream.read((char*)bvh.nodes().data(), num_nodes * sizeof(bvh_node));    
+
+    return true;
+}
+
+bool PointReader::storeBvh(std::string filename, host_bvh_type &bvh)
+{
+
+    std::ofstream stream;
+    stream.open(filename, std::ios::out | std::ios::binary);
+
+    if(!stream.is_open())
+    {
+        std::cerr << "Could not open file: " << filename << std::endl;
+        return false;
+    }
+
+    uint64_t num_primitives = bvh.primitives().size();
+    uint64_t num_indices = bvh.indices().size();
+    uint64_t num_nodes = bvh.nodes().size();    
+
+    stream.write((char const*)&num_primitives, sizeof(num_primitives));
+    stream.write((char const*)&num_indices, sizeof(num_indices));
+    stream.write((char const*)&num_nodes, sizeof(num_nodes));
+
+    stream.write((char const*)bvh.primitives().data(), num_primitives * sizeof(host_bvh_type::primitive_type));
+    stream.write((char const*)bvh.indices().data(), num_indices * sizeof(int));
+    stream.write((char const*)bvh.nodes().data(), num_nodes * sizeof(bvh_node));
 
     return true;
 }

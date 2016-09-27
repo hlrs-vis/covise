@@ -8,75 +8,95 @@
 #include <fstream>
 #include <iostream>
 #include <ostream>
-#include <boost/filesystem.hpp>
+
 #include <GL/glew.h>
+
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
+
+#include <OpenVRUI/coSubMenuItem.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coButtonMenuItem.h>
+
+
 #include "PointRayTracerPlugin.h"
 
 using namespace osg;
 using namespace visionaray;
 PointRayTracerPlugin *PointRayTracerPlugin::plugin = NULL;
 
+static FileHandler handlers[] = {
+    { NULL,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::unloadPts,
+      "pts" }
+};
+
 //-----------------------------------------------------------------------------
+
+PointRayTracerPlugin *PointRayTracerPlugin::instance()
+{
+    return plugin;
+}
+
 
 PointRayTracerPlugin::PointRayTracerPlugin()
 {
+    //register file handler
+    coVRFileManager::instance()->registerFileHandler(&handlers[0]);
+
     //create drawable
     m_drawable = new PointRayTracerDrawable;
 }
 
+
 bool PointRayTracerPlugin::init()
 {
-    if (cover->debugLevel(1)) fprintf(stderr, "\n    new PointRayTracerPlugin\n");
+    if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::init\n");
 
-    static const std::string cacheDir = "/var/tmp/";
+    if (PointRayTracerPlugin::plugin != NULL)
+        return false;
 
-    //read config
-    std::string filename = covise::coCoviseConfig::getEntry("COVER.Plugin.PointRayTracer.Filename");
-    if(filename.empty()) filename = "/data/KleinAltendorf/ausschnitte/test_UTM_klein.pts";
+    PointRayTracerPlugin::plugin = this;
+
+
+    m_numPointClouds = 0;
+    m_currentPointCloud = 0;
+    m_currentPointCloud_has_changed = false;
 
     //TODO: we might want to check if the cached BVH was created
     //with the same point size that is required from the config
-    float pointSize = covise::coCoviseConfig::getFloat("COVER.Plugin.PointRayTracer.PointSize",0.01f);
-
+    m_pointSize = covise::coCoviseConfig::getFloat("COVER.Plugin.PointRayTracer.PointSize",0.01f);
 
     //check if loading from cache is enabled
     bool ignore;
-    bool useCache = covise::coCoviseConfig::isOn("value", "COVER.Plugin.PointRayTracer.CacheBinaryFile", false, &ignore);
+    m_useCache = covise::coCoviseConfig::isOn("value", "COVER.Plugin.PointRayTracer.CacheBinaryFile", false, &ignore);
 
-    //path to binary cache file
-    boost::filesystem::path p(filename);
-    std::string basename = p.stem().string();
-    std::string binaryPath = cacheDir + basename;
+    m_cutUTMdata = true;
 
-    //optionally load data from cache
-    bool binaryLoaded = false;
-    if (useCache && boost::filesystem::exists(binaryPath))
-    {
-        std::cout << "Load binary data from " << binaryPath << '\n';
-        binaryLoaded = loadBvh(binaryPath);
-        std::cout << "Ready\n";
-    }
 
-    if (!binaryLoaded)
-    {
-        //create reader and read data into arrays
-        m_reader = new PointReader();
-        if(!m_reader->readFile(filename, pointSize, m_points, m_colors, m_bbox, true)) return false;
+    //init Menu
+    prtSubMenuEntry = new coSubMenuItem("Point Ray Tracer");
+    cover->getMenu()->add(prtSubMenuEntry);
 
-        //build bvh
-        std::cout << "Creating BVH...\n";
-        m_host_bvh = visionaray::build<host_bvh_type>(m_points.data(), m_points.size());
-        std::cout << "Ready\n";
+    prtMenu = new coRowMenu("Point Ray Tracer", cover->getMenu());
+    prtSubMenuEntry->setMenu(prtMenu);
 
-        if (useCache && !boost::filesystem::exists(binaryPath)) //don't overwrite..
-        {
-            std::cout << "Storing binary file to " << binaryPath << "...\n";
-            storeBvh(binaryPath);
-            std::cout << "Ready\n";
-        }
-    }
+    nextItem = new coButtonMenuItem("Next Point Cloud");
+    prtMenu->add(nextItem);
+    nextItem->setMenuListener(this);
+
+    prevItem = new coButtonMenuItem("Previous Point Cloud");
+    prtMenu->add(prevItem);
+    prevItem->setMenuListener(this);
+
+    return true;
+}
+
+
+bool PointRayTracerPlugin::init2(){
+    if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::init2\n");
 
     //init geode and add it to the scenegraph
     m_geode = new osg::Geode;
@@ -84,95 +104,139 @@ bool PointRayTracerPlugin::init()
     m_geode->addDrawable(m_drawable);
     opencover::cover->getScene()->addChild(m_geode);
 
+    /*
+    m_visibility_has_changed = false;
+    for(int i = 0; i < m_bvh_vector.size(); i++){
+        m_visibility_vector.push_back(true);
+    }
+    */
+
     return true;
 }
+
+
+int PointRayTracerPlugin::sloadPts(const char *filename, osg::Group *loadParent, const char *){
+    (void)loadParent;
+    return instance()->loadPts(filename);
+}
+
+int PointRayTracerPlugin::loadPts(const char *filename){
+    if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::loadPts: %s\n", filename);
+    if(!PointReader::instance()->readFile(std::string(filename), m_pointSize, m_bvh_vector, m_bbox, m_useCache, m_cutUTMdata)) return 1;
+
+    m_numPointClouds++;
+    return 0;
+}
+
+int PointRayTracerPlugin::unloadPts(const char *filename, const char *){
+    (void)filename;
+    return 0;
+}
+
 
 PointRayTracerPlugin::~PointRayTracerPlugin()
 {
     if (cover->debugLevel(1))
         fprintf(stderr, "\n    delete PointRayTracerPlugin\n");
 
+    coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
+
     delete m_reader;
 
 }
+
 
 void PointRayTracerPlugin::preDraw(osg::RenderInfo &info)
 {
     static bool initialized = false;
     if (!initialized)
     {
-        m_drawable->initData(m_host_bvh, m_points, m_colors);
+        if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::preDraw\n");
+        m_drawable->initData(m_bvh_vector);
         initialized = true;
     }
-//    if (cover->debugLevel(1)) fprintf(stderr, "\n    preFrame PointRayTracerPlugin\n");
+
+    /*
+    if(m_visibility_has_changed){
+        m_drawable->setVisibility(m_visibility_vector);
+        m_visibility_has_changed = false;
+    }
+    */
+
+    if(m_currentPointCloud_has_changed){
+        m_currentPointCloud_has_changed = false;
+        m_drawable->setCurrentPointCloud(m_currentPointCloud);
+    }
 }
+
 
 void PointRayTracerPlugin::expandBoundingSphere(osg::BoundingSphere &bs)
 {
     m_drawable->expandBoundingSphere(bs);
 }
 
-bool PointRayTracerPlugin::loadBvh(std::string filename)
-{
-    std::ifstream stream;
-    stream.open(filename, std::ios::in | std::ios::binary);
+/*
+void PointRayTracerPlugin::toggleVisibility(int index){
+    //if (cover->debugLevel(1)) std::cout << "PointRayTracerPlugin::toggleVisibility() index: " << index << std::endl;
 
-    if(!stream.is_open())
-    {
-        std::cerr << "Could not open file: " << filename << std::endl;
-        return false;
+    if(m_visibility_vector.size() > index){
+        m_visibility_vector[index] = !m_visibility_vector[index];
+        m_visibility_has_changed = true;
+    } else if (cover->debugLevel(1)) {
+        std::cout << "PointRayTracerPlugin::toggleVisibility index() too high" << std::endl;
+    }
+}
+*/
+
+void PointRayTracerPlugin::key(int type, int keySym, int mod)
+{
+    //if (cover->debugLevel(1))
+    //fprintf(stderr, "PointRayTracerPlugin::key(type=%d,keySym=%d,mod=%d)\n", type, keySym, mod);
+
+    if(type == osgGA::GUIEventAdapter::KEYUP){
+
+        if(keySym == osgGA::GUIEventAdapter::KEY_Left){
+            m_currentPointCloud--;
+            if(m_currentPointCloud < 0) m_currentPointCloud = m_numPointClouds - 1;
+            m_currentPointCloud_has_changed = true;
+            std::cout << "PointRayTracerPlugin::key() current Point Cloud: " << m_currentPointCloud << std::endl;
+
+        }
+
+        if(keySym == osgGA::GUIEventAdapter::KEY_Right){
+            m_currentPointCloud++;
+            if(m_currentPointCloud >= m_numPointClouds) m_currentPointCloud = 0;
+            m_currentPointCloud_has_changed = true;
+            std::cout << "PointRayTracerPlugin::key() current Point Cloud: " << m_currentPointCloud << std::endl;
+        }
+
     }
 
-    uint64_t num_primitives = 0;
-    uint64_t num_indices = 0;
-    uint64_t num_nodes = 0;
-    uint64_t num_colors = 0;
-
-    stream.read((char*)&num_primitives, sizeof(num_primitives));
-    stream.read((char*)&num_indices, sizeof(num_indices));
-    stream.read((char*)&num_nodes, sizeof(num_nodes));
-    stream.read((char*)&num_colors, sizeof(num_colors));
-
-    m_host_bvh.primitives().resize(num_primitives);
-    m_host_bvh.indices().resize(num_indices);
-    m_host_bvh.nodes().resize(num_nodes);
-    m_colors.resize(num_colors);
-
-    stream.read((char*)m_host_bvh.primitives().data(), num_primitives * sizeof(host_bvh_type::primitive_type));
-    stream.read((char*)m_host_bvh.indices().data(), num_indices * sizeof(int));
-    stream.read((char*)m_host_bvh.nodes().data(), num_nodes * sizeof(bvh_node));
-    stream.read((char*)m_colors.data(), num_colors * sizeof(visionaray::vector<3, unorm<8>>));
-
-    return true;
+    /*
+    if(type == osgGA::GUIEventAdapter::KEYUP && keySym >= osgGA::GUIEventAdapter::KEY_1 && keySym <= osgGA::GUIEventAdapter::KEY_9)
+    {
+        toggleVisibility(keySym - osgGA::GUIEventAdapter::KEY_1);
+    }
+    */
 }
 
-bool PointRayTracerPlugin::storeBvh(std::string filename)
+void PointRayTracerPlugin::menuEvent(coMenuItem *menuItem)
 {
-    std::ofstream stream;
-    stream.open(filename, std::ios::out | std::ios::binary);
-
-    if(!stream.is_open())
+    if (menuItem == nextItem)
     {
-        std::cerr << "Could not open file: " << filename << std::endl;
-        return false;
+        m_currentPointCloud++;
+        if(m_currentPointCloud >= m_numPointClouds) m_currentPointCloud = 0;
+        m_currentPointCloud_has_changed = true;
+        std::cout << "PointRayTracerPlugin::menuEvent() current Point Cloud: " << m_currentPointCloud << std::endl;
     }
 
-    uint64_t num_primitives = m_host_bvh.primitives().size();
-    uint64_t num_indices = m_host_bvh.indices().size();
-    uint64_t num_nodes = m_host_bvh.nodes().size();
-    uint64_t num_colors = m_colors.size();
-
-    stream.write((char const*)&num_primitives, sizeof(num_primitives));
-    stream.write((char const*)&num_indices, sizeof(num_indices));
-    stream.write((char const*)&num_nodes, sizeof(num_nodes));
-    stream.write((char const*)&num_colors, sizeof(num_colors));
-
-    stream.write((char const*)m_host_bvh.primitives().data(), num_primitives * sizeof(host_bvh_type::primitive_type));
-    stream.write((char const*)m_host_bvh.indices().data(), num_indices * sizeof(int));
-    stream.write((char const*)m_host_bvh.nodes().data(), num_nodes * sizeof(bvh_node));
-    stream.write((char const*)m_colors.data(), num_colors * sizeof(visionaray::vector<3, unorm<8>>));
-
-    return true;
+    if(menuItem == prevItem)
+    {
+        m_currentPointCloud--;
+        if(m_currentPointCloud < 0) m_currentPointCloud = m_numPointClouds - 1;
+        m_currentPointCloud_has_changed = true;
+        std::cout << "PointRayTracerPlugin::menuEvent() current Point Cloud: " << m_currentPointCloud << std::endl;
+    }
 }
 
 COVERPLUGIN(PointRayTracerPlugin)

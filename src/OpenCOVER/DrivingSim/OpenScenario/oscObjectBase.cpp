@@ -520,7 +520,7 @@ bool oscObjectBase::writeToDisk()
 	return true;
 }
 
-oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, std::string &memberName, std::string &typeName, oscSourceFile *srcFile)
+oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const std::string &memberName, const std::string &typeName, oscSourceFile *srcFile)
 {
 	oscObjectBase *obj = NULL;
 	OpenScenarioBase *oscBase = new OpenScenarioBase;

@@ -14,10 +14,7 @@
 **************************************************************************/
 
 #include "trackspiralarcspiral.hpp"
-#ifdef WIN32
-#define isnan _isnan
-#endif
-#include <math.h>
+#include <cmath>
 #include <float.h>
 
 #include "trackelementarc.hpp"
@@ -27,11 +24,11 @@
 
 // utils //
 //
-#include "math.h"
-
 #include <QDebug>
 #include <QVector2D>
 #include <QTransform>
+
+#include <util/unixcompat.h>
 
 //################//
 // CONSTRUCTOR    //
@@ -629,7 +626,7 @@ SpArcSParameters::checkValidity()
 {
     // GEOMETRY //
     //
-    if (g_ < 0 || h_ < 0 || isnan(g_) || isnan(h_))
+    if (g_ < 0 || h_ < 0 || std::isnan(g_) || std::isnan(h_))
     {
         return false;
     }

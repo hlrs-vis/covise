@@ -2084,7 +2084,7 @@ void VolumePlugin::preFrame()
                 {
                     osg::Vec3 center = (*it)->getPosition();
                     boost::shared_ptr<vvClipSphere> sphere = vvClipSphere::create();
-                    sphere->center = virvo::vec3(center.x(), center.y(), center.z());
+                    sphere->center = virvo::vec3(center.z(), -center.y(), center.x());
                     sphere->radius = diagonal.length() * 0.5f * radiusScale[i - numClipPlanes];
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + objId), sphere);

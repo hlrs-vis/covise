@@ -14,7 +14,7 @@
  <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
 
  <INCLUDE global="1" HOST="visavis" configname="visd800" >config.uwe.xml</INCLUDE>
- <!--INCLUDE global="1" HOST="visard" configname="zspace" >config-zspace.xml</INCLUDE-->
+ <INCLUDE global="1" HOST="visard" configname="zspace" >config-zspace.xml</INCLUDE>
  
  <GLOBAL>
 

@@ -31,7 +31,7 @@ class Variant : public coVRPlugin, public coMenuListener, public coTUIListener
 public:
     static Variant *variantClass;
 
-    Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList parents, coRowMenu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xmlfile, QDomElement *qDE_V, coVRBoxOfInterest *boi);
+    Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList parents, coRowMenu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xmlfile, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state);
     ~Variant();
     //adding the Group-Node to the Scenegraph:
     void AddToScenegraph();

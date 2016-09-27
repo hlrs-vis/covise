@@ -347,7 +347,8 @@ do
 
 	82)
 	    echo -e "Thyssen Turm (ohne Tueren)";
-	    opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
+	    #opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
+        covise -e /data/covise_net/2015/PassingMulti01u02_demo.net
 	    ;;
 
 # FASI

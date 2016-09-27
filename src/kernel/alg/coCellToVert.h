@@ -41,7 +41,7 @@ private:
                       const int *elem_list, const int *conn_list, const int *type_list,
                       const int *neighbour_cells, const int *neighbour_idx,
                       const float *xcoord, const float *ycoord, const float *zcoord,
-                      int numComp, const float *in_data_0, const float *in_data_1, const float *in_data_2,
+                      int numComp, int dataSize, const float *in_data_0, const float *in_data_1, const float *in_data_2,
                       float *out_data_0, float *out_data_1, float *out_data_2);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ private:
 
     bool simpleAlgo(int num_elem, int num_conn, int num_point,
                     const int *elem_list, const int *conn_list,
-                    int numComp, const float *in_data_0, const float *in_data_1, const float *in_data_2,
+                    int numComp, int dataSize, const float *in_data_0, const float *in_data_1, const float *in_data_2,
                     float *out_data_0, float *out_data_1, float *out_data_2);
 
 public:

@@ -172,7 +172,7 @@ void RRServer::run()
     connected = false;
 
     // Create socket
-    std::auto_ptr<QTcpSocket> socket(new QTcpSocket);
+    QTcpSocket *socket = new QTcpSocket;
 
     emit signalMessage(Message_Connecting, hostname, port);
 
@@ -182,11 +182,12 @@ void RRServer::run()
     {
         emit signalMessage(Message_Failed, hostname, port);
 
+        delete socket;
         return;
     }
 
     // Stop this thread if the connection is lost/canceled
-    connect(socket.get(), SIGNAL(disconnected()), this, SLOT(stop()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(stop()));
 
     connected = true;
 
@@ -200,7 +201,7 @@ void RRServer::run()
 
     memset(&h1, 0, sizeof_rrframeheader_v1);
 
-    if (recv(socket.get(), &h1, sizeof_rrframeheader_v1) < 0)
+    if (recv(socket, &h1, sizeof_rrframeheader_v1) < 0)
     {
     }
 
@@ -216,10 +217,10 @@ void RRServer::run()
             { 'V', 'G', 'L' }, RR_MAJOR_VERSION, RR_MINOR_VERSION
         };
 
-        if (send(socket.get(), &v, sizeof_rrversion) < 0)
+        if (send(socket, &v, sizeof_rrversion) < 0)
         {
         }
-        if (recv(socket.get(), &v, sizeof_rrversion) < 0)
+        if (recv(socket, &v, sizeof_rrversion) < 0)
         {
         }
 
@@ -252,9 +253,10 @@ void RRServer::run()
         do // Process tiles
         {
             // Read tile header
-            if (recv(socket.get(), &h, sizeof_rrframeheader) < 0)
+            if (recv(socket, &h, sizeof_rrframeheader) < 0)
             {
                 Log() << "RRServer::run: connection lost";
+                delete socket;
                 return;
             }
 
@@ -270,6 +272,7 @@ void RRServer::run()
             if (!frame->resize(h.framew, h.frameh))
             {
                 Log() << "RRServer::run: out of memory";
+                delete socket;
                 return;
             }
 
@@ -284,9 +287,10 @@ void RRServer::run()
                 tile.w = h.width;
                 tile.h = h.height;
 
-                if (recv(socket.get(), tile.buffer, tile.size) < 0)
+                if (recv(socket, tile.buffer, tile.size) < 0)
                 {
                     Log() << "RRServer::run: connection lost";
+                    delete socket;
                     return;
                 }
 
@@ -295,7 +299,7 @@ void RRServer::run()
         } while (h.flags != RR_EOF);
 
         // Process pending events
-        processEvents(socket.get());
+        processEvents(socket);
 
 #ifdef DECOMP_IN_THREAD
         // Decompress tiles
@@ -327,6 +331,7 @@ void RRServer::run()
     connected = false;
 
     emit signalMessage(Message_Disconnected, hostname, port);
+    delete socket;
 
     Log() << "RRServer::run: leave...";
 }

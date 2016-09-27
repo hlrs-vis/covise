@@ -419,7 +419,7 @@ void Move::preFrame()
 {
     bool doUndo = false;
     osg::Node *node;
-    coPointerButton *button = cover->getPointerButton();
+    //coPointerButton *button = cover->getPointerButton();
     node = cover->getIntersectedNode();
     const osg::NodePath &intersectedNodePath = cover->getIntersectedNodePath();
     
@@ -761,7 +761,7 @@ void Move::preFrame()
     }
 
     //coVRMSController::instance()->syncInt(1027);
-    if ((selectedNode) && (!(interactionA->isRegistered() || interactionB->isRunning())) && button->getState())
+    if ((selectedNode) && (!(interactionA->isRegistered() || interactionB->isRegistered())) && (interactionA->wasStarted() || interactionB->wasStarted()))
     {
         if (moveSelection)
         {
@@ -894,20 +894,6 @@ void Move::preFrame()
                     cover->sendMessage(this, "Revit",
                         PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
                 }
-
-                if (printMode)
-                {
-                    osg::Matrix rotMat;
-                    osg::Vec3 Trans;
-                    Trans = newDCSMat.getTrans();
-                    cerr << endl << "VRML Translation:" << endl;
-                    osg::Quat quat;
-                    quat.set(newDCSMat);
-                    double angle, x, y, z;
-                    quat.getRotate(angle, x, y, z);
-                    cerr << "translation " << Trans[0] << " " << Trans[1] << " " << Trans[2] << endl;
-                    cerr << "rotation " << x << " " << y << " " << z << " " << (angle / 180.0) * M_PI << endl;
-                }
             }
             else
             {
@@ -974,19 +960,6 @@ void Move::preFrame()
                     cover->sendMessage(this, "Revit",
                         PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
                 }
-                if (printMode)
-                {
-                    osg::Matrix rotMat;
-                    osg::Vec3 Trans;
-                    Trans = newDCSMat.getTrans();
-                    cerr << endl << "VRML Translation:" << endl;
-                    osg::Quat quat;
-                    quat.set(newDCSMat);
-                    double angle, x, y, z;
-                    quat.getRotate(angle, x, y, z);
-                    cerr << "translation " << Trans[0] << " " << Trans[1] << " " << Trans[2] << endl;
-                    cerr << "rotation " << x << " " << y << " " << z << " " << angle << " (deg: " << angle*180.0/M_PI << ")" << endl;
-                }
             }
             else
             {
@@ -1001,6 +974,20 @@ void Move::preFrame()
             {
                 osg::Matrix mat;
                 mat = moveDCS->getMatrix();
+                if (printMode)
+                {
+                    osg::Matrix rotMat;
+                    osg::Vec3 Trans;
+                    Trans = mat.getTrans();
+                    cerr << endl << "VRML Translation:" << endl;
+                    osg::Quat quat;
+                    quat.set(mat);
+                    double angle, x, y, z;
+                    quat.getRotate(angle, x, y, z);
+                    cerr << "translation " << Trans[0] << " " << Trans[1] << " " << Trans[2] << endl;
+                    cerr << "rotation " << x << " " << y << " " << z << " " << angle << " (deg: " << angle*180.0/M_PI << ")" << endl;
+                }
+
                 if (didMove)
                 {
                     

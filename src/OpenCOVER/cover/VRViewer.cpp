@@ -896,7 +896,9 @@ VRViewer::config()
     if (coCoviseConfig::isOn("COVER.MultiThreaded", false))
     {
         cerr << "VRViewer: using one thread per camera" << endl;
+#if OSG_VERSION_LESS_THAN(3, 5, 5)
         osg::Referenced::setThreadSafeReferenceCounting(true);
+#endif
         setThreadingModel(CullThreadPerCameraDrawThreadPerContext);
     }
     else
@@ -1728,7 +1730,9 @@ void VRViewer::startThreading()
     }
 
     // using multi-threading so make sure that new objects are allocated with thread safe ref/unref
+#if OSG_VERSION_LESS_THAN(3, 5, 5)
     osg::Referenced::setThreadSafeReferenceCounting(true);
+#endif
 
     Scenes scenes;
     getScenes(scenes);

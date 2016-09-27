@@ -248,6 +248,59 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
     return false;
 }
 
+bool checkLagrangianDirectory(CaseInfo &info, std::string lagdir, bool time)
+{
+    if (info.lagrangiandir.empty())
+    {
+        info.lagrangiandir = "dsmc";
+    }
+    lagdir = lagdir + "/" + info.lagrangiandir;
+    //std::cerr << "checking lagdir " << lagdir << std::endl;
+    bf::path p(lagdir);
+    if (!::is_directory(p))
+    {
+        std::cerr << lagdir << " is not a directory" << std::endl;
+        return false;
+    }
+
+    bool havePositions = false;
+    std::map<std::string, std::string> meshfiles;
+    for (bf::directory_iterator it(p);
+         it != bf::directory_iterator();
+         ++it)
+    {
+        bf::path ent(*it);
+        std::string stem = ent.stem().string();
+        std::string ext = ent.extension().string();
+        if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
+        {
+            if (stem == "positions")
+            {
+                std::cerr << "ignoring " << *it << std::endl;
+            }
+        }
+        else
+        {
+            meshfiles[stem] = bf::path(*it).string();
+            if (stem == "positions")
+                havePositions = true;
+            else
+                ++info.particleFields[stem];
+        }
+    }
+
+    if (havePositions)
+        info.hasParticles = true;
+
+    if (!havePositions)
+    {
+        std::cerr << "did not find positions in " << lagdir << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
 bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 {
 
@@ -274,6 +327,11 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
             if (name == "polyMesh")
             {
                 if (!checkMeshDirectory(info, p.string(), time))
+                    return false;
+            }
+            if (name == "lagrangian")
+            {
+                if (!checkLagrangianDirectory(info, p.string(), time))
                     return false;
             }
         }
@@ -516,6 +574,16 @@ CaseInfo getCaseInfo(const std::string &casedir, bool exact)
     std::cerr << "  varying: ";
     checkFields(info.varyingFields, np * info.timedirs.size(), exact);
 
+    if (info.hasParticles)
+    {
+        std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
+        checkFields(info.particleFields, np * info.timedirs.size(), exact);
+    }
+    else
+    {
+        std::cerr << "  no lagrangian data" << std::endl;
+    }
+
     return info;
 }
 
@@ -548,6 +616,9 @@ std::string getFieldHeader(std::istream &stream)
     std::string header;
     for (size_t i = 0; i < MaxHeaderLines; ++i)
     {
+        int c = stream.peek();
+        if (c == '(')
+           break;
         std::string line;
         std::getline(stream, line);
         if (boost::algorithm::starts_with(line, "("))
@@ -940,7 +1011,6 @@ static const size_t bufsiz = 16384;
 template <typename T, typename D>
 bool readVectorArrayBinary(std::istream &stream, T *x, T *y, T *z, const size_t lines)
 {
-    expect('(');
     std::vector<D> buf(3*bufsiz);
     for (size_t i=0; i<lines; i+=bufsiz)
     {
@@ -954,32 +1024,59 @@ bool readVectorArrayBinary(std::istream &stream, T *x, T *y, T *z, const size_t 
             z[i+j] = buf[j*3+2];
         }
     }
-    expect(')');
+    return stream.good();
+}
+
+template <typename T>
+bool readVectorArrayAscii(std::istream &stream, T *x, T *y, T *z, const size_t lines)
+{
+    expect('\n');
+    for (size_t i = 0; i < lines; ++i)
+    {
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+        stream >> x[i] >> y[i] >> z[i];
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+    }
+    expect('\n');
+
+    return stream.good();
+}
+
+template <>
+bool readVectorArrayAscii(std::istream &stream, float *x, float *y, float *z, const size_t lines)
+{
+    expect('\n');
+    for (size_t i = 0; i < lines; ++i)
+    {
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+        double vx, vy, vz;
+        stream >> vx >> vy >> vz;
+        x[i] = vx;
+        y[i] = vy;
+        z[i] = vz;
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+    }
+    expect('\n');
+
     return stream.good();
 }
 
 template <typename T>
 bool readVectorArray(const HeaderInfo &info, std::istream &stream, T *x, T *y, T *z, const size_t lines)
 {
+    bool ok = true;
+    expect('(');
     if (info.format == "binary")
     {
-        return readVectorArrayBinary<T, typename on_disk<T>::type>(stream, x, y, z, lines);
+        ok = readVectorArrayBinary<T, typename on_disk<T>::type>(stream, x, y, z, lines);
     }
     else
     {
-        expect('(');
-        expect('\n');
-        for (size_t i = 0; i < lines; ++i)
-        {
-            stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
-            stream >> x[i] >> y[i] >> z[i];
-            stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
-        }
-        expect('\n');
-        expect(')');
+        ok = readVectorArrayAscii<T>(stream, x, y, z, lines);
     }
+    expect(')');
 
-    return stream.good();
+    return ok && stream.good();
 }
 
 template <typename T>
@@ -1026,6 +1123,24 @@ bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
     for (size_t i = 0; i < lines; ++i)
     {
         stream >> p[i];
+        if (!stream.good())
+        {
+           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
+           return false;
+        }
+    }
+    expect('\n');
+    return stream.good();
+}
+
+template <>
+bool readArrayAscii(std::istream &stream, float *p, const size_t lines)
+{
+    for (size_t i = 0; i < lines; ++i)
+    {
+        double val;
+        stream >> val;
+        p[i] = val;
         if (!stream.good())
         {
            std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
@@ -1277,4 +1392,74 @@ vertex_set getVerticesForCell(
         }
     }
     return cellvertices;
+}
+
+template <typename F, typename I>
+bool readParticleArrayAscii(std::istream &stream, F *x, F *y, F *z, I *cell, const size_t lines)
+{
+    expect('\n');
+    for (size_t i = 0; i < lines; ++i)
+    {
+        F vx, vy, vz;
+        I vc;
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+        stream >> vx >> vy >> vz;
+        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+        stream >> vc;
+        if (x) x[i] = vx;
+        if (y) y[i] = vy;
+        if (z) z[i] = vz;
+        if (cell) cell[i] = vc;
+    }
+    expect('\n');
+
+    return stream.good();
+}
+
+template <typename F, typename I>
+bool readParticleArrayBinary(std::istream &stream, F *x, F *y, F *z, I *cell, const size_t lines)
+{
+    typedef typename on_disk<F>::type Float;
+    typedef typename on_disk<I>::type Index;
+    std::vector<Float> fbuf(3);
+    std::vector<Index> ibuf(4);
+    expect('\n');
+    for (size_t i=0; i<lines; ++i)
+    {
+        expect('(');
+        if (!readArrayChunkBinary(stream, &fbuf[0], fbuf.size()))
+            return false;
+        if (!readArrayChunkBinary(stream, &ibuf[0], ibuf.size()))
+            return false;
+        if (x) x[i] = fbuf[0];
+        if (y) y[i] = fbuf[1];
+        if (z) z[i] = fbuf[2];
+        if (cell) cell[i] = ibuf[0];
+        expect(')');
+        expect('\n');
+    }
+
+    return stream.good();
+}
+
+bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, index_t *cell, const size_t lines)
+{
+    if (!stream.good()) {
+        std::cerr << "readParticleArray: stream not good initially" << std::endl;
+        return false;
+    }
+    assert(stream.good());
+    expect('(');
+    if (info.format == "binary")
+    {
+        if(!readParticleArrayBinary<scalar_t, index_t>(stream, x, y, z, cell, lines))
+            return false;
+    }
+    else
+    {
+        if(!readParticleArrayAscii<scalar_t, index_t>(stream, x, y, z, cell, lines))
+            return false;
+    }
+    expect(')');
+    return stream.good();
 }

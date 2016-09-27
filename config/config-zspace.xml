@@ -21,29 +21,42 @@
                 <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" name="0" channelIndex="0" />
             </ViewportConfig>
 
+            <PointerDepth value="0"/>
+            <PointerAppearance>
+                <IconName value="HandLine"/>
+                <Width value="5"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
             <Input>
                 <MouseNav value="true" />
                 <Device>
-                    <ZSpace driver="vrpn" host="141.58.8.2" tracker="Tracker0" button="Tracker0">
-                        <Offset x="-0" y="-360" z="200" />
+                    <ZSpaceHead driver="vrpn" host="192.168.122.90" tracker="HeadTracker0" >
+                        <Offset x="0" y="0" z="0" />
                         <Orientation h="180" p="60" r="180" />
-                    </ZSpace>
+                    </ZSpaceHead>
+                    <ZSpaceHand driver="vrpn" host="192.168.122.90" tracker="StylusTracker0" button="Buttons0" >
+                        <Offset x="0" y="0" z="0" />
+                        <Orientation h="180" p="60" r="180" />
+                    </ZSpaceHand>
                 </Device>
 
                 <Body>
-                    <Glasses device="ZSpace" bodyIndex="0" >
+                    <Glasses device="ZSpaceHead" bodyIndex="0" >
                         <Offset x="-0" y="-0" z="-0" />
                         <Orientation h="0" p="-90" r="0" />
                     </Glasses>
 
-                    <Stylus device="ZSpace" bodyIndex="1" >
+                    <Stylus device="ZSpaceHand" bodyIndex="0" >
                         <Offset x="0" y="-0" z="0" />
                         <Orientation h="0" p="-90" r="0" />
                     </Stylus>
                 </Body>
 
                 <Buttons>
-                    <Stylus device="ZSpace" >
+                    <Stylus device="ZSpaceHand" >
                         <Map name="0" value="ACTION_BUTTON" />
                         <Map name="1" value="XFORM_BUTTON" />
                         <Map name="2" value="DRIVE_BUTTON" />
@@ -56,7 +69,7 @@
                 </Persons>
             </Input> 
 
-            <SceneSize value="400" />
+            <SceneSize value="200" />
             <Menu>
                 <Orientation h="0" p="0" r="0" />
                 <Position x="100" y="0" z="0" />

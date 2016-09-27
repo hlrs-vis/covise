@@ -33,8 +33,8 @@ using namespace covise;
 #include <util/coviseCompat.h>
 
 // defines
-#define _MEAN_SIMPLE 0
-#define _MEAN_WEIGHTED 1
+#define MEAN_AVG 0
+#define MEAN_ACCUM 1
 
 #define _VECTOR_OUTPUT 1
 #define _SCALAR_OUTPUT 2
@@ -47,14 +47,14 @@ private:
 
     //ports
     coInputPort *p_mesh, *p_data;
-    coOutputPort *p_solution;
+    coOutputPort *p_solution, *p_numContrib;
 
     // parameters
     coChoiceParam *p_calctype;
     int calctype;
     // functions
-    coDistributedObject *Calculate(const coDistributedObject *,
-                                   const coDistributedObject *, const char *);
+    coDistributedObject * Calculate(const coDistributedObject *,
+                                   const coDistributedObject *index_in, const char *, const char *nameNumContrib);
     int Get_Output_Type(int);
 
 public:
