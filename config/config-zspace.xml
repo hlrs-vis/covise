@@ -11,7 +11,7 @@
             </WindowConfig>
 
             <ScreenConfig>
-                <Screen width="520" height="295" comment="zSpace 200" originX="0" originY="0" originZ="0" h="0.0" p="0.0" r="0.0" name="0" screen="0" />
+                <Screen width="520" height="295" comment="zSpace 200" originX="0" originY="0" originZ="0" h="0.0" p="-30.0" r="0.0" name="0" screen="0" />
             </ScreenConfig>
             <ChannelConfig>
                 <Channel stereoMode="QUAD_BUFFER" comment="FRONT" channel="0" windowIndex="0" viewportIndex="0" screenIndex="0" name="0" />
@@ -34,12 +34,12 @@
                 <MouseNav value="true" />
                 <Device>
                     <ZSpaceHead driver="vrpn" host="192.168.122.90" tracker="HeadTracker0" >
-                        <Offset x="0" y="0" z="0" />
-                        <Orientation h="180" p="60" r="180" />
+                        <Offset x="-0" y="0" z="0" />
+                        <Orientation h="180" p="90" r="180" />
                     </ZSpaceHead>
                     <ZSpaceHand driver="vrpn" host="192.168.122.90" tracker="StylusTracker0" button="Buttons0" >
-                        <Offset x="0" y="0" z="0" />
-                        <Orientation h="180" p="60" r="180" />
+                        <Offset x="-0" y="0" z="0" />
+                        <Orientation h="180" p="90" r="180" />
                     </ZSpaceHand>
                 </Device>
 
@@ -50,9 +50,13 @@
                     </Glasses>
 
                     <Stylus device="ZSpaceHand" bodyIndex="0" >
-                        <Offset x="0" y="-0" z="0" />
+                        <Offset x="0" y="-0" z="-10" />
                         <Orientation h="0" p="-90" r="0" />
                     </Stylus>
+
+                    <FixedHead>
+                        <Offset x="0" y="-800" z="200" />
+                    </FixedHead>
                 </Body>
 
                 <Buttons>
@@ -64,15 +68,15 @@
                 </Buttons>
 
                 <Persons>
+                    <Person name="Fixed" head="FixedHead" eyeDistance="0" />
                     <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" />
-                    <Person name="Fixed" head="CaveHead" buttons="CaveMouse" eyeDistance="60" />
                 </Persons>
             </Input> 
 
-            <SceneSize value="200" />
+            <SceneSize value="250" />
             <Menu>
                 <Orientation h="0" p="0" r="0" />
-                <Position x="100" y="0" z="0" />
+                <Position x="200" y="0" z="0" />
             </Menu>
 
         </COVER>
