@@ -21,6 +21,15 @@
                 <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" name="0" channelIndex="0" />
             </ViewportConfig>
 
+            <PointerDepth value="0"/>
+            <PointerAppearance>
+                <IconName value="HandLine"/>
+                <Width value="5"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
             <Input>
                 <MouseNav value="true" />
                 <Device>
@@ -60,7 +69,7 @@
                 </Persons>
             </Input> 
 
-            <SceneSize value="400" />
+            <SceneSize value="200" />
             <Menu>
                 <Orientation h="0" p="0" r="0" />
                 <Position x="100" y="0" z="0" />
