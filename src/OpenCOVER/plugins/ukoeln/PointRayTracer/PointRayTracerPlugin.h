@@ -23,6 +23,7 @@ namespace vrui
 class coRowMenu;
 class coSubMenuItem;
 class coButtonMenuItem;
+class coTrackerButtonInteraction;
 }
 
 namespace opencover
@@ -51,6 +52,7 @@ public:
     static int unloadPts(const char *filename, const char *);
     int loadPts(const char* filename);
 
+     void preFrame();
      void preDraw(osg::RenderInfo &info);
      void expandBoundingSphere(osg::BoundingSphere &bs);
 
@@ -68,6 +70,9 @@ private:
 
     void menuEvent(coMenuItem *menuItem);
 
+    coTrackerButtonInteraction *interactionNext; // button interaction for next point cloud
+    coTrackerButtonInteraction *interactionPrev; // button interaction for last point cloud 
+
     osg::ref_ptr<osg::Geode> m_geode;
     osg::ref_ptr<PointRayTracerDrawable> m_drawable;
 
@@ -83,6 +88,8 @@ private:
     int                         m_numPointClouds;
     int                         m_currentPointCloud;
     bool                        m_currentPointCloud_has_changed;
+    void                        showNextPointCloud();
+    void			showPreviousPointCloud();
 
     /*
     bool                        m_visibility_has_changed;
