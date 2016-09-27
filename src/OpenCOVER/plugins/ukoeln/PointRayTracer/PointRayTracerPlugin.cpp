@@ -17,6 +17,7 @@
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/coTrackerButtonInteraction.h>
 
 
 #include "PointRayTracerPlugin.h"
@@ -91,6 +92,13 @@ bool PointRayTracerPlugin::init()
     prtMenu->add(prevItem);
     prevItem->setMenuListener(this);
 
+    //ButtonD = forward
+    //ButtonE = backward
+    interactionNext = new coTrackerButtonInteraction(coInteraction::ButtonD,"Next Point Cloud", coInteraction::Medium);
+    interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonE,"Previous Point Cloud", coInteraction::Medium);
+    coInteractionManager::the()->registerInteraction(interactionNext);
+    coInteractionManager::the()->registerInteraction(interactionPrev);
+
     return true;
 }
 
@@ -142,6 +150,8 @@ PointRayTracerPlugin::~PointRayTracerPlugin()
         fprintf(stderr, "\n    delete PointRayTracerPlugin\n");
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
+    coInteractionManager::the()->unregisterInteraction(interactionNext);
+    coInteractionManager::the()->unregisterInteraction(interactionPrev);
 
     delete m_reader;
 
@@ -152,6 +162,10 @@ void PointRayTracerPlugin::preFrame()
 {
     //if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::preFrame\n");
 
+    if(interactionNext->wasStarted()) showNextPointCloud();
+    if(interactionPrev->wasStarted()) showPreviousPointCloud();
+
+    /*
     static bool takeAction = true;
     int buttonStatus = cover->getPointerButton()->getState();
 
@@ -188,6 +202,7 @@ void PointRayTracerPlugin::preFrame()
             //fprintf(stderr, "\n    PointRayTracerPlugin::preFrame some BUTTON: %i\n", buttonStatus);
             break;
     }
+    */
    
 }
 

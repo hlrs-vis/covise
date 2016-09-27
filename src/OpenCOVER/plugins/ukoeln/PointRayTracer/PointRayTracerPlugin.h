@@ -23,6 +23,7 @@ namespace vrui
 class coRowMenu;
 class coSubMenuItem;
 class coButtonMenuItem;
+class coTrackerButtonInteraction;
 }
 
 namespace opencover
@@ -68,6 +69,9 @@ private:
 
 
     void menuEvent(coMenuItem *menuItem);
+
+    coTrackerButtonInteraction *interactionNext; // button interaction for next point cloud
+    coTrackerButtonInteraction *interactionPrev; // button interaction for last point cloud 
 
     osg::ref_ptr<osg::Geode> m_geode;
     osg::ref_ptr<PointRayTracerDrawable> m_drawable;
