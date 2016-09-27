@@ -28,7 +28,7 @@ void ParserErrorHandler::warning(const xercesc::SAXParseException &spExept)
 void ParserErrorHandler::error(const xercesc::SAXParseException &spExept)
 {
     std::cerr << "Error:" << std::endl;
-    reportParseException(spExept);
+	reportParseException(spExept);
 
     //throw any kind of exception so that we have something to catch
     throw 98;
@@ -51,10 +51,16 @@ void ParserErrorHandler::resetErrors()
 void ParserErrorHandler::reportParseException(const xercesc::SAXParseException &spExept)
 {
     char *message = xercesc::XMLString::transcode(spExept.getMessage());
+	errorMsg = message;
 
     std::cerr << " at line " << spExept.getLineNumber() << ", column " << spExept.getColumnNumber() <<":\n" << message <<std::endl;
 
-    xercesc::XMLString::release(&message);
+//	xercesc::XMLString::release(&message);
+}
+
+void ParserErrorHandler::releaseErrorMessage()
+{
+	xercesc::XMLString::release(&errorMsg);
 }
 
 

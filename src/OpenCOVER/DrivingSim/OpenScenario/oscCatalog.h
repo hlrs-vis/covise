@@ -58,8 +58,8 @@ public:
 	typedef unordered_map<int, ObjectParams> ObjectsMap; ///< represent the unordered_map of objects
 	
 protected:
-    static const CatalogTypeTypeNameMap s_catalogTypeToTypeName; ///< typeName of the objects for catalogType
-    std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
+    static const CatalogTypeTypeNameMap s_catalogNameToTypeName; ///< typeName of the objects for catalogType
+    std::string m_catalogName; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
 	ObjectsMap m_Objects;
 	
 public:
@@ -68,8 +68,8 @@ public:
     void fastReadCatalogObjects(const std::vector<bf::path> &filenames); ///< parse files and add objectRefId and filePath to ObjectsMap
 
     //catalogType
-    void setCatalogType(const std::string &catalogType);
-    std::string getCatalogType() const;
+    void setCatalogName(const std::string &catalogName);
+    std::string getCatalogName() const;
 
     //availableObjects
     void setObjectsMap(const ObjectsMap &availableObjects);
@@ -87,7 +87,7 @@ public:
     oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 
 	//s_catalogTypeToTypeName
-	std::string getType(const std::string &typeName);
+	std::string getType(const std::string &name);
 
 	//generate refId for new object
 	int generateRefId(int startId);
@@ -98,7 +98,7 @@ public:
 	void writeCatalogToDisk();
 	
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
-    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
 
 private:
     typedef std::pair<bool, int> SuccessIntVar;

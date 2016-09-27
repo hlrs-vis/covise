@@ -94,7 +94,7 @@ OSCParser::~OSCParser()
 *
 */
 bool
-OSCParser::parseXOSC(const QString &filename, const QString &fileType)
+OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QString &fileType)
 {
 
     // Mode //
@@ -107,7 +107,7 @@ OSCParser::parseXOSC(const QString &filename, const QString &fileType)
 	factory.create(tr("Driver").toStdString());*/
 
 
-	if (openScenarioBase_->loadFile(filename.toStdString(), fileType.toStdString()) == false)
+	if (openScenarioBase_->loadFile(filename.toStdString(), nodeName.toStdString(), fileType.toStdString()) == false)
     {
         qDebug() << "failed to load OpenScenarioBase from file " << filename;
         return false;
@@ -118,7 +118,7 @@ OSCParser::parseXOSC(const QString &filename, const QString &fileType)
 	//
 	//enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
 	bool validate = openScenarioBase_->getValidation();
-	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), fileType.toStdString(), validate);
+	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), nodeName.toStdString(), fileType.toStdString(), validate);
 
 	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
 

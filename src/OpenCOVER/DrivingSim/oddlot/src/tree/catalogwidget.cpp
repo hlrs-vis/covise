@@ -69,11 +69,11 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
+CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &name)
 	: QWidget()
 	, mainWindow_(mainWindow)
 	, catalog_(catalog)
-	, type_(type)
+	, name_(name)
 	, catalogTreeWidget_(NULL)
 {
     init();
@@ -102,7 +102,7 @@ CatalogWidget::init()
 	CatalogDropArea *recycleArea = new CatalogDropArea(this, &recycleIcon);
 	toolLayout->addWidget(recycleArea, 0, 2);
 
-	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_, type_);
+	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_);
 	toolLayout->addWidget(catalogTreeWidget_, 0, 0); 
 
     int row = -1; // button row
@@ -164,7 +164,7 @@ void
 
     // Set a tool //
     //
-    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_SAVE_CATALOG, type_);
+    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_SAVE_CATALOG, name_);
     emit toolAction(action);
     delete action;
 }

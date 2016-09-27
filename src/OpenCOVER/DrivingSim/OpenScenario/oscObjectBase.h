@@ -108,10 +108,12 @@ public:
 
     //
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude = true);
-    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
 	bool writeToDisk();
 
-	oscObjectBase *readDefaultXMLObject(bf::path destFilePath, std::string &type, std::string &typeName, oscSourceFile *src = NULL);  ///< read default object with specified type and generate an object with source destFilePath
+	oscObjectBase *readDefaultXMLObject(bf::path destFilePath, std::string &memberName, std::string &typeName, oscSourceFile *src = NULL);  ///< read default object with specified type and generate an object with source destFilePath
+
+	void validate(std::string *errorMessage = NULL);   // generate a temporary file and validate the object
 
 private:
     void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node

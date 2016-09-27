@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCAerodynamics.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCEngine.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCCog.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCGearbox.xsd"/>
+
+<!-- -->
+<!-- performance -->
+<!-- -->
+
+<xsd:complexType name="OSCPerformance">
+    <xsd:all>
+        <xsd:element name="aerodynamics" type="OSCAerodynamics"/>
+
+        <xsd:element name="engine" type="OSCEngine" />
+
+        <xsd:element name="cog" type="OSCCog" />
+
+        <xsd:element name="gearbox" type="OSCGearbox" />
+
+    </xsd:all>
+    <xsd:attribute name="maxSpeed"          type="xsd:double" use="required"/>
+    <xsd:attribute name="maxDeceleration"   type="xsd:double" use="required"/>
+    <xsd:attribute name="overallEfficiency" type="xsd:double" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+
+</xsd:schema>

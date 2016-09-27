@@ -14,120 +14,39 @@
 -->
 <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPositionWorld.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPositionRoad.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPositionLane.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCRelativePositionWorld.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCRelativePositionRoad.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCRelativePositionLane.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPositionRoute.xsd"/>
 
 
 <!-- -->
-<!-- ComplexType -->
+<!-- OSCPosition -->
 <!-- -->
 
 <xsd:complexType name="OSCPosition">
     <xsd:choice>
-        <xsd:element name="positionWorld">
-            <xsd:complexType>
-                <xsd:attribute name="x"  type="xsd:double" use="required"/>
-                <xsd:attribute name="y"  type="xsd:double" use="required"/>
-                <xsd:attribute name="z"  type="xsd:double" use="optional"/>
-                <xsd:attribute name="h"  type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"  type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"  type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="positionRoad">
-            <xsd:complexType>
-                <xsd:attribute name="roadId"                type="xsd:string" use="required"/>
-                <xsd:attribute name="s"                     type="xsd:double" use="required"/>
-                <xsd:attribute name="t"                     type="xsd:double" use="required"/>
-                <xsd:attribute name="relativeOrientation"   type="xsd:boolean" use="required"/>
-                <xsd:attribute name="h"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"                     type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="positionLane">
-            <xsd:complexType>
-                <xsd:attribute name="roadId"                type="xsd:string" use="required"/>
-                <xsd:attribute name="laneId"                type="xsd:int" use="required"/>
-                <xsd:attribute name="offset"                type="xsd:double" use="optional"/>
-                <xsd:attribute name="s"                     type="xsd:double" use="required"/>
-                <xsd:attribute name="relativeOrientation"   type="xsd:boolean" use="optional"/>
-                <xsd:attribute name="h"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"                     type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="relativePositionWorld">
-            <xsd:complexType>
-                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
-                <xsd:attribute name="dx"        type="xsd:double" use="required"/>
-                <xsd:attribute name="dy"        type="xsd:double" use="required"/>
-                <xsd:attribute name="dz"        type="xsd:double" use="optional"/>
-                <xsd:attribute name="h"         type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"         type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"         type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="relativePositionRoad">
-            <xsd:complexType>
-                <xsd:attribute name="refObject"             type="xsd:string" use="required"/>
-                <xsd:attribute name="ds"                    type="xsd:double" use="required"/>
-                <xsd:attribute name="dt"                    type="xsd:double" use="required"/>
-                <xsd:attribute name="relativeOrientation"   type="xsd:boolean" use="optional"/>
-                <xsd:attribute name="h"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"                     type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="relativePositionLane">
-            <xsd:complexType>
-                <xsd:attribute name="refObject"             type="xsd:string" use="required"/>
-                <xsd:attribute name="dLane"                 type="xsd:int" use="required"/>
-                <xsd:attribute name="ds"                    type="xsd:double" use="required"/>
-                <xsd:attribute name="offset"                type="xsd:double" use="optional"/>
-                <xsd:attribute name="relativeOrientation"   type="xsd:boolean" use="optional"/>
-                <xsd:attribute name="h"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"                     type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="positionRoute">
-            <xsd:complexType>
-                <xsd:choice>
-                    <xsd:element name="currentPosition">
-                        <xsd:complexType>
-                            <xsd:attribute name="current" type="xsd:boolean" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="roadCoord">
-                        <xsd:complexType>
-                            <xsd:attribute name="pathS" type="xsd:double" use="required"/>
-                            <xsd:attribute name="t"     type="xsd:double" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="laneCoord">
-                        <xsd:complexType>
-                            <xsd:attribute name="pathS"         type="xsd:double" use="required"/>
-                            <xsd:attribute name="laneId"        type="xsd:int" use="required"/>
-                            <xsd:attribute name="laneOffset"    type="xsd:double" use="optional"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
-                <xsd:attribute name="routeId"               type="xsd:string" use="required"/>
-                <xsd:attribute name="relativeOrientation"   type="xsd:boolean" use="optional"/>
-                <xsd:attribute name="h"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="p"                     type="xsd:float" use="optional"/>
-                <xsd:attribute name="r"                     type="xsd:float" use="optional"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="positionWorld" type="OSCPositionWorld" />
+       
+        <xsd:element name="positionRoad" type="OSCPositionRoad" />
+ 
+        <xsd:element name="positionLane" type="OSCPositionLane" />
+ 
+        <xsd:element name="relativePositionWorld" type="OSCRelativePositionWorld" />
+
+        <xsd:element name="relativePositionRoad" type="OSCRelativePositionRoad" />
+ 
+        <xsd:element name="relativePositionLane" type="OSCRelativePositionLane" />
+ 
+        <xsd:element name="positionRoute" type="OSCPositionRoute" />
+ 
     </xsd:choice>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>

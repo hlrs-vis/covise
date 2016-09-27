@@ -66,13 +66,12 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type)
+CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog)
 	: QTreeWidget()
 	, mainWindow_(mainWindow)
 	, oscEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
 	, oscElement_(NULL)
-	, type_(type)
 	, catalog_(catalog)
 	, currentMember_(NULL)
 {
@@ -125,9 +124,8 @@ CatalogTreeWidget::init()
 	setHeaderHidden(true);
 	QList<QTreeWidgetItem *> rootList;
 
-	type_ = type_.remove("Catalog");
-
-	catalog_->setCatalogType(type_.toStdString());
+	catalogName_ = catalog_->getCatalogName();
+	catalogType_ = catalog_->getType(catalogName_);
 
 	//get all catalog object filenames
 	std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(directoryPath_.toStdString());
@@ -253,20 +251,33 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					do
 					{
 						refId = catalog_->generateRefId(++refId);
-						filePath = directoryPath_ + "/" + type_ + QString::number(refId) + ".xosc";
+						filePath = directoryPath_ + "/" + QString::fromStdString(catalogName_) + QString::number(refId) + ".xosc";
 					} while (bf::exists(filePath.toStdString())); // test if file exists
 
-					OpenScenario::oscObjectBase *obj = catalog_->readDefaultXMLObject( filePath.toStdString(), type_.toStdString(), catalog_->getType(type_.toStdString()));
+//					OpenScenario::oscObjectBase *obj = catalog_->readDefaultXMLObject( filePath.toStdString(), catalogName_, catalogType_);
+					OpenScenario::oscObjectBase *obj = NULL;
 
-					if (obj)
+					if (!obj)
 					{
-						AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
+						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), catalogName_);
 
-						if (addCatalogObjectCommand->isValid())
+						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalogType_, oscElement_, oscSourceFile);
+						if (command->isValid())
 						{
-							projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand);
+							projectWidget_->getTopviewGraph()->executeCommand(command);
+						}
 
+						obj = oscElement_->getObject();
+					}
 
+					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
+
+					if (addCatalogObjectCommand->isValid())
+					{
+						projectWidget_->getTopviewGraph()->executeCommand(addCatalogObjectCommand);
+
+						if (obj)
+						{
 							std::string name = "name";
 							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
 							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_precipitation_type">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="dry" />
+    <xsd:enumeration value="rain" />
+    <xsd:enumeration value="snow" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<!-- -->
+<!-- OSCPrecipitation -->
+<!-- -->
+
+
+<xsd:complexType name="OSCPrecipitation">
+    <xsd:attribute name="type"      type="Enum_precipitation_type" use="required"/>
+    <xsd:attribute name="intensity" type="xsd:float" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

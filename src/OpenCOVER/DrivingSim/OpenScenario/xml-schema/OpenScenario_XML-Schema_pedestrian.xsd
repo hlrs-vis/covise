@@ -23,6 +23,7 @@
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCDimension.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFile.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFileHeader.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCBehavior.xsd"/>
 
 
 
@@ -57,13 +58,7 @@
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="dimension"   type="OSCDimension"/>
         <xsd:element name="geometry"    type="OSCFile"/>
-        <xsd:element name="behavior">
-            <xsd:complexType>
-                <xsd:attribute name="politeness"    type="xsd:double" use="required"/>
-                <xsd:attribute name="alertness"     type="xsd:double" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="behavior" type="OSCBehavior"/>
     </xsd:all>
     <xsd:attribute name="name"     type="xsd:string" use="required"/>
     <xsd:attribute name="refId"    type="xsd:int"    use="required"/>

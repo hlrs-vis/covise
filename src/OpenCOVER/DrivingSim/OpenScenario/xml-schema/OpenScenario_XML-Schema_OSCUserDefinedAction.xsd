@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCParameterTypeB.xsd" />
+
+<!-- -->
+<!-- OSCUserDefinedAction -->
+<!-- -->
+
+
+<xsd:complexType name="OSCUserDefinedAction">
+    <xsd:all>
+        <xsd:element name="parameterList">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded" type="OSCParameterTypeB"/>
+                </xsd:sequence>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:all>
+    <xsd:attribute name="name"  type="xsd:string" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

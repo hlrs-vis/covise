@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCStoppingDistance.xsd" />
+
+<!-- -->
+<!-- OSCObjectChoice -->
+<!-- -->
+
+<xsd:element name="CHOICE_stoppingDistance_timeToCollision_timeHeadway" abstract="true"/>
+<!-- -->
+<xsd:element name="stoppingDistance"   substitutionGroup="CHOICE_stoppingDistance_timeToCollision_timeHeadway" type="OSCStoppingDistance"/>
+<xsd:element name="timeToCollision"   substitutionGroup="CHOICE_stoppingDistance_timeToCollision_timeHeadway" type="OSCStoppingDistance"/>
+<xsd:element name="timeHeadway"   substitutionGroup="CHOICE_stoppingDistance_timeToCollision_timeHeadway" type="OSCStoppingDistance"/>
+
+
+<xsd:complexType name="Choice">
+    <xsd:all>
+        <xsd:element ref="CHOICE_stoppingDistance_timeToCollision_timeHeadway"/>
+    </xsd:all>
+</xsd:complexType>
+ 
+</xsd:schema>

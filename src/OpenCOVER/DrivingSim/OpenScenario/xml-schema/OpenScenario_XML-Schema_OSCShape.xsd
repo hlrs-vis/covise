@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCClothoid.xsd" />
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCSpline.xsd" />
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_shape_purpose">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="steering" />
+    <xsd:enumeration value="positioning" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<!-- -->
+<!-- OSCShape -->
+<!-- -->
+
+
+<xsd:complexType name="OSCShape">
+    <xsd:choice>
+        <xsd:element name="polyline"/>
+        <xsd:element name="clothoid" type="OSCClothoid" />
+        <xsd:element name="spline" type="OSCSpline" />
+    </xsd:choice>
+    <xsd:attribute name="purpose"   type="Enum_shape_purpose" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

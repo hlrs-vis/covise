@@ -58,6 +58,7 @@
 #include <QSizePolicy>
 #include <QScrollArea>
 #include <QGridLayout> 
+#include <QMessageBox>
 
 // Utils //
 //
@@ -144,7 +145,7 @@ OSCObjectSettings::uiInit()
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
 		closeButton->setObjectName(QStringLiteral("close"));
         closeButton->setGeometry(QRect(90, 30, 75, 23));
-		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+		connect(closeButton, SIGNAL(pressed()), this, SLOT(onCloseWidget()));
 
 		objectGridLayout->setContentsMargins(4, 60, 4, 9);
 	}
@@ -742,7 +743,8 @@ OSCObjectSettings::onNewArrayElement()
 	if (oscElement)
 	{
 		OpenScenario::oscSourceFile *sourceFile = object_->getSource();
-		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+//		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+		OpenScenario::oscObjectBase *obj = NULL;
 
 		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, obj, memberName_.toStdString(), base_, oscElement);
 		projectSettings_->executeCommand(command);
@@ -764,6 +766,93 @@ OSCObjectSettings::onArrayElementClicked(QTreeWidgetItem *item, int column)
 	{
 		onPushButtonPressed(name);
 	}
+}
+
+void
+OSCObjectSettings::onCloseWidget()
+{
+
+	// write temporary file
+	//
+/*	bf::path &tmpFilename = bf::temp_directory_path() / bf::path("tmpValidate.xosc");
+	std::cerr << tmpFilename << std::endl;
+
+	xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+
+	std::string name = object_->getOwnMember()->getName();
+	const XMLCh *source = xercesc::XMLString::transcode(name.c_str());
+	xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, source, 0);
+	if (xmlSrcDoc)
+	{
+		object_->writeToDOM(xmlSrcDoc->getDocumentElement(), xmlSrcDoc, false);
+
+
+		// TODO: Abfragen xerces Version //
+		//////////////////////////////////////
+		xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+		// set the format-pretty-print feature
+		if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+		{
+			writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+		}
+
+
+		xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(tmpFilename.generic_string().c_str());
+
+
+		xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+		output->setByteStream(xmlTarget);
+
+		if (!writer->write(xmlSrcDoc, output))
+		{
+			std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+			delete output;
+			delete xmlTarget;
+			delete writer;
+
+		}
+
+		delete output;
+		delete xmlTarget;
+		delete writer;
+		delete xmlSrcDoc;
+
+		// validate temporaryFile
+		//
+		OpenScenarioBase *oscBase = base_->getOpenScenarioBase();
+
+		std::string errorMessage;
+		oscBase->getRootElement(tmpFilename.string(), name, object_->getOwnMember()->getTypeName(), true, &errorMessage); */
+
+		std::string errorMessage;
+		object_->validate(&errorMessage);
+		if (errorMessage != "")
+		{
+			// Ask user //
+			QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("ODD"),
+				tr("Errors in OpenScenario elements: '%1'.\nDo you want to close anyway?")
+				.arg(QString::fromStdString(errorMessage)),
+				QMessageBox::Close | QMessageBox::Cancel);
+
+			// Close //
+			//
+			if (ret == QMessageBox::Close)
+				parentStack_->removeWidget();
+		}
+		else
+		{
+			parentStack_->removeWidget();
+		}
+
+/*		try
+		{
+			bf::remove(tmpFilename);
+		}
+		catch(...)
+		{
+			std::cout << tmpFilename << std::endl;
+		} */
+
 }
 
 

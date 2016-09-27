@@ -310,6 +310,11 @@ OpenScenarioEditor::getCatalog(std::string name)
 			}
 		}
 	}
+
+
+	name = name.erase(name.find("Catalog"));
+	catalog->setCatalogName(name);
+
 	OSCElement *oscElement = oscBase_->getOSCElement(catalog);
 
 	return catalog;
@@ -346,7 +351,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
         }
 
     }
-	else if ((currentTool == ODD::TOS_ELEMENT) && (oscCatalog_->getCatalogType() == "entity"))
+	else if ((currentTool == ODD::TOS_ELEMENT) && (oscCatalog_->getCatalogName() == "entity"))
 	{
 		QPointF mousePoint = mouseAction->getEvent()->scenePos();
 

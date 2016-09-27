@@ -20,12 +20,16 @@
 <!-- include -->
 <!-- -->
 
-<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCCoord.xsd"/>
-<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCDimension.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCDimensionTypeA.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFile.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFileHeader.xsd"/>
-<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCLight.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPerformance.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCAxles.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCLights.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCEyepoint.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCMirror.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFeature.xsd"/>
 
 
 
@@ -61,93 +65,17 @@
 <!-- ComplexType -->
 <!-- -->
 
-<xsd:complexType name="OSCVehicleAxle">
-    <xsd:attribute name="rollingResistance" type="xsd:double" use="required"/>
-    <xsd:attribute name="maxSteering"       type="xsd:double" use="required"/>
-    <xsd:attribute name="wheelDiameter"     type="xsd:double" use="required"/>
-    <xsd:attribute name="trackWidth"        type="xsd:double" use="required"/>
-    <xsd:attribute name="positionX"         type="xsd:double" use="required"/>
-    <xsd:attribute name="positionZ"         type="xsd:double" use="required"/>
-    <xsd:attribute name="driven"            type="xsd:boolean" use="required"/>
-    <xsd:attribute ref="xml:base"/>
-</xsd:complexType>
-
 <xsd:complexType name="OSCVehicle">
     <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
-        <xsd:element name="performance">
-            <xsd:complexType>
-                <xsd:all>
-                    <xsd:element name="aerodynamics">
-                        <xsd:complexType>
-                            <xsd:attribute name="airDragCoefficient"    type="xsd:double" use="required"/>
-                            <xsd:attribute name="frontSurfaceEffective" type="xsd:double" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="engine">
-                        <xsd:complexType>
-                            <xsd:attribute name="type"      type="xsd:string" use="required"/>
-                            <xsd:attribute name="power"     type="xsd:double" use="required"/>
-                            <xsd:attribute name="maxRpm"    type="xsd:double" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="cog">
-                        <xsd:complexType>
-                            <xsd:attribute name="positionX" type="xsd:double" use="required"/>
-                            <xsd:attribute name="positionY" type="xsd:double" use="required"/>
-                            <xsd:attribute name="positionZ" type="xsd:double" use="required"/>
-                            <xsd:attribute name="mass"      type="xsd:double" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="gearbox">
-                        <xsd:complexType>
-                            <xsd:attribute name="type"  type="xsd:string" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:all>
-                <xsd:attribute name="maxSpeed"          type="xsd:double" use="required"/>
-                <xsd:attribute name="maxDeceleration"   type="xsd:double" use="required"/>
-                <xsd:attribute name="overallEfficiency" type="xsd:double" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="performance" type="OSCPerformance"/>
         <xsd:element name="geometry"    type="OSCFile"/>
-        <xsd:element name="dimension"  type="OSCDimension"/>
-        <xsd:element name="axles">
-            <xsd:complexType>
-                <xsd:all>
-                    <xsd:element name="front"       type="OSCVehicleAxle"/>
-                    <xsd:element name="rear"        type="OSCVehicleAxle"/>
-                    <xsd:element name="additionalAxles">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="additional"  type="OSCVehicleAxle" minOccurs="0" maxOccurs="unbounded"/>
-                            </xsd:sequence>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:all>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="dimension"  type="OSCDimensionTypeA"/>
+        <xsd:element name="axles" type="OSCAxles"/>
         <xsd:element name="lighting">
             <xsd:complexType>
                 <xsd:sequence>
-                    <xsd:element name="light" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:complexType>
-                            <xsd:all>
-                                <xsd:element name="coord"   type="OSCCoord"/>
-                                <xsd:element name="light"   type="OSCLight"/>
-                            </xsd:all>
-                            <xsd:attribute name="type"      type="xsd:string" use="required"/>
-                            <xsd:attribute name="frequency" type="xsd:double" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
+                    <xsd:element name="light" minOccurs="0" maxOccurs="unbounded" type="OSCLights"/>
                 </xsd:sequence>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
@@ -155,15 +83,7 @@
         <xsd:element name="eyepoints">
             <xsd:complexType>
                 <xsd:sequence>
-                    <xsd:element name="eyepoint" minOccurs="1" maxOccurs="unbounded">
-                        <xsd:complexType>
-                            <xsd:all>
-                                <xsd:element name="coord"   type="OSCCoord"/>
-                            </xsd:all>
-                            <xsd:attribute name="type"      type="xsd:string" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
+                    <xsd:element name="eyepoint" minOccurs="1" maxOccurs="unbounded" type="OSCEyepoint"/>
                 </xsd:sequence>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
@@ -171,15 +91,7 @@
         <xsd:element name="mirrors">
             <xsd:complexType>
                 <xsd:sequence>
-                    <xsd:element name="mirror" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:complexType>
-                            <xsd:all>
-                                <xsd:element name="coord"   type="OSCCoord"/>
-                            </xsd:all>
-                            <xsd:attribute name="type"      type="xsd:string" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
+                    <xsd:element name="mirror" minOccurs="0" maxOccurs="unbounded" type="OSCMirror"/>
                 </xsd:sequence>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
@@ -187,13 +99,7 @@
         <xsd:element name="features">
             <xsd:complexType>
                 <xsd:sequence>
-                    <xsd:element name="feature" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:complexType>
-                            <xsd:attribute name="type"          type="xsd:string" use="required"/>
-                            <xsd:attribute name="availability"  type="xsd:boolean" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
+                    <xsd:element name="feature" minOccurs="0" maxOccurs="unbounded" type="OSCFeature"/>
                 </xsd:sequence>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
