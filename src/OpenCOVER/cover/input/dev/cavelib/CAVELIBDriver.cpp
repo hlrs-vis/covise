@@ -17,7 +17,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <chrono>
 #include <osg/Matrix>
 #include <util/unixcompat.h>
 
