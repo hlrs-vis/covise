@@ -110,6 +110,8 @@ bool PointRayTracerPlugin::init2(){
         m_visibility_vector.push_back(true);
     }
     */
+
+    return true;
 }
 
 
