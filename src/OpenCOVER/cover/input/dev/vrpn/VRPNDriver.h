@@ -48,7 +48,6 @@ class VRPNDriver : public opencover::InputDevice
     std::string trackerid;
     std::string buttonid;
 
-    bool init();
     virtual bool poll();
     
     void processTrackerData(const vrpn_TRACKERCB &vrpnData);
