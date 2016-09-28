@@ -9,6 +9,7 @@
 #define VTK2COVISE_H
 
 class vtkDataSet;
+class vtkDataSetAttributes;
 class vtkDataObject;
 class vtkDataArray;
 class vtkInformation;
@@ -37,7 +38,8 @@ public:
         Vectors = 1,
         Normals = 2,
         TexCoords = 3,
-        Tensors = 4
+        Tensors = 4,
+        Any = 5
     };
 
     enum Flags
@@ -49,6 +51,7 @@ public:
 
     static coDoGeometry *vtk2Covise(const coObjInfo &info, vtkDataSet *vtk);
     static coDoGrid *vtkGrid2Covise(const coObjInfo &info, vtkDataSet *vtk);
+    static coDoAbstractData *vtkData2Covise(const coObjInfo &info, vtkDataSetAttributes *vtk, int attribute, const char *name = NULL, const coDoAbstractStructuredGrid *sgrid = NULL);
     static coDoAbstractData *vtkData2Covise(const coObjInfo &info, vtkDataSet *vtk, int attribute, const char *name = NULL, const coDoAbstractStructuredGrid *sgrid = NULL);
     static coDoPixelImage *vtkImage2Covise(const coObjInfo &info, vtkImageData *vtk);
 
