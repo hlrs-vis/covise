@@ -35,6 +35,9 @@
 using namespace covise;
 #include <util/coviseCompat.h>
 
+#include <vtkSmartPointer.h>
+
+class vtkDataSet;
 class vtkDataSetReader;
 class vtkFieldData;
 
@@ -59,21 +62,18 @@ class vtkFieldData;
 
 class ReadVTK : public coModule
 {
+    static const int NumPorts = 3;
+
 public:
     ReadVTK(int argc, char *argv[]);
     virtual ~ReadVTK();
 
-    void run()
-    {
-        Covise::main_loop();
-    }
 
 private:
     // main
     int compute(const char *);
 
     // virtual methods
-    virtual void postInst();
     virtual void param(const char *name, bool inMapLoading);
 
     // local methods
@@ -82,18 +82,20 @@ private:
     void update();
 
 private:
+    void setChoices(vtkDataSet *dataSet);
     char *m_filename;
     int blockSize;
 
-    vtkDataSetReader *m_pReader;
+    vtkSmartPointer<vtkDataSet> m_dataSet;
     vtkFieldData *m_fieldData;
 
-    coOutputPort *m_portGrid, *m_portScalars, *m_portVectors, *m_portNormals;
+    coOutputPort *m_portGrid, *m_portNormals;
+    coOutputPort *m_portPointData[NumPorts], *m_portCellData[NumPorts];
 
     coFileBrowserParam *m_pParamFile;
     coStringParam *m_pParamFilePattern;
-    coChoiceParam *m_pParamScalar;
-    coChoiceParam *m_pParamVector;
+    coChoiceParam *m_pointDataChoice[NumPorts];
+    coChoiceParam *m_cellDataChoice[NumPorts];
 
     coBooleanParam *m_pTime;
     coIntSliderParam *m_pTimeMin;

@@ -24,35 +24,102 @@
 
 #include "ReadVTK.h"
 #include <alg/coVtk.h>
-#include "vtkDataArray.h"
 #include "vtkDataSetReader.h"
+#include "vtkXMLGenericDataObjectReader.h"
 #include "vtkDataSet.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-//#include "vtkUniformGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkDataArray.h"
-#include "vtkCellArray.h"
 #if VTK_MAJOR_VERSION < 5
 #include "vtkIdType.h"
 #endif
 #include "vtkDataSetAttributes.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnstructuredGridWriter.h"
-#include "vtkStructuredGridWriter.h"
-#include "vtkDataSetWriter.h"
 
 #include <do/coDoData.h>
 #include <do/coDoStructuredGrid.h>
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoRectilinearGrid.h>
 #include <do/coDoSet.h>
+
+const size_t FilenameLength = 2048;
+
+template<class Reader>
+vtkDataSet *readFile(const char *filename)
+{
+    vtkSmartPointer<Reader> reader = vtkSmartPointer<Reader>::New();
+    reader->SetFileName(filename);
+    reader->Update();
+    if (reader->GetOutput())
+        reader->GetOutput()->Register(reader);
+    return vtkDataSet::SafeDownCast(reader->GetOutput());
+}
+
+vtkDataSet *getDataSet(const char *filename)
+{
+    char fn[FilenameLength] = "";
+    Covise::getname(fn, filename);
+    if (fn[0] == '\0')
+        return NULL;
+    vtkDataSet *ds = NULL;
+    const char *ext = "";
+    size_t len = strlen(fn);
+    if (len >= 4)
+        ext = fn+len-4;
+    if (strcmp(ext, ".vtk")==0)
+    {
+        ds = readFile<vtkDataSetReader>(fn);
+    }
+    if (!ds)
+        ds = readFile<vtkXMLGenericDataObjectReader>(fn);
+    if (!ds && strcmp(ext, ".vtk")!=0)
+    {
+        ds = readFile<vtkDataSetReader>(fn);
+    }
+    return ds;
+}
+
+std::vector<std::string> getFields(vtkFieldData *dsa)
+{
+    std::vector<std::string> fields;
+    if (!dsa)
+        return fields;
+    int na = dsa->GetNumberOfArrays();
+    for (int i=0; i<na; ++i)
+    {
+        fields.push_back(dsa->GetArrayName(i));
+        cerr << "field " << i << ": " << fields[i] << endl;
+    }
+    return fields;
+}
+
+std::vector<std::string> getFields(vtkDataSet *ds)
+{
+    std::vector<std::string> cellFields = getFields(ds->GetCellData());
+    std::vector<std::string> pointFields = getFields(ds->GetPointData());
+    std::vector<std::string> allFields = getFields(ds->GetFieldData());
+    std::vector<std::string> fields = cellFields;
+    std::copy(pointFields.begin(), pointFields.end(), std::back_inserter (fields));
+    return fields;
+}
+
+void setParamChoices(coChoiceParam *param, const std::vector<std::string> &choices)
+{
+    int ival = param->getValue();
+    std::string sval;
+    if (param->getActLabel())
+        sval = param->getActLabel();
+    std::vector<const char *> vals;
+    vals.push_back("(NONE)");
+    for (size_t i=0; i<choices.size(); ++i)
+    {
+        if (sval == choices[i])
+            ival = i+1;
+        vals.push_back(choices[i].c_str());
+    }
+    if (ival >= vals.size())
+        ival = 0;
+    param->setValue(vals.size(), &vals[0], ival);
+}
+
 
 //////
 ////// we must provide main to init covise
@@ -70,21 +137,13 @@ ReadVTK::ReadVTK(int argc, char *argv[])
 
     m_portGrid = addOutputPort("GridOut0", "UniformGrid|StructuredGrid|UnstructuredGrid|RectilinearGrid|Polygons|Lines", "Grid output");
 
-    m_portScalars = addOutputPort("DataOut0", "Float|Int|Byte", "first (or selected) scalar field in data file");
-    m_portVectors = addOutputPort("DataOut1", "Vec3|RGBA", "first (or selected) vector field in data file");
     m_portNormals = addOutputPort("DataOut2", "Vec3", "normals");
 
     m_pParamFile = addFileBrowserParam("filename", "Specify the filename of the VTK data file(s).");
-    m_pParamFile->setValue("./", "*.vtk");
+    m_pParamFile->setValue("./", "*.vtk/*.vti;*.vtp;*.vtr;*.vts;*.vtu/*");
 
     choiceVal[0] = choiceVal0;
     choiceVal[1] = choiceVal1;
-
-    m_pParamScalar = this->addChoiceParam("scalar", "Select one scalar field included in the VTK file. Default is the first one.");
-    m_pParamScalar->setValue(choiceLen[0], choiceVal[0], 0);
-
-    m_pParamVector = this->addChoiceParam("vector", "Select one vector field included in the VTK file. Default is the first one.");
-    m_pParamVector->setValue(choiceLen[1], choiceVal[1], 0);
 
     m_pTime = addBooleanParam("timesteps", "Read several timesteps at once.");
     m_pTime->setValue(0);
@@ -101,8 +160,32 @@ ReadVTK::ReadVTK(int argc, char *argv[])
     m_iTimestepMin = 0;
     m_iTimestepMax = 0;
 
-    // setup the vtk reader
-    m_pReader = vtkDataSetReader::New();
+    for (int i=0; i<NumPorts; ++i)
+    {
+        std::stringstream str;
+        str << "point_data_" << i;
+        m_pointDataChoice[i] = addChoiceParam(str.str().c_str(), "point data field");
+
+        str.str("");
+        str << "PointDataOut" << i;
+        std::string name = str.str();
+        str.str("");
+        str << "vertex data " << i;
+        m_portPointData[i] = addOutputPort(name.c_str(), "Float|Vec3|RGBA|Int|Byte", str.str().c_str());
+    }
+    for (int i=0; i<NumPorts; ++i)
+    {
+        std::stringstream str;
+        str << "cell_data_" << i;
+        m_cellDataChoice[i] = addChoiceParam(str.str().c_str(), "cell data field");
+
+        str.str("");
+        str << "CellDataOut" << i;
+        std::string name = str.str();
+        str.str("");
+        str << "cell data " << i;
+        m_portCellData[i] = addOutputPort(name.c_str(), "Float|Vec3|RGBA|Int|Byte", str.str().c_str());
+    }
 }
 
 ReadVTK::~ReadVTK()
@@ -111,12 +194,6 @@ ReadVTK::~ReadVTK()
     {
         delete[] m_filename;
         m_filename = NULL;
-    }
-    if (m_pReader != NULL)
-    {
-
-        m_pReader->vtkDataSetReader::Delete();
-        m_pReader = NULL;
     }
 }
 
@@ -173,6 +250,8 @@ void ReadVTK::update()
     std::string sInfo;
     int iScalar = 0, iVector = 0;
     //char *cValue=NULL;
+    
+    vtkSmartPointer<vtkDataSetReader> m_pReader = vtkSmartPointer<vtkDataSetReader>::New();
 
     // here we go
     m_pReader->SetFileName(m_filename);
@@ -181,13 +260,17 @@ void ReadVTK::update()
 
     bool timesteps = m_pTime->getValue();
 
-    std::vector<coDistributedObject *> dogrid, doscalar, dovector, donormal;
+    std::vector<coDistributedObject *> dogrid, dopoint[NumPorts], docell[NumPorts], donormal;
     for (int iTimestep = m_iTimestepMin; iTimestep <= m_iTimestepMax; iTimestep++)
     {
         std::string grid_name = m_portGrid->getObjName();
-        std::string scalar_name = m_portScalars->getObjName();
-        std::string vector_name = m_portVectors->getObjName();
         std::string normal_name = m_portNormals->getObjName();
+        std::string pointDataName[NumPorts], cellDataName[NumPorts];
+        for (int i=0; i<NumPorts; ++i)
+        {
+            pointDataName[i] = m_portPointData[i]->getObjName();
+            cellDataName[i] = m_portCellData[i]->getObjName();
+        }
 
         if (timesteps)
         {
@@ -208,25 +291,28 @@ void ReadVTK::update()
             snprintf(buf, sizeof(buf), "%d", iTimestep - m_iTimestepMin);
 
             grid_name += "_";
-            scalar_name += "_";
-            vector_name += "_";
-
             grid_name += buf;
-            scalar_name += buf;
-            vector_name += buf;
+
+            for (int i=0; i<NumPorts; ++i)
+            {
+                pointDataName[i] += "_";
+                pointDataName[i] += buf;
+                cellDataName[i] += "_";
+                cellDataName[i] += buf;
+            }
         }
         else
         {
             m_pReader->SetFileName(m_pParamFile->getValue());
         }
 
-        vtkDataSet *vdata = m_pReader->GetOutput();
-        coDoGrid *grid = coVtk::vtkGrid2Covise(grid_name, vdata);
+        vtkDataSet *vdata = getDataSet(m_pParamFile->getValue());
         if (!vdata)
         {
             Covise::sendInfo("could not read: %s", m_pReader->GetFileName());
             return;
         }
+        coDoGrid *grid = coVtk::vtkGrid2Covise(grid_name, vdata);
         /* if (!grid)
       {
          Covise::sendInfo("not supported: %s", vdata->GetClassName());
@@ -234,6 +320,22 @@ void ReadVTK::update()
       }*/
 
         dogrid.push_back(grid);
+
+        vtkDataSetAttributes *pointData = vdata->GetPointData();
+        vtkDataSetAttributes *cellData = vdata->GetCellData();
+        for (int i=0; i<NumPorts; ++i)
+        {
+            if (pointData && m_pointDataChoice[i]->getValue() > 0)
+            {
+                if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], pointData, coVtk::Any, m_pointDataChoice[i]->getActLabel(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
+                    dopoint[i].push_back(pdata);
+            }
+            if (cellData && m_cellDataChoice[i]->getValue() > 0)
+            {
+                if (coDistributedObject *cdata = coVtk::vtkData2Covise(cellDataName[i], cellData, coVtk::Any, m_cellDataChoice[i]->getActLabel(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
+                    docell[i].push_back(cdata);
+            }
+        }
 
         if (iNrScalarsInFile > 0)
         {
@@ -255,17 +357,20 @@ void ReadVTK::update()
         }
         m_pReader->Update();
 
-        if (coDistributedObject *scaldata = coVtk::vtkData2Covise(scalar_name, vdata, coVtk::Scalars, m_pReader->GetScalarsNameInFile(iScalar - 1), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
-            doscalar.push_back(scaldata);
-        if (coDistributedObject *vecdata = coVtk::vtkData2Covise(vector_name, vdata, coVtk::Vectors, m_pReader->GetVectorsNameInFile(iVector - 1), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
-            dovector.push_back(vecdata);
         if (coDistributedObject *normdata = coVtk::vtkData2Covise(normal_name, vdata, coVtk::Normals, NULL, dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
             donormal.push_back(normdata);
 
         Covise::sendInfo("The input data was read (%d scalars, %d vectors).", iNrScalarsInFile, iNrVectorsInFile);
     }
 
-    coDistributedObject *outGrid = NULL, *outScalars = NULL, *outVectors = NULL, *outNormals = NULL;
+    coDistributedObject *outGrid = NULL, *outNormals = NULL;
+    coDistributedObject *outPointData[NumPorts], *outCellData[NumPorts];
+    for (int i=0; i<NumPorts; ++i)
+    {
+        outPointData[i] = NULL;
+        outCellData[i] = NULL;
+    }
+
     if (timesteps)
     {
         char buf[1024];
@@ -277,18 +382,18 @@ void ReadVTK::update()
             outGrid = new coDoSet(m_portGrid->getObjName(), dogrid.size(), &dogrid[0]);
             outGrid->addAttribute("TIMESTEP", buf);
         }
-        outScalars = NULL;
-        if (doscalar.size() > 0)
+        for (int i=0; i<NumPorts; ++i)
         {
-            outScalars = new coDoSet(m_portScalars->getObjName(), doscalar.size(), &doscalar[0]);
-            outScalars->addAttribute("TIMESTEP", buf);
-        }
-
-        outVectors = NULL;
-        if (dovector.size() > 0)
-        {
-            outVectors = new coDoSet(m_portVectors->getObjName(), dovector.size(), &dovector[0]);
-            outVectors->addAttribute("TIMESTEP", buf);
+            if (dopoint[i].size() > 0)
+            {
+                outPointData[i] = new coDoSet(m_portPointData[i]->getObjName(), dopoint[i].size(), &dopoint[i][0]);
+                outPointData[i]->addAttribute("TIMESTEP", buf);
+            }
+            if (docell[i].size() > 0)
+            {
+                outCellData[i] = new coDoSet(m_portCellData[i]->getObjName(), docell[i].size(), &docell[i][0]);
+                outCellData[i]->addAttribute("TIMESTEP", buf);
+            }
         }
 
         outNormals = NULL;
@@ -302,38 +407,56 @@ void ReadVTK::update()
     {
         if (!dogrid.empty())
             outGrid = dogrid[0];
-        if (!doscalar.empty())
-            outScalars = doscalar[0];
-        if (!dovector.empty())
-            outVectors = dovector[0];
         if (!donormal.empty())
             outNormals = donormal[0];
+        for (int i=0; i<NumPorts; ++i)
+        {
+            if (!dopoint[i].empty())
+            {
+                outPointData[i] = dopoint[i][0];
+            }
+            if (!docell[i].empty())
+            {
+                outCellData[i] = docell[i][0];
+            }
+        }
     }
 
     // Assign sets to output ports:
     if (outGrid)
         m_portGrid->setCurrentObject(outGrid);
-    if (outScalars)
-        m_portScalars->setCurrentObject(outScalars);
-    if (outVectors)
-        m_portVectors->setCurrentObject(outVectors);
     if (outNormals)
         m_portNormals->setCurrentObject(outNormals);
+    for (int i=0; i<NumPorts; ++i)
+    {
+        m_portPointData[i]->setCurrentObject(outPointData[i]);
+        m_portCellData[i]->setCurrentObject(outCellData[i]);
+    }
 }
 
-void ReadVTK::postInst()
+void ReadVTK::setChoices(vtkDataSet *ds)
 {
-    m_pParamScalar->show();
+    std::vector<std::string> cellFields;
+    if (ds)
+        cellFields = getFields(ds->GetCellData());
+    for (int i=0; i<NumPorts; ++i)
+    {
+        setParamChoices(m_cellDataChoice[i], cellFields);
+    }
+    std::vector<std::string> pointFields;
+    if (ds)
+        pointFields = getFields(ds->GetPointData());
+    for (int i=0; i<NumPorts; ++i)
+    {
+        setParamChoices(m_pointDataChoice[i], pointFields);
+    }
 }
 
 void ReadVTK::param(const char *name, bool /*inMapLoading*/)
 {
-    cerr << "\n ------- Parameter Callback for '"
-         << name
-         << "'" << endl;
-
     if (strcmp(name, m_pParamFile->getName()) == 0)
     {
+#if 0
         cerr << "---------------" << endl;
         //m_pReader->DebugOn();
         m_filename = (char *)m_pParamFile->getValue();
@@ -348,15 +471,25 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
 
         // determine the scalar fields in the dataset
         const int iNrScalarsInFile = m_pReader->GetNumberOfScalarsInFile();
-        int iNrFieldDataInFile = m_pReader->GetNumberOfFieldDataInFile();
-        if (iNrFieldDataInFile > 0)
+        const int numFieldData = m_pReader->GetNumberOfFieldDataInFile();
+        int iNrFieldDataInFile = 0;
+        if (numFieldData > 0)
         {
-            m_pReader->SetFieldDataName(m_pReader->GetFieldDataNameInFile(0));
-            m_pReader->Update();
-            vtkDataSet *dataSet = m_pReader->GetOutput();
-            m_fieldData = dataSet->GetFieldData();
-            iNrFieldDataInFile = m_fieldData->GetNumberOfArrays();
+            for (int i=0; i<numFieldData; ++i)
+            {
+                cerr << "field data " << i << ": " << m_pReader->GetFieldDataNameInFile(i) << std::endl;
+                m_pReader->SetFieldDataName(m_pReader->GetFieldDataNameInFile(i));
+                m_pReader->Update();
+                vtkDataSet *dataSet = m_pReader->GetOutput();
+                m_fieldData = dataSet->GetFieldData();
+                int n = m_fieldData->GetNumberOfArrays();
+                if (n >= 0)
+                    iNrFieldDataInFile += n;
+            }
         }
+        cerr << "no of fields: " << numFieldData;
+        cerr << ", no of arrays: " << iNrFieldDataInFile << endl;
+
         if ((iNrScalarsInFile + iNrFieldDataInFile) > 0)
         {
             int i = 0;
@@ -390,6 +523,9 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
             }
             m_pParamVector->setValue(iNrVectorsInFile, cVectorNames, 0);
         }
+#endif
+        m_dataSet = getDataSet(m_pParamFile->getValue());
+        setChoices(m_dataSet);
     }
     else if (strcmp(name, m_pParamFilePattern->getName()) == 0)
     {
