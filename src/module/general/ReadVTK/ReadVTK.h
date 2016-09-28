@@ -41,25 +41,6 @@ class vtkDataSet;
 class vtkDataSetReader;
 class vtkFieldData;
 
-// defines
-#define _FILE_TYPE_BINARY 1
-#define _FILE_TYPE_FORTRAN 2
-#define _FILE_TYPE_ASCII 3
-
-#define _FILE_STRUCTURED_GRID 4
-#define _FILE_UNSTRUCTURED_GRID 5
-#define _FILE_IBLANKED 6
-
-#define _FILE_SOLUTION 7
-#define _FILE_DATA 8
-#define _FILE_FUNCTION 9
-
-#define _FILE_SINGLE_ZONE 10
-#define _FILE_MULTI_ZONE 11
-
-#define _READ_GRID 12
-#define _READ_DATA 13
-
 class ReadVTK : public coModule
 {
     static const int NumPorts = 3;
@@ -87,7 +68,6 @@ private:
     int blockSize;
 
     vtkSmartPointer<vtkDataSet> m_dataSet;
-    vtkFieldData *m_fieldData;
 
     coOutputPort *m_portGrid, *m_portNormals;
     coOutputPort *m_portPointData[NumPorts], *m_portCellData[NumPorts];

@@ -24,20 +24,18 @@
 
 #include "ReadVTK.h"
 #include <alg/coVtk.h>
-#include "vtkDataSetReader.h"
-#include "vtkXMLGenericDataObjectReader.h"
-#include "vtkDataSet.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
+#include <vtkDataSetReader.h>
+#include <vtkXMLGenericDataObjectReader.h>
+#include <vtkDataSet.h>
+#include <vtkPointData.h>
+#include <vtkCellData.h>
 #if VTK_MAJOR_VERSION < 5
-#include "vtkIdType.h"
+#include <vtkIdType.h>
 #endif
-#include "vtkDataSetAttributes.h"
+#include <vtkDataSetAttributes.h>
 
 #include <do/coDoData.h>
-#include <do/coDoStructuredGrid.h>
-#include <do/coDoUnstructuredGrid.h>
-#include <do/coDoRectilinearGrid.h>
+#include <do/coDoAbstractStructuredGrid.h>
 #include <do/coDoSet.h>
 
 const size_t FilenameLength = 2048;
@@ -86,7 +84,7 @@ std::vector<std::string> getFields(vtkFieldData *dsa)
     for (int i=0; i<na; ++i)
     {
         fields.push_back(dsa->GetArrayName(i));
-        cerr << "field " << i << ": " << fields[i] << endl;
+        //cerr << "field " << i << ": " << fields[i] << endl;
     }
     return fields;
 }
@@ -125,11 +123,6 @@ void setParamChoices(coChoiceParam *param, const std::vector<std::string> &choic
 ////// we must provide main to init covise
 //////
 
-static const char *choiceVal0[] = { "1. scalar field" };
-static const char *choiceVal1[] = { "1. vector field" };
-static const char **choiceVal[2];
-static const int choiceLen[2] = { 1, 1 };
-
 ReadVTK::ReadVTK(int argc, char *argv[])
     : coModule(argc, argv, "Read Visualization Toolkit (VTK) data files")
 {
@@ -142,13 +135,11 @@ ReadVTK::ReadVTK(int argc, char *argv[])
     m_pParamFile = addFileBrowserParam("filename", "Specify the filename of the VTK data file(s).");
     m_pParamFile->setValue("./", "*.vtk/*.vti;*.vtp;*.vtr;*.vts;*.vtu/*");
 
-    choiceVal[0] = choiceVal0;
-    choiceVal[1] = choiceVal1;
-
     m_pTime = addBooleanParam("timesteps", "Read several timesteps at once.");
     m_pTime->setValue(0);
 
     m_pParamFilePattern = addStringParam("filenamepattern", "Specify the filename pattern allowing to read in several vtk datafiles/timesteps.");
+    m_pParamFilePattern->setValue("");
 
     m_pTimeMin = addIntSliderParam("timesteps_min", "Adjust minimal timestep.");
     m_pTimeMin->setValue(0);
@@ -251,13 +242,6 @@ void ReadVTK::update()
     int iScalar = 0, iVector = 0;
     //char *cValue=NULL;
     
-    vtkSmartPointer<vtkDataSetReader> m_pReader = vtkSmartPointer<vtkDataSetReader>::New();
-
-    // here we go
-    m_pReader->SetFileName(m_filename);
-    m_pReader->Update();
-    const int iNrScalarsInFile = m_pReader->GetNumberOfScalarsInFile();
-
     bool timesteps = m_pTime->getValue();
 
     std::vector<coDistributedObject *> dogrid, dopoint[NumPorts], docell[NumPorts], donormal;
@@ -272,6 +256,7 @@ void ReadVTK::update()
             cellDataName[i] = m_portCellData[i]->getObjName();
         }
 
+        vtkDataSet *vdata = NULL;
         if (timesteps)
         {
             const char *filenamepattern = m_pParamFilePattern->getValue();
@@ -284,8 +269,7 @@ void ReadVTK::update()
             sprintf(m_filename, filenamepattern, iTimestep);
             std::cout << "New Filename is " << m_filename << std::endl;
 
-            m_pReader->SetFileName(m_filename);
-            m_pReader->Update();
+            vdata = getDataSet(m_filename);
 
             char buf[256];
             snprintf(buf, sizeof(buf), "%d", iTimestep - m_iTimestepMin);
@@ -303,13 +287,13 @@ void ReadVTK::update()
         }
         else
         {
-            m_pReader->SetFileName(m_pParamFile->getValue());
+            strcpy(m_filename, m_pParamFile->getValue());
         }
+        vdata = getDataSet(m_filename);
 
-        vtkDataSet *vdata = getDataSet(m_pParamFile->getValue());
         if (!vdata)
         {
-            Covise::sendInfo("could not read: %s", m_pReader->GetFileName());
+            Covise::sendInfo("could not read: %s", m_filename);
             return;
         }
         coDoGrid *grid = coVtk::vtkGrid2Covise(grid_name, vdata);
@@ -337,30 +321,8 @@ void ReadVTK::update()
             }
         }
 
-        if (iNrScalarsInFile > 0)
-        {
-            Covise::sendInfo("Reading the data. Please wait ...");
-            Covise::sendInfo("...filename is %s", m_filename);
-
-            Covise::get_choice_param("scalar", &iScalar);
-            m_pReader->SetScalarsName(m_pReader->GetScalarsNameInFile(iScalar - 1));
-            Covise::sendInfo("...activated scalar field is %s", m_pReader->GetScalarsNameInFile(iScalar - 1));
-        }
-
-        const int iNrVectorsInFile = m_pReader->GetNumberOfVectorsInFile();
-
-        if (iNrVectorsInFile > 0)
-        {
-            Covise::get_choice_param("vector", &iVector);
-            m_pReader->SetVectorsName(m_pReader->GetVectorsNameInFile(iVector - 1));
-            Covise::sendInfo("...activated vector field is %s", m_pReader->GetVectorsNameInFile(iVector - 1));
-        }
-        m_pReader->Update();
-
         if (coDistributedObject *normdata = coVtk::vtkData2Covise(normal_name, vdata, coVtk::Normals, NULL, dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
             donormal.push_back(normdata);
-
-        Covise::sendInfo("The input data was read (%d scalars, %d vectors).", iNrScalarsInFile, iNrVectorsInFile);
     }
 
     coDistributedObject *outGrid = NULL, *outNormals = NULL;
@@ -526,6 +488,10 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
 #endif
         m_dataSet = getDataSet(m_pParamFile->getValue());
         setChoices(m_dataSet);
+        if (strcmp(m_pParamFilePattern->getValue(), "") == 0)
+        {
+            m_pParamFilePattern->setValue(m_pParamFile->getValue());
+        }
     }
     else if (strcmp(name, m_pParamFilePattern->getName()) == 0)
     {
