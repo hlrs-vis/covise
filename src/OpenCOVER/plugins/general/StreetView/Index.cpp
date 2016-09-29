@@ -8,11 +8,7 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-#include <boost/filesystem.hpp>
-
 #include <iostream>
-
-namespace fs = ::boost::filesystem;
 
 
 Index::Index(xercesc::DOMNode *indexNode, IndexParser *indexParser_, StreetView *streetView_)
@@ -72,7 +68,10 @@ Index::~Index()
 		delete *it;
 	}
 
-	// stations
+	for (std::vector<Station *>::iterator it = stationList.begin(); it != stationList.end(); it++)
+	{
+		delete *it;
+	}
 }
 
 
@@ -141,6 +140,7 @@ bool Index::parsePictureIndex()
 		}
 	}
 	delete parser;
+	sortPicturesPerStation();
 	return true;
 }
 
@@ -179,6 +179,37 @@ bool Index::buildNewCamera(std::string currentCameraSymbol_)
 	return true;
 }
 
+osg::Node *getNearestStationNode(double viewerPosX_, double viewerPosY_, double viewerPosZ_)
+{
+	std::vector<Station *>::iterator it = stationList.begin();
+	if (it != stationList.end())
+	{
+		double x = (*it)->getStationLongitude;
+		double y = (*it)->getStationLatitude;
+		double z = (*it)->getStationLongitude;
+		double minimumDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
+		Station *nearestStation = (*it);
+
+		for (std::vector<Station *>::iterator it = stationList.begin()+1; it != stationList.end(); it++)
+		{
+			x = (*it)->getStationLongitude;
+			y = (*it)->getStationLatitude;
+			z = (*it)->getStationLongitude;
+			double currentDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
+				if (currentDistance < minimumDistance)
+				{
+					minimumDistance = currentDistance;
+					nearestStation = (*it);
+				}
+		}
+		return nearestStation->getStationPanels;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 
 void Index::sortPicturesPerStation()
 {
@@ -201,22 +232,4 @@ void Index::sortPicturesPerStation()
 			}
 		}
 	}
-}
-
-
-osg::Node *getNearestStationNode(double viewerPosX_, double viewerPosY_, double viewerPosZ_)
-{
-	for (std::vector<Station *>::iterator it = stationList.begin(); it != stationList.end(); it++)
-	{
-		double minimumDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2))
-		double x = (*it)->getStationLongitude;
-		double y = (*it)->getStationLatitude;
-		double z = (*it)->getStationLongitude;
-		double currentDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2))
-		if (currentDistance < minimumDistance)
-		{
-			minimumDistance = currentDistance;
-		}
-	}
-
 }
