@@ -451,21 +451,24 @@ coCellToVert::interpolate(const coDistributedObject *geo_in, const coDistributed
         return NULL;
     }
 
-    float *in_data_0, *in_data_1, *in_data_2;
-    int dataSize;
+    float *in_data_0=NULL, *in_data_1=NULL, *in_data_2=NULL;
+    int dataSize=0;
 
     int numComp = 0;
     if (const coDoFloat *s_data_in = dynamic_cast<const coDoFloat *>(data_in))
     {
         s_data_in->getAddress(&in_data_0);
-        in_data_1 = NULL;
-        in_data_2 = NULL;
         dataSize = s_data_in->getNumPoints();
         numComp = 1;
     }
-    else
+    else if (const coDoInt *s_data_in = dynamic_cast<const coDoInt *>(data_in))
     {
-        coDoVec3 *v_data_in = (coDoVec3 *)data_in;
+    }
+    else if (const coDoByte *s_data_in = dynamic_cast<const coDoByte *>(data_in))
+    {
+    }
+    else if (const coDoVec3 *v_data_in = dynamic_cast<const coDoVec3 *>(data_in))
+    {
         v_data_in->getAddresses(&in_data_0, &in_data_1, &in_data_2);
         dataSize = v_data_in->getNumPoints();
         numComp = 3;
