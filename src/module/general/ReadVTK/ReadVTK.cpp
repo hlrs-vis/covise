@@ -89,16 +89,6 @@ std::vector<std::string> getFields(vtkFieldData *dsa)
     return fields;
 }
 
-std::vector<std::string> getFields(vtkDataSet *ds)
-{
-    std::vector<std::string> cellFields = getFields(ds->GetCellData());
-    std::vector<std::string> pointFields = getFields(ds->GetPointData());
-    std::vector<std::string> allFields = getFields(ds->GetFieldData());
-    std::vector<std::string> fields = cellFields;
-    std::copy(pointFields.begin(), pointFields.end(), std::back_inserter (fields));
-    return fields;
-}
-
 void setParamChoices(coChoiceParam *param, const std::vector<std::string> &choices)
 {
     int ival = param->getValue();
@@ -305,6 +295,7 @@ void ReadVTK::update()
 
         dogrid.push_back(grid);
 
+        vtkFieldData *fieldData = vdata->GetFieldData();
         vtkDataSetAttributes *pointData = vdata->GetPointData();
         vtkDataSetAttributes *cellData = vdata->GetCellData();
         for (int i=0; i<NumPorts; ++i)
@@ -312,6 +303,13 @@ void ReadVTK::update()
             if (pointData && m_pointDataChoice[i]->getValue() > 0)
             {
                 if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], pointData, coVtk::Any, m_pointDataChoice[i]->getActLabel(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
+                    dopoint[i].push_back(pdata);
+            }
+            else if (fieldData && m_pointDataChoice[i]->getValue() > 0)
+            {
+                int index = -1;
+                vtkDataArray *varr = fieldData->GetArray(m_pointDataChoice[i]->getActLabel(), index);
+                if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], varr, dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
                     dopoint[i].push_back(pdata);
             }
             if (cellData && m_cellDataChoice[i]->getValue() > 0)
@@ -406,8 +404,10 @@ void ReadVTK::setChoices(vtkDataSet *ds)
         setParamChoices(m_cellDataChoice[i], cellFields);
     }
     std::vector<std::string> pointFields;
-    if (ds)
+    if (ds && ds->GetPointData())
         pointFields = getFields(ds->GetPointData());
+    else if (ds && ds->GetFieldData())
+        pointFields = getFields(ds->GetFieldData());
     for (int i=0; i<NumPorts; ++i)
     {
         setParamChoices(m_pointDataChoice[i], pointFields);
