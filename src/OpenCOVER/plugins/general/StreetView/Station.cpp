@@ -4,9 +4,10 @@
 #include <string>
 
 
-Station::Station(Picture *picture_)
+Station::Station(Picture *picture_, Index *index_)
 {
 	picture = picture_;
+	index = index_;
 	stationNumber = picture->getStation();
 	stationLatitude = picture->getLatitude();
 	stationLongitude = picture->getLongitude();

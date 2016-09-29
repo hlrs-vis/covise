@@ -1,5 +1,6 @@
 #include "Index.h"
 #include "IndexParser.h"
+#include "StreetView.h"
 #include "Picture.h"
 #include "Station.h"
 #include "Camera.h"
@@ -14,12 +15,13 @@
 namespace fs = ::boost::filesystem;
 
 
-Index::Index(xercesc::DOMNode *indexNode, IndexParser *indexParser_)
+Index::Index(xercesc::DOMNode *indexNode, IndexParser *indexParser_, StreetView *streetView_)
 {
 	vonNetzKnoten = 0;
 	nachNetzKnoten = 0;
 	version = '0';
 	indexParser = indexParser_;
+	streetView = streetView_;
 
 	// parse a single index node
 	xercesc::DOMNodeList *indexNodeList = indexNode->getChildNodes();
@@ -70,7 +72,7 @@ Index::~Index()
 		delete *it;
 	}
 
-	// map stations
+	// stations
 }
 
 
@@ -110,7 +112,7 @@ bool Index::parsePictureIndex()
 			if(xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
 			{
 				xercesc::DOMElement *pictureElement = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
-				Picture *currentPicture = new Picture(pictureElement,this);
+				Picture *currentPicture = new Picture(pictureElement,this, streetView);
 				pictureList.push_back(currentPicture);
 				std::string currentCameraSymbol = currentPicture->getCameraSymbol();
 
@@ -184,44 +186,37 @@ void Index::sortPicturesPerStation()
 	{
 		if ((*it)->getCamera())
 		{
-			int stationNumber = (*it)->getStation();
-			if (stations.count(stationNumber) == 0)
+			std::vector<Station *>::iterator itS = stationList.begin();
+			while (itS != stationList.end() && (*itS)->getStationNumber() != (*it)->getStation())
 			{
-				stations.insert(std::pair<int, Station *> (stationNumber, new Station(*it)));
+				itS++;
+			}
+			if (itS == stationList.end())
+			{
+				stationList.push_back(new Station(*it, this));
 			}
 			else
 			{
-				stations.find(stationNumber)->second->stationPictures.push_back(*it);
+				(*itS)->stationPictures.push_back(*it);
 			}
 		}
-		/*/ mapping with latitude
-		if ((*it)->getCamera())
-		{
-			int stationLatitude = (*it)->getStationLatitude();
-			if (stations.count(stationLatitude) == 0)
-			{
-				stations.insert(std::pair<double, Station *> (stationLatitude, new Station(*it)));
-			}
-			else
-			{
-				stations.find(stationLatitude)->second->stationPictures.push_back(*it);
-			}
-		}
-		/*/
 	}
 }
 
-// besser: new myStation, insert und methode add, erst nach Bedingung push_back
 
-
-osg::Node *Index::getStationNode(int stationNumber_)
+osg::Node *getNearestStationNode(double viewerPosX_, double viewerPosY_, double viewerPosZ_)
 {
-	if (stations.count(stationNumber_) != 0)
+	for (std::vector<Station *>::iterator it = stationList.begin(); it != stationList.end(); it++)
 	{
-		return stations.find(stationNumber_)->second->getStationPanels();
+		double minimumDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2))
+		double x = (*it)->getStationLongitude;
+		double y = (*it)->getStationLatitude;
+		double z = (*it)->getStationLongitude;
+		double currentDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2))
+		if (currentDistance < minimumDistance)
+		{
+			minimumDistance = currentDistance;
+		}
 	}
-	else
-	{
-		return NULL;
-	}
+
 }

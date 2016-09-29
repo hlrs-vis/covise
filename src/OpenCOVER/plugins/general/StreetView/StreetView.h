@@ -37,5 +37,9 @@ public:
 private:
 	IndexParser *indexParser;
 	osg::ref_ptr<osg::Node> stationNode;
+	//void currentPosition();
+	double viewerPosX;
+	double viewerPosY;
+	double viewerPosZ;
 };
 #endif

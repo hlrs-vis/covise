@@ -1,6 +1,8 @@
 #include "Picture.h"
 #include "Index.h"
 #include "Camera.h"
+#include "StreetView.h"
+#include "Position.h"
 
 #include <osgDB/ReadFile>
 
@@ -11,7 +13,7 @@
 #include <iostream>
 #include <cmath>
 
-Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
+Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_, StreetView *streetview_)
 {
 	station = 0;
 	latitude = 0.0;
@@ -19,7 +21,9 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 	altitude = 0.0;
 	heading = 0.0;
 	index = index_;
+	streetView = streetview_;
 	camera = NULL;
+	Position *picturePosition = new Position;
 	
 	xercesc::DOMNodeList *pictureNodeList = pictureNode->getChildNodes();
 	for (int j = 0; j < pictureNodeList->getLength(); ++j)
@@ -62,6 +66,10 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_)
 		}
 	}
 
+	if (longitude != 0.0 && latitude != 0.0 && altitude != 0.0)
+	{
+		picturePosition->transformWGS84ToGauss(longitude, latitude, altitude);
+	}
 }
 
 
@@ -160,17 +168,4 @@ osg::Node *Picture::getPanelNode()
 	panelMatrixTransform->setMatrix(rotationMatrix90X*rotationMatrix90Y*translationMatrix*rotationMatrix);
 
 	return panelMatrixTransform;
-}
-
-
-std::string Picture::getPictureCameraName() // debugging
-{
-	if (camera)
-	{
-		return camera->getCameraName();
-	}
-	else
-	{
-		return "no camera set";
-	}
 }

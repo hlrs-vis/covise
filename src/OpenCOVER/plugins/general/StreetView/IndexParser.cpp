@@ -6,8 +6,9 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-IndexParser::IndexParser()
+IndexParser::IndexParser(StreetView *streetview_)
 {
+	streetView = streetview_;
 }
 
 IndexParser::~IndexParser(void)
@@ -52,14 +53,13 @@ bool IndexParser::parseIndex(std::string indexPath_)
 			if (xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
 			{
 				xercesc::DOMElement *indexElement = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
-				indexList.push_back(new Index(indexElement,this));
+				indexList.push_back(new Index(indexElement, this, streetView));
 			}
 		}
 	}
 	delete parser;
 	return true;
 }
-
 
 void IndexParser::removeDuplicateEntries()
 {
@@ -108,26 +108,42 @@ void IndexParser::removeDuplicateEntriesInCameras()
 }
 /*/
 
-
+void IndexParser::parsePicturesPerStreet(std::string roadName_)
+{
+	std::vector<Index *>::iterator it = indexList.begin(); 
+	if (it != indexList.end())
+	{
+		while (it != indexList.end() && (*it)->getRoadName() != roadName_)
+		{
+			it++;
+		}
+		while (it != indexList.end() && (*it)->getRoadName() == roadName_)
+		{
+			(*it)->parsePictureIndex();
+			it++;
+		}
+	}
+}
 
 void IndexParser::parsePictureIndices()
 {
+	/*/
 	std::vector<Index *>::iterator it = indexList.begin(); 
 	if (it != indexList.end()) // debugging
-	{
-		(*it)->parsePictureIndex();
-	}
-	/*/
-	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
 	{
 	(*it)->parsePictureIndex();
 	}
 	/*/
-}
+	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
+	{
+		(*it)->parsePictureIndex();
+	}
 
+}
 
 void IndexParser::sortIndicesPerStation()
 {
+	/*/
 	std::vector<Index *>::iterator it = indexList.begin(); 
 	if (it != indexList.end()) // debugging
 	{
@@ -138,5 +154,4 @@ void IndexParser::sortIndicesPerStation()
 	{
 		(*it)->sortPicturesPerStation();
 	}
-	/*/
 }

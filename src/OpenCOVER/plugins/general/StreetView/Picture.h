@@ -7,11 +7,12 @@
 
 class Camera;
 class Index;
+class StreetView;
 
 class Picture
 {
 public:
-	Picture(xercesc::DOMNode *pictureNode, Index *index_);
+	Picture(xercesc::DOMNode *pictureNode, Index *index, StreetView *streetView);
 	~Picture();
 	osg::Node *getPanelNode();
 	std::string getCameraSymbol(){return cameraSymbol;};
@@ -26,6 +27,7 @@ public:
 private:
 	Camera *camera;
 	Index *index;
+	StreetView *streetView;
 	std::string cameraSymbol;
 	int station;
 	std::string fileName;

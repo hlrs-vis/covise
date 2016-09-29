@@ -7,10 +7,11 @@
 class IndexParser
 {
 public:
-	IndexParser();
+	IndexParser(StreetView *streetview);
 	~IndexParser();
 	bool parseIndex(std::string indexPath); 	// parse index.xml in directory indexPath
 	std::string &getIndexPath(){return indexPath;};
+	void parsePicturesPerStreet(std::string roadName_);
 	void parsePictureIndices();
 	void parseCameras();
 	void removeDuplicateEntries();

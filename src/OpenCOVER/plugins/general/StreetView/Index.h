@@ -9,25 +9,29 @@ namespace osg
 {
 	class Node;
 };
+
 class IndexParser;
 class Picture;
 class Station;
 class Camera;
+class StreetView;
 
 class Index
 {
 public:
-	Index(xercesc::DOMNode *indexNode, IndexParser *indexParser);
+	Index(xercesc::DOMNode *indexNode, IndexParser *indexParser, StreetView *streetView);
 	~Index();
 	std::string &getDirection(){return direction;};
 	std::string &getVersion(){return version;};
 	std::string getAbsolutePicturePath();
 	std::string &getPicturePath(){return picturePath;};
+	std::string &getRoadName(){return roadName;};
 	bool parsePictureIndex();
 	void sortPicturesPerStation();
-	osg::Node *getStationNode(int stationNumber_);
 	std::vector<Camera *> cameraList;
 	std::vector<Picture *> pictureList;
+	std::vector<Station *> stationList;
+	osg::Node *getNearestStationNode(double x, double y, double z);
 
 private:
 	int vonNetzKnoten;
@@ -37,7 +41,8 @@ private:
 	std::string picturePath;
 	std::string roadName;
 	IndexParser *indexParser;
-	std::map<int, Station *> stations;
+	StreetView *streetView;
+	// std::map<std::pair<double, double>, Station *> stations;
 	std::vector<std::string> cameraSymbols;
 	bool buildNewCamera(std::string currentCameraSymbol_);
 };
