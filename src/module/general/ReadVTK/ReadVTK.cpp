@@ -302,19 +302,25 @@ void ReadVTK::update()
         {
             if (pointData && m_pointDataChoice[i]->getValue() > 0)
             {
-                if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], pointData, coVtk::Any, m_pointDataChoice[i]->getActLabel(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
+                std::vector<std::string> fields = getFields(pointData);
+                std::string label = fields[m_pointDataChoice[i]->getValue()-1];
+                if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], pointData, coVtk::Any, label.c_str(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
                     dopoint[i].push_back(pdata);
             }
             else if (fieldData && m_pointDataChoice[i]->getValue() > 0)
             {
+                std::vector<std::string> fields = getFields(fieldData);
+                std::string label = fields[m_pointDataChoice[i]->getValue()-1];
                 int index = -1;
-                vtkDataArray *varr = fieldData->GetArray(m_pointDataChoice[i]->getActLabel(), index);
+                vtkDataArray *varr = fieldData->GetArray(label.c_str(), index);
                 if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], varr, dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
                     dopoint[i].push_back(pdata);
             }
             if (cellData && m_cellDataChoice[i]->getValue() > 0)
             {
-                if (coDistributedObject *cdata = coVtk::vtkData2Covise(cellDataName[i], cellData, coVtk::Any, m_cellDataChoice[i]->getActLabel(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
+                std::vector<std::string> fields = getFields(cellData);
+                std::string label = fields[m_cellDataChoice[i]->getValue()-1];
+                if (coDistributedObject *cdata = coVtk::vtkData2Covise(cellDataName[i], cellData, coVtk::Any, label.c_str(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
                     docell[i].push_back(cdata);
             }
         }
@@ -418,74 +424,6 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
 {
     if (strcmp(name, m_pParamFile->getName()) == 0)
     {
-#if 0
-        cerr << "---------------" << endl;
-        //m_pReader->DebugOn();
-        m_filename = (char *)m_pParamFile->getValue();
-        m_pReader->ReadAllScalarsOn();
-        m_pReader->ReadAllVectorsOn();
-        m_pReader->ReadAllFieldsOn();
-
-        m_pReader->SetFileName(m_filename);
-        m_pReader->Update();
-
-        m_pParamFilePattern->setValue(m_filename);
-
-        // determine the scalar fields in the dataset
-        const int iNrScalarsInFile = m_pReader->GetNumberOfScalarsInFile();
-        const int numFieldData = m_pReader->GetNumberOfFieldDataInFile();
-        int iNrFieldDataInFile = 0;
-        if (numFieldData > 0)
-        {
-            for (int i=0; i<numFieldData; ++i)
-            {
-                cerr << "field data " << i << ": " << m_pReader->GetFieldDataNameInFile(i) << std::endl;
-                m_pReader->SetFieldDataName(m_pReader->GetFieldDataNameInFile(i));
-                m_pReader->Update();
-                vtkDataSet *dataSet = m_pReader->GetOutput();
-                m_fieldData = dataSet->GetFieldData();
-                int n = m_fieldData->GetNumberOfArrays();
-                if (n >= 0)
-                    iNrFieldDataInFile += n;
-            }
-        }
-        cerr << "no of fields: " << numFieldData;
-        cerr << ", no of arrays: " << iNrFieldDataInFile << endl;
-
-        if ((iNrScalarsInFile + iNrFieldDataInFile) > 0)
-        {
-            int i = 0;
-            char **cScalarNames;
-            cScalarNames = (char **)malloc((iNrScalarsInFile + iNrFieldDataInFile) * sizeof(char *));
-            for (i = 0; i < iNrScalarsInFile; i++)
-            {
-                cScalarNames[i] = (char *)malloc((std::string(m_pReader->GetScalarsNameInFile(i)).length() + 1) * sizeof(char));
-                strcpy(cScalarNames[i], m_pReader->GetScalarsNameInFile(i));
-            }
-            for (i = 0; i < iNrFieldDataInFile; i++)
-            {
-                cScalarNames[i + iNrScalarsInFile] = (char *)malloc((std::string(m_fieldData->GetArrayName(i)).length() + 1) * sizeof(char));
-                strcpy(cScalarNames[i + iNrScalarsInFile], m_fieldData->GetArrayName(i));
-            }
-            m_pParamScalar->setValue((iNrScalarsInFile + iNrFieldDataInFile), cScalarNames, 0);
-        }
-        //m_pReader->DebugOff();
-        // determine the vector fields in the dataset
-        const int iNrVectorsInFile = m_pReader->GetNumberOfVectorsInFile();
-
-        if (iNrVectorsInFile > 0)
-        {
-            int i = 0;
-            char **cVectorNames;
-            cVectorNames = (char **)malloc(iNrVectorsInFile * sizeof(char *));
-            for (i = 0; i < iNrVectorsInFile; i++)
-            {
-                cVectorNames[i] = (char *)malloc((std::string(m_pReader->GetVectorsNameInFile(i)).length() + 1) * sizeof(char));
-                strcpy(cVectorNames[i], m_pReader->GetVectorsNameInFile(i));
-            }
-            m_pParamVector->setValue(iNrVectorsInFile, cVectorNames, 0);
-        }
-#endif
         m_dataSet = getDataSet(m_pParamFile->getValue());
         setChoices(m_dataSet);
         if (strcmp(m_pParamFilePattern->getValue(), "") == 0)
