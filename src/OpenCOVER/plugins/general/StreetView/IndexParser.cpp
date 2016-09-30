@@ -17,6 +17,11 @@ IndexParser::~IndexParser(void)
 	{
 		delete *it;
 	}
+
+	for (std::vector<Index *>::iterator it = streetList.begin(); it != streetList.end(); it++)
+	{
+		delete *it;
+	}
 }
 
 
@@ -119,21 +124,45 @@ void IndexParser::parsePicturesPerStreet(std::string roadName_)
 		}
 		while (it != indexList.end() && (*it)->getRoadName() == roadName_)
 		{
-			(*it)->parsePictureIndex();
+			streetList.push_back(*it);
+			streetList.back()->parsePictureIndex();
 			it++;
 		}
 	}
 }
 
+void IndexParser::sortStreetPicturesPerStation()
+{
+	for (std::vector<Index *>::iterator it = streetList.begin(); it != streetList.end(); it++)
+	{
+		(*it)->sortPicturesPerStation();
+	}
+}
+
+osg::Node *IndexParser::getNearestStationNode(double x, double y, double z)
+{
+	Station *nearestStationPerIndex = NULL;
+	double distance = -1.0;
+	double tmpDistance = -1.0;
+	for (std::vector<Index *>::iterator it = streetList.begin(); it != streetList.end(); it++)
+	{
+		if (distance == -1.0 || (tmpDistance != -1.0 && tmpDistance < distance))
+		{
+			nearestStationPerIndex = (*it)->getNearestStationPerIndex(x, y, z);
+			tmpDistance = (*it)->getMinimumDistance();
+			distance = tmpDistance;	
+		}
+		if (nearestStationPerIndex)
+		{
+			return nearestStationPerIndex->getStationPanels();
+		}
+	}
+	return NULL;
+}
+
+/*
 void IndexParser::parsePictureIndices()
 {
-	/*/
-	std::vector<Index *>::iterator it = indexList.begin(); 
-	if (it != indexList.end()) // debugging
-	{
-	(*it)->parsePictureIndex();
-	}
-	/*/
 	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
 	{
 		(*it)->parsePictureIndex();
@@ -143,15 +172,9 @@ void IndexParser::parsePictureIndices()
 
 void IndexParser::sortIndicesPerStation()
 {
-	/*/
-	std::vector<Index *>::iterator it = indexList.begin(); 
-	if (it != indexList.end()) // debugging
-	{
-		(*it)->sortPicturesPerStation();
-	}
-	/*/
 	for (std::vector<Index *>::iterator it = indexList.begin(); it != indexList.end(); it++)
 	{
 		(*it)->sortPicturesPerStation();
 	}
 }
+*/

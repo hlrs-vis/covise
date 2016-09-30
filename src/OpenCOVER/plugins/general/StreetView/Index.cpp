@@ -18,6 +18,8 @@ Index::Index(xercesc::DOMNode *indexNode, IndexParser *indexParser_, StreetView 
 	version = '0';
 	indexParser = indexParser_;
 	streetView = streetView_;
+	lastVisitedStation = NULL;
+	minimumDistance = -1.0;
 
 	// parse a single index node
 	xercesc::DOMNodeList *indexNodeList = indexNode->getChildNodes();
@@ -72,6 +74,9 @@ Index::~Index()
 	{
 		delete *it;
 	}
+	delete indexParser;
+	delete streetView;
+	delete lastVisitedStation;
 }
 
 
@@ -140,7 +145,7 @@ bool Index::parsePictureIndex()
 		}
 	}
 	delete parser;
-	sortPicturesPerStation();
+	//sortPicturesPerStation();
 	return true;
 }
 
@@ -179,38 +184,6 @@ bool Index::buildNewCamera(std::string currentCameraSymbol_)
 	return true;
 }
 
-osg::Node *getNearestStationNode(double viewerPosX_, double viewerPosY_, double viewerPosZ_)
-{
-	std::vector<Station *>::iterator it = stationList.begin();
-	if (it != stationList.end())
-	{
-		double x = (*it)->getStationLongitude;
-		double y = (*it)->getStationLatitude;
-		double z = (*it)->getStationLongitude;
-		double minimumDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
-		Station *nearestStation = (*it);
-
-		for (std::vector<Station *>::iterator it = stationList.begin()+1; it != stationList.end(); it++)
-		{
-			x = (*it)->getStationLongitude;
-			y = (*it)->getStationLatitude;
-			z = (*it)->getStationLongitude;
-			double currentDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
-				if (currentDistance < minimumDistance)
-				{
-					minimumDistance = currentDistance;
-					nearestStation = (*it);
-				}
-		}
-		return nearestStation->getStationPanels;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-
 void Index::sortPicturesPerStation()
 {
 	for (std::vector<Picture *>::iterator it = pictureList.begin(); it != pictureList.end(); it++)
@@ -233,3 +206,68 @@ void Index::sortPicturesPerStation()
 		}
 	}
 }
+
+Station *Index::getNearestStationPerIndex(double viewerPosX_, double viewerPosY_, double viewerPosZ_)
+{
+	std::vector<Station *>::iterator it = stationList.begin();
+	if (it != stationList.end())
+	{
+		double x = (*it)->getStationLongitude();
+		double y = (*it)->getStationLatitude();
+		double z = (*it)->getStationAltitude();
+		minimumDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
+		Station *nearestStation = (*it);
+
+		for (std::vector<Station *>::iterator it = stationList.begin()+1; it != stationList.end(); it++)
+		{
+			x = (*it)->getStationLongitude();
+			y = (*it)->getStationLatitude();
+			z = (*it)->getStationAltitude();
+			double currentDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
+			if (currentDistance < minimumDistance)
+			{
+				minimumDistance = currentDistance;
+				nearestStation = (*it);
+			}
+		}
+		return nearestStation;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+/*
+osg::Node *Index::getNearestStationNodePerIndex(double viewerPosX_, double viewerPosY_, double viewerPosZ_)
+{
+	std::vector<Station *>::iterator it = stationList.begin();
+	if (it != stationList.end())
+	{
+		double x = (*it)->getStationLongitude;
+		double y = (*it)->getStationLatitude;
+		double z = (*it)->getStationAltitude;
+		double minimumDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
+		Station *nearestStation = (*it);
+
+		for (std::vector<Station *>::iterator it = stationList.begin()+1; it != stationList.end(); it++)
+		{
+			x = (*it)->getStationLongitude;
+			y = (*it)->getStationLatitude;
+			z = (*it)->getStationAltitude;
+			double currentDistance = sqrt(pow(viewerPosX_ - x, 2) + pow(viewerPosY_ - y, 2) + pow(viewerPosZ_ - z, 2));
+			if (currentDistance < minimumDistance)
+			{
+				minimumDistance = currentDistance;
+				nearestStation = (*it);
+			}
+		}
+		lastVisitedStation = nearestStation;
+		return nearestStation->getStationPanels;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+*/

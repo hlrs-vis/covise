@@ -26,12 +26,13 @@ public:
 	std::string getAbsolutePicturePath();
 	std::string &getPicturePath(){return picturePath;};
 	std::string &getRoadName(){return roadName;};
+	double &getMinimumDistance(){return minimumDistance;};
 	bool parsePictureIndex();
 	void sortPicturesPerStation();
 	std::vector<Camera *> cameraList;
 	std::vector<Picture *> pictureList;
 	std::vector<Station *> stationList;
-	osg::Node *getNearestStationNode(double x, double y, double z);
+	Station *getNearestStationPerIndex(double x, double y, double z);
 
 private:
 	int vonNetzKnoten;
@@ -42,9 +43,11 @@ private:
 	std::string roadName;
 	IndexParser *indexParser;
 	StreetView *streetView;
-	// std::map<std::pair<double, double>, Station *> stations;
+	Station *lastVisitedStation;
 	std::vector<std::string> cameraSymbols;
 	bool buildNewCamera(std::string currentCameraSymbol_);
+	double minimumDistance;
+	// std::map<std::pair<double, double>, Station *> stations;
 };
 
 #endif

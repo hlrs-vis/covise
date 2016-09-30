@@ -12,11 +12,14 @@ public:
 	bool parseIndex(std::string indexPath); 	// parse index.xml in directory indexPath
 	std::string &getIndexPath(){return indexPath;};
 	void parsePicturesPerStreet(std::string roadName_);
-	void parsePictureIndices();
 	void parseCameras();
 	void removeDuplicateEntries();
-	void sortIndicesPerStation();
+	void sortStreetPicturesPerStation(); // could be done in Index->parsePictureIndex
 	std::vector<Index *> indexList;
+	std::vector<Index *> streetList;
+	osg::Node *getNearestStationNode(double x, double y, double z); // input: viewer's position plus offset
+	// void parsePictureIndices();
+	// void sortIndicesPerStation();
 
 private:
 	std::string indexPath;

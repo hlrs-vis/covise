@@ -45,8 +45,7 @@ bool StreetView::init()
 	indexParser->removeDuplicateEntries(); // one index per directory
 
 	indexParser->parsePicturesPerStreet("Äckerlenweg"); // later: get street name from openDRIVE
-	indexParser->parsePictureIndices();
-	indexParser->sortIndicesPerStation();
+	indexParser->sortStreetPicturesPerStation();
 	/*/
 	osg::Matrix viewerMatrix;
 	viewerMatrix.set(cover->getViewerMat());
@@ -56,10 +55,20 @@ bool StreetView::init()
 	viewerPosY = viewerTrans.y();
 	viewerPosZ = viewerTrans.z();
 	cout << "X: " + std::to_string(viewerPosX) + ", " + "Y: " + std::to_string(viewerPosY) + ", " "Z: " + std::to_string(viewerPosZ) << endl;
-		/*/
-	//stationNode = indexParser->indexList[0]->getStationNode(1);
+	/*/
+	//stationNode = indexParser->getNearestStationNode(3493912.860, 5382153.880, 425.0);
+	//stationNode = indexParser->getNearestStationNode(3494030.840, 5382145.078, 433.0); //13
+	//stationNode = indexParser->getNearestStationNode(3493809.972, 5382130.307, 420.0); //152
+	stationNode = indexParser->getNearestStationNode(3493990.853, 5382151.126, 429.0); //57
 
-	//cover->getObjectsRoot()->addChild(stationNode); // add root node to cover scenegraph
+	if (stationNode)
+	{
+		cover->getObjectsRoot()->addChild(stationNode); // add root node to cover scenegraph
+	}
+	else
+	{
+		fprintf(stderr, "getting stationNode failed");
+	}
 	return true;
 }
 
@@ -74,13 +83,5 @@ StreetView::~StreetView()
 void StreetView::preFrame()
 {
 }
-
-/*/
-void StreetView::currentPosition()
-{
-}
-/*/
-
-
 
 COVERPLUGIN(StreetView)

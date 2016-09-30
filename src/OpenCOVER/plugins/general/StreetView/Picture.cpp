@@ -75,6 +75,9 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_, StreetView *stree
 
 Picture::~Picture()
 {
+	delete camera;
+	delete streetView;
+	delete index;
 }
 
 
@@ -90,7 +93,7 @@ osg::Node *Picture::getPanelNode()
 	// H or V = 2*arctan (B/2 * 1/f´) (in rad)
 
 	int focalLength = 50; // assumed
-	double distance = 4; // set, in metres
+	double distance = 4; // in metres, assumed
 	double aspectRatioWH = (1280.0*(camera->getPixelSizeX()))/(960.0*(camera->getPixelSizeY()));
 	double aspectRatioHW = (960.0*(camera->getPixelSizeY()))/(1280.0*(camera->getPixelSizeX()));
 	double alphaV = 7.3; // vertical FOV, based on focalLength
