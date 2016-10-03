@@ -11,8 +11,10 @@
 #include "qtpropertyDialog.h"
 #include "color/MEColorChooser.h"
 #include <QDebug>
+#include <QQuaternion>
 #include <QIcon>
 #include <QPainter>
+#include <QSlider>
 #include <math.h>
 #ifndef ANDROID_TUI
 #ifdef __APPLE__
@@ -33,6 +35,125 @@
 #define GL_POLYGON 0x0009
 #endif
 
+   void getEulerAngles(QQuaternion quat, float *pitch, float *yaw, float *roll)
+   {
+       Q_ASSERT(pitch && yaw && roll);
+    float xp,yp,zp,wp;
+    xp = quat.x();
+    yp = quat.y();
+    zp = quat.z();
+    wp = quat.scalar();
+
+       // Algorithm from:
+       // http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q37
+   
+       float xx = xp * xp;
+       float xy = xp * yp;
+       float xz = xp * zp;
+       float xw = xp * wp;
+       float yy = yp * yp;
+       float yz = yp * zp;
+       float yw = yp * wp;
+       float zz = zp * zp;
+       float zw = zp * wp;
+   
+       const float lengthSquared = xx + yy + zz + wp * wp;
+       if (!qFuzzyIsNull(lengthSquared - 1.0f) && !qFuzzyIsNull(lengthSquared)) {
+           xx /= lengthSquared;
+           xy /= lengthSquared; // same as (xp / length) * (yp / length)
+           xz /= lengthSquared;
+           xw /= lengthSquared;
+           yy /= lengthSquared;
+           yz /= lengthSquared;
+           yw /= lengthSquared;
+           zz /= lengthSquared;
+           zw /= lengthSquared;
+       }
+   
+       *pitch = std::asin(-2.0f * (yz - xw));
+       if (*pitch < M_PI_2) {
+           if (*pitch > -M_PI_2) {
+               *yaw = std::atan2(2.0f * (xz + yw), 1.0f - 2.0f * (xx + yy));
+               *roll = std::atan2(2.0f * (xy + zw), 1.0f - 2.0f * (xx + zz));
+           } else {
+               // not a unique solution
+               *roll = 0.0f;
+               *yaw = -std::atan2(-2.0f * (xy - zw), 1.0f - 2.0f * (yy + zz));
+           }
+       } else {
+           // not a unique solution
+           *roll = 0.0f;
+           *yaw = std::atan2(-2.0f * (xy - zw), 1.0f - 2.0f * (yy + zz));
+       }
+   
+       *pitch = (*pitch)*180.0/M_PI;
+       *yaw = (*yaw)*180.0/M_PI;
+       *roll = (*roll)*180.0/M_PI;
+   }
+QQuaternion fromRotationMatrix(const QMatrix3x3 &rot3x3)
+{
+    // Algorithm from:
+    // http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q55
+
+    float scalar;
+    float axis[3];
+
+    const float trace = rot3x3(0, 0) + rot3x3(1, 1) + rot3x3(2, 2);
+    if (trace > 0.00000001f) {
+        const float s = 2.0f * std::sqrt(trace + 1.0f);
+        scalar = 0.25f * s;
+        axis[0] = (rot3x3(2, 1) - rot3x3(1, 2)) / s;
+        axis[1] = (rot3x3(0, 2) - rot3x3(2, 0)) / s;
+        axis[2] = (rot3x3(1, 0) - rot3x3(0, 1)) / s;
+    } else {
+        static int s_next[3] = { 1, 2, 0 };
+        int i = 0;
+        if (rot3x3(1, 1) > rot3x3(0, 0))
+            i = 1;
+        if (rot3x3(2, 2) > rot3x3(i, i))
+            i = 2;
+        int j = s_next[i];
+        int k = s_next[j];
+
+        const float s = 2.0f * std::sqrt(rot3x3(i, i) - rot3x3(j, j) - rot3x3(k, k) + 1.0f);
+        axis[i] = 0.25f * s;
+        scalar = (rot3x3(k, j) - rot3x3(j, k)) / s;
+        axis[j] = (rot3x3(j, i) + rot3x3(i, j)) / s;
+        axis[k] = (rot3x3(k, i) + rot3x3(i, k)) / s;
+    }
+
+    return QQuaternion(scalar, axis[0], axis[1], axis[2]);
+}
+
+ QQuaternion fromEulerAngles(float pitch, float yaw, float roll)
+ {
+     // Algorithm from:
+     // http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q60
+ 
+     pitch = (pitch)/180.0*M_PI;
+     yaw = (yaw)/180.0*M_PI;
+     roll = (roll)/180.0*M_PI;
+ 
+     pitch *= 0.5f;
+     yaw *= 0.5f;
+     roll *= 0.5f;
+ 
+     const float c1 = std::cos(yaw);
+     const float s1 = std::sin(yaw);
+     const float c2 = std::cos(roll);
+     const float s2 = std::sin(roll);
+     const float c3 = std::cos(pitch);
+     const float s3 = std::sin(pitch);
+     const float c1c2 = c1 * c2;
+     const float s1s2 = s1 * s2;
+ 
+     const float w = c1c2 * c3 + s1s2 * s3;
+     const float x = c1c2 * s3 + s1s2 * c3;
+     const float y = s1 * c2 * c3 - c1 * s2 * s3;
+     const float z = c1 * s2 * c3 - s1 * c2 * s3;
+ 
+     return QQuaternion(w, x, y, z);
+ }
 #define MY_GL_LINES_ADJACENCY_EXT 0x000A
 #define MY_GL_LINE_STRIP_ADJACENCY_EXT 0x000B
 #define MY_GL_TRIANGLES_ADJACENCY_EXT 0x000C
@@ -41,6 +162,9 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Properties Dialog"));
+    
+    osgToVrml.rotate(90,1,0,0);
+    vrmlToOsg.rotate(-90,1,0,0);
 
     QGridLayout *mainLayout = new QGridLayout();
     doRemove = false;
@@ -564,8 +688,20 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     connect(edtRotY, SIGNAL(textEdited(QString)), this, SLOT(onMatrixEdited()));
     connect(edtRotZ, SIGNAL(editingFinished()), this, SLOT(onDeltaRotChanged()));
     connect(edtRotZ, SIGNAL(textEdited(QString)), this, SLOT(onMatrixEdited()));
+    
+    // get the QLineEdit Widget, who called us
+    QLineEdit *qle = (QLineEdit *)QObject::sender();
 
-    page4Layout->addWidget(new QLabel("r_1,1 ="), 0, 0, Qt::AlignRight);
+    // change the color to black
+   // QPalette *palette = new QPalette();
+   // palette->setColor(QPalette::Text, Qt::black);
+    QLabel *l = new QLabel("r_1,1 =");
+   
+    page4Layout->addWidget(l, 0, 0, Qt::AlignRight);
+    QPalette palette = l->palette();
+        palette.setColor(l->backgroundRole(), Qt::black);
+        palette.setColor(l->foregroundRole(), Qt::black);
+        l->setPalette(palette);
     page4Layout->addWidget(edtR11, 0, 1, Qt::AlignLeft);
     page4Layout->addWidget(new QLabel("r_1,2 ="), 0, 2, Qt::AlignRight);
     page4Layout->addWidget(edtR12, 0, 3, Qt::AlignLeft);
@@ -629,6 +765,38 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     edtP2->setEnabled(false);
     edtP3->setEnabled(false);
     edtW->setEnabled(false);
+    
+    sliderH = new QSlider(page4);
+    sliderP = new QSlider(page4);
+    sliderR = new QSlider(page4);
+    
+    sliderH->setOrientation(Qt::Horizontal);
+    sliderP->setOrientation(Qt::Horizontal);
+    sliderR->setOrientation(Qt::Horizontal);
+    
+    page4Layout->addWidget(sliderH, 6, 1, Qt::AlignLeft);
+    page4Layout->addWidget(sliderP, 6, 3, Qt::AlignLeft);
+    page4Layout->addWidget(sliderR, 6, 5, Qt::AlignLeft);
+    
+    stringH = new QLineEdit(page4);
+    stringP = new QLineEdit(page4);
+    stringR = new QLineEdit(page4);
+    page4Layout->addWidget(stringH, 7, 1, Qt::AlignLeft);
+    page4Layout->addWidget(stringP, 7, 3, Qt::AlignLeft);
+    page4Layout->addWidget(stringR, 7, 5, Qt::AlignLeft);
+
+    sliderH->setMinimum(0);
+    sliderH->setMaximum(1000);
+    sliderP->setMinimum(0);
+    sliderP->setMaximum(1000);
+    sliderR->setMinimum(0);
+    sliderR->setMaximum(1000);
+    
+    connect(sliderH, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
+    connect(sliderP, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
+    connect(sliderR, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
+    //connect(sliderH, SIGNAL(sliderPressed()), this, SLOT(pressed()));
+    //connect(sliderH, SIGNAL(sliderReleased()), this, SLOT(released()));
 
     // geometryEdit = new QTextEdit();
     // geometryEdit->setWordWrapMode(QTextOption::NoWrap);
@@ -643,7 +811,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     _tab->addTab(page1, "Material");
     _tab->addTab(page2, "Texture");
     _tab->addTab(page3, "Shader");
-    _tab->addTab(page4, "Matrix");
+    _tab->addTab(page4, "Transform");
 
     discardButton = new QPushButton();
     discardButton->setText("Discard");
@@ -683,7 +851,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
 
     for (int i = 0; i < 16; ++i)
     {
-        _matrix[i] = 0;
+        _matrix.data()[i] = 0;
     }
 
     connect(modeCB, SIGNAL(stateChanged(int)), tab, SLOT(sendChangeTextureRequest()));
@@ -1241,32 +1409,72 @@ void PropertyDialog::onApplyPressed()
 
 void PropertyDialog::onMatrixChanged()
 {
-    _matrix[0] = edtR11->text().toFloat();
-    _matrix[1] = edtR12->text().toFloat();
-    _matrix[2] = edtR13->text().toFloat();
-    _matrix[3] = edtTX->text().toFloat();
-    _matrix[4] = edtR21->text().toFloat();
-    _matrix[5] = edtR22->text().toFloat();
-    _matrix[6] = edtR23->text().toFloat();
-    _matrix[7] = edtTY->text().toFloat();
-    _matrix[8] = edtR31->text().toFloat();
-    _matrix[9] = edtR32->text().toFloat();
-    _matrix[10] = edtR33->text().toFloat();
-    _matrix[11] = edtTZ->text().toFloat();
-    _matrix[12] = edtP1->text().toFloat();
-    _matrix[13] = edtP2->text().toFloat();
-    _matrix[14] = edtP3->text().toFloat();
-    _matrix[15] = edtW->text().toFloat();
+    _matrix.data()[0] = edtR11->text().toFloat();
+    _matrix.data()[1] = edtR12->text().toFloat();
+    _matrix.data()[2] = edtR13->text().toFloat();
+    _matrix.data()[3] = edtTX->text().toFloat();
+    _matrix.data()[4] = edtR21->text().toFloat();
+    _matrix.data()[5] = edtR22->text().toFloat();
+    _matrix.data()[6] = edtR23->text().toFloat();
+    _matrix.data()[7] = edtTY->text().toFloat();
+    _matrix.data()[8] = edtR31->text().toFloat();
+    _matrix.data()[9] = edtR32->text().toFloat();
+    _matrix.data()[10] = edtR33->text().toFloat();
+    _matrix.data()[11] = edtTZ->text().toFloat();
+    _matrix.data()[12] = edtP1->text().toFloat();
+    _matrix.data()[13] = edtP2->text().toFloat();
+    _matrix.data()[14] = edtP3->text().toFloat();
+    _matrix.data()[15] = edtW->text().toFloat();
 
     // get the QLineEdit Widget, who called us
     QLineEdit *qle = (QLineEdit *)QObject::sender();
 
-    // change the color to red
+    // change the color to black
     QPalette *palette = new QPalette();
     palette->setColor(QPalette::Text, Qt::black);
     qle->setPalette(*palette);
+    
+        emit apply();
 }
 
+void PropertyDialog::sliderChanged(int ival)
+{
+    float H,P,R;
+    H = sliderH->value() / 1000.0 * 360.0;
+    P = sliderP->value() / 1000.0 * 360.0;
+    R = sliderR->value() / 1000.0 * 360.0;
+    char buf[1000];
+    sprintf(buf,"%f",H);
+    stringH->setText(buf);
+    sprintf(buf,"%f",P);
+    stringP->setText(buf);
+    sprintf(buf,"%f",R);
+    stringR->setText(buf);
+    QMatrix4x4 mH,mP,mR,mT,rotMat;
+    mH.rotate(H,0,0,1);
+    mP.rotate(P,1,0,0);
+    mR.rotate(R,0,1,0);
+
+    QQuaternion quat = fromEulerAngles(P,H,R);
+    rotMat.rotate(quat);
+    
+    rotMat = vrmlToOsg * rotMat * osgToVrml;
+
+    float tX,tY,tZ;
+    tX = _matrix.data()[12];
+    tY = _matrix.data()[13];
+    tZ = _matrix.data()[14];
+    mT.translate(tX,tY,tZ);
+    _matrix = rotMat*mT;
+    
+    _matrix.data()[12] = tX;
+    _matrix.data()[13] = tY;
+    _matrix.data()[14] = tZ;
+
+    writeMatrixToLineEdit();
+    emit apply();
+    //TUIMainWindow::getInstance()->getStatusBar()->message(QString("Floatslider: %1").arg(value));
+}
 void PropertyDialog::onDeltaRotChanged()
 {
     float sa = sin(edtRotZ->text().toFloat());
@@ -1276,31 +1484,32 @@ void PropertyDialog::onDeltaRotChanged()
     float sg = sin(edtRotX->text().toFloat());
     float cg = cos(edtRotX->text().toFloat());
 
-    float m0 = _matrix[0];
-    float m1 = _matrix[1];
-    float m2 = _matrix[2];
+    float m0 = _matrix.data()[0];
+    float m1 = _matrix.data()[1];
+    float m2 = _matrix.data()[2];
 
-    float m4 = _matrix[4];
-    float m5 = _matrix[5];
-    float m6 = _matrix[6];
+    float m4 = _matrix.data()[4];
+    float m5 = _matrix.data()[5];
+    float m6 = _matrix.data()[6];
 
-    float m8 = _matrix[8];
-    float m9 = _matrix[9];
-    float m10 = _matrix[10];
+    float m8 = _matrix.data()[8];
+    float m9 = _matrix.data()[9];
+    float m10 = _matrix.data()[10];
 
-    _matrix[0] = m8 * sb - cb * m4 * sa + ca * cb * m0;
-    _matrix[4] = m4 * (ca * cg - sa * sb * sg) + m0 * (ca * sb * sg + cg * sa) - cb * m8 * sg;
-    _matrix[8] = m0 * (sa * sg - ca * cg * sb) + m4 * (ca * sg + cg * sa * sb) + cb * cg * m8;
+    _matrix.data()[0] = m8 * sb - cb * m4 * sa + ca * cb * m0;
+    _matrix.data()[4] = m4 * (ca * cg - sa * sb * sg) + m0 * (ca * sb * sg + cg * sa) - cb * m8 * sg;
+    _matrix.data()[8] = m0 * (sa * sg - ca * cg * sb) + m4 * (ca * sg + cg * sa * sb) + cb * cg * m8;
 
-    _matrix[1] = m9 * sb - cb * m5 * sa + ca * cb * m1;
-    _matrix[5] = m5 * (ca * cg - sa * sb * sg) + m1 * (ca * sb * sg + cg * sa) - cb * m9 * sg;
-    _matrix[9] = m1 * (sa * sg - ca * cg * sb) + m5 * (ca * sg + cg * sa * sb) + cb * cg * m9;
+    _matrix.data()[1] = m9 * sb - cb * m5 * sa + ca * cb * m1;
+    _matrix.data()[5] = m5 * (ca * cg - sa * sb * sg) + m1 * (ca * sb * sg + cg * sa) - cb * m9 * sg;
+    _matrix.data()[9] = m1 * (sa * sg - ca * cg * sb) + m5 * (ca * sg + cg * sa * sb) + cb * cg * m9;
 
-    _matrix[2] = m10 * sb - cb * m6 * sa + ca * cb * m2;
-    _matrix[6] = m6 * (ca * cg - sa * sb * sg) + m2 * (ca * sb * sg + cg * sa) - cb * m10 * sg;
-    _matrix[10] = m2 * (sa * sg - ca * cg * sb) + m6 * (ca * sg + cg * sa * sb) + cb * cg * m10;
+    _matrix.data()[2] = m10 * sb - cb * m6 * sa + ca * cb * m2;
+    _matrix.data()[6] = m6 * (ca * cg - sa * sb * sg) + m2 * (ca * sb * sg + cg * sa) - cb * m10 * sg;
+    _matrix.data()[10] = m2 * (sa * sg - ca * cg * sb) + m6 * (ca * sg + cg * sa * sb) + cb * cg * m10;
 
     writeMatrixToLineEdit();
+    updateTransformSliders();
 
     // reset of lineedit fields
     edtRotX->setText("0");
@@ -1310,10 +1519,12 @@ void PropertyDialog::onDeltaRotChanged()
     // get the QLineEdit Widget, who called us
     QLineEdit *qle = (QLineEdit *)QObject::sender();
 
-    // change the color to red
+    // change the color to black
     QPalette *palette = new QPalette();
     palette->setColor(QPalette::Text, Qt::black);
     qle->setPalette(*palette);
+    
+        emit apply();
 }
 
 void PropertyDialog::onMatrixEdited()
@@ -1525,42 +1736,43 @@ void PropertyDialog::onColorChanged(const QColor &color)
     }
 }
 
+
 void PropertyDialog::writeMatrixToLineEdit()
 {
-    edtR11->setText(QString::number(_matrix[0]));
+    edtR11->setText(QString::number(_matrix.data()[0]));
     edtR11->setEnabled(true);
-    edtR12->setText(QString::number(_matrix[1]));
+    edtR12->setText(QString::number(_matrix.data()[1]));
     edtR12->setEnabled(true);
-    edtR13->setText(QString::number(_matrix[2]));
+    edtR13->setText(QString::number(_matrix.data()[2]));
     edtR13->setEnabled(true);
-    edtTX->setText(QString::number(_matrix[3]));
+    edtTX->setText(QString::number(_matrix.data()[3]));
     edtTX->setEnabled(true);
 
-    edtR21->setText(QString::number(_matrix[4]));
+    edtR21->setText(QString::number(_matrix.data()[4]));
     edtR21->setEnabled(true);
-    edtR22->setText(QString::number(_matrix[5]));
+    edtR22->setText(QString::number(_matrix.data()[5]));
     edtR22->setEnabled(true);
-    edtR23->setText(QString::number(_matrix[6]));
+    edtR23->setText(QString::number(_matrix.data()[6]));
     edtR23->setEnabled(true);
-    edtTY->setText(QString::number(_matrix[7]));
+    edtTY->setText(QString::number(_matrix.data()[7]));
     edtTY->setEnabled(true);
 
-    edtR31->setText(QString::number(_matrix[8]));
+    edtR31->setText(QString::number(_matrix.data()[8]));
     edtR31->setEnabled(true);
-    edtR32->setText(QString::number(_matrix[9]));
+    edtR32->setText(QString::number(_matrix.data()[9]));
     edtR32->setEnabled(true);
-    edtR33->setText(QString::number(_matrix[10]));
+    edtR33->setText(QString::number(_matrix.data()[10]));
     edtR33->setEnabled(true);
-    edtTZ->setText(QString::number(_matrix[11]));
+    edtTZ->setText(QString::number(_matrix.data()[11]));
     edtTZ->setEnabled(true);
 
-    edtP1->setText(QString::number(_matrix[12]));
+    edtP1->setText(QString::number(_matrix.data()[12]));
     edtP1->setEnabled(true);
-    edtP2->setText(QString::number(_matrix[13]));
+    edtP2->setText(QString::number(_matrix.data()[13]));
     edtP2->setEnabled(true);
-    edtP3->setText(QString::number(_matrix[14]));
+    edtP3->setText(QString::number(_matrix.data()[14]));
     edtP3->setEnabled(true);
-    edtW->setText(QString::number(_matrix[15]));
+    edtW->setText(QString::number(_matrix.data()[15]));
     edtW->setEnabled(true);
 
     edtRotX->setText("0");
@@ -1569,6 +1781,50 @@ void PropertyDialog::writeMatrixToLineEdit()
     edtRotX->setEnabled(true);
     edtRotY->setEnabled(true);
     edtRotZ->setEnabled(true);
+
+}
+
+void PropertyDialog::updateTransformSliders()
+{
+ 
+    QMatrix3x3 rotMat;
+
+    QMatrix4x4 mat = _matrix;
+    mat.data()[12] = 0;
+    mat.data()[13] = 0;
+    mat.data()[14] = 0;
+
+    mat = osgToVrml * mat * vrmlToOsg;
+    for(int i=0;i<3;i++)
+    for(int j=0;j<3;j++)
+        rotMat(i,j) = mat(i,j);
+    QQuaternion quat = fromRotationMatrix(rotMat);
+    float h,p,r;
+    getEulerAngles(quat,&p,&h,&r);
+    
+    char buf[1000];
+    sprintf(buf,"%f",h);
+    stringH->setText(buf);
+    sprintf(buf,"%f",p);
+    stringP->setText(buf);
+    sprintf(buf,"%f",r);
+    stringR->setText(buf);
+    if(h<0)
+        h = 360 + h;
+    if(p<0)
+        p = 360 + p;
+    if(r<0)
+        r = 360 + r;
+    sliderH->blockSignals(true);
+    sliderH->setValue(h*1000/360);
+    sliderH->blockSignals(false);
+    sliderP->blockSignals(true);
+    sliderP->setValue(p*1000/360);
+    sliderP->blockSignals(false);
+    sliderR->blockSignals(true);
+    sliderR->setValue(r*1000/360);
+    sliderR->blockSignals(false);
+
 }
 
 void PropertyDialog::updateGUI(itemProps prop)
@@ -1627,9 +1883,10 @@ void PropertyDialog::updateGUI(itemProps prop)
     {
         for (int i = 0; i < 16; ++i)
         {
-            _matrix[i] = prop.matrix[i];
+            _matrix.data()[i] = prop.matrix[i];
         }
         writeMatrixToLineEdit();
+        updateTransformSliders();
     }
     else
     {
@@ -1796,7 +2053,7 @@ itemProps PropertyDialog::getProperties()
     {
         for (int i = 0; i < 16; ++i)
         {
-            prop.matrix[i] = _matrix[i];
+            prop.matrix[i] = _matrix.data()[i];
         }
     }
     else
@@ -1816,7 +2073,7 @@ itemProps PropertyDialog::getProperties()
 
     for (int i = 0; i < 16; ++i)
     {
-        prop.matrix[i] = _matrix[i];
+        prop.matrix[i] = _matrix.data()[i];
     }
 
     return prop;

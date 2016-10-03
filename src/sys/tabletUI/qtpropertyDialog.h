@@ -29,6 +29,7 @@
 #include <QTextEdit>
 #include <QSlider>
 #include <QAction>
+#include <QMatrix4x4>
 //#include <util/coRestraint.h>
 #include "color/MEColorChooser.h"
 #include "TUISGBrowserTab.h"
@@ -183,7 +184,7 @@ private:
     float _ambient[4];
     float _emissive[4];
     float _uniform4[4];
-    float _matrix[16];
+    QMatrix4x4 _matrix;
 
     QString _shaderName;
     QString _uniformName;
@@ -294,10 +295,19 @@ private:
     QLineEdit *edtRotX;
     QLineEdit *edtRotY;
     QLineEdit *edtRotZ;
+    QSlider *sliderH;
+    QSlider *sliderP;
+    QSlider *sliderR;
+    QLineEdit *stringH;
+    QLineEdit *stringP;
+    QLineEdit *stringR;
 
     QWidget *page3;
+    QMatrix4x4 vrmlToOsg;
+    QMatrix4x4 osgToVrml;
 
     void writeMatrixToLineEdit();
+    void updateTransformSliders();
 
 signals:
     void setUniform();
@@ -324,5 +334,6 @@ private slots:
     void onMatrixChanged();
     void onMatrixEdited();
     void onDeltaRotChanged();
+void sliderChanged(int ival);
 };
 #endif
