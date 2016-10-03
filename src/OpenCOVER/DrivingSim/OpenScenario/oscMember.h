@@ -73,7 +73,7 @@ public:
     virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable...::exists is executed
 
     //
-    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
 };
 
 

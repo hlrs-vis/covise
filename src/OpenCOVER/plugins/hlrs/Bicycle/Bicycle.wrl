@@ -3090,12 +3090,8 @@ bikeTranslation 3028.822021 307.398590 -1518.175537
 #bikeTranslation 3163.343994 309.431427 -1431.509644
 }
 
-DEF Sw SteeringWheel
-{
-}
-DEF Ve Vehicle
-{
-}
+#DEF Sw SteeringWheel { }
+#DEF Ve Vehicle { }
 
 DEF Cov COVER
 {
@@ -3255,8 +3251,8 @@ ROUTE ProxSensorFinish.enterTime TO HS.startTime
 ROUTE ProxSensorLap.enterTime TO HS.interimTime
 ROUTE Lenkrad-SCRIPT.resetTime TO HS.reset
 
-ROUTE Sw.axes_changed TO Lenkrad-SCRIPT.axes
-ROUTE Sw.buttons_changed TO Lenkrad-SCRIPT.buttons
+#ROUTE Sw.axes_changed TO Lenkrad-SCRIPT.axes
+#ROUTE Sw.buttons_changed TO Lenkrad-SCRIPT.buttons
 ROUTE BI.bikeTranslation TO Bike.translation
 ROUTE BI.bikeRotation TO Bike.rotation
 ROUTE Cov.keyPressed TO Lenkrad-SCRIPT.key

@@ -54,12 +54,12 @@ VRPNDriver::VRPNDriver(const std::string &config)
 
     trackerid = tracker + "@" + host;
     buttonid = button + "@" + host;
-    if(tracker.size()>0)
+    if(tracker != "")
     {
         vrpnTracker = new vrpn_Tracker_Remote(trackerid.c_str());
         vrpnTracker->register_change_handler(this, (vrpn_TRACKERCHANGEHANDLER)vrpnCallback);
     }
-    if(button.size()>0)
+    if(button != "")
     {
         vrpnButton = new vrpn_Button_Remote (buttonid.c_str());
         vrpnButton->register_change_handler(this, (vrpn_BUTTONCHANGEHANDLER)vrpnButtonCallback);
@@ -88,8 +88,10 @@ bool VRPNDriver::poll()
 {
     if (vrpnTracker==NULL && vrpnButton==NULL)
         return false;
-    vrpnTracker->mainloop();
-    vrpnButton->mainloop();
+    if (vrpnTracker)
+        vrpnTracker->mainloop();
+    if (vrpnButton)
+        vrpnButton->mainloop();
     return true;
 }
 

@@ -321,7 +321,7 @@ int ReadVois::compute(const char *port)
 
             //init some global variables
             for(int i = 0; i < Z_TABLE_SIZE; i++){
-                zTable[i] = i; 
+                zTable[i] = i;
             }
 
             for(int i = 0; i < 4; i++){
@@ -348,7 +348,7 @@ int ReadVois::compute(const char *port)
             if(readFile()){
                 //printVois();
                 if(triangulate()){
-                    writePly();    //write vertices and triangles to an ascii coded ply-file
+                    //writePly();    //write vertices and triangles to an ascii coded ply-file
                     sendDataToCovise();
                 }
                 else
@@ -445,7 +445,6 @@ bool ReadVois::readFile()
         std::cout << "no slices: " << no_slices << '\n';
 #endif
 
-
         if(voiIsValid(property)){
             voi_t voi;
 
@@ -490,14 +489,12 @@ bool ReadVois::readFile()
                     contour.no_slice = slice + 1;
                     double g_factor = resolution * pixelSize / 1023.0;
 
-
                     int count = 0;
                     for(vector<xy>::iterator point_iter = pointVector.begin(); point_iter != pointVector.end(); point_iter++) {
 
                         // convert from generalized image to image coordinates
                         double value_x   = (511.5 - point_iter->x) * g_factor;
                         double value_y   = (511.5 - point_iter->y) * g_factor;
-
                         double value_z   = zTable[slice];
 
                         //convert from image coordinates to stereotactic coordinate system
@@ -522,20 +519,20 @@ bool ReadVois::readFile()
 
                         point_xyz.index = -1;
 
-                        std::cout << point_xyz << '\n';
+                        //std::cout << point_xyz << '\n';
 
                         //add coordinates to voi-datastructure
                         contour.points.push_back(point_xyz);
                         count++;
                     }
 
-                    std::cout << '\n';
+                    //std::cout << '\n';
 
                     voi_iter->contours.push_back(contour);
 
                 } else {
-                    sendError("Could not find Voi with index %i in voiVector. VOI invalid?",voi);
-//                    return false;
+                    sendInfo("Could not find Voi with index %i in voiVector. VOI invalid?",voi);
+                    //return false;
                 }
 
             }  // no_contours != 0
@@ -591,29 +588,42 @@ bool ReadVois::triangulate()
 
         //iterate over all contours
         for(vector<contour_t>::iterator contourIter = voiIter->contours.begin(); contourIter != voiIter->contours.end(); contourIter++){
-            cerr << "ReadVois::triangulate() triangulating contour " << std::distance(voiIter->contours.begin(), contourIter) + 1 << endl;
+            //cerr << "ReadVois::triangulate() triangulating contour " << std::distance(voiIter->contours.begin(), contourIter) + 1 << endl;
 
             //traingulate top and bottom contour
             if(contourIter == voiIter->contours.begin() || contourIter == (voiIter->contours.end() - 1)){
-                cerr << "ReadVois::triangulate() triangulating top or bottom" << endl;
+                //cerr << "ReadVois::triangulate() triangulating top or bottom" << endl;
                 triangulatePoly(*contourIter);
             }
 
             //traingulate two contours, but not the last one...
             if(contourIter != (voiIter->contours.end() - 1)){
-                cerr << "ReadVois::triangulate() triangulating two contours" << endl;
+                //cerr << "ReadVois::triangulate() triangulating two contours" << endl;
 
                 //get the next contour
                 vector<contour_t>::iterator lowerContour = contourIter;
                 vector<contour_t>::iterator upperContour = contourIter + 1;
 
-                //loop over lower and upper contour at the same time
+                //find a good start, where the upper and lower start vertices both are nearest to each other
                 vector<xyz>::iterator lowerVertex = lowerContour->points.begin();
-                vector<xyz>::iterator upperVertex = getNearestPoint(*lowerVertex, &(upperContour->points));
+                vector<xyz>::iterator upperVertex;
 
+                for(; lowerVertex < lowerContour->points.end(); lowerVertex++ ){
+                    upperVertex = getNearestPoint(*lowerVertex, &(upperContour->points));
+                    if(lowerVertex == getNearestPoint(*upperVertex, &(lowerContour->points))){
+                        break; //this pair is good start. lower is the nearest to upper and upper is the nearest to lower.
+                    }
+                    if(lowerVertex == (lowerContour->points.end() - 1))
+                    {
+                        cerr << "ERROR: no good start found for contours. let's hope it works anyways' " << endl;
+                    }
+                }
+
+                //remember where we started
                 vector<xyz>::iterator lowerStart = lowerVertex;
                 vector<xyz>::iterator upperStart = upperVertex;
 
+                //loop over lower and upper contour at the same time
                 do {
                     xyz lower1 = *lowerVertex;
                     xyz lower2 = *(lowerContour->getNextPoint(lowerVertex));
@@ -651,7 +661,7 @@ bool ReadVois::triangulate()
                     if(advanceLower) lowerVertex = lowerContour->getNextPoint(lowerVertex);
                     if(advanceUpper) upperVertex = upperContour->getNextPoint(upperVertex);
 
-                } while (lowerVertex != lowerStart || upperVertex != upperStart);
+                } while ((lowerVertex != lowerStart || upperVertex != upperStart));
             }
         }//iterate over all contours
     }//iterate over all VOIs
@@ -711,12 +721,12 @@ void ReadVois::sendDataToCovise()
     const char *polygonObjectName; // output object name assigned by the controller
     polygonObjectName = m_polygonPort->getObjName(); // get the COVISE output object name from the controller
 
-    // create the COVISE output object    
+    // create the COVISE output object
     coDoPolygons *polygonObject; // output object
     polygonObject = new coDoPolygons(polygonObjectName, numVertices, &x_c[0], &y_c[0], &z_c[0], numTriangles * 3, &v_l[0], numTriangles, &pol_l[0]);
     m_polygonPort->setCurrentObject(polygonObject);
 
-    // set the vertex order for twosided lighting in the renderer    
+    // set the vertex order for twosided lighting in the renderer
     polygonObject->addAttribute("vertexOrder", "2");
 }
 

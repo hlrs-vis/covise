@@ -20,7 +20,9 @@
 <!-- include -->
 <!-- -->
 
-<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCCoord.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCObjectChoice.xsd" />
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCControllerChoice.xsd" />
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCObserverId.xsd" />
 
 
 
@@ -30,88 +32,15 @@
 
 <xsd:element name="entity" type="OSCEntity"/>
 
-
-
-<!-- -->
-<!-- Enumeration -->
-<!-- -->
-
-<xsd:simpleType name="Enum_pedestrianController_motion">
-  <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="walk" />
-    <xsd:enumeration value="jog" />
-    <xsd:enumeration value="run" />
-    <xsd:enumeration value="dead" />
-  </xsd:restriction>
-</xsd:simpleType>
-
-
-
 <!-- -->
 <!-- ComplexType -->
 <!-- -->
 
 <xsd:complexType name="OSCEntity">
     <xsd:all>
-        <xsd:element name="objectChoice">
-            <xsd:complexType>
-                <xsd:choice>
-                    <xsd:element name="vehicle">
-                        <xsd:complexType>
-                            <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                            <xsd:attribute name="refId" type="xsd:int" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="pedestrian">
-                        <xsd:complexType>
-                            <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                            <xsd:attribute name="refId" type="xsd:int" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="miscObject">
-                        <xsd:complexType>
-                            <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                            <xsd:attribute name="refId" type="xsd:int" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="controllerChoice">
-            <xsd:complexType>
-                <xsd:choice>
-                    <xsd:element name="driverReference">
-                        <xsd:complexType>
-                            <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                            <xsd:attribute name="refId" type="xsd:int" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="pedestrianController">
-                        <xsd:complexType>
-                            <xsd:attribute name="motion"  type="Enum_pedestrianController_motion" use="required"/>
-                            <xsd:attribute ref="xml:base"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="observer">
-            <xsd:complexType>
-                <xsd:all>
-                    <xsd:element name="coord"  type="OSCCoord"/>
-                </xsd:all>
-                <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                <xsd:attribute name="refId" type="xsd:int" use="required"/>
-                <xsd:attribute name="iid"   type="xsd:int" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="objectChoice" type="OSCObjectChoice"/>
+        <xsd:element name="controllerChoice" type="OSCControllerChoice"/>
+        <xsd:element name="observer" type="OSCObserverId"/>
     </xsd:all>
     <xsd:attribute name="name"  type="xsd:string" use="required"/>
     <xsd:attribute name="refId" type="xsd:int"    use="required"/>

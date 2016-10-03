@@ -44,11 +44,11 @@ public:
     bool init();
 
     int loadPCD(const char *filename, osg::Group *loadParent);
-    static int sloadPCD(const char *filename, osg::Group *loadParent);
-    static int unloadPCD(const char *filename);
+    static int sloadPCD(const char *filename, osg::Group *loadParent, const char *covise_key);
+    static int unloadPCD(const char *filename, const char *covise_key);
     int loadOCT(const char *filename, osg::Group *loadParent);
-    static int sloadOCT(const char *filename, osg::Group *loadParent);
-    static int unloadOCT(const char *filename);
+    static int sloadOCT(const char *filename, osg::Group *loadParent, const char *covise_key);
+    static int unloadOCT(const char *filename, const char *covise_key);
 
     // this will be called in PreFrame
     void preFrame();

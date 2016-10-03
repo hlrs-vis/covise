@@ -33,10 +33,17 @@ public:
     void warning(const xercesc::SAXParseException &spExept);
     void error(const xercesc::SAXParseException &spExept);
     void fatalError(const xercesc::SAXParseException &spExept);
+	void releaseErrorMessage();
     void resetErrors();
+	char *getErrorMessage()
+	{
+		return errorMsg;
+	}
 
 private:
     void reportParseException(const xercesc::SAXParseException &spExept);
+
+	char *errorMsg;
 };
 
 

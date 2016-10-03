@@ -263,6 +263,7 @@ private slots:
     void updateItem();
     void itemProperties();
     void showhideSimItems(int state, const char *nodePath);
+    void showNode(QTreeWidgetItem *item, bool visible);
 };
 
 class SGTextureThread : public QThread
@@ -298,6 +299,7 @@ public:
     nodeTreeItem(nodeTree *, const QString &, QString, QString, QColor, QString, int, QString, int);
     nodeTreeItem(nodeTreeItem *, const QString &, QString, QString, QColor, QString, int, QString, int);
     ~nodeTreeItem();
+    void setData(int column, int role, const QVariant &value);
 };
 
 class nodeTree : public QTreeWidget
@@ -316,5 +318,8 @@ public:
     //mode = 0 findString else find selected
     QList<QTreeWidgetItem *> findString(QString searchStr = "", int mode = 0);
     QList<QTreeWidgetItem *> searchString(QTreeWidgetItem *item, QString searchStr = "", bool parentState = true, int mode = 0);
+
+signals:
+    void itemCheckStateChanged(QTreeWidgetItem *item, bool state);
 };
 #endif

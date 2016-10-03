@@ -59,7 +59,7 @@ signals:
     // SLOTS          //
     //################//
 
-private slots:
+public slots:
 	void removeWidget();
 
     //################//

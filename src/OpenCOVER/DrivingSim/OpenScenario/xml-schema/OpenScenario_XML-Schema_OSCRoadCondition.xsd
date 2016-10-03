@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_roadCondition_effect">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="dry" />
+    <xsd:enumeration value="water" />
+    <xsd:enumeration value="snow" />
+    <xsd:enumeration value="oil" />
+    <xsd:enumeration value="dirt" />
+    <xsd:enumeration value="leaves" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<!-- -->
+<!-- OSCRoadCondition -->
+<!-- -->
+
+
+<xsd:complexType name="OSCRoadCondition">
+    <xsd:attribute name="effect"    type="Enum_roadCondition_effect" use="required"/>
+    <xsd:attribute name="intensity" type="xsd:float" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

@@ -408,6 +408,7 @@ oscFactories::oscFactories() :
     staticObjectFactory.registerType<oscTime>("oscTime");
     staticObjectFactory.registerType<oscTimeHeadway>("oscTimeHeadway");
     staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
+	staticObjectFactory.registerType<oscTimeOfDayWithAnimation>("oscTimeOfDayWithAnimation");
     staticObjectFactory.registerType<oscTimeToCollision>("oscTimeToCollision");
     staticObjectFactory.registerType<oscTiming>("oscTiming");
     staticObjectFactory.registerType<oscTrafficJam>("oscTrafficJam");

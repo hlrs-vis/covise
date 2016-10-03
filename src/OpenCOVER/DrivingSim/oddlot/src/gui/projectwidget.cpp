@@ -513,12 +513,12 @@ ProjectWidget::loadTile(const QString &fileName)
 }
 
 CatalogTreeWidget *
-ProjectWidget::addCatalogTree(const QString &type, OpenScenario::oscCatalog *catalog)
+ProjectWidget::addCatalogTree(const QString &name, OpenScenario::oscCatalog *catalog)
 {
     // add a catalog tree
     //
-    CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, type);
-    QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
+    CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, name);
+    QDockWidget *catalogDock = mainWindow_->createCatalog(name, catalogWidget);
     CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
     QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));

@@ -98,7 +98,7 @@ public:
     bf::path getPathFromCurrentDirToDoc() const;
 
     //
-    bool loadFile(const std::string &fileName, const std::string &fileType); /*!< load an OpenScenario database file in xml format
+    bool loadFile(const std::string &fileName, const std::string &nodeName, const std::string &fileType); /*!< load an OpenScenario database file in xml format
                                                                                  \param fileName file to load.
                                                                                  \param fileType type of the imported file.
                                                                                  \return false if loading the file failed.*/
@@ -111,7 +111,7 @@ public:
 
     //
     xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
-    xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &fileType, const bool validate); ///< parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
+    xercesc::DOMElement *getRootElement(const std::string &fileName, const std::string &nodeName, const std::string &fileType, const bool validate, std::string *errorMessage = NULL); ///< parse an OpenSCENARIO or catalog object file with XInclude and validation to a DOM hierarchy
 
     //
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successful

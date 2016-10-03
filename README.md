@@ -37,8 +37,6 @@ Update your existing copy to the current version by
       git submodule sync
       git submodule update --init --recursive # update submodules to latest required version
 
-### Windows
-
 
 Build Requirements
 ------------------

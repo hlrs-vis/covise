@@ -176,7 +176,6 @@ OSCItem::init()
 	{
 		createPath = createVehiclePath;
 		catalog = oscEditor_->getCatalog("vehicleCatalog");
-		catalog->setCatalogType("vehicle");
 	}
 
 	if (catalog->getObjectsMap().size() == 0)

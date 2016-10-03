@@ -14,21 +14,17 @@
 -->
 <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
-
-
 <!-- -->
-<!-- ComplexType -->
+<!-- include -->
 <!-- -->
 
-<xsd:complexType name="OSCDimension">
-    <xsd:attribute name="front"     type="xsd:double" use="required"/>
-    <xsd:attribute name="rear"      type="xsd:double" use="required"/>
-    <xsd:attribute name="left"      type="xsd:double" use="required"/>
-    <xsd:attribute name="right"     type="xsd:double" use="required"/>
-    <xsd:attribute name="bottom"    type="xsd:double" use="required"/>
-    <xsd:attribute name="top"       type="xsd:double" use="required"/>
-    <xsd:attribute ref="xml:base"/>
-</xsd:complexType>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCClothoid.xsd" />
+
+<!-- -->
+<!-- clothoid -->
+<!-- -->
 
 
+<xsd:element name="clothoid" type="OSCClothoid" />
+ 
 </xsd:schema>

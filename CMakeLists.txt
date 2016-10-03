@@ -167,6 +167,10 @@ else()
     OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 endif()
 
+if(NOT COVISE_USE_CPP11)
+    set(COVISE_USE_VISIONARAY OFF)
+endif()
+
 IF(COVISE_USE_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ENDIF(COVISE_USE_FOLDERS)
@@ -231,7 +235,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     COVISE_FIND_PACKAGE(Steereo)
     COVISE_FIND_PACKAGE(XercesC REQUIRED)
     covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer osgParticle osgText osgSim osgGA osgFX)
-    covise_find_package(VTK COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
+    covise_find_package(VTK COMPONENTS vtkIOLegacy vtkIOXML vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
 
     covise_find_cuda()
 

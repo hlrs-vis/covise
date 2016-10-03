@@ -47,22 +47,25 @@ private:
     int num_boundary_data_ports;
     std::vector<std::string> lastDataPortSelection;
     std::vector<std::string> lastBoundaryPortSelection;
+    std::vector<std::string> lastParticlePortSelection;
 
     //Output Ports
     coOutputPort *meshOutPort;
     coOutputPort *boundaryOutPort;
+    coOutputPort *particleOutPort;
     std::vector<coOutputPort *> outPorts;
     std::vector<coOutputPort *> boundaryDataPorts;
+    std::vector<coOutputPort *> particleDataPorts;
 
     //Parameters
     coFileBrowserParam *filenameParam;
     coFloatParam *starttimeParam, *stoptimeParam;
     coIntScalarParam *skipfactorParam;
-    coBooleanParam *meshParam;
+    coBooleanParam *meshParam, *boundaryParam, *particleParam;
     std::vector<coChoiceParam *> portChoice;
     std::vector<coChoiceParam *> boundaryDataChoice;
+    std::vector<coChoiceParam *> particleDataChoice;
     coStringParam *patchesStringParam;
-    coBooleanParam *boundaryParam;
 
     //  member functions
     virtual int compute(const char *port);
@@ -72,6 +75,7 @@ public:
     ReadFOAM(int argc, char *argv[]); //Constructor
     virtual ~ReadFOAM(); //Destructor
     std::vector<const char *> getFieldList();
+    std::vector<const char *> getParticleFieldList();
     virtual void param(const char *, bool);
 
     coDoUnstructuredGrid *loadMesh(const std::string &meshdir,
@@ -84,6 +88,10 @@ public:
                               const std::string &selection,
                               const index_t Processor = -1,
                               const index_t saveMapTo = -1);
+    coDoPoints *loadParticles(const std::string &meshdir,
+                              const std::string &objName,
+                              const std::string &cellIdobjName,
+                              coDistributedObject **cellIds);
     coDistributedObject *loadField(const std::string &timedir,
                                const std::string &file,
                                const std::string &vecObjName,

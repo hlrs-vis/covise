@@ -14,6 +14,12 @@
 -->
 <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCColor.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCIntensity.xsd"/>
 
 
 <!-- -->
@@ -22,22 +28,8 @@
 
 <xsd:complexType name="OSCLight">
     <xsd:all>
-        <xsd:element name="color">
-            <xsd:complexType>
-                <xsd:attribute name="r" type="xsd:float" use="required"/>
-                <xsd:attribute name="g" type="xsd:float" use="required"/>
-                <xsd:attribute name="b" type="xsd:float" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="intensity">
-            <xsd:complexType>
-                <xsd:attribute name="ambient"   type="xsd:float" use="required"/>
-                <xsd:attribute name="diffuse"   type="xsd:float" use="required"/>
-                <xsd:attribute name="specular"  type="xsd:float" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="color" type="OSCColor"/>
+        <xsd:element name="intensity" type="OSCIntensity"/>
     </xsd:all>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>

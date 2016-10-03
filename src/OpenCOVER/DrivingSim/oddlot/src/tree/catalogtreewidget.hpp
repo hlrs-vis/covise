@@ -50,7 +50,7 @@ class CatalogTreeWidget : public QTreeWidget, public Observer
     //################//
 
 public:
-	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
+	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog);
     virtual ~CatalogTreeWidget();
 
 /*	void setActiveProject(ProjectWidget *projectWidget)
@@ -115,7 +115,8 @@ private:
 	OpenScenario::oscObjectBase *objectBase_;
 	// temporary: test base
 	OSCElement *testBase_;
-	QString type_; //catalog type
+	std::string catalogName_; //catalog name
+	std::string catalogType_;
 	OpenScenario::oscCatalog *catalog_;
 	QString directoryPath_;
 

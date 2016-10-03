@@ -19,6 +19,7 @@
 #include <vtkUnsignedShortArray.h>
 #include <vtkIntArray.h>
 #include <vtkUnsignedIntArray.h>
+#include <vtkIdTypeArray.h>
 
 #include <vtkAlgorithm.h>
 #include <vtkInformation.h>
@@ -937,6 +938,12 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
     int dim[3] = { n, 1, 1 };
     if (sgrid)
         sgrid->getGridSize(&dim[0], &dim[1], &dim[2]);
+    if (n > 0 && n == (dim[0]-1)*(dim[1]-1)*(dim[2]-1))
+    {
+        // cell-mapped data
+        for (int i=0; i<3; ++i)
+            --dim[i];
+    }
 
     switch (vd->GetNumberOfComponents())
     {
@@ -1026,62 +1033,19 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
     return NULL;
 }
 
-coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataSet *vtk, int attribute, const char *name, const coDoAbstractStructuredGrid *sgrid)
+coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataArray *varr, const coDoAbstractStructuredGrid *sgrid)
 {
 #ifdef HAVE_VTK
-    vtkDataSetAttributes *vattr = vtk->GetPointData();
-    vtkDataArray *varr = NULL;
-    switch (attribute)
-    {
-    case Scalars:
-        varr = name ? vattr->GetScalars(name) : vattr->GetScalars();
-        break;
-    case Vectors:
-        varr = name ? vattr->GetVectors(name) : vattr->GetVectors();
-        break;
-    case Normals:
-        varr = name ? vattr->GetNormals(name) : vattr->GetNormals();
-        break;
-    case TexCoords:
-        varr = name ? vattr->GetTCoords(name) : vattr->GetTCoords();
-        break;
-    case Tensors:
-        varr = name ? vattr->GetTensors(name) : vattr->GetTensors();
-        break;
-    default:
-        break;
-    }
-    if (!varr)
-    {
-        vattr = vtk->GetCellData();
-        switch (attribute)
-        {
-        case Scalars:
-            varr = name ? vattr->GetScalars(name) : vattr->GetScalars();
-            break;
-        case Vectors:
-            varr = name ? vattr->GetVectors(name) : vattr->GetVectors();
-            break;
-        case Normals:
-            varr = name ? vattr->GetNormals(name) : vattr->GetNormals();
-            break;
-        case TexCoords:
-            varr = name ? vattr->GetTCoords(name) : vattr->GetTCoords();
-            break;
-        case Tensors:
-            varr = name ? vattr->GetTensors(name) : vattr->GetTensors();
-            break;
-        default:
-            break;
-        }
-        if (!varr)
-            return NULL;
-    }
-
     const int n = varr->GetNumberOfTuples();
     int dim[3] = { n, 1, 1 };
     if (sgrid)
         sgrid->getGridSize(&dim[0], &dim[1], &dim[2]);
+    if (n > 0 && n == (dim[0]-1)*(dim[1]-1)*(dim[2]-1))
+    {
+        // cell-mapped data
+        for (int i=0; i<3; ++i)
+            --dim[i];
+    }
     if (dim[0] * dim[1] * dim[2] != n)
     {
         std::cerr << "coVtk::vtkData2Covise: non-matching grid size: [" << dim[0] << "*" << dim[1] << "*" << dim[2] << "] != " << n << std::endl;
@@ -1107,6 +1071,32 @@ coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataSet *vtk, 
     else if (vtkUnsignedIntArray *vd = dynamic_cast<vtkUnsignedIntArray *>(varr))
     {
         return vtkArray2Covise<unsigned int, vtkUnsignedIntArray>(info, vd, sgrid);
+    }
+    else if (vtkIdTypeArray *vd = dynamic_cast<vtkIdTypeArray *>(varr))
+    {
+        switch (vd->GetNumberOfComponents())
+        {
+        case 1:
+        {
+            coDoInt *cf = new coDoInt(info, n);
+            CHECK_AND_RETURN(cf);
+            int *x = cf->getAddress();
+            int l = 0;
+            for (int k = 0; k < dim[2]; ++k)
+                for (int j = 0; j < dim[1]; ++j)
+                    for (int i = 0; i < dim[0]; ++i)
+                    {
+                        const int idx = coIndex(i, j, k, dim);
+                        x[idx] = vd->GetValue(l);
+                        ++l;
+                    }
+            return cf;
+        }
+        break;
+        default:
+            return NULL;
+            break;
+        }
     }
     else if (vtkIntArray *vd = dynamic_cast<vtkIntArray *>(varr))
     {
@@ -1138,6 +1128,23 @@ coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataSet *vtk, 
     {
         switch (vd->GetNumberOfComponents())
         {
+        case 1:
+        {
+            coDoByte *cb = new coDoByte(info, n);
+            CHECK_AND_RETURN(cb);
+            unsigned char *x = cb->getAddress();
+            int l = 0;
+            for (int k = 0; k < dim[2]; ++k)
+                for (int j = 0; j < dim[1]; ++j)
+                    for (int i = 0; i < dim[0]; ++i)
+                    {
+                        const int idx = coIndex(i, j, k, dim);
+                        x[idx] = vd->GetValue(l);
+                        ++l;
+                    }
+            return cb;
+        }
+        break;
         case 4:
         {
             coDoRGBA *cv = new coDoRGBA(info, n);
@@ -1164,12 +1171,89 @@ coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataSet *vtk, 
     }
 #else
     (void)info;
-    (void)vtk;
-    (void)attribute;
-    (void)name;
+    (void)varr;
+    (void)sgrid;
 #endif
 
     return NULL;
+}
+
+coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataSetAttributes *vattr, int attribute, const char *name, const coDoAbstractStructuredGrid *sgrid)
+{
+#ifdef HAVE_VTK
+    vtkDataArray *varr = NULL;
+    switch (attribute)
+    {
+    case Scalars:
+        varr = name ? vattr->GetScalars(name) : vattr->GetScalars();
+        break;
+    case Vectors:
+        varr = name ? vattr->GetVectors(name) : vattr->GetVectors();
+        break;
+    case Normals:
+        varr = name ? vattr->GetNormals(name) : vattr->GetNormals();
+        break;
+    case TexCoords:
+        varr = name ? vattr->GetTCoords(name) : vattr->GetTCoords();
+        break;
+    case Tensors:
+        varr = name ? vattr->GetTensors(name) : vattr->GetTensors();
+        break;
+    case Any:
+        if (name)
+        {
+            varr = vattr->GetScalars(name);
+            if (!varr)
+                varr = vattr->GetVectors(name);
+            if (!varr)
+                varr = vattr->GetNormals(name);
+            if (!varr)
+                varr = vattr->GetTCoords(name);
+            if (!varr)
+                varr = vattr->GetTensors(name);
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (!varr)
+    {
+        if (name)
+        {
+            std::cerr << "coVtk::vtkData2Covise: did not find vtkDataArray " << name << std::endl;
+        }
+        return NULL;
+    }
+
+    return vtkData2Covise(info, varr, sgrid);
+#else
+    (void)info;
+    (void)vattr;
+    (void)attribute;
+    (void)name;
+    (void)sgrid;
+    return NULL;
+#endif
+}
+
+coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataSet *vtk, int attribute, const char *name, const coDoAbstractStructuredGrid *sgrid)
+{
+#ifdef HAVE_VTK
+    vtkDataSetAttributes *vattr = vtk->GetPointData();
+    coDoAbstractData *data = vtkData2Covise(info, vattr, attribute, name, sgrid);
+    if (data)
+        return data;
+    vattr = vtk->GetCellData();
+    return vtkData2Covise(info, vattr, attribute, name, sgrid);
+#else
+    (void)info;
+    (void)vtk;
+    (void)attribute;
+    (void)name;
+    (void)sgrid;
+    return NULL;
+#endif
 }
 
 coDoGeometry *coVtk::vtk2Covise(const coObjInfo &info, vtkDataSet *vtk)

@@ -102,6 +102,7 @@ private slots:
 	void onNewArrayElement();
 	void onValueChanged();
 	void onChoiceChanged(const QString &text);
+	void onCloseWidget();
 
     //################//
     // PROPERTIES     //

@@ -14,7 +14,11 @@
 -->
 <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
+<!-- -->
+<!-- include -->
+<!-- -->
 
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserData.xsd"/>
 
 <!-- -->
 <!-- ComplexType -->
@@ -22,13 +26,7 @@
 
 <xsd:complexType name="OSCUserDataList">
     <xsd:sequence>
-        <xsd:element name="userData" minOccurs="0" maxOccurs="unbounded">
-            <xsd:complexType>
-                <xsd:attribute name="code"  type="xsd:string" use="required"/>
-                <xsd:attribute name="value" type="xsd:string" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="userData" minOccurs="0" maxOccurs="unbounded" type="OSCUserData"/>
     </xsd:sequence>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>

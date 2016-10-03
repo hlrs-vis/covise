@@ -23,8 +23,7 @@
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFile.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFileHeader.xsd"/>
 <xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
-
-
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCBody.xsd" />
 
 <!-- -->
 <!-- driver -->
@@ -35,34 +34,13 @@
 
 
 <!-- -->
-<!-- Enumeration -->
-<!-- -->
-
-<xsd:simpleType name="Enum_sex">
-  <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="male" />
-    <xsd:enumeration value="female" />
-  </xsd:restriction>
-</xsd:simpleType>
-
-
-
-<!-- -->
 <!-- ComplexType -->
 <!-- -->
 
 <xsd:complexType name="OSCDriver">
     <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
-        <xsd:element name="body">
-            <xsd:complexType>
-                <xsd:attribute name="weight"        type="xsd:double" use="required"/>
-                <xsd:attribute name="height"        type="xsd:double" use="required"/>
-                <xsd:attribute name="eyeDistance"   type="xsd:double" use="required"/>
-                <xsd:attribute name="sex"           type="Enum_sex" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="body" type="OSCBody"/>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
         <xsd:element name="geometry"    type="OSCFile"/>
     </xsd:all>

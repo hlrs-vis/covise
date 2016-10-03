@@ -292,7 +292,7 @@ namespace visionaray
             if (source_info.components == 3)
             {
                 auto data_ptr = reinterpret_cast<vector<3, unorm<8> > const *>(img->data());
-                result.set_data(data_ptr, source_format, dest_format);
+                result.set_data(data_ptr, source_format, dest_format, AlphaIsOne);
             }
             else if (source_info.components == 4)
             {

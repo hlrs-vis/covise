@@ -74,16 +74,14 @@ void ButtonDevice::createButtonMap(const std::string &confbase)
         MB(ACTION_BUTTON);
         MB(DRIVE_BUTTON);
         MB(XFORM_BUTTON);
-        MB(USER1_BUTTON);
-        MB(USER4_BUTTON);
+        MB(FORWARD_BUTTON);
+        MB(BACKWARD_BUTTON);
         MB(TOGGLE_DOCUMENTS);
         MB(INTER_PREV);
         MB(INTER_NEXT);
         MB(PERSON_PREV);
         MB(PERSON_NEXT);
         MB(MENU_BUTTON);
-        MB(FORWARD_BUTTON);
-        MB(BACKWARD_BUTTON);
         MB(ZOOM_BUTTON);
         MB(QUIT_BUTTON);
         MB(DRAG_BUTTON);

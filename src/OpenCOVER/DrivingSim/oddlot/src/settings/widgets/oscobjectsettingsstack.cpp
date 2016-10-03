@@ -93,11 +93,9 @@ OSCObjectSettingsStack::addWidget(QWidget *widget)
 }
 
 
-
 //################//
 // SLOTS          //
 //################//
-
 void 
 OSCObjectSettingsStack::removeWidget()
 {

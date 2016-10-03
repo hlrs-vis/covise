@@ -105,7 +105,7 @@ int ReadPandora::compute(const char *port)
             vert+=4;
         }
     }
-    delete meshName;
+    delete[] meshName;
     for(int i=0;i<numSteps;i++)
     {
         char *dataName = new char[strlen(dataOut->getObjName())+100];
@@ -128,7 +128,7 @@ int ReadPandora::compute(const char *port)
             meshes[i]->incRefCount();
         }
         meshes[i+1]=NULL;
-        delete dataName;
+        delete[] dataName;
     }
     coDoSet *meshSet = new coDoSet(meshOut->getObjName(),(coDistributedObject **)meshes);
     coDoSet *dataSet = new coDoSet(dataOut->getObjName(),(coDistributedObject **)dataObjects);
