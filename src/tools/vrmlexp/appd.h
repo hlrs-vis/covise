@@ -47,6 +47,7 @@
 #define SKY_ID 36
 #define OCCLUDER_ID 37
 #define FORCE_WHITE_ID 38
+#define EXPORTWORLDSPACE_ID 39
 
 extern void WriteAppData(Interface *ip, int id, TCHAR *val);
 extern void GetAppData(Interface *ip, int id, TCHAR *def,

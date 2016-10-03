@@ -3233,6 +3233,11 @@ static INT_PTR CALLBACK
         GetAppData(exp->mIp, EXPORTLIGHTS_ID, _T("no"), text, MAX_PATH);
         BOOL explights = _tcscmp(text, _T("yes")) == 0;
         CheckDlgButton(hDlg, IDC_EXPORTLIGHTS, explights);
+        
+        GetAppData(exp->mIp, EXPORTWORLDSPACE_ID, _T("yes"), text, MAX_PATH);
+        BOOL expworldspace = _tcscmp(text, _T("yes")) == 0;
+        CheckDlgButton(hDlg, IDC_EXPORT_WORLD_SPACE, expworldspace);
+
         GetAppData(exp->mIp, COPYTEXTURES_ID, _T("yes"), text, MAX_PATH);
         BOOL copytextures = _tcscmp(text, _T("yes")) == 0;
         CheckDlgButton(hDlg, IDC_COPYTEXTURES, copytextures);
@@ -3521,6 +3526,9 @@ static INT_PTR CALLBACK
 
             exp->SetExpLights(IsDlgButtonChecked(hDlg, IDC_EXPORTLIGHTS));
             WriteAppData(exp->mIp, EXPORTLIGHTS_ID, exp->GetExpLights() ? _T("yes") : _T("no"));
+
+            exp->SetExpWorldSpace(IsDlgButtonChecked(hDlg, IDC_EXPORT_WORLD_SPACE));
+            WriteAppData(exp->mIp, EXPORTWORLDSPACE_ID, exp->GetExpWorldSpace() ? _T("yes") : _T("no"));
 
             exp->SetUseLod(IsDlgButtonChecked(hDlg, IDC_USELOD));
             WriteAppData(exp->mIp, USELOD_ID, exp->GetUseLod() ? _T("yes") : _T("no"));
@@ -3937,6 +3945,9 @@ VRBLExport::initializeDefaults()
     GetAppData(mIp, EXPORTLIGHTS_ID, _T("no"), text, MAX_PATH);
     BOOL expli = _tcscmp(text, _T("yes")) == 0;
     SetExpLights(expli);
+    GetAppData(mIp, EXPORTWORLDSPACE_ID, _T("yes"), text, MAX_PATH);
+    BOOL expws = _tcscmp(text, _T("yes")) == 0;
+    SetExpWorldSpace(expws);
     GetAppData(mIp, COPYTEXTURES_ID, _T("no"), text, MAX_PATH);
     BOOL copytex = _tcscmp(text, _T("yes")) == 0;
     SetCopyTextures(copytex);
