@@ -193,6 +193,7 @@ int ReadGeoDict::readHeader()
             {
                 VarInfo vi;
                 vi.read = false;
+                vi.vector = false;
                 vi.imageNumber = imageNumber;
                 varInfos.push_back(vi);
                 lastImageNumber = imageNumber;
@@ -264,15 +265,32 @@ int ReadGeoDict::readData()
                         {
                             coDoVec3 *dataObj = new coDoVec3(READER_CONTROL->getAssocObjName(DPORT1_3D + n).c_str(), numValues);
                             dataObj->getAddresses(&varInfos[pos - 1].x_d,&varInfos[pos - 1].y_d,&varInfos[pos - 1].z_d);
-                            fread(varInfos[pos - 1].x_d,sizeof(float),numValues,d_dataFile);
-                            fread(varInfos[pos - 1].y_d,sizeof(float),numValues,d_dataFile);
-                            fread(varInfos[pos - 1].z_d,sizeof(float),numValues,d_dataFile);
+                            float *dataBuf = new float[numValues * 3];
+                            fread(dataBuf,sizeof(float),numValues*3,d_dataFile);
+                            for(int u=0;u<Nx;u++)
+                            for(int v=0;v<Ny;v++)
+                            for(int w=0;w<Nz;w++)
+                            {
+                                varInfos[pos - 1].x_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3];
+                                varInfos[pos - 1].y_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3+1];
+                                varInfos[pos - 1].z_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3+2];
+                            }
+                            delete[] dataBuf;
                         }
                         else
                         {
                             coDoFloat *dataObj = new coDoFloat(READER_CONTROL->getAssocObjName(DPORT1_3D + n).c_str(), numValues);
                             dataObj->getAddress(&varInfos[pos - 1].x_d);
-                            fread(varInfos[pos - 1].x_d,sizeof(float),numValues,d_dataFile);
+                            
+                            float *dataBuf = new float[numValues];
+                            fread(dataBuf,sizeof(float),numValues,d_dataFile);
+                            for(int u=0;u<Nx;u++)
+                            for(int v=0;v<Ny;v++)
+                            for(int w=0;w<Nz;w++)
+                            {
+                                varInfos[pos - 1].x_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx+v*Nx+u];
+                            }
+                            delete[] dataBuf;
                         }
                         varInfos[pos - 1].read = true;
                     }
