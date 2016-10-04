@@ -1907,10 +1907,14 @@ void MyNodeVisitor::updateMyChild(Node *node)
                         break;
                     }
                 }
-                myUpdate(help);
+                if(dynamic_cast<osg::Drawable *>(help) == NULL)
+                    myUpdate(help);
             }
             else
-                myUpdate(child);
+            {
+                if(dynamic_cast<osg::Drawable *>(child) == NULL)
+                    myUpdate(child);
+            }
         }
     }
 }
