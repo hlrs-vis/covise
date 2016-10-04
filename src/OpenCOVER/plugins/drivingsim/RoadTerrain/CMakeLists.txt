@@ -68,7 +68,6 @@ INCLUDE_DIRECTORIES(
  ${OPENSCENEGRAPH_INCLUDE_DIRS}
  "${COVISEDIR}/src/OpenCOVER"
 )
-
 ADD_LIBRARY(${targetname} SHARED ${ARGN} ${SOURCES} ${HEADERS})
 qt_use_modules(${targetname} Core)
 
