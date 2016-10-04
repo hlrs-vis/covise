@@ -12,7 +12,7 @@ set(HEADERS
   IndexParser.h
   Index.h
   Camera.h
-  Position.h
+  #Position.h
 )
 set(SOURCES
   StreetView.cpp
@@ -21,7 +21,7 @@ set(SOURCES
   Index.cpp
   Camera.cpp
   Station.cpp
-  Position.cpp
+  #Position.cpp
 )
 
 # build the plugin "StreetView" from the ingredients listed in HEADERS and SOURCES
