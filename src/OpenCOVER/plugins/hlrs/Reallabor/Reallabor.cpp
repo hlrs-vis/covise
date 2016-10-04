@@ -19,7 +19,7 @@
  **                                                                          **
 \****************************************************************************/
 
-#include "TemplatePlugin.h"
+#include "Reallabor.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 
