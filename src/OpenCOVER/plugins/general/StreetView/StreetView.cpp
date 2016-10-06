@@ -27,6 +27,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <iostream>
 
+#include <proj_api.h>
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 
@@ -85,3 +87,18 @@ void StreetView::preFrame()
 }
 
 COVERPLUGIN(StreetView)
+
+void StreetView::transformWGS84ToGauss(double &lon, double &lat, double &alt)
+{
+	projPJ pj_wgs84;
+	projPJ pj_gausskrueger;
+	if (!(pj_wgs84 = pj_init_plus("+proj=longlat +datum=WGS84 +no_defs")))
+	{
+		fprintf(stderr, "WGS84 init fail");
+	} 
+	if (!(pj_gausskrueger = pj_init_plus("+proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +units=m +no_defs")))
+	{
+		fprintf(stderr, "GaussKrueger init fail");
+	}
+	pj_transform(pj_wgs84, pj_gausskrueger, 1, 1, &lon, &lat, &alt);
+}

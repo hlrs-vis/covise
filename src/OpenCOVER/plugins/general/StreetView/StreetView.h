@@ -33,6 +33,7 @@ public:
     ~StreetView();
     void preFrame();
 	bool init();
+	void transformWGS84ToGauss(double &lon, double &lat, double &alt);
 
 private:
 	IndexParser *indexParser;
