@@ -5,47 +5,33 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Template Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
-#include "TemplatePlugin.h"
+#include "Reallabor.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 
 using namespace opencover;
 
-TemplatePlugin::TemplatePlugin()
+Reallabor::Reallabor()
 {
-    fprintf(stderr, "TemplatePlugin::TemplatePlugin\n");
+    fprintf(stderr, "Reallabor::Reallabor\n");
 }
 
 // this is called if the plugin is removed at runtime
-TemplatePlugin::~TemplatePlugin()
+Reallabor::~Reallabor()
 {
-    fprintf(stderr, "TemplatePlugin::~TemplatePlugin\n");
+    fprintf(stderr, "Reallabor::~Reallabor\n");
 }
 
 // here we get the size and the current center of the cube
 void
-TemplatePlugin::newInteractor(RenderObject *container, coInteractor *i)
+Reallabor::newInteractor(RenderObject *container, coInteractor *i)
 {
     (void)container;
     (void)i;
-    fprintf(stderr, "TemplatePlugin::newInteractor\n");
+    fprintf(stderr, "Reallabor::newInteractor\n");
 }
 
-void TemplatePlugin::addObject(RenderObject *container,
+void Reallabor::addObject(RenderObject *container,
                                RenderObject *obj, RenderObject *normObj,
                                RenderObject *colorObj, RenderObject *texObj,
                                osg::Group *root,
@@ -73,20 +59,20 @@ void TemplatePlugin::addObject(RenderObject *container,
     (void)yn;
     (void)zn;
     (void)transparency;
-    fprintf(stderr, "TemplatePlugin::addObject\n");
+    fprintf(stderr, "Reallabor::addObject\n");
 }
 
 void
-TemplatePlugin::removeObject(const char *objName, bool replace)
+Reallabor::removeObject(const char *objName, bool replace)
 {
     (void)objName;
     (void)replace;
-    fprintf(stderr, "TemplatePlugin::removeObject\n");
+    fprintf(stderr, "Reallabor::removeObject\n");
 }
 
 void
-TemplatePlugin::preFrame()
+Reallabor::preFrame()
 {
 }
 
-COVERPLUGIN(TemplatePlugin)
+COVERPLUGIN(Reallabor)

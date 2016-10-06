@@ -5,29 +5,16 @@
 
  * License: LGPL 2+ */
 
-#ifndef TEMPLATE_PLUGIN_H
-#define TEMPLATE_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Template Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+#ifndef REALLABOR_H
+#define REALLABOR_H
 
 #include <cover/coVRPlugin.h>
 
-class TemplatePlugin : public opencover::coVRPlugin
+class Reallabor : public opencover::coVRPlugin
 {
 public:
-    TemplatePlugin();
-    ~TemplatePlugin();
+    Reallabor();
+    ~Reallabor();
 
     // this will be called in PreFrame
     void preFrame();
