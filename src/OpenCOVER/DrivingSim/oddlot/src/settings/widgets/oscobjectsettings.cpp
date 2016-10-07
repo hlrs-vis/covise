@@ -24,6 +24,7 @@
 #include "oscVariables.h"
 #include "oscArrayMember.h"
 #include "oscSourceFile.h"
+#include "oscCatalog.h"
 
 // Settings //
 //
@@ -89,12 +90,35 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 	oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(object_->getOwnMember());
 
+	if (parentStack_)
+	{
+		OSCObjectSettings *lastSettings = static_cast<OSCObjectSettings *>(parentStack_->getLastWidget());
+		if (lastSettings)
+		{
+			objectStackText_ = lastSettings->getStackText();
+		}
+	}
+
 	if(oscArrayMember_)
 	{
+		objectStackText_ += QString::fromStdString(oscArrayMember_->getName()) + "/";
 		uiInitArray();
 	}
 	else 
 	{
+		if (object_->getOwnMember())
+		{
+			objectStackText_ += QString::fromStdString(object_->getOwnMember()->getName()) + "/";
+		}
+		else
+		{
+			OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(object_->getParentObj());
+			if (catalog)
+			{
+				objectStackText_ += QString::fromStdString(catalog->getCatalogName()) + "/";
+			}
+		}
+
 		uiInit();
 		// Initial Values //
 		//
@@ -134,6 +158,7 @@ OSCObjectSettings::uiInit()
 	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
 	int row = 1;
+
 	// Close Button //
 	// not for the first element in the stackedWidget //
 	if (parentStack_->getStackSize() == 0)
@@ -142,12 +167,16 @@ OSCObjectSettings::uiInit()
 	}
 	else
 	{
+		QLabel *label = new QLabel(objectStackText_, ui->oscGroupBox);
+		int rows = formatDirLabel(label, objectStackText_);
+		label->setGeometry(10, 50, ui->oscGroupBox->width(), label->height());
+
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
 		closeButton->setObjectName(QStringLiteral("close"));
         closeButton->setGeometry(QRect(90, 30, 75, 23));
 		connect(closeButton, SIGNAL(pressed()), this, SLOT(onCloseWidget()));
 
-		objectGridLayout->setContentsMargins(4, 60, 4, 9);
+		objectGridLayout->setContentsMargins(4, 60 + rows*20, 4, 9);
 	}
 	
 	// Signal Mapper for the value input widgets //
@@ -350,6 +379,7 @@ OSCObjectSettings::uiInitArray()
 	QGridLayout *objectGridLayout = new QGridLayout();
 	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
+
 	// Close Button //
 	// not for the first element in the stackedWidget //
 	if (parentStack_->getStackSize() == 0)
@@ -358,12 +388,16 @@ OSCObjectSettings::uiInitArray()
 	}
 	else
 	{
+		QLabel *label = new QLabel(objectStackText_, ui->oscGroupBox);
+		int rows = formatDirLabel(label, objectStackText_);
+		label->setGeometry(10, 50, ui->oscGroupBox->width(), label->height());
+
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
 		closeButton->setObjectName(QStringLiteral("close"));
         closeButton->setGeometry(QRect(90, 30, 75, 23));
 		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
 
-		objectGridLayout->setContentsMargins(4, 60, 4, 9);
+		objectGridLayout->setContentsMargins(4, 60 + rows*20, 4, 9);
 	}
 
 	QPixmap recycleIcon(":/icons/recycle.png");
@@ -435,6 +469,7 @@ void OSCObjectSettings::formatLabel(QLabel *label, const QString &memberName)
 	if (memberName.size() > 16)
 	{
 		QStringList list = memberName.split(QRegExp("[A-Z]"));
+ 
 		QString line;
 		int separator = 16;
 
@@ -457,6 +492,46 @@ void OSCObjectSettings::formatLabel(QLabel *label, const QString &memberName)
 	{
 		label->setFixedHeight(25);
 	}
+}
+
+int OSCObjectSettings::formatDirLabel(QLabel *label, const QString &memberName)
+{
+	int rows = 1;
+
+	label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	if (memberName.size() > 30)
+	{
+		QStringList list = memberName.split(QRegExp("/"));
+ 
+		QString line;
+		QString name;
+
+		for (int i = 0; i < list.size()-1; i++)
+		{
+			QString temp = line + list.at(i) + "/";
+			if (temp.size() > 30)
+			{
+				name += line + "\n";
+				line = list.at(i) + "/";
+				rows++;
+			}
+			else
+			{
+				line = temp;
+			}
+		}
+		name += line;
+		rows++;
+
+		label->setText(name);
+		label->setFixedHeight(rows*25);
+	}
+	else
+	{
+		label->setFixedHeight(30);
+	}
+
+	return rows;
 }
 
 void
