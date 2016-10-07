@@ -17,6 +17,7 @@
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/coTrackerButtonInteraction.h>
 
 
 #include "PointRayTracerPlugin.h"
@@ -91,6 +92,13 @@ bool PointRayTracerPlugin::init()
     prtMenu->add(prevItem);
     prevItem->setMenuListener(this);
 
+    //ButtonD = forward
+    //ButtonE = backward
+    interactionNext = new coTrackerButtonInteraction(coInteraction::ButtonD,"Next Point Cloud", coInteraction::Medium);
+    interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonE,"Previous Point Cloud", coInteraction::Medium);
+    coInteractionManager::the()->registerInteraction(interactionNext);
+    coInteractionManager::the()->registerInteraction(interactionPrev);
+
     return true;
 }
 
@@ -120,6 +128,7 @@ int PointRayTracerPlugin::sloadPts(const char *filename, osg::Group *loadParent,
     return instance()->loadPts(filename);
 }
 
+
 int PointRayTracerPlugin::loadPts(const char *filename){
     if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::loadPts: %s\n", filename);
     if(!PointReader::instance()->readFile(std::string(filename), m_pointSize, m_bvh_vector, m_bbox, m_useCache, m_cutUTMdata)) return 1;
@@ -127,6 +136,7 @@ int PointRayTracerPlugin::loadPts(const char *filename){
     m_numPointClouds++;
     return 0;
 }
+
 
 int PointRayTracerPlugin::unloadPts(const char *filename, const char *){
     (void)filename;
@@ -140,9 +150,89 @@ PointRayTracerPlugin::~PointRayTracerPlugin()
         fprintf(stderr, "\n    delete PointRayTracerPlugin\n");
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
+    coInteractionManager::the()->unregisterInteraction(interactionNext);
+    coInteractionManager::the()->unregisterInteraction(interactionPrev);
 
     delete m_reader;
 
+}
+
+
+void PointRayTracerPlugin::preFrame()
+{
+    //if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::preFrame\n");
+
+    if(interactionNext->wasStarted()) showNextPointCloud();
+    if(interactionPrev->wasStarted()) showPreviousPointCloud();
+
+    /*
+    static bool takeAction = true;
+    int buttonStatus = cover->getPointerButton()->getState();
+
+    switch (buttonStatus)
+    {
+        case 0:
+            //fprintf(stderr, "\n    PointRayTracerPlugin::preFrame  No Button\n");
+            takeAction = true;
+            break;
+        case vruiButtons::ACTION_BUTTON:
+            if(takeAction)
+            {
+                //fprintf(stderr, "\n    PointRayTracerPlugin::preFrame  ACTION_BUTTON\n");
+                takeAction = false;
+            }            
+            break;
+        case vruiButtons::FORWARD_BUTTON:
+            if(takeAction)
+            {
+                fprintf(stderr, "\n    PointRayTracerPlugin::preFrame  FORWARD_BUTTON\n");
+                showNextPointCloud();
+                takeAction = false;
+            }            
+            break;
+        case vruiButtons::BACKWARD_BUTTON:
+            if(takeAction)
+            {
+                fprintf(stderr, "\n    PointRayTracerPlugin::preFrame  BACKWARD_BUTTON\n");
+                showPreviousPointCloud();
+                takeAction = false;
+            }            
+            break;
+        default:
+            //fprintf(stderr, "\n    PointRayTracerPlugin::preFrame some BUTTON: %i\n", buttonStatus);
+            break;
+    }
+    */
+   
+}
+
+
+/*
+void PointRayTracerPlugin::toggleVisibility(int index){
+    //if (cover->debugLevel(1)) std::cout << "PointRayTracerPlugin::toggleVisibility() index: " << index << std::endl;
+
+    if(m_visibility_vector.size() > index){
+        m_visibility_vector[index] = !m_visibility_vector[index];
+        m_visibility_has_changed = true;
+    } else if (cover->debugLevel(1)) {
+        std::cout << "PointRayTracerPlugin::toggleVisibility index() too high" << std::endl;
+    }
+}
+*/
+
+ 
+void PointRayTracerPlugin::showNextPointCloud(){
+    m_currentPointCloud++;
+    if(m_currentPointCloud >= m_numPointClouds) m_currentPointCloud = 0;
+    m_currentPointCloud_has_changed = true;
+    std::cout << "PointRayTracerPlugin:: current Point Cloud: " << m_currentPointCloud << std::endl;
+}
+
+void PointRayTracerPlugin::showPreviousPointCloud(){
+    m_currentPointCloud--;
+    if(m_currentPointCloud < 0) m_currentPointCloud = m_numPointClouds - 1;
+    m_currentPointCloud_has_changed = true;
+    std::cout << "PointRayTracerPlugin:: current Point Cloud: " << m_currentPointCloud << std::endl;
 }
 
 
@@ -175,18 +265,6 @@ void PointRayTracerPlugin::expandBoundingSphere(osg::BoundingSphere &bs)
     m_drawable->expandBoundingSphere(bs);
 }
 
-/*
-void PointRayTracerPlugin::toggleVisibility(int index){
-    //if (cover->debugLevel(1)) std::cout << "PointRayTracerPlugin::toggleVisibility() index: " << index << std::endl;
-
-    if(m_visibility_vector.size() > index){
-        m_visibility_vector[index] = !m_visibility_vector[index];
-        m_visibility_has_changed = true;
-    } else if (cover->debugLevel(1)) {
-        std::cout << "PointRayTracerPlugin::toggleVisibility index() too high" << std::endl;
-    }
-}
-*/
 
 void PointRayTracerPlugin::key(int type, int keySym, int mod)
 {
@@ -196,18 +274,11 @@ void PointRayTracerPlugin::key(int type, int keySym, int mod)
     if(type == osgGA::GUIEventAdapter::KEYUP){
 
         if(keySym == osgGA::GUIEventAdapter::KEY_Left){
-            m_currentPointCloud--;
-            if(m_currentPointCloud < 0) m_currentPointCloud = m_numPointClouds - 1;
-            m_currentPointCloud_has_changed = true;
-            std::cout << "PointRayTracerPlugin::key() current Point Cloud: " << m_currentPointCloud << std::endl;
-
+            showPreviousPointCloud();
         }
 
         if(keySym == osgGA::GUIEventAdapter::KEY_Right){
-            m_currentPointCloud++;
-            if(m_currentPointCloud >= m_numPointClouds) m_currentPointCloud = 0;
-            m_currentPointCloud_has_changed = true;
-            std::cout << "PointRayTracerPlugin::key() current Point Cloud: " << m_currentPointCloud << std::endl;
+            showNextPointCloud();
         }
 
     }
@@ -220,22 +291,17 @@ void PointRayTracerPlugin::key(int type, int keySym, int mod)
     */
 }
 
+
 void PointRayTracerPlugin::menuEvent(coMenuItem *menuItem)
 {
     if (menuItem == nextItem)
     {
-        m_currentPointCloud++;
-        if(m_currentPointCloud >= m_numPointClouds) m_currentPointCloud = 0;
-        m_currentPointCloud_has_changed = true;
-        std::cout << "PointRayTracerPlugin::menuEvent() current Point Cloud: " << m_currentPointCloud << std::endl;
+        showNextPointCloud();
     }
 
     if(menuItem == prevItem)
     {
-        m_currentPointCloud--;
-        if(m_currentPointCloud < 0) m_currentPointCloud = m_numPointClouds - 1;
-        m_currentPointCloud_has_changed = true;
-        std::cout << "PointRayTracerPlugin::menuEvent() current Point Cloud: " << m_currentPointCloud << std::endl;
+        showPreviousPointCloud();
     }
 }
 

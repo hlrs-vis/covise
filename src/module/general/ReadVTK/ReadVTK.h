@@ -35,45 +35,26 @@
 using namespace covise;
 #include <util/coviseCompat.h>
 
+#include <vtkSmartPointer.h>
+
+class vtkDataSet;
 class vtkDataSetReader;
 class vtkFieldData;
 
-// defines
-#define _FILE_TYPE_BINARY 1
-#define _FILE_TYPE_FORTRAN 2
-#define _FILE_TYPE_ASCII 3
-
-#define _FILE_STRUCTURED_GRID 4
-#define _FILE_UNSTRUCTURED_GRID 5
-#define _FILE_IBLANKED 6
-
-#define _FILE_SOLUTION 7
-#define _FILE_DATA 8
-#define _FILE_FUNCTION 9
-
-#define _FILE_SINGLE_ZONE 10
-#define _FILE_MULTI_ZONE 11
-
-#define _READ_GRID 12
-#define _READ_DATA 13
-
 class ReadVTK : public coModule
 {
+    static const int NumPorts = 3;
+
 public:
     ReadVTK(int argc, char *argv[]);
     virtual ~ReadVTK();
 
-    void run()
-    {
-        Covise::main_loop();
-    }
 
 private:
     // main
     int compute(const char *);
 
     // virtual methods
-    virtual void postInst();
     virtual void param(const char *name, bool inMapLoading);
 
     // local methods
@@ -82,18 +63,19 @@ private:
     void update();
 
 private:
+    void setChoices(vtkDataSet *dataSet);
     char *m_filename;
     int blockSize;
 
-    vtkDataSetReader *m_pReader;
-    vtkFieldData *m_fieldData;
+    vtkSmartPointer<vtkDataSet> m_dataSet;
 
-    coOutputPort *m_portGrid, *m_portScalars, *m_portVectors, *m_portNormals;
+    coOutputPort *m_portGrid, *m_portNormals;
+    coOutputPort *m_portPointData[NumPorts], *m_portCellData[NumPorts];
 
     coFileBrowserParam *m_pParamFile;
     coStringParam *m_pParamFilePattern;
-    coChoiceParam *m_pParamScalar;
-    coChoiceParam *m_pParamVector;
+    coChoiceParam *m_pointDataChoice[NumPorts];
+    coChoiceParam *m_cellDataChoice[NumPorts];
 
     coBooleanParam *m_pTime;
     coIntSliderParam *m_pTimeMin;

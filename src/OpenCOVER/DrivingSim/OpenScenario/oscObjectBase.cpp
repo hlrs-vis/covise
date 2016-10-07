@@ -606,7 +606,7 @@ void oscObjectBase::validate(std::string *errorMessage)
 {
 	// write temporary file
 	//
-	bf::path &tmpFilename = bf::temp_directory_path() / bf::path("tmpValidate.xosc");
+	bf::path tmpFilename = bf::temp_directory_path() / bf::path("tmpValidate.xosc");
 	std::cerr << tmpFilename << std::endl;
 
 	xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();

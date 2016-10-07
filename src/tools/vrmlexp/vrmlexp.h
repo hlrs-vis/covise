@@ -497,6 +497,15 @@ public:
     {
         mExpLights = eh;
     }
+    
+    inline BOOL GetExpWorldSpace()
+    {
+        return mExpWorldSpace;
+    }
+    inline void SetExpWorldSpace(BOOL eh)
+    {
+        mExpWorldSpace = eh;
+    }
 
     inline BOOL GetExportSelected()
     {
@@ -646,6 +655,7 @@ private:
     BOOL mDefUse; // Should we defUse the file?
     BOOL mUseLod; // Should we uselod the file?
     BOOL mExpLights; // Should we uselod the file?
+    BOOL mExpWorldSpace; // Should we export in WorldCoordinates?
     BOOL mCopyTextures; // Should we copyTextures?
     BOOL mForceWhite; // Should we force textured materials white?
     BOOL mExportOccluders; // export lines as occluders

@@ -103,6 +103,7 @@ BEGIN
     LTEXT           "Initial Sky:",IDC_STATIC,12,183,69,8
     CONTROL         "Lines as Occluders",IDC_Occluder,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,91,78,75,8
     CONTROL         "Force White Material",IDC_FORCE_WHITE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,93,312,81,8
+    CONTROL         "Export World Space",IDC_EXPORT_WORLD_SPACE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,77,76,8
 END
 
 IDD_URL_BOOKMARKS DIALOG 0, 0, 367, 224

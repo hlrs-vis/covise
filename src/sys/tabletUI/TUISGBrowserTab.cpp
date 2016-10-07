@@ -117,6 +117,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     connect(treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
     connect(treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(itemProperties()));
     connect(treeWidget, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(updateExpand(QTreeWidgetItem *)));
+    connect(treeWidget, SIGNAL(itemCheckStateChanged(QTreeWidgetItem *,bool)), this, SLOT(showNode(QTreeWidgetItem *,bool)));
 
     QHBoxLayout *Hlayout = new QHBoxLayout();
     layout->addLayout(Hlayout, 1, 0, 1, 1, Qt::AlignLeft);
@@ -1982,6 +1983,48 @@ void TUISGBrowserTab::CheckedItems(QString searchStr, bool show)
     }
 }
 
+void TUISGBrowserTab::showNode(QTreeWidgetItem *item, bool visible)
+{
+    QTreeWidgetItem *pI = item->parent();
+    if (pI)
+    {
+        int mode = 0;
+        if (visible)
+        {
+            mode = TABLET_BROWSER_SHOW_NODE;
+            if (item->parent()->text(3) == "hide")
+                setColorState(item, true, false);
+            else
+                setColorState(item, true);
+            item->setText(3, "show");
+        }
+        else
+        {
+            mode = TABLET_BROWSER_HIDE_NODE;
+            setColorState(item, false);
+            item->setText(3, "hide");
+        }
+
+        item->setText(5, "switch");
+
+        covise::TokenBuffer tb;
+
+        QString str = item->text(8);
+        QByteArray ba = str.toUtf8();
+        const char *path = ba.data();
+
+        str = pI->text(8);
+        QByteArray baP = str.toUtf8();
+        const char *parentPath = baP.data();
+
+        tb << ID;
+        tb << mode;
+        tb << path;
+        tb << parentPath;
+        TUIMainWindow::getInstance()->send(tb);
+    }
+}
+
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 void TUISGBrowserTab::CheckedItems(bool show)
 {
@@ -1994,44 +2037,8 @@ void TUISGBrowserTab::CheckedItems(bool show)
 
     for (i = 0; i < list.size(); i++)
     {
-
-        pI = list.at(i)->parent();
-        if (pI)
-        {
-            if (show)
-            {
-                mode = TABLET_BROWSER_SHOW_NODE;
-                if (list.at(i)->parent()->text(3) == "hide")
-                    setColorState(list.at(i), true, false);
-                else
-                    setColorState(list.at(i), true);
-                list.at(i)->setText(3, "show");
-            }
-            else
-            {
-                mode = TABLET_BROWSER_HIDE_NODE;
-                setColorState(list.at(i), false);
-                list.at(i)->setText(3, "hide");
-            }
-
-            list.at(i)->setText(5, "switch");
-
-            covise::TokenBuffer tb;
-
-            QString str = list.at(i)->text(8);
-            QByteArray ba = str.toUtf8();
-            const char *path = ba.data();
-
-            str = pI->text(8);
-            QByteArray baP = str.toUtf8();
-            const char *parentPath = baP.data();
-
-            tb << ID;
-            tb << mode;
-            tb << path;
-            tb << parentPath;
-            TUIMainWindow::getInstance()->send(tb);
-        }
+        QTreeWidgetItem *item = list.at(i);
+        showNode(item, show);
     }
 }
 
@@ -2159,11 +2166,11 @@ void TUISGBrowserTab::updateItemState(QTreeWidgetItem *item, int column)
         {
             if (item->checkState(0) == Qt::Unchecked)
             {
-                hideCheckedItems();
+                //hideCheckedItems();
             }
             else
             {
-                showCheckedItems();
+                //showCheckedItems();
             }
         }
     }
@@ -2412,6 +2419,21 @@ nodeTreeItem::nodeTreeItem(nodeTreeItem *item, const QString &text, QString clas
 
 nodeTreeItem::~nodeTreeItem()
 {
+}
+
+// see http:://stackoverflow.com/a/32403843
+void nodeTreeItem::setData(int column, int role, const QVariant &value)
+{
+    const bool isCheckChange = column==0
+        && role==Qt::CheckStateRole
+        && data(column, role).isValid()
+        && checkState(0) != value;
+    QTreeWidgetItem::setData(column, role, value);
+    if (isCheckChange)
+    {
+        nodeTree *tree = static_cast<nodeTree *>(treeWidget());
+        emit tree->itemCheckStateChanged(this, checkState(0)==Qt::Checked);
+    }
 }
 
 /*****************************************************************************

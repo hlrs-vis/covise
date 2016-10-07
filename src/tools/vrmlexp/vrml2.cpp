@@ -169,18 +169,48 @@ void AngAxisFromQa(const Quat &q, float *ang, Point3 &axis)
 }
 
 Matrix3
-GetLocalTM(INode *node, TimeValue t)
+VRML2Export::GetLocalTM(INode *node, TimeValue t)
 {
     Matrix3 tm;
-    tm = node->GetObjTMAfterWSM(t);
-#ifdef TEMP_TEST
-    if (getworldmat)
-        return tm;
-#endif
-    if (!node->GetParentNode()->IsRootNode())
+    if(mExpWorldSpace)
     {
-        Matrix3 ip = node->GetParentNode()->GetObjTMAfterWSM(t);
-        tm = tm * Inverse(ip);
+        tm = node->GetObjTMAfterWSM(t);
+#ifdef TEMP_TEST
+        if (getworldmat)
+            return tm;
+#endif
+        if (!node->GetParentNode()->IsRootNode())
+        {
+            Matrix3 ip = node->GetParentNode()->GetObjTMAfterWSM(t);
+            tm = tm * Inverse(ip);
+        }
+    }
+    else
+    {
+        Matrix3 mat;
+        if (node->GetObjTMAfterWSM(t).IsIdentity())
+     {
+      // It's in world space, so put it back into object
+      // space. We can do this by computing the inverse
+      // of the matrix returned before any world space
+      // modifiers were applied.
+      mat = Inverse(node->GetObjTMBeforeWSM(t));
+     }
+     else
+     {
+      // It's in object space, get the Object TM.
+      mat = node->GetObjectTM(t);
+     }
+        tm = node->GetObjTMBeforeWSM(t);
+#ifdef TEMP_TEST
+        if (getworldmat)
+            return tm;
+#endif
+        if (!node->GetParentNode()->IsRootNode())
+        {
+            Matrix3 ip = node->GetParentNode()->GetObjTMBeforeWSM(t);
+            tm = tm * Inverse(ip);
+        }
     }
     return tm;
 }
@@ -5274,7 +5304,7 @@ VRML2Export::ObjIsAnimated(Object *obj)
     if (!obj)
         return FALSE;
     Interval iv = obj->ObjectValidity(mStart);
-    return !(iv == FOREVER);
+    return (!(iv == FOREVER)) && (iv.Start() != iv.End());
 }
 
 static BOOL
@@ -8893,6 +8923,7 @@ VRML2Export::DoFBExport(const TCHAR *filename, Interface *i, VRBLExport *exp,
 
     mGenNormals = exp->GetGenNormals();
     mExpLights = exp->GetExpLights();
+    mExpWorldSpace = exp->GetExpWorldSpace();
     mCopyTextures = exp->GetCopyTextures();
     mForceWhite = exp->GetForceWhite();
     mExportSelected = exp->GetExportSelected();
@@ -9086,6 +9117,7 @@ VRML2Export::DoExport(const TCHAR *filename, Interface *i, VRBLExport *exp)
 
     mGenNormals = exp->GetGenNormals();
     mExpLights = exp->GetExpLights();
+    mExpWorldSpace = exp->GetExpWorldSpace();
     mCopyTextures = exp->GetCopyTextures();
     mForceWhite = exp->GetForceWhite();
     mExportSelected = exp->GetExportSelected();
