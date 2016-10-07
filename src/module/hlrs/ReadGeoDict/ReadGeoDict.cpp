@@ -43,6 +43,52 @@ inline const char *coBasename(const char *str)
     }
 }
 
+VarInfo::VarInfo()
+{
+    vector=false;
+    imageNumber=-1;
+    dataObjs = NULL;
+    x_d=0;y_d=0;z_d=0;
+    read=false;
+}
+
+VarInfo::~VarInfo()
+{
+}
+
+ArrayInfo::ArrayInfo()
+{
+    arrayNumber=-1;
+    numColumns=0;
+    numRows=0;
+}
+
+ArrayInfo::~ArrayInfo()
+{
+    for(std::vector<ArrayColumn *>::iterator it = columnInfos.begin(); it != columnInfos.end(); it++)
+    {
+        delete *it;
+    }
+}
+
+int ArrayColumn::varSize[NUM_TYPES]={sizeof(unsigned char),sizeof(int),sizeof(int64_t),sizeof(float),sizeof(double)};
+ArrayColumn::ArrayColumn()
+{
+    vector=false;
+    ColumnNumber=-1;
+    ColumnOffset=-1;
+    dataObjs = NULL;
+    x_d=0;y_d=0;z_d=0;
+    d_d=0;i_d=0;c_d=0;
+    ll_d=0;;
+    read=false;
+    
+}
+
+ArrayColumn::~ArrayColumn()
+{
+}
+
 // Module set-up in Constructor
 ReadGeoDict::ReadGeoDict(int argc, char *argv[])
     : coReader(argc, argv, "Read GeoDict data")
@@ -113,7 +159,7 @@ ReadGeoDict::param(const char *paramName, bool inMapLoading)
                         // fill in all species for the appropriate Ports/Choices
                         for (int i = 0; i < varInfos.size(); i++)
                         {
-                            dataChoices.push_back(varInfos[i].name);
+                            dataChoices.push_back(varInfos[i]->name);
                         }
                         if (inMapLoading)
                             return;
@@ -177,12 +223,18 @@ int ReadGeoDict::readHeader()
     nextLine();
 
     buf[1024] = '\0';
-
-    std::vector<std::string> names;
+    for(std::vector<VarInfo *>::iterator it = varInfos.begin(); it != varInfos.end(); it++)
+    {
+        delete *it;
+    }
+    for(std::vector<ArrayInfo *>::iterator it = arrayInfos.begin(); it != arrayInfos.end(); it++)
+    {
+        delete *it;
+    }
     varInfos.clear();
-    names.clear();
     
             int lastImageNumber=0;
+            int lastArrayNumber=0;
     while (strlen(currentLine)>0)
     {
         if(strncmp(currentLine,"Image",5)==0)
@@ -191,10 +243,8 @@ int ReadGeoDict::readHeader()
             sscanf(currentLine+5,"%d",&imageNumber);
             if(imageNumber != lastImageNumber)
             {
-                VarInfo vi;
-                vi.read = false;
-                vi.vector = false;
-                vi.imageNumber = imageNumber;
+                VarInfo *vi=new VarInfo;
+                vi->imageNumber = imageNumber;
                 varInfos.push_back(vi);
                 lastImageNumber = imageNumber;
             }
@@ -208,11 +258,111 @@ int ReadGeoDict::readHeader()
                 c++;
                 if(strncmp(c,"Names",5) == 0)
                 {
-                    varInfos[imageNumber-1].name = c+6;
+                    varInfos[imageNumber-1]->name = c+6;
                 }
                 if(strncmp(c,"Meaning vector",14) == 0)
                 {
-                    varInfos[imageNumber-1].vector = true;
+                    varInfos[imageNumber-1]->vector = true;
+                }
+            }
+        }
+        if(strncmp(currentLine,"Array",5)==0)
+        {
+            int arrayNumber=0;
+            sscanf(currentLine+5,"%d",&arrayNumber);
+            if(arrayNumber != lastArrayNumber)
+            {
+                ArrayInfo *ai= new ArrayInfo();
+                ai->arrayNumber = arrayNumber;
+                arrayInfos.push_back(ai);
+                lastArrayNumber = arrayNumber;
+            }
+            char *c = currentLine+5;
+            while(*c!='\0' && (*c != ':'))
+            {
+                c++;
+            }
+            if(*c!='\0')
+            {
+                c++;
+                if(strncmp(c,"NumberOfColumns",15) == 0)
+                {
+                    sscanf(c+16,"%d",&arrayInfos[arrayNumber-1]->numColumns);
+                }
+                if(strncmp(c,"NumberOfRows",12) == 0)
+                {
+                    sscanf(c+13,"%d",&arrayInfos[arrayNumber-1]->numRows);
+                }
+                if(strncmp(c,"ColumnNames",11) == 0)
+                {
+                    c+=12;
+                    for(int i=0;i<arrayInfos[arrayNumber-1]->numColumns;i++)
+                    {
+                        char *varName = c;
+                        while((*c != ',') && (*c != '\n'))
+                            c++;
+                        *c='\0';
+                        ArrayColumn *ac= new ArrayColumn();
+                        ac->name = varName;
+                        ac->ColumnNumber = i;
+                        if((ac->name == "Position X") || (ac->name == "Velocity X"))
+                        {
+                            ac->vector = true;
+                            while((*c != ',') && (*c != '\n'))
+                                c++;
+                            *c='\0';
+                            c++;
+                            while((*c != ',') && (*c != '\n'))
+                                c++;
+                            *c='\0';
+                            c++;
+                            i+=2;
+                        }
+                        arrayInfos[arrayNumber-1]->columnInfos.push_back(ac);
+                        c++;
+                    }
+                }
+                
+                if(strncmp(c,"Types",5) == 0)
+                {
+                    c+=6;
+                    int column=0;
+                    int columnOffset = 0;
+                    for(int i=0;i<arrayInfos[arrayNumber-1]->numColumns;i++)
+                    {
+                        char *varName = c;
+                        while((*c != ',') && (*c != '\n'))
+                            c++;
+                        *c='\0';
+                        ArrayColumn *ac= arrayInfos[arrayNumber-1]->columnInfos[column];
+                        if(ac->vector)
+                            i+=2;
+                        ac->ColumnOffset = columnOffset; 
+                        ac->ColumnNumber = i;
+                        if(strcmp(varName,"int_8")==0)
+                        {
+                            ac->variableType = ArrayColumn::T_INT_8;
+                        }
+                        else if(strcmp(varName,"int_32")==0)
+                        {
+                            ac->variableType = ArrayColumn::T_INT_32;
+                        }
+                        else if(strcmp(varName,"int_64")==0)
+                        {
+                            ac->variableType = ArrayColumn::T_INT_64;
+                        }
+                        else if(strcmp(varName,"float")==0)
+                        {
+                            ac->variableType = ArrayColumn::T_FLOAT;
+                        }
+                        else if(strcmp(varName,"double")==0)
+                        {
+                            ac->variableType = ArrayColumn::T_DOUBLE;
+                        }
+                        columnOffset+=ArrayColumn::varSize[ac->variableType];
+                        c++;
+                        column++;
+                    }
                 }
             }
         }
@@ -235,7 +385,7 @@ int ReadGeoDict::readHeader()
         
         nextLine();
     }
-
+    return 1;
 }
 
 // taken from old ReadGeoDict module: 2-Pass reading
@@ -258,29 +408,29 @@ int ReadGeoDict::readData()
                 //printf("%d %d\n",pos,n);
                 if (pos > 0)
                 {
-                    if (varInfos[pos - 1].imageNumber == varNumber+1 && varInfos[pos - 1].read == false) // this port needs want to have this data
+                    if (varInfos[pos - 1]->imageNumber == varNumber+1 && varInfos[pos - 1]->read == false) // this port needs want to have this data
                     {
                         portID = DPORT1_3D + n;
-                        if(varInfos[pos - 1].vector)
+                        if(varInfos[pos - 1]->vector)
                         {
                             coDoVec3 *dataObj = new coDoVec3(READER_CONTROL->getAssocObjName(DPORT1_3D + n).c_str(), numValues);
-                            dataObj->getAddresses(&varInfos[pos - 1].x_d,&varInfos[pos - 1].y_d,&varInfos[pos - 1].z_d);
+                            dataObj->getAddresses(&varInfos[pos - 1]->x_d,&varInfos[pos - 1]->y_d,&varInfos[pos - 1]->z_d);
                             float *dataBuf = new float[numValues * 3];
                             fread(dataBuf,sizeof(float),numValues*3,d_dataFile);
                             for(int u=0;u<Nx;u++)
                             for(int v=0;v<Ny;v++)
                             for(int w=0;w<Nz;w++)
                             {
-                                varInfos[pos - 1].x_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3];
-                                varInfos[pos - 1].y_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3+1];
-                                varInfos[pos - 1].z_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3+2];
+                                varInfos[pos - 1]->x_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3];
+                                varInfos[pos - 1]->y_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3+1];
+                                varInfos[pos - 1]->z_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx*3+v*Nx*3+u*3+2];
                             }
                             delete[] dataBuf;
                         }
                         else
                         {
                             coDoFloat *dataObj = new coDoFloat(READER_CONTROL->getAssocObjName(DPORT1_3D + n).c_str(), numValues);
-                            dataObj->getAddress(&varInfos[pos - 1].x_d);
+                            dataObj->getAddress(&varInfos[pos - 1]->x_d);
                             
                             float *dataBuf = new float[numValues];
                             fread(dataBuf,sizeof(float),numValues,d_dataFile);
@@ -288,11 +438,11 @@ int ReadGeoDict::readData()
                             for(int v=0;v<Ny;v++)
                             for(int w=0;w<Nz;w++)
                             {
-                                varInfos[pos - 1].x_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx+v*Nx+u];
+                                varInfos[pos - 1]->x_d[u*Ny*Nz+v*Nz+w]=dataBuf[w*Ny*Nx+v*Nx+u];
                             }
                             delete[] dataBuf;
                         }
-                        varInfos[pos - 1].read = true;
+                        varInfos[pos - 1]->read = true;
                     }
                 }
             }
