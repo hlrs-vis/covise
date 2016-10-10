@@ -145,6 +145,7 @@ pangolin        Ubuntu 12.04 Precise Pangolin on x86_64 (64 bit mode)
 tahr            Ubuntu 14.04 Trusty Tahr on x86_64 (64 bit mode)
 vervet          Ubuntu 15.04 Vivid Vervet on x86_64 (64 bit mode)
 werewolf        Ubuntu 15.10 Wily Werewolf on x86_64 (64 bit mode)
+xerus           Ubuntu 16.04 Xenial Xerus on x86_64 (64 bit mode)
 
 sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1
