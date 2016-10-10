@@ -499,7 +499,7 @@ void MultiChannelDrawer::initChannelData(ChannelData &cd) {
    cd.camera = coVRConfig::instance()->channels[cd.channelNum].camera;
 
    cd.colorTex = new osg::TextureRectangle;
-   auto cimg = new osg::Image();
+   osg::Image *cimg = new osg::Image();
    cd.colorTex->setImage(new osg::Image());
    cimg->setPixelBufferObject(new osg::PixelBufferObject(cimg));
    cd.colorTex->setInternalFormat( GL_RGBA );
@@ -508,7 +508,7 @@ void MultiChannelDrawer::initChannelData(ChannelData &cd) {
    cd.colorTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
    cd.depthTex = new osg::TextureRectangle;
-   auto dimg = new osg::Image();
+   osg::Image *dimg = new osg::Image();
    cd.depthTex->setImage(dimg);
    dimg->setPixelBufferObject(new osg::PixelBufferObject(dimg));
    cd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
@@ -655,7 +655,7 @@ unsigned char *MultiChannelDrawer::depth(int idx) const {
 void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
 
    for (size_t i=0; i<m_channelData.size(); ++i) {
-       auto &cd = m_channelData[i];
+       ChannelData &cd = m_channelData[i];
        osg::StateSet *state = cd.reprojGeo->getStateSet();
        assert(state);
 

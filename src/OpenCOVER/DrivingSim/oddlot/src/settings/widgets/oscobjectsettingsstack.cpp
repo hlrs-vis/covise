@@ -92,12 +92,16 @@ OSCObjectSettingsStack::addWidget(QWidget *widget)
 	widget->setFocus();
 }
 
+QWidget *
+OSCObjectSettingsStack::getLastWidget()
+{
+	return stack_->currentWidget();
+}
 
 
 //################//
 // SLOTS          //
 //################//
-
 void 
 OSCObjectSettingsStack::removeWidget()
 {

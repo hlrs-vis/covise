@@ -28,13 +28,13 @@ public:
     oscEnvironment()
     {
         OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER(timeOfDay, "oscTimeOfDay");
+        OSC_OBJECT_ADD_MEMBER(timeOfDay, "oscTimeOfDayWithAnimation");
         OSC_OBJECT_ADD_MEMBER(weather, "oscWeather");
         OSC_OBJECT_ADD_MEMBER(roadConditionsGroup, "oscRoadConditionsGroup");
     };
 
     oscFileHeaderMember fileHeader;
-    oscTimeOfDayMember timeOfDay;
+    oscTimeOfDayWithAnimationMember timeOfDay;
     oscWeatherMember weather;
     oscRoadConditionsGroupMember roadConditionsGroup;
 };

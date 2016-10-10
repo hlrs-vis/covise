@@ -83,7 +83,12 @@ private:
     void updateProperties();
 	void loadProperties(OpenScenario::oscMember *member, QWidget *widget);
 	void formatLabel(QLabel *label, const QString &memberName);
+	int formatDirLabel(QLabel *label, const QString &memberName);
 	void addTreeItem(QTreeWidget *arrayTree, int name);
+	QString getStackText()
+	{
+		return objectStackText_;
+	}
 
 	//################//
 	// SIGNALS        //
@@ -102,6 +107,7 @@ private slots:
 	void onNewArrayElement();
 	void onValueChanged();
 	void onChoiceChanged(const QString &text);
+	void onCloseWidget();
 
     //################//
     // PROPERTIES     //
@@ -113,6 +119,7 @@ private:
 	OSCObjectSettingsStack *parentStack_;
 
     OpenScenario::oscObjectBase *object_;
+	QString objectStackText_;
 	OpenScenario::oscArrayMember *oscArrayMember_;
 	QTreeWidget *arrayTree_;
 	QComboBox *choiceComboBox_;

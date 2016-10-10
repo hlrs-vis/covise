@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_TBD">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="to be defined" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<!-- -->
+<!-- OSCSpline -->
+<!-- -->
+
+
+<xsd:complexType name="OSCSpline">
+   <xsd:all>
+        <xsd:element name="controlPoint1">
+            <xsd:complexType>
+                <xsd:attribute name="status"   type="Enum_TBD" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        <xsd:element name="controlPoint2">
+            <xsd:complexType>
+                <xsd:attribute name="status"   type="Enum_TBD" use="required"/>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:all>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

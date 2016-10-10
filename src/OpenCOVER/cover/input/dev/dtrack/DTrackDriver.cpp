@@ -80,7 +80,8 @@ DTrackDriver::DTrackDriver(const std::string &config)
 
     m_numBodies = 0;
     m_numFlySticks = 0;
-    m_bodyBase = m_numFlySticks;
+    m_flystickBase = 0;
+    m_bodyBase = m_flystickBase+m_numFlySticks;
 
     m_numHands = 0;
     m_handBase = m_bodyBase+m_numFlySticks;
@@ -242,7 +243,6 @@ bool DTrackDriver::poll()
     		dt->getNumHand() != m_numHands )
     {
         m_mutex.lock();
-        size_t numMat = dt->getNumBody() + dt->getNumFlyStick() + dt->getNumHand();
         m_numFlySticks = dt->getNumFlyStick();
         m_numBodies = dt->getNumBody();
         m_bodyBase = m_numFlySticks;
@@ -251,10 +251,31 @@ bool DTrackDriver::poll()
         m_numHands = dt->getNumHand();
         m_handBase = m_bodyBase + m_numBodies;
 
+        m_bodyBase = coCoviseConfig::getInt("bodyBase", configPath(), m_bodyBase);
+        m_flystickBase = coCoviseConfig::getInt("flystickBase", configPath(), m_flystickBase);
+        m_handBase = coCoviseConfig::getInt("handBase", configPath(), m_handBase);
+
+        if (m_bodyBase < 0)
+        {
+            std::cerr << "bodyBase " << m_bodyBase << " below zero" << std::endl;
+            m_bodyBase = 0;
+        }
+        if (m_handBase < 0)
+        {
+            std::cerr << "handBase " << m_handBase << " below zero" << std::endl;
+            m_handBase = 0;
+        }
+        if (m_flystickBase < 0)
+        {
+            std::cerr << "flystickBase " << m_flystickBase << " below zero" << std::endl;
+            m_flystickBase = 0;
+        }
+        // FIXME: check that indices don't overlap
+
+        const size_t numMat = std::max(std::max(m_bodyBase+m_numBodies, m_flystickBase+m_numFlySticks), m_handBase+m_numHands);
         m_bodyMatrices.resize(numMat);
         m_bodyMatricesValid.resize(numMat);
         m_mutex.unlock();
-
     }
 
     m_mutex.lock();

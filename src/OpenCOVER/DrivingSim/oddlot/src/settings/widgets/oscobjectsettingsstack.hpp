@@ -46,6 +46,7 @@ public:
 	int getStackSize();
 
 	void addWidget(QWidget *widget);
+	QWidget *getLastWidget();
 
 private:
 
@@ -59,7 +60,7 @@ signals:
     // SLOTS          //
     //################//
 
-private slots:
+public slots:
 	void removeWidget();
 
     //################//

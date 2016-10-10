@@ -16,8 +16,10 @@ FIND_PATH(PCL_INCLUDE_DIR "pcl/pcl_base.h"
   $ENV{EXTERNLIBS}/pcl/include/pcl-1.7
   ~/Library/Frameworks
   /Library/Frameworks
-  /usr/local
-  /usr
+  /usr/local/include
+  /usr/local/include/pcl-1.7
+  /usr/include
+  /usr/include/pcl-1.7
   /sw # Fink
   /opt/local # DarwinPorts
   /opt/csw # Blastwave

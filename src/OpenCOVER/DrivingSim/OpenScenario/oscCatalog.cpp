@@ -45,7 +45,7 @@ oscCatalog::CatalogTypeTypeNameMap initFuncCatToType()
     return catToType;
 }
 
-const oscCatalog::CatalogTypeTypeNameMap oscCatalog::s_catalogTypeToTypeName = initFuncCatToType();
+const oscCatalog::CatalogTypeTypeNameMap oscCatalog::s_catalogNameToTypeName = initFuncCatToType();
 
 
 
@@ -108,13 +108,13 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 
     for (size_t i = 0; i < filenames.size(); i++)
     {
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogType, validate);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogName, getType(m_catalogName), validate);
 
         if (rootElem)
         {
             std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
-            if (rootElemName == m_catalogType)
+            if (rootElemName == m_catalogName)
             {
                 xercesc::DOMAttr *attribute = rootElem->getAttributeNode(xercesc::XMLString::transcode("refId"));
                 if (attribute)
@@ -127,7 +127,7 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 
                         if (found != m_Objects.end())
                         {
-                            std::cerr << "Warning! Object for catalog " << m_catalogType << " with refId " << objectRefId << " from " << filenames[i] << " is ignored." << std::endl;
+                            std::cerr << "Warning! Object for catalog " << m_catalogName << " with refId " << objectRefId << " from " << filenames[i] << " is ignored." << std::endl;
 							std::cerr << "First appearance from file " << found->second.fileName << " is used." << std::endl;
                         }
                         else
@@ -138,12 +138,12 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
                     }
                     else
                     {
-                        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << filenames[i] << " has an invalid refId and can't be used." << std::endl;
+                        std::cerr << "Warning! Object for catalog " << m_catalogName << " in " << filenames[i] << " has an invalid refId and can't be used." << std::endl;
                     }
                 }
                 else
                 {
-                    std::cerr << "Warning! Can't find an object for catalog " << m_catalogType << " in file " << filenames[i] << " with attribute 'refId'." << std::endl;
+                    std::cerr << "Warning! Can't find an object for catalog " << m_catalogName << " in file " << filenames[i] << " with attribute 'refId'." << std::endl;
                 }
             }
         }
@@ -154,14 +154,14 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 
 
 //
-void oscCatalog::setCatalogType(const std::string &catalogType)
+void oscCatalog::setCatalogName(const std::string &catalogName)
 {
-    m_catalogType = catalogType;
+    m_catalogName = catalogName;
 }
 
-std::string oscCatalog::getCatalogType() const
+std::string oscCatalog::getCatalogName() const
 {
-    return m_catalogType;
+    return m_catalogName;
 }
 
 
@@ -205,7 +205,7 @@ bool oscCatalog::removeObjFromObjectsMap(const int objectRefId)
 
 std::string oscCatalog::getType(const std::string &typeName)
 {
-	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogTypeToTypeName.find(typeName);
+	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogNameToTypeName.find(typeName);
 	return it->second;
 }
 
@@ -228,15 +228,15 @@ bool oscCatalog::fullReadCatalogObjectWithName(const int objectRefId)
 
         //in fullReadCatalogObjectWithName no validation should be done,
         //because during fastReadCatalogObjects validation is done
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogType, false);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogName, getType(m_catalogName), false);
         if (rootElem)
         {
             std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
-            if (rootElemName == m_catalogType)
+            if (rootElemName == m_catalogName)
             {
-                CatalogTypeTypeNameMap::const_iterator found = s_catalogTypeToTypeName.find(m_catalogType);
-                if (found != s_catalogTypeToTypeName.end())
+                CatalogTypeTypeNameMap::const_iterator found = s_catalogNameToTypeName.find(m_catalogName);
+                if (found != s_catalogNameToTypeName.end())
                 {
                     //sourceFile for objectName
                     oscSourceFile *srcFile = new oscSourceFile();
@@ -279,7 +279,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const int objectRefId)
                     oscObjectBase *obj = oscFactories::instance()->objectFactory->create(catalogTypeName);
                     if(obj)
                     {
-                        obj->initialize(getBase(), NULL, NULL, srcFile);
+                        obj->initialize(getBase(), this, NULL, srcFile);
                         obj->parseFromXML(rootElem, srcFile);
                         //add objectName and object to oscCatalog map
 
@@ -299,7 +299,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const int objectRefId)
                 }
                 else
                 {
-                    std::cerr << "Warning! Can't determine an typeName for catalog " << m_catalogType << std::endl;
+                    std::cerr << "Warning! Can't determine an typeName for catalog " << m_catalogName << std::endl;
                 }
             }
         }
@@ -333,7 +333,7 @@ bool oscCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePath)
     }
     else
     {
-        std::cerr << "Warning! Object for catalog " << m_catalogType << " in " << fileNamePath << " has an empty refId and can't be used." << std::endl;
+        std::cerr << "Warning! Object for catalog " << m_catalogName << " in " << fileNamePath << " has an empty refId and can't be used." << std::endl;
     }
 
     return success;
@@ -418,7 +418,7 @@ bool oscCatalog::removeCatalogObject(const int objectRefId)
     }
     else
     {
-        std::cerr << "Error! Can't remove object with refId " << objectRefId << " from catalog " << m_catalogType << ". Object not found." << std::endl;
+        std::cerr << "Error! Can't remove object with refId " << objectRefId << " from catalog " << m_catalogName << ". Object not found." << std::endl;
         return false;
     }
 }
@@ -497,13 +497,13 @@ oscCatalog::SuccessIntVar oscCatalog::getObjectRefIdFromFile(const bf::path &fil
     SuccessIntVar successIntVar = std::make_pair(false, -1);
     OpenScenarioBase *oscBase = new OpenScenarioBase;
     bool validate = getBase()->getValidation();
-    xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogType, validate);
+    xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogName, getType(m_catalogName), validate);
 
     if (rootElem)
     {
         std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
-        if (rootElemName == m_catalogType)
+        if (rootElemName == m_catalogName)
         {
             //attribute refId is of type int (oscInt) and store the value of objectRefId
             xercesc::DOMAttr *attribute = rootElem->getAttributeNode(xercesc::XMLString::transcode("refId"));
@@ -556,7 +556,7 @@ bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile
 		//catalog type
 		std::string catalogType = getOwnMember()->getName();
 		catalogType.erase(catalogType.length() - std::string("Catalog").length());
-		setCatalogType(catalogType);
+		setCatalogName(catalogType);
 
 		//path to directory
 		//object/member is of type oscCatalog and has a member directory,
@@ -597,8 +597,8 @@ bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile
 	return result;
 }
 //
-bool oscCatalog::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+bool oscCatalog::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
 	writeCatalogToDOM();
-	return oscObjectBase::writeToDOM(currentElement,document);
+	return oscObjectBase::writeToDOM(currentElement,document,writeInclude);
 }

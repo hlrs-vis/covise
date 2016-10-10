@@ -84,13 +84,13 @@ public:
         return valueT != NULL;
     };
 
-    bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+    bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true)
     {
         if(valueT != NULL)
         {
             xercesc::DOMElement *memberElement = document->createElement(xercesc::XMLString::transcode(TBase::name.c_str()));
             currentElement->appendChild(memberElement);
-            valueT->writeToDOM(memberElement,document);
+            valueT->writeToDOM(memberElement,document,writeInclude);
             return true;
         }
         return false;

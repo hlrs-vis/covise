@@ -76,16 +76,15 @@ INCLUDE_DIRECTORIES(
    ${V8_INCLUDE_DIR}
 )
 
-cover_add_plugin(TrafficSimulation
-   RoadTerrain
-   ${OSGTERRAIN_LIBRARIES}
-   ${OSGCAL_LIBRARIES}
-   ${EXTRA_LIBS}
-   SteeringWheel #required for vrmlNodeVehicle (windows)
-   ${EXTRA_LIBS}
-   coOpenVehicleUtil
-)
+cover_add_plugin(TrafficSimulation  ${HEADERS} ${SOURCES})
 qt_use_modules(TrafficSimulation Script ScriptTools)
+target_link_libraries(TrafficSimulation
+ ${OSGTERRAIN_LIBRARIES}
+ ${OSGCAL_LIBRARIES}
+ ${EXTRA_LIBS}
+ RoadTerrain
+ SteeringWheel #required for vrmlNodeVehicle (windows)
+ coOpenVehicleUtil)
 
 IF(MSVC80 OR MSVC90)
   ADD_COVISE_COMPILE_FLAGS(TrafficSimulation "/Zc:wchar_t-")

@@ -66,6 +66,7 @@ void cudaLight::tabletEvent(coTUIElement *tUIItem)
 bool cudaLight::init()
 {
     fprintf(stderr, "cudaLight::init\n");
+    dD = new dustDrawable();
     return true;
 }
 

@@ -49,7 +49,7 @@ class CatalogWidget : public QWidget
     //################//
 
 public:
-	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &type);
+	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &name);
     virtual ~CatalogWidget();
 
 /*	void setActiveProject(ProjectWidget *projectWidget)
@@ -102,7 +102,7 @@ private:
 	//
 	OSCBase *base_;
 
-	const QString type_;	// catalog type
+	const QString name_;	// catalog type
 
 	OpenScenario::oscObjectBase *object_;
 	OSCElement *oscElement_;

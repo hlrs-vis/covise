@@ -19,6 +19,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 
 using namespace OpenScenario;
@@ -173,7 +176,7 @@ oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 
 
 //
-bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
     for(MemberMap::iterator it = members.begin();it != members.end(); it++)
     {
@@ -193,14 +196,11 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
 
                     //xml document for member
-					xercesc::DOMDocument *srcXmlDoc;
-
-					srcXmlDoc = obj->getSource()->getXmlDoc();
-
+					xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
 
                     //determine document and element for writing
                     //
-                    if (document != srcXmlDoc)
+                    if ((document != srcXmlDoc) && writeInclude)
                     {
                         //add include element to currentElement and add XInclude namespace to root element of new xml document
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
@@ -242,20 +242,20 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 
                             //write array element into ArrayMember (the container)
                             //(it's a root element of a new xml document or the container written with writeArrayMemberToDOM())
-                            obj->writeToDOM(elementToUse, docToUse);
+                            obj->writeToDOM(elementToUse, docToUse, writeInclude);
                         }
                     }
                     else
                     {
-                        if (document != srcXmlDoc)
+                        if ((document != srcXmlDoc) && writeInclude)
                         {
                             //write members of member into root element of new xml document
-                            obj->writeToDOM(elementToUse, docToUse);
+                            obj->writeToDOM(elementToUse, docToUse, writeInclude);
                         }
                         else
                         {
                             //oscMember
-                            member->writeToDOM(elementToUse, docToUse);
+                            member->writeToDOM(elementToUse, docToUse, writeInclude);
                         }
                     }
 
@@ -270,7 +270,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                 }
                 else
                 {
-                    member->writeToDOM(currentElement,document);
+                    member->writeToDOM(currentElement,document,writeInclude);
                 }
             }
         }
@@ -520,19 +520,19 @@ bool oscObjectBase::writeToDisk()
 	return true;
 }
 
-oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const std::string &type, const std::string &typeName, oscSourceFile *srcFile)
+oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const std::string &memberName, const std::string &typeName, oscSourceFile *srcFile)
 {
 	oscObjectBase *obj = NULL;
 	OpenScenarioBase *oscBase = new OpenScenarioBase;
 
 	//in readDefaultXMLObject no validation should be done,
 	//because default objects are valid
-	xercesc::DOMElement *rootElem = oscBase->getDefaultXML(type);
+	xercesc::DOMElement *rootElem = oscBase->getDefaultXML(typeName);
 	if (rootElem)
 	{
 		std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
-		if (rootElemName == type)
+		if (rootElemName == memberName)
 		{
 			bool newSourceFile = false;
 			if (!srcFile)
@@ -600,6 +600,87 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const 
 
 	return obj;
 
+}
+
+void oscObjectBase::validate(std::string *errorMessage)
+{
+	// write temporary file
+	//
+	bf::path tmpFilename = bf::temp_directory_path() / bf::path("tmpValidate.xosc");
+	std::cerr << tmpFilename << std::endl;
+
+	xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+
+	std::string name = ownMember->getName();
+
+	const XMLCh *source = xercesc::XMLString::transcode(name.c_str());
+	xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, source, 0);
+	if (xmlSrcDoc)
+	{
+		writeToDOM(xmlSrcDoc->getDocumentElement(), xmlSrcDoc, false);
+
+
+#if (XERCES_VERSION_MAJOR < 3)
+		xercesc::DOMWriter *writer = impl->createDOMWriter();
+		xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(tmpFilename.generic_string().c_str());
+		if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
+
+		{
+			std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+			delete xmlTarget;
+			delete writer;
+			return false;
+		}
+
+#else
+		xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+		// set the format-pretty-print feature
+		if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+		{
+			writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+		}
+
+		xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(tmpFilename.generic_string().c_str());
+
+		xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+		output->setByteStream(xmlTarget);
+
+		if (!writer->write(xmlSrcDoc, output))
+		{
+			std::string msg = "OpenScenarioBase::writeXosc: Could not open temporary file for writing!";
+			errorMessage = &msg;
+			std::cerr << errorMessage << std::endl;
+			delete output;
+			delete xmlTarget;
+			delete writer;
+			delete xmlSrcDoc;
+
+			return;
+		}
+
+		delete output;
+#endif
+
+		delete xmlTarget;
+		delete writer;
+		delete xmlSrcDoc;
+
+		// validate temporaryFile
+		//
+		OpenScenarioBase *oscBase = new OpenScenarioBase;
+		oscBase->getRootElement(tmpFilename.string(), name,ownMember->getTypeName(), true, errorMessage); 
+		delete oscBase;
+
+		try
+		{
+			bf::remove(tmpFilename);
+		}
+		catch(...)
+		{
+			std::cout << tmpFilename << std::endl;
+		}
+
+	}
 }
 
 

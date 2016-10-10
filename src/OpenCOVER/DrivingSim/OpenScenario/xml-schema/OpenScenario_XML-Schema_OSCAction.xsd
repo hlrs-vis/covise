@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCAutonomous.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCSpeed.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCLaneChange.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCFollowRoute.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCLaneOffset.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPosition.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCDistanceLateral.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCDistanceLongitudinal.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCVisibility.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCCharacterAppearance.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCCharacterMotion.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCCharacterGesture.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCTrafficLight.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCEntityAdd.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCEntityDelete.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCTrafficJam.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCTrafficSource.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCTrafficSink.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDefinedCommand.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDefinedAction.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserScript.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCNotify.xsd"/>
+
+<xsd:element name="CHOICE_maneuver__action" abstract="true"/>
+<!-- -->
+<xsd:element name="autonomous"   substitutionGroup="CHOICE_maneuver__action" type="OSCAutonomous"/>
+<xsd:element name="speed"   substitutionGroup="CHOICE_maneuver__action" type="OSCSpeed"/>
+<xsd:element name="laneChange"   substitutionGroup="CHOICE_maneuver__action" type="OSCLaneChange"/>
+<xsd:element name="followRoute"   substitutionGroup="CHOICE_maneuver__action" type="OSCFollowRoute"/>
+<xsd:element name="laneOffset"   substitutionGroup="CHOICE_maneuver__action" type="OSCLaneOffset"/>
+
+<xsd:element name="position"   type="OSCPosition"   substitutionGroup="CHOICE_maneuver__action"/>
+<xsd:element name="distanceLateral"   substitutionGroup="CHOICE_maneuver__action" type="OSCDistanceLateral"/>
+<xsd:element name="distanceLongitudinal"   substitutionGroup="CHOICE_maneuver__action" type="OSCDistanceLongitudinal"/>
+<xsd:element name="visibility"   substitutionGroup="CHOICE_maneuver__action" type="OSCVisibility"/>
+<xsd:element name="characterAppearance"   substitutionGroup="CHOICE_maneuver__action" type="OSCCharacterAppearance"/>
+<xsd:element name="characterMotion"   substitutionGroup="CHOICE_maneuver__action" type="OSCCharacterMotion"/>
+<xsd:element name="characterGesture"   substitutionGroup="CHOICE_maneuver__action" type="OSCCharacterGesture"/>
+<xsd:element name="trafficLight"   substitutionGroup="CHOICE_maneuver__action" type="OSCTrafficLight"/>
+<xsd:element name="entityAdd"   substitutionGroup="CHOICE_maneuver__action" type="OSCEntityAdd"/>
+<xsd:element name="entityDelete"   substitutionGroup="CHOICE_maneuver__action" type="OSCEntityDelete"/>
+
+<xsd:element name="trafficJam"   substitutionGroup="CHOICE_maneuver__action" type="OSCTrafficJam"/>
+<xsd:element name="trafficSource"   substitutionGroup="CHOICE_maneuver__action" type="OSCTrafficSource"/>
+<xsd:element name="trafficSink"   substitutionGroup="CHOICE_maneuver__action" type="OSCTrafficSink"/>
+
+<xsd:element name="userDefinedCommand"   substitutionGroup="CHOICE_maneuver__action" type="OSCUserDefinedCommand"/>
+<xsd:element name="userDefinedAction"   substitutionGroup="CHOICE_maneuver__action" type="OSCUserDefinedAction"/>
+<xsd:element name="userScript"   substitutionGroup="CHOICE_maneuver__action" type="OSCUserScript"/>
+
+<xsd:element name="notify"   substitutionGroup="CHOICE_maneuver__action" type="OSCNotify"/>
+
+
+<!-- -->
+<!-- OSCStartConditionGroup -->
+<!-- -->
+
+
+<xsd:complexType name="OSCAction">
+    <xsd:all>
+        <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CHOICE_maneuver__action"/>
+    </xsd:all>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

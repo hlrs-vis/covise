@@ -208,7 +208,7 @@ do
  	    ;;
 	34)
 	    echo -e "Adidas"
-            opencover /data/strabag/Adidas/04_vrml/praesentation.wrl
+            opencover /data/strabag/Adidas/04-vrml/praesentation.wrl
  	    ;;
 
 # LKA

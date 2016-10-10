@@ -113,7 +113,7 @@ public:
 
 	// Add catalogs //
 	//
-	CatalogTreeWidget *addCatalogTree(const QString & type, OpenScenario::oscCatalog *catalog);
+	CatalogTreeWidget *addCatalogTree(const QString & name, OpenScenario::oscCatalog *catalog);
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);

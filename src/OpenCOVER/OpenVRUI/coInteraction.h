@@ -10,7 +10,6 @@
 
 #include <util/coTypes.h>
 #include <string>
-#include "sginterface/vruiButtons.h"
 
 namespace vrui
 {
@@ -45,10 +44,24 @@ public:
     enum InteractionType
     {
         ButtonA = 0, // vruiButtons is a bitmask while InteractionType can only be a consecutive number of types!!  = vruiButtons::ACTION_BUTTON,
+        ButtonAction = ButtonA,
         ButtonB, // = vruiButtons::DRIVE_BUTTON,
+        ButtonDrive = ButtonB,
         ButtonC, // = vruiButtons::XFORM_BUTTON,
-        ButtonD, // = vruiButtons::USER1_BUTTON,
-        ButtonE, // = vruiButtons::USER4_BUTTON,
+        ButtonXform = ButtonC,
+        ButtonD,
+        ButtonForward = ButtonD,
+        ButtonE,
+        ButtonBack = ButtonE,
+        ButtonToggleDocuments,
+        ButtonDrag,
+        ButtonZoom,
+        ButtonMenu,
+        ButtonQuit,
+        ButtonNextInter,
+        ButtonPrevInter,
+        ButtonNextPerson,
+        ButtonPrevPersion,
         Wheel, // = vruiButtons::WHEEL,
         Joystick,
         AllButtons, // = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,

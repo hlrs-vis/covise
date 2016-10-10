@@ -12,7 +12,7 @@
  <CLUSTER MASTER="viscluster50">
    <Bicycle>
         <udp value="on"/>
-        <serverHost value="141.58.8.28" />
+        <serverHost value="141.58.8.173" /> <!-- medialab14 -->
    </Bicycle>
    <COVER>
      

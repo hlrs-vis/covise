@@ -14,11 +14,8 @@
 **************************************************************************/
 
 #include "boundingboxvisitor.hpp"
-#ifdef WIN32
-#define isnan _isnan
-#endif
 
-#include <math.h>
+#include <cmath>
 #include <float.h>
 
 // Data //
@@ -35,9 +32,7 @@
 #include "src/data/scenerysystem/scenerysystem.hpp"
 #include "src/data/scenerysystem/scenerymap.hpp"
 
-// Utils //
-//
-#include "math.h"
+#include <util/unixcompat.h>
 
 // NOTE:this is just an approximation!
 
@@ -74,7 +69,7 @@ BoundingBoxVisitor::visit(TrackElement *acceptor)
     double x = (pointA.x() < pointB.x()) ? pointA.x() : pointB.x();
     double y = (pointA.y() < pointB.y()) ? pointA.y() : pointB.y();
     //	qDebug() << QRectF(x, y, width, height) << "\n";
-    if (!(isnan(x) || isnan(y) || isnan(width) || isnan(height)))
+    if (!(std::isnan(x) || std::isnan(y) || std::isnan(width) || std::isnan(height)))
         boundingBox_ = boundingBox_.united(QRectF(x, y, width, height));
 }
 

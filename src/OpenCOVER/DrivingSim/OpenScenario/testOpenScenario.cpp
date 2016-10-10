@@ -150,7 +150,7 @@ int main(int argc, char **argv)
     //read file
     std::cerr << "trying to load " << readFileToUse << std::endl;
     std::cerr << std::endl;
-    if(osdb->loadFile(readFileToUse, "OpenSCENARIO") == false)
+    if(osdb->loadFile(readFileToUse, "OpenSCENARIO", "OpenSCENARIO") == false)
     {
         std::cerr << std::endl;
         std::cerr << "failed to load OpenSCENARIO from file " << readFileToUse << std::endl;

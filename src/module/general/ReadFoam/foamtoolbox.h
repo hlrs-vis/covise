@@ -73,17 +73,20 @@ struct CaseInfo
         : numblocks(0)
         , varyingGrid(false)
         , varyingCoords(false)
+        , hasParticles(false)
         , valid(false)
     {
     }
 
     std::string casedir;
-    std::map<double, std::string> timedirs; //Map of all the Time Directories
-	std::map<double, std::string> completeMeshDirs; //Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
-    std::map<std::string, int> varyingFields, constantFields;
+    std::map<double, std::string> timedirs; //< Map of all the Time Directories
+    std::map<double, std::string> completeMeshDirs; //< Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
+    std::map<std::string, int> varyingFields, constantFields, particleFields; //< name of all fields together with how often they appear
     std::string constantdir;
+    std::string lagrangiandir; //< subdirectory of "lagrangian" which is used for particle data
     int numblocks;
     bool varyingGrid, varyingCoords;
+    bool hasParticles;
     bool valid;
 };
 
@@ -176,6 +179,7 @@ bool readIndexArray(const HeaderInfo &info, std::istream &stream, index_t *p, co
 bool readIndexListArray(const HeaderInfo &info, std::istream &stream, std::vector<index_t> *p, const size_t lines);
 bool readFloatArray(const HeaderInfo &info, std::istream &stream, scalar_t *p, const size_t lines);
 bool readFloatVectorArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, const size_t lines);
+bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, index_t *cell, const size_t lines);
 
 Boundaries loadBoundary(const std::string &meshdir);
 

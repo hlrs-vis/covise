@@ -19,6 +19,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
+	
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscTimeOfDay: public oscObjectBase
 {
@@ -27,15 +28,28 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(time, "oscTime");
         OSC_OBJECT_ADD_MEMBER(date, "oscDate");
-        OSC_ADD_MEMBER(animation);
     };
 
     oscTimeMember time;
     oscDateMember date;
-    oscBool animation;
 };
 
 typedef oscObjectVariable<oscTimeOfDay *> oscTimeOfDayMember;
+
+
+/// \class This class represents a generic OpenScenario Object
+class OPENSCENARIOEXPORT oscTimeOfDayWithAnimation: public oscTimeOfDay
+{
+public:
+    oscTimeOfDayWithAnimation()
+    {
+        OSC_ADD_MEMBER(animation);
+    };
+
+    oscBool animation;
+};
+
+typedef oscObjectVariable<oscTimeOfDayWithAnimation *> oscTimeOfDayWithAnimationMember;
 
 }
 

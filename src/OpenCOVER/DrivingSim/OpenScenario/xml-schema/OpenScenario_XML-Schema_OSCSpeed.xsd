@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCAbsoluteTypeB.xsd" />
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCRelativeTypeC.xsd" />
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCSpeedDynamics.xsd" />
+
+<!-- -->
+<!-- Choice -->
+<!-- -->
+
+<xsd:element name="CHOICE_maneuver__action_speed_rel_abs" abstract="true"/>
+<!-- -->
+<xsd:element name="relativeSpeed"   substitutionGroup="CHOICE_maneuver__action_speed_rel_abs" type="OSCRelativeTypeC"/>
+<xsd:element name="absoluteSpeed"   substitutionGroup="CHOICE_maneuver__action_speed_rel_abs" type="OSCAbsoluteTypeB"/>
+
+<!-- -->
+<!-- OSCSpeed -->
+<!-- -->
+
+
+<xsd:complexType name="OSCSpeed">
+    <xsd:all>
+        <xsd:element name="dynamics" type="OSCSpeedDynamics"/>
+        <xsd:element ref="CHOICE_maneuver__action_speed_rel_abs"/>
+    </xsd:all>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

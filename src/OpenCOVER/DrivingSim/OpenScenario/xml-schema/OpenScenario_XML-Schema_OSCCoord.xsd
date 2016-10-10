@@ -14,6 +14,12 @@
 -->
 <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPositionXyz.xsd"/>
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCOrientation.xsd"/>
 
 
 <!-- -->
@@ -22,22 +28,10 @@
 
 <xsd:complexType name="OSCCoord">
     <xsd:all>
-        <xsd:element name="position">
-            <xsd:complexType>
-                <xsd:attribute name="x" type="xsd:double" use="required"/>
-                <xsd:attribute name="y" type="xsd:double" use="required"/>
-                <xsd:attribute name="z" type="xsd:double" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="orientation">
-            <xsd:complexType>
-                <xsd:attribute name="h" type="xsd:double" use="required"/>
-                <xsd:attribute name="p" type="xsd:double" use="required"/>
-                <xsd:attribute name="r" type="xsd:double" use="required"/>
-                <xsd:attribute ref="xml:base"/>
-            </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="position" type="OSCPositionXyz" />
+
+        <xsd:element name="orientation" type="OSCOrientation" />
+
     </xsd:all>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>

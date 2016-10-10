@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_numeric_condition_rule">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="==" />
+    <xsd:enumeration value="!=" />
+    <xsd:enumeration value="&lt;=" />
+    <xsd:enumeration value="&lt;" />
+    <xsd:enumeration value="&gt;=" />
+    <xsd:enumeration value="&gt;" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+<!-- -->
+<!-- OSCNumericCondition -->
+<!-- -->
+
+
+<xsd:complexType name="OSCNumericCondition">
+    <xsd:attribute name="name"  type="xsd:string" use="required"/>
+    <xsd:attribute name="value" type="xsd:int" use="required"/>
+    <xsd:attribute name="rule"  type="Enum_numeric_condition_rule" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+ 
+</xsd:schema>

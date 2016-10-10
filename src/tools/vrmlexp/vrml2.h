@@ -546,6 +546,8 @@ private:
     TCHAR *floatVal(float f);
 
     // VRML Output routines
+    
+Matrix3 GetLocalTM(INode *node, TimeValue t);
     void Indent(int level);
     size_t MaybeNewLine(size_t width, int level);
     void StartNode(INode *node, int level, BOOL outputName, Object *);
@@ -746,6 +748,7 @@ private:
     CallbackTable *mCallbacks; // export callback methods
     BOOL mDefUse; // should we defuse the file
     BOOL mExpLights; // should we export lights
+    BOOL mExpWorldSpace;
     BOOL mCopyTextures; // should we export lights
     BOOL mForceWhite; // should force textured material to white
     BOOL mExportSelected; // true if in exportSelected mode

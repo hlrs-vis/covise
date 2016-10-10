@@ -67,13 +67,6 @@ coCellToVert::interpolate(bool unstructured, int num_elem, int num_conn, int num
         }
         return true;
     }
-    // Make sure we have enough elements
-    else if (dataSize < num_elem)
-    {
-        return false;
-    }
-
-    dataSize = num_elem;
 
     if (unstructured)
     {
@@ -82,14 +75,14 @@ coCellToVert::interpolate(bool unstructured, int num_elem, int num_conn, int num
         case SIMPLE:
             return simpleAlgo(num_elem, num_conn, num_point,
                               elem_list, conn_list,
-                              numComp, in_data_0, in_data_1, in_data_2,
+                              numComp, dataSize, in_data_0, in_data_1, in_data_2,
                               out_data_0, out_data_1, out_data_2);
 
         case SQR_WEIGHT:
             return weightedAlgo(num_elem, num_conn, num_point,
                                 elem_list, conn_list, type_list, neighbour_cells, neighbour_idx,
                                 xcoord, ycoord, zcoord,
-                                numComp, in_data_0, in_data_1, in_data_2,
+                                numComp, dataSize, in_data_0, in_data_1, in_data_2,
                                 out_data_0, out_data_1, out_data_2);
         }
     }
@@ -97,7 +90,7 @@ coCellToVert::interpolate(bool unstructured, int num_elem, int num_conn, int num
     {
         return simpleAlgo(num_elem, num_conn, num_point,
                           elem_list, conn_list,
-                          numComp, in_data_0, in_data_1, in_data_2,
+                          numComp, dataSize, in_data_0, in_data_1, in_data_2,
                           out_data_0, out_data_1, out_data_2);
     }
 
@@ -107,7 +100,7 @@ coCellToVert::interpolate(bool unstructured, int num_elem, int num_conn, int num
 bool
 coCellToVert::simpleAlgo(int num_elem, int num_conn, int num_point,
                          const int *elem_list, const int *conn_list,
-                         int numComp, const float *in_data_0, const float *in_data_1, const float *in_data_2,
+                         int numComp, int dataSize, const float *in_data_0, const float *in_data_1, const float *in_data_2,
                          float *out_data_0, float *out_data_1, float *out_data_2)
 {
     int i, j, n, vertex;
@@ -148,7 +141,8 @@ coCellToVert::simpleAlgo(int num_elem, int num_conn, int num_point,
             {
                 vertex = conn_list[elem_list[i] + j];
                 weight_num[vertex] += 1.0;
-                out_data_0[vertex] += in_data_0[i];
+                if (i < dataSize)
+                    out_data_0[vertex] += in_data_0[i];
             }
         }
     else
@@ -159,9 +153,12 @@ coCellToVert::simpleAlgo(int num_elem, int num_conn, int num_point,
             {
                 vertex = conn_list[elem_list[i] + j];
                 weight_num[vertex] += 1.0;
-                out_data_0[vertex] += in_data_0[i];
-                out_data_1[vertex] += in_data_1[i];
-                out_data_2[vertex] += in_data_2[i];
+                if (i < dataSize)
+                {
+                    out_data_0[vertex] += in_data_0[i];
+                    out_data_1[vertex] += in_data_1[i];
+                    out_data_2[vertex] += in_data_2[i];
+                }
             }
         }
 
@@ -196,7 +193,7 @@ bool
 coCellToVert::weightedAlgo(int num_elem, int num_conn, int num_point,
                            const int *elem_list, const int *conn_list, const int *type_list, const int *neighbour_cells, const int *neighbour_idx,
                            const float *xcoord, const float *ycoord, const float *zcoord,
-                           int numComp, const float *in_data_0, const float *in_data_1, const float *in_data_2,
+                           int numComp, int dataSize, const float *in_data_0, const float *in_data_1, const float *in_data_2,
                            float *out_data_0, float *out_data_1, float *out_data_2)
 {
     if (!neighbour_cells || !neighbour_idx)
@@ -324,13 +321,16 @@ coCellToVert::weightedAlgo(int num_elem, int num_conn, int num_point,
             weight = sqr(vx - ccx) + sqr(vy - ccy) + sqr(vz - ccz);
             weight_sum += weight;
 
-            if (numComp == 1)
-                value_sum_0 += weight * in_data_0[cp];
-            else
+            if (cp < dataSize)
             {
-                value_sum_0 += weight * in_data_0[cp];
-                value_sum_1 += weight * in_data_1[cp];
-                value_sum_2 += weight * in_data_2[cp];
+                if (numComp == 1)
+                    value_sum_0 += weight * in_data_0[cp];
+                else
+                {
+                    value_sum_0 += weight * in_data_0[cp];
+                    value_sum_1 += weight * in_data_1[cp];
+                    value_sum_2 += weight * in_data_2[cp];
+                }
             }
 
             actIndex++;
@@ -451,25 +451,29 @@ coCellToVert::interpolate(const coDistributedObject *geo_in, const coDistributed
         return NULL;
     }
 
-    float *in_data_0, *in_data_1, *in_data_2;
-    int dataSize;
+    float *in_data_0=NULL, *in_data_1=NULL, *in_data_2=NULL;
+    int dataSize=0;
 
     int numComp = 0;
     if (const coDoFloat *s_data_in = dynamic_cast<const coDoFloat *>(data_in))
     {
         s_data_in->getAddress(&in_data_0);
-        in_data_1 = NULL;
-        in_data_2 = NULL;
         dataSize = s_data_in->getNumPoints();
         numComp = 1;
     }
-    else
+    else if (const coDoInt *s_data_in = dynamic_cast<const coDoInt *>(data_in))
     {
-        coDoVec3 *v_data_in = (coDoVec3 *)data_in;
+    }
+    else if (const coDoByte *s_data_in = dynamic_cast<const coDoByte *>(data_in))
+    {
+    }
+    else if (const coDoVec3 *v_data_in = dynamic_cast<const coDoVec3 *>(data_in))
+    {
         v_data_in->getAddresses(&in_data_0, &in_data_1, &in_data_2);
         dataSize = v_data_in->getNumPoints();
         numComp = 3;
     }
 
     return interpolate(geo_in, numComp, dataSize, in_data_0, in_data_1, in_data_2, objName, algo_option);
+
 }
