@@ -143,6 +143,10 @@ public:
 		return signalTree_;
 	}
 
+	// ErrorMessageTree //
+	//
+	void setErrorMessageTree(QWidget *widget);
+
 	void showSignalsDock(bool visible);
 
     // ProjectSettings //
@@ -177,6 +181,7 @@ private:
     void createTree();
     void createSettings();
     void createWizards();
+	void createErrorMessageTab();
 
     ProjectionSettings *projectionSettings;
     ImportSettings *importSettings;
@@ -281,6 +286,9 @@ private:
     QDockWidget *undoDock_;
     QUndoGroup *undoGroup_;
     QUndoView *undoView_;
+
+	QDockWidget *errorDock_;
+	QWidget *emptyMessageWidget_;
 
     QDockWidget *toolDock_;
     QDockWidget *ribbonToolDock_;

@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     createTree();
     createSettings();
     createUndo();
+	createErrorMessageTab();
     createPrototypes();
     createTools();
 	createSignals();
@@ -574,6 +575,32 @@ MainWindow::createUndo()
     //
     undoView_ = new QUndoView(undoGroup_);
     undoDock_->setWidget(undoView_);
+}
+
+
+/*! \brief Creates the view for error messages of OpenSCENARIO object settings.
+*/
+void
+MainWindow::createErrorMessageTab()
+{
+    // Dock Area //
+    //
+    errorDock_ = new QDockWidget(tr("Error messages"), this);
+    errorDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, errorDock_);
+	tabifyDockWidget(undoDock_, errorDock_);
+
+    // Show/Hide Action //
+    //
+    QAction *errorDockToggleAction = errorDock_->toggleViewAction();
+    errorDockToggleAction->setStatusTip(tr("Show/hide error messages."));
+    viewMenu_->addAction(errorDockToggleAction);
+
+	 // Settings Widget //
+    //
+    emptyMessageWidget_ = new QWidget();
+
+//	connect(errorDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
 }
 
 /*! \brief Creates the tree view dock.
@@ -1152,6 +1179,23 @@ MainWindow::setSignalTree(QWidget *widget)
     else
     {
         signalsDock_->setWidget(emptyTreeWidget_);
+    }
+}
+
+/*! \brief Set the widget of the Tree View.
+*
+* If NULL is passed, an empty widget will be displayed.
+*/
+void
+MainWindow::setErrorMessageTree(QWidget *widget)
+{
+    if (widget)
+    {
+        errorDock_->setWidget(widget);
+    }
+    else
+    {
+        errorDock_->setWidget(emptyMessageWidget_);
     }
 }
 

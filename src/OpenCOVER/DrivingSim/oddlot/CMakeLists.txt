@@ -692,6 +692,7 @@ SET(ODDLOT_FORMS
      src/wizards/roadlinkwizard.ui
 	 src/settings/widgets/controllersettings.ui
 	 src/settings/widgets/oscobjectsettings.ui
+	 src/tree/errorMessageTree.ui
 )
 SET(ODDLOT_RESOURCES
    style/style.qrc

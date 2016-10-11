@@ -120,6 +120,8 @@ private:
 
     OpenScenario::oscObjectBase *object_;
 	QString objectStackText_;
+	QLabel *objectStackTextlabel_;
+
 	OpenScenario::oscArrayMember *oscArrayMember_;
 	QTreeWidget *arrayTree_;
 	QComboBox *choiceComboBox_;
@@ -133,6 +135,8 @@ private:
 	QString lastComboBoxChoice_;
 
     bool valueChanged_;
+
+	bool closeCount_;
 
 };
 
