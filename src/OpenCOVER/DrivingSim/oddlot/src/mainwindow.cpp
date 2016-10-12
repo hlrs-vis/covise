@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
     lodSettings = new LODSettings();
+	oscSettings = new OSCSettings();
 
     // Default //
     //
@@ -205,6 +206,10 @@ MainWindow::createActions()
     connect(lodSettingsAction, SIGNAL(triggered()), this, SLOT(changeLODSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), lodSettingsAction, SLOT(setEnabled(bool)));
 
+	QAction *OSCSettingsAction = new QAction(tr("OpenSCENARIO Settings"), fileMenu_);
+    connect(OSCSettingsAction, SIGNAL(triggered()), this, SLOT(changeOSCSettings()));
+    connect(this, SIGNAL(hasActiveProject(bool)), OSCSettingsAction, SLOT(setEnabled(bool)));
+
     QAction *importSettingsAction = new QAction(tr("Import Settings"), fileMenu_);
     connect(importSettingsAction, SIGNAL(triggered()), this, SLOT(changeImportSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), importSettingsAction, SLOT(setEnabled(bool)));
@@ -251,6 +256,7 @@ MainWindow::createActions()
     fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
     fileMenu_->addAction(importSettingsAction);
+	fileMenu_->addAction(OSCSettingsAction);
     fileMenu_->addMenu(importMenu);
     fileMenu_->addMenu(exportMenu);
     fileMenu_->addSeparator();
@@ -845,6 +851,16 @@ MainWindow::changeSettings()
     if (getActiveProject())
     {
         projectionSettings->show();
+    }
+    return;
+}
+
+void
+MainWindow::changeOSCSettings()
+{
+    if (getActiveProject())
+    {
+        oscSettings->show();
     }
     return;
 }

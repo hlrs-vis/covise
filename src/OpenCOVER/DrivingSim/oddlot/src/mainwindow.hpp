@@ -49,6 +49,7 @@ class OsmImport;
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
 #include "src/gui/lodsettings.hpp"
+#include "src/gui/oscsettings.hpp"
 
 namespace Ui
 {
@@ -184,6 +185,7 @@ private:
 	void createErrorMessageTab();
 
     ProjectionSettings *projectionSettings;
+	OSCSettings *oscSettings;
     ImportSettings *importSettings;
     LODSettings *lodSettings;
 
@@ -239,6 +241,7 @@ private slots:
     void saveAs();
     void exportSpline();
     void changeSettings();
+	void changeOSCSettings();
     void changeImportSettings();
     void importIntermapRoad();
     void importCarMakerRoad();

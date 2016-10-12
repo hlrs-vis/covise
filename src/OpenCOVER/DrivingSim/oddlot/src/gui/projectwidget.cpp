@@ -240,6 +240,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectionSettings = ProjectionSettings::instance();
     lodSettings = LODSettings::instance();
 
+	oscSettings = OSCSettings::instance();
+	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+
     currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
     QList<PrototypeContainer<RSystemElementRoad *> *> roadTypePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype);

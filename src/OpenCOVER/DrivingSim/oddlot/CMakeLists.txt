@@ -353,6 +353,7 @@ SET(ODDLOT_SOURCES
 	src/graph/items/oscsystem/oscbaseitem.cpp
 	src/graph/items/oscsystem/oscitem.cpp
 	src/graph/items/oscsystem/osctextitem.cpp
+	src/gui/oscsettings.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -657,6 +658,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/graph/items/oscsystem/oscbaseitem.hpp
 	src/graph/items/oscsystem/oscitem.hpp
 	src/graph/items/oscsystem/osctextitem.hpp
+	src/gui/oscsettings.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
@@ -693,6 +695,7 @@ SET(ODDLOT_FORMS
 	 src/settings/widgets/controllersettings.ui
 	 src/settings/widgets/oscobjectsettings.ui
 	 src/tree/errorMessageTree.ui
+	 src/gui/oscsettings.ui
 )
 SET(ODDLOT_RESOURCES
    style/style.qrc

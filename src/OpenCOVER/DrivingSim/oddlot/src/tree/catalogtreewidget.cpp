@@ -27,6 +27,7 @@
 #include "src/gui/projectwidget.hpp"
 #include "src/gui/tools/osceditortool.hpp"
 #include "src/gui/tools/toolmanager.hpp"
+#include "src/gui/oscsettings.hpp"
 
 // MainWindow//
 //
@@ -254,8 +255,11 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 						filePath = directoryPath_ + "/" + QString::fromStdString(catalogName_) + QString::number(refId) + ".xosc";
 					} while (bf::exists(filePath.toStdString())); // test if file exists
 
-//					OpenScenario::oscObjectBase *obj = catalog_->readDefaultXMLObject( filePath.toStdString(), catalogName_, catalogType_);
 					OpenScenario::oscObjectBase *obj = NULL;
+					if (OSCSettings::instance()->loadDefaults())
+					{
+						obj = catalog_->readDefaultXMLObject( filePath.toStdString(), catalogName_, catalogType_);
+					}
 
 					if (!obj)
 					{
