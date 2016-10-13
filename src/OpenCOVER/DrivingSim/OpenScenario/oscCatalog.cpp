@@ -548,7 +548,7 @@ int oscCatalog::generateRefId(int startId)
 	return refId;
 }
 
-bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src)
+bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude)
 {
 	bool result = oscObjectBase::parseFromXML(currentElement,src);
 	if(result)

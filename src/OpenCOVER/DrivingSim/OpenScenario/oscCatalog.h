@@ -97,7 +97,7 @@ public:
 	void clearDOM();
 	void writeCatalogToDisk();
 	
-    virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude = true);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
 
 private:
