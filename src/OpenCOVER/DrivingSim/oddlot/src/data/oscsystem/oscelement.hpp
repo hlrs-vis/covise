@@ -50,7 +50,8 @@ public:
     {
         COE_IdChange = 0x1,
         COE_ParameterChange = 0x2,	// Name change is OpenScenario object name change 
-		COE_ChildChanged = 0x4
+		COE_ChildChanged = 0x4,
+		COE_ChoiceChanged = 0x8
     };
 
     //################//

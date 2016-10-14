@@ -360,6 +360,7 @@ OSCObjectSettings::uiInit()
 
 	}
 
+
 	// Finish Layout //
 	//
 	objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
@@ -551,7 +552,6 @@ OSCObjectSettings::updateProperties()
 					if (choiceMember->exists())
 					{
 						loadProperties(choiceMember, it.value());
-						break;
 					}
 				}
 			}
@@ -574,7 +574,7 @@ OSCObjectSettings::updateProperties()
 void
 	OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
 {
-	if (object_->isMemberInChoice(member))
+	if (member == object_->getChosenMember())
 	{
 		choiceComboBox_->setCurrentText(QString::fromStdString(member->getName()));
 	}
@@ -771,17 +771,11 @@ OSCObjectSettings::onChoiceChanged(const QString &memberName)
 	if (memberName != lastComboBoxChoice_)
 	{
 		OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
-		OpenScenario::oscObjectBase *obj = member->getOrCreateObject();
+		ChangeOSCObjectChoiceCommand *command = new ChangeOSCObjectChoiceCommand(object_, object_->getChosenMember(), member, element_);
+		projectSettings_->executeCommand(command);
 
 		lastComboBoxChoice_ = memberName;
 	}
-
-
-		// read default values
-		//
-	//	OpenScenario::oscSourceFile *sourceFile = object_->getSource();
-	//	OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName.toStdString(), object_->getMember(memberName.toStdString())->getTypeName(), sourceFile);
-	//	AddOSCObjectCommand *command = new AddOSCObjectCommand(object_, base_, 
 
 
 }
@@ -819,8 +813,12 @@ OSCObjectSettings::onNewArrayElement()
 	if (oscElement)
 	{
 		OpenScenario::oscSourceFile *sourceFile = object_->getSource();
-//		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+
 		OpenScenario::oscObjectBase *obj = NULL;
+		if (OSCSettings::instance()->loadDefaults())
+		{
+			obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+		}
 
 		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, obj, memberName_.toStdString(), base_, oscElement);
 		projectSettings_->executeCommand(command);
@@ -898,13 +896,27 @@ OSCObjectSettings::updateObserver()
     {
         updateProperties();
     }
-
-	if (changes & OSCElement::COE_ChildChanged)
+	else if (changes & OSCElement::COE_ChildChanged)
 	{
 		if (oscArrayMember_)
 		{
 			updateTree();
 		}
+	}
+	else if (changes & OSCElement::COE_ChoiceChanged)
+	{
+		QWidget *lastWidget;
+		do
+		{
+			lastWidget = parentStack_->getLastWidget();
+			if (lastWidget != this)
+			{
+				parentStack_->removeWidget();
+			}
+		} while(lastWidget != this);
+
+		updateProperties();
+
 	}
 
 	changes = element_->getDataElementChanges();
