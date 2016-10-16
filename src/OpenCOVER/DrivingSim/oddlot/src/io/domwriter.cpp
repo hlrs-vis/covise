@@ -59,6 +59,7 @@
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 
 // VehicleSystem //
 //
@@ -457,60 +458,41 @@ DomWriter::visit(Bridge *bridge)
 {
 
     QDomElement bridgeElement;
-    if (bridge->getName() == "Tunnel") // TODO: Add selection in the bridge settings
+
+    bridgeElement = doc_->createElement("bridge");
+
+    // Set mandatory attributes
+    bridgeElement.setAttribute("id", bridge->getId());
+
+    QString bridgeName;
+
+    if (bridge->getName() != "unnamed")
     {
-        bridgeElement = doc_->createElement("tunnel");
-
-        // Set mandatory attributes
-        bridgeElement.setAttribute("id", bridge->getId());
-
-        bridgeElement.setAttribute("name", bridge->getName());
-
-        bridgeElement.setAttribute("s", bridge->getSStart());
-        bridgeElement.setAttribute("length", bridge->getLength());
-
-        bridgeElement.setAttribute("lighting", 0.5);
-        bridgeElement.setAttribute("daylight", 0.5);
-        bridgeElement.setAttribute("type", "standard");
-    }
-    else
-    {
-        bridgeElement = doc_->createElement("bridge");
-
-        // Set mandatory attributes
-        bridgeElement.setAttribute("id", bridge->getId());
-
-        QString bridgeName;
-
-        if (bridge->getName() != "unnamed")
-        {
-            bridgeName = bridge->getName();
-        }
-
-        bridgeElement.setAttribute("name", bridgeName);
-        bridgeElement.setAttribute("s", bridge->getSStart());
-        bridgeElement.setAttribute("length", bridge->getLength());
-
-        QString typeName = "concrete";
-        if (bridge->getType() == 1)
-        {
-            typeName = "steel";
-        }
-        else if (bridge->getType() == 2)
-        {
-            typeName = "brick";
-        }
-        else if (bridge->getType() == 3)
-        {
-            typeName = "wood";
-        }
-
-        bridgeElement.setAttribute("type", typeName);
+        bridgeName = bridge->getName();
     }
 
+    bridgeElement.setAttribute("name", bridgeName);
+    bridgeElement.setAttribute("s", bridge->getSStart());
+    bridgeElement.setAttribute("length", bridge->getLength());
+
+    QString typeName = "concrete";
+    if (bridge->getType() == 1)
+    {
+        typeName = "steel";
+    }
+    else if (bridge->getType() == 2)
+    {
+        typeName = "brick";
+    }
+    else if (bridge->getType() == 3)
+    {
+        typeName = "wood";
+    }
+
+    bridgeElement.setAttribute("type", typeName);
     // model file are ancillary data
     //
-    if ((bridge->getFileName() != "") && (bridge->getFileName() != "Tunnel"))
+    if (bridge->getFileName() != "")
     {
         QDomElement userData = doc_->createElement("userData");
 
@@ -528,6 +510,52 @@ DomWriter::visit(Bridge *bridge)
     }
 
     currentObjectsElement_.appendChild(bridgeElement);
+}
+
+
+//################//
+// TUNNEL       //
+//################//
+
+void
+DomWriter::visit(Tunnel *tunnel)
+{
+
+    QDomElement tunnelElement;
+        tunnelElement = doc_->createElement("tunnel");
+
+        // Set mandatory attributes
+        tunnelElement.setAttribute("id", tunnel->getId());
+
+        tunnelElement.setAttribute("name", tunnel->getName());
+
+        tunnelElement.setAttribute("s", tunnel->getSStart());
+        tunnelElement.setAttribute("length", tunnel->getLength());
+
+        tunnelElement.setAttribute("lighting", 0.5);
+        tunnelElement.setAttribute("daylight", 0.5);
+        tunnelElement.setAttribute("type", "standard");
+
+    // model file are ancillary data
+    //
+    if (tunnel->getFileName() != "")
+    {
+        QDomElement userData = doc_->createElement("userData");
+
+        userData.setAttribute("code", "filename");
+        if (tunnel->getFileName().contains("/"))
+        {
+            userData.setAttribute("value", tunnel->getFileName());
+        }
+        else
+        {
+            userData.setAttribute("value", "objects/" + tunnel->getFileName());
+        }
+
+        tunnelElement.appendChild(userData);
+    }
+
+    currentObjectsElement_.appendChild(tunnelElement);
 }
 
 //################//
