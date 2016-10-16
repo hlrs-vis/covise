@@ -279,7 +279,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const int objectRefId)
                     oscObjectBase *obj = oscFactories::instance()->objectFactory->create(catalogTypeName);
                     if(obj)
                     {
-                        obj->initialize(getBase(), NULL, NULL, srcFile);
+                        obj->initialize(getBase(), this, NULL, srcFile);
                         obj->parseFromXML(rootElem, srcFile);
                         //add objectName and object to oscCatalog map
 
@@ -548,7 +548,7 @@ int oscCatalog::generateRefId(int startId)
 	return refId;
 }
 
-bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src)
+bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude)
 {
 	bool result = oscObjectBase::parseFromXML(currentElement,src);
 	if(result)

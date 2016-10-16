@@ -210,10 +210,10 @@ int ReadGeoDict::readHeader()
         d_dataFile = fopen(fileName.c_str(), "rb");
     }
     rewind(d_dataFile);
-    size_t headerSize;
-    if(headerSize = fread(buf,1,1024,d_dataFile)!=1024)
+    size_t headerSize = fread(buf,1,1024,d_dataFile);
+    if(headerSize!=1024)
     {
-        coModule::sendWarning("Error reading header %d", headerSize);
+        coModule::sendWarning("Error reading header %zu", headerSize);
         return STOP_PIPELINE;
     }
     else
@@ -385,7 +385,7 @@ int ReadGeoDict::readHeader()
         
         nextLine();
     }
-    return 1;
+    return CONTINUE_PIPELINE;
 }
 
 // taken from old ReadGeoDict module: 2-Pass reading

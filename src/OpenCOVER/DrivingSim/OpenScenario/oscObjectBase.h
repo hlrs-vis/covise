@@ -70,6 +70,7 @@ protected:
     oscMember *ownMember; ///< the member which store this objectBase as a valueT in oscObjectVariable, oscObjectVariableArray or oscObjectVariableCatalog
     MemberChoice choice;
     MemberOptional optional;
+	oscMember *chosenMember;
 
 public:
     oscObjectBase(); ///< constructor
@@ -97,6 +98,8 @@ public:
     bool hasChoice() const;
     MemberChoice getChoice() const;
 	bool isMemberInChoice(oscMember *m);
+	oscMember *getChosenMember();
+	void setChosenMember(oscMember *member);
 
     //
     void addMemberToOptional(oscMember *m);

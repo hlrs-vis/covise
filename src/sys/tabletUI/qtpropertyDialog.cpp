@@ -15,7 +15,7 @@
 #include <QIcon>
 #include <QPainter>
 #include <QSlider>
-#include <math.h>
+#include <cmath>
 #ifndef ANDROID_TUI
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

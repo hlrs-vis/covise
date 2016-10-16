@@ -21,6 +21,11 @@
 
 #include "src/data/commands/datacommand.hpp"
 
+namespace Ui
+{
+class ErrorMessageTree;
+}
+
 class ProjectWidget;
 
 class ProjectData;
@@ -61,6 +66,10 @@ public:
     // Obsever Pattern //
     //
     virtual void updateObserver();
+
+	// Error Messages //
+	//
+	void printErrorMessage(const QString &text);
 
 protected:
 private:
@@ -105,6 +114,9 @@ private:
     QList<SettingsElement *> garbageList_;
 
     QVBoxLayout *settingsLayout_;
+
+	Ui::ErrorMessageTree *ui;
+
 };
 
 #endif // PROJECTSETTINGS_HPP

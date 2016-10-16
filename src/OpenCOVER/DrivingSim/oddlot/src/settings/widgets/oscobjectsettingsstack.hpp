@@ -46,6 +46,7 @@ public:
 	int getStackSize();
 
 	void addWidget(QWidget *widget);
+	QWidget *getLastWidget();
 
 private:
 

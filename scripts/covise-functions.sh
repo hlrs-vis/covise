@@ -217,6 +217,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=vervet
                elif grep -i -q -s 'ubuntu.*15\.10' /etc/issue; then
                    export ARCHSUFFIX=werewolf
+               elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
+                   export ARCHSUFFIX=xerus
                fi
                ;;
             

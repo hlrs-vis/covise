@@ -49,6 +49,7 @@ class OsmImport;
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
 #include "src/gui/lodsettings.hpp"
+#include "src/gui/oscsettings.hpp"
 
 namespace Ui
 {
@@ -143,6 +144,10 @@ public:
 		return signalTree_;
 	}
 
+	// ErrorMessageTree //
+	//
+	void setErrorMessageTree(QWidget *widget);
+
 	void showSignalsDock(bool visible);
 
     // ProjectSettings //
@@ -177,8 +182,10 @@ private:
     void createTree();
     void createSettings();
     void createWizards();
+	void createErrorMessageTab();
 
     ProjectionSettings *projectionSettings;
+	OSCSettings *oscSettings;
     ImportSettings *importSettings;
     LODSettings *lodSettings;
 
@@ -234,6 +241,7 @@ private slots:
     void saveAs();
     void exportSpline();
     void changeSettings();
+	void changeOSCSettings();
     void changeImportSettings();
     void importIntermapRoad();
     void importCarMakerRoad();
@@ -281,6 +289,9 @@ private:
     QDockWidget *undoDock_;
     QUndoGroup *undoGroup_;
     QUndoView *undoView_;
+
+	QDockWidget *errorDock_;
+	QWidget *emptyMessageWidget_;
 
     QDockWidget *toolDock_;
     QDockWidget *ribbonToolDock_;
