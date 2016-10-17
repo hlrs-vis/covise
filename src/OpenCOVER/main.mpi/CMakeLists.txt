@@ -11,11 +11,6 @@ SET(SOURCES
   ../main/OpenCOVERMain.cpp
 )
 
-IF(APPLE)
-   SET(EXTRA_LIBS ${EXTRA_LIBS} "-framework AppKit")
-   set(SOURCES ${SOURCES} ../main/osx-util.mm)
-ENDIF(APPLE)
-
 ADD_COVISE_MODULE(Renderer OpenCOVER.mpi)
 COVISE_ADJUST_OUTPUT_DIR(OpenCOVER.mpi "" bin)
 
