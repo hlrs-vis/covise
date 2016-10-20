@@ -159,3 +159,4 @@ osx11           Mac OS X 10.4 on ia32 with X11 and fink
 leopard         Mac OS X 10.5 or 10.6, Universal
 lion            Mac OS X 10.7-10.9, x86_64 with libstdc++
 libc++          Mac OS X 10.9-10.12, x86_64 with libc++
+macos           macOS, x86_64 with libc++
