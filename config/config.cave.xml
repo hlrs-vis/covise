@@ -394,13 +394,13 @@
  <LOCAL HOST="viscluster50," >
   <COVER>
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
+    <Channel comment="MAIN" channel="0" stereoMode="HORIZONTAL_SPLIT" windowIndex="0" viewportIndex="0" name="0"/>
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1280" left="0" windowIndex="0" bottom="0" name="0" height="1024" />
+    <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
    </ViewportConfig>
    <WindowConfig>
-   <Window ARCH="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="1024" left="50" top="50" name="0" decoration="true" />
+   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="50" name="0" decoration="true" />
    </WindowConfig>
   </COVER>
  </LOCAL>
