@@ -47,6 +47,7 @@ public:
 
 	void addWidget(QWidget *widget);
 	QWidget *getLastWidget();
+	void removeWidget(QWidget *widget);
 
 private:
 
@@ -61,7 +62,7 @@ signals:
     //################//
 
 public slots:
-	void removeWidget();
+	void stackRemoveWidget();
 
     //################//
     // PROPERTIES     //

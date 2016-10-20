@@ -35,6 +35,8 @@
 //
 #include "src/data/commands/osccommands.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
+#include "src/data/projectdata.hpp"
+#include "src/data/changemanager.hpp"
 
 // GUI //
 //
@@ -138,9 +140,12 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 OSCObjectSettings::~OSCObjectSettings()
 {
+	memberWidgets_.clear();
+
 	// Observer //
     //
     element_->detachObserver(this);
+
 //    delete ui;
 }
 
@@ -397,7 +402,7 @@ OSCObjectSettings::uiInitArray()
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
 		closeButton->setObjectName(QStringLiteral("close"));
         closeButton->setGeometry(QRect(90, 30, 75, 23));
-		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(stackRemoveWidget()));
 
 		objectGridLayout->setContentsMargins(4, 60 + (++rows)*20, 4, 9);
 	}
@@ -801,6 +806,10 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 
 	OSCElement *memberElement = base_->getOSCElement(object);
 
+	// Reset change //
+    //
+    projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
+
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
 
 	return object;
@@ -868,7 +877,7 @@ OSCObjectSettings::onCloseWidget()
 	}
 	else
 	{
-		parentStack_->removeWidget();
+		parentStack_->stackRemoveWidget();
 
 		closeCount_ = false;
 	}
@@ -911,7 +920,7 @@ OSCObjectSettings::updateObserver()
 			lastWidget = parentStack_->getLastWidget();
 			if (lastWidget != this)
 			{
-				parentStack_->removeWidget();
+				parentStack_->stackRemoveWidget();
 			}
 		} while(lastWidget != this);
 

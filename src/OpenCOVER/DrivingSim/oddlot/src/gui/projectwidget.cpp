@@ -446,12 +446,18 @@ ProjectWidget::loadFile(const QString &fileName)
         // Create a Tile
         Tile *tile = new Tile("Tile0", "0");
         projectData_->getTileSystem()->addTile(tile);
-        projectData_->getTileSystem()->setCurrentTile(tile);
+        projectData_->getTileSystem()->setCurrentTile(tile); 
 
         if (openScenarioBase)
         {
             OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
             success = oscParser->parseXOSC(fileName);
+
+			delete oscParser;
+
+			// Reset change //
+			//
+			projectData_->getChangeManager()->notifyObservers();
         }
 
     }
