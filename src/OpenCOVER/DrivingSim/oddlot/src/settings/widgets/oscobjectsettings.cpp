@@ -35,6 +35,8 @@
 //
 #include "src/data/commands/osccommands.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
+#include "src/data/projectdata.hpp"
+#include "src/data/changemanager.hpp"
 
 // GUI //
 //
@@ -80,6 +82,7 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	, element_(element)
 	, projectSettings_(projectSettings)
 	, parentStack_(parent)
+	, closeCount_(false)
 {
 	object_ = element_->getObject();
 	base_ = element_->getOSCBase();
@@ -137,9 +140,12 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 OSCObjectSettings::~OSCObjectSettings()
 {
+	memberWidgets_.clear();
+
 	// Observer //
     //
     element_->detachObserver(this);
+
 //    delete ui;
 }
 
@@ -167,16 +173,16 @@ OSCObjectSettings::uiInit()
 	}
 	else
 	{
-		QLabel *label = new QLabel(objectStackText_, ui->oscGroupBox);
-		int rows = formatDirLabel(label, objectStackText_);
-		label->setGeometry(10, 50, ui->oscGroupBox->width(), label->height());
+		objectStackTextlabel_ = new QLabel(objectStackText_, ui->oscGroupBox);
+		int rows = formatDirLabel(objectStackTextlabel_, objectStackText_);
+		objectStackTextlabel_->setGeometry(10, 50, ui->oscGroupBox->width(), objectStackTextlabel_->height());
 
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
 		closeButton->setObjectName(QStringLiteral("close"));
         closeButton->setGeometry(QRect(90, 30, 75, 23));
 		connect(closeButton, SIGNAL(pressed()), this, SLOT(onCloseWidget()));
 
-		objectGridLayout->setContentsMargins(4, 60 + rows*20, 4, 9);
+		objectGridLayout->setContentsMargins(4, 60 + (++rows)*20, 4, 9);
 	}
 	
 	// Signal Mapper for the value input widgets //
@@ -359,6 +365,7 @@ OSCObjectSettings::uiInit()
 
 	}
 
+
 	// Finish Layout //
 	//
 	objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
@@ -388,16 +395,16 @@ OSCObjectSettings::uiInitArray()
 	}
 	else
 	{
-		QLabel *label = new QLabel(objectStackText_, ui->oscGroupBox);
-		int rows = formatDirLabel(label, objectStackText_);
-		label->setGeometry(10, 50, ui->oscGroupBox->width(), label->height());
+		objectStackTextlabel_ = new QLabel(objectStackText_, ui->oscGroupBox);
+		int rows = formatDirLabel(objectStackTextlabel_, objectStackText_);
+		objectStackTextlabel_->setGeometry(10, 50, ui->oscGroupBox->width(), objectStackTextlabel_->height());
 
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
 		closeButton->setObjectName(QStringLiteral("close"));
         closeButton->setGeometry(QRect(90, 30, 75, 23));
-		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(stackRemoveWidget()));
 
-		objectGridLayout->setContentsMargins(4, 60 + rows*20, 4, 9);
+		objectGridLayout->setContentsMargins(4, 60 + (++rows)*20, 4, 9);
 	}
 
 	QPixmap recycleIcon(":/icons/recycle.png");
@@ -550,7 +557,6 @@ OSCObjectSettings::updateProperties()
 					if (choiceMember->exists())
 					{
 						loadProperties(choiceMember, it.value());
-						break;
 					}
 				}
 			}
@@ -573,7 +579,7 @@ OSCObjectSettings::updateProperties()
 void
 	OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
 {
-	if (object_->isMemberInChoice(member))
+	if (member == object_->getChosenMember())
 	{
 		choiceComboBox_->setCurrentText(QString::fromStdString(member->getName()));
 	}
@@ -770,17 +776,11 @@ OSCObjectSettings::onChoiceChanged(const QString &memberName)
 	if (memberName != lastComboBoxChoice_)
 	{
 		OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
-		OpenScenario::oscObjectBase *obj = member->getOrCreateObject();
+		ChangeOSCObjectChoiceCommand *command = new ChangeOSCObjectChoiceCommand(object_, object_->getChosenMember(), member, element_);
+		projectSettings_->executeCommand(command);
 
 		lastComboBoxChoice_ = memberName;
 	}
-
-
-		// read default values
-		//
-	//	OpenScenario::oscSourceFile *sourceFile = object_->getSource();
-	//	OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName.toStdString(), object_->getMember(memberName.toStdString())->getTypeName(), sourceFile);
-	//	AddOSCObjectCommand *command = new AddOSCObjectCommand(object_, base_, 
 
 
 }
@@ -806,6 +806,10 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 
 	OSCElement *memberElement = base_->getOSCElement(object);
 
+	// Reset change //
+    //
+    projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
+
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
 
 	return object;
@@ -818,8 +822,12 @@ OSCObjectSettings::onNewArrayElement()
 	if (oscElement)
 	{
 		OpenScenario::oscSourceFile *sourceFile = object_->getSource();
-//		OpenScenario::oscObjectBase *obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+
 		OpenScenario::oscObjectBase *obj = NULL;
+		if (OSCSettings::instance()->loadDefaults())
+		{
+			obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+		}
 
 		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, obj, memberName_.toStdString(), base_, oscElement);
 		projectSettings_->executeCommand(command);
@@ -847,86 +855,32 @@ void
 OSCObjectSettings::onCloseWidget()
 {
 
-	// write temporary file
-	//
-/*	bf::path &tmpFilename = bf::temp_directory_path() / bf::path("tmpValidate.xosc");
-	std::cerr << tmpFilename << std::endl;
-
-	xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
-
-	std::string name = object_->getOwnMember()->getName();
-	const XMLCh *source = xercesc::XMLString::transcode(name.c_str());
-	xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, source, 0);
-	if (xmlSrcDoc)
+	std::string errorMessage;
+	object_->validate(&errorMessage);
+	if ( !closeCount_ && (errorMessage != ""))
 	{
-		object_->writeToDOM(xmlSrcDoc->getDocumentElement(), xmlSrcDoc, false);
+		// Ask user //
+		/*			QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("ODD"),
+		tr("Errors in OpenScenario elements: '%1'.\nDo you want to close anyway?")
+		.arg(QString::fromStdString(errorMessage)),
+		QMessageBox::Close | QMessageBox::Cancel); 
 
-
-		// TODO: Abfragen xerces Version //
-		//////////////////////////////////////
-		xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
-		// set the format-pretty-print feature
-		if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
-		{
-			writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
-		}
-
-
-		xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(tmpFilename.generic_string().c_str());
-
-
-		xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-		output->setByteStream(xmlTarget);
-
-		if (!writer->write(xmlSrcDoc, output))
-		{
-			std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-			delete output;
-			delete xmlTarget;
-			delete writer;
-
-		}
-
-		delete output;
-		delete xmlTarget;
-		delete writer;
-		delete xmlSrcDoc;
-
-		// validate temporaryFile
+		// Close //
 		//
-		OpenScenarioBase *oscBase = base_->getOpenScenarioBase();
+		if (ret == QMessageBox::Close)
+		parentStack_->removeWidget(); */
 
-		std::string errorMessage;
-		oscBase->getRootElement(tmpFilename.string(), name, object_->getOwnMember()->getTypeName(), true, &errorMessage); */
+		formatDirLabel(objectStackTextlabel_, "! Errors in: " + objectStackText_ + " !");
+		projectSettings_->printErrorMessage(objectStackText_ + ": " + QString::fromStdString(errorMessage));
 
-		std::string errorMessage;
-		object_->validate(&errorMessage);
-		if (errorMessage != "")
-		{
-			// Ask user //
-			QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("ODD"),
-				tr("Errors in OpenScenario elements: '%1'.\nDo you want to close anyway?")
-				.arg(QString::fromStdString(errorMessage)),
-				QMessageBox::Close | QMessageBox::Cancel);
+		closeCount_ = true;
+	}
+	else
+	{
+		parentStack_->stackRemoveWidget();
 
-			// Close //
-			//
-			if (ret == QMessageBox::Close)
-				parentStack_->removeWidget();
-		}
-		else
-		{
-			parentStack_->removeWidget();
-		}
-
-/*		try
-		{
-			bf::remove(tmpFilename);
-		}
-		catch(...)
-		{
-			std::cout << tmpFilename << std::endl;
-		} */
+		closeCount_ = false;
+	}
 
 }
 
@@ -951,13 +905,27 @@ OSCObjectSettings::updateObserver()
     {
         updateProperties();
     }
-
-	if (changes & OSCElement::COE_ChildChanged)
+	else if (changes & OSCElement::COE_ChildChanged)
 	{
 		if (oscArrayMember_)
 		{
 			updateTree();
 		}
+	}
+	else if (changes & OSCElement::COE_ChoiceChanged)
+	{
+		QWidget *lastWidget;
+		do
+		{
+			lastWidget = parentStack_->getLastWidget();
+			if (lastWidget != this)
+			{
+				parentStack_->stackRemoveWidget();
+			}
+		} while(lastWidget != this);
+
+		updateProperties();
+
 	}
 
 	changes = element_->getDataElementChanges();

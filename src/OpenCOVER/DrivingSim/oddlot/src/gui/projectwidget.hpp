@@ -40,6 +40,7 @@ class ProjectTree;
 class CatalogTreeWidget;
 class ProjectSettings;
 class LODSettings;
+class OSCSettings;
 
 class ToolAction;
 class MouseAction;
@@ -185,6 +186,7 @@ public:
 protected:
     ProjectionSettings *projectionSettings;
     LODSettings *lodSettings;
+	OSCSettings *oscSettings;
     std::vector<double> SlopeVector;
     std::vector<double> SVector; // S on road for each segment
     std::vector<int> FeatVector;

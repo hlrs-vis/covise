@@ -240,6 +240,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectionSettings = ProjectionSettings::instance();
     lodSettings = LODSettings::instance();
 
+	oscSettings = OSCSettings::instance();
+	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+
     currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
     QList<PrototypeContainer<RSystemElementRoad *> *> roadTypePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype);
@@ -443,12 +446,18 @@ ProjectWidget::loadFile(const QString &fileName)
         // Create a Tile
         Tile *tile = new Tile("Tile0", "0");
         projectData_->getTileSystem()->addTile(tile);
-        projectData_->getTileSystem()->setCurrentTile(tile);
+        projectData_->getTileSystem()->setCurrentTile(tile); 
 
         if (openScenarioBase)
         {
             OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
             success = oscParser->parseXOSC(fileName);
+
+			delete oscParser;
+
+			// Reset change //
+			//
+			projectData_->getChangeManager()->notifyObservers();
         }
 
     }

@@ -28,11 +28,6 @@ SET(EXTRASOURCES
   
 )
 
-IF(APPLE)
-   SET(EXTRA_LIBS ${EXTRA_LIBS} "-framework AppKit")
-   set(SOURCES ${SOURCES} osx-util.mm)
-ENDIF(APPLE)
-
 add_covise_module(Renderer OpenCOVER )
 # old CONFIG: qt warn_on release incremental link_prl yacrenderer wnooverloadedvirtual qt osg tiff colib coutil coappl covrbclient werror opencoverlib osgvrui thread ssd wiimote cogrmsg jpeg
 # old LIBS: 

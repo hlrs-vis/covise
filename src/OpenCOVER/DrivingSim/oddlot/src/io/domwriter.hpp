@@ -77,6 +77,7 @@ public:
 
     virtual void visit(Object *);
     virtual void visit(Bridge *);
+    virtual void visit(Tunnel *);
     virtual void visit(Crosswalk *);
     virtual void visit(Signal *);
     virtual void visit(Sensor *);

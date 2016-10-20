@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     createTree();
     createSettings();
     createUndo();
+	createErrorMessageTab();
     createPrototypes();
     createTools();
 	createSignals();
@@ -97,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
     lodSettings = new LODSettings();
+	oscSettings = new OSCSettings();
 
     // Default //
     //
@@ -204,6 +206,10 @@ MainWindow::createActions()
     connect(lodSettingsAction, SIGNAL(triggered()), this, SLOT(changeLODSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), lodSettingsAction, SLOT(setEnabled(bool)));
 
+	QAction *OSCSettingsAction = new QAction(tr("OpenSCENARIO Settings"), fileMenu_);
+    connect(OSCSettingsAction, SIGNAL(triggered()), this, SLOT(changeOSCSettings()));
+    connect(this, SIGNAL(hasActiveProject(bool)), OSCSettingsAction, SLOT(setEnabled(bool)));
+
     QAction *importSettingsAction = new QAction(tr("Import Settings"), fileMenu_);
     connect(importSettingsAction, SIGNAL(triggered()), this, SLOT(changeImportSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), importSettingsAction, SLOT(setEnabled(bool)));
@@ -250,6 +256,7 @@ MainWindow::createActions()
     fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
     fileMenu_->addAction(importSettingsAction);
+	fileMenu_->addAction(OSCSettingsAction);
     fileMenu_->addMenu(importMenu);
     fileMenu_->addMenu(exportMenu);
     fileMenu_->addSeparator();
@@ -576,6 +583,32 @@ MainWindow::createUndo()
     undoDock_->setWidget(undoView_);
 }
 
+
+/*! \brief Creates the view for error messages of OpenSCENARIO object settings.
+*/
+void
+MainWindow::createErrorMessageTab()
+{
+    // Dock Area //
+    //
+    errorDock_ = new QDockWidget(tr("Error messages"), this);
+    errorDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, errorDock_);
+	tabifyDockWidget(undoDock_, errorDock_);
+
+    // Show/Hide Action //
+    //
+    QAction *errorDockToggleAction = errorDock_->toggleViewAction();
+    errorDockToggleAction->setStatusTip(tr("Show/hide error messages."));
+    viewMenu_->addAction(errorDockToggleAction);
+
+	 // Settings Widget //
+    //
+    emptyMessageWidget_ = new QWidget();
+
+//	connect(errorDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
+}
+
 /*! \brief Creates the tree view dock.
 */
 QDockWidget *
@@ -818,6 +851,16 @@ MainWindow::changeSettings()
     if (getActiveProject())
     {
         projectionSettings->show();
+    }
+    return;
+}
+
+void
+MainWindow::changeOSCSettings()
+{
+    if (getActiveProject())
+    {
+        oscSettings->show();
     }
     return;
 }
@@ -1152,6 +1195,23 @@ MainWindow::setSignalTree(QWidget *widget)
     else
     {
         signalsDock_->setWidget(emptyTreeWidget_);
+    }
+}
+
+/*! \brief Set the widget of the Tree View.
+*
+* If NULL is passed, an empty widget will be displayed.
+*/
+void
+MainWindow::setErrorMessageTree(QWidget *widget)
+{
+    if (widget)
+    {
+        errorDock_->setWidget(widget);
+    }
+    else
+    {
+        errorDock_->setWidget(emptyMessageWidget_);
     }
 }
 

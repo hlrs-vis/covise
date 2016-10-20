@@ -795,6 +795,14 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     connect(sliderH, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
     connect(sliderP, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
     connect(sliderR, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
+    
+    
+    connect(stringH, SIGNAL(editingFinished()), this, SLOT(onHPRChanged()));
+    connect(stringH, SIGNAL(textEdited(QString)), this, SLOT(onHPREdited()));
+    connect(stringP, SIGNAL(editingFinished()), this, SLOT(onHPRChanged()));
+    connect(stringP, SIGNAL(textEdited(QString)), this, SLOT(onHPREdited()));
+    connect(stringR, SIGNAL(editingFinished()), this, SLOT(onHPRChanged()));
+    connect(stringR, SIGNAL(textEdited(QString)), this, SLOT(onHPREdited()));
     //connect(sliderH, SIGNAL(sliderPressed()), this, SLOT(pressed()));
     //connect(sliderH, SIGNAL(sliderReleased()), this, SLOT(released()));
 
@@ -1437,6 +1445,46 @@ void PropertyDialog::onMatrixChanged()
         emit apply();
 }
 
+void PropertyDialog::onHPRChanged()
+{
+    float H,P,R;
+    H = stringH->text().toFloat();
+    P = stringP->text().toFloat();
+    R = stringR->text().toFloat();
+    
+    sliderH->blockSignals(true);
+    sliderH->setValue(H / 360.0* 1000.0 );
+    sliderH->blockSignals(false);
+    sliderP->blockSignals(true);
+    sliderP->setValue(P / 360.0* 1000.0 );
+    sliderP->blockSignals(false);
+    sliderR->blockSignals(true);
+    sliderR->setValue(R / 360.0* 1000.0 );
+    sliderR->blockSignals(false);
+    
+    QMatrix4x4 rotMat,mT;
+    QQuaternion quat = fromEulerAngles(P,H,R);
+    rotMat.rotate(quat);
+    
+    rotMat = vrmlToOsg * rotMat * osgToVrml;
+
+    float tX,tY,tZ;
+    tX = _matrix.data()[12];
+    tY = _matrix.data()[13];
+    tZ = _matrix.data()[14];
+    mT.translate(tX,tY,tZ);
+    _matrix = rotMat*mT;
+    
+    _matrix.data()[12] = tX;
+    _matrix.data()[13] = tY;
+    _matrix.data()[14] = tZ;
+
+    writeMatrixToLineEdit();
+    emit apply();
+}
+void PropertyDialog::onHPREdited()
+{
+}
 void PropertyDialog::sliderChanged(int ival)
 {
     float H,P,R;

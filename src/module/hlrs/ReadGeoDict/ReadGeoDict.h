@@ -28,6 +28,72 @@ enum
     DPORT4_3D,
     DPORT5_3D,
 };
+class ArrayInfo;
+class ArrayColumn;
+class VarInfo
+{
+public:
+    VarInfo();
+    ~VarInfo();
+
+    bool vector;
+    int imageNumber;
+    std::string name;
+    coDistributedObject **dataObjs;
+    std::string objectName;
+    float *x_d;
+    float *y_d;
+    float *z_d;
+    bool read;
+
+};
+
+class ArrayColumn
+{
+public:
+    enum varType {
+	T_INT_8=0,
+	T_INT_32,
+	T_INT_64,
+	T_FLOAT,
+	T_DOUBLE,
+    NUM_TYPES
+    };
+    static int varSize[NUM_TYPES];
+    ArrayColumn();
+    ~ArrayColumn();
+
+    bool vector;
+    int ColumnNumber;
+    int ColumnOffset;
+    std::string name;
+    coDistributedObject **dataObjs;
+    std::string objectName;
+    float *x_d;
+    float *y_d;
+    float *z_d;
+    double *d_d;
+    int *i_d;
+    char *c_d;
+    int64_t *ll_d;
+    bool read;
+    varType variableType;
+
+};
+
+class ArrayInfo
+{
+public:
+    ArrayInfo();
+    ~ArrayInfo();
+
+    int arrayNumber;
+    int numColumns;
+    int numRows;
+    std::vector<ArrayColumn *> columnInfos;
+
+};
+
 class ReadGeoDict : public coReader
 {
 public:
@@ -36,19 +102,6 @@ public:
         float x, y, z;
     } Vect3;
 
-    typedef struct
-    {
-        bool vector;
-        int imageNumber;
-        std::string name;
-        coDistributedObject **dataObjs;
-        std::string objectName;
-        float *x_d;
-        float *y_d;
-        float *z_d;
-        bool read;
-
-    } VarInfo;
 
 private:
     //  member functions
@@ -75,8 +128,9 @@ private:
     
     int Nx,Ny,Nz;
     float sx,sy,sz;
-
-    std::vector<VarInfo> varInfos;
+    
+    std::vector<VarInfo *> varInfos;
+    std::vector<ArrayInfo *> arrayInfos;
 
 
 public:

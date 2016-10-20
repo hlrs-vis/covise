@@ -246,6 +246,10 @@ public slots:
 
     void projectActivated(bool active);
 
+	// OpenSCENARIO settings //
+	//
+	void changeOSCValidation(bool);
+
     //################//
     // PROPERTIES     //
     //################//
