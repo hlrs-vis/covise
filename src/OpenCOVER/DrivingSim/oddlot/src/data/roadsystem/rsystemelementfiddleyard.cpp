@@ -15,6 +15,7 @@
 
 #include "rsystemelementfiddleyard.hpp"
 
+
 //##########################//
 //                          //
 // RSystemElementFiddleyard //
@@ -101,28 +102,28 @@ RSystemElementFiddleyard::getClone()
 }
 
 void
-RSystemElementFiddleyard::updateIds(const QMap<QString, QString> &roadIds)
+RSystemElementFiddleyard::updateIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds)
 {
+	RoadSystem *roadSystem = getRoadSystem();
 
-    QMap<QString, QString>::const_iterator it = roadIds.find(elementId_);
-    if (it != roadIds.end())
-    {
-        elementId_ = it.value();
-    }
+	elementId_ = roadSystem->getNewId(roadIds, elementId_, "road");
+
     foreach (FiddleyardSource *source, sources_)
     {
-        QMap<QString, QString>::const_iterator it = roadIds.find(source->getId());
-        if (it != roadIds.end())
+		QString id = source->getId();
+		QString newId = roadSystem->getNewId(roadIds, id, "fiddleyard");
+        if (id != newId)
         {
-            source->setId(it.value());
+            source->setId(newId);
         }
     }
     foreach (FiddleyardSink *sink, sinks_)
     {
-        QMap<QString, QString>::const_iterator it = roadIds.find(sink->getId());
-        if (it != roadIds.end())
+		QString id = sink->getId();
+		QString newId = roadSystem->getNewId(roadIds, id, "fiddleyard");
+         if (id != newId)
         {
-            sink->setId(it.value());
+            sink->setId(newId);
         }
     }
 }

@@ -16,7 +16,7 @@
 #ifndef RSYSTEMELEMENTFIDDLEYARD_HPP
 #define RSYSTEMELEMENTFIDDLEYARD_HPP
 
-#include "rsystemelement.hpp"
+#include "roadsystem.hpp"
 
 #include <QMap>
 
@@ -195,7 +195,7 @@ public:
     //
     RSystemElementFiddleyard *getClone();
 
-    void updateIds(const QMap<QString, QString> &roadIds);
+    void updateIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds);
 
     // Visitor Pattern //
     //

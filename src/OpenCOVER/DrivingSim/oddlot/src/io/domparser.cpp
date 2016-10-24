@@ -30,8 +30,6 @@
 #include "src/data/tilesystem/tilesystem.hpp"
 #include "src/data/tilesystem/tile.hpp"
 
-#include "src/data/roadsystem/roadsystem.hpp"
-
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
@@ -953,7 +951,8 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         roadSystem_->addRoad(road); // This may change the ID!
         if (id != road->getID())
         {
-            elementIDs_.insert(id, road->getID());
+			RoadSystem::IdType el = {road->getID(), "road"};
+            elementIDs_.insert(id, el);
         }
     }
     else if (roadSystem_)
@@ -1342,7 +1341,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
                 if (id != object->getId())
                 {
-                    elementIDs_.insert(id, object->getId());
+					RoadSystem::IdType el = {object->getId(), "object"};
+                    elementIDs_.insert(id, el);
                 }
             }
        }
@@ -1395,7 +1395,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
         if (id != bridge->getId())
         {
-            elementIDs_.insert(id, bridge->getId());
+			RoadSystem::IdType el = {bridge->getId(), "bridge"};
+            elementIDs_.insert(id, el);
         }
 
         // Attempt to locate another object
@@ -1425,7 +1426,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
         if (id != bridge->getId())
         {
-            elementIDs_.insert(id, bridge->getId());
+			RoadSystem::IdType el = {bridge->getId(), "bridge"};
+            elementIDs_.insert(id, el);
         }
 
         // Attempt to locate another object
@@ -1630,7 +1632,8 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         road->addSignal(signal);
         if (id != signal->getId())
         {
-            elementIDs_.insert(id, signal->getId());
+			RoadSystem::IdType el = {signal->getId(), "signal"};
+            elementIDs_.insert(id, el);
         }
 
         // Attempt to locate another signal
@@ -2050,7 +2053,8 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
 
     if (id != controller->getID())
     {
-        elementIDs_.insert(id, controller->getID());
+		RoadSystem::IdType el = {controller->getID(), "controller"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -2118,7 +2122,8 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
 
     if (id != junction->getID())
     {
-        elementIDs_.insert(id, junction->getID());
+		RoadSystem::IdType el = {junction->getID(), "junction"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -2207,7 +2212,8 @@ DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
 
     if (id != fiddleyard->getID())
     {
-        elementIDs_.insert(id, fiddleyard->getID());
+		RoadSystem::IdType el = {fiddleyard->getID(), "fiddleyard"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -2320,7 +2326,8 @@ DomParser::parsePedFiddleyardElement(QDomElement &element, QString &oldTileId)
 
     if (id != fiddleyard->getID())
     {
-        elementIDs_.insert(id, fiddleyard->getID());
+		RoadSystem::IdType el = {fiddleyard->getID(), "pedFiddleyard"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
