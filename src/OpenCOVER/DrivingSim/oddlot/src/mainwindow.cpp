@@ -219,10 +219,20 @@ MainWindow::createActions()
     importMenu->addAction(importIntermapAction);
     connect(importIntermapAction, SIGNAL(triggered()), this, SLOT(importIntermapRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importIntermapAction, SLOT(setEnabled(bool)));
+	/*
     QAction *importCSVAction = new QAction(tr("Import CSV file"), exportMenu);
     importMenu->addAction(importCSVAction);
     connect(importCSVAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCSVAction, SLOT(setEnabled(bool)));
+	*/
+	QAction *importCSVRoadAction = new QAction(tr("Import CSV Road"), exportMenu);
+    importMenu->addAction(importCSVRoadAction);
+    connect(importCSVRoadAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importCSVRoadAction, SLOT(setEnabled(bool)));
+	QAction *importCSVSignAction = new QAction(tr("Import CSV Sign"), exportMenu);
+    importMenu->addAction(importCSVSignAction);
+    connect(importCSVSignAction, SIGNAL(triggered()), this, SLOT(importCSVSign()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importCSVSignAction, SLOT(setEnabled(bool)));
     QAction *importCarMakerAction = new QAction(tr("Import CarMaker Road file"), exportMenu);
     importMenu->addAction(importCarMakerAction);
     connect(importCarMakerAction, SIGNAL(triggered()), this, SLOT(importCarMakerRoad()));
@@ -867,7 +877,7 @@ MainWindow::importIntermapRoad()
     return;
 }
 
-/*! \brief load CSV file.
+/*! \brief load CSV Road file.
 *
 */
 void
@@ -884,7 +894,33 @@ MainWindow::importCSVRoad()
     {
 
 
-        if (project->importCSVFile(fileName))
+        if (project->importCSVRoadFile(fileName))
+        {
+            statusBar()->showMessage(tr("File has been imported."), 2000);
+            project->show();
+        }
+    }
+    return;
+}
+
+/*! \brief load CSV Sign file.
+*
+*/
+void
+MainWindow::importCSVSign()
+{
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+    {
+
+
+        if (project->importCSVSignFile(fileName))
         {
             statusBar()->showMessage(tr("File has been imported."), 2000);
             project->show();

@@ -238,6 +238,7 @@ private slots:
     void importIntermapRoad();
     void importCarMakerRoad();
     void importCSVRoad();
+    void importCSVSign();
     void importOSMRoad();
     void importOSMFile();
     void about();

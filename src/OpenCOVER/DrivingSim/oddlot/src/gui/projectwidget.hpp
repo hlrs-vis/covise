@@ -107,7 +107,8 @@ public:
     bool saveFile(const QString &fileName);
     bool exportSpline();
     bool importIntermapFile(const QString &fileName);
-    bool importCSVFile(const QString &fileName);
+    bool importCSVRoadFile(const QString &fileName);
+    bool importCSVSignFile(const QString &fileName);
     bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
 
@@ -132,6 +133,8 @@ public:
     {
         return strippedFileName_;
     }
+
+	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec); // Testing method importCSVSignFile
 
     // MVC //
     //

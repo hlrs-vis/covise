@@ -1119,7 +1119,7 @@ ProjectWidget::importIntermapFile(const QString &fileName)
 *
 */
 bool
-ProjectWidget::importCSVFile(const QString &fileName)
+ProjectWidget::importCSVRoadFile(const QString &fileName)
 {
     numLineStrips = 0;
     QFile file(fileName);
@@ -1184,6 +1184,145 @@ ProjectWidget::importCSVFile(const QString &fileName)
     QApplication::restoreOverrideCursor();
     file.close();
     return true;
+}
+
+/** \brief imports a csv Sign file.
+*
+*/
+bool
+	ProjectWidget::importCSVSignFile(const QString &fileName)
+{
+	QFile file(fileName);
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+			.arg(fileName)
+			.arg(file.errorString()));
+		qDebug("Loading file failed: %s", fileName.toUtf8().constData());
+		return false;
+	}
+	QTextStream in(&file);
+
+	QString line = in.readLine();
+	if (!line.isNull())
+	{
+		int objectID;
+		char sign[15], position[15];
+		double xGauss, yGauss, orientation, longitude, latitude, altitude;
+
+		line = in.readLine(); // start with second row
+		while (!line.isNull())
+		{
+			if (line.length() != 0)
+			{
+				// 3490472.35531212,5383550.59771206,1,437,R,7.00000000000,8.86982484085,48.58954050730,0.00000000000
+
+				line.replace(',', ' '); // value separator
+				//line.replace(',', '.'); // floating points
+
+				int num = sscanf(line.toUtf8(), "%lf %lf %d %s %s %lf %lf %lf %lf", &xGauss, &yGauss, &objectID, sign, position, &orientation, &longitude, &latitude, &altitude);
+
+				if (num == 9) // we read everything
+				{
+					longitude *= DEG_TO_RAD;
+					latitude *= DEG_TO_RAD;
+					projectionSettings->transform(longitude, latitude, altitude);
+
+					Signal::OrientationType dir = Signal::BOTH_DIRECTIONS;
+					if(strcmp(position,"R") == 0)
+					{
+						dir = Signal::POSITIVE_TRACK_DIRECTION;
+					}
+					else if(strcmp(position,"L") == 0)
+					{
+						dir = Signal::NEGATIVE_TRACK_DIRECTION;
+					}
+
+					int type = -1;
+					int subtype = -1;
+					QString typeSubclass = "";
+					QString signNumber = QString::fromStdString(sign);
+					signNumber.replace('.', '-'); // separator type -> typeSubclass + subtype
+					QStringList list = signNumber.split("-");
+
+					if (list.size() > 0)
+					{
+						type = list.at(0).toInt();
+						if (list.size() == 2) // type + subtype
+						{
+							subtype = list.at(1).toInt();
+						}
+						else if (list.size() == 3) // type + typeSubclass + subtype
+						{
+							typeSubclass = list.at(1);
+							subtype = list.at(2).toInt();
+						}
+					}
+
+					QPointF coordPoint(longitude, latitude);
+					double s;
+					double t;
+					QVector2D vec;
+					RSystemElementRoad *road = findClosestRoad(coordPoint, s, t, vec); // check what happens
+					if (road) // addSignal
+					{
+						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0, true, 2, 1, 0, 0.0, 0.0);
+						road->addSignal(trafficSign);
+					}
+				}
+			}
+			line = in.readLine();
+		}
+}
+	topviewGraph_->updateSceneSize();
+	// Close file //
+	//
+	QApplication::restoreOverrideCursor();
+	file.close();
+	return true;
+}
+
+// Testing method importCSVSignFile
+RSystemElementRoad *ProjectWidget::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
+{
+	RoadSystem *roadSystem = getProjectData()->getRoadSystem();
+	QMap<QString, RSystemElementRoad *> roads = roadSystem->getRoads();
+
+	if (roads.count() < 1)
+	{
+		return NULL;
+	}
+
+	QMap<QString, RSystemElementRoad *>::const_iterator it = roads.constBegin();
+	RSystemElementRoad *road = it.value();
+	s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
+	vec = QVector2D(road->getGlobalPoint(s) - to);
+	t = vec.length();
+
+	while (++it != roads.constEnd())
+	{
+		RSystemElementRoad *newRoad = it.value();
+		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
+		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(newS) - to);
+		double dist = newVec.length();
+
+		if (dist < t)
+		{
+			road = newRoad;
+			t = dist;
+			s = newS;
+			vec = newVec;
+		}
+	}
+
+	QVector2D normal = road->getGlobalNormal(s);
+
+	if (QVector2D::dotProduct(normal, vec) < 0)
+	{
+		t = -t;
+	}
+
+	return road;
 }
 
 
