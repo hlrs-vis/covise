@@ -73,9 +73,6 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_, StreetView *stree
 
 Picture::~Picture()
 {
-	delete camera;
-	delete streetView;
-	delete index;
 }
 
 
@@ -86,12 +83,14 @@ osg::Node *Picture::getPanelNode()
 
 	double aspectRatioWH = (1280.0*(camera->getPixelSizeX()))/(960.0*(camera->getPixelSizeY()));
 	double aspectRatioHW = (960.0*(camera->getPixelSizeY()))/(1280.0*(camera->getPixelSizeX()));
-	int focalLength = 50; // mm (estimated)
-	double distance = 4; // m (estimated)
+	int focalLength = 50; // mm
+	double distance = 4; // m
 	double sensorSizeX = 6.4; // mm
 	double sensorSizeY = 8.5; // mm
-	double alphaV = 2.0*atan(sensorSizeX/2*focalLength); //2.0*atan((sensorSizeX/2.0)/focalLength); // vertical FOV, radians
-	double alphaH = 2.0*atan(sensorSizeY/2*focalLength); //2.0*atan((sensorSizeY/2.0)/focalLength); // horizontal FOV, radians
+	//double alphaV = 2.0*atan(sensorSizeX/2.0*focalLength); // vertical FOV
+	//double alphaH = 2.0*atan(sensorSizeY/2.0*focalLength); // horizontal FOV
+	double alphaV = 7.3; // vertical FOV
+	double alphaH = 2.0*atan(tan(alphaV/2.0)*aspectRatioWH); // horizontal FOV
 	double width = 2.0*distance*tan(alphaH/2.0);
 	double height = 2.0*distance*tan(alphaV/2.0);
 
@@ -129,6 +128,7 @@ osg::Node *Picture::getPanelNode()
 
 	osg::Texture2D* panelTexture = new osg::Texture2D;
 	panelTexture->setDataVariance(osg::Object::DYNAMIC); 
+	panelTexture->setResizeNonPowerOfTwoHint(false);
 	osg::Image *panelImage = osgDB::readImageFile(index->getAbsolutePicturePath()+fileName);
 	if (!panelImage)
 	{
@@ -146,8 +146,8 @@ osg::Node *Picture::getPanelNode()
 	osg::Matrix rotationMatrix;
 	rotationMatrix.makeRotate(
 		camera->getRotationPitch(), osg::Vec3(1,0,0), 
-		camera->getRotationRoll(), osg::Vec3(0,1,0), 
-		camera->getRotationAzimuth(), osg::Vec3(0,0,1));
+		camera->getRotationRoll(), osg::Vec3(0,1,0),
+		camera->getRotationAzimuth(), osg::Vec3(0,0,1)); 
 
 	osg::Matrix translationMatrix;
 	translationMatrix.makeTranslate(distance, distance, 0);

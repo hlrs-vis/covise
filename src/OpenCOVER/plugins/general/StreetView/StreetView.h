@@ -23,6 +23,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <proj_api.h>
 
 class IndexParser;
 
@@ -41,5 +42,7 @@ private:
 	double viewerPosX;
 	double viewerPosY;
 	double viewerPosZ;
+	projPJ pj_wgs84;
+	projPJ pj_gausskrueger;
 };
 #endif
