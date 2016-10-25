@@ -396,12 +396,22 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         std::string srcFileRootElement = srcFileVec[i]->getRootElementNameAsStr();
 
         //set filename for main xosc file with root element "OpenSCENARIO" to fileName
-        if (srcFileRootElement == "OpenSCENARIO")
+		bf::path fnPath = srcFileVec[i]->getFileNamePath(fileName);
+        if (srcFileRootElement == "OpenSCENARIO") 
         {
-            srcFileVec[i]->setSrcFileName(fileName);
-            osbSourceFile = srcFileVec[i];
+			if ((fnPath == "") || (fnPath.parent_path() == srcFileVec[i]->getAbsPathToMainDir()))
+			{
+				srcFileVec[i]->setSrcFileName(fnPath.filename());
+			}
+			else
+			{
+				source = new oscSourceFile();
+				source->setNameAndPath(fileName, "OpenSCENARIO", m_pathFromCurrentDirToDoc);
+				srcFileVec[i] = source;
+			}
+			osbSourceFile = srcFileVec[i];
         }
-
+		
         if (!srcFileVec[i]->getXmlDoc())
         {
             xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);

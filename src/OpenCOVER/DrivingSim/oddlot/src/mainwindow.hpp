@@ -21,6 +21,10 @@
 
 #include <src/util/odd.hpp>
 
+// Project
+//
+#include <src/gui/projectwidget.hpp>
+
 
 class QMdiArea;
 class QMdiSubWindow;
@@ -34,8 +38,6 @@ class QActionGroup;
 class QMenu;
 
 class QLabel;
-
-class ProjectWidget;
 
 class ToolManager;
 class ToolAction;
@@ -158,7 +160,7 @@ public:
     //
     void setProjectSignals(QWidget *widget);
 
-    void open(QString fileName);
+	void open(QString fileName, ProjectWidget::FileType type = ProjectWidget::FileType::FT_All);
     void openTile(QString fileName);
 
 	// add Catalog dock widgets when the project is openend
@@ -236,9 +238,13 @@ private slots:
     //
     void newFile();
     void open();
+	void openXODR();
+	void openXOSC();
     void save();
     void openTile();
     void saveAs();
+	void saveAsXODR();
+	void saveAsXOSC();
     void exportSpline();
     void changeSettings();
 	void changeOSCSettings();
