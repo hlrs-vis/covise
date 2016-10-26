@@ -240,6 +240,7 @@ private slots:
     void open();
 	void openXODR();
 	void openXOSC();
+	void mergeXOSC();
     void save();
     void openTile();
     void saveAs();

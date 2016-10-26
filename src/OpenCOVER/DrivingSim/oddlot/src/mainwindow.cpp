@@ -187,11 +187,19 @@ MainWindow::createActions()
 	connect(openXOSCAction, SIGNAL(triggered()), this, SLOT(openXOSC()));
     
 
-    QAction *openTileAction = new QAction(tr("&Merge"), this);
+	QMenu *mergeMenu = new QMenu("&Merge", fileMenu_);
+    QAction *openTileAction = new QAction(tr("&Merge Open&Drive file"), this);
     openTileAction->setShortcut(QKeySequence::AddTab);
     openTileAction->setStatusTip(tr("Merge an additonal File."));
     connect(openTileAction, SIGNAL(triggered()), this, SLOT(openTile()));
-    //    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
+    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
+	mergeMenu->addAction(openTileAction);
+
+	QAction *mergeXOSCAction = new QAction(tr("Merge Open&Scenario File"), mergeMenu);
+	mergeMenu->addAction(mergeXOSCAction);
+	connect(mergeXOSCAction, SIGNAL(triggered()), this, SLOT(mergeXOSC()));
+	connect(this,SIGNAL(hasActiveProject(bool)),mergeXOSCAction,SLOT(setEnabled(bool)));
+
 
     QAction *saveAction = new QAction(tr("&Save"), this);
     saveAction->setShortcuts(QKeySequence::Save);
@@ -268,9 +276,9 @@ MainWindow::createActions()
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows())); // ?!
 
     fileMenu_->addAction(newAction);
-    fileMenu_->addAction(openTileAction);
 	fileMenu_->addMenu(openMenu);
 	fileMenu_->addMenu(saveMenu);
+	fileMenu_->addMenu(mergeMenu);
     fileMenu_->addSeparator();
     fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
@@ -845,6 +853,23 @@ MainWindow::openTile(QString fileName)
         open(fileName);
     }
     return;
+}
+
+void
+MainWindow::mergeXOSC()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    if (!fileName.isEmpty())
+    {
+		if (getActiveProject())
+		{
+			getActiveProject()->loadFile(fileName, ProjectWidget::FileType::FT_OpenScenario);
+		}
+		else
+		{
+			open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+		}
+	}
 }
 
 /*! \brief Tells the active project to save itself.
