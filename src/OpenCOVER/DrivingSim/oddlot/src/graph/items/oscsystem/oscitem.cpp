@@ -156,7 +156,8 @@ OSCItem::init()
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
-	road_ = getProjectGraph()->getProjectData()->getRoadSystem()->getRoad(roadID_);
+	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
+	road_ = roadSystem_->getRoad(roadID_);
 	closestRoad_ = road_;
 	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
 
@@ -343,7 +344,7 @@ OSCItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 		QVector2D vec;
 
-		RSystemElementRoad * nearestRoad = oscEditor_->findClosestRoad( newPos, s_, t_, vec);
+		RSystemElementRoad * nearestRoad = roadSystem_->findClosestRoad( newPos, s_, t_, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;

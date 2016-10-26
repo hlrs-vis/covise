@@ -26,6 +26,8 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/projectdata.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
 
 // Widget //
 //
@@ -357,7 +359,7 @@ BridgeItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		QVector2D vec;
 		double dist;
 
-		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		RSystemElementRoad * nearestRoad = getProjectData()->getRoadSystem()->findClosestRoad( to, s, dist, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;

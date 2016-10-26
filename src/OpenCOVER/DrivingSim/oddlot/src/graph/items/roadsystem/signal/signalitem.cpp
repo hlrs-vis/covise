@@ -28,6 +28,8 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
 #include "src/data/commands/controllercommands.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/projectdata.hpp"
 
 // Widget //
 //
@@ -609,7 +611,7 @@ SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		QVector2D vec;
 		double dist;
 
-		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		RSystemElementRoad * nearestRoad = getProjectData()->getRoadSystem()->findClosestRoad( to, s, dist, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;

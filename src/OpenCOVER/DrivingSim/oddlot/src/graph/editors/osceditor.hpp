@@ -64,7 +64,6 @@ public:
 
     // Move Object //
     //
-	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
 	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);

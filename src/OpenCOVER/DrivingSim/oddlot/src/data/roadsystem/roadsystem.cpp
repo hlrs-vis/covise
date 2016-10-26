@@ -831,6 +831,47 @@ RoadSystem::updateControllers()
      }
 }
 
+RSystemElementRoad *
+RoadSystem::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
+{
+
+	if (roads_.count() < 1)
+	{
+		return NULL;
+	}
+
+	QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+	RSystemElementRoad *road = it.value();
+	s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
+	vec = QVector2D(road->getGlobalPoint(s) - to);
+	t = vec.length();
+
+	while (++it != roads_.constEnd())
+	{
+		RSystemElementRoad *newRoad = it.value();
+		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
+		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(newS) - to);
+		double dist = newVec.length();
+
+		if (dist < t)
+		{
+			road = newRoad;
+			t = dist;
+			s = newS;
+			vec = newVec;
+		}
+	}
+
+	QVector2D normal = road->getGlobalNormal(s);
+
+	if (QVector2D::dotProduct(normal, vec) < 0)
+	{
+		t = -t;
+	}
+
+	return road;
+}
+
 //##################//
 // OpenDRIVEData      //
 //##################//

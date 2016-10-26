@@ -142,7 +142,6 @@ public:
         return strippedFileName_;
     }
 
-	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec); // Testing method importCSVSignFile
 
     // MVC //
     //
