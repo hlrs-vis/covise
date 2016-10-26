@@ -27,7 +27,7 @@ extern "C" {
 
 #include <xercesc/dom/DOM.hpp>
 
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56, 34, 1)
 typedef PixelFormat AVPixelFormat;
 
 #ifndef AV_PIX_FMT_RGB32

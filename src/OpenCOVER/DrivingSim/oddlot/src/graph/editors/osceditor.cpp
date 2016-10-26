@@ -468,29 +468,34 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			QString oscObjectName = action->getText();
 	//		if ((currentTool != lastTool_) || (oscObjectName != lastOSCObjectName_))
 			{
-				OpenScenario::oscObjectBase *object = openScenarioBase_->getMember(oscObjectName.toStdString())->getOrCreateObject();
-
-				OSCElement *memberElement = oscBase_->getOSCElement(object);
-				if (memberElement)
+				OpenScenario::oscMember *member = openScenarioBase_->getMember(oscObjectName.toStdString());
+				if (member)
 				{
-					// Group undo commands
-					//
-					getProjectData()->getUndoStack()->beginMacro(QObject::tr("Base Element selected"));
+					OpenScenario::oscObjectBase *object = member->getOrCreateObject();
 
-					foreach (DataElement *element, getProjectData()->getSelectedElements())
+					OSCElement *memberElement = oscBase_->getOSCElement(object);
+					if (memberElement)
 					{
-						DeselectDataElementCommand *command = new DeselectDataElementCommand(getProjectData()->getSelectedElements(), NULL);
-						getTopviewGraph()->executeCommand(command);
+						// Group undo commands
+						//
+						getProjectData()->getUndoStack()->beginMacro(QObject::tr("Base Element selected"));
+
+						foreach (DataElement *element, getProjectData()->getSelectedElements())
+						{
+							DeselectDataElementCommand *command = new DeselectDataElementCommand(element, NULL);
+							getProjectGraph()->executeCommand(command); 
+
+						}
+
+						SelectDataElementCommand *command = new SelectDataElementCommand(memberElement, NULL);
+						getProjectGraph()->executeCommand(command);		
+
+						getProjectData()->getUndoStack()->endMacro();
 					}
 
-					SelectDataElementCommand *command = new SelectDataElementCommand(memberElement, NULL);
-					getProjectGraph()->executeCommand(command);		
 
-					getProjectData()->getUndoStack()->endMacro();
+					lastOSCObjectName_ = oscObjectName;
 				}
-
-
-				lastOSCObjectName_ = oscObjectName;
 			}
 		}
 	}

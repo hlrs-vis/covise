@@ -333,6 +333,8 @@ private slots:
     void onApplyPressed();
     void onMatrixChanged();
     void onMatrixEdited();
+    void onHPRChanged();
+    void onHPREdited();
     void onDeltaRotChanged();
 void sliderChanged(int ival);
 };

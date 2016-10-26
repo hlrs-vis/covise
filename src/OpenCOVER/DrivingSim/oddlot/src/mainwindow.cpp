@@ -16,10 +16,6 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-// Project //
-//
-#include "src/gui/projectwidget.hpp"
-
 // Manager //
 //
 #include "src/data/prototypemanager.hpp"
@@ -88,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     createTree();
     createSettings();
     createUndo();
+	createErrorMessageTab();
     createPrototypes();
     createTools();
 	createSignals();
@@ -97,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
     lodSettings = new LODSettings();
+	oscSettings = new OSCSettings();
 
     // Default //
     //
@@ -176,13 +174,32 @@ MainWindow::createActions()
     QAction *openAction = new QAction(tr("&Open"), this);
     openAction->setShortcuts(QKeySequence::Open);
     openAction->setStatusTip(tr("Open an existing file."));
-    connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
+	connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
-    QAction *openTileAction = new QAction(tr("&Merge"), this);
+	QMenu *openMenu = new QMenu("&Open", fileMenu_);
+	openMenu->addAction(openAction);
+	QAction *openXODRAction = new QAction(tr("Open Open&Drive File"), openMenu);
+	openMenu->addAction(openXODRAction);
+	connect(openXODRAction, SIGNAL(triggered()), this, SLOT(openXODR()));
+
+	QAction *openXOSCAction = new QAction(tr("Open Open&Scenario File"), openMenu);
+	openMenu->addAction(openXOSCAction);
+	connect(openXOSCAction, SIGNAL(triggered()), this, SLOT(openXOSC()));
+    
+
+	QMenu *mergeMenu = new QMenu("&Merge", fileMenu_);
+    QAction *openTileAction = new QAction(tr("&Merge Open&Drive file"), this);
     openTileAction->setShortcut(QKeySequence::AddTab);
     openTileAction->setStatusTip(tr("Merge an additonal File."));
     connect(openTileAction, SIGNAL(triggered()), this, SLOT(openTile()));
-    //    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
+    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
+	mergeMenu->addAction(openTileAction);
+
+	QAction *mergeXOSCAction = new QAction(tr("Merge Open&Scenario File"), mergeMenu);
+	mergeMenu->addAction(mergeXOSCAction);
+	connect(mergeXOSCAction, SIGNAL(triggered()), this, SLOT(mergeXOSC()));
+	connect(this,SIGNAL(hasActiveProject(bool)),mergeXOSCAction,SLOT(setEnabled(bool)));
+
 
     QAction *saveAction = new QAction(tr("&Save"), this);
     saveAction->setShortcuts(QKeySequence::Save);
@@ -190,7 +207,20 @@ MainWindow::createActions()
     connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
     connect(this, SIGNAL(hasActiveProject(bool)), saveAction, SLOT(setEnabled(bool)));
 
-    QAction *saveAsAction = new QAction(tr("Save &As..."), this);
+	QMenu *saveMenu = new QMenu("&Save", fileMenu_);
+	saveMenu->addAction(saveAction);
+	QAction *saveXODRAction = new QAction(tr("Save As Open&Drive File"), saveMenu);
+	saveMenu->addAction(saveXODRAction);
+	connect(saveXODRAction, SIGNAL(triggered()), this, SLOT(saveAsXODR()));
+	connect(this, SIGNAL(hasActiveProject(bool)), saveXODRAction, SLOT(setEnabled(bool)));
+
+	QAction *saveXOSCAction = new QAction(tr("Save As Open&Scenario File"), saveMenu);
+	saveMenu->addAction(saveXOSCAction);
+	connect(saveXOSCAction, SIGNAL(triggered()), this, SLOT(saveAsXOSC()));
+	connect(this, SIGNAL(hasActiveProject(bool)), saveXOSCAction, SLOT(setEnabled(bool)));
+
+    QAction *saveAsAction = new QAction(tr("Save &As..."), saveMenu);
+	saveMenu->addAction(saveAsAction);
     saveAsAction->setShortcuts(QKeySequence::SaveAs);
     saveAsAction->setStatusTip(tr("Save the document under a new name."));
     connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -203,6 +233,10 @@ MainWindow::createActions()
     QAction *lodSettingsAction = new QAction(tr("LOD Settings"), fileMenu_);
     connect(lodSettingsAction, SIGNAL(triggered()), this, SLOT(changeLODSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), lodSettingsAction, SLOT(setEnabled(bool)));
+
+	QAction *OSCSettingsAction = new QAction(tr("OpenSCENARIO Settings"), fileMenu_);
+    connect(OSCSettingsAction, SIGNAL(triggered()), this, SLOT(changeOSCSettings()));
+    connect(this, SIGNAL(hasActiveProject(bool)), OSCSettingsAction, SLOT(setEnabled(bool)));
 
     QAction *importSettingsAction = new QAction(tr("Import Settings"), fileMenu_);
     connect(importSettingsAction, SIGNAL(triggered()), this, SLOT(changeImportSettings()));
@@ -252,14 +286,14 @@ MainWindow::createActions()
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows())); // ?!
 
     fileMenu_->addAction(newAction);
-    fileMenu_->addAction(openAction);
-    fileMenu_->addAction(openTileAction);
-    fileMenu_->addAction(saveAction);
-    fileMenu_->addAction(saveAsAction);
+	fileMenu_->addMenu(openMenu);
+	fileMenu_->addMenu(saveMenu);
+	fileMenu_->addMenu(mergeMenu);
     fileMenu_->addSeparator();
     fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
     fileMenu_->addAction(importSettingsAction);
+	fileMenu_->addAction(OSCSettingsAction);
     fileMenu_->addMenu(importMenu);
     fileMenu_->addMenu(exportMenu);
     fileMenu_->addSeparator();
@@ -586,6 +620,32 @@ MainWindow::createUndo()
     undoDock_->setWidget(undoView_);
 }
 
+
+/*! \brief Creates the view for error messages of OpenSCENARIO object settings.
+*/
+void
+MainWindow::createErrorMessageTab()
+{
+    // Dock Area //
+    //
+    errorDock_ = new QDockWidget(tr("Error messages"), this);
+    errorDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, errorDock_);
+	tabifyDockWidget(undoDock_, errorDock_);
+
+    // Show/Hide Action //
+    //
+    QAction *errorDockToggleAction = errorDock_->toggleViewAction();
+    errorDockToggleAction->setStatusTip(tr("Show/hide error messages."));
+    viewMenu_->addAction(errorDockToggleAction);
+
+	 // Settings Widget //
+    //
+    emptyMessageWidget_ = new QWidget();
+
+//	connect(errorDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
+}
+
 /*! \brief Creates the tree view dock.
 */
 QDockWidget *
@@ -701,7 +761,7 @@ MainWindow::open()
 * activated.
 */
 void
-MainWindow::open(QString fileName)
+MainWindow::open(QString fileName, ProjectWidget::FileType type)
 {
     if (!fileName.isEmpty())
     {
@@ -725,7 +785,7 @@ MainWindow::open(QString fileName)
         ProjectWidget *project = new ProjectWidget(this);
         // [workaround_0]
 
-        if (project->loadFile(fileName))
+        if (project->loadFile(fileName, type))
         {
             statusBar()->showMessage(tr("File has been loaded."), 2000);
 
@@ -749,6 +809,27 @@ MainWindow::open(QString fileName)
     }
     return;
 }
+
+void
+MainWindow::openXODR()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xodr files (*.xodr)"));
+    if (!fileName.isEmpty())
+    {
+		open(fileName, ProjectWidget::FileType::FT_OpenDrive);
+	}
+}
+
+void
+MainWindow::openXOSC()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    if (!fileName.isEmpty())
+    {
+		open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+	}
+}
+
 
 /*! \brief Opens an additional tile and adds to the project
 *
@@ -784,6 +865,23 @@ MainWindow::openTile(QString fileName)
     return;
 }
 
+void
+MainWindow::mergeXOSC()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    if (!fileName.isEmpty())
+    {
+		if (getActiveProject())
+		{
+			getActiveProject()->loadFile(fileName, ProjectWidget::FileType::FT_OpenScenario);
+		}
+		else
+		{
+			open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+		}
+	}
+}
+
 /*! \brief Tells the active project to save itself.
 *
 */
@@ -809,6 +907,40 @@ MainWindow::saveAs()
     return;
 }
 
+void
+MainWindow::saveAsXODR()
+{
+	ProjectWidget *project = getActiveProject();
+	if (project)
+	{
+		QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xodr files (*.xodr)"));
+		if (!fileName.isEmpty())
+		{
+			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenDrive))
+			{
+				statusBar()->showMessage(tr("File has been saved."), 2000);
+			}
+		}
+	}
+}
+
+void
+MainWindow::saveAsXOSC()
+{
+	ProjectWidget *project = getActiveProject();
+	if (project)
+	{
+		QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xosc files (*.xosc)"));
+		if (!fileName.isEmpty())
+		{
+			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenScenario))
+			{
+				statusBar()->showMessage(tr("File has been saved."), 2000);
+			}
+		}
+	}
+}
+
 /*! \brief Tells the active project to save itself.
 *
 */
@@ -828,6 +960,16 @@ MainWindow::changeSettings()
     if (getActiveProject())
     {
         projectionSettings->show();
+    }
+    return;
+}
+
+void
+MainWindow::changeOSCSettings()
+{
+    if (getActiveProject())
+    {
+        oscSettings->show();
     }
     return;
 }
@@ -1188,6 +1330,23 @@ MainWindow::setSignalTree(QWidget *widget)
     else
     {
         signalsDock_->setWidget(emptyTreeWidget_);
+    }
+}
+
+/*! \brief Set the widget of the Tree View.
+*
+* If NULL is passed, an empty widget will be displayed.
+*/
+void
+MainWindow::setErrorMessageTree(QWidget *widget)
+{
+    if (widget)
+    {
+        errorDock_->setWidget(widget);
+    }
+    else
+    {
+        errorDock_->setWidget(emptyMessageWidget_);
     }
 }
 

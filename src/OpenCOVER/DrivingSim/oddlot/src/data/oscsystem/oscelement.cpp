@@ -29,6 +29,7 @@ OSCElement::OSCElement(const QString &id, OpenScenario::oscObjectBase *oscObject
 
 OSCElement::~OSCElement()
 {
+
 }
 
 //################//
@@ -40,7 +41,8 @@ OSCElement::setOSCBase(OSCBase *base)
 {
     setParentElement(base);
 	oscBase_ = base;
- //   addRSystemElementChanges(RSystemElement::CRE_ParentRoadSystemChange);
+
+	addOSCElementChanges(OSCElementChange::COE_BaseChanged);
 }
 
 void

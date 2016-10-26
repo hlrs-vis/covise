@@ -28,12 +28,14 @@
 //
 #include "projectsettingsvisitor.hpp"
 #include "settingselement.hpp"
+#include "ui_errorMessageTree.h"
 
 // Qt //
 //
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QStatusBar>
+#include <QLabel>
 
 //################//
 // CONSTRUCTOR    //
@@ -44,6 +46,7 @@ ProjectSettings::ProjectSettings(ProjectWidget *projectWidget, ProjectData *proj
     , projectWidget_(projectWidget)
     , projectData_(projectData)
     , settingsElement_(NULL)
+	, ui(new Ui::ErrorMessageTree)
 {
     // Observer //
     //
@@ -61,6 +64,13 @@ ProjectSettings::ProjectSettings(ProjectWidget *projectWidget, ProjectData *proj
     ////	settingsLayout->addChildLayout(buttonsLayout);
 
     setLayout(settingsLayout_);
+
+	// Error Message Widget for errorDock_ //
+	//
+	QWidget *errorMessageWidget = new QWidget(this);
+	ui->setupUi(errorMessageWidget);
+
+	ODD::mainWindow()->setErrorMessageTree(errorMessageWidget);
 }
 
 ProjectSettings::~ProjectSettings()
@@ -117,6 +127,21 @@ ProjectSettings::executeCommand(DataCommand *command)
         delete command;
         return false;
     }
+}
+
+void
+ProjectSettings::printErrorMessage(const QString &text)
+{
+	if (ui->errorVerticalLayout->count() > 3)
+	{
+		QLayoutItem *item = ui->errorVerticalLayout->itemAt(1);
+		ui->errorVerticalLayout->removeItem(item);
+		delete item;
+	}
+
+	QLabel *label = new QLabel(text);
+	label->setWordWrap(true);
+	ui->errorVerticalLayout->insertWidget(ui->errorVerticalLayout->count()-1, label); 
 }
 
 void

@@ -634,6 +634,73 @@ RemoveOSCObjectCommand::undo()
 }
 
 //#########################//
+// ChangeOSCObjectChoiceCommand //
+//#########################//
+
+ChangeOSCObjectChoiceCommand::ChangeOSCObjectChoiceCommand(OpenScenario::oscObjectBase *parentObject, OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent)
+    : DataCommand(parent)
+	, parentObject_(parentObject)
+	, oldChosenMember_(oldChosenMember)
+	, newChosenMember_(newChosenMember)
+	, element_(element)
+{
+    // Check for validity //
+    //
+	if (!parentObject_ || !oldChosenMember_ || !newChosenMember_ || !element_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("ChangeOSCObjectChoiceCommand: Internal error! No valid objects."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("ChangeOSCObjectChoiceCommand"));
+    }
+}
+
+/*! \brief .
+*
+*/
+ChangeOSCObjectChoiceCommand::~ChangeOSCObjectChoiceCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+//        delete object_;
+    }
+    else
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+ChangeOSCObjectChoiceCommand::redo()
+{
+	parentObject_->setChosenMember(newChosenMember_);
+	element_->addOSCElementChanges(OSCElement::COE_ChoiceChanged);
+	
+	setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+ChangeOSCObjectChoiceCommand::undo()
+{
+	parentObject_->setChosenMember(oldChosenMember_);
+	element_->addOSCElementChanges(OSCElement::COE_ChoiceChanged);
+
+   setUndone();
+}
+
+//#########################//
 // AddOSCEnumValueCommand //
 //#########################//
 

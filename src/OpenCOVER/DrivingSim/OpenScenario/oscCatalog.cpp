@@ -279,7 +279,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const int objectRefId)
                     oscObjectBase *obj = oscFactories::instance()->objectFactory->create(catalogTypeName);
                     if(obj)
                     {
-                        obj->initialize(getBase(), NULL, NULL, srcFile);
+                        obj->initialize(getBase(), this, NULL, srcFile);
                         obj->parseFromXML(rootElem, srcFile);
                         //add objectName and object to oscCatalog map
 
@@ -548,7 +548,7 @@ int oscCatalog::generateRefId(int startId)
 	return refId;
 }
 
-bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src)
+bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude)
 {
 	bool result = oscObjectBase::parseFromXML(currentElement,src);
 	if(result)
@@ -558,39 +558,42 @@ bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile
 		catalogType.erase(catalogType.length() - std::string("Catalog").length());
 		setCatalogName(catalogType);
 
-		//path to directory
-		//object/member is of type oscCatalog and has a member directory,
-		//set variable pathToCatalogDir with type bf::path from std::string
-		bf::path pathToCatalogDir(directory->path.getValue());
-
-		bf::path pathToCatalogDirToUse;
-		//check if path is absolute or relative
-		if (pathToCatalogDir.is_absolute())
+		if (directory.exists())
 		{
-			pathToCatalogDirToUse = pathToCatalogDir;
-		}
-		else
-		{
-			pathToCatalogDirToUse = source->getPathFromCurrentDirToMainDir();
-			pathToCatalogDirToUse /= pathToCatalogDir;
-		}
+			//path to directory
+			//object/member is of type oscCatalog and has a member directory,
+			//set variable pathToCatalogDir with type bf::path from std::string
+			bf::path pathToCatalogDir(directory->path.getValue());
 
-		//get all catalog object filenames
-		std::vector<bf::path> filenames = getXoscFilesFromDirectory(pathToCatalogDirToUse);
-
-		//parse all files
-		//store object name and filename in map
-		fastReadCatalogObjects(filenames);
-
-		//////
-		//enable full read of catalogs in oscTest with argument '-frc'
-		//
-		if (base->getFullReadCatalogs())
-		{
-			//generate the objects for this catalog and store them
-			for (auto &it : getObjectsMap())
+			bf::path pathToCatalogDirToUse;
+			//check if path is absolute or relative
+			if (pathToCatalogDir.is_absolute())
 			{
-				fullReadCatalogObjectWithName(it.first);
+				pathToCatalogDirToUse = pathToCatalogDir;
+			}
+			else
+			{
+				pathToCatalogDirToUse = source->getPathFromCurrentDirToMainDir();
+				pathToCatalogDirToUse /= pathToCatalogDir;
+			}
+
+			//get all catalog object filenames
+			std::vector<bf::path> filenames = getXoscFilesFromDirectory(pathToCatalogDirToUse);
+
+			//parse all files
+			//store object name and filename in map
+			fastReadCatalogObjects(filenames);
+
+			//////
+			//enable full read of catalogs in oscTest with argument '-frc'
+			//
+			if (base->getFullReadCatalogs())
+			{
+				//generate the objects for this catalog and store them
+				for (auto &it : getObjectsMap())
+				{
+					fullReadCatalogObjectWithName(it.first);
+				}
 			}
 		}
 	}

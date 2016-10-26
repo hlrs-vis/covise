@@ -146,8 +146,6 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
 
 //	createElements(dynamic_cast<OpenScenario::oscObjectBase *>(openScenarioBase_));
 
-	oscBase_->setOpenScenarioBase(openScenarioBase_);
-
     return true;
 }
 

@@ -191,7 +191,7 @@ RoadLinkItem::updatePathList()
             RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
             if (!path)
             {
-                qDebug("%s", tr("Error 1011261640! RoadLinkItem::updatePathList() road not found: ").append(path->getID()).toUtf8().constData());
+                qDebug("%s", tr("Error 1011261640! RoadLinkItem::updatePathList() road not found: ").append(connection->getConnectingRoad()).toUtf8().constData());
             }
             else
             {

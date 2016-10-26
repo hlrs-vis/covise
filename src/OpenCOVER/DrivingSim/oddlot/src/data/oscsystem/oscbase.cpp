@@ -45,6 +45,20 @@ OSCBase::OSCBase(OpenScenario::OpenScenarioBase *openScenarioBase)
 
 OSCBase::~OSCBase()
 {
+	bool deleted;
+	do
+	{
+		deleted = false;
+		foreach (OSCElement *element, oscElements_)
+		{
+			oscElements_.remove(element->getID());
+			delete element;
+			deleted = true;
+		}
+	}
+	while (deleted);
+
+	openScenarioBase_ = NULL;
 }
 
 //##################//
@@ -111,7 +125,8 @@ OSCBase::addOSCElement(OSCElement *oscElement)
 
     oscElements_.insert(oscElement->getID(), oscElement);
 	oscElement->notifyParent();
- //   addRoadSystemChanges(RoadSystem::CRS_RoadChange);
+
+	addOSCBaseChanges(OSCBaseChange::COSC_ElementChange);
 }
 
 bool 
@@ -123,7 +138,8 @@ OSCBase::delOSCElement(OSCElement *oscElement)
     {
 		oscElement->notifyParent();
         oscElement->setOSCBase(NULL);
-//		addOSCElementChanges(OSCBase::COSC_ElementChange);
+
+		addOSCBaseChanges(OSCBase::COSC_ElementChange);
         return true;
     }
     else
@@ -215,7 +231,7 @@ OSCBase::accept(Visitor *visitor)
 void
 OSCBase::notificationDone()
 {
-    oscElementChanges_ = 0x0;
+    oscBaseChanges_ = 0x0;
     DataElement::notificationDone(); // pass to base class
 }
 
@@ -223,11 +239,11 @@ OSCBase::notificationDone()
 *
 */
 void
-OSCBase::addOSCElementChanges(int changes)
+OSCBase::addOSCBaseChanges(int changes)
 {
     if (changes)
     {
-        oscElementChanges_ |= changes;
+        oscBaseChanges_ |= changes;
         notifyObservers();
     }
 }

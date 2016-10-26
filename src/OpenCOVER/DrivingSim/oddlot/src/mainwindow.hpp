@@ -21,6 +21,10 @@
 
 #include <src/util/odd.hpp>
 
+// Project
+//
+#include <src/gui/projectwidget.hpp>
+
 
 class QMdiArea;
 class QMdiSubWindow;
@@ -35,8 +39,6 @@ class QMenu;
 
 class QLabel;
 
-class ProjectWidget;
-
 class ToolManager;
 class ToolAction;
 
@@ -49,6 +51,7 @@ class OsmImport;
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
 #include "src/gui/lodsettings.hpp"
+#include "src/gui/oscsettings.hpp"
 
 namespace Ui
 {
@@ -143,6 +146,10 @@ public:
 		return signalTree_;
 	}
 
+	// ErrorMessageTree //
+	//
+	void setErrorMessageTree(QWidget *widget);
+
 	void showSignalsDock(bool visible);
 
     // ProjectSettings //
@@ -153,7 +160,7 @@ public:
     //
     void setProjectSignals(QWidget *widget);
 
-    void open(QString fileName);
+	void open(QString fileName, ProjectWidget::FileType type = ProjectWidget::FileType::FT_All);
     void openTile(QString fileName);
 
 	// add Catalog dock widgets when the project is openend
@@ -177,8 +184,10 @@ private:
     void createTree();
     void createSettings();
     void createWizards();
+	void createErrorMessageTab();
 
     ProjectionSettings *projectionSettings;
+	OSCSettings *oscSettings;
     ImportSettings *importSettings;
     LODSettings *lodSettings;
 
@@ -229,11 +238,17 @@ private slots:
     //
     void newFile();
     void open();
+	void openXODR();
+	void openXOSC();
+	void mergeXOSC();
     void save();
     void openTile();
     void saveAs();
+	void saveAsXODR();
+	void saveAsXOSC();
     void exportSpline();
     void changeSettings();
+	void changeOSCSettings();
     void changeImportSettings();
     void importIntermapRoad();
     void importCarMakerRoad();
@@ -282,6 +297,9 @@ private:
     QDockWidget *undoDock_;
     QUndoGroup *undoGroup_;
     QUndoView *undoView_;
+
+	QDockWidget *errorDock_;
+	QWidget *emptyMessageWidget_;
 
     QDockWidget *toolDock_;
     QDockWidget *ribbonToolDock_;

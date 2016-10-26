@@ -49,10 +49,6 @@
 #include <util/coExport.h>
 #endif
 
-#if defined(__APPLE__)
-#include "osx-util.h"
-#endif
-
 #ifdef WIN32
 static char *strcasestr(char *source, char *target)
 {
@@ -237,10 +233,6 @@ int main(int argc, char *argv[])
              << "req" << '"' << endl;
         exit(EXIT_SUCCESS);
     }
-
-#ifdef __APPLE__
-    MakeMeTheFrontProcess();
-#endif // __APPLE__
 
 #ifdef _WIN32
     // note: console has to be allocated after possible handling of argument '-d',

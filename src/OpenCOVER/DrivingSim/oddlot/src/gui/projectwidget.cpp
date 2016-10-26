@@ -240,6 +240,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectionSettings = ProjectionSettings::instance();
     lodSettings = LODSettings::instance();
 
+	oscSettings = OSCSettings::instance();
+	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+
     currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
     QList<PrototypeContainer<RSystemElementRoad *> *> roadTypePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype);
@@ -411,60 +414,100 @@ ProjectWidget::newFile()
 *	\todo read strategy (xodr, native, etc)
 */
 bool
-ProjectWidget::loadFile(const QString &fileName)
+ProjectWidget::loadFile(const QString &fileName, FileType type)
 {
-    // Print //
-    //
-    qDebug("Loading file: %s", fileName.toUtf8().constData());
+	QString xodrFileName = "";
+	QString xoscFileName;
+	if (type == FT_All)
+	{
+		QString baseName = fileName;
+		baseName.truncate(fileName.lastIndexOf("."));
+		xodrFileName = baseName + ".xodr";
+		xoscFileName = baseName + ".xosc";
+	}
+	else if (type == FT_OpenDrive)
+	{
+		xodrFileName = fileName;
+		QString baseName = fileName;
+		baseName.truncate(fileName.lastIndexOf("."));
+		xoscFileName = baseName.append(".xosc");
+	}
+	else
+	{
+		xoscFileName = fileName;
+	}
 
-    // Open file //
-    //
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
-        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
-        return false;
-    }
 
-    // Parse file //
-    //
+	bool success = false;
+	if (type != FT_OpenScenario)
+	{
+		// Print //
+		//
+		qDebug("Loading file: %s", xodrFileName.toUtf8().constData());
 
-    // TODO: read strategy (xodr, native, etc)
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    DomParser *parser = new DomParser(projectData_);
-    bool success = parser->parseXODR(&file);
+		// Open file //
+		//
+		QFile file(xodrFileName);
+		if (!file.open(QFile::ReadOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+				.arg(xodrFileName)
+				.arg(file.errorString()));
+			qDebug("Loading file failed: %s", xodrFileName.toUtf8().constData());
+			return false;
+		}
+
+		// Parse file //
+		//
+
+		// TODO: read strategy (xodr, native, etc)
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		DomParser *parser = new DomParser(projectData_);
+		success = parser->parseXODR(&file);
+		delete parser;
+
+		// TODO
+
+		// Close file //
+		//
+		QApplication::restoreOverrideCursor();
+		file.close();
+	};
 
 	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-    if (!success)		// try OpenScenario
-    {
-        // Create a Tile
-        Tile *tile = new Tile("Tile0", "0");
-        projectData_->getTileSystem()->addTile(tile);
-        projectData_->getTileSystem()->setCurrentTile(tile);
 
-        if (openScenarioBase)
-        {
-            OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
-            success = oscParser->parseXOSC(fileName);
-        }
-
-    }
-	else if (openScenarioBase)
+	if (type != FT_OpenDrive)
 	{
-		openScenarioBase->createSource(oscFileName_.toStdString(), "OpenSCENARIO");
+		// Create a Tile
+		Tile *tile = new Tile("Tile0", "0");
+		projectData_->getTileSystem()->addTile(tile);
+		projectData_->getTileSystem()->setCurrentTile(tile); 
+
+		OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+
+		if (!success)
+		{
+			success = oscParser->parseXOSC(xoscFileName);
+		}
+		else
+		{
+			oscParser->parseXOSC(xoscFileName);
+		}
+
+		delete oscParser;
+	}
+
+	// Reset change //
+	//
+	projectData_->getChangeManager()->notifyObservers();
+
+	if (!openScenarioBase->getSource())
+	{
+		openScenarioBase->createSource(xoscFileName.toStdString(), "OpenSCENARIO");
 	}
 
     topviewGraph_->updateSceneSize();
-    delete parser;
-    // TODO
 
-    // Close file //
-    //
-    QApplication::restoreOverrideCursor();
-    file.close();
 
     // Check for success //
     //
@@ -477,6 +520,7 @@ ProjectWidget::loadFile(const QString &fileName)
 
     return true;
 }
+
 /**! \brief
 *
 */
@@ -1635,44 +1679,62 @@ ProjectWidget::saveAs()
 *	\todo write strategy (xodr, native, etc)
 */
 bool
-ProjectWidget::saveFile(const QString &fileName)
+ProjectWidget::saveFile(const QString &fileName, FileType type)
 {
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text))
-    {
-        QMessageBox::warning(this, tr("ODD"),
-                             tr("Cannot write file %1:\n%2.")
-                                 .arg(fileName)
-                                 .arg(file.errorString()));
-        return false;
-    }
+	QString xodrFileName = fileName;
+	QString xoscFileName = fileName;
+	if (type == FT_All)
+	{
+		QString baseName = fileName;
+		baseName.truncate(fileName.lastIndexOf("."));
+		xodrFileName = baseName + ".xodr";
+		xoscFileName = baseName + ".xosc";
+	}
 
-    // Export //
-    //
-    QTextStream out(&file);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    // TODO: write strategy (xodr, native, etc)
-    const int indentSize = 3;
-    DomWriter *domWriter = new DomWriter(projectData_);
-    domWriter->runToTheHills();
-    domWriter->getDomDocument()->save(out, indentSize);
-    // TODO
 
-    // Close file //
-    //
-    QApplication::restoreOverrideCursor();
-    file.close();
+	if (type != FT_OpenScenario)
+	{
+		QFile file(xodrFileName);
+		if (!file.open(QFile::WriteOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("ODD"),
+				tr("Cannot write file %1:\n%2.")
+				.arg(xodrFileName)
+				.arg(file.errorString()));
+			return false;
+		}
 
-    // Set file //
-    //
-    setFile(fileName);
+		// Export //
+		//
+		QTextStream out(&file);
+		QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	// OpenSCENARIO //
+		// TODO: write strategy (xodr, native, etc)
+		const int indentSize = 3;
+		DomWriter *domWriter = new DomWriter(projectData_);
+		domWriter->runToTheHills();
+		domWriter->getDomDocument()->save(out, indentSize);
+		// TODO
+
+		// Close file //
+		//
+		QApplication::restoreOverrideCursor();
+		file.close();
+	}
+
+	// Set file //
 	//
-	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-	openScenarioBase->saveFile((fileName.split(".")[0] + ".xosc").toStdString());
-	openScenarioBase->clearDOM();
+	setFile(fileName);
+
+	if (type != FT_OpenDrive)
+	{
+		// OpenSCENARIO //
+		//
+		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+		openScenarioBase->saveFile(xoscFileName.toStdString());
+		openScenarioBase->clearDOM();
+	}
 
     return true;
 }

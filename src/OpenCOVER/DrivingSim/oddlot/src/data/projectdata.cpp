@@ -31,6 +31,10 @@
 
 #include "changemanager.hpp"
 
+// GUI //
+//
+#include "src/gui/oscsettings.hpp"
+
 // OpenScenario //
 //
 #include "OpenScenarioBase.h"
@@ -200,6 +204,13 @@ ProjectData::projectActivated(bool active)
     }
 }
 
+
+void
+ProjectData::changeOSCValidation(bool value)
+{
+	oscBase_->getOpenScenarioBase()->setValidation(value);
+}
+
 //##################//
 // Systems          //
 //##################//
@@ -294,6 +305,7 @@ ProjectData::setOSCBase(OSCBase *base)
         oscBase_->setParentProjectData(this);
 
 		OpenScenario::OpenScenarioBase *openScenarioBase = new OpenScenario::OpenScenarioBase();     // make OpenScenarioBase //
+		openScenarioBase->setValidation(OSCSettings::instance()->readValidation());
 		oscBase_->setOpenScenarioBase(openScenarioBase);
   //      addProjectDataChanges(ProjectData::CPD_RoadSystemChanged);
     }

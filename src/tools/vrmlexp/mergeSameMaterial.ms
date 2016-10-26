@@ -81,6 +81,35 @@ print OBJ as string
     
 )
 
+fn doResetTransformSelected =
+(
+	allObjects = $selection
+for OBJ in allObjects do(
+	 if OBJ.category == #Editable_Objects do 
+	(
+print OBJ as string
+	tMat = OBJ.transform
+	identityMat = matrix3 1
+	OBJ.transform = identityMat
+		ResetXForm OBJ
+		
+	WorldAlignObject OBJ
+		try(convertToMesh OBJ) catch()
+	OBJ.transform = tMat
+	)
+	if OBJ.category == #Group do 
+	(
+print OBJ as string
+	tMat = OBJ.transform
+	identityMat = matrix3 1
+	OBJ.transform = identityMat
+	WorldAlignObject OBJ
+	OBJ.transform = tMat
+	)
+)
+    
+)
+
 macroScript groupPivot category:"Optimize" 
 (
 	

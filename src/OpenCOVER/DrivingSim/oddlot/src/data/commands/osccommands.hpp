@@ -275,6 +275,37 @@ private:
 };
 
 //#########################//
+// ChangeOSCObjectChoiceCommand //
+//#########################//
+
+class ChangeOSCObjectChoiceCommand : public DataCommand
+{
+public:
+	explicit ChangeOSCObjectChoiceCommand(OpenScenario::oscObjectBase *parentObject, OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent = NULL);
+    virtual ~ChangeOSCObjectChoiceCommand();
+
+    virtual int id() const
+    {
+        return 0x1011;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    ChangeOSCObjectChoiceCommand(); /* not allowed */
+    ChangeOSCObjectChoiceCommand(const ChangeOSCObjectChoiceCommand &); /* not allowed */
+    ChangeOSCObjectChoiceCommand &operator=(const ChangeOSCObjectChoiceCommand &); /* not allowed */
+
+private:
+	OpenScenario::oscObjectBase *parentObject_;
+	OpenScenario::oscMember *oldChosenMember_;
+	OpenScenario::oscMember *newChosenMember_;
+
+	OSCElement *element_;
+};
+
+//#########################//
 // AddOSCEnumValueCommand //
 //#########################//
 

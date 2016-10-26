@@ -31,7 +31,8 @@ oscObjectBase::oscObjectBase() :
         base(NULL),
         source(NULL),
         parentObject(NULL),
-        ownMember(NULL)
+        ownMember(NULL),
+		chosenMember(NULL)
 {
 
 }
@@ -49,6 +50,11 @@ void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject,
     this->parentObject = parentObject;
     this->ownMember = ownMember;
     source = s;
+
+	if (parentObject && parentObject->hasChoice())
+	{
+		parentObject->setChosenMember(ownMember);
+	}
 }
 
 
@@ -145,6 +151,16 @@ bool oscObjectBase::isMemberInChoice(oscMember *m)
 	return false;
 }
 
+oscMember *oscObjectBase::getChosenMember()
+{
+	return chosenMember;
+}
+
+void oscObjectBase::setChosenMember(oscMember *member)
+{
+	chosenMember = member; 
+}
+
 
 //
 void oscObjectBase::addMemberToOptional(oscMember *m)
@@ -178,11 +194,12 @@ oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 //
 bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
+	bool choiceObject = hasChoice();
     for(MemberMap::iterator it = members.begin();it != members.end(); it++)
     {
         oscMember *member = it->second;
-        if(member)
-        {
+        if((choiceObject && (chosenMember == member)) || (!choiceObject && member))
+		{
             if(member->getType() == oscMemberValue::OBJECT)
             {
                 oscObjectBase *obj = member->getObject();
@@ -200,7 +217,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 
                     //determine document and element for writing
                     //
-                    if ((document != srcXmlDoc) && writeInclude)
+					if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
                     {
                         //add include element to currentElement and add XInclude namespace to root element of new xml document
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
@@ -247,7 +264,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     }
                     else
                     {
-                        if ((document != srcXmlDoc) && writeInclude)
+                        if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
                         {
                             //write members of member into root element of new xml document
                             obj->writeToDOM(elementToUse, docToUse, writeInclude);

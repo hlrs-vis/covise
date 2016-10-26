@@ -101,7 +101,7 @@ public:
     {
         return rSystemElementChanges_;
     } */
-    void addOSCElementChanges(int changes);
+    void addOSCBaseChanges(int changes);
 
 private:
 //    OSCBase(); /* not allowed */
@@ -129,7 +129,7 @@ private:
 
     // Observer Pattern //
     //
-    int oscElementChanges_;
+    int oscBaseChanges_;
 };
 
 #endif // OSCBASE_HPP
