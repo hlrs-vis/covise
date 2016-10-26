@@ -48,7 +48,7 @@ extern "C" {
 #endif
 };
 
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56, 34, 1)
 typedef PixelFormat AVPixelFormat;
 
 #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24

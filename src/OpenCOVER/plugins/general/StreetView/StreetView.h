@@ -23,6 +23,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <proj_api.h>
 
 class IndexParser;
 
@@ -33,6 +34,7 @@ public:
     ~StreetView();
     void preFrame();
 	bool init();
+	void transformWGS84ToGauss(double &lon, double &lat, double &alt);
 
 private:
 	IndexParser *indexParser;
@@ -40,5 +42,7 @@ private:
 	double viewerPosX;
 	double viewerPosY;
 	double viewerPosZ;
+	projPJ pj_wgs84;
+	projPJ pj_gausskrueger;
 };
 #endif

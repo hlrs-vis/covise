@@ -217,7 +217,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 
                     //determine document and element for writing
                     //
-                    if ((document != srcXmlDoc) && writeInclude)
+					if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
                     {
                         //add include element to currentElement and add XInclude namespace to root element of new xml document
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
@@ -264,7 +264,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     }
                     else
                     {
-                        if ((document != srcXmlDoc) && writeInclude)
+                        if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
                         {
                             //write members of member into root element of new xml document
                             obj->writeToDOM(elementToUse, docToUse, writeInclude);

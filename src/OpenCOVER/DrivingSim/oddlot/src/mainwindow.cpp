@@ -16,10 +16,6 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-// Project //
-//
-#include "src/gui/projectwidget.hpp"
-
 // Manager //
 //
 #include "src/data/prototypemanager.hpp"
@@ -178,13 +174,32 @@ MainWindow::createActions()
     QAction *openAction = new QAction(tr("&Open"), this);
     openAction->setShortcuts(QKeySequence::Open);
     openAction->setStatusTip(tr("Open an existing file."));
-    connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
+	connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
-    QAction *openTileAction = new QAction(tr("&Merge"), this);
+	QMenu *openMenu = new QMenu("&Open", fileMenu_);
+	openMenu->addAction(openAction);
+	QAction *openXODRAction = new QAction(tr("Open Open&Drive File"), openMenu);
+	openMenu->addAction(openXODRAction);
+	connect(openXODRAction, SIGNAL(triggered()), this, SLOT(openXODR()));
+
+	QAction *openXOSCAction = new QAction(tr("Open Open&Scenario File"), openMenu);
+	openMenu->addAction(openXOSCAction);
+	connect(openXOSCAction, SIGNAL(triggered()), this, SLOT(openXOSC()));
+    
+
+	QMenu *mergeMenu = new QMenu("&Merge", fileMenu_);
+    QAction *openTileAction = new QAction(tr("&Merge Open&Drive file"), this);
     openTileAction->setShortcut(QKeySequence::AddTab);
     openTileAction->setStatusTip(tr("Merge an additonal File."));
     connect(openTileAction, SIGNAL(triggered()), this, SLOT(openTile()));
-    //    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
+    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
+	mergeMenu->addAction(openTileAction);
+
+	QAction *mergeXOSCAction = new QAction(tr("Merge Open&Scenario File"), mergeMenu);
+	mergeMenu->addAction(mergeXOSCAction);
+	connect(mergeXOSCAction, SIGNAL(triggered()), this, SLOT(mergeXOSC()));
+	connect(this,SIGNAL(hasActiveProject(bool)),mergeXOSCAction,SLOT(setEnabled(bool)));
+
 
     QAction *saveAction = new QAction(tr("&Save"), this);
     saveAction->setShortcuts(QKeySequence::Save);
@@ -192,7 +207,20 @@ MainWindow::createActions()
     connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
     connect(this, SIGNAL(hasActiveProject(bool)), saveAction, SLOT(setEnabled(bool)));
 
-    QAction *saveAsAction = new QAction(tr("Save &As..."), this);
+	QMenu *saveMenu = new QMenu("&Save", fileMenu_);
+	saveMenu->addAction(saveAction);
+	QAction *saveXODRAction = new QAction(tr("Save As Open&Drive File"), saveMenu);
+	saveMenu->addAction(saveXODRAction);
+	connect(saveXODRAction, SIGNAL(triggered()), this, SLOT(saveAsXODR()));
+	connect(this, SIGNAL(hasActiveProject(bool)), saveXODRAction, SLOT(setEnabled(bool)));
+
+	QAction *saveXOSCAction = new QAction(tr("Save As Open&Scenario File"), saveMenu);
+	saveMenu->addAction(saveXOSCAction);
+	connect(saveXOSCAction, SIGNAL(triggered()), this, SLOT(saveAsXOSC()));
+	connect(this, SIGNAL(hasActiveProject(bool)), saveXOSCAction, SLOT(setEnabled(bool)));
+
+    QAction *saveAsAction = new QAction(tr("Save &As..."), saveMenu);
+	saveMenu->addAction(saveAsAction);
     saveAsAction->setShortcuts(QKeySequence::SaveAs);
     saveAsAction->setStatusTip(tr("Save the document under a new name."));
     connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -225,10 +253,20 @@ MainWindow::createActions()
     importMenu->addAction(importIntermapAction);
     connect(importIntermapAction, SIGNAL(triggered()), this, SLOT(importIntermapRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importIntermapAction, SLOT(setEnabled(bool)));
+	/*
     QAction *importCSVAction = new QAction(tr("Import CSV file"), exportMenu);
     importMenu->addAction(importCSVAction);
     connect(importCSVAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCSVAction, SLOT(setEnabled(bool)));
+	*/
+	QAction *importCSVRoadAction = new QAction(tr("Import CSV Road"), exportMenu);
+    importMenu->addAction(importCSVRoadAction);
+    connect(importCSVRoadAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importCSVRoadAction, SLOT(setEnabled(bool)));
+	QAction *importCSVSignAction = new QAction(tr("Import CSV Sign"), exportMenu);
+    importMenu->addAction(importCSVSignAction);
+    connect(importCSVSignAction, SIGNAL(triggered()), this, SLOT(importCSVSign()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importCSVSignAction, SLOT(setEnabled(bool)));
     QAction *importCarMakerAction = new QAction(tr("Import CarMaker Road file"), exportMenu);
     importMenu->addAction(importCarMakerAction);
     connect(importCarMakerAction, SIGNAL(triggered()), this, SLOT(importCarMakerRoad()));
@@ -248,10 +286,9 @@ MainWindow::createActions()
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows())); // ?!
 
     fileMenu_->addAction(newAction);
-    fileMenu_->addAction(openAction);
-    fileMenu_->addAction(openTileAction);
-    fileMenu_->addAction(saveAction);
-    fileMenu_->addAction(saveAsAction);
+	fileMenu_->addMenu(openMenu);
+	fileMenu_->addMenu(saveMenu);
+	fileMenu_->addMenu(mergeMenu);
     fileMenu_->addSeparator();
     fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
@@ -724,7 +761,7 @@ MainWindow::open()
 * activated.
 */
 void
-MainWindow::open(QString fileName)
+MainWindow::open(QString fileName, ProjectWidget::FileType type)
 {
     if (!fileName.isEmpty())
     {
@@ -748,7 +785,7 @@ MainWindow::open(QString fileName)
         ProjectWidget *project = new ProjectWidget(this);
         // [workaround_0]
 
-        if (project->loadFile(fileName))
+        if (project->loadFile(fileName, type))
         {
             statusBar()->showMessage(tr("File has been loaded."), 2000);
 
@@ -772,6 +809,27 @@ MainWindow::open(QString fileName)
     }
     return;
 }
+
+void
+MainWindow::openXODR()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xodr files (*.xodr)"));
+    if (!fileName.isEmpty())
+    {
+		open(fileName, ProjectWidget::FileType::FT_OpenDrive);
+	}
+}
+
+void
+MainWindow::openXOSC()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    if (!fileName.isEmpty())
+    {
+		open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+	}
+}
+
 
 /*! \brief Opens an additional tile and adds to the project
 *
@@ -807,6 +865,23 @@ MainWindow::openTile(QString fileName)
     return;
 }
 
+void
+MainWindow::mergeXOSC()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    if (!fileName.isEmpty())
+    {
+		if (getActiveProject())
+		{
+			getActiveProject()->loadFile(fileName, ProjectWidget::FileType::FT_OpenScenario);
+		}
+		else
+		{
+			open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+		}
+	}
+}
+
 /*! \brief Tells the active project to save itself.
 *
 */
@@ -830,6 +905,40 @@ MainWindow::saveAs()
         statusBar()->showMessage(tr("File has been saved."), 2000);
     }
     return;
+}
+
+void
+MainWindow::saveAsXODR()
+{
+	ProjectWidget *project = getActiveProject();
+	if (project)
+	{
+		QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xodr files (*.xodr)"));
+		if (!fileName.isEmpty())
+		{
+			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenDrive))
+			{
+				statusBar()->showMessage(tr("File has been saved."), 2000);
+			}
+		}
+	}
+}
+
+void
+MainWindow::saveAsXOSC()
+{
+	ProjectWidget *project = getActiveProject();
+	if (project)
+	{
+		QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xosc files (*.xosc)"));
+		if (!fileName.isEmpty())
+		{
+			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenScenario))
+			{
+				statusBar()->showMessage(tr("File has been saved."), 2000);
+			}
+		}
+	}
 }
 
 /*! \brief Tells the active project to save itself.
@@ -910,7 +1019,7 @@ MainWindow::importIntermapRoad()
     return;
 }
 
-/*! \brief load CSV file.
+/*! \brief load CSV Road file.
 *
 */
 void
@@ -927,7 +1036,33 @@ MainWindow::importCSVRoad()
     {
 
 
-        if (project->importCSVFile(fileName))
+        if (project->importCSVRoadFile(fileName))
+        {
+            statusBar()->showMessage(tr("File has been imported."), 2000);
+            project->show();
+        }
+    }
+    return;
+}
+
+/*! \brief load CSV Sign file.
+*
+*/
+void
+MainWindow::importCSVSign()
+{
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+    {
+
+
+        if (project->importCSVSignFile(fileName))
         {
             statusBar()->showMessage(tr("File has been imported."), 2000);
             project->show();
