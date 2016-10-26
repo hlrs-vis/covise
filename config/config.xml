@@ -180,7 +180,7 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-     <Audio value="Aserver" />
+     <Audio value="OpenAL" />
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>
 
