@@ -29,6 +29,8 @@
 #include <osg/Switch>
 #include <osgDB/ReadFile>
 
+#include <cover/coVRTui.h>
+
 // Local:
 #include "PointCloud.h"
 
@@ -134,6 +136,24 @@ bool PointCloudPlugin::init()
 
     //read in menu data
     readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
+
+    PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
+    PCTab->setPos(0, 0);
+
+    adaptLODTui = new coTUIToggleButton("adaptLOD", PCTab->getID());
+    adaptLODTui->setEventListener(this);
+    adaptLODTui->setState(adaptLOD);
+    
+    coTUILabel *pointSizeLabel = new coTUILabel("pointSize:");
+    pointSizeTui = new coTUIFloatSlider("PointSize", PCTab->getID());
+    pointSizeTui->setEventListener(this);
+    pointSizeTui->setValue(pointSizeValue);
+    
+
+    adaptLODTui->setPos(0, 0);
+    pointSizeLabel->setPos(0, 1);
+    pointSizeTui->setPos(1, 1);
+
     return true;
 }
 
@@ -152,6 +172,10 @@ PointCloudPlugin::~PointCloudPlugin()
     delete imanPluginInstanceMenu;
     delete loadMenuItem;
     delete loadMenu;
+    //clean up TUI
+    delete PCTab;
+    delete adaptLODTui;
+
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {
@@ -160,6 +184,18 @@ PointCloudPlugin::~PointCloudPlugin()
     delete deleteMenuItem;
 }
 
+void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == adaptLODTui)
+    {
+        adaptLOD = adaptLODTui->getState();
+    }
+    if (tUIItem == pointSizeTui)
+    {
+        pointSizeValue = pointSizeTui->getValue();
+    }
+    
+}
 int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, const char *)
 {
     std::string filen;
