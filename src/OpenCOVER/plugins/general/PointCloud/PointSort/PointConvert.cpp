@@ -30,6 +30,7 @@ enum formatTypes
 {
     FORMAT_IRGB,
     FORMAT_RGBI,
+    FORMAT_If,
     FORMAT_RGB,
     FORMAT_UVRGBI
 };
@@ -68,6 +69,8 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
         toRead = 7;
     else if (format == FORMAT_RGBI)
         toRead = 6;
+    else if (format == FORMAT_If)
+        toRead = 4;
     else if (format == FORMAT_RGB)
         toRead = 6;
 
@@ -165,6 +168,13 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
         }
         else if (format == FORMAT_RGBI)
             numValues = sscanf(buf, "%f %f %f %d %d %d", &(point.x), &(point.y), &(point.z), &r, &g, &b);
+        else if (format == FORMAT_If)
+        {
+            numValues = sscanf(buf, "%f %f %f %f", &(point.x), &(point.y), &(point.z), &rf);
+            g = (int)((rf/2000.0) * 255); 
+            b = (int)((rf/2000.0) * 255); 
+            r = (int)((rf/2000.0) * 255); 
+        }
         else if (format == FORMAT_RGB)
         {
 
@@ -385,6 +395,11 @@ int main(int argc, char **argv)
             if ((len > 4) && strcmp((argv[i] + len - 4), ".xyz") == 0)
             {
                 format = FORMAT_RGBI;
+                ReadData(argv[i], vec, format);
+            }
+            if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
+            {
+                format = FORMAT_If;
                 ReadData(argv[i], vec, format);
             }
             else

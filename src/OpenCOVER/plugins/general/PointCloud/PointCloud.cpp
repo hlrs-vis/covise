@@ -147,6 +147,8 @@ bool PointCloudPlugin::init()
     coTUILabel *pointSizeLabel = new coTUILabel("pointSize:");
     pointSizeTui = new coTUIFloatSlider("PointSize", PCTab->getID());
     pointSizeTui->setEventListener(this);
+    pointSizeTui->setMin(1.0);
+    pointSizeTui->setMax(10.0);
     pointSizeTui->setValue(pointSizeValue);
     
 
@@ -189,6 +191,18 @@ void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
     if (tUIItem == adaptLODTui)
     {
         adaptLOD = adaptLODTui->getState();
+	for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    {
+        //TODO calc distance correctly
+        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        {
+
+            if (!adaptLOD)
+            {
+                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(1.0);
+            }
+        }
+    }
     }
     if (tUIItem == pointSizeTui)
     {
