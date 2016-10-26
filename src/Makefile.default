@@ -38,30 +38,30 @@ $(MAKEFILE):
 	echo trying to make $(MAKEFILE)
 	mkdir -p $(PROJBUILDDIR)
 ifeq ($(ARCHSUFFIX),mingw)
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake  $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
       -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
       -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingw \
       -DCMAKE_BUILD_TYPE=Debug
 else ifeq ($(ARCHSUFFIX),mingwopt)
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
       -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
       -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingwopt \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
 else ifeq ($(ARCHSUFFIX),libc++)
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
       -DCOVISE_USE_QT4=FALSE \
       -DCMAKE_BUILD_TYPE=Debug
 else ifeq ($(ARCHSUFFIX),libc++opt)
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
       -DCOVISE_USE_QT4=FALSE \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
 else
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR)
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)
 endif
 
 $(PROJBUILDDIR):
