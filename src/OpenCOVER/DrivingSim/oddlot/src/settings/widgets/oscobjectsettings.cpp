@@ -146,7 +146,7 @@ OSCObjectSettings::~OSCObjectSettings()
     //
     element_->detachObserver(this);
 
-//    delete ui;
+    delete ui;
 }
 
 //################//
