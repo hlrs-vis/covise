@@ -2,7 +2,6 @@
 #include "Index.h"
 #include "Camera.h"
 #include "StreetView.h"
-#include "Position.h"
 
 #include <osgDB/ReadFile>
 
@@ -23,7 +22,6 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_, StreetView *stree
 	index = index_;
 	streetView = streetview_;
 	camera = NULL;
-	Position *picturePosition = new Position;
 	
 	xercesc::DOMNodeList *pictureNodeList = pictureNode->getChildNodes();
 	for (int j = 0; j < pictureNodeList->getLength(); ++j)
@@ -68,16 +66,13 @@ Picture::Picture(xercesc::DOMNode *pictureNode, Index *index_, StreetView *stree
 
 	if (longitude != 0.0 && latitude != 0.0 && altitude != 0.0)
 	{
-		picturePosition->transformWGS84ToGauss(longitude, latitude, altitude);
+		streetView->transformWGS84ToGauss(longitude, latitude, altitude);
 	}
 }
 
 
 Picture::~Picture()
 {
-	delete camera;
-	delete streetView;
-	delete index;
 }
 
 
@@ -85,19 +80,17 @@ osg::Node *Picture::getPanelNode()
 {
 	osg::Geode *panel = new osg::Geode();
 	osg::Geometry *panelGeometry = new osg::Geometry();
-	
-	// a = 2*arctan(g/(2r)),  g = 2r*tan(a/2) // r = distance, a = FOV
-	// a = 2*atan(d/f) // general FOV, d = picture diagonal, f = focal length
-	// H = 2*atan(tan(V/2)*(w/h)) // horizontal FOV
-	// V = 2*atan(tan(H/2)*(h/w)) // vertical FOV
-	// H or V = 2*arctan (B/2 * 1/f´) (in rad)
 
-	int focalLength = 50; // assumed
-	double distance = 4; // in metres, assumed
 	double aspectRatioWH = (1280.0*(camera->getPixelSizeX()))/(960.0*(camera->getPixelSizeY()));
 	double aspectRatioHW = (960.0*(camera->getPixelSizeY()))/(1280.0*(camera->getPixelSizeX()));
-	double alphaV = 7.3; // vertical FOV, based on focalLength
-	double alphaH = 2.0*atan(tan(alphaV/2.0)*(aspectRatioWH)); // horizontal FOV
+	int focalLength = 50; // mm
+	double distance = 4; // m
+	double sensorSizeX = 6.4; // mm
+	double sensorSizeY = 8.5; // mm
+	//double alphaV = 2.0*atan(sensorSizeX/2.0*focalLength); // vertical FOV
+	//double alphaH = 2.0*atan(sensorSizeY/2.0*focalLength); // horizontal FOV
+	double alphaV = 7.3; // vertical FOV
+	double alphaH = 2.0*atan(tan(alphaV/2.0)*aspectRatioWH); // horizontal FOV
 	double width = 2.0*distance*tan(alphaH/2.0);
 	double height = 2.0*distance*tan(alphaV/2.0);
 
@@ -135,6 +128,7 @@ osg::Node *Picture::getPanelNode()
 
 	osg::Texture2D* panelTexture = new osg::Texture2D;
 	panelTexture->setDataVariance(osg::Object::DYNAMIC); 
+	panelTexture->setResizeNonPowerOfTwoHint(false);
 	osg::Image *panelImage = osgDB::readImageFile(index->getAbsolutePicturePath()+fileName);
 	if (!panelImage)
 	{
@@ -152,8 +146,8 @@ osg::Node *Picture::getPanelNode()
 	osg::Matrix rotationMatrix;
 	rotationMatrix.makeRotate(
 		camera->getRotationPitch(), osg::Vec3(1,0,0), 
-		camera->getRotationRoll(), osg::Vec3(0,1,0), 
-		camera->getRotationAzimuth(), osg::Vec3(0,0,1));
+		camera->getRotationRoll(), osg::Vec3(0,1,0),
+		camera->getRotationAzimuth(), osg::Vec3(0,0,1)); 
 
 	osg::Matrix translationMatrix;
 	translationMatrix.makeTranslate(distance, distance, 0);
@@ -168,7 +162,7 @@ osg::Node *Picture::getPanelNode()
 	panelMatrixTransform = new osg::MatrixTransform;
 	panelMatrixTransform->setName(fileName);
 	panelMatrixTransform->addChild(panel);
-	panelMatrixTransform->setMatrix(rotationMatrix90X*rotationMatrix90Y*translationMatrix*rotationMatrix);
+	panelMatrixTransform->setMatrix(rotationMatrix90X*rotationMatrix90Y*translationMatrix*rotationMatrix); // 
 
 	return panelMatrixTransform;
 }

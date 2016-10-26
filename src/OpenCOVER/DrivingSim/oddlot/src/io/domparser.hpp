@@ -21,6 +21,8 @@
 #include <QMap>
 #include <QStringList>
 
+#include "src/data/roadsystem/roadsystem.hpp"
+
 class QIODevice;
 class QDomDocument;
 class QDomElement;
@@ -32,7 +34,6 @@ class ProjectData;
 
 class Tile;
 
-class RoadSystem;
 class RSystemElementRoad;
 class LaneSection;
 
@@ -68,6 +69,7 @@ class DomParser : public QObject
         MODE_XODR,
         MODE_PROTOTYPES
     };
+
 
     //################//
     // FUNCTIONS      //
@@ -172,7 +174,7 @@ private:
 
     DomParser::Mode mode_;
 
-    QMap<QString, QString> elementIDs_;
+    QMultiMap<QString, RoadSystem::IdType> elementIDs_;
     QMap<int, int> tileCounts_;
 };
 
