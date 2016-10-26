@@ -292,12 +292,12 @@ namespace visionaray
             if (source_info.components == 3)
             {
                 auto data_ptr = reinterpret_cast<vector<3, unorm<8> > const *>(img->data());
-                result.set_data(data_ptr, source_format, dest_format, AlphaIsOne);
+                result.reset(data_ptr, source_format, dest_format, AlphaIsOne);
             }
             else if (source_info.components == 4)
             {
                 auto data_ptr = reinterpret_cast<vector<4, unorm<8> > const *>(img->data());
-                result.set_data(data_ptr, source_format, dest_format);
+                result.reset(data_ptr, source_format, dest_format);
             }
             else
             {
@@ -1566,7 +1566,7 @@ namespace visionaray
         for (auto const &b : impl_->host_bvhs)
         {
             if (b.num_nodes() > 0)
-                bounds = combine(bounds, b.node(0).bbox);
+                bounds = combine(bounds, b.node(0).get_bounds());
         }
 
         auto c = bounds.center();
@@ -1677,7 +1677,7 @@ namespace visionaray
         for (auto &b : impl_->host_bvhs)
         {
             if (b.num_nodes())
-                bounds = combine(bounds, b.node(0).bbox);
+                bounds = combine(bounds, b.node(0).get_bounds());
         }
         auto diagonal = bounds.max - bounds.min;
         auto bounces = impl_->state->num_bounces;
