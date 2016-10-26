@@ -28,6 +28,7 @@ class oscObject;
 class oscCatalog;
 }
 
+class RoadSystem;
 class OpenScenarioEditor;
 class OSCTextItem;
 class OSCBaseItem;
@@ -111,6 +112,7 @@ protected:
     //################//
 
 private:
+	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
 	QString roadID_;

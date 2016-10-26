@@ -142,7 +142,7 @@ void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
 
         if (m_impl->host_bvh_vector->at(i).num_nodes() > 0)
         {
-            bounds = combine(bounds, m_impl->host_bvh_vector->at(i).node(0).bbox);
+            bounds = combine(bounds, m_impl->host_bvh_vector->at(i).node(0).get_bounds());
         }
     }
 

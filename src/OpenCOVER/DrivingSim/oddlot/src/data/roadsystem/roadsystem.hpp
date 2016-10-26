@@ -152,6 +152,10 @@ public:
     const QString getUniqueId(const QString &suggestion, QString &name);
     void updateControllers();
 
+	// Find closest road to global point //
+	//
+	RSystemElementRoad * findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec);
+
     // OpenDRIVE Data //
     //
     void verify();
