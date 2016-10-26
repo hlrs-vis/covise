@@ -224,6 +224,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
         bool commaSeparated = false;
         FILE *fp = fopen(cfile, "r");
         pointSetSize = 0;
+        intensityScale = 10;
         char buf[1000];
         if (fp)
         {
@@ -242,6 +243,12 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     {
                         intensityOnly = true;
                         fprintf(stderr, "intensityOnly\n");
+                    }
+                    const char *intensityString;
+                    if ((intensityString = strstr(buf, "intensityScale")) != NULL)
+                    {
+                        sscanf(intensityString+14,"%f",&intensityScale);
+                        fprintf(stderr, "intensityScale %f\n",intensityScale);
                     }
                     if (strstr(buf, "intColor") != NULL)
                     {
@@ -333,11 +340,11 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
                     if (numValues == 7)
                     {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * 10.0;
+                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
                     }
                     else
                     {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * 10.0;
+                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * intensityScale;
                     }
                 }
                 else
