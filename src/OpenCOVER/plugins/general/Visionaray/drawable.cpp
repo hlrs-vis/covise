@@ -1015,6 +1015,9 @@ namespace visionaray
 
         impl()
             : host_sched(0)
+#ifdef __CUDACC__
+            , device_sched(8, 8)
+#endif
         {
         }
 
