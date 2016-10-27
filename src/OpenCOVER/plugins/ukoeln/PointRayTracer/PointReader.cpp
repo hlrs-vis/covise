@@ -68,9 +68,9 @@ void addPoint(point_vector& points,
 //        std::cout << "x: " << x << "  y: " << y << "  z: " << z << "    r: " << r << "  g: " << g << "  b: " << b << std::endl << std::endl;
 
     sphere_type sp;
-    sp.radius = pointSize;
-    sp.center = vec3(x,y,z);
-    sp.color = visionaray::vector<3, visionaray::unorm<8>>((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
+    sp.radius() = pointSize;
+    sp.center() = vec3(x,y,z);
+    sp.color() = visionaray::vector<3, visionaray::unorm<8>>((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
     points.push_back(sp);
 
     if(x < bbox.min.x) bbox.min.x = x; else if(x > bbox.max.x) bbox.max.x = x;
