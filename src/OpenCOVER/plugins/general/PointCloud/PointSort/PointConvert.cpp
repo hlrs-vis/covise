@@ -262,6 +262,7 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
             linesRead++;
             if (linesRead == numLines)
             {
+                fprintf(stderr,"Restart %d %d %d\n",linesRead,numRows,numCols);
                 readHeader = true;
             }
 
@@ -391,13 +392,12 @@ int main(int argc, char **argv)
             {
                 ReadPTX(argv[i], vec);
             }
-            else 
-            if ((len > 4) && strcmp((argv[i] + len - 4), ".xyz") == 0)
+            else if ((len > 4) && strcmp((argv[i] + len - 4), ".xyz") == 0)
             {
                 format = FORMAT_RGBI;
                 ReadData(argv[i], vec, format);
             }
-            if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
+            else if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
             {
                 format = FORMAT_If;
                 ReadData(argv[i], vec, format);
