@@ -317,9 +317,12 @@ bool ALVARPlugin::init()
                 if (!cap->start())
                 {
                     delete cap;
+                    cap=NULL;
                     return false;
                 }
                 cap->setResolution(xsize, ysize);
+                xsize = cap->xResolution();
+                ysize = cap->yResolution();
 
                 if (cap->loadSettings(settingsFilename.str()))
                 {
