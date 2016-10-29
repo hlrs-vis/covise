@@ -47,7 +47,7 @@ typedef int ssize_t;
             fprintf(stderr, "COV_READ failed: %s\n", strerror(errno)); \
             break; \
         } else if (retval == 0) { \
-            fprintf(stderr, "COV_READ of %ld bytes failed: EOF after %ld\n", size, bytesRead); \
+            fprintf(stderr, "COV_READ of %ld bytes failed: EOF after %ld\n", (ssize_t)size, bytesRead); \
             break; \
         } \
         bytesRead += retval;                                                \
