@@ -33,7 +33,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 
-#include <visionaray/detail/render_bvh.h>
+#include <visionaray/gl/bvh_outline_renderer.h>
 #include <visionaray/gl/debug_callback.h>
 #include <visionaray/math/math.h>
 #include <visionaray/texture/texture.h>
@@ -1101,7 +1101,7 @@ namespace visionaray
         // we can reapply them later on
         node_mask_map ray_tracing_masks;
 
-        std::vector<detail::bvh_outline_renderer> outlines;
+        std::vector<gl::bvh_outline_renderer> outlines;
         std::vector<bool> outlines_initialized;
 
         gl::debug_callback gl_debug_callback;
