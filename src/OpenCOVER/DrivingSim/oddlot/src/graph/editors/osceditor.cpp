@@ -249,7 +249,8 @@ OpenScenarioEditor::getCatalog(std::string name)
 
 	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->catalogs.getOrCreateObject();
 	OpenScenario::oscCatalog *catalog = catalogs->getCatalog(name);
-	std::string catalogsDir = (mainWindow_->getCovisedir() + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/").toStdString(); 
+	QString catalogDir = OSCSettings::instance()->getCatalogDir();
+	std::string catalogsDir = catalogDir.toStdString(); 
 	if (!bf::exists(bf::path(catalogsDir)))
 	{
 		bf::create_directory(catalogsDir);
@@ -309,7 +310,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
         }
 
     }
-	else if ((currentTool == ODD::TOS_ELEMENT) && (oscCatalog_->getCatalogName() == "entity"))
+	else if ((currentTool == ODD::TOS_ELEMENT) && oscCatalog_ && (oscCatalog_->getCatalogName() == "entity"))
 	{
 		QPointF mousePoint = mouseAction->getEvent()->scenePos();
 

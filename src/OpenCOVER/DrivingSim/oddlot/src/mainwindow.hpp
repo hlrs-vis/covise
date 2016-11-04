@@ -74,6 +74,7 @@ public:
     // Project //
     //
     ProjectWidget *getActiveProject();
+	ProjectWidget *getLastActiveProject();
 
     // Manager //
     //
@@ -303,7 +304,6 @@ private:
 
     QDockWidget *toolDock_;
     QDockWidget *ribbonToolDock_;
-	QDockWidget * catalogDock_;
 
     QDockWidget *treeDock_;
     QWidget *emptyTreeWidget_;

@@ -81,7 +81,10 @@ CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCa
 
 CatalogTreeWidget::~CatalogTreeWidget()
 {
-    
+    if (oscElement_)
+	{
+		oscElement_->detachObserver(this);
+	}
 }
 
 //################//

@@ -274,6 +274,10 @@ ProjectWidget::~ProjectWidget()
     {
         delete editor;
     }
+
+	removeCatalogTrees();
+
+
     delete topviewGraph_;
     delete profileGraph_;
 
@@ -562,12 +566,29 @@ ProjectWidget::addCatalogTree(const QString &name, OpenScenario::oscCatalog *cat
     // add a catalog tree
     //
     CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, name);
+	catalogWidgets_.push_back(catalogWidget);
     QDockWidget *catalogDock = mainWindow_->createCatalog(name, catalogWidget);
     CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
     QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
 
     return catalogTree;
+}
+
+void
+ProjectWidget::removeCatalogTrees()
+{
+	foreach (CatalogWidget * widget, catalogWidgets_)
+	{
+		QDockWidget *parent = dynamic_cast<QDockWidget *>(widget->parentWidget());
+		if (parent)
+		{
+			mainWindow_->removeDockWidget(parent);
+		}
+		delete widget;
+	}
+
+	catalogWidgets_.clear();
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)
@@ -1771,6 +1792,10 @@ ProjectWidget::setProjectActive(bool active)
         mainWindow_->setProjectTree(projectTree_);
         mainWindow_->setProjectSettings(projectSettings_);
     }
+	else
+	{
+		removeCatalogTrees();
+	}
 
     projectData_->projectActivated(active); // Undo, etc
 

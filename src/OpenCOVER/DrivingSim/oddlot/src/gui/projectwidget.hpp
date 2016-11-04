@@ -37,6 +37,7 @@ class TopviewGraph;
 class ProfileGraph;
 
 class ProjectTree;
+class CatalogWidget;
 class CatalogTreeWidget;
 class ProjectSettings;
 class LODSettings;
@@ -123,6 +124,7 @@ public:
 	// Add catalogs //
 	//
 	CatalogTreeWidget *addCatalogTree(const QString & name, OpenScenario::oscCatalog *catalog);
+	void removeCatalogTrees();
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
@@ -264,6 +266,8 @@ private:
 
     ProjectEditor *projectEditor_; // controller
     QMap<ODD::EditorId, ProjectEditor *> editors_; // owned
+
+	QList<CatalogWidget *> catalogWidgets_;
 
     ProjectTree *projectTree_; // view			// owned
     ProjectSettings *projectSettings_; // view			// owned
