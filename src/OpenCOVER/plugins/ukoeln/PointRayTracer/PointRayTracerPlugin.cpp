@@ -94,8 +94,8 @@ bool PointRayTracerPlugin::init()
 
     //ButtonD = forward
     //ButtonE = backward
-    interactionNext = new coTrackerButtonInteraction(coInteraction::ButtonD,"Next Point Cloud", coInteraction::Medium);
-    interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonE,"Previous Point Cloud", coInteraction::Medium);
+    interactionNext = new coTrackerButtonInteraction(coInteraction::ButtonB,"Next Point Cloud", coInteraction::Medium);
+    interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonC,"Previous Point Cloud", coInteraction::Medium);
     coInteractionManager::the()->registerInteraction(interactionNext);
     coInteractionManager::the()->registerInteraction(interactionPrev);
 
@@ -162,8 +162,15 @@ void PointRayTracerPlugin::preFrame()
 {
     //if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::preFrame\n");
 
-    if(interactionNext->wasStarted()) showNextPointCloud();
-    if(interactionPrev->wasStarted()) showPreviousPointCloud();
+    if(interactionNext->wasStarted())
+    {
+        std::cout << "Button Next Pressed" << std::endl;
+        showNextPointCloud();
+    }
+    if(interactionPrev->wasStarted()){
+        std::cout << "Button Prev Pressed" << std::endl;
+        showPreviousPointCloud();
+    }
 
     /*
     static bool takeAction = true;
