@@ -143,8 +143,8 @@ void TUIElement::setPos(int x, int y)
 {
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
-    if ((parent = getParent()))
+    TUIContainer *parent = getParent();
+    if (parent)
     {
         parent->addElementToLayout(this);
     }

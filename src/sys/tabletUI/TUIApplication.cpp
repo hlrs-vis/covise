@@ -199,31 +199,22 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
     // widget that contains the main windows(mainFrame)
 
-    QWidget *w;
+    QWidget *w = nullptr;
 #ifdef _WIN32_WCE
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setBackgroundRole(QPalette::Dark);
     w = scrollArea;
-#else
-    w = new QWidget(this);
-    QScrollArea *scrollArea = new QScrollArea();
-    scrollArea->setBackgroundRole(QPalette::Dark);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(w);
 #endif
-
-    QVBoxLayout *vbox = new QVBoxLayout(w);
 
 // main windows
 #ifdef _WIN32_WCE
     mainFrame = new QFrame(w);
     mainFrame->setContentsMargins(1, 1, 1, 1);
 #else
-    mainFrame = new QFrame();
-    mainFrame->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
-    mainFrame->setContentsMargins(2, 2, 2, 2);
+    mainFrame = new QFrame(this);
+    mainFrame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+    mainFrame->setContentsMargins(0, 0, 0, 0);
 #endif
-    vbox->addWidget(mainFrame, 1);
 
     // main layout
     mainGrid = new QGridLayout(mainFrame);
@@ -235,7 +226,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     setCentralWidget(w);
 #else
     setWindowTitle("COVISE: TabletUI");
-    setCentralWidget(scrollArea);
+    setCentralWidget(mainFrame);
 #endif
 
     // set a logo &size
