@@ -160,6 +160,14 @@
   #define X64Arch
   #define LABEL "_tamarauopt"
   #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+#elif ARCHSUFFIX == "zebu"
+  #define X64Arch
+  #define LABEL "_zebu"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+#elif ARCHSUFFIX == "zebuopt"
+  #define X64Arch
+  #define LABEL "_zebuopt"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
 #else
   #pragma message "Warning: undefined or unknown ARCHSUFFIX! Cannot set SYS variable!"
   #define LABEL "UNKNOWN"

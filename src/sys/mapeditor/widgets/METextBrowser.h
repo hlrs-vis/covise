@@ -10,7 +10,7 @@
 
 #include <QUrl>
 #include <QTextBrowser>
-#include <QHttp>
+//#include <QHttp>
 
 //================================================
 class METextBrowser : public QTextBrowser
@@ -34,7 +34,7 @@ private:
     };
 
     QUrl m_baseUrl;
-    QHttp m_http;
+    //QHttp m_http;
     QString fragment;
     QMap<int, m_urlAndType> m_requestedList;
 

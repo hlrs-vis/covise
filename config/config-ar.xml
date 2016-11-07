@@ -258,11 +258,11 @@
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
-                    <VideoDevice value="1" width="1920" height="1080" />
-                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+                    <VideoDevice value="2" width="1200" height="1024" />
+                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
                     
                     <!--VideoDevice value="1" width="640" height="480" />
-                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
+                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
                     -->
                 </ALVAR>
 				<ARUCO value="OFF">

@@ -110,6 +110,9 @@ WINCOMPATINLINE int vsnprintf(char *str, size_t size, const char *format, va_lis
 #if defined(__MINGW32__)
 #include <sys/time.h>
 #else
+#ifdef timezone
+#undef timezone
+#endif
 struct timezone
 {
     int tz_minuteswest;
