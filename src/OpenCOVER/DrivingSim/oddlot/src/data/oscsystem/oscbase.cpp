@@ -45,18 +45,7 @@ OSCBase::OSCBase(OpenScenario::OpenScenarioBase *openScenarioBase)
 
 OSCBase::~OSCBase()
 {
-	bool deleted;
-	do
-	{
-		deleted = false;
-		foreach (OSCElement *element, oscElements_)
-		{
-			oscElements_.remove(element->getID());
-			delete element;
-			deleted = true;
-		}
-	}
-	while (deleted);
+	oscElements_.clear();
 
 	openScenarioBase_ = NULL;
 }

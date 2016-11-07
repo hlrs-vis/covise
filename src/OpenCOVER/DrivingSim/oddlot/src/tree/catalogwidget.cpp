@@ -81,7 +81,7 @@ CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *c
 
 CatalogWidget::~CatalogWidget()
 {
-    
+	delete catalogTreeWidget_;
 }
 
 //################//
