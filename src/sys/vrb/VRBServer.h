@@ -25,15 +25,14 @@ class Message;
 class QSocketNotifier;
 class VRBSClient;
 
+#ifdef Q_MOC_RUN
+#define GUI
+#endif
 //
 //
 //
 #ifndef GUI
 class VRBServer
-#ifdef MOCONLY
-{
-};
-#endif
 #else
 class VRBServer : public QObject
 #endif
