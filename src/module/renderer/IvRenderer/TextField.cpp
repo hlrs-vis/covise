@@ -136,7 +136,7 @@ CoTextField::format()
         const int allocInc = 5;
 
         int workIdx = 0;
-        unsigned int currTextWidth = width_;
+        int currTextWidth = width_;
         int lineCnt = 0;
 
         while (currTextWidth < curText.size() + width_)
@@ -145,7 +145,7 @@ CoTextField::format()
             int start = workIdx;
             for (int ii = 0; ii < spaceArrLen; ++ii)
             {
-                int dist = abs(spaceArr[ii] - currTextWidth);
+                int dist = std::abs(spaceArr[ii] - currTextWidth);
                 if (dist <= minDist)
                 {
                     minDist = dist;
