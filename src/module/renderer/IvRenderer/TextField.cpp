@@ -18,14 +18,13 @@
 // ++                                                                     ++
 // ++ Date: 26.10.2001                                                    ++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include <stdlib.h>
+#include <cstdlib>
 #include <math.h>
 #include <cstring>
 #ifdef CO_LINUX
 #include <mm.h>
 #endif
 
-#include <stdlib.h>
 #include <ctype.h>
 
 #include "TextField.h"
