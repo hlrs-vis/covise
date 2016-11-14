@@ -18,8 +18,13 @@
 
 #include "src/graph/items/graphelement.hpp"
 
+namespace OpenScenario
+{
+class oscCatalog;
+}
+
 class TopviewGraph;
-class OSCObjectItem;
+class OSCItem;
 class OSCBase;
 class RoadSystem;
 class OSCRoadSystemItem;
@@ -57,17 +62,17 @@ public:
 		oscRoadSystemItem_ = roadSystemItem;
 	}
 
-	 // OSCObjectItems //
+	 // OSCItems //
     //
-    void appendOSCObjectItem(OSCObjectItem *oscObjectItem);
-    bool removeOSCObjectItem(OSCObjectItem *oscObjectItem);
-    OSCObjectItem *getOSCObjectItem(const QString &id) const
+    void appendOSCItem(OSCItem *oscItem);
+    bool removeOSCItem(OSCItem *oscObjectItem);
+    OSCItem *getOSCItem(const QString &id) const
     {
-        return oscObjectItems_.value(id, NULL);
+        return oscItems_.value(id, NULL);
     }
-    QMap<QString, OSCObjectItem *> getOSCObjectItems() const
+    QMap<QString, OSCItem *> getOSCItems() const
     {
-        return oscObjectItems_;
+        return oscItems_;
     }
 
     // delete this item
@@ -94,12 +99,14 @@ private:
 
 	 // OSCObjectItems //
     //
-    QMap<QString, OSCObjectItem *> oscObjectItems_;
+    QMap<QString, OSCItem *> oscItems_;
 
 	RoadSystem *roadSystem_;
 	OSCRoadSystemItem *oscRoadSystemItem_;
 
 	TopviewGraph *topviewGraph_;
+
+	OpenScenario::oscCatalog *entityCatalog_;
 
 };
 

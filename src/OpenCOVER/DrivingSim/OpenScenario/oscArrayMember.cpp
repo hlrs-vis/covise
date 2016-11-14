@@ -37,3 +37,19 @@ xercesc::DOMElement *oscArrayMember::writeArrayMemberToDOM(xercesc::DOMElement *
 
     return aMemberElement;
 }
+
+int
+oscArrayMember::findObjectIndex(oscObjectBase *object)
+{
+	int i = 0;
+	for (auto it = cbegin(); it != cend(); ++it)
+	{
+		if (*it == object)
+		{
+			return i;
+		}
+		i++;
+	}
+
+	return -1;
+}

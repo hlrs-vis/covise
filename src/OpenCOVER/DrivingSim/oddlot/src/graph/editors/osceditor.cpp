@@ -30,6 +30,7 @@
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/changemanager.hpp"
 
 // Commands //
 //
@@ -68,6 +69,8 @@
 #include "oscCatalogs.h"
 #include "oscCatalog.h"
 #include "oscPosition.h"
+#include "oscArrayMember.h"
+#include "oscCatalogReferenceTypeA.h"
 
 // Boost //
 //
@@ -113,28 +116,49 @@ OpenScenarioEditor::~OpenScenarioEditor()
 void
 OpenScenarioEditor::init()
 {
-//	OpenScenario::oscCatalog *entityCatalog = getCatalog("entityCatalog");
+	OpenScenario::oscEntities *entitiesObject = openScenarioBase_->entities.getOrCreateObject();
+	OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(entitiesObject->getMember("objects"));
+	
+	for (int i = 0; i < oscObjectArray->size(); i++)
+	{
+		OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(oscObjectArray->at(i));
+		OpenScenario::oscCatalogReferenceTypeA *catalogReference = object->catalogReference.getOrCreateObject();
 
-	if (!oscBaseItem_ && openScenarioBase_->getSource())   // Signaleditor graphischee Elemente
-    {
+		if (!oscBase_->getOSCElement(object))
+		{
+			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->catalogId.getValue()), object);
+			oscBase_->addOSCElement(element);
+		}
+	}
+
+	if (!oscRoadSystemItem_)
+	{
 		// Root item //
         //
         oscRoadSystemItem_ = new OSCRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
         getTopviewGraph()->getScene()->addItem(oscRoadSystemItem_);
+	}
 
+	// Reset change //
+    //
+
+    getProjectData()->getChangeManager()->notifyObservers();
+
+
+	if (!oscBaseItem_ && openScenarioBase_->getSource())   // OpenScenario Editor graphischee Elemente
+    {
 		// Root OSC item //
 		//
 		oscBaseItem_ = new OSCBaseItem(getTopviewGraph(), oscBase_);
 		getTopviewGraph()->getScene()->addItem(oscBaseItem_);
-
-		oscBaseItem_->setRoadSystemItem(oscRoadSystemItem_);
+	}
 
 
         // Signal Handle //
         //
  /*       insertOSCHandle_ = new OSCHandle(signalRoadSystemItem_);
         insertOSCHandle_->hide();*/
-    }
+
 
     lastTool_ = getCurrentTool();
 
@@ -176,7 +200,7 @@ OpenScenarioEditor::getOSCHandle() const
 bool 
 OpenScenarioEditor::translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t)
 {
-	OSCElement *oscElement = oscBase_->getOSCElement(object);
+	OSCElement *oscElement = oscBase_->getOrCreateOSCElement(object);
 	OpenScenario::oscPosition *oscPosition = object->initPosition.getOrCreateObject();
 	OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getOrCreateObject();
 	oscStringValue *roadId = dynamic_cast<oscStringValue *>(oscPosRoad->roadId.getOrCreateValue());
@@ -274,7 +298,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 	name = name.erase(name.find("Catalog"));
 	catalog->setCatalogName(name);
 
-	OSCElement *oscElement = oscBase_->getOSCElement(catalog);
+	OSCElement *oscElement = oscBase_->getOrCreateOSCElement(catalog);
 
 	return catalog;
 }
@@ -365,7 +389,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 							translateObject(oscObject, road->getID(), s, t);
 
-							OSCItem *oscItem = new OSCItem(oscBaseItem_, oscObject, entityCatalog, mousePoint, road->getID());  
+							OSCItem *oscItem = new OSCItem(oscElement, oscBaseItem_, oscObject, entityCatalog, mousePoint, road->getID());  
 						}
 					}
 				}
@@ -433,7 +457,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 				{
 					OpenScenario::oscObjectBase *object = member->getOrCreateObject();
 
-					OSCElement *memberElement = oscBase_->getOSCElement(object);
+					OSCElement *memberElement = oscBase_->getOrCreateOSCElement(object);
 					if (memberElement)
 					{
 						// Group undo commands

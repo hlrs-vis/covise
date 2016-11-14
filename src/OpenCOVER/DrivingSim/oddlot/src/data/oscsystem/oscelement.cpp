@@ -63,13 +63,26 @@ OSCElement::accept(Visitor *visitor)
     visitor->visit(this);
 }
 
-void
-OSCElement::notifyParent()
+OSCElement *
+OSCElement::getParent()
 {
+	OSCElement *parentElement = NULL;
+
 	OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
 	if (oscObjectParent)
 	{
 		OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
+	}
+
+	return parentElement;
+}
+
+void
+OSCElement::notifyParent()
+{
+	OSCElement *parentElement = getParent();
+	if (parentElement)
+	{
 		parentElement->addOSCElementChanges(OSCElement::COE_ChildChanged);
 	}
 }

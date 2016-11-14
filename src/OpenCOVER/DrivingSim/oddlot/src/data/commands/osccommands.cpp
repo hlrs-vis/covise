@@ -355,7 +355,6 @@ AddOSCArrayMemberCommand::redo()
 
 		object_->setOwnMember(ownMember_);
 		arrayMember_->push_back(object_);
-		oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
 	}
 	
 	setRedone();
@@ -371,8 +370,6 @@ void
 
 	oscBase_->delOSCElement(oscElement_);
 	oscElement_->setObjectBase(NULL);
-
-	oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
 
 	setUndone();
 }

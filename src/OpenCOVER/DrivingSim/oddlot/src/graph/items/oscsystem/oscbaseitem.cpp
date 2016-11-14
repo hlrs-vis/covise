@@ -38,6 +38,10 @@
 #include "src/gui/tools/toolaction.hpp"
 #include "src/gui/tools/zoomtool.hpp"
 
+// GUI //
+//
+#include "src/gui/projectwidget.hpp"
+
 // OpenScenario //
 //
 #include "oscVehicle.h"
@@ -61,9 +65,15 @@ OSCBaseItem::OSCBaseItem(TopviewGraph *topviewGraph, OSCBase *oscBase)
 	: GraphElement(NULL, oscBase)
 	, topviewGraph_(topviewGraph)
 	, oscBase_(oscBase)
-	, oscRoadSystemItem_(NULL)
 {
 	roadSystem_ = topviewGraph->getProjectData()->getRoadSystem();
+
+	// OpenScenario Editor
+    //
+	OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
+
+	oscRoadSystemItem_ = oscEditor->getRoadSystemItem();
+
     init();
 }
 
@@ -73,12 +83,11 @@ OSCBaseItem::~OSCBaseItem()
 
 void
 OSCBaseItem::init()
-{
-	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+{	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
 	OpenScenario::oscCatalogs *catalogs = openScenarioBase->catalogs.getOrCreateObject();
-	OpenScenario::oscCatalog *entityCatalog = catalogs->getCatalog("entityCatalog");
+	entityCatalog_ = catalogs->getCatalog("entityCatalog");
 
-	// Root Road item //
+	// Root Base item //
     //
 
 	foreach (OSCElement *element, oscBase_->getOSCElements())
@@ -88,15 +97,42 @@ OSCBaseItem::init()
 		{
 			OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
 
-			OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
-			QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
-			RSystemElementRoad *road = roadSystem_->getRoad(roadId);
-			double s = oscPosRoad->s.getValue();
-			double t = oscPosRoad->t.getValue();
-			new OSCItem(this, object, entityCatalog, road->getGlobalPoint(s, t), roadId);
+			if (oscPosition)
+			{
+				OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
+				if (oscPosRoad)
+				{
+					QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
+					RSystemElementRoad *road = roadSystem_->getRoad(roadId);
+					if (road)
+					{
+						double s = oscPosRoad->s.getValue();
+						double t = oscPosRoad->t.getValue();
+						new OSCItem(element, this, object, entityCatalog_, road->getGlobalPoint(s, t), roadId);
+					}
+				}
+			}
 		}
     }
 
+}
+
+void
+OSCBaseItem::appendOSCItem(OSCItem *oscItem)
+{
+	OSCElement *element = dynamic_cast<OSCElement *>(oscItem->getDataElement());
+	QString id = element->getID();
+    if (!oscItems_.contains(id))
+    {
+        oscItems_.insert(id, oscItem);
+    }
+}
+
+bool
+OSCBaseItem::removeOSCItem(OSCItem *oscItem)
+{
+	OSCElement *element = dynamic_cast<OSCElement *>(oscItem->getDataElement());
+    return oscItems_.remove(element->getID());
 }
 
 
@@ -118,16 +154,42 @@ OSCBaseItem::updateObserver()
         return; // will be deleted anyway
     }
 
-    // Signal //
+    // Base //
     //
- /*   int changes = signal_->getSignalChanges();
+	int changes = oscBase_->getOSCBaseChanges();
 
-    if ((changes & Signal::CEL_TypeChange))
+	if (changes & OSCBase::OSCBaseChange::COSC_ElementChange)
     {
-        updatePosition();
+		QMap<QString, OSCElement *>::const_iterator iter = oscBase_->getOSCElements().constBegin();
+         while (iter != oscBase_->getOSCElements().constEnd())
+        {
+            OSCElement *element = iter.value();
+			OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
+			if (object)
+			{
+				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+				{
+					OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
+
+					if (oscPosition)
+					{
+						OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
+						if (oscPosRoad)
+						{
+							QString id = QString::fromStdString(oscPosRoad->roadId.getValue());
+							RSystemElementRoad *road = roadSystem_->getRoad(id);
+							if (road)
+							{
+								new OSCItem(element, this, object, entityCatalog_, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
+							}
+						}
+					}
+				}
+			}
+
+            iter++;
+        }
     }
-    else if ((changes & Signal::CEL_ParameterChange))
-    {
-        updatePosition();
-    } */
+
 }

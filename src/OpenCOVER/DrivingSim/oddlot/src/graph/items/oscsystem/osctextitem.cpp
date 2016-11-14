@@ -18,6 +18,7 @@
 // Data //
 //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/oscsystem/oscelement.hpp"
 
 // Graph //
 //
@@ -37,8 +38,9 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-OSCTextItem::OSCTextItem(GraphElement *item, OpenScenario::oscObject *oscObject, const QPointF &pos)
-    : GraphElement(item, NULL)
+OSCTextItem::OSCTextItem(OSCElement *element, GraphElement *item, OpenScenario::oscObject *oscObject, const QPointF &pos)
+    : GraphElement(item, element)
+	, element_(element)
     , oscObject_(oscObject)
 	, pos_(pos)
 {
@@ -107,8 +109,7 @@ OSCTextItem::updateName()
 	oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
 	if (sv)
 	{
-//		textHandle_ = new TextHandle(QString::fromStdString(sv->getValue()), this);
-		textHandle_ = new TextHandle(QString::fromStdString("my text"), this);
+		textHandle_ = new TextHandle(QString::fromStdString(sv->getValue()), this);
 	}
 	else
 	{
@@ -157,13 +158,13 @@ OSCTextItem::updateObserver()
 
     // Get change flags //
     //
- /*   int changes = signal_->getSignalChanges();
+	int changes = element_->getOSCElementChanges();
 
-    if (changes & Signal::CEL_ParameterChange)
+    if (changes & OSCElement::COE_ParameterChange)
     {
         updatePosition();
         updateName();
-    }*/
+    }
 }
 
 //################//

@@ -1821,12 +1821,15 @@ ProjectWidget::setProjectClean(bool clean)
 void
 ProjectWidget::toolAction(ToolAction *toolAction)
 {
+	static ODD::EditorId lastId = ODD::ENO_EDITOR;
+
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
-    if (id != ODD::ENO_EDITOR)
+    if ((id != lastId) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
+		lastId = id;
     }
 
     // Pass to Editor/Graph //

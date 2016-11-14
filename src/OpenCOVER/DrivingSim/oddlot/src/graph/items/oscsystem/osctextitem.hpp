@@ -18,6 +18,7 @@
 
 #include "src/graph/items/graphelement.hpp"
 
+class OSCElement;
 class OSCItem;
 class TextHandle;
 
@@ -35,7 +36,7 @@ class OSCTextItem : public GraphElement
     //################//
 
 public:
-	explicit OSCTextItem(GraphElement *item, OpenScenario::oscObject *oscObject, const QPointF &pos);
+	explicit OSCTextItem(OSCElement *element, GraphElement *item, OpenScenario::oscObject *oscObject, const QPointF &pos);
     virtual ~OSCTextItem();
 
     virtual void createPath();
@@ -91,6 +92,7 @@ protected:
     //################//
 
 private:
+	OSCElement *element_;
     OSCItem *oscItem_;
     OpenScenario::oscObject *oscObject_;
     TextHandle *textHandle_;

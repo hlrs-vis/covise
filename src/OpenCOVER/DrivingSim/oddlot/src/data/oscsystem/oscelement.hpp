@@ -89,6 +89,7 @@ public:
 		oscObjectBase_ = oscObjectBase;
 	}
 
+	OSCElement *getParent();
 	void notifyParent();
 
 	// Visitor Pattern //

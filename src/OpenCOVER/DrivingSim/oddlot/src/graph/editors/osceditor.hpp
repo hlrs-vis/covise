@@ -76,6 +76,10 @@ public:
 	// New Object with properties chosen in SignalTreeWidget //
 	//
 //	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
+	OSCRoadSystemItem *getRoadSystemItem()
+	{
+		return oscRoadSystemItem_;
+	}
 
 
 protected:
