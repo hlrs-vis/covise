@@ -146,7 +146,7 @@ No installation is required: you can use COVISE directly from the build tree.
 	   REM set EXTERNLIBS to correct location of all your dependancies
        set EXTERNLIBS=c:\src\externlibs\tamarau
        cd %COVISEDIR%
-	   REM call winenv.bat with appropriate archsuffix for debug or release
+	   REM call winenv.bat with appropriate archsuffix for debug or release (tamarau for Visual Studio 2012 and zebu for 2015)
        call %COVISEDIR%\winenv.bat tamarauopt
        mkdir build.covise
        cd build.covise

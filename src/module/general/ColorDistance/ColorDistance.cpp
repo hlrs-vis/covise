@@ -19,7 +19,9 @@
 #include "ColorDistance.h"
 #include <do/coDoData.h>
 #ifdef WIN32
+#if _MSC_VER < 1900
 float trunc(float d){ return (d>0) ? floor(d) : ceil(d) ; }
+#endif
 #endif
 
 #ifdef BYTESWAP

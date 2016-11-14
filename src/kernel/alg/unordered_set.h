@@ -38,10 +38,17 @@ using std::tr1::unordered_map;
 #define HASH_NAMESPACE __gnu_cxx
 #endif
 #elif defined(_WIN32)
+#if _MSC_VER < 1900
 #include <hash_map>
 #define unordered_map stdext::hash_map
 #include <hash_set>
 #define unordered_set stdext::hash_set
+#else
+#include <unordered_set>
+#include <unordered_map>
+using std::unordered_set;
+using std::unordered_map;
+#endif
 #define HASH_NAMESPACE std
 #else
 #include <hash_map>

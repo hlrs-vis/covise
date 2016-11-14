@@ -428,7 +428,7 @@ void Move::preFrame()
     bool isSceneNode = false;
     if (node)
     {
-    fprintf(stderr,"%s\n",node->getName().c_str());
+    //fprintf(stderr,"%s\n",node->getName().c_str());
     //coVRMSController::instance()->syncInt(1001);
         for (std::vector<osg::Node *>::const_iterator iter = intersectedNodePath.begin();
              iter != intersectedNodePath.end(); ++iter)

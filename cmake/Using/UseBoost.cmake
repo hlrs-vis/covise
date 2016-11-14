@@ -1,6 +1,7 @@
 MACRO(USE_BOOST)
 
   set(COMPONENTS
+	atomic
         chrono
         program_options
         system

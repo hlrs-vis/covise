@@ -157,8 +157,21 @@ OPTION(COVISE_USE_MPI "Use MPI" ON)
 OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)
 OPTION(COVISE_USE_OPENCV3 "Use OpenCV3" ON)
 OPTION(COVISE_USE_MERCURY "Use MERCURY" ON)
-OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" ON)
-OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
+
+if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/visionary")
+    OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" ON)
+else()
+    OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" OFF)
+endif()
+
+if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/deskvox")
+    OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
+else()
+    OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" OFF)
+    message("Did not find src/3rdparty/deskvox submodule: disabling direct volume rendering")
+    message("Maybe run \"git submodule update --init --recursive\"?")
+endif()
+
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
 if (APPLE)
     # would break dynamic_casts in Visionary COVER plugin

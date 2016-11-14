@@ -17,6 +17,7 @@ FIND_PATH(WMFSDK_INCLUDE_DIR wmsdk.h
    $ENV{WindowsSdkDir}/Include/um
    $ENV{EXTERNLIBS}/wmfsdk11/include
    "/Program Files/Microsoft SDKs/Windows/v7.0/Include"
+   "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Include"
    DOC "wmfsdk11 - Headers"
    NO_DEFAULT_PATH
 )
@@ -28,6 +29,7 @@ FIND_PATH(WMFSDK_SHARED_INCLUDE_DIR winapifamily.h
    $ENV{WindowsSdkDir}/Include/shared
    $ENV{EXTERNLIBS}/wmfsdk11/include
    "/Program Files/Microsoft SDKs/Windows/v7.0/Include"
+   "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Include"
    DOC "shared - Headers"
    NO_DEFAULT_PATH
 )
@@ -47,6 +49,7 @@ IF (MSVC)
    $ENV{WindowsSdkDir}/Lib/x64
    $ENV{WindowsSdkDir}/Lib/win8/um/x64
    "/Program Files/Microsoft SDKs/Windows/v7.0/Lib/x64"
+   "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Lib/x64"
     NO_DEFAULT_PATH
   )
   IF (WMFSDK_LIBRARY)
