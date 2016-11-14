@@ -12,10 +12,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscManeuverGroupsTypeAB.h"
-#include "oscRefActorsTypeA.h"
-#include "oscUserDataList.h"
-
+#include "oscInit.h"
+#include "oscStory.h"
+#include "oscEnd.h"
 
 namespace OpenScenario {
 
@@ -25,14 +24,16 @@ class OPENSCENARIOEXPORT oscStoryboard: public oscObjectBase
 public:
     oscStoryboard()
     {
-        OSC_OBJECT_ADD_MEMBER(maneuverGroups, "oscManeuverGroupsTypeAB");
-        OSC_OBJECT_ADD_MEMBER(refActors, "oscRefActorsTypeA");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER(Init, "oscInit");
+        OSC_OBJECT_ADD_MEMBER(Story, "oscStory");
+		OSC_OBJECT_ADD_MEMBER(End, "oscEnd");
+       
     };
 
-    oscManeuverGroupsTypeABArrayMember maneuverGroups;
-    oscRefActorsTypeAArrayMember refActors;
-    oscUserDataListArrayMember userDataList;
+     oscInitMember Init;
+	 oscStoryMember Story;
+	 oscEndMember End;
+    
 };
 
 typedef oscObjectVariable<oscStoryboard *> oscStoryboardMember;

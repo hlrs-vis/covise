@@ -21,11 +21,6 @@ using namespace OpenScenario;
 oscCatalog *oscCatalogs::getCatalog(const std::string &s)
 {
 	oscMember *m = members[s];
-	if (!m)
-	{
-		oscObjectCatalog *objectCatalogs = objectCatalog.getOrCreateObject();
-		m = objectCatalogs->getMember(s);
-	}
 
 	if (m)
 	{

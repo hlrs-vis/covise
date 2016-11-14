@@ -12,9 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscObjectCatalog.h"
 #include "oscCatalog.h"
-#include "oscUserDataList.h"
+
 
 
 namespace OpenScenario {
@@ -25,20 +24,29 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-        OSC_OBJECT_ADD_MEMBER(objectCatalog, "oscObjectCatalog");
-        OSC_OBJECT_ADD_MEMBER(entityCatalog, "oscCatalog");
-        OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscCatalog");
-        OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscCatalog");
-        OSC_OBJECT_ADD_MEMBER(routingCatalog, "oscCatalog");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER(VehicleCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(DriverCatalog, "oscCatalog");       
+        OSC_OBJECT_ADD_MEMBER(PedestrianCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(PedestrianControllerCatalog, "oscCatalog");
+		OSC_OBJECT_ADD_MEMBER(MiscObjectCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(EnvironmentCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(ManeuverCatalog, "oscCatalog");
+		OSC_OBJECT_ADD_MEMBER(TrajectoryCatalog, "oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(RouteCatalog, "oscCatalog");
+        
     };
 
-    oscObjectCatalogMember objectCatalog;
-    oscCatalogMember entityCatalog;
-    oscCatalogMember environmentCatalog;
-    oscCatalogMember maneuverCatalog;
-    oscCatalogMember routingCatalog;
-    oscUserDataListArrayMember userDataList;
+    oscCatalogMember VehicleCatalog;
+    oscCatalogMember DriverCatalog;
+    oscCatalogMember PedestrianCatalog;
+	oscCatalogMember PedestrianControllerCatalog;
+    oscCatalogMember MiscObjectCatalog;
+    oscCatalogMember EntityCatalog;
+    oscCatalogMember EnvironmentCatalog;
+	oscCatalogMember ManeuverCatalog;
+    oscCatalogMember TrajectoryCatalog;
+    oscCatalogMember RouteCatalog;
+   
 
 	oscCatalog *getCatalog(const std::string &s);
 };

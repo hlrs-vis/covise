@@ -5,35 +5,32 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_ENTITIES_H
-#define OSC_ENTITIES_H
+#ifndef OSC_LOGICS_H
+#define OSC_LOGICS_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscObjects.h"
-
+#include "oscVariables.h"
 
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscEntities: public oscObjectBase
+class OPENSCENARIOEXPORT oscLogics: public oscObjectBase
 {
 public:
-    oscEntities()
+    oscLogics()
     {
-        OSC_OBJECT_ADD_MEMBER(objects, "oscObjects");
-       
+		OSC_ADD_MEMBER(OpenDRIVE);
     };
 
-    oscObjectsArrayMember objects;
-   
+    oscString OpenDRIVE;
 };
 
-typedef oscObjectVariable<oscEntities *> oscEntitiesMember;
+typedef oscObjectVariable<oscLogics *> oscLogicsMember;
 
 }
 
-#endif //OSC_ENTITIES_H
+#endif //OSC_LOGICS_H

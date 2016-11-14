@@ -67,12 +67,12 @@ protected:
     bf::path m_xsdPathFileName; ///< store the actual loaded xsd schema grammar file
 
 public:
-    oscFileHeaderMember fileHeader;
-    oscCatalogsMember catalogs;
-    oscRoadNetworkMember roadNetwork;
+    oscFileHeaderMember FileHeader;
+    oscCatalogsMember Catalogs;
+    oscRoadNetworkMember RoadNetwork;
     oscEnvironmentReferenceMember environment;
-    oscEntitiesMember entities;
-    oscStoryboardMember storyboard;
+    oscEntitiesMember Entities;
+    oscStoryboardMember Storyboard;
     oscScenarioEndMember scenarioEnd;
 	oscTestMember test;
 
