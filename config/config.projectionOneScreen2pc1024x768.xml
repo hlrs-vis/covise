@@ -21,7 +21,7 @@
          
          <MultiPC>
             <NumSlaves value="1" />
-            <Startup value="ssh ${USER}@slave ~/Covise7.0/covise/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0" />
+            <Startup value="ssh ${USER}@slave ~/Covise7.0/covise/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0" />
          </MultiPC>
  
       </COVER>

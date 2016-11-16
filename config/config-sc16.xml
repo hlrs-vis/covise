@@ -9,7 +9,7 @@
    </ChannelConfig>
 
    <WindowConfig>
-    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="1920" top="0" name="0" decoration="false" stereo="false" />
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="1920" top="0" name="0" decoration="true" stereo="false" />
     <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
   </COVER>
@@ -126,7 +126,7 @@
   <MultiPC>
     <SyncMode value="TCP" />
    <NumSlaves value="1" />
-     <Startup arch="x11" value="ssh ${USER}@vishexb startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+     <Startup arch="x11" value="ssh ${USER}@vishexb startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
   </MultiPC>
    
   <ScreenConfig>
