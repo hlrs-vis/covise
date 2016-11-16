@@ -2,7 +2,7 @@
 
 <COCONFIG version="1" >
 
- <LOCAL HOST="vishexa">
+ <LOCAL HOST="vishexa" RANK="0">
   <COVER>
    <ChannelConfig>
     <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" top="0" name="0" height="1" />
@@ -13,9 +13,9 @@
     <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
   </COVER>
- 
  </LOCAL>
- <LOCAL HOST="vishexb">
+
+ <LOCAL HOST="vishexb" RANK="1">
   <COVER>
    <ChannelConfig>
     <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" top="0" name="0" height="1" />
@@ -26,8 +26,8 @@
     <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
   </COVER>
- 
  </LOCAL>
+
  <GLOBAL>
    <System>
    <HostConfig>
