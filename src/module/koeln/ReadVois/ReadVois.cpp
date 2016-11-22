@@ -308,7 +308,7 @@ ReadVois::ReadVois(int argc, char *argv[])
         std::string str1 = "UseVOI_" + boost::lexical_cast<std::string>(i);
         std::string str2 = "VOI " + boost::lexical_cast<std::string>(i) + " active";
         m_voiActive[i] = addBooleanParam(str1.c_str(), str2.c_str());
-        m_voiActive[i]->setValue(i);
+        m_voiActive[i]->setValue(true);
     }
 }
 
