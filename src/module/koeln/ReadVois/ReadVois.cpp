@@ -47,9 +47,6 @@ double globalTraMatrix[4][4];
 const double pixelSize = 1.0;
 const int resolution = 512;
 
-std::vector<triangle_t> triangles[MAXVOIS];
-std::vector<voi_t> voiVector;
-
 
 //free functions
 vector<xyz>::iterator getNearestPoint(xyz v1, vector<xyz>* points){
@@ -159,7 +156,7 @@ bool isDelaunay(contour_t& contour, vector<xyz>::iterator startIter){
     return true;
 }
 
-void triangulatePoly(contour_t contour, int voi){
+void triangulatePoly(contour_t contour, std::vector<triangle_t>& triangles){
     //cerr << "ReadVois::triangulatePoly" << endl;
 
     if(contour.points.size() == 0) {
@@ -172,7 +169,7 @@ void triangulatePoly(contour_t contour, int voi){
         cerr << "ERROR: triangulatePoly size = 2" << endl;
         return;
     } else if(contour.points.size() == 3) {
-        triangles[voi].push_back(makeTriangle(contour.points[0].index, contour.points[1].index, contour.points[2].index));
+        triangles.push_back(makeTriangle(contour.points[0].index, contour.points[1].index, contour.points[2].index));
         return;
     } else {
 
@@ -205,19 +202,21 @@ void triangulatePoly(contour_t contour, int voi){
             }
 
             startFound = true;
-            triangles[voi].push_back(makeTriangle(startIter->index, midIter->index, endIter->index));
+            triangles.push_back(makeTriangle(startIter->index, midIter->index, endIter->index));
         }
 
         contour_t newContour;
         for(vector<xyz>::iterator newIter = contour.points.begin(); newIter != contour.points.end(); newIter++){
             if(newIter != midIter) newContour.points.push_back(*newIter);
         }
-        triangulatePoly(newContour, voi);
+        triangulatePoly(newContour, triangles);
 
     }
 }
 
-void writePly(coBooleanParam **voiActive){
+void writePly(coBooleanParam **voiActive,
+              const std::vector<voi_t> &voiVector,
+              const std::vector<triangle_t> *triangles){
     std::string filename = "/home/zellmans/vois.ply";
 
     // open ply file
@@ -232,9 +231,9 @@ void writePly(coBooleanParam **voiActive){
     int numVertices = 0;
     int numTriangles = 0;
     int voi = 0;
-    for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
+    for(vector<voi_t>::const_iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
         if(voiActive[voi]->getValue()){
-            for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
+            for(vector<contour_t>::const_iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
                 numVertices += con_iter->points.size();
             }
             numTriangles += triangles[voi].size();
@@ -268,11 +267,11 @@ void writePly(coBooleanParam **voiActive){
     //write vertices
     int count = 0;
     voi = 0;
-    for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
+    for(vector<voi_t>::const_iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
         if(voiActive[voi]->getValue()){
-            for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
+            for(vector<contour_t>::const_iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
                 int colorIndex = count % 6;
-                for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
+                for(vector<xyz>::const_iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
                     fprintf(file, "%f %f %f %i %i %i\n", point_iter->x, point_iter->y, point_iter->z, colors[colorIndex][0], colors[colorIndex][1], colors[colorIndex][2]);
                 }
                 count++;
@@ -285,7 +284,7 @@ void writePly(coBooleanParam **voiActive){
     voi = 0;
     for (; voi < MAXVOIS; ++voi){
         if(voiActive[voi]){
-            for(vector<triangle_t>::iterator tri_iter = triangles[voi].begin(); tri_iter != triangles[voi].end(); tri_iter++) {
+            for(vector<triangle_t>::const_iterator tri_iter = triangles[voi].begin(); tri_iter != triangles[voi].end(); tri_iter++) {
                 fprintf(file, "3 %i %i %i\n", tri_iter->vertex1, tri_iter->vertex2, tri_iter->vertex3);
             }
         }
@@ -366,7 +365,7 @@ int ReadVois::compute(const char *port)
             if(readFile()){
                 //printVois();
                 if(triangulate()){
-                    //writePly(m_voiActive);    //write vertices and triangles to an ascii coded ply-file
+                    //writePly(m_voiActive, voiVector, triangles);    //write vertices and triangles to an ascii coded ply-file
                     sendDataToCovise();
                 }
                 else
@@ -615,7 +614,7 @@ bool ReadVois::triangulate()
                 //traingulate top and bottom contour
                 if(contourIter == voiIter->contours.begin() || contourIter == (voiIter->contours.end() - 1)){
                     //cerr << "ReadVois::triangulate() triangulating top or bottom" << endl;
-                    triangulatePoly(*contourIter, voi);
+                    triangulatePoly(*contourIter, triangles[voi]);
                 }
 
                 //traingulate two contours, but not the last one...
