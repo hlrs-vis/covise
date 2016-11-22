@@ -27,6 +27,8 @@
 #include <api/coModule.h>
 using namespace covise;
 
+static const int MAXVOIS = 20;
+
 class ReadVois : public coModule
 {
 
@@ -47,6 +49,7 @@ private:
 
     coOutputPort *m_polygonPort;
     coFileBrowserParam *m_voiFileParam;
+    coBooleanParam *m_voiActive[MAXVOIS];
 
 public:
     ReadVois(int argc, char *argv[]);

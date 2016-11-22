@@ -25,10 +25,15 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include <string>
+#include <utility>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+
+#include <boost/lexical_cast.hpp>
+
 #include "ReadVois.h"
 #include "VoisGlobal.h"
 #include <do/coDoPolygons.h>
@@ -36,14 +41,13 @@
 
 //global variables and constants
 const int LINE_SIZE = 8192;
-const int MAXVOIS = 20;
 const int Z_TABLE_SIZE = 200;
 double zTable[Z_TABLE_SIZE];
 double globalTraMatrix[4][4];
 const double pixelSize = 1.0;
 const int resolution = 512;
 
-std::vector<triangle_t> triangles;
+std::vector<triangle_t> triangles[MAXVOIS];
 std::vector<voi_t> voiVector;
 
 
@@ -65,39 +69,29 @@ vector<xyz>::iterator getNearestPoint(xyz v1, vector<xyz>* points){
     return retVal;
 }
 
-xyz getVertexWithIndex(int index){
-    for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
-        for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-            for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
-                if(point_iter->index == index){
-                    return *point_iter;
-                }
-            }
-        }
-    }
-
-    return xyz(0,0,0);
-}
-
-void makeTriangle(int index1, int index2, int index3){
+triangle_t makeTriangle(int index1, int index2, int index3){
     //cerr << "ReadVois::makeTriangle" << endl;
 
     triangle_t t;
     t.vertex1 = index1;
     t.vertex2 = index2;
     t.vertex3 = index3;
-    triangles.push_back(t);
+    return t;
 }
 
-void makeQuad(xyz lowerleft, xyz upperleft, xyz lowerright, xyz upperright){
+std::pair<triangle_t, triangle_t> makeQuad(xyz lowerleft, xyz upperleft, xyz lowerright, xyz upperright){
     //cerr << "ReadVois::makeQuad" << endl;
 
     if( (lowerleft-upperright).squaredLength() < (upperleft-lowerright).squaredLength() ){
-        makeTriangle(lowerleft.index, upperright.index, upperleft.index);
-        makeTriangle(lowerleft.index, lowerright.index, upperright.index);
+        return std::make_pair(
+            makeTriangle(lowerleft.index, upperright.index, upperleft.index),
+            makeTriangle(lowerleft.index, lowerright.index, upperright.index)
+            );
     } else {
-        makeTriangle(upperleft.index,lowerleft.index,lowerright.index);
-        makeTriangle(lowerright.index,upperright.index,upperleft.index);
+        return std::make_pair(
+            makeTriangle(upperleft.index,lowerleft.index,lowerright.index),
+            makeTriangle(lowerright.index,upperright.index,upperleft.index)
+            );
     }
 }
 
@@ -165,7 +159,7 @@ bool isDelaunay(contour_t& contour, vector<xyz>::iterator startIter){
     return true;
 }
 
-void triangulatePoly(contour_t contour){
+void triangulatePoly(contour_t contour, int voi){
     //cerr << "ReadVois::triangulatePoly" << endl;
 
     if(contour.points.size() == 0) {
@@ -178,7 +172,7 @@ void triangulatePoly(contour_t contour){
         cerr << "ERROR: triangulatePoly size = 2" << endl;
         return;
     } else if(contour.points.size() == 3) {
-        makeTriangle(contour.points[0].index, contour.points[1].index, contour.points[2].index);
+        triangles[voi].push_back(makeTriangle(contour.points[0].index, contour.points[1].index, contour.points[2].index));
         return;
     } else {
 
@@ -211,19 +205,19 @@ void triangulatePoly(contour_t contour){
             }
 
             startFound = true;
-            makeTriangle(startIter->index, midIter->index, endIter->index);
+            triangles[voi].push_back(makeTriangle(startIter->index, midIter->index, endIter->index));
         }
 
         contour_t newContour;
         for(vector<xyz>::iterator newIter = contour.points.begin(); newIter != contour.points.end(); newIter++){
             if(newIter != midIter) newContour.points.push_back(*newIter);
         }
-        triangulatePoly(newContour);
+        triangulatePoly(newContour, voi);
 
     }
 }
 
-void writePly(){
+void writePly(coBooleanParam **voiActive){
     std::string filename = "/home/zellmans/vois.ply";
 
     // open ply file
@@ -236,11 +230,16 @@ void writePly(){
 
     //get total num of vertices
     int numVertices = 0;
-    int numTriangles = triangles.size();
+    int numTriangles = 0;
+    int voi = 0;
     for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
-        for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-            numVertices += con_iter->points.size();
+        if(voiActive[voi]->getValue()){
+            for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
+                numVertices += con_iter->points.size();
+            }
+            numTriangles += triangles[voi].size();
         }
+        ++voi;
     }
 
     fprintf(file, "ply\n");
@@ -268,19 +267,28 @@ void writePly(){
 
     //write vertices
     int count = 0;
+    voi = 0;
     for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
-        for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-            int colorIndex = count % 6;
-            for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
-                fprintf(file, "%f %f %f %i %i %i\n", point_iter->x, point_iter->y, point_iter->z, colors[colorIndex][0], colors[colorIndex][1], colors[colorIndex][2]);
+        if(voiActive[voi]->getValue()){
+            for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
+                int colorIndex = count % 6;
+                for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
+                    fprintf(file, "%f %f %f %i %i %i\n", point_iter->x, point_iter->y, point_iter->z, colors[colorIndex][0], colors[colorIndex][1], colors[colorIndex][2]);
+                }
+                count++;
             }
-            count++;
         }
+        ++voi;
     }
 
     count = 0;
-    for(vector<triangle_t>::iterator tri_iter = triangles.begin(); tri_iter != triangles.end(); tri_iter++) {
-        fprintf(file, "3 %i %i %i\n", tri_iter->vertex1, tri_iter->vertex2, tri_iter->vertex3);
+    voi = 0;
+    for (; voi < MAXVOIS; ++voi){
+        if(voiActive[voi]){
+            for(vector<triangle_t>::iterator tri_iter = triangles[voi].begin(); tri_iter != triangles[voi].end(); tri_iter++) {
+                fprintf(file, "3 %i %i %i\n", tri_iter->vertex1, tri_iter->vertex2, tri_iter->vertex3);
+            }
+        }
     }
 
     fclose(file);
@@ -295,6 +303,14 @@ ReadVois::ReadVois(int argc, char *argv[])
     // select the vois-file name with a file browser
     m_voiFileParam = addFileBrowserParam("VOIsFile", "vois file");
     m_voiFileParam->setValue("/data/stereotaxie/mr01.vois", "*.vois");
+
+    for (int i = 0; i < MAXVOIS; ++i)
+    {
+        std::string str1 = "UseVOI_" + boost::lexical_cast<std::string>(i);
+        std::string str2 = "VOI " + boost::lexical_cast<std::string>(i) + " active";
+        m_voiActive[i] = addBooleanParam(str1.c_str(), str2.c_str());
+        m_voiActive[i]->setValue(i);
+    }
 }
 
 ReadVois::~ReadVois()
@@ -335,12 +351,14 @@ int ReadVois::compute(const char *port)
             globalTraMatrix[3][3] = 1.0;
 
             //delete all old data that may be left over from last run
-            triangles.clear();
+            int voi = 0;
             for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
+                triangles[voi].clear();
                 for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
                     con_iter->points.clear();
                 }
                 voi_iter->contours.clear();
+                ++voi;
             }
             voiVector.clear();
 
@@ -348,7 +366,7 @@ int ReadVois::compute(const char *port)
             if(readFile()){
                 //printVois();
                 if(triangulate()){
-                    //writePly();    //write vertices and triangles to an ascii coded ply-file
+                    //writePly(m_voiActive);    //write vertices and triangles to an ascii coded ply-file
                     sendDataToCovise();
                 }
                 else
@@ -545,10 +563,12 @@ bool ReadVois::readFile()
     //give each point/xyz a unique index
     int index = 0;
     for(int voiIndex = 0; voiIndex < voiVector.size(); voiIndex ++) {
-        for(int contourIndex = 0; contourIndex < voiVector[voiIndex].contours.size(); contourIndex++) {
-            for(int pointIndex = 0; pointIndex < voiVector[voiIndex].contours[contourIndex].points.size(); pointIndex++) {
-                voiVector[voiIndex].contours[contourIndex].points[pointIndex].index = index;
-                index++;
+        if(m_voiActive[voiIndex]->getValue()){
+            for(int contourIndex = 0; contourIndex < voiVector[voiIndex].contours.size(); contourIndex++) {
+                for(int pointIndex = 0; pointIndex < voiVector[voiIndex].contours[contourIndex].points.size(); pointIndex++) {
+                    voiVector[voiIndex].contours[contourIndex].points[pointIndex].index = index;
+                    index++;
+                }
             }
         }
     }
@@ -580,90 +600,96 @@ bool ReadVois::triangulate()
 {
     //std::cerr << "ReadVois::triangulate()" << std::endl;
 
-    triangles.clear();
+    int voi = 0;
 
     //iterate over all VOIs
     for(vector<voi_t>::iterator voiIter = voiVector.begin(); voiIter != voiVector.end(); voiIter++){
-        cerr << "ReadVois::triangulate() triangulating voi " << std::distance(voiVector.begin(), voiIter) + 1 << endl;
+        triangles[voi].clear();
+        if(m_voiActive[voi]->getValue()){
+            cerr << "ReadVois::triangulate() triangulating voi " << voi + 1 << endl;
 
-        //iterate over all contours
-        for(vector<contour_t>::iterator contourIter = voiIter->contours.begin(); contourIter != voiIter->contours.end(); contourIter++){
-            //cerr << "ReadVois::triangulate() triangulating contour " << std::distance(voiIter->contours.begin(), contourIter) + 1 << endl;
+            //iterate over all contours
+            for(vector<contour_t>::iterator contourIter = voiIter->contours.begin(); contourIter != voiIter->contours.end(); contourIter++){
+                //cerr << "ReadVois::triangulate() triangulating contour " << std::distance(voiIter->contours.begin(), contourIter) + 1 << endl;
 
-            //traingulate top and bottom contour
-            if(contourIter == voiIter->contours.begin() || contourIter == (voiIter->contours.end() - 1)){
-                //cerr << "ReadVois::triangulate() triangulating top or bottom" << endl;
-                triangulatePoly(*contourIter);
-            }
-
-            //traingulate two contours, but not the last one...
-            if(contourIter != (voiIter->contours.end() - 1)){
-                //cerr << "ReadVois::triangulate() triangulating two contours" << endl;
-
-                //get the next contour
-                vector<contour_t>::iterator lowerContour = contourIter;
-                vector<contour_t>::iterator upperContour = contourIter + 1;
-
-                //find a good start, where the upper and lower start vertices both are nearest to each other
-                vector<xyz>::iterator lowerVertex = lowerContour->points.begin();
-                vector<xyz>::iterator upperVertex;
-
-                for(; lowerVertex < lowerContour->points.end(); lowerVertex++ ){
-                    upperVertex = getNearestPoint(*lowerVertex, &(upperContour->points));
-                    if(lowerVertex == getNearestPoint(*upperVertex, &(lowerContour->points))){
-                        break; //this pair is good start. lower is the nearest to upper and upper is the nearest to lower.
-                    }
-                    if(lowerVertex == (lowerContour->points.end() - 1))
-                    {
-                        cerr << "ERROR: no good start found for contours. let's hope it works anyways' " << endl;
-                    }
+                //traingulate top and bottom contour
+                if(contourIter == voiIter->contours.begin() || contourIter == (voiIter->contours.end() - 1)){
+                    //cerr << "ReadVois::triangulate() triangulating top or bottom" << endl;
+                    triangulatePoly(*contourIter, voi);
                 }
 
-                //remember where we started
-                vector<xyz>::iterator lowerStart = lowerVertex;
-                vector<xyz>::iterator upperStart = upperVertex;
+                //traingulate two contours, but not the last one...
+                if(contourIter != (voiIter->contours.end() - 1)){
+                    //cerr << "ReadVois::triangulate() triangulating two contours" << endl;
 
-                //loop over lower and upper contour at the same time
-                do {
-                    xyz lower1 = *lowerVertex;
-                    xyz lower2 = *(lowerContour->getNextPoint(lowerVertex));
-                    xyz upper1 = *upperVertex;
-                    xyz upper2 = *(upperContour->getNextPoint(upperVertex));
+                    //get the next contour
+                    vector<contour_t>::iterator lowerContour = contourIter;
+                    vector<contour_t>::iterator upperContour = contourIter + 1;
 
-                    bool advanceLower = false;
-                    bool advanceUpper = false;
+                    //find a good start, where the upper and lower start vertices both are nearest to each other
+                    vector<xyz>::iterator lowerVertex = lowerContour->points.begin();
+                    vector<xyz>::iterator upperVertex;
 
-                    double dist_l1u2 = (lower1 - upper2).squaredLength();
-                    double dist_u1l2 = (upper1 - lower2).squaredLength();
-                    double dist_l2u2 = (lower2 - upper2).squaredLength();
-
-                    if(        dist_l1u2 <= dist_u1l2 && dist_l1u2 <= dist_l2u2) {
-                        //cerr << "dist_l1u2 is the smallest" << endl;
-                        makeTriangle(lower1.index, upper2.index, upper1.index);
-                        advanceUpper = true;
-
-                    } else if (dist_u1l2 <= dist_l1u2 && dist_u1l2 <= dist_l2u2) {
-                        //cerr << "dist_u1l2 is the smallest" << endl;
-                        makeTriangle(upper1.index, lower1.index, lower2.index);
-                        advanceLower = true;
-
-                    } else if (dist_l2u2 <= dist_l1u2 && dist_l2u2 <= dist_u1l2) {
-                        //cerr << "dist_l2u2 is the smallest" << endl;
-                        makeQuad(lower1,upper1,lower2,upper2);
-                        advanceLower = true;
-                        advanceUpper = true;
-
-                    } else {
-                        cerr << "ERROR: no smallest l1u2: " << dist_l1u2 << "  u1l2: " << dist_u1l2 << "  l2u2: " << dist_l2u2 << endl;
-                        return false;
+                    for(; lowerVertex < lowerContour->points.end(); lowerVertex++ ){
+                        upperVertex = getNearestPoint(*lowerVertex, &(upperContour->points));
+                        if(lowerVertex == getNearestPoint(*upperVertex, &(lowerContour->points))){
+                            break; //this pair is good start. lower is the nearest to upper and upper is the nearest to lower.
+                        }
+                        if(lowerVertex == (lowerContour->points.end() - 1))
+                        {
+                            cerr << "ERROR: no good start found for contours. let's hope it works anyways' " << endl;
+                        }
                     }
 
-                    if(advanceLower) lowerVertex = lowerContour->getNextPoint(lowerVertex);
-                    if(advanceUpper) upperVertex = upperContour->getNextPoint(upperVertex);
+                    //remember where we started
+                    vector<xyz>::iterator lowerStart = lowerVertex;
+                    vector<xyz>::iterator upperStart = upperVertex;
 
-                } while ((lowerVertex != lowerStart || upperVertex != upperStart));
-            }
-        }//iterate over all contours
+                    //loop over lower and upper contour at the same time
+                    do {
+                        xyz lower1 = *lowerVertex;
+                        xyz lower2 = *(lowerContour->getNextPoint(lowerVertex));
+                        xyz upper1 = *upperVertex;
+                        xyz upper2 = *(upperContour->getNextPoint(upperVertex));
+
+                        bool advanceLower = false;
+                        bool advanceUpper = false;
+
+                        double dist_l1u2 = (lower1 - upper2).squaredLength();
+                        double dist_u1l2 = (upper1 - lower2).squaredLength();
+                        double dist_l2u2 = (lower2 - upper2).squaredLength();
+
+                        if(        dist_l1u2 <= dist_u1l2 && dist_l1u2 <= dist_l2u2) {
+                            //cerr << "dist_l1u2 is the smallest" << endl;
+                            triangles[voi].push_back(makeTriangle(lower1.index, upper2.index, upper1.index));
+                            advanceUpper = true;
+
+                        } else if (dist_u1l2 <= dist_l1u2 && dist_u1l2 <= dist_l2u2) {
+                            //cerr << "dist_u1l2 is the smallest" << endl;
+                            triangles[voi].push_back(makeTriangle(upper1.index, lower1.index, lower2.index));
+                            advanceLower = true;
+
+                        } else if (dist_l2u2 <= dist_l1u2 && dist_l2u2 <= dist_u1l2) {
+                            //cerr << "dist_l2u2 is the smallest" << endl;
+                            std::pair<triangle_t, triangle_t> qs = makeQuad(lower1,upper1,lower2,upper2);
+                            triangles[voi].push_back(qs.first);
+                            triangles[voi].push_back(qs.second);
+                            advanceLower = true;
+                            advanceUpper = true;
+
+                        } else {
+                            cerr << "ERROR: no smallest l1u2: " << dist_l1u2 << "  u1l2: " << dist_u1l2 << "  l2u2: " << dist_l2u2 << endl;
+                            return false;
+                        }
+
+                        if(advanceLower) lowerVertex = lowerContour->getNextPoint(lowerVertex);
+                        if(advanceUpper) upperVertex = upperContour->getNextPoint(upperVertex);
+
+                    } while ((lowerVertex != lowerStart || upperVertex != upperStart));
+                }
+            }//iterate over all contours
+        }//if void active
+        ++voi;
     }//iterate over all VOIs
 
     return true;
@@ -675,10 +701,14 @@ void ReadVois::sendDataToCovise()
 
     //get the total number of vertices
     int numVertices = 0;
+    int voi = 0;
     for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
-        for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-            numVertices += con_iter->points.size();
+        if(m_voiActive[voi]->getValue()){
+            for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
+                numVertices += con_iter->points.size();
+            }
         }
+        ++voi;
     }
 
     //create three float arrays to store vertex coordinates temporarily
@@ -688,32 +718,46 @@ void ReadVois::sendDataToCovise()
 
     //copy vertex data from vois to arrays
     int idx = 0;
+    voi = 0;
     for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
-        for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-            for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
-                x_c[idx] = point_iter->x;
-                y_c[idx] = point_iter->y;
-                z_c[idx] = point_iter->z;
-                idx++;
+        if(m_voiActive[voi]->getValue()){
+            for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
+                for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
+                    x_c[idx] = point_iter->x;
+                    y_c[idx] = point_iter->y;
+                    z_c[idx] = point_iter->z;
+                    idx++;
+                }
             }
         }
+        ++voi;
     }
 
     //get the total number of triangles
-    int numTriangles = triangles.size();
+    int numTriangles = 0;
+    voi = 0;
+    for ( ; voi < MAXVOIS; ++voi)
+        if (m_voiActive[voi])
+            numTriangles += triangles[voi].size();
 
     //create two int arrays to store triangle info temporarily
     std::vector<int> v_l(numTriangles * 3); //for each triangle 3 integer indices into x_c/y_c/z_c
     std::vector<int> pol_l(numTriangles); //for each triangle one index into v_l
 
     //copy triangle info to arrays
+    voi = 0;
     idx = 0;
-    for(std::vector<triangle_t>::iterator iter = triangles.begin(); iter != triangles.end(); iter++){
-        pol_l[idx] = idx*3;  // = 0 3 6 9 ...
-        v_l[3*idx + 0] = iter->vertex1;
-        v_l[3*idx + 1] = iter->vertex2;
-        v_l[3*idx + 2] = iter->vertex3;
-        idx++;
+    for ( ; voi < MAXVOIS; ++voi)
+    {
+        if(m_voiActive[voi]->getValue()){
+            for(std::vector<triangle_t>::iterator iter = triangles[voi].begin(); iter != triangles[voi].end(); iter++){
+                pol_l[idx] = idx*3;  // = 0 3 6 9 ...
+                v_l[3*idx + 0] = iter->vertex1;
+                v_l[3*idx + 1] = iter->vertex2;
+                v_l[3*idx + 2] = iter->vertex3;
+                idx++;
+            }
+        }
     }
 
     sendInfo("ReadVois:: found %d vertices, created %d triangles", numVertices, numTriangles);
