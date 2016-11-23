@@ -114,6 +114,13 @@
                         <Offset x="376" y="67" z="1436" h="246.5" p="-89.7" r="69" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
+		    <!--  Marker10-->
+		    <Marker name="ObjectMarker15" >
+                        <Pattern value="10" />
+                        <Size value="40" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
 <!--
                     <Marker name="ObjectMarker0" >
                         <Pattern value="10" />
@@ -258,8 +265,10 @@
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
-                    <VideoDevice value="2" width="1200" height="1024" />
-                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
+                    <!--VideoDevice value="0" width="1920" height="1080" /-->
+                    <VideoDevice value="2" width="1280" height="1024" />
+                    <!--VideoDevice value="2" width="1200" height="1024" /-->
+                    <CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" />
                     
                     <!--VideoDevice value="1" width="640" height="480" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
@@ -267,7 +276,7 @@
                 </ALVAR>
 				<ARUCO value="OFF">
                     <Capture value="on" />
-                    <VideoDevice value="2" width="1920" height="1080" />
+                    <VideoDevice value="1" width="1280" height="1024" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />
