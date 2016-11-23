@@ -314,7 +314,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 				OpenScenario::oscObjectBase *oscObject = catalog_->getCatalogObject(refId);
 				if (oscObject)
 				{
-					oscElement_ = base_->getOSCElement(oscObject);
+					oscElement_ = base_->getOrCreateOSCElement(oscObject);
 				}
 				else
 				{

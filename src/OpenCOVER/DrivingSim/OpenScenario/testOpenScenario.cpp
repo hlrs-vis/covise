@@ -212,12 +212,12 @@ int main(int argc, char **argv)
 
 
     //print some values to console
-    if (osdb->fileHeader.getObject() != NULL)
+    if (osdb->FileHeader.getObject() != NULL)
     {
         std::cerr << std::endl;
-        std::cerr << "revMajor:" << osdb->fileHeader->revMajor.getValue() << std::endl;
-        std::cerr << "revMinor:" << osdb->fileHeader->revMinor.getValue() << std::endl;
-        std::cerr << "Author:" << osdb->fileHeader->author.getValue() << std::endl;
+        std::cerr << "revMajor:" << osdb->FileHeader->revMajor.getValue() << std::endl;
+        std::cerr << "revMinor:" << osdb->FileHeader->revMinor.getValue() << std::endl;
+        std::cerr << "Author:" << osdb->FileHeader->author.getValue() << std::endl;
     }
 
 

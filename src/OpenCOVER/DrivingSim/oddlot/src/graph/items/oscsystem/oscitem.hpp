@@ -44,8 +44,9 @@ class OSCItem : public GraphElement
     //################//
 
 public:
-	explicit OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId);
+	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId);
     virtual ~OSCItem();
+
 
     // Garbage //
     //
@@ -112,6 +113,7 @@ protected:
     //################//
 
 private:
+	OSCElement *element_;
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;

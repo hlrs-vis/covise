@@ -47,11 +47,9 @@ public:
     oscCatalog()
     {
         OSC_OBJECT_ADD_MEMBER(directory, "oscDirectory");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
     };
 
     oscDirectoryMember directory;
-    oscUserDataListArrayMember userDataList;
 
 	
     typedef unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> CatalogTypeTypeNameMap;

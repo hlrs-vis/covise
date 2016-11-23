@@ -428,7 +428,7 @@
   <MultiPC>
     <SyncMode value="TCP" />
    <NumSlaves value="1" />
-     <Startup ARCH="x11" value="startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR config-tkevr-floor.xml" name="0"/>
+     <Startup ARCH="x11" value="startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH config-tkevr-floor.xml" name="0"/>
   </MultiPC>
 
   </COVER>

@@ -45,6 +45,7 @@ SET(HEADERS
    oscConditionTypeA.h
    oscConditionTypeB.h
    oscContinuation.h
+   oscController.h
    oscControlPoint.h
    oscCoord.h
    oscCurrentPosition.h
@@ -56,6 +57,7 @@ SET(HEADERS
    oscDistanceLateral.h
    oscDistanceLongitudinal.h
    oscDriver.h
+   oscEnd.h
    oscEndConditionsGroupsTypeA.h
    oscEndConditionsGroupTypeA.h
    oscEndConditionsTypeA.h
@@ -86,6 +88,8 @@ SET(HEADERS
    oscFrustum.h
    oscGearbox.h
    oscGeneral.h
+   oscGlobal.h
+   oscInit.h
    oscInitDynamics.h
    oscInitState.h
    oscIntensity.h
@@ -98,6 +102,7 @@ SET(HEADERS
    oscLight.h
    oscLighting.h
    oscLights.h
+   oscLogics.h
    oscLongitudinal.h
    oscManeuverGroupsTypeAB.h
    oscManeuverGroupTypeAB.h
@@ -120,7 +125,6 @@ SET(HEADERS
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
-   oscObjectCatalog.h
    oscObjects.h
    oscObjectVariable.h
    oscObjectVariableArray.h
@@ -139,6 +143,7 @@ SET(HEADERS
    oscPartnerType.h
    oscPedestrian.h
    oscPerformance.h
+   oscPhase.h
    oscPolyline.h
    oscPosition.h
    oscPositionLane.h
@@ -148,11 +153,13 @@ SET(HEADERS
    oscPositionXyz.h
    oscPrecipitation.h
    oscPriority.h
+   oscPrivate.h
    oscReachPosition.h
    oscRefActorsTypeA.h
    oscRefActorsTypeB.h
    oscRefActorTypeA.h
    oscRefActorTypeB.h
+   oscReference.h
    oscReferenceHandling.h
    oscRelativePositionLane.h
    oscRelativePositionRoad.h
@@ -167,10 +174,13 @@ SET(HEADERS
    oscRoadNetwork.h
    oscRoute.h
    oscRouting.h
+   oscSceneGraph.h
    oscScenarioEnd.h
    oscSetController.h
    oscSetState.h
    oscShape.h
+   oscSignal.h
+   oscSignals.h
    oscSimulationTime.h
    oscSourceFile.h
    oscSpeed.h
@@ -186,6 +196,7 @@ SET(HEADERS
    oscStartConditionsTypeC.h
    oscStartConditionTypeC.h
    oscStoppingDistance.h
+   oscStory.h
    oscStoryboard.h
    oscTest.h
    oscTime.h

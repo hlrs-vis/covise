@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscObjects.h"
-#include "oscUserDataList.h"
+
 
 
 namespace OpenScenario {
@@ -25,11 +25,11 @@ public:
     oscEntities()
     {
         OSC_OBJECT_ADD_MEMBER(objects, "oscObjects");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
+       
     };
 
     oscObjectsArrayMember objects;
-    oscUserDataListArrayMember userDataList;
+   
 };
 
 typedef oscObjectVariable<oscEntities *> oscEntitiesMember;

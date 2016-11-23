@@ -804,7 +804,7 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 		object = object_->getMember(name.toStdString())->getOrCreateObject();
 	}
 
-	OSCElement *memberElement = base_->getOSCElement(object);
+	OSCElement *memberElement = base_->getOrCreateOSCElement(object);
 
 	// Reset change //
     //

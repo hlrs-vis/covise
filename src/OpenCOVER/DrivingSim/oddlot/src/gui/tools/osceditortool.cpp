@@ -39,7 +39,7 @@
 */
 OpenScenarioEditorTool::OpenScenarioEditorTool(ToolManager *toolManager)
     : Tool(toolManager)
-    , toolId_(ODD::TNO_TOOL)
+    , toolId_(ODD::TOS_SELECT)
 	, ui(new Ui::OSCRibbon)
 {
     // Connect emitted ToolActions to ToolManager //
