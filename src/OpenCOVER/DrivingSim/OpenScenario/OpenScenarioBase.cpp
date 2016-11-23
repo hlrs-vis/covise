@@ -362,11 +362,14 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
     setPathFromCurrentDirToDoc(fileName);
 
     xercesc::DOMElement *rootElement = getRootElement(fileName, nodeName, fileType, m_validate);
+	if(rootElement)
+	{
 	std::string rootElementName = xercesc::XMLString::transcode(rootElement->getNodeName());
 
 	if (rootElementName != fileType)
 	{
 		return false;
+	}
 	}
 
     if(rootElement == NULL) // create new file

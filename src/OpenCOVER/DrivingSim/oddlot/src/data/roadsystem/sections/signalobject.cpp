@@ -21,7 +21,7 @@
 // Constructors       //
 //####################//
 
-Signal::Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int validFromLane, int validToLane, double probability, double resetTime)
+Signal::Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, QString unit, QString text, double width, double height, bool pole, int size, int validFromLane, int validToLane, double probability, double resetTime)
     : RoadSection(s)
     , id_(id)
     , name_(name)
@@ -36,7 +36,11 @@ Signal::Signal(const QString &id, const QString &name, double s, double t, bool 
     signalProps_.value = value;
     signalProps_.hOffset = hOffset;
     signalProps_.pitch = pitch;
-    signalProps_.roll = roll;
+	signalProps_.roll = roll;
+	signalProps_.unit = unit;
+	signalProps_.text = text;
+	signalProps_.width = width;
+	signalProps_.height = height;
     signalProps_.pole = pole;
 
     validity_.fromLane = validFromLane;

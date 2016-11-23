@@ -119,10 +119,15 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
 	//enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
 	bool validate = openScenarioBase_->getValidation();
 	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), nodeName.toStdString(), fileType.toStdString(), validate);
+	if (root == NULL)
+	{
+		QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+			tr("no root element <OpenSCENARIO>!"));
+		return false;
+	}
 
 	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
-
-    if (tagName != "OpenSCENARIO")
+    if (root == NULL || tagName != "OpenSCENARIO")
     {
         QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
                              tr("Root element is not <OpenSCENARIO>!"));

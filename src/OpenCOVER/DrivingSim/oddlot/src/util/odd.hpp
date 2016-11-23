@@ -66,7 +66,7 @@ public:
 	{
 		char buf[100];
 		sprintf(buf, "%d%c%d", revMajor_, '.', revMinor_);
-		return atof(buf);
+		return (float)atof(buf);
 	}
 
 	static const unsigned short getRevMinor()

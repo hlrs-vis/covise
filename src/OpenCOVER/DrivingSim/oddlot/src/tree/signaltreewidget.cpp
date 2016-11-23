@@ -230,7 +230,11 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 					Signal *signal = dynamic_cast<Signal *>(element);
 					if (signal)
 					{
-						SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, value, signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
+						SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), 
+							signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, 
+							subtype, value, signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getUnit(), signal->getText(), 
+							signal->getWidth(), signal->getHeight(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), 
+							signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
 						projectWidget_->getProjectSettings()->executeCommand(command);
 					}
 				}

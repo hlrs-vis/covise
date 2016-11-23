@@ -1331,7 +1331,7 @@ bool
 					RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
 					if (road) // addSignal
 					{
-						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0, true, 2, 1, 0, 0.0, 0.0);
+						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
 						road->addSignal(trafficSign);
 					}
 				}
@@ -1574,7 +1574,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }

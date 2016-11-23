@@ -1469,7 +1469,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
         }
 
         // Construct signal object
-        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
+        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
         // Add to road
         road->addSignal(signal);
 
@@ -1551,11 +1551,15 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         QString country = parseToQString(child, "country", "Germany", false); // mandatory
         int type = parseToInt(child, "type", 0, false); // mandatory
         
-        int subtype = parseToInt(child, "subtype", -1, true); // mandatory
-        double value = parseToDouble(child, "value", 0.0, true); // mandatory
-        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // mandatory
-        double pitch = parseToDouble(child, "pitch", 0.0, true); // mandatory
-        double roll = parseToDouble(child, "roll", 0.0, true); // mandatory
+        int subtype = parseToInt(child, "subtype", -1, true); // optional
+        double value = parseToDouble(child, "value", 0.0, true); // optional
+        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // optional
+        double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+		QString unit = parseToQString(child, "unit", "km/h", true); //optional
+		QString text = parseToQString(child, "text", "", true);//optional
+		double width = parseToDouble(child, "width", 0.0, true);//optional
+		double height = parseToDouble(child, "height", 0.0, true);//optional
+        double roll = parseToDouble(child, "roll", 0.0, true); // optional
 
         // Get validity record
 
@@ -1617,12 +1621,12 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             hOffset = name.toDouble();
 
             // Construct signal object
-            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
         else
         {
             // Construct signal object
-            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
 
 
@@ -3124,10 +3128,14 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         int subType = parseToInt(sign, "subtype", -1, true);
         double value = parseToDouble(sign, "value", 0.0, true);
         double distance = parseToDouble(sign, "distance", 0.0, true);
-        double height = parseToDouble(sign, "height", 0.0, true);
+		double heightOffset = parseToDouble(sign, "heightOffset", 0.0, true);
+		QString unit = parseToQString(sign, "unit", "km/h", true);
+		QString text = parseToQString(sign, "text", "", true);
+		double width = parseToDouble(sign, "width", 0.0, true);
+		double height = parseToDouble(sign, "height", 0.0, true);
 
 		SignalManager *signalManager = ODD::mainWindow()->getSignalManager();
-		signalManager->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, height);
+		signalManager->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, heightOffset, unit, text, width, height);
 		signalManager->addCategory(categoryName);
 
         sign = sign.nextSiblingElement("sign");
