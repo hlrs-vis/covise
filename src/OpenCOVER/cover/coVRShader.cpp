@@ -936,8 +936,8 @@ void coVRShader::storeMaterial()
     if (geometryShader.get() != NULL)
     {
         xercesc::DOMElement *geometryProgram = document->createElement(xercesc::XMLString::transcode("geometryProgram"));
-        char numVertices[GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT];
-        sprintf(numVertices, "%d", geomParams[0]);
+        char numVertices[100]; // no idea what that ment: GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT
+        snprintf(numVertices,100, "%d", geomParams[0]);
         geometryProgram->setAttribute(xercesc::XMLString::transcode("numVertices"), xercesc::XMLString::transcode(numVertices));
         //    GLint geometryProgram->getParamenter(GL_GEOMETRY_INPUT_TYPE_EXT);
 

@@ -48,6 +48,7 @@ IF (MSVC)
    $ENV{EXTERNLIBS}/wmfsdk11/lib
    $ENV{WindowsSdkDir}/Lib/x64
    $ENV{WindowsSdkDir}/Lib/win8/um/x64
+   $ENV{WindowsSdkDir}/Lib/winv6.3/um/x64
    "/Program Files/Microsoft SDKs/Windows/v7.0/Lib/x64"
    "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Lib/x64"
     NO_DEFAULT_PATH

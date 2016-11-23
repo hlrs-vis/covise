@@ -184,6 +184,7 @@ bool ALVARPlugin::init()
     //sleep(6);
     ARToolKit::instance()->arInterface = this;
     ARToolKit::instance()->remoteAR = NULL;
+	ARToolKit::instance()->videoData = NULL;
 
     multiMarkerInitializer = NULL;
     multiMarkerBundle = NULL;

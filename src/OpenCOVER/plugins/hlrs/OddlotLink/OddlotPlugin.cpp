@@ -122,6 +122,7 @@ OddlotPlugin::OddlotPlugin()
 {
     fprintf(stderr, "OddlotPlugin::OddlotPlugin\n");
     plugin = this;
+	width = 0;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.Oddlot.Server", 31822);
     toOddlot = NULL;
     serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
