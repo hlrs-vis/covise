@@ -116,7 +116,7 @@ OpenScenarioEditor::~OpenScenarioEditor()
 void
 OpenScenarioEditor::init()
 {
-	OpenScenario::oscEntities *entitiesObject = openScenarioBase_->entities.getOrCreateObject();
+	OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
 	OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(entitiesObject->getMember("objects"));
 	
 	for (int i = 0; i < oscObjectArray->size(); i++)
@@ -271,7 +271,7 @@ OpenScenario::oscCatalog *
 OpenScenarioEditor::getCatalog(std::string name)
 {
 
-	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->catalogs.getOrCreateObject();
+	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->Catalogs.getOrCreateObject();
 	OpenScenario::oscCatalog *catalog = catalogs->getCatalog(name);
 	QString catalogDir = OSCSettings::instance()->getCatalogDir();
 	std::string catalogsDir = catalogDir.toStdString(); 
@@ -371,7 +371,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							}
 						}
 
-						OpenScenario::oscEntities *entitiesObject = openScenarioBase_->entities.getOrCreateObject();
+						OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
 						OpenScenario::oscMember *objectsMember = entitiesObject->getMember("objects");
 						OpenScenario::oscObjectBase *objects = objectsMember->getOrCreateObject();
 

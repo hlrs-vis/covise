@@ -78,7 +78,7 @@ bool getopt(const char *argument, const std::string &option)
 int main(int argc, char **argv)
 {
     //initialize random seed
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 
     OpenScenarioBase *osdb = new OpenScenarioBase();
 

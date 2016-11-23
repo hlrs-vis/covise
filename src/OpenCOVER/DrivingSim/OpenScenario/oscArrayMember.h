@@ -30,8 +30,6 @@ public:
     oscArrayMember(); ///< constructor
     virtual ~oscArrayMember(); ///< destructor
 
-    virtual xercesc::DOMElement *writeArrayMemberToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
-
 	int findObjectIndex(oscObjectBase *object);
 };
 

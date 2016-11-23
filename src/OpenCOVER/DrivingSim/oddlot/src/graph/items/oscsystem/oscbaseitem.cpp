@@ -84,7 +84,7 @@ OSCBaseItem::~OSCBaseItem()
 void
 OSCBaseItem::init()
 {	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-	OpenScenario::oscCatalogs *catalogs = openScenarioBase->catalogs.getOrCreateObject();
+	OpenScenario::oscCatalogs *catalogs = openScenarioBase->Catalogs.getOrCreateObject();
 	entityCatalog_ = catalogs->getCatalog("entityCatalog");
 
 	// Root Base item //

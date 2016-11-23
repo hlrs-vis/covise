@@ -181,6 +181,7 @@ bool oscMember::exists() const
 //
 bool oscMember::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
+
     if(value != NULL)
     {
         value->writeToDOM(currentElement, document, name.c_str());

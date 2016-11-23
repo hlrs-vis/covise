@@ -24,11 +24,13 @@ class OPENSCENARIOEXPORT oscEntities: public oscObjectBase
 public:
     oscEntities()
     {
-        OSC_OBJECT_ADD_MEMBER(objects, "oscObjects");
+		OSC_OBJECT_ADD_MEMBER(Object, "oscObject");
+		OSC_OBJECT_ADD_MEMBER(Selection, "oscSelection");
        
     };
 
-    oscObjectsArrayMember objects;
+	oscObjectsArrayMember Object;
+	oscObjectsArrayMember Selection;
    
 };
 
