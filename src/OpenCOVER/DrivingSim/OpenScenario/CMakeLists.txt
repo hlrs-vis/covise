@@ -295,3 +295,6 @@ add_covise_executable(oscTest MACOSX_BUNDLE ${TESTSOURCES} ${TESTHEADERS})
 covise_install_target(oscTest)
 
 target_link_libraries(oscTest coOpenScenario ${EXTRA_LIBS})
+
+
+add_subdirectory(generateParser)
