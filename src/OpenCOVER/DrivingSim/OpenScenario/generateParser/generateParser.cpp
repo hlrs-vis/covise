@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	{
 		std::cerr << "\nErrors during parse of the document '" << argv[1] << "'.\n" << std::endl;
 
-		return NULL;
+		return 1;
 	}
 	xercesc::DOMNodeList *elementList = parser->getDocument()->getChildNodes();
 
@@ -104,8 +104,9 @@ int main(int argc, char **argv)
 		if (element)
 		{
 
-			std::string name;
-			name = xercesc::XMLString::transcode(element->getNodeName());
+			char *xname = xercesc::XMLString::transcode(element->getNodeName());
+            std::string name(xname);
+            xercesc::XMLString::release(&xname);
 			if (name == "xsd:schema")
 			{
 				parseSchema(element);
@@ -113,4 +114,5 @@ int main(int argc, char **argv)
 		}
 	}
 
+    return 0;
 }
