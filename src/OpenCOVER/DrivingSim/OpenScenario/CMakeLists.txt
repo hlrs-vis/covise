@@ -70,8 +70,6 @@ SET(HEADERS
    oscEntityDelete.h
    oscEnvironment.h
    oscEnvironmentReference.h
-   oscEvent.h
-   oscEvents.h
    oscExport.h
    oscEyepoint.h
    oscEyepoints.h
