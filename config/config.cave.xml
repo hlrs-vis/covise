@@ -331,7 +331,7 @@
    <SplashScreen value="/mnt/raid/media/images/splash/Left.tif" width="1176" height="1050" />
    
    <ScreenConfig>
-    <Screen width="2700" comment="LEFT" h="90.0" originX="-1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2700" comment="RIGHT" h="90.0" originX="-1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
     <Screen width="2700" comment="LEFT" h="90.0" originX="-1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="1" screen="1" />
    </ScreenConfig>
   </COVER>
@@ -410,7 +410,7 @@
   <COVER>
      <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
+    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
     <Viewport width="1201"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
@@ -423,7 +423,7 @@
   <COVER>
      <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
+    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
     <Viewport width="1200"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
@@ -436,7 +436,7 @@
   <COVER>
      <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
+    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
     <Viewport width="1201"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
@@ -448,7 +448,7 @@
   <COVER>
      <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
+    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
     <Viewport width="1200"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
