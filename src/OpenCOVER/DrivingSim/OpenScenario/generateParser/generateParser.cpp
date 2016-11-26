@@ -420,8 +420,10 @@ int main(int argc, char **argv)
 		for (std::list<oscClass *>::iterator c2it = classes.begin(); c2it != classes.end(); c2it++)
 		{
 			oscClass* cl2 = *c2it;
-			if (cl2->name == cl->name)
+			if (cl2 != cl && cl2->name == cl->name)
 			{
+
+				//fprintf(stderr, "duplicate class %s\n", cl->name.c_str());
 				//check if they differ
 				if (cl->attributes.size() != cl2->attributes.size())
 				{
