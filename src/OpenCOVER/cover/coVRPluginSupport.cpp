@@ -1635,6 +1635,12 @@ osg::Matrix *coVRPluginSupport::getWorldCoords(osg::Node *node) const
     }
 }
 
+bool coVRPluginSupport::isHighQuality() const
+{
+    return VRSceneGraph::instance()->highQuality();
+}
+
+
 bool coVRPluginSupport::isVRBconnected()
 {
     return vrbc->isConnected();
