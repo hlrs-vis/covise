@@ -728,12 +728,13 @@ void coVRPluginSupport::addedNode(osg::Node *node, coVRPlugin *addingPlugin)
 coPointerButton *coVRPluginSupport::getPointerButton() const
 {
     //START("coVRPluginSupport::getPointerButton");
+    if (coVRConfig::instance()->mouseTracking())
+    {
+        return getMouseButton();
+    }
+
     if (pointerButton == NULL) // attach Button status as userdata to handTransform
     {
-        if (coVRConfig::instance()->mouseTracking())
-        {
-            return getMouseButton();
-        }
         pointerButton = new coPointerButton("pointer");
     }
     return pointerButton;
