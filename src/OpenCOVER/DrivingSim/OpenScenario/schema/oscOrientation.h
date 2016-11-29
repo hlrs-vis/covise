@@ -14,10 +14,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscOrientation.h"
 
 namespace OpenScenario
 {
+class OPENSCENARIOEXPORT Enum_Orientation_typeType : public oscEnumType
+{
+public:
+static Enum_Orientation_typeType *instance();
+    private:
+		Enum_Orientation_typeType();
+	    static Enum_Orientation_typeType *inst; 
+};
 class OPENSCENARIOEXPORT oscOrientation : public oscObjectBase
 {
 public:
@@ -32,6 +39,13 @@ public:
     oscDouble h;
     oscDouble p;
     oscDouble r;
+
+    enum Enum_Orientation_type
+    {
+relative,
+absolute,
+
+    };
 
 };
 

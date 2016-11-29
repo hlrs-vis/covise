@@ -14,10 +14,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscByType.h"
 
 namespace OpenScenario
 {
+class OPENSCENARIOEXPORT Enum_ObjectTypeType : public oscEnumType
+{
+public:
+static Enum_ObjectTypeType *instance();
+    private:
+		Enum_ObjectTypeType();
+	    static Enum_ObjectTypeType *inst; 
+};
 class OPENSCENARIOEXPORT oscByType : public oscObjectBase
 {
 public:
@@ -26,6 +33,14 @@ public:
         OSC_ADD_MEMBER(type);
     };
     oscEnum type;
+
+    enum Enum_ObjectType
+    {
+pedestrian,
+vehicle,
+miscellaneous,
+
+    };
 
 };
 

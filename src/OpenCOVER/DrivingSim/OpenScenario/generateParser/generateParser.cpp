@@ -480,7 +480,7 @@ int main(int argc, char **argv)
 			if (cl2 != cl && cl2->name == cl->name)
 			{
 
-				//fprintf(stderr, "duplicate class %s\n", cl->name.c_str());
+				fprintf(stderr, "duplicate class %s\n", cl->name.c_str());
 				//check if they differ
 				if (cl->attributes.size() != cl2->attributes.size())
 				{
@@ -534,6 +534,13 @@ int main(int argc, char **argv)
 				}
 				if (foundDuplicate)
 					break;
+				else
+				{
+					// remove duplicate class
+					c2it = classes.erase(c2it);
+					if (c2it == classes.end())
+						break;
+				}
 			}
 		}
 		if (foundDuplicate)

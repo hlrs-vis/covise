@@ -14,10 +14,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscRelative.h"
 
 namespace OpenScenario
 {
+class OPENSCENARIOEXPORT Enum_Speed_Target_valueTypeType : public oscEnumType
+{
+public:
+static Enum_Speed_Target_valueTypeType *instance();
+    private:
+		Enum_Speed_Target_valueTypeType();
+	    static Enum_Speed_Target_valueTypeType *inst; 
+};
 class OPENSCENARIOEXPORT oscRelative : public oscObjectBase
 {
 public:
@@ -32,6 +39,13 @@ public:
     oscDouble value;
     oscEnum valueType;
     oscBool continuous;
+
+    enum Enum_Speed_Target_valueType
+    {
+delta,
+factor,
+
+    };
 
 };
 

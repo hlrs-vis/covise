@@ -14,11 +14,18 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscDescription.h"
 #include "schema/oscParameter.h"
 
 namespace OpenScenario
 {
+class OPENSCENARIOEXPORT Enum_sexType : public oscEnumType
+{
+public:
+static Enum_sexType *instance();
+    private:
+		Enum_sexType();
+	    static Enum_sexType *inst; 
+};
 class OPENSCENARIOEXPORT oscDescription : public oscObjectBase
 {
 public:
@@ -37,6 +44,13 @@ public:
     oscDouble age;
     oscEnum sex;
     oscParameterMember Parameter;
+
+    enum Enum_sex
+    {
+male,
+female,
+
+    };
 
 };
 
