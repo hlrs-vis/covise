@@ -45,12 +45,11 @@ public:
 
     enum Enum_cloudState
     {
-sky off,
-free,
-cloudy,
-overcast,
-rainy,
-
+        sky_off,
+        free,
+        cloudy,
+        overcast,
+        rainy,
     };
 
 };
