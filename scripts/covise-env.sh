@@ -158,6 +158,8 @@ if [ -z "$COENVERROR" ]; then
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib:$DYLD_LIBRARY_PATH"
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
       export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
+      export COVISE_DYLD_FRAMEWORK_PATH="${DYLD_FRAMEWORK_PATH}"
+      export COVISE_DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}"
       ;;
    esac
 
