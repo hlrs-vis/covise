@@ -37,6 +37,14 @@ Update your existing copy to the current version by
       git submodule sync
       git submodule update --init --recursive # update submodules to latest required version
 
+#### macOS
+
+There is a [Homebrew][6] formula for COVISE. If you have it on your system, then you can simply
+
+      brew install hlrs-vis/tap/covise
+
+This will install COVISE with all its dependencies.
+
 
 Build Requirements
 ------------------
@@ -235,3 +243,4 @@ Source Code Organization
 [3]:   http://www.hlrs.de/
 [4]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-users
 [5]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-commits
+[6]:   http://brew.sh
