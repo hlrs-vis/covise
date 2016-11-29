@@ -32,7 +32,7 @@ public:
     oscTriggeringEntities()
     {
         OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(NamedEntity, "oscNamedEntity");
+        OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity");
     };
     oscEnum rule;
     oscNamedEntityMember NamedEntity;

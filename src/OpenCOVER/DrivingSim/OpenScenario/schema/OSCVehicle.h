@@ -36,9 +36,9 @@ public:
     {
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(category);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(BoundingBox, "oscBoundingBox");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Performance, "oscPerformance");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Axles, "oscAxles");
+        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
+        OSC_OBJECT_ADD_MEMBER(Performance, "oscPerformance");
+        OSC_OBJECT_ADD_MEMBER(Axles, "oscAxles");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
     };
     oscString name;

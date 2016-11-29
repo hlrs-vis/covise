@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_MiscObjectCatalog : public oscObjectBas
 public:
     oscOpenSCENARIO_MiscObjectCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(MiscObject, "oscMiscObject");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(MiscObject, "oscMiscObject");
     };
     oscFileHeaderMember FileHeader;
     oscMiscObjectMember MiscObject;

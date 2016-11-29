@@ -34,8 +34,8 @@ public:
     {
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(priority);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Action, "oscAction");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(EventConditions, "oscEventConditions");
+        OSC_OBJECT_ADD_MEMBER(Action, "oscAction");
+        OSC_OBJECT_ADD_MEMBER(EventConditions, "oscEventConditions");
     };
     oscString name;
     oscEnum priority;

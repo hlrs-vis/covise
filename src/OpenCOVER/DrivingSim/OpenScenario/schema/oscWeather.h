@@ -34,9 +34,9 @@ public:
     oscWeather()
     {
         OSC_ADD_MEMBER(cloudState);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Sun, "oscSun");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Fog, "oscFog");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Precipitation, "oscPrecipitation");
+        OSC_OBJECT_ADD_MEMBER(Sun, "oscSun");
+        OSC_OBJECT_ADD_MEMBER(Fog, "oscFog");
+        OSC_OBJECT_ADD_MEMBER(Precipitation, "oscPrecipitation");
     };
     oscEnum cloudState;
     oscSunMember Sun;
@@ -45,7 +45,7 @@ public:
 
     enum Enum_cloudState
     {
-sky off,
+sky_off,
 free,
 cloudy,
 overcast,

@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscLongitudinalAction : public oscObjectBase
 public:
     oscLongitudinalAction()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Speed, "oscSpeed");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Distance, "oscDistance");
+        OSC_OBJECT_ADD_MEMBER(Speed, "oscSpeed");
+        OSC_OBJECT_ADD_MEMBER(Distance, "oscDistance");
     };
     oscSpeedMember Speed;
     oscDistanceMember Distance;

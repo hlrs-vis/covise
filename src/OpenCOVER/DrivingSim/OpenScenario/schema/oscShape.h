@@ -26,9 +26,9 @@ public:
     oscShape()
     {
         OSC_ADD_MEMBER(reference);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Polyline, "oscPolyline");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Clothoid, "oscClothoid");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Spline, "oscSpline");
+        OSC_OBJECT_ADD_MEMBER(Polyline, "oscPolyline");
+        OSC_OBJECT_ADD_MEMBER(Clothoid, "oscClothoid");
+        OSC_OBJECT_ADD_MEMBER(Spline, "oscSpline");
     };
     oscDouble reference;
     oscPolylineMember Polyline;

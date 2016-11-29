@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscRouting : public oscObjectBase
 public:
     oscRouting()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FollowRoute, "oscFollowRoute");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FollowTrajectory, "oscFollowTrajectory");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(AcquirePosition, "oscAcquirePosition");
+        OSC_OBJECT_ADD_MEMBER(FollowRoute, "oscFollowRoute");
+        OSC_OBJECT_ADD_MEMBER(FollowTrajectory, "oscFollowTrajectory");
+        OSC_OBJECT_ADD_MEMBER(AcquirePosition, "oscAcquirePosition");
     };
     oscFollowRouteMember FollowRoute;
     oscFollowTrajectoryMember FollowTrajectory;

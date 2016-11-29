@@ -27,7 +27,7 @@ public:
     {
         OSC_ADD_MEMBER(numberOfExecutions);
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Actors, "oscActors");
+        OSC_OBJECT_ADD_MEMBER(Actors, "oscActors");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(CatalogReference, "oscCatalogReference");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Maneuver, "oscManeuver");
     };

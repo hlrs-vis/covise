@@ -25,7 +25,7 @@ public:
     oscChangeDynamics()
     {
         OSC_ADD_MEMBER(shape);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Extent, "oscExtent");
+        OSC_OBJECT_ADD_MEMBER(Extent, "oscExtent");
     };
     oscEnum shape;
     oscExtentMember Extent;

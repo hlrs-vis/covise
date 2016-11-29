@@ -25,8 +25,8 @@ public:
     oscActionParameter()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Set, "oscSet");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Modify, "oscModify");
+        OSC_OBJECT_ADD_MEMBER(Set, "oscSet");
+        OSC_OBJECT_ADD_MEMBER(Modify, "oscModify");
     };
     oscString name;
     oscSetMember Set;

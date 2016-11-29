@@ -32,7 +32,7 @@ public:
     oscWaypoint()
     {
         OSC_ADD_MEMBER(strategy);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
     };
     oscEnum strategy;
     oscPositionMember Position;

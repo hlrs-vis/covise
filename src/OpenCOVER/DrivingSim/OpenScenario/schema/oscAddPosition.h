@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscAddPosition : public oscObjectBase
 public:
     oscAddPosition()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
     };
     oscPositionMember Position;
 

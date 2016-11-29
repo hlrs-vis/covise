@@ -27,8 +27,8 @@ public:
     {
         OSC_ADD_MEMBER(animation);
         OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Time, "oscTime");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Date, "oscDate");
+        OSC_OBJECT_ADD_MEMBER(Time, "oscTime");
+        OSC_OBJECT_ADD_MEMBER(Date, "oscDate");
     };
     oscBool animation;
     oscEnum rule;

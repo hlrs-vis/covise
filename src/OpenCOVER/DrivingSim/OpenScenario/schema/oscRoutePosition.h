@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscRoutePosition : public oscObjectBase
 public:
     oscRoutePosition()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Current, "oscCurrent");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(RoadCoord, "oscRoadCoord");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(LaneCoord, "oscLaneCoord");
+        OSC_OBJECT_ADD_MEMBER(Current, "oscCurrent");
+        OSC_OBJECT_ADD_MEMBER(RoadCoord, "oscRoadCoord");
+        OSC_OBJECT_ADD_MEMBER(LaneCoord, "oscLaneCoord");
     };
     oscCurrentMember Current;
     oscRoadCoordMember RoadCoord;

@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscSpline : public oscObjectBase
 public:
     oscSpline()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ControlPoint1, "oscControlPoint1");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ControlPoint2, "oscControlPoint2");
+        OSC_OBJECT_ADD_MEMBER(ControlPoint1, "oscControlPoint1");
+        OSC_OBJECT_ADD_MEMBER(ControlPoint2, "oscControlPoint2");
     };
     oscControlPoint1Member ControlPoint1;
     oscControlPoint2Member ControlPoint2;

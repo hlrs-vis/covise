@@ -27,8 +27,8 @@ public:
         OSC_ADD_MEMBER(direction);
         OSC_ADD_MEMBER(speed);
         OSC_ADD_MEMBER(length);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(TrafficDefinition, "oscTrafficDefinition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition");
     };
     oscString direction;
     oscDouble speed;

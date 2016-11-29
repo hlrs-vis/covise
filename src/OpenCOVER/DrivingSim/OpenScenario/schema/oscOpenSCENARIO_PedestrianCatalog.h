@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_PedestrianCatalog : public oscObjectBas
 public:
     oscOpenSCENARIO_PedestrianCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Pedestrian, "oscPedestrian");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(Pedestrian, "oscPedestrian");
     };
     oscFileHeaderMember FileHeader;
     oscPedestrianMember Pedestrian;

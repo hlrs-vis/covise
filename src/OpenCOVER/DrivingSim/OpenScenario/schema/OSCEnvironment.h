@@ -26,9 +26,9 @@ public:
     oscEnvironment()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(TimeOfDay, "oscTimeOfDay");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Weather, "oscWeather");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(RoadCondition, "oscRoadCondition");
+        OSC_OBJECT_ADD_MEMBER(TimeOfDay, "oscTimeOfDay");
+        OSC_OBJECT_ADD_MEMBER(Weather, "oscWeather");
+        OSC_OBJECT_ADD_MEMBER(RoadCondition, "oscRoadCondition");
     };
     oscString name;
     oscTimeOfDayMember TimeOfDay;

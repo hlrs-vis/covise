@@ -24,7 +24,7 @@ public:
     oscManeuver()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Event, "oscEvent");
+        OSC_OBJECT_ADD_MEMBER(Event, "oscEvent");
     };
     oscString name;
     oscEventMember Event;

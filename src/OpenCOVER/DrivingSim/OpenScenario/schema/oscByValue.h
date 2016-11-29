@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscByValue : public oscObjectBase
 public:
     oscByValue()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ConditionParameter, "oscConditionParameter");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(TimeOfDay, "oscTimeOfDay");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SimulationTime, "oscSimulationTime");
+        OSC_OBJECT_ADD_MEMBER(ConditionParameter, "oscConditionParameter");
+        OSC_OBJECT_ADD_MEMBER(TimeOfDay, "oscTimeOfDay");
+        OSC_OBJECT_ADD_MEMBER(SimulationTime, "oscSimulationTime");
     };
     oscConditionParameterMember ConditionParameter;
     oscTimeOfDayMember TimeOfDay;

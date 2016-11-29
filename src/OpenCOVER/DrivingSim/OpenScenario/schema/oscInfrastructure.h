@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscInfrastructure : public oscObjectBase
 public:
     oscInfrastructure()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SignalSystem, "oscSignalSystem");
+        OSC_OBJECT_ADD_MEMBER(SignalSystem, "oscSignalSystem");
     };
     oscSignalSystemMember SignalSystem;
 

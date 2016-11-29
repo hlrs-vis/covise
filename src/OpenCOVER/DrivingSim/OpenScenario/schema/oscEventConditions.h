@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscEventConditions : public oscObjectBase
 public:
     oscEventConditions()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Start, "oscStart");
+        OSC_OBJECT_ADD_MEMBER(Start, "oscStart");
     };
     oscStartMember Start;
 

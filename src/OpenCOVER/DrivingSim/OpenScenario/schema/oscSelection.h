@@ -24,7 +24,7 @@ public:
     oscSelection()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Members, "oscMembers");
+        OSC_OBJECT_ADD_MEMBER(Members, "oscMembers");
     };
     oscString name;
     oscMembersMember Members;

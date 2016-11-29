@@ -28,8 +28,8 @@ public:
         OSC_ADD_MEMBER(semiMinorAxis);
         OSC_ADD_MEMBER(innerRadius);
         OSC_ADD_MEMBER(offset);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(CentralObject, "oscCentralObject");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(TrafficDefinition, "oscTrafficDefinition");
+        OSC_OBJECT_ADD_MEMBER(CentralObject, "oscCentralObject");
+        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition");
     };
     oscDouble semiMajorAxis;
     oscDouble semiMinorAxis;

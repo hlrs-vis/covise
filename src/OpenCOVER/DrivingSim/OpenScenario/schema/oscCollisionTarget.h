@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscCollisionTarget : public oscObjectBase
 public:
     oscCollisionTarget()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(NamedEntity, "oscNamedEntity");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity");
     };
     oscPositionMember Position;
     oscNamedEntityMember NamedEntity;

@@ -35,7 +35,7 @@ public:
         OSC_ADD_MEMBER(mass);
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(category);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(BoundingBox, "oscBoundingBox");
+        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
     };
     oscString model;
     oscDouble mass;

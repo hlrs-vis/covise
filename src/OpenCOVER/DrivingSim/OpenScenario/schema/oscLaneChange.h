@@ -25,8 +25,8 @@ public:
     oscLaneChange()
     {
         OSC_ADD_MEMBER(targetLaneOffset);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ChangeDynamics, "oscChangeDynamics");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Target, "oscTarget");
+        OSC_OBJECT_ADD_MEMBER(ChangeDynamics, "oscChangeDynamics");
+        OSC_OBJECT_ADD_MEMBER(Target, "oscTarget");
     };
     oscDouble targetLaneOffset;
     oscChangeDynamicsMember ChangeDynamics;

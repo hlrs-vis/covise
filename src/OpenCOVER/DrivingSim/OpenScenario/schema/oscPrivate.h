@@ -24,7 +24,7 @@ public:
     oscPrivate()
     {
         OSC_ADD_MEMBER(object);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Action, "oscPrivateAction");
+        OSC_OBJECT_ADD_MEMBER(Action, "oscPrivateAction");
     };
     oscString object;
     oscPrivateActionMember Action;

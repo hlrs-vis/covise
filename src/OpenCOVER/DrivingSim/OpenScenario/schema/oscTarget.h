@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscTarget : public oscObjectBase
 public:
     oscTarget()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Relative, "oscRelative");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Absolute, "oscAbsolute");
+        OSC_OBJECT_ADD_MEMBER(Relative, "oscRelative");
+        OSC_OBJECT_ADD_MEMBER(Absolute, "oscAbsolute");
     };
     oscRelativeMember Relative;
     oscAbsoluteMember Absolute;

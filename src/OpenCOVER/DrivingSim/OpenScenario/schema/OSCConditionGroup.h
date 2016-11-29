@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscConditionGroup : public oscObjectBase
 public:
     oscConditionGroup()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Condition, "oscCondition");
+        OSC_OBJECT_ADD_MEMBER(Condition, "oscCondition");
     };
     oscConditionMember Condition;
 

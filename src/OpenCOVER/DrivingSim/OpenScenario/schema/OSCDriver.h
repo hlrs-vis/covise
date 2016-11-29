@@ -25,8 +25,8 @@ public:
     oscDriver()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Description, "oscDescription");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Behavior, "oscBehavior");
+        OSC_OBJECT_ADD_MEMBER(Description, "oscDescription");
+        OSC_OBJECT_ADD_MEMBER(Behavior, "oscBehavior");
     };
     oscString name;
     oscDescriptionMember Description;

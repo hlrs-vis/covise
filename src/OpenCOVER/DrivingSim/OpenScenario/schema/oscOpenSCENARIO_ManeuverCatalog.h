@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_ManeuverCatalog : public oscObjectBase
 public:
     oscOpenSCENARIO_ManeuverCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Maneuver, "oscManeuver");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(Maneuver, "oscManeuver");
     };
     oscFileHeaderMember FileHeader;
     oscManeuverMember Maneuver;

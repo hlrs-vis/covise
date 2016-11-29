@@ -25,7 +25,7 @@ public:
     {
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(closed);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Waypoint, "oscWaypoint");
+        OSC_OBJECT_ADD_MEMBER(Waypoint, "oscWaypoint");
     };
     oscString name;
     oscBool closed;

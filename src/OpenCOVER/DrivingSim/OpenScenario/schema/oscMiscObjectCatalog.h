@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscMiscObjectCatalog : public oscObjectBase
 public:
     oscMiscObjectCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Directory, "oscDirectory");
+        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
     };
     oscDirectoryMember Directory;
 

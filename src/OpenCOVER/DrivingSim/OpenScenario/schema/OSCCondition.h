@@ -36,9 +36,9 @@ public:
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(delay);
         OSC_ADD_MEMBER(edge);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ByEntity, "oscByEntity");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ByState, "oscByState");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ByValue, "oscByValue");
+        OSC_OBJECT_ADD_MEMBER(ByEntity, "oscByEntity");
+        OSC_OBJECT_ADD_MEMBER(ByState, "oscByState");
+        OSC_OBJECT_ADD_MEMBER(ByValue, "oscByValue");
     };
     oscString name;
     oscDouble delay;

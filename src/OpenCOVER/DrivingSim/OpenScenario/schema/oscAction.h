@@ -26,9 +26,9 @@ public:
     oscAction()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Global, "oscGlobalAction");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserDefined, "oscUserDefinedAction");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Private, "oscPrivateAction");
+        OSC_OBJECT_ADD_MEMBER(Global, "oscGlobalAction");
+        OSC_OBJECT_ADD_MEMBER(UserDefined, "oscUserDefinedAction");
+        OSC_OBJECT_ADD_MEMBER(Private, "oscPrivateAction");
     };
     oscString name;
     oscGlobalActionMember Global;

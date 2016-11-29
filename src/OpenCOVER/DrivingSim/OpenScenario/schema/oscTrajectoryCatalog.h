@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscTrajectoryCatalog : public oscObjectBase
 public:
     oscTrajectoryCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Directory, "oscDirectory");
+        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
     };
     oscDirectoryMember Directory;
 

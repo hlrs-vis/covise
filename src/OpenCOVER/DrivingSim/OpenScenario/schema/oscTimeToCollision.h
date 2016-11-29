@@ -28,7 +28,7 @@ public:
         OSC_ADD_MEMBER(freespace);
         OSC_ADD_MEMBER(alongRoute);
         OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(CollisionTarget, "oscCollisionTarget");
+        OSC_OBJECT_ADD_MEMBER(CollisionTarget, "oscCollisionTarget");
     };
     oscDouble value;
     oscBool freespace;

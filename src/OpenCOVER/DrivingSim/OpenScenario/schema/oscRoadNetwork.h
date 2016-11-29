@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscRoadNetwork : public oscObjectBase
 public:
     oscRoadNetwork()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Logics, "oscLogics");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SceneGraph, "oscSceneGraph");
+        OSC_OBJECT_ADD_MEMBER(Logics, "oscLogics");
+        OSC_OBJECT_ADD_MEMBER(SceneGraph, "oscSceneGraph");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Signals, "oscSignals");
     };
     oscLogicsMember Logics;

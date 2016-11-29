@@ -25,8 +25,8 @@ public:
     oscFollowTrajectory()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Longitudinal, "oscLongitudinal");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Lateral, "oscLateral");
+        OSC_OBJECT_ADD_MEMBER(Longitudinal, "oscLongitudinal");
+        OSC_OBJECT_ADD_MEMBER(Lateral, "oscLateral");
     };
     oscString name;
     oscLongitudinalMember Longitudinal;

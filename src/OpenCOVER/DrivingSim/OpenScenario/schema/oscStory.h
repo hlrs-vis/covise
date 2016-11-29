@@ -25,7 +25,7 @@ public:
     {
         OSC_ADD_MEMBER_OPTIONAL(owner);
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Act, "oscAct");
+        OSC_OBJECT_ADD_MEMBER(Act, "oscAct");
     };
     oscString owner;
     oscString name;

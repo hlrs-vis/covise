@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscDriverAction : public oscObjectBase
 public:
     oscDriverAction()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Assign, "oscAssign");
+        OSC_OBJECT_ADD_MEMBER(Assign, "oscAssign");
     };
     oscAssignMember Assign;
 

@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscStoryboard : public oscObjectBase
 public:
     oscStoryboard()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Init, "oscInit");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Story, "oscStory");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(End, "oscEnd");
+        OSC_OBJECT_ADD_MEMBER(Init, "oscInit");
+        OSC_OBJECT_ADD_MEMBER(Story, "oscStory");
+        OSC_OBJECT_ADD_MEMBER(End, "oscEnd");
     };
     oscInitMember Init;
     oscStoryMember Story;

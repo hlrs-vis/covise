@@ -27,11 +27,11 @@ class OPENSCENARIOEXPORT oscByState : public oscObjectBase
 public:
     oscByState()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(AtStart, "oscAtStart");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(AfterTermination, "oscAfterTermination");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Command, "oscCommand");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SignalState, "oscSignalState");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Controller, "oscController");
+        OSC_OBJECT_ADD_MEMBER(AtStart, "oscAtStart");
+        OSC_OBJECT_ADD_MEMBER(AfterTermination, "oscAfterTermination");
+        OSC_OBJECT_ADD_MEMBER(Command, "oscCommand");
+        OSC_OBJECT_ADD_MEMBER(SignalState, "oscSignalState");
+        OSC_OBJECT_ADD_MEMBER(Controller, "oscController");
     };
     oscAtStartMember AtStart;
     oscAfterTerminationMember AfterTermination;

@@ -27,7 +27,7 @@ public:
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(closed);
         OSC_ADD_MEMBER(domain);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Vertex, "oscVertex");
+        OSC_OBJECT_ADD_MEMBER(Vertex, "oscVertex");
     };
     oscString name;
     oscBool closed;

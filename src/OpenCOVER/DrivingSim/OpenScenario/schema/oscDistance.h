@@ -24,10 +24,10 @@ public:
     oscDistance()
     {
         OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER_OPTIONAL(distance);
-        OSC_ADD_MEMBER_OPTIONAL(timeGap);
+        OSC_ADD_MEMBER(distance);
+        OSC_ADD_MEMBER(timeGap);
         OSC_ADD_MEMBER(freespace);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(DistanceDynamics, "oscDistanceDynamics");
+        OSC_OBJECT_ADD_MEMBER(DistanceDynamics, "oscDistanceDynamics");
     };
     oscString object;
     oscDouble distance;

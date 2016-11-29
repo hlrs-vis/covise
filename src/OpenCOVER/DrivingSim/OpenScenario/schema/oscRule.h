@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscRule : public oscObjectBase
 public:
     oscRule()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Add, "oscAdd");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Multiply, "oscMultiply");
+        OSC_OBJECT_ADD_MEMBER(Add, "oscAdd");
+        OSC_OBJECT_ADD_MEMBER(Multiply, "oscMultiply");
     };
     oscAddMember Add;
     oscMultiplyMember Multiply;

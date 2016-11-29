@@ -25,7 +25,7 @@ public:
     oscObject()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(CatalogReference, "oscCatalogReference");
+        OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Ctrl, "oscCtrl");
     };
     oscString name;

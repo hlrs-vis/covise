@@ -6,32 +6,29 @@ version 2.1 or later, see lgpl - 2.1.txt.
 * License: LGPL 2 + */
 
 
-#ifndef OSCMODIFY_H
-#define OSCMODIFY_H
+#ifndef OSCEMPTY_H
+#define OSCEMPTY_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscRule.h"
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT oscModify : public oscObjectBase
+class OPENSCENARIOEXPORT oscEmpty : public oscObjectBase
 {
 public:
-    oscModify()
+    oscEmpty()
     {
-        OSC_OBJECT_ADD_MEMBER(Rule, "oscRule");
     };
-    oscRuleMember Rule;
 
 };
 
-typedef oscObjectVariable<oscModify *> oscModifyMember;
+typedef oscObjectVariable<oscEmpty *> oscEmptyMember;
 
 
 }
 
-#endif //OSCMODIFY_H
+#endif //OSCEMPTY_H

@@ -25,8 +25,8 @@ public:
     oscAct()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Sequence, "oscSequence");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Conditions, "oscConditions");
+        OSC_OBJECT_ADD_MEMBER(Sequence, "oscSequence");
+        OSC_OBJECT_ADD_MEMBER(Conditions, "oscConditions");
     };
     oscString name;
     oscSequenceMember Sequence;

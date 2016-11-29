@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscDriverCatalog : public oscObjectBase
 public:
     oscDriverCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Directory, "oscDirectory");
+        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
     };
     oscDirectoryMember Directory;
 

@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_TrajectoryCatalog : public oscObjectBas
 public:
     oscOpenSCENARIO_TrajectoryCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Trajectory, "oscTrajectory");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(Trajectory, "oscTrajectory");
     };
     oscFileHeaderMember FileHeader;
     oscTrajectoryMember Trajectory;

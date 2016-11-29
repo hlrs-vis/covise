@@ -25,7 +25,7 @@ class OPENSCENARIOEXPORT oscConditions : public oscObjectBase
 public:
     oscConditions()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Start, "oscStart");
+        OSC_OBJECT_ADD_MEMBER(Start, "oscStart");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(End, "oscEnd");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Cancel, "oscCancel");
     };

@@ -24,7 +24,7 @@ public:
     oscReachPosition()
     {
         OSC_ADD_MEMBER(tolerance);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
     };
     oscDouble tolerance;
     oscPositionMember Position;

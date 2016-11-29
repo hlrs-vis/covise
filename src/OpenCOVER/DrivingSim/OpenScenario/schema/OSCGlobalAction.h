@@ -27,11 +27,11 @@ class OPENSCENARIOEXPORT oscGlobalAction : public oscObjectBase
 public:
     oscGlobalAction()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Environment, "oscEnvironment");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Entity, "oscEntity");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ActionParameter, "oscActionParameter");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Infrastructure, "oscInfrastructure");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Traffic, "oscTraffic");
+        OSC_OBJECT_ADD_MEMBER(Environment, "oscEnvironment");
+        OSC_OBJECT_ADD_MEMBER(Entity, "oscEntity");
+        OSC_OBJECT_ADD_MEMBER(ActionParameter, "oscActionParameter");
+        OSC_OBJECT_ADD_MEMBER(Infrastructure, "oscInfrastructure");
+        OSC_OBJECT_ADD_MEMBER(Traffic, "oscTraffic");
     };
     oscEnvironmentMember Environment;
     oscEntityMember Entity;

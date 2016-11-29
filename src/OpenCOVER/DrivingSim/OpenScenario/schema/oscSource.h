@@ -26,8 +26,8 @@ public:
     {
         OSC_ADD_MEMBER(rate);
         OSC_ADD_MEMBER(radius);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(TrafficDefinition, "oscTrafficDefinition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition");
     };
     oscDouble rate;
     oscDouble radius;

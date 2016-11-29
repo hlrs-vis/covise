@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscAxles : public oscObjectBase
 public:
     oscAxles()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Front, "oscAxle");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Rear, "oscAxle");
+        OSC_OBJECT_ADD_MEMBER(Front, "oscAxle");
+        OSC_OBJECT_ADD_MEMBER(Rear, "oscAxle");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Additional, "oscAxle");
     };
     oscAxleMember Front;

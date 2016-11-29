@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_RouteCatalog : public oscObjectBase
 public:
     oscOpenSCENARIO_RouteCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Route, "oscRoute");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(Route, "oscRoute");
     };
     oscFileHeaderMember FileHeader;
     oscRouteMember Route;

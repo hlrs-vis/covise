@@ -14,7 +14,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscNone.h"
+#include "schema/oscEmpty.h"
 #include "schema/oscLimited.h"
 
 namespace OpenScenario
@@ -24,10 +24,10 @@ class OPENSCENARIOEXPORT oscDistanceDynamics : public oscObjectBase
 public:
     oscDistanceDynamics()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(None, "oscNone");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Limited, "oscLimited");
+        OSC_OBJECT_ADD_MEMBER(None, "oscEmpty");
+        OSC_OBJECT_ADD_MEMBER(Limited, "oscLimited");
     };
-    oscNoneMember None;
+    oscEmptyMember None;
     oscLimitedMember Limited;
 
 };

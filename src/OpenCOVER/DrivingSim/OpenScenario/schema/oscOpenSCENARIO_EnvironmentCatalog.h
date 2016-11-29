@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_EnvironmentCatalog : public oscObjectBa
 public:
     oscOpenSCENARIO_EnvironmentCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Environment, "oscEnvironment");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(Environment, "oscEnvironment");
     };
     oscFileHeaderMember FileHeader;
     oscEnvironmentMember Environment;

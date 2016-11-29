@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "oscVariables.h"
 #include "schema/oscAddPosition.h"
-#include "schema/oscDelete.h"
+#include "schema/oscEmpty.h"
 
 namespace OpenScenario
 {
@@ -25,12 +25,12 @@ public:
     oscEntity()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(AddPosition, "oscAddPosition");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Delete, "oscDelete");
+        OSC_OBJECT_ADD_MEMBER(AddPosition, "oscAddPosition");
+        OSC_OBJECT_ADD_MEMBER(Delete, "oscEmpty");
     };
     oscString name;
     oscAddPositionMember AddPosition;
-    oscDeleteMember Delete;
+    oscEmptyMember Delete;
 
 };
 

@@ -76,7 +76,9 @@ std::string makeTypeName(std::string &n)
 oscMember::oscMember(std::string n)
 {
 	name = n;
-type = makeTypeName(n);
+	type = makeTypeName(n);
+	optional = false;
+	array = false;
 	//std::cerr << "Member " << name << std::endl;
 }
 

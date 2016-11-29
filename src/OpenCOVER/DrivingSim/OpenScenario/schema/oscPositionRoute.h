@@ -26,7 +26,7 @@ public:
     {
         OSC_ADD_MEMBER(route);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(RoutePosition, "oscRoutePosition");
+        OSC_OBJECT_ADD_MEMBER(RoutePosition, "oscRoutePosition");
     };
     oscString route;
     oscOrientationMember Orientation;

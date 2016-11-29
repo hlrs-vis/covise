@@ -25,7 +25,7 @@ public:
     {
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(percentage);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Vehicle, "oscVehicle");
+        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle");
     };
     oscString name;
     oscDouble percentage;

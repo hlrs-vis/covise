@@ -25,8 +25,8 @@ public:
     oscTrafficDefinition()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(VehicleDistribution, "oscVehicleDistribution");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(DriverDistribution, "oscDriverDistribution");
+        OSC_OBJECT_ADD_MEMBER(VehicleDistribution, "oscVehicleDistribution");
+        OSC_OBJECT_ADD_MEMBER(DriverDistribution, "oscDriverDistribution");
     };
     oscString name;
     oscVehicleDistributionMember VehicleDistribution;

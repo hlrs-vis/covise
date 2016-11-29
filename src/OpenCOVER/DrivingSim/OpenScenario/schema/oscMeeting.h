@@ -33,7 +33,7 @@ public:
     {
         OSC_ADD_MEMBER(mode);
         OSC_ADD_MEMBER(timingOffset);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
     };
     oscEnum mode;
     oscDouble timingOffset;

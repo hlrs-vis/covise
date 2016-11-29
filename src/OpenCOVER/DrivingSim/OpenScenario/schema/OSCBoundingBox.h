@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscBoundingBox : public oscObjectBase
 public:
     oscBoundingBox()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Center, "oscCenter");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Dimension, "oscDimension");
+        OSC_OBJECT_ADD_MEMBER(Center, "oscCenter");
+        OSC_OBJECT_ADD_MEMBER(Dimension, "oscDimension");
     };
     oscCenterMember Center;
     oscDimensionMember Dimension;

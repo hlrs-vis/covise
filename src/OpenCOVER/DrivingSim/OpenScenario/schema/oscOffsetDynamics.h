@@ -23,8 +23,8 @@ class OPENSCENARIOEXPORT oscOffsetDynamics : public oscObjectBase
 public:
     oscOffsetDynamics()
     {
-        OSC_ADD_MEMBER_OPTIONAL(maxLateralAcc);
-        OSC_ADD_MEMBER_OPTIONAL(duration);
+        OSC_ADD_MEMBER(maxLateralAcc);
+        OSC_ADD_MEMBER(duration);
         OSC_ADD_MEMBER(shape);
     };
     oscDouble maxLateralAcc;

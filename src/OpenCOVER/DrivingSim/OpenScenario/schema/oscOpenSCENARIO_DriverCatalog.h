@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_DriverCatalog : public oscObjectBase
 public:
     oscOpenSCENARIO_DriverCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Driver, "oscDriver");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+        OSC_OBJECT_ADD_MEMBER(Driver, "oscDriver");
     };
     oscFileHeaderMember FileHeader;
     oscDriverMember Driver;

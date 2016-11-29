@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscSignalSystem : public oscObjectBase
 public:
     oscSignalSystem()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SetController, "oscSetController");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SetState, "oscSetState");
+        OSC_OBJECT_ADD_MEMBER(SetController, "oscSetController");
+        OSC_OBJECT_ADD_MEMBER(SetState, "oscSetState");
     };
     oscSetControllerMember SetController;
     oscSetStateMember SetState;
