@@ -464,8 +464,8 @@ void coVRAnimationManager::setNumTimesteps(int t)
         numFrames = 1;
     if (animFrameItem)
     {
-        animFrameItem->setMax(timestepBase + (t - 1) * timestepScale);
-        animFrameItem->setNumTicks(t - 1);
+        animFrameItem->setMax(timestepBase + (numFrames - 1) * timestepScale);
+        animFrameItem->setNumTicks(numFrames - 1);
     }
 
     if (startFrame >= numFrames)
