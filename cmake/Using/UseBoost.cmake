@@ -1,7 +1,5 @@
 MACRO(USE_BOOST)
-
   set(COMPONENTS
-	atomic
         chrono
         program_options
         system
@@ -17,19 +15,22 @@ MACRO(USE_BOOST)
   IF(WIN32)
   add_definitions("-DBOOST_ALL_NO_LIB")
   add_definitions("-DBOOST_ALL_DYN_LINK")
-  covise_find_package(Boost
-    COMPONENTS
-    ${COMPONENTS}
-        zlib
-    QUIET
-  )
-  ELSE(WIN32)
-  covise_find_package(Boost
-    COMPONENTS
-    ${COMPONENTS}
-    QUIET
-  )
+  set(COMPONENTS ${COMPONENTS} zlib)
   ENDIF(WIN32)
+  covise_find_package(Boost
+    COMPONENTS
+    ${COMPONENTS}
+    QUIET
+  )
+
+  if (Boost_FOUND AND (NOT Boost_VERSION VERSION_LESS "1.53"))
+    set(COMPONENTS ${COMPONENTS} atomic)
+    covise_find_package(Boost
+        COMPONENTS
+        ${COMPONENTS}
+        QUIET
+    )
+  endif()
 
   IF ((NOT Boost_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing Boost")

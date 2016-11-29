@@ -231,6 +231,7 @@ VRPinboard::VRPinboard()
     addFunction("Snap", BTYPE_TOGGLE, "snap", "navigation", coVRNavigationManager::snapCallback, coVRNavigationManager::instance());
 
     addFunction("Freeze", BTYPE_TOGGLE, "stop headtracking", NULL, VRViewer::freezeCallback, VRViewer::instance());
+    addFunction("HighQuality", BTYPE_TOGGLE, "high quality mode", "view options", VRSceneGraph::highQualityCallback, VRSceneGraph::instance());
     addFunction("CoordAxis", BTYPE_TOGGLE, "show axis", "view options", VRSceneGraph::coordAxisCallback, VRSceneGraph::instance());
     //addFunction("Specular", BTYPE_TOGGLE, "specular", "view options", coVRLighting::specularCallback, coVRLighting::instance());
     //addFunction("Spotlight", BTYPE_TOGGLE, "spotlight", "view options", coVRLighting::spotlightCallback, coVRLighting::instance());
@@ -488,7 +489,8 @@ VRPinboard::makeButton(const char *functionName, const char *buttonName,
             // we: default setting 'on' must be explicitly stated here
             if (0 == strcmp(functionName, "Headlight")
                 || 0 == strcmp(functionName, "OtherLights")
-                || (0 == strcmp(functionName, "StereoSeparation") && ((coVRConfig::instance()->stereoState()) || (coVRConfig::instance()->monoView() != coVRConfig::MONO_MIDDLE))))
+                || (0 == strcmp(functionName, "StereoSeparation") && ((coVRConfig::instance()->stereoState()) || (coVRConfig::instance()->monoView() != coVRConfig::MONO_MIDDLE)))
+                || 0 == strcmp(functionName, "HighQuality"))
             {
                 state = true;
             }

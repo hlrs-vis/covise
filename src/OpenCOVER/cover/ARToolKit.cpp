@@ -625,12 +625,12 @@ void ARToolKit::update()
                 if (coVRMSController::instance()->isMaster())
                 {
                     tmpMat = cover->getObjectsXform()->getMatrix();
-                    coVRMSController::instance()->sendSlaves((char *)&tmpMat, sizeof(tmpMat));
+                    coVRMSController::instance()->syncData((char *)&tmpMat, sizeof(tmpMat));
                 }
                 else
                 {
 
-                    coVRMSController::instance()->readMaster((char *)&tmpMat, sizeof(tmpMat));
+                    coVRMSController::instance()->syncData((char *)&tmpMat, sizeof(tmpMat));
                     cover->getObjectsXform()->setMatrix(tmpMat);
                 }
             }

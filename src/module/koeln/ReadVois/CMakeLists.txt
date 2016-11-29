@@ -1,3 +1,5 @@
+using(Boost)
+
 SET(HEADERS
   ReadVois.h
   VoisGlobal.h

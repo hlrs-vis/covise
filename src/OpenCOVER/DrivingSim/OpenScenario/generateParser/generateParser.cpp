@@ -777,7 +777,7 @@ using namespace OpenScenario;\n\
 		for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
 		{
 			oscEnum *en = *it;
-			if (en->ownerClass == cl)
+			if (en->ownerClass && cl && en->ownerClass->name == cl->name)
 			{
 				classEnums.push_back(en);
 			}

@@ -70,6 +70,7 @@ public:
         ReprojectMesh, //< reproject as rectilinear mesh
         ReprojectMeshWithHoles //< reprjoct as rectilinear mesh, but keep holes where pixels become heavily deformed
    };
+   Mode mode() const;
    void setMode(Mode mode);
 
    void initChannelData(ChannelData &cd);

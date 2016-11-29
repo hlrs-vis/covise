@@ -652,6 +652,11 @@ unsigned char *MultiChannelDrawer::depth(int idx) const {
     return cd.depthTex->getImage()->data();
 }
 
+MultiChannelDrawer::Mode MultiChannelDrawer::mode() const {
+
+    return m_mode;
+}
+
 void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
 
    for (size_t i=0; i<m_channelData.size(); ++i) {

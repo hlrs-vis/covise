@@ -226,6 +226,8 @@ schema/oscAfterTermination.cpp
 schema/oscSpeedDynamics.cpp
 schema/oscRelative.cpp
 schema/oscExtent.cpp
+schema/oscRelative.cpp
+schema/oscRelative.cpp
 schema/oscMeeting.cpp
 schema/oscAutonomous.cpp
 schema/oscTiming.cpp
@@ -235,7 +237,15 @@ schema/oscEvent.cpp
 schema/oscWeather.cpp
 schema/oscPrecipitation.cpp
 schema/oscDescription.cpp
+schema/oscDescription.cpp
 schema/oscWaypoint.cpp
 schema/oscOrientation.cpp
+schema/oscOrientation.cpp
+schema/oscOrientation.cpp
+schema/oscOrientation.cpp
+schema/oscOrientation.cpp
+schema/oscOrientation.cpp
+schema/oscOrientation.cpp
+schema/oscByType.cpp
 schema/oscByCondition.cpp
 )

@@ -42,7 +42,8 @@ public:
     virtual int getWheelCount() const;
 
 private:
-    coPointerButton *button;
+    coPointerButton *button() const;
+    coPointerButton *m_button;
 };
 }
 #endif

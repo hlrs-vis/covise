@@ -69,7 +69,7 @@ using boost::shared_ptr;
 
 #define INITIAL_FPS 20.0f // initially desired frame rate
 #define MIN_QUALITY 0.05f // smallest valid quality
-#define MAX_QUALITY 4.0f // highest valid quality
+#define MAX_QUALITY 8.0f // highest valid quality
 
 #define INITIAL_POS_X 0.0f // initial object position in mm
 #define INITIAL_POS_Y 0.0f
@@ -108,7 +108,6 @@ public:
     void removeObject(const char *, bool);
     void postFrame();
     void setTimestep(int);
-    void key(int type, int keySym, int mod);
     bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string());
     void saveVolume();
     void cropVolume();
@@ -172,7 +171,6 @@ private:
     scoped_ptr<coButtonMenuItem> saveItem;
     scoped_ptr<coButtonMenuItem> tfeItem;
     scoped_ptr<coSliderMenuItem> hqItem;
-    scoped_ptr<coCheckboxMenuItem> hqEnableItem;
     scoped_ptr<coCheckboxMenuItem> allVolumesActiveItem;
     scoped_ptr<coButtonMenuItem> cycleVolumeItem;
     scoped_ptr<coLabelMenuItem> currentVolumeItem;
@@ -200,9 +198,6 @@ private:
     float roiMaxSize;
     int discreteColors;
     bool instantMode; ///< true = instant classifications possible
-    bool highQuality; ///< changing to highQuality rendering (until a mousebutton is pressed) is allowed
-    bool switchToHighQuality; ///< high quality to be enabled via keyboard
-    bool highQualityEnabled; ///< high quality rendering currently active
     float highQualityOversampling; ///< oversampling for hq mode
     float currentQuality; ///< current volume sampling
     bool roiMode;
@@ -268,7 +263,6 @@ private:
     void setClippingMode(bool);
     coCombinedButtonInteraction *interactionA; ///< interaction for first button
     coCombinedButtonInteraction *interactionB; ///< interaction for second button
-    coCombinedButtonInteraction *interactionHQ; ///< interaction for HQ mode
     int fpsMissed;
     float chosenFPS;
     float radiusScale[NumClipSpheres];
