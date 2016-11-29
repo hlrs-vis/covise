@@ -158,7 +158,7 @@ OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)
 OPTION(COVISE_USE_OPENCV3 "Use OpenCV3" ON)
 OPTION(COVISE_USE_MERCURY "Use MERCURY" ON)
 
-if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/visionary")
+if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/visionaray")
     OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" ON)
 else()
     OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" OFF)
