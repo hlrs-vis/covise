@@ -158,7 +158,10 @@ macro(covise_find_component comp)
    elseif (${comp} STREQUAL Alg)
        set(complib coAlg)
        set(compvar ALG)
-       covise_find_package(VTK COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
+       covise_find_package(VTK
+           COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel
+           NO_MODULE
+           QUIET)
        if (VTK_FOUND)
           set(ADD_LIBS ${VTK_LIBRARIES})
        endif()
