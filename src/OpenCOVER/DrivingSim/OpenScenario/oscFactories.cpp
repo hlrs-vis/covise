@@ -239,7 +239,8 @@ oscFactories::oscFactories() :
     staticValueFactory.registerType<oscUShortValue>(oscMemberValue::USHORT);
     staticValueFactory.registerType<oscDoubleValue>(oscMemberValue::DOUBLE);
     staticValueFactory.registerType<oscBoolValue>(oscMemberValue::BOOL);
-    staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
+	staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
+	staticValueFactory.registerType<oscDateTimeValue>(oscMemberValue::DATE_TIME);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
     //register all object types

@@ -93,7 +93,7 @@
                                                 </xsd:element>
                                                 <xsd:element name="ByType" minOccurs="0" maxOccurs="unbounded">
                                                     <xsd:complexType>
-                                                        <xsd:attribute name="type" type="OSCObjectType" use="required"/>
+                                                        <xsd:attribute name="type" type="Enum_ObjectType" use="required"/>
                                                     </xsd:complexType>
                                                 </xsd:element>
                                             </xsd:choice>

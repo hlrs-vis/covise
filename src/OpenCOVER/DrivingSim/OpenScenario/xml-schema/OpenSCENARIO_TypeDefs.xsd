@@ -199,9 +199,9 @@
                                                     <xsd:attribute name="name" type="xsd:string" use="required"/>
                                                 </xsd:complexType>
                                             </xsd:element>
-                                            <xsd:element name="ByType ">
+                                            <xsd:element name="ByType">
                                                 <xsd:complexType>
-                                                    <xsd:attribute name="type" type="OSCObjectType" use="required"/>
+                                                    <xsd:attribute name="type" type="Enum_ObjectType" use="required"/>
                                                 </xsd:complexType>
                                             </xsd:element>
                                         </xsd:choice>
@@ -390,7 +390,7 @@
     <xsd:attribute name="edge"  type="Enum_Condition_edge" use="required"/>
 </xsd:complexType>
 
-<xsd:simpleType name="OSCObjectType">
+<xsd:simpleType name="Enum_ObjectType">
   <xsd:restriction base="xsd:string">
     <xsd:enumeration value="pedestrian" />
     <xsd:enumeration value="vehicle" />
@@ -584,7 +584,7 @@
                 <xsd:attribute name="domain"    type="Enum_Controller_domain" use="required"/>
             </xsd:complexType>
         </xsd:element>
-        <xsd:element name="Driver">
+        <xsd:element name="DriverAction">
             <xsd:complexType>
                 <xsd:all>
                     <xsd:element name="Assign">
@@ -1156,7 +1156,7 @@
                 <xsd:attribute name="offset"    type="xsd:double"   use="optional"/>
             </xsd:complexType>
         </xsd:element>
-        <xsd:element name="Route">
+        <xsd:element name="PositionRoute">
             <xsd:complexType>
                 <xsd:all>
                     <xsd:element name="Orientation" minOccurs="0">
@@ -1167,7 +1167,7 @@
                             <xsd:attribute name="r"     type="xsd:double" use="optional"/>
                         </xsd:complexType>
                     </xsd:element>
-                    <xsd:element name="Position">
+                    <xsd:element name="RoutePosition">
                         <xsd:complexType>
                             <xsd:choice>
                                 <xsd:element name="Current">
@@ -1362,9 +1362,9 @@
 
 <xsd:simpleType name="Enum_rule">
   <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="greater-than" />
-    <xsd:enumeration value="less-than" />
-    <xsd:enumeration value="equal-to" />
+    <xsd:enumeration value="greater_than" />
+    <xsd:enumeration value="less_than" />
+    <xsd:enumeration value="equal_to" />
   </xsd:restriction>
 </xsd:simpleType>
 

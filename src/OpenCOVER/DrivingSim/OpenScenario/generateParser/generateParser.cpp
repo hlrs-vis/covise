@@ -52,9 +52,31 @@ public:
 	oscClass *ownerClass;
 };
 
+std::string makeTypeName(std::string &n)
+{
+	std::string name=n;
+	if (n[0] == 'x'&&n[1] == 's'&&n[2] == 'd')
+	{
+	}
+	else if (n[0] == 'E'&&n[1] == 'n'&&n[2] == 'u'&&n[3] == 'm')
+	{
+	}
+	else if (n[0] == 'O'&&n[1] == 'S'&&n[2] == 'C')
+	{
+		name[0] = 'o';
+		name[1] = 's';
+		name[2] = 'c';
+	}
+	else
+	{
+		name = "osc" + n;
+	}
+	return name;
+}
 oscMember::oscMember(std::string n)
 {
 	name = n;
+type = makeTypeName(n);
 	//std::cerr << "Member " << name << std::endl;
 }
 
@@ -65,7 +87,7 @@ oscMember::~oscMember()
 
 oscClass::oscClass(std::string n)
 {
-	name = n;
+	name = makeTypeName(n);
 	classes.push_back(this);
 
 	//std::cerr << "Class " << name << std::endl;
@@ -115,7 +137,8 @@ void parseElement(xercesc::DOMElement *elem)
 	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("type"));
 	if (attribute)
 	{
-		currentMember->type = xercesc::XMLString::transcode(attribute->getValue());
+		std::string tn = xercesc::XMLString::transcode(attribute->getValue());
+		currentMember->type = makeTypeName(tn);
 	}
 	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("maxOccurs"));
 	if (attribute)
@@ -155,7 +178,8 @@ void parseAttribute(xercesc::DOMElement *elem)
 	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("type"));
 	if (attribute)
 	{
-		currentMember->type = xercesc::XMLString::transcode(attribute->getValue());
+		std::string tn = xercesc::XMLString::transcode(attribute->getValue());
+		currentMember->type = makeTypeName(tn);
 	}
 	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("maxOccurs"));
 	if (attribute)
@@ -415,7 +439,40 @@ int main(int argc, char **argv)
 	// now write out all classes
 	for (std::list<oscClass *>::iterator cit = classes.begin(); cit != classes.end(); cit++)
 	{
+
 		oscClass* cl = *cit;
+
+		// find all used classes 
+		/*for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
+		{
+			oscMember *attrib = *ait;
+			if (attrib->type.substr(0, 4) == "xsd:")
+			{
+			}
+			else
+			{
+				bool found = false;
+				for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
+				{
+					if ((*it)->name == attrib->type)
+					{
+						found = true;
+						fprintf(header, "    oscEnum %s;\n", attrib->name.c_str());
+					}
+				}
+				if (!found)
+				{
+					fprintf(stderr, "attribute type %s not implemented or enum not found\n", attrib->type.c_str());
+				}
+			}
+		}*/
+
+		for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
+		{
+			oscMember *member = *mit;
+			cl->enumHeaders.push_back(member->type);
+		}
+
 		bool foundDuplicate = false;
 		for (std::list<oscClass *>::iterator c2it = classes.begin(); c2it != classes.end(); c2it++)
 		{
@@ -448,6 +505,8 @@ int main(int argc, char **argv)
 						ait++;
 						ait2++;
 					}
+					if (foundDuplicate)
+						break;
 				}
 				if (cl->members.size() != cl2->members.size())
 				{
@@ -473,8 +532,8 @@ int main(int argc, char **argv)
 						mit2++;
 					}
 				}
-				foundDuplicate = true;
-				break;
+				if (foundDuplicate)
+					break;
 			}
 		}
 		if (foundDuplicate)
@@ -539,14 +598,14 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 		for (std::list<oscEnum *>::iterator it = classEnums.begin(); it != classEnums.end(); it++)
 		{
 			oscEnum *en = *it;
-				fprintf(header, "class OPENSCENARIOEXPORT %sType : public oscEnumType\n{\npublic:\n", currentEnum->name.c_str());
+				fprintf(header, "class OPENSCENARIOEXPORT %sType : public oscEnumType\n{\npublic:\n", en->name.c_str());
 				fprintf(header, "\
 static %sType *instance();\n\
     private:\n\
 		%sType();\n\
 	    static %sType *inst; \n\
 };\n\
-", currentEnum->name.c_str(), currentEnum->name.c_str(), currentEnum->name.c_str());
+", en->name.c_str(), en->name.c_str(), en->name.c_str());
 		}
 		fprintf(header, "class OPENSCENARIOEXPORT %s : public oscObjectBase\n{\npublic:\n\
     %s()\n\
@@ -620,7 +679,7 @@ static %sType *instance();\n\
 		for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
 		{
 			oscMember *member = *mit;
-		    fprintf(header, "        %s %s;\n", member->type.c_str(), member->name.c_str());
+		    fprintf(header, "    %sMember %s;\n", member->type.c_str(), member->name.c_str());
 		}
 		for (std::list<oscEnum *>::iterator it = classEnums.begin(); it != classEnums.end(); it++)
 		{
@@ -680,7 +739,7 @@ using namespace OpenScenario;\n\
 
 				for (std::list<std::string>::iterator sit = currentEnum->values.begin(); sit != currentEnum->values.end(); sit++)
 				{
-					fprintf(cpp, "addEnum(\"%s\", %s);\n", (*sit).c_str(), (*sit).c_str());
+					fprintf(cpp, "addEnum(\"%s\", %s::%s);\n", (*sit).c_str(),currentEnum->ownerClass->name.c_str(), (*sit).c_str());
 				}
 
 				fprintf(cpp, "}\n%sType *%sType::instance()\n\
@@ -712,7 +771,21 @@ using namespace OpenScenario;\n\
 	for (std::list<oscClass *>::iterator cit = classes.begin(); cit != classes.end(); cit++)
 	{
 		oscClass* cl = *cit;
-		fprintf(CMakeInc, "schema/%s.cpp\n", cl->name.c_str());
+
+		// find enums used by this class and store them in a list
+		std::list<oscEnum *> classEnums;
+		for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
+		{
+			oscEnum *en = *it;
+			if (en->ownerClass == cl)
+			{
+				classEnums.push_back(en);
+			}
+		}
+		if (classEnums.size()>0)
+		{
+			fprintf(CMakeInc, "schema/%s.cpp\n", cl->name.c_str());
+		}
 	}
 	fprintf(CMakeInc, ")\n");
 	fclose(factoriesInclude);
