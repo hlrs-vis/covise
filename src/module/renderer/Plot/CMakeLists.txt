@@ -1,4 +1,9 @@
 PROJECT(Plot CXX C)
+
+if (NOT COVISE_USE_X11)
+    return()
+endif()
+
 IF(WIN32)
   RETURN()
 ENDIF(WIN32)

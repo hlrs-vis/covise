@@ -37,6 +37,14 @@ Update your existing copy to the current version by
       git submodule sync
       git submodule update --init --recursive # update submodules to latest required version
 
+#### macOS
+
+There is a [Homebrew][6] formula for COVISE. If you have it on your system, then you can simply
+
+      brew install hlrs-vis/tap/covise
+
+This will install COVISE with all its dependencies.
+
 
 Build Requirements
 ------------------
@@ -159,6 +167,24 @@ No installation is required: you can use COVISE directly from the build tree.
        devenv
 
 
+Building Documentation
+----------------------
+
+COVISE retrieves documentation from the web server at HLRS.
+But you also can build the documentation locally. You need the following
+tools:
+
+- pdflatex
+- latex2html
+- doxygen
+- graphviz
+
+Then you can:
+
+    cd ${COVISEDIR}/doc
+    make
+
+
 Changing CMake Settings
 -----------------------
 You can influence which parts of COVISE are built by editing CMake settings in
@@ -175,7 +201,6 @@ This might help you work around build problems.
 - `COVISE_CPU_ARCH`: set optimization for the CPU in your computer
 - `COVISE_USE_CPP11`: disable compilation in C++11 mode
 - `COVISE_BUILD_RENDERER`: disable building the desktop renderer
-- `COVISE_GENERATE_DOCS`: generate HTML and PDF documentation
 
 After changing any of these settings, you have to restart the build process.
 
@@ -235,3 +260,4 @@ Source Code Organization
 [3]:   http://www.hlrs.de/
 [4]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-users
 [5]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-commits
+[6]:   http://brew.sh

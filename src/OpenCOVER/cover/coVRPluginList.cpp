@@ -117,8 +117,10 @@ void coVRPluginList::unloadAllPlugins()
         if (cover->debugLevel(1))
             cerr << " " << it->first;
         m_unloadQueue.push_back(it->second->handle);
-        delete it->second;
+        coVRPlugin *plug = it->second;
         m_plugins.erase(it);
+        plug->destroy();
+        delete plug;
     }
     unloadQueued();
     if (wasThreading)
@@ -223,7 +225,7 @@ void coVRPluginList::unload(coVRPlugin *plugin)
         m_unloadQueue.push_back(plugin->handle);
         if (m_plugins.erase(plugin->getName()) == 0)
         {
-            cerr << "Plugin to unload not found2" << endl;
+            cerr << "Plugin to unload not found2: " << plugin->getName() << endl;
         }
         delete plugin;
         updateState();

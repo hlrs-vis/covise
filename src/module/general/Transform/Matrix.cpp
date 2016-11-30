@@ -270,7 +270,7 @@ void Matrix::transformCoordinates(int nPoints, float *outX, float *outY, float *
     }
     else
     {
-        if (type_ == OTHER)
+        if (false && type_ == OTHER)
         {
             for (point = 0; point < nPoints; ++point)
             {
@@ -306,7 +306,7 @@ Matrix::transformCoordinates(int nPoints, float *xc, float *yc, float *zc) const
     }
     else
     {
-        if (type_ == OTHER)
+        if (false && type_ == OTHER)
         {
             for (point = 0; point < nPoints; ++point)
             {
@@ -514,7 +514,7 @@ Matrix::transformVector(int nPoints, float *vector[3]) const
     }
     int point;
     // this may be optimised
-    if (type_ == OTHER)
+    if (false && type_ == OTHER)
     {
         for (point = 0; point < nPoints; ++point)
         {

@@ -1670,6 +1670,7 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
 void coVRPluginSupport::personSwitched(size_t personNum)
 {
     VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
+    coVRNavigationManager::instance()->updatePerson();
 }
 
 covise::TokenBuffer &opencover::operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix)

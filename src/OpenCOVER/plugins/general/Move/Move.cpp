@@ -10,6 +10,8 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRSelectionManager.h>
 #include <cover/coIntersection.h>
+#include <cover/RenderObject.h>
+#include <cover/coInteractor.h>
 
 #include <config/CoviseConfig.h>
 
@@ -45,6 +47,16 @@ using covise::coCoviseConfig;
 using covise::TokenBuffer;
 
 typedef osg::fast_back_stack<osg::ref_ptr<osg::RefMatrix> > MatrixStack;
+
+// has to match names from Transform module
+const char *p_type_ = "Transform";
+const char *p_scale_type_ = "scale_type";
+const char *p_scale_scalar_ = "scaling_factor";
+const char *p_scale_vertex_ = "new_origin";
+const char *p_trans_vertex_ = "vector_of_translation";
+const char *p_rotate_normal_ = "axis_of_rotation";
+const char *p_rotate_vertex_ = "one_point_on_the_axis";
+const char *p_rotate_scalar_ = "angle_of_rotation";
 
 class BBoxVisitor : public osg::NodeVisitor
 {
@@ -125,6 +137,7 @@ bool Move::init()
     moveSelection = false;
     selectedNode = NULL;
     explicitMode = coCoviseConfig::isOn("COVER.Plugin.Move.Explicit", true);
+    moveTransformMode = false;
     printMode = coCoviseConfig::isOn("COVER.Plugin.Move.Print", false);
     readPos = writePos = maxWritePos = 0;
     // create the text
@@ -154,6 +167,7 @@ bool Move::init()
     Redo = new coTUIButton("Redo", moveTab->getID());
     Reset = new coTUIButton("Reset", moveTab->getID());
     explicitTUIItem = new coTUIToggleButton("MoveAll", moveTab->getID());
+    moveTransformTUIItem = new coTUIToggleButton("MoveTransform", moveTab->getID());
     moveEnabled = new coTUIToggleButton("Move", moveTab->getID());
     //ScaleField = new coTUIEditFloatField("Scale",moveTab->getID());
     ScaleSlider = new coTUIFloatSlider("ScaleSlider", moveTab->getID());
@@ -179,6 +193,7 @@ bool Move::init()
     Redo->setEventListener(this);
     Reset->setEventListener(this);
     explicitTUIItem->setEventListener(this);
+    moveTransformTUIItem->setEventListener(this);
     moveEnabled->setEventListener(this);
     //ScaleField->setEventListener(this);
     ScaleSlider->setEventListener(this);
@@ -242,10 +257,12 @@ bool Move::init()
     redoItem = new coButtonMenuItem("Redo");
     resetItem = new coButtonMenuItem("Reset");
     explicitItem = new coCheckboxMenuItem("MoveAll", !explicitMode);
+    moveTransformItem = new coCheckboxMenuItem("MoveTransform", moveTransformMode);
     scaleItem = new coPotiMenuItem("Scale", 0.1, 10, 1.0);
 
     moveMenu->add(moveToggle);
     moveMenu->add(explicitItem);
+    moveMenu->add(moveTransformItem);
     moveMenu->add(showNames);
     moveMenu->add(parentItem);
     moveMenu->add(childItem);
@@ -267,6 +284,7 @@ bool Move::init()
     undoItem->setMenuListener(this);
     redoItem->setMenuListener(this);
     explicitItem->setMenuListener(this);
+    moveTransformItem->setMenuListener(this);
     scaleItem->setMenuListener(this);
 
     boundingBoxNode = new osg::MatrixTransform();
@@ -285,6 +303,15 @@ bool Move::init()
 // this is called if the plugin is removed at runtime
 Move::~Move()
 {
+    for (RoInteractorMap::iterator it = roInteractorMap.begin();
+            it != roInteractorMap.end();
+            ++it)
+    {
+        it->second->decRefCount();
+    }
+    roInteractorMap.clear();
+    nodeRoMap.clear();
+
     delete label;
     // we probably have to delete all move infos...
 
@@ -301,6 +328,7 @@ Move::~Move()
     delete Redo;
     delete Reset;
     delete explicitTUIItem;
+    delete moveTransformTUIItem;
     delete moveEnabled;
     delete ScaleSlider;
     delete moveObjectLabel;
@@ -333,6 +361,7 @@ Move::~Move()
     delete local;
     delete scaleItem;
     delete explicitItem;
+    delete moveTransformItem;
     while (boundingBoxNode->getNumParents())
         boundingBoxNode->getParent(0)->removeChild(boundingBoxNode.get());
 
@@ -475,7 +504,21 @@ void Move::preFrame()
             while (currentNode != NULL)
             {
                 const char *nodeName = currentNode->getName().c_str();
-                if (explicitMode)
+                if (moveTransformMode)
+                {
+                    NodeRoMap::iterator it = nodeRoMap.find(currentNode);
+                    if (it != nodeRoMap.end())
+                    {
+                        isObject = true;
+                        doUndo = true;
+                    }
+                    if (currentNode == cover->getObjectsRoot())
+                    {
+                        //isNewObject = true;
+                        break;
+                    }
+                }
+                else if (explicitMode)
                 {
                     // do not touch nodes underneeth NoMove nodes
                     if (nodeName && strncmp(nodeName, "DoMove", 6) == 0)
@@ -776,17 +819,18 @@ void Move::preFrame()
 
     // do the movement
     //check for move dcs
-    osg::Node *currentNode;
     osg::Matrix dcsMat;
 
     if (selectedNode)
     {
         if (interactionA->wasStarted() || interactionB->wasStarted())
         {
-    //coVRMSController::instance()->syncInt(1008);
+            //coVRMSController::instance()->syncInt(1008);
             getMoveDCS();
             // start of interaction (button press)
-            currentNode = moveDCS->getParent(0);
+            osg::Node *currentNode = NULL;
+            if (moveDCS)
+                currentNode = moveDCS->getParent(0);
             startBaseMat.makeIdentity();
             while (currentNode != NULL)
             {
@@ -816,7 +860,7 @@ void Move::preFrame()
                 fprintf(stderr, "Move::inv getPointerMat is singular\n");
             startPickPos = cover->getIntersectionHitPointWorld();
             startTime = cover->frameTime();
-    //coVRMSController::instance()->syncFloat(startTime);
+            //coVRMSController::instance()->syncFloat(startTime);
         }
         if (interactionA->isRunning() && (moveDCS != NULL))
         { // ongoing interaction (left mousebutton)
@@ -825,6 +869,7 @@ void Move::preFrame()
     //coVRMSController::instance()->syncInt(1009);
             moveMat.mult(invStartHandMat, cover->getPointerMat());
 
+            osg::Node *currentNode = NULL;
             if (moveDCS->getNumParents() > 0)
             {
                 currentNode = moveDCS->getParent(0);
@@ -906,8 +951,8 @@ void Move::preFrame()
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
             moveMat.mult(invStartHandMat, cover->getPointerMat());
 
-    //coVRMSController::instance()->syncInt(1010);
-            currentNode = moveDCS->getParent(0);
+            //coVRMSController::instance()->syncInt(1010);
+            osg::Node *currentNode = moveDCS->getParent(0);
             currentBaseMat.makeIdentity();
             while (currentNode != NULL)
             {
@@ -1008,6 +1053,54 @@ void Move::preFrame()
                     }
 		    
                     addUndo(mat, moveDCS.get());
+
+                    if (moveTransformMode)
+                    {
+                        std::cerr << "moveTransform: selectedNode=" << selectedNodesParent << ": " << selectedNodesParent->getName() << std::endl;
+                        NodeRoMap::iterator nit = nodeRoMap.find(selectedNodesParent);
+                        if (nit != nodeRoMap.end())
+                        {
+                            RoInteractorMap::iterator rit = roInteractorMap.find(nit->second);
+                            if (rit != roInteractorMap.end())
+                            {
+                                osg::Matrix rotMat;
+                                osg::Vec3 Trans = mat.getTrans();
+                                osg::Quat quat;
+                                quat.set(mat);
+
+                                coInteractor *inter = rit->second;
+                                float scale = 1.f;
+                                inter->getFloatScalarParam(p_scale_scalar_, scale);
+                                scale = scaleItem->getValue();
+
+                                int numElem=0;
+                                float *trans;
+                                inter->getFloatVectorParam(p_trans_vertex_, numElem, trans);
+                                inter->setVectorParam(p_trans_vertex_, trans[0]+Trans[0], trans[1]+Trans[1], trans[2]+Trans[2]);
+                                delete[] trans;
+
+                                float *axis;
+                                inter->getFloatVectorParam(p_rotate_normal_, numElem, axis);
+                                float angle = 0.f;
+                                inter->getFloatScalarParam(p_rotate_scalar_, angle);
+                                osg::Quat tRot(angle/180.0*M_PI, osg::Vec3(axis[0], axis[1], axis[2]));
+                                quat = tRot * quat;
+                                double dangle, x, y, z;
+                                quat.getRotate(dangle, x, y, z);
+                                axis[0] = x;
+                                axis[1] = y;
+                                axis[2] = z;
+                                angle = dangle*180.0/M_PI;
+                                inter->setVectorParam(p_rotate_normal_, axis[0], axis[1], axis[2]);
+                                float center[3] = { 0.f, 0.f, 0.f };
+                                inter->setVectorParam(p_rotate_vertex_, center[0], center[1], center[2]);
+                                inter->setScalarParam(p_rotate_scalar_, angle);
+                                delete[] axis;
+
+                                inter->executeModule();
+                            }
+                        }
+                    }
                 }
                 didMove = false;
             }
@@ -1150,6 +1243,11 @@ void Move::menuEvent(coMenuItem *menuItem)
         explicitMode = !explicitItem->getState();
         explicitTUIItem->setState(explicitItem->getState());
     }
+    else if (menuItem == moveTransformItem)
+    {
+        moveTransformMode = moveTransformItem->getState();
+        moveTransformTUIItem->setState(moveTransformItem->getState());
+    }
     else if (menuItem == moveToggle)
     {
         if (moveToggle->getState())
@@ -1247,6 +1345,11 @@ void Move::tabletEvent(coTUIElement *tUIItem)
     {
         explicitMode = !explicitTUIItem->getState();
         explicitItem->setState(explicitTUIItem->getState());
+    }
+    else if (tUIItem == moveTransformTUIItem)
+    {
+        moveTransformMode = moveTransformTUIItem->getState();
+        moveTransformItem->setState(moveTransformTUIItem->getState());
     }
     else if (tUIItem == moveEnabled)
     {
@@ -1553,6 +1656,42 @@ void Move::redo()
     else
     {
         undoDCS[writePos]->setMatrix(undoMat[writePos]);
+    }
+}
+
+void Move::newInteractor(RenderObject *container, coInteractor *inter)
+{
+    if (!container || !inter)
+        return;
+    if (strcmp(inter->getPluginName(), "Move") != 0)
+        return;
+
+    if (roInteractorMap.insert(std::make_pair(container, inter)).second)
+    {
+        inter->incRefCount();
+    }
+}
+
+void Move::addNode(osg::Node *node, RenderObject *ro)
+{
+    if (roInteractorMap.find(ro) != roInteractorMap.end())
+    {
+        nodeRoMap[node] = ro;
+    }
+}
+
+void Move::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
+{
+    NodeRoMap::iterator it = nodeRoMap.find(node);
+    if (it != nodeRoMap.end())
+    {
+        RoInteractorMap::iterator rit = roInteractorMap.find(it->second);
+        if (rit != roInteractorMap.end())
+        {
+            rit->second->decRefCount();
+            roInteractorMap.erase(rit);
+        }
+        nodeRoMap.erase(it);
     }
 }
 

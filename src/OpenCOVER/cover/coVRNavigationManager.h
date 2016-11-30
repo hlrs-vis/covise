@@ -70,6 +70,7 @@ public:
     coVRNavigationManager();
 
     ~coVRNavigationManager();
+    void updatePerson();
 
     static coVRNavigationManager *instance();
     static void xformCallback(void *mgr, buttonSpecCell *spec);

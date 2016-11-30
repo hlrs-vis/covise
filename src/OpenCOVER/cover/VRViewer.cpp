@@ -2377,8 +2377,6 @@ void VRViewer::renderingTraversals()
         }
     }
 
-    coVRPluginList::instance()->clusterSyncDraw();
-
     if (OpenCOVER::instance()->initDone())
     {
         coVRPluginList::instance()->clusterSyncDraw();

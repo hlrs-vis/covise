@@ -59,6 +59,14 @@ else ifeq ($(ARCHSUFFIX),libc++opt)
 	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
       -DCOVISE_USE_QT4=FALSE \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
+else ifeq ($(ARCHSUFFIX),macos)
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+      -DCMAKE_BUILD_TYPE=Debug
+else ifeq ($(ARCHSUFFIX),macosopt)
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
 else
 	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
 	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)
