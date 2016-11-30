@@ -402,9 +402,6 @@
 
 
 
- <!--<INCLUDE global="1" configname="input">config.inputold.xml</INCLUDE>-->
- <!--INCLUDE global="1" configname="input">config.input.xml</INCLUDE-->
-
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
  <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
