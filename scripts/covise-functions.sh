@@ -224,7 +224,7 @@ guess_archsuffix() {
                elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
                    export ARCHSUFFIX=xerus
                elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
-                   export ARCHSUFFIX=rosa
+                   export ARCHSUFFIX=tahr
                fi
                ;;
             
