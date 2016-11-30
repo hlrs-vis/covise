@@ -307,8 +307,12 @@ INSTALL(FILES "cmake/FindCOVISE.cmake" DESTINATION
 INSTALL(FILES .covise .covise.sh
               DESTINATION .)
 
-INSTALL(FILES config/config.xml config/config-colormaps.xml config/config-ar.xml
-        DESTINATION config)
+INSTALL(FILES
+    config/config.xml
+    config/config-colormaps.xml
+    config/config-filetypes.xml
+    config/config-ar.xml
+    DESTINATION config)
 
 INSTALL(DIRECTORY share bin scripts
         USE_SOURCE_PERMISSIONS
