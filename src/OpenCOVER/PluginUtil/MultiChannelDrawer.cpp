@@ -659,6 +659,7 @@ MultiChannelDrawer::Mode MultiChannelDrawer::mode() const {
 
 void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
 
+   m_mode = mode;
    for (size_t i=0; i<m_channelData.size(); ++i) {
        ChannelData &cd = m_channelData[i];
        osg::StateSet *state = cd.reprojGeo->getStateSet();
