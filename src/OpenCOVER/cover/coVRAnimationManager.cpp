@@ -349,7 +349,9 @@ coVRAnimationManager::updateAnimationFrame()
     }
     else
     {
-        requestAnimationFrame(currentAnimationFrame);
+        // wait for plugins to resolve recently requested timestep,
+        // which might be different from currentAnimationFrame,
+        // so don't: requestAnimationFrame(currentAnimationFrame);
     }
 }
 
