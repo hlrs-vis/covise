@@ -117,8 +117,9 @@ void coVRPluginList::unloadAllPlugins()
         if (cover->debugLevel(1))
             cerr << " " << it->first;
         m_unloadQueue.push_back(it->second->handle);
-        delete it->second;
+        coVRPlugin *plug = it->second;
         m_plugins.erase(it);
+        delete plug;
     }
     unloadQueued();
     if (wasThreading)
