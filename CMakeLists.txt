@@ -271,21 +271,6 @@ endif()
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
-# docs
-OPTION(COVISE_GENERATE_DOCS "Set to ON to generate the documentation with doxygen." OFF)
-IF(COVISE_GENERATE_DOCS)
-  COVISE_FIND_PACKAGE(Doxygen)
-  CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/Doxyfile_Covise.in ${CMAKE_BINARY_DIR}/Doxyfile_Covise)
-  ADD_CUSTOM_COMMAND(
-      OUTPUT ${CMAKE_BINARY_DIR}/doc/html/index.html
-      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile_Covise
-      DEPENDS ${CMAKE_SOURCE_DIR}/Doxyfile_Covise.in
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
-  ADD_CUSTOM_TARGET(Docs ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/html/index.html)
-  INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/doc DESTINATION ${CMAKE_INSTALL_PREFIX})
-ENDIF(COVISE_GENERATE_DOCS)
-
 # Install
 
 SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.gitignore|/\\.hgignore|\\.html\\.in$|\\.tex\\.in$|\\.tex$")
