@@ -156,6 +156,8 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
+   <CompositorIceT menu="true" />
+   <VncClient menu="true" value="off" rfbHost="localhost" rfbPort="31590" />
    <Measure menu="true" />
    <PointCloud>
    <!--PointSize value="10" /-->
