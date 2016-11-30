@@ -14,7 +14,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "schema/oscPolyline.h"
+#include "schema/oscEmpty.h"
 #include "schema/oscClothoid.h"
 #include "schema/oscSpline.h"
 
@@ -26,12 +26,12 @@ public:
     oscShape()
     {
         OSC_ADD_MEMBER(reference);
-        OSC_OBJECT_ADD_MEMBER(Polyline, "oscPolyline");
+        OSC_OBJECT_ADD_MEMBER(Polyline, "oscEmpty");
         OSC_OBJECT_ADD_MEMBER(Clothoid, "oscClothoid");
         OSC_OBJECT_ADD_MEMBER(Spline, "oscSpline");
     };
     oscDouble reference;
-    oscPolylineMember Polyline;
+    oscEmptyMember Polyline;
     oscClothoidMember Clothoid;
     oscSplineMember Spline;
 

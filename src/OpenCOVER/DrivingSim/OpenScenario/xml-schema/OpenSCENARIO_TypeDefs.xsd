@@ -7,6 +7,10 @@
     <xsd:attribute name="path"  type="xsd:string" use="required"/>
 </xsd:complexType>
 
+<xsd:complexType name="OSCEmpty">
+
+</xsd:complexType>
+
 <xsd:complexType name="OSCCatalogs">
     <xsd:all>
         <xsd:element name="VehicleCatalog">
@@ -440,7 +444,7 @@
                                 <xsd:element name="DistanceDynamics">
                                     <xsd:complexType>
                                         <xsd:choice>
-                                            <xsd:element name="None"/>
+                                            <xsd:element name="None"  type="OSCEmpty"/>
                                             <xsd:element name="Limited">
                                                 <xsd:complexType>
                                                     <xsd:attribute name="maxAcceleration"   type="xsd:double" use="required"/>
@@ -541,7 +545,7 @@
                                 <xsd:element name="DistanceDynamics">
                                     <xsd:complexType>
                                         <xsd:choice>
-                                            <xsd:element name="None"/>
+                                            <xsd:element name="None"  type="OSCEmpty"/>
                                             <xsd:element name="Limited">
                                                 <xsd:complexType>
                                                     <xsd:attribute name="maxAcceleration"   type="xsd:double" use="required"/>
@@ -610,7 +614,7 @@
                                 <xsd:element name="Longitudinal">
                                     <xsd:complexType>
                                         <xsd:choice>
-                                            <xsd:element name="None"/>
+                                            <xsd:element name="None" type="OSCEmpty"/>
                                             <xsd:element name="Timing">
                                                 <xsd:complexType>
                                                     <xsd:attribute name="domain"    type="Enum_domain_absolute_relative" use="required"/>
@@ -645,7 +649,7 @@
 
 <xsd:complexType name="OSCUserDefinedAction">
     <xsd:choice>
-        <xsd:element name="Command" type="xsd:string"/>
+        <xsd:attribute name="Command" type="xsd:string"/>
         <xsd:element name="Script">
             <xsd:complexType>
                 <xsd:all>
@@ -658,6 +662,7 @@
         </xsd:element>
     </xsd:choice>
 </xsd:complexType>
+
 
 <xsd:complexType name="OSCGlobalAction">
     <xsd:choice>
@@ -672,7 +677,7 @@
                             </xsd:all>
                         </xsd:complexType>
                     </xsd:element>
-                    <xsd:element name="Delete"/>
+                    <xsd:element name="Delete"   type="OSCEmpty" />
                 </xsd:choice>
                 <xsd:attribute name="name" type="xsd:string" use="required"/>
             </xsd:complexType>
@@ -1001,7 +1006,7 @@
                     <xsd:element name="Shape">
                         <xsd:complexType>
                             <xsd:choice>
-                                <xsd:element name="Polyline"/>
+                                <xsd:element name="Polyline" type="Empty"/>
                                 <xsd:element name="Clothoid">
                                     <xsd:complexType>
                                         <xsd:attribute name="curvature"     type="xsd:double" use="required"/>
@@ -1255,7 +1260,7 @@
 
 <xsd:simpleType name="Enum_cloudState">
   <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="sky off" />
+    <xsd:enumeration value="sky_off" />
     <xsd:enumeration value="free" />
     <xsd:enumeration value="cloudy" />
     <xsd:enumeration value="overcast" />

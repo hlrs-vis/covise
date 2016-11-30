@@ -12,13 +12,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscUtilities.h"
 
-#include "oscFileHeader.h"
-#include "oscCatalogs.h"
-#include "oscRoadNetwork.h"
-#include "oscEnvironmentReference.h"
-#include "oscEntities.h"
-#include "oscStoryboard.h"
-#include "oscScenarioEnd.h"
+#include "schema/oscFileHeader.h"
+#include "schema/oscCatalogs.h"
+#include "schema/oscRoadNetwork.h"
+#include "schema/oscEntities.h"
+#include "schema/oscStoryboard.h"
 #include "oscSourceFile.h"
 
 #include "oscTest.h"
@@ -67,14 +65,11 @@ protected:
     bf::path m_xsdPathFileName; ///< store the actual loaded xsd schema grammar file
 
 public:
-    oscFileHeaderMember FileHeader;
-    oscCatalogsMember Catalogs;
-    oscRoadNetworkMember RoadNetwork;
-    oscEnvironmentReferenceMember environment;
-    oscEntitiesMember Entities;
-    oscStoryboardMember Storyboard;
-    oscScenarioEndMember scenarioEnd;
-	oscTestMember test;
+	oscFileHeaderMember FileHeader;
+	oscCatalogsMember Catalogs;
+	oscRoadNetworkMember RoadNetwork;
+	oscEntitiesMember Entities;
+	oscStoryboardMember Storyboard;
 
     OpenScenarioBase(); /// constructor, initializes the class and sets a default factory, initialize xerces-c, create parser and error handler, generic parser settings
     ~OpenScenarioBase(); /// destructor, delete parser and error handler, terminate xerces-c

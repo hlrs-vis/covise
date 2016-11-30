@@ -38,15 +38,11 @@ OpenScenarioBase::OpenScenarioBase() :
         m_fullReadCatalogs(false)
 {
     oscFactories::instance();
-
     OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
     OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs");
     OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork");
-    OSC_OBJECT_ADD_MEMBER(environment, "oscEnvironmentReference");
     OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities");
     OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard");
-    OSC_OBJECT_ADD_MEMBER(scenarioEnd, "oscScenarioEnd");
-    OSC_OBJECT_ADD_MEMBER_OPTIONAL(test, "oscTest");
 
     base = this;
 

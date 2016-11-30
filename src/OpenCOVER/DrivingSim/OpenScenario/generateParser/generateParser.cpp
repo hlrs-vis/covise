@@ -416,7 +416,18 @@ int main(int argc, char **argv)
 	}
 
 
-
+	FILE *registerSchemaObjects = fopen("registerSchemaObjects.h", "w");
+	if (registerSchemaObjects == NULL)
+	{
+		std::cerr << "unable to open registerSchemaObjects.h " << std::endl;
+		return -1;
+	}
+	FILE *schemaHeaders = fopen("schemaHeaders.h", "w");
+	if (schemaHeaders == NULL)
+	{
+		std::cerr << "unable to open schemaHeaders.h " << std::endl;
+		return -1;
+	}
 	FILE *CMakeInc = fopen("oscSchema.inc", "w");
 	if (CMakeInc == NULL)
 	{
@@ -579,6 +590,10 @@ int main(int argc, char **argv)
 		}
 
 			fprintf(CMakeInc, "schema/%s.h\n",cl->name.c_str());
+
+			fprintf(schemaHeaders, "#include \"schema/%s.h\"\n", cl->name.c_str());
+			fprintf(registerSchemaObjects, "staticObjectFactory.registerType<%s>(\"%s\");\n", cl->name.c_str(), cl->name.c_str());
+			
 
 		fprintf(header,
 			"/* This file is part of COVISE.\n\
@@ -800,6 +815,8 @@ using namespace OpenScenario;\n\
 	fclose(factoriesInclude);
 	fclose(factoriesIncludeHeader);
 	fclose(CMakeInc);
+	fclose(schemaHeaders);
+	fclose(registerSchemaObjects);
 	
 	
 

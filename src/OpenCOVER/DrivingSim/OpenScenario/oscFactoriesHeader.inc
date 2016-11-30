@@ -7,6 +7,7 @@
 #include "oscOpenSCENARIO_RouteCatalog"
 #include "oscOpenSCENARIO_TrajectoryCatalog"
 #include "oscDirectory"
+#include "oscEmpty"
 #include "oscCatalogs"
 #include "oscVehicleCatalog"
 #include "oscDriverCatalog"

@@ -9,6 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioBase.h"
 #include "oscSourceFile.h"
 #include "oscUtilities.h"
+#include "oscArrayMember.h"
 
 #include <iostream>
 

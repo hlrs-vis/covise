@@ -8,6 +8,7 @@ schema/oscOpenSCENARIO_PedestrianControllerCatalog.h
 schema/oscOpenSCENARIO_RouteCatalog.h
 schema/oscOpenSCENARIO_TrajectoryCatalog.h
 schema/oscDirectory.h
+schema/oscEmpty.h
 schema/oscCatalogs.h
 schema/oscVehicleCatalog.h
 schema/oscDriverCatalog.h

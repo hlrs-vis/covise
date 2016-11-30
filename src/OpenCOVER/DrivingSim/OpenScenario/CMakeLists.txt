@@ -10,30 +10,25 @@ INCLUDE("oscSchema.inc")
 SET(HEADERS
    OpenScenarioBase.h
    oscCatalog.h
-   oscGeneral.h
-   oscGlobal.h
-   oscInit.h
    oscMember.h
-   oscObject.h
    oscObjectBase.h
-   oscObjects.h
    oscObjectVariable.h
    oscObjectVariableArray.h
    oscObjectVariableBase.h
    oscUtilities.h
    oscVariables.h
-   oscWeather.h
+   oscSourceFile.h
 )
 
 SET(SOURCES
    OpenScenarioBase.cpp
    oscFactories.cpp
-   oscLateral.cpp
    oscMember.cpp
    oscArrayMember.cpp
    oscObjectBase.cpp
    oscUtilities.cpp
    oscVariables.cpp
+   oscSourceFile.cpp
 )
 
 IF(WIN32)
@@ -49,12 +44,12 @@ set(HEADERS ${HEADERS} ${SCHEMA_HEADERS} )
 MESSAGE(${SOURCES})
 
 ADD_COVISE_LIBRARY(coOpenScenario SHARED ${SOURCES} ${HEADERS})
+target_link_libraries(coOpenScenario ${EXTRA_LIBS})
 
 COVISE_WNOERROR(coOpenScenario)
 
 COVISE_INSTALL_TARGET(coOpenScenario)
 
-target_link_libraries(coOpenScenario ${EXTRA_LIBS})
 
 
 IF(MSVC80 OR MSVC90)
@@ -63,17 +58,6 @@ ENDIF()
 
 
 
-# test application
-
-SET(TESTSOURCES
-   testOpenScenario.cpp
-)
-
-add_covise_executable(oscTest MACOSX_BUNDLE ${TESTSOURCES} ${TESTHEADERS})
-
-covise_install_target(oscTest)
-
-target_link_libraries(oscTest coOpenScenario ${EXTRA_LIBS})
-
 
 add_subdirectory(generateParser)
+add_subdirectory(test)
