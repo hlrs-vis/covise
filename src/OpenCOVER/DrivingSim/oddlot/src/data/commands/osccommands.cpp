@@ -21,12 +21,13 @@
 // OpenScenario //
 #include "OpenScenarioBase.h"
 #include "oscObjectBase.h"
-#include "oscObject.h"
+#include "schema/oscObject.h"
 #include "oscMember.h"
 #include "oscMemberValue.h"
 #include "oscVariables.h"
-#include "oscCatalogs.h"
+#include "schema/oscCatalogs.h"
 #include "oscCatalog.h"
+#include "oscArrayMember.h"
 
 using namespace OpenScenario;
 

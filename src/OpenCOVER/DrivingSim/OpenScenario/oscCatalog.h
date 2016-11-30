@@ -11,8 +11,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 
-#include "oscDirectory.h"
-#include "oscUserDataList.h"
+#include "schema/oscDirectory.h"
+#include "schema/oscUserDataList.h"
 
 #include <vector>
 #if __cplusplus >= 201103L || defined WIN32

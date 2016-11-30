@@ -50,10 +50,10 @@
 
 // OpenScenario //
 //
-#include "oscVehicle.h"
-#include "oscObject.h"
+#include "schema/oscVehicle.h"
+#include "schema/oscObject.h"
 #include "oscMember.h"
-#include "oscNameRefId.h"
+//#include "oscNameRefId.h"
 
 // Qt //
 //

@@ -52,7 +52,7 @@
 
 // OpenScenario //
 //
-#include "oscObject.h"
+#include "schema/oscObject.h"
 #include "oscObjectBase.h"
 #include "oscMember.h"
 #include "oscMemberValue.h"

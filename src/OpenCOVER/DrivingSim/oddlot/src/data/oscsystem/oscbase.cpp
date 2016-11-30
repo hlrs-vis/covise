@@ -23,7 +23,7 @@
 
 // OpenScenario data //
 //
-#include "oscObject.h"
+#include "schema/oscObject.h"
 #include "oscObjectBase.h"
 
 using namespace OpenScenario;

@@ -12,6 +12,8 @@ SET(SOURCES
    testOpenScenario.cpp
 )
 
+include_directories(..)
+
 add_covise_executable(oscTest MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 
 covise_install_target(oscTest)

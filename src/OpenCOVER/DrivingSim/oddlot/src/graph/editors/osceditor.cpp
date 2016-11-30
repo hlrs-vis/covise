@@ -65,10 +65,10 @@
 // OpenScenario //
 //
 #include "oscObjectBase.h"
-#include "oscObject.h"
-#include "oscCatalogs.h"
+#include "schema/oscObject.h"
+#include "schema/oscCatalogs.h"
 #include "oscCatalog.h"
-#include "oscPosition.h"
+#include "schema/oscPosition.h"
 #include "oscArrayMember.h"
 #include "oscCatalogReferenceTypeA.h"
 

@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 		{
 			std::cerr << "\nErrors during parse of the document '" << argv[1] << "'.\n" << std::endl;
 
-			return NULL;
+			return 1;
 		}
 		xercesc::DOMNodeList *elementList = parser->getDocument()->getChildNodes();
 
@@ -573,9 +573,9 @@ int main(int argc, char **argv)
 		char cppName[1000];
 		snprintf(cppName, 1000, "schema/%s.cpp", cl->name.c_str());
 		char headerDefineName[1000];
-		char *upName = new char[cl->name.length() + 1];
-		strcpy(upName, cl->name.c_str());
-		snprintf(headerDefineName, 1000, "%s_H", strupr(upName));
+        std::string upName(cl->name);
+        std::transform(upName.begin(), upName.end(), upName.begin(), ::toupper);
+		snprintf(headerDefineName, 1000, "%s_H", upName.c_str());
 		
 		FILE *header = fopen(headerName, "w");
 		FILE *cpp = NULL;
@@ -818,7 +818,5 @@ using namespace OpenScenario;\n\
 	fclose(schemaHeaders);
 	fclose(registerSchemaObjects);
 	
-	
-
-
+    return 0;
 }

@@ -29,6 +29,7 @@ namespace OpenScenario
 {
 class oscObjectBase;
 class OpenScenarioBase;
+class oscArrayMember;
 class oscMember;
 class oscMemberValue;
 class oscCatalog;
