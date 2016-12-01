@@ -4,6 +4,7 @@
 #include <list>
 #include <stack>
 #include <vector>
+#include <algorithm>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
