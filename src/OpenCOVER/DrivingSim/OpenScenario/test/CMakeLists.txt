@@ -5,6 +5,7 @@ ENDIF()
 USING(XERCESC)
 USING(BOOST)
 
+INCLUDE_DIRECTORIES(..)
 
 # test application
 
