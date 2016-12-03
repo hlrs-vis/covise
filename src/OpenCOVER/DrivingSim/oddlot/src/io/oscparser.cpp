@@ -31,7 +31,7 @@
 #include "oscFactory.h"
 #include "OpenScenarioBase.h"
 #include "oscObjectBase.h"
-#include "oscFileHeader.h"
+#include "schema/oscFileHeader.h"
 
 
 /*#include "src/data/vehiclesystem/vehiclesystem.hpp"

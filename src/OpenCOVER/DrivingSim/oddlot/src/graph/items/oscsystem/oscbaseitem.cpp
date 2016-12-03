@@ -44,11 +44,11 @@
 
 // OpenScenario //
 //
-#include "oscVehicle.h"
-#include "oscObject.h"
+#include "schema/oscVehicle.h"
+#include "schema/oscObject.h"
 #include "oscObjectBase.h"
 #include "oscMember.h"
-#include "oscPosition.h"
+#include "schema/oscPosition.h"
 
 // Qt //
 //
