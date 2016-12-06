@@ -853,7 +853,19 @@ void coVRShader::storeMaterial()
         if (ShaderName[i] == ' ')
             ShaderName[i] = '_';
     }
-    xercesc::DOMDocument *document = impl->createDocument(0, xercesc::XMLString::transcode(ShaderName.c_str()), 0);
+    xercesc::DOMDocument *document = NULL;
+
+    try
+    {
+        document = impl->createDocument(0, xercesc::XMLString::transcode(ShaderName.c_str()), 0);
+    }
+    catch (xercesc::DOMException &ex)
+    {
+        char *msg = xercesc::XMLString::transcode(ex.getMessage());
+        cerr << "ERROR: " << msg << '\n';
+        xercesc::XMLString::release(&msg);
+        return;
+    }
 
     xercesc::DOMElement *rootElement = document->getDocumentElement();
     if (transparent)
