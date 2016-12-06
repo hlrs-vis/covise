@@ -848,6 +848,10 @@ void coVRShader::storeMaterial()
     impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
 
     std::string ShaderName = name;
+
+    if (ShaderName[0] >= '0' || ShaderName[0] <= '9')
+        ShaderName.insert(0, 1, '_');
+
     for (size_t i = 0; i < ShaderName.length(); i++)
     {
         if (ShaderName[i] == ' ')
