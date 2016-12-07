@@ -235,7 +235,9 @@ namespace visionaray
             vsnray_mat.set_ka(1.0f);
             vsnray_mat.set_kd(1.0f);
             vsnray_mat.set_ks(1.0f);
-            vsnray_mat.set_specular_exp(mat->getShininess(osg::Material::Face::FRONT));
+            vsnray_mat.set_specular_exp(
+                mat->getShininess(osg::Material::Face::FRONT) / 128.0f * std::numeric_limits<float>::max()
+                );
             return material_type(vsnray_mat);
         }
     }
