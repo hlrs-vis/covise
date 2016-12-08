@@ -47,21 +47,21 @@
      Texcoord = gl_MultiTexCoord0.xy;
 
      vec4 myVertex = gl_Vertex;
-     myVertex[1]= -2*Radius+ sqrt(Radius*Radius - gl_Vertex[0]*gl_Vertex[0])  + sqrt(Radius*Radius - gl_Vertex[2]*gl_Vertex[2]);
-     if(a&gt; 0 &amp;&amp; gl_Vertex[0]&gt;a)
+     myVertex[1]= -2.0*Radius+ sqrt(Radius*Radius - gl_Vertex[0]*gl_Vertex[0])  + sqrt(Radius*Radius - gl_Vertex[2]*gl_Vertex[2]);
+     if(a&gt; 0.0 &amp;&amp; gl_Vertex[0]&gt;a)
      {
         float tmpf = gl_Vertex[0] - a;
         myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
      }
-     else if(a&lt; 0 &amp;&amp; gl_Vertex[0]&lt;a)
+     else if(a&lt; 0.0 &amp;&amp; gl_Vertex[0]&lt;a)
      {
         float tmpf = -(gl_Vertex[0] - a);
         myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
      }
      pos = myVertex;
      origPos = gl_Vertex;
-     origPos[1]=0;
-     eyeVec = gl_ModelViewMatrixInverse[3] - origPos;
+     origPos[1]=0.0;
+     eyeVec = (gl_ModelViewMatrixInverse[3] - origPos).xyz;
      gl_Position = gl_ModelViewProjectionMatrix * myVertex;
 
   }
@@ -90,18 +90,18 @@
     void main( void )
     {
        vec3 mynormal;
-       mynormal=origPos;
+       mynormal=origPos.xyz;
        mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0]);
-       mynormal[1]=1;
+       mynormal[1]=1.0;
        mynormal[2]=pos[2] / sqrt(Radius*Radius - origPos[2]*origPos[2]);
 
-       if(a&gt; 0 &amp;&amp; pos[0]&gt;a)
+       if(a&gt; 0.0 &amp;&amp; pos[0]&gt;a)
        {
-          mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])+ 3 * K * (pos[0]-a)* (pos[0]-a);
+          mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])+ 3.0 * K * (pos[0]-a)* (pos[0]-a);
        }
-       if(a&lt; 0 &amp;&amp; pos[0]&lt;a)
+       if(a&lt; 0.0 &amp;&amp; pos[0]&lt;a)
        {
-          mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])- 3 * K * (pos[0]-a)* (pos[0]-a);
+          mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])- 3.0 * K * (pos[0]-a)* (pos[0]-a);
        }
        vec2 tpos;
        vec3 N = normalize(mynormal);
@@ -110,11 +110,11 @@
 
        vec4  myVertex = origPos;
        myVertex.xyz += reflVec;
-       myVertex[3]=1;
+       myVertex[3]=1.0;
        myVertex =   ProjectionMatrix * ViewMatrix * ModelMatrix * (myVertex);
        myVertex = myVertex/myVertex[3];
-       tpos[0]=(myVertex[0]/2)+0.5;
-       tpos[1]=(myVertex[1]/2)+0.5;
+       tpos[0]=(myVertex[0]/2.0)+0.5;
+       tpos[1]=(myVertex[1]/2.0)+0.5;
        gl_FragColor = texture2D(testMap, tpos );
 
     }

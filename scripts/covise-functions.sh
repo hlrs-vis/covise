@@ -49,11 +49,11 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=lion
                     ;;
 
-                13.*|14.*|15.*)
+                13.*|14.*)
 	            export ARCHSUFFIX=libc++
                     ;;
 
-                16.*)
+                15.*|16.*)
 	            export ARCHSUFFIX=macos
                     ;;
             esac
