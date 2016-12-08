@@ -217,7 +217,8 @@ namespace visionaray
             vsnray_mat.set_ls(1.0f);
             return material_type(vsnray_mat);
         }
-        else if (cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
+        else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
+            || !opencover::coVRLighting::instance()->specularlightState)
         {
             matte<float> vsnray_mat;
             vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
