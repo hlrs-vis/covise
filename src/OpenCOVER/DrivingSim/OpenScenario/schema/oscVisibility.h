@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscVisibility : public oscObjectBase
 {
 public:
-    oscVisibility()
-    {
+oscVisibility()
+{
         OSC_ADD_MEMBER(graphics);
         OSC_ADD_MEMBER(traffic);
         OSC_ADD_MEMBER(sensors);
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscVisibility *> oscVisibilityMember;
+typedef oscObjectVariableArray<oscVisibility *> oscVisibilityArrayMember;
 
 
 }

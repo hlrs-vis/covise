@@ -40,6 +40,9 @@ public:
     { /* does nothing */
     }
 
+    
+    void enableGraphEdit(bool);
+
 private:
     OpenScenarioEditorTool(); /* not allowed */
     OpenScenarioEditorTool(const OpenScenarioEditorTool &); /* not allowed */
@@ -64,6 +67,7 @@ public slots:
 	void handleToolClick(int);
 	void handleCatalogSelection(int);
 	void onPushButtonPressed(QString name);
+    void handleGraphState(bool);
 
     //################//
     // PROPERTIES     //
@@ -83,6 +87,7 @@ class OpenScenarioEditorToolAction : public ToolAction
 
 public:
     explicit OpenScenarioEditorToolAction(ODD::ToolId toolId, const QString &text);
+    explicit OpenScenarioEditorToolAction(ODD::ToolId toolId, bool state);
     virtual ~OpenScenarioEditorToolAction()
     { /* does nothing */
     }
@@ -91,6 +96,11 @@ public:
 	{
 		return text_;
 	}
+
+    bool getState() const
+    {
+        return state_;
+    }
 
 private:
     OpenScenarioEditorToolAction(); /* not allowed */
@@ -103,6 +113,7 @@ private:
 
 private:
 	QString text_;
+    bool state_;
 };
 
 #endif // OSCEDITORTOOL_HPP

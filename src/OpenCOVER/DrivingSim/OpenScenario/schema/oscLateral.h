@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,9 +29,10 @@ static Enum_Lateral_purposeType *instance();
 class OPENSCENARIOEXPORT oscLateral : public oscObjectBase
 {
 public:
-    oscLateral()
-    {
+oscLateral()
+{
         OSC_ADD_MEMBER(purpose);
+        purpose.enumType = Enum_Lateral_purposeType::instance();
     };
     oscEnum purpose;
 
@@ -44,6 +46,7 @@ steering,
 };
 
 typedef oscObjectVariable<oscLateral *> oscLateralMember;
+typedef oscObjectVariableArray<oscLateral *> oscLateralArrayMember;
 
 
 }

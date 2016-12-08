@@ -143,7 +143,7 @@ ToolManager::initTools()
 
 	// OpenScenario //
 	//
-	new OpenScenarioEditorTool(this);
+	oscEditorTool_ = new OpenScenarioEditorTool(this);
 
     // Default //
     //
@@ -159,6 +159,13 @@ ToolManager::resendCurrentTool()
     {
         emit(toolAction(lastToolAction_));
     }
+}
+
+
+void
+ToolManager::enableOSCEditorToolButton(bool state)
+{
+    oscEditorTool_->enableGraphEdit(state);
 }
 
 //################//

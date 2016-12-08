@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscVehicleCatalog.h"
@@ -29,8 +30,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscCatalogs : public oscObjectBase
 {
 public:
-    oscCatalogs()
-    {
+oscCatalogs()
+{
         OSC_OBJECT_ADD_MEMBER(VehicleCatalog, "oscVehicleCatalog");
         OSC_OBJECT_ADD_MEMBER(DriverCatalog, "oscDriverCatalog");
         OSC_OBJECT_ADD_MEMBER(PedestrianCatalog, "oscPedestrianCatalog");
@@ -54,6 +55,7 @@ public:
 };
 
 typedef oscObjectVariable<oscCatalogs *> oscCatalogsMember;
+typedef oscObjectVariableArray<oscCatalogs *> oscCatalogsArrayMember;
 
 
 }

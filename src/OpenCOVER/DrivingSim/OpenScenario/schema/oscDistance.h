@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscDistanceDynamics.h"
@@ -21,8 +22,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscDistance : public oscObjectBase
 {
 public:
-    oscDistance()
-    {
+oscDistance()
+{
         OSC_ADD_MEMBER(object);
         OSC_ADD_MEMBER(distance);
         OSC_ADD_MEMBER(timeGap);
@@ -38,6 +39,7 @@ public:
 };
 
 typedef oscObjectVariable<oscDistance *> oscDistanceMember;
+typedef oscObjectVariableArray<oscDistance *> oscDistanceArrayMember;
 
 
 }

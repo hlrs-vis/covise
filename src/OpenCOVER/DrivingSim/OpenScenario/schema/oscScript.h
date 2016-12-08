@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscParameterList.h"
@@ -29,12 +30,13 @@ static Enum_Script_executionType *instance();
 class OPENSCENARIOEXPORT oscScript : public oscObjectBase
 {
 public:
-    oscScript()
-    {
+oscScript()
+{
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(file);
         OSC_ADD_MEMBER(execution);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
+        execution.enumType = Enum_Script_executionType::instance();
     };
     oscString name;
     oscString file;
@@ -51,6 +53,7 @@ continuous,
 };
 
 typedef oscObjectVariable<oscScript *> oscScriptMember;
+typedef oscObjectVariableArray<oscScript *> oscScriptArrayMember;
 
 
 }

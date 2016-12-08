@@ -55,8 +55,6 @@ public:
     // Graphics //
     //
 	void updateColor(const std::string &type);
-//	void createVehiclePath();
-//	void createPath(OpenScenario::oscPedestrian *pedestrian);
 	
 	// Function for path drawing //
 	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *);
@@ -85,10 +83,6 @@ signals:
 
 public slots:
 
-    //Tools
-    //
- //   void zoomAction();
-
     bool removeElement();
 
     //################//
@@ -96,7 +90,6 @@ public slots:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -119,6 +112,7 @@ private:
 	OSCRoadSystemItem *roadSystemItem_;
 	QString roadID_;
     void init();
+    QString updateName();
 
 	OpenScenario::oscObject *oscObject_;
 	OpenScenario::oscObjectBase *selectedObject_;

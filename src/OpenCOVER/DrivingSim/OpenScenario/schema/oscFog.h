@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscBoundingBox.h"
@@ -21,8 +22,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscFog : public oscObjectBase
 {
 public:
-    oscFog()
-    {
+oscFog()
+{
         OSC_ADD_MEMBER(visualRange);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(BoundingBox, "oscBoundingBox");
     };
@@ -32,6 +33,7 @@ public:
 };
 
 typedef oscObjectVariable<oscFog *> oscFogMember;
+typedef oscObjectVariableArray<oscFog *> oscFogArrayMember;
 
 
 }

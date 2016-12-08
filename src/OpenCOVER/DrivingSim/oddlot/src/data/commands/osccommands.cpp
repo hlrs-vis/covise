@@ -351,8 +351,11 @@ AddOSCArrayMemberCommand::redo()
 
 	if(object_)
 	{
-		oscElement_->setObjectBase(object_);
-		oscBase_->addOSCElement(oscElement_);
+        if (oscElement_)
+        {
+            oscElement_->setObjectBase(object_);
+            oscBase_->addOSCElement(oscElement_);
+        }
 
 		object_->setOwnMember(ownMember_);
 		arrayMember_->push_back(object_);
@@ -369,8 +372,11 @@ void
 {
 	arrayMember_->erase(arrayMember_->end() - 1);
 
-	oscBase_->delOSCElement(oscElement_);
-	oscElement_->setObjectBase(NULL);
+    if (oscElement_)
+    {
+        oscBase_->delOSCElement(oscElement_);
+        oscElement_->setObjectBase(NULL);
+    }
 
 	setUndone();
 }

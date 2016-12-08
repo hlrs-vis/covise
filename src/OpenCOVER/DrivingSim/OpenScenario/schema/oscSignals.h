@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscSignalController.h"
@@ -21,17 +22,18 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscSignals : public oscObjectBase
 {
 public:
-    oscSignals()
-    {
+oscSignals()
+{
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(SignalController, "oscSignalController");
     };
     oscString name;
-    oscSignalControllerMember SignalController;
+    oscSignalControllerArrayMember SignalController;
 
 };
 
 typedef oscObjectVariable<oscSignals *> oscSignalsMember;
+typedef oscObjectVariableArray<oscSignals *> oscSignalsArrayMember;
 
 
 }

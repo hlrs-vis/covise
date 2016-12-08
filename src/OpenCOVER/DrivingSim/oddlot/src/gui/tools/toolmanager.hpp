@@ -26,6 +26,7 @@ class ZoomTool;
 
 class PrototypeManager;
 class SelectionTool;
+class OpenScenarioEditorTool;
 
 class QToolBox;
 class QMenu;
@@ -84,6 +85,8 @@ public:
 		return zoomTool_;
 	}
 
+    void enableOSCEditorToolButton(bool state);
+
 protected:
 private:
     ToolManager(); /* not allowed */
@@ -137,6 +140,10 @@ private:
 	// ZoomTool //
 	//
 	ZoomTool *zoomTool_;
+
+    // OpenScenarioEditorTool //
+    //
+    OpenScenarioEditorTool *oscEditorTool_;
 
 };
 

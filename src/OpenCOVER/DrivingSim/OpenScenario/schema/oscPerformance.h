@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscPerformance : public oscObjectBase
 {
 public:
-    oscPerformance()
-    {
+oscPerformance()
+{
         OSC_ADD_MEMBER(maxSpeed);
         OSC_ADD_MEMBER(maxDeceleration);
         OSC_ADD_MEMBER(mass);
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscPerformance *> oscPerformanceMember;
+typedef oscObjectVariableArray<oscPerformance *> oscPerformanceArrayMember;
 
 
 }

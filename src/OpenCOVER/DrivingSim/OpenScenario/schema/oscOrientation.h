@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,12 +29,13 @@ static Enum_Orientation_typeType *instance();
 class OPENSCENARIOEXPORT oscOrientation : public oscObjectBase
 {
 public:
-    oscOrientation()
-    {
+oscOrientation()
+{
         OSC_ADD_MEMBER_OPTIONAL(type);
         OSC_ADD_MEMBER_OPTIONAL(h);
         OSC_ADD_MEMBER_OPTIONAL(p);
         OSC_ADD_MEMBER_OPTIONAL(r);
+        type.enumType = Enum_Orientation_typeType::instance();
     };
     oscEnum type;
     oscDouble h;
@@ -50,6 +52,7 @@ absolute,
 };
 
 typedef oscObjectVariable<oscOrientation *> oscOrientationMember;
+typedef oscObjectVariableArray<oscOrientation *> oscOrientationArrayMember;
 
 
 }

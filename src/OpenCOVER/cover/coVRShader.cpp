@@ -848,12 +848,28 @@ void coVRShader::storeMaterial()
     impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
 
     std::string ShaderName = name;
+
+    if (ShaderName[0] >= '0' || ShaderName[0] <= '9')
+        ShaderName.insert(0, 1, '_');
+
     for (size_t i = 0; i < ShaderName.length(); i++)
     {
         if (ShaderName[i] == ' ')
             ShaderName[i] = '_';
     }
-    xercesc::DOMDocument *document = impl->createDocument(0, xercesc::XMLString::transcode(ShaderName.c_str()), 0);
+    xercesc::DOMDocument *document = NULL;
+
+    try
+    {
+        document = impl->createDocument(0, xercesc::XMLString::transcode(ShaderName.c_str()), 0);
+    }
+    catch (xercesc::DOMException &ex)
+    {
+        char *msg = xercesc::XMLString::transcode(ex.getMessage());
+        cerr << "ERROR: " << msg << '\n';
+        xercesc::XMLString::release(&msg);
+        return;
+    }
 
     xercesc::DOMElement *rootElement = document->getDocumentElement();
     if (transparent)

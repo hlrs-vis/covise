@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscFollowRoute.h"
@@ -23,8 +24,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscRouting : public oscObjectBase
 {
 public:
-    oscRouting()
-    {
+oscRouting()
+{
         OSC_OBJECT_ADD_MEMBER(FollowRoute, "oscFollowRoute");
         OSC_OBJECT_ADD_MEMBER(FollowTrajectory, "oscFollowTrajectory");
         OSC_OBJECT_ADD_MEMBER(AcquirePosition, "oscAcquirePosition");
@@ -36,6 +37,7 @@ public:
 };
 
 typedef oscObjectVariable<oscRouting *> oscRoutingMember;
+typedef oscObjectVariableArray<oscRouting *> oscRoutingArrayMember;
 
 
 }

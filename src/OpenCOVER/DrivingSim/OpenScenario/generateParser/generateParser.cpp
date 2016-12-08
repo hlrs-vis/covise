@@ -570,13 +570,21 @@ int main(int argc, char **argv)
 			}
 		}
 		char headerName[1000];
-		snprintf(headerName, 1000, "schema/%s.h", cl->name.c_str());
 		char cppName[1000];
-		snprintf(cppName, 1000, "schema/%s.cpp", cl->name.c_str());
 		char headerDefineName[1000];
-        std::string upName(cl->name);
+
+		std::string upName(cl->name);
         std::transform(upName.begin(), upName.end(), upName.begin(), ::toupper);
+
+#ifdef WIN32
+		_snprintf(headerName, 1000, "schema/%s.h", cl->name.c_str());
+		_snprintf(cppName, 1000, "schema/%s.cpp", cl->name.c_str());
+		_snprintf(headerDefineName, 1000, "%s_H", upName.c_str());
+#else
+		snprintf(headerName, 1000, "schema/%s.h", cl->name.c_str());
+		snprintf(cppName, 1000, "schema/%s.cpp", cl->name.c_str());
 		snprintf(headerDefineName, 1000, "%s_H", upName.c_str());
+#endif
 		
 		FILE *header = fopen(headerName, "w");
 		FILE *cpp = NULL;
@@ -594,9 +602,23 @@ int main(int argc, char **argv)
 
 			fprintf(schemaHeaders, "#include \"schema/%s.h\"\n", cl->name.c_str());
 			fprintf(registerSchemaObjects, "staticObjectFactory.registerType<%s>(\"%s\");\n", cl->name.c_str(), cl->name.c_str());
-			
+		
 
-		fprintf(header,
+		bool catalog = false;
+		if (cl->name.find("Catalog") != std::string::npos)
+		{
+			for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
+			{
+				oscMember *member = *mit;
+				if (member->name == "Directory")
+				{
+					catalog = true;
+					break;
+				}
+			}
+		}
+
+				fprintf(header,
 			"/* This file is part of COVISE.\n\
 \n\
 You can use it under the terms of the GNU Lesser General Public License\n\
@@ -608,9 +630,20 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 #ifndef %s\n\
 #define %s\n\
 \n\
-#include \"oscExport.h\"\n\
-#include \"oscObjectBase.h\"\n\
-#include \"oscObjectVariable.h\"\n\
+#include \"oscExport.h\"\n", headerDefineName, headerDefineName);
+
+		if (catalog)
+		{
+			fprintf(header, "#include \"oscCatalog.h\"\n");
+		}
+		else
+		{
+			fprintf(header, "#include \"oscObjectBase.h\"\n");
+		}
+
+		fprintf(header,
+"#include \"oscObjectVariable.h\"\n\
+#include \"oscObjectVariableArray.h\"\n\
 \n\
 #include \"oscVariables.h\"\n", headerDefineName, headerDefineName);
 		
@@ -632,10 +665,24 @@ static %sType *instance();\n\
 };\n\
 ", en->name.c_str(), en->name.c_str(), en->name.c_str());
 		}
-		fprintf(header, "class OPENSCENARIOEXPORT %s : public oscObjectBase\n{\npublic:\n\
-    %s()\n\
-    {\n\
+
+
+		if (catalog)
+		{
+			fprintf(header, "class OPENSCENARIOEXPORT %s : public oscCatalog\n{\npublic:\n\
+%s()\n\
+{\n\
+}\n\
 ", cl->name.c_str(), cl->name.c_str());
+
+		}
+		else
+		{
+			fprintf(header, "class OPENSCENARIOEXPORT %s : public oscObjectBase\n{\npublic:\n\
+%s()\n\
+{\n\
+", cl->name.c_str(), cl->name.c_str());
+
 
 		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
 		{
@@ -661,6 +708,31 @@ static %sType *instance();\n\
 				fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\");\n", member->name.c_str(), member->type.c_str());
 			}
 		}
+
+		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
+		{
+			oscMember *attrib = *ait;
+			if (attrib->type.find("Enum_") != std::string::npos)
+			{
+				bool found = false;
+				for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
+				{
+					if ((*it)->name == attrib->type)
+					{
+						found = true;
+
+						fprintf(header, "        %s.enumType = %sType::instance();\n", attrib->name.c_str(), (*it)->name.c_str());
+						break;
+
+						if (!found)
+						{
+							fprintf(stderr, "attribute type %s not implemented or enum not found\n", attrib->type.c_str());
+						}
+					}
+				}
+			}
+		}
+		
 		fprintf(header, "    };\n");
 
 
@@ -704,7 +776,14 @@ static %sType *instance();\n\
 		for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
 		{
 			oscMember *member = *mit;
-		    fprintf(header, "    %sMember %s;\n", member->type.c_str(), member->name.c_str());
+			if (member->array)
+			{
+				fprintf(header, "    %sArrayMember %s;\n", member->type.c_str(), member->name.c_str());
+			}
+			else
+			{
+				fprintf(header, "    %sMember %s;\n", member->type.c_str(), member->name.c_str());
+			}
 		}
 		for (std::list<oscEnum *>::iterator it = classEnums.begin(); it != classEnums.end(); it++)
 		{
@@ -720,9 +799,15 @@ static %sType *instance();\n\
 			fprintf(header, "\n\
     };\n\
 ");
-		}fprintf(header, "\n\
+		}
+		}
+		
+		fprintf(header, "\n\
 };\n\n\
 typedef oscObjectVariable<%s *> %sMember;\n", cl->name.c_str(), cl->name.c_str());
+
+		fprintf(header, "\
+typedef oscObjectVariableArray<%s *> %sArrayMember;\n", cl->name.c_str(), cl->name.c_str());
 
 		// write factoryInc
 

@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,10 +29,11 @@ static Enum_Controller_domainType *instance();
 class OPENSCENARIOEXPORT oscAutonomous : public oscObjectBase
 {
 public:
-    oscAutonomous()
-    {
+oscAutonomous()
+{
         OSC_ADD_MEMBER(activate);
         OSC_ADD_MEMBER(domain);
+        domain.enumType = Enum_Controller_domainType::instance();
     };
     oscBool activate;
     oscEnum domain;
@@ -47,6 +49,7 @@ both,
 };
 
 typedef oscObjectVariable<oscAutonomous *> oscAutonomousMember;
+typedef oscObjectVariableArray<oscAutonomous *> oscAutonomousArrayMember;
 
 
 }

@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscFileHeader.h"
@@ -22,17 +23,18 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscOpenSCENARIO_EnvironmentCatalog : public oscObjectBase
 {
 public:
-    oscOpenSCENARIO_EnvironmentCatalog()
-    {
+oscOpenSCENARIO_EnvironmentCatalog()
+{
         OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
         OSC_OBJECT_ADD_MEMBER(Environment, "oscEnvironment");
     };
     oscFileHeaderMember FileHeader;
-    oscEnvironmentMember Environment;
+    oscEnvironmentArrayMember Environment;
 
 };
 
 typedef oscObjectVariable<oscOpenSCENARIO_EnvironmentCatalog *> oscOpenSCENARIO_EnvironmentCatalogMember;
+typedef oscObjectVariableArray<oscOpenSCENARIO_EnvironmentCatalog *> oscOpenSCENARIO_EnvironmentCatalogArrayMember;
 
 
 }

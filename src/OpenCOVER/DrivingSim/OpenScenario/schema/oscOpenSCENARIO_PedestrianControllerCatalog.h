@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscFileHeader.h"
@@ -22,17 +23,18 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscOpenSCENARIO_PedestrianControllerCatalog : public oscObjectBase
 {
 public:
-    oscOpenSCENARIO_PedestrianControllerCatalog()
-    {
+oscOpenSCENARIO_PedestrianControllerCatalog()
+{
         OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
         OSC_OBJECT_ADD_MEMBER(PedestrianController, "oscPedestrianController");
     };
     oscFileHeaderMember FileHeader;
-    oscPedestrianControllerMember PedestrianController;
+    oscPedestrianControllerArrayMember PedestrianController;
 
 };
 
 typedef oscObjectVariable<oscOpenSCENARIO_PedestrianControllerCatalog *> oscOpenSCENARIO_PedestrianControllerCatalogMember;
+typedef oscObjectVariableArray<oscOpenSCENARIO_PedestrianControllerCatalog *> oscOpenSCENARIO_PedestrianControllerCatalogArrayMember;
 
 
 }

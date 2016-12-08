@@ -10,7 +10,11 @@ INCLUDE("oscSchema.inc")
 SET(HEADERS
    OpenScenarioBase.h
    oscCatalog.h
+   oscExport.h
+   oscFactories.h
+   oscFactory.h
    oscMember.h
+   oscMemberValue.h
    oscObjectBase.h
    oscObjectVariable.h
    oscObjectVariableArray.h
@@ -22,6 +26,7 @@ SET(HEADERS
 
 SET(SOURCES
    OpenScenarioBase.cpp
+   oscCatalog.cpp
    oscFactories.cpp
    oscMember.cpp
    oscArrayMember.cpp

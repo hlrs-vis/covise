@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscAction.h"
@@ -30,17 +31,18 @@ static Enum_event_priorityType *instance();
 class OPENSCENARIOEXPORT oscEvent : public oscObjectBase
 {
 public:
-    oscEvent()
-    {
+oscEvent()
+{
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(priority);
         OSC_OBJECT_ADD_MEMBER(Action, "oscAction");
         OSC_OBJECT_ADD_MEMBER(EventConditions, "oscEventConditions");
+        priority.enumType = Enum_event_priorityType::instance();
     };
     oscString name;
     oscEnum priority;
-    oscActionMember Action;
-    oscEventConditionsMember EventConditions;
+    oscActionArrayMember Action;
+    oscEventConditionsArrayMember EventConditions;
 
     enum Enum_event_priority
     {
@@ -53,6 +55,7 @@ skip,
 };
 
 typedef oscObjectVariable<oscEvent *> oscEventMember;
+typedef oscObjectVariableArray<oscEvent *> oscEventArrayMember;
 
 
 }

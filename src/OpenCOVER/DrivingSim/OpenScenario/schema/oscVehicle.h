@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscBoundingBox.h"
@@ -32,14 +33,15 @@ static Enum_Vehicle_categoryType *instance();
 class OPENSCENARIOEXPORT oscVehicle : public oscObjectBase
 {
 public:
-    oscVehicle()
-    {
+oscVehicle()
+{
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(category);
         OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
         OSC_OBJECT_ADD_MEMBER(Performance, "oscPerformance");
         OSC_OBJECT_ADD_MEMBER(Axles, "oscAxles");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
+        category.enumType = Enum_Vehicle_categoryType::instance();
     };
     oscString name;
     oscEnum category;
@@ -66,6 +68,7 @@ tram,
 };
 
 typedef oscObjectVariable<oscVehicle *> oscVehicleMember;
+typedef oscObjectVariableArray<oscVehicle *> oscVehicleArrayMember;
 
 
 }

@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscEmpty.h"
@@ -22,8 +23,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscLongitudinal : public oscObjectBase
 {
 public:
-    oscLongitudinal()
-    {
+oscLongitudinal()
+{
         OSC_OBJECT_ADD_MEMBER(None, "oscEmpty");
         OSC_OBJECT_ADD_MEMBER(Timing, "oscTiming");
     };
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscLongitudinal *> oscLongitudinalMember;
+typedef oscObjectVariableArray<oscLongitudinal *> oscLongitudinalArrayMember;
 
 
 }

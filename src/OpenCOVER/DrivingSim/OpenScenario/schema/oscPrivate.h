@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscPrivateAction.h"
@@ -21,17 +22,18 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscPrivate : public oscObjectBase
 {
 public:
-    oscPrivate()
-    {
+oscPrivate()
+{
         OSC_ADD_MEMBER(object);
         OSC_OBJECT_ADD_MEMBER(Action, "oscPrivateAction");
     };
     oscString object;
-    oscPrivateActionMember Action;
+    oscPrivateActionArrayMember Action;
 
 };
 
 typedef oscObjectVariable<oscPrivate *> oscPrivateMember;
+typedef oscObjectVariableArray<oscPrivate *> oscPrivateArrayMember;
 
 
 }

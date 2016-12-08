@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscEndOfRoad.h"
@@ -33,8 +34,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscEntityCondition : public oscObjectBase
 {
 public:
-    oscEntityCondition()
-    {
+oscEntityCondition()
+{
         OSC_OBJECT_ADD_MEMBER(EndOfRoad, "oscEndOfRoad");
         OSC_OBJECT_ADD_MEMBER(Collision, "oscCollision");
         OSC_OBJECT_ADD_MEMBER(Offroad, "oscOffroad");
@@ -66,6 +67,7 @@ public:
 };
 
 typedef oscObjectVariable<oscEntityCondition *> oscEntityConditionMember;
+typedef oscObjectVariableArray<oscEntityCondition *> oscEntityConditionArrayMember;
 
 
 }

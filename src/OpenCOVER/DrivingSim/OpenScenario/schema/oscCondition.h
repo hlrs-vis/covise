@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscByEntity.h"
@@ -31,14 +32,15 @@ static Enum_Condition_edgeType *instance();
 class OPENSCENARIOEXPORT oscCondition : public oscObjectBase
 {
 public:
-    oscCondition()
-    {
+oscCondition()
+{
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(delay);
         OSC_ADD_MEMBER(edge);
         OSC_OBJECT_ADD_MEMBER(ByEntity, "oscByEntity");
         OSC_OBJECT_ADD_MEMBER(ByState, "oscByState");
         OSC_OBJECT_ADD_MEMBER(ByValue, "oscByValue");
+        edge.enumType = Enum_Condition_edgeType::instance();
     };
     oscString name;
     oscDouble delay;
@@ -58,6 +60,7 @@ any,
 };
 
 typedef oscObjectVariable<oscCondition *> oscConditionMember;
+typedef oscObjectVariableArray<oscCondition *> oscConditionArrayMember;
 
 
 }

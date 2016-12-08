@@ -152,6 +152,8 @@ if [ -z "$COENVERROR" ]; then
       export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
       ;;
       macos|macosopt)
+      export DYLD_FRAMEWORK_PATH="${COVISE_DYLD_FRAMEWORK_PATH}:${DYLD_FRAMEWORK_PATH}"
+      export DYLD_LIBRARY_PATH="${COVISE_DYLD_LIBRARY_PATH}:${DYLD_LIBRARY_PATH}"
       export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}:${EXTERNLIBS}/openscenegraph:${EXTERNLIBS}/qt5/lib"
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/xercesc/lib:$DYLD_LIBRARY_PATH"
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/inventor/lib:$DYLD_LIBRARY_PATH"

@@ -15,6 +15,8 @@
 
 #include "osceditor.hpp"
 
+#include <math.h>
+
 // Project //
 //
 #include "src/gui/projectwidget.hpp"
@@ -47,6 +49,7 @@
 
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/items/oscsystem/oscitem.hpp"
+#include "src/graph/items/oscsystem/oscshapeitem.hpp"
 #include "src/graph/items/oscsystem/oscbaseitem.hpp"
 
 // Tools //
@@ -71,6 +74,9 @@
 #include "schema/oscPosition.h"
 #include "oscArrayMember.h"
 #include "oscCatalogReferenceTypeA.h"
+#include "oscWaypoints.h"
+#include "oscObserverTypeB.h"
+#include "oscArrayMember.h"
 
 // Boost //
 //
@@ -94,6 +100,7 @@ OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData
 	, oscBaseItem_(NULL)
 	, oscBase_(NULL)
 	, oscCatalog_(NULL)
+    , waypointsElement_(NULL)
 {
 	mainWindow_ = projectWidget->getMainWindow();
 	oscBase_ = projectData->getOSCBase();
@@ -130,6 +137,49 @@ OpenScenarioEditor::init()
 			oscBase_->addOSCElement(element);
 		}
 	}
+
+    OpenScenario::oscStoryboard *story = dynamic_cast<OpenScenario::oscStoryboard*>(openScenarioBase_->storyboard.getObject());
+    if (story)
+    {
+        QList<OpenScenario::oscObjectBase *>routingObjects = getElements(story, "oscRouting"); 
+        if (!routingObjects.isEmpty())
+        {
+            OpenScenario::oscCatalogs *catalogs = openScenarioBase_->catalogs.getOrCreateObject();
+            OpenScenario::oscCatalog *routingCatalog = catalogs->routingCatalog.getOrCreateObject();
+            if (routingCatalog->getObjectsMap().size() == 0)
+            {
+                //get all catalog object filenames
+                std::vector<bf::path> filenames = routingCatalog->getXoscFilesFromDirectory(routingCatalog->directory->path.getValue());
+
+                //parse all files
+                //store object name and filename in map
+                routingCatalog->fastReadCatalogObjects(filenames);
+            }
+
+            foreach (OpenScenario::oscObjectBase *objectBase, routingObjects)
+            {
+                OpenScenario::oscRouting *objectRouting = dynamic_cast<OpenScenario::oscRouting *>(objectBase);
+                int id = objectRouting->refId.getValue();
+                OpenScenario::oscRouting *catalogObject = dynamic_cast<OpenScenario::oscRouting *>(routingCatalog->getCatalogObject(id));
+                if (!catalogObject)
+                {
+                    routingCatalog->fullReadCatalogObjectWithName(id);
+                    catalogObject = dynamic_cast<OpenScenario::oscRouting *>(routingCatalog->getCatalogObject(id));
+                }
+                OpenScenario::oscObserverTypeB *observer =  catalogObject->observer.getObject();
+                if (!observer)
+                {
+                    continue;
+                }
+                OpenScenario::oscWaypoints *waypoints = observer->waypoints.getObject();
+                if (waypoints)
+                {
+                    OSCElement *element = new OSCElement(QString(id), waypoints);
+                    oscBase_->addOSCElement(element);
+                }
+            }
+        }
+    }
 
 	if (!oscRoadSystemItem_)
 	{
@@ -195,7 +245,41 @@ OpenScenarioEditor::getOSCHandle() const
 
 // Move Object //
 //
+QList<OpenScenario::oscObjectBase *>
+OpenScenarioEditor::getElements(oscObjectBase *root, const std::string &type)
+{
+    QList<OpenScenario::oscObjectBase *>objectList;
+    OpenScenario::oscObjectBase::MemberMap members = root->getMembers();
+    for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
+    {
+        oscMember *member = it->second;
+        if (member)
+        {
+            oscObjectBase *objectBase = member->getObject();
+            if (objectBase)
+            {
+                OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(objectBase->getOwnMember());
+                if (arrayMember)
+                {
+                    for (int i = 0; i < arrayMember->size(); i++)
+                    {
+                        objectList.append(getElements(arrayMember->at(i), type));
+                    }
+                }
+                else
+                {
+                    if (member->getTypeName() == type)
+                    {
+                        objectList.append(objectBase);
+                    }
+                    objectList.append(getElements(objectBase, type));
+                }
+            }
+        }
+    }
 
+    return objectList;
+}
 
 bool 
 OpenScenarioEditor::translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t)
@@ -303,6 +387,88 @@ OpenScenarioEditor::getCatalog(std::string name)
 	return catalog;
 }
 
+void
+    OpenScenarioEditor::addGraphToObserver(const QVector<QPointF> &controlPoints)
+{
+    QList<DataElement *> elements = getProjectData()->getSelectedElements();
+    for (int i = 0; i < elements.size(); i++)
+    {
+        OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
+        if (element)
+        {
+            OpenScenario::oscRouting *routing = dynamic_cast<OpenScenario::oscRouting *>(element->getObject());
+            if (routing)
+            {
+                OpenScenario::oscObserverTypeB *observer = routing->observer.getOrCreateObject();
+                OpenScenario::oscWaypoints *waypoints = observer->waypoints.getOrCreateObject();
+                createWaypoints(waypoints, controlPoints);
+            }
+            else
+            {
+                OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(element->getObject());
+                if (waypoints)
+                {
+                    createWaypoints(waypoints, controlPoints);
+                }
+            }
+        }
+    }
+}
+
+void 
+OpenScenarioEditor::createWaypoints(OpenScenario::oscWaypoints *waypoints, const QVector<QPointF> &controlPoints)
+{
+    OpenScenario::oscArrayMember *waypointArray = dynamic_cast<OpenScenario::oscArrayMember *>(waypoints->getOwnMember());
+    waypointArray->clear();
+
+    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Create waypoints"));
+    for (int i = 0; i < controlPoints.count(); i += 3)
+    {
+        OpenScenario::oscWaypoint *waypoint = waypoints->waypoint.createObject();
+        OpenScenario::oscPosition *position = waypoint->position.createObject();
+        OpenScenario::oscPositionWorld *posWorld = position->positionWorld.createObject();
+        posWorld->x.setValue(controlPoints.at(i).x());
+        posWorld->y.setValue(controlPoints.at(i).y());
+
+        OpenScenario::oscContinuation *continuation = waypoint ->continuation.createObject();
+        OpenScenario::oscShape *shape = continuation->shape.createObject();
+        OpenScenario::oscSpline *spline = shape->spline.createObject();
+        int index = i - 1;
+        if (index > 0)
+        {
+            OpenScenario::oscControlPoint *controlPoint = spline->controlPoint1.createObject();
+            char buf[100];
+
+            sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+            controlPoint->point.setValue(buf);
+        }
+
+        index = i + 1;
+        if (index < controlPoints.count())
+        {
+            OpenScenario::oscControlPoint *controlPoint = spline->controlPoint2.createObject();
+            char buf[100];
+            sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+            controlPoint->point.setValue(buf);
+        }
+
+        AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(waypointArray, waypoints, waypoint, "waypoint", oscBase_, NULL);
+        getProjectGraph()->executeCommand(command);
+    }
+    OSCElement *element = oscBase_->getOrCreateOSCElement(waypoints);
+    element->addOSCElementChanges(OSCElement::COE_ParameterChange);
+
+    UnhideDataElementCommand *command = new UnhideDataElementCommand(element);
+    getProjectGraph()->executeCommand(command);
+
+    SelectDataElementCommand *selectCommand = new SelectDataElementCommand(element);
+    getProjectGraph()->executeCommand(selectCommand);
+
+    getProjectData()->getUndoStack()->endMacro();
+
+    getTopviewGraph()->getView()->clearSplineControlPoints();
+}
+
 
 //################//
 // MOUSE & KEY    //
@@ -350,7 +516,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 					double t;
 					QVector2D vec;
 
-					RSystemElementRoad * road = getProjectData()->getRoadSystem()->findClosestRoad(mousePoint, s, t, vec);
+                    RSystemElementRoad * road = getProjectData()->getRoadSystem()->findClosestRoad(mousePoint, s, t, vec);
 					if (road)
 					{
 						// Create new object //
@@ -483,6 +649,79 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			}
 		}
 	}
+    else if (currentTool == ODD::TOS_GRAPHELEMENT)
+    {
+        OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
+        if (action)
+        {
+            if  (!action->getState())
+            {
+                if (waypointsElement_)
+                {
+                    OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(waypointsElement_->getObject());
+                    createWaypoints(waypoints, getTopviewGraph()->getView()->getSplineControlPoints());
+                }
+                else
+                {
+                    addGraphToObserver(getTopviewGraph()->getView()->getSplineControlPoints());
+                }
+
+                waypointsElement_ = NULL;
+            }
+            else
+            {
+                QList<DataElement *> elements = getProjectData()->getSelectedElements();
+                for (int i = 0; i < elements.size(); i++)
+                {
+                    OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
+                    if (element)
+                    {
+                        OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(element->getObject());
+                        if (waypoints)
+                        {
+                            waypointsElement_ = element;
+                            HideDataElementCommand *command = new HideDataElementCommand(waypointsElement_);
+                            getProjectGraph()->executeCommand(command);
+                        }
+                        else
+                        {
+                            OpenScenario::oscRouting *routing = dynamic_cast<OpenScenario::oscRouting *>(element->getObject());
+                            if (routing)
+                            {
+                                OpenScenario::oscObserverTypeB *observer = routing->observer.getObject();
+                                if (observer)
+                                {
+                                    OpenScenario::oscWaypoints *waypoints = observer->waypoints.getObject();
+                                    {
+                                        if (waypoints)
+                                        {
+                                            waypointsElement_ = oscBase_->getOSCElement(waypoints);
+                                            HideDataElementCommand *command = new HideDataElementCommand(waypointsElement_);
+                                            getProjectGraph()->executeCommand(command);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+  /*      QList<DataElement *> elements = getProjectData()->getSelectedElements();
+        for (int i = 0; i < elements.size(); i++)
+        {
+            OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
+            if (element && (element != routingElement_))
+            {
+                OpenScenario::oscRouting *routing = dynamic_cast<OpenScenario::oscRouting *>(element->getObject());
+                if (routing)
+                {
+                    routingElement_ = element;
+                    new OSCShapeItem(element, oscBaseItem_);
+                }
+            }
+        } */
+    }
 	else
 	{		
 		if (currentTool == ODD::TOS_SAVE_CATALOG)

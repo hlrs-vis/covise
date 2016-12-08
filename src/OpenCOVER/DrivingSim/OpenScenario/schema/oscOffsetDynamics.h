@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscSpeedDynamics.h"
@@ -21,11 +22,12 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscOffsetDynamics : public oscObjectBase
 {
 public:
-    oscOffsetDynamics()
-    {
+oscOffsetDynamics()
+{
         OSC_ADD_MEMBER(maxLateralAcc);
         OSC_ADD_MEMBER(duration);
         OSC_ADD_MEMBER(shape);
+        shape.enumType = Enum_Dynamics_shapeType::instance();
     };
     oscDouble maxLateralAcc;
     oscDouble duration;
@@ -34,6 +36,7 @@ public:
 };
 
 typedef oscObjectVariable<oscOffsetDynamics *> oscOffsetDynamicsMember;
+typedef oscObjectVariableArray<oscOffsetDynamics *> oscOffsetDynamicsArrayMember;
 
 
 }

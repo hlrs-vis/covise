@@ -31,6 +31,7 @@ class OpenScenarioBase;
 class oscObjectBase;
 class oscObject;
 class oscCatalog;
+class oscWaypoints;
 }
 
 class OSCBaseItem;
@@ -62,6 +63,10 @@ public:
     //
     virtual void toolAction(ToolAction *);
 
+    // get object list //
+    //
+    QList<OpenScenario::oscObjectBase *> getElements(OpenScenario::oscObjectBase *root, const std::string &type);
+
     // Move Object //
     //
 	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
@@ -80,6 +85,9 @@ public:
 	{
 		return oscRoadSystemItem_;
 	}
+
+    void addGraphToObserver(const QVector<QPointF> &controlPoints);
+    void createWaypoints(OpenScenario::oscWaypoints *waypoints, const QVector<QPointF> &controlPoints);
 
 
 protected:
@@ -125,6 +133,7 @@ private:
 	//
 	OpenScenario::oscCatalog *oscCatalog_;
 
+
 	ODD::ToolId lastTool_;
 	QString lastOSCObjectName_;
 
@@ -133,6 +142,11 @@ private:
 	// Window with catalog entries //
 	//
 	CatalogTreeWidget *catalogTree_;
+
+
+    // Selected waypoints //
+    //
+    OSCElement *waypointsElement_;
 
     // RoadType //
     //

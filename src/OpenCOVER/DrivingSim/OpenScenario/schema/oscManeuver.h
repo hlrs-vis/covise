@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscEvent.h"
@@ -21,17 +22,18 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscManeuver : public oscObjectBase
 {
 public:
-    oscManeuver()
-    {
+oscManeuver()
+{
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(Event, "oscEvent");
     };
     oscString name;
-    oscEventMember Event;
+    oscEventArrayMember Event;
 
 };
 
 typedef oscObjectVariable<oscManeuver *> oscManeuverMember;
+typedef oscObjectVariableArray<oscManeuver *> oscManeuverArrayMember;
 
 
 }

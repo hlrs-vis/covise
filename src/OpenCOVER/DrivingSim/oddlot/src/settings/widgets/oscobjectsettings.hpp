@@ -40,6 +40,7 @@ class OSCBase;
 class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
 class ProjectSettings;
+class ToolAction;
 
 class QLabel;
 class QTreeWidget;
@@ -95,6 +96,7 @@ private:
 	//################//
 
 signals:
+    void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
 
     //################//
     // SLOTS          //
@@ -103,6 +105,7 @@ signals:
 private slots:
     void onEditingFinished(QString name);
 	OpenScenario::oscObjectBase * onPushButtonPressed(QString name);
+    OpenScenario::oscObjectBase *onGraphElementChosen(QString name);
 	void onArrayElementClicked(QTreeWidgetItem *item, int column);
 	void onNewArrayElement();
 	void onValueChanged();
