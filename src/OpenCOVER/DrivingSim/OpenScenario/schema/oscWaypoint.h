@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscPosition.h"
@@ -29,10 +30,11 @@ static Enum_Route_strategyType *instance();
 class OPENSCENARIOEXPORT oscWaypoint : public oscObjectBase
 {
 public:
-    oscWaypoint()
-    {
+oscWaypoint()
+{
         OSC_ADD_MEMBER(strategy);
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        strategy.enumType = Enum_Route_strategyType::instance();
     };
     oscEnum strategy;
     oscPositionMember Position;
@@ -49,6 +51,7 @@ random,
 };
 
 typedef oscObjectVariable<oscWaypoint *> oscWaypointMember;
+typedef oscObjectVariableArray<oscWaypoint *> oscWaypointArrayMember;
 
 
 }

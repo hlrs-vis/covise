@@ -41,6 +41,8 @@
 // GUI //
 //
 #include "src/gui/projectwidget.hpp"
+#include "src/gui/tools/osceditortool.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 
 // Data //
 #include "src/data/oscsystem/oscelement.hpp"
@@ -140,6 +142,23 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 OSCObjectSettings::~OSCObjectSettings()
 {
+    OpenScenario::oscMember *ownMember = object_->getOwnMember();
+    if (ownMember)
+    {
+        QString type = QString::fromStdString(ownMember->getTypeName());
+        if (type == "oscWaypoints")
+        {
+
+            // Connect with the ToolManager to send the selected signal or object //
+            //
+            ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+            if (toolManager)
+            {
+                toolManager->enableOSCEditorToolButton(false);
+            }
+        }
+    }
+
 	memberWidgets_.clear();
 
 	// Observer //
@@ -196,10 +215,10 @@ OSCObjectSettings::uiInit()
 	connect(valueChangedMapper, SIGNAL(mapped(QString)), this, SLOT(onValueChanged()));
 
 
-	// Signal Mapper for the objects //
-	//
-	QSignalMapper *signalPushMapper = new QSignalMapper(this);
-	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
+    // Signal Mapper for the objects //
+    //
+    QSignalMapper *signalPushMapper = new QSignalMapper(this);
+    connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
 
 	bool choice = object_->hasChoice();
 	int choiceComboBoxRow = ++row;
@@ -443,7 +462,24 @@ OSCObjectSettings::uiInitArray()
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
 
+    OpenScenario::oscMember *ownMember = object_->getOwnMember();
+    if (ownMember)
+    {
+        QString type = QString::fromStdString(ownMember->getTypeName());
+        if (type == "oscWaypoints")
+        {
 
+            // Connect with the ToolManager to send the selected signal or object //
+            //
+            ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+            if (toolManager)
+            {
+                toolManager->enableOSCEditorToolButton(true);
+            }
+
+            element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
+        }
+    }
 }
 
 void OSCObjectSettings::updateTree()
@@ -813,6 +849,20 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
 
 	return object;
+}
+
+OpenScenario::oscObjectBase * 
+OSCObjectSettings::onGraphElementChosen(QString name)
+{
+    // Set a tool //
+    //
+    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_GRAPHELEMENT, name);
+    emit toolAction(action);
+    delete action;
+
+    OpenScenario::oscObjectBase *object = onPushButtonPressed(name);
+
+    return object;
 }
 
 void

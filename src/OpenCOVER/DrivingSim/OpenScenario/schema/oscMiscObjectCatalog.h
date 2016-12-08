@@ -10,26 +10,26 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #define OSCMISCOBJECTCATALOG_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscCatalog.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscDirectory.h"
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT oscMiscObjectCatalog : public oscObjectBase
+class OPENSCENARIOEXPORT oscMiscObjectCatalog : public oscCatalog
 {
 public:
-    oscMiscObjectCatalog()
-    {
-        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
-    };
-    oscDirectoryMember Directory;
+oscMiscObjectCatalog()
+{
+}
 
 };
 
 typedef oscObjectVariable<oscMiscObjectCatalog *> oscMiscObjectCatalogMember;
+typedef oscObjectVariableArray<oscMiscObjectCatalog *> oscMiscObjectCatalogArrayMember;
 
 
 }

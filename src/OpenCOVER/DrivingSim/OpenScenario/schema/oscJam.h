@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscPosition.h"
@@ -22,8 +23,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscJam : public oscObjectBase
 {
 public:
-    oscJam()
-    {
+oscJam()
+{
         OSC_ADD_MEMBER(direction);
         OSC_ADD_MEMBER(speed);
         OSC_ADD_MEMBER(length);
@@ -39,6 +40,7 @@ public:
 };
 
 typedef oscObjectVariable<oscJam *> oscJamMember;
+typedef oscObjectVariableArray<oscJam *> oscJamArrayMember;
 
 
 }

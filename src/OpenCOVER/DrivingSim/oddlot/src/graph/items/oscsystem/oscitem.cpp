@@ -155,7 +155,8 @@ OSCItem::init()
     {
         // Text //
         //
-        oscTextItem_ = new OSCTextItem(element_, this, oscObject_, pos_);
+        QString name = updateName();
+        oscTextItem_ = new OSCTextItem(element_, this, name, pos_);
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
@@ -218,6 +219,20 @@ OSCItem::init()
 			updatePosition();
 		}
 	}
+}
+
+QString
+    OSCItem::updateName()
+{
+    QString name = "";
+    OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getOrCreateValue();
+    oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
+    if (sv)
+    {
+        name = QString::fromStdString(sv->getValue());
+    }
+
+    return name;
 }
 
 
@@ -467,6 +482,20 @@ OSCItem::updateObserver()
     if (isInGarbage())
     {
         return; // will be deleted anyway
+    }
+
+    // Get change flags //
+    //
+	int changes = element_->getOSCElementChanges();
+
+    if (changes & OSCElement::COE_ParameterChange)
+    {
+        // Text //
+        //
+        if (oscTextItem_)
+        {
+            oscTextItem_->updateText(updateName());
+        }
     }
 
     // Signal //

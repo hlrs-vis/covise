@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,10 +29,11 @@ static Enum_Dynamics_shapeType *instance();
 class OPENSCENARIOEXPORT oscSpeedDynamics : public oscObjectBase
 {
 public:
-    oscSpeedDynamics()
-    {
+oscSpeedDynamics()
+{
         OSC_ADD_MEMBER(shape);
         OSC_ADD_MEMBER(rate);
+        shape.enumType = Enum_Dynamics_shapeType::instance();
     };
     oscEnum shape;
     oscDouble rate;
@@ -48,6 +50,7 @@ step,
 };
 
 typedef oscObjectVariable<oscSpeedDynamics *> oscSpeedDynamicsMember;
+typedef oscObjectVariableArray<oscSpeedDynamics *> oscSpeedDynamicsArrayMember;
 
 
 }

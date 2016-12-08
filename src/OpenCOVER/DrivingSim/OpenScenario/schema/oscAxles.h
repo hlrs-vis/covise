@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscAxle.h"
@@ -23,19 +24,20 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscAxles : public oscObjectBase
 {
 public:
-    oscAxles()
-    {
+oscAxles()
+{
         OSC_OBJECT_ADD_MEMBER(Front, "oscAxle");
         OSC_OBJECT_ADD_MEMBER(Rear, "oscAxle");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Additional, "oscAxle");
     };
     oscAxleMember Front;
     oscAxleMember Rear;
-    oscAxleMember Additional;
+    oscAxleArrayMember Additional;
 
 };
 
 typedef oscObjectVariable<oscAxles *> oscAxlesMember;
+typedef oscObjectVariableArray<oscAxles *> oscAxlesArrayMember;
 
 
 }

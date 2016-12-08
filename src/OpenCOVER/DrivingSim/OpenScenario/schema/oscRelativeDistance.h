@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscTimeHeadway.h"
@@ -29,13 +30,15 @@ static Enum_RelativeDistance_typeType *instance();
 class OPENSCENARIOEXPORT oscRelativeDistance : public oscObjectBase
 {
 public:
-    oscRelativeDistance()
-    {
+oscRelativeDistance()
+{
         OSC_ADD_MEMBER(entity);
         OSC_ADD_MEMBER(type);
         OSC_ADD_MEMBER(value);
         OSC_ADD_MEMBER(freespace);
         OSC_ADD_MEMBER(rule);
+        type.enumType = Enum_RelativeDistance_typeType::instance();
+        rule.enumType = Enum_ruleType::instance();
     };
     oscString entity;
     oscEnum type;
@@ -54,6 +57,7 @@ inertial,
 };
 
 typedef oscObjectVariable<oscRelativeDistance *> oscRelativeDistanceMember;
+typedef oscObjectVariableArray<oscRelativeDistance *> oscRelativeDistanceArrayMember;
 
 
 }

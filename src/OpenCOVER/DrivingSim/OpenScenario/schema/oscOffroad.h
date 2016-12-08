@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscOffroad : public oscObjectBase
 {
 public:
-    oscOffroad()
-    {
+oscOffroad()
+{
         OSC_ADD_MEMBER(duration);
     };
     oscDouble duration;
@@ -29,6 +30,7 @@ public:
 };
 
 typedef oscObjectVariable<oscOffroad *> oscOffroadMember;
+typedef oscObjectVariableArray<oscOffroad *> oscOffroadArrayMember;
 
 
 }

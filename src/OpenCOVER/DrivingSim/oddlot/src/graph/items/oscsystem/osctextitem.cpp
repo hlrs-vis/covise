@@ -38,15 +38,15 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-OSCTextItem::OSCTextItem(OSCElement *element, GraphElement *item, OpenScenario::oscObject *oscObject, const QPointF &pos)
+OSCTextItem::OSCTextItem(OSCElement *element, GraphElement *item, const QString &text, const QPointF &pos)
     : GraphElement(item, element)
 	, element_(element)
-    , oscObject_(oscObject)
+    , text_(text)
 	, pos_(pos)
 {
     // Text //
     //
-	updateName();
+	textHandle_ = new TextHandle(text_, this);
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
@@ -62,7 +62,6 @@ OSCTextItem::OSCTextItem(OSCElement *element, GraphElement *item, OpenScenario::
 
     // Path //
     //
-	updateName();
     updatePosition();
 
     // Hide the text item on creation and show it only on mouse hover of the parent //
@@ -101,20 +100,11 @@ OSCTextItem::updatePosition()
 }
 
 void
-OSCTextItem::updateName()
+OSCTextItem::updateText(const QString &text)
 {
-	// Text //
+    // Text //
     //
-	OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getOrCreateValue();
-	oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
-	if (sv)
-	{
-		textHandle_ = new TextHandle(QString::fromStdString(sv->getValue()), this);
-	}
-	else
-	{
-		textHandle_ = new TextHandle("", this);
-	}
+    textHandle_ ->setText(text);
 }
 
 //################//
@@ -163,7 +153,6 @@ OSCTextItem::updateObserver()
     if (changes & OSCElement::COE_ParameterChange)
     {
         updatePosition();
-        updateName();
     }
 }
 

@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscAddPosition.h"
@@ -22,8 +23,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscEntity : public oscObjectBase
 {
 public:
-    oscEntity()
-    {
+oscEntity()
+{
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(AddPosition, "oscAddPosition");
         OSC_OBJECT_ADD_MEMBER(Delete, "oscEmpty");
@@ -35,6 +36,7 @@ public:
 };
 
 typedef oscObjectVariable<oscEntity *> oscEntityMember;
+typedef oscObjectVariableArray<oscEntity *> oscEntityArrayMember;
 
 
 }

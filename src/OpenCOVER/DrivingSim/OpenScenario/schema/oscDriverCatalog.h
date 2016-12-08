@@ -10,26 +10,26 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #define OSCDRIVERCATALOG_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscCatalog.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscDirectory.h"
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT oscDriverCatalog : public oscObjectBase
+class OPENSCENARIOEXPORT oscDriverCatalog : public oscCatalog
 {
 public:
-    oscDriverCatalog()
-    {
-        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
-    };
-    oscDirectoryMember Directory;
+oscDriverCatalog()
+{
+}
 
 };
 
 typedef oscObjectVariable<oscDriverCatalog *> oscDriverCatalogMember;
+typedef oscObjectVariableArray<oscDriverCatalog *> oscDriverCatalogArrayMember;
 
 
 }

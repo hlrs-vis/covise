@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,9 +29,10 @@ static Enum_ByCondition_actorType *instance();
 class OPENSCENARIOEXPORT oscByCondition : public oscObjectBase
 {
 public:
-    oscByCondition()
-    {
+oscByCondition()
+{
         OSC_ADD_MEMBER(actor);
+        actor.enumType = Enum_ByCondition_actorType::instance();
     };
     oscEnum actor;
 
@@ -44,6 +46,7 @@ anyEntity,
 };
 
 typedef oscObjectVariable<oscByCondition *> oscByConditionMember;
+typedef oscObjectVariableArray<oscByCondition *> oscByConditionArrayMember;
 
 
 }

@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,10 +29,11 @@ static Enum_domain_time_distanceType *instance();
 class OPENSCENARIOEXPORT oscExtent : public oscObjectBase
 {
 public:
-    oscExtent()
-    {
+oscExtent()
+{
         OSC_ADD_MEMBER(value);
         OSC_ADD_MEMBER(domain);
+        domain.enumType = Enum_domain_time_distanceType::instance();
     };
     oscDouble value;
     oscEnum domain;
@@ -46,6 +48,7 @@ distance,
 };
 
 typedef oscObjectVariable<oscExtent *> oscExtentMember;
+typedef oscObjectVariableArray<oscExtent *> oscExtentArrayMember;
 
 
 }

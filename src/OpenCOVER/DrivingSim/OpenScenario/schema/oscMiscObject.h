@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscBoundingBox.h"
@@ -29,12 +30,13 @@ static Enum_MiscObject_categoryType *instance();
 class OPENSCENARIOEXPORT oscMiscObject : public oscObjectBase
 {
 public:
-    oscMiscObject()
-    {
+oscMiscObject()
+{
         OSC_ADD_MEMBER(category);
         OSC_ADD_MEMBER(mass);
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
+        category.enumType = Enum_MiscObject_categoryType::instance();
     };
     oscEnum category;
     oscDouble mass;
@@ -52,6 +54,7 @@ other,
 };
 
 typedef oscObjectVariable<oscMiscObject *> oscMiscObjectMember;
+typedef oscObjectVariableArray<oscMiscObject *> oscMiscObjectArrayMember;
 
 
 }

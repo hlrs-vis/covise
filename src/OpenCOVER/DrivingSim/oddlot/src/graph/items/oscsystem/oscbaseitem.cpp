@@ -30,6 +30,7 @@
 #include "src/graph/graphscene.hpp"
 //#include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/oscsystem/oscitem.hpp"
+#include "src/graph/items/oscsystem/oscshapeitem.hpp"
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
 
@@ -112,7 +113,14 @@ OSCBaseItem::init()
 					}
 				}
 			}
+            continue;
 		}
+
+        OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(element->getObject());
+        if (waypoints)
+        {
+            new OSCShapeItem(element, this, waypoints);
+        }
     }
 
 }
@@ -135,6 +143,23 @@ OSCBaseItem::removeOSCItem(OSCItem *oscItem)
     return oscItems_.remove(element->getID());
 }
 
+void
+OSCBaseItem::appendOSCShapeItem(OSCShapeItem *oscShapeItem)
+{
+	OSCElement *element = dynamic_cast<OSCElement *>(oscShapeItem->getDataElement());
+	QString id = element->getID();
+    if (!oscShapeItems_.contains(id))
+    {
+        oscShapeItems_.insert(id, oscShapeItem);
+    }
+}
+
+bool
+OSCBaseItem::removeOSCShapeItem(OSCShapeItem *oscShapeItem)
+{
+	OSCElement *element = dynamic_cast<OSCElement *>(oscShapeItem->getDataElement());
+    return oscShapeItems_.remove(element->getID());
+}
 
 //##################//
 // Observer Pattern //
@@ -170,24 +195,30 @@ OSCBaseItem::updateObserver()
 				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
 					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
 				{
-					OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
+                    OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
 
-					if (oscPosition)
-					{
-						OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
-						if (oscPosRoad)
-						{
-							QString id = QString::fromStdString(oscPosRoad->roadId.getValue());
-							RSystemElementRoad *road = roadSystem_->getRoad(id);
-							if (road)
-							{
-								new OSCItem(element, this, object, entityCatalog_, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
-							}
-						}
-					}
-				}
-			}
+                    if (oscPosition)
+                    {
+                        OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
+                        if (oscPosRoad)
+                        {
+                            QString id = QString::fromStdString(oscPosRoad->roadId.getValue());
+                            RSystemElementRoad *road = roadSystem_->getRoad(id);
+                            if (road)
+                            {
+                                new OSCItem(element, this, object, entityCatalog_, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
+                            }
+                        }
+                    }
+                }
 
+                OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(element->getObject());
+                if (waypoints)
+                {
+                    new OSCShapeItem(element, this, waypoints);
+                }
+
+            }
             iter++;
         }
     }

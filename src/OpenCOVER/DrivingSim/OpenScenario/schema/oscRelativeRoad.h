@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscOrientation.h"
@@ -21,8 +22,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscRelativeRoad : public oscObjectBase
 {
 public:
-    oscRelativeRoad()
-    {
+oscRelativeRoad()
+{
         OSC_ADD_MEMBER(object);
         OSC_ADD_MEMBER(ds);
         OSC_ADD_MEMBER(dt);
@@ -36,6 +37,7 @@ public:
 };
 
 typedef oscObjectVariable<oscRelativeRoad *> oscRelativeRoadMember;
+typedef oscObjectVariableArray<oscRelativeRoad *> oscRelativeRoadArrayMember;
 
 
 }

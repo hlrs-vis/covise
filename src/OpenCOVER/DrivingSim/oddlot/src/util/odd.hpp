@@ -210,6 +210,7 @@ public:
 		TOS_SAVE_CATALOG,
 		TOS_ELEMENT,
 		TOS_BASE,
+        TOS_GRAPHELEMENT,
 
         // No Tool
         TNO_TOOL

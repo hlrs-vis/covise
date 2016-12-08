@@ -649,7 +649,7 @@
 
 <xsd:complexType name="OSCUserDefinedAction">
     <xsd:choice>
-        <xsd:attribute name="Command" type="xsd:string"/>
+        <!-- xsd:attribute name="Command" type="xsd:string"/ -->
         <xsd:element name="Script">
             <xsd:complexType>
                 <xsd:all>
@@ -1006,7 +1006,7 @@
                     <xsd:element name="Shape">
                         <xsd:complexType>
                             <xsd:choice>
-                                <xsd:element name="Polyline" type="Empty"/>
+                                <xsd:element name="Polyline" type="OSCEmpty"/>
                                 <xsd:element name="Clothoid">
                                     <xsd:complexType>
                                         <xsd:attribute name="curvature"     type="xsd:double" use="required"/>

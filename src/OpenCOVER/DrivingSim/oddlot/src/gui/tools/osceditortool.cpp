@@ -81,6 +81,9 @@ OpenScenarioEditorTool::initToolWidget()
     
     ribbonToolGroup->addButton(ui->oscSave, ODD::TOS_SAVE_CATALOG); 
 
+    connect(ui->graphEditButton, SIGNAL(clicked(bool)), this, SLOT(handleGraphState(bool)));
+ //   ribbonToolGroup->addButton(ui->graphEditButton, ODD::TOS_GRAPHELEMENT);
+
 	// add all members of OpenScenarioBase as buttons
 	//
 	//QButtonGroup *memberToolGroup = new QButtonGroup;
@@ -133,6 +136,8 @@ void
 void
 OpenScenarioEditorTool::activateEditor()
 {
+    enableGraphEdit(false);
+
     OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(toolId_, "");
     emit toolAction(action);
     delete action;
@@ -185,6 +190,26 @@ OpenScenarioEditorTool::onPushButtonPressed(QString name)
 	}
 }
 
+void
+OpenScenarioEditorTool::enableGraphEdit(bool state)
+{
+    if (state || !ui->graphEditButton->isChecked())
+    {
+        ui->graphEditButton->setEnabled(state);
+        ui->graphEditButton->setVisible(state);
+    }
+}
+
+void
+OpenScenarioEditorTool::handleGraphState(bool state)
+{
+     // Set a tool //
+    //
+    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_GRAPHELEMENT, state);
+    emit toolAction(action);
+    delete action;
+}
+
 //################//
 //                //
 // OpenScenarioEditorToolAction //
@@ -194,6 +219,12 @@ OpenScenarioEditorTool::onPushButtonPressed(QString name)
 OpenScenarioEditorToolAction::OpenScenarioEditorToolAction(ODD::ToolId toolId, const QString &text)
     : ToolAction(ODD::EOS, toolId)
 	, text_(text)
+{
+}
+
+OpenScenarioEditorToolAction::OpenScenarioEditorToolAction(ODD::ToolId toolId, bool state)
+    : ToolAction(ODD::EOS, toolId)
+	, state_(state)
 {
 }
 

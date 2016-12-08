@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscPosition.h"
@@ -22,8 +23,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscCollisionTarget : public oscObjectBase
 {
 public:
-    oscCollisionTarget()
-    {
+oscCollisionTarget()
+{
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
         OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity");
     };
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscCollisionTarget *> oscCollisionTargetMember;
+typedef oscObjectVariableArray<oscCollisionTarget *> oscCollisionTargetArrayMember;
 
 
 }

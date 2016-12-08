@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscAxle : public oscObjectBase
 {
 public:
-    oscAxle()
-    {
+oscAxle()
+{
         OSC_ADD_MEMBER(maxSteering);
         OSC_ADD_MEMBER(wheelDiameter);
         OSC_ADD_MEMBER(trackWidth);
@@ -37,6 +38,7 @@ public:
 };
 
 typedef oscObjectVariable<oscAxle *> oscAxleMember;
+typedef oscObjectVariableArray<oscAxle *> oscAxleArrayMember;
 
 
 }

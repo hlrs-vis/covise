@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscSun.h"
@@ -31,12 +32,13 @@ static Enum_cloudStateType *instance();
 class OPENSCENARIOEXPORT oscWeather : public oscObjectBase
 {
 public:
-    oscWeather()
-    {
+oscWeather()
+{
         OSC_ADD_MEMBER(cloudState);
         OSC_OBJECT_ADD_MEMBER(Sun, "oscSun");
         OSC_OBJECT_ADD_MEMBER(Fog, "oscFog");
         OSC_OBJECT_ADD_MEMBER(Precipitation, "oscPrecipitation");
+        cloudState.enumType = Enum_cloudStateType::instance();
     };
     oscEnum cloudState;
     oscSunMember Sun;
@@ -56,6 +58,7 @@ rainy,
 };
 
 typedef oscObjectVariable<oscWeather *> oscWeatherMember;
+typedef oscObjectVariableArray<oscWeather *> oscWeatherArrayMember;
 
 
 }

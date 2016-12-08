@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,11 +29,12 @@ static Enum_domain_absolute_relativeType *instance();
 class OPENSCENARIOEXPORT oscTiming : public oscObjectBase
 {
 public:
-    oscTiming()
-    {
+oscTiming()
+{
         OSC_ADD_MEMBER(domain);
         OSC_ADD_MEMBER(scale);
         OSC_ADD_MEMBER(offset);
+        domain.enumType = Enum_domain_absolute_relativeType::instance();
     };
     oscEnum domain;
     oscDouble scale;
@@ -48,6 +50,7 @@ relative,
 };
 
 typedef oscObjectVariable<oscTiming *> oscTimingMember;
+typedef oscObjectVariableArray<oscTiming *> oscTimingArrayMember;
 
 
 }

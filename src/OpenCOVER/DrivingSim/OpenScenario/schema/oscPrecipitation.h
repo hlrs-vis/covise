@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,10 +29,11 @@ static Enum_Precipitation_typeType *instance();
 class OPENSCENARIOEXPORT oscPrecipitation : public oscObjectBase
 {
 public:
-    oscPrecipitation()
-    {
+oscPrecipitation()
+{
         OSC_ADD_MEMBER(type);
         OSC_ADD_MEMBER(intensity);
+        type.enumType = Enum_Precipitation_typeType::instance();
     };
     oscEnum type;
     oscDouble intensity;
@@ -47,6 +49,7 @@ snow,
 };
 
 typedef oscObjectVariable<oscPrecipitation *> oscPrecipitationMember;
+typedef oscObjectVariableArray<oscPrecipitation *> oscPrecipitationArrayMember;
 
 
 }

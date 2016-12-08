@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscLongitudinalAction.h"
@@ -28,8 +29,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscPrivateAction : public oscObjectBase
 {
 public:
-    oscPrivateAction()
-    {
+oscPrivateAction()
+{
         OSC_OBJECT_ADD_MEMBER(LongitudinalAction, "oscLongitudinalAction");
         OSC_OBJECT_ADD_MEMBER(LateralAction, "oscLateralAction");
         OSC_OBJECT_ADD_MEMBER(Visibility, "oscVisibility");
@@ -51,6 +52,7 @@ public:
 };
 
 typedef oscObjectVariable<oscPrivateAction *> oscPrivateActionMember;
+typedef oscObjectVariableArray<oscPrivateAction *> oscPrivateActionArrayMember;
 
 
 }

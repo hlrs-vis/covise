@@ -10,26 +10,26 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #define OSCTRAJECTORYCATALOG_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscCatalog.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscDirectory.h"
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT oscTrajectoryCatalog : public oscObjectBase
+class OPENSCENARIOEXPORT oscTrajectoryCatalog : public oscCatalog
 {
 public:
-    oscTrajectoryCatalog()
-    {
-        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
-    };
-    oscDirectoryMember Directory;
+oscTrajectoryCatalog()
+{
+}
 
 };
 
 typedef oscObjectVariable<oscTrajectoryCatalog *> oscTrajectoryCatalogMember;
+typedef oscObjectVariableArray<oscTrajectoryCatalog *> oscTrajectoryCatalogArrayMember;
 
 
 }

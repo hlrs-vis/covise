@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscRoadCoord : public oscObjectBase
 {
 public:
-    oscRoadCoord()
-    {
+oscRoadCoord()
+{
         OSC_ADD_MEMBER(pathS);
         OSC_ADD_MEMBER(t);
     };
@@ -31,6 +32,7 @@ public:
 };
 
 typedef oscObjectVariable<oscRoadCoord *> oscRoadCoordMember;
+typedef oscObjectVariableArray<oscRoadCoord *> oscRoadCoordArrayMember;
 
 
 }

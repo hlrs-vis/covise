@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscTimeHeadway.h"
@@ -23,12 +24,13 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscTimeOfDay : public oscObjectBase
 {
 public:
-    oscTimeOfDay()
-    {
+oscTimeOfDay()
+{
         OSC_ADD_MEMBER(animation);
         OSC_ADD_MEMBER(rule);
         OSC_OBJECT_ADD_MEMBER(Time, "oscTime");
         OSC_OBJECT_ADD_MEMBER(Date, "oscDate");
+        rule.enumType = Enum_ruleType::instance();
     };
     oscBool animation;
     oscEnum rule;
@@ -38,6 +40,7 @@ public:
 };
 
 typedef oscObjectVariable<oscTimeOfDay *> oscTimeOfDayMember;
+typedef oscObjectVariableArray<oscTimeOfDay *> oscTimeOfDayArrayMember;
 
 
 }

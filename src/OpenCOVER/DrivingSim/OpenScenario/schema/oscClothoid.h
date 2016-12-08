@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscClothoid : public oscObjectBase
 {
 public:
-    oscClothoid()
-    {
+oscClothoid()
+{
         OSC_ADD_MEMBER(curvature);
         OSC_ADD_MEMBER(curvatureDot);
         OSC_ADD_MEMBER(length);
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscClothoid *> oscClothoidMember;
+typedef oscObjectVariableArray<oscClothoid *> oscClothoidArrayMember;
 
 
 }

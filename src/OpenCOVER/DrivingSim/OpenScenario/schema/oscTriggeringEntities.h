@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscNamedEntity.h"
@@ -29,13 +30,14 @@ static Enum_TriggeringEntities_ruleType *instance();
 class OPENSCENARIOEXPORT oscTriggeringEntities : public oscObjectBase
 {
 public:
-    oscTriggeringEntities()
-    {
+oscTriggeringEntities()
+{
         OSC_ADD_MEMBER(rule);
         OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity");
+        rule.enumType = Enum_TriggeringEntities_ruleType::instance();
     };
     oscEnum rule;
-    oscNamedEntityMember NamedEntity;
+    oscNamedEntityArrayMember NamedEntity;
 
     enum Enum_TriggeringEntities_rule
     {
@@ -47,6 +49,7 @@ all,
 };
 
 typedef oscObjectVariable<oscTriggeringEntities *> oscTriggeringEntitiesMember;
+typedef oscObjectVariableArray<oscTriggeringEntities *> oscTriggeringEntitiesArrayMember;
 
 
 }

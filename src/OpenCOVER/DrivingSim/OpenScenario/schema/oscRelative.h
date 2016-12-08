@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -28,12 +29,13 @@ static Enum_Speed_Target_valueTypeType *instance();
 class OPENSCENARIOEXPORT oscRelative : public oscObjectBase
 {
 public:
-    oscRelative()
-    {
+oscRelative()
+{
         OSC_ADD_MEMBER(object);
         OSC_ADD_MEMBER(value);
         OSC_ADD_MEMBER(valueType);
         OSC_ADD_MEMBER(continuous);
+        valueType.enumType = Enum_Speed_Target_valueTypeType::instance();
     };
     oscString object;
     oscDouble value;
@@ -50,6 +52,7 @@ factor,
 };
 
 typedef oscObjectVariable<oscRelative *> oscRelativeMember;
+typedef oscObjectVariableArray<oscRelative *> oscRelativeArrayMember;
 
 
 }

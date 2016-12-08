@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscParameter.h"
@@ -29,21 +30,22 @@ static Enum_sexType *instance();
 class OPENSCENARIOEXPORT oscDescription : public oscObjectBase
 {
 public:
-    oscDescription()
-    {
+oscDescription()
+{
         OSC_ADD_MEMBER(weight);
         OSC_ADD_MEMBER(height);
         OSC_ADD_MEMBER(eyeDistance);
         OSC_ADD_MEMBER(age);
         OSC_ADD_MEMBER(sex);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Parameter, "oscParameter");
+        sex.enumType = Enum_sexType::instance();
     };
     oscDouble weight;
     oscDouble height;
     oscDouble eyeDistance;
     oscDouble age;
     oscEnum sex;
-    oscParameterMember Parameter;
+    oscParameterArrayMember Parameter;
 
     enum Enum_sex
     {
@@ -55,6 +57,7 @@ female,
 };
 
 typedef oscObjectVariable<oscDescription *> oscDescriptionMember;
+typedef oscObjectVariableArray<oscDescription *> oscDescriptionArrayMember;
 
 
 }

@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 
@@ -20,8 +21,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscTime : public oscObjectBase
 {
 public:
-    oscTime()
-    {
+oscTime()
+{
         OSC_ADD_MEMBER(hour);
         OSC_ADD_MEMBER(min);
         OSC_ADD_MEMBER(sec);
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscTime *> oscTimeMember;
+typedef oscObjectVariableArray<oscTime *> oscTimeArrayMember;
 
 
 }

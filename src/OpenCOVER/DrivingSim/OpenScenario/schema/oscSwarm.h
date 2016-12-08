@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscCentralObject.h"
@@ -22,8 +23,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscSwarm : public oscObjectBase
 {
 public:
-    oscSwarm()
-    {
+oscSwarm()
+{
         OSC_ADD_MEMBER(semiMajorAxis);
         OSC_ADD_MEMBER(semiMinorAxis);
         OSC_ADD_MEMBER(innerRadius);
@@ -41,6 +42,7 @@ public:
 };
 
 typedef oscObjectVariable<oscSwarm *> oscSwarmMember;
+typedef oscObjectVariableArray<oscSwarm *> oscSwarmArrayMember;
 
 
 }

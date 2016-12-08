@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscControlPoint1.h"
@@ -22,8 +23,8 @@ namespace OpenScenario
 class OPENSCENARIOEXPORT oscSpline : public oscObjectBase
 {
 public:
-    oscSpline()
-    {
+oscSpline()
+{
         OSC_OBJECT_ADD_MEMBER(ControlPoint1, "oscControlPoint1");
         OSC_OBJECT_ADD_MEMBER(ControlPoint2, "oscControlPoint2");
     };
@@ -33,6 +34,7 @@ public:
 };
 
 typedef oscObjectVariable<oscSpline *> oscSplineMember;
+typedef oscObjectVariableArray<oscSpline *> oscSplineArrayMember;
 
 
 }

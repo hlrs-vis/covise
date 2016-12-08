@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscVariables.h"
 #include "schema/oscAtStart.h"
@@ -29,11 +30,13 @@ static Enum_AfterTermination_ruleType *instance();
 class OPENSCENARIOEXPORT oscAfterTermination : public oscObjectBase
 {
 public:
-    oscAfterTermination()
-    {
+oscAfterTermination()
+{
         OSC_ADD_MEMBER(type);
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(rule);
+        type.enumType = Enum_Story_Element_typeType::instance();
+        rule.enumType = Enum_AfterTermination_ruleType::instance();
     };
     oscEnum type;
     oscString name;
@@ -50,6 +53,7 @@ any,
 };
 
 typedef oscObjectVariable<oscAfterTermination *> oscAfterTerminationMember;
+typedef oscObjectVariableArray<oscAfterTermination *> oscAfterTerminationArrayMember;
 
 
 }
