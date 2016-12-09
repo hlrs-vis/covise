@@ -121,6 +121,8 @@ public:
     bool init();
     int cYear, cMonth, cDay, cHour, cMinute;
 
+	coTUILabel *yearLabel;
+
     coTUITab *skyTab;
     coTUIToggleButton *showSky;
     coTUIEditIntField *yearField;
@@ -153,6 +155,8 @@ public:
     void setAltitude(float v);
     void setTimeLapse(bool v);
     void setCurrentTime(bool v);
+
+    // void useSceneLightasSun(bool v);
 
 private:
 };
