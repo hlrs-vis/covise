@@ -555,10 +555,10 @@ namespace visionaray
             base_type::traverse(seq);
         }
 
-        void apply(osg::Geode &geode)
+        void apply(osg::Node &node)
         {
-            // State from geode is propagated to children
-            auto parent_set = geode.getStateSet();
+            // State from node is propagated to children
+            auto parent_set = node.getStateSet();
             auto parent_mattr = parent_set ? parent_set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
 
             if (auto pmat = dynamic_cast<osg::Material *>(parent_mattr))
@@ -576,147 +576,151 @@ namespace visionaray
                 }
             }
 
-            // Record number of encountered triangles to check if this node
-            // is handled by Visionaray
-            size_t num_triangles = triangles_.size();
-
-            for (size_t i = 0; i < geode.getNumDrawables(); ++i)
+            if (auto geode = dynamic_cast<osg::Geode *>(&node))
             {
-                auto drawable = geode.getDrawable(i);
-                if (!drawable)
+
+                // Record number of encountered triangles to check if this node
+                // is handled by Visionaray
+                size_t num_triangles = triangles_.size();
+
+                for (size_t i = 0; i < geode->getNumDrawables(); ++i)
                 {
-                    continue;
-                }
+                    auto drawable = geode->getDrawable(i);
+                    if (!drawable)
+                    {
+                        continue;
+                    }
 
-                auto geom = drawable->asGeometry();
-                if (!geom)
-                {
-                    continue;
-                }
+                    auto geom = drawable->asGeometry();
+                    if (!geom)
+                    {
+                        continue;
+                    }
 
-                auto node_vertices = dynamic_cast<osg::Vec3Array *>(geom->getVertexArray());
-                if (!node_vertices || node_vertices->size() == 0)
-                {
-                    continue;
-                }
+                    auto node_vertices = dynamic_cast<osg::Vec3Array *>(geom->getVertexArray());
+                    if (!node_vertices || node_vertices->size() == 0)
+                    {
+                        continue;
+                    }
 
-                auto node_normals = dynamic_cast<osg::Vec3Array *>(geom->getNormalArray());
-                if (!node_normals || node_normals->size() == 0)
-                {
-                    continue;
-                }
+                    auto node_normals = dynamic_cast<osg::Vec3Array *>(geom->getNormalArray());
+                    if (!node_normals || node_normals->size() == 0)
+                    {
+                        continue;
+                    }
 
-                auto node_colors = dynamic_cast<osg::Vec4Array *>(geom->getColorArray());
-                // ok if node_colors == 0
+                    auto node_colors = dynamic_cast<osg::Vec4Array *>(geom->getColorArray());
+                    // ok if node_colors == 0
 
 
-                // Simple checks are done - traverse parents to see if node is visible
+                    // Simple checks are done - traverse parents to see if node is visible
 
-                visibility_visitor visible(&geode);
-                geode.accept(visible);
+                    visibility_visitor visible(geode);
+                    geode->accept(visible);
 
-                // TODO: scene is no longer acquired in drawImplementation
-/*                if (!visible.is_visible())
-                {
+                    // TODO: scene is no longer acquired in drawImplementation
+                    /*                if (!visible.is_visible())
+                                      {
                     // no other children will be visible, either
                     break;
-                }*/
+                    }*/
 
-                unsigned tex_unit = 0;
-                auto node_tex_coords = dynamic_cast<osg::Vec2Array *>(geom->getTexCoordArray(tex_unit));
-                // ok if node_tex_coords == 0
+                    unsigned tex_unit = 0;
+                    auto node_tex_coords = dynamic_cast<osg::Vec2Array *>(geom->getTexCoordArray(tex_unit));
+                    // ok if node_tex_coords == 0
 
-                auto set = geom->getStateSet();
+                    auto set = geom->getStateSet();
 
-                // material
+                    // material
 
-                auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
-                auto mat = dynamic_cast<osg::Material *>(mattr);
+                    auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
+                    auto mat = dynamic_cast<osg::Material *>(mattr);
 
-                if (mat)
-                {
-                    materials_.push_back(get_material(mat));
-                }
-                else
-                {
-                    if (parent_mat_)
-                        materials_.push_back(get_material(parent_mat_));
-                    else
-                        materials_.push_back(get_default_material());
-                }
-
-                // texture
-
-                auto tattr = set != nullptr ? set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
-                auto tex = dynamic_cast<osg::Texture2D *>(tattr);
-                auto img = tex != nullptr ? tex->getImage() : nullptr;
-
-                if (tex && img)
-                {
-                    auto &vsnray_tex = get_or_insert_texture(tex, img, textures_);
-                    texture_refs_.emplace_back(vsnray_tex);
-                }
-                else
-                {
-                    if (parent_tex_ && parent_img_)
+                    if (mat)
                     {
-                        auto &vsnray_tex = get_or_insert_texture(parent_tex_, parent_img_, textures_);
+                        materials_.push_back(get_material(mat));
+                    }
+                    else
+                    {
+                        if (parent_mat_)
+                            materials_.push_back(get_material(parent_mat_));
+                        else
+                            materials_.push_back(get_default_material());
+                    }
+
+                    // texture
+
+                    auto tattr = set != nullptr ? set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
+                    auto tex = dynamic_cast<osg::Texture2D *>(tattr);
+                    auto img = tex != nullptr ? tex->getImage() : nullptr;
+
+                    if (tex && img)
+                    {
+                        auto &vsnray_tex = get_or_insert_texture(tex, img, textures_);
                         texture_refs_.emplace_back(vsnray_tex);
                     }
                     else
-                        texture_refs_.emplace_back(0, 0);
+                    {
+                        if (parent_tex_ && parent_img_)
+                        {
+                            auto &vsnray_tex = get_or_insert_texture(parent_tex_, parent_img_, textures_);
+                            texture_refs_.emplace_back(vsnray_tex);
+                        }
+                        else
+                            texture_refs_.emplace_back(0, 0);
+                    }
+
+                    assert(materials_.size() == texture_refs_.size());
+
+                    // transform
+
+                    auto world_transform = osg::computeLocalToWorld(getNodePath());
+
+                    // geometry
+
+                    assert(static_cast<material_list::size_type>(static_cast<unsigned>(materials_.size()) == materials_.size()));
+                    unsigned geom_id = static_cast<unsigned>(materials_.size() - 1);
+
+                    osg::TriangleIndexFunctor<store_triangle> tif;
+                    tif.init(
+                            node_vertices,
+                            node_normals,
+                            node_colors,
+                            node_tex_coords,
+                            world_transform,
+                            geom_id,
+                            triangles_,
+                            normals_,
+                            colors_,
+                            tex_coords_);
+                    geom->accept(tif);
                 }
 
-                assert(materials_.size() == texture_refs_.size());
+                if (triangles_.size() > num_triangles)
+                {
+                    // Store old nodemask so we can restore it e.g. when
+                    // the plugin is unloaded
+                    node_masks_.insert(std::make_pair(geode, geode->getNodeMask()));
 
-                // transform
+                    // Geometry node is handled by Visionaray, cull for rendering
+                    geode->setNodeMask(
+                            opencover::cover->getObjectsRoot()->getNodeMask()
+                            & ~opencover::VRViewer::instance()->getCullMask()
+                            & ~opencover::VRViewer::instance()->getCullMaskLeft()
+                            & ~opencover::VRViewer::instance()->getCullMaskRight());
 
-                auto world_transform = osg::computeLocalToWorld(getNodePath());
-
-                // geometry
-
-                assert(static_cast<material_list::size_type>(static_cast<unsigned>(materials_.size()) == materials_.size()));
-                unsigned geom_id = static_cast<unsigned>(materials_.size() - 1);
-
-                osg::TriangleIndexFunctor<store_triangle> tif;
-                tif.init(
-                    node_vertices,
-                    node_normals,
-                    node_colors,
-                    node_tex_coords,
-                    world_transform,
-                    geom_id,
-                    triangles_,
-                    normals_,
-                    colors_,
-                    tex_coords_);
-                geom->accept(tif);
+                }
+                else
+                {
+                    // Geometry node not handled by Visionaray - if there is
+                    // an old nodemask, reset culling accordingly
+                    auto it = node_masks_.find(geode);
+                    if (it != node_masks_.end())
+                        geode->setNodeMask(it->second);
+                }
             }
 
-            if (triangles_.size() > num_triangles)
-            {
-                // Store old nodemask so we can restore it e.g. when
-                // the plugin is unloaded
-                node_masks_.insert(std::make_pair(&geode, geode.getNodeMask()));
-
-                // Geometry node is handled by Visionaray, cull for rendering
-                geode.setNodeMask(
-                        opencover::cover->getObjectsRoot()->getNodeMask()
-                        & ~opencover::VRViewer::instance()->getCullMask()
-                        & ~opencover::VRViewer::instance()->getCullMaskLeft()
-                        & ~opencover::VRViewer::instance()->getCullMaskRight());
-
-            }
-            else
-            {
-                // Geometry node not handled by Visionaray - if there is
-                // an old nodemask, reset culling accordingly
-                auto it = node_masks_.find(&geode);
-                if (it != node_masks_.end())
-                    geode.setNodeMask(it->second);
-            }
-
-            base_type::traverse(geode);
+            base_type::traverse(node);
         }
 
     private:
