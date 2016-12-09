@@ -1,0 +1,18 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+% examples for using this module
+
+\begin{covimg2}	{}{ReadStlMap}{0.7}\end{covimg2}
+
+The map above shows you how to connect the output ports of ReadStl without
+using normals (Renderer 1) and with using normals (Renderer 2).
+
+The output shows Renderer 2:  
+
+\begin{covimg2}	{}{ReadStlRenderer2}{0.6}\end{covimg2} 
+
+%
+%
