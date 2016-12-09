@@ -6,12 +6,12 @@
  * License: LGPL 2+ */
 
 // +++++++++++++++++++++++++++++++++++++++++
-// MODULE ReadModule
+// MODULE ReadModel
 //
 // This module reads polygon meshes in all formats supported by assimp
 //
 
-#include "ReadModule.h"
+#include "ReadModel.h"
 #include <do/coDoData.h>
 #include <alg/coFeatureLines.h>
 
@@ -21,7 +21,7 @@
 
 
 // Module set-up in Constructor
-ReadModule::ReadModule(int argc, char *argv[])
+ReadModel::ReadModel(int argc, char *argv[])
     : coModule(argc, argv, "Read STL")
 {
     // file browser parameter
@@ -47,13 +47,13 @@ ReadModule::ReadModule(int argc, char *argv[])
 
 }
 
-ReadModule::~ReadModule()
+ReadModel::~ReadModel()
 {
 }
 
 // param callback read header again after all changes
 void
-ReadModule::param(const char *paraName, bool inMapLoading)
+ReadModel::param(const char *paraName, bool inMapLoading)
 {
     if (inMapLoading)
         return;
@@ -62,11 +62,11 @@ ReadModule::param(const char *paraName, bool inMapLoading)
     //    readHeader();
 }
 
-int ReadModule::compute(const char *)
+int ReadModel::compute(const char *)
 {
     int result = SUCCESS;
     return result;
 }
 
 
-MODULE_MAIN(IO, ReadModule)
+MODULE_MAIN(IO, ReadModel)

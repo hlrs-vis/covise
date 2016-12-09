@@ -5,11 +5,11 @@
 
  * License: LGPL 2+ */
 
-#ifndef _READ_MODULE_H
-#define _READ_MODULE_H
+#ifndef _READ_MODEL_H
+#define _READ_MODEL_H
 
 // +++++++++++++++++++++++++++++++++++++++++
-// MODULE ReadModule
+// MODULE ReadModel
 //
 // This module reads polygon meshes in all formats supported by assimp
 //
@@ -17,7 +17,7 @@
 #include <api/coModule.h>
 using namespace covise;
 
-class ReadModule : public coModule
+class ReadModel : public coModule
 {
 public:
 
@@ -39,7 +39,7 @@ private:
 
 
 public:
-    ReadModule(int argc, char *argv[]);
-    virtual ~ReadModule();
+    ReadModel(int argc, char *argv[]);
+    virtual ~ReadModel();
 };
 #endif
