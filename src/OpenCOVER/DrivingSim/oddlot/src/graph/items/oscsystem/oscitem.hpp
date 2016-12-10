@@ -26,6 +26,7 @@ class oscVehicle;
 class oscPedestrian;
 class oscObject;
 class oscCatalog;
+class oscPrivateAction;
 }
 
 class RoadSystem;
@@ -44,7 +45,7 @@ class OSCItem : public GraphElement
     //################//
 
 public:
-	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId);
+	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, const QPointF &pos, const QString &roadId);
     virtual ~OSCItem();
 
 
@@ -116,7 +117,8 @@ private:
 
 	OpenScenario::oscObject *oscObject_;
 	OpenScenario::oscObjectBase *selectedObject_;
-	OpenScenario::oscCatalog *entityCatalog_;
+	OpenScenario::oscPrivateAction *oscPrivateAction_;
+	OpenScenario::oscCatalog *catalog_;
 	RSystemElementRoad *road_;
 	RSystemElementRoad *closestRoad_;
 

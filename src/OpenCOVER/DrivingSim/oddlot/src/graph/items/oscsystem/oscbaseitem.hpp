@@ -21,6 +21,11 @@
 namespace OpenScenario
 {
 class oscCatalog;
+class oscActions;
+class oscObject;
+class oscCatalogs;
+class oscPrivateAction;
+class oscPrivate;
 }
 
 class TopviewGraph;
@@ -102,6 +107,11 @@ public:
 
 private:
 	OSCBase *oscBase_;
+	OpenScenario::oscActions *actions_;
+	OpenScenario::oscCatalogs *catalogs_;
+
+	OpenScenario::oscPrivateAction *getPrivateAction(OpenScenario::oscObject *object, OpenScenario::oscPrivate *privateObject);
+	OpenScenario::oscCatalog *getCatalog(OpenScenario::oscObject *object);
 
 	 // OSCObjectItems //
     //
@@ -112,8 +122,6 @@ private:
 	OSCRoadSystemItem *oscRoadSystemItem_;
 
 	TopviewGraph *topviewGraph_;
-
-	OpenScenario::oscCatalog *entityCatalog_;
 
 };
 

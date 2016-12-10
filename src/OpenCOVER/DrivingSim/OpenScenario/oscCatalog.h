@@ -88,7 +88,7 @@ public:
 	std::string getType(const std::string &name);
 
 	//generate refId for new object
-	int generateRefId(int startId);
+	std::string generateRefId(int startId);
 
 	// write all catalog members to catalogs
 	void writeCatalogToDOM();

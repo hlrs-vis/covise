@@ -49,7 +49,11 @@
 #include "schema/oscObject.h"
 #include "oscObjectBase.h"
 #include "oscMember.h"
+#include "schema/oscCatalogs.h"
 #include "schema/oscPosition.h"
+#include "schema/oscTrajectory.h"
+#include "schema/oscPrivateAction.h"
+#include "schema/oscPrivate.h"
 
 // Qt //
 //
@@ -85,22 +89,40 @@ OSCBaseItem::~OSCBaseItem()
 void
 OSCBaseItem::init()
 {	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-	OpenScenario::oscCatalogs *catalogs = openScenarioBase->Catalogs.getOrCreateObject();
-	entityCatalog_ = catalogs->getCatalog("entityCatalog");
+	catalogs_ = openScenarioBase->Catalogs.getOrCreateObject();
+	OpenScenario::oscStoryboard *story = openScenarioBase->Storyboard.getOrCreateObject();
+	OpenScenario::oscInit *init = story->Init.getOrCreateObject();
+	actions_ = init->Actions.getOrCreateObject();
+	OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
 
 	// Root Base item //
     //
-
-	foreach (OSCElement *element, oscBase_->getOSCElements())
-    {
+	
+	for(oscArrayMember::iterator it =privateArray->begin();it != privateArray->end();it++)
+	{
+		OpenScenario::oscPrivate *privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
+		OSCElement *element = oscBase_->getOSCElement(QString::fromStdString(privateObject->object.getValue()));
 		OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
 		if (object)
 		{
-			OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
+			OpenScenario::oscCatalog *catalog = getCatalog(object);
+			if (!catalog)
+			{
+				continue;
+			}
+
+			OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
+
+			if (!privateAction)
+			{
+				continue;
+			}
+
+			OpenScenario::oscPosition *oscPosition = privateAction->Position.getObject();
 
 			if (oscPosition)
 			{
-				OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
+				OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
 				if (oscPosRoad)
 				{
 					QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
@@ -109,20 +131,67 @@ OSCBaseItem::init()
 					{
 						double s = oscPosRoad->s.getValue();
 						double t = oscPosRoad->t.getValue();
-						new OSCItem(element, this, object, entityCatalog_, road->getGlobalPoint(s, t), roadId);
+						new OSCItem(element, this, object, catalog, road->getGlobalPoint(s, t), roadId);
 					}
 				}
 			}
-            continue;
+			continue;
 		}
 
-        OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(element->getObject());
-        if (waypoints)
-        {
-            new OSCShapeItem(element, this, waypoints);
-        }
+		OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
+		if (trajectory)
+		{
+			new OSCShapeItem(element, this, trajectory);
+		}
     }
 
+}
+
+OpenScenario::oscCatalog *
+OSCBaseItem::getCatalog(OpenScenario::oscObject *object)
+{
+	OpenScenario::oscCatalog *catalog = NULL;
+
+	OpenScenario::oscCatalogReference *catalogReference = object->CatalogReference.getObject();
+	if (!catalogReference)
+	{
+		return NULL;
+	}
+	std::string catalogName = catalogReference->catalog.getValue();
+	OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
+	if (catalogMember)
+	{
+		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObject());
+	}
+
+	return catalog;
+}
+
+
+OpenScenario::oscPrivateAction *
+OSCBaseItem::getPrivateAction(OpenScenario::oscObject *object, OpenScenario::oscPrivate *privateObject)
+{
+	OpenScenario::oscPrivateAction *privateAction = NULL;
+
+	OpenScenario::oscPrivateAction *privateActions = privateObject->Action.getObject();
+	if (!privateActions)
+	{
+		return NULL;
+	}
+	OpenScenario::oscArrayMember *privateActionsArray = dynamic_cast<OpenScenario::oscArrayMember *>(privateActions->getOwnMember());
+
+	for(oscArrayMember::iterator it =privateActionsArray->begin();it != privateActionsArray->end();it++)
+	{
+		OpenScenario::oscPrivateAction *action = dynamic_cast<OpenScenario::oscPrivateAction *>(*it);
+
+		if (action->getChosenMember()->getName() == "Position")
+		{
+			privateAction = action;
+			break;
+		}
+	}
+
+	return privateAction;
 }
 
 void
@@ -188,34 +257,66 @@ OSCBaseItem::updateObserver()
 		QMap<QString, OSCElement *>::const_iterator iter = oscBase_->getOSCElements().constBegin();
          while (iter != oscBase_->getOSCElements().constEnd())
         {
-            OSCElement *element = iter.value();
+			OSCElement *element = iter.value();
 			OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
 			if (object)
 			{
+				OpenScenario::oscCatalog *catalog = getCatalog(object);
+				if (!catalog)
+				{
+					continue;
+				}
+
 				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
 					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
 				{
-                    OpenScenario::oscPosition *oscPosition = object->initPosition.getObject();
+					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getOwnMember());
 
-                    if (oscPosition)
-                    {
-                        OpenScenario::oscPositionRoad *oscPosRoad = oscPosition->positionRoad.getObject();
-                        if (oscPosRoad)
-                        {
-                            QString id = QString::fromStdString(oscPosRoad->roadId.getValue());
-                            RSystemElementRoad *road = roadSystem_->getRoad(id);
+					// Root Base item //
+					//
+
+					OpenScenario::oscPrivate *privateObject = NULL;
+					for(oscArrayMember::iterator it =privateArray->begin();it != privateArray->end();it++)
+					{
+						privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
+						if (privateObject->object.getValue() == object->name.getValue())
+						{
+							break;
+						}
+					}
+
+					if (!privateObject)
+					{
+						break;
+					}
+					OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
+
+					if (!privateAction)
+					{
+						continue;
+					}
+
+					OpenScenario::oscPosition *oscPosition = privateAction->Position.getObject();
+
+					if (oscPosition)
+					{
+						OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
+						if (oscPosRoad)
+						{
+							QString id = QString::fromStdString(oscPosRoad->roadId.getValue());
+							RSystemElementRoad *road = roadSystem_->getRoad(id);
                             if (road)
                             {
-                                new OSCItem(element, this, object, entityCatalog_, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
+                                new OSCItem(element, this, object, catalog, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
                             }
                         }
                     }
                 }
 
-                OpenScenario::oscWaypoints *waypoints = dynamic_cast<OpenScenario::oscWaypoints *>(element->getObject());
-                if (waypoints)
+				OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
+                if (trajectory)
                 {
-                    new OSCShapeItem(element, this, waypoints);
+                    new OSCShapeItem(element, this, trajectory);
                 }
 
             }

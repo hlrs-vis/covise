@@ -61,15 +61,16 @@ OpenScenarioEditorTool::initToolWidget()
     ToolWidget *ribbonWidget = new ToolWidget();
     ui->setupUi(ribbonWidget);
 
-	ui->catalogComboBox->addItem("vehicleCatalog");
-	ui->catalogComboBox->addItem("driverCatalog");
-	ui->catalogComboBox->addItem("observerCatalog");
-	ui->catalogComboBox->addItem("pedestrianCatalog");
-	ui->catalogComboBox->addItem("miscObjectCatalog");
-	ui->catalogComboBox->addItem("entityCatalog");
-	ui->catalogComboBox->addItem("environmentCatalog");
-	ui->catalogComboBox->addItem("maneuverCatalog");
-	ui->catalogComboBox->addItem("routingCatalog");
+	ui->catalogComboBox->addItem("VehicleCatalog");
+	ui->catalogComboBox->addItem("DriverCatalog");
+	ui->catalogComboBox->addItem("ObserverCatalog");
+	ui->catalogComboBox->addItem("PedestrianCatalog");
+	ui->catalogComboBox->addItem("PedestrianControllerCatalog");
+	ui->catalogComboBox->addItem("MiscObjectCatalog");
+	ui->catalogComboBox->addItem("EnvironmentCatalog");
+	ui->catalogComboBox->addItem("ManeuverCatalog");
+	ui->catalogComboBox->addItem("TrajectoryCatalog");
+	ui->catalogComboBox->addItem("RouteCatalog");
    
     connect(ui->catalogComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCatalogSelection(int)));
     ui->catalogComboBox->setCurrentIndex(0); // this doesn't trigger an event...

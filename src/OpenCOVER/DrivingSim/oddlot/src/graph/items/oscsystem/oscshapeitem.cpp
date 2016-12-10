@@ -44,9 +44,9 @@
 
 // OpenScenario //
 //
-#include "oscWaypoints.h"
-#include "oscPosition.h"
-#include "oscPositionWorld.h"
+#include "schema/oscTrajectory.h"
+#include "schema/oscPosition.h"
+#include "schema/oscWorld.h"
 #include "oscVariables.h"
 
 // Qt //
@@ -60,11 +60,11 @@
 #include <QVector>
 #include <QPainterPath>
 
-OSCShapeItem::OSCShapeItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscWaypoints *waypoints)
+OSCShapeItem::OSCShapeItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscTrajectory *trajectory)
     : GraphElement(oscBaseItem, element)
 	, element_(element)
 	, oscBaseItem_(oscBaseItem)
-    , waypoints_(waypoints)
+    , trajectory_(trajectory)
 	, path_(NULL)
 {
 
@@ -182,16 +182,16 @@ OSCShapeItem::createControlPoints()
 {
     controlPoints_.clear();
 
-    OpenScenario::oscArrayMember *waypointArray = dynamic_cast<OpenScenario::oscArrayMember *>(waypoints_->getOwnMember());
-    for (int i = 0; i < waypointArray->size(); i++)
+    OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory_->getOwnMember());
+    for (int i = 0; i < trajectoryArray->size(); i++)
     {
-        OpenScenario::oscWaypoint *waypoint = dynamic_cast<OpenScenario::oscWaypoint *>(waypointArray->at(i));
-        OpenScenario::oscPosition *position = waypoint->position.getObject();
+        OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(trajectoryArray->at(i));
+        OpenScenario::oscPosition *position = vertex->Position.getObject();
         if (!position)
         {
             continue;
         }
-        OpenScenario::oscPositionWorld *posWorld = position->positionWorld.getObject();
+        OpenScenario::oscWorld *posWorld = position->World.getObject();
         if (!posWorld)
         {
             continue;
@@ -199,26 +199,22 @@ OSCShapeItem::createControlPoints()
 
         QPointF p0(posWorld->x.getValue(), posWorld->y.getValue());
 
-        OpenScenario::oscContinuation *continuation = waypoint ->continuation.getObject();
-        if (!continuation)
-        {
-            continue;
-        }
-        OpenScenario::oscShape *shape = continuation->shape.getObject();
+        OpenScenario::oscShape *shape = vertex ->Shape.getObject();
         if (!shape)
         {
             continue;
         }
-        OpenScenario::oscSpline *spline = shape->spline.getObject();
+
+        OpenScenario::oscSpline *spline = shape->Spline.getObject();
         if (!spline)
         {
             continue;
         }
 
-        OpenScenario::oscControlPoint *controlPoint = spline->controlPoint1.getObject();
-        if (controlPoint)
+        OpenScenario::oscControlPoint1 *controlPoint1 = spline->ControlPoint1.getObject();
+        if (controlPoint1)
         {
-            std::string s = controlPoint->point.getValue();
+			std::string s = controlPoint1->status.getValue();
             int x, y;
             sscanf(s.c_str(), "%d %d", &x, &y);
             QPointF p1(x, y);
@@ -228,10 +224,10 @@ OSCShapeItem::createControlPoints()
 
         controlPoints_.push_back(p0);
 
-        controlPoint = spline->controlPoint2.getObject();
-        if (controlPoint)
+        OpenScenario::oscControlPoint2 *controlPoint2 = spline->ControlPoint2.getObject();
+        if (controlPoint2)
         {
-            std::string s = controlPoint->point.getValue();
+            std::string s = controlPoint2->status.getValue();
             int x, y;
             sscanf(s.c_str(), "%d %d", &x, &y);
             QPointF p1(x, y);

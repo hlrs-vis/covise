@@ -22,7 +22,7 @@ namespace OpenScenario
 {
 class OpenScenarioBase;
 class oscObjectBase;
-class oscWaypoints;
+class oscTrajectory;
 }
 
 class OpenScenarioEditor;
@@ -40,7 +40,7 @@ class OSCShapeItem : public GraphElement
     //################//
 
 public:
-	explicit OSCShapeItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscWaypoints *waypoints);
+	explicit OSCShapeItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscTrajectory *trajectory);
     virtual ~OSCShapeItem();
 
 
@@ -98,7 +98,7 @@ protected:
     //################//
 
 private:
-    OpenScenario::oscWaypoints *waypoints_;
+    OpenScenario::oscTrajectory *trajectory_;
 	OSCElement *element_;
 	OSCBaseItem * oscBaseItem_;
     void init();
