@@ -645,7 +645,7 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 "#include \"oscObjectVariable.h\"\n\
 #include \"oscObjectVariableArray.h\"\n\
 \n\
-#include \"oscVariables.h\"\n", headerDefineName, headerDefineName);
+#include \"oscVariables.h\"\n");
 		
 			for (std::list<std::string>::iterator it = cl->enumHeaders.begin(); it != cl->enumHeaders.end(); it++)
 			{
