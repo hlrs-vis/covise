@@ -9,6 +9,7 @@ INCLUDE("oscSchema.inc")
 
 SET(HEADERS
    OpenScenarioBase.h
+   oscArrayMember.h
    oscCatalog.h
    oscExport.h
    oscFactories.h

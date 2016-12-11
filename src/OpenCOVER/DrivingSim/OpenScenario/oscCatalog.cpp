@@ -550,16 +550,18 @@ oscCatalog::SuccessIntVar oscCatalog::getIntFromIntAttribute(xercesc::DOMAttr *a
     return successIntVar;
 }
 
-int oscCatalog::generateRefId(int startId)
+std::string oscCatalog::generateRefId(int startId)
 {
 	int refId = startId - 1;
+	std::string s;
 	ObjectsMap::const_iterator found;
 	do
 	{
-//		found = m_Objects.find(++refId);
+		s = std::to_string(++refId);
+		found = m_Objects.find(s);
 	}while(found != m_Objects.end());
 
-	return refId;
+	return s;
 }
 
 bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude)

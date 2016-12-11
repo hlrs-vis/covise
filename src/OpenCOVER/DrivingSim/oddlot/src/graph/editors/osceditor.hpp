@@ -31,7 +31,8 @@ class OpenScenarioBase;
 class oscObjectBase;
 class oscObject;
 class oscCatalog;
-class oscWaypoints;
+class oscTrajectory;
+class oscPrivateAction;
 }
 
 class OSCBaseItem;
@@ -69,9 +70,10 @@ public:
 
     // Move Object //
     //
-	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
+	bool translateObject(OpenScenario::oscPrivateAction *privateAction, const QString &newRoadId, double s, double t);
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);
+	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
 
 
 	// Catalog dock widget changed //
@@ -87,7 +89,7 @@ public:
 	}
 
     void addGraphToObserver(const QVector<QPointF> &controlPoints);
-    void createWaypoints(OpenScenario::oscWaypoints *waypoints, const QVector<QPointF> &controlPoints);
+    void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints);
 
 
 protected:
@@ -146,7 +148,7 @@ private:
 
     // Selected waypoints //
     //
-    OSCElement *waypointsElement_;
+    OSCElement *trajectoryElement_;
 
     // RoadType //
     //
