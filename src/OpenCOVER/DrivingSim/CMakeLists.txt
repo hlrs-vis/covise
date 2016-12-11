@@ -3,7 +3,7 @@ if(NOT COVISE_BUILD_DRIVINGSIM)
 endif()
 
 add_subdirectory(OpenScenario)
-#add_subdirectory(oddlot)
+add_subdirectory(oddlot)
 
 COVISE_FIND_PACKAGE(OpenCRG)
 COVISE_FIND_PACKAGE(V8)
