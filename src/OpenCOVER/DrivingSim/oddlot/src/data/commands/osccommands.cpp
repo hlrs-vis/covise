@@ -346,7 +346,7 @@ AddOSCArrayMemberCommand::redo()
 	if (!object_)
 	{
 		object_ = objectBase_->getMember(typeName_)->createObject();
-		ownMember_ = arrayMember_->getObject()->getMember(typeName_);
+		ownMember_ = object_->getOwnMember();
 	}
 
 	if(object_)

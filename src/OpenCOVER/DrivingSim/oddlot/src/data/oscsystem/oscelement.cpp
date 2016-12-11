@@ -68,10 +68,13 @@ OSCElement::getParent()
 {
 	OSCElement *parentElement = NULL;
 
-	OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
-	if (oscObjectParent)
+	if (oscObjectBase_)
 	{
-		OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
+		OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
+		if (oscObjectParent)
+		{
+			OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
+		}
 	}
 
 	return parentElement;

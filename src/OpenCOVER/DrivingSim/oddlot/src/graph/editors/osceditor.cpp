@@ -359,7 +359,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 		bf::create_directory(catalogsDir);
 	}
 
-	OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("directory"));
+	OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("Directory"));
 	if (dir)
 	{
 		std::string dirName = catalog->Directory->path.getValue();

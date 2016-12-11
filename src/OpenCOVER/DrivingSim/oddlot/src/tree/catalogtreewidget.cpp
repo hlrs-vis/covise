@@ -129,7 +129,7 @@ CatalogTreeWidget::init()
 	QList<QTreeWidgetItem *> rootList;
 
 	catalogName_ = catalog_->getCatalogName();
-	catalogType_ = catalog_->getType(catalogName_);
+	catalogType_ = "osc" + catalogName_;
 
 	//get all catalog object filenames
 	std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(directoryPath_.toStdString());
@@ -433,7 +433,7 @@ CatalogTreeWidget::updateObserver()
 	}
 	else if (changes & DataElement::CDE_SelectionChange)
 	{
-		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
+/*		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
 		
 		OpenScenario::oscMember *member = obj->getMember("name");
 		if (member->exists())
@@ -441,7 +441,7 @@ CatalogTreeWidget::updateObserver()
 			QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
 
 			currentEditedItem->setSelected(oscElement_->isElementSelected());
-		}
+		} */
 	}
 
 }
