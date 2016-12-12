@@ -117,46 +117,48 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
         {
             std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
- /*           if (rootElemName == m_catalogName)
-            { */
-			    xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
-				
-				xercesc::DOMNode *node = list->item(0);
+			/*           if (rootElemName == m_catalogName)
+			{ */
+			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
+
+			xercesc::DOMNode *node = list->item(0);
+			if (node)
+			{
 				xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
 				xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
 
 
-  //              xercesc::DOMAttr *attribute = node->getAttributeNode(xercesc::XMLString::transcode("name"));
-                if (attribute)
-                {
-  /*                  SuccessIntVar successIntVar = getIntFromIntAttribute(attribute);
-                    if (successIntVar.first)
-                    {
-                        int objectRefId = successIntVar.second; */
-						std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
-                        ObjectsMap::const_iterator found = m_Objects.find(attributeName);
+				//              xercesc::DOMAttr *attribute = node->getAttributeNode(xercesc::XMLString::transcode("name"));
+				if (attribute)
+				{
+					/*                  SuccessIntVar successIntVar = getIntFromIntAttribute(attribute);
+					if (successIntVar.first)
+					{
+					int objectRefId = successIntVar.second; */
+					std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
+					ObjectsMap::const_iterator found = m_Objects.find(attributeName);
 
-                        if (found != m_Objects.end())
-                        {
-                            std::cerr << "Warning! Object for catalog " << m_catalogName << " with name " << attributeName << " from " << filenames[i] << " is ignored." << std::endl;
-							std::cerr << "First appearance from file " << found->second.fileName << " is used." << std::endl;
-                        }
-                        else
-                        {
-							ObjectParams param = { filenames[i], NULL};
-							m_Objects.emplace(attributeName, param);
-                        }
-  /*                  }
-                    else
-                    {
-                        std::cerr << "Warning! Object for catalog " << m_catalogName << " in " << filenames[i] << " has an invalid name and can't be used." << std::endl;
-                    } */
-                }
-                else
-                {
-                    std::cerr << "Warning! Can't find an object for catalog " << m_catalogName << " in file " << filenames[i] << " with attribute 'attributeName'." << std::endl;
-                }
- //           }
+					if (found != m_Objects.end())
+					{
+						std::cerr << "Warning! Object for catalog " << m_catalogName << " with name " << attributeName << " from " << filenames[i] << " is ignored." << std::endl;
+						std::cerr << "First appearance from file " << found->second.fileName << " is used." << std::endl;
+					}
+					else
+					{
+						ObjectParams param = { filenames[i], NULL};
+						m_Objects.emplace(attributeName, param);
+					}
+					/*                  }
+					else
+					{
+					std::cerr << "Warning! Object for catalog " << m_catalogName << " in " << filenames[i] << " has an invalid name and can't be used." << std::endl;
+					} */
+				}
+				else
+				{
+					std::cerr << "Warning! Can't find an object for catalog " << m_catalogName << " in file " << filenames[i] << " with attribute 'attributeName'." << std::endl;
+				}
+			}
         }
     }
 

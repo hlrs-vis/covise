@@ -182,10 +182,10 @@ OSCShapeItem::createControlPoints()
 {
     controlPoints_.clear();
 
-    OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory_->getOwnMember());
-    for (int i = 0; i < trajectoryArray->size(); i++)
+    OpenScenario::oscArrayMember *vertexArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory_->getMember("Vertex"));
+    for (int i = 0; i < vertexArray->size(); i++)
     {
-        OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(trajectoryArray->at(i));
+        OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i));
         OpenScenario::oscPosition *position = vertex->Position.getObject();
         if (!position)
         {

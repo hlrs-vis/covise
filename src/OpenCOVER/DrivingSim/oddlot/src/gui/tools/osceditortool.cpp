@@ -95,12 +95,10 @@ OpenScenarioEditorTool::initToolWidget()
 	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
 
 	QList<QString> openScenarioBaseObjects;
-	openScenarioBaseObjects.append("fileHeader");
-	openScenarioBaseObjects.append("roadNetwork");
-	openScenarioBaseObjects.append("environment");
-	openScenarioBaseObjects.append("entities");
-	openScenarioBaseObjects.append("storyboard");
-	openScenarioBaseObjects.append("scenarioEnd");
+	openScenarioBaseObjects.append("FileHeader");
+	openScenarioBaseObjects.append("RoadNetwork");
+	openScenarioBaseObjects.append("Entities");
+	openScenarioBaseObjects.append("Storyboard");
 	
 	int column = 0;
 	for (int i = 0; i < openScenarioBaseObjects.size(); i++)

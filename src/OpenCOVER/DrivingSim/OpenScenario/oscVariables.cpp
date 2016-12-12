@@ -316,7 +316,7 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
-	strftime(buf, sizeof buf, "%FT%TZ", localtime(&value));
+	strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%S", localtime(&value));
     currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
     return true;
 };

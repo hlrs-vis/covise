@@ -164,9 +164,9 @@ AddOSCCatalogObjectCommand::redo()
 	{
 		// create refId //
 		//
-		OpenScenario::oscMember *member = objectBase_->getMember("name");
+/*		OpenScenario::oscMember *member = objectBase_->getMember("name");
 		OpenScenario::oscMemberValue *v = member->getOrCreateValue();
-		v->setValue(name_); 
+		v->setValue(name_); */
 		catalog_->addCatalogObject(name_, objectBase_, boost::filesystem::path(path_));
 
 		oscElement_->setObjectBase(objectBase_);

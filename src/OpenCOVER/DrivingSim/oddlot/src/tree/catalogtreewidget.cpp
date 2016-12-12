@@ -166,13 +166,14 @@ CatalogTreeWidget::createTree()
 				OpenScenario::oscObjectBase *obj = it->second.object;
 				if (obj)
 				{
-					OpenScenario::oscMember *member = obj->getMember("name");
+			/*		OpenScenario::oscMember *member = obj->getMember("name");
 					if (member->exists())
 					{
 						oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
 						QString text = QString::fromStdString(sv->getValue());
 						elementName = text + "(" + elementName + ")";
-					}
+					} */
+					elementName = "Loaded(" + elementName + ")";
 				}
 				else
 				{
@@ -252,9 +253,10 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					// Element anlegen
 					QString filePath;
 					std::string refId;
+					int i = 1;
 					do
 					{
-						refId = catalog_->generateRefId(1);
+						refId = catalog_->generateRefId(i++);
 						filePath = directoryPath_ + "/" + QString::fromStdString(catalogName_) + QString::fromStdString(refId) + ".xosc";
 					} while (bf::exists(filePath.toStdString())); // test if file exists
 
@@ -266,13 +268,19 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 					if (!obj)
 					{
-						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), catalogName_);
+						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), catalog_->getType(catalogName_));
 
-						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalogType_, oscElement_, oscSourceFile);
+						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getType(catalogName_), oscElement_, oscSourceFile);
 						if (command->isValid())
 						{
 							projectWidget_->getTopviewGraph()->executeCommand(command);
 						}
+
+			/*			AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalogType_, oscElement_, oscSourceFile);
+						if (command->isValid())
+						{
+							projectWidget_->getTopviewGraph()->executeCommand(command);
+						} */
 
 						obj = oscElement_->getObject();
 					}
@@ -285,9 +293,9 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 						if (obj)
 						{
-							std::string name = "name";
+/*						std::string name = "name";
 							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
-							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand);
+							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand); */
 
 							obj->writeToDisk();
 						}

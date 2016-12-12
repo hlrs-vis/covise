@@ -48,6 +48,9 @@
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
 
+// Graph //
+#include "src/graph/editors/osceditor.hpp"
+
 // Qt //
 //
 #include <QInputDialog>
@@ -496,22 +499,6 @@ OSCObjectSettings::uiInitArray()
     objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
-
-
-        std::string type = member_->getTypeName();
-        if (type == "oscTrajectory")
-        {
-
-            // Connect with the ToolManager to send the selected signal or object //
-            //
-            ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
-            if (toolManager)
-            {
-                toolManager->enableOSCEditorToolButton(true);
-            }
-
-            element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
-        }
 }
 
 void OSCObjectSettings::updateTree()
@@ -931,6 +918,26 @@ OSCObjectSettings::onNewArrayElement()
 		projectSettings_->executeCommand(command);
 
 		updateTree();
+
+		std::string type = member_->getTypeName();
+        if (type == "oscTrajectory")
+        {			
+			OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(projectSettings_->getProjectWidget()->getProjectEditor());
+			if (oscEditor)
+			{
+				oscEditor->setTrajectoryElement(oscElement);
+			}
+
+            // Connect with the ToolManager to send the selected signal or object //
+            //
+            ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+            if (toolManager)
+            {
+                toolManager->enableOSCEditorToolButton(true);
+            }
+
+            oscElement->addOSCElementChanges(OSCElement::COE_SettingChanged);
+        }
 
 		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL);
 	}

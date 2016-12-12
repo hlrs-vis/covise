@@ -80,6 +80,10 @@ public:
 	//
 	void catalogChanged(OpenScenario::oscCatalog *member);
 
+	// Edit Trajectory element //
+	//
+	void setTrajectoryElement(OSCElement *trajectory);
+
 	// New Object with properties chosen in SignalTreeWidget //
 	//
 //	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);

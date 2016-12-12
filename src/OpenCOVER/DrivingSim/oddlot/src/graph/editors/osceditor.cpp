@@ -143,7 +143,7 @@ OpenScenarioEditor::init()
     OpenScenario::oscStoryboard *story = dynamic_cast<OpenScenario::oscStoryboard*>(openScenarioBase_->Storyboard.getObject());
     if (story)
     {
-        QList<OpenScenario::oscObjectBase *>trajectoryObjects = getElements(story, "oscTrajectory"); 
+        QList<OpenScenario::oscObjectBase *>trajectoryObjects = getElements(story, "oscFollowTrajectory"); 
         if (!trajectoryObjects.isEmpty())
         {
             OpenScenario::oscCatalogs *catalogs = openScenarioBase_->Catalogs.getOrCreateObject();
@@ -160,7 +160,7 @@ OpenScenarioEditor::init()
 
             foreach (OpenScenario::oscObjectBase *objectBase, trajectoryObjects)
             {
-                OpenScenario::oscTrajectory *objectTrajectory = dynamic_cast<OpenScenario::oscTrajectory *>(objectBase);
+                OpenScenario::oscFollowTrajectory *objectTrajectory = dynamic_cast<OpenScenario::oscFollowTrajectory *>(objectBase);
                 std::string name = objectTrajectory->name.getValue();
                 OpenScenario::oscTrajectory *catalogObject = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryCatalog->getCatalogObject(name));
                 if (!catalogObject)
@@ -245,29 +245,29 @@ OpenScenarioEditor::getElements(oscObjectBase *root, const std::string &type)
     QList<OpenScenario::oscObjectBase *>objectList;
     OpenScenario::oscObjectBase::MemberMap members = root->getMembers();
     for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
-    {
-        oscMember *member = it->second;
-        if (member)
-        {
-            oscObjectBase *objectBase = member->getObject();
-            if (objectBase)
-            {
-                OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(objectBase->getOwnMember());
-                if (arrayMember)
-                {
-                    for (int i = 0; i < arrayMember->size(); i++)
-                    {
-                        objectList.append(getElements(arrayMember->at(i), type));
-                    }
-                }
-                else
-                {
-                    if (member->getTypeName() == type)
-                    {
-                        objectList.append(objectBase);
-                    }
-                    objectList.append(getElements(objectBase, type));
-                }
+	{
+		oscMember *member = it->second;
+		if (member)
+		{
+			OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(member);
+			if (arrayMember)
+			{
+				for (int i = 0; i < arrayMember->size(); i++)
+				{
+					objectList.append(getElements(arrayMember->at(i), type));
+				}
+			}
+			else
+			{
+				oscObjectBase *objectBase = member->getObject();
+				if (objectBase)
+				{
+					if (member->getTypeName() == type)
+					{
+						objectList.append(objectBase);
+					}
+					objectList.append(getElements(objectBase, type));
+				}
             }
         }
     }
@@ -339,6 +339,12 @@ OpenScenarioEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t
 	return newObject;
 }
 */
+void 
+OpenScenarioEditor::setTrajectoryElement(OSCElement *trajectory)
+{
+	trajectoryElement_ = trajectory;
+}
+
 
 void 
 OpenScenarioEditor::catalogChanged(OpenScenario::oscCatalog * member)
@@ -383,20 +389,15 @@ OpenScenarioEditor::getCatalog(std::string name)
 }
 
 void
-    OpenScenarioEditor::addGraphToObserver(const QVector<QPointF> &controlPoints)
+	OpenScenarioEditor::addGraphToObserver(const QVector<QPointF> &controlPoints)
 {
-    QList<DataElement *> elements = getProjectData()->getSelectedElements();
-    for (int i = 0; i < elements.size(); i++)
-    {
-		OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
-		if (element)
-		{
-			OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
+	if (trajectoryElement_)
+	{
+		OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryElement_->getObject());
 
-			if (trajectory)
-			{
-				createWaypoints(trajectory, controlPoints);
-			}
+		if (trajectory)
+		{
+			createWaypoints(trajectory, controlPoints);
 		}
 	}
 }
@@ -404,41 +405,47 @@ void
 void 
 OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints)
 {
-    OpenScenario::oscArrayMember *waypointArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory->getOwnMember());
-    waypointArray->clear();
+    OpenScenario::oscArrayMember *vertexArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory->getMember("Vertex"));
+    vertexArray->clear();
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Create waypoints"));
     for (int i = 0; i < controlPoints.count(); i += 3)
     {
-        OpenScenario::oscVertex *vertex = trajectory->Vertex.createObject();
-        OpenScenario::oscPosition *position = vertex->Position.createObject();
-        OpenScenario::oscWorld *posWorld = position->World.createObject();
-        posWorld->x.setValue(controlPoints.at(i).x());
-        posWorld->y.setValue(controlPoints.at(i).y());
+        OpenScenario::oscVertex *vertex = NULL;
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(vertexArray, trajectory, vertex, "Vertex", oscBase_, NULL);
+		getProjectGraph()->executeCommand(command);
 
-        OpenScenario::oscShape *shape = vertex->Shape.createObject();
-        OpenScenario::oscSpline *spline = shape->Spline.createObject();
-        int index = i - 1;
-        if (index > 0)
-        {
-            OpenScenario::oscControlPoint1 *controlPoint = spline->ControlPoint1.createObject();
-            char buf[100];
+		vertex = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->back());
 
-            sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
-            controlPoint->status.setValue(buf);
-        }
+		if (vertex)
+		{
+			OpenScenario::oscPosition *position = vertex->Position.createObject();
+			OpenScenario::oscWorld *posWorld = position->World.createObject();
+			posWorld->x.setValue(controlPoints.at(i).x());
+			posWorld->y.setValue(controlPoints.at(i).y());
 
-        index = i + 1;
-        if (index < controlPoints.count())
-        {
-            OpenScenario::oscControlPoint2 *controlPoint = spline->ControlPoint2.createObject();
-            char buf[100];
-            sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
-            controlPoint->status.setValue(buf);
-        }
+			OpenScenario::oscShape *shape = vertex->Shape.createObject();
+			OpenScenario::oscSpline *spline = shape->Spline.createObject();
+			int index = i - 1;
+			if (index > 0)
+			{
+				OpenScenario::oscControlPoint1 *controlPoint = spline->ControlPoint1.createObject();
+				char buf[100];
 
-		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(waypointArray, trajectory, vertex, "vertex", oscBase_, NULL);
-        getProjectGraph()->executeCommand(command);
+				sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+				controlPoint->status.setValue(buf);
+			}
+
+			index = i + 1;
+			if (index < controlPoints.count())
+			{
+				OpenScenario::oscControlPoint2 *controlPoint = spline->ControlPoint2.createObject();
+				char buf[100];
+				sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+				controlPoint->status.setValue(buf);
+			}
+		}
+
     }
     OSCElement *element = oscBase_->getOrCreateOSCElement(trajectory);
     element->addOSCElementChanges(OSCElement::COE_ParameterChange);
@@ -733,24 +740,37 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
                 trajectoryElement_ = NULL;
             }
             else
-            {
-                QList<DataElement *> elements = getProjectData()->getSelectedElements();
-                for (int i = 0; i < elements.size(); i++)
-                {
-                    OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
-                    if (element)
-                    {
-                        OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
-                        if (trajectory)
-                        {
-                            trajectoryElement_ = element;
-                            HideDataElementCommand *command = new HideDataElementCommand(trajectoryElement_);
-                            getProjectGraph()->executeCommand(command);
-                        }
-                    }
-                }
-            }
-        }
+			{
+				if (!trajectoryElement_)
+				{
+					QList<DataElement *> elements = getProjectData()->getSelectedElements();
+					for (int i = 0; i < elements.size(); i++)
+					{
+						OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
+						if (element)
+						{
+							OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
+							if (trajectory)
+							{
+								trajectoryElement_ = element;
+								break;
+							}
+						}
+					}
+				}
+
+				if (trajectoryElement_)
+				{
+					OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryElement_->getObject());
+					if (trajectory)
+					{
+						HideDataElementCommand *command = new HideDataElementCommand(trajectoryElement_);
+						getProjectGraph()->executeCommand(command);
+					}
+				}
+			}
+		}
+
   /*      QList<DataElement *> elements = getProjectData()->getSelectedElements();
         for (int i = 0; i < elements.size(); i++)
         {

@@ -236,31 +236,34 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 						}
 					}
 				}
-                oscObjectBase *obj = member->getObject();
-                if (obj)
-                {
-                    //xml document for member
-					xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
+				else
+				{
+					oscObjectBase *obj = member->getObject();
+					if (obj)
+					{
+						//xml document for member
+						xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
 
-                    //determine document and element for writing
-                    //
-					if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
-                    {
-                        //add include element to currentElement and add XInclude namespace to root element of new xml document
-                        const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
-                        addXInclude(currentElement, document, fileHref);
+						//determine document and element for writing
+						//
+						if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
+						{
+							//add include element to currentElement and add XInclude namespace to root element of new xml document
+							const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
+							addXInclude(currentElement, document, fileHref);
 
-                        //member and ArrayMember use a new document and the root element of this document
-						//write members of member into root element of new xml document
-						obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
-                    }
-                    else
-                    {
-						//oscMember
-						member->writeToDOM(currentElement, document, writeInclude);
-                    }
+							//member and ArrayMember use a new document and the root element of this document
+							//write members of member into root element of new xml document
+							obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
+						}
+						else
+						{
+							//oscMember
+							member->writeToDOM(currentElement, document, writeInclude);
+						}
 
-                }
+					}
+				}
             }
             else
             {

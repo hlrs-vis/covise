@@ -264,6 +264,7 @@ OSCBaseItem::updateObserver()
 				OpenScenario::oscCatalog *catalog = getCatalog(object);
 				if (!catalog)
 				{
+					iter++;
 					continue;
 				}
 
@@ -287,12 +288,14 @@ OSCBaseItem::updateObserver()
 
 					if (!privateObject)
 					{
-						break;
+						iter++;
+						continue;
 					}
 					OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
 
 					if (!privateAction)
 					{
+						iter++;
 						continue;
 					}
 
@@ -311,15 +314,22 @@ OSCBaseItem::updateObserver()
                             }
                         }
                     }
-                }
+				}
+			}
+			else
+			{
 
 				OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
-                if (trajectory)
-                {
-                    new OSCShapeItem(element, this, trajectory);
-                }
+				if (trajectory)
+				{
+					if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+						|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+					{
+						new OSCShapeItem(element, this, trajectory);
+					}
+				}
 
-            }
+			}
             iter++;
         }
     }
