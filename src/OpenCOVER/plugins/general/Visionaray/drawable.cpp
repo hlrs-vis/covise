@@ -33,7 +33,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 
-#include <visionaray/detail/render_bvh.h>
+#include <visionaray/gl/bvh_outline_renderer.h>
 #include <visionaray/gl/debug_callback.h>
 #include <visionaray/math/math.h>
 #include <visionaray/texture/texture.h>
@@ -217,7 +217,8 @@ namespace visionaray
             vsnray_mat.set_ls(1.0f);
             return material_type(vsnray_mat);
         }
-        else if (cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
+        else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
+            || !opencover::coVRLighting::instance()->specularlightState)
         {
             matte<float> vsnray_mat;
             vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
@@ -1101,7 +1102,7 @@ namespace visionaray
         // we can reapply them later on
         node_mask_map ray_tracing_masks;
 
-        std::vector<detail::bvh_outline_renderer> outlines;
+        std::vector<gl::bvh_outline_renderer> outlines;
         std::vector<bool> outlines_initialized;
 
         gl::debug_callback gl_debug_callback;

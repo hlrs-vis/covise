@@ -72,6 +72,9 @@ public:
     bool init();
     void preFrame();
     void message(int type, int len, const void *buf);
+    void newInteractor(RenderObject *container, coInteractor *it);
+    void addNode(osg::Node *, RenderObject *);
+    void removeNode(osg::Node *, bool isGroup, osg::Node *realNode);
 
     virtual bool selectionChanged();
     virtual bool pickedObjChanged();
@@ -96,6 +99,7 @@ private:
     coButtonMenuItem *redoItem;
     coButtonMenuItem *resetItem;
     coCheckboxMenuItem *explicitItem;
+    coCheckboxMenuItem *moveTransformItem;
     coPotiMenuItem *scaleItem;
     coTUITab *moveTab;
     coTUILabel *moveObjectLabel;
@@ -114,6 +118,7 @@ private:
     coTUIButton *Redo;
     coTUIButton *Reset;
     coTUIToggleButton *explicitTUIItem;
+    coTUIToggleButton *moveTransformTUIItem;
     coTUIToggleButton *moveEnabled;
 
     coTUIToggleButton *allowX;
@@ -140,6 +145,7 @@ private:
     osg::Vec3 startPickPos;
     osg::Node *nodes[MAX_LEVELS];
     bool explicitMode;
+    bool moveTransformMode;
     bool printMode;
     bool moveSelection;
     int level;
@@ -176,5 +182,10 @@ private:
     osg::Node *createBBox();
     coTrackerButtonInteraction *interactionA; ///< interaction for first button
     coTrackerButtonInteraction *interactionB; ///< interaction for second button
+
+    typedef std::map<osg::Node *, RenderObject *> NodeRoMap;
+    typedef std::map<RenderObject *, coInteractor *> RoInteractorMap;
+    NodeRoMap nodeRoMap;
+    RoInteractorMap roInteractorMap;
 };
 #endif

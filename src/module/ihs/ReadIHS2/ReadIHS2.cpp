@@ -2485,4 +2485,4 @@ int ReadIHS2::countnrs (int n_nrs, int *nr_list, int nr)
    return(0);
 }
 
-MODULE_MAIN(IO_Module, ReadIHS2)
+MODULE_MAIN(IO, ReadIHS2)

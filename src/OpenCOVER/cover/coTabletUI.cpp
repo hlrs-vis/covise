@@ -4802,6 +4802,11 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     listener = NULL;
     createSimple(type);
     hidden = false;
+    if(coTabletUI::instance()->debugTUI())
+    {
+        coVRMSController::instance()->syncStringStop(name);
+        coVRMSController::instance()->syncInt(ID);
+    }
 }
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
@@ -4818,6 +4823,11 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     coTabletUI::instance()->addElement(this);
     listener = NULL;
     hidden = false;
+    if(coTabletUI::instance()->debugTUI())
+    {
+        coVRMSController::instance()->syncStringStop(name);
+        coVRMSController::instance()->syncInt(ID);
+    }
 }
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int type)
@@ -4835,6 +4845,11 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     listener = NULL;
     createSimple(type);
     hidden = false;
+    if(coTabletUI::instance()->debugTUI())
+    {
+        coVRMSController::instance()->syncStringStop(name);
+        coVRMSController::instance()->syncInt(ID);
+    }
 }
 
 coTUIElement::~coTUIElement()

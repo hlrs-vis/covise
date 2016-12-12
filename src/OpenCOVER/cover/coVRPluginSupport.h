@@ -249,6 +249,9 @@ public:
     //! get the scene size defined in covise.config
     float getSceneSize() const;
 
+    //! favor high-quality rendering instead of interactivity
+    bool isHighQuality() const;
+
     bool isVRBconnected();
 
     //! send a message either via COVISE connection or via VRB

@@ -52,7 +52,8 @@ public:
         COE_ParameterChange = 0x2,	// Name change is OpenScenario object name change 
 		COE_ChildChanged = 0x4,
 		COE_ChoiceChanged = 0x8,
-		COE_BaseChanged = 0x10
+		COE_BaseChanged = 0x10,
+        COE_SettingChanged = 0x20
     };
 
     //################//
@@ -89,6 +90,7 @@ public:
 		oscObjectBase_ = oscObjectBase;
 	}
 
+	OSCElement *getParent();
 	void notifyParent();
 
 	// Visitor Pattern //

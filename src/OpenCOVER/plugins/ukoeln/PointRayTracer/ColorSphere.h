@@ -14,10 +14,51 @@ namespace visionaray
 
 struct VSNRAY_ALIGN(16) ColorSphere
 {
-    vector<3, float> center;
-    unorm<8> radius;
-    vector<3, unorm<8>> color;
+public:
+    // center
+
+    VSNRAY_FUNC vector<3, float>& center()
+    {
+        return *reinterpret_cast<vector<3, float>*>(&center_);
+    }
+
+    VSNRAY_FUNC vector<3, float> const& center() const
+    {
+        return *reinterpret_cast<vector<3, float> const*>(&center_);
+    }
+
+
+    // radius
+
+    VSNRAY_FUNC unorm<8>& radius()
+    {
+        return radius_;
+    }
+
+    VSNRAY_FUNC unorm<8> const& radius() const
+    {
+        return radius_;
+    }
+
+
+    // color
+
+    VSNRAY_FUNC vector<3, unorm<8>>& color()
+    {
+        return color_;
+    }
+
+    VSNRAY_FUNC vector<3, unorm<8>> const& color() const
+    {
+        return color_;
+    }
+private:
+    float center_[3];
+    unorm<8> radius_;
+    vector<3, unorm<8>> color_;
 };
+
+static_assert(sizeof(ColorSphere) == 16, "sizeof(ColorSphere) != 16");
 
 template <typename T>
 struct ColorSphereHitRecord
@@ -45,11 +86,11 @@ inline basic_aabb<float> get_bounds(ColorSphere const& s)
 {
     basic_aabb<float> bounds;
 
-    float radius = s.radius;
+    float radius = s.radius();
 
     bounds.invalidate();
-    bounds.insert(s.center - radius);
-    bounds.insert(s.center + radius);
+    bounds.insert(s.center() - radius);
+    bounds.insert(s.center() + radius);
 
     return bounds;
 }
@@ -57,8 +98,8 @@ inline basic_aabb<float> get_bounds(ColorSphere const& s)
 inline void split_primitive(aabb& L, aabb& R, float plane, int axis, ColorSphere const& s)
 {
     basic_sphere<float> bs;
-    bs.center = s.center;
-    bs.radius = s.radius;
+    bs.center = s.center();
+    bs.radius = s.radius();
     split_primitive(L, R, plane, axis, bs);
 }
 
@@ -70,8 +111,8 @@ inline ColorSphereHitRecord<T> intersect(basic_ray<T> const& ray, ColorSphere co
     typedef vector<3, T> vec_type;
 
     ray_type r = ray;
-    r.ori -= vec_type( sphere.center );
-    float radius = sphere.radius;
+    r.ori -= vec_type( sphere.center() );
+    float radius = sphere.radius();
 
     auto A = dot(r.dir, r.dir);
     auto B = dot(r.dir, r.ori) * T(2.0);
@@ -91,7 +132,7 @@ inline ColorSphereHitRecord<T> intersect(basic_ray<T> const& ray, ColorSphere co
     ColorSphereHitRecord<T> result;
     result.hit      = valid;
     result.t        = select( valid, select( t1 > t2, t2, t1 ), T(-1.0) );
-    result.color    = select( valid, vector<3, T>(sphere.color), result.color );
+    result.color    = select( valid, vector<3, T>(sphere.color()), result.color );
     //printf("color %f %f %f \n", (float)result.color.x, (float)result.color.y, (float)result.color.z);
     return result;
 }

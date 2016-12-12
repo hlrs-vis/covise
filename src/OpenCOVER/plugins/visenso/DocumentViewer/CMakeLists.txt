@@ -1,3 +1,5 @@
+USING(JPEG)
+
 SET(HEADERS
    DocumentViewer.h
    coImageViewer.h

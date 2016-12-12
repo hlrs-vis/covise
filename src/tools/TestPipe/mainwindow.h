@@ -11,8 +11,12 @@
 #include <sys/wait.h>
 #include <errno.h>
 #else
+#ifndef NOMINMAX
 #define NOMINMAX        // to avoid "not enough actual parameters for macro 'min'" with VS2010
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>    // for sleep
 #define popen _popen
 #define pclose _pclose

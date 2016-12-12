@@ -18,6 +18,7 @@
 
 #include "src/graph/items/graphelement.hpp"
 
+class OSCElement;
 class OSCItem;
 class TextHandle;
 
@@ -35,7 +36,7 @@ class OSCTextItem : public GraphElement
     //################//
 
 public:
-	explicit OSCTextItem(GraphElement *item, OpenScenario::oscObject *oscObject, const QPointF &pos);
+	explicit OSCTextItem(OSCElement *element, GraphElement *item, const QString &text, const QPointF &pos);
     virtual ~OSCTextItem();
 
     virtual void createPath();
@@ -51,17 +52,14 @@ public:
         return false;
     };
 
+    void updateText(const QString &text);
+
 private:
     OSCTextItem(); /* not allowed */
     OSCTextItem(const OSCTextItem &); /* not allowed */
     OSCTextItem &operator=(const OSCTextItem &); /* not allowed */
 
     void updatePosition();
-    void updateName();
-    OSCItem *getOSCItem()
-    {
-        return oscItem_;
-    };
 
     //################//
     // SLOTS          //
@@ -91,8 +89,8 @@ protected:
     //################//
 
 private:
-    OSCItem *oscItem_;
-    OpenScenario::oscObject *oscObject_;
+	OSCElement *element_;
+    QString text_;
     TextHandle *textHandle_;
 	QPointF pos_;
 };

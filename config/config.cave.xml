@@ -279,16 +279,16 @@
     
     <MasterInterface value="192.168.2.150" />
 
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster52 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="1"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster53 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="2"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster54 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="3"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster55 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="4"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster56 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="5"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster57 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="6"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster58 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="7"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster59 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="8"/>
-    <Startup ARCH="x11" value="ssh ${USER}@viscluster60 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="9"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster52 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="1"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster53 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="2"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster54 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="3"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster55 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="4"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster56 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="5"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster57 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="6"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster58 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="7"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster59 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="8"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster60 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="9"/>
 
     <Startup ARCH="windows" value="covRemote OpenCOVER 1;" name="0" />   	 
     <Startup ARCH="windows" value="covRemote OpenCOVER 2;" name="1" />	    	 

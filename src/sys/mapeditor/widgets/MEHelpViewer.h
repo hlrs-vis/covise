@@ -22,7 +22,7 @@ class QAction;
 class QWebEngineView;
 #elif defined(USE_WEBKIT)
 class QWebView;
-#else
+#elif defined(DUSE_TEXTBROWSER)
 class METextBrowser;
 #endif
 
@@ -46,8 +46,10 @@ private:
     QWebEngineView *m_browser;
 #elif defined(USE_WEBKIT)
     QWebView *m_browser;
-#else
+#elif defined(DUSE_TEXTBROWSER)
     METextBrowser *m_browser;
+#else
+    QWidget *m_browser;
 #endif
     QAction *m_backwardId, *m_forwardId, *m_homeId, *m_printId;
 

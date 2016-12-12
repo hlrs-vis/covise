@@ -1,5 +1,6 @@
 CMakeLists.txt.user
 DIST
+extern_libs
 .envrc
 **/.*.swp
 **/.*.swo
@@ -32,10 +33,16 @@ berrenda
 berrendaopt
 tamarau
 tamarauopt
+zebu
+zebuopt
 mingw
 mingwopt
 hpux
 hpuxopt
+linux32
+linux32opt
+linux64
+linux64opt
 linux
 linuxopt
 gcc3
@@ -152,6 +159,8 @@ neolamprologus
 neolamprologusopt
 saara
 saaraopt
+julidochromis
+julidochromisopt
 sarge
 sargeopt
 etch32
@@ -222,12 +231,16 @@ vervet
 vervetopt
 werewolf
 werewolfopt
+xerus
+xerusopt
 sgin32
 sgin32opt
 sgin32p31
 sgin32p31opt
 sgi64
 sgi64opt
+darwin
+darwinopt
 macx
 macxopt
 tiger
@@ -240,3 +253,5 @@ lion
 lionopt
 libc++
 libc++opt
+macos
+macosopt

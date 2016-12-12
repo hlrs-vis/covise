@@ -31,12 +31,13 @@ public:
 class SignalPrototype
 {
 public:
-    SignalPrototype(std::string name, std::string country, int type, int subtype, std::string subclass, bool isFlat);
+    SignalPrototype(std::string name, std::string country, int type, int subtype, std::string subclass, bool isFlat, bool realScale);
     ~SignalPrototype();
 
-    void createGeometry();
+    void createGeometry(bool realScale);
     osg::ref_ptr<osg::Node> signalNode;
     osg::ref_ptr<osg::Node> signalPost;
+	float aspectRatio;
     std::string name;
     int type;
     int subtype;
@@ -71,7 +72,7 @@ public:
 
     RoadSignal(const std::string &, const std::string &, const double &, const double &, const bool &, const OrientationType &,
                const double &, const std::string &, const int &, const int &, const std::string &, const double &, const double &,
-               const double &, const double &, const double &);
+               const double &, const double &, const double &, const std::string &setUnit, const std::string &setText, const double &setWidth, const double &setHeight);
 
     const std::string &getName()
     {
@@ -113,6 +114,22 @@ public:
     {
         return value;
     }
+	const std::string &getUnit()
+	{
+		return unit;
+	}
+	const std::string &getText()
+	{
+		return text;
+	}
+	const double &getWidth()
+	{
+		return width;
+	}
+	const double &getHeight()
+	{
+		return height;
+	}
     const double &getHdg()
     {
         return hdg;
@@ -156,9 +173,14 @@ protected:
     int subtype;
     std::string subclass;
     double value;
+	std::string unit;
+	std::string text;
+	double width;
+	double height;
     double hdg;
     double pitch;
     double roll;
+	float aspectRatio;
 
     Transform signalTransform;
 
@@ -206,7 +228,7 @@ public:
 
     TrafficLightSignal(const std::string &, const std::string &, const double &, const double &, const bool &, const OrientationType &,
                        const double &, const std::string &, const int &, const int &, const std::string &setSubclass, const double &setSize, const double &,
-                       const double &, const double &, const double &);
+                       const double &, const double &, const double &, const std::string &setUnit, const std::string &setText, const double &setWidth, const double &setHeight);
 
     void setSignalGreenCallback(SignalTurnCallback *);
     void setSignalYellowCallback(SignalTurnCallback *);

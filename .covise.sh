@@ -87,8 +87,13 @@ if [ -d "${COVISEDIR}/.git" ]; then
     fi
 fi
 
-if [ -z "${PYTHON_HOME}" -a -d "${EXTERNLIBS}/python" ]; then
-   export PYTHON_HOME="${EXTERNLIBS}/python"
+if [ -z "${PYTHON_HOME}" ]; then
+   if [ -d "${EXTERNLIBS}/python" ]; then
+       export PYTHON_HOME="${EXTERNLIBS}/python"
+   elif [ -n "$(which python3)" ]; then
+       python_bin="$(which python3)"
+       export PYTHON_HOME="${python_bin%bin/python3}"
+   fi
 fi
 
 if [ -r "${HOME}"/.covise.local.sh ]; then 

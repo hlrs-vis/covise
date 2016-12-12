@@ -739,6 +739,10 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 double hdg = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("hOffset"))));
                                 double pitch = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("pitch"))));
                                 double roll = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("roll"))));
+								std::string unit(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("unit"))));
+								std::string text(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("text"))));
+								double width = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("width"))));
+								double height = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("height"))));
 
                                 xercesc::DOMNodeList *signalChildrenList = signalElement->getChildNodes();
                                 xercesc::DOMElement *signalChildElement;
@@ -781,13 +785,13 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 if ((type == 1000001 || type == 1000002) || isTrafficSignal)
                                 {
                                     roadSignal = new TrafficLightSignal(id, name, s, t, dynamic, orientation, zOffset, country,
-                                                                        type, subtype, subclass, size, value, hdg, pitch, roll);
+                                                                        type, subtype, subclass, size, value, hdg, pitch, roll, unit, text, width, height);
                                     //std::cout << "Adding traffic light signal id=" << id << std::endl;
                                 }
                                 else
                                 {
                                     roadSignal = new RoadSignal(id, name, s, t, dynamic, orientation, zOffset, country,
-                                                                type, subtype, subclass, size, value, hdg, pitch, roll);
+                                                                type, subtype, subclass, size, value, hdg, pitch, roll, unit, text, width, height);
                                     //std::cout << "Adding road signal id=" << id << std::endl;
                                 }
                                 road->addRoadSignal(roadSignal);

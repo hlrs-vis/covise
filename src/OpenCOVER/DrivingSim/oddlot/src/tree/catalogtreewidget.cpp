@@ -52,7 +52,7 @@
 
 // OpenScenario //
 //
-#include "oscObject.h"
+#include "schema/oscObject.h"
 #include "oscObjectBase.h"
 #include "oscMember.h"
 #include "oscMemberValue.h"
@@ -81,7 +81,10 @@ CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCa
 
 CatalogTreeWidget::~CatalogTreeWidget()
 {
-    
+    if (oscElement_)
+	{
+		oscElement_->detachObserver(this);
+	}
 }
 
 //################//
@@ -101,7 +104,7 @@ CatalogTreeWidget::init()
 	//
 	base_ = projectData_->getOSCBase();
 	openScenarioBase_ = catalog_->getBase();
-	directoryPath_ = QString::fromStdString(catalog_->directory->path.getValue());
+	directoryPath_ = QString::fromStdString(catalog_->Directory->path.getValue());
 		
 	// Connect with the ToolManager to send the selected signal or object //
     //
@@ -126,7 +129,7 @@ CatalogTreeWidget::init()
 	QList<QTreeWidgetItem *> rootList;
 
 	catalogName_ = catalog_->getCatalogName();
-	catalogType_ = catalog_->getType(catalogName_);
+	catalogType_ = "osc" + catalogName_;
 
 	//get all catalog object filenames
 	std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(directoryPath_.toStdString());
@@ -159,7 +162,7 @@ CatalogTreeWidget::createTree()
 			OpenScenario::oscCatalog::ObjectsMap objects = catalog_->getObjectsMap();
 			for(OpenScenario::oscCatalog::ObjectsMap::iterator it = objects.begin();it != objects.end();it++)
 			{
-				QString elementName = QString::number(it->first);
+				QString elementName = QString::fromStdString(it->first);
 				OpenScenario::oscObjectBase *obj = it->second.object;
 				if (obj)
 				{
@@ -248,11 +251,11 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					// refid vergeben, prüfen ob Datei schon vorhanden, path von vehicleCatalog?, neue Basis für catalog?
 					// Element anlegen
 					QString filePath;
-					int refId = 0;
+					std::string refId;
 					do
 					{
-						refId = catalog_->generateRefId(++refId);
-						filePath = directoryPath_ + "/" + QString::fromStdString(catalogName_) + QString::number(refId) + ".xosc";
+						refId = catalog_->generateRefId(1);
+						filePath = directoryPath_ + "/" + QString::fromStdString(catalogName_) + QString::fromStdString(refId) + ".xosc";
 					} while (bf::exists(filePath.toStdString())); // test if file exists
 
 					OpenScenario::oscObjectBase *obj = NULL;
@@ -306,12 +309,12 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 				}
 
 			
-				int refId = text.split("(")[1].remove(")").toInt();
+				std::string refId = text.split("(")[1].remove(")").toStdString();
 
 				OpenScenario::oscObjectBase *oscObject = catalog_->getCatalogObject(refId);
 				if (oscObject)
 				{
-					oscElement_ = base_->getOSCElement(oscObject);
+					oscElement_ = base_->getOrCreateOSCElement(oscObject);
 				}
 				else
 				{
@@ -404,12 +407,8 @@ CatalogTreeWidget::updateObserver()
 		{
 			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
 			QString text = QString::fromStdString(sv->getValue());
-			OpenScenario::oscMember *member = obj->getMember("refId");
-			oscIntValue *v = dynamic_cast<oscIntValue *>(member->getOrCreateValue());
-			int refId = v->getValue();
-			QString id = "(" + QString::number(refId) + ")";
-			text += id;
-			QTreeWidgetItem *currentEditedItem = getItem(id);
+
+			QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
 			if (currentEditedItem && (text != currentEditedItem->text(0)))
 			{
 				currentEditedItem->setText(0, text);
@@ -434,22 +433,15 @@ CatalogTreeWidget::updateObserver()
 	}
 	else if (changes & DataElement::CDE_SelectionChange)
 	{
-		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
+/*		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
 		
 		OpenScenario::oscMember *member = obj->getMember("name");
 		if (member->exists())
 		{
-			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
-			QString text = QString::fromStdString(sv->getValue());
-			OpenScenario::oscMember *member = obj->getMember("refId");
-			oscIntValue *v = dynamic_cast<oscIntValue *>(member->getOrCreateValue());
-			int refId = v->getValue();
-			QString id = "(" + QString::number(refId) + ")";
-			text += id;
-			QTreeWidgetItem *currentEditedItem = getItem(id);
+			QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
 
 			currentEditedItem->setSelected(oscElement_->isElementSelected());
-		}
+		} */
 	}
 
 }

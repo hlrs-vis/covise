@@ -50,9 +50,11 @@
 
 // OpenScenario //
 //
-#include "oscVehicle.h"
-#include "oscObject.h"
+#include "schema/oscVehicle.h"
+#include "schema/oscObject.h"
 #include "oscMember.h"
+#include "schema/oscCatalogReference.h"
+//#include "oscNameRefId.h"
 
 // Qt //
 //
@@ -63,11 +65,13 @@
 #include <QString>
 #include <QKeyEvent>
 
-OSCItem::OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId)
-    : GraphElement(oscBaseItem, NULL)
+OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, const QPointF &pos, const QString &roadId)
+    : GraphElement(oscBaseItem, element)
+	, element_(element)
 	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
-	, entityCatalog_(entityCatalog)
+	, oscPrivateAction_(NULL)
+	, catalog_(catalog)
 	, path_(NULL)
 	, pos_(pos)
 	, roadID_(roadId)
@@ -130,6 +134,7 @@ QPainterPath *
 void
 OSCItem::init()
 {
+	oscBaseItem_->appendOSCItem(this);
 	
     // Hover Events //
     //
@@ -148,13 +153,16 @@ OSCItem::init()
     QAction *removeElementAction = getRemoveMenu()->addAction(tr("OpenScenario Object"));
     connect(removeElementAction, SIGNAL(triggered()), this, SLOT(removeElement()));
 
+	QString name = updateName();
     if (getTopviewGraph()) // not for profile graph
     {
         // Text //
         //
-        oscTextItem_ = new OSCTextItem(this, oscObject_, pos_);
+        oscTextItem_ = new OSCTextItem(element_, this, name, pos_);
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
+
+	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(name.toStdString());
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
 	road_ = roadSystem_->getRoad(roadID_);
@@ -164,42 +172,40 @@ OSCItem::init()
 	doPan_ = false;
 	copyPan_ = false;
 
+
+
 	// TODO: get type and object from catalog reference //
 	//
 
-	const std::string refId = oscObject_->catalogReference->catalogId.getValue();
-	OpenScenario::oscEntity *entityObject = dynamic_cast<OpenScenario::oscEntity *>(entityCatalog_->getCatalogObject(stoi(refId)));
+	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(name.toStdString());
 
-	OpenScenario::oscCatalog *catalog;
-	int id = entityObject->objectChoice->vehicle->refId.getValue();
-
-	if (id > 0)
+	if (!catalogObject)
 	{
-		createPath = createVehiclePath;
-		catalog = oscEditor_->getCatalog("vehicleCatalog");
+		catalog_->fullReadCatalogObjectWithName(name.toStdString());
 	}
+	
 
-	if (catalog->getObjectsMap().size() == 0)
+	if (catalogObject)
 	{
-		//get all catalog object filenames
-		std::vector<bf::path> filenames = catalog->getXoscFilesFromDirectory(catalog->directory->path.getValue());
+			createPath(catalogObject);
 
-		//parse all files
-		//store object name and filename in map
-		catalog->fastReadCatalogObjects(filenames);
+			updateColor(catalog_->getCatalogName());
+			updatePosition();
 	}
+}
 
-	selectedObject_ = catalog->getCatalogObject(id);
-	if (!selectedObject_)
-	{
-		catalog->fullReadCatalogObjectWithName(id);
-		selectedObject_ = catalog->getCatalogObject(id);
-	}
+QString
+    OSCItem::updateName()
+{
+    QString name = "";
+    OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getOrCreateValue();
+    oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
+    if (sv)
+    {
+        name = QString::fromStdString(sv->getValue());
+    }
 
-	createPath(selectedObject_);
-
-	updateColor("oscVehicle");
-    updatePosition();
+    return name;
 }
 
 
@@ -252,8 +258,12 @@ OSCItem::deleteRequest()
 bool
 OSCItem::removeElement()
 {
- /*   RemoveSignalCommand *command = new RemoveSignalCommand(signal_, road_);
-    return getProjectGraph()->executeCommand(command); */
+	OpenScenario::oscObjectBase *parent = oscObject_->getParentObj();
+	OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(parent->getOwnMember());
+
+	RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, oscObject_, arrayMember->findObjectIndex(oscObject_), element_);
+	getTopviewGraph()->executeCommand(command); 
+
 	return false;
 }
 
@@ -324,6 +334,7 @@ OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
 			getProjectGraph()->executeCommand(command); */
 		}
+
         GraphElement::mousePressEvent(event); // pass to baseclass
 
     }
@@ -365,14 +376,13 @@ OSCItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void
 OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	GraphElement::mouseReleaseEvent(event);
 
     if (doPan_)
     {
 		double diff = (lastPos_ - pressPos_).manhattanLength();
 		if (diff > 0.01) // otherwise item has not been moved by intention
 		{
-			bool parentChanged = oscEditor_->translateObject(oscObject_, closestRoad_->getID(), s_, t_);
+			bool parentChanged = oscEditor_->translateObject(oscPrivateAction_, closestRoad_->getID(), s_, t_);
 			pos_ += lastPos_ - pressPos_;
 
 		}
@@ -385,6 +395,8 @@ OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 
 	oscTextItem_->setVisible(true);
+
+	GraphElement::mouseReleaseEvent(event);
 }
 
 /*! \brief Key events for panning, etc.
@@ -443,6 +455,20 @@ OSCItem::updateObserver()
     if (isInGarbage())
     {
         return; // will be deleted anyway
+    }
+
+    // Get change flags //
+    //
+	int changes = element_->getOSCElementChanges();
+
+    if (changes & OSCElement::COE_ParameterChange)
+    {
+        // Text //
+        //
+        if (oscTextItem_)
+        {
+            oscTextItem_->updateText(updateName());
+        }
     }
 
     // Signal //

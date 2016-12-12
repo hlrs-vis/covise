@@ -19,5 +19,12 @@ if test $COVISE_LOCAL_PYTHON ; then
     unset PYTHONHOME
 fi
 
+if [ -n "${COVISE_DYLD_LIBRARY_PATH}" ]; then
+    export DYLD_LIBRARY_PATH="${COVISE_DYLD_LIBRARY_PATH}"
+fi
+if [ -n "${COVISE_DYLD_FRAMEWORK_PATH}" ]; then
+    export DYLD_FRAMEWORK_PATH="${COVISE_DYLD_FRAMEWORK_PATH}"
+fi
+
 exec $_PYTHON $_PYOPT $_STARTUP "$@"
 exit 0 

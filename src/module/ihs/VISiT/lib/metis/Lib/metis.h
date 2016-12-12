@@ -12,6 +12,9 @@
  */
 
 #include <stdio.h>
+#if _MSC_VER >= 1900
+#include <stdlib.h>
+#endif
 #ifdef __STDC__
 #include <stdlib.h>
 #else

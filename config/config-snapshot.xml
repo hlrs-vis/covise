@@ -29,7 +29,7 @@
             <NumSlaves value="1" />
             <MasterInterface value="192.168.2.150" />
 
-            <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+            <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
          </MultiPC>
 
          <PipeConfig>

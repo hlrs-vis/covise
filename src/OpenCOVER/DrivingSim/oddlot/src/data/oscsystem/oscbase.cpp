@@ -23,7 +23,7 @@
 
 // OpenScenario data //
 //
-#include "oscObject.h"
+#include "schema/oscObject.h"
 #include "oscObjectBase.h"
 
 using namespace OpenScenario;
@@ -32,31 +32,22 @@ using namespace OpenScenario;
 *
 */
 OSCBase::OSCBase()
-    : DataElement()       //   , rSystemElementChanges_(0x0)
+    : DataElement()       
 	, openScenarioBase_(NULL)
+	, oscBaseChanges_(0x0)
 {
 }
 
 OSCBase::OSCBase(OpenScenario::OpenScenarioBase *openScenarioBase)
 	: DataElement()
 	, openScenarioBase_(openScenarioBase)
+	, oscBaseChanges_(0x0)
 {
 }
 
 OSCBase::~OSCBase()
 {
-	bool deleted;
-	do
-	{
-		deleted = false;
-		foreach (OSCElement *element, oscElements_)
-		{
-			oscElements_.remove(element->getID());
-			delete element;
-			deleted = true;
-		}
-	}
-	while (deleted);
+	oscElements_.clear();
 
 	openScenarioBase_ = NULL;
 }
@@ -71,13 +62,6 @@ OSCBase::setParentProjectData(ProjectData *projectData)
     parentProjectData_ = projectData;
     setParentElement(projectData);
 //    addScenerySystemChanges(ScenerySystem::CSC_ProjectDataChanged);
-}
-
-
-OSCElement *
-OSCBase::getOSCElement(const QString &id) const
-{
-	return oscElements_.value(id);
 }
 
 OSCElement *
@@ -96,9 +80,27 @@ OSCBase::getOSCElement(OpenScenario::oscObjectBase *oscObjectBase)
 		it++;
 	}
 
-	oscElement = new OSCElement("element");
-	oscElement->setObjectBase(oscObjectBase);
-	addOSCElement(oscElement);
+	return NULL;
+}
+
+
+OSCElement *
+OSCBase::getOSCElement(const QString &id) const
+{
+	return oscElements_.value(id);
+}
+
+OSCElement *
+OSCBase::getOrCreateOSCElement(OpenScenario::oscObjectBase *oscObjectBase)
+{
+	OSCElement *oscElement = getOSCElement(oscObjectBase);
+
+	if (!oscElement)
+	{
+		oscElement = new OSCElement("element");
+		oscElement->setObjectBase(oscObjectBase);
+		addOSCElement(oscElement);
+	}
 
 	return oscElement;
 }
@@ -136,7 +138,6 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 
     if (oscElements_.remove(oscElement->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
     {
-		oscElement->notifyParent();
         oscElement->setOSCBase(NULL);
 
 		addOSCBaseChanges(OSCBase::COSC_ElementChange);

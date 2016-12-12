@@ -26,7 +26,7 @@
 
 #ifdef HAS_MPI
 #include <mpi.h>
-//#define MPI_BCAST
+#define MPI_BCAST
 #ifndef CO_MPI_SEND
 #define CO_MPI_SEND MPI_Ssend
 #endif
@@ -846,25 +846,17 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
 #ifdef HAS_MPI
         if (syncMode == SYNC_MPI)
     {
-#ifdef MPI_BCAST
-        MPI_Bcast(const_cast<void *>(c), n, MPI_BYTE, 0, appComm);
-#else
         MPI_Status status;
         MPI_Recv(c, n, MPI_BYTE, 0, AppTag, appComm, &status);
-#endif
 
         if (drawStatistics)
         {
             networkRecv += cover->currentTime() - startTime;
         }
 
-#ifdef MPI_BCAST
-        return n;
-#else
         int count;
         MPI_Get_count(&status, MPI_BYTE, &count);
         return count;
-#endif
     }
     else
 #endif
@@ -1372,17 +1364,6 @@ void coVRMSController::sendSlaves(const void *c, int n)
         {
             delete multicast;
             exit(0);
-        }
-    }
-    else
-#endif
-#if defined HAS_MPI && defined MPI_BCAST
-        if (syncMode == SYNC_MPI)
-    {
-        MPI_Bcast(const_cast<void *>(c), n, MPI_BYTE, AppTag, appComm);
-        if (drawStatistics)
-        {
-            networkSend += cover->currentTime() - startTime;
         }
     }
     else
@@ -2182,6 +2163,14 @@ void coVRMSController::syncTime()
 
 int coVRMSController::syncData(void *data, int size)
 {
+#if defined(HAS_MPI) && defined(MPI_BCAST)
+    if (syncMode == SYNC_MPI)
+    {
+        MPI_Bcast(data, size, MPI_BYTE, 0, appComm);
+        return size;
+    }
+#endif
+
     if (isMaster())
     {
         sendSlaves(data, size);
@@ -2200,25 +2189,9 @@ int coVRMSController::syncData(void *data, int size)
 
 bool coVRMSController::syncBool(bool state)
 {
-    if (numSlaves == 0)
-        return state;
-
     char c = state;
-    if (master)
-    {
-        sendSlaves(&c, 1);
-    }
-    else
-    {
-
-        if (readMaster(&c, 1) < 0)
-        {
-            cerr << "ccould not read message from Master" << endl;
-            cerr << "sync_exit15c myID=" << myID << endl;
-            exit(0);
-        }
-        state = c != '\0';
-    }
+    syncData(&c, 1);
+    state = (c != 0);
     return state;
 }
 

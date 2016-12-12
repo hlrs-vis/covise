@@ -848,12 +848,28 @@ void coVRShader::storeMaterial()
     impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
 
     std::string ShaderName = name;
+
+    if (ShaderName[0] >= '0' || ShaderName[0] <= '9')
+        ShaderName.insert(0, 1, '_');
+
     for (size_t i = 0; i < ShaderName.length(); i++)
     {
         if (ShaderName[i] == ' ')
             ShaderName[i] = '_';
     }
-    xercesc::DOMDocument *document = impl->createDocument(0, xercesc::XMLString::transcode(ShaderName.c_str()), 0);
+    xercesc::DOMDocument *document = NULL;
+
+    try
+    {
+        document = impl->createDocument(0, xercesc::XMLString::transcode(ShaderName.c_str()), 0);
+    }
+    catch (xercesc::DOMException &ex)
+    {
+        char *msg = xercesc::XMLString::transcode(ex.getMessage());
+        cerr << "ERROR: " << msg << '\n';
+        xercesc::XMLString::release(&msg);
+        return;
+    }
 
     xercesc::DOMElement *rootElement = document->getDocumentElement();
     if (transparent)
@@ -936,8 +952,8 @@ void coVRShader::storeMaterial()
     if (geometryShader.get() != NULL)
     {
         xercesc::DOMElement *geometryProgram = document->createElement(xercesc::XMLString::transcode("geometryProgram"));
-        char numVertices[GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT];
-        sprintf(numVertices, "%d", geomParams[0]);
+        char numVertices[100]; // no idea what that ment: GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT
+        snprintf(numVertices,100, "%d", geomParams[0]);
         geometryProgram->setAttribute(xercesc::XMLString::transcode("numVertices"), xercesc::XMLString::transcode(numVertices));
         //    GLint geometryProgram->getParamenter(GL_GEOMETRY_INPUT_TYPE_EXT);
 

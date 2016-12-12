@@ -259,28 +259,6 @@ FileEntry::~FileEntry()
     delete fileMenuItem;
 }
 
-void
-VolumePlugin::key(int type, int keySym, int mod)
-{
-    switch (type)
-    {
-    case (osgGA::GUIEventAdapter::KEYDOWN):
-        if (!(mod & ~osgGA::GUIEventAdapter::MODKEY_SHIFT))
-        {
-            if (keySym == 'h' || keySym == 'H')
-            {
-                switchToHighQuality = true;
-            }
-        }
-        break;
-    case (osgGA::GUIEventAdapter::KEYUP):
-        break;
-    default:
-        cerr << "VolumePlugin::keyEvent: unknown key event type " << type << endl;
-        return;
-    }
-}
-
 int
 VolumePlugin::loadVolume(const char *filename, osg::Group *parent, const char *)
 {
@@ -414,10 +392,7 @@ bool VolumePlugin::init()
     roiMode = false;
     unregister = false;
     instantMode = false;
-    highQuality = false;
-    highQualityEnabled = true;
     highQualityOversampling = MAX_QUALITY;
-    switchToHighQuality = false;
     currentQuality = 1.;
     chosenFPS = INITIAL_FPS;
     allVolumesActive = true;
@@ -427,8 +402,6 @@ bool VolumePlugin::init()
 
     interactionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "ROIMode", coInteraction::Menu);
     interactionB = new coCombinedButtonInteraction(coInteraction::ButtonB, "ROIMode", coInteraction::Menu);
-    interactionHQ = new coCombinedButtonInteraction(coInteraction::AllButtons, "Anchor", coInteraction::Highest);
-    interactionHQ->setNotifyOnly(true);
     fpsMissed = 0;
 
     vvDebugMsg::msg(1, "VolumePlugin::initApp()");
@@ -517,7 +490,6 @@ bool VolumePlugin::init()
     lightingItem.reset(new coCheckboxMenuItem("Lighting", false));
     colorsItem.reset(new coPotiMenuItem("Discrete Colors", 0.0, 32.0, 0, VolumeCoim.get(), "DISCRETE_COLORS"));
     hqItem.reset(new coSliderMenuItem("Oversampling", 1.0, MAX_QUALITY * 2., highQualityOversampling));
-    hqEnableItem.reset(new coCheckboxMenuItem("Enable HQ Mode", highQualityEnabled));
     allVolumesActiveItem.reset(new coCheckboxMenuItem("All Volumes Active", allVolumesActive));
     cycleVolumeItem.reset(new coButtonMenuItem("Cycle Active Volume"));
     currentVolumeItem.reset(new coLabelMenuItem("[]"));
@@ -577,7 +549,6 @@ bool VolumePlugin::init()
     lightingItem->setMenuListener(this);
     fpsItem->setMenuListener(this);
     hqItem->setMenuListener(this);
-    hqEnableItem->setMenuListener(this);
     boundItem->setMenuListener(this);
     interpolItem->setMenuListener(this);
     interpolItem->setState(true);
@@ -606,7 +577,6 @@ bool VolumePlugin::init()
     volumeMenu->add(lightingItem.get());
     volumeMenu->add(fpsItem.get());
     volumeMenu->add(hqItem.get());
-    volumeMenu->add(hqEnableItem.get());
     volumeMenu->add(colorsItem.get());
     volumeMenu->add(tfeItem.get());
     volumeMenu->add(cycleVolumeItem.get());
@@ -1911,67 +1881,13 @@ void VolumePlugin::preFrame()
     }
     start = end; // start stopwatch
 
-    // Check for High Quality mode:
-    static float lastQuality = 0.0;
-    if (highQualityEnabled)
+    float quality = currentQuality;
+    if (cover->isHighQuality())
     {
-        if (!highQuality)
-        {
-            Vec3 pointerPosWld = cover->getPointerMat().getTrans();
-            Vec3 viewerPosWld = cover->getViewerMat().getTrans();
-            // HQ mode ON, if button is pressed while the mouse is higher then the head
-            if (volumes.size() && (switchToHighQuality || (pointerPosWld[2] > viewerPosWld[2] && cover->getPointerButton()->wasPressed())))
-            {
-                switchToHighQuality = false;
-                highQuality = true;
-                fprintf(stdout, "\a");
-                fflush(stdout);
-                lastQuality = currentQuality;
-                currentQuality = highQualityOversampling;
-
-                if (!interactionHQ->isRegistered())
-                {
-                    coInteractionManager::the()->registerInteraction(interactionHQ);
-                }
-
-#ifdef VERBOSE
-                cerr << "grabPointerHQ" << endl;
-#endif
-                //cover->grabPointer(VolumePluginModule);
-            }
-        }
-        else
-        { // do not do any interactions in high quality mode
-            if (cover->getPointerButton()->wasPressed() || cover->getMouseButton()->wasPressed()) // end HQ, if any button was pressed
-            {
-                highQuality = false;
-                currentQuality = lastQuality;
-                fprintf(stdout, "\a");
-                fflush(stdout);
-                if (interactionHQ->isRegistered())
-                {
-                    coInteractionManager::the()->unregisterInteraction(interactionHQ);
-                }
-#ifdef VERBOSE
-                cerr << "releasePointerHQ" << endl;
-#endif
-            }
-        }
-    }
-    else if (highQuality) // HQ mode is on, but was just disabled
-    {
-        highQuality = false;
-        currentQuality = lastQuality;
-        fprintf(stdout, "\a");
-        fflush(stdout);
-        if (interactionHQ->isRegistered())
-        {
-            coInteractionManager::the()->unregisterInteraction(interactionHQ);
-        }
+        quality = highQualityOversampling;
         fpsMissed = 0;
     }
-
-    if (!highQuality)
+    else
     {
         float threshold = 0.1f * chosenFPS;
         if (fabs(fps - chosenFPS) > threshold)
@@ -2002,6 +1918,7 @@ void VolumePlugin::preFrame()
             currentQuality = coClamp(currentQuality, MIN_QUALITY, MAX_QUALITY);
             currentQuality = std::min(currentQuality, highQualityOversampling);
         }
+        quality = currentQuality;
     }
 
     Matrix vMat = cover->getViewerMat();
@@ -2032,7 +1949,7 @@ void VolumePlugin::preFrame()
         if (drawable)
         {
             const osg::Matrix &t = it->second.transform->getMatrix();
-            drawable->setQuality(currentQuality);
+            drawable->setQuality(quality);
             drawable->setViewDirection(viewDirObj*t);
             drawable->setObjectDirection(objDirObj*t);
         }
@@ -2441,10 +2358,6 @@ void VolumePlugin::menuEvent(coMenuItem *item)
         highQualityOversampling = hqItem->getValue();
     }
 
-    else if (item == hqEnableItem.get())
-    {
-        highQualityEnabled = hqEnableItem->getState();
-    }
     else if (item == allVolumesActiveItem.get())
     {
         allVolumesActive = allVolumesActiveItem->getState();
@@ -2579,12 +2492,6 @@ void VolumePlugin::setROIMode(bool newMode)
         {
             currentVolume->second.roiMode = false;
         }
-#if 0
-      if(interactionHQ->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionHQ);
-      }
-#endif
     }
 
     virvo::VolumeDrawable *drawable = getCurrentDrawable();

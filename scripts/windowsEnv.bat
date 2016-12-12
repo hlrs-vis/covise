@@ -6,7 +6,7 @@ if defined COMMON_ACTIVE (
 
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
-   echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, mingw, mingwopt"
+   echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, zebu, zebuopt , tamarau, tamarauopt, mingw, mingwopt"
    pause
    goto END
 )
@@ -80,11 +80,13 @@ if /I "%ARCHSUFFIX%" EQU "berrendaopt" goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "berrenda"    goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "tamarauopt" goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
+if /I "%ARCHSUFFIX%" EQU "zebuopt" goto LABEL_SETENVIRONMENT
+if /I "%ARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "mingwopt" goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
 echo ARCHSUFFIX %ARCHSUFFIX% is not supported!
 echo common.bat [ARCHSUFFIX]
-echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, mingw, mingwopt"
+echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, zebu, zebuopt, mingw, mingwopt"
 pause
 goto END
 

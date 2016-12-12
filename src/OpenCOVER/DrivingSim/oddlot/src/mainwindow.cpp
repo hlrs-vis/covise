@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
     lodSettings = new LODSettings();
-	oscSettings = new OSCSettings();
+	oscSettings = new OSCSettings(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/");
 
     // Default //
     //
@@ -653,27 +653,27 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
 {
     // Dock Area //
     //
-    catalogDock_ = new QDockWidget(name, this);
-    catalogDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	catalogDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-	catalogDock_->setFixedWidth(200);
+    QDockWidget *catalogDock = new QDockWidget(name, this);
+    catalogDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	catalogDock->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	catalogDock->setFixedWidth(200);
 
-    addDockWidget(Qt::RightDockWidgetArea, catalogDock_);
-	tabifyDockWidget(treeDock_, catalogDock_);
-	catalogDock_->raise();
+    addDockWidget(Qt::RightDockWidgetArea, catalogDock);
+	tabifyDockWidget(treeDock_, catalogDock);
+	catalogDock->raise();
 		
     // Show/Hide Action //
     //
-    QAction *catalogDockToggleAction = catalogDock_->toggleViewAction();
+    QAction *catalogDockToggleAction = catalogDock->toggleViewAction();
     catalogDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
     viewMenu_->addAction(catalogDockToggleAction);
 	
 
     // Catalog Widget //
     //
-    catalogDock_->setWidget(widget);
+    catalogDock->setWidget(widget);
 
-	return catalogDock_;
+	return catalogDock;
 }
 
 
@@ -688,7 +688,13 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
 void
 MainWindow::newFile()
 {
-    ProjectWidget *project = createProject();
+	ProjectWidget *project = getActiveProject();
+	if (project)
+	{
+		project->setProjectActive(false);
+	}
+
+    project = createProject();
     project->newFile();
     project->show();
 
@@ -1237,6 +1243,14 @@ MainWindow::activateProject()
         //
         project->getProjectMenuAction()->setChecked(true);
 
+		// Deactivate last project //
+		//
+		ProjectWidget *lastProject = getLastActiveProject();
+		if (lastProject)
+		{
+			lastProject->removeCatalogTrees();
+		}
+
         // Tell project that it has been activated //
         //
         project->setProjectActive(true);
@@ -1260,6 +1274,7 @@ MainWindow::activateProject()
 ProjectWidget *
 MainWindow::getActiveProject()
 {
+
     // If there is an active SubWindow, return it as a ProjectWidget //
     //
     QMdiSubWindow *activeSubWindow = mdiArea_->currentSubWindow();
@@ -1271,6 +1286,23 @@ MainWindow::getActiveProject()
     {
         return NULL;
     }
+}
+
+/*! \brief Returns the last active ProjectWidget.
+*
+*/
+ProjectWidget *
+MainWindow::getLastActiveProject()
+{
+	QList<QMdiSubWindow *> windowList = mdiArea_->subWindowList(QMdiArea::WindowOrder::ActivationHistoryOrder);
+	
+	if (windowList.size() > 1)
+	{
+		QMdiSubWindow *lastActiveWindow = windowList.at(windowList.size()-2);
+		return qobject_cast<ProjectWidget *>(lastActiveWindow->widget());
+	}
+
+	return NULL;
 }
 
 /*! \brief Returns the project subwindow of a already opened file (if possible).

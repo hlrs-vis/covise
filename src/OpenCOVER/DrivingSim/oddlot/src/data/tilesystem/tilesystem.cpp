@@ -113,12 +113,15 @@ TileSystem::delTile(Tile *tile)
 void
 TileSystem::setCurrentTile(Tile *tile)
 {
-    if (currentTile_)
-    {
-        currentTile_->setElementSelected(false);
-    }
-    currentTile_ = tile;
-    tile->setElementSelected(true);
+	if (currentTile_)
+	{
+		currentTile_->setElementSelected(false);
+	}
+	if (tile !=NULL)
+	{
+		currentTile_ = tile;
+		tile->setElementSelected(true);
+	}
 }
 
 //##################//

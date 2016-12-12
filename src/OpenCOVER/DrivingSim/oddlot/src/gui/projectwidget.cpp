@@ -274,6 +274,10 @@ ProjectWidget::~ProjectWidget()
     {
         delete editor;
     }
+
+	removeCatalogTrees();
+
+
     delete topviewGraph_;
     delete profileGraph_;
 
@@ -562,12 +566,29 @@ ProjectWidget::addCatalogTree(const QString &name, OpenScenario::oscCatalog *cat
     // add a catalog tree
     //
     CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, name);
+	catalogWidgets_.push_back(catalogWidget);
     QDockWidget *catalogDock = mainWindow_->createCatalog(name, catalogWidget);
     CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
     QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
 
     return catalogTree;
+}
+
+void
+ProjectWidget::removeCatalogTrees()
+{
+	foreach (CatalogWidget * widget, catalogWidgets_)
+	{
+		QDockWidget *parent = dynamic_cast<QDockWidget *>(widget->parentWidget());
+		if (parent)
+		{
+			mainWindow_->removeDockWidget(parent);
+		}
+		delete widget;
+	}
+
+	catalogWidgets_.clear();
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)
@@ -1310,7 +1331,7 @@ bool
 					RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
 					if (road) // addSignal
 					{
-						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0, true, 2, 1, 0, 0.0, 0.0);
+						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
 						road->addSignal(trafficSign);
 					}
 				}
@@ -1553,7 +1574,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }
@@ -1771,6 +1792,10 @@ ProjectWidget::setProjectActive(bool active)
         mainWindow_->setProjectTree(projectTree_);
         mainWindow_->setProjectSettings(projectSettings_);
     }
+	else
+	{
+		removeCatalogTrees();
+	}
 
     projectData_->projectActivated(active); // Undo, etc
 
@@ -1796,12 +1821,15 @@ ProjectWidget::setProjectClean(bool clean)
 void
 ProjectWidget::toolAction(ToolAction *toolAction)
 {
+	static ODD::EditorId lastId = ODD::ENO_EDITOR;
+
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
-    if (id != ODD::ENO_EDITOR)
+    if ((id != lastId) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
+		lastId = id;
     }
 
     // Pass to Editor/Graph //

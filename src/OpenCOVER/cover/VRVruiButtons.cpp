@@ -15,39 +15,42 @@ using namespace opencover;
 using namespace covise;
 
 VRVruiButtons::VRVruiButtons(coPointerButton *button)
+: m_button(button)
 {
-    this->button = button;
-    if (!this->button)
-    {
-        this->button = cover->getPointerButton();
-    }
 }
 
 VRVruiButtons::~VRVruiButtons()
 {
 }
 
+coPointerButton *VRVruiButtons::button() const
+{
+    if (m_button)
+        return m_button;
+    return cover->getPointerButton();
+}
+
 unsigned int VRVruiButtons::wasPressed(unsigned int buttons) const
 {
-    return button->wasPressed(buttons);
+    return button()->wasPressed(buttons);
 }
 
 unsigned int VRVruiButtons::wasReleased(unsigned int buttons) const
 {
-    return button->wasReleased(buttons);
+    return button()->wasReleased(buttons);
 }
 
 unsigned int VRVruiButtons::getStatus() const
 {
-    return button->getState();
+    return button()->getState();
 }
 
 unsigned int VRVruiButtons::getOldStatus() const
 {
-    return button->oldState();
+    return button()->oldState();
 }
 
 int VRVruiButtons::getWheelCount() const
 {
-    return button->getWheel();
+    return button()->getWheel();
 }

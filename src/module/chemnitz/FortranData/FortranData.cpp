@@ -310,7 +310,9 @@ void FortranData::WriteFortranDataFormat(const char *f, ...)
     char *data = NULL; //data to be written, must be a string, because of the leading spaces
 
 #ifdef _MSC_VER
+#if _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
 #endif
 
     format = new char[formatLength + 1];
