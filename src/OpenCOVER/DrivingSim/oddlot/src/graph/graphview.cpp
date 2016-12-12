@@ -17,7 +17,7 @@
 
 #include "topviewgraph.hpp"
 #include "graphscene.hpp"
-#include "graphViewItems/graphviewshapeitem.hpp"
+#include "graphviewitems/graphviewshapeitem.hpp"
 #include "src/cover/coverconnection.hpp"
 
 //MainWindow //

@@ -46,6 +46,8 @@
 #include <QColor>
 #include <QMouseEvent>
 
+#include <cmath>
+
 
 GraphViewShapeItem::GraphViewShapeItem(GraphView *view, OpenScenarioEditor *editor, int x, int y, int width, int height) :
     QObject()
@@ -529,8 +531,8 @@ GraphViewShapeItem::appendPoint(const QPointF point)
 	m_controlPoints.append(point);
 
 	endPoint = point;
-	canvasWidth = abs(endPoint.x() - startPoint.x());
-	canvasHeight = abs(endPoint.y() - startPoint.y());
+	canvasWidth = std::abs(endPoint.x() - startPoint.x());
+	canvasHeight = std::abs(endPoint.y() - startPoint.y());
 
 	m_numberOfSegments++;
 
@@ -557,8 +559,8 @@ GraphViewShapeItem::addPoint(const QPointF point)
 	else if (endPoint.isNull())
 	{
 		endPoint = point;
-		canvasWidth = abs(endPoint.x() - startPoint.x());
-		canvasHeight = abs(endPoint.y() - startPoint.y());
+		canvasWidth = std::abs(endPoint.x() - startPoint.x());
+		canvasHeight = std::abs(endPoint.y() - startPoint.y());
 
 		QPointF d = (endPoint - startPoint)/6;
 		m_controlPoints.insert(1, endPoint);
@@ -663,8 +665,8 @@ void GraphViewShapeItem::mouseMoveEvent(QMouseEvent *e)
 			invalidate();
             createPath();
 
-			canvasWidth = abs(endPoint.x() - startPoint.x());
-			canvasHeight = abs(endPoint.y() - startPoint.y());
+			canvasWidth = std::abs(endPoint.x() - startPoint.x());
+			canvasHeight = std::abs(endPoint.y() - startPoint.y());
 		}
 	}
 
@@ -706,8 +708,8 @@ void GraphViewShapeItem::mouseMoveEvent(QMouseEvent *e)
 	if (!endPoint.isNull() && (m_activeControlPoint == m_controlPoints.size() - 1))
 	{
 		endPoint = m_controlPoints[m_activeControlPoint];
-		canvasWidth = abs(endPoint.x() - startPoint.x());
-		canvasHeight = abs(endPoint.y() - startPoint.y());
+		canvasWidth = std::abs(endPoint.x() - startPoint.x());
+		canvasHeight = std::abs(endPoint.y() - startPoint.y());
 	}
 }
 

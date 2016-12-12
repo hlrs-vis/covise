@@ -1,4 +1,6 @@
-USING(GLUT ALVAR OpenCV2) # ALVAR does not work with OpenCV3
+USING(GLUT)
+USING(ALVAR)
+USING(OpenCV2) # ALVAR does not work with OpenCV3
 
 SET(ALVAR_USE_CUDA FALSE)
 
