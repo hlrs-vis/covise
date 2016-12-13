@@ -126,7 +126,8 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	{
 		if (object_->getOwnMember())
 		{
-			objectStackText_ += QString::fromStdString(object_->getOwnMember()->getName()) + "/";
+			member_ = object_->getOwnMember();
+			objectStackText_ += QString::fromStdString(member_->getName()) + "/";
 		}
 		else
 		{
@@ -158,22 +159,18 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 OSCObjectSettings::~OSCObjectSettings()
 {
-	if (object_)
+	if (member_)
 	{
-		OpenScenario::oscMember *ownMember = object_->getOwnMember();
-		if (ownMember)
+		QString type = QString::fromStdString(member_->getTypeName());
+		if (type == "oscTrajectory")
 		{
-			QString type = QString::fromStdString(ownMember->getTypeName());
-			if (type == "Trajectory")
-			{
 
-				// Connect with the ToolManager to send the selected signal or object //
-				//
-				ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
-				if (toolManager)
-				{
-					toolManager->enableOSCEditorToolButton(false);
-				}
+			// Connect with the ToolManager to send the selected signal or object //
+			//
+			ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+			if (toolManager)
+			{
+				toolManager->enableOSCEditorToolButton(false);
 			}
 		}
 	}
@@ -431,7 +428,28 @@ OSCObjectSettings::uiInit()
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
 
+	if (member_)
+	{
+		std::string type = member_->getTypeName();
+		if (type == "oscTrajectory")
+		{			
+			OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(projectSettings_->getProjectWidget()->getProjectEditor());
+			if (oscEditor)
+			{
+				oscEditor->setTrajectoryElement(element_);
+			}
 
+			// Connect with the ToolManager to send the selected signal or object //
+			//
+			ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+			if (toolManager)
+			{
+				toolManager->enableOSCEditorToolButton(true);
+			}
+
+			element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
+		}
+	}
 }
 
 // Create generic interface for array members//
@@ -918,26 +936,6 @@ OSCObjectSettings::onNewArrayElement()
 		projectSettings_->executeCommand(command);
 
 		updateTree();
-
-		std::string type = member_->getTypeName();
-        if (type == "oscTrajectory")
-        {			
-			OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(projectSettings_->getProjectWidget()->getProjectEditor());
-			if (oscEditor)
-			{
-				oscEditor->setTrajectoryElement(oscElement);
-			}
-
-            // Connect with the ToolManager to send the selected signal or object //
-            //
-            ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
-            if (toolManager)
-            {
-                toolManager->enableOSCEditorToolButton(true);
-            }
-
-            oscElement->addOSCElementChanges(OSCElement::COE_SettingChanged);
-        }
 
 		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL);
 	}

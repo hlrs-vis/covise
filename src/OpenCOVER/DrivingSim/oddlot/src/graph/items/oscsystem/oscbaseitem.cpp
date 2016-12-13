@@ -88,7 +88,8 @@ OSCBaseItem::~OSCBaseItem()
 
 void
 OSCBaseItem::init()
-{	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+{	
+	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
 	catalogs_ = openScenarioBase->Catalogs.getOrCreateObject();
 	OpenScenario::oscStoryboard *story = openScenarioBase->Storyboard.getOrCreateObject();
 	OpenScenario::oscInit *init = story->Init.getOrCreateObject();
@@ -137,7 +138,10 @@ OSCBaseItem::init()
 			}
 			continue;
 		}
+	}
 
+	foreach (OSCElement *element, oscBase_->getOSCElements())
+	{
 		OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
 		if (trajectory)
 		{

@@ -79,6 +79,7 @@
 #include "schema/oscActions.h"
 #include "schema/oscPrivateAction.h"
 #include "schema/oscPrivate.h"
+#include "schema/oscOpenSCENARIO_TrajectoryCatalog.h"
 
 // Boost //
 //
@@ -162,15 +163,30 @@ OpenScenarioEditor::init()
             {
                 OpenScenario::oscFollowTrajectory *objectTrajectory = dynamic_cast<OpenScenario::oscFollowTrajectory *>(objectBase);
                 std::string name = objectTrajectory->name.getValue();
-                OpenScenario::oscTrajectory *catalogObject = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryCatalog->getCatalogObject(name));
+                OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 if (!catalogObject)
                 {
                     trajectoryCatalog->fullReadCatalogObjectWithName(name);
-                    catalogObject = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryCatalog->getCatalogObject(name));
+                    catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 }
+				OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
+				OpenScenario::oscTrajectory *catalogTrajectory = NULL;
+				for (int i = 0; i < trajectoryArray->size(); i++)
+				{
+					OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryArray->at(i));
+					if (trajectory->name.getValue() == name)
+					{
+						catalogTrajectory = trajectory;
+						break;
+					}
+				}
 
-				OSCElement *element = new OSCElement(QString::fromStdString(name), catalogObject);
-                oscBase_->addOSCElement(element);
+				if (catalogTrajectory)
+				{
+
+					OSCElement *element = new OSCElement(QString::fromStdString(name), catalogTrajectory);
+					oscBase_->addOSCElement(element);
+				}
             }
         }
     }
