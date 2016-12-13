@@ -210,10 +210,10 @@ bool oscCatalog::addObjToObjectsMap(const std::string &name, const bf::path &fil
         return true;
     }
 }
-
+/// returns true if an element has been removed
 bool oscCatalog::removeObjFromObjectsMap(const std::string &name)
 {
-	return m_Objects.erase(name);
+	return (m_Objects.erase(name)>0); 
 }
 
 std::string oscCatalog::getType(const std::string &typeName)
