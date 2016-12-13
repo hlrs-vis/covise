@@ -75,6 +75,8 @@ public:
     bool addObjToObjectsMap(const std::string &name, const bf::path &fileNamePath, oscObjectBase *object);
     bool removeObjFromObjectsMap(const std::string &name);
 	std::string getPath(const std::string &name);
+	std::string getObjectPath(OpenScenario::oscObjectBase *object);
+	OpenScenario::oscObjectBase *getObjectfromPath(const std::string &path);
 
     //ObjectsInMemory
     bool fullReadCatalogObjectWithName(const std::string &name); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map

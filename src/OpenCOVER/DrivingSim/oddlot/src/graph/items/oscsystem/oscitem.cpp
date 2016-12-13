@@ -72,6 +72,7 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
     , oscObject_(oscObject)
 	, oscPrivateAction_(NULL)
 	, catalog_(catalog)
+	, selectedObject_(NULL)
 	, path_(NULL)
 	, pos_(pos)
 	, roadID_(roadId)
@@ -153,16 +154,23 @@ OSCItem::init()
     QAction *removeElementAction = getRemoveMenu()->addAction(tr("OpenScenario Object"));
     connect(removeElementAction, SIGNAL(triggered()), this, SLOT(removeElement()));
 
-	QString name = updateName();
     if (getTopviewGraph()) // not for profile graph
     {
         // Text //
         //
+		QString name = updateName();
         oscTextItem_ = new OSCTextItem(element_, this, name, pos_);
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
-	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(name.toStdString());
+	OpenScenario::oscCatalogReference *catalogReference = oscObject_->CatalogReference.getObject();
+	if (!catalogReference)
+	{
+		return;
+	}
+
+	std::string catalogFileName = catalogReference->name.getValue();
+	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(catalogFileName);
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
 	road_ = roadSystem_->getRoad(roadID_);
@@ -177,20 +185,33 @@ OSCItem::init()
 	// TODO: get type and object from catalog reference //
 	//
 
-	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(name.toStdString());
+	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogFileName);
 
 	if (!catalogObject)
 	{
-		catalog_->fullReadCatalogObjectWithName(name.toStdString());
+		catalog_->fullReadCatalogObjectWithName(catalogFileName);
+		catalogObject = catalog_->getCatalogObject(catalogFileName);
 	}
 	
-
 	if (catalogObject)
 	{
-			createPath(catalogObject);
+		OpenScenario::oscArrayMember *objects = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember(catalog_->getCatalogName()));
+		if (objects && !objects->empty())
+		{
+			selectedObject_ = objects->at(0);
+		}
 
-			updateColor(catalog_->getCatalogName());
-			updatePosition();
+		if (selectedObject_)
+		{
+			if (catalog_->getCatalogName() == "Vehicle")
+			{
+				createPath = createVehiclePath;
+				createPath(selectedObject_);
+
+				updateColor(catalog_->getCatalogName());
+				updatePosition();
+			}
+		}
 	}
 }
 
@@ -214,7 +235,7 @@ QString
 void
 OSCItem::updateColor(const std::string &type)
 {
-	if (type == "oscVehicle")
+	if (type == "Vehicle")
 	{
 		color_ = Qt::black;
 	}

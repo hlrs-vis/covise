@@ -462,6 +462,38 @@ std::string oscCatalog::getPath(const std::string &name)
 	}
 }
 
+std::string 
+oscCatalog::getObjectPath(OpenScenario::oscObjectBase *object)
+{
+	 for (auto it = m_Objects.begin(); it != m_Objects.end(); it++)
+	 {
+		 ObjectParams params = it->second;
+		 if (params.object == object)
+		 {
+			 return params.fileName.string();
+		 }
+	 }
+}
+
+OpenScenario::oscObjectBase *
+oscCatalog::getObjectfromPath(const std::string &path)
+{
+	 for (auto it = m_Objects.begin(); it != m_Objects.end(); it++)
+	 {
+		 ObjectParams params = it->second;
+		 if (!params.object)
+		 {
+			 fullReadCatalogObjectWithName(it->first);
+		 }
+
+		 if (params.fileName.string() == path)
+		 {
+			 return params.object;
+		 }
+	 }
+}
+
+
 void oscCatalog::writeCatalogToDOM()
 {
 	for (unordered_map<std::string, ObjectParams>::const_iterator it = m_Objects.begin(); it != m_Objects.end(); it++)
