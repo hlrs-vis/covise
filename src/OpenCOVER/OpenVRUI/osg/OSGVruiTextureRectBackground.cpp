@@ -107,6 +107,7 @@ void OSGVruiTextureRectBackground::resizeGeometry()
 
     rescaleTexture();
 
+	coord->dirty();
     geometryNode->dirtyBound();
     geometry->dirtyBound();
     geometry->dirtyDisplayList();

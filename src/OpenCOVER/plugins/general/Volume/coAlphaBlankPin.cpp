@@ -79,6 +79,7 @@ void coAlphaBlankPin::adjustGraph()
     (*graphCoord)[0].set(W * x1, -H, ZOFFSET);
 
     graphGeode->dirtyBound();
+	graphCoord->dirty();
     geometry->dirtyDisplayList();
 
     // adjust the selectionBar

@@ -63,7 +63,7 @@ void OSGVruiColoredBackground::resizeGeometry()
     (*coord)[2].set(myWidth, myHeight, 0.0f);
     (*coord)[1].set(myWidth, 0.0f, 0.0f);
     (*coord)[0].set(0.0f, 0.0f, 0.0f);
-
+	coord->dirty();
     geometryNode->dirtyBound();
     geometry->dirtyBound();
     geometry->dirtyDisplayList();

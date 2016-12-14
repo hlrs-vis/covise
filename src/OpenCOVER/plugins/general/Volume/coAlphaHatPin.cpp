@@ -172,6 +172,7 @@ void coAlphaHatPin::adjustGraph()
     (*graphCoord)[7].set(W * x1, -H, ZOFFSET);
 
     graphGeode->dirtyBound();
+	graphCoord->dirty();
     geometry->dirtyDisplayList();
 
     // FIXME: wofuer ist das?

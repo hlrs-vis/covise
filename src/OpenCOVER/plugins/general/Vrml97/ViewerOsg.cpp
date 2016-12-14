@@ -1848,8 +1848,10 @@ ViewerOsg::insertShell(unsigned int mask,
                                     normalind++;
                                 }
                             }
+							normalArray->dirty();
                         }
                     }
+					vert->dirty();
                     geom->dirtyDisplayList();
 
                     return (Object)d_currentObject;

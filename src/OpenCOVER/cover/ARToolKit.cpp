@@ -922,6 +922,7 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
 void ARToolKitMarker::setColor(float r, float g, float b)
 {
     (*colors)[0].set(r, g, b, 1.0);
+	colors->dirty();
     geom->dirtyDisplayList();
 }
 

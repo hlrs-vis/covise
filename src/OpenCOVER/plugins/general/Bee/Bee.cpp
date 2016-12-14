@@ -128,7 +128,10 @@ int Bee::addComb(comb *c, position p, comb *newc)
     colArr->push_back(osg::Vec4(0.0, 1, 1, 0.0));
     normalArr->push_back(osg::Vec3(0, 0, 1));
     (*primitives)[0] = vert->size();
-
+	vert->dirty();
+	colArr->dirty();
+	normalArr->dirty();
+	primitives->dirty();
     geom->setColorArray(colArr);
     geom->setNormalArray(normalArr);
     geom->setVertexArray(vert);

@@ -257,6 +257,8 @@ void PolyLineDataPlugin::updateData(const char *data, int len)
     std::cerr << "------------------------------------------------" << std::endl;
 
     primitives[polyLineNumber]->setCount(points[polyLineNumber]->size());
+	primitives[polyLineNumber]->dirty();
+	points[polyLineNumber]->dirty();
     lineGeosets[polyLineNumber]->dirtyDisplayList();
 }
 
