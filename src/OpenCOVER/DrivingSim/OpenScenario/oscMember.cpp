@@ -8,6 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscMember.h"
 #include "oscObjectBase.h"
 #include "oscFactories.h"
+#include "oscVariables.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -140,6 +141,12 @@ oscMemberValue *oscMember::getValue()
 oscMemberValue *oscMember::createValue()
 {
 	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
+	if (type == oscMemberValue::ENUM)
+	{
+		OpenScenario::oscEnumValue *ev = dynamic_cast<OpenScenario::oscEnumValue *>(v);
+		OpenScenario::oscEnum *em = dynamic_cast<OpenScenario::oscEnum *>(this);
+		ev->enumType = em->enumType;
+	}
 	setValue(v);
 
 	return value;
