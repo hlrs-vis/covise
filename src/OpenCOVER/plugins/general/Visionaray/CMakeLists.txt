@@ -24,6 +24,7 @@ set(HEADERS
     kernels/bvh_costs_kernel.h
     kernels/normals_kernel.h
     kernels/tex_coords_kernel.h
+    common.h
     drawable.h
     state.h
     visionaray_plugin.h
