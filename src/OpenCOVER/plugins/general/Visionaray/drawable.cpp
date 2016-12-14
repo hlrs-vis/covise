@@ -41,6 +41,7 @@
 #include "kernels/tex_coords_kernel.h"
 #include "common.h"
 #include "drawable.h"
+#include "scene_monitor.h"
 #include "state.h"
 #include "two_array_ref.h"
 
@@ -371,6 +372,7 @@ namespace visionaray
             texture_map &textures,
             texture_list &texture_refs,
             node_mask_map &node_masks,
+            scene::Monitor &mon,
             const std::vector<osg::Sequence *> &managed_seqs = {},
             TraversalMode tm = TRAVERSE_ALL_CHILDREN)
             : base_type(tm)
@@ -382,6 +384,7 @@ namespace visionaray
             , textures_(textures)
             , texture_refs_(texture_refs)
             , node_masks_(node_masks)
+            , scene_monitor_(mon)
             , managed_seqs_(managed_seqs)
         {
         }
@@ -479,11 +482,19 @@ namespace visionaray
                     if (mat)
                     {
                         materials_.push_back(osg_cast(mat));
+                        scene_monitor_.add_observable(std::make_shared<scene::Material>(mat,
+                                                                                        materials_,
+                                                                                        materials_.size() - 1));
                     }
                     else
                     {
                         if (parent_mat_)
+                        {
                             materials_.push_back(osg_cast(parent_mat_));
+                            scene_monitor_.add_observable(std::make_shared<scene::Material>(parent_mat_,
+                                                                                            materials_,
+                                                                                            materials_.size() - 1));
+                        }
                         else
                             materials_.push_back(get_default_material());
                     }
@@ -572,6 +583,7 @@ namespace visionaray
         texture_map &textures_;
         texture_list &texture_refs_;
         node_mask_map &node_masks_;
+        scene::Monitor &scene_monitor_;
         const std::vector<osg::Sequence *> &managed_seqs_;
 
         // Propagate state to child nodes
@@ -892,6 +904,8 @@ namespace visionaray
             two_array_ref<device_tex_coord_list>,
             two_array_ref<device_texture_list>>                 device_intersector;
 #endif
+
+        scene::Monitor                                          scene_monitor;
 
         enum eye
         {
@@ -1336,6 +1350,7 @@ namespace visionaray
                 impl_->textures,
                 impl_->texture_refs[0],
                 impl_->node_masks,
+                impl_->scene_monitor,
                 seqs
                 );
        opencover::cover->getObjectsRoot()->accept(visitor); 
@@ -1354,6 +1369,7 @@ namespace visionaray
                     impl_->textures,
                     impl_->texture_refs[i],
                     impl_->node_masks,
+                    impl_->scene_monitor,
                     seqs
                     );
 
@@ -1484,6 +1500,10 @@ namespace visionaray
 
         impl_->store_gl_state();
 
+
+        // Update scene state
+
+        impl_->scene_monitor.update();
 
         // Camera matrices, render target resize
 

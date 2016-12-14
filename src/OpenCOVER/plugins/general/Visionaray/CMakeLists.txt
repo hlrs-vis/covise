@@ -26,11 +26,13 @@ set(HEADERS
     kernels/tex_coords_kernel.h
     common.h
     drawable.h
+    scene_monitor.h
     state.h
     visionaray_plugin.h
 )
 
 set(SOURCES
+    scene_monitor.cpp
     visionaray_plugin.cpp
 )
 
