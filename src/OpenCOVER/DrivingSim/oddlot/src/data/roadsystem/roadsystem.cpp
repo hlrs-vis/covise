@@ -21,6 +21,7 @@
 #include "src/data/roadsystem/junctionconnection.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
 
 #include "rsystemelementroad.hpp"
 #include "rsystemelementcontroller.hpp"
@@ -28,6 +29,7 @@
 #include "rsystemelementfiddleyard.hpp"
 #include "rsystemelementpedfiddleyard.hpp"
 #include "roadlink.hpp"
+
 
 #include "src/data/tilesystem/tilesystem.hpp"
 
@@ -480,13 +482,24 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
         if (road->getJunction() == "-1")
         {
             RoadLink *predecessor = road->getPredecessor();
+
             if (predecessor)
             {
                 if (predecessor->getElementType() == "road")
                 {
-                    RoadLink *predSuccessor = getRoad(predecessor->getElementId())->getSuccessor();
-                    RoadLink *roadLink = new RoadLink("road", newId, predSuccessor->getContactPoint());
-                    getRoad(predecessor->getElementId())->setSuccessor(roadLink);
+					RSystemElementRoad *predecessorRoad = getRoad(predecessor->getElementId());
+					if (predecessor->getContactPoint() == "end")
+					{
+						RoadLink *predSuccessor = predecessorRoad->getSuccessor();
+						RoadLink *roadLink = new RoadLink("road", newId, predSuccessor->getContactPoint());
+						predecessorRoad->setSuccessor(roadLink);
+					}
+					else
+					{
+						RoadLink *predPredecessor = predecessorRoad->getPredecessor();
+						RoadLink *roadLink = new RoadLink("road", newId, predPredecessor->getContactPoint());
+						predecessorRoad->setPredecessor(roadLink);
+					}
                 }
                 else if (predecessor->getElementType() == "junction") // incoming road
                 {
@@ -512,9 +525,10 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                         }
                     }
 
-                    QMap<QString, QString> idsChanged;
-                    idsChanged.insert(element->getID(), newId);
-                    junction->checkConnectionIds(idsChanged);
+                    QMap<QString, IdType> idChanged;
+					IdType el = {newId, "road"};
+                    idChanged.insert(element->getID(), el); 
+                    junction->checkConnectionIds(idChanged);
                 }
             }
 
@@ -523,9 +537,19 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
             {
                 if (successor->getElementType() == "road")
                 {
-                    RoadLink *succPredecessor = getRoad(successor->getElementId())->getPredecessor();
+					RSystemElementRoad *successorRoad = getRoad(successor->getElementId());
+					if (successor->getContactPoint() == "start")
+					{
+                    RoadLink *succPredecessor = successorRoad->getPredecessor();
                     RoadLink *roadLink = new RoadLink("road", newId, succPredecessor->getContactPoint());
-                    getRoad(successor->getElementId())->setPredecessor(roadLink);
+                    successorRoad->setPredecessor(roadLink);
+					}
+					else
+					{
+						RoadLink *succSuccessor = successorRoad->getSuccessor();
+						RoadLink *roadLink = new RoadLink("road", newId, succSuccessor->getContactPoint());
+						successorRoad->setSuccessor(roadLink);
+					}
                 }
                 else if (successor->getElementType() == "junction") // incoming road
                 {
@@ -552,25 +576,27 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                         }
                     }
 
-                    QMap<QString, QString> idsChanged;
-                    idsChanged.insert(element->getID(), newId);
-                    junction->checkConnectionIds(idsChanged);
+                    QMap<QString, IdType> idChanged;
+					IdType el = {newId, "road"};
+                    idChanged.insert(element->getID(), el);
+                    junction->checkConnectionIds(idChanged);
                 }
             }
         }
 
         else // Connecting road
         {
-            QMap<QString, QString> idsChanged;
-            idsChanged.insert(element->getID(), newId);
-            getJunction(road->getJunction())->checkConnectionIds(idsChanged);
+            QMap<QString, IdType> idChanged;
+			IdType el = {newId, "road"};
+            idChanged.insert(element->getID(), el);
+            getJunction(road->getJunction())->checkConnectionIds(idChanged);
         }
 
         element->setID(newId);
         roads_.insert(newId, static_cast<RSystemElementRoad *>(element));
 
         addRoadSystemChanges(RoadSystem::CRS_RoadChange);
-    }
+	}
     else if (junctions_.contains(element->getID()))
     {
         junctions_.remove(element->getID());
@@ -624,8 +650,27 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
     }
 }
 
+QString
+RoadSystem::getNewId(const QMultiMap<QString, IdType> &idMap, QString id, QString type)
+{
+	QMultiMap<QString, IdType>::const_iterator it = idMap.find(id);
+
+	while (it != idMap.constEnd())
+	{
+		IdType el = it.value();
+		if (el.type == type)
+		{
+			return el.id;
+		}
+
+		it++;
+	}
+
+	return id;
+}
+
 void
-RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
+RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
 {
     //Roads //
     //
@@ -644,9 +689,13 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
 
             if (predecessor != NULL)
             {
-                if (idMap.find(predecessor->getElementId()) != idMap.end())
+				QString id = predecessor->getElementId();
+				QString type = predecessor->getElementType();
+				QString newId = getNewId(idMap, id, type);
+				
+				if (newId != id)
                 {
-                    RoadLink *roadLink = new RoadLink(predecessor->getElementType(), idMap.find(predecessor->getElementId()).value(), predecessor->getContactPoint());
+                    RoadLink *roadLink = new RoadLink(type, newId, predecessor->getContactPoint());
                     road->setPredecessor(roadLink);
                 }
                 else
@@ -659,9 +708,13 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
 
             if (successor != NULL)
             {
-                if (idMap.find(successor->getElementId()) != idMap.end())
+                QString id = successor->getElementId();
+				QString type = successor->getElementType();
+				QString newId = getNewId(idMap, id, type);
+				
+				if (newId != id)
                 {
-                    RoadLink *roadLink = new RoadLink(successor->getElementType(), idMap.find(successor->getElementId()).value(), successor->getContactPoint());
+                    RoadLink *roadLink = new RoadLink(type, newId, successor->getContactPoint());
                     road->setSuccessor(roadLink);
                 }
                 else
@@ -674,9 +727,10 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
 
             if (junction != "-1")
             {
-                if (idMap.find(junction) != idMap.end())
+				QString newId = getNewId(idMap, junction, "junction");
+                if (junction != newId)
                 {
-                    road->setJunction(idMap.find(junction).value());
+                    road->setJunction(newId);
                 }
                 else
                 {
@@ -712,20 +766,23 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
     QMap<QString, RSystemElementController *>::const_iterator controlIt = controllers_.constBegin();
 
     while (controlIt != controllers_.constEnd())
-    {
-        QList<ControlEntry *> entryList = controlIt.value()->getControlEntries();
-        for (int i = 0; i < entryList.size(); i++)
-        {
-            ControlEntry *entry = entryList.at(i);
+	{
+		QList<ControlEntry *> entryList = controlIt.value()->getControlEntries();
 
-            if (idMap.find(entry->getSignalId()) != idMap.end())
-            {
-                entry->setSignalId(idMap.find(entry->getSignalId()).value());
-            }
-        }
+		for (int i = 0; i < entryList.size(); i++)
+		{
+			ControlEntry *entry = entryList.at(i);
+			QString signalId = entry->getSignalId();
 
-        controlIt++;
-    }
+			QString newId = getNewId(idMap, signalId, "signal");
+			if (signalId != newId)
+			{
+				entry->setSignalId(newId);
+			}
+		}
+
+		controlIt++;
+	}
     //FiddleJards //
     //
 
@@ -772,6 +829,47 @@ RoadSystem::updateControllers()
          }
          controlIt++;
      }
+}
+
+RSystemElementRoad *
+RoadSystem::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
+{
+
+	if (roads_.count() < 1)
+	{
+		return NULL;
+	}
+
+	QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+	RSystemElementRoad *road = it.value();
+	s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
+	vec = QVector2D(road->getGlobalPoint(s) - to);
+	t = vec.length();
+
+	while (++it != roads_.constEnd())
+	{
+		RSystemElementRoad *newRoad = it.value();
+		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
+		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(newS) - to);
+		double dist = newVec.length();
+
+		if (dist < t)
+		{
+			road = newRoad;
+			t = dist;
+			s = newS;
+			vec = newVec;
+		}
+	}
+
+	QVector2D normal = road->getGlobalNormal(s);
+
+	if (QVector2D::dotProduct(normal, vec) < 0)
+	{
+		t = -t;
+	}
+
+	return road;
 }
 
 //##################//

@@ -18,8 +18,19 @@
 
 #include "src/graph/items/graphelement.hpp"
 
+namespace OpenScenario
+{
+class oscCatalog;
+class oscActions;
+class oscObject;
+class oscCatalogs;
+class oscPrivateAction;
+class oscPrivate;
+}
+
 class TopviewGraph;
-class OSCObjectItem;
+class OSCItem;
+class OSCShapeItem;
 class OSCBase;
 class RoadSystem;
 class OSCRoadSystemItem;
@@ -57,18 +68,23 @@ public:
 		oscRoadSystemItem_ = roadSystemItem;
 	}
 
-	 // OSCObjectItems //
+	 // OSCItems //
     //
-    void appendOSCObjectItem(OSCObjectItem *oscObjectItem);
-    bool removeOSCObjectItem(OSCObjectItem *oscObjectItem);
-    OSCObjectItem *getOSCObjectItem(const QString &id) const
+    void appendOSCItem(OSCItem *oscItem);
+    bool removeOSCItem(OSCItem *oscObjectItem);
+    OSCItem *getOSCItem(const QString &id) const
     {
-        return oscObjectItems_.value(id, NULL);
+        return oscItems_.value(id, NULL);
     }
-    QMap<QString, OSCObjectItem *> getOSCObjectItems() const
+    QMap<QString, OSCItem *> getOSCItems() const
     {
-        return oscObjectItems_;
+        return oscItems_;
     }
+
+     // OSCItems //
+    //
+    void appendOSCShapeItem(OSCShapeItem *oscShapeItem);
+    bool removeOSCShapeItem(OSCShapeItem *oscShapeItem);
 
     // delete this item
     virtual bool deleteRequest()
@@ -91,10 +107,16 @@ public:
 
 private:
 	OSCBase *oscBase_;
+	OpenScenario::oscActions *actions_;
+	OpenScenario::oscCatalogs *catalogs_;
+
+	OpenScenario::oscPrivateAction *getPrivateAction(OpenScenario::oscObject *object, OpenScenario::oscPrivate *privateObject);
+	OpenScenario::oscCatalog *getCatalog(OpenScenario::oscObject *object);
 
 	 // OSCObjectItems //
     //
-    QMap<QString, OSCObjectItem *> oscObjectItems_;
+    QMap<QString, OSCItem *> oscItems_;
+    QMap<QString, OSCShapeItem *> oscShapeItems_;
 
 	RoadSystem *roadSystem_;
 	OSCRoadSystemItem *oscRoadSystemItem_;

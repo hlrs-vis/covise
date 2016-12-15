@@ -141,7 +141,7 @@ elif [ "$basename" = "_ltrace_for_covise" ]; then
     exec ltrace `which $runcmd` "$@"
 elif [ "$basename" = "_ldd_for_covise" ]; then
     case "$ARCHSUFFIX" in
-        macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt)
+        macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt|macos|macosopt)
             exec otool -L `which $runcmd` "$@"
             ;;
         *)
@@ -154,7 +154,7 @@ elif [ "$basename" = "_env_for_covise" ]; then
     else
         envvars="COVISEDIR ARCHSUFFIX COVISE_PATH COCONFIG OIV_PSFONT_PATH VV_SHADER_PATH"
         case "$ARCHSUFFIX" in
-            macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt)
+            macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt|macos|macosopt)
                 envvars="$envvars DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH"
                 ;;
             *)
@@ -169,7 +169,7 @@ elif [ "$basename" = "_env_for_covise" ]; then
 elif [ "$basename" = "_debug_for_covise" ]; then
     if [ -z "$DEBUGGER" ]; then
         case "$ARCHSUFFIX" in
-            lionopt|libc++|libc++opt)
+            lion|lionopt|libc++|libc++opt|macos|macosopt)
                 DEBUGGER=/Applications/Xcode.app/Contents/Developer/usr/bin/lldb
                 if [ -n "$DEBUGGER" ]; then
                     DEBUGGER=lldb

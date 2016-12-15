@@ -49,6 +49,12 @@ OSCObjectSettingsStack::OSCObjectSettingsStack(ProjectSettings *projectSettings,
 
 OSCObjectSettingsStack::~OSCObjectSettingsStack()
 {
+	for (int i = 0; i < stack_->count(); i++)
+	{
+		QWidget *widget = stack_->widget(i);
+		stack_->removeWidget(widget);
+		delete widget;
+	}
 
 }
 
@@ -67,7 +73,7 @@ OSCObjectSettingsStack::uiInit()
 
 	stack_ = new QStackedWidget();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_); 
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_, NULL); 
 
 
 }
@@ -98,12 +104,18 @@ OSCObjectSettingsStack::getLastWidget()
 	return stack_->currentWidget();
 }
 
+void
+OSCObjectSettingsStack::removeWidget(QWidget *widget)
+{
+	stack_->removeWidget(widget);
+}
+
 
 //################//
 // SLOTS          //
 //################//
 void 
-OSCObjectSettingsStack::removeWidget()
+OSCObjectSettingsStack::stackRemoveWidget()
 {
 	int i = stack_->currentIndex();
 	stack_->setCurrentWidget(stack_->widget(i - 1));

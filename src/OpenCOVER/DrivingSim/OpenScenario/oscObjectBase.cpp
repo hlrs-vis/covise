@@ -9,6 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioBase.h"
 #include "oscSourceFile.h"
 #include "oscUtilities.h"
+#include "oscArrayMember.h"
 
 #include <iostream>
 
@@ -202,81 +203,67 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 		{
             if(member->getType() == oscMemberValue::OBJECT)
             {
-                oscObjectBase *obj = member->getObject();
-                if (obj)
-                {
-                    //xml document and element used for writing
-                    xercesc::DOMDocument *docToUse;
-                    xercesc::DOMElement *elementToUse;
+				//ArrayMember
+				oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
+				if (aMember != NULL)
+				{
+					for(oscArrayMember::iterator it =aMember->begin();it != aMember->end();it++)
+					{
+						oscObjectBase *obj = *it;
+					
+						//xml document for member
+						xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
 
-                    //ArrayMember
-                    oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
+						//determine document and element for writing
+						//
+						if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
+						{
+							//add include element to currentElement and add XInclude namespace to root element of new xml document
+							const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
+							addXInclude(currentElement, document, fileHref);
 
-                    //xml document for member
-					xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
+							//member and ArrayMember use a new document and the root element of this document
+							//write members of member into root element of new xml document
+							obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
+						}
+						else
+						{
+							//oscMember
 
-                    //determine document and element for writing
-                    //
-                    if ((document != srcXmlDoc) && writeInclude)
-                    {
-                        //add include element to currentElement and add XInclude namespace to root element of new xml document
-                        const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
-                        addXInclude(currentElement, document, fileHref);
+							xercesc::DOMElement *memberElement = document->createElement(xercesc::XMLString::transcode(member->getName().c_str()));
+							currentElement->appendChild(memberElement);
+							obj->writeToDOM(memberElement, document, writeInclude);
+						}
+					}
+				}
+				else
+				{
+					oscObjectBase *obj = member->getObject();
+					if (obj)
+					{
+						//xml document for member
+						xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
 
-                        //member and ArrayMember use a new document and the root element of this document
-                        docToUse = srcXmlDoc;
-                        elementToUse = docToUse->getDocumentElement();
-                    }
-                    else
-                    {
-                        //member and ArrayMember use the same document
-                        docToUse = document;
+						//determine document and element for writing
+						//
+						if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
+						{
+							//add include element to currentElement and add XInclude namespace to root element of new xml document
+							const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
+							addXInclude(currentElement, document, fileHref);
 
-                        if (aMember)
-                        {
-                            //write ArrayMember (the container)
-                            //(and the ArrayMembers are written under this element in the write function)
-                            elementToUse = aMember->writeArrayMemberToDOM(currentElement, docToUse);
-                        }
-                        else
-                        {
-                            elementToUse = currentElement;
-                        }
-                    }
+							//member and ArrayMember use a new document and the root element of this document
+							//write members of member into root element of new xml document
+							obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
+						}
+						else
+						{
+							//oscMember
+							member->writeToDOM(currentElement, document, writeInclude);
+						}
 
-                    //write elements into xml documents
-                    //
-                    if (aMember)
-                    {
-                        //for ArrayMember there is no differentiation if document != srcXmlDoc is true or false
-                        for (int i = 0; i < aMember->size(); i++)
-                        {
-                            std::string aMemChildElemName = aMember->at(i)->getOwnMember()->getName();
-                            //obj == object of array member
-                            //find the member of this obj and set the value with element of the array vector
-                            oscMember *aMemberMember = obj->getMembers().at(aMemChildElemName);
-                            aMemberMember->setValue(aMember->at(i));
-
-                            //write array element into ArrayMember (the container)
-                            //(it's a root element of a new xml document or the container written with writeArrayMemberToDOM())
-                            obj->writeToDOM(elementToUse, docToUse, writeInclude);
-                        }
-                    }
-                    else
-                    {
-                        if ((document != srcXmlDoc) && writeInclude)
-                        {
-                            //write members of member into root element of new xml document
-                            obj->writeToDOM(elementToUse, docToUse, writeInclude);
-                        }
-                        else
-                        {
-                            //oscMember
-                            member->writeToDOM(elementToUse, docToUse, writeInclude);
-                        }
-                    }
-
-                }
+					}
+				}
             }
             else
             {
@@ -383,127 +370,39 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 					srcToUse = determineSrcFile(memberElem, src);
 				}
 
-                //oscArrayMember
-                //
-                oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
-                if(am)
-                {
-                    //check if ArrayMember has attributes
-                    //attributes of a maemberArray are not supported
-                    xercesc::DOMNamedNodeMap *memArrayAttributes = memberElem->getAttributes();
-                    for (int i = 0; i < memArrayAttributes->getLength(); i++)
-                    {
-                        xercesc::DOMAttr *attrib = dynamic_cast<xercesc::DOMAttr *>(memArrayAttributes->item(i));
-                        if(attrib != NULL)
-                        {
-                            std::string attribName = xercesc::XMLString::transcode(attrib->getName());
-                            if (attribName != "xmlns" && attribName != "xmlns:osc" && attribName != "xml:base")
-                            {
-                                std::cerr << "\n ArrayMember (container for an array) " << memberName << " has attributes." << std::endl;
-                                std::cerr << " Attributes of a ArrayMember are not supported.\n" << std::endl;
-                            }
-                        }
-                    }
+				oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
 
-                    //member has no value (value doesn't exist)
-                    if ( !m->exists() )
-                    {
-                        //generate the object for oscArrayMember
-                        //(it's the container for the array members)
-                        oscObjectBase *objAMCreated = oscFactories::instance()->objectFactory->create(memTypeName);
-
-                        if(objAMCreated)
-                        {
-
-							objAMCreated->initialize(base, this, m, srcToUse);
-
-                            m->setValue(objAMCreated);
-                            m->setParentMember(ownMember);
-                        }
-                        else
-                        {
-                            std::cerr << "could not create an object arrayMember of type " << memTypeName << std::endl;
-                        }
-                    }
-
-                    //object for oscArrayMember
-                    oscObjectBase *objAM = m->getObject();
-                    if(objAM)
-                    {
-                        xercesc::DOMNodeList *arrayMembersList = memberElem->getChildNodes();
-
-                        //generate the children members and store them in the array
-                        for (unsigned int arrayIndex = 0; arrayIndex < arrayMembersList->getLength(); ++arrayIndex)
-                        {
-                            xercesc::DOMElement *arrayMemElem = dynamic_cast<xercesc::DOMElement *>(arrayMembersList->item(arrayIndex));
-                            if (arrayMemElem != NULL)
-                            {
-                                std::string arrayMemElemName = xercesc::XMLString::transcode(arrayMemElem->getNodeName());
-
-                                oscMember *ame = objAM->getMembers()[arrayMemElemName];
-                                if (ame)
-                                {
-                                    std::string arrayMemTypeName = ame->getTypeName();
-
-                                    oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
-                                    if(obj)
-                                    {
-                                        oscSourceFile *arrayElemSrcToUse = src;
-										if (saveInclude)
-										{
-											arrayElemSrcToUse = determineSrcFile(arrayMemElem, srcToUse);
-										}
-
-                                        obj->initialize(base, objAM, ame, arrayElemSrcToUse);
-                                        am->push_back(obj);
-                                        ame->setParentMember(objAM->getOwnMember());
-                                        obj->parseFromXML(arrayMemElem, arrayElemSrcToUse, saveInclude);
-                                    }
-                                    else
-                                    {
-                                        std::cerr << "could not create an object array of type " << arrayMemTypeName << std::endl;
-                                    }
-                                }
-                                else
-                                {
-                                    std::cerr << "Node " << xercesc::XMLString::transcode(memberElem->getNodeName()) << " does not have any member called " << arrayMemElemName << std::endl;
-                                }
-                            }
-                        }
-                    }
+				//member has a value (value exists)
+				if (am == NULL &&  m->exists())
+				{
+					std::cerr << "\n Warning!" << std::endl;
+					std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << xercesc::XMLString::transcode(currentElement->getNodeName()) << "\"" << std::endl;
+					std::cerr << "  Only first entry is used." << std::endl;
+					std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileHrefAsStr() << " is used.\n" << std::endl;
 				}
-                //oscMember
-                //
-                else
-                {
-                    //member has a value (value exists)
-                    if ( m->exists() )
-                    {
-                        std::cerr << "\n Warning!" << std::endl;
-                        std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << xercesc::XMLString::transcode(currentElement->getNodeName()) << "\"" << std::endl;
-                        std::cerr << "  Only first entry is used." << std::endl;
-                        std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileHrefAsStr() << " is used.\n" << std::endl;
-                    }
-                    //member has no value (value doesn't exist)
-                    else
-                    {
-                        oscObjectBase *obj = oscFactories::instance()->objectFactory->create(memTypeName);
-                        if(obj)
-                        {
-                            obj->initialize(base, this, m, srcToUse);
-                            m->setValue(obj);
-                            m->setParentMember(ownMember);
-                            obj->parseFromXML(memberElem, srcToUse, saveInclude);
-                        }
-                        else
-                        {
-                            std::cerr << "could not create an object member of type " << memTypeName << std::endl;
-                        }
-                    }
+				//member has no value (value doesn't exist)
+				else
+				{
+					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(memTypeName);
+					if (obj)
+					{
+						obj->initialize(base, this, m, srcToUse);
+						if (am != NULL)
+						{
+							am->push_back(obj);
+						}
+						else
+						{
+							m->setValue(obj);
+						}
+						m->setParentMember(ownMember);
+						obj->parseFromXML(memberElem, srcToUse, saveInclude);
+					}
+					else
+					{
+						std::cerr << "could not create an object member of type " << memTypeName << std::endl;
+					}
                 }
-
-
-                
 			}
             //no member
             //

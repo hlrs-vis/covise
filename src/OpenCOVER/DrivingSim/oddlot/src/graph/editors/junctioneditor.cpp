@@ -437,10 +437,13 @@ JunctionEditor::widthOffset(Lane *lane, LaneSection *laneSection, double s, bool
     }
     else
     {
-        while ((nextLane = laneSection->getNextUpper(i)) != lane)
+        while ( (nextLane = laneSection->getNextUpper(i)) != lane)
         {
-            offset += nextLane->getWidth(sSection);
-            i = nextLane->getId();
+			if (nextLane)
+			{
+				offset += nextLane->getWidth(sSection);
+				i = nextLane->getId();
+			}
         }
         return -offset;
     }

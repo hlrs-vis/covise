@@ -51,9 +51,9 @@ SignalManager::~SignalManager()
 }
 
 void
-SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double height)
+SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double heightOffset, const QString &unit, const QString text, double width, double height)
 {
-    signals_.insert(country, new SignalContainer(name, icon, categoryName, type, typeSubclass, subType, value, distance, height));
+    signals_.insert(country, new SignalContainer(name, icon, categoryName, type, typeSubclass, subType, value, distance, heightOffset, unit, text, width, height));
 }
 
 void

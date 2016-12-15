@@ -12,9 +12,13 @@
 
 #ifdef _MSC_VER
 #include <ymath.h>
+#ifndef INFINITY
 #define INFINITY _FInf._Double
+#endif
+#if (_MSC_VER < 1900)
 int round(double d) { return ((int)(d + 0.5)); }
 int lround(double d) { return ((int)(d + 0.5)); }
+#endif
 #endif
 
 std::vector<OSGPSOParticleOnResponseSurface *> OSGPSOParticleOnResponseSurface::par;

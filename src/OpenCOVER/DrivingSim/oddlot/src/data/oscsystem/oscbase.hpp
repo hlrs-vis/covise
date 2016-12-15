@@ -76,8 +76,9 @@ public:
 		return openScenarioBase_;
 	}
 
-	OSCElement *getOSCElement(const QString &id) const;
 	OSCElement *getOSCElement(OpenScenario::oscObjectBase *oscObjectBase);
+	OSCElement *getOSCElement(const QString &id) const;
+	OSCElement *getOrCreateOSCElement(OpenScenario::oscObjectBase *oscObjectBase);
 
     QMap<QString, OSCElement *> getOSCElements() const
     {
@@ -97,11 +98,11 @@ public:
     // Observer Pattern //
     //
     virtual void notificationDone();
-/*    int getRSystemElementChanges() const
+    int getOSCBaseChanges() const
     {
-        return rSystemElementChanges_;
-    } */
-    void addOSCElementChanges(int changes);
+        return oscBaseChanges_;
+    } 
+    void addOSCBaseChanges(int changes);
 
 private:
 //    OSCBase(); /* not allowed */
@@ -129,7 +130,7 @@ private:
 
     // Observer Pattern //
     //
-    int oscElementChanges_;
+    int oscBaseChanges_;
 };
 
 #endif // OSCBASE_HPP

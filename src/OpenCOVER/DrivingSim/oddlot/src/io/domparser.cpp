@@ -30,8 +30,6 @@
 #include "src/data/tilesystem/tilesystem.hpp"
 #include "src/data/tilesystem/tile.hpp"
 
-#include "src/data/roadsystem/roadsystem.hpp"
-
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
@@ -953,7 +951,8 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         roadSystem_->addRoad(road); // This may change the ID!
         if (id != road->getID())
         {
-            elementIDs_.insert(id, road->getID());
+			RoadSystem::IdType el = {road->getID(), "road"};
+            elementIDs_.insert(id, el);
         }
     }
     else if (roadSystem_)
@@ -1342,7 +1341,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
                 if (id != object->getId())
                 {
-                    elementIDs_.insert(id, object->getId());
+					RoadSystem::IdType el = {object->getId(), "object"};
+                    elementIDs_.insert(id, el);
                 }
             }
        }
@@ -1395,7 +1395,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
         if (id != bridge->getId())
         {
-            elementIDs_.insert(id, bridge->getId());
+			RoadSystem::IdType el = {bridge->getId(), "bridge"};
+            elementIDs_.insert(id, el);
         }
 
         // Attempt to locate another object
@@ -1425,7 +1426,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
         if (id != bridge->getId())
         {
-            elementIDs_.insert(id, bridge->getId());
+			RoadSystem::IdType el = {bridge->getId(), "bridge"};
+            elementIDs_.insert(id, el);
         }
 
         // Attempt to locate another object
@@ -1467,7 +1469,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
         }
 
         // Construct signal object
-        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
+        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
         // Add to road
         road->addSignal(signal);
 
@@ -1549,11 +1551,15 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         QString country = parseToQString(child, "country", "Germany", false); // mandatory
         int type = parseToInt(child, "type", 0, false); // mandatory
         
-        int subtype = parseToInt(child, "subtype", -1, true); // mandatory
-        double value = parseToDouble(child, "value", 0.0, true); // mandatory
-        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // mandatory
-        double pitch = parseToDouble(child, "pitch", 0.0, true); // mandatory
-        double roll = parseToDouble(child, "roll", 0.0, true); // mandatory
+        int subtype = parseToInt(child, "subtype", -1, true); // optional
+        double value = parseToDouble(child, "value", 0.0, true); // optional
+        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // optional
+        double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+		QString unit = parseToQString(child, "unit", "km/h", true); //optional
+		QString text = parseToQString(child, "text", "", true);//optional
+		double width = parseToDouble(child, "width", 0.0, true);//optional
+		double height = parseToDouble(child, "height", 0.0, true);//optional
+        double roll = parseToDouble(child, "roll", 0.0, true); // optional
 
         // Get validity record
 
@@ -1615,12 +1621,12 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             hOffset = name.toDouble();
 
             // Construct signal object
-            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
         else
         {
             // Construct signal object
-            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
 
 
@@ -1630,7 +1636,8 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         road->addSignal(signal);
         if (id != signal->getId())
         {
-            elementIDs_.insert(id, signal->getId());
+			RoadSystem::IdType el = {signal->getId(), "signal"};
+            elementIDs_.insert(id, el);
         }
 
         // Attempt to locate another signal
@@ -2050,7 +2057,8 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
 
     if (id != controller->getID())
     {
-        elementIDs_.insert(id, controller->getID());
+		RoadSystem::IdType el = {controller->getID(), "controller"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -2118,7 +2126,8 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
 
     if (id != junction->getID())
     {
-        elementIDs_.insert(id, junction->getID());
+		RoadSystem::IdType el = {junction->getID(), "junction"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -2207,7 +2216,8 @@ DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
 
     if (id != fiddleyard->getID())
     {
-        elementIDs_.insert(id, fiddleyard->getID());
+		RoadSystem::IdType el = {fiddleyard->getID(), "fiddleyard"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -2320,7 +2330,8 @@ DomParser::parsePedFiddleyardElement(QDomElement &element, QString &oldTileId)
 
     if (id != fiddleyard->getID())
     {
-        elementIDs_.insert(id, fiddleyard->getID());
+		RoadSystem::IdType el = {fiddleyard->getID(), "pedFiddleyard"};
+        elementIDs_.insert(id, el);
     }
 
     return true;
@@ -3117,10 +3128,14 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         int subType = parseToInt(sign, "subtype", -1, true);
         double value = parseToDouble(sign, "value", 0.0, true);
         double distance = parseToDouble(sign, "distance", 0.0, true);
-        double height = parseToDouble(sign, "height", 0.0, true);
+		double heightOffset = parseToDouble(sign, "heightOffset", 0.0, true);
+		QString unit = parseToQString(sign, "unit", "km/h", true);
+		QString text = parseToQString(sign, "text", "", true);
+		double width = parseToDouble(sign, "width", 0.0, true);
+		double height = parseToDouble(sign, "height", 0.0, true);
 
 		SignalManager *signalManager = ODD::mainWindow()->getSignalManager();
-		signalManager->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, height);
+		signalManager->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, heightOffset, unit, text, width, height);
 		signalManager->addCategory(categoryName);
 
         sign = sign.nextSiblingElement("sign");

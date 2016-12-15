@@ -29,6 +29,7 @@ OSCElement::OSCElement(const QString &id, OpenScenario::oscObjectBase *oscObject
 
 OSCElement::~OSCElement()
 {
+
 }
 
 //################//
@@ -40,7 +41,8 @@ OSCElement::setOSCBase(OSCBase *base)
 {
     setParentElement(base);
 	oscBase_ = base;
- //   addRSystemElementChanges(RSystemElement::CRE_ParentRoadSystemChange);
+
+	addOSCElementChanges(OSCElementChange::COE_BaseChanged);
 }
 
 void
@@ -61,13 +63,29 @@ OSCElement::accept(Visitor *visitor)
     visitor->visit(this);
 }
 
+OSCElement *
+OSCElement::getParent()
+{
+	OSCElement *parentElement = NULL;
+
+	if (oscObjectBase_)
+	{
+		OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
+		if (oscObjectParent)
+		{
+			OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
+		}
+	}
+
+	return parentElement;
+}
+
 void
 OSCElement::notifyParent()
 {
-	OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
-	if (oscObjectParent)
+	OSCElement *parentElement = getParent();
+	if (parentElement)
 	{
-		OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
 		parentElement->addOSCElementChanges(OSCElement::COE_ChildChanged);
 	}
 }

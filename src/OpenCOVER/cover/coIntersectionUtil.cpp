@@ -93,7 +93,7 @@ namespace Private
                 std::cerr << "TriangleIntersect: invalid line segment - start" << std::endl;
                 return;
             }
-            if (std::isnan(_d[0] || std::isnan(_d[1]) || std::isnan(_d[2])))
+            if (std::isnan(_d[0]) || std::isnan(_d[1]) || std::isnan(_d[2]))
             {
                 _length = -1;
                 std::cerr << "TriangleIntersect: invalid line segment - direction" << std::endl;

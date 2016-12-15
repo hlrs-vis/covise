@@ -3,6 +3,7 @@
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
 
+        if (p_type_->getValue() == TYPE_MOVE_PLUGIN)
  * License: LGPL 2+ */
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -46,13 +47,16 @@ private:
     virtual void setIterator(coInputPort **, int);
     virtual void postHandleObjects(coOutputPort **);
 
-    static const int TYPE_MIRROR = 1;
-    static const int TYPE_TRANSLATE = 2;
-    static const int TYPE_ROTATE = 3;
-    static const int TYPE_SCALE = 4;
-    static const int TYPE_MULTI_ROTATE = 5;
-    static const int TYPE_TILE = 6;
-    static const int TIME_DEPENDENT = 7;
+    enum TransformType {
+        TYPE_MIRROR = 1,
+        TYPE_TRANSLATE,
+        TYPE_ROTATE,
+        TYPE_SCALE,
+        TYPE_MULTI_ROTATE,
+        TYPE_TILE,
+        TIME_DEPENDENT,
+        TYPE_MOVE_PLUGIN,
+    };
 
     // Diagnose
     int preHandleFailed_;

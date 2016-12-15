@@ -64,31 +64,6 @@
    <AnimationSpeed min="0.0" max="25.0" default="24.0" />
    <MultiThreaded value="off" />
    <SaveFile value="/tmp/test.osg" />
-   <FileManager>
-           <FileType name="pts" plugin="PointModel" />
-           <FileType name="xyz" plugin="PointModel" />
-           <FileType name="wrl" plugin="Vrml97" />
-           <FileType name="wrl.gz" plugin="Vrml97" />
-           <FileType name="wrz" plugin="Vrml97" />
-           <FileType name="xvf" plugin="Volume" />
-           <FileType name="rvf" plugin="Volume" />
-           <FileType name="avf" plugin="Volume" />
-           <FileType name="js" plugin="Script" />
-           <FileType name="qs" plugin="Script" />
-           <FileType name="plmxml" plugin="PLMXML" />
-           <FileType name="jt" plugin="JTOpen" />
-           <FileType name="top" plugin="Amber" />
-           <FileType name="trj" plugin="Amber" />
-           <FileType name="cgl" plugin="CADCv3D" />
-           <FileType name="via" plugin="Molecules" />
-           <FileType name="vim" plugin="Molecules" />
-           <FileType name="vis" plugin="Molecules" />
-           <FileType name="dyn" plugin="VRAnim" />
-           <FileType name="geoall" plugin="VRAnim" />
-           <FileType name="str" plugin="VRAnim" />
-           <FileType name="sensor" plugin="VRAnim" />
-           <FileType name="xodr" plugin="TrafficSimulation" />
-      </FileManager>
 
    <Input>
     <MouseNav value="ON" />
@@ -273,6 +248,7 @@
       </Messages--> </GLOBAL>
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+ <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
  <!-- this config is required by the ViNCE Renderer-->
  <INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE>
 </COCONFIG>

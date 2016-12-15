@@ -38,15 +38,11 @@ OpenScenarioBase::OpenScenarioBase() :
         m_fullReadCatalogs(false)
 {
     oscFactories::instance();
-
-    OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
-    OSC_OBJECT_ADD_MEMBER(catalogs, "oscCatalogs");
-    OSC_OBJECT_ADD_MEMBER(roadNetwork, "oscRoadNetwork");
-    OSC_OBJECT_ADD_MEMBER(environment, "oscEnvironmentReference");
-    OSC_OBJECT_ADD_MEMBER(entities, "oscEntities");
-    OSC_OBJECT_ADD_MEMBER(storyboard, "oscStoryboard");
-    OSC_OBJECT_ADD_MEMBER(scenarioEnd, "oscScenarioEnd");
-    OSC_OBJECT_ADD_MEMBER_OPTIONAL(test, "oscTest");
+    OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
+    OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs");
+    OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork");
+    OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities");
+    OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard");
 
     base = this;
 
@@ -96,8 +92,18 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
     //set the XSD Schema file name for possible file types
     OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
 //	fileTypeToXsd.emplace("", bf::path("OpenScenario_XML-Schema_.xsd"));
-    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenScenario_XML-Schema_OpenSCENARIO.xsd"));
-	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
+    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_Draft_F.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_DriverCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_EnvironmentCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_ManeuverCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_MiscObjectCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_PedestrianCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_PedestrianControllerCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_RouteCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_TrajectoryCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
+
+/*	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeA", bf::path("OpenScenario_XML-Schema_absoluteTypeA.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeB", bf::path("OpenScenario_XML-Schema_absoluteTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAction", bf::path("OpenScenario_XML-Schema_action.xsd"));
@@ -232,7 +238,7 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 	fileTypeToXsd.emplace("oscVisibility", bf::path("OpenScenario_XML-Schema_visibility.xsd"));
 	fileTypeToXsd.emplace("oscVisualRange", bf::path("OpenScenario_XML-Schema_visualRange.xsd"));
 	fileTypeToXsd.emplace("oscWaypoint", bf::path("OpenScenario_XML-Schema_waypoint.xsd"));
-	fileTypeToXsd.emplace("oscWeather", bf::path("OpenScenario_XML-Schema_weather.xsd"));
+	fileTypeToXsd.emplace("oscWeather", bf::path("OpenScenario_XML-Schema_weather.xsd")); */
 
     return fileTypeToXsd;
 }
@@ -362,12 +368,15 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
     setPathFromCurrentDirToDoc(fileName);
 
     xercesc::DOMElement *rootElement = getRootElement(fileName, nodeName, fileType, m_validate);
+/*	if(rootElement)
+	{
 	std::string rootElementName = xercesc::XMLString::transcode(rootElement->getNodeName());
 
 	if (rootElementName != fileType)
 	{
 		return false;
 	}
+	} */
 
     if(rootElement == NULL) // create new file
     {
@@ -396,12 +405,22 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         std::string srcFileRootElement = srcFileVec[i]->getRootElementNameAsStr();
 
         //set filename for main xosc file with root element "OpenSCENARIO" to fileName
-        if (srcFileRootElement == "OpenSCENARIO")
+		bf::path fnPath = srcFileVec[i]->getFileNamePath(fileName);
+        if (srcFileRootElement == "OpenSCENARIO") 
         {
-            srcFileVec[i]->setSrcFileName(fileName);
-            osbSourceFile = srcFileVec[i];
+			if ((fnPath == "") || (fnPath.parent_path() == srcFileVec[i]->getAbsPathToMainDir()))
+			{
+				srcFileVec[i]->setSrcFileName(fnPath.filename());
+			}
+			else
+			{
+				source = new oscSourceFile();
+				source->setNameAndPath(fileName, "OpenSCENARIO", m_pathFromCurrentDirToDoc);
+				srcFileVec[i] = source;
+			}
+			osbSourceFile = srcFileVec[i];
         }
-
+		
         if (!srcFileVec[i]->getXmlDoc())
         {
             xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);
@@ -537,8 +556,8 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         tmpRootElemName = xercesc::XMLString::transcode(tmpRootElem->getNodeName());
     }
 
-    //validation is only reasonable for tmpRootElementName == memberName
-    if (validate && tmpRootElemName == memberName)
+    //validation
+    if (validate)
     {
         //path to covise directory
         bf::path coDir = getEnvVariable("COVISEDIR");
@@ -549,7 +568,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
         //name of XML Schema
         bf::path xsdFileName;
-        FileTypeXsdFileNameMap::const_iterator found = s_fileTypeToXsdFileName.find(fileType);
+        FileTypeXsdFileNameMap::const_iterator found = s_fileTypeToXsdFileName.find(tmpRootElemName);
         if (found != s_fileTypeToXsdFileName.end())
         {
             xsdFileName = found->second;

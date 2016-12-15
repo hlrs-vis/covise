@@ -28,6 +28,8 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
 #include "src/data/commands/controllercommands.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/projectdata.hpp"
 
 // Widget //
 //
@@ -148,64 +150,72 @@ SignalItem::updateCategory()
     else
     {
         SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
-        if (signalContainer)
-        {
-            QString category = signalContainer->getSignalCategory();
-            int i = 360 / (categorySize_ + 1);
-            outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
+		if (signalContainer)
+		{
+			QString category = signalContainer->getSignalCategory();
+			int i = 360 / (categorySize_ + 1);
+			outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
 
 
-            QIcon icon = signalContainer->getSignalIcon();
-            pixmap_ = icon.pixmap(icon.availableSizes().first());
-            if (pixmap_.isNull())
-            {
-                qDebug("ERROR 1006111429! Pixmap could not be loaded!");
-            }
-            else
-            {
-                // Pixmap //
-                //
-                if (pixmapItem_)
-                {
-                    delete pixmapItem_;
-                }
-                pixmapItem_ = new QGraphicsPixmapItem(pixmap_);
-                pixmapItem_->setParentItem(this);
+			QIcon icon = signalContainer->getSignalIcon();
+			if (icon.availableSizes().count() > 0)
+			{
+				pixmap_ = icon.pixmap(icon.availableSizes().first());
+				if (pixmap_.isNull())
+				{
+					qDebug("ERROR 1006111429! Pixmap could not be loaded!");
+				}
+				else
+				{
+					// Pixmap //
+					//
+					if (pixmapItem_)
+					{
+						delete pixmapItem_;
+					}
+					pixmapItem_ = new QGraphicsPixmapItem(pixmap_);
+					pixmapItem_->setParentItem(this);
 
-                // Transformation //
-                //
-                // Note: The y-Axis must be flipped so the image is not mirrored
+					// Transformation //
+					//
+					// Note: The y-Axis must be flipped so the image is not mirrored
 
-                QTransform trafo;
-                if (pixmap_.width() > pixmap_.height())
-                {
-                    scale_ = size_/pixmap_.width();
-                    width_ = size_;
-                    height_ = scale_ * pixmap_.height();
-                    x_ = pos_.x() - halfsize_;
-                    double h = height_ / 2.0;
-                    trafo.translate(x_, pos_.y() + h);
-                    y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
-                }
-                else
-                {
-                    scale_ = size_/pixmap_.height();
-                    width_ = scale_ * pixmap_.width();
-                    height_ = size_;
-                    x_ = pos_.x() - width_ / 2.0;
-                    trafo.translate(x_, pos_.y() + halfsize_);
-                    y_ = pos_.y() - halfsize_;
-                }
-                trafo.rotate(180, Qt::XAxis);
-                trafo.scale(scale_, scale_);
+					QTransform trafo;
+					if (pixmap_.width() > pixmap_.height())
+					{
+						scale_ = size_ / pixmap_.width();
+						width_ = size_;
+						height_ = scale_ * pixmap_.height();
+						x_ = pos_.x() - halfsize_;
+						double h = height_ / 2.0;
+						trafo.translate(x_, pos_.y() + h);
+						y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
+					}
+					else
+					{
+						scale_ = size_ / pixmap_.height();
+						width_ = scale_ * pixmap_.width();
+						height_ = size_;
+						x_ = pos_.x() - width_ / 2.0;
+						trafo.translate(x_, pos_.y() + halfsize_);
+						y_ = pos_.y() - halfsize_;
+					}
+					trafo.rotate(180, Qt::XAxis);
+					trafo.scale(scale_, scale_);
 
-                pixmapItem_->setTransform(trafo);
-                if (!showPixmap_)
-                {
-                    pixmapItem_->hide();
-                }
-            }
-        }
+					pixmapItem_->setTransform(trafo);
+					if (!showPixmap_)
+					{
+						pixmapItem_->hide();
+					}
+				}
+			}
+			else
+			{
+				showPixmap_ = false;
+				outerColor_.setRgb(80, 80, 80);
+			}
+		}
         else
         {
             showPixmap_ = false;
@@ -609,7 +619,7 @@ SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		QVector2D vec;
 		double dist;
 
-		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		RSystemElementRoad * nearestRoad = getProjectData()->getRoadSystem()->findClosestRoad( to, s, dist, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;

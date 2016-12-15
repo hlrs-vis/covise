@@ -49,8 +49,12 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=lion
                     ;;
 
-                13.*|14.*|15.*)
+                13.*|14.*)
 	            export ARCHSUFFIX=libc++
+                    ;;
+
+                15.*|16.*)
+	            export ARCHSUFFIX=macos
                     ;;
             esac
             ;;
@@ -219,6 +223,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=werewolf
                elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
                    export ARCHSUFFIX=xerus
+               elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
+                   export ARCHSUFFIX=tahr
                fi
                ;;
             

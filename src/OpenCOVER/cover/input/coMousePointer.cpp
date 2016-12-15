@@ -250,6 +250,18 @@ coMousePointer::update()
     // but physical size might have been adjusted, if aspect ratio changed
     width = coVRConfig::instance()->screens[0].hsize;
     height = coVRConfig::instance()->screens[0].vsize;
+    if(coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::HORIZONTAL_SPLIT)
+    {
+        mx *=2;
+        if(mx > xres)
+            mx -= xres;
+    }
+    if(coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::VERTICAL_SPLIT)
+    {
+        my *=2;
+        if(my > yres)
+            my -= yres;
+    }
 
     osg::Vec3 mouse2D;
     osg::Vec3 mouse3D;

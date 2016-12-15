@@ -138,6 +138,7 @@ void coMeasurement::update()
     }
 
     measureGeometry_->setVertexArray(measureVertices_.get());
+	measureVertices_->dirty();
     measureGeometry_->dirtyDisplayList();
     measureGeometry_->dirtyBound();
 

@@ -9,6 +9,9 @@ L2H3 =	latex2html	-transparent -local_icons -no_info \
 
 PROGRAMMINGGUIDE     = hlrs_programmingguide
 
+DOXYTEX_FILES = coVRPluginSupport/classco_v_r_plugin_support.tex \
+				coVRPluginSupport/classco_pointer_button.tex
+
 TEX_FILES = programmingguide.tex  \
             Basics/Basics.tex \
             ModuleProgramming/ModuleProgramming.tex \
@@ -18,9 +21,7 @@ TEX_FILES = programmingguide.tex  \
             COVERPlugin/COVERPlugin.tex \
             ExampleModules/ExampleModules.tex \
             QuickReference/QuickReference.tex \
-	    coVRPluginSupport/classco_v_r_plugin_support.tex \
-	    coVRPluginSupport/classco_pointer_button.tex
-      	
+			${DOXYTEX_FILES}
 
 
 all: programmingguide 
@@ -36,7 +37,7 @@ depend: prepare
    
 prepare: programmingguide.tex ../pdf
 
-coVRPluginSupport/classco_v_r_plugin_support.tex coVRPluginSupport/classco_pointer_button.tex: coVRPluginSupport.doxyfile ../../src/OpenCOVER/cover/coVRPluginSupport.h
+${DOXYTEX_FILES}: coVRPluginSupport.doxyfile ../../src/OpenCOVER/cover/coVRPluginSupport.h
 	doxygen coVRPluginSupport.doxyfile
 
 programmingguide.tex: $(PROGRAMMINGGUIDE).tex
@@ -61,4 +62,5 @@ clean: clean_programmingguide
 
 
 clean_programmingguide:
-	/bin/rm -f programmingguide.*
+	${RM} programmingguide.*
+	${RM} ${DOXYTEX_FILES}

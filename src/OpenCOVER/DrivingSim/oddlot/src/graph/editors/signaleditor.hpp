@@ -61,7 +61,6 @@ public:
 
     // Move Signal //
     //
-	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
     bool translateSignal(Signal * signal, RSystemElementRoad * newRoad, QPointF &to);
 
 	// New Signal with properties chosen in SignalTreeWidget //

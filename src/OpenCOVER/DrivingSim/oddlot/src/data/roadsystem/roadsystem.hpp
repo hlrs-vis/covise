@@ -51,6 +51,12 @@ public:
         CRS_PedFiddleyardChange = 0x20,
     };
 
+	struct IdType
+	{
+		QString id;
+		QString type;
+	};
+
     //################//
     // FUNCTIONS      //
     //################//
@@ -140,10 +146,15 @@ public:
 
     // IDs //
     //
-    void checkIDs(const QMap<QString, QString> &roadIds);
+    void checkIDs(const QMultiMap<QString, IdType> &roadIds);
+	QString getNewId(const QMultiMap<QString, IdType> &idMap, QString id, QString type);
     void changeUniqueId(RSystemElement *element, QString newId);
     const QString getUniqueId(const QString &suggestion, QString &name);
     void updateControllers();
+
+	// Find closest road to global point //
+	//
+	RSystemElementRoad * findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec);
 
     // OpenDRIVE Data //
     //

@@ -198,7 +198,7 @@ CFX::CFX(int argc, char **argv)
     p_firststep->setValue(0);
 
     p_readGridForAllTimeSteps = addBooleanParam("grid_is_time_dependent", "use this if you have a time-dependent grid");
-    p_timeDependentZone = addInt32Param("zone_with_time_dependent_grid", "zone in which we need to read all timesteps. Zone (0..[n-1]) is used for rotation as well");
+    p_timeDependentZone = addInt32Param("zone_with_time_dependent_grid", "zone in which we need to read all timesteps. Zone (0..[n-1]) is used for rotation as well, -1 reads all timesteps in all zones");
     /*   p_initialRotation = addFloatParam("initial_rotation","workaround for time dependent grids. Give angle of first timestep to read relative to timestep 0");
       p_initialRotation->setValue(0.);*/
     p_rotAxis = addFloatVectorParam("rotAxis", "rotation axis for grid rotation");
@@ -661,7 +661,7 @@ int CFX::compute(const char *)
 
         float stepduration = 0.;
 
-        if (((fabs(omega[i - startzone + 1])) > 0.) && (nt > 1) && ((p_timesteps->getValue()) > 1) && ((p_firststep->getValue()) < nt) && (p_timeDependentZone->getValue() == (i - startzone + 1)))
+        if (((fabs(omega[i - startzone + 1])) > 0.) && (nt > 1) && ((p_timesteps->getValue()) > 1) && ((p_firststep->getValue()) < nt) && ((p_timeDependentZone->getValue() == (i - startzone + 1)) || (p_timeDependentZone->getValue() == -1)))
         {
             int t1 = cfxExportTimestepNumGet(2);
             int t0 = cfxExportTimestepNumGet(1);
@@ -1105,7 +1105,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
         timegrd = new coDistributedObject *[timesteps + 1];
 
         // rotating grid! -> read all timesteps
-        if ((p_readGridForAllTimeSteps->getValue()) && (p_timeDependentZone->getValue() == (zone)))
+        if ((p_readGridForAllTimeSteps->getValue()) && ((p_timeDependentZone->getValue() == (zone)) || (p_timeDependentZone->getValue() == -1)))
         {
             for (i = 0; i < timesteps; i++)
             {

@@ -150,7 +150,7 @@ RemoveSignalCommand::undo()
 //#########################//
 // SetSignalPropertiesCommand //
 //#########################//
-SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
+SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, const QString &unit, const QString &text, double width, double height, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -186,6 +186,10 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     newSignalProps_.hOffset = hOffset;
     newSignalProps_.pitch = pitch;
     newSignalProps_.roll = roll;
+	newSignalProps_.unit = unit;
+	newSignalProps_.text = text;
+	newSignalProps_.width = width;
+	newSignalProps_.height = height;
     newSignalProps_.pole = pole;
 
     newValidity_.fromLane = fromLane;
@@ -207,7 +211,11 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     oldSignalProps_.value = signal_->getValue();
     oldSignalProps_.hOffset = signal_->getHeading();
     oldSignalProps_.pitch = signal_->getPitch();
-    oldSignalProps_.roll = signal_->getRoll();
+	oldSignalProps_.roll = signal_->getRoll();
+	oldSignalProps_.unit = signal_->getUnit();
+	oldSignalProps_.text = signal_->getText();
+	oldSignalProps_.width = signal_->getWidth();
+	oldSignalProps_.height = signal_->getHeight();
     oldSignalProps_.pole = signal_->getPole();
 
     oldValidity_.fromLane = signal_->getValidFromLane();

@@ -31,11 +31,12 @@ class OSCSettings : public QDialog
     //################//
 
 public:
-    explicit OSCSettings();
+    explicit OSCSettings(const QString &dir);
     virtual ~OSCSettings();
 
     bool readValidation();
     bool loadDefaults();
+	QString getCatalogDir();
     
     static OSCSettings *instance()
     {
@@ -50,6 +51,7 @@ private:
 
 private slots:
     void okPressed();
+	void dirPushButtonPressed();
 
 	signals:
 	void readValidationChanged(bool);
@@ -61,7 +63,8 @@ private slots:
 private:
     Ui::OSCSettings *ui;
 
-	bool validation;
+	bool validation_;
+	QString catalogDir_;
 };
 
 #endif // OSCSETTINGS_HPP

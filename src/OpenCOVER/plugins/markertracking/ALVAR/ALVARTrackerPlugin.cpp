@@ -184,6 +184,7 @@ bool ALVARPlugin::init()
     //sleep(6);
     ARToolKit::instance()->arInterface = this;
     ARToolKit::instance()->remoteAR = NULL;
+	ARToolKit::instance()->videoData = NULL;
 
     multiMarkerInitializer = NULL;
     multiMarkerBundle = NULL;
@@ -317,9 +318,12 @@ bool ALVARPlugin::init()
                 if (!cap->start())
                 {
                     delete cap;
+                    cap=NULL;
                     return false;
                 }
                 cap->setResolution(xsize, ysize);
+                xsize = cap->xResolution();
+                ysize = cap->yResolution();
 
                 if (cap->loadSettings(settingsFilename.str()))
                 {
@@ -686,7 +690,7 @@ ALVARPlugin::preFrame()
                                     calibCount++;
                                     //cout<<calibCount<<"/"<<calibCountMax<<endl;
                                     char tmpText[100];
-                                    sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax)) * 100.0);
+                                    sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax) * 100.0));
                                     calibrateLabel->setLabel(tmpText);
                                 }
                             }

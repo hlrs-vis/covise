@@ -146,10 +146,8 @@ int coModule::add_port(coPort *param)
     d_numElem++;
 
     // if we are in a switch/case, we'll have to enter it there
-    if (d_numActCase && param->switchable())
-    {
-        d_actCase[d_numActCase - 1]->add(param);
-    }
+    paraCaseAdd(param);
+
     return 0;
 }
 
@@ -276,6 +274,17 @@ int coModule::paraCase(const char *name)
     d_actCase[d_numActCase] = d_actSwitch[d_numActSwitch - 1]->addCase(name);
     d_numActCase++;
     return 0;
+}
+
+/// add an existing parameter to a parameter switch's case
+int coModule::paraCaseAdd(coPort *param)
+{
+    if (d_numActCase && param->switchable())
+    {
+        d_actCase[d_numActCase - 1]->add(param);
+        return 0;
+    }
+    return -1;
 }
 
 /// end a pending parameter switch's case

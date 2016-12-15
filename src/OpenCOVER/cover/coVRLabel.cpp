@@ -364,6 +364,7 @@ coVRLabel::setLineLen(float l)
     //cerr << bb.zMin() << "  " <<bb.zMax() << "  " << h << endl;
     (*lc)[0].set(p0);
     (*lc)[1].set(p1);
+	lc->dirty();
     lineGeoset->setVertexArray(lc);
     lineGeoset->dirtyDisplayList();
     geode->dirtyBound();

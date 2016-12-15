@@ -16,7 +16,7 @@
 #ifndef RSYSTEMELEMENTJUNCTION_HPP
 #define RSYSTEMELEMENTJUNCTION_HPP
 
-#include "rsystemelement.hpp"
+#include "roadsystem.hpp"
 
 class JunctionConnection;
 
@@ -58,7 +58,7 @@ public:
     void delConnection(JunctionConnection *connection);
     void delConnections();
 
-    void checkConnectionIds(const QMap<QString, QString> &roadIds);
+    void checkConnectionIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds);
 
     // Observer Pattern //
     //

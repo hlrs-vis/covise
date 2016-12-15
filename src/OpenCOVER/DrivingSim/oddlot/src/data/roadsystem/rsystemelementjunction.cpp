@@ -15,6 +15,8 @@
 
 #include "rsystemelementjunction.hpp"
 
+// Data //
+//
 #include "junctionconnection.hpp"
 
 RSystemElementJunction::RSystemElementJunction(const QString &name, const QString &id)
@@ -117,8 +119,10 @@ RSystemElementJunction::delConnections()
 }
 
 void
-RSystemElementJunction::checkConnectionIds(const QMap<QString, QString> &roadIds)
+RSystemElementJunction::checkConnectionIds(const QMultiMap<QString, RoadSystem::IdType> &ids)
 {
+	RoadSystem *roadSystem = getRoadSystem();
+
     QList<JunctionConnection *> newConnections;
     QMultiMap<QString, JunctionConnection *>::const_iterator connectionIt = connections_.constBegin();
 
@@ -126,14 +130,19 @@ RSystemElementJunction::checkConnectionIds(const QMap<QString, QString> &roadIds
     {
         JunctionConnection *connection = connectionIt.value();
         JunctionConnection *newConnection = connection->getClone();
-        if (roadIds.find(connection->getIncomingRoad()) != roadIds.end())
-        {
-            newConnection->setIncomingRoad(roadIds.find(connection->getIncomingRoad()).value());
-        }
 
-        if (roadIds.find(connection->getConnectingRoad()) != roadIds.end())
+		QString id = connection->getIncomingRoad();
+		QString newId = roadSystem->getNewId(ids, id, "road");
+		if (id != newId)
+		{
+			newConnection->setIncomingRoad(newId);
+		}
+
+        id = connection->getConnectingRoad();
+		newId = roadSystem->getNewId(ids, id, "road");
+		if (id != newId)
         {
-            newConnection->setConnectingRoad(roadIds.find(connection->getConnectingRoad()).value());
+            newConnection->setConnectingRoad(newId);
         }
 
         newConnections.append(newConnection);

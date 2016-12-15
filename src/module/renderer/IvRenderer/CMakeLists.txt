@@ -1,5 +1,9 @@
 PROJECT(IvRenderer CXX C)
 
+if (NOT COVISE_USE_X11)
+    return()
+endif()
+
 if (APPLE)
     COVISE_FIND_PACKAGE(X11)
     COVISE_FIND_PACKAGE(Motif)

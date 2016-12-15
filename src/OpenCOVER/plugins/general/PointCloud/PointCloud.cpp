@@ -29,6 +29,8 @@
 #include <osg/Switch>
 #include <osgDB/ReadFile>
 
+#include <cover/coVRTui.h>
+
 // Local:
 #include "PointCloud.h"
 
@@ -134,6 +136,26 @@ bool PointCloudPlugin::init()
 
     //read in menu data
     readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
+
+    PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
+    PCTab->setPos(0, 0);
+
+    adaptLODTui = new coTUIToggleButton("adaptLOD", PCTab->getID());
+    adaptLODTui->setEventListener(this);
+    adaptLODTui->setState(adaptLOD);
+    
+    coTUILabel *pointSizeLabel = new coTUILabel("pointSize:");
+    pointSizeTui = new coTUIFloatSlider("PointSize", PCTab->getID());
+    pointSizeTui->setEventListener(this);
+    pointSizeTui->setMin(1.0);
+    pointSizeTui->setMax(10.0);
+    pointSizeTui->setValue(pointSizeValue);
+    
+
+    adaptLODTui->setPos(0, 0);
+    pointSizeLabel->setPos(0, 1);
+    pointSizeTui->setPos(1, 1);
+
     return true;
 }
 
@@ -152,6 +174,10 @@ PointCloudPlugin::~PointCloudPlugin()
     delete imanPluginInstanceMenu;
     delete loadMenuItem;
     delete loadMenu;
+    //clean up TUI
+    delete PCTab;
+    delete adaptLODTui;
+
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {
@@ -160,6 +186,30 @@ PointCloudPlugin::~PointCloudPlugin()
     delete deleteMenuItem;
 }
 
+void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == adaptLODTui)
+    {
+        adaptLOD = adaptLODTui->getState();
+	for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    {
+        //TODO calc distance correctly
+        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        {
+
+            if (!adaptLOD)
+            {
+                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(1.0);
+            }
+        }
+    }
+    }
+    if (tUIItem == pointSizeTui)
+    {
+        pointSizeValue = pointSizeTui->getValue();
+    }
+    
+}
 int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, const char *)
 {
     std::string filen;
@@ -224,6 +274,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
         bool commaSeparated = false;
         FILE *fp = fopen(cfile, "r");
         pointSetSize = 0;
+        intensityScale = 10;
         char buf[1000];
         if (fp)
         {
@@ -242,6 +293,12 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     {
                         intensityOnly = true;
                         fprintf(stderr, "intensityOnly\n");
+                    }
+                    const char *intensityString;
+                    if ((intensityString = strstr(buf, "intensityScale")) != NULL)
+                    {
+                        sscanf(intensityString+14,"%f",&intensityScale);
+                        fprintf(stderr, "intensityScale %f\n",intensityScale);
                     }
                     if (strstr(buf, "intColor") != NULL)
                     {
@@ -333,11 +390,11 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
                     if (numValues == 7)
                     {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * 10.0;
+                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
                     }
                     else
                     {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * 10.0;
+                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * intensityScale;
                     }
                 }
                 else

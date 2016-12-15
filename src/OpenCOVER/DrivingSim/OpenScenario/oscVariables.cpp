@@ -8,6 +8,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscVariables.h"
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -186,14 +188,29 @@ OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute
 template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute)
 {
-    std::cerr << "Error! Trying to initialize a time_t value." << std::endl;
+
+	std::string valueStr = xercesc::XMLString::transcode(attribute->getValue());
+	struct tm t = {};
+	//strptime(valueStr.c_str(),"%FT%TZ", gmtime(&value));
+	int ns = sscanf(valueStr.c_str(), "%d-%d-%dT%d:%d:%d", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec);
+	t.tm_year -= 1900;
+	t.tm_mon -= 1;
+	t.tm_isdst = -1;
+	if (ns < 6) {
+		std::cerr << "Error! Trying to initialize a time_t value." << std::endl;
+		return false;
+	}
+	else {
+		value = std::mktime(&t);
+		return true;
+	}
     return false;
 };
 template<>
 OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
 {
     std::string valueStr = xercesc::XMLString::transcode(attribute->getValue());
-
+	
     //conversion of 'true' to '1' and 'false' to '0'
     if (valueStr == "true")
     {
@@ -299,7 +316,7 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
-    sprintf(buf, "%ld", (long)value);
+	strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%S", localtime(&value));
     currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
     return true;
 };

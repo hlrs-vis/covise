@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>662</height>
+    <height>824</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -67,7 +67,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>662</height>
+        <height>824</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -82,7 +82,7 @@
          <x>0</x>
          <y>-1</y>
          <width>180</width>
-         <height>662</height>
+         <height>721</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -97,7 +97,7 @@
           <x>0</x>
           <y>0</y>
           <width>170</width>
-          <height>481</height>
+          <height>551</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -122,22 +122,6 @@
          <property name="rightMargin">
           <number>4</number>
          </property>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: gray;</string>
-           </property>
-           <property name="text">
-            <string>id</string>
-           </property>
-          </widget>
-         </item>
          <item row="13" column="1">
           <widget class="QDoubleSpinBox" name="hOffsetSpinBox">
            <property name="minimum">
@@ -148,17 +132,10 @@
            </property>
           </widget>
          </item>
-         <item row="12" column="0">
-          <widget class="QLabel" name="lengthLabel">
+         <item row="4" column="0">
+          <widget class="QLabel" name="successorLabel">
            <property name="text">
-            <string>zOffset</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QSpinBox" name="subtypeSpinBox">
-           <property name="minimum">
-            <number>-1</number>
+            <string>type</string>
            </property>
           </widget>
          </item>
@@ -169,156 +146,6 @@
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="successorLabel">
-           <property name="text">
-            <string>type</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QLabel" name="idLabel">
-           <property name="styleSheet">
-            <string notr="true">color: gray;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>t</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="1">
-          <widget class="QComboBox" name="orientationComboBox">
-           <item>
-            <property name="text">
-             <string>Both</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Positive</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Negative</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="subclassLineEdit">
-           <property name="minimumSize">
-            <size>
-             <width>2</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>orientation</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="nameBox">
-           <property name="minimumSize">
-            <size>
-             <width>2</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QSpinBox" name="typeSpinBox">
-           <property name="minimum">
-            <number>-1</number>
-           </property>
-           <property name="maximum">
-            <number>1000100</number>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="junctionLabel">
-           <property name="text">
-            <string>s</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="text">
-            <string>subtype</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>type subclass</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>roll</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="1">
-          <widget class="QLineEdit" name="countryBox">
-           <property name="minimumSize">
-            <size>
-             <width>2</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="15" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>pitch</string>
-           </property>
-          </widget>
-         </item>
-         <item row="15" column="1">
-          <widget class="QDoubleSpinBox" name="pitchSpinBox">
-           <property name="minimum">
-            <double>-360.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>360.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -342,15 +169,92 @@
            </property>
           </widget>
          </item>
-         <item row="17" column="0">
-          <widget class="QLabel" name="label_6">
+         <item row="8" column="0">
+          <widget class="QLabel" name="junctionLabel">
            <property name="text">
-            <string>size
-Diameter
-Length/Width
-Bitmap Scaling</string>
+            <string>s</string>
            </property>
           </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>orientation</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="1">
+          <widget class="QLineEdit" name="countryBox">
+           <property name="minimumSize">
+            <size>
+             <width>2</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLabel" name="idLabel">
+           <property name="styleSheet">
+            <string notr="true">color: gray;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>pitch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="16" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>roll</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="subtypeSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>t</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: gray;</string>
+           </property>
+           <property name="text">
+            <string>id</string>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="1">
+          <widget class="QDoubleSpinBox" name="valueSpinBox"/>
          </item>
          <item row="16" column="1">
           <widget class="QDoubleSpinBox" name="rollSpinBox">
@@ -362,8 +266,147 @@ Bitmap Scaling</string>
            </property>
           </widget>
          </item>
+         <item row="11" column="1">
+          <widget class="QComboBox" name="orientationComboBox">
+           <item>
+            <property name="text">
+             <string>Both</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Positive</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Negative</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="19" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>unit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="1">
+          <widget class="QLineEdit" name="unitEdit"/>
+         </item>
+         <item row="12" column="0">
+          <widget class="QLabel" name="lengthLabel">
+           <property name="text">
+            <string>zOffset</string>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="1">
+          <widget class="QCheckBox" name="dynamicCheckBox">
+           <property name="text">
+            <string>dynamic</string>
+           </property>
+          </widget>
+         </item>
+         <item row="22" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>height</string>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="0">
+          <widget class="QCheckBox" name="poleCheckBox">
+           <property name="text">
+            <string>Pole</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="imageTextLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>2</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">padding: 0px;min-width: 0em;</string>
+           </property>
+           <property name="text">
+            <string>no icon</string>
+           </property>
+          </widget>
+         </item>
+         <item row="21" column="1">
+          <widget class="QDoubleSpinBox" name="widthSpinBox"/>
+         </item>
          <item row="12" column="1">
           <widget class="QDoubleSpinBox" name="zOffsetSpinBox"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="nameBox">
+           <property name="minimumSize">
+            <size>
+             <width>2</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>size
+Diameter
+Length/Width
+Bitmap Scaling</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>type subclass</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>value</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="1">
+          <widget class="QDoubleSpinBox" name="pitchSpinBox">
+           <property name="minimum">
+            <double>-360.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="21" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>width</string>
+           </property>
+          </widget>
          </item>
          <item row="17" column="1">
           <widget class="QComboBox" name="sizeComboBox">
@@ -389,30 +432,26 @@ Bitmap Scaling</string>
            </item>
           </widget>
          </item>
-         <item row="19" column="1">
-          <widget class="QCheckBox" name="dynamicCheckBox">
-           <property name="text">
-            <string>dynamic</string>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="subclassLineEdit">
+           <property name="minimumSize">
+            <size>
+             <width>2</width>
+             <height>0</height>
+            </size>
            </property>
           </widget>
          </item>
-         <item row="18" column="0">
-          <widget class="QLabel" name="label_3">
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
            <property name="text">
-            <string>value</string>
+            <string>subtype</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="1">
-          <widget class="QDoubleSpinBox" name="valueSpinBox"/>
-         </item>
-         <item row="19" column="0">
-          <widget class="QCheckBox" name="poleCheckBox">
-           <property name="text">
-            <string>Pole</string>
            </property>
           </widget>
          </item>
@@ -423,6 +462,19 @@ Bitmap Scaling</string>
            </property>
           </widget>
          </item>
+         <item row="22" column="1">
+          <widget class="QDoubleSpinBox" name="heightSpinBox"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="typeSpinBox">
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>1000100</number>
+           </property>
+          </widget>
+         </item>
          <item row="9" column="1">
           <widget class="QDoubleSpinBox" name="tSpinBox">
            <property name="minimum">
@@ -430,25 +482,13 @@ Bitmap Scaling</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="imageTextLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>2</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">padding: 0px;min-width: 0em;</string>
-           </property>
+         <item row="20" column="1">
+          <widget class="QLineEdit" name="textEdit"/>
+         </item>
+         <item row="20" column="0">
+          <widget class="QLabel" name="label_16">
            <property name="text">
-            <string>no icon</string>
+            <string>Text</string>
            </property>
           </widget>
          </item>
@@ -486,12 +526,20 @@ Bitmap Scaling</string>
         <zorder>sSpinBox</zorder>
         <zorder>tSpinBox</zorder>
         <zorder>imageTextLabel</zorder>
+        <zorder>unitEdit</zorder>
+        <zorder>label_12</zorder>
+        <zorder>label_14</zorder>
+        <zorder>widthSpinBox</zorder>
+        <zorder>heightSpinBox</zorder>
+        <zorder>label_15</zorder>
+        <zorder>textEdit</zorder>
+        <zorder>label_16</zorder>
        </widget>
        <widget class="QFrame" name="validityFrame">
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>480</y>
+          <y>550</y>
           <width>170</width>
           <height>80</height>
          </rect>
@@ -586,7 +634,7 @@ text-align: left;
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>570</y>
+          <y>630</y>
           <width>170</width>
           <height>91</height>
          </rect>

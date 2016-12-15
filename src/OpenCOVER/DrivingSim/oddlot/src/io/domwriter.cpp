@@ -308,7 +308,7 @@ DomWriter::visit(Object *object)
             QString name = object->getName();
             QString id = roadSystem->getUniqueId(object->getId(), name);
 
-            Signal * signal = new Signal(id, "", s, object->getT(), false, (Signal::OrientationType)orientation, object->getzOffset(), "Germany", type, subclass, subtype, 0.0, object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), 2, fromLane, toLane, 0, 0);
+            Signal * signal = new Signal(id, "", s, object->getT(), false, (Signal::OrientationType)orientation, object->getzOffset(), "Germany", type, subclass, subtype, 0.0, object->getHeading(), object->getPitch(), object->getRoll(), "km/h", "", object->getWidth(), object->getHeight(), object->getPole(), 2, fromLane, toLane, 0, 0);
             
 
             if (!currentSignalsElement_.isElement())
@@ -816,6 +816,11 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("hOffset", hOffset / 180.0 * (M_PI));
     signalElement.setAttribute("pitch", signal->getPitch() / 180.0 * (M_PI));
     signalElement.setAttribute("roll", signal->getRoll() / 180.0 * (M_PI));
+
+	signalElement.setAttribute("unit", signal->getUnit());
+	signalElement.setAttribute("text", signal->getText());
+	signalElement.setAttribute("width", signal->getWidth());
+	signalElement.setAttribute("height", signal->getHeight());
 
     currentSignalsElement_.appendChild(signalElement);
 

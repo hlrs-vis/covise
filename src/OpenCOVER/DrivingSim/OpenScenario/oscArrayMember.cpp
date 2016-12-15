@@ -29,11 +29,19 @@ oscArrayMember::~oscArrayMember()
 }
 
 
-//
-xercesc::DOMElement *oscArrayMember::writeArrayMemberToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
-{
-    xercesc::DOMElement *aMemberElement = document->createElement(xercesc::XMLString::transcode(name.c_str()));
-    currentElement->appendChild(aMemberElement);
 
-    return aMemberElement;
+int
+oscArrayMember::findObjectIndex(oscObjectBase *object)
+{
+	int i = 0;
+	for (auto it = cbegin(); it != cend(); ++it)
+	{
+		if (*it == object)
+		{
+			return i;
+		}
+		i++;
+	}
+
+	return -1;
 }

@@ -6,7 +6,7 @@ if defined COMMON_ACTIVE (
 
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
-   echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, mingw, mingwopt"
+   echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt,zebu, zebuopt mingw, mingwopt"
    pause
    goto END
 )
@@ -81,11 +81,13 @@ if /I "%ARCHSUFFIX%" EQU "berrendaopt" goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "berrenda"    goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "tamarauopt" goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
+if /I "%ARCHSUFFIX%" EQU "zebuopt" goto LABEL_SETENVIRONMENT
+if /I "%ARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "mingwopt" goto LABEL_SETENVIRONMENT
 if /I "%ARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
 echo ARCHSUFFIX %ARCHSUFFIX% is not supported!
 echo common.bat [ARCHSUFFIX]
-echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, mingw, mingwopt"
+echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, zebu, zebuopt, mingw, mingwopt"
 pause
 goto END
 
@@ -129,6 +131,10 @@ if "%ARCHSUFFIX:~0,5%" EQU "win32" (
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,7%" EQU "tamarau" (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
+    cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,8%" EQU "berrenda" (
@@ -294,6 +300,7 @@ if "%ARCHSUFFIX%" EQU "angus"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "yoroo"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "berrenda"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "tamarau"  set COVISE_DEVELOPMENT=YES
+if "%ARCHSUFFIX%" EQU "zebu"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "mingw"  set COVISE_DEVELOPMENT=YES
 
 set COMMON_ACTIVE=1

@@ -173,6 +173,7 @@ typedef oscVariable<unsigned short> oscUShort;
 typedef oscVariable<double> oscDouble;
 typedef oscVariable<bool> oscBool;
 typedef oscVariable<float> oscFloat;
+typedef oscVariable<time_t> oscDateTime;
 //
 class OPENSCENARIOEXPORT oscEnum: public oscVariable<int>
 {
@@ -192,6 +193,7 @@ typedef oscValue<unsigned short> oscUShortValue;
 typedef oscValue<double> oscDoubleValue;
 typedef oscValue<bool> oscBoolValue;
 typedef oscValue<float> oscFloatValue;
+typedef oscValue<time_t> oscDateTimeValue;
 typedef oscValue<oscObjectBase *> oscObjectValue;
 //
 class OPENSCENARIOEXPORT oscEnumValue: public oscValue<int>

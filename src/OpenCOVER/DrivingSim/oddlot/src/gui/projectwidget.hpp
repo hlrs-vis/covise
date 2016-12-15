@@ -37,6 +37,7 @@ class TopviewGraph;
 class ProfileGraph;
 
 class ProjectTree;
+class CatalogWidget;
 class CatalogTreeWidget;
 class ProjectSettings;
 class LODSettings;
@@ -80,6 +81,13 @@ class ProjectWidget : public QWidget
     //################//
 
 public:
+	enum FileType
+	{
+		FT_All = 0x1,
+		FT_OpenDrive = 0x2,
+		FT_OpenScenario = 0x4
+	};
+
     explicit ProjectWidget(MainWindow *mainWindow);
     virtual ~ProjectWidget();
 
@@ -100,21 +108,23 @@ public:
     // File Handling //
     //
     void newFile();
-    bool loadFile(const QString &fileName);
+	bool loadFile(const QString &fileName, FileType = FT_All);
     bool loadTile(const QString &fileName);
     void setFile(const QString &fileName);
     bool save();
     bool saveAs();
-    bool saveFile(const QString &fileName);
+	bool saveFile(const QString &fileName, FileType = FT_All);
     bool exportSpline();
     bool importIntermapFile(const QString &fileName);
-    bool importCSVFile(const QString &fileName);
+    bool importCSVRoadFile(const QString &fileName);
+    bool importCSVSignFile(const QString &fileName);
     bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
 
 	// Add catalogs //
 	//
 	CatalogTreeWidget *addCatalogTree(const QString & name, OpenScenario::oscCatalog *catalog);
+	void removeCatalogTrees();
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
@@ -133,6 +143,7 @@ public:
     {
         return strippedFileName_;
     }
+
 
     // MVC //
     //
@@ -255,6 +266,8 @@ private:
 
     ProjectEditor *projectEditor_; // controller
     QMap<ODD::EditorId, ProjectEditor *> editors_; // owned
+
+	QList<CatalogWidget *> catalogWidgets_;
 
     ProjectTree *projectTree_; // view			// owned
     ProjectSettings *projectSettings_; // view			// owned

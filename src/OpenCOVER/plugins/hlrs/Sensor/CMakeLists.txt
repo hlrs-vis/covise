@@ -5,6 +5,10 @@ if(APPLE)
    return()
 endif()
 
+if(NOT COVISE_USE_X11)
+   return()
+endif()
+
 covise_find_package(X11)
 if (NOT X11_Xinput_FOUND)
 	return()

@@ -145,7 +145,7 @@ void OSGVruiTexturedBackground::resizeGeometry()
     (*coord)[0].set(0.0f, 0.0f, 0.0f);
 
     rescaleTexture();
-
+	coord->dirty();
     geometryNode->dirtyBound();
     geometry->dirtyBound();
     geometry->dirtyDisplayList();

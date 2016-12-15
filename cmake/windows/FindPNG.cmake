@@ -15,6 +15,7 @@ FIND_PATH(PNG_INCLUDE_DIR png.h
    PATHS
    $ENV{PNG_HOME}/include
    $ENV{EXTERNLIBS}/png/include
+   $ENV{EXTERNLIBS}/libpng/include
    /usr/local/include/libpng
    DOC "png - Headers"
    NO_DEFAULT_PATH
@@ -32,22 +33,26 @@ IF (MSVC)
         PATHS
         $ENV{PNG_HOME}/lib
         $ENV{EXTERNLIBS}/png/lib
+        $ENV{EXTERNLIBS}/libpng/lib
       )
       FIND_LIBRARY(PNG_LIBRARY_RELEASE NAMES png_mt
         PATHS
         $ENV{PNG_HOME}/lib
         $ENV{EXTERNLIBS}/png/lib
+        $ENV{EXTERNLIBS}/libpng/lib
       )
     ELSE (MTD_COMPILE_OPTION)
-      FIND_LIBRARY(PNG_LIBRARY_DEBUG NAMES pngd png-staticd libpngd libpng15_staticd libpng16d libpng16staticd pngd_i png15d_i
+      FIND_LIBRARY(PNG_LIBRARY_DEBUG NAMES pngd png-staticd libpngd libpng15_staticd libpng16_staticd libpng16d libpng16staticd pngd_i png15d_i
         PATHS
         $ENV{PNG_HOME}/lib
         $ENV{EXTERNLIBS}/png/lib
+        $ENV{EXTERNLIBS}/libpng/lib
       )
       FIND_LIBRARY(PNG_LIBRARY_RELEASE NAMES png png-static libpng libpng15_static libpng16 libpng16static png_i png15_i
         PATHS
         $ENV{PNG_HOME}/lib
         $ENV{EXTERNLIBS}/png/lib
+        $ENV{EXTERNLIBS}/libpng/lib
       )
     ENDIF (MTD_COMPILE_OPTION)
 
@@ -80,11 +85,12 @@ IF (MSVC)
 
 ELSE (MSVC)
   
-  SET(PNG_NAMES ${PNG_NAMES} png libpng png15 libpng15 png15d libpng15d png14 libpng14 png14d libpng14d png12 libpng12 png12d libpng12d)
+  SET(PNG_NAMES ${PNG_NAMES} png libpng png15 libpng15 png15d libpng16 libpng16d libpng15d png14 libpng14 png14d libpng14d png12 libpng12 png12d libpng12d)
   FIND_LIBRARY(PNG_LIBRARY NAMES ${PNG_NAMES}
     PATHS
     $ENV{PNG_HOME}/lib
     $ENV{EXTERNLIBS}/png/lib
+    $ENV{EXTERNLIBS}/libpng/lib
     NO_DEFAULT_PATH
   )
   FIND_LIBRARY(PNG_LIBRARY NAMES ${PNG_NAMES})
