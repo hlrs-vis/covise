@@ -87,6 +87,7 @@
            <FileType name="nfix" plugin="BPA" />
            <FileType name="dani" plugin="DEMOA" />
            <FileType name="dsim" plugin="DEMOA" />
+           <FileType name="xosc" plugin="OpenScenarioPlugin" />
            <FileType name="pts" plugin="PointCloud" />
            <FileType name="ptx" plugin="PointCloud" />
            <FileType name="xyz" plugin="PointCloud" />
