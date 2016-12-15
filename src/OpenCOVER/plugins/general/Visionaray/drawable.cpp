@@ -1107,7 +1107,8 @@ namespace visionaray
 
         auto &vparams = eye_params[current_eye];
 
-        if (state->data_var == Dynamic || state->algo != algo_current || state->device != device || state->num_bounces != num_bounces)
+        if (state->data_var == Dynamic || state->algo != algo_current || state->device != device
+            || state->num_bounces != num_bounces || scene_monitor.need_clear_frame())
         {
             eye_params[Left].frame_num = 0;
             eye_params[Right].frame_num = 0;

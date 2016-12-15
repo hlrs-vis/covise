@@ -17,6 +17,7 @@ namespace scene
     class Observable
     {
     public:
+        virtual bool changed() = 0;
         virtual void visit() = 0;
     };
 
@@ -27,6 +28,7 @@ namespace scene
     public:
         Material(osg::Material *om, material_list &vm, size_t idx);
 
+        bool changed();
         void visit();
     private:
         // Monitored osg material
@@ -59,8 +61,12 @@ namespace scene
         void add_observable(std::shared_ptr<Observable> obs);
         void update();
 
+        bool need_clear_frame();
+
     private:
 
         std::vector<std::shared_ptr<Observable> > observables_;
+
+        bool need_clear_frame_ = true;
     };
 }
