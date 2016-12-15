@@ -5,6 +5,10 @@
 
  * License: LGPL 2+ */
 
+#include <GL/glew.h>
+
+#include <cover/coVRLighting.h>
+
 #include "scene_monitor.h"
 
 namespace scene
@@ -23,6 +27,7 @@ Material::Material(osg::Material *om, material_list &vm, size_t idx)
     , cs_(om->getSpecular(osg::Material::Face::FRONT))
     , ce_(om->getEmission(osg::Material::Face::FRONT))
     , shininess_(om->getShininess(osg::Material::Face::FRONT))
+    , specular_(opencover::coVRLighting::instance()->specularlightState)
 {
 }
 
@@ -34,14 +39,17 @@ void Material::visit()
     auto ce = osg_mat_->getEmission(osg::Material::Face::FRONT);
     auto sh = osg_mat_->getShininess(osg::Material::Face::FRONT);
 
-    if (ca_ != ca || cd_ != cd || cs_ != cs || ce_ != ce || shininess_ != sh)
+    bool sp = opencover::coVRLighting::instance()->specularlightState;
+
+    if (ca_ != ca || cd_ != cd || cs_ != cs || ce_ != ce || shininess_ != sh || specular_ != sp)
     {
-        vsnray_mats_[index_] = osg_cast(osg_mat_);
+        vsnray_mats_[index_] = osg_cast(osg_mat_, sp);
         ca_ = ca;
         cd_ = cd;
         cs_ = cs;
         ce_ = ce;
         shininess_ = sh;
+        specular_ = sp;
     }
 }
 

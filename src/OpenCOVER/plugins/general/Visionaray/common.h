@@ -31,8 +31,6 @@
 #include <visionaray/pixel_unpack_buffer_rt.h>
 #endif
 
-#include <cover/coVRLighting.h>
-
 
 //-------------------------------------------------------------------------------------------------
 // Type definitions
@@ -124,7 +122,7 @@ inline visionaray::tex_address_mode osg_cast(osg::Texture::WrapMode mode)
     }
 }
 
-inline material_type osg_cast(osg::Material const *mat)
+inline material_type osg_cast(osg::Material const *mat, bool specular = true)
 {
     using namespace visionaray;
 
@@ -140,8 +138,7 @@ inline material_type osg_cast(osg::Material const *mat)
         vsnray_mat.set_ls(1.0f);
         return material_type(vsnray_mat);
     }
-    else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
-        || !opencover::coVRLighting::instance()->specularlightState)
+    else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f) || !specular)
     {
         matte<float> vsnray_mat;
         vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));

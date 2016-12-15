@@ -479,9 +479,11 @@ namespace visionaray
                     auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
                     auto mat = dynamic_cast<osg::Material *>(mattr);
 
+                    bool spec = opencover::coVRLighting::instance()->specularlightState;
+
                     if (mat)
                     {
-                        materials_.push_back(osg_cast(mat));
+                        materials_.push_back(osg_cast(mat, spec));
                         scene_monitor_.add_observable(std::make_shared<scene::Material>(mat,
                                                                                         materials_,
                                                                                         materials_.size() - 1));
@@ -490,7 +492,7 @@ namespace visionaray
                     {
                         if (parent_mat_)
                         {
-                            materials_.push_back(osg_cast(parent_mat_));
+                            materials_.push_back(osg_cast(parent_mat_, spec));
                             scene_monitor_.add_observable(std::make_shared<scene::Material>(parent_mat_,
                                                                                             materials_,
                                                                                             materials_.size() - 1));

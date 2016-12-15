@@ -20,6 +20,8 @@ namespace scene
         virtual void visit() = 0;
     };
 
+    //-----------------------------------------------------
+
     class Material : public Observable
     {
     public:
@@ -42,6 +44,9 @@ namespace scene
         osg::Vec4 cs_;
         osg::Vec4 ce_;
         float shininess_;
+
+        // Specular light state
+        bool specular_;
     };
 
 
