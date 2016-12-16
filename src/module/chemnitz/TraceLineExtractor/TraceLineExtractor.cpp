@@ -866,7 +866,9 @@ int TraceLineExtractor::compute(const char *port)
                     //					else
                     //						sign = 1;
 
-                    refVectors[ ::abs(actDir) - 1][substituteMap[actNode]] = vectors[ ::abs(refDir) - 1][substituteMap[refNode]];
+	            short absActDir = actDir<0 ? -actDir : actDir;
+	            short absRefDir = refDir<0 ? -refDir : refDir;
+                    refVectors[ absActDir - 1][substituteMap[actNode]] = vectors[ absRefDir - 1][substituteMap[refNode]];
 
                     /*
 

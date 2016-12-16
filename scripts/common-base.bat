@@ -24,9 +24,13 @@ IF /i "%ARCHSUFFIX%" == "win32opt" (
               ) ELSE (
                 IF /i "%ARCHSUFFIX%" == "tamarauopt" (
                   set USE_OPT_LIBS=1
-                ) ELSE (
-                  set USE_OPT_LIBS=0
-                  echo DEBUG-Build !!! 
+                ) ELSE ( 
+                  IF /i "%ARCHSUFFIX%" == "zebuopt" (
+                    set USE_OPT_LIBS=1
+                  ) ELSE (
+                    set USE_OPT_LIBS=0
+                    echo DEBUG-Build !!! 
+                  )
                 )
               )
             )
@@ -63,6 +67,10 @@ if "%ARCHSUFFIX:~0,5%" EQU "win32" (
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,7%" EQU "tamarau" (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
+    cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,8%" EQU "berrenda" (
@@ -272,7 +280,11 @@ if not defined OPENCV_HOME  (
     ) ELSE (
     IF /i "%ARCHSUFFIX%" == "tamarauopt" (
    set "PATHADD=%PATHADD%;%EXTERNLIBS%\opencv\build\x64\vc11\bin"
-    ) ELSE (
+    ) 
+ else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
+   set "PATHADD=%PATHADD%;%EXTERNLIBS%\opencv\build\x64\vc14\bin"
+)
+ELSE (
    set "PATHADD=%PATHADD%;%EXTERNLIBS%\opencv\build\x64\vc10\bin"
    )
    )

@@ -225,7 +225,7 @@ std::vector<voi_t>::iterator getVoiWithIndex(std::vector<voi_t>& voiVector, int 
 }
 
 bool voiIsValid(int property){
-    if(property == no_voi_property || property == head_property){
+    if(property == no_voi_property){
         return false;
     }
     return true;

@@ -1032,7 +1032,6 @@ MACRO(COVISE_FIND_CUDA)
               SET(CUDA_HOST_COMPILER ${COVISEDIR}/scripts/cuda-host-compiler CACHE STRING "CUDA nvcc host compiler" FORCE)
           elseif(${BASEARCHSUFFIX} STREQUAL "werewolf")
               SET(CUDA_HOST_COMPILER ${COVISEDIR}/scripts/cuda-host-compiler CACHE STRING "CUDA nvcc host compiler" FORCE)
-
           endif()
       else()
 	      if(WIN32)

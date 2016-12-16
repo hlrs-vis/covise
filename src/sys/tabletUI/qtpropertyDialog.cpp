@@ -479,59 +479,71 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     page31->setLayout(page31Layout);
 
     QWidget *page32 = new QWidget();
-    QGridLayout *page32Layout = new QGridLayout();
+    QVBoxLayout *page32Layout = new QVBoxLayout();
+    QHBoxLayout *vertexBtnLayout = new QHBoxLayout();
 
     vertexEdit = new QTextEdit();
     vertexEdit->setWordWrapMode(QTextOption::NoWrap);
     vertexBtn = new QPushButton();
     vertexBtn->setText("Set source");
     connect(vertexBtn, SIGNAL(clicked()), tab, SLOT(handleSetVertex()));
-    page32Layout->addWidget(vertexEdit, 0, 0, Qt::AlignLeft);
-    page32Layout->addWidget(vertexBtn, 1, 0, Qt::AlignRight);
+    vertexBtnLayout->addStretch();
+    vertexBtnLayout->addWidget(vertexBtn);
+    page32Layout->addWidget(vertexEdit);
+    page32Layout->addLayout(vertexBtnLayout);
 
     page32->setLayout(page32Layout);
 
     QWidget *page35 = new QWidget();
-    QGridLayout *page35Layout = new QGridLayout();
+    QVBoxLayout *page35Layout = new QVBoxLayout();
+    QHBoxLayout *tessControlBtnLayout = new QHBoxLayout();
 
     tessControlEdit = new QTextEdit();
     tessControlEdit->setWordWrapMode(QTextOption::NoWrap);
     tessControlBtn = new QPushButton();
     tessControlBtn->setText("Set source");
     connect(tessControlBtn, SIGNAL(clicked()), tab, SLOT(handleSetTessControl()));
-    page35Layout->addWidget(tessControlEdit, 0, 0, Qt::AlignLeft);
-    page35Layout->addWidget(tessControlBtn, 1, 0, Qt::AlignRight);
+    tessControlBtnLayout->addStretch();
+    tessControlBtnLayout->addWidget(tessControlBtn);
+    page35Layout->addWidget(tessControlEdit);
+    page35Layout->addLayout(tessControlBtnLayout);
 
     page35->setLayout(page35Layout);
 
     QWidget *page36 = new QWidget();
-    QGridLayout *page36Layout = new QGridLayout();
+    QVBoxLayout *page36Layout = new QVBoxLayout();
+    QHBoxLayout *tessEvalBtnLayout = new QHBoxLayout();
 
     tessEvalEdit = new QTextEdit();
     tessEvalEdit->setWordWrapMode(QTextOption::NoWrap);
     tessEvalBtn = new QPushButton();
     tessEvalBtn->setText("Set source");
     connect(tessEvalBtn, SIGNAL(clicked()), tab, SLOT(handleSetTessEval()));
-    page36Layout->addWidget(tessEvalEdit, 0, 0, Qt::AlignLeft);
-    page36Layout->addWidget(tessEvalBtn, 1, 0, Qt::AlignRight);
+    tessEvalBtnLayout->addStretch();
+    tessEvalBtnLayout->addWidget(tessEvalBtn);
+    page36Layout->addWidget(tessEvalEdit);
+    page36Layout->addLayout(tessEvalBtnLayout);
 
     page36->setLayout(page36Layout);
 
     QWidget *page33 = new QWidget();
-    QGridLayout *page33Layout = new QGridLayout();
+    QVBoxLayout *page33Layout = new QVBoxLayout();
+    QHBoxLayout *fragmentBtnLayout = new QHBoxLayout();
 
     fragmentEdit = new QTextEdit();
     fragmentEdit->setWordWrapMode(QTextOption::NoWrap);
     fragmentBtn = new QPushButton();
     fragmentBtn->setText("Set source");
     connect(fragmentBtn, SIGNAL(clicked()), tab, SLOT(handleSetFragment()));
-    page33Layout->addWidget(fragmentEdit, 0, 0, Qt::AlignLeft);
-    page33Layout->addWidget(fragmentBtn, 1, 0, Qt::AlignRight);
+    fragmentBtnLayout->addStretch();
+    fragmentBtnLayout->addWidget(fragmentBtn);
+    page33Layout->addWidget(fragmentEdit);
+    page33Layout->addLayout(fragmentBtnLayout);
 
     page33->setLayout(page33Layout);
 
     QWidget *page34 = new QWidget();
-    QGridLayout *page34Layout = new QGridLayout();
+    QVBoxLayout *page34Layout = new QVBoxLayout();
 
     geometryEdit = new QTextEdit();
     geometryEdit->setWordWrapMode(QTextOption::NoWrap);
@@ -567,13 +579,14 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
 
     QHBoxLayout *geomlayout = new QHBoxLayout();
 
+    geomlayout->addStretch();
     geomlayout->addWidget(geometryNumVertSpin);
     geomlayout->addWidget(geometryInputModeComboBox);
     geomlayout->addWidget(geometryOutputModeComboBox);
     geomlayout->addWidget(geometryBtn);
 
-    page34Layout->addWidget(geometryEdit, 0, 0, Qt::AlignLeft);
-    page34Layout->addLayout(geomlayout, 1, 0, Qt::AlignRight);
+    page34Layout->addWidget(geometryEdit);
+    page34Layout->addLayout(geomlayout);
 
     page34->setLayout(page34Layout);
 

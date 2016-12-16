@@ -102,6 +102,15 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->poleCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->sizeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
 
+	connect(ui->widthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->widthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->heightSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->heightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->unitEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->unitEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+	connect(ui->textEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->textEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+
     connect(ui->fromLaneSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->fromLaneSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
     connect(ui->toLaneSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
@@ -161,6 +170,10 @@ SignalSettings::updateProperties()
         ui->orientationComboBox->setCurrentIndex(signal_->getOrientation());
         ui->poleCheckBox->setChecked(signal_->getPole());
         ui->sizeComboBox->setCurrentIndex(signal_->getSize() - 1);
+		ui->unitEdit->setText(signal_->getUnit());
+		ui->textEdit->setText(signal_->getText());
+		ui->widthSpinBox->setValue(signal_->getWidth());
+		ui->heightSpinBox->setValue(signal_->getHeight());
 
         ui->fromLaneSpinBox->setValue(signal_->getValidFromLane());
         ui->toLaneSpinBox->setValue(signal_->getValidToLane());
@@ -305,7 +318,7 @@ SignalSettings::onEditingFinished()
 			resetTime = ui->resetTimeSpinBox->value();
 		}
 
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->unitEdit->text(), ui->textEdit->text(), ui->widthSpinBox->value(), ui->heightSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
         getProjectSettings()->executeCommand(command);	
 
         valueChanged_ = false;

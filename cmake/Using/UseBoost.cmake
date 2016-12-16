@@ -1,5 +1,5 @@
 MACRO(USE_BOOST)
-
+  if(${BASEARCHSUFFIX} STREQUAL "tamarau")
   set(COMPONENTS
         chrono
         program_options
@@ -12,6 +12,21 @@ MACRO(USE_BOOST)
         regex
         locale
         )
+  else(${BASEARCHSUFFIX} STREQUAL "tamarau")
+  set(COMPONENTS
+	atomic
+        chrono
+        program_options
+        system
+        thread
+        filesystem
+        iostreams
+        date_time
+        serialization
+        regex
+        locale
+        )
+  endif(${BASEARCHSUFFIX} STREQUAL "tamarau")
 
   IF(WIN32)
   add_definitions("-DBOOST_ALL_NO_LIB")

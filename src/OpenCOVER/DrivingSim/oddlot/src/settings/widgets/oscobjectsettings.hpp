@@ -40,6 +40,7 @@ class OSCBase;
 class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
 class ProjectSettings;
+class ToolAction;
 
 class QLabel;
 class QTreeWidget;
@@ -59,7 +60,7 @@ class OSCObjectSettings: public QWidget, public Observer
     //################//
 
 public:
-    explicit OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element);
+    explicit OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member);
     virtual ~OSCObjectSettings();
 
     // Observer Pattern //
@@ -90,11 +91,17 @@ private:
 		return objectStackText_;
 	}
 
+	OpenScenario::oscObjectBase *getObject()
+	{
+		return object_;
+	}
+
 	//################//
 	// SIGNALS        //
 	//################//
 
 signals:
+    void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
 
     //################//
     // SLOTS          //
@@ -103,6 +110,8 @@ signals:
 private slots:
     void onEditingFinished(QString name);
 	OpenScenario::oscObjectBase * onPushButtonPressed(QString name);
+	OpenScenario::oscMember * onArrayPushButtonPressed(QString name);
+    OpenScenario::oscObjectBase *onGraphElementChosen(QString name);
 	void onArrayElementClicked(QTreeWidgetItem *item, int column);
 	void onNewArrayElement();
 	void onValueChanged();
@@ -119,6 +128,8 @@ private:
 	OSCObjectSettingsStack *parentStack_;
 
     OpenScenario::oscObjectBase *object_;
+	OpenScenario::oscMember *member_;
+	OpenScenario::oscObjectBase *parentObject_;
 	QString objectStackText_;
 	QLabel *objectStackTextlabel_;
 

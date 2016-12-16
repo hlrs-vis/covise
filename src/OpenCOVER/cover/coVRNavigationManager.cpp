@@ -206,31 +206,52 @@ coVRNavigationManager::~coVRNavigationManager()
     delete interactionMC;
 }
 
-void coVRNavigationManager::initInteractionDevice()
+void coVRNavigationManager::updatePerson()
 {
-    interactionA = new coNavInteraction(coInteraction::ButtonA, "ProbeMode", coInteraction::Navigation);
-    interactionB = new coNavInteraction(coInteraction::ButtonB, "ProbeMode", coInteraction::Navigation);
-    interactionC = new coNavInteraction(coInteraction::ButtonC, "ProbeMode", coInteraction::Navigation);
-    interactionMenu = new coNavInteraction(coInteraction::ButtonA, "MenuMode", coInteraction::Menu);
     if (!coVRConfig::instance()->mouseTracking())
     {
         coInteractionManager::the()->registerInteraction(interactionB);
         coInteractionManager::the()->registerInteraction(interactionC);
     }
+    else
+    {
+        coInteractionManager::the()->unregisterInteraction(interactionB);
+        coInteractionManager::the()->unregisterInteraction(interactionC);
+    }
 
     doMouseNav = coVRConfig::instance()->mouseNav();
-    mouseNavButtonRotate = coCoviseConfig::getInt("RotateButton", "COVER.Input.MouseNav", 0);
-    mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "COVER.Input.MouseNav", 1);
-    mouseNavButtonTranslate = coCoviseConfig::getInt("TranslateButton", "COVER.Input.MouseNav", 2);
-    interactionMA = new coMouseButtonInteraction(coInteraction::ButtonA, "MouseNav");
-    interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
-    interactionMC = new coMouseButtonInteraction(coInteraction::ButtonC, "MouseNav");
     if (doMouseNav)
     {
         //cerr << "using mouse nav " << endl;
         coInteractionManager::the()->registerInteraction(interactionMB);
         coInteractionManager::the()->registerInteraction(interactionMC);
     }
+    else
+    {
+        coInteractionManager::the()->unregisterInteraction(interactionMB);
+        coInteractionManager::the()->unregisterInteraction(interactionMC);
+    }
+
+    NavMode savedMode = oldNavMode;
+    setNavMode(navMode);
+    oldNavMode = savedMode;
+}
+
+void coVRNavigationManager::initInteractionDevice()
+{
+    interactionA = new coNavInteraction(coInteraction::ButtonA, "ProbeMode", coInteraction::Navigation);
+    interactionB = new coNavInteraction(coInteraction::ButtonB, "ProbeMode", coInteraction::Navigation);
+    interactionC = new coNavInteraction(coInteraction::ButtonC, "ProbeMode", coInteraction::Navigation);
+    interactionMenu = new coNavInteraction(coInteraction::ButtonA, "MenuMode", coInteraction::Menu);
+
+    mouseNavButtonRotate = coCoviseConfig::getInt("RotateButton", "COVER.Input.MouseNav", 0);
+    mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "COVER.Input.MouseNav", 1);
+    mouseNavButtonTranslate = coCoviseConfig::getInt("TranslateButton", "COVER.Input.MouseNav", 2);
+    interactionMA = new coMouseButtonInteraction(coInteraction::ButtonA, "MouseNav");
+    interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
+    interactionMC = new coMouseButtonInteraction(coInteraction::ButtonC, "MouseNav");
+
+    updatePerson();
 
     wiiNav = coVRConfig::instance()->useWiiNavigationVisenso();
     /*if (wiiNav)
@@ -1382,6 +1403,13 @@ void coVRNavigationManager::setNavMode(NavMode mode)
             if (!coVRConfig::instance()->mouseTracking())
             {
                 coInteractionManager::the()->registerInteraction(interactionA);
+            }
+        }
+        if (interactionA->isRegistered())
+        {
+            if (coVRConfig::instance()->mouseTracking())
+            {
+                coInteractionManager::the()->unregisterInteraction(interactionA);
             }
         }
         if (!interactionMA->isRegistered())

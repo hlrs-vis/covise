@@ -160,6 +160,14 @@
   #define X64Arch
   #define LABEL "_tamarauopt"
   #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+#elif ARCHSUFFIX == "zebu"
+  #define X64Arch
+  #define LABEL "_zebu"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+#elif ARCHSUFFIX == "zebuopt"
+  #define X64Arch
+  #define LABEL "_zebuopt"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
 #else
   #pragma message "Warning: undefined or unknown ARCHSUFFIX! Cannot set SYS variable!"
   #define LABEL "UNKNOWN"
@@ -492,13 +500,14 @@ Source: {#EXTERNLIBS}\python\*; DestDir: {app}\extern_libs\python; Flags: recurs
 Source: {#QT}\bin\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#QT}\plugins\*.dll; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
 Source: {#EXTERNLIBS}\icu\bin64\*.dll; DestDir: {#DBIN}; Components: core
-Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Components: core
+Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\tbb\bin\intel64\vc14\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PTHREAD}\lib\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#PNG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#GEOS}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#CG}\bin\*.dll; DestDir: {#DLIB}; Components: core
-Source: {#CUDAPATH}\bin\cudart*.dll; DestDir: {#DLIB}; Components: core
+Source: {#CG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#CUDAPATH}\bin\cudart*.dll; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: core
 Source: {#GLEW}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#GLEW}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#CUDAPATH}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
@@ -511,7 +520,8 @@ Source: {#INTEL}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Co
 
 Source: {#SYS}; DestDir: {#DLIB}; Flags: recursesubdirs; Components: core
 ;Source: {#XERCES}\bin\*.exe; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#XERCES}\lib\*.dll; DestDir: {#DLIB}; Components: core
+Source: {#XERCES}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#XERCES}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#OPENSSL}\bin\*.dll; DestDir: {#DLIB}; Components: core
 #endif
 

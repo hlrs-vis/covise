@@ -40,6 +40,11 @@ class StateSet;
 class ClipNode;
 }
 
+namespace vrui
+{
+class coCombinedButtonInteraction;
+}
+
 namespace opencover
 {
 class buttonSpecCell;
@@ -55,6 +60,7 @@ public:
     static void resetviewCallback(void *sceneGraph, buttonSpecCell *spec);
     static void viewallCallback(void *sceneGraph, buttonSpecCell *spec);
     static void coordAxisCallback(void *sceneGraph, buttonSpecCell *spec);
+    static void highQualityCallback(void *sceneGraph, buttonSpecCell *spec);
     static void storeCallback(void *sceneGraph, buttonSpecCell *spec);
     static void reloadFileCallback(void *sceneGraph, buttonSpecCell *spec);
 #ifdef PHANTOM_TRACKER
@@ -134,6 +140,8 @@ public:
 
     void setNodeBounds(osg::Node *node, const osg::BoundingSphere *bs);
 
+    bool highQuality() const;
+
     template <class T>
     T *findFirstNode(const char *name, bool startsWith = false, osg::Node * rootNode = NULL)
     {
@@ -195,6 +203,7 @@ public:
     void adjustScale();
 
     void toggleAxis(bool state);
+    void toggleHighQuality(bool state);
     void viewAll(bool resetView = false);
     float &joyStickX()
     {
@@ -242,6 +251,8 @@ public:
     int m_vectorInteractor; //< don't use - for COVISE plugin only
 
     bool KeyButton[4];
+
+    bool isHighQuality() const;
 
 private:
     int readConfigFile();
@@ -337,6 +348,8 @@ private:
     typedef std::map<osg::Drawable *, osg::ref_ptr<osg::Material> > StoredMaterialsMap;
     StoredMaterialsMap storedMaterials;
     void storeMaterial(osg::Drawable *drawable);
+    bool m_enableHighQualityOption, m_switchToHighQuality, m_highQuality;
+    vrui::coCombinedButtonInteraction *m_interactionHQ;
 };
 }
 #endif

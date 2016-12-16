@@ -34,7 +34,7 @@ unordered_map<std::string, SignalPrototype *> RoadSignal::signalsMap;
 RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, const double &setS, const double &setT, const bool &setDynamic,
                        const OrientationType &setOrient, const double &setZOffset, const std::string &setCountry,
                        const int &setType, const int &setSubtype, const std::string &subClass, const double &Size, const double &setValue,
-                       const double &setHdg, const double &setPitch, const double &setRoll)
+                       const double &setHdg, const double &setPitch, const double &setRoll, const std::string &setUnit, const std::string &setText, const double &setWidth, const double &setHeight)
     : Element(setId)
     , name(setName)
     , s(setS)
@@ -51,12 +51,20 @@ RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, con
     , hdg(setHdg)
     , pitch(setPitch)
     , roll(setRoll)
+	, unit(setUnit)
+	, text(setText)
+	, width(setWidth)
+	, height(setHeight)
 {
     SignalPrototype *sp = NULL;
+	bool realScale = false;
+	aspectRatio = 1.0;
+	if (width != 0 && height != 0)
+		realScale = true;
     unordered_map<std::string, SignalPrototype *>::iterator it = signalsMap.find(name);
     if (it == signalsMap.end())
     {
-        sp = new SignalPrototype(name, country, type, subtype, subclass, zOffset == 0);
+        sp = new SignalPrototype(name, country, type, subtype, subclass, zOffset == 0, realScale);
         signalsMap[name] = sp;
     }
     else
@@ -66,6 +74,7 @@ RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, con
     if (sp->signalNode.valid())
     {
 
+	    aspectRatio = sp->aspectRatio;
         osg::Quat signalDir(-1.0 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
         if (orientation == NEGATIVE_TRACK_DIRECTION)
         {
@@ -97,7 +106,7 @@ RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, con
     }
 }
 
-SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, std::string sc, bool isFlat)
+SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, std::string sc, bool isFlat, bool realScale)
 {
     name = n;
     country = c;
@@ -106,6 +115,7 @@ SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, st
     subtype = st;
     subclass = sc;
     flat = isFlat;
+	aspectRatio = 1.0;
     const char *filename = opencover::coVRFileManager::instance()->getName(fn.c_str());
     if (filename)
     {
@@ -113,11 +123,11 @@ SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, st
     }
     else
     {
-        createGeometry();
+        createGeometry(realScale);
 //        fprintf(stderr,"SignalPrototype:: file %s not found.",fn);
     }
 }
-void SignalPrototype::createGeometry()
+void SignalPrototype::createGeometry(bool realScale)
 {
     bool withPost = false;
     std::string name_noPost = name;
@@ -156,14 +166,16 @@ void SignalPrototype::createGeometry()
         fileName = opencover::coVRFileManager::instance()->getName(fn.c_str());
     }
 
-    if (fileName)
-    {
-        osg::Image *signTexImage = osgDB::readImageFile(fileName);
-        osg::Texture2D *signTex = new osg::Texture2D;
-        signTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-        signTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-        hsize = signTexImage->s() / 2000.0;
-        vsize = signTexImage->t() / 1000.0;
+	if (fileName)
+	{
+		osg::Image *signTexImage = osgDB::readImageFile(fileName);
+		osg::Texture2D *signTex = new osg::Texture2D;
+		signTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+		signTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+		hsize = signTexImage->s() / 2000.0;
+		vsize = signTexImage->t() / 1000.0;
+		aspectRatio = hsize / vsize;
+	    
         if (signTexImage)
             signTex->setImage(signTexImage);
         signStateSet->setTextureAttributeAndModes(3, signTex, osg::StateAttribute::ON);
@@ -198,7 +210,16 @@ void SignalPrototype::createGeometry()
         char tmpstr[200];
 
         if (subtype == -1)
-            sprintf(tmpstr, "%d", type);
+		{ 
+			if (subclass != "")
+			{
+				sprintf(tmpstr, "%d_%s", type, subclass.c_str());
+			}
+			else
+			{
+				sprintf(tmpstr, "%d", type);
+			}
+		}
         else if (subclass == "")
             sprintf(tmpstr, "%d-%d", type, subtype);
         else
@@ -222,6 +243,8 @@ void SignalPrototype::createGeometry()
             signTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
             hsize = signTexImage->s() / 2000.0;
             vsize = signTexImage->t() / 1000.0;
+			aspectRatio = hsize / vsize;
+
             if (signTexImage)
                 signTex->setImage(signTexImage);
             signStateSet->setTextureAttributeAndModes(3, signTex, osg::StateAttribute::ON);
@@ -231,6 +254,11 @@ void SignalPrototype::createGeometry()
             std::cerr << "ERROR: no texture found named: " << fn;
         }
     }
+	if (realScale)
+	{
+		hsize = 1;
+		vsize = 1;
+	}
 
     float pr = 0.03;
     float height = 2.5;
@@ -402,48 +430,59 @@ void RoadSignal::setTransform(const Transform &_transform)
             roadSignalNode->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z() + zOffset));
             roadSignalNode->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
         }
-
-        if (country == "China")
-        {
-            if (size == 1)
-            {
-                roadSignalNode->setScale(osg::Vec3(5, 1, 5));
-            }
-            else if (size == 2)
-            {
-                roadSignalNode->setScale(osg::Vec3(6, 1, 6));
-            }
-            else if (size == 3)
-            {
-                roadSignalNode->setScale(osg::Vec3(10, 1, 10));
-            }
-            else if (size == 4)
-            {
-                roadSignalNode->setScale(osg::Vec3(12, 1, 12));
-            }
-            else
-            {
-                roadSignalNode->setScale(osg::Vec3(size, size, size));
-            }
-        }
-        else
-        {
-            if (size != 2)
-            {
-                if (size == 1)
-                {
-                    roadSignalNode->setScale(osg::Vec3(0.75, 0.75, 0.75));
-                }
-                else if (size == 3)
-                {
-                    roadSignalNode->setScale(osg::Vec3(1.25, 1.25, 1.25));
-                }
-                else
-                {
-                    roadSignalNode->setScale(osg::Vec3(size, size, size));
-                }
-            }
-        }
+		if (width != 0 || height != 0)
+		{
+			if(width == 0)
+				roadSignalNode->setScale(osg::Vec3(height * aspectRatio, 1, height));
+			else if(height == 0)
+				roadSignalNode->setScale(osg::Vec3(width, 1, height / aspectRatio));
+			else
+			    roadSignalNode->setScale(osg::Vec3(width, 1, height));
+		}
+		else
+		{
+			if (country == "China")
+			{
+				if (size == 1)
+				{
+					roadSignalNode->setScale(osg::Vec3(5, 1, 5));
+				}
+				else if (size == 2)
+				{
+					roadSignalNode->setScale(osg::Vec3(6, 1, 6));
+				}
+				else if (size == 3)
+				{
+					roadSignalNode->setScale(osg::Vec3(10, 1, 10));
+				}
+				else if (size == 4)
+				{
+					roadSignalNode->setScale(osg::Vec3(12, 1, 12));
+				}
+				else
+				{
+					roadSignalNode->setScale(osg::Vec3(size, size, size));
+				}
+			}
+			else
+			{
+				if (size != 2)
+				{
+					if (size == 1)
+					{
+						roadSignalNode->setScale(osg::Vec3(0.75, 0.75, 0.75));
+					}
+					else if (size == 3)
+					{
+						roadSignalNode->setScale(osg::Vec3(1.25, 1.25, 1.25));
+					}
+					else
+					{
+						roadSignalNode->setScale(osg::Vec3(size, size, size));
+					}
+				}
+			}
+		}
         if (roadSignalPost)
         {
             roadSignalPost->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z() + zOffset));
@@ -470,8 +509,8 @@ unordered_map<std::string, TrafficLightPrototype *> TrafficLightSignal::trafficL
 TrafficLightSignal::TrafficLightSignal(const std::string &setId, const std::string &setName, const double &setS, const double &setT, const bool &setDynamic,
                                        const OrientationType &setOrient, const double &setZOffset, const std::string &setCountry,
                                        const int &setType, const int &setSubtype, const std::string &setSubclass, const double &setSize, const double &setValue, 
-                                       const double &setHdg, const double &setPitch, const double &setRoll)
-    : RoadSignal(setId, setName, setS, setT, setDynamic, setOrient, setZOffset, setCountry, setType, setSubtype, setSubclass, setSize, setValue, setHdg, setPitch, setRoll)
+                                       const double &setHdg, const double &setPitch, const double &setRoll, const std::string &setUnit, const std::string &setText, const double &setWidth, const double &setHeight)
+    : RoadSignal(setId, setName, setS, setT, setDynamic, setOrient, setZOffset, setCountry, setType, setSubtype, setSubclass, setSize, setValue, setHdg, setPitch, setRoll, setUnit, setText, setWidth, setHeight)
     , signalGreenCallback(NULL)
     , signalYellowCallback(NULL)
     , signalRedCallback(NULL)

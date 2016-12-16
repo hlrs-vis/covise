@@ -75,7 +75,7 @@ coPluginEntry::coPluginEntry(const char *libName, coTUITab *tab, int n)
 
     tuiEntry = new coTUIToggleButton(name, tab->getID());
     tuiEntry->setEventListener(this);
-    tuiEntry->setPos(n % 5, n / 5);
+    tuiEntry->setPos(n % 6, n / 6);
 }
 
 coPluginEntry::~coPluginEntry()

@@ -42,13 +42,17 @@ typedef int ssize_t;
     ssize_t bytesRead=0;                                                    \
     do                                                                 \
     {                                                                  \
-        ssize_t retval;                                                \
-        retval = read(abs(fd), (data)+bytesRead, (size));                        \
-        if (retval < 0)                                              \
+        ssize_t retval = read(abs(fd), (data)+bytesRead, (size));                        \
+        if (retval < 0) {                                            \
             fprintf(stderr, "COV_READ failed: %s\n", strerror(errno)); \
+            break; \
+        } else if (retval == 0) { \
+            fprintf(stderr, "COV_READ of %ld bytes failed: EOF after %ld\n", (long)size, (long)bytesRead); \
+            break; \
+        } \
         bytesRead += retval;                                                \
         if (bytesRead < size)                                                \
-            fprintf(stderr, "COV_READ performance warning incomplete read: %ld %ld\n", retval, (ssize_t)size); \
+            fprintf(stderr, "COV_READ performance warning incomplete read: %ld %ld\n", (long)retval, (long)size); \
     } while (bytesRead < size) ;                                             \
     }
 

@@ -104,6 +104,7 @@ private:
     void selectedMenuButton(coMenuItem *);
     void readMenuConfigData(const char *, std::vector<ImageFileEntry> &, coRowMenu &);
     bool intensityOnly;
+    float intensityScale;
     bool intColor;
     bool polar;
     float pointSizeValue;

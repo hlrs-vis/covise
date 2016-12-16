@@ -14,5 +14,5 @@ SET(HEADERS
 SET(SOURCES
   writeToCgns.cpp
 )
-covise_add_module(IO_Module writeToCgns ${EXTRASOURCES} ${SOURCES} ${HEADERS})
+covise_add_module(IO writeToCgns ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(writeToCgns coApi coAppl coCore ${EXTRA_LIBS})

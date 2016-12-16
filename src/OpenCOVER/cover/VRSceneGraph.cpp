@@ -49,6 +49,7 @@
 #include <osgGA/GUIActionAdapter>
 #include "coVRLabel.h"
 #include <OpenVRUI/sginterface/vruiButtons.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <input/VRKeys.h>
 #include <input/input.h>
 #include "coVRConfig.h"
@@ -132,6 +133,10 @@ VRSceneGraph::VRSceneGraph()
     , isFirstTraversal(true)
     , storeWithMenu(false)
     , isScenegraphProtected_(false)
+    , m_enableHighQualityOption(true)
+    , m_highQuality(false)
+    , m_switchToHighQuality(false)
+    , m_interactionHQ(NULL)
 {
     KeyButton[0] = 0;
     KeyButton[1] = 0;
@@ -162,6 +167,9 @@ void VRSceneGraph::init()
     statsDisplay = new coVRStatsDisplay();
 
     emptyProgram_ = new osg::Program();
+
+    m_interactionHQ = new coCombinedButtonInteraction(coInteraction::AllButtons, "Anchor", coInteraction::Highest);
+    m_interactionHQ->setNotifyOnly(true);
 }
 
 VRSceneGraph::~VRSceneGraph()
@@ -568,6 +576,17 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                  VRViewer::instance()->forceCompile();
             }
         } // unmodified keys
+        else if (mod & osgGA::GUIEventAdapter::MODKEY_SHIFT)
+        {
+            if (keySym == 'h' || keySym == 'H')
+            {
+                if (m_enableHighQualityOption)
+                {
+                    m_switchToHighQuality = true;
+                    handled = true;
+                }
+            }
+        }
         else
         {
             if (keySym == 'F')
@@ -1043,6 +1062,33 @@ VRSceneGraph::update()
         m.setTrans(trans);
         m_objectsTransform->setMatrix(m);
     }
+
+    if (m_enableHighQualityOption && !m_highQuality)
+    {
+        // HQ mode ON, if button is pressed while the mouse is higher then the head
+        Vec3 pointerPosWld = cover->getPointerMat().getTrans();
+        Vec3 viewerPosWld = cover->getViewerMat().getTrans();
+        if (pointerPosWld[2] > viewerPosWld[2] && cover->getPointerButton()->wasPressed())
+            m_switchToHighQuality = true;
+    }
+
+    if (m_switchToHighQuality)
+    {
+        assert(m_enableHighQualityOption == true);
+        m_switchToHighQuality = false;
+        if (!m_interactionHQ->isRegistered())
+        {
+            coInteractionManager::the()->registerInteraction(m_interactionHQ);
+        }
+        m_highQuality = true;
+        fprintf(stdout, "\a");
+        fflush(stdout);
+    }
+    else if (m_highQuality && (cover->getPointerButton()->wasPressed() || cover->getMouseButton()->wasPressed()))
+    {
+        m_highQuality = false;
+        coInteractionManager::the()->unregisterInteraction(m_interactionHQ);
+    }
 }
 
 void
@@ -1064,6 +1110,21 @@ VRSceneGraph::setWireframe(bool wf)
         osg::PolygonMode *polymode = new osg::PolygonMode;
         m_rootStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
     }
+}
+
+void
+VRSceneGraph::toggleHighQuality(bool state)
+{
+    if (cover->debugLevel(3))
+        fprintf(stderr, "VRSceneGraph::toggleHighQuality %d\n", state);
+
+    m_enableHighQualityOption = state;
+}
+
+bool
+VRSceneGraph::highQuality() const
+{
+    return m_highQuality;
 }
 
 void
@@ -1576,6 +1637,25 @@ VRSceneGraph::coordAxisCallback(void *sceneGraph, buttonSpecCell *spec)
     {
         ((VRSceneGraph *)sceneGraph)->toggleAxis(false);
     }
+}
+
+void
+VRSceneGraph::highQualityCallback(void *sceneGraph, buttonSpecCell *spec)
+{
+    if (spec->state)
+    {
+        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(true);
+    }
+    else
+    {
+        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(false);
+    }
+}
+
+bool
+VRSceneGraph::isHighQuality() const
+{
+    return m_highQuality;
 }
 
 void

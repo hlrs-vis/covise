@@ -81,7 +81,7 @@ CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *c
 
 CatalogWidget::~CatalogWidget()
 {
-    
+	delete catalogTreeWidget_;
 }
 
 //################//
@@ -137,7 +137,7 @@ CatalogWidget::onDeleteCatalogItem()
 		for ( int i = 0; i < selectedItems.size(); i++)
 		{
 			QString text = selectedItems.at(i)->text(0);
-			int refId = text.split("(")[1].remove(")").toInt();
+			std::string refId = text.split("(")[1].remove(")").toStdString();
 			OSCElement *element = base_->getOSCElement(catalog_->getCatalogObject(refId));
 
 			RemoveOSCCatalogObjectCommand *command = new RemoveOSCCatalogObjectCommand(catalog_, refId, element);

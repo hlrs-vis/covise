@@ -13,6 +13,10 @@ if (NOT TURBOJPEG_HAVE_INTERNAL)
 endif()
 using(GLEW)
 
+if(NOT COVISE_USE_X11)
+   return()
+endif()
+
 COVISE_FIND_PACKAGE(X11)
 if(NOT X11_FOUND)
    return()

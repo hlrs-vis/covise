@@ -73,7 +73,7 @@ OSCObjectSettingsStack::uiInit()
 
 	stack_ = new QStackedWidget();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_); 
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_, NULL); 
 
 
 }

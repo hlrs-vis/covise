@@ -147,6 +147,8 @@ bool PointCloudPlugin::init()
     coTUILabel *pointSizeLabel = new coTUILabel("pointSize:");
     pointSizeTui = new coTUIFloatSlider("PointSize", PCTab->getID());
     pointSizeTui->setEventListener(this);
+    pointSizeTui->setMin(1.0);
+    pointSizeTui->setMax(10.0);
     pointSizeTui->setValue(pointSizeValue);
     
 
@@ -189,6 +191,18 @@ void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
     if (tUIItem == adaptLODTui)
     {
         adaptLOD = adaptLODTui->getState();
+	for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    {
+        //TODO calc distance correctly
+        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        {
+
+            if (!adaptLOD)
+            {
+                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(1.0);
+            }
+        }
+    }
     }
     if (tUIItem == pointSizeTui)
     {
@@ -260,6 +274,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
         bool commaSeparated = false;
         FILE *fp = fopen(cfile, "r");
         pointSetSize = 0;
+        intensityScale = 10;
         char buf[1000];
         if (fp)
         {
@@ -278,6 +293,12 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     {
                         intensityOnly = true;
                         fprintf(stderr, "intensityOnly\n");
+                    }
+                    const char *intensityString;
+                    if ((intensityString = strstr(buf, "intensityScale")) != NULL)
+                    {
+                        sscanf(intensityString+14,"%f",&intensityScale);
+                        fprintf(stderr, "intensityScale %f\n",intensityScale);
                     }
                     if (strstr(buf, "intColor") != NULL)
                     {
@@ -369,11 +390,11 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
                     if (numValues == 7)
                     {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * 10.0;
+                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
                     }
                     else
                     {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * 10.0;
+                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * intensityScale;
                     }
                 }
                 else

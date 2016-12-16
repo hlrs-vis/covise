@@ -31,6 +31,8 @@ class OpenScenarioBase;
 class oscObjectBase;
 class oscObject;
 class oscCatalog;
+class oscTrajectory;
+class oscPrivateAction;
 }
 
 class OSCBaseItem;
@@ -62,20 +64,36 @@ public:
     //
     virtual void toolAction(ToolAction *);
 
+    // get object list //
+    //
+    QList<OpenScenario::oscObjectBase *> getElements(OpenScenario::oscObjectBase *root, const std::string &type);
+
     // Move Object //
     //
-	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
+	bool translateObject(OpenScenario::oscPrivateAction *privateAction, const QString &newRoadId, double s, double t);
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);
+	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
 
 
 	// Catalog dock widget changed //
 	//
 	void catalogChanged(OpenScenario::oscCatalog *member);
 
+	// Edit Trajectory element //
+	//
+	void setTrajectoryElement(OSCElement *trajectory);
+
 	// New Object with properties chosen in SignalTreeWidget //
 	//
 //	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
+	OSCRoadSystemItem *getRoadSystemItem()
+	{
+		return oscRoadSystemItem_;
+	}
+
+    void addGraphToObserver(const QVector<QPointF> &controlPoints);
+    void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints);
 
 
 protected:
@@ -121,6 +139,7 @@ private:
 	//
 	OpenScenario::oscCatalog *oscCatalog_;
 
+
 	ODD::ToolId lastTool_;
 	QString lastOSCObjectName_;
 
@@ -129,6 +148,11 @@ private:
 	// Window with catalog entries //
 	//
 	CatalogTreeWidget *catalogTree_;
+
+
+    // Selected waypoints //
+    //
+    OSCElement *trajectoryElement_;
 
     // RoadType //
     //

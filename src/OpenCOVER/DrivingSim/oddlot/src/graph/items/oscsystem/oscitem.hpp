@@ -26,6 +26,7 @@ class oscVehicle;
 class oscPedestrian;
 class oscObject;
 class oscCatalog;
+class oscPrivateAction;
 }
 
 class RoadSystem;
@@ -44,8 +45,9 @@ class OSCItem : public GraphElement
     //################//
 
 public:
-	explicit OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *entityCatalog, const QPointF &pos, const QString &roadId);
+	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, const QPointF &pos, const QString &roadId);
     virtual ~OSCItem();
+
 
     // Garbage //
     //
@@ -54,8 +56,6 @@ public:
     // Graphics //
     //
 	void updateColor(const std::string &type);
-//	void createVehiclePath();
-//	void createPath(OpenScenario::oscPedestrian *pedestrian);
 	
 	// Function for path drawing //
 	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *);
@@ -84,10 +84,6 @@ signals:
 
 public slots:
 
-    //Tools
-    //
- //   void zoomAction();
-
     bool removeElement();
 
     //################//
@@ -95,7 +91,6 @@ public slots:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -112,15 +107,18 @@ protected:
     //################//
 
 private:
+	OSCElement *element_;
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
 	QString roadID_;
     void init();
+    QString updateName();
 
 	OpenScenario::oscObject *oscObject_;
 	OpenScenario::oscObjectBase *selectedObject_;
-	OpenScenario::oscCatalog *entityCatalog_;
+	OpenScenario::oscPrivateAction *oscPrivateAction_;
+	OpenScenario::oscCatalog *catalog_;
 	RSystemElementRoad *road_;
 	RSystemElementRoad *closestRoad_;
 

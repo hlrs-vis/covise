@@ -65,13 +65,13 @@ GRMSGEXPORT void coGRMsg::addToken(const char *token)
 
 GRMSGEXPORT string coGRMsg::getFirstToken()
 {
-    int pos = content_.find(SplitToken);
+    size_t pos = content_.find(SplitToken);
     return content_.substr(0, pos);
 }
 
 GRMSGEXPORT string coGRMsg::extractFirstToken()
 {
-    int pos = content_.find(SplitToken);
+    size_t pos = content_.find(SplitToken);
     string token = content_.substr(0, pos);
     content_ = content_.substr(pos + 1, string::npos);
     return token;

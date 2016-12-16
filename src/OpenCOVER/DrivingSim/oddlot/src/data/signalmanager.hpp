@@ -32,7 +32,7 @@ class SignalContainer
     //################//
 
 public:
-    explicit SignalContainer(const QString &name, const QIcon &icon, const QString &category, int type, const QString &typeSubclass, int subType, double value, double distance, double height)
+    explicit SignalContainer(const QString &name, const QIcon &icon, const QString &category, int type, const QString &typeSubclass, int subType, double value, double distance, double heightOffset, const QString &unit, const QString &text, double width, double height)
         : signalName_(name)
         , signalIcon_(icon)
 		, signalCategory_(category)
@@ -41,7 +41,11 @@ public:
         , signalSubType_(subType)
         , signalValue_(value)
         , signalDistance_(distance)
-        , signalHeight_(height)
+        , signalheightOffset_(heightOffset)
+		, signalUnit_(unit)
+		, signalText_(text)
+		, signalWidth_(width)
+		, signalHeight_(height)
     {
         /* does nothing */
     }
@@ -78,10 +82,26 @@ public:
     {
         return signalDistance_;
     }
-    double getSignalHeight() const
-    {
-        return signalHeight_;
-    }
+	double getSignalheightOffset() const
+	{
+		return signalheightOffset_;
+	}
+	QString getSignalUnit() const
+	{
+		return signalUnit_;
+	}
+	QString getSignalText() const
+	{
+		return signalText_;
+	}
+	double getSignalWidth() const
+	{
+		return signalWidth_;
+	}
+	double getSignalHeight() const
+	{
+		return signalHeight_;
+	}
 	const QString &getSignalCategory() const
     {
         return signalCategory_;
@@ -107,6 +127,10 @@ private:
     int signalSubType_;
     double signalValue_;
     double signalDistance_;
+	double signalheightOffset_;
+	QString signalUnit_;
+	QString signalText_;
+	double signalWidth_;
     double signalHeight_;
 };
 
@@ -241,7 +265,7 @@ public:
     //
     bool loadSignals(const QString &fileName);
 
-	void addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double height);
+	void addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double heightOffset, const QString &unit, const QString text, double width, double height);
     void addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon,  const QString &categoryName, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners);
     QList<SignalContainer *> getSignals(QString country) const
     {

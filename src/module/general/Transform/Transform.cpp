@@ -11,6 +11,7 @@
 #include <do/coDoRectilinearGrid.h>
 #include <do/coDoStructuredGrid.h>
 #include <do/coDoUniformGrid.h>
+#include <api/coFeedback.h>
 #include <algorithm>
 #include "Transform.h"
 #include <vector>
@@ -93,6 +94,12 @@ Transform::Transform(int argc, char *argv[])
     p_time_matrix_ = addFileBrowserParam("EUC_file", "Euclidian motion");
     p_time_matrix_->setValue("/tmp/foo.euc", "*.euc");
     paraEndCase();
+    paraCase("RotTransScale");
+    paraCaseAdd(p_scale_scalar_);
+    paraCaseAdd(p_trans_vertex_);
+    paraCaseAdd(p_rotate_normal_);
+    paraCaseAdd(p_rotate_scalar_);
+    paraEndCase();
     paraEndSwitch();
 
     int data_port;
@@ -142,6 +149,11 @@ Transform::Transform(int argc, char *argv[])
     setCopyNonSetAttributes(0);
     preHandleFailed_ = 1;
     lagrange_ = 0;
+
+    p_type_->setValue(TYPE_MOVE_PLUGIN);
+    // show corresponding values
+    if (coUifElem *elem = findElem(p_type_->getName()))
+        elem->paramChange();
 }
 
 // the hparams_ objects look almost like parameters, but may
@@ -437,6 +449,9 @@ Transform::fillTransformations(int *numTransformations)
     case TIME_DEPENDENT:
         *numTransformations = 1;
         break;
+    case TYPE_MOVE_PLUGIN:
+        *numTransformations = 1;
+        break;
     default:
         sendError("Please, choose transformation type");
         *numTransformations = 0;
@@ -513,6 +528,31 @@ Transform::fillTransformations(int *numTransformations)
             *retMatrix = dynamicRefSystem_[lookUp_ % dynamicRefSystem_.size()];
         }
         break;
+    case TYPE_MOVE_PLUGIN:
+    {
+        Matrix trans, scale, rot;
+        trans.TranslateMatrix(h_trans_vertex_->getFValue(0),
+                h_trans_vertex_->getFValue(1),
+                h_trans_vertex_->getFValue(2));
+
+        scale.ScaleMatrix(h_scale_scalar_->getFValue(),
+                               h_scale_vertex_->getFValue(0),
+                               h_scale_vertex_->getFValue(1),
+                               h_scale_vertex_->getFValue(2),
+                               p_scale_type_->getValue() + 1);
+
+        float angleDEG = h_rotate_scalar_->getFValue();
+        float vertex[3];
+        float normal[3];
+        h_rotate_vertex_->getFValue(vertex[0], vertex[1], vertex[2]);
+        h_rotate_normal_->getFValue(normal[0], normal[1], normal[2]);
+        rot.RotateMatrix(angleDEG, vertex, normal);
+
+        //*retMatrix *= scale;
+        *retMatrix *= trans;
+        *retMatrix *= rot;
+    }
+    break;
     }
     return retMatrices;
 }
@@ -723,6 +763,22 @@ Transform::compute(const char *)
 
     std::vector<Geometry> geometry(numTransformations); // empty geometry
 
+    // interaction info for COVER Move plugin
+    coFeedback feedback("Move");
+    feedback.addPara(p_type_);
+    feedback.addPara(p_scale_type_);
+    feedback.addPara(p_scale_scalar_);
+    feedback.addPara(p_scale_vertex_);
+    feedback.addPara(p_trans_vertex_);
+    feedback.addPara(p_rotate_normal_);
+    feedback.addPara(p_rotate_vertex_);
+    feedback.addPara(p_rotate_scalar_);
+#if 0
+    feedback.addPara(p_mp_scale);
+    feedback.addPara(p_mp_rotate);
+    feedback.addPara(p_mp_translate);
+#endif
+
     if (numTransformations == 1)
     {
         const coDistributedObject *out_geo = OutputGeometry(outGeoName.c_str(),
@@ -733,6 +789,8 @@ Transform::compute(const char *)
             sendError("Could not create output geometry");
             return FAIL;
         }
+        if (p_type_->getValue() == TYPE_MOVE_PLUGIN)
+            feedback.apply(const_cast<coDistributedObject *>(out_geo));
         /* FIXME: RedressOrientation might change input objects */
         p_geo_out_->setCurrentObject(const_cast<coDistributedObject *>(out_geo));
     }
@@ -789,6 +847,8 @@ Transform::compute(const char *)
             }
         }
         delete[] setGeoList;
+        if (p_type_->getValue() == TYPE_MOVE_PLUGIN)
+            feedback.apply(out_set_geo);
         p_geo_out_->setCurrentObject(out_set_geo);
     }
 

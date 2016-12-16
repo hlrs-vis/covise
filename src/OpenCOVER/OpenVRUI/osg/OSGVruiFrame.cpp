@@ -105,9 +105,11 @@ void OSGVruiFrame::resizeGeometry()
     (*coord)[22].set(bw, 20, 0);
     (*coord)[23].set(bw, fh - 20, 0);
 
+	coord->dirty();
+	geometry->setVertexArray(coord.get());
     geometryNode->dirtyBound();
-    geometry->dirtyBound();
-    geometry->dirtyDisplayList();
+	//geometry->dirtyBound(); this is done by setVertexArray
+	//geometry->dirtyDisplayList();
 }
 
 /// allocate shared datastructures that can be used by all frames

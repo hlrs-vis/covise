@@ -192,7 +192,7 @@ void coPreviewCube::setHSVA(float hue, float sat, float val, float alpha)
     a = alpha;
     vvToolshed::HSBtoRGB(h, s, v, &r, &g, &b);
     (*color)[0].set(r, g, b, a);
-
+	color->dirty();
     cubeGeo->dirtyDisplayList();
 }
 

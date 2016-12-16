@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <limits>
-#include <map>
 #include <memory>
 #include <string>
 #include <thread>
@@ -33,136 +32,21 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 
-#include <visionaray/detail/render_bvh.h>
+#include <visionaray/gl/bvh_outline_renderer.h>
 #include <visionaray/gl/debug_callback.h>
-#include <visionaray/math/math.h>
-#include <visionaray/texture/texture.h>
-#include <visionaray/aligned_vector.h>
-#include <visionaray/bvh.h>
-#include <visionaray/cpu_buffer_rt.h>
-#include <visionaray/generic_material.h>
 #include <visionaray/kernels.h>
-#include <visionaray/scheduler.h>
-#include <visionaray/spot_light.h>
-
-#ifdef __CUDACC__
-#include <visionaray/pixel_unpack_buffer_rt.h>
-#endif
 
 #include "kernels/bvh_costs_kernel.h"
 #include "kernels/normals_kernel.h"
 #include "kernels/tex_coords_kernel.h"
+#include "common.h"
 #include "drawable.h"
+#include "scene_monitor.h"
 #include "state.h"
 #include "two_array_ref.h"
 
 namespace visionaray
 {
-
-    //-------------------------------------------------------------------------------------------------
-    // Type definitions
-    //
-
-    using triangle_type = basic_triangle<3, float>;
-    using triangle_list = aligned_vector<triangle_type>;
-    using normal_list = aligned_vector<vec3>;
-    using tex_coord_list = aligned_vector<vec2>;
-    using material_type = generic_material<matte<float>, plastic<float>, emissive<float> >;
-    using material_list = aligned_vector<material_type>;
-    using color_type = vector<3, float>;
-    using color_list = aligned_vector<color_type>;
-    using light_type = spot_light<float>;
-    using light_list = aligned_vector<light_type>;
-    using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
-
-    using host_tex_type = texture<vector<4, unorm<8> >, 2>;
-    using host_tex_ref_type = typename host_tex_type::ref_type;
-    using texture_list = aligned_vector<host_tex_ref_type>;
-    using texture_map = std::map<std::string, host_tex_type>;
-
-    using host_ray_type = basic_ray<simd::float4>;
-    using host_bvh_type = index_bvh<triangle_type>;
-    using host_render_target_type = cpu_buffer_rt<PF_RGBA32F, PF_DEPTH24_STENCIL8>;
-    using host_sched_type = tiled_sched<host_ray_type>;
-
-#ifdef __CUDACC__
-    using device_normal_list = thrust::device_vector<vec3>;
-    using device_tex_coord_list = thrust::device_vector<vec2>;
-    using device_material_list = thrust::device_vector<material_type>;
-    using device_color_list = thrust::device_vector<color_type>;
-    using device_tex_type = cuda_texture<vector<4, unorm<8> >, 2>;
-    using device_tex_ref_type = typename device_tex_type::ref_type;
-    using device_texture_list = thrust::device_vector<device_tex_ref_type>;
-    using device_texture_map = std::map<std::string, device_tex_type>;
-    using device_ray_type = basic_ray<float>;
-    using device_bvh_type = cuda_index_bvh<triangle_type>;
-    using device_render_target_type = pixel_unpack_buffer_rt<PF_RGBA32F, PF_DEPTH24_STENCIL8>;
-    using device_sched_type = cuda_sched<device_ray_type>;
-#endif
-
-    //-------------------------------------------------------------------------------------------------
-    // Conversion between osg and visionaray
-    //
-
-    vec2 osg_cast(osg::Vec2 const &v)
-    {
-        return vec2(v.x(), v.y());
-    }
-
-    vec3 osg_cast(osg::Vec3 const &v)
-    {
-        return vec3(v.x(), v.y(), v.z());
-    }
-
-    vec4 osg_cast(osg::Vec4 const &v)
-    {
-        return vec4(v.x(), v.y(), v.z(), v.w());
-    }
-
-    mat4 osg_cast(osg::Matrixd const &m)
-    {
-        float arr[16];
-        std::copy(m.ptr(), m.ptr() + 16, arr);
-        return mat4(arr);
-    }
-
-    tex_address_mode osg_cast(osg::Texture::WrapMode mode)
-    {
-        switch (mode)
-        {
-
-        default:
-        // fall-through
-        case osg::Texture::CLAMP:
-            return visionaray::Clamp;
-
-        case osg::Texture::REPEAT:
-            return visionaray::Wrap;
-
-        case osg::Texture::MIRROR:
-            return visionaray::Mirror;
-        }
-    }
-
-    tex_filter_mode osg_cast(osg::Texture::FilterMode mode)
-    {
-        switch (mode)
-        {
-
-        default:
-        // fall-through
-        case osg::Texture::LINEAR:
-        case osg::Texture::LINEAR_MIPMAP_LINEAR:
-        case osg::Texture::LINEAR_MIPMAP_NEAREST:
-            return visionaray::Linear;
-
-        case osg::Texture::NEAREST:
-        case osg::Texture::NEAREST_MIPMAP_LINEAR:
-        case osg::Texture::NEAREST_MIPMAP_NEAREST:
-            return visionaray::Nearest;
-        }
-    }
-
     //-------------------------------------------------------------------------------------------------
     // Get stereo mode from osg::RenderInfo
     //
@@ -196,48 +80,6 @@ namespace visionaray
         vsnray_mat.set_ks(1.0f);
         vsnray_mat.set_specular_exp(32.0f);
         return material_type(vsnray_mat);
-    }
-
-
-    //-------------------------------------------------------------------------------------------------
-    // Get Visionaray material from osg::Material
-    //
-
-    material_type get_material(osg::Material const *mat)
-    {
-        auto ca = mat->getAmbient(osg::Material::Face::FRONT);
-        auto cd = mat->getDiffuse(osg::Material::Face::FRONT);
-        auto cs = mat->getSpecular(osg::Material::Face::FRONT);
-        auto ce = mat->getEmission(osg::Material::Face::FRONT);
-
-        if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
-        {
-            emissive<float> vsnray_mat;
-            vsnray_mat.set_ce(from_rgb(osg_cast(ce).xyz()));
-            vsnray_mat.set_ls(1.0f);
-            return material_type(vsnray_mat);
-        }
-        else if (cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f)
-        {
-            matte<float> vsnray_mat;
-            vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-            vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-            vsnray_mat.set_ka(1.0f);
-            vsnray_mat.set_kd(1.0f);
-            return material_type(vsnray_mat);
-        }
-        else
-        {
-            plastic<float> vsnray_mat;
-            vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-            vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-            vsnray_mat.set_cs(from_rgb(osg_cast(cs).xyz()));
-            vsnray_mat.set_ka(1.0f);
-            vsnray_mat.set_kd(1.0f);
-            vsnray_mat.set_ks(1.0f);
-            vsnray_mat.set_specular_exp(mat->getShininess(osg::Material::Face::FRONT));
-            return material_type(vsnray_mat);
-        }
     }
 
 
@@ -530,6 +372,7 @@ namespace visionaray
             texture_map &textures,
             texture_list &texture_refs,
             node_mask_map &node_masks,
+            scene::Monitor &mon,
             const std::vector<osg::Sequence *> &managed_seqs = {},
             TraversalMode tm = TRAVERSE_ALL_CHILDREN)
             : base_type(tm)
@@ -541,6 +384,7 @@ namespace visionaray
             , textures_(textures)
             , texture_refs_(texture_refs)
             , node_masks_(node_masks)
+            , scene_monitor_(mon)
             , managed_seqs_(managed_seqs)
         {
         }
@@ -554,10 +398,10 @@ namespace visionaray
             base_type::traverse(seq);
         }
 
-        void apply(osg::Geode &geode)
+        void apply(osg::Node &node)
         {
-            // State from geode is propagated to children
-            auto parent_set = geode.getStateSet();
+            // State from node is propagated to children
+            auto parent_set = node.getStateSet();
             auto parent_mattr = parent_set ? parent_set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
 
             if (auto pmat = dynamic_cast<osg::Material *>(parent_mattr))
@@ -575,147 +419,161 @@ namespace visionaray
                 }
             }
 
-            // Record number of encountered triangles to check if this node
-            // is handled by Visionaray
-            size_t num_triangles = triangles_.size();
-
-            for (size_t i = 0; i < geode.getNumDrawables(); ++i)
+            if (auto geode = dynamic_cast<osg::Geode *>(&node))
             {
-                auto drawable = geode.getDrawable(i);
-                if (!drawable)
+
+                // Record number of encountered triangles to check if this node
+                // is handled by Visionaray
+                size_t num_triangles = triangles_.size();
+
+                for (size_t i = 0; i < geode->getNumDrawables(); ++i)
                 {
-                    continue;
-                }
+                    auto drawable = geode->getDrawable(i);
+                    if (!drawable)
+                    {
+                        continue;
+                    }
 
-                auto geom = drawable->asGeometry();
-                if (!geom)
-                {
-                    continue;
-                }
+                    auto geom = drawable->asGeometry();
+                    if (!geom)
+                    {
+                        continue;
+                    }
 
-                auto node_vertices = dynamic_cast<osg::Vec3Array *>(geom->getVertexArray());
-                if (!node_vertices || node_vertices->size() == 0)
-                {
-                    continue;
-                }
+                    auto node_vertices = dynamic_cast<osg::Vec3Array *>(geom->getVertexArray());
+                    if (!node_vertices || node_vertices->size() == 0)
+                    {
+                        continue;
+                    }
 
-                auto node_normals = dynamic_cast<osg::Vec3Array *>(geom->getNormalArray());
-                if (!node_normals || node_normals->size() == 0)
-                {
-                    continue;
-                }
+                    auto node_normals = dynamic_cast<osg::Vec3Array *>(geom->getNormalArray());
+                    if (!node_normals || node_normals->size() == 0)
+                    {
+                        continue;
+                    }
 
-                auto node_colors = dynamic_cast<osg::Vec4Array *>(geom->getColorArray());
-                // ok if node_colors == 0
+                    auto node_colors = dynamic_cast<osg::Vec4Array *>(geom->getColorArray());
+                    // ok if node_colors == 0
 
 
-                // Simple checks are done - traverse parents to see if node is visible
+                    // Simple checks are done - traverse parents to see if node is visible
 
-                visibility_visitor visible(&geode);
-                geode.accept(visible);
+                    visibility_visitor visible(geode);
+                    geode->accept(visible);
 
-                // TODO: scene is no longer acquired in drawImplementation
-/*                if (!visible.is_visible())
-                {
+                    // TODO: scene is no longer acquired in drawImplementation
+                    /*                if (!visible.is_visible())
+                                      {
                     // no other children will be visible, either
                     break;
-                }*/
+                    }*/
 
-                unsigned tex_unit = 0;
-                auto node_tex_coords = dynamic_cast<osg::Vec2Array *>(geom->getTexCoordArray(tex_unit));
-                // ok if node_tex_coords == 0
+                    unsigned tex_unit = 0;
+                    auto node_tex_coords = dynamic_cast<osg::Vec2Array *>(geom->getTexCoordArray(tex_unit));
+                    // ok if node_tex_coords == 0
 
-                auto set = geom->getStateSet();
+                    auto set = geom->getStateSet();
 
-                // material
+                    // material
 
-                auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
-                auto mat = dynamic_cast<osg::Material *>(mattr);
+                    auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
+                    auto mat = dynamic_cast<osg::Material *>(mattr);
 
-                if (mat)
-                {
-                    materials_.push_back(get_material(mat));
-                }
-                else
-                {
-                    if (parent_mat_)
-                        materials_.push_back(get_material(parent_mat_));
-                    else
-                        materials_.push_back(get_default_material());
-                }
+                    bool spec = opencover::coVRLighting::instance()->specularlightState;
 
-                // texture
-
-                auto tattr = set != nullptr ? set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
-                auto tex = dynamic_cast<osg::Texture2D *>(tattr);
-                auto img = tex != nullptr ? tex->getImage() : nullptr;
-
-                if (tex && img)
-                {
-                    auto &vsnray_tex = get_or_insert_texture(tex, img, textures_);
-                    texture_refs_.emplace_back(vsnray_tex);
-                }
-                else
-                {
-                    if (parent_tex_ && parent_img_)
+                    if (mat)
                     {
-                        auto &vsnray_tex = get_or_insert_texture(parent_tex_, parent_img_, textures_);
+                        materials_.push_back(osg_cast(mat, spec));
+                        scene_monitor_.add_observable(std::make_shared<scene::Material>(mat,
+                                                                                        materials_,
+                                                                                        materials_.size() - 1));
+                    }
+                    else
+                    {
+                        if (parent_mat_)
+                        {
+                            materials_.push_back(osg_cast(parent_mat_, spec));
+                            scene_monitor_.add_observable(std::make_shared<scene::Material>(parent_mat_,
+                                                                                            materials_,
+                                                                                            materials_.size() - 1));
+                        }
+                        else
+                            materials_.push_back(get_default_material());
+                    }
+
+                    // texture
+
+                    auto tattr = set != nullptr ? set->getTextureAttribute(0, osg::StateAttribute::TEXTURE) : nullptr;
+                    auto tex = dynamic_cast<osg::Texture2D *>(tattr);
+                    auto img = tex != nullptr ? tex->getImage() : nullptr;
+
+                    if (tex && img)
+                    {
+                        auto &vsnray_tex = get_or_insert_texture(tex, img, textures_);
                         texture_refs_.emplace_back(vsnray_tex);
                     }
                     else
-                        texture_refs_.emplace_back(0, 0);
+                    {
+                        if (parent_tex_ && parent_img_)
+                        {
+                            auto &vsnray_tex = get_or_insert_texture(parent_tex_, parent_img_, textures_);
+                            texture_refs_.emplace_back(vsnray_tex);
+                        }
+                        else
+                            texture_refs_.emplace_back(0, 0);
+                    }
+
+                    assert(materials_.size() == texture_refs_.size());
+
+                    // transform
+
+                    auto world_transform = osg::computeLocalToWorld(getNodePath());
+
+                    // geometry
+
+                    assert(static_cast<material_list::size_type>(static_cast<unsigned>(materials_.size()) == materials_.size()));
+                    unsigned geom_id = static_cast<unsigned>(materials_.size() - 1);
+
+                    osg::TriangleIndexFunctor<store_triangle> tif;
+                    tif.init(
+                            node_vertices,
+                            node_normals,
+                            node_colors,
+                            node_tex_coords,
+                            world_transform,
+                            geom_id,
+                            triangles_,
+                            normals_,
+                            colors_,
+                            tex_coords_);
+                    geom->accept(tif);
                 }
 
-                assert(materials_.size() == texture_refs_.size());
+                if (triangles_.size() > num_triangles)
+                {
+                    // Store old nodemask so we can restore it e.g. when
+                    // the plugin is unloaded
+                    node_masks_.insert(std::make_pair(geode, geode->getNodeMask()));
 
-                // transform
+                    // Geometry node is handled by Visionaray, cull for rendering
+                    geode->setNodeMask(
+                            opencover::cover->getObjectsRoot()->getNodeMask()
+                            & ~opencover::VRViewer::instance()->getCullMask()
+                            & ~opencover::VRViewer::instance()->getCullMaskLeft()
+                            & ~opencover::VRViewer::instance()->getCullMaskRight());
 
-                auto world_transform = osg::computeLocalToWorld(getNodePath());
-
-                // geometry
-
-                assert(static_cast<material_list::size_type>(static_cast<unsigned>(materials_.size()) == materials_.size()));
-                unsigned geom_id = static_cast<unsigned>(materials_.size() - 1);
-
-                osg::TriangleIndexFunctor<store_triangle> tif;
-                tif.init(
-                    node_vertices,
-                    node_normals,
-                    node_colors,
-                    node_tex_coords,
-                    world_transform,
-                    geom_id,
-                    triangles_,
-                    normals_,
-                    colors_,
-                    tex_coords_);
-                geom->accept(tif);
+                }
+                else
+                {
+                    // Geometry node not handled by Visionaray - if there is
+                    // an old nodemask, reset culling accordingly
+                    auto it = node_masks_.find(geode);
+                    if (it != node_masks_.end())
+                        geode->setNodeMask(it->second);
+                }
             }
 
-            if (triangles_.size() > num_triangles)
-            {
-                // Store old nodemask so we can restore it e.g. when
-                // the plugin is unloaded
-                node_masks_.insert(std::make_pair(&geode, geode.getNodeMask()));
-
-                // Geometry node is handled by Visionaray, cull for rendering
-                geode.setNodeMask(
-                        opencover::cover->getObjectsRoot()->getNodeMask()
-                        & ~opencover::VRViewer::instance()->getCullMask()
-                        & ~opencover::VRViewer::instance()->getCullMaskLeft()
-                        & ~opencover::VRViewer::instance()->getCullMaskRight());
-
-            }
-            else
-            {
-                // Geometry node not handled by Visionaray - if there is
-                // an old nodemask, reset culling accordingly
-                auto it = node_masks_.find(&geode);
-                if (it != node_masks_.end())
-                    geode.setNodeMask(it->second);
-            }
-
-            base_type::traverse(geode);
+            base_type::traverse(node);
         }
 
     private:
@@ -727,6 +585,7 @@ namespace visionaray
         texture_map &textures_;
         texture_list &texture_refs_;
         node_mask_map &node_masks_;
+        scene::Monitor &scene_monitor_;
         const std::vector<osg::Sequence *> &managed_seqs_;
 
         // Propagate state to child nodes
@@ -1048,6 +907,8 @@ namespace visionaray
             two_array_ref<device_texture_list>>                 device_intersector;
 #endif
 
+        scene::Monitor                                          scene_monitor;
+
         enum eye
         {
             Left,
@@ -1101,7 +962,7 @@ namespace visionaray
         // we can reapply them later on
         node_mask_map ray_tracing_masks;
 
-        std::vector<detail::bvh_outline_renderer> outlines;
+        std::vector<gl::bvh_outline_renderer> outlines;
         std::vector<bool> outlines_initialized;
 
         gl::debug_callback gl_debug_callback;
@@ -1246,7 +1107,8 @@ namespace visionaray
 
         auto &vparams = eye_params[current_eye];
 
-        if (state->data_var == Dynamic || state->algo != algo_current || state->device != device || state->num_bounces != num_bounces)
+        if (state->data_var == Dynamic || state->algo != algo_current || state->device != device
+            || state->num_bounces != num_bounces || scene_monitor.need_clear_frame())
         {
             eye_params[Left].frame_num = 0;
             eye_params[Right].frame_num = 0;
@@ -1491,6 +1353,7 @@ namespace visionaray
                 impl_->textures,
                 impl_->texture_refs[0],
                 impl_->node_masks,
+                impl_->scene_monitor,
                 seqs
                 );
        opencover::cover->getObjectsRoot()->accept(visitor); 
@@ -1509,6 +1372,7 @@ namespace visionaray
                     impl_->textures,
                     impl_->texture_refs[i],
                     impl_->node_masks,
+                    impl_->scene_monitor,
                     seqs
                     );
 
@@ -1640,6 +1504,10 @@ namespace visionaray
         impl_->store_gl_state();
 
 
+        // Update scene state
+
+        impl_->scene_monitor.update();
+
         // Camera matrices, render target resize
 
         impl_->update_viewing_params(get_stereo_mode(info));
@@ -1658,7 +1526,6 @@ namespace visionaray
         auto light_model = dynamic_cast<osg::LightModel *>(stateset->getAttribute(osg::StateAttribute::LIGHTMODEL));
         auto ambient = osg_cast(light_model->getAmbientIntensity());
 
-        using light_type = spot_light<float>;
         light_list lights;
 
         get_light_visitor lvisitor(lights, osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);

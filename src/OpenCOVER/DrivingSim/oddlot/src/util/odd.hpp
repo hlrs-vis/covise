@@ -66,7 +66,7 @@ public:
 	{
 		char buf[100];
 		sprintf(buf, "%d%c%d", revMajor_, '.', revMinor_);
-		return atof(buf);
+		return (float)atof(buf);
 	}
 
 	static const unsigned short getRevMinor()
@@ -210,6 +210,7 @@ public:
 		TOS_SAVE_CATALOG,
 		TOS_ELEMENT,
 		TOS_BASE,
+        TOS_GRAPHELEMENT,
 
         // No Tool
         TNO_TOOL

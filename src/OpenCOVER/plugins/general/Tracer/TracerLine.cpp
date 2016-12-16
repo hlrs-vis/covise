@@ -178,6 +178,7 @@ TracerLine::updateGeometry()
 {
     (*coord)[0].set(_pos1[0], _pos1[1], _pos1[2]);
     (*coord)[1].set(_pos2[0], _pos2[1], _pos2[2]);
+	coord->dirty();
 }
 
 void

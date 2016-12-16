@@ -24,8 +24,12 @@
  **                                                                        **
 \**************************************************************************/
 
+#include <vector>
 #include <api/coModule.h>
+#include "VoisGlobal.h"
 using namespace covise;
+
+static const int MAXVOIS = 20;
 
 class ReadVois : public coModule
 {
@@ -45,8 +49,12 @@ private:
     const char *m_filename; // obj file name
     FILE *m_file;
 
+    std::vector<triangle_t> triangles[MAXVOIS];
+    std::vector<voi_t> voiVector;
+
     coOutputPort *m_polygonPort;
     coFileBrowserParam *m_voiFileParam;
+    coBooleanParam *m_voiActive[MAXVOIS];
 
 public:
     ReadVois(int argc, char *argv[]);

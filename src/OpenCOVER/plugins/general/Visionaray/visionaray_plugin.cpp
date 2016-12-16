@@ -17,8 +17,10 @@
 
 #include <config/CoviseConfig.h>
 
+#include <cover/coTabletUI.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRTui.h>
 #include <cover/VRViewer.h>
 
 #include <OpenVRUI/coCheckboxGroup.h>
@@ -38,15 +40,21 @@ namespace visionaray
     // Private implementation
     //
 
-    struct Visionaray::impl : vrui::coMenuListener
+    struct Visionaray::impl : vrui::coMenuListener, opencover::coTUIListener
     {
+        using tui_check_box     = std::unique_ptr<opencover::coTUIToggleButton>;
+        using tui_combo_box     = std::unique_ptr<opencover::coTUIComboBox>;
+        using tui_frame         = std::unique_ptr<opencover::coTUIFrame>;
+        using tui_int_edit      = std::unique_ptr<opencover::coTUIEditIntField>;
+        using tui_label         = std::unique_ptr<opencover::coTUILabel>;
+        using tui_tab           = std::unique_ptr<opencover::coTUITab>;
 
-        using check_box = std::unique_ptr<vrui::coCheckboxMenuItem>;
-        using menu = std::unique_ptr<vrui::coMenu>;
-        using radio_button = std::unique_ptr<vrui::coCheckboxMenuItem>;
-        using radio_group = std::unique_ptr<vrui::coCheckboxGroup>;
-        using slider = std::unique_ptr<vrui::coSliderMenuItem>;
-        using sub_menu = std::unique_ptr<vrui::coSubMenuItem>;
+        using vrui_check_box    = std::unique_ptr<vrui::coCheckboxMenuItem>;
+        using vrui_menu         = std::unique_ptr<vrui::coMenu>;
+        using vrui_radio_button = std::unique_ptr<vrui::coCheckboxMenuItem>;
+        using vrui_radio_group  = std::unique_ptr<vrui::coCheckboxGroup>;
+        using vrui_slider       = std::unique_ptr<vrui::coSliderMenuItem>;
+        using vrui_sub_menu     = std::unique_ptr<vrui::coSubMenuItem>;
 
         impl()
             : drawable_ptr(new drawable)
@@ -61,40 +69,73 @@ namespace visionaray
 
         struct
         {
-            menu main_menu;
-            menu algo_menu;
-            menu device_menu;
-            menu dev_menu;
-            sub_menu main_menu_entry;
-            sub_menu algo_menu_entry;
-            sub_menu device_menu_entry;
-            sub_menu dev_menu_entry;
+            tui_tab             main_tab;
+            tui_frame           general_frame;
+            tui_label           general_label;
+            tui_frame           algo_frame;
+            tui_label           algo_label;
+            tui_frame           device_frame;
+            tui_label           device_label;
+            tui_frame           dev_frame;
+            tui_label           dev_label;
 
             // main menu
-            check_box toggle_update_mode;
-            check_box toggle_color_space;
-            slider bounces_slider;
+            tui_check_box       toggle_update_mode;
+            tui_check_box       toggle_color_space;
+            tui_label           bounces_label;
+            tui_int_edit        bounces_edit;
 
             // algo menu
-            radio_group algo_group;
-            radio_button simple_button;
-            radio_button whitted_button;
-            radio_button pathtracing_button;
+            tui_combo_box       algo_box;
 
             // device menu
-            radio_group device_group;
-            radio_button cpu_button;
-            radio_button gpu_button;
+            tui_combo_box       device_box;
 
             // dev menu
-            check_box suppress_rendering;
-            check_box toggle_bvh_display;
-            radio_group debug_kernel_group;
-            check_box toggle_bvh_costs_display;
-            check_box toggle_geometric_normal_display;
-            check_box toggle_shading_normal_display;
-            check_box toggle_tex_coord_display;
-        } ui;
+            tui_check_box       suppress_rendering;
+            tui_check_box       toggle_bvh_display;
+            tui_check_box       toggle_bvh_costs_display;
+            tui_check_box       toggle_geometric_normal_display;
+            tui_check_box       toggle_shading_normal_display;
+            tui_check_box       toggle_tex_coord_display;
+        } tui;
+
+        struct
+        {
+            vrui_menu           main_menu;
+            vrui_menu           algo_menu;
+            vrui_menu           device_menu;
+            vrui_menu           dev_menu;
+            vrui_sub_menu       main_menu_entry;
+            vrui_sub_menu       algo_menu_entry;
+            vrui_sub_menu       device_menu_entry;
+            vrui_sub_menu       dev_menu_entry;
+
+            // main menu
+            vrui_check_box      toggle_update_mode;
+            vrui_check_box      toggle_color_space;
+            vrui_slider         bounces_slider;
+
+            // algo menu
+            vrui_radio_group    algo_group;
+            vrui_radio_button   simple_button;
+            vrui_radio_button   whitted_button;
+            vrui_radio_button   pathtracing_button;
+
+            // device menu
+            vrui_radio_group    device_group;
+            vrui_radio_button   cpu_button;
+            vrui_radio_button   gpu_button;
+
+            // dev menu
+            vrui_check_box      suppress_rendering;
+            vrui_check_box      toggle_bvh_display;
+            vrui_radio_group    debug_kernel_group;
+            vrui_check_box      toggle_bvh_costs_display;
+            vrui_check_box      toggle_geometric_normal_display;
+            vrui_check_box      toggle_shading_normal_display;
+            vrui_check_box      toggle_tex_coord_display;
+        } /*vr*/ui;
 
         std::shared_ptr<render_state> state;
         std::shared_ptr<debug_state> dev_state;
@@ -102,11 +143,16 @@ namespace visionaray
         // init
 
         void init_state_from_config();
+        // init both (vr)ui and tui
         void init_ui();
 
         // menu listener interface
 
         void menuEvent(vrui::coMenuItem *item);
+
+        // tui listener interface
+
+        void tabletEvent(opencover::coTUIElement *item);
 
         // control state
 
@@ -210,14 +256,45 @@ namespace visionaray
 
     void Visionaray::impl::init_ui()
     {
+        using namespace opencover;
         using namespace vrui;
 
         ui.main_menu_entry.reset(new coSubMenuItem("Visionaray..."));
         opencover::cover->getMenu()->add(ui.main_menu_entry.get());
 
-        // main menu
+        // main menu --------------------------------------
 
-        ui.main_menu.reset(new coRowMenu("Visionaray", opencover::cover->getMenu()));
+        // TUI
+        tui.main_tab.reset(new coTUITab("Visionaray", coVRTui::instance()->mainFolder->getID()));
+        tui.main_tab->setPos(0, 0);
+
+        tui.general_frame.reset(new coTUIFrame("General", tui.main_tab->getID()));
+        tui.general_frame->setPos(0, 0);
+        tui.general_label.reset(new coTUILabel("<b>General</b>", tui.general_frame->getID()));
+        tui.general_label->setPos(0, 0);
+
+        tui.toggle_update_mode.reset(new coTUIToggleButton("Update scene per frame", tui.general_frame->getID()));
+        tui.toggle_update_mode->setEventListener(this);
+        tui.toggle_update_mode->setState(state->data_var == Dynamic);
+        tui.toggle_update_mode->setPos(0, 1);
+
+        tui.toggle_color_space.reset(new coTUIToggleButton("Output sRGB", tui.general_frame->getID()));
+        tui.toggle_color_space->setEventListener(this);
+        tui.toggle_color_space->setState(state->clr_space == sRGB);
+        tui.toggle_color_space->setPos(0, 2);
+
+        tui.bounces_label.reset(new coTUILabel("Number of bounces", tui.general_frame->getID()));
+        tui.bounces_label->setPos(0, 3);
+
+        tui.bounces_edit.reset(new coTUIEditIntField("Number of bounces", tui.general_frame->getID()));
+        tui.bounces_edit->setEventListener(this);
+        tui.bounces_edit->setMin(state->min_bounces);
+        tui.bounces_edit->setMax(state->max_bounces);
+        tui.bounces_edit->setValue(state->num_bounces);
+        tui.bounces_edit->setPos(0, 4);
+
+        // VRUI
+        ui.main_menu.reset(new coRowMenu("Visionaray", cover->getMenu()));
         ui.main_menu_entry->setMenu(ui.main_menu.get());
 
         ui.toggle_update_mode.reset(new coCheckboxMenuItem("Update scene per frame", state->data_var == Dynamic));
@@ -233,8 +310,23 @@ namespace visionaray
         ui.bounces_slider->setMenuListener(this);
         ui.main_menu->add(ui.bounces_slider.get());
 
-        // algorithm submenu
+        // algorithm submenu ------------------------------
 
+        // TUI
+        tui.algo_frame.reset(new coTUIFrame("Rendering algorithm", tui.main_tab->getID()));
+        tui.algo_frame->setPos(1, 0);
+        tui.algo_label.reset(new coTUILabel("<b>Rendering algorithm</b>", tui.algo_frame->getID()));
+        tui.algo_label->setPos(0, 0);
+
+        tui.algo_box.reset(new coTUIComboBox("Rendering algorithm", tui.algo_frame->getID()));
+        tui.algo_box->setEventListener(this);
+        tui.algo_box->addEntry("Simple");
+        tui.algo_box->addEntry("Whitted");
+        tui.algo_box->addEntry("Pathtracing");
+        tui.algo_box->setSelectedEntry(state->algo == Simple ? 0 : state->algo == Whitted ? 1 : 2);
+        tui.algo_box->setPos(0, 1);
+
+        // VRUI
         ui.algo_menu_entry.reset(new coSubMenuItem("Rendering algorithm..."));
         ui.main_menu->add(ui.algo_menu_entry.get());
 
@@ -255,8 +347,22 @@ namespace visionaray
         ui.pathtracing_button->setMenuListener(this);
         ui.algo_menu->add(ui.pathtracing_button.get());
 
-        // device submenu
+        // device submenu ---------------------------------
 
+        // TUI
+        tui.device_frame.reset(new coTUIFrame("Device", tui.main_tab->getID()));
+        tui.device_frame->setPos(2, 0);
+        tui.device_label.reset(new coTUILabel("<b>Device</b>", tui.device_frame->getID()));
+        tui.device_label->setPos(0, 0);
+
+        tui.device_box.reset(new coTUIComboBox("Device", tui.device_frame->getID()));
+        tui.device_box->setEventListener(this);
+        tui.device_box->addEntry("CPU");
+        tui.device_box->addEntry("GPU");
+        tui.device_box->setSelectedEntry(state->device == CPU ? 0 : 1);
+        tui.device_box->setPos(0, 1);
+
+        // VRUI
         ui.device_menu_entry.reset(new coSubMenuItem("Device..."));
         ui.main_menu->add(ui.device_menu_entry.get());
 
@@ -273,10 +379,47 @@ namespace visionaray
         ui.gpu_button->setMenuListener(this);
         ui.device_menu->add(ui.gpu_button.get());
 
-        // dev submenu at the bottom!
+        // dev submenu at the bottom! ---------------------
 
         if (dev_state->debug_mode)
         {
+            // TUI
+            tui.dev_frame.reset(new coTUIFrame("Developer", tui.main_tab->getID()));
+            tui.dev_frame->setPos(3, 0);
+            tui.dev_label.reset(new coTUILabel("<b>Developer</b>", tui.dev_frame->getID()));
+            tui.dev_label->setPos(0, 0);
+
+            tui.suppress_rendering.reset(new coTUIToggleButton("Suppress rendering with Visionaray", tui.dev_frame->getID()));
+            tui.suppress_rendering->setEventListener(this);
+            tui.suppress_rendering->setState(false);
+            tui.suppress_rendering->setPos(0, 1);
+
+            tui.toggle_bvh_display.reset(new coTUIToggleButton("Show BVH outlines", tui.dev_frame->getID()));
+            tui.toggle_bvh_display->setEventListener(this);
+            tui.toggle_bvh_display->setState(false);
+            tui.toggle_bvh_display->setPos(0, 2);
+
+            tui.toggle_bvh_costs_display.reset(new coTUIToggleButton("Show BVH traversal costs", tui.dev_frame->getID()));
+            tui.toggle_bvh_costs_display->setEventListener(this);
+            tui.toggle_bvh_costs_display->setState(false);
+            tui.toggle_bvh_costs_display->setPos(0, 3);
+
+            tui.toggle_geometric_normal_display.reset(new coTUIToggleButton("Show geometric normals", tui.dev_frame->getID()));
+            tui.toggle_geometric_normal_display->setEventListener(this);
+            tui.toggle_geometric_normal_display->setState(false);
+            tui.toggle_geometric_normal_display->setPos(0, 4);
+
+            tui.toggle_shading_normal_display.reset(new coTUIToggleButton("Show shading normals", tui.dev_frame->getID()));
+            tui.toggle_shading_normal_display->setEventListener(this);
+            tui.toggle_shading_normal_display->setState(false);
+            tui.toggle_shading_normal_display->setPos(0, 5);
+
+            tui.toggle_tex_coord_display.reset(new coTUIToggleButton("Show texture coordinates", tui.dev_frame->getID()));
+            tui.toggle_tex_coord_display->setEventListener(this);
+            tui.toggle_tex_coord_display->setState(false);
+            tui.toggle_tex_coord_display->setPos(0, 6);
+
+            // VRUI
             ui.dev_menu_entry.reset(new coSubMenuItem("Developer..."));
             ui.main_menu->add(ui.dev_menu_entry.get());
 
@@ -324,6 +467,11 @@ namespace visionaray
             set_color_space(ui.toggle_color_space->getState() ? sRGB : RGB);
         }
 
+        if (item == ui.bounces_slider.get())
+        {
+            set_num_bounces(ui.bounces_slider->getValue());
+        }
+
         // algorithm submenu
         if (item == ui.simple_button.get())
         {
@@ -336,11 +484,6 @@ namespace visionaray
         else if (item == ui.pathtracing_button.get())
         {
             set_algorithm(Pathtracing);
-        }
-
-        if (item == ui.bounces_slider.get())
-        {
-            set_num_bounces(ui.bounces_slider->getValue());
         }
 
         // device submenu
@@ -382,6 +525,77 @@ namespace visionaray
         }
     }
 
+    void Visionaray::impl::tabletEvent(opencover::coTUIElement *item)
+    {
+        // main menu
+        if (item == tui.toggle_update_mode.get())
+        {
+            set_data_variance(tui.toggle_update_mode->getState() ? Dynamic : Static);
+        }
+
+        if (item == tui.toggle_color_space.get())
+        {
+            set_color_space(tui.toggle_color_space->getState() ? sRGB : RGB);
+        }
+
+        if (item == tui.bounces_edit.get())
+        {
+            set_num_bounces(tui.bounces_edit->getValue());
+        }
+
+        // algorithm submenu
+        if (item == tui.algo_box.get() && tui.algo_box->getSelectedEntry() == 0)
+        {
+            set_algorithm(Simple);
+        }
+        else if (item == tui.algo_box.get() && tui.algo_box->getSelectedEntry() == 1)
+        {
+            set_algorithm(Whitted);
+        }
+        else if (item == tui.algo_box.get() && tui.algo_box->getSelectedEntry() == 2)
+        {
+            set_algorithm(Pathtracing);
+        }
+
+        // device submenu
+        if (item == tui.device_box.get() && tui.device_box->getSelectedEntry() == 0)
+        {
+            set_device(CPU);
+        }
+        else if (item == tui.device_box.get() && tui.device_box->getSelectedEntry() == 1)
+        {
+            set_device(GPU);
+        }
+
+        // dev submenu
+        if (item == tui.suppress_rendering.get())
+        {
+            set_suppress_rendering(tui.suppress_rendering->getState());
+        }
+
+        if (item == tui.toggle_bvh_display.get())
+        {
+            set_show_bvh(tui.toggle_bvh_display->getState());
+        }
+
+        if (item == tui.toggle_bvh_costs_display.get())
+        {
+            set_show_bvh_costs(tui.toggle_bvh_costs_display->getState());
+        }
+        else if (item == tui.toggle_geometric_normal_display.get())
+        {
+            set_show_geometric_normals(tui.toggle_geometric_normal_display->getState());
+        }
+        else if (item == tui.toggle_shading_normal_display.get())
+        {
+            set_show_shading_normals(tui.toggle_shading_normal_display->getState());
+        }
+        else if (item == tui.toggle_tex_coord_display.get())
+        {
+            set_show_tex_coords(tui.toggle_tex_coord_display->getState());
+        }
+    }
+
     //-------------------------------------------------------------------------------------------------
     // Control state
     //
@@ -390,12 +604,14 @@ namespace visionaray
     {
         state->data_var = var;
         ui.toggle_update_mode->setState(var == Dynamic, false);
+        tui.toggle_update_mode->setState(var == Dynamic);
     }
 
     void Visionaray::impl::set_color_space(color_space cs)
     {
         state->clr_space = cs;
         ui.toggle_color_space->setState(cs == sRGB, false);
+        tui.toggle_color_space->setState(cs == sRGB);
     }
 
     void Visionaray::impl::set_algorithm(algorithm algo)
@@ -404,12 +620,14 @@ namespace visionaray
         ui.simple_button->setState(algo == Simple, false);
         ui.whitted_button->setState(algo == Whitted, false);
         ui.pathtracing_button->setState(algo == Pathtracing, false);
+        tui.algo_box->setSelectedEntry(state->algo == Simple ? 0 : state->algo == Whitted ? 1 : 2);
     }
 
     void Visionaray::impl::set_num_bounces(unsigned num_bounces)
     {
         state->num_bounces = num_bounces;
         ui.bounces_slider->setValue(num_bounces);
+        tui.bounces_edit->setValue(num_bounces);
     }
 
     void Visionaray::impl::set_device(device_type dev)
@@ -417,42 +635,49 @@ namespace visionaray
         state->device = dev;
         ui.cpu_button->setState(dev == CPU, false);
         ui.gpu_button->setState(dev == GPU, false);
+        tui.device_box->setSelectedEntry(dev == CPU ? 0 : 1);
     }
 
     void Visionaray::impl::set_suppress_rendering(bool suppress_rendering)
     {
         drawable_ptr->set_suppress_rendering(suppress_rendering);
         ui.suppress_rendering->setState(suppress_rendering, false);
+        tui.suppress_rendering->setState(suppress_rendering);
     }
 
     void Visionaray::impl::set_show_bvh(bool show_bvh)
     {
         dev_state->show_bvh = show_bvh;
         ui.toggle_bvh_display->setState(show_bvh, false);
+        tui.toggle_bvh_display->setState(show_bvh);
     }
 
     void Visionaray::impl::set_show_bvh_costs(bool show_costs)
     {
         dev_state->show_bvh_costs = show_costs;
         ui.toggle_bvh_costs_display->setState(show_costs, false);
+        tui.toggle_bvh_costs_display->setState(show_costs);
     }
 
     void Visionaray::impl::set_show_geometric_normals(bool show_geometric_normals)
     {
         dev_state->show_geometric_normals = show_geometric_normals;
         ui.toggle_geometric_normal_display->setState(show_geometric_normals, false);
+        tui.toggle_geometric_normal_display->setState(show_geometric_normals);
     }
 
     void Visionaray::impl::set_show_shading_normals(bool show_shading_normals)
     {
         dev_state->show_shading_normals = show_shading_normals;
         ui.toggle_shading_normal_display->setState(show_shading_normals, false);
+        tui.toggle_shading_normal_display->setState(show_shading_normals);
     }
 
     void Visionaray::impl::set_show_tex_coords(bool show_tex_coords)
     {
         dev_state->show_tex_coords = show_tex_coords;
         ui.toggle_tex_coord_display->setState(show_tex_coords, false);
+        tui.toggle_tex_coord_display->setState(show_tex_coords);
     }
 
     //-------------------------------------------------------------------------------------------------

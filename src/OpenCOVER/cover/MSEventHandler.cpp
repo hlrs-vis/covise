@@ -452,30 +452,17 @@ void MSEventHandler::update()
         }
 #endif
 #endif
-
-        numEventsToSync = eventQueue.size();
-        coVRMSController::instance()->sendSlaves((char *)&numEventsToSync, sizeof(int));
-        if (numEventsToSync)
-        {
-            coVRMSController::instance()->sendSlaves((char *)&eventQueue[0], numEventsToSync * sizeof(eventQueue[0]));
-        }
     }
-    else
+
+    numEventsToSync = eventQueue.size();
+    coVRMSController::instance()->syncData(&numEventsToSync, sizeof(numEventsToSync));
+    if (coVRMSController::instance()->isSlave())
     {
-        if (coVRMSController::instance()->readMaster((char *)&numEventsToSync, sizeof(int)) < 0)
-        {
-            cerr << "numEventsToSync not read message from Master" << endl;
-            exit(1);
-        }
         eventQueue.resize(numEventsToSync);
-        if (numEventsToSync)
-        {
-            if (coVRMSController::instance()->readMaster((char *)&eventQueue[0], numEventsToSync * sizeof(eventQueue[0])) < 0)
-            {
-                cerr << "events not read message from Master" << endl;
-                exit(1);
-            }
-        }
+    }
+    if (numEventsToSync)
+    {
+        coVRMSController::instance()->syncData(&eventQueue[0], numEventsToSync * sizeof(eventQueue[0]));
     }
 
     size_t index = 0;

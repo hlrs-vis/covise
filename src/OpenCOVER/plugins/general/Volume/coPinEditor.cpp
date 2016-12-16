@@ -537,6 +537,7 @@ int coPinEditor::hit(vruiHit *hit)
                 (*selectionBarColor)[0].set(1.0f, 0.0f, 0.0f, 1.0f);
             }
             //VRUILOG("coPinEditor::hit info: selectedRegion = " << selectedRegion)
+			selectionBarColor->dirty();
             selectionBarGeometry->dirtyDisplayList();
         }
     }
@@ -863,6 +864,7 @@ void coPinEditor::update()
             (*selectionBarColor)[1].set(0.5f, 0.5f, 0.5f, 1.0f);
             (*selectionBarColor)[2].set(0.2f, 0.2f, 0.2f, 1.0f);
             (*selectionBarColor)[3].set(0.5f, 0.5f, 0.5f, 1.0f);
+			selectionBarColor->dirty();
             selectionBarGeometry->dirtyDisplayList();
         }
     }
@@ -1262,11 +1264,13 @@ void coPinEditor::setBackgroundType(int mo)
         {
             backgroundGeode->setStateSet(HistoBackgroundGeostate.get());
             backgroundGeometry->setTexCoordArray(0, texcoordColor.get());
+			texcoordColor->dirty();
         }
         else
         {
             backgroundGeode->setStateSet(NormalBackgroundGeostate.get());
             backgroundGeometry->setTexCoordArray(0, texcoord.get());
+			texcoord->dirty();
         }
     }
     backgroundGeometry->dirtyDisplayList();
@@ -1719,6 +1723,7 @@ void coPinEditor::adjustSelectionBar()
     (*selectionBarCoord)[9].set(A + B, -(SELH + A + B + COLORH + A + B), ZOFFSET);
 
     selectionBarGeometry->dirtyDisplayList();
+	selectionBarCoord->dirty();
     selectionBarGeode->dirtyBound();
 }
 
