@@ -8,8 +8,7 @@ SET(SOURCES
   ReadModel.cpp
 )
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(IO ReadModel ${SOURCES} ${HEADERS})
-TARGET_LINK_LIBRARIES(ReadModel coAlg coApi coAppl coCore ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(ReadModel coApi coAppl coCore ${EXTRA_LIBS})
 
 COVISE_INSTALL_TARGET(ReadModel)
