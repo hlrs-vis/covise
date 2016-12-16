@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCTRAFFICDEFINITION_H
 #define OSCTRAFFICDEFINITION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscVehicleDistribution.h"
-#include "schema/oscDriverDistribution.h"
+#include "../oscVariables.h"
+#include "oscVehicleDistribution.h"
+#include "oscDriverDistribution.h"
 
 namespace OpenScenario
 {

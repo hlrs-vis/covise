@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCLATERALACTION_H
 #define OSCLATERALACTION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscLaneChange.h"
-#include "schema/oscLaneOffset.h"
-#include "schema/oscDistance.h"
+#include "../oscVariables.h"
+#include "oscLaneChange.h"
+#include "oscLaneOffset.h"
+#include "oscDistance.h"
 
 namespace OpenScenario
 {

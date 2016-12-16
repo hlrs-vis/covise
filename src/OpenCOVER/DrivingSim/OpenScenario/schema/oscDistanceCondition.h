@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCDISTANCECONDITION_H
 #define OSCDISTANCECONDITION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscTimeHeadway.h"
-#include "schema/oscPosition.h"
+#include "../oscVariables.h"
+#include "oscTimeHeadway.h"
+#include "oscPosition.h"
 
 namespace OpenScenario
 {
