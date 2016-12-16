@@ -41,7 +41,7 @@
 #include <direct.h>
 #endif
 #include "VRMoleculeViewer.h"
-#ifdef USE_COVISE
+#ifdef USE_OLD_COVISE
 #include <cover/VRCoviseConnection.h>
 #endif
 #include <cover/RenderObject.h>
@@ -200,7 +200,7 @@ void VRMoleculeViewer::addMenuEntry()
 {
     uniqueMenu = cover->createUniqueButtonGroupId();
 
-#ifdef USE_COVISE
+#ifdef USE_OLD_COVISE
     if (VRCoviseConnection::covconn)
     {
         cover->addSubmenuButton("Molecules...", NULL, "Molecules", false, (void *)menuCallback, -1, this);
@@ -561,7 +561,7 @@ void VRMoleculeViewer::fileSelection(void *viewer, buttonSpecCell *spec)
     if (cover->debugLevel(3))
         printf("%s selected to load\n", m->filename.c_str());
 
-#ifdef USE_COVISE
+#ifdef USE_OLD_COVISE
     if (VRCoviseConnection::covconn)
     {
         if (m->m_strFeedbackInfo != std::string(""))
@@ -770,7 +770,7 @@ VRMoleculeViewer::loadData(const char *moleculepath, osg::Group *parent)
         fprintf(stderr, " file operation complete!\n");
     show();
 
-#ifdef USE_COVISE
+#ifdef USE_OLD_COVISE
     if (!VRCoviseConnection::covconn)
 #endif
         m_bDoOnceViewAll = true;

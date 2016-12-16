@@ -35,11 +35,14 @@
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRConfig.h>
 #include <cover/coInteractor.h>
-#include <appl/RenderInterface.h>
 #include <cover/VRViewer.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <cover/ARToolKit.h>
 #include <cover/coVRTui.h>
+
+#ifdef USE_COVISE
+#include <appl/RenderInterface.h>
+#endif
 
 using namespace covise;
 
@@ -295,6 +298,7 @@ void TraceModule::update()
             }
             else if (feedbackInfo)
             {
+#ifdef USE_COVISE
                 CoviseRender::set_feedback_info(feedbackInfo);
                 //cerr << "visibility changed " << CoviseRender::get_feedback_type() << endl;
 
@@ -401,6 +405,9 @@ void TraceModule::update()
                 default:
                     printf("unknown feedback type %c\n", ch);
                 }
+#else
+                printf("Old style COVISE feedback not support, recompile with -DUSE_COVISE\n");
+#endif
             }
         }
     }
