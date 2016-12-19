@@ -26,6 +26,7 @@
 #include <QAction>
 #include <QTimer>
 #include <QDateTime>
+#include <util/unixcompat.h>
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #ifdef __APPLE__
