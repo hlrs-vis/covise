@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-#define DEFINE_MSG_TYPES
 #include "covise_msg.h"
 #include <shm/covise_shm.h>
 

@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-#define DEFINE_MSG_TYPES
 #include <net/message_types.h>
 
 #define setfill qtsetfill
