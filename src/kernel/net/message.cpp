@@ -11,6 +11,9 @@
 #include <util/byteswap.h>
 #include "tokenbuffer.h"
 
+#define DEFINE_MSG_TYPES
+#include "message_types.h"
+
 /*
  $Log: covise_msg.C,v $
 Revision 1.3  1994/03/23  18:07:03  zrf30125
