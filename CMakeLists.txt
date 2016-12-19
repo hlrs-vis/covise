@@ -124,6 +124,7 @@ MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DAT
 
 # COVISE global options
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
+OPTION(COVISE_BUILD_ONLY_COVER_PREREQ "only build prerequisites for OpenCOVER" OFF)
 OPTION(COVISE_USE_CPP11 "enable C++ 11 features" ON)
 OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)

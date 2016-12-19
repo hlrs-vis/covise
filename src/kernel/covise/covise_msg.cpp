@@ -1637,3 +1637,451 @@ RenderMessage::~RenderMessage()
     }
     delete[] object_names;
 }
+
+ParamFloatScalar::ParamFloatScalar(const char *na, char *l)
+    : Param(na, FLOAT_SCALAR, 1)
+{
+    list = new char[strlen(l) + 1];
+    strcpy(list, l);
+}
+
+ParamFloatScalar::ParamFloatScalar(const char *na, float val)
+    : Param(na, FLOAT_SCALAR, 1)
+{
+    char *buf = new char[255];
+    sprintf(buf, "%f", val);
+    list = new char[strlen(buf) + 1];
+    strcpy(list, buf);
+    delete[] buf;
+}
+
+ParamIntScalar::ParamIntScalar(const char *na, char *l)
+    : Param(na, INT_SCALAR, 1)
+{
+    list = new char[strlen(l) + 1];
+    strcpy(list, l);
+}
+
+ParamIntScalar::ParamIntScalar(const char *na, long val)
+    : Param(na, INT_SCALAR, 1)
+{
+    char *buf = new char[255];
+    sprintf(buf, "%ld", val);
+    list = new char[strlen(buf) + 1];
+    strcpy(list, buf);
+    delete[] buf;
+}
+
+ParamIntScalar::~ParamIntScalar()
+{
+    delete[] list;
+}
+
+ParamFloatVector::ParamFloatVector(const char *na, int num, char **l)
+    : Param(na, FLOAT_VECTOR, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamFloatVector::ParamFloatVector(const char *na, int num, float *l)
+    : Param(na, FLOAT_VECTOR, num)
+{
+    char *buf = new char[255];
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        sprintf(buf, "%f", *(l + j));
+        list[j] = new char[strlen(buf) + 1];
+        strcpy(list[j], buf);
+    }
+    delete[] buf;
+}
+
+ParamFloatVector::~ParamFloatVector()
+{
+    for (int j = 0; j < no_of_items(); j++)
+    {
+        delete[] list[j];
+    }
+    delete[] list;
+}
+
+ParamIntVector::ParamIntVector(const char *na, int num, char **l)
+    : Param(na, INT_VECTOR, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamIntVector::ParamIntVector(const char *na, int num, long *l)
+    : Param(na, INT_VECTOR, num)
+{
+    char *buf = new char[255];
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        sprintf(buf, "%ld", *(l + j));
+        list[j] = new char[strlen(buf) + 1];
+        strcpy(list[j], buf);
+    }
+    delete[] buf;
+}
+
+ParamIntVector::~ParamIntVector()
+{
+    for (int j = 0; j < no_of_items(); j++)
+    {
+        delete[] list[j];
+    }
+    delete[] list;
+}
+
+ParamBrowser::ParamBrowser(const char *na, char *l)
+    : Param(na, BROWSER, 1)
+{
+    list = new char[strlen(l) + 1];
+    strcpy(list, l);
+}
+
+ParamBrowser::~ParamBrowser()
+{
+    delete[] list;
+}
+
+ParamString::ParamString(const char *na, char *l)
+    : Param(na, STRING, 1)
+{
+    list = new char[strlen(l) + 1];
+    strcpy(list, l);
+}
+
+ParamString::~ParamString()
+{
+    delete[] list;
+}
+
+ParamText::ParamText(const char *na, char **l, int lineno, int len)
+    : Param(na, TEXT, lineno)
+{
+    for (int j = 0; j < lineno; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+    line_num = lineno;
+    length = len;
+}
+
+ParamText::~ParamText()
+{
+    for (int j = 0; j < no_of_items(); j++)
+    {
+        delete[] list[j];
+    }
+    delete[] list;
+}
+
+ParamBoolean::ParamBoolean(const char *na, char *l)
+    : Param(na, COVISE_BOOLEAN, 1)
+{
+    list = new char[strlen(l) + 1];
+    strcpy(list, l);
+}
+
+ParamBoolean::ParamBoolean(const char *na, int val)
+    : Param(na, COVISE_BOOLEAN, 1)
+{
+    if (val == 0)
+    {
+        list = new char[strlen("FALSE") + 1];
+        strcpy(list, "FALSE");
+    }
+    else
+    {
+        list = new char[strlen("TRUE") + 1];
+        strcpy(list, "TRUE");
+    }
+}
+
+ParamBoolean::~ParamBoolean()
+{
+    delete[] list;
+}
+
+ParamFloatSlider::ParamFloatSlider(const char *na, int num, char **l)
+    : Param(na, FLOAT_SLIDER, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamFloatSlider::ParamFloatSlider(const char *na, float min, float max, float val)
+    : Param(na, FLOAT_SLIDER, 3)
+{
+    char *buf = new char[255];
+    list = new char *[3];
+    sprintf(buf, "%f", min);
+    list[0] = new char[strlen(buf) + 1];
+    strcpy(list[0], buf);
+    sprintf(buf, "%f", max);
+    list[1] = new char[strlen(buf) + 1];
+    strcpy(list[1], buf);
+    sprintf(buf, "%f", val);
+    list[2] = new char[strlen(buf) + 1];
+    strcpy(list[2], buf);
+    delete[] buf;
+}
+
+ParamFloatSlider::~ParamFloatSlider()
+{
+    for (int j = 0; j < no_of_items(); j++)
+        delete[] list[j];
+    delete[] list;
+}
+
+ParamIntSlider::ParamIntSlider(const char *na, int num, char **l)
+    : Param(na, INT_SLIDER, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamIntSlider::ParamIntSlider(const char *na, long min, long max, long val)
+    : Param(na, INT_SLIDER, 3)
+{
+    char *buf = new char[255];
+    list = new char *[3];
+    sprintf(buf, "%ld", min);
+    list[0] = new char[strlen(buf) + 1];
+    strcpy(list[0], buf);
+    sprintf(buf, "%ld", max);
+    list[1] = new char[strlen(buf) + 1];
+    strcpy(list[1], buf);
+    sprintf(buf, "%ld", val);
+    list[2] = new char[strlen(buf) + 1];
+    strcpy(list[2], buf);
+    delete[] buf;
+}
+
+ParamIntSlider::~ParamIntSlider()
+{
+    for (int j = 0; j < no_of_items(); j++)
+        delete[] list[j];
+    delete[] list;
+}
+
+ParamTimer::ParamTimer(const char *na, int num, char **l)
+    : Param(na, TIMER, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamTimer::ParamTimer(const char *na, long start, long delta, long state)
+    : Param(na, TIMER, 3)
+{
+    char *buf = new char[255];
+    list = new char *[3];
+    sprintf(buf, "%ld", start);
+    list[0] = new char[strlen(buf) + 1];
+    strcpy(list[0], buf);
+    sprintf(buf, "%ld", delta);
+    list[1] = new char[strlen(buf) + 1];
+    strcpy(list[1], buf);
+    sprintf(buf, "%ld", state);
+    list[2] = new char[strlen(buf) + 1];
+    strcpy(list[2], buf);
+    delete[] buf;
+}
+
+ParamTimer::~ParamTimer()
+{
+    for (int j = 0; j < no_of_items(); j++)
+        delete[] list[j];
+    delete[] list;
+}
+
+ParamPasswd::ParamPasswd(const char *na, int num, char **l)
+    : Param(na, PASSWD, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamPasswd::ParamPasswd(const char *na, char *host, char *user, char *passwd)
+    : Param(na, PASSWD, 3)
+{
+    list = new char *[3];
+    list[0] = new char[strlen(host) + 1];
+    strcpy(list[0], host);
+    list[1] = new char[strlen(user) + 1];
+    strcpy(list[1], user);
+    list[2] = new char[strlen(passwd) + 1];
+    strcpy(list[2], passwd);
+}
+
+ParamPasswd::~ParamPasswd()
+{
+    for (int j = 0; j < no_of_items(); j++)
+        delete[] list[j];
+    delete[] list;
+}
+
+ParamChoice::ParamChoice(const char *na, int num, int s, char **l)
+    : Param(na, CHOICE, num)
+{
+    sel = s;
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamChoice::ParamChoice(const char *na, int num, char **l, int s)
+    : Param(na, CHOICE, num)
+{
+    sel = s;
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamChoice::~ParamChoice()
+{
+    for (int j = 0; j < no_of_items(); j++)
+    {
+        delete[] list[j];
+    }
+    delete[] list;
+}
+
+ParamColormapChoice::ParamColormapChoice(const char *na, int num, int s, char **l)
+    : Param(na, COLORMAPCHOICE_MSG, num)
+{
+    sel = s;
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamColormapChoice::ParamColormapChoice(const char *na, int num, char **l, int s)
+    : Param(na, COLORMAPCHOICE_MSG, num)
+{
+    sel = s;
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamColormapChoice::~ParamColormapChoice()
+{
+    for (int j = 0; j < no_of_items(); j++)
+    {
+        delete[] list[j];
+    }
+    delete[] list;
+}
+
+ParamMaterial::ParamMaterial(const char *na, char *l)
+    : Param(na, MATERIAL_MSG, 1)
+{
+    list = new char[strlen(l) + 1];
+    strcpy(list, l);
+}
+
+ParamMaterial::~ParamMaterial()
+{
+    delete[] list;
+}
+
+ParamColormap::ParamColormap(const char *na, int num, char **l)
+    : Param(na, COLORMAP_MSG, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamColormap::~ParamColormap()
+{
+    for (int j = 0; j < no_of_items(); j++)
+        delete[] list[j];
+    delete[] list;
+}
+
+ParamColor::ParamColor(const char *na, int num, char **l)
+    : Param(na, COLOR_MSG, num)
+{
+    list = new char *[num];
+    for (int j = 0; j < num; j++)
+    {
+        list[j] = new char[strlen(l[j]) + 1];
+        strcpy(list[j], l[j]);
+    }
+}
+
+ParamColor::ParamColor(const char *na, float r, float g, float b, float a)
+    : Param(na, COLOR_MSG, 4)
+{
+    char *buf = new char[255];
+    list = new char *[3];
+    sprintf(buf, "%f", r);
+    list[0] = new char[strlen(buf) + 1];
+    strcpy(list[0], buf);
+    sprintf(buf, "%f", g);
+    list[1] = new char[strlen(buf) + 1];
+    strcpy(list[1], buf);
+    sprintf(buf, "%f", b);
+    list[2] = new char[strlen(buf) + 1];
+    strcpy(list[2], buf);
+    sprintf(buf, "%f", a);
+    list[3] = new char[strlen(buf) + 1];
+    strcpy(list[3], buf);
+    delete[] buf;
+}
+
+ParamColor::~ParamColor()
+{
+    for (int j = 0; j < no_of_items(); j++)
+        delete[] list[j];
+    delete[] list;
+}

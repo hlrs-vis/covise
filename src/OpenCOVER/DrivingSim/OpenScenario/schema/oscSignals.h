@@ -9,13 +9,13 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCSIGNALS_H
 #define OSCSIGNALS_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscSignalController.h"
+#include "../oscVariables.h"
+#include "oscSignalController.h"
 
 namespace OpenScenario
 {

@@ -11,6 +11,7 @@
 #include "covise.h"
 #include <util/covise_list.h>
 #include "covise_msg.h"
+#include <shm/covise_shm.h>
 #include <net/covise_connect.h>
 #ifndef NO_SIGNALS
 #include "covise_signal.h"

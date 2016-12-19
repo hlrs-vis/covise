@@ -33,7 +33,10 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
+#include <string>
 #include <queue>
+#include <map>
+#include <vector>
 
 #include <QCloseEvent>
 #include <QDropEvent>
@@ -138,11 +141,11 @@ protected:
 private:
     std::string lastNode;
     std::string tabeltsimPath;
-    map<string, string> SimPath_SimName;
+    std::map<std::string, std::string> SimPath_SimName;
     //First CAD Item Second Sim Items
-    map<string, std::vector<string> > CAD_SIM_Node;
-    map<string, bool> CAD_Status;
-    map<string, bool> SIM_Status;
+    std::map<std::string, std::vector<std::string> > CAD_SIM_Node;
+    std::map<std::string, bool> CAD_Status;
+    std::map<std::string, bool> SIM_Status;
     bool new_Sim(std::string, std::string);
     bool is_SimNode(std::string);
     bool decision(int, QString &, QColor &);
@@ -181,7 +184,7 @@ private:
     covise::coRestraint *restraint;
     QAction *propAct;
     std::vector<QAction *> simu;
-    std::map<string, QAction *> Sim_Act_Pair; //first Simualtionpath; second action button
+    std::map<std::string, QAction *> Sim_Act_Pair; //first Simualtionpath; second action button
     QAction *cad;
     QAction *load;
     int numItems;

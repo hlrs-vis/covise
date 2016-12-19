@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCACT_H
 #define OSCACT_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscSequence.h"
-#include "schema/oscConditions.h"
+#include "../oscVariables.h"
+#include "oscSequence.h"
+#include "oscConditions.h"
 
 namespace OpenScenario
 {

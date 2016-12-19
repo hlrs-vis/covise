@@ -26,8 +26,8 @@
 #include <cover/coVRFileManager.h>
 #include "OpenScenarioPlugin.h"
 
-#include <DrivingSim/OpenScenario/OpenScenarioBase.h>
-#include <DrivingSim/OpenScenario/oscFileHeader.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include <OpenScenario/schema/oscFileHeader.h>
 #include <DrivingSim/oddlot/src/io/oscparser.hpp>
 #include <DrivingSim/oddlot/src/io/domparser.hpp>
 #include <DrivingSim/oddlot/src/io/domwriter.hpp>
@@ -74,7 +74,7 @@ bool OpenScenarioPlugin::init()
 
 int OpenScenarioPlugin::loadOSC(const char *filename, osg::Group *g, const char *key)
 {
-	plugin->loadOSCFile(filename,g,key);
+	return plugin->loadOSCFile(filename,g,key);
 }
 
 int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const char *key)
@@ -105,4 +105,5 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
         return false;
 		}
 		*/
+    return 0;
 }

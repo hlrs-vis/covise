@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCROUTEPOSITION_H
 #define OSCROUTEPOSITION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscCurrent.h"
-#include "schema/oscRoadCoord.h"
-#include "schema/oscLaneCoord.h"
+#include "../oscVariables.h"
+#include "oscCurrent.h"
+#include "oscRoadCoord.h"
+#include "oscLaneCoord.h"
 
 namespace OpenScenario
 {

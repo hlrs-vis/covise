@@ -10,7 +10,10 @@
 #include "TracerPlane.h"
 #include "TracerFreePoints.h"
 #include "TracerPlugin.h"
+#ifdef USE_COVISE
 #include "../../covise/COVISE/SmokeGeneratorSolutions.h"
+#include "alg/coUniTracer.h"
+#endif
 
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coMenuItem.h>
@@ -28,8 +31,6 @@
 #include <PluginUtil/ColorBar.h>
 
 #include <config/CoviseConfig.h>
-
-#include "alg/coUniTracer.h"
 
 #include <cover/RenderObject.h>
 
@@ -567,6 +568,7 @@ TracerInteraction::hideSmoke()
 void
 TracerInteraction::updateSmokeLine()
 {
+#ifdef USE_COVISE
     if (debugSmoke_)
         fprintf(stderr, "TracerInteraction::updateSmokeLine\n");
 
@@ -613,11 +615,13 @@ TracerInteraction::updateSmokeLine()
     solutions_.set(solus);
 
     displaySmoke();
+#endif
 }
 
 void
 TracerInteraction::updateSmokePlane()
 {
+#ifdef USE_COVISE
 
     if (debugSmoke_)
         fprintf(stderr, "TracerInteraction::updateSmokePlane\n");
@@ -689,6 +693,7 @@ TracerInteraction::updateSmokePlane()
     solutions_.set(solus);
 
     displaySmoke();
+#endif
 }
 
 void
@@ -897,6 +902,7 @@ TracerInteraction::displaySmoke()
     smokeGeometry_->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
     int numPoints = 0;
+#ifdef USE_COVISE
     for (int i = 0; i < solutions_.size(); i++)
     {
         //fprintf(stderr,"line %d has %d points\n", i, (const_cast<int *>(solutions_.lengths())[i]));
@@ -921,6 +927,7 @@ TracerInteraction::displaySmoke()
         primitives->push_back(1);
         smokeGeometry_->addPrimitiveSet(primitives.get());
     }
+#endif
 }
 
 void TracerInteraction::updatePickInteractorVisibility()

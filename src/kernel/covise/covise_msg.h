@@ -18,7 +18,7 @@
 #include <net/message.h>
 #include <net/message_types.h>
 
-#include <shm/covise_shm.h>
+//#include <shm/covise_shm.h>
 
 #ifdef _WIN64
 #define __WORDSIZE 64
@@ -172,21 +172,8 @@ class COVISEEXPORT ParamFloatScalar : public Param
     char *list;
 
 public:
-    ParamFloatScalar(const char *na, char *l)
-        : Param(na, FLOAT_SCALAR, 1)
-    {
-        list = new char[strlen(l) + 1];
-        strcpy(list, l);
-    }
-    ParamFloatScalar(const char *na, float val)
-        : Param(na, FLOAT_SCALAR, 1)
-    {
-        char *buf = new char[255];
-        sprintf(buf, "%f", val);
-        list = new char[strlen(buf) + 1];
-        strcpy(list, buf);
-        delete[] buf;
-    }
+    ParamFloatScalar(const char *na, char *l);
+    ParamFloatScalar(const char *na, float val);
     ~ParamFloatScalar()
     {
         delete[] list;
@@ -199,25 +186,9 @@ class COVISEEXPORT ParamIntScalar : public Param
     char *list;
 
 public:
-    ParamIntScalar(const char *na, char *l)
-        : Param(na, INT_SCALAR, 1)
-    {
-        list = new char[strlen(l) + 1];
-        strcpy(list, l);
-    }
-    ParamIntScalar(const char *na, long val)
-        : Param(na, INT_SCALAR, 1)
-    {
-        char *buf = new char[255];
-        sprintf(buf, "%ld", val);
-        list = new char[strlen(buf) + 1];
-        strcpy(list, buf);
-        delete[] buf;
-    }
-    ~ParamIntScalar()
-    {
-        delete[] list;
-    }
+    ParamIntScalar(const char *na, char *l);
+    ParamIntScalar(const char *na, long val);
+    ~ParamIntScalar();
 };
 
 class COVISEEXPORT ParamFloatVector : public Param
@@ -226,37 +197,9 @@ class COVISEEXPORT ParamFloatVector : public Param
     char **list;
 
 public:
-    ParamFloatVector(const char *na, int num, char **l)
-        : Param(na, FLOAT_VECTOR, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamFloatVector(const char *na, int num, float *l)
-        : Param(na, FLOAT_VECTOR, num)
-    {
-        char *buf = new char[255];
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            sprintf(buf, "%f", *(l + j));
-            list[j] = new char[strlen(buf) + 1];
-            strcpy(list[j], buf);
-        }
-        delete[] buf;
-    }
-    ~ParamFloatVector()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-        {
-            delete[] list[j];
-        }
-        delete[] list;
-    }
+    ParamFloatVector(const char *na, int num, char **l);
+    ParamFloatVector(const char *na, int num, float *l);
+    ~ParamFloatVector();
 };
 
 class COVISEEXPORT ParamIntVector : public Param
@@ -265,37 +208,9 @@ class COVISEEXPORT ParamIntVector : public Param
     char **list;
 
 public:
-    ParamIntVector(const char *na, int num, char **l)
-        : Param(na, INT_VECTOR, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamIntVector(const char *na, int num, long *l)
-        : Param(na, INT_VECTOR, num)
-    {
-        char *buf = new char[255];
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            sprintf(buf, "%ld", *(l + j));
-            list[j] = new char[strlen(buf) + 1];
-            strcpy(list[j], buf);
-        }
-        delete[] buf;
-    }
-    ~ParamIntVector()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-        {
-            delete[] list[j];
-        }
-        delete[] list;
-    }
+    ParamIntVector(const char *na, int num, char **l);
+    ParamIntVector(const char *na, int num, long *l);
+    ~ParamIntVector();
 };
 
 class COVISEEXPORT ParamBrowser : public Param
@@ -304,12 +219,7 @@ class COVISEEXPORT ParamBrowser : public Param
     char *list;
 
 public:
-    ParamBrowser(const char *na, char *l)
-        : Param(na, BROWSER, 1)
-    {
-        list = new char[strlen(l) + 1];
-        strcpy(list, l);
-    }
+    ParamBrowser(const char *na, char *l);
     /*ParamBrowser(const char *na, char *file, char *wildcard) : Param(na, BROWSER, 2)
       {
          list = new char *[2];
@@ -318,10 +228,7 @@ public:
          list[1] =  new char[ strlen(wildcard)+1];
          strcpy(list[1],wildcard);
       }*/
-    ~ParamBrowser()
-    {
-        delete[] list;
-    }
+    ~ParamBrowser();
 };
 
 class COVISEEXPORT ParamString : public Param
@@ -330,20 +237,12 @@ class COVISEEXPORT ParamString : public Param
     char *list;
 
 public:
-    ParamString(const char *na, char *l)
-        : Param(na, STRING, 1)
-    {
-        list = new char[strlen(l) + 1];
-        strcpy(list, l);
-    }
+    ParamString(const char *na, char *l);
     char *get_length()
     {
         return (char *)strlen(list);
     };
-    ~ParamString()
-    {
-        delete[] list;
-    }
+    ~ParamString();
 };
 
 class COVISEEXPORT ParamText : public Param
@@ -354,17 +253,7 @@ class COVISEEXPORT ParamText : public Param
     int length;
 
 public:
-    ParamText(const char *na, char **l, int lineno, int len)
-        : Param(na, TEXT, lineno)
-    {
-        for (int j = 0; j < lineno; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-        line_num = lineno;
-        length = len;
-    }
+    ParamText(const char *na, char **l, int lineno, int len);
     int get_line_number()
     {
         return line_num;
@@ -373,14 +262,7 @@ public:
     {
         return length;
     };
-    ~ParamText()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-        {
-            delete[] list[j];
-        }
-        delete[] list;
-    }
+    ~ParamText();
 };
 
 class COVISEEXPORT ParamBoolean : public Param
@@ -389,30 +271,9 @@ class COVISEEXPORT ParamBoolean : public Param
     char *list;
 
 public:
-    ParamBoolean(const char *na, char *l)
-        : Param(na, COVISE_BOOLEAN, 1)
-    {
-        list = new char[strlen(l) + 1];
-        strcpy(list, l);
-    }
-    ParamBoolean(const char *na, int val)
-        : Param(na, COVISE_BOOLEAN, 1)
-    {
-        if (val == 0)
-        {
-            list = new char[strlen("FALSE") + 1];
-            strcpy(list, "FALSE");
-        }
-        else
-        {
-            list = new char[strlen("TRUE") + 1];
-            strcpy(list, "TRUE");
-        }
-    }
-    ~ParamBoolean()
-    {
-        delete[] list;
-    }
+    ParamBoolean(const char *na, char *l);
+    ParamBoolean(const char *na, int val);
+    ~ParamBoolean();
 };
 
 class COVISEEXPORT ParamFloatSlider : public Param
@@ -421,38 +282,9 @@ class COVISEEXPORT ParamFloatSlider : public Param
     char **list;
 
 public:
-    ParamFloatSlider(const char *na, int num, char **l)
-        : Param(na, FLOAT_SLIDER, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamFloatSlider(const char *na, float min, float max, float val)
-        : Param(na, FLOAT_SLIDER, 3)
-    {
-        char *buf = new char[255];
-        list = new char *[3];
-        sprintf(buf, "%f", min);
-        list[0] = new char[strlen(buf) + 1];
-        strcpy(list[0], buf);
-        sprintf(buf, "%f", max);
-        list[1] = new char[strlen(buf) + 1];
-        strcpy(list[1], buf);
-        sprintf(buf, "%f", val);
-        list[2] = new char[strlen(buf) + 1];
-        strcpy(list[2], buf);
-        delete[] buf;
-    }
-    ~ParamFloatSlider()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-            delete[] list[j];
-        delete[] list;
-    }
+    ParamFloatSlider(const char *na, int num, char **l);
+    ParamFloatSlider(const char *na, float min, float max, float val);
+    ~ParamFloatSlider();
 };
 
 class COVISEEXPORT ParamIntSlider : public Param
@@ -461,38 +293,9 @@ class COVISEEXPORT ParamIntSlider : public Param
     char **list;
 
 public:
-    ParamIntSlider(const char *na, int num, char **l)
-        : Param(na, INT_SLIDER, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamIntSlider(const char *na, long min, long max, long val)
-        : Param(na, INT_SLIDER, 3)
-    {
-        char *buf = new char[255];
-        list = new char *[3];
-        sprintf(buf, "%ld", min);
-        list[0] = new char[strlen(buf) + 1];
-        strcpy(list[0], buf);
-        sprintf(buf, "%ld", max);
-        list[1] = new char[strlen(buf) + 1];
-        strcpy(list[1], buf);
-        sprintf(buf, "%ld", val);
-        list[2] = new char[strlen(buf) + 1];
-        strcpy(list[2], buf);
-        delete[] buf;
-    }
-    ~ParamIntSlider()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-            delete[] list[j];
-        delete[] list;
-    }
+    ParamIntSlider(const char *na, int num, char **l);
+    ParamIntSlider(const char *na, long min, long max, long val);
+    ~ParamIntSlider();
 };
 
 class COVISEEXPORT ParamTimer : public Param
@@ -501,38 +304,9 @@ class COVISEEXPORT ParamTimer : public Param
     char **list;
 
 public:
-    ParamTimer(const char *na, int num, char **l)
-        : Param(na, TIMER, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamTimer(const char *na, long start, long delta, long state)
-        : Param(na, TIMER, 3)
-    {
-        char *buf = new char[255];
-        list = new char *[3];
-        sprintf(buf, "%ld", start);
-        list[0] = new char[strlen(buf) + 1];
-        strcpy(list[0], buf);
-        sprintf(buf, "%ld", delta);
-        list[1] = new char[strlen(buf) + 1];
-        strcpy(list[1], buf);
-        sprintf(buf, "%ld", state);
-        list[2] = new char[strlen(buf) + 1];
-        strcpy(list[2], buf);
-        delete[] buf;
-    }
-    ~ParamTimer()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-            delete[] list[j];
-        delete[] list;
-    }
+    ParamTimer(const char *na, int num, char **l);
+    ParamTimer(const char *na, long start, long delta, long state);
+    ~ParamTimer();
 };
 
 class COVISEEXPORT ParamPasswd : public Param
@@ -541,33 +315,9 @@ class COVISEEXPORT ParamPasswd : public Param
     char **list;
 
 public:
-    ParamPasswd(const char *na, int num, char **l)
-        : Param(na, PASSWD, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamPasswd(const char *na, char *host, char *user, char *passwd)
-        : Param(na, PASSWD, 3)
-    {
-        list = new char *[3];
-        list[0] = new char[strlen(host) + 1];
-        strcpy(list[0], host);
-        list[1] = new char[strlen(user) + 1];
-        strcpy(list[1], user);
-        list[2] = new char[strlen(passwd) + 1];
-        strcpy(list[2], passwd);
-    }
-    ~ParamPasswd()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-            delete[] list[j];
-        delete[] list;
-    }
+    ParamPasswd(const char *na, int num, char **l);
+    ParamPasswd(const char *na, char *host, char *user, char *passwd);
+    ~ParamPasswd();
 };
 
 class COVISEEXPORT ParamChoice : public Param
@@ -577,36 +327,9 @@ class COVISEEXPORT ParamChoice : public Param
     int sel;
 
 public:
-    ParamChoice(const char *na, int num, int s, char **l)
-        : Param(na, CHOICE, num)
-    {
-        sel = s;
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamChoice(const char *na, int num, char **l, int s)
-        : Param(na, CHOICE, num)
-    {
-        sel = s;
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ~ParamChoice()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-        {
-            delete[] list[j];
-        }
-        delete[] list;
-    }
+    ParamChoice(const char *na, int num, int s, char **l);
+    ParamChoice(const char *na, int num, char **l, int s);
+    ~ParamChoice();
 };
 
 class COVISEEXPORT ParamColormapChoice : public Param
@@ -616,36 +339,9 @@ class COVISEEXPORT ParamColormapChoice : public Param
     int sel;
 
 public:
-    ParamColormapChoice(const char *na, int num, int s, char **l)
-        : Param(na, COLORMAPCHOICE_MSG, num)
-    {
-        sel = s;
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamColormapChoice(const char *na, int num, char **l, int s)
-        : Param(na, COLORMAPCHOICE_MSG, num)
-    {
-        sel = s;
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ~ParamColormapChoice()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-        {
-            delete[] list[j];
-        }
-        delete[] list;
-    }
+    ParamColormapChoice(const char *na, int num, int s, char **l);
+    ParamColormapChoice(const char *na, int num, char **l, int s);
+    ~ParamColormapChoice();
 };
 
 class COVISEEXPORT ParamMaterial : public Param
@@ -654,21 +350,13 @@ class COVISEEXPORT ParamMaterial : public Param
     char *list;
 
 public:
-    ParamMaterial(const char *na, char *l)
-        : Param(na, MATERIAL_MSG, 1)
-    {
-        list = new char[strlen(l) + 1];
-        strcpy(list, l);
-    }
+    ParamMaterial(const char *na, char *l);
     char *get_length()
     {
         return (char *)strlen(list);
     };
 
-    ~ParamMaterial()
-    {
-        delete[] list;
-    }
+    ~ParamMaterial();
 };
 
 class COVISEEXPORT ParamColormap : public Param
@@ -677,23 +365,9 @@ class COVISEEXPORT ParamColormap : public Param
     char **list;
 
 public:
-    ParamColormap(const char *na, int num, char **l)
-        : Param(na, COLORMAP_MSG, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
+    ParamColormap(const char *na, int num, char **l);
 
-    ~ParamColormap()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-            delete[] list[j];
-        delete[] list;
-    }
+    ~ParamColormap();
 };
 
 class COVISEEXPORT ParamColor : public Param
@@ -702,41 +376,9 @@ class COVISEEXPORT ParamColor : public Param
     char **list;
 
 public:
-    ParamColor(const char *na, int num, char **l)
-        : Param(na, COLOR_MSG, num)
-    {
-        list = new char *[num];
-        for (int j = 0; j < num; j++)
-        {
-            list[j] = new char[strlen(l[j]) + 1];
-            strcpy(list[j], l[j]);
-        }
-    }
-    ParamColor(const char *na, float r, float g, float b, float a)
-        : Param(na, COLOR_MSG, 4)
-    {
-        char *buf = new char[255];
-        list = new char *[3];
-        sprintf(buf, "%f", r);
-        list[0] = new char[strlen(buf) + 1];
-        strcpy(list[0], buf);
-        sprintf(buf, "%f", g);
-        list[1] = new char[strlen(buf) + 1];
-        strcpy(list[1], buf);
-        sprintf(buf, "%f", b);
-        list[2] = new char[strlen(buf) + 1];
-        strcpy(list[2], buf);
-        sprintf(buf, "%f", a);
-        list[3] = new char[strlen(buf) + 1];
-        strcpy(list[3], buf);
-        delete[] buf;
-    }
-    ~ParamColor()
-    {
-        for (int j = 0; j < no_of_items(); j++)
-            delete[] list[j];
-        delete[] list;
-    }
+    ParamColor(const char *na, int num, char **l);
+    ParamColor(const char *na, float r, float g, float b, float a);
+    ~ParamColor();
 };
 
 // holds everything necessary to work
