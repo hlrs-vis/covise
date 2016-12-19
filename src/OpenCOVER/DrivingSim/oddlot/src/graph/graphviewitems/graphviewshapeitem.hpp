@@ -109,7 +109,7 @@ private:
 	QPointF mapFromCanvas(const QPointF &point);
 	void paintControlPoint(const QPointF &point, bool edit, bool realPoint, bool active, bool smooth);
 
-    int findControlPoint(const QPointF &point);
+    int findControlPoint(const QPointF &point, qreal &distance);
     int findRealPoint(const QPointF &point);
     bool isSmooth(int i) const;
 

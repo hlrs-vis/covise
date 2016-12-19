@@ -271,9 +271,10 @@ GraphViewShapeItem::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton) {
         QPointF p = view_->mapToScene(e->pos());
-        m_activeControlPoint = findControlPoint(p);
+		qreal distance;
+        m_activeControlPoint = findControlPoint(p, distance);
 
-        if (m_activeControlPoint < 0)
+        if ((m_activeControlPoint < 0) || (distance > 10))
         {
             if (startPoint.isNull() || endPoint.isNull())
             {
@@ -327,7 +328,8 @@ void
 GraphViewShapeItem::contextMenu(QContextMenuEvent *e)
 {
     QPointF p = view_->mapToScene(e->pos());
-    int index = findControlPoint(p);
+	qreal distance;
+    int index = findControlPoint(p, distance);
 
     if (index > 1 && (index < m_controlPoints.size() - 1) && indexIsRealPoint(index)) {
         m_smoothAction->setChecked(isControlPointSmooth(index));
@@ -379,11 +381,11 @@ GraphViewShapeItem::invalidateSmoothList()
 
 
 int 
-GraphViewShapeItem::findControlPoint(const QPointF &point)
+GraphViewShapeItem::findControlPoint(const QPointF &point, qreal &distance)
 {
     int pointIndex = -1;
-    qreal distance = -1;
-    for (int i = 1; i<m_controlPoints.size(); ++i) {
+    distance = -1;
+    for (int i = 0; i<m_controlPoints.size(); ++i) {
         qreal d = QLineF(point, m_controlPoints.at(i)).length();
         if (distance < 0 || d < distance) {
             distance = d;
@@ -391,10 +393,6 @@ GraphViewShapeItem::findControlPoint(const QPointF &point)
         }
     }
 
-    if (distance > 10)
-    {
-        return -pointIndex;
-    }
 
     return pointIndex;
 }
@@ -596,15 +594,15 @@ GraphViewShapeItem::addPoint(const QPointF point)
 		if ((splitIndex + 3) < m_controlPoints.count())
 			after = m_controlPoints.at(splitIndex + 3);
 
-		if (splitIndex > 1) {
+//		if (splitIndex > 1) {
 			m_controlPoints.insert(splitIndex + 2, (point + after) / 2);
 			m_controlPoints.insert(splitIndex + 2, point);
 			m_controlPoints.insert(splitIndex + 2, (point + before) / 2);
-		} else {
+/*		} else {
 			m_controlPoints.insert(splitIndex + 1, (point + after) / 2);
 			m_controlPoints.insert(splitIndex + 1, point);
 			m_controlPoints.insert(splitIndex + 1, (point + before) / 2);
-		}
+		} */
 
 		selected = true;
 	}
@@ -652,7 +650,7 @@ void GraphViewShapeItem::mouseMoveEvent(QMouseEvent *e)
 	} */
 
 
-	if (m_mouseDrag && !startPoint.isNull() && m_activeControlPoint < 0)
+	if (m_mouseDrag && !startPoint.isNull() && m_activeControlPoint <= 0)
 	{
 		qreal d = QLineF(p, startPoint).length();
         if (d < 10)
