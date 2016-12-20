@@ -34,7 +34,7 @@
 </Catalogs>
 
 <RoadNetwork>
-    <Logics openDRIVE="Tracks/Bin/RQ31_130Limit/RQ31_130Limit.xodr"/>
+    <Logics openDRIVE="../../../DrivingSim/OpenScenario/examples/test.xodr"/>
     <SceneGraph name="Tracks/Bin/RQ31_130Limit/RQ31_130Limit.opt.osgb"/>
 </RoadNetwork>
 

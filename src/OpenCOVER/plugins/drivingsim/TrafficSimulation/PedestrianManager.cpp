@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "PedestrianManager.h"
-#include "TrafficSimulationPlugin.h"
+#include "TrafficSimulation.h"
 #include <osg/Geometry>
 
 /**
@@ -610,7 +610,7 @@ void PedestrianManager::updateFiddleyards(const double dt)
                         if (!ped->isLeavingSidewalk() && ped->passSink().compare(sinkId) != 0)
                         {
                             // Ped has _not_ yet passed this sink and continued, so possibly remove
-                            double rand = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+                            double rand = TrafficSimulation::instance()->getZeroOneRandomNumber();
                             if (rand <= prob)
                             {
                                 // Pedestrian will be removed here
@@ -667,10 +667,10 @@ void PedestrianManager::updateFiddleyards(const double dt)
                         if (spawn)
                         {
                             // Update source's timer
-                            source->updateTimer(time, TrafficSimulationPlugin::plugin->getZeroOneRandomNumber());
+                            source->updateTimer(time, TrafficSimulation::instance()->getZeroOneRandomNumber());
 
                             // Choose a pedestrian to spawn (based on ratio = numerator/total)
-                            double targetRatio = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() * source->getOverallRatio();
+                            double targetRatio = TrafficSimulation::instance()->getZeroOneRandomNumber() * source->getOverallRatio();
                             std::string tmplString = source->getPedByRatio(targetRatio);
 
                             // Generate pedestrian's name
@@ -682,7 +682,7 @@ void PedestrianManager::updateFiddleyards(const double dt)
                             int lane = source->getLane();
                             int dir = source->getDir();
                             if (dir == 0)
-                                dir = (TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() <= 0.5) ? -1 : 1;
+                                dir = (TrafficSimulation::instance()->getZeroOneRandomNumber() <= 0.5) ? -1 : 1;
                             double sOff = source->getSOffset();
                             double vOff = source->getVOffset();
                             // vOffset is always away from the center lane
@@ -693,9 +693,9 @@ void PedestrianManager::updateFiddleyards(const double dt)
 
                             // Determine velocity
                             double vel = 0;
-                            vel = source->getStartVelocity() - source->getStartVelocityDeviation() + 2 * source->getStartVelocityDeviation() * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+                            vel = source->getStartVelocity() - source->getStartVelocityDeviation() + 2 * source->getStartVelocityDeviation() * TrafficSimulation::instance()->getZeroOneRandomNumber();
                             double acc = 0;
-                            acc = source->getAccel() - source->getAccelDev() + 2 * source->getAccelDev() * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+                            acc = source->getAccel() - source->getAccelDev() + 2 * source->getAccelDev() * TrafficSimulation::instance()->getZeroOneRandomNumber();
 
                             // Create the new pedestrian
                             PedestrianFactory::Instance()->createPedestrian(nameString, tmplString, roadId, lane, dir, sOff, vOff, vel, acc);

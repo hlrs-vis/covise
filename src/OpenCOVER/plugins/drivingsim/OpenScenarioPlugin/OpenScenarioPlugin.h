@@ -23,6 +23,15 @@
 
 #include <cover/coVRPlugin.h>
 
+#include "VehicleManager.h"
+#include "VehicleFactory.h"
+#include "PedestrianManager.h"
+#include "PedestrianFactory.h"
+#include "RoadSystem/RoadSystem.h"
+#include "UDPBroadcast.h"
+#include "Vehicle.h"
+
+
 namespace OpenScenario
 {
 class OpenScenarioBase;
@@ -46,6 +55,25 @@ public:
 
 private:
 	OpenScenario::OpenScenarioBase *osdb;
+
+	//benoetigt fuer loadRoadSystem
+	bool loadRoadSystem(const char *filename);
+	std::string xodrDirectory;
+	xercesc::DOMElement *getOpenDriveRootElement(std::string);
+	void parseOpenDrive(xercesc::DOMElement *);
+	xercesc::DOMElement *rootElement;
+	osg::PositionAttitudeTransform *roadGroup;
+	RoadSystem *system;
+
+	VehicleManager *manager;
+	PedestrianManager *pedestrianManager;
+    VehicleFactory *factory;
+	PedestrianFactory *pedestrianFactory;
+
+	bool tessellateRoads;
+	bool tessellatePaths;
+    bool tessellateBatters;
+    bool tessellateObjects;
 };
 
 #endif //OPENSCENARIO_PLUGIN_H

@@ -8,7 +8,7 @@
 #include "AgentVehicle.h"
 #include "RoadSystem/Junction.h"
 #include "RoadSystem/Lane.h"
-#include "TrafficSimulationPlugin.h"
+#include "TrafficSimulation.h"
 #include <algorithm>
 #include <math.h>
 #include <float.h> //für die #INF-Abfrage (DBL_MAX und DBL_MIN)
@@ -538,7 +538,7 @@ void AgentVehicle::move(double dt)
     //
     //      if(s!=s || v!=v || hdg!=hdg) {
     //         std::cout << "Vehicle " << name << ": s: " << s <<  ", dv: " << dv << ", dw: " << dw << ", du: " << du << ", hdg: " << hdg << ", u: " << u << ", v: " << v << std::endl;
-    //         TrafficSimulationPlugin::plugin->haltSimulation();
+    //         TrafficSimulation::instance()->haltSimulation();
     //      }
     //   }
 
@@ -651,7 +651,7 @@ void AgentVehicle::move(double dt)
             std::cout << "Vehicle " << name << "timer: " << timer << ": s: " << s << ", du: " << du << ", acc: " << acc << ", direction: "
                       << currentTransition->direction << ", velo: " << velo << ", dv: " << dv << ", hdg: " << hdg << ", u: " << u << ", v: " << v << std::endl;
             std::cout << "vehDiffU: " << vehDiffU << ", vehDiffDu:" << vehDiffDu << ", vehicle: " << &Vehicle::getVehicleID << std::endl;
-            TrafficSimulationPlugin::plugin->haltSimulation();
+            TrafficSimulation::instance()->haltSimulation();
         }
     }
 
@@ -742,7 +742,7 @@ void AgentVehicle::move(double dt)
             v += currentSection->getDistanceToLane(u, currentLane);
             hdg += M_PI * ((currentTransition->direction * nextTransition->direction - 1) / 2);
 
-            TrafficSimulationPlugin::plugin->getVehicleManager()->changeRoad(this, currentTransition->road, nextTransition->road, nextTransition->direction);
+            TrafficSimulation::instance()->getVehicleManager()->changeRoad(this, currentTransition->road, nextTransition->road, nextTransition->direction);
             currentTransition = nextTransition;
             extendSignalBarrierList(*currentTransition);
             //std::cout << "signal barrier list size: " << signalBarrierList.size() << std::endl;
@@ -1589,7 +1589,7 @@ void AgentVehicle::panicCantReachNextRoad()
         DetermineNextRoadVehicleAction::removeAllActions(this);
 
         //int path = rand() % connSet.size();
-        int path = TrafficSimulationPlugin::plugin->getIntegerRandomNumber() % connSet.size();
+        int path = TrafficSimulation::instance()->getIntegerRandomNumber() % connSet.size();
         PathConnectionSet::iterator connSetIt = connSet.begin();
         std::advance(connSetIt, path);
         PathConnection *conn = *connSetIt;
@@ -1602,7 +1602,7 @@ void AgentVehicle::panicCantReachNextRoad()
 void AgentVehicle::vanish()
 {
     std::cout << "Vehicle " << name << " vanishing! Goodbye..." << std::endl;
-    TrafficSimulationPlugin::plugin->getVehicleManager()->removeVehicle(this, currentTransition->road);
+    TrafficSimulation::instance()->getVehicleManager()->removeVehicle(this, currentTransition->road);
 }
 
 bool AgentVehicle::planRoute()
@@ -2129,7 +2129,7 @@ void DetermineNextRoadVehicleAction::operator()(AgentVehicle *veh)
          PathConnectionSet::iterator connSetIt = connSet.begin();
          std::advance(connSetIt, path);
          PathConnection* conn = *connSetIt;*/
-            PathConnection *conn = connSet.choosePathConnection(TrafficSimulationPlugin::plugin->getZeroOneRandomNumber());
+            PathConnection *conn = connSet.choosePathConnection(TrafficSimulation::instance()->getZeroOneRandomNumber());
             if(conn)
             {
                 newTrans.road = conn->getConnectingPath();

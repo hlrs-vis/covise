@@ -12,7 +12,7 @@
 #include <set>
 #include <limits>
 #include "RoadSystem/RoadSystem.h"
-#include "TrafficSimulationPlugin.h"
+#include "TrafficSimulation.h"
 
 #ifdef __XENO__
 #include "GasPedal.h"
@@ -152,7 +152,7 @@ void HumanVehicle::move(double dt)
         hdg = 0;
         if (newRoad != this->road)
         {
-            TrafficSimulationPlugin::plugin->getVehicleManager()->changeRoad(this, road, newRoad, 1);
+            TrafficSimulation::instance()->getVehicleManager()->changeRoad(this, road, newRoad, 1);
             this->road = newRoad;
         }
     }
@@ -164,7 +164,7 @@ void HumanVehicle::move(double dt)
 
         if (newRoad != this->road)
         {
-            TrafficSimulationPlugin::plugin->getVehicleManager()->changeRoad(this, road, newRoad, 1);
+            TrafficSimulation::instance()->getVehicleManager()->changeRoad(this, road, newRoad, 1);
             this->road = newRoad;
         }
         else if (road)
@@ -220,7 +220,7 @@ void HumanVehicle::move(double dt)
       int numextra = 10;
       int vehNumIt = 0;
       
-      VehicleList vehList(TrafficSimulationPlugin::plugin->getVehicleManager()->getVehicleList(road));
+      VehicleList vehList(TrafficSimulation::instance()->getVehicleManager()->getVehicleList(road));
       VehicleList::iterator thisVehIt = vehList.find(this);
       if(thisVehIt != vehList.end()) {
          VehicleList::iterator vehItRear = thisVehIt;
@@ -234,7 +234,7 @@ void HumanVehicle::move(double dt)
       }
    }*/
 
-/*std::map<double, Vehicle*> vehMap = TrafficSimulationPlugin::plugin->getVehicleManager()->getSurroundingVehicles(this);
+/*std::map<double, Vehicle*> vehMap = TrafficSimulation::instance()->getVehicleManager()->getSurroundingVehicles(this);
    std::cout << "Surrounding Vehicles:" << std::endl;
    for(std::map<double, Vehicle*>::iterator mapIt = vehMap.begin(); mapIt != vehMap.end(); ++mapIt) {
       std::cout << "\tVehicle: " << mapIt->second->getName() << ", distance: " << mapIt->first << std::endl;

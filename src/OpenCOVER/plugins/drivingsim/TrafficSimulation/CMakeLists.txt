@@ -26,6 +26,7 @@ endif()
 
 SET(HEADERS
   TrafficSimulationPlugin.h
+  TrafficSimulation.h
   Vehicle.h
   DonkeyCar.h
   VehicleGeometry.h
@@ -47,6 +48,7 @@ SET(HEADERS
 )
 SET(SOURCES
   TrafficSimulationPlugin.cpp
+  TrafficSimulation.cpp
   Vehicle.cpp
   DonkeyCar.cpp
   CarGeometry.cpp

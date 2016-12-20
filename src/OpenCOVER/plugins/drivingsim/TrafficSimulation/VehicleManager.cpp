@@ -7,7 +7,7 @@
 
 #include "VehicleManager.h"
 
-#include "TrafficSimulationPlugin.h"
+#include "TrafficSimulation.h"
 #include "RoadSystem/RoadSystem.h"
 #include "VehicleFactory.h"
 #include "HumanVehicle.h"
@@ -695,7 +695,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
 {
     if (system)
     {
-        if ((Carpool::Instance()->getPoolVector()).size() > 0 && TrafficSimulationPlugin::useCarpool == 1)
+        if ((Carpool::Instance()->getPoolVector()).size() > 0 && TrafficSimulation::useCarpool == 1)
         {
             acitve_fiddleyards.clear();
             for (int i = 0; i < system->getNumFiddleyards(); ++i)
@@ -721,16 +721,16 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                 const std::map<int, VehicleSink *> &sinkMap = system->getFiddleyard(i)->getVehicleSinkMap();
                 for (std::map<int, VehicleSink *>::const_iterator sinkIt = sinkMap.begin(); sinkIt != sinkMap.end(); ++sinkIt)
                 {
-                    Vehicle *veh = TrafficSimulationPlugin::plugin->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
+                    Vehicle *veh = TrafficSimulation::instance()->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
                     while (veh != NULL)
                     {
-                        TrafficSimulationPlugin::plugin->getVehicleManager()->removeVehicle(veh, fiddleroad);
-                        veh = TrafficSimulationPlugin::plugin->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
+                        TrafficSimulation::instance()->getVehicleManager()->removeVehicle(veh, fiddleroad);
+                        veh = TrafficSimulation::instance()->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
                     }
                     //sinkIt->second->update(timer);
                 }
                 //Prüfen ob Fiddleyard im zulässigen Bereich ist
-                if (distance > TrafficSimulationPlugin::min_distance && distance < TrafficSimulationPlugin::delete_at)
+                if (distance > TrafficSimulation::min_distance && distance < TrafficSimulation::delete_at)
                 {
                     double time = system->getFiddleyard(i)->incrementTimer(dt);
                     //std::cout << "FIDDLEYARD ACTIVE " << std::endl;
@@ -749,7 +749,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                             double vel = 0.0;
 
                             vel = sourceIt->second->getStartVelocity() - sourceIt->second->getStartVelocityDeviation()
-                                  + 2 * sourceIt->second->getStartVelocityDeviation() * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+                                  + 2 * sourceIt->second->getStartVelocityDeviation() * TrafficSimulation::instance()->getZeroOneRandomNumber();
 
                             Vehicle *veh = NULL;
                             if (sourceIt->second->isRatioVehicleMapEmpty())
@@ -758,7 +758,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                             }
                             else
                             {
-                                double targetRatio = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() * sourceIt->second->getOverallRatio();
+                                double targetRatio = TrafficSimulation::instance()->getZeroOneRandomNumber() * sourceIt->second->getOverallRatio();
                                 std::string vehString = sourceIt->second->getVehicleByRatio(targetRatio);
 
                                 veh = VehicleFactory::Instance()->cloneRoadVehicle(vehString, nameString, fiddleroad, 0.0, sourceIt->second->getFiddleLane(), vel, -1);
@@ -767,7 +767,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                             }
                             if (veh)
                             {
-                                TrafficSimulationPlugin::plugin->getVehicleManager()->addVehicle(veh);
+                                TrafficSimulation::instance()->getVehicleManager()->addVehicle(veh);
                             }
                         }
                         //sourceIt->second->update(timer);
@@ -787,11 +787,11 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                 const std::map<int, VehicleSink *> &sinkMap = system->getFiddleyard(i)->getVehicleSinkMap();
                 for (std::map<int, VehicleSink *>::const_iterator sinkIt = sinkMap.begin(); sinkIt != sinkMap.end(); ++sinkIt)
                 {
-                    Vehicle *veh = TrafficSimulationPlugin::plugin->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
+                    Vehicle *veh = TrafficSimulation::instance()->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
                     while (veh != NULL)
                     {
-                        TrafficSimulationPlugin::plugin->getVehicleManager()->removeVehicle(veh, fiddleroad);
-                        veh = TrafficSimulationPlugin::plugin->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
+                        TrafficSimulation::instance()->getVehicleManager()->removeVehicle(veh, fiddleroad);
+                        veh = TrafficSimulation::instance()->getVehicleManager()->getLastVehicle(fiddleroad, sinkIt->second->getFiddleLane());
                     }
                     //sinkIt->second->update(timer);
                 }
@@ -809,7 +809,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                         double vel = 0.0;
 
                         vel = sourceIt->second->getStartVelocity() - sourceIt->second->getStartVelocityDeviation()
-                              + 2 * sourceIt->second->getStartVelocityDeviation() * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+                              + 2 * sourceIt->second->getStartVelocityDeviation() * TrafficSimulation::instance()->getZeroOneRandomNumber();
 
                         Vehicle *veh = NULL;
                         if (sourceIt->second->isRatioVehicleMapEmpty())
@@ -818,7 +818,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                         }
                         else
                         {
-                            double targetRatio = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() * sourceIt->second->getOverallRatio();
+                            double targetRatio = TrafficSimulation::instance()->getZeroOneRandomNumber() * sourceIt->second->getOverallRatio();
                             std::string vehString = sourceIt->second->getVehicleByRatio(targetRatio);
 
                             veh = VehicleFactory::Instance()->cloneRoadVehicle(vehString, nameString, fiddleroad, 0.0, sourceIt->second->getFiddleLane(), vel, -1);
@@ -827,7 +827,7 @@ void VehicleManager::updateFiddleyards(double dt, osg::Vec2d incoming_pos)
                         }
                         if (veh)
                         {
-                            TrafficSimulationPlugin::plugin->getVehicleManager()->addVehicle(veh);
+                            TrafficSimulation::instance()->getVehicleManager()->addVehicle(veh);
                         }
                     }
                     //sourceIt->second->update(timer);
