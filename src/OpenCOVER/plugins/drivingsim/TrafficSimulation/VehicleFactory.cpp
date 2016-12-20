@@ -13,7 +13,7 @@
 #include "CarGeometry.h"
 
 #include "VehicleManager.h"
-#include "TrafficSimulationPlugin.h"
+#include "TrafficSimulation.h"
 
 VehicleFactory *VehicleFactory::__instance = NULL;
 
@@ -417,7 +417,7 @@ void VehicleFactory::createTileVehicle(int hv_x, int hv_y, std::vector<Vector3D>
     bool createVehicles = false;
 
     //Berechnung der Distanz der Kachel in der FFZ erstellt werden sollen (abhängig von der Geschwindigkeit)
-    int tile_distance = TrafficSimulationPlugin::min_distance / _tile_width;
+    int tile_distance = TrafficSimulation::min_distance / _tile_width;
 
     // y-Richtung
     for (int i = -tile_distance; i <= tile_distance; i++)
@@ -458,8 +458,8 @@ void VehicleFactory::createTileVehicle(int hv_x, int hv_y, std::vector<Vector3D>
                     {
                         //Bestimmung der Verkehrsdichte
                         double traffic_density = 0;
-                        if (TrafficSimulationPlugin::placeholder != -1)
-                            traffic_density = TrafficSimulationPlugin::placeholder * 100;
+                        if (TrafficSimulation::placeholder != -1)
+                            traffic_density = TrafficSimulation::placeholder * 100;
                         else
                         {
                             std::string name = ((*it)->getRoad())->getName();
@@ -475,17 +475,17 @@ void VehicleFactory::createTileVehicle(int hv_x, int hv_y, std::vector<Vector3D>
                                 //std::cout << "Verkehrsdichte aus String: " << (name.substr(findTD+14,findSep-1)).c_str() << std::endl;
                                 traffic_density = 100 * atof((name.substr(findTD + 11, findSep - 1)).c_str());
                             }
-                            traffic_density *= TrafficSimulationPlugin::td_multiplier;
+                            traffic_density *= TrafficSimulation::td_multiplier;
                         }
 
                         //double length = (*it)->getRoad()->getLength();
-                        double targetPoolRatio = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() * (Carpool::Instance()->getOverallRatio());
+                        double targetPoolRatio = TrafficSimulation::instance()->getZeroOneRandomNumber() * (Carpool::Instance()->getOverallRatio());
                         std::string poolId = (Carpool::Instance())->getPoolIdByRatio(targetPoolRatio);
                         Pool *currentPool = Carpool::Instance()->getPoolById(poolId);
 
                         int leftLanes = (((*it)->getRoad())->getLaneSection((*it)->get_smax()))->getNumLanesLeft();
                         int rightLanes = (((*it)->getRoad())->getLaneSection((*it)->get_smax()))->getNumLanesRight();
-                        double targetRatio = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() * currentPool->getOverallRatio();
+                        double targetRatio = TrafficSimulation::instance()->getZeroOneRandomNumber() * currentPool->getOverallRatio();
                         std::string vehString = currentPool->getVehicleByRatio(targetRatio);
                         Vehicle *veh = NULL;
                         std::string nameString = currentPool->getId();
@@ -525,7 +525,7 @@ void VehicleFactory::createTileVehicle(int hv_x, int hv_y, std::vector<Vector3D>
                             //Fahrzeuge nur erstellen falls genügen Platz dafür ist
                             if (!place_busy)
                             {
-                                if (TrafficSimulationPlugin::maxVehicles == 0)
+                                if (TrafficSimulation::maxVehicles == 0)
                                 {
                                     //Bedarf auf positiver Seite
                                     if ((neg_lanes > pos_lanes) && (leftLanes >= 1))
@@ -605,7 +605,7 @@ void VehicleFactory::createTileVehicle(int hv_x, int hv_y, std::vector<Vector3D>
                                         }
                                     }
                                 }
-                                else if (((VehicleManager::Instance()->getVehicleOverallList()).size()) < TrafficSimulationPlugin::maxVehicles)
+                                else if (((VehicleManager::Instance()->getVehicleOverallList()).size()) < TrafficSimulation::maxVehicles)
                                 {
                                     //Bedarf auf positiver Seite
                                     if ((neg_lanes > pos_lanes) && (leftLanes >= 1))
@@ -701,7 +701,7 @@ void VehicleFactory::createTileVehicle(int hv_x, int hv_y, std::vector<Vector3D>
                             }
                             if (veh)
                             {
-                                TrafficSimulationPlugin::plugin->getVehicleManager()->addVehicle(veh);
+                                TrafficSimulation::instance()->getVehicleManager()->addVehicle(veh);
                             }
                         }
                     }
@@ -717,7 +717,7 @@ double VehicleFactory::generateStartVelocity(std::list<RoadLineSegment *>::itera
 
     // Velocity Deviance added in Percent of speedLimit
     double vel_startDev = currentPool->getStartVelocityDeviation() / 100;
-    double randomNum = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+    double randomNum = TrafficSimulation::instance()->getZeroOneRandomNumber();
     // Maximum Speed
     double vel_max = currentPool->getStartVelocity() - 2 * vel_startDev * currentPool->getStartVelocity() * randomNum;
     double vel_speedLim = 0;
