@@ -1,3 +1,7 @@
+if (COVISE_BUILD_ONLY_COVER_PREREQ)
+    return()
+endif()
+
 add_subdirectory(COVISE)
 ADD_SUBDIRECTORY(COVERScript)
 add_subdirectory(ElectricField)

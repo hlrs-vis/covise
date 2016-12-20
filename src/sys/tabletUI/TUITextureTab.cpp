@@ -51,6 +51,10 @@
 #include <wce_msg.h>
 #endif
 
+#ifndef _WIN32
+#include <signal.h>
+#endif
+
 //Constructor
 TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString name)
     : TUITab(id, type, w, parent, name)

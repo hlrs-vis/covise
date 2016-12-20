@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCENTITIES_H
 #define OSCENTITIES_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscObject.h"
-#include "schema/oscSelection.h"
+#include "../oscVariables.h"
+#include "oscObject.h"
+#include "oscSelection.h"
 
 namespace OpenScenario
 {

@@ -16,7 +16,7 @@
 #ifndef DOMWRITER_HPP
 #define DOMWRITER_HPP
 
-#include "src/data/acceptor.hpp"
+#include "../data/acceptor.hpp"
 
 #include <QDomElement>
 

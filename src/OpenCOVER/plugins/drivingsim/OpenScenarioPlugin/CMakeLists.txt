@@ -3,6 +3,7 @@ USING(OsgCal)
 using(VRML)
 using(GDAL)
 
+include_directories(../../../DrivingSim)
 IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()

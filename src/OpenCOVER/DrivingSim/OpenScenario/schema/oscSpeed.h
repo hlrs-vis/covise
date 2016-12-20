@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCSPEED_H
 #define OSCSPEED_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscSpeedDynamics.h"
-#include "schema/oscTarget.h"
+#include "../oscVariables.h"
+#include "oscSpeedDynamics.h"
+#include "oscTarget.h"
 
 namespace OpenScenario
 {

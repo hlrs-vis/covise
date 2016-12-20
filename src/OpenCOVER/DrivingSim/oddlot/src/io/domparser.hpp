@@ -21,7 +21,7 @@
 #include <QMap>
 #include <QStringList>
 
-#include "src/data/roadsystem/roadsystem.hpp"
+#include "../data/roadsystem/roadsystem.hpp"
 
 class QIODevice;
 class QDomDocument;

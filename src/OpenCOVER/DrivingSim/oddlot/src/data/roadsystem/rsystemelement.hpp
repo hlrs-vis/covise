@@ -16,7 +16,7 @@
 #ifndef RSYSTEMELEMENT_HPP
 #define RSYSTEMELEMENT_HPP
 
-#include "src/data/dataelement.hpp"
+#include "../dataelement.hpp"
 
 // Qt //
 //

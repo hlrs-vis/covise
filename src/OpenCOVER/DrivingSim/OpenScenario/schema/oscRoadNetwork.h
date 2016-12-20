@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCROADNETWORK_H
 #define OSCROADNETWORK_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscLogics.h"
-#include "schema/oscSceneGraph.h"
-#include "schema/oscSignals.h"
+#include "../oscVariables.h"
+#include "oscLogics.h"
+#include "oscSceneGraph.h"
+#include "oscSignals.h"
 
 namespace OpenScenario
 {

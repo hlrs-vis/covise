@@ -101,6 +101,10 @@
 #include "wce_msg.h"
 #endif
 
+#ifndef _WIN32
+#include <signal.h>
+#endif
+
 TUIMainWindow *TUIMainWindow::appwin = 0;
 
 //======================================================================

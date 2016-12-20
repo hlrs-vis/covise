@@ -14,7 +14,9 @@ class TracerLine;
 class TracerPlane;
 class TracerFreePoints;
 
+#ifdef USE_COVISE
 #include "../../covise/COVISE/SmokeGeneratorSolutions.h"
+#endif
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coMenuItem.h>
 #include <osg/Group>
@@ -140,7 +142,9 @@ private:
     TracerPlane *_tPlane;
     TracerLine *_tLine;
     TracerFreePoints *_tFree;
+#ifdef USE_COVISE
     SmokeGeneratorSolutions solutions_;
+#endif
 
     vrui::coCheckboxMenuItem *smokeCheckbox_;
     bool smokeInMenu_;

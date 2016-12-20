@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <iostream>
 
 #include "TUISGBrowserTab.h"
 #include "TUITab.h"
@@ -25,6 +26,7 @@
 #include <QAction>
 #include <QTimer>
 #include <QDateTime>
+#include <util/unixcompat.h>
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #ifdef __APPLE__
@@ -51,6 +53,11 @@
 #define GL_POLYGON 0x0009
 #endif
 
+#ifndef _WIN32
+#include <signal.h>
+#include <unistd.h>
+#endif
+
 #include "icons/find.xpm"
 #include "icons/recSel.xpm"
 #include "icons/wireon.xpm"
@@ -59,6 +66,8 @@
 #define MY_GL_LINE_STRIP_ADJACENCY_EXT 0x000B
 #define MY_GL_TRIANGLES_ADJACENCY_EXT 0x000C
 #define MY_GL_TRIANGLE_STRIP_ADJACENCY_EXT 0x000D
+
+using std::string;
 
 //Constructor
 TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QString name)
@@ -339,7 +348,7 @@ void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
         tb >> state;
         if (state != 0 && load == NULL)
         {
-            cout << "Message from SG-Browser-Plugin !!Loadfiles-Button will be created for right mouse menue in SGBrowser" << endl;
+            std::cout << "Message from SG-Browser-Plugin !!Loadfiles-Button will be created for right mouse menue in SGBrowser" << std::endl;
             load = new QAction("Load Files", this);
             connect(load, SIGNAL(triggered()), this, SLOT(loadFiles()));
             treeWidget->addAction(load);
@@ -528,7 +537,7 @@ void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
             {
                 if (simu.size() != 0)
                 {
-                    for (vector<QAction *>::iterator iter = simu.begin(); iter != simu.end(); iter++)
+                    for (std::vector<QAction *>::iterator iter = simu.begin(); iter != simu.end(); iter++)
                     {
                         treeWidget->removeAction(*iter);
                     }
@@ -545,7 +554,7 @@ void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
                 connect(cad, SIGNAL(triggered()), this, SLOT(viewCad()));
                 treeWidget->addAction(cad);
 
-                std::map<string, std::vector<string> >::iterator i = CAD_SIM_Node.find(item->text(8).toUtf8().data());
+                std::map<std::string, std::vector<std::string> >::iterator i = CAD_SIM_Node.find(item->text(8).toUtf8().data());
                 if (i != CAD_SIM_Node.end())
                     for (int index = 0; index < i->second.size(); index++)
                     {
@@ -562,7 +571,7 @@ void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
             {
                 if (simu.size() != 0)
                 {
-                    for (vector<QAction *>::iterator iter = simu.begin(); iter != simu.end(); iter++)
+                    for (std::vector<QAction *>::iterator iter = simu.begin(); iter != simu.end(); iter++)
                     {
                         treeWidget->removeAction(*iter);
                     }
@@ -827,7 +836,7 @@ void TUISGBrowserTab::loadFiles()
 void TUISGBrowserTab::viewSim()
 {
     QTreeWidgetItem *item = treeWidget->currentItem();
-    std::map<string, std::vector<string> >::iterator iter = CAD_SIM_Node.find(item->text(8).toUtf8().data());
+    std::map<std::string, std::vector<std::string> >::iterator iter = CAD_SIM_Node.find(item->text(8).toUtf8().data());
     if (iter != CAD_SIM_Node.end())
     {
         for (int index = 0; index < iter->second.size(); index++)
@@ -1334,7 +1343,7 @@ void TUISGBrowserTab::handleClient(covise::Message *msg)
         tb >> tablettype;
         int ID;
 
-        cerr.flush();
+        std::cerr.flush();
         switch (tablettype)
         {
         case TABLET_SET_VALUE:

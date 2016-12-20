@@ -22,7 +22,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "TrackObjects.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
-#include <appl/RenderInterface.h>
 #include <cover/coVRTui.h>
 #include <PluginUtil/coBaseCoviseInteractor.h>
 #include <OpenVRUI/coToolboxMenu.h>

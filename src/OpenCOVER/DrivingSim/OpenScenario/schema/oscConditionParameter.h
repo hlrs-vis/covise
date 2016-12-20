@@ -9,13 +9,13 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCCONDITIONPARAMETER_H
 #define OSCCONDITIONPARAMETER_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscTimeHeadway.h"
+#include "../oscVariables.h"
+#include "oscTimeHeadway.h"
 
 namespace OpenScenario
 {

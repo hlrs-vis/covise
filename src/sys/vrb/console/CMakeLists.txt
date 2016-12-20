@@ -27,7 +27,7 @@ SET(VRBC_HEADERS
 )
 
 ADD_COVISE_EXECUTABLE(vrbc ${VRBC_SOURCES} ${VRBC_HEADERS})
-TARGET_LINK_LIBRARIES(vrbc coVRBClient coCore coNet coUtil) 
+TARGET_LINK_LIBRARIES(vrbc coVRBClient coNet coUtil) 
 qt_use_modules(vrbc Core Network)
 
 COVISE_INSTALL_TARGET(vrbc)
