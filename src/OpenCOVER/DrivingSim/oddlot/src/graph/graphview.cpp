@@ -939,5 +939,9 @@ void
         shapeItem_->contextMenu(event);
 //        GraphViewShapeItem::contextMenuEvent(event);
     }
+	else
+	{
+		QGraphicsView::contextMenuEvent(event);
+	}
 }
 
