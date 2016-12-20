@@ -59,7 +59,7 @@
         </Construct4D>
 
     <VncServer value="false" rfbPort="5901" benchmark="true" />
-    <VncClient value="false" menu="true" rfbPort="31590" rfbHost="visent.hlrs.de" />
+    <RhrClient value="false" menu="true" rfbPort="31590" rfbHost="visent.hlrs.de" />
     <Volume value="false" menu="true">
        <UseHistogram value="false" />
 
