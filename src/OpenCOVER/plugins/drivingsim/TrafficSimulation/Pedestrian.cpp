@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "Pedestrian.h"
-#include "TrafficSimulationPlugin.h"
+#include "TrafficSimulation.h"
 
 /**
  * Create a new pedestrian
@@ -131,7 +131,7 @@ bool Pedestrian::isWithinRange(const double r) const
  */
 void Pedestrian::executeWave()
 {
-    geometry->executeWave(0.9 + 0.3 * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber());
+    geometry->executeWave(0.9 + 0.3 * TrafficSimulation::instance()->getZeroOneRandomNumber());
 }
 
 /**
@@ -139,7 +139,7 @@ void Pedestrian::executeWave()
  */
 void Pedestrian::executeAction(const int idx)
 {
-    geometry->executeAction(idx, 0.9 + 0.3 * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber());
+    geometry->executeAction(idx, 0.9 + 0.3 * TrafficSimulation::instance()->getZeroOneRandomNumber());
 }
 
 /**
@@ -525,7 +525,7 @@ void Pedestrian::setNewU(const double dt)
             if (getWaitingFor() == NULL)
             {
                 // Set a new velocity target up to 1/8 less than nominal velocity
-                double velDiff = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() * (pedParams.duMax) / 8;
+                double velDiff = TrafficSimulation::instance()->getZeroOneRandomNumber() * (pedParams.duMax) / 8;
                 pedState.duStart = pedState.du;
                 pedState.duTgt = pedParams.duMax - velDiff;
 
@@ -818,7 +818,7 @@ void Pedestrian::checkForNewCrosswalk()
         // Just entered a new crosswalk
         pedLoc.crosswalk = newCrosswalk;
 
-        double randNum = TrafficSimulationPlugin::plugin->getZeroOneRandomNumber();
+        double randNum = TrafficSimulation::instance()->getZeroOneRandomNumber();
         bool takeCrosswalk = (randNum <= newCrosswalk->getCrossProb());
         if (takeCrosswalk)
         {
@@ -931,7 +931,7 @@ void Pedestrian::setNewV(const double dt)
         {
             // Got to the target, so set a new target (unless performing avoidance)
             // Generate a new random target within the center half of the lane (+/- 1/4 of the width from the lane center)
-            int randNum = TrafficSimulationPlugin::plugin->getIntegerRandomNumber();
+            int randNum = TrafficSimulation::instance()->getIntegerRandomNumber();
             int widthLim = (int)floor(((getWalkwayWidth()) * 0.5 * 0.25) * 100);
 
             // Adjust the limit based on current velocity
@@ -942,7 +942,7 @@ void Pedestrian::setNewV(const double dt)
                 double tgt = ((double)(randNum % (widthLim + 1))) / 100;
 
                 // Also randomize choice of positive/negative
-                tgt = (TrafficSimulationPlugin::plugin->getZeroOneRandomNumber() <= 0.5) ? tgt : -tgt;
+                tgt = (TrafficSimulation::instance()->getZeroOneRandomNumber() <= 0.5) ? tgt : -tgt;
 
                 //DEBUG
                 if (debugLvl > 0)
@@ -1054,7 +1054,7 @@ void Pedestrian::crossStreet(const double dt)
 
                     if (pedState.crossWaitTimer < 1.0e-8)
                     {
-                        geometry->executeLook(0.9 + 0.3 * TrafficSimulationPlugin::plugin->getZeroOneRandomNumber());
+                        geometry->executeLook(0.9 + 0.3 * TrafficSimulation::instance()->getZeroOneRandomNumber());
 
                         //DEBUG
                         if (debugLvl > 0)
