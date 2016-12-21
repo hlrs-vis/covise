@@ -443,6 +443,7 @@ char *get_current_timestamp(void)
 
 void print_usage(void)
 {
+    fprintf(stderr, "rTcpClient - rTcp tunnel exit point\n");
     fprintf(stderr, "Usage: %s [options]\n\n", name);
 }
 
@@ -453,21 +454,21 @@ void print_helpinfo(void)
 
 void print_help(void)
 {
-    fprintf(stderr, "\
-         Options:\n\
-         --version\n\
-         --help\n\n\
-         --tunnel-port=PORT    local port\n\
-         --tunnel-host=PORT    local host\n\
-         --remote-port=PORT   remote port\n\
-         --remote-host=HOST   remote host\n\
-         --buffer-size=BYTES  buffer size\n"
+    fprintf(stderr,
+"        Options:\n"
+"        --version\n"
+"        --help\n\n"
+"        --tunnel-port=PORT   tunnel port (port where rTcpServer is listening)\n"
+"        --tunnel-host=PORT   tunnel host (host where rTcpServer is running)\n"
+"        --remote-port=PORT   remote port (where to forward incoming tunnel connections to)\n"
+"        --remote-host=HOST   remote host (where to forward incoming tunnel connections to)\n"
+"        --buffer-size=BYTES  buffer size\n"
 #ifndef __MINGW32__
-                    "  --fork               fork-based concurrency\n"
+"        --fork               fork-based concurrency\n"
 #endif
-                    "  --log\n\
-         --stay-alive\n\n\
-         \n");
+"        --log\n"
+"        --stay-alive\n"
+"\n");
 }
 
 void print_version(void)
