@@ -1542,7 +1542,7 @@ int ReadABAQUSfil::compute(const char *port)
     obj_name_lgrid += "_Local_Grid_Set_No_";
     obj_name_lgrid += boost::lexical_cast<std::string>(it-set_nums.begin());
     coDoSet *incSet  = new coDoSet(obj_name_lgrid.c_str(),0);
-    for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
+    for (vector<tStephead>::iterator sit = vsteps.begin(); sit != vsteps.end(); ++sit) {
       incSet ->addElement(setGrid);
       incSet ->incRefCount();
     }
