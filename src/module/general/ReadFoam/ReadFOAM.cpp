@@ -976,7 +976,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
             float *x=vecObj->getAddress();
         if (header.lines==0)
         {
-            float uniformFieldValue=std::stof(header.internalField,NULL);
+            float uniformFieldValue=std::atof(header.internalField.c_str());
             for (int i=0; i<numberCells; ++i)
             {
                 x[i] = uniformFieldValue;
@@ -996,7 +996,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
         int *d=vecObj->getAddress();
         if (header.lines==0)
         {
-            int uniformFieldValue=std::stoi(header.internalField,NULL);
+            int uniformFieldValue=std::atoi(header.internalField.c_str());
             for (int i=0; i<numberCells; ++i)
             {
                 d[i] = uniformFieldValue;
@@ -1069,7 +1069,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
 
         if (header.lines==0)
         {
-            float uniformFieldValue=std::stof(header.internalField,NULL);
+            float uniformFieldValue=std::atof(header.internalField.c_str());
             for (int i=0; i<numBoundaryFaces; ++i)
             {
                 x[i] = uniformFieldValue;

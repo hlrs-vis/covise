@@ -32,6 +32,8 @@
 #include <inttypes.h>
 #endif
 #include <sys/stat.h>
+// Boost headers
+#include <boost/lexical_cast.hpp>
 // COVISE data types
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
@@ -1158,15 +1160,15 @@ int ReadABAQUSfil::compute(const char *port)
     //Allocate Output Data Objects ********************************************
     string obj_name_eres = p_eresOutPort->getObjName();
     obj_name_eres += "ERes_Step_";
-    obj_name_eres += std::to_string((*it).Step_no);
+    obj_name_eres += boost::lexical_cast<std::string>((*it).Step_no);
     obj_name_eres += "_Inc_";
-    obj_name_eres += std::to_string((*it).Inc_no);
+    obj_name_eres += boost::lexical_cast<std::string>((*it).Inc_no);
 
     string obj_name_tres = p_tresOutPort->getObjName();
     obj_name_tres += "TRes_Step_";
-    obj_name_tres += std::to_string((*it).Step_no);
+    obj_name_tres += boost::lexical_cast<std::string>((*it).Step_no);
     obj_name_tres += "_Inc_";
-    obj_name_tres += std::to_string((*it).Inc_no);
+    obj_name_tres += boost::lexical_cast<std::string>((*it).Inc_no);
 
     coDoFloat  *data  = new coDoFloat (obj_name_eres.c_str(), jobhead.no_sup_elems);
     coDoTensor *tdata = new coDoTensor(obj_name_tres.c_str(), jobhead.no_sup_elems, coDoTensor::S3D);
@@ -1308,9 +1310,9 @@ int ReadABAQUSfil::compute(const char *port)
     //Allocate Output Data Objects ********************************************
     string obj_name_nres = p_nresOutPort->getObjName();
     obj_name_nres += "NRes_Step_";
-    obj_name_nres += std::to_string((*it).Step_no);
+    obj_name_nres += boost::lexical_cast<std::string>((*it).Step_no);
     obj_name_nres += "_Inc_";
-    obj_name_nres += std::to_string((*it).Inc_no);
+    obj_name_nres += boost::lexical_cast<std::string>((*it).Inc_no);
 
     coDoVec3 *ndata = new coDoVec3(obj_name_nres.c_str(), jobhead.no_nodes);
 
@@ -1445,7 +1447,7 @@ int ReadABAQUSfil::compute(const char *port)
     
     string obj_name_grid = p_SetgridOutPort->getObjName();
     obj_name_grid += "_Grid_Set_No_";
-    obj_name_grid += std::to_string(it-set_nums.begin());
+    obj_name_grid += boost::lexical_cast<std::string>(it-set_nums.begin());
     printf("setGrid name: %s\n",obj_name_grid.c_str());
     // allocate new Unstructured grid *****************************************
     coDoUnstructuredGrid *setGrid = 
@@ -1538,7 +1540,7 @@ int ReadABAQUSfil::compute(const char *port)
     // objects to match the Grid objects increment wise to the data objects    **
     string obj_name_lgrid = p_SetgridOutPort->getObjName();
     obj_name_lgrid += "_Local_Grid_Set_No_";
-    obj_name_lgrid += std::to_string(it-set_nums.begin());
+    obj_name_lgrid += boost::lexical_cast<std::string>(it-set_nums.begin());
     coDoSet *incSet  = new coDoSet(obj_name_lgrid.c_str(),0);
     for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
       incSet ->addElement(setGrid);
@@ -1565,7 +1567,7 @@ int ReadABAQUSfil::compute(const char *port)
     // Set for scalar element results per element set ***************
     string obj_name_eres = p_SetgridResPort->getObjName();
     obj_name_eres += "ERes_Set_No_";
-    obj_name_eres += std::to_string(it-set_nums.begin());
+    obj_name_eres += boost::lexical_cast<std::string>(it-set_nums.begin());
     coDoSet *outStepEResSet  = new coDoSet(obj_name_eres.c_str(),0);
 
     if (!outStepEResSet->objectOk()) {
@@ -1576,7 +1578,7 @@ int ReadABAQUSfil::compute(const char *port)
     // Set for tensor element results per element set ***************
     string obj_name_tres = p_SetgridTResPort->getObjName();
     obj_name_tres += "TRes_Set_No_";
-    obj_name_tres += std::to_string(it-set_nums.begin());
+    obj_name_tres += boost::lexical_cast<std::string>(it-set_nums.begin());
     coDoSet *outStepTResSet  = new coDoSet(obj_name_tres.c_str(),0);
 
     if (!outStepTResSet->objectOk()) {
@@ -1587,7 +1589,7 @@ int ReadABAQUSfil::compute(const char *port)
     // Set for nodal results per element set ************************
     string obj_name_nres = p_SetgridnResPort->getObjName();
     obj_name_nres += "NRes_Set_No_";
-    obj_name_nres += std::to_string(it-set_nums.begin());
+    obj_name_nres += boost::lexical_cast<std::string>(it-set_nums.begin());
     coDoSet *outStepNResSet  = new coDoSet(obj_name_nres.c_str(),0);
 
     if (!outStepNResSet->objectOk()) {
@@ -1614,27 +1616,27 @@ int ReadABAQUSfil::compute(const char *port)
       // Create unique object names *********************************
       string obj_name_steperes = p_SetgridResPort->getObjName();
       obj_name_steperes += "_ERes_Set_No_";
-      obj_name_steperes += std::to_string(it-set_nums.begin());
+      obj_name_steperes += boost::lexical_cast<std::string>(it-set_nums.begin());
       obj_name_steperes += "_Step_";
-      obj_name_steperes += std::to_string((*sit).Step_no);
+      obj_name_steperes += boost::lexical_cast<std::string>((*sit).Step_no);
       obj_name_steperes += "_Inc_";
-      obj_name_steperes += std::to_string((*sit).Inc_no);
+      obj_name_steperes += boost::lexical_cast<std::string>((*sit).Inc_no);
 
       string obj_name_steptres = p_SetgridTResPort->getObjName();
       obj_name_steptres += "_TRes_Set_No_";
-      obj_name_steptres += std::to_string(it-set_nums.begin());
+      obj_name_steptres += boost::lexical_cast<std::string>(it-set_nums.begin());
       obj_name_steptres += "_Step_";
-      obj_name_steptres += std::to_string((*sit).Step_no);
+      obj_name_steptres += boost::lexical_cast<std::string>((*sit).Step_no);
       obj_name_steptres += "_Inc_";
-      obj_name_steptres += std::to_string((*sit).Inc_no);
+      obj_name_steptres += boost::lexical_cast<std::string>((*sit).Inc_no);
     
       string obj_name_stepnres = p_SetgridnResPort->getObjName();
       obj_name_stepnres += "_NRes_Set_No_";
-      obj_name_stepnres += std::to_string(it-set_nums.begin());
+      obj_name_stepnres += boost::lexical_cast<std::string>(it-set_nums.begin());
       obj_name_stepnres += "_Step_";
-      obj_name_stepnres += std::to_string((*sit).Step_no);
+      obj_name_stepnres += boost::lexical_cast<std::string>((*sit).Step_no);
       obj_name_stepnres += "_Inc_";
-      obj_name_stepnres += std::to_string((*sit).Inc_no);
+      obj_name_stepnres += boost::lexical_cast<std::string>((*sit).Inc_no);
 
       // Object for increment nodal results *************************
       coDoVec3 *setndata = new coDoVec3(obj_name_stepnres.c_str(),
