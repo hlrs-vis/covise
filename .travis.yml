@@ -1,0 +1,68 @@
+#--------------------------------------------------------------------------------------------------
+# Configuration script for use with continuous integration service travis-ci.org
+#
+
+sudo: false
+dist: trusty
+
+language: cpp
+os:
+    - linux
+    - osx
+
+env:
+    matrix:
+        - STD="CPP03" BUILD_TYPE="Debug"
+        - STD="CPP03" BUILD_TYPE="Release"
+        - STD="CPP11" BUILD_TYPE="Debug"
+        - STD="CPP11" BUILD_TYPE="Release"
+
+#FIXME:
+matrix:
+    exclude:
+        - env: STD="CPP11" BUILD_TYPE="Debug"
+        - os: osx
+
+addons:
+    apt:
+        packages:
+            - libboost-all-dev
+            - libglew-dev
+            - libxi-dev
+            - libxmu-dev
+            - freeglut3-dev
+            - qttools5-dev
+            - qtscript5-dev
+            - libqt5scripttools5
+            - libqt5svg5-dev
+            - libqt5opengl5-dev
+            - libqt5webkit5-dev
+            - libxerces-c-dev
+            - libpng12-dev
+            - libopenscenegraph-dev
+
+before_install:
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew update; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall xerces-c ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall glew ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall giflib ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall libpng ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall libtiff ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall freetype ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall boost ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall python3 ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall qt5 ;fi
+
+install:
+    - pip3 install PyQt5
+
+script:
+
+    - export COVISE_CMAKE_OPTIONS=-DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    - export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_RENDERER:BOOL=OFF "$COVISE_CMAKE_OPTIONS
+    - if [ "$STD" = "CPP03" ]; then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=OFF "$COVISE_CMAKE_OPTIONS; fi
+    - if [ "$STD" = "CPP11" ]; then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
+    - export COVISE_CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX="${HOME}"/install "$COVISE_CMAKE_OPTIONS
+    - source .covise.sh
+    - make -j6
+    - make install
