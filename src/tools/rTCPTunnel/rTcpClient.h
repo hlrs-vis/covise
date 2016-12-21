@@ -14,7 +14,6 @@
 #define TUNNEL_PORT_OPTION 'k'
 #define REMOTE_PORT_OPTION 'b'
 #define REMOTE_HOST_OPTION 'c'
-#define BIND_ADDRESS_OPTION 'd'
 #define BUFFER_SIZE_OPTION 'e'
 #define FORK_OPTION 'f'
 #define LOG_OPTION 'g'
@@ -48,7 +47,6 @@ struct struct_settings
     unsigned int tunnel_host : 1;
     unsigned int remote_port : 1;
     unsigned int remote_host : 1;
-    unsigned int bind_address : 1;
     unsigned int buffer_size : 1;
     unsigned int fork : 1;
     unsigned int log : 1;
@@ -61,7 +59,6 @@ struct struct_options
     char *tunnel_host;
     char *remote_port;
     char *remote_host;
-    char *bind_address;
     unsigned int buffer_size;
 };
 

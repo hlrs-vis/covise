@@ -53,7 +53,7 @@
 
 struct struct_rc rc;
 struct struct_options options;
-struct struct_settings settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+struct struct_settings settings = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static struct option long_options[] = {
     { "tunnel-port", required_argument, NULL, TUNNEL_PORT_OPTION },
@@ -165,13 +165,6 @@ void set_options(int argc, char *argv[])
         {
             options.remote_host = optarg;
             settings.remote_host = 1;
-            break;
-        }
-
-        case BIND_ADDRESS_OPTION:
-        {
-            options.bind_address = optarg;
-            settings.bind_address = 1;
             break;
         }
 
@@ -468,7 +461,6 @@ void print_help(void)
          --tunnel-host=PORT    local host\n\
          --remote-port=PORT   remote port\n\
          --remote-host=HOST   remote host\n\
-         --bind-address=IP    bind address\n\
          --buffer-size=BYTES  buffer size\n"
 #ifndef __MINGW32__
                     "  --fork               fork-based concurrency\n"
