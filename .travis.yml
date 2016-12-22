@@ -2,6 +2,10 @@
 # Configuration script for use with continuous integration service travis-ci.org
 #
 
+notifications:
+  email:
+    - covise-commits@listserv.uni-stuttgart.de
+
 sudo: false
 dist: trusty
 
