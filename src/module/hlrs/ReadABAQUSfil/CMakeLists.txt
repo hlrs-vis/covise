@@ -1,3 +1,5 @@
+USING(Boost)
+
 SET(HEADERS
   ReadABAQUSfil.h
 )
