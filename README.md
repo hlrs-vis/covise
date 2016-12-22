@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
+
 COVISE and OpenCOVER
 ====================
 
