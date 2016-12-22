@@ -499,12 +499,17 @@ Source: {#EXTERNLIBS}\python\*; DestDir: {app}\extern_libs\python; Flags: recurs
 ; we are using Qt version >= 4.5.0 LGPL
 Source: {#QT}\bin\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#QT}\plugins\*.dll; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
+Source: {#QT}\resources; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
+Source: {#QT}\translations; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
 Source: {#EXTERNLIBS}\icu\bin64\*.dll; DestDir: {#DBIN}; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc14\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PTHREAD}\lib\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#PNG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core     
+Source: {#EXTERNLIBS}\libpng\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\SDL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#GEOS}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#CG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#CUDAPATH}\bin\cudart*.dll; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: core
@@ -545,7 +550,7 @@ Source: {#OPENSCENEGRAPH}\bin\osgPlugins-{#OSG_VER_NUM}\*; DestDir: {#DLIB}; Com
 Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\Proj4\bin\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\Proj4\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
@@ -555,9 +560,9 @@ Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexis
 Source: {#EXTERNLIBS}\collada\lib\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\cudpp\bin\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\vtk\bin\*.dll; DestDir: {#DLIB}; Components: core
-Source: {#AUDIOFILE}\lib\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#FFTW}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#GDAL}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#AUDIOFILE}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#FFTW}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#GDAL}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#TIFF}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#JPEG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#ZLIB}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
@@ -567,7 +572,8 @@ Source: {#EXTERNLIBS}\osgEarth\bin\*.dll; Flags: skipifsourcedoesntexist; DestDi
 Source: {#EXTERNLIBS}\osgEarth\bin\osgPlugins-{#OSG_VER_NUM}\*.dll; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
 Source: {#EXTERNLIBS}\curl\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\Xerces\lib\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\Xerces\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\Xerces\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 
 #if (ARCHSUFFIX == "angusopt") || (ARCHSUFFIX == "vistaopt")  || (ARCHSUFFIX == "zackelopt") || (ARCHSUFFIX == "amdwin63opt")
 ;Source: {#EXTERNLIBS}\GDCM\bin\Release\*.exe; DestDir: {#DBIN}; Components: core
