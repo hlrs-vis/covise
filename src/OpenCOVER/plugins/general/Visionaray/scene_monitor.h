@@ -58,15 +58,29 @@ namespace scene
     {
     public:
 
+        // Flags that indicate what scene data changed
+        static const unsigned UpdateGeometry  =  1;
+        static const unsigned UpdateNormals   =  2;
+        static const unsigned UpdateTexCoords =  4;
+        static const unsigned UpdateColors    =  8;
+        static const unsigned UpdateMaterials = 16;
+        static const unsigned UpdateTextures  = 32;
+
+    public:
+
         void add_observable(std::shared_ptr<Observable> obs);
         void update();
 
         bool need_clear_frame();
+
+        // Return a bit field that indicates what scene data changed
+        unsigned update_bits();
 
     private:
 
         std::vector<std::shared_ptr<Observable> > observables_;
 
         bool need_clear_frame_ = true;
+        unsigned update_bits_ = 0;
     };
 }
