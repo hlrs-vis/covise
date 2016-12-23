@@ -156,6 +156,10 @@ rename lib file to gdalD.lib and gdalD_i.lib and copy to externlibs/gdal/lib
 #PThreads
 download pthreads4w
 
+comment out this in _ptw32.h
+#  define int64_t _int64
+#  define uint64_t unsigned _int64
+
 #OpenSceneGraph
 Clone https://github.com/openscenegraph/OpenSceneGraph.git to OpenSceneGraph
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenSceneGraph -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
@@ -180,9 +184,55 @@ set ZLIB_SOURCE=d:\src\gitbase\zlib-1.2.8
 b2 address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-mpi -j8 
 
 
-#OpenCV
-cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenCV
+#OpenCV3
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenCV3
+set contrib/modules directory in cmake-gui
 disable performance tests and normal tests, build (be very patient) and install
 
 #vtk
-cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/VTK
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/VTK  -DCMAKE_DEBUG_POSTFIX=d
+
+#hdf5
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/hdf5
+
+
+#alvar
+alvar needs openCV 2.4 (currently 2412)
+thus first compile OpenCV2.4 as follows:
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenCV2
+then
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/alvar -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/alvar -DALVAR_NOGLUT=true -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+#osgcal
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgcal -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/cal3d
+
+#assimp
+https://github.com/assimp/assimp.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/assimp -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+
+#v8
+set PYTHONHOME=
+set DEPOT_TOOLS_WIN_TOOLCHAIN=0
+mkdir depot_tools
+cd depot_tools
+curl -O https://storage.googleapis.com/chrome-infra/depot_tools.zip
+cmake -E tar xf "depot_tools.zip" --format=zip
+SET PATH=%CD%;%CD%\python276_bin;%PATH%
+cd ..
+gclient config https://chromium.googlesource.com/v8/v8
+set GYP_MSVS_VERSION=2015
+gclient sync
+cd v8
+python tools/dev/v8gen.py x64.release
+ninja -C out.gn/x64.release
+
+#fftw3 
+Download source from http://www.fftw.org/download.html and extract.
+Additional we need from http://www.fftw.org/install/windows.html Project files to compile FFTW 3.3 with Visual Studio 2010 under Building FFTW 3.x under Visual C++/Intel compilers (scroll down). Extract this archive into the above folder SDKROOT\fftw-3.3.4.
+Open project file SDKROOT\fftw-3.3.4\fftw-3.3-libs\fftw-3.3-libs.sln.
+Select Release and Win32 or x64.
+Open context menu on libfftw-3.3, select Properties. Under Configuration Properties > General check Platform toolset. Change from Windows 7.1SDK to Visual Studio 2013 (v120). Go to Configuration Properties > C/C++ > Code Generation > Run time library and change to Multi threaded DLL (/MD). Close dialog with Ok.
+Open context menu on libfftw-3.3, select Add > Existing item, select file SDKROOT\fftw-3.3.4\api\mkprinter-str.c
+Now build project libfftw-3.3
