@@ -1,4 +1,4 @@
-USING(ASSIMP)
+USING(Assimp)
 
 SET(HEADERS
   ReadModel.h

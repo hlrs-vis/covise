@@ -22,11 +22,11 @@
 
 // Module set-up in Constructor
 ReadModel::ReadModel(int argc, char *argv[])
-    : coModule(argc, argv, "Read STL")
+    : coModule(argc, argv, "Read Models")
 {
     // file browser parameter
     p_filename = addFileBrowserParam("file_path", "Data file path");
-    p_filename->setValue("data/nofile.stl", "*.stl;*.STL/*");
+	p_filename->setValue("data/nofile.stl", "*.stl;*.amf;*.3ds;*.ac;*.ase;*.assbin;*.assxml;*.b3d;*.bvh;*.collada;*.xml;*.dxf;*.csm;*.hmp;*.irrmesh;*.irr;*.lwo;*.lws;*.md?;*.nff;*.ndo;*.off;*.obj;*.ogre;*.opengex;*.ply;*.ms3d;*.cob;*.blend;*.ifc;*.xgl;*.fbx;*.q3d;*.q3bsp;*.raw;*.sib;*.smd;;*.terragen;*.3d;*.x;*,x3d;*.gltf;*.3mf");
 
 
     // activate automatic FixUsg ?
