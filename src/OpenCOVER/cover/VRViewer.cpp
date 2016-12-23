@@ -936,23 +936,23 @@ VRViewer::config()
 #ifdef __linux__
     if(coVRConfig::instance()->lockToCPU()>=0)
     {
-	cpu_set_t cpumask;
-	CPU_ZERO(&cpumask);
-	
+        cpu_set_t cpumask;
+        CPU_ZERO(&cpumask);
+
         CPU_SET(coVRConfig::instance()->lockToCPU(), &cpumask);
-	
-	pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
+
+        pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
     }
     else
     {
-	cpu_set_t cpumask;
-	CPU_ZERO(&cpumask);
-	for (int i = 0; i < CPU_SETSIZE; i++)
-	{
-	    CPU_SET(i, &cpumask);
-	}
+        cpu_set_t cpumask;
+        CPU_ZERO(&cpumask);
+        for (int i = 0; i < CPU_SETSIZE; i++)
+        {
+            CPU_SET(i, &cpumask);
+        }
 
-	pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
+        pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
     }
 //#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
 //           sched_setaffinity( 0, sizeof(cpumask), &cpumask );
