@@ -344,11 +344,11 @@ static coDoGrid *vtkRGrid2Covise(const coObjInfo &info, vtkRectilinearGrid *vrgr
 
     vtkDataArray *vy = vrgrid->GetYCoordinates();
     for (int i = 0; i < n[1]; ++i)
-        c[0][i] = vy->GetTuple1(i);
+        c[1][i] = vy->GetTuple1(i);
 
     vtkDataArray *vz = vrgrid->GetZCoordinates();
     for (int i = 0; i < n[2]; ++i)
-        c[0][i] = vz->GetTuple1(i);
+        c[2][i] = vz->GetTuple1(i);
 
     return rgrid;
 }
@@ -490,7 +490,7 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
 
         vtkCellArray *polys = vpolydata->GetPolys();
         int ncorner = polys->GetNumberOfConnectivityEntries() - npolys + 3 * nstriptris;
-        coDoPolygons *cpoly = new coDoPolygons(info, ncoord, ncorner, npolys + 3 * nstriptris);
+        coDoPolygons *cpoly = new coDoPolygons(info, nstriptris+npolys, ncorner, ncoord);
         geo = cpoly;
 
         int *cornerlist, *polylist;
