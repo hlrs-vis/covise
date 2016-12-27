@@ -432,7 +432,6 @@ bool OpenCOVER::init()
         fprintf(stderr, "PWD: %s\n", getenv("PWD"));
     }
 
-    Input::instance()->init();
 
     exitFlag = false;
 
@@ -442,6 +441,7 @@ bool OpenCOVER::init()
     coVRMSController::instance()->syncTime();
 
     coVRPluginList::instance();
+	Input::instance()->init();
     coVRTui::instance();
 
     ARToolKit::instance();

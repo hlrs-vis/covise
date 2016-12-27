@@ -119,7 +119,20 @@ Input::~Input()
     clearMap(trackingbodies);
     clearMap(valuators);
     clearMap(drivers);
-    clearMap(plugins);
+
+	for (std::map<std::string, DriverFactoryBase *>::iterator it = plugins.begin();
+		it != plugins.end();
+		++it)
+	{
+		DriverFactoryBase *dfb = it->second;
+		CO_SHLIB_HANDLE handle = dfb->getLibHandle();
+		delete dfb;
+		if (handle)
+		{
+			opencover::coVRDynLib::dlclose(handle); // this has to be called after the destructor, otherwise the code gets unloaded while it is still executing
+		}
+	}
+	plugins.clear();
 }
 
 void Input::printConfig() const

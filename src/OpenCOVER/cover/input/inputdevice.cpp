@@ -236,13 +236,6 @@ DriverFactoryBase::DriverFactoryBase(const std::string &name)
 
 DriverFactoryBase::~DriverFactoryBase()
 {
-
-    if (m_handle)
-    {
-        // FIXME: call at appropriate location
-        //opencover::coVRDynLib::dlclose(m_handle);
-        std::cerr << "Input: removed driver factory \"" << m_name << "\"" << std::endl;
-    }
 }
 
 void DriverFactoryBase::setLibHandle(CO_SHLIB_HANDLE handle)
