@@ -58,6 +58,7 @@ struct struct_settings settings = { 0, 0, 0, 0, 0, 0, 0 };
 static struct option long_options[] = {
     { "local-port", required_argument, NULL, LOCAL_PORT_OPTION },
     { "remote-port", required_argument, NULL, REMOTE_PORT_OPTION },
+    { "bind-address", required_argument, NULL, BIND_ADDRESS_OPTION },
     { "buffer-size", required_argument, NULL, BUFFER_SIZE_OPTION },
 #ifndef __MINGW32__
     { "fork", no_argument, NULL, FORK_OPTION },
@@ -534,6 +535,7 @@ char *get_current_timestamp(void)
 
 void print_usage(void)
 {
+    fprintf(stderr, "rTcpServer - rTcp tunnel entry point\n");
     fprintf(stderr, "Usage: %s [options]\n\n", name);
 }
 
@@ -544,21 +546,20 @@ void print_helpinfo(void)
 
 void print_help(void)
 {
-    fprintf(stderr, "\
-         Options:\n\
-         --version\n\
-         --help\n\n\
-         --local-port=PORT    local port\n\
-         --remote-port=PORT   remote port\n\
-         --remote-host=HOST   remote host\n\
-         --bind-address=IP    bind address\n\
-         --buffer-size=BYTES  buffer size\n"
+    fprintf(stderr,
+"        Options:\n"
+"        --version\n"
+"        --help\n\n"
+"        --local-port=PORT    local port (where tunnel users connect to)\n"
+"        --remote-port=PORT   remote port (where rTcpClients connect to)\n"
+"        --bind-address=IP    bind address (for both tunnel and user clients)\n"
+"        --buffer-size=BYTES  buffer size\n"
 #ifndef __MINGW32__
-                    "  --fork               fork-based concurrency\n"
+"        --fork               fork-based concurrency\n"
 #endif
-                    "  --log\n\
-         --stay-alive\n\n\
-         \n");
+"        --log\n"
+"        --stay-alive\n"
+"\n");
 }
 
 void print_version(void)

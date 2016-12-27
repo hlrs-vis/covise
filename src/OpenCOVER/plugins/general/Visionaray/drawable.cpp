@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <new>
 #include <string>
 #include <thread>
 #include <type_traits>
@@ -1174,71 +1175,89 @@ namespace visionaray
         if (!scene_valid())
             return;
 
-        if (bits & scene::Monitor::UpdateGeometry)
+        try
         {
-            device_bvhs.resize(host_bvhs.size());
-            for (size_t i = 0; i < host_bvhs.size(); ++i)
-                device_bvhs[i] = device_bvh_type(host_bvhs[i]);
-        }
-
-        if (bits & scene::Monitor::UpdateNormals)
-        {
-            device_normals.resize(normals.size());
-            for (size_t i = 0; i < normals.size(); ++i)
-                device_normals[i] = normals[i];
-        }
-
-        if (bits & scene::Monitor::UpdateTexCoords)
-        {
-            device_tex_coords.resize(tex_coords.size());
-            for (size_t i = 0; i < tex_coords.size(); ++i)
-                device_tex_coords[i] = tex_coords[i];
-        }
-
-        if (bits & scene::Monitor::UpdateColors)
-        {
-            device_colors.resize(colors.size());
-            for (size_t i = 0; i < colors.size(); ++i)
-                device_colors[i] = colors[i];
-        }
-
-        if (bits & scene::Monitor::UpdateMaterials)
-        {
-            device_materials.resize(materials.size());
-            for (size_t i = 0; i < materials.size(); ++i)
-                device_materials[i] = materials[i];
-        }
-
-        if (bits & scene::Monitor::UpdateTextures)
-        {
-            device_texture_refs.resize(texture_refs.size());
-            for (size_t i = 0; i < texture_refs.size(); ++i)
-                device_texture_refs[i].resize(texture_refs[i].size());
-
-            device_textures.clear();
-
-            for (auto const &pair_host_tex : textures)
+            if (bits & scene::Monitor::UpdateGeometry)
             {
-                auto const &host_tex = pair_host_tex.second;
-                device_tex_type device_tex(pair_host_tex.second);
-                auto const &p = device_textures.emplace(pair_host_tex.first, std::move(device_tex));
+                device_bvhs.resize(host_bvhs.size());
+                for (size_t i = 0; i < host_bvhs.size(); ++i)
+                    device_bvhs[i] = device_bvh_type(host_bvhs[i]);
+            }
 
-                assert(p.second /* inserted */);
+            if (bits & scene::Monitor::UpdateNormals)
+            {
+                device_normals.resize(normals.size());
+                for (size_t i = 0; i < normals.size(); ++i)
+                    device_normals[i] = normals[i];
+            }
 
-                auto it = p.first;
+            if (bits & scene::Monitor::UpdateTexCoords)
+            {
+                device_tex_coords.resize(tex_coords.size());
+                for (size_t i = 0; i < tex_coords.size(); ++i)
+                    device_tex_coords[i] = tex_coords[i];
+            }
 
-                // TODO: construct GPU data during get_scene_visitor traversal
-                for (size_t r = 0; r < texture_refs.size(); ++r)
+            if (bits & scene::Monitor::UpdateColors)
+            {
+                device_colors.resize(colors.size());
+                for (size_t i = 0; i < colors.size(); ++i)
+                    device_colors[i] = colors[i];
+            }
+
+            if (bits & scene::Monitor::UpdateMaterials)
+            {
+                device_materials.resize(materials.size());
+                for (size_t i = 0; i < materials.size(); ++i)
+                    device_materials[i] = materials[i];
+            }
+
+            if (bits & scene::Monitor::UpdateTextures)
+            {
+                device_texture_refs.resize(texture_refs.size());
+                for (size_t i = 0; i < texture_refs.size(); ++i)
+                    device_texture_refs[i].resize(texture_refs[i].size());
+
+                device_textures.clear();
+
+                for (auto const &pair_host_tex : textures)
                 {
-                    for (size_t i = 0; i < texture_refs[r].size(); ++i)
+                    auto const &host_tex = pair_host_tex.second;
+                    device_tex_type device_tex(pair_host_tex.second);
+                    auto const &p = device_textures.emplace(pair_host_tex.first, std::move(device_tex));
+
+                    assert(p.second /* inserted */);
+
+                    auto it = p.first;
+
+                    // TODO: construct GPU data during get_scene_visitor traversal
+                    for (size_t r = 0; r < texture_refs.size(); ++r)
                     {
-                        if (texture_refs[r][i].data() == host_tex.data())
+                        for (size_t i = 0; i < texture_refs[r].size(); ++i)
                         {
-                            device_texture_refs[r][i] = device_tex_ref_type(it->second);
+                            if (texture_refs[r][i].data() == host_tex.data())
+                            {
+                                device_texture_refs[r][i] = device_tex_ref_type(it->second);
+                            }
                         }
                     }
                 }
             }
+        }
+        catch (std::bad_alloc&)
+        {
+            std::cerr << "GPU memory allocation failed\n";
+            device_bvhs.clear();
+            device_bvhs.shrink_to_fit();
+            device_normals.clear();
+            device_normals.shrink_to_fit();
+            device_tex_coords.clear();
+            device_tex_coords.shrink_to_fit();
+            device_materials.clear();
+            device_materials.shrink_to_fit();
+            device_textures.clear();
+            device_texture_refs.clear();
+            device_texture_refs.shrink_to_fit();
         }
 #else
         (void)bits;

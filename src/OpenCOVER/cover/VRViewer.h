@@ -121,6 +121,7 @@ private:
     bool stereoOn;
 
     std::list<osg::ref_ptr<osg::Camera> > myCameras;
+    void setAffinity();
 
 public:
     void setFrustumAndView(int i);
