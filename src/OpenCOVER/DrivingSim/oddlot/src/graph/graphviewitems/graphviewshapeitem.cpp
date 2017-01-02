@@ -120,7 +120,7 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
     QGraphicsPathItem *pathItem = new QGraphicsPathItem(this);
     graphicItemGroup_->addToGroup(pathItem);
 
-    int pointSize = 4;
+    int pointSize = 3;
 
     if (active)
         pathItem->setBrush(QColor(140, 140, 240, 255));
@@ -128,7 +128,7 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
         pathItem->setBrush(QColor(120, 120, 220, 255));
 
     if (realPoint) {
-        pointSize = 6;
+ //       pointSize = 6;
         pathItem->setBrush(QColor(80, 80, 210, 150));
     }
 
@@ -191,14 +191,16 @@ GraphViewShapeItem::createPath()
 
 	
     QGraphicsPathItem *pathCubicItem = new QGraphicsPathItem(this);
-    QPen penCubic(QBrush(Qt::black), 2);
+    QPen penCubic(QBrush(Qt::black), 3);
+	penCubic.setCosmetic(true);
     pathCubicItem->setPen(penCubic);
     graphicItemGroup_->addToGroup(pathCubicItem);
 
     QGraphicsPathItem *pathHandleItem = new QGraphicsPathItem(this);
     QPen penHandle(Qt::black);
     penHandle.setStyle(Qt::DashLine);
-    penHandle.setWidth(1);
+    penHandle.setWidth(3);
+	penHandle.setCosmetic(true);
     pathHandleItem->setPen(penHandle);
     graphicItemGroup_->addToGroup(pathHandleItem);
 
@@ -709,6 +711,7 @@ void GraphViewShapeItem::mouseMoveEvent(QMouseEvent *e)
 		canvasWidth = std::abs(endPoint.x() - startPoint.x());
 		canvasHeight = std::abs(endPoint.y() - startPoint.y());
 	}
+
 }
 
 void 

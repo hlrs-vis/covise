@@ -616,13 +616,10 @@ GraphView::mousePressEvent(QMouseEvent *event)
         delete circleItem_;
         circleItem_ = NULL;
     }
-    else if (doShapeEdit_)
-    {
-        shapeItem_->mousePressEvent(event);
-    }
     else if (doKeyPan_)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
+		QApplication::setOverrideCursor(Qt::OpenHandCursor);
         setInteractive(false); // this prevents the event from being passed to the scene
         QGraphicsView::mousePressEvent(event); // pass to baseclass
     }
@@ -632,6 +629,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
         doPan_ = true;
 
         setDragMode(QGraphicsView::ScrollHandDrag);
+		QApplication::setOverrideCursor(Qt::OpenHandCursor);
         setInteractive(false); // this prevents the event from being passed to the scene
 
         // Harharhar Hack //
@@ -671,10 +669,14 @@ GraphView::mousePressEvent(QMouseEvent *event)
             }
         }
     }
-    else
-    {
+	else
+	{
+		if (doShapeEdit_)
+		{
+			shapeItem_->mousePressEvent(event);
+		}
 
-        QGraphicsView::mousePressEvent(event); // pass to baseclass
+		QGraphicsView::mousePressEvent(event); // pass to baseclass
     }
 }
 
@@ -704,10 +706,6 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
         circle.addEllipse(circleCenter_, radius_, radius_);
         circleItem_->setPath(circle);
     }
-    else if (doShapeEdit_)
-    {
-        shapeItem_->mouseMoveEvent(event);
-    }
     else if (doKeyPan_)
     {
         QGraphicsView::mouseMoveEvent(event); // pass to baseclass
@@ -722,6 +720,10 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
 #endif
     else
     {
+		if (doShapeEdit_)
+		{
+			shapeItem_->mouseMoveEvent(event);
+		}
         QGraphicsView::mouseMoveEvent(event); // pass to baseclass
     }
 }
@@ -729,100 +731,101 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
 void
 GraphView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (doShapeEdit_)
-    {
-        shapeItem_->mouseReleaseEvent(event);
-    }
-    else
-    {
-        if (doKeyPan_)
-        {
-            setDragMode(QGraphicsView::NoDrag);
-            setInteractive(true);
-            if (doBoxSelect_ == BBPressed)
-            {
-                doBoxSelect_ = BBActive;
-            }
-        }
+
+	if (doKeyPan_)
+	{
+		setDragMode(QGraphicsView::NoDrag);
+		setInteractive(true);
+		if (doBoxSelect_ == BBPressed)
+		{
+			doBoxSelect_ = BBActive;
+		}
+		doKeyPan_ = false;
+		QApplication::restoreOverrideCursor();
+	}
 
 #ifdef USE_MIDMOUSE_PAN
-        if (doPan_)
-        {
-            setDragMode(QGraphicsView::NoDrag);
-            setInteractive(true);
-            if (doBoxSelect_ == BBPressed)
-            {
-                doBoxSelect_ = BBActive;
-            }
-            doPan_ = false;
-        }
+	else if (doPan_)
+	{
+		setDragMode(QGraphicsView::NoDrag);
+		setInteractive(true);
+		if (doBoxSelect_ == BBPressed)
+		{
+			doBoxSelect_ = BBActive;
+		}
+		doPan_ = false;
+		QApplication::restoreOverrideCursor();
+	}
 #endif
+	else if (doShapeEdit_)
+	{
+		shapeItem_->mouseReleaseEvent(event);
 
-        //	setDragMode(QGraphicsView::RubberBandDrag);
+		QGraphicsView::mouseReleaseEvent(event);
+	}
+	//	setDragMode(QGraphicsView::RubberBandDrag);
 
-        else
-        {
-            if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
-            {
-                QGraphicsView::mouseReleaseEvent(event);
-            }
+	else
+	{
+		if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+		{
+			QGraphicsView::mouseReleaseEvent(event);
+		}
 
-            if ((doBoxSelect_ == BBActive) && rubberBand_)
-            {
-                QList<QGraphicsItem *> oldSelection;
+		if ((doBoxSelect_ == BBActive) && rubberBand_)
+		{
+			QList<QGraphicsItem *> oldSelection;
 
-                if (additionalSelection_)
-                {
-                    // Save old selection
+			if (additionalSelection_)
+			{
+				// Save old selection
 
-                    oldSelection = scene()->selectedItems();
-                }
+				oldSelection = scene()->selectedItems();
+			}
 
-                // Set the new selection area
+			// Set the new selection area
 
-                QPainterPath selectionArea;
+			QPainterPath selectionArea;
 
-                selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
-                selectionArea.closeSubpath();
-                scene()->clearSelection();
-                scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+			selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
+			selectionArea.closeSubpath();
+			scene()->clearSelection();
+			scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
 
-                // Compare old and new selection lists and invert the selection state of elements contained in both
+			// Compare old and new selection lists and invert the selection state of elements contained in both
 
-                QList<QGraphicsItem *> selectList = scene()->selectedItems();
-                foreach (QGraphicsItem *item, oldSelection)
-                {
-                    if (selectList.contains(item))
-                    {
-                        item->setSelected(false);
-                        selectList.removeOne(item);
-                    }
-                    else
-                    {
-                        item->setSelected(true);
-                    }
-                }
+			QList<QGraphicsItem *> selectList = scene()->selectedItems();
+			foreach (QGraphicsItem *item, oldSelection)
+			{
+				if (selectList.contains(item))
+				{
+					item->setSelected(false);
+					selectList.removeOne(item);
+				}
+				else
+				{
+					item->setSelected(true);
+				}
+			}
 
-                // deselect elements which were not in the oldSelection
+			// deselect elements which were not in the oldSelection
 
-                if ((event->modifiers() & Qt::AltModifier) != 0)
-                {
-                    foreach (QGraphicsItem *item, selectList)
-                    {
-                        item->setSelected(false);
-                    }
-                }
+			if ((event->modifiers() & Qt::AltModifier) != 0)
+			{
+				foreach (QGraphicsItem *item, selectList)
+				{
+					item->setSelected(false);
+				}
+			}
 
-                rubberBand_->hide();
-                doBoxSelect_ = BBOff;
-            }
-        }
+			rubberBand_->hide();
+			doBoxSelect_ = BBOff;
+		}
+	}
 
-        doPan_ = false;
-        doKeyPan_ = false;
-        additionalSelection_ = false;
-        setInteractive(true);
-    }
+	additionalSelection_ = false;
+	setInteractive(true);
+
 
     //	if(doBoxSelect_)
     //	{
