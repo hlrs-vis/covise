@@ -142,6 +142,30 @@ GraphView::resetViewTransformation()
     setTransform(trafo);
 }
 
+void
+GraphView::shapeEditing(bool edit)
+{            
+	if (edit)
+	{
+		doShapeEdit_ = true;
+		// OpenScenario Editor
+		//
+		OpenScenarioEditor * editor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
+		shapeItem_ = new GraphViewShapeItem(this, editor, x(), y(), width(), height());
+		scene()->addItem(shapeItem_);
+	}
+	else if (doShapeEdit_)
+	{
+		doShapeEdit_ = false;
+		//               splineControlPoints_.clear();
+		if (scene())
+		{
+			scene()->removeItem(shapeItem_);
+			delete shapeItem_;
+		}
+	}
+}
+
 //################//
 // SLOTS          //
 //################//
@@ -253,22 +277,7 @@ GraphView::toolAction(ToolAction *toolAction)
 
         if (id == ODD::TOS_GRAPHELEMENT)
         {
-            if (!doShapeEdit_)
-            {
-                doShapeEdit_ = true;
-                // OpenScenario Editor
-                //
-                OpenScenarioEditor * editor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
-                shapeItem_ = new GraphViewShapeItem(this, editor, x(), y(), width(), height());
-                scene()->addItem(shapeItem_);
-            }
-            else
-            {
-                doShapeEdit_ = false;
- //               splineControlPoints_.clear();
-                scene()->removeItem(shapeItem_);
-                delete shapeItem_;
-            }
+			shapeEditing(!doShapeEdit_);
         }
     }
 

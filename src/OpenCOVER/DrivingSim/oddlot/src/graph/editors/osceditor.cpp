@@ -56,6 +56,7 @@
 //
 #include "src/gui/tools/osceditortool.hpp"
 #include "src/gui/mouseaction.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 
 // Tree //
 //
@@ -109,6 +110,7 @@ using namespace OpenScenario;
 
 OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
     : ProjectEditor(projectWidget, projectData, topviewGraph)
+	, topviewGraph_(topviewGraph)
 	, oscBaseItem_(NULL)
 	, oscBase_(NULL)
 	, oscCatalog_(NULL)
@@ -210,7 +212,10 @@ OpenScenarioEditor::init()
 
 	// Reset change //
     //
-
+	if (trajectoryElement_ && trajectoryElement_->isElementHidden())
+	{
+		trajectoryElement_->setElementHidden(false);
+	}
     getProjectData()->getChangeManager()->notifyObservers();
 
 
@@ -238,6 +243,8 @@ OpenScenarioEditor::init()
 void
 OpenScenarioEditor::kill()
 {
+	enableSplineEditing(false);
+
 	if (oscRoadSystemItem_)
 	{
 		delete oscRoadSystemItem_;
@@ -249,7 +256,12 @@ OpenScenarioEditor::kill()
 		delete oscBaseItem_;
 		oscBaseItem_ = NULL;
 	}
+}
 
+void
+OpenScenarioEditor::enableSplineEditing(bool state)
+{
+	topviewGraph_->getView()->shapeEditing(state);
 }
 
 /*OSCHandle *

@@ -126,6 +126,8 @@ public slots:
         doShapeEdit_ = edit;
     }
 
+	void shapeEditing(bool edit);
+
     void setSplineControlPoints(const QVector<QPointF> &controlPoints)
     {
         splineControlPoints_ = controlPoints;
