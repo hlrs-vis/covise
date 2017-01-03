@@ -719,14 +719,16 @@ void coVRFileManager::reloadFile()
     }
 }
 
-void coVRFileManager::unloadFile()
+void coVRFileManager::unloadFile(const char *file)
 {
+    if (!file)
+        file = lastFileName;
     START("coVRFileManager::unloadFile");
-    if (lastFileName && lastCovise_key)
+    if (file && lastCovise_key)
     {
-        const FileHandler *handler = findFileHandler(lastFileName);
+        const FileHandler *handler = findFileHandler(file);
         if (handler && handler->unloadFile)
-            handler->unloadFile(lastFileName, lastCovise_key);
+            handler->unloadFile(file, lastCovise_key);
     }
 }
 
