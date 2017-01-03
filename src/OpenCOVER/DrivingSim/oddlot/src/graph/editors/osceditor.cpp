@@ -685,7 +685,10 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 											if (memberName)
 											{
 												OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(memberName->getValue());
-												selectedObjectName = str->getValue();
+												if (str)
+												{
+													selectedObjectName = str->getValue();
+												}
 											}
 											break;
 										}
