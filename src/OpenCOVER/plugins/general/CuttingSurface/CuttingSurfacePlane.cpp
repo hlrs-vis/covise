@@ -80,7 +80,7 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
     planePickInteractor_->disableIntersection();
 
     // direct interactor
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         planeDirectInteractor_ = NULL;
     }

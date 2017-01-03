@@ -154,7 +154,7 @@ bool ClipPlanePlugin::init()
         plane[i].PickInteractorButton->setEventListener(this);
         plane[i].PickInteractorButton->setPos(1, i);
 
-        if (coVRConfig::instance()->mouseTracking())
+        if (!coVRConfig::instance()->has6DoFInput())
         {
             plane[i].DirectInteractorButton = NULL;
         }

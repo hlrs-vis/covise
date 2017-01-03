@@ -53,7 +53,7 @@ IsoSurfacePoint::IsoSurfacePoint(coInteractor *inter, IsoSurfacePlugin *pl)
     pointPickInteractor_->disableIntersection();
 
     // direct interactor
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         pointDirectInteractor_ = NULL;
     }

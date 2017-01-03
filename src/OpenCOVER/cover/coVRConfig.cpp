@@ -683,6 +683,17 @@ bool coVRConfig::mouseNav() const
     return m_mouseNav;
 }
 
+bool coVRConfig::has6DoFInput() const
+{
+    for (int i=0; i<Input::instance()->getNumPersons(); ++i)
+    {
+        const Person *p = Input::instance()->getPerson(i);
+        if (p->hasHand(0))
+            return true;
+    }
+    return false;
+}
+
 bool coVRConfig::mouseTracking() const
 {
     return !Input::instance()->isTrackingOn() && mouseNav();

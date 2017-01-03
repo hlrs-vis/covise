@@ -296,6 +296,9 @@ public:
     // if mouse needs to be checked
     bool mouseTracking() const;
 
+    // whether there is a Person with a 6DoF input device
+    bool has6DoFInput() const;
+
     // if WiiMote needs to be checked
     bool useWiiMote() const;
     // wii navigation
