@@ -63,7 +63,6 @@ OpenScenarioEditorTool::initToolWidget()
 
 	ui->catalogComboBox->addItem("VehicleCatalog");
 	ui->catalogComboBox->addItem("DriverCatalog");
-	ui->catalogComboBox->addItem("ObserverCatalog");
 	ui->catalogComboBox->addItem("PedestrianCatalog");
 	ui->catalogComboBox->addItem("PedestrianControllerCatalog");
 	ui->catalogComboBox->addItem("MiscObjectCatalog");
