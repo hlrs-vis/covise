@@ -283,7 +283,7 @@ OpenScenarioEditor::getElements(oscObjectBase *root, const std::string &type)
     OpenScenario::oscObjectBase::MemberMap members = root->getMembers();
     for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 	{
-		oscMember *member = it->second;
+		oscMember *member = (*it).member;
 		if (member)
 		{
 			OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(member);

@@ -263,7 +263,7 @@ OSCObjectSettings::uiInit()
 	OpenScenario::oscObjectBase::MemberMap members = object_->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 	{
-		OpenScenario::oscMember *member = it->second;
+		OpenScenario::oscMember *member = (*it).member;
 		QString memberName = QString::fromStdString(member->getName());
 
 		if (choice && object_->isMemberInChoice(member))

@@ -160,7 +160,7 @@ OSCParser::createElements(const OpenScenario::oscObjectBase *object)
 	OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
     {
-        oscMember *member = it->second;
+        oscMember *member = (*it).member;
         if(member)
         {
 			if(member->getType() == oscMemberValue::OBJECT)
@@ -168,7 +168,7 @@ OSCParser::createElements(const OpenScenario::oscObjectBase *object)
 				oscObjectBase *memberObject = member->getObject();
 				if (memberObject)
 				{
-					OSCElement *oscElement = new OSCElement(QString::fromStdString(it->first), memberObject); 
+					OSCElement *oscElement = new OSCElement(QString::fromStdString((*it).name), memberObject); 
 					oscBase_->addOSCElement(oscElement);
 					createElements(memberObject);
 				}

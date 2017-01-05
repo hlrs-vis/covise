@@ -475,8 +475,7 @@ AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObje
 {
     // Check for validity //
     //
-	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
-	member_ = members[name];
+	member_ = parentObject_->getMember(name);
     if (name == "")
     {
         setInvalid(); // Invalid

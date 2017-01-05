@@ -361,7 +361,7 @@ bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
         //every object in a catalog (e.g. driver, vehicle ...) should have a member 'refId' of type int (oscInt)
         std::string name;
 
-        oscMember *objectNameMember = objectBase->getMembers()["name"];
+        oscMember *objectNameMember = objectBase->getMember(name);
         if (objectNameMember)
         {
             oscString *objNameVal = dynamic_cast<oscString *>(objectNameMember->getValue());

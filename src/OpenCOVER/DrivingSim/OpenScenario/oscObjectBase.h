@@ -58,7 +58,12 @@ class oscSourceFile;
 class OPENSCENARIOEXPORT oscObjectBase
 {
 public:
-    typedef unordered_map<std::string, oscMember *> MemberMap;
+	struct MemberElement {
+		std::string name;
+		oscMember *member;
+	};
+
+    typedef std::list<MemberElement> MemberMap;
     typedef std::vector<oscMember *> MemberChoice;
     typedef std::vector<oscMember *> MemberOptional;
 
