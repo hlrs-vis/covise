@@ -67,6 +67,7 @@
 #include <QScrollArea>
 #include <QGridLayout> 
 #include <QMessageBox>
+#include <QDateTimeEdit>
 
 // Utils //
 //
@@ -416,6 +417,16 @@ OSCObjectSettings::uiInit()
 				valueChangedMapper->setMapping(oscCheckBox, memberName);
 
 			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::DATE_TIME)
+			{
+				QDateTimeEdit *oscDateTimeEdit = new QDateTimeEdit();
+				memberWidgets_.insert(memberName, oscDateTimeEdit);
+				objectGridLayout->addWidget(oscDateTimeEdit, row, 1);
+				connect(oscDateTimeEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscDateTimeEdit, memberName);
+				connect(oscDateTimeEdit, SIGNAL(dateTimeChanged(QDateTime)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscDateTimeEdit, memberName); 
+			}
 		}
 
 	}
@@ -714,6 +725,14 @@ void
 			checkBox->setChecked(iv->getValue());
 		}
 	}
+	else if (QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget))
+	{
+		oscDateTimeValue *iv = dynamic_cast<oscDateTimeValue *>(value);
+		if (iv)
+		{
+			dateTimeEdit->setDateTime(QDateTime::fromTime_t(iv->getValue()));
+		}
+	}
 }
 
 void 
@@ -829,8 +848,14 @@ OSCObjectSettings::onEditingFinished(QString name)
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::OBJECT:
 		case OpenScenario::oscMemberValue::MemberTypes::DATE_TIME:
-			//TODO
-            break;
+			{
+				QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget);
+				QDateTime v = dateTimeEdit->dateTime();
+				SetOSCValuePropertiesCommand<time_t> *command = new SetOSCValuePropertiesCommand<time_t>(element_, object_, name.toStdString(), v.toTime_t());
+				projectSettings_->executeCommand(command);
+
+				break;
+			}
 		}
 		valueChanged_ = false;
 	}
