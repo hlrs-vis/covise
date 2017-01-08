@@ -61,7 +61,8 @@ void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject,
 
 void oscObjectBase::addMember(oscMember *m)
 {
-    members[m->getName()]=m;
+	MemberElement element = {m->getName(), m};
+	members.push_back(element);
 }
 
 void oscObjectBase::setBase(OpenScenarioBase *b)
@@ -81,12 +82,15 @@ oscObjectBase::MemberMap oscObjectBase::getMembers() const
 
 oscMember *oscObjectBase::getMember(const std::string &s) const
 {
-	if (members.count(s) == 0)
+	for (auto it = members.cbegin(); it != members.cend(); ++it)
 	{
-		return NULL;
+		if ((*it).name == s)
+		{
+			return (*it).member;
+		}
 	}
 
-	return members.at(s);
+	return NULL;
 }
 
 OpenScenarioBase *oscObjectBase::getBase() const
@@ -182,7 +186,7 @@ oscObjectBase::MemberOptional oscObjectBase::getOptional() const
 //
 oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 {
-	oscMember *member = members[name];
+	oscMember *member = getMember(name);
 	if (member)
 	{
 		return member->getOrCreateObject();
@@ -198,7 +202,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 	bool choiceObject = hasChoice();
     for(MemberMap::iterator it = members.begin();it != members.end(); it++)
     {
-        oscMember *member = it->second;
+        oscMember *member = it->member;
         if((choiceObject && (chosenMember == member)) || (!choiceObject && member))
 		{
             if(member->getType() == oscMemberValue::OBJECT)
@@ -302,7 +306,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
             //"xml:base" is only evaluated during the determination of the source file
             if (attributeName != "xmlns" && attributeName != "xmlns:osc" && attributeName != "xml:base")
             {
-                oscMember *m = members[attributeName];
+                oscMember *m = getMember(attributeName);
                 if(m)
                 {
                     oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
@@ -359,7 +363,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
         {
             std::string memberName = xercesc::XMLString::transcode(memberElem->getNodeName());
 
-            oscMember *m = members[memberName];
+            oscMember *m = getMember(memberName);
             if(m)
             {
                 std::string memTypeName = m->getTypeName();

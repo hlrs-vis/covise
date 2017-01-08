@@ -63,7 +63,7 @@ CuttingSurfaceCylinder::CuttingSurfaceCylinder(coInteractor *inter)
     cylRadiusPickInteractor_->disableIntersection();
 
     // direct interactor
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         cylDirectInteractor_ = NULL;
     }

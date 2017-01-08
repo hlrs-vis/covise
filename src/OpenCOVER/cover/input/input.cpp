@@ -699,5 +699,16 @@ void Input::update()
             ob->second->set6Dof(is6Dof != 0);
         }
     }
+
+    for (size_t i=0; i<personNames.size(); ++i) {
+        Person *p = getPerson(i);
+        if (p->activateOnAction() && (p->isHandValid(0) || p->isHeadValid())) {
+            if (i != getActivePerson()) {
+                setActivePerson(i);
+                p->setActivateOnAction(false);
+            }
+        }
+    }
 }
-}
+
+} // namespace opencover

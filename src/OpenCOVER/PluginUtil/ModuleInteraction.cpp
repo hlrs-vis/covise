@@ -33,7 +33,7 @@ ModuleInteraction::ModuleInteraction(RenderObject *container, coInteractor *inte
     if (parent)
         parent->setSecondaryItem(showPickInteractorCheckbox_);
 
-    if (!coVRConfig::instance()->mouseTracking())
+    if (coVRConfig::instance()->has6DoFInput())
     {
         showDirectInteractorCheckbox_ = new coCheckboxMenuItem("Direct Interactor", false, groupPointerArray[0]);
         showDirectInteractorCheckbox_->setMenuListener(this);

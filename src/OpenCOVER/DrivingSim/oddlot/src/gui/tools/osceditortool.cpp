@@ -63,7 +63,6 @@ OpenScenarioEditorTool::initToolWidget()
 
 	ui->catalogComboBox->addItem("VehicleCatalog");
 	ui->catalogComboBox->addItem("DriverCatalog");
-	ui->catalogComboBox->addItem("ObserverCatalog");
 	ui->catalogComboBox->addItem("PedestrianCatalog");
 	ui->catalogComboBox->addItem("PedestrianControllerCatalog");
 	ui->catalogComboBox->addItem("MiscObjectCatalog");
@@ -135,7 +134,9 @@ void
 void
 OpenScenarioEditorTool::activateEditor()
 {
-    enableGraphEdit(false);
+    ui->graphEditButton->setEnabled(false);
+    ui->graphEditButton->setVisible(false);
+	ui->graphEditButton->setChecked(false);
 
     OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(toolId_, "");
     emit toolAction(action);
@@ -192,7 +193,7 @@ OpenScenarioEditorTool::onPushButtonPressed(QString name)
 void
 OpenScenarioEditorTool::enableGraphEdit(bool state)
 {
-    if (state || !ui->graphEditButton->isChecked())
+    if (state || !ui->graphEditButton->isChecked()) // if hidden and deselected still visible
     {
         ui->graphEditButton->setEnabled(state);
         ui->graphEditButton->setVisible(state);

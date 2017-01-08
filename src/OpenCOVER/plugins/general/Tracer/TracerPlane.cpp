@@ -97,7 +97,7 @@ TracerPlane::TracerPlane(coInteractor *inter, TracerPlugin *p)
 
     initialObjectName_ = _inter->getObject()->getName();
 
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         _directInteractor = NULL;
         //fprintf(stderr,"Info: TracerPlugin: no direct interaction for tracer plane possible for TRACKING_SYSTEM MOUSE\n");

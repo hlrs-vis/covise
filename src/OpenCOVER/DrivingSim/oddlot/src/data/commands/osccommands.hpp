@@ -353,8 +353,7 @@ public:
 	value_ = value;
     // Check for validity //
     //
-	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
-	member_ = members[name];
+	member_ = parentObject_->getMember(name);
     if ((name == "") || !member_)
     {
         setInvalid(); // Invalid

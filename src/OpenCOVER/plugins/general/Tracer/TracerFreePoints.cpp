@@ -73,7 +73,7 @@ TracerFreePoints::TracerFreePoints(coInteractor *inter, TracerPlugin *p)
         //     fprintf(stderr,"\t INFO: freePointsList is empty\n");
     }
 
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         _directInteractor = NULL;
         //fprintf(stderr,"no direct interaction for tracer freepoints possible for TRACKING_SYSTEM MOUSE\n");

@@ -89,22 +89,6 @@ static coDoGrid *vtkUGrid2Covise(const coObjInfo &info, vtkUnstructuredGrid *vug
         zc[i] = vugrid->GetPoint(i)[2];
     }
 
-    vcellarray->InitTraversal();
-    int k = 0;
-    for (int i = 0; i < nelem; ++i)
-    {
-        elems[i] = k;
-
-        vtkIdType npts = 0;
-        vtkIdType *pts = NULL;
-        vcellarray->GetNextCell(npts, pts);
-        for (int j = 0; j < npts; ++j)
-        {
-            connlist[k] = pts[j];
-            ++k;
-        }
-    }
-
     vtkUnsignedCharArray *vtypearray = vugrid->GetCellTypesArray();
     for (int i = 0; i < nelem; ++i)
     {
@@ -136,9 +120,50 @@ static coDoGrid *vtkUGrid2Covise(const coObjInfo &info, vtkUnstructuredGrid *vug
         case VTK_PYRAMID:
             typelist[i] = TYPE_PYRAMID;
             break;
+        case VTK_POLYHEDRON:
+            typelist[i] = TYPE_POLYHEDRON;
+            break;
         default:
             typelist[i] = 0;
             break;
+        }
+    }
+
+    vcellarray->InitTraversal();
+    int k = 0;
+    for (int i = 0; i < nelem; ++i)
+    {
+        elems[i] = k;
+
+        vtkIdType npts = 0;
+        vtkIdType *pts = NULL;
+        vcellarray->GetNextCell(npts, pts);
+        if (typelist[i] == TYPE_POLYHEDRON && npts > 0)
+        {
+            int j=0;
+            int nfaces = pts[j];
+            ++j;
+            for (int f=0; f<nfaces; ++f)
+            {
+                int nvert = pts[j];
+                connlist[k] = pts[j+nvert];
+                ++k;
+                ++j;
+                for (int n=0; n<nvert; ++n)
+                {
+                    connlist[k] = pts[j];
+                    ++k;
+                    ++j;
+                }
+            }
+        }
+        else
+        {
+            for (int j = 0; j < npts; ++j)
+            {
+                connlist[k] = pts[j];
+                ++k;
+            }
         }
     }
 
@@ -344,11 +369,11 @@ static coDoGrid *vtkRGrid2Covise(const coObjInfo &info, vtkRectilinearGrid *vrgr
 
     vtkDataArray *vy = vrgrid->GetYCoordinates();
     for (int i = 0; i < n[1]; ++i)
-        c[0][i] = vy->GetTuple1(i);
+        c[1][i] = vy->GetTuple1(i);
 
     vtkDataArray *vz = vrgrid->GetZCoordinates();
     for (int i = 0; i < n[2]; ++i)
-        c[0][i] = vz->GetTuple1(i);
+        c[2][i] = vz->GetTuple1(i);
 
     return rgrid;
 }
@@ -490,7 +515,7 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
 
         vtkCellArray *polys = vpolydata->GetPolys();
         int ncorner = polys->GetNumberOfConnectivityEntries() - npolys + 3 * nstriptris;
-        coDoPolygons *cpoly = new coDoPolygons(info, ncoord, ncorner, npolys + 3 * nstriptris);
+        coDoPolygons *cpoly = new coDoPolygons(info, nstriptris+npolys, ncorner, ncoord);
         geo = cpoly;
 
         int *cornerlist, *polylist;

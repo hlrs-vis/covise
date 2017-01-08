@@ -69,7 +69,7 @@
 
                 <Persons>
                     <Person name="Fixed" head="FixedHead" eyeDistance="0" />
-                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" />
+                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" activateOnAction="true" />
                 </Persons>
             </Input> 
 

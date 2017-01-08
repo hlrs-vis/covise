@@ -95,6 +95,8 @@ public:
     void addGraphToObserver(const QVector<QPointF> &controlPoints);
     void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints);
 
+	void enableSplineEditing(bool state);
+
 
 protected:
     virtual void init();
@@ -120,6 +122,8 @@ private:
     // Handle //
     //
   //  OSCHandle *insertOSCHandle_;
+
+	TopviewGraph *topviewGraph_;
 
 	// RoadSystem //
 	//

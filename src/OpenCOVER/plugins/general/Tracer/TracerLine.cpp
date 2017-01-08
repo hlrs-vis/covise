@@ -68,7 +68,7 @@ TracerLine::TracerLine(coInteractor *inter, TracerPlugin *p)
 
     initialObjectName_ = _inter->getObject()->getName();
 
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         _directInteractor = NULL;
         //fprintf(stderr,"no direct interaction with tracer line possible for TRACKING_SYSTEM MOUSE\n");

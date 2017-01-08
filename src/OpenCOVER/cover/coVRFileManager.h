@@ -76,7 +76,7 @@ public:
     void reloadFile();
 
     // unload the previously loaded file
-    void unloadFile();
+    void unloadFile(const char *file=NULL);
 
     osg::Node *getLastModelNode();
 
