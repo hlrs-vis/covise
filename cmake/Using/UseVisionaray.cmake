@@ -45,10 +45,9 @@ MACRO(USE_VISIONARAY)
 
             SET(VISIONARAY_USED TRUE)
         ENDIF(NOT VISIONARAY_USED)
-    else()
-        if (NOT "${opt}" STREQUAL "optional")
+    else(COVISE_USE_VISIONARAY)
+        if (NOT x${opt} STREQUAL "xoptional")
             return()
         endif()
-
-    endif()
+    endif(COVISE_USE_VISIONARAY)
 ENDMACRO(USE_VISIONARAY)

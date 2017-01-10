@@ -31,7 +31,7 @@
 #include "oscFactory.h"
 #include "OpenScenarioBase.h"
 #include "oscObjectBase.h"
-#include "oscFileHeader.h"
+#include "schema/oscFileHeader.h"
 
 
 /*#include "src/data/vehiclesystem/vehiclesystem.hpp"
@@ -117,12 +117,17 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
 	// TODO: validation of files should be selectable
 	//
 	//enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
-	bool validate = openScenarioBase_->getValidation();
+/*	bool validate = openScenarioBase_->getValidation();
 	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), nodeName.toStdString(), fileType.toStdString(), validate);
+	if (root == NULL)
+	{
+		QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+			tr("no root element <OpenSCENARIO>!"));
+		return false;
+	}
 
 	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
-
-    if (tagName != "OpenSCENARIO")
+    if (root == NULL || tagName != "OpenSCENARIO")
     {
         QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
                              tr("Root element is not <OpenSCENARIO>!"));
@@ -141,8 +146,8 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
     }
     else
     {
- //       parseHeaderElement(child);
-    }
+        parseHeaderElement(child);
+    } */
 
 //	createElements(dynamic_cast<OpenScenario::oscObjectBase *>(openScenarioBase_));
 
@@ -155,7 +160,7 @@ OSCParser::createElements(const OpenScenario::oscObjectBase *object)
 	OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
     {
-        oscMember *member = it->second;
+        oscMember *member = (*it).member;
         if(member)
         {
 			if(member->getType() == oscMemberValue::OBJECT)
@@ -163,7 +168,7 @@ OSCParser::createElements(const OpenScenario::oscObjectBase *object)
 				oscObjectBase *memberObject = member->getObject();
 				if (memberObject)
 				{
-					OSCElement *oscElement = new OSCElement(QString::fromStdString(it->first), memberObject); 
+					OSCElement *oscElement = new OSCElement(QString::fromStdString((*it).name), memberObject); 
 					oscBase_->addOSCElement(oscElement);
 					createElements(memberObject);
 				}

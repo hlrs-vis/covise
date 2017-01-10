@@ -41,10 +41,15 @@
 // GUI //
 //
 #include "src/gui/projectwidget.hpp"
+#include "src/gui/tools/osceditortool.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 
 // Data //
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
+
+// Graph //
+#include "src/graph/editors/osceditor.hpp"
 
 // Qt //
 //
@@ -62,6 +67,7 @@
 #include <QScrollArea>
 #include <QGridLayout> 
 #include <QMessageBox>
+#include <QDateTimeEdit>
 
 // Utils //
 //
@@ -73,25 +79,35 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element)
+OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member)
     : QWidget()
 	, Observer()
 	, ui(new Ui::OSCObjectSettings)
     , init_(false)
     , valueChanged_(false)
+	, object_(NULL)
 	, element_(element)
 	, projectSettings_(projectSettings)
 	, parentStack_(parent)
 	, closeCount_(false)
+	, member_(member)
+	, oscArrayMember_(NULL)
+	, parentObject_(NULL)
 {
-	object_ = element_->getObject();
-	base_ = element_->getOSCBase();
+	if (element_)
+	{
+		object_ = element_->getObject();
+	}
+	base_ = projectSettings_->getProjectData()->getOSCBase();
     ui->setupUi(this);
 
 	//oscArrayMember
 	//
 
-	oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(object_->getOwnMember());
+	if (!object_ && member_)
+	{
+		oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(member);
+	}
 
 	if (parentStack_)
 	{
@@ -99,19 +115,20 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 		if (lastSettings)
 		{
 			objectStackText_ = lastSettings->getStackText();
+			parentObject_ = lastSettings->getObject();
 		}
 	}
 
 	if(oscArrayMember_)
 	{
-		objectStackText_ += QString::fromStdString(oscArrayMember_->getName()) + "/";
 		uiInitArray();
 	}
 	else 
 	{
 		if (object_->getOwnMember())
 		{
-			objectStackText_ += QString::fromStdString(object_->getOwnMember()->getName()) + "/";
+			member_ = object_->getOwnMember();
+			objectStackText_ += QString::fromStdString(member_->getName()) + "/";
 		}
 		else
 		{
@@ -134,19 +151,41 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 	// Observer //
     //
-    element_->attachObserver(this);
+	if (element_)
+	{
+		element_->attachObserver(this);
+	}
 
 }
 
 OSCObjectSettings::~OSCObjectSettings()
 {
+	if (member_)
+	{
+		QString type = QString::fromStdString(member_->getTypeName());
+		if (type == "oscTrajectory")
+		{
+
+			// Connect with the ToolManager to send the selected signal or object //
+			//
+			ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+			if (toolManager)
+			{
+				toolManager->enableOSCEditorToolButton(false);
+			}
+		}
+	}
+
 	memberWidgets_.clear();
 
 	// Observer //
     //
-    element_->detachObserver(this);
+	if (element_)
+	{
+		element_->detachObserver(this);
+	}
 
-//    delete ui;
+    delete ui;
 }
 
 //################//
@@ -196,10 +235,15 @@ OSCObjectSettings::uiInit()
 	connect(valueChangedMapper, SIGNAL(mapped(QString)), this, SLOT(onValueChanged()));
 
 
-	// Signal Mapper for the objects //
+    // Signal Mapper for the objects //
+    //
+    QSignalMapper *signalPushMapper = new QSignalMapper(this);
+    connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
+
+	// Signal mapper for arrays //
 	//
-	QSignalMapper *signalPushMapper = new QSignalMapper(this);
-	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
+	QSignalMapper *signalArrayPushMapper = new QSignalMapper(this);
+    connect(signalArrayPushMapper, SIGNAL(mapped(QString)), this, SLOT(onArrayPushButtonPressed(QString)));
 
 	bool choice = object_->hasChoice();
 	int choiceComboBoxRow = ++row;
@@ -220,7 +264,7 @@ OSCObjectSettings::uiInit()
 	OpenScenario::oscObjectBase::MemberMap members = object_->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 	{
-		OpenScenario::oscMember *member = it->second;
+		OpenScenario::oscMember *member = (*it).member;
 		QString memberName = QString::fromStdString(member->getName());
 
 		if (choice && object_->isMemberInChoice(member))
@@ -317,11 +361,23 @@ OSCObjectSettings::uiInit()
 			else if (type == OpenScenario::oscMemberValue::MemberTypes::OBJECT)
 			{
 				QPushButton *oscPushButton = new QPushButton();
-				oscPushButton->setText("Edit");
+
+				OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(member);
+				if (arrayMember)
+				{
+					oscPushButton->setText("Edit List");
+					connect(oscPushButton, SIGNAL(pressed()), signalArrayPushMapper, SLOT(map()));
+					signalArrayPushMapper->setMapping(oscPushButton, memberName);
+				}
+				else
+				{
+					oscPushButton->setText("Edit");
+					connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
+					signalPushMapper->setMapping(oscPushButton, memberName);
+				}
+
 				memberWidgets_.insert(memberName, oscPushButton);
 				objectGridLayout->addWidget(oscPushButton, row, 1);
-				connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
-				signalPushMapper->setMapping(oscPushButton, memberName);
 			}
 			else if (type == OpenScenario::oscMemberValue::MemberTypes::ENUM)
 			{
@@ -361,6 +417,16 @@ OSCObjectSettings::uiInit()
 				valueChangedMapper->setMapping(oscCheckBox, memberName);
 
 			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::DATE_TIME)
+			{
+				QDateTimeEdit *oscDateTimeEdit = new QDateTimeEdit();
+				memberWidgets_.insert(memberName, oscDateTimeEdit);
+				objectGridLayout->addWidget(oscDateTimeEdit, row, 1);
+				connect(oscDateTimeEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscDateTimeEdit, memberName);
+				connect(oscDateTimeEdit, SIGNAL(dateTimeChanged(QDateTime)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscDateTimeEdit, memberName); 
+			}
 		}
 
 	}
@@ -373,7 +439,28 @@ OSCObjectSettings::uiInit()
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
 
+	if (member_)
+	{
+		std::string type = member_->getTypeName();
+		if (type == "oscTrajectory")
+		{			
+			OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(projectSettings_->getProjectWidget()->getProjectEditor());
+			if (oscEditor)
+			{
+				oscEditor->setTrajectoryElement(element_);
+			}
 
+			// Connect with the ToolManager to send the selected signal or object //
+			//
+			ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
+			if (toolManager)
+			{
+				toolManager->enableOSCEditorToolButton(true);
+			}
+
+			element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
+		}
+	}
 }
 
 // Create generic interface for array members//
@@ -395,8 +482,9 @@ OSCObjectSettings::uiInitArray()
 	}
 	else
 	{
-		objectStackTextlabel_ = new QLabel(objectStackText_, ui->oscGroupBox);
-		int rows = formatDirLabel(objectStackTextlabel_, objectStackText_);
+		QString text = "List of " + objectStackText_ + QString::fromStdString(oscArrayMember_->getName());
+		objectStackTextlabel_ = new QLabel(text, ui->oscGroupBox);
+		int rows = formatDirLabel(objectStackTextlabel_, text);
 		objectStackTextlabel_->setGeometry(10, 50, ui->oscGroupBox->width(), objectStackTextlabel_->height());
 
 		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
@@ -412,9 +500,7 @@ OSCObjectSettings::uiInitArray()
 	ArrayDropArea *recycleArea = new ArrayDropArea(this, &recycleIcon);
 	objectGridLayout->addWidget(recycleArea, 0, 0);
 
-	OpenScenario::oscObjectBase::MemberMap map = object_->getMembers();
-	auto it = map.begin();
-	memberName_ = QString::fromStdString(it->first);
+	memberName_ = QString::fromStdString(member_->getName());
 	QLabel *label = new QLabel(memberName_);
 	objectGridLayout->addWidget(label, 1, 0);
 
@@ -442,8 +528,6 @@ OSCObjectSettings::uiInitArray()
     objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
-
-
 }
 
 void OSCObjectSettings::updateTree()
@@ -641,6 +725,14 @@ void
 			checkBox->setChecked(iv->getValue());
 		}
 	}
+	else if (QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget))
+	{
+		oscDateTimeValue *iv = dynamic_cast<oscDateTimeValue *>(value);
+		if (iv)
+		{
+			dateTimeEdit->setDateTime(QDateTime::fromTime_t(iv->getValue()));
+		}
+	}
 }
 
 void 
@@ -756,8 +848,14 @@ OSCObjectSettings::onEditingFinished(QString name)
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::OBJECT:
 		case OpenScenario::oscMemberValue::MemberTypes::DATE_TIME:
-			//TODO
-            break;
+			{
+				QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget);
+				QDateTime v = dateTimeEdit->dateTime();
+				SetOSCValuePropertiesCommand<time_t> *command = new SetOSCValuePropertiesCommand<time_t>(element_, object_, name.toStdString(), v.toTime_t());
+				projectSettings_->executeCommand(command);
+
+				break;
+			}
 		}
 		valueChanged_ = false;
 	}
@@ -804,15 +902,45 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 		object = object_->getMember(name.toStdString())->getOrCreateObject();
 	}
 
-	OSCElement *memberElement = base_->getOSCElement(object);
+	OSCElement *memberElement = base_->getOrCreateOSCElement(object);
 
 	// Reset change //
     //
     projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement, NULL);
 
 	return object;
+}
+
+OpenScenario::oscMember * 
+OSCObjectSettings::onArrayPushButtonPressed(QString name)
+{
+	OpenScenario::oscMember *member = object_->getMember(name.toStdString());
+
+	OSCElement *memberElement = base_->getOrCreateOSCElement(NULL);
+
+	// Reset change //
+    //
+    projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
+
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, NULL, member);
+
+	return member;
+}
+
+OpenScenario::oscObjectBase * 
+OSCObjectSettings::onGraphElementChosen(QString name)
+{
+    // Set a tool //
+    //
+    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_GRAPHELEMENT, name);
+    emit toolAction(action);
+    delete action;
+
+    OpenScenario::oscObjectBase *object = onPushButtonPressed(name);
+
+    return object;
 }
 
 void
@@ -821,18 +949,20 @@ OSCObjectSettings::onNewArrayElement()
 	OSCElement *oscElement = new OSCElement(memberName_);
 	if (oscElement)
 	{
-		OpenScenario::oscSourceFile *sourceFile = object_->getSource();
+		OpenScenario::oscSourceFile *sourceFile = parentObject_->getSource();
 
 		OpenScenario::oscObjectBase *obj = NULL;
 		if (OSCSettings::instance()->loadDefaults())
 		{
-			obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
+	//		obj = object_->readDefaultXMLObject( sourceFile->getSrcFileHref(), memberName_.toStdString(), object_->getMember(memberName_.toStdString())->getTypeName(), sourceFile);
 		}
 
-		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, object_, obj, memberName_.toStdString(), base_, oscElement);
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscArrayMember_, parentObject_, obj, memberName_.toStdString(), base_, oscElement);
 		projectSettings_->executeCommand(command);
 
-		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement);
+		updateTree();
+
+		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL);
 	}
 
 }
@@ -899,6 +1029,7 @@ OSCObjectSettings::updateObserver()
 
     // oscObject //
     //
+
 	int changes = element_->getOSCElementChanges();
 
 	if (changes & OSCElement::COE_ParameterChange)

@@ -119,6 +119,7 @@ public:
 
     virtual InputDevice *newInstance(const std::string &name) = 0;
     const std::string &name() const;
+	CO_SHLIB_HANDLE getLibHandle() {return m_handle;};
 
 private:
     void setLibHandle(CO_SHLIB_HANDLE handle);

@@ -28,6 +28,7 @@ void coHSVPin::setColor(float h, float s, float v)
 
     vvToolshed::HSBtoRGB(h, s, v, &r, &g, &b);
     (*color)[0].set(r, g, b, 1.0);
+	color->dirty();
     for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
     {
         geode->getDrawable(i)->dirtyDisplayList();

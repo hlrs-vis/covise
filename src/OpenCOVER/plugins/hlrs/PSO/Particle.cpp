@@ -17,9 +17,11 @@
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <ymath.h>
+#if _MSC_VER < 1900
 #define INFINITY _FInf._Double
 static int round(double d) { return ((int)(d + 0.5)); }
 static int lround(double d) { return ((int)(d + 0.5)); }
+#endif
 #endif
 
 using namespace pso;

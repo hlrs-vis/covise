@@ -17,6 +17,10 @@ SET(SOURCES
   TracerPlugin.cpp
 )
 
+if (COVISE_BUILD_ONLY_COVER_PREREQ)
+cover_add_plugin(TracerPlugin coOpenPluginUtil)
+else()
 cover_add_plugin(TracerPlugin coOpenPluginUtil COVISEPluginUtil ${COVISE_ALG_LIBRARY})
+endif()
 #TARGET_LINK_LIBRARIES()
 SET_TARGET_PROPERTIES(TracerPlugin PROPERTIES OUTPUT_NAME Tracer)

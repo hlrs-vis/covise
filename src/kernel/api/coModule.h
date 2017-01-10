@@ -170,6 +170,9 @@ public:
     /// start a parameter switch's case
     int paraCase(const char *name);
 
+/// add an existing parameter to a parameter switch's case
+    int paraCaseAdd(coPort *param);
+
     /// end a pending parameter switch's case
     int paraEndCase();
 

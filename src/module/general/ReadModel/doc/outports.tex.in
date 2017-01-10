@@ -1,0 +1,25 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{surface} & Polygons & Grid (surface in Covise
+	format) \\
+\hline
+	\textcolor{output}{normals} & Unstructured\_V3D\_Normals & normals  \\
+\hline
+	\textcolor{output}{feature\_lines} & Lines & Output of lines.  \\
+
+
+\hline
+\end{longtable}
+%=============================================================
+
+\clearpage
+%
+%=============================================================

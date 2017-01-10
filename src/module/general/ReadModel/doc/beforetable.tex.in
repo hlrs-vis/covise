@@ -1,0 +1,33 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+Read module for Sandia Stl data.
+ 
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{ReadStlModule}{0.7}\end{covimg2}
+
+ReadStl converts the representation of a surface in Sandia Stl format
+(specified as file browser parameter) to a format acceptable for Covise (on the
+first output port, e.g. used as input for the Renderer); in addition, it supplies
+normals on the second output port. 
+
+Please note:
+ReadStl can read \begin{bf} ASCI files and binary files \end{bf}.
+In most cases (less than 1 Million cells), ReadStl will detect the filetype automatically (parameter Format =
+autodetect), if not, use manual selection.
+%
+% short information about versions 
+%
+The module supports binary input since Release 5.2.3
+
+%
+%
+%=============================================================

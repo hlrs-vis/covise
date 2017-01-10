@@ -53,7 +53,7 @@
 
 struct struct_rc rc;
 struct struct_options options;
-struct struct_settings settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+struct struct_settings settings = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static struct option long_options[] = {
     { "tunnel-port", required_argument, NULL, TUNNEL_PORT_OPTION },
@@ -165,13 +165,6 @@ void set_options(int argc, char *argv[])
         {
             options.remote_host = optarg;
             settings.remote_host = 1;
-            break;
-        }
-
-        case BIND_ADDRESS_OPTION:
-        {
-            options.bind_address = optarg;
-            settings.bind_address = 1;
             break;
         }
 
@@ -450,6 +443,7 @@ char *get_current_timestamp(void)
 
 void print_usage(void)
 {
+    fprintf(stderr, "rTcpClient - rTcp tunnel exit point\n");
     fprintf(stderr, "Usage: %s [options]\n\n", name);
 }
 
@@ -460,22 +454,21 @@ void print_helpinfo(void)
 
 void print_help(void)
 {
-    fprintf(stderr, "\
-         Options:\n\
-         --version\n\
-         --help\n\n\
-         --tunnel-port=PORT    local port\n\
-         --tunnel-host=PORT    local host\n\
-         --remote-port=PORT   remote port\n\
-         --remote-host=HOST   remote host\n\
-         --bind-address=IP    bind address\n\
-         --buffer-size=BYTES  buffer size\n"
+    fprintf(stderr,
+"        Options:\n"
+"        --version\n"
+"        --help\n\n"
+"        --tunnel-port=PORT   tunnel port (port where rTcpServer is listening)\n"
+"        --tunnel-host=PORT   tunnel host (host where rTcpServer is running)\n"
+"        --remote-port=PORT   remote port (where to forward incoming tunnel connections to)\n"
+"        --remote-host=HOST   remote host (where to forward incoming tunnel connections to)\n"
+"        --buffer-size=BYTES  buffer size\n"
 #ifndef __MINGW32__
-                    "  --fork               fork-based concurrency\n"
+"        --fork               fork-based concurrency\n"
 #endif
-                    "  --log\n\
-         --stay-alive\n\n\
-         \n");
+"        --log\n"
+"        --stay-alive\n"
+"\n");
 }
 
 void print_version(void)

@@ -222,7 +222,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
-    editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
+
+	OpenScenarioEditor *oscEditor = new OpenScenarioEditor(this, projectData_, topviewGraph_);
+    editors_.insert(ODD::EOS, oscEditor);
 
     // VIEW: Tree //
     //
@@ -242,6 +244,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
 	oscSettings = OSCSettings::instance();
 	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+	connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
 
     currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
@@ -274,6 +277,10 @@ ProjectWidget::~ProjectWidget()
     {
         delete editor;
     }
+
+	removeCatalogTrees();
+
+
     delete topviewGraph_;
     delete profileGraph_;
 
@@ -414,66 +421,100 @@ ProjectWidget::newFile()
 *	\todo read strategy (xodr, native, etc)
 */
 bool
-ProjectWidget::loadFile(const QString &fileName)
+ProjectWidget::loadFile(const QString &fileName, FileType type)
 {
-    // Print //
-    //
-    qDebug("Loading file: %s", fileName.toUtf8().constData());
+	QString xodrFileName = "";
+	QString xoscFileName;
+	if (type == FT_All)
+	{
+		QString baseName = fileName;
+		baseName.truncate(fileName.lastIndexOf("."));
+		xodrFileName = baseName + ".xodr";
+		xoscFileName = baseName + ".xosc";
+	}
+	else if (type == FT_OpenDrive)
+	{
+		xodrFileName = fileName;
+		QString baseName = fileName;
+		baseName.truncate(fileName.lastIndexOf("."));
+		xoscFileName = baseName.append(".xosc");
+	}
+	else
+	{
+		xoscFileName = fileName;
+	}
 
-    // Open file //
-    //
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
-        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
-        return false;
-    }
 
-    // Parse file //
-    //
+	bool success = false;
+	if (type != FT_OpenScenario)
+	{
+		// Print //
+		//
+		qDebug("Loading file: %s", xodrFileName.toUtf8().constData());
 
-    // TODO: read strategy (xodr, native, etc)
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    DomParser *parser = new DomParser(projectData_);
-    bool success = parser->parseXODR(&file);
+		// Open file //
+		//
+		QFile file(xodrFileName);
+		if (!file.open(QFile::ReadOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+				.arg(xodrFileName)
+				.arg(file.errorString()));
+			qDebug("Loading file failed: %s", xodrFileName.toUtf8().constData());
+			return false;
+		}
+
+		// Parse file //
+		//
+
+		// TODO: read strategy (xodr, native, etc)
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		DomParser *parser = new DomParser(projectData_);
+		success = parser->parseXODR(&file);
+		delete parser;
+
+		// TODO
+
+		// Close file //
+		//
+		QApplication::restoreOverrideCursor();
+		file.close();
+	};
 
 	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-    if (!success)		// try OpenScenario
-    {
-        // Create a Tile
-        Tile *tile = new Tile("Tile0", "0");
-        projectData_->getTileSystem()->addTile(tile);
-        projectData_->getTileSystem()->setCurrentTile(tile); 
 
-        if (openScenarioBase)
-        {
-            OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
-            success = oscParser->parseXOSC(fileName);
-
-			delete oscParser;
-
-			// Reset change //
-			//
-			projectData_->getChangeManager()->notifyObservers();
-        }
-
-    }
-	else if (openScenarioBase)
+	if (type != FT_OpenDrive)
 	{
-		openScenarioBase->createSource(oscFileName_.toStdString(), "OpenSCENARIO");
+		// Create a Tile
+		Tile *tile = new Tile("Tile0", "0");
+		projectData_->getTileSystem()->addTile(tile);
+		projectData_->getTileSystem()->setCurrentTile(tile); 
+
+		OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+
+		if (!success)
+		{
+			success = oscParser->parseXOSC(xoscFileName);
+		}
+		else
+		{
+			oscParser->parseXOSC(xoscFileName);
+		}
+
+		delete oscParser;
+	}
+
+	// Reset change //
+	//
+	projectData_->getChangeManager()->notifyObservers();
+
+	if (!openScenarioBase->getSource())
+	{
+		openScenarioBase->createSource(xoscFileName.toStdString(), "OpenSCENARIO");
 	}
 
     topviewGraph_->updateSceneSize();
-    delete parser;
-    // TODO
 
-    // Close file //
-    //
-    QApplication::restoreOverrideCursor();
-    file.close();
 
     // Check for success //
     //
@@ -486,6 +527,7 @@ ProjectWidget::loadFile(const QString &fileName)
 
     return true;
 }
+
 /**! \brief
 *
 */
@@ -527,12 +569,29 @@ ProjectWidget::addCatalogTree(const QString &name, OpenScenario::oscCatalog *cat
     // add a catalog tree
     //
     CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, name);
+	catalogWidgets_.push_back(catalogWidget);
     QDockWidget *catalogDock = mainWindow_->createCatalog(name, catalogWidget);
     CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
     QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
 
     return catalogTree;
+}
+
+void
+ProjectWidget::removeCatalogTrees()
+{
+	foreach (CatalogWidget * widget, catalogWidgets_)
+	{
+		QDockWidget *parent = dynamic_cast<QDockWidget *>(widget->parentWidget());
+		if (parent)
+		{
+			mainWindow_->removeDockWidget(parent);
+		}
+		delete widget;
+	}
+
+	catalogWidgets_.clear();
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)
@@ -1128,7 +1187,7 @@ ProjectWidget::importIntermapFile(const QString &fileName)
 *
 */
 bool
-ProjectWidget::importCSVFile(const QString &fileName)
+ProjectWidget::importCSVRoadFile(const QString &fileName)
 {
     numLineStrips = 0;
     QFile file(fileName);
@@ -1195,6 +1254,101 @@ ProjectWidget::importCSVFile(const QString &fileName)
     return true;
 }
 
+/** \brief imports a csv Sign file.
+*
+*/
+bool
+	ProjectWidget::importCSVSignFile(const QString &fileName)
+{
+	QFile file(fileName);
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+			.arg(fileName)
+			.arg(file.errorString()));
+		qDebug("Loading file failed: %s", fileName.toUtf8().constData());
+		return false;
+	}
+	QTextStream in(&file);
+
+	QString line = in.readLine();
+	if (!line.isNull())
+	{
+		int objectID;
+		char sign[15], position[15];
+		double xGauss, yGauss, orientation, longitude, latitude, altitude;
+
+		line = in.readLine(); // start with second row
+		while (!line.isNull())
+		{
+			if (line.length() != 0)
+			{
+				// 3490472.35531212,5383550.59771206,1,437,R,7.00000000000,8.86982484085,48.58954050730,0.00000000000
+
+				line.replace(',', ' '); // value separator
+				//line.replace(',', '.'); // floating points
+
+				int num = sscanf(line.toUtf8(), "%lf %lf %d %s %s %lf %lf %lf %lf", &xGauss, &yGauss, &objectID, sign, position, &orientation, &longitude, &latitude, &altitude);
+
+				if (num == 9) // we read everything
+				{
+					longitude *= DEG_TO_RAD;
+					latitude *= DEG_TO_RAD;
+					projectionSettings->transform(longitude, latitude, altitude);
+
+					Signal::OrientationType dir = Signal::BOTH_DIRECTIONS;
+					if(strcmp(position,"R") == 0)
+					{
+						dir = Signal::POSITIVE_TRACK_DIRECTION;
+					}
+					else if(strcmp(position,"L") == 0)
+					{
+						dir = Signal::NEGATIVE_TRACK_DIRECTION;
+					}
+
+					int type = -1;
+					int subtype = -1;
+					QString typeSubclass = "";
+					QString signNumber = QString::fromStdString(sign);
+					signNumber.replace('.', '-'); // separator type -> typeSubclass + subtype
+					QStringList list = signNumber.split("-");
+
+					if (list.size() > 0)
+					{
+						type = list.at(0).toInt();
+						if (list.size() == 2) // type + subtype
+						{
+							subtype = list.at(1).toInt();
+						}
+						else if (list.size() == 3) // type + typeSubclass + subtype
+						{
+							typeSubclass = list.at(1);
+							subtype = list.at(2).toInt();
+						}
+					}
+
+					QPointF coordPoint(longitude, latitude);
+					double s;
+					double t;
+					QVector2D vec;
+					RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
+					if (road) // addSignal
+					{
+						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
+						road->addSignal(trafficSign);
+					}
+				}
+			}
+			line = in.readLine();
+		}
+}
+	topviewGraph_->updateSceneSize();
+	// Close file //
+	//
+	QApplication::restoreOverrideCursor();
+	file.close();
+	return true;
+}
 
 /** \brief imports a CarMaker Road file.
 *
@@ -1423,7 +1577,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }
@@ -1505,44 +1659,62 @@ ProjectWidget::saveAs()
 *	\todo write strategy (xodr, native, etc)
 */
 bool
-ProjectWidget::saveFile(const QString &fileName)
+ProjectWidget::saveFile(const QString &fileName, FileType type)
 {
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text))
-    {
-        QMessageBox::warning(this, tr("ODD"),
-                             tr("Cannot write file %1:\n%2.")
-                                 .arg(fileName)
-                                 .arg(file.errorString()));
-        return false;
-    }
+	QString xodrFileName = fileName;
+	QString xoscFileName = fileName;
+	if (type == FT_All)
+	{
+		QString baseName = fileName;
+		baseName.truncate(fileName.lastIndexOf("."));
+		xodrFileName = baseName + ".xodr";
+		xoscFileName = baseName + ".xosc";
+	}
 
-    // Export //
-    //
-    QTextStream out(&file);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    // TODO: write strategy (xodr, native, etc)
-    const int indentSize = 3;
-    DomWriter *domWriter = new DomWriter(projectData_);
-    domWriter->runToTheHills();
-    domWriter->getDomDocument()->save(out, indentSize);
-    // TODO
 
-    // Close file //
-    //
-    QApplication::restoreOverrideCursor();
-    file.close();
+	if (type != FT_OpenScenario)
+	{
+		QFile file(xodrFileName);
+		if (!file.open(QFile::WriteOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("ODD"),
+				tr("Cannot write file %1:\n%2.")
+				.arg(xodrFileName)
+				.arg(file.errorString()));
+			return false;
+		}
 
-    // Set file //
-    //
-    setFile(fileName);
+		// Export //
+		//
+		QTextStream out(&file);
+		QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	// OpenSCENARIO //
+		// TODO: write strategy (xodr, native, etc)
+		const int indentSize = 3;
+		DomWriter *domWriter = new DomWriter(projectData_);
+		domWriter->runToTheHills();
+		domWriter->getDomDocument()->save(out, indentSize);
+		// TODO
+
+		// Close file //
+		//
+		QApplication::restoreOverrideCursor();
+		file.close();
+	}
+
+	// Set file //
 	//
-	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-	openScenarioBase->saveFile((fileName.split(".")[0] + ".xosc").toStdString());
-	openScenarioBase->clearDOM();
+	setFile(fileName);
+
+	if (type != FT_OpenDrive)
+	{
+		// OpenSCENARIO //
+		//
+		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+		openScenarioBase->saveFile(xoscFileName.toStdString());
+		openScenarioBase->clearDOM();
+	}
 
     return true;
 }
@@ -1623,6 +1795,10 @@ ProjectWidget::setProjectActive(bool active)
         mainWindow_->setProjectTree(projectTree_);
         mainWindow_->setProjectSettings(projectSettings_);
     }
+	else
+	{
+		removeCatalogTrees();
+	}
 
     projectData_->projectActivated(active); // Undo, etc
 
@@ -1648,12 +1824,15 @@ ProjectWidget::setProjectClean(bool clean)
 void
 ProjectWidget::toolAction(ToolAction *toolAction)
 {
+	static ODD::EditorId lastId = ODD::ENO_EDITOR;
+
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
-    if (id != ODD::ENO_EDITOR)
+    if ((id != lastId) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
+		lastId = id;
     }
 
     // Pass to Editor/Graph //

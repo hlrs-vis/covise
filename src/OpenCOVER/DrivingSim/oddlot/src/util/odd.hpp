@@ -36,6 +36,7 @@ class ColorPalette;
 #include <stdio.h>
 #include <stdlib.h>
 
+#include<QList>
 
 /*! \brief This class contains miscellaneous identifiers und global functions.
 */
@@ -66,7 +67,7 @@ public:
 	{
 		char buf[100];
 		sprintf(buf, "%d%c%d", revMajor_, '.', revMinor_);
-		return atof(buf);
+		return (float)atof(buf);
 	}
 
 	static const unsigned short getRevMinor()
@@ -78,6 +79,8 @@ public:
 	{
 		return revMajor_;
 	}
+
+	static const QList<std::string> CATALOGLIST;
 
     //################//
     // ENUMS          //
@@ -210,6 +213,10 @@ public:
 		TOS_SAVE_CATALOG,
 		TOS_ELEMENT,
 		TOS_BASE,
+        TOS_GRAPHELEMENT,
+
+		// OpenScenario Settings
+		OSS_DIRECTORY,
 
         // No Tool
         TNO_TOOL

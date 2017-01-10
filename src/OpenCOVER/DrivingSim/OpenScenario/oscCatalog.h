@@ -11,8 +11,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscExport.h"
 #include "oscObjectBase.h"
 
-#include "oscDirectory.h"
-#include "oscUserDataList.h"
+#include "schema/oscDirectory.h"
+#include "schema/oscUserDataList.h"
 
 #include <vector>
 #if __cplusplus >= 201103L || defined WIN32
@@ -46,20 +46,19 @@ class OPENSCENARIOEXPORT oscCatalog: public oscObjectBase
 public:
     oscCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER(directory, "oscDirectory");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(userDataList, "oscUserDataList");
+        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
     };
 
-    oscDirectoryMember directory;
-    oscUserDataListArrayMember userDataList;
+    oscDirectoryMember Directory;
 
 	
     typedef unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> CatalogTypeTypeNameMap;
-	typedef unordered_map<int, ObjectParams> ObjectsMap; ///< represent the unordered_map of objects
+	typedef unordered_map<std::string, ObjectParams> ObjectsMap; ///< represent the unordered_map of objects
 	
 protected:
     static const CatalogTypeTypeNameMap s_catalogNameToTypeName; ///< typeName of the objects for catalogType
     std::string m_catalogName; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
+	std::string m_catalogType;
 	ObjectsMap m_Objects;
 	
 public:
@@ -68,29 +67,32 @@ public:
     void fastReadCatalogObjects(const std::vector<bf::path> &filenames); ///< parse files and add objectRefId and filePath to ObjectsMap
 
     //catalogType
-    void setCatalogName(const std::string &catalogName);
+    void setCatalogNameAndType(const std::string &catalogName);
     std::string getCatalogName() const;
+	std::string getCatalogType() const;
 
     //availableObjects
     void setObjectsMap(const ObjectsMap &availableObjects);
     ObjectsMap getObjectsMap() const;
-    bool addObjToObjectsMap(const int objectRefId, const bf::path &fileNamePath, oscObjectBase *object);
-    bool removeObjFromObjectsMap(const int objectRefId);
-	std::string getPath(const int objectRefId);
+    bool addObjToObjectsMap(const std::string &name, const bf::path &fileNamePath, oscObjectBase *object);
+    bool removeObjFromObjectsMap(const std::string &name);
+	std::string getPath(const std::string &name);
+	std::string getObjectPath(OpenScenario::oscObjectBase *object);
+	OpenScenario::oscObjectBase *getObjectfromPath(const std::string &path);
 
     //ObjectsInMemory
-    bool fullReadCatalogObjectWithName(const int objectRefId); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map
+    bool fullReadCatalogObjectWithName(const std::string &name); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map
     bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
     bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to ObjectsMap
-    bool addCatalogObject(const int objectRefId, oscObjectBase *objectBase, const bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
-    bool removeCatalogObject(const int objectRefId); ///< remove object with refId objectRefId from ObjectsMap
-    oscObjectBase *getCatalogObject(const int objectRefId); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
+    bool addCatalogObject(const std::string &name, oscObjectBase *objectBase, const bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
+    bool removeCatalogObject(const std::string &name); ///< remove object with refId objectRefId from ObjectsMap
+    oscObjectBase *getCatalogObject(const std::string &name); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 
 	//s_catalogTypeToTypeName
 	std::string getType(const std::string &name);
 
 	//generate refId for new object
-	int generateRefId(int startId);
+	std::string generateRefId(int startId);
 
 	// write all catalog members to catalogs
 	void writeCatalogToDOM();
@@ -103,7 +105,7 @@ public:
 private:
     typedef std::pair<bool, int> SuccessIntVar;
 
-    SuccessIntVar getObjectRefIdFromFile(const bf::path &fileNamePath); ///< return refId of the catalog object in file fileNamePath
+    std::string getObjectNameFromFile(const bf::path &fileNamePath); ///< return refId of the catalog object in file fileNamePath
     SuccessIntVar getIntFromIntAttribute(xercesc::DOMAttr *attribute); ///< read an attribute of type oscMemberValue::INT and return int
 };
 

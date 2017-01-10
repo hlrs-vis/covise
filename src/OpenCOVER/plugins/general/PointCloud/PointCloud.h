@@ -37,6 +37,7 @@
 #include "Points.h"
 //#include "PointCloudDrawable.h"
 #include "PointCloudGeometry.h"
+#include <cover/coTabletUI.h>
 
 namespace vrui
 {
@@ -69,7 +70,7 @@ public:
 /** Plugin
   @author 
 */
-class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin
+class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin, public coTUIListener
 {
 
     /** File entry class for Image Plugin
@@ -103,10 +104,14 @@ private:
     void selectedMenuButton(coMenuItem *);
     void readMenuConfigData(const char *, std::vector<ImageFileEntry> &, coRowMenu &);
     bool intensityOnly;
+    float intensityScale;
     bool intColor;
     bool polar;
     float pointSizeValue;
     bool adaptLOD;
+    coTUITab *PCTab;
+    coTUIToggleButton *adaptLODTui;
+    coTUIFloatSlider *pointSizeTui;
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -133,6 +138,7 @@ public:
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
     int unloadFile(std::string filename);
+    void tabletEvent(coTUIElement *);
     static PointCloudPlugin *plugin;
 };
 

@@ -52,7 +52,11 @@ unsigned char *tifread(FILE *fp, const char *url, int *w, int *h, int *nc)
 
 /*tiffDoRGBA = 1;*/
 #ifdef _WIN32
+#if _MSC_VER < 1900
     tif = TIFFFdOpen(fp->_file, url, "r");
+#else
+	tif = TIFFFdOpen(fileno(fp), url, "r");
+#endif
 #else
     tif = TIFFFdOpen(fileno(fp), url, "r");
 #endif

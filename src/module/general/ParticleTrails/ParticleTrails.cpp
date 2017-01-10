@@ -30,6 +30,7 @@
 #include <do/coDoTriangleStrips.h>
 #include "ParticleTrails.h"
 #include <string>
+#include <boost/lexical_cast.hpp>
 
 //#define VERBOSE
 
@@ -132,7 +133,7 @@ ParticleTrails::compute(const char *)
                         nv++;
                     }
                 }
-                std::string lineName = LinesName+std::to_string(i);
+                std::string lineName = LinesName+boost::lexical_cast<std::string>(i);
                 coDoLines *line = new coDoLines(lineName,xc.size(),&xc[0],&yc[0],&zc[0],numVert,v_l,numLines,l_l);
                 lines[i]=line;
             }

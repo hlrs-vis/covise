@@ -17,11 +17,6 @@ IndexParser::~IndexParser(void)
 	{
 		delete *it;
 	}
-
-	for (std::vector<Index *>::iterator it = streetList.begin(); it != streetList.end(); it++)
-	{
-		delete *it;
-	}
 }
 
 
@@ -88,31 +83,6 @@ void IndexParser::removeDuplicateEntries()
 	}
 }
 
-/*/
-// remove duplicate entries in cameraList
-void IndexParser::removeDuplicateEntriesInCameras()
-{
-	std::vector<Camera *>::iterator it = cameraList.begin();
-	if (it != cameraList.end())
-	{
-		std::string currentCamera = (*it)->getCameraName();
-		it++;
-		while (it != cameraList.end())
-		{
-			if (currentCamera == (*it)->getCameraName())
-			{
-				it = cameraList.erase(it);
-			}
-			else
-			{
-				currentCamera = (*it)->getCameraName();
-				it++;
-			}
-		}
-	}
-}
-/*/
-
 void IndexParser::parsePicturesPerStreet(std::string roadName_)
 {
 	std::vector<Index *>::iterator it = indexList.begin(); 
@@ -152,10 +122,10 @@ osg::Node *IndexParser::getNearestStationNode(double x, double y, double z)
 			tmpDistance = (*it)->getMinimumDistance();
 			distance = tmpDistance;	
 		}
-		if (nearestStationPerIndex)
-		{
-			return nearestStationPerIndex->getStationPanels();
-		}
+	}
+	if (nearestStationPerIndex)
+	{
+		return nearestStationPerIndex->getStationPanels();
 	}
 	return NULL;
 }

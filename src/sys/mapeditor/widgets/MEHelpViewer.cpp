@@ -23,7 +23,7 @@
 #elif defined(USE_WEBKIT)
 #include <QWebView>
 #include <QtWebKit>
-#else
+#elif defined(USE_TEXTBROWSER)
 #include "METextBrowser.h"
 #endif
 
@@ -70,7 +70,7 @@ void MEHelpViewer::init()
             MEMainHandler::instance(),
             SLOT(handleSslErrors(QNetworkReply *, const QList<QSslError> &)));
 
-#else
+#elif defined(USE_TEXTBROWSER)
     m_browser = new METextBrowser(this);
 #endif
 
@@ -111,7 +111,7 @@ void MEHelpViewer::makeMenu()
 #elif defined(USE_WEBKIT)
     m_browser->page()->history()->canGoForward();
     connect(m_backwardId, SIGNAL(triggered()), m_browser, SLOT(back()));
-#else
+#elif defined(USE_TEXTBROWSER)
     m_backwardId->setEnabled(false);
     m_forwardId->setEnabled(false);
     connect(m_backwardId, SIGNAL(triggered()), m_browser, SLOT(backward()));
@@ -164,7 +164,7 @@ void MEHelpViewer::newSource(const QString &newPath)
         m_browser->load(QUrl(newPath));
     else
         m_browser->load(QUrl("file:///" + newPath));
-#else
+#elif defined(USE_TEXTBROWSER)
         m_browser->setSource(QUrl(newPath));
     else
         m_browser->setSource(QUrl::fromLocalFile(newPath));
@@ -198,7 +198,7 @@ void MEHelpViewer::print()
 #if defined(USE_WEBENGINE)
 #elif defined(USE_WEBKIT)
     m_browser->print(&printer);
-#else
+#elif defined(USE_TEXTBROWSER)
     QTextEdit *editor = static_cast<QTextBrowser *>(m_browser);
     QTextDocument *document = editor->document();
     document->print(&printer);

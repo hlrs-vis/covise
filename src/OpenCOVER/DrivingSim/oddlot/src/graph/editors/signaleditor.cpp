@@ -143,51 +143,6 @@ SignalEditor::getInsertSignalHandle() const
     return insertSignalHandle_;
 }
 
-// Move Signal //
-//
-RSystemElementRoad *
-SignalEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
-{
-	RoadSystem * roadSystem = getProjectData()->getRoadSystem();
-	QMap<QString, RSystemElementRoad *> roads = roadSystem->getRoads();
-
-	if (roads.count() < 1)
-	{
-		return NULL;
-	}
-
-	QMap<QString, RSystemElementRoad *>::const_iterator it = roads.constBegin();
-	RSystemElementRoad *road = it.value();
-	s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
-	vec = QVector2D(road->getGlobalPoint(s) - to);
-	t = vec.length();
-
-	while (++it != roads.constEnd())
-	{
-		RSystemElementRoad *newRoad = it.value();
-		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
-		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(newS) - to);
-		double dist = newVec.length();
-
-		if (dist < t)
-		{
-			road = newRoad;
-			t = dist;
-			s = newS;
-			vec = newVec;
-		}
-	}
-
-	QVector2D normal = road->getGlobalNormal(s);
-
-	if (QVector2D::dotProduct(normal, vec) < 0)
-	{
-		t = -t;
-	}
-
-	return road;
-}
-
 bool 
 SignalEditor::translateSignal(Signal * signal, RSystemElementRoad *newRoad, QPointF &to)
 {
@@ -231,7 +186,7 @@ SignalEditor::translateSignal(Signal * signal, RSystemElementRoad *newRoad, QPoi
         validFromLane = laneSection->getLeftmostLaneId();
     }
 
-	SetSignalPropertiesCommand * signalPropertiesCommand = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), signal->getCountry(), signal->getType(), signal->getTypeSubclass(), signal->getSubtype(), signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), validFromLane, validToLane, signal->getCrossingProbability(), signal->getResetTime());
+	SetSignalPropertiesCommand * signalPropertiesCommand = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), signal->getCountry(), signal->getType(), signal->getTypeSubclass(), signal->getSubtype(), signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getUnit(), signal->getText(), signal->getWidth(), signal->getHeight(),  signal->getPole(), signal->getSize(), validFromLane, validToLane, signal->getCrossingProbability(), signal->getResetTime());
     getProjectGraph()->executeCommand(signalPropertiesCommand);
     MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(signal, s, RSystemElementRoad::DRS_SignalSection);
     getProjectGraph()->executeCommand(moveSectionCommand);
@@ -270,13 +225,13 @@ SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 		{
 			t += lastSignal->getSignalDistance();
 		}
-		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), lastSignal->getSignalHeight(), 0.0, 0.0, true, 2, validFromLane, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, lastSignal->getSignalheightOffset(), signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), 0.0, 0.0, 0.0, lastSignal->getSignalUnit(), lastSignal->getSignalText(),lastSignal->getSignalWidth(), lastSignal->getSignalHeight(), true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
 	else
 	{
-		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, validFromLane, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
@@ -575,7 +530,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 					double s;
 					double t;
 					QVector2D vec;
-					RSystemElementRoad * road = findClosestRoad(mousePoint, s, t, vec);
+					RSystemElementRoad * road = getProjectData()->getRoadSystem()->findClosestRoad(mousePoint, s, t, vec);
 					if (road)
 					{
 						if (currentTool == ODD::TSG_SIGNAL)

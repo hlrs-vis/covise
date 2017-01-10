@@ -18,6 +18,9 @@
 
 #if !(defined WIN32 || defined WIN64)
 #include <sys/param.h>
+# ifdef HZ
+#  undef HZ
+# endif
 #endif
 #include <cmath>
 #include <iostream>

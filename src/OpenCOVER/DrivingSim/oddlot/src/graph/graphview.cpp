@@ -17,6 +17,7 @@
 
 #include "topviewgraph.hpp"
 #include "graphscene.hpp"
+#include "graphviewitems/graphviewshapeitem.hpp"
 #include "src/cover/coverconnection.hpp"
 
 //MainWindow //
@@ -41,7 +42,12 @@
 #include "src/gui/tools/selectiontool.hpp"
 #include "src/gui/tools/maptool.hpp"
 #include "src/gui/tools/junctioneditortool.hpp"
+#include "src/gui/tools/osceditortool.hpp"
 #include "src/gui/projectwidget.hpp"
+
+// Graph //
+//
+#include "src/graph/editors/osceditor.hpp"
 
 // Qt //
 //
@@ -69,12 +75,14 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     , doKeyPan_(false)
     , doBoxSelect_(BBOff)
     , doCircleSelect_(CircleOff)
+    , doShapeEdit_(false)
     , radius_(0.0)
     , horizontalRuler_(NULL)
     , verticalRuler_(NULL)
     , rulersActive_(false)
     , rubberBand_(NULL)
     , circleItem_(NULL)
+    , shapeItem_(NULL)
     , additionalSelection_(false)
 {
     // ScenerySystem //
@@ -132,6 +140,30 @@ GraphView::resetViewTransformation()
 
     resetMatrix();
     setTransform(trafo);
+}
+
+void
+GraphView::shapeEditing(bool edit)
+{            
+	if (edit)
+	{
+		doShapeEdit_ = true;
+		// OpenScenario Editor
+		//
+		OpenScenarioEditor * editor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
+		shapeItem_ = new GraphViewShapeItem(this, editor, x(), y(), width(), height());
+		scene()->addItem(shapeItem_);
+	}
+	else if (doShapeEdit_)
+	{
+		doShapeEdit_ = false;
+		//               splineControlPoints_.clear();
+		if (scene())
+		{
+			scene()->removeItem(shapeItem_);
+			delete shapeItem_;
+		}
+	}
 }
 
 //################//
@@ -233,6 +265,19 @@ GraphView::toolAction(ToolAction *toolAction)
         else if (id == ODD::TJE_THRESHOLD)
         {
             radius_ = junctionEditorAction->getThreshold();
+        }
+    }
+
+    // Shape Editing Tool //
+    //
+    OpenScenarioEditorToolAction *oscEditorAction = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
+    if (oscEditorAction)
+    {
+        ODD::ToolId id = oscEditorAction->getToolId();
+
+        if (id == ODD::TOS_GRAPHELEMENT)
+        {
+			shapeEditing(!doShapeEdit_);
         }
     }
 
@@ -583,6 +628,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
     else if (doKeyPan_)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
+		QApplication::setOverrideCursor(Qt::OpenHandCursor);
         setInteractive(false); // this prevents the event from being passed to the scene
         QGraphicsView::mousePressEvent(event); // pass to baseclass
     }
@@ -592,6 +638,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
         doPan_ = true;
 
         setDragMode(QGraphicsView::ScrollHandDrag);
+		QApplication::setOverrideCursor(Qt::OpenHandCursor);
         setInteractive(false); // this prevents the event from being passed to the scene
 
         // Harharhar Hack //
@@ -631,10 +678,14 @@ GraphView::mousePressEvent(QMouseEvent *event)
             }
         }
     }
-    else
-    {
+	else
+	{
+		if (doShapeEdit_)
+		{
+			shapeItem_->mousePressEvent(event);
+		}
 
-        QGraphicsView::mousePressEvent(event); // pass to baseclass
+		QGraphicsView::mousePressEvent(event); // pass to baseclass
     }
 }
 
@@ -678,6 +729,10 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
 #endif
     else
     {
+		if (doShapeEdit_)
+		{
+			shapeItem_->mouseMoveEvent(event);
+		}
         QGraphicsView::mouseMoveEvent(event); // pass to baseclass
     }
 }
@@ -685,93 +740,101 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
 void
 GraphView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (doKeyPan_)
-    {
-        setDragMode(QGraphicsView::NoDrag);
-        setInteractive(true);
-        if (doBoxSelect_ == BBPressed)
-        {
-            doBoxSelect_ = BBActive;
-        }
-    }
+
+	if (doKeyPan_)
+	{
+		setDragMode(QGraphicsView::NoDrag);
+		setInteractive(true);
+		if (doBoxSelect_ == BBPressed)
+		{
+			doBoxSelect_ = BBActive;
+		}
+		doKeyPan_ = false;
+		QApplication::restoreOverrideCursor();
+	}
 
 #ifdef USE_MIDMOUSE_PAN
-    if (doPan_)
-    {
-        setDragMode(QGraphicsView::NoDrag);
-        setInteractive(true);
-        if (doBoxSelect_ == BBPressed)
-        {
-            doBoxSelect_ = BBActive;
-        }
-        doPan_ = false;
-    }
+	else if (doPan_)
+	{
+		setDragMode(QGraphicsView::NoDrag);
+		setInteractive(true);
+		if (doBoxSelect_ == BBPressed)
+		{
+			doBoxSelect_ = BBActive;
+		}
+		doPan_ = false;
+		QApplication::restoreOverrideCursor();
+	}
 #endif
+	else if (doShapeEdit_)
+	{
+		shapeItem_->mouseReleaseEvent(event);
 
-    //	setDragMode(QGraphicsView::RubberBandDrag);
+		QGraphicsView::mouseReleaseEvent(event);
+	}
+	//	setDragMode(QGraphicsView::RubberBandDrag);
 
-    else
-    {
-        if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
-        {
-            QGraphicsView::mouseReleaseEvent(event);
-        }
+	else
+	{
+		if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+		{
+			QGraphicsView::mouseReleaseEvent(event);
+		}
 
-        if ((doBoxSelect_ == BBActive) && rubberBand_)
-        {
-            QList<QGraphicsItem *> oldSelection;
+		if ((doBoxSelect_ == BBActive) && rubberBand_)
+		{
+			QList<QGraphicsItem *> oldSelection;
 
-            if (additionalSelection_)
-            {
-                // Save old selection
+			if (additionalSelection_)
+			{
+				// Save old selection
 
-                oldSelection = scene()->selectedItems();
-            }
+				oldSelection = scene()->selectedItems();
+			}
 
-            // Set the new selection area
+			// Set the new selection area
 
-            QPainterPath selectionArea;
+			QPainterPath selectionArea;
 
-            selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
-            selectionArea.closeSubpath();
-            scene()->clearSelection();
-            scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+			selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
+			selectionArea.closeSubpath();
+			scene()->clearSelection();
+			scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
 
-            // Compare old and new selection lists and invert the selection state of elements contained in both
+			// Compare old and new selection lists and invert the selection state of elements contained in both
 
-            QList<QGraphicsItem *> selectList = scene()->selectedItems();
-            foreach (QGraphicsItem *item, oldSelection)
-            {
-                if (selectList.contains(item))
-                {
-                    item->setSelected(false);
-                    selectList.removeOne(item);
-                }
-                else
-                {
-                    item->setSelected(true);
-                }
-            }
+			QList<QGraphicsItem *> selectList = scene()->selectedItems();
+			foreach (QGraphicsItem *item, oldSelection)
+			{
+				if (selectList.contains(item))
+				{
+					item->setSelected(false);
+					selectList.removeOne(item);
+				}
+				else
+				{
+					item->setSelected(true);
+				}
+			}
 
-            // deselect elements which were not in the oldSelection
+			// deselect elements which were not in the oldSelection
 
-            if ((event->modifiers() & Qt::AltModifier) != 0)
-            {
-                foreach (QGraphicsItem *item, selectList)
-                {
-                    item->setSelected(false);
-                }
-            }
+			if ((event->modifiers() & Qt::AltModifier) != 0)
+			{
+				foreach (QGraphicsItem *item, selectList)
+				{
+					item->setSelected(false);
+				}
+			}
 
-            rubberBand_->hide();
-            doBoxSelect_ = BBOff;
-        }
-    }
+			rubberBand_->hide();
+			doBoxSelect_ = BBOff;
+		}
+	}
 
-    doPan_ = false;
-    doKeyPan_ = false;
-    additionalSelection_ = false;
-    setInteractive(true);
+	additionalSelection_ = false;
+	setInteractive(true);
+
 
     //	if(doBoxSelect_)
     //	{
@@ -879,3 +942,18 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
         QGraphicsView::keyReleaseEvent(event);
     }
 }
+
+void
+    GraphView::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (doShapeEdit_)
+    {
+        shapeItem_->contextMenu(event);
+//        GraphViewShapeItem::contextMenuEvent(event);
+    }
+	else
+	{
+		QGraphicsView::contextMenuEvent(event);
+	}
+}
+

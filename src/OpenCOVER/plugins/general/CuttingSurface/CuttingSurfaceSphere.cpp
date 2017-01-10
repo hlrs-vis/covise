@@ -63,7 +63,7 @@ CuttingSurfaceSphere::CuttingSurfaceSphere(coInteractor *inter)
     sphereRadiusPickInteractor_->disableIntersection();
 
     // direct interactor
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         sphereDirectInteractor_ = NULL;
     }

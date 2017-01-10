@@ -519,6 +519,8 @@ struct BlockDrawCallback : public virtual osg::Drawable::DrawCallback
             }
         }
 
+		vertices->dirty();
+
         drawable->drawImplementation(renderInfo);
     }
 
@@ -701,6 +703,8 @@ protected:
 
             geometry->dirtyBound();
 
+			vertices->dirty();
+
             drawable->drawImplementation(renderInfo);
         }
 
@@ -783,6 +787,8 @@ struct FrameMarkerDrawCallback : public virtual osg::Drawable::DrawCallback
                 (*vertices)[vi++].x() = _xPos + (currentReferenceTime - referenceTime) * _statsHandler->getBlockMultiplier();
             }
         }
+
+		vertices->dirty();
 
         drawable->drawImplementation(renderInfo);
     }

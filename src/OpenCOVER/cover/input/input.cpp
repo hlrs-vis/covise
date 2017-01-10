@@ -119,7 +119,20 @@ Input::~Input()
     clearMap(trackingbodies);
     clearMap(valuators);
     clearMap(drivers);
-    clearMap(plugins);
+
+	for (std::map<std::string, DriverFactoryBase *>::iterator it = plugins.begin();
+		it != plugins.end();
+		++it)
+	{
+		DriverFactoryBase *dfb = it->second;
+		CO_SHLIB_HANDLE handle = dfb->getLibHandle();
+		delete dfb;
+		if (handle)
+		{
+			opencover::coVRDynLib::dlclose(handle); // this has to be called after the destructor, otherwise the code gets unloaded while it is still executing
+		}
+	}
+	plugins.clear();
 }
 
 void Input::printConfig() const
@@ -616,14 +629,14 @@ void Input::update()
         }
 
         len = tb.get_length();
-        coVRMSController::instance()->sendSlaves(&len, sizeof(len));
-        coVRMSController::instance()->sendSlaves(tb.get_data(), len);
+        coVRMSController::instance()->syncData(&len, sizeof(len));
+        coVRMSController::instance()->syncData(const_cast<char *>(tb.get_data()), len);
     }
     else
     {
-        coVRMSController::instance()->readMaster(&len, sizeof(len));
+        coVRMSController::instance()->syncData(&len, sizeof(len));
         std::vector<char> data(len);
-        coVRMSController::instance()->readMaster(&data[0], len);
+        coVRMSController::instance()->syncData(&data[0], len);
         TokenBuffer tb(&data[0], len);
         tb >> activePerson;
         tb >> nButtons >> nValuators >> nBodies;
@@ -686,5 +699,16 @@ void Input::update()
             ob->second->set6Dof(is6Dof != 0);
         }
     }
+
+    for (size_t i=0; i<personNames.size(); ++i) {
+        Person *p = getPerson(i);
+        if (p->activateOnAction() && (p->isHandValid(0) || p->isHeadValid())) {
+            if (i != getActivePerson()) {
+                setActivePerson(i);
+                p->setActivateOnAction(false);
+            }
+        }
+    }
 }
-}
+
+} // namespace opencover

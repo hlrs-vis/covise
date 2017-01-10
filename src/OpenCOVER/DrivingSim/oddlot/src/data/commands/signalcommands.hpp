@@ -93,7 +93,7 @@ private:
 class SetSignalPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent = NULL);
+    explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, const QString &unit, const QString &text, double width, double height, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent = NULL);
     explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent = NULL);
     virtual ~SetSignalPropertiesCommand();
 

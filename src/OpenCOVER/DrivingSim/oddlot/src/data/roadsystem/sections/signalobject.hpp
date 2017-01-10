@@ -52,6 +52,10 @@ public:
         double pitch;
         double roll;
         bool pole;
+		QString unit;
+		QString text;
+		double width;
+		double height;
     };
 
     struct Validity
@@ -73,7 +77,7 @@ public:
     //################//
 
 public:
-    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int validFromLane, int validToLane, double probability = 0.75, double resetTime = 20.0);
+    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, QString unit, QString text, double width, double height, bool pole, int size, int validFromLane, int validToLane, double probability = 0.75, double resetTime = 20.0);
     explicit Signal(const QString &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData);
     virtual ~Signal()
     { /* does nothing */
@@ -287,6 +291,41 @@ public:
     {
         signalUserData_.resetTime = resetTime;
     }
+
+	double getWidth() const
+	{
+		return signalProps_.width;
+	}
+	void setWidth(const double width)
+	{
+		signalProps_.width = width;
+	}
+
+	double getHeight() const
+	{
+		return signalProps_.height;
+	}
+	void setHeight(const double height)
+	{
+		signalProps_.height = height;
+	}
+
+	QString getUnit() const
+	{
+		return signalProps_.unit;
+	}
+	void setUnit(const QString unit)
+	{
+		signalProps_.unit = unit;
+	}
+	QString getText() const
+	{
+		return signalProps_.text;
+	}
+	void setText(const QString text)
+	{
+		signalProps_.text = text;
+	}
 
     SignalUserData getSignalUserData() const
     {

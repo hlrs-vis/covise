@@ -202,7 +202,7 @@ enum covise_msg_type
 };
 
 #ifdef DEFINE_MSG_TYPES
-COVISEEXPORT const char *covise_msg_types_array[] = {
+NETEXPORT const char *covise_msg_types_array[] = {
     "FAILED", //  0
     "OK", //  1
     "INIT", //  2
@@ -348,7 +348,7 @@ COVISEEXPORT const char *covise_msg_types_array[] = {
     "GIVE_ME_A_NAME"
 };
 #else
-COVISEEXPORT extern const char *covise_msg_types_array[];
+NETEXPORT extern const char *covise_msg_types_array[];
 #endif
 
 enum sender_type

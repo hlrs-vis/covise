@@ -24,15 +24,15 @@ import covise
 #
 argv = sys.argv
 argc = len(sys.argv)
-print("COVISE PYTHON INTERFACE1")
-print(argc)
-print(type(argv[0]))
-print(argv[1])
-print(argv[2])
-print(argv[3])
-print(argv[4])
-print(argv[5])
-print(argv[6])
+#print("COVISE PYTHON INTERFACE1")
+#print(argc)
+#print(type(argv[0]))
+#print(argv[1])
+#print(argv[2])
+#print(argv[3])
+#print(argv[4])
+#print(argv[5])
+#print(argv[6])
 #
 # remove first arg of the userinterface script
 # it is the filename to be executed (if 8 args are given)

@@ -22,6 +22,10 @@
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 
+#ifdef __linux
+#include <pthread.h>
+#endif
+
 using namespace std;
 using namespace covise;
 
@@ -130,6 +134,10 @@ void InputDevice::stopLoop()
  */
 void InputDevice::run()
 {
+#ifdef __linux
+    pthread_setname_np(pthread_self(), m_name.c_str());
+#endif
+
     bool again = true;
     while (again)
     {
@@ -236,13 +244,6 @@ DriverFactoryBase::DriverFactoryBase(const std::string &name)
 
 DriverFactoryBase::~DriverFactoryBase()
 {
-
-    if (m_handle)
-    {
-        // FIXME: call at appropriate location
-        //opencover::coVRDynLib::dlclose(m_handle);
-        std::cerr << "Input: removed driver factory \"" << m_name << "\"" << std::endl;
-    }
 }
 
 void DriverFactoryBase::setLibHandle(CO_SHLIB_HANDLE handle)

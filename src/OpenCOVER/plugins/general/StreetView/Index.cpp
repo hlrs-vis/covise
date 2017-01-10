@@ -74,9 +74,6 @@ Index::~Index()
 	{
 		delete *it;
 	}
-	delete indexParser;
-	delete streetView;
-	delete lastVisitedStation;
 }
 
 

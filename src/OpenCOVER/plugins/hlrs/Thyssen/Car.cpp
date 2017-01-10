@@ -16,6 +16,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 
+#include <boost/lexical_cast.hpp>
+
 using namespace covise;
 
 
@@ -596,7 +598,7 @@ void VrmlNodeCar::tabletEvent(coTUIElement *tUIItem)
         std::string stationListString;
         for(std::list<int>::iterator it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
         {
-            stationListString += std::to_string(*it);
+            stationListString += boost::lexical_cast<std::string>(*it);
                 stationListString += " ";
         }
         stationListEdit->setText(stationListString.c_str());
@@ -690,7 +692,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     eventOut(timeStamp, "carPos", d_carPos);
     state = Idle;
     std::string name = "Car_";
-    name += std::to_string(ID);
+    name += boost::lexical_cast<std::string>(ID);
     
     stationListEdit=new coTUIEditField("stationList",elevator->elevatorTab->getID());
     carLabel = new coTUILabel(name.c_str(),elevator->elevatorTab->getID());
@@ -702,7 +704,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     std::string stationListString;
     for(int i=0;i<d_stationList.size();i++)
     {
-        stationListString += std::to_string(d_stationList.get()[i]);
+        stationListString += boost::lexical_cast<std::string>(d_stationList.get()[i]);
         if(i < d_stationList.size()-1)
             stationListString += " ";
     }

@@ -371,6 +371,10 @@ SkyPlugin::SkyPlugin()
     yearField->setEventListener(this);
     yearField->setValue(2006);
     yearField->setPos(0, 2);
+	yearLabel = new coTUILabel("Year", skyTab->getID());
+    yearLabel->setPos(0, 2);
+    yearLabel->setColor(Qt::black);
+
     monthField = new coTUIEditIntField("month", skyTab->getID());
     monthField->setEventListener(this);
     monthField->setValue(3);

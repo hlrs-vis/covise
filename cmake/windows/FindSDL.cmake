@@ -68,7 +68,7 @@
 FIND_PATH(SDL_INCLUDE_DIR SDL.h
   HINTS
   $ENV{SDLDIR}
-  PATH_SUFFIXES include/SDL include
+  PATH_SUFFIXES include/SDL include/SDL2 include
   PATHS
   $ENV{EXTERNLIBS}/SDL
   ~/Library/Frameworks
@@ -87,7 +87,7 @@ FIND_PATH(SDL_INCLUDE_DIR SDL.h
 # SDL-1.1 is the name used by FreeBSD ports...
 # don't confuse it for the version number.
 FIND_LIBRARY(SDL_LIBRARY_TEMP 
-  NAMES SDL SDL-1.1
+  NAMES SDL SDL-1.1 SDL2
   HINTS
   $ENV{SDLDIR}
   PATH_SUFFIXES lib64 lib
@@ -103,7 +103,7 @@ IF(MSVC)
 # SDL-1.1 is the name used by FreeBSD ports...
 # don't confuse it for the version number.
 FIND_LIBRARY(SDL_LIBRARY_DEBUG_TEMP 
-  NAMES SDLD SDLD-1.1
+  NAMES SDLD SDLD-1.1 SDL2D
   HINTS
   $ENV{SDLDIR}
   PATH_SUFFIXES lib64 lib

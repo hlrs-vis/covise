@@ -97,7 +97,7 @@ TracerPlane::TracerPlane(coInteractor *inter, TracerPlugin *p)
 
     initialObjectName_ = _inter->getObject()->getName();
 
-    if (coVRConfig::instance()->mouseTracking())
+    if (!coVRConfig::instance()->has6DoFInput())
     {
         _directInteractor = NULL;
         //fprintf(stderr,"Info: TracerPlugin: no direct interaction for tracer plane possible for TRACKING_SYSTEM MOUSE\n");
@@ -274,11 +274,19 @@ void TracerPlane::updateGeometry()
     osg::Vec3 v2 = _pos2 - _pos1;
     osg::Vec3 vn = v1 ^ v2;
     vn.normalize();
+	coordLine_->dirty();
+	coordPoly_->dirty();
     (*polyNormal_)[0].set(vn[0], vn[1], vn[2]);
-    if (geometryLine_ != NULL)
-        geometryLine_->dirtyBound();
+	if (geometryLine_ != NULL)
+	{
+		geometryLine_->dirtyDisplayList();
+		geometryLine_->dirtyBound();
+	}
     if (geometryPoly_ != NULL)
-        geometryPoly_->dirtyBound();
+	{
+		geometryPoly_->dirtyDisplayList();
+		geometryPoly_->dirtyBound();
+	}
 }
 
 void

@@ -25,6 +25,7 @@ class ZoomTool;
 
 class Ruler;
 class ScenerySystemItem;
+class GraphViewShapeItem;
 
 class ToolAction;
 
@@ -76,6 +77,8 @@ public:
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
 
+    virtual void contextMenuEvent(QContextMenuEvent *e);
+
     //################//
     // SLOTS          //
     //################//
@@ -118,6 +121,28 @@ public slots:
     void setMapHeight(double height, bool keepRatio);
     void setMap(float x,float y,float width,float height,int xRes,int yRes,const char *buf);
 
+    void setShapeEdit(bool edit)
+    {
+        doShapeEdit_ = edit;
+    }
+
+	void shapeEditing(bool edit);
+
+    void setSplineControlPoints(const QVector<QPointF> &controlPoints)
+    {
+        splineControlPoints_ = controlPoints;
+    }
+
+    QVector<QPointF> getSplineControlPoints()
+    {
+        return splineControlPoints_;
+    } 
+
+    void clearSplineControlPoints()
+    {
+        splineControlPoints_.clear();
+    }
+
     //################//
     // PROPERTIES     //
     //################//
@@ -136,6 +161,9 @@ private:
     QGraphicsPathItem *circleItem_;
     QPointF circleCenter_;
 
+    bool doShapeEdit_;
+    GraphViewShapeItem *shapeItem_;
+
     Ruler *horizontalRuler_;
     Ruler *verticalRuler_;
     bool rulersActive_;
@@ -150,6 +178,8 @@ private:
     QGraphicsPixmapItem *backgroundItem;
 
     double scaling_;
+
+    QVector<QPointF> splineControlPoints_;
 };
 
 #endif // GRAPHVIEW_HPP

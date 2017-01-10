@@ -1,0 +1,14 @@
+USING(Assimp)
+
+SET(HEADERS
+  ReadModel.h
+)
+
+SET(SOURCES
+  ReadModel.cpp
+)
+
+ADD_COVISE_MODULE(IO ReadModel ${SOURCES} ${HEADERS})
+TARGET_LINK_LIBRARIES(ReadModel coApi coAppl coCore ${EXTRA_LIBS})
+
+COVISE_INSTALL_TARGET(ReadModel)

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <cstdio>
 #include <cstring>
 #include <osg/Geometry>
 

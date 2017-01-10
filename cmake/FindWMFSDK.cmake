@@ -17,6 +17,7 @@ FIND_PATH(WMFSDK_INCLUDE_DIR wmsdk.h
    $ENV{WindowsSdkDir}/Include/um
    $ENV{EXTERNLIBS}/wmfsdk11/include
    "/Program Files/Microsoft SDKs/Windows/v7.0/Include"
+   "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Include"
    DOC "wmfsdk11 - Headers"
    NO_DEFAULT_PATH
 )
@@ -28,6 +29,7 @@ FIND_PATH(WMFSDK_SHARED_INCLUDE_DIR winapifamily.h
    $ENV{WindowsSdkDir}/Include/shared
    $ENV{EXTERNLIBS}/wmfsdk11/include
    "/Program Files/Microsoft SDKs/Windows/v7.0/Include"
+   "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Include"
    DOC "shared - Headers"
    NO_DEFAULT_PATH
 )
@@ -46,25 +48,24 @@ IF (MSVC)
    $ENV{EXTERNLIBS}/wmfsdk11/lib
    $ENV{WindowsSdkDir}/Lib/x64
    $ENV{WindowsSdkDir}/Lib/win8/um/x64
+   $ENV{WindowsSdkDir}/Lib/winv6.3/um/x64
    "/Program Files/Microsoft SDKs/Windows/v7.0/Lib/x64"
+   "/Program Files (x86)/Microsoft SDKs/Windows/v7.1A/Lib/x64"
     NO_DEFAULT_PATH
   )
-  IF (WMFSDK_LIBRARY)
-    SET(WMFSDK_LIBRARIES ${WMFSDK_LIBRARY})
-  ELSE (WMFSDK_LIBRARY)
-    SET(WMFSDK_LIBRARIES NOTFOUND)
-    MESSAGE(STATUS "Could not find wmfsdk11-library")    
-  ENDIF (WMFSDK_LIBRARY)
+  
   MARK_AS_ADVANCED(WMFSDK_LIBRARY)
   
 ENDIF (MSVC)
 
 INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(WMFSDK DEFAULT_MSG WMFSDK_LIBRARY WMFSDK_INCLUDE_DIR)
 
-IF(MSVC)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(WMFSDK DEFAULT_MSG WMFSDK_LIBRARIES WMFSDK_INCLUDE_DIR)
-  MARK_AS_ADVANCED(WMFSDK_LIBRARIES)
-ELSE(MSVC)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(WMFSDK DEFAULT_MSG WMFSDK_LIBRARY WMFSDK_INCLUDE_DIR)
-  MARK_AS_ADVANCED(WMFSDK_LIBRARY)
-ENDIF(MSVC)
+IF(WMFSDK_FOUND)
+  IF (WMFSDK_SHARED_INCLUDE_DIR)
+    SET(WMFSDK_INCLUDE_DIRS ${WMFSDK_INCLUDE_DIR} ${WMFSDK_SHARED_INCLUDE_DIR})
+  ELSE()
+    SET(WMFSDK_INCLUDE_DIRS ${WMFSDK_INCLUDE_DIR})
+  ENDIF()
+  SET(WMFSDK_LIBRARIES ${WMFSDK_LIBRARY})
+ENDIF()

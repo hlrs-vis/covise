@@ -158,7 +158,10 @@ macro(covise_find_component comp)
    elseif (${comp} STREQUAL Alg)
        set(complib coAlg)
        set(compvar ALG)
-       covise_find_package(VTK COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
+       covise_find_package(VTK
+           COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel
+           NO_MODULE
+           QUIET)
        if (VTK_FOUND)
           set(ADD_LIBS ${VTK_LIBRARIES})
        endif()
@@ -320,7 +323,7 @@ MACRO(COVISE_INSTALL_DEPENDENCIES targetname)
 #           MESSAGE("VALUE+ ${value}")
            IF (IS_DIRECTORY ${value})
            ELSE (IS_DIRECTORY ${value})
-              INSTALL(FILES ${value} DESTINATION covise/${COVISE_ARCHSUFFIX}/lib)
+              INSTALL(FILES ${value} DESTINATION ${COVISE_ARCHSUFFIX}/lib)
            # Recurse symlinks
            # FIXME: Does not work with absolute links (that are evil anyway)
            WHILE(IS_SYMLINK ${value})
@@ -328,7 +331,7 @@ MACRO(COVISE_INSTALL_DEPENDENCIES targetname)
              GET_FILENAME_COMPONENT(link_dir ${value} PATH)
              SET(value "${link_dir}/${link_target}")
 #             MESSAGE("VALUE ${value}")
-INSTALL(FILES ${value} DESTINATION covise/${COVISE_ARCHSUFFIX}/lib)
+INSTALL(FILES ${value} DESTINATION ${COVISE_ARCHSUFFIX}/lib)
            ENDWHILE(IS_SYMLINK ${value})
            ENDIF (IS_DIRECTORY ${value})
          ENDIF (value MATCHES "^${extlibs}")
@@ -365,19 +368,19 @@ MACRO(COVISE_INSTALL_TARGET targetname)
   #  ENDIF(NOT EXISTS covise/${COVISE_ARCHSUFFIX}/lib)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
-     RUNTIME DESTINATION covise/${COVISE_ARCHSUFFIX}/bin${_category_path}
-     LIBRARY DESTINATION covise/${COVISE_ARCHSUFFIX}/lib
-     ARCHIVE DESTINATION covise/${COVISE_ARCHSUFFIX}/lib
+     RUNTIME DESTINATION ${COVISE_ARCHSUFFIX}/bin${_category_path}
+     LIBRARY DESTINATION ${COVISE_ARCHSUFFIX}/lib
+     ARCHIVE DESTINATION ${COVISE_ARCHSUFFIX}/lib
           COMPONENT modules.${category}
   )
   IF(COVISE_EXPORT_TO_INSTALL)
-     INSTALL(EXPORT covise-targets DESTINATION covise/${COVISE_ARCHSUFFIX}/lib COMPONENT modules.${category})
+     INSTALL(EXPORT covise-targets DESTINATION ${COVISE_ARCHSUFFIX}/lib COMPONENT modules.${category})
   ELSE(COVISE_EXPORT_TO_INSTALL)
     # EXPORT(TARGETS ${ARGV} APPEND FILE # "${CMAKE_BINARY_DIR}/${BASEARCHSUFFIX}/${COVISE_EXPORT_FILE}")
     EXPORT(TARGETS ${ARGV} APPEND FILE "${COVISE_DESTDIR}/${COVISE_ARCHSUFFIX}/${COVISE_EXPORT_FILE}")
   ENDIF(COVISE_EXPORT_TO_INSTALL)
   FOREACH(tgt ${ARGV})
-     COVISE_COPY_TARGET_PDB(${tgt} covise/${COVISE_ARCHSUFFIX} ${_category_path})
+     COVISE_COPY_TARGET_PDB(${tgt} ${COVISE_ARCHSUFFIX} ${_category_path})
   ENDFOREACH(tgt)
   COVISE_INSTALL_DEPENDENCIES(${targetname})
 ENDMACRO(COVISE_INSTALL_TARGET)
@@ -385,9 +388,9 @@ ENDMACRO(COVISE_INSTALL_TARGET)
 # Macro to install an OpenCOVER plugin
 MACRO(COVER_INSTALL_PLUGIN targetname)
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
-     RUNTIME DESTINATION covise/${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins
-     LIBRARY DESTINATION covise/${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins
-     ARCHIVE DESTINATION covise/${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins
+     RUNTIME DESTINATION ${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins
+     LIBRARY DESTINATION ${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins
+     ARCHIVE DESTINATION ${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins
           COMPONENT osgplugins.${category}
   )
   COVISE_INSTALL_DEPENDENCIES(${targetname})

@@ -21,8 +21,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
-#include "cover/coTabletUI.h"
-#include "cover/coInteractor.h"
+#include <cover/coTabletUI.h>
+#include <cover/coInteractor.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coIconButtonToolboxItem.h>
 #include <OpenVRUI/coRowMenu.h>

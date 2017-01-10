@@ -728,12 +728,13 @@ void coVRPluginSupport::addedNode(osg::Node *node, coVRPlugin *addingPlugin)
 coPointerButton *coVRPluginSupport::getPointerButton() const
 {
     //START("coVRPluginSupport::getPointerButton");
+    if (coVRConfig::instance()->mouseTracking())
+    {
+        return getMouseButton();
+    }
+
     if (pointerButton == NULL) // attach Button status as userdata to handTransform
     {
-        if (coVRConfig::instance()->mouseTracking())
-        {
-            return getMouseButton();
-        }
         pointerButton = new coPointerButton("pointer");
     }
     return pointerButton;
@@ -912,25 +913,15 @@ void coVRPluginSupport::update()
 
         // use horizontal screen size as normalization factor
         scaleFactor = viewerDist / frontHorizontalSize;
-
-        coVRMSController::instance()->sendSlaves((char *)&scaleFactor, sizeof(scaleFactor));
-        coVRMSController::instance()->sendSlaves((char *)&viewerDist, sizeof(viewerDist));
-        coVRMSController::instance()->sendSlaves((char *)&eyeToScreen, sizeof(eyeToScreen));
-
-        coVRMSController::instance()->sendSlaves((char *)&frontScreenCenter, sizeof(frontScreenCenter));
-        coVRMSController::instance()->sendSlaves((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
-        coVRMSController::instance()->sendSlaves((char *)&frontVerticalSize, sizeof(frontVerticalSize));
     }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&scaleFactor, sizeof(scaleFactor));
-        coVRMSController::instance()->readMaster((char *)&viewerDist, sizeof(viewerDist));
-        coVRMSController::instance()->readMaster((char *)&eyeToScreen, sizeof(eyeToScreen));
 
-        coVRMSController::instance()->readMaster((char *)&frontScreenCenter, sizeof(frontScreenCenter));
-        coVRMSController::instance()->readMaster((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
-        coVRMSController::instance()->readMaster((char *)&frontVerticalSize, sizeof(frontVerticalSize));
-    }
+    coVRMSController::instance()->syncData((char *)&scaleFactor, sizeof(scaleFactor));
+    coVRMSController::instance()->syncData((char *)&viewerDist, sizeof(viewerDist));
+    coVRMSController::instance()->syncData((char *)&eyeToScreen, sizeof(eyeToScreen));
+
+    coVRMSController::instance()->syncData((char *)&frontScreenCenter, sizeof(frontScreenCenter));
+    coVRMSController::instance()->syncData((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
+    coVRMSController::instance()->syncData((char *)&frontVerticalSize, sizeof(frontVerticalSize));
 }
 
 coVRPlugin *coVRPluginSupport::addPlugin(const char *name)
@@ -1645,6 +1636,12 @@ osg::Matrix *coVRPluginSupport::getWorldCoords(osg::Node *node) const
     }
 }
 
+bool coVRPluginSupport::isHighQuality() const
+{
+    return VRSceneGraph::instance()->highQuality();
+}
+
+
 bool coVRPluginSupport::isVRBconnected()
 {
     return vrbc->isConnected();
@@ -1673,6 +1670,7 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
 void coVRPluginSupport::personSwitched(size_t personNum)
 {
     VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
+    coVRNavigationManager::instance()->updatePerson();
 }
 
 covise::TokenBuffer &opencover::operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix)

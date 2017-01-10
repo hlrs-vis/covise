@@ -10,4 +10,8 @@ SET(SOURCES
   TangiblePositionPlugin.cpp
 )
 
-cover_add_plugin(TangiblePosition Vrml97Cover ${COVISE_APPL_LIBRARY} ${COVISE_SHM_LIBRARY})
+if(COVISE_BUILD_ONLY_COVER_PREREQ)
+    cover_add_plugin(TangiblePosition Vrml97Cover)
+else()
+    cover_add_plugin(TangiblePosition Vrml97Cover ${COVISE_APPL_LIBRARY} ${COVISE_SHM_LIBRARY})
+endif()

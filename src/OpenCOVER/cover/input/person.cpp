@@ -23,6 +23,7 @@ Person::Person(const std::string &name)
     , m_head(NULL)
     , m_buttondev(NULL)
     , m_eyeDistance(0.)
+    , m_activateOnAction(false)
 {
     const std::string conf = "COVER.Input.Persons.Person:" + name;
 
@@ -33,6 +34,7 @@ Person::Person(const std::string &name)
     }
 
     m_head = Input::instance()->getBody(coCoviseConfig::getEntry("head", conf, ""));
+    m_activateOnAction = coCoviseConfig::isOn("activateOnAction", conf, m_activateOnAction);
 
     for (int i = 0; i < 4; ++i)
     {
@@ -192,4 +194,15 @@ void Person::setEyeDistance(float dist)
 {
     m_eyeDistance = dist;
 }
+
+bool Person::activateOnAction() const
+{
+    return m_activateOnAction;
+}
+
+void Person::setActivateOnAction(bool enable)
+{
+    m_activateOnAction = enable;
+}
+
 }

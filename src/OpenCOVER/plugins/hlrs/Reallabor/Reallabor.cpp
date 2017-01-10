@@ -25,34 +25,34 @@
 
 using namespace opencover;
 
-TemplatePlugin::TemplatePlugin()
+Reallabor::Reallabor()
 {
-    fprintf(stderr, "TemplatePlugin::TemplatePlugin\n");
+    fprintf(stderr, "Reallabor::Reallabor\n");
 }
 
 // this is called if the plugin is removed at runtime
-TemplatePlugin::~TemplatePlugin()
+Reallabor::~Reallabor()
 {
-    fprintf(stderr, "TemplatePlugin::~TemplatePlugin\n");
+    fprintf(stderr, "Reallabor::~Reallabor\n");
 }
 
 // here we get the size and the current center of the cube
 void
-TemplatePlugin::newInteractor(RenderObject *container, coInteractor *i)
+Reallabor::newInteractor(RenderObject *container, coInteractor *i)
 {
     (void)container;
     (void)i;
-    fprintf(stderr, "TemplatePlugin::newInteractor\n");
+    fprintf(stderr, "Reallabor::newInteractor\n");
 }
 
-void TemplatePlugin::addObject(RenderObject *container,
-                               RenderObject *obj, RenderObject *normObj,
-                               RenderObject *colorObj, RenderObject *texObj,
-                               osg::Group *root,
-                               int numCol, int colorBinding, int colorPacking,
-                               float *r, float *g, float *b, int *packedCol,
-                               int numNormals, int normalBinding,
-                               float *xn, float *yn, float *zn, float transparency)
+void Reallabor::addObject(RenderObject *container,
+                          RenderObject *obj, RenderObject *normObj,
+                          RenderObject *colorObj, RenderObject *texObj,
+                          osg::Group *root,
+                          int numCol, int colorBinding, int colorPacking,
+                          float *r, float *g, float *b, int *packedCol,
+                          int numNormals, int normalBinding,
+                          float *xn, float *yn, float *zn, float transparency)
 {
     (void)container;
     (void)obj;
@@ -73,20 +73,20 @@ void TemplatePlugin::addObject(RenderObject *container,
     (void)yn;
     (void)zn;
     (void)transparency;
-    fprintf(stderr, "TemplatePlugin::addObject\n");
+    fprintf(stderr, "Reallabor::addObject\n");
 }
 
 void
-TemplatePlugin::removeObject(const char *objName, bool replace)
+Reallabor::removeObject(const char *objName, bool replace)
 {
     (void)objName;
     (void)replace;
-    fprintf(stderr, "TemplatePlugin::removeObject\n");
+    fprintf(stderr, "Reallabor::removeObject\n");
 }
 
 void
-TemplatePlugin::preFrame()
+Reallabor::preFrame()
 {
 }
 
-COVERPLUGIN(TemplatePlugin)
+COVERPLUGIN(Reallabor)

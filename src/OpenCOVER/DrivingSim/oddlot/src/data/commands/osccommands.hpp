@@ -52,7 +52,7 @@ namespace bf = boost::filesystem;
 class LoadOSCCatalogObjectCommand : public DataCommand
 {
 public:
-	explicit LoadOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
+	explicit LoadOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
     virtual ~LoadOSCCatalogObjectCommand();
 
     virtual int id() const
@@ -71,7 +71,7 @@ private:
 private:
 	OpenScenario::oscCatalog * catalog_;
 	OpenScenario::oscObjectBase *objectBase_;
-	int refId_;
+	std::string name_;
 	OSCElement *oscElement_;
 	OSCBase *oscBase_;
 };
@@ -83,7 +83,7 @@ private:
 class AddOSCCatalogObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
+	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
     virtual ~AddOSCCatalogObjectCommand();
 
     virtual int id() const
@@ -102,7 +102,7 @@ private:
 private:
 	OpenScenario::oscCatalog * catalog_;
     std::string path_;
-	int refId_;
+	std::string name_;
 	OpenScenario::oscObjectBase *objectBase_;
 	OSCElement *oscElement_;
 	OSCBase *oscBase_;
@@ -115,7 +115,7 @@ private:
 class RemoveOSCCatalogObjectCommand : public DataCommand
 {
 public:
-    explicit RemoveOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCElement *element, DataCommand *parent = NULL);
+    explicit RemoveOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OSCElement *element, DataCommand *parent = NULL);
     virtual ~RemoveOSCCatalogObjectCommand();
 
     virtual int id() const
@@ -138,7 +138,7 @@ private:
 	OSCBase *oscBase_;
 	bf::path path_;
 
-	int refId_;
+	std::string name_;
 };
 
 //#########################//
@@ -353,8 +353,7 @@ public:
 	value_ = value;
     // Check for validity //
     //
-	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
-	member_ = members[name];
+	member_ = parentObject_->getMember(name);
     if ((name == "") || !member_)
     {
         setInvalid(); // Invalid

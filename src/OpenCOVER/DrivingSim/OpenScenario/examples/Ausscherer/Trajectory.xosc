@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<OpenSCENARIO_TrajectoryCatalog>
+
+  <FileHeader author="Andreas Biehn" date="2016-10-18T10:00:00" description="Beispieltrajektorie fuer PEGASUS" revMajor="0" revMinor="11"/>
+
+  <Trajectory closed="false" domain="time" name="MyLaneChangeTrajectory">
+    <Vertex>
+      <Position>
+        <World h="0.000000" p="0.000000" r="0.000000" x="100.000000" y="10.000000" z="9.500000"/>
+      </Position>
+      <Shape reference="0.000000">
+        <Polyline/>
+      </Shape>
+    </Vertex>
+    <Vertex>
+      <Position>
+        <World h="0.000000" p="0.000000" r="0.000000" x="101.000000" y="10.000000" z="9.500000"/>
+      </Position>
+      <Shape reference="1.000000">
+        <Polyline/>
+      </Shape>
+    </Vertex>
+    <Vertex>
+      <Position>
+        <World h="0.000000" p="0.000000" r="0.000000" x="102.000000" y="10.000000" z="9.500000"/>
+      </Position>
+      <Shape reference="2.000000">
+        <Polyline/>
+      </Shape>
+    </Vertex>
+    <Vertex>
+      <Position>
+        <World h="0.000000" p="0.000000" r="0.000000" x="103.000000" y="10.000000" z="9.500000"/>
+      </Position>
+      <Shape reference="3.000000">
+        <Polyline/>
+      </Shape>
+    </Vertex>
+    <Vertex>
+      <Position>
+        <World h="0.000000" p="0.000000" r="0.000000" x="104.000000" y="10.000000" z="9.500000"/>
+      </Position>
+      <Shape reference="4.000000">
+        <Polyline/>
+      </Shape>
+    </Vertex>
+    <Vertex>
+      <Position>
+        <World h="0.000000" p="0.000000" r="0.000000" x="105.000000" y="10.000000" z="9.500000"/>
+      </Position>
+      <Shape reference="5.000000">
+        <Polyline/>
+      </Shape>
+    </Vertex>
+  </Trajectory>
+
+</OpenSCENARIO_TrajectoryCatalog>

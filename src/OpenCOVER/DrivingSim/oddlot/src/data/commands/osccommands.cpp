@@ -21,12 +21,13 @@
 // OpenScenario //
 #include "OpenScenarioBase.h"
 #include "oscObjectBase.h"
-#include "oscObject.h"
+#include "schema/oscObject.h"
 #include "oscMember.h"
 #include "oscMemberValue.h"
 #include "oscVariables.h"
-#include "oscCatalogs.h"
+#include "schema/oscCatalogs.h"
 #include "oscCatalog.h"
+#include "oscArrayMember.h"
 
 using namespace OpenScenario;
 
@@ -34,16 +35,16 @@ using namespace OpenScenario;
 // LoadOSCCatalogObjectCommand //
 //#########################//
 
-LoadOSCCatalogObjectCommand::LoadOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCBase *base, OSCElement *element, DataCommand *parent)
+LoadOSCCatalogObjectCommand::LoadOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OSCBase *base, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
 	, catalog_(catalog)
-	, refId_(refId)
+	, name_(name)
 	, oscElement_(element)
 	, oscBase_(base)
 {
     // Check for validity //
     //
-	objectBase_ = catalog_->getCatalogObject(refId_);
+	objectBase_ = catalog_->getCatalogObject(name_);
 	if (!catalog_ || objectBase_)
     {
         setInvalid(); // Invalid
@@ -81,9 +82,9 @@ LoadOSCCatalogObjectCommand::~LoadOSCCatalogObjectCommand()
 void
 LoadOSCCatalogObjectCommand::redo()
 {
-	catalog_->fullReadCatalogObjectWithName(refId_);
+	catalog_->fullReadCatalogObjectWithName(name_);
 
-	oscElement_->setObjectBase(catalog_->getCatalogObject(refId_));
+	oscElement_->setObjectBase(catalog_->getCatalogObject(name_));
 	oscBase_->addOSCElement(oscElement_);
 	
 	setRedone();
@@ -95,7 +96,7 @@ LoadOSCCatalogObjectCommand::redo()
 void
 	LoadOSCCatalogObjectCommand::undo()
 {
-	catalog_->removeCatalogObject(refId_);
+	catalog_->removeCatalogObject(name_);
 
 	oscElement_->setObjectBase(NULL);
 	oscBase_->delOSCElement(oscElement_);
@@ -108,10 +109,10 @@ void
 // AddOSCCatalogObjectCommand //
 //#########################//
 
-AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent)
+AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
 	, catalog_(catalog)
-	, refId_(refId)
+	, name_(name)
 	, objectBase_(objectBase)
 	, path_(path)
 	, oscElement_(element)
@@ -163,17 +164,17 @@ AddOSCCatalogObjectCommand::redo()
 	{
 		// create refId //
 		//
-		OpenScenario::oscMember *member = objectBase_->getMember("refId");
+/*		OpenScenario::oscMember *member = objectBase_->getMember("name");
 		OpenScenario::oscMemberValue *v = member->getOrCreateValue();
-		v->setValue(refId_); 
-		catalog_->addCatalogObject(refId_, objectBase_, boost::filesystem::path(path_));
+		v->setValue(name_); */
+		catalog_->addCatalogObject(name_, objectBase_, boost::filesystem::path(path_));
 
 		oscElement_->setObjectBase(objectBase_);
 		oscBase_->addOSCElement(oscElement_);
 	}
 	else
 	{
-		catalog_->addObjToObjectsMap(refId_, path_, NULL);
+		catalog_->addObjToObjectsMap(name_, path_, NULL);
 	}
 	
 	setRedone();
@@ -190,14 +191,14 @@ void
 
 	if (objectBase_)
 	{
-		catalog_->removeCatalogObject(refId_);
+		catalog_->removeCatalogObject(name_);
 
 		oscElement_->setObjectBase(NULL);
 		oscBase_->delOSCElement(oscElement_);
 	}
 	else
 	{
-		catalog_->removeObjFromObjectsMap(refId_);
+		catalog_->removeObjFromObjectsMap(name_);
 	}
 
 	setUndone();
@@ -207,10 +208,10 @@ void
 // RemoveOSCCatalogObjectCommand //
 //#########################//
 
-RemoveOSCCatalogObjectCommand::RemoveOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, int refId, OSCElement *element ,DataCommand *parent) // or oscObjectBase ??
+RemoveOSCCatalogObjectCommand::RemoveOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OSCElement *element ,DataCommand *parent) // or oscObjectBase ??
     : DataCommand(parent)
 	, catalog_(catalog)
-	, refId_(refId)
+	, name_(name)
 	, element_(element)
 	, oscBase_(NULL)
 {
@@ -234,8 +235,8 @@ RemoveOSCCatalogObjectCommand::RemoveOSCCatalogObjectCommand(OpenScenario::oscCa
 		oscBase_ = element_->getOSCBase();
 	}
 
-	oscObject_ = catalog_->getCatalogObject(refId_);
-	path_ = catalog_->getPath(refId_);
+	oscObject_ = catalog_->getCatalogObject(name_);
+	path_ = catalog_->getPath(name_);
 }
 
 /*! \brief .
@@ -266,7 +267,7 @@ RemoveOSCCatalogObjectCommand::redo()
 		oscBase_->delOSCElement(element_);
 	}
 
-	catalog_->removeCatalogObject(refId_);
+	catalog_->removeCatalogObject(name_);
 
     setRedone();
 }
@@ -277,7 +278,7 @@ RemoveOSCCatalogObjectCommand::redo()
 void
 RemoveOSCCatalogObjectCommand::undo()
 {
-	catalog_->addCatalogObject(refId_, oscObject_, path_);
+	catalog_->addCatalogObject(name_, oscObject_, path_);
 	element_->setObjectBase(oscObject_);
 	oscBase_->addOSCElement(element_);
 
@@ -345,17 +346,19 @@ AddOSCArrayMemberCommand::redo()
 	if (!object_)
 	{
 		object_ = objectBase_->getMember(typeName_)->createObject();
-		ownMember_ = arrayMember_->getObject()->getMember(typeName_);
+		ownMember_ = object_->getOwnMember();
 	}
 
 	if(object_)
 	{
-		oscElement_->setObjectBase(object_);
-		oscBase_->addOSCElement(oscElement_);
+        if (oscElement_)
+        {
+            oscElement_->setObjectBase(object_);
+            oscBase_->addOSCElement(oscElement_);
+        }
 
 		object_->setOwnMember(ownMember_);
 		arrayMember_->push_back(object_);
-		oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
 	}
 	
 	setRedone();
@@ -369,10 +372,11 @@ void
 {
 	arrayMember_->erase(arrayMember_->end() - 1);
 
-	oscBase_->delOSCElement(oscElement_);
-	oscElement_->setObjectBase(NULL);
-
-	oscBase_->getOSCElement(objectBase_)->addOSCElementChanges(OSCElement::COE_ChildChanged);
+    if (oscElement_)
+    {
+        oscBase_->delOSCElement(oscElement_);
+        oscElement_->setObjectBase(NULL);
+    }
 
 	setUndone();
 }
@@ -471,8 +475,7 @@ AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObje
 {
     // Check for validity //
     //
-	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
-	member_ = members[name];
+	member_ = parentObject_->getMember(name);
     if (name == "")
     {
         setInvalid(); // Invalid

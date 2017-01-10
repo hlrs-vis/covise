@@ -97,6 +97,14 @@
 
 #include <cassert>
 
+#ifdef __linux
+#include <unistd.h>
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <pthread.h>
+#endif
+
 using namespace opencover;
 using namespace covise;
 
@@ -865,6 +873,39 @@ osg::Geometry *VRViewer::distortionMesh(const char *fileName)
 }
 
 //OpenCOVER
+void VRViewer::setAffinity()
+{
+#ifdef __linux__
+    const int ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+
+    cpu_set_t cpumask;
+    CPU_ZERO(&cpumask);
+
+    if(coVRConfig::instance()->lockToCPU()>=0)
+    {
+        CPU_SET(coVRConfig::instance()->lockToCPU(), &cpumask);
+
+        std::cerr << "locking to CPU " << coVRConfig::instance()->lockToCPU() << std::endl;
+    }
+    else
+    {
+        for (int i = 0; i < CPU_SETSIZE && i < ncpu; i++)
+        {
+            CPU_SET(i, &cpumask);
+        }
+    }
+    int err = pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
+    if (err != 0)
+    {
+        std::cerr << "setting affinity to " << CPU_COUNT(&cpumask) << " CPUs failed: " << strerror(err) <<  std::endl;
+    }
+//#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
+//           sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+//#elif defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
+//            sched_setaffinity( 0, &cpumask );
+#endif
+}
+
 void
 VRViewer::config()
 {
@@ -933,32 +974,7 @@ VRViewer::config()
     }
     realize();
 
-#ifdef __linux__
-    if(coVRConfig::instance()->lockToCPU()>=0)
-    {
-	cpu_set_t cpumask;
-	CPU_ZERO(&cpumask);
-	
-        CPU_SET(coVRConfig::instance()->lockToCPU(), &cpumask);
-	
-	pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
-    }
-    else
-    {
-	cpu_set_t cpumask;
-	CPU_ZERO(&cpumask);
-	for (int i = 0; i < CPU_SETSIZE; i++)
-	{
-	    CPU_SET(i, &cpumask);
-	}
-
-	pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
-    }
-//#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
-//           sched_setaffinity( 0, sizeof(cpumask), &cpumask );
-//#elif defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
-//            sched_setaffinity( 0, &cpumask );
-#endif
+    setAffinity();
 
     for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
@@ -2022,6 +2038,8 @@ void VRViewer::startThreading()
 
     _threadsRunning = true;
 
+    setAffinity();
+
     osg::notify(osg::INFO) << "Set up threading" << std::endl;
 }
 
@@ -2376,8 +2394,6 @@ void VRViewer::renderingTraversals()
             sync = true;
         }
     }
-
-    coVRPluginList::instance()->clusterSyncDraw();
 
     if (OpenCOVER::instance()->initDone())
     {

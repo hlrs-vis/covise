@@ -1,0 +1,32 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	file\_path & Browser & input file describing the surface in Sandia Stl format \\
+\hline
+        Format     & Choice &  file format: \newline
+	                       Autodetect = automatic selection \newline
+			       ASCII, Intel, Unix = manual selection \\ 
+\hline	
+	color      & String &  Give this color to the geometry to be read. Enter either a textual representation like red, green, yellow or rgb values seperated by blanks (like: 255 0 255).\\
+\hline	
+	RemoveDoubleVertices & Boolean & Check if multiple verticess should be removed from the resulting triangulation. \\
+\hline	
+	ShowFeatureLines & Boolean & Check if feature-lines should be calculated. \\
+\hline	
+	FeatureAngle     & Slider & Angle used for the recognition of sharp edges. \\
+\hline	
+	FlipNormals      & Boolean & Check if the resulting triangulation should have inverted normals. Use if you see wrong lighting of your geometry.\\ 
+
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

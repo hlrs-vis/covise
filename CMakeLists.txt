@@ -124,6 +124,7 @@ MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DAT
 
 # COVISE global options
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
+OPTION(COVISE_BUILD_ONLY_COVER_PREREQ "only build prerequisites for OpenCOVER" OFF)
 OPTION(COVISE_USE_CPP11 "enable C++ 11 features" ON)
 OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
@@ -154,11 +155,30 @@ OPTION(COVISE_BUILD_DRIVINGSIM "Build driving simulator " ON)
 OPTION(COVISE_USE_CUDA "Use CUDA" ON)
 OPTION(COVISE_USE_MPI "Use MPI" ON)
 
+if(WIN32)
+    OPTION(COVISE_USE_X11 "Use X11" OFF)
+else()
+    OPTION(COVISE_USE_X11 "Use X11" ON)
+endif()
+
 OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)
 OPTION(COVISE_USE_OPENCV3 "Use OpenCV3" ON)
 OPTION(COVISE_USE_MERCURY "Use MERCURY" ON)
-OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" ON)
-OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
+
+if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/visionaray")
+    OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" ON)
+else()
+    OPTION(COVISE_USE_VISIONARAY "Use Visionaray raytracing library" OFF)
+endif()
+
+if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/deskvox")
+    OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
+else()
+    OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" OFF)
+    message("Did not find src/3rdparty/deskvox submodule: disabling direct volume rendering")
+    message("Maybe run \"git submodule update --init --recursive\"?")
+endif()
+
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
 if (APPLE)
     # would break dynamic_casts in Visionary COVER plugin
@@ -252,21 +272,6 @@ endif()
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
-# docs
-OPTION(COVISE_GENERATE_DOCS "Set to ON to generate the documentation with doxygen." OFF)
-IF(COVISE_GENERATE_DOCS)
-  COVISE_FIND_PACKAGE(Doxygen)
-  CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/Doxyfile_Covise.in ${CMAKE_BINARY_DIR}/Doxyfile_Covise)
-  ADD_CUSTOM_COMMAND(
-      OUTPUT ${CMAKE_BINARY_DIR}/doc/html/index.html
-      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile_Covise
-      DEPENDS ${CMAKE_SOURCE_DIR}/Doxyfile_Covise.in
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
-  ADD_CUSTOM_TARGET(Docs ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/html/index.html)
-  INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/doc DESTINATION ${CMAKE_INSTALL_PREFIX})
-ENDIF(COVISE_GENERATE_DOCS)
-
 # Install
 
 SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.gitignore|/\\.hgignore|\\.html\\.in$|\\.tex\\.in$|\\.tex$")
@@ -288,8 +293,12 @@ INSTALL(FILES "cmake/FindCOVISE.cmake" DESTINATION
 INSTALL(FILES .covise .covise.sh
               DESTINATION .)
 
-INSTALL(FILES config/config.xml config/config-colormaps.xml config/config-ar.xml
-        DESTINATION config)
+INSTALL(FILES
+    config/config.xml
+    config/config-colormaps.xml
+    config/config-filetypes.xml
+    config/config-ar.xml
+    DESTINATION config)
 
 INSTALL(DIRECTORY share bin scripts
         USE_SOURCE_PERMISSIONS

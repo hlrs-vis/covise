@@ -51,7 +51,7 @@
    <CRB>
     <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
     <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/OpenCOVER" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -87,6 +87,7 @@
            <FileType name="nfix" plugin="BPA" />
            <FileType name="dani" plugin="DEMOA" />
            <FileType name="dsim" plugin="DEMOA" />
+           <FileType name="xosc" plugin="OpenScenarioPlugin" />
            <FileType name="pts" plugin="PointCloud" />
            <FileType name="ptx" plugin="PointCloud" />
            <FileType name="xyz" plugin="PointCloud" />
@@ -156,6 +157,8 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
+   <CompositorIceT menu="true" />
+   <RhrClient menu="true" value="off" rfbHost="localhost" rfbPort="31590" />
    <Measure menu="true" />
    <PointCloud>
    <!--PointSize value="10" /-->
@@ -180,7 +183,7 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-     <Audio value="Aserver" />
+     <Audio value="OpenAL" />
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>
 
@@ -310,11 +313,9 @@
          <MenuSize value="0.15" />
       </Messages--> </GLOBAL>
 
- <!--<INCLUDE global="1" configname="input">config.inputold.xml</INCLUDE>-->
- <!--INCLUDE global="1" configname="input">config.input.xml</INCLUDE-->
-
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
- <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
+ <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
+ <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
 </COCONFIG>

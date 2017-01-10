@@ -1000,6 +1000,116 @@
 					</lanes>
 				</road>
 			</laneSectionPrototype>
+			
+			<laneSectionPrototype name = "Motorway RQ 26" icon = "">
+				<road name="Motorway RQ 26" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="7" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-5" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-6" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<laneSectionPrototype name = "Motorway RQ 26 Auffahrt" icon = "">
+				<road name="Motorway RQ 26 Auffahrt" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-5" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
 
 
 			<laneSectionPrototype name = "Rural RQ 10.5" icon = "">

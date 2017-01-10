@@ -61,16 +61,11 @@ OpenScenarioEditorTool::initToolWidget()
     ToolWidget *ribbonWidget = new ToolWidget();
     ui->setupUi(ribbonWidget);
 
-	ui->catalogComboBox->addItem("vehicleCatalog");
-	ui->catalogComboBox->addItem("driverCatalog");
-	ui->catalogComboBox->addItem("observerCatalog");
-	ui->catalogComboBox->addItem("pedestrianCatalog");
-	ui->catalogComboBox->addItem("miscObjectCatalog");
-	ui->catalogComboBox->addItem("entityCatalog");
-	ui->catalogComboBox->addItem("environmentCatalog");
-	ui->catalogComboBox->addItem("maneuverCatalog");
-	ui->catalogComboBox->addItem("routingCatalog");
-   
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		ui->catalogComboBox->addItem(QString::fromStdString(ODD::CATALOGLIST.at(i)));
+	}
+  
     connect(ui->catalogComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCatalogSelection(int)));
     ui->catalogComboBox->setCurrentIndex(0); // this doesn't trigger an event...
     handleCatalogSelection(0); // ... so do it yourself
@@ -80,6 +75,9 @@ OpenScenarioEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     
     ribbonToolGroup->addButton(ui->oscSave, ODD::TOS_SAVE_CATALOG); 
+
+    connect(ui->graphEditButton, SIGNAL(clicked(bool)), this, SLOT(handleGraphState(bool)));
+ //   ribbonToolGroup->addButton(ui->graphEditButton, ODD::TOS_GRAPHELEMENT);
 
 	// add all members of OpenScenarioBase as buttons
 	//
@@ -91,12 +89,10 @@ OpenScenarioEditorTool::initToolWidget()
 	connect(signalPushMapper, SIGNAL(mapped(QString)), this, SLOT(onPushButtonPressed(QString)));
 
 	QList<QString> openScenarioBaseObjects;
-	openScenarioBaseObjects.append("fileHeader");
-	openScenarioBaseObjects.append("roadNetwork");
-	openScenarioBaseObjects.append("environment");
-	openScenarioBaseObjects.append("entities");
-	openScenarioBaseObjects.append("storyboard");
-	openScenarioBaseObjects.append("scenarioEnd");
+	openScenarioBaseObjects.append("FileHeader");
+	openScenarioBaseObjects.append("RoadNetwork");
+	openScenarioBaseObjects.append("Entities");
+	openScenarioBaseObjects.append("Storyboard");
 	
 	int column = 0;
 	for (int i = 0; i < openScenarioBaseObjects.size(); i++)
@@ -133,6 +129,10 @@ void
 void
 OpenScenarioEditorTool::activateEditor()
 {
+    ui->graphEditButton->setEnabled(false);
+    ui->graphEditButton->setVisible(false);
+	ui->graphEditButton->setChecked(false);
+
     OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(toolId_, "");
     emit toolAction(action);
     delete action;
@@ -185,6 +185,26 @@ OpenScenarioEditorTool::onPushButtonPressed(QString name)
 	}
 }
 
+void
+OpenScenarioEditorTool::enableGraphEdit(bool state)
+{
+    if (state || !ui->graphEditButton->isChecked()) // if hidden and deselected still visible
+    {
+        ui->graphEditButton->setEnabled(state);
+        ui->graphEditButton->setVisible(state);
+    }
+}
+
+void
+OpenScenarioEditorTool::handleGraphState(bool state)
+{
+     // Set a tool //
+    //
+    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_GRAPHELEMENT, state);
+    emit toolAction(action);
+    delete action;
+}
+
 //################//
 //                //
 // OpenScenarioEditorToolAction //
@@ -194,6 +214,12 @@ OpenScenarioEditorTool::onPushButtonPressed(QString name)
 OpenScenarioEditorToolAction::OpenScenarioEditorToolAction(ODD::ToolId toolId, const QString &text)
     : ToolAction(ODD::EOS, toolId)
 	, text_(text)
+{
+}
+
+OpenScenarioEditorToolAction::OpenScenarioEditorToolAction(ODD::ToolId toolId, bool state)
+    : ToolAction(ODD::EOS, toolId)
+	, state_(state)
 {
 }
 

@@ -88,7 +88,7 @@ if [ -z "$COENVERROR" ]; then
 
    primlibdir=lib
    case "${ARCHSUFFIX%opt}" in
-      amd64|x64|bishorn|fujisan|monshuygens|lycaeus|maunaloa|gorely|leonidas|constantine|goddard|laughlin|lovelock|verne|rhel3|rhel4|rhel5|rhel51|rhel52|rhel53|rhel6|rhel7|leguan|waran|basilisk|iguana|tuatara|mabuya|drusenkopf|lipinia|slowworm|neolamprologus|saara|julidochromis|indicus|mamba)
+      linux64|amd64|x64|bishorn|fujisan|monshuygens|lycaeus|maunaloa|gorely|leonidas|constantine|goddard|laughlin|lovelock|verne|rhel3|rhel4|rhel5|rhel51|rhel52|rhel53|rhel6|rhel7|leguan|waran|basilisk|iguana|tuatara|mabuya|drusenkopf|lipinia|slowworm|neolamprologus|saara|julidochromis|indicus|mamba)
          primlibdir=lib64
          ;;
    esac
@@ -150,6 +150,18 @@ if [ -z "$COENVERROR" ]; then
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib:$DYLD_LIBRARY_PATH"
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
       export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
+      ;;
+      macos|macosopt)
+      export DYLD_FRAMEWORK_PATH="${COVISE_DYLD_FRAMEWORK_PATH}:${DYLD_FRAMEWORK_PATH}"
+      export DYLD_LIBRARY_PATH="${COVISE_DYLD_LIBRARY_PATH}:${DYLD_LIBRARY_PATH}"
+      export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}:${EXTERNLIBS}/openscenegraph:${EXTERNLIBS}/qt5/lib"
+      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/xercesc/lib:$DYLD_LIBRARY_PATH"
+      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/inventor/lib:$DYLD_LIBRARY_PATH"
+      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib:$DYLD_LIBRARY_PATH"
+      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
+      export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
+      export COVISE_DYLD_FRAMEWORK_PATH="${DYLD_FRAMEWORK_PATH}"
+      export COVISE_DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}"
       ;;
    esac
 

@@ -12,15 +12,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscMiscObject.h"
-#include "oscPedestrian.h"
-#include "oscObserverTypeA.h"
-#include "oscEntity.h"
-#include "oscRouting.h"
-#include "oscDriver.h"
-#include "oscEnvironment.h"
-#include "oscVehicle.h"
-#include "oscManeuverTypeA.h"
+#include "schema/oscPedestrian.h"
+#include "schema/oscEntity.h"
+#include "schema/oscRouting.h"
+#include "schema/oscDriver.h"
+#include "schema/oscEnvironment.h"
+#include "schema/oscVehicle.h"
+#include "schema/oscManeuver.h"
 
 
 namespace OpenScenario {
@@ -31,26 +29,22 @@ class OPENSCENARIOEXPORT oscTest: public oscObjectBase
 public:
     oscTest()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(miscObject, "oscMiscObject");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(pedestrian, "oscPedestrian");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(observer, "oscObserverTypeA");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(entity, "oscEntity");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(routing, "oscRouting");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(driver, "oscDriver");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(environment, "oscEnvironment");
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(vehicle, "oscVehicle");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuver, "oscManeuverTypeA");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuver, "oscManeuver");
     };
 
-    oscMiscObjectMember miscObject;
     oscPedestrianMember pedestrian;
-    oscObserverTypeAMember observer;
     oscEntityMember entity;
     oscRoutingMember routing;
     oscDriverMember driver;
     oscEnvironmentMember environment;
     oscVehicleMember vehicle;
-    oscManeuverTypeAMember maneuver;
+    oscManeuverMember maneuver;
 };
 
 typedef oscObjectVariable<oscTest *> oscTestMember;

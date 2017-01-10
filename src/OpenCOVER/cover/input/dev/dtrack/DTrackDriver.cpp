@@ -11,6 +11,7 @@
  *  Created on: Dec 9, 2014
  *      Author: svnvlad
  */
+#define NOMINMAX
 #include "DTrackDriver.h"
 
 #include <config/CoviseConfig.h>
@@ -19,10 +20,16 @@
 #include <osg/Matrix>
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include <algorithm> // for min/max
 
 using namespace std;
 using namespace covise;
-
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
 
 void DTrackDriver::initArrays()
 {
