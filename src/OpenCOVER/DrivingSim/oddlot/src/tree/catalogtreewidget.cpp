@@ -270,7 +270,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					{
 						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), catalog_->getType(catalogName_));
 
-						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getType(catalogName_), oscElement_, oscSourceFile);
+						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getCatalogType(), oscElement_, oscSourceFile);
 						if (command->isValid())
 						{
 							projectWidget_->getTopviewGraph()->executeCommand(command);

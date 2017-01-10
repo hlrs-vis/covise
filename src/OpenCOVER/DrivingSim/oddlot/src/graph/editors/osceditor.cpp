@@ -137,6 +137,14 @@ OpenScenarioEditor::~OpenScenarioEditor()
 void
 OpenScenarioEditor::init()
 {
+
+	// Initialize all catalogs (needed for validation)
+	//
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		getCatalog(ODD::CATALOGLIST.at(i));
+	}
+
 	OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
 	OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(entitiesObject->getMember("Object"));
 	
@@ -406,7 +414,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 	if (dir)
 	{
 		std::string dirName = catalog->Directory->path.getValue();
-		if (dirName == "")
+		if (dirName.find(catalogDir.toStdString()) == std::string::npos)
 		{
 			dirName = catalog->Directory->path = catalogsDir + name;
 			if (!bf::exists(bf::path(dirName)))
@@ -418,7 +426,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 
 
 	name = name.erase(name.find("Catalog"));
-	catalog->setCatalogName(name);
+	catalog->setCatalogNameAndType(name);
 
 	OSCElement *oscElement = oscBase_->getOrCreateOSCElement(catalog);
 
@@ -747,6 +755,21 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 }
 
 //################//
+// SLOTS          //
+//################//
+
+void
+OpenScenarioEditor::changeDirectories()
+{
+	// Initialize all catalogs (needed for validation)
+	//
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		getCatalog(ODD::CATALOGLIST.at(i));
+	}
+}
+
+//################//
 // TOOL           //
 //################//
 
@@ -830,7 +853,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 		}
 	}
     else if (currentTool == ODD::TOS_GRAPHELEMENT)
-    {
+	{
         OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
         if (action)
         {
@@ -894,7 +917,14 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
                 }
             }
         } */
-    }
+   }
+	else if (currentTool == ODD::OSS_DIRECTORY)
+	{
+		for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+		{
+			getCatalog(ODD::CATALOGLIST.at(i));
+		}
+	}
 	else
 	{		
 		if (currentTool == ODD::TOS_SAVE_CATALOG)

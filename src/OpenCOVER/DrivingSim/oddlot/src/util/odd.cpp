@@ -22,6 +22,7 @@
 
 ODD *ODD::instance_ = NULL;
 MainWindow *ODD::mainWindow_ = NULL;
+const QList<std::string> ODD::CATALOGLIST = QList<std::string>() << "VehicleCatalog" << "DriverCatalog" << "PedestrianCatalog" << "PedestrianControllerCatalog" << "MiscObjectCatalog" << "EnvironmentCatalog" << "ManeuverCatalog" << "TrajectoryCatalog" << "RouteCatalog";
 
 ODD::ODD()
 {
