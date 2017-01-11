@@ -42,7 +42,9 @@ if (COVISE_USE_VIRVO)
    # search for Boost components required by Virvo with covise_find_package:
    # avoids the problem that Virvo does not find Boost in $EXTERNLIBS
    using(Boost optional)
-   using(Visionaray optional)
+   if (COVISE_USE_VISIONARAY)
+      using(Visionaray optional)
+   endif()
    if (NOT Boost_FOUND)
       message("Cannot build Virvo: no Boost - maybe disable COVISE_USE_VIRVO?")
    endif()
