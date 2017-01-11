@@ -536,7 +536,7 @@ int Blended = 0;
 int AlphaTest = 0;
 static int Crease = 0;
 static bool backFaceCulling = true;
-static bool genStrips = true;
+static bool genStrips = false;
 static bool reTesselate = true;
 static bool countTextures = true;
 static int texSize = 0;
@@ -901,6 +901,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     Crease = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Crease", true);
     enableLights = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Lights", true);
+    genStrips = coCoviseConfig::isOn("COVER.GenStrips", genStrips);
     genStrips = coCoviseConfig::isOn("COVER.Plugin.Vrml97.GenerateTriangleStrips", genStrips);
     reTesselate = coCoviseConfig::isOn("COVER.Plugin.Vrml97.ReTesselate", false);
     countTextures = coCoviseConfig::isOn("counter", "COVER.Plugin.Vrml97.Texture", true);
