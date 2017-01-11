@@ -4,6 +4,7 @@ MACRO(USE_VISIONARAY)
             using_message("Using Visionaray")
 
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
+            set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/${ARCHSUFFIX}/build.covise/src/3rdparty/visionaray/config")
             if(BUILD_SHARED_LIBS)
                 set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_SHARED_LIBRARY_SUFFIX}")
             else()
@@ -24,6 +25,7 @@ MACRO(USE_VISIONARAY)
             USE_BOOST()
             include_directories(${OPENGL_INCLUDE_DIR})
             include_directories(${VISIONARAY_INCLUDE_DIR})
+            include_directories(${VISIONARAY_CONFIG_DIR})
 
             set(EXTRA_LIBS
                 ${EXTRA_LIBS}
