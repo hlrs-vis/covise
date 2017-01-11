@@ -61,16 +61,11 @@ OpenScenarioEditorTool::initToolWidget()
     ToolWidget *ribbonWidget = new ToolWidget();
     ui->setupUi(ribbonWidget);
 
-	ui->catalogComboBox->addItem("VehicleCatalog");
-	ui->catalogComboBox->addItem("DriverCatalog");
-	ui->catalogComboBox->addItem("PedestrianCatalog");
-	ui->catalogComboBox->addItem("PedestrianControllerCatalog");
-	ui->catalogComboBox->addItem("MiscObjectCatalog");
-	ui->catalogComboBox->addItem("EnvironmentCatalog");
-	ui->catalogComboBox->addItem("ManeuverCatalog");
-	ui->catalogComboBox->addItem("TrajectoryCatalog");
-	ui->catalogComboBox->addItem("RouteCatalog");
-   
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		ui->catalogComboBox->addItem(QString::fromStdString(ODD::CATALOGLIST.at(i)));
+	}
+  
     connect(ui->catalogComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCatalogSelection(int)));
     ui->catalogComboBox->setCurrentIndex(0); // this doesn't trigger an event...
     handleCatalogSelection(0); // ... so do it yourself

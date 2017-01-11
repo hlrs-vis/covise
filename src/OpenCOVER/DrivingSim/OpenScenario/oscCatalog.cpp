@@ -34,15 +34,15 @@ oscCatalog::CatalogTypeTypeNameMap initFuncCatToType()
 {
     //set the typeName for possible catalogTypes
     oscCatalog::CatalogTypeTypeNameMap catToType;
-	catToType.emplace("Vehicle", "oscOpenSCENARIO_VehicleCatalog");
-    catToType.emplace("Driver", "oscOpenSCENARIO_DriverCatalog");
-	catToType.emplace("Pedestrian", "oscOpenSCENARIO_PedestrianCatalog");
-    catToType.emplace("PedestrianController", "oscOpenSCENARIO_PedestrianControllerCatalog");
-	catToType.emplace("MiscObject", "oscOpenSCENARIO_MiscObjectCatalog");
-    catToType.emplace("Environment", "oscOpenSCENARIO_EnvironmentCatalog");
-    catToType.emplace("Maneuver", "oscOpenSCENARIO_ManeuverCatalog");   
-    catToType.emplace("Trajectory", "oscOpenSCENARIO_TrajectoryCatalog"); 
-    catToType.emplace("Route", "oscOpenSCENARIO_RouteCatalog");
+	catToType.emplace("Vehicle", "OpenSCENARIO_VehicleCatalog");
+    catToType.emplace("Driver", "OpenSCENARIO_DriverCatalog");
+	catToType.emplace("Pedestrian", "OpenSCENARIO_PedestrianCatalog");
+    catToType.emplace("PedestrianController", "OpenSCENARIO_PedestrianControllerCatalog");
+	catToType.emplace("MiscObject", "OpenSCENARIO_MiscObjectCatalog");
+    catToType.emplace("Environment", "OpenSCENARIO_EnvironmentCatalog");
+    catToType.emplace("Maneuver", "OpenSCENARIO_ManeuverCatalog");   
+    catToType.emplace("Trajectory", "OpenSCENARIO_TrajectoryCatalog"); 
+    catToType.emplace("Route", "OpenSCENARIO_RouteCatalog");
     
 
     return catToType;
@@ -167,14 +167,21 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 
 
 //
-void oscCatalog::setCatalogName(const std::string &catalogName)
+void oscCatalog::setCatalogNameAndType(const std::string &catalogName)
 {
     m_catalogName = catalogName;
+	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogNameToTypeName.find(catalogName);
+	m_catalogType = "osc" + (*it).second;
 }
 
 std::string oscCatalog::getCatalogName() const
 {
     return m_catalogName;
+}
+
+std::string oscCatalog::getCatalogType() const
+{
+    return m_catalogType;
 }
 
 
@@ -288,8 +295,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
                     srcFile->setRootElementName(rootElemName);
 
                     //object for objectName
-                    std::string catalogTypeName = found->second;
-                    oscObjectBase *obj = oscFactories::instance()->objectFactory->create(catalogTypeName);
+					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(m_catalogType);
                     if(obj)
                     {
                         obj->initialize(getBase(), this, NULL, srcFile);
@@ -306,7 +312,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
                     }
                     else
                     {
-                        std::cerr << "Error! Could not create an object member of type " << catalogTypeName << std::endl;
+                        std::cerr << "Error! Could not create an object member of type " << m_catalogType << std::endl;
                         delete srcFile;
                     }
                 }
@@ -473,6 +479,8 @@ oscCatalog::getObjectPath(OpenScenario::oscObjectBase *object)
 			 return params.fileName.string();
 		 }
 	 }
+
+	 return std::string();
 }
 
 OpenScenario::oscObjectBase *
@@ -491,6 +499,8 @@ oscCatalog::getObjectfromPath(const std::string &path)
 			 return params.object;
 		 }
 	 }
+
+	 return NULL;
 }
 
 
@@ -606,7 +616,7 @@ bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile
 		//catalog type
 		std::string catalogType = getOwnMember()->getName();
 		catalogType.erase(catalogType.length() - std::string("Catalog").length());
-		setCatalogName(catalogType);
+		setCatalogNameAndType(catalogType);
 
 		if (Directory.exists())
 		{

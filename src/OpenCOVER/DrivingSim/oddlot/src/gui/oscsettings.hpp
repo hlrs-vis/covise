@@ -45,6 +45,15 @@ public:
 
 private:
     static OSCSettings *inst;
+
+//################//
+// SIGNALS        //
+//################//
+
+signals:
+    void directoryChanged();
+	void readValidationChanged(bool);
+
     //################//
     // SLOTS          //
     //################//
@@ -53,8 +62,6 @@ private slots:
     void okPressed();
 	void dirPushButtonPressed();
 
-	signals:
-	void readValidationChanged(bool);
 
     //################//
     // PROPERTIES     //

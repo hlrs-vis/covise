@@ -101,7 +101,7 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_PedestrianControllerCatalog.xsd"));
 	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_RouteCatalog.xsd"));
 	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_TrajectoryCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_VehicleCatalog.xsd"));
 
 /*	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeA", bf::path("OpenScenario_XML-Schema_absoluteTypeA.xsd"));

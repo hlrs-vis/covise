@@ -36,6 +36,7 @@ class ColorPalette;
 #include <stdio.h>
 #include <stdlib.h>
 
+#include<QList>
 
 /*! \brief This class contains miscellaneous identifiers und global functions.
 */
@@ -78,6 +79,8 @@ public:
 	{
 		return revMajor_;
 	}
+
+	static const QList<std::string> CATALOGLIST;
 
     //################//
     // ENUMS          //
@@ -211,6 +214,9 @@ public:
 		TOS_ELEMENT,
 		TOS_BASE,
         TOS_GRAPHELEMENT,
+
+		// OpenScenario Settings
+		OSS_DIRECTORY,
 
         // No Tool
         TNO_TOOL

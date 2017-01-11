@@ -222,7 +222,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
-    editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
+
+	OpenScenarioEditor *oscEditor = new OpenScenarioEditor(this, projectData_, topviewGraph_);
+    editors_.insert(ODD::EOS, oscEditor);
 
     // VIEW: Tree //
     //
@@ -242,6 +244,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
 	oscSettings = OSCSettings::instance();
 	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+	connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
 
     currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
