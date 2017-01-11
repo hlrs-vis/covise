@@ -24,6 +24,8 @@
 
 #include <cover/coVRPlugin.h>
 
+#include <openvr.h>
+
 
 class Vive : public opencover::coVRPlugin
 {
@@ -34,5 +36,10 @@ public:
 	bool init();
 
 private:
+	vr::IVRSystem *ivrSystem;
+	std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL);
+
+	std::string m_strDriver;
+	std::string m_strDisplay;
 };
 #endif
