@@ -282,7 +282,7 @@ OSCItem::removeElement()
 	OpenScenario::oscObjectBase *parent = oscObject_->getParentObj();
 	OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(parent->getOwnMember());
 
-	RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, oscObject_, arrayMember->findObjectIndex(oscObject_), element_);
+	RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, arrayMember->findObjectIndex(oscObject_), element_);
 	getTopviewGraph()->executeCommand(command); 
 
 	return false;

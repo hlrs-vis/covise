@@ -385,11 +385,11 @@ void
 // RemoveOSCArrayMemberCommand //
 //#########################//
 
-RemoveOSCArrayMemberCommand::RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, int index, OSCElement *element, DataCommand *parent) 
+RemoveOSCArrayMemberCommand::RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, int index, OSCElement *element, DataCommand *parent) 
     : DataCommand(parent)
 	, arrayMember_(arrayMember)
 	, index_(index)
-	, objectBase_(objectBase)
+	, oscObject_(NULL)
 	, oscElement_(element)
 	, oscBase_(NULL)
 {
@@ -397,7 +397,7 @@ RemoveOSCArrayMemberCommand::RemoveOSCArrayMemberCommand(OpenScenario::oscArrayM
     //
 	oscObject_ = arrayMember_->at(index_);
 
-	if (!arrayMember_ || !objectBase_ || !oscObject_)
+	if (!arrayMember_ || !oscObject_)
     {
         setInvalid(); // Invalid
         setText(QObject::tr("RemoveOSCArrayMemberCommand: Internal error! No valid member or object ID specified."));

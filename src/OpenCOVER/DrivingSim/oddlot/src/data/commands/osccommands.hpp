@@ -182,7 +182,7 @@ private:
 class RemoveOSCArrayMemberCommand : public DataCommand
 {
 public:
-    explicit RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, int index, OSCElement *element, DataCommand *parent = NULL);
+    explicit RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, int index, OSCElement *element, DataCommand *parent = NULL);
     virtual ~RemoveOSCArrayMemberCommand();
 
     virtual int id() const
@@ -200,7 +200,7 @@ private:
 
 private:
 	OpenScenario::oscArrayMember *arrayMember_;
-	OpenScenario::oscObjectBase *objectBase_, *oscObject_;
+	OpenScenario::oscObjectBase *oscObject_;
 
     int index_;
 

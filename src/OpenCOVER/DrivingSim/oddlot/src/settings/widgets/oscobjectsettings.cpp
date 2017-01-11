@@ -744,8 +744,10 @@ OSCObjectSettings::onDeleteArrayElement()
 	if (j > 0)
 	{
 		OpenScenario::oscObjectBase *object = oscArrayMember_->at(--j);
-		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(oscArrayMember_, object_, j, base_->getOSCElement(object));
+		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(oscArrayMember_, j, base_->getOSCElement(object));
 		projectSettings_->executeCommand(command);
+
+		updateTree();
 	}
 
 }
