@@ -145,12 +145,18 @@ void VrmlNodeTimesteps::render(Viewer *viewer)
 {
     (void)viewer;
     double timeNow = System::the->time();
-    if (d_fraction_changed.get() != (float)coVRAnimationManager::instance()->getAnimationFrame() / (float)coVRAnimationManager::instance()->getNumTimesteps())
+    int numTimeSteps = d_numTimesteps.get();
+    if(numTimeSteps<=0)
     {
-        d_fraction_changed.set((float)coVRAnimationManager::instance()->getAnimationFrame() / (float)coVRAnimationManager::instance()->getNumTimesteps());
+        numTimeSteps = coVRAnimationManager::instance()->getNumTimesteps();
+    }
+    float fraction = float(coVRAnimationManager::instance()->getAnimationFrame() % numTimeSteps) / (float)numTimeSteps;
+    if (d_fraction_changed.get() != fraction)
+    {
+        d_fraction_changed.set(fraction);
         eventOut(timeNow, "fraction_changed", d_fraction_changed);
     }
-    if (d_numTimesteps.get() != coVRAnimationManager::instance()->getNumTimesteps())
+    if (d_numTimesteps.get() <=0 && d_numTimesteps.get() != coVRAnimationManager::instance()->getNumTimesteps())
     {
         d_numTimesteps.set(coVRAnimationManager::instance()->getNumTimesteps());
         eventOut(timeNow, "numTimesteps", d_numTimesteps);
