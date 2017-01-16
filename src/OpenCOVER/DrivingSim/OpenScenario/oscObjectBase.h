@@ -110,6 +110,7 @@ public:
     void addMemberToOptional(oscMember *m);
     bool hasOptional() const;
     MemberOptional getOptional() const;
+	bool isMemberOptional(oscMember *m);
 
 	//
 	oscObjectBase *getObjectByName(const std::string &name);
@@ -122,7 +123,8 @@ public:
 
 	oscObjectBase *readDefaultXMLObject(bf::path destFilePath, const std::string &memberName, const std::string &typeName, oscSourceFile *src = NULL);  ///< read default object with specified type and generate an object with source destFilePath
 
-	void validate(std::string *errorMessage = NULL);   // generate a temporary file and validate the object
+	//void validate(std::string *errorMessage = NULL);   // generate a temporary file and validate the object
+	bool validate();
 
 private:
     void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node

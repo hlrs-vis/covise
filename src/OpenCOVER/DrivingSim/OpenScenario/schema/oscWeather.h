@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCWEATHER_H
 #define OSCWEATHER_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscSun.h"
-#include "oscFog.h"
-#include "oscPrecipitation.h"
+#include "oscVariables.h"
+#include "schema/oscSun.h"
+#include "schema/oscFog.h"
+#include "schema/oscPrecipitation.h"
 
 namespace OpenScenario
 {

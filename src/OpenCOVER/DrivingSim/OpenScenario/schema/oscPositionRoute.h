@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCPOSITIONROUTE_H
 #define OSCPOSITIONROUTE_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscOrientation.h"
-#include "oscRoutePosition.h"
+#include "oscVariables.h"
+#include "schema/oscOrientation.h"
+#include "schema/oscRoutePosition.h"
 
 namespace OpenScenario
 {

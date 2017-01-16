@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCSPLINE_H
 #define OSCSPLINE_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscControlPoint1.h"
-#include "oscControlPoint2.h"
+#include "oscVariables.h"
+#include "schema/oscControlPoint1.h"
+#include "schema/oscControlPoint2.h"
 
 namespace OpenScenario
 {

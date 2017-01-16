@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCAXLES_H
 #define OSCAXLES_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscAxle.h"
-#include "oscAxle.h"
-#include "oscAxle.h"
+#include "oscVariables.h"
+#include "schema/oscAxle.h"
+#include "schema/oscAxle.h"
+#include "schema/oscAxle.h"
 
 namespace OpenScenario
 {

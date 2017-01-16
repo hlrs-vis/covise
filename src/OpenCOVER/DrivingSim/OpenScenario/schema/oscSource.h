@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCSOURCE_H
 #define OSCSOURCE_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscPosition.h"
-#include "oscTrafficDefinition.h"
+#include "oscVariables.h"
+#include "schema/oscPosition.h"
+#include "schema/oscTrafficDefinition.h"
 
 namespace OpenScenario
 {

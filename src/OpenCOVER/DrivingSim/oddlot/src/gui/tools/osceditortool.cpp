@@ -97,8 +97,9 @@ OpenScenarioEditorTool::initToolWidget()
 	int column = 0;
 	for (int i = 0; i < openScenarioBaseObjects.size(); i++)
 	{
-		QPushButton *oscPushButton = new QPushButton();
+		QPushButton *oscPushButton = new QPushButton(ui->baseTools);
 		oscPushButton->setText(openScenarioBaseObjects.at(i));
+		oscPushButton->setObjectName(openScenarioBaseObjects.at(i));
 		//			memberWidgets_.insert(memberName, oscPushButton);
 		ui->baseToolsLayout->addWidget(oscPushButton, i%2, column, 1, 1);
 		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
@@ -203,6 +204,16 @@ OpenScenarioEditorTool::handleGraphState(bool state)
     OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_GRAPHELEMENT, state);
     emit toolAction(action);
     delete action;
+}
+
+void
+OpenScenarioEditorTool::setButtonColor(const QString &name, QColor color)
+{
+	QPushButton *button = ui->baseTools->findChild<QPushButton *>(name);
+	if (button)
+	{
+		button->setStyleSheet("color: rgb(" + QString::number(color.red()) + "," + QString::number(color.green()) + "," + QString::number(color.blue()) + ")");
+	}
 }
 
 //################//

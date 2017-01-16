@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCSHAPE_H
 #define OSCSHAPE_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscEmpty.h"
-#include "oscClothoid.h"
-#include "oscSpline.h"
+#include "oscVariables.h"
+#include "schema/oscEmpty.h"
+#include "schema/oscClothoid.h"
+#include "schema/oscSpline.h"
 
 namespace OpenScenario
 {

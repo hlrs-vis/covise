@@ -9,17 +9,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCBYSTATE_H
 #define OSCBYSTATE_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscAtStart.h"
-#include "oscAfterTermination.h"
-#include "oscCommand.h"
-#include "oscSignalState.h"
-#include "oscController.h"
+#include "oscVariables.h"
+#include "schema/oscAtStart.h"
+#include "schema/oscAfterTermination.h"
+#include "schema/oscCommand.h"
+#include "schema/oscSignalState.h"
+#include "schema/oscController.h"
 
 namespace OpenScenario
 {

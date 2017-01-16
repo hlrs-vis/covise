@@ -41,7 +41,8 @@ public:
     }
 
     
-    void enableGraphEdit(bool);
+    void enableGraphEdit(bool);	
+	void setButtonColor(const QString &name,QColor color);
 
 private:
     OpenScenarioEditorTool(); /* not allowed */

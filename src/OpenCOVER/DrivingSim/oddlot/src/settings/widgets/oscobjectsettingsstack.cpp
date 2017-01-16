@@ -118,7 +118,12 @@ void
 OSCObjectSettingsStack::stackRemoveWidget()
 {
 	int i = stack_->currentIndex();
-	stack_->setCurrentWidget(stack_->widget(i - 1));
+	QWidget *widget = stack_->widget(i - 1);
+	if (widget)
+	{
+		stack_->setCurrentWidget(widget);
+		static_cast<OSCObjectSettings *>(widget)->updateProperties();
+	}
 	stack_->removeWidget(stack_->widget(i));
 }
 

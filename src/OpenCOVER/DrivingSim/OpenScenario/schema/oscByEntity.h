@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCBYENTITY_H
 #define OSCBYENTITY_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscTriggeringEntities.h"
-#include "oscEntityCondition.h"
+#include "oscVariables.h"
+#include "schema/oscTriggeringEntities.h"
+#include "schema/oscEntityCondition.h"
 
 namespace OpenScenario
 {
