@@ -16,10 +16,14 @@ os:
 
 env:
     matrix:
-        - STD="CPP03" BUILD_TYPE="Debug"
-        - STD="CPP03" BUILD_TYPE="Release"
-        - STD="CPP11" BUILD_TYPE="Debug"
-        - STD="CPP11" BUILD_TYPE="Release"
+        - APP="covise" STD="CPP03" BUILD_TYPE="Debug"
+        - APP="covise" STD="CPP03" BUILD_TYPE="Release"
+        - APP="covise" STD="CPP11" BUILD_TYPE="Debug"
+        - APP="covise" STD="CPP11" BUILD_TYPE="Release"
+        - APP="cover"  STD="CPP03" BUILD_TYPE="Debug"
+        - APP="cover"  STD="CPP03" BUILD_TYPE="Release"
+        - APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
+        - APP="cover"  STD="CPP11" BUILD_TYPE="Release"
 
 #FIXME:
 matrix:
@@ -64,9 +68,11 @@ script:
 
     - export COVISE_CMAKE_OPTIONS=-DCMAKE_BUILD_TYPE=${BUILD_TYPE}
     - export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_RENDERER:BOOL=OFF "$COVISE_CMAKE_OPTIONS
-    - if [ "$STD" = "CPP03" ]; then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=OFF "$COVISE_CMAKE_OPTIONS; fi
-    - if [ "$STD" = "CPP11" ]; then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
+    - if [ "$STD" = "CPP03" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=OFF "$COVISE_CMAKE_OPTIONS; fi
+    - if [ "$STD" = "CPP11" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
+    - if [ "$APP" = "cover" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_ONLY_COVER_PREREQ:BOOL=ON" $COVISE_CMAKE_OPTIONS; fi
     - export COVISE_CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX="${HOME}"/install "$COVISE_CMAKE_OPTIONS
     - source .covise.sh
-    - make -j6
+    - if [ "$APP" = "covise" ]; then make covise -j6; fi
+    - if [ "$APP" = "cover" ]; then make -j6; fi
     - make install
