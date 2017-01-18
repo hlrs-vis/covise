@@ -9,16 +9,16 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCVEHICLE_H
 #define OSCVEHICLE_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscBoundingBox.h"
-#include "oscPerformance.h"
-#include "oscAxles.h"
-#include "oscParameterList.h"
+#include "oscVariables.h"
+#include "schema/oscBoundingBox.h"
+#include "schema/oscPerformance.h"
+#include "schema/oscAxles.h"
+#include "schema/oscParameterList.h"
 
 namespace OpenScenario
 {

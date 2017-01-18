@@ -9,20 +9,20 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCPOSITION_H
 #define OSCPOSITION_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscWorld.h"
-#include "oscRelativeWorld.h"
-#include "oscRelativeObject.h"
-#include "oscRoad.h"
-#include "oscRelativeRoad.h"
-#include "oscLane.h"
-#include "oscRelativeLane.h"
-#include "oscPositionRoute.h"
+#include "oscVariables.h"
+#include "schema/oscWorld.h"
+#include "schema/oscRelativeWorld.h"
+#include "schema/oscRelativeObject.h"
+#include "schema/oscRoad.h"
+#include "schema/oscRelativeRoad.h"
+#include "schema/oscLane.h"
+#include "schema/oscRelativeLane.h"
+#include "schema/oscPositionRoute.h"
 
 namespace OpenScenario
 {

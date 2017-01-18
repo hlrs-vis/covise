@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCROUTING_H
 #define OSCROUTING_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscFollowRoute.h"
-#include "oscFollowTrajectory.h"
-#include "oscAcquirePosition.h"
+#include "oscVariables.h"
+#include "schema/oscFollowRoute.h"
+#include "schema/oscFollowTrajectory.h"
+#include "schema/oscAcquirePosition.h"
 
 namespace OpenScenario
 {

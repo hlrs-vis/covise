@@ -9,13 +9,13 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCINIT_H
 #define OSCINIT_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscActions.h"
+#include "oscVariables.h"
+#include "schema/oscActions.h"
 
 namespace OpenScenario
 {

@@ -79,6 +79,7 @@ public:
     void setStartFrame(int frame);
     int getStopFrame() const;
     void setStopFrame(int frame);
+    float getCurrentSpeed() const;
 
     // get number of timesteps
     int getNumTimesteps();

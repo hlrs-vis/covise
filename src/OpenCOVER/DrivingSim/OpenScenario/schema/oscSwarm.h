@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCSWARM_H
 #define OSCSWARM_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscCentralObject.h"
-#include "oscTrafficDefinition.h"
+#include "oscVariables.h"
+#include "schema/oscCentralObject.h"
+#include "schema/oscTrafficDefinition.h"
 
 namespace OpenScenario
 {

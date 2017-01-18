@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCACTION_H
 #define OSCACTION_H
 
-#include "../oscExport.h"
-#include "../oscObjectBase.h"
-#include "../oscObjectVariable.h"
-#include "../oscObjectVariableArray.h"
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+#include "oscObjectVariableArray.h"
 
-#include "../oscVariables.h"
-#include "oscGlobalAction.h"
-#include "oscUserDefinedAction.h"
-#include "oscPrivateAction.h"
+#include "oscVariables.h"
+#include "schema/oscGlobalAction.h"
+#include "schema/oscUserDefinedAction.h"
+#include "schema/oscPrivateAction.h"
 
 namespace OpenScenario
 {
