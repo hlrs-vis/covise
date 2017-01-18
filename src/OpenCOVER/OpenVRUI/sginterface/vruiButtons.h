@@ -40,7 +40,7 @@ public:
         INTER_NEXT = 1<<coInteraction::ButtonNextInter,
         INTER_PREV = 1<<coInteraction::ButtonPrevInter,
         PERSON_NEXT = 1<<coInteraction::ButtonNextPerson,
-        PERSON_PREV = 1<<coInteraction::ButtonPrevPersion,
+        PERSON_PREV = 1<<coInteraction::ButtonPrevPerson,
         WHEEL_UP = 0x01000000,
         WHEEL_DOWN = 0x02000000,
         WHEEL = WHEEL_UP | WHEEL_DOWN,

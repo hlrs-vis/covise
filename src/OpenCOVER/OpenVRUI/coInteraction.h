@@ -61,7 +61,7 @@ public:
         ButtonNextInter,
         ButtonPrevInter,
         ButtonNextPerson,
-        ButtonPrevPersion,
+        ButtonPrevPerson,
         Wheel, // = vruiButtons::WHEEL,
         Joystick,
         AllButtons, // = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
