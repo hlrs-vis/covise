@@ -28,4 +28,15 @@
             </Plugin>
         </COVER>
     </GLOBAL>
+  <LOCAL HOST="visford">
+  <COVER>
+    <VehicleUtil>
+         <Beckhoff nodeID="22"/>
+      <CANProvider>
+         <CANKomfort channel="can2"/>
+         <CANDisplay channel="can3"/>
+      </CANProvider>
+   </VehicleUtil>
+  </COVER>
+  </LOCAL>
 </COCONFIG>
