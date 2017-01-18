@@ -150,7 +150,7 @@ public:
 
 protected:
 #ifdef MERCURY
-    ValidateMotionPlatform(const std::string & = "rtcan0", int = 0, int = 99, int = 0, const can_id_t & = 0x0,
+    ValidateMotionPlatform(const std::string & = "can0", int = 0, int = 99, int = 0, const can_id_t & = 0x0,
 #else
     ValidateMotionPlatform(const std::string & = "rtcan0", int = 0, int = 99, int = T_FPU | T_CPU(4), const can_id_t & = 0x0,
 #endif
