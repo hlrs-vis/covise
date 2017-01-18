@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscAtStart.h"
+#include "oscAtStart.h"
 
 using namespace OpenScenario;
 Enum_Story_Element_typeType::Enum_Story_Element_typeType()

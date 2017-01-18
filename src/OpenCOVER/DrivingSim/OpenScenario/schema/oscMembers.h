@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCMEMBERS_H
 #define OSCMEMBERS_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscByNamedEntity.h"
-#include "schema/oscByType.h"
+#include "../oscVariables.h"
+#include "oscByNamedEntity.h"
+#include "oscByType.h"
 
 namespace OpenScenario
 {

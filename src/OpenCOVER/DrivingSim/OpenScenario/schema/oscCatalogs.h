@@ -9,21 +9,21 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCCATALOGS_H
 #define OSCCATALOGS_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscVehicleCatalog.h"
-#include "schema/oscDriverCatalog.h"
-#include "schema/oscPedestrianCatalog.h"
-#include "schema/oscPedestrianControllerCatalog.h"
-#include "schema/oscMiscObjectCatalog.h"
-#include "schema/oscEnvironmentCatalog.h"
-#include "schema/oscManeuverCatalog.h"
-#include "schema/oscTrajectoryCatalog.h"
-#include "schema/oscRouteCatalog.h"
+#include "../oscVariables.h"
+#include "oscVehicleCatalog.h"
+#include "oscDriverCatalog.h"
+#include "oscPedestrianCatalog.h"
+#include "oscPedestrianControllerCatalog.h"
+#include "oscMiscObjectCatalog.h"
+#include "oscEnvironmentCatalog.h"
+#include "oscManeuverCatalog.h"
+#include "oscTrajectoryCatalog.h"
+#include "oscRouteCatalog.h"
 
 namespace OpenScenario
 {

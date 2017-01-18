@@ -9,17 +9,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCOPENSCENARIO_H
 #define OSCOPENSCENARIO_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscFileHeader.h"
-#include "schema/oscCatalogs.h"
-#include "schema/oscRoadNetwork.h"
-#include "schema/oscEntities.h"
-#include "schema/oscStoryboard.h"
+#include "../oscVariables.h"
+#include "oscFileHeader.h"
+#include "oscCatalogs.h"
+#include "oscRoadNetwork.h"
+#include "oscEntities.h"
+#include "oscStoryboard.h"
 
 namespace OpenScenario
 {

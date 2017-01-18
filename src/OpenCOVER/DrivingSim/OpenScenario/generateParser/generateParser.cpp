@@ -630,26 +630,26 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 #ifndef %s\n\
 #define %s\n\
 \n\
-#include \"oscExport.h\"\n", headerDefineName, headerDefineName);
+#include \"../oscExport.h\"\n", headerDefineName, headerDefineName);
 
 		if (catalog)
 		{
-			fprintf(header, "#include \"oscCatalog.h\"\n");
+			fprintf(header, "#include \"../oscCatalog.h\"\n");
 		}
 		else
 		{
-			fprintf(header, "#include \"oscObjectBase.h\"\n");
+			fprintf(header, "#include \"../oscObjectBase.h\"\n");
 		}
 
 		fprintf(header,
-"#include \"oscObjectVariable.h\"\n\
-#include \"oscObjectVariableArray.h\"\n\
+"#include \"../oscObjectVariable.h\"\n\
+#include \"../oscObjectVariableArray.h\"\n\
 \n\
-#include \"oscVariables.h\"\n");
+#include \"../oscVariables.h\"\n");
 		
 			for (std::list<std::string>::iterator it = cl->enumHeaders.begin(); it != cl->enumHeaders.end(); it++)
 			{
-				fprintf(header, "#include \"schema/%s.h\"\n",(*it).c_str());
+				fprintf(header, "#include \"%s.h\"\n",(*it).c_str());
 			}
 			fprintf(header, "\nnamespace OpenScenario\n{\n");
 
@@ -836,7 +836,7 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 \n\
 * License: LGPL 2 + */\n\
 \n\
-#include \"schema/%s.h\"\n\
+#include \"%s.h\"\n\
 \n\
 using namespace OpenScenario;\n\
 ", cl->name.c_str());

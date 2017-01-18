@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCDRIVER_H
 #define OSCDRIVER_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscDescription.h"
-#include "schema/oscBehavior.h"
+#include "../oscVariables.h"
+#include "oscDescription.h"
+#include "oscBehavior.h"
 
 namespace OpenScenario
 {
