@@ -74,8 +74,8 @@ bool PointRayTracerPlugin::init()
     bool ignore;
     m_useCache = covise::coCoviseConfig::isOn("value", "COVER.Plugin.PointRayTracer.CacheBinaryFile", false, &ignore);
 
-    m_cutUTMdata = true;
-
+    //check if the files contain UTM data that need to be "cut down" like a dog
+    m_cutUTMdata = covise::coCoviseConfig::isOn("value", "COVER.Plugin.PointRayTracer.CutUTMData", false, &ignore);
 
     //init Menu
     prtSubMenuEntry = new coSubMenuItem("Point Ray Tracer");
