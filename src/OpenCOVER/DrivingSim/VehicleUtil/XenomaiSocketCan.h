@@ -72,7 +72,7 @@ inline int XenomaiSocketCan::recvFrame(can_frame &frame, int flags) const
             fprintf(stderr, "%s: XenomaiSocketCan::recvFrame(): rt_dev_recv: aborted because socket was closed!\n", device.c_str());
             break;
         default:
-            fprintf(stderr, "%s: XenomaiSocketCan::recvFrame(): rt_dev_recv: %s!\n", device.c_str(), strerror(-ret_read));
+            fprintf(stderr, "%s: XenomaiSocketCan::recvFrame(): recv: %s %d!\n", device.c_str(), strerror(-ret_read),ret_read);
         }
     }
     /*else if(device=="rtcan1") {
