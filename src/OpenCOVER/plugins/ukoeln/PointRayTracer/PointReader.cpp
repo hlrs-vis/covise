@@ -6,7 +6,6 @@
 #include <boost/filesystem.hpp>
 
 #include <visionaray/detail/color_conversion.h>
-
 #include "rply.h"
 #include "rplycallbacks.inl"
 
@@ -313,7 +312,6 @@ bool PointReader::readFile(std::string filename,
 
                 std::cout << "min: "  << min << "   max: " << max << std::endl;
             }
-
             fclose(f);
         }
 
@@ -326,6 +324,7 @@ bool PointReader::readFile(std::string filename,
             storeBvh(binaryPath, bvh_vector.back());
             std::cout << "Ready\n";
         }
+
     }
 
     /*
