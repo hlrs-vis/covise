@@ -5,6 +5,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include <visionaray/detail/color_conversion.h>
+
 using namespace visionaray;
 
 PointReader *
@@ -27,6 +29,7 @@ std::vector<std::string> splitString(const std::string& s, char separator){
     while((pos = s.find(separator, pos)) != std::string::npos){
         std::string substring(s.substr(prev_pos, pos - prev_pos));
         if(substring != "") retVal.push_back(substring);
+
         prev_pos = ++pos;
     }
 
@@ -36,7 +39,7 @@ std::vector<std::string> splitString(const std::string& s, char separator){
     return retVal;
 }
 
-void addPoint(point_vector& points,
+void addPtsPoint(point_vector& points,
               std::vector<std::string>& tokens,
               aabb& bbox,
               float pointSize,
@@ -71,6 +74,65 @@ void addPoint(point_vector& points,
     sp.radius() = pointSize;
     sp.center() = vec3(x,y,z);
     sp.color() = visionaray::vector<3, visionaray::unorm<8>>((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
+    points.push_back(sp);
+
+    if(x < bbox.min.x) bbox.min.x = x; else if(x > bbox.max.x) bbox.max.x = x;
+    if(y < bbox.min.y) bbox.min.y = y; else if(y > bbox.max.y) bbox.max.y = y;
+    if(z < bbox.min.z) bbox.min.z = z; else if(z > bbox.max.z) bbox.max.z = z;
+}
+
+void addXyzPoint(point_vector& points,
+              std::vector<std::string>& tokens,
+              aabb& bbox,
+              float pointSize,
+              int count){
+
+    if(tokens.size() != 6){
+        std::cout << "PointReader::addPoint ERROR: size of stringlist != 7" << std::endl;
+        return;
+    }
+
+    float x = std::stof(tokens[0]);
+    float y = std::stof(tokens[1]);
+    float z = std::stof(tokens[2]);
+
+    int r = std::stoi(tokens[3]);
+    int g = std::stoi(tokens[4]);
+    int b = std::stoi(tokens[5]);
+
+    sphere_type sp;
+    sp.radius() = pointSize;
+    sp.center() = vec3(x,y,z);
+    sp.color() = visionaray::vector<3, visionaray::unorm<8>>((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
+    points.push_back(sp);
+
+    if(x < bbox.min.x) bbox.min.x = x; else if(x > bbox.max.x) bbox.max.x = x;
+    if(y < bbox.min.y) bbox.min.y = y; else if(y > bbox.max.y) bbox.max.y = y;
+    if(z < bbox.min.z) bbox.min.z = z; else if(z > bbox.max.z) bbox.max.z = z;
+}
+
+void add3DPoint(point_vector& points,
+                std::vector<std::string>& tokens,
+                aabb& bbox,
+                float pointSize,
+                int count){
+
+    if(tokens.size() != 4){
+        std::cout << "PointReader::addPoint ERROR: size of stringlist != 7" << std::endl;
+        return;
+    }
+
+    float x = std::stof(tokens[0]);
+    float y = std::stof(tokens[1]);
+    float z = std::stof(tokens[2]);
+
+    float val = std::stof(tokens[3]);
+    auto rgb = hue_to_rgb((val + 45.0) / 75.7 ); // plot max. 120 ray interactions..
+
+    sphere_type sp;
+    sp.radius() = pointSize;
+    sp.center() = vec3(x,y,z);
+    sp.color() = visionaray::vector<3, visionaray::unorm<8>>(rgb.x, rgb.y, rgb.z);
     points.push_back(sp);
 
     if(x < bbox.min.x) bbox.min.x = x; else if(x > bbox.max.x) bbox.max.x = x;
@@ -116,39 +178,88 @@ bool PointReader::readFile(std::string filename,
 
         //data storage for ascii lines
         char line[200];
-
-        //read the first line. Sometimes it contains the total number of points in the file
-        if(!fgets(line,200,f)) {
-            std::cout << "PointReader::readFile() Could not read first line from file " << filename.c_str() << std::endl;
-            return false;
-        }
-
         int numPoints = 0;
         int count = 0;
         point_vector points;
 
-        std::vector<std::string> tokens = splitString(line, ' ');
-
-        if(tokens.size() != 7){
-            numPoints = std::stoi(tokens[0]);
-            if(numPoints != 0) std::cout << "PointReader::readFile() reading " << numPoints << " points" << std::endl;
-        } else {
-            addPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
-            count++;
-        }
-
-        while(fgets(line,200,f)){
-
-            tokens = splitString(line,' ');
-            if(tokens.size() != 7) {
-                std::cout << "PointReader::readFile() ERROR: number of tokens not 7 in line " << count << " of file " << filename.c_str() << std::endl;
-                break;
+        std::string extension = p.extension().string();
+        if(extension.compare(".pts") == 0)
+        {
+            //read the first line. Sometimes it contains the total number of points in the file
+            if(!fgets(line,200,f)) {
+                std::cout << "PointReader::readFile() Could not read first line from file " << filename.c_str() << std::endl;
+                fclose(f);
+                return false;
             }
 
-            addPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
-            count++;
+            std::vector<std::string> tokens = splitString(line, ' ');
 
-            if(count % 100000 == 0) std::cout << "PointReader::readFile() reading line " << count << std::endl;
+            if(tokens.size() != 7){
+                numPoints = std::stoi(tokens[0]);
+                if(numPoints != 0) std::cout << "PointReader::readFile() reading " << numPoints << " points" << std::endl;
+            } else {
+                addPtsPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
+                count++;
+            }
+
+            while(fgets(line,200,f)){
+
+                tokens = splitString(line,' ');
+                if(tokens.size() != 7) {
+                    std::cout << "PointReader::readFile() ERROR: number of tokens not 7 in line " << count << " of file " << filename.c_str() << std::endl;
+                    break;
+                }
+
+                addPtsPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
+                count++;
+
+                if(count % 100000 == 0) std::cout << "PointReader::readFile() reading line " << count << std::endl;
+            }
+        }
+        else if(extension.compare(".xyz") == 0)
+        {
+
+            while(fgets(line,200,f)){
+
+                std::vector<std::string> tokens = splitString(line,' ');
+                if(tokens.size() != 6) {
+                    std::cout << "PointReader::readFile() ERROR: number of tokens not 6 in line " << count << " of file " << filename.c_str() << std::endl;
+                    break;
+                }
+
+                addXyzPoint(points,tokens,bbox,pointSize,count);
+                count++;
+
+                if(count % 100000 == 0) std::cout << "PointReader::readFile() reading line " << count << std::endl;
+            }
+        }
+        else if(extension.compare(".3d") == 0)
+        {
+
+            double max = -1000000.0;
+            double min = 1000000.0;
+            double val = 0.0;
+
+
+            while(fgets(line,200,f)){
+
+                std::vector<std::string> tokens = splitString(line, ' ');
+                if(tokens.size() != 4) {
+                    std::cout << "PointReader::readFile() ERROR: number of tokens not 4 in line " << count << " of file " << filename.c_str() << std::endl;
+                    break;
+                }
+
+                val = std::stod(tokens[3]);
+                if(val < min) min = val;
+                else if(val > max) max = val;
+
+                add3DPoint(points,tokens,bbox,pointSize,count);
+                count++;
+
+                if(count % 100000 == 0) std::cout << "PointReader::readFile() reading line " << count << std::endl;
+            }
+
+            std::cout << "min: "  << min << "   max: " << max << std::endl;
         }
 
         std::cout << "PointReader::readFile() building bvh for file " << filename.c_str() << std::endl;
@@ -161,6 +272,8 @@ bool PointReader::readFile(std::string filename,
             storeBvh(binaryPath, bvh_vector.back());
             std::cout << "Ready\n";
         }
+
+        fclose(f);
 
     }
 
