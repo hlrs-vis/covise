@@ -31,7 +31,17 @@ static FileHandler handlers[] = {
       PointRayTracerPlugin::sloadPts,
       PointRayTracerPlugin::sloadPts,
       PointRayTracerPlugin::unloadPts,
-      "pts" }
+      "pts" },
+    { NULL,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::unloadPts,
+      "3d" },
+    { NULL,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::unloadPts,
+      "xyz" }
 };
 
 //-----------------------------------------------------------------------------
@@ -46,6 +56,8 @@ PointRayTracerPlugin::PointRayTracerPlugin()
 {
     //register file handler
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[1]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[2]);
 
     //create drawable
     m_drawable = new PointRayTracerDrawable;
