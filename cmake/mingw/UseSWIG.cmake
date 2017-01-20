@@ -91,9 +91,9 @@ MACRO(SWIG_ADD_SOURCE_TO_MODULE name outfiles infile)
   GET_SOURCE_FILE_PROPERTY(swig_source_file_generated ${infile} GENERATED)
   GET_SOURCE_FILE_PROPERTY(swig_source_file_cplusplus ${infile} CPLUSPLUS)
   GET_SOURCE_FILE_PROPERTY(swig_source_file_flags ${infile} SWIG_FLAGS)
-  IF("${swig_source_file_flags}" STREQUAL "NOTFOUND")
+  IF(swig_source_file_flags STREQUAL "NOTFOUND")
     SET(swig_source_file_flags "")
-  ENDIF("${swig_source_file_flags}" STREQUAL "NOTFOUND")
+  ENDIF(swig_source_file_flags STREQUAL "NOTFOUND")
   SET(swig_source_file_fullname "${infile}")
   IF(${swig_source_file_path} MATCHES "^${CMAKE_CURRENT_SOURCE_DIR}")
     STRING(REGEX REPLACE 
@@ -215,7 +215,7 @@ MACRO(SWIG_ADD_MODULE name language)
     ${swig_generated_sources}
     ${swig_other_sources})
   STRING(TOLOWER "${language}" swig_lowercase_language)
-  IF ("${swig_lowercase_language}" STREQUAL "java")
+  IF (swig_lowercase_language STREQUAL "java")
     IF (APPLE)
         # In java you want:
         #      System.loadLibrary("LIBRARY");
@@ -225,8 +225,8 @@ MACRO(SWIG_ADD_MODULE name language)
         #   Linux  : libLIBRARY.so
         SET_TARGET_PROPERTIES (${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES SUFFIX ".jnilib")
       ENDIF (APPLE)
-  ENDIF ("${swig_lowercase_language}" STREQUAL "java")
-  IF ("${swig_lowercase_language}" STREQUAL "python")
+  ENDIF (swig_lowercase_language STREQUAL "java")
+  IF (swig_lowercase_language STREQUAL "python")
     # this is only needed for the python case where a _modulename.so is generated
     SET_TARGET_PROPERTIES(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES PREFIX "")
     # Python extension modules on Windows must have the extension ".pyd"
@@ -240,7 +240,7 @@ MACRO(SWIG_ADD_MODULE name language)
     IF(WIN32 AND NOT CYGWIN)
       SET_TARGET_PROPERTIES(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES SUFFIX ".pyd")
     ENDIF(WIN32 AND NOT CYGWIN)
-  ENDIF ("${swig_lowercase_language}" STREQUAL "python")
+  ENDIF (swig_lowercase_language STREQUAL "python")
 ENDMACRO(SWIG_ADD_MODULE)
 
 #
