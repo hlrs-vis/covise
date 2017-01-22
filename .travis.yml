@@ -75,4 +75,3 @@ script:
     - source .covise.sh
     - if [ "$APP" = "covise" ]; then make covise -j6; fi
     - if [ "$APP" = "cover" ]; then make -j6; fi
-    - make install
