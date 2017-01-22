@@ -94,6 +94,10 @@ TrafficSimulation::TrafficSimulation()
 #endif
 {
     //srand ( (int)(cover->frameTime()*1000) );
+    
+        manager = VehicleManager::Instance();
+
+        pedestrianManager = PedestrianManager::Instance();
 }
 
 TrafficSimulation *TrafficSimulation::instance()
@@ -452,9 +456,6 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
             cover->getObjectsRoot()->addChild(trafficSignalGroup);
         }
 
-        manager = VehicleManager::Instance();
-
-        pedestrianManager = PedestrianManager::Instance();
     }
 
     if ((Carpool::Instance()->getPoolVector()).size() > 0)

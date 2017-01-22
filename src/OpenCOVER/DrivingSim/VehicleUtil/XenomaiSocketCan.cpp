@@ -17,6 +17,10 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#include <fcntl.h>
+#include <linux/socket.h>
+#include <linux/can.h>
 #else
 #include <native/task.h>
 #endif
@@ -117,7 +121,10 @@ XenomaiSocketCan::XenomaiSocketCan(const std::string &setDevice)
     , device(setDevice)
 {
     Socket = rt_dev_socket(PF_CAN, SOCK_RAW, CAN_RAW);
-
+#ifdef MERCURY
+    // should be blocking with receive timeout fcntl(Socket, F_SETFL , O_NONBLOCK);
+#endif
+    
     if (Socket < 0)
     {
         std::cerr << "XenomaiSocketCan::XenomaiSocketCan(): rt_dev_socket: " << strerror(-Socket) << std::endl;
@@ -132,6 +139,7 @@ XenomaiSocketCan::XenomaiSocketCan(const std::string &setDevice)
         std::cerr << "XenomaiSocketCan::XenomaiSocketCan(): rt_dev_ioctl(GET_IFINDEX): " << strerror(-ret_ioctl) << std::endl;
         return;
     }
+    fprintf(stderr,"ifName:%s\n",device.c_str());
 
     sockaddr_can recv_addr;
     recv_addr.can_family = AF_CAN;
@@ -188,14 +196,32 @@ int XenomaiSocketCan::applyRecvFilters()
 #ifdef MERCURY
 int XenomaiSocketCan::setRecvTimeout(int timeout)
 {
-        std::cerr << "XenomaiSocketCan::setRecvTimeout(): not implemented " << std::endl;
-    return 0;
+	timeval tv;
+	tv.tv_sec=(int)timeout/1000000000;
+	tv.tv_usec=(int)timeout/1000 - (tv.tv_sec * 1000000);
+        std::cerr << "tv.tv_sec: " << tv.tv_sec << std::endl;
+        std::cerr << "tv.tv_usec: " << tv.tv_usec << std::endl;
+    int ret_timeout = setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    if (ret_timeout)
+    {
+        std::cerr << "XenomaiSocketCan::setRecvTimeout(): rt_dev_ioctl: RCV_TIMEOUT: " << strerror(-ret_timeout) << std::endl;
+    }
+    return ret_timeout;
 }
 
 int XenomaiSocketCan::setSendTimeout(int timeout)
 {
-        std::cerr << "XenomaiSocketCan::setSendTimeout(): not implemented " << std::endl;
-    return 0;
+	timeval tv;
+	tv.tv_sec=(int)timeout/1000000000;
+	tv.tv_usec=(int)timeout/1000 - (tv.tv_sec * 1000000);
+        std::cerr << "tv.tv_sec: " << tv.tv_sec << std::endl;
+        std::cerr << "tv.tv_usec: " << tv.tv_usec << std::endl;
+    int ret_timeout = setsockopt(Socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+    if (ret_timeout)
+    {
+        std::cerr << "XenomaiSocketCan::setSendTimeout(): rt_dev_ioctl: RCV_TIMEOUT: " << strerror(-ret_timeout) << std::endl;
+    }
+    return ret_timeout;
 }
 #else
 int XenomaiSocketCan::setRecvTimeout(nanosecs_rel_t timeout)

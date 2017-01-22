@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscMiscObject.h"
+#include "oscMiscObject.h"
 
 using namespace OpenScenario;
 Enum_MiscObject_categoryType::Enum_MiscObject_categoryType()

@@ -124,7 +124,7 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
   IF(APPLE)
      COVISE_ADD_LINK_FLAGS(${targetname} "-undefined error")
      COVISE_ADD_LINK_FLAGS(${targetname} "-flat_namespace")
-  ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+  ELSEIF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
       COVISE_ADD_LINK_FLAGS(${targetname} "-Wl,--no-undefined")
   ENDIF(APPLE)
     

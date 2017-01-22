@@ -47,7 +47,7 @@ FourWheelDynamicsRealtime::FourWheelDynamicsRealtime()
     overruns = 0;
     motPlat = ValidateMotionPlatform::instance();
 
-    steerCon = new CanOpenController("rtcan1");
+    steerCon = new CanOpenController("can1");
     steerWheel = new XenomaiSteeringWheel(*steerCon, 1);
 
     start();
@@ -321,7 +321,7 @@ void FourWheelDynamicsRealtime::run()
             }
             resetState();
         }
-        if (!pause)
+	if (!pause)
         {
             double h = (double)(period * (overruns + 1)) * 1e-9;
 
@@ -547,7 +547,8 @@ current += (int32_t)((double)(driftPosition-steerPosition)*steerWheel->getDrillC
         {
             if (doCenter)
             {
-                doCenter = false;
+                
+		doCenter = false;
                 fprintf(stderr, "center\n");
                 steerWheel->center();
                 fprintf(stderr, "center done\n");
@@ -611,7 +612,7 @@ void FourWheelDynamicsRealtime::centerWheel()
 {
     if (pause)
     {
-        doCenter = true;
+	doCenter = true;
     }
 }
 

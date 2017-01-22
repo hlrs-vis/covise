@@ -183,6 +183,19 @@ oscObjectBase::MemberOptional oscObjectBase::getOptional() const
     return optional;
 }
 
+bool oscObjectBase::isMemberOptional(oscMember *m)
+{
+	for (auto it = optional.cbegin(); it != optional.cend(); it++)
+	{
+		if (*it == m)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 //
 oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 {
@@ -522,7 +535,63 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const 
 
 }
 
-void oscObjectBase::validate(std::string *errorMessage)
+bool oscObjectBase::validate()
+{
+	bool isValid = false;
+
+	for(MemberMap::iterator it = members.begin();it != members.end(); it++)
+	{
+		oscMember *member = it->member;
+
+		oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
+		if(am)
+		{
+			if ((am->size() < 1) && !isMemberOptional(member))
+			{
+				return false;
+			}
+
+			for(oscArrayMember::iterator it =am->begin();it != am->end();it++)
+			{
+				oscObjectBase *obj = *it;
+				if (!obj->validate())
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
+			if (member->getValue())
+			{
+				continue;
+			}
+			else 
+			{
+				oscObjectBase *memberObject = member->getObject();
+				{
+					if (!memberObject) 
+					{
+						if (isMemberOptional(member))
+						{
+							continue;
+						}
+
+						return false;
+					}
+
+					if (!memberObject->validate())
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+/* void oscObjectBase::validate(std::string *errorMessage)
 {
 	// write temporary file
 	//
@@ -601,7 +670,7 @@ void oscObjectBase::validate(std::string *errorMessage)
 		}
 
 	}
-}
+} */
 
 
 /*****

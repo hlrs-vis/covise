@@ -21,7 +21,7 @@ MACRO(USE_VRML)
     set(MISSING_DEPS "${MISSING_DEPS} BISON")
   endif()
 
-  if (NOT "${MISSING_DEPS}" STREQUAL "")
+  if (NOT MISSING_DEPS STREQUAL "")
     if (${ARGC} LESS 1)
         using_message("Skipping because of missing VRML dependencies:${MISSING_DEPS}")
       return()

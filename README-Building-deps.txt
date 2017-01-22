@@ -204,7 +204,6 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 #hdf5
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/hdf5
 
-
 #alvar
 alvar needs openCV 2.4 (currently 2412)
 thus first compile OpenCV2.4 as follows:
@@ -219,6 +218,15 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 #assimp
 https://github.com/assimp/assimp.git
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/assimp -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+#citygml
+https://github.com/jklimke/libcitygml.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DXERCESC_STATIC=false -DLIBCITYGML_STATIC_CRT=false -DLIBCITYGML_OSGPLUGIN=true -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/citygml -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/OpenSceneGraph
+
+#osgEphemeris
+https://github.com/hlrs-vis/osgephemeris.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgEphemeris -DCMAKE_DEBUG_POSTFIX=d
+-DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/OpenSceneGraph
 
 #OpenVR
 https://github.com/ValveSoftware/openvr.git

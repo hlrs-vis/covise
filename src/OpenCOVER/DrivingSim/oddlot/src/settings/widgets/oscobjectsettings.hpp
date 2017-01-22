@@ -30,6 +30,7 @@ class OSCObjectSettings;
 
 namespace OpenScenario
 {
+class OpenScenarioBase;
 class oscObjectBase;
 class oscArrayMember;
 class oscMember;
@@ -41,6 +42,7 @@ class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
 class ProjectSettings;
 class ToolAction;
+class ToolManager;
 
 class QLabel;
 class QTreeWidget;
@@ -73,6 +75,8 @@ public:
 	void uiInitArray();
 	void onDeleteArrayElement();
 
+	void updateProperties();
+
 	OpenScenario::oscArrayMember *getArrayMember()
 	{
 		return oscArrayMember_;
@@ -81,11 +85,11 @@ public:
 	void updateTree();
 
 private:
-    void updateProperties();
-	void loadProperties(OpenScenario::oscMember *member, QWidget *widget);
+	bool loadProperties(OpenScenario::oscMember *member, QWidget *widget);  
+	bool validateMember(OpenScenario::oscMember *member); // return value: member is valid
 	void formatLabel(QLabel *label, const QString &memberName);
 	int formatDirLabel(QLabel *label, const QString &memberName);
-	void addTreeItem(QTreeWidget *arrayTree, int name);
+	void addTreeItem(QTreeWidget *arrayTree, int name, OpenScenario::oscObjectBase *object);
 	QString getStackText()
 	{
 		return objectStackText_;
@@ -127,6 +131,9 @@ private:
 	ProjectSettings *projectSettings_;
 	OSCObjectSettingsStack *parentStack_;
 
+	ToolManager *toolManager_;
+
+	OpenScenario::OpenScenarioBase *oscBase_;
     OpenScenario::oscObjectBase *object_;
 	OpenScenario::oscMember *member_;
 	OpenScenario::oscObjectBase *parentObject_;

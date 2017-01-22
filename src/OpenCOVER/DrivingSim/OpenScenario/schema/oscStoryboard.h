@@ -28,7 +28,7 @@ oscStoryboard()
 {
         OSC_OBJECT_ADD_MEMBER(Init, "oscInit");
         OSC_OBJECT_ADD_MEMBER(Story, "oscStory");
-        OSC_OBJECT_ADD_MEMBER(End, "oscEnd");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(End, "oscEnd");
     };
     oscInitMember Init;
     oscStoryArrayMember Story;
