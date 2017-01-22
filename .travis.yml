@@ -75,7 +75,7 @@ script:
     - export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_RENDERER:BOOL=OFF "$COVISE_CMAKE_OPTIONS
     - if [ "$STD" = "CPP03" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=OFF "$COVISE_CMAKE_OPTIONS; fi
     - if [ "$STD" = "CPP11" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_USE_CPP11:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
-    - if [ "$APP" = "cover" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_ONLY_COVER_PREREQ:BOOL=ON" $COVISE_CMAKE_OPTIONS; fi
+    - if [ "$APP" = "cover" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_ONLY_COVER_PREREQ:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
     - export COVISE_CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX="${HOME}"/install "$COVISE_CMAKE_OPTIONS
     - source .covise.sh
     - if [ "$APP" = "covise" ]; then make covise -j6; fi
