@@ -25,13 +25,44 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
+#include <osg/io_utils>
+#include <cover/input/input.h>
 
 using namespace opencover;
 
-Vive::Vive()
+
+static osg::Matrix convertMatrix34(const vr::HmdMatrix34_t &mat34)
 {
+	osg::Matrix matrix(
+		mat34.m[0][0], mat34.m[1][0], mat34.m[2][0], 0.0,
+		mat34.m[0][1], mat34.m[1][1], mat34.m[2][1], 0.0,
+		mat34.m[0][2], mat34.m[1][2], mat34.m[2][2], 0.0,
+		mat34.m[0][3], mat34.m[1][3], mat34.m[2][3], 1.0f
+	);
+	return matrix;
 }
 
+static osg::Matrix convertMatrix44(const vr::HmdMatrix44_t &mat44)
+{
+	osg::Matrix matrix(
+		mat44.m[0][0], mat44.m[1][0], mat44.m[2][0], mat44.m[3][0],
+		mat44.m[0][1], mat44.m[1][1], mat44.m[2][1], mat44.m[3][1],
+		mat44.m[0][2], mat44.m[1][2], mat44.m[2][2], mat44.m[3][2],
+		mat44.m[0][3], mat44.m[1][3], mat44.m[2][3], mat44.m[3][3]
+	);
+	return matrix;
+}
+
+Vive::Vive()
+	: InputDevice("COVER.Input.Device.Vive")
+{
+	Input::instance()->addDevice("Vive", this);
+}
+
+bool Vive::needsThread() const
+{
+	return false;
+} 
 bool Vive::init()
 {
 	fprintf(stderr, "Vive::init\n");
@@ -42,17 +73,41 @@ bool Vive::init()
 
 	if (eError != vr::VRInitError_None)
 	{
-		ivrSystem = NULL;
+		ivrSystem = nullptr;
 		fprintf(stderr, "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(eError));
+		return false;
+	}
+
+	if (!vr::VRCompositor())
+	{
+		ivrSystem = nullptr;
+		vr::VR_Shutdown();
+		osg::notify(osg::WARN) << "Error: Compositor initialization failed" << std::endl;
+		return false;
+	}
+
+	ivrRenderModels = (vr::IVRRenderModels *)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &eError);
+	if (ivrRenderModels == nullptr)
+	{
+		ivrSystem = nullptr;
+		vr::VR_Shutdown();
+		osg::notify(osg::WARN)
+			<< "Error: Unable to get render model interface!\n"
+			<< "Reason: " << vr::VR_GetVRInitErrorAsEnglishDescription(eError) << std::endl;
 		return false;
 	}
 
 	m_strDriver = "No Driver";
 	m_strDisplay = "No Display";
 
+	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+	{
+		m_rDevClassChar[nDevice] = 0;
+	}
+	numControllers = 0;
+
 	m_strDriver = GetTrackedDeviceString(ivrSystem, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
 	m_strDisplay = GetTrackedDeviceString(ivrSystem, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
-
 
 	return true;
 }
@@ -72,16 +127,69 @@ void Vive::preFrame()
 		//ProcessVREvent(event);
 	}
 
+	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+	{
+		if (m_rDevClassChar[nDevice] == 0)
+		{
+			switch (ivrSystem->GetTrackedDeviceClass(nDevice))
+			{
+			case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; numControllers++; break;
+			case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
+			case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
+			case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
+			case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+			default:                                       m_rDevClassChar[nDevice] = '?'; break;
+			}
+		}
+		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
+		{
+			maxBodyNumber = nDevice;
+		}
+	}
+	if (maxBodyNumber + 1 > m_bodyMatrices.size())
+	{
+		m_mutex.lock();
+		m_bodyMatrices.resize(maxBodyNumber + 1);
+		m_bodyMatricesValid.resize(maxBodyNumber + 1);
+		m_mutex.unlock();
+	}
+	if (numControllers * 4 > m_buttonStates.size())
+	{
+		m_buttonStates.resize(numControllers * 4);
+	}
+
 	// Process SteamVR controller state
+	size_t controllerNumber = 0;
 	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
 	{
 		vr::VRControllerState_t state;
-		if (ivrSystem->GetControllerState(unDevice, &state, sizeof(state)))
+		bool gotState = ivrSystem->GetControllerState(unDevice, &state, sizeof(state));
+		if ((m_rDevClassChar[unDevice] == 'C'))
 		{
-			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+			m_buttonStates[(controllerNumber * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
+			m_buttonStates[(controllerNumber * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
+			m_buttonStates[(controllerNumber * 4) + 2] = ((state.ulButtonPressed & ((uint64_t)1 << 1)) != 0);
+			m_buttonStates[(controllerNumber * 4) + 3] = ((state.ulButtonPressed & ((uint64_t)1 << 2)) != 0);
+			controllerNumber++;
 		}
 	}
 
+	m_mutex.lock();
+
+	for (int nDevice = 0; nDevice < maxBodyNumber + 1; ++nDevice)
+	{
+		m_bodyMatricesValid[nDevice] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
+		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
+		{
+			m_bodyMatrices[nDevice] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+		    // convert to mm
+			m_bodyMatrices[nDevice](3, 0) *= 1000;
+			m_bodyMatrices[nDevice](3, 1) *= 1000;
+			m_bodyMatrices[nDevice](3, 2) *= 1000;
+		}
+	}
+	m_mutex.unlock();
 }
 
 
