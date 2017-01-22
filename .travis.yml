@@ -25,13 +25,15 @@ env:
         - APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
         - APP="cover"  STD="CPP11" BUILD_TYPE="Release"
 
-#FIXME:
 matrix:
     exclude:
         - env: APP="covise" STD="CPP03" BUILD_TYPE="Release"
         - env: APP="cover"  STD="CPP03" BUILD_TYPE="Release"
         - env: APP="covise" STD="CPP11" BUILD_TYPE="Debug"
         - env: APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
+        # FIXME
+        - env: APP="cover"  STD="CPP03" BUILD_TYPE="Debug"
+        - env: APP="cover"  STD="CPP11" BUILD_TYPE="Release"
         - os: osx
 
 addons:
