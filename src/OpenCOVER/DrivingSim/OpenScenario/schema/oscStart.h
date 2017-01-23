@@ -26,7 +26,7 @@ oscStart()
 {
         OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup");
     };
-    oscConditionGroupMember ConditionGroup;
+    oscConditionGroupArrayMember ConditionGroup;
 
 };
 

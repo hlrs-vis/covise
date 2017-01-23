@@ -62,7 +62,7 @@ class OSCObjectSettings: public QWidget, public Observer
     //################//
 
 public:
-    explicit OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member);
+    explicit OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member,  OpenScenario::oscObjectBase *parentObject);
     virtual ~OSCObjectSettings();
 
     // Observer Pattern //

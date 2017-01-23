@@ -79,7 +79,7 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member)
+OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member, OpenScenario::oscObjectBase *parentObject)
     : QWidget()
 	, Observer()
 	, ui(new Ui::OSCObjectSettings)
@@ -92,8 +92,9 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	, closeCount_(false)
 	, member_(member)
 	, oscArrayMember_(NULL)
-	, parentObject_(NULL)
+	, parentObject_(parentObject)
 {
+
 	if (element_)
 	{
 		object_ = element_->getObject();
@@ -108,16 +109,15 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 	if (!object_ && member_)
 	{
-		oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(member);
+		oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(member_);
 	}
 
-	if (parentStack_)
+    if (parentStack_)
 	{
 		OSCObjectSettings *lastSettings = static_cast<OSCObjectSettings *>(parentStack_->getLastWidget());
 		if (lastSettings)
 		{
 			objectStackText_ = lastSettings->getStackText();
-			parentObject_ = lastSettings->getObject();
 		}
 	}
 
@@ -197,7 +197,7 @@ OSCObjectSettings::~OSCObjectSettings()
 //
 void
 OSCObjectSettings::uiInit()
-{
+{;
 	// Widget/Layout //
 	//
 	QGridLayout *objectGridLayout = new QGridLayout();
@@ -261,6 +261,7 @@ OSCObjectSettings::uiInit()
 		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
 		signalPushMapper->setMapping(oscPushButton, "choice");
 	}
+
 
 	OpenScenario::oscObjectBase::MemberMap members = object_->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
@@ -433,7 +434,6 @@ OSCObjectSettings::uiInit()
 		}
 
 	}
-
 
 	// Finish Layout //
 	//
@@ -985,7 +985,7 @@ OSCObjectSettings::onPushButtonPressed(QString name)
     //
     projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement, NULL);
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement, NULL, object_);
 
 	return object;
 }
@@ -1001,7 +1001,7 @@ OSCObjectSettings::onArrayPushButtonPressed(QString name)
     //
     projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, NULL, member);
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, NULL, member, object_);
 
 	return member;
 }
@@ -1039,7 +1039,7 @@ OSCObjectSettings::onNewArrayElement()
 
 		updateTree();
 
-		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL);
+		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL, parentObject_);
 	}
 
 }
