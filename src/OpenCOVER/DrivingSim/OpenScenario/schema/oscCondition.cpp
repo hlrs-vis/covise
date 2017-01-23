@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscCondition.h"
+#include "oscCondition.h"
 
 using namespace OpenScenario;
 Enum_Condition_edgeType::Enum_Condition_edgeType()

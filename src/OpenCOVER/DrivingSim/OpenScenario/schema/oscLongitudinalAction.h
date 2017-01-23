@@ -9,14 +9,14 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCLONGITUDINALACTION_H
 #define OSCLONGITUDINALACTION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscSpeed.h"
-#include "schema/oscDistance.h"
+#include "../oscVariables.h"
+#include "oscSpeed.h"
+#include "oscDistance.h"
 
 namespace OpenScenario
 {

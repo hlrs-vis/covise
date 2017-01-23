@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCBYVALUE_H
 #define OSCBYVALUE_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscConditionParameter.h"
-#include "schema/oscTimeOfDay.h"
-#include "schema/oscSimulationTime.h"
+#include "../oscVariables.h"
+#include "oscConditionParameter.h"
+#include "oscTimeOfDay.h"
+#include "oscSimulationTime.h"
 
 namespace OpenScenario
 {

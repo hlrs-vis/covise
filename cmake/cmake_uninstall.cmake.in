@@ -12,9 +12,9 @@ FOREACH(file ${files})
       OUTPUT_VARIABLE rm_out
       RETURN_VALUE rm_retval
       )
-    IF(NOT "${rm_retval}" STREQUAL 0)
+    IF(NOT rm_retval STREQUAL "0")
       MESSAGE(FATAL_ERROR "Problem when removing \"$ENV{DESTDIR}${file}\"")
-    ENDIF(NOT "${rm_retval}" STREQUAL 0)
+    ENDIF(NOT rm_retval STREQUAL "0")
   ELSE(EXISTS "$ENV{DESTDIR}${file}")
     MESSAGE(STATUS "File \"$ENV{DESTDIR}${file}\" does not exist.")
   ENDIF(EXISTS "$ENV{DESTDIR}${file}")

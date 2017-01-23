@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscScript.h"
+#include "oscScript.h"
 
 using namespace OpenScenario;
 Enum_Script_executionType::Enum_Script_executionType()

@@ -64,12 +64,14 @@
                         <Map name="0" value="ACTION_BUTTON" />
                         <Map name="1" value="XFORM_BUTTON" />
                         <Map name="2" value="DRIVE_BUTTON" />
+                        <MultiMap name="6" value="PERSON_NEXT" />
                     </Stylus>
                 </Buttons>
 
                 <Persons>
                     <Person name="Fixed" head="FixedHead" eyeDistance="0" />
                     <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" activateOnAction="true" />
+                    <Person name="ZSpace-inverted" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="-60" activateOnAction="false" />
                 </Persons>
             </Input> 
 

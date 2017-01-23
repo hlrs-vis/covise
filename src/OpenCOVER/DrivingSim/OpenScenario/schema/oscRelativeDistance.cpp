@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscRelativeDistance.h"
+#include "oscRelativeDistance.h"
 
 using namespace OpenScenario;
 Enum_RelativeDistance_typeType::Enum_RelativeDistance_typeType()

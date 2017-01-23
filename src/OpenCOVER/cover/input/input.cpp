@@ -365,6 +365,13 @@ DriverFactoryBase *Input::getDriverPlugin(const std::string &type)
     return fact;
 }
 
+void Input::addDevice(const std::string &name, InputDevice *dev)
+{
+	drivers[name] = dev;
+	if (dev->needsThread())
+		dev->start();
+}
+
 InputDevice *Input::getDevice(const std::string &name)
 {
 

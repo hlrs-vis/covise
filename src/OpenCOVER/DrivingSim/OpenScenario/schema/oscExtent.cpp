@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscExtent.h"
+#include "oscExtent.h"
 
 using namespace OpenScenario;
 Enum_domain_time_distanceType::Enum_domain_time_distanceType()

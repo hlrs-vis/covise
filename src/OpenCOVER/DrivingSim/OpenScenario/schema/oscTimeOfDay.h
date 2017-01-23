@@ -9,15 +9,15 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCTIMEOFDAY_H
 #define OSCTIMEOFDAY_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscTimeHeadway.h"
-#include "schema/oscTime.h"
-#include "schema/oscDate.h"
+#include "../oscVariables.h"
+#include "oscTimeHeadway.h"
+#include "oscTime.h"
+#include "oscDate.h"
 
 namespace OpenScenario
 {

@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 * License: LGPL 2 + */
 
-#include "schema/oscLateral.h"
+#include "oscLateral.h"
 
 using namespace OpenScenario;
 Enum_Lateral_purposeType::Enum_Lateral_purposeType()

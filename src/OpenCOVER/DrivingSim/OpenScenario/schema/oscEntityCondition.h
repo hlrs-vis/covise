@@ -9,25 +9,25 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCENTITYCONDITION_H
 #define OSCENTITYCONDITION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscEndOfRoad.h"
-#include "schema/oscCollision.h"
-#include "schema/oscOffroad.h"
-#include "schema/oscTimeHeadway.h"
-#include "schema/oscTimeToCollision.h"
-#include "schema/oscAcceleration.h"
-#include "schema/oscStandStill.h"
-#include "schema/oscSpeedCondition.h"
-#include "schema/oscRelativeSpeed.h"
-#include "schema/oscTraveledDistance.h"
-#include "schema/oscReachPosition.h"
-#include "schema/oscDistanceCondition.h"
-#include "schema/oscRelativeDistance.h"
+#include "../oscVariables.h"
+#include "oscEndOfRoad.h"
+#include "oscCollision.h"
+#include "oscOffroad.h"
+#include "oscTimeHeadway.h"
+#include "oscTimeToCollision.h"
+#include "oscAcceleration.h"
+#include "oscStandStill.h"
+#include "oscSpeedCondition.h"
+#include "oscRelativeSpeed.h"
+#include "oscTraveledDistance.h"
+#include "oscReachPosition.h"
+#include "oscDistanceCondition.h"
+#include "oscRelativeDistance.h"
 
 namespace OpenScenario
 {

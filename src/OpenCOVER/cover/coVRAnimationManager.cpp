@@ -361,6 +361,12 @@ coVRAnimationManager::getAnimationSpeed()
     return animSpeedItem->getValue();
 }
 
+float
+coVRAnimationManager::getCurrentSpeed() const {
+
+    return animSpeedItem->getValue() * aniDirection;
+}
+
 void
 coVRAnimationManager::setAnimationSpeed(float speed)
 {

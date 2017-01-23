@@ -411,6 +411,7 @@ void XenomaiSteeringWheel::run()
     {
         std::cerr << "control word failed" << std::endl;
     }
+    std::cerr << "Starting2..." << std::endl;
     uint8_t opMode = 0xfd; //homing mode
     if (!writeSDO(0x6060, 0, &opMode, 1))
     {

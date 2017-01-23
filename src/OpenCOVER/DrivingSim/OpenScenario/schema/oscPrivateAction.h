@@ -9,20 +9,20 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCPRIVATEACTION_H
 #define OSCPRIVATEACTION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscLongitudinalAction.h"
-#include "schema/oscLateralAction.h"
-#include "schema/oscVisibility.h"
-#include "schema/oscMeeting.h"
-#include "schema/oscAutonomous.h"
-#include "schema/oscDriverAction.h"
-#include "schema/oscPosition.h"
-#include "schema/oscRouting.h"
+#include "../oscVariables.h"
+#include "oscLongitudinalAction.h"
+#include "oscLateralAction.h"
+#include "oscVisibility.h"
+#include "oscMeeting.h"
+#include "oscAutonomous.h"
+#include "oscDriverAction.h"
+#include "oscPosition.h"
+#include "oscRouting.h"
 
 namespace OpenScenario
 {

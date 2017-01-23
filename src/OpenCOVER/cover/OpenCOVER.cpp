@@ -229,6 +229,11 @@ bool OpenCOVER::init()
     struct WSAData wsaData;
     wVersionRequested = MAKEWORD(2, 2);
     WSAStartup(wVersionRequested, &wsaData);
+	// Require at least 4 processors, otherwise the process could occupy the machine.
+	if (OpenThreads::GetNumberOfProcessors() >= 4)
+	{
+		SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+	}
 #endif
 
     m_visPlugin = NULL;

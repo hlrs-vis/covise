@@ -9,17 +9,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #ifndef OSCGLOBALACTION_H
 #define OSCGLOBALACTION_H
 
-#include "oscExport.h"
-#include "oscObjectBase.h"
-#include "oscObjectVariable.h"
-#include "oscObjectVariableArray.h"
+#include "../oscExport.h"
+#include "../oscObjectBase.h"
+#include "../oscObjectVariable.h"
+#include "../oscObjectVariableArray.h"
 
-#include "oscVariables.h"
-#include "schema/oscEnvironment.h"
-#include "schema/oscEntity.h"
-#include "schema/oscActionParameter.h"
-#include "schema/oscInfrastructure.h"
-#include "schema/oscTraffic.h"
+#include "../oscVariables.h"
+#include "oscEnvironment.h"
+#include "oscEntity.h"
+#include "oscActionParameter.h"
+#include "oscInfrastructure.h"
+#include "oscTraffic.h"
 
 namespace OpenScenario
 {
