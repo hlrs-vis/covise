@@ -1432,7 +1432,7 @@ namespace visionaray
         }
 
         impl_->host_bvhs.resize(impl_->triangles.size());
-        impl_->outlines.resize(impl_->triangles.size());
+        impl_->outlines = std::vector<gl::bvh_outline_renderer>(impl_->triangles.size()); // outlines are not copyable!
         impl_->outlines_initialized.resize(impl_->triangles.size());
         std::fill(impl_->outlines_initialized.begin(), impl_->outlines_initialized.end(), false);
 
