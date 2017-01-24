@@ -22,7 +22,7 @@
 #include <do/coDoPixelImage.h>
 #include <do/coDoTexture.h>
 #include <do/coDoData.h>
-#include <alg/coVtk.h>
+#include <vtk/coVtk.h>
 #include "WriteVtk.h"
 
 #undef DEBUG

@@ -30,7 +30,7 @@ class coDoGeometry;
 class coDoPixelImage;
 class coDoGrid;
 
-class ALGEXPORT coVtk
+class VTKEXPORT coVtk
 {
 public:
     enum Attributes

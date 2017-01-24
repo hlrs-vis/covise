@@ -17,7 +17,6 @@ SET(EXTRASOURCES
   ../Tracer/BBoxAdmin.h
 )
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(Tools Probe3D ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(Probe3D  coAlg coApi coAppl coCore coUtil)
 

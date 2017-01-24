@@ -54,14 +54,6 @@ SET(ALG_HEADERS ${ALG_HEADERS}
   coFixUsg.h
 )
 
-USING(VTK optional)
-IF(VTK_FOUND)
-   # add additional sources
-   LIST(APPEND ALG_SOURCES coVtk.cpp)
-   LIST(APPEND ALG_HEADERS coVtk.h)
-ENDIF()
-
-
 ADD_COVISE_LIBRARY(coAlg ${COVISE_LIB_TYPE} ${ALG_SOURCES} ${ALG_HEADERS})
 TARGET_LINK_LIBRARIES(coAlg coAppl coApi coCore coConfig ${EXTRA_LIBS})
 

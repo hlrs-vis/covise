@@ -160,9 +160,9 @@ macro(covise_find_component comp)
    elseif ("${comp}" STREQUAL "virvo_osg")
        set(complib virvo_osg)
        set(compvar VIRVO_OSG)
-   elseif ("${comp}" STREQUAL "Alg")
-       set(complib coAlg)
-       set(compvar ALG)
+   elseif ("${comp}" STREQUAL "Vtk")
+       set(complib coVtk)
+       set(compvar VTK)
        covise_find_package(VTK
            COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel
            NO_MODULE
@@ -204,7 +204,7 @@ if(COVISE_FIND_COMPONENTS)
       covise_find_component(${comp})
    endforeach()
 else()
-   set(COVISE_FIND_COMPONENTS Util File Appl Api Core Net Do Shm Config VRBClient GRMsg GPU Alg Image)
+   set(COVISE_FIND_COMPONENTS Util File Appl Api Core Net Do Shm Config VRBClient GRMsg GPU Alg Vtk Image)
 
    foreach(comp ${COVISE_FIND_COMPONENTS})
       covise_find_component(${comp})
@@ -230,7 +230,7 @@ mark_as_advanced(
    COVISE_API_LIBRARY COVISE_CORE_LIBRARY COVISE_NET_LIBRARY COVISE_DO_LIBRARY
    COVISE_SHM_LIBRARY COVISE_CONFIG_LIBRARY
    COVISE_VRBCLIENT_LIBRARY COVISE_GRMSG_LIBRARY COVISE_GPU_LIBRARY
-   COVISE_ALG_LIBRARY COVISE_IMAGE_LIBRARY
+   COVISE_ALG_LIBRARY COVISE_IMAGE_LIBRARY COVISE_VTK_LIBRARY
    COVISE_INCLUDE_DIR)
 
 if(COVISE_FOUND)

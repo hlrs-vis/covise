@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
     fprintf(f_cpp, "#include <do/coDoGeometry.h>\n");
     fprintf(f_cpp, "#include <do/coDoPixelImage.h>\n");
     fprintf(f_cpp, "#include <do/coDoTexture.h>\n");
-    fprintf(f_cpp, "#include <alg/coVtk.h>\n");
+    fprintf(f_cpp, "#include <vtk/coVtk.h>\n");
     fprintf(f_cpp, "#include \"Wrap%s.h\"\n", modname);
     fprintf(f_cpp, "\n");
     fprintf(f_cpp, "const int nports = 5;\n");
