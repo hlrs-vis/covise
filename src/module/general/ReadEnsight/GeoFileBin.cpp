@@ -418,7 +418,8 @@ En6GeoBIN::readCoords()
         float *coords(NULL);
         switch (nodeId_)
         {
-        case ASSIGN:
+		case ASSIGN:
+		case OFF:
             coords = new float[3 * numCoords_];
             getFloatArr(3 * numCoords_, coords);
             break;
@@ -490,6 +491,7 @@ En6GeoBIN::readCoordsDummy()
         switch (nodeId_)
         {
         case ASSIGN:
+		case OFF:
             skipFloat(3 * numCoords_);
             break;
         case GIVEN:
