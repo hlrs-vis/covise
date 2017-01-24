@@ -178,9 +178,9 @@ void Variant::menuEvent(coMenuItem *item)
         TokenBuffer tb;
         tb << vName;
         if (selected)
-            cover->sendMessage(this, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
         else
-            cover->sendMessage(this, "Variant", PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
     }
 }
 
@@ -194,9 +194,9 @@ void Variant::tabletEvent(coTUIElement *item)
         TokenBuffer tb;
         tb << vName;
         if (selected)
-            cover->sendMessage(this, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
         else
-            cover->sendMessage(this, "Variant", PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
     }
     else if (item == ui->getRadioTUI_Item())
     {
@@ -210,7 +210,7 @@ void Variant::tabletEvent(coTUIElement *item)
         std::string vName = this->getVarname();
         TokenBuffer tb;
         tb << vName;
-        cover->sendMessage(this, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+        cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
     }
     //EditFloatField Button:
     else

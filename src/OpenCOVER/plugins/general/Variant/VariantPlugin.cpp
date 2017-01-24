@@ -484,7 +484,7 @@ void VariantPlugin::setVariant(std::string var)
         VariantPlugin::plugin->HideAllVariants();
         TokenBuffer tb;
         tb << var;
-        cover->sendMessage(this, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+        cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -954,9 +954,9 @@ int VariantPlugin::parseXML(QDomDocument *qxmlDoc)
                     tb << pPath;
 
                     if (state != "0")
-                        cover->sendMessage(plugin, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
                     else
-                        cover->sendMessage(plugin, "Variant", PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
                 }
                 //--
                 if (tagName == "transform")
