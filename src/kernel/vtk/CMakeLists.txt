@@ -1,18 +1,14 @@
 ADD_DEFINITIONS(-DCOVISE_VTK)
 
 SET(VTK_SOURCES
+    coVtk.cpp
 )
 
 SET(VTK_HEADERS
+    coVtk.h
 )
 
 USING(VTK optional)
-IF(VTK_FOUND)
-   # add additional sources
-   LIST(APPEND VTK_SOURCES coVtk.cpp)
-   LIST(APPEND VTK_HEADERS coVtk.h)
-ENDIF()
-
 
 ADD_COVISE_LIBRARY(coVtk ${COVISE_LIB_TYPE} ${VTK_SOURCES} ${VTK_HEADERS})
 TARGET_LINK_LIBRARIES(coVtk coAppl coApi coCore coConfig ${EXTRA_LIBS})
