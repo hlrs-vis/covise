@@ -134,9 +134,9 @@ void Colors::initCOLORS()
     p_cmapIn->setRequired(0);
 
     // Output ports
+    p_texture = addOutputPort("TextureOut0", "Texture", "Data or colormap as texture");
     p_color = addOutputPort("DataOut0", "RGBA", "Data as colors");
     p_color->setDependencyPort(p_data);
-    p_texture = addOutputPort("TextureOut0", "Texture", "Data or colormap as texture");
 
     p_cmapOut = addOutputPort("ColormapOut0", "ColorMap", "Colormap Output");
 }
