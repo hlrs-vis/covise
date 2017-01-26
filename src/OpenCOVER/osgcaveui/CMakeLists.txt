@@ -1,6 +1,5 @@
 # OpenCOVER osgcaveui
 USING(Virvo:fileio)
-USING(VTK optional)
 IF(NOT OPENSCENEGRAPH_FOUND)
   RETURN()
 ENDIF()

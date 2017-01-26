@@ -50,7 +50,6 @@ SET(EXTRASOURCES
   ../Tracer/Tracer.h
 )
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(Tracer TracerComp ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(TracerComp  coAlg coApi coAppl coCore coUtil ${EXTRA_LIBS})
 

@@ -10,7 +10,6 @@ SET(SOURCES
 SET(EXTRASOURCES
   VectorField.h
 )
-USE_VTK(OPTIONAL)
 
 ADD_COVISE_MODULE(Mapper VectorField ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(VectorField  coAlg coApi coAppl coCore coUtil)

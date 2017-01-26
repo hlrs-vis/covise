@@ -1380,6 +1380,7 @@ vtkDataObject *coVtk::covise2Vtk(const coDistributedObject *geo,
                                  const std::vector<const coDistributedObject *> &fields,
                                  const coDistributedObject *normals)
 {
+#ifdef HAVE_VTK
     if (const coDoGeometry *geom = dynamic_cast<const coDoGeometry *>(geo))
     {
         // reject if other data is present
@@ -1527,6 +1528,7 @@ vtkDataObject *coVtk::covise2Vtk(const coDistributedObject *geo,
         }
         return vtk;
     }
+#endif
 
     return NULL;
 }

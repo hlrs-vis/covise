@@ -7,7 +7,6 @@ SET(HEADERS
 SET(SOURCES
   Embossing.cpp
 )
-USE_VTK(OPTIONAL)
 
 ADD_COVISE_MODULE(SCA Embossing ${EXTRASOURCES})
 TARGET_LINK_LIBRARIES(Embossing coApi coAppl coCore coAlg SCADataBase)

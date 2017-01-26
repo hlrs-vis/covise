@@ -11,7 +11,6 @@ SET(EXTRASOURCES
   Sphere.h
 )
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(Tools Sphere ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(Sphere  coAlg coApi coAppl coCore )
 

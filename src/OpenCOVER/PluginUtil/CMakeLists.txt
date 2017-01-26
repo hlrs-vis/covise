@@ -1,7 +1,6 @@
 # OpenCOVER PluginUtil (coOpenPluginUtil)
 USING(BOOST)
 
-USING(VTK optional)
 IF(NOT OPENSCENEGRAPH_FOUND)
   RETURN()
 ENDIF()

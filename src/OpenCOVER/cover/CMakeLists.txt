@@ -1,7 +1,5 @@
 # OpenCOVER kernel (coOpenCOVER)
 
-USING(VTK optional)
-
 USING(MPI optional)
 set(COVERKERNEL_TARGET coOpenCOVER)
 set(COVERDIR "${COVISEDIR}/src/OpenCOVER")
@@ -10,7 +8,6 @@ USING(OpenGL XERCESC)
 USING(GLEW)
 USING(CG optional)
 USING(BOOST)
-USING(VRPN optional)
 
 IF(NOT WIN32)
   ADD_DEFINITIONS(-D_OLD_TERMIOS)

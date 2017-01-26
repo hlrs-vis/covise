@@ -23,7 +23,7 @@
 #include <iostream>
 
 #include "ReadVTK.h"
-#include <alg/coVtk.h>
+#include <vtk/coVtk.h>
 #include <vtkDataSetReader.h>
 #include <vtkXMLGenericDataObjectReader.h>
 #include <vtkDataSet.h>
