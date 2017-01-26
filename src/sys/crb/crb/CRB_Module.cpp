@@ -474,7 +474,7 @@ moduleList::moduleList()
 
     coCoviseConfig::ScopeEntries mae = coCoviseConfig::getScopeEntries("System.CRB", "ModuleAlias");
     const char **moduleAliases = mae.getValue();
-    for (int i = 0; moduleAliases && moduleAliases[i] != NULL; i = i + 2)
+    for (int i = 0; moduleAliases && moduleAliases[i] != NULL && moduleAliases[i+1] != NULL; i = i + 2)
     {
         //fprintf(stderr, "___ %s___%s\n", moduleAliases[i], moduleAliases[i+1]);
         char *line = new char[strlen(moduleAliases[i]) + 1];
