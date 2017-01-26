@@ -281,7 +281,7 @@ private:
 class ChangeOSCObjectChoiceCommand : public DataCommand
 {
 public:
-	explicit ChangeOSCObjectChoiceCommand(OpenScenario::oscObjectBase *parentObject, OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent = NULL);
+	explicit ChangeOSCObjectChoiceCommand(OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent = NULL);
     virtual ~ChangeOSCObjectChoiceCommand();
 
     virtual int id() const
@@ -298,7 +298,6 @@ private:
     ChangeOSCObjectChoiceCommand &operator=(const ChangeOSCObjectChoiceCommand &); /* not allowed */
 
 private:
-	OpenScenario::oscObjectBase *parentObject_;
 	OpenScenario::oscMember *oldChosenMember_;
 	OpenScenario::oscMember *newChosenMember_;
 

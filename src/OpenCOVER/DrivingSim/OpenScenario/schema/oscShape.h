@@ -26,10 +26,10 @@ class OPENSCENARIOEXPORT oscShape : public oscObjectBase
 public:
 oscShape()
 {
-        OSC_ADD_MEMBER(reference);
-        OSC_OBJECT_ADD_MEMBER(Polyline, "oscEmpty");
-        OSC_OBJECT_ADD_MEMBER(Clothoid, "oscClothoid");
-        OSC_OBJECT_ADD_MEMBER(Spline, "oscSpline");
+        OSC_ADD_MEMBER(reference, 0);
+        OSC_OBJECT_ADD_MEMBER(Polyline, "oscEmpty", 1);
+        OSC_OBJECT_ADD_MEMBER(Clothoid, "oscClothoid", 1);
+        OSC_OBJECT_ADD_MEMBER(Spline, "oscSpline", 1);
     };
     oscDouble reference;
     oscEmptyMember Polyline;

@@ -35,12 +35,12 @@ class OPENSCENARIOEXPORT oscVehicle : public oscObjectBase
 public:
 oscVehicle()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(category);
-        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
-        OSC_OBJECT_ADD_MEMBER(Performance, "oscPerformance");
-        OSC_OBJECT_ADD_MEMBER(Axles, "oscAxles");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(category, 0);
+        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox", 0);
+        OSC_OBJECT_ADD_MEMBER(Performance, "oscPerformance", 0);
+        OSC_OBJECT_ADD_MEMBER(Axles, "oscAxles", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList", 0);
         category.enumType = Enum_Vehicle_categoryType::instance();
     };
     oscString name;

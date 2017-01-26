@@ -24,9 +24,9 @@ class OPENSCENARIOEXPORT oscRoute : public oscObjectBase
 public:
 oscRoute()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(closed);
-        OSC_OBJECT_ADD_MEMBER(Waypoint, "oscWaypoint");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(closed, 0);
+        OSC_OBJECT_ADD_MEMBER(Waypoint, "oscWaypoint", 0);
     };
     oscString name;
     oscBool closed;

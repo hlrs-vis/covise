@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscFollowRoute : public oscObjectBase
 public:
 oscFollowRoute()
 {
-        OSC_ADD_MEMBER(name);
+        OSC_ADD_MEMBER(name, 0);
     };
     oscString name;
 

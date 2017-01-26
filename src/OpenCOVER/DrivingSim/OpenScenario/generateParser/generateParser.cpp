@@ -29,6 +29,7 @@ public:
 	std::string name;
 	std::string type;
 	bool optional;
+	int choice;
 	bool array;
 };
 
@@ -78,6 +79,7 @@ oscMember::oscMember(std::string n)
 {
 	name = n;
 	type = makeTypeName(n);
+	choice = 0;
 	optional = false;
 	array = false;
 	//std::cerr << "Member " << name << std::endl;
@@ -113,15 +115,16 @@ oscEnum::~oscEnum()
 }
 
 
-void parseComplexType(xercesc::DOMElement *elem);
-void parseSimpleType(xercesc::DOMElement *elem);
-void parseGeneric(xercesc::DOMElement *elem);
-void parseElement(xercesc::DOMElement *elem);
-void parseAttribute(xercesc::DOMElement *elem);
+void parseComplexType(xercesc::DOMElement *elem, int choice);
+void parseSimpleType(xercesc::DOMElement *elem, int choice);
+void parseGeneric(xercesc::DOMElement *elem, int choice);
+void parseElement(xercesc::DOMElement *elem, int choice);
+void parseAttribute(xercesc::DOMElement *elem, int choice);
 void parseSchema(xercesc::DOMElement *elem);
+void parseChoice(xercesc::DOMElement *elem);
 std::string elementName;
 
-void parseElement(xercesc::DOMElement *elem)
+void parseElement(xercesc::DOMElement *elem, int choice)
 {
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
 	if (attribute)
@@ -158,10 +161,19 @@ void parseElement(xercesc::DOMElement *elem)
 			currentMember->optional = true;
 		}
 	}
-	parseGeneric(elem);
+
+	currentMember->choice = choice;
+
+	parseGeneric(elem, 0);
 }
 
-void parseAttribute(xercesc::DOMElement *elem)
+void parseChoice(xercesc::DOMElement *elem, int choice)
+{
+
+	parseGeneric(elem, choice);
+}
+
+void parseAttribute(xercesc::DOMElement *elem, int choice)
 {
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
 	if (attribute)
@@ -214,9 +226,11 @@ void parseAttribute(xercesc::DOMElement *elem)
 		}
 	}
 
-	parseGeneric(elem);
+	currentMember->choice = choice;
+
+	parseGeneric(elem, 0);
 }
-void parseComplexType(xercesc::DOMElement *elem)
+void parseComplexType(xercesc::DOMElement *elem, int choice)
 {
 	std::string name;
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
@@ -230,10 +244,10 @@ void parseComplexType(xercesc::DOMElement *elem)
 	}
 	currentClass = new oscClass(name);
 	currentClassStack.push(currentClass);
-	parseGeneric(elem);
+	parseGeneric(elem, choice);
 }
 
-void parseSimpleType(xercesc::DOMElement *elem)
+void parseSimpleType(xercesc::DOMElement *elem, int choice)
 {
 	std::string name;
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
@@ -246,7 +260,7 @@ void parseSimpleType(xercesc::DOMElement *elem)
 		name = elementName;
 	}
 	currentEnum = new oscEnum(name);
-	parseGeneric(elem);
+	parseGeneric(elem, choice);
 }
 void parseEnum(xercesc::DOMElement *elem)
 {
@@ -257,11 +271,11 @@ void parseEnum(xercesc::DOMElement *elem)
 		value = xercesc::XMLString::transcode(attribute->getValue());
 	}
 	currentEnum->values.push_back(value);
-	parseGeneric(elem);
+	parseGeneric(elem, 0);
 }
 
 
-void parseGeneric(xercesc::DOMElement *elem)
+void parseGeneric(xercesc::DOMElement *elem, int choice)
 {
 
 	std::string name;
@@ -271,7 +285,7 @@ void parseGeneric(xercesc::DOMElement *elem)
 
 	for (unsigned int child = 0; child < elementList->getLength(); ++child)
 	{
-
+		int currentChoice = 0;
 		xercesc::DOMElement *element = dynamic_cast<xercesc::DOMElement *>(elementList->item(child));
 		if (element)
 		{
@@ -279,15 +293,15 @@ void parseGeneric(xercesc::DOMElement *elem)
 			name = xercesc::XMLString::transcode(element->getNodeName());
 			if (name == "xsd:element")
 			{
-				parseElement(element);
+				parseElement(element, choice);
 			}
 			else if (name == "xsd:attribute")
 			{
-				parseAttribute(element);
+				parseAttribute(element, choice);
 			}
 			else if (name == "xsd:complexType")
 			{
-				parseComplexType(element);
+				parseComplexType(element, choice);
 
 				currentClassStack.pop();
 				if (currentClassStack.size() > 0)
@@ -297,15 +311,20 @@ void parseGeneric(xercesc::DOMElement *elem)
 			}
 			else if (name == "xsd:simpleType")
 			{
-				parseSimpleType(element);
+				parseSimpleType(element, choice);
 			}
 			else if (name == "xsd:enumeration")
 			{
 				parseEnum(element);
 			}
+			else if (name == "xsd:choice")
+			{
+				currentChoice++;
+				parseChoice(element, currentChoice);
+			}
 			else
 			{
-				parseGeneric(element);
+				parseGeneric(element,0);
 			}
 		}
 	}
@@ -319,7 +338,7 @@ void parseSchema(xercesc::DOMElement *elem)
 	std::cerr << "" << name;
 
 
-	parseGeneric(elem);
+	parseGeneric(elem, 0);
 }
 
 int main(int argc, char **argv)
@@ -687,25 +706,27 @@ static %sType *instance();\n\
 		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
 		{
 			oscMember *attrib = *ait;
+
 			if(attrib->optional)
 			{
-				fprintf(header, "        OSC_ADD_MEMBER_OPTIONAL(%s);\n", attrib->name.c_str());
+				fprintf(header, "        OSC_ADD_MEMBER_OPTIONAL(%s, %d);\n", attrib->name.c_str(), attrib->choice);
 			}
 			else
 			{
-				fprintf(header, "        OSC_ADD_MEMBER(%s);\n", attrib->name.c_str());
+				fprintf(header, "        OSC_ADD_MEMBER(%s, %d);\n", attrib->name.c_str(), attrib->choice);
 			}
 		}
 		for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
 		{
 			oscMember *member = *mit;
+			
 			if (member->optional)
 			{
-				fprintf(header, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\");\n", member->name.c_str(), member->type.c_str());
+				fprintf(header, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
 			}
 			else
 			{
-				fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\");\n", member->name.c_str(), member->type.c_str());
+				fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
 			}
 		}
 

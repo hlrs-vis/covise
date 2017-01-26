@@ -45,3 +45,28 @@ oscArrayMember::findObjectIndex(oscObjectBase *object)
 
 	return -1;
 }
+
+unsigned char
+oscArrayMember::validate()
+{
+	if (size() < 1)
+	{
+		if (optional)
+		{
+			return oscObjectBase::VAL_optional;
+		}
+
+		return oscObjectBase::VAL_invalid;
+	}
+
+	for(oscArrayMember::iterator it =begin();it != end();it++)
+	{
+		oscObjectBase *obj = *it;
+		if (!obj->validate())
+		{
+			return oscObjectBase::VAL_invalid;
+		}
+	}
+
+	return oscObjectBase::VAL_valid;
+}

@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscDate : public oscObjectBase
 public:
 oscDate()
 {
-        OSC_ADD_MEMBER(day);
-        OSC_ADD_MEMBER(month);
-        OSC_ADD_MEMBER(year);
+        OSC_ADD_MEMBER(day, 0);
+        OSC_ADD_MEMBER(month, 0);
+        OSC_ADD_MEMBER(year, 0);
     };
     oscUInt day;
     oscUInt month;

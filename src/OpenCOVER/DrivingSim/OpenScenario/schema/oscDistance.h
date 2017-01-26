@@ -24,11 +24,11 @@ class OPENSCENARIOEXPORT oscDistance : public oscObjectBase
 public:
 oscDistance()
 {
-        OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER(distance);
-        OSC_ADD_MEMBER(timeGap);
-        OSC_ADD_MEMBER(freespace);
-        OSC_OBJECT_ADD_MEMBER(DistanceDynamics, "oscDistanceDynamics");
+        OSC_ADD_MEMBER(object, 0);
+        OSC_ADD_MEMBER(distance, 0);
+        OSC_ADD_MEMBER(timeGap, 0);
+        OSC_ADD_MEMBER(freespace, 0);
+        OSC_OBJECT_ADD_MEMBER(DistanceDynamics, "oscDistanceDynamics", 0);
     };
     oscString object;
     oscDouble distance;

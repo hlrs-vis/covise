@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscChangeDynamics : public oscObjectBase
 public:
 oscChangeDynamics()
 {
-        OSC_ADD_MEMBER(shape);
-        OSC_OBJECT_ADD_MEMBER(Extent, "oscExtent");
+        OSC_ADD_MEMBER(shape, 0);
+        OSC_OBJECT_ADD_MEMBER(Extent, "oscExtent", 0);
         shape.enumType = Enum_Dynamics_shapeType::instance();
     };
     oscEnum shape;

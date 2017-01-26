@@ -34,10 +34,10 @@ class OPENSCENARIOEXPORT oscWeather : public oscObjectBase
 public:
 oscWeather()
 {
-        OSC_ADD_MEMBER(cloudState);
-        OSC_OBJECT_ADD_MEMBER(Sun, "oscSun");
-        OSC_OBJECT_ADD_MEMBER(Fog, "oscFog");
-        OSC_OBJECT_ADD_MEMBER(Precipitation, "oscPrecipitation");
+        OSC_ADD_MEMBER(cloudState, 0);
+        OSC_OBJECT_ADD_MEMBER(Sun, "oscSun", 0);
+        OSC_OBJECT_ADD_MEMBER(Fog, "oscFog", 0);
+        OSC_OBJECT_ADD_MEMBER(Precipitation, "oscPrecipitation", 0);
         cloudState.enumType = Enum_cloudStateType::instance();
     };
     oscEnum cloudState;

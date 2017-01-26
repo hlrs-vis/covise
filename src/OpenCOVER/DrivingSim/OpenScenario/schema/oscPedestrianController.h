@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscPedestrianController : public oscObjectBase
 public:
 oscPedestrianController()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Description, "oscDescription");
-        OSC_OBJECT_ADD_MEMBER(Behavior, "oscBehavior");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Description, "oscDescription", 0);
+        OSC_OBJECT_ADD_MEMBER(Behavior, "oscBehavior", 0);
     };
     oscString name;
     oscDescriptionMember Description;

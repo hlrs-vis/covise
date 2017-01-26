@@ -24,7 +24,7 @@ class OPENSCENARIOEXPORT oscCtrl : public oscObjectBase
 public:
 oscCtrl()
 {
-        OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference");
+        OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference", 0);
     };
     oscCatalogReferenceMember CatalogReference;
 

@@ -33,10 +33,10 @@ class OPENSCENARIOEXPORT oscEvent : public oscObjectBase
 public:
 oscEvent()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(priority);
-        OSC_OBJECT_ADD_MEMBER(Action, "oscAction");
-        OSC_OBJECT_ADD_MEMBER(EventConditions, "oscEventConditions");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(priority, 0);
+        OSC_OBJECT_ADD_MEMBER(Action, "oscAction", 0);
+        OSC_OBJECT_ADD_MEMBER(EventConditions, "oscEventConditions", 0);
         priority.enumType = Enum_event_priorityType::instance();
     };
     oscString name;

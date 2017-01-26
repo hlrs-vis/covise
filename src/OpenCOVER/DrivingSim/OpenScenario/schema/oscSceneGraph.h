@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscSceneGraph : public oscObjectBase
 public:
 oscSceneGraph()
 {
-        OSC_ADD_MEMBER(name);
+        OSC_ADD_MEMBER(name, 0);
     };
     oscString name;
 

@@ -31,7 +31,7 @@ class OPENSCENARIOEXPORT oscLateral : public oscObjectBase
 public:
 oscLateral()
 {
-        OSC_ADD_MEMBER(purpose);
+        OSC_ADD_MEMBER(purpose, 0);
         purpose.enumType = Enum_Lateral_purposeType::instance();
     };
     oscEnum purpose;

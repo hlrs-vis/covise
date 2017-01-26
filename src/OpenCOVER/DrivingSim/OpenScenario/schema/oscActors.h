@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscActors : public oscObjectBase
 public:
 oscActors()
 {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(NamedEntity, "oscNamedEntity");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ByCondition, "oscByCondition");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(NamedEntity, "oscNamedEntity", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ByCondition, "oscByCondition", 0);
     };
     oscNamedEntityArrayMember NamedEntity;
     oscByConditionMember ByCondition;

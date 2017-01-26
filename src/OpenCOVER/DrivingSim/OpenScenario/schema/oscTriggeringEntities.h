@@ -32,8 +32,8 @@ class OPENSCENARIOEXPORT oscTriggeringEntities : public oscObjectBase
 public:
 oscTriggeringEntities()
 {
-        OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity");
+        OSC_ADD_MEMBER(rule, 0);
+        OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity", 0);
         rule.enumType = Enum_TriggeringEntities_ruleType::instance();
     };
     oscEnum rule;

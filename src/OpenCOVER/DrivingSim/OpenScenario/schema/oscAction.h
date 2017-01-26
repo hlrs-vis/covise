@@ -26,10 +26,10 @@ class OPENSCENARIOEXPORT oscAction : public oscObjectBase
 public:
 oscAction()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Global, "oscGlobalAction");
-        OSC_OBJECT_ADD_MEMBER(UserDefined, "oscUserDefinedAction");
-        OSC_OBJECT_ADD_MEMBER(Private, "oscPrivateAction");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Global, "oscGlobalAction", 1);
+        OSC_OBJECT_ADD_MEMBER(UserDefined, "oscUserDefinedAction", 1);
+        OSC_OBJECT_ADD_MEMBER(Private, "oscPrivateAction", 1);
     };
     oscString name;
     oscGlobalActionMember Global;

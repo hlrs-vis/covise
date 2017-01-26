@@ -36,19 +36,19 @@ class OPENSCENARIOEXPORT oscEntityCondition : public oscObjectBase
 public:
 oscEntityCondition()
 {
-        OSC_OBJECT_ADD_MEMBER(EndOfRoad, "oscEndOfRoad");
-        OSC_OBJECT_ADD_MEMBER(Collision, "oscCollision");
-        OSC_OBJECT_ADD_MEMBER(Offroad, "oscOffroad");
-        OSC_OBJECT_ADD_MEMBER(TimeHeadway, "oscTimeHeadway");
-        OSC_OBJECT_ADD_MEMBER(TimeToCollision, "oscTimeToCollision");
-        OSC_OBJECT_ADD_MEMBER(Acceleration, "oscAcceleration");
-        OSC_OBJECT_ADD_MEMBER(StandStill, "oscStandStill");
-        OSC_OBJECT_ADD_MEMBER(SpeedCondition, "oscSpeedCondition");
-        OSC_OBJECT_ADD_MEMBER(RelativeSpeed, "oscRelativeSpeed");
-        OSC_OBJECT_ADD_MEMBER(TraveledDistance, "oscTraveledDistance");
-        OSC_OBJECT_ADD_MEMBER(ReachPosition, "oscReachPosition");
-        OSC_OBJECT_ADD_MEMBER(DistanceCondition, "oscDistanceCondition");
-        OSC_OBJECT_ADD_MEMBER(RelativeDistance, "oscRelativeDistance");
+        OSC_OBJECT_ADD_MEMBER(EndOfRoad, "oscEndOfRoad", 1);
+        OSC_OBJECT_ADD_MEMBER(Collision, "oscCollision", 1);
+        OSC_OBJECT_ADD_MEMBER(Offroad, "oscOffroad", 1);
+        OSC_OBJECT_ADD_MEMBER(TimeHeadway, "oscTimeHeadway", 1);
+        OSC_OBJECT_ADD_MEMBER(TimeToCollision, "oscTimeToCollision", 1);
+        OSC_OBJECT_ADD_MEMBER(Acceleration, "oscAcceleration", 1);
+        OSC_OBJECT_ADD_MEMBER(StandStill, "oscStandStill", 1);
+        OSC_OBJECT_ADD_MEMBER(SpeedCondition, "oscSpeedCondition", 1);
+        OSC_OBJECT_ADD_MEMBER(RelativeSpeed, "oscRelativeSpeed", 1);
+        OSC_OBJECT_ADD_MEMBER(TraveledDistance, "oscTraveledDistance", 1);
+        OSC_OBJECT_ADD_MEMBER(ReachPosition, "oscReachPosition", 1);
+        OSC_OBJECT_ADD_MEMBER(DistanceCondition, "oscDistanceCondition", 1);
+        OSC_OBJECT_ADD_MEMBER(RelativeDistance, "oscRelativeDistance", 1);
     };
     oscEndOfRoadMember EndOfRoad;
     oscCollisionMember Collision;

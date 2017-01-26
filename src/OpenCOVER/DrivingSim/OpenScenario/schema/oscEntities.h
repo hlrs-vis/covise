@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscEntities : public oscObjectBase
 public:
 oscEntities()
 {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Object, "oscObject");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Selection, "oscSelection");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Object, "oscObject", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Selection, "oscSelection", 0);
     };
     oscObjectArrayMember Object;
     oscSelectionArrayMember Selection;

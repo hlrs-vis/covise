@@ -23,12 +23,12 @@ class OPENSCENARIOEXPORT oscWorld : public oscObjectBase
 public:
 oscWorld()
 {
-        OSC_ADD_MEMBER(x);
-        OSC_ADD_MEMBER(y);
-        OSC_ADD_MEMBER_OPTIONAL(z);
-        OSC_ADD_MEMBER_OPTIONAL(h);
-        OSC_ADD_MEMBER_OPTIONAL(p);
-        OSC_ADD_MEMBER_OPTIONAL(r);
+        OSC_ADD_MEMBER(x, 0);
+        OSC_ADD_MEMBER(y, 0);
+        OSC_ADD_MEMBER_OPTIONAL(z, 0);
+        OSC_ADD_MEMBER_OPTIONAL(h, 0);
+        OSC_ADD_MEMBER_OPTIONAL(p, 0);
+        OSC_ADD_MEMBER_OPTIONAL(r, 0);
     };
     oscDouble x;
     oscDouble y;

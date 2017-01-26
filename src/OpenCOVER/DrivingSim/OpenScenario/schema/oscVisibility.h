@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscVisibility : public oscObjectBase
 public:
 oscVisibility()
 {
-        OSC_ADD_MEMBER(graphics);
-        OSC_ADD_MEMBER(traffic);
-        OSC_ADD_MEMBER(sensors);
+        OSC_ADD_MEMBER(graphics, 0);
+        OSC_ADD_MEMBER(traffic, 0);
+        OSC_ADD_MEMBER(sensors, 0);
     };
     oscBool graphics;
     oscBool traffic;

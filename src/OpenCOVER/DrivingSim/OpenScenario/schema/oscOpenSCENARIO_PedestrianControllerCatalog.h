@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_PedestrianControllerCatalog : public os
 public:
 oscOpenSCENARIO_PedestrianControllerCatalog()
 {
-        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER(PedestrianController, "oscPedestrianController");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
+        OSC_OBJECT_ADD_MEMBER(PedestrianController, "oscPedestrianController", 0);
     };
     oscFileHeaderMember FileHeader;
     oscPedestrianControllerArrayMember PedestrianController;

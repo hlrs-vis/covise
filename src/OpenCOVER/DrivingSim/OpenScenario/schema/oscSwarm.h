@@ -25,12 +25,12 @@ class OPENSCENARIOEXPORT oscSwarm : public oscObjectBase
 public:
 oscSwarm()
 {
-        OSC_ADD_MEMBER(semiMajorAxis);
-        OSC_ADD_MEMBER(semiMinorAxis);
-        OSC_ADD_MEMBER(innerRadius);
-        OSC_ADD_MEMBER(offset);
-        OSC_OBJECT_ADD_MEMBER(CentralObject, "oscCentralObject");
-        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition");
+        OSC_ADD_MEMBER(semiMajorAxis, 0);
+        OSC_ADD_MEMBER(semiMinorAxis, 0);
+        OSC_ADD_MEMBER(innerRadius, 0);
+        OSC_ADD_MEMBER(offset, 0);
+        OSC_OBJECT_ADD_MEMBER(CentralObject, "oscCentralObject", 0);
+        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition", 0);
     };
     oscDouble semiMajorAxis;
     oscDouble semiMinorAxis;

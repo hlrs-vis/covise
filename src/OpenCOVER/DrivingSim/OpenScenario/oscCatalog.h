@@ -46,7 +46,7 @@ class OPENSCENARIOEXPORT oscCatalog: public oscObjectBase
 public:
     oscCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
+        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory", 0);
     };
 
     oscDirectoryMember Directory;

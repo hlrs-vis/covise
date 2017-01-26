@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscManeuver : public oscObjectBase
 public:
 oscManeuver()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Event, "oscEvent");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Event, "oscEvent", 0);
     };
     oscString name;
     oscEventArrayMember Event;

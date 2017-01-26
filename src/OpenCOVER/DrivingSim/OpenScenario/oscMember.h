@@ -41,9 +41,9 @@ public:
     virtual ~oscMember(); ///< destructor
 
     //
-    void registerWith(oscObjectBase *owner);
-    void registerChoiceWith(oscObjectBase *objBase);
+    void registerWith(oscObjectBase *owner, short int choiceNumber);
     void registerOptionalWith(oscObjectBase *objBase);
+	bool optional;
 
     //
     void setName(const char *n);
@@ -74,6 +74,15 @@ public:
 
     //
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
+
+	bool isChoice();
+	int choiceNumber();
+	void setSelected(short int select);
+	bool isSelected();
+
+	short int choice;
+
+	virtual unsigned char validate();
 };
 
 

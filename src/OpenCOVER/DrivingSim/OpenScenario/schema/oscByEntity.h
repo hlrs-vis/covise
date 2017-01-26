@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscByEntity : public oscObjectBase
 public:
 oscByEntity()
 {
-        OSC_OBJECT_ADD_MEMBER(TriggeringEntities, "oscTriggeringEntities");
-        OSC_OBJECT_ADD_MEMBER(EntityCondition, "oscEntityCondition");
+        OSC_OBJECT_ADD_MEMBER(TriggeringEntities, "oscTriggeringEntities", 0);
+        OSC_OBJECT_ADD_MEMBER(EntityCondition, "oscEntityCondition", 0);
     };
     oscTriggeringEntitiesMember TriggeringEntities;
     oscEntityConditionMember EntityCondition;

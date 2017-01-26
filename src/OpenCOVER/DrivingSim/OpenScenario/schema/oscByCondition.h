@@ -31,7 +31,7 @@ class OPENSCENARIOEXPORT oscByCondition : public oscObjectBase
 public:
 oscByCondition()
 {
-        OSC_ADD_MEMBER(actor);
+        OSC_ADD_MEMBER(actor, 0);
         actor.enumType = Enum_ByCondition_actorType::instance();
     };
     oscEnum actor;

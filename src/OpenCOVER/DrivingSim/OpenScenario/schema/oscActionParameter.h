@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscActionParameter : public oscObjectBase
 public:
 oscActionParameter()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Set, "oscSet");
-        OSC_OBJECT_ADD_MEMBER(Modify, "oscModify");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Set, "oscSet", 1);
+        OSC_OBJECT_ADD_MEMBER(Modify, "oscModify", 1);
     };
     oscString name;
     oscSetMember Set;

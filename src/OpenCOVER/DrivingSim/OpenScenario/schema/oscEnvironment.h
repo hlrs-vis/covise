@@ -26,10 +26,10 @@ class OPENSCENARIOEXPORT oscEnvironment : public oscObjectBase
 public:
 oscEnvironment()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(TimeOfDay, "oscTimeOfDay");
-        OSC_OBJECT_ADD_MEMBER(Weather, "oscWeather");
-        OSC_OBJECT_ADD_MEMBER(RoadCondition, "oscRoadCondition");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(TimeOfDay, "oscTimeOfDay", 0);
+        OSC_OBJECT_ADD_MEMBER(Weather, "oscWeather", 0);
+        OSC_OBJECT_ADD_MEMBER(RoadCondition, "oscRoadCondition", 0);
     };
     oscString name;
     oscTimeOfDayMember TimeOfDay;

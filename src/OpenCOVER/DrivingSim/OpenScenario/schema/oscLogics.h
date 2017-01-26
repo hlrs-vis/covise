@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscLogics : public oscObjectBase
 public:
 oscLogics()
 {
-        OSC_ADD_MEMBER(openDRIVE);
+        OSC_ADD_MEMBER(openDRIVE, 0);
     };
     oscString openDRIVE;
 

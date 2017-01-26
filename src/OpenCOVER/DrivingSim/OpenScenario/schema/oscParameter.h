@@ -23,10 +23,10 @@ class OPENSCENARIOEXPORT oscParameter : public oscObjectBase
 public:
 oscParameter()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER_OPTIONAL(type);
-        OSC_ADD_MEMBER_OPTIONAL(scope);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER_OPTIONAL(type, 0);
+        OSC_ADD_MEMBER_OPTIONAL(scope, 0);
     };
     oscString name;
     oscString value;

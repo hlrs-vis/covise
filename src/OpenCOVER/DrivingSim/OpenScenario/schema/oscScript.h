@@ -32,10 +32,10 @@ class OPENSCENARIOEXPORT oscScript : public oscObjectBase
 public:
 oscScript()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(file);
-        OSC_ADD_MEMBER(execution);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(file, 0);
+        OSC_ADD_MEMBER(execution, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList", 0);
         execution.enumType = Enum_Script_executionType::instance();
     };
     oscString name;

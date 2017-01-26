@@ -27,10 +27,10 @@ class OPENSCENARIOEXPORT oscTraffic : public oscObjectBase
 public:
 oscTraffic()
 {
-        OSC_OBJECT_ADD_MEMBER(Source, "oscSource");
-        OSC_OBJECT_ADD_MEMBER(Sink, "oscSink");
-        OSC_OBJECT_ADD_MEMBER(Swarm, "oscSwarm");
-        OSC_OBJECT_ADD_MEMBER(Jam, "oscJam");
+        OSC_OBJECT_ADD_MEMBER(Source, "oscSource", 1);
+        OSC_OBJECT_ADD_MEMBER(Sink, "oscSink", 1);
+        OSC_OBJECT_ADD_MEMBER(Swarm, "oscSwarm", 1);
+        OSC_OBJECT_ADD_MEMBER(Jam, "oscJam", 1);
     };
     oscSourceMember Source;
     oscSinkMember Sink;

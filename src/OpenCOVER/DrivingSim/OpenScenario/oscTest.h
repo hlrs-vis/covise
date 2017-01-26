@@ -29,13 +29,13 @@ class OPENSCENARIOEXPORT oscTest: public oscObjectBase
 public:
     oscTest()
     {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(pedestrian, "oscPedestrian");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(entity, "oscEntity");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(routing, "oscRouting");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(driver, "oscDriver");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(environment, "oscEnvironment");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(vehicle, "oscVehicle");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuver, "oscManeuver");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(pedestrian, "oscPedestrian", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(entity, "oscEntity", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(routing, "oscRouting", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(driver, "oscDriver", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(environment, "oscEnvironment", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(vehicle, "oscVehicle", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(maneuver, "oscManeuver", 0);
     };
 
     oscPedestrianMember pedestrian;

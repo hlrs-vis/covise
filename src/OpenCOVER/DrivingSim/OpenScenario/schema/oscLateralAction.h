@@ -26,9 +26,9 @@ class OPENSCENARIOEXPORT oscLateralAction : public oscObjectBase
 public:
 oscLateralAction()
 {
-        OSC_OBJECT_ADD_MEMBER(LaneChange, "oscLaneChange");
-        OSC_OBJECT_ADD_MEMBER(LaneOffset, "oscLaneOffset");
-        OSC_OBJECT_ADD_MEMBER(Distance, "oscDistance");
+        OSC_OBJECT_ADD_MEMBER(LaneChange, "oscLaneChange", 1);
+        OSC_OBJECT_ADD_MEMBER(LaneOffset, "oscLaneOffset", 1);
+        OSC_OBJECT_ADD_MEMBER(Distance, "oscDistance", 1);
     };
     oscLaneChangeMember LaneChange;
     oscLaneOffsetMember LaneOffset;

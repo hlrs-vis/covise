@@ -24,9 +24,9 @@ class OPENSCENARIOEXPORT oscConditionParameter : public oscObjectBase
 public:
 oscConditionParameter()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(rule);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER(rule, 0);
         rule.enumType = Enum_ruleType::instance();
     };
     oscString name;

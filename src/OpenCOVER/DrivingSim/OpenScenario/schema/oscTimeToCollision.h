@@ -25,11 +25,11 @@ class OPENSCENARIOEXPORT oscTimeToCollision : public oscObjectBase
 public:
 oscTimeToCollision()
 {
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(freespace);
-        OSC_ADD_MEMBER(alongRoute);
-        OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER(CollisionTarget, "oscCollisionTarget");
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER(freespace, 0);
+        OSC_ADD_MEMBER(alongRoute, 0);
+        OSC_ADD_MEMBER(rule, 0);
+        OSC_OBJECT_ADD_MEMBER(CollisionTarget, "oscCollisionTarget", 0);
         rule.enumType = Enum_ruleType::instance();
     };
     oscDouble value;

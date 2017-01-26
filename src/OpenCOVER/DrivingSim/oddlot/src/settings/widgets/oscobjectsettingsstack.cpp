@@ -101,10 +101,10 @@ OSCObjectSettingsStack::addWidget(QWidget *widget)
 QWidget *
 OSCObjectSettingsStack::getLastWidget()
 {
-	int stackSize = stack_->count();
-	return stack_->widget(stackSize - 1);
+/*	int stackSize = stack_->count();
+	return stack_->widget(stackSize - 1); */
 
-//	return stack_->currentWidget();
+	return stack_->currentWidget();
 }
 
 void

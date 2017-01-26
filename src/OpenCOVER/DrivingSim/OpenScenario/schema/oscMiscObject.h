@@ -32,10 +32,10 @@ class OPENSCENARIOEXPORT oscMiscObject : public oscObjectBase
 public:
 oscMiscObject()
 {
-        OSC_ADD_MEMBER(category);
-        OSC_ADD_MEMBER(mass);
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
+        OSC_ADD_MEMBER(category, 0);
+        OSC_ADD_MEMBER(mass, 0);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox", 0);
         category.enumType = Enum_MiscObject_categoryType::instance();
     };
     oscEnum category;

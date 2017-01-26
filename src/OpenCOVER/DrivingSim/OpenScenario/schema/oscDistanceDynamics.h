@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscDistanceDynamics : public oscObjectBase
 public:
 oscDistanceDynamics()
 {
-        OSC_OBJECT_ADD_MEMBER(None, "oscEmpty");
-        OSC_OBJECT_ADD_MEMBER(Limited, "oscLimited");
+        OSC_OBJECT_ADD_MEMBER(None, "oscEmpty", 1);
+        OSC_OBJECT_ADD_MEMBER(Limited, "oscLimited", 1);
     };
     oscEmptyMember None;
     oscLimitedMember Limited;

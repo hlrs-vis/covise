@@ -32,11 +32,11 @@ class OPENSCENARIOEXPORT oscPedestrian : public oscObjectBase
 public:
 oscPedestrian()
 {
-        OSC_ADD_MEMBER(model);
-        OSC_ADD_MEMBER(mass);
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(category);
-        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
+        OSC_ADD_MEMBER(model, 0);
+        OSC_ADD_MEMBER(mass, 0);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(category, 0);
+        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox", 0);
         category.enumType = Enum_Pedestrian_categoryType::instance();
     };
     oscString model;

@@ -24,7 +24,7 @@ class OPENSCENARIOEXPORT oscModify : public oscObjectBase
 public:
 oscModify()
 {
-        OSC_OBJECT_ADD_MEMBER(Rule, "oscRule");
+        OSC_OBJECT_ADD_MEMBER(Rule, "oscRule", 0);
     };
     oscRuleMember Rule;
 

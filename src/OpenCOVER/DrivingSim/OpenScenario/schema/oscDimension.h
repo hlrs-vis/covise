@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscDimension : public oscObjectBase
 public:
 oscDimension()
 {
-        OSC_ADD_MEMBER(width);
-        OSC_ADD_MEMBER(length);
-        OSC_ADD_MEMBER(height);
+        OSC_ADD_MEMBER(width, 0);
+        OSC_ADD_MEMBER(length, 0);
+        OSC_ADD_MEMBER(height, 0);
     };
     oscDouble width;
     oscDouble length;
