@@ -2,6 +2,7 @@ if (COVISE_BUILD_ONLY_COVER_PREREQ)
     return()
 endif()
 
+set(PLUGIN_CATEGORY "Covise")
 add_subdirectory(COVISE)
 ADD_SUBDIRECTORY(COVERScript)
 add_subdirectory(ElectricField)

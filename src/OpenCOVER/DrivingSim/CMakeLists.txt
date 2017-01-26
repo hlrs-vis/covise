@@ -2,6 +2,8 @@ if(NOT COVISE_BUILD_DRIVINGSIM)
   return()
 endif()
 
+set(MAIN_FOLDER "drivingsim")
+
 add_subdirectory(OpenScenario)
 add_subdirectory(oddlot)
 

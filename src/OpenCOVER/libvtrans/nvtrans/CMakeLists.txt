@@ -30,7 +30,7 @@ IF (BUILD_SHARED_NVTRANS_LIBS)
     SET (LIB_TYPE SHARED)
 ENDIF (BUILD_SHARED_NVTRANS_LIBS)
 
-ADD_LIBRARY(nvtrans ${LIB_TYPE} NvTranslator.h 
+ADD_COVISE_LIBRARY(nvtrans ${LIB_TYPE} NvTranslator.h 
                                 NvTranslator.cpp
                                 ../vtrans/PathTranslator.cpp
                                 ../vtrans/PathTranslator.h

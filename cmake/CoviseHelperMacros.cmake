@@ -384,7 +384,11 @@ MACRO(ADD_COVISE_LIBRARY targetname)
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
 
-  set_target_properties(${targetname} PROPERTIES FOLDER "Kernel_Libraries")
+  IF("${MAIN_FOLDER}" STREQUAL "")
+      set_target_properties(${targetname} PROPERTIES FOLDER "Libraries")
+  ELSE()
+      set_target_properties(${targetname} PROPERTIES FOLDER "${MAIN_FOLDER}/Libraries")
+  ENDIF()
   COVISE_ADJUST_OUTPUT_DIR(${targetname})
   
   # set additional COVISE_COMPILE_FLAGS
@@ -413,7 +417,12 @@ MACRO(ADD_COVISE_EXECUTABLE targetname)
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
   
-  set_target_properties(${targetname} PROPERTIES FOLDER "Executables")
+  IF("${MAIN_FOLDER}" STREQUAL "")
+      set_target_properties(${targetname} PROPERTIES FOLDER "Executables")
+  ELSE()
+      set_target_properties(${targetname} PROPERTIES FOLDER "${MAIN_FOLDER}/Executables")
+  ENDIF()
+	  
   COVISE_ADJUST_OUTPUT_DIR(${targetname})
   
   # set additional COVISE_COMPILE_FLAGS
@@ -431,7 +440,7 @@ MACRO(ADD_COVISE_MODULE category targetname)
   ADD_EXECUTABLE(${targetname} ${ARGN} ${SOURCES} ${HEADERS})
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
   
-  set_target_properties(${targetname} PROPERTIES FOLDER ${category}_Modules)
+  set_target_properties(${targetname} PROPERTIES FOLDER "Modules/${category}")
   COVISE_ADJUST_OUTPUT_DIR(${targetname} ${category})
   
   # set additional COVISE_COMPILE_FLAGS
@@ -509,7 +518,11 @@ ELSE(APPLE)
   ADD_LIBRARY(${targetname} SHARED ${ARGN} ${SOURCES} ${HEADERS})
 ENDIF(APPLE)
   
-  set_target_properties(${targetname} PROPERTIES FOLDER "OpenCOVER_Plugins")
+  IF("${MAIN_FOLDER}" STREQUAL "")
+      set_target_properties(${targetname} PROPERTIES FOLDER "Plugins/${PLUGIN_CATEGORY}")
+  ELSE()
+      set_target_properties(${targetname} PROPERTIES FOLDER "${MAIN_FOLDER}/Plugins/${PLUGIN_CATEGORY}")
+  ENDIF()
   
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")

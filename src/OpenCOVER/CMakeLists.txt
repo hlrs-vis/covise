@@ -22,6 +22,9 @@ option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for
 option(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 option(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(PLUGIN_CATEGORY "default")
+
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    cmake_minimum_required(VERSION 2.8)
    set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})

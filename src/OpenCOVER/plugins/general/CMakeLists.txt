@@ -3,7 +3,7 @@
 # CMakeLists.txt for OpenCOVER plugins general
 #
 # @author Blasius Czink
-
+set(PLUGIN_CATEGORY "General")
 ADD_SUBDIRECTORY(AKToolbar)
 ADD_SUBDIRECTORY(Amber)
 ADD_SUBDIRECTORY(ARInteractors)

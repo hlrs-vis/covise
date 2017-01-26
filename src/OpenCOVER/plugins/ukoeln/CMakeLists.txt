@@ -1,3 +1,5 @@
+
+set(PLUGIN_CATEGORY "Koeln")
 ADD_SUBDIRECTORY(Utouch3D)
 ADD_SUBDIRECTORY(TouchInteraction)
 ADD_SUBDIRECTORY(PointRayTracer)
