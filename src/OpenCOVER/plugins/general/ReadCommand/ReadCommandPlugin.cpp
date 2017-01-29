@@ -109,9 +109,9 @@ void ReadCommandPlugin::preFrame()
         else if (command.startsWith("wireframe"))
         {
             if (command.section(' ', 1).simplified() == "on")
-                VRSceneGraph::instance()->setWireframe(true);
+                VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
             else
-                VRSceneGraph::instance()->setWireframe(false);
+                VRSceneGraph::instance()->setWireframe(VRSceneGraph::Disabled);
         }
     }
     lock.unlock();

@@ -1277,7 +1277,7 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Wireframe)
     {
-        VRSceneGraph::instance()->setWireframe(true);
+        VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
     }
     else if (tUIItem == Menu)
     {
@@ -1355,7 +1355,7 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Wireframe)
     {
-        VRSceneGraph::instance()->setWireframe(false);
+        VRSceneGraph::instance()->setWireframe(VRSceneGraph::Disabled);
     }
     else if (tUIItem == Menu)
     {
