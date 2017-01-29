@@ -123,10 +123,19 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 					if (myRoad)
 					{
 						std::string name = "fiddleyard" + position->object.getValue();
-						std::string id = name + std::to_string(fiddleyards++);
+						std::string id = name + std::to_string(fiddleyards);
 						Fiddleyard *fiddleyard = new Fiddleyard(name, id);
 
 						system->addFiddleyard(fiddleyard); //, "road", position->object.getValue(), "start");
+
+						std::string sid = name + "_source"+ std::to_string(fiddleyards++);
+						double s, t;
+						s = position->ds.getValue();
+						t = position->dt.getValue();
+						LaneSection * ls = myRoad->getLaneSection(s);
+						ls->getLane()
+						VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
+						fiddleyard->addVehicleSource(source);
 /*
 						fiddleyard->setTarmacConnection(new TarmacConnection(tarmac, direction));
 
@@ -136,8 +145,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 						double repeattime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime"))));
 						double vel = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocity"))));
 						double velDev = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance"))));
-						VehicleSource *source = new VehicleSource(id, lane, starttime, repeattime, vel, velDev);
-						fiddleyard->addVehicleSource(source);
+						
 						
 						xercesc::DOMNodeList *sourceChildrenList = fiddleyardChildElement->getChildNodes();
 						xercesc::DOMElement *sourceChildElement;
