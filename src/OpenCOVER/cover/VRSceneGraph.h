@@ -289,7 +289,7 @@ private:
     bool showSmallSceneAxis_;
     bool transparentPointer_;
 
-    osg::StateSet *m_rootStateSet;
+    osg::StateSet *m_rootStateSet, *m_objectsStateSet;
     osg::ClipNode *m_objectsRoot;
 
     float m_floorHeight;

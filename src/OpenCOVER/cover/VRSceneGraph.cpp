@@ -263,11 +263,13 @@ void VRSceneGraph::initSceneGraph()
 
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();
+    m_objectsStateSet = loadGlobalGeostate();
 
     int numClipPlanes = cover->getNumClipPlanes();
     for (int i = 0; i < numClipPlanes; i++)
     {
         m_rootStateSet->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
+        m_objectsStateSet->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
     }
 
     // attach the osg::StateSet to the scene
@@ -308,6 +310,7 @@ void VRSceneGraph::initSceneGraph()
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
+    m_objectsTransform->setStateSet(m_objectsStateSet);
 
     // dcs for scaling all objects
     m_scaleTransform = new osg::MatrixTransform();
@@ -489,13 +492,13 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 if (m_textured)
                 {
                     osg::Texture *texture = new osg::Texture2D;
-                    m_rootStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
                     m_textured = false;
                 }
                 else
                 {
                     osg::Texture *texture = new osg::Texture2D;
-                    m_rootStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
+                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
                     m_textured = true;
                 }
                 handled = true;
@@ -1103,12 +1106,12 @@ VRSceneGraph::setWireframe(bool wf)
     {
         osg::PolygonMode *polymode = new osg::PolygonMode;
         polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
-        m_rootStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+        m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
     }
     else
     {
         osg::PolygonMode *polymode = new osg::PolygonMode;
-        m_rootStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+        m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
     }
 }
 
