@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscStandStill : public oscObjectBase
 public:
 oscStandStill()
 {
-        OSC_ADD_MEMBER(duration);
+        OSC_ADD_MEMBER(duration, 0);
     };
     oscDouble duration;
 

@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscTrafficDefinition : public oscObjectBase
 public:
 oscTrafficDefinition()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(VehicleDistribution, "oscVehicleDistribution");
-        OSC_OBJECT_ADD_MEMBER(DriverDistribution, "oscDriverDistribution");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(VehicleDistribution, "oscVehicleDistribution", 0);
+        OSC_OBJECT_ADD_MEMBER(DriverDistribution, "oscDriverDistribution", 0);
     };
     oscString name;
     oscVehicleDistributionMember VehicleDistribution;

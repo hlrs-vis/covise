@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscSignals : public oscObjectBase
 public:
 oscSignals()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SignalController, "oscSignalController");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SignalController, "oscSignalController", 0);
     };
     oscString name;
     oscSignalControllerArrayMember SignalController;

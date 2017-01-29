@@ -640,16 +640,15 @@ RemoveOSCObjectCommand::undo()
 // ChangeOSCObjectChoiceCommand //
 //#########################//
 
-ChangeOSCObjectChoiceCommand::ChangeOSCObjectChoiceCommand(OpenScenario::oscObjectBase *parentObject, OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent)
+ChangeOSCObjectChoiceCommand::ChangeOSCObjectChoiceCommand(OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
-	, parentObject_(parentObject)
 	, oldChosenMember_(oldChosenMember)
 	, newChosenMember_(newChosenMember)
 	, element_(element)
 {
     // Check for validity //
     //
-	if (!parentObject_ || !oldChosenMember_ || !newChosenMember_ || !element_)
+	if (!oldChosenMember_ || !newChosenMember_ || !element_)
     {
         setInvalid(); // Invalid
         setText(QObject::tr("ChangeOSCObjectChoiceCommand: Internal error! No valid objects."));
@@ -685,7 +684,8 @@ ChangeOSCObjectChoiceCommand::~ChangeOSCObjectChoiceCommand()
 void
 ChangeOSCObjectChoiceCommand::redo()
 {
-	parentObject_->setChosenMember(newChosenMember_);
+	oldChosenMember_->setSelected(false);
+	newChosenMember_->setSelected(true);
 	element_->addOSCElementChanges(OSCElement::COE_ChoiceChanged);
 	
 	setRedone();
@@ -697,7 +697,8 @@ ChangeOSCObjectChoiceCommand::redo()
 void
 ChangeOSCObjectChoiceCommand::undo()
 {
-	parentObject_->setChosenMember(oldChosenMember_);
+	newChosenMember_->setSelected(false);
+	oldChosenMember_->setSelected(true);
 	element_->addOSCElementChanges(OSCElement::COE_ChoiceChanged);
 
    setUndone();

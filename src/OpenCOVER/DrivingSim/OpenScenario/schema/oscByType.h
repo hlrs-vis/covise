@@ -31,7 +31,7 @@ class OPENSCENARIOEXPORT oscByType : public oscObjectBase
 public:
 oscByType()
 {
-        OSC_ADD_MEMBER(type);
+        OSC_ADD_MEMBER(type, 0);
         type.enumType = Enum_ObjectTypeType::instance();
     };
     oscEnum type;

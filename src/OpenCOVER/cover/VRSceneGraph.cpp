@@ -80,6 +80,7 @@
 #include <osg/Version>
 #include <osg/io_utils>
 #include <osgDB/WriteFile>
+#include <osgFX/Scribe>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -109,7 +110,7 @@ VRSceneGraph::VRSceneGraph()
     , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
     , m_handLocked(false)
-    , m_wireFrame(false)
+    , m_wireframe(Disabled)
     , m_textured(true)
     , m_showMenu(true)
     , m_showObjects(true)
@@ -263,11 +264,13 @@ void VRSceneGraph::initSceneGraph()
 
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();
+    m_objectsStateSet = loadGlobalGeostate();
 
     int numClipPlanes = cover->getNumClipPlanes();
     for (int i = 0; i < numClipPlanes; i++)
     {
         m_rootStateSet->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
+        m_objectsStateSet->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
     }
 
     // attach the osg::StateSet to the scene
@@ -308,6 +311,7 @@ void VRSceneGraph::initSceneGraph()
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
+    m_objectsTransform->setStateSet(m_objectsStateSet);
 
     // dcs for scaling all objects
     m_scaleTransform = new osg::MatrixTransform();
@@ -327,6 +331,8 @@ void VRSceneGraph::initSceneGraph()
     {
         ss->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
     }
+
+    m_lineHider = new osgFX::Scribe();
 }
 
 void VRSceneGraph::initAxis()
@@ -473,7 +479,10 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
             }
             else if (keySym == 'w' || keySym == 8721) // w
             {
-                setWireframe(!m_wireFrame);
+                int wf = m_wireframe+1;
+                if (wf > HiddenLineWhite)
+                    wf = Disabled;
+                setWireframe((WireframeMode)wf);
                 handled = true;
             }
             else if (keySym == 'W' || keySym == 8722) // W
@@ -489,13 +498,13 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 if (m_textured)
                 {
                     osg::Texture *texture = new osg::Texture2D;
-                    m_rootStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
                     m_textured = false;
                 }
                 else
                 {
                     osg::Texture *texture = new osg::Texture2D;
-                    m_rootStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
+                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
                     m_textured = true;
                 }
                 handled = true;
@@ -639,12 +648,16 @@ VRSceneGraph::setObjects(bool state)
     {
         if (m_objectsTransform->getNumParents() == 1)
         {
-            m_scene->addChild(m_objectsTransform.get());
+            if (m_wireframe == HiddenLineWhite || m_wireframe == HiddenLineBlack)
+                m_scene->addChild(m_lineHider.get());
+            else
+                m_scene->addChild(m_objectsTransform.get());
         }
     }
     else
     {
         m_scene->removeChild(m_objectsTransform.get());
+        m_lineHider->removeChild(m_objectsTransform.get());
     }
 }
 
@@ -1092,23 +1105,52 @@ VRSceneGraph::update()
 }
 
 void
-VRSceneGraph::setWireframe(bool wf)
+VRSceneGraph::setWireframe(WireframeMode wf)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "VRSceneGraph::setWireframe\n");
 
-    m_wireFrame = wf;
+    m_wireframe = wf;
 
-    if (m_wireFrame)
+    m_lineHider->removeChild(m_objectsTransform);
+    m_scene->removeChild(m_objectsTransform);
+    m_scene->removeChild(m_lineHider);
+
+    switch(m_wireframe)
     {
-        osg::PolygonMode *polymode = new osg::PolygonMode;
-        polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
-        m_rootStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    }
-    else
-    {
-        osg::PolygonMode *polymode = new osg::PolygonMode;
-        m_rootStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+        case Disabled:
+        case Enabled:
+        {
+            osg::PolygonMode *polymode = new osg::PolygonMode;
+            if (m_wireframe == Disabled)
+            {
+                m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+            }
+            else
+            {
+                polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
+                m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+            }
+            m_scene->addChild(m_objectsTransform);
+            break;
+        }
+        case HiddenLineBlack:
+        case HiddenLineWhite:
+        {
+            if (m_wireframe == HiddenLineBlack) {
+                m_lineHider->setWireframeColor(osg::Vec4(0, 0, 0, 1));
+            } else {
+                m_lineHider->setWireframeColor(osg::Vec4(1, 1, 1, 1));
+            }
+
+            osg::PolygonMode *polymode = new osg::PolygonMode;
+            m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+
+            m_scene->addChild(m_lineHider);
+            m_lineHider->addChild(m_objectsTransform);
+            m_scene->removeChild(m_objectsTransform);
+            break;
+        }
     }
 }
 

@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO_VehicleCatalog : public oscObjectBase
 public:
 oscOpenSCENARIO_VehicleCatalog()
 {
-        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
+        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle", 0);
     };
     oscFileHeaderMember FileHeader;
     oscVehicleArrayMember Vehicle;

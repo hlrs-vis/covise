@@ -32,8 +32,7 @@ oscObjectBase::oscObjectBase() :
         base(NULL),
         source(NULL),
         parentObject(NULL),
-        ownMember(NULL),
-		chosenMember(NULL)
+        ownMember(NULL)
 {
 
 }
@@ -55,7 +54,7 @@ void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject,
 	if (parentObject && parentObject->hasChoice())
 	{
 		parentObject->setChosenMember(ownMember);
-	}
+	} 
 }
 
 
@@ -125,29 +124,13 @@ oscMember *oscObjectBase::getOwnMember() const
     return ownMember;
 }
 
-
 //
-void oscObjectBase::addMemberToChoice(oscMember *m)
-{
-    choice.push_back(m);
-}
-
 bool oscObjectBase::hasChoice() const
 {
-    //for a choice at least two elements are required
-    return (choice.size() > 1) ? true : false;
-}
-
-oscObjectBase::MemberChoice oscObjectBase::getChoice() const
-{
-    return choice;
-}
-
-bool oscObjectBase::isMemberInChoice(oscMember *m)
-{
-	for (auto it = choice.cbegin(); it != choice.cend(); it++)
+	for (auto it = members.cbegin(); it != members.cend(); ++it)
 	{
-		if (*it == m)
+		oscMember *member = (*it).member;
+		if (member->isChoice())
 		{
 			return true;
 		}
@@ -156,16 +139,52 @@ bool oscObjectBase::isMemberInChoice(oscMember *m)
 	return false;
 }
 
-oscMember *oscObjectBase::getChosenMember()
+std::list<oscMember *> oscObjectBase::getChoice() const
 {
-	return chosenMember;
+	std::list<oscMember *> mc;
+
+	for (auto it = members.cbegin(); it != members.cend(); ++it)
+	{
+		oscMember *m = (*it).member;
+		if (m->isChoice())
+		{
+			mc.push_back(m);
+		}
+	}
+
+	return mc;
 }
 
-void oscObjectBase::setChosenMember(oscMember *member)
+void oscObjectBase::setChosenMember(oscMember *chosenMember)
 {
-	chosenMember = member; 
+	unsigned short choiceNumber = chosenMember->choiceNumber();
+	for (auto it = members.cbegin(); it != members.cend(); ++it)
+	{
+		oscMember *member = (*it).member;
+
+		if (member->isSelected() && (member->choiceNumber() == choiceNumber))
+		{
+				member->setSelected(false);
+		}
+	}
+
+	chosenMember->setSelected(true);
 }
 
+oscMember *oscObjectBase::getChosenMember(unsigned short choiceNumber)
+{
+	for (auto it = members.cbegin(); it != members.cend(); ++it)
+	{
+		oscMember *member = (*it).member;
+
+		if (member->isSelected() && (member->choiceNumber() == choiceNumber))
+		{
+				return member;
+		}
+	}
+
+	return NULL;
+}
 
 //
 void oscObjectBase::addMemberToOptional(oscMember *m)
@@ -212,89 +231,92 @@ oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 //
 bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
-	bool choiceObject = hasChoice();
-    for(MemberMap::iterator it = members.begin();it != members.end(); it++)
-    {
-        oscMember *member = it->member;
-        if((choiceObject && (chosenMember == member)) || (!choiceObject && member))
+	for(MemberMap::iterator it = members.begin();it != members.end(); it++)
+	{
+		oscMember *member = it->member;
+		if (member)
 		{
-            if(member->getType() == oscMemberValue::OBJECT)
-            {
-				//ArrayMember
-				oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
-				if (aMember != NULL)
+			bool isChoice = member->isChoice();
+			if(!isChoice || (isChoice && member->isSelected()))
+			{
+				if(member->getType() == oscMemberValue::OBJECT)
 				{
-					for(oscArrayMember::iterator it =aMember->begin();it != aMember->end();it++)
+					//ArrayMember
+					oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
+					if (aMember != NULL)
 					{
-						oscObjectBase *obj = *it;
-					
-						//xml document for member
-						xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
-
-						//determine document and element for writing
-						//
-						if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
+						for(oscArrayMember::iterator it =aMember->begin();it != aMember->end();it++)
 						{
-							//add include element to currentElement and add XInclude namespace to root element of new xml document
-							const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
-							addXInclude(currentElement, document, fileHref);
+							oscObjectBase *obj = *it;
 
-							//member and ArrayMember use a new document and the root element of this document
-							//write members of member into root element of new xml document
-							obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
+							//xml document for member
+							xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
+
+							//determine document and element for writing
+							//
+							if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
+							{
+								//add include element to currentElement and add XInclude namespace to root element of new xml document
+								const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
+								addXInclude(currentElement, document, fileHref);
+
+								//member and ArrayMember use a new document and the root element of this document
+								//write members of member into root element of new xml document
+								obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
+							}
+							else
+							{
+								//oscMember
+
+								xercesc::DOMElement *memberElement = document->createElement(xercesc::XMLString::transcode(member->getName().c_str()));
+								currentElement->appendChild(memberElement);
+								obj->writeToDOM(memberElement, document, writeInclude);
+							}
 						}
-						else
+					}
+					else
+					{
+						oscObjectBase *obj = member->getObject();
+						if (obj)
 						{
-							//oscMember
+							//xml document for member
+							xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
 
-							xercesc::DOMElement *memberElement = document->createElement(xercesc::XMLString::transcode(member->getName().c_str()));
-							currentElement->appendChild(memberElement);
-							obj->writeToDOM(memberElement, document, writeInclude);
+							//determine document and element for writing
+							//
+							if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
+							{
+								//add include element to currentElement and add XInclude namespace to root element of new xml document
+								const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
+								addXInclude(currentElement, document, fileHref);
+
+								//member and ArrayMember use a new document and the root element of this document
+								//write members of member into root element of new xml document
+								obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
+							}
+							else
+							{
+								//oscMember
+								member->writeToDOM(currentElement, document, writeInclude);
+							}
+
 						}
 					}
 				}
 				else
 				{
-					oscObjectBase *obj = member->getObject();
-					if (obj)
+					oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
+					if(am)
 					{
-						//xml document for member
-						xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
-
-						//determine document and element for writing
-						//
-						if (srcXmlDoc && (document != srcXmlDoc) && writeInclude)
-						{
-							//add include element to currentElement and add XInclude namespace to root element of new xml document
-							const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
-							addXInclude(currentElement, document, fileHref);
-
-							//member and ArrayMember use a new document and the root element of this document
-							//write members of member into root element of new xml document
-							obj->writeToDOM(srcXmlDoc->getDocumentElement(), srcXmlDoc, writeInclude);
-						}
-						else
-						{
-							//oscMember
-							member->writeToDOM(currentElement, document, writeInclude);
-						}
-
+						std::cerr << "Array values not yet implemented" << std::endl;
+					}
+					else
+					{
+						member->writeToDOM(currentElement,document,writeInclude);
 					}
 				}
-            }
-            else
-            {
-                oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
-                if(am)
-                {
-                    std::cerr << "Array values not yet implemented" << std::endl;
-                }
-                else
-                {
-                    member->writeToDOM(currentElement,document,writeInclude);
-                }
-            }
-        }
+			}
+		}
     }
 
     return true;
@@ -535,60 +557,19 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const 
 
 }
 
-bool oscObjectBase::validate()
+unsigned char oscObjectBase::validate()
 {
-	bool isValid = false;
-
 	for(MemberMap::iterator it = members.begin();it != members.end(); it++)
 	{
 		oscMember *member = it->member;
 
-		oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
-		if(am)
+		if (!member->validate())
 		{
-			if ((am->size() < 1) && !isMemberOptional(member))
-			{
-				return false;
-			}
-
-			for(oscArrayMember::iterator it =am->begin();it != am->end();it++)
-			{
-				oscObjectBase *obj = *it;
-				if (!obj->validate())
-				{
-					return false;
-				}
-			}
-		}
-		else
-		{
-			if (member->getValue())
-			{
-				continue;
-			}
-			else 
-			{
-				oscObjectBase *memberObject = member->getObject();
-				{
-					if (!memberObject) 
-					{
-						if (isMemberOptional(member))
-						{
-							continue;
-						}
-
-						return false;
-					}
-
-					if (!memberObject->validate())
-					{
-						return false;
-					}
-				}
-			}
-		}
+			return VAL_invalid;
+		}	
 	}
-	return true;
+
+	return VAL_valid;
 }
 
 /* void oscObjectBase::validate(std::string *errorMessage)

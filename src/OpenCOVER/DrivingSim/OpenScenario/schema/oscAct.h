@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscAct : public oscObjectBase
 public:
 oscAct()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Sequence, "oscSequence");
-        OSC_OBJECT_ADD_MEMBER(Conditions, "oscConditions");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Sequence, "oscSequence", 0);
+        OSC_OBJECT_ADD_MEMBER(Conditions, "oscConditions", 0);
     };
     oscString name;
     oscSequenceMember Sequence;

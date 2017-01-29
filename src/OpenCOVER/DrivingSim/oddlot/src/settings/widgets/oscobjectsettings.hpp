@@ -142,7 +142,7 @@ private:
 
 	OpenScenario::oscArrayMember *oscArrayMember_;
 	QTreeWidget *arrayTree_;
-	QComboBox *choiceComboBox_;
+	QMap<short int, QComboBox *>choiceComboBox_;
 	OSCElement *element_;
 	OSCBase *base_;
 
@@ -150,7 +150,7 @@ private:
 
 	QMap<QString, QWidget*> memberWidgets_;
 	QString memberName_;
-	QString lastComboBoxChoice_;
+	QMap<short int, QString> lastComboBoxChoice_;
 
     bool valueChanged_;
 

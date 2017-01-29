@@ -23,8 +23,8 @@ class OPENSCENARIOEXPORT oscController : public oscObjectBase
 public:
 oscController()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(state);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(state, 0);
     };
     oscString name;
     oscString state;

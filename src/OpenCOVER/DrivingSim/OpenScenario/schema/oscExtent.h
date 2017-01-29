@@ -31,8 +31,8 @@ class OPENSCENARIOEXPORT oscExtent : public oscObjectBase
 public:
 oscExtent()
 {
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(domain);
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER(domain, 0);
         domain.enumType = Enum_domain_time_distanceType::instance();
     };
     oscDouble value;

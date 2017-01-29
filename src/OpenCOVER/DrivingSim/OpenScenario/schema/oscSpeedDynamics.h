@@ -31,8 +31,8 @@ class OPENSCENARIOEXPORT oscSpeedDynamics : public oscObjectBase
 public:
 oscSpeedDynamics()
 {
-        OSC_ADD_MEMBER(shape);
-        OSC_ADD_MEMBER(rate);
+        OSC_ADD_MEMBER(shape, 0);
+        OSC_ADD_MEMBER(rate, 0);
         shape.enumType = Enum_Dynamics_shapeType::instance();
     };
     oscEnum shape;

@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscAssign : public oscObjectBase
 public:
 oscAssign()
 {
-        OSC_ADD_MEMBER(name);
+        OSC_ADD_MEMBER(name, 0);
     };
     oscString name;
 

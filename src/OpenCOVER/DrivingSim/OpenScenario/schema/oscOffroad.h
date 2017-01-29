@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscOffroad : public oscObjectBase
 public:
 oscOffroad()
 {
-        OSC_ADD_MEMBER(duration);
+        OSC_ADD_MEMBER(duration, 0);
     };
     oscDouble duration;
 

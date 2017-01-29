@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscSpeed : public oscObjectBase
 public:
 oscSpeed()
 {
-        OSC_OBJECT_ADD_MEMBER(SpeedDynamics, "oscSpeedDynamics");
-        OSC_OBJECT_ADD_MEMBER(Target, "oscTarget");
+        OSC_OBJECT_ADD_MEMBER(SpeedDynamics, "oscSpeedDynamics", 0);
+        OSC_OBJECT_ADD_MEMBER(Target, "oscTarget", 0);
     };
     oscSpeedDynamicsMember SpeedDynamics;
     oscTargetMember Target;

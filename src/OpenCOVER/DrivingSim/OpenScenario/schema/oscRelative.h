@@ -31,10 +31,10 @@ class OPENSCENARIOEXPORT oscRelative : public oscObjectBase
 public:
 oscRelative()
 {
-        OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(valueType);
-        OSC_ADD_MEMBER(continuous);
+        OSC_ADD_MEMBER(object, 0);
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER(valueType, 0);
+        OSC_ADD_MEMBER(continuous, 0);
         valueType.enumType = Enum_Speed_Target_valueTypeType::instance();
     };
     oscString object;

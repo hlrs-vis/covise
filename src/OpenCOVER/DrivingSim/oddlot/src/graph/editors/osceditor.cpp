@@ -241,6 +241,24 @@ OpenScenarioEditor::init()
  /*       insertOSCHandle_ = new OSCHandle(signalRoadSystemItem_);
         insertOSCHandle_->hide();*/
 
+	// Validate base elements
+	//
+	QList<QString> openScenarioBaseObjects;
+	openScenarioBaseObjects.append("FileHeader");
+	openScenarioBaseObjects.append("RoadNetwork");
+	openScenarioBaseObjects.append("Entities");
+	openScenarioBaseObjects.append("Storyboard");
+	
+	int column = 0;
+	for (int i = 0; i < openScenarioBaseObjects.size(); i++)
+	{
+		OpenScenario::oscMember *member = openScenarioBase_->getMember(openScenarioBaseObjects.at(i).toStdString());
+
+		if (member && member->validate())
+		{
+			mainWindow_->getToolManager()->setPushButtonColor(QString::fromStdString(member->getName()), QColor(128, 195, 66));
+		}
+	}
 
     lastTool_ = getCurrentTool();
 

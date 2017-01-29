@@ -24,7 +24,7 @@ class OPENSCENARIOEXPORT oscParameterList : public oscObjectBase
 public:
 oscParameterList()
 {
-        OSC_OBJECT_ADD_MEMBER(Parameter, "oscParameter");
+        OSC_OBJECT_ADD_MEMBER(Parameter, "oscParameter", 0);
     };
     oscParameterArrayMember Parameter;
 

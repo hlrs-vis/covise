@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscAbsolute : public oscObjectBase
 public:
 oscAbsolute()
 {
-        OSC_ADD_MEMBER(value);
+        OSC_ADD_MEMBER(value, 0);
     };
     oscDouble value;
 

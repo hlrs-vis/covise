@@ -24,7 +24,7 @@ class OPENSCENARIOEXPORT oscCancel : public oscObjectBase
 public:
 oscCancel()
 {
-        OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup");
+        OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup", 0);
     };
     oscConditionGroupArrayMember ConditionGroup;
 

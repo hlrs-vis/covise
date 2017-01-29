@@ -24,7 +24,7 @@ class OPENSCENARIOEXPORT oscBehavior : public oscObjectBase
 public:
 oscBehavior()
 {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Parameter, "oscParameter");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Parameter, "oscParameter", 0);
     };
     oscParameterArrayMember Parameter;
 

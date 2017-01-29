@@ -388,7 +388,9 @@ void VariantPlugin::addNode(osg::Node *node, RenderObject *render)
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {
-                    osg::Node::ParentList parents = node->getParents();
+                    osg::Node::ParentList parents;
+                    if (node)
+                        parents = node->getParents();
                     vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi,default_state);
 
                     varlist.push_back(vari);

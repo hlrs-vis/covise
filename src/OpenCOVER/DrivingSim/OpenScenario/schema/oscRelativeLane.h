@@ -24,11 +24,11 @@ class OPENSCENARIOEXPORT oscRelativeLane : public oscObjectBase
 public:
 oscRelativeLane()
 {
-        OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER(dLane);
-        OSC_ADD_MEMBER(ds);
-        OSC_ADD_MEMBER_OPTIONAL(offset);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation");
+        OSC_ADD_MEMBER(object, 0);
+        OSC_ADD_MEMBER(dLane, 0);
+        OSC_ADD_MEMBER(ds, 0);
+        OSC_ADD_MEMBER_OPTIONAL(offset, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
     oscString object;
     oscInt dLane;

@@ -32,12 +32,12 @@ class OPENSCENARIOEXPORT oscDescription : public oscObjectBase
 public:
 oscDescription()
 {
-        OSC_ADD_MEMBER(weight);
-        OSC_ADD_MEMBER(height);
-        OSC_ADD_MEMBER(eyeDistance);
-        OSC_ADD_MEMBER(age);
-        OSC_ADD_MEMBER(sex);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Parameter, "oscParameter");
+        OSC_ADD_MEMBER(weight, 0);
+        OSC_ADD_MEMBER(height, 0);
+        OSC_ADD_MEMBER(eyeDistance, 0);
+        OSC_ADD_MEMBER(age, 0);
+        OSC_ADD_MEMBER(sex, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Parameter, "oscParameter", 0);
         sex.enumType = Enum_sexType::instance();
     };
     oscDouble weight;

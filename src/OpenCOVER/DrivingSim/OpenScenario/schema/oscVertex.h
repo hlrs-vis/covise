@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscVertex : public oscObjectBase
 public:
 oscVertex()
 {
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER(Shape, "oscShape");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
+        OSC_OBJECT_ADD_MEMBER(Shape, "oscShape", 0);
     };
     oscPositionMember Position;
     oscShapeMember Shape;

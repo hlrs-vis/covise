@@ -24,10 +24,10 @@ class OPENSCENARIOEXPORT oscSignalController : public oscObjectBase
 public:
 oscSignalController()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(delay);
-        OSC_ADD_MEMBER(reference);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Phase, "oscPhase");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(delay, 0);
+        OSC_ADD_MEMBER(reference, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Phase, "oscPhase", 0);
     };
     oscString name;
     oscString delay;

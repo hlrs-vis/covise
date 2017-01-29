@@ -32,11 +32,11 @@ class OPENSCENARIOEXPORT oscRelativeDistance : public oscObjectBase
 public:
 oscRelativeDistance()
 {
-        OSC_ADD_MEMBER(entity);
-        OSC_ADD_MEMBER(type);
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(freespace);
-        OSC_ADD_MEMBER(rule);
+        OSC_ADD_MEMBER(entity, 0);
+        OSC_ADD_MEMBER(type, 0);
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER(freespace, 0);
+        OSC_ADD_MEMBER(rule, 0);
         type.enumType = Enum_RelativeDistance_typeType::instance();
         rule.enumType = Enum_ruleType::instance();
     };

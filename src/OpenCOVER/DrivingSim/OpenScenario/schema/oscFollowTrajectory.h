@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscFollowTrajectory : public oscObjectBase
 public:
 oscFollowTrajectory()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Longitudinal, "oscLongitudinal");
-        OSC_OBJECT_ADD_MEMBER(Lateral, "oscLateral");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Longitudinal, "oscLongitudinal", 0);
+        OSC_OBJECT_ADD_MEMBER(Lateral, "oscLateral", 0);
     };
     oscString name;
     oscLongitudinalMember Longitudinal;

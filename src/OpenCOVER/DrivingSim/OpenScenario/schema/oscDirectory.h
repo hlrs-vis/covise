@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscDirectory : public oscObjectBase
 public:
 oscDirectory()
 {
-        OSC_ADD_MEMBER(path);
+        OSC_ADD_MEMBER(path, 0);
     };
     oscString path;
 

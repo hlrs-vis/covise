@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscPositionRoute : public oscObjectBase
 public:
 oscPositionRoute()
 {
-        OSC_ADD_MEMBER(route);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation");
-        OSC_OBJECT_ADD_MEMBER(RoutePosition, "oscRoutePosition");
+        OSC_ADD_MEMBER(route, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
+        OSC_OBJECT_ADD_MEMBER(RoutePosition, "oscRoutePosition", 0);
     };
     oscString route;
     oscOrientationMember Orientation;

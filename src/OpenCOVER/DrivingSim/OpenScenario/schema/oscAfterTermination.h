@@ -32,9 +32,9 @@ class OPENSCENARIOEXPORT oscAfterTermination : public oscObjectBase
 public:
 oscAfterTermination()
 {
-        OSC_ADD_MEMBER(type);
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(rule);
+        OSC_ADD_MEMBER(type, 0);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(rule, 0);
         type.enumType = Enum_Story_Element_typeType::instance();
         rule.enumType = Enum_AfterTermination_ruleType::instance();
     };

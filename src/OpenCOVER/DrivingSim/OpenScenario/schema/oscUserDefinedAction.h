@@ -24,7 +24,7 @@ class OPENSCENARIOEXPORT oscUserDefinedAction : public oscObjectBase
 public:
 oscUserDefinedAction()
 {
-        OSC_OBJECT_ADD_MEMBER(Script, "oscScript");
+        OSC_OBJECT_ADD_MEMBER(Script, "oscScript", 1);
     };
     oscScriptMember Script;
 

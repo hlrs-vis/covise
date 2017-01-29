@@ -26,10 +26,10 @@ class OPENSCENARIOEXPORT oscTimeOfDay : public oscObjectBase
 public:
 oscTimeOfDay()
 {
-        OSC_ADD_MEMBER(animation);
-        OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER(Time, "oscTime");
-        OSC_OBJECT_ADD_MEMBER(Date, "oscDate");
+        OSC_ADD_MEMBER(animation, 0);
+        OSC_ADD_MEMBER(rule, 0);
+        OSC_OBJECT_ADD_MEMBER(Time, "oscTime", 0);
+        OSC_OBJECT_ADD_MEMBER(Date, "oscDate", 0);
         rule.enumType = Enum_ruleType::instance();
     };
     oscBool animation;

@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscLimited : public oscObjectBase
 public:
 oscLimited()
 {
-        OSC_ADD_MEMBER(maxAcceleration);
-        OSC_ADD_MEMBER(maxDeceleration);
-        OSC_ADD_MEMBER(maxSpeed);
+        OSC_ADD_MEMBER(maxAcceleration, 0);
+        OSC_ADD_MEMBER(maxDeceleration, 0);
+        OSC_ADD_MEMBER(maxSpeed, 0);
     };
     oscDouble maxAcceleration;
     oscDouble maxDeceleration;

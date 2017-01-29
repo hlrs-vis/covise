@@ -28,11 +28,11 @@ class OPENSCENARIOEXPORT oscOpenSCENARIO : public oscObjectBase
 public:
 oscOpenSCENARIO()
 {
-        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
-        OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs");
-        OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork");
-        OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities");
-        OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard");
+        OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
+        OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs", 0);
+        OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork", 0);
+        OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities", 0);
+        OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard", 0);
     };
     oscFileHeaderMember FileHeader;
     oscCatalogsMember Catalogs;

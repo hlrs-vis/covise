@@ -59,17 +59,20 @@ VRPNDriver::VRPNDriver(const std::string &config)
     std::string host = coCoviseConfig::getEntry("host", configPath(), "localhost");
     std::string tracker = coCoviseConfig::getEntry("tracker", configPath(), "");
     std::string button = coCoviseConfig::getEntry("button", configPath(), "");
+    bool shutup = coCoviseConfig::isOn("shutup", configPath(), true);
 
     trackerid = tracker + "@" + host;
     buttonid = button + "@" + host;
     if(tracker != "")
     {
         vrpnTracker = new vrpn_Tracker_Remote(trackerid.c_str());
+        vrpnTracker->shutup = shutup;
         vrpnTracker->register_change_handler(this, (vrpn_TRACKERCHANGEHANDLER)vrpnCallback);
     }
     if(button != "")
     {
         vrpnButton = new vrpn_Button_Remote (buttonid.c_str());
+        vrpnButton->shutup = shutup;
         vrpnButton->register_change_handler(this, (vrpn_BUTTONCHANGEHANDLER)vrpnButtonCallback);
     }
 

@@ -25,8 +25,8 @@ class OPENSCENARIOEXPORT oscLongitudinal : public oscObjectBase
 public:
 oscLongitudinal()
 {
-        OSC_OBJECT_ADD_MEMBER(None, "oscEmpty");
-        OSC_OBJECT_ADD_MEMBER(Timing, "oscTiming");
+        OSC_OBJECT_ADD_MEMBER(None, "oscEmpty", 1);
+        OSC_OBJECT_ADD_MEMBER(Timing, "oscTiming", 1);
     };
     oscEmptyMember None;
     oscTimingMember Timing;

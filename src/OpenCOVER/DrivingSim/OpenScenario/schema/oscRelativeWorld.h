@@ -24,11 +24,11 @@ class OPENSCENARIOEXPORT oscRelativeWorld : public oscObjectBase
 public:
 oscRelativeWorld()
 {
-        OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER(dx);
-        OSC_ADD_MEMBER(dy);
-        OSC_ADD_MEMBER_OPTIONAL(dz);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation");
+        OSC_ADD_MEMBER(object, 0);
+        OSC_ADD_MEMBER(dx, 0);
+        OSC_ADD_MEMBER(dy, 0);
+        OSC_ADD_MEMBER_OPTIONAL(dz, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
     oscString object;
     oscDouble dx;

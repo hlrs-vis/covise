@@ -31,6 +31,9 @@ public:
     virtual ~oscArrayMember(); ///< destructor
 
 	int findObjectIndex(oscObjectBase *object);
+
+private:
+	virtual unsigned char validate();
 };
 
 }

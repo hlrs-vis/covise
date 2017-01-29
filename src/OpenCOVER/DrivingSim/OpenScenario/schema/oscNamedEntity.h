@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscNamedEntity : public oscObjectBase
 public:
 oscNamedEntity()
 {
-        OSC_ADD_MEMBER(name);
+        OSC_ADD_MEMBER(name, 0);
     };
     oscString name;
 

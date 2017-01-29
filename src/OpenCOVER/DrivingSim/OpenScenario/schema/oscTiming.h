@@ -31,9 +31,9 @@ class OPENSCENARIOEXPORT oscTiming : public oscObjectBase
 public:
 oscTiming()
 {
-        OSC_ADD_MEMBER(domain);
-        OSC_ADD_MEMBER(scale);
-        OSC_ADD_MEMBER(offset);
+        OSC_ADD_MEMBER(domain, 0);
+        OSC_ADD_MEMBER(scale, 0);
+        OSC_ADD_MEMBER(offset, 0);
         domain.enumType = Enum_domain_absolute_relativeType::instance();
     };
     oscEnum domain;

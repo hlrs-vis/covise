@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscTime : public oscObjectBase
 public:
 oscTime()
 {
-        OSC_ADD_MEMBER(hour);
-        OSC_ADD_MEMBER(min);
-        OSC_ADD_MEMBER(sec);
+        OSC_ADD_MEMBER(hour, 0);
+        OSC_ADD_MEMBER(min, 0);
+        OSC_ADD_MEMBER(sec, 0);
     };
     oscUInt hour;
     oscUInt min;

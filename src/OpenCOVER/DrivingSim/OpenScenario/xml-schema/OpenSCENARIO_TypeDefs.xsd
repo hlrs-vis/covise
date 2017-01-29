@@ -816,9 +816,9 @@
                             <xsd:all>
                                 <xsd:element name="Start">
                                     <xsd:complexType>
-                                        <xsd:all>
+                                        <xsd:sequence>
                                             <xsd:element name="ConditionGroup" type="OSCConditionGroup" maxOccurs="unbounded"/>       
-                                        </xsd:all>
+                                        </xsd:sequence>
                                     </xsd:complexType>
                                 </xsd:element>
                             </xsd:all>

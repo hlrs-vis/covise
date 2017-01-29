@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscSelection : public oscObjectBase
 public:
 oscSelection()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Members, "oscMembers");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Members, "oscMembers", 0);
     };
     oscString name;
     oscMembersMember Members;

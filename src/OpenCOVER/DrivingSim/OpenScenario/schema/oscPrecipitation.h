@@ -31,8 +31,8 @@ class OPENSCENARIOEXPORT oscPrecipitation : public oscObjectBase
 public:
 oscPrecipitation()
 {
-        OSC_ADD_MEMBER(type);
-        OSC_ADD_MEMBER(intensity);
+        OSC_ADD_MEMBER(type, 0);
+        OSC_ADD_MEMBER(intensity, 0);
         type.enumType = Enum_Precipitation_typeType::instance();
     };
     oscEnum type;

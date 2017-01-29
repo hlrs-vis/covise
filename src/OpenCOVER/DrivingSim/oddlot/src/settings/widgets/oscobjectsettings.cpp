@@ -246,22 +246,6 @@ OSCObjectSettings::uiInit()
 	QSignalMapper *signalArrayPushMapper = new QSignalMapper(this);
     connect(signalArrayPushMapper, SIGNAL(mapped(QString)), this, SLOT(onArrayPushButtonPressed(QString)));
 
-	bool choice = object_->hasChoice();
-	int choiceComboBoxRow = ++row;
-	if (choice)
-	{
-		choiceComboBox_ = new QComboBox();
-		objectGridLayout->addWidget(choiceComboBox_, choiceComboBoxRow, 0);
-		connect(choiceComboBox_, SIGNAL(activated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
-
-		QPushButton *oscPushButton = new QPushButton();
-		oscPushButton->setText("Edit");
-		memberWidgets_.insert("choice", oscPushButton);
-		objectGridLayout->addWidget(oscPushButton, choiceComboBoxRow, 1);
-		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
-		signalPushMapper->setMapping(oscPushButton, "choice");
-	}
-
 
 	OpenScenario::oscObjectBase::MemberMap members = object_->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
@@ -269,9 +253,39 @@ OSCObjectSettings::uiInit()
 		OpenScenario::oscMember *member = (*it).member;
 		QString memberName = QString::fromStdString(member->getName());
 
-		if (choice && object_->isMemberInChoice(member))
+		if (member->isChoice())
 		{
-			choiceComboBox_->addItem(memberName);
+			short int choiceNumber = member->choiceNumber();
+			if (!choiceComboBox_.contains(choiceNumber))
+			{
+				int choiceComboBoxRow = ++row;
+
+				QComboBox *comboBox = new QComboBox();
+				objectGridLayout->addWidget(comboBox, choiceComboBoxRow, 0);
+				connect(comboBox, SIGNAL(activated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
+
+				QString name = "choice" + QString::number(choiceNumber);
+
+				QPushButton *oscPushButton = new QPushButton();
+				oscPushButton->setText("Edit");
+				oscPushButton->setObjectName(name);
+
+				memberWidgets_.insert(name, oscPushButton);
+				objectGridLayout->addWidget(oscPushButton, choiceComboBoxRow, 1);
+				connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
+				signalPushMapper->setMapping(oscPushButton, name);
+				choiceComboBox_.insert(choiceNumber, comboBox);
+				choiceComboBox_.value(choiceNumber)->addItem(memberName);
+
+				if (!object_->getChosenMember(choiceNumber))
+				{
+					member->setSelected(true);
+				}
+			}
+			else
+			{
+				choiceComboBox_.value(choiceNumber)->addItem(memberName);
+			}
 		}
 		else
 		{
@@ -555,7 +569,7 @@ void OSCObjectSettings::addTreeItem(QTreeWidget *arrayTree, int name, OpenScenar
 
 	QTreeWidgetItem *item = new QTreeWidgetItem();
 	item->setText(0, QString::number(name));
-	if (object->validate())
+	if (object->validate() == OpenScenario::oscObjectBase::VAL_valid)
 	{
 		item->setTextColor(0, QColor(128, 195, 66));   // lightgreen
 	}
@@ -649,17 +663,13 @@ OSCObjectSettings::updateProperties()
 		QMap<QString, QWidget *>::const_iterator it;
 		for (it = memberWidgets_.constBegin(); it != memberWidgets_.constEnd(); it++)
 		{
-			if (it.key() == "choice")
+			if (it.key().contains("choice"))
 			{
 				foreach (OpenScenario::oscMember *choiceMember, object_->getChoice())
 				{
-					if (choiceMember->exists())
+					if (choiceMember->isSelected())
 					{
 						isValid = isValid & loadProperties(choiceMember, it.value());
-					}
-					else
-					{
-						isValid = isValid & validateMember(choiceMember);
 					}
 				}
 			}
@@ -700,34 +710,47 @@ bool
 OSCObjectSettings::validateMember(OpenScenario::oscMember *member)
 {
 	QLabel *label = ui->oscGroupBox->findChild<QLabel *>(QString::fromStdString(member->getName()));
-	if (label)
+	QPushButton *button = NULL;
+	if (!label && member->isChoice() && member->isSelected())
 	{
-		if (member->getValue())
+		button = ui->oscGroupBox->findChild<QPushButton *>("choice" + QString::number(member->choiceNumber()));
+	}
+
+	if (label || button)
+	{
+		QString color;
+
+		switch (member->validate())
 		{
-			label->setStyleSheet("QLabel{ color: lightgreen; }");
+		case OpenScenario::oscObjectBase::VAL_valid:
+			color = "lightgreen";
+			break;
+
+		case OpenScenario::oscObjectBase::VAL_optional:
+			color = "yellow";
+			break;
+
+		default:
+			color = "white";
 		}
-		else if (OpenScenario::oscObjectBase *memberObject = member->getObject())
+
+		if (label)
 		{
-			if (memberObject->validate())
-			{
-				label->setStyleSheet("QLabel{ color: lightgreen; }");
-			}
-			else
-			{
-				label->setStyleSheet("QLabel{ color: white; }");
-				return false;
-			}
+			QString s = "QLabel{ color: " + color + "; }";
+			label->setStyleSheet(s);
 		}
-		else if (object_->isMemberOptional(member))
+		else if (button)
 		{
-			label->setStyleSheet("QLabel{ color: yellow; }");
+			QString s = "QPushButton{ color: " + color + "; }";
+			button->setStyleSheet(s);
 		}
-		else
+
+		if (color == "white")
 		{
-			label->setStyleSheet("QLabel{ color: white; }");
 			return false;
 		}
 	}
+
 
 	return true;
 }
@@ -735,10 +758,12 @@ OSCObjectSettings::validateMember(OpenScenario::oscMember *member)
 bool
 OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
 {
-
-	if (member == object_->getChosenMember())
+	if (member->isChoice())
 	{
-		choiceComboBox_->setCurrentText(QString::fromStdString(member->getName()));
+		if (member->isSelected())
+		{
+			choiceComboBox_.value(member->choiceNumber())->setCurrentText(QString::fromStdString(member->getName()));
+		}
 	}
 
 	OpenScenario::oscMemberValue *value = member->getOrCreateValue();
@@ -948,13 +973,14 @@ OSCObjectSettings::onEditingFinished(QString name)
 void
 OSCObjectSettings::onChoiceChanged(const QString &memberName)
 {
-	if (memberName != lastComboBoxChoice_)
+	OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
+	short int nr = member->choiceNumber();
+	if (memberName != lastComboBoxChoice_.value(nr))
 	{
-		OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
-		ChangeOSCObjectChoiceCommand *command = new ChangeOSCObjectChoiceCommand(object_, object_->getChosenMember(), member, element_);
+		ChangeOSCObjectChoiceCommand *command = new ChangeOSCObjectChoiceCommand(object_->getChosenMember(nr), member, element_);
 		projectSettings_->executeCommand(command);
 
-		lastComboBoxChoice_ = memberName;
+		lastComboBoxChoice_[nr] = memberName;
 	}
 
 
@@ -969,9 +995,10 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 	{
 		object = oscArrayMember_->at(name.toInt()-1);
 	}
-	else if (name == "choice")
+	else if (name.contains("choice"))
 	{
-		object = object_->getMember(choiceComboBox_->currentText().toStdString())->getOrCreateObject();
+		QComboBox *comboBox = choiceComboBox_.value(name.remove("choice").toInt());
+		object = object_->getMember(comboBox->currentText().toStdString())->getOrCreateObject();
 
 	}
 	else
@@ -1122,7 +1149,7 @@ OSCObjectSettings::updateObserver()
 	}
 	else if (changes & OSCElement::COE_ChoiceChanged)
 	{
-		QWidget *lastWidget;
+/*		QWidget *lastWidget;
 		do
 		{
 			lastWidget = parentStack_->getLastWidget();
@@ -1130,7 +1157,7 @@ OSCObjectSettings::updateObserver()
 			{
 				parentStack_->stackRemoveWidget();
 			}
-		} while(lastWidget != this);
+		} while(lastWidget != this); */
 
 		updateProperties();
 

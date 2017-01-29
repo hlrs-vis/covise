@@ -40,6 +40,11 @@ class StateSet;
 class ClipNode;
 }
 
+namespace osgFX
+{
+class Scribe;
+}
+
 namespace vrui
 {
 class coCombinedButtonInteraction;
@@ -53,6 +58,12 @@ class coVRStatsDisplay;
 class COVEREXPORT VRSceneGraph
 {
 public:
+    enum WireframeMode {
+        Disabled,
+        Enabled,
+        HiddenLineBlack,
+        HiddenLineWhite
+    };
     VRSceneGraph();
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
@@ -129,7 +140,7 @@ public:
     osg::StateSet *loadUnlightedGeostate(osg::Material::ColorMode mode = osg::Material::OFF);
     osg::StateSet *loadTransparentGeostate(osg::Material::ColorMode mode = osg::Material::OFF);
 
-    void setWireframe(bool wf);
+    void setWireframe(WireframeMode mode);
     void setPointerType(int pointerType);
     int getPointerType()
     {
@@ -268,6 +279,7 @@ private:
 #endif
 
     osg::ref_ptr<osgShadow::ShadowedScene> m_scene, m_objectsScene;
+    osg::ref_ptr<osgFX::Scribe> m_lineHider;
     osg::ref_ptr<osg::MatrixTransform> m_handTransform;
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
     osg::ref_ptr<osg::MatrixTransform> m_worldAxis, m_handAxis, m_viewerAxis, m_objectAxis, m_smallSceneAxis;
@@ -289,12 +301,12 @@ private:
     bool showSmallSceneAxis_;
     bool transparentPointer_;
 
-    osg::StateSet *m_rootStateSet;
+    osg::StateSet *m_rootStateSet, *m_objectsStateSet;
     osg::ClipNode *m_objectsRoot;
 
     float m_floorHeight;
     bool m_handLocked; /* =true: no hand input is accepted until button is released */
-    bool m_wireFrame; /* =true: scene is in wireframe mode */
+    WireframeMode m_wireframe;
     bool m_textured; /* =true: textures are drawn as intended */
     bool m_coordAxis; /* =true: coord Axis will be drawn */
     bool m_showMenu;

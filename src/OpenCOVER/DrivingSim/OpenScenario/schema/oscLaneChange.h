@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscLaneChange : public oscObjectBase
 public:
 oscLaneChange()
 {
-        OSC_ADD_MEMBER(targetLaneOffset);
-        OSC_OBJECT_ADD_MEMBER(ChangeDynamics, "oscChangeDynamics");
-        OSC_OBJECT_ADD_MEMBER(Target, "oscTarget");
+        OSC_ADD_MEMBER(targetLaneOffset, 0);
+        OSC_OBJECT_ADD_MEMBER(ChangeDynamics, "oscChangeDynamics", 0);
+        OSC_OBJECT_ADD_MEMBER(Target, "oscTarget", 0);
     };
     oscDouble targetLaneOffset;
     oscChangeDynamicsMember ChangeDynamics;

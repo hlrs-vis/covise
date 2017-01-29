@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscControlPoint1 : public oscObjectBase
 public:
 oscControlPoint1()
 {
-        OSC_ADD_MEMBER(status);
+        OSC_ADD_MEMBER(status, 0);
     };
     oscString status;
 

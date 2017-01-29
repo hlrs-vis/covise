@@ -24,10 +24,10 @@ class OPENSCENARIOEXPORT oscRelativeRoad : public oscObjectBase
 public:
 oscRelativeRoad()
 {
-        OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER(ds);
-        OSC_ADD_MEMBER(dt);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation");
+        OSC_ADD_MEMBER(object, 0);
+        OSC_ADD_MEMBER(ds, 0);
+        OSC_ADD_MEMBER(dt, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
     oscString object;
     oscDouble ds;

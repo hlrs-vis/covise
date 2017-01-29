@@ -31,14 +31,14 @@ class OPENSCENARIOEXPORT oscPrivateAction : public oscObjectBase
 public:
 oscPrivateAction()
 {
-        OSC_OBJECT_ADD_MEMBER(LongitudinalAction, "oscLongitudinalAction");
-        OSC_OBJECT_ADD_MEMBER(LateralAction, "oscLateralAction");
-        OSC_OBJECT_ADD_MEMBER(Visibility, "oscVisibility");
-        OSC_OBJECT_ADD_MEMBER(Meeting, "oscMeeting");
-        OSC_OBJECT_ADD_MEMBER(Autonomous, "oscAutonomous");
-        OSC_OBJECT_ADD_MEMBER(DriverAction, "oscDriverAction");
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER(Routing, "oscRouting");
+        OSC_OBJECT_ADD_MEMBER(LongitudinalAction, "oscLongitudinalAction", 1);
+        OSC_OBJECT_ADD_MEMBER(LateralAction, "oscLateralAction", 1);
+        OSC_OBJECT_ADD_MEMBER(Visibility, "oscVisibility", 1);
+        OSC_OBJECT_ADD_MEMBER(Meeting, "oscMeeting", 1);
+        OSC_OBJECT_ADD_MEMBER(Autonomous, "oscAutonomous", 1);
+        OSC_OBJECT_ADD_MEMBER(DriverAction, "oscDriverAction", 1);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 1);
+        OSC_OBJECT_ADD_MEMBER(Routing, "oscRouting", 1);
     };
     oscLongitudinalActionMember LongitudinalAction;
     oscLateralActionMember LateralAction;

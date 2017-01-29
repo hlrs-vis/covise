@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscAdd : public oscObjectBase
 public:
 oscAdd()
 {
-        OSC_ADD_MEMBER(value);
+        OSC_ADD_MEMBER(value, 0);
     };
     oscDouble value;
 

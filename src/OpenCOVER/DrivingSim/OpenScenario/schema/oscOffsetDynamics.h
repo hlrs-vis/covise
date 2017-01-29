@@ -24,9 +24,9 @@ class OPENSCENARIOEXPORT oscOffsetDynamics : public oscObjectBase
 public:
 oscOffsetDynamics()
 {
-        OSC_ADD_MEMBER(maxLateralAcc);
-        OSC_ADD_MEMBER(duration);
-        OSC_ADD_MEMBER(shape);
+        OSC_ADD_MEMBER(maxLateralAcc, 0);
+        OSC_ADD_MEMBER(duration, 0);
+        OSC_ADD_MEMBER(shape, 0);
         shape.enumType = Enum_Dynamics_shapeType::instance();
     };
     oscDouble maxLateralAcc;

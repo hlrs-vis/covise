@@ -32,15 +32,15 @@ class OPENSCENARIOEXPORT oscCatalogs : public oscObjectBase
 public:
 oscCatalogs()
 {
-        OSC_OBJECT_ADD_MEMBER(VehicleCatalog, "oscVehicleCatalog");
-        OSC_OBJECT_ADD_MEMBER(DriverCatalog, "oscDriverCatalog");
-        OSC_OBJECT_ADD_MEMBER(PedestrianCatalog, "oscPedestrianCatalog");
-        OSC_OBJECT_ADD_MEMBER(PedestrianControllerCatalog, "oscPedestrianControllerCatalog");
-        OSC_OBJECT_ADD_MEMBER(MiscObjectCatalog, "oscMiscObjectCatalog");
-        OSC_OBJECT_ADD_MEMBER(EnvironmentCatalog, "oscEnvironmentCatalog");
-        OSC_OBJECT_ADD_MEMBER(ManeuverCatalog, "oscManeuverCatalog");
-        OSC_OBJECT_ADD_MEMBER(TrajectoryCatalog, "oscTrajectoryCatalog");
-        OSC_OBJECT_ADD_MEMBER(RouteCatalog, "oscRouteCatalog");
+        OSC_OBJECT_ADD_MEMBER(VehicleCatalog, "oscVehicleCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(DriverCatalog, "oscDriverCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(PedestrianCatalog, "oscPedestrianCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(PedestrianControllerCatalog, "oscPedestrianControllerCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(MiscObjectCatalog, "oscMiscObjectCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(EnvironmentCatalog, "oscEnvironmentCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(ManeuverCatalog, "oscManeuverCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(TrajectoryCatalog, "oscTrajectoryCatalog", 0);
+        OSC_OBJECT_ADD_MEMBER(RouteCatalog, "oscRouteCatalog", 0);
     };
     oscVehicleCatalogMember VehicleCatalog;
     oscDriverCatalogMember DriverCatalog;

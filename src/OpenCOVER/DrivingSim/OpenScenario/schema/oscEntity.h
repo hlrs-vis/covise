@@ -25,9 +25,9 @@ class OPENSCENARIOEXPORT oscEntity : public oscObjectBase
 public:
 oscEntity()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(AddPosition, "oscAddPosition");
-        OSC_OBJECT_ADD_MEMBER(Delete, "oscEmpty");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(AddPosition, "oscAddPosition", 1);
+        OSC_OBJECT_ADD_MEMBER(Delete, "oscEmpty", 1);
     };
     oscString name;
     oscAddPositionMember AddPosition;
