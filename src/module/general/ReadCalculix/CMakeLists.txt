@@ -8,7 +8,7 @@ SET(SOURCES
 )
 
 
-ADD_COVISE_MODULE(Stellba ReadCalculix ${EXTRASOURCES} )
+ADD_COVISE_MODULE(IO ReadCalculix ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(ReadCalculix coApi coAppl coCore ${EXTRA_LIBS})
 COVISE_WNOERROR(ReadCalculix)
 
