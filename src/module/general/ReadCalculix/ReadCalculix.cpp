@@ -18,6 +18,7 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 #include "ReadCalculix.h"
+#include <limits.h>
 
 #define sqr(x) ((x)*(x))
 
@@ -141,7 +142,7 @@ int ReadCalculix::compute(const char *)
 									     &nodes[9]);
 		
 		// 10 nodes tetrahedron is converted to linear (4-nodes) tetrahedron
-		if (connRead.size() > MAXINT32)
+		if (connRead.size() > INT_MAX)
 		{
 			sendError("file too large");
 			return STOP_PIPELINE;
@@ -160,17 +161,17 @@ int ReadCalculix::compute(const char *)
 	fprintf(stderr,"\tnConn = %zd\n", connRead.size());
 	fprintf(stderr,"\tnCoord = %zd\n", xCoordRead.size());
 
-	if (elemRead.size() > MAXINT32)
+	if (elemRead.size() > INT_MAX)
 	{
 		sendError("file too large");
 		return STOP_PIPELINE;
 	}
-	if (connRead.size() > MAXINT32)
+	if (connRead.size() > INT_MAX)
 	{
 		sendError("file too large");
 		return STOP_PIPELINE;
 	}
-	if (xCoordRead.size() > MAXINT32)
+	if (xCoordRead.size() > INT_MAX)
 	{
 		sendError("file too large");
 		return STOP_PIPELINE;
