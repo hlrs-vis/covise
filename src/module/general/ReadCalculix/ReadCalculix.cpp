@@ -238,29 +238,33 @@ int ReadCalculix::compute(const char *)
 	sscanf(t.c_str(),"%s %d\n", buf, &nCoord);
 	fprintf(stderr,"\tnCoord = %d\n", nCoord);     
 
-	float *xCoordRead = new float[nCoord];
+
+        float *xCoordRead = new float[nCoord];
 	float *yCoordRead = new float[nCoord];
 	float *zCoordRead = new float[nCoord];
-
+        int *nodenrs = new int[nCoord];
+        int maxNodeNr=0;
 	for (int i=0; i<nCoord; i++)
 	{
 		getline(frdfile, t, '\n');
 
 		// it might be the case that there are some nodes missing in the list, so we need to read the node nr
-		int nodenr;
 		strncpy(buf, t.c_str()+3, 10);
 		buf[10]='\0';
-		sscanf(buf,"%d\n", &nodenr);
+		sscanf(buf,"%d", &nodenrs[i]);
+                if(nodenrs[i] > maxNodeNr)
+                    maxNodeNr = nodenrs[i];
 
 		buf[12]='\0';
 		strncpy(buf, t.c_str()+13, 12);
-		sscanf(buf,"%f\n", &xCoordRead[nodenr-1]);
+                float xc,yc,zc;
+		sscanf(buf,"%f", &xCoordRead[i]);
 
 		strncpy(buf, t.c_str()+25, 12);
-		sscanf(buf,"%f\n", &yCoordRead[nodenr-1]);
+		sscanf(buf,"%f", &yCoordRead[i]);
 
 		strncpy(buf, t.c_str()+37, 12);
-		sscanf(buf,"%f\n", &zCoordRead[nodenr-1]);
+		sscanf(buf,"%f", &zCoordRead[i]);
 	}
 
 	getline(frdfile, t, '\n');
@@ -325,20 +329,24 @@ int ReadCalculix::compute(const char *)
 	int nConn = 4*nElem;
 	fprintf(stderr,"\tnConn = %d\n", nConn);
 
-	grid = new coDoUnstructuredGrid( p_mesh->getObjName(), nElem, nConn, nCoord, 1);
+	grid = new coDoUnstructuredGrid( p_mesh->getObjName(), nElem, nConn, maxNodeNr, 1);
 	grid->getAddresses(&elem, &conn, &xCoord, &yCoord, &zCoord);
 	grid->getTypeList(&type);
 	
 	memcpy(elem, &elemRead[0], nElem*sizeof(int));
 	memcpy(conn, &connRead[0], nConn*sizeof(int));
 	memcpy(type, &typeRead[0], nElem*sizeof(int));
-	memcpy(xCoord, &xCoordRead[0], nCoord*sizeof(float));
-	memcpy(yCoord, &yCoordRead[0], nCoord*sizeof(float));
-	memcpy(zCoord, &zCoordRead[0], nCoord*sizeof(float));
+        for(int i=0;i<nCoord;i++)
+        {
+            xCoord[nodenrs[i]-1]=xCoordRead[i];
+            yCoord[nodenrs[i]-1]=yCoordRead[i];
+            zCoord[nodenrs[i]-1]=zCoordRead[i];
+        }
 
 	delete [] xCoordRead;
 	delete [] yCoordRead;
 	delete [] zCoordRead;
+	delete [] nodenrs;
 
 	delete [] elemRead;
 	delete [] connRead;
@@ -358,11 +366,11 @@ int ReadCalculix::compute(const char *)
 	// read displacement (vector)
 	float *dispX, *dispY, *dispZ;
 	coDoVec3 *displacement = NULL;
-	displacement = new coDoVec3(p_displacement->getObjName(), nCoord);	// nCoord can be different to nData (I don't know why)!
+	displacement = new coDoVec3(p_displacement->getObjName(), maxNodeNr);	// nCoord can be different to nData (I don't know why)!
 	displacement->getAddresses(&dispX, &dispY, &dispZ);
-	memset(dispX, 0, nCoord*sizeof(float));
-	memset(dispY, 0, nCoord*sizeof(float));
-	memset(dispZ, 0, nCoord*sizeof(float));
+	memset(dispX, 0, maxNodeNr*sizeof(float));
+	memset(dispY, 0, maxNodeNr*sizeof(float));
+	memset(dispZ, 0, maxNodeNr*sizeof(float));
 
 	// sometimes there is a second coordinate array
 	// I don't know why, this might be dependent of the calculix version
@@ -492,14 +500,21 @@ int ReadCalculix::compute(const char *)
 		sscanf(buf,"%d\n", &nodenr);
 
 		buf[12]='\0';
+                if(nodenr-1 >= maxNodeNr)
+    {
+fprintf(stderr,"index out of range %d\n",nodenr-1);
+}
+else
+{
 		strncpy(buf, t.c_str()+13, 12);
-		sscanf(buf,"%f\n", &dispX[nodenr-1]);
+		sscanf(buf,"%f", &dispX[nodenr-1]);
 
 		strncpy(buf, t.c_str()+25, 12);
-		sscanf(buf,"%f\n", &dispY[nodenr-1]);
+		sscanf(buf,"%f", &dispY[nodenr-1]);
 
 		strncpy(buf, t.c_str()+37, 12);
-		sscanf(buf,"%f\n", &dispZ[nodenr-1]);
+		sscanf(buf,"%f", &dispZ[nodenr-1]);
+}
 	}
 
 	p_displacement->setCurrentObject(displacement);
@@ -510,17 +525,17 @@ int ReadCalculix::compute(const char *)
 	float *sxx, *syy, *szz;
 	float sxy, syz, szx;
 	coDoVec3 *normalStress = NULL;
-	normalStress = new coDoVec3(p_normalStress->getObjName(), nCoord);	// nCoord can be different to nData (I don't know why)!
+	normalStress = new coDoVec3(p_normalStress->getObjName(), maxNodeNr);	// nCoord can be different to nData (I don't know why)!
 	normalStress->getAddresses(&sxx, &syy, &szz);
-	memset(sxx, 0, nCoord*sizeof(float));
-	memset(syy, 0, nCoord*sizeof(float));
-	memset(szz, 0, nCoord*sizeof(float));
+	memset(sxx, 0, maxNodeNr*sizeof(float));
+	memset(syy, 0, maxNodeNr*sizeof(float));
+	memset(szz, 0, maxNodeNr*sizeof(float));
 
 	float *vonMiseVal;
 	coDoFloat *vonMises = NULL;
-	vonMises = new coDoFloat(p_vonMises->getObjName(), nCoord);	// nCoord can be different to nData (I don't know why)!
+	vonMises = new coDoFloat(p_vonMises->getObjName(), maxNodeNr);	// nCoord can be different to nData (I don't know why)!
 	vonMises->getAddress(&vonMiseVal);
-	memset(vonMiseVal, 0, nCoord*sizeof(float));
+	memset(vonMiseVal, 0, maxNodeNr*sizeof(float));
 
 	// jump to first data line
 	// read until line contains "100CL"
@@ -561,27 +576,34 @@ int ReadCalculix::compute(const char *)
 		sscanf(buf,"%d\n", &nodenr);
 
 		buf[12]='\0';
+                if(nodenr-1 >= maxNodeNr)
+{
+fprintf(stderr,"index out of range %d\n",nodenr-1);
+}
+else
+{
 		strncpy(buf, t.c_str()+13, 12);
-		sscanf(buf,"%f\n", &sxx[i]);
+		sscanf(buf,"%f", &sxx[i]);
 
 		strncpy(buf, t.c_str()+25, 12);
-		sscanf(buf,"%f\n", &syy[i]);
+		sscanf(buf,"%f", &syy[i]);
 
 		strncpy(buf, t.c_str()+37, 12);
-		sscanf(buf,"%f\n", &szz[i]);
+		sscanf(buf,"%f", &szz[i]);
 
 		strncpy(buf, t.c_str()+49, 12);
-		sscanf(buf,"%f\n", &sxy);
+		sscanf(buf,"%f", &sxy);
 
 		strncpy(buf, t.c_str()+61, 12);
-		sscanf(buf,"%f\n", &syz);
+		sscanf(buf,"%f", &syz);
 
 		strncpy(buf, t.c_str()+73, 12);
-		sscanf(buf,"%f\n", &szx);
+		sscanf(buf,"%f", &szx);
 		
 		vonMiseVal[nodenr-1] = sqrt (  sqr(sxx[i]) + sqr(syy[i]) + sqr(szz[i]) 
 					     - sxx[i]*syy[i] - sxx[i]*szz[i] - syy[i]*szz[i]
 					     + 3*(sqr(sxy) + sqr(syz) + sqr(szx))  );
+}
 	}
 
 	// read strain
