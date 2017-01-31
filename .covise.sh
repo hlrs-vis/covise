@@ -90,7 +90,7 @@ fi
 if [ -z "${PYTHON_HOME}" ]; then
    if [ -d "${EXTERNLIBS}/python" ]; then
        export PYTHON_HOME="${EXTERNLIBS}/python"
-   elif [ -n "$(which python3)" ]; then
+   elif [ -n "$(which python3)" 2> /dev/null ]; then
        python_bin="$(which python3)"
        export PYTHON_HOME="${python_bin%bin/python3}"
    fi
