@@ -324,6 +324,9 @@ bool OpenCOVER::init()
     coVRMSController::instance()->startSlaves();
     coVRMSController::instance()->startupSync();
 
+    coVRConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
+    coVRConfig::instance()->viewpointsFile = viewpointsFile;
+
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
     if (openmpThreads == "auto")
