@@ -64,15 +64,10 @@ public:
     // methods forwarded to plugins
     //! call addNode method of all plugins
     void addNode(osg::Node *, const RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
+
     //! call addObject method of all plugins
-    void addObject(const RenderObject *baseObj,
-                   const RenderObject *geomObj, const RenderObject *normObj,
-                   const RenderObject *colorObj, const RenderObject *texObj,
-                   osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   const float *r, const float *g, const float *b, const int *packedCol,
-                   int numNormals, int normalBinding, const float *xn, const float *yn, const float *zn,
-                   float transparency) const;
+    void addObject(const RenderObject *container, osg::Group *root,
+            const RenderObject *geometry, const RenderObject *normals, const RenderObject *colors, const RenderObject *texture) const;
 
     //! call newInteractor method of all plugins
     void newInteractor(const RenderObject *container, coInteractor *it) const;

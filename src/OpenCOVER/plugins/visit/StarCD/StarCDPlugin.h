@@ -98,15 +98,7 @@ class StarCDPlugin : public coVRPlugin
    bool init();
 
    void newInteractor(RenderObject *, coInteractor *i);
-   void addObject(const RenderObject *,
-                   const RenderObject *geomobj, const RenderObject *,
-                   const RenderObject *, const RenderObject *,
-                   osg::Group *,
-                   int , int , int ,
-                   const float *, const float *, const float *, const int *,
-                   int , int ,
-                   const float *, const float *, const float *,
-                   float );
+   void addObject(const RenderObject *, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
    void removeObject(const char *objName, bool r);
    void addNode(osg::Node * node, const RenderObject * obj);
    void removeNode(osg::Node * node, bool isGroup, osg::Node *realNode);

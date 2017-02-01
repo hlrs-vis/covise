@@ -96,9 +96,9 @@ void cuCuttingSurface::preDraw(osg::RenderInfo &)
     }
 }
 
-coCheckboxMenuItem *cuCuttingSurface::getMenu(RenderObject *container,
-                                              RenderObject * /*data*/,
-                                              RenderObject *tex)
+coCheckboxMenuItem *cuCuttingSurface::getMenu(const RenderObject *container,
+                                              const RenderObject * /*data*/,
+                                              const RenderObject *tex)
 {
     coCheckboxMenuItem *check = NULL;
 
@@ -206,13 +206,7 @@ void cuCuttingSurface::removeObject(const char *objName, bool /*replace*/)
         menus.erase(mi);
 }
 
-void cuCuttingSurface::addObject(RenderObject *container,
-                                 RenderObject *geometry, RenderObject *normals,
-                                 RenderObject *colorObj, RenderObject *texObj,
-                                 osg::Group * /*setName*/, int /*numCol*/,
-                                 int, int /*colorPacking*/, float *, float *,
-                                 float *, int *,
-                                 int, int, float *, float *, float *, float)
+void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *normals, const RenderObject *colorObj, const RenderObject *texObj)
 {
     /*
    const char * variant = container->getAttribute("VARIANT");
@@ -487,8 +481,8 @@ void cuCuttingSurface::message(int type, int len, const void *buf)
 }
 
 CuttingDrawable::CuttingDrawable(coCheckboxMenuItem *m,
-                                 coVR3DTransRotInteractor *i, RenderObject *g,
-                                 RenderObject *map, RenderObject *data,
+                                 coVR3DTransRotInteractor *i, const RenderObject *g,
+                                 const RenderObject *map, const RenderObject *data,
                                  float *b, float min = 0.0, float max = 0.0)
     : osg::Geometry()
     , coMenuListener()

@@ -32,12 +32,7 @@ public:
 
     void preFrame();
     void registerObjAtUi(string name);
-    void addObject(RenderObject *container, RenderObject *geomobj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj, osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding, float *xn, float *yn, float *zn,
-                   float transparency);
+    void addObject(const RenderObject *container, osg::Group *root, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     void removeObject(const char *objName, bool replace);
     void guiToRenderMsg(const char *msg);
 

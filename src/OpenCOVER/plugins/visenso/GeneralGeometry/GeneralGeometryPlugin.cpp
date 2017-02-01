@@ -113,17 +113,9 @@ void GeneralGeometryPlugin::removeObject(const char *objName, bool replaceFlag)
     }
 }
 
-void GeneralGeometryPlugin::addObject(const RenderObject *baseObj,
-                                      const RenderObject *geomObj, const RenderObject *,
-                                      const RenderObject *, const RenderObject *,
-                                      osg::Group *,
-                                      int, int, int,
-                                      const float *, const float *, const float *, const int *,
-                                      int, int,
-                                      const float *, const float *, const float *,
-                                      float)
+void GeneralGeometryPlugin::addObject(const RenderObject *baseObj, osg::Group *, const RenderObject *geometry, const RenderObject *, const RenderObject *, const RenderObject *)
 {
-    ModuleFeedbackPlugin::add(baseObj, geomObj);
+    ModuleFeedbackPlugin::add(baseObj, geometry);
 }
 
 void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)

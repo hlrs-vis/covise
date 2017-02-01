@@ -66,25 +66,7 @@ void TracerPlugin::removeObject(const char *objName, bool r)
 }
 
 void
-TracerPlugin::addObject(const RenderObject *container,
-                        const RenderObject * /*geomobj*/,
-                        const RenderObject * /*normObj*/,
-                        const RenderObject * /*colorObj*/,
-                        const RenderObject * /*texObj*/,
-                        osg::Group * /*root*/,
-                        int /*numCol*/,
-                        int /*colorBinding*/,
-                        int /*colorPacking*/,
-                        const float * /*r*/,
-                        const float * /*g*/,
-                        const float * /*b*/,
-                        const int * /*packedCol*/,
-                        int /*numNormals*/,
-                        int /*normalBinding*/,
-                        const float * /*xn*/,
-                        const float * /*yn*/,
-                        const float * /*zn*/,
-                        float /*transparency*/)
+TracerPlugin::addObject(const RenderObject *container, osg::Group * /*root*/, const RenderObject *grid, const RenderObject *velo, const RenderObject *, const RenderObject *)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n---- TracerPlugin::addObject\n");
@@ -95,7 +77,7 @@ TracerPlugin::addObject(const RenderObject *container,
         if (container->getAttribute("CREATOR_MODULE_NAME")
             && (strstr(container->getAttribute("CREATOR_MODULE_NAME"), "TracerComp") != NULL))
         {
-            RenderObject *grid = container->getGeometry();
+            //RenderObject *grid = container->getGeometry();
             if (!grid)
                 fprintf(stderr, "!grid\n");
 
@@ -104,7 +86,7 @@ TracerPlugin::addObject(const RenderObject *container,
                 fprintf(stderr, "not a UNIGRD\n");
                 return;
             }
-            RenderObject *velo = container->getNormals();
+            //RenderObject *velo = container->getNormals();
             if (!velo)
                 fprintf(stderr, "!velo\n");
             if (!velo || !velo->isVectors())

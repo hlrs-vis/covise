@@ -59,15 +59,10 @@ class cuCuttingSurface : public coVRPlugin
 public:
     cuCuttingSurface();
     virtual ~cuCuttingSurface();
-    coCheckboxMenuItem *getMenu(RenderObject *container, RenderObject *data,
-                                RenderObject *tex);
+    coCheckboxMenuItem *getMenu(const RenderObject *container, const RenderObject *data,
+                                const RenderObject *tex);
     void removeObject(const char *name, bool replace);
-    void addObject(RenderObject *container,
-                   RenderObject *geometry, RenderObject * /*normObj*/,
-                   RenderObject *colorObj, RenderObject * /*texObj*/,
-                   osg::Group * /*setName*/, int /*numCol*/,
-                   int, int /*colorPacking*/, float *, float *, float *, int *,
-                   int, int, float *, float *, float *, float);
+    void addObject(const RenderObject *container, osg::Group * /*setName*/, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
 
     virtual bool init();
     virtual void preFrame();
@@ -98,7 +93,7 @@ class CuttingDrawable : public osg::Geometry, public coMenuListener
 public:
     CuttingDrawable(coCheckboxMenuItem *menu,
                     coVR3DTransRotInteractor *interactor,
-                    RenderObject *geo, RenderObject *map, RenderObject *data,
+                    const RenderObject *geo, const RenderObject *map, const RenderObject *data,
                     float *bbox, float min, float max);
 
     CuttingDrawable(const CuttingDrawable &draw,
@@ -129,7 +124,7 @@ public:
 private:
     State *state;
 
-    RenderObject *geom;
+    const RenderObject *geom;
 
     bool remoteMatrixChanged;
     osg::Matrix remoteMatrix;

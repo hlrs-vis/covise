@@ -45,12 +45,7 @@ public:
     void clearTempSpheres();
     void removeObject(const char *objName, bool r);
     void preFrame();
-    void addObject(const RenderObject *,
-                   const RenderObject *, const RenderObject *,
-                   const RenderObject *, const RenderObject *,
-                   osg::Group *, int,
-                   int, int, const float *, const float *, const float *, const int *,
-                   int, int, const float *, const float *, const float *, const float);
+    void addObject(const RenderObject * container, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     coMenuItem *getMenuButton(const std::string &buttonName);
 
     static float getScale()

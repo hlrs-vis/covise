@@ -43,12 +43,7 @@ PickSphereInteractor *PickSpherePlugin::s_pickSphereInteractor = NULL;
 float PickSpherePlugin::s_scale = 1.f;
 
 void
-PickSpherePlugin::addObject(const RenderObject * /*container*/,
-                            const RenderObject *geometry, const RenderObject * /*normObj*/,
-                            const RenderObject * /*colorObj*/, const RenderObject * /*texObj*/,
-                            osg::Group * /*parentName*/, int /*numCol*/,
-                            int, int /*colorPacking*/, const float *, const float *, const float *, const int *,
-                            int, int, const float *, const float *, const float *, float)
+PickSpherePlugin::addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *, const RenderObject *, const RenderObject *)
 {
     if (geometry)
     {

@@ -27,12 +27,7 @@ public:
     virtual void preFrame();
     void newInteractor(const RenderObject *container, coInteractor *i);
     void removeObject(const char *objName, bool r);
-    void addObject(const RenderObject *container, const RenderObject * /*geomobj*/,
-                   const RenderObject * /*normObj*/, const RenderObject * /*colorObj*/, const RenderObject * /*texObj*/,
-                   osg::Group * /*root*/, int /*numCol*/, int /*colorBinding*/, int /*colorPacking*/,
-                   const float * /*r*/, const float * /*g*/, const float * /*b*/, const int * /*packedCol*/,
-                   int /*numNormals*/, int /*normalBinding*/, const float * /*xn*/, const float * /*yn*/, const float * /*zn*/,
-                   float /*transparency*/);
+    void addObject(const RenderObject *container, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     virtual void addNode(osg::Node *, const RenderObject * = NULL);
     void guiToRenderMsg(const char *msg);
     // prepare smoke data for tracer line

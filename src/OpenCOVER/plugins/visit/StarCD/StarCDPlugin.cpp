@@ -52,17 +52,12 @@ void StarCDPlugin::newInteractor(const RenderObject *, coInteractor *i)
 }
 
 
-void StarCDPlugin::addObject(const RenderObject *,
-                   const RenderObject *geomobj, const RenderObject *,
-                   const RenderObject *, const RenderObject *,
-                   osg::Group *,
-                   int , int , int ,
-                   const float *, const float *, const float *, const int *,
-                   int , int ,
-                   const float *, const float *, const float *,
-                   float )
+void StarCDPlugin::addObject(const RenderObject *, osg::Group *, const RenderObject *geomobj, const RenderObject *, const RenderObject *, const RenderObject *)
 {
-   cerr << "StarCD::coVRAddObject info: adding " << geomobj->getName()<< endl;
+   if (!geomobj)
+       return;
+
+   cerr << "StarCD::addObject info: adding " << geomobj->getName()<< endl;
 
    if (strstr(geomobj->getName(), "StarCD"))
    {

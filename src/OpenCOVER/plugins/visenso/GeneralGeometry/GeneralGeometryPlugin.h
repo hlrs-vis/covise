@@ -27,15 +27,7 @@ public:
 
     virtual void addNode(osg::Node *, const opencover::RenderObject * = NULL);
     virtual void removeObject(const char *objName, bool replaceFlag);
-    virtual void addObject(const opencover::RenderObject *baseObj,
-                           const opencover::RenderObject *geomObj, const opencover::RenderObject *normObj,
-                           const opencover::RenderObject *colorObj, const opencover::RenderObject *texObj,
-                           osg::Group *parent,
-                           int numCol, int colorBinding, int colorPacking,
-                           const float *r, const float *g, const float *b, const int *packedCol,
-                           int numNormals, int normalBinding,
-                           const float *xn, const float *yn, const float *zn,
-                           float transparency);
+    virtual void addObject(const opencover::RenderObject *baseObj, osg::Group *parent, const opencover::RenderObject *, const opencover::RenderObject *, const opencover::RenderObject *, const opencover::RenderObject *);
 
     bool msgForGeneralGeometry(const char *moduleName);
 

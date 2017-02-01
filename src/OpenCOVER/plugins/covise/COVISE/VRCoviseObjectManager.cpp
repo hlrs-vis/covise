@@ -1034,9 +1034,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         // TODO change all Plugins to user RenderObjects
         handleInteractors(container, geometry, normals, colors, texture);
         //fprintf(stderr, "++++++ObjectManager::addGeometry3  container=%s geometry=%s\n", container->getName(), geometry->getName() );
-        coVRPluginList::instance()->addObject(container, geometry, normals, colors, texture, root,
-                                              no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                                              no_n, normalbinding, xn, yn, zn, transparency);
+        coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
         // retrieve the whole set
         dobjsg = (CoviseRenderObject **)geometry->getAllElements(no_elems, assignments);
 
@@ -1511,9 +1509,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         //
         // TODO Change all Plugins
         handleInteractors(container, geometry, normals, colors, texture);
-        coVRPluginList::instance()->addObject(container, geometry, normals, colors, texture, root,
-                                              no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                                              no_n, normalbinding, xn, yn, zn, transparency);
+        coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
 
         osg::Node *newNode = NULL;
 

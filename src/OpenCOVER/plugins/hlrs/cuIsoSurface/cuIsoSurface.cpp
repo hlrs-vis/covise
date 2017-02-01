@@ -88,13 +88,7 @@ void cuIsoSurface::removeObject(const char *objName, bool /*replace*/)
         menu->remove(si->second);
 }
 
-void cuIsoSurface::addObject(RenderObject *container,
-                             RenderObject *geometry, RenderObject *normals,
-                             RenderObject *colorObj, RenderObject *texObj,
-                             osg::Group * /*setName*/, int /*numCol*/,
-                             int, int /*colorPacking*/, float *, float *,
-                             float *, int *,
-                             int, int, float *, float *, float *, float)
+void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setName*/, const RenderObject *geometry, const RenderObject *normals, const RenderObject *colorObj, const RenderObject *texObj)
 {
     osg::Group *group = NULL;
 
@@ -365,8 +359,8 @@ void cuIsoSurface::postFrame()
 //IsoDrawable::IsoDrawable(coSliderMenuItem *s, coTUIFloatSlider *tui,
 IsoDrawable::IsoDrawable(coPotiToolboxItem *s, coTUIFloatSlider *tui,
                          coTUIToggleButton *button,
-                         RenderObject *g, RenderObject *map,
-                         RenderObject *data,
+                         const RenderObject *g, const RenderObject *map,
+                         const RenderObject *data,
                          float *b, float mi = 0.0, float ma = 0.0)
     : osg::Drawable()
     , coMenuListener()

@@ -500,14 +500,7 @@ void ARTracePlugin::focusEvent(bool, coMenu *)
         fprintf(stderr, "VRMenu::focusEvent\n");
 }
 
-void ARTracePlugin::addObject(const RenderObject * /*container*/,
-                              const RenderObject *obj, const RenderObject * /*normObj*/,
-                              const RenderObject * /*colorObj*/, const RenderObject * /*texObj*/,
-                              osg::Group *,
-                              int, int, int,
-                              const float *, const float *, const float *, const int *,
-                              int, int,
-                              const float *, const float *, const float *, float)
+void ARTracePlugin::addObject(const RenderObject *container, osg::Group *, const RenderObject *obj, const RenderObject *, const RenderObject *, const RenderObject *)
 {
     unsigned int i;
     const char *feedbackInfo;

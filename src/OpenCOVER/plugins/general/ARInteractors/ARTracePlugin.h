@@ -119,14 +119,7 @@ public:
     void newInteractor(const RenderObject *container, coInteractor *i);
 
     // this will be called if a COVISE object arrives
-    void addObject(const RenderObject *container,
-                   const RenderObject *obj, const RenderObject *normObj,
-                   const RenderObject *colorObj, const RenderObject *texObj,
-                   osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   const float *r, const float *g, const float *b, const int *packedCol,
-                   int numNormals, int normalBinding,
-                   const float *xn, const float *yn, const float *zn, float transparency);
+    void addObject(const RenderObject *container, osg::Group *root, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
 
     // this will be called if a COVISE object has to be removed
     void removeObject(const char *objName, bool replace);
