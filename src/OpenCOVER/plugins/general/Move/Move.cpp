@@ -1659,7 +1659,7 @@ void Move::redo()
     }
 }
 
-void Move::newInteractor(RenderObject *container, coInteractor *inter)
+void Move::newInteractor(const RenderObject *container, coInteractor *inter)
 {
     if (!container || !inter)
         return;

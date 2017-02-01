@@ -39,7 +39,7 @@ public:
     void removeObject(const char *objName, bool replace);
 
     // this will be called when a COVISE object with a feedback object arrives
-    void newInteractor(RenderObject *ro, coInteractor *inter);
+    void newInteractor(const RenderObject *ro, coInteractor *inter);
 
 private:
     // class functions

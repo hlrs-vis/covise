@@ -40,7 +40,7 @@ using std::endl;
 //StarCDPlugin * plugin = 0;
 
 
-void StarCDPlugin::newInteractor(RenderObject *, coInteractor *i)
+void StarCDPlugin::newInteractor(const RenderObject *, coInteractor *i)
 {
    cerr << "StarCD::coVRNewInteractor info: called" << endl;
    const char *moduleName = i->getModuleName();
@@ -52,14 +52,14 @@ void StarCDPlugin::newInteractor(RenderObject *, coInteractor *i)
 }
 
 
-void StarCDPlugin::addObject(RenderObject *,
-                   RenderObject *geomobj, RenderObject *,
-                   RenderObject *, RenderObject *,
+void StarCDPlugin::addObject(const RenderObject *,
+                   const RenderObject *geomobj, const RenderObject *,
+                   const RenderObject *, const RenderObject *,
                    osg::Group *,
                    int , int , int ,
-                   float *, float *, float *, int *,
+                   const float *, const float *, const float *, const int *,
                    int , int ,
-                   float *, float *, float *,
+                   const float *, const float *, const float *,
                    float )
 {
    cerr << "StarCD::coVRAddObject info: adding " << geomobj->getName()<< endl;

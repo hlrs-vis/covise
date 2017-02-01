@@ -108,7 +108,7 @@ public:
     /// second parameter is a pointer to the COVISE object,
     /// NULL if not a COVISE object
     //! called when COVER adds a new COVISE object to the scenegraph or if other plugins insert a node into the scene graph
-    virtual void addNode(osg::Node *, RenderObject * = NULL)
+    virtual void addNode(osg::Node *, const RenderObject * = NULL)
     {
     }
 
@@ -119,14 +119,14 @@ public:
     }
 
     //! this function is called whenever a COVISE object is received
-    virtual void addObject(RenderObject *baseObj,
-                           RenderObject *geomObj, RenderObject *normObj,
-                           RenderObject *colorObj, RenderObject *texObj,
+    virtual void addObject(const RenderObject *baseObj,
+                           const RenderObject *geomObj, const RenderObject *normObj,
+                           const RenderObject *colorObj, const RenderObject *texObj,
                            osg::Group *parent,
                            int numCol, int colorBinding, int colorPacking,
-                           float *r, float *g, float *b, int *packedCol,
+                           const float *r, const float *g, const float *b, const int *packedCol,
                            int numNormals, int normalBinding,
-                           float *xn, float *yn, float *zn,
+                           const float *xn, const float *yn, const float *zn,
                            float transparency)
     {
         (void)baseObj;
@@ -158,7 +158,7 @@ public:
     }
 
     //! this function is called when COVER gets a new COVISE object with feedback attributes
-    virtual void newInteractor(RenderObject *container, coInteractor *it)
+    virtual void newInteractor(const RenderObject *container, coInteractor *it)
     {
         (void)container;
         (void)it;

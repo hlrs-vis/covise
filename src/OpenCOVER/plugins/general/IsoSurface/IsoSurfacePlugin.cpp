@@ -84,7 +84,7 @@ IsoSurfacePlugin::guiToRenderMsg(const char *msg)
         }
     }
 }
-void IsoSurfacePlugin::addNode(osg::Node *node, RenderObject *obj)
+void IsoSurfacePlugin::addNode(osg::Node *node, const RenderObject *obj)
 {
     //fprintf(stderr,"IsoSurfacePlugin::addNode %s\n", obj->getName());
     if (obj)
@@ -93,7 +93,7 @@ void IsoSurfacePlugin::addNode(osg::Node *node, RenderObject *obj)
     }
 }
 ModuleFeedbackManager *
-IsoSurfacePlugin::NewModuleFeedbackManager(RenderObject *container, coInteractor *interactor, RenderObject *, const char *pluginName)
+IsoSurfacePlugin::NewModuleFeedbackManager(const RenderObject *container, coInteractor *interactor, const RenderObject *, const char *pluginName)
 {
     return new IsoSurfaceInteraction(container, interactor, pluginName, this);
 }
@@ -101,7 +101,7 @@ IsoSurfacePlugin::NewModuleFeedbackManager(RenderObject *container, coInteractor
 // called whenever cover receives a covise object
 // with feedback info appended
 void
-IsoSurfacePlugin::newInteractor(RenderObject *container, coInteractor *i)
+IsoSurfacePlugin::newInteractor(const RenderObject *container, coInteractor *i)
 {
 
     const char *moduleName = i->getModuleName();

@@ -20,13 +20,13 @@ public:
 
     void guiToRenderMsg(const char *msg);
     virtual void preFrame();
-    void newInteractor(opencover::RenderObject *container, opencover::coInteractor *i);
+    void newInteractor(const opencover::RenderObject *container, opencover::coInteractor *i);
     void removeObject(const char *objName, bool replace);
-    virtual void addNode(osg::Node *, opencover::RenderObject * = NULL);
+    virtual void addNode(osg::Node *, const opencover::RenderObject * = NULL);
 
 protected:
     // this returns in fact an IsoSurfaceInteraction pointer
-    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(opencover::RenderObject *, opencover::coInteractor *, opencover::RenderObject *, const char *);
+    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const opencover::RenderObject *, const char *);
 
 private:
 };

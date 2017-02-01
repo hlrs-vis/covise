@@ -43,7 +43,7 @@ FileBrowser *FileBrowser::instance()
     return s_instance;
 }
 
-void FileBrowser::newInteractor(RenderObject *ro, coInteractor *abstractInter)
+void FileBrowser::newInteractor(const RenderObject *ro, coInteractor *abstractInter)
 {
     coBaseCoviseInteractor *inter = dynamic_cast<coBaseCoviseInteractor *>(abstractInter);
     if (!inter)

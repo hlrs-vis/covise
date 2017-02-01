@@ -82,7 +82,7 @@ TangiblePositionPlugin::~TangiblePositionPlugin()
 }
 
 void
-TangiblePositionPlugin::newInteractor(RenderObject *, coInteractor *inter)
+TangiblePositionPlugin::newInteractor(const RenderObject *, coInteractor *inter)
 {
     if (strcmp(inter->getPluginName(), "TangiblePosition") == 0)
     {
@@ -90,36 +90,6 @@ TangiblePositionPlugin::newInteractor(RenderObject *, coInteractor *inter)
         interactors.push_back(inter);
         cerr << "removing Interactor from Module " << inter->getModuleName() << endl;
     }
-}
-
-void TangiblePositionPlugin::addObject(RenderObject *container,
-                                       RenderObject *obj, RenderObject *normObj,
-                                       RenderObject *colorObj, RenderObject *texObj,
-                                       osg::Group *root,
-                                       int numCol, int colorBinding, int colorPacking,
-                                       float *r, float *g, float *b, int *packedCol,
-                                       int numNormals, int normalBinding,
-                                       float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
 }
 
 void

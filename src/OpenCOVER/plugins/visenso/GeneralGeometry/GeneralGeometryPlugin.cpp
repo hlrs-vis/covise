@@ -94,7 +94,7 @@ bool GeneralGeometryPlugin::init()
     return true;
 }
 
-void GeneralGeometryPlugin::addNode(osg::Node *node, RenderObject *obj)
+void GeneralGeometryPlugin::addNode(osg::Node *node, const RenderObject *obj)
 {
     if (obj)
     {
@@ -113,14 +113,14 @@ void GeneralGeometryPlugin::removeObject(const char *objName, bool replaceFlag)
     }
 }
 
-void GeneralGeometryPlugin::addObject(RenderObject *baseObj,
-                                      RenderObject *geomObj, RenderObject *,
-                                      RenderObject *, RenderObject *,
+void GeneralGeometryPlugin::addObject(const RenderObject *baseObj,
+                                      const RenderObject *geomObj, const RenderObject *,
+                                      const RenderObject *, const RenderObject *,
                                       osg::Group *,
                                       int, int, int,
-                                      float *, float *, float *, int *,
+                                      const float *, const float *, const float *, const int *,
                                       int, int,
-                                      float *, float *, float *,
+                                      const float *, const float *, const float *,
                                       float)
 {
     ModuleFeedbackPlugin::add(baseObj, geomObj);
@@ -285,7 +285,7 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
 }
 
 opencover::ModuleFeedbackManager *
-GeneralGeometryPlugin::NewModuleFeedbackManager(RenderObject *container, coInteractor *, RenderObject *geomObject, const char *pluginName)
+GeneralGeometryPlugin::NewModuleFeedbackManager(const RenderObject *container, coInteractor *, const RenderObject *geomObject, const char *pluginName)
 {
     return new GeneralGeometryInteraction(container, geomObject, pluginName);
 }

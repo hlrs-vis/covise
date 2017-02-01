@@ -41,16 +41,16 @@ class PickSpherePlugin : public coVRPlugin, public coMenuListener
 public:
     PickSpherePlugin();
     virtual ~PickSpherePlugin();
-    void newInteractor(RenderObject *container, coInteractor *inter);
+    void newInteractor(const RenderObject *container, coInteractor *inter);
     void clearTempSpheres();
     void removeObject(const char *objName, bool r);
     void preFrame();
-    void addObject(RenderObject *,
-                   RenderObject *, RenderObject *,
-                   RenderObject *, RenderObject *,
+    void addObject(const RenderObject *,
+                   const RenderObject *, const RenderObject *,
+                   const RenderObject *, const RenderObject *,
                    osg::Group *, int,
-                   int, int, float *, float *, float *, int *,
-                   int, int, float *, float *, float *, float);
+                   int, int, const float *, const float *, const float *, const int *,
+                   int, int, const float *, const float *, const float *, const float);
     coMenuItem *getMenuButton(const std::string &buttonName);
 
     static float getScale()

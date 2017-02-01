@@ -14,7 +14,7 @@ class ModuleFeedbackManager;
 class GeneralGeometryPlugin : public opencover::ModuleFeedbackPlugin
 {
 protected:
-    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(opencover::RenderObject *, opencover::coInteractor *, opencover::RenderObject *, const char *);
+    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const opencover::RenderObject *, const char *);
 
 public:
     // constructor
@@ -25,16 +25,16 @@ public:
     virtual bool init();
     virtual void guiToRenderMsg(const char *msg);
 
-    virtual void addNode(osg::Node *, opencover::RenderObject * = NULL);
+    virtual void addNode(osg::Node *, const opencover::RenderObject * = NULL);
     virtual void removeObject(const char *objName, bool replaceFlag);
-    virtual void addObject(opencover::RenderObject *baseObj,
-                           opencover::RenderObject *geomObj, opencover::RenderObject *normObj,
-                           opencover::RenderObject *colorObj, opencover::RenderObject *texObj,
+    virtual void addObject(const opencover::RenderObject *baseObj,
+                           const opencover::RenderObject *geomObj, const opencover::RenderObject *normObj,
+                           const opencover::RenderObject *colorObj, const opencover::RenderObject *texObj,
                            osg::Group *parent,
                            int numCol, int colorBinding, int colorPacking,
-                           float *r, float *g, float *b, int *packedCol,
+                           const float *r, const float *g, const float *b, const int *packedCol,
                            int numNormals, int normalBinding,
-                           float *xn, float *yn, float *zn,
+                           const float *xn, const float *yn, const float *zn,
                            float transparency);
 
     bool msgForGeneralGeometry(const char *moduleName);

@@ -244,20 +244,18 @@ void coVRPluginList::unloadQueued()
     m_unloadQueue.clear();
 }
 
-void coVRPluginList::addNode(osg::Node *node, RenderObject *ro, coVRPlugin *addingPlugin) const
+void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const
 {
     DOALL(if (plugin != addingPlugin)
-              plugin->addNode(node, ro));
+              plugin->addNode(node, const_cast<RenderObject *>(ro)));
 }
 
-void coVRPluginList::addObject(RenderObject *baseObj,
-                               RenderObject *geomObj, RenderObject *normObj,
-                               RenderObject *colorObj, RenderObject *texObj,
+void coVRPluginList::addObject(const RenderObject *baseObj,
+                               const RenderObject *geomObj, const RenderObject *normObj,
+                               const RenderObject *colorObj, const RenderObject *texObj,
                                osg::Group *root,
-                               int numCol, int colorBinding, int colorPacking,
-                               float *r, float *g, float *b, int *packedCol,
-                               int numNormals, int normalBinding,
-                               float *xn, float *yn, float *zn,
+                               int numCol, int colorBinding, int colorPacking, const float *r, const float *g, const float *b, const int *packedCol,
+                               int numNormals, int normalBinding, const float *xn, const float *yn, const float *zn,
                                float transparency) const
 {
     // call addObject for the current plugin in the plugin list
@@ -268,7 +266,7 @@ void coVRPluginList::addObject(RenderObject *baseObj,
                             xn, yn, zn, transparency));
 }
 
-void coVRPluginList::newInteractor(RenderObject *container, coInteractor *it) const
+void coVRPluginList::newInteractor(const RenderObject *container, coInteractor *it) const
 {
     DOALL(plugin->newInteractor(container, it));
 }
@@ -452,6 +450,7 @@ coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 
 coVRPlugin *coVRPluginList::addPlugin(const char *name)
 {
+    coVRMSController::instance()->sync();
     coVRPlugin *m = getPlugin(name);
     if (m == NULL)
     {

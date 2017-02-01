@@ -468,7 +468,7 @@ ARTracePlugin::~ARTracePlugin()
     delete arTraceTab;
 }
 
-void ARTracePlugin::newInteractor(RenderObject *, coInteractor *inter)
+void ARTracePlugin::newInteractor(const RenderObject *, coInteractor *inter)
 {
     fprintf(stderr, "ARTracePlugin::feedback\n");
 
@@ -500,14 +500,14 @@ void ARTracePlugin::focusEvent(bool, coMenu *)
         fprintf(stderr, "VRMenu::focusEvent\n");
 }
 
-void ARTracePlugin::addObject(RenderObject * /*container*/,
-                              RenderObject *obj, RenderObject * /*normObj*/,
-                              RenderObject * /*colorObj*/, RenderObject * /*texObj*/,
+void ARTracePlugin::addObject(const RenderObject * /*container*/,
+                              const RenderObject *obj, const RenderObject * /*normObj*/,
+                              const RenderObject * /*colorObj*/, const RenderObject * /*texObj*/,
                               osg::Group *,
                               int, int, int,
-                              float *, float *, float *, int *,
+                              const float *, const float *, const float *, const int *,
                               int, int,
-                              float *, float *, float *, float)
+                              const float *, const float *, const float *, float)
 {
     unsigned int i;
     const char *feedbackInfo;

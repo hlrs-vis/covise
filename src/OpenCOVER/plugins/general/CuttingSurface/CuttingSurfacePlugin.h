@@ -21,12 +21,12 @@ public:
 
     void guiToRenderMsg(const char *msg);
     virtual void preFrame();
-    void newInteractor(RenderObject *container, coInteractor *i);
+    void newInteractor(const RenderObject *container, coInteractor *i);
     void removeObject(const char *objName, bool r);
-    virtual void addNode(osg::Node *, RenderObject * = NULL);
+    virtual void addNode(osg::Node *, const RenderObject * = NULL);
 
 protected:
-    virtual ModuleFeedbackManager *NewModuleFeedbackManager(RenderObject *, coInteractor *, RenderObject *, const char *);
+    virtual ModuleFeedbackManager *NewModuleFeedbackManager(const RenderObject *, coInteractor *, const RenderObject *, const char *);
 
     // called if msg from gui arrives
     void handleInteractorVisibleMsg(const char *objectName, bool show);

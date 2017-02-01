@@ -38,8 +38,8 @@ public:
     // object is updated (this produces menu updates, for instance),
     // if no such object is available, a new ModuleFeedbackManager object is
     // created and appended to the list
-    void add(opencover::RenderObject *container, opencover::coInteractor *inter);
-    void add(opencover::RenderObject *container, opencover::RenderObject *geomObj);
+    void add(const opencover::RenderObject *container, opencover::coInteractor *inter);
+    void add(const opencover::RenderObject *container, const opencover::RenderObject *geomObj);
 
     // removes the ModuleFeedbackManager object from the list
     void remove(const char *objName);
@@ -63,12 +63,12 @@ public:
     void addNodeToCase(const char *objectName, osg::Node *node);
 
     // handle adding interactors to colorbars
-    void newInteractor(RenderObject *container, coInteractor *i);
+    void newInteractor(const RenderObject *container, coInteractor *i);
 
 protected:
     // factory method that returns pointers to object of derived classes of
     // ModuleFeedbackManager
-    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(opencover::RenderObject *, opencover::coInteractor *, opencover::RenderObject *, const char *) = 0;
+    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const opencover::RenderObject *, const char *) = 0;
 
     // unique global list of all interactions
     static covise::DLinkList<opencover::ModuleFeedbackManager *> _ComplexModuleList;

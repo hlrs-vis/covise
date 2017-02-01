@@ -49,7 +49,7 @@ const char *CuttingSurfaceInteraction::POINT = "point";
 const char *CuttingSurfaceInteraction::VERTEX = "vertex";
 const char *CuttingSurfaceInteraction::SCALAR = "scalar";
 
-CuttingSurfaceInteraction::CuttingSurfaceInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p)
+CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p)
     : ModuleInteraction(container, inter, pluginName)
 {
     if (cover->debugLevel(3))
@@ -99,7 +99,7 @@ CuttingSurfaceInteraction::~CuttingSurfaceInteraction()
 }
 
 void
-CuttingSurfaceInteraction::update(RenderObject *container, coInteractor *inter)
+CuttingSurfaceInteraction::update(const RenderObject *container, coInteractor *inter)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfaceInteraction::update\n");

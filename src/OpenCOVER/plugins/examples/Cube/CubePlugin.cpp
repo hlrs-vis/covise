@@ -26,7 +26,7 @@ using namespace osg;
 char *CubePlugin::currentObjectName = NULL;
 CubePlugin *CubePlugin::plugin = NULL;
 
-void CubePlugin::newInteractor(RenderObject *cont, coInteractor *inter)
+void CubePlugin::newInteractor(const RenderObject *cont, coInteractor *inter)
 {
     if (cover->debugLevel(1))
         fprintf(stderr, "\n--- coVRNewInteractor containerName=[%s]\n", cont->getName());

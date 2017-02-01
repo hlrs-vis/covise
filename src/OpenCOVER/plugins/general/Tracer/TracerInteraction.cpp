@@ -51,7 +51,7 @@ const char *TracerInteraction::P_STARTSTYLE = "startStyle";
 const char *TracerInteraction::P_TRACE_LEN = "trace_len";
 const char *TracerInteraction::P_FREE_STARTPOINTS = "FreeStartPoints";
 
-TracerInteraction::TracerInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, TracerPlugin *p)
+TracerInteraction::TracerInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, TracerPlugin *p)
     : ModuleInteraction(container, inter, pluginName)
 {
     // so far the base class created
@@ -123,7 +123,7 @@ TracerInteraction::~TracerInteraction()
 }
 
 void
-TracerInteraction::update(RenderObject *container, coInteractor *inter)
+TracerInteraction::update(const RenderObject *container, coInteractor *inter)
 {
 
     // base class updates the item in the COVISE menu
@@ -160,7 +160,7 @@ TracerInteraction::update(RenderObject *container, coInteractor *inter)
 }
 
 void
-TracerInteraction::addSmoke(RenderObject *grid, RenderObject *velo)
+TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
 {
     //fprintf(stderr,"TracerInteraction::addSmoke...");
 
@@ -170,8 +170,8 @@ TracerInteraction::addSmoke(RenderObject *grid, RenderObject *velo)
             fprintf(stderr, "grid and velo available\n");
         smoke_ = true;
 
-        RenderObject *ugrid = grid;
-        RenderObject *uvelo = velo;
+        const RenderObject *ugrid = grid;
+        const RenderObject *uvelo = velo;
         int nx, ny, nz;
         float xmin, xmax;
         float ymin, ymax;

@@ -63,20 +63,19 @@ public:
     //
     // methods forwarded to plugins
     //! call addNode method of all plugins
-    void addNode(osg::Node *, RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
+    void addNode(osg::Node *, const RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
     //! call addObject method of all plugins
-    void addObject(RenderObject *baseObj,
-                   RenderObject *geomObj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
+    void addObject(const RenderObject *baseObj,
+                   const RenderObject *geomObj, const RenderObject *normObj,
+                   const RenderObject *colorObj, const RenderObject *texObj,
                    osg::Group *root,
                    int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn,
+                   const float *r, const float *g, const float *b, const int *packedCol,
+                   int numNormals, int normalBinding, const float *xn, const float *yn, const float *zn,
                    float transparency) const;
 
     //! call newInteractor method of all plugins
-    void newInteractor(RenderObject *container, coInteractor *it) const;
+    void newInteractor(const RenderObject *container, coInteractor *it) const;
 
     //! call coviseError method of all plugins
     void coviseError(const char *error) const;

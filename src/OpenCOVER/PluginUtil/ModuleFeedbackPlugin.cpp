@@ -46,7 +46,7 @@ ModuleFeedbackPlugin::~ModuleFeedbackPlugin()
     }
 }
 
-void ModuleFeedbackPlugin::newInteractor(RenderObject *container, coInteractor *i)
+void ModuleFeedbackPlugin::newInteractor(const RenderObject *container, coInteractor *i)
 {
     if (strcmp(i->getPluginName(), "ColorBars"))
         return;
@@ -85,7 +85,7 @@ void ModuleFeedbackPlugin::newInteractor(RenderObject *container, coInteractor *
 // in ComplexModuleInteraction::compare(coInteractor *)
 // we only check the module instance
 void
-ModuleFeedbackPlugin::add(RenderObject *container, coInteractor *inter)
+ModuleFeedbackPlugin::add(const RenderObject *container, coInteractor *inter)
 {
     //fprintf(stderr,"ModuleFeedbackPlugin::add\n");
     // do we have this object in our list
@@ -120,7 +120,7 @@ ModuleFeedbackPlugin::add(RenderObject *container, coInteractor *inter)
 }
 
 void
-ModuleFeedbackPlugin::add(RenderObject *container, RenderObject *geomobj)
+ModuleFeedbackPlugin::add(const RenderObject *container, const RenderObject *geomobj)
 {
     if (geomobj->isSet() || geomobj->isGeometry())
         return;

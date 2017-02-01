@@ -43,12 +43,12 @@ PickSphereInteractor *PickSpherePlugin::s_pickSphereInteractor = NULL;
 float PickSpherePlugin::s_scale = 1.f;
 
 void
-PickSpherePlugin::addObject(RenderObject * /*container*/,
-                            RenderObject *geometry, RenderObject * /*normObj*/,
-                            RenderObject * /*colorObj*/, RenderObject * /*texObj*/,
+PickSpherePlugin::addObject(const RenderObject * /*container*/,
+                            const RenderObject *geometry, const RenderObject * /*normObj*/,
+                            const RenderObject * /*colorObj*/, const RenderObject * /*texObj*/,
                             osg::Group * /*parentName*/, int /*numCol*/,
-                            int, int /*colorPacking*/, float *, float *, float *, int *,
-                            int, int, float *, float *, float *, float)
+                            int, int /*colorPacking*/, const float *, const float *, const float *, const int *,
+                            int, int, const float *, const float *, const float *, float)
 {
     if (geometry)
     {
@@ -264,7 +264,7 @@ PickSpherePlugin::deleteSubmenu()
 }
 
 void
-PickSpherePlugin::newInteractor(RenderObject *, coInteractor *in)
+PickSpherePlugin::newInteractor(const RenderObject *, coInteractor *in)
 {
     if (strcmp(in->getPluginName(), "PickSphere") != 0)
         return;
