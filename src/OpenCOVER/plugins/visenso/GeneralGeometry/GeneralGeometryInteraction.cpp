@@ -30,7 +30,7 @@ using namespace grmsg;
 using namespace covise;
 using namespace opencover;
 
-GeneralGeometryInteraction::GeneralGeometryInteraction(RenderObject *container, RenderObject *geomObject, const char *pluginName)
+GeneralGeometryInteraction::GeneralGeometryInteraction(const RenderObject *container, const RenderObject *geomObject, const char *pluginName)
     : ModuleFeedbackManager(container, geomObject, pluginName)
 {
     if (cover->debugLevel(2))
@@ -59,7 +59,7 @@ GeneralGeometryInteraction::~GeneralGeometryInteraction()
 }
 
 void
-GeneralGeometryInteraction::update(RenderObject *container, RenderObject *obj)
+GeneralGeometryInteraction::update(const RenderObject *container, const RenderObject *obj)
 {
     (void)container;
     (void)obj;

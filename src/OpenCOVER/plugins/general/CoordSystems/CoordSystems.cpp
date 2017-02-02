@@ -129,52 +129,6 @@ CoordSystems::~CoordSystems()
     delete globalCoordSys;
 }
 //------------------------------------------------------------------------------------------------------------------------------
-void CoordSystems::newInteractor(RenderObject *container, coInteractor *i)
-{
-    (void)container;
-    (void)i;
-    //fprintf ( stderr,"CoordSystems::newInteractor\n" );
-}
-//------------------------------------------------------------------------------------------------------------------------------
-void CoordSystems::addObject(RenderObject *container,
-                             RenderObject *obj, RenderObject *normObj,
-                             RenderObject *colorObj, RenderObject *texObj,
-                             osg::Group *root,
-                             int numCol, int colorBinding, int colorPacking,
-                             float *r, float *g, float *b, int *packedCol,
-                             int numNormals, int normalBinding,
-                             float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
-    //fprintf ( stderr,"CoordSystems::addObject\n" );
-}
-//------------------------------------------------------------------------------------------------------------------------------
-void
-CoordSystems::removeObject(const char *objName, bool replace)
-{
-    (void)objName;
-    (void)replace;
-    //fprintf ( stderr,"CoordSystems::removeObject\n" );
-}
-//------------------------------------------------------------------------------------------------------------------------------
 void
 CoordSystems::preFrame()
 {

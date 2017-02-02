@@ -64,57 +64,6 @@ SphereInteractorPlugin::~SphereInteractorPlugin()
 }
 
 //-----------------------------------------------------------
-// here we get the size and the current center of the cube
-void
-SphereInteractorPlugin::newInteractor(RenderObject *container, coInteractor *i)
-{
-    (void)container;
-    (void)i;
-    fprintf(stderr, "SphereInteractorPlugin::newInteractor\n");
-}
-
-//-----------------------------------------------------------
-void SphereInteractorPlugin::addObject(RenderObject *container,
-                                       RenderObject *obj, RenderObject *normObj,
-                                       RenderObject *colorObj, RenderObject *texObj,
-                                       osg::Group *root,
-                                       int numCol, int colorBinding, int colorPacking,
-                                       float *r, float *g, float *b, int *packedCol,
-                                       int numNormals, int normalBinding,
-                                       float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
-    fprintf(stderr, "TemplatePlugin::addObject\n");
-}
-
-//-----------------------------------------------------------
-void
-SphereInteractorPlugin::removeObject(const char *objName, bool replace)
-{
-    (void)objName;
-    (void)replace;
-    fprintf(stderr, "TemplatePlugin::removeObject\n");
-}
-
-//-----------------------------------------------------------
 void
 SphereInteractorPlugin::preFrame()
 {

@@ -49,11 +49,47 @@ const char *CuttingSurfaceInteraction::POINT = "point";
 const char *CuttingSurfaceInteraction::VERTEX = "vertex";
 const char *CuttingSurfaceInteraction::SCALAR = "scalar";
 
-CuttingSurfaceInteraction::CuttingSurfaceInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p)
+CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p)
     : ModuleInteraction(container, inter, pluginName)
+    , wait_(false)
+    , newObject_(false)
+    , planeOptionsInMenu_(false)
+    , orientX_(NULL)
+    , orientY_(NULL)
+    , orientZ_(NULL)
+    , orientFree_(NULL)
+    , orientGroup_(NULL)
+    , option_(0)
+    , oldOption_(0)
+    , optionButton_(NULL)
+    , optionMenu_(NULL)
+    , optionPlane_(NULL)
+    , optionCylX_(NULL)
+    , optionCylY_(NULL)
+    , optionCylZ_(NULL)
+    , optionSphere_(NULL)
+    , optionGroup_(NULL)
+    , csPlane_(NULL)
+    , csCylX_(NULL)
+    , csCylY_(NULL)
+    , csCylZ_(NULL)
+    , csSphere_(NULL)
+    , activeClipPlane_(0)
+    , clipPlaneMenu_(NULL)
+    , clipPlaneMenuItem_(NULL)
+    , clipPlaneIndexGroup_(NULL)
+    , clipPlaneNoneCheckbox_(NULL)
+    , clipPlaneOffsetSlider_(NULL)
+    , clipPlaneFlipCheckbox_(NULL)
+    , plugin(NULL)
+
+
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfaceInteraction::CuttingSurfaceInteraction\n");
+
+    for (int i=0; i<6; ++i)
+        clipPlaneIndexCheckbox_[i] = NULL;
 
     newObject_ = false;
     plugin = p;
@@ -99,7 +135,7 @@ CuttingSurfaceInteraction::~CuttingSurfaceInteraction()
 }
 
 void
-CuttingSurfaceInteraction::update(RenderObject *container, coInteractor *inter)
+CuttingSurfaceInteraction::update(const RenderObject *container, coInteractor *inter)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfaceInteraction::update\n");

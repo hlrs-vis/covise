@@ -28,7 +28,7 @@
 using namespace grmsg;
 using namespace opencover;
 
-void CuttingSurfacePlugin::newInteractor(RenderObject *container, coInteractor *i)
+void CuttingSurfacePlugin::newInteractor(const RenderObject *container, coInteractor *i)
 {
     if (cover->debugLevel(2))
     {
@@ -63,7 +63,7 @@ void CuttingSurfacePlugin::removeObject(const char *objName, bool r)
         remove(objName);
     }
 }
-void CuttingSurfacePlugin::addNode(osg::Node *node, RenderObject *obj)
+void CuttingSurfacePlugin::addNode(osg::Node *node, const RenderObject *obj)
 {
     //fprintf(stderr,"CuttingSurfacePlugin::addNode %s\n", obj->getName());
     if (obj)
@@ -202,7 +202,7 @@ CuttingSurfacePlugin::updateInteractorVisibility(const char *objectName)
 }
 
 ModuleFeedbackManager *
-CuttingSurfacePlugin::NewModuleFeedbackManager(RenderObject *container, coInteractor *interactor, RenderObject *, const char *pluginName)
+CuttingSurfacePlugin::NewModuleFeedbackManager(const RenderObject *container, coInteractor *interactor, const RenderObject *, const char *pluginName)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfacePlugin::NewModuleFeedbackManager\n");

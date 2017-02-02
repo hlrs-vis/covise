@@ -34,13 +34,13 @@ class TracerInteraction : public opencover::ModuleInteraction
 {
 public:
     // constructor
-    TracerInteraction(opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName, TracerPlugin *p);
+    TracerInteraction(const opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName, TracerPlugin *p);
 
     // destructor
     virtual ~TracerInteraction();
 
     // update covise stuff and menus
-    virtual void update(opencover::RenderObject *container, opencover::coInteractor *inter);
+    virtual void update(const opencover::RenderObject *container, opencover::coInteractor *inter);
 
     // direct interaction
     virtual void preFrame();
@@ -50,7 +50,7 @@ public:
     virtual void updateDirectInteractors(bool);
 
     // add smoke if available
-    void addSmoke(opencover::RenderObject *smokeGrid, opencover::RenderObject *smokeVelo);
+    void addSmoke(const opencover::RenderObject *smokeGrid, const opencover::RenderObject *smokeVelo);
 
     // module was copied --> new mode
     //void setNew();

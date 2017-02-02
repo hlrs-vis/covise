@@ -281,54 +281,6 @@ RennteamPlugin::~RennteamPlugin()
     cover->getObjectsRoot()->removeChild(planeTransform);
 }
 
-// here we get the size and the current center of the cube
-void
-RennteamPlugin::newInteractor(RenderObject *container, coInteractor *i)
-{
-    (void)container;
-    (void)i;
-    fprintf(stderr, "RennteamPlugin::newInteractor\n");
-}
-
-void RennteamPlugin::addObject(RenderObject *container,
-                               RenderObject *obj, RenderObject *normObj,
-                               RenderObject *colorObj, RenderObject *texObj,
-                               osg::Group *root,
-                               int numCol, int colorBinding, int colorPacking,
-                               float *r, float *g, float *b, int *packedCol,
-                               int numNormals, int normalBinding,
-                               float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
-    fprintf(stderr, "RennteamPlugin::addObject\n");
-}
-
-void
-RennteamPlugin::removeObject(const char *objName, bool replace)
-{
-    (void)objName;
-    (void)replace;
-    fprintf(stderr, "RennteamPlugin::removeObject\n");
-}
-
 RennteamPlugin::DP_type RennteamPlugin::Radaufhaengung_wfr(double u_wfr, double steerAngle)
 {
 

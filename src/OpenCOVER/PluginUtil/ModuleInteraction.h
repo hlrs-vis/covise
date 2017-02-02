@@ -25,9 +25,9 @@ namespace opencover
 class PLUGIN_UTILEXPORT ModuleInteraction : public ModuleFeedbackManager
 {
 public:
-    ModuleInteraction(opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName);
+    ModuleInteraction(const opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName);
     virtual ~ModuleInteraction();
-    virtual void update(opencover::RenderObject *container, opencover::coInteractor *inter);
+    virtual void update(const opencover::RenderObject *container, opencover::coInteractor *inter);
     virtual void preFrame();
     virtual void menuEvent(vrui::coMenuItem *menuItem);
     virtual void updatePickInteractors(bool) = 0;

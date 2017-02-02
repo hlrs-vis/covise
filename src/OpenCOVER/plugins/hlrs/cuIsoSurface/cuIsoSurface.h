@@ -55,12 +55,7 @@ public:
     cuIsoSurface();
     ~cuIsoSurface();
     void removeObject(const char *name, bool replace);
-    void addObject(RenderObject *container,
-                   RenderObject *geometry, RenderObject * /*normObj*/,
-                   RenderObject *colorObj, RenderObject * /*texObj*/,
-                   osg::Group * /*setName*/, int /*numCol*/,
-                   int, int /*colorPacking*/, float *, float *, float *, int *,
-                   int, int, float *, float *, float *, float);
+    void addObject(const RenderObject *container, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
 
     virtual bool init();
     virtual void preDraw(osg::RenderInfo &);
@@ -94,7 +89,7 @@ public:
     //   IsoDrawable(coSliderMenuItem *slider, coTUIFloatSlider *tui,
     IsoDrawable(coPotiToolboxItem *slider, coTUIFloatSlider *tui,
                 coTUIToggleButton *button,
-                RenderObject *geo, RenderObject *map, RenderObject *data,
+                const RenderObject *geo, const RenderObject *map, const RenderObject *data,
                 float *bbox, float min, float max);
     IsoDrawable(const IsoDrawable &draw, const osg::CopyOp &op = osg::CopyOp::SHALLOW_COPY);
     ~IsoDrawable();
@@ -119,7 +114,7 @@ public:
 private:
     State *state;
 
-    RenderObject *geom;
+    const RenderObject *geom;
     float *data;
 
     bool changed;

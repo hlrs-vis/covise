@@ -163,52 +163,6 @@ MotionPlatformPlugin::~MotionPlatformPlugin()
 {
     fprintf(stderr, "MotionPlatformPlugin::~MotionPlatformPlugin\n");
 }
-// here we get the size and the current center of the cube
-void
-MotionPlatformPlugin::newInteractor(RenderObject *container, coInteractor *i)
-{
-    (void)container;
-    (void)i;
-    fprintf(stderr, "MotionPlatformPlugin::newInteractor\n");
-}
-void MotionPlatformPlugin::addObject(RenderObject *container,
-                                     RenderObject *obj, RenderObject *normObj,
-                                     RenderObject *colorObj, RenderObject *texObj,
-                                     osg::Group *root,
-                                     int numCol, int colorBinding, int colorPacking,
-                                     float *r, float *g, float *b, int *packedCol,
-                                     int numNormals, int normalBinding,
-                                     float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
-    fprintf(stderr, "MotionPlatformPlugin::addObject\n");
-}
-
-void
-MotionPlatformPlugin::removeObject(const char *objName, bool replace)
-{
-    (void)objName;
-    (void)replace;
-    fprintf(stderr, "MotionPlatformPlugin::removeObject\n");
-}
 
 void
 MotionPlatformPlugin::preFrame()

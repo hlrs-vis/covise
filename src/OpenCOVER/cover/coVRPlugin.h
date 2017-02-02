@@ -108,7 +108,7 @@ public:
     /// second parameter is a pointer to the COVISE object,
     /// NULL if not a COVISE object
     //! called when COVER adds a new COVISE object to the scenegraph or if other plugins insert a node into the scene graph
-    virtual void addNode(osg::Node *, RenderObject * = NULL)
+    virtual void addNode(osg::Node *, const RenderObject * = NULL)
     {
     }
 
@@ -119,35 +119,15 @@ public:
     }
 
     //! this function is called whenever a COVISE object is received
-    virtual void addObject(RenderObject *baseObj,
-                           RenderObject *geomObj, RenderObject *normObj,
-                           RenderObject *colorObj, RenderObject *texObj,
-                           osg::Group *parent,
-                           int numCol, int colorBinding, int colorPacking,
-                           float *r, float *g, float *b, int *packedCol,
-                           int numNormals, int normalBinding,
-                           float *xn, float *yn, float *zn,
-                           float transparency)
+    virtual void addObject(const RenderObject *container, osg::Group *parent,
+            const RenderObject *geometry, const RenderObject *normals, const RenderObject *colors, const RenderObject *texture)
     {
-        (void)baseObj;
-        (void)geomObj;
-        (void)normObj;
-        (void)colorObj;
-        (void)texObj;
+        (void)container;
         (void)parent;
-        (void)numCol;
-        (void)colorBinding;
-        (void)colorPacking;
-        (void)r;
-        (void)g;
-        (void)b;
-        (void)packedCol;
-        (void)numNormals;
-        (void)normalBinding;
-        (void)xn;
-        (void)yn;
-        (void)zn;
-        (void)transparency;
+        (void)geometry;
+        (void)normals;
+        (void)colors;
+        (void)texture;
     }
 
     //! this function is called when a COVISE Object is removed
@@ -158,7 +138,7 @@ public:
     }
 
     //! this function is called when COVER gets a new COVISE object with feedback attributes
-    virtual void newInteractor(RenderObject *container, coInteractor *it)
+    virtual void newInteractor(const RenderObject *container, coInteractor *it)
     {
         (void)container;
         (void)it;

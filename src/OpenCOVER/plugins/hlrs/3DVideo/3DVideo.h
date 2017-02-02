@@ -42,30 +42,12 @@ public:
 	Must be defined by derived classes.*/
     virtual osg::Object *clone(const osg::CopyOp &) const;
 };
+
 class Video3D
 {
 public:
     Video3D();
     ~Video3D();
-
-    // this will be called in PreFrame
-    void preFrame();
-
-    // this will be called if an object with feedback arrives
-    void feedback(coInteractor *i);
-
-    // this will be called if a COVISE object arrives
-    void addObject(RenderObject *container,
-                   RenderObject *obj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
-                   osg::Group *parent,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn, float transparency);
-
-    // this will be called if a COVISE object has to be removed
-    void removeObject(const char *objName, bool replace);
 
 private:
     Video3DNode *videoNode;

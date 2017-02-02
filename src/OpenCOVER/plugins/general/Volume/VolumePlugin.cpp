@@ -1167,12 +1167,7 @@ void VolumePlugin::message(int type, int len, const void *buf)
     }
 }
 
-void VolumePlugin::addObject(RenderObject *container,
-                             RenderObject *geometry, RenderObject * /*normObj*/,
-                             RenderObject *colorObj, RenderObject * /*texObj*/,
-                             osg::Group * /*setName*/, int /*numCol*/,
-                             int, int /*colorPacking*/, float *, float *, float *, int *,
-                             int, int, float *, float *, float *, float)
+void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *, const RenderObject *colorObj, const RenderObject *)
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
     int shader = -1;
@@ -1182,13 +1177,10 @@ void VolumePlugin::addObject(RenderObject *container,
     std::vector<RenderObject *> colorMap(MaxColorMap);
     for (int c = 0; c < colorMap.size(); ++c)
     {
-        if (container)
-            colorMap[c] = container->getColorMap(c);
-        else
-            colorMap[c] = NULL;
+        colorMap[c] = container->getColorMap(c);
     }
 
-    if (container && container->getAttribute("VOLUME_SHADER"))
+    if (container->getAttribute("VOLUME_SHADER"))
     {
         std::string s = container->getAttribute("VOLUME_SHADER");
         shader = atoi(s.c_str());
@@ -1437,7 +1429,7 @@ void VolumePlugin::addObject(RenderObject *container,
                 }
             }
 
-            if (container && container->getName())
+            if (container->getName())
                 updateVolume(container->getName(), volDesc);
             else if (geometry && geometry->getName())
                 updateVolume(geometry->getName(), volDesc);

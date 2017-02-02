@@ -255,7 +255,7 @@ bool CDFPlugin::init()
 // -----------------------------------------------------------------------------
 // create new interactor
 // -----------------------------------------------------------------------------
-void CDFPlugin::newInteractor(RenderObject *cont, coInteractor *inter)
+void CDFPlugin::newInteractor(const RenderObject *cont, coInteractor *inter)
 {
     if (cover->debugLevel(1))
     {

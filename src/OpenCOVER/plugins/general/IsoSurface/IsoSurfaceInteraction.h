@@ -24,9 +24,9 @@ namespace opencover
 class IsoSurfaceInteraction : public ModuleInteraction
 {
 public:
-    IsoSurfaceInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, IsoSurfacePlugin *p);
+    IsoSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, IsoSurfacePlugin *p);
     virtual ~IsoSurfaceInteraction();
-    virtual void update(RenderObject *container, coInteractor *inter);
+    virtual void update(const RenderObject *container, coInteractor *inter);
     virtual void preFrame();
 
     // react to pickInteractor and directInteractor checkbox

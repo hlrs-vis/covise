@@ -26,7 +26,7 @@
 
 using namespace osg;
 
-void SwitchDataPlugin::newInteractor(RenderObject *cont, coInteractor *inter)
+void SwitchDataPlugin::newInteractor(const RenderObject *cont, coInteractor *inter)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- coVRNewInteractor containerName=[%s]\n", cont->getName());

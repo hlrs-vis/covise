@@ -25,7 +25,7 @@ using namespace opencover;
 const char *IsoSurfaceInteraction::ISOVALUE = "isovalue";
 const char *IsoSurfaceInteraction::ISOPOINT = "isopoint";
 
-IsoSurfaceInteraction::IsoSurfaceInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, IsoSurfacePlugin *p)
+IsoSurfaceInteraction::IsoSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, IsoSurfacePlugin *p)
     : ModuleInteraction(container, inter, pluginName)
 {
     inter->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
@@ -46,7 +46,7 @@ IsoSurfaceInteraction::~IsoSurfaceInteraction()
 // called when a new object has arrived:
 // keep menu widgets updated
 void
-IsoSurfaceInteraction::update(RenderObject *container, coInteractor *inter)
+IsoSurfaceInteraction::update(const RenderObject *container, coInteractor *inter)
 {
     ModuleFeedbackManager::update(container, inter);
 

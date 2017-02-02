@@ -45,8 +45,8 @@ namespace opencover
 class PLUGIN_UTILEXPORT ModuleFeedbackManager : public vrui::coMenuListener
 {
 public:
-    ModuleFeedbackManager(opencover::RenderObject *, opencover::coInteractor *, const char *pluginName);
-    ModuleFeedbackManager(RenderObject *, RenderObject *, const char *pluginName);
+    ModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const char *pluginName);
+    ModuleFeedbackManager(const RenderObject *, const RenderObject *, const char *pluginName);
     virtual ~ModuleFeedbackManager();
 
     // returns true if inter comes from the same module: used in
@@ -61,8 +61,8 @@ public:
     bool comparePlugin(const char *pluginName);
 
     // called for menu update when a new object is received
-    virtual void update(RenderObject *container, coInteractor *);
-    virtual void update(RenderObject *container, RenderObject *);
+    virtual void update(const RenderObject *container, coInteractor *);
+    virtual void update(const RenderObject *container, const RenderObject *);
 
     // empty implementation
     virtual void preFrame();
@@ -113,7 +113,7 @@ protected:
 
     // helper for update
     void updateMenuNames();
-    void updateColorBar(RenderObject *container);
+    void updateColorBar(const RenderObject *container);
 
     // gets either from attribute OBJECTNAME or from the module name
     // a suggestion for the menu name, the result is kept in _menuName

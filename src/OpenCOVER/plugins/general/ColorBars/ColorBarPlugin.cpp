@@ -125,7 +125,7 @@ ColorBarPlugin::removeObject(const char *container, bool replace)
 }
 
 void
-ColorBarPlugin::newInteractor(RenderObject *container, coInteractor *inter)
+ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter)
 {
     if (strcmp(inter->getPluginName(), "ColorBars") == 0)
     {

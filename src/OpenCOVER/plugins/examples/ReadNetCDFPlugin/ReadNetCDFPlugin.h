@@ -36,7 +36,7 @@ public:
     CDFPlugin();
     virtual ~CDFPlugin();
     bool init();
-    void newInteractor(opencover::RenderObject *r,
+    void newInteractor(const opencover::RenderObject *r,
                        opencover::coInteractor *i);
     void add(opencover::coInteractor *inter);
     void removeObject(const char *objName, bool replace);

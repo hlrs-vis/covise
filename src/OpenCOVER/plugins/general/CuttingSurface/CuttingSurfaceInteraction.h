@@ -32,9 +32,9 @@ namespace opencover
 class CuttingSurfaceInteraction : public ModuleInteraction
 {
 public:
-    CuttingSurfaceInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p);
+    CuttingSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p);
     virtual ~CuttingSurfaceInteraction();
-    virtual void update(RenderObject *container, coInteractor *inter);
+    virtual void update(const RenderObject *container, coInteractor *inter);
     virtual void preFrame();
     virtual void updatePickInteractors(bool);
     virtual void updateDirectInteractors(bool);

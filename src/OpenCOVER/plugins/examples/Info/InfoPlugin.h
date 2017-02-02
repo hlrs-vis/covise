@@ -37,14 +37,7 @@ public:
     ~InfoPlugin();
 
     // this will be called if a COVISE object arrives
-    void addObject(RenderObject *container,
-                   RenderObject *obj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
-                   osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn, float transparency);
+    void addObject(const RenderObject *container, osg::Group *root, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
 
     // this will be called if a COVISE object has to be removed
     void removeObject(const char *objName, bool replace);
