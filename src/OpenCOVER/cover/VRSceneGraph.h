@@ -33,16 +33,12 @@
 #include <osg/Material>
 #include <osg/ClipNode>
 #include <osgShadow/ShadowedScene>
+#include <osgFX/Scribe>
 
 namespace osg
 {
 class StateSet;
 class ClipNode;
-}
-
-namespace osgFX
-{
-class Scribe;
 }
 
 namespace vrui

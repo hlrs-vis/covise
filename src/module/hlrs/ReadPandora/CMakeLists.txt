@@ -8,4 +8,5 @@ set(SOURCES
 )
 
 covise_add_module(IO ReadPandora ${HEADERS} ${SOURCES})
-TARGET_LINK_LIBRARIES(ReadPandora ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(ReadPandora coReader ${EXTRA_LIBS})
+
