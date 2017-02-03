@@ -649,7 +649,7 @@
 
 <xsd:complexType name="OSCUserDefinedAction">
     <xsd:choice>
-        <xsd:element name="Command" type="xsd:string"/ -->
+        <xsd:element name="Command" type="xsd:string"/>
         <xsd:element name="Script">
             <xsd:complexType>
                 <xsd:all>
