@@ -10,6 +10,7 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <config/CoviseConfig.h>
 #include "SteeringWheel.h"
+#include <util/unixcompat.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 

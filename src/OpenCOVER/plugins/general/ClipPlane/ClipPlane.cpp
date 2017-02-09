@@ -26,6 +26,7 @@
 #include <PluginUtil/PluginMessageTypes.h>
 
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 #include <net/message.h>
 #include <net/tokenbuffer.h>

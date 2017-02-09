@@ -22,9 +22,9 @@
 #include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <net/if.h>
-#else
-#include <util/unixcompat.h>
 #endif
+
+#include <util/unixcompat.h>
 
 #include <util/coWristWatch.h>
 

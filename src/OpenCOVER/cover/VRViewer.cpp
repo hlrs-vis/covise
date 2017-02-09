@@ -37,6 +37,7 @@
 #endif
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 
 #include <osgViewer/View>
 #include "coVRRenderer.h"

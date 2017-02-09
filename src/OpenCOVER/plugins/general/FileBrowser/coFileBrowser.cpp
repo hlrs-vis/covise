@@ -14,6 +14,7 @@
 #include <virvo/vvtoolshed.h>
 
 // Covise:
+#include <util/unixcompat.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>

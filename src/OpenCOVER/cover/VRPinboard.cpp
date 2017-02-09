@@ -29,6 +29,7 @@
 //#define NOTEXT 1
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 
 #include <config/CoviseConfig.h>
 #include <input/VRKeys.h>

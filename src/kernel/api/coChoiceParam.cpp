@@ -20,6 +20,7 @@
 #include "coChoiceParam.h"
 #include "coBlankConv.h"
 #include <appl/ApplInterface.h>
+#include <util/unixcompat.h>
 
 using namespace covise;
 

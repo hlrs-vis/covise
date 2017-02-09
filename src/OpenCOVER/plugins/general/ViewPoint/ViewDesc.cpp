@@ -12,6 +12,7 @@
 #endif
 #include "ViewPoint.h"
 #include <util/covise_regexp.h>
+#include <util/unixcompat.h>
 #include <PluginUtil/PluginMessageTypes.h>
 #include "ViewDesc.h"
 #include <OpenVRUI/coButtonMenuItem.h>

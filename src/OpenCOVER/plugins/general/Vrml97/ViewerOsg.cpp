@@ -27,6 +27,7 @@ static const int NUM_TEXUNITS = 4;
 #include <winsock2.h>
 #include <windows.h>
 #endif
+#include <util/unixcompat.h>
 #include <vrml97/vrml/config.h>
 
 #include <vrml97/vrml/MathUtils.h>

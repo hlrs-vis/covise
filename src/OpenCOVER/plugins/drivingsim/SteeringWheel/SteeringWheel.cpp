@@ -41,6 +41,8 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 
+#include <util/unixcompat.h>
+
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_X11
 #define USE_LINUX

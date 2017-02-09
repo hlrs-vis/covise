@@ -9,6 +9,7 @@
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>
 #include <util/string_util.h>
+#include <util/unixcompat.h>
 #include "coVRNavigationManager.h"
 #include "coCoverConfig.h"
 #include "coVRConfig.h"

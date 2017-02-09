@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 #include "covise_shm.h"
 #include <config/CoviseConfig.h>
 #include <stdlib.h>

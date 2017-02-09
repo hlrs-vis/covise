@@ -8,6 +8,7 @@
 #include "coMaterial.h"
 
 #include "coFileUtil.h"
+#include "unixcompat.h"
 #include <stdio.h>
 
 #ifdef _WIN32

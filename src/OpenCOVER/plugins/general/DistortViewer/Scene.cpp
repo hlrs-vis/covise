@@ -14,6 +14,7 @@
 #include "HelpFuncs.h"
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 using namespace covise;
 using namespace opencover;

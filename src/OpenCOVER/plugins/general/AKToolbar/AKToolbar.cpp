@@ -18,6 +18,7 @@
 #include "AKToolbar.h"
 
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 #include <OpenVRUI/coToolboxMenu.h>
 #include <OpenVRUI/coRowMenu.h>

@@ -31,6 +31,7 @@
 #ifndef STANDALONE
 #endif
 #include <util/common.h>
+#include <util/unixcompat.h>
 
 #include <stdio.h>
 #include <string.h>

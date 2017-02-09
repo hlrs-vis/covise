@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "SequenceViewer.h"
+#include <util/unixcompat.h>
 
 using namespace std;
 using namespace osg;

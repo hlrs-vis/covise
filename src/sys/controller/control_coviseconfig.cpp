@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 
 #ifdef _WIN32
 #include <io.h>

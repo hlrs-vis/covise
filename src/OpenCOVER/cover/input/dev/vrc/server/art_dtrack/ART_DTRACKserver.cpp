@@ -17,6 +17,8 @@
 #include "DTrack.hpp" // use SDK from A.R.T.
 #include <util/UDP_Sender.h>
 #include <util/ArgsParser.h>
+#include <util/unixcompat.h>
+
 // #include "UDP_Sender.h"
 // #include "ArgsParser.h"
 

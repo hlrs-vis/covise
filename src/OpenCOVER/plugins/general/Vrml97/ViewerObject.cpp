@@ -23,6 +23,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #endif
+#include <util/unixcompat.h>
 #include <vrml97/vrml/config.h>
 
 #include <vrml97/vrml/MathUtils.h>
