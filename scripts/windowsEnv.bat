@@ -17,9 +17,6 @@ if "%1" == "" (
   set ARCHSUFFIX=%1
 )
 
-if not defined COVISE_BRANCH (
-   set COVISE_BRANCH=HLRS
-)
 if not defined EXTERNLIBS (
    if not defined EXTERNLIBSROOT (
       echo EXTERNLIBS and EXTERNLIBSROOT are not set
@@ -183,8 +180,6 @@ if not defined ALL_EXTLIBS (
   set "PATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%PATH%"
 )
 
-set FRAMEWORK=covise
-set QMAKECOVISEDIR=%COVISEDIR%
 set LOGNAME=covise
 set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
 

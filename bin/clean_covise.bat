@@ -9,8 +9,7 @@ rem  ---------------------------------------------
 
 echo clean running covise environment...
 
-if /I "%FRAMEWORK%" == "covise" set WORKINGDIR=%COVISEDIR%
-if /I "%FRAMEWORK%" == "yac"    set WORKINGDIR=%YACDIR%
+set WORKINGDIR=%COVISEDIR%
 
 
 rem  ---------------------------------------------
