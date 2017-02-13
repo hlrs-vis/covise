@@ -364,7 +364,7 @@ bool VariantPlugin::pickedObjChanged()
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
-void VariantPlugin::addNode(osg::Node *node, RenderObject *render)
+void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
 {
     if (render != NULL)
     {

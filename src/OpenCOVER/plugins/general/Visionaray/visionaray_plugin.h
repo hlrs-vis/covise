@@ -26,7 +26,7 @@ namespace visionaray
         // COVER plugin interface
 
         bool init();
-        void addNode(osg::Node *node, opencover::RenderObject *obj = NULL);
+        void addNode(osg::Node *node, const opencover::RenderObject *obj = NULL);
         void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode);
         void preDraw(osg::RenderInfo &info);
         void expandBoundingSphere(osg::BoundingSphere &bs);

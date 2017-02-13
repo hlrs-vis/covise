@@ -58,7 +58,7 @@ public:
     virtual bool selectionChanged();
     virtual bool pickedObjChanged();
 
-    void addNode(osg::Node *node, RenderObject *obj);
+    void addNode(osg::Node *node, const RenderObject *obj);
 
     //_____________________________the plugin tab__________________________________________________________
     coTUITabFolder *tabFolder;

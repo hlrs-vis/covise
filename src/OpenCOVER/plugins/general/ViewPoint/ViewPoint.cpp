@@ -700,7 +700,7 @@ void ViewPoints::readFromDom()
     }
 }
 
-void ViewPoints::addNode(Node *n, RenderObject *)
+void ViewPoints::addNode(Node *n, const RenderObject *)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::addNode()\n");

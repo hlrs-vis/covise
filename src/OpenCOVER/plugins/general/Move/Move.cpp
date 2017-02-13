@@ -1672,7 +1672,7 @@ void Move::newInteractor(const RenderObject *container, coInteractor *inter)
     }
 }
 
-void Move::addNode(osg::Node *node, RenderObject *ro)
+void Move::addNode(osg::Node *node, const RenderObject *ro)
 {
     if (roInteractorMap.find(ro) != roInteractorMap.end())
     {

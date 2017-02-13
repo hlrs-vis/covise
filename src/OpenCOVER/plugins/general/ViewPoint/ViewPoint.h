@@ -55,7 +55,7 @@ public:
     virtual bool init();
     virtual bool init2();
     virtual void preFrame();
-    virtual void addNode(osg::Node *, RenderObject *);
+    virtual void addNode(osg::Node *, const RenderObject *);
     virtual void key(int type, int keySym, int mod);
     virtual void guiToRenderMsg(const char *msg);
     virtual void message(int type, int length, const void *data);

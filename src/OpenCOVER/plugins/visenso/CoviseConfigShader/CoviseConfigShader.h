@@ -42,7 +42,7 @@ public:
     static CoviseConfigShader *plugin;
 
     virtual bool init();
-    virtual void addNode(osg::Node *, RenderObject *);
+    virtual void addNode(osg::Node *, const RenderObject *);
     virtual void guiToRenderMsg(const char *msg);
     virtual void preFrame();
 

@@ -71,7 +71,7 @@ public:
     void menuEvent(coMenuItem *menu_VariantPluginitem);
     // this will be called if a COVISE object arrives
     bool init();
-    void addNode(osg::Node *, RenderObject *);
+    void addNode(osg::Node *, const RenderObject *);
     void removeNode(osg::Node *node, bool /*isGroup*/, osg::Node *realNode);
     void message(int type, int len, const void *buf);
     void setMenuItem(Variant *var, bool state);

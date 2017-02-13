@@ -131,7 +131,7 @@ public:
     void preFrame();
     void message(int type, int len, const void *buf);
     void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode);
-    void addNode(osg::Node *node, RenderObject *obj);
+    void addNode(osg::Node *node, const RenderObject *obj);
     bool processTexture(osg::StateSet *ss);
 
     virtual void tabletPressEvent(coTUIElement *tUIItem);

@@ -720,7 +720,7 @@ namespace visionaray
         return true;
     }
 
-    void Visionaray::addNode(osg::Node *node, opencover::RenderObject *obj)
+    void Visionaray::addNode(osg::Node *node, const opencover::RenderObject *obj)
     {
         impl_->state->rebuild = true;
     }
