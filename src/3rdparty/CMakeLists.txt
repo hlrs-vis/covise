@@ -26,8 +26,8 @@ if (COVISE_USE_VISIONARAY)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default")
 
    IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=6")
-       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=6")
+       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=0")
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=0")
    ENDIF()
 
    add_subdirectory(visionaray)
