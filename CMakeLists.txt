@@ -262,7 +262,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     COVISE_FIND_PACKAGE(Cg)
 
     set(PythonLibs_FIND_VERSION 3.0)
-    set(Python_ADDITIONAL_VERSIONS 3.4 3.5)
+    set(Python_ADDITIONAL_VERSIONS 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9)
     set(saved_prefix_path ${CMAKE_PREFIX_PATH})
     set(CMAKE_PREFIX_PATH "$ENV{EXTERNLIBS}/python" ${CMAKE_PREFIX_PATH})
     COVISE_FIND_PACKAGE(PythonLibs)
