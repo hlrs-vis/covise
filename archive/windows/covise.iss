@@ -498,9 +498,10 @@ Source: {#EXTERNLIBS}\python\*; DestDir: {app}\extern_libs\python; Flags: recurs
 #if VERSION != "VISENSO"
 ; we are using Qt version >= 4.5.0 LGPL
 Source: {#QT}\bin\*.dll; DestDir: {#DLIB}; Components: core
+Source: {#QT}\bin\QtWebEngineProcess*.exe; DestDir: {#DBIN}; Components: core
 Source: {#QT}\plugins\*.dll; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
-Source: {#QT}\resources; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
-Source: {#QT}\translations; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
+Source: {#QT}\resources\*; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
+Source: {#QT}\translations\*; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
 Source: {#EXTERNLIBS}\icu\bin64\*.dll; DestDir: {#DBIN}; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc14\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
