@@ -8,6 +8,7 @@
 #include <covise/covise.h>
 #include <appl/CoviseBase.h>
 
+#include <util/unixcompat.h>
 #include <util/coFileUtil.h>
 #include <net/covise_host.h>
 

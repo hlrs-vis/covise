@@ -14,6 +14,7 @@
 
 #include <covise/covise.h>
 #include <cover/input/dev/legacy/DTrack.h>
+#include <util/unixcompat.h>
 #ifdef WIN32
 #include <windows.h>
 #include <process.h>

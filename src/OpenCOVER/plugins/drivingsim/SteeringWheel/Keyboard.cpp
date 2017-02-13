@@ -8,6 +8,7 @@
 #include "Keyboard.h"
 
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 #include "SteeringWheel.h"
 
 Keyboard::Keyboard()

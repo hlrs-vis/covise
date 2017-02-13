@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 #include "covise_shm.h"
 #include <config/CoviseConfig.h>
 #include <stdlib.h>
@@ -22,6 +23,8 @@ static bool use_posix = true;
 #else
 static bool use_posix = false;
 #endif
+#else
+#define USE_PAGEFILE
 #endif
 
 #ifdef SHARED_MEMORY
@@ -268,6 +271,9 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
     }
 #endif
 #else
+#ifdef USE_PAGEFILE
+    handle = INVALID_HANDLE_VALUE;
+#else
     char tmp_str[255];
     sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
     while ((handle = CreateFile(tmp_str, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -277,6 +283,7 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
         cerr << "waiting\n";
         Sleep(1000);
     }
+#endif
 #endif
     print_comment(__LINE__, __FILE__, "new SharedMemory; key: %x  size: %d", (unsigned)key, size);
     shmstate = valid;
@@ -313,7 +320,14 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
     }
 #endif
 #else
-    filemap = CreateFileMapping(handle, NULL, PAGE_READWRITE, 0, size, NULL);
+    const char *name = NULL;
+#ifdef USE_PAGEFILE
+    std::stringstream str;
+    str << "Local\\covise_shm_" << key;
+    std::string s = str.str();
+    name = s.c_str();
+#endif
+    filemap = CreateFileMapping(handle, NULL, PAGE_READWRITE, 0, size, name);
     if (!(data = (char *)MapViewOfFile(filemap, FILE_MAP_ALL_ACCESS, 0, 0, size)))
     {
         print_error(__LINE__, __FILE__, "Not enough disk space for CreateFileMapping file");
@@ -361,9 +375,7 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
     SharedMemory *tmpshm;
     SharedMemory **tmp_array;
     SharedMemory *last_shm;
-#ifdef DEBUG
     char tmp_str[255];
-#endif
 
     noDelete = 0;
     data = 0L;
@@ -491,14 +503,17 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
     }
 #endif
 #else
-    char tmp_str[255];
     sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
+#ifdef USE_PAGEFILE
+    handle = INVALID_HANDLE_VALUE;
+#else
     while ((handle = CreateFile(tmp_str, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
                                 NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
     {
         key++;
         sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
     }
+#endif
 #endif
     *shm_key = key;
 #ifdef DEBUG
@@ -547,12 +562,33 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
     }
 #endif
 #else
-    filemap = CreateFileMapping(handle, NULL, PAGE_READWRITE, 0, size, NULL);
-    if (!(data = (char *)MapViewOfFile(filemap, FILE_MAP_ALL_ACCESS, 0, 0, size)))
-    {
-        print_error(__LINE__, __FILE__, "Not enough disk space for CreateFileMapping file");
-        print_exit(__LINE__, __FILE__, 1);
-    }
+    const char *name = NULL;
+#ifdef USE_PAGEFILE
+	for (;;)
+	{
+		std::stringstream str;
+		str << "Local\\covise_shm_" << key;
+		std::string s = str.str();
+		name = s.c_str();
+#endif
+		filemap = CreateFileMapping(handle, NULL, PAGE_READWRITE, 0, size, name);
+		if (filemap == NULL)
+		{
+			print_error(__LINE__, __FILE__, "Not enough disk space for CreateFileMapping file");
+			print_exit(__LINE__, __FILE__, 1);
+		}
+#ifdef USE_PAGEFILE
+		if (GetLastError() != ERROR_ALREADY_EXISTS)
+			break;
+		++key;
+	}
+	*shm_key = key;
+#endif
+	if (!(data = (char *)MapViewOfFile(filemap, FILE_MAP_ALL_ACCESS, 0, 0, size)))
+	{
+		print_error(__LINE__, __FILE__, "Not enough disk space for CreateFileMapping file");
+		print_exit(__LINE__, __FILE__, 1);
+	}
 #endif
 #endif
     *(int *)data = seq_no;
@@ -656,11 +692,14 @@ SharedMemory::~SharedMemory()
         cerr << "can't close handle filemap " << GetLastError() << endl;
         //print_comment(__LINE__, __FILE__, "can't remove shared memory");
     }
-    pBuf = (CloseHandle(handle) != 0);
-    if (pBuf == false)
+    if (handle != INVALID_HANDLE_VALUE)
     {
-        cerr << "can't close handle  " << GetLastError() << endl;
-        //print_comment(__LINE__, __FILE__, "can't remove shared memory");
+        pBuf = (CloseHandle(handle) != 0);
+        if (pBuf == false)
+        {
+            cerr << "can't close handle  " << GetLastError() << endl;
+            //print_comment(__LINE__, __FILE__, "can't remove shared memory");
+        }
     }
 
     // try to delete shared memory
@@ -800,7 +839,8 @@ int SharedMemory::detach()
         shmstate = detached;
     }
     CloseHandle(filemap);
-    CloseHandle(handle);
+    if (handle != INVALID_HANDLE_VALUE)
+        CloseHandle(handle);
     return (1);
 #endif
 #endif

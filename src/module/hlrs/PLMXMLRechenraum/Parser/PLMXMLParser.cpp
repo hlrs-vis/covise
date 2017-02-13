@@ -9,6 +9,7 @@
 #include "PLMXMLParser.h"
 #include <cstring>
 #include "NameId.h"
+#include <util/unixcompat.h>
 
 #ifdef STANDALONE
 using namespace std;

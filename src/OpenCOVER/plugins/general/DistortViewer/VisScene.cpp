@@ -15,6 +15,7 @@
 
 #include "KoordAxis.h"
 
+#include <util/unixcompat.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRFileManager.h>

@@ -13,7 +13,6 @@
 
 #include "byteswap.h"
 #include "coExport.h"
-#include "unixcompat.h"
 #include "common.h"
 
 #if !(defined WIN32 || defined WIN64)

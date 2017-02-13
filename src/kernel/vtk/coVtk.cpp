@@ -515,7 +515,7 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
 
         vtkCellArray *polys = vpolydata->GetPolys();
         int ncorner = polys->GetNumberOfConnectivityEntries() - npolys + 3 * nstriptris;
-        coDoPolygons *cpoly = new coDoPolygons(info, nstriptris+npolys, ncorner, ncoord);
+        coDoPolygons *cpoly = new coDoPolygons(info, ncoord, ncorner, nstriptris+npolys);
         geo = cpoly;
 
         int *cornerlist, *polylist;

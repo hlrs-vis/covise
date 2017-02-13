@@ -9,6 +9,7 @@
 #include <config/CoviseConfig.h>
 #include <util/coFileUtil.h>
 #include <dmgr/dmgr.h>
+#include <util/unixcompat.h>
 
 #ifdef _WIN32
 #include <io.h>

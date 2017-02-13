@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "TopsanViewer.h"
+#include <util/unixcompat.h>
 
 #define TOPSAN_INTRO "The Open Protein Structure Annotation Network (TOPSAN) is a wiki designed to collect, share and distribute information about protein three-dimensional structures, and to advance it towards knowledge about functions and roles of these proteins in their respective organisms. TOPSAN will serve as a portal for the scientific community to learn about protein structures and also to contribute their expertise in annotating protein function.\n\nThe premise of the TOPSAN project is that, no matter how much any individual knows about a particular protein, there are other members of the scientific community who know more about certain aspects of the same protein, and that the collective analysis from experts will be far more informative than any local group, let alone individual, could contribute.\n\nWe believe that, if the members of the biological community are given the opportunity, authorship incentives, and an easy way to contribute their knowledge to the structure annotation, they will do so."
 

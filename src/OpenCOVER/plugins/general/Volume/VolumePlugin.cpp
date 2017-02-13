@@ -17,6 +17,7 @@
 #include "VolumePlugin.h"
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 #include <assert.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>

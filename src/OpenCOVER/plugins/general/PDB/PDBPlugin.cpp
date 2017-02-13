@@ -44,6 +44,7 @@
 #include <sys/timeb.h>
 #include <direct.h>
 #endif
+#include <util/unixcompat.h>
 #include <osg/Node>
 #include <osg/Geode>
 #include <osg/ShapeDrawable>

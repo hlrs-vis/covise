@@ -17,6 +17,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 #include "Calibrate.h"
 //#define MyNAN(X) *((int *)(&(X)))=-1

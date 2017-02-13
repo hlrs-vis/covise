@@ -45,6 +45,11 @@ MACRO(USE_VISIONARAY)
                 set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
             endif()
 
+            IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=0")
+                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=0")
+            ENDIF()
+
             SET(VISIONARAY_USED TRUE)
         ENDIF(NOT VISIONARAY_USED)
     else(COVISE_USE_VISIONARAY)

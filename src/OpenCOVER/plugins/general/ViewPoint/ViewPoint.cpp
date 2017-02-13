@@ -30,6 +30,7 @@
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <net/message_types.h>
 #include <net/message.h>
+#include <util/unixcompat.h>
 #include <grmsg/coGRMsg.h>
 #include <grmsg/coGRCreateViewpointMsg.h>
 #include <grmsg/coGRCreateDefaultViewpointMsg.h>

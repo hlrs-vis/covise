@@ -18,6 +18,7 @@
 #include "ErrorPlugin.h"
 #include <cover/OpenCOVER.h>
 #include <cover/coHud.h>
+#include <util/unixcompat.h>
 
 ErrorPlugin::ErrorPlugin()
 {

@@ -37,6 +37,7 @@
 #endif
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 
 #include <osgViewer/View>
 #include "coVRRenderer.h"
@@ -235,17 +236,8 @@ struct ViewerRunOperations : public osg::Operation
                 numClears = coVRConfig::instance()->numWindows() * 2;
             }
             numClears--;
-            glDrawBuffer(GL_BACK);
-            glViewport(0, 0, 1, 1);
-            glScissor(0, 0, 1, 1);
-            glClearColor(0.0, 0.0, 0.0, 1.0);
-            glClear(GL_COLOR_BUFFER_BIT);
-            glDrawBuffer(GL_FRONT);
-            glViewport(0, 0, 1, 1);
-            glScissor(0, 0, 1, 1);
-            glClearColor(0.0, 0.0, 0.0, 1.0);
-            glClear(GL_COLOR_BUFFER_BIT);
             context->makeCurrent();
+            context->clear();
         } // OpenCOVER end
 
         context->runOperations();
@@ -2371,17 +2363,8 @@ void VRViewer::renderingTraversals()
                     numClears = coVRConfig::instance()->numWindows() * 2;
                 }
                 numClears--;
-                glDrawBuffer(GL_BACK);
-                glViewport(0, 0, 1, 1);
-                glScissor(0, 0, 1, 1);
-                glClearColor(0.0, 0.0, 0.0, 1.0);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glDrawBuffer(GL_FRONT);
-                glViewport(0, 0, 1, 1);
-                glScissor(0, 0, 1, 1);
-                glClearColor(0.0, 0.0, 0.0, 1.0);
-                glClear(GL_COLOR_BUFFER_BIT);
                 makeCurrent(*itr);
+                (*itr)->clear();
             }
             //cerr << "finish" << endl;
 	    

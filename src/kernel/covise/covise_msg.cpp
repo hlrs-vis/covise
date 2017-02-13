@@ -10,6 +10,7 @@
 
 #include <util/coErr.h>
 #include <util/byteswap.h>
+#include <util/unixcompat.h>
 
 /*
  $Log: covise_msg.C,v $

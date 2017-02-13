@@ -36,7 +36,6 @@
 #include <windows.h>
 #ifndef _WIN32_WCE
 #include <process.h>
-#include "unixcompat.h"
 #endif
 #else
 #include <unistd.h>
@@ -145,10 +144,6 @@ using std::stack;
 using std::find;
 
 #endif /* __cplusplus */
-
-#ifdef __hpux
-#include "unixcompat.h" /* for strtok_r */
-#endif
 
 #if defined(__linux__) || defined(__MINGW32__)
 #include <stdint.h>

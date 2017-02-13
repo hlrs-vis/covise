@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>

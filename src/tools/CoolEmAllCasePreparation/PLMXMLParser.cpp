@@ -8,6 +8,7 @@
 #include "FileReference.h"
 #include "PLMXMLParser.h"
 #include <cstring>
+#include <util/unixcompat.h>
 
 #ifdef STANDALONE
 using namespace std;

@@ -8,7 +8,7 @@
   #define SIMULATION "NO"
 #endif
 
-#define BRANCH GetEnv("COVISE_BRANCH")
+#define BRANCH "HLRS"
 
 #define VERSION GetEnv("COVISE_DISTRIBUTION")
 #if VERSION == ""

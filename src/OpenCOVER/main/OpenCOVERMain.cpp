@@ -26,6 +26,7 @@
  ************************************************************************/
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 #ifdef DOTIMING
 #include <covise/coTimer.h>
 #endif
