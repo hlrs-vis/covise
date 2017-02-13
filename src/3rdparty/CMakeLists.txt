@@ -24,6 +24,12 @@ if (COVISE_USE_VISIONARAY)
    set(VSNRAY_ENABLE_EXAMPLES FALSE CACHE BOOL "Visionaray examples" FORCE)
    set(VSNRAY_ENABLE_VIEWER FALSE CACHE BOOL "Visionaray viewer" FORCE)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default")
+
+   IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=6")
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=6")
+   ENDIF()
+
    add_subdirectory(visionaray)
    set(VISIONARAY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/visionaray/include")
    
@@ -37,6 +43,7 @@ if (COVISE_USE_VISIONARAY)
         set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
      endif()
    endif()
+
 endif()
 
 SET(DESKVOX_USE_CUDA ${COVISE_USE_CUDA} CACHE BOOL "CUDA for Virvo" FORCE)
