@@ -39,6 +39,7 @@ public:
 	oscClass(std::string name);
 	~oscClass();
 	std::string name;
+	std::string parentName;
 	std::list<oscMember *> members;
 	std::list<oscMember *> attributes;
 	std::list<std::string> enumHeaders;
@@ -123,6 +124,7 @@ void parseAttribute(xercesc::DOMElement *elem, int choice);
 void parseSchema(xercesc::DOMElement *elem);
 void parseChoice(xercesc::DOMElement *elem);
 std::string elementName;
+std::string parentName;
 
 void parseElement(xercesc::DOMElement *elem, int choice)
 {
@@ -243,7 +245,9 @@ void parseComplexType(xercesc::DOMElement *elem, int choice)
 		name = elementName;
 	}
 	currentClass = new oscClass(name);
+	currentClass->parentName = parentName;
 	currentClassStack.push(currentClass);
+	parentName = elementName;
 	parseGeneric(elem, choice);
 }
 
@@ -280,7 +284,6 @@ void parseGeneric(xercesc::DOMElement *elem, int choice)
 
 	std::string name;
 	name = xercesc::XMLString::transcode(elem->getNodeName());
-
 	xercesc::DOMNodeList *elementList = elem->getChildNodes();
 
 	for (unsigned int child = 0; child < elementList->getLength(); ++child)
@@ -357,6 +360,7 @@ int main(int argc, char **argv)
 		xercesc::XMLString::release(&message);
 	}
 
+	FILE *duplicates = fopen("duplicateClasses.txt", "w");
 	for (int i = 1; i < argc; i++)
 	{
 		//parser and error handler have to be initialized _after_ xercesc::XMLPlatformUtils::Initialize()
@@ -513,11 +517,11 @@ int main(int argc, char **argv)
 			if (cl2 != cl && cl2->name == cl->name)
 			{
 
-				fprintf(stderr, "duplicate class %s\n", cl->name.c_str());
+				fprintf(duplicates, "duplicate class %s, parent %s\n", cl->name.c_str(), cl->parentName.c_str());
 				//check if they differ
 				if (cl->attributes.size() != cl2->attributes.size())
 				{
-					fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+					fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 					foundDuplicate = true;
 					break;
 				}
@@ -531,7 +535,7 @@ int main(int argc, char **argv)
 						oscMember *attrib2 = *ait2;
 						if(attrib->name != attrib2->name)
 						{
-							fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+							fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 							foundDuplicate = true;
 							break;
 						}
@@ -543,7 +547,7 @@ int main(int argc, char **argv)
 				}
 				if (cl->members.size() != cl2->members.size())
 				{
-					fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+					fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 					foundDuplicate = true;
 					break;
 				}
@@ -557,7 +561,7 @@ int main(int argc, char **argv)
 						oscMember *attrib2 = *mit2;
 						if (attrib->name != attrib2->name)
 						{
-							fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+							fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 							foundDuplicate = true;
 							break;
 						}
@@ -895,6 +899,7 @@ using namespace OpenScenario;\n\
 			fclose(cpp);
 		}
 	}
+	fclose(duplicates);
 
 	fprintf(CMakeInc, ")\n");
 
