@@ -73,7 +73,7 @@ public:
     void preFrame();
     void message(int type, int len, const void *buf);
     void newInteractor(const RenderObject *container, coInteractor *it);
-    void addNode(osg::Node *, RenderObject *);
+    void addNode(osg::Node *, const RenderObject *);
     void removeNode(osg::Node *, bool isGroup, osg::Node *realNode);
 
     virtual bool selectionChanged();

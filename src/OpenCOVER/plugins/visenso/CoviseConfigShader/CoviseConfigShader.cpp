@@ -103,7 +103,7 @@ void CoviseConfigShader::readConfig()
     }
 }
 
-void CoviseConfigShader::addNode(osg::Node *node, RenderObject *)
+void CoviseConfigShader::addNode(osg::Node *node, const RenderObject *)
 {
     // check if we have a PerformerScene node (in which case the geometry is not in node)
     bool isVrml = false;
