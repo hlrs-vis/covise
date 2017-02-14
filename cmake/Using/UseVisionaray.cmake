@@ -48,6 +48,8 @@ MACRO(USE_VISIONARAY)
             IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
                 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=0")
                 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=0")
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=ignored-attributes")
+                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=ignored-attributes")
             ENDIF()
 
             SET(VISIONARAY_USED TRUE)

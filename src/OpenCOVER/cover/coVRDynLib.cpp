@@ -127,8 +127,10 @@ CO_SHLIB_HANDLE try_dlopen(const char *filename)
 
     if (handle == NULL)
     {
+#ifndef _WIN32
         if (cover->debugLevel(1))
             cerr << dlerror() << endl;
+#endif
     }
     else
     {
