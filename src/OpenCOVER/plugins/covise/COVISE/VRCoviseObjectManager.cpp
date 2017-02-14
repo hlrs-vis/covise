@@ -1577,7 +1577,9 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
                 newNode = GeometryManager::instance()->addLine(object, no_lines, no_vert, no_points,
                                                                x_c, y_c, z_c, v_l, l_l, no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                                                               no_n, normalbinding, xn, yn, zn, isTrace, material, linewidth);
+                                                               no_n, normalbinding, xn, yn, zn, isTrace, material,
+                                                               texW, texH, pixS, texImage, no_t, t_c[0], t_c[1], wrapMode, minfm, magfm,
+                                                               linewidth);
             }
             //else if ( ( strcmp ( gtype,"POINTS" ) == 0 ) || ( strcmp ( gtype,"UNSGRD" ) == 0 ) )
             else if ((strcmp(gtype, "POINTS") == 0))

@@ -155,6 +155,8 @@ public:
                        float *r, float *g, float *b, int *pc, int no_of_normals,
                        int normalbinding,
                        float *nx, float *ny, float *nz, int is_trace, coMaterial *,
+                       int texWidth, int texHeight, int pixelSize, unsigned char *image,
+                       int no_of_texCoords, float *tx, float *ty, osg::Texture::WrapMode wm, osg::Texture::FilterMode minfm, osg::Texture::FilterMode magfm,
                        float linewidth);
 
     osg::Node *addPoint(const char *object, int no_of_points,
