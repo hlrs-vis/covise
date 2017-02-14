@@ -12,6 +12,7 @@ SET(HEADERS
 SET(SOURCES
    generateParser.cpp
 )
+DEFINITIONS("coOpenScenario_EXPORTS")
 add_covise_executable(oscGenerateParser MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 
 covise_install_target(oscGenerateParser)

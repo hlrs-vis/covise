@@ -8,6 +8,7 @@
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
+#include "../oscNameMapping.h"
 
 class oscClass;
 class oscMember;
@@ -244,10 +245,11 @@ void parseComplexType(xercesc::DOMElement *elem, int choice)
 	{
 		name = elementName;
 	}
+	name = OpenScenario::nameMapping::instance()->getClassName(name, parentName);
 	currentClass = new oscClass(name);
 	currentClass->parentName = parentName;
 	currentClassStack.push(currentClass);
-	parentName = elementName;
+	parentName = name;
 	parseGeneric(elem, choice);
 }
 
@@ -285,6 +287,7 @@ void parseGeneric(xercesc::DOMElement *elem, int choice)
 	std::string name;
 	name = xercesc::XMLString::transcode(elem->getNodeName());
 	xercesc::DOMNodeList *elementList = elem->getChildNodes();
+	std::string myParentName = parentName;
 
 	for (unsigned int child = 0; child < elementList->getLength(); ++child)
 	{
@@ -294,6 +297,9 @@ void parseGeneric(xercesc::DOMElement *elem, int choice)
 		{
 			std::string name;
 			name = xercesc::XMLString::transcode(element->getNodeName());
+
+			parentName = myParentName;
+
 			if (name == "xsd:element")
 			{
 				parseElement(element, choice);
@@ -517,7 +523,7 @@ int main(int argc, char **argv)
 			if (cl2 != cl && cl2->name == cl->name)
 			{
 
-				fprintf(duplicates, "duplicate class %s, parent %s\n", cl->name.c_str(), cl->parentName.c_str());
+				fprintf(duplicates, "duplicate class %s, parent %s, class %s, parent %s\n", cl->name.c_str(), cl->parentName.c_str(), cl2->name.c_str(), cl2->parentName.c_str());
 				//check if they differ
 				if (cl->attributes.size() != cl2->attributes.size())
 				{
