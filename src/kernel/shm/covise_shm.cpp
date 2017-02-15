@@ -21,7 +21,7 @@
 #ifdef __APPLE__
 static bool use_posix = true;
 #else
-static bool use_posix = false;
+static bool use_posix = true;
 #endif
 #else
 #define USE_PAGEFILE
