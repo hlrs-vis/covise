@@ -208,7 +208,7 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
         return;
     }
 
-    int in, r, g, b;
+    int r, g, b;
     float fa, fb, fc;
     Point point;
 
@@ -297,9 +297,9 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
                 numValues++;
             c = nc;
 #ifdef WIN32
-            in = strtod(c, &nc);
+            double in = strtod(c, &nc);
 #else
-            in = strtof(c, &nc);
+            float in = strtof(c, &nc);
 #endif
             if (nc != c)
                 numValues++;
@@ -325,7 +325,7 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
                 point.z = p[2];
                 if(intensityOnly)
                 {
-                    unsigned char intensity = (unsigned char)(in*256);
+                    unsigned char intensity = (unsigned char)(in*255.99);
                     point.rgba = intensity | intensity << 8 | intensity << 16;
                 }
                 else
