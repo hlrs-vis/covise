@@ -290,9 +290,11 @@ int GenDat::compute(const char *)
             grid = gridstruct;
             gridstruct->addAttribute(COLOR, rgbtxt);
 
+#ifdef VECTOR_INTERACTOR_ATTRIBUTE
             char abuf[1000];
             sprintf(abuf, "M%s\n%s\n%s\nend\n%f\n%f\n%f\nstart\n%f\n%f\n%f\n1\n", Covise::get_module(), Covise::get_instance(), Covise::get_host(), endx, endy, endz, startx, starty, startz);
             gridstruct->addAttribute("VECTOR0", abuf);
+#endif
 
             float *Koordx, *Koordy, *Koordz;
             gridstruct->getAddresses(&Koordx, &Koordy, &Koordz);
