@@ -26,6 +26,7 @@ namespace alg = std;
 #endif
 
 using namespace std;
+bool intensityOnly;
 
 float min_x, min_y, min_z;
 float max_x, max_y, max_z;
@@ -263,6 +264,7 @@ int main(int argc, char **argv)
     min_x = min_y = min_z = FLT_MAX;
     max_x = max_y = max_z = FLT_MIN;
 
+    intensityOnly=false;
     if (argc < 3) /* argc should be > 3 for correct execution */
     {
         printf("Minimal two params required. read README.txt\n");
@@ -271,8 +273,18 @@ int main(int argc, char **argv)
     {
         for (int i = 1; i < argc - 1; i++)
         {
-            printf("Reading in %s\n", argv[i]);
-            ReadData(argv[i], vec, format);
+            if(argv[i][0] == '-')
+            {
+               if(argv[i][1] == 'i')
+               {
+                   intensityOnly=true;
+               }
+            }
+            else
+            {
+                printf("Reading in %s\n", argv[i]);
+                ReadData(argv[i], vec, format);
+            }
         }
         printf("Sorting data\n");
         LabelData(divisionSize, vec, lookUp);
