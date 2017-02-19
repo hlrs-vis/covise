@@ -922,6 +922,9 @@ const char *coDirectoryImpl::chop_slash(const char *path)
     static char newpath[path_buffer_size];
     char *dest = newpath;
 
+    if (!path || !path[0])
+        return path;
+
     const char *end = &path[strlen(path) - 1];
     if (*end == '/' && strlen(path) > 3)
     {
