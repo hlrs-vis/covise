@@ -54,6 +54,7 @@ private:
 #endif
 
     coStringParam *p_varName;
+    coBooleanParam *p_varVisible;
     coStringParam *p_attribute;
     coFloatVectorParam *p_boundsMinParam;
     coFloatVectorParam *p_boundsMaxParam;

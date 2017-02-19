@@ -374,30 +374,42 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
 
             if (var_att != "NULL" && var_att != "")
             {
+                bool set_default = false;
                 bool default_state = false;
+                if (render->getAttribute("VARIANT_VISIBLE"))
+                {
+                    set_default = true;
+                    if (std::string(render->getAttribute("VARIANT_VISIBLE")) == "off")
+                        default_state = false;
+                    else
+                        default_state = true;
+                }
                 if(var_att.length()>3 && var_att.compare(var_att.length()-3,3,"_on")==0)
                 {
                    var_att = var_att.substr(0,var_att.length()-3);
                    default_state = true;
+                   set_default = true;
                 }
                 if(var_att.length()>4 && var_att.compare(var_att.length()-4,4,"_off")==0)
                 {
                    var_att = var_att.substr(0,var_att.length()-4);
                    default_state = false;
+                   set_default = true;
                 }
+                std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {
                     osg::Node::ParentList parents;
                     if (node)
                         parents = node->getParents();
-                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi,default_state);
+                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
 
                     varlist.push_back(vari);
 
                     vari->AddToScenegraph();
                     vari->hideVRLabel();
-                    if(default_state==false)
+                    if(set_default && default_state==false)
                     {
                        osg::Node *n = vari->getNode();
                        if (n)
