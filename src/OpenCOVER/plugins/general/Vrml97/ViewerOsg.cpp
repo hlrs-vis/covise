@@ -560,7 +560,7 @@ osg::ref_ptr<osg::TexEnv> tEnvModulate;
 
 // current transformation matrix while traversing the Tree.
 // it is updated, in an endObject call, the setTransform call
-MatrixTransform *ViewerOsg::VRMLCaveRoot = NULL;
+osg::ref_ptr<MatrixTransform> ViewerOsg::VRMLCaveRoot;
 
 struct CopyTextureCallback : public osg::Drawable::DrawCallback
 {

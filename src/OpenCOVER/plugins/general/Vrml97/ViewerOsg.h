@@ -131,10 +131,10 @@ public:
     std::vector<coSensiveSensor *> sensors; // hold all sensors for later access
 
     //osg::ColorMask *NoFrameBuffer;
-    osg::Depth *NoDepthBuffer;
+    osg::ref_ptr<osg::Depth> NoDepthBuffer;
     void setRootNode(osg::Group *group);
-    osg::MatrixTransform *VRMLRoot;
-    static osg::MatrixTransform *VRMLCaveRoot;
+    osg::ref_ptr<osg::MatrixTransform> VRMLRoot;
+    static osg::ref_ptr<osg::MatrixTransform> VRMLCaveRoot;
     double startLoadTime;
     osg::Matrix vrmlBaseMat;
     osg::Matrix currentTransform;
