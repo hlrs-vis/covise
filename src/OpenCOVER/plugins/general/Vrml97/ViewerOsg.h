@@ -22,8 +22,10 @@
 #include <osg/Camera>
 
 #include <osg/GL>
+#include <osg/Depth>
 #include <osg/Node>
 #include <osg/Matrix>
+#include <osg/MatrixTransform>
 #include <osg/Material>
 #include <osg/Billboard>
 #include <osg/Texture>
@@ -83,7 +85,6 @@ class Geometry;
 class Texture;
 class Texture2D;
 class StateSet;
-class Depth;
 class ColorMask;
 };
 namespace osgText
