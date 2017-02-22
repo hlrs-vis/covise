@@ -472,6 +472,8 @@ bool OpenCOVER::init()
     VRSceneGraph::instance()->init();
     VRViewer::instance()->setSceneData(cover->getScene());
 
+	Input::instance()->update(); // requires scenegraph
+
     cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
 
     // initialize communication

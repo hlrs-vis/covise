@@ -61,8 +61,6 @@ bool Input::init()
     initObjects();
     initPersons();
 
-    update();
-
     if (coVRMSController::instance()->isMaster())
     {
         if (debug(Input::Config))
