@@ -54,9 +54,9 @@ Build Requirements
 - **C++ compiler**:
   C++03 or C++11
 
-  On Windows, only Visual Studio 2012 is tested.
+  On Windows, we currently use Visual Studio 2015 (VC14).
 - **CMake**:
-  2.8.10 or newer should work
+  2.8.10 or newer should work, but currently we suggest CMake 3.7
 - **XercesC**:
 - **Qt**:
   Either Qt 4 or 5 is required by the graphical user interface.
@@ -123,6 +123,15 @@ CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
 
 
+Directory for Third Party Dependencies
+--------------------------------------
+COVISE is set up to automatically search for third party libraries in
+subdirectories of a directory pointed to by the environment variable
+EXTERNLIBS.
+You should install e.g. OpenSceneGraph into $EXTERNLIBS/openscenegraph, and
+it will be discovered during the build process.
+
+
 Working with Git
 ---------------
 
@@ -131,8 +140,8 @@ Working with Git
       git pull -r #-r requests a rebase of your changes to avoid trivial branching
       git submodule update --init --recursive # update submodules to latest required version
 
-Building COVISE
----------------
+Building COVISE and OpenCOVER
+-----------------------------
 
 ### UNIX
 
@@ -151,16 +160,19 @@ subdirectories of `covise/src`.
 No installation is required: you can use COVISE directly from the build tree.
 
 ### Windows
+Also on Windows, you should work from a command prompt:
+
        REM set COVISEDIR to location of your COVISE checkout
        set COVISEDIR=c:/src/covise
 	   REM set EXTERNLIBS to correct location of all your dependancies
-       set EXTERNLIBS=c:\src\externlibs\tamarau
+       set EXTERNLIBSROOT=c:\src\externlibs
        cd %COVISEDIR%
 	   REM call winenv.bat with appropriate archsuffix for debug or release (tamarau for Visual Studio 2012 and zebu for 2015)
-       call %COVISEDIR%\winenv.bat tamarauopt
+       call %COVISEDIR%\winenv.bat zebuopt
        mkdir build.covise
        cd build.covise
        cmake-gui ..
+       REM open Visual Studio - either directly or with the button from CMake GUI
        devenv
        cd %COVISEDIR%
        mkdir build.cover
@@ -215,6 +227,21 @@ Invoking COVISE
 Add .../covise/bin to your PATH.
 
       covise
+
+### Windows
+
+COVISE can be used without installation, provided you take the same steps as
+for building:
+
+       REM set COVISEDIR to location of your COVISE checkout
+       set COVISEDIR=c:/src/covise
+	   REM set EXTERNLIBS to correct location of all your dependancies
+       set EXTERNLIBSROOT=c:\src\externlibs
+       cd %COVISEDIR%
+	   REM call winenv.bat with appropriate archsuffix for debug or release (tamarau for Visual Studio 2012 and zebu for 2015)
+       call %COVISEDIR%\winenv.bat zebuopt
+       covise
+       opencover
 
 
 Source Code Organization
