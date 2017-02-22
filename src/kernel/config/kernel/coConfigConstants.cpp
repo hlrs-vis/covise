@@ -147,6 +147,7 @@ void coConfigConstants::setMaster(const QString &hostname)
     if (!instance)
         new coConfigConstants();
     instance->master = hostname.toLower();
+    COCONFIGDBG_DEFAULT("coConfigConstants::setMaster info: CLUSTER master is '" + hostname);
     coConfig::getInstance()->setActiveCluster(hostname);
 }
 
