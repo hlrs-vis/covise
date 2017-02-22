@@ -163,11 +163,11 @@
 #elif ARCHSUFFIX == "zebu"
   #define X64Arch
   #define LABEL "_zebu"
-  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.*"
 #elif ARCHSUFFIX == "zebuopt"
   #define X64Arch
   #define LABEL "_zebuopt"
-  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.*"
 #else
   #pragma message "Warning: undefined or unknown ARCHSUFFIX! Cannot set SYS variable!"
   #define LABEL "UNKNOWN"
@@ -336,6 +336,7 @@ Name: runtimes/abaqus; Description: Runtime files of abaqus; Types: standard cus
 Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
@@ -556,6 +557,9 @@ Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+
+
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
 Source: {#EXTERNLIBS}\collada\lib\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
