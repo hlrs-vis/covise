@@ -221,7 +221,10 @@ int covOpenInFile(const char *filename)
     int fd = _open(filename, _O_RDONLY | _O_BINARY);
 #else
     struct stat s;
-    stat(filename, &s);
+    if (stat(filename, &s) == -1)
+    {
+        return 0;
+    }
     if (S_ISDIR(s.st_mode))
     {
         errno = EISDIR;
