@@ -104,10 +104,6 @@ int main(int argc, char *argv[])
     opencover::coCommandLine(argc, argv);
     char my_hostname[256];
     gethostname(my_hostname, 256);
-    if (char *p = strchr(my_hostname, '.'))
-    {
-        *p = '\0';
-    }
     int myID = 0;
     std::string mastername(my_hostname);
     if ((opencover::coCommandLine::argc() >= 5) && (!strcmp(opencover::coCommandLine::argv(1), "-c")))
