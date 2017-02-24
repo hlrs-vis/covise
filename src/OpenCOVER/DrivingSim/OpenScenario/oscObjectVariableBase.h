@@ -45,7 +45,7 @@ public:
 
     T createObject()
 	{
-		std::string className = nameMapping::instance()->getClassName(TBase::typeName, std::string(owner->getScope()));
+		std::string className = nameMapping::instance()->getClassName(TBase::typeName, std::string(TBase::owner->getScope()));
 		T obj = static_cast<T>(oscFactories::instance()->objectFactory->create(className));
 		if(obj)
 		{

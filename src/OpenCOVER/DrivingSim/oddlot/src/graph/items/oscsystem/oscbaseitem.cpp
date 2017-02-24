@@ -168,7 +168,7 @@ OSCBaseItem::getCatalog(OpenScenario::oscObject *object)
 	{
 		return NULL;
 	}
-	std::string catalogName = catalogReference->catalog.getValue();
+	std::string catalogName = catalogReference->catalogName.getValue();
 	OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
 	if (catalogMember)
 	{

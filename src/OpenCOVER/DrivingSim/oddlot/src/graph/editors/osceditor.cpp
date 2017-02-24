@@ -80,15 +80,15 @@
 #include "schema/oscActions.h"
 #include "schema/oscPrivateAction.h"
 #include "schema/oscPrivate.h"
-#include "schema/oscOpenSCENARIO_TrajectoryCatalog.h"
-#include "schema/oscOpenSCENARIO_DriverCatalog.h"
-#include "schema/oscOpenSCENARIO_EnvironmentCatalog.h"
-#include "schema/oscOpenSCENARIO_ManeuverCatalog.h"
-#include "schema/oscOpenSCENARIO_MiscObjectCatalog.h"
-#include "schema/oscOpenSCENARIO_PedestrianCatalog.h"
-#include "schema/oscOpenSCENARIO_PedestrianControllerCatalog.h"
-#include "schema/oscOpenSCENARIO_VehicleCatalog.h"
-#include "schema/oscOpenSCENARIO_RouteCatalog.h"
+#include "schema/oscTrajectoryCatalog.h"
+#include "schema/oscDriverCatalog.h"
+#include "schema/oscEnvironmentCatalog.h"
+#include "schema/oscManeuverCatalog.h"
+#include "schema/oscMiscObjectCatalog.h"
+#include "schema/oscPedestrianCatalog.h"
+#include "schema/oscPedestrianControllerCatalog.h"
+#include "schema/oscVehicleCatalog.h"
+#include "schema/oscRouteCatalog.h"
 
 
 // Boost //
@@ -155,7 +155,7 @@ OpenScenarioEditor::init()
 
 		if (!oscBase_->getOSCElement(object))
 		{
-			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->name.getValue()), object);
+			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->catalogName.getValue()), object);
 			oscBase_->addOSCElement(element);
 		}
 	}
@@ -181,12 +181,12 @@ OpenScenarioEditor::init()
             foreach (OpenScenario::oscObjectBase *objectBase, trajectoryObjects)
             {
                 OpenScenario::oscFollowTrajectory *objectTrajectory = dynamic_cast<OpenScenario::oscFollowTrajectory *>(objectBase);
-                std::string name = objectTrajectory->name.getValue();
-                OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
+                std::string name = objectTrajectory->CatalogReference->entryName.getValue();
+                OpenScenario::oscTrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 if (!catalogObject)
                 {
                     trajectoryCatalog->fullReadCatalogObjectWithName(name);
-                    catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
+                    catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 }
 				OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
 				OpenScenario::oscTrajectory *catalogTrajectory = NULL;
@@ -755,8 +755,8 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 								{
 									oscObject->name.setValue(selectedObjectName);
 								}
-								catalogReference->name.setValue(selectedObjectName);
-								catalogReference->catalog.setValue(oscCatalog_->getCatalogName() + "Catalog");
+								catalogReference->entryName.setValue(selectedObjectName);
+								catalogReference->catalogName.setValue(oscCatalog_->getCatalogName() + "Catalog");
 
 								translateObject(privateAction, road->getID(), s, t);
 
