@@ -27,11 +27,12 @@ oscPositionRoute()
 {
         OSC_ADD_MEMBER(route, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
-        OSC_OBJECT_ADD_MEMBER(RoutePosition, "oscRoutePosition", 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscRoutePosition", 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscString route;
     oscOrientationMember Orientation;
-    oscRoutePositionMember RoutePosition;
+    oscRoutePositionMember Position;
 
 };
 

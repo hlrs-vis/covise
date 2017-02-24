@@ -27,6 +27,7 @@ oscClothoid()
         OSC_ADD_MEMBER(curvatureDot, 0);
         OSC_ADD_MEMBER(length, 0);
     };
+        const char *getScope(){return "/OSCTrajectory/Vertex/Shape";};
     oscDouble curvature;
     oscDouble curvatureDot;
     oscDouble length;

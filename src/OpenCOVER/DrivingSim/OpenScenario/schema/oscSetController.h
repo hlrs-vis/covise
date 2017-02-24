@@ -26,6 +26,7 @@ oscSetController()
         OSC_ADD_MEMBER(name, 0);
         OSC_ADD_MEMBER(state, 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/Infrastructure/InfrastructureSignal";};
     oscString name;
     oscString state;
 

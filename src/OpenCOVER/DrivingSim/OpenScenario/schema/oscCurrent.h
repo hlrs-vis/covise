@@ -25,6 +25,7 @@ oscCurrent()
 {
         OSC_ADD_MEMBER(object, 0);
     };
+        const char *getScope(){return "/OSCPosition/PositionRoute/RoutePosition";};
     oscString object;
 
 };

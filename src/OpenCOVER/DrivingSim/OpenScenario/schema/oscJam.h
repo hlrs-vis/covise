@@ -31,6 +31,7 @@ oscJam()
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
         OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition", 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/Traffic";};
     oscString direction;
     oscDouble speed;
     oscDouble length;

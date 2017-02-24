@@ -15,8 +15,8 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscEmpty.h"
-#include "oscTiming.h"
+#include "oscSpeed.h"
+#include "oscDistanceAction.h"
 
 namespace OpenScenario
 {
@@ -25,11 +25,12 @@ class OPENSCENARIOEXPORT oscLongitudinal : public oscObjectBase
 public:
 oscLongitudinal()
 {
-        OSC_OBJECT_ADD_MEMBER(None, "oscEmpty", 1);
-        OSC_OBJECT_ADD_MEMBER(Timing, "oscTiming", 1);
+        OSC_OBJECT_ADD_MEMBER(Speed, "oscSpeed", 1);
+        OSC_OBJECT_ADD_MEMBER(Distance, "oscDistanceAction", 1);
     };
-    oscEmptyMember None;
-    oscTimingMember Timing;
+        const char *getScope(){return "/OSCPrivateAction";};
+    oscSpeedMember Speed;
+    oscDistanceActionMember Distance;
 
 };
 

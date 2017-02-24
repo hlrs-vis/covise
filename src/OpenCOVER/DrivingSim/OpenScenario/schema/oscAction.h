@@ -31,6 +31,7 @@ oscAction()
         OSC_OBJECT_ADD_MEMBER(UserDefined, "oscUserDefinedAction", 1);
         OSC_OBJECT_ADD_MEMBER(Private, "oscPrivateAction", 1);
     };
+        const char *getScope(){return "/OSCManeuver/Event";};
     oscString name;
     oscGlobalActionMember Global;
     oscUserDefinedActionMember UserDefined;

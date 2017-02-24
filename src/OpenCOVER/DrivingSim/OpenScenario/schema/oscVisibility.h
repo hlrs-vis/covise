@@ -27,6 +27,7 @@ oscVisibility()
         OSC_ADD_MEMBER(traffic, 0);
         OSC_ADD_MEMBER(sensors, 0);
     };
+        const char *getScope(){return "/OSCPrivateAction";};
     oscBool graphics;
     oscBool traffic;
     oscBool sensors;

@@ -422,7 +422,8 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 				//member has no value (value doesn't exist)
 				else
 				{
-					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(memTypeName);
+					std::string className = nameMapping::instance()->getClassName(memTypeName, std::string(getScope()));
+					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(className);
 					if (obj)
 					{
 						obj->initialize(base, this, m, srcToUse);
@@ -533,7 +534,8 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const 
 
 			//object for objectName
 
-			obj = oscFactories::instance()->objectFactory->create(typeName);
+			std::string className = nameMapping::instance()->getClassName(typeName, std::string(getScope()));
+			obj = oscFactories::instance()->objectFactory->create(className);
 			if(obj)
 			{
 				obj->initialize(getBase(), NULL, NULL, srcFile);

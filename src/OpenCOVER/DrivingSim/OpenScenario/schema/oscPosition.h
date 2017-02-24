@@ -38,8 +38,9 @@ oscPosition()
         OSC_OBJECT_ADD_MEMBER(RelativeRoad, "oscRelativeRoad", 1);
         OSC_OBJECT_ADD_MEMBER(Lane, "oscLane", 1);
         OSC_OBJECT_ADD_MEMBER(RelativeLane, "oscRelativeLane", 1);
-        OSC_OBJECT_ADD_MEMBER(PositionRoute, "oscPositionRoute", 1);
+        OSC_OBJECT_ADD_MEMBER(Route, "oscPositionRoute", 1);
     };
+        const char *getScope(){return "";};
     oscWorldMember World;
     oscRelativeWorldMember RelativeWorld;
     oscRelativeObjectMember RelativeObject;
@@ -47,7 +48,7 @@ oscPosition()
     oscRelativeRoadMember RelativeRoad;
     oscLaneMember Lane;
     oscRelativeLaneMember RelativeLane;
-    oscPositionRouteMember PositionRoute;
+    oscPositionRouteMember Route;
 
 };
 

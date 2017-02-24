@@ -15,7 +15,9 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscParameterDeclaration.h"
 #include "oscBoundingBox.h"
+#include "oscProperties.h"
 
 namespace OpenScenario
 {
@@ -36,14 +38,19 @@ oscPedestrian()
         OSC_ADD_MEMBER(mass, 0);
         OSC_ADD_MEMBER(name, 0);
         OSC_ADD_MEMBER(category, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
         OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox", 0);
+        OSC_OBJECT_ADD_MEMBER(Properties, "oscProperties", 0);
         category.enumType = Enum_Pedestrian_categoryType::instance();
     };
+        const char *getScope(){return "";};
     oscString model;
     oscDouble mass;
     oscString name;
     oscEnum category;
+    oscParameterDeclarationMember ParameterDeclaration;
     oscBoundingBoxMember BoundingBox;
+    oscPropertiesMember Properties;
 
     enum Enum_Pedestrian_category
     {

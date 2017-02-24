@@ -27,6 +27,7 @@ oscDimension()
         OSC_ADD_MEMBER(length, 0);
         OSC_ADD_MEMBER(height, 0);
     };
+        const char *getScope(){return "/OSCBoundingBox";};
     oscDouble width;
     oscDouble length;
     oscDouble height;

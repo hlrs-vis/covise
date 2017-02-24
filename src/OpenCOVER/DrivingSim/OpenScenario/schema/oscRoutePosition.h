@@ -30,6 +30,7 @@ oscRoutePosition()
         OSC_OBJECT_ADD_MEMBER(RoadCoord, "oscRoadCoord", 1);
         OSC_OBJECT_ADD_MEMBER(LaneCoord, "oscLaneCoord", 1);
     };
+        const char *getScope(){return "/OSCPosition/PositionRoute";};
     oscCurrentMember Current;
     oscRoadCoordMember RoadCoord;
     oscLaneCoordMember LaneCoord;

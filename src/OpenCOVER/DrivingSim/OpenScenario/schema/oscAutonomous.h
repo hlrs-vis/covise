@@ -35,6 +35,7 @@ oscAutonomous()
         OSC_ADD_MEMBER(domain, 0);
         domain.enumType = Enum_Controller_domainType::instance();
     };
+        const char *getScope(){return "/OSCPrivateAction";};
     oscBool activate;
     oscEnum domain;
 

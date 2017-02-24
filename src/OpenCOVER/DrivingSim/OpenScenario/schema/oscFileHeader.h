@@ -29,6 +29,7 @@ oscFileHeader()
         OSC_ADD_MEMBER(description, 0);
         OSC_ADD_MEMBER(author, 0);
     };
+        const char *getScope(){return "";};
     oscUShort revMajor;
     oscUShort revMinor;
     oscDateTime date;

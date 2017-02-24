@@ -28,7 +28,7 @@ public:
 	nameMapping();
 	static nameMapping *nmInstance;
 	static nameMapping *instance();
-	std::string getClassName(std::string &name, std::string parent);
+	std::string getClassName(const std::string &name, std::string parent);
 	std::string getSchemaName(std::string &className);
 
 

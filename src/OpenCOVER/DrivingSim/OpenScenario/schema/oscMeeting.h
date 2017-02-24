@@ -37,6 +37,7 @@ oscMeeting()
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
         mode.enumType = Enum_Meeting_Position_modeType::instance();
     };
+        const char *getScope(){return "/OSCPrivateAction";};
     oscEnum mode;
     oscDouble timingOffset;
     oscPositionMember Position;

@@ -15,7 +15,8 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscTimeOfDay.h"
+#include "oscParameterDeclaration.h"
+#include "oscEnvironmentTimeOfDay.h"
 #include "oscWeather.h"
 #include "oscRoadCondition.h"
 
@@ -27,12 +28,15 @@ public:
 oscEnvironment()
 {
         OSC_ADD_MEMBER(name, 0);
-        OSC_OBJECT_ADD_MEMBER(TimeOfDay, "oscTimeOfDay", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+        OSC_OBJECT_ADD_MEMBER(TimeOfDay, "oscEnvironmentTimeOfDay", 0);
         OSC_OBJECT_ADD_MEMBER(Weather, "oscWeather", 0);
         OSC_OBJECT_ADD_MEMBER(RoadCondition, "oscRoadCondition", 0);
     };
+        const char *getScope(){return "";};
     oscString name;
-    oscTimeOfDayMember TimeOfDay;
+    oscParameterDeclarationMember ParameterDeclaration;
+    oscEnvironmentTimeOfDayMember TimeOfDay;
     oscWeatherMember Weather;
     oscRoadConditionMember RoadCondition;
 

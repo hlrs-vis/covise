@@ -26,6 +26,7 @@ oscSignal()
         OSC_ADD_MEMBER(name, 0);
         OSC_ADD_MEMBER(state, 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/RoadNetwork/Signals/SignalsController/Phase";};
     oscString name;
     oscString state;
 

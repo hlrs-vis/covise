@@ -36,6 +36,7 @@ oscWaypoint()
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
         strategy.enumType = Enum_Route_strategyType::instance();
     };
+        const char *getScope(){return "/OSCRoute";};
     oscEnum strategy;
     oscPositionMember Position;
 

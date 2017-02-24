@@ -35,6 +35,7 @@ oscAtStart()
         OSC_ADD_MEMBER(name, 0);
         type.enumType = Enum_Story_Element_typeType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByState";};
     oscEnum type;
     oscString name;
 

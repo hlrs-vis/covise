@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscSignalSystem.h"
+#include "oscInfrastructureSignal.h"
 
 namespace OpenScenario
 {
@@ -24,9 +24,10 @@ class OPENSCENARIOEXPORT oscInfrastructure : public oscObjectBase
 public:
 oscInfrastructure()
 {
-        OSC_OBJECT_ADD_MEMBER(SignalSystem, "oscSignalSystem", 0);
+        OSC_OBJECT_ADD_MEMBER(Signal, "oscInfrastructureSignal", 0);
     };
-    oscSignalSystemMember SignalSystem;
+        const char *getScope(){return "/OSCGlobalAction";};
+    oscInfrastructureSignalMember Signal;
 
 };
 

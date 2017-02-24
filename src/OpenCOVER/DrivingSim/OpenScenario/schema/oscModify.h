@@ -26,6 +26,7 @@ oscModify()
 {
         OSC_OBJECT_ADD_MEMBER(Rule, "oscRule", 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/ActionParameter";};
     oscRuleMember Rule;
 
 };

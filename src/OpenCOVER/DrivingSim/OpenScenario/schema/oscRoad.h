@@ -29,6 +29,7 @@ oscRoad()
         OSC_ADD_MEMBER(t, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscString roadId;
     oscDouble s;
     oscDouble t;

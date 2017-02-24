@@ -27,6 +27,7 @@ oscLimited()
         OSC_ADD_MEMBER(maxDeceleration, 0);
         OSC_ADD_MEMBER(maxSpeed, 0);
     };
+        const char *getScope(){return "/OSCPrivateAction/Longitudinal/DistanceAction/Dynamics";};
     oscDouble maxAcceleration;
     oscDouble maxDeceleration;
     oscDouble maxSpeed;

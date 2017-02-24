@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscAdd.h"
+#include "oscAddRule.h"
 #include "oscMultiply.h"
 
 namespace OpenScenario
@@ -25,10 +25,11 @@ class OPENSCENARIOEXPORT oscRule : public oscObjectBase
 public:
 oscRule()
 {
-        OSC_OBJECT_ADD_MEMBER(Add, "oscAdd", 1);
+        OSC_OBJECT_ADD_MEMBER(Add, "oscAddRule", 1);
         OSC_OBJECT_ADD_MEMBER(Multiply, "oscMultiply", 1);
     };
-    oscAddMember Add;
+        const char *getScope(){return "/OSCGlobalAction/ActionParameter/Modify";};
+    oscAddRuleMember Add;
     oscMultiplyMember Multiply;
 
 };

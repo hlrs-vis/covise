@@ -83,6 +83,7 @@ protected:
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
+	virtual const char *getScope() { return ""; }; ///< return parent hierarchie in order to uniquely identify chrildren by name
 
     //
     virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source

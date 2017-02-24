@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscDistanceDynamics.h"
+#include "oscDynamics.h"
 
 namespace OpenScenario
 {
@@ -26,15 +26,14 @@ oscDistance()
 {
         OSC_ADD_MEMBER(object, 0);
         OSC_ADD_MEMBER(distance, 0);
-        OSC_ADD_MEMBER(timeGap, 0);
         OSC_ADD_MEMBER(freespace, 0);
-        OSC_OBJECT_ADD_MEMBER(DistanceDynamics, "oscDistanceDynamics", 0);
+        OSC_OBJECT_ADD_MEMBER(Dynamics, "oscDynamics", 0);
     };
+        const char *getScope(){return "/OSCPrivateAction/Lateral";};
     oscString object;
     oscDouble distance;
-    oscDouble timeGap;
     oscBool freespace;
-    oscDistanceDynamicsMember DistanceDynamics;
+    oscDynamicsMember Dynamics;
 
 };
 

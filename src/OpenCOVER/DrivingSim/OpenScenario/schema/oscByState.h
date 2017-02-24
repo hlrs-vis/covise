@@ -31,13 +31,14 @@ oscByState()
         OSC_OBJECT_ADD_MEMBER(AtStart, "oscAtStart", 1);
         OSC_OBJECT_ADD_MEMBER(AfterTermination, "oscAfterTermination", 1);
         OSC_OBJECT_ADD_MEMBER(Command, "oscCommand", 1);
-        OSC_OBJECT_ADD_MEMBER(SignalState, "oscSignalState", 1);
+        OSC_OBJECT_ADD_MEMBER(Signal, "oscSignalState", 1);
         OSC_OBJECT_ADD_MEMBER(Controller, "oscController", 1);
     };
+        const char *getScope(){return "/OSCCondition";};
     oscAtStartMember AtStart;
     oscAfterTerminationMember AfterTermination;
     oscCommandMember Command;
-    oscSignalStateMember SignalState;
+    oscSignalStateMember Signal;
     oscControllerMember Controller;
 
 };

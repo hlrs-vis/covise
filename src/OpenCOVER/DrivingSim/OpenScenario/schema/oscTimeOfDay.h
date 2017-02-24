@@ -26,13 +26,12 @@ class OPENSCENARIOEXPORT oscTimeOfDay : public oscObjectBase
 public:
 oscTimeOfDay()
 {
-        OSC_ADD_MEMBER(animation, 0);
         OSC_ADD_MEMBER(rule, 0);
         OSC_OBJECT_ADD_MEMBER(Time, "oscTime", 0);
         OSC_OBJECT_ADD_MEMBER(Date, "oscDate", 0);
         rule.enumType = Enum_ruleType::instance();
     };
-    oscBool animation;
+        const char *getScope(){return "/OSCCondition/ByValue";};
     oscEnum rule;
     oscTimeMember Time;
     oscDateMember Date;

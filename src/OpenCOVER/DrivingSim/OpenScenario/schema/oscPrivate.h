@@ -27,6 +27,7 @@ oscPrivate()
         OSC_ADD_MEMBER(object, 0);
         OSC_OBJECT_ADD_MEMBER(Action, "oscPrivateAction", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Init/Actions";};
     oscString object;
     oscPrivateActionArrayMember Action;
 

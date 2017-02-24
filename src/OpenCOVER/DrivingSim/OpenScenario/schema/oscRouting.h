@@ -30,6 +30,7 @@ oscRouting()
         OSC_OBJECT_ADD_MEMBER(FollowTrajectory, "oscFollowTrajectory", 1);
         OSC_OBJECT_ADD_MEMBER(AcquirePosition, "oscAcquirePosition", 1);
     };
+        const char *getScope(){return "/OSCPrivateAction";};
     oscFollowRouteMember FollowRoute;
     oscFollowTrajectoryMember FollowTrajectory;
     oscAcquirePositionMember AcquirePosition;
