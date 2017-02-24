@@ -576,10 +576,12 @@ coVRPluginSupport::removeNode(osg::Node *node, bool isGroup)
     if (node->getNumParents() == 0)
         return false;
 
-    while (node->getNumParents() > 0)
+    osg::ref_ptr<osg::Node> n =node;
+
+    while (n->getNumParents() > 0)
     {
-        osg::Group *parent = node->getParent(0);
-        osg::Node *child = node;
+        osg::ref_ptr<osg::Group> parent = n->getParent(0);
+        osg::ref_ptr<osg::Node> child = n;
 
         while (coVRSelectionManager::instance()->isHelperNode(parent))
         {
