@@ -558,6 +558,8 @@ Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugin
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\*v110.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\vs2015\*v140.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
 
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
@@ -855,7 +857,12 @@ Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi""
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec   
+#elif ARCHSUFFIX == "zebuopt"
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec    
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif
