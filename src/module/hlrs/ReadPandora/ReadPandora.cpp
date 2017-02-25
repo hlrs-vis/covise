@@ -155,6 +155,8 @@ int ReadPandora::compute(const char *port)
 		if (dataChoice > 0)
 		{
 			std::string objNameBase = READER_CONTROL->getAssocObjName(dNum);
+
+			dataObjects[0] = NULL;
 			for (int i = 0; i < numSteps; i++)
 			{
 				char ch[64];
@@ -185,12 +187,12 @@ int ReadPandora::compute(const char *port)
 				dataObjects[i + 1] = NULL;
 			}
 			coDoSet *dataSet = new coDoSet(objNameBase.c_str(), (coDistributedObject **)dataObjects);
-			delete[] dataObjects;
 			dataSet->addAttribute("TIMESTEP", "0 0");
 			READER_CONTROL->setAssocPortObj(dNum, dataSet);
 		}
 	}
 
+	delete[] dataObjects;
 
     /* close file */
     status = H5Fclose(file_id);
