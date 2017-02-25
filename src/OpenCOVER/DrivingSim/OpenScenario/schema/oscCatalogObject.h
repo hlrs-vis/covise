@@ -43,7 +43,7 @@ oscCatalogObject()
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Trajectory, "oscTrajectory", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Route, "oscRoute", 0);
     };
-        const char *getScope(){return "/OpenSCENARIO";};
+        const char *getScope(){return "/Catalog/CatalogOpenSCENARIO";};
     oscString name;
     oscVehicleArrayMember Vehicle;
     oscDriverArrayMember Driver;
