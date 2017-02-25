@@ -3,6 +3,8 @@
     
 <FileHeader revMajor="0" revMinor="11" date="2016-10-18T10:00:00" description="Beispielszenario fuer PEGASUS" author="Andreas Biehn"/>
 
+<ParameterDeclaration/>
+
 <Catalogs>
     <VehicleCatalog>
         <Directory path="Catalogs/VehicleCatalogs"/>
@@ -26,36 +28,36 @@
         <Directory path="Catalogs/ManeuverCatalogs"/>
     </ManeuverCatalog>
     <TrajectoryCatalog>
-        <Directory path="Catalogs/TrajectoryCatalogs"/>
+        <Directory path="Catalogs/TrajectoryCatalog"/>
     </TrajectoryCatalog>
     <RouteCatalog>
-        <Directory path="Catalogs/RoutingCatalogs"/>
+        <Directory path="Catalogs/RoutingCatalog"/>
     </RouteCatalog>
 </Catalogs>
 
 <RoadNetwork>
-    <Logics openDRIVE="../../../DrivingSim/OpenScenario/examples/test.xodr"/>
-    <SceneGraph name="Tracks/Bin/RQ31_130Limit/RQ31_130Limit.opt.osgb"/>
+    <Logics filepath="Tracks/Bin/RQ31_130Limit/RQ31_130Limit.xodr"/>
+    <SceneGraph filepath="Tracks/Bin/RQ31_130Limit/RQ31_130Limit.opt.osgb"/>
 </RoadNetwork>
 
 <Entities>
     <Object name="Ego">
-        <CatalogReference catalog="VechicleCatalog" name="AudiA3_blue_147kW"/>
-        <Ctrl>
-            <CatalogReference catalog="DriverCatalog" name="HastyDriver"/>
-        </Ctrl>
+        <CatalogReference catalogName="VechicleCatalog" entryName="AudiA3_blue_147kW"/>
+        <Controller>
+            <CatalogReference catalogName="DriverCatalog" entryName="HastyDriver"/>
+        </Controller>
     </Object>
     <Object name="Target1">
-        <CatalogReference catalog="VechicleCatalog" name="AudiA4_red_147kW"/>
-        <Ctrl>
-            <CatalogReference catalog="DriverCatalog" name="DefaultDriver"/>
-        </Ctrl>
+        <CatalogReference catalogName="VechicleCatalog" entryName="AudiA4_red_147kW"/>
+        <Controller>
+            <CatalogReference catalogName="DriverCatalog" entryName="DefaultDriver"/>
+        </Controller>
     </Object>
     <Object name="Target2">
-        <CatalogReference catalog="VechicleCatalog" name="AudiA3_white_147kW"/>
-        <Ctrl>
-            <CatalogReference catalog="DriverCatalog" name="DefaultDriver"/>
-        </Ctrl>
+        <CatalogReference catalogName="VechicleCatalog" entryName="AudiA3_white_147kW"/>
+        <Controller>
+            <CatalogReference catalogName="DriverCatalog" entryName="DefaultDriver"/>
+        </Controller>
     </Object>
 </Entities>
 
@@ -64,14 +66,14 @@
         <Actions>
             <Private object="Ego">
                 <Action>
-                    <LongitudinalAction>
+                    <Longitudinal>
                         <Speed>
-                            <SpeedDynamics shape="step" rate="0"/>
+                            <Dynamics shape="step" rate="0"/>
                             <Target>
-                                    <Absolute value="36.1"/>
+                                <Absolute value="36.1"/>
                             </Target>
                         </Speed>
-                    </LongitudinalAction>
+                    </Longitudinal>
                 </Action>
                 <Action>
                     <Position>
@@ -81,14 +83,14 @@
             </Private>
             <Private object="Target1">
                 <Action>
-                    <LongitudinalAction>
+                    <Longitudinal>
                         <Speed>
-                            <SpeedDynamics shape="step" rate="0"/>
+                            <Dynamics shape="step" rate="0"/>
                             <Target>
                                 <Absolute value="36.1"/>
                             </Target>
                         </Speed>
-                    </LongitudinalAction>
+                    </Longitudinal>
                 </Action>
                 <Action>
                     <Position>
@@ -98,14 +100,14 @@
             </Private>
             <Private object="Target2">
                 <Action>
-                    <LongitudinalAction>
+                    <Longitudinal>
                         <Speed>
-                            <SpeedDynamics shape="step" rate="0"/>
+                            <Dynamics shape="step" rate="0"/>
                             <Target>
                                 <Absolute value="36.1"/>
                             </Target>
                         </Speed>
-                    </LongitudinalAction>
+                    </Longitudinal>
                 </Action>
                 <Action>
                     <Position>
@@ -119,14 +121,15 @@
         <Act name="MyAct">
             <Sequence name="MySequence" numberOfExecutions="1">
                 <Actors>
-                    <NamedEntity name="$owner"/>
+                    <Entity name="$owner"/>
                 </Actors>
                 <Maneuver name="MyLaneChangeManeuver">
                     <Event name="MyLaneChangeEvent" priority="overwrite">
                         <Action name="MyLaneChangeAction">
                             <Private>
                                 <Routing>
-                                    <FollowTrajectory name="MyLaneChangeTrajectory">
+                                    <FollowTrajectory>
+                                        <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory"/>
                                         <Longitudinal>
                                             <None/>
                                         </Longitudinal>
@@ -135,7 +138,7 @@
                                 </Routing>
                             </Private>
                         </Action>
-                        <EventConditions>
+                        <Conditions>
                             <Start>
                                 <ConditionGroup>
                                     <Condition name="MyStartCondition" delay="0" edge="rising">
@@ -145,7 +148,7 @@
                                     </Condition>
                                 </ConditionGroup>
                             </Start>
-                        </EventConditions>
+                        </Conditions>
                     </Event>
                 </Maneuver>
             </Sequence>
@@ -154,7 +157,7 @@
                     <ConditionGroup>
                         <Condition name="" delay="0" edge="rising">
                             <ByValue>
-                                <SimulationTime value="0" rule="equal_to"/>
+                                <SimulationTime value="0" rule="equal-to"/>
                             </ByValue>
                         </Condition>
                     </ConditionGroup>

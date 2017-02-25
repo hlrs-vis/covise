@@ -568,7 +568,6 @@
                                             <xsd:element name="Limited">
                                                 <xsd:complexType>
                                                     <xsd:attribute name="maxAcceleration"   type="xsd:double" use="required"/>
-                                                    <xsd:attribute name="maxDeceleration"   type="xsd:double" use="required"/>
                                                     <xsd:attribute name="maxSpeed"          type="xsd:double" use="required"/>
                                                 </xsd:complexType>
                                             </xsd:element>
@@ -1015,8 +1014,6 @@
                 <xsd:sequence>
                     <xsd:element name="Properties" type="OSCProperties"/>
                 </xsd:sequence>
-                <xsd:attribute name="weight"        type="xsd:double" use="required"/>
-                <xsd:attribute name="height"        type="xsd:double" use="required"/>
                 <xsd:attribute name="eyeDistance"   type="xsd:double" use="required"/>
                 <xsd:attribute name="age"           type="xsd:double" use="required"/>
                 <xsd:attribute name="sex"           type="Enum_sex"   use="required"/>
