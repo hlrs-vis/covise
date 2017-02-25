@@ -171,6 +171,7 @@ schema/oscCenter.h
 schema/oscDimension.h
 schema/oscProperties.h
 schema/oscProperty.h
+schema/oscOpenSCENARIO.h
 schema/oscRoadNetwork.h
 schema/oscSignals.h
 schema/oscSignalsController.h
@@ -194,6 +195,7 @@ schema/oscByCondition.h
 schema/oscActConditions.h
 schema/oscEnd.h
 schema/oscCancel.h
+schema/oscCatalogOpenSCENARIO.h
 schema/oscCatalogObject.h
 )
 SET(SCHEMA_SOURCES

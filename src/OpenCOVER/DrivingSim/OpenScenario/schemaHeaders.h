@@ -170,6 +170,7 @@
 #include "schema/oscDimension.h"
 #include "schema/oscProperties.h"
 #include "schema/oscProperty.h"
+#include "schema/oscOpenSCENARIO.h"
 #include "schema/oscRoadNetwork.h"
 #include "schema/oscSignals.h"
 #include "schema/oscSignalsController.h"
@@ -193,4 +194,5 @@
 #include "schema/oscActConditions.h"
 #include "schema/oscEnd.h"
 #include "schema/oscCancel.h"
+#include "schema/oscCatalogOpenSCENARIO.h"
 #include "schema/oscCatalogObject.h"

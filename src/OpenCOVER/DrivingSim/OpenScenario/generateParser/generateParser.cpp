@@ -408,6 +408,10 @@ int main(int argc, char **argv)
 
 		elementName="";
 		parentName="";
+		if (strstr(argv[i],"Catalog")!=NULL)
+		{
+			parentName = "/Catalog";
+		}
 		//parser and error handler have to be initialized _after_ xercesc::XMLPlatformUtils::Initialize()
 		//can't be done in member initializer list
 		parser = new xercesc::XercesDOMParser();

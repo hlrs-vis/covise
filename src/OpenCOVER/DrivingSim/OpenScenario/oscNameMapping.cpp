@@ -9,6 +9,8 @@ using namespace OpenScenario;
 
 nameMapping::nameMapping()
 {
+	bm.insert(bm_type::value_type(parent_name("OpenSCENARIO", "/Catalog"), "CatalogOpenSCENARIO"));
+	bm.insert(bm_type::value_type(parent_name("Catalog", "/Catalog/CatalogOpenSCENARIO"), "CatalogObject"));
 	bm.insert(bm_type::value_type(parent_name("Position", "/OSCPosition/PositionRoute"), "RoutePosition"));
 	bm.insert(bm_type::value_type(parent_name("ByEntity", "/OSCCondition/ByEntity/EntityCondition/Collision"), "CollisionByEntity"));
 	bm.insert(bm_type::value_type(parent_name("ByEntity", "/OpenSCENARIO/Entities/Selection/Members"), "MembersByEntity"));

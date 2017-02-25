@@ -170,6 +170,7 @@
 #include "oscDimension"
 #include "oscProperties"
 #include "oscProperty"
+#include "oscOpenSCENARIO"
 #include "oscRoadNetwork"
 #include "oscSignals"
 #include "oscSignalsController"
@@ -193,4 +194,5 @@
 #include "oscActConditions"
 #include "oscEnd"
 #include "oscCancel"
+#include "oscCatalogOpenSCENARIO"
 #include "oscCatalogObject"
