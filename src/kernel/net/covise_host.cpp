@@ -135,32 +135,29 @@ std::string Host::lookupHostname(const char *numericIP)
 
 void Host::setAddress(const char *n)
 {
-    delete[] address;
-    address = NULL;
-    m_addressValid = false;
+    m_address.clear();
     if (n)
     {
+        m_address = n;
         m_addressValid = true;
     }
     else
     {
-        n = "0.0.0.0";
+        m_addressValid = false;
     }
-
-    address = new char[1 + strlen(n)];
-    strcpy(address, n);
 }
 
 void Host::setName(const char *n)
 {
-    delete[] name;
-    name = NULL;
-    m_nameValid = false;
+    m_name.clear();
     if (n)
     {
+        m_name = n;
         m_nameValid = true;
-        name = new char[1 + strlen(n)];
-        strcpy(name, n);
+    }
+    else
+    {
+        m_nameValid = false;
     }
 }
 
@@ -260,8 +257,6 @@ void Host::HostSymbolic(const char *n)
 
 Host::Host(const char *n, bool numeric)
 {
-    address = NULL;
-    name = NULL;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -280,22 +275,17 @@ Host::Host(const char *n, bool numeric)
 
 Host::Host(const Host &h)
 {
-    address = NULL;
-    name = NULL;
     memset(char_address, '\0', sizeof(char_address));
-    m_addressValid = false;
-    m_nameValid = false;
-
     memcpy(this->char_address, h.char_address, sizeof(char_address));
 
-    setAddress(h.address);
-    setName(h.name);
+    m_addressValid = h.m_addressValid;
+    m_nameValid = h.m_nameValid;
+    m_address = h.m_address;
+    m_name = h.m_name;
 }
 
 Host::Host(unsigned long a)
 {
-    address = NULL;
-    name = NULL;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -321,19 +311,18 @@ Host::Host(unsigned long a)
 
 Host::~Host()
 {
-    delete[] address;
-    delete[] name;
 }
 
 Host &Host::operator=(const Host &h)
 {
     memset(char_address, '\0', sizeof(char_address));
-    m_addressValid = false;
-    m_nameValid = false;
-
     memcpy(this->char_address, h.char_address, sizeof(char_address));
-    setAddress(h.address);
-    setName(h.name);
+
+    m_addressValid = h.m_addressValid;
+    m_nameValid = h.m_nameValid;
+    m_address = h.m_address;
+    m_name = h.m_name;
+
     return *this;
 }
 
@@ -559,9 +548,7 @@ bool Host::hasRoutableAddress() const
 
 Host::Host()
 {
-    address = NULL;
     m_addressValid = false;
-    name = NULL;
     m_nameValid = false;
 
     char *hostname = getenv("COVISE_HOST");

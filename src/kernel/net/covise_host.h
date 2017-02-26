@@ -10,6 +10,7 @@
 
 #include <util/coTypes.h>
 #include <iostream>
+#include <string>
 
 namespace covise
 {
@@ -20,11 +21,10 @@ class NETEXPORT Host
 
 private:
     unsigned char char_address[4];
-
-    char *address;
+    std::string m_address;
     bool m_addressValid;
 
-    char *name;
+    std::string m_name;
     bool m_nameValid;
 
     void HostNumeric(const char *n);
@@ -56,11 +56,11 @@ public:
 
     const char *getName() const
     {
-        return name;
+        return m_name.c_str();
     }
     const char *getAddress() const
     {
-        return address;
+        return m_address.c_str();
     }
     bool hasValidName() const;
     bool hasValidAddress() const;
