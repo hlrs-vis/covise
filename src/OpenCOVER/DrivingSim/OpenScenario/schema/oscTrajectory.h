@@ -37,7 +37,7 @@ oscTrajectory()
         OSC_ADD_MEMBER(closed, 0);
         OSC_ADD_MEMBER(domain, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
-        OSC_OBJECT_ADD_MEMBER(Waypoint, "oscVertex", 0);
+        OSC_OBJECT_ADD_MEMBER(Vertex, "oscVertex", 0);
         domain.enumType = Enum_domain_time_distanceType::instance();
     };
         const char *getScope(){return "";};
@@ -45,7 +45,7 @@ oscTrajectory()
     oscBool closed;
     oscEnum domain;
     oscParameterDeclarationMember ParameterDeclaration;
-    oscVertexArrayMember Waypoint;
+    oscVertexArrayMember Vertex;
 
     enum Enum_domain_time_distance
     {

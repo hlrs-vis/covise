@@ -1061,7 +1061,7 @@
 <xsd:complexType name="OSCTrajectory">
     <xsd:sequence>
         <xsd:element name="ParameterDeclaration" type="OSCParameterDeclaration" minOccurs="0"/>
-        <xsd:element name="Waypoint" minOccurs="2" maxOccurs="unbounded">
+        <xsd:element name="Vertex" minOccurs="2" maxOccurs="unbounded">
             <xsd:complexType>
                 <xsd:sequence>
                     <xsd:element name="Position" type="OSCPosition"/>

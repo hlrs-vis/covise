@@ -188,23 +188,25 @@ OpenScenarioEditor::init()
                     trajectoryCatalog->fullReadCatalogObjectWithName(name);
                     catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 }
-				OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
-				OpenScenario::oscTrajectory *catalogTrajectory = NULL;
-				for (int i = 0; i < trajectoryArray->size(); i++)
+				if(catalogObject)
 				{
-					OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryArray->at(i));
-					if (trajectory->name.getValue() == name)
+					OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
+					OpenScenario::oscTrajectory *catalogTrajectory = NULL;
+					for (int i = 0; i < trajectoryArray->size(); i++)
 					{
-						catalogTrajectory = trajectory;
-						break;
+						OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryArray->at(i));
+						if (trajectory->name.getValue() == name)
+						{
+							catalogTrajectory = trajectory;
+							break;
+						}
 					}
-				}
+					if (catalogTrajectory)
+					{
 
-				if (catalogTrajectory)
-				{
-
-					OSCElement *element = new OSCElement(QString::fromStdString(name), catalogTrajectory);
-					oscBase_->addOSCElement(element);
+						OSCElement *element = new OSCElement(QString::fromStdString(name), catalogTrajectory);
+						oscBase_->addOSCElement(element);
+					}
 				}
             }
         }

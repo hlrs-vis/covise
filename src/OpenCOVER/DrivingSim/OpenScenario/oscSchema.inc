@@ -71,7 +71,6 @@ schema/oscRelativeTarget.h
 schema/oscAbsolute.h
 schema/oscDistanceAction.h
 schema/oscDynamics.h
-schema/oscLimited.h
 schema/oscLateral.h
 schema/oscLaneChange.h
 schema/oscLaneChangeDynamics.h
@@ -141,7 +140,6 @@ schema/oscPrecipitation.h
 schema/oscRoadCondition.h
 schema/oscEffect.h
 schema/oscPedestrianController.h
-schema/oscDescription.h
 schema/oscDriver.h
 schema/oscRoute.h
 schema/oscWaypoint.h
@@ -220,6 +218,7 @@ schema/oscScript.cpp
 schema/oscEvent.cpp
 schema/oscWeather.cpp
 schema/oscPrecipitation.cpp
+schema/oscDescription.cpp
 schema/oscDescription.cpp
 schema/oscWaypoint.cpp
 schema/oscTrajectory.cpp
