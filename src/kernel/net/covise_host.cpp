@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 #include <vector>
 
 #ifndef _WIN32
@@ -334,9 +335,28 @@ void Host::get_char_address(unsigned char *c) const
     c[3] = char_address[3];
 }
 
+const unsigned char *Host::get_char_address() const
+{
+    return char_address;
+}
+
 uint32_t Host::get_ipv4() const
 {
     return (char_address[0] << 24) | (char_address[1] << 16) | (char_address[2] << 8) | char_address[3];
+}
+
+const char *Host::getName() const
+{
+    if (!m_nameValid)
+        return NULL;
+    return m_name.c_str();
+}
+
+const char *Host::getAddress() const
+{
+    if (!m_addressValid)
+        return NULL;
+    return m_address.c_str();
 }
 
 static bool isLoopbackAddress(const unsigned char address[4])

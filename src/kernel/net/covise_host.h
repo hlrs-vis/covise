@@ -35,10 +35,7 @@ private:
 
     void get_char_address(unsigned char *c) const;
 
-    const unsigned char *get_char_address() const
-    {
-        return (unsigned char *)char_address;
-    }
+    const unsigned char *get_char_address() const;
 
 public:
     static std::string lookupHostname(const char *numericIp);
@@ -54,14 +51,8 @@ public:
 
     uint32_t get_ipv4() const;
 
-    const char *getName() const
-    {
-        return m_name.c_str();
-    }
-    const char *getAddress() const
-    {
-        return m_address.c_str();
-    }
+    const char *getName() const;
+    const char *getAddress() const;
     bool hasValidName() const;
     bool hasValidAddress() const;
 
