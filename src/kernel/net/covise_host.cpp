@@ -16,7 +16,10 @@
 #include <cassert>
 #include <vector>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <WS2tcpip.h>
+#define inet_pton InetPton
+#else
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/utsname.h>
@@ -63,7 +66,7 @@ std::string Host::lookupHostname(const char *numericIP)
         int err = inet_pton(AF_INET, numericIP, &v4);
         if (err == 1)
         {
-            he = gethostbyaddr(&v4, sizeof(v4), AF_INET);
+            he = gethostbyaddr((const char *)&v4, sizeof(v4), AF_INET);
         }
 #if 0
         if (err == 0)
