@@ -8,6 +8,7 @@ SET(MAPEDITOR_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../mapeditor")
 
 INCLUDE_DIRECTORIES(
   "${COVISEDIR}/src/OpenCOVER/cover"
+  "${COVISEDIR}/src/3rdparty/deskvox/virvo"
   "${MAPEDITOR_DIR}"
 )
 
