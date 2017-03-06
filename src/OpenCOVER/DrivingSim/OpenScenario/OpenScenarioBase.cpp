@@ -344,6 +344,50 @@ bool OpenScenarioBase::getFullReadCatalogs() const
     return m_fullReadCatalogs;
 }
 
+oscObjectBase *OpenScenarioBase::getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName)
+{
+	auto currentCatalog = Catalogs->TrajectoryCatalog;
+	if (catalogName=="DriverCatalog")
+		{
+		auto currentCatalog = Catalogs->DriverCatalog;
+		}
+	if (catalogName=="EnvironmentCatalog")
+		{
+		auto currentCatalog = Catalogs->EnvironmentCatalog;
+		}
+	if (catalogName=="ManeuverCatalog")
+		{
+		auto currentCatalog = Catalogs->ManeuverCatalog;
+		}
+	if (catalogName=="MiscObjectCatalog")
+		{
+		auto currentCatalog = Catalogs->MiscObjectCatalog;
+		}
+	if (catalogName=="PedestrianCatalog")
+		{
+		auto currentCatalog = Catalogs->PedestrianCatalog;
+		}
+	if (catalogName=="TrajectoryCatalog")
+		{
+		auto currentCatalog = Catalogs->TrajectoryCatalog;
+		}
+	if (catalogName=="VehicleCatalog")
+		{
+		auto currentCatalog = Catalogs->VehicleCatalog;
+		}
+	
+	oscCatalog::ObjectParams p = currentCatalog->getObjectsMap()[objectName];
+	if(p.object == NULL)
+	{
+		currentCatalog->fullReadCatalogObjectWithName(objectName);
+		p = currentCatalog->getObjectsMap()[objectName];
+	}
+	if(p.object != NULL)
+	{
+		return p.object;
+	}
+}
+
 
 //
 void OpenScenarioBase::setPathFromCurrentDirToDoc(const bf::path &path)

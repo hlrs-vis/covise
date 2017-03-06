@@ -37,13 +37,14 @@ namespace OpenScenario {
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscCatalog: public oscObjectBase
 {
+	
+public:
 	typedef struct 
 	{
 		bf::path fileName;
 		oscObjectBase *object;
 	} ObjectParams;
 
-public:
     oscCatalog()
     {
         OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");

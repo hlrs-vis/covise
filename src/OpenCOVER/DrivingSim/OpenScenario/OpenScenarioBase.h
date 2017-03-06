@@ -86,6 +86,7 @@ public:
     bool getValidation() const;
     void setFullReadCatalogs(const bool fullReadCatalogs); ///<  turn on/off full read of catalog objects
     bool getFullReadCatalogs() const;
+	oscObjectBase *getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName);
 
     //
     void setPathFromCurrentDirToDoc(const bf::path &path);
