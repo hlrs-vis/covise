@@ -23,7 +23,6 @@ nameMapping::nameMapping()
 	bm.insert(bm_type::value_type(parent_name("Parameter", "/OSCCondition/ByValue"), "ConditionParameter"));
 	bm.insert(bm_type::value_type(parent_name("Parameter", "/OSCGlobalAction"), "ActionParameter"));
 	bm.insert(bm_type::value_type(parent_name("Parameter", "/OSCParameterAssignment"), "SetParameter"));
-	bm.insert(bm_type::value_type(parent_name("Waypoint", "/OSCTrajectory"), "Vertex"));
 	bm.insert(bm_type::value_type(parent_name("Parameter", "execution"), "ExecutionParameter"));
 	bm.insert(bm_type::value_type(parent_name("Route", "/OSCPosition"), "PositionRoute"));
 	bm.insert(bm_type::value_type(parent_name("Longitudinal", "/OSCPrivateAction/Routing/FollowTrajectory"), "LongitudinalParams"));
@@ -48,13 +47,13 @@ nameMapping::nameMapping()
 	bm.insert(bm_type::value_type(parent_name("Catalog", "/OpenSCENARIO"), "CatalogObject"));
 	//bm.insert(bm_type::value_type(parent_name("Signal", "/OpenSCENARIO/RoadNetwork/Signals/Controller/Phase"), "SignalPhase"));
 	//bm.insert(bm_type::value_type(parent_name("Signal", "/OpenSCENARIO/RoadNetwork/Signals/SignalsController/Phase"), "SignalPhase"));
+	bm.insert(bm_type::value_type(parent_name("Position", "/OSCPosition/Route"), "RoutePosition"));
 	bm.insert(bm_type::value_type(parent_name("Signal", "/OSCGlobalAction/Infrastructure"), "InfrastructureSignal"));
 
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneChange/Target"), "LaneChangeTargetRelative"));
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneOffset/Target"), "LaneOffsetTargetRelative"));
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneChange/LaneChangeTarget"), "LaneChangeTargetRelative"));
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneOffset/LaneOffsetTarget"), "LaneOffsetTargetRelative"));
-	bm.insert(bm_type::value_type(parent_name("Position", "/OSCPosition/Route"), "RoutePosition"));
 	
 	
 	

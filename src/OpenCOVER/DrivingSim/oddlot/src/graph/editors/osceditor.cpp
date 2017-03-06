@@ -324,7 +324,7 @@ OpenScenarioEditor::getElements(oscObjectBase *root, const std::string &type)
 			}
 			else
 			{
-				oscObjectBase *objectBase = member->getObject();
+				oscObjectBase *objectBase = member->getObjectBase();
 				if (objectBase)
 				{
 					if (member->getTypeName() == type)
@@ -422,7 +422,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 {
 
 	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->Catalogs.getOrCreateObject();
-	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getOrCreateObject());
+	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getOrCreateObjectBase());
 	QString catalogDir = OSCSettings::instance()->getCatalogDir();
 	std::string catalogsDir = catalogDir.toStdString(); 
 	if (!bf::exists(bf::path(catalogsDir)))
@@ -741,7 +741,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 							OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
 							OpenScenario::oscMember *objectsMember = entitiesObject->getMember("Object");
-							OpenScenario::oscObjectBase *objects = objectsMember->getOrCreateObject();
+							OpenScenario::oscObjectBase *objects = objectsMember->getOrCreateObjectBase();
 
 							OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(objectsMember);
 
@@ -844,7 +844,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 				OpenScenario::oscMember *member = openScenarioBase_->getMember(oscObjectName.toStdString());
 				if (member)
 				{
-					OpenScenario::oscObjectBase *object = member->getOrCreateObject();
+					OpenScenario::oscObjectBase *object = member->getOrCreateObjectBase();
 
 					OSCElement *memberElement = oscBase_->getOrCreateOSCElement(object);
 					if (memberElement)

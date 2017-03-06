@@ -28,7 +28,7 @@ oscStoryboard()
 {
         OSC_OBJECT_ADD_MEMBER(Init, "oscInit", 0);
         OSC_OBJECT_ADD_MEMBER(Story, "oscStory", 0);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(End, "oscEnd", 0);
+        OSC_OBJECT_ADD_MEMBER(End, "oscEnd", 0);
     };
         const char *getScope(){return "/OpenSCENARIO";};
     oscInitMember Init;

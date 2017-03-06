@@ -15,6 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscRouteRef.h"
 #include "oscOrientation.h"
 #include "oscRoutePosition.h"
 
@@ -25,12 +26,12 @@ class OPENSCENARIOEXPORT oscPositionRoute : public oscObjectBase
 public:
 oscPositionRoute()
 {
-        OSC_ADD_MEMBER(route, 0);
+        OSC_OBJECT_ADD_MEMBER(RouteRef, "oscRouteRef", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
         OSC_OBJECT_ADD_MEMBER(Position, "oscRoutePosition", 0);
     };
         const char *getScope(){return "/OSCPosition";};
-    oscString route;
+    oscRouteRefMember RouteRef;
     oscOrientationMember Orientation;
     oscRoutePositionMember Position;
 

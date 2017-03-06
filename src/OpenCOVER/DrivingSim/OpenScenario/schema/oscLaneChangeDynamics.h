@@ -16,7 +16,6 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscSpeedDynamics.h"
-#include "oscExtent.h"
 
 namespace OpenScenario
 {
@@ -25,13 +24,15 @@ class OPENSCENARIOEXPORT oscLaneChangeDynamics : public oscObjectBase
 public:
 oscLaneChangeDynamics()
 {
+        OSC_ADD_MEMBER_OPTIONAL(time, 0);
+        OSC_ADD_MEMBER_OPTIONAL(distance, 0);
         OSC_ADD_MEMBER(shape, 0);
-        OSC_OBJECT_ADD_MEMBER(Extent, "oscExtent", 0);
         shape.enumType = Enum_Dynamics_shapeType::instance();
     };
         const char *getScope(){return "/OSCPrivateAction/Lateral/LaneChange";};
+    oscDouble time;
+    oscDouble distance;
     oscEnum shape;
-    oscExtentMember Extent;
 
 };
 
