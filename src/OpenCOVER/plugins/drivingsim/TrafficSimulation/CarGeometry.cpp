@@ -419,6 +419,16 @@ void CarGeometry::setTransform(Transform &roadTransform, double heading)
     carTransform->setMatrix(m);
 }
 
+void CarGeometry::setTransformByCoordinates(float x, float y, float z)
+{
+    osg::Matrix m;
+	m.makeRotate(osg::Quat(0, 0, 0, 1));
+    m.setTrans(x, y, z);
+
+    //vehicleTransform->setMatrix(osg::Matrix::rotate(heading, 0,0,1)*roadMatrix);
+    carTransform->setMatrix(m);
+}
+
 double CarGeometry::getBoundingCircleRadius()
 {
     return boundingCircleRadius;

@@ -36,6 +36,7 @@ public:
     bool isOnLane(int) const;
 
     void move(double);
+	void setPosition(float x, float y, float z);
 
     VehicleGeometry *getVehicleGeometry();
     Transform getVehicleTransform();

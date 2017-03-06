@@ -852,6 +852,9 @@ void AgentVehicle::move(double dt)
     //std::cout << "Vehicle " << name << ": pos: " << u << ", lane: " << currentLane << std::endl;
 } // T 18.0
 
+void AgentVehicle::setPosition(float x, float y, float z){
+geometry->setTransformByCoordinates(x, y, z);}
+
 void AgentVehicle::makeDecision()
 {
     // Lane change decision making //

@@ -25,6 +25,7 @@ public:
     double getDu() const;
 
     void move(double);
+	void setPosition(float x, float y, float z);
 
     VehicleGeometry *getVehicleGeometry();
     double getBoundingCircleRadius();
