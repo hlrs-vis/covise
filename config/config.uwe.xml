@@ -98,6 +98,7 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
+   <Vive value="on" trackingOnly="true"/>
    <Measure menu="true" />
    <ViewPoint value="true" />
    <PointCloud>
@@ -230,7 +231,7 @@
 
    <ScreenConfig>
    <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-   <Screen width="2560" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2048" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
 
 
