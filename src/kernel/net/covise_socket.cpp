@@ -206,7 +206,7 @@ Socket::Socket(int socket_id, sockaddr_in *sockaddr)
     this->connected = true;
 }
 
-Socket::Socket(Host *h, int p, int retries, double timeout)
+Socket::Socket(const Host *h, int p, int retries, double timeout)
 {
     port = p;
     this->connected = false;
@@ -266,13 +266,8 @@ Socket::Socket(Host *h, int p, int retries, double timeout)
         FirewallConfig::the()->sourcePort++;
     }
 
-#if defined CRAY || defined __alpha || defined _AIX
-    //        memcpy ((char *) &s_addr_in.sin_addr, hp->h_addr, hp->h_length);
-    host->get_char_address((unsigned char *)&s_addr_in.sin_addr);
-#else
     //        memcpy (&(s_addr_in.sin_addr.s_addr), hp->h_addr, hp->h_length);
     host->get_char_address((unsigned char *)&(s_addr_in.sin_addr.s_addr));
-#endif
 
     s_addr_in.sin_port = htons(port);
     s_addr_in.sin_family = AF_INET;
@@ -430,13 +425,8 @@ Socket::Socket(Host *h, int p, int retries, double timeout)
 
         setTCPOptions();
 
-#if defined CRAY || defined __alpha || defined _AIX
-        //        memcpy ((char *) &s_addr_in.sin_addr, hp->h_addr, hp->h_length);
-        host->get_char_address((unsigned char *)&s_addr_in.sin_addr);
-#else
         //        memcpy (&(s_addr_in.sin_addr.s_addr), hp->h_addr, hp->h_length);
         host->get_char_address((unsigned char *)&(s_addr_in.sin_addr.s_addr));
-#endif
 
         s_addr_in.sin_port = htons(port);
         s_addr_in.sin_family = AF_INET;
@@ -1040,7 +1030,7 @@ int Socket::setNonBlocking(bool on)
     return 0;
 }
 
-Host *Socket::get_ip_alias(Host *test_host)
+Host *Socket::get_ip_alias(const Host *test_host)
 {
     int i, j, no, count;
     const char **alias_list;

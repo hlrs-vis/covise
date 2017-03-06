@@ -22,7 +22,7 @@ std::list<epair> enumRename;
 std::string elementName;
 std::string parentName;
 
-std::string trim(std::string& str)
+std::string trim(const std::string& str)
 {
 	size_t first = str.find_first_not_of(' ');
 	if (first == std::string::npos)
@@ -69,7 +69,7 @@ public:
 	oscClass *ownerClass;
 };
 
-std::string makeTypeName(std::string &n)
+std::string makeTypeName(const std::string &n)
 {
 	std::string name=trim(n);
 	if (name[0] == 'x'&&name[1] == 's'&&name[2] == 'd')
