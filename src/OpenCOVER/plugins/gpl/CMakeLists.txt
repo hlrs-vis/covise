@@ -4,6 +4,7 @@ if (NOT COVISE_BUILDING_COVER)
    find_package(COVER REQUIRED)
 endif()
 
+set(PLUGIN_CATEGORY "General")
 # @file
 # 
 # CMakeLists.txt for OpenCOVER plugins gpl

@@ -24,10 +24,11 @@ class OPENSCENARIOEXPORT oscPhase : public oscObjectBase
 public:
 oscPhase()
 {
-        OSC_ADD_MEMBER(type);
-        OSC_ADD_MEMBER(duration);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Signal, "oscSignal");
+        OSC_ADD_MEMBER(type, 0);
+        OSC_ADD_MEMBER(duration, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Signal, "oscSignal", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/RoadNetwork/Signals/SignalsController";};
     oscString type;
     oscDouble duration;
     oscSignalArrayMember Signal;

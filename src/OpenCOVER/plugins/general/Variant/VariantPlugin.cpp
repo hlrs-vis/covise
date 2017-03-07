@@ -364,7 +364,7 @@ bool VariantPlugin::pickedObjChanged()
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
-void VariantPlugin::addNode(osg::Node *node, RenderObject *render)
+void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
 {
     if (render != NULL)
     {
@@ -374,28 +374,42 @@ void VariantPlugin::addNode(osg::Node *node, RenderObject *render)
 
             if (var_att != "NULL" && var_att != "")
             {
+                bool set_default = false;
                 bool default_state = false;
+                if (render->getAttribute("VARIANT_VISIBLE"))
+                {
+                    set_default = true;
+                    if (std::string(render->getAttribute("VARIANT_VISIBLE")) == "off")
+                        default_state = false;
+                    else
+                        default_state = true;
+                }
                 if(var_att.length()>3 && var_att.compare(var_att.length()-3,3,"_on")==0)
                 {
                    var_att = var_att.substr(0,var_att.length()-3);
                    default_state = true;
+                   set_default = true;
                 }
                 if(var_att.length()>4 && var_att.compare(var_att.length()-4,4,"_off")==0)
                 {
                    var_att = var_att.substr(0,var_att.length()-4);
                    default_state = false;
+                   set_default = true;
                 }
+                std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {
-                    osg::Node::ParentList parents = node->getParents();
-                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi,default_state);
+                    osg::Node::ParentList parents;
+                    if (node)
+                        parents = node->getParents();
+                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
 
                     varlist.push_back(vari);
 
                     vari->AddToScenegraph();
                     vari->hideVRLabel();
-                    if(default_state==false)
+                    if(set_default && default_state==false)
                     {
                        osg::Node *n = vari->getNode();
                        if (n)
@@ -484,7 +498,7 @@ void VariantPlugin::setVariant(std::string var)
         VariantPlugin::plugin->HideAllVariants();
         TokenBuffer tb;
         tb << var;
-        cover->sendMessage(this, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+        cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -954,9 +968,9 @@ int VariantPlugin::parseXML(QDomDocument *qxmlDoc)
                     tb << pPath;
 
                     if (state != "0")
-                        cover->sendMessage(plugin, "Variant", PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
                     else
-                        cover->sendMessage(plugin, "Variant", PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
                 }
                 //--
                 if (tagName == "transform")

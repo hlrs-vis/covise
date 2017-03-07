@@ -30,6 +30,7 @@
 #include <osgDB/ReadFile>
 
 #include <cover/coVRTui.h>
+#include <util/unixcompat.h>
 
 // Local:
 #include "PointCloud.h"

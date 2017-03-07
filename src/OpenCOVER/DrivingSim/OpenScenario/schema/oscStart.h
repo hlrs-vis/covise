@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscConditionGroup.h"
+#include "oscStartConditionGroup.h"
 
 namespace OpenScenario
 {
@@ -24,9 +24,10 @@ class OPENSCENARIOEXPORT oscStart : public oscObjectBase
 public:
 oscStart()
 {
-        OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup");
+        OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscStartConditionGroup", 0);
     };
-    oscConditionGroupMember ConditionGroup;
+        const char *getScope(){return "/OSCManeuver/Event/Conditions";};
+    oscStartConditionGroupMember ConditionGroup;
 
 };
 

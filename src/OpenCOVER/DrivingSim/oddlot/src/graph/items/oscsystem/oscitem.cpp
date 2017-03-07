@@ -169,7 +169,7 @@ OSCItem::init()
 		return;
 	}
 
-	std::string catalogFileName = catalogReference->name.getValue();
+	std::string catalogFileName = catalogReference->catalogName.getValue();
 	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(catalogFileName);
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
@@ -282,7 +282,7 @@ OSCItem::removeElement()
 	OpenScenario::oscObjectBase *parent = oscObject_->getParentObj();
 	OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(parent->getOwnMember());
 
-	RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, oscObject_, arrayMember->findObjectIndex(oscObject_), element_);
+	RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, arrayMember->findObjectIndex(oscObject_), element_);
 	getTopviewGraph()->executeCommand(command); 
 
 	return false;

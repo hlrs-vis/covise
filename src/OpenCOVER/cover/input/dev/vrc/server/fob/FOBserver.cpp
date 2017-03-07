@@ -15,6 +15,7 @@
 #include <covise/covise.h>
 #include <stdlib.h>
 #include <string.h>
+#include <util/unixcompat.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif

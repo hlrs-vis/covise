@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscCentralObject : public oscObjectBase
 public:
 oscCentralObject()
 {
-        OSC_ADD_MEMBER(name);
+        OSC_ADD_MEMBER(name, 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/Traffic/Swarm";};
     oscString name;
 
 };

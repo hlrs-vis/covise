@@ -22,11 +22,11 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscTimeToCollision.h"
 #include "oscAcceleration.h"
 #include "oscStandStill.h"
-#include "oscSpeedCondition.h"
+#include "oscConditionSpeed.h"
 #include "oscRelativeSpeed.h"
 #include "oscTraveledDistance.h"
 #include "oscReachPosition.h"
-#include "oscDistanceCondition.h"
+#include "oscConditionDistance.h"
 #include "oscRelativeDistance.h"
 
 namespace OpenScenario
@@ -36,20 +36,21 @@ class OPENSCENARIOEXPORT oscEntityCondition : public oscObjectBase
 public:
 oscEntityCondition()
 {
-        OSC_OBJECT_ADD_MEMBER(EndOfRoad, "oscEndOfRoad");
-        OSC_OBJECT_ADD_MEMBER(Collision, "oscCollision");
-        OSC_OBJECT_ADD_MEMBER(Offroad, "oscOffroad");
-        OSC_OBJECT_ADD_MEMBER(TimeHeadway, "oscTimeHeadway");
-        OSC_OBJECT_ADD_MEMBER(TimeToCollision, "oscTimeToCollision");
-        OSC_OBJECT_ADD_MEMBER(Acceleration, "oscAcceleration");
-        OSC_OBJECT_ADD_MEMBER(StandStill, "oscStandStill");
-        OSC_OBJECT_ADD_MEMBER(SpeedCondition, "oscSpeedCondition");
-        OSC_OBJECT_ADD_MEMBER(RelativeSpeed, "oscRelativeSpeed");
-        OSC_OBJECT_ADD_MEMBER(TraveledDistance, "oscTraveledDistance");
-        OSC_OBJECT_ADD_MEMBER(ReachPosition, "oscReachPosition");
-        OSC_OBJECT_ADD_MEMBER(DistanceCondition, "oscDistanceCondition");
-        OSC_OBJECT_ADD_MEMBER(RelativeDistance, "oscRelativeDistance");
+        OSC_OBJECT_ADD_MEMBER(EndOfRoad, "oscEndOfRoad", 1);
+        OSC_OBJECT_ADD_MEMBER(Collision, "oscCollision", 1);
+        OSC_OBJECT_ADD_MEMBER(Offroad, "oscOffroad", 1);
+        OSC_OBJECT_ADD_MEMBER(TimeHeadway, "oscTimeHeadway", 1);
+        OSC_OBJECT_ADD_MEMBER(TimeToCollision, "oscTimeToCollision", 1);
+        OSC_OBJECT_ADD_MEMBER(Acceleration, "oscAcceleration", 1);
+        OSC_OBJECT_ADD_MEMBER(StandStill, "oscStandStill", 1);
+        OSC_OBJECT_ADD_MEMBER(Speed, "oscConditionSpeed", 1);
+        OSC_OBJECT_ADD_MEMBER(RelativeSpeed, "oscRelativeSpeed", 1);
+        OSC_OBJECT_ADD_MEMBER(TraveledDistance, "oscTraveledDistance", 1);
+        OSC_OBJECT_ADD_MEMBER(ReachPosition, "oscReachPosition", 1);
+        OSC_OBJECT_ADD_MEMBER(Distance, "oscConditionDistance", 1);
+        OSC_OBJECT_ADD_MEMBER(RelativeDistance, "oscRelativeDistance", 1);
     };
+        const char *getScope(){return "/OSCCondition/ByEntity";};
     oscEndOfRoadMember EndOfRoad;
     oscCollisionMember Collision;
     oscOffroadMember Offroad;
@@ -57,11 +58,11 @@ oscEntityCondition()
     oscTimeToCollisionMember TimeToCollision;
     oscAccelerationMember Acceleration;
     oscStandStillMember StandStill;
-    oscSpeedConditionMember SpeedCondition;
+    oscConditionSpeedMember Speed;
     oscRelativeSpeedMember RelativeSpeed;
     oscTraveledDistanceMember TraveledDistance;
     oscReachPositionMember ReachPosition;
-    oscDistanceConditionMember DistanceCondition;
+    oscConditionDistanceMember Distance;
     oscRelativeDistanceMember RelativeDistance;
 
 };

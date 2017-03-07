@@ -80,22 +80,6 @@ public:
     // key handling
     void key(int type, int keySym, int mod);
 
-    // this will be called if an object with feedback arrives
-    void newInteractor(RenderObject *container, coInteractor *i);
-
-    // this will be called if a COVISE object arrives
-    void addObject(RenderObject *container,
-                   RenderObject *obj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
-                   osg::Group *parent,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn, float transparency);
-
-    // this will be called if a COVISE object has to be removed
-    void removeObject(const char *objName, bool replace);
-
     unsigned long getIntegerRandomNumber();
     double getZeroOneRandomNumber();
 

@@ -15,6 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscParameterDeclaration.h"
 #include "oscWaypoint.h"
 
 namespace OpenScenario
@@ -24,12 +25,15 @@ class OPENSCENARIOEXPORT oscRoute : public oscObjectBase
 public:
 oscRoute()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(closed);
-        OSC_OBJECT_ADD_MEMBER(Waypoint, "oscWaypoint");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(closed, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+        OSC_OBJECT_ADD_MEMBER(Waypoint, "oscWaypoint", 0);
     };
+        const char *getScope(){return "";};
     oscString name;
     oscBool closed;
+    oscParameterDeclarationMember ParameterDeclaration;
     oscWaypointArrayMember Waypoint;
 
 };

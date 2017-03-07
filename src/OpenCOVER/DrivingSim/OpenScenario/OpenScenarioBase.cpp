@@ -38,11 +38,12 @@ OpenScenarioBase::OpenScenarioBase() :
         m_fullReadCatalogs(false)
 {
     oscFactories::instance();
-    OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader");
-    OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs");
-    OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork");
-    OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities");
-    OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard");
+	OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
+	OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+	OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs", 0);
+	OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork", 0);
+	OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities", 0);
+	OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard", 0);
 
     base = this;
 
@@ -101,7 +102,7 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
 	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_PedestrianControllerCatalog.xsd"));
 	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_RouteCatalog.xsd"));
 	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_TrajectoryCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_VehicleCatalog.xsd"));
 
 /*	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeA", bf::path("OpenScenario_XML-Schema_absoluteTypeA.xsd"));

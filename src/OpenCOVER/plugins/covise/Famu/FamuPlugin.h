@@ -87,7 +87,7 @@ public:
     FamuPlugin();
     virtual ~FamuPlugin();
     void add(coInteractor *inter);
-    void newInteractor(RenderObject *cont, coInteractor *inter);
+    void newInteractor(const RenderObject *cont, coInteractor *inter);
     void remove(const char *objName);
     void preFrame();
     void postFrame();

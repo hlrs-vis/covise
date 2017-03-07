@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscSet : public oscObjectBase
 public:
 oscSet()
 {
-        OSC_ADD_MEMBER(value);
+        OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/ActionParameter";};
     oscString value;
 
 };

@@ -15,8 +15,6 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscAddPosition.h"
-#include "oscEmpty.h"
 
 namespace OpenScenario
 {
@@ -25,13 +23,10 @@ class OPENSCENARIOEXPORT oscEntity : public oscObjectBase
 public:
 oscEntity()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(AddPosition, "oscAddPosition");
-        OSC_OBJECT_ADD_MEMBER(Delete, "oscEmpty");
+        OSC_ADD_MEMBER(name, 0);
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/TriggeringEntities";};
     oscString name;
-    oscAddPositionMember AddPosition;
-    oscEmptyMember Delete;
 
 };
 

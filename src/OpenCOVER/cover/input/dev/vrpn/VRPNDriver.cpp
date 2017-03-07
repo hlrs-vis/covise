@@ -28,17 +28,23 @@ using namespace covise;
 
 #include <quat.h>
 
+static OpenThreads::Mutex vrpnMutex; // vrpn is not thread-safe
+
 using namespace std;
 void VRPNDriver::vrpnCallback(void *userdata, const vrpn_TRACKERCB t)
 {
     VRPNDriver *vrpn = reinterpret_cast<VRPNDriver *>(userdata);
+    vrpnMutex.unlock();
     vrpn->processTrackerData(t);
+    vrpnMutex.lock();
 }
 
 void VRPNDriver::vrpnButtonCallback(void *userdata, const vrpn_BUTTONCB t)
 {
     VRPNDriver *vrpn = reinterpret_cast<VRPNDriver *>(userdata);
+    vrpnMutex.unlock();
     vrpn->processButtonData(t);
+    vrpnMutex.lock();
 }
 
 VRPNDriver::VRPNDriver(const std::string &config)
@@ -48,23 +54,29 @@ VRPNDriver::VRPNDriver(const std::string &config)
     vrpnTracker=NULL;
     vrpnButton=NULL;
 
+    vrpnMutex.lock();
+
     std::string host = coCoviseConfig::getEntry("host", configPath(), "localhost");
     std::string tracker = coCoviseConfig::getEntry("tracker", configPath(), "");
     std::string button = coCoviseConfig::getEntry("button", configPath(), "");
+    bool shutup = coCoviseConfig::isOn("shutup", configPath(), true);
 
     trackerid = tracker + "@" + host;
     buttonid = button + "@" + host;
     if(tracker != "")
     {
         vrpnTracker = new vrpn_Tracker_Remote(trackerid.c_str());
+        vrpnTracker->shutup = shutup;
         vrpnTracker->register_change_handler(this, (vrpn_TRACKERCHANGEHANDLER)vrpnCallback);
     }
     if(button != "")
     {
         vrpnButton = new vrpn_Button_Remote (buttonid.c_str());
+        vrpnButton->shutup = shutup;
         vrpnButton->register_change_handler(this, (vrpn_BUTTONCHANGEHANDLER)vrpnButtonCallback);
     }
 
+    vrpnMutex.unlock();
 }
 
 //====================END of init section============================
@@ -73,8 +85,10 @@ VRPNDriver::VRPNDriver(const std::string &config)
 VRPNDriver::~VRPNDriver()
 {
     stopLoop();
+    vrpnMutex.lock();
     delete vrpnTracker;
     delete vrpnButton;
+    vrpnMutex.unlock();
 }
 
 //==========================main loop =================
@@ -88,10 +102,12 @@ bool VRPNDriver::poll()
 {
     if (vrpnTracker==NULL && vrpnButton==NULL)
         return false;
+    vrpnMutex.lock();
     if (vrpnTracker)
         vrpnTracker->mainloop();
     if (vrpnButton)
         vrpnButton->mainloop();
+    vrpnMutex.unlock();
     return true;
 }
 

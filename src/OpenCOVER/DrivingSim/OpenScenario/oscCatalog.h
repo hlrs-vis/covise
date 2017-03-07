@@ -47,7 +47,7 @@ public:
 
     oscCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory");
+        OSC_OBJECT_ADD_MEMBER(Directory, "oscDirectory", 0);
     };
 
     oscDirectoryMember Directory;
@@ -59,6 +59,7 @@ public:
 protected:
     static const CatalogTypeTypeNameMap s_catalogNameToTypeName; ///< typeName of the objects for catalogType
     std::string m_catalogName; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
+	std::string m_catalogType;
 	ObjectsMap m_Objects;
 	
 public:
@@ -67,8 +68,9 @@ public:
     void fastReadCatalogObjects(const std::vector<bf::path> &filenames); ///< parse files and add objectRefId and filePath to ObjectsMap
 
     //catalogType
-    void setCatalogName(const std::string &catalogName);
+    void setCatalogNameAndType(const std::string &catalogName);
     std::string getCatalogName() const;
+	std::string getCatalogType() const;
 
     //availableObjects
     void setObjectsMap(const ObjectsMap &availableObjects);

@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscAbsolute : public oscObjectBase
 public:
 oscAbsolute()
 {
-        OSC_ADD_MEMBER(value);
+        OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCPrivateAction/Longitudinal/Speed/Target";};
     oscDouble value;
 
 };

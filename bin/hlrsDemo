@@ -54,8 +54,10 @@ do
     echo -e "${MENU} ${OPT} 43)  ${MENU} Autohaus               CA "
     echo -e "${MENU} ${OPT} 44)  ${MENU} Schule                 CA "
     echo -e "${MENU} ${OPT} 45)  ${MENU} Sporthalle                "
-    echo -e "${MENU} ${OPT} 46)  ${MENU} Blutspuranalyse           "
-    echo -e "${MENU} ${OPT} 47)  ${MENU} Car Crash                 "
+    echo -e "${MENU} ${OPT} 46)  ${MENU} Blutspuranalyse - UTM: CrimeHouse   "
+    echo -e "${MENU} ${OPT} 47)  ${MENU} Blutspuranalyse - UTM: Cardoor      "   
+    echo -e "${MENU} ${OPT} 48)  ${MENU} Car Crash                 "
+    echo -e "${MENU} ${OPT} 49)  ${MENU} Rollercrash               "
 
     echo -e "${MENU}-----${TYP} MolecularDynamics ${MENU}---------------------"
     echo -e "${MENU} ${OPT} 51)  ${MENU} IMWF      "
@@ -234,14 +236,28 @@ do
             opencover /data/LKA/Sporthalle/HalleSortedGroesser.ptsb
 	    ;;
 	46)
-	    echo -e "starting Blutspuranalyse";
+	    echo -e "starting Blutspuranalyse 1 ";
 	    cd /data/UTM
-            #opencover /data/UTM/Trajectories_texture.wrl
-	    opencover Trajectories.bpadxf testroom.wrl
+	    opencover testroom.wrl Trajectories.bpadxf
 	    ;;
 	47)
+	    echo -e "starting Blutspuranalyse 2 ";
+            cd /data/UTM/BloodstainTests/Trial10
+            opencover Trial10PointCloudSorted.ptsb Trajectories-Calculated\ Origin.bpadxf 
+	    ;;
+
+# /data/UTM/Parkinglot
+# Parkinglot2mm.sorted.ptsb
+
+	48)
 	    echo -e "starting Car Crash";
             opencover /data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb
+	    ;;
+
+	49)
+	    echo -e "starting Rollercrash";
+            /data/visdral/rollercrash/ptsb
+            opencover RollerLiegendSorted.ptsb
 	    ;;
 
 # MolecularDynamics
@@ -280,7 +296,7 @@ do
 	60)    
 	    echo -e "starting Herrenberg";	    
 	    cd /data/Reallabor/Herrenberg
-	    opencover HB_gesamt.wrl  
+	    opencover Herrenberg.wrl  
 	    ;;
 
 # VolumeRendering

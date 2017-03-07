@@ -313,6 +313,12 @@
 #define ALGEXPORT COIMPORT
 #endif
 
+#if defined(COVISE_VTK) || defined(VTK_EXPORTS)
+#define VTKEXPORT COEXPORT
+#else
+#define VTKEXPORT COIMPORT
+#endif
+
 #if defined(COVISE_GRMSG) || defined(GRMSGEXPORT)
 #define GRMSGEXPORT COEXPORT
 #else

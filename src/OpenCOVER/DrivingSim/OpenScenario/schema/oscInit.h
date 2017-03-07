@@ -24,8 +24,9 @@ class OPENSCENARIOEXPORT oscInit : public oscObjectBase
 public:
 oscInit()
 {
-        OSC_OBJECT_ADD_MEMBER(Actions, "oscActions");
+        OSC_OBJECT_ADD_MEMBER(Actions, "oscActions", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard";};
     oscActionsMember Actions;
 
 };

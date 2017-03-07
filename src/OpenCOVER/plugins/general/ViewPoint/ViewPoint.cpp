@@ -30,6 +30,7 @@
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <net/message_types.h>
 #include <net/message.h>
+#include <util/unixcompat.h>
 #include <grmsg/coGRMsg.h>
 #include <grmsg/coGRCreateViewpointMsg.h>
 #include <grmsg/coGRCreateDefaultViewpointMsg.h>
@@ -699,7 +700,7 @@ void ViewPoints::readFromDom()
     }
 }
 
-void ViewPoints::addNode(Node *n, RenderObject *)
+void ViewPoints::addNode(Node *n, const RenderObject *)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::addNode()\n");

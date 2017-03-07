@@ -15,7 +15,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #endif
-
+#include <util/unixcompat.h>
 #include <cover/coVRPluginSupport.h>
 #include <vrml97/vrml/VrmlNodeSound.h>
 #include <vrml97/vrml/Player.h>

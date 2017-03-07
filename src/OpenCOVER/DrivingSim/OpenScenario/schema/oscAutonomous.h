@@ -31,10 +31,11 @@ class OPENSCENARIOEXPORT oscAutonomous : public oscObjectBase
 public:
 oscAutonomous()
 {
-        OSC_ADD_MEMBER(activate);
-        OSC_ADD_MEMBER(domain);
+        OSC_ADD_MEMBER(activate, 0);
+        OSC_ADD_MEMBER(domain, 0);
         domain.enumType = Enum_Controller_domainType::instance();
     };
+        const char *getScope(){return "/OSCPrivateAction";};
     oscBool activate;
     oscEnum domain;
 

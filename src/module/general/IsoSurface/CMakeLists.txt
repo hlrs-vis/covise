@@ -16,7 +16,6 @@ SET(EXTRASOURCES
   IsoSurface.h
 )
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(Mapper IsoSurface )
 TARGET_LINK_LIBRARIES(IsoSurface  coAlg coApi coAppl coCore )
 

@@ -8,6 +8,7 @@
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
+#include "../oscNameMapping.h"
 
 class oscClass;
 class oscMember;
@@ -16,6 +17,19 @@ oscEnum *currentEnum = NULL;
 std::stack<oscClass *> currentClassStack;
 oscClass *currentClass = NULL;
 oscMember *currentMember = NULL;
+typedef std::pair<std::string, std::string> epair;
+std::list<epair> enumRename;
+std::string elementName;
+std::string parentName;
+
+std::string trim(const std::string& str)
+{
+	size_t first = str.find_first_not_of(' ');
+	if (first == std::string::npos)
+		return "";
+	size_t last = str.find_last_not_of(' ');
+	return str.substr(first, (last - first + 1));
+}
 
 
 std::list<oscClass *> classes;
@@ -29,6 +43,7 @@ public:
 	std::string name;
 	std::string type;
 	bool optional;
+	int choice;
 	bool array;
 };
 
@@ -38,6 +53,7 @@ public:
 	oscClass(std::string name);
 	~oscClass();
 	std::string name;
+	std::string parentName;
 	std::list<oscMember *> members;
 	std::list<oscMember *> attributes;
 	std::list<std::string> enumHeaders;
@@ -53,16 +69,16 @@ public:
 	oscClass *ownerClass;
 };
 
-std::string makeTypeName(std::string &n)
+std::string makeTypeName(const std::string &n)
 {
-	std::string name=n;
-	if (n[0] == 'x'&&n[1] == 's'&&n[2] == 'd')
+	std::string name=trim(n);
+	if (name[0] == 'x'&&name[1] == 's'&&name[2] == 'd')
 	{
 	}
-	else if (n[0] == 'E'&&n[1] == 'n'&&n[2] == 'u'&&n[3] == 'm')
+	else if (name[0] == 'E'&&name[1] == 'n'&&name[2] == 'u'&&name[3] == 'm')
 	{
 	}
-	else if (n[0] == 'O'&&n[1] == 'S'&&n[2] == 'C')
+	else if (name[0] == 'O'&&name[1] == 'S'&&name[2] == 'C')
 	{
 		name[0] = 'o';
 		name[1] = 's';
@@ -70,14 +86,16 @@ std::string makeTypeName(std::string &n)
 	}
 	else
 	{
-		name = "osc" + n;
+		name = "osc" + name;
 	}
 	return name;
 }
 oscMember::oscMember(std::string n)
 {
 	name = n;
-	type = makeTypeName(n);
+	std::string tn = OpenScenario::nameMapping::instance()->getClassName(n, parentName);
+	type = makeTypeName(tn);
+	choice = 0;
 	optional = false;
 	array = false;
 	//std::cerr << "Member " << name << std::endl;
@@ -102,7 +120,7 @@ oscClass::~oscClass()
 
 oscEnum::oscEnum(std::string n)
 {
-	name = n;
+	name = makeTypeName(n);
 	enums.push_back(this);
 	ownerClass = NULL;
 	//std::cerr << "Enum " << name << std::endl;
@@ -113,15 +131,15 @@ oscEnum::~oscEnum()
 }
 
 
-void parseComplexType(xercesc::DOMElement *elem);
-void parseSimpleType(xercesc::DOMElement *elem);
-void parseGeneric(xercesc::DOMElement *elem);
-void parseElement(xercesc::DOMElement *elem);
-void parseAttribute(xercesc::DOMElement *elem);
+void parseComplexType(xercesc::DOMElement *elem, int choice);
+void parseSimpleType(xercesc::DOMElement *elem, int choice);
+void parseGeneric(xercesc::DOMElement *elem, int choice);
+void parseElement(xercesc::DOMElement *elem, int choice);
+void parseAttribute(xercesc::DOMElement *elem, int choice);
 void parseSchema(xercesc::DOMElement *elem);
-std::string elementName;
+void parseChoice(xercesc::DOMElement *elem);
 
-void parseElement(xercesc::DOMElement *elem)
+void parseElement(xercesc::DOMElement *elem, int choice)
 {
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
 	if (attribute)
@@ -141,7 +159,14 @@ void parseElement(xercesc::DOMElement *elem)
 	if (attribute)
 	{
 		std::string tn = xercesc::XMLString::transcode(attribute->getValue());
-		currentMember->type = makeTypeName(tn);
+		if (tn == "xsd:string")
+		{
+			currentMember->type = makeTypeName(std::string("StringElement"));
+		}
+		else
+		{
+			currentMember->type = makeTypeName(tn);
+		}
 	}
 	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("maxOccurs"));
 	if (attribute)
@@ -158,10 +183,19 @@ void parseElement(xercesc::DOMElement *elem)
 			currentMember->optional = true;
 		}
 	}
-	parseGeneric(elem);
+
+	currentMember->choice = choice;
+
+	parseGeneric(elem, 0);
 }
 
-void parseAttribute(xercesc::DOMElement *elem)
+void parseChoice(xercesc::DOMElement *elem, int choice)
+{
+
+	parseGeneric(elem, choice);
+}
+
+void parseAttribute(xercesc::DOMElement *elem, int choice)
 {
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
 	if (attribute)
@@ -214,9 +248,11 @@ void parseAttribute(xercesc::DOMElement *elem)
 		}
 	}
 
-	parseGeneric(elem);
+	currentMember->choice = choice;
+
+	parseGeneric(elem, 0);
 }
-void parseComplexType(xercesc::DOMElement *elem)
+void parseComplexType(xercesc::DOMElement *elem, int choice)
 {
 	std::string name;
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
@@ -228,12 +264,15 @@ void parseComplexType(xercesc::DOMElement *elem)
 	{
 		name = elementName;
 	}
+	name = OpenScenario::nameMapping::instance()->getClassName(name, parentName);
 	currentClass = new oscClass(name);
+	currentClass->parentName = parentName;
 	currentClassStack.push(currentClass);
-	parseGeneric(elem);
+	parentName = parentName+"/"+name;
+	parseGeneric(elem, choice);
 }
 
-void parseSimpleType(xercesc::DOMElement *elem)
+void parseSimpleType(xercesc::DOMElement *elem, int choice)
 {
 	std::string name;
 	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
@@ -246,7 +285,7 @@ void parseSimpleType(xercesc::DOMElement *elem)
 		name = elementName;
 	}
 	currentEnum = new oscEnum(name);
-	parseGeneric(elem);
+	parseGeneric(elem, choice);
 }
 void parseEnum(xercesc::DOMElement *elem)
 {
@@ -255,39 +294,50 @@ void parseEnum(xercesc::DOMElement *elem)
 	if (attribute)
 	{
 		value = xercesc::XMLString::transcode(attribute->getValue());
+		for (std::list<epair>::iterator it = enumRename.begin(); it != enumRename.end(); it++)
+		{
+			if (it->first == value)
+			{
+				value = it->second;
+				break;
+			}
+		}
+		currentEnum->values.push_back(value);
 	}
-	currentEnum->values.push_back(value);
-	parseGeneric(elem);
+	parseGeneric(elem, 0);
 }
 
 
-void parseGeneric(xercesc::DOMElement *elem)
+void parseGeneric(xercesc::DOMElement *elem, int choice)
 {
 
 	std::string name;
 	name = xercesc::XMLString::transcode(elem->getNodeName());
-
 	xercesc::DOMNodeList *elementList = elem->getChildNodes();
+	std::string myParentName = parentName;
 
 	for (unsigned int child = 0; child < elementList->getLength(); ++child)
 	{
-
+		int currentChoice = 0;
 		xercesc::DOMElement *element = dynamic_cast<xercesc::DOMElement *>(elementList->item(child));
 		if (element)
 		{
 			std::string name;
 			name = xercesc::XMLString::transcode(element->getNodeName());
+
+			parentName = myParentName;
+
 			if (name == "xsd:element")
 			{
-				parseElement(element);
+				parseElement(element, choice);
 			}
 			else if (name == "xsd:attribute")
 			{
-				parseAttribute(element);
+				parseAttribute(element, choice);
 			}
 			else if (name == "xsd:complexType")
 			{
-				parseComplexType(element);
+				parseComplexType(element, choice);
 
 				currentClassStack.pop();
 				if (currentClassStack.size() > 0)
@@ -297,15 +347,20 @@ void parseGeneric(xercesc::DOMElement *elem)
 			}
 			else if (name == "xsd:simpleType")
 			{
-				parseSimpleType(element);
+				parseSimpleType(element, choice);
 			}
 			else if (name == "xsd:enumeration")
 			{
 				parseEnum(element);
 			}
+			else if (name == "xsd:choice")
+			{
+				currentChoice++;
+				parseChoice(element, currentChoice);
+			}
 			else
 			{
-				parseGeneric(element);
+				parseGeneric(element,0);
 			}
 		}
 	}
@@ -319,11 +374,17 @@ void parseSchema(xercesc::DOMElement *elem)
 	std::cerr << "" << name;
 
 
-	parseGeneric(elem);
+	parseGeneric(elem, 0);
 }
 
 int main(int argc, char **argv)
 {
+	enumRename.push_back(std::pair<std::string, std::string>("greater-than", "greater_than"));
+	enumRename.push_back(std::pair<std::string, std::string>("equal-to", "equal_to"));
+	enumRename.push_back(std::pair<std::string, std::string>("less-than", "less_than"));
+	enumRename.push_back(std::pair<std::string, std::string>("sky off", "sky_off"));
+	enumRename.push_back(std::pair<std::string, std::string>("int", "int_t"));
+	enumRename.push_back(std::pair<std::string, std::string>("double", "double_t"));
 	xercesc::XercesDOMParser *parser;
 	//in order to work with the Xerces-C++ parser, the XML subsystem must be initialized first
 	//every call of XMLPlatformUtils::Initialize() must have a matching call of XMLPlatformUtils::Terminate() (see destructor)
@@ -338,8 +399,19 @@ int main(int argc, char **argv)
 		xercesc::XMLString::release(&message);
 	}
 
+	oscClass * currentClass = new oscClass("None");
+	currentClass = new oscClass("Polyline");
+	currentClass = new oscClass("Delete");
+	FILE *duplicates = fopen("duplicateClasses.txt", "w");
 	for (int i = 1; i < argc; i++)
 	{
+
+		elementName="";
+		parentName="";
+		if (strstr(argv[i],"Catalog")!=NULL)
+		{
+			parentName = "/Catalog";
+		}
 		//parser and error handler have to be initialized _after_ xercesc::XMLPlatformUtils::Initialize()
 		//can't be done in member initializer list
 		parser = new xercesc::XercesDOMParser();
@@ -494,11 +566,11 @@ int main(int argc, char **argv)
 			if (cl2 != cl && cl2->name == cl->name)
 			{
 
-				fprintf(stderr, "duplicate class %s\n", cl->name.c_str());
+				fprintf(duplicates, "duplicate class %s, parent %s, class %s, parent %s\n", cl->name.c_str(), cl->parentName.c_str(), cl2->name.c_str(), cl2->parentName.c_str());
 				//check if they differ
 				if (cl->attributes.size() != cl2->attributes.size())
 				{
-					fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+					fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 					foundDuplicate = true;
 					break;
 				}
@@ -512,7 +584,7 @@ int main(int argc, char **argv)
 						oscMember *attrib2 = *ait2;
 						if(attrib->name != attrib2->name)
 						{
-							fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+							fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 							foundDuplicate = true;
 							break;
 						}
@@ -524,7 +596,7 @@ int main(int argc, char **argv)
 				}
 				if (cl->members.size() != cl2->members.size())
 				{
-					fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+					fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 					foundDuplicate = true;
 					break;
 				}
@@ -538,7 +610,7 @@ int main(int argc, char **argv)
 						oscMember *attrib2 = *mit2;
 						if (attrib->name != attrib2->name)
 						{
-							fprintf(stderr, "duplicate class %s differs\n", cl->name.c_str());
+							fprintf(duplicates, "duplicate class %s differs\n", cl->name.c_str());
 							foundDuplicate = true;
 							break;
 						}
@@ -630,26 +702,26 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 #ifndef %s\n\
 #define %s\n\
 \n\
-#include \"oscExport.h\"\n", headerDefineName, headerDefineName);
+#include \"../oscExport.h\"\n", headerDefineName, headerDefineName);
 
 		if (catalog)
 		{
-			fprintf(header, "#include \"oscCatalog.h\"\n");
+			fprintf(header, "#include \"../oscCatalog.h\"\n");
 		}
 		else
 		{
-			fprintf(header, "#include \"oscObjectBase.h\"\n");
+			fprintf(header, "#include \"../oscObjectBase.h\"\n");
 		}
 
 		fprintf(header,
-"#include \"oscObjectVariable.h\"\n\
-#include \"oscObjectVariableArray.h\"\n\
+"#include \"../oscObjectVariable.h\"\n\
+#include \"../oscObjectVariableArray.h\"\n\
 \n\
-#include \"oscVariables.h\"\n");
+#include \"../oscVariables.h\"\n");
 		
 			for (std::list<std::string>::iterator it = cl->enumHeaders.begin(); it != cl->enumHeaders.end(); it++)
 			{
-				fprintf(header, "#include \"schema/%s.h\"\n",(*it).c_str());
+				fprintf(header, "#include \"%s.h\"\n",(*it).c_str());
 			}
 			fprintf(header, "\nnamespace OpenScenario\n{\n");
 
@@ -687,25 +759,27 @@ static %sType *instance();\n\
 		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
 		{
 			oscMember *attrib = *ait;
+
 			if(attrib->optional)
 			{
-				fprintf(header, "        OSC_ADD_MEMBER_OPTIONAL(%s);\n", attrib->name.c_str());
+				fprintf(header, "        OSC_ADD_MEMBER_OPTIONAL(%s, %d);\n", attrib->name.c_str(), attrib->choice);
 			}
 			else
 			{
-				fprintf(header, "        OSC_ADD_MEMBER(%s);\n", attrib->name.c_str());
+				fprintf(header, "        OSC_ADD_MEMBER(%s, %d);\n", attrib->name.c_str(), attrib->choice);
 			}
 		}
 		for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
 		{
 			oscMember *member = *mit;
+			
 			if (member->optional)
 			{
-				fprintf(header, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\");\n", member->name.c_str(), member->type.c_str());
+				fprintf(header, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
 			}
 			else
 			{
-				fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\");\n", member->name.c_str(), member->type.c_str());
+				fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
 			}
 		}
 
@@ -735,6 +809,7 @@ static %sType *instance();\n\
 		
 		fprintf(header, "    };\n");
 
+		fprintf(header, "        const char *getScope(){return \"%s\";};\n", cl->parentName.c_str());
 
 		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
 		{
@@ -836,7 +911,7 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 \n\
 * License: LGPL 2 + */\n\
 \n\
-#include \"schema/%s.h\"\n\
+#include \"%s.h\"\n\
 \n\
 using namespace OpenScenario;\n\
 ", cl->name.c_str());
@@ -874,6 +949,7 @@ using namespace OpenScenario;\n\
 			fclose(cpp);
 		}
 	}
+	fclose(duplicates);
 
 	fprintf(CMakeInc, ")\n");
 

@@ -829,7 +829,7 @@ void Move::preFrame()
             getMoveDCS();
             // start of interaction (button press)
             osg::Node *currentNode = NULL;
-            if (moveDCS)
+            if (moveDCS && moveDCS->getNumParents() > 0)
                 currentNode = moveDCS->getParent(0);
             startBaseMat.makeIdentity();
             while (currentNode != NULL)
@@ -1659,7 +1659,7 @@ void Move::redo()
     }
 }
 
-void Move::newInteractor(RenderObject *container, coInteractor *inter)
+void Move::newInteractor(const RenderObject *container, coInteractor *inter)
 {
     if (!container || !inter)
         return;
@@ -1672,7 +1672,7 @@ void Move::newInteractor(RenderObject *container, coInteractor *inter)
     }
 }
 
-void Move::addNode(osg::Node *node, RenderObject *ro)
+void Move::addNode(osg::Node *node, const RenderObject *ro)
 {
     if (roInteractorMap.find(ro) != roInteractorMap.end())
     {

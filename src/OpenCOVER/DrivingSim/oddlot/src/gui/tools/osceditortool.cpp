@@ -61,16 +61,11 @@ OpenScenarioEditorTool::initToolWidget()
     ToolWidget *ribbonWidget = new ToolWidget();
     ui->setupUi(ribbonWidget);
 
-	ui->catalogComboBox->addItem("VehicleCatalog");
-	ui->catalogComboBox->addItem("DriverCatalog");
-	ui->catalogComboBox->addItem("PedestrianCatalog");
-	ui->catalogComboBox->addItem("PedestrianControllerCatalog");
-	ui->catalogComboBox->addItem("MiscObjectCatalog");
-	ui->catalogComboBox->addItem("EnvironmentCatalog");
-	ui->catalogComboBox->addItem("ManeuverCatalog");
-	ui->catalogComboBox->addItem("TrajectoryCatalog");
-	ui->catalogComboBox->addItem("RouteCatalog");
-   
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		ui->catalogComboBox->addItem(QString::fromStdString(ODD::CATALOGLIST.at(i)));
+	}
+  
     connect(ui->catalogComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCatalogSelection(int)));
     ui->catalogComboBox->setCurrentIndex(0); // this doesn't trigger an event...
     handleCatalogSelection(0); // ... so do it yourself
@@ -102,8 +97,9 @@ OpenScenarioEditorTool::initToolWidget()
 	int column = 0;
 	for (int i = 0; i < openScenarioBaseObjects.size(); i++)
 	{
-		QPushButton *oscPushButton = new QPushButton();
+		QPushButton *oscPushButton = new QPushButton(ui->baseTools);
 		oscPushButton->setText(openScenarioBaseObjects.at(i));
+		oscPushButton->setObjectName(openScenarioBaseObjects.at(i));
 		//			memberWidgets_.insert(memberName, oscPushButton);
 		ui->baseToolsLayout->addWidget(oscPushButton, i%2, column, 1, 1);
 		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
@@ -208,6 +204,16 @@ OpenScenarioEditorTool::handleGraphState(bool state)
     OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(ODD::TOS_GRAPHELEMENT, state);
     emit toolAction(action);
     delete action;
+}
+
+void
+OpenScenarioEditorTool::setButtonColor(const QString &name, QColor color)
+{
+	QPushButton *button = ui->baseTools->findChild<QPushButton *>(name);
+	if (button)
+	{
+		button->setStyleSheet("color: rgb(" + QString::number(color.red()) + "," + QString::number(color.green()) + "," + QString::number(color.blue()) + ")");
+	}
 }
 
 //################//

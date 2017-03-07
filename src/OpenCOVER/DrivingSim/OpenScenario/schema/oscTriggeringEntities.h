@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscNamedEntity.h"
+#include "oscEntity.h"
 
 namespace OpenScenario
 {
@@ -32,12 +32,13 @@ class OPENSCENARIOEXPORT oscTriggeringEntities : public oscObjectBase
 public:
 oscTriggeringEntities()
 {
-        OSC_ADD_MEMBER(rule);
-        OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity");
+        OSC_ADD_MEMBER(rule, 0);
+        OSC_OBJECT_ADD_MEMBER(Entity, "oscEntity", 0);
         rule.enumType = Enum_TriggeringEntities_ruleType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByEntity";};
     oscEnum rule;
-    oscNamedEntityArrayMember NamedEntity;
+    oscEntityArrayMember Entity;
 
     enum Enum_TriggeringEntities_rule
     {

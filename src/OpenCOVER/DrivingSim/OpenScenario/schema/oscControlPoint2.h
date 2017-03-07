@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscControlPoint2 : public oscObjectBase
 public:
 oscControlPoint2()
 {
-        OSC_ADD_MEMBER(status);
+        OSC_ADD_MEMBER(status, 0);
     };
+        const char *getScope(){return "/OSCTrajectory/Vertex/Shape/Spline";};
     oscString status;
 
 };

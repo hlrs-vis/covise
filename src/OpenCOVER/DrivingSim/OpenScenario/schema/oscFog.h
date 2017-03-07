@@ -24,9 +24,10 @@ class OPENSCENARIOEXPORT oscFog : public oscObjectBase
 public:
 oscFog()
 {
-        OSC_ADD_MEMBER(visualRange);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(BoundingBox, "oscBoundingBox");
+        OSC_ADD_MEMBER(visualRange, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(BoundingBox, "oscBoundingBox", 0);
     };
+        const char *getScope(){return "/OSCEnvironment/Weather";};
     oscDouble visualRange;
     oscBoundingBoxMember BoundingBox;
 

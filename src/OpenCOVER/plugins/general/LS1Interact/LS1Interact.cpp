@@ -22,7 +22,7 @@ using namespace osg;
 char *LS1Plugin::currentObjectName = NULL;
 LS1Plugin *LS1Plugin::plugin = NULL;
 
-void LS1Plugin::newInteractor(RenderObject *cont, coInteractor *inter)
+void LS1Plugin::newInteractor(const RenderObject *cont, coInteractor *inter)
 {
     if (cover->debugLevel(1))
         fprintf(stderr, "\n--- coVRNewInteractor containerName=[%s]\n", cont->getName());

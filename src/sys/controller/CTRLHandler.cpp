@@ -13,6 +13,7 @@
 #include <string>
 
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 #include <util/covise_version.h>
 #include <util/coTimer.h>
 #include <config/CoviseConfig.h>

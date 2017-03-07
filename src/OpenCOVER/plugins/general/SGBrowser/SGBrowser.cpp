@@ -728,7 +728,7 @@ void SGBrowser::tabletEvent(coTUIElement *tUIItem)
         _tb.delete_data();
     }
 }
-void SGBrowser::addNode(osg::Node *node, RenderObject *obj)
+void SGBrowser::addNode(osg::Node *node, const RenderObject *obj)
 {
     (void)obj;
 

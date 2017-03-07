@@ -80,15 +80,15 @@
 #include "schema/oscActions.h"
 #include "schema/oscPrivateAction.h"
 #include "schema/oscPrivate.h"
-#include "schema/oscOpenSCENARIO_TrajectoryCatalog.h"
-#include "schema/oscOpenSCENARIO_DriverCatalog.h"
-#include "schema/oscOpenSCENARIO_EnvironmentCatalog.h"
-#include "schema/oscOpenSCENARIO_ManeuverCatalog.h"
-#include "schema/oscOpenSCENARIO_MiscObjectCatalog.h"
-#include "schema/oscOpenSCENARIO_PedestrianCatalog.h"
-#include "schema/oscOpenSCENARIO_PedestrianControllerCatalog.h"
-#include "schema/oscOpenSCENARIO_VehicleCatalog.h"
-#include "schema/oscOpenSCENARIO_RouteCatalog.h"
+#include "schema/oscTrajectoryCatalog.h"
+#include "schema/oscDriverCatalog.h"
+#include "schema/oscEnvironmentCatalog.h"
+#include "schema/oscManeuverCatalog.h"
+#include "schema/oscMiscObjectCatalog.h"
+#include "schema/oscPedestrianCatalog.h"
+#include "schema/oscPedestrianControllerCatalog.h"
+#include "schema/oscVehicleCatalog.h"
+#include "schema/oscRouteCatalog.h"
 
 
 // Boost //
@@ -137,6 +137,14 @@ OpenScenarioEditor::~OpenScenarioEditor()
 void
 OpenScenarioEditor::init()
 {
+
+	// Initialize all catalogs (needed for validation)
+	//
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		getCatalog(ODD::CATALOGLIST.at(i));
+	}
+
 	OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
 	OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(entitiesObject->getMember("Object"));
 	
@@ -147,7 +155,7 @@ OpenScenarioEditor::init()
 
 		if (!oscBase_->getOSCElement(object))
 		{
-			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->name.getValue()), object);
+			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->catalogName.getValue()), object);
 			oscBase_->addOSCElement(element);
 		}
 	}
@@ -173,12 +181,12 @@ OpenScenarioEditor::init()
             foreach (OpenScenario::oscObjectBase *objectBase, trajectoryObjects)
             {
                 OpenScenario::oscFollowTrajectory *objectTrajectory = dynamic_cast<OpenScenario::oscFollowTrajectory *>(objectBase);
-                std::string name = objectTrajectory->name.getValue();
-                OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
+                std::string name = objectTrajectory->CatalogReference->entryName.getValue();
+                OpenScenario::oscTrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 if (!catalogObject)
                 {
                     trajectoryCatalog->fullReadCatalogObjectWithName(name);
-                    catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
+                    catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 }
 				OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
 				OpenScenario::oscTrajectory *catalogTrajectory = NULL;
@@ -233,6 +241,24 @@ OpenScenarioEditor::init()
  /*       insertOSCHandle_ = new OSCHandle(signalRoadSystemItem_);
         insertOSCHandle_->hide();*/
 
+	// Validate base elements
+	//
+	QList<QString> openScenarioBaseObjects;
+	openScenarioBaseObjects.append("FileHeader");
+	openScenarioBaseObjects.append("RoadNetwork");
+	openScenarioBaseObjects.append("Entities");
+	openScenarioBaseObjects.append("Storyboard");
+	
+	int column = 0;
+	for (int i = 0; i < openScenarioBaseObjects.size(); i++)
+	{
+		OpenScenario::oscMember *member = openScenarioBase_->getMember(openScenarioBaseObjects.at(i).toStdString());
+
+		if (member && member->validate())
+		{
+			mainWindow_->getToolManager()->setPushButtonColor(QString::fromStdString(member->getName()), QColor(128, 195, 66));
+		}
+	}
 
     lastTool_ = getCurrentTool();
 
@@ -283,7 +309,7 @@ OpenScenarioEditor::getElements(oscObjectBase *root, const std::string &type)
     OpenScenario::oscObjectBase::MemberMap members = root->getMembers();
     for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 	{
-		oscMember *member = it->second;
+		oscMember *member = (*it).member;
 		if (member)
 		{
 			OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(member);
@@ -406,7 +432,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 	if (dir)
 	{
 		std::string dirName = catalog->Directory->path.getValue();
-		if (dirName == "")
+		if (dirName.find(catalogDir.toStdString()) == std::string::npos)
 		{
 			dirName = catalog->Directory->path = catalogsDir + name;
 			if (!bf::exists(bf::path(dirName)))
@@ -418,7 +444,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 
 
 	name = name.erase(name.find("Catalog"));
-	catalog->setCatalogName(name);
+	catalog->setCatalogNameAndType(name);
 
 	OSCElement *oscElement = oscBase_->getOrCreateOSCElement(catalog);
 
@@ -729,8 +755,8 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 								{
 									oscObject->name.setValue(selectedObjectName);
 								}
-								catalogReference->name.setValue(selectedObjectName);
-								catalogReference->catalog.setValue(oscCatalog_->getCatalogName() + "Catalog");
+								catalogReference->entryName.setValue(selectedObjectName);
+								catalogReference->catalogName.setValue(oscCatalog_->getCatalogName() + "Catalog");
 
 								translateObject(privateAction, road->getID(), s, t);
 
@@ -744,6 +770,21 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 	}
 
     //	ProjectEditor::mouseAction(mouseAction);
+}
+
+//################//
+// SLOTS          //
+//################//
+
+void
+OpenScenarioEditor::changeDirectories()
+{
+	// Initialize all catalogs (needed for validation)
+	//
+	for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+	{
+		getCatalog(ODD::CATALOGLIST.at(i));
+	}
 }
 
 //################//
@@ -830,7 +871,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 		}
 	}
     else if (currentTool == ODD::TOS_GRAPHELEMENT)
-    {
+	{
         OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
         if (action)
         {
@@ -894,7 +935,14 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
                 }
             }
         } */
-    }
+   }
+	else if (currentTool == ODD::OSS_DIRECTORY)
+	{
+		for (int i = 0; i < ODD::CATALOGLIST.size(); i++)
+		{
+			getCatalog(ODD::CATALOGLIST.at(i));
+		}
+	}
 	else
 	{		
 		if (currentTool == ODD::TOS_SAVE_CATALOG)

@@ -661,7 +661,7 @@ void Vrml97Plugin::message(int type, int len, const void *buf)
         vrmlScene->getIncomingSensorEventQueue()->receiveMessage(type, len, buf);
 }
 
-void Vrml97Plugin::addNode(osg::Node *node, RenderObject *)
+void Vrml97Plugin::addNode(osg::Node *node, const RenderObject *)
 {
     VrmlNodeCOVISEObject::addNode(node);
 }

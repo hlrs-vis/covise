@@ -18,36 +18,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT Enum_Speed_Target_valueTypeType : public oscEnumType
-{
-public:
-static Enum_Speed_Target_valueTypeType *instance();
-    private:
-		Enum_Speed_Target_valueTypeType();
-	    static Enum_Speed_Target_valueTypeType *inst; 
-};
 class OPENSCENARIOEXPORT oscRelative : public oscObjectBase
 {
 public:
 oscRelative()
 {
-        OSC_ADD_MEMBER(object);
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(valueType);
-        OSC_ADD_MEMBER(continuous);
-        valueType.enumType = Enum_Speed_Target_valueTypeType::instance();
+        OSC_ADD_MEMBER(object, 0);
+        OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCPrivateAction/Lateral/LaneChange/LaneChangeTarget";};
     oscString object;
     oscDouble value;
-    oscEnum valueType;
-    oscBool continuous;
-
-    enum Enum_Speed_Target_valueType
-    {
-delta,
-factor,
-
-    };
 
 };
 

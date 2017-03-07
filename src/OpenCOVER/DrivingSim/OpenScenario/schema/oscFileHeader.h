@@ -23,12 +23,13 @@ class OPENSCENARIOEXPORT oscFileHeader : public oscObjectBase
 public:
 oscFileHeader()
 {
-        OSC_ADD_MEMBER(revMajor);
-        OSC_ADD_MEMBER(revMinor);
-        OSC_ADD_MEMBER(date);
-        OSC_ADD_MEMBER(description);
-        OSC_ADD_MEMBER(author);
+        OSC_ADD_MEMBER(revMajor, 0);
+        OSC_ADD_MEMBER(revMinor, 0);
+        OSC_ADD_MEMBER(date, 0);
+        OSC_ADD_MEMBER(description, 0);
+        OSC_ADD_MEMBER(author, 0);
     };
+        const char *getScope(){return "";};
     oscUShort revMajor;
     oscUShort revMinor;
     oscDateTime date;

@@ -161,9 +161,80 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
     }
 
 	//load xodr 
-	std::string xodrName_st = osdb->RoadNetwork->Logics->openDRIVE.getValue();
+	std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
 	const char * xodrName = xodrName_st.c_str();
 	loadRoadSystem(xodrName);
+
+	// look for sources and sinks and load them
+	oscGlobalAction	ga;
+	oscGlobalActionArrayMember *Global = &osdb->Storyboard->Init->Actions->Global;
+	int fiddleyards=0;
+	for (oscGlobalActionArrayMember::iterator it = Global->begin(); it != Global->end(); it++)
+	{
+		oscGlobalAction* action = ((oscGlobalAction*)(*it));
+		if (action->Traffic.getObject()) // this is a Traffic action
+		{
+			if (oscSource *source = action->Traffic->Source.getObject())
+			{
+				if (oscRelativeRoad* position = source->Position->RelativeRoad.getObject())
+				{
+					// find road
+					system = RoadSystem::Instance();
+					Road* myRoad = system->getRoad(position->object.getValue());
+					if (myRoad)
+					{
+						std::string name = "fiddleyard" + position->object.getValue();
+						std::string id = name + std::to_string(fiddleyards);
+						Fiddleyard *fiddleyard = new Fiddleyard(name, id);
+
+						system->addFiddleyard(fiddleyard); //, "road", position->object.getValue(), "start");
+
+						std::string sid = name + "_source"+ std::to_string(fiddleyards++);
+						double s, t;
+						s = position->ds.getValue();
+						t = position->dt.getValue();
+						LaneSection * ls = myRoad->getLaneSection(s);
+						//ls->getLane();
+						//VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
+						//fiddleyard->addVehicleSource(source);
+/*
+						fiddleyard->setTarmacConnection(new TarmacConnection(tarmac, direction));
+
+						std::string id(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+						int lane = atoi(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane"))));
+						double starttime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("startTime"))));
+						double repeattime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime"))));
+						double vel = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocity"))));
+						double velDev = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance"))));
+						
+						
+						xercesc::DOMNodeList *sourceChildrenList = fiddleyardChildElement->getChildNodes();
+						xercesc::DOMElement *sourceChildElement;
+						for (unsigned int childIndex = 0; childIndex < sourceChildrenList->getLength(); ++childIndex)
+						{
+							sourceChildElement = dynamic_cast<xercesc::DOMElement *>(sourceChildrenList->item(childIndex));
+							if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), xercesc::XMLString::transcode("vehicle")) == 0)
+							{
+								std::string id(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+								double numerator = atof(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+								source->addVehicleRatio(id, numerator);
+							}
+						}*/
+					}
+					else
+					{
+						fprintf(stderr,"Road not found in RelativeRoad Position %s\n", position->object.getValue());
+					}
+				}
+				else
+				{
+					fprintf(stderr, "only Sources Relative to a Road are supported by now\n");
+				}
+			}
+		}
+
+	}
+	
 
 	//initialize entities
 	int numberOfEntities = 0;
@@ -183,8 +254,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	cout << (*entity_iter)->getName() << "_test" << endl;
 	for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++){	
 	oscPrivateAction* action = ((oscPrivateAction*)(*it2));
-	if(action->LongitudinalAction.exists()){
-		(*entity_iter)->setSpeed(action->LongitudinalAction->Speed->Target->Absolute->value.getValue());}
+	if(action->Longitudinal.exists()){
+		(*entity_iter)->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());}
 	if(action->Position.exists()){
 	vector<float> initPosition;
 	initPosition.push_back(action->Position->World->x.getValue());
@@ -204,8 +275,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 		oscAct* act = ((oscAct*)(*it));
 
 			list<Entity*> activeEntityList_temp;
-			for (oscActorsArrayMember::iterator it = act->Sequence->Actors->NamedEntity.begin(); it != act->Sequence->Actors->NamedEntity.end(); it++){	
-				oscNamedEntity* namedEntity = ((oscNamedEntity*)(*it));
+			for (oscActorsArrayMember::iterator it = act->Sequence->Actors->Entity.begin(); it != act->Sequence->Actors->Entity.end(); it++){	
+				oscEntity* namedEntity = ((oscEntity*)(*it));
 				if (namedEntity->name.getValue() != "$owner"){
 					activeEntityList_temp.push_back(sm->getEntityByName(namedEntity->name.getValue()));}
 				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));}

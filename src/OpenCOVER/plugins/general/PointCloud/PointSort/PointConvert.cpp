@@ -25,6 +25,7 @@ using namespace std;
 
 float min_x, min_y, min_z;
 float max_x, max_y, max_z;
+bool intensityOnly;
 
 enum formatTypes
 {
@@ -207,7 +208,7 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
         return;
     }
 
-    int in, r, g, b;
+    int r, g, b;
     float fa, fb, fc;
     Point point;
 
@@ -296,9 +297,9 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
                 numValues++;
             c = nc;
 #ifdef WIN32
-            in = strtod(c, &nc);
+            double in = strtod(c, &nc);
 #else
-            in = strtof(c, &nc);
+            float in = strtof(c, &nc);
 #endif
             if (nc != c)
                 numValues++;
@@ -322,7 +323,15 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
                 point.x = p[0];
                 point.y = p[1];
                 point.z = p[2];
-                point.rgba = r | g << 8 | b << 16;
+                if(intensityOnly)
+                {
+                    unsigned char intensity = (unsigned char)(in*255.99);
+                    point.rgba = intensity | intensity << 8 | intensity << 16;
+                }
+                else
+                {
+                    point.rgba = r | g << 8 | b << 16;
+                }
                 vec.push_back(point);
             }
         }
@@ -388,6 +397,15 @@ int main(int argc, char **argv)
         {
             printf("Reading in %s\n", argv[i]);
             int len = strlen(argv[i]);
+            if((len>1) && argv[i][0] == '-')
+            {
+               if(argv[i][1] == 'i')
+               {
+                   intensityOnly=true;
+               }
+            }
+            else
+            {
             if ((len > 4) && strcmp((argv[i] + len - 4), ".ptx") == 0)
             {
                 ReadPTX(argv[i], vec);
@@ -405,6 +423,7 @@ int main(int argc, char **argv)
             else
             {
                 ReadData(argv[i], vec, format);
+            }
             }
         }
         WriteData(argv[argc - 1], vec);

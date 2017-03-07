@@ -3,7 +3,6 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
 ENDIF()
 
 USING(PROJ4 XERCESC)
-USING(VTK optional)
 
 SET(HEADERS
    ./opencrg/crgSurface.h

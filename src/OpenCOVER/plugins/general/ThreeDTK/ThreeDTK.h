@@ -43,9 +43,6 @@ public:
     // this will be called in PreFrame
     void preFrame();
 
-    // this will be called if an object with feedback arrives
-    void newInteractor(RenderObject *container, coInteractor *i);
-
     void cycleLOD();
     int loadFile(std::string filename);
     int readFrames(std::string dir, int start, int end, bool readInitial, reader_type &type);

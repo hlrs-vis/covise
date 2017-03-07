@@ -92,15 +92,11 @@ void AxialARPlugin::focusEvent(bool, coMenu *)
     //fprintf(stderr,"VRMenu::focusEvent\n");
 }
 
-void AxialARPlugin::addObject(RenderObject * /*container*/,
-                              RenderObject *obj, RenderObject * /*normObj*/,
-                              RenderObject * /*colorObj*/, RenderObject * /*texObj*/,
-                              const char *,
-                              int, int, int,
-                              float *, float *, float *, int *,
-                              int, int,
-                              float *, float *, float *, float)
+void AxialARPlugin::addObject(RenderObject * container, osg::Group *parent, const RenderObject *obj, const RenderObject *, const RenderObject *, const RenderObject *)
 {
+    if (!obj)
+        return;
+
     unsigned int i;
     //char *feedbackInfo = obj->getAttribute("FEEDBACK");
     char *feedbackInfo = obj->getAttribute("INTERACTOR");

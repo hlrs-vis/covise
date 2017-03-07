@@ -182,7 +182,7 @@ private:
 class RemoveOSCArrayMemberCommand : public DataCommand
 {
 public:
-    explicit RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, OpenScenario::oscObjectBase *objectBase, int index, OSCElement *element, DataCommand *parent = NULL);
+    explicit RemoveOSCArrayMemberCommand(OpenScenario::oscArrayMember *arrayMember, int index, OSCElement *element, DataCommand *parent = NULL);
     virtual ~RemoveOSCArrayMemberCommand();
 
     virtual int id() const
@@ -200,7 +200,7 @@ private:
 
 private:
 	OpenScenario::oscArrayMember *arrayMember_;
-	OpenScenario::oscObjectBase *objectBase_, *oscObject_;
+	OpenScenario::oscObjectBase *oscObject_;
 
     int index_;
 
@@ -281,7 +281,7 @@ private:
 class ChangeOSCObjectChoiceCommand : public DataCommand
 {
 public:
-	explicit ChangeOSCObjectChoiceCommand(OpenScenario::oscObjectBase *parentObject, OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent = NULL);
+	explicit ChangeOSCObjectChoiceCommand(OpenScenario::oscMember *oldChosenMember, OpenScenario::oscMember *newChosenMember, OSCElement *element, DataCommand *parent = NULL);
     virtual ~ChangeOSCObjectChoiceCommand();
 
     virtual int id() const
@@ -298,7 +298,6 @@ private:
     ChangeOSCObjectChoiceCommand &operator=(const ChangeOSCObjectChoiceCommand &); /* not allowed */
 
 private:
-	OpenScenario::oscObjectBase *parentObject_;
 	OpenScenario::oscMember *oldChosenMember_;
 	OpenScenario::oscMember *newChosenMember_;
 
@@ -353,8 +352,7 @@ public:
 	value_ = value;
     // Check for validity //
     //
-	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
-	member_ = members[name];
+	member_ = parentObject_->getMember(name);
     if ((name == "") || !member_)
     {
         setInvalid(); // Invalid

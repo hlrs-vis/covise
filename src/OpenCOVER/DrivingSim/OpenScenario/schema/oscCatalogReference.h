@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscParameterList.h"
+#include "oscParameterAssignment.h"
 
 namespace OpenScenario
 {
@@ -24,13 +24,14 @@ class OPENSCENARIOEXPORT oscCatalogReference : public oscObjectBase
 public:
 oscCatalogReference()
 {
-        OSC_ADD_MEMBER(catalog);
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
+        OSC_ADD_MEMBER(catalogName, 0);
+        OSC_ADD_MEMBER(entryName, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterAssignment, "oscParameterAssignment", 0);
     };
-    oscString catalog;
-    oscString name;
-    oscParameterListMember OSCParameterList;
+        const char *getScope(){return "";};
+    oscString catalogName;
+    oscString entryName;
+    oscParameterAssignmentMember OSCParameterAssignment;
 
 };
 

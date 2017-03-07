@@ -159,7 +159,7 @@ TIME[ \t]* {
     return( CaseParser::TIME_VAL );
 }
 
-<VARS>[^ ]{1,99}[ \t]+[a-zA-Z0-9]+[^ ^\n]+$ {
+<VARS>[^ ]{1,99}[ \t]+[\.a-zA-Z0-9]+[^ ^\n]+$ {
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
     BEGIN 0;

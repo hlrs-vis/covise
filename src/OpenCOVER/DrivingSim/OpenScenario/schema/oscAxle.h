@@ -23,12 +23,13 @@ class OPENSCENARIOEXPORT oscAxle : public oscObjectBase
 public:
 oscAxle()
 {
-        OSC_ADD_MEMBER(maxSteering);
-        OSC_ADD_MEMBER(wheelDiameter);
-        OSC_ADD_MEMBER(trackWidth);
-        OSC_ADD_MEMBER(positionX);
-        OSC_ADD_MEMBER(positionZ);
+        OSC_ADD_MEMBER(maxSteering, 0);
+        OSC_ADD_MEMBER(wheelDiameter, 0);
+        OSC_ADD_MEMBER(trackWidth, 0);
+        OSC_ADD_MEMBER(positionX, 0);
+        OSC_ADD_MEMBER(positionZ, 0);
     };
+        const char *getScope(){return "";};
     oscDouble maxSteering;
     oscDouble wheelDiameter;
     oscDouble trackWidth;

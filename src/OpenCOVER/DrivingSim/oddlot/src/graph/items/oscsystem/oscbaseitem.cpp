@@ -140,9 +140,8 @@ OSCBaseItem::init()
 								new OSCItem(element, this, object, catalog, road->getGlobalPoint(s, t), roadId);
 							}
 						}
+						break;
 					}
-
-					break;
 				}
 			}
 		}
@@ -169,7 +168,7 @@ OSCBaseItem::getCatalog(OpenScenario::oscObject *object)
 	{
 		return NULL;
 	}
-	std::string catalogName = catalogReference->catalog.getValue();
+	std::string catalogName = catalogReference->catalogName.getValue();
 	OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
 	if (catalogMember)
 	{
@@ -191,11 +190,14 @@ OSCBaseItem::getPrivateAction(OpenScenario::oscObject *object, OpenScenario::osc
 	{
 		OpenScenario::oscPrivateAction *action = dynamic_cast<OpenScenario::oscPrivateAction *>(*it);
 
-//		if (action->getChosenMember()->getName() == "Position")
-		if (action && action->getMember("Position"))
+		if (action)
 		{
-			privateAction = action;
-			break;
+			OpenScenario::oscMember *member = action->getMember("Position");
+			if (member->isSelected())
+			{
+				privateAction = action;
+				break;
+			}
 		}
 	}
 

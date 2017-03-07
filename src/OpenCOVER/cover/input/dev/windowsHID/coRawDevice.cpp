@@ -7,6 +7,7 @@
 
 #include "coRawDevice.h"
 #include <stdio.h>
+#include <util/unixcompat.h>
 
 using namespace opencover;
 coRawDevice::coRawDevice(int n)

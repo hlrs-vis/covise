@@ -31,7 +31,12 @@ void OSCSettings::okPressed()
 		emit readValidationChanged(ui->readValidationCheckBox->isChecked());
 	}
 
-	catalogDir_ = ui->dirLabel->text();
+	QString newDir = ui->dirLabel->text();
+	if (newDir != catalogDir_)
+	{
+		catalogDir_ = newDir;
+		emit directoryChanged();
+	}
 }
 //################//
 // CONSTRUCTOR    //
@@ -42,6 +47,10 @@ OSCSettings::OSCSettings(const QString &dir)
 	, validation_(false)
 	, catalogDir_(dir)
 {
+	// Connect emitted ToolActions to ToolManager //
+    //
+//    connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+
     inst = this;
     ui->setupUi(this);
 	ui->dirLabel->setText(catalogDir_);

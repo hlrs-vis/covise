@@ -251,14 +251,16 @@ bool setupEnvironment(int argc, char *argv[])
                 }
             }
             if (pythonfound && archsuffixfound)
-                break;
-        }
-        if (!dir.empty())
-        {
-            covisedir = dir;
+            {
+                if (!dir.empty())
+                {
+                    covisedir = dir;
 #ifdef DEBUG
-            std::cerr << "setupEnvironment(): COVISEDIR determined to be " << covisedir << std::endl;
+                    std::cerr << "setupEnvironment(): COVISEDIR determined to be " << covisedir << std::endl;
 #endif
+                }
+                break;
+            }
         }
     }
 

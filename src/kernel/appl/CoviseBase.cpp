@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <covise/covise_appproc.h>
 #include <util/coLog.h>
+#include <util/unixcompat.h>
 
 #ifdef _WIN32
 #include <direct.h>

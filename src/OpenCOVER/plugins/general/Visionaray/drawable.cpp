@@ -1432,7 +1432,7 @@ namespace visionaray
         }
 
         impl_->host_bvhs.resize(impl_->triangles.size());
-        impl_->outlines.resize(impl_->triangles.size());
+        impl_->outlines = std::vector<gl::bvh_outline_renderer>(impl_->triangles.size()); // outlines are not copyable!
         impl_->outlines_initialized.resize(impl_->triangles.size());
         std::fill(impl_->outlines_initialized.begin(), impl_->outlines_initialized.end(), false);
 
@@ -1723,20 +1723,10 @@ namespace visionaray
             glDisable(GL_LIGHTING);
             glDisable(GL_DEPTH_TEST);
 
-            glMatrixMode(GL_PROJECTION);
-            glPushMatrix();
-            glLoadMatrixf(vparams.proj_matrix.data());
-
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            glLoadMatrixf(vparams.view_matrix.data());
-
-            glColor3f(1.0f, 1.0f, 1.0f);
-
             if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
             {
                 if (impl_->outlines_initialized[0])
-                    impl_->outlines[0].frame();
+                    impl_->outlines[0].frame(vparams.view_matrix, vparams.proj_matrix);
                 else
                 {
                     impl_->outlines[0].init(impl_->host_bvhs[0]);
@@ -1747,20 +1737,13 @@ namespace visionaray
             if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
             {
                 if (impl_->outlines_initialized[frame])
-                    impl_->outlines[frame].frame();
+                    impl_->outlines[frame].frame(vparams.view_matrix, vparams.proj_matrix);
                 else
                 {
                     impl_->outlines[frame].init(impl_->host_bvhs[frame]);
                     impl_->outlines_initialized[frame] = true;
                 }
             }
-
-
-            glMatrixMode(GL_MODELVIEW);
-            glPopMatrix();
-
-            glMatrixMode(GL_PROJECTION);
-            glPopMatrix();
         }
 
         impl_->restore_gl_state();

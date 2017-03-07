@@ -564,7 +564,8 @@ static bool readLayerImageOptions(osgDB::InputStream &is, vpb::BuildOptions &bo)
     is >> size >> IS_BEGIN_BRACKET;
     for (unsigned int i = 0; i < size; ++i)
     {
-        vpb::ImageOptions *imageOptions = dynamic_cast<vpb::ImageOptions *>(is.readObject());
+        osg::Object *obj = is.readObject();
+        vpb::ImageOptions *imageOptions = dynamic_cast<vpb::ImageOptions *>(obj);
         if (imageOptions)
             bo.setLayerImageOptions(i, imageOptions);
     }

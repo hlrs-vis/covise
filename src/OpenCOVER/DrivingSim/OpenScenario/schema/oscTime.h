@@ -23,10 +23,11 @@ class OPENSCENARIOEXPORT oscTime : public oscObjectBase
 public:
 oscTime()
 {
-        OSC_ADD_MEMBER(hour);
-        OSC_ADD_MEMBER(min);
-        OSC_ADD_MEMBER(sec);
+        OSC_ADD_MEMBER(hour, 0);
+        OSC_ADD_MEMBER(min, 0);
+        OSC_ADD_MEMBER(sec, 0);
     };
+        const char *getScope(){return "/OSCCondition/ByValue/TimeOfDay";};
     oscUInt hour;
     oscUInt min;
     oscDouble sec;

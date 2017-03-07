@@ -2166,6 +2166,8 @@ osg::Node *GeometryManager::addLine(const char *object_name,
                                     float *r, float *g, float *b, int *pc,
                                     int no_of_normals, int normalbinding,
                                     float *nx, float *ny, float *nz, int, coMaterial *material,
+                                    int texWidth, int texHeight, int pixelSize, unsigned char *image,
+                                    int no_of_texCoords, float *tx, float *ty, osg::Texture::WrapMode wm, osg::Texture::FilterMode minfm, osg::Texture::FilterMode magfm,
                                     float linewidth)
 
 {
@@ -2209,7 +2211,7 @@ osg::Node *GeometryManager::addLine(const char *object_name,
 
     // associate colors
     bool transparent = false;
-    if (no_of_colors && material == NULL) // material should overwrite object colors, so ignore them if a material is present
+    if (no_of_colors && material == NULL && image == NULL) // material should overwrite object colors, so ignore them if a material is present
     {
 
         switch (colorbinding)
@@ -2398,6 +2400,26 @@ osg::Node *GeometryManager::addLine(const char *object_name,
     else
         setDefaultMaterial(geoState, transparent, material, false);
 
+    if (no_of_texCoords > 0)
+    {
+        osg::Vec2Array *tcArray = new osg::Vec2Array();
+
+        for (int i = 0; i < no_of_lines; i++)
+        {
+            int numv;
+            if (i == no_of_lines - 1)
+                numv = no_of_vertices - i_l[i];
+            else
+                numv = i_l[i + 1] - i_l[i];
+            for (int n = 0; n < numv; n++)
+            {
+                int v = v_l[i_l[i] + n];
+                tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+            }
+        }
+        geom->setTexCoordArray(0, tcArray);
+    }
+
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA,
                            osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
@@ -2411,6 +2433,8 @@ osg::Node *GeometryManager::addLine(const char *object_name,
 
     osg::LineWidth *lineWidth = new osg::LineWidth(linewidth);
     geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
+
+    setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
     return ((osg::Node *)geode);

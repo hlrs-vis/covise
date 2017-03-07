@@ -99,12 +99,7 @@ public:
     bool init();
     void preFrame();
     void message(int, int, const void *);
-    void addObject(RenderObject *,
-                   RenderObject *, RenderObject *,
-                   RenderObject *, RenderObject *,
-                   osg::Group *parent, int,
-                   int, int, float *, float *, float *, int *,
-                   int, int, float *, float *, float *, float);
+    void addObject(const RenderObject *, osg::Group *parent, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     void removeObject(const char *, bool);
     void postFrame();
     void setTimestep(int);

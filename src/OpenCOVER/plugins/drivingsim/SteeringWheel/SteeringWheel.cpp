@@ -24,6 +24,7 @@
 #include "ITMDynamics.h"
 #include "PorscheRealtimeDynamics.h"
 #include "HLRSRealtimeDynamics.h"
+
 // #include "ITM.h"
 #include "Keyboard.h"
 #include "fasiUpdateManager.h"
@@ -38,6 +39,8 @@
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+
+#include <util/unixcompat.h>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_X11
@@ -1017,7 +1020,7 @@ bool SteeringWheelPlugin::init()
     {
         dynamics = new HLRSRealtimeDynamics();
         std::cout << "Using HLRS realtime vehicle dynamics..." << std::endl;
-    }
+    }  
 #ifdef __XENO__
     else if (dynString == "FourWheelDynamicsRealtime")
     {

@@ -55,7 +55,7 @@ writeSgToFile()
 // construction / destruction
 // ----------------------------------------------------------------------
 
-ModuleFeedbackManager::ModuleFeedbackManager(RenderObject *containerObject, coInteractor *inter, const char *pluginName)
+ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject, coInteractor *inter, const char *pluginName)
     : inter_(inter)
 {
     if (cover->debugLevel(3))
@@ -117,7 +117,7 @@ ModuleFeedbackManager::ModuleFeedbackManager(RenderObject *containerObject, coIn
         myNodesParent_ = myNode_->getParent(0);
 }
 
-ModuleFeedbackManager::ModuleFeedbackManager(RenderObject *containerObject, RenderObject *geomObject, const char *pluginName)
+ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject, const RenderObject *geomObject, const char *pluginName)
 {
     if (cover->debugLevel(3))
     {
@@ -395,7 +395,7 @@ ModuleFeedbackManager::preFrame()
 // update functions
 // -----------------------------------------------------------------
 void
-ModuleFeedbackManager::update(RenderObject *containerObject, coInteractor *inter)
+ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor *inter)
 {
 
     if (cover->debugLevel(3))
@@ -443,7 +443,7 @@ ModuleFeedbackManager::update(RenderObject *containerObject, coInteractor *inter
 }
 
 void
-ModuleFeedbackManager::update(RenderObject *containerObject, RenderObject *geomObject)
+ModuleFeedbackManager::update(const RenderObject *containerObject, const RenderObject *geomObject)
 {
 
     if (containerObject)
@@ -526,7 +526,7 @@ ModuleFeedbackManager::addColorbarInteractor(coInteractor *i)
 }
 
 void
-ModuleFeedbackManager::updateColorBar(RenderObject *containerObject)
+ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
 {
 
     RenderObject *colorObj = NULL;

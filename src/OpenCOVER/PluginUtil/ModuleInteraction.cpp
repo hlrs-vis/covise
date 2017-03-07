@@ -15,7 +15,7 @@
 using namespace vrui;
 using namespace opencover;
 
-ModuleInteraction::ModuleInteraction(RenderObject *container, coInteractor *inter, const char *pluginName)
+ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName)
     : ModuleFeedbackManager(container, inter, pluginName)
     , showPickInteractor_(false)
     , showDirectInteractor_(false)
@@ -51,7 +51,7 @@ ModuleInteraction::~ModuleInteraction()
 }
 
 void
-ModuleInteraction::update(RenderObject *container, coInteractor *inter)
+ModuleInteraction::update(const RenderObject *container, coInteractor *inter)
 {
 
     // base class updates the item in the COVISE menu

@@ -162,58 +162,6 @@ Video3D::~Video3D()
     cover->getObjectsRoot()->removeChild(geodevideo);
 }
 
-// here we get the size and the current center of the cube
-void
-Video3D::feedback(coInteractor *i)
-{
-    (void)i;
-    fprintf(stderr, "Video3D::feedback\n");
-}
-
-void Video3D::addObject(RenderObject *container,
-                        RenderObject *obj, RenderObject *normObj,
-                        RenderObject *colorObj, RenderObject *texObj,
-                        const char *root,
-                        int numCol, int colorBinding, int colorPacking,
-                        float *r, float *g, float *b, int *packedCol,
-                        int numNormals, int normalBinding,
-                        float *xn, float *yn, float *zn, float transparency)
-{
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
-    (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
-    fprintf(stderr, "Video3D::addObject\n");
-}
-
-void
-Video3D::removeObject(const char *objName, bool replace)
-{
-    (void)objName;
-    (void)replace;
-    fprintf(stderr, "Video3D::removeObject\n");
-}
-
-void
-Video3D::preFrame()
-{
-}
-
 // C plugin interface, don't do any coding down here, do it in the C++ Class!
 
 Video3D *plugin = NULL;
@@ -232,34 +180,4 @@ void coVRDelete(coVRPlugin *m)
 {
     (void)m;
     delete plugin;
-}
-
-void coVRPreFrame()
-{
-    plugin->preFrame();
-}
-
-void coVRNewInteractor(RenderObject * /*container*/, coInteractor *i)
-{
-    plugin->feedback(i);
-}
-
-void coVRAddObject(RenderObject *container,
-                   RenderObject *obj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
-                   const char *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn,
-                   float transparency)
-{
-    plugin->addObject(container, obj, normObj, colorObj, texObj, root, numCol, colorBinding, colorPacking,
-                      r, g, b, packedCol, numNormals, normalBinding,
-                      xn, yn, zn, transparency);
-}
-
-void coVRRemoveObject(const char *objName, int replace)
-{
-    plugin->removeObject(objName, replace);
 }

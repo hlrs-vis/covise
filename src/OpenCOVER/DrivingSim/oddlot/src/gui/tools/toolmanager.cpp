@@ -168,6 +168,12 @@ ToolManager::enableOSCEditorToolButton(bool state)
     oscEditorTool_->enableGraphEdit(state);
 }
 
+void
+ToolManager::setPushButtonColor(const QString &name, QColor color)
+{
+	oscEditorTool_->setButtonColor(name, color);
+}
+
 //################//
 // SLOTS          //
 //################//

@@ -67,7 +67,7 @@ public:
     void message(int type, int len, const void *buf);
     void guiToRenderMsg(const char *msg);
 
-    virtual void addNode(osg::Node *, RenderObject *);
+    virtual void addNode(osg::Node *, const RenderObject *);
 
     Player *getPlayer() const
     {

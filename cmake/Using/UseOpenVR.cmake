@@ -1,4 +1,5 @@
 MACRO(USE_OPENVR)
+  covise_find_package(OpenVR)
   IF ((NOT OPENVR_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing OPENVR")
     RETURN()

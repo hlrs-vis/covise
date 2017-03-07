@@ -7,9 +7,10 @@
 
 #include "PorscheController.h"
 #include "SteeringWheel.h"
-#include "net/covise_connect.h"
-#include "net/covise_host.h"
-#include "net/covise_socket.h"
+#include <util/unixcompat.h>
+#include <net/covise_connect.h>
+#include <net/covise_host.h>
+#include <net/covise_socket.h>
 
 PorscheController::PorscheController()
 {

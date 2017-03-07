@@ -86,8 +86,8 @@ public:
     void singleStep();
     inline unsigned char getValue(vec2 &pos)
     {
-        int xc = pos[0] / pSize[0];
-        int yc = pos[1] / pSize[1];
+        int xc = (int)(pos[0] / pSize[0]);
+        int yc = (int)(pos[1] / pSize[1]);
         return (map[(xc + (yc * xs)) * 4]);
     };
     inline int getValue(int x, int y)
@@ -100,8 +100,8 @@ public:
     };
     void getPos(vec2 &pos, int iPos[2])
     {
-        iPos[0] = (pos[0] / pSize[0]);
-        iPos[1] = (pos[1] / pSize[1]);
+        iPos[0] = (int)(pos[0] / pSize[0]);
+        iPos[1] = (int)(pos[1] / pSize[1]);
     };
 };
 #endif

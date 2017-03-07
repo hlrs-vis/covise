@@ -24,8 +24,9 @@ class OPENSCENARIOEXPORT oscUserDataList : public oscObjectBase
 public:
 oscUserDataList()
 {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserData, "oscUserData");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserData, "oscUserData", 0);
     };
+        const char *getScope(){return "";};
     oscUserDataArrayMember UserData;
 
 };

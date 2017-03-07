@@ -25,9 +25,10 @@ class OPENSCENARIOEXPORT oscEntities : public oscObjectBase
 public:
 oscEntities()
 {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Object, "oscObject");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Selection, "oscSelection");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Object, "oscObject", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Selection, "oscSelection", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO";};
     oscObjectArrayMember Object;
     oscSelectionArrayMember Selection;
 

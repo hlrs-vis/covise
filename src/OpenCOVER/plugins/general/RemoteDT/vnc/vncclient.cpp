@@ -43,7 +43,8 @@
 //---------------------------------------------------------------------------
 
 //#include "global.hh"
-#include "util/common.h"
+#include <util/common.h>
+#include <util/unixcompat.h>
 #include "vncclient.hpp"
 
 #include <stdio.h>

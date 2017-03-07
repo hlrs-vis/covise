@@ -23,10 +23,11 @@ class OPENSCENARIOEXPORT oscClothoid : public oscObjectBase
 public:
 oscClothoid()
 {
-        OSC_ADD_MEMBER(curvature);
-        OSC_ADD_MEMBER(curvatureDot);
-        OSC_ADD_MEMBER(length);
+        OSC_ADD_MEMBER(curvature, 0);
+        OSC_ADD_MEMBER(curvatureDot, 0);
+        OSC_ADD_MEMBER(length, 0);
     };
+        const char *getScope(){return "/OSCTrajectory/Vertex/Shape";};
     oscDouble curvature;
     oscDouble curvatureDot;
     oscDouble length;

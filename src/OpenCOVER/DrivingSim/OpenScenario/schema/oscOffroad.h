@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscOffroad : public oscObjectBase
 public:
 oscOffroad()
 {
-        OSC_ADD_MEMBER(duration);
+        OSC_ADD_MEMBER(duration, 0);
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
     oscDouble duration;
 
 };

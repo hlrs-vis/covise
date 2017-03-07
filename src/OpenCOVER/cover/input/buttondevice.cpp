@@ -31,6 +31,12 @@ namespace opencover
  */
 unsigned ButtonDevice::mapButton(unsigned raw) const
 {
+    ButtonMap::const_iterator it = multiButtonMap.find(raw);
+    if (it != multiButtonMap.end())
+    {
+        return it->second;
+    }
+
     unsigned mapped = 0;
     for (unsigned bit = 1; bit; bit <<= 1)
     {
@@ -93,7 +99,52 @@ void ButtonDevice::createButtonMap(const std::string &confbase)
         MB(JOYSTICK_UP);
 
         if (!handled)
-            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << endl;
+            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << ".MultiMap" << endl;
+
+#undef MB
+    }
+
+    std::vector<std::string> multiIndices = coCoviseConfig::getScopeNames(confbase, "MultiMap");
+    for (size_t i = 0; i < multiIndices.size(); ++i)
+    {
+
+        const std::string mapped = coCoviseConfig::getEntry(confbase + ".MultiMap:" + multiIndices[i]);
+        unsigned int bits = atoi(multiIndices[i].c_str());
+
+#define MB(name)                                                                         \
+    if (strcasecmp(mapped.c_str(), #name) == 0)                                          \
+    {                                                                                    \
+        handled = true;                                                                  \
+        multiButtonMap[bits] = vrui::vruiButtons::name;                                  \
+        /* cerr << "map: " << number << " (bit: " << bit << ") -> " << #name << endl; */ \
+    }
+
+        bool handled = false;
+
+        MB(NO_BUTTON);
+        MB(ACTION_BUTTON);
+        MB(DRIVE_BUTTON);
+        MB(XFORM_BUTTON);
+        MB(FORWARD_BUTTON);
+        MB(BACKWARD_BUTTON);
+        MB(TOGGLE_DOCUMENTS);
+        MB(INTER_PREV);
+        MB(INTER_NEXT);
+        MB(PERSON_PREV);
+        MB(PERSON_NEXT);
+        MB(MENU_BUTTON);
+        MB(ZOOM_BUTTON);
+        MB(QUIT_BUTTON);
+        MB(DRAG_BUTTON);
+        MB(WHEEL_UP);
+        MB(WHEEL_DOWN);
+        MB(JOYSTICK_RIGHT);
+        MB(JOYSTICK_DOWN);
+        MB(JOYSTICK_LEFT);
+        MB(JOYSTICK_UP);
+
+        if (!handled)
+            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << ".MultiMap" << endl;
 
 #undef MB
     }

@@ -72,8 +72,8 @@ public:
     bool init();
     void preFrame();
     void message(int type, int len, const void *buf);
-    void newInteractor(RenderObject *container, coInteractor *it);
-    void addNode(osg::Node *, RenderObject *);
+    void newInteractor(const RenderObject *container, coInteractor *it);
+    void addNode(osg::Node *, const RenderObject *);
     void removeNode(osg::Node *, bool isGroup, osg::Node *realNode);
 
     virtual bool selectionChanged();
@@ -183,8 +183,8 @@ private:
     coTrackerButtonInteraction *interactionA; ///< interaction for first button
     coTrackerButtonInteraction *interactionB; ///< interaction for second button
 
-    typedef std::map<osg::Node *, RenderObject *> NodeRoMap;
-    typedef std::map<RenderObject *, coInteractor *> RoInteractorMap;
+    typedef std::map<osg::Node *, const RenderObject *> NodeRoMap;
+    typedef std::map<const RenderObject *, coInteractor *> RoInteractorMap;
     NodeRoMap nodeRoMap;
     RoInteractorMap roInteractorMap;
 };

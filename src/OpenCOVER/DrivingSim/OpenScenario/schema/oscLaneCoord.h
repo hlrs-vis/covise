@@ -23,10 +23,11 @@ class OPENSCENARIOEXPORT oscLaneCoord : public oscObjectBase
 public:
 oscLaneCoord()
 {
-        OSC_ADD_MEMBER(pathS);
-        OSC_ADD_MEMBER(laneId);
-        OSC_ADD_MEMBER_OPTIONAL(laneOffset);
+        OSC_ADD_MEMBER(pathS, 0);
+        OSC_ADD_MEMBER(laneId, 0);
+        OSC_ADD_MEMBER_OPTIONAL(laneOffset, 0);
     };
+        const char *getScope(){return "/OSCPosition/PositionRoute/RoutePosition";};
     oscDouble pathS;
     oscInt laneId;
     oscDouble laneOffset;

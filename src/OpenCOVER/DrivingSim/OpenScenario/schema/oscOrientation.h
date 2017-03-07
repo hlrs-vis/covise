@@ -31,12 +31,13 @@ class OPENSCENARIOEXPORT oscOrientation : public oscObjectBase
 public:
 oscOrientation()
 {
-        OSC_ADD_MEMBER_OPTIONAL(type);
-        OSC_ADD_MEMBER_OPTIONAL(h);
-        OSC_ADD_MEMBER_OPTIONAL(p);
-        OSC_ADD_MEMBER_OPTIONAL(r);
+        OSC_ADD_MEMBER_OPTIONAL(type, 0);
+        OSC_ADD_MEMBER_OPTIONAL(h, 0);
+        OSC_ADD_MEMBER_OPTIONAL(p, 0);
+        OSC_ADD_MEMBER_OPTIONAL(r, 0);
         type.enumType = Enum_Orientation_typeType::instance();
     };
+        const char *getScope(){return "/OSCPosition/RelativeWorld";};
     oscEnum type;
     oscDouble h;
     oscDouble p;

@@ -51,6 +51,9 @@ public:
     float eyeDistance() const;
     void setEyeDistance(float dist);
 
+    bool activateOnAction() const;
+    void setActivateOnAction(bool enable);
+
 private:
     Person(const std::string &name);
     void addHand(TrackingBody *hand);
@@ -62,6 +65,7 @@ private:
     ButtonDevice *m_buttondev;
     std::vector<Valuator *> m_valuators;
     float m_eyeDistance;
+    bool m_activateOnAction;
 
     static const osg::Matrix s_identity;
 };

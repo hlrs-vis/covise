@@ -1,7 +1,7 @@
 # __ autoconverted __
 # PROJECT(SimplifySurface)
 
-USE_VTK()
+using(VTK)
 
 # ADD_DEFINITIONS()
 # INCLUDE_DIRECTORIES()
@@ -45,6 +45,6 @@ ADD_COVISE_MODULE(Filter SimplifySurface ${EXTRASOURCES} )
 # old CONFIG: qt warn_on release incremental link_prl colib coalg coapi coappl math vtk_opt
 # old LIBS: 
 # old links: 
-TARGET_LINK_LIBRARIES(SimplifySurface  coAlg coApi coAppl coCore)
+TARGET_LINK_LIBRARIES(SimplifySurface  coAlg coApi coAppl coCore ${EXTRA_LIBS})
 
 COVISE_INSTALL_TARGET(SimplifySurface)

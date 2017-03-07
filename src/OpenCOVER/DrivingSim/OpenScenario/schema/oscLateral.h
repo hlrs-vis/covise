@@ -15,33 +15,25 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscLaneChange.h"
+#include "oscLaneOffset.h"
+#include "oscDistance.h"
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT Enum_Lateral_purposeType : public oscEnumType
-{
-public:
-static Enum_Lateral_purposeType *instance();
-    private:
-		Enum_Lateral_purposeType();
-	    static Enum_Lateral_purposeType *inst; 
-};
 class OPENSCENARIOEXPORT oscLateral : public oscObjectBase
 {
 public:
 oscLateral()
 {
-        OSC_ADD_MEMBER(purpose);
-        purpose.enumType = Enum_Lateral_purposeType::instance();
+        OSC_OBJECT_ADD_MEMBER(LaneChange, "oscLaneChange", 1);
+        OSC_OBJECT_ADD_MEMBER(LaneOffset, "oscLaneOffset", 1);
+        OSC_OBJECT_ADD_MEMBER(Distance, "oscDistance", 1);
     };
-    oscEnum purpose;
-
-    enum Enum_Lateral_purpose
-    {
-position,
-steering,
-
-    };
+        const char *getScope(){return "/OSCPrivateAction";};
+    oscLaneChangeMember LaneChange;
+    oscLaneOffsetMember LaneOffset;
+    oscDistanceMember Distance;
 
 };
 

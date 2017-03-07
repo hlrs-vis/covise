@@ -93,6 +93,8 @@ Collect::Collect(int argc, char *argv[])
 
     p_varName = addStringParam("varName", "name of variant");
     p_varName->setValue("");
+    p_varVisible = addBooleanParam("varVisible", "whether variant should be visible initially");
+    p_varVisible->setValue(true);
 
     p_attribute = addStringParam("attribute", "attributes in the form name=value;name2=value2;...");
     p_attribute->setValue("");
@@ -302,9 +304,17 @@ geom->addAttribute(varVal[0].c_str(), varVal[1].c_str());
 }
     }
 
-    geom->addAttribute("VARIANT", p_varName->getValue());
-    if (strlen(p_varName->getValue()) > 0)
-    {
+    std::string variant = p_varName->getValue();
+    if (!variant.empty()) {
+        if (p_varVisible->getValue())
+        {
+            geom->addAttribute("VARIANT_VISIBLE", "on");
+        }
+        else
+        {
+            geom->addAttribute("VARIANT_VISIBLE", "off");
+        }
+        geom->addAttribute("VARIANT", p_varName->getValue());
         geom->addAttribute("MODULE", "Variant");
     }
 
@@ -315,10 +325,6 @@ geom->addAttribute(varVal[0].c_str(), varVal[1].c_str());
     else if (const char *n = grid->getAttribute("OBJECTNAME"))
     {
         geom->addAttribute("OBJECTNAME", n);
-    }
-    else if (strlen(p_varName->getValue()) > 0)
-    {
-        geom->addAttribute("OBJECTNAME", p_varName->getValue());
     }
 
 #ifdef MATERIAL

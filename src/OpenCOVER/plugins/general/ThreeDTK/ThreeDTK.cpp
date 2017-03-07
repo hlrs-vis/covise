@@ -124,15 +124,6 @@ ThreeDTK::~ThreeDTK()
     cover->getObjectsRoot()->removeChild(node.get());
 }
 
-// here we get the size and the current center of the cube
-void
-ThreeDTK::newInteractor(RenderObject *container, coInteractor *i)
-{
-    (void)container;
-    (void)i;
-    fprintf(stderr, "ThreeDTK::newInteractor\n");
-}
-
 void
 ThreeDTK::preFrame()
 {

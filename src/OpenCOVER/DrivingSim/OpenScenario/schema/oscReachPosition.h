@@ -24,9 +24,10 @@ class OPENSCENARIOEXPORT oscReachPosition : public oscObjectBase
 public:
 oscReachPosition()
 {
-        OSC_ADD_MEMBER(tolerance);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_ADD_MEMBER(tolerance, 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
     oscDouble tolerance;
     oscPositionMember Position;
 

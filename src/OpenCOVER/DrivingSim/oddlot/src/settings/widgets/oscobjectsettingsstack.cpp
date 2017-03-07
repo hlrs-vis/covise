@@ -73,7 +73,7 @@ OSCObjectSettingsStack::uiInit()
 
 	stack_ = new QStackedWidget();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_, NULL); 
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_, NULL, NULL); 
 
 
 }
@@ -101,6 +101,9 @@ OSCObjectSettingsStack::addWidget(QWidget *widget)
 QWidget *
 OSCObjectSettingsStack::getLastWidget()
 {
+/*	int stackSize = stack_->count();
+	return stack_->widget(stackSize - 1); */
+
 	return stack_->currentWidget();
 }
 
@@ -118,7 +121,12 @@ void
 OSCObjectSettingsStack::stackRemoveWidget()
 {
 	int i = stack_->currentIndex();
-	stack_->setCurrentWidget(stack_->widget(i - 1));
+	QWidget *widget = stack_->widget(i - 1);
+	if (widget)
+	{
+		stack_->setCurrentWidget(widget);
+		static_cast<OSCObjectSettings *>(widget)->updateProperties();
+	}
 	stack_->removeWidget(stack_->widget(i));
 }
 

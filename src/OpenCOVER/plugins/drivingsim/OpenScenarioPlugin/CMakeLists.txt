@@ -19,9 +19,17 @@ endif()
 
 set(HEADERS
   OpenScenarioPlugin.h
+  ScenarioManager.h
+  Maneuver.h
+  Act.h
+  Entity.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
+  ScenarioManager.cpp
+  Maneuver.cpp
+  Act.cpp
+  Entity.cpp
 )
 
 SET(TS_HEADERS

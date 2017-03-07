@@ -61,8 +61,6 @@ bool Input::init()
     initObjects();
     initPersons();
 
-    update();
-
     if (coVRMSController::instance()->isMaster())
     {
         if (debug(Input::Config))
@@ -363,6 +361,13 @@ DriverFactoryBase *Input::getDriverPlugin(const std::string &type)
         plugins[type] = fact;
     }
     return fact;
+}
+
+void Input::addDevice(const std::string &name, InputDevice *dev)
+{
+	drivers[name] = dev;
+	if (dev->needsThread())
+		dev->start();
 }
 
 InputDevice *Input::getDevice(const std::string &name)
@@ -699,5 +704,16 @@ void Input::update()
             ob->second->set6Dof(is6Dof != 0);
         }
     }
+
+    for (size_t i=0; i<personNames.size(); ++i) {
+        Person *p = getPerson(i);
+        if (p->activateOnAction() && (p->isHandValid(0) || p->isHeadValid())) {
+            if (i != getActivePerson()) {
+                setActivePerson(i);
+                p->setActivateOnAction(false);
+            }
+        }
+    }
 }
-}
+
+} // namespace opencover

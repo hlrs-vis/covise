@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <util/unixcompat.h>
 
 #ifdef WIN32
 #include <direct.h>

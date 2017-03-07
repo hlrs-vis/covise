@@ -16,6 +16,7 @@ SET(HEADERS
    oscFactory.h
    oscMember.h
    oscMemberValue.h
+   oscNameMapping.h
    oscObjectBase.h
    oscObjectVariable.h
    oscObjectVariableArray.h
@@ -30,6 +31,7 @@ SET(SOURCES
    oscCatalog.cpp
    oscFactories.cpp
    oscMember.cpp
+   oscNameMapping.cpp
    oscArrayMember.cpp
    oscObjectBase.cpp
    oscUtilities.cpp

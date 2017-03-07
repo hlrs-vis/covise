@@ -24,9 +24,10 @@ class OPENSCENARIOEXPORT oscRoadCondition : public oscObjectBase
 public:
 oscRoadCondition()
 {
-        OSC_ADD_MEMBER(frictionScale);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Effect, "oscEffect");
+        OSC_ADD_MEMBER(frictionScale, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Effect, "oscEffect", 0);
     };
+        const char *getScope(){return "/OSCEnvironment";};
     oscDouble frictionScale;
     oscEffectArrayMember Effect;
 

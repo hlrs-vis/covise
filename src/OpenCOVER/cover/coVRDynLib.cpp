@@ -106,20 +106,60 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const std::string &filename)
     return dlopen(filename.c_str());
 }
 
-CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
+CO_SHLIB_HANDLE try_dlopen(const char *filename)
 {
     const int mode = RTLD_LAZY;
 
+    CO_SHLIB_HANDLE handle = 0;
+#if defined(SGIDLADD)
+    handle = ::sgidladd(filename, mode);
+#elif defined(SVR4_DYNAMIC_LINKING)
+    handle = ::dlopen(filename, mode);
+#elif defined(_WIN32)
+    handle = LoadLibraryA(filename);
+#elif defined(__hpux)
+#if defined(__GNUC__) || __cplusplus >= 199707L
+    handle = shl_load(filename, mode, 0L);
+#else
+    handle = cxxshl_load(filename, mode, 0L);
+#endif
+#endif /* SGIDLADD */
+
+    if (handle == NULL)
+    {
+#ifndef _WIN32
+        if (cover->debugLevel(1))
+            cerr << dlerror() << endl;
+#endif
+    }
+    else
+    {
+        if (cover->debugLevel(2))
+            cerr << "loaded " << filename << endl;
+    }
+
+    return handle;
+}
+
+
+
+CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
+{
     CO_SHLIB_HANDLE handle = NULL;
     char buf[800];
     bool absolute = filename[0] == '/';
+#ifdef _WIN32
+    const char separator[] = ";";
+#else
+    const char separator[] = ":";
+#endif
 
 #ifdef __APPLE__
     std::string bundlepath = getBundlePath();
     if (!absolute && !bundlepath.empty())
     {
         snprintf(buf, sizeof(buf), "%s/Contents/PlugIns/%s", bundlepath.c_str(), filename);
-        handle = ::dlopen(buf, mode);
+        handle = try_dlopen(buf);
     }
 #endif
 
@@ -130,11 +170,7 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
     {
         char *cPath = new char[strlen(covisepath) + 1];
         strcpy(cPath, covisepath);
-#ifdef _WIN32
-        char *dirname = strtok(cPath, ";");
-#else
-        char *dirname = strtok(cPath, ":");
-#endif
+        char *dirname = strtok(cPath, separator);
         while (dirname != NULL)
         {
 #ifdef _WIN32
@@ -142,70 +178,18 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
 #else
             snprintf(buf, sizeof(buf), "%s/%s/lib/OpenCOVER/plugins/%s", dirname, archsuffix, filename);
 #endif
-#if defined(SGIDLADD)
-            handle = ::sgidladd(buf, mode);
-#elif defined(SVR4_DYNAMIC_LINKING)
-            handle = ::dlopen(buf, mode);
-            if (handle == NULL)
-            {
-                if (cover->debugLevel(1))
-                    cerr << dlerror() << endl;
-            }
-            else
-            {
-                if (cover->debugLevel(2))
-                    cerr << "loaded " << buf << endl;
-            }
-#elif defined(_WIN32)
-            handle = LoadLibraryA(buf);
-#elif defined(__hpux)
-#if defined(__GNUC__) || __cplusplus >= 199707L
-            handle = shl_load(buf, mode, 0L);
-#else
-            handle = cxxshl_load(buf, mode, 0L);
-#endif
-#endif /* SGIDLADD */
-
-            if (handle != NULL)
+            handle = try_dlopen(buf);
+            if (handle)
                 break;
 
-#ifdef _WIN32
-            dirname = strtok(NULL, ";");
-#else
-            dirname = strtok(NULL, ":");
-#endif
+            dirname = strtok(NULL, separator);
         }
         delete[] cPath;
     }
 
-#if defined(SVR4_DYNAMIC_LINKING)
     if (handle == NULL)
     {
-        if (cover->debugLevel(2))
-            cerr << endl << "dlopen()ing " << buf << " failed: " << dlerror() << endl;
-    }
-#endif
-
-    if (handle == NULL)
-    {
-#if defined(SGIDLADD)
-        handle = ::sgidladd(filename, mode);
-#elif defined(SVR4_DYNAMIC_LINKING)
-        handle = ::dlopen(filename, mode);
-        if (handle == NULL)
-        {
-            if (cover->debugLevel(2))
-                cerr << endl << "dlopen()ing " << filename << " failed: " << dlerror() << endl;
-        }
-#elif defined(_WIN32)
-//   handle = LoadLibraryA (filename);
-#elif defined(__hpux)
-#if defined(__GNUC__) || __cplusplus >= 199707L
-        handle = shl_load(filename, mode, 0L);
-#else
-        handle = cxxshl_load(filename, mode, 0L);
-#endif
-#endif /* SGIDLADD */
+        handle = try_dlopen(filename);
     }
 
 #ifdef CO_sun4

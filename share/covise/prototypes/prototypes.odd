@@ -3071,6 +3071,152 @@
 				</road>
 			</laneSectionPrototype>
 			
+			<laneSectionPrototype name = "Spa" icon = "">
+				<road name="Spa" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<laneSectionPrototype name = "porscheStadt" icon = "">
+				<road name="porscheStadt" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="-1.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			<laneSectionPrototype name = "highwayRampPorscheStadt" icon = "">
+				<road name="highwayRampPorscheStadt" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			<laneSectionPrototype name = "highwayPorscheStadt" icon = "">
+				<road name="highwayPorscheStadt" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane type="border" id="0" level="0">
+									<roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+								</lane>
+							</center>
+							<right>
+								<lane type="driving" id="-1" level="0">
+									<width sOffset="0" a="3.0" b="0" c="0" d="0"/>
+									<roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+								</lane>
+								<lane type="driving" id="-2" level="0">
+									<width sOffset="0" a="3.0" b="0" c="0" d="0"/>
+									<roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+								</lane>
+								<lane type="driving" id="-3" level="0">
+									<width sOffset="0" a="3.1" b="0" c="0" d="0"/>
+									<roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.40" laneChange="both"/>
+								</lane>
+								<lane type="restricted" id="-4" level="0">
+									<width sOffset="0" a="2.3" b="0" c="0" d="0"/>
+									<roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+								</lane>
+							</right>  
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
 			<!-- M\F6nsheimer Str. 57, Iptingen, 48.881489/8.9006 -->
 			<!-- Stuttgarter Str. 58, Eberdingen, 48.877090/8.964121 probably -->
 			<laneSectionPrototype name = "Moensheimer 57" icon = "">

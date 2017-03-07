@@ -224,12 +224,7 @@ DocumentViewerPlugin::preFrame()
 }
 
 void
-DocumentViewerPlugin::addObject(RenderObject *container, RenderObject *geomobj, RenderObject * /*normObj*/,
-                                RenderObject * /*colorObj*/, RenderObject * /*texObj*/, osg::Group * /*root*/,
-                                int /*numCol*/, int /*colorBinding*/, int /*colorPacking*/,
-                                float * /*r*/, float * /*g*/, float * /*b*/, int * /*packedCol*/,
-                                int /*numNormals*/, int /*normalBinding*/, float * /*xn*/, float * /*yn*/, float * /*zn*/,
-                                float)
+DocumentViewerPlugin::addObject(const RenderObject *container, osg::Group *, const RenderObject *geomobj, const RenderObject *, const RenderObject *, const RenderObject *)
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\n--- DocumentViewerPlugin::addObject\n");

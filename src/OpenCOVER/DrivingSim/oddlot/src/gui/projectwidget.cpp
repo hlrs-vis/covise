@@ -222,7 +222,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
-    editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
+
+	OpenScenarioEditor *oscEditor = new OpenScenarioEditor(this, projectData_, topviewGraph_);
+    editors_.insert(ODD::EOS, oscEditor);
 
     // VIEW: Tree //
     //
@@ -242,6 +244,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
 	oscSettings = OSCSettings::instance();
 	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+	connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
 
     currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
@@ -454,28 +457,29 @@ ProjectWidget::loadFile(const QString &fileName, FileType type)
 		QFile file(xodrFileName);
 		if (!file.open(QFile::ReadOnly | QFile::Text))
 		{
-			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-				.arg(xodrFileName)
-				.arg(file.errorString()));
-			qDebug("Loading file failed: %s", xodrFileName.toUtf8().constData());
-			return false;
+			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
+				.arg(xodrFileName));
+//			qDebug("Loading file failed: %s", xodrFileName.toUtf8().constData());
 		}
+		else
+		{
 
-		// Parse file //
-		//
+			// Parse file //
+			//
 
-		// TODO: read strategy (xodr, native, etc)
-		QApplication::setOverrideCursor(Qt::WaitCursor);
-		DomParser *parser = new DomParser(projectData_);
-		success = parser->parseXODR(&file);
-		delete parser;
+			// TODO: read strategy (xodr, native, etc)
+			QApplication::setOverrideCursor(Qt::WaitCursor);
+			DomParser *parser = new DomParser(projectData_);
+			success = parser->parseXODR(&file);
+			delete parser;
 
-		// TODO
+			// TODO
 
-		// Close file //
-		//
-		QApplication::restoreOverrideCursor();
-		file.close();
+			// Close file //
+			//
+			QApplication::restoreOverrideCursor();
+			file.close();
+		}
 	};
 
 	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
@@ -487,18 +491,29 @@ ProjectWidget::loadFile(const QString &fileName, FileType type)
 		projectData_->getTileSystem()->addTile(tile);
 		projectData_->getTileSystem()->setCurrentTile(tile); 
 
-		OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
-
-		if (!success)
+		// Open file //
+		//
+		QFile file(xoscFileName);
+		if (file.exists())
 		{
-			success = oscParser->parseXOSC(xoscFileName);
+			OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+
+			if (!success)
+			{
+				success = oscParser->parseXOSC(xoscFileName);
+			}
+			else
+			{
+				oscParser->parseXOSC(xoscFileName);
+			}
+
+			delete oscParser;
 		}
 		else
 		{
-			oscParser->parseXOSC(xoscFileName);
+			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
+				.arg(xoscFileName));
 		}
-
-		delete oscParser;
 	}
 
 	// Reset change //

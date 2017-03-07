@@ -31,7 +31,7 @@ using namespace osg;
 
 char *FamuPlugin::currentObjectName = NULL;
 
-void FamuPlugin::newInteractor(RenderObject *cont, coInteractor *inter)
+void FamuPlugin::newInteractor(const RenderObject *cont, coInteractor *inter)
 {
 
     //std::cout<<"The Cover recieve a interator!!!";

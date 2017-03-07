@@ -57,12 +57,7 @@ public:
     coCheckboxMenuItem *getMenu(RenderObject *container, RenderObject *data,
                                 RenderObject *tex);
     void removeObject(const char *name, bool replace);
-    void addObject(RenderObject *container,
-                   RenderObject *geometry, RenderObject * /*normObj*/,
-                   RenderObject *colorObj, RenderObject * /*texObj*/,
-                   osg::Group * /*setName*/, int /*numCol*/,
-                   int, int /*colorPacking*/, float *, float *, float *, int *,
-                   int, int, float *, float *, float *, float);
+    void addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *normals, const RenderObject *, const RenderObject *);
 
     virtual bool init();
     virtual void preFrame();

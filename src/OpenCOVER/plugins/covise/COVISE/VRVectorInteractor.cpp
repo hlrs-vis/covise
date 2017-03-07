@@ -9,6 +9,7 @@
 // 28.10.1997
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 #include "VRVectorInteractor.h"
 #include <cover/VRPinboard.h>
 #include <cover/RenderObject.h>

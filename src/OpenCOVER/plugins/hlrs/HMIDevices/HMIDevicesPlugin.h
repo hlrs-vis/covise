@@ -64,22 +64,6 @@ public:
     // will be called in PreFrame - oVRPlugin IFace
     void preFrame();
 
-    // will be called if an object with feedback arrives - oVRPlugin IFace
-    void newInteractor(RenderObject *container, coInteractor *i);
-
-    // will be called if a COVISE object arrives - oVRPlugin IFace
-    void addObject(RenderObject *container,
-                   RenderObject *obj, RenderObject *normObj,
-                   RenderObject *colorObj, RenderObject *texObj,
-                   osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn, float transparency);
-
-    // will be called if a COVISE object has to be removed - oVRPlugin IFace
-    void removeObject(const char *objName, bool replace);
-
 private:
     // TUI EventHandlers
     void tabletPressEvent(coTUIElement *tUIItem);

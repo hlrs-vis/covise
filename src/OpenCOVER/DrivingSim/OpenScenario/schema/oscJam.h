@@ -25,12 +25,13 @@ class OPENSCENARIOEXPORT oscJam : public oscObjectBase
 public:
 oscJam()
 {
-        OSC_ADD_MEMBER(direction);
-        OSC_ADD_MEMBER(speed);
-        OSC_ADD_MEMBER(length);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition");
+        OSC_ADD_MEMBER(direction, 0);
+        OSC_ADD_MEMBER(speed, 0);
+        OSC_ADD_MEMBER(length, 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
+        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition", 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/Traffic";};
     oscString direction;
     oscDouble speed;
     oscDouble length;

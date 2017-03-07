@@ -8,7 +8,7 @@
   #define SIMULATION "NO"
 #endif
 
-#define BRANCH GetEnv("COVISE_BRANCH")
+#define BRANCH "HLRS"
 
 #define VERSION GetEnv("COVISE_DISTRIBUTION")
 #if VERSION == ""
@@ -163,11 +163,11 @@
 #elif ARCHSUFFIX == "zebu"
   #define X64Arch
   #define LABEL "_zebu"
-  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.*"
 #elif ARCHSUFFIX == "zebuopt"
   #define X64Arch
   #define LABEL "_zebuopt"
-  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.*"
 #else
   #pragma message "Warning: undefined or unknown ARCHSUFFIX! Cannot set SYS variable!"
   #define LABEL "UNKNOWN"
@@ -336,6 +336,7 @@ Name: runtimes/abaqus; Description: Runtime files of abaqus; Types: standard cus
 Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
@@ -498,9 +499,10 @@ Source: {#EXTERNLIBS}\python\*; DestDir: {app}\extern_libs\python; Flags: recurs
 #if VERSION != "VISENSO"
 ; we are using Qt version >= 4.5.0 LGPL
 Source: {#QT}\bin\*.dll; DestDir: {#DLIB}; Components: core
+Source: {#QT}\bin\QtWebEngineProcess*.exe; DestDir: {#DBIN}; Components: core
 Source: {#QT}\plugins\*.dll; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
-Source: {#QT}\resources; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
-Source: {#QT}\translations; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
+Source: {#QT}\resources\*; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
+Source: {#QT}\translations\*; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
 Source: {#EXTERNLIBS}\icu\bin64\*.dll; DestDir: {#DBIN}; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc14\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
@@ -555,6 +557,11 @@ Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\*v110.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\vs2015\*v140.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+
+
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
 Source: {#EXTERNLIBS}\collada\lib\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
@@ -850,7 +857,12 @@ Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi""
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec   
+#elif ARCHSUFFIX == "zebuopt"
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec    
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif

@@ -16,7 +16,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscAction.h"
-#include "oscEventConditions.h"
+#include "oscConditions.h"
 
 namespace OpenScenario
 {
@@ -33,16 +33,17 @@ class OPENSCENARIOEXPORT oscEvent : public oscObjectBase
 public:
 oscEvent()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(priority);
-        OSC_OBJECT_ADD_MEMBER(Action, "oscAction");
-        OSC_OBJECT_ADD_MEMBER(EventConditions, "oscEventConditions");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(priority, 0);
+        OSC_OBJECT_ADD_MEMBER(Action, "oscAction", 0);
+        OSC_OBJECT_ADD_MEMBER(Conditions, "oscConditions", 0);
         priority.enumType = Enum_event_priorityType::instance();
     };
+        const char *getScope(){return "/OSCManeuver";};
     oscString name;
     oscEnum priority;
     oscActionArrayMember Action;
-    oscEventConditionsArrayMember EventConditions;
+    oscConditionsArrayMember Conditions;
 
     enum Enum_event_priority
     {

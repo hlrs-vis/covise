@@ -10,6 +10,7 @@
 
 #include "DLab.h"
 
+#include <util/unixcompat.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <OpenVRUI/osg/mathUtils.h>

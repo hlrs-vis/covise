@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscEndOfRoad : public oscObjectBase
 public:
 oscEndOfRoad()
 {
-        OSC_ADD_MEMBER(duration);
+        OSC_ADD_MEMBER(duration, 0);
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
     oscDouble duration;
 
 };

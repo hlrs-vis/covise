@@ -44,7 +44,7 @@ public:
     bool init();
 
     // this will be called if an object with feedback arrives
-    void newInteractor(opencover::RenderObject *, opencover::coInteractor *i);
+    void newInteractor(const opencover::RenderObject *, opencover::coInteractor *i);
     void removeObject(const char *container, bool replace);
 
 private:

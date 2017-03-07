@@ -36,14 +36,14 @@ private:
 
 public:
     // constructor
-    GeneralGeometryInteraction(opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName);
-    GeneralGeometryInteraction(opencover::RenderObject *container, opencover::RenderObject *geomObject, const char *pluginName);
+    GeneralGeometryInteraction(const opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName);
+    GeneralGeometryInteraction(const opencover::RenderObject *container, const opencover::RenderObject *geomObject, const char *pluginName);
 
     // destructor
     virtual ~GeneralGeometryInteraction();
 
     // update covise stuff and menus
-    virtual void update(opencover::RenderObject *container, opencover::RenderObject *geomObject);
+    virtual void update(const opencover::RenderObject *container, const opencover::RenderObject *geomObject);
 
     // direct interaction
     virtual void preFrame();

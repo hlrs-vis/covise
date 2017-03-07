@@ -23,9 +23,10 @@ class OPENSCENARIOEXPORT oscEffect : public oscObjectBase
 public:
 oscEffect()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(intensity);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(intensity, 0);
     };
+        const char *getScope(){return "/OSCEnvironment/RoadCondition";};
     oscString name;
     oscDouble intensity;
 

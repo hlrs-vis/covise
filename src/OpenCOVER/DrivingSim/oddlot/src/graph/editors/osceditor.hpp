@@ -112,6 +112,7 @@ private:
     //################//
 
 public slots:
+	void changeDirectories();
 
     //################//
     // PROPERTIES     //

@@ -23,9 +23,10 @@ class OPENSCENARIOEXPORT oscRoadCoord : public oscObjectBase
 public:
 oscRoadCoord()
 {
-        OSC_ADD_MEMBER(pathS);
-        OSC_ADD_MEMBER(t);
+        OSC_ADD_MEMBER(pathS, 0);
+        OSC_ADD_MEMBER(t, 0);
     };
+        const char *getScope(){return "/OSCPosition/PositionRoute/RoutePosition";};
     oscDouble pathS;
     oscDouble t;
 

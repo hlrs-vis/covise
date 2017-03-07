@@ -31,9 +31,10 @@ class OPENSCENARIOEXPORT oscByCondition : public oscObjectBase
 public:
 oscByCondition()
 {
-        OSC_ADD_MEMBER(actor);
+        OSC_ADD_MEMBER(actor, 0);
         actor.enumType = Enum_ByCondition_actorType::instance();
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Story/Act/Sequence/Actors";};
     oscEnum actor;
 
     enum Enum_ByCondition_actor

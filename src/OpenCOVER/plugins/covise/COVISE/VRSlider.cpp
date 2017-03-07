@@ -210,7 +210,9 @@ Slider::Slider(const char *attrib, const char *sa, osg::Node *n)
                 line = GeometryManager::instance()->addLine(
                     (char *)moduleName.c_str(), 1, numPoints, numPoints,
                     xcoords, ycoords, zcoords, vl, &ll, 1, Bind::OverAll, 0,
-                    &r, &g, &b, NULL, 0, Pack::None, NULL, NULL, NULL, 0, NULL, 2.f);
+                    &r, &g, &b, NULL, 0, Pack::None, NULL, NULL, NULL, 0, NULL,
+                    0, 0, 0, NULL, 0, NULL, NULL, osg::Texture::CLAMP_TO_EDGE, osg::Texture::NEAREST, osg::Texture::NEAREST,
+                    2.f);
                 delete[] vl;
             }
             dcs = new osg::MatrixTransform();

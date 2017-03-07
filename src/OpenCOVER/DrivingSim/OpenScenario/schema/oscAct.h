@@ -16,7 +16,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscSequence.h"
-#include "oscConditions.h"
+#include "oscActConditions.h"
 
 namespace OpenScenario
 {
@@ -25,13 +25,14 @@ class OPENSCENARIOEXPORT oscAct : public oscObjectBase
 public:
 oscAct()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Sequence, "oscSequence");
-        OSC_OBJECT_ADD_MEMBER(Conditions, "oscConditions");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Sequence, "oscSequence", 0);
+        OSC_OBJECT_ADD_MEMBER(Conditions, "oscActConditions", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Story";};
     oscString name;
     oscSequenceMember Sequence;
-    oscConditionsMember Conditions;
+    oscActConditionsMember Conditions;
 
 };
 

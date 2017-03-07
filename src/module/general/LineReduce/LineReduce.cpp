@@ -20,7 +20,7 @@ LineReduce::LineReduce(int argc, char *argv[])
     //    coordReduce->setValue( 0 );
     //    redDist = addFloatParam( "redDist", "max. distance between coordinates for reduction" );
     //    redDist->setValue( 0.001 );
-    maxDifference = addFloatParam("maxDifference", "maximum Differnece between two points");
+    maxDifference = addFloatParam("maxDifference", "maximum difference between two points");
     maxDifference->setValue(0.1f);
     // ports
     linesIn = addInputPort("linesIn", "Lines", "Lines input");

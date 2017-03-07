@@ -6,22 +6,29 @@
  * License: LGPL 2+ */
 
 #include "coWristWatch.h"
+#include "unixcompat.h"
 
 using namespace covise;
 
 coWristWatch::coWristWatch()
 {
+    myClock = new timeval;
     reset();
+}
+
+coWristWatch::~coWristWatch()
+{
+    delete myClock;
 }
 
 void coWristWatch::reset()
 {
-    gettimeofday(&myClock, NULL);
+    gettimeofday(myClock, NULL);
 }
 
 float coWristWatch::elapsed()
 {
     timeval now;
     gettimeofday(&now, NULL);
-    return ((float)(now.tv_sec - myClock.tv_sec)) + ((float)(now.tv_usec - myClock.tv_usec)) / 1000000.0f;
+    return ((float)(now.tv_sec - myClock->tv_sec)) + ((float)(now.tv_usec - myClock->tv_usec)) / 1000000.0f;
 }

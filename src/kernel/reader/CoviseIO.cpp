@@ -23,6 +23,8 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoIntArr.h>
 
+#include <util/unixcompat.h>
+
 #ifdef _WIN32
 #include <io.h>
 

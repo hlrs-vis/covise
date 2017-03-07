@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscSignalController.h"
+#include "oscSignalsController.h"
 
 namespace OpenScenario
 {
@@ -24,11 +24,12 @@ class OPENSCENARIOEXPORT oscSignals : public oscObjectBase
 public:
 oscSignals()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(SignalController, "oscSignalController");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Controller, "oscSignalsController", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/RoadNetwork";};
     oscString name;
-    oscSignalControllerArrayMember SignalController;
+    oscSignalsControllerArrayMember Controller;
 
 };
 

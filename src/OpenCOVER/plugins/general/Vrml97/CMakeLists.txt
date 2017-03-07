@@ -1,5 +1,4 @@
 # OpenCOVER plugins general Vrml97
-USING(VTK optional)
 using(VRML)
 ADD_DEFINITIONS(-DVRML97_IMPORT_PLUGIN -DNEW_OSG)
 

@@ -3,7 +3,7 @@
 # CMakeLists.txt for OpenCOVER plugins general
 #
 # @author Blasius Czink
-
+set(PLUGIN_CATEGORY "General")
 ADD_SUBDIRECTORY(AKToolbar)
 ADD_SUBDIRECTORY(Amber)
 ADD_SUBDIRECTORY(ARInteractors)
@@ -64,6 +64,7 @@ ADD_SUBDIRECTORY(Vic)
 #ADD_SUBDIRECTORY(VideoLOD)
 add_subdirectory(ViewPoint)
 #ADD_SUBDIRECTORY(ViNCECollaboration)     TODO: ViNCE
+ADD_SUBDIRECTORY(Vive)
 ADD_SUBDIRECTORY(VNC)
 ADD_SUBDIRECTORY(VolumeOfInterest)
 ADD_SUBDIRECTORY(Vrml97)

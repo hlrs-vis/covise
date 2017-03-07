@@ -46,7 +46,7 @@ public:
     virtual ~LS1Plugin();
     bool init();
     bool destroy();
-    void newInteractor(RenderObject *r, coInteractor *i);
+    void newInteractor(const RenderObject *r, coInteractor *i);
     void add(coInteractor *inter);
     void removeObject(const char *objName, bool replace);
     void remove(const char *objName);

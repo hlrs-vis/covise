@@ -24,8 +24,9 @@ class OPENSCENARIOEXPORT oscAcquirePosition : public oscObjectBase
 public:
 oscAcquirePosition()
 {
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
     };
+        const char *getScope(){return "/OSCPrivateAction/Routing";};
     oscPositionMember Position;
 
 };

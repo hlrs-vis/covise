@@ -696,7 +696,8 @@ MainWindow::newFile()
 
     project = createProject();
     project->newFile();
-    project->show();
+ //   project->show();
+	project->showMaximized();
 
     return;
 }
@@ -1209,7 +1210,8 @@ MainWindow::createProject()
     //
     ProjectWidget *project = new ProjectWidget(this);
     mdiArea_->addSubWindow(project);
-    project->showMaximized();
+//    project->showMaximized();
+	project->setWindowState(windowState() & Qt::WindowMaximized);
 
     // Project Menu Action //
     //

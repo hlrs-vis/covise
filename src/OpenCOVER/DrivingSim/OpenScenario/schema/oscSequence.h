@@ -26,12 +26,13 @@ class OPENSCENARIOEXPORT oscSequence : public oscObjectBase
 public:
 oscSequence()
 {
-        OSC_ADD_MEMBER(numberOfExecutions);
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(Actors, "oscActors");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(CatalogReference, "oscCatalogReference");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Maneuver, "oscManeuver");
+        OSC_ADD_MEMBER(numberOfExecutions, 0);
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Actors, "oscActors", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(CatalogReference, "oscCatalogReference", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Maneuver, "oscManeuver", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Story/Act";};
     oscUInt numberOfExecutions;
     oscString name;
     oscActorsMember Actors;

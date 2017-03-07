@@ -12,14 +12,12 @@ if "%1" == "--help" (
 )
 
 if "%1" == "" (
-  if not defined ARCHSUFFIX% set ARCHSUFFIX=vista
+  if not defined ARCHSUFFIX% set ARCHSUFFIX=zebuopt
 ) else (
   set ARCHSUFFIX=%1
 )
 
-if not defined COVISE_BRANCH (
-   set COVISE_BRANCH=HLRS
-)
+set BASEARCHSUFFIX=%ARCHSUFFIX:opt=%
 
 if not defined EXTERNLIBS (
    if not defined EXTERNLIBSROOT (
@@ -27,7 +25,7 @@ if not defined EXTERNLIBS (
       pause
       goto END
    ) else (
-      set EXTERNLIBS=%EXTERNLIBSROOT%\%ARCHSUFFIX%
+      set EXTERNLIBS=%EXTERNLIBSROOT%\%BASEARCHSUFFIX%
    )
 )
 
@@ -55,7 +53,7 @@ goto END
 :COVISEDIR_IS_OK
 
 if defined CADCV_DIR (
-   cd /d %CADCV_DIR%/qmakehelp
+   cd /d %CADCV_DIR%\qmakehelp
    call qmakehelp.bat
    cd /d %COVISEDIR%
 )
@@ -64,27 +62,17 @@ if not defined COFRAMEWORKDIR (
    set COFRAMEWORKDIR=%COVISEDIR%
 )
 
-if /I "%ARCHSUFFIX%" EQU "amdwin64opt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "amdwin64" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "ia64win"  goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "win32opt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "win32"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "vistaopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "vista"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zackelopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zackel"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "angusopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "angus"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "yorooopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "yoroo"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "berrendaopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "berrenda"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "tamarauopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zebuopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "mingwopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "amdwin64" goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "ia64win"  goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "win32"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "vista"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "zackel"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "angus"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "yoroo"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "berrenda"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
 echo ARCHSUFFIX %ARCHSUFFIX% is not supported!
 echo common.bat [ARCHSUFFIX]
 echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, zebu, zebuopt, mingw, mingwopt"
@@ -94,9 +82,8 @@ goto END
 
 
 :LABEL_SETENVIRONMENT
-echo Environment settings for ARCHSUFFIX %ARCHSUFFIX%
 
-set BASEARCHSUFFIX=%ARCHSUFFIX:opt=%
+echo Environment settings for ARCHSUFFIX %ARCHSUFFIX%
 
 cd /d %COVISEDIR%
          
@@ -117,27 +104,27 @@ if defined ProgramFiles(x86)  set PROGFILES=%ProgramFiles(x86)%
 rem echo  %VS100COMNTOOLS%
 cd
 
-if "%ARCHSUFFIX:~0,5%" EQU "win32" (
+if "%BASEARCHSUFFIX%" EQU "win32" (
     call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
-) else if "%ARCHSUFFIX:~0,5%" EQU "vista" (
+) else if "%BASEARCHSUFFIX%" EQU "vista" (
     call "%VS80COMNTOOLS%"\..\..\Vc\bin\vcvars32.bat"
-) else if "%ARCHSUFFIX:~0,6%" EQU "zackel" (
+) else if "%BASEARCHSUFFIX%" EQU "zackel" (
     cd /d "%VS90COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x86
     cd /d "%COVISEDIR%"\
-) else if "%ARCHSUFFIX:~0,5%" EQU "yoroo" (
+) else if "%BASEARCHSUFFIX%" EQU "yoroo" (
     cd /d "%VS100COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x86
     cd /d "%COVISEDIR%"\
-) else if "%ARCHSUFFIX:~0,7%" EQU "tamarau" (
+) else if "%BASEARCHSUFFIX%" EQU "tamarau" (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
-) else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
+) else if "%BASEARCHSUFFIX%" EQU "zebu" (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
-) else if "%ARCHSUFFIX:~0,8%" EQU "berrenda" (
+) else if "%BASEARCHSUFFIX%" EQU "berrenda" (
 if defined VS110COMNTOOLS  (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
@@ -146,11 +133,11 @@ if defined VS110COMNTOOLS  (
 	call vcvarsall.bat x64
 	)
     cd /d "%COVISEDIR%"\
-) else if "%ARCHSUFFIX:~0,5%" EQU "angus" (
+) else if "%BASEARCHSUFFIX%" EQU "angus" (
     cd /d "%VS90COMNTOOLS%"\..\..\vc
     call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
-) else if "%ARCHSUFFIX:~0,8%" EQU "amdwin64"   (
+) else if "%BASEARCHSUFFIX%" EQU "amdwin64"   (
     cd /d "%VS80COMNTOOLS%"\..\..\vc
     call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
@@ -282,15 +269,13 @@ if not defined Qt5WebEngineWidgets_DIR  (
 )
 
 
-set FRAMEWORK=covise
-set QMAKECOVISEDIR=%COVISEDIR%
 set LOGNAME=covise
 set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
 set PATH=%PATH%;%EXTERNLIBS%\bison\bin
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
 if not defined VV_SHADER_PATH  set VV_SHADER_PATH=%COVISEDIR%\src\3rdparty\deskvox\virvo\shader
-if not defined COVISE_PATH     set COVISE_PATH=%COVISEDIR%
+if not defined COVISE_PATH     set COVISE_PATH=%COVISEDESTDIR%;%COVISEDIR%
 
 
 set RM=rmdir /S /Q

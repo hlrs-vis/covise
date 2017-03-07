@@ -51,8 +51,49 @@ const char *TracerInteraction::P_STARTSTYLE = "startStyle";
 const char *TracerInteraction::P_TRACE_LEN = "trace_len";
 const char *TracerInteraction::P_FREE_STARTPOINTS = "FreeStartPoints";
 
-TracerInteraction::TracerInteraction(RenderObject *container, coInteractor *inter, const char *pluginName, TracerPlugin *p)
+TracerInteraction::TracerInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, TracerPlugin *p)
     : ModuleInteraction(container, inter, pluginName)
+    , _numStartPointsPoti(NULL)
+    , _numStartPointsMin(1)
+    , _numStartPointsMax(1)
+    , _numStartPoints(1)
+    , traceLenPoti_(NULL)
+    , traceLenMin_(0.f)
+    , traceLenMax_(1.f)
+    , traceLen_(1.f)
+    , _taskTypeButton(NULL)
+    , _taskTypeMenu(NULL)
+    , _streamlinesCheckbox(NULL)
+    , _particlesCheckbox(NULL)
+    , _pathlinesCheckbox(NULL)
+    , _streaklinesCheckbox(NULL)
+    , _taskTypeGroup(NULL)
+    , _numTaskTypes(0)
+    , _taskTypeNames(NULL)
+    , _selectedTaskType(0)
+    , _startStyleButton(NULL)
+    , _startStyleMenu(NULL)
+    , _planeCheckbox(NULL)
+    , _lineCheckbox(NULL)
+    , _freeCheckbox(NULL)
+    , _cylinderCheckbox(NULL)
+    , _startStyleGroup(NULL)
+    , _numStartStyles(0)
+    , _startStyleNames(NULL)
+    , _selectedStartStyle(0)
+    , _oldStartStyle(0)
+    , _numTimeDirections(0)
+    , _timeDirectionNames(NULL)
+    , _selectedTimeDirection(0)
+    , _tPlane(NULL)
+    , _tLine(NULL)
+    , _tFree(NULL)
+    , smokeCheckbox_(NULL)
+    , smokeInMenu_(false)
+    , _containerName(NULL)
+    , isComplex(false)
+    , interDCS_(NULL)
+    , plugin(NULL)
 {
     // so far the base class created
     // the item in pinboard submenu COVISE
@@ -123,7 +164,7 @@ TracerInteraction::~TracerInteraction()
 }
 
 void
-TracerInteraction::update(RenderObject *container, coInteractor *inter)
+TracerInteraction::update(const RenderObject *container, coInteractor *inter)
 {
 
     // base class updates the item in the COVISE menu
@@ -160,7 +201,7 @@ TracerInteraction::update(RenderObject *container, coInteractor *inter)
 }
 
 void
-TracerInteraction::addSmoke(RenderObject *grid, RenderObject *velo)
+TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
 {
     //fprintf(stderr,"TracerInteraction::addSmoke...");
 
@@ -170,8 +211,8 @@ TracerInteraction::addSmoke(RenderObject *grid, RenderObject *velo)
             fprintf(stderr, "grid and velo available\n");
         smoke_ = true;
 
-        RenderObject *ugrid = grid;
-        RenderObject *uvelo = velo;
+        const RenderObject *ugrid = grid;
+        const RenderObject *uvelo = velo;
         int nx, ny, nz;
         float xmin, xmax;
         float ymin, ymax;

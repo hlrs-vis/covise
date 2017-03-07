@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscMultiply : public oscObjectBase
 public:
 oscMultiply()
 {
-        OSC_ADD_MEMBER(value);
+        OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/ActionParameter/Modify/Rule";};
     oscDouble value;
 
 };

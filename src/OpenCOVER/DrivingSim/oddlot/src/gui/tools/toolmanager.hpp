@@ -86,6 +86,7 @@ public:
 	}
 
     void enableOSCEditorToolButton(bool state);
+	void setPushButtonColor(const QString &name, QColor color);
 
 protected:
 private:

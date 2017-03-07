@@ -24,10 +24,11 @@ class OPENSCENARIOEXPORT oscDriverDistribution : public oscObjectBase
 public:
 oscDriverDistribution()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(percentage);
-        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(percentage, 0);
+        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle", 0);
     };
+        const char *getScope(){return "/OSCTrafficDefinition";};
     oscString name;
     oscDouble percentage;
     oscVehicleArrayMember Vehicle;

@@ -9,7 +9,8 @@
 #define COVISE_WRIST_WATCH_H
 
 #include "coExport.h"
-#include "unixcompat.h"
+
+struct timeval;
 
 namespace covise
 {
@@ -17,10 +18,11 @@ namespace covise
 class UTILEXPORT coWristWatch
 {
 private:
-    timeval myClock;
+    timeval *myClock;
 
 public:
     coWristWatch();
+    ~coWristWatch();
 
     void reset();
     float elapsed();

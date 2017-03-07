@@ -24,10 +24,11 @@ class OPENSCENARIOEXPORT oscSimulationTime : public oscObjectBase
 public:
 oscSimulationTime()
 {
-        OSC_ADD_MEMBER(value);
-        OSC_ADD_MEMBER(rule);
+        OSC_ADD_MEMBER(value, 0);
+        OSC_ADD_MEMBER(rule, 0);
         rule.enumType = Enum_ruleType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByValue";};
     oscDouble value;
     oscEnum rule;
 

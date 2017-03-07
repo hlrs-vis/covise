@@ -9,6 +9,7 @@
 #include <config/CoviseConfig.h>
 #include <util/coFileUtil.h>
 #include <dmgr/dmgr.h>
+#include <util/unixcompat.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -474,7 +475,7 @@ moduleList::moduleList()
 
     coCoviseConfig::ScopeEntries mae = coCoviseConfig::getScopeEntries("System.CRB", "ModuleAlias");
     const char **moduleAliases = mae.getValue();
-    for (int i = 0; moduleAliases && moduleAliases[i] != NULL; i = i + 2)
+    for (int i = 0; moduleAliases && moduleAliases[i] != NULL && moduleAliases[i+1] != NULL; i = i + 2)
     {
         //fprintf(stderr, "___ %s___%s\n", moduleAliases[i], moduleAliases[i+1]);
         char *line = new char[strlen(moduleAliases[i]) + 1];

@@ -13,7 +13,11 @@ python-dep: covise cover-dep addons-dep
 	$(MAKE) python
 
 python:
+ifdef PYTHON_HOME
 	cd Python && $(MAKE)
+else
+	@echo "PYTHON_HOME not set, disabling Python support"
+endif
 
 covise: always_out_of_date
 	cd src && $(MAKE)

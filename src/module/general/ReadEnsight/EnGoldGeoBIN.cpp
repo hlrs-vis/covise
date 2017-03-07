@@ -682,6 +682,10 @@ EnGoldGeoBIN::parseForParts()
     readBB();
     module_->sendInfo("%s", "getting parts  -  please wait...");
 
+	if (!isOpen_)
+	{
+		return;
+	}
     int cnt = 0;
     bool validElementFound = false;
     while (!feof(in_))

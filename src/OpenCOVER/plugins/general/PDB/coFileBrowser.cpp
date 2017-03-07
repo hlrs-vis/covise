@@ -22,6 +22,7 @@
 
 // Covise:
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 

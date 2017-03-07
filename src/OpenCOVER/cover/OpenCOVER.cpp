@@ -229,6 +229,11 @@ bool OpenCOVER::init()
     struct WSAData wsaData;
     wVersionRequested = MAKEWORD(2, 2);
     WSAStartup(wVersionRequested, &wsaData);
+	// Require at least 4 processors, otherwise the process could occupy the machine.
+	if (OpenThreads::GetNumberOfProcessors() >= 4)
+	{
+		SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+	}
 #endif
 
     m_visPlugin = NULL;
@@ -318,6 +323,9 @@ bool OpenCOVER::init()
     new coVRMSController(m_forceMpi, myID, addr, port);
     coVRMSController::instance()->startSlaves();
     coVRMSController::instance()->startupSync();
+
+    coVRConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
+    coVRConfig::instance()->viewpointsFile = viewpointsFile;
 
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
@@ -463,6 +471,8 @@ bool OpenCOVER::init()
     // init scene graph
     VRSceneGraph::instance()->init();
     VRViewer::instance()->setSceneData(cover->getScene());
+
+	Input::instance()->update(); // requires scenegraph
 
     cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
 

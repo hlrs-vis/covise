@@ -23,10 +23,11 @@ class OPENSCENARIOEXPORT oscSun : public oscObjectBase
 public:
 oscSun()
 {
-        OSC_ADD_MEMBER(intensity);
-        OSC_ADD_MEMBER(azimuth);
-        OSC_ADD_MEMBER(elevation);
+        OSC_ADD_MEMBER(intensity, 0);
+        OSC_ADD_MEMBER(azimuth, 0);
+        OSC_ADD_MEMBER(elevation, 0);
     };
+        const char *getScope(){return "/OSCEnvironment/Weather";};
     oscDouble intensity;
     oscDouble azimuth;
     oscDouble elevation;

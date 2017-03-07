@@ -3,7 +3,6 @@
 # CMakeLists.txt for OpenCOVER plugins
 #
 # @author Blasius Czink
-
 ADD_SUBDIRECTORY(general)
 ADD_SUBDIRECTORY(covise)
 ADD_SUBDIRECTORY(examples)

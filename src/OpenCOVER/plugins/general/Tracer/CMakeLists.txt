@@ -1,5 +1,4 @@
 #OpenCOVER plugins general Tracer
-USE_VTK(OPTIONAL)
 
 SET(HEADERS
   TracerFreePoints.h

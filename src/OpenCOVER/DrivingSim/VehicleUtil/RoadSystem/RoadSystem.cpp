@@ -224,6 +224,7 @@ void RoadSystem::parseOpenDrive(std::string filename)
     {
         parseOpenDrive(xmlDoc->getDocumentElement());
     }
+    xercesc::XMLPlatformUtils::Terminate();
 }
 
 void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
@@ -1598,7 +1599,6 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
         }
     }
 
-    xercesc::XMLPlatformUtils::Terminate();
 
     //Analyzing road system
     //analyzeForCrossingJunctionPaths();

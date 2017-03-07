@@ -11,7 +11,6 @@ SET(EXTRASOURCES
   CellToVert.h
 )
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(Interpolator CellToVert ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(CellToVert  coAlg coApi coAppl coCore )
 

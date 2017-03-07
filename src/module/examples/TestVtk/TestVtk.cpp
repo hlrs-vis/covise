@@ -19,7 +19,7 @@
 \****************************************************************************/
 
 #include <do/coDoData.h>
-#include <alg/coVtk.h>
+#include <vtk/coVtk.h>
 #include "TestVtk.h"
 
 TestVtk::TestVtk(int argc, char *argv[])

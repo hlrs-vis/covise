@@ -32,10 +32,11 @@ class OPENSCENARIOEXPORT oscWaypoint : public oscObjectBase
 public:
 oscWaypoint()
 {
-        OSC_ADD_MEMBER(strategy);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_ADD_MEMBER(strategy, 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
         strategy.enumType = Enum_Route_strategyType::instance();
     };
+        const char *getScope(){return "/OSCRoute";};
     oscEnum strategy;
     oscPositionMember Position;
 

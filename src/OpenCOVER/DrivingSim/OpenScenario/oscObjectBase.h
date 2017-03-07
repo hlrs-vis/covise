@@ -41,11 +41,10 @@ namespace bf = boost::filesystem;
 //set the type name of varName (element name in xml file) (oscMember[.cpp,.h])
 //register varName in MemberChoice choice ([oscMember,oscObjectBase][.cpp,.h])
 //register varName in MemberOptional optional ([oscMember,oscObjectBase][.cpp,.h])
-#define                          OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()) /*OSC_ADD_MEMBER(varName)*/
-#define                 OSC_ADD_MEMBER_OPTIONAL(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.registerOptionalWith(this) /*OSC_ADD_MEMBER_OPTIONAL(varName)*/
-#define          OSC_OBJECT_ADD_MEMBER(varName,typeName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.setTypeName(typeName) /*OSC_OBJECT_ADD_MEMBER(varName,typeName)*/
-#define   OSC_OBJECT_ADD_MEMBER_CHOICE(varName,typeName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.setTypeName(typeName); varName.registerChoiceWith(this) /*OSC_OBJECT_ADD_MEMBER_CHOICE(varName,typeName)*/
-#define OSC_OBJECT_ADD_MEMBER_OPTIONAL(varName,typeName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.setTypeName(typeName); varName.registerOptionalWith(this) /*OSC_OBJECT_ADD_MEMBER_OPTIONAL(varName,typeName)*/
+#define                          OSC_ADD_MEMBER(varName, choiceNumber) varName.setName(#varName); varName.registerWith(this, choiceNumber); varName.setType(varName.getValueType()) /*OSC_ADD_MEMBER(varName)*/
+#define                 OSC_ADD_MEMBER_OPTIONAL(varName, choiceNumber) varName.setName(#varName); varName.registerWith(this, choiceNumber); varName.setType(varName.getValueType()); varName.registerOptionalWith(this) /*OSC_ADD_MEMBER_OPTIONAL(varName)*/
+#define          OSC_OBJECT_ADD_MEMBER(varName,typeName, choiceNumber) varName.setName(#varName); varName.registerWith(this, choiceNumber); varName.setType(varName.getValueType()); varName.setTypeName(typeName) /*OSC_OBJECT_ADD_MEMBER(varName,typeName)*/
+#define OSC_OBJECT_ADD_MEMBER_OPTIONAL(varName,typeName, choiceNumber) varName.setName(#varName); varName.registerWith(this, choiceNumber); varName.setType(varName.getValueType()); varName.setTypeName(typeName); varName.registerOptionalWith(this) /*OSC_OBJECT_ADD_MEMBER_OPTIONAL(varName,typeName)*/
 
 
 namespace OpenScenario
@@ -58,8 +57,19 @@ class oscSourceFile;
 class OPENSCENARIOEXPORT oscObjectBase
 {
 public:
-    typedef unordered_map<std::string, oscMember *> MemberMap;
-    typedef std::vector<oscMember *> MemberChoice;
+	 enum ValidationResult
+    {
+        VAL_invalid = 0x0,
+        VAL_optional = 0x1,		// optional and no value set
+		VAL_valid = 0x2
+    };
+
+	struct MemberElement {
+		std::string name;
+		oscMember *member;
+	};
+
+    typedef std::list<MemberElement> MemberMap;
     typedef std::vector<oscMember *> MemberOptional;
 
 protected:
@@ -68,13 +78,12 @@ protected:
     oscSourceFile *source;
     oscObjectBase *parentObject; ///< the parent of this objectBase
     oscMember *ownMember; ///< the member which store this objectBase as a valueT in oscObjectVariable, oscObjectVariableArray or oscObjectVariableCatalog
-    MemberChoice choice;
     MemberOptional optional;
-	oscMember *chosenMember;
 
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
+	virtual const char *getScope() { return ""; }; ///< return parent hierarchie in order to uniquely identify chrildren by name
 
     //
     virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source
@@ -94,17 +103,16 @@ public:
     oscMember *getOwnMember() const;
 
     //
-    void addMemberToChoice(oscMember *m);
     bool hasChoice() const;
-    MemberChoice getChoice() const;
-	bool isMemberInChoice(oscMember *m);
-	oscMember *getChosenMember();
-	void setChosenMember(oscMember *member);
+    std::list<oscMember *> getChoice() const;
+	void setChosenMember(oscMember *chosenMember);
+	oscMember *getChosenMember(unsigned short choiceNumber);
 
     //
     void addMemberToOptional(oscMember *m);
     bool hasOptional() const;
     MemberOptional getOptional() const;
+	bool isMemberOptional(oscMember *m);
 
 	//
 	oscObjectBase *getObjectByName(const std::string &name);
@@ -117,7 +125,8 @@ public:
 
 	oscObjectBase *readDefaultXMLObject(bf::path destFilePath, const std::string &memberName, const std::string &typeName, oscSourceFile *src = NULL);  ///< read default object with specified type and generate an object with source destFilePath
 
-	void validate(std::string *errorMessage = NULL);   // generate a temporary file and validate the object
+	//void validate(std::string *errorMessage = NULL);   // generate a temporary file and validate the object
+	unsigned char validate();
 
 private:
     void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node

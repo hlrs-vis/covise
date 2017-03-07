@@ -16,8 +16,6 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscStart.h"
-#include "oscEnd.h"
-#include "oscCancel.h"
 
 namespace OpenScenario
 {
@@ -26,13 +24,10 @@ class OPENSCENARIOEXPORT oscConditions : public oscObjectBase
 public:
 oscConditions()
 {
-        OSC_OBJECT_ADD_MEMBER(Start, "oscStart");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(End, "oscEnd");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Cancel, "oscCancel");
+        OSC_OBJECT_ADD_MEMBER(Start, "oscStart", 0);
     };
+        const char *getScope(){return "/OSCManeuver/Event";};
     oscStartMember Start;
-    oscEndMember End;
-    oscCancelMember Cancel;
 
 };
 

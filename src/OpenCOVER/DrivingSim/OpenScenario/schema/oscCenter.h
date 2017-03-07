@@ -23,10 +23,11 @@ class OPENSCENARIOEXPORT oscCenter : public oscObjectBase
 public:
 oscCenter()
 {
-        OSC_ADD_MEMBER(x);
-        OSC_ADD_MEMBER(y);
-        OSC_ADD_MEMBER(z);
+        OSC_ADD_MEMBER(x, 0);
+        OSC_ADD_MEMBER(y, 0);
+        OSC_ADD_MEMBER(z, 0);
     };
+        const char *getScope(){return "/OSCBoundingBox";};
     oscDouble x;
     oscDouble y;
     oscDouble z;

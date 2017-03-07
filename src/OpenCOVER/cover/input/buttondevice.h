@@ -39,7 +39,7 @@ private:
     void setButtonState(unsigned int state, bool isRaw = false);
 
     typedef std::map<unsigned, unsigned> ButtonMap;
-    ButtonMap buttonMap;
+    ButtonMap buttonMap, multiButtonMap;
     void createButtonMap(const std::string &confbase);
     unsigned mapButton(unsigned raw) const;
 

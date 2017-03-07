@@ -20,7 +20,6 @@ SET(EXTRASOURCES
 )
 
 
-USE_VTK(OPTIONAL)
 ADD_COVISE_MODULE(Filter CuttingSurfaceComp ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(CuttingSurfaceComp  coAlg coApi coAppl coCore )
 

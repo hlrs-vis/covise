@@ -16,7 +16,10 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscCatalogReference.h"
-#include "oscCtrl.h"
+#include "oscVehicle.h"
+#include "oscPedestrian.h"
+#include "oscMiscObject.h"
+#include "oscObjectController.h"
 
 namespace OpenScenario
 {
@@ -25,13 +28,20 @@ class OPENSCENARIOEXPORT oscObject : public oscObjectBase
 public:
 oscObject()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Ctrl, "oscCtrl");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference", 1);
+        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle", 1);
+        OSC_OBJECT_ADD_MEMBER(Pedestrian, "oscPedestrian", 1);
+        OSC_OBJECT_ADD_MEMBER(MiscObject, "oscMiscObject", 1);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Controller, "oscObjectController", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Entities";};
     oscString name;
     oscCatalogReferenceMember CatalogReference;
-    oscCtrlMember Ctrl;
+    oscVehicleMember Vehicle;
+    oscPedestrianMember Pedestrian;
+    oscMiscObjectMember MiscObject;
+    oscObjectControllerMember Controller;
 
 };
 

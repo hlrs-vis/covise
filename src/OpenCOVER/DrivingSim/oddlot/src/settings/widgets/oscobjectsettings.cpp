@@ -67,6 +67,7 @@
 #include <QScrollArea>
 #include <QGridLayout> 
 #include <QMessageBox>
+#include <QDateTimeEdit>
 
 // Utils //
 //
@@ -78,7 +79,7 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member)
+OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element, OpenScenario::oscMember *member, OpenScenario::oscObjectBase *parentObject)
     : QWidget()
 	, Observer()
 	, ui(new Ui::OSCObjectSettings)
@@ -91,13 +92,16 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	, closeCount_(false)
 	, member_(member)
 	, oscArrayMember_(NULL)
-	, parentObject_(NULL)
+	, parentObject_(parentObject)
 {
+
 	if (element_)
 	{
 		object_ = element_->getObject();
 	}
 	base_ = projectSettings_->getProjectData()->getOSCBase();
+	oscBase_ = base_->getOpenScenarioBase();
+	toolManager_ = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
     ui->setupUi(this);
 
 	//oscArrayMember
@@ -105,16 +109,15 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 	if (!object_ && member_)
 	{
-		oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(member);
+		oscArrayMember_ = dynamic_cast<OpenScenario::oscArrayMember *>(member_);
 	}
 
-	if (parentStack_)
+    if (parentStack_)
 	{
 		OSCObjectSettings *lastSettings = static_cast<OSCObjectSettings *>(parentStack_->getLastWidget());
 		if (lastSettings)
 		{
 			objectStackText_ = lastSettings->getStackText();
-			parentObject_ = lastSettings->getObject();
 		}
 	}
 
@@ -167,10 +170,9 @@ OSCObjectSettings::~OSCObjectSettings()
 
 			// Connect with the ToolManager to send the selected signal or object //
 			//
-			ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
-			if (toolManager)
+			if (toolManager_)
 			{
-				toolManager->enableOSCEditorToolButton(false);
+				toolManager_->enableOSCEditorToolButton(false);
 			}
 		}
 	}
@@ -195,7 +197,7 @@ OSCObjectSettings::~OSCObjectSettings()
 //
 void
 OSCObjectSettings::uiInit()
-{
+{;
 	// Widget/Layout //
 	//
 	QGridLayout *objectGridLayout = new QGridLayout();
@@ -244,36 +246,53 @@ OSCObjectSettings::uiInit()
 	QSignalMapper *signalArrayPushMapper = new QSignalMapper(this);
     connect(signalArrayPushMapper, SIGNAL(mapped(QString)), this, SLOT(onArrayPushButtonPressed(QString)));
 
-	bool choice = object_->hasChoice();
-	int choiceComboBoxRow = ++row;
-	if (choice)
-	{
-		choiceComboBox_ = new QComboBox();
-		objectGridLayout->addWidget(choiceComboBox_, choiceComboBoxRow, 0);
-		connect(choiceComboBox_, SIGNAL(activated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
-
-		QPushButton *oscPushButton = new QPushButton();
-		oscPushButton->setText("Edit");
-		memberWidgets_.insert("choice", oscPushButton);
-		objectGridLayout->addWidget(oscPushButton, choiceComboBoxRow, 1);
-		connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
-		signalPushMapper->setMapping(oscPushButton, "choice");
-	}
 
 	OpenScenario::oscObjectBase::MemberMap members = object_->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 	{
-		OpenScenario::oscMember *member = it->second;
+		OpenScenario::oscMember *member = (*it).member;
 		QString memberName = QString::fromStdString(member->getName());
 
-		if (choice && object_->isMemberInChoice(member))
+		if (member->isChoice())
 		{
-			choiceComboBox_->addItem(memberName);
+			short int choiceNumber = member->choiceNumber();
+			if (!choiceComboBox_.contains(choiceNumber))
+			{
+				int choiceComboBoxRow = ++row;
+
+				QComboBox *comboBox = new QComboBox();
+				objectGridLayout->addWidget(comboBox, choiceComboBoxRow, 0);
+				connect(comboBox, SIGNAL(activated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
+
+				QString name = "choice" + QString::number(choiceNumber);
+
+				QPushButton *oscPushButton = new QPushButton();
+				oscPushButton->setText("Edit");
+				oscPushButton->setObjectName(name);
+
+				memberWidgets_.insert(name, oscPushButton);
+				objectGridLayout->addWidget(oscPushButton, choiceComboBoxRow, 1);
+				connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
+				signalPushMapper->setMapping(oscPushButton, name);
+				choiceComboBox_.insert(choiceNumber, comboBox);
+				choiceComboBox_.value(choiceNumber)->addItem(memberName);
+
+				if (!object_->getChosenMember(choiceNumber))
+				{
+					member->setSelected(true);
+				}
+			}
+			else
+			{
+				choiceComboBox_.value(choiceNumber)->addItem(memberName);
+			}
 		}
 		else
 		{
 			QLabel *label = new QLabel(memberName);
+			label->setObjectName(memberName);
 			formatLabel(label, memberName);
+
 			objectGridLayout->addWidget(label, ++row, 0);
 
 
@@ -416,10 +435,19 @@ OSCObjectSettings::uiInit()
 				valueChangedMapper->setMapping(oscCheckBox, memberName);
 
 			}
+			else if (type == OpenScenario::oscMemberValue::MemberTypes::DATE_TIME)
+			{
+				QDateTimeEdit *oscDateTimeEdit = new QDateTimeEdit();
+				memberWidgets_.insert(memberName, oscDateTimeEdit);
+				objectGridLayout->addWidget(oscDateTimeEdit, row, 1);
+				connect(oscDateTimeEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
+				signalMapper->setMapping(oscDateTimeEdit, memberName);
+				connect(oscDateTimeEdit, SIGNAL(dateTimeChanged(QDateTime)), valueChangedMapper, SLOT(map()));
+				valueChangedMapper->setMapping(oscDateTimeEdit, memberName); 
+			}
 		}
 
 	}
-
 
 	// Finish Layout //
 	//
@@ -441,10 +469,9 @@ OSCObjectSettings::uiInit()
 
 			// Connect with the ToolManager to send the selected signal or object //
 			//
-			ToolManager *toolManager = projectSettings_->getProjectWidget()->getMainWindow()->getToolManager();
-			if (toolManager)
+			if (toolManager_)
 			{
-				toolManager->enableOSCEditorToolButton(true);
+				toolManager_->enableOSCEditorToolButton(true);
 			}
 
 			element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
@@ -525,20 +552,32 @@ void OSCObjectSettings::updateTree()
 
 	QTreeWidgetItem *item = new QTreeWidgetItem();
 	item->setText(0, "New " + memberName_);
+
 	arrayTree_->addTopLevelItem(item);
 
 	//generate the children members
 	for (int i = 0; i < oscArrayMember_->size(); i++)
 	{
-		addTreeItem(arrayTree_, i+1);
+		OpenScenario::oscObjectBase *object = oscArrayMember_->at(i);
+
+		addTreeItem(arrayTree_, i+1, object);
 	}
 }
 
-void OSCObjectSettings::addTreeItem(QTreeWidget *arrayTree, int name)
+void OSCObjectSettings::addTreeItem(QTreeWidget *arrayTree, int name, OpenScenario::oscObjectBase *object)
 {
 
 	QTreeWidgetItem *item = new QTreeWidgetItem();
 	item->setText(0, QString::number(name));
+	if (object->validate() == OpenScenario::oscObjectBase::VAL_valid)
+	{
+		item->setTextColor(0, QColor(128, 195, 66));   // lightgreen
+	}
+	else
+	{
+		item->setTextColor(0, Qt::white);
+	}
+
 	arrayTree->addTopLevelItem(item);
 
 }
@@ -617,19 +656,20 @@ int OSCObjectSettings::formatDirLabel(QLabel *label, const QString &memberName)
 void
 OSCObjectSettings::updateProperties()
 {
+	bool isValid = true;
 
     if (object_)
     {
 		QMap<QString, QWidget *>::const_iterator it;
 		for (it = memberWidgets_.constBegin(); it != memberWidgets_.constEnd(); it++)
 		{
-			if (it.key() == "choice")
+			if (it.key().contains("choice"))
 			{
 				foreach (OpenScenario::oscMember *choiceMember, object_->getChoice())
 				{
-					if (choiceMember->exists())
+					if (choiceMember->isSelected())
 					{
-						loadProperties(choiceMember, it.value());
+						isValid = isValid & loadProperties(choiceMember, it.value());
 					}
 				}
 			}
@@ -639,22 +679,91 @@ OSCObjectSettings::updateProperties()
 
 				if (!member->exists())
 				{
+					isValid = isValid & validateMember(member);
 					continue;
 				} 
 
-				loadProperties(member, it.value());
+				isValid = isValid & loadProperties(member, it.value());
 			}
 		}
-
+		if (object_->getParentObj() == oscBase_)
+		{
+			if (isValid)
+			{
+				toolManager_->setPushButtonColor(QString::fromStdString(member_->getName()), QColor(128, 195, 66));
+			}
+			else
+			{
+				toolManager_->setPushButtonColor(QString::fromStdString(member_->getName()), Qt::white);
+			}
+			//		}
+		}
 	}
+	else if (oscArrayMember_)
+	{
+		updateTree();
+	}
+
 }
 
-void
-	OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
+bool
+OSCObjectSettings::validateMember(OpenScenario::oscMember *member)
 {
-	if (member == object_->getChosenMember())
+	QLabel *label = ui->oscGroupBox->findChild<QLabel *>(QString::fromStdString(member->getName()));
+	QPushButton *button = NULL;
+	if (!label && member->isChoice() && member->isSelected())
 	{
-		choiceComboBox_->setCurrentText(QString::fromStdString(member->getName()));
+		button = ui->oscGroupBox->findChild<QPushButton *>("choice" + QString::number(member->choiceNumber()));
+	}
+
+	if (label || button)
+	{
+		QString color;
+
+		switch (member->validate())
+		{
+		case OpenScenario::oscObjectBase::VAL_valid:
+			color = "lightgreen";
+			break;
+
+		case OpenScenario::oscObjectBase::VAL_optional:
+			color = "yellow";
+			break;
+
+		default:
+			color = "white";
+		}
+
+		if (label)
+		{
+			QString s = "QLabel{ color: " + color + "; }";
+			label->setStyleSheet(s);
+		}
+		else if (button)
+		{
+			QString s = "QPushButton{ color: " + color + "; }";
+			button->setStyleSheet(s);
+		}
+
+		if (color == "white")
+		{
+			return false;
+		}
+	}
+
+
+	return true;
+}
+
+bool
+OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widget)
+{
+	if (member->isChoice())
+	{
+		if (member->isSelected())
+		{
+			choiceComboBox_.value(member->choiceNumber())->setCurrentText(QString::fromStdString(member->getName()));
+		}
 	}
 
 	OpenScenario::oscMemberValue *value = member->getOrCreateValue();
@@ -714,6 +823,16 @@ void
 			checkBox->setChecked(iv->getValue());
 		}
 	}
+	else if (QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget))
+	{
+		oscDateTimeValue *iv = dynamic_cast<oscDateTimeValue *>(value);
+		if (iv)
+		{
+			dateTimeEdit->setDateTime(QDateTime::fromTime_t(iv->getValue()));
+		}
+	}
+
+	return validateMember(member);
 }
 
 void 
@@ -725,8 +844,10 @@ OSCObjectSettings::onDeleteArrayElement()
 	if (j > 0)
 	{
 		OpenScenario::oscObjectBase *object = oscArrayMember_->at(--j);
-		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(oscArrayMember_, object_, j, base_->getOSCElement(object));
+		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(oscArrayMember_, j, base_->getOSCElement(object));
 		projectSettings_->executeCommand(command);
+
+		updateTree();
 	}
 
 }
@@ -829,8 +950,14 @@ OSCObjectSettings::onEditingFinished(QString name)
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::OBJECT:
 		case OpenScenario::oscMemberValue::MemberTypes::DATE_TIME:
-			//TODO
-            break;
+			{
+				QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget);
+				QDateTime v = dateTimeEdit->dateTime();
+				SetOSCValuePropertiesCommand<time_t> *command = new SetOSCValuePropertiesCommand<time_t>(element_, object_, name.toStdString(), v.toTime_t());
+				projectSettings_->executeCommand(command);
+
+				break;
+			}
 		}
 		valueChanged_ = false;
 	}
@@ -846,13 +973,14 @@ OSCObjectSettings::onEditingFinished(QString name)
 void
 OSCObjectSettings::onChoiceChanged(const QString &memberName)
 {
-	if (memberName != lastComboBoxChoice_)
+	OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
+	short int nr = member->choiceNumber();
+	if (memberName != lastComboBoxChoice_.value(nr))
 	{
-		OpenScenario::oscMember *member = object_->getMember(memberName.toStdString());
-		ChangeOSCObjectChoiceCommand *command = new ChangeOSCObjectChoiceCommand(object_, object_->getChosenMember(), member, element_);
+		ChangeOSCObjectChoiceCommand *command = new ChangeOSCObjectChoiceCommand(object_->getChosenMember(nr), member, element_);
 		projectSettings_->executeCommand(command);
 
-		lastComboBoxChoice_ = memberName;
+		lastComboBoxChoice_[nr] = memberName;
 	}
 
 
@@ -867,9 +995,10 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 	{
 		object = oscArrayMember_->at(name.toInt()-1);
 	}
-	else if (name == "choice")
+	else if (name.contains("choice"))
 	{
-		object = object_->getMember(choiceComboBox_->currentText().toStdString())->getOrCreateObject();
+		QComboBox *comboBox = choiceComboBox_.value(name.remove("choice").toInt());
+		object = object_->getMember(comboBox->currentText().toStdString())->getOrCreateObject();
 
 	}
 	else
@@ -883,7 +1012,7 @@ OSCObjectSettings::onPushButtonPressed(QString name)
     //
     projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement, NULL);
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement, NULL, object_);
 
 	return object;
 }
@@ -899,7 +1028,7 @@ OSCObjectSettings::onArrayPushButtonPressed(QString name)
     //
     projectSettings_->getProjectData()->getChangeManager()->notifyObservers();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, NULL, member);
+	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, NULL, member, object_);
 
 	return member;
 }
@@ -924,7 +1053,7 @@ OSCObjectSettings::onNewArrayElement()
 	OSCElement *oscElement = new OSCElement(memberName_);
 	if (oscElement)
 	{
-		OpenScenario::oscSourceFile *sourceFile = parentObject_->getSource();
+//		OpenScenario::oscSourceFile *sourceFile = parentObject_->getSource();
 
 		OpenScenario::oscObjectBase *obj = NULL;
 		if (OSCSettings::instance()->loadDefaults())
@@ -937,7 +1066,7 @@ OSCObjectSettings::onNewArrayElement()
 
 		updateTree();
 
-		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL);
+		OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, oscElement, NULL, parentObject_);
 	}
 
 }
@@ -961,7 +1090,7 @@ OSCObjectSettings::onCloseWidget()
 {
 
 	std::string errorMessage;
-	object_->validate(&errorMessage);
+//	object_->validate(&errorMessage);
 	if ( !closeCount_ && (errorMessage != ""))
 	{
 		// Ask user //
@@ -1020,7 +1149,7 @@ OSCObjectSettings::updateObserver()
 	}
 	else if (changes & OSCElement::COE_ChoiceChanged)
 	{
-		QWidget *lastWidget;
+/*		QWidget *lastWidget;
 		do
 		{
 			lastWidget = parentStack_->getLastWidget();
@@ -1028,7 +1157,7 @@ OSCObjectSettings::updateObserver()
 			{
 				parentStack_->stackRemoveWidget();
 			}
-		} while(lastWidget != this);
+		} while(lastWidget != this); */
 
 		updateProperties();
 

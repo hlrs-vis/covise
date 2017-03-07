@@ -25,11 +25,12 @@ class OPENSCENARIOEXPORT oscSink : public oscObjectBase
 public:
 oscSink()
 {
-        OSC_ADD_MEMBER(rate);
-        OSC_ADD_MEMBER(radius);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition");
+        OSC_ADD_MEMBER(rate, 0);
+        OSC_ADD_MEMBER(radius, 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
+        OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition", 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/Traffic";};
     oscDouble rate;
     oscDouble radius;
     oscPositionMember Position;

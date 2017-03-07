@@ -23,10 +23,11 @@ class OPENSCENARIOEXPORT oscPerformance : public oscObjectBase
 public:
 oscPerformance()
 {
-        OSC_ADD_MEMBER(maxSpeed);
-        OSC_ADD_MEMBER(maxDeceleration);
-        OSC_ADD_MEMBER(mass);
+        OSC_ADD_MEMBER(maxSpeed, 0);
+        OSC_ADD_MEMBER(maxDeceleration, 0);
+        OSC_ADD_MEMBER(mass, 0);
     };
+        const char *getScope(){return "/OSCVehicle";};
     oscDouble maxSpeed;
     oscDouble maxDeceleration;
     oscDouble mass;

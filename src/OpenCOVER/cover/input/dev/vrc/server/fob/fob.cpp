@@ -25,6 +25,7 @@
  *                                                                      *
  ************************************************************************/
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 
 #ifdef __linux__
 #include <time.h>

@@ -24,8 +24,9 @@ class OPENSCENARIOEXPORT oscCancel : public oscObjectBase
 public:
 oscCancel()
 {
-        OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup");
+        OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Story/Act/ActConditions";};
     oscConditionGroupArrayMember ConditionGroup;
 
 };

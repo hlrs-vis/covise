@@ -15,10 +15,11 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscParameterDeclaration.h"
 #include "oscBoundingBox.h"
 #include "oscPerformance.h"
 #include "oscAxles.h"
-#include "oscParameterList.h"
+#include "oscProperties.h"
 
 namespace OpenScenario
 {
@@ -35,20 +36,23 @@ class OPENSCENARIOEXPORT oscVehicle : public oscObjectBase
 public:
 oscVehicle()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(category);
-        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox");
-        OSC_OBJECT_ADD_MEMBER(Performance, "oscPerformance");
-        OSC_OBJECT_ADD_MEMBER(Axles, "oscAxles");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(category, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+        OSC_OBJECT_ADD_MEMBER(BoundingBox, "oscBoundingBox", 0);
+        OSC_OBJECT_ADD_MEMBER(Performance, "oscPerformance", 0);
+        OSC_OBJECT_ADD_MEMBER(Axles, "oscAxles", 0);
+        OSC_OBJECT_ADD_MEMBER(Properties, "oscProperties", 0);
         category.enumType = Enum_Vehicle_categoryType::instance();
     };
+        const char *getScope(){return "";};
     oscString name;
     oscEnum category;
+    oscParameterDeclarationMember ParameterDeclaration;
     oscBoundingBoxMember BoundingBox;
     oscPerformanceMember Performance;
     oscAxlesMember Axles;
-    oscParameterListMember OSCParameterList;
+    oscPropertiesMember Properties;
 
     enum Enum_Vehicle_category
     {

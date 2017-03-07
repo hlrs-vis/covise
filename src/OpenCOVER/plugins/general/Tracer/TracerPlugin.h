@@ -25,23 +25,18 @@ public:
     virtual ~TracerPlugin();
 
     virtual void preFrame();
-    void newInteractor(RenderObject *container, coInteractor *i);
+    void newInteractor(const RenderObject *container, coInteractor *i);
     void removeObject(const char *objName, bool r);
-    void addObject(RenderObject *container, RenderObject * /*geomobj*/,
-                   RenderObject * /*normObj*/, RenderObject * /*colorObj*/, RenderObject * /*texObj*/,
-                   osg::Group * /*root*/, int /*numCol*/, int /*colorBinding*/, int /*colorPacking*/,
-                   float * /*r*/, float * /*g*/, float * /*b*/, int * /*packedCol*/,
-                   int /*numNormals*/, int /*normalBinding*/, float * /*xn*/, float * /*yn*/, float * /*zn*/,
-                   float /*transparency*/);
-    virtual void addNode(osg::Node *, RenderObject * = NULL);
+    void addObject(const RenderObject *container, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
+    virtual void addNode(osg::Node *, const RenderObject * = NULL);
     void guiToRenderMsg(const char *msg);
     // prepare smoke data for tracer line
-    void addSmoke(const char *name, RenderObject *, RenderObject *);
+    void addSmoke(const char *name, const RenderObject *, const RenderObject *);
     void removeSmoke(const char *name);
     static int debugLevel_;
 
 protected:
-    virtual ModuleFeedbackManager *NewModuleFeedbackManager(RenderObject *, coInteractor *, RenderObject *, const char *);
+    virtual ModuleFeedbackManager *NewModuleFeedbackManager(const RenderObject *, coInteractor *, const RenderObject *, const char *);
     // msg from gui
     void updateInteractorVisibility(const char *objectName);
     void handleSmokeVisibleMsg(const char *objectName, bool show);

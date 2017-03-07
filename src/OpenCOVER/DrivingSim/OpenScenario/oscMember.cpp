@@ -25,7 +25,8 @@ oscMember::oscMember() :
         value(NULL),
         owner(NULL),
         type(oscMemberValue::MemberTypes::INT),
-        parentMember(NULL)
+        parentMember(NULL),
+		optional(false)
 {
 
 }
@@ -42,19 +43,17 @@ oscMember::~oscMember()
  *****/
 
 //
-void oscMember::registerWith(oscObjectBase* o)
+void oscMember::registerWith(oscObjectBase* o, short int choiceNumber)
 {
     owner = o;
     owner->addMember(this);
+	choice = choiceNumber << 1;
 }
 
-void oscMember::registerChoiceWith(oscObjectBase *objBase)
-{
-    objBase->addMemberToChoice(this);
-}
 
 void oscMember::registerOptionalWith(oscObjectBase *objBase)
 {
+	optional = true;
     objBase->addMemberToOptional(this);
 }
 
@@ -189,10 +188,73 @@ bool oscMember::exists() const
 bool oscMember::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
 
-    if(value != NULL)
-    {
-        value->writeToDOM(currentElement, document, name.c_str());
-    }
+	if(value != NULL)
+	{
+		value->writeToDOM(currentElement, document, name.c_str());
+	}
 
-    return true;
+	return true;
+}
+
+bool oscMember::isChoice()
+{
+	if (choice >> 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+int oscMember::choiceNumber()
+{
+	return choice >> 1;
+}
+
+void oscMember::setSelected(short int select)
+{
+	choice = ((choice >> 1) << 1) | select;
+}
+
+bool oscMember::isSelected()
+{
+	return choice & 1;
+}
+
+unsigned char oscMember::validate()
+{
+
+	if (choice && !isSelected())
+	{
+		return oscObjectBase::VAL_valid;
+	}
+
+
+	if (value)
+	{
+		return oscObjectBase::VAL_valid;
+	}
+	else 
+	{
+		oscObjectBase *memberObject = getObject();
+		{
+			if (!memberObject) 
+			{
+				if (optional)
+				{
+					return oscObjectBase::VAL_optional;
+				}
+
+				return oscObjectBase::VAL_invalid;
+			}
+
+			if (!memberObject->validate())
+			{
+				return oscObjectBase::VAL_invalid;
+			}
+
+			return oscObjectBase::VAL_valid;
+		}
+	}
+
 }

@@ -31,6 +31,7 @@ using namespace std;
 #endif
 
 #include "covise_process.h"
+#include <util/unixcompat.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>

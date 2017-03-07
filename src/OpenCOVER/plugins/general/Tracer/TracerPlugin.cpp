@@ -30,7 +30,7 @@ using namespace grmsg;
 
 int TracerPlugin::debugLevel_ = 0;
 
-void TracerPlugin::newInteractor(RenderObject *container, coInteractor *i)
+void TracerPlugin::newInteractor(const RenderObject *container, coInteractor *i)
 {
     if (cover->debugLevel(3))
     {
@@ -66,25 +66,7 @@ void TracerPlugin::removeObject(const char *objName, bool r)
 }
 
 void
-TracerPlugin::addObject(RenderObject *container,
-                        RenderObject * /*geomobj*/,
-                        RenderObject * /*normObj*/,
-                        RenderObject * /*colorObj*/,
-                        RenderObject * /*texObj*/,
-                        osg::Group * /*root*/,
-                        int /*numCol*/,
-                        int /*colorBinding*/,
-                        int /*colorPacking*/,
-                        float * /*r*/,
-                        float * /*g*/,
-                        float * /*b*/,
-                        int * /*packedCol*/,
-                        int /*numNormals*/,
-                        int /*normalBinding*/,
-                        float * /*xn*/,
-                        float * /*yn*/,
-                        float * /*zn*/,
-                        float /*transparency*/)
+TracerPlugin::addObject(const RenderObject *container, osg::Group * /*root*/, const RenderObject *grid, const RenderObject *velo, const RenderObject *, const RenderObject *)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n---- TracerPlugin::addObject\n");
@@ -95,7 +77,7 @@ TracerPlugin::addObject(RenderObject *container,
         if (container->getAttribute("CREATOR_MODULE_NAME")
             && (strstr(container->getAttribute("CREATOR_MODULE_NAME"), "TracerComp") != NULL))
         {
-            RenderObject *grid = container->getGeometry();
+            //RenderObject *grid = container->getGeometry();
             if (!grid)
                 fprintf(stderr, "!grid\n");
 
@@ -104,7 +86,7 @@ TracerPlugin::addObject(RenderObject *container,
                 fprintf(stderr, "not a UNIGRD\n");
                 return;
             }
-            RenderObject *velo = container->getNormals();
+            //RenderObject *velo = container->getNormals();
             if (!velo)
                 fprintf(stderr, "!velo\n");
             if (!velo || !velo->isVectors())
@@ -126,7 +108,7 @@ TracerPlugin::addObject(RenderObject *container,
             fprintf(stderr, "...no container\n");
     }
 }
-void TracerPlugin::addNode(osg::Node *node, RenderObject *obj)
+void TracerPlugin::addNode(osg::Node *node, const RenderObject *obj)
 {
     //fprintf(stderr,"TracerPlugin::addNode %s\n", obj->getName());
     if (obj)
@@ -258,7 +240,7 @@ TracerPlugin::~TracerPlugin()
 }
 
 ModuleFeedbackManager *
-TracerPlugin::NewModuleFeedbackManager(RenderObject *container, coInteractor *interactor, RenderObject *, const char *pluginName)
+TracerPlugin::NewModuleFeedbackManager(const RenderObject *container, coInteractor *interactor, const RenderObject *, const char *pluginName)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nTracerPlugin::NewModuleFeedbackManager for %s\n", container->getName());
@@ -267,7 +249,7 @@ TracerPlugin::NewModuleFeedbackManager(RenderObject *container, coInteractor *in
 }
 
 void
-TracerPlugin::addSmoke(const char *containerName, RenderObject *grid, RenderObject *velo)
+TracerPlugin::addSmoke(const char *containerName, const RenderObject *grid, const RenderObject *velo)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nTracerPlugin::addSmoke %s\n", containerName);

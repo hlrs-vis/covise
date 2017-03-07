@@ -34,14 +34,15 @@ class OPENSCENARIOEXPORT oscCondition : public oscObjectBase
 public:
 oscCondition()
 {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(delay);
-        OSC_ADD_MEMBER(edge);
-        OSC_OBJECT_ADD_MEMBER(ByEntity, "oscByEntity");
-        OSC_OBJECT_ADD_MEMBER(ByState, "oscByState");
-        OSC_OBJECT_ADD_MEMBER(ByValue, "oscByValue");
+        OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(delay, 0);
+        OSC_ADD_MEMBER(edge, 0);
+        OSC_OBJECT_ADD_MEMBER(ByEntity, "oscByEntity", 1);
+        OSC_OBJECT_ADD_MEMBER(ByState, "oscByState", 1);
+        OSC_OBJECT_ADD_MEMBER(ByValue, "oscByValue", 1);
         edge.enumType = Enum_Condition_edgeType::instance();
     };
+        const char *getScope(){return "";};
     oscString name;
     oscDouble delay;
     oscEnum edge;

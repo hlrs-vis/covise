@@ -15,8 +15,8 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscLogics.h"
-#include "oscSceneGraph.h"
+#include "oscFile.h"
+#include "oscFile.h"
 #include "oscSignals.h"
 
 namespace OpenScenario
@@ -26,12 +26,13 @@ class OPENSCENARIOEXPORT oscRoadNetwork : public oscObjectBase
 public:
 oscRoadNetwork()
 {
-        OSC_OBJECT_ADD_MEMBER(Logics, "oscLogics");
-        OSC_OBJECT_ADD_MEMBER(SceneGraph, "oscSceneGraph");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Signals, "oscSignals");
+        OSC_OBJECT_ADD_MEMBER(Logics, "oscFile", 0);
+        OSC_OBJECT_ADD_MEMBER(SceneGraph, "oscFile", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Signals, "oscSignals", 0);
     };
-    oscLogicsMember Logics;
-    oscSceneGraphMember SceneGraph;
+        const char *getScope(){return "/OpenSCENARIO";};
+    oscFileMember Logics;
+    oscFileMember SceneGraph;
     oscSignalsMember Signals;
 
 };

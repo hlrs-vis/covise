@@ -24,12 +24,13 @@ class OPENSCENARIOEXPORT oscLane : public oscObjectBase
 public:
 oscLane()
 {
-        OSC_ADD_MEMBER(roadId);
-        OSC_ADD_MEMBER(laneId);
-        OSC_ADD_MEMBER_OPTIONAL(offset);
-        OSC_ADD_MEMBER(s);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation");
+        OSC_ADD_MEMBER(roadId, 0);
+        OSC_ADD_MEMBER(laneId, 0);
+        OSC_ADD_MEMBER_OPTIONAL(offset, 0);
+        OSC_ADD_MEMBER(s, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscString roadId;
     oscInt laneId;
     oscDouble offset;

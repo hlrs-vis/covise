@@ -26,10 +26,11 @@ class OPENSCENARIOEXPORT oscStoryboard : public oscObjectBase
 public:
 oscStoryboard()
 {
-        OSC_OBJECT_ADD_MEMBER(Init, "oscInit");
-        OSC_OBJECT_ADD_MEMBER(Story, "oscStory");
-        OSC_OBJECT_ADD_MEMBER(End, "oscEnd");
+        OSC_OBJECT_ADD_MEMBER(Init, "oscInit", 0);
+        OSC_OBJECT_ADD_MEMBER(Story, "oscStory", 0);
+        OSC_OBJECT_ADD_MEMBER(End, "oscEnd", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO";};
     oscInitMember Init;
     oscStoryArrayMember Story;
     oscEndMember End;

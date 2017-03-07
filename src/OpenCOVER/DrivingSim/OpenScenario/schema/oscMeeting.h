@@ -32,11 +32,12 @@ class OPENSCENARIOEXPORT oscMeeting : public oscObjectBase
 public:
 oscMeeting()
 {
-        OSC_ADD_MEMBER(mode);
-        OSC_ADD_MEMBER(timingOffset);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition");
+        OSC_ADD_MEMBER(mode, 0);
+        OSC_ADD_MEMBER(timingOffset, 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
         mode.enumType = Enum_Meeting_Position_modeType::instance();
     };
+        const char *getScope(){return "/OSCPrivateAction";};
     oscEnum mode;
     oscDouble timingOffset;
     oscPositionMember Position;

@@ -26,10 +26,11 @@ class OPENSCENARIOEXPORT oscActions : public oscObjectBase
 public:
 oscActions()
 {
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Global, "oscGlobalAction");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserDefined, "oscGlobalAction");
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Private, "oscPrivate");
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Global, "oscGlobalAction", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserDefined, "oscGlobalAction", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Private, "oscPrivate", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Init";};
     oscGlobalActionArrayMember Global;
     oscGlobalActionArrayMember UserDefined;
     oscPrivateArrayMember Private;

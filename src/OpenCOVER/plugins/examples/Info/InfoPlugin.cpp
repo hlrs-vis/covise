@@ -38,34 +38,9 @@ InfoPlugin::~InfoPlugin()
     delete m_menuItem;
 }
 
-void InfoPlugin::addObject(RenderObject *container,
-                           RenderObject *obj, RenderObject *normObj,
-                           RenderObject *colorObj, RenderObject *texObj,
-                           osg::Group *root,
-                           int numCol, int colorBinding, int colorPacking,
-                           float *r, float *g, float *b, int *packedCol,
-                           int numNormals, int normalBinding,
-                           float *xn, float *yn, float *zn, float transparency)
+void InfoPlugin::addObject(const RenderObject *container, osg::Group *root, const RenderObject *obj, const RenderObject *, const RenderObject *, const RenderObject *)
 {
-    (void)container;
-    (void)obj;
-    (void)normObj;
-    (void)colorObj;
-    (void)texObj;
     (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
     fprintf(stderr, "InfoPlugin::addObject\n");
     if (!container)
         return;

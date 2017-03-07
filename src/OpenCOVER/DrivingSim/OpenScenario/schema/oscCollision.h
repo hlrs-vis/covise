@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscByNamedEntity.h"
+#include "oscCollisionByEntity.h"
 #include "oscByType.h"
 
 namespace OpenScenario
@@ -25,11 +25,12 @@ class OPENSCENARIOEXPORT oscCollision : public oscObjectBase
 public:
 oscCollision()
 {
-        OSC_OBJECT_ADD_MEMBER(ByNamedEntity, "oscByNamedEntity");
-        OSC_OBJECT_ADD_MEMBER(ByType, "oscByType");
+        OSC_OBJECT_ADD_MEMBER(ByEntity, "oscCollisionByEntity", 1);
+        OSC_OBJECT_ADD_MEMBER(ByType , "oscByType", 1);
     };
-    oscByNamedEntityMember ByNamedEntity;
-    oscByTypeMember ByType;
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
+    oscCollisionByEntityMember ByEntity;
+    oscByTypeMember ByType ;
 
 };
 

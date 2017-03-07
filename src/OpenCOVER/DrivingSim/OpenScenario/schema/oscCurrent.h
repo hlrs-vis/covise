@@ -23,8 +23,9 @@ class OPENSCENARIOEXPORT oscCurrent : public oscObjectBase
 public:
 oscCurrent()
 {
-        OSC_ADD_MEMBER(object);
+        OSC_ADD_MEMBER(object, 0);
     };
+        const char *getScope(){return "/OSCPosition/PositionRoute/RoutePosition";};
     oscString object;
 
 };

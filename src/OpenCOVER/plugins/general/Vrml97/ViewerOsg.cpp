@@ -27,6 +27,7 @@ static const int NUM_TEXUNITS = 4;
 #include <winsock2.h>
 #include <windows.h>
 #endif
+#include <util/unixcompat.h>
 #include <vrml97/vrml/config.h>
 
 #include <vrml97/vrml/MathUtils.h>
@@ -536,7 +537,7 @@ int Blended = 0;
 int AlphaTest = 0;
 static int Crease = 0;
 static bool backFaceCulling = true;
-static bool genStrips = true;
+static bool genStrips = false;
 static bool reTesselate = true;
 static bool countTextures = true;
 static int texSize = 0;
@@ -559,7 +560,7 @@ osg::ref_ptr<osg::TexEnv> tEnvModulate;
 
 // current transformation matrix while traversing the Tree.
 // it is updated, in an endObject call, the setTransform call
-MatrixTransform *ViewerOsg::VRMLCaveRoot = NULL;
+osg::ref_ptr<MatrixTransform> ViewerOsg::VRMLCaveRoot;
 
 struct CopyTextureCallback : public osg::Drawable::DrawCallback
 {
@@ -901,6 +902,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     Crease = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Crease", true);
     enableLights = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Lights", true);
+    genStrips = coCoviseConfig::isOn("COVER.GenStrips", genStrips);
     genStrips = coCoviseConfig::isOn("COVER.Plugin.Vrml97.GenerateTriangleStrips", genStrips);
     reTesselate = coCoviseConfig::isOn("COVER.Plugin.Vrml97.ReTesselate", false);
     countTextures = coCoviseConfig::isOn("counter", "COVER.Plugin.Vrml97.Texture", true);

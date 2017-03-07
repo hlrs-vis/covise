@@ -494,7 +494,7 @@ void TexVisitor::apply(Node &node)
     texTab->finishedTraversing();
 }
 
-void MaterialPlugin::addNode(Node *node, RenderObject *obj)
+void MaterialPlugin::addNode(Node *node, const RenderObject *obj)
 {
     (void)node;
     (void)obj;

@@ -92,6 +92,12 @@ compiled pcbuild.sln Debug and Release
 amd64/*.lib to libs amd64/*.dll *.exe *.pdb to bin
 Lib to Lib and include to include
 copy PC/pyconfig.h to include
+uncomment the following in pyconfig.h
+//#				pragma comment(lib,"python35_d.lib")
+#			elif defined(Py_LIMITED_API)
+#				pragma comment(lib,"python3.lib")
+#			else
+//#				pragma comment(lib,"python35.lib")
 #OpenSSL
 use openssl from python externals
 PATH=D:\src\gitbase\Python-3.5.2\externals\nasm-2.11.06;%PATH%
@@ -170,9 +176,12 @@ gdal and ogr: use gdalD_i.lib for the debug version
 #boost
 bootstrap.bat
 
-the following goes to user-config.jam, than add --user-config=user-config.jam
+the following goes to user-config.jam, than add --user-config=user-config.jam or add it to project-config.jam
 # Configure specific Python version.
-using python : 3.5 : c:/src/externlibs/zebu/python : c:/src/externlibs/zebu/python/include : c:/src/externlibs/zebu/python/libs ;
+
+using python : 3.5 : /src/externlibs/zebu/python : /src/externlibs/zebu/python/include : /src/externlibs/zebu/python/libs : <python-debugging>on : _d ;
+#using python : 3.5 : /src/externlibs/zebu/python : /src/externlibs/zebu/python/include : /src/externlibs/zebu/python/libs : <define>BOOST_DEBUG_PYTHON=1 : _d ;
+# first make with <define> then with <python-debugging>on , or try to do <python-debugging>on <define>BOOST_DEBUG_PYTHON=1
 
 #using zlib : 1.2.8  : <include>c:/src/externlibs/zebu/zlib/include <search>c:/src/externlibs/zebu/zlib/lib ;
 
@@ -181,7 +190,7 @@ using python : 3.5 : c:/src/externlibs/zebu/python : c:/src/externlibs/zebu/pyth
 ####b2 address-model=64 --build-type=complete --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared
 #specifying zlib binaries does not work, specifying a source dir does:
 set ZLIB_SOURCE=d:\src\gitbase\zlib-1.2.8
-b2 address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-mpi -j8 
+b2 address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-mpi -j8  --debug-configuration -d+2 --user-config=user-config.jam
 
 
 #OpenCV3
@@ -194,7 +203,6 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 
 #hdf5
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/hdf5
-
 
 #alvar
 alvar needs openCV 2.4 (currently 2412)
@@ -209,8 +217,23 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 
 #assimp
 https://github.com/assimp/assimp.git
-cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/assimp -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/assimp -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
 
+#citygml
+https://github.com/jklimke/libcitygml.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DXERCESC_STATIC=false -DLIBCITYGML_STATIC_CRT=false -DLIBCITYGML_OSGPLUGIN=true -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/citygml -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/OpenSceneGraph
+
+#osgEphemeris
+https://github.com/hlrs-vis/osgephemeris.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgEphemeris -DCMAKE_DEBUG_POSTFIX=d
+-DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/OpenSceneGraph
+
+#OpenVR
+https://github.com/ValveSoftware/openvr.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenVR -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+change the cmake files to SHARED instead of STATIC
+add WIN64; to the defines in the project file
+copy the header files from the source dir to externlibs
 
 #v8
 set PYTHONHOME=
