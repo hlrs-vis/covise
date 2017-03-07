@@ -61,7 +61,7 @@ public:
     void print()
     {
 #ifdef DEBUG
-        std::cerr << "Hostname: " << address << std::endl;
+        std::cerr << "Hostname: " << m_address << std::endl;
 #endif
     }
 };
