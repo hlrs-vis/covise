@@ -20,6 +20,7 @@
 #include <WS2tcpip.h>
 #define inet_pton InetPton
 #else
+#include <errno.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/utsname.h>
