@@ -16,7 +16,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscParameterDeclaration.h"
-#include "oscDescription.h"
+#include "oscPersonDescription.h"
 
 namespace OpenScenario
 {
@@ -27,12 +27,12 @@ oscPedestrianController()
 {
         OSC_ADD_MEMBER(name, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
-        OSC_OBJECT_ADD_MEMBER(Description, "oscDescription", 0);
+        OSC_OBJECT_ADD_MEMBER(Description, "oscPersonDescription", 0);
     };
         const char *getScope(){return "";};
     oscString name;
     oscParameterDeclarationMember ParameterDeclaration;
-    oscDescriptionMember Description;
+    oscPersonDescriptionMember Description;
 
 };
 

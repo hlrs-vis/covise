@@ -65,6 +65,15 @@ public:
         return valueT;
     };
 
+	virtual oscObjectBase *getOrCreateObjectBase()
+	{
+		return getOrCreateObject();
+	};
+	virtual oscObjectBase *createObjectBase()
+	{
+		return createObject();
+	};
+
     void setValue(T t)
     {
         valueT = t;

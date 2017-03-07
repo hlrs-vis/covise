@@ -998,12 +998,12 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 	else if (name.contains("choice"))
 	{
 		QComboBox *comboBox = choiceComboBox_.value(name.remove("choice").toInt());
-		object = object_->getMember(comboBox->currentText().toStdString())->getOrCreateObject();
+		object = object_->getMember(comboBox->currentText().toStdString())->getOrCreateObjectBase();
 
 	}
 	else
 	{
-		object = object_->getMember(name.toStdString())->getOrCreateObject();
+		object = object_->getMember(name.toStdString())->getOrCreateObjectBase();
 	}
 
 	OSCElement *memberElement = base_->getOrCreateOSCElement(object);

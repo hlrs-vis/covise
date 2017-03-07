@@ -265,8 +265,8 @@
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
-                    <VideoDevice value="1" width="1920" height="1080" />
-                    <!--VideoDevice value="2" width="1280" height="1024" /-->
+                    <!--VideoDevice value="1" width="1920" height="1080" /-->
+                    <VideoDevice value="2" width="1280" height="1024" />
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
                     

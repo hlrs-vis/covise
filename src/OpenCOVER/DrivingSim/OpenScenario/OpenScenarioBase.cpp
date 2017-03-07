@@ -94,15 +94,15 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
     OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
 //	fileTypeToXsd.emplace("", bf::path("OpenScenario_XML-Schema_.xsd"));
     fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_Draft_F.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_DriverCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_EnvironmentCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_ManeuverCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_MiscObjectCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_PedestrianCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_PedestrianControllerCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_RouteCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_TrajectoryCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_VehicleCatalog.xsd"));
+	fileTypeToXsd.emplace("CatalogObject", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
 
 /*	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeA", bf::path("OpenScenario_XML-Schema_absoluteTypeA.xsd"));

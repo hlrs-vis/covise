@@ -172,7 +172,7 @@ OSCBaseItem::getCatalog(OpenScenario::oscObject *object)
 	OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
 	if (catalogMember)
 	{
-		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObject());
+		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObjectBase());
 	}
 
 	return catalog;

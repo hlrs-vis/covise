@@ -75,7 +75,6 @@ schema/oscLimited.h
 schema/oscLateral.h
 schema/oscLaneChange.h
 schema/oscLaneChangeDynamics.h
-schema/oscExtent.h
 schema/oscLaneChangeTarget.h
 schema/oscRelative.h
 schema/oscLaneOffset.h
@@ -141,8 +140,8 @@ schema/oscPrecipitation.h
 schema/oscRoadCondition.h
 schema/oscEffect.h
 schema/oscPedestrianController.h
-schema/oscDescription.h
 schema/oscDriver.h
+schema/oscPersonDescription.h
 schema/oscRoute.h
 schema/oscWaypoint.h
 schema/oscTrajectory.h
@@ -155,13 +154,13 @@ schema/oscControlPoint2.h
 schema/oscPosition.h
 schema/oscWorld.h
 schema/oscRelativeWorld.h
-schema/oscOrientation.h
 schema/oscRelativeObject.h
 schema/oscRoad.h
 schema/oscRelativeRoad.h
 schema/oscLane.h
 schema/oscRelativeLane.h
 schema/oscPositionRoute.h
+schema/oscRouteRef.h
 schema/oscRoutePosition.h
 schema/oscCurrent.h
 schema/oscRoadCoord.h
@@ -171,6 +170,7 @@ schema/oscCenter.h
 schema/oscDimension.h
 schema/oscProperties.h
 schema/oscProperty.h
+schema/oscOrientation.h
 schema/oscOpenSCENARIO.h
 schema/oscRoadNetwork.h
 schema/oscSignals.h
@@ -220,7 +220,7 @@ schema/oscScript.cpp
 schema/oscEvent.cpp
 schema/oscWeather.cpp
 schema/oscPrecipitation.cpp
-schema/oscDescription.cpp
+schema/oscPersonDescription.cpp
 schema/oscWaypoint.cpp
 schema/oscTrajectory.cpp
 schema/oscOrientation.cpp

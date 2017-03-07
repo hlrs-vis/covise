@@ -20,6 +20,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 namespace OpenScenario
 {
+	class oscWaypoint;
 class OPENSCENARIOEXPORT oscRoute : public oscObjectBase
 {
 public:
@@ -34,7 +35,7 @@ oscRoute()
     oscString name;
     oscBool closed;
     oscParameterDeclarationMember ParameterDeclaration;
-    oscWaypointArrayMember Waypoint;
+	oscObjectVariableArray<oscWaypoint *> Waypoint;
 
 };
 

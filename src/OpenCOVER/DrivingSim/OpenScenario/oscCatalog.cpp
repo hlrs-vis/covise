@@ -34,15 +34,15 @@ oscCatalog::CatalogTypeTypeNameMap initFuncCatToType()
 {
     //set the typeName for possible catalogTypes
     oscCatalog::CatalogTypeTypeNameMap catToType;
-	catToType.emplace("Vehicle", "OpenSCENARIO_VehicleCatalog");
-    catToType.emplace("Driver", "OpenSCENARIO_DriverCatalog");
-	catToType.emplace("Pedestrian", "OpenSCENARIO_PedestrianCatalog");
-    catToType.emplace("PedestrianController", "OpenSCENARIO_PedestrianControllerCatalog");
-	catToType.emplace("MiscObject", "OpenSCENARIO_MiscObjectCatalog");
-    catToType.emplace("Environment", "OpenSCENARIO_EnvironmentCatalog");
-    catToType.emplace("Maneuver", "OpenSCENARIO_ManeuverCatalog");   
-    catToType.emplace("Trajectory", "OpenSCENARIO_TrajectoryCatalog"); 
-    catToType.emplace("Route", "OpenSCENARIO_RouteCatalog");
+	catToType.emplace("Vehicle", "CatalogObject");
+    catToType.emplace("Driver", "CatalogObject");
+	catToType.emplace("Pedestrian", "CatalogObject");
+    catToType.emplace("PedestrianController", "CatalogObject");
+	catToType.emplace("MiscObject", "CatalogObject");
+    catToType.emplace("Environment", "CatalogObject");
+    catToType.emplace("Maneuver", "CatalogObject");   
+    catToType.emplace("Trajectory", "CatalogObject"); 
+    catToType.emplace("Route", "CatalogObject");
     
 
     return catToType;

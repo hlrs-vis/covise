@@ -221,7 +221,7 @@ oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 	oscMember *member = getMember(name);
 	if (member)
 	{
-		return member->getOrCreateObject();
+		return member->getOrCreateObjectBase();
 	}
 
 	return NULL;
@@ -276,7 +276,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 					}
 					else
 					{
-						oscObjectBase *obj = member->getObject();
+						oscObjectBase *obj = member->getObjectBase();
 						if (obj)
 						{
 							//xml document for member
