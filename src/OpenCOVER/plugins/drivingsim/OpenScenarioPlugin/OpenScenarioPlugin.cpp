@@ -108,8 +108,15 @@ void OpenScenarioPlugin::preFrame(){
 			cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
 			usedEntity.clear();}
 
-			oscObjectBase *tr = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", "MyLaneChangeTrajectory");	
-}
+			oscObjectBase *tr = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", "MyLaneChangeTrajectory");
+			oscTrajectory* trajectory = ((oscTrajectory*)(tr));
+			cout << trajectory->name.getValue() << endl;
+			//for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++){	}
+			//oscVertex* vert = ((oscVertex*)(*it));
+			//cout << vert->Position->World->x.getValue() << endl;
+			//}
+
+}			
 
 COVERPLUGIN(OpenScenarioPlugin)
 

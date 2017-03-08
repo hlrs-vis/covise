@@ -115,48 +115,47 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 
         if (rootElem)
         {
-            std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
+			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
 			/*           if (rootElemName == m_catalogName)
 			{ */
 			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
 
-			xercesc::DOMNode *node = list->item(0);
-			if (node)
+			for(int it = 0;it<list->getLength();it++)
 			{
-				xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
-				xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
-
-
-				//              xercesc::DOMAttr *attribute = node->getAttributeNode(xercesc::XMLString::transcode("name"));
-				if (attribute)
+				xercesc::DOMNode *node = list->item(it);
+				if (node)
 				{
-					/*                  SuccessIntVar successIntVar = getIntFromIntAttribute(attribute);
-					if (successIntVar.first)
-					{
-					int objectRefId = successIntVar.second; */
-					std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
-					ObjectsMap::const_iterator found = m_Objects.find(attributeName);
+					xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
+					xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
 
-					if (found != m_Objects.end())
+
+					if (attribute)
 					{
-						std::cerr << "Warning! Object for catalog " << m_catalogName << " with name " << attributeName << " from " << filenames[i] << " is ignored." << std::endl;
-						std::cerr << "First appearance from file " << found->second.fileName << " is used." << std::endl;
+						
+						std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
+						ObjectsMap::const_iterator found = m_Objects.find(attributeName);
+
+						if (found != m_Objects.end())
+						{
+							std::cerr << "Warning! Object for catalog " << m_catalogName << " with name " << attributeName << " from " << filenames[i] << " is ignored." << std::endl;
+							std::cerr << "First appearance from file " << found->second.fileName << " is used." << std::endl;
+						}
+						else
+						{
+							ObjectParams param = { filenames[i], NULL};
+							m_Objects.emplace(attributeName, param);
+						}
+						/*                  }
+						else
+						{
+						std::cerr << "Warning! Object for catalog " << m_catalogName << " in " << filenames[i] << " has an invalid name and can't be used." << std::endl;
+						} */
 					}
 					else
 					{
-						ObjectParams param = { filenames[i], NULL};
-						m_Objects.emplace(attributeName, param);
+						std::cerr << "Warning! Can't find an object for catalog " << m_catalogName << " in file " << filenames[i] << " with attribute 'attributeName'." << std::endl;
 					}
-					/*                  }
-					else
-					{
-					std::cerr << "Warning! Object for catalog " << m_catalogName << " in " << filenames[i] << " has an invalid name and can't be used." << std::endl;
-					} */
-				}
-				else
-				{
-					std::cerr << "Warning! Can't find an object for catalog " << m_catalogName << " in file " << filenames[i] << " with attribute 'attributeName'." << std::endl;
 				}
 			}
         }
@@ -246,82 +245,96 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 
         OpenScenarioBase *oscBase = new OpenScenarioBase;
 
-        //in fullReadCatalogObjectWithName no validation should be done,
-        //because during fastReadCatalogObjects validation is done
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogName, getType(m_catalogName), false);
-        if (rootElem)
-        {
-            std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
+		//in fullReadCatalogObjectWithName no validation should be done,
+		//because during fastReadCatalogObjects validation is done
+		xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogName, getType(m_catalogName), false);
+		if (rootElem)
+		{
+			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
 
- /*           if (rootElemName == m_catalogName)
-            { */
-                CatalogTypeTypeNameMap::const_iterator found = s_catalogNameToTypeName.find(m_catalogName);
-                if (found != s_catalogNameToTypeName.end())
-                {
-                    //sourceFile for objectName
-                    oscSourceFile *srcFile = new oscSourceFile();
+			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
 
-                    //set variables for srcFile, differentiate between absolute and relative path for catalog object
-                    srcFile->setSrcFileHref(filePath);
-                    srcFile->setSrcFileName(filePath.filename());
-                    srcFile->setPathFromCurrentDirToMainDir(getSource()->getPathFromCurrentDirToMainDir());
-                    bf::path absPathToMainDir;
-                    bf::path relPathFromMainDir;
-                    if (filePath.is_absolute())
-                    {
-                        //absPathToMainDir is path to the directory with the imported catalog file
-                        absPathToMainDir = filePath.parent_path();
-                        relPathFromMainDir = bf::path(); // relative path is empty
-                    }
-                    else
-                    {
-                        //absPathToMainDir is path to directory with the file with OpenSCENARIO root element
-                        absPathToMainDir = getSource()->getAbsPathToMainDir();
-						// check if this works!!
-                        //relative path is path from directory from absPathToMainDir to the directory with the imported file
-                        std::string pathFromExeToMainDir = getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
-                        std::string tmpRelPathFromMainDir = filePath.parent_path().generic_string();
-                        if (pathFromExeToMainDir.empty())
-                        {
-                            relPathFromMainDir = tmpRelPathFromMainDir;
-                        }
-                        else
-                        {
-                            relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
-                        }
-                    }
-                    srcFile->setAbsPathToMainDir(absPathToMainDir);
-                    srcFile->setRelPathFromMainDir(relPathFromMainDir);
-                    srcFile->setRootElementName(rootElemName);
+			for(int it = 0;it<list->getLength();it++)
+			{
+				xercesc::DOMNode *node = list->item(it);
+				if (node)
+				{
+					xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
+					xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
 
-                    //object for objectName
-					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(m_catalogType);
-                    if(obj)
-                    {
-                        obj->initialize(getBase(), this, NULL, srcFile);
-                        obj->parseFromXML(rootElem, srcFile);
-                        //add objectName and object to oscCatalog map
 
-						ObjectParams *param = &(objectFound)->second;
-						param->object = obj;
+					if (attribute)
+					{
 
-                        //add sourcFile to vector
-                        getBase()->addToSrcFileVec(srcFile);
+						std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
+						if(attributeName == name)
+						{
 
-                        success = true;
-                    }
-                    else
-                    {
-                        std::cerr << "Error! Could not create an object member of type " << m_catalogType << std::endl;
-                        delete srcFile;
-                    }
-                }
-                else
-                {
-                    std::cerr << "Warning! Can't determine an typeName for catalog " << m_catalogName << std::endl;
-                }
- //           }
-        }
+							//               CatalogTypeTypeNameMap::const_iterator found = s_catalogNameToTypeName.find(m_catalogName);
+							//              if (found != s_catalogNameToTypeName.end())
+							//             {
+							oscSourceFile *srcFile = new oscSourceFile();
+
+							//set variables for srcFile, differentiate between absolute and relative path for catalog object
+							srcFile->setSrcFileHref(filePath);
+							srcFile->setSrcFileName(filePath.filename());
+							srcFile->setPathFromCurrentDirToMainDir(getSource()->getPathFromCurrentDirToMainDir());
+							bf::path absPathToMainDir;
+							bf::path relPathFromMainDir;
+							if (filePath.is_absolute())
+							{
+								//absPathToMainDir is path to the directory with the imported catalog file
+								absPathToMainDir = filePath.parent_path();
+								relPathFromMainDir = bf::path(); // relative path is empty
+							}
+							else
+							{
+								//absPathToMainDir is path to directory with the file with OpenSCENARIO root element
+								absPathToMainDir = getSource()->getAbsPathToMainDir();
+								// check if this works!!
+								//relative path is path from directory from absPathToMainDir to the directory with the imported file
+								std::string pathFromExeToMainDir = getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
+								std::string tmpRelPathFromMainDir = filePath.parent_path().generic_string();
+								if (pathFromExeToMainDir.empty())
+								{
+									relPathFromMainDir = tmpRelPathFromMainDir;
+								}
+								else
+								{
+									relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
+								}
+							}
+							srcFile->setAbsPathToMainDir(absPathToMainDir);
+							srcFile->setRelPathFromMainDir(relPathFromMainDir);
+							srcFile->setRootElementName(rootElemName);
+
+							//object for objectName
+							oscObjectBase *obj = oscFactories::instance()->objectFactory->create("osc"+m_catalogName);
+							if(obj)
+							{
+								obj->initialize(getBase(), this, NULL, srcFile);
+								obj->parseFromXML(dynamic_cast<xercesc::DOMElement *>(node), srcFile);
+								//add objectName and object to oscCatalog map
+
+								ObjectParams *param = &(objectFound)->second;
+								param->object = obj;
+
+								//add sourcFile to vector
+								getBase()->addToSrcFileVec(srcFile);
+
+								success = true;
+							}
+							else
+							{
+								std::cerr << "Error! Could not create an object member of type " << m_catalogType << std::endl;
+								delete srcFile;
+							}
+						}						
+					}
+				}
+			}
+		}
+	
 
         delete oscBase;
 

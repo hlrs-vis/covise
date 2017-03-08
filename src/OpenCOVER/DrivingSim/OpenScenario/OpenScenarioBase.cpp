@@ -347,41 +347,41 @@ bool OpenScenarioBase::getFullReadCatalogs() const
 
 oscObjectBase *OpenScenarioBase::getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName)
 {
-	auto currentCatalog = Catalogs->TrajectoryCatalog;
+    oscCatalog::ObjectParams p;
 	if (catalogName=="DriverCatalog")
 		{
-		auto currentCatalog = Catalogs->DriverCatalog;
+		Catalogs->DriverCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->DriverCatalog->getObjectsMap()[objectName];
 		}
 	if (catalogName=="EnvironmentCatalog")
 		{
-		auto currentCatalog = Catalogs->EnvironmentCatalog;
+		Catalogs->EnvironmentCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->EnvironmentCatalog->getObjectsMap()[objectName];
 		}
 	if (catalogName=="ManeuverCatalog")
 		{
-		auto currentCatalog = Catalogs->ManeuverCatalog;
+		Catalogs->ManeuverCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->ManeuverCatalog->getObjectsMap()[objectName];
 		}
 	if (catalogName=="MiscObjectCatalog")
 		{
-		auto currentCatalog = Catalogs->MiscObjectCatalog;
+		Catalogs->MiscObjectCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->MiscObjectCatalog->getObjectsMap()[objectName];
 		}
 	if (catalogName=="PedestrianCatalog")
 		{
-		auto currentCatalog = Catalogs->PedestrianCatalog;
+		Catalogs->PedestrianCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->PedestrianCatalog->getObjectsMap()[objectName];
 		}
 	if (catalogName=="TrajectoryCatalog")
 		{
-		auto currentCatalog = Catalogs->TrajectoryCatalog;
+		Catalogs->TrajectoryCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->TrajectoryCatalog->getObjectsMap()[objectName];
 		}
 	if (catalogName=="VehicleCatalog")
-		{
-		auto currentCatalog = Catalogs->VehicleCatalog;
-		}
-	
-	oscCatalog::ObjectParams p = currentCatalog->getObjectsMap()[objectName];
-	if(p.object == NULL)
 	{
-		currentCatalog->fullReadCatalogObjectWithName(objectName);
-		p = currentCatalog->getObjectsMap()[objectName];
+		Catalogs->VehicleCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->VehicleCatalog->getObjectsMap()[objectName];
 	}
 	if(p.object != NULL)
 	{
