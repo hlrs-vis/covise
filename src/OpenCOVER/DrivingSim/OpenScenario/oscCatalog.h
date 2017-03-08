@@ -57,7 +57,6 @@ public:
 	typedef unordered_map<std::string, ObjectParams> ObjectsMap; ///< represent the unordered_map of objects
 	
 protected:
-    static const CatalogTypeTypeNameMap s_catalogNameToTypeName; ///< typeName of the objects for catalogType
     std::string m_catalogName; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
 	std::string m_catalogType;
 	ObjectsMap m_Objects;
@@ -89,8 +88,6 @@ public:
     bool removeCatalogObject(const std::string &name); ///< remove object with refId objectRefId from ObjectsMap
     oscObjectBase *getCatalogObject(const std::string &name); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 
-	//s_catalogTypeToTypeName
-	std::string getType(const std::string &name);
 
 	//generate refId for new object
 	std::string generateRefId(int startId);

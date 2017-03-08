@@ -26,29 +26,7 @@ using namespace OpenScenario;
 
 
 
-/*****
- * initialization static variables
- *****/
 
-oscCatalog::CatalogTypeTypeNameMap initFuncCatToType()
-{
-    //set the typeName for possible catalogTypes
-    oscCatalog::CatalogTypeTypeNameMap catToType;
-	catToType.emplace("Vehicle", "CatalogObject");
-    catToType.emplace("Driver", "CatalogObject");
-	catToType.emplace("Pedestrian", "CatalogObject");
-    catToType.emplace("PedestrianController", "CatalogObject");
-	catToType.emplace("MiscObject", "CatalogObject");
-    catToType.emplace("Environment", "CatalogObject");
-    catToType.emplace("Maneuver", "CatalogObject");   
-    catToType.emplace("Trajectory", "CatalogObject"); 
-    catToType.emplace("Route", "CatalogObject");
-    
-
-    return catToType;
-}
-
-const oscCatalog::CatalogTypeTypeNameMap oscCatalog::s_catalogNameToTypeName = initFuncCatToType();
 
 
 
@@ -111,7 +89,7 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 
     for (size_t i = 0; i < filenames.size(); i++)
     {
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogName, getType(m_catalogName), validate);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].generic_string(), m_catalogName, m_catalogType, validate);
 
         if (rootElem)
         {
@@ -169,8 +147,7 @@ void oscCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filenames)
 void oscCatalog::setCatalogNameAndType(const std::string &catalogName)
 {
     m_catalogName = catalogName;
-	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogNameToTypeName.find(catalogName);
-	m_catalogType = "osc" + (*it).second;
+	m_catalogType = "osc" + catalogName;
 }
 
 std::string oscCatalog::getCatalogName() const
@@ -222,12 +199,6 @@ bool oscCatalog::removeObjFromObjectsMap(const std::string &name)
 	return (m_Objects.erase(name)>0); 
 }
 
-std::string oscCatalog::getType(const std::string &typeName)
-{
-	std::unordered_map<std::string, std::string>::const_iterator it = s_catalogNameToTypeName.find(typeName);
-	return it->second;
-}
-
 //
 bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 {
@@ -247,7 +218,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 
 		//in fullReadCatalogObjectWithName no validation should be done,
 		//because during fastReadCatalogObjects validation is done
-		xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogName, getType(m_catalogName), false);
+		xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogName, m_catalogType, false);
 		if (rootElem)
 		{
 			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
@@ -566,7 +537,7 @@ std::string oscCatalog::getObjectNameFromFile(const bf::path &fileNamePath)
 	std::string  attributeName;
     OpenScenarioBase *oscBase = new OpenScenarioBase;
     bool validate = getBase()->getValidation();
-    xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogName, getType(m_catalogName), validate);
+    xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogName, m_catalogType, validate);
 
     if (rootElem)
     {
