@@ -49,8 +49,12 @@ void Colors::initCOLORS()
     p_minmax = addFloatVectorParam("MinMax", "Minimum and Maximum value");
     p_minmax->setValue(2, defaultMinmaxValues);
 
+#ifdef NO_COLORMAP_PARAM
+    p_colorNames = addChoiceParam("Colormap", "Select a Colormap");
+#else
     p_colorMap = addColormapParam("EditableColormap", "Colormap Editor");
     p_colorNames = addColormapChoiceParam("Colormap", "Select a Colormap");
+#endif
     readMaps();
 
     int confNumSteps = coCoviseConfig::getInt("Module.Colors.NumSteps", 256);
@@ -150,7 +154,11 @@ void Colors::readMaps()
     const char **keys = keysEntries.getValue();
 
     vector<string> mapNames;
+#ifdef NO_COLORMAP_PARAM
+    mapNames.push_back("COVISE");
+#else
     mapNames.push_back("Editable");
+#endif
     if (keys)
     {
         int i = 0;
@@ -167,7 +175,11 @@ void Colors::readMaps()
     colormapAttributes.resize(numColormaps);
 
     // set first the module defined colormap
+#ifdef NO_COLORMAP_PARAM
+    colormaps[0].mapName = "COVISE";
+#else
     colormaps[0].mapName = "Editable";
+#endif
     colormap_type type;
     float min = 0.;
     float max = 1.;
@@ -175,8 +187,17 @@ void Colors::readMaps()
     colormapAttributes[0].max = min;
     colormapAttributes[0].isAbsolute = false;
 
+#ifdef NO_COLORMAP_PARAM
+    int numSteps = 3;
+    const float rgbax[] = {
+        0.f, 0.f, 1.f, 1.f, 0.f,
+        1.f, 0.f, 0.f, 1.f, .5f,
+        1.f, 1.f, 0.f, 1.f, 1.f
+    };
+#else
     const float *rgbax;
     int numSteps = p_colorMap->getValue(&min, &max, &type, &rgbax);
+#endif
     for (int i = 0; i < numSteps; i++)
     {
         for (int c = 0; c < 5; c++)
@@ -268,7 +289,11 @@ void Colors::readMaps()
     }
 
     // set defined colormaps
+#ifdef NO_COLORMAP_PARAM
+    p_colorNames->setValue(numColormaps, mapNames, 0);
+#else
     p_colorNames->setValue(numColormaps, 0, colormaps);
+#endif
 
     /*
    // read values of local colormap files in .covise
@@ -387,6 +412,7 @@ void Colors::param(const char *portName, bool inMapLoading)
         }
     }
 
+#ifndef NO_COLORMAP_PARAM
     // get new module defined colormap
     else if (strcmp(portName, p_colorMap->getName()) == 0)
     {
@@ -406,6 +432,7 @@ void Colors::param(const char *portName, bool inMapLoading)
         if (!inMapLoading)
             p_colorNames->setValue(numColormaps, 0, colormaps);
     }
+#endif
 
     else if (strcmp(portName, p_colorNames->getName()) == 0)
     {
@@ -838,7 +865,11 @@ int Colors::compute(const char *)
     const char *annotation = NULL; // What's written at the Map
 
     int index = p_colorNames->getValue();
+#ifdef NO_COLORMAP_PARAM
+    TColormapChoice color = colormaps[index];
+#else
     TColormapChoice color = p_colorNames->getValue(index);
+#endif
     float alphaMult = p_alpha->getValue();
     numColors = color.mapValues.size() / 5;
     d_cmap.clear();
@@ -876,7 +907,9 @@ int Colors::compute(const char *)
             float *mmdata;
             histoData->getAddress(&mmdata);
             int np = histoData->getNumPoints();
+#ifndef NO_COLORMAP_PARAM
             p_colorMap->setData(np, mmdata);
+#endif
         }
     }
 
@@ -1236,7 +1269,9 @@ void Colors::updateMinMax(float min, float max)
 {
     float values[2] = { min, max };
     p_minmax->setValue(2, values);
+#ifndef NO_COLORMAP_PARAM
     p_colorMap->setMinMax(min, max);
+#endif
 }
 
 // #######################################################################
