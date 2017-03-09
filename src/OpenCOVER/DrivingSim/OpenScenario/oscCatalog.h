@@ -34,7 +34,15 @@ namespace bf = boost::filesystem;
 
 namespace OpenScenario {
 
-/// \class This class represents a generic OpenScenario Object
+	class OPENSCENARIOEXPORT oscCatalogFile
+	{
+	public:
+		const bf::path &getPath();
+		void setPath(const bf::path &fn);
+	private:
+		bf::path fileName;
+	};
+/// \class This class represents a catalog object
 class OPENSCENARIOEXPORT oscCatalog: public oscObjectBase
 {
 	
@@ -60,11 +68,14 @@ protected:
     std::string m_catalogName; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
 	std::string m_catalogType;
 	ObjectsMap m_Objects;
+	std::vector<oscCatalogFile *>xoscFiles;
 	
 public:
     //
-    std::vector<bf::path> getXoscFilesFromDirectory(const bf::path &pathToDirectory); ///< find xosc file recursively in given directory
-    void fastReadCatalogObjects(const std::vector<bf::path> &filenames); ///< parse files and add objectRefId and filePath to ObjectsMap
+
+	void clearAllCatalogs();
+	void fastReadCatalogObjects(); ///< parse files and add objectRefId and filePath to ObjectsMap
+    void getXoscFilesFromDirectory(); ///< find xosc file recursively in given directory
 
     //catalogType
     void setCatalogNameAndType(const std::string &catalogName);
@@ -103,7 +114,6 @@ public:
 private:
     typedef std::pair<bool, int> SuccessIntVar;
 
-    std::string getObjectNameFromFile(const bf::path &fileNamePath); ///< return refId of the catalog object in file fileNamePath
     SuccessIntVar getIntFromIntAttribute(xercesc::DOMAttr *attribute); ///< read an attribute of type oscMemberValue::INT and return int
 };
 

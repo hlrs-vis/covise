@@ -379,7 +379,7 @@ int covReadDescription(int fd, char *name)
 #endif
     if (space == ' ')
     {
-        char buf[1024];
+        unsigned char buf[1024];
         ssize_t nread = read(abs(fd), buf, sizeof(buf));
         if (nread > 0)
         {

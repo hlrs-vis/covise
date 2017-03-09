@@ -148,7 +148,7 @@ void ApplicationProcess::contact_datamanager(int p)
     list_of_connections->add(datamanager);
     msg = new Message(COVISE_MESSAGE_GET_SHM_KEY, len, (char *)0L);
     exch_data_msg(msg, 1, COVISE_MESSAGE_GET_SHM_KEY);
-    if (msg->type != COVISE_MESSAGE_GET_SHM_KEY)
+    if (msg->type != COVISE_MESSAGE_GET_SHM_KEY || msg->data==NULL)
     {
         cerr << "didn't get GET_SHM_KEY\n";
         print_exit(__LINE__, __FILE__, 1);

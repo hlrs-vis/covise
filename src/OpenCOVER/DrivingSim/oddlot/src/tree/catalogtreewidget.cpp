@@ -131,12 +131,10 @@ CatalogTreeWidget::init()
 	catalogName_ = catalog_->getCatalogName();
 	catalogType_ = "osc" + catalogName_;
 
-	//get all catalog object filenames
-	std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(directoryPath_.toStdString());
 
 	//parse all files
 	//store object name and filename in map
-	catalog_->fastReadCatalogObjects(filenames);
+	catalog_->fastReadCatalogObjects();
 
 	createTree();
 }

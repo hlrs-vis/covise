@@ -170,12 +170,10 @@ OpenScenarioEditor::init()
             OpenScenario::oscCatalog *trajectoryCatalog = catalogs->TrajectoryCatalog.getOrCreateObject();
             if (trajectoryCatalog->getObjectsMap().size() == 0)
             {
-                //get all catalog object filenames
-                std::vector<bf::path> filenames = trajectoryCatalog->getXoscFilesFromDirectory(trajectoryCatalog->Directory->path.getValue());
 
                 //parse all files
                 //store object name and filename in map
-                trajectoryCatalog->fastReadCatalogObjects(filenames);
+                trajectoryCatalog->fastReadCatalogObjects();
             }
 
             foreach (OpenScenario::oscObjectBase *objectBase, trajectoryObjects)
