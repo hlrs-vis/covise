@@ -17,7 +17,7 @@
 #include <do/coDoPoints.h>
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
-#include <do/coDoPolygons.h>
+#include <do/coDoUniformGrid.h>
 
 using namespace covise;
 
@@ -46,7 +46,7 @@ enum
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ReadPandora::ReadPandora(int argc, char *argv[])
-	: coReader(argc, argv, string("simple reader for HDF5 data"))
+	: coReader(argc, argv, string("simple reader for Pandora HDF5 data"))
 {
 	
 
@@ -99,41 +99,13 @@ int ReadPandora::compute(const char *port)
     status = H5LTget_attribute_int(file_id, "/global","numTasks", &numTasks);
     if (width==0 || height ==0)
         return STOP_PIPELINE;
-    coDoPolygons **meshes = new coDoPolygons*[numSteps+1];
+    std::vector<const coDistributedObject *> meshes(numSteps+1);
     coDoFloat **dataObjects = new coDoFloat*[numSteps+1];
 	string objNameBase2d = READER_CONTROL->getAssocObjName(GEOPORT2D);
     int numPoints = width*height;
     int numQuats = (width-1)*(height-1);
     int numVertices = numQuats*4;
-    meshes[0] = new coDoPolygons(objNameBase2d,numPoints,numVertices,numQuats);
-    float *xc,*yc,*zc;
-    int *vl, *ll;
-    meshes[0]->getAddresses(&xc,&yc,&zc,&vl,&ll);
-    for(int w=0;w<width;w++)
-    {
-        for(int h=0;h<height;h++)
-        {
-            int index = h*width+w;
-            xc[index] = (float)w;
-            yc[index] = (float)h;
-            zc[index] = (float)0.0;
-        }
-    }
-    int vert=0;
-    int polygon = 0;
-    for(int w=1;w<width;w++)
-    {
-        for(int h=1;h<height;h++)
-        {
-            vl[vert] =h*width+w;
-            vl[vert+1] =h*width+w-1;
-            vl[vert+2] =(h-1)*width+w-1;
-            vl[vert+3] =(h-1)*width+w;
-            ll[polygon]=vert;
-            polygon++;
-            vert+=4;
-        }
-    }
+    meshes[0] = new coDoUniformGrid(objNameBase2d, width, height, 1, 0., width-1, 0, height-1, 0., 0.);
 	for (int i = 0; i < numSteps; i++)
 	{
 		if (i > 0)
@@ -144,8 +116,7 @@ int ReadPandora::compute(const char *port)
 		meshes[i + 1] = NULL;
 	}
 
-	coDoSet *meshSet = new coDoSet(objNameBase2d.c_str(), (coDistributedObject **)meshes);
-	delete[] meshes;
+	coDoSet *meshSet = new coDoSet(objNameBase2d.c_str(), &meshes[0]);
 	meshSet->addAttribute("TIMESTEP", "0 0");
 	READER_CONTROL->setAssocPortObj(GEOPORT2D, meshSet);
 
@@ -174,8 +145,8 @@ int ReadPandora::compute(const char *port)
 				}
 				else
 				{
-					int *data = new int[width*height];
-					H5LTread_dataset_int(file_id, datasetName, data);
+                    std::vector<int> data(width*height);
+					H5LTread_dataset_int(file_id, datasetName, &data[0]);
 					float *fd = fdata->getAddress();
 					for (int n = 0; n < width * height; n++)
 					{
@@ -289,7 +260,7 @@ ReadPandora::param(const char *paramName, bool inMapLoading)
 int main(int argc, char *argv[])
 {
 	// define outline of reader
-	READER_CONTROL->addFile(FILE_BROWSER, "filename", "HDF5 file name", ".", "*.h5;*.H5");
+    READER_CONTROL->addFile(FILE_BROWSER, "filename", "HDF5 file name", ".", "*.h5;*.H5/*");
 
 	READER_CONTROL->addOutputPort(GEOPORT3D, "geoOut_3D", "UnstructuredGrid", "Geometry", false);
 
@@ -299,7 +270,7 @@ int main(int argc, char *argv[])
 	READER_CONTROL->addOutputPort(DPORT4_3D, "vdata1_3D", "Vec3", "data2-3d");
 	READER_CONTROL->addOutputPort(DPORT5_3D, "vdata2_3D", "Vec3", "data2-3d");
 
-	READER_CONTROL->addOutputPort(GEOPORT2D, "geoOut_2D", "Polygons", "Geometry", false);
+    READER_CONTROL->addOutputPort(GEOPORT2D, "geoOut_2D", "UniformGrid", "Geometry", false);
 
 	READER_CONTROL->addOutputPort(DPORT1_2D, "sdata1_2D", "Float", "data1-2d");
 	READER_CONTROL->addOutputPort(DPORT2_2D, "sdata2_2D", "Float", "data2-2d");
