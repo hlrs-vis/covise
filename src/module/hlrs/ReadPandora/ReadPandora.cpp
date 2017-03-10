@@ -72,6 +72,7 @@ file_info(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
 	cout << "Name : " << name << endl;
 	return 0;
 }
+
 int ReadPandora::compute(const char *port)
 {
     (void)port;
@@ -105,7 +106,7 @@ int ReadPandora::compute(const char *port)
     int numPoints = width*height;
     int numQuats = (width-1)*(height-1);
     int numVertices = numQuats*4;
-    meshes[0] = new coDoUniformGrid(objNameBase2d, width, height, 1, 0., width-1, 0, height-1, 0., 0.);
+    meshes[0] = new coDoUniformGrid(objNameBase2d+"_0", width, height, 1, 0., width-1, 0, height-1, 0., 0.);
 	for (int i = 0; i < numSteps; i++)
 	{
 		if (i > 0)
