@@ -48,8 +48,11 @@ enum
 ReadPandora::ReadPandora(int argc, char *argv[])
 	: coReader(argc, argv, string("simple reader for Pandora HDF5 data"))
 {
-	
 
+    p_firstStep = addInt32Param("first_step", "number of first time step to read");
+    p_lastStep = addInt32Param("last_step", "number of last time step to read");
+    p_firstStep->setValue(0);
+    p_lastStep->setValue(-1);
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -100,14 +103,22 @@ int ReadPandora::compute(const char *port)
     status = H5LTget_attribute_int(file_id, "/global","numTasks", &numTasks);
     if (width==0 || height ==0)
         return STOP_PIPELINE;
-    std::vector<const coDistributedObject *> meshes(numSteps+1);
-    coDoFloat **dataObjects = new coDoFloat*[numSteps+1];
 	string objNameBase2d = READER_CONTROL->getAssocObjName(GEOPORT2D);
     int numPoints = width*height;
     int numQuats = (width-1)*(height-1);
     int numVertices = numQuats*4;
+    int first = p_firstStep->getValue();
+    if (first < 0)
+        first = 0;
+    int last = p_lastStep->getValue();
+    if (last < 0)
+        last = numSteps-1;
+    numSteps = 1+last-first;
+
+    std::vector<const coDistributedObject *> meshes(numSteps+1);
+    coDoFloat **dataObjects = new coDoFloat*[numSteps+1];
     meshes[0] = new coDoUniformGrid(objNameBase2d+"_0", width, height, 1, 0., width-1, 0, height-1, 0., 0.);
-	for (int i = 0; i < numSteps; i++)
+    for (int i = 0; i < numSteps; i++)
 	{
 		if (i > 0)
 		{
@@ -138,7 +149,7 @@ int ReadPandora::compute(const char *port)
 				objName = objNameBase + "_" + num;
 				coDoFloat *fdata = new coDoFloat(objName.c_str(), width*height);
 				char datasetName[200];
-				sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i);
+                sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i+first);
 				if (true)
 				{
 					float *fd = fdata->getAddress();
@@ -211,7 +222,15 @@ ReadPandora::param(const char *paramName, bool inMapLoading)
 						sendInfo("file_id: %d", (int)file_id);
 						return;
 					}
-					std::vector<std::string> groupNames;
+
+                    int numSteps = 0;
+                    herr_t status = H5LTget_attribute_int(file_id, "/global","numSteps", &numSteps);
+                    if (p_firstStep->getValue() >= numSteps)
+                        p_firstStep->setValue(numSteps-1);
+                    if (p_lastStep->getValue() >= numSteps)
+                        p_lastStep->setValue(numSteps-1);
+
+                    std::vector<std::string> groupNames;
 					herr_t idx = H5Literate(file_id, H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, &groupNames);
 
 
