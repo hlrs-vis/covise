@@ -109,9 +109,18 @@ public:
 
     void getDelta(float *dx, float *dy, float *dz) const
     {
-        *dx = ((float)x_max - (float)x_min) / (int)(x_disc - 1);
-        *dy = ((float)y_max - (float)y_min) / (int)(y_disc - 1);
-        *dz = ((float)z_max - (float)z_min) / (int)(z_disc - 1);
+        if (x_disc > 1)
+            *dx = ((float)x_max - (float)x_min) / (int)(x_disc - 1);
+        else
+            *dx = 0.f;
+        if (y_disc > 1)
+            *dy = ((float)y_max - (float)y_min) / (int)(y_disc - 1);
+        else
+            *dy = 0.f;
+        if (z_disc > 1)
+            *dz = ((float)z_max - (float)z_min) / (int)(z_disc - 1);
+        else
+            *dz = 0.f;
     }
 
     virtual void getGridSize(int *x, int *y, int *z) const
