@@ -2,6 +2,8 @@ SET(SCHEMA_HEADERS
 schema/oscNone.h
 schema/oscPolyline.h
 schema/oscDelete.h
+schema/oscCatalogOpenSCENARIO.h
+schema/oscCatalogObject.h
 schema/oscParameterDeclaration.h
 schema/oscParameter.h
 schema/oscFile.h
@@ -142,7 +144,6 @@ schema/oscEffect.h
 schema/oscPedestrianController.h
 schema/oscDriver.h
 schema/oscPersonDescription.h
-schema/oscRoute.h
 schema/oscWaypoint.h
 schema/oscTrajectory.h
 schema/oscVertex.h
@@ -159,9 +160,8 @@ schema/oscRoad.h
 schema/oscRelativeRoad.h
 schema/oscLane.h
 schema/oscRelativeLane.h
-schema/oscPositionRoute.h
 schema/oscRouteRef.h
-schema/oscRoutePosition.h
+schema/oscPositionRoute.h
 schema/oscCurrent.h
 schema/oscRoadCoord.h
 schema/oscLaneCoord.h
@@ -195,8 +195,7 @@ schema/oscByCondition.h
 schema/oscActConditions.h
 schema/oscEnd.h
 schema/oscCancel.h
-schema/oscCatalogOpenSCENARIO.h
-schema/oscCatalogObject.h
+schema/oscStoryboardEnd.h
 )
 SET(SCHEMA_SOURCES
 schema/oscParameter.cpp

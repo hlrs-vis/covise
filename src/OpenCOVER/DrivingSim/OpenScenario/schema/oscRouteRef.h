@@ -15,12 +15,11 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscCatalogReference.h"
 #include "oscRoute.h"
+#include "oscCatalogReference.h"
 
 namespace OpenScenario
 {
-
 class OPENSCENARIOEXPORT oscRouteRef : public oscObjectBase
 {
 public:
@@ -29,7 +28,7 @@ oscRouteRef()
         OSC_OBJECT_ADD_MEMBER(Route, "oscRoute", 1);
         OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference", 1);
     };
-        const char *getScope(){return "/OSCPosition/PositionRoute";};
+        const char *getScope(){return "/OSCPosition/Route";};
     oscRouteMember Route;
     oscCatalogReferenceMember CatalogReference;
 

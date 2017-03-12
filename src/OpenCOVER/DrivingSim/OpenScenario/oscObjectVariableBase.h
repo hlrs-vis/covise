@@ -65,6 +65,11 @@ public:
         return valueT;
     };
 
+	virtual oscObjectBase *getObjectBase() const
+	{
+		return getObject();
+	}
+
 	virtual oscObjectBase *getOrCreateObjectBase()
 	{
 		return getOrCreateObject();
