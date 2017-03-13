@@ -11,6 +11,7 @@
 #include <config/CoviseConfig.h>
 #include "Bicycle.h"
 #include <util/byteswap.h>
+#include <util/unixcompat.h>
 
 static float zeroAngle = 1152.;
 

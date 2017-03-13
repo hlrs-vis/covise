@@ -17,6 +17,7 @@
 #endif
 
 #include <cover/coVRPluginSupport.h>
+#include <util/unixcompat.h>
 #include <vrml97/vrml/VrmlNodeSound.h>
 #include <vrml97/vrml/Player.h>
 #include <vrml97/vrml/PlayerMix.h>

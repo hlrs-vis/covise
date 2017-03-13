@@ -33,6 +33,7 @@
 // local coordinate system.
 
 #include "MultitouchNavigation.h"
+#include <util/unixcompat.h>
 
 MultitouchNavigation::MultitouchNavigation()
 {
