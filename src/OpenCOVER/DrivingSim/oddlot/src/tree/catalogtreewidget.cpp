@@ -131,12 +131,10 @@ CatalogTreeWidget::init()
 	catalogName_ = catalog_->getCatalogName();
 	catalogType_ = "osc" + catalogName_;
 
-	//get all catalog object filenames
-	std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(directoryPath_.toStdString());
 
 	//parse all files
 	//store object name and filename in map
-	catalog_->fastReadCatalogObjects(filenames);
+	catalog_->fastReadCatalogObjects();
 
 	createTree();
 }
@@ -268,7 +266,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 					if (!obj)
 					{
-						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), catalog_->getType(catalogName_));
+						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), "oscCatalogObject");
 
 						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getCatalogType(), oscElement_, oscSourceFile);
 						if (command->isValid())

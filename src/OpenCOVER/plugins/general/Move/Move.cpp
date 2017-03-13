@@ -829,7 +829,7 @@ void Move::preFrame()
             getMoveDCS();
             // start of interaction (button press)
             osg::Node *currentNode = NULL;
-            if (moveDCS)
+            if (moveDCS && moveDCS->getNumParents() > 0)
                 currentNode = moveDCS->getParent(0);
             startBaseMat.makeIdentity();
             while (currentNode != NULL)

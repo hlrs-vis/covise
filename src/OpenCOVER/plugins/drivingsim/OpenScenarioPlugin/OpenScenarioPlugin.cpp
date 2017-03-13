@@ -27,6 +27,10 @@
 #include "OpenScenarioPlugin.h"
 #include <cover/coVRMSController.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
+#include <ScenarioManager.h>
+#include "AgentVehicle.h"
+#include "CarGeometry.h"
+#include <algorithm>
 
 #include "FindTrafficLightSwitch.h"
 
@@ -36,6 +40,7 @@ using namespace OpenScenario;
 using namespace opencover;
 
 OpenScenarioPlugin *OpenScenarioPlugin::plugin = NULL;
+ScenarioManager *sm = new ScenarioManager();
 
 static FileHandler handlers[] = {
     { NULL,
@@ -62,6 +67,7 @@ OpenScenarioPlugin::OpenScenarioPlugin()
     tessellateObjects=true;
 
 	osdb = new OpenScenario::OpenScenarioBase();
+	osdb->setFullReadCatalogs(true);
     fprintf(stderr, "OpenScenario::OpenScenario\n");
 }
 
@@ -72,7 +78,45 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 }
 
 
-void OpenScenarioPlugin::preFrame(){}
+void OpenScenarioPlugin::preFrame(){
+//Condition Control	
+	list<Entity*> usedEntity;
+	list<Entity*> unusedEntity = sm->entityList;
+	list<Entity*> entityList_temp = sm->entityList;
+	entityList_temp.sort();unusedEntity.sort();
+	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++){
+		if ((*act_iter)->actCondition==true){
+			for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++){
+					if ((*maneuver_iter)->maneuverCondition==true){
+						for(list<Entity*>::iterator aktivEntity = (*act_iter)->activeEntityList.begin(); aktivEntity != (*act_iter)->activeEntityList.end(); aktivEntity++){
+							cout << "xPosition: " << (*aktivEntity)->entityPosition[0] << endl;
+							cout << "yPosition: " << (*aktivEntity)->entityPosition[1] << endl;
+							//cout << (*maneuver_iter)->totalDistance << endl;
+							(*aktivEntity)->setPosition((*maneuver_iter)->calculateNewEntityPosition((*aktivEntity)->entityPosition, (*aktivEntity)->getSpeed()));
+							(*aktivEntity)->car->setPosition((*aktivEntity)->entityPosition[0],(*aktivEntity)->entityPosition[1],(*aktivEntity)->entityPosition[2]);	
+							unusedEntity.clear();
+							usedEntity.push_back((*aktivEntity));
+							usedEntity.sort();usedEntity.unique();
+						}set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));			
+					}
+			}
+		}
+	}		for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++){
+			cout << "Entity: " << (*entity_iter)->getName() << " Position updated (Init)" << endl;
+			(*entity_iter)->move();
+			(*entity_iter)->car->setPosition((*entity_iter)->entityPosition[0], (*entity_iter)->entityPosition[1], (*entity_iter)->entityPosition[2]);
+			cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
+			usedEntity.clear();}
+
+			oscObjectBase *tr = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", "MyLaneChangeTrajectory");
+			oscTrajectory* trajectory = ((oscTrajectory*)(tr));
+			cout << trajectory->name.getValue() << endl;
+			//for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++){	}
+			//oscVertex* vert = ((oscVertex*)(*it));
+			//cout << vert->Position->World->x.getValue() << endl;
+			//}
+
+}			
 
 COVERPLUGIN(OpenScenarioPlugin)
 
@@ -96,11 +140,35 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
         std::cerr << "failed to load OpenSCENARIO from file " << filename << std::endl;
         std::cerr << std::endl;
         delete osdb;
+		//neu
+		std::string filename(filename);
+		xoscDirectory.clear();
+        if (filename[0] != '/' && filename[0] != '\\' && (!(filename[1] == ':' && (filename[2] == '/' || filename[2] == '\\'))))
+        { // / or backslash or c:/
+            char *workingDir = getcwd(NULL, 0);
+            xoscDirectory.assign(workingDir);
+            free(workingDir);
+        }
+        size_t lastSlashPos = filename.find_last_of('/');
+        size_t lastSlashPos2 = filename.find_last_of('\\');
+        if (lastSlashPos != filename.npos && (lastSlashPos2 == filename.npos || lastSlashPos2 < lastSlashPos))
+        {
+            if (!xoscDirectory.empty())
+                xoscDirectory += "/";
+            xoscDirectory.append(filename, 0, lastSlashPos);
+        }
+        if (lastSlashPos2 != filename.npos && (lastSlashPos == filename.npos || lastSlashPos < lastSlashPos2))
+        {
+            if (!xoscDirectory.empty())
+                xoscDirectory += "\\";
+            xoscDirectory.append(filename, 0, lastSlashPos2);
+        }
+		//neu
         return -1;
     }
 
 	//load xodr 
-	std::string xodrName_st = osdb->RoadNetwork->Logics->openDRIVE.getValue();
+	std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
 	const char * xodrName = xodrName_st.c_str();
 	loadRoadSystem(xodrName);
 
@@ -133,9 +201,9 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 						s = position->ds.getValue();
 						t = position->dt.getValue();
 						LaneSection * ls = myRoad->getLaneSection(s);
-						ls->getLane()
-						VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
-						fiddleyard->addVehicleSource(source);
+						//ls->getLane();
+						//VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
+						//fiddleyard->addVehicleSource(source);
 /*
 						fiddleyard->setTarmacConnection(new TarmacConnection(tarmac, direction));
 
@@ -174,6 +242,86 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 
 	}
 	
+
+	//initialize entities
+	int numberOfEntities = 0;
+	for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++){	
+	oscObject* entity = ((oscObject*)(*it));
+	Vehicle* car = new AgentVehicle(entity->name.getValue(), new CarGeometry(entity->name.getValue(), "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
+	sm->entityList.push_back(new Entity(entity->name.getValue(),car));
+	cout << "Entity: " <<  entity->name.getValue() << " initialized" << endl;
+	numberOfEntities++;}
+	sm->setNumberOfEntities(numberOfEntities);
+
+	//get initial position and speed of entities
+	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++){
+	for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++){	
+	oscPrivate* actions_private = ((oscPrivate*)(*it));
+	if((*entity_iter)->getName()==actions_private->object.getValue()){
+	cout << (*entity_iter)->getName() << "_test" << endl;
+	for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++){	
+	oscPrivateAction* action = ((oscPrivateAction*)(*it2));
+	if(action->Longitudinal.exists()){
+		(*entity_iter)->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());}
+	if(action->Position.exists()){
+	vector<float> initPosition;
+	initPosition.push_back(action->Position->World->x.getValue());
+	initPosition.push_back(action->Position->World->y.getValue());
+	initPosition.push_back(action->Position->World->z.getValue());
+	initPosition.push_back(action->Position->World->h.getValue());
+	initPosition.push_back(action->Position->World->p.getValue());
+	initPosition.push_back(action->Position->World->r.getValue());
+	(*entity_iter)->setPosition(initPosition);}
+	}}}}
+
+	//initialize acts
+	int numberOfActs = 0;
+	for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++){	
+	oscStory* story = ((oscStory*)(*it));
+		for (oscActArrayMember::iterator it = story->Act.begin(); it != story->Act.end(); it++){	
+		oscAct* act = ((oscAct*)(*it));
+
+			list<Entity*> activeEntityList_temp;
+			for (oscActorsArrayMember::iterator it = act->Sequence->Actors->Entity.begin(); it != act->Sequence->Actors->Entity.end(); it++){	
+				oscEntity* namedEntity = ((oscEntity*)(*it));
+				if (namedEntity->name.getValue() != "$owner"){
+					activeEntityList_temp.push_back(sm->getEntityByName(namedEntity->name.getValue()));}
+				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));}
+				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->name.getValue() << endl;}
+
+			list<Maneuver*> maneuverList_temp;
+			for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++){	
+				oscManeuver* maneuver = ((oscManeuver*)(*it));
+				maneuverList_temp.push_back(new Maneuver(maneuver->name.getValue()));
+				cout << "Manuever: " << maneuver->name.getValue() << " created" << endl;}
+			
+		sm->actList.push_back(new Act(act->name.getValue(), act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp));
+		cout << "Act: " <<  act->name.getValue() << " initialized" << endl;
+		maneuverList_temp.clear();
+		activeEntityList_temp.clear();
+		numberOfActs++;}}
+		sm->setNumberOfActs(numberOfActs);
+
+		//define target position
+		vector<float> targetPosition_temp;
+		targetPosition_temp.push_back(300);
+		targetPosition_temp.push_back(10);
+		targetPosition_temp.push_back(9.5);
+		targetPosition_temp.push_back(0);
+		targetPosition_temp.push_back(0);
+		targetPosition_temp.push_back(0);
+
+		//acess maneuvers in acts
+		for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++){
+		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++){
+		(*maneuver_iter)->setTargetEntityPosition(targetPosition_temp);}}
+
+
+		//factory = VehicleFactory::Instance();
+		//Vehicle* car = factory->createRoadVehicle("01","car01","car","agent","C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds");
+		//car->getVehicleGeometry()->getCarNode;
+		//Vehicle* car = new AgentVehicle("car01", new CarGeometry("car01", "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
+		//car->setPosition(0,0,0);
 
 return 0;
 }

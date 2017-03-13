@@ -29,6 +29,7 @@ oscConditionParameter()
         OSC_ADD_MEMBER(rule, 0);
         rule.enumType = Enum_ruleType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByValue";};
     oscString name;
     oscString value;
     oscEnum rule;

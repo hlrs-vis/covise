@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscRelative.h"
+#include "oscRelativeTarget.h"
 #include "oscAbsolute.h"
 
 namespace OpenScenario
@@ -25,10 +25,11 @@ class OPENSCENARIOEXPORT oscTarget : public oscObjectBase
 public:
 oscTarget()
 {
-        OSC_OBJECT_ADD_MEMBER(Relative, "oscRelative", 1);
+        OSC_OBJECT_ADD_MEMBER(Relative, "oscRelativeTarget", 1);
         OSC_OBJECT_ADD_MEMBER(Absolute, "oscAbsolute", 1);
     };
-    oscRelativeMember Relative;
+        const char *getScope(){return "/OSCPrivateAction/Longitudinal/Speed";};
+    oscRelativeTargetMember Relative;
     oscAbsoluteMember Absolute;
 
 };

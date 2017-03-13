@@ -169,7 +169,7 @@ OSCItem::init()
 		return;
 	}
 
-	std::string catalogFileName = catalogReference->name.getValue();
+	std::string catalogFileName = catalogReference->catalogName.getValue();
 	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(catalogFileName);
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();

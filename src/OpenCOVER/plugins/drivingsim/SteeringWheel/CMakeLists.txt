@@ -49,7 +49,7 @@ SET(HEADERS
  PorscheController.h
  PorscheRealtimeDynamics.h
  HLRSRealtimeDynamics.h
- TestDynamics.h
+ #TestDynamics.h
 )
 SET(SOURCES
  SteeringWheel.cpp
@@ -74,7 +74,7 @@ SET(SOURCES
  PorscheRealtimeDynamics.cpp
  VehicleDynamics.cpp
  HLRSRealtimeDynamics.cpp
- TestDynamics.cpp
+ #TestDynamics.cpp
 )
 #IF(Boost_FOUND)
 # SET(HEADERS ${HEADERS} HLRSRealtimeDynamics.h)

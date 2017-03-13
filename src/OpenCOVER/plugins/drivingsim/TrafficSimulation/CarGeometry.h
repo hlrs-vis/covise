@@ -14,6 +14,7 @@
 #include <osg/Node>
 #include <osg/MatrixTransform>
 #include <osg/BoundingBox>
+#include <vector>
 
 #include "RoadSystem/Types.h"
 
@@ -25,6 +26,8 @@ public:
     ~CarGeometry();
 
     void setTransform(Transform &, double);
+
+	void setTransformByCoordinates(float x, float y, float z);
 
     double getBoundingCircleRadius();
     osg::BoundingBox &getBoundingBox()

@@ -13,15 +13,21 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 #include <vector>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <WS2tcpip.h>
+#define inet_pton InetPton
+#else
+#include <errno.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include <arpa/inet.h>
 #endif
 
 #include <util/unixcompat.h>
@@ -56,12 +62,22 @@ std::string Host::lookupHostname(const char *numericIP)
     static bool onlyNumeric = false;
     if (!onlyNumeric)
     {
-        //try to get the symbolic name of the host
-        Host ch(numericIP);
-
-        const char *haddr = reinterpret_cast<const char *>(ch.get_char_address());
-        //char buf[1024];
-        struct hostent *he = gethostbyaddr(haddr, 4, AF_INET);
+        struct hostent *he = NULL;
+        struct in_addr v4;
+        int err = inet_pton(AF_INET, numericIP, &v4);
+        if (err == 1)
+        {
+            he = gethostbyaddr((const char *)&v4, sizeof(v4), AF_INET);
+        }
+#if 0
+        if (err == 0)
+        {
+            struct in6_addr v6;
+            err = inet_pton(AF_INET6, numericIP, &v6);
+            if (err == 1)
+                he = gethostbyaddr(&v6, sizeof(v6), AF_INET6);
+        }
+#endif
         if (NULL != he)
         {
             retVal = he->h_name;
@@ -135,59 +151,62 @@ std::string Host::lookupHostname(const char *numericIP)
 
 void Host::setAddress(const char *n)
 {
-    delete[] address;
-    address = NULL;
-    m_addressValid = false;
+    m_address.clear();
     if (n)
     {
+        m_address = n;
         m_addressValid = true;
     }
     else
     {
-        n = "0.0.0.0";
+        m_addressValid = false;
     }
-
-    address = new char[1 + strlen(n)];
-    strcpy(address, n);
 }
 
 void Host::setName(const char *n)
 {
-    delete[] name;
-    name = NULL;
-    m_nameValid = false;
+    m_name.clear();
     if (n)
     {
+        m_name = n;
         m_nameValid = true;
-        name = new char[1 + strlen(n)];
-        strcpy(name, n);
+    }
+    else
+    {
+        m_nameValid = false;
     }
 }
 
 void Host::HostNumeric(const char *n)
 {
-    int tmpaddr[4];
-    bool invalidIP = false;
-    invalidIP = (n == NULL);
-    invalidIP |= (strlen(n) > 15);
-    int countNumbers = sscanf(n, "%d.%d.%d.%d", &tmpaddr[0],
-                              &tmpaddr[1],
-                              &tmpaddr[2],
-                              &tmpaddr[3]);
-    invalidIP |= (countNumbers != 4);
-    if (invalidIP)
+    struct in_addr v4;
+    int err = inet_pton(AF_INET, n, &v4);
+    memcpy(char_address, &v4, sizeof(char_address));
+#if 0
+    if (err == 0)
     {
-        setAddress("Invalid IP address");
-        setName(NULL);
+        struct in6_addr v6;
+        err = inet_pton(AF_INET6, n, &v6);
+    }
+#endif
+    if (err == 1)
+    {
+        setAddress(n);
+        setName(lookupHostname(n).c_str());
     }
     else
     {
-        char_address[0] = tmpaddr[0];
-        char_address[1] = tmpaddr[1];
-        char_address[2] = tmpaddr[2];
-        char_address[3] = tmpaddr[3];
-        setAddress(n);
-        setName(lookupHostname(n).c_str());
+        if (err == 0)
+        {
+            std::cerr << "Host::HostNumeric: unsupported address format" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Host::HostNumeric: error: " << strerror(errno) << std::endl;
+        }
+        setAddress("Invalid IP address");
+        setName(NULL);
+        memset(char_address, 0, sizeof(char_address));
     }
 #ifdef DEBUG
     LOGINFO(address);
@@ -196,7 +215,6 @@ void Host::HostNumeric(const char *n)
 
 void Host::HostSymbolic(const char *n)
 {
-    struct hostent *hent;
     //The address is not numeric
     //and we try to convert the
     //symbolic address into a numeric one
@@ -211,57 +229,103 @@ void Host::HostSymbolic(const char *n)
         HostNumeric(addr.c_str());
         return;
     }
-    //Second alternative
-    if(strcmp(n,"127.0.0.1")==0)
+
+    struct in_addr v4;
+    int err = inet_pton(AF_INET, n, &v4);
+    memcpy(char_address, &v4, sizeof(char_address));
+    if (err == 0)
+    {
+        struct in6_addr v6;
+        err = inet_pton(AF_INET6, n, &v6);
+    }
+    if (err == 1)
     {
         setAddress(n);
-        char_address[0] = 127;
-        char_address[1] = 0;
-        char_address[2] = 0;
-        char_address[3] = 1;
+        setName(lookupHostname(n).c_str());
+        return;
+    }
+    memset(char_address, 0, sizeof(char_address));
+
+
+#if 0
+    struct hostent *hent = gethostbyname(n);
+    if (NULL == hent)
+    {
+        fprintf(stderr, "lookup for %s failed\n", n);
+        if (strchr(n, ' '))
+            abort();
+        setAddress(NULL);
+        return;
+    }
+    if (hent->h_addrtype == AF_INET6)
+    {
+        fprintf(stderr, "cannot handle inet6 address: lookup for %s failed\n", n);
+    }
+    else if (hent->h_addrtype == AF_INET)
+    {
+        char_address[0] = *hent->h_addr_list[0];
+        char_address[1] = *(hent->h_addr_list[0] + 1);
+        char_address[2] = *(hent->h_addr_list[0] + 2);
+        char_address[3] = *(hent->h_addr_list[0] + 3);
+        char buf[1024];
+        sprintf(buf, "%d.%d.%d.%d",
+                char_address[0],
+                char_address[1],
+                char_address[2],
+                char_address[3]);
+        setAddress(buf);
+    }
+#else
+
+    struct addrinfo hints, *result = NULL;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = 0; /* any type of socket */
+    hints.ai_flags = AI_ADDRCONFIG;
+    hints.ai_protocol = 0;          /* Any protocol */
+
+    int s = getaddrinfo(n, NULL /* service */, &hints, &result);
+    if (s != 0)
+    {
+        fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
+        return;
     }
     else
     {
-    hent = gethostbyname(n);
-    if (NULL == hent)
-    {
-        if(strcmp(n,"localhost")==0)
+        /* getaddrinfo() returns a list of address structures.
+           Try each address until we successfully connect(2).
+           If socket(2) (or connect(2)) fails, we (close the socket
+           and) try the next address. */
+
+        for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next)
         {
-            setAddress("127.0.0.1");
-            char_address[0] = 127;
-            char_address[1] = 0;
-            char_address[2] = 0;
-            char_address[3] = 1;
-            return;
+            if (rp->ai_family != AF_INET)
+                continue;
+
+            char address[1000];
+            struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
+            memcpy(char_address, &saddr->sin_addr, sizeof(char_address));
+            if(!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
+            {
+                std::cerr << "could not convert address of " << n << " to printable format: " << strerror(errno) << std::endl;
+                continue;
+            }
+            else
+            {
+                memcpy(char_address, &saddr->sin_addr, sizeof(char_address));
+                setAddress(address);
+                break;
+            }
         }
-        else
-        {
-            fprintf(stderr, "lookup for %s failed\n", n);
-            if (strchr(n, ' '))
-                abort();
-            setAddress(NULL);
-            return;
-        }
+
+        freeaddrinfo(result);           /* No longer needed */
     }
-    char_address[0] = *hent->h_addr_list[0];
-    char_address[1] = *(hent->h_addr_list[0] + 1);
-    char_address[2] = *(hent->h_addr_list[0] + 2);
-    char_address[3] = *(hent->h_addr_list[0] + 3);
-    char buf[1024];
-    sprintf(buf, "%d.%d.%d.%d",
-            char_address[0],
-            char_address[1],
-            char_address[2],
-            char_address[3]);
-    setAddress(buf);
-    }
+#endif
     setName(n);
 }
 
 Host::Host(const char *n, bool numeric)
 {
-    address = NULL;
-    name = NULL;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -280,22 +344,17 @@ Host::Host(const char *n, bool numeric)
 
 Host::Host(const Host &h)
 {
-    address = NULL;
-    name = NULL;
     memset(char_address, '\0', sizeof(char_address));
-    m_addressValid = false;
-    m_nameValid = false;
-
     memcpy(this->char_address, h.char_address, sizeof(char_address));
 
-    setAddress(h.address);
-    setName(h.name);
+    m_addressValid = h.m_addressValid;
+    m_nameValid = h.m_nameValid;
+    m_address = h.m_address;
+    m_name = h.m_name;
 }
 
 Host::Host(unsigned long a)
 {
-    address = NULL;
-    name = NULL;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -321,19 +380,18 @@ Host::Host(unsigned long a)
 
 Host::~Host()
 {
-    delete[] address;
-    delete[] name;
 }
 
 Host &Host::operator=(const Host &h)
 {
     memset(char_address, '\0', sizeof(char_address));
-    m_addressValid = false;
-    m_nameValid = false;
-
     memcpy(this->char_address, h.char_address, sizeof(char_address));
-    setAddress(h.address);
-    setName(h.name);
+
+    m_addressValid = h.m_addressValid;
+    m_nameValid = h.m_nameValid;
+    m_address = h.m_address;
+    m_name = h.m_name;
+
     return *this;
 }
 
@@ -345,9 +403,28 @@ void Host::get_char_address(unsigned char *c) const
     c[3] = char_address[3];
 }
 
+const unsigned char *Host::get_char_address() const
+{
+    return char_address;
+}
+
 uint32_t Host::get_ipv4() const
 {
     return (char_address[0] << 24) | (char_address[1] << 16) | (char_address[2] << 8) | char_address[3];
+}
+
+const char *Host::getName() const
+{
+    if (!m_nameValid)
+        return NULL;
+    return m_name.c_str();
+}
+
+const char *Host::getAddress() const
+{
+    if (!m_addressValid)
+        return NULL;
+    return m_address.c_str();
 }
 
 static bool isLoopbackAddress(const unsigned char address[4])
@@ -559,9 +636,7 @@ bool Host::hasRoutableAddress() const
 
 Host::Host()
 {
-    address = NULL;
     m_addressValid = false;
-    name = NULL;
     m_nameValid = false;
 
     char *hostname = getenv("COVISE_HOST");

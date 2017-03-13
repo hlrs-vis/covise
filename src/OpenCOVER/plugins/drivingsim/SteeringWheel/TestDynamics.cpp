@@ -63,8 +63,41 @@ TestDynamics::TestDynamics()
 	brake = 0.0;
 	
 	leftRoad = true;
+
+	targetS = 3.0;
 	
+	mass = 1900;
+	cAero = 0.00002;
+	mu = 0.005;
+	lateralMu = 500;
+	enginePower = 20000;
+	brakePower = 8000;
+	g = 9.81;
+	inertia = 5000;
+	//F = Fz · D · sin(C · arctan(B·slip - E · (B·slip - arctan(B·slip))))
+	Bf = 7.5; //10=tarmac; 4=ice
+	Cf = 1.9; //~2
+	Df = 0.8; //1=tarmace; 0.1=ice
+	Ef = 0.99; //0.97=tarmac; 1=ice
+	Br = 6; //10=tarmac; 4=ice
+	Cr = 1.9; //~2
+	Dr = 0.6; //1=tarmace; 0.1=ice
+	Er = 0.97; //0.97=tarmac; 1=ice
+	a1 = 1.6;
+	a2 = 1.65;
+	vXLimit = 0.001;
+	vYLimit = 0.01;
+	vPsiLimit = 0.001;
 	
+	powerDist = 0.8; //1=RWD
+	brakeDist = 0.5;
+	steeringRatio = 0.15;
+	frictionCircleLimit = 6000;
+	integrationSteps = 5.0;
+	xodrLoaded = false;
+	printedOnce = false;
+	printCounter = 0;
+	printMax = 1;
 }
 
 std::pair<Road *, double> TestDynamics::getStartPositionOnRoad()
@@ -229,10 +262,10 @@ MovementState TestDynamics::deltaFunction(double inputArray[], double dT)
 	state.fbrakefr = - 0.5 * (1 - brakeDist) * state.fbrake * tanh(state.vX);
 	state.fbrakerr = - 0.5 * brakeDist * state.fbrake * tanh(state.vX);
 	state.fbrakerl = - 0.5 * brakeDist * state.fbrake * tanh(state.vX);
-	state.frollfl = - mass * g * mu * state.vX * copysign(1.0, state.vX);
-	state.frollfr = - mass * g * mu * state.vX * copysign(1.0, state.vX);
-	state.frollrr = - mass * g * mu * state.vX * copysign(1.0, state.vX);
-	state.frollrl = - mass * g * mu * state.vX * copysign(1.0, state.vX);
+	state.frollfl = - mass * g * mu * state.vX * std::copysign(1.0, state.vX);
+	state.frollfr = - mass * g * mu * state.vX * std::copysign(1.0, state.vX);
+	state.frollrr = - mass * g * mu * state.vX * std::copysign(1.0, state.vX);
+	state.frollrl = - mass * g * mu * state.vX * std::copysign(1.0, state.vX);
 	
 	//calculate fy:
 	state.fyfl = mass * g * Df * sin(Cf * atan((Bf * state.betaf - Ef * (Bf * state.betaf - atan(Bf * state.betaf)))));
@@ -261,14 +294,14 @@ MovementState TestDynamics::deltaFunction(double inputArray[], double dT)
 	if (frictionCircleLimit < sqrt(state.fyfl * state.fyfl + state.fxfl * state.fxfl))
 	{
 		double tempAnglefl = atan(state.fyfl / (state.fxfl + 0.00000000000000000000000000001));
-		state.fyfl = std::abs(sin(tempAnglefl) * frictionCircleLimit) * copysign(1.0, state.fyfl);
-		state.fxfl = std::abs(cos(tempAnglefl) * frictionCircleLimit) * copysign(1.0, state.fxfl);
+		state.fyfl = std::abs(sin(tempAnglefl) * frictionCircleLimit) * std::copysign(1.0, state.fyfl);
+		state.fxfl = std::abs(cos(tempAnglefl) * frictionCircleLimit) * std::copysign(1.0, state.fxfl);
 	}
 	if (frictionCircleLimit < sqrt(state.fyfr * state.fyfr + state.fxfr * state.fxfr))
 	{
 		double tempAnglefr = atan(state.fyfr / (state.fxfr + 0.00000000000000000000000000001));
-		state.fyfr = std::abs(sin(tempAnglefr) * frictionCircleLimit) * copysign(1.0, state.fyfr);
-		state.fxfr = std::abs(cos(tempAnglefr) * frictionCircleLimit) * copysign(1.0, state.fxfr);
+		state.fyfr = std::abs(sin(tempAnglefr) * frictionCircleLimit) * std::copysign(1.0, state.fyfr);
+		state.fxfr = std::abs(cos(tempAnglefr) * frictionCircleLimit) * std::copysign(1.0, state.fxfr);
 	}
 	if (frictionCircleLimit < sqrt(state.fyrr * state.fyrr + state.fxrr * state.fxrr))
 	{

@@ -28,6 +28,7 @@ oscAcceleration()
         OSC_ADD_MEMBER(rule, 0);
         rule.enumType = Enum_ruleType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
     oscDouble value;
     oscEnum rule;
 

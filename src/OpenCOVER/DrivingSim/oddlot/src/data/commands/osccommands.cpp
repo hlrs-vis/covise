@@ -316,7 +316,7 @@ AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember 
 
 	if (object_)
 	{
-		ownMember_ = arrayMember_->getObject()->getMember(typeName_);
+		ownMember_ = arrayMember_->getObjectBase()->getMember(typeName_);
 	}
 }
 
@@ -345,7 +345,7 @@ AddOSCArrayMemberCommand::redo()
 {
 	if (!object_)
 	{
-		object_ = objectBase_->getMember(typeName_)->createObject();
+		object_ = objectBase_->getMember(typeName_)->createObjectBase();
 		ownMember_ = object_->getOwnMember();
 	}
 
@@ -784,7 +784,7 @@ AddOSCEnumValueCommand::redo()
 void
 AddOSCEnumValueCommand::undo()
 {
-	const OpenScenario::oscObjectBase *obj = member_->getObject();
+	const OpenScenario::oscObjectBase *obj = member_->getObjectBase();
 //	member_->setValue(NULL);
 	delete obj;
 

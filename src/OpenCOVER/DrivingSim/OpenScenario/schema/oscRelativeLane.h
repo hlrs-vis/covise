@@ -30,6 +30,7 @@ oscRelativeLane()
         OSC_ADD_MEMBER_OPTIONAL(offset, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscString object;
     oscInt dLane;
     oscDouble ds;

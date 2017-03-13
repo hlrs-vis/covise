@@ -28,6 +28,7 @@ oscStory()
         OSC_ADD_MEMBER(name, 0);
         OSC_OBJECT_ADD_MEMBER(Act, "oscAct", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard";};
     oscString owner;
     oscString name;
     oscActArrayMember Act;

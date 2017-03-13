@@ -138,7 +138,7 @@ protected:
 
 public:
     // connect as client
-    Socket(Host *h, int p, int retries = 20, double timeout = 0.0);
+    Socket(const Host *h, int p, int retries = 20, double timeout = 0.0);
     Socket(int p); // initiate as server
     Socket(int *p); // initiate as server and use free port
     Socket() // initialize with descriptor
@@ -187,7 +187,7 @@ public:
     {
         return port;
     };
-    Host *get_ip_alias(Host *);
+    Host *get_ip_alias(const Host *);
     Host *get_host()
     {
         return host;

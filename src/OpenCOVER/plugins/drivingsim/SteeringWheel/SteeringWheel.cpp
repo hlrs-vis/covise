@@ -24,7 +24,6 @@
 #include "ITMDynamics.h"
 #include "PorscheRealtimeDynamics.h"
 #include "HLRSRealtimeDynamics.h"
-#include "TestDynamics.h"
 
 // #include "ITM.h"
 #include "Keyboard.h"
@@ -1021,12 +1020,7 @@ bool SteeringWheelPlugin::init()
     {
         dynamics = new HLRSRealtimeDynamics();
         std::cout << "Using HLRS realtime vehicle dynamics..." << std::endl;
-    }
-    else if (dynString == "TestDynamics")
-    {
-        dynamics = new TestDynamics();
-        std::cout << "Using test dynamics file..." << std::endl;
-    }    
+    }  
 #ifdef __XENO__
     else if (dynString == "FourWheelDynamicsRealtime")
     {

@@ -67,9 +67,9 @@ public:
     virtual oscMemberValue *getOrCreateValue();
 
     //
-    virtual oscObjectBase *getObject() const;
-    virtual oscObjectBase *getOrCreateObject();
-	virtual oscObjectBase *createObject();
+    virtual oscObjectBase *getObjectBase() const;
+    virtual oscObjectBase *getOrCreateObjectBase();
+	virtual oscObjectBase *createObjectBase();
     virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable...::exists is executed
 
     //

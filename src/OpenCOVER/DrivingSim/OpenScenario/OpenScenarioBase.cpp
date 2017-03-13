@@ -38,11 +38,12 @@ OpenScenarioBase::OpenScenarioBase() :
         m_fullReadCatalogs(false)
 {
     oscFactories::instance();
-    OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
-    OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs", 0);
-    OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork", 0);
-    OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities", 0);
-    OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard", 0);
+	OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
+	OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+	OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs", 0);
+	OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork", 0);
+	OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities", 0);
+	OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard", 0);
 
     base = this;
 
@@ -93,15 +94,15 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
     OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
 //	fileTypeToXsd.emplace("", bf::path("OpenScenario_XML-Schema_.xsd"));
     fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_Draft_F.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_DriverCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_EnvironmentCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_ManeuverCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_MiscObjectCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_PedestrianCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_PedestrianControllerCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_RouteCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_TrajectoryCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_VehicleCatalog.xsd"));
+	fileTypeToXsd.emplace("CatalogObject", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
 
 /*	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeA", bf::path("OpenScenario_XML-Schema_absoluteTypeA.xsd"));
@@ -342,6 +343,50 @@ void OpenScenarioBase::setFullReadCatalogs(const bool fullReadCatalogs)
 bool OpenScenarioBase::getFullReadCatalogs() const
 {
     return m_fullReadCatalogs;
+}
+
+oscObjectBase *OpenScenarioBase::getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName)
+{
+    oscCatalog::ObjectParams p;
+	if (catalogName=="DriverCatalog")
+		{
+		Catalogs->DriverCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->DriverCatalog->getObjectsMap()[objectName];
+		}
+	if (catalogName=="EnvironmentCatalog")
+		{
+		Catalogs->EnvironmentCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->EnvironmentCatalog->getObjectsMap()[objectName];
+		}
+	if (catalogName=="ManeuverCatalog")
+		{
+		Catalogs->ManeuverCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->ManeuverCatalog->getObjectsMap()[objectName];
+		}
+	if (catalogName=="MiscObjectCatalog")
+		{
+		Catalogs->MiscObjectCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->MiscObjectCatalog->getObjectsMap()[objectName];
+		}
+	if (catalogName=="PedestrianCatalog")
+		{
+		Catalogs->PedestrianCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->PedestrianCatalog->getObjectsMap()[objectName];
+		}
+	if (catalogName=="TrajectoryCatalog")
+		{
+		Catalogs->TrajectoryCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->TrajectoryCatalog->getObjectsMap()[objectName];
+		}
+	if (catalogName=="VehicleCatalog")
+	{
+		Catalogs->VehicleCatalog->fullReadCatalogObjectWithName(objectName);
+		p = Catalogs->VehicleCatalog->getObjectsMap()[objectName];
+	}
+	if(p.object != NULL)
+	{
+		return p.object;
+	}
 }
 
 

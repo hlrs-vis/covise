@@ -45,7 +45,8 @@ public:
 
     T createObject()
 	{
-		T obj = static_cast<T>(oscFactories::instance()->objectFactory->create(TBase::typeName));
+		std::string className = nameMapping::instance()->getClassName(TBase::typeName, std::string(TBase::owner->getScope()));
+		T obj = static_cast<T>(oscFactories::instance()->objectFactory->create(className));
 		if(obj)
 		{
 			obj->initialize(TBase::owner->getBase(), TBase::owner, this, TBase::owner->getSource());
@@ -63,6 +64,20 @@ public:
         }
         return valueT;
     };
+
+	virtual oscObjectBase *getObjectBase() const
+	{
+		return getObject();
+	}
+
+	virtual oscObjectBase *getOrCreateObjectBase()
+	{
+		return getOrCreateObject();
+	};
+	virtual oscObjectBase *createObjectBase()
+	{
+		return createObject();
+	};
 
     void setValue(T t)
     {

@@ -47,6 +47,10 @@ void DonkeyCar::move(double dt)
     geometry->setTransform(carTransform, h);
 }
 
+void DonkeyCar::setPosition(float x, float y, float z){
+//geometry->setTransformByCoordinates(x, y, z);
+}
+
 Road *DonkeyCar::getRoad() const
 {
     return currentRoad;

@@ -1196,6 +1196,12 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
         int sizeX, sizeY, sizeZ;
         geometry->getSize(sizeX, sizeY, sizeZ);
 
+        if (sizeX<=1 || sizeY<=1 || sizeZ<=1)
+        {
+            // ignore 2-dimensional grids: already handled by COVISE plugin
+            return;
+        }
+
         float minX, maxX, minY, maxY, minZ, maxZ;
         geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
 

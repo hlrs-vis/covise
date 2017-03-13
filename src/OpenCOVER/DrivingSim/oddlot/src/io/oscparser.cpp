@@ -165,7 +165,7 @@ OSCParser::createElements(const OpenScenario::oscObjectBase *object)
         {
 			if(member->getType() == oscMemberValue::OBJECT)
             {
-				oscObjectBase *memberObject = member->getObject();
+				oscObjectBase *memberObject = member->getObjectBase();
 				if (memberObject)
 				{
 					OSCElement *oscElement = new OSCElement(QString::fromStdString((*it).name), memberObject); 

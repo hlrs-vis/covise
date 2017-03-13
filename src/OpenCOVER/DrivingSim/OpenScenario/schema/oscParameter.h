@@ -18,20 +18,36 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 namespace OpenScenario
 {
+class OPENSCENARIOEXPORT Enum_OSC_Parameter_typeType : public oscEnumType
+{
+public:
+static Enum_OSC_Parameter_typeType *instance();
+    private:
+		Enum_OSC_Parameter_typeType();
+	    static Enum_OSC_Parameter_typeType *inst; 
+};
 class OPENSCENARIOEXPORT oscParameter : public oscObjectBase
 {
 public:
 oscParameter()
 {
         OSC_ADD_MEMBER(name, 0);
+        OSC_ADD_MEMBER(type, 0);
         OSC_ADD_MEMBER(value, 0);
-        OSC_ADD_MEMBER_OPTIONAL(type, 0);
-        OSC_ADD_MEMBER_OPTIONAL(scope, 0);
+        type.enumType = Enum_OSC_Parameter_typeType::instance();
     };
+        const char *getScope(){return "/OSCParameterDeclaration";};
     oscString name;
+    oscEnum type;
     oscString value;
-    oscString type;
-    oscString scope;
+
+    enum Enum_OSC_Parameter_type
+    {
+int_t,
+double_t,
+string,
+
+    };
 
 };
 

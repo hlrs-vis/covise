@@ -15,6 +15,8 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscRoute.h"
+#include "oscCatalogReference.h"
 
 namespace OpenScenario
 {
@@ -23,9 +25,12 @@ class OPENSCENARIOEXPORT oscFollowRoute : public oscObjectBase
 public:
 oscFollowRoute()
 {
-        OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER(Route, "oscRoute", 1);
+        OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference", 1);
     };
-    oscString name;
+        const char *getScope(){return "/OSCPrivateAction/Routing";};
+    oscRouteMember Route;
+    oscCatalogReferenceMember CatalogReference;
 
 };
 

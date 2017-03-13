@@ -40,6 +40,7 @@ oscRelativeDistance()
         type.enumType = Enum_RelativeDistance_typeType::instance();
         rule.enumType = Enum_ruleType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
     oscString entity;
     oscEnum type;
     oscDouble value;

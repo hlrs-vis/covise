@@ -18,13 +18,13 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT Enum_ObjectTypeType : public oscEnumType
+class OPENSCENARIOEXPORT oscObjectTypeType : public oscEnumType
 {
 public:
-static Enum_ObjectTypeType *instance();
+static oscObjectTypeType *instance();
     private:
-		Enum_ObjectTypeType();
-	    static Enum_ObjectTypeType *inst; 
+		oscObjectTypeType();
+	    static oscObjectTypeType *inst; 
 };
 class OPENSCENARIOEXPORT oscByType : public oscObjectBase
 {
@@ -32,11 +32,11 @@ public:
 oscByType()
 {
         OSC_ADD_MEMBER(type, 0);
-        type.enumType = Enum_ObjectTypeType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition/Collision";};
     oscEnum type;
 
-    enum Enum_ObjectType
+    enum oscObjectType
     {
 pedestrian,
 vehicle,

@@ -42,6 +42,7 @@ oscCatalogs()
         OSC_OBJECT_ADD_MEMBER(TrajectoryCatalog, "oscTrajectoryCatalog", 0);
         OSC_OBJECT_ADD_MEMBER(RouteCatalog, "oscRouteCatalog", 0);
     };
+        const char *getScope(){return "";};
     oscVehicleCatalogMember VehicleCatalog;
     oscDriverCatalogMember DriverCatalog;
     oscPedestrianCatalogMember PedestrianCatalog;

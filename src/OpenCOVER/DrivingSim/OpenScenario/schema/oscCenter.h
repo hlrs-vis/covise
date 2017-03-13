@@ -27,6 +27,7 @@ oscCenter()
         OSC_ADD_MEMBER(y, 0);
         OSC_ADD_MEMBER(z, 0);
     };
+        const char *getScope(){return "/OSCBoundingBox";};
     oscDouble x;
     oscDouble y;
     oscDouble z;

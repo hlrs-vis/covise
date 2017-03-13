@@ -27,6 +27,7 @@ oscSun()
         OSC_ADD_MEMBER(azimuth, 0);
         OSC_ADD_MEMBER(elevation, 0);
     };
+        const char *getScope(){return "/OSCEnvironment/Weather";};
     oscDouble intensity;
     oscDouble azimuth;
     oscDouble elevation;

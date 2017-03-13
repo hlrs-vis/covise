@@ -59,6 +59,7 @@ private:
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);
 	std::string xodrDirectory;
+	std::string xoscDirectory;
 	xercesc::DOMElement *getOpenDriveRootElement(std::string);
 	void parseOpenDrive(xercesc::DOMElement *);
 	xercesc::DOMElement *rootElement;

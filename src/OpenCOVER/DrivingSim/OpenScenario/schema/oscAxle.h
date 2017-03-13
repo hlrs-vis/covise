@@ -29,6 +29,7 @@ oscAxle()
         OSC_ADD_MEMBER(positionX, 0);
         OSC_ADD_MEMBER(positionZ, 0);
     };
+        const char *getScope(){return "";};
     oscDouble maxSteering;
     oscDouble wheelDiameter;
     oscDouble trackWidth;

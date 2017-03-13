@@ -25,6 +25,7 @@ oscCommand()
 {
         OSC_ADD_MEMBER(name, 0);
     };
+        const char *getScope(){return "/OSCCondition/ByState";};
     oscString name;
 
 };

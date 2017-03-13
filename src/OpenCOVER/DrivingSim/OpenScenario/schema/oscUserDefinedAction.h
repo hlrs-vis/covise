@@ -15,6 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscStringElement.h"
 #include "oscScript.h"
 
 namespace OpenScenario
@@ -24,8 +25,11 @@ class OPENSCENARIOEXPORT oscUserDefinedAction : public oscObjectBase
 public:
 oscUserDefinedAction()
 {
+        OSC_OBJECT_ADD_MEMBER(Command, "oscStringElement", 1);
         OSC_OBJECT_ADD_MEMBER(Script, "oscScript", 1);
     };
+        const char *getScope(){return "";};
+    oscStringElementMember Command;
     oscScriptMember Script;
 
 };

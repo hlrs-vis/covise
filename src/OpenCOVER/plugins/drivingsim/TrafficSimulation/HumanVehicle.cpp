@@ -284,6 +284,10 @@ void HumanVehicle::move(double dt)
     human_v = v;
 }
 
+void HumanVehicle::setPosition(float x, float y, float z){
+//geometry->setTransformByCoordinates(x, y, z);
+}
+
 VehicleGeometry *HumanVehicle::getVehicleGeometry()
 {
     return geometry;

@@ -8,18 +8,18 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscByType.h"
 
 using namespace OpenScenario;
-Enum_ObjectTypeType::Enum_ObjectTypeType()
+oscObjectTypeType::oscObjectTypeType()
 {
 addEnum("pedestrian", oscByType::pedestrian);
 addEnum("vehicle", oscByType::vehicle);
 addEnum("miscellaneous", oscByType::miscellaneous);
 }
-Enum_ObjectTypeType *Enum_ObjectTypeType::instance()
+oscObjectTypeType *oscObjectTypeType::instance()
 {
 	if (inst == NULL)
 	{
-		inst = new Enum_ObjectTypeType();
+		inst = new oscObjectTypeType();
 	}
 	return inst;
 }
-Enum_ObjectTypeType *Enum_ObjectTypeType::inst = NULL;
+oscObjectTypeType *oscObjectTypeType::inst = NULL;

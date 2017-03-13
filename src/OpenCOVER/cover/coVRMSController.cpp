@@ -2206,16 +2206,24 @@ std::string coVRMSController::syncString(const std::string &s)
     {
         sz = s.size();
         sendSlaves(&sz, sizeof(sz));
-        sendSlaves(s.c_str(), sz);
+        if (sz > 0)
+            sendSlaves(s.c_str(), sz);
         return s;
     }
     else
     {
         readMaster(&sz, sizeof(sz));
-        std::vector<char> v(sz);
-        readMaster(&v[0], sz);
-        std::string r(&v[0], sz);
-        return r;
+        if (sz > 0)
+        {
+            std::vector<char> v(sz);
+            readMaster(&v[0], sz);
+            std::string r(&v[0], sz);
+            return r;
+        }
+        else
+        {
+            return std::string();
+        }
     }
 }
 

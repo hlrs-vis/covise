@@ -80,15 +80,15 @@
 #include "schema/oscActions.h"
 #include "schema/oscPrivateAction.h"
 #include "schema/oscPrivate.h"
-#include "schema/oscOpenSCENARIO_TrajectoryCatalog.h"
-#include "schema/oscOpenSCENARIO_DriverCatalog.h"
-#include "schema/oscOpenSCENARIO_EnvironmentCatalog.h"
-#include "schema/oscOpenSCENARIO_ManeuverCatalog.h"
-#include "schema/oscOpenSCENARIO_MiscObjectCatalog.h"
-#include "schema/oscOpenSCENARIO_PedestrianCatalog.h"
-#include "schema/oscOpenSCENARIO_PedestrianControllerCatalog.h"
-#include "schema/oscOpenSCENARIO_VehicleCatalog.h"
-#include "schema/oscOpenSCENARIO_RouteCatalog.h"
+#include "schema/oscTrajectoryCatalog.h"
+#include "schema/oscDriverCatalog.h"
+#include "schema/oscEnvironmentCatalog.h"
+#include "schema/oscManeuverCatalog.h"
+#include "schema/oscMiscObjectCatalog.h"
+#include "schema/oscPedestrianCatalog.h"
+#include "schema/oscPedestrianControllerCatalog.h"
+#include "schema/oscVehicleCatalog.h"
+#include "schema/oscRouteCatalog.h"
 
 
 // Boost //
@@ -155,7 +155,7 @@ OpenScenarioEditor::init()
 
 		if (!oscBase_->getOSCElement(object))
 		{
-			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->name.getValue()), object);
+			OSCElement *element = new OSCElement(QString::fromStdString(catalogReference->catalogName.getValue()), object);
 			oscBase_->addOSCElement(element);
 		}
 	}
@@ -170,41 +170,41 @@ OpenScenarioEditor::init()
             OpenScenario::oscCatalog *trajectoryCatalog = catalogs->TrajectoryCatalog.getOrCreateObject();
             if (trajectoryCatalog->getObjectsMap().size() == 0)
             {
-                //get all catalog object filenames
-                std::vector<bf::path> filenames = trajectoryCatalog->getXoscFilesFromDirectory(trajectoryCatalog->Directory->path.getValue());
 
                 //parse all files
                 //store object name and filename in map
-                trajectoryCatalog->fastReadCatalogObjects(filenames);
+                trajectoryCatalog->fastReadCatalogObjects();
             }
 
             foreach (OpenScenario::oscObjectBase *objectBase, trajectoryObjects)
             {
                 OpenScenario::oscFollowTrajectory *objectTrajectory = dynamic_cast<OpenScenario::oscFollowTrajectory *>(objectBase);
-                std::string name = objectTrajectory->name.getValue();
-                OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
+                std::string name = objectTrajectory->CatalogReference->entryName.getValue();
+                OpenScenario::oscTrajectoryCatalog *catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 if (!catalogObject)
                 {
                     trajectoryCatalog->fullReadCatalogObjectWithName(name);
-                    catalogObject = dynamic_cast<OpenScenario::oscOpenSCENARIO_TrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
+                    catalogObject = dynamic_cast<OpenScenario::oscTrajectoryCatalog *>(trajectoryCatalog->getCatalogObject(name));
                 }
-				OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
-				OpenScenario::oscTrajectory *catalogTrajectory = NULL;
-				for (int i = 0; i < trajectoryArray->size(); i++)
+				if(catalogObject)
 				{
-					OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryArray->at(i));
-					if (trajectory->name.getValue() == name)
+					OpenScenario::oscArrayMember *trajectoryArray = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember("Trajectory"));
+					OpenScenario::oscTrajectory *catalogTrajectory = NULL;
+					for (int i = 0; i < trajectoryArray->size(); i++)
 					{
-						catalogTrajectory = trajectory;
-						break;
+						OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryArray->at(i));
+						if (trajectory->name.getValue() == name)
+						{
+							catalogTrajectory = trajectory;
+							break;
+						}
 					}
-				}
+					if (catalogTrajectory)
+					{
 
-				if (catalogTrajectory)
-				{
-
-					OSCElement *element = new OSCElement(QString::fromStdString(name), catalogTrajectory);
-					oscBase_->addOSCElement(element);
+						OSCElement *element = new OSCElement(QString::fromStdString(name), catalogTrajectory);
+						oscBase_->addOSCElement(element);
+					}
 				}
             }
         }
@@ -322,7 +322,7 @@ OpenScenarioEditor::getElements(oscObjectBase *root, const std::string &type)
 			}
 			else
 			{
-				oscObjectBase *objectBase = member->getObject();
+				oscObjectBase *objectBase = member->getObjectBase();
 				if (objectBase)
 				{
 					if (member->getTypeName() == type)
@@ -420,7 +420,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 {
 
 	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->Catalogs.getOrCreateObject();
-	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getOrCreateObject());
+	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getOrCreateObjectBase());
 	QString catalogDir = OSCSettings::instance()->getCatalogDir();
 	std::string catalogsDir = catalogDir.toStdString(); 
 	if (!bf::exists(bf::path(catalogsDir)))
@@ -739,7 +739,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 							OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
 							OpenScenario::oscMember *objectsMember = entitiesObject->getMember("Object");
-							OpenScenario::oscObjectBase *objects = objectsMember->getOrCreateObject();
+							OpenScenario::oscObjectBase *objects = objectsMember->getOrCreateObjectBase();
 
 							OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(objectsMember);
 
@@ -755,8 +755,8 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 								{
 									oscObject->name.setValue(selectedObjectName);
 								}
-								catalogReference->name.setValue(selectedObjectName);
-								catalogReference->catalog.setValue(oscCatalog_->getCatalogName() + "Catalog");
+								catalogReference->entryName.setValue(selectedObjectName);
+								catalogReference->catalogName.setValue(oscCatalog_->getCatalogName() + "Catalog");
 
 								translateObject(privateAction, road->getID(), s, t);
 
@@ -842,7 +842,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 				OpenScenario::oscMember *member = openScenarioBase_->getMember(oscObjectName.toStdString());
 				if (member)
 				{
-					OpenScenario::oscObjectBase *object = member->getOrCreateObject();
+					OpenScenario::oscObjectBase *object = member->getOrCreateObjectBase();
 
 					OSCElement *memberElement = oscBase_->getOrCreateOSCElement(object);
 					if (memberElement)

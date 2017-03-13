@@ -29,6 +29,7 @@ oscActionParameter()
         OSC_OBJECT_ADD_MEMBER(Set, "oscSet", 1);
         OSC_OBJECT_ADD_MEMBER(Modify, "oscModify", 1);
     };
+        const char *getScope(){return "/OSCGlobalAction";};
     oscString name;
     oscSetMember Set;
     oscModifyMember Modify;

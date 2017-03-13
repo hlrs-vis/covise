@@ -53,6 +53,7 @@ public:
     }
 
     virtual void move(double) = 0;
+	virtual void setPosition(float,float,float) = 0;
     virtual void makeDecision(){};
     virtual bool canPass()
     {

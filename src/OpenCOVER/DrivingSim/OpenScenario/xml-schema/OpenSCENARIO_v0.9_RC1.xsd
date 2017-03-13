@@ -201,7 +201,7 @@
                                 <xsd:attribute name="name"  type="xsd:string" use="required"/>
                             </xsd:complexType>
                         </xsd:element>
-                        <xsd:element name="End">
+                        <xsd:element name="End" minOccurs="0">
                             <xsd:complexType>
                                 <xsd:sequence>
                                     <xsd:element name="ConditionGroup" type="OSCConditionGroup" minOccurs="0" maxOccurs="unbounded"/>

@@ -65,7 +65,9 @@ protected:
     bf::path m_xsdPathFileName; ///< store the actual loaded xsd schema grammar file
 
 public:
+
 	oscFileHeaderMember FileHeader;
+	oscParameterDeclarationMember ParameterDeclaration;
 	oscCatalogsMember Catalogs;
 	oscRoadNetworkMember RoadNetwork;
 	oscEntitiesMember Entities;
@@ -86,6 +88,7 @@ public:
     bool getValidation() const;
     void setFullReadCatalogs(const bool fullReadCatalogs); ///<  turn on/off full read of catalog objects
     bool getFullReadCatalogs() const;
+	oscObjectBase *getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName);
 
     //
     void setPathFromCurrentDirToDoc(const bf::path &path);

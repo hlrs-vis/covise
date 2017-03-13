@@ -15,8 +15,10 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscLongitudinal.h"
-#include "oscLateral.h"
+#include "oscTrajectory.h"
+#include "oscCatalogReference.h"
+#include "oscLongitudinalParams.h"
+#include "oscLateralParams.h"
 
 namespace OpenScenario
 {
@@ -25,13 +27,16 @@ class OPENSCENARIOEXPORT oscFollowTrajectory : public oscObjectBase
 public:
 oscFollowTrajectory()
 {
-        OSC_ADD_MEMBER(name, 0);
-        OSC_OBJECT_ADD_MEMBER(Longitudinal, "oscLongitudinal", 0);
-        OSC_OBJECT_ADD_MEMBER(Lateral, "oscLateral", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Trajectory, "oscTrajectory", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(CatalogReference, "oscCatalogReference", 0);
+        OSC_OBJECT_ADD_MEMBER(Longitudinal, "oscLongitudinalParams", 0);
+        OSC_OBJECT_ADD_MEMBER(Lateral, "oscLateralParams", 0);
     };
-    oscString name;
-    oscLongitudinalMember Longitudinal;
-    oscLateralMember Lateral;
+        const char *getScope(){return "/OSCPrivateAction/Routing";};
+    oscTrajectoryMember Trajectory;
+    oscCatalogReferenceMember CatalogReference;
+    oscLongitudinalParamsMember Longitudinal;
+    oscLateralParamsMember Lateral;
 
 };
 

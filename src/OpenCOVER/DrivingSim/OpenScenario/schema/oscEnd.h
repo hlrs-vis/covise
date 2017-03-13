@@ -26,6 +26,7 @@ oscEnd()
 {
         OSC_OBJECT_ADD_MEMBER(ConditionGroup, "oscConditionGroup", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Story/Act/ActConditions";};
     oscConditionGroupArrayMember ConditionGroup;
 
 };

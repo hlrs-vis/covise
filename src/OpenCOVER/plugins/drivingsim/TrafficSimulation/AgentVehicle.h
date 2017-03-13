@@ -92,6 +92,7 @@ public:
     ~AgentVehicle();
 
     void move(double dt);
+	void setPosition(float x, float y, float z);
     void makeDecision();
 
     void checkForCrosswalk(double dt);

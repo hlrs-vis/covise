@@ -28,6 +28,7 @@ oscSpline()
         OSC_OBJECT_ADD_MEMBER(ControlPoint1, "oscControlPoint1", 0);
         OSC_OBJECT_ADD_MEMBER(ControlPoint2, "oscControlPoint2", 0);
     };
+        const char *getScope(){return "/OSCTrajectory/Vertex/Shape";};
     oscControlPoint1Member ControlPoint1;
     oscControlPoint2Member ControlPoint2;
 

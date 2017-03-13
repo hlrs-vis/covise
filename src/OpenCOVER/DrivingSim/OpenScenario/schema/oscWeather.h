@@ -40,6 +40,7 @@ oscWeather()
         OSC_OBJECT_ADD_MEMBER(Precipitation, "oscPrecipitation", 0);
         cloudState.enumType = Enum_cloudStateType::instance();
     };
+        const char *getScope(){return "/OSCEnvironment";};
     oscEnum cloudState;
     oscSunMember Sun;
     oscFogMember Fog;
