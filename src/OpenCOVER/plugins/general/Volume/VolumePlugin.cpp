@@ -28,6 +28,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRPluginList.h>
 
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
@@ -1442,6 +1443,10 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                 updateVolume(geometry->getName(), volDesc);
             else
                 updateVolume("Anonymous COVISE object", volDesc);
+            if (currentVolume != volumes.end())
+            {
+                coVRPluginList::instance()->addNode(currentVolume->second.transform, container, this);
+            }
 
             if (shader >= 0 && currentVolume != volumes.end())
             {
@@ -1474,6 +1479,7 @@ void VolumePlugin::removeObject(const char *name, bool)
     vvDebugMsg::msg(2, "VolumePlugin::VRRemoveObject()");
 
     updateVolume(name, NULL);
+
 }
 
 void VolumePlugin::cropVolume()
@@ -1589,6 +1595,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         VolumeMap::iterator volume = volumes.find(name);
         if (volume == volumes.end())
             return false;
+
+        coVRPluginList::instance()->removeNode(volume->second.transform, false, volume->second.transform);
 
         if (volume == currentVolume)
         {
