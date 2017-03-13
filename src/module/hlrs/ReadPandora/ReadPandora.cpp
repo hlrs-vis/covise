@@ -150,20 +150,34 @@ int ReadPandora::compute(const char *port)
 				coDoFloat *fdata = new coDoFloat(objName.c_str(), width*height);
 				char datasetName[200];
                 sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i+first);
+                int dims[] = { width, height, 1 };
 				if (true)
 				{
-					float *fd = fdata->getAddress();
-					H5LTread_dataset_float(file_id, datasetName, fd);
-				}
+                    std::vector<float> data(width*height);
+                    H5LTread_dataset_float(file_id, datasetName, &data[0]);
+                    float *fd = fdata->getAddress();
+                    for (int i = 0; i < width; ++i)
+                    {
+                        for (int j=0; j<height; ++j)
+                        {
+                            int n = coIndex(i, height-1-j, 0, dims);
+                            fd[n] = data[j*width+i];
+                        }
+                    }
+                }
 				else
 				{
                     std::vector<int> data(width*height);
 					H5LTread_dataset_int(file_id, datasetName, &data[0]);
 					float *fd = fdata->getAddress();
-					for (int n = 0; n < width * height; n++)
-					{
-						fd[n] = (float)data[n];
-					}
+                    for (int i = 0; i < width; ++i)
+                    {
+                        for (int j=0; j<height; ++j)
+                        {
+                            int n = coIndex(i, height-1-j, 0, dims);
+                            fd[n] = (float)data[j*width+i];
+                        }
+                    }
 				}
 
 				dataObjects[i] = fdata;
