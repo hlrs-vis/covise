@@ -584,8 +584,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         {
             copyInt(geometryFlag);
         }
-
-        if (strcmp(type, "SETELE") == 0)
+        else if (strcmp(type, "SETELE") == 0)
         {
             copyInt(size);
         }
