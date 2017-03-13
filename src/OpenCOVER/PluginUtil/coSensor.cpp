@@ -30,7 +30,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 #include <osg/DrawPixels>
-#include <osg/PolygonOffset>
 #include <osg/BoundingSphere>
 #include <osg/Geode>
 #include <osg/Light>
