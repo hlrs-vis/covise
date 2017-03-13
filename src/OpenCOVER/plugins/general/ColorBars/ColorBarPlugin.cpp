@@ -107,20 +107,22 @@ ColorBarPlugin::removeObject(const char *container, bool replace)
     std::map<std::string, ColorBar *>::iterator it = containerMap.find(container);
     if (it != containerMap.end())
     {
+        ColorBar *colorbar = it->second;
         for (std::map<std::string, ColorBar *>::iterator it2 = colorbars.begin();
              it2 != colorbars.end();
              ++it2)
         {
-            if (it->second == it2->second)
+            if (colorbar == it2->second)
             {
                 colorbars.erase(it2);
                 break;
             }
         }
-        coSubMenuItem *item = menuMap[it->second];
-        delete it->second;
-        delete item;
+        coSubMenuItem *item = menuMap[colorbar];
+        menuMap.erase(colorbar);
         containerMap.erase(it);
+        delete item;
+        delete colorbar;
     }
 }
 
@@ -206,11 +208,6 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         }
         colorBar->addInter(inter);
 
-        std::map<std::string, ColorBar *>::iterator it2 = containerMap.find(containerName);
-        if (it2 != containerMap.end())
-        {
-            containerMap.erase(it2);
-        }
         containerMap[containerName] = colorBar;
 
         delete[] species;
