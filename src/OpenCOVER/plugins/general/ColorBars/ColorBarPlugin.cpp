@@ -34,7 +34,7 @@ bool ColorBarPlugin::init()
     //fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
     colorSubmenu = NULL;
     colorButton = NULL;
-    colorbars.clear();
+    colorsModuleMap.clear();
     tabID = 0;
 
     // create the TabletUI User-Interface
@@ -65,13 +65,7 @@ ColorBarPlugin::~ColorBarPlugin()
 
     delete colorButton;
     delete colorSubmenu;
-    for (std::map<std::string, ColorBar *>::iterator it = colorbars.begin();
-         it != colorbars.end();
-         ++it)
-    {
-        delete it->second;
-    }
-    colorbars.clear();
+    colorsModuleMap.clear();
 
     removeMenuEntry();
 }
@@ -101,28 +95,28 @@ void ColorBarPlugin::tabletPressEvent(coTUIElement *)
 void
 ColorBarPlugin::removeObject(const char *container, bool replace)
 {
-    if (replace) // partially handled by newInteractor
-        return;
-
-    std::map<std::string, ColorBar *>::iterator it = containerMap.find(container);
-    if (it != containerMap.end())
+    InteractorMap::iterator it = interactorMap.find(container);
+    if (it != interactorMap.end())
     {
-        ColorBar *colorbar = it->second;
-        for (std::map<std::string, ColorBar *>::iterator it2 = colorbars.begin();
-             it2 != colorbars.end();
+        coInteractor *inter = it->second;
+        interactorMap.erase(it);
+
+        for (ColorsModuleMap::iterator it2 = colorsModuleMap.begin();
+             it2 != colorsModuleMap.end();
              ++it2)
         {
-            if (colorbar == it2->second)
+            if (it2->first->isSame(inter))
             {
-                colorbars.erase(it2);
-                break;
+                --it2->second.useCount;
+                if (it2->second.useCount == 0)
+                {
+                    it2->first->decRefCount();
+                    colorsModuleMap.erase(it2);
+                    break;
+                }
             }
         }
-        coSubMenuItem *item = menuMap[colorbar];
-        menuMap.erase(colorbar);
-        containerMap.erase(it);
-        delete item;
-        delete colorbar;
+        inter->decRefCount();
     }
 }
 
@@ -132,6 +126,27 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
     if (strcmp(inter->getPluginName(), "ColorBars") == 0)
     {
         const char *containerName = container->getName();
+        interactorMap[containerName] = inter;
+        inter->incRefCount();
+
+        bool found = false;
+        ColorsModuleMap::iterator it = colorsModuleMap.begin();
+        for (; it != colorsModuleMap.end(); ++it)
+        {
+            if (it->first->isSame(inter))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            it = colorsModuleMap.insert(ColorsModuleMap::value_type(inter, ColorsModule())).first;
+            inter->incRefCount();
+        }
+        ColorsModule &mod = it->second;
+        ++mod.useCount;
 
         const char *colormapString = NULL;
         colormapString = inter->getString(0); // Colormap string
@@ -185,13 +200,10 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         if (container && container->getAttribute("OBJECTNAME"))
             menuName = container->getAttribute("OBJECTNAME");
 
-        map<std::string, ColorBar *>::iterator it = colorbars.find(moduleName);
-        opencover::ColorBar *colorBar = NULL;
-        if (it != colorbars.end())
+        if (found)
         {
-            colorBar = it->second;
-            colorBar->update(species, min, max, numColors, r, g, b, a);
-            colorBar->setName(menuName.c_str());
+            mod.colorbar->update(species, min, max, numColors, r, g, b, a);
+            mod.colorbar->setName(menuName.c_str());
         }
         else
         {
@@ -201,14 +213,11 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
 
             if (colorSubmenu)
                 colorSubmenu->add(menuItem);
+            mod.menu = menuItem;
 
-            colorBar = new ColorBar(menuItem, _menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
-            colorbars.insert(pair<std::string, ColorBar *>(moduleName, colorBar));
-            menuMap[colorBar] = menuItem;
+            mod.colorbar = new ColorBar(menuItem, _menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
         }
-        colorBar->addInter(inter);
-
-        containerMap[containerName] = colorBar;
+        mod.colorbar->addInter(inter);
 
         delete[] species;
         delete[] r;
