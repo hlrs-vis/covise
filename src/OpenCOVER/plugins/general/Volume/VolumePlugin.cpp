@@ -2064,7 +2064,7 @@ void VolumePlugin::preFrame()
         // start ROI move
         invStartMove.invert(mouse ? cover->getMouseMat() : cover->getPointerMat());
         if (currentVolume != volumes.end())
-            startPointerPosWorld = currentVolume->second.roiPosObj * cover->getBaseMat();
+            startPointerPosWorld = currentVolume->second.roiPosObj * currentVolume->second.transform->getMatrix() * cover->getBaseMat();
         else
             startPointerPosWorld = Vec3(0., 0., 0.) * cover->getBaseMat();
     }
@@ -2077,11 +2077,13 @@ void VolumePlugin::preFrame()
     if (interactionA->isRunning())
     {
         Matrix moveMat;
-        Vec3 roiPosWorld;
         moveMat.mult(invStartMove, mouse ? cover->getMouseMat() : cover->getPointerMat());
-        roiPosWorld = startPointerPosWorld * moveMat;
+        Vec3 roiPosWorld = startPointerPosWorld * moveMat;
         if (currentVolume != volumes.end())
-            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * currentVolume->second.transform->getMatrix();
+        {
+            osg::Matrix t = osg::Matrix::inverse(currentVolume->second.transform->getMatrix());
+            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * t;
+        }
 
         if (drawable)
         {
