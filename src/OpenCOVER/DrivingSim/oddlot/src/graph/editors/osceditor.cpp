@@ -959,9 +959,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			if (action)
 			{
 				// Save catalog //
-				oscCatalog_->writeCatalogToDOM();
-				oscCatalog_->writeCatalogToDisk();
-				oscCatalog_->clearDOM();
+				oscCatalog_->writeCatalogsToDisk();
 
 
 /*				QString type = action->getText();

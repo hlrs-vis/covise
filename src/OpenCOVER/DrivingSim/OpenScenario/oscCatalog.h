@@ -84,7 +84,7 @@ protected:
 	
 public:
     //
-
+	oscCatalogFile *getCatalogFile(int index);
 	void clearAllCatalogs();
 	void fastReadCatalogObjects(); ///< parse files and add objectRefId and filePath to ObjectsMap
     void getXoscFilesFromDirectory(); ///< find xosc file recursively in given directory
@@ -97,7 +97,7 @@ public:
     //availableObjects
     void setObjectsMap(const ObjectsMap &availableObjects);
     ObjectsMap getObjectsMap() const;
-// TODO: change to add object to catalog    bool addObjToObjectsMap(const std::string &name, const bf::path &fileNamePath, oscObjectBase *object);
+    bool addObjToObjectsMap(const std::string &name, oscCatalogFile *catf, oscObjectBase *object);
     bool removeObjFromObjectsMap(const std::string &name);
 	std::string getPath(const std::string &name);
 	std::string getObjectPath(OpenScenario::oscObjectBase *object);
@@ -107,7 +107,7 @@ public:
     bool fullReadCatalogObjectWithName(const std::string &name); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map
     //bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
    // bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to ObjectsMap
-  //  bool addCatalogObject(const std::string &name, oscObjectBase *objectBase, const bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
+    bool addCatalogObject(const std::string &name, oscObjectBase *objectBase, oscCatalogFile *catFile); ///< add objectRefId and fileName and objectPtr to ObjectsMap
    // bool removeCatalogObject(const std::string &name); ///< remove object with refId objectRefId from ObjectsMap
     oscObjectBase *getCatalogObject(const std::string &name); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 

@@ -283,7 +283,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 						obj = oscElement_->getObject();
 					}
 
-					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
+					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, catalog_->getCatalogFile(0), base_, oscElement_);
 
 					if (addCatalogObjectCommand->isValid())
 					{

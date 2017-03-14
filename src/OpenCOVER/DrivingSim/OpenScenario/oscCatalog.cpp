@@ -25,6 +25,18 @@ namespace ba = boost::algorithm;
 using namespace OpenScenario;
 
 
+oscCatalogFile *oscCatalog::getCatalogFile(int index)
+{
+	if (xoscFiles.size() == 0)
+	{
+		oscCatalogFile *cat = new oscCatalogFile();
+		cat->catalogName = "oddlotCatalog";
+		cat->setPath("oddlotCatalog.xosc");
+		xoscFiles.push_back(cat);
+	}
+	return xoscFiles[0];
+}
+
 /*****
  * public functions
  *****/
@@ -191,8 +203,7 @@ oscCatalog::ObjectsMap oscCatalog::getObjectsMap() const
 {
     return m_Objects;
 }
-/*
-bool oscCatalog::addObjToObjectsMap(const std::string &name, const bf::path &fileNamePath, oscObjectBase *object)
+bool oscCatalog::addObjToObjectsMap(const std::string &name, oscCatalogFile *catf, oscObjectBase *object)
 {
     ObjectsMap::const_iterator found = m_Objects.find(name);
     if (found != m_Objects.end())
@@ -201,18 +212,18 @@ bool oscCatalog::addObjToObjectsMap(const std::string &name, const bf::path &fil
         return false;
     }
 
-	ObjectParams params = { fileNamePath, object};
+	ObjectParams params = { catf, object};
     std::pair<ObjectsMap::const_iterator, bool> returnVal = m_Objects.emplace(name, params);
     if (returnVal.second == false)
     {
-        std::cerr << "Error! Can't insert name " << name << " from file " << fileNamePath << "into map of available objects." << std::endl;
+        std::cerr << "Error! Can't insert name " << name << " from file " << catf->getPath().filename().generic_string() << "into map of available objects." << std::endl;
         return false;
     }
     else
     {
         return true;
     }
-}*/
+}
 /// returns true if an element has been removed
 bool oscCatalog::removeObjFromObjectsMap(const std::string &name)
 {
@@ -521,18 +532,18 @@ bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
         return false;
     }
 }
-
-bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *objectBase, const bf::path &fileNamePath)
+*/
+bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *objectBase, oscCatalogFile *catf)
 {
 
-	if (objectBase != NULL && !fileNamePath.empty())
+	if (objectBase != NULL )
 	{
 		ObjectsMap::const_iterator foundObjects = m_Objects.find(name);
 
 		if (foundObjects == m_Objects.end())
 		{
 			//add objectRefId and fileName to m_Objects
-			if (addObjToObjectsMap(name, fileNamePath, objectBase))
+			if (addObjToObjectsMap(name, catf, objectBase))
 			{
 				return true;
 			}
@@ -548,7 +559,7 @@ bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *object
 	}
 
 	return false;
-}*/
+}
 
 void oscCatalogFile::removeObject(oscObjectBase *obj)
 {
@@ -693,10 +704,12 @@ void oscCatalog::clearDOMs()
 
 void oscCatalog::writeCatalogsToDisk()
 {
+	writeCatalogsToDOM();
 	for (size_t i = 0; i < xoscFiles.size(); i++)
 	{
 		xoscFiles[i]->srcFile->writeFileToDisk();
 	}
+	clearDOMs();
 }
 
 /*****

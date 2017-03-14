@@ -1,5 +1,6 @@
 #include "Maneuver.h"
 #include <cover/coVRPluginSupport.h>
+#include <iterator>
 #include <math.h>
 
 Maneuver::Maneuver(string name):name(name){currentExecution=0;maneuverCondition=true;totalDistance=0;}
