@@ -230,7 +230,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 					}
 					else
 					{
-						fprintf(stderr,"Road not found in RelativeRoad Position %s\n", position->object.getValue());
+						fprintf(stderr,"Road not found in RelativeRoad Position %s\n", position->object.getValue().c_str());
 					}
 				}
 				else
