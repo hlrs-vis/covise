@@ -1041,7 +1041,7 @@ int Colors::compute(const char *)
 
     // ---- Create the colors
 
-    if (data && p_color)
+    if (data && p_color && p_color->isConnected())
     {
         outName = p_color->getObjName();
         outObj = createColors(base, alpha, actMap, min, max, numSteps, outName, RGBA);
@@ -1054,7 +1054,7 @@ int Colors::compute(const char *)
 
     // ---- Create the color Texture object
 
-    if (p_texture)
+    if (p_texture && p_texture->isConnected())
     {
         outName = p_texture->getObjName();
         outObj = createColors(base, alpha, actMap, min, max, numSteps, outName, TEX);

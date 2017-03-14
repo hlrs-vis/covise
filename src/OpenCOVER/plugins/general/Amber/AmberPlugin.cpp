@@ -10,6 +10,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRTui.h>
+#include <util/unixcompat.h>
 
 #include <osg/Group>
 #include <osg/PositionAttitudeTransform>

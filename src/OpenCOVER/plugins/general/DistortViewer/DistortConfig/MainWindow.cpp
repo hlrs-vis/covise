@@ -10,6 +10,7 @@
 #include "HelpFuncs.h"
 #include "Settings.h"
 #include <QFileDialog>
+#include <util/unixcompat.h>
 //Local
 #include "MainWindow.h"
 #include "PlaneGroup.h"

@@ -40,6 +40,7 @@
 #include <osg/TexEnv>
 #include <osg/Texture>
 #include <osg/Texture2D>
+#include <osg/TextureRectangle>
 #include <osg/Geometry>
 #include <osg/PrimitiveSet>
 #include <osg/CullFace>
@@ -59,6 +60,7 @@
 #include <cover/coVRConfig.h>
 #include <PluginUtil/coSphere.h>
 #include <cover/RenderObject.h>
+#include <do/coDoData.h>
 
 #include <osg/Program>
 #include <osg/Shader>
@@ -118,19 +120,190 @@ GeometryManager::addGroup(const char *object, bool is_timestep)
     return group;
 }
 
-osg::Node *GeometryManager::addUGrid(const char *, int, int,
-                                     int, float, float,
-                                     float, float, float, float,
-                                     int, int, int,
-                                     float *, float *, float *, int *, int,
-                                     int,
-                                     float *, float *, float *, float &)
-
+osg::Node *GeometryManager::addUGrid(const char *object,
+        int xsize, int ysize, int zsize,
+        float xmin, float xmax, float ymin, float ymax, float zmin, float zmax,
+        int no_c, int colorbinding, int colorpacking,
+        float *rc, float *gc, float *bc, int *pc,
+        int no_n, int normalbinding,
+        float *xn, float *yn, float *zn, float &transparency)
 {
+    //std::cerr << "Adding a uniform grid..." << std::endl;
+    osg::Geode *geode = NULL;
 
-    //CoviseRender::sendInfo("Adding a unstructured grid... not implemented");
+    if (xsize>1 && ysize>1 && zsize>1)
+        return geode;
 
-    return ((osg::Node *)NULL);
+    if (colorbinding != Bind::PerVertex)
+        return geode;
+
+    if (no_c != xsize*ysize*zsize)
+        return geode;
+
+    geode = new osg::Geode();
+    geode->setName(object);
+    osg::Geometry *geom = new osg::Geometry();
+    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+
+    // set up geometry
+    osg::Vec3Array *vert = new osg::Vec3Array;
+    osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::QUADS);
+    primitives->push_back(4);
+
+    int flatDim = 0;
+    if (xsize == 1)
+        flatDim = 0;
+    else if (ysize == 1)
+        flatDim = 1;
+    else if (zsize == 1)
+        flatDim = 2;
+
+    int w=0, h=0;
+    switch (flatDim)
+    {
+        case 0:
+        {
+            w = ysize;
+            h = zsize;
+            float x = (xmin+xmax)*.5;
+            vert->push_back(osg::Vec3(x, ymin, zmin));
+            vert->push_back(osg::Vec3(x, ymin, zmax));
+            vert->push_back(osg::Vec3(x, ymax, zmax));
+            vert->push_back(osg::Vec3(x, ymax, zmin));
+            break;
+        }
+        case 1:
+        {
+            w = xsize;
+            h = zsize;
+            float y = (ymin+ymax)*.5;
+            vert->push_back(osg::Vec3(xmin, y, zmin));
+            vert->push_back(osg::Vec3(xmin, y, zmax));
+            vert->push_back(osg::Vec3(xmax, y, zmax));
+            vert->push_back(osg::Vec3(xmax, y, zmin));
+            break;
+        }
+        case 2:
+        {
+            w = xsize;
+            h = ysize;
+            float z = (zmin+zmax)*.5;
+            vert->push_back(osg::Vec3(xmin, ymin, z));
+            vert->push_back(osg::Vec3(xmin, ymax, z));
+            vert->push_back(osg::Vec3(xmax, ymax, z));
+            vert->push_back(osg::Vec3(xmax, ymin, z));
+            break;
+        }
+    }
+
+    geom->setVertexArray(vert);
+    geom->addPrimitiveSet(primitives);
+
+    osg::Vec4Array *color = new osg::Vec4Array(1);
+    (*color)    [0].set(1, 1, 0, 1.0f);
+    geom->setColorArray(color);
+    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    osg::Vec3Array *normal = new osg::Vec3Array(1);
+    (*normal)   [0].set(0.0f, -1.0f, 0.0f);
+    geom->setNormalArray(normal);
+    geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+
+    osg::TextureRectangle *tex = new osg::TextureRectangle;
+    osg::Image *img = new osg::Image();
+#ifndef BYTESWAP
+    if (colorpacking == Pack::RGBA)
+    {
+        img->setImage(w, h, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)pc, osg::Image::NO_DELETE);
+        no_c = 0;
+    }
+    else
+#endif
+    {
+        img->allocateImage(w, h, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+    }
+    tex->setImage(img);
+    img->setPixelBufferObject(new osg::PixelBufferObject(img));
+    tex->setInternalFormat( GL_RGBA );
+    tex->setBorderWidth( 0 );
+    tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+    tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+    tex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+    tex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+
+    // associate colors
+    bool transparent = false;
+    if (no_c > 0)
+    {
+        switch (colorbinding)
+        {
+        case Bind::PerVertex:
+        {
+            int dims[] = { xsize, ysize, zsize };
+            unsigned char *rgba = img->data();
+            for (int z=0; z<zsize; ++z)
+            {
+                for (int y=0; y<ysize; ++y)
+                {
+                    for (int x=0; x<xsize; ++x)
+                    {
+                        int idx = covise::coIndex(x, y, z, dims);
+                        if (colorpacking == Pack::RGBA)
+                        {
+                            float r, g, b, a;
+                            unpackRGBA(pc, idx, &r, &g, &b, &a);
+                            if (a < 1.0f)
+                            {
+                                transparent = true;
+                            }
+                            rgba[0] = r*255.99f;
+                            rgba[1] = g*255.99f;
+                            rgba[2] = b*255.99f;
+                            rgba[3] = a*255.99f;
+                        }
+                        else
+                        {
+                            if (transparency > 0.f)
+                                transparent = true;
+                            rgba[0] = rc[idx]*255.99f;
+                            rgba[1] = gc[idx]*255.99f;
+                            rgba[2] = bc[idx]*255.99f;
+                            rgba[3] = (1.f-transparency)*255.99f;
+                        }
+                        ++idx;
+                        rgba += 4;
+                    }
+                }
+            }
+            //fprintf(stderr,"COVER INFO: colorbinding per vertex\n");
+
+        }
+        break;
+        }
+    }
+    img->dirty();
+
+   osg::Vec2Array *texcoord  = new osg::Vec2Array(4);
+   (*texcoord)[0].set(0.0,0.0);
+   (*texcoord)[1].set(0.0,h);
+   (*texcoord)[2].set(w,h);
+   (*texcoord)[3].set(w,0.0);
+   geom->setTexCoordArray(0, texcoord);
+
+   osg::TexEnv * texEnv = new osg::TexEnv();
+   texEnv->setMode(osg::TexEnv::REPLACE);
+
+   osg::StateSet *stateSet = geode->getOrCreateStateSet();
+   stateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+   stateSet->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
+   stateSet->setTextureAttribute(0, texEnv);
+   geode->setStateSet(stateSet);
+
+    geode->addDrawable(geom);
+
+    return geode;
 }
 
 osg::Node *

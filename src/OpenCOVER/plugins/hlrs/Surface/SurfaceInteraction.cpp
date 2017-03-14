@@ -18,6 +18,7 @@
 #include <cover/coVRConfig.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <osg/io_utils>
+#include <util/unixcompat.h>
 
 SurfaceInteraction::SurfaceInteraction()
 {

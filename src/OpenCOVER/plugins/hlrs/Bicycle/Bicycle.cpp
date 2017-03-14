@@ -15,6 +15,7 @@
 #include <osg/MatrixTransform>
 #include <osgUtil/IntersectVisitor>
 #include "AVRserialcom.h"
+#include <util/unixcompat.h>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_X11
