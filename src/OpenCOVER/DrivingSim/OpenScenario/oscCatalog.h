@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
+#include "schema/oscFileHeader.h"
 
 #include "schema/oscDirectory.h"
 #include "schema/oscUserDataList.h"
@@ -26,6 +27,8 @@ using std::tr1::unordered_map;
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
 
+#include <string.h>
+
 
 namespace bf = boost::filesystem;
 
@@ -37,19 +40,28 @@ namespace OpenScenario {
 	class OPENSCENARIOEXPORT oscCatalogFile
 	{
 	public:
+		oscCatalogFile();
+		~oscCatalogFile();
 		const bf::path &getPath();
 		void setPath(const bf::path &fn);
+		oscFileHeader *m_Header;
+		std::string catalogName;
+		oscSourceFile *srcFile;
+		void writeCatalogToDOM();
+		std::vector<oscCatalogFile *>xoscFiles;
+		std::vector<oscObjectBase *> objects;
+		void removeObject(oscObjectBase *);
 	private:
 		bf::path fileName;
 	};
-/// \class This class represents a catalog object
+	/// \class This class represents a catalog object
 class OPENSCENARIOEXPORT oscCatalog: public oscObjectBase
 {
 	
 public:
 	typedef struct 
 	{
-		bf::path fileName;
+		oscCatalogFile *xoscFile;
 		oscObjectBase *object;
 	} ObjectParams;
 
@@ -93,7 +105,7 @@ public:
 
     //ObjectsInMemory
     bool fullReadCatalogObjectWithName(const std::string &name); ///< read file for given objectRefId, generate the object structure and add object to ObjectsMap map
-    bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
+    //bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
     bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to ObjectsMap
     bool addCatalogObject(const std::string &name, oscObjectBase *objectBase, const bf::path &fileNamePath); ///< add objectRefId and fileName and objectPtr to ObjectsMap
     bool removeCatalogObject(const std::string &name); ///< remove object with refId objectRefId from ObjectsMap
@@ -104,9 +116,9 @@ public:
 	std::string generateRefId(int startId);
 
 	// write all catalog members to catalogs
-	void writeCatalogToDOM();
-	void clearDOM();
-	void writeCatalogToDisk();
+	void writeCatalogsToDOM();
+	void clearDOMs();
+	void writeCatalogsToDisk();
 	
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude = true);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
