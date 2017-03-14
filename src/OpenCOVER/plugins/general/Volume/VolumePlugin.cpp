@@ -2041,7 +2041,10 @@ void VolumePlugin::preFrame()
     if (roiMode && pointerInROI(&mouse))
     {
         if (drawable)
+        {
             drawable->setROISelected(true);
+            drawable->setBoundaries(true);
+        }
         if (!interactionA->isRegistered())
         {
             coInteractionManager::the()->registerInteraction(interactionA);
@@ -2056,32 +2059,35 @@ void VolumePlugin::preFrame()
     else
     {
         unregister = true;
-        if (drawable)
-            drawable->setROISelected(false);
     }
+
     if (interactionA->wasStarted())
     {
         // start ROI move
-        invStartMove.invert(mouse ? cover->getMouseMat() : cover->getPointerMat());
+        invStartMove.invert(interactionA->is2D() ? cover->getMouseMat() : cover->getPointerMat());
         if (currentVolume != volumes.end())
-            startPointerPosWorld = currentVolume->second.roiPosObj * cover->getBaseMat();
+            startPointerPosWorld = currentVolume->second.roiPosObj * currentVolume->second.transform->getMatrix() * cover->getBaseMat();
         else
             startPointerPosWorld = Vec3(0., 0., 0.) * cover->getBaseMat();
     }
-    int rollCoord = mouse ? 1 : 2;
+    //int rollCoord = interactionB->is2D() ? 1 : 2;
+    int rollCoord = interactionB->is2D() ? 0 : 2;
     if (interactionB->wasStarted())
     {
-        coCoord mouseCoord(mouse ? cover->getMouseMat() : cover->getPointerMat());
+        coCoord mouseCoord(interactionB->is2D() ? cover->getMouseMat() : cover->getPointerMat());
         lastRoll = mouseCoord.hpr[rollCoord];
     }
+
     if (interactionA->isRunning())
     {
         Matrix moveMat;
-        Vec3 roiPosWorld;
-        moveMat.mult(invStartMove, mouse ? cover->getMouseMat() : cover->getPointerMat());
-        roiPosWorld = startPointerPosWorld * moveMat;
+        moveMat.mult(invStartMove, interactionA->is2D() ? cover->getMouseMat() : cover->getPointerMat());
+        Vec3 roiPosWorld = startPointerPosWorld * moveMat;
         if (currentVolume != volumes.end())
-            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * currentVolume->second.transform->getMatrix();
+        {
+            osg::Matrix t = osg::Matrix::inverse(currentVolume->second.transform->getMatrix());
+            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * t;
+        }
 
         if (drawable)
         {
@@ -2100,28 +2106,27 @@ void VolumePlugin::preFrame()
     }
     if (interactionB->isRunning())
     {
-        coCoord mouseCoord(mouse ? cover->getMouseMat() : cover->getPointerMat());
-        if (lastRoll != mouseCoord.hpr[rollCoord])
-        {
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
+        {
+            bool mouse = interactionB->is2D();
+            coCoord mouseCoord(mouse ? cover->getMouseMat() : cover->getPointerMat());
+            if (lastRoll != mouseCoord.hpr[rollCoord])
             {
                 if ((lastRoll - mouseCoord.hpr[rollCoord]) > 180)
                     lastRoll -= 360;
                 if ((lastRoll - mouseCoord.hpr[rollCoord]) < -180)
                     lastRoll += 360;
-                roiCellSize -= (lastRoll - mouseCoord.hpr[rollCoord]) / 90 * (mouse ? 10 : 1);
-                lastRoll = mouseCoord.hpr[rollCoord];
-                if (roiCellSize * roiMaxSize * cover->getScale() < 100)
-                {
-                    //               roiCellSize = 100/(roiMaxSize*cover->getScale());  // retain minimum size for ROI to be visible
-                }
+
+                float rollDiff = (lastRoll - (float)mouseCoord.hpr[rollCoord]) / 90.0f;
+                roiCellSize += rollDiff * (mouse ? 10 : 1);
+                lastRoll = (float)mouseCoord.hpr[rollCoord];
+
                 if (roiCellSize <= 0.1)
                     roiCellSize = 0.1; // retain minimum size for ROI to be visible
                 if (roiCellSize > 1.0)
                     roiCellSize = 1.0;
-
-                cerr << "roi=" << roiCellSize << endl;
+                cerr << "roi=" << roiCellSize << ", mouse=" << mouse << endl;
                 if (drawable)
                     drawable->setROISize(roiCellSize);
                 if (currentVolume != volumes.end())
@@ -2180,7 +2185,13 @@ void VolumePlugin::preFrame()
         {
             unregister = false;
             if (drawable)
+            {
                 drawable->setROISelected(false);
+                if (currentVolume != volumes.end())
+                    drawable->setBoundaries(currentVolume->second.boundaries);
+                else
+                    drawable->setBoundaries(false);
+            }
         }
     }
 }
