@@ -191,7 +191,7 @@ oscCatalog::ObjectsMap oscCatalog::getObjectsMap() const
 {
     return m_Objects;
 }
-
+/*
 bool oscCatalog::addObjToObjectsMap(const std::string &name, const bf::path &fileNamePath, oscObjectBase *object)
 {
     ObjectsMap::const_iterator found = m_Objects.find(name);
@@ -212,7 +212,7 @@ bool oscCatalog::addObjToObjectsMap(const std::string &name, const bf::path &fil
     {
         return true;
     }
-}
+}*/
 /// returns true if an element has been removed
 bool oscCatalog::removeObjFromObjectsMap(const std::string &name)
 {
@@ -483,7 +483,7 @@ bool oscCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePath)
     return success;
 }*/
 
-
+/*
 bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
 {
     if (objectBase)
@@ -548,7 +548,7 @@ bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *object
 	}
 
 	return false;
-}
+}*/
 
 void oscCatalogFile::removeObject(oscObjectBase *obj)
 {
@@ -561,6 +561,7 @@ void oscCatalogFile::removeObject(oscObjectBase *obj)
 		 }
 	 }
 }
+/*
 bool oscCatalog::removeCatalogObject(const std::string &name)
 {
     ObjectsMap::const_iterator found = m_Objects.find(name);
@@ -574,7 +575,7 @@ bool oscCatalog::removeCatalogObject(const std::string &name)
         std::cerr << "Error! Can't remove object with name " << name << " from catalog " << m_catalogName << ". Object not found." << std::endl;
         return false;
     }
-}
+}*/
 
 oscObjectBase *oscCatalog::getCatalogObject(const std::string &name)
 {
@@ -776,6 +777,6 @@ bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile
 //
 bool oscCatalog::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude)
 {
-	writeCatalogToDOM();
+	writeCatalogsToDOM();
 	return oscObjectBase::writeToDOM(currentElement,document,writeInclude);
 }
