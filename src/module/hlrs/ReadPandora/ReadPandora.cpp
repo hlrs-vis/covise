@@ -26,11 +26,13 @@ enum
 {
 	FILE_BROWSER,
 	GEOPORT3D,
+#if 0
 	DPORT1_3D,
 	DPORT2_3D,
 	DPORT3_3D,
 	DPORT4_3D,
 	DPORT5_3D,
+#endif
 	GEOPORT2D,
 	DPORT1_2D,
 	DPORT2_2D,
@@ -263,11 +265,13 @@ ReadPandora::param(const char *paramName, bool inMapLoading)
 					}
 					if (inMapLoading)
 						return;
+#if 0
 					READER_CONTROL->updatePortChoice(DPORT1_3D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT2_3D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT3_3D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT4_3D, vectChoices);
 					READER_CONTROL->updatePortChoice(DPORT5_3D, vectChoices);
+#endif
 					READER_CONTROL->updatePortChoice(DPORT1_2D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT2_2D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT3_2D, scalChoices);
@@ -298,11 +302,13 @@ int main(int argc, char *argv[])
 
 	READER_CONTROL->addOutputPort(GEOPORT3D, "geoOut_3D", "UnstructuredGrid", "Geometry", false);
 
+#if 0
 	READER_CONTROL->addOutputPort(DPORT1_3D, "sdata1_3D", "Float", "data1-3d");
 	READER_CONTROL->addOutputPort(DPORT2_3D, "sdata2_3D", "Float", "data2-3d");
 	READER_CONTROL->addOutputPort(DPORT3_3D, "sdata3_3D", "Float", "data3-3d");
 	READER_CONTROL->addOutputPort(DPORT4_3D, "vdata1_3D", "Vec3", "data2-3d");
 	READER_CONTROL->addOutputPort(DPORT5_3D, "vdata2_3D", "Vec3", "data2-3d");
+#endif
 
     READER_CONTROL->addOutputPort(GEOPORT2D, "geoOut_2D", "UniformGrid", "Geometry", false);
 
