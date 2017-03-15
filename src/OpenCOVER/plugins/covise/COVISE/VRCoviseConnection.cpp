@@ -84,7 +84,7 @@ VRCoviseConnection::VRCoviseConnection()
 
     CoviseRender::reset();
     CoviseRender::set_module_description("Newest VR-Renderer");
-    CoviseRender::add_port(INPUT_PORT, "RenderData", "Geometry|UnstructuredGrid|Points|Spheres|StructuredGrid|Polygons|TriangleStrips|Lines|Float", "render geometry");
+    CoviseRender::add_port(INPUT_PORT, "RenderData", "ColorMap|Geometry|UnstructuredGrid|Points|Spheres|StructuredGrid|Polygons|TriangleStrips|Lines|Float|Vec3", "render geometry");
     CoviseRender::add_port(PARIN, "Viewpoints", "Browser", "Viewpoints");
     CoviseRender::set_port_default("Viewpoints", "./default.vwp");
     CoviseRender::add_port(PARIN, "Viewpoints___filter", "BrowserFilter", "Viewpoints");

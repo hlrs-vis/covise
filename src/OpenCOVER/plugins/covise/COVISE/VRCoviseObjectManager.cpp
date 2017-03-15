@@ -395,8 +395,6 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
 
     if (cover->debugLevel(4))
         fprintf(stderr, "--ObjectManager (%s)::addObject %s\n", getenv("HOST") ? getenv("HOST") : "unknown", object);
-    const char *gtype;
-
     if ((!data_obj) && (coVRMSController::instance()->isMaster()))
     {
         data_obj = coDistributedObject::createFromShm(object);
@@ -407,9 +405,13 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
     {
         //fprintf(stderr, "++++++ObjectManager(%s)::addObject %s  data_obj=%s renderObj=%s\n", getenv("HOST"), object,data_obj->getName(), ro->getName() );
 
-        gtype = ro->getType();
-        if (strcmp(gtype, "DOTEXT") == 0)
+        std::string gtype = ro->getType();
+        if (gtype == "DOTEXT")
         {
+        }
+        else if (gtype == "COLMAP")
+        {
+            addColorMap(object, ro);
         }
         else
         {
@@ -623,6 +625,18 @@ static int create_named_color(const char *cname)
 //----------------------------------------------------------------
 //
 //----------------------------------------------------------------
+void ObjectManager::addColorMap(const char *object, CoviseRenderObject *cmap)
+{
+    std::string species;
+    if (const char *sp = cmap->getAttribute("SPECIES"))
+    {
+        species = sp;
+    }
+
+    handleInteractors(cmap, cmap, NULL, NULL, NULL);
+    coVRPluginList::instance()->addObject(cmap, NULL, NULL, NULL, NULL, NULL);
+}
+
 osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, CoviseRenderObject *geometry,
                                       CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container, const char *lod)
 {
@@ -665,7 +679,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     const char *bindingType, *objName;
     char buf[300];
     const char *tstep_attrib = NULL;
-    const char *feedback_info;
+    const char *feedback_info = NULL;
     unsigned int rgba;
     curset = anzset;
     osg::Texture::WrapMode wrapMode = osg::Texture::CLAMP_TO_EDGE;
@@ -1440,7 +1454,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 colors->getAddresses(rc, gc, bc);
                 gc = NULL;
                 bc = NULL;
-                colorpacking = Pack::None;
+                colorpacking = Pack::Float;
             }
             else if (strcmp(ctype, "USTSDT") == 0)
             {
@@ -1448,7 +1462,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 colors->getAddresses(rc, gc, bc);
                 gc = NULL;
                 bc = NULL;
-                colorpacking = Pack::None;
+                colorpacking = Pack::Float;
             }
             else
             {
@@ -1662,6 +1676,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 stateset->setAttributeAndModes(po, osg::StateAttribute::ON);
             }
             const char *shaderName = geometry->getAttribute("SHADER");
+            if (!shaderName && colorpacking == Pack::Float)
+            {
+                shaderName = "MapColors";
+            }
             if (texture != NULL && !shaderName)
                 shaderName = texture->getAttribute("SHADER");
             if (!shaderName)
