@@ -150,6 +150,7 @@ int ReadPandora::compute(const char *port)
 				string objName(objNameBase);
 				objName = objNameBase + "_" + num;
 				coDoFloat *fdata = new coDoFloat(objName.c_str(), width*height);
+                fdata->addAttribute("SPECIES", scalChoices[dataChoice].c_str());
 				char datasetName[200];
                 sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i+first);
                 int dims[] = { width, height, 1 };
