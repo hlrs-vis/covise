@@ -23,6 +23,7 @@
 #include <osg/Texture1D>
 #include <osg/Texture2D>
 #include <osg/Texture3D>
+#include <osg/TextureRectangle>
 #include <osg/CullFace>
 #include <osg/TextureCubeMap>
 #include <osg/GL2Extensions>
@@ -112,7 +113,7 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
         sscanf(value.c_str(), "%f %f %f %f", &u, &v, &w, &a);
         uniform = new osg::Uniform(name.c_str(), osg::Vec4(u, v, w, a));
     }
-    else if (type == "sampler1D" || type == "sampler2D" || type == "sampler3D" || type == "samplerCube")
+    else if (type == "sampler1D" || type == "sampler2D" || type == "sampler3D" || type == "samplerCube" || type == "sampler2DRect")
     {
         int texUnit = atoi(value.c_str());
         uniform = new osg::Uniform(name.c_str(), texUnit);
@@ -221,6 +222,14 @@ void coVRUniform::setTexture(const char *tf, int i)
                 if (type == "samplerCube")
                 {
                     texture = new osg::TextureCubeMap;
+                }
+                if (type == "sampler2DRect")
+                {
+                    texture = new osg::TextureRectangle;
+
+                    texture->setWrap(osg::Texture::WRAP_R, getWrapMode());
+                    texture->setWrap(osg::Texture::WRAP_S, getWrapMode());
+                    texture->setWrap(osg::Texture::WRAP_T, getWrapMode());
                 }
             }
             texture->setImage(i, image);
@@ -337,7 +346,7 @@ void coVRUniform::setValue(const char *val)
             uniform = new osg::Uniform(name.c_str(), osg::Matrixf(values));
         }
     }
-    else if (type == "sampler2D" || type == "sampler1D" || type == "sampler3D" || type == "samplerCube")
+    else if (type == "sampler2D" || type == "sampler1D" || type == "sampler3D" || type == "samplerCube" || type == "sampler2DRect")
     {
         int i = atoi(val);
         uniform->set(i);
@@ -1128,6 +1137,7 @@ void coVRShaderList::remove(osg::Node *node)
                     stateset->setTextureMode(i, GL_TEXTURE_2D, osg::StateAttribute::OFF);
                     stateset->setTextureMode(i, GL_TEXTURE_3D, osg::StateAttribute::OFF);
                     stateset->setTextureMode(i, GL_TEXTURE_CUBE_MAP, osg::StateAttribute::OFF);
+                    stateset->setTextureMode(i, GL_TEXTURE_RECTANGLE, osg::StateAttribute::OFF);
                 }
             }
             //remove shaders
