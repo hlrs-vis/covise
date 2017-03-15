@@ -215,20 +215,18 @@ osg::Node *GeometryManager::addUGrid(const char *object,
 
     osg::TextureRectangle *tex = new osg::TextureRectangle;
     osg::Image *img = new osg::Image();
-#ifndef BYTESWAP
-    if (colorpacking == Pack::RGBA)
-    {
-        img->setImage(w, h, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)pc, osg::Image::NO_DELETE);
-        no_c = 0;
-    }
-    else
-#endif
+    tex->setImage(img);
+    if (colorpacking == Pack::RGBA || colorpacking == Pack::None)
     {
         img->allocateImage(w, h, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+        tex->setInternalFormat( GL_RGBA );
     }
-    tex->setImage(img);
+    else if (colorpacking == Pack::Float)
+    {
+        img->allocateImage(w, h, 1, GL_LUMINANCE, GL_FLOAT);
+        tex->setInternalFormat(GL_LUMINANCE32F_ARB);
+    }
     img->setPixelBufferObject(new osg::PixelBufferObject(img));
-    tex->setInternalFormat( GL_RGBA );
     tex->setBorderWidth( 0 );
     tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
     tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
@@ -245,6 +243,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
         {
             int dims[] = { xsize, ysize, zsize };
             unsigned char *rgba = img->data();
+            float *fl = (float *)img->data();
             for (int z=0; z<zsize; ++z)
             {
                 for (int y=0; y<ysize; ++y)
@@ -265,7 +264,11 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                             rgba[2] = b*255.99f;
                             rgba[3] = a*255.99f;
                         }
-                        else
+                        else if (colorpacking == Pack::Float)
+                        {
+                            *fl = rc[idx];
+                        }
+                        else if (rc && gc && bc)
                         {
                             if (transparency > 0.f)
                                 transparent = true;
@@ -274,8 +277,12 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                             rgba[2] = bc[idx]*255.99f;
                             rgba[3] = (1.f-transparency)*255.99f;
                         }
-                        ++idx;
+                        else
+                        {
+                            rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0;
+                        }
                         rgba += 4;
+                        ++fl;
                     }
                 }
             }
