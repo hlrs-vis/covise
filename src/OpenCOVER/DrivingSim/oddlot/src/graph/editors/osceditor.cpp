@@ -420,32 +420,37 @@ OpenScenarioEditor::getCatalog(std::string name)
 {
 
 	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->Catalogs.getOrCreateObject();
-	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getOrCreateObjectBase());
-	QString catalogDir = OSCSettings::instance()->getCatalogDir();
-	std::string catalogsDir = catalogDir.toStdString(); 
-	if (!bf::exists(bf::path(catalogsDir)))
+	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getObjectBase());
+	if (catalog == NULL) // create a catalog object if it does not already exist
 	{
-		bf::create_directory(catalogsDir);
-	}
+		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getOrCreateObjectBase());
 
-	OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("Directory"));
-	if (dir)
-	{
-		std::string dirName = catalog->Directory->path.getValue();
-		if (dirName.find(catalogDir.toStdString()) == std::string::npos)
+
+		QString catalogDir = OSCSettings::instance()->getCatalogDir();
+		std::string catalogsDir = catalogDir.toStdString();
+		if (!bf::exists(bf::path(catalogsDir)))
 		{
-			dirName = catalog->Directory->path = catalogsDir + name;
-			if (!bf::exists(bf::path(dirName)))
+			bf::create_directory(catalogsDir);
+		}
+
+		OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("Directory"));
+		if (dir)
+		{
+			std::string dirName = catalog->Directory->path.getValue();
+			if (dirName.find(catalogDir.toStdString()) == std::string::npos)
 			{
-				bf::create_directory(dirName);
+				dirName = catalog->Directory->path = catalogsDir + name;
+				if (!bf::exists(bf::path(dirName)))
+				{
+					bf::create_directory(dirName);
+				}
 			}
 		}
+
+
+		name = name.erase(name.find("Catalog"));
+		catalog->setCatalogNameAndType(name);
 	}
-
-
-	name = name.erase(name.find("Catalog"));
-	catalog->setCatalogNameAndType(name);
-
 	OSCElement *oscElement = oscBase_->getOrCreateOSCElement(catalog);
 
 	return catalog;

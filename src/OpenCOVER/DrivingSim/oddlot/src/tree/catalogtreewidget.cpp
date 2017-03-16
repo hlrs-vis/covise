@@ -132,9 +132,12 @@ CatalogTreeWidget::init()
 	catalogType_ = "osc" + catalogName_;
 
 
-	//parse all files
+	//parse all files only if it has not already been parsed
 	//store object name and filename in map
-	catalog_->fastReadCatalogObjects();
+	if (catalog_->getNumObjects() == 0)
+	{
+		catalog_->fastReadCatalogObjects();
+	}
 
 	createTree();
 }
@@ -157,8 +160,8 @@ CatalogTreeWidget::createTree()
 	if (catalog_)
 	{
 
-			OpenScenario::oscCatalog::ObjectsMap objects = catalog_->getObjectsMap();
-			for(OpenScenario::oscCatalog::ObjectsMap::iterator it = objects.begin();it != objects.end();it++)
+			const OpenScenario::oscCatalog::ObjectsMap objects = catalog_->getObjectsMap();
+			for(OpenScenario::oscCatalog::ObjectsMap::const_iterator it = objects.begin();it != objects.end();it++)
 			{
 				QString elementName = QString::fromStdString(it->first);
 				OpenScenario::oscObjectBase *obj = it->second.object;

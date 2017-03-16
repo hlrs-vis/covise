@@ -347,46 +347,42 @@ bool OpenScenarioBase::getFullReadCatalogs() const
 
 oscObjectBase *OpenScenarioBase::getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName)
 {
-    oscCatalog::ObjectParams p;
 	if (catalogName=="DriverCatalog")
 		{
 		Catalogs->DriverCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->DriverCatalog->getObjectsMap()[objectName];
+		return Catalogs->DriverCatalog->getCatalogObject(objectName);
 		}
 	if (catalogName=="EnvironmentCatalog")
 		{
 		Catalogs->EnvironmentCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->EnvironmentCatalog->getObjectsMap()[objectName];
+		return Catalogs->EnvironmentCatalog->getCatalogObject(objectName);
 		}
 	if (catalogName=="ManeuverCatalog")
 		{
 		Catalogs->ManeuverCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->ManeuverCatalog->getObjectsMap()[objectName];
+		return Catalogs->ManeuverCatalog->getCatalogObject(objectName);
 		}
 	if (catalogName=="MiscObjectCatalog")
 		{
 		Catalogs->MiscObjectCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->MiscObjectCatalog->getObjectsMap()[objectName];
+		return Catalogs->MiscObjectCatalog->getCatalogObject(objectName);
 		}
 	if (catalogName=="PedestrianCatalog")
 		{
 		Catalogs->PedestrianCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->PedestrianCatalog->getObjectsMap()[objectName];
+		return Catalogs->PedestrianCatalog->getCatalogObject(objectName);
 		}
 	if (catalogName=="TrajectoryCatalog")
 		{
 		Catalogs->TrajectoryCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->TrajectoryCatalog->getObjectsMap()[objectName];
+		return Catalogs->TrajectoryCatalog->getCatalogObject(objectName);
 		}
 	if (catalogName=="VehicleCatalog")
 	{
 		Catalogs->VehicleCatalog->fullReadCatalogObjectWithName(objectName);
-		p = Catalogs->VehicleCatalog->getObjectsMap()[objectName];
+		return Catalogs->VehicleCatalog->getCatalogObject(objectName);
 	}
-	if(p.object != NULL)
-	{
-		return p.object;
-	}
+	return NULL;
 }
 
 
