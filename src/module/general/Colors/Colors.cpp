@@ -1070,11 +1070,12 @@ int Colors::compute(const char *)
     {
         outName = p_cmapOut->getObjName();
         outObj = new coDoColormap(outName, numSteps, min, max, (float *)actMap, annotation);
-        p_cmapOut->setCurrentObject(outObj);
+        outObj->addAttribute("SPECIES", species);
         if (colorMapIn)
             outObj->copyAllAttributes(colorMapIn);
         else
             addColormapAttrib(outName, min, max, outObj, annotation, actMap, numSteps);
+        p_cmapOut->setCurrentObject(outObj);
     }
 
     // delete the map ONLY if not read from a distributed object

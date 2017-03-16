@@ -40,7 +40,7 @@ namespace OpenScenario {
 	class OPENSCENARIOEXPORT oscCatalogFile
 	{
 	public:
-		oscCatalogFile(std::string &catalogName,std::string &filename, std::string &path);
+		oscCatalogFile(const std::string &catalogName, const std::string &filename, const std::string &path);
 		~oscCatalogFile();
 		const bf::path &getPath();
 		void setPath(const bf::path &fn);
@@ -86,7 +86,7 @@ protected:
 public:
     //
 	oscCatalogFile *getCatalogFile(int index);
-	oscCatalogFile *getCatalogFile(std::string &catalogName, std::string &path);
+	oscCatalogFile *getCatalogFile(const std::string &catalogName, const std::string &path);
 	void clearAllCatalogs();
 	void fastReadCatalogObjects(); ///< parse files and add objectRefId and filePath to ObjectsMap
     void getXoscFilesFromDirectory(); ///< find xosc file recursively in given directory

@@ -33,7 +33,7 @@ oscCatalogFile *oscCatalog::getCatalogFile(int index)
 	}
 	return xoscFiles[index];
 }
-oscCatalogFile *oscCatalog::getCatalogFile(std::string &catalogName, std::string &path)
+oscCatalogFile *oscCatalog::getCatalogFile(const std::string &catalogName, const std::string &path)
 {
 	std::string filename = catalogName + ".xosc";
 	for (size_t i = 0; i < xoscFiles.size(); i++)
@@ -245,13 +245,14 @@ bool oscCatalog::removeObjFromObjectsMap(const std::string &name)
 	return (m_Objects.erase(name)>0); 
 }
 
-oscCatalogFile::oscCatalogFile(std::string &catalogName, std::string &filename, std::string &path)
+oscCatalogFile::oscCatalogFile(const std::string &catalogName, const std::string &filename, const std::string &path)
+: m_Header(NULL)
+, catalogName(catalogName)
+, srcFile(NULL)
 {		
 	srcFile = new oscSourceFile();
 	srcFile->setNameAndPath(filename, "OpenSCENARIO", path);
-    catalogName = catalogName;
 	setPath(filename);
-	m_Header = NULL;
 }
 oscCatalogFile::~oscCatalogFile()
 {		

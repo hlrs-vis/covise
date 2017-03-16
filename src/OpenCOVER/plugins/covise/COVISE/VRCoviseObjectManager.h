@@ -84,6 +84,7 @@ private:
 
     char currentFeedbackInfo[256];
 
+    void addColorMap(const char *object, CoviseRenderObject *cmap);
     //void addGeometry(char *object, int doreplace,int is_timestep,
     //                 char *root,coDistributedObject *geometry,
     //		     coDistributedObject *normals,
