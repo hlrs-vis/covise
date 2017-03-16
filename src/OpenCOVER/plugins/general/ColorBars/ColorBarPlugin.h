@@ -42,11 +42,14 @@ public:
     // this will be called if an object with feedback arrives
     void newInteractor(const opencover::RenderObject *, opencover::coInteractor *i);
     void removeObject(const char *container, bool replace);
+    void postFrame();
 
 private:
+    void removeInteractor(const std::string &container);
     void tabletPressEvent(opencover::coTUIElement *);
     void createMenuEntry();
     void removeMenuEntry();
+    std::vector<std::string> removeQueue;
 
     /// The TabletUI Interface
     opencover::coTUITab *colorBarTab;

@@ -95,6 +95,28 @@ void ColorBarPlugin::tabletPressEvent(coTUIElement *)
 void
 ColorBarPlugin::removeObject(const char *container, bool replace)
 {
+    if (replace)
+    {
+        if (interactorMap.find(container) != interactorMap.end())
+            removeQueue.push_back(container);
+    }
+    else
+    {
+        removeInteractor(container);
+    }
+}
+
+void
+ColorBarPlugin::postFrame()
+{
+    for (size_t i=0; i<removeQueue.size(); ++i)
+        removeInteractor(removeQueue[i]);
+    removeQueue.clear();
+}
+
+void
+ColorBarPlugin::removeInteractor(const std::string &container)
+{
     InteractorMap::iterator it = interactorMap.find(container);
     if (it != interactorMap.end())
     {
