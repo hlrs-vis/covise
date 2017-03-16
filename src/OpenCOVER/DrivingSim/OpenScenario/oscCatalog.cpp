@@ -504,6 +504,34 @@ oscObjectBase *oscCatalog::getCatalogObject(const std::string &name)
     }
 }
 
+oscObjectBase *oscCatalog::getCatalogObject(const std::string &catalogName, const std::string &entryName) ///< return pointer to oscObjectBase 
+{
+	ObjectsMap::const_iterator found = m_Objects.find(entryName);
+	if (found != m_Objects.end())
+	{
+		if (!found->second.object)
+		{
+			fullReadCatalogObjectWithName(found->first);
+		}
+		return found->second.object;
+	}
+	else
+	{
+		return NULL;
+	}
+	//TODO search in catalog
+	/*
+	fullReadCatalogObjectWithName(it->first);
+	for (size_t i = 0; i < xoscFiles.size(); i++)
+	{
+		if (xoscFiles[i]->catalogName == catalogName)
+		{
+			return xoscFiles[i];
+		}
+	}
+	}*/
+}
+
 std::string oscCatalog::getPath(const std::string &name)
 {
 	ObjectsMap::const_iterator found = m_Objects.find(name);

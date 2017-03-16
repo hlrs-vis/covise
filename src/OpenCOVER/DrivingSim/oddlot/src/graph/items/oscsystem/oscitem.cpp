@@ -89,16 +89,15 @@ OSCItem::~OSCItem()
 * Initializes the path 
 */
 QPainterPath *
-	createVehiclePath(OpenScenario::oscObjectBase *vehicle)
+	createVehiclePath(OpenScenario::oscObjectBase *object)
 {
 	QPainterPath *path = new QPainterPath();
 	double width = 10;
 	double height = 10;
-
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getOrCreateValue());
-	if (iv)
+	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(object);
+	if(vehicle)
 	{
-		switch (iv->getValue())
+		switch (vehicle->category.getValue())
 		{
 		case oscVehicle::car:
 			{
@@ -169,8 +168,9 @@ OSCItem::init()
 		return;
 	}
 
-	std::string catalogFileName = catalogReference->catalogName.getValue();
-	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(catalogFileName);
+	std::string catalogName = catalogReference->catalogName.getValue();
+	std::string entryName = catalogReference->entryName.getValue();
+	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(entryName);
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
 	road_ = roadSystem_->getRoad(roadID_);
@@ -185,33 +185,20 @@ OSCItem::init()
 	// TODO: get type and object from catalog reference //
 	//
 
-	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogFileName);
+	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogName,entryName);
 
-	if (!catalogObject)
-	{
-		catalog_->fullReadCatalogObjectWithName(catalogFileName);
-		catalogObject = catalog_->getCatalogObject(catalogFileName);
-	}
 	
 	if (catalogObject)
 	{
-		OpenScenario::oscArrayMember *objects = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember(catalog_->getCatalogName()));
-		if (objects && !objects->empty())
-		{
-			selectedObject_ = objects->at(0);
-		}
-
-		if (selectedObject_)
-		{
+		
 			if (catalog_->getCatalogName() == "Vehicle")
 			{
 				createPath = createVehiclePath;
-				createPath(selectedObject_);
+				createPath(catalogObject);
 
 				updateColor(catalog_->getCatalogName());
 				updatePosition();
 			}
-		}
 	}
 }
 
