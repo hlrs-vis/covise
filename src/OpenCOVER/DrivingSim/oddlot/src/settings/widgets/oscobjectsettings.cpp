@@ -162,20 +162,7 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 
 OSCObjectSettings::~OSCObjectSettings()
 {
-	if (member_)
-	{
-		QString type = QString::fromStdString(member_->getTypeName());
-		if (type == "oscTrajectory")
-		{
 
-			// Connect with the ToolManager to send the selected signal or object //
-			//
-			if (toolManager_)
-			{
-				toolManager_->enableOSCEditorToolButton(false);
-			}
-		}
-	}
 
 	memberWidgets_.clear();
 
@@ -455,26 +442,28 @@ OSCObjectSettings::uiInit()
 	objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
-
-	if (member_)
+	if(dynamic_cast<oscTrajectory *>(object_) != NULL)
 	{
-		std::string type = member_->getTypeName();
-		if (type == "oscTrajectory")
-		{			
-			OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(projectSettings_->getProjectWidget()->getProjectEditor());
-			if (oscEditor)
-			{
-				oscEditor->setTrajectoryElement(element_);
-			}
+		OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(projectSettings_->getProjectWidget()->getProjectEditor());
+		if (oscEditor)
+		{
+			oscEditor->setTrajectoryElement(element_);
+		}
 
-			// Connect with the ToolManager to send the selected signal or object //
-			//
-			if (toolManager_)
-			{
-				toolManager_->enableOSCEditorToolButton(true);
-			}
+		// Connect with the ToolManager to send the selected signal or object //
+		//
+		if (toolManager_)
+		{
+			toolManager_->enableOSCEditorToolButton(true);
+		}
 
-			element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
+		element_->addOSCElementChanges(OSCElement::COE_SettingChanged);
+	}
+	else
+	{
+		if (toolManager_)
+		{
+			toolManager_->enableOSCEditorToolButton(false);
 		}
 	}
 }

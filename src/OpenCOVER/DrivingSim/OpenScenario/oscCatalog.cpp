@@ -27,14 +27,26 @@ using namespace OpenScenario;
 
 oscCatalogFile *oscCatalog::getCatalogFile(int index)
 {
-	if (xoscFiles.size() == 0)
+	if (xoscFiles.size() <= index)
 	{
-		oscCatalogFile *cat = new oscCatalogFile();
-		cat->catalogName = "oddlotCatalog";
-		cat->setPath("oddlotCatalog.xosc");
-		xoscFiles.push_back(cat);
+		return NULL;
 	}
-	return xoscFiles[0];
+	return xoscFiles[index];
+}
+oscCatalogFile *oscCatalog::getCatalogFile(std::string &catalogName, std::string &path)
+{
+	std::string filename = catalogName + ".xosc";
+	for (size_t i = 0; i < xoscFiles.size(); i++)
+	{
+		if (xoscFiles[i]->getPath() == filename)
+		{
+			return xoscFiles[i];
+		}
+	}
+
+	oscCatalogFile *cat = new oscCatalogFile(catalogName,filename,path);
+	xoscFiles.push_back(cat);
+	return cat;
 }
 
 /*****
@@ -82,7 +94,10 @@ void oscCatalog::getXoscFilesFromDirectory()
 
 							if (lowerName.compare(startPos, std::string::npos, extension) == 0)
 							{
-								oscCatalogFile *file = new oscCatalogFile;
+								std::string catName= contentName.stem().string();
+								std::string fileName= contentName.filename().string();
+								std::string path = pathToCatalogDirToUse.string();
+								oscCatalogFile *file = new oscCatalogFile(catName, fileName, path);
 								file->setPath(contentName);
 								xoscFiles.push_back(file);
 							}
@@ -211,7 +226,7 @@ bool oscCatalog::addObjToObjectsMap(const std::string &name, oscCatalogFile *cat
 		std::cerr << "Error! Object with name " << name << " exists and is defined in file " << found->second.xoscFile->getPath().string() << std::endl;
         return false;
     }
-
+	catf->addObject(object);
 	ObjectParams params = { catf, object};
     std::pair<ObjectsMap::const_iterator, bool> returnVal = m_Objects.emplace(name, params);
     if (returnVal.second == false)
@@ -230,9 +245,13 @@ bool oscCatalog::removeObjFromObjectsMap(const std::string &name)
 	return (m_Objects.erase(name)>0); 
 }
 
-oscCatalogFile::oscCatalogFile()
+oscCatalogFile::oscCatalogFile(std::string &catalogName, std::string &filename, std::string &path)
 {		
 	srcFile = new oscSourceFile();
+	srcFile->setNameAndPath(filename, "OpenSCENARIO", path);
+    catalogName = catalogName;
+	setPath(filename);
+	m_Header = NULL;
 }
 oscCatalogFile::~oscCatalogFile()
 {		
@@ -350,6 +369,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 
 								ObjectParams *param = &(objectFound)->second;
 								param->object = obj;
+								fileObject->addObject(obj);
 
 								//add sourcFile to vector
 								getBase()->addToSrcFileVec(fileObject->srcFile);
@@ -377,123 +397,6 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
         return false;
     }
 }
-/*
-bool oscCatalog::fullReadCatalogObjectFromFile(const bf::path &fileNamePath)
-{
-    bool success = false;
-
-	if (bf::is_regular_file(fileNamePath))
-	{
-
-		OpenScenarioBase *oscBase = new OpenScenarioBase;
-
-		//in fullReadCatalogObjectWithName no validation should be done,
-		//because during fastReadCatalogObjects validation is done
-		xercesc::DOMElement *rootElem = oscBase->getRootElement(fileNamePath.generic_string(), m_catalogName, m_catalogType, false);
-		if (rootElem)
-		{
-			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
-
-			oscSourceFile *srcFile = new oscSourceFile();
-
-			//set variables for srcFile, differentiate between absolute and relative path for catalog object
-			srcFile->setSrcFileHref(fileNamePath);
-			srcFile->setSrcFileName(fileNamePath.filename());
-			srcFile->setPathFromCurrentDirToMainDir(getSource()->getPathFromCurrentDirToMainDir());
-			bf::path absPathToMainDir;
-			bf::path relPathFromMainDir;
-			if (fileNamePath.is_absolute())
-			{
-				//absPathToMainDir is path to the directory with the imported catalog file
-				absPathToMainDir = fileNamePath.parent_path();
-				relPathFromMainDir = bf::path(); // relative path is empty
-			}
-			else
-			{
-				//absPathToMainDir is path to directory with the file with OpenSCENARIO root element
-				absPathToMainDir = getSource()->getAbsPathToMainDir();
-				// check if this works!!
-				//relative path is path from directory from absPathToMainDir to the directory with the imported file
-				std::string pathFromExeToMainDir = getParentObj()->getSource()->getPathFromCurrentDirToMainDir().generic_string();
-				std::string tmpRelPathFromMainDir = fileNamePath.parent_path().generic_string();
-				if (pathFromExeToMainDir.empty())
-				{
-					relPathFromMainDir = tmpRelPathFromMainDir;
-				}
-				else
-				{
-					relPathFromMainDir = tmpRelPathFromMainDir.substr(pathFromExeToMainDir.length() + 1);
-				}
-			}
-			srcFile->setAbsPathToMainDir(absPathToMainDir);
-			srcFile->setRelPathFromMainDir(relPathFromMainDir);
-			srcFile->setRootElementName(rootElemName);
-
-			xercesc::DOMNodeList *headerList = rootElem->getElementsByTagName(xercesc::XMLString::transcode("FileHeader"));
-		
-			//object for header
-			oscObjectBase *obj = oscFactories::instance()->objectFactory->create("oscFileHeader");
-			if (obj)
-			{
-				obj->initialize(getBase(), this, NULL, srcFile);
-				obj->parseFromXML(dynamic_cast<xercesc::DOMElement *>(headerList->item(0)), srcFile);
-			}
-
-			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
-			for (int it = 0; it<list->getLength(); it++)
-			{
-				xercesc::DOMNode *node = list->item(it);
-				if (node)
-				{
-					xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
-					xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
-
-
-					if (attribute)
-					{
-
-						std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
-
-						//object for objectName
-						oscObjectBase *obj = oscFactories::instance()->objectFactory->create("osc" + m_catalogName);
-						if (obj)
-						{
-							obj->initialize(getBase(), this, NULL, srcFile);
-							obj->parseFromXML(dynamic_cast<xercesc::DOMElement *>(node), srcFile);
-							//add objectName and object to oscCatalog map
-
-							ObjectParams *param = new ObjectParams;
-							param->xoscFile =  = fileNamePath.filename();
-							param->object = obj;
-
-							//add sourcFile to vector
-							getBase()->addToSrcFileVec(srcFile);
-
-							success = true;
-						}
-						else
-						{
-							std::cerr << "Error! Could not create an object member of type " << m_catalogType << std::endl;
-							delete srcFile;
-						}
-					}
-				}
-			}
-		}
-
-
-		delete oscBase;
-
-		return success;
-	}
-	else
-	{
-		std::cerr << "Error! Can't read from " << fileNamePath << std::endl;
-		return false;
-	}
-    return success;
-}*/
-
 /*
 bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
 {
@@ -661,16 +564,18 @@ void oscCatalog::writeCatalogsToDOM()
 void oscCatalogFile::writeCatalogToDOM()
 {
 	xercesc::DOMElement *catalogElement;
+	xercesc::DOMDocument *objFromCatalogXmlDoc = srcFile->getOrCreateXmlDoc();
 	if (objects.size() > 0)
 	{
 		oscObjectBase *obj =objects[0];
 		if (obj)
 		{
-			xercesc::DOMDocument *objFromCatalogXmlDoc = obj->getSource()->getOrCreateXmlDoc();
 			xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
 
 			xercesc::DOMElement *fhElement = objFromCatalogXmlDoc->createElement(xercesc::XMLString::transcode("FileHeader"));
 			rootElement->appendChild(fhElement);
+			if (m_Header == NULL)
+				m_Header = new oscFileHeader();
 			m_Header->writeToDOM(fhElement, objFromCatalogXmlDoc);
 
 			catalogElement = objFromCatalogXmlDoc->createElement(xercesc::XMLString::transcode("Catalog"));
@@ -685,10 +590,48 @@ void oscCatalogFile::writeCatalogToDOM()
 		oscObjectBase *objFromCatalog =objects[i];
 		if (objFromCatalog)
 		{
-			xercesc::DOMDocument *objFromCatalogXmlDoc = objFromCatalog->getSource()->getOrCreateXmlDoc();
+			std::string catalogTypeName = "";
 
-			xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
-			objFromCatalog->writeToDOM(catalogElement, objFromCatalogXmlDoc);
+			if (dynamic_cast<oscVehicle *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Vehicle";
+			}
+			else if (dynamic_cast<oscDriver *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Driver";
+			}
+			else if (dynamic_cast<oscPedestrian *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Pedestrian";
+			}
+			else if (dynamic_cast<oscPedestrianController *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "PedestrianController";
+			}
+			else if (dynamic_cast<oscMiscObject *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "MiscObject";
+			}
+			else if (dynamic_cast<oscEnvironment *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Environment";
+			}
+			else if (dynamic_cast<oscManeuver *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Maneuver";
+			}
+			else if (dynamic_cast<oscTrajectory *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Trajectory";
+			}
+			else if (dynamic_cast<oscRoute *>(objFromCatalog) != NULL)
+			{
+				catalogTypeName = "Route";
+			}
+
+			xercesc::DOMElement *catalogItemElement = objFromCatalogXmlDoc->createElement(xercesc::XMLString::transcode(catalogTypeName.c_str()));
+			catalogElement->appendChild(catalogItemElement);
+			objFromCatalog->writeToDOM(catalogItemElement, objFromCatalogXmlDoc);
 		}
 	}
 }
@@ -707,7 +650,10 @@ void oscCatalog::writeCatalogsToDisk()
 	writeCatalogsToDOM();
 	for (size_t i = 0; i < xoscFiles.size(); i++)
 	{
-		xoscFiles[i]->srcFile->writeFileToDisk();
+		if(xoscFiles[i]->srcFile->getXmlDoc() != NULL)
+		{ 
+		    xoscFiles[i]->srcFile->writeFileToDisk();
+		}
 	}
 	clearDOMs();
 }
@@ -742,15 +688,19 @@ void oscCatalogFile::setPath(const bf::path &fn)
 {
 	fileName = fn;
 }
-
-std::string oscCatalog::generateRefId(int startId)
+void oscCatalogFile::addObject(oscObjectBase *obj)
 {
-	int refId = startId - 1;
+	objects.push_back(obj);
+}
+
+std::string oscCatalog::generateRefId()
+{
+	int refId = 0;
 	std::string s;
 	ObjectsMap::const_iterator found;
 	do
 	{
-		s = std::to_string(++refId);
+		s = m_catalogName + std::to_string(refId++);
 		found = m_Objects.find(s);
 	}while(found != m_Objects.end());
 

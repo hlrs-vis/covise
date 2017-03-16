@@ -70,6 +70,7 @@ public:
     const XMLCh *getRootElementNameAsXmlCh() const;
     xercesc::DOMDocument *getXmlDoc() const;
 	xercesc::DOMDocument *getOrCreateXmlDoc();
+	xercesc::DOMDocument *getXmlDoc() { return m_xmlDoc;};
 	void clearXmlDoc();
 	bool writeFileToDisk();
 

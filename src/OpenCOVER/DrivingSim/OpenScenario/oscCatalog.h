@@ -40,7 +40,7 @@ namespace OpenScenario {
 	class OPENSCENARIOEXPORT oscCatalogFile
 	{
 	public:
-		oscCatalogFile();
+		oscCatalogFile(std::string &catalogName,std::string &filename, std::string &path);
 		~oscCatalogFile();
 		const bf::path &getPath();
 		void setPath(const bf::path &fn);
@@ -51,6 +51,7 @@ namespace OpenScenario {
 		std::vector<oscCatalogFile *>xoscFiles;
 		std::vector<oscObjectBase *> objects;
 		void removeObject(oscObjectBase *);
+		void addObject(oscObjectBase *);
 	private:
 		bf::path fileName;
 	};
@@ -85,6 +86,7 @@ protected:
 public:
     //
 	oscCatalogFile *getCatalogFile(int index);
+	oscCatalogFile *getCatalogFile(std::string &catalogName, std::string &path);
 	void clearAllCatalogs();
 	void fastReadCatalogObjects(); ///< parse files and add objectRefId and filePath to ObjectsMap
     void getXoscFilesFromDirectory(); ///< find xosc file recursively in given directory
@@ -113,7 +115,7 @@ public:
 
 
 	//generate refId for new object
-	std::string generateRefId(int startId);
+	std::string generateRefId();
 
 	// write all catalog members to catalogs
 	void writeCatalogsToDOM();
