@@ -11,14 +11,14 @@ using namespace std;
 
 class ScenarioManager {
 
- private:
+private:
 	int numberOfActs;
 	int numberOfEntities;
 
- public:
+public:
 	list<Act*> actList;
 	list<Entity*> entityList;
-    ScenarioManager();
+	ScenarioManager();
 	~ScenarioManager();
 	void setNumberOfActs(int numberOfActs_temp);
 	void setNumberOfEntities(int numberOfEntities_temp);

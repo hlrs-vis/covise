@@ -16,7 +16,7 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<float> target
 {
 	//substract vectors
 	osg::Vec3 targetPos(targetPosition[0],targetPosition[1],targetPosition[2]);
-	norm_direction_vec = currentPos - targetPos;
+	norm_direction_vec = targetPos-currentPos;
 	float distance = norm_direction_vec.length();
 	norm_direction_vec.normalize();
 	//calculate step distance

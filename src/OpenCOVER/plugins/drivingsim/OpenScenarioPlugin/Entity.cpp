@@ -1,35 +1,46 @@
 #include "Entity.h"
 
 
-Entity::Entity(string entityName):name(entityName){
-entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
+Entity::Entity(string entityName) :name(entityName)
+{
+	directionVector.set(1, 0, 0);
+	entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
 }
 
-void Entity::move(){
-//calculate step distance
-float step_distance = 0.1*speed*opencover::cover->frameDuration();
-entityPosition[0] = entityPosition[0]+step_distance;
+void Entity::move()
+{
+	//calculate step distance
+	float step_distance = 0.1*speed*opencover::cover->frameDuration();
+	entityPosition[0] = entityPosition[0] + step_distance;
 }
 
-osg::Vec3 &Entity::getPosition(){
-return entityPosition;
+osg::Vec3 &Entity::getPosition()
+{
+	return entityPosition;
 }
 
-void Entity::setPosition(osg::Vec3 &newPosition){
-entityPosition = newPosition;
-entityGeometry->setPosition(newPosition, directionVector);	
-}  
-
-string Entity::getName(){
-return name;
+void Entity::setPosition(osg::Vec3 &newPosition)
+{
+	entityPosition = newPosition;
+	entityGeometry->setPosition(newPosition, directionVector);
 }
 
-void Entity::setSpeed(float speed_temp){
-speed=speed_temp;}
+string Entity::getName()
+{
+	return name;
+}
 
-float Entity::getSpeed(){
-return speed;}
+void Entity::setSpeed(float speed_temp)
+{
+	speed = speed_temp;
+}
 
-void Entity::setDirection(osg::Vec3 &dir){
-   directionVector=dir;
+float Entity::getSpeed()
+{
+	return speed;
+}
+
+void Entity::setDirection(osg::Vec3 &dir)
+{
+	directionVector = dir;
 }
