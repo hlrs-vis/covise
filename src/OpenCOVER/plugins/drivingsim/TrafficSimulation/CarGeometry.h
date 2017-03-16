@@ -27,7 +27,7 @@ public:
 
     void setTransform(Transform &, double);
 
-	void setTransformByCoordinates(float x, float y, float z);
+	void setTransformByCoordinates(osg::Vec3 &pos, osg::Vec3 &xVec);
 
     double getBoundingCircleRadius();
     osg::BoundingBox &getBoundingBox()

@@ -47,7 +47,7 @@ void DonkeyCar::move(double dt)
     geometry->setTransform(carTransform, h);
 }
 
-void DonkeyCar::setPosition(float x, float y, float z){
+void DonkeyCar::setPosition(osg::Vec3&, osg::Vec3 &){
 //geometry->setTransformByCoordinates(x, y, z);
 }
 

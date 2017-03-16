@@ -92,7 +92,7 @@ public:
     ~AgentVehicle();
 
     void move(double dt);
-	void setPosition(float x, float y, float z);
+	void setPosition(osg::Vec3 &pos, osg::Vec3 &vec);
     void makeDecision();
 
     void checkForCrosswalk(double dt);

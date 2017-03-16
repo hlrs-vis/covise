@@ -419,13 +419,18 @@ void CarGeometry::setTransform(Transform &roadTransform, double heading)
     carTransform->setMatrix(m);
 }
 
-void CarGeometry::setTransformByCoordinates(float x, float y, float z)
+void CarGeometry::setTransformByCoordinates(osg::Vec3 &pos, osg::Vec3 &xVec)
 {
-    osg::Matrix m;
-	m.makeRotate(osg::Quat(0, 0, 0, 1));
-    m.setTrans(x, y, z);
-
-    //vehicleTransform->setMatrix(osg::Matrix::rotate(heading, 0,0,1)*roadMatrix);
+	osg::Matrix m;
+	osg::Vec3 up(0,0,1);
+	osg::Vec3 right;
+	right = up^xVec;//Kreuzprodukt
+	xVec.normalize();
+	right.normalize();
+	m(0,0)=xVec[0];m(0,1)=xVec[1];m(0,2)=xVec[2];
+	m(1,0)=right[0];m(1,1)=right[1];m(1,2)=right[2];
+	m(2,0)=up[0];m(2,1)=up[1];m(2,2)=up[2];
+    m.setTrans(pos);
     carTransform->setMatrix(m);
 }
 

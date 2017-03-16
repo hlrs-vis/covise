@@ -25,7 +25,7 @@ public:
     double getDu() const;
 
     void move(double);
-	void setPosition(float x, float y, float z);
+	void setPosition(osg::Vec3 &pos, osg::Vec3 &direction);
 
     VehicleGeometry *getVehicleGeometry();
     double getBoundingCircleRadius();

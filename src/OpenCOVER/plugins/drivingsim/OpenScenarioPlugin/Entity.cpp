@@ -1,7 +1,9 @@
 #include "Entity.h"
 
 
-Entity::Entity(string entityName,  Vehicle* car):name(entityName), car(car){}
+Entity::Entity(string entityName):name(entityName){
+entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
+}
 
 void Entity::move(){
 //calculate step distance
@@ -9,12 +11,13 @@ float step_distance = 0.1*speed*opencover::cover->frameDuration();
 entityPosition[0] = entityPosition[0]+step_distance;
 }
 
-vector<float> Entity::getPosition(){
+osg::Vec3 &Entity::getPosition(){
 return entityPosition;
 }
 
-void Entity::setPosition(vector<float> newPosition){
+void Entity::setPosition(osg::Vec3 &newPosition){
 entityPosition = newPosition;
+entityGeometry->setPosition(newPosition, directionVector);	
 }  
 
 string Entity::getName(){
@@ -26,3 +29,7 @@ speed=speed_temp;}
 
 float Entity::getSpeed(){
 return speed;}
+
+void Entity::setDirection(osg::Vec3 &dir){
+   directionVector=dir;
+}

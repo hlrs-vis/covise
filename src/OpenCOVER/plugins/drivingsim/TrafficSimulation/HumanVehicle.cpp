@@ -284,7 +284,8 @@ void HumanVehicle::move(double dt)
     human_v = v;
 }
 
-void HumanVehicle::setPosition(float x, float y, float z){
+void HumanVehicle::setPosition(osg::Vec3 &, osg::Vec3 &)
+{
 //geometry->setTransformByCoordinates(x, y, z);
 }
 
