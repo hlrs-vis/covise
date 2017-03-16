@@ -173,11 +173,13 @@ public:
 
 class COVEREXPORT coVRShader
 {
+    friend class coVRShaderList;
 
 private:
     std::string name;
     std::string fileName;
     std::string dir;
+    bool wasCloned;
     std::list<coVRUniform *> uniforms;
     std::list<coVRAttribute *> attributes;
     std::list<coVRShaderInstance *> instances;
@@ -242,7 +244,12 @@ public:
     {
         return geomParams[2];
     };
+    bool isClone()
+    {
+        return wasCloned;
+    }
     coVRShader(const std::string &name, const std::string &d);
+    coVRShader(const coVRShader &other);
     void setData(covise::TokenBuffer &tb);
     void setMatrixUniform(const std::string &name, osg::Matrixd m);
     void setMatrixUniform(const std::string &name, osg::Matrixf m);
@@ -279,8 +286,10 @@ private:
     osg::ref_ptr<osg::Uniform> viewportWidthUniform;
     osg::ref_ptr<osg::Uniform> viewportHeightUniform;
     osg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT
+    void applyParams(coVRShader *shader, std::map<std::string, std::string> *params);
 public:
     coVRShader *get(const std::string &name, std::map<std::string, std::string> *params = NULL);
+    coVRShader *getUnique(const std::string &n, std::map<std::string, std::string> *params = NULL);
     coVRShader *add(const std::string &name, std::string &dirName);
     static coVRShaderList *instance();
     void setData(covise::TokenBuffer &tb);

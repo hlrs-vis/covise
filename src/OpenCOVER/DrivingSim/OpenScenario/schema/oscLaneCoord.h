@@ -27,7 +27,7 @@ oscLaneCoord()
         OSC_ADD_MEMBER(laneId, 0);
         OSC_ADD_MEMBER_OPTIONAL(laneOffset, 0);
     };
-        const char *getScope(){return "/OSCPosition/PositionRoute/RoutePosition";};
+        const char *getScope(){return "/OSCPosition/Route/PositionRoute";};
     oscDouble pathS;
     oscInt laneId;
     oscDouble laneOffset;

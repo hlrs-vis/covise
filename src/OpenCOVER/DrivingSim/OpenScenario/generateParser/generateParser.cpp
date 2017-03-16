@@ -294,15 +294,16 @@ void parseEnum(xercesc::DOMElement *elem)
 	if (attribute)
 	{
 		value = xercesc::XMLString::transcode(attribute->getValue());
-		for (std::list<epair>::iterator it = enumRename.begin(); it != enumRename.end(); it++)
+		std::string tn = OpenScenario::nameMapping::instance()->getEnumName(value);
+/*		for (std::list<epair>::iterator it = enumRename.begin(); it != enumRename.end(); it++)
 		{
 			if (it->first == value)
 			{
 				value = it->second;
 				break;
 			}
-		}
-		currentEnum->values.push_back(value);
+		} */
+		currentEnum->values.push_back(tn);
 	}
 	parseGeneric(elem, 0);
 }

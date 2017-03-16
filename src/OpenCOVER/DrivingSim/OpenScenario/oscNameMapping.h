@@ -25,11 +25,15 @@ public:
 	typedef std::pair<std::string, std::string> parent_name;
 	typedef boost::bimap< parent_name, std::string > bm_type;
 	bm_type bm;
+	typedef boost::bimap<std::string, std::string> eMap;
+	eMap enumMap;
 	nameMapping();
 	static nameMapping *nmInstance;
 	static nameMapping *instance();
 	std::string getClassName(const std::string &name, std::string parent);
 	std::string getSchemaName(std::string &className);
+	std::string getEnumName(const std::string &name);
+	std::string getSchemaEnumName(std::string &name);
 
 
 	

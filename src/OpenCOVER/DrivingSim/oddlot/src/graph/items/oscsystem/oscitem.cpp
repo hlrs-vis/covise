@@ -72,7 +72,7 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
     , oscObject_(oscObject)
 	, oscPrivateAction_(NULL)
 	, catalog_(catalog)
-	, selectedObject_(NULL)
+	, catalogObject_(NULL)
 	, path_(NULL)
 	, pos_(pos)
 	, roadID_(roadId)
@@ -89,16 +89,15 @@ OSCItem::~OSCItem()
 * Initializes the path 
 */
 QPainterPath *
-	createVehiclePath(OpenScenario::oscObjectBase *vehicle)
+	createVehiclePath(OpenScenario::oscObjectBase *object)
 {
 	QPainterPath *path = new QPainterPath();
 	double width = 10;
 	double height = 10;
-
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getOrCreateValue());
-	if (iv)
+	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(object);
+	if(vehicle)
 	{
-		switch (iv->getValue())
+		switch (vehicle->category.getValue())
 		{
 		case oscVehicle::car:
 			{
@@ -169,8 +168,9 @@ OSCItem::init()
 		return;
 	}
 
-	std::string catalogFileName = catalogReference->catalogName.getValue();
-	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(catalogFileName);
+	std::string catalogName = catalogReference->catalogName.getValue();
+	std::string entryName = catalogReference->entryName.getValue();
+	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(entryName);
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
 	road_ = roadSystem_->getRoad(roadID_);
@@ -185,33 +185,21 @@ OSCItem::init()
 	// TODO: get type and object from catalog reference //
 	//
 
-	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogFileName);
+	catalogObject_ = catalog_->getCatalogObject(catalogName,entryName);
 
-	if (!catalogObject)
+
+	if (catalogObject_)
 	{
-		catalog_->fullReadCatalogObjectWithName(catalogFileName);
-		catalogObject = catalog_->getCatalogObject(catalogFileName);
-	}
-	
-	if (catalogObject)
-	{
-		OpenScenario::oscArrayMember *objects = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember(catalog_->getCatalogName()));
-		if (objects && !objects->empty())
+
+		if (catalog_->getCatalogName() == "Vehicle")
 		{
-			selectedObject_ = objects->at(0);
+			createPath = createVehiclePath;
+			createPath(catalogObject_);
+
+			updateColor(catalog_->getCatalogName());
+			updatePosition();
 		}
 
-		if (selectedObject_)
-		{
-			if (catalog_->getCatalogName() == "Vehicle")
-			{
-				createPath = createVehiclePath;
-				createPath(selectedObject_);
-
-				updateColor(catalog_->getCatalogName());
-				updatePosition();
-			}
-		}
 	}
 }
 
@@ -252,7 +240,7 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-	path_ = createPath(selectedObject_);
+	path_ = createPath(catalogObject_);
 	path_->translate(pos_ );
 	setPath(*path_);
 }

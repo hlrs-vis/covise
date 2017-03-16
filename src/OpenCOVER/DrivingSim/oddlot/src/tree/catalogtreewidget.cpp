@@ -131,12 +131,10 @@ CatalogTreeWidget::init()
 	catalogName_ = catalog_->getCatalogName();
 	catalogType_ = "osc" + catalogName_;
 
-	//get all catalog object filenames
-	std::vector<bf::path> filenames = catalog_->getXoscFilesFromDirectory(directoryPath_.toStdString());
 
 	//parse all files
 	//store object name and filename in map
-	catalog_->fastReadCatalogObjects(filenames);
+	catalog_->fastReadCatalogObjects();
 
 	createTree();
 }
@@ -252,13 +250,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					// refid vergeben, prüfen ob Datei schon vorhanden, path von vehicleCatalog?, neue Basis für catalog?
 					// Element anlegen
 					QString filePath;
-					std::string refId;
-					int i = 1;
-					do
-					{
-						refId = catalog_->generateRefId(i++);
-						filePath = directoryPath_ + "/" + QString::fromStdString(catalogName_) + QString::fromStdString(refId) + ".xosc";
-					} while (bf::exists(filePath.toStdString())); // test if file exists
+					std::string refId=catalog_->generateRefId();
 
 					OpenScenario::oscObjectBase *obj = NULL;
 					if (OSCSettings::instance()->loadDefaults())
@@ -266,11 +258,11 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 						obj = catalog_->readDefaultXMLObject( filePath.toStdString(), catalogName_, catalogType_);
 					}
 
+					oscCatalogFile *catalogFile = catalog_->getCatalogFile(catalogName_, directoryPath_.toStdString());
 					if (!obj)
 					{
-						OpenScenario::oscSourceFile *oscSourceFile = openScenarioBase_->createSource(filePath.toStdString(), catalog_->getType(catalogName_));
 
-						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getCatalogType(), oscElement_, oscSourceFile);
+						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalog_, base_, catalog_->getCatalogType(), oscElement_, catalogFile->srcFile);
 						if (command->isValid())
 						{
 							projectWidget_->getTopviewGraph()->executeCommand(command);
@@ -285,7 +277,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 						obj = oscElement_->getObject();
 					}
 
-					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, filePath.toStdString(), base_, oscElement_);
+					AddOSCCatalogObjectCommand *addCatalogObjectCommand = new AddOSCCatalogObjectCommand(catalog_, refId, obj, catalogFile, base_, oscElement_);
 
 					if (addCatalogObjectCommand->isValid())
 					{
@@ -304,7 +296,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 				projectData_->getUndoStack()->endMacro();
 			}
-			else
+			else if(text !="")
 			{
 				// Group undo commands
 				//
@@ -317,7 +309,12 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 				}
 
 			
-				std::string refId = text.split("(")[1].remove(")").toStdString();
+				std::string refId = text.toStdString();
+				QStringList noBrackets = text.split("(");
+				if (noBrackets.size() > 1)
+				{
+					refId = noBrackets[1].remove(")").toStdString();
+				}
 
 				OpenScenario::oscObjectBase *oscObject = catalog_->getCatalogObject(refId);
 				if (oscObject)
@@ -409,26 +406,29 @@ CatalogTreeWidget::updateObserver()
 	if (changes & OSCElement::COE_ParameterChange)
     {
 		OpenScenario::oscObjectBase *obj = oscElement_->getObject();
-		
+
 		OpenScenario::oscMember *member = obj->getMember("name");
 		if (member->exists())
 		{
 			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
 			QString text = QString::fromStdString(sv->getValue());
 
-			QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
-			if (currentEditedItem && (text != currentEditedItem->text(0)))
+			if (selectedItems().size() > 0)
 			{
-				currentEditedItem->setText(0, text);
+				QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
+				if (currentEditedItem && (text != currentEditedItem->text(0)))
+				{
+					currentEditedItem->setText(0, text);
 
-				// Update Editor //
-				//
-				OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
-				emit toolAction(action);
-				delete action;
+					// Update Editor //
+					//
+					OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
+					emit toolAction(action);
+					delete action;
+				}
 			}
 		}
-    }
+	}
 	else if (changes & OSCBase::COSC_ElementChange)
 	{
 		createTree();

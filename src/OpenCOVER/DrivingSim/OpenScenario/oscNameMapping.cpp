@@ -11,24 +11,20 @@ nameMapping::nameMapping()
 {
 	bm.insert(bm_type::value_type(parent_name("OpenSCENARIO", "/Catalog"), "CatalogOpenSCENARIO"));
 	bm.insert(bm_type::value_type(parent_name("Catalog", "/Catalog/CatalogOpenSCENARIO"), "CatalogObject"));
-	bm.insert(bm_type::value_type(parent_name("Position", "/OSCPosition/PositionRoute"), "RoutePosition"));
+	bm.insert(bm_type::value_type(parent_name("Position", "/OSCPosition/Route"), "PositionRoute"));
 	bm.insert(bm_type::value_type(parent_name("ByEntity", "/OSCCondition/ByEntity/EntityCondition/Collision"), "CollisionByEntity"));
 	bm.insert(bm_type::value_type(parent_name("ByEntity", "/OpenSCENARIO/Entities/Selection/Members"), "MembersByEntity"));
 	bm.insert(bm_type::value_type(parent_name("ConditionGroup", "/OSCManeuver/Event/Conditions/Start"), "StartConditionGroup"));
 	bm.insert(bm_type::value_type(parent_name("Target", "/OSCCondition/ByEntity/EntityCondition/TimeToCollision"), "CollisionTarget"));
-	bm.insert(bm_type::value_type(parent_name("Target", "Speed"), "SpeedTarget"));
 	bm.insert(bm_type::value_type(parent_name("Target", "/OSCPrivateAction/Lateral/LaneChange"), "LaneChangeTarget"));
 	bm.insert(bm_type::value_type(parent_name("Target", "/OSCPrivateAction/Lateral/LaneOffset"), "LaneOffsetTarget"));
-	bm.insert(bm_type::value_type(parent_name("Parameter", "entryName"), "EntryParameter"));
 	bm.insert(bm_type::value_type(parent_name("Parameter", "/OSCCondition/ByValue"), "ConditionParameter"));
 	bm.insert(bm_type::value_type(parent_name("Parameter", "/OSCGlobalAction"), "ActionParameter"));
 	bm.insert(bm_type::value_type(parent_name("Parameter", "/OSCParameterAssignment"), "SetParameter"));
-	bm.insert(bm_type::value_type(parent_name("Parameter", "execution"), "ExecutionParameter"));
 	bm.insert(bm_type::value_type(parent_name("Route", "/OSCPosition"), "PositionRoute"));
 	bm.insert(bm_type::value_type(parent_name("Longitudinal", "/OSCPrivateAction/Routing/FollowTrajectory"), "LongitudinalParams"));
 	bm.insert(bm_type::value_type(parent_name("Lateral", "/OSCPrivateAction/Routing/FollowTrajectory"), "LateralParams"));
 	bm.insert(bm_type::value_type(parent_name("Signal", "/OSCCondition/ByState"), "SignalState"));
-	bm.insert(bm_type::value_type(parent_name("Description", "OSCPedestrianController"), "Description"));
 	bm.insert(bm_type::value_type(parent_name("Distance", "/OSCPrivateAction/Longitudinal"), "DistanceAction"));
 	bm.insert(bm_type::value_type(parent_name("Dynamics", "/OSCPrivateAction/Longitudinal/Speed"), "SpeedDynamics"));
 	bm.insert(bm_type::value_type(parent_name("Dynamics", "/OSCPrivateAction/Lateral/LaneChange"), "LaneChangeDynamics"));
@@ -42,12 +38,11 @@ nameMapping::nameMapping()
 	bm.insert(bm_type::value_type(parent_name("Controller", "/OpenSCENARIO/Entities/Object"), "ObjectController"));
 	bm.insert(bm_type::value_type(parent_name("Conditions", "/OpenSCENARIO/Storyboard/Story/Act"), "ActConditions"));
 	bm.insert(bm_type::value_type(parent_name("Distance", "/OSCCondition/ByEntity/EntityCondition"), "ConditionDistance"));
-	bm.insert(bm_type::value_type(parent_name("OpenSCENARIO", "/OpenSCENARIO/Storyboard/End"), "OpenSCENARIOEnd"));
+	bm.insert(bm_type::value_type(parent_name("End", "/OpenSCENARIO/Storyboard"), "StoryboardEnd"));
 	bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Longitudinal/Speed/Target"), "RelativeTarget"));
 	bm.insert(bm_type::value_type(parent_name("Catalog", "/OpenSCENARIO"), "CatalogObject"));
 	//bm.insert(bm_type::value_type(parent_name("Signal", "/OpenSCENARIO/RoadNetwork/Signals/Controller/Phase"), "SignalPhase"));
 	//bm.insert(bm_type::value_type(parent_name("Signal", "/OpenSCENARIO/RoadNetwork/Signals/SignalsController/Phase"), "SignalPhase"));
-	bm.insert(bm_type::value_type(parent_name("Position", "/OSCPosition/Route"), "RoutePosition"));
 	bm.insert(bm_type::value_type(parent_name("Signal", "/OSCGlobalAction/Infrastructure"), "InfrastructureSignal"));
 
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneChange/Target"), "LaneChangeTargetRelative"));
@@ -55,7 +50,12 @@ nameMapping::nameMapping()
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneChange/LaneChangeTarget"), "LaneChangeTargetRelative"));
 	//bm.insert(bm_type::value_type(parent_name("Relative", "/OSCPrivateAction/Lateral/LaneOffset/LaneOffsetTarget"), "LaneOffsetTargetRelative"));
 	
-	
+	enumMap.insert(eMap::value_type("greater-than", "greater_than"));
+	enumMap.insert(eMap::value_type("equal-to", "equal_to"));
+	enumMap.insert(eMap::value_type("less-than", "less_than"));
+	enumMap.insert(eMap::value_type("sky off", "sky_off"));
+	enumMap.insert(eMap::value_type("int", "int_t"));
+	enumMap.insert(eMap::value_type("double", "double_t"));
 	
 };
 nameMapping *nameMapping::nmInstance=NULL;
@@ -86,5 +86,26 @@ std::string nameMapping::getSchemaName(std::string &className)
 	}
 	else {
 		return className;
+	}
+}
+
+std::string nameMapping::getEnumName(const std::string &name)
+{
+	auto search = enumMap.left.find(name);
+	if (search != enumMap.left.end()) {
+		return (*search).second;
+	}
+	else {
+		return name;
+	}
+}
+std::string nameMapping::getSchemaEnumName(std::string &name)
+{
+	auto search = enumMap.right.find(name);
+	if (search != enumMap.right.end()) {
+		return (*search).get_left();
+	}
+	else {
+		return name;
 	}
 }

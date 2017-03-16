@@ -344,7 +344,6 @@ int FilterCrop::compute(const char *)
 //======================================================================
 void FilterCrop::create_strgrid_plane()
 {
-    int i, j, k;
     int i_sample, j_sample, k_sample;
 
     s_grid_out = new coDoStructuredGrid(GridOut, l_dim, m_dim, n_dim);
@@ -355,11 +354,13 @@ void FilterCrop::create_strgrid_plane()
     }
     s_grid_out->getAddresses(&x_out, &y_out, &z_out);
 
+    int idims[] = { i_dim, j_dim, k_dim };
+    int odims[] = { l_dim, m_dim, n_dim };
     //     cerr << "min_max_sample: (" << i_min << ", " << i_max << ", " << sample << ") (";
     //     cerr << j_min << ", " << j_max << ") (" << k_min << ", " << k_max << ")\n";
-    for (i = 0; i < l_dim; i++)
-        for (j = 0; j < m_dim; j++)
-            for (k = 0; k < n_dim; k++)
+    for (int i = 0; i < l_dim; i++)
+        for (int j = 0; j < m_dim; j++)
+            for (int k = 0; k < n_dim; k++)
             {
                 // make sure that there is no gap at the end
                 if (i != l_dim - 1)
@@ -375,9 +376,12 @@ void FilterCrop::create_strgrid_plane()
                 else
                     k_sample = k_max - 1;
 
-                *(x_out + i * m_dim * n_dim + j * n_dim + k) = *(x_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
-                *(y_out + i * m_dim * n_dim + j * n_dim + k) = *(y_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
-                *(z_out + i * m_dim * n_dim + j * n_dim + k) = *(z_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
+                int iOut = coIndex(i, j, k, odims);
+                int iIn = coIndex(i_sample, j_sample, k_sample, idims);
+
+                x_out[iOut] = x_in[iIn];
+                y_out[iOut] = y_in[iIn];
+                z_out[iOut] = z_in[iIn];
             }
     r[0] = s_grid_out;
     pMeshOut->setCurrentObject(s_grid_out);
@@ -388,7 +392,7 @@ void FilterCrop::create_strgrid_plane()
 //======================================================================
 void FilterCrop::create_rectgrid_plane()
 {
-    int ip, i, j, k;
+    int ip;
 
     r_grid_out = new coDoRectilinearGrid(GridOut, l_dim, m_dim, n_dim);
     if (!r_grid_out->objectOk())
@@ -399,19 +403,19 @@ void FilterCrop::create_rectgrid_plane()
     r_grid_out->getAddresses(&x_out, &y_out, &z_out);
 
     ip = i_min - 1;
-    for (i = 0; i < l_dim; i++)
+    for (int i = 0; i < l_dim; i++)
     {
         x_out[i] = x_in[ip];
         ip = ip + sample;
     }
     ip = j_min - 1;
-    for (j = 0; j < m_dim; j++)
+    for (int j = 0; j < m_dim; j++)
     {
         y_out[j] = y_in[ip];
         ip = ip + sample;
     }
     ip = k_min - 1;
-    for (k = 0; k < n_dim; k++)
+    for (int k = 0; k < n_dim; k++)
     {
         z_out[k] = z_in[ip];
         ip = ip + sample;
@@ -447,7 +451,6 @@ void FilterCrop::create_unigrid_plane()
 //======================================================================
 void FilterCrop::create_scalar_plane()
 {
-    int i, j, k;
     int i_sample, j_sample, k_sample;
 
     s_data_out = new coDoFloat(DataOut, l_dim * m_dim * n_dim);
@@ -459,9 +462,11 @@ void FilterCrop::create_scalar_plane()
 
     s_data_out->getAddress(&s_out);
 
-    for (i = 0; i < l_dim; i++)
-        for (j = 0; j < m_dim; j++)
-            for (k = 0; k < n_dim; k++)
+    int idims[] = { i_dim, j_dim, k_dim };
+    int odims[] = { l_dim, m_dim, n_dim };
+    for (int i = 0; i < l_dim; i++)
+        for (int j = 0; j < m_dim; j++)
+            for (int k = 0; k < n_dim; k++)
             {
                 if (i != l_dim - 1)
                     i_sample = i_min - 1 + sample * i;
@@ -476,7 +481,12 @@ void FilterCrop::create_scalar_plane()
                 else
                     k_sample = k_max - 1;
 
-                *(s_out + i * m_dim * n_dim + j * n_dim + k) = *(s_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
+                int iOut = coIndex(i, j, k, odims);
+                int iIn = coIndex(i_sample, j_sample, k_sample, idims);
+
+                s_out[iOut] = s_in[iIn];
+
+                //*(s_out + i * m_dim * n_dim + j * n_dim + k) = *(s_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
                 //			*(s_in + (sample*i)*j_dim*k_dim + (sample*j)*k_dim + (sample*k));
             }
     r[1] = s_data_out;
@@ -488,7 +498,6 @@ void FilterCrop::create_scalar_plane()
 //======================================================================
 void FilterCrop::create_vector_plane()
 {
-    int i, j, k;
     int i_sample, j_sample, k_sample;
 
     v_data_out = new coDoVec3(DataOut, l_dim * m_dim * n_dim);
@@ -500,9 +509,11 @@ void FilterCrop::create_vector_plane()
 
     v_data_out->getAddresses(&u_out, &v_out, &w_out);
 
-    for (i = 0; i < l_dim; i++)
-        for (j = 0; j < m_dim; j++)
-            for (k = 0; k < n_dim; k++)
+    int idims[] = { i_dim, j_dim, k_dim };
+    int odims[] = { l_dim, m_dim, n_dim };
+    for (int i = 0; i < l_dim; i++)
+        for (int j = 0; j < m_dim; j++)
+            for (int k = 0; k < n_dim; k++)
             {
                 if (i != l_dim - 1)
                     i_sample = i_min - 1 + sample * i;
@@ -517,9 +528,12 @@ void FilterCrop::create_vector_plane()
                 else
                     k_sample = k_max - 1;
 
-                *(u_out + i * m_dim * n_dim + j * n_dim + k) = *(u_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
-                *(v_out + i * m_dim * n_dim + j * n_dim + k) = *(v_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
-                *(w_out + i * m_dim * n_dim + j * n_dim + k) = *(w_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
+                int iOut = coIndex(i, j, k, odims);
+                int iIn = coIndex(i_sample, j_sample, k_sample, idims);
+
+                u_out[iOut] = u_in[iIn];
+                v_out[iOut] = v_in[iIn];
+                w_out[iOut] = w_in[iIn];
             }
     r[1] = v_data_out;
     pDataOut->setCurrentObject(v_data_out);

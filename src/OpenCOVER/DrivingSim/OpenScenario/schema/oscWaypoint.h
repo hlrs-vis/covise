@@ -19,8 +19,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 namespace OpenScenario
 {
-	class oscPosition;
-class OPENSCENARIOEXPORT Enum_Route_strategyType : public oscEnumType
+class oscPosition;class OPENSCENARIOEXPORT Enum_Route_strategyType : public oscEnumType
 {
 public:
 static Enum_Route_strategyType *instance();
@@ -39,7 +38,7 @@ oscWaypoint()
     };
         const char *getScope(){return "/OSCRoute";};
     oscEnum strategy;
-	oscObjectVariable<oscPosition *> Position;
+    oscObjectVariable<oscPosition *> Position;
 
     enum Enum_Route_strategy
     {

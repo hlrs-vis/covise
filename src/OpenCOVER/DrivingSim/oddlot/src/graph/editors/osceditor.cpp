@@ -170,12 +170,10 @@ OpenScenarioEditor::init()
             OpenScenario::oscCatalog *trajectoryCatalog = catalogs->TrajectoryCatalog.getOrCreateObject();
             if (trajectoryCatalog->getObjectsMap().size() == 0)
             {
-                //get all catalog object filenames
-                std::vector<bf::path> filenames = trajectoryCatalog->getXoscFilesFromDirectory(trajectoryCatalog->Directory->path.getValue());
 
                 //parse all files
                 //store object name and filename in map
-                trajectoryCatalog->fastReadCatalogObjects(filenames);
+                trajectoryCatalog->fastReadCatalogObjects();
             }
 
             foreach (OpenScenario::oscObjectBase *objectBase, trajectoryObjects)
@@ -651,16 +649,11 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
 							if (element)
 							{
-								OpenScenario::oscObjectBase * objectBase = element->getObject();
-								if (objectBase)				// all catalog elements have a name
+								selectedObject = element->getObject();
+								if (selectedObject)				// all catalog elements have a name
 								{
-									OpenScenario::oscObjectBase *parent = objectBase->getParentObj();
-									if (oscCatalog_ == objectBase->getParentObj())
+									if (oscCatalog_ == selectedObject->getParentObj())
 									{
-										OpenScenario::oscArrayMember *objects = dynamic_cast<OpenScenario::oscArrayMember *>(objectBase->getMember(catalogName));
-										if (objects && !objects->empty())
-										{
-											selectedObject = objects->at(0);
 											
 											OpenScenario::oscMember *memberName = NULL;
 											if (catalogName == "Driver")
@@ -719,7 +712,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 												}
 											}
 											break;
-										}
+										//}
 
 		/*								OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(name->getValue());
 										selectedObjectName = str->getValue();
@@ -961,9 +954,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			if (action)
 			{
 				// Save catalog //
-				oscCatalog_->writeCatalogToDOM();
-				oscCatalog_->writeCatalogToDisk();
-				oscCatalog_->clearDOM();
+				oscCatalog_->writeCatalogsToDisk();
 
 
 /*				QString type = action->getText();

@@ -93,7 +93,7 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
     //set the XSD Schema file name for possible file types
     OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
 //	fileTypeToXsd.emplace("", bf::path("OpenScenario_XML-Schema_.xsd"));
-    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_Draft_F.xsd"));
+    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_v0.9.xsd"));
 	fileTypeToXsd.emplace("CatalogObject", bf::path("OpenSCENARIO_Catalog.xsd"));
 	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
 	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
@@ -451,7 +451,9 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
 
         //set filename for main xosc file with root element "OpenSCENARIO" to fileName
 		bf::path fnPath = srcFileVec[i]->getFileNamePath(fileName);
-        if (srcFileRootElement == "OpenSCENARIO") 
+//        if (srcFileRootElement == "OpenSCENARIO")
+		std::string relPath = srcFileVec[i]->getRelPathFromMainDir().string();
+		if (relPath.find("Catalog") == std::string::npos)
         {
 			if ((fnPath == "") || (fnPath.parent_path() == srcFileVec[i]->getAbsPathToMainDir()))
 			{
@@ -599,6 +601,10 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     {
         tmpRootElem = tmpXmlDoc->getDocumentElement();
         tmpRootElemName = xercesc::XMLString::transcode(tmpRootElem->getNodeName());
+		if (fileName.find("Catalog") != std::string::npos)
+		{
+			tmpRootElemName = "CatalogObject";
+		}
     }
 
     //validation

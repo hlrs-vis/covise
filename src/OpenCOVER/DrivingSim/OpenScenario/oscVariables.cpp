@@ -261,7 +261,8 @@ OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute)
 OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
 {
     std::string valstr = xercesc::XMLString::transcode(attribute->getValue()); 
-    value = enumType->getEnum(valstr);
+	std::string enumName = nameMapping::instance()->getEnumName(valstr);
+    value = enumType->getEnum(enumName);
     return true;
 };
 
@@ -348,7 +349,9 @@ OPENSCENARIOEXPORT bool oscEnumValue::writeToDOM(xercesc::DOMElement *currentEle
     {
         if(it->second == value)
         {
-            currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(it->first.c_str()));
+			std::string s = it->first.c_str();
+			std::string schemaEnumName = nameMapping::instance()->getSchemaEnumName(s);
+            currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(schemaEnumName.c_str()));
         }
     }
     return true;

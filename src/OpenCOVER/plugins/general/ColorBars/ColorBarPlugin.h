@@ -19,21 +19,17 @@
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <OpenVRUI/coMenuItem.h>
+#include <OpenVRUI/coSubMenuItem.h>
 #include <map>
 
 #include <cover/coTabletUI.h>
 #include <util/coTabletUIMessages.h>
 #include <cover/coVRTui.h>
+#include <PluginUtil/ColorBar.h>
 
 namespace vrui
 {
 class coRowMenu;
-class coSubMenuItem;
-}
-
-namespace opencover
-{
-class ColorBar;
 }
 
 class ColorBarPlugin : public opencover::coVRPlugin, public opencover::coTUIListener
@@ -46,11 +42,14 @@ public:
     // this will be called if an object with feedback arrives
     void newInteractor(const opencover::RenderObject *, opencover::coInteractor *i);
     void removeObject(const char *container, bool replace);
+    void postFrame();
 
 private:
+    void removeInteractor(const std::string &container);
     void tabletPressEvent(opencover::coTUIElement *);
     void createMenuEntry();
     void removeMenuEntry();
+    std::vector<std::string> removeQueue;
 
     /// The TabletUI Interface
     opencover::coTUITab *colorBarTab;
@@ -62,8 +61,26 @@ private:
     vrui::coRowMenu *colorSubmenu;
     vrui::coRowMenu *_menu;
     vrui::coMenu *coviseMenu;
-    std::map<std::string, opencover::ColorBar *> colorbars; // from name to colorbar
-    std::map<std::string, opencover::ColorBar *> containerMap; // from container to colorbar
-    std::map<opencover::ColorBar *, vrui::coSubMenuItem *> menuMap; // from color to submenu item
+    typedef std::map<std::string, opencover::coInteractor *> InteractorMap;
+    InteractorMap interactorMap; // from container to interactor
+    struct ColorsModule
+    {
+        ColorsModule()
+            : useCount(0)
+            , colorbar(NULL)
+            , menu(NULL)
+        {}
+        ~ColorsModule()
+        {
+            delete colorbar;
+            delete menu;
+        }
+
+        int useCount;
+        opencover::ColorBar *colorbar;
+        vrui::coSubMenuItem *menu;
+    };
+    typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
+    ColorsModuleMap colorsModuleMap;
 };
 #endif

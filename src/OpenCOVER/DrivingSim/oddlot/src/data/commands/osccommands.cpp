@@ -96,10 +96,10 @@ LoadOSCCatalogObjectCommand::redo()
 void
 	LoadOSCCatalogObjectCommand::undo()
 {
-	catalog_->removeCatalogObject(name_);
+	/* no need to unload an object but we definitely should not remove itcatalog_->removeCatalogObject(name_);
 
 	oscElement_->setObjectBase(NULL);
-	oscBase_->delOSCElement(oscElement_);
+	oscBase_->delOSCElement(oscElement_);*/
 
 	setUndone();
 }
@@ -109,12 +109,12 @@ void
 // AddOSCCatalogObjectCommand //
 //#########################//
 
-AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent)
+AddOSCCatalogObjectCommand::AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OpenScenario::oscObjectBase *objectBase, OpenScenario::oscCatalogFile *catalogFile, OSCBase *base, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
 	, catalog_(catalog)
 	, name_(name)
 	, objectBase_(objectBase)
-	, path_(path)
+	, catalogFile_(catalogFile)
 	, oscElement_(element)
 	, oscBase_(base)
 {
@@ -167,14 +167,14 @@ AddOSCCatalogObjectCommand::redo()
 /*		OpenScenario::oscMember *member = objectBase_->getMember("name");
 		OpenScenario::oscMemberValue *v = member->getOrCreateValue();
 		v->setValue(name_); */
-		catalog_->addCatalogObject(name_, objectBase_, boost::filesystem::path(path_));
+		catalog_->addCatalogObject(name_, objectBase_, catalogFile_);
 
 		oscElement_->setObjectBase(objectBase_);
 		oscBase_->addOSCElement(oscElement_);
 	}
 	else
 	{
-		catalog_->addObjToObjectsMap(name_, path_, NULL);
+		// TODO need to be changed catalog_->addObjToObjectsMap(name_, path_, NULL);
 	}
 	
 	setRedone();
@@ -191,7 +191,7 @@ void
 
 	if (objectBase_)
 	{
-		catalog_->removeCatalogObject(name_);
+		//catalog_->removeCatalogObject(name_);
 
 		oscElement_->setObjectBase(NULL);
 		oscBase_->delOSCElement(oscElement_);
@@ -267,7 +267,7 @@ RemoveOSCCatalogObjectCommand::redo()
 		oscBase_->delOSCElement(element_);
 	}
 
-	catalog_->removeCatalogObject(name_);
+	//catalog_->removeCatalogObject(name_);
 
     setRedone();
 }
@@ -278,7 +278,7 @@ RemoveOSCCatalogObjectCommand::redo()
 void
 RemoveOSCCatalogObjectCommand::undo()
 {
-	catalog_->addCatalogObject(name_, oscObject_, path_);
+	catalog_->addCatalogObject(name_, oscObject_, catalog_->getCatalogFile(0));
 	element_->setObjectBase(oscObject_);
 	oscBase_->addOSCElement(element_);
 

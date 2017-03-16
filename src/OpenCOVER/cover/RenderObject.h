@@ -43,6 +43,7 @@ struct Pack
         None = 2,
         RGBA = 4,
         Texture = 5,
+        Float = 6,
     };
 };
 
