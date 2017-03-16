@@ -370,6 +370,7 @@ coVRAttribute::~coVRAttribute()
 
 coVRShader::coVRShader(const std::string &n, const std::string &d)
 {
+    wasCloned = false;
     name = n;
     dir = d;
     geometryShader = NULL;
@@ -381,6 +382,22 @@ coVRShader::coVRShader(const std::string &n, const std::string &d)
     opaque = false;
     if (name.rfind(".xml") == (name.length() - 4))
         name = std::string(name, 0, name.length() - 4);
+    coVRShaderList::instance()->push_back(this);
+    loadMaterial();
+}
+
+coVRShader::coVRShader(const coVRShader &other)
+: name(other.name)
+, fileName(other.fileName)
+, dir(other.dir)
+, wasCloned(true)
+, geometryShader(other.geometryShader)
+, transparent(other.transparent)
+, opaque(other.opaque)
+, cullFace(other.cullFace)
+{
+    for (int i=0; i<3; ++i)
+        geomParams[i] = other.geomParams[i];
     coVRShaderList::instance()->push_back(this);
     loadMaterial();
 }
@@ -1624,6 +1641,44 @@ coVRShader *coVRShaderList::add(const std::string &name, std::string &dirName)
     return new coVRShader(name, dirName);
 }
 
+void coVRShaderList::applyParams(coVRShader *shader, std::map<std::string, std::string> *params)
+{
+    if (!params)
+        return;
+
+    std::list<coVRUniform *> unilist = shader->getUniforms();
+    std::map<std::string, std::string>::iterator itparam;
+    for (itparam = params->begin(); itparam != params->end(); itparam++)
+    {
+        osg::Uniform *paramUniform = shader->getUniform((*itparam).first);
+        if (paramUniform)
+        {
+            std::list<coVRUniform *>::iterator itcoUniform;
+            for (itcoUniform = unilist.begin(); itcoUniform != unilist.end(); itcoUniform++)
+            {
+                if ((*itcoUniform)->uniform == paramUniform)
+                {
+                    (*itcoUniform)->setValue((*itparam).second.c_str());
+                    break;
+                }
+            }
+        }
+    }
+}
+
+coVRShader *coVRShaderList::getUnique(const std::string &n, std::map<std::string, std::string> *params)
+{
+    coVRShader *shader = get(n);
+    if (!shader)
+    {
+        return NULL;
+    }
+    coVRShader *clone = add(shader->fileName, shader->dir);
+    clone->wasCloned = true;
+    applyParams(clone, params);
+    return clone;
+}
+
 coVRShader *coVRShaderList::get(const std::string &n, std::map<std::string, std::string> *params)
 {
     std::string basename = n;
@@ -1634,25 +1689,9 @@ coVRShader *coVRShaderList::get(const std::string &n, std::map<std::string, std:
     {
         if ((*(it))->getName() == basename)
         {
-            std::list<coVRUniform *> unilist = (*it)->getUniforms();
-            std::map<std::string, std::string>::iterator itparam;
-            if (params != NULL)
-                for (itparam = params->begin(); itparam != params->end(); itparam++)
-                {
-                    osg::Uniform *paramUniform = (*it)->getUniform((*itparam).first);
-                    if (paramUniform)
-                    {
-                        std::list<coVRUniform *>::iterator itcoUniform;
-                        for (itcoUniform = unilist.begin(); itcoUniform != unilist.end(); itcoUniform++)
-                        {
-                            if ((*itcoUniform)->uniform == paramUniform)
-                            {
-                                (*itcoUniform)->setValue((*itparam).second.c_str());
-                                break;
-                            }
-                        }
-                    }
-                }
+            if ((*it)->isClone())
+                continue;
+            applyParams(*it, params);
             return *it;
         }
     }
