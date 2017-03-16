@@ -649,16 +649,11 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
 							if (element)
 							{
-								OpenScenario::oscObjectBase * objectBase = element->getObject();
-								if (objectBase)				// all catalog elements have a name
+								selectedObject = element->getObject();
+								if (selectedObject)				// all catalog elements have a name
 								{
-									OpenScenario::oscObjectBase *parent = objectBase->getParentObj();
-									if (oscCatalog_ == objectBase->getParentObj())
+									if (oscCatalog_ == selectedObject->getParentObj())
 									{
-										OpenScenario::oscArrayMember *objects = dynamic_cast<OpenScenario::oscArrayMember *>(objectBase->getMember(catalogName));
-										if (objects && !objects->empty())
-										{
-											selectedObject = objects->at(0);
 											
 											OpenScenario::oscMember *memberName = NULL;
 											if (catalogName == "Driver")
@@ -717,7 +712,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 												}
 											}
 											break;
-										}
+										//}
 
 		/*								OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(name->getValue());
 										selectedObjectName = str->getValue();

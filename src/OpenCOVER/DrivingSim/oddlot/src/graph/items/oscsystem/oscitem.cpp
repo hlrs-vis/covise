@@ -72,7 +72,7 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
     , oscObject_(oscObject)
 	, oscPrivateAction_(NULL)
 	, catalog_(catalog)
-	, selectedObject_(NULL)
+	, catalogObject_(NULL)
 	, path_(NULL)
 	, pos_(pos)
 	, roadID_(roadId)
@@ -185,20 +185,21 @@ OSCItem::init()
 	// TODO: get type and object from catalog reference //
 	//
 
-	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogName,entryName);
+	catalogObject_ = catalog_->getCatalogObject(catalogName,entryName);
 
-	
-	if (catalogObject)
+
+	if (catalogObject_)
 	{
-		
-			if (catalog_->getCatalogName() == "Vehicle")
-			{
-				createPath = createVehiclePath;
-				createPath(catalogObject);
 
-				updateColor(catalog_->getCatalogName());
-				updatePosition();
-			}
+		if (catalog_->getCatalogName() == "Vehicle")
+		{
+			createPath = createVehiclePath;
+			createPath(catalogObject_);
+
+			updateColor(catalog_->getCatalogName());
+			updatePosition();
+		}
+
 	}
 }
 
@@ -239,7 +240,7 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-	path_ = createPath(selectedObject_);
+	path_ = createPath(catalogObject_);
 	path_->translate(pos_ );
 	setPath(*path_);
 }

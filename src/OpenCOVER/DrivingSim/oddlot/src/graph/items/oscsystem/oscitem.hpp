@@ -116,7 +116,7 @@ private:
     QString updateName();
 
 	OpenScenario::oscObject *oscObject_;
-	OpenScenario::oscObjectBase *selectedObject_;
+	OpenScenario::oscObjectBase *catalogObject_;
 	OpenScenario::oscPrivateAction *oscPrivateAction_;
 	OpenScenario::oscCatalog *catalog_;
 	RSystemElementRoad *road_;
