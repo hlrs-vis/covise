@@ -214,7 +214,7 @@ void oscCatalog::setObjectsMap(const ObjectsMap &availableObjects)
     m_Objects = availableObjects;
 }
 
-oscCatalog::ObjectsMap oscCatalog::getObjectsMap() const
+const oscCatalog::ObjectsMap &oscCatalog::getObjectsMap() const
 {
     return m_Objects;
 }
@@ -758,7 +758,7 @@ bool oscCatalog::parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile
 		{
 			//TODO::FIX
 			//generate the objects for this catalog and store them
-			for (auto &it : getObjectsMap())
+			for (auto &it : m_Objects)
 			{
 				fullReadCatalogObjectWithName(it.first);
 			}

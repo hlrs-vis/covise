@@ -98,7 +98,8 @@ public:
 
     //availableObjects
     void setObjectsMap(const ObjectsMap &availableObjects);
-    ObjectsMap getObjectsMap() const;
+	size_t getNumObjects() { return m_Objects.size(); };
+    const ObjectsMap &getObjectsMap() const;
     bool addObjToObjectsMap(const std::string &name, oscCatalogFile *catf, oscObjectBase *object);
     bool removeObjFromObjectsMap(const std::string &name);
 	std::string getPath(const std::string &name);
