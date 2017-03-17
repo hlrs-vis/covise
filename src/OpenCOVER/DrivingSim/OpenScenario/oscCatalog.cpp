@@ -141,7 +141,12 @@ void oscCatalog::fastReadCatalogObjects()
 
     for (size_t i = 0; i < xoscFiles.size(); i++)
     {
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(xoscFiles[i]->getPath().generic_string(), m_catalogName, m_catalogType, validate);
+		std::string errorMessage="";
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(xoscFiles[i]->getPath().generic_string(), m_catalogName, m_catalogType, validate, &errorMessage);
+		if (errorMessage != "")
+		{
+			std::cerr << errorMessage << std::endl;
+		}
 
         if (rootElem)
         {
