@@ -251,19 +251,26 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++)
 	{	
 		oscObject* entity = ((oscObject*)(*it));
-		sm->entityList.push_back(new Entity(entity->name.getValue()));
+		sm->entityList.push_back(new Entity(entity->name.getValue(), entity->CatalogReference->entryName.getValue()));
 		cout << "Entity: " <<  entity->name.getValue() << " initialized" << endl;
 	}
 
 	//get initial position and speed of entities
 	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
 	{
+
+		/*
+		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", "volvo");
+			oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
+			//cout << vehicle->Properties->File.getValue() << endl;*/
+
+
+
 		for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++)
 		{	
 			oscPrivate* actions_private = ((oscPrivate*)(*it));
 			if((*entity_iter)->getName()==actions_private->object.getValue())
 			{
-				cout << (*entity_iter)->getName() << "_test" << endl;
 				for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
 				{	
 					oscPrivateAction* action = ((oscPrivateAction*)(*it2));
@@ -328,7 +335,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	{
 		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 		{
-			oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", "MyLaneChangeTrajectory");
+			oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->getName());
 			oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
 			for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
 			{	

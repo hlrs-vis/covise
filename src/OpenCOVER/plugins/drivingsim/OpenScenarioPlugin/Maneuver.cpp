@@ -40,7 +40,7 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, osg::Vec3 targetPosi
 	}
 	return newPosition;
 }
-string Maneuver::getName()
+string &Maneuver::getName()
 {
 	return name;
 }

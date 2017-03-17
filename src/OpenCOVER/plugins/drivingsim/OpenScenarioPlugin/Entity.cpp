@@ -1,12 +1,12 @@
 #include "Entity.h"
 
 
-Entity::Entity(string entityName):
+Entity::Entity(string entityName, string catalogReferenceName):
 	name(entityName),
-	initActionType(NULL)
+	catalogReferenceName(catalogReferenceName)
 {
 	directionVector.set(1, 0, 0);
-	entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
+	entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\vehicle_files\\volvo\\volvo_blue_nrm.3ds", true));
 }
 
 void Entity::moveLongitudinal()

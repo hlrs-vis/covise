@@ -14,12 +14,13 @@ class Entity {
 	string name;
 
  public:
+	string catalogReferenceName;
 	Vehicle* entityGeometry;
 	osg::Vec3 entityPosition;
 	osg::Vec3 directionVector;
 	string initActionType;
 
-    Entity(string entityName);
+    Entity(string entityName, string catalogReferenceName);
     void moveLongitudinal();
     osg::Vec3 &getPosition();
     void setPosition(osg::Vec3 &newPosition);   
