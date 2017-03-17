@@ -148,6 +148,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
+    osg::Vec3Array *normal = new osg::Vec3Array;
     osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::QUADS);
     primitives->push_back(4);
 
@@ -171,6 +172,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
             vert->push_back(osg::Vec3(x, ymin, zmax));
             vert->push_back(osg::Vec3(x, ymax, zmax));
             vert->push_back(osg::Vec3(x, ymax, zmin));
+            normal->push_back(osg::Vec3(1., 0., 0.));
             break;
         }
         case 1:
@@ -182,6 +184,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
             vert->push_back(osg::Vec3(xmin, y, zmax));
             vert->push_back(osg::Vec3(xmax, y, zmax));
             vert->push_back(osg::Vec3(xmax, y, zmin));
+            normal->push_back(osg::Vec3(0., 1., 0.));
             break;
         }
         case 2:
@@ -193,6 +196,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
             vert->push_back(osg::Vec3(xmin, ymax, z));
             vert->push_back(osg::Vec3(xmax, ymax, z));
             vert->push_back(osg::Vec3(xmax, ymin, z));
+            normal->push_back(osg::Vec3(0., 0., 1.));
             break;
         }
     }
@@ -205,8 +209,6 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     geom->setColorArray(color);
     geom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
-    osg::Vec3Array *normal = new osg::Vec3Array(1);
-    (*normal)   [0].set(0.0f, -1.0f, 0.0f);
     geom->setNormalArray(normal);
     geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
 
