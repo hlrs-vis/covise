@@ -165,8 +165,8 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     {
         case 0:
         {
-            w = ysize;
-            h = zsize;
+            h = ysize;
+            w = zsize;
             float x = (xmin+xmax)*.5;
             vert->push_back(osg::Vec3(x, ymin, zmin));
             vert->push_back(osg::Vec3(x, ymin, zmax));
@@ -177,8 +177,8 @@ osg::Node *GeometryManager::addUGrid(const char *object,
         }
         case 1:
         {
-            w = xsize;
-            h = zsize;
+            h = xsize;
+            w = zsize;
             float y = (ymin+ymax)*.5;
             vert->push_back(osg::Vec3(xmin, y, zmin));
             vert->push_back(osg::Vec3(xmin, y, zmax));
@@ -189,8 +189,8 @@ osg::Node *GeometryManager::addUGrid(const char *object,
         }
         case 2:
         {
-            w = xsize;
-            h = ysize;
+            h = xsize;
+            w = ysize;
             float z = (zmin+zmax)*.5;
             vert->push_back(osg::Vec3(xmin, ymin, z));
             vert->push_back(osg::Vec3(xmin, ymax, z));
@@ -223,8 +223,13 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     }
     else if (colorpacking == Pack::Float)
     {
+#if 0
         img->allocateImage(w, h, 1, GL_LUMINANCE, GL_FLOAT);
         tex->setInternalFormat(GL_LUMINANCE32F_ARB);
+#else
+        img->setImage(w, h, 1, GL_LUMINANCE32F_ARB, GL_LUMINANCE, GL_FLOAT, (unsigned char *)rc, osg::Image::NO_DELETE);
+        no_c = 0;
+#endif
     }
     img->setPixelBufferObject(new osg::PixelBufferObject(img));
     tex->setBorderWidth( 0 );
@@ -244,11 +249,11 @@ osg::Node *GeometryManager::addUGrid(const char *object,
             int dims[] = { xsize, ysize, zsize };
             unsigned char *rgba = img->data();
             float *fl = (float *)img->data();
-            for (int z=0; z<zsize; ++z)
+            for (int x=0; x<xsize; ++x)
             {
                 for (int y=0; y<ysize; ++y)
                 {
-                    for (int x=0; x<xsize; ++x)
+                    for (int z=0; z<zsize; ++z)
                     {
                         int idx = covise::coIndex(x, y, z, dims);
                         if (colorpacking == Pack::RGBA)
@@ -296,9 +301,9 @@ osg::Node *GeometryManager::addUGrid(const char *object,
 
    osg::Vec2Array *texcoord  = new osg::Vec2Array(4);
    (*texcoord)[0].set(0.0,0.0);
-   (*texcoord)[1].set(0.0,h);
+   (*texcoord)[1].set(w,0.0);
    (*texcoord)[2].set(w,h);
-   (*texcoord)[3].set(w,0.0);
+   (*texcoord)[3].set(0.0,h);
    geom->setTexCoordArray(0, texcoord);
 
    osg::TexEnv * texEnv = new osg::TexEnv();
