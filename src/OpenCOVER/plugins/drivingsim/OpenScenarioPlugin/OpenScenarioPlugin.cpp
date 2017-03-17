@@ -103,12 +103,13 @@ void OpenScenarioPlugin::preFrame(){
 				}
 			}
 		}
-	}		for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++){
+	}		
+	/*for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++){
 		cout << "Entity: " << (*entity_iter)->getName() << " Position updated (Init)" << endl;
 		(*entity_iter)->move();
 		(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
 		cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
-		usedEntity.clear();}
+		usedEntity.clear();}*/
 
 }			
 
