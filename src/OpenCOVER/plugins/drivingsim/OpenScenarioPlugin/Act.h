@@ -17,11 +17,11 @@ class Act {
 	int executionCounter;
 
  public:
+	Act(string actName, int numberOfExecutions, list<Maneuver*> maneuverList_temp, list<Entity*> activeEntityList_temp);
+	~Act();
 	bool actCondition;
 	list<Entity*> activeEntityList;
 	list<Maneuver*> maneuverList;
-    Act(string actName, int numberOfExecutions, list<Maneuver*> maneuverList_temp, list<Entity*> activeEntityList_temp);
-	~Act();
 	int getNumberOfExecutions();
 	int getExecutionCounter();
 	void setExecutionCounter();

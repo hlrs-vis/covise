@@ -1,21 +1,11 @@
 #include "ScenarioManager.h"
 #include <vector>
 
-ScenarioManager::ScenarioManager()
+ScenarioManager::ScenarioManager():
+	numberOfActs(0)
 {
 }
-void ScenarioManager::setNumberOfActs(int numberOfActs_temp)
-{
-	numberOfActs = numberOfActs_temp;
-}
-void ScenarioManager::setNumberOfEntities(int numberOfEntities_temp)
-{
-	numberOfEntities = numberOfEntities_temp;
-}
-/*list<Entity*> ScenarioManager::getEntityList(){
-return entityList;}
-list<Act*> ScenarioManager::getActList(){
-return actList;}*/
+
 Entity* ScenarioManager::getEntityByName(string entityName)
 {
 	for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
@@ -23,12 +13,14 @@ Entity* ScenarioManager::getEntityByName(string entityName)
 		if ((*entity_iter)->getName() != entityName)
 		{
 			continue;
+			return 0;
 		}
 		else
 		{
 			return (*entity_iter);
 		}
 	}
+return 0;
 }
 
 

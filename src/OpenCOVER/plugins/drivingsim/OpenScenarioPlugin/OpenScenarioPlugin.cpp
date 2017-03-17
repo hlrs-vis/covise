@@ -78,36 +78,47 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 }
 
 
-void OpenScenarioPlugin::preFrame(){
+void OpenScenarioPlugin::preFrame()
+{
 	//Condition Control	
 	list<Entity*> usedEntity;
 	list<Entity*> unusedEntity = sm->entityList;
 	list<Entity*> entityList_temp = sm->entityList;
 	entityList_temp.sort();unusedEntity.sort();
-	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++){
-		if ((*act_iter)->actCondition==true){
-			for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++){
-				if ((*maneuver_iter)->maneuverCondition==true){
-					for(list<Entity*>::iterator aktivEntity = (*act_iter)->activeEntityList.begin(); aktivEntity != (*act_iter)->activeEntityList.end(); aktivEntity++){
-						cout << "xPosition: " << (*aktivEntity)->entityPosition[0] << endl;
-						cout << "yPosition: " << (*aktivEntity)->entityPosition[1] << endl;
-						cout << (*maneuver_iter)->totalDistance << endl;
-						(*aktivEntity)->setPosition((*maneuver_iter)->followTrajectory((*aktivEntity)->entityPosition,(*maneuver_iter)->polylineVertices[(*maneuver_iter)->visitedVertices],(*aktivEntity)->getSpeed()));
-						(*aktivEntity)->setDirection((*maneuver_iter)->norm_direction_vec);
+	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	{
+		if ((*act_iter)->actCondition==true)
+		{
+			for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+			{
+				if ((*maneuver_iter)->maneuverCondition==true)
+				{
+					for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+					{
+						//cout << "xPosition: " << (*aktivEntity)->entityPosition[0] << endl;
+						//cout << "yPosition: " << (*aktivEntity)->entityPosition[1] << endl;
+						//cout << (*maneuver_iter)->totalDistance << endl;
+						(*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*maneuver_iter)->polylineVertices[(*maneuver_iter)->visitedVertices],(*activeEntity)->getSpeed()));
+						(*activeEntity)->setDirection((*maneuver_iter)->normDirectionVec);
 						unusedEntity.clear();
-						usedEntity.push_back((*aktivEntity));
+						usedEntity.push_back((*activeEntity));
 						usedEntity.sort();usedEntity.unique();
 					}
 					set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));			
 				}
 			}
 		}
-	}		for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++){
+	}		
+	
+	for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++)
+	{
 		//cout << "Entity: " << (*entity_iter)->getName() << " Position updated (Init)" << endl;
-		//(*entity_iter)->move();
-		//(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
+		if((*entity_iter)->initActionType=="Longitudinal")
+		(*entity_iter)->moveLongitudinal();
+		(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
 		//cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
-		usedEntity.clear();}
+		usedEntity.clear();
+	}
 
 }			
 
@@ -237,15 +248,12 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 
 
 	//initialize entities
-	int numberOfEntities = 0;
 	for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++)
 	{	
 		oscObject* entity = ((oscObject*)(*it));
-		//Vehicle* car = new AgentVehicle(entity->name.getValue(), new CarGeometry(entity->name.getValue(), "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
 		sm->entityList.push_back(new Entity(entity->name.getValue()));
 		cout << "Entity: " <<  entity->name.getValue() << " initialized" << endl;
-		numberOfEntities++;}
-	sm->setNumberOfEntities(numberOfEntities);
+	}
 
 	//get initial position and speed of entities
 	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
@@ -262,17 +270,16 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 					if(action->Longitudinal.exists())
 					{
 						(*entity_iter)->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
+						(*entity_iter)->initActionType="Longitudinal";
+					}
+					if(action->Lateral.exists())
+					{
+						(*entity_iter)->initActionType="Lateral";
 					}
 					if(action->Position.exists())
 					{
-						vector<float> initPosition;
-						initPosition.push_back(action->Position->World->x.getValue());
-						initPosition.push_back(action->Position->World->y.getValue());
-						initPosition.push_back(action->Position->World->z.getValue());
-						initPosition.push_back(action->Position->World->h.getValue());
-						initPosition.push_back(action->Position->World->p.getValue());
-						initPosition.push_back(action->Position->World->r.getValue());
-						(*entity_iter)->setPosition(osg::Vec3(initPosition[0],initPosition[1],initPosition[2]));
+						osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
+						(*entity_iter)->setPosition(initPosition);
 					}
 				}
 			}
@@ -280,43 +287,57 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	}
 
 	//initialize acts
-	int numberOfActs = 0;
-	for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++){	
+	for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++)
+	{	
 		oscStory* story = ((oscStory*)(*it));
-		for (oscActArrayMember::iterator it = story->Act.begin(); it != story->Act.end(); it++){	
+		for (oscActArrayMember::iterator it = story->Act.begin(); it != story->Act.end(); it++)
+		{	
 			oscAct* act = ((oscAct*)(*it));
 
 			list<Entity*> activeEntityList_temp;
-			for (oscActorsArrayMember::iterator it = act->Sequence->Actors->Entity.begin(); it != act->Sequence->Actors->Entity.end(); it++){	
+			for (oscActorsArrayMember::iterator it = act->Sequence->Actors->Entity.begin(); it != act->Sequence->Actors->Entity.end(); it++)
+			{	
 				oscEntity* namedEntity = ((oscEntity*)(*it));
-				if (namedEntity->name.getValue() != "$owner"){
-					activeEntityList_temp.push_back(sm->getEntityByName(namedEntity->name.getValue()));}
-				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));}
-				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->name.getValue() << endl;}
+				if (namedEntity->name.getValue() != "$owner")
+				{
+					activeEntityList_temp.push_back(sm->getEntityByName(namedEntity->name.getValue()));
+				}
+				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));
+				}
+				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->name.getValue() << endl;
+			}
 
 			list<Maneuver*> maneuverList_temp;
-			for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++){	
+			for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
+			{	
 				oscManeuver* maneuver = ((oscManeuver*)(*it));
 				maneuverList_temp.push_back(new Maneuver(maneuver->name.getValue()));
-				cout << "Manuever: " << maneuver->name.getValue() << " created" << endl;}
+				cout << "Manuever: " << maneuver->name.getValue() << " created" << endl;
+			}
 
 			sm->actList.push_back(new Act(act->name.getValue(), act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp));
 			cout << "Act: " <<  act->name.getValue() << " initialized" << endl;
 			maneuverList_temp.clear();
 			activeEntityList_temp.clear();
-			numberOfActs++;}}
-	sm->setNumberOfActs(numberOfActs);
+			sm->numberOfActs++;
+		}
+	}
 
 	//acess maneuvers in acts
-	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++){
-		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++){
+	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	{
+		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+		{
 			oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", "MyLaneChangeTrajectory");
 			oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
-			for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++){	
+			for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
+			{	
 				oscVertex* vertex = ((oscVertex*)(*it));
-				cout << vertex->Position->World->x.getValue();
-				(*maneuver_iter)->setPolylineVertices(vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
-			}}}
+				osg::Vec3 polyVec_temp (vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
+				(*maneuver_iter)->setPolylineVertices(polyVec_temp);
+			}
+		}
+	}
 	return 0;
 }
 

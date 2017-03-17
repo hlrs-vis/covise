@@ -11,19 +11,12 @@ using namespace std;
 
 class ScenarioManager {
 
-private:
-	int numberOfActs;
-	int numberOfEntities;
-
 public:
-	list<Act*> actList;
-	list<Entity*> entityList;
 	ScenarioManager();
 	~ScenarioManager();
-	void setNumberOfActs(int numberOfActs_temp);
-	void setNumberOfEntities(int numberOfEntities_temp);
-	//list<Act*> getActList();
-	//list<Entity*> getEntityList();
+	int numberOfActs;
+	list<Act*> actList;
+	list<Entity*> entityList;
 	Entity* getEntityByName(string entityName);
 
 };

@@ -12,20 +12,20 @@ class Entity {
  private:
     float speed;
 	string name;
-	//bool currentlyActiveInAct;//decides if new entity position comes from Maneuver or from initialization
 
  public:
 	Vehicle* entityGeometry;
 	osg::Vec3 entityPosition;
 	osg::Vec3 directionVector;
+	string initActionType;
 
     Entity(string entityName);
-    void move();
+    void moveLongitudinal();
     osg::Vec3 &getPosition();
     void setPosition(osg::Vec3 &newPosition);   
-	string getName();
+	string &getName();
 	void setSpeed(float speed_temp);
-	float getSpeed();
+	float &getSpeed();
 	void setDirection(osg::Vec3 &newDirection);
 
 };
