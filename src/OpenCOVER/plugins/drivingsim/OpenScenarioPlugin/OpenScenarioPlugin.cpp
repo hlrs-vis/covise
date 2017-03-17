@@ -91,8 +91,7 @@ void OpenScenarioPlugin::preFrame(){
 					for(list<Entity*>::iterator aktivEntity = (*act_iter)->activeEntityList.begin(); aktivEntity != (*act_iter)->activeEntityList.end(); aktivEntity++){
 						cout << "xPosition: " << (*aktivEntity)->entityPosition[0] << endl;
 						cout << "yPosition: " << (*aktivEntity)->entityPosition[1] << endl;
-						//cout << (*maneuver_iter)->totalDistance << endl;
-						//(*aktivEntity)->setPosition((*maneuver_iter)->calculateNewEntityPosition((*aktivEntity)->entityPosition, (*aktivEntity)->getSpeed()));
+						cout << (*maneuver_iter)->totalDistance << endl;
 						(*aktivEntity)->setPosition((*maneuver_iter)->followTrajectory((*aktivEntity)->entityPosition,(*maneuver_iter)->polylineVertices[(*maneuver_iter)->visitedVertices],(*aktivEntity)->getSpeed()));
 						(*aktivEntity)->setDirection((*maneuver_iter)->norm_direction_vec);
 						unusedEntity.clear();
@@ -104,10 +103,10 @@ void OpenScenarioPlugin::preFrame(){
 			}
 		}
 	}		for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++){
-		cout << "Entity: " << (*entity_iter)->getName() << " Position updated (Init)" << endl;
-		(*entity_iter)->move();
-		(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
-		cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
+		//cout << "Entity: " << (*entity_iter)->getName() << " Position updated (Init)" << endl;
+		//(*entity_iter)->move();
+		//(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
+		//cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
 		usedEntity.clear();}
 
 }			
@@ -308,33 +307,16 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 			numberOfActs++;}}
 	sm->setNumberOfActs(numberOfActs);
 
-	//define target position
-	vector<float> targetPosition_temp;
-	targetPosition_temp.push_back(300);
-	targetPosition_temp.push_back(10);
-	targetPosition_temp.push_back(9.5);
-	targetPosition_temp.push_back(0);
-	targetPosition_temp.push_back(0);
-	targetPosition_temp.push_back(0);
-
 	//acess maneuvers in acts
 	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++){
 		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++){
-			//(*maneuver_iter)->setTargetEntityPosition(targetPosition_temp);
 			oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", "MyLaneChangeTrajectory");
 			oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
 			for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++){	
 				oscVertex* vertex = ((oscVertex*)(*it));
+				cout << vertex->Position->World->x.getValue();
 				(*maneuver_iter)->setPolylineVertices(vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
 			}}}
-
-
-	//factory = VehicleFactory::Instance();
-	//Vehicle* car = factory->createRoadVehicle("01","car01","car","agent","C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds");
-	//car->getVehicleGeometry()->getCarNode;
-	//Vehicle* car = new AgentVehicle("car01", new CarGeometry("car01", "C:\\src\\covise\\test\\volvo\\volvo_blue_nrm.3ds", true));
-	//car->setPosition(0,0,0);
-
 	return 0;
 }
 
