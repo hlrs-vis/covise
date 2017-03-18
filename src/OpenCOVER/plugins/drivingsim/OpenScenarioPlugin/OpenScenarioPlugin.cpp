@@ -180,6 +180,10 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	const char * xodrName = xodrName_st.c_str();
 	loadRoadSystem(xodrName);
 
+	//load ScenGraph
+	std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
+	coVRFileManager::instance()->loadFile(geometryFile.c_str());
+
 	// look for sources and sinks and load them
 	oscGlobalAction	ga;
 	oscGlobalActionArrayMember *Global = &osdb->Storyboard->Init->Actions->Global;
@@ -193,52 +197,78 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 			{
 				if (oscRelativeRoad* position = source->Position->RelativeRoad.getObject())
 				{
-					// find road
-					system = RoadSystem::Instance();
-					Road* myRoad = system->getRoad(position->object.getValue());
-					if (myRoad)
+					if (oscTrafficDefinition* traffic = source->TrafficDefinition.getObject())
 					{
-						std::string name = "fiddleyard" + position->object.getValue();
-						std::string id = name + std::to_string(fiddleyards);
-						Fiddleyard *fiddleyard = new Fiddleyard(name, id);
-
-						system->addFiddleyard(fiddleyard); //, "road", position->object.getValue(), "start");
-
-						std::string sid = name + "_source"+ std::to_string(fiddleyards++);
-						double s, t;
-						s = position->ds.getValue();
-						t = position->dt.getValue();
-						LaneSection * ls = myRoad->getLaneSection(s);
-						//ls->getLane();
-						//VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
-						//fiddleyard->addVehicleSource(source);
-						/*
-						fiddleyard->setTarmacConnection(new TarmacConnection(tarmac, direction));
-
-						std::string id(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-						int lane = atoi(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane"))));
-						double starttime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("startTime"))));
-						double repeattime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime"))));
-						double vel = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocity"))));
-						double velDev = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance"))));
-
-
-						xercesc::DOMNodeList *sourceChildrenList = fiddleyardChildElement->getChildNodes();
-						xercesc::DOMElement *sourceChildElement;
-						for (unsigned int childIndex = 0; childIndex < sourceChildrenList->getLength(); ++childIndex)
+						oscVehicleDistribution* vd = traffic->VehicleDistribution.getObject();
+						oscDriverDistribution* dd = traffic->DriverDistribution.getObject();
+						if (vd != NULL && dd != NULL)
 						{
-						sourceChildElement = dynamic_cast<xercesc::DOMElement *>(sourceChildrenList->item(childIndex));
-						if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), xercesc::XMLString::transcode("vehicle")) == 0)
-						{
-						std::string id(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-						double numerator = atof(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
-						source->addVehicleRatio(id, numerator);
+							// find road
+							system = RoadSystem::Instance();
+							Road* myRoad = system->getRoad(position->object.getValue());
+							if (myRoad)
+							{
+								std::string name = "fiddleyard" + position->object.getValue();
+								std::string id = name + std::to_string(fiddleyards);
+								Fiddleyard *fiddleyard = new Fiddleyard(name, id);
+
+								system->addFiddleyard(fiddleyard); //, "road", position->object.getValue(), "start");
+
+								std::string sid = name + "_source" + std::to_string(fiddleyards++);
+								double s, t;
+								s = position->ds.getValue();
+								t = position->dt.getValue();
+
+								int direction = 1;
+								if (t < 0)
+									direction = -1;
+								fiddleyard->setTarmacConnection(new TarmacConnection(myRoad, direction));
+								VehicleSource *vs = new VehicleSource(sid, myRoad->getLaneNumber(s, t), 0, 5, 5.0, 5.0);
+								fiddleyard->addVehicleSource(vs);
+
+								//for (oscVehicleArrayMember::iterator it = vd->Vehicle.begin(); it != vd->Vehicle.end(); it++);
+								for(int i=0;i<vd->Vehicle.size();i++)
+									
+								{
+									oscVehicle *vehicle = vd->Vehicle[i];
+									vs->addVehicleRatio(vehicle->name.getValue(), vd->percentage.getValue());
+								}
+								//ls->getLane();
+								//VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
+								//fiddleyard->addVehicleSource(source);
+								/*
+								fiddleyard->setTarmacConnection(new TarmacConnection(tarmac, direction));
+
+								std::string id(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+								int lane = atoi(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane"))));
+								double starttime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("startTime"))));
+								double repeattime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime"))));
+								double vel = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocity"))));
+								double velDev = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance"))));
+
+
+								xercesc::DOMNodeList *sourceChildrenList = fiddleyardChildElement->getChildNodes();
+								xercesc::DOMElement *sourceChildElement;
+								for (unsigned int childIndex = 0; childIndex < sourceChildrenList->getLength(); ++childIndex)
+								{
+								sourceChildElement = dynamic_cast<xercesc::DOMElement *>(sourceChildrenList->item(childIndex));
+								if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), xercesc::XMLString::transcode("vehicle")) == 0)
+								{
+								std::string id(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+								double numerator = atof(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+								source->addVehicleRatio(id, numerator);
+								}
+								}*/
+							}
+							else
+							{
+								fprintf(stderr, "Road not found in RelativeRoad Position %s\n", position->object.getValue().c_str());
+							}
 						}
-						}*/
 					}
 					else
 					{
-						fprintf(stderr,"Road not found in RelativeRoad Position %s\n", position->object.getValue().c_str());
+						fprintf(stderr, "no Traffic definition \n");
 					}
 				}
 				else
