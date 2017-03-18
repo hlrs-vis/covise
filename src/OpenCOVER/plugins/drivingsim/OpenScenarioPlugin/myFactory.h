@@ -7,12 +7,13 @@
 
 using namespace std;
 
-class myFactory : public OpenScenario::oscFactory<OpenScenario::oscObjectBase *, std::string>
+class myFactory : public OpenScenario::oscFactory<OpenScenario::oscObjectBase, std::string>
 {
+public:
 	myFactory();
 	~myFactory();
 	//Die Methode kompiliert noch nicht
-	//virtual OpenScenario::oscObjectBase * create(const std::string name);
+	virtual OpenScenario::oscObjectBase *create(const std::string &name);
 };
 
 #endif // MY_FACTORY_H

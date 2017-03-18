@@ -36,6 +36,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <DrivingSim/OpenScenario/OpenScenarioBase.h>
 #include <DrivingSim/OpenScenario/schema/oscFileHeader.h>
+#include "myFactory.h"
+
 using namespace OpenScenario; 
 using namespace opencover;
 
@@ -67,6 +69,8 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	tessellateObjects=true;
 
 	osdb = new OpenScenario::OpenScenarioBase();
+	// set our own object factory so that our own classes are created and not the bas osc* classes
+	OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
 	osdb->setFullReadCatalogs(true);
 	fprintf(stderr, "OpenScenario::OpenScenario\n");
 }
@@ -300,7 +304,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 		oscStory* story = ((oscStory*)(*it));
 		for (oscActArrayMember::iterator it = story->Act.begin(); it != story->Act.end(); it++)
 		{	
-			oscAct* act = ((oscAct*)(*it));
+			Act* act = ((Act*)(*it));// these are not oscAct instances any more but our own Act
 
 			list<Entity*> activeEntityList_temp;
 			for (oscActorsArrayMember::iterator it = act->Sequence->Actors->Entity.begin(); it != act->Sequence->Actors->Entity.end(); it++)
@@ -312,19 +316,19 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 				}
 				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));
 				}
-				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->name.getValue() << endl;
+				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->getName() << endl;
 			}
 
 			list<Maneuver*> maneuverList_temp;
 			for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
 			{	
-				oscManeuver* maneuver = ((oscManeuver*)(*it));
-				maneuverList_temp.push_back(new Maneuver(maneuver->name.getValue()));
-				cout << "Manuever: " << maneuver->name.getValue() << " created" << endl;
+				Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
+				maneuverList_temp.push_back(maneuver);
+				cout << "Manuever: " << maneuver->getName() << " created" << endl;
 			}
-
-			sm->actList.push_back(new Act(act->name.getValue(), act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp));
-			cout << "Act: " <<  act->name.getValue() << " initialized" << endl;
+			act->initialize(act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp);
+			sm->actList.push_back(act);
+			cout << "Act: " <<  act->getName() << " initialized" << endl;
 			maneuverList_temp.clear();
 			activeEntityList_temp.clear();
 			sm->numberOfActs++;

@@ -8,17 +8,21 @@ using namespace std;
 #include <list>
 #include <algorithm>
 #include <osg/Vec3>
+#include <DrivingSim/OpenScenario/schema/oscManeuver.h>
 
 
-class Maneuver {
+class Maneuver: public OpenScenario::oscManeuver
+{
 
  private:
 	string name;
 
 
  public:
-	Maneuver(string name);
+	Maneuver();
 	~Maneuver();
+
+	virtual void finishedParsing();
 	float totalDistance;
 	osg::Vec3 normDirectionVec;
 	vector<osg::Vec3> polylineVertices;
