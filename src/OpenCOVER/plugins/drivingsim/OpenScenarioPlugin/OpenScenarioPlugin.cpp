@@ -257,15 +257,15 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 
 	//get initial position and speed of entities
 	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
-	{
-
-		/*
-		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", "volvo");
+	{	
+		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", (*entity_iter)->catalogReferenceName);
 			oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
-			//cout << vehicle->Properties->File.getValue() << endl;*/
-
-
-
+			for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it !=  vehicle->Properties->File.end(); it++)
+			{
+			oscFile* file = ((oscFile*)(*it));
+			(*entity_iter)->filepath = file->filepath.getValue();
+			}
+			(*entity_iter)->showEntity();
 		for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++)
 		{	
 			oscPrivate* actions_private = ((oscPrivate*)(*it));

@@ -14,6 +14,7 @@ class Entity {
 	string name;
 
  public:
+	string filepath;
 	string catalogReferenceName;
 	Vehicle* entityGeometry;
 	osg::Vec3 entityPosition;
@@ -21,6 +22,7 @@ class Entity {
 	string initActionType;
 
     Entity(string entityName, string catalogReferenceName);
+	void showEntity();
     void moveLongitudinal();
     osg::Vec3 &getPosition();
     void setPosition(osg::Vec3 &newPosition);   

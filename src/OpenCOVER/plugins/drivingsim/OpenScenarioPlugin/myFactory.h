@@ -12,6 +12,8 @@ class myFactory : public OpenScenario::oscFactory<OpenScenario::oscObjectBase *,
 	myFactory();
 	~myFactory();
 	//Die Methode kompiliert noch nicht
+
+
 	//virtual OpenScenario::oscObjectBase * create(const std::string name);
 };
 

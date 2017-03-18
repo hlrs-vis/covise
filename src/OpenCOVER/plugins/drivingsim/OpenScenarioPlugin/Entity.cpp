@@ -6,7 +6,10 @@ Entity::Entity(string entityName, string catalogReferenceName):
 	catalogReferenceName(catalogReferenceName)
 {
 	directionVector.set(1, 0, 0);
-	entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\vehicle_files\\volvo\\volvo_blue_nrm.3ds", true));
+}
+
+void Entity::showEntity(){
+entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
 }
 
 void Entity::moveLongitudinal()
