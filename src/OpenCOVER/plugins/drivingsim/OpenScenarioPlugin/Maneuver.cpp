@@ -3,8 +3,7 @@
 #include <iterator>
 #include <math.h>
 
-Maneuver::Maneuver(string name):
-	name(name),
+Maneuver::Maneuver():
 	maneuverCondition(true),
 	totalDistance(0),
 	visitedVertices(0),
@@ -13,6 +12,11 @@ Maneuver::Maneuver(string name):
 }
 Maneuver::~Maneuver()
 {
+}
+
+void Maneuver::finishedParsing()
+{
+	name = oscManeuver::name.getValue();
 }
 
 osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, osg::Vec3 targetPosition, float speed)

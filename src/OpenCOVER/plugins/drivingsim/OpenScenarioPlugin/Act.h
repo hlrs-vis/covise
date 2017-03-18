@@ -8,8 +8,10 @@ using namespace std;
 #include<iostream>
 #include<string>
 #include <list>
+#include <DrivingSim/OpenScenario/schema/oscAct.h>
 
-class Act {
+class Act : public OpenScenario::oscAct
+{
 
  private:
 	string name;
@@ -17,11 +19,13 @@ class Act {
 	int executionCounter;
 
  public:
-	Act(string actName, int numberOfExecutions, list<Maneuver*> maneuverList_temp, list<Entity*> activeEntityList_temp);
+	Act();
 	~Act();
+	virtual void finishedParsing();
 	bool actCondition;
 	list<Entity*> activeEntityList;
 	list<Maneuver*> maneuverList;
+	void initialize(int numberOfExecutions, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp);
 	int getNumberOfExecutions();
 	int getExecutionCounter();
 	void setExecutionCounter();

@@ -452,7 +452,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
             }
         }
     }
-
+	finishedParsing();
     return true;
 }
 

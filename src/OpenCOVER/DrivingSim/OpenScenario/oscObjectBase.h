@@ -120,6 +120,7 @@ public:
     //
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude = true);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
+	virtual void finishedParsing() {}; /// derived classes can implement this to initialize their state after all children have been parsed
 	bool writeToDisk();
 
 
