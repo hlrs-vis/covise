@@ -1605,10 +1605,11 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         {
             if (strcmp(gtype, "UNIGRD") == 0)
             {
-                cover->addPlugin("Volume");
                 newNode = GeometryManager::instance()->addUGrid(object, xsize, ysize, zsize, xmin, xmax, ymin, ymax, zmin, zmax,
                                                                 no_c, colorbinding, colorpacking, rc, gc, bc, pc,
                                                                 no_n, normalbinding, xn, yn, zn, transparency);
+                if (!newNode)
+                    cover->addPlugin("Volume");
             }
             else if (strcmp(gtype, "RCTGRD") == 0)
                 newNode = GeometryManager::instance()->addRGrid(object, xsize, ysize, zsize, x_c, y_c, z_c,
