@@ -30,6 +30,7 @@
 #include "RoadSystem/RoadSystem.h"
 #include "UDPBroadcast.h"
 #include "Vehicle.h"
+#include "myFactory.h"
 
 
 namespace OpenScenario

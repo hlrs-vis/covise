@@ -23,6 +23,7 @@ set(HEADERS
   Maneuver.h
   Act.h
   Entity.h
+  myFactory.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -30,6 +31,7 @@ set(SOURCES
   Maneuver.cpp
   Act.cpp
   Entity.cpp
+  myFactory.cpp
 )
 
 SET(TS_HEADERS
