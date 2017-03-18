@@ -31,6 +31,10 @@ public:
     oscFactory<oscObjectBase, std::string> *objectFactory;
     oscFactory<oscMemberValue, oscMemberValue::MemberTypes> *valueFactory;
 
+
+	static oscFactory<oscObjectBase, std::string> staticObjectFactory;
+	static oscFactory<oscMemberValue, oscMemberValue::MemberTypes> staticValueFactory;
+
     void setObjectFactory(oscFactory<oscObjectBase, std::string> *factory); ///< set your own factory in order to create your own classes derived from the original OpenScenario ones
                                                                             ///set back to the default factory if factory is NULL
     void setValueFactory(oscFactory<oscMemberValue, oscMemberValue::MemberTypes> *factory); ///< set your own factory in order to create your own classes derived from the original OpenScenario ones
