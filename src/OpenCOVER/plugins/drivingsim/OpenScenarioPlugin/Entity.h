@@ -9,26 +9,29 @@ using namespace std;
 
 class Entity {
 
- private:
-    float speed;
-	string name;
-
  public:
-	string filepath;
+	string name;
 	string catalogReferenceName;
-	Vehicle* entityGeometry;
+	string filepath;
+	float speed;
+	string roadId;
+	int laneId;
+	float inits;
+	Road *initRoad;
+	AgentVehicle *entityGeometry;
 	osg::Vec3 entityPosition;
 	osg::Vec3 directionVector;
-	string initActionType;
 
     Entity(string entityName, string catalogReferenceName);
-	void showEntity();
+	~Entity();
+	void initEntityPositionByCoordinates(osg::Vec3 init);
+	void initEntityPositionByRoad(Road *r);
     void moveLongitudinal();
-    osg::Vec3 &getPosition();
-    void setPosition(osg::Vec3 &newPosition);   
 	string &getName();
 	void setSpeed(float speed_temp);
 	float &getSpeed();
+    osg::Vec3 &getPosition();
+    void setPosition(osg::Vec3 &newPosition);   
 	void setDirection(osg::Vec3 &newDirection);
 
 };

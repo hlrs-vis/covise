@@ -8,8 +8,19 @@ Entity::Entity(string entityName, string catalogReferenceName):
 	directionVector.set(1, 0, 0);
 }
 
-void Entity::showEntity(){
-entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
+void Entity::initEntityPositionByCoordinates(osg::Vec3 initPos)
+{
+	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
+	entityGeometry->setPosition(initPos, directionVector);
+}
+
+void Entity::initEntityPositionByRoad(Road *r)
+{
+	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,r,inits,laneId,speed,1);
+	auto vtrans = entityGeometry->getVehicleTransform();
+	osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+	entityPosition = pos;
+	entityGeometry->setPosition(pos, directionVector);
 }
 
 void Entity::moveLongitudinal()

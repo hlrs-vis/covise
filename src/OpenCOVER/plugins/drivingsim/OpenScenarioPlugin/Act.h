@@ -15,17 +15,22 @@ class Act : public OpenScenario::oscAct
 
  private:
 	string name;
-	int numberOfExecutions;
-	int executionCounter;
+	int numberOfExecutions;//from sequence
+	//int executionCounter;
 
  public:
 	Act();
 	~Act();
 	virtual void finishedParsing();
+	float startTime;
+	float endTime;
+	string startConditionType;
+	string endConditionType;
+	bool actFinished;
 	bool actCondition;
 	list<Entity*> activeEntityList;
 	list<Maneuver*> maneuverList;
-	void initialize(int numberOfExecutions, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp);
+	void initialize(int noe, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp);
 	int getNumberOfExecutions();
 	int getExecutionCounter();
 	void setExecutionCounter();
@@ -33,6 +38,8 @@ class Act : public OpenScenario::oscAct
 	//list<Maneuver*> getManeuverList();
 	bool getActCondition();
 	void setActCondition();
+	void simulationTimeConditionControl(float simulationTime);
+	Maneuver* getManeuverByName(string maneuverName);
 
 };
 
