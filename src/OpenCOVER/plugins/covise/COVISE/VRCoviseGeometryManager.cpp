@@ -148,6 +148,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
+    osg::Vec3Array *normal = new osg::Vec3Array;
     osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::QUADS);
     primitives->push_back(4);
 
@@ -164,35 +165,38 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     {
         case 0:
         {
-            w = ysize;
-            h = zsize;
+            h = ysize;
+            w = zsize;
             float x = (xmin+xmax)*.5;
             vert->push_back(osg::Vec3(x, ymin, zmin));
             vert->push_back(osg::Vec3(x, ymin, zmax));
             vert->push_back(osg::Vec3(x, ymax, zmax));
             vert->push_back(osg::Vec3(x, ymax, zmin));
+            normal->push_back(osg::Vec3(1., 0., 0.));
             break;
         }
         case 1:
         {
-            w = xsize;
-            h = zsize;
+            h = xsize;
+            w = zsize;
             float y = (ymin+ymax)*.5;
             vert->push_back(osg::Vec3(xmin, y, zmin));
             vert->push_back(osg::Vec3(xmin, y, zmax));
             vert->push_back(osg::Vec3(xmax, y, zmax));
             vert->push_back(osg::Vec3(xmax, y, zmin));
+            normal->push_back(osg::Vec3(0., 1., 0.));
             break;
         }
         case 2:
         {
-            w = xsize;
-            h = ysize;
+            h = xsize;
+            w = ysize;
             float z = (zmin+zmax)*.5;
             vert->push_back(osg::Vec3(xmin, ymin, z));
             vert->push_back(osg::Vec3(xmin, ymax, z));
             vert->push_back(osg::Vec3(xmax, ymax, z));
             vert->push_back(osg::Vec3(xmax, ymin, z));
+            normal->push_back(osg::Vec3(0., 0., 1.));
             break;
         }
     }
@@ -205,28 +209,29 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     geom->setColorArray(color);
     geom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
-    osg::Vec3Array *normal = new osg::Vec3Array(1);
-    (*normal)   [0].set(0.0f, -1.0f, 0.0f);
     geom->setNormalArray(normal);
     geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
 
 
     osg::TextureRectangle *tex = new osg::TextureRectangle;
     osg::Image *img = new osg::Image();
-#ifndef BYTESWAP
-    if (colorpacking == Pack::RGBA)
-    {
-        img->setImage(w, h, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)pc, osg::Image::NO_DELETE);
-        no_c = 0;
-    }
-    else
-#endif
+    tex->setImage(img);
+    if (colorpacking == Pack::RGBA || colorpacking == Pack::None)
     {
         img->allocateImage(w, h, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+        tex->setInternalFormat( GL_RGBA );
     }
-    tex->setImage(img);
+    else if (colorpacking == Pack::Float)
+    {
+#if 0
+        img->allocateImage(w, h, 1, GL_LUMINANCE, GL_FLOAT);
+        tex->setInternalFormat(GL_LUMINANCE32F_ARB);
+#else
+        img->setImage(w, h, 1, GL_LUMINANCE32F_ARB, GL_LUMINANCE, GL_FLOAT, (unsigned char *)rc, osg::Image::NO_DELETE);
+        no_c = 0;
+#endif
+    }
     img->setPixelBufferObject(new osg::PixelBufferObject(img));
-    tex->setInternalFormat( GL_RGBA );
     tex->setBorderWidth( 0 );
     tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
     tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
@@ -243,11 +248,12 @@ osg::Node *GeometryManager::addUGrid(const char *object,
         {
             int dims[] = { xsize, ysize, zsize };
             unsigned char *rgba = img->data();
-            for (int z=0; z<zsize; ++z)
+            float *fl = (float *)img->data();
+            for (int x=0; x<xsize; ++x)
             {
                 for (int y=0; y<ysize; ++y)
                 {
-                    for (int x=0; x<xsize; ++x)
+                    for (int z=0; z<zsize; ++z)
                     {
                         int idx = covise::coIndex(x, y, z, dims);
                         if (colorpacking == Pack::RGBA)
@@ -263,7 +269,11 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                             rgba[2] = b*255.99f;
                             rgba[3] = a*255.99f;
                         }
-                        else
+                        else if (colorpacking == Pack::Float)
+                        {
+                            *fl = rc[idx];
+                        }
+                        else if (rc && gc && bc)
                         {
                             if (transparency > 0.f)
                                 transparent = true;
@@ -272,8 +282,12 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                             rgba[2] = bc[idx]*255.99f;
                             rgba[3] = (1.f-transparency)*255.99f;
                         }
-                        ++idx;
+                        else
+                        {
+                            rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0;
+                        }
                         rgba += 4;
+                        ++fl;
                     }
                 }
             }
@@ -287,9 +301,9 @@ osg::Node *GeometryManager::addUGrid(const char *object,
 
    osg::Vec2Array *texcoord  = new osg::Vec2Array(4);
    (*texcoord)[0].set(0.0,0.0);
-   (*texcoord)[1].set(0.0,h);
+   (*texcoord)[1].set(w,0.0);
    (*texcoord)[2].set(w,h);
-   (*texcoord)[3].set(w,0.0);
+   (*texcoord)[3].set(0.0,h);
    geom->setTexCoordArray(0, texcoord);
 
    osg::TexEnv * texEnv = new osg::TexEnv();

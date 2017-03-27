@@ -6,7 +6,21 @@ Entity::Entity(string entityName, string catalogReferenceName):
 	catalogReferenceName(catalogReferenceName)
 {
 	directionVector.set(1, 0, 0);
-	entityGeometry = new AgentVehicle(name, new CarGeometry(name, "C:\\src\\covise\\test\\vehicle_files\\volvo\\volvo_blue_nrm.3ds", true));
+}
+
+void Entity::initEntityPositionByCoordinates(osg::Vec3 initPos)
+{
+	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
+	entityGeometry->setPosition(initPos, directionVector);
+}
+
+void Entity::initEntityPositionByRoad(Road *r)
+{
+	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,r,inits,laneId,speed,1);
+	auto vtrans = entityGeometry->getVehicleTransform();
+	osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+	entityPosition = pos;
+	entityGeometry->setPosition(pos, directionVector);
 }
 
 void Entity::moveLongitudinal()

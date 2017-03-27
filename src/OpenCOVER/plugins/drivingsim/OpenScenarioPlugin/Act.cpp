@@ -20,15 +20,18 @@ void Act::initialize(int noe, list<Maneuver*> &maneuverList_temp, list<Entity*> 
 	numberOfExecutions = noe;
 	maneuverList = maneuverList_temp;
 	activeEntityList = activeEntityList_temp;
-	executionCounter = 0;
-	actCondition = true;
+	//executionCounter = 0;
+	actCondition = false;
+	actFinished = false;
+	endTime = 0;
 }
+
 int Act::getNumberOfExecutions()
 {
 	return numberOfExecutions;
 }
 
-int Act::getExecutionCounter()
+/*int Act::getExecutionCounter()
 {
 	return executionCounter;
 }
@@ -36,7 +39,7 @@ int Act::getExecutionCounter()
 void Act::setExecutionCounter()
 {
 	executionCounter++;
-}
+}*/
 
 string Act::getName()
 {
@@ -59,3 +62,45 @@ void Act::setActCondition()
 		actCondition = true;
 	}
 }
+
+void Act::simulationTimeConditionControl(float simulationTime)
+{
+	if(startTime<simulationTime && actFinished==false)
+	{
+		actCondition = true;
+	}
+	else
+	{
+		actCondition = false;
+	}
+
+	if (endTime != 0)
+	{
+		if(startTime<simulationTime && endTime>simulationTime && actFinished==false)
+		{
+			actCondition = true;
+		}
+		else
+		{
+			actCondition = false;
+		}
+	}
+}
+
+Maneuver* Act::getManeuverByName(string maneuverName)
+{
+	for (list<Maneuver*>::iterator maneuver_iter = maneuverList.begin(); maneuver_iter != maneuverList.end(); maneuver_iter++)
+	{
+		if ((*maneuver_iter)->getName() != maneuverName)
+		{
+			continue;
+			return 0;
+		}
+		else
+		{
+			return (*maneuver_iter);
+		}
+	}
+return 0;
+}
+

@@ -28,6 +28,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRMSController.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 #include <ScenarioManager.h>
+#include <Trajectory.h>
 #include "AgentVehicle.h"
 #include "CarGeometry.h"
 #include <algorithm>
@@ -81,49 +82,62 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 	fprintf(stderr, "OpenScenarioPlugin::~OpenScenarioPlugin\n");
 }
 
-
 void OpenScenarioPlugin::preFrame()
 {
-	//Condition Control	
+	sm->simulationTime = sm->simulationTime + opencover::cover->frameDuration();
+	//cout << "TIME: " << sm->simulationTime << endl;
 	list<Entity*> usedEntity;
 	list<Entity*> unusedEntity = sm->entityList;
 	list<Entity*> entityList_temp = sm->entityList;
 	entityList_temp.sort();unusedEntity.sort();
-	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+
+	sm->conditionControl();
+	if (sm->scenarioCondition == true)
 	{
-		if ((*act_iter)->actCondition==true)
+		for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
 		{
-			for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+			sm->conditionControl((*act_iter));//check act start conditions
+			if ((*act_iter)->actCondition == true)
 			{
-				if ((*maneuver_iter)->maneuverCondition==true)
+				for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 				{
-					for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+					sm->conditionControl((*maneuver_iter));//check maneuver start conditions
+					if ((*maneuver_iter)->maneuverCondition == true)
 					{
-						//cout << "xPosition: " << (*aktivEntity)->entityPosition[0] << endl;
-						//cout << "yPosition: " << (*aktivEntity)->entityPosition[1] << endl;
-						//cout << (*maneuver_iter)->totalDistance << endl;
-						(*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*maneuver_iter)->polylineVertices[(*maneuver_iter)->visitedVertices],(*activeEntity)->getSpeed()));
-						(*activeEntity)->setDirection((*maneuver_iter)->normDirectionVec);
-						unusedEntity.clear();
-						usedEntity.push_back((*activeEntity));
-						usedEntity.sort();usedEntity.unique();
+						if((*maneuver_iter)->maneuverType == "followTrajectory")
+						{
+							for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
+							{
+								for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+								{
+									(*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*activeEntity)->getSpeed()));
+									(*activeEntity)->setDirection((*maneuver_iter)->normDirectionVec);
+									unusedEntity.clear();
+									usedEntity.push_back((*activeEntity));
+									usedEntity.sort();usedEntity.unique();
+								}
+								set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));	
+							}
+						}
+						if((*maneuver_iter)->maneuverType == "break")
+						{
+							for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+							{
+								(*maneuver_iter)->changeSpeedOfEntity((*activeEntity),opencover::cover->frameDuration());
+							}
+						}
 					}
-					set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));			
+				}		
+				for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++)
+				{
+					(*entity_iter)->moveLongitudinal();
+					(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
+					//(*activeEntity)->entityGeometry->move(opencover::cover->frameDuration());
+					usedEntity.clear();
 				}
 			}
 		}
-	}		
-	
-	for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++)
-	{
-		//cout << "Entity: " << (*entity_iter)->getName() << " Position updated (Init)" << endl;
-		if((*entity_iter)->initActionType=="Longitudinal")
-		(*entity_iter)->moveLongitudinal();
-		(*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
-		//cout << "xPosition of "<< (*entity_iter)->getName() << ": "<< (*entity_iter)->entityPosition[0] << endl;
-		usedEntity.clear();
 	}
-
 }			
 
 COVERPLUGIN(OpenScenarioPlugin)
@@ -276,9 +290,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 				}
 			}
 		}
-
 	}
-
 
 	//initialize entities
 	for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++)
@@ -290,19 +302,18 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 
 	//get initial position and speed of entities
 	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
-	{
-
-		/*
-		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", "volvo");
-			oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
-			//cout << vehicle->Properties->File.getValue() << endl;*/
-
-
-
+	{	
+		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", (*entity_iter)->catalogReferenceName);
+		oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
+		for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it !=  vehicle->Properties->File.end(); it++)
+		{
+			oscFile* file = ((oscFile*)(*it));
+			(*entity_iter)->filepath = file->filepath.getValue();
+		}
 		for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++)
 		{	
 			oscPrivate* actions_private = ((oscPrivate*)(*it));
-			if((*entity_iter)->getName()==actions_private->object.getValue())
+			if((*entity_iter)->getName() == actions_private->object.getValue())
 			{
 				for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
 				{	
@@ -310,22 +321,21 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 					if(action->Longitudinal.exists())
 					{
 						(*entity_iter)->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
-						(*entity_iter)->initActionType="Longitudinal";
-					}
-					if(action->Lateral.exists())
-					{
-						(*entity_iter)->initActionType="Lateral";
 					}
 					if(action->Position.exists())
 					{
-						osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
-						(*entity_iter)->setPosition(initPosition);
+						//osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
+						//(*entity_iter)->setPosition(initPosition);
+						(*entity_iter)->roadId = action->Position->Lane->roadId.getValue();
+						(*entity_iter)->laneId = action->Position->Lane->laneId.getValue();
+						(*entity_iter)->inits = action->Position->Lane->s.getValue();
 					}
 				}
 			}
 		}
+		int roadId = atoi((*entity_iter)->roadId.c_str());
+		(*entity_iter)->initEntityPositionByRoad(system->getRoad(roadId));
 	}
-
 
 	//initialize acts
 	for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++)
@@ -347,7 +357,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 				}
 				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->getName() << endl;
 			}
-
 			list<Maneuver*> maneuverList_temp;
 			for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
 			{	
@@ -360,7 +369,140 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 			cout << "Act: " <<  act->getName() << " initialized" << endl;
 			maneuverList_temp.clear();
 			activeEntityList_temp.clear();
-			sm->numberOfActs++;
+		}
+	}
+
+	//get Conditions	
+	for (oscConditionArrayMember::iterator it = osdb->Storyboard->End->ConditionGroup.begin(); it != osdb->Storyboard->End->ConditionGroup.end(); it++)
+	{	
+		oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
+		for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
+		{	
+			oscCondition* condition = ((oscCondition*)(*it));
+			if(condition->ByValue.exists())
+			{
+					sm->endConditionType = "time";
+					sm->endTime = condition->ByValue->SimulationTime->value.getValue();
+			}
+		}
+	}
+	for (list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	{
+		for (list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+		{
+			for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++)
+			{	
+				oscStory* story = ((oscStory*)(*it));
+				for (oscActArrayMember::iterator it = story->Act.begin(); it != story->Act.end(); it++)
+				{	
+					oscAct* act = ((oscAct*)(*it));
+					//Act Start Condition
+					for (oscConditionArrayMember::iterator it = act->Conditions->Start->ConditionGroup->Condition.begin(); it != act->Conditions->Start->ConditionGroup->Condition.end(); it++)
+					{	
+						oscCondition* condition = ((oscCondition*)(*it));
+						if(condition->ByValue.exists())
+						{
+							if ((*act_iter)->getName() == act->name.getValue())
+							{
+								(*act_iter)->startConditionType = "time";
+								(*act_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
+							}
+						}
+					}
+					//Act End Condition
+					for (oscConditionArrayMember::iterator it = act->Conditions->End->ConditionGroup.begin(); it != act->Conditions->End->ConditionGroup.end(); it++)
+					{	
+						oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
+						for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
+						{	
+							oscCondition* condition = ((oscCondition*)(*it));
+							if(condition->ByValue.exists())
+							{
+								if ((*act_iter)->getName() == act->name.getValue())
+								{
+									(*act_iter)->endConditionType = "time";
+									(*act_iter)->endTime = condition->ByValue->SimulationTime->value.getValue();
+								}
+							}
+						}
+					}
+					for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
+					{	
+						oscManeuver* maneuver = ((oscManeuver*)(*it));
+						for (oscEventArrayMember::iterator it = maneuver->Event.begin(); it != maneuver->Event.end(); it++)
+						{	
+							oscEvent* event = ((oscEvent*)(*it));
+							for (oscConditionsArrayMember::iterator it = event->Conditions.begin(); it != event->Conditions.end(); it++)
+							{	
+								oscConditions* conditions = ((oscConditions*)(*it));
+
+								//get Maneuver conditions
+								if(conditions->Start.exists())
+								{
+									for (oscConditionArrayMember::iterator it = conditions->Start->ConditionGroup->Condition.begin(); it != conditions->Start->ConditionGroup->Condition.end(); it++)
+									{	
+										oscCondition* condition = ((oscCondition*)(*it));
+										if(condition->ByValue.exists())
+										{
+											if ((*maneuver_iter)->getName() == maneuver->name.getValue())
+											{
+												(*maneuver_iter)->startConditionType="time";
+												(*maneuver_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
+											}
+										}
+										if(condition->ByState.exists())
+										{
+											if ((*maneuver_iter)->getName() == maneuver->name.getValue())
+											{
+												(*maneuver_iter)->startConditionType="termination";
+												(*maneuver_iter)->startAfterManeuver = condition->ByState->AfterTermination->name.getValue();
+											}
+										}
+										if(condition->ByEntity.exists())
+										{
+											if ((*maneuver_iter)->getName() == maneuver->name.getValue())
+											{
+												(*maneuver_iter)->startConditionType="distance";
+												(*maneuver_iter)->passiveCar = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
+												(*maneuver_iter)->relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
+
+												for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
+												{	
+													oscEntity* entity = ((oscEntity*)(*it));
+													(*maneuver_iter)->activeCar = entity->name.getValue();
+												}
+											}
+										}
+									}
+								}
+							}
+
+							//get trajectoryCatalogReference
+							for (oscActionArrayMember::iterator it = event->Action.begin(); it != event->Action.end(); it++)
+							{	
+								oscAction* action = ((oscAction*)(*it));
+
+								if(action->Private->Routing.exists())
+								{
+									if ((*maneuver_iter)->getName() == maneuver->name.getValue())
+									{
+										(*maneuver_iter)->maneuverType="followTrajectory";
+										(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+									}
+								}
+								if(action->Private->Longitudinal.exists())
+								{
+									if ((*maneuver_iter)->getName() == maneuver->name.getValue())
+									{
+										(*maneuver_iter)->maneuverType="break";
+										(*maneuver_iter)->targetSpeed = action->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -369,13 +511,23 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	{
 		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 		{
-			oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->getName());
-			oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
-			for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
-			{	
-				oscVertex* vertex = ((oscVertex*)(*it));
-				osg::Vec3 polyVec_temp (vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
-				(*maneuver_iter)->setPolylineVertices(polyVec_temp);
+			vector<osg::Vec3>polylineVertices_temp;
+			if((*maneuver_iter)->trajectoryCatalogReference != "")
+			{
+				oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
+				oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
+				for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
+				{	
+					oscVertex* vertex = ((oscVertex*)(*it));
+					osg::Vec3 polyVec_temp (vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
+					polylineVertices_temp.push_back(polyVec_temp);
+					//(*maneuver_iter)->setPolylineVertices(polyVec_temp);
+				}
+				oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
+				Trajectory* traj = ((Trajectory*)(trajectoryClass));
+				(*maneuver_iter)->trajectoryList.push_back(traj);
+				traj->initialize(polylineVertices_temp);
+				polylineVertices_temp.clear();
 			}
 		}
 	}
