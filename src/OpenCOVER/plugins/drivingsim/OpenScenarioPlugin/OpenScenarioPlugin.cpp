@@ -227,8 +227,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 								fiddleyard->addVehicleSource(vs);
 
 								//for (oscVehicleArrayMember::iterator it = vd->Vehicle.begin(); it != vd->Vehicle.end(); it++);
-								for(int i=0;i<vd->Vehicle.size();i++)
-									
+								for(int i=0;i<vd->Vehicle.size();i++)									
 								{
 									oscVehicle *vehicle = vd->Vehicle[i];
 									vs->addVehicleRatio(vehicle->name.getValue(), vd->percentage.getValue());

@@ -48,11 +48,14 @@ public:
 	int loadOSCFile(const char *filename, osg::Group *loadParent, const char *key);
 
 	static OpenScenarioPlugin *plugin;
+	static OpenScenarioPlugin *instance() { return plugin; };
 
 	bool init();
 
     // this will be called in PreFrame
     void preFrame();
+
+	void addSource(Source *s) { sources.push_back(s); };
 
 private:
 	OpenScenario::OpenScenarioBase *osdb;
@@ -66,6 +69,7 @@ private:
 	xercesc::DOMElement *rootElement;
 	osg::PositionAttitudeTransform *roadGroup;
 	RoadSystem *system;
+	std::list<Source *> sources;
 
 	VehicleManager *manager;
 	PedestrianManager *pedestrianManager;
