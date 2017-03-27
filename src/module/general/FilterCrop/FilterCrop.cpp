@@ -306,32 +306,47 @@ int FilterCrop::compute(const char *)
             return STOP_PIPELINE;
         }
 
+        coDistributedObject *grid = NULL;
+
         if (strcmp(gtype, "STRGRD") == 0)
         {
-            create_strgrid_plane();
+            grid = create_strgrid_plane();
         }
         else if (strcmp(gtype, "RCTGRD") == 0)
         {
-            create_rectgrid_plane();
+            grid = create_rectgrid_plane();
         }
         else
         {
-            create_unigrid_plane();
+            grid = create_unigrid_plane();
         }
+
+        if (grid)
+        {
+            grid->copyAllAttributes(pMeshIn->getCurrentObject());
+        }
+        pMeshOut->setCurrentObject(grid);
     }
 
     if (no_of_objects > 1)
     {
         if (DataOut != NULL)
         {
+            coDistributedObject *data = NULL;
             if (strcmp(dtype, "USTSDT") == 0)
             {
-                create_scalar_plane();
+                data = create_scalar_plane();
             }
             else
             {
-                create_vector_plane();
+                data = create_vector_plane();
             }
+
+            if (data)
+            {
+                data->copyAllAttributes(pDataIn->getCurrentObject());
+            }
+            pDataOut->setCurrentObject(data);
         }
     }
     r[2] = NULL;
@@ -342,7 +357,7 @@ int FilterCrop::compute(const char *)
 //======================================================================
 // create the cutting planes
 //======================================================================
-void FilterCrop::create_strgrid_plane()
+coDistributedObject *FilterCrop::create_strgrid_plane()
 {
     int i_sample, j_sample, k_sample;
 
@@ -350,7 +365,7 @@ void FilterCrop::create_strgrid_plane()
     if (!s_grid_out->objectOk())
     {
         Covise::sendError("ERROR: creation of data object 'meshOut' failed");
-        return;
+        return NULL;
     }
     s_grid_out->getAddresses(&x_out, &y_out, &z_out);
 
@@ -384,13 +399,13 @@ void FilterCrop::create_strgrid_plane()
                 z_out[iOut] = z_in[iIn];
             }
     r[0] = s_grid_out;
-    pMeshOut->setCurrentObject(s_grid_out);
+    return s_grid_out;
 }
 
 //======================================================================
 // create the cutting planes
 //======================================================================
-void FilterCrop::create_rectgrid_plane()
+coDistributedObject *FilterCrop::create_rectgrid_plane()
 {
     int ip;
 
@@ -398,7 +413,7 @@ void FilterCrop::create_rectgrid_plane()
     if (!r_grid_out->objectOk())
     {
         Covise::sendError("ERROR: creation of data object 'meshOut' failed");
-        return;
+        return NULL;
     }
     r_grid_out->getAddresses(&x_out, &y_out, &z_out);
 
@@ -421,14 +436,13 @@ void FilterCrop::create_rectgrid_plane()
         ip = ip + sample;
     }
     r[0] = r_grid_out;
-
-    pMeshOut->setCurrentObject(r_grid_out);
+    return r_grid_out;
 }
 
 //======================================================================
 // create the cutting planes
 //======================================================================
-void FilterCrop::create_unigrid_plane()
+coDistributedObject *FilterCrop::create_unigrid_plane()
 {
 
     u_grid_in->getPointCoordinates(i_min - 1, &x_min,
@@ -440,16 +454,16 @@ void FilterCrop::create_unigrid_plane()
     if (!u_grid_out->objectOk())
     {
         Covise::sendError("ERROR: creation of data object 'meshOut' failed");
-        return;
+        return NULL;
     }
     r[0] = u_grid_out;
-    pMeshOut->setCurrentObject(u_grid_out);
+    return  u_grid_out;
 }
 
 //======================================================================
 // create the cutting planes
 //======================================================================
-void FilterCrop::create_scalar_plane()
+coDistributedObject *FilterCrop::create_scalar_plane()
 {
     int i_sample, j_sample, k_sample;
 
@@ -457,7 +471,7 @@ void FilterCrop::create_scalar_plane()
     if (!s_data_out->objectOk())
     {
         Covise::sendError("ERROR: creation of data object 'dataOut' failed");
-        return;
+        return NULL;
     }
 
     s_data_out->getAddress(&s_out);
@@ -485,18 +499,15 @@ void FilterCrop::create_scalar_plane()
                 int iIn = coIndex(i_sample, j_sample, k_sample, idims);
 
                 s_out[iOut] = s_in[iIn];
-
-                //*(s_out + i * m_dim * n_dim + j * n_dim + k) = *(s_in + i_sample * j_dim * k_dim + j_sample * k_dim + k_sample);
-                //			*(s_in + (sample*i)*j_dim*k_dim + (sample*j)*k_dim + (sample*k));
             }
     r[1] = s_data_out;
-    pDataOut->setCurrentObject(s_data_out);
+    return s_data_out;
 }
 
 //======================================================================
 // create the cutting planes
 //======================================================================
-void FilterCrop::create_vector_plane()
+coDistributedObject *FilterCrop::create_vector_plane()
 {
     int i_sample, j_sample, k_sample;
 
@@ -504,7 +515,7 @@ void FilterCrop::create_vector_plane()
     if (!v_data_out->objectOk())
     {
         Covise::sendError("ERROR: creation of data object 'dataOut' failed");
-        return;
+        return NULL;
     }
 
     v_data_out->getAddresses(&u_out, &v_out, &w_out);
@@ -536,7 +547,7 @@ void FilterCrop::create_vector_plane()
                 w_out[iOut] = w_in[iIn];
             }
     r[1] = v_data_out;
-    pDataOut->setCurrentObject(v_data_out);
+    return v_data_out;
 }
 
 MODULE_MAIN(Filter, FilterCrop)

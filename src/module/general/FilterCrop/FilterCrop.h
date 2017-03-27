@@ -89,11 +89,11 @@ private:
     coDoStructuredGrid *s_grid_out;
 
     //  Routines
-    void create_strgrid_plane();
-    void create_rectgrid_plane();
-    void create_unigrid_plane();
-    void create_scalar_plane();
-    void create_vector_plane();
+    coDistributedObject *create_strgrid_plane();
+    coDistributedObject *create_rectgrid_plane();
+    coDistributedObject *create_unigrid_plane();
+    coDistributedObject *create_scalar_plane();
+    coDistributedObject *create_vector_plane();
 
 public:
     FilterCrop(int argc, char *argv[]);

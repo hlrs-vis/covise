@@ -35,6 +35,8 @@
 namespace osg
 {
 class Group;
+class Image;
+class Texture1D;
 }
 namespace covise
 {
@@ -51,6 +53,23 @@ namespace opencover
 class RenderObject;
 class buttonSpecCell;
 class coTUIUITab;
+class coVRShader;
+
+struct ColorMap
+{
+    ColorMap();
+    void setMinMax(float min, float max);
+
+    struct RGBA {
+        unsigned char r, g, b, a;
+    };
+
+    float min, max;
+    std::vector<RGBA> lut;
+    osg::ref_ptr<osg::Image> img;
+    osg::ref_ptr<osg::Texture1D> tex;
+    coVRShader *vertexMapShader, *textureMapShader;
+};
 
 //================================================================
 // ObjectManager
@@ -105,6 +124,10 @@ private:
 
     osg::ColorMask *noFrameBuffer;
     vrui::coTrackerButtonInteraction *interactionA; ///< interaction for first button
+
+    typedef std::map<std::string, ColorMap> ColorMaps;
+    ColorMaps colormaps;
+    const ColorMap &getColorMap(const std::string &species);
 
 public:
     static ObjectManager *instance();

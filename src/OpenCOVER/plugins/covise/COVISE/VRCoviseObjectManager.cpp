@@ -65,6 +65,7 @@
 #include <osg/Sequence>
 #include <osg/MatrixTransform>
 #include <osg/PolygonOffset>
+#include <osg/Texture1D>
 #include <osg/Texture2D>
 #include <osg/LOD>
 
@@ -76,6 +77,54 @@ using namespace std;
 using namespace opencover;
 using namespace covise;
 using namespace vrui;
+
+ColorMap::ColorMap()
+: min(0.)
+, max(1.)
+, vertexMapShader(NULL)
+, textureMapShader(NULL)
+{
+    tex = new osg::Texture1D;
+    img = new osg::Image;
+    tex->setImage(img);
+    tex->setInternalFormat(GL_RGBA);
+    img->allocateImage(2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+    unsigned char *rgba = img->data();
+    rgba[0] = 16;
+    rgba[1] = 16;
+    rgba[2] = 16;
+    rgba[3] = 255;
+    rgba[4] = 200;
+    rgba[5] = 200;
+    rgba[6] = 200;
+    rgba[7] = 255;
+
+    tex->setBorderWidth( 0 );
+    tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+    tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+    tex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+
+    textureMapShader = coVRShaderList::instance()->getUnique("MapColorsTexture");
+    setMinMax(min, max);
+}
+
+void ColorMap::setMinMax(float min, float max)
+{
+    this->min = min;
+    this->max = max;
+
+    if (vertexMapShader)
+    {
+        vertexMapShader->setFloatUniform("rangeMin", min);
+        vertexMapShader->setFloatUniform("rangeMax", max);
+    }
+    if (textureMapShader)
+    {
+        textureMapShader->setFloatUniform("rangeMin", min);
+        textureMapShader->setFloatUniform("rangeMax", max);
+    }
+}
+
 
 //================================================================
 // ObjectManager methods
@@ -468,6 +517,11 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
     }
 }
 
+const ColorMap &ObjectManager::getColorMap(const std::string &species)
+{
+   return colormaps[species];
+}
+
 //----------------------------------------------------------------
 //
 //----------------------------------------------------------------
@@ -635,6 +689,24 @@ void ObjectManager::addColorMap(const char *object, CoviseRenderObject *cmap)
 
     handleInteractors(cmap, cmap, NULL, NULL, NULL);
     coVRPluginList::instance()->addObject(cmap, NULL, NULL, NULL, NULL, NULL);
+
+    ColorMap &cm = colormaps[species];
+    cm.setMinMax(cmap->getMin(0), cmap->getMax(0));
+    const float *cols = cmap->getFloat(Field::ColorMap);
+    cm.lut.resize(cmap->getNumColors());
+    for (int i=0; i<cm.lut.size(); ++i)
+    {
+        cm.lut[i].r = cols[i*5+0]*255.99;
+        cm.lut[i].g = cols[i*5+1]*255.99;
+        cm.lut[i].b = cols[i*5+2]*255.99;
+        cm.lut[i].a = cols[i*5+3]*255.99;
+        //std::cerr << "  " << i << ": " << (int)cm.lut[i].r << " " << (int)cm.lut[i].g << " " << (int)cm.lut[i].b << " " << (int)cm.lut[i].a << std::endl;
+    }
+    cm.img->allocateImage(cm.lut.size(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+    memcpy(cm.img->data(), &cm.lut[0], cm.lut.size()*4);
+    cm.tex->setInternalFormat(GL_RGBA);
+    cm.img->dirty();
+    std::cerr << "colormap for species " << species << ": range " << cm.min << " - " << cm.max << ", #steps: " << cmap->getNumColors() << std::endl;
 }
 
 osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, CoviseRenderObject *geometry,
@@ -1533,10 +1605,11 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         {
             if (strcmp(gtype, "UNIGRD") == 0)
             {
-                cover->addPlugin("Volume");
                 newNode = GeometryManager::instance()->addUGrid(object, xsize, ysize, zsize, xmin, xmax, ymin, ymax, zmin, zmax,
                                                                 no_c, colorbinding, colorpacking, rc, gc, bc, pc,
                                                                 no_n, normalbinding, xn, yn, zn, transparency);
+                if (!newNode)
+                    cover->addPlugin("Volume");
             }
             else if (strcmp(gtype, "RCTGRD") == 0)
                 newNode = GeometryManager::instance()->addRGrid(object, xsize, ysize, zsize, x_c, y_c, z_c,
@@ -1676,17 +1749,28 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 stateset->setAttributeAndModes(po, osg::StateAttribute::ON);
             }
             const char *shaderName = geometry->getAttribute("SHADER");
-            if (!shaderName && colorpacking == Pack::Float)
-            {
-                shaderName = "MapColors";
-            }
             if (texture != NULL && !shaderName)
                 shaderName = texture->getAttribute("SHADER");
             if (!shaderName)
                 shaderName = container->getAttribute("SHADER");
-            if (shaderName)
+            if (shaderName || colorpacking==Pack::Float)
             {
-                coVRShader *shader = coVRShaderList::instance()->get(shaderName);
+                coVRShader *shader = NULL;
+                if (shaderName)
+                {
+                    shader = coVRShaderList::instance()->get(shaderName);
+                }
+                else if (colorpacking == Pack::Float)
+                {
+                    const char *sp= colors->getAttribute("SPECIES");
+                    std::string species;
+                    if (sp)
+                        species = sp;
+                    const ColorMap &cm = getColorMap(species);
+                    shader = cm.textureMapShader;
+                    osg::StateSet *stateset = newNode->getOrCreateStateSet();
+                    stateset->setTextureAttributeAndModes(1, cm.tex, osg::StateAttribute::ON);
+                }
                 if (shader)
                 {
 
@@ -1700,6 +1784,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                         shader->setUniformesFromAttribute(uniformValues);
                     }
                     shader->apply(newNode);
+
                     // add attributes
                 }
                 else
