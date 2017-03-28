@@ -8,7 +8,6 @@ Maneuver::Maneuver():
 	maneuverFinished(false),
 	totalDistance(0),
 	visitedVertices(0),
-	verticesCounter(0),
 	trajectoryCatalogReference(""),
 	startAfterManeuver(""),
 	startConditionType("termination"),
@@ -30,21 +29,21 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> po
 	{
 	targetPosition = currentPos + polylineVertices[visitedVertices];
 	}
-	verticesCounter = polylineVertices.size();
+	int verticesCounter = polylineVertices.size();
 	//substract vectors
-	normDirectionVec = targetPosition - currentPos;
-	float distance = normDirectionVec.length();
-	normDirectionVec.normalize();
+	directionVector = targetPosition - currentPos;
+	float distance = directionVector.length();
+	directionVector.normalize();
 	//calculate step distance
-	float step_distance = 0.1*speed*opencover::cover->frameDuration();//speed
+	float step_distance = speed*opencover::cover->frameDuration();
 	if(totalDistance == 0)
 	{
-		totalDistance=distance;
+		totalDistance = distance;
 	}
 	//calculate remaining distance
-	totalDistance=totalDistance-step_distance;
+	totalDistance = totalDistance-step_distance;
 	//calculate new position
-	newPosition = currentPos+(normDirectionVec*step_distance);
+	newPosition = currentPos+(directionVector*step_distance);
 	if (totalDistance < 0)
 	{
 		visitedVertices++;
@@ -62,60 +61,9 @@ string &Maneuver::getName()
 	return name;
 }
 
-bool Maneuver::getManeuverCondition()
-{
-return maneuverCondition;
-}
-
-void Maneuver::setManeuverCondition()
-{
-	if ( maneuverCondition == true)
-	{ 
-		maneuverCondition = false;
-	}
-	if ( maneuverCondition == false)
-	{ 
-		maneuverCondition = true;
-	}
-}
-
-/*void Maneuver::setPolylineVertices(osg::Vec3 polyVec)
-{
-	polylineVertices.push_back(polyVec);
-	verticesCounter++;
-}*/
-
-void Maneuver::simulationTimeConditionControl(float simulationTime)
-{
-	if(startTime<simulationTime && maneuverFinished != true)
-	{
-		maneuverCondition = true;
-	}
-	else
-	{
-		maneuverCondition = false;
-	}
-}
-
-void Maneuver::distanceToEntityConditionControl(Entity *aktivCar, Entity *passiveCar)
-{
-if (aktivCar->entityPosition[0]-passiveCar->entityPosition[0] >= relativeDistance && maneuverFinished == false)
-	{
-		maneuverCondition = true;
-	}
-}
-
-void Maneuver::maneuverTerminitionControl(Maneuver *terminatedManeuver)
-{
-if (terminatedManeuver->maneuverFinished == true && maneuverFinished == false && terminatedManeuver->getName() == startAfterManeuver)
-	{
-		maneuverCondition = true;
-	}
-}
-
 void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 {
-	float negativeAcceleration = 70;
+	float negativeAcceleration = 50;
 	float dv = negativeAcceleration*dt;
 	if(aktivCar->getSpeed()>targetSpeed)
 	{

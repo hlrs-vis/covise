@@ -111,7 +111,7 @@ void OpenScenarioPlugin::preFrame()
 								for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
 								{
 									(*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*activeEntity)->getSpeed()));
-									(*activeEntity)->setDirection((*maneuver_iter)->normDirectionVec);
+									(*activeEntity)->setDirection((*maneuver_iter)->directionVector);
 									unusedEntity.clear();
 									usedEntity.push_back((*activeEntity));
 									usedEntity.sort();usedEntity.unique();
@@ -305,7 +305,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 			}
 		}
 		int roadId = atoi((*entity_iter)->roadId.c_str());
-		(*entity_iter)->initEntityPositionByRoad(system->getRoad(roadId));
+		(*entity_iter)->setInitEntityPosition(system->getRoad(roadId));
 	}
 
 	//initialize acts

@@ -35,28 +35,63 @@ void ScenarioManager::conditionControl()
 void ScenarioManager::conditionControl(Act* act)
 {
 	if (act->startConditionType=="time")
+	{
+		if(act->startTime<simulationTime && act->actFinished==false)
 		{
-			act->simulationTimeConditionControl(simulationTime);
+			act->actCondition = true;
 		}
+		else
+		{
+			act->actCondition = false;
+		}
+
+		if (endTime != 0)
+		{
+			if(act->startTime<simulationTime && endTime>simulationTime && act->actFinished==false)
+			{
+				act->actCondition = true;
+			}
+			else
+			{
+				act->actCondition = false;
+			}
+		}
+	}
 }
 
 void ScenarioManager::conditionControl(Maneuver* maneuver)
 {
 	if (maneuver->startConditionType=="time")
 	{
-		maneuver->simulationTimeConditionControl(simulationTime);
+		if(maneuver->startTime<simulationTime && maneuver->maneuverFinished != true)
+		{
+			maneuver->maneuverCondition = true;
+		}
+		else
+		{
+			maneuver->maneuverCondition = false;
+		}
 	}
 	if (maneuver->startConditionType=="distance")
 	{
-		maneuver->distanceToEntityConditionControl(getEntityByName(maneuver->activeCar), getEntityByName(maneuver->passiveCar));
+		auto activeCar = getEntityByName(maneuver->activeCar);
+		auto passiveCar = getEntityByName(maneuver->passiveCar);
+		if (activeCar->entityPosition[0]-passiveCar->entityPosition[0] >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
+		{
+			maneuver->maneuverCondition = true;
+		}
+
 	}
 	if (maneuver->startConditionType=="termination")
 	{
 		for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
 		{
-			for(list<Maneuver*>::iterator maneuver_iter2 = (*act_iter)->maneuverList.begin(); maneuver_iter2 != (*act_iter)->maneuverList.end(); maneuver_iter2++)
+			for(list<Maneuver*>::iterator terminatedManeuver = (*act_iter)->maneuverList.begin(); terminatedManeuver != (*act_iter)->maneuverList.end(); terminatedManeuver++)
 			{
-				maneuver->maneuverTerminitionControl((*maneuver_iter2));
+				if ((*terminatedManeuver)->maneuverFinished == true && maneuver->maneuverFinished == false && (*terminatedManeuver)->getName() == maneuver->startAfterManeuver)
+				{
+					maneuver->maneuverCondition = true;
+				}
 			}
 		}
 	}

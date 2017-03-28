@@ -24,6 +24,8 @@ set(HEADERS
   Act.h
   Entity.h
   myFactory.h
+  followTrajectory.h
+  Trajectory.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -32,6 +34,8 @@ set(SOURCES
   Act.cpp
   Entity.cpp
   myFactory.cpp
+  followTrajectory.cpp
+  Trajectory.cpp
 )
 
 SET(TS_HEADERS

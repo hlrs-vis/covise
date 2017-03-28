@@ -16,47 +16,37 @@ using namespace std;
 class Maneuver: public OpenScenario::oscManeuver
 {
 
- private:
-	string name;
-
-
  public:
-	Maneuver();
-	~Maneuver();
-	virtual void finishedParsing();
+	string name;
+	string maneuverType;
+	string trajectoryCatalogReference;
 
+	//conditions
+	bool maneuverCondition;
+	bool maneuverFinished;
 	float startTime;
 	string startConditionType;
-	string maneuverType;
 	string startAfterManeuver;
-
 	string passiveCar;
 	string activeCar;
 	float relativeDistance;
-
 	float targetSpeed;
 
-	string trajectoryCatalogReference;
+	//followTrajectory
 	float totalDistance;
-	osg::Vec3 normDirectionVec;
+	osg::Vec3 directionVector;
 	list<Trajectory*> trajectoryList;
-	//vector<osg::Vec3> polylineVertices;
 	int visitedVertices;
-	int verticesCounter;
-	osg::Vec3 newPosition;
-	osg::Vec3 targetPosition;
-	bool maneuverCondition;
 	bool arriveAtVertex;
-    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> polylineVertices, float speed);
+	osg::Vec3 targetPosition;
+	osg::Vec3 newPosition;
+
+	Maneuver();
+	~Maneuver();
+	virtual void finishedParsing();
 	string &getName();
-	bool getManeuverCondition();
-	void setManeuverCondition();
-	//void setPolylineVertices(osg::Vec3 polyVec);
-	void simulationTimeConditionControl(float simulationTime);
-	void distanceToEntityConditionControl(Entity *aktivCar, Entity *passiveCar);
-	void maneuverTerminitionControl(Maneuver *terminatedManeuver);
+    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> polylineVertices, float speed);
 	void changeSpeedOfEntity(Entity *aktivCar, float dt);
-	bool maneuverFinished;
 };
 
 #endif // MANEUVER_H

@@ -17,15 +17,14 @@ class Entity {
 	string roadId;
 	int laneId;
 	float inits;
-	Road *initRoad;
 	AgentVehicle *entityGeometry;
 	osg::Vec3 entityPosition;
 	osg::Vec3 directionVector;
 
     Entity(string entityName, string catalogReferenceName);
 	~Entity();
-	void initEntityPositionByCoordinates(osg::Vec3 init);
-	void initEntityPositionByRoad(Road *r);
+	void setInitEntityPosition(osg::Vec3 init);
+	void setInitEntityPosition(Road *r);
     void moveLongitudinal();
 	string &getName();
 	void setSpeed(float speed_temp);

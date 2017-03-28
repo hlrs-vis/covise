@@ -15,9 +15,11 @@ public:
 	list<Act*> actList;
 	list<Entity*> entityList;
 	float simulationTime;
+
+	//conditions
+	bool scenarioCondition;
 	string endConditionType;
     float endTime;
-	bool scenarioCondition;
 
 	ScenarioManager();
 	~ScenarioManager();
