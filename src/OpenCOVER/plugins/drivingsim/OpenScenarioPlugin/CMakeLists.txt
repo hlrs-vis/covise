@@ -24,7 +24,7 @@ set(HEADERS
   Act.h
   Entity.h
   myFactory.h
-  followTrajectory.h
+  FollowTrajectory.h
   Trajectory.h
 )
 set(SOURCES
@@ -34,7 +34,7 @@ set(SOURCES
   Act.cpp
   Entity.cpp
   myFactory.cpp
-  followTrajectory.cpp
+  FollowTrajectory.cpp
   Trajectory.cpp
 )
 

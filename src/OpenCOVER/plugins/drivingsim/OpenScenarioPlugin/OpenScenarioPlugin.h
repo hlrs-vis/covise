@@ -38,6 +38,8 @@ namespace OpenScenario
 class OpenScenarioBase;
 }
 
+class Source;
+
 class OpenScenarioPlugin : public opencover::coVRPlugin
 {
 public:
