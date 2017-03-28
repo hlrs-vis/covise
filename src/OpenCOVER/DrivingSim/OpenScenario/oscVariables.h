@@ -84,6 +84,8 @@ public:
         return tv;
     };
 
+	operator T() { return getValue(); };
+
     oscValue<T> *getMemberValue() const
     {
         return dynamic_cast<oscValue<T>*>(value);

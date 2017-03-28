@@ -173,7 +173,7 @@ int MessageReceiver::_receiveData()
             _mutex.unlock();
 
             // send a short ack to indicate we are ready
-            char ack[1];
+            unsigned char ack[1];
             ack[0] = 255;
             _serverSocket->write(ack, 1);
         }
