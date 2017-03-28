@@ -12,6 +12,7 @@
 #include <mesh.h>
 
 #include <vector>
+#include <memory>
 
 class MeshBase;
 struct MeshPts;

@@ -11,6 +11,7 @@
 
 
 #include <vector>
+#include <string>
 #include "coord.h"
 
 typedef Coordinate Position;
