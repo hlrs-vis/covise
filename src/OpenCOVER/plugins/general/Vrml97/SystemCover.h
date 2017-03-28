@@ -176,5 +176,6 @@ protected:
     float *positions;
     float *orientations;
     bool record;
+    bool doRemoteFetch;
 };
 #endif // SYSTEM_COVER_H
