@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+ 
+
+ <GLOBAL>
+  <COVER>
+   <Snap value="ON" />
+     <Input>
+        <MouseNav value="true" />
+        <Device>
+           <DTrackCave driver="dtrack" port="5000">
+               <Offset x="0" y="-1400" z="-1000" />
+               <Orientation h="0" p="0" r="0" />
+           </DTrackCave>
+
+           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+           <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
+
+
+        </Device>
+
+        <Body>Free
+           <ConstHead>
+              <Offset x="0" y="-0" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </ConstHead>
+
+           <CaveHead device="DTrackCave" bodyIndex="1">
+              <Offset x="90" y="0" z="-40" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead>
+
+           <CaveHand device="DTrackCave" bodyIndex="0">
+              <Offset x="40" y="0" z="0" />
+              <Orientation h="-0" p="0" r="0" />
+           </CaveHand>
+	   
+
+           <CaveHead2 device="DTrackCave" bodyIndex="3">
+              <Offset x="-105" y="-40" z="-50" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead2>
+
+           <CaveHand2 device="DTrackCave" bodyIndex="2">
+              <Offset x="0" y="-170" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHand2>
+
+           <TripodHead>
+              <Offset x="0" y="-3000" z="0" />
+           </TripodHead>
+
+
+        </Body>
+
+        <Buttons>
+           <CaveMouse device="DTrackCave" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CaveMouse>
+           <CyberstickMouse device="CyberstickButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CyberstickMouse>
+        </Buttons>
+
+        <Valuator>
+           <CaveJoyX device="DTrackCave" valuatorIndex="0" />
+           <CaveJoyY device="DTrackCave" valuatorIndex="1" />
+        </Valuator>
+
+        <Persons>
+           <Person name="fix" eyeDistance="60" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked2" eyeDistanc="60" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
+           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
+        </Persons>
+     </Input>
+
+  <MultiPC>
+    <SyncMode value="TCP" />
+   <NumSlaves value="0" />
+     <Startup arch="x11" value="ssh ${USER}@eva ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+  </MultiPC>
+
+  <NumViewports value="2" />
+  <ViewportConfig>
+    <Viewport comment="FRONT" width="1" left="0" windowIndex="0" top="0" name="0" height="1" />
+    <Viewport comment="FRONT" width="1" left="0" windowIndex="1" top="0" name="1" height="1" />
+  </ViewportConfig>
+
+   <NumChannels value="2" />
+
+   <NumScreens value="2" />
+   
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen width="2655" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2000" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="2655" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2000" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+   <NumPipes value="2" />
+
+   <NumWindows value="2" />
+   <WindowConfig>
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="0" top="0" name="0" decoration="false"/>
+    <Window width="1400" comment="FRONT" window="1" pipeIndex="1" height="1050" left="1400" top="0" name="1" decoration="false"/>
+   </WindowConfig>
+   
+  <Multisample value="OFF" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+  <SyncToVBlank value="ON" device="DFP-0" />
+  
+  <WelcomeMessage value="Welcome to COVISE at VDC St. Georgen" />
+
+  <Plugin>
+
+   <!--COVERScript value="ON"/-->
+   <!--cuIsoSurface value="ON"/>TabletTablet
+   <cuCuttingSurface value="ON"/-->
+   <!--cuTracer value="ON"/-->
+   <Vrml97>
+     <MaybeGC value="ON" />
+  
+
+     <!-- nicht ausschalten, sonst funktionieren die shader nicht die Binormalen brauchen GenerateTriangleStrips value="false" /-->
+
+     <Audio value="AServer" >
+	 <!--Host value="192.168.0.10" /-->
+     </Audio>
+
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended_alphatest" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+    <VncClient value="MENU" rfbPort="31590" rfbHost="visent.hlrs.de" />
+    <AKToolbar value="OFF">
+     <Scale value="0.6" />
+     <Attachment value="TOP" />
+     <Position x="-170" y="0" z="640" />
+
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+    
+    <ViewPoint value="ON" />
+       
+  </Plugin>
+  
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+   
+   
+   <SceneSize value="1500" />
+   <FloorHeight value="-1044" />
+   <MenuPosition value="400 0 500" />
+   <MenuSize value="0.7" />
+   <MultiProcess value="OFF" />
+   <MouseNav value="OFF" />
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <Stereo value="ON" />
+   <DebugLevel value="0" />
+   <Freeze value="OFF" />
+   <ViewerPosition value="0 -800 100" />
+   <TransparencyMode value="sorted_blended_alphatest" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+
+  <TabletPC>
+   <!--Server value="192.168.1.58" /-->
+   <!--Server value="192.168.1.58" /-->
+   <Server value="localhost" />
+  </TabletPC>
+  
+  <Input>
+ 
+   <ButtonSystem value="MOUSE" />
+   <TrackingSystem value="MOUSE" />
+   <DebugButtons value="TRUE" />
+   <HeadAddress value="1" />
+   <HandAddress value="0" />
+   <ButtonSystem value="MOUSE" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+   <DebugStation value="0" />
+   <DebugTracking value="false" />
+   
+   <TrackingSystem> 
+    <Offset x="0" y="-1500" z="-1349" />
+    <Orientation h="0" p="0" r="0" />
+   </TrackingSystem>
+   
+   <HeadDevice>   
+    <Offset x="-105" y="-40" z="-50" />
+    <Orientation h="0" p="0" r="0" />
+   </HeadDevice>
+     
+   <HandDevice>     
+    <Offset x="-60" y="0" z="-60" />
+    <Orientation h="0" p="0" r="0" />
+   </HandDevice>
+   
+  <ButtonConfig>
+   <ButtonDevice value="/dev/input/presenter" />
+   <Map value="1 ACTION_BUTTON" name="1" />
+   <Map value="8 XFORM_BUTTON" name="2" />
+   <Map value="2 DRIVE_BUTTON" name="3" />
+  </ButtonConfig>  
+  <DTrack>
+   <Startup value="192.168.1.10:5001" />
+   <!--Startup value="141.30.14.209:5001" /-->
+  </DTrack>  
+   
+  </Input>
+    
+
+    </COVER>
+
+  <Module>
+   <Fenfloss>
+    <Verbose value="1" />
+    <Timeout value="20" />
+    <Local value="localhost"/>
+    <Startup value="gate %0 %1 %e" name="v3" />
+    <Startup value="tube %0 %1 %e" name="v4" />
+    <Startup value="axial %0 %1 %e" name="v5" />
+    <Startup value="radial %0 %1 %e" name="v6" />
+    <Startup value="sc2004booth %0 %1 %e" name="v7" />
+    <Startup value="archflow %0 %1 %e" name="v8" />
+    <Startup value="other %0 %1 %e" name="v9" />
+
+    <Application value="p_covise_fen6.3.0.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+    <Application value="p_fen7.0" name="v3"/>
+   </Fenfloss>
+
+  <OpenFoam>
+   <Verbose value="1" />
+   <Server value="m" />
+   <Startup value="blubb %0 %e" name="v1" />
+   <StartUpScript value="/home/hpcyborg/OpenFOAM/OpenFOAM-1.7.1/applications/solvers/incompressible/icoFoamCovise/cavity.sh" />
+   <Local value="195.37.217.230" />
+  </OpenFoam>
+
+  </Module>
+  
+ </GLOBAL>
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+</COCONFIG>
