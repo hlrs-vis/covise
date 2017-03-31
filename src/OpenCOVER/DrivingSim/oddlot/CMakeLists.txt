@@ -1,4 +1,4 @@
-#cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.6)
 #project (oddlot)
 
 #OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)

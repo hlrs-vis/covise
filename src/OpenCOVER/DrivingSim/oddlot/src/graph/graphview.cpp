@@ -57,6 +57,9 @@
 #include <QApplication>
 #include <QUndoStack>
 #include <QImage>
+#include <QInputDialog>
+#include <QDebug>
+
 
 // Utils //
 //
@@ -293,6 +296,11 @@ GraphView::toolAction(ToolAction *toolAction)
             loadMap();
             lockMap(true);
         }
+        else if (id == MapTool::TMA_GOOGLE)
+        {
+            loadGoogleMap();
+            lockMap(true);
+        }
         else if (id == MapTool::TMA_DELETE)
         {
             deleteMap();
@@ -503,6 +511,106 @@ GraphView::loadMap()
     }
 
     scenerySystemItem_->loadMap(filename, mapToScene(10.0, 10.0)); // place pic near top left corner
+}
+
+
+/*! \brief .
+*/
+void
+GraphView::loadGoogleMap()
+{
+    //I'll need this later, it's the formula Google uses to calculate the scale of the map
+    //156543.03392 * Math.cos(latLng.lat() * Math.PI / 180) / Math.pow(2, zoom)
+    //https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
+
+    bool ok;
+    QString location = QInputDialog::getText(this, tr("Choose center location"),
+                                         tr("Must be in form of coordinates:"), QLineEdit::Normal,
+                                         QDir::home().dirName(), &ok);
+
+    //For debugging purposes
+    //double offSet = QInputDialog::getDouble(this, tr("Offset?"),
+    //                tr("Gimme something good"), 0.00, -1, 1, 10, &ok);
+
+
+    //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
+    //We want to find this value, so that the adjacent maps to the first map can be correct
+    //Need to figure out
+
+   // QString XMLlocationCommand = "wget -O location.xml 'http://maps.google.com/maps/api/geocode/xml?address=" + location + "'";
+   // system(qPrintable(XMLlocationCommand));
+
+
+    QStringList coords = location.split(",");
+    QString lat = coords.value(0);
+    QString lon = coords.value(1);
+    double dlat = lat.toDouble();
+    double dlon = lon.toDouble();
+
+    //example format:
+    //curl 'https://maps.googleapis.com/maps/api/staticmap?center=Stuttgart%20Vaihingen,Germany&zoom=16&size=1200x1200&scale=2'
+
+    QString zoom = "19";
+    QString maptype = "satellite";
+    QString style = "&style=feature:all|element:labels|visibility:off";
+    QString uploadPrefix = "wget -O ";
+    QString uploadPrefix2 ="'https://maps.googleapis.com/maps/api/staticmap?center=";
+    QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+
+
+    //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
+    double offSet = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
+                    - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
+
+
+    double xOffset = offSet;
+    double yOffset = .00172;
+    QString newLoc;
+    double newLat;
+    double newLon;
+    QString filename;
+    double scale = this->getScale();
+
+
+    int xSize = 3;
+    int ySize = 3;
+    int progress = xSize*ySize;
+    for (int i = -xSize/2; i < xSize-1; i++)
+    {
+        for (int j = -ySize/2; j < ySize-1; j++)
+        {
+            double latIterator = double(j);
+            double lonIterator = double(i);
+            newLat = dlat + -latIterator*xOffset;
+            newLon = dlon + lonIterator*yOffset;
+            newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
+            system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
+            progress--;
+            QString newFilename = QString("image" + QString::number(i) + QString::number(j) + ".png ");
+            QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
+            system(qPrintable(command));
+
+
+
+        }
+    }
+    for (int i = -xSize/2; i < xSize-1; i++)
+    {
+        for (int j = -ySize/2; j < ySize-1; j++)
+        {            
+            filename = QString("image" + QString::number(i) + QString::number(j) + ".png");
+            scenerySystemItem_->loadMap(filename, mapToScene(i*1280, j*1235));
+        }
+    }
+
+    system(qPrintable("echo Offset used: " + QString::number(offSet, 'f', 10)));
+
+   /*) location = "48.7758459, 9.18462";
+    command = command = uploadPrefix + location + uploadPostfix;
+    system(qPrintable(command));
+    scenerySystemItem_->loadMap(filename, mapToScene(1280.0, 10.0));
+*/
+
 }
 
 /*! \brief .
