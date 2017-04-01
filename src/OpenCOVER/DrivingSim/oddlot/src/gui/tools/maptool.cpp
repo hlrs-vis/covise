@@ -62,6 +62,10 @@ MapTool::MapTool(ToolManager *toolManager)
     loadMapAction_->setStatusTip(tr("Load a background image."));
     connect(loadMapAction_, SIGNAL(triggered()), this, SLOT(loadMap()));
 
+    loadGoogleAction_ = new QAction(tr("Load &Google Map"), this);
+    loadGoogleAction_->setStatusTip(tr("Load a Google Maps image from the selected location."));
+    connect(loadGoogleAction_, SIGNAL(triggered()), this, SLOT(loadGoogleMap()));
+
     deleteMapAction_ = new QAction(tr("&Delete Map"), this);
     deleteMapAction_->setStatusTip(tr("Delete the selected background images."));
     connect(deleteMapAction_, SIGNAL(triggered()), this, SLOT(deleteMap()));
@@ -118,6 +122,7 @@ MapTool::MapTool(ToolManager *toolManager)
     mapToolBar->addWidget(opacityLabel);
     mapToolBar->addWidget(opacityComboBox_);
     mapToolBar->addAction(loadMapAction_);
+    mapToolBar->addAction(loadGoogleAction_);
     mapToolBar->addAction(deleteMapAction_);
     mapToolBar->addAction(lockMapAction_);
     //	mapToolBar->addWidget(xLabel);
@@ -139,6 +144,7 @@ MapTool::MapTool(ToolManager *toolManager)
 
     QMenu *mapMenu = new QMenu("Background Images", viewMenu);
     mapMenu->addAction(loadMapAction_);
+    mapMenu->addAction(loadGoogleAction_);
     mapMenu->addAction(deleteMapAction_);
     mapMenu->addAction(lockMapAction_);
 
@@ -163,6 +169,7 @@ MapTool::activateProject(bool active)
     loadMapAction_->setEnabled(active_);
     deleteMapAction_->setEnabled(active_);
     lockMapAction_->setEnabled(active_);
+    loadGoogleAction_->setEnabled(active_);
     //	xLineEdit_->setEnabled(active_);
     //	yLineEdit_->setEnabled(active_);
     //	widthLineEdit_->setEnabled(active_);
@@ -189,6 +196,17 @@ void
 MapTool::loadMap()
 {
     MapToolAction *action = new MapToolAction(MapTool::TMA_LOAD);
+    emit toolAction(action);
+    delete action;
+}
+
+
+/*!
+*/
+void
+MapTool::loadGoogleMap()
+{
+    MapToolAction *action = new MapToolAction(MapTool::TMA_GOOGLE);
     emit toolAction(action);
     delete action;
 }

@@ -16,6 +16,7 @@
 #include "projectionsettings.hpp"
 #include "ui_projectionsettings.h"
 
+
 // Data //
 
 ProjectionSettings *ProjectionSettings::inst = NULL;
