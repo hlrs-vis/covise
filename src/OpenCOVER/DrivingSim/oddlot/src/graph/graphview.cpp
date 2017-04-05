@@ -58,7 +58,8 @@
 #include <QUndoStack>
 #include <QImage>
 #include <QInputDialog>
-#include <QDebug>
+#include <QXmlStreamReader>
+#include <QFile>
 
 
 // Utils //
@@ -525,7 +526,7 @@ GraphView::loadGoogleMap()
 
     bool ok;
     QString location = QInputDialog::getText(this, tr("Choose center location"),
-                                         tr("Must be in form of coordinates:"), QLineEdit::Normal,
+                                         tr("Can be in form of address or coordinates"), QLineEdit::Normal,
                                          QDir::home().dirName(), &ok);
 
     //For debugging purposes
@@ -537,13 +538,65 @@ GraphView::loadGoogleMap()
     //We want to find this value, so that the adjacent maps to the first map can be correct
     //Need to figure out
 
-   // QString XMLlocationCommand = "wget -O location.xml 'http://maps.google.com/maps/api/geocode/xml?address=" + location + "'";
-   // system(qPrintable(XMLlocationCommand));
+   QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+
+   system(qPrintable(XMLlocationCommand));
+
+   QString lat;
+   QString lon;
+
+   QFile xmlFile("location.xml");
+   if(!xmlFile.open(QFile::ReadOnly | QFile::Text))
+       exit(0);
+
+   QXmlStreamReader xmlReader(&xmlFile);
 
 
-    QStringList coords = location.split(",");
+   if (xmlReader.readNextStartElement())
+   {
+       if(xmlReader.name() == "GeocodeResponse")
+       {
+           while(xmlReader.readNextStartElement())
+           {
+               if(xmlReader.name() == "status")
+               {
+                   xmlReader.skipCurrentElement();
+               }
+               else if(xmlReader.name() == "result")
+               {
+                   while(xmlReader.readNextStartElement())
+                   {
+                       if(xmlReader.name() != "geometry")
+                       {
+                           xmlReader.skipCurrentElement();
+                       }
+                       else if (xmlReader.name() == "geometry")
+                           while(xmlReader.readNextStartElement())
+                           {
+                               if(xmlReader.name() == "location"){
+                                   while(xmlReader.readNextStartElement())
+                                   {
+                                       if(xmlReader.name() == "lat"){
+                                           lat = xmlReader.readElementText();
+                                       }
+                                       if(xmlReader.name() == "lng"){
+                                           lon = xmlReader.readElementText();
+                                       }
+                                   }
+                               }
+                           }
+                   }
+               }
+           }
+       }
+   }
+
+
+
+   /* QStringList coords = location.split(",");
     QString lat = coords.value(0);
-    QString lon = coords.value(1);
+    QString lon = coords.value(1); */
+
     double dlat = lat.toDouble();
     double dlon = lon.toDouble();
 
@@ -559,11 +612,8 @@ GraphView::loadGoogleMap()
 
 
     //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
-    double offSet = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
+    double xOffset = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
                     - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
-
-
-    double xOffset = offSet;
     double yOffset = .00172;
     QString newLoc;
     double newLat;
@@ -571,6 +621,9 @@ GraphView::loadGoogleMap()
     QString filename;
     double scale = this->getScale();
 
+
+    resetViewTransformation();
+    scaleView(1.0, 1.0);
 
     int xSize = 3;
     int ySize = 3;
@@ -589,9 +642,6 @@ GraphView::loadGoogleMap()
             QString newFilename = QString("image" + QString::number(i) + QString::number(j) + ".png ");
             QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
             system(qPrintable(command));
-
-
-
         }
     }
     for (int i = -xSize/2; i < xSize-1; i++)
@@ -602,9 +652,9 @@ GraphView::loadGoogleMap()
             scenerySystemItem_->loadMap(filename, mapToScene(i*1280, j*1235));
         }
     }
-
-    system(qPrintable("echo Offset used: " + QString::number(offSet, 'f', 10)));
-
+    system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 10)));
+    system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 10)));
+    system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 10)));
    /*) location = "48.7758459, 9.18462";
     command = command = uploadPrefix + location + uploadPostfix;
     system(qPrintable(command));
