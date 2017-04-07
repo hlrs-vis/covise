@@ -70,7 +70,8 @@ private:
     char **animateViewerValueNames;
     osg::Vec3 animLookAt;
     std::string traceName;
-
+    int x_dim, y_dim, z_dim, Min, Max;         						
+    
     // User interface
     void createSubmenu();
     void deleteSubmenu();
@@ -82,15 +83,17 @@ private:
     coCheckboxMenuItem *showTraceCheckbox, *regardInterruptCheckbox;
     coCheckboxMenuItem *singlePickCheckbox, *multiplePickCheckbox;
     coCheckboxMenuItem *attachViewerCheckbox;
-    coButtonMenuItem *executeButton, *clearSelectionButton;
+    coButtonMenuItem *executeButton, *clearSelectionButton, *clearPointButton;
     coLabelMenuItem *particleString;
+    coSliderMenuItem *x_dimSlider, *y_dimSlider, *z_dimSlider;                            
 
     static BoxSelection *boxSelection;
     static void selectWithBox();
 
     void getSphereData(const covise::coDoSpheres *);
     char *sphereNames;
-    const char *startParamName, *stopParamName, *particlesParamName, *regardInterruptParamName, *showTraceParamName, *animateViewerParamName, *animateLookAtParamName;
+    const char *startParamName, *stopParamName, *particlesParamName, *UnsortedParticlesParamName, *regardInterruptParamName, *showTraceParamName, *animateViewerParamName, *animateLookAtParamName;
+    const char *x_dimParamName, *y_dimParamName, *z_dimParamName;			
     void menuEvent(coMenuItem *);
     void setParticleStringLabel();
     void menuReleaseEvent(coMenuItem *);
