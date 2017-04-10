@@ -563,8 +563,8 @@ InvOffscreenRenderer::writeToRGB(const char *filename) const
         }
     }
     iclose(image);
-    delete pBuf;
-    delete rowBuf;
+    delete[] pBuf;
+    delete[] rowBuf;
     return TRUE;
 }
 
@@ -739,7 +739,7 @@ InvOffscreenRenderer::writeToPostScript(
     fprintf(fp, "grestore\n");
     fprintf(fp, "showpage\n");
 
-    delete pBuf;
+    delete[] pBuf;
     return TRUE;
 }
 
