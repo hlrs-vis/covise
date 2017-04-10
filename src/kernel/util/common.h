@@ -50,7 +50,7 @@
 #include <sys/types.h>
 #endif
 
-#if defined __cplusplus && defined(_STANDARD_C_PLUS_PLUS) && !defined(__sgi)
+#if defined __cplusplus
 #include <cassert>
 #include <cctype>
 #include <cerrno>
