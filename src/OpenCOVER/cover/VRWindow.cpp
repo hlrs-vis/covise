@@ -200,9 +200,18 @@ VRWindow::createWin(int i)
     }
     traits->supportsResize = coVRConfig::instance()->windows[i].resize;
     traits->pbuffer = coVRConfig::instance()->windows[i].pbuffer;
-    if(coVRConfig::instance()->glVersion.size()>0)
+    bool opengl3 = false;
+    if(!coVRConfig::instance()->glVersion.empty())
     {
         traits->glContextVersion = coVRConfig::instance()->glVersion;
+        const double ver = atof(coVRConfig::instance()->glVersion.c_str());
+        if (ver >= 3.0)
+            opengl3 = true;
+        opengl3 = covise::coCoviseConfig::isOn("COVER.WindowConfig.OpenGL3", opengl3);
+        if (cover->debugLevel(1))
+        {
+            std::cerr << "creating window " << i << " with GL context version " << coVRConfig::instance()->glVersion << ", OpenGL3=" << opengl3 << std::endl;
+        }
     }
     traits->windowName = "OpenCOVER";
 
@@ -320,9 +329,14 @@ VRWindow::createWin(int i)
     {
         return false;
     }
+    if (!coVRConfig::instance()->windows[i].context->valid())
+    {
+        cerr << "No valid GL context created" << endl;
+        return false;
+    }
     coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(coVRConfig::instance()->windows[i].context);
 
-    if (covise::coCoviseConfig::isOn("COVER.WindowConfig.OpenGL3", false))
+    if (opengl3)
     {
         // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
         // you don't need thse two lines on GL3/GL4 and GLES2 specific builds as these will be enable by default.
@@ -359,7 +373,8 @@ VRWindow::createWin(int i)
       coVRConfig::instance()->windows[i].rs->getVisualChooser()->setVisualID(visId);
    }
 #endif
-    fprintf(stderr, "VRWindow::createWin %d --- finished\n", i);
+    if (cover->debugLevel(4))
+        fprintf(stderr, "VRWindow::createWin %d --- finished\n", i);
     //sleep(200);
     return true;
 }

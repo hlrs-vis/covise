@@ -61,6 +61,8 @@
   </System>
 
   <COVER>
+      <!--GLVersion value="3.0" /-->
+      <!--GLDebug value="true" /-->
       <Snap value="ON" />
       <DebugTUI value="OFF" />
 	  
@@ -72,9 +74,8 @@
 
     <CudaNumThreads value="128" />        
      <TabletPC>
-     <Server host="127.0.0.1" port="31802" name="0" />
-   <Server value="127.0.0.1" />
-   </TabletPC>
+         <Server value="localhost"/>
+       </TabletPC>
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />
@@ -280,8 +281,6 @@
    </PipeConfig>
 
    <WindowConfig>
-    <OpenGL3 value="false" />
-
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->

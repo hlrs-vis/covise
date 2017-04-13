@@ -1180,6 +1180,8 @@ VRViewer::createChannels(int i)
     {
         ds = new osg::DisplaySettings(*(_displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get()));
     }
+    if (!coVRConfig::instance()->glVersion.empty())
+        ds->setGLContextVersion(coVRConfig::instance()->glVersion);
 
     // set up the use of stereo by default.
     ds->setStereo(coVRConfig::instance()->stereoState());
