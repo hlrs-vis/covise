@@ -113,6 +113,7 @@ public slots:
     //
     void loadMap();
     void loadGoogleMap();
+
     void deleteMap();
     void lockMap(bool lock);
     void setMapOpacity(const QString &opacity);
