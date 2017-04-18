@@ -452,6 +452,7 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
 
     if (ro != NULL)
     {
+        m_roMap[object] = ro;
         //fprintf(stderr, "++++++ObjectManager(%s)::addObject %s  data_obj=%s renderObj=%s\n", getenv("HOST"), object,data_obj->getName(), ro->getName() );
 
         std::string gtype = ro->getType();
@@ -471,7 +472,6 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
             }
         }
     }
-    delete ro;
 }
 
 void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
@@ -571,6 +571,13 @@ void ObjectManager::deleteObject(const char *name, bool groupobject)
     if (feedbackList)
         feedbackList->removeData(name);
 #endif
+    RenderObjectMap::iterator it = m_roMap.find(name);
+    if (it != m_roMap.end())
+    {
+        RenderObject *ro = it->second;
+        m_roMap.erase(it);
+        delete ro;
+    }
 }
 
 //----------------------------------------------------------------
