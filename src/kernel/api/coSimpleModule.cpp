@@ -75,6 +75,7 @@ void coSimpleModule::localCompute(void *callbackData)
 {
     (void)callbackData;
     int i, ni, no;
+    currentTimestep=0;
 
     for (i = 0; i < d_numElem; i++)
         elemList[i]->preCompute();
@@ -252,6 +253,7 @@ int coSimpleModule::handleObjects(coInputPort **inPorts, coOutputPort **outPorts
 
     // this flag is set to false if the execution should be terminated
     bool continueExec = true;
+    bool currentSetContainsTimesteps=false;
 
 #if __DEBUG_MSG
     cerr << "coSimpleModule::handleObjects" << endl;
@@ -279,6 +281,7 @@ int coSimpleModule::handleObjects(coInputPort **inPorts, coOutputPort **outPorts
                 compute_flag = !compute_timesteps; // transient
                 timestep_flag = 1;
                 multiblock_flag = 0;
+		currentSetContainsTimesteps = true;
             }
             else
             {
@@ -454,6 +457,10 @@ int coSimpleModule::handleObjects(coInputPort **inPorts, coOutputPort **outPorts
             }
 
             // handle
+	    if(currentSetContainsTimesteps)
+	    {
+	        currentTimestep = t;
+	    }
 
             if (handleObjects(newInPorts, newOutPorts) != CONTINUE_PIPELINE)
                 continueExec = false;
