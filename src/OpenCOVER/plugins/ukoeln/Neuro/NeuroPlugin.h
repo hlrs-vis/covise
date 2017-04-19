@@ -9,6 +9,7 @@
 #define NEURO_PLUGIN_H
 
 #include <memory>
+#include <vector>
 
 #include <osg/ref_ptr>
 #include <osg/Vec3>
@@ -89,6 +90,9 @@ private:
     int slicePosX_;
     int slicePosY_;
     int slicePosZ_;
+
+    // Texture data ortho slices.
+    std::vector<unsigned char> sliceTextures[3];
 
     // Minimum intensity value for ortho slices.
     float minSliceIntensity_;

@@ -333,7 +333,8 @@ void NeuroPlugin::setSliceTexture(virvo::cartesian_axis<3> axis, int sliceNum)
     tf._widgets.push_back(new vvTFColor(vvColor(hi, hi, hi), maxVoxel_));
 
     volDesc_->getVolumeSize(axis, width, height, slices);
-    std::vector<uchar> texture(width * height * 3);
+    sliceTextures[(int)axis].resize(width * height * 3);
+    auto& texture = sliceTextures[(int)axis];
     volDesc_->makeSliceImage(volDesc_->getCurrentFrame(), axis, slices - sliceNum - 1, texture.data(), &tf);
 
     osg::ref_ptr<osg::Image> img = new osg::Image;
