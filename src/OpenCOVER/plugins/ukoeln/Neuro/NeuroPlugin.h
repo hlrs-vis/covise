@@ -17,6 +17,12 @@
 
 #include <cover/coVRPlugin.h>
 
+#include <OpenVRUI/coCheckboxGroup.h>
+#include <OpenVRUI/coCheckboxMenuItem.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coSliderMenuItem.h>
+#include <OpenVRUI/coSubMenuItem.h>
+
 #include <PluginUtil/coVR1DTransInteractor.h>
 
 class vvVolDesc;
@@ -28,8 +34,20 @@ class PositionAttitudeTransform;
 }
 
 class NeuroPlugin : public opencover::coVRPlugin
+                  , public vrui::coMenuListener
 {
 public:
+
+    // typedefs
+    using vruiCheckBox    = std::unique_ptr<vrui::coCheckboxMenuItem>;
+    using vruiMenu        = std::unique_ptr<vrui::coMenu>;
+    using vruiRadioButton = std::unique_ptr<vrui::coCheckboxMenuItem>;
+    using vruiRadioGroup  = std::unique_ptr<vrui::coCheckboxGroup>;
+    using vruiSlider      = std::unique_ptr<vrui::coSliderMenuItem>;
+    using vruiSubMenu     = std::unique_ptr<vrui::coSubMenuItem>;
+
+public:
+
     NeuroPlugin();
     ~NeuroPlugin();
 
@@ -67,15 +85,35 @@ private:
     std::unique_ptr<opencover::coVR1DTransInteractor> interactorXZ_;
     std::unique_ptr<opencover::coVR1DTransInteractor> interactorXY_;
 
+    bool repaintSlices_;
     int slicePosX_;
     int slicePosY_;
     int slicePosZ_;
+
+    // Minimum intensity value for ortho slices.
+    float minSliceIntensity_;
+    // Maximum intensity value for ortho slices.
+    float maxSliceIntensity_;
 
     // Minimum voxel value [0..1].
     float minVoxel_;
     // Maximum voxel value [0..1].
     float maxVoxel_;
 
+    //--- VRUI --------------------------------------------
+
+    struct
+    {
+        vruiMenu    mainMenu;
+        vruiSubMenu mainMenuEntry;
+
+        vruiMenu    sliceMenu;
+        vruiSubMenu sliceMenuEntry;
+        vruiSlider  minIntensitySlider;
+        vruiSlider  maxIntensitySlider;
+    } vrui;
+
+    void menuEvent(vrui::coMenuItem *item);
 };
 
 #endif

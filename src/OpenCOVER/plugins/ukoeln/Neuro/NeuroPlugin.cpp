@@ -28,6 +28,7 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace vrui;
 
 osg::Geometry *createTexturedQuadGeometry_(const osg::Vec3& corner,
                                            const osg::Vec3& widthVec,
@@ -119,10 +120,33 @@ private:
 
 NeuroPlugin::NeuroPlugin()
     : volDesc_(nullptr)
+    , repaintSlices_(true)
     , slicePosX_(-1)
     , slicePosY_(-1)
     , slicePosZ_(-1)
+    , minSliceIntensity_(.2f)
+    , maxSliceIntensity_(1.f)
 {
+    vrui.mainMenuEntry.reset(new coSubMenuItem("Neuro..."));
+    opencover::cover->getMenu()->add(vrui.mainMenuEntry.get());
+    vrui.mainMenu.reset(new coRowMenu("Neuro", cover->getMenu()));
+    vrui.mainMenuEntry->setMenu(vrui.mainMenu.get());
+
+    vrui.sliceMenuEntry.reset(new coSubMenuItem("Slices..."));
+    vrui.mainMenu->add(vrui.sliceMenuEntry.get());
+
+    vrui.sliceMenu.reset(new coRowMenu("Slices", vrui.mainMenu.get()));
+    vrui.sliceMenuEntry->setMenu(vrui.sliceMenu.get());
+
+    vrui.minIntensitySlider.reset(new coSliderMenuItem("Minimum intensity", .0f, 1.f, .2f));
+    vrui.minIntensitySlider->setInteger(false);
+    vrui.minIntensitySlider->setMenuListener(this);
+    vrui.sliceMenu->add(vrui.minIntensitySlider.get());
+
+    vrui.maxIntensitySlider.reset(new coSliderMenuItem("Maximum intensity", .0f, 1.f, 1.f));
+    vrui.maxIntensitySlider->setInteger(false);
+    vrui.maxIntensitySlider->setMenuListener(this);
+    vrui.sliceMenu->add(vrui.maxIntensitySlider.get());
 }
 
 NeuroPlugin::~NeuroPlugin()
@@ -188,13 +212,15 @@ void NeuroPlugin::preFrame()
                                                           vrui::coInteraction::Medium));
             interactorXY_->enableIntersection();
             updateInteractorPos(virvo::cartesian_axis<3>::Z, 0);
+
+            repaintSlices_ = true;
         }
     }
 
     if (volDesc_ != nullptr)
     {
-        // Check if interactors have changed and update values accordingly.
-        if (getSlicePos(virvo::cartesian_axis<3>::X) != slicePosX_)
+        // Repaint slices.
+        if (repaintSlices_ || getSlicePos(virvo::cartesian_axis<3>::X) != slicePosX_)
         {
             slicePosX_ = getSlicePos(virvo::cartesian_axis<3>::X);//std::cout << "slicePosX: " << slicePosX_ << '\n';
             osg::Vec3 pos = transYZ_->getPosition();
@@ -203,7 +229,7 @@ void NeuroPlugin::preFrame()
             setSliceTexture(virvo::cartesian_axis<3>::X, slicePosX_);
         }
 
-        if (getSlicePos(virvo::cartesian_axis<3>::Y) != slicePosY_)
+        if (repaintSlices_ || getSlicePos(virvo::cartesian_axis<3>::Y) != slicePosY_)
         {
             slicePosY_ = getSlicePos(virvo::cartesian_axis<3>::Y);//std::cout << "slicePosY: " << slicePosY_ << '\n';
             osg::Vec3 pos = transXZ_->getPosition();
@@ -212,7 +238,7 @@ void NeuroPlugin::preFrame()
             setSliceTexture(virvo::cartesian_axis<3>::Y, slicePosY_);
         }
 
-        if (getSlicePos(virvo::cartesian_axis<3>::Z) != slicePosZ_)
+        if (repaintSlices_ || getSlicePos(virvo::cartesian_axis<3>::Z) != slicePosZ_)
         {
             slicePosZ_ = getSlicePos(virvo::cartesian_axis<3>::Z);//std::cout << "slicePosZ: " << slicePosZ_ << '\n';
             osg::Vec3 pos = transXY_->getPosition();
@@ -220,6 +246,8 @@ void NeuroPlugin::preFrame()
             transXY_->setPosition(pos);
             setSliceTexture(virvo::cartesian_axis<3>::Z, slicePosZ_);
         }
+
+        repaintSlices_ = false;
     }
 }
 
@@ -281,8 +309,8 @@ void NeuroPlugin::setSliceTexture(virvo::cartesian_axis<3> axis, int sliceNum)
     size_t slices;
 
     vvTransFunc tf;
-    float lo = .2f;
-    float hi = 1.f;
+    float lo = minSliceIntensity_;
+    float hi = maxSliceIntensity_;
     tf._widgets.push_back(new vvTFColor(vvColor(lo, lo, lo), minVoxel_));
     tf._widgets.push_back(new vvTFColor(vvColor(hi, hi, hi), maxVoxel_));
 
@@ -371,6 +399,21 @@ int NeuroPlugin::getSlicePos(virvo::cartesian_axis<3> axis)
     assert(0);
 
     return -1;
+}
+
+void NeuroPlugin::menuEvent(vrui::coMenuItem *item)
+{
+    // slice menu
+    if (item == vrui.minIntensitySlider.get())
+    {
+        minSliceIntensity_ = vrui.minIntensitySlider->getValue();
+        repaintSlices_ = true;
+    }
+    else if (item == vrui.maxIntensitySlider.get())
+    {
+        maxSliceIntensity_ = vrui.maxIntensitySlider->getValue();
+        repaintSlices_ = true;
+    }
 }
 
 COVERPLUGIN(NeuroPlugin)
