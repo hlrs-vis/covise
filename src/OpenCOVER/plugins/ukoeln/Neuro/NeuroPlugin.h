@@ -71,6 +71,11 @@ private:
     int slicePosY_;
     int slicePosZ_;
 
+    // Minimum voxel value [0..1].
+    float minVoxel_;
+    // Maximum voxel value [0..1].
+    float maxVoxel_;
+
 };
 
 #endif

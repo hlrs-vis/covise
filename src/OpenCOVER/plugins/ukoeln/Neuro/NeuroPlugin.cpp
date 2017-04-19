@@ -146,6 +146,9 @@ void NeuroPlugin::preFrame()
 
         if (volDesc_ != nullptr && transform_ != nullptr)
         {
+            volDesc_->findMinMax(0, minVoxel_, maxVoxel_);
+            maxVoxel_ /= volDesc_->getValueRange();
+
             addSliceGeometry(virvo::cartesian_axis<3>::X);
             addSliceGeometry(virvo::cartesian_axis<3>::Y);
             addSliceGeometry(virvo::cartesian_axis<3>::Z);
@@ -277,9 +280,15 @@ void NeuroPlugin::setSliceTexture(virvo::cartesian_axis<3> axis, int sliceNum)
     size_t height;
     size_t slices;
 
+    vvTransFunc tf;
+    float lo = .2f;
+    float hi = 1.f;
+    tf._widgets.push_back(new vvTFColor(vvColor(lo, lo, lo), minVoxel_));
+    tf._widgets.push_back(new vvTFColor(vvColor(hi, hi, hi), maxVoxel_));
+
     volDesc_->getVolumeSize(axis, width, height, slices);
     std::vector<uchar> texture(width * height * 3);
-    volDesc_->makeSliceImage(volDesc_->getCurrentFrame(), axis, slices - sliceNum - 1, texture.data());
+    volDesc_->makeSliceImage(volDesc_->getCurrentFrame(), axis, slices - sliceNum - 1, texture.data(), &tf);
 
     osg::ref_ptr<osg::Image> img = new osg::Image;
     img->setOrigin(osg::Image::TOP_LEFT);
