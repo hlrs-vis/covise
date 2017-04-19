@@ -8,6 +8,8 @@
 #ifndef NEURO_PLUGIN_H
 #define NEURO_PLUGIN_H
 
+#include <memory>
+
 #include <osg/ref_ptr>
 #include <osg/Vec3>
 
