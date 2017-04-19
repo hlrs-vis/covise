@@ -151,6 +151,12 @@ NeuroPlugin::NeuroPlugin()
 
 NeuroPlugin::~NeuroPlugin()
 {
+    if (transform_ != nullptr)
+    {
+        transform_->removeChild(transYZ_);
+        transform_->removeChild(transXZ_);
+        transform_->removeChild(transXY_);
+    }
 }
 
 bool NeuroPlugin::init()
