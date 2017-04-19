@@ -280,6 +280,10 @@ void NeuroPlugin::addSliceGeometry(virvo::cartesian_axis<3> axis)
                                               osg::Vec2(0., 0.), osg::Vec2(1., 0.), osg::Vec2(1., 1.), osg::Vec2(0., 1.));
         transYZ_ = new osg::PositionAttitudeTransform;
 
+        osg::ref_ptr<osg::Texture2D> tex = new osg::Texture2D;
+        auto state = quadYZ_->getOrCreateStateSet();
+        state->setTextureAttributeAndModes(0, tex);
+
         geode->addDrawable(quadYZ_);
         transYZ_->addChild(geode);
         transform_->addChild(transYZ_);
@@ -291,6 +295,10 @@ void NeuroPlugin::addSliceGeometry(virvo::cartesian_axis<3> axis)
                                                   osg::Vec3(0., 0., size.z));
         transXZ_ = new osg::PositionAttitudeTransform;
 
+        osg::ref_ptr<osg::Texture2D> tex = new osg::Texture2D;
+        auto state = quadXZ_->getOrCreateStateSet();
+        state->setTextureAttributeAndModes(0, tex);
+
         geode->addDrawable(quadXZ_);
         transXZ_->addChild(geode);
         transform_->addChild(transXZ_);
@@ -301,6 +309,10 @@ void NeuroPlugin::addSliceGeometry(virvo::cartesian_axis<3> axis)
                                                   osg::Vec3(size.x, 0., 0.),
                                                   osg::Vec3(0., size.y, 0.));
         transXY_ = new osg::PositionAttitudeTransform;
+
+        osg::ref_ptr<osg::Texture2D> tex = new osg::Texture2D;
+        auto state = quadXY_->getOrCreateStateSet();
+        state->setTextureAttributeAndModes(0, tex);
 
         geode->addDrawable(quadXY_);
         transXY_->addChild(geode);
@@ -339,23 +351,29 @@ void NeuroPlugin::setSliceTexture(virvo::cartesian_axis<3> axis, int sliceNum)
         img->flipVertical();
     }
 
-    osg::ref_ptr<osg::Texture2D> tex = new osg::Texture2D;
-    tex->setImage(img);
-
     if (axis == virvo::cartesian_axis<3>::X)
     {
         auto state = quadYZ_->getOrCreateStateSet();
-        state->setTextureAttributeAndModes(0, tex);
+        auto tex = dynamic_cast<osg::Texture2D *>(state->getTextureAttribute(0, osg::StateAttribute::TEXTURE));
+
+        if (tex != nullptr)
+            tex->setImage(img);
     }
     else if (axis == virvo::cartesian_axis<3>::Y)
     {
         auto state = quadXZ_->getOrCreateStateSet();
-        state->setTextureAttributeAndModes(0, tex);
+        auto tex = dynamic_cast<osg::Texture2D *>(state->getTextureAttribute(0, osg::StateAttribute::TEXTURE));
+
+        if (tex != nullptr)
+            tex->setImage(img);
     }
     else if (axis == virvo::cartesian_axis<3>::Z)
     {
         auto state = quadXY_->getOrCreateStateSet();
-        state->setTextureAttributeAndModes(0, tex);
+        auto tex = dynamic_cast<osg::Texture2D *>(state->getTextureAttribute(0, osg::StateAttribute::TEXTURE));
+
+        if (tex != nullptr)
+            tex->setImage(img);
     }
 }
 
