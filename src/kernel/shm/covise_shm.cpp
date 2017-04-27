@@ -118,18 +118,10 @@ size_t ShmConfig::getMallocSize()
 ShmConfig::ShmConfig()
 {
 // set minimal allocation sizes in bytes
-#if defined(__alpha) || defined(_SX)
-    minSegSize = 400000;
-#elif(defined(__linux__) || defined(__APPLE__))
     if (sizeof(void *) == 8)
-        minSegSize = 32 * 1024 * 1024 - 8;
+        minSegSize = 1024 * 1024 * 1024 - 8;
     else
-        minSegSize = 8388606;
-#elif defined(_sgi64)
-    minSegSize = 67108862; // 64MB - 2 (size)
-#else
-    minSegSize = 16777214; // 16MB - 2
-#endif
+        minSegSize = 128 * 1024 * 1024 - 8;
     bool haveShmSizeConfig = false;
     int minSegSizeConfig = coCoviseConfig::getInt("System.ShmSize", minSegSize, &haveShmSizeConfig);
     if (haveShmSizeConfig)

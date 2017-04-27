@@ -223,9 +223,11 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     }
     else if (colorpacking == Pack::Float)
     {
-#if 0
+#if 1
         img->allocateImage(w, h, 1, GL_LUMINANCE, GL_FLOAT);
         tex->setInternalFormat(GL_LUMINANCE32F_ARB);
+        memcpy(img->data(), rc, sizeof(rc[0])*w*h);
+        no_c = 0;
 #else
         img->setImage(w, h, 1, GL_LUMINANCE32F_ARB, GL_LUMINANCE, GL_FLOAT, (unsigned char *)rc, osg::Image::NO_DELETE);
         no_c = 0;

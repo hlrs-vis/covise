@@ -129,6 +129,9 @@ private:
     ColorMaps colormaps;
     const ColorMap &getColorMap(const std::string &species);
 
+    typedef std::map<std::string, CoviseRenderObject *> RenderObjectMap;
+    RenderObjectMap m_roMap;
+
 public:
     static ObjectManager *instance();
 
