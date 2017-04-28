@@ -64,6 +64,7 @@
 #include <QColor>
 #include <QString>
 #include <QKeyEvent>
+#include <QTransform>
 
 OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, const QPointF &pos, const QString &roadId)
     : GraphElement(oscBaseItem, element)
@@ -76,6 +77,7 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
 	, path_(NULL)
 	, pos_(pos)
 	, roadID_(roadId)
+	,angle_(0)
 {
 
     init();
@@ -89,12 +91,14 @@ OSCItem::~OSCItem()
 * Initializes the path 
 */
 QPainterPath *
-	createVehiclePath(OpenScenario::oscObjectBase *object)
+	createVehiclePath(OpenScenario::oscObjectBase *object, RSystemElementRoad *road, QPointF MousePos)
 {
 	QPainterPath *path = new QPainterPath();
-	double width = 10;
-	double height = 10;
+	
 	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(object);
+	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
+	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
+	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
 	if(vehicle)
 	{
 		switch (vehicle->category.getValue())
@@ -102,31 +106,50 @@ QPainterPath *
 		case oscVehicle::car:
 			{
 				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0,2) << QPointF(0,2) << QPointF(3.7,4) << QPointF(6.3,4) << QPointF(7.7,2) << QPointF(9.2,2) << QPointF(9.8,1.2) << QPointF(10,0);
+				polygon << QPointF(0,0) << QPointF(0,heightBoundBox/2) << QPointF(lengthBoundBox/3,heightBoundBox) << QPointF(lengthBoundBox/1.5,heightBoundBox) << QPointF(lengthBoundBox/1.2,heightBoundBox/2) << QPointF(lengthBoundBox/1.086,heightBoundBox/2) << QPointF(lengthBoundBox/1.02,heightBoundBox/3.33) << QPointF(lengthBoundBox,0);
 				path->addPolygon(polygon);
 				path->closeSubpath();
-				path->addEllipse(QPointF(2,-0.1), 0.8, 0.8);
-				path->addEllipse(QPointF(8,-0.1), 0.8, 0.8);
+				path->addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path->addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
 
-				height = 4;
+				
+				break;
+			}
+		case oscVehicle::truck:
+			{
+				QPolygonF polygon;
+				polygon << QPointF(0,0) << QPointF(0, heightBoundBox) << QPointF(lengthBoundBox/1.88, heightBoundBox) << QPointF(lengthBoundBox/1.88, heightBoundBox/1.5) << QPointF(lengthBoundBox/1.58, heightBoundBox/1.5) << QPointF(lengthBoundBox/1.3, heightBoundBox/3) << QPointF(lengthBoundBox/1.1,heightBoundBox/3) << QPointF(lengthBoundBox/1.08,heightBoundBox/5) << QPointF(lengthBoundBox,0);
+				path->addPolygon(polygon);
+				path->closeSubpath();
+				path->addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path->addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+
+				break;
+			}
+		case oscVehicle::bus:
+			{
+				QPolygonF polygon;
+				polygon << QPointF(0,0) << QPointF(0, heightBoundBox) << QPointF(lengthBoundBox, heightBoundBox) << QPointF(lengthBoundBox, 0);
+				path->addPolygon(polygon);
+				path->closeSubpath();
+				path->addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path->addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+
 				break;
 			}
 		default:
 			{
-				path->addRect(0, 0, 10, 10);
+				path->addRect( 0,0 , lengthBoundBox, heightBoundBox);
 			}
 
-	/*	truck,
-		trailer,
-		bus,
+	/*	trailer,
 		motorbike,
 		bicycle,
 		train,
 		tram,*/
 		}
 	}
-	path->translate(-width/2, -height/2);
-
+	path->translate(-lengthBoundBox/2, -heightBoundBox/2);
 	return path;
 
 }
@@ -194,9 +217,8 @@ OSCItem::init()
 		if (catalog_->getCatalogName() == "Vehicle")
 		{
 			createPath = createVehiclePath;
-			createPath(catalogObject_);
-
 			updateColor(catalog_->getCatalogName());
+			path_ = createPath(catalogObject_, road_, pos_);
 			updatePosition();
 		}
 
@@ -225,12 +247,11 @@ OSCItem::updateColor(const std::string &type)
 {
 	if (type == "Vehicle")
 	{
-		color_ = Qt::black;
+		QPen pen;
+		pen.setBrush(Qt::black);
+		pen.setWidth(0.75);
+		setPen(pen);
 	}
-
-	
-//	setBrush(QBrush(color_));
-	setPen(QPen(color_));
 }
 
 
@@ -240,9 +261,16 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-	path_ = createPath(catalogObject_);
-	path_->translate(pos_ );
+	QTransform *transform = new QTransform;
+	double s = road_->getSFromGlobalPoint(pos_);
+	double heading = road_->getGlobalHeading(s);
+	double rotation = heading - angle_;
+	transform->rotate(rotation);
+	angle_ = heading;
+	*path_ = transform->map(*path_);
+	path_->translate(pos_);
 	setPath(*path_);
+	oscTextItem_->setPos(pos_);
 }
 
 //*************//
@@ -391,9 +419,10 @@ OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		double diff = (lastPos_ - pressPos_).manhattanLength();
 		if (diff > 0.01) // otherwise item has not been moved by intention
 		{
-			bool parentChanged = oscEditor_->translateObject(oscPrivateAction_, closestRoad_->getID(), s_, t_);
+			path_->translate(-lastPos_);
 			pos_ += lastPos_ - pressPos_;
-
+			bool parentChanged = oscEditor_->translateObject(oscPrivateAction_, closestRoad_->getID(), s_, t_);
+			updatePosition();
 		}
 		else
 		{
