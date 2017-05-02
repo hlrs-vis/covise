@@ -181,10 +181,10 @@ void DisplaceUSG::preHandleObjects(coInputPort **inPorts)
 DisplaceUSG::DisplaceUSG(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Displace USG")
 {
-    inMeshPort = addInputPort("GridIn0", "UnstructuredGrid|Polygons|Lines", "Mesh Input");
+    inMeshPort = addInputPort("GridIn0", "UniformGrid|UnstructuredGrid|Polygons|Lines", "Mesh Input");
     inMeshPort->setRequired(1);
 
-    inDataPort = addInputPort("DataIn0", "Vec3", "Data Input");
+    inDataPort = addInputPort("DataIn0", "Float|Vec3", "Data Input");
     inDataPort->setRequired(1);
 
     paramScale = addFloatParam("scale", "Scaling factor");
@@ -192,7 +192,11 @@ DisplaceUSG::DisplaceUSG(int argc, char *argv[])
     paramAbsolute = addBooleanParam("absolute", "Absolute coordinates");
     paramAbsolute->setValue(false);
 
-    outMeshPort = addOutputPort("GridOut0", "UnstructuredGrid|Polygons|Lines", "Mesh Output");
+    const char *DirChoice[] = { "x-axis", "y-axis", "z-axis" };
+    p_direction = addChoiceParam("Direction", "displacement direction for Scalar data");
+    p_direction->setValue(3, DirChoice, 0);
+
+    outMeshPort = addOutputPort("GridOut0", "StructuredGrid|UnstructuredGrid|Polygons|Lines", "Mesh Output");
 
     run_count = 0;
 }
@@ -224,9 +228,9 @@ int DisplaceUSG::compute(const char *)
         Covise::sendError("Error receiving dataIn");
         return 0;
     }
-    if (!dynamic_cast<const coDoVec3 *>(data_obj))
+    if (!dynamic_cast<const coDoVec3 *>(data_obj) && !dynamic_cast<const coDoFloat *>(data_obj))
     {
-        sendError("Input data may only be USTVDT");
+        sendError("Input data may only be USTVDT or USTSDT");
         return FAIL;
     }
 
@@ -269,7 +273,7 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
     int num_coord;
     float *vert_x, *vert_y, *vert_z;
     float *o_vert_x, *o_vert_y, *o_vert_z;
-    float *d_x, *d_y, *d_z;
+    float *d_x=NULL, *d_y=NULL, *d_z=NULL;
 
     coDistributedObject *o_mesh = NULL;
 
@@ -277,11 +281,32 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
 
     const coDoPolygons *poly = dynamic_cast<const coDoPolygons *>(m);
     const coDoLines *lines = dynamic_cast<const coDoLines *>(m);
+    const coDoAbstractData *displ_data = dynamic_cast<const coDoAbstractData *>(d);
+    const coDoVec3 *displ_vec = dynamic_cast<const coDoVec3 *>(d);
+    const coDoFloat *displ_scal = dynamic_cast<const coDoFloat *>(d);
+
+    ////////////////////////////////////////////////////////////////
+    /////// Get the data
+    if (displ_vec)
+    {
+        displ_vec->getAddresses(&d_x, &d_y, &d_z);
+        num_displ = displ_data->getNumPoints();
+    }
+    else if (displ_scal)
+    {
+        const int axis = p_direction->getValue();
+
+        if (axis == 0)
+            d_x = displ_scal->getAddress();
+        else if (axis == 1)
+            d_y = displ_scal->getAddress();
+        else if (axis == 2)
+            d_z = displ_scal->getAddress();
+        num_displ = displ_data->getNumPoints();
+    }
 
     if (const coDoUnstructuredGrid *mesh = dynamic_cast<const coDoUnstructuredGrid *>(m))
     {
-        const coDoVec3 *displ_data = (const coDoVec3 *)d;
-
         ////////////////////////////////////////////////////////////////
         /////// Get the mesh
 
@@ -291,10 +316,6 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         mesh->getAddresses(&elem_list, &conn_list, &vert_x, &vert_y, &vert_z);
         mesh->getTypeList(&type_list);
 
-        ////////////////////////////////////////////////////////////////
-        /////// Get the data
-        displ_data->getAddresses(&d_x, &d_y, &d_z);
-        num_displ = displ_data->getNumPoints();
 
         ////////////////////////////////////////////////////////////////
         //////// Check consistency
@@ -325,8 +346,6 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
     }
     else if (poly || lines)
     {
-        coDoVec3 *displ_data = (coDoVec3 *)d;
-
         ////////////////////////////////////////////////////////////////
         /////// Get the mesh
 
@@ -341,11 +360,6 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         cl = NULL;
 
         poly ? poly->getAddresses(&vert_x, &vert_y, &vert_z, &cl, &pl) : lines->getAddresses(&vert_x, &vert_y, &vert_z, &cl, &pl);
-
-        ////////////////////////////////////////////////////////////////
-        /////// Get the data
-        displ_data->getAddresses(&d_x, &d_y, &d_z);
-        num_displ = displ_data->getNumPoints();
 
         ////////////////////////////////////////////////////////////////
         //////// Check consistency
@@ -384,18 +398,18 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         {
             for (i = 0; i < num_coord; i++)
             {
-                o_vert_x[i] = d_x[i];
-                o_vert_y[i] = d_y[i];
-                o_vert_z[i] = d_z[i];
+                o_vert_x[i] = d_x ? d_x[i] : 0.;
+                o_vert_y[i] = d_y ? d_y[i] : 0.;
+                o_vert_z[i] = d_z ? d_z[i] : 0.;
             }
         }
         else
         {
             for (i = 0; i < num_coord; i++)
             {
-                o_vert_x[i] = vert_x[i] + s * d_x[i];
-                o_vert_y[i] = vert_y[i] + s * d_y[i];
-                o_vert_z[i] = vert_z[i] + s * d_z[i];
+                o_vert_x[i] = d_x ? vert_x[i] + s * d_x[i] : vert_x[i];
+                o_vert_y[i] = d_y ? vert_y[i] + s * d_y[i] : vert_y[i];
+                o_vert_z[i] = d_z ? vert_z[i] + s * d_z[i] : vert_z[i];;
             }
         }
     }
