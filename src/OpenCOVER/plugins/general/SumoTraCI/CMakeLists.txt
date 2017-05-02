@@ -10,6 +10,7 @@ set(HEADERS
   foreign/tcpip/socket.h
   foreign/tcpip/storage.h
   traci-server/TraCIConstants.h
+  traci-server/TraCIDefs.h
   utils/common/SUMOTime.h
   utils/common/StdDefs.h
   utils/common/UtilExceptions.h
