@@ -102,12 +102,12 @@ VolumePlugin::Volume::Volume()
 
     node = new osg::Geode();
     node->setStateSet(geoState.get());
+    node->setNodeMask(node->getNodeMask() & ~Isect::Intersection);
     node->addDrawable(drawable.get());
 
     transform = new osg::MatrixTransform();
     transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)));
     transform->addChild(node);
-    transform->setNodeMask(transform->getNodeMask() & ~Isect::Intersection);
 
     min = max = osg::Vec3(0., 0., 0.);
 

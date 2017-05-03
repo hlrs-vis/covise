@@ -336,12 +336,14 @@ PickSphereInteractor::addSelectedSphere(int sphereIndex)
     {
         m_selectionChanged = true;
         m_evaluateIndices.clear();
+        M_evaluateIndices.clear();
     }
 
     if (sphereIndex >= 0)
     {
         m_selectionChanged = true;
         m_evaluateIndices.add(sphereIndex);
+        M_evaluateIndices.push_back(sphereIndex);
     }
     else
     {
@@ -353,12 +355,51 @@ std::string
 PickSphereInteractor::getSelectedParticleString()
 {
     return m_evaluateIndices.getRestraintString();
+   
+
+    /*std::string indices;
+
+      if (M_evaluateIndices.size() == 0)
+      {
+      return indices = "";
+      }
+      else
+      {
+      std::stringstream ss;
+      ss.clear();
+      for(size_t i = 0; i < M_evaluateIndices.size(); ++i)
+      {
+      if(i != 0)
+      {
+      ss << ",";
+      }
+      ss << M_evaluateIndices[i];
+      indices = ss.str();
+      return indices;
+      }  
+      } */
+}
+
+std::string
+PickSphereInteractor::getUnsortedSelectedParticleString()
+{
+    return m_evaluateIndices.getRestraintString(M_evaluateIndices);
 }
 
 int
 PickSphereInteractor::getSelectedParticleCount()
 {
     return m_evaluateIndices.getValues().size();
+    //return M_evaluateIndices.size();
+}
+
+int
+PickSphereInteractor::getReducedSelectedParticleCount()
+{
+    M_evaluateIndices.pop_back();
+    m_evaluateIndices.cut();
+    //return m_evaluateIndices.getValues().size();
+    return M_evaluateIndices.size();
 }
 
 void
@@ -366,6 +407,19 @@ PickSphereInteractor::updateSelection(const char *particles)
 {
     m_evaluateIndices.clear();
     m_evaluateIndices.add(particles);
+    M_evaluateIndices.clear();
+    std::stringstream ss(particles);
+
+    int i;
+
+    while (ss >> i)
+    {
+        M_evaluateIndices.push_back(i);
+
+        if (ss.peek() == ',')
+            ss.ignore();
+    }    
+
 }
 
 double

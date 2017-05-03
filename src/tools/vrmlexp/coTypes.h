@@ -158,6 +158,7 @@ using __gnu_cxx::hash_set;
 #endif
 #else
 #ifdef _WIN32
+#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
 #include <hash_map>
 using stdext::hash_map;
 #include <hash_set>

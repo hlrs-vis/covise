@@ -14,6 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(COVISE_BUILDING_COVER TRUE)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(COVISE_USE_CPP11 "enable C++ 11 features" ON)
 option(COVISE_USE_CUDA "Use CUDA" ON)
 option(COVISE_USE_MPI "Use MPI" ON)
 option(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)

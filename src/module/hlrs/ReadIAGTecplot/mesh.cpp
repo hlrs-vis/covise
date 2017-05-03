@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <ostream>
 #include <cmath>
 
 // predicate to select which point is closer to a reference point given in the constructor

@@ -54,6 +54,7 @@ public:
     void add(ssize_t mi, ssize_t ma);
     void add(ssize_t val);
     void add(const char *selection);
+    void cut();
     bool get(ssize_t val, ssize_t &group) const;
     size_t getNumGroups() const
     {
@@ -65,6 +66,7 @@ public:
     ssize_t upper() const;
     const std::string &getRestraintString() const;
     const std::string getRestraintString(std::vector<ssize_t>) const;
+    
 
     // operators
     bool operator()(ssize_t val) const;

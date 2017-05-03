@@ -666,6 +666,8 @@ void Trajectory::recalc()
     }
     //double We = 21.533333333333333333333333333333*D*velo*velo;// 1055.0 *D *v*v/0.06
     primitives->setCount(vert->size());
+	vert->dirty();
+	colors->dirty();
 
     geom->setVertexArray(vert);
     geom->setColorArray(colors);

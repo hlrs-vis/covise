@@ -89,7 +89,11 @@ PickSpherePlugin::PickSpherePlugin()
 
     startParamName = "start";
     stopParamName = "stop";
+    x_dimParamName = "x_dim";                           
+    y_dimParamName = "y_dim";
+    z_dimParamName = "z_dim";
     particlesParamName = "selection";
+    UnsortedParticlesParamName = "UnsortedSelection";
     showTraceParamName = "traceParticle";
     regardInterruptParamName = "LeavingBoundingBox";
 
@@ -100,7 +104,11 @@ PickSpherePlugin::PickSpherePlugin()
     {
         fprintf(stderr, "startParamName=[%s]\n", startParamName);
         fprintf(stderr, "stopParamName=[%s]\n", stopParamName);
+        fprintf(stderr, "x_dimParamName=[%s]\n", x_dimParamName);                   
+        fprintf(stderr, "y_dimParamName=[%s]\n", y_dimParamName);
+        fprintf(stderr, "z_dimParamName=[%s]\n", z_dimParamName);
         fprintf(stderr, "particlesParamName=[%s]\n", particlesParamName);
+        fprintf(stderr, "UnsortedParticlesParamName=[%s]\n", UnsortedParticlesParamName);
         fprintf(stderr, "showTraceParamName=[%s]\n", showTraceParamName);
         fprintf(stderr, "regardInterruptParamName=[%s]\n", regardInterruptParamName);
     }
@@ -114,6 +122,9 @@ PickSpherePlugin::PickSpherePlugin()
     pinboardButton = NULL;
     startSlider = NULL;
     stopSlider = NULL;
+    x_dimSlider = NULL;                             
+    y_dimSlider = NULL;                             
+    z_dimSlider = NULL;                             
     opacityPoti = NULL;
     scalePoti = NULL;
     singlePickCheckbox = NULL;
@@ -123,6 +134,7 @@ PickSpherePlugin::PickSpherePlugin()
     attachViewerCheckbox = NULL;
     particleString = NULL;
     clearSelectionButton = NULL;
+    clearPointButton = NULL;
     executeButton = NULL;
     PickSpherePlugin::boxSelection = NULL;
     animateViewer = 0;
@@ -173,6 +185,9 @@ PickSpherePlugin::createSubmenu()
     clearSelectionButton = new coButtonMenuItem("clear selection");
     clearSelectionButton->setMenuListener(this);
 
+    clearPointButton = new coButtonMenuItem("clear last point");
+    clearPointButton->setMenuListener(this);
+
     startSlider = new coSliderMenuItem("start", 0.0, 0.0, 0.0);
     startSlider->setInteger(true);
     startSlider->setMenuListener(this);
@@ -180,6 +195,18 @@ PickSpherePlugin::createSubmenu()
     stopSlider = new coSliderMenuItem("stop", 0.0, 0.0, 0.0);
     stopSlider->setInteger(true);
     stopSlider->setMenuListener(this);
+
+    x_dimSlider = new coSliderMenuItem("x_dimGrid", 0.0, 0.0, 0.0);                     
+    x_dimSlider->setInteger(true);
+    x_dimSlider->setMenuListener(this);
+
+    y_dimSlider = new coSliderMenuItem("y_dimGrid", 0.0, 0.0, 0.0);
+    y_dimSlider->setInteger(true);
+    y_dimSlider->setMenuListener(this);
+
+    z_dimSlider = new coSliderMenuItem("z_dimGrid", 0.0, 0.0, 0.0);
+    z_dimSlider->setInteger(true);
+    z_dimSlider->setMenuListener(this);                                 
 
     opacityPoti = new coPotiMenuItem("sphere opacity", 0.0, 1.0, 1.0);
     opacityPoti->setMenuListener(this);
@@ -219,8 +246,12 @@ PickSpherePlugin::createSubmenu()
     pickSphereSubmenu->add(scalePoti);
     pickSphereSubmenu->add(particleString);
     pickSphereSubmenu->add(clearSelectionButton);
+    pickSphereSubmenu->add(clearPointButton);
     pickSphereSubmenu->add(startSlider);
     pickSphereSubmenu->add(stopSlider);
+    pickSphereSubmenu->add(x_dimSlider);                            
+    pickSphereSubmenu->add(y_dimSlider);
+    pickSphereSubmenu->add(z_dimSlider);
     pickSphereSubmenu->add(singlePickCheckbox);
     pickSphereSubmenu->add(multiplePickCheckbox);
     pickSphereSubmenu->add(PickSpherePlugin::boxSelection->getCheckbox());
@@ -237,6 +268,15 @@ PickSpherePlugin::deleteSubmenu()
 
     delete stopSlider;
     stopSlider = NULL;
+
+    delete x_dimSlider;                                     
+    x_dimSlider = NULL;
+
+    delete y_dimSlider;
+    y_dimSlider = NULL;
+
+    delete z_dimSlider;
+    z_dimSlider = NULL;                                     
 
     singlePickCheckbox->setState(false, true);
     delete singlePickCheckbox;
@@ -307,7 +347,11 @@ PickSpherePlugin::newInteractor(const RenderObject *, coInteractor *in)
     // get the start, stop and particle parameters of the  module
     in->getIntSliderParam(startParamName, min, max, start);
     in->getIntSliderParam(stopParamName, min, max, stop);
+    in->getIntSliderParam(x_dimParamName, Min, Max, x_dim);                 
+    in->getIntSliderParam(y_dimParamName, Min, Max, y_dim);
+    in->getIntSliderParam(z_dimParamName, Min, Max, z_dim);
     in->getStringParam(particlesParamName, particles);
+    in->getStringParam(UnsortedParticlesParamName, particles);
     in->getBooleanParam(showTraceParamName, showTrace);
     in->getBooleanParam(regardInterruptParamName, regardInterrupt);
 
@@ -319,6 +363,9 @@ PickSpherePlugin::newInteractor(const RenderObject *, coInteractor *in)
     {
         fprintf(stderr, "start=%d\n", start);
         fprintf(stderr, "stop=%d\n", stop);
+        fprintf(stderr, "x_dim=%d\n", x_dim);                           
+        fprintf(stderr, "y_dim=%d\n", y_dim);
+        fprintf(stderr, "z_dim=%d\n", z_dim);
         fprintf(stderr, "particles=%s\n", particles);
         fprintf(stderr, "showTrace=%d\n", showTrace);
         fprintf(stderr, "regardInterrupt=%d\n", regardInterrupt);
@@ -337,6 +384,19 @@ PickSpherePlugin::newInteractor(const RenderObject *, coInteractor *in)
     stopSlider->setMin(min);
     stopSlider->setMax(max);
     stopSlider->setValue(stop);
+
+    //Dimension of Grid (Output)
+    x_dimSlider->setMin(Min);                                   
+    x_dimSlider->setMax(Max);
+    x_dimSlider->setValue(x_dim);
+
+    y_dimSlider->setMin(Min);
+    y_dimSlider->setMax(Max);
+    y_dimSlider->setValue(y_dim);
+
+    z_dimSlider->setMin(Min);
+    z_dimSlider->setMax(Max);
+    z_dimSlider->setValue(z_dim);                               
 
     setParticleStringLabel();
 
@@ -395,14 +455,18 @@ PickSpherePlugin::setParticleStringLabel()
 {
     int count = 0;
     std::string selectedParticlesString = "";
+    std::string UnsortedSelectedParticlesString = "";
     if (coVRMSController::instance()->isMaster())
     {
         count = s_pickSphereInteractor->getSelectedParticleCount();
         coVRMSController::instance()->sendSlaves((char *)&count, sizeof(int));
+       
         selectedParticlesString = s_pickSphereInteractor->getSelectedParticleString();
+        UnsortedSelectedParticlesString = s_pickSphereInteractor->getUnsortedSelectedParticleString();
         int length = selectedParticlesString.length();
         coVRMSController::instance()->sendSlaves((char *)&length, sizeof(length));
         coVRMSController::instance()->sendSlaves(selectedParticlesString.c_str(), length + 1);
+        coVRMSController::instance()->sendSlaves(UnsortedSelectedParticlesString.c_str(), length + 1);
     }
     else
     {
@@ -412,10 +476,13 @@ PickSpherePlugin::setParticleStringLabel()
         char *charString = new char[length + 1];
         coVRMSController::instance()->readMaster(charString, length + 1);
         selectedParticlesString = string(charString);
+        UnsortedSelectedParticlesString = string(charString);
         delete[] charString;
     }
     const char *selectedParticles = selectedParticlesString.c_str();
+    const char *UnsortedSelectedParticles = UnsortedSelectedParticlesString.c_str();
     string ss = "selection:";
+
     if (singlePickCheckbox->getState())
     {
         ss = "selection: " + selectedParticlesString;
@@ -429,6 +496,7 @@ PickSpherePlugin::setParticleStringLabel()
     particleString->setLabel(ss.c_str());
     if (inter)
         inter->setStringParam(particlesParamName, selectedParticles);
+        inter->setStringParam(UnsortedParticlesParamName, UnsortedSelectedParticles);
 }
 
 void
@@ -463,7 +531,7 @@ PickSpherePlugin::preFrame()
     const SphereData *curSpheres = spheres[currentFrame];
 
     const coRestraint &selection = s_pickSphereInteractor->getSelection();
-    int firstIndex = selection.lower();
+    int firstIndex = selection.lower();                                 
     if (firstIndex < 0 || firstIndex >= curSpheres->n)
         return;
     float x[3] = { curSpheres->x[firstIndex], curSpheres->y[firstIndex], curSpheres->z[firstIndex] };
@@ -479,29 +547,29 @@ PickSpherePlugin::preFrame()
     }
 
     osg::Vec3 focus(0., 0., 0.);
-    pos = osg::Vec3(x[0], x[1], x[2]);
+    pos = osg::Vec3(x[0], x[1], x[2]);   
     switch (animateViewer)
     {
-    case 0:
-        // off - we don't get here
-        break;
-    case 1:
-        // don't change viewing direction
-        mat = cover->getXformMat();
-        mat.setTrans(osg::Vec3(0., 0., 0.));
-        break;
-    case 2:
-        // focus animLookAt
-        focus = animLookAt;
-        break;
-    case 3:
-        // look into direction of movement
-        focus = pos + pos - lastPos;
-        break;
-    case 4:
-        // look back
-        focus = lastPos;
-        break;
+        case 0:
+            // off - we don't get here
+            break;
+        case 1:
+            // don't change viewing direction
+            mat = cover->getXformMat();
+            mat.setTrans(osg::Vec3(0., 0., 0.));
+            break;
+        case 2:
+            // focus animLookAt
+            focus = animLookAt;
+            break;
+        case 3:
+            // look into direction of movement
+            focus = pos + pos - lastPos;
+            break;
+        case 4:
+            // look back
+            focus = lastPos;
+            break;
     }
 
     if (animateViewer >= 2)
@@ -556,6 +624,21 @@ PickSpherePlugin::menuEvent(coMenuItem *menuItem)
         if (stopSlider->getValue() < startSlider->getValue())
             startSlider->setValue(stopSlider->getValue());
     }
+    else if (menuItem == x_dimSlider)                               
+    {
+        if (inter)
+            inter->setSliderParam(x_dimParamName, (int)x_dimSlider->getMin(), (int)x_dimSlider->getMax(), (int)x_dimSlider->getValue());
+    }
+    else if (menuItem == y_dimSlider)
+    {
+        if (inter)
+            inter->setSliderParam(y_dimParamName, (int)y_dimSlider->getMin(), (int)y_dimSlider->getMax(), (int)y_dimSlider->getValue());
+    }
+    else if (menuItem == z_dimSlider)
+    {
+        if (inter)
+            inter->setSliderParam(z_dimParamName, (int)z_dimSlider->getMin(), (int)z_dimSlider->getMax(), (int)z_dimSlider->getValue());
+    }                                               
     else if (menuItem == opacityPoti)
         coSphere::setTransparency(opacityPoti->getValue());
     else if (menuItem == scalePoti)
@@ -621,10 +704,74 @@ PickSpherePlugin::menuEvent(coMenuItem *menuItem)
         particleString->setLabel("selection count: 0");
         if (inter)
             inter->setStringParam(particlesParamName, "");
+            inter->setStringParam(UnsortedParticlesParamName, "");
         s_pickSphereInteractor->updateSelection("");
         if (inter)
             inter->executeModule();
     }
+
+    else if (menuItem == clearPointButton)
+    {
+        int count = s_pickSphereInteractor->getSelectedParticleCount();
+        if (count != 0)
+        {
+            count = 0;
+            std::string selectedParticlesString = "";
+            std::string UnsortedSelectedParticlesString = "";
+            if (coVRMSController::instance()->isMaster())
+            {
+                count = s_pickSphereInteractor->getReducedSelectedParticleCount();
+                coVRMSController::instance()->sendSlaves((char *)&count, sizeof(int));
+                
+                selectedParticlesString = s_pickSphereInteractor->getSelectedParticleString();
+                UnsortedSelectedParticlesString = s_pickSphereInteractor->getUnsortedSelectedParticleString();
+                int length = selectedParticlesString.length();
+                coVRMSController::instance()->sendSlaves((char *)&length, sizeof(length));
+                coVRMSController::instance()->sendSlaves(selectedParticlesString.c_str(), length + 1);
+                coVRMSController::instance()->sendSlaves(UnsortedSelectedParticlesString.c_str(), length + 1);
+            }
+            else
+            {
+                coVRMSController::instance()->readMaster((char *)&count, sizeof(int));
+                int length;
+                coVRMSController::instance()->readMaster((char *)&length, sizeof(length));
+                char *charString = new char[length + 1];
+                coVRMSController::instance()->readMaster(charString, length + 1);
+                selectedParticlesString = string(charString);
+                UnsortedSelectedParticlesString = string(charString);
+                delete[] charString;
+            }
+            const char *selectedParticles = selectedParticlesString.c_str();
+            const char *UnsortedSelectedParticles = UnsortedSelectedParticlesString.c_str();
+            string ss = "selection:";
+
+            if (singlePickCheckbox->getState())
+            {
+                ss = "selection: " + selectedParticlesString;
+            }
+            else
+            {
+                std::ostringstream countStream;
+                countStream << count;
+                ss = "selection count: " + countStream.str();
+            }
+            particleString->setLabel(ss.c_str());
+            if (inter)
+                inter->setStringParam(particlesParamName, selectedParticles);
+                inter->setStringParam(UnsortedParticlesParamName, UnsortedSelectedParticles);
+        }
+        else
+        {
+            particleString->setLabel("selection count: 0");
+            if (inter)
+                inter->setStringParam(particlesParamName, "");
+                inter->setStringParam(UnsortedParticlesParamName, "");
+            s_pickSphereInteractor->updateSelection("");
+            if (inter)
+                inter->executeModule();
+        }
+    }
+
     else if (menuItem == PickSpherePlugin::boxSelection)
     {
         if (PickSpherePlugin::boxSelection->getCheckboxState())
@@ -684,6 +831,10 @@ PickSpherePlugin::getMenuButton(const std::string &name)
     else if (name == "ClearSelection")
     {
         return clearSelectionButton;
+    }
+    else if (name == "ClearPoint")
+    {
+        return clearPointButton;
     }
     else if (name == "AttachViewer")
     {

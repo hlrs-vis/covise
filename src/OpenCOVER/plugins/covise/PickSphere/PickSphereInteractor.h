@@ -64,8 +64,14 @@ public:
     // returns the string that is created by the new selection
     std::string getSelectedParticleString();
 
+    // returns the unsorted string that is created by the new selection
+    std::string getUnsortedSelectedParticleString();
+
     // returns the count of the selected particles
     int getSelectedParticleCount();
+
+    // returns the count of the selected particles reduced by last picked point
+    int getReducedSelectedParticleCount();
 
     // set animation state and according to it the state of the Animation checkbox in Animation menu
     void enableAnimation(bool state);
@@ -84,6 +90,8 @@ public:
         return m_evaluateIndices;
     }
 
+    
+
 private:
     float m_size;
     int m_lastIndex;
@@ -99,6 +107,7 @@ private:
     void addSelectedSphere(int);
     void swap(float &m, float &n);
     covise::coRestraint m_evaluateIndices;
+    std::vector<ssize_t> M_evaluateIndices;
 
     int hitSphere();
     void highlightSphere(int index);

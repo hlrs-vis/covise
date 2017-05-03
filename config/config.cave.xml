@@ -588,8 +588,8 @@
    <VehicleUtil>
          <Beckhoff nodeID="22"/>
       <CANProvider>
-         <CANKomfort channel="rtcan2"/>
-         <CANDisplay channel="rtcan3"/>
+         <CANKomfort channel="can2"/>
+         <CANDisplay channel="can3"/>
       </CANProvider>
    </VehicleUtil>
   </COVER>

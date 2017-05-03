@@ -9,6 +9,7 @@
 
 #include <osgUtil/Optimizer>
 #include <osgUtil/Tessellator>
+#include <osg/Version>
 
 bool PathConnectionCompare::operator()(const PathConnection *conna, const PathConnection *connb) const
 {
@@ -188,7 +189,11 @@ osg::Geode *Junction::getJunctionGeode()
         if (pathMergeGeode)
         {
             osgUtil::Optimizer::MergeGeometryVisitor mergeGeometryVisitor;
-            mergeGeometryVisitor.mergeGeode(*pathMergeGeode);
+#if(OSG_VERSION_LESS_THAN(3, 5, 0))
+			mergeGeometryVisitor.mergeGeode(*pathMergeGeode);
+#else
+			mergeGeometryVisitor.mergeGroup(*pathMergeGeode);
+#endif
             if (pathMergeGeode->getNumDrawables() > 0)
             {
                 osg::Geometry *pathGeometry = pathMergeGeode->getDrawable(0)->asGeometry();
