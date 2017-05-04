@@ -58,7 +58,7 @@ public:
 	void updateColor(const std::string &type);
 	
 	// Function for path drawing //
-	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *);
+	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *, RSystemElementRoad *, QPointF );
 
     void updatePosition();
 
@@ -124,7 +124,9 @@ private:
 
 	double s_;
 	double t_;
+	double angle_;
     QPointF pos_;
+	double header_;
 	QPainterPath *path_;
 
     QPointF pressPos_;
