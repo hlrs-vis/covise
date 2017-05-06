@@ -39,7 +39,7 @@ private:
     coOutputPort *outMeshPort;
     coFloatParam *paramScale;
     coBooleanParam *paramAbsolute;
-    coChoiceParam *p_direction;
+    coChoiceParam *p_direction, *p_operation;
     //  member functions
     //void compute(void *callbackData);
     //void quit(void *callbackData);

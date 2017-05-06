@@ -37,6 +37,13 @@
 #include <do/coDoData.h>
 #include <stdlib.h>
 
+enum Operations
+{
+    OpIdentity,
+    OpSqrt,
+    OpLog
+};
+
 // macros for error handling
 #define ERR0(cond, text, action)     \
     {                                \
@@ -199,6 +206,11 @@ DisplaceUSG::DisplaceUSG(int argc, char *argv[])
     p_direction = addChoiceParam("Direction", "displacement direction for Scalar data");
     p_direction->setValue(3, DirChoice, 0);
 
+    // keep in sync with Operations enum
+    const char *OpChoice[] = { "Identity", "Square root", "Log" };
+    p_operation = addChoiceParam("Operation", "operation to apply to input data");
+    p_operation->setValue(3, OpChoice, 0);
+
     outMeshPort = addOutputPort("GridOut0", "StructuredGrid|UnstructuredGrid|Polygons|Lines", "Mesh Output");
 
     run_count = 0;
@@ -288,6 +300,8 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
     const coDoAbstractData *displ_data = dynamic_cast<const coDoAbstractData *>(d);
     const coDoVec3 *displ_vec = dynamic_cast<const coDoVec3 *>(d);
     const coDoFloat *displ_scal = dynamic_cast<const coDoFloat *>(d);
+
+    const int operation = p_operation->getValue();
 
     ////////////////////////////////////////////////////////////////
     /////// Get the data
@@ -464,27 +478,64 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         {
             for (int i = 0; i < num_coord; i++)
             {
-                o_vert_x[i] = d_x ? d_x[i] : 0.;
-                o_vert_y[i] = d_y ? d_y[i] : 0.;
-                o_vert_z[i] = d_z ? d_z[i] : 0.;
+                float dx = d_x ? d_x[i] : 0.;
+                float dy = d_y ? d_y[i] : 0.;
+                float dz = d_z ? d_z[i] : 0.;
+                if (operation == OpLog)
+                {
+                    dx = log(dx);
+                    dy = log(dy);
+                    dz = log(dz);
+                }
+                else if (operation == OpSqrt)
+                {
+                    dx = sqrt(dx);
+                    dy = sqrt(dy);
+                    dz = sqrt(dz);
+                }
+                o_vert_x[i] = d_x ? dx : vert_x[i];
+                o_vert_y[i] = d_y ? dy : vert_y[i];
+                o_vert_z[i] = d_z ? dz : vert_z[i];
             }
         }
         else
         {
             for (int i = 0; i < num_coord; i++)
             {
-                o_vert_x[i] = d_x ? vert_x[i] + s * d_x[i] : vert_x[i];
-                o_vert_y[i] = d_y ? vert_y[i] + s * d_y[i] : vert_y[i];
-                o_vert_z[i] = d_z ? vert_z[i] + s * d_z[i] : vert_z[i];;
+                float dx = d_x ? d_x[i] : 0.;
+                float dy = d_y ? d_y[i] : 0.;
+                float dz = d_z ? d_z[i] : 0.;
+                if (operation == OpLog)
+                {
+                    if (dx > 0.)
+                        dx = log(fabs(dx));
+                    if (dy > 0.)
+                        dy = log(fabs(dy));
+                    if (dz > 0.)
+                        dz = log(fabs(dz));
+                }
+                else if (operation == OpSqrt)
+                {
+                    dx = dx >= 0. ? sqrt(dx) : -sqrt(-dx);
+                    dy = dy >= 0. ? sqrt(dy) : -sqrt(-dy);
+                    dz = dz >= 0. ? sqrt(dz) : -sqrt(-dz);
+                }
+
+                o_vert_x[i] = vert_x[i] + s * dx;
+                o_vert_y[i] = vert_y[i] + s * dy;
+                o_vert_z[i] = vert_z[i] + s * dz;
             }
         }
     }
     else
     {
         sendWarning("No displacements available: returning input grid");
-        memcpy(o_vert_x, vert_x, num_coord * sizeof(float));
-        memcpy(o_vert_y, vert_y, num_coord * sizeof(float));
-        memcpy(o_vert_z, vert_z, num_coord * sizeof(float));
+        if (o_vert_x != vert_x)
+            memcpy(o_vert_x, vert_x, num_coord * sizeof(float));
+        if (o_vert_y != vert_y)
+            memcpy(o_vert_y, vert_y, num_coord * sizeof(float));
+        if (o_vert_z != vert_z)
+            memcpy(o_vert_z, vert_z, num_coord * sizeof(float));
     }
 
     return o_mesh;
