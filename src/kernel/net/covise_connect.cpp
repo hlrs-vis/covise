@@ -2090,7 +2090,7 @@ std::string SSLServerConnection::getSSLSubjectUID()
     {
         return std::string("Not valid!");
     }
-    ASN1_INTEGER *uid = client_cert->cert_info->serialNumber;
+    ASN1_INTEGER *uid = X509_get_serialNumber(client_cert);
     X509_free(client_cert);
     char *cuid = reinterpret_cast<char *>(uid->data);
     return std::string(cuid);
