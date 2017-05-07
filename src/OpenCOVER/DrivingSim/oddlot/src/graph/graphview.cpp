@@ -303,7 +303,7 @@ GraphView::toolAction(ToolAction *toolAction)
         else if (id == MapTool::TMA_GOOGLE)
         {
             loadGoogleMap();
-            lockMap(true);
+            lockMap(false);
         }
         else if (id == MapTool::TMA_DELETE)
         {
@@ -530,6 +530,7 @@ GraphView::loadGoogleMap()
     QString location;
     QString maptype;
     QString sizePair;
+    QDir directoryOperator;
     bool mapRejected = false;
 
     //Sets up the UI
@@ -642,6 +643,12 @@ GraphView::loadGoogleMap()
         double dlat = lat.toDouble();
         double dlon = lon.toDouble();
 
+
+        QString folderName = QString(QString::number(dlat) + QString::number(dlon) + maptype + sizeX + sizeY);
+        directoryOperator.mkdir("OddlotMapImages");
+        directoryOperator.setCurrent("OddlotMapImages");
+        directoryOperator.mkdir(folderName);
+        directoryOperator.setCurrent(folderName);
         //example format:
         //wget -O 'https://maps.googleapis.com/maps/api/staticmap?center=Stuttgart%20Vaihingen,Germany&zoom=16&size=1200x1200&scale=2'
 
@@ -667,7 +674,6 @@ GraphView::loadGoogleMap()
         resetViewTransformation();
         scaleView(1.0, 1.0);
 
-
         //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
         double xSize = sizeX.toDouble();
         if(xSize < 2)
@@ -679,9 +685,9 @@ GraphView::loadGoogleMap()
 
         //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
         //Uses the previously determined offsets to change the center of each image
-        for (int i = -xSize/2; i < xSize-1; i++)
+        for (int i = -xSize/2; i < xSize/2; i++)
         {
-            for (int j = -ySize/2; j < ySize-1; j++)
+            for (int j = -ySize/2; j < ySize/2; j++)
             {
                 double latIterator = double(j);
                 double lonIterator = double(i);
@@ -690,26 +696,30 @@ GraphView::loadGoogleMap()
                 newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
                 system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
                 progress--;
-                QString newFilename = QString("image" + QString::number(i) + QString::number(j) + ".png ");
+                system(qPrintable("pwd"));
+                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png ");
                 QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
                 system(qPrintable(command));
             }
-        }        
-        //Places the images on the scene, then deletes them.
-        for (int i = -xSize/2; i < xSize-1; i++)
+        }      
+        //mnt/raid/tmp/unirundkurs
+
+        //oddlot Uni_V8f_OE.xodr
+        //Places the images on the scene
+        for (int i = -xSize/2; i < xSize/2; i++)
         {
-            for (int j = -ySize/2; j < ySize-1; j++)
+            for (int j = -ySize/2; j < ySize/2; j++)
             {
-                filename = QString("image" + QString::number(i) + QString::number(j) + ".png");
-                scenerySystemItem_->loadMap(filename, mapToScene(i*1280, j*1235));
-                QFile toRemove (filename);
-                toRemove.remove();
+                filename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
+                scenerySystemItem_->loadGoogleMap(filename, mapToScene(i*128+400, j*124-900));
             }
         }
         xmlFile.remove();
         system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 10)));
         system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 10)));
         system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 10)));
+        directoryOperator.setCurrent("..");
+        directoryOperator.setCurrent("..");
     }
 }
 

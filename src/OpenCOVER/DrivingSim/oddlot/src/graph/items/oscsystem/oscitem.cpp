@@ -249,7 +249,7 @@ OSCItem::updateColor(const std::string &type)
 	{
 		QPen pen;
 		pen.setBrush(Qt::black);
-		pen.setWidth(0.75);
+		pen.setWidthF(0.75);
 		setPen(pen);
 	}
 }

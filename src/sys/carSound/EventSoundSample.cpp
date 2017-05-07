@@ -15,9 +15,11 @@
 EventSoundSample::EventSoundSample(std::string name)
 {
     FMOD_RESULT result;
+	sound = NULL;
+	channel = NULL;
     result = mainWindow::instance()->system->createSound(name.c_str(), FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &sound); // FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
     //ERRCHECK(result);
-    result = mainWindow::instance()->system->playSound(FMOD_CHANNEL_FREE, sound, true, &channel);
+    result = mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
     //ERRCHECK(result);
 }
 
@@ -31,7 +33,7 @@ void EventSoundSample::start()
     channel->isPlaying(&isp);
     if (!isp)
     {
-        mainWindow::instance()->system->playSound(FMOD_CHANNEL_FREE, sound, true, &channel);
+		mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
         if (looping)
             channel->setLoopCount(-1);
         else

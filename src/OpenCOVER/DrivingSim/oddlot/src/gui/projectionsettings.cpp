@@ -71,8 +71,23 @@ ProjectionSettings::ProjectionSettings()
     //ui->ZOffsetSpin->setValue(-399.4944465);
     ui->ZOffsetSpin->setValue(0.0);
     ui->FromDatumEdit->setText(QString("WGS84"));
-    ui->ToProjectionEdit->setText(QString("tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam"));
-    //ui->ToProjectionEdit->setText(QString("tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=/data/porsche/BETA2007.gsb"));
+#ifdef WIN32
+	char *pValue;
+	size_t len;
+	errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+	if (err || pValue == NULL || strlen(pValue) == 0)
+		err = _dupenv_s(&pValue, &len, "COVISEDIR");
+	if (err)
+		pValue="";
+	QString covisedir = pValue;
+#else
+	QString covisedir = getenv("ODDLOTDIR");
+	if (covisedir == "")
+		covisedir = getenv("COVISEDIR");
+#endif
+	QString dir = covisedir + "/share/covise/";
+    //ui->ToProjectionEdit->setText(QString("tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam"));
+    ui->ToProjectionEdit->setText(QString("tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids="+dir+"BETA2007.gsb"));
     //ui->ToProjectionEdit->setText(QString("utm +zone=50 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"));
     QString projFromString = "+proj=latlong +datum=" + ui->FromDatumEdit->text();
     //std::string projToString = "+proj=merc +x_0=-1008832.89 +y_0=-6179385.47";.

@@ -9,8 +9,7 @@
 #include "EventSoundSample.h"
 #include "UDPComm.h"
 #include <QSocketNotifier>
-#include <fmod.hpp>
-#include <fmod_event.hpp>
+#include <fmod_studio.hpp>
 
 class mainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -36,27 +35,30 @@ public:
     std::vector<EventSoundSample *> eventSounds;
     EventSoundSample *hupe;
     EventSoundSample *anlasser;
-    void updatePitch(double val)
-    {
-        emit setPitch(val);
-    };
-    void updateVolume(double val)
-    {
-        emit setVolume(val);
-    };
 
-    FMOD::EventSystem *eventsystem;
+	FMOD::Studio::System *eventsystem;
     FMOD::System *system;
-    FMOD::EventProject *project;
+	FMOD::Studio::Bank* porsche911Bank;
+	FMOD::Studio::Bank* MasterBank;
+	FMOD::Studio::Bank* MasterStringBank;
 
-    FMOD::Event *myEvent;
-    FMOD::EventParameter *myRPM;
-    FMOD::EventParameter *myLoad;
+	FMOD::Studio::EventInstance *CarEventInstance;
+	FMOD::Studio::EventDescription *CarEventDescription;
+	FMOD::Studio::EventInstance *WheelEventInstance;
+	FMOD::Studio::EventDescription *WheelEventDescription;
+
+	FMOD::Studio::ParameterInstance *CarRPM;
+	FMOD::Studio::ParameterInstance *CarLoad;
+	FMOD::Studio::ParameterInstance *WheelVelocity;
+	FMOD::Studio::ParameterInstance *Wheelslip;
 
 private:
     static mainWindow *myInstance;
+	void updateValues();
 private slots:
     virtual void speedChanged(int val);
+	virtual void velocityChanged(int val);
+	virtual void slipChanged(int val);
     virtual void dataReceived(int socket);
     virtual void startAnlasser();
     virtual void watchdog();
@@ -64,8 +66,6 @@ private slots:
     virtual void stopHupe();
 
 signals:
-    void setPitch(double val);
-    void setVolume(double val);
 };
 
 extern mainWindow *theWindow;
