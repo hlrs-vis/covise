@@ -46,7 +46,12 @@ public:
         float A;
         float rpm;
         float torque;
+        float slipFL;
+        float slipFR;
+        float slipRL;
+        float slipRR;
         osg::Matrix chassisTransform;
+        osg::Matrix motionPlatformTransform;
         int buttonState;
         int gear;
     };
@@ -82,6 +87,22 @@ public:
     virtual double getEngineTorque()
     {
         return remoteData.torque;
+    }
+    virtual double getTyreSlipFL()
+    {
+        return remoteData.slipFL;
+    }
+    virtual double getTyreSlipFR()
+    {
+        return remoteData.slipFR;
+    }
+    virtual double getTyreSlipRL()
+    {
+        return remoteData.slipRL;
+    }
+    virtual double getTyreSlipRR()
+    {
+        return remoteData.slipRR;
     }
     virtual double getSteeringWheelTorque()
     {
