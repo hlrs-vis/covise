@@ -90,7 +90,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					vx[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -102,7 +106,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					vy[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -114,7 +122,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					vz[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -136,9 +148,17 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					scalar[i * zcount * ycount + j * zcount + k] = s;
-					fscanf(fp, "%13f", &s);
+					ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					temp[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -158,7 +178,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					scalar[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -175,7 +199,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					scalar[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -192,7 +220,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					scalar[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -209,7 +241,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					vx[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -221,7 +257,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					vy[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
@@ -233,7 +273,11 @@ int ReadCardiff::compute(const char *)
 				for (k = 0; k < zcount; k++)
 				{
 					float s;
-					fscanf(fp, "%13f", &s);
+					int ns = fscanf(fp, "%13f", &s);
+                                        if(ns !=1)
+                                        {
+                                            fprintf(stderr,"failed fscanf\n");
+                                        }
 					vz[i * zcount * ycount + j * zcount + k] = s;
 				}
 			}
