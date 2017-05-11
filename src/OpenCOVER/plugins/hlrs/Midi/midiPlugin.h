@@ -109,6 +109,8 @@ public:
     void setTempo(int index);
 
     void setTimestep(int t);
+    int midi1fd;
+    Track *lTrack;
 
     // constructor
     MidiPlugin();
