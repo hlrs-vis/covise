@@ -19,8 +19,8 @@
 
 #include <string>
 
-#include <Importer.hpp>
-#include <postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 #ifndef _WIN32
 #include <inttypes.h>

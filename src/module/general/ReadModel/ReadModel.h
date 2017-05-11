@@ -15,7 +15,7 @@
 //
 
 #include <api/coModule.h>
-#include <scene.h>
+#include <assimp/scene.h>
 
 using namespace covise;
 
@@ -24,9 +24,9 @@ class ReadModel : public coModule
 private:
 	virtual int compute(const char *port);
 
-	coDistributedObject *ReadModel::load(const char *filename);
-	void ReadModel::setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, float *z_coord);
-	void ReadModel::setNormals(const aiMesh *mesh);
+	coDistributedObject *load(const char *filename);
+	void setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, float *z_coord);
+	void setNormals(const aiMesh *mesh);
 
     coFileBrowserParam *p_filename;
 
