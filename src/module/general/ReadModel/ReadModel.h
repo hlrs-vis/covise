@@ -13,30 +13,30 @@
 //
 // This module reads polygon meshes in all formats supported by assimp
 //
-#include <util/coviseCompat.h>
+
 #include <api/coModule.h>
+#include <scene.h>
+
 using namespace covise;
 
 class ReadModel : public coModule
 {
-public:
-
 private:
-    //  member functions
-    virtual int compute(const char *port);
-    virtual void param(const char *paraName, bool inMapLoading);
+	virtual int compute(const char *port);
 
-    // ports
-    coOutputPort *p_polyOut;
-    coOutputPort *p_normOut;
-    coOutputPort *p_linesOut;
-    coOutputPort *p_colorOut;
+	coDistributedObject *ReadModel::load(const char *filename);
+	void ReadModel::setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, float *z_coord);
+	void ReadModel::setNormals(const aiMesh *mesh);
 
-    // parameter
     coFileBrowserParam *p_filename;
+
     coBooleanParam *p_triangulate;
     coBooleanParam *p_joinVertices;
+	coBooleanParam *p_ignoreErrors;
 
+	coOutputPort *p_polyOut;
+	coOutputPort *p_pointOut;
+	coOutputPort *p_normalOut;
 
 public:
     ReadModel(int argc, char *argv[]);

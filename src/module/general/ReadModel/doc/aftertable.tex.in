@@ -5,14 +5,14 @@
 %=============================================================
 % examples for using this module
 
-\begin{covimg2}	{}{ReadStlMap}{0.7}\end{covimg2}
+\begin{covimg2}	{}{rmRen}{0.7}\end{covimg2}
 
-The map above shows you how to connect the output ports of ReadStl without
-using normals (Renderer 1) and with using normals (Renderer 2).
+The map above shows you how to connect the output ports of ReadModule without
+using normals (Renderer_1).
 
-The output shows Renderer 2:  
+The output shows Renderer_1:  
 
-\begin{covimg2}	{}{ReadStlRenderer2}{0.6}\end{covimg2} 
+\begin{covimg2}	{}{suzanne}{0.6}\end{covimg2} 
 
 %
 %

@@ -6,27 +6,59 @@
 %
 % short description what the module does
 %
-Read module for Sandia Stl data.
+Read module for polygon meshes in all formats supported by Assimp library
  
 % input of a module icon for example
 % #1  path for eps
 % #2  picture name
 % #3  scale factor
-\begin{covimg2}	{}{ReadStlModule}{0.7}\end{covimg2}
+\begin{covimg2}	{}{rm}{0.7}\end{covimg2}
 
-ReadStl converts the representation of a surface in Sandia Stl format
-(specified as file browser parameter) to a format acceptable for Covise (on the
-first output port, e.g. used as input for the Renderer); in addition, it supplies
-normals on the second output port. 
+ReadModel may read all formats supported by the Assimp library (v3.0), which are currently:
 
-Please note:
-ReadStl can read \begin{bf} ASCI files and binary files \end{bf}.
-In most cases (less than 1 Million cells), ReadStl will detect the filetype automatically (parameter Format =
-autodetect), if not, use manual selection.
+Collada ( *.dae;*.xml )
+Blender ( *.blend ) 3
+Biovision BVH ( *.bvh )
+3D Studio Max 3DS ( *.3ds )
+3D Studio Max ASE ( *.ase )
+Wavefront Object ( *.obj )
+Stanford Polygon Library ( *.ply )
+AutoCAD DXF ( *.dxf )
+IFC-STEP, Industry Foundation Classes ( *.ifc )
+Neutral File Format ( *.nff )
+Sense8 WorldToolkit ( *.nff )
+Valve Model ( *.smd,*.vta ) 3
+Quake I ( *.mdl )
+Quake II ( *.md2 )
+Quake III ( *.md3 )
+Quake 3 BSP ( *.pk3 ) 1
+RtCW ( *.mdc )
+Doom 3 ( *.md5mesh;*.md5anim;*.md5camera )
+DirectX X ( *.x ).
+Quick3D ( *.q3o;q3s ).
+Raw Triangles ( .raw ).
+AC3D ( *.ac ).
+Stereolithography ( *.stl ).
+Autodesk DXF ( *.dxf ).
+Irrlicht Mesh ( *.irrmesh;*.xml ).
+Irrlicht Scene ( *.irr;*.xml ).
+Object File Format ( *.off ).
+Terragen Terrain ( *.ter )
+3D GameStudio Model ( *.mdl )
+3D GameStudio Terrain ( *.hmp )
+Ogre (*.mesh.xml, *.skeleton.xml, *.material)3
+Milkshape 3D ( *.ms3d )
+LightWave Model ( *.lwo )
+LightWave Scene ( *.lws )
+Modo Model ( *.lxo )
+CharacterStudio Motion ( *.csm )
+Stanford Ply ( *.ply )
+TrueSpace ( *.cob, *.scn )2
+XGL ( *.xgl, *.zgl )
+
 %
 % short information about versions 
 %
-The module supports binary input since Release 5.2.3
 
 %
 %
