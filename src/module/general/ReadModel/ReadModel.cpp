@@ -15,24 +15,23 @@
 #include "ReadModel.h"
 
 #include <do/coDoData.h>
+#include <do/coDoSet.h>
 #include <alg/coFeatureLines.h>
 
 #include <string>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
-#ifndef _WIN32
-#include <inttypes.h>
-#endif
-
+using namespace covise;
 
 ReadModel::ReadModel(int argc, char *argv[])
 	: coModule(argc, argv, "Read polygon meshes in all formats supported by Assimp library")
 {
 	// Parameters
 	p_filename = addFileBrowserParam("polygonFile", "Polygon file path");
-	p_filename->setValue("~", "*.*/*.3ds/*.ac/*.ase/*.blend/*.bvh/*.cob/*.csm/*.dae/*.dxf/*.hmp/*.ifc/*.irr/*.irrmesh/*.lwo/*.lws/*.lxo/*.material/*.mdl/*.md2/*.md3/*.md5mesh/*.md5anim/*.md5camera/*.mdc/*.mesh/*.ms3d/*.nff/*.obj/*.off/*.ply/*.pk3/*.q3o/*.q3s/*.raw/*.scn/*.skeleton/*.smd/*.stl/*.ter/*.vta/*.x/*.xgl/*.xml/*.zgl");
+	p_filename->setValue("~", "*/*.dae/*.gltf,*.glb/*.blend/*.3ds,*.fbx,*.dxf,*.ase/*.obj/*.ifc/*.xgl,*.zgl/*.ply/*.lwo,*.lws,*.lxo/*.stl/*.x/*.ac/*.ms3d/*.cob,*.scn/*.bvh,*.csm/*.xml,*.irrmesh,*.irr/*.mdl,*.md2,*.md3,*.pk3,*.mdc,*.md5,*.smd,*.vta,*.ogex,*.3d/*.b3d/*.q3d,*.q3s/*.nff/*.off/*.raw/*.ter/*.mdl,*.hmp/*.ndo");
 
 	p_triangulate = addBooleanParam("triangulate", "Triangulate polygons");
 	p_triangulate->setValue(0);
@@ -44,17 +43,15 @@ ReadModel::ReadModel(int argc, char *argv[])
 	p_ignoreErrors->setValue(0);
 
 	// Output ports
-	p_polyOut = addOutputPort("GridOut0", "Polygons", "geometry polygons");
-	p_pointOut = addOutputPort("GridOut1", "Points", "geometry points");
+	p_polyOut = addOutputPort("PolyOut0", "Polygons", "geometry polygons");
 	p_normalOut = addOutputPort("DataOut0", "Vec3", "polygon normals");
 }
 
 ReadModel::~ReadModel() {
 }
 
-coDistributedObject *ReadModel::load(const char *filename) {
+ReadModel::allGeometry ReadModel::load(std::string &filename, std::string &polyName, std::string &normalName) {
 
-	coDistributedObject *distObj;
 	Assimp::Importer importer;
 	unsigned int readFlags = aiProcess_PreTransformVertices | aiProcess_SortByPType | aiProcess_ImproveCacheLocality | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
 
@@ -67,104 +64,119 @@ coDistributedObject *ReadModel::load(const char *filename) {
 	}
 
 	const aiScene* scene = importer.ReadFile(filename, readFlags);
+	ReadModel::allGeometry geoCollect = {};
 
 	if (!scene) {
 		if (!p_ignoreErrors) {
-			std::stringstream str;
-			str << "failed to read " << filename << ": " << importer.GetErrorString() << std::endl;
-			std::string s = str.str();
-			sendError("%s", s.c_str());
+			sendError("failed to read %s : %s", filename, importer.GetErrorString());
 		}
-		return nullptr;
+		return geoCollect;
 	}
 
+	// create objects for all meshes in scene
 	for (unsigned int m = 0; m < scene->mNumMeshes; ++m) {
 		const aiMesh *mesh = scene->mMeshes[m];
 
 		if (mesh->HasPositions()) {
 			float *x_coord, *y_coord, *z_coord;
-			auto numPoints = mesh->mNumVertices;
-			// mesh contains polygons
+			unsigned int numPoints = mesh->mNumVertices;
+			if (scene->mNumMeshes > 1) {
+				polyName += std::to_string(m);
+			}
+
 			if (mesh->HasFaces()) {
-				auto numPolygons = mesh->mNumFaces;
-				int numCorners = 0;
+				unsigned int numPolygons = mesh->mNumFaces, numCorners = 0;
 				for (unsigned int f = 0; f < numPolygons; ++f) {
 					numCorners += mesh->mFaces[f].mNumIndices;
 				}
-				coDoPolygons *poly(new coDoPolygons(p_polyOut->getNewObjectInfo(), numPoints, numCorners, numPolygons));
+				coDoPolygons *poly(new coDoPolygons(polyName.c_str(), numPoints, numCorners, numPolygons));
 				int *cornerList, *polyList;
 				poly->getAddresses(&x_coord, &y_coord, &z_coord, &cornerList, &polyList);
 				unsigned int idx = 0, vertCount = 0;
 				for (unsigned int f = 0; f < numPolygons; ++f) {
-					polyList[idx++] = vertCount;
-					const auto &face = mesh->mFaces[f];
+					polyList[idx] = vertCount;
+					idx++;
+					const aiFace &face = mesh->mFaces[f];
 					for (unsigned int i = 0; i < face.mNumIndices; ++i) {
-						cornerList[vertCount++] = face.mIndices[i];
+						cornerList[vertCount] = face.mIndices[i];
+						vertCount++;
 					}
 				}
 				setPoints(mesh, x_coord, y_coord, z_coord);
-				distObj = poly;
+				geoCollect.allMeshes.push_back(poly);
 			}
 			// mesh contains only points, no polygons
 			else {
-				coDoPoints *points(new coDoPoints(p_pointOut->getNewObjectInfo(), numPoints));
+				coDoPoints *points(new coDoPoints(polyName.c_str(), numPoints));
 				points->getAddresses(&x_coord, &y_coord, &z_coord);
 				setPoints(mesh, x_coord, y_coord, z_coord);
-				distObj = points;
+				geoCollect.allMeshes.push_back(points);
 			}
-			// if mesh contains normals, set them
-			setNormals(mesh);
+			// catch normals, if they exist
+			if (mesh->HasNormals()) {
+				unsigned int numNormals = 0;
+				float *x_normals, *y_normals, *z_normals;
+				if (scene->mNumMeshes > 1) {
+					normalName += std::to_string(m);;
+				}
+				coDoVec3 *normals(new coDoVec3(normalName.c_str(), mesh->mNumVertices));
+				normals->getAddresses(&x_normals, &y_normals, &z_normals);
+				for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
+					const aiVector3D &norm = mesh->mNormals[i];
+					x_normals[i] = norm.x;
+					y_normals[i] = norm.y;
+					z_normals[i] = norm.z;
+				}
+				geoCollect.allNormals.push_back(normals);
+			}
 		}
 	}
-	if (scene->mNumMeshes > 1) {
-		sendInfo("file %s contains %d meshes, all but the first have been ignored", filename, scene->mNumMeshes);
-	}
-	return distObj;
+	return geoCollect;
 }
 
 void ReadModel::setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, float *z_coord) {
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
-		const auto &vert = mesh->mVertices[i];
+		const aiVector3D &vert = mesh->mVertices[i];
 		x_coord[i] = vert.x;
 		y_coord[i] = vert.y;
 		z_coord[i] = vert.z;
 	}
 }
 
-void ReadModel::setNormals(const aiMesh *mesh) {
-	if (mesh->HasNormals()) {
-		int numNormals = 0;
-		float *x_normals, *y_normals, *z_normals;
-		coDoVec3 *normals(new coDoVec3(p_normalOut->getNewObjectInfo(), mesh->mNumVertices));
-		normals->getAddresses(&x_normals, &y_normals, &z_normals);
-		for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
-			const auto &norm = mesh->mNormals[i];
-			x_normals[i] = norm.x;
-			y_normals[i] = norm.y;
-			z_normals[i] = norm.z;
-		}
-		p_normalOut->setCurrentObject(normals);
-	}
-}
-
 int ReadModel::compute(const char *) {
-	const char *filename = p_filename->getValue();
-	auto model = load(filename);
+	std::string filename = p_filename->getValue();
+	std::string polyName = p_polyOut->getObjName();
+	std::string normalName = p_normalOut->getObjName();
 
-	if (!model) {
+	allGeometry model = load(filename, polyName, normalName);
+
+	if (model.allMeshes.empty()) {
 		if (!p_ignoreErrors) {
 			sendError("failed to load %s", filename);
 		}
 		return FAIL;
 	}
 
-	if (coDoPolygons *polyModel = dynamic_cast<coDoPolygons *>(model)) {
-		p_polyOut->setCurrentObject(polyModel);
+	// create a coDoSet in case of multiple meshes
+	if (model.allMeshes.size() > 1) {
+		coDoSet *modelSet = new coDoSet(p_polyOut->getObjName(), model.allMeshes.size(), &model.allMeshes.front());
+		model.allMeshes.clear();
+		p_polyOut->setCurrentObject(modelSet);
 	}
 	else {
-		coDoPoints *pointModel = dynamic_cast<coDoPoints *>(model);
-		p_pointOut->setCurrentObject(pointModel);
+		p_polyOut->setCurrentObject(model.allMeshes.front());
 	}
+
+	// create a coDoSet in case of multiple meshes
+	if (model.allNormals.size() > 1) {
+		coDoSet *normalSet = new coDoSet(p_normalOut->getObjName(), model.allNormals.size(), &model.allNormals.front());
+		model.allNormals.clear();
+		p_normalOut->setCurrentObject(normalSet);
+	}
+	else {
+		p_normalOut->setCurrentObject((coDoVec3 *)model.allNormals.front());
+	}
+
 	return SUCCESS;
 }
 

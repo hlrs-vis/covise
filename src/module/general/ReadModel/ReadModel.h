@@ -8,35 +8,38 @@
 #ifndef _READ_MODEL_H
 #define _READ_MODEL_H
 
-// +++++++++++++++++++++++++++++++++++++++++
-// MODULE ReadModel
-//
-// This module reads polygon meshes in all formats supported by assimp
-//
+ // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // MODULE ReadModel
+ //
+ // Read polygon meshes in all formats supported by Assimp library
+ // assimp.sourceforge.net
+ // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include <api/coModule.h>
-#include <assimp/scene.h>
 
-using namespace covise;
+struct aiMesh;
 
-class ReadModel : public coModule
+class ReadModel : public covise::coModule
 {
 private:
+	struct allGeometry {
+		std::vector<covise::coDistributedObject *> allMeshes;
+		std::vector<covise::coDistributedObject *> allNormals;
+	};
+
 	virtual int compute(const char *port);
 
-	coDistributedObject *load(const char *filename);
+	allGeometry load(std::string &filename, std::string &polyName, std::string &normalName);
 	void setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, float *z_coord);
-	void setNormals(const aiMesh *mesh);
 
-    coFileBrowserParam *p_filename;
+	covise::coFileBrowserParam *p_filename;
 
-    coBooleanParam *p_triangulate;
-    coBooleanParam *p_joinVertices;
-	coBooleanParam *p_ignoreErrors;
+	covise::coBooleanParam *p_triangulate;
+	covise::coBooleanParam *p_joinVertices;
+	covise::coBooleanParam *p_ignoreErrors;
 
-	coOutputPort *p_polyOut;
-	coOutputPort *p_pointOut;
-	coOutputPort *p_normalOut;
+	covise::coOutputPort *p_polyOut;
+	covise::coOutputPort *p_normalOut;
 
 public:
     ReadModel(int argc, char *argv[]);
