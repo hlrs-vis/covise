@@ -261,6 +261,10 @@ private:
 
     osg::Matrix invBaseMatrix;
     osg::Matrix oldInvBaseMatrix;
+	osg::Node *oldFloorNode;
+	osg::Matrix oldFloorMatrix;
+	osg::NodePath oldNodePath;
+
 
     float currentVelocity;
 
