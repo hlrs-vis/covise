@@ -74,7 +74,7 @@
 
     <CudaNumThreads value="128" />        
      <TabletPC>
-         <Server value="localhost"/>
+         <Server value="127.0.0.1"/>
        </TabletPC>
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
