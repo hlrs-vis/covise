@@ -532,7 +532,7 @@ int ReadGeoDict::readData()
 				size_t read = fread(array->dataBuf, array->columnSize, array->numRows, d_dataFile);
 				if (read != array->columnSize*array->numRows)
 				{
-					fprintf(stderr, "read %lld bytes\n", read);
+					fprintf(stderr, "read %zu bytes\n", read);
 				}
 			}
 			ArrayInfo *IDArray = arrayInfos[0];
@@ -549,7 +549,7 @@ int ReadGeoDict::readData()
 				particles[i] = (ParticleInfo *)(ParticleArray->dataBuf + i*ParticleArray->columnSize);
 				if ((i < 10) || (i > ParticleArray->numRows - 10))
 				{
-					printf("%I64d: %f\n", particles[i]->ID, particles[i]->time);
+					printf("%zd: %f\n", (ssize_t)particles[i]->ID, particles[i]->time);
 				}
 				if (i == 0)
 					oldPn = particles[i]->ID;
