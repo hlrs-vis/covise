@@ -68,7 +68,7 @@ ReadModel::allGeometry ReadModel::load(std::string &filename, std::string &polyN
 
 	if (!scene) {
 		if (!p_ignoreErrors) {
-			sendError("failed to read %s : %s", filename, importer.GetErrorString());
+			sendError("failed to read %s : %s", filename.c_str(), importer.GetErrorString());
 		}
 		return geoCollect;
 	}
@@ -152,7 +152,7 @@ int ReadModel::compute(const char *) {
 
 	if (model.allMeshes.empty()) {
 		if (!p_ignoreErrors) {
-			sendError("failed to load %s", filename);
+			sendError("failed to load %s", filename.c_str());
 		}
 		return FAIL;
 	}
