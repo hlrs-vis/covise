@@ -111,6 +111,8 @@ public:
     void setAngle(float a);
     bool stationListChanged();
     void switchToNewStationList();// try to switch to new stationList
+	void lock();
+	void unlock();
 
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletEvent(coTUIElement *tUIItem);
@@ -125,6 +127,7 @@ public:
     VrmlMFInt d_stationList;
     VrmlMFFloat d_stationOpenTime;
     VrmlSFInt d_currentStationIndex;
+	VrmlSFTime d_lockTime;
 
 
 

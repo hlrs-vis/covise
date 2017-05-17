@@ -280,7 +280,7 @@ bool VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
             if(ex->getAngle()!=(float)M_PI_2)
             {
                 // turn it right
-                if(((ex->getState()==VrmlNodeExchanger::Idle) && (ex->getCar()==NULL))||ex->getCar()==car)
+				if((ex->getRotatingState() == VrmlNodeExchanger::Idle) && (((ex->getState() == VrmlNodeExchanger::Idle) && (ex->getCar() == NULL)) || ex->getCar() == car))
                 {
                     exchangers[station]->setCar(car);
                     ex->rotateRight();
@@ -293,7 +293,7 @@ bool VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
             if(ex->getAngle()!=0)
             {
                 // turn it right
-                if(((ex->getState()==VrmlNodeExchanger::Idle) && (ex->getCar()==NULL))||ex->getCar()==car)
+				if ((ex->getRotatingState() == VrmlNodeExchanger::Idle) && (((ex->getState() == VrmlNodeExchanger::Idle) && (ex->getCar() == NULL)) || ex->getCar() == car))
                 {
                     exchangers[station]->setCar(car);
                     ex->rotateLeft();

@@ -51,6 +51,8 @@ VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
     t->addEventOut("carDoorOpen", VrmlField::SFTIME);
     t->addEventOut("carRotation", VrmlField::SFROTATION);
     t->addEventOut("carFraction", VrmlField::SFFLOAT);
+	t->addEventOut("Unlock", VrmlField::SFTIME);
+	t->addEventOut("Lock", VrmlField::SFTIME);
 
     return t;
 }
@@ -113,6 +115,19 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
 
 VrmlNodeCar::~VrmlNodeCar()
 {
+}
+
+void VrmlNodeCar::lock()
+{
+	double timeStamp = System::the->time();
+	d_lockTime.set(timeStamp);
+	eventOut(timeStamp, "Lock", d_lockTime);
+}
+void VrmlNodeCar::unlock()
+{
+	double timeStamp = System::the->time();
+	d_lockTime.set(timeStamp);
+	eventOut(timeStamp, "Unlock", d_lockTime);
 }
 
 enum VrmlNodeCar::carState VrmlNodeCar::getState(){return state;}
@@ -682,6 +697,8 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     if(d_currentStationIndex.get() >= d_stationList.size())
     {
         fprintf(stderr,"currentStationIndex out of range\n");
+		fprintf(stderr, "d_stationList.size %d\n", d_stationList.size());
+		fprintf(stderr, "d_currentStationIndex.get %d\n", d_currentStationIndex.get());
         d_currentStationIndex.set(0);
     }
     elevator->stations[d_stationList[d_currentStationIndex.get()]].car=this;
@@ -860,9 +877,9 @@ bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landin
             {
                 empty=false;
             }
-            if((((*it)->getState()==VrmlNodeExchanger::Idle) && ((*it)->getCar()==NULL))||(*it)->getCar()==this)  // turn it into the right direction (TODO: 
-                (*it)->rotateRight();
-           // else
+			if (((*it)->getRotatingState() == VrmlNodeExchanger::Idle) && ((((*it)->getState() == VrmlNodeExchanger::Idle) && ((*it)->getCar() == NULL)) || (*it)->getCar() == this))
+				(*it)->rotateRight();
+			// else
            // {
            //     if((*it)->getCar()!=this)
            //        empty=false;
@@ -887,8 +904,11 @@ bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landin
             {
                 empty=false;
             }
-            if((((*it)->getState()==VrmlNodeExchanger::Idle) && ((*it)->getCar()==NULL))||(*it)->getCar()==this)
-                (*it)->rotateLeft();
+
+			if (((*it)->getRotatingState() == VrmlNodeExchanger::Idle) && ((((*it)->getState() == VrmlNodeExchanger::Idle) && ((*it)->getCar() == NULL)) || (*it)->getCar() == this))
+			{
+				(*it)->rotateLeft();
+			}
             //else
             //{
             //    if((*it)->getCar()!=this)
