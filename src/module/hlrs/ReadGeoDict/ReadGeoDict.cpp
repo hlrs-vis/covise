@@ -607,7 +607,9 @@ int ReadGeoDict::readData()
 			for(int t = 0;t < numSteps;t++)
 			{
 				pointsObjects[t + 1] = NULL;
-				std::string objName = objNameBase + std::to_string(t);
+                std::stringstream str;
+                str << objNameBase << t;
+				std::string objName = str.str();
 				int numParticles = 0;
 				for (int i = 0; i < n; i++)
 				{
