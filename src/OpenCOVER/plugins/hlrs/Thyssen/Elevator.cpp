@@ -228,7 +228,9 @@ void VrmlNodeElevator::render(Viewer *)
         VrmlNodeCar *car = cars[i];
         if(car!=NULL)
         {
-            if(car->getState()==VrmlNodeCar::Idle)
+			VrmlNodeExchanger *ex = exchangers[car->d_stationList[car->d_currentStationIndex.get()]];
+			
+            if((car->getState()==VrmlNodeCar::Idle) && (ex == NULL || (ex->getRotatingState() == VrmlNodeExchanger::Idle)))
             {
                 if(car->stationListChanged())
                 {

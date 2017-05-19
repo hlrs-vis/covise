@@ -139,7 +139,7 @@ void VrmlNodeExchanger::render(Viewer *)
 }
 void VrmlNodeExchanger::rotateLeft()
 {
-    if(angle !=0 && rotatingState != UnlockL)
+    if(angle > 0.001 && rotatingState != UnlockL)
     {
         rotatingState = UnlockL;
 		lockStartTime = cover->frameTime();
@@ -154,7 +154,7 @@ void VrmlNodeExchanger::rotateLeft()
 }
 void VrmlNodeExchanger::rotateRight()
 {
-    if(angle != M_PI_2 && rotatingState != UnlockR)
+    if(angle <= M_PI_2-0.001 && rotatingState != UnlockR)
     {
 		rotatingState = UnlockR;
 		lockStartTime = cover->frameTime();
