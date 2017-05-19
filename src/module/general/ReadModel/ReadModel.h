@@ -29,7 +29,7 @@ private:
 
 	virtual int compute(const char *port);
 
-	allGeometry load(std::string &filename, std::string &polyName, std::string &normalName);
+	allGeometry load(const std::string &filename, std::string polyName, std::string normalName);
 	void setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, float *z_coord);
 
 	covise::coFileBrowserParam *p_filename;

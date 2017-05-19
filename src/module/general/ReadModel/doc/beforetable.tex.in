@@ -6,7 +6,7 @@
 %
 % short description what the module does
 %
-Read module for polygon meshes in all formats supported by Assimp library
+Read module for polygon meshes in all formats supported by Assimp library.
  
 % input of a module icon for example
 % #1  path for eps
@@ -14,7 +14,7 @@ Read module for polygon meshes in all formats supported by Assimp library
 % #3  scale factor
 \begin{covimg2}	{}{rm}{0.7}\end{covimg2}
 
-ReadModel may read all formats supported by the Assimp library (v3.0), which are currently:
+ReadModel reads all formats supported by the Assimp library (v3.0), which are currently:
 
 Collada ( *.dae;*.xml )
 Blender ( *.blend ) 3

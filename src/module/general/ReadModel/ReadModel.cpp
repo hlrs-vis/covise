@@ -34,7 +34,7 @@ ReadModel::ReadModel(int argc, char *argv[])
 	p_filename->setValue("~", "*/*.dae/*.gltf,*.glb/*.blend/*.3ds,*.fbx,*.dxf,*.ase/*.obj/*.ifc/*.xgl,*.zgl/*.ply/*.lwo,*.lws,*.lxo/*.stl/*.x/*.ac/*.ms3d/*.cob,*.scn/*.bvh,*.csm/*.xml,*.irrmesh,*.irr/*.mdl,*.md2,*.md3,*.pk3,*.mdc,*.md5,*.smd,*.vta,*.ogex,*.3d/*.b3d/*.q3d,*.q3s/*.nff/*.off/*.raw/*.ter/*.mdl,*.hmp/*.ndo");
 
 	p_triangulate = addBooleanParam("triangulate", "Triangulate polygons");
-	p_triangulate->setValue(0);
+	p_triangulate->setValue(1);
 
 	p_joinVertices = addBooleanParam("joinVertices", "Join identical vertices");
 	p_joinVertices->setValue(0);
@@ -50,7 +50,7 @@ ReadModel::ReadModel(int argc, char *argv[])
 ReadModel::~ReadModel() {
 }
 
-ReadModel::allGeometry ReadModel::load(std::string &filename, std::string &polyName, std::string &normalName) {
+ReadModel::allGeometry ReadModel::load(const std::string &filename, std::string polyName, std::string normalName) {
 
 	Assimp::Importer importer;
 	unsigned int readFlags = aiProcess_PreTransformVertices | aiProcess_SortByPType | aiProcess_ImproveCacheLocality | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
@@ -68,7 +68,7 @@ ReadModel::allGeometry ReadModel::load(std::string &filename, std::string &polyN
 
 	if (!scene) {
 		if (!p_ignoreErrors) {
-			sendError("failed to read %s : %s", filename, importer.GetErrorString());
+			sendError("failed to read %s : %s", filename.c_str(), importer.GetErrorString());
 		}
 		return geoCollect;
 	}
@@ -81,7 +81,9 @@ ReadModel::allGeometry ReadModel::load(std::string &filename, std::string &polyN
 			float *x_coord, *y_coord, *z_coord;
 			unsigned int numPoints = mesh->mNumVertices;
 			if (scene->mNumMeshes > 1) {
-				polyName += std::to_string(m);
+				std::stringstream polyNameS;
+				polyNameS << polyName << m;
+				polyName = polyNameS.str();
 			}
 
 			if (mesh->HasFaces()) {
@@ -117,7 +119,9 @@ ReadModel::allGeometry ReadModel::load(std::string &filename, std::string &polyN
 				unsigned int numNormals = 0;
 				float *x_normals, *y_normals, *z_normals;
 				if (scene->mNumMeshes > 1) {
-					normalName += std::to_string(m);;
+					std::stringstream normalNameS;
+					normalNameS << normalName << m;
+					normalName = normalNameS.str();
 				}
 				coDoVec3 *normals(new coDoVec3(normalName.c_str(), mesh->mNumVertices));
 				normals->getAddresses(&x_normals, &y_normals, &z_normals);
@@ -144,7 +148,7 @@ void ReadModel::setPoints(const aiMesh *mesh, float *x_coord, float *y_coord, fl
 }
 
 int ReadModel::compute(const char *) {
-	std::string filename = p_filename->getValue();
+	const std::string filename = p_filename->getValue();
 	std::string polyName = p_polyOut->getObjName();
 	std::string normalName = p_normalOut->getObjName();
 
@@ -152,14 +156,14 @@ int ReadModel::compute(const char *) {
 
 	if (model.allMeshes.empty()) {
 		if (!p_ignoreErrors) {
-			sendError("failed to load %s", filename);
+			sendError("failed to load %s", filename.c_str());
 		}
 		return FAIL;
 	}
 
 	// create a coDoSet in case of multiple meshes
 	if (model.allMeshes.size() > 1) {
-		coDoSet *modelSet = new coDoSet(p_polyOut->getObjName(), model.allMeshes.size(), &model.allMeshes.front());
+		coDoSet *modelSet = new coDoSet(polyName.c_str(), model.allMeshes.size(), &model.allMeshes.front());
 		model.allMeshes.clear();
 		p_polyOut->setCurrentObject(modelSet);
 	}
@@ -169,7 +173,7 @@ int ReadModel::compute(const char *) {
 
 	// create a coDoSet in case of multiple meshes
 	if (model.allNormals.size() > 1) {
-		coDoSet *normalSet = new coDoSet(p_normalOut->getObjName(), model.allNormals.size(), &model.allNormals.front());
+		coDoSet *normalSet = new coDoSet(normalName.c_str(), model.allNormals.size(), &model.allNormals.front());
 		model.allNormals.clear();
 		p_normalOut->setCurrentObject(normalSet);
 	}

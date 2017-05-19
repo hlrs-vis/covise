@@ -532,7 +532,7 @@ int ReadGeoDict::readData()
 				size_t read = fread(array->dataBuf, array->columnSize, array->numRows, d_dataFile);
 				if (read != array->columnSize*array->numRows)
 				{
-					fprintf(stderr, "read %lld bytes\n", read);
+					fprintf(stderr, "read %zu bytes\n", read);
 				}
 			}
 			ArrayInfo *IDArray = arrayInfos[0];
@@ -549,7 +549,7 @@ int ReadGeoDict::readData()
 				particles[i] = (ParticleInfo *)(ParticleArray->dataBuf + i*ParticleArray->columnSize);
 				if ((i < 10) || (i > ParticleArray->numRows - 10))
 				{
-					printf("%I64d: %f\n", particles[i]->ID, particles[i]->time);
+					printf("%zd: %f\n", (ssize_t)particles[i]->ID, particles[i]->time);
 				}
 				if (i == 0)
 					oldPn = particles[i]->ID;
@@ -607,7 +607,9 @@ int ReadGeoDict::readData()
 			for(int t = 0;t < numSteps;t++)
 			{
 				pointsObjects[t + 1] = NULL;
-				std::string objName = objNameBase + std::to_string(t);
+                std::stringstream str;
+                str << objNameBase << t;
+				std::string objName = str.str();
 				int numParticles = 0;
 				for (int i = 0; i < n; i++)
 				{

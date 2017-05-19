@@ -10,7 +10,7 @@
 \hline\hline
 	polygonFile & Browser & input file \\
 \hline	
-	triangulate & Boolean & Check, if you prefer to triangulate all polygons. Please note: Line and point primitives are not modified! \\
+	triangulate & Boolean & Check, if you prefer to triangulate all polygons. Line and point primitives are not modified. \\
 \hline	
 	joinVertices & Boolean & Check, if you want to identify and join identical vertex data sets within all imported meshes. \\
 \hline	

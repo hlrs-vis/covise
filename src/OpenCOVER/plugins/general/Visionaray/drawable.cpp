@@ -35,6 +35,7 @@
 
 #include <visionaray/gl/bvh_outline_renderer.h>
 #include <visionaray/gl/debug_callback.h>
+#include <visionaray/array.h>
 #include <visionaray/kernels.h>
 
 #include "kernels/bvh_costs_kernel.h"
@@ -847,7 +848,7 @@ namespace visionaray
             auto hrs = unpack(hr);
             auto tcs = unpack(tc);
 
-            std::array<vector<4, float>, simd::num_elements<T>::value> tex_colors;
+            array<vector<4, float>, simd::num_elements<T>::value> tex_colors;
 
             for (unsigned i = 0; i < simd::num_elements<T>::value; ++i)
             {
