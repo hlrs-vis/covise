@@ -382,6 +382,8 @@ int JTOpenPlugin::PostAction(JtkHierarchy * /*CurrNode*/, int /*level*/, JtkClie
 
 void JTOpenPlugin::setMaterial(osg::Node *osgNode, JtkHierarchy *CurrNode)
 {
+	JtkTexImage *partTexture = NULL;
+	((JtkPart *)CurrNode)->getTexImage(partTexture);
     JtkMaterial *partMaterial = NULL;
     ((JtkPart *)CurrNode)->getMaterial(partMaterial);
     if (partMaterial)
@@ -481,6 +483,18 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
             unitRoot->getUnits(Units);
             std::cerr << "Unit: " << Units << std::endl;
          }*/
+
+	for (int i = 0; i < 100; i++)
+	{
+		JtkAttrib *attr=NULL;
+		CurrNode->getAttrib(i, attr);
+		if (attr == NULL)
+			break;
+		fprintf(stderr,"Attrib %s\n", attr->name());
+			
+	}
+	
+
     switch (CurrNode->typeID())
     {
     case JtkEntity::JtkNONE:
