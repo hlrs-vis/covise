@@ -784,6 +784,10 @@ void VrmlNodeCar::moveToNext()
         {
             passingStations.push_back(i);
         }
+		if (oldTravelDirection == Uninitialized && elevator->exchangers[oldLandingIndex] == NULL)
+		{
+			setAngle(M_PI_2); // if we start moving horizontally on a horizontal track we have to turn our chassis
+		}
     }
     if(shaft < shaftNumber)
     {
@@ -792,6 +796,10 @@ void VrmlNodeCar::moveToNext()
         {
             passingStations.push_back(i);
         }
+		if (oldTravelDirection == Uninitialized && elevator->exchangers[oldLandingIndex] == NULL)
+		{
+			setAngle(M_PI_2); // if we start moving horizontally on a horizontal track we have to turn our chassis
+		}
     }
     if(passingStations.size()==0)
     {
