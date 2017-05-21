@@ -135,8 +135,10 @@ private:
     static int IDCounter;
     float v;
     float a;
-    float aMax;
-    float vMax;
+	float aMax;
+	float vMax;
+	float ahMax;
+	float vhMax;
     float destinationY;
     float destinationX;
     float startingY;
