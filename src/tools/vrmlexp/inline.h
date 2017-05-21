@@ -65,7 +65,7 @@ public:
 #endif
 
     // From BaseObject
-    void GetMat(TimeValue t, INode *inode, ViewExp *vpt, Matrix3 &tm);
+    void GetMat(TimeValue t, INode *inode, ViewExp& vpt, Matrix3 &tm);
     int HitTest(TimeValue t, INode *inode, int type, int crossing, int flags, IPoint2 *p, ViewExp *vpt);
     //	void Snap(TimeValue t, INode* inode, SnapInfo *snap, IPoint2 *p, ViewExp *vpt);
     int Display(TimeValue t, INode *inode, ViewExp *vpt, int flags);
