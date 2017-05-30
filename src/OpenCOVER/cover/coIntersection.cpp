@@ -58,7 +58,7 @@ coIntersection::coIntersection()
     assert(!intersector);
 
     // should match OpenCOVER.cpp
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
     useOmp = openmpThreads != "off";
 
     //VRUILOG("coIntersection::<init> info: creating");
