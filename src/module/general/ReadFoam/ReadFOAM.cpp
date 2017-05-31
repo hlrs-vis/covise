@@ -45,7 +45,7 @@
 #include <boost/shared_ptr.hpp>
 
 ReadFOAM::ReadFOAM(int argc, char *argv[]) //Constructor
-    : coModule(argc, argv, "Read FOAM Data") // description in the module setup window
+    : coModule(argc, argv, "Read OpenFOAM Data") // description in the module setup window
 {
     //Set Number of Data Ports here. Default=3
     num_ports = 3;
