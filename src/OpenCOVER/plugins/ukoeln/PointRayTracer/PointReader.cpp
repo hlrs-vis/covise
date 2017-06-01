@@ -9,6 +9,9 @@
 #include "rply.h"
 #include "rplycallbacks.inl"
 
+#include "rply.h"
+#include "rplycallbacks.inl"
+
 using namespace visionaray;
 
 PointReader *
@@ -216,7 +219,6 @@ bool PointReader::readFile(std::string filename,
                 std::cout << "Could not read file: " << filename.c_str() << std::endl;
                 return false;
             }
-
             //log(QString("Read %1 vertices").arg(nVertices));
             ply_close(ply);
 
@@ -260,7 +262,6 @@ bool PointReader::readFile(std::string filename,
                         std::cout << "PointReader::readFile() ERROR: number of tokens not 7 in line " << count << " of file " << filename.c_str() << std::endl;
                         break;
                     }
-
                     addPtsPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
                     count++;
 
