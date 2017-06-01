@@ -8,14 +8,9 @@
 \hline
    \bf{Name} & \bf{Type} & \bf{Description} \endhead
 \hline\hline
-	\textcolor{output}{surface} & Polygons & Grid (surface in Covise
-	format) \\
+	\GridOut0{output}{polygons} & Generated polygons or points, if imported mesh does not contain faces \\
 \hline
-	\textcolor{output}{normals} & Unstructured\_V3D\_Normals & normals  \\
-\hline
-	\textcolor{output}{feature\_lines} & Lines & Output of lines.  \\
-
-
+	\DataOut0{output}{normals} & Generated normals, if imported mesh contains normals \\
 \hline
 \end{longtable}
 %=============================================================

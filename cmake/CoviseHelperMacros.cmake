@@ -900,12 +900,25 @@ ENDMACRO(USING_MESSAGE)
 
 MACRO(CREATE_USING)
   FIND_PROGRAM(GREP_EXECUTABLE grep PATHS $ENV{EXTERNLIBS}/UnixUtils/bin DOC "grep executable")
+  FIND_PROGRAM(FINDSTR_EXECUTABLE findstr DOC "findstr executable")
   
   file(GLOB USING_FILES "${COVISEDIR}/cmake/Using/Use*.cmake")
-  EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
-     COMMAND ${GREP_EXECUTABLE} "^MACRO"
-     OUTPUT_VARIABLE using_list)
-  #message("using_list")
+  if (GREP_EXECUTABLE)
+      EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
+          COMMAND ${GREP_EXECUTABLE} "^MACRO"
+          OUTPUT_VARIABLE using_list)
+      #message("using_list w/ grep")
+  elseif(FINDSTR_EXECUTABLE)
+      STRING(REPLACE "/" \\ USING_FILES "${USING_FILES}")
+      EXECUTE_PROCESS(
+          COMMAND cmd /c type ${USING_FILES}
+          COMMAND ${FINDSTR_EXECUTABLE} /R USE_
+          COMMAND ${FINDSTR_EXECUTABLE} /R "^MACRO"
+          OUTPUT_VARIABLE using_list
+          ERROR_VARIABLE using_list_err
+      )
+      #message("using_list w/ findstr")
+  endif()
   #message("using_list ${using_list}")
 
   STRING(STRIP "${using_list}" using_list)

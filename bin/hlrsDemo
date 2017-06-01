@@ -48,6 +48,9 @@ do
     echo -e "${MENU} ${OPT} 33)  ${MENU} DC Filiale                "
     echo -e "${MENU} ${OPT} 34)  ${MENU} Adidas WOS                "
 
+    echo -e "${MENU}-----${TYP} Urban Planning ${MENU}------------------------"
+    echo -e "${MENU} ${OPT} 38)  ${MENU} Spielplatz Stuttgart West "
+
     echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
     echo -e "${MENU} ${OPT} 42)  ${MENU} Schweizer Autobus         "
@@ -212,6 +215,12 @@ do
 	    echo -e "Adidas"
             opencover /data/strabag/Adidas/04-vrml/praesentation.wrl
  	    ;;
+		
+# URBAN PLANNING
+	38)
+	    echo -e "starting Spielplatz Stuttgart West";
+            covise -e /data/covise_net/2017/Spielplatz.net
+	    ;;
 
 # LKA
 
@@ -294,9 +303,8 @@ do
             opencover /data/pointclouds/riegl/RIEGL_ALS_LMS-Q1560_MountainSorted.ptsb
 	    ;;
 	60)    
-	    echo -e "starting Herrenberg";	    
-	    cd /data/Reallabor/Herrenberg
-	    opencover Herrenberg.wrl  
+	    echo -e "starting Herrenberg";
+	    opencover /data/reallabor/herrenberg/vrml/Herrenberg.wrl
 	    ;;
 
 # VolumeRendering
@@ -310,8 +318,8 @@ do
 	    echo -e "starting knee";
             opencover /data/VolData/vhd/female-knee-marked3.xvf
 	    ;;
+		
 # MISC
-
 	71)
 	    echo -e "starting Draeger OP";
             opencover /data/draeger/out/op2.wrl

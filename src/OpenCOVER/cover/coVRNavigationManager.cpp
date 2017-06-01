@@ -2509,23 +2509,137 @@ void coVRNavigationManager::doWalkMoveToFloor()
             hitInformation1 = visitor.getHitList(ray.get()).front();
         if (num2)
             hitInformation2 = visitor.getHitList(ray2.get()).front();
-
         if (num1 || num2)
         {
             float dist = 0.0;
-            if (num1 && !num2)
-                dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-            else if (!num1 && num2)
-                dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-            else if (num1 && num2)
-            {
-                dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-                if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-                    dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
+			osg::Node *floorNode = NULL;
+			osgUtil::Hit *usedHI = NULL;
+			if (num1 && !num2)
+			{
+				dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
+				floorNode = hitInformation1.getGeode();
+				usedHI = &hitInformation1;
+
+			}
+			else if (!num1 && num2)
+			{
+				dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
+				floorNode = hitInformation2.getGeode();
+				usedHI = &hitInformation2;
+			}
+			else if (num1 && num2)
+			{
+				floorNode = hitInformation1.getGeode();
+				dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
+				usedHI = &hitInformation1;
+				if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
+				{
+					dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
+					usedHI = &hitInformation2;
+				}
             }
 
-            //  get xform matrix
-            osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+			//  get xform matrix
+			osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+
+			if (floorNode == oldFloorNode)
+			{
+				// we are walking on the same object as last time so move with the object if it is moving
+				osg::Matrix modelTransform;
+				modelTransform.makeIdentity();
+				int on = oldNodePath.size() - 1;
+				bool notSamePath = false;
+				for (int i = usedHI->getNodePath().size() - 1; i >= 0; i--)
+				{
+					osg::Node*n = usedHI->getNodePath()[i];
+					if (n == cover->getObjectsRoot())
+						break;
+					osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
+					if (t != NULL)
+					{
+						modelTransform = modelTransform * t->getMatrix();
+					}
+					// check if this is really the same object as it could be a reused object thus compare the whole NodePath
+					// instead of just the last node
+					if (on < 0 || n != oldNodePath[on])
+					{
+						//oops, not same path
+						notSamePath = true;
+					}
+					on--;
+				}
+				if (notSamePath)
+				{
+					oldFloorMatrix = modelTransform;
+					oldFloorNode = floorNode;
+					oldNodePath = usedHI->getNodePath();
+				}
+				if(modelTransform != oldFloorMatrix)
+				{
+					
+					//osg::Matrix iT;
+					osg::Matrix iS;
+					osg::Matrix S;
+					osg::Matrix imT;
+					//iT.invert_4x4(dcs_mat);
+					float sf = cover->getScale();
+					S.makeScale(sf, sf, sf);
+					sf = 1.0 / sf;
+					iS.makeScale(sf, sf, sf);
+					imT.invert_4x4(modelTransform);
+					dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
+					oldFloorMatrix = modelTransform;
+					// set new xform matrix
+					VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+					// now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
+					VRSceneGraph::instance()->getTransform()->accept(visitor);
+
+					int num1 = visitor.getNumHits(ray.get());
+					int num2 = visitor.getNumHits(ray2.get());
+					if (num1 || num2)
+					{
+						osgUtil::Hit hitInformation1;
+						osgUtil::Hit hitInformation2;
+						if (num1)
+							hitInformation1 = visitor.getHitList(ray.get()).front();
+						if (num2)
+							hitInformation2 = visitor.getHitList(ray2.get()).front();
+						if (num1 || num2)
+						{
+							float dist = 0.0;
+							osg::Node *floorNode = NULL;
+							osgUtil::Hit *usedHI = NULL;
+							if (num1 && !num2)
+							{
+								dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
+								floorNode = hitInformation1.getGeode();
+								usedHI = &hitInformation1;
+
+							}
+							else if (!num1 && num2)
+							{
+								dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
+								floorNode = hitInformation2.getGeode();
+								usedHI = &hitInformation2;
+							}
+							else if (num1 && num2)
+							{
+								floorNode = hitInformation1.getGeode();
+								dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
+								usedHI = &hitInformation1;
+								if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
+								{
+									dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
+									usedHI = &hitInformation2;
+								}
+							}
+						}
+					}
+				}
+
+				
+			}
+
 
             //  apply translation , so that isectPt is at floorLevel
             osg::Matrix tmp;
@@ -2535,10 +2649,37 @@ void coVRNavigationManager::doWalkMoveToFloor()
             // set new xform matrix
             VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
 
+
+			if ((floorNode != oldFloorNode) && (usedHI != NULL))
+			{
+				osg::Matrix modelTransform;
+				modelTransform.makeIdentity();
+				for (int i = usedHI->getNodePath().size() - 1; i >= 0; i--)
+				{
+					osg::Node*n = usedHI->getNodePath()[i];
+					if (n == cover->getObjectsRoot())
+						break;
+					osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
+					if (t != NULL)
+					{
+						modelTransform = modelTransform * t->getMatrix();
+					}
+				}
+				oldFloorMatrix = modelTransform;
+				oldNodePath = usedHI->getNodePath();
+			}
+
+			oldFloorNode = floorNode;
+
             // do not sync with remote, they will do the same
             // on their side SyncXform();
         }
     }
+	else
+	{
+		oldFloorNode = NULL;
+	}
+	
     // coVRCollaboration::instance()->SyncXform();
 }
 

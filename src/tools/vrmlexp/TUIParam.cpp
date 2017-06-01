@@ -54,7 +54,7 @@ static TCHAR *useFolder;
 #endif
 
 inline float
-round(float f)
+roundToZero(float f)
 {
     if (f < 0.0f)
     {
@@ -78,7 +78,7 @@ static TCHAR *floatVal(float f)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg"), 8);
-    _stprintf(buf, format, round(f));
+    _stprintf(buf, format, roundToZero(f));
     CommaScan(buf);
     return buf;
 }

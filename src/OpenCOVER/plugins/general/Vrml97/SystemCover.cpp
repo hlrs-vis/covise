@@ -122,6 +122,7 @@ SystemCover::SystemCover()
     maxEntryNumber = 0;
     record = false;
     fileNumber = 0;
+    doRemoteFetch = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoRemoteFetch", false);
 }
 bool SystemCover::loadUrl(const char *url, int np, char **parameters)
 {
@@ -482,6 +483,10 @@ const char *SystemCover::remoteFetch(const char *filename)
     const char *buf = NULL;
     int numBytes = 0;
     static int working = 0;
+    if(!doRemoteFetch)
+    {
+        return NULL;
+    }
 
     if (working)
     {

@@ -50,6 +50,7 @@ get latest CURL; go to winbuild
 nmake /F Makefile.vc VC=14 WITH_DEVEL=c:\src\externlibs\zebu\zlib WITH_ZLIB=dll MACHINE=x64 MODE=dll
 nmake /F Makefile.vc VC=14 WITH_DEVEL=c:\src\externlibs\zebu\zlib WITH_ZLIB=dll MACHINE=x64 MODE=dll DEBUG=yes
 rename debug build of curl.exe to curl_debug.exe ; manually copy builds to externlibs:
+copy lib/libcurl_debug to libcurld.lib
 builds\libcurl-vc14-x64-release-dll-zlib-dll-ipv6-sspi-winssl
 #giflib
 get giflib windows version from http://blog.issamsoft.com/?q=en/node/82
@@ -172,6 +173,15 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 adjust project file:
 for tiff: add c:/src/externlibs/zebu/jpeg/lib/jpeg[d].lib
 gdal and ogr: use gdalD_i.lib for the debug version
+nvtt Debug: (Release without d )
+C:\src\externlibs\zebu\nvtt\lib\static\nvttd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvcored.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvimaged.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvmathd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\squishd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvthreadd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\bc7d.lib
+C:\src\externlibs\zebu\nvtt\lib\static\bc6hd.lib
 
 #boost
 bootstrap.bat
@@ -214,6 +224,9 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 
 #osgcal
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgcal -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/cal3d
+in core_osgCal Debug change cal3d.lib to cal3d_d.lib
+in applications add C:/src/externlibs/zebu/osgCal/lib to library directories 
+and cal3d_d.lib to input
 
 #assimp
 https://github.com/assimp/assimp.git
@@ -259,3 +272,15 @@ Select Release and Win32 or x64.
 Open context menu on libfftw-3.3, select Properties. Under Configuration Properties > General check Platform toolset. Change from Windows 7.1SDK to Visual Studio 2013 (v120). Go to Configuration Properties > C/C++ > Code Generation > Run time library and change to Multi threaded DLL (/MD). Close dialog with Ok.
 Open context menu on libfftw-3.3, select Add > Existing item, select file SDKROOT\fftw-3.3.4\api\mkprinter-str.c
 Now build project libfftw-3.3
+
+#geos
+# do not get tar geos from https://trac.osgeo.org/geos/ but use git otherwise cmake will fail
+git clone https://git.osgeo.org/gogs/geos/geos.git
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/geos -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+#osgEarth
+fix toplevel cmakeLists.txt 
+FIND_PACKAGE(ZLIB)
+set(ZLIB_LIBRARY ${ZLIB_LIBRARY_RELEASE})
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgEarth -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv

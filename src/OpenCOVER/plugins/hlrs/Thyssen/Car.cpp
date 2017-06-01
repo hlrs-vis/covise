@@ -51,6 +51,8 @@ VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
     t->addEventOut("carDoorOpen", VrmlField::SFTIME);
     t->addEventOut("carRotation", VrmlField::SFROTATION);
     t->addEventOut("carFraction", VrmlField::SFFLOAT);
+	t->addEventOut("Unlock", VrmlField::SFTIME);
+	t->addEventOut("Lock", VrmlField::SFTIME);
 
     return t;
 }
@@ -70,8 +72,10 @@ VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
     oldChassisState=Uninitialized;
     travelDirection=Uninitialized;
     oldTravelDirection=Uninitialized;
-    aMax = 1;
+    aMax = 1.2;
     vMax = 5;
+	ahMax = 0.3;
+	vhMax = 0.4;
     aaMax = 0.3;
     avMax = 3;
     v=0;a=0;
@@ -95,8 +99,10 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
     oldChassisState=Uninitialized;
     travelDirection=Uninitialized;
     oldTravelDirection=Uninitialized;
-    aMax = 1;
+    aMax = 1.2;
     vMax = 5;
+	ahMax = 0.3;
+	vhMax = 0.4;
     v=0;a=0;
     aaMax = 0.3;
     avMax = 3;
@@ -113,6 +119,19 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
 
 VrmlNodeCar::~VrmlNodeCar()
 {
+}
+
+void VrmlNodeCar::lock()
+{
+	double timeStamp = System::the->time();
+	d_lockTime.set(timeStamp);
+	eventOut(timeStamp, "Lock", d_lockTime);
+}
+void VrmlNodeCar::unlock()
+{
+	double timeStamp = System::the->time();
+	d_lockTime.set(timeStamp);
+	eventOut(timeStamp, "Unlock", d_lockTime);
 }
 
 enum VrmlNodeCar::carState VrmlNodeCar::getState(){return state;}
@@ -232,7 +251,7 @@ void VrmlNodeCar::update()
             float diff = fabs(destinationX - d_carPos.x());
             float diffS = fabs(startingX - d_carPos.x());
             float v2 = v*v;
-            float bakeDistance = (v2/(2*aMax))*1.5; // distance the car travels until it stops at max decelleration
+            float bakeDistance = (v2/(2*ahMax))*1.5; // distance the car travels until it stops at max decelleration
             
             if(d_carPos.x() < destinationX)
             {
@@ -259,7 +278,7 @@ void VrmlNodeCar::update()
                 if(vd > 0) // we only have to care if our car is faster than the next one, otherwise there is no chance to collide
                 {
                     float vd2 = vd*vd;
-                    float bakeDistance = (vd2/(2*aMax))*1.5; // distance the car travels until it reaches the velocity of the other car at max decelleration
+                    float bakeDistance = (vd2/(2*ahMax))*1.5; // distance the car travels until it reaches the velocity of the other car at max decelleration
                     if(diff < (distanceToNextCar - (CAR_WIDTH_2 + CAR_WIDTH_2 + SAFETY_DISTANCE + bakeDistance)))
                     {
                         diff = distanceToNextCar - (CAR_WIDTH_2 + CAR_WIDTH_2 + SAFETY_DISTANCE); // only travel to next car
@@ -306,11 +325,11 @@ void VrmlNodeCar::update()
             if(diff > bakeDistance)
             { // beschleunigen
                 a+=0.5*dt;
-                if(a > aMax)
-                    a=aMax;
+                if(a > ahMax)
+                    a=ahMax;
                 v += a*dt;
-                if(v > vMax)
-                    v=vMax;
+                if(v > vhMax)
+                    v=vhMax;
                 d_carPos.get()[0] += direction*v*dt;
             }
             else
@@ -682,6 +701,8 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     if(d_currentStationIndex.get() >= d_stationList.size())
     {
         fprintf(stderr,"currentStationIndex out of range\n");
+		fprintf(stderr, "d_stationList.size %d\n", d_stationList.size());
+		fprintf(stderr, "d_currentStationIndex.get %d\n", d_currentStationIndex.get());
         d_currentStationIndex.set(0);
     }
     elevator->stations[d_stationList[d_currentStationIndex.get()]].car=this;
@@ -767,6 +788,10 @@ void VrmlNodeCar::moveToNext()
         {
             passingStations.push_back(i);
         }
+		if (oldTravelDirection == Uninitialized && elevator->exchangers[oldLandingIndex] == NULL)
+		{
+			setAngle(M_PI_2); // if we start moving horizontally on a horizontal track we have to turn our chassis
+		}
     }
     if(shaft < shaftNumber)
     {
@@ -775,6 +800,10 @@ void VrmlNodeCar::moveToNext()
         {
             passingStations.push_back(i);
         }
+		if (oldTravelDirection == Uninitialized && elevator->exchangers[oldLandingIndex] == NULL)
+		{
+			setAngle(M_PI_2); // if we start moving horizontally on a horizontal track we have to turn our chassis
+		}
     }
     if(passingStations.size()==0)
     {
@@ -860,9 +889,9 @@ bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landin
             {
                 empty=false;
             }
-            if((((*it)->getState()==VrmlNodeExchanger::Idle) && ((*it)->getCar()==NULL))||(*it)->getCar()==this)  // turn it into the right direction (TODO: 
-                (*it)->rotateRight();
-           // else
+			if (((*it)->getRotatingState() == VrmlNodeExchanger::Idle) && ((((*it)->getState() == VrmlNodeExchanger::Idle) && ((*it)->getCar() == NULL)) || (*it)->getCar() == this))
+				(*it)->rotateRight();
+			// else
            // {
            //     if((*it)->getCar()!=this)
            //        empty=false;
@@ -887,8 +916,11 @@ bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landin
             {
                 empty=false;
             }
-            if((((*it)->getState()==VrmlNodeExchanger::Idle) && ((*it)->getCar()==NULL))||(*it)->getCar()==this)
-                (*it)->rotateLeft();
+
+			if (((*it)->getRotatingState() == VrmlNodeExchanger::Idle) && ((((*it)->getState() == VrmlNodeExchanger::Idle) && ((*it)->getCar() == NULL)) || (*it)->getCar() == this))
+			{
+				(*it)->rotateLeft();
+			}
             //else
             //{
             //    if((*it)->getCar()!=this)

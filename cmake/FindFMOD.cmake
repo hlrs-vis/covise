@@ -9,10 +9,24 @@ IF(FMOD_INCLUDE_DIR)
   SET(FMOD_FIND_QUIETLY TRUE)
 ENDIF(FMOD_INCLUDE_DIR)
 
-FIND_PATH(FMOD_INCLUDE_DIR "fmod.h"
+FIND_PATH(FMOD_INCLUDE_DIR "fmod_studio.hpp"
   PATHS
   $ENV{FMOD_HOME}/inc
-  $ENV{EXTERNLIBS}/fmod/inc
+  $ENV{EXTERNLIBS}/fmod/studio/inc
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
+  DOC "fmod - Headers"
+)
+FIND_PATH(FMOD_LL_INCLUDE_DIR "fmod.h"
+  PATHS
+  $ENV{FMOD_HOME}/inc
+  $ENV{EXTERNLIBS}/fmod/lowlevel/inc
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
@@ -24,13 +38,13 @@ FIND_PATH(FMOD_INCLUDE_DIR "fmod.h"
   DOC "fmod - Headers"
 )
 
-SET(FMOD_NAMES fmodex64_vc)
-SET(FMOD_DBG_NAMES fmodex64_vc)
+SET(FMOD_NAMES fmodstudio64_vc)
+SET(FMOD_DBG_NAMES fmodstudio64_vc)
 
 FIND_LIBRARY(FMOD_LIBRARY NAMES ${FMOD_NAMES}
   PATHS
   $ENV{FMOD_HOME}
-  $ENV{EXTERNLIBS}/fmod
+  $ENV{EXTERNLIBS}/fmod/studio/lib
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
@@ -43,13 +57,13 @@ FIND_LIBRARY(FMOD_LIBRARY NAMES ${FMOD_NAMES}
   DOC "fmod - Library"
 )
 
-SET(FMOD_EVENT_NAMES fmod_event64)
-SET(FMOD_EVENT_DBG_NAMES fmod_event64)
+SET(FMOD_EVENT_NAMES fmod64_vc)
+SET(FMOD_EVENT_DBG_NAMES fmod64_vc)
 
 FIND_LIBRARY(FMOD_EVENT_LIBRARY NAMES ${FMOD_EVENT_NAMES}
   PATHS
   $ENV{FMOD_HOME}
-  $ENV{EXTERNLIBS}/fmod
+  $ENV{EXTERNLIBS}/fmod/lowlevel/lib
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
@@ -70,14 +84,14 @@ IF(MSVC)
   FIND_LIBRARY(FMOD_LIBRARY_DEBUG NAMES ${FMOD_DBG_NAMES}
     PATHS
     $ENV{FMOD_HOME}
-    $ENV{EXTERNLIBS}/fmod
+    $ENV{EXTERNLIBS}/fmod/studio/lib
     PATH_SUFFIXES lib lib64
     DOC "fmod - Library (Debug)"
   )
   FIND_LIBRARY(FMOD_EVENT_LIBRARY_DEBUG NAMES ${FMOD_EVENT_DBG_NAMES}
     PATHS
     $ENV{FMOD_HOME}
-    $ENV{EXTERNLIBS}/fmod
+    $ENV{EXTERNLIBS}/fmod/lowlevel/lib
     PATH_SUFFIXES lib lib64
     DOC "fmod_event - Library (Debug)"
   )
@@ -101,5 +115,5 @@ ELSE(MSVC)
 ENDIF(MSVC)
 
 IF(FMOD_FOUND)
-  SET(FMOD_INCLUDE_DIRS ${FMOD_INCLUDE_DIR})
+  SET(FMOD_INCLUDE_DIRS ${FMOD_INCLUDE_DIR} ${FMOD_LL_INCLUDE_DIR})
 ENDIF(FMOD_FOUND)

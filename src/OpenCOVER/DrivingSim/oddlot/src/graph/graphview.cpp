@@ -60,6 +60,9 @@
 #include <QInputDialog>
 #include <QXmlStreamReader>
 #include <QFile>
+#include <QDialog>
+#include <QFormLayout>
+#include <QDialogButtonBox>
 
 
 // Utils //
@@ -300,7 +303,7 @@ GraphView::toolAction(ToolAction *toolAction)
         else if (id == MapTool::TMA_GOOGLE)
         {
             loadGoogleMap();
-            lockMap(true);
+            lockMap(false);
         }
         else if (id == MapTool::TMA_DELETE)
         {
@@ -520,147 +523,204 @@ GraphView::loadMap()
 void
 GraphView::loadGoogleMap()
 {
-    //I'll need this later, it's the formula Google uses to calculate the scale of the map
+    //May need this later, it's the formula Google uses to calculate the scale of the map
     //156543.03392 * Math.cos(latLng.lat() * Math.PI / 180) / Math.pow(2, zoom)
     //https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
 
-    bool ok;
-    QString location = QInputDialog::getText(this, tr("Choose center location"),
-                                         tr("Can be in form of address or coordinates"), QLineEdit::Normal,
-                                         QDir::home().dirName(), &ok);
+    QString location;
+    QString maptype;
+    QString sizePair;
+    QDir directoryOperator;
+    bool mapRejected = false;
+
+    //Sets up the UI
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Google Map Config");
+    QFormLayout form(&dialog);
+    form.addRow(new QLabel("Please enter location, map type, and size"));
+
+    QList<QLineEdit *> fields;
+    QLineEdit *lineEdit1 = new QLineEdit(&dialog);
+    QString label = QString("Location (address or coordinates):");
+    form.addRow(label, lineEdit1);
+    fields << lineEdit1;
+
+    QLineEdit *lineEdit2 = new QLineEdit(&dialog);
+    QString label2 = QString("Map Type (satellite or roadmap):");
+    form.addRow(label2, lineEdit2);
+    lineEdit2->setText("satellite");
+    fields << lineEdit2;
+
+    QLineEdit *lineEdit3 = new QLineEdit(&dialog);
+    QString label3 = QString("Size (XcommaY):");
+    lineEdit3->setText("3,3");
+    form.addRow(label3, lineEdit3);
+    fields << lineEdit3;
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, &dialog);
+    form.addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+    if (dialog.exec() == QDialog::Accepted) {
+        location = lineEdit1->text();
+        maptype  = lineEdit2->text();
+        sizePair = lineEdit3->text();
+        }
+    else
+        mapRejected = true;
+
+    QStringList sizePairList = sizePair.split(",");
+    QString sizeX = sizePairList.value(0);
+    QString sizeY = sizePairList.value(1);
 
     //For debugging purposes
     //double offSet = QInputDialog::getDouble(this, tr("Offset?"),
-    //                tr("Gimme something good"), 0.00, -1, 1, 10, &ok);
-
-
-    //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
-    //We want to find this value, so that the adjacent maps to the first map can be correct
-    //Need to figure out
-
-   QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
-
-   system(qPrintable(XMLlocationCommand));
-
-   QString lat;
-   QString lon;
-
-   QFile xmlFile("location.xml");
-   if(!xmlFile.open(QFile::ReadOnly | QFile::Text))
-       exit(0);
-
-   QXmlStreamReader xmlReader(&xmlFile);
-
-
-   if (xmlReader.readNextStartElement())
-   {
-       if(xmlReader.name() == "GeocodeResponse")
-       {
-           while(xmlReader.readNextStartElement())
-           {
-               if(xmlReader.name() == "status")
-               {
-                   xmlReader.skipCurrentElement();
-               }
-               else if(xmlReader.name() == "result")
-               {
-                   while(xmlReader.readNextStartElement())
-                   {
-                       if(xmlReader.name() != "geometry")
-                       {
-                           xmlReader.skipCurrentElement();
-                       }
-                       else if (xmlReader.name() == "geometry")
-                           while(xmlReader.readNextStartElement())
-                           {
-                               if(xmlReader.name() == "location"){
-                                   while(xmlReader.readNextStartElement())
-                                   {
-                                       if(xmlReader.name() == "lat"){
-                                           lat = xmlReader.readElementText();
-                                       }
-                                       if(xmlReader.name() == "lng"){
-                                           lon = xmlReader.readElementText();
-                                       }
-                                   }
-                               }
-                           }
-                   }
-               }
-           }
-       }
-   }
+    //                tr("Offset test"), 0.00, -1, 1, 10, &ok);
 
 
 
-   /* QStringList coords = location.split(",");
-    QString lat = coords.value(0);
-    QString lon = coords.value(1); */
 
-    double dlat = lat.toDouble();
-    double dlon = lon.toDouble();
+    if(!mapRejected){
 
-    //example format:
-    //curl 'https://maps.googleapis.com/maps/api/staticmap?center=Stuttgart%20Vaihingen,Germany&zoom=16&size=1200x1200&scale=2'
+        //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
+        QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
 
-    QString zoom = "19";
-    QString maptype = "satellite";
-    QString style = "&style=feature:all|element:labels|visibility:off";
-    QString uploadPrefix = "wget -O ";
-    QString uploadPrefix2 ="'https://maps.googleapis.com/maps/api/staticmap?center=";
-    QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+        system(qPrintable(XMLlocationCommand));
 
+        QString lat;
+        QString lon;
 
-    //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
-    double xOffset = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
-                    - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
-    double yOffset = .00172;
-    QString newLoc;
-    double newLat;
-    double newLon;
-    QString filename;
-    double scale = this->getScale();
+        QFile xmlFile("location.xml");
+        if(!xmlFile.open(QFile::ReadOnly | QFile::Text))
+            exit(0);
+
+        QXmlStreamReader xmlReader(&xmlFile);
 
 
-    resetViewTransformation();
-    scaleView(1.0, 1.0);
+        //Finds latitude and longitude of the selected location by parsing downloaded XML document
 
-    int xSize = 3;
-    int ySize = 3;
-    int progress = xSize*ySize;
-    for (int i = -xSize/2; i < xSize-1; i++)
-    {
-        for (int j = -ySize/2; j < ySize-1; j++)
+        if (xmlReader.readNextStartElement())
         {
-            double latIterator = double(j);
-            double lonIterator = double(i);
-            newLat = dlat + -latIterator*xOffset;
-            newLon = dlon + lonIterator*yOffset;
-            newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
-            system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
-            progress--;
-            QString newFilename = QString("image" + QString::number(i) + QString::number(j) + ".png ");
-            QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
-            system(qPrintable(command));
-        }
-    }
-    for (int i = -xSize/2; i < xSize-1; i++)
-    {
-        for (int j = -ySize/2; j < ySize-1; j++)
-        {            
-            filename = QString("image" + QString::number(i) + QString::number(j) + ".png");
-            scenerySystemItem_->loadMap(filename, mapToScene(i*1280, j*1235));
-        }
-    }
-    system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 10)));
-    system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 10)));
-    system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 10)));
-   /*) location = "48.7758459, 9.18462";
-    command = command = uploadPrefix + location + uploadPostfix;
-    system(qPrintable(command));
-    scenerySystemItem_->loadMap(filename, mapToScene(1280.0, 10.0));
-*/
+            if(xmlReader.name() == "GeocodeResponse")
+            {
+                while(xmlReader.readNextStartElement())
+                {
+                    if(xmlReader.name() == "status")
+                    {
+                        xmlReader.skipCurrentElement();
+                    }
+                    else if(xmlReader.name() == "result")
+                    {
+                        while(xmlReader.readNextStartElement())
+                        {
+                            if(xmlReader.name() != "geometry")
+                            {
+                                xmlReader.skipCurrentElement();
+                            }
+                            else if (xmlReader.name() == "geometry")
+                                while(xmlReader.readNextStartElement())
+                                {
+                                    if(xmlReader.name() == "location"){
+                                        while(xmlReader.readNextStartElement())
+                                        {
+                                            if(xmlReader.name() == "lat"){
+                                                lat = xmlReader.readElementText();
+                                            }
+                                            if(xmlReader.name() == "lng"){
+                                                lon = xmlReader.readElementText();
+                                            }
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+        }        
+        double dlat = lat.toDouble();
+        double dlon = lon.toDouble();
 
+
+        QString folderName = QString(QString::number(dlat) + QString::number(dlon) + maptype + sizeX + sizeY);
+        directoryOperator.mkdir("OddlotMapImages");
+        directoryOperator.setCurrent("OddlotMapImages");
+        directoryOperator.mkdir(folderName);
+        directoryOperator.setCurrent(folderName);
+        //example format:
+        //wget -O 'https://maps.googleapis.com/maps/api/staticmap?center=Stuttgart%20Vaihingen,Germany&zoom=16&size=1200x1200&scale=2'
+
+        QString zoom = "19";
+        QString style = "&style=feature:all|element:labels|visibility:off";
+        QString uploadPrefix = "wget -O ";
+        QString uploadPrefix2 ="'https://maps.googleapis.com/maps/api/staticmap?center=";
+        QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + style + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+
+
+        //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
+        double xOffset = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
+                - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
+        double yOffset = .00172;
+        QString newLoc;
+        double newLat;
+        double newLon;
+        QString filename;
+        double scale = this->getScale();
+
+
+        //zoom in to the default zoom, so that the map gets placed right
+        resetViewTransformation();
+        scaleView(1.0, 1.0);
+
+        //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
+        double xSize = sizeX.toDouble();
+        if(xSize < 2)
+            xSize = 3;
+        double ySize = sizeY.toDouble();
+        if (ySize < 2)
+            ySize = 3;
+        int progress = xSize*ySize;
+
+        //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
+        //Uses the previously determined offsets to change the center of each image
+        for (int i = -xSize/2; i < xSize/2; i++)
+        {
+            for (int j = -ySize/2; j < ySize/2; j++)
+            {
+                double latIterator = double(j);
+                double lonIterator = double(i);
+                newLat = dlat + -latIterator*xOffset;
+                newLon = dlon + lonIterator*yOffset;
+                newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
+                system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
+                progress--;
+                system(qPrintable("pwd"));
+                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png ");
+                QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
+                system(qPrintable(command));
+            }
+        }      
+        //mnt/raid/tmp/unirundkurs
+
+        //oddlot Uni_V8f_OE.xodr
+        //Places the images on the scene
+        for (int i = -xSize/2; i < xSize/2; i++)
+        {
+            for (int j = -ySize/2; j < ySize/2; j++)
+            {
+                filename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
+                scenerySystemItem_->loadGoogleMap(filename, mapToScene(i*128+400, j*124-900));
+            }
+        }
+        xmlFile.remove();
+        system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 10)));
+        system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 10)));
+        system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 10)));
+        directoryOperator.setCurrent("..");
+        directoryOperator.setCurrent("..");
+    }
 }
 
 /*! \brief .

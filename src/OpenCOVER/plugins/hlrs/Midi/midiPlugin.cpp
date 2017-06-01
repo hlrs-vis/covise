@@ -180,7 +180,10 @@ osg::Geode *MidiPlugin::createGeometry(int i)
 
     osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0);
     osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint.get());
+    if(noteInfos[i]!=NULL)
+    {
         mySphereDrawable->setColor(noteInfos[i]->color);
+    }
     geode = new osg::Geode();
     geode->addDrawable(mySphereDrawable);
     geode->setStateSet(shadedStateSet.get());
@@ -203,7 +206,7 @@ currentTrack = 0;
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     //----------------------------------------------------------------------------
-    if (player == NULL)
+  /*  if (player == NULL)
     {
         player = cover->usePlayer(playerUnavailableCB);
         if (player == NULL)
@@ -216,7 +219,7 @@ currentTrack = 0;
                 cerr << "sorry, no VRML, no Sound support " << endl;
             }
         }
-    }
+    }*/
 
     MIDIRoot = new osg::Group;
     MIDIRoot->setName("MIDIRoot");
@@ -243,12 +246,12 @@ currentTrack = 0;
     shadeModel->setMode(osg::ShadeModel::SMOOTH);
     shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
 
-    noteInfos.resize(80);
+    noteInfos.resize(180);
     
     hint = new osg::TessellationHints();
     hint->setDetailRatio(1.0);
     
-    for(int i=0;i<80;i++)
+    for(int i=0;i<180;i++)
        noteInfos[i]=NULL;
     noteInfos[27] = new NoteInfo(27);
     noteInfos[27]->color = osg::Vec4(1,0,1,1);
@@ -320,6 +323,15 @@ currentTrack = 0;
         nIs[i]->initialVelocity.set(sin(angle)*100.0,cos(angle)*100.0,1000);
     }
 
+    midi1fd = -1;
+    if(coVRMSController::instance()->isMaster())
+    {
+        midi1fd = open("/dev/midi1",O_RDONLY | O_NONBLOCK);
+        fprintf(stderr,"open /dev/midi1 %d",midi1fd);
+    }
+    lTrack = NULL;
+    lTrack = new Track(tracks.size());
+    tracks.push_back(lTrack);
     MIDItab_create();
     return true;
 }
@@ -327,6 +339,7 @@ currentTrack = 0;
 //------------------------------------------------------------------------------
 MidiPlugin::~MidiPlugin()
 {
+delete lTrack;
 }
 
 bool MidiPlugin::destroy()
@@ -346,7 +359,7 @@ bool MidiPlugin::destroy()
 void MidiPlugin::preFrame()
 {
     //fprintf(stderr,"tracks %d\n",tracks.size());
-    if(tracks.size() > 30)
+    if(tracks.size() > 0)
     {
         if(startTime == 0.0)
         {
@@ -481,9 +494,10 @@ Track::Track(int tn)
     trackNumber = tn;
     char soundName[200];
     snprintf(soundName,200,"RENDERS/S%d.wav",tn);
-    trackAudio = new vrml::Audio(soundName);
+    //trackAudio = new vrml::Audio(soundName);
+    trackAudio = NULL;
     trackSource = NULL;
-    if (MidiPlugin::plugin->player)
+    if (trackAudio!=NULL && MidiPlugin::plugin->player)
     {
         trackSource = MidiPlugin::plugin->player->newSource(trackAudio);
         if (trackSource)
@@ -519,6 +533,67 @@ void Track::update()
     double speed = MidiPlugin::plugin->midifile.getTicksPerQuarterNote();
     double time = cover->frameTime() - MidiPlugin::plugin->startTime;
     MidiEvent me;
+    if(this == MidiPlugin::plugin->lTrack)
+    {
+        char buf[1000];
+        int numRead = 0;
+        if(MidiPlugin::plugin->midi1fd>0)
+        {
+            numRead = read(MidiPlugin::plugin->midi1fd,buf,2);
+        }
+	if(numRead > 0)
+	{
+	    if(buf[0]!=-2)
+	    {
+	        if(buf[0]==-112)
+		{
+		    int key = buf[1];
+                    me.setP0(buf[0]);
+                    me.setP1(buf[1]);
+                    int numRead = read(MidiPlugin::plugin->midi1fd,buf,2);
+		    int value = buf[0];
+                    me.setP2(buf[0]);
+		    if(value > 0)
+                    {
+                        // key press
+			me.setKeyNumber(key);
+                        me.setVelocity(value);
+		    }
+		    else
+		    {
+		        // key release
+		    }
+		}
+		else
+		{
+		    fprintf(stderr,"%d %d\n",(int)buf[0],(int)buf[1]);
+		}
+	    }
+	}
+        if (coVRMSController::instance()->isMaster())
+        {
+	    char buf[3];
+	    buf[0] = me.getP0();
+	    buf[1] = me.getP1();
+	    buf[2] = me.getP2();
+            coVRMSController::instance()->sendSlaves((char *)buf, 3);
+	    
+        }
+        else
+        {
+	    char buf[3];
+            coVRMSController::instance()->readMaster((char *)buf, 3);
+                    me.setP0(buf[0]);
+                    me.setP1(buf[1]);
+                    me.setP2(buf[2]);
+        }
+        if(me.isNote() && me.getVelocity()>0)
+        {
+            notes.push_back(new Note(me,this));
+        }
+    }
+    else
+    {
         if(eventNumber < MidiPlugin::plugin->midifile[trackNumber].size())
         {
             me = MidiPlugin::plugin->midifile[trackNumber][eventNumber];
@@ -542,6 +617,7 @@ void Track::update()
             }
             eventNumber++;
     } 
+    }
     
     for(std::list<Note *>::iterator it = notes.begin(); it != notes.end();it++)
     {
@@ -575,10 +651,16 @@ Note::Note(MidiEvent &me, Track *t)
     NoteInfo *ni = MidiPlugin::plugin->noteInfos[me.getKeyNumber()];
     transform = new osg::MatrixTransform();
     float s = event.getVelocity()/20.0;
+    if(ni==NULL)
+    {
+        fprintf(stderr,"no NoteInfo for Key %d\n",me.getKeyNumber());
+        ni = MidiPlugin::plugin->noteInfos[27];
+        event.setKeyNumber(27);
+    }
     transform->setMatrix(osg::Matrix::scale(s,s,s) * osg::Matrix::translate(ni->initialPosition));
     transform->addChild(ni->geometry);
-    t->TrackRoot->addChild(transform.get());
     velo = ni->initialVelocity*event.getVelocity()/200.0;
+    t->TrackRoot->addChild(transform.get());
     
 }
 Note::~Note()

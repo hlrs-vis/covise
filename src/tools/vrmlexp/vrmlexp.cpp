@@ -61,7 +61,7 @@ static BOOL IsEverAnimated(INode *node);
 
 // Round numbers near zero to zero.  This help reduce VRML file size.
 inline float
-round(float f)
+roundToZero(float f)
 {
     // This is used often, so we avoid calling fabs
     if (f < 0.0f)
@@ -87,9 +87,9 @@ VRBLExport::point(Point3 &p)
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(-p.y));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(-p.y));
     CommaScan(buf);
     return buf;
 }
@@ -100,7 +100,7 @@ VRBLExport::color(Color &c)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
-    _stprintf(buf, format, round(c.r), round(c.g), round(c.b));
+    _stprintf(buf, format, roundToZero(c.r), roundToZero(c.g), roundToZero(c.b));
     CommaScan(buf);
     return buf;
 }
@@ -111,7 +111,7 @@ VRBLExport::color(Point3 &c)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
-    _stprintf(buf, format, round(c.x), round(c.y), round(c.z));
+    _stprintf(buf, format, roundToZero(c.x), roundToZero(c.y), roundToZero(c.z));
     CommaScan(buf);
     return buf;
 }
@@ -122,7 +122,7 @@ VRBLExport::floatVal(float f)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg"), mDigits);
-    _stprintf(buf, format, round(f));
+    _stprintf(buf, format, roundToZero(f));
     CommaScan(buf);
     return buf;
 }
@@ -133,7 +133,7 @@ VRBLExport::texture(UVVert &uv)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg"), mDigits, mDigits, mDigits);
-    _stprintf(buf, format, round(uv.x), round(uv.y));
+    _stprintf(buf, format, roundToZero(uv.x), roundToZero(uv.y));
     CommaScan(buf);
     return buf;
 }
@@ -146,9 +146,9 @@ VRBLExport::scalePoint(Point3 &p)
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
     //if (mZUp)
-    //    _stprintf(buf, format, round(p.x), round( p.y), round(p.z));
+    //    _stprintf(buf, format, roundToZero(p.x), roundToZero( p.y), roundToZero(p.z));
     //else
-    _stprintf(buf, format, round(p.x), round(p.z), round(p.y));
+    _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(p.y));
     CommaScan(buf);
     return buf;
 }
@@ -161,9 +161,9 @@ VRBLExport::normPoint(Point3 &p)
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(-p.y));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(-p.y));
     CommaScan(buf);
     return buf;
 }
@@ -177,11 +177,11 @@ VRBLExport::axisPoint(Point3 &p, float angle)
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg %%.%dg"),
               mDigits, mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z),
-                  round(angle));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z),
+                  roundToZero(angle));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(-p.y),
-                  round(angle));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(-p.y),
+                  roundToZero(angle));
     CommaScan(buf);
     return buf;
 }
@@ -1096,183 +1096,196 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
     return FALSE;
 }
 
-// Create a VRMNL primitive sphere, if appropriate.
+// Create a VRMNL primitive sphere, if appropriate.  
 // Returns TRUE if a primitive is created
 BOOL
-VRBLExport::VrblOutSphere(INode *node, Object *obj, int level)
+VRBLExport::VrblOutSphere(INode * node, Object *obj, int level)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius, hemi;
-    int basePivot, genUV, smooth;
-    BOOL td = HasTexture(node);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* iSphereParams = so->GetParamBlockByID(SPHERE_PARAMBLOCK_ID);
+	DbgAssert(iSphereParams);
+	if (iSphereParams == nullptr)
+		return FALSE;
 
-    // Reject "base pivot" mapped, non-smoothed and hemisphere spheres
-    so->pblock->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
-    so->pblock->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
-    so->pblock->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
-    if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
-        return FALSE;
+	float radius, hemi;
+	int basePivot, genUV, smooth;
+	BOOL td = HasTexture(node);
 
-    so->pblock->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
+	// Reject "base pivot" mapped, non-smoothed and hemisphere spheres
+	iSphereParams->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
+	iSphereParams->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
+	iSphereParams->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
+	iSphereParams->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
+	if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
+		return FALSE;
 
-    Indent(level);
+	iSphereParams->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
 
-    MSTREAMPRINTF  ("Sphere { radius %s }\n"), floatVal(radius));
+	Indent(level);
 
-    return TRUE;
+	mStream.Printf(_T("Sphere { radius %s }\n"), floatVal(radius));
+
+	return TRUE;
 }
 
-// Create a VRMNL primitive cylinder, if appropriate.
+// Create a VRMNL primitive cylinder, if appropriate.  
 // Returns TRUE if a primitive is created
 BOOL
-VRBLExport::VrblOutCylinder(INode *node, Object *obj, int level)
+VRBLExport::VrblOutCylinder(INode* node, Object *obj, int level)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius, height;
-    int sliceOn, genUV, smooth;
-    BOOL td = HasTexture(node);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2 *iCylParams = obj->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
+	DbgAssert(iCylParams);
+	if (iCylParams == nullptr)
+		return FALSE;
 
-    // Reject sliced, non-smooth and mapped cylinders
-    so->pblock->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
-    so->pblock->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
-    if (sliceOn || (genUV && td) || !smooth)
-        return FALSE;
+	float radius, height;
+	int sliceOn, genUV, smooth;
+	BOOL td = HasTexture(node);
 
-    so->pblock->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
-    so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
-    Indent(level);
-    MSTREAMPRINTF  ("Separator {\n"));
-    Indent(level + 1);
-    if (mZUp)
-    {
-        MSTREAMPRINTF  ("Rotation { rotation 1 0 0 %s }\n"),
-                floatVal(float(PI/2.0)));
-        Indent(level + 1);
-        MSTREAMPRINTF  ("Translation { translation 0 %s 0 }\n"),
-                floatVal(float(height/2.0)));
-    }
-    else
-    {
-        Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
-        MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
-    }
-    Indent(level + 1);
-    MSTREAMPRINTF  ("Cylinder { radius %s "), floatVal(radius));
-    MSTREAMPRINTF  ("height %s }\n"), floatVal(float(fabs(height))));
-    Indent(level);
-    MSTREAMPRINTF  ("}\n"));
+	// Reject sliced, non-smooth and mapped cylinders
+	iCylParams->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
+	iCylParams->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
+	iCylParams->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
+	if (sliceOn || (genUV && td) || !smooth)
+		return FALSE;
 
-    return TRUE;
+	iCylParams->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
+	iCylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+	Indent(level);
+	mStream.Printf(_T("Separator {\n"));
+	Indent(level + 1);
+	if (mZUp) {
+		mStream.Printf(_T("Rotation { rotation 1 0 0 %s }\n"),
+			floatVal(float(PI / 2.0)));
+		Indent(level + 1);
+		mStream.Printf(_T("Translation { translation 0 %s 0 }\n"),
+			floatVal(float(height / 2.0)));
+	}
+	else {
+		Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
+		mStream.Printf(_T("Translation { translation %s }\n"), point(p));
+	}
+	Indent(level + 1);
+	mStream.Printf(_T("Cylinder { radius %s "), floatVal(radius));
+	mStream.Printf(_T("height %s }\n"), floatVal(float(fabs(height))));
+	Indent(level);
+	mStream.Printf(_T("}\n"));
+
+	return TRUE;
 }
 
-// Create a VRMNL primitive cone, if appropriate.
+// Create a VRMNL primitive cone, if appropriate.  
 // Returns TRUE if a primitive is created
 BOOL
-VRBLExport::VrblOutCone(INode *node, Object *obj, int level)
+VRBLExport::VrblOutCone(INode* node, Object *obj, int level)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius1, radius2, height;
-    int sliceOn, genUV, smooth;
-    BOOL td = HasTexture(node);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2 *iConeParams = obj->GetParamBlockByID(CONE_PARAMBLOCK_ID);
+	DbgAssert(iConeParams);
+	if (iConeParams == nullptr)
+		return FALSE;
 
-    // Reject sliced, non-smooth and mappeded cones
-    so->pblock->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
-    so->pblock->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
-    so->pblock->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
-    if (sliceOn || (genUV && td) || !smooth || radius2 > 0.0f)
-        return FALSE;
+	float radius1, radius2, height;
+	int sliceOn, genUV, smooth;
+	BOOL td = HasTexture(node);
 
-    so->pblock->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
-    so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
-    Indent(level);
+	// Reject sliced, non-smooth and mappeded cones
+	iConeParams->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
+	iConeParams->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
+	iConeParams->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
+	iConeParams->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+	if (sliceOn || (genUV &&td) || !smooth || radius2 > 0.0f)
+		return FALSE;
 
-    MSTREAMPRINTF  ("Separator {\n"));
-    Indent(level + 1);
-    if (mZUp)
-    {
-        if (height > 0.0f)
-            MSTREAMPRINTF  ("Rotation { rotation 1 0 0 %s }\n"),
-                    floatVal(float(PI/2.0)));
-        else
-            MSTREAMPRINTF  ("Rotation { rotation 1 0 0 %s }\n"),
-                    floatVal(float(-PI/2.0)));
-        Indent(level + 1);
-        MSTREAMPRINTF  ("Translation { translation 0 %s 0 }\n"),
-                floatVal(float(fabs(height)/2.0)));
-    }
-    else
-    {
-        Point3 p = Point3(0.0f, 0.0f, (float)fabs(height) / 2.0f);
-        MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
-    }
-    Indent(level + 1);
+	iConeParams->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
+	iConeParams->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+	Indent(level);
 
-    MSTREAMPRINTF  ("Cone { bottomRadius %s "), floatVal(radius1));
-    MSTREAMPRINTF  ("height %s }\n"), floatVal(float(fabs(height))));
+	mStream.Printf(_T("Separator {\n"));
+	Indent(level + 1);
+	if (mZUp) {
+		if (height > 0.0f)
+			mStream.Printf(_T("Rotation { rotation 1 0 0 %s }\n"),
+				floatVal(float(PI / 2.0)));
+		else
+			mStream.Printf(_T("Rotation { rotation 1 0 0 %s }\n"),
+				floatVal(float(-PI / 2.0)));
+		Indent(level + 1);
+		mStream.Printf(_T("Translation { translation 0 %s 0 }\n"),
+			floatVal(float(fabs(height) / 2.0)));
+	}
+	else {
+		Point3 p = Point3(0.0f, 0.0f, (float)fabs(height) / 2.0f);
+		mStream.Printf(_T("Translation { translation %s }\n"), point(p));
+	}
+	Indent(level + 1);
 
-    Indent(level);
-    MSTREAMPRINTF  ("}\n"));
-    return TRUE;
+	mStream.Printf(_T("Cone { bottomRadius %s "), floatVal(radius1));
+	mStream.Printf(_T("height %s }\n"), floatVal(float(fabs(height))));
+
+	Indent(level);
+	mStream.Printf(_T("}\n"));
+	return TRUE;
 }
-
-// Create a VRMNL primitive cube, if appropriate.
+// Create a VRMNL primitive cube, if appropriate.  
 // Returns TRUE if a primitive is created
 BOOL
-VRBLExport::VrblOutCube(INode *node, Object *obj, int level)
+VRBLExport::VrblOutCube(INode* node, Object *obj, int level)
 {
-    Mtl *mtl = node->GetMtl();
-    // Multi materials need meshes
-    if (mtl && mtl->IsMultiMtl())
-        return FALSE;
+	Mtl* mtl = node->GetMtl();
+	// Multi materials need meshes
+	if (mtl && mtl->IsMultiMtl())
+		return FALSE;
 
-    SimpleObject *so = (SimpleObject *)obj;
-    float length, width, height;
-    BOOL td = HasTexture(node);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2 *iBoxParams = obj->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
+	DbgAssert(iBoxParams);
+	if (iBoxParams == nullptr)
+		return FALSE;
 
-    int genUV, lsegs, wsegs, hsegs;
-    so->pblock->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
-    so->pblock->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
-    so->pblock->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
-    if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
-        return FALSE;
+	float length, width, height;
+	BOOL td = HasTexture(node);
 
-    so->pblock->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
-    so->pblock->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
-    so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
-    Indent(level);
-    MSTREAMPRINTF  ("Separator {\n"));
-    Indent(level + 1);
-    Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
-    // VRML cubes grow from the middle, MAX grows from z=0
-    MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
-    Indent(level + 1);
+	int genUV, lsegs, wsegs, hsegs;
+	iBoxParams->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
+	iBoxParams->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
+	iBoxParams->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
+	iBoxParams->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
+	if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
+		return FALSE;
 
-    if (mZUp)
-    {
-        MSTREAMPRINTF  ("Cube { width %s "),
-                floatVal(float(fabs(width))));
-        MSTREAMPRINTF  ("height %s "),
-                floatVal(float(fabs(length))));
-        MSTREAMPRINTF  (" depth %s }\n"),
-                floatVal(float(fabs(height))));
-    }
-    else
-    {
-        MSTREAMPRINTF  ("Cube { width %s "),
-                floatVal(float(fabs(width))));
-        MSTREAMPRINTF  ("height %s "),
-                floatVal(float(fabs(height))));
-        MSTREAMPRINTF  (" depth %s }\n"),
-                floatVal(float(fabs(length))));
-    }
-    Indent(level);
-    MSTREAMPRINTF  ("}\n"));
+	iBoxParams->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
+	iBoxParams->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
+	iBoxParams->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+	Indent(level);
+	mStream.Printf(_T("Separator {\n"));
+	Indent(level + 1);
+	Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
+	// VRML cubes grow from the middle, MAX grows from z=0
+	mStream.Printf(_T("Translation { translation %s }\n"), point(p));
+	Indent(level + 1);
 
-    return TRUE;
+	if (mZUp) {
+		mStream.Printf(_T("Cube { width %s "),
+			floatVal(float(fabs(width))));
+		mStream.Printf(_T("height %s "),
+			floatVal(float(fabs(length))));
+		mStream.Printf(_T(" depth %s }\n"),
+			floatVal(float(fabs(height))));
+	}
+	else {
+		mStream.Printf(_T("Cube { width %s "),
+			floatVal(float(fabs(width))));
+		mStream.Printf(_T("height %s "),
+			floatVal(float(fabs(height))));
+		mStream.Printf(_T(" depth %s }\n"),
+			floatVal(float(fabs(length))));
+	}
+	Indent(level);
+	mStream.Printf(_T("}\n"));
+
+	return TRUE;
 }
 
 // Output a perspective camera
@@ -2075,7 +2088,7 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
             AngAxisFromQ(q / qLast, &ang, axis);
             // this removes rotational direction errors when rotating PI
             // and reduces negative rotational errors
-            if (!round(axis.x + rkey.val.axis.x) && !round(axis.y + rkey.val.axis.y) && !round(axis.z + rkey.val.axis.z))
+            if (!roundToZero(axis.x + rkey.val.axis.x) && !roundToZero(axis.y + rkey.val.axis.y) && !roundToZero(axis.z + rkey.val.axis.z))
             {
                 ang = rkey.val.angle;
                 axis = rkey.val.axis;

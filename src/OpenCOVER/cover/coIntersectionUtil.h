@@ -38,7 +38,7 @@ namespace Private
                 {
                     const osg::Vec3 *vptr = vfirst + i - 2;
                     //std::cerr << "TR " << omp_get_thread_num() << std::endl;
-                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), this->_treatVertexDataAsTemporary);
+                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), false);
                 }
                 break;
             }
@@ -52,9 +52,9 @@ namespace Private
                     //std::cerr << "TS " << omp_get_thread_num() << std::endl;
                     const osg::Vec3 *vptr = vfirst + i - 2;
                     if ((i % 2))
-                        this->operator()(*(vptr), *(vptr + 2), *(vptr + 1), this->_treatVertexDataAsTemporary);
+                        this->operator()(*(vptr), *(vptr + 2), *(vptr + 1), false);
                     else
-                        this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), this->_treatVertexDataAsTemporary);
+                        this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), false);
                 }
                 break;
             }
@@ -67,8 +67,8 @@ namespace Private
                 {
                     //std::cerr << "QD " << omp_get_thread_num() << std::endl;
                     const osg::Vec3 *vptr = vfirst + i - 3;
-                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), this->_treatVertexDataAsTemporary);
-                    this->operator()(*(vptr), *(vptr + 2), *(vptr + 3), this->_treatVertexDataAsTemporary);
+                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), false);
+                    this->operator()(*(vptr), *(vptr + 2), *(vptr + 3), false);
                 }
                 break;
             }
@@ -82,8 +82,8 @@ namespace Private
                 {
                     //std::cerr << "QS " << omp_get_thread_num() << std::endl;
                     const osg::Vec3 *vptr = vfirst + i - 3;
-                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 3), this->_treatVertexDataAsTemporary);
-                    this->operator()(*(vptr), *(vptr + 3), *(vptr + 2), this->_treatVertexDataAsTemporary);
+                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 3), false);
+                    this->operator()(*(vptr), *(vptr + 3), *(vptr + 2), false);
                 }
                 break;
             }
@@ -97,7 +97,7 @@ namespace Private
                 {
                     //std::cerr << "TF " << omp_get_thread_num() << std::endl;
                     const osg::Vec3 *vptr = vfirst + i - 1;
-                    this->operator()(*(vfirst), *(vptr), *(vptr + 1), this->_treatVertexDataAsTemporary);
+                    this->operator()(*(vfirst), *(vptr), *(vptr + 1), false);
                 }
                 break;
             }

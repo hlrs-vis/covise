@@ -40,21 +40,20 @@ PointCloudGeometry::PointCloudGeometry(PointSet *pointData)
     // create buffer objects to hold point data
     vertexBufferArray = getOrCreateVertexBufferObject();
     //vertexBufferArray->setUsage(GL_STREAM_DRAW_ARB);
-    colorBufferArray = getOrCreateVertexBufferObject();
-    //colorBufferArray->setUsage(GL_STREAM_DRAW_ARB);
     //primitiveBufferArray = getOrCreateElementBufferObject();
 
     // set color and vertexArrays
     colors = new Vec3Array(pointSet->size, (osg::Vec3 *)pointSet->colors);
     points = new Vec3Array(pointSet->size, (osg::Vec3 *)pointSet->points);
 
-    vertexBufferArray->setArray(0, colors);
-    colorBufferArray->setArray(0, points);
-
+    vertexBufferArray->setArray(0, points);
+    vertexBufferArray->setArray(1, colors);
     // bind color per vertex
+    points->setBinding(osg::Array::BIND_PER_VERTEX);
+    colors->setBinding(osg::Array::BIND_PER_VERTEX);
+
     setVertexArray(points);
     setColorArray(colors);
-    setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 
     // default initalization (modes 1,2,4,8)
     subsample = 0.3;

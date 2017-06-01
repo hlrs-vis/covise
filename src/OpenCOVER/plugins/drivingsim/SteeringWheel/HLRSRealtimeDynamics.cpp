@@ -30,6 +30,8 @@ HLRSRealtimeDynamics::HLRSRealtimeDynamics()
     memset(&remoteData, 0, sizeof(remoteData));
     remoteData.chassisTransform.makeIdentity();
     recvData.chassisTransform.makeIdentity();
+    remoteData.motionPlatformTransform.makeIdentity();
+    recvData.motionPlatformTransform.makeIdentity();
     // config XML //
     serverPort = coCoviseConfig::getInt("port", "COVER.Plugin.SteeringWheel.Dynamics", 31880);
     localPort = coCoviseConfig::getInt("localPort", "COVER.Plugin.SteeringWheel.Dynamics", 31880);

@@ -52,7 +52,6 @@
          <NumWindows value="2" />
 
          <WindowConfig>
-            <OpenGL3 value="false" />
             <Window ARCH="unix" width="900" comment="FRONT_L" window="0" pipeIndex="0" height="800" left="0" top="0" name="0" decoration="false" />
             <Window ARCH="unix" width="900" comment="FRONT_R" window="1" pipeIndex="0" height="800" left="900" top="0" name="1" decoration="false" />
          </WindowConfig>
@@ -67,7 +66,6 @@
    <LOCAL HOST="viscluster51,viscluster71" >
       <COVER>
          <WindowConfig>
-            <OpenGL3 value="false" />
             <Window ARCH="unix" width="900" comment="FRONT_R" window="0" pipeIndex="0" height="800" left="1800" top="0" name="0" decoration="false" />
          </WindowConfig>
 

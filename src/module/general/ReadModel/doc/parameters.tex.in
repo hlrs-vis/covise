@@ -8,22 +8,13 @@
 \hline
    \bf{Name} & \bf{Type} & \bf{Description} \endhead
 \hline\hline
-	file\_path & Browser & input file describing the surface in Sandia Stl format \\
-\hline
-        Format     & Choice &  file format: \newline
-	                       Autodetect = automatic selection \newline
-			       ASCII, Intel, Unix = manual selection \\ 
+	polygonFile & Browser & input file \\
 \hline	
-	color      & String &  Give this color to the geometry to be read. Enter either a textual representation like red, green, yellow or rgb values seperated by blanks (like: 255 0 255).\\
+	triangulate & Boolean & Check, if you prefer to triangulate all polygons. Line and point primitives are not modified. \\
 \hline	
-	RemoveDoubleVertices & Boolean & Check if multiple verticess should be removed from the resulting triangulation. \\
+	joinVertices & Boolean & Check, if you want to identify and join identical vertex data sets within all imported meshes. \\
 \hline	
-	ShowFeatureLines & Boolean & Check if feature-lines should be calculated. \\
-\hline	
-	FeatureAngle     & Slider & Angle used for the recognition of sharp edges. \\
-\hline	
-	FlipNormals      & Boolean & Check if the resulting triangulation should have inverted normals. Use if you see wrong lighting of your geometry.\\ 
-
+	ignoreErrors & Boolean & Check, if you are not interested in error messages. \\
 \end{longtable}
 %=============================================================
 

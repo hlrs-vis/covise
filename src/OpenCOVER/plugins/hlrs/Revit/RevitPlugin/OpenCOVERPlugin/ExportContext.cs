@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 using Autodesk.Revit.DB;
-using Autodesk.Revit.Utility;
+using Autodesk.Revit.DB.Visual;
+//using Autodesk.Revit.Utility;
 
 namespace OpenCOVERPlugin
 {
@@ -225,13 +226,13 @@ namespace OpenCOVERPlugin
             for (int index = 0; index < asset.Size; index++)
             {
                 
-                if (properties[index].Type == AssetPropertyType.APT_Reference)
+                if (properties[index].Type == AssetPropertyType.Reference)
                 {
                     AssetPropertyReference e = properties[index] as AssetPropertyReference;
                     if (e != null)
                     {
                         AssetProperty p = e.GetConnectedProperty(0);
-                        if (p.Type == AssetPropertyType.APT_Asset)
+                        if (p.Type == AssetPropertyType.Asset)
                         {
                             Asset a = p as Asset;
                             if (a != null)

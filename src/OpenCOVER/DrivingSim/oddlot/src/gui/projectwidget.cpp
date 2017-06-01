@@ -511,8 +511,11 @@ ProjectWidget::loadFile(const QString &fileName, FileType type)
 		}
 		else
 		{
-			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
-				.arg(xoscFileName));
+            if(false)
+            {
+                QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
+                                     .arg(xoscFileName));
+            }
 		}
 	}
 

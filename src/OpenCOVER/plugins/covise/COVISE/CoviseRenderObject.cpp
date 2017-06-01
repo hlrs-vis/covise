@@ -517,7 +517,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     addInt(size);
                     addFloat(min_[0]);
                     addFloat(max_[0]);
-                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[0], 5 * size * sizeof(float));
                 }
             }
             else
@@ -796,8 +796,8 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             copyInt(size);
             copyFloat(min_[0]);
             copyFloat(max_[0]);
-            farr[0] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[5 * size];
+            memcpy(farr[0], tb.getBinary(5 * size * sizeof(float)), 5 * size * sizeof(float));
         }
     }
 }

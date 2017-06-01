@@ -271,7 +271,7 @@ void PLMXMLParser::addInstance(char *id, osg::Group *parent)
         DOMElement *element = instance->element;
 
         parent->addChild(group);
-        coVRSelectionManager::markAsHelperNode(group);
+        //coVRSelectionManager::markAsHelperNode(group);
 
         osg::MatrixTransform *transformNode = getTransformNode(id, element);
         if (transformNode)
@@ -607,7 +607,7 @@ osg::MatrixTransform *PLMXMLParser::getTransformNode(const char *id, DOMElement 
         char *t = XMLString::transcode(transform);
 
         transformNode = new osg::MatrixTransform();
-        coVRSelectionManager::markAsHelperNode(transformNode);
+       // coVRSelectionManager::markAsHelperNode(transformNode);
 
         if (sscanf(t, "%lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg",
                    &m[0], &m[1], &m[2], &m[3], &m[4], &m[5], &m[6], &m[7],
@@ -621,7 +621,11 @@ osg::MatrixTransform *PLMXMLParser::getTransformNode(const char *id, DOMElement 
             transformNode->setMatrix(mat);
 
             if (node->hasAttribute(TAG_name))
-                transformNode->setName(XMLString::transcode(node->getAttribute(TAG_name)));
+			{
+				std::string nodeName(XMLString::transcode(node->getAttribute(TAG_name)));
+				nodeName = "T_" + nodeName;
+                transformNode->setName(nodeName.c_str());
+			}
             else
                 transformNode->setName(id);
         }

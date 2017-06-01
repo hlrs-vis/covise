@@ -185,8 +185,8 @@ public:
     QVector2D getGlobalNormal(double s) const;
     QTransform getGlobalTransform(double s, double d = 0.0) const;
 
-    double getSFromGlobalPoint(const QPointF &globalPos, double sInit = -1.0);
-    double getSFromGlobalPoint(const QPointF &globalPos, double sStart, double sEnd);
+    //double getSFromGlobalPoint(const QPointF &globalPos, double sInit = -1.0);
+    double getSFromGlobalPoint(const QPointF &globalPos, double sStart=-1., double sEnd=-1.);
     double getTFromGlobalPoint(const QPointF &globalPos, double s);
 
     // road:elevationProfile:elevation //

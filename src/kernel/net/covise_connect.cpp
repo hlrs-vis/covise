@@ -440,7 +440,7 @@ const char *SimpleClientConnection::readLine()
         if (pos)
         {
             *pos = '\0';
-            int len = (pos - buffer) + 1;
+			size_t len = (pos - buffer) + 1;
             char *line = new char[len];
             strcpy(line, buffer);
             buflen -= len;
@@ -2090,7 +2090,7 @@ std::string SSLServerConnection::getSSLSubjectUID()
     {
         return std::string("Not valid!");
     }
-    ASN1_INTEGER *uid = client_cert->cert_info->serialNumber;
+    ASN1_INTEGER *uid = X509_get_serialNumber(client_cert);
     X509_free(client_cert);
     char *cuid = reinterpret_cast<char *>(uid->data);
     return std::string(cuid);

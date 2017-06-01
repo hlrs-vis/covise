@@ -109,6 +109,17 @@
 using namespace opencover;
 using namespace covise;
 
+static void clearGlWindow()
+{
+    glDrawBuffer(GL_BACK);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glDrawBuffer(GL_FRONT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 int VRViewer::unsyncedFrames = 0;
 // Draw operation, that does a draw on the scene graph.
 struct RemoteSyncOp : public osg::Operation
@@ -236,8 +247,8 @@ struct ViewerRunOperations : public osg::Operation
                 numClears = coVRConfig::instance()->numWindows() * 2;
             }
             numClears--;
+            clearGlWindow();
             context->makeCurrent();
-            context->clear();
         } // OpenCOVER end
 
         context->runOperations();
@@ -1180,6 +1191,8 @@ VRViewer::createChannels(int i)
     {
         ds = new osg::DisplaySettings(*(_displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get()));
     }
+    if (!coVRConfig::instance()->glVersion.empty())
+        ds->setGLContextVersion(coVRConfig::instance()->glVersion);
 
     // set up the use of stereo by default.
     ds->setStereo(coVRConfig::instance()->stereoState());
@@ -2363,8 +2376,8 @@ void VRViewer::renderingTraversals()
                     numClears = coVRConfig::instance()->numWindows() * 2;
                 }
                 numClears--;
+                clearGlWindow();
                 makeCurrent(*itr);
-                (*itr)->clear();
             }
             //cerr << "finish" << endl;
 	    

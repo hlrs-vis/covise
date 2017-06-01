@@ -14,4 +14,4 @@ set(SOURCES
 
 covise_add_module(IO ReadIAGTecplot ${HEADERS} ${SOURCES})
 TARGET_LINK_LIBRARIES(ReadIAGTecplot coReader ${EXTRA_LIBS})
-
+add_covise_compile_flags(ReadIAGTecplot "-Wno-error=deprecated-declarations")
