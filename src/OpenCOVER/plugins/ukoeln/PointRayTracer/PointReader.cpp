@@ -9,9 +9,6 @@
 #include "rply.h"
 #include "rplycallbacks.inl"
 
-#include "rply.h"
-#include "rplycallbacks.inl"
-
 using namespace visionaray;
 
 PointReader *
@@ -203,8 +200,6 @@ bool PointReader::readFile(std::string filename,
             ply_set_read_cb(ply, "vertex", "green", &readColorCallback, &points, 1);
             ply_set_read_cb(ply, "vertex", "blue", &readColorCallback, &points, 2);
 
-            //m_vertexArray.reserve(nVertices + oldVertexArraySize);
-            //m_colorArray.reserve(nVertices + oldVertexArraySize);
             for(long i = 0; i < nVertices; i++){
                 sphere_type sp;
                 sp.radius() = pointSize;
@@ -219,6 +214,7 @@ bool PointReader::readFile(std::string filename,
                 std::cout << "Could not read file: " << filename.c_str() << std::endl;
                 return false;
             }
+
             //log(QString("Read %1 vertices").arg(nVertices));
             ply_close(ply);
 
@@ -262,6 +258,7 @@ bool PointReader::readFile(std::string filename,
                         std::cout << "PointReader::readFile() ERROR: number of tokens not 7 in line " << count << " of file " << filename.c_str() << std::endl;
                         break;
                     }
+
                     addPtsPoint(points,tokens,bbox,pointSize,count,cutUTMdata);
                     count++;
 
@@ -292,7 +289,6 @@ bool PointReader::readFile(std::string filename,
                 double min = 1000000.0;
                 double val = 0.0;
 
-
                 while(fgets(line,200,f)){
 
                     std::vector<std::string> tokens = splitString(line, ' ');
@@ -313,6 +309,7 @@ bool PointReader::readFile(std::string filename,
 
                 std::cout << "min: "  << min << "   max: " << max << std::endl;
             }
+
             fclose(f);
         }
 
@@ -325,7 +322,6 @@ bool PointReader::readFile(std::string filename,
             storeBvh(binaryPath, bvh_vector.back());
             std::cout << "Ready\n";
         }
-
     }
 
     /*
