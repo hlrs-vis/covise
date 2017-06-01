@@ -1351,19 +1351,32 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 std::string dataFilename = portChoice[nPort]->getLabel(portchoice);
                                 if (portchoice == 1)
                                 {//ToDo:Replace dim.cells with the correct number of faces
-                                /*  DimensionInfo dim = readDimensions(meshdir);
+                                    coRestraint res;
+                                    res.add(selection.c_str());
+                                    Boundaries boundaries = loadBoundary(meshdir);
+                                    int numBoundaryFaces =0;
+                                    for (std::vector<Boundary>::const_iterator it = boundaries.boundaries.begin();
+                                            it != boundaries.boundaries.end();
+                                            ++it)
+                                    {
+                                        int boundaryIndex = it->index;
+                                        if (res(boundaryIndex) || strcmp(selection.c_str(), "all") == 0)
+                                        {
+                                            numBoundaryFaces+= it->numFaces;
+                                        }
+                                    }
                                     std::string portObjName = boundaryDataPorts[nPort]->getObjName();
                                     portObjName += sd.str();
 
-                                    coDoFloat *v = new coDoFloat(portObjName, dim.cells);
+                                    coDoFloat *v = new coDoFloat(portObjName, numBoundaryFaces);
                                     float *processorID = v->getAddress();
 
-                                    for (int i=0; i<dim.cells; ++i)
+                                    for (int i=0; i<numBoundaryFaces; ++i)
                                     {
                                         processorID[i] = j;
                                     }
                                     v->addAttribute("REALTIME", realtime.c_str());
-                                    tempSetBoundPort[nPort].push_back(v);*/
+                                    tempSetBoundPort[nPort].push_back(v);
                                 }
                                 else
                                 {
