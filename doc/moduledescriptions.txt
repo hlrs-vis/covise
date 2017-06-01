@@ -19,8 +19,10 @@ Examples/TestSoc:  TestSoc Program: Test socket handling
 Examples/TestUIF:  TestUIF Program: Show all parameter types
 Examples/TestVtk:  Convert from COVISE to VTK data and back
 Examples/UpdateChoice:  UpdateChoice Program: Show all parameter types
+Filter/BezierGrid:  BezierGrid module
 Filter/ClipInterval:  Clips Geometry according to a Scalar Interval
 Filter/ColorDistance:  Compute distance to reference color
+Filter/ComputeGrid:  Creates a Grid of picked points
 Filter/ComputeTrace:  Creates traces from points timestep dependent
 Filter/CropUsg:  reduce the extents of an unstructured grid, polygonal mesh, lines or points
 Filter/CutGeometry:  cut something out of an object
@@ -74,7 +76,9 @@ IO/ReadASCII:  Read files to create points (w or w/o scalar or vector values) or
 IO/ReadAstroOld:  Read files to create a list of points (stars) and scalar parameters.
 IO/ReadAstroPh1:  Read Astro files containing lists of atom positions and their element types for several time steps.
 IO/ReadCadmould:  Read Cadmould
+IO/ReadCalculix:  Calculix Reader
 IO/ReadCalib:  Calib file Reader
+IO/ReadCardiff:  Cardiff Reader
 IO/ReadCellTree:  Read files to create a list of points (stars) and scalar parameters.
 IO/ReadCFX:  Read CFX
 IO/ReadCGNS-ihs:  CGNS Reader
@@ -92,8 +96,10 @@ IO/ReadFconfig:  ReadFconfig Simulation
 IO/ReadFidap:  Read data from Ihs FENFLOSS
 IO/ReadFieldView:  Read FieldView mesh and data
 IO/ReadFluent:  Read Fluent data
-IO/ReadFoam:  Read FOAM Data
+IO/ReadFoam:  Read OpenFOAM Data
+IO/ReadGeoDict:  Read GeoDict data
 IO/ReadHyperMesh:  Read Altair HyperMesh files
+IO/ReadIAGTecplot:  simple reader for Pandora HDF5 data
 IO/ReadIBB:  Read module for IBB GID files
 IO/ReadIdea:  Idea Reader
 IO/ReadIFF:  Read ITT's simulation data
@@ -112,6 +118,7 @@ IO/ReadLat:  read IRIS-Explorer Latice file
 IO/ReadMap:  Map Reader
 IO/ReadMeteo:  Read files to create a list of points (stars) and scalar parameters.
 IO/ReadMeteoCosmo:  Read Meteo Cosmo Data.
+IO/ReadModel:  Read polygon meshes in all formats supported by Assimp library
 IO/ReadMovieBYU:  Read file MovieBYU  v1.42
 IO/ReadMPAPDB:  Reader for MPA PDB files
 IO/ReadN3s:  Generic ASCII-File Reader for N3S 3.2
@@ -121,6 +128,7 @@ IO/ReadNastran:  Read NASTRAN output2 files
 IO/ReadNetCDF:  NetCDF Reader
 IO/ReadNeuron:  Read IWRs Neurons
 IO/ReadObj:  Wavefront OBJ Reader
+IO/ReadPandora:  simple reader for Pandora HDF5 data
 IO/ReadPatran:  Read Patran Neutral Files
 IO/ReadPlot3D:  Read Plot3D files
 IO/ReadPLUTO:  Read PLUTO
@@ -139,6 +147,7 @@ IO/ReadStl:  Read STL
 IO/ReadTecplot:  Tecplot file reader V 1.0b
 IO/ReadTree:  Read Cassified Volumes data
 IO/ReadUFF:  Reader for universal files
+IO/ReadVois:  Simple VOI Reader
 IO/ReadVolume:  Read volume files or create a volume from 2D slice images.
 IO/ReadVTF:  Read VTF format
 IO/ReadVTK:  Read Visualization Toolkit (VTK) data files
@@ -154,6 +163,7 @@ IO/WriteASC:  Generate ASCII file from Covise Object
 IO/WriteCGNS:  Write Unstructured Grid to cgns file
 IO/WritePatran:  Writing of Geometry in Patran Format
 IO/WritePolygon:  Write Stl or VRML97 files
+IO/writeToCgns:  writeToCgns
 IO/WriteVolume:  Write volume files or create 2D slice images.
 IO/WriteVTK:  Write any type of vtk dataset to file
 Mapper/AtomColors:  Map colors to atoms
@@ -163,6 +173,8 @@ Mapper/IsoLines:  compute ISO-lines
 Mapper/IsoSurface:  Determine an isosurface by a point or value
 Mapper/IsoSurfaceComp:  Determine an isosurface by a point or value
 Mapper/IsoSurface_TopoCheck:  IsoSurface module for uniform structured grids, generates topologically checked isosurfaces
+Mapper/PointsToLine:  connect points to a line
+Mapper/PredefinedColors:  Map scalars to colors
 Mapper/VectorField:  Draw Vector arrows
 Obsolete/Tetrahedronize:  transform any unstructured grid into tetrahedrons
 Obsolete/TetraNeighbor:  compute special neighborlist for tetrahedra-grids
@@ -190,7 +202,7 @@ Tools/Calc:  Simple calculator module
 Tools/CheckObj:  Check Covise objects
 Tools/Collect:  Combine grid, normals, colors, textures and vertex attributes in one data object for rendering
 Tools/DerivOperators:  Derivative-operator tool box
-Tools/DisplaceUsg:  Displace USG
+Tools/DisplaceUsg:  Displace vertices of grids
 Tools/FindBadCellsUSG:  Find Bad Cells in an USG
 Tools/FixPart:  Fix one part
 Tools/FixUsg:  Filter for unnecessary coordinates
@@ -219,6 +231,7 @@ Tools/ShowUsg:  Show each element of an unstructured Grid
 Tools/Solutions:  Calculate Plot3D-Solution data
 Tools/Sphere:  Make Spheres from points
 Tools/SplitGeometry:  Split Geometry objects into grid, colors, normals, and texture
+Tools/StackSlices:  Stack several uniform grids on top of each other
 Tools/TensorScal:  Calculate invariants from Tensors
 Tools/TraceLineExtractor:  Traceline extractor
 Tools/Transform:  transform geometry

@@ -253,7 +253,7 @@ currentTrack = 0;
     
     for(int i=0;i<180;i++)
        noteInfos[i]=NULL;
-    noteInfos[27] = new NoteInfo(27);
+   /* noteInfos[27] = new NoteInfo(27);
     noteInfos[27]->color = osg::Vec4(1,0,1,1);
     noteInfos[28] = new NoteInfo(28);
     noteInfos[28]->color = osg::Vec4(1,0,0.5,1);
@@ -311,14 +311,71 @@ currentTrack = 0;
     noteInfos[57] = new NoteInfo(57);
     noteInfos[57]->color = osg::Vec4(0.9,0.9,0.9,1);
     noteInfos[52] = new NoteInfo(52);
-    noteInfos[52]->color = osg::Vec4(0.9,0.9,0.9,1);
+    noteInfos[52]->color = osg::Vec4(0.9,0.9,0.9,1);*/
+    
+    
+    noteInfos[36] = new NoteInfo(36); //kick
+    noteInfos[36]->color = osg::Vec4(1,0,1,1);
+    noteInfos[43] = new NoteInfo(43);//tom3
+    noteInfos[43]->color = osg::Vec4(1,0,0.5,1);
+    noteInfos[45] = new NoteInfo(45);//tom2
+    noteInfos[45]->color = osg::Vec4(1,0,0,1);
+    noteInfos[48] = new NoteInfo(48);//tom1
+    noteInfos[48]->color = osg::Vec4(1,0,0,1);
+    noteInfos[38] = new NoteInfo(38); //snare
+    noteInfos[38]->color = osg::Vec4(1,0.2,0.2,1);
+    noteInfos[46] = new NoteInfo(46);//hi-Hat open
+    noteInfos[46]->color = osg::Vec4(1,0.2,0.2,1);
+    noteInfos[42] = new NoteInfo(42);//hi-Hat closed
+    noteInfos[42]->color = osg::Vec4(1,1,0,1);
+    noteInfos[44] = new NoteInfo(44);//hi-Hat Stomp
+    noteInfos[44]->color = osg::Vec4(1,1,0.2,1);
+    noteInfos[49] = new NoteInfo(49);//crash
+    noteInfos[49]->color = osg::Vec4(1,1,0.4,1);
+    
+    noteInfos[51] = new NoteInfo(51);//ride
+    noteInfos[51]->color = osg::Vec4(0.4,0.4,1,1);
+   /* noteInfos[39] = new NoteInfo(39);
+    noteInfos[39]->color = osg::Vec4(0.4,0.4,1,1);
+    
+    noteInfos[43] = new NoteInfo(43);
+    noteInfos[43]->color = osg::Vec4(0.2,0.2,1,1);
+    noteInfos[58] = new NoteInfo(58);
+    noteInfos[58]->color = osg::Vec4(0.2,0.2,1,1);
+    
+    noteInfos[46] = new NoteInfo(46);
+    noteInfos[46]->color = osg::Vec4(0,0,1,1);
+    noteInfos[44] = new NoteInfo(44);
+    noteInfos[44]->color = osg::Vec4(0,0,1,1);
+    
+    noteInfos[48] = new NoteInfo(48);
+    noteInfos[48]->color = osg::Vec4(0,0,0.8,1);
+    
+    noteInfos[49] = new NoteInfo(49);
+    noteInfos[49]->color = osg::Vec4(1,1,0.3,1);
+    noteInfos[55] = new NoteInfo(55);
+    noteInfos[55]->color = osg::Vec4(1,1,0.3,1);
+    
+    noteInfos[51] = new NoteInfo(51);
+    noteInfos[51]->color = osg::Vec4(1,1,0.1,1);
+    noteInfos[59] = new NoteInfo(59);
+    noteInfos[59]->color = osg::Vec4(1,1,0.1,1);
+    
+    noteInfos[53] = new NoteInfo(53);
+    noteInfos[53]->color = osg::Vec4(0.8,0.8,0.0,1);
+    
+    noteInfos[57] = new NoteInfo(57);
+    noteInfos[57]->color = osg::Vec4(0.9,0.9,0.9,1);
+    noteInfos[52] = new NoteInfo(52);
+    noteInfos[52]->color = osg::Vec4(0.9,0.9,0.9,1);*/
 
     
     for(int i=0;i<nIs.size();i++)
     {
     nIs[i]->createGeom();
-        float angle = ((float)i/nIs.size())*2.0*M_PI/4.0*3.0;
-        float radius = 300.0+(float)i/nIs.size()*800.0;
+        float angle = ((float)i/nIs.size())*2.0*M_PI/4.0*4.0;
+        //float radius = 300.0+(float)i/nIs.size()*800.0;
+        float radius = 800.0;
         nIs[i]->initialPosition.set(sin(angle)*radius,cos(angle)*radius,0);
         nIs[i]->initialVelocity.set(sin(angle)*100.0,cos(angle)*100.0,1000);
     }
@@ -545,7 +602,7 @@ void Track::update()
 	{
 	    if(buf[0]!=-2)
 	    {
-	        if(buf[0]==-112)
+	        if(buf[0]==-112 || buf[0]==-103)
 		{
 		    int key = buf[1];
                     me.setP0(buf[0]);
@@ -650,7 +707,7 @@ Note::Note(MidiEvent &me, Track *t)
     track = t;
     NoteInfo *ni = MidiPlugin::plugin->noteInfos[me.getKeyNumber()];
     transform = new osg::MatrixTransform();
-    float s = event.getVelocity()/20.0;
+    float s = event.getVelocity()/10.0;
     if(ni==NULL)
     {
         fprintf(stderr,"no NoteInfo for Key %d\n",me.getKeyNumber());
@@ -659,7 +716,8 @@ Note::Note(MidiEvent &me, Track *t)
     }
     transform->setMatrix(osg::Matrix::scale(s,s,s) * osg::Matrix::translate(ni->initialPosition));
     transform->addChild(ni->geometry);
-    velo = ni->initialVelocity*event.getVelocity()/200.0;
+    velo = ni->initialVelocity*event.getVelocity()/100.0;
+    velo[2] = (event.getVelocity()-32) *20;
     t->TrackRoot->addChild(transform.get());
     
 }
@@ -676,7 +734,10 @@ void Note::integrate(double time)
     spiral[1] = -pos[0];
     spiral[2] = 0.0;
     spiral *= 0.1;
-    osg::Vec3 a = osg::Vec3(0,0,-100.0);
+    osg::Vec3 a = osg::Vec3(0,0,-300.0);
+    a = pos;
+    a.normalize();
+    a *= 300;
     velo = velo + a*time;
     pos += (velo + spiral) * time;
     nm.setTrans(pos);

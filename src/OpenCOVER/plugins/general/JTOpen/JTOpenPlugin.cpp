@@ -24,6 +24,7 @@
 #include <cover/coVRMSController.h>
 #include <PluginUtil/coLOD.h>
 #include <config/CoviseConfig.h>
+#include <cover/coVRShader.h>
 
 #include "JTOpenPlugin.h"
 #include "findNodeVisitor.h"
@@ -447,6 +448,71 @@ void JTOpenPlugin::setMaterial(osg::Node *osgNode, JtkHierarchy *CurrNode)
     }
 }
 
+void JTOpenPlugin::setShapeMaterial(osg::Node *osgNode, JtkShape *currShape)
+{
+    JtkMaterial *partMaterial = NULL;
+    currShape->getMaterial(partMaterial);
+    if (partMaterial)
+    {
+        float *ambient = NULL,
+              *diffuse = NULL,
+              *specular = NULL,
+              *emission = NULL,
+              shininess = -999.0;
+        StateSet *stateset = NULL;
+        osg::Geode *osgGeode = dynamic_cast<osg::Geode *>(osgNode);
+        if (osgGeode)
+        {
+            osg::Drawable *drawable = osgGeode->getDrawable(0);
+            if (drawable)
+            {
+                stateset = drawable->getOrCreateStateSet();
+            }
+            else
+                stateset = osgGeode->getOrCreateStateSet();
+        }
+        else
+            stateset = osgNode->getOrCreateStateSet();
+
+        osg::Material *mtl = new osg::Material();
+
+        partMaterial->getAmbientColor(ambient);
+        if (ambient)
+        {
+            mtl->setAmbient(Material::FRONT_AND_BACK, Vec4(ambient[0], ambient[1], ambient[2], ambient[3]));
+            JtkEntityFactory::deleteMemory(ambient);
+        }
+
+        partMaterial->getDiffuseColor(diffuse);
+        if (diffuse)
+        {
+            mtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(diffuse[0], diffuse[1], diffuse[2], diffuse[3]));
+            JtkEntityFactory::deleteMemory(diffuse);
+        }
+
+        partMaterial->getSpecularColor(specular);
+        if (specular)
+        {
+            mtl->setSpecular(Material::FRONT_AND_BACK, Vec4(specular[0], specular[1], specular[2], specular[3]));
+            JtkEntityFactory::deleteMemory(specular);
+        }
+
+        partMaterial->getEmissionColor(emission);
+        if (emission)
+        {
+            mtl->setEmission(Material::FRONT_AND_BACK, Vec4(emission[0], emission[1], emission[2], emission[3]));
+            JtkEntityFactory::deleteMemory(emission);
+        }
+
+        partMaterial->getShininess(shininess);
+        if (shininess != -999.0)
+        {
+            mtl->setShininess(Material::FRONT_AND_BACK, shininess);
+        }
+        stateset->setAttributeAndModes(mtl, StateAttribute::ON);
+    }
+}
+
 osg::Group *JTOpenPlugin::createGroup(JtkHierarchy *CurrNode)
 {
     osg::Group *newGroup = NULL;
@@ -653,6 +719,8 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
                     char *shapeName = new char[strlen(name) + 30];
                     sprintf(shapeName, "%s_%d_%d", name, lod, shNum);
                     osg::Node *n = createShape(partShape, shapeName);
+		    
+                    setShapeMaterial(n, partShape);
                     newLODGroup->addChild(n);
                 }
             }
@@ -897,6 +965,8 @@ int JTOpenPlugin::loadJT(const char *filename, osg::Group *loadParent, const cha
             JTOpenPlugin::plugin->Parents.clear();
             root->unref();
             root = NULL;
+	    
+    coVRShaderList::instance()->get("SolidClippingObject")->apply(loadParent);
             VRRegisterSceneGraph::instance()->registerNode(loadParent, filename);
         }
         else

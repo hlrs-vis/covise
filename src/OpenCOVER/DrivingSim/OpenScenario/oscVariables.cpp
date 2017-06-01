@@ -22,15 +22,15 @@ namespace OpenScenario
 
 //oscVariable
 //
-template class  OPENSCENARIOEXPORT oscVariable<short>;
-template class  OPENSCENARIOEXPORT oscVariable<int>;
-template class  OPENSCENARIOEXPORT oscVariable<unsigned int>;
-template class  OPENSCENARIOEXPORT oscVariable<unsigned short>;
-template class  OPENSCENARIOEXPORT oscVariable<std::string>;
-template class  OPENSCENARIOEXPORT oscVariable<double>;
-template class  OPENSCENARIOEXPORT oscVariable<time_t>;
-template class  OPENSCENARIOEXPORT oscVariable<bool>;
-template class  OPENSCENARIOEXPORT oscVariable<float>;
+template class  oscVariable<short>;
+template class  oscVariable<int>;
+template class  oscVariable<unsigned int>;
+template class  oscVariable<unsigned short>;
+template class  oscVariable<std::string>;
+template class  oscVariable<double>;
+template class  oscVariable<time_t>;
+template class  oscVariable<bool>;
+template class  oscVariable<float>;
 
 template<>
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getValueType() {return oscMemberValue::INT;};

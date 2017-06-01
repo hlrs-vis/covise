@@ -163,7 +163,7 @@
    <CompositorIceT menu="true" />
    <Measure menu="true" />
    <PointCloud>
-   <!--PointSize value="10" /-->
+   <PointSize value="4" />
    </PointCloud>
     <Bullet value="off" />
     <Earth value="off" />

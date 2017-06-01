@@ -7,7 +7,7 @@
 /// @author  Felix Brack
 /// @author  Jakob Erdmann
 /// @date    Mon, 17 Dec 2001
-/// @version $Id: windows_config.h 23150 2017-02-27 12:08:30Z behrisch $
+/// @version $Id: windows_config.h 24133 2017-05-02 08:35:29Z behrisch $
 ///
 // The general windows configuration file
 /****************************************************************************/
@@ -61,14 +61,11 @@
 
 /* Version number of package */
 #ifndef HAVE_VERSION_H
-#define VERSION_STRING "0.29.0"
+#define VERSION_STRING "0.30.0"
 #endif
 
 /* Definition for the character function of Xerces  */
 #define XERCES3_SIZE_t XMLSize_t //Xerces >= 3.0
 //#define XERCES3_SIZE_t unsigned int //Xerces < 3.0
-
-/* define to use nvwa for memory leak checking */
-//#define CHECK_MEMORY_LEAKS 1
 
 #endif

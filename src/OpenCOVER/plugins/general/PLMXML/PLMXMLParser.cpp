@@ -330,7 +330,7 @@ void PLMXMLParser::addPart(char *id, osg::Group *parent)
                         if (format)
                         {
                             char *formatName = XMLString::transcode(format);
-                            float scale = 1.0;
+                            float scale = 1;
                             if (unit)
                             {
                                 char *unitName = XMLString::transcode(unit);

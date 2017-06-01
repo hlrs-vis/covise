@@ -31,7 +31,12 @@ public:
         float A;
         float rpm;
         float torque;
+        float slipFL;
+	float slipFR;
+	float slipRL;
+	float slipRR;
         osg::Matrix chassisTransform;
+	osg::Matrix motionPlatformTransform;
         int buttonStates;
         int gear;
     };
