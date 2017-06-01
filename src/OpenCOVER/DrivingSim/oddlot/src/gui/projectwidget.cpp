@@ -487,9 +487,12 @@ ProjectWidget::loadFile(const QString &fileName, FileType type)
 	if (type != FT_OpenDrive)
 	{
 		// Create a Tile
-		Tile *tile = new Tile("Tile0", "0");
-		projectData_->getTileSystem()->addTile(tile);
-		projectData_->getTileSystem()->setCurrentTile(tile); 
+		if (!projectData_->getTileSystem()->getCurrentTile())
+		{
+			Tile *tile = new Tile("Tile0", "0");
+			projectData_->getTileSystem()->addTile(tile);
+			projectData_->getTileSystem()->setCurrentTile(tile); 
+		}
 
 		// Open file //
 		//
