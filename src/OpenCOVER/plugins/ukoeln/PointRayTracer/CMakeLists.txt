@@ -30,10 +30,12 @@ SET(HEADERS
   PointRayTracerPlugin.h
   PointRayTracerDrawable.h
   PointReader.h
+  rply.h
 )
 SET(SOURCES
   PointRayTracerPlugin.cpp
-  PointReader.cpp  
+  PointReader.cpp
+  rply.c
 )
 
 if(COVISE_USE_CUDA AND CUDA_FOUND)
