@@ -25,7 +25,9 @@
 
 #include <cover/coVRPlugin.h>
 
-#include <osg/MatrixTransform>
+//#include <osg/MatrixTransform>
+#include <osg/ShapeDrawable>
+#include <osg/PositionAttitudeTransform>
 
 #include <utils/traci/TraCIAPI.h>
 
@@ -44,26 +46,24 @@ public:
 
 private:
 	TraCIAPI client;
-	TraCIAPI::TraCIValues result;
-	TraCIAPI::TraCIValues nextResult;
 	TraCIAPI::SubscribedValues simResults;
+	TraCIAPI::SubscribedValues nextSimResults;
 
 	osg::Group *vehicleGroup;
-	osg::Sphere *vehicleSphere;
-	osg::ref_ptr<osg::MatrixTransform> vehicleMatrixTransform;
+	osg::Box *vehicleBox;
+	osg::ref_ptr<osg::PositionAttitudeTransform> vehiclePositionAttitudeTransform;
 
-	double startTime;
+	double startTime0;
+	double startTime1;
 	double currentTime;
-	double resultTime;
-	double nextResultTime;
+	std::vector<int> variables;
+	std::map<const std::string, osg::PositionAttitudeTransform *> loadedVehicles;
 
-	void SumoTraCI::addVehicle();
-	void SumoTraCI::removeVehicle();
-	void SumoTraCI::subscribeToSimulation();
-	void SumoTraCI::updateVehiclePosition();
-	void SumoTraCI::updateVehiclePosition(double time);
-	double SumoTraCI::interpolateLinear(double start, double end, double fraction);
-	TraCIAPI::TraCIValues SumoTraCI::getSimulationResults(const std::string& objID);
-	TraCIAPI::SubscribedValues SumoTraCI::getSimulationResults();
+	void subscribeToSimulation();
+	void updateVehiclePosition();
+	osg::ShapeDrawable* getVehicle(const std::string &vehicle);
+	void interpolateVehiclePosition();
+	double interpolatePositions(double start, double end, double weight);
+	double getTimeSpan();
 };
 #endif

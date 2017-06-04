@@ -990,7 +990,7 @@ namespace visionaray
 
             if (state)
             {
-                host_sched.set_num_threads(
+                host_sched.reset(
                     state->num_threads > 0
                         ? state->num_threads
                         : std::thread::hardware_concurrency());

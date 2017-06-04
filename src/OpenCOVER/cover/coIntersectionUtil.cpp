@@ -104,7 +104,7 @@ namespace Private
         }
 
         //   bool intersect(const Vec3& v1,const Vec3& v2,const Vec3& v3,float& r)
-        inline void operator()(const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, bool)
+        inline void operator()(const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, bool=false)
         {
             ++_index; //TODO Not really useful in parallel....
 

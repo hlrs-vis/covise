@@ -298,6 +298,7 @@ void FourWheelDynamicsRealtime::run()
         if (overruns != 0)
         {
             std::cerr << "FourWheelDynamicsRealtimeRealtime::run(): overruns: " << overruns << std::endl;
+            overruns = 0;
         }
         bool leftRoadOnce = false;
         if (oldleftRoad != leftRoad)

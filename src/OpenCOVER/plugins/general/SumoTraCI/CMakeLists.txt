@@ -3,6 +3,8 @@
 set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
 #find_package(COVER REQUIRED)
 
+USING(XERCESC)
+
 set(HEADERS
   SumoTraCI.h
   config.h
@@ -24,6 +26,11 @@ set(SOURCES
   foreign/tcpip/storage.cpp
   utils/common/SUMOTime.cpp
   utils/traci/TraCIAPI.cpp
+)
+
+INCLUDE_DIRECTORIES(
+   ../../../DrivingSim/VehicleUtil
+   ${V8_INCLUDE_DIR}
 )
 
 cover_add_plugin(SumoTraCI ${HEADERS} ${SOURCES})
