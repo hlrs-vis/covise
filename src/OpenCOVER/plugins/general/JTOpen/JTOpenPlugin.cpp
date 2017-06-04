@@ -466,7 +466,12 @@ osg::Group *JTOpenPlugin::createGroup(JtkHierarchy *CurrNode)
     {
         newGroup = new osg::Group();
     }
-    newGroup->setName(CurrNode->name());
+	JtkString name = CurrNode->name();
+	JtkUTF8* stringUTF8;
+	int length;
+	name.getString(stringUTF8, length);
+
+    newGroup->setName(stringUTF8);
     return newGroup;
 }
 
@@ -490,7 +495,10 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
 		CurrNode->getAttrib(i, attr);
 		if (attr == NULL)
 			break;
-		fprintf(stderr,"Attrib %s\n", attr->name());
+		JtkUTF8* stringUTF8;
+		int length;
+		attr->name().getString(stringUTF8, length);
+		fprintf(stderr,"Attrib %s\n", stringUTF8);
 			
 	}
 	
@@ -649,9 +657,11 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
                 ((JtkPart *)CurrNode)->getPolyShape(partShape, lod, shNum);
                 if (partShape)
                 {
-                    char *name = CurrNode->name();
-                    char *shapeName = new char[strlen(name) + 30];
-                    sprintf(shapeName, "%s_%d_%d", name, lod, shNum);
+					JtkUTF8* stringUTF8;
+					int length;
+					CurrNode->name().getString(stringUTF8, length);
+                    char *shapeName = new char[strlen(stringUTF8) + 30];
+                    sprintf(shapeName, "%s_%d_%d", stringUTF8, lod, shNum);
                     osg::Node *n = createShape(partShape, shapeName);
                     newLODGroup->addChild(n);
                 }
@@ -692,7 +702,10 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
 
         // Declare an instance of 'findNodeVisitor' class and set its
         // searchForName string equal to "sw1"
-        findNodeVisitor findNode(CurrNode->name());
+		JtkUTF8* stringUTF8;
+		int length;
+		CurrNode->name().getString(stringUTF8, length);
+        findNodeVisitor findNode(stringUTF8);
 
         // Initiate traversal of this findNodeVisitor instance starting
         // from tankTwoGroup, searching all its children. Build a list
@@ -723,7 +736,10 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
         }
         else
         {
-            fprintf(stderr, "Instance not found %s\n", CurrNode->name());
+			JtkUTF8* stringUTF8;
+			int length;
+			CurrNode->name().getString(stringUTF8, length);
+            fprintf(stderr, "Instance not found %s\n", stringUTF8);
         }
 
         /*
