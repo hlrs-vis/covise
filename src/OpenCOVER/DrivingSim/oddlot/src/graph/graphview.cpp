@@ -639,7 +639,9 @@ GraphView::loadGoogleMap()
                     }
                 }
             }
-        }        
+        }
+
+        //system(qPrintable("echo Y converted to " + QString::number(yPosition) + " X converted to " + QString::number(xPosition) + " z converted to " + QString::number(zPosition)));
         double dlat = lat.toDouble();
         double dlon = lon.toDouble();
 
@@ -662,17 +664,12 @@ GraphView::loadGoogleMap()
         //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
         double xOffset = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
                 - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
-        double yOffset = .00172;
+        double yOffset = .00170;
         QString newLoc;
         double newLat;
         double newLon;
         QString filename;
         double scale = this->getScale();
-
-
-        //zoom in to the default zoom, so that the map gets placed right
-        resetViewTransformation();
-        scaleView(1.0, 1.0);
 
         //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
         double xSize = sizeX.toDouble();
@@ -685,9 +682,11 @@ GraphView::loadGoogleMap()
 
         //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
         //Uses the previously determined offsets to change the center of each image
-        for (int i = -xSize/2; i < xSize/2; i++)
+        int i = 0;
+        int j = 0;
+        for (i = -xSize/2; i < xSize/2; i++)
         {
-            for (int j = -ySize/2; j < ySize/2; j++)
+            for (j = -ySize/2; j < ySize/2; j++)
             {
                 double latIterator = double(j);
                 double lonIterator = double(i);
@@ -697,23 +696,31 @@ GraphView::loadGoogleMap()
                 system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
                 progress--;
                 system(qPrintable("pwd"));
-                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png ");
-                QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
+                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
+                QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
                 system(qPrintable(command));
+
+                double yPosition = (newLat) * DEG_TO_RAD;
+                double xPosition = (newLon) * DEG_TO_RAD;
+                double zPosition = 0.0;
+
+                ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
+
+                scenerySystemItem_->loadGoogleMap(newFilename, xPosition - 63 + i*1.75, yPosition - 65 + -j*1.65);
             }
         }      
         //mnt/raid/tmp/unirundkurs
 
         //oddlot Uni_V8f_OE.xodr
         //Places the images on the scene
-        for (int i = -xSize/2; i < xSize/2; i++)
+        /*for (int i = -xSize/2; i < xSize/2; i++)
         {
             for (int j = -ySize/2; j < ySize/2; j++)
             {
                 filename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
                 scenerySystemItem_->loadGoogleMap(filename, mapToScene(i*128+400, j*124-900));
             }
-        }
+        }*/
         xmlFile.remove();
         system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 10)));
         system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 10)));
