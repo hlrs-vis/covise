@@ -324,6 +324,9 @@ bool OpenCOVER::init()
     coVRMSController::instance()->startSlaves();
     coVRMSController::instance()->startupSync();
 
+    collaborativeOptionsFile = coVRMSController::instance()->syncString(collaborativeOptionsFile);
+    viewpointsFile = coVRMSController::instance()->syncString(viewpointsFile);
+
     coVRConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
 
