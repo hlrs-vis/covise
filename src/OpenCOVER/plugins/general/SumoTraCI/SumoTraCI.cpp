@@ -8,7 +8,8 @@
  /****************************************************************************\
   **                                                            (C)2017 HLRS  **
   **                                                                          **
-  **                                                                          **
+  ** Description: SumoTraCI - Traffic Control Interface client                **
+  ** for traffic simulations with Sumo software - http://sumo.dlr.de          **
   **                                                                          **
  \****************************************************************************/
 
@@ -52,11 +53,11 @@ bool SumoTraCI::init() {
 
 	client.simulationStep();
 	simResults = client.simulation.getSubscriptionResults();
-	startTime0 = cover->frameTime();
+	simTime = cover->frameTime();
 
 	client.simulationStep();
 	nextSimResults = client.simulation.getSubscriptionResults();
-	startTime1 = cover->frameTime();
+	nextSimTime = cover->frameTime();
 
 	vehicleGroup = new osg::Group();
 	vehicleGroup->setName("VehicleGroup");
@@ -68,12 +69,12 @@ bool SumoTraCI::init() {
 }
 
 	void SumoTraCI::preFrame() {
-	currentTime = cover->frameTime() - getTimeSpan();
-	if ((currentTime - startTime0) > 1) {
-		startTime0 = currentTime;
-		subscribeToSimulation();	// subscribe to departed no of vehicles
+	currentTime = cover->frameTime();
+	if ((currentTime - nextSimTime) > 1) {
+		subscribeToSimulation();
+		simTime = nextSimTime;
 		client.simulationStep();
-		startTime1 = cover->frameTime();
+		nextSimTime = cover->frameTime();
 		simResults = nextSimResults;
 		nextSimResults = client.simulation.getSubscriptionResults();
 		updateVehiclePosition();
@@ -109,8 +110,8 @@ void SumoTraCI::updateVehiclePosition() {
 
 			vehiclePositionAttitudeTransform = new osg::PositionAttitudeTransform();
 			vehiclePositionAttitudeTransform->setName(it->first);
-			vehiclePositionAttitudeTransform->setPosition(position);
 			vehiclePositionAttitudeTransform->setAttitude(orientation);
+			vehiclePositionAttitudeTransform->setPosition(position);
 			loadedVehicles.insert(std::pair<const std::string, osg::PositionAttitudeTransform *>((it->first), vehiclePositionAttitudeTransform));
 
 			vehiclePositionAttitudeTransform->addChild(vehicleGeode);
@@ -125,33 +126,27 @@ void SumoTraCI::updateVehiclePosition() {
 
 void SumoTraCI::interpolateVehiclePosition() {
 	for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) {
+		std::map<const std::string, osg::PositionAttitudeTransform *>::iterator itr = loadedVehicles.find(it->first);
 		// delete vehicle that will vanish in next step
 		std::map<std::string, TraCIAPI::TraCIValues>::iterator vehicleInNextSim = nextSimResults.find(it->first);
 		if (vehicleInNextSim == nextSimResults.end()) {
-			std::map<const std::string, osg::PositionAttitudeTransform *>::iterator itr = loadedVehicles.find(it->first);
 			if (itr != loadedVehicles.end()) {
 				itr->second->getParent(0)->removeChild(itr->second);
 				loadedVehicles.erase(itr);
 			}
 		}
 		else {
-			double lambda = currentTime - startTime0;
+			double weight = currentTime - nextSimTime;
 
-			double x0 = it->second[VAR_POSITION3D].position.x;
-			double x1 = vehicleInNextSim->second[VAR_POSITION3D].position.x;
-			double y0 = it->second[VAR_POSITION3D].position.y;
-			double y1 = vehicleInNextSim->second[VAR_POSITION3D].position.y;
-			double z0 = it->second[VAR_POSITION3D].position.z;
-			double z1 = vehicleInNextSim->second[VAR_POSITION3D].position.z;
-			double x = interpolatePositions(x1, x0, lambda);
-			double y = interpolatePositions(y1, y0, lambda);
-			double z = interpolatePositions(z1, z0, lambda);
+			osg::Vec3d pastPosition(it->second[VAR_POSITION3D].position.x, it->second[VAR_POSITION3D].position.y, it->second[VAR_POSITION3D].position.z);
+			osg::Vec3d futurePosition(vehicleInNextSim->second[VAR_POSITION3D].position.x, vehicleInNextSim->second[VAR_POSITION3D].position.y, vehicleInNextSim->second[VAR_POSITION3D].position.z);
+			osg::Vec3d currentPosition = itr->second->getPosition();
+			osg::Vec3d position = interpolatePositions(weight, pastPosition, futurePosition);
 
-			osg::Quat orientation0(osg::DegreesToRadians(it->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
-			osg::Quat orientation1(osg::DegreesToRadians(vehicleInNextSim->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
-			osg::Vec3d position(x, y, z);
+			osg::Quat pastOrientation(osg::DegreesToRadians(it->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
+			osg::Quat futureOrientation(osg::DegreesToRadians(vehicleInNextSim->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
 			osg::Quat orientation;
-			orientation.slerp(lambda, orientation0, orientation1);
+			orientation.slerp(weight, pastOrientation, futureOrientation);
 
 			loadedVehicles.find(it->first)->second->setAttitude(orientation);
 			loadedVehicles.find(it->first)->second->setPosition(position);
@@ -159,8 +154,13 @@ void SumoTraCI::interpolateVehiclePosition() {
 	}
 }
 
-double SumoTraCI::interpolatePositions(double start, double end, double weight) {
-	return start + (1.0 - weight) * (end - start);
+osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition) {
+	osg::Vec3d interpolatedPosition;
+	for (int i = 0; i < 3; ++i) {
+		double interpolatedPoint = futurePosition[i] + (1.0 - lambda) * (pastPosition[i] - futurePosition[i]);
+		interpolatedPosition[i] = interpolatedPoint;
+	}
+	return interpolatedPosition;
 }
 
 osg::ShapeDrawable* SumoTraCI::getVehicle(const std::string &vehicleType) {
@@ -184,10 +184,6 @@ osg::ShapeDrawable* SumoTraCI::getVehicle(const std::string &vehicleType) {
 		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 2.5, 2.5, 2.5));
 	}
 	return vehicleDrawable;
-}
-
-double SumoTraCI::getTimeSpan() {
-	return startTime1 - startTime0;
 }
 
 COVERPLUGIN(SumoTraCI)
