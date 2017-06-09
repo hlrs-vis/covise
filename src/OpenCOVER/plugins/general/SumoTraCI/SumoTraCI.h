@@ -45,8 +45,8 @@ private:
 	osg::Box *vehicleBox;
 	osg::ref_ptr<osg::PositionAttitudeTransform> vehiclePositionAttitudeTransform;
 
-	double startTime0;
-	double startTime1;
+	double simTime;
+	double nextSimTime;
 	double currentTime;
 	std::vector<int> variables;
 	std::map<const std::string, osg::PositionAttitudeTransform *> loadedVehicles;
@@ -56,7 +56,5 @@ private:
 	osg::ShapeDrawable* getVehicle(const std::string &vehicle);
 	void interpolateVehiclePosition();
 	osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
-	osg::Vec3d interpolatePositionsNew(double lambda, osg::Vec3d futurePosition, osg::Vec3d currentPosition);
-	double getTimeSpan();
 };
 #endif
