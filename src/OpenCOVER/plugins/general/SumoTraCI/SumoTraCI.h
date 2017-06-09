@@ -14,18 +14,10 @@
  ** Description: SumoTraCI - Traffic Control Interface client                **
  ** for traffic simulations with Sumo software - http://sumo.dlr.de          **
  **                                                                          **
- **                                                                          **
- ** Author: Myriam Guedey	                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Feb-17  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 
-//#include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 #include <osg/PositionAttitudeTransform>
 
@@ -63,7 +55,8 @@ private:
 	void updateVehiclePosition();
 	osg::ShapeDrawable* getVehicle(const std::string &vehicle);
 	void interpolateVehiclePosition();
-	double interpolatePositions(double start, double end, double weight);
+	osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
+	osg::Vec3d interpolatePositionsNew(double lambda, osg::Vec3d futurePosition, osg::Vec3d currentPosition);
 	double getTimeSpan();
 };
 #endif
