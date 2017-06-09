@@ -10,7 +10,7 @@
 
 #include "RoadSystem/Types.h"
 
-class VehicleGeometry
+class TRAFFICSIMULATIONEXPORT VehicleGeometry
 {
 public:
     virtual ~VehicleGeometry()

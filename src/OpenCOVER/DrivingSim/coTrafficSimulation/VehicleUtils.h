@@ -22,7 +22,7 @@
  * Traverses all child nodes and calculates a Boundingbox.
  * Supported nodes: MatrixTransform, Geode.
  */
-class calculateBoundingBoxVisitor : public osg::NodeVisitor
+class TRAFFICSIMULATIONEXPORT calculateBoundingBoxVisitor : public osg::NodeVisitor
 {
 public:
     calculateBoundingBoxVisitor();
@@ -47,7 +47,7 @@ protected:
  */
 typedef std::vector<osg::Node *> nodeList_t;
 
-class findNodesByNameVisitor : public osg::NodeVisitor
+class TRAFFICSIMULATIONEXPORT findNodesByNameVisitor : public osg::NodeVisitor
 {
 public:
     findNodesByNameVisitor();
@@ -78,7 +78,7 @@ private:
 /** VehicleState.
  * Todo: The whole vehicle state in one struct or class.
  */
-struct VehicleState
+struct TRAFFICSIMULATIONEXPORT VehicleState
 {
     VehicleState(double _u = 0.0, double _v = 0.0, double _du = 0.0, double _dv = 0.0, double _ddu = 0.0, double _hdg = 0.0, int _dir = 1)
         : u(_u)
@@ -121,14 +121,14 @@ struct VehicleState
 };
 /** VehicleState */
 
-class RoadTransitionList : public std::list<RoadTransition>
+class TRAFFICSIMULATIONEXPORT RoadTransitionList : public std::list<RoadTransition>
 {
 public:
     double getLength();
     double getLength(RoadTransitionList::iterator, RoadTransitionList::iterator);
 };
 
-class RouteFindingNode
+class TRAFFICSIMULATIONEXPORT RouteFindingNode
 {
 public:
     RouteFindingNode(RoadTransition, const RoadTransition &, const Vector2D &, RouteFindingNode * = NULL);
@@ -164,7 +164,7 @@ protected:
     std::list<RouteFindingNode *> childrenList;
 };
 
-struct RouteFindingNodeCompare
+struct TRAFFICSIMULATIONEXPORT RouteFindingNodeCompare
 {
     bool operator()(RouteFindingNode *leftNode, RouteFindingNode *rightNode) const
     {
@@ -172,7 +172,7 @@ struct RouteFindingNodeCompare
     }
 };
 
-struct ObstacleRelation
+struct TRAFFICSIMULATIONEXPORT ObstacleRelation
 {
     ObstacleRelation()
         : vehicle(NULL)

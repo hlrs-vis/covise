@@ -18,7 +18,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <vector>
 
-struct RoadTransitionPoint
+struct TRAFFICSIMULATIONEXPORT RoadTransitionPoint
 {
     RoadTransitionPoint(const RoadTransitionList::iterator &transIt, double uset)
         : transition(transIt)
@@ -30,7 +30,7 @@ struct RoadTransitionPoint
     double u;
 };
 
-struct VehicleParameters
+struct TRAFFICSIMULATIONEXPORT VehicleParameters
 {
 
     VehicleParameters(double dist = 2, double velw = 30, double aqmax = 6.0, double T = 1.4, double a = 3.0, double b = 1.5,
@@ -84,7 +84,7 @@ class VehicleAction;
 typedef std::multimap<double, VehicleAction *> VehicleActionMap;
 
 //class AgentVehicle : public FollowTheLeaderVehicle
-class AgentVehicle : public Vehicle
+class TRAFFICSIMULATIONEXPORT AgentVehicle : public Vehicle
 {
 public:
     AgentVehicle(AgentVehicle *, std::string, const VehicleParameters & = VehicleParameters(), Road * = NULL, double = 0.0, int = -1, double = 100, int = 1);
@@ -228,7 +228,7 @@ protected:
     friend class JunctionIndicatorVehicleAction;
 };
 
-class VehicleAction
+class TRAFFICSIMULATIONEXPORT VehicleAction
 {
 public:
     virtual ~VehicleAction()
@@ -243,7 +243,7 @@ public:
 protected:
 };
 
-class DetermineNextRoadVehicleAction : public VehicleAction
+class TRAFFICSIMULATIONEXPORT DetermineNextRoadVehicleAction : public VehicleAction
 {
 public:
     DetermineNextRoadVehicleAction()
@@ -261,7 +261,7 @@ protected:
 /** Vehicle Action for indicators at junctions.
 * Action that turns on or off indicators at some junction ahead.
 */
-class JunctionIndicatorVehicleAction : public VehicleAction
+class TRAFFICSIMULATIONEXPORT JunctionIndicatorVehicleAction : public VehicleAction
 {
 public:
     JunctionIndicatorVehicleAction(int indicator)

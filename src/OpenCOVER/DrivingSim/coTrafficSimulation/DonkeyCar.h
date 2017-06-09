@@ -13,7 +13,7 @@
 
 #include <osg/MatrixTransform>
 
-class DonkeyCar : public Vehicle
+class TRAFFICSIMULATIONEXPORT  DonkeyCar : public Vehicle
 {
 public:
     DonkeyCar(std::string, Road *, double, double, double, double);

@@ -22,7 +22,7 @@
 class HumanVehicle;
 class PorscheFFZ;
 
-class VehicleManager
+class TRAFFICSIMULATIONEXPORT VehicleManager
 {
 public:
     static VehicleManager *Instance();

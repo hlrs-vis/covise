@@ -18,7 +18,7 @@
 #include <string>
 #include "Vehicle.h"
 
-#include "../SteeringWheel/PorscheRealtimeDynamics.h"
+//#include "../SteeringWheel/PorscheRealtimeDynamics.h"
 
 // Forward Declarations //
 class UDPBroadcast;
@@ -26,7 +26,7 @@ class RadarCones;
 
 // Receive Data Block //
 //
-struct RadarConeData
+struct TRAFFICSIMULATIONEXPORT RadarConeData
 {
     RadarConeData(
         float instPosX = 0.0,
@@ -67,7 +67,7 @@ struct RadarConeData
     int color;
 };
 
-struct RadarConesData
+struct TRAFFICSIMULATIONEXPORT RadarConesData
 {
     RadarConesData(unsigned short n = 0)
         : messageID(513)
@@ -82,7 +82,7 @@ struct RadarConesData
 
 // Send Data Block //
 //
-struct ObstacleData
+struct TRAFFICSIMULATIONEXPORT ObstacleData
 {
     enum ObstacleTypeEnum
     {
@@ -140,7 +140,7 @@ struct ObstacleData
     // 	float deltaAcceleration;
 };
 
-struct VehicleBroadcastOutData
+struct TRAFFICSIMULATIONEXPORT VehicleBroadcastOutData
 {
     // message to be broadcasted //
     enum WeatherTypeEnum
@@ -171,7 +171,7 @@ struct VehicleBroadcastOutData
 
 // Main Class //
 //
-class PorscheFFZ : public OpenThreads::Thread
+class TRAFFICSIMULATIONEXPORT PorscheFFZ : public OpenThreads::Thread
 {
 public:
     PorscheFFZ(double sendFrequency);

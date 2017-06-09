@@ -247,6 +247,12 @@ public:
         , junction(j)
     {
     }
+	RoadTransition()
+		: road(NULL)
+		, direction(0)
+		, junction(NULL)
+	{
+	}
 
     Road *road;
     int direction;

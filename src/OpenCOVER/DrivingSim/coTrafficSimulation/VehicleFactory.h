@@ -15,7 +15,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include "RoadSystem/RoadSystem.h"
 
-class VehicleFactory
+class TRAFFICSIMULATIONEXPORT VehicleFactory
 {
 public:
     enum RoadVehicleType
