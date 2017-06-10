@@ -13,7 +13,7 @@
 #include <cover/coVRPluginSupport.h>
 
 class Pedestrian;
-class PedestrianManager
+class TRAFFICSIMULATIONEXPORT PedestrianManager
 {
 public:
     static PedestrianManager *Instance();

@@ -38,7 +38,7 @@ public:
     void getCoordinates(double &x, double &y, double &z) const;
     double latitude;
     double longitude;
-    unsigned int id;
+    uint64_t id;
 
 private:
     //...

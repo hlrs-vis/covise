@@ -46,10 +46,10 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "HumanVehicle.h"
-#include "../SteeringWheel/Vehicle.h"
+#include "../../plugins/drivingsim/SteeringWheel/Vehicle.h"
 
 #include "PorscheFFZ.h"
-#include "../RoadTerrain/RoadTerrainPlugin.h"
+#include "../../plugins/drivingsim/RoadTerrain/RoadTerrainPlugin.h"
 
 using namespace covise;
 using namespace opencover;

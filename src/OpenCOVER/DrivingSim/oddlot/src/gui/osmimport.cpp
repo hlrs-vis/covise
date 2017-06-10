@@ -217,7 +217,7 @@ osmNode::osmNode(const osmNode &n)
 }
 osmNode::osmNode(QDomElement element)
 {
-    id = element.attribute("id").toUInt();
+    id = element.attribute("id").toULongLong();
     latitude = element.attribute("lat").toDouble();
     longitude = element.attribute("lon").toDouble();
 }
@@ -255,7 +255,7 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
     for (int i = 0; i < list.count(); i++)
     {
         QDomElement ele = list.at(i).toElement();
-        unsigned int ref = ele.attribute("ref").toUInt();
+        uint64_t ref = ele.attribute("ref").toLongLong();
         for (int n = 0; n < nodes.count(); n++)
         {
             osmNode *node =nodes.at(n);

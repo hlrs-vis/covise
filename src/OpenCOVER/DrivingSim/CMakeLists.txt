@@ -17,5 +17,6 @@ if (NOT OPENCRG_FOUND)
 endif()
 
 add_subdirectory(VehicleUtil)
+add_subdirectory(coTrafficSimulation)
 add_subdirectory(fasi)
 add_subdirectory(VirtualPlanetBuilder)

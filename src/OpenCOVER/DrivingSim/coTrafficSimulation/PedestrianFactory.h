@@ -16,7 +16,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <string>
 
-struct PedestrianSettings
+struct TRAFFICSIMULATIONEXPORT PedestrianSettings
 {
     PedestrianSettings( // <ped> //
         std::string _id = "",
@@ -110,7 +110,7 @@ struct PedestrianSettings
 };
 
 class Pedestrian;
-class PedestrianFactory
+class TRAFFICSIMULATIONEXPORT PedestrianFactory
 {
 public:
     static PedestrianFactory *Instance();

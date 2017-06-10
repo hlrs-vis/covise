@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef _TRAFFICSIMULATION_H
-#define _TRAFFICSIMULATION_H
+#ifndef _CO_TRAFFICSIMULATION_H
+#define _CO_TRAFFICSIMULATION_H
 /****************************************************************************\
  **                                                            (C)2001 HLRS  **
  **                                                                          **
@@ -31,8 +31,8 @@
 #include <osg/StateSet>
 #include <osg/Material>
 #include <vector>
-#include <cover/coTabletUI.h>
 #include <osg/PositionAttitudeTransform>
+#include <util/coExport.h>
 
 #ifdef HAVE_TR1
 #ifdef WIN32
@@ -60,11 +60,10 @@ using namespace opencover;
 // forward declarations //
 //
 class PorscheFFZ;
-class TrafficSimulation : public coVRPlugin, public coTUIListener
+class TRAFFICSIMULATIONEXPORT coTrafficSimulation : public coVRPlugin, public coTUIListener
 {
 public:
-	static TrafficSimulation *instance();
-    TrafficSimulation();
+    ~coTrafficSimulation();
 
     void runSimulation();
     void haltSimulation();
@@ -72,13 +71,12 @@ public:
     VehicleManager *getVehicleManager();
     PedestrianManager *getPedestrianManager();
 
-	bool init();
+    bool init();
 
-	// this will be called in PreFrame
+
+    // this will be called in PreFrame
     void preFrame();
 
-    // key handling
-    void key(int type, int keySym, int mod);
 
     unsigned long getIntegerRandomNumber();
     double getZeroOneRandomNumber();
@@ -99,33 +97,31 @@ public:
     static int minVel;
     static int maxVehicles;
 
+	static coTrafficSimulation *instance();
+
+	xercesc::DOMElement *getOpenDriveRootElement(std::string);
+
+
+	void parseOpenDrive(xercesc::DOMElement *);
+
+	bool loadRoadSystem(const char *filename);
+	void deleteRoadSystem();
+	RoadSystem *system;
+	VehicleFactory *factory;
+	PedestrianFactory *pedestrianFactory;
+	osg::PositionAttitudeTransform *roadGroup;
+	xercesc::DOMElement *rootElement;
+	bool tessellateRoads;
+	bool tessellatePaths;
+	bool tessellateBatters;
+	bool tessellateObjects;
+	bool runSim;
 private:
-
-    RoadSystem *system;
-    VehicleManager *manager;
-    PedestrianManager *pedestrianManager;
-    VehicleFactory *factory;
-    PedestrianFactory *pedestrianFactory;
+	coTrafficSimulation();
     //osg::Group* roadGroup;
-    osg::PositionAttitudeTransform *roadGroup;
-    xercesc::DOMElement *rootElement;
 
-    coTUITab *pluginTab;
-    coTUIButton *startButton;
-    coTUIButton *stopButton;
-    coTUIFileBrowserButton *saveButton;
-    coTUIFileBrowserButton *openC4DXMLButton;
-    coTUIFileBrowserButton *openLandXMLButton;
-    coTUIFileBrowserButton *openIntermapRoadButton;
-    coTUIFileBrowserButton *exportSceneGraphButton;
-    coTUIFileBrowserButton *loadTerrainButton;
+	static coTrafficSimulation *myInstance;
 
-    // remove agents //
-    coTUIButton *removeAgentsButton;
-    coTUISlider *removeAgentsSlider;
-
-    coTUIToggleButton *debugRoadButton;
-    int removeAgentsVelocity_;
 
     // operator map //
     //coTUITab* operatorMapTab;
@@ -134,11 +130,6 @@ private:
     // broadcaster for ffz positions //
     PorscheFFZ *ffzBroadcaster;
 
-    bool runSim;
-    bool tessellateRoads;
-    bool tessellatePaths;
-    bool tessellateBatters;
-    bool tessellateObjects;
 
     osg::ref_ptr<osg::MatrixTransform> sphereTransform;
     osg::ref_ptr<osg::Sphere> sphere;
@@ -157,91 +148,6 @@ private:
 #endif
     std::string xodrDirectory;
 
-    xercesc::DOMElement *getOpenDriveRootElement(std::string);
 
-    //FFZ Tab
-    coTUITab *ffzTab;
-    //coTUIButton* startButton;
-    //coTUIButton* stopButton;
-
-    coTUIFrame *createFrame;
-
-    //coTUIButton* createVehiclesAtMin_Button;
-    coTUISlider *createVehiclesAtMin_Slider;
-    int createVehiclesAtMin_;
-    coTUILabel *createVehiclesAtMinLabel;
-
-    //coTUIButton* minVel_Button;
-    coTUISlider *minVel_Slider;
-    int minVel_;
-    coTUILabel *minVelLabel;
-
-    //coTUIButton* maxVel_Button;
-    coTUISlider *maxVel_Slider;
-    int maxVel_;
-    coTUILabel *maxVelLabel;
-
-    //coTUIButton* createVehiclesAtMax_Button;
-    coTUISlider *createVehiclesAtMax_Slider;
-    int createVehiclesAtMax_;
-    coTUILabel *createVehiclesAtMaxLabel;
-
-    coTUIFrame *removeFrame;
-    //coTUIButton* removeVehiclesAtButton;
-    coTUISlider *removeVehiclesAtSlider;
-    int removeVehiclesDelta_;
-    coTUILabel *removeVehiclesAtLabel;
-
-    //coTUIButton* createFreqButton;
-    coTUISlider *createFreqSlider;
-    int createFreq_;
-    coTUILabel *createFreqLabel;
-
-    //coTUILabel* useCarpoolLabel;
-    coTUIButton *useCarpoolButton;
-    int useCarpool_;
-    coTUILabel *toggleCarpoolLabel;
-    coTUIFrame *carpoolFrame;
-    coTUIEditField *carpoolStateField;
-
-    //coTUIEditIntField* carpoolStateField;
-
-    coTUIFrame *tdFrame;
-    //coTUIButton* td_multButton;
-    coTUIFloatSlider *td_multSlider;
-    float td_mult_;
-
-    coTUIFloatSlider *td_valueSlider;
-    float placeholder_;
-    coTUILabel *td_valueLabel;
-
-    coTUISlider *maxVehiclesSlider;
-    int maxVehicles_;
-
-    //Labels
-    coTUILabel *carpoolLabel;
-    coTUILabel *createLabel;
-    coTUILabel *removeLabel;
-    coTUILabel *tdLabel;
-    coTUILabel *td_multLabel;
-    coTUILabel *maxVehiclesLabel;
-
-    //States
-    coTUIEditField *multiField;
-    coTUIEditField *tdField;
-    coTUIEditField *carpoolField;
-
-    coTUIEditField *tdMultField;
-    coTUIEditField *tdValueField;
-
-    coTUIFrame *test;
-
-    void parseOpenDrive(xercesc::DOMElement *);
-
-    bool loadRoadSystem(const char *filename);
-    void deleteRoadSystem();
-
-    void tabletEvent(coTUIElement *tUIItem);
-    void tabletPressEvent(coTUIElement *tUIItem);
 };
 #endif

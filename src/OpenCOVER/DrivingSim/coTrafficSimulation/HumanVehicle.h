@@ -17,7 +17,7 @@
 
 class Road;
 
-class HumanVehicle : public Vehicle
+class TRAFFICSIMULATIONEXPORT HumanVehicle : public Vehicle
 {
 public:
     HumanVehicle(std::string);

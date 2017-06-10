@@ -15,7 +15,7 @@
 #include <string>
 #include <stdarg.h>
 
-struct PedestrianParameters
+struct TRAFFICSIMULATIONEXPORT PedestrianParameters
 {
     PedestrianParameters(double _headingAdj = 0.0, double _duMax = 1.5, double _dduMax = 3.0, double _duWait = 1.5, double _dduWait = 3.0, double _dvPass = 1.0, double _ddvPass = 1.0, double _dvMax = 0.2, double _ddvMax = 0.2)
         : headingAdj(_headingAdj)
@@ -41,7 +41,7 @@ struct PedestrianParameters
     double ddvMax; // Transversal acceleration
 };
 
-struct PedestrianLocation
+struct TRAFFICSIMULATIONEXPORT PedestrianLocation
 {
     PedestrianLocation(Road *_r = NULL, int _ln = 0, Lane *_l = NULL, LaneSection *_ls = NULL, Crosswalk *_cw = NULL, int _d = 0)
         : road(_r)
@@ -61,7 +61,7 @@ struct PedestrianLocation
     int dir; // Current direction on road (positive towards higher s-values)
 };
 
-struct PedestrianState
+struct TRAFFICSIMULATIONEXPORT PedestrianState
 {
     PedestrianState(bool _act = false, double _u = 0.0, double _v = 0.0, double _s = 0.0, double _dus = 0.0, double _dut = 0.0, double _du = 0.0, double _dv = 0.0, double _vs = 0.0, double _vt = 0.0, double _vo = 0.0, double _va = 0.0, double _ddu = 0.0, double _ddv = 0.0, double _hdg = 0.0, bool _or = false, bool _c = false, int _cid = Crosswalk::DONOTENTER, int _cwid = Crosswalk::DONOTENTER, double _cv = 0.0, double _cw = 0.0, int _cp = 0, bool _cd = false, bool _srch = false, bool _fnd = false, bool _ls = false, bool _ld = false, std::string _sink = "")
         : active(_act)
@@ -128,7 +128,7 @@ struct PedestrianState
 class PedestrianFactory;
 class PedestrianGeometry;
 class PedestrianManager;
-class Pedestrian
+class TRAFFICSIMULATIONEXPORT Pedestrian
 {
 public:
     Pedestrian(std::string &name, Road *startRoad = NULL, int startLaneNum = 0, int startDir = 0, double startPos = 0.0, double startVOff = 0.0, double startVel = 0.0, double startAcc = 0.0, double headingAdj = 0.0, int dbg = 0, PedestrianGeometry *g = NULL);

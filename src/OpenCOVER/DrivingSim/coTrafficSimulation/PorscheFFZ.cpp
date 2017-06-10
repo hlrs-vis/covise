@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include "../SteeringWheel/UDPComm.h"
+#include "../../plugins/drivingsim/SteeringWheel/UDPComm.h"
 #include "PorscheFFZ.h"
 
 #include "VehicleManager.h"

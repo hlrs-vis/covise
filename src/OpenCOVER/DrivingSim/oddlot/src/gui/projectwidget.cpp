@@ -797,6 +797,13 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     TrackElementLine *lastLineElement=NULL;
     for (size_t i = 0; i < XVector.size() - 1; i++)
     {
+        if(fabs(dxs) < 0.0001 && fabs(dys) < 0.0001)
+        {
+
+            dxs = XVector[i+2] - XVector[i+1];
+            dys = YVector[i+2] - YVector[i+1];
+            continue;
+        }
         SVector[i] = road->getLength();
         size_t len = getMaxLinearLength(i);
         size_t arcLen = getMaxArcLength(i, startHeadingDeg);
@@ -839,9 +846,12 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
         }
         else
         {
-
+            //original
             double dxs = XVector[i + len - 1] - XVector[i];
             double dys = YVector[i + len - 1] - YVector[i];
+            //experiment (breaks it worse) (DELET THIS)
+            //double dxs = XVector[i + len] - XVector[i];
+            //double dys = YVector[i + len] - YVector[i];
             if(lastLineElement!=NULL) // two line elements should never follow each other. what we have to do is go back a little until we can fit an arc
             { // we can safely go back as much as the shorter length of the two inear segments.
                 double len1 = lastLineElement->getLength();
