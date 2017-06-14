@@ -1,8 +1,32 @@
 <?xml version="1.0"?>
 
 <COCONFIG version="1" >
-    <INCLUDE RANK="0" global="1" configname="zspace" >config-urz-isc16-r0.xml</INCLUDE>
-    <INCLUDE RANK="1" global="1" configname="tridelity" >config-urz-isc16-r1.xml</INCLUDE>
+
+    <GLOBAL>  
+
+        <COVER>
+            <Stereo value="true" />
+            <NumWindows value="1" />
+            <WindowConfig>
+                <Window name="0" window="0" width="1920" comment="MAIN" pipeIndex="0" height="1080" left="0" top="0" decoration="false" stereo="true" />
+            </WindowConfig>
+
+            <NumScreens value="1" />
+            <ScreenConfig>
+                <Screen name="0" screen="0" width="520" height="295" comment="zSpace 200" originX="0" originY="0" originZ="0" h="0.0" p="-30.0" r="0.0"  />
+            </ScreenConfig>
+
+            <NumChannels value="1" />
+            <ChannelConfig>
+                <Channel name="0" channel="0" screenIndex="0" comment="FRONT" stereoMode="QUAD_BUFFER" windowIndex="0" viewportIndex="0" />
+            </ChannelConfig>
+
+            <NumViewports value="1" />
+            <ViewportConfig>
+                <Viewport name="0" windowIndex="0" width="1" height="1" left="0" bottom="0" />
+            </ViewportConfig>
+        </COVER>
+    </GLOBAL>
 
     <GLOBAL>
         <COVER>
@@ -73,7 +97,7 @@
 
             <MultiPC>
                 <SyncMode value="TCP" hosts="localhost"/>
-                <NumSlaves value="1" />
+                <NumSlaves value="0" />
                 <Startup value="opencover" name="0"/>
             </MultiPC>
         </COVER>
