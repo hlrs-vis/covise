@@ -87,7 +87,7 @@ LaneWidth::getSSectionEnd() const
 double
 LaneWidth::getLength() const
 {
-    return parentLane_->getWidthEnd(sOffset_) - sOffset_;
+	return parentLane_->getWidthEnd(sOffset_) - getSSectionStartAbs();
 }
 
 void
