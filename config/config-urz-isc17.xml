@@ -6,49 +6,20 @@
 
         <COVER>
             <Stereo value="true" />
-            <NumWindows value="1" />
             <WindowConfig>
-                <Window name="0" window="0" width="1920" comment="MAIN" pipeIndex="0" height="1080" left="0" top="0" decoration="false" stereo="true" />
+                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="2560" top="0" name="0" decoration="false" stereo="true" />
             </WindowConfig>
 
-            <NumScreens value="1" />
             <ScreenConfig>
-                <Screen name="0" screen="0" width="520" height="295" comment="zSpace 200" originX="0" originY="0" originZ="0" h="0.0" p="-30.0" r="0.0"  />
+                <Screen width="520" height="295" comment="zSpace 200" originX="0" originY="0" originZ="0" h="0.0" p="-30.0" r="0.0" name="0" screen="0" />
             </ScreenConfig>
-
-            <NumChannels value="1" />
             <ChannelConfig>
-                <Channel name="0" channel="0" screenIndex="0" comment="FRONT" stereoMode="QUAD_BUFFER" windowIndex="0" viewportIndex="0" />
+                <Channel stereoMode="QUAD_BUFFER" comment="FRONT" channel="0" windowIndex="0" viewportIndex="0" screenIndex="0" name="0" />
             </ChannelConfig>
 
-            <NumViewports value="1" />
             <ViewportConfig>
-                <Viewport name="0" windowIndex="0" width="1" height="1" left="0" bottom="0" />
+                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" name="0" channelIndex="0" />
             </ViewportConfig>
-        </COVER>
-    </GLOBAL>
-
-    <GLOBAL>
-        <COVER>
-
-            <SceneSize value="400" />
-            <Menu>
-                <Orientation h="0" p="-30" r="0" />
-                <Position x="170" y="70" z="121" />
-            </Menu>
-	    <ViewerPosition x="0" y="-2500" z="600" />
-        </COVER>
-    </GLOBAL>
-
-
-    <GLOBAL>  
-
-        <COVER>
-            <Plugin>
-                <VncClient menu="true" value="off" rfbHost="visent.hlrs.de" rfbPort="31590" />
-            </Plugin>
-
-            <Snap value="ON" />
 
             <PointerDepth value="0"/>
             <PointerAppearance>
@@ -62,47 +33,55 @@
             <Input>
                 <MouseNav value="true" />
                 <Device>
-                    <ZSpace driver="vrpn" host="192.168.137.1" tracker="Tracker0" button="Tracker0">
-                        <!--Offset x="-0" y="-360" z="200" /-->
-                        <Offset x="-0" y="-200" z="340" />
+                    <ZSpaceHead driver="vrpn" host="192.168.122.90" tracker="HeadTracker0" >
+                        <Offset x="-0" y="0" z="0" />
                         <Orientation h="180" p="90" r="180" />
-                        <!--Orientation h="180" p="60" r="180" /-->
-                    </ZSpace>
+                    </ZSpaceHead>
+                    <ZSpaceHand driver="vrpn" host="192.168.122.90" tracker="StylusTracker0" button="Buttons0" >
+                        <Offset x="-0" y="0" z="0" />
+                        <Orientation h="180" p="90" r="180" />
+                    </ZSpaceHand>
                 </Device>
 
                 <Body>
-                    <Glasses device="ZSpace" bodyIndex="0" >
+                    <Glasses device="ZSpaceHead" bodyIndex="0" >
                         <Offset x="-0" y="-0" z="-0" />
                         <Orientation h="0" p="-90" r="0" />
                     </Glasses>
 
-                    <Stylus device="ZSpace" bodyIndex="1" >
-                        <Offset x="0" y="0" z="-10" />
+                    <Stylus device="ZSpaceHand" bodyIndex="0" >
+                        <Offset x="0" y="-0" z="-10" />
                         <Orientation h="0" p="-90" r="0" />
                     </Stylus>
+
+                    <FixedHead>
+                        <Offset x="0" y="-800" z="200" />
+                    </FixedHead>
                 </Body>
 
                 <Buttons>
-                    <Stylus device="ZSpace" >
+                    <Stylus device="ZSpaceHand" >
                         <Map name="0" value="ACTION_BUTTON" />
                         <Map name="1" value="XFORM_BUTTON" />
                         <Map name="2" value="DRIVE_BUTTON" />
+                        <MultiMap name="6" value="PERSON_NEXT" />
                     </Stylus>
                 </Buttons>
 
                 <Persons>
-                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" />
+                    <Person name="Fixed" head="FixedHead" eyeDistance="0" />
+                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" activateOnAction="true" />
+                    <Person name="ZSpace-inverted" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="-60" activateOnAction="false" />
                 </Persons>
             </Input> 
 
-            <MultiPC>
-                <SyncMode value="TCP" hosts="localhost"/>
-                <NumSlaves value="0" />
-                <Startup value="opencover" name="0"/>
-            </MultiPC>
+            <SceneSize value="250" />
+            <Menu>
+                <Orientation h="0" p="0" r="0" />
+                <Position x="200" y="0" z="0" />
+            </Menu>
+
         </COVER>
     </GLOBAL>
-
-    <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
 </COCONFIG>
 
