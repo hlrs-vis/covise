@@ -56,6 +56,11 @@ guess_archsuffix() {
                 15.*|16.*)
 	            export ARCHSUFFIX=macos
                     ;;
+
+                *)
+	            export ARCHSUFFIX=macos
+                echo "Unknown macOS version `uname -r`: defaulting to ARCHSUFFIX ${ARCHSUFFIX}"
+                    ;;
             esac
             ;;
 

@@ -872,11 +872,16 @@ int ReadABAQUSfil::compute(const char *port)
 
       jj = jj + fil_array[jj];
     }
+  if (max_ext_nn < 0)
+  {
+      std::cerr << "did not find valid value for max_ext_nn" << std::endl;
+      return STOP_PIPELINE;
+  }
+  assert(max_ext_nn >= 0);
 
   // set up cross reference array for external node numbers *******************
   // WARNING !! It is assumed that the node numbers are in accending order
-  int *cref_nodes;
-  cref_nodes = (int *)malloc(max_ext_nn * sizeof(int));
+  int *cref_nodes = (int *)malloc(max_ext_nn * sizeof(int));
   for (ii = 0; ii < max_ext_nn; ++ii)
     {
       cref_nodes[ii] = -1;
