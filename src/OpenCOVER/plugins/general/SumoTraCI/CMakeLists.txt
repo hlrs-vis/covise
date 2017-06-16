@@ -1,9 +1,9 @@
-#cmake_minimum_required(VERSION 2.8)
-
-set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
-#find_package(COVER REQUIRED)
-
+covise_find_package(V8)
 USING(XERCESC)
+
+if (NOT V8_FOUND)
+    return()
+endif()
 
 set(HEADERS
   SumoTraCI.h

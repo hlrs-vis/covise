@@ -33,8 +33,8 @@ void CuttingSurfacePlugin::newInteractor(const RenderObject *container, coIntera
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\n--- coVRNewInteractor from module %s\n", i->getModuleName());
-        if (container)
-            fprintf(stderr, "container %ld %s\n", (long int)container, container->getName());
+       // if (container)
+       //     fprintf(stderr, "container %ld %s\n", (long int)container, container->getName());
     }
     const char *moduleName = i->getModuleName();
     if ((strncmp(moduleName, "CuttingSurfaceComp", 18) == 0) || (strncmp(moduleName, "CuttingSurface", 14) == 0))

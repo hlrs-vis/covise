@@ -12,7 +12,7 @@
                 <Orientation h="0" p="-30" r="0" />
                 <Position x="170" y="70" z="121" />
             </Menu>
-	    <ViewerPosition x="0" y="-2500" z="000" />
+	    <ViewerPosition x="0" y="-2500" z="600" />
         </COVER>
     </GLOBAL>
 
@@ -38,7 +38,7 @@
             <Input>
                 <MouseNav value="true" />
                 <Device>
-                    <ZSpace driver="vrpn" host="192.168.17.2" tracker="Tracker0" button="Tracker0">
+                    <ZSpace driver="vrpn" host="192.168.137.1" tracker="Tracker0" button="Tracker0">
                         <!--Offset x="-0" y="-360" z="200" /-->
                         <Offset x="-0" y="-200" z="340" />
                         <Orientation h="180" p="90" r="180" />

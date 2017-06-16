@@ -52,7 +52,11 @@
 #ifndef MTRAND_H
 #define MTRAND_H
 
-class MTRand_int32
+#define MTRand_int32_N 624
+#define MTRand_int32_M 397
+#include <util/coExport.h>
+
+class TRAFFICSIMULATIONEXPORT MTRand_int32
 { // Mersenne Twister random number generator
 public:
     // default constructor: uses default seed only if this is the first instance
@@ -89,9 +93,8 @@ public:
 protected: // used by derived classes, otherwise not accessible; use the ()-operator
     unsigned long rand_int32(); // generate 32 bit random integer
 private:
-    static const int n = 624, m = 397; // compile time constants
     // the variables below are static (no duplicates can exist)
-    static unsigned long state[n]; // state vector array
+    static unsigned long state[MTRand_int32_N]; // state vector array
     static int p; // position in state array
     static bool init; // true if init function is called
     // private functions used to generate the pseudo random numbers
@@ -111,7 +114,7 @@ inline unsigned long MTRand_int32::twiddle(unsigned long u, unsigned long v)
 
 inline unsigned long MTRand_int32::rand_int32()
 { // generate 32 bit random int
-    if (p == n)
+    if (p == MTRand_int32_N)
         gen_state(); // new state vector needed
     // gen_state() is split off to be non-inline, because it is only called once
     // in every 624 calls and otherwise irand() would become too big to get inlined
@@ -123,7 +126,7 @@ inline unsigned long MTRand_int32::rand_int32()
 }
 
 // generates double floating point numbers in the half-open interval [0, 1)
-class MTRand : public MTRand_int32
+class TRAFFICSIMULATIONEXPORT MTRand : public MTRand_int32
 {
 public:
     MTRand()
@@ -151,7 +154,7 @@ private:
 };
 
 // generates double floating point numbers in the closed interval [0, 1]
-class MTRand_closed : public MTRand_int32
+class TRAFFICSIMULATIONEXPORT MTRand_closed : public MTRand_int32
 {
 public:
     MTRand_closed()
@@ -179,7 +182,7 @@ private:
 };
 
 // generates double floating point numbers in the open interval (0, 1)
-class MTRand_open : public MTRand_int32
+class TRAFFICSIMULATIONEXPORT MTRand_open : public MTRand_int32
 {
 public:
     MTRand_open()
@@ -207,7 +210,7 @@ private:
 };
 
 // generates 53 bit resolution doubles in the half-open interval [0, 1)
-class MTRand53 : public MTRand_int32
+class TRAFFICSIMULATIONEXPORT MTRand53 : public MTRand_int32
 {
 public:
     MTRand53()

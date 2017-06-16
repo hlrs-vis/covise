@@ -85,6 +85,21 @@ using namespace osg;
 #include <JtTk/JtkBrep.h>
 #include <JtTk/JtkEntity.h>
 
+
+template<class JT>
+std::string getJtName(JT *node)
+{
+#if JTTK_MAJOR_VERSION >= 8
+	JtkString name = node->name();
+	JtkUTF8* stringUTF8;
+	int length;
+	name.getString(stringUTF8, length);
+    return std::string(stringUTF8, length);
+#else
+    return std::string(node->name());
+#endif
+}
+
 //int my_level = 0;
 int want_details = 1;
 
@@ -532,12 +547,8 @@ osg::Group *JTOpenPlugin::createGroup(JtkHierarchy *CurrNode)
     {
         newGroup = new osg::Group();
     }
-	JtkString name = CurrNode->name();
-	JtkUTF8* stringUTF8;
-	int length;
-	name.getString(stringUTF8, length);
 
-    newGroup->setName(stringUTF8);
+    newGroup->setName(getJtName(CurrNode));
     return newGroup;
 }
 
@@ -561,10 +572,7 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
 		CurrNode->getAttrib(i, attr);
 		if (attr == NULL)
 			break;
-		JtkUTF8* stringUTF8;
-		int length;
-		attr->name().getString(stringUTF8, length);
-		fprintf(stderr,"Attrib %s\n", stringUTF8);
+		fprintf(stderr,"Attrib %s\n", getJtName(attr).c_str());
 			
 	}
 	
@@ -723,11 +731,9 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
                 ((JtkPart *)CurrNode)->getPolyShape(partShape, lod, shNum);
                 if (partShape)
                 {
-					JtkUTF8* stringUTF8;
-					int length;
-					CurrNode->name().getString(stringUTF8, length);
-                    char *shapeName = new char[strlen(stringUTF8) + 30];
-                    sprintf(shapeName, "%s_%d_%d", stringUTF8, lod, shNum);
+                    std::string stringUTF8 = getJtName(CurrNode);
+                    char *shapeName = new char[stringUTF8.length() + 30];
+                    sprintf(shapeName, "%s_%d_%d", stringUTF8.c_str(), lod, shNum);
                     osg::Node *n = createShape(partShape, shapeName);
 		    
                     setShapeMaterial(n, partShape);
@@ -770,10 +776,7 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
 
         // Declare an instance of 'findNodeVisitor' class and set its
         // searchForName string equal to "sw1"
-		JtkUTF8* stringUTF8;
-		int length;
-		CurrNode->name().getString(stringUTF8, length);
-        findNodeVisitor findNode(stringUTF8);
+        findNodeVisitor findNode(getJtName(CurrNode));
 
         // Initiate traversal of this findNodeVisitor instance starting
         // from tankTwoGroup, searching all its children. Build a list
@@ -804,10 +807,7 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
         }
         else
         {
-			JtkUTF8* stringUTF8;
-			int length;
-			CurrNode->name().getString(stringUTF8, length);
-            fprintf(stderr, "Instance not found %s\n", stringUTF8);
+            fprintf(stderr, "Instance not found %s\n", getJtName(CurrNode).c_str());
         }
 
         /*

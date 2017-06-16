@@ -18,7 +18,7 @@
 #include <osgCal/CoreModel>
 #include <osgCal/Model>
 
-struct PedestrianAnimations
+struct TRAFFICSIMULATIONEXPORT PedestrianAnimations
 {
     PedestrianAnimations(int _i = 0, double _iv = 0.0f, int _s = 1, double _sv = 0.6f, int _w = 2, double _wv = 1.5f, int _j = 3, double _jv = 3.0f, int _li = 4, int _wi = 5)
         : idleIdx(_i)
@@ -47,7 +47,7 @@ struct PedestrianAnimations
 };
 
 class Pedestrian;
-class PedestrianGeometry
+class TRAFFICSIMULATIONEXPORT PedestrianGeometry
 {
 public:
     PedestrianGeometry(std::string &name, std::string &modelFile, double scale, double lod, const PedestrianAnimations &a, osg::Group *group);

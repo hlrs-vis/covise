@@ -51,7 +51,8 @@ class coInputTUI: public coTUIListener
 public:
     coInputTUI();
     virtual ~coInputTUI();
-    void updateTUI();
+    void updateTUI(); // this is called only if anything has changed
+	void update(); // this is called once per frame
 
 private:
     virtual void tabletEvent(coTUIElement *tUIItem);
@@ -89,6 +90,12 @@ private:
     coTUIToggleButton *debugRawButton;
     coTUIToggleButton *debugTransformedButton;
     coTUIToggleButton *debugMatrices, *debugOther;
+	coTUIToggleButton *calibrateTrackingsystem;
+	coTUIToggleButton *calibrateToHand;
+	coTUILabel *calibrationLabel;
+
+	int calibrationStep;
+	osg::Vec3 calibrationPositions[3];
 };
 
 class coPluginEntryList : public covise::DLinkList<coPluginEntry *>

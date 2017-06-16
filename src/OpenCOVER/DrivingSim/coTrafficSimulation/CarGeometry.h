@@ -18,7 +18,7 @@
 
 #include "RoadSystem/Types.h"
 
-class CarGeometry : public VehicleGeometry
+class TRAFFICSIMULATIONEXPORT CarGeometry : public VehicleGeometry
 {
 public:
     CarGeometry(CarGeometry *, std::string);

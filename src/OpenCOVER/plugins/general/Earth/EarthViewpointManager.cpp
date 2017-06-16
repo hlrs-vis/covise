@@ -92,8 +92,8 @@ void EarthViewpointManager::tabletPressEvent(coTUIElement *e)
             pitch = -osg::RadiansToDegrees(pitch);
 
             char name[1000];
-            sprintf(name, "NewViewpoint %d[%f]", viewpoints.size(), cover->getScale());
-            fprintf(stdout, "<viewpoint name=\"NewViewpoint %d[%f]\" lat=\"%lf\" long=\"%lf\" height=\"%lf\" heading=\"%lf\" pitch=\"%lf\" range=\"0\"/>\n", viewpoints.size(), cover->getScale(), currentLatLong.y(), currentLatLong.x(), currentLatLong.z(), heading, pitch);
+            sprintf(name, "NewViewpoint %d[%f]", (int)viewpoints.size(), cover->getScale());
+            fprintf(stdout, "<viewpoint name=\"NewViewpoint %d[%f]\" lat=\"%lf\" long=\"%lf\" height=\"%lf\" heading=\"%lf\" pitch=\"%lf\" range=\"0\"/>\n", (int)viewpoints.size(), cover->getScale(), currentLatLong.y(), currentLatLong.x(), currentLatLong.z(), heading, pitch);
             addViewpoint(new Viewpoint(name, currentLatLong[0],currentLatLong[1],currentLatLong[2],heading, pitch, 0));
         }
     }

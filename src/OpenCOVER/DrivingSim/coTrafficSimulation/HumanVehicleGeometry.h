@@ -15,7 +15,7 @@
 #include <osg/Transform>
 #include <osg/MatrixTransform>
 
-class HumanVehicleGeometry : public VehicleGeometry
+class TRAFFICSIMULATIONEXPORT HumanVehicleGeometry : public VehicleGeometry
 {
 public:
     HumanVehicleGeometry(std::string);

@@ -21,7 +21,7 @@
 class Road;
 class RoadTransition;
 
-class Vehicle
+class TRAFFICSIMULATIONEXPORT Vehicle
 {
 public:
     Vehicle(std::string);
@@ -76,7 +76,7 @@ private:
     int vehicleID; // unique ID for the vehicle
 };
 
-struct VehicleCompare
+struct TRAFFICSIMULATIONEXPORT VehicleCompare
 {
     bool operator()(const Vehicle *veha, const Vehicle *vehb) const
     {

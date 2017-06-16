@@ -53,7 +53,7 @@ FKFSDynamics::FKFSDynamics()
     {
         doRun = true;
         toFKFS = new UDPComm(remoteHost.c_str(), serverPort, localPort);
-        fprintf(stderr, "done: %ld\n", (long)toFKFS);
+        //fprintf(stderr, "done: %ld\n", (long)toFKFS);
         startThread();
     }
 
