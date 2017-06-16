@@ -84,66 +84,6 @@
    <MultiThreaded value="off" />
    <StencilBits value="8" />
    <Stencil value="true" />
-   <FileManager>
-           <FileType name="bpadxf" plugin="BPA" />
-           <FileType name="nfi" plugin="BPA" />
-           <FileType name="nfix" plugin="BPA" />
-           <FileType name="dani" plugin="DEMOA" />
-           <FileType name="dsim" plugin="DEMOA" />
-           <FileType name="xosc" plugin="OpenScenarioPlugin" />
-           <FileType name="pts" plugin="PointCloud" />
-           <FileType name="ptx" plugin="PointCloud" />
-           <FileType name="xyz" plugin="PointCloud" />
-           <FileType name="ptsb" plugin="PointCloud" />
-           <FileType name="c2m" plugin="PointCloud" />
-           <FileType name="e57" plugin="PointCloud" />
-           <FileType name="x3dv" plugin="Vrml97" />
-           <FileType name="x3d" plugin="Vrml97" />
-           <FileType name="wrl" plugin="Vrml97" />
-           <FileType name="wrl.gz" plugin="Vrml97" />
-           <FileType name="wrz" plugin="Vrml97" />	
-           <FileType name="avi" plugin="StereoVideoPlayer" />
-	   <FileType name="wmv" plugin="StereoVideoPlayer" />
-	   <FileType name="mov" plugin="StereoVideoPlayer" />
-	   <FileType name="mp4" plugin="StereoVideoPlayer" />
-           <FileType name="xvf" plugin="Volume" />
-           <FileType name="mid" plugin="Midi" />
-           <FileType name="tif" plugin="Volume" />
-           <FileType name="tiff" plugin="Volume" />
-           <FileType name="rvf" plugin="Volume" />
-           <FileType name="avf" plugin="Volume" />
-           <FileType name="js" plugin="Script" />
-           <FileType name="qs" plugin="Script" />
-           <FileType name="plmxml" plugin="PLMXML" />
-           <FileType name="xml" plugin="PLMXML" />
-           <FileType name="jt" plugin="JTOpen" />
-           <FileType name="gcode" plugin="CNC" />
-           <FileType name="bullet" plugin="Bullet" />
-           <FileType name="top" plugin="Amber" />
-           <FileType name="trj" plugin="Amber" />
-           <FileType name="cgl" plugin="CADCv3D" />
-           <FileType name="via" plugin="Molecules" />
-           <FileType name="vim" plugin="Molecules" />
-           <FileType name="vis" plugin="Molecules" />
-           <FileType name="dyn" plugin="VRAnim" />
-           <FileType name="geoall" plugin="VRAnim" />
-           <FileType name="str" plugin="VRAnim" />
-           <FileType name="sensor" plugin="VRAnim" />
-           <FileType name="particle" plugin="Particles" />
-           <FileType name="indent" plugin="Particles" />
-           <FileType name="coord" plugin="Particles" />
-           <FileType name="crist" plugin="Particles" />
-           <FileType name="chkpt" plugin="Particles" />
-           <FileType name="earth" plugin="Earth" />
-           <FileType name="xodr" plugin="TrafficSimulation" />
-           <FileType name="avi" plugin="StereoVideoPlayer" />
-           <FileType name="wmv" plugin="StereoVideoPlayer" />
-           <FileType name="earth" plugin="Earth" />
-           <FileType name="stardust" plugin="starDust" />
-           <FileType name="starDust" plugin="starDust" />
-           <FileType name="oct" plugin="ThreeDTK" />
-           <FileType name="pcd" plugin="PCL" />
-      </FileManager>
 
    <VRUI>
      <VNC>
