@@ -95,6 +95,23 @@ ScenerySystemItem::loadGoogleMap(const QString &filename, double mapPosLat, doub
 }
 
 void
+ScenerySystemItem::loadBingMap(const QString &filename, double mapPosLat, double mapPosLon)
+{
+    QPixmap pixmap(filename); // this pixmap is only temporary
+    if (pixmap.isNull())
+    {
+        qDebug("ERROR 1006151345! Pixmap could not be loaded!");
+        return;
+    }
+    SceneryMap *map = new SceneryMap("map0", filename, pixmap.width()*.197, pixmap.height()*.197, SceneryMap::DMT_Aerial);
+    map->setX(mapPosLat);
+    map->setY(mapPosLon);
+
+    AddMapCommand *command = new AddMapCommand(scenerySystem_, map);
+    getProjectGraph()->executeCommand(command);
+}
+
+void
 ScenerySystemItem::deleteMap()
 {
     foreach (SceneryMapItem *mapItem, mapItems_)
