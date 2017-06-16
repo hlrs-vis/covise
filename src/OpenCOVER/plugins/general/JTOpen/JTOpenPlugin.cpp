@@ -89,14 +89,14 @@ using namespace osg;
 template<class JT>
 std::string getJtName(JT *node)
 {
-#if 0
+#if JTTK_MAJOR_VERSION >= 8
 	JtkString name = node->name();
 	JtkUTF8* stringUTF8;
 	int length;
 	name.getString(stringUTF8, length);
     return std::string(stringUTF8, length);
 #else
-    return node->name();
+    return std::string(node->name());
 #endif
 }
 

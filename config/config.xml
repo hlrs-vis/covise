@@ -96,7 +96,9 @@
            <FileType name="xyz" plugin="PointCloud" />
            <FileType name="ptsb" plugin="PointCloud" />
            <FileType name="c2m" plugin="PointCloud" />
+           <FileType name="e57" plugin="PointCloud" />
            <FileType name="x3dv" plugin="Vrml97" />
+           <FileType name="x3d" plugin="Vrml97" />
            <FileType name="wrl" plugin="Vrml97" />
            <FileType name="wrl.gz" plugin="Vrml97" />
            <FileType name="wrz" plugin="Vrml97" />	

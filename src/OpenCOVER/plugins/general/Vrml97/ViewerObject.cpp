@@ -571,7 +571,7 @@ void osgViewerObject::updateTexture()
                     //fprintf(stderr, "updateTexture: texture==NULL for unit %d\n", i);
                 }
             }
-            for(int i=1;i<pGeode->getNumDrawables();i++) // copy the same geostate to the rest of the drawables
+            for(unsigned int i=1;i<pGeode->getNumDrawables();i++) // copy the same geostate to the rest of the drawables
             {
                 osg::Drawable *d = pGeode->getDrawable(i);
                 d->setStateSet(geostate);
@@ -828,7 +828,7 @@ void osgViewerObject::updateMaterial()
                 }
                 drawable->setStateSet(geostate);
                 
-                for(int i=1;i<pGeode->getNumDrawables();i++) // copy the same geostate to the rest of the drawables
+                for(unsigned int i=1;i<pGeode->getNumDrawables();i++) // copy the same geostate to the rest of the drawables
                 {
                     osg::Drawable *d = pGeode->getDrawable(i);
                     d->setStateSet(geostate);

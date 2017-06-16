@@ -104,7 +104,7 @@ int vruiCollabInterface::getType() const
 int vruiCollabInterface::composeMessage(const char messageType, const char *message)
 {
 
-    int len;
+    size_t len;
     if (message)
         len = name.length() + 2 + strlen(message);
     else

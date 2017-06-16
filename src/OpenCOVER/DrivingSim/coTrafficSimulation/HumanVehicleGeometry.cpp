@@ -135,7 +135,7 @@ void HumanVehicleGeometry::findVehicleNode()
 
 osg::Node *HumanVehicleGeometry::searchGroupByVehicleNodeName(osg::Group *group)
 {
-    for (int groupIt = 0; groupIt < group->getNumChildren(); ++groupIt)
+    for (unsigned int groupIt = 0; groupIt < group->getNumChildren(); ++groupIt)
     {
         osg::Node *node = group->getChild(groupIt);
         if (node)
