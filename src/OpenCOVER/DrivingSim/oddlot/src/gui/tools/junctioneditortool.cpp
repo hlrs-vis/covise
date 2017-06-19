@@ -207,7 +207,7 @@ JunctionEditorTool::initToolWidget()
     ui->setupUi(ribbonWidget);
     
     QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     ribbonToolGroup->addButton(ui->connectingLane, ODD::TJE_CREATE_LANE);
     ribbonToolGroup->addButton(ui->connectingRoad, ODD::TJE_CREATE_ROAD);
@@ -223,12 +223,12 @@ JunctionEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->unlinkSelected, ODD::TJE_UNLINK_ROADS);
     ribbonToolGroup->addButton(ui->cuttingCircle, ODD::TJE_CIRCLE);
     
-    connect(ui->cuttingCircle, SIGNAL(toggled(bool)), this, SLOT(cuttingCircle(bool)));
+    connect(ui->cuttingCircle, SIGNAL(toggled(bool)), this, SLOT(ribbonCuttingCircle(bool)));
     
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Junction"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -254,6 +254,19 @@ JunctionEditorTool::activateEditor()
     delete action;
 }
 
+/*! \brief Gets called when this widget (tab) has been activated.
+*
+*/
+void
+JunctionEditorTool::activateRibbonEditor()
+{
+    // Send //
+    //
+    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, ui->radiusEdit->value());
+    emit toolAction(action);
+    delete action;
+}
+
 /*! \brief Gets called when a tool button has been selected.
 *
 */
@@ -273,12 +286,39 @@ JunctionEditorTool::handleToolClick(int id)
 *
 */
 void
+JunctionEditorTool::handleRibbonToolClick(int id)
+{
+    toolId_ = (ODD::ToolId)id;
+
+    // Set a tool //
+    //
+	JunctionEditorToolAction *action = new JunctionEditorToolAction(toolId_, ui->radiusEdit->value());
+    emit toolAction(action);
+    delete action;
+}
+
+/*! \brief Gets called when a tool button has been selected.
+*
+*/
+void
 JunctionEditorTool::cuttingCircle(bool active)
 {
     JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_CIRCLE, thresholdEdit_->value(), active);
     emit toolAction(action);
     delete action;
 }
+
+/*! \brief Gets called when a tool button has been selected.
+*
+*/
+void
+JunctionEditorTool::ribbonCuttingCircle(bool active)
+{
+	JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_CIRCLE, ui->radiusEdit->value(), active);
+    emit toolAction(action);
+    delete action;
+}
+
 
 /*! \brief Gets called when a tool has been selected.
 */

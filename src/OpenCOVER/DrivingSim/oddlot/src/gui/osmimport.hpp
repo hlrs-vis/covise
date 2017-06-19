@@ -23,6 +23,10 @@
 #include <QDialog>
 #include <QDomElement>
 
+#if (_MSC_VER > 1310)
+typedef unsigned __int64 uint64_t;
+#endif
+
 namespace Ui
 {
 class OsmImport;

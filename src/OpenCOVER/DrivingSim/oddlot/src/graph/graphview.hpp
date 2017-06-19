@@ -57,6 +57,7 @@ public:
     {
         return circleCenter_;
     };
+	void deleteCircle();
 
     void resetViewTransformation();
 

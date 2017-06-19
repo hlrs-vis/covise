@@ -2396,6 +2396,8 @@ JunctionEditor::kill()
 
     delete laneRoadSystemItem_;
     laneRoadSystemItem_ = NULL;
+
+	getTopviewGraph()->getView()->deleteCircle();
 }
 
 //################//

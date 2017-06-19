@@ -264,9 +264,7 @@ GraphView::toolAction(ToolAction *toolAction)
             }
             else if ((circleItem_) && !junctionEditorAction->isToggled())
             {
-                doCircleSelect_ = CircleOff;
-                scene()->removeItem(circleItem_);
-                delete circleItem_;
+                deleteCircle();
             }
         }
         else if (id == ODD::TJE_THRESHOLD)
@@ -845,10 +843,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
             scene()->setSelectionArea(circle);
         }
 
-        doCircleSelect_ = CircleOff;
-        scene()->removeItem(circleItem_);
-        delete circleItem_;
-        circleItem_ = NULL;
+        deleteCircle();
     }
     else if (doKeyPan_)
     {
@@ -1179,6 +1174,18 @@ void
 	else
 	{
 		QGraphicsView::contextMenuEvent(event);
+	}
+}
+
+void
+	GraphView::deleteCircle()
+{
+	if (circleItem_)
+	{
+		doCircleSelect_ = CircleOff;
+	    scene()->removeItem(circleItem_);
+        delete circleItem_;
+        circleItem_ = NULL;
 	}
 }
 

@@ -93,10 +93,13 @@ signals:
 
 public slots:
     void activateEditor();
+	void activateRibbonEditor();
     void handleToolClick(int);
+	void handleRibbonToolClick(int);
     void setRadius();
     void setRRadius();
     void cuttingCircle(bool);
+	void ribbonCuttingCircle(bool);
 
     //################//
     // PROPERTIES     //
