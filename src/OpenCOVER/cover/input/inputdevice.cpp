@@ -16,6 +16,7 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
+#include <sstream>
 #include <cassert>
 #include <limits>
 #include <osg/Matrix>
@@ -58,7 +59,9 @@ InputDevice::InputDevice(const std::string &config)
 
 	for (int i = 0; i < 3; i++)
 	{
-		std::string cPath = configPath("CallibrationPoint." + std::to_string(i));
+        std::stringstream str;
+        str << "CallibrationPoint." << i;
+		std::string cPath = configPath(str.str());
 		m_calibrationPoints[i].x() = coCoviseConfig::getFloat("x", cPath, 0);
 		m_calibrationPoints[i].y() = coCoviseConfig::getFloat("y", cPath, 0);
 		m_calibrationPoints[i].z() = coCoviseConfig::getFloat("z", cPath, 0);
