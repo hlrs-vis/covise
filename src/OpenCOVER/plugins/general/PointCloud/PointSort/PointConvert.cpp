@@ -622,11 +622,11 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				if ((len > 4) && stricmp((argv[i] + len - 4), ".ptx") == 0)
+				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".ptx") == 0)
 				{
 					ReadPTX(argv[i], vec);
 				}
-				if ((len > 4) && stricmp((argv[i] + len - 4), ".e57") == 0)
+				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
 				{
 					ReadE57(argv[i], vec);
 				}

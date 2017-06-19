@@ -61,7 +61,7 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 	cout << "Input Data: " << filename << endl;
 
 	int len = strlen(filename);
-	if ((len > 4) && stricmp((filename + len - 4), ".e57") == 0)
+	if ((len > 4) && strcasecmp((filename + len - 4), ".e57") == 0)
 	{
 
 #ifdef HAVE_E57
