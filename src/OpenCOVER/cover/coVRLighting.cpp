@@ -126,7 +126,7 @@ void coVRLighting::initSunLight()
           1.0, 1.0, 1.0
         },
         { // ambient
-          0.3, 0.3, 0.3
+          0.3f, 0.3f, 0.3f
         },
         { // position
           0.0, -10000.0, 10000.0, 1.0

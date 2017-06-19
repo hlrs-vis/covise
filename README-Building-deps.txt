@@ -284,3 +284,65 @@ FIND_PACKAGE(ZLIB)
 set(ZLIB_LIBRARY ${ZLIB_LIBRARY_RELEASE})
 
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgEarth -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+
+
+#e57
+change the following in CmakeLists.txt:
+
+
+# Override flags to enable prepare for linking to static runtime
+#set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_overrides.cmake)
+#set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
+
+#set(Boost_USE_STATIC_LIBS   ON)
+#set(Boost_USE_STATIC_RUNTIME ON)
+
+#set(Xerces_USE_STATIC_LIBS On)
+
+#add_definitions(-DBOOST_ALL_NO_LIB )#-DXERCES_STATIC_LIBRARY)
+  add_definitions("-DBOOST_ALL_NO_LIB")
+  add_definitions("-DBOOST_ALL_DYN_LINK")
+  
+add_library( E57RefImpl STATIC
+    src/refimpl/E57Foundation.cpp
+    src/refimpl/E57FoundationImpl.cpp
+    src/refimpl/E57FoundationImpl.h
+    src/refimpl/E57Simple.cpp
+    src/refimpl/E57SimpleImpl.cpp
+    src/refimpl/E57SimpleImpl.h
+    src/time_conversion/time_conversion.c
+    include/E57Foundation.h
+)
+
+
+
+download E57SimpleImpl source and add E57Simple.* to E57RefImpl
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/e57 -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+ 
+
+
+###########
+###########
+#Lamure
+
+#schism
+got to build/cmake/build
+add compiler to schism_compiler.cmake
+add boost search path in schism_boost.cmake
+SET(SCM_BOOST_INCLUDE_SEARCH_DIRS
+    /src/externlibs/zebu/boost/include/boost-1_62
+
+SET(SCM_BOOST_LIBRARY_SEARCH_DIRS
+    /src/externlibs/zebu/boost/lib
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/schism -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/lamure -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+# freeimage
+download freeimage from webpage or sourcecforge
+replace libwebp source by current git repository
+git clone https://github.com/webmproject/libwebp.git
+on windows open the visual studio project and add enc/backward_references_cost_enc.cal3d and dsp/ssim*.c
+Build debug and release

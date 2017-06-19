@@ -171,7 +171,7 @@ void DTrack::receiveData()
     }
     if (numbytes < 0)
     {
-        fprintf(stderr, "socket %d MAXBYTES %d dataptr:%lx  errno%d\n", sock, MAXBYTES, (unsigned long int)rawdata, errno);
+        fprintf(stderr, "socket %d MAXBYTES %d errno%d\n", sock, MAXBYTES, errno);
         perror("DTrack recvfrom failed");
 
         return;

@@ -114,6 +114,7 @@ public slots:
     //
     void loadMap();
     void loadGoogleMap();
+    void loadBingMap();
 
     void deleteMap();
     void lockMap(bool lock);

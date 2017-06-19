@@ -25,13 +25,13 @@ FKFS::FKFS()
         if (!remoteHost.empty() && coVRMSController::instance()->isMaster())
         {
             toFKFS = new UDPComm(remoteHost.c_str(), remotePort, localPort);
-            fprintf(stderr, "toFKFS: %ld\n", (long)toFKFS);
+            //fprintf(stderr, "toFKFS: %ld\n", (long)toFKFS);
             sendBuffer.t_req = 1.0;
             sendBuffer.Enable = 1.0;
             sendBuffer.Mode = 0.0;
             sendBuffer.msgcount = 0.0;
             //run();
-            fprintf(stderr, "done: %ld\n", (long)toFKFS);
+            //fprintf(stderr, "done: %ld\n", (long)toFKFS);
             startThread();
             maxAngle = 1.5;
         }

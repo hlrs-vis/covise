@@ -64,7 +64,7 @@ void TemporaryWindow::create()
         kill();
         return;
     }
-    fprintf(stderr, "handle:%d\n", handle_);
+    //fprintf(stderr, "handle:%d\n", handle_);
 
     if (!(dc_ = GetDC(handle_)))
     {
@@ -141,5 +141,5 @@ void TemporaryWindow::kill()
 
 bool TemporaryWindow::makeCurrent()
 {
-    return wglMakeCurrent(dc_, context_);
+    return (wglMakeCurrent(dc_, context_)!=0);
 }

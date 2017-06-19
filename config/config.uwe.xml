@@ -257,6 +257,9 @@
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
  <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
+ 
+ <TRYINCLUDE global="1" configname="private" ARCH="unix" >/data/hlrs/config-hlrs-private.xml</TRYINCLUDE>
+ <TRYINCLUDE global="1" configname="private" ARCH="windows" >c:/data/hlrs/config-hlrs-private.xml</TRYINCLUDE>
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
 </COCONFIG>

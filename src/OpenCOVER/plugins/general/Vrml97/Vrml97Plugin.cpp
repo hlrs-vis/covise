@@ -109,7 +109,17 @@ static FileHandler handlers[] = {
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
-      "wrz" }
+      "wrz" },
+	  { Vrml97Plugin::loadVrml,
+	  Vrml97Plugin::loadVrml,
+	  NULL,
+	  Vrml97Plugin::unloadVrml,
+	  "x3d" },
+	  { Vrml97Plugin::loadVrml,
+	  Vrml97Plugin::loadVrml,
+	  NULL,
+	  Vrml97Plugin::unloadVrml,
+	  "x3dv" }
 };
 
 // descend two levels into vrml scene graph
@@ -330,7 +340,9 @@ bool Vrml97Plugin::init()
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
-    coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[3]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
 
     VrmlNamespace::addBuiltIn(VrmlNodeTUIProgressBar::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeTUITab::defineType());
@@ -383,7 +395,9 @@ Vrml97Plugin::~Vrml97Plugin()
         }
     }
 
-    coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[4]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[3]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
     coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 
