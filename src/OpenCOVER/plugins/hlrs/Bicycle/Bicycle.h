@@ -160,6 +160,7 @@ public:
     Tacx *tacx;
     FlightGear *flightgear;
     bool isPlane;
+    bool isBike;
 
     coTUITab *BicycleTab;
     coTUIEditFloatField *velocityFactor;

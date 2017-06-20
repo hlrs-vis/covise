@@ -31,7 +31,7 @@ void FlightGear::init()
 {
     delete udp;
 
-    const std::string host = covise::coCoviseConfig::getEntry("value", "FlightGear.serverHost", "141.58.8.28");
+    const std::string host = covise::coCoviseConfig::getEntry("value", "FlightGear.serverHost", "141.58.8.93");
     unsigned short serverPort = covise::coCoviseConfig::getInt("FlightGear.serverPort", 5253);
     unsigned short localPort = covise::coCoviseConfig::getInt("FlightGear.localPort", 5252);
     std::cerr << "FlightGear config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
