@@ -180,12 +180,7 @@ else()
 endif()
 
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
-if (APPLE)
-    # would break dynamic_casts in Visionary COVER plugin
-    OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" OFF)
-else()
-    OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
-endif()
+OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 
 if(NOT COVISE_USE_CPP11)
     set(COVISE_USE_VISIONARAY OFF)
