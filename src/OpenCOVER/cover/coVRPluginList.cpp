@@ -330,7 +330,12 @@ void coVRPluginList::commitTimestep(int t, coVRPlugin *plugin)
     assert(m_requestedTimestep == t);
     assert(m_numOutstandingTimestepPlugins > 0);
     --m_numOutstandingTimestepPlugins;
-    if (m_numOutstandingTimestepPlugins == 0) {
+    if (m_numOutstandingTimestepPlugins < 0)
+    {
+        std::cerr << "coVRPluginList: plugin " << plugin->getName() << " overcommitted timestep " << t << std::endl;
+        m_numOutstandingTimestepPlugins = 0;
+    }
+    if (m_numOutstandingTimestepPlugins <= 0) {
         coVRAnimationManager::instance()->setAnimationFrame(t);
         m_requestedTimestep = -1;
     }
