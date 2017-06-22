@@ -259,6 +259,7 @@ ENDIF()
 
 if(APPLE)
    add_covise_compile_flags(${COVERKERNEL_TARGET} "-Wno-deprecated")
+   add_covise_compile_flags(${COVERKERNEL_TARGET} "-Wno-error=null-dereference")
 endif()
 
 IF(BASEARCHSUFFIX STREQUAL "angus" OR
