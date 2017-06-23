@@ -157,20 +157,20 @@ ElevationEditorTool::initToolWidget()
     ui->setupUi(ribbonWidget);
     
     QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     
     ribbonToolGroup->addButton(ui->elevationSelect, ODD::TEL_SELECT);
     ribbonToolGroup->addButton(ui->elevationAdd, ODD::TEL_ADD);
     ribbonToolGroup->addButton(ui->elevationDelete, ODD::TEL_DEL);
-    ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
+	ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
     
     connect(ui->heightEdit, SIGNAL(editingFinished()), this, SLOT(setRHeight()));
     connect(ui->iHeightEdit, SIGNAL(editingFinished()), this, SLOT(setRIHeight()));
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Elevation"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -195,6 +195,18 @@ ElevationEditorTool::activateEditor()
     delete action;
 }
 
+/*! \brief Gets called when this widget (tab) has been activated.
+*
+* Sends a ToolAction with the current ToolId and Radius.
+*/
+void
+ElevationEditorTool::activateRibbonEditor()
+{
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, ui->radiusEdit->value());
+    emit toolAction(action);
+    delete action;
+}
+
 /*! \brief Gets called when a tool has been selected.
 *
 * Sends a ToolAction with the current ToolId and Radius.
@@ -207,14 +219,49 @@ ElevationEditorTool::handleToolClick(int id)
 
     // Set a tool //
     //
-    switch (toolId_)
-    {
-    case ODD::TEL_SMOOTH:
-        action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
-        break;
-    default:
-        action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, radiusEdit_->value());
-    }
+	switch (toolId_)
+	{
+	case ODD::TEL_SMOOTH:
+		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
+		emit toolAction(action);
+		delete action;
+
+		action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::ButtonPressed, 0.0);
+		break;
+	default:
+		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, radiusEdit_->value());
+	}
+
+
+    emit toolAction(action);
+    delete action;
+}
+
+/*! \brief Gets called when a tool has been selected.
+*
+* Sends a ToolAction with the current ToolId and Radius.
+*/
+void
+ElevationEditorTool::handleRibbonToolClick(int id)
+{
+    toolId_ = (ODD::ToolId)id;
+    ElevationEditorToolAction *action;
+
+    // Set a tool //
+    //
+	switch (toolId_)
+	{
+	case ODD::TEL_SMOOTH:
+		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
+		emit toolAction(action);
+		delete action;
+
+		action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::ButtonPressed, 0.0);
+		break;
+	default:
+		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, ui->radiusEdit->value());
+	}
+
     emit toolAction(action);
     delete action;
 }
@@ -292,6 +339,7 @@ ElevationEditorTool::setRIHeight()
     delete action;
     iHeightEdit_->setValue(0.0);
 }
+
 
 //################//
 //                //

@@ -250,7 +250,7 @@ GraphView::toolAction(ToolAction *toolAction)
 
         if (id == ODD::TJE_CIRCLE)
         {
-            if ((doCircleSelect_ == CircleOff) && junctionEditorAction->isToggled())
+			if (doCircleSelect_ == CircleOff)
             {
                 doCircleSelect_ = CircleActive;
                 radius_ = junctionEditorAction->getThreshold();
@@ -262,15 +262,19 @@ GraphView::toolAction(ToolAction *toolAction)
                 circleItem_->setPen(pen);
                 scene()->addItem(circleItem_);
             }
-            else if ((circleItem_) && !junctionEditorAction->isToggled())
-            {
-                deleteCircle();
-            }
-        }
-        else if (id == ODD::TJE_THRESHOLD)
-        {
-            radius_ = junctionEditorAction->getThreshold();
-        }
+		}
+		else
+		{
+			if (id == ODD::TJE_THRESHOLD)
+			{
+				radius_ = junctionEditorAction->getThreshold();
+			}
+			else if (circleItem_)
+			{
+				deleteCircle();
+			}
+		}
+
     }
 
     // Shape Editing Tool //
@@ -1126,7 +1130,6 @@ GraphView::mousePressEvent(QMouseEvent *event)
             scene()->setSelectionArea(circle);
         }
 
-        deleteCircle();
     }
     else if (doKeyPan_)
     {
