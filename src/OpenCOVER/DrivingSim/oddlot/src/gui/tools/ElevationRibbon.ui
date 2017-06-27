@@ -123,7 +123,7 @@
       <item row="1" column="2">
        <widget class="QPushButton" name="elevationSmooth">
         <property name="text">
-         <string>Smooth</string>
+         <string>Smooth Roads</string>
         </property>
        </widget>
       </item>
