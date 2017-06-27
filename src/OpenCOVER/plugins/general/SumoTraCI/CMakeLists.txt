@@ -30,7 +30,12 @@ set(SOURCES
 
 INCLUDE_DIRECTORIES(
    ../../../DrivingSim/VehicleUtil
+   ../../../DrivingSim/coTrafficSimulation
    ${V8_INCLUDE_DIR}
 )
 
 cover_add_plugin(SumoTraCI ${HEADERS} ${SOURCES})
+
+target_link_libraries(SumoTraCI
+ ${EXTRA_LIBS}
+ coTrafficSimulation)
