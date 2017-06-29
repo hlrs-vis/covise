@@ -23,7 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
-#include <PluginUtil/coBaseCoviseInteractor.h>
+#include <cover/coInteractor.h>
 #include <OpenVRUI/coToolboxMenu.h>
 
 #include <vrml97/vrml/VrmlNodeCOVER.h>
@@ -137,99 +137,104 @@ void TangiblePositionPlugin::updateAndExec()
 {
     for (list<coInteractor *>::iterator it = interactors.begin(); it != interactors.end(); it++)
     {
-        coBaseCoviseInteractor *inter = dynamic_cast<coBaseCoviseInteractor *>(*it);
+        coInteractor *inter = *it;
         if (!inter)
             continue;
 
-        int i;
-        for (i = 0; i < inter->getNumParam(); i++)
+        bool execNeeded = false;
+        for (int i=0; i<9; ++i)
         {
-            if (strncmp(inter->getParaName(i), "pos_cube_", 9) == 0)
+            if (i==0)
+                continue;
+            std::stringstream str;
+            str << "pos_cube_" << i;
+
+            if (theCOVER)
             {
-                int paramnum = 0;
-                if (sscanf(inter->getParaName(i) + 9, "%d", &paramnum) != 1)
+                if ((theCOVER->transformations[i - 1][3 * 4]) < 400 && (theCOVER->transformations[i - 1][3 * 4]) > -400 && (theCOVER->transformations[i - 1][3 * 4] != 0 || theCOVER->transformations[i - 1][3 * 4 + 1] != 0))
                 {
-                    cerr << "TangiblePositionPlugin::updateAndExec: sscanf failed" << endl;
-                }
-                if (theCOVER)
-                {
-                    if (paramnum < 9 && (theCOVER->transformations[paramnum - 1][3 * 4]) < 400 && (theCOVER->transformations[paramnum - 1][3 * 4]) > -400 && (theCOVER->transformations[paramnum - 1][3 * 4] != 0 || theCOVER->transformations[paramnum - 1][3 * 4 + 1] != 0))
+                    int numElem = 0;
+                    float *ptr;
+                    if (inter->getFloatVectorParam(str.str(), numElem, ptr) == -1)
+                        continue;
+                    execNeeded = true;
+                    if (numElem == 3)
                     {
-                        int numElem = 0;
-                        float *ptr;
-                        inter->getFloatVectorParam(i, numElem, ptr);
-                        if (numElem == 3)
-                        {
-                            // x = x
-                            // y = -z (da die transformation in vrml koordinaten vorliegt.
-                            // z = alter z-wert
-                            fprintf(stderr, "name: %s, posx:%f, posy:%f\n", inter->getParaName(i), (float)theCOVER->transformations[paramnum - 1][3 * 4], (float)-theCOVER->transformations[paramnum - 1][3 * 4 + 2]);
-                            inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum - 1][3 * 4], (float)-theCOVER->transformations[paramnum - 1][3 * 4 + 2], ptr[2]);
-                        }
-                        else
-                        {
-#ifdef USE_COVISE
-                            CoviseRender::sendError("wrong parameter type, float vector [3] expected!");
-#else
-                            printf("wrong parameter type, float vector [3] expected!");
-#endif
-                        }
-                        /* SCBooth
-						if(paramnum-1 == 0)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 1.5);
-						if(paramnum-1 == 1)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.38);
-						if(paramnum-1 == 2)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.38);
-						if(paramnum-1 == 3)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.38);
-						if(paramnum-1 == 4)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.92);
-						if(paramnum-1 == 5)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.92);
-						if(paramnum-1 == 6)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.92);
-						if(paramnum-1 == 7)
-						inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum-1][3*4], (float)-theCOVER->transformations[paramnum-1][3*4+2], 0.67);
-						*/
+                        // x = x
+                        // y = -z (da die transformation in vrml koordinaten vorliegt.
+                        // z = alter z-wert
+                        fprintf(stderr, "name: %s, posx:%f, posy:%f\n", str.str().c_str(), (float)theCOVER->transformations[i - 1][3 * 4], (float)-theCOVER->transformations[i - 1][3 * 4 + 2]);
+                        inter->setVectorParam(str.str().c_str(), (float)theCOVER->transformations[i - 1][3 * 4], (float)-theCOVER->transformations[i - 1][3 * 4 + 2], ptr[2]);
                     }
+                    else
+                    {
+#ifdef USE_COVISE
+                        CoviseRender::sendError("wrong parameter type, float vector [3] expected!");
+#else
+                        printf("wrong parameter type, float vector [3] expected!");
+#endif
+                    }
+                    /* SCBooth
+                       if(i-1 == 0)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 1.5);
+                       if(i-1 == 1)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.38);
+                       if(i-1 == 2)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.38);
+                       if(i-1 == 3)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.38);
+                       if(i-1 == 4)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.92);
+                       if(i-1 == 5)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.92);
+                       if(i-1 == 6)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.92);
+                       if(i-1 == 7)
+                       inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[i-1][3*4], (float)-theCOVER->transformations[i-1][3*4+2], 0.67);
+                       */
                 }
             }
-            else if (strncmp(inter->getParaName(i), "pos_rack_", 9) == 0)
+        }
+
+        for (int i=0; i<20; ++i)
+        {
+            if (i==0)
+                continue;
+
+            std::stringstream str;
+            str << "pos_rack_" << i;
+
+            if (theCOVER)
             {
-                int paramnum = 0;
-                if (sscanf(inter->getParaName(i) + 9, "%d", &paramnum) != 1)
+                if ((theCOVER->transformations[i - 1][3 * 4]) < 400 && (theCOVER->transformations[i - 1][3 * 4]) > -400 && (theCOVER->transformations[i - 1][3 * 4] != 0 || theCOVER->transformations[i - 1][3 * 4 + 1] != 0))
                 {
-                    cerr << "TangiblePositionPlugin::updateAndExec: sscanf failed" << endl;
-                }
-                if (theCOVER)
-                {
-                    if (paramnum < 20 && (theCOVER->transformations[paramnum - 1][3 * 4]) < 400 && (theCOVER->transformations[paramnum - 1][3 * 4]) > -400 && (theCOVER->transformations[paramnum - 1][3 * 4] != 0 || theCOVER->transformations[paramnum - 1][3 * 4 + 1] != 0))
+                    int numElem = 0;
+                    float *ptr;
+                    if (inter->getFloatVectorParam(str.str(), numElem, ptr) == -1)
+                        continue;
+                    execNeeded = true;
+                    if (numElem == 3)
                     {
-                        int numElem = 0;
-                        float *ptr;
-                        inter->getFloatVectorParam(i, numElem, ptr);
-                        if (numElem == 3)
-                        {
-                            // x = x
-                            // y = -z (da die transformation in vrml koordinaten vorliegt.
-                            // z = alter z-wert
-                            fprintf(stderr, "name: %s, posx:%f, posy:%f\n", inter->getParaName(i), (float)theCOVER->transformations[paramnum - 1][3 * 4], (float)-theCOVER->transformations[paramnum - 1][3 * 4 + 2]);
-                            inter->setVectorParam(inter->getParaName(i), (float)theCOVER->transformations[paramnum - 1][3 * 4], (float)-theCOVER->transformations[paramnum - 1][3 * 4 + 2], ptr[2]);
-                        }
-                        else
-                        {
+                        // x = x
+                        // y = -z (da die transformation in vrml koordinaten vorliegt.
+                        // z = alter z-wert
+                        fprintf(stderr, "name: %s, posx:%f, posy:%f\n", str.str().c_str(), (float)theCOVER->transformations[i - 1][3 * 4], (float)-theCOVER->transformations[i - 1][3 * 4 + 2]);
+                        inter->setVectorParam(str.str().c_str(), (float)theCOVER->transformations[i - 1][3 * 4], (float)-theCOVER->transformations[i - 1][3 * 4 + 2], ptr[2]);
+                    }
+                    else
+                    {
 #ifdef USE_COVISE
-                            CoviseRender::sendError("wrong parameter type, float vector [3] expected!");
+                        CoviseRender::sendError("wrong parameter type, float vector [3] expected!");
 #else
-                            printf("wrong parameter type, float vector [3] expected!");
+                        printf("wrong parameter type, float vector [3] expected!");
 #endif
-                        }
                     }
                 }
             }
         }
-        inter->executeModule();
+
+        if (execNeeded)
+            inter->executeModule();
     }
 }
 
