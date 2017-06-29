@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef _SHIFVALUES_POINT_H_
-#define _SHIFT_VALUES_POINT_H_
+#ifndef SHIFT_VALUES_POINT_H
+#define SHIFT_VALUES_POINT_H
 
 #include <do/coDistributedObject.h>
 #include <appl/ApplInterface.h>
