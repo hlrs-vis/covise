@@ -1249,7 +1249,7 @@ void MEMainHandler::about()
         ui->textEdit->setPlainText(data);
     }
 
-    QString text("This is <a href='http://www.hlrs.de/organization/av/vis/covise'>COVISE</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
+    QString text("This is <a href='http://www.hlrs.de/about-us/organization/divisions-departments/av/vis/'>COVISE</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
     text = text.arg(CoviseVersion::year())
         .arg(CoviseVersion::month())
         .arg(CoviseVersion::hash())
