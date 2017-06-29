@@ -91,23 +91,45 @@ void FlightGear::update()
 	    init();
 	    return;
         }
-        if (bicycle->power>5)
-	{
-            fgcontrol.magnetos=1;
-            fgcontrol.starter=true;
-            fgcontrol.throttle=bicycle->power/10000;
-	    fgcontrol.parkingBrake=0.0;
+        if (BicyclePlugin::plugin->isParaglider)
+        {
+            if (thermal) // ParagliderThrottleInput.xml
+            {
+                fgcontrol.magnetos=0; 
+                fgcontrol.starter=true; // /sim/model/MRX13/engine_running
+                fgcontrol.throttle=1.0; // /fdm/jsbsim/fcs/throttle-generic-engine-norm
+                fgcontrol.parkingBrake=400.0; // Wingarea
+            }
+            else 
+            {
+                fgcontrol.magnetos=0;
+                fgcontrol.starter=true; // /sim/model/MRX13/engine_running
+                fgcontrol.throttle=0.0; // /fdm/jsbsim/fcs/throttle-generic-engine-norm
+                fgcontrol.parkingBrake=400.0; // Wingarea
+            }
         }
-	else
-	{
-            fgcontrol.magnetos=1;
-            fgcontrol.starter=false;
-            fgcontrol.throttle=0.0;
-            fgcontrol.parkingBrake=1.0;
-	}
-
+        else 
+        {
+            if (bicycle->power>5)
+            {
+                fgcontrol.magnetos=1;
+                fgcontrol.starter=true;
+                fgcontrol.throttle=bicycle->power/10000;
+                fgcontrol.parkingBrake=0.0;
+            }
+            else
+            {
+                fgcontrol.magnetos=1;
+                fgcontrol.starter=false;
+                fgcontrol.throttle=0.0;
+                fgcontrol.parkingBrake=1.0;
+            }
+        }
+        byteSwap(fgcontrol.throttle);
+        byteSwap(fgcontrol.parkingBrake);
 	fprintf(stderr, "Sent throttle data0: %6f ", fgcontrol.throttle);
-        ret = udp->send(&fgcontrol,sizeof(FGControl));
+    fprintf(stderr, "Sent wingarea: %6f ", fgcontrol.parkingBrake);
+    ret = udp->send(&fgcontrol,sizeof(FGControl));
        
     } 
 }
@@ -122,4 +144,9 @@ osg::Vec3d FlightGear::getOrientation()
 {
 OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex); 
 return osg::Vec3d(fgdata.orientation[0],fgdata.orientation[1],fgdata.orientation[2]);
+}
+
+void FlightGear::setThermal(bool thermalActivity)
+{
+thermal =thermalActivity;
 }

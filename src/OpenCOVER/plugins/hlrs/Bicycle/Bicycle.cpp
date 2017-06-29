@@ -148,6 +148,7 @@ VrmlNodeType *VrmlNodeBicycle::defineType(VrmlNodeType *t)
     t->addEventOut("revs", VrmlField::SFFLOAT);
     t->addEventOut("gear", VrmlField::SFINT32);
     t->addEventOut("button", VrmlField::SFINT32);
+    t->addEventIn("thermal", VrmlField::SFBOOL);
     t->addExposedField("bikeRotation", VrmlField::SFROTATION);
     t->addExposedField("bikeTranslation", VrmlField::SFVEC3F);
 
@@ -168,6 +169,7 @@ VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
     , d_bikeRotation(1, 0, 0, 0)
     , d_bikeTranslation(0, 0, 0)
     , d_button(0)
+    , d_thermal(0)
 {
     setModified();
     bikeTrans.makeIdentity();
@@ -180,6 +182,7 @@ VrmlNodeBicycle::VrmlNodeBicycle(const VrmlNodeBicycle &n)
     , d_bikeRotation(n.d_bikeRotation)
     , d_bikeTranslation(n.d_bikeTranslation)
     , d_button(n.d_button)
+    , d_thermal(n.d_thermal)
 {
     setModified();
     bikeTrans.makeIdentity();
@@ -230,6 +233,8 @@ void VrmlNodeBicycle::setField(const char *fieldName, const VrmlField &fieldValu
         TRY_FIELD(bikeRotation, SFRotation)
     else if
         TRY_FIELD(bikeTranslation, SFVec3f)
+    else if
+        TRY_FIELD(thermal, SFBool)
     else
     {
         VrmlNodeChild::setField(fieldName, fieldValue);
@@ -290,6 +295,12 @@ void VrmlNodeBicycle::eventIn(double timeStamp,
         setField(eventName, *fieldValue);
         recalcMatrix();
     }
+    else if (strcmp(eventName, "thermal") == 0)
+    {
+        setField(eventName, *fieldValue);
+        fprintf(stderr, "thermal: %d\n", d_thermal.get());
+        
+    }
     // Check exposedFields
     else
     {
@@ -334,6 +345,8 @@ void VrmlNodeBicycle::render(Viewer *)
     double dT = cover->frameDuration();
     float wheelBase = 0.98;
     float v = BicyclePlugin::plugin->speed; //*0.06222222;
+    if (d_thermal.get()) 
+        fprintf(stderr, "Thermal: %d ", d_thermal.get());
     //fprintf(stderr,"speed: %f", v);
     if (BicyclePlugin::plugin->isPlane)
     { 
@@ -391,6 +404,7 @@ void VrmlNodeBicycle::render(Viewer *)
 
             // eventOut(timeStamp, "bikeTranslation", d_bikeTranslation);
             //  eventOut(timeStamp, "bikeRotation", d_bikeRotation);
+            BicyclePlugin::plugin->flightgear->setThermal(d_thermal.get());
         }
 
 
@@ -579,7 +593,7 @@ counters[1]=0;
         {
         angle = 0.0;
         speed = 20.0;
-        power= 10000.0;
+        power= 0.0;
         }
         coVRMSController::instance()->sendSlaves((char *)&angle, sizeof(angle));
         coVRMSController::instance()->sendSlaves((char *)&speed, sizeof(speed));
@@ -809,7 +823,7 @@ bool BicyclePlugin::init()
 
     isPlane=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.FlightGear",false));
     isBike=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isBike",false));
-
+    isParaglider=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isParaglider",false));
     if (coVRMSController::instance()->isMaster())
     {
         if (isBike)
@@ -847,6 +861,14 @@ bool BicyclePlugin::init()
 
     velocityFactorLabel = new coTUILabel("velocity factor:", BicycleTab->getID());
     velocityFactorLabel->setPos(0, 0);
+    
+    wingArea = new coTUIEditFloatField("wing area", BicycleTab->getID());
+    wingArea ->setEventListener(this);
+    wingArea->setValue(2.0);
+    wingArea->setPos(1, 2);
+
+    wingAreaLabel = new coTUILabel("wing area:", BicycleTab->getID());
+    wingAreaLabel->setPos(0, 2);
 
     forceFactor = new coTUIEditFloatField("force factor", BicycleTab->getID());
     forceFactor->setEventListener(this);
