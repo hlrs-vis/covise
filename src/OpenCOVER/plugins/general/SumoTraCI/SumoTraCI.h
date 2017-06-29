@@ -24,6 +24,9 @@
 #include <utils/traci/TraCIAPI.h>
 
 #include <vector>
+#include "Vehicle.h"
+#include "AgentVehicle.h"
+#include "CarGeometry.h"
 
 using namespace opencover;
 
@@ -42,18 +45,18 @@ private:
 	TraCIAPI::SubscribedValues nextSimResults;
 
 	osg::Group *vehicleGroup;
-	osg::Box *vehicleBox;
+	std::string vehicleDirectory;
 	osg::ref_ptr<osg::PositionAttitudeTransform> vehiclePositionAttitudeTransform;
 
 	double simTime;
 	double nextSimTime;
 	double currentTime;
 	std::vector<int> variables;
-	std::map<const std::string, osg::PositionAttitudeTransform *> loadedVehicles;
+	std::map<const std::string, AgentVehicle *> loadedVehicles;
 
 	void subscribeToSimulation();
 	void updateVehiclePosition();
-	osg::ShapeDrawable* getVehicle(const std::string &vehicle);
+	AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
 	void interpolateVehiclePosition();
 	osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
 };

@@ -375,6 +375,7 @@ bool VolumePlugin::init()
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
+    lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
 
     tfeBackgroundTexture = new uchar[TEXTURE_RES_BACKGROUND * TEXTURE_RES_BACKGROUND * 4];
 
@@ -489,7 +490,7 @@ bool VolumePlugin::init()
     boundItem.reset(new coCheckboxMenuItem("Boundaries", false));
     interpolItem.reset(new coCheckboxMenuItem("Interpolation", false));
     preintItem.reset(new coCheckboxMenuItem("Pre-integration", true));
-    lightingItem.reset(new coCheckboxMenuItem("Lighting", false));
+    lightingItem.reset(new coCheckboxMenuItem("Lighting", lighting));
     colorsItem.reset(new coPotiMenuItem("Discrete Colors", 0.0, 32.0, 0, VolumeCoim.get(), "DISCRETE_COLORS"));
     hqItem.reset(new coSliderMenuItem("Oversampling", 1.0, MAX_QUALITY * 2., highQualityOversampling));
     allVolumesActiveItem.reset(new coCheckboxMenuItem("All Volumes Active", allVolumesActive));

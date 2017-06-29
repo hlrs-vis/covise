@@ -87,4 +87,7 @@ TARGET_LINK_LIBRARIES(Vrml97 Vrml97Cover ${COVISE_GRMSG_LIBRARY} ${EXTRA_LIBS})
 if(NOT MSVC)
    add_covise_compile_flags(Vrml97 "-Wno-deprecated-declarations")
 endif()
+if(APPLE)
+   add_covise_compile_flags(Vrml97Cover "-Wno-error=null-dereference")
+endif()
 

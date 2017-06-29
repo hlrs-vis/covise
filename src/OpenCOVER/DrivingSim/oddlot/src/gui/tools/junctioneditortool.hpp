@@ -98,8 +98,6 @@ public slots:
 	void handleRibbonToolClick(int);
     void setRadius();
     void setRRadius();
-    void cuttingCircle(bool);
-	void ribbonCuttingCircle(bool);
 
     //################//
     // PROPERTIES     //
@@ -121,7 +119,7 @@ class JunctionEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit JunctionEditorToolAction(ODD::ToolId toolId, double threshold, bool toggled = true);
+    explicit JunctionEditorToolAction(ODD::ToolId toolId, double threshold);
     virtual ~JunctionEditorToolAction()
     { /* does nothing */
     }
@@ -131,10 +129,6 @@ public:
         return threshold_;
     }
     void setThreshold(double threshold);
-    bool isToggled() const
-    {
-        return toggled_;
-    }
 
 protected:
 private:
@@ -149,7 +143,6 @@ private:
 protected:
 private:
     double threshold_;
-    bool toggled_;
 };
 
 #endif // JUNCTIONEDITORTOOL_HPP

@@ -28,6 +28,7 @@
 #include <cmath>
 
 #include <cover/coVRPluginSupport.h>
+#include <config/CoviseConfig.h>
 
 int gPrecision;
 
@@ -35,6 +36,9 @@ using namespace opencover;
 
 SumoTraCI::SumoTraCI() {
 	fprintf(stderr, "SumoTraCI::SumoTraCI\n");
+	const char *coviseDir = getenv("COVISEDIR");
+	std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
+	vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
 }
 
 SumoTraCI::~SumoTraCI() {
@@ -47,8 +51,8 @@ bool SumoTraCI::init() {
 	fprintf(stderr, "SumoTraCI::init\n");
 	client.connect("localhost", 1337);
 
-	// identifiers: 57, 64, 67, 73
-	variables = { VAR_POSITION3D, VAR_SPEED, VAR_ANGLE, VAR_VEHICLECLASS };
+	// identifiers: 57, 64, 67, 73, 79
+	variables = { VAR_POSITION3D, VAR_SPEED, VAR_ANGLE, VAR_VEHICLECLASS, VAR_TYPE };
 	subscribeToSimulation();
 
 	client.simulationStep();
@@ -58,10 +62,6 @@ bool SumoTraCI::init() {
 	client.simulationStep();
 	nextSimResults = client.simulation.getSubscriptionResults();
 	nextSimTime = cover->frameTime();
-
-	vehicleGroup = new osg::Group();
-	vehicleGroup->setName("VehicleGroup");
-	cover->getObjectsRoot()->addChild(vehicleGroup);
 
 	updateVehiclePosition();
 
@@ -97,41 +97,39 @@ void SumoTraCI::subscribeToSimulation() {
 }
 
 void SumoTraCI::updateVehiclePosition() {
+	osg::Matrix rotOffset;
+	rotOffset.makeRotate(M_PI_2, 0, 0, 1);
 	for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) {
 		osg::Vec3d position(it->second[VAR_POSITION3D].position.x, it->second[VAR_POSITION3D].position.y, it->second[VAR_POSITION3D].position.z);
 		osg::Quat orientation(osg::DegreesToRadians(it->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
 
 		// new vehicle appeared
 		if (loadedVehicles.find(it->first) == loadedVehicles.end()) {
-			osg::Geode *vehicleGeode = new osg::Geode();
-			std::string vehicleType = it->second[VAR_VEHICLECLASS].string;
-			vehicleGeode->addDrawable(getVehicle(vehicleType));
-			vehicleGeode->setName(vehicleType);
-
-			vehiclePositionAttitudeTransform = new osg::PositionAttitudeTransform();
-			vehiclePositionAttitudeTransform->setName(it->first);
-			vehiclePositionAttitudeTransform->setAttitude(orientation);
-			vehiclePositionAttitudeTransform->setPosition(position);
-			loadedVehicles.insert(std::pair<const std::string, osg::PositionAttitudeTransform *>((it->first), vehiclePositionAttitudeTransform));
-
-			vehiclePositionAttitudeTransform->addChild(vehicleGeode);
-			vehicleGroup->addChild(vehiclePositionAttitudeTransform);
+			std::string vehicleClass = it->second[VAR_VEHICLECLASS].string;
+			std::string vehicleType = it->second[VAR_TYPE].string;
+			std::string vehicleID = it->first;
+			loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((it->first), createVehicle(vehicleClass, vehicleType, vehicleID)));
 		}
 		else {
-			loadedVehicles.find(it->first)->second->setAttitude(orientation);
-			loadedVehicles.find(it->first)->second->setPosition(position);
+			osg::Matrix rmat,tmat;
+			rmat.makeRotate(orientation);
+			tmat.makeTranslate(position);
+			loadedVehicles.find(it->first)->second->setTransform(rotOffset*rmat*tmat);
 		}
 	}
 }
 
 void SumoTraCI::interpolateVehiclePosition() {
+
+	osg::Matrix rotOffset;
+	rotOffset.makeRotate(M_PI_2, 0, 0, 1);
 	for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) {
-		std::map<const std::string, osg::PositionAttitudeTransform *>::iterator itr = loadedVehicles.find(it->first);
+		std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(it->first);
 		// delete vehicle that will vanish in next step
 		std::map<std::string, TraCIAPI::TraCIValues>::iterator vehicleInNextSim = nextSimResults.find(it->first);
 		if (vehicleInNextSim == nextSimResults.end()) {
 			if (itr != loadedVehicles.end()) {
-				itr->second->getParent(0)->removeChild(itr->second);
+				delete itr->second;
 				loadedVehicles.erase(itr);
 			}
 		}
@@ -140,7 +138,6 @@ void SumoTraCI::interpolateVehiclePosition() {
 
 			osg::Vec3d pastPosition(it->second[VAR_POSITION3D].position.x, it->second[VAR_POSITION3D].position.y, it->second[VAR_POSITION3D].position.z);
 			osg::Vec3d futurePosition(vehicleInNextSim->second[VAR_POSITION3D].position.x, vehicleInNextSim->second[VAR_POSITION3D].position.y, vehicleInNextSim->second[VAR_POSITION3D].position.z);
-			osg::Vec3d currentPosition = itr->second->getPosition();
 			osg::Vec3d position = interpolatePositions(weight, pastPosition, futurePosition);
 
 			osg::Quat pastOrientation(osg::DegreesToRadians(it->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
@@ -148,8 +145,10 @@ void SumoTraCI::interpolateVehiclePosition() {
 			osg::Quat orientation;
 			orientation.slerp(weight, pastOrientation, futureOrientation);
 
-			loadedVehicles.find(it->first)->second->setAttitude(orientation);
-			loadedVehicles.find(it->first)->second->setPosition(position);
+			osg::Matrix rmat, tmat;
+			rmat.makeRotate(orientation);
+			tmat.makeTranslate(position);
+			loadedVehicles.find(it->first)->second->setTransform(rotOffset*rmat*tmat);
 		}
 	}
 }
@@ -163,27 +162,9 @@ osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPositio
 	return interpolatedPosition;
 }
 
-osg::ShapeDrawable* SumoTraCI::getVehicle(const std::string &vehicleType) {
-	osg::ShapeDrawable *vehicleDrawable = new osg::ShapeDrawable;
-	if (vehicleType.compare("bicycle") == 0) {
-		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 0.65, 1.6, 1.7));
-	}
-	else if (vehicleType.compare("passenger") == 0) {
-		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 1.8, 4.3, 1.5));
-	}
-	else if (vehicleType.compare("truck") == 0) {
-		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 2.4, 7.1, 2.4));
-	}
-	else if (vehicleType.compare("bus") == 0) {
-		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 2.5, 12.0, 3.4));
-	}
-	else if (vehicleType.compare("motorcycle") == 0) {
-		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 0.9, 2.2, 1.5));
-	}
-	else {
-		vehicleDrawable->setShape(vehicleBox = new osg::Box(osg::Vec3(0, 0, 0), 2.5, 2.5, 2.5));
-	}
-	return vehicleDrawable;
+AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
+{
+	return new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicleDirectory+"/"+vehicleClass+"/"+vehicleType+"/"+vehicleType+".wrl", true), 0, NULL, 0, 1, 0.0, 1);;
 }
 
 COVERPLUGIN(SumoTraCI)

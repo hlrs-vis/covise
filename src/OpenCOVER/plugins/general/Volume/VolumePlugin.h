@@ -275,6 +275,7 @@ private:
 
     void updateTFEData();
     bool computeHistogram;
+    bool lighting;
 };
 
 /** File entry for volume rendering plugin.

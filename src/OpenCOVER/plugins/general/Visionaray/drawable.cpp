@@ -442,19 +442,33 @@ namespace visionaray
                         continue;
                     }
 
-                    auto node_vertices = dynamic_cast<osg::Vec3Array *>(geom->getVertexArray());
-                    if (!node_vertices || node_vertices->size() == 0)
+                    if (geom->getVertexArray()->getType() != osg::Array::Vec3ArrayType)
                     {
                         continue;
                     }
 
-                    auto node_normals = dynamic_cast<osg::Vec3Array *>(geom->getNormalArray());
-                    if (!node_normals || node_normals->size() == 0)
+                    auto node_vertices = static_cast<osg::Vec3Array *>(geom->getVertexArray());
+                    if (node_vertices->size() == 0)
                     {
                         continue;
                     }
 
-                    auto node_colors = dynamic_cast<osg::Vec4Array *>(geom->getColorArray());
+                    if (geom->getNormalArray()->getType() != osg::Array::Vec3ArrayType)
+                    {
+                        continue;
+                    }
+
+                    auto node_normals = static_cast<osg::Vec3Array *>(geom->getNormalArray());
+                    if (node_normals->size() == 0)
+                    {
+                        continue;
+                    }
+
+                    osg::Vec4Array *node_colors = nullptr;
+                    if (geom->getColorArray() && geom->getColorArray()->getType() == osg::Array::Vec4ArrayType)
+                    {
+                        node_colors = static_cast<osg::Vec4Array *>(geom->getColorArray());
+                    }
                     // ok if node_colors == 0
 
 

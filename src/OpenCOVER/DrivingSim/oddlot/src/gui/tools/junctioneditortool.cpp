@@ -165,11 +165,9 @@ JunctionEditorTool::initToolWidget()
     // Circular cutting tool //
     //
     cuttingCircleButton_ = new QPushButton(tr("Circular Cut"));
-    cuttingCircleButton_->setCheckable(false);
+    cuttingCircleButton_->setCheckable(true);
     toolLayout->addWidget(cuttingCircleButton_, ++row, 0);
     toolGroup->addButton(cuttingCircleButton_, ODD::TJE_CIRCLE); // button, id
-
-    connect(cuttingCircleButton_, SIGNAL(toggled(bool)), this, SLOT(cuttingCircle(bool)));
 
     // Threshold //
     //
@@ -222,8 +220,6 @@ JunctionEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->linkSelected, ODD::TJE_LINK_ROADS);
     ribbonToolGroup->addButton(ui->unlinkSelected, ODD::TJE_UNLINK_ROADS);
     ribbonToolGroup->addButton(ui->cuttingCircle, ODD::TJE_CIRCLE);
-    
-    connect(ui->cuttingCircle, SIGNAL(toggled(bool)), this, SLOT(ribbonCuttingCircle(bool)));
     
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
 
@@ -297,28 +293,6 @@ JunctionEditorTool::handleRibbonToolClick(int id)
     delete action;
 }
 
-/*! \brief Gets called when a tool button has been selected.
-*
-*/
-void
-JunctionEditorTool::cuttingCircle(bool active)
-{
-    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_CIRCLE, thresholdEdit_->value(), active);
-    emit toolAction(action);
-    delete action;
-}
-
-/*! \brief Gets called when a tool button has been selected.
-*
-*/
-void
-JunctionEditorTool::ribbonCuttingCircle(bool active)
-{
-	JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_CIRCLE, ui->radiusEdit->value(), active);
-    emit toolAction(action);
-    delete action;
-}
-
 
 /*! \brief Gets called when a tool has been selected.
 */
@@ -352,10 +326,9 @@ JunctionEditorTool::setRRadius()
 //                //
 //################//
 
-JunctionEditorToolAction::JunctionEditorToolAction(ODD::ToolId toolId, double threshold, bool toggled)
+JunctionEditorToolAction::JunctionEditorToolAction(ODD::ToolId toolId, double threshold)
     : ToolAction(ODD::EJE, toolId)
     , threshold_(threshold)
-    , toggled_(toggled)
 {
 }
 
