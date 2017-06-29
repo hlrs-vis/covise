@@ -12,7 +12,7 @@
 #include "VRSlider.h"
 #include <cover/VRPinboard.h>
 #include <appl/RenderInterface.h>
-#include "VRCoviseGeometryManager.h"
+#include <CovisePluginUtil/VRCoviseGeometryManager.h>
 #include "VRCoviseObjectManager.h"
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRPluginSupport.h>

@@ -15,7 +15,7 @@ class TracerPlane;
 class TracerFreePoints;
 
 #ifdef USE_COVISE
-#include "../../covise/COVISE/SmokeGeneratorSolutions.h"
+#include <CovisePluginUtil/SmokeGeneratorSolutions.h>
 #endif
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coMenuItem.h>

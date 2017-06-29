@@ -9,7 +9,7 @@
 #include <alg/coUniTracer.h>
 #include <cover/VRSceneGraph.h>
 
-#include "../../covise/COVISE/VRCoviseGeometryManager.h"
+#include <CovisePluginUtil/VRCoviseGeometryManager.h>
 
 #include <cover/coTranslator.h>
 

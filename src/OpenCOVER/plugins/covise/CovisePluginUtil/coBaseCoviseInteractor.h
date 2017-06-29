@@ -34,7 +34,7 @@ namespace opencover
 class RenderObject;
 
 //!< interact with the parameters of a single module
-class PLUGIN_UTILEXPORT coBaseCoviseInteractor : public coInteractor
+class COVISEPLUGINEXPORT coBaseCoviseInteractor : public coInteractor
 {
 public:
     //! record holding the state of a single parameter

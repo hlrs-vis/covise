@@ -9,7 +9,7 @@
 #include <util/coFileUtil.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
-#include <PluginUtil/coBaseCoviseInteractor.h>
+#include <CovisePluginUtil/coBaseCoviseInteractor.h>
 
 #include "FileBrowser.h"
 

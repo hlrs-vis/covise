@@ -17,7 +17,7 @@
 // **************************************************************************
 
 #include <cover/coVRPlugin.h>
-#include <PluginUtil/coBaseCoviseInteractor.h>
+#include <CovisePluginUtil/coBaseCoviseInteractor.h>
 
 using namespace covise;
 using namespace opencover;

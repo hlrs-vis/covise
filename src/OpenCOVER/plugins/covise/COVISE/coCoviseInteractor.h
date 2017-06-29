@@ -27,7 +27,7 @@
 #include <cstring>
 #include <cstdio>
 
-#include <PluginUtil/coBaseCoviseInteractor.h>
+#include <CovisePluginUtil/coBaseCoviseInteractor.h>
 
 namespace opencover
 {

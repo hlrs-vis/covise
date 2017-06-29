@@ -31,7 +31,6 @@ SET(PLUGINUTIL_HEADERS
   FileReference.h
   SimReference.h
   coInstanceRenderer.h
-  coBaseCoviseInteractor.h
   coSphere.h
   ProgramCache.h
   coLOD.h
@@ -57,7 +56,6 @@ SET(SOURCES
   FileReference.cpp
   SimReference.cpp
   coInstanceRenderer.cpp
-  coBaseCoviseInteractor.cpp
   coSphere.cpp
   ProgramCache.cpp
   coLOD.cpp
