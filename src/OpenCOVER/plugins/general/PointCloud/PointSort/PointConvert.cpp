@@ -18,6 +18,7 @@
 #include <map>
 #include <osg/Matrix>
 #include <osg/Vec3>
+#include <util/unixcompat.h>
 
 #include <stdint.h>
 #ifdef HAVE_E57

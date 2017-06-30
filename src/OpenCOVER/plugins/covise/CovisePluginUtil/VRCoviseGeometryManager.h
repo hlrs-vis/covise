@@ -172,9 +172,7 @@ public:
                          float *vax, float *vay, float *vaz,
                          coMaterial *material = NULL);
 
-    ~GeometryManager()
-    {
-    }
+	~GeometryManager();
 };
 }
 #endif

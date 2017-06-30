@@ -91,6 +91,9 @@ GeometryManager::GeometryManager()
     float b = coCoviseConfig::getFloat("b", "COVER.CoviseGeometryDefaultColor", 1.0f);
     coviseGeometryDefaultColor = osg::Vec4(r, g, b, 1.0f);
 }
+GeometryManager::~GeometryManager()
+{
+}
 
 osg::Group *
 GeometryManager::addGroup(const char *object, bool is_timestep)

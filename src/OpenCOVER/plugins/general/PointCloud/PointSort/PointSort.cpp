@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <osg/Matrix>
 #include <osg/Vec3>
+#include <util/unixcompat.h>
 #ifdef HAVE_E57
 #include <e57/E57Foundation.h>
 #include <e57/E57Simple.h>
