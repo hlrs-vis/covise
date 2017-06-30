@@ -864,7 +864,7 @@ bool BicyclePlugin::init()
     
     wingArea = new coTUIEditFloatField("wing area", BicycleTab->getID());
     wingArea ->setEventListener(this);
-    wingArea->setValue(2.0);
+    wingArea->setValue(70.0);
     wingArea->setPos(1, 2);
 
     wingAreaLabel = new coTUILabel("wing area:", BicycleTab->getID());
