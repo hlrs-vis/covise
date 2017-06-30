@@ -467,10 +467,12 @@ VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
 // yacc globals
 
 #define yyin lexerin
+#define yyrestart lexerrestart
 #define yyparse parserparse
 extern void yystring(char *);
 extern void yyfunction(int (*)(char *, int));
 extern int yyparse();
+extern void yyrestart(FILE *input_file);
 
 extern FILE *yyin;
 extern VrmlNamespace *yyNodeTypes;
@@ -646,6 +648,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             //char *tmp = (char *)malloc(12);
             //free(tmp);
             fflush(stderr);
+			yyrestart((FILE *)YYIN);
             yyparse();
             //fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
 
