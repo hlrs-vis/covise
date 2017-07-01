@@ -79,6 +79,7 @@ do
     echo -e "${MENU} ${OPT} 62)  ${MENU} knee                      "
 
     echo -e "${MENU}-----${TYP} Misc. ${MENU}---------------------------------"
+    echo -e "${MENU} ${OPT} 70)  ${MENU} Infinities (KUNST!!!)     "
     echo -e "${MENU} ${OPT} 71)  ${MENU} Draeger OP                "
     echo -e "${MENU} ${OPT} 72)  ${MENU} ISS                       "
     echo -e "${MENU} ${OPT} 73)  ${MENU} Haemoglobin               "
@@ -325,6 +326,10 @@ do
 	    ;;
 		
 # MISC
+    70)
+        echo -e "starting Infinities";
+            opencover /data/Labyrinth/labSoundNew.wrl
+	    ;;
 	71)
 	    echo -e "starting Draeger OP";
             opencover /data/draeger/out/op2.wrl
