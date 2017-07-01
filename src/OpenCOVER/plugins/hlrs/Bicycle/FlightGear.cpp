@@ -127,7 +127,8 @@ void FlightGear::update()
         }
         fprintf(stderr, "Sent throttle data0: %6f ", fgcontrol.throttle);
         fprintf(stderr, "Sent wingarea: %6f ", fgcontrol.parkingBrake);
-        //byteSwap(fgcontrol.magnetos);
+        fprintf(stderr, "Engine running: %i ", fgcontrol.starter);
+	//byteSwap(fgcontrol.magnetos);
         //byteSwap(fgcontrol.starter);
         byteSwap(fgcontrol.throttle);
         byteSwap(fgcontrol.parkingBrake);
