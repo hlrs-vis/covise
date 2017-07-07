@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 #elif defined(MSMPI_VER)
             argv_mpi[5] = strdup("-env");
 #endif
-            argv_mpi[6] = strdup("COCONFIG,COCONFIG_LOCAL,COCONFIG_DIR,COCONFIG_SCHEMA,COCONFIG_DEBUG,COVISE_CONFIG,COVISEDIR,ARCHSUFFIX,LD_LIBRARY_PATH");
+            argv_mpi[6] = strdup("COCONFIG,COCONFIG_LOCAL,COCONFIG_DIR,COCONFIG_SCHEMA,COCONFIG_DEBUG,COVISE_CONFIG,COVISEDIR,COVISE_PATH,ARCHSUFFIX,LD_LIBRARY_PATH");
             argv_mpi[7] = strdup(mpiExecutable.c_str());
             for (int ctr = 1; ctr < argc; ++ctr)
                 argv_mpi[ctr + 7] = argv[ctr];
