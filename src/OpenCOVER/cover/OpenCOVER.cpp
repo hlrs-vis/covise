@@ -503,7 +503,7 @@ bool OpenCOVER::init()
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
-        m_visPlugin = coVRPluginList::instance()->addPlugin("CovisePlugin");
+        m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
     }
     else
     {
@@ -516,7 +516,7 @@ bool OpenCOVER::init()
             m_visPlugin = coVRPluginList::instance()->addPlugin(vistlePlugin);
             if (!m_visPlugin)
             {
-                m_visPlugin = coVRPluginList::instance()->addPlugin("VistlePlugin");
+                m_visPlugin = coVRPluginList::instance()->addPlugin("Vistle");
             }
         }
     }
