@@ -43,24 +43,47 @@ SumoTraCI::SumoTraCI() {
 
 SumoTraCI::~SumoTraCI() {
 	fprintf(stderr, "SumoTraCI::~SumoTraCI\n");
+	if(coVRMSController::instance()->isMaster())
+	{
 	client.close();
-	cover->getScene()->removeChild(vehicleGroup);
+	}
+	//cover->getScene()->removeChild(vehicleGroup);
 }
 
 bool SumoTraCI::init() {
 	fprintf(stderr, "SumoTraCI::init\n");
-	client.connect("localhost", 1337);
+	if(coVRMSController::instance()->isMaster())
+	{
+	   client.connect("localhost", 1337);
+	}
 
 	// identifiers: 57, 64, 67, 73, 79
 	variables = { VAR_POSITION3D, VAR_SPEED, VAR_ANGLE, VAR_VEHICLECLASS, VAR_TYPE };
 	subscribeToSimulation();
 
-	client.simulationStep();
-	simResults = client.simulation.getSubscriptionResults();
+	if(coVRMSController::instance()->isMaster())
+	{
+	    client.simulationStep();
+	    simResults = client.simulation.getSubscriptionResults();
+	    sendSimResults();
+	}
+	else
+	{
+	    readSimResults();
+	}
+	previousResults = currentResults;
 	simTime = cover->frameTime();
 
-	client.simulationStep();
-	nextSimResults = client.simulation.getSubscriptionResults();
+	if(coVRMSController::instance()->isMaster())
+	{
+	    client.simulationStep();
+	    simResults = client.simulation.getSubscriptionResults();
+	    sendSimResults();
+	}
+	else
+	{
+	    readSimResults();
+	}
 	nextSimTime = cover->frameTime();
 
 	updateVehiclePosition();
@@ -68,15 +91,26 @@ bool SumoTraCI::init() {
 	return true;
 }
 
-	void SumoTraCI::preFrame() {
+void SumoTraCI::preFrame() {
 	currentTime = cover->frameTime();
-	if ((currentTime - nextSimTime) > 1) {
+	if ((currentTime - nextSimTime) > 1) 
+	{
 		subscribeToSimulation();
 		simTime = nextSimTime;
-		client.simulationStep();
 		nextSimTime = cover->frameTime();
-		simResults = nextSimResults;
-		nextSimResults = client.simulation.getSubscriptionResults();
+	        previousResults = currentResults;
+		
+		if(coVRMSController::instance()->isMaster())
+		{
+		    client.simulationStep();
+		    simResults = client.simulation.getSubscriptionResults();
+		    sendSimResults();
+		}
+		else
+		{
+		    readSimResults();
+		}
+		
 		updateVehiclePosition();
 	}
 	else {
@@ -84,7 +118,76 @@ bool SumoTraCI::init() {
 	}
 }
 
+void SumoTraCI::sendSimResults()
+{
+    int i=0;
+    if(currentResults.size() != simResults.size())
+    {
+        currentResults.resize(simResults.size());
+    }
+    for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) 
+    {
+        currentResults[i].position = osg::Vec3d(it->second[VAR_POSITION3D].position.x,it->second[VAR_POSITION3D].position.y,it->second[VAR_POSITION3D].position.z);
+	currentResults[i].angle = it->second[VAR_ANGLE].scalar;
+	currentResults[i].vehicleClass = it->second[VAR_VEHICLECLASS].string;
+	currentResults[i].vehicleType = it->second[VAR_TYPE].string;
+	currentResults[i].vehicleID = it->first;		
+	i++;
+    }
+    covise::TokenBuffer stb;
+    stb << currentResults.size();
+    for(int i=0;i < currentResults.size(); i++)
+    {
+        double x = currentResults[i].position[0];
+        double y = currentResults[i].position[1];
+        double z = currentResults[i].position[2];
+        stb << x;
+	stb << y;
+	stb << z;
+        stb << currentResults[i].angle;
+        stb << currentResults[i].vehicleClass;
+        stb << currentResults[i].vehicleType;
+        stb << currentResults[i].vehicleID;
+    }
+    unsigned int sizeInBytes=stb.get_length();
+    coVRMSController::instance()->sendSlaves(&sizeInBytes,sizeof(sizeInBytes));
+    coVRMSController::instance()->sendSlaves(stb.get_data(),sizeInBytes);
+}
+void SumoTraCI::readSimResults()
+{
+    unsigned int sizeInBytes=0;
+    coVRMSController::instance()->readMaster(&sizeInBytes,sizeof(sizeInBytes));
+    char *buf = new char[sizeInBytes];
+    coVRMSController::instance()->readMaster(buf,sizeInBytes);
+    covise::TokenBuffer rtb((const char *)buf,sizeInBytes);
+    unsigned int currentSize;
+    rtb >> currentSize;
+    if(currentSize !=currentResults.size() )
+    {
+        currentResults.resize(currentSize);
+    }
+    
+    for(int i=0;i < currentResults.size(); i++)
+    {
+        double x;
+        double y;
+        double z;
+        rtb >> x;
+	rtb >> y;
+	rtb >> z;
+	currentResults[i].position[0]=x;
+	currentResults[i].position[1]=y;
+	currentResults[i].position[2]=z;
+        rtb >>  currentResults[i].angle;
+        rtb >>  currentResults[i].vehicleClass;
+        rtb >>  currentResults[i].vehicleType;
+        rtb >>  currentResults[i].vehicleID;
+    }
+}
+
 void SumoTraCI::subscribeToSimulation() {
+	if(coVRMSController::instance()->isMaster())
+	{
 	if (client.simulation.getMinExpectedNumber() > 0) {
 		std::vector<std::string> departedIDList = client.simulation.getDepartedIDList();
 		for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it) {
@@ -94,27 +197,25 @@ void SumoTraCI::subscribeToSimulation() {
 	else {
 		fprintf(stderr, "no expected vehicles in simulation\n");
 	}
+	}
 }
 
 void SumoTraCI::updateVehiclePosition() {
 	osg::Matrix rotOffset;
 	rotOffset.makeRotate(M_PI_2, 0, 0, 1);
-	for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) {
-		osg::Vec3d position(it->second[VAR_POSITION3D].position.x, it->second[VAR_POSITION3D].position.y, it->second[VAR_POSITION3D].position.z);
-		osg::Quat orientation(osg::DegreesToRadians(it->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
+        for(int i=0;i < currentResults.size(); i++)
+	{
+		osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
 
 		// new vehicle appeared
-		if (loadedVehicles.find(it->first) == loadedVehicles.end()) {
-			std::string vehicleClass = it->second[VAR_VEHICLECLASS].string;
-			std::string vehicleType = it->second[VAR_TYPE].string;
-			std::string vehicleID = it->first;
-			loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((it->first), createVehicle(vehicleClass, vehicleType, vehicleID)));
+		if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end()) {
+			loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
 		}
 		else {
-			osg::Matrix rmat,tmat;
+			/*osg::Matrix rmat,tmat;
 			rmat.makeRotate(orientation);
-			tmat.makeTranslate(position);
-			loadedVehicles.find(it->first)->second->setTransform(rotOffset*rmat*tmat);
+			tmat.makeTranslate(currentResults[i].position);
+			loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
 		}
 	}
 }
@@ -123,32 +224,45 @@ void SumoTraCI::interpolateVehiclePosition() {
 
 	osg::Matrix rotOffset;
 	rotOffset.makeRotate(M_PI_2, 0, 0, 1);
-	for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) {
-		std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(it->first);
+        for(int i=0;i < previousResults.size(); i++)
+	{
+	
+		//osg::Quat orientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+	
+	
+		std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(previousResults[i].vehicleID);
+		int currentIndex =-1;
 		// delete vehicle that will vanish in next step
-		std::map<std::string, TraCIAPI::TraCIValues>::iterator vehicleInNextSim = nextSimResults.find(it->first);
-		if (vehicleInNextSim == nextSimResults.end()) {
-			if (itr != loadedVehicles.end()) {
-				delete itr->second;
-				loadedVehicles.erase(itr);
-			}
+                for(int n=0;n < currentResults.size(); n++)
+		{
+		    if(previousResults[i].vehicleID == currentResults[n].vehicleID)
+		    {
+			currentIndex = n;
+			break;
+		    }
 		}
+		
+		if (itr != loadedVehicles.end()) 
+		{
+		    if (currentIndex == -1) {
+				//delete itr->second;
+				loadedVehicles.erase(itr);
+	        }
 		else {
 			double weight = currentTime - nextSimTime;
 
-			osg::Vec3d pastPosition(it->second[VAR_POSITION3D].position.x, it->second[VAR_POSITION3D].position.y, it->second[VAR_POSITION3D].position.z);
-			osg::Vec3d futurePosition(vehicleInNextSim->second[VAR_POSITION3D].position.x, vehicleInNextSim->second[VAR_POSITION3D].position.y, vehicleInNextSim->second[VAR_POSITION3D].position.z);
-			osg::Vec3d position = interpolatePositions(weight, pastPosition, futurePosition);
+			osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
 
-			osg::Quat pastOrientation(osg::DegreesToRadians(it->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
-			osg::Quat futureOrientation(osg::DegreesToRadians(vehicleInNextSim->second[VAR_ANGLE].scalar), osg::Vec3d(0, 0, -1));
+			osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+			osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
 			osg::Quat orientation;
 			orientation.slerp(weight, pastOrientation, futureOrientation);
 
 			osg::Matrix rmat, tmat;
 			rmat.makeRotate(orientation);
 			tmat.makeTranslate(position);
-			loadedVehicles.find(it->first)->second->setTransform(rotOffset*rmat*tmat);
+			itr->second->setTransform(rotOffset*rmat*tmat);
+		}
 		}
 	}
 }
