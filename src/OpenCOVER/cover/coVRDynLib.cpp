@@ -96,8 +96,7 @@ const char *coVRDynLib::dlerror(void)
                    NULL);
     return buf;
 #else
-    cerr << "Dynamic Linking is not supported on this platform" << endl;
-    return 0;
+    return "Dynamic Linking is not supported on this platform";
 #endif
 }
 
@@ -127,14 +126,12 @@ CO_SHLIB_HANDLE try_dlopen(const char *filename)
 
     if (handle == NULL)
     {
-#ifndef _WIN32
-        if (cover->debugLevel(1))
-            cerr << dlerror() << endl;
-#endif
+        if (cover->debugLevel(2))
+            cerr << "coVRDynLib::try_dlopen(" << filename << ") failed: " << dlerror() << endl;
     }
     else
     {
-        if (cover->debugLevel(2))
+        if (cover->debugLevel(3))
             cerr << "loaded " << filename << endl;
     }
 
@@ -154,12 +151,14 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
     const char separator[] = ":";
 #endif
 
+    std::vector<std::string> tried_files;
 #ifdef __APPLE__
     std::string bundlepath = getBundlePath();
     if (!absolute && !bundlepath.empty())
     {
         snprintf(buf, sizeof(buf), "%s/Contents/PlugIns/%s", bundlepath.c_str(), filename);
         handle = try_dlopen(buf);
+        tried_files.push_back(buf);
     }
 #endif
 
@@ -179,6 +178,7 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
             snprintf(buf, sizeof(buf), "%s/%s/lib/OpenCOVER/plugins/%s", dirname, archsuffix, filename);
 #endif
             handle = try_dlopen(buf);
+            tried_files.push_back(buf);
             if (handle)
                 break;
 
@@ -190,6 +190,7 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
     if (handle == NULL)
     {
         handle = try_dlopen(filename);
+        tried_files.push_back(filename);
     }
 
 #ifdef CO_sun4
@@ -213,7 +214,12 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
 
     if (handle == NULL)
     {
-        cerr << endl << dlerror() << endl;
+        cerr << "coVRDynLib::dlopen() error: " << dlerror() << endl;
+        cerr << "tried files:" << endl;
+        for (size_t i=0; i<tried_files.size(); ++i)
+        {
+            cerr << "   " << tried_files[i] << endl;
+        }
     }
     return handle;
 }
