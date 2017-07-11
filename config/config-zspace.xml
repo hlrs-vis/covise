@@ -31,7 +31,10 @@
 
             <Input>
                 <MouseNav value="true" />
+
                 <Device>
+                    <SpaceNav driver="spacenavigator" >
+                    </SpaceNav>
                     <ZSpaceHead driver="vrpn" host="192.168.122.90" tracker="HeadTracker0" >
                         <Offset x="-0" y="0" z="0" />
                         <Orientation h="180" p="90" r="180" />
@@ -43,6 +46,15 @@
                 </Device>
 
                 <Body>
+                    <SpaceMouse device="SpaceNav">
+                        <AssembleX valuator="0" scale="-400" shift="0" />
+                        <AssembleY valuator="1" scale=" 400" shift="0" />
+                        <AssembleZ valuator="2" scale=" 400" shift="0" />
+                        <AssembleH valuator="5" scale=" 4.0" shift="0" />
+                        <AssembleP valuator="3" scale="-4.0" shift="0" />
+                        <AssembleR valuator="4" scale=" 4.0" shift="0" />
+                    </SpaceMouse>
+
                     <Glasses device="ZSpaceHead" bodyIndex="0" >
                         <Offset x="-0" y="-0" z="-0" />
                         <Orientation h="0" p="-90" r="0" />
@@ -59,18 +71,23 @@
                 </Body>
 
                 <Buttons>
+                    <SpaceMouseButtons device="SpaceNav" >
+                        <Map name="7" value="XFORM_BUTTON" />
+                        <Map name="6" value="DRIVE_BUTTON" />
+                    </SpaceMouseButtons>
                     <Stylus device="ZSpaceHand" >
                         <Map name="0" value="ACTION_BUTTON" />
                         <Map name="1" value="XFORM_BUTTON" />
                         <Map name="2" value="DRIVE_BUTTON" />
-                        <MultiMap name="6" value="PERSON_NEXT" />
+                        <MultiMap name="3" value="PERSON_NEXT" />
                     </Stylus>
                 </Buttons>
 
                 <Persons>
-                    <Person name="Fixed" head="FixedHead" eyeDistance="0" />
-                    <Person name="ZSpace" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="60" activateOnAction="true" />
-                    <Person name="ZSpace-inverted" head="Glasses" hand="Stylus" buttons="Stylus" eyeDistance="-60" activateOnAction="false" />
+                    <Person name="Mouse" head="FixedHead" eyeDistance="0" />
+                    <Person name="SpaceNavigator" head="FixedHead" relative="SpaceMouse" relativeButtons="SpaceMouseButtons" eyeDistance="0" />
+                    <Person name="ZSpace" head="Glasses" relative="SpaceMouse" relativeButtons="SpaceMouseButtons" hand="Stylus" buttons="Stylus" eyeDistance="60" activateOnAction="true" />
+                    <Person name="ZSpace-inverted" head="Glasses" relative="SpaceMouse" relativeButtons="SpaceMouseButtons" hand="Stylus" buttons="Stylus" eyeDistance="-60" activateOnAction="false" />
                 </Persons>
             </Input> 
 
