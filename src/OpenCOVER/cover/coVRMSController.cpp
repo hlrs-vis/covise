@@ -96,7 +96,7 @@ coVRMSController *coVRMSController::instance()
     return s_singleton;
 }
 
-coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, int port)
+coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     : m_debugLevel(2)
     , master(true)
     , slave(false)
@@ -113,6 +113,13 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
 {
     assert(!s_singleton);
     s_singleton = this;
+
+#ifdef HAS_MPI
+    int mpiInit = 0;
+    MPI_Initialized(&mpiInit);
+    if (mpiInit)
+        MPI_Comm_dup(appComm, &drawComm);
+#endif
 
     MARK0("coVRMSController::coVRMSController");
     if (AmyID >= 0)
@@ -165,22 +172,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     }
     assert(myID==0 || numSlaves>0);
 
-    if (forceMpi)
-    {
-        syncMode = SYNC_MPI;
-        MARK0("\tsyncMode: forced MPI");
-        if (debugLevel(3))
-            fprintf(stderr, "syncMode: MPI\n");
-
-#if !defined(HAS_MPI)
-        fprintf(stderr, "This OpenCOVER does not have MPI support\n");
-        exit(1);
-#else
-        MPI_Comm_size(appComm, &numSlaves);
-        --numSlaves;
-#endif
-    }
-    else if (strcasecmp(sm.c_str(), "TCP") == 0)
+    if (strcasecmp(sm.c_str(), "TCP") == 0)
     {
         MARK0("\tsyncMode: TCP");
         if (debugLevel(3))
@@ -451,6 +443,103 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     }
     assert(covise::coConfigConstants::getRank() == myID);
 }
+
+#ifdef HAS_MPI
+coVRMSController::coVRMSController(const MPI_Comm *comm)
+    : m_debugLevel(2)
+    , master(true)
+    , slave(false)
+    , myID(0)
+    , socket(0)
+    , socketDraw(0)
+    , appComm(*comm)
+    , drawComm(*comm)
+    , heartBeatCounter(0)
+    , heartBeatCounterDraw(0)
+
+{
+    assert(!s_singleton);
+    s_singleton = this;
+
+#ifdef HAS_MPI
+    int mpiInit = 0;
+    MPI_Initialized(&mpiInit);
+    if (mpiInit)
+        MPI_Comm_dup(appComm, &drawComm);
+    assert(mpiInit);
+#endif
+
+    MARK0("coVRMSController::coVRMSController");
+    m_debugLevel = covise::coCoviseConfig::getInt("COVER.DebugLevel", m_debugLevel);
+
+    if (debugLevel(2))
+        fprintf(stderr, "\nnew coVRMSController\n");
+#ifdef DEBUG_MESSAGES
+    debugMessageCounter = 0;
+    debugMessagesCheck = true;
+#endif
+
+    drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
+    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",drawStatistics);
+
+    // Multicast settings
+    multicastDebugLevel = coCoviseConfig::getInt("COVER.MultiPC.Multicast.debugLevel", 0);
+    multicastAddress = coCoviseConfig::getEntry("COVER.MultiPC.Multicast.mcastAddr");
+    multicastPort = coCoviseConfig::getInt("COVER.MultiPC.Multicast.mcastPort", 23232);
+    multicastInterface = coCoviseConfig::getEntry("COVER.MultiPC.Multicast.mcastIface");
+    multicastMTU = coCoviseConfig::getInt("COVER.MultiPC.Multicast.mtu", 1500);
+    multicastTTL = coCoviseConfig::getInt("COVER.MultiPC.Multicast.ttl", 1);
+    multicastLoop = coCoviseConfig::isOn("COVER.MultiPC.Multicast.lback", false);
+    multicastBufferSpace = coCoviseConfig::getInt("COVER.MultiPC.Multicast.bufferSpace", 1000000);
+    multicastBlockSize = coCoviseConfig::getInt("COVER.MultiPC.Multicast.blockSize", 4);
+    multicastNumParity = coCoviseConfig::getInt("COVER.MultiPC.Multicast.numParity", 0);
+    multicastTxCacheSize = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txCacheSize", 100000000);
+    multicastTxCacheMin = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txCacheMin", 1);
+    multicastTxCacheMax = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txCacheMax", 128);
+    multicastTxRate = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txRate", 1000);
+    multicastBackoffFactor = (double)coCoviseConfig::getFloat("COVER.MultiPC.Multicast.backoffFactor", 0.0);
+    multicastSockBuffer = coCoviseConfig::getInt("COVER.MultiPC.Multicast.sockBufferSize", 512000);
+    multicastClientTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.readTimeoutSec", 30);
+    multicastServerTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.writeTimeoutMsec", 500);
+    multicastRetryTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.retryTimeout", 100);
+    multicastMaxLength = coCoviseConfig::getInt("COVER.MultiPC.Multicast.maxLength", 1000000);
+
+    syncProcess = SYNC_DRAW;
+    string sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncProcess");
+    if (strcasecmp(sm.c_str(), "APP") == 0)
+    {
+        if (debugLevel(3))
+            fprintf(stderr, "syncProcess: APP\n");
+        syncProcess = SYNC_APP;
+
+        MARK0("\tsyncProcess: APP");
+    }
+    else
+    {
+        MARK0("\tsyncProcess: DRAW");
+        if (debugLevel(3))
+            fprintf(stderr, "syncProcess: DRAW\n");
+    }
+
+    syncMode = SYNC_MPI;
+    MARK0("\tsyncMode: forced MPI");
+    if (debugLevel(3))
+        fprintf(stderr, "syncMode: MPI\n");
+
+    MPI_Comm_size(appComm, &numSlaves);
+    --numSlaves;
+
+    MPI_Comm_rank(appComm, &myID);
+    master = myID == 0;
+    slave = !master;
+
+    if (covise::coConfigConstants::getRank() != myID) {
+        std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
+    }
+    assert(covise::coConfigConstants::getRank() == myID);
+}
+#endif
+
 
 coVRMSController::~coVRMSController()
 {

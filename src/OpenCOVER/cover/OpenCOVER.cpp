@@ -167,9 +167,12 @@ OpenCOVER *OpenCOVER::instance()
 
 OpenCOVER *OpenCOVER::s_instance = NULL;
 
-OpenCOVER::OpenCOVER(bool forceMpi)
+OpenCOVER::OpenCOVER()
     : m_visPlugin(NULL)
-    , m_forceMpi(forceMpi)
+    , m_forceMpi(false)
+#ifdef HAS_MPI
+    , m_comm(MPI_COMM_WORLD)
+#endif
 {
     initCudaGlInterop();
 
@@ -180,10 +183,30 @@ OpenCOVER::OpenCOVER(bool forceMpi)
 #endif
 }
 
+#ifdef HAS_MPI
+OpenCOVER::OpenCOVER(const MPI_Comm *comm)
+    : m_visPlugin(NULL)
+    , m_forceMpi(true)
+    , m_comm(*comm)
+{
+    initCudaGlInterop();
+
+#ifdef WIN32
+    parentWindow = NULL;
+#else
+    parentWindow = 0;
+#endif
+}
+#endif
+
+
 #ifdef WIN32
 OpenCOVER::OpenCOVER(HWND pw)
     : m_visPlugin(NULL)
     , m_forceMpi(false)
+#ifdef HAS_MPI
+    , m_comm(MPI_COMM_WORLD)
+#endif
 {
     initCudaGlInterop();
     parentWindow = pw;
@@ -192,6 +215,9 @@ OpenCOVER::OpenCOVER(HWND pw)
 OpenCOVER::OpenCOVER(int pw)
     : m_visPlugin(NULL)
     , m_forceMpi(false)
+#ifdef HAS_MPI
+    , m_comm(MPI_COMM_WORLD)
+#endif
 {
     initCudaGlInterop();
 
@@ -218,6 +244,32 @@ void OpenCOVER::waitForWindowID()
             validWindowID = true;
         }
     }
+}
+
+bool OpenCOVER::run()
+{
+    int dl = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+
+    if (init())
+    {
+        if (dl >= 2)
+            fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
+        loop();
+
+        doneRendering();
+        if (dl >= 2)
+            fprintf(stderr, "OpenCOVER: Leaving main loop\n\n");
+    }
+    else
+    {
+        fprintf(stderr, "OpenCOVER: Start-up failed\n\n");
+        return false;
+    }
+
+    if (dl >= 1)
+        fprintf(stderr, "OpenCOVER: Shutting down\n\n");
+
+    return true;
 }
 
 bool OpenCOVER::init()
@@ -320,7 +372,14 @@ bool OpenCOVER::init()
 
     frameNum = 0;
 
-    new coVRMSController(m_forceMpi, myID, addr, port);
+    if (m_forceMpi)
+    {
+        new coVRMSController(&m_comm);
+    }
+    else
+    {
+        new coVRMSController(myID, addr, port);
+    }
     coVRMSController::instance()->startSlaves();
     coVRMSController::instance()->startupSync();
 
@@ -968,6 +1027,7 @@ OpenCOVER::~OpenCOVER()
         m_visPlugin = NULL;
     }
     coVRFileManager::instance()->unloadFile();
+    coVRPluginList::instance()->unloadAllPlugins();
     delete coVRPluginList::instance();
     delete coVRTui::instance();
     //delete vrbHost;
