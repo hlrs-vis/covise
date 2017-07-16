@@ -513,7 +513,7 @@ bool OpenCOVER::init()
     else
     {
         const char *vistlePlugin = getenv("VISTLE_PLUGIN");
-        bool loadVistlePlugin = vistlePlugin && (coCommandLine::argc() == 3 || coCommandLine::argc() == 4);
+        bool loadVistlePlugin = vistlePlugin;
         loadVistlePlugin = coVRMSController::instance()->syncBool(loadVistlePlugin);
         if (loadVistlePlugin)
         {
