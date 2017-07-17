@@ -277,7 +277,7 @@ void coWriteVolume::getTimestepData(const coDistributedObject **object, int no_c
             {
                 for (int i = 0; i < vd->getFrameVoxels(); i++)
                 {
-                    vvToolshed::convertFloat2ShortClamp(fData[c] + i, uData + no_channels * i * 2 + c, 1, pfsMin->getValue(), pfsMax->getValue());
+                    vvToolshed::convertFloat2ShortClamp(fData[c] + i, uData + no_channels * i * 2 + c, 1, pfsMin->getValue(), pfsMax->getValue(), virvo::serialization::getEndianness());
                 }
             }
             break;
