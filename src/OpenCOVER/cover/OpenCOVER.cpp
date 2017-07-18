@@ -503,7 +503,12 @@ bool OpenCOVER::init()
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
-        m_visPlugin = coVRPluginList::instance()->addPlugin("CovisePlugin");
+        m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
+        if (!m_visPlugin)
+        {
+            fprintf(stderr, "failed to load COVISE plugin\n");
+            exit(1);
+        }
     }
     else
     {
@@ -513,10 +518,11 @@ bool OpenCOVER::init()
         if (loadVistlePlugin)
         {
             loadFiles = false;
-            m_visPlugin = coVRPluginList::instance()->addPlugin(vistlePlugin);
+            m_visPlugin = coVRPluginList::instance()->addPlugin("Vistle");
             if (!m_visPlugin)
             {
-                m_visPlugin = coVRPluginList::instance()->addPlugin("VistlePlugin");
+                fprintf(stderr, "failed to load Vistle plugin\n");
+                exit(1);
             }
         }
     }

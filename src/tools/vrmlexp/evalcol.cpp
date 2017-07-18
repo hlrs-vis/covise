@@ -749,6 +749,8 @@ Point3 interpVertexNormal(Mesh *mesh, Matrix3 tm, unsigned int vxNo, BitArray &f
             }
         }
     }
+	if (numNormals == 0)
+		return Point3(0.0f, 1.0f, 0.0f);
 
     iNormal = iNormal / (float)numNormals;
 
@@ -979,8 +981,11 @@ void SContext::UpdateLights()
 {
     for (int i = 0; i < lightTab.Count(); i++)
     {
-        ((LightInfo *)lightTab[i])->lightDesc->Update(t, rc, NULL, FALSE, TRUE);
-        ((LightInfo *)lightTab[i])->lightDesc->UpdateViewDepParams(Matrix3(1));
+		if (((LightInfo *)lightTab[i])->lightDesc != NULL)
+		{
+			((LightInfo *)lightTab[i])->lightDesc->Update(t, rc, NULL, FALSE, TRUE);
+			((LightInfo *)lightTab[i])->lightDesc->UpdateViewDepParams(Matrix3(1));
+		}
     }
 
     nLights = lightTab.Count();
@@ -1828,24 +1833,27 @@ void DumMtl::Shade(ShadeContext &sc)
     for (int i = 0; i < sc.nLights; i++)
     {
         l = sc.Light(i);
-        register float NL, diffCoef;
-        Point3 L;
-        if (!l->Illuminate(sc, N, lightCol, L, NL, diffCoef))
-            continue;
+		if (l != NULL)
+		{
+			register float NL, diffCoef;
+			Point3 L;
+			if (!l->Illuminate(sc, N, lightCol, L, NL, diffCoef))
+				continue;
 
-        // diffuse
-        if (l->affectDiffuse)
-            diffwk += diffCoef * lightCol;
-        // specular
-        if (l->affectSpecular)
-        {
-            float c = DotProd(L, R);
-            if (c > 0.0f)
-            {
-                c = (float)pow((double)c, (double)phongexp);
-                specwk += c * lightCol * NL; // multiply by NL to SOFTEN
-            }
-        }
+			// diffuse
+			if (l->affectDiffuse)
+				diffwk += diffCoef * lightCol;
+			// specular
+			if (l->affectSpecular)
+			{
+				float c = DotProd(L, R);
+				if (c > 0.0f)
+				{
+					c = (float)pow((double)c, (double)phongexp);
+					specwk += c * lightCol * NL; // multiply by NL to SOFTEN
+				}
+			}
+		}
     }
     sc.out.t = Color(0.0f, 0.0f, 0.0f);
     sc.out.c = (.3f * sc.ambientLight + diffwk) * diff + specwk * spec;

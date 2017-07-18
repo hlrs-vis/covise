@@ -31,7 +31,7 @@ void FlightGear::init()
 {
     delete udp;
 
-    const std::string host = covise::coCoviseConfig::getEntry("value", "FlightGear.serverHost", "141.58.8.21");
+    const std::string host = covise::coCoviseConfig::getEntry("value", "FlightGear.serverHost", "141.58.8.212");
     unsigned short serverPort = covise::coCoviseConfig::getInt("FlightGear.serverPort", 5253);
     unsigned short localPort = covise::coCoviseConfig::getInt("FlightGear.localPort", 5252);
     std::cerr << "FlightGear config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
@@ -103,7 +103,7 @@ void FlightGear::update()
             else 
             {
                 fgcontrol.magnetos=0;
-                fgcontrol.starter=true; // /sim/model/MRX13/engine_running
+                fgcontrol.starter=false; // /sim/model/MRX13/engine_running
                 fgcontrol.throttle=0.0; // /fdm/jsbsim/fcs/throttle-generic-engine-norm
                 fgcontrol.parkingBrake=BicyclePlugin::plugin->wingArea->getValue(); // Wingarea
             }
@@ -127,7 +127,8 @@ void FlightGear::update()
         }
         fprintf(stderr, "Sent throttle data0: %6f ", fgcontrol.throttle);
         fprintf(stderr, "Sent wingarea: %6f ", fgcontrol.parkingBrake);
-        //byteSwap(fgcontrol.magnetos);
+        fprintf(stderr, "Engine running: %i ", fgcontrol.starter);
+	//byteSwap(fgcontrol.magnetos);
         //byteSwap(fgcontrol.starter);
         byteSwap(fgcontrol.throttle);
         byteSwap(fgcontrol.parkingBrake);

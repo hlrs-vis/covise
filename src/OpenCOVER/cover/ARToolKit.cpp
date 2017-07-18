@@ -219,14 +219,22 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, image->s(), image->t(), 0, image->getPixelFormat(), GL_UNSIGNED_BYTE, image->data());
                     glBegin(GL_QUADS);
                     {
-                        glTexCoord2f(0, image->t());
+                        /*glTexCoord2f(0, image->t());
                         glVertex2f(-xPos, -yPos);
                         glTexCoord2f(image->s(), image->t());
                         glVertex2f(xPos, -yPos);
                         glTexCoord2f(image->s(), 0);
                         glVertex2f(xPos, yPos);
                         glTexCoord2f(0, 0);
-                        glVertex2f(-xPos, yPos);
+                        glVertex2f(-xPos, yPos);*/
+						glTexCoord2f(0, 0);
+						glVertex2f(-xPos, -yPos);
+						glTexCoord2f(image->s(), 0);
+						glVertex2f(xPos, -yPos);
+						glTexCoord2f(image->s(), image->t());
+						glVertex2f(xPos, yPos);
+						glTexCoord2f(0, image->t());
+						glVertex2f(-xPos, yPos);
                     }
                     glEnd();
 

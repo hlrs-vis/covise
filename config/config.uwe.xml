@@ -238,6 +238,8 @@
       <!-- each channel needs at least one Viewport -->
     <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
    </ViewportConfig>
+   
+     <TestImage value="D:/data/enbw/bilder/Fotomontagen/neu/2010_11_05_RFW_033_3840_2160_4k.jpg" />
    <!--Background r="1.0" g="1.0" b="1.0"/-->
   </COVER>
 

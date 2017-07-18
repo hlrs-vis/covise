@@ -93,6 +93,7 @@ if exist "%COVISEDIR%"\mysetenv.bat (
 )
 
 
+
 rem   start microsoft development environment
 rem   =======================================
 rem
@@ -121,9 +122,13 @@ if "%BASEARCHSUFFIX%" EQU "win32" (
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
 ) else if "%BASEARCHSUFFIX%" EQU "zebu" (
+   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+    
+    if NOT defined VS150COMNTOOLS% (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
+	)
 ) else if "%BASEARCHSUFFIX%" EQU "berrenda" (
 if defined VS110COMNTOOLS  (
     cd /d "%VS110COMNTOOLS%"\..\..\vc

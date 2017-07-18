@@ -345,8 +345,6 @@ void VrmlNodeBicycle::render(Viewer *)
     double dT = cover->frameDuration();
     float wheelBase = 0.98;
     float v = BicyclePlugin::plugin->speed; //*0.06222222;
-    if (d_thermal.get()) 
-        fprintf(stderr, "Thermal: %d ", d_thermal.get());
     //fprintf(stderr,"speed: %f", v);
     if (BicyclePlugin::plugin->isPlane)
     { 

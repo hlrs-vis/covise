@@ -252,7 +252,7 @@ void AgentVehicle::move(double dt)
     }
     // Find your own way //
     //
-    else if (!sowedDetermineNextRoadVehicleAction && (--roadTransitionList.end() == currentTransition) && !repeatRoute)
+    else if (!sowedDetermineNextRoadVehicleAction && roadTransitionList.size()>0 && (--roadTransitionList.end() == currentTransition) && !repeatRoute)
     {
         //std::cout << "Inserting determine next road vehicle action at s: " << s << std::endl;
         vehiclePositionActionMap.insert(std::pair<double, VehicleAction *>(s, new DetermineNextRoadVehicleAction())); // s are the total m so far (not u)

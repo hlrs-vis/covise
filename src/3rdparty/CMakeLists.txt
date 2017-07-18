@@ -42,7 +42,7 @@ if (COVISE_USE_VISIONARAY)
 
    add_subdirectory(visionaray)
    set(VISIONARAY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/visionaray/include")
-   
+
    if(MSVC)
       set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/visionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
       set(VISIONARAY_LIBRARY_RELEASE "${COVISEDIR}/${ARCHSUFFIX}/lib/visionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
