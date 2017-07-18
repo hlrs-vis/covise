@@ -65,6 +65,10 @@ bool SumoTraCI::init() {
 
 	updateVehiclePosition();
 
+
+	//AgentVehicle* tmpVehicle = createVehicle("passenger", "audi", "12");
+	//tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
+
 	return true;
 }
 
@@ -114,7 +118,10 @@ void SumoTraCI::updateVehiclePosition() {
 			osg::Matrix rmat,tmat;
 			rmat.makeRotate(orientation);
 			tmat.makeTranslate(position);
-			loadedVehicles.find(it->first)->second->setTransform(rotOffset*rmat*tmat);
+			AgentVehicle * av = loadedVehicles.find(it->first)->second;
+			av->setTransform(rotOffset*rmat*tmat);
+			VehicleState vs;
+			av->getCarGeometry()->updateCarParts(1, 0, vs);
 		}
 	}
 }
