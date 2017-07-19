@@ -374,7 +374,9 @@ bool OpenCOVER::init()
 
     if (m_forceMpi)
     {
+#ifdef HAS_MPI
         new coVRMSController(&m_comm);
+#endif
     }
     else
     {
