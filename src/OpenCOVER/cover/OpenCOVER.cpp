@@ -962,6 +962,11 @@ OpenCOVER::~OpenCOVER()
         fprintf(stderr, "\ndelete OpenCOVER\n");
     }
     VRViewer::instance()->stopThreading();
+    if (m_visPlugin)
+    {
+        coVRPluginList::instance()->unload(m_visPlugin);
+        m_visPlugin = NULL;
+    }
     coVRFileManager::instance()->unloadFile();
     delete coVRPluginList::instance();
     delete coVRTui::instance();
