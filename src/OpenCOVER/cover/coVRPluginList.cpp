@@ -106,7 +106,9 @@ coVRPluginList::~coVRPluginList()
 
 void coVRPluginList::unloadAllPlugins()
 {
-    if (cover->debugLevel(1))
+    bool havePlugins = !m_plugins.empty();
+
+    if (havePlugins && cover->debugLevel(1))
         cerr << "Unloading plugins:";
     bool wasThreading = VRViewer::instance()->areThreadsRunning();
     if (wasThreading)
@@ -125,7 +127,7 @@ void coVRPluginList::unloadAllPlugins()
     unloadQueued();
     if (wasThreading)
         VRViewer::instance()->startThreading();
-    if (cover->debugLevel(1))
+    if (havePlugins && cover->debugLevel(1))
         cerr << endl;
 }
 
