@@ -372,13 +372,13 @@ bool OpenCOVER::init()
 
     frameNum = 0;
 
+#ifdef HAS_MPI
     if (m_forceMpi)
     {
-#ifdef HAS_MPI
         new coVRMSController(&m_comm);
-#endif
     }
     else
+#endif
     {
         new coVRMSController(myID, addr, port);
     }
