@@ -1,5 +1,6 @@
 find_file(GDCM_CONFIG_FILE
    NAMES
+   "lib/gdcm-2.2/GDCMConfig.cmake"
    "lib/gdcm-2.4/GDCMConfig.cmake"
    "lib/gdcm-2.5/GDCMConfig.cmake"
    "lib/gdcm-2.6/GDCMConfig.cmake"
