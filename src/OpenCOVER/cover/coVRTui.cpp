@@ -255,10 +255,9 @@ coVRTui::coVRTui()
     Freeze = new coTUIToggleButton("Stop headtracking", topContainer->getID());
     Wireframe = new coTUIToggleButton("Wireframe", topContainer->getID());
     ViewAll = new coTUIButton("View all", topContainer->getID());
-    Menu = new coTUIToggleButton("Hide menu", topContainer->getID());
+    Menu = new coTUIButton("Toggle menu", topContainer->getID());
     scaleLabel = new coTUILabel("Scale factor (log10)", topContainer->getID());
     ScaleSlider = new coTUIFloatSlider("ScaleFactor", topContainer->getID());
-    Menu->setState(false);
     debugLabel = new coTUILabel("Debug level", topContainer->getID());
     debugLevel = new coTUIEditIntField("DebugLevel", topContainer->getID());
 #ifndef NOFB
@@ -1405,7 +1404,7 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Menu)
     {
-        VRSceneGraph::instance()->setMenu(false);
+        VRSceneGraph::instance()->toggleMenu();
     }
     else if ((tUIItem == panNav) || (tUIItem == driveNav))
     {
@@ -1480,10 +1479,6 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     else if (tUIItem == Wireframe)
     {
         VRSceneGraph::instance()->setWireframe(VRSceneGraph::Disabled);
-    }
-    else if (tUIItem == Menu)
-    {
-        VRSceneGraph::instance()->setMenu(true);
     }
     else if (tUIItem == Animate)
     {
