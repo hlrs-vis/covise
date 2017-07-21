@@ -60,6 +60,13 @@ public:
         HiddenLineBlack,
         HiddenLineWhite
     };
+
+    enum MenuVisibilityState {
+        ObjectsAndMenu,
+        ObjectsOnly,
+        MenuOnly
+    };
+
     VRSceneGraph();
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
@@ -305,8 +312,8 @@ private:
     WireframeMode m_wireframe;
     bool m_textured; /* =true: textures are drawn as intended */
     bool m_coordAxis; /* =true: coord Axis will be drawn */
-    bool m_showMenu;
-    bool m_showObjects;
+    bool m_allowMenuOnly;
+    MenuVisibilityState m_menuState;
 
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
