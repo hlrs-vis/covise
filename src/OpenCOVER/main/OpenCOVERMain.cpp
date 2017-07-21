@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
     else
 #endif
     {
-        Renderer = new opencover::OpenCOVER(forceMpi);
+        Renderer = new opencover::OpenCOVER();
     }
     Renderer->run();
     delete Renderer;
