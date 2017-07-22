@@ -28,8 +28,12 @@ IF /i "%ARCHSUFFIX%" == "win32opt" (
                   IF /i "%ARCHSUFFIX%" == "zebuopt" (
                     set USE_OPT_LIBS=1
                   ) ELSE (
+				    IF /i "%ARCHSUFFIX%" == "uwpopt" (
+                      set USE_OPT_LIBS=1
+                    ) ELSE (
                     set USE_OPT_LIBS=0
                     echo DEBUG-Build !!! 
+					)
                   )
                 )
               )

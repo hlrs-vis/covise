@@ -368,3 +368,44 @@ replace libwebp source by current git repository
 git clone https://github.com/webmproject/libwebp.git
 on windows open the visual studio project and add enc/backward_references_cost_enc.cal3d and dsp/ssim*.c
 Build debug and release
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################
+#########################################
+### UWP
+#########################################
+#########################################
+
+cmake -G "Visual Studio 15 2017"  -DCMAKE_SYSTEM_NAME:STRING="WindowsStore" -DCMAKE_SYSTEM_VERSION:STRING="10.0" -DOSG_BUILD_PLATFORM_UWP:BOOL=ON -DOPENGL_PROFILE:STRING=GLES2 -DOSG_WINDOWING_SYSTEM:STRING=NONE -DOSG_USE_UTF8_FILENAME:BOOL=ON -DDYNAMIC_OPENSCENEGRAPH:BOOL=OFF -DDYNAMIC_OPENTHREADS:BOOL=OFF -DBUILD_OSG_APPLICATIONS:BOOL=OFF -DBUILD_OSG_EXAMPLES:BOOL=OFF -DOPENGL_INCLUDE_DIR:PATH="c:/src/externlibs/uwp/angle/include" -DOPENGL_HEADER1:STRING="#include <GLES2/gl2.h>" -DOPENGL_gl_LIBRARY:STRING="c:/src/externlibs/uwp/angle/libGLESv2.lib" -DEGL_INCLUDE_DIR:PATH="c:/src/externlibs/uwp/angle/include" -DEGL_LIBRARY:STRING="c:/src/externlibs/uwp/angle/lib/libEGL.lib" ..

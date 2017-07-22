@@ -729,6 +729,14 @@ void coVRFileManager::unloadFile(const char *file)
         const FileHandler *handler = findFileHandler(file);
         if (handler && handler->unloadFile)
             handler->unloadFile(file, lastCovise_key);
+
+        if (file == lastFileName)
+        {
+            delete[] lastFileName;
+            lastFileName = NULL;
+        }
+        delete[] lastCovise_key;
+        lastCovise_key = NULL;
     }
 }
 

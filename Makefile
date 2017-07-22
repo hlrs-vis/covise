@@ -66,6 +66,7 @@ install: always_out_of_date
 	
 clean:
 	cd src && $(MAKE) clean
+	cd src/OpenCOVER && $(MAKE) clean
 	cd Python && $(MAKE) clean
 	test -n "$${ARCHSUFFIX}" && $(RM) -rf "$${ARCHSUFFIX}/lib" "$${ARCHSUFFIX}/bin" || exit 0
 
