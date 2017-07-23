@@ -20,7 +20,6 @@
 
 #include "coVRDynLib.h"
 #include "coVRPluginSupport.h"
-#include <net/covise_socket.h>
 #include <sstream>
 
 //
@@ -127,15 +126,8 @@ CO_SHLIB_HANDLE try_dlopen(const char *filename)
 
     if (handle == NULL)
     {
-		if (cover->debugLevel(2))
-		{
-#ifdef WIN32
-			cerr << "coVRDynLib::try_dlopen(" << filename << ") failed: " << covise::Socket::coStrerror(GetLastError()) << endl;
-#else
-			cerr << "coVRDynLib::try_dlopen(" << filename << ") failed: " << dlerror() << endl;
-#endif
-
-		}
+        if (cover->debugLevel(2))
+            cerr << "coVRDynLib::try_dlopen(" << filename << ") failed: " << coVRDynLib::dlerror() << endl;
     }
     else
     {
