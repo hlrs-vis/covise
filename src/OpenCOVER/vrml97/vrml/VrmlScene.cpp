@@ -425,7 +425,7 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         delete newNodes;
 
         // Look for '#Viewpoint' syntax
-        if (sourceUrl->urlModifier())
+        if (sourceUrl->urlModifier() && *sourceUrl->urlModifier())
         {
             VrmlNode *vp = d_namespace->findNode(sourceUrl->urlModifier() + 1);
             double timeNow = System::the->time();
