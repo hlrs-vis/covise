@@ -262,6 +262,7 @@ public:
     bool isHighQuality() const;
 
 private:
+    static VRSceneGraph *s_instance;
     int readConfigFile();
     void initAxis();
     void initHandDeviceGeometry();

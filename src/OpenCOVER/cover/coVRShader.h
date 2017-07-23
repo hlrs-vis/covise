@@ -275,6 +275,7 @@ public:
 class COVEREXPORT coVRShaderList : public std::list<coVRShader *>
 {
 private:
+    static coVRShaderList *s_instance;
     coVRShaderList();
     void loadMaterials();
     osg::ref_ptr<osg::Uniform> timeUniform;
@@ -288,6 +289,7 @@ private:
     osg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT
     void applyParams(coVRShader *shader, std::map<std::string, std::string> *params);
 public:
+    ~coVRShaderList();
     coVRShader *get(const std::string &name, std::map<std::string, std::string> *params = NULL);
     coVRShader *getUnique(const std::string &n, std::map<std::string, std::string> *params = NULL);
     coVRShader *add(const std::string &name, std::string &dirName);

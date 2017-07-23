@@ -69,6 +69,8 @@ using namespace opencover;
 using namespace vrui;
 using covise::coCoviseConfig;
 
+coVRNavigationManager *coVRNavigationManager::s_instance = NULL;
+
 static float mouseX()
 {
     return Input::instance()->mouse()->x();
@@ -101,10 +103,9 @@ static float mouseScreenHeight()
 
 coVRNavigationManager *coVRNavigationManager::instance()
 {
-    static coVRNavigationManager *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRNavigationManager;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRNavigationManager;
+    return s_instance;
 }
 
 coVRNavigationManager::coVRNavigationManager()
@@ -136,6 +137,8 @@ coVRNavigationManager::coVRNavigationManager()
     , navigating(false)
     , jump(true)
 {
+    assert(!s_instance);
+
     init();
     oldKeyMask = 0;
     oldSelectedNode_ = NULL;
@@ -204,6 +207,8 @@ coVRNavigationManager::~coVRNavigationManager()
     delete interactionMA;
     delete interactionMB;
     delete interactionMC;
+
+    s_instance = NULL;
 }
 
 void coVRNavigationManager::updatePerson()

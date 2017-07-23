@@ -51,6 +51,9 @@ public:
     // plugin management functions
     //! singleton
     static coVRPluginList *instance();
+    //! load configured plugins
+    void loadDefault();
+
     //! returns the plugin called name
     coVRPlugin *getPlugin(const char *name) const;
 

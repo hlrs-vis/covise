@@ -20,12 +20,13 @@ using std::endl;
 using namespace covise;
 using namespace opencover;
 
+coVRConfig *coVRConfig::s_instance = NULL;
+
 coVRConfig *coVRConfig::instance()
 {
-    static coVRConfig *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRConfig;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRConfig;
+    return s_instance;
 }
 
 float coVRConfig::getSceneSize() const
@@ -92,6 +93,8 @@ coVRConfig::coVRConfig()
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
 {
+    assert(!s_instance);
+
     /// path for the viewpoint file: initialized by 1st param() call
 
     m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
@@ -656,6 +659,16 @@ coVRConfig::~coVRConfig()
 {
     if (debugLevel(2))
         fprintf(stderr, "delete coVRConfig\n");
+
+    viewports.clear();
+    blendingTextures.clear();
+    PBOs.clear();
+    channels.clear();
+    screens.clear();
+    windows.clear();
+    pipes.clear();
+
+    s_instance = NULL;
 }
 
 bool

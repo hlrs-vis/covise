@@ -55,6 +55,8 @@ coIntersection::coIntersection()
     : elapsedTimes(1)
 #endif
 {
+    assert(!intersector);
+
     // should match OpenCOVER.cpp
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
     useOmp = openmpThreads != "off";
@@ -84,6 +86,7 @@ bool coIntersection::isVerboseIntersection()
 coIntersection::~coIntersection()
 {
     //VRUILOG("coIntersection::<dest> info: destroying");
+    intersector = NULL;
 }
 
 coIntersection *coIntersection::instance()

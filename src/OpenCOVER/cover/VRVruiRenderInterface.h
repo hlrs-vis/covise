@@ -42,6 +42,7 @@ namespace opencover
 
 class VRVruiRenderInterface : public vrui::vruiRendererInterface
 {
+    friend class OpenCOVER;
 
 public:
     VRVruiRenderInterface();

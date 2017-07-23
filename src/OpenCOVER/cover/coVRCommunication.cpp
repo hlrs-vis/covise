@@ -72,16 +72,19 @@
 using namespace covise;
 using namespace opencover;
 
+coVRCommunication *coVRCommunication::s_instance = NULL;
+
 coVRCommunication *coVRCommunication::instance()
 {
-    static coVRCommunication *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRCommunication;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRCommunication;
+    return s_instance;
 }
 
 coVRCommunication::coVRCommunication()
 {
+    assert(!s_instance);
+
     srand((unsigned)time(NULL)); // Initialize the random timer
     ignoreRemoteTransform = coCoviseConfig::isOn("COVER.IgnoreRemoteTransform", false);
 
@@ -100,6 +103,12 @@ coVRCommunication::coVRCommunication()
 coVRCommunication::~coVRCommunication()
 {
     delete[] currentFile;
+    delete registry;
+
+    if (coVRPartnerList::instance()->find(me))
+        coVRPartnerList::instance()->remove();
+
+    s_instance = NULL;
 }
 
 void coVRCommunication::update(coVrbRegEntry *theChangedRegEntry)

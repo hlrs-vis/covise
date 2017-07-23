@@ -137,6 +137,10 @@ coVRPluginList::coVRPluginList()
     m_requestedTimestep = -1;
     m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
+}
+
+void coVRPluginList::loadDefault()
+{
     if (cover->debugLevel(1))
     {
         cerr << "Loading plugins:";

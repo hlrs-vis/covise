@@ -101,6 +101,7 @@ public:
 
 private:
     Input();
+    static Input *s_singleton;
 
     int m_debug;
     coMousePointer *m_mouse;

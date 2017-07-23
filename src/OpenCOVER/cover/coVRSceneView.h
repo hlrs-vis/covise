@@ -51,6 +51,7 @@ public:
     /** Construct a default scene view.*/
     coVRSceneView(osg::DisplaySettings *ds = NULL, int channel = -1);
     void createUniforms(osg::StateSet *stateset);
+    static void destroyUniforms();
     static osg::Uniform *coEnvCorrectMatrixUniform;
     static osg::Uniform *coInvEnvCorrectMatrixUniform;
 

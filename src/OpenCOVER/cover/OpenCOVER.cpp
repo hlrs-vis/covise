@@ -587,8 +587,10 @@ bool OpenCOVER::init()
             }
         }
     }
-
+    
     hud = coHud::instance();
+
+    coVRPluginList::instance()->loadDefault();
 
     bool haveWindows = VRWindow::instance()->config();
     if (coVRMSController::instance()->isMaster())
@@ -735,7 +737,7 @@ bool OpenCOVER::initDone()
 
 void OpenCOVER::loop()
 {
-    while (!exitFlag && !VRViewer::instance()->done())
+    while (!exitFlag)
     {
         if(VRViewer::instance()->done())
             exitFlag = true;
@@ -1018,11 +1020,11 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
+
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\ndelete OpenCOVER\n");
     }
-    VRViewer::instance()->stopThreading();
     if (m_visPlugin)
     {
         coVRPluginList::instance()->unload(m_visPlugin);
@@ -1030,19 +1032,26 @@ OpenCOVER::~OpenCOVER()
     }
     coVRFileManager::instance()->unloadFile();
     coVRPluginList::instance()->unloadAllPlugins();
+    VRViewer::instance()->stopThreading();
+    VRViewer::instance()->setSceneData(NULL);
     delete coVRPluginList::instance();
-    delete coVRTui::instance();
     //delete vrbHost;
-    coVRPartnerList::instance()->reset();
-    while (coVRPartnerList::instance()->current())
-        coVRPartnerList::instance()->remove();
-    // da sollte noch mehr geloescht werden
+    delete coVRPartnerList::instance();
+    delete coVRAnimationManager::instance();
+    delete coVRNavigationManager::instance();
+    delete coVRCommunication::instance();
+    delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
     delete VRPinboard::instance();
+    delete VRVruiRenderInterface::theInterface;
     delete VRSceneGraph::instance();
+    delete coVRShaderList::instance();
+    delete coVRLighting::instance();
     delete VRViewer::instance();
     delete VRWindow::instance();
+
+    delete coVRConfig::instance();
 
     delete ARToolKit::instance();
 

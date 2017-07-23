@@ -1097,6 +1097,9 @@ coVRPluginSupport::coVRPluginSupport()
     , updateManager(0)
     , activeClippingPlane(0)
 {
+    assert(!cover);
+    cover = this;
+
     START("coVRPluginSupport::coVRPluginSupport");
     /// path for the viewpoint file: initialized by 1st param() call
     intersectedNode = NULL;
@@ -1109,7 +1112,6 @@ coVRPluginSupport::coVRPluginSupport()
         clipPlanes[i]->setClipPlaneNum(i);
     }
     NoFrameBuffer = new osg::ColorMask(false, false, false, false);
-    cover = this;
     player = NULL;
 
     pointerButton = NULL;
@@ -1151,6 +1153,9 @@ coVRPluginSupport::~coVRPluginSupport()
     START("coVRPluginSupport::~coVRPluginSupport");
     if (debugLevel(2))
         fprintf(stderr, "delete coVRPluginSupport\n");
+
+    delete updateManager;
+    cover = NULL;
 }
 
 int coVRPluginSupport::getNumClipPlanes()

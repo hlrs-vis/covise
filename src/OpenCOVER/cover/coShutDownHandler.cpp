@@ -12,12 +12,15 @@
 
 using namespace covise;
 using namespace opencover;
+
 // set protected static pointer for singleton to NULL
 coShutDownHandlerList *coShutDownHandlerList::p_sdhl = NULL;
 
 // constructor, destructor, instance ---------------------------------
 coShutDownHandlerList::coShutDownHandlerList()
 {
+    assert(!p_sdhl);
+
     if (cover->debugLevel(2))
         std::cerr << "coShutDownHandlerList::coShutDownHandlerList" << std::endl;
     // create instance of list
@@ -40,6 +43,8 @@ coShutDownHandlerList::~coShutDownHandlerList()
 
     // free list
     delete p_handlerList;
+
+    p_sdhl = NULL;
 }
 
 // singleton

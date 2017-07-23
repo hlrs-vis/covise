@@ -33,13 +33,13 @@ using namespace covise;
 
 namespace opencover
 {
+Input *Input::s_singleton = NULL;
 
 Input *Input::instance()
 {
-    static Input *singleton = NULL;
-    if (!singleton)
-        singleton = new Input;
-    return singleton;
+    if (!s_singleton)
+        s_singleton = new Input;
+    return s_singleton;
 }
 
 Input::Input()
@@ -47,6 +47,7 @@ Input::Input()
 , m_mouse(NULL)
 , m_debug(0)
 {
+    assert(!s_singleton);
 }
 
 bool Input::init()
@@ -131,6 +132,8 @@ Input::~Input()
 		}
 	}
 	plugins.clear();
+
+    s_singleton = NULL;
 }
 
 void Input::printConfig() const
@@ -232,6 +235,8 @@ double Input::getValuatorValue(size_t idx) const
 
 float Input::eyeDistance() const
 {
+    if (!activePerson)
+        return 0.f;
     return activePerson->eyeDistance();
 }
 

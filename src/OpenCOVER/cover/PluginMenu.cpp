@@ -16,6 +16,7 @@ using namespace vrui;
 
 namespace opencover
 {
+PluginMenu *PluginMenu::s_instance = NULL;
 
 void PluginMenu::Plugin::add(coMenu *menu)
 {
@@ -26,18 +27,20 @@ void PluginMenu::Plugin::add(coMenu *menu)
 
 PluginMenu::PluginMenu()
 {
+    assert(!s_instance);
 }
 
 PluginMenu::~PluginMenu()
 {
+    if (s_instance)
+        s_instance = NULL;
 }
 
 PluginMenu *PluginMenu::instance()
 {
-    static PluginMenu *inst = NULL;
-    if (!inst)
-        inst = new PluginMenu();
-    return inst;
+    if (!s_instance)
+        s_instance = new PluginMenu();
+    return s_instance;
 }
 
 void PluginMenu::init()
