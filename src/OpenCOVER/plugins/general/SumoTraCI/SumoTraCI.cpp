@@ -265,8 +265,7 @@ void SumoTraCI::interpolateVehiclePosition() {
 			osg::Matrix rmat, tmat;
 			rmat.makeRotate(orientation);
 			tmat.makeTranslate(position);
-			loadedVehicles.find(it->first)->second->setTransform(rotOffset*rmat*tmat);
-            AgentVehicle * av = loadedVehicles.find(it->first)->second;
+            AgentVehicle * av = itr->second;
 			av->setTransform(rotOffset*rmat*tmat);
 			VehicleState vs;
 			av->getCarGeometry()->updateCarParts(1, 0, vs);
