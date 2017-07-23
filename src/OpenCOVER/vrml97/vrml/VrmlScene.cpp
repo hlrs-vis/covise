@@ -648,7 +648,11 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             //char *tmp = (char *)malloc(12);
             //free(tmp);
             fflush(stderr);
-			yyrestart((FILE *)YYIN);
+#if HAVE_LIBPNG
+            yyrestart(NULL);
+#else
+            yyrestart(YYIN);
+#endif
             yyparse();
             //fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
 
@@ -664,6 +668,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             tryUrl->fclose();
 #endif
         }
+        YYIN = 0;
     }
 
     return result;
