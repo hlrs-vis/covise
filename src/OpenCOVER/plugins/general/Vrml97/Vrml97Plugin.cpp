@@ -129,7 +129,7 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 
     if (!plugin)
         return NULL;
-    if (plugin->viewer)
+    if (!plugin->viewer)
         return NULL;
 
     osg::Group *g = plugin->viewer->VRMLRoot;
@@ -382,6 +382,8 @@ bool Vrml97Plugin::init()
 // this is called if the plugin is removed at runtime
 Vrml97Plugin::~Vrml97Plugin()
 {
+    unloadVrml("");
+
     if (!coVRMSController::instance()->isSlave())
     {
         if (listener)
@@ -405,6 +407,8 @@ Vrml97Plugin::~Vrml97Plugin()
 
     delete sensorList;
     sensorList = NULL;
+
+    delete System::the;
 }
 
 void
