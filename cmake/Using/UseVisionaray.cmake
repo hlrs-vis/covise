@@ -5,7 +5,7 @@ MACRO(USE_VISIONARAY)
 
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
             if(MSVC)
-                set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/visionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
                 set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/build.covise/src/3rdparty/visionaray/config")
             else()
                 if(BUILD_SHARED_LIBS)
