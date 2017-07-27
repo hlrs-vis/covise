@@ -390,6 +390,9 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       osg::Shader *depthFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
       depthProgramObj->addShader(depthFragmentObj);
       depthFragmentObj->setShaderSource(
+            "#version 120\n"
+            "#extension GL_ARB_texture_rectangle : enable\n"
+            "\n"
             "uniform sampler2DRect col;"
             "uniform sampler2DRect dep;"
             "void main(void) {"
