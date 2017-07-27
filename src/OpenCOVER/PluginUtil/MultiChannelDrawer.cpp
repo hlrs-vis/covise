@@ -583,6 +583,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat) {
             (*cd.texcoord)[3].set(0., h);
         }
         cd.fixedGeo->setTexCoordArray(0, cd.texcoord);
+        cd.fixedGeo->getTexCoordArray(0)->dirty();
     }
 
     osg::Image *dimg = cd.depthTex->getImage();
