@@ -24,6 +24,7 @@ struct ChannelData {
     int channelNum;
     bool second;
     osg::Matrix curProj, curView, curModel;
+    osg::Matrix imgProj, imgView, imgModel;
     osg::Matrix newProj, newView, newModel;
 
     // geometry for mapping depth image
@@ -58,8 +59,13 @@ class PLUGIN_UTILEXPORT MultiChannelDrawer: public osg::Camera {
 public:
    typedef opencover::ChannelData ChannelData;
 
-    MultiChannelDrawer(int numChannels, bool flipped=false);
+    MultiChannelDrawer(bool flipped=false);
     ~MultiChannelDrawer();
+    int numViews() const;
+    void update(); //! to be called each frame, updates current matrices
+    const osg::Matrix &modelMatrix(int idx) const;
+    const osg::Matrix &viewMatrix(int idx) const;
+    const osg::Matrix &projectionMatrix(int idx) const;
 
     //! render mode
     enum Mode {
@@ -73,16 +79,25 @@ public:
    Mode mode() const;
    void setMode(Mode mode);
 
+   //! from now on, draw with current RGBA and depth data for all views
+   void swapFrame();
+   //! set matrices corresponding to RGBA and depth data for view idx
+   void updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
+   //! resize view idx
+   void resizeView(int idx, int w, int h, GLenum depthFormat=0);
+   //! set matrices for which view idx shall be reprojected (mode != AsIs)
+   void reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
+   //! set matrices from COVER for all views
+   void reproject();
+   //! access RGBA data for view idx
+   unsigned char *rgba(int idx) const;
+   //! access depth data for view idx
+   unsigned char *depth(int idx) const;
+
+private:
    void initChannelData(ChannelData &cd);
    void createGeometry(ChannelData &cd);
    void clearChannelData();
-   void swapFrame();
-   void updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
-   void resizeView(int idx, int w, int h, GLenum depthFormat=0);
-   void reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
-   unsigned char *rgba(int idx) const;
-   unsigned char *depth(int idx) const;
-
    std::vector<ChannelData> m_channelData;
    bool m_flipped;
    Mode m_mode;

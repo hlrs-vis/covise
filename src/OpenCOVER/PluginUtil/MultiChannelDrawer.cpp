@@ -278,7 +278,7 @@ const char reprojMeshGeo[] =
       "   EndPrimitive();\n"
       "}\n";
 
-MultiChannelDrawer::MultiChannelDrawer(int numChannels, bool flipped)
+MultiChannelDrawer::MultiChannelDrawer(bool flipped)
 : m_flipped(flipped)
 , m_mode(MultiChannelDrawer::ReprojectMesh)
 {
@@ -302,6 +302,7 @@ MultiChannelDrawer::MultiChannelDrawer(int numChannels, bool flipped)
    setRenderOrder(osg::Camera::NESTED_RENDER);
    //setRenderer(new osgViewer::Renderer(m_remoteCam.get()));
 
+   int numChannels = coVRConfig::instance()->numChannels();
    for (int i=0; i<numChannels; ++i) {
       m_channelData.push_back(ChannelData(i));
       initChannelData(m_channelData.back());
@@ -324,6 +325,56 @@ MultiChannelDrawer::~MultiChannelDrawer() {
    m_channelData.clear();
 }
 
+int MultiChannelDrawer::numViews() const {
+
+    return m_channelData.size();
+}
+
+const osg::Matrix &MultiChannelDrawer::modelMatrix(int idx) const {
+
+    return m_channelData[idx].curModel;
+}
+
+const osg::Matrix &MultiChannelDrawer::viewMatrix(int idx) const {
+
+    return m_channelData[idx].curView;
+}
+
+const osg::Matrix &MultiChannelDrawer::projectionMatrix(int idx) const {
+
+    return m_channelData[idx].curProj;
+}
+
+void MultiChannelDrawer::update() {
+
+   const osg::Matrix &transform = cover->getXformMat();
+   const osg::Matrix &scale = cover->getObjectsScale()->getMatrix();
+   const osg::Matrix model = scale * transform;
+
+   auto updateView = [&model](ChannelData &cd, int i, bool second) {
+
+       const channelStruct &chan = coVRConfig::instance()->channels[i];
+       const bool left = chan.stereoMode == osg::DisplaySettings::LEFT_EYE || (second && chan.stereoMode == osg::DisplaySettings::QUAD_BUFFER);
+       const osg::Matrix &view = left ? chan.leftView : chan.rightView;
+       const osg::Matrix &proj = left ? chan.leftProj : chan.rightProj;
+       cd.curModel = model;
+       cd.curView = view;
+       cd.curProj = proj;
+   };
+
+   int numChannels = coVRConfig::instance()->numChannels();
+   int view = 0;
+   for (int i=0; i<numChannels; ++i) {
+       ChannelData &cd = m_channelData[view];
+       updateView(cd, i, false);
+       if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
+           ++view;
+           ChannelData &cd = m_channelData[view];
+           updateView(cd, i, true);
+       }
+       ++view;
+   }
+}
 
 //! create geometry for mapping remote image
 void MultiChannelDrawer::createGeometry(ChannelData &cd)
@@ -551,9 +602,9 @@ void MultiChannelDrawer::swapFrame() {
    for (size_t s=0; s<m_channelData.size(); ++s) {
       ChannelData &cd = m_channelData[s];
 
-      cd.curView = cd.newView;
-      cd.curProj = cd.newProj;
-      cd.curModel = cd.newModel;
+      cd.imgView = cd.newView;
+      cd.imgProj = cd.newProj;
+      cd.imgModel = cd.newModel;
 
       cd.depthTex->getImage()->dirty();
       cd.colorTex->getImage()->dirty();
@@ -641,10 +692,17 @@ void MultiChannelDrawer::reproject(int idx, const osg::Matrix &model, const osg:
     ChannelData &cd = m_channelData[idx];
 
     osg::Matrix cur = model * view * proj;
-    osg::Matrix old = cd.curModel * cd.curView * cd.curProj;
+    osg::Matrix old = cd.imgModel * cd.imgView * cd.imgProj;
     osg::Matrix oldInv = osg::Matrix::inverse(old);
     osg::Matrix reproj = oldInv * cur;
     cd.reprojMat->set(reproj);
+}
+
+void MultiChannelDrawer::reproject() {
+
+    for (int v=0; v<numViews(); ++v) {
+        reproject(v, modelMatrix(v), viewMatrix(v), projectionMatrix(v));
+    }
 }
 
 unsigned char *MultiChannelDrawer::rgba(int idx) const {
