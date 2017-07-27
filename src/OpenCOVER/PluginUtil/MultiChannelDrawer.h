@@ -93,6 +93,10 @@ public:
    unsigned char *rgba(int idx) const;
    //! access depth data for view idx
    unsigned char *depth(int idx) const;
+   //! fill color array with all zeros
+   void clearColor(int idx);
+   //! fill depth array with all ones
+   void clearDepth(int idx);
 
 private:
    void initChannelData(ChannelData &cd);

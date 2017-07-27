@@ -589,15 +589,8 @@ void MultiChannelDrawer::initChannelData(ChannelData &cd) {
 void MultiChannelDrawer::clearChannelData() {
 
     for (size_t view=0; view<m_channelData.size(); ++view) {
-       ChannelData &cd = m_channelData[view];
-
-       osg::Image *depth =  cd.depthTex->getImage();
-       memset(depth->data(), 0xff, depth->getTotalSizeInBytes());
-       depth->dirty();
-
-       osg::Image *color =  cd.colorTex->getImage();
-       memset(color->data(), 0, color->getTotalSizeInBytes());
-       color->dirty();
+       clearColor(view);
+       clearDepth(view);
     }
 }
 
@@ -716,6 +709,22 @@ unsigned char *MultiChannelDrawer::rgba(int idx) const {
 unsigned char *MultiChannelDrawer::depth(int idx) const {
     const ChannelData &cd = m_channelData[idx];
     return cd.depthTex->getImage()->data();
+}
+
+void MultiChannelDrawer::clearColor(int idx) {
+    ChannelData &cd = m_channelData[idx];
+ 
+    osg::Image *color =  cd.colorTex->getImage();
+    memset(color->data(), 0, color->getTotalSizeInBytes());
+    color->dirty();
+}
+
+void MultiChannelDrawer::clearDepth(int idx) {
+    ChannelData &cd = m_channelData[idx];
+ 
+    osg::Image *depth =  cd.depthTex->getImage();
+    memset(depth->data(), 0xff, depth->getTotalSizeInBytes());
+    depth->dirty();
 }
 
 MultiChannelDrawer::Mode MultiChannelDrawer::mode() const {
