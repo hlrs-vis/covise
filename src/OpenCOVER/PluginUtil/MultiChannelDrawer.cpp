@@ -437,16 +437,16 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
             "#version 120\n"
             "#extension GL_ARB_texture_rectangle : enable\n"
             "\n"
-            "uniform sampler2DRect col;"
-            "uniform sampler2DRect dep;"
+            "uniform sampler2DRect col;\n"
+            "uniform sampler2DRect dep;\n"
             "\n"
             "varying vec2 uv;\n"
             "\n"
-            "void main(void) {"
-            "   vec4 color = texture2DRect(col, uv);"
-            "   gl_FragColor = color;"
-            "   gl_FragDepth = texture2DRect(dep, uv).x;"
-            "}"
+            "void main(void) {\n"
+            "   vec4 color = texture2DRect(col, uv);\n"
+            "   gl_FragColor = color;\n"
+            "   gl_FragDepth = texture2DRect(dep, uv).x;\n"
+            "}\n"
             );
       depthProgramObj->addBindAttribLocation("vertex", 0);
       depthProgramObj->addBindAttribLocation("tex_coord", 1);
