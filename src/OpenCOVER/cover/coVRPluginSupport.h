@@ -48,6 +48,7 @@
 #include <osg/BoundingBox>
 
 #include <deque>
+#include <ostream>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
@@ -86,6 +87,7 @@ namespace opencover
 class coVRPlugin;
 class RenderObject;
 class coInteractor;
+class NotifyBuf;
 struct Isect
 {
     enum IntersectionBits
@@ -106,6 +108,18 @@ struct Isect
 
 private:
 };
+
+namespace Notify
+{
+enum NotificationLevel
+{
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Fatal
+};
+}
 
 /*! \class coPointerButton coVRPluginSupport.h cover/coVRPluginSupport.h
  * Access to buttons and wheel of interaction devices
@@ -168,6 +182,14 @@ public:
           4,
           5 all functions which are called continously */
     bool debugLevel(int level) const;
+
+    // show a message to the user
+    std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
+    std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
+#ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+#endif
+        ;
 
     // OpenGL clipping
     /// @cond INTERNAL
@@ -646,6 +668,9 @@ private:
 
     coVRPluginSupport();
     ~coVRPluginSupport();
+
+    std::vector<std::ostream *> m_notifyStream;
+    std::vector<NotifyBuf *> m_notifyBuf;
 };
 
 COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix);

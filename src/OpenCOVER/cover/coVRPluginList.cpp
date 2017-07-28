@@ -250,6 +250,11 @@ void coVRPluginList::unloadQueued()
     m_unloadQueue.clear();
 }
 
+void coVRPluginList::notify(int level, const char *text) const
+{
+    DOALL(plugin->notify((coVRPlugin::NotificationLevel)level, text));
+}
+
 void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const
 {
     DOALL(if (plugin != addingPlugin)

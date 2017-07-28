@@ -29,6 +29,7 @@ public:
     ~CovisePlugin();
 
     bool init();
+    void notify(NotificationLevel level, const char *text);
     void param(const char *paramName, bool inMapLoading);
     void preFrame();
     void removeNode(osg::Node *group, bool isGroup, osg::Node *node);

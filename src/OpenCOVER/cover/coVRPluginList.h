@@ -22,6 +22,7 @@
  */
 
 #include "coVRDynLib.h"
+#include "coVRPlugin.h"
 #include <osg/Drawable>
 #include <map>
 
@@ -38,7 +39,6 @@ class Group;
 
 namespace opencover
 {
-class coVRPlugin;
 class RenderObject;
 class coInteractor;
 
@@ -65,6 +65,10 @@ public:
 
     //
     // methods forwarded to plugins
+
+    //! call notify method of all plugins
+    void notify(int level, const char *text) const;
+
     //! call addNode method of all plugins
     void addNode(osg::Node *, const RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
 
