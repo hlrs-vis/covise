@@ -18,4 +18,5 @@ endif()
 
 add_subdirectory(VehicleUtil)
 add_subdirectory(fasi)
+add_subdirectory(fasi2)
 add_subdirectory(VirtualPlanetBuilder)
