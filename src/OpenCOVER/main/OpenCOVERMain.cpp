@@ -42,14 +42,6 @@
 #include <mpi.h>
 #endif
 
-#ifdef RENAME_MAIN
-#ifdef HAS_MPI
-#define MPI_COVER
-#endif
-//#include <util/export.h>
-#include <util/coExport.h>
-#endif
-
 #ifdef WIN32
 static char *strcasestr(char *source, char *target)
 {
@@ -75,11 +67,7 @@ static char *strcasestr(char *source, char *target)
 }
 #endif
 
-#ifdef RENAME_MAIN
-extern "C" COEXPORT int RENAME_MAIN(int argc, char *argv[])
-#else
 int main(int argc, char *argv[])
-#endif
 {
 
 #ifdef _WIN32
@@ -90,12 +78,9 @@ int main(int argc, char *argv[])
 #endif
 #ifdef MPI_COVER
     int mpiinit = 0;
+    MPI_Comm comm = MPI_COMM_WORLD;
 #endif
-#ifdef RENAME_MAIN
-    bool forceMpi = true;
-#else
     bool forceMpi = false;
-#endif
 #ifndef WIN32
     signal(34, SIG_IGN);
     signal(13, SIG_IGN); // SIGPIPE //would be generated if you write to a closed socket
@@ -115,19 +100,19 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (strcasestr(argv[0], ".mpi") != 0 || forceMpi)
+    if (strcasestr(argv[0], ".mpi") != 0)
     {
 #ifdef MPI_COVER
         MPI_Initialized(&mpiinit);
         if (!mpiinit)
             MPI_Init(&argc, &argv);
         forceMpi = true;
-        MPI_Comm_rank(MPI_COMM_WORLD, &myID);
+        MPI_Comm_rank(comm, &myID);
         int len = mastername.size();
-        MPI_Bcast(&len, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&len, 1, MPI_INT, 0, comm);
         if (myID != 0)
             mastername.resize(len);
-        MPI_Bcast(&mastername[0], len, MPI_BYTE, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&mastername[0], len, MPI_BYTE, 0, comm);
 #else
         std::cerr << "OpenCOVER: not compiled with MPI support" << std::endl;
         exit(1);
@@ -177,7 +162,7 @@ int main(int argc, char *argv[])
 #elif defined(MSMPI_VER)
             argv_mpi[3] = strdup("-hosts");
 #elif defined(HAS_MPI)
-#error "unknown MPI version"
+#error "unknown MPI flavor"
 #endif
             argv_mpi[4] = strdup(hostlist.c_str());
 #if defined(OMPI_MAJOR_VERSION)
@@ -187,7 +172,7 @@ int main(int argc, char *argv[])
 #elif defined(MSMPI_VER)
             argv_mpi[5] = strdup("-env");
 #endif
-            argv_mpi[6] = strdup("COCONFIG,COCONFIG_LOCAL,COCONFIG_DIR,COCONFIG_SCHEMA,COCONFIG_DEBUG,COVISE_CONFIG,COVISEDIR,ARCHSUFFIX,LD_LIBRARY_PATH");
+            argv_mpi[6] = strdup("COCONFIG,COCONFIG_LOCAL,COCONFIG_DIR,COCONFIG_SCHEMA,COCONFIG_DEBUG,COVISE_CONFIG,COVISEDIR,COVISE_PATH,ARCHSUFFIX,LD_LIBRARY_PATH");
             argv_mpi[7] = strdup(mpiExecutable.c_str());
             for (int ctr = 1; ctr < argc; ++ctr)
                 argv_mpi[ctr + 7] = argv[ctr];
@@ -281,17 +266,15 @@ int main(int argc, char *argv[])
     else
     {
         int rank = 0;
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_rank(comm, &rank);
 
         if (rank > 0)
         {
             std::string filename = covise::coCoviseConfig::getEntry("slavelog", "COVER.Console");
             if (filename.empty())
             {
-#ifndef RENAME_MAIN
                 fclose(stderr);
                 fclose(stdout);
-#endif
             }
             else
             {
@@ -323,25 +306,18 @@ int main(int argc, char *argv[])
 
     if (dl >= 1)
         fprintf(stderr, "OpenCOVER: Starting up\n\n");
-    opencover::OpenCOVER *Renderer = new opencover::OpenCOVER(forceMpi);
-    if (Renderer->init())
+    opencover::OpenCOVER *Renderer = NULL;
+#ifdef MPI_COVER
+    if (forceMpi)
     {
-        if (dl >= 2)
-            fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
-        Renderer->loop();
-
-        Renderer->doneRendering();
-        if (dl >= 2)
-            fprintf(stderr, "OpenCOVER: Leaving main loop\n\n");
+        Renderer = new opencover::OpenCOVER(&comm);
     }
     else
+#endif
     {
-        fprintf(stderr, "OpenCOVER: Start-up failed\n\n");
+        Renderer = new opencover::OpenCOVER();
     }
-
-    if (dl >= 1)
-        fprintf(stderr, "OpenCOVER: Shutting down\n\n");
-
+    Renderer->run();
     delete Renderer;
 
 #ifdef MPI_COVER

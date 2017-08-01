@@ -109,7 +109,17 @@ static FileHandler handlers[] = {
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
-      "wrz" }
+      "wrz" },
+	  { Vrml97Plugin::loadVrml,
+	  Vrml97Plugin::loadVrml,
+	  NULL,
+	  Vrml97Plugin::unloadVrml,
+	  "x3d" },
+	  { Vrml97Plugin::loadVrml,
+	  Vrml97Plugin::loadVrml,
+	  NULL,
+	  Vrml97Plugin::unloadVrml,
+	  "x3dv" }
 };
 
 // descend two levels into vrml scene graph
@@ -119,7 +129,7 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 
     if (!plugin)
         return NULL;
-    if (plugin->viewer)
+    if (!plugin->viewer)
         return NULL;
 
     osg::Group *g = plugin->viewer->VRMLRoot;
@@ -330,7 +340,9 @@ bool Vrml97Plugin::init()
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
-    coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[3]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
 
     VrmlNamespace::addBuiltIn(VrmlNodeTUIProgressBar::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeTUITab::defineType());
@@ -370,6 +382,8 @@ bool Vrml97Plugin::init()
 // this is called if the plugin is removed at runtime
 Vrml97Plugin::~Vrml97Plugin()
 {
+    unloadVrml("");
+
     if (!coVRMSController::instance()->isSlave())
     {
         if (listener)
@@ -383,7 +397,9 @@ Vrml97Plugin::~Vrml97Plugin()
         }
     }
 
-    coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[4]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[3]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
     coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 
@@ -391,6 +407,8 @@ Vrml97Plugin::~Vrml97Plugin()
 
     delete sensorList;
     sensorList = NULL;
+
+    delete System::the;
 }
 
 void

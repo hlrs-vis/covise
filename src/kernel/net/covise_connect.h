@@ -226,7 +226,7 @@ class NETEXPORT SimpleServerConnection : public ServerConnection
 {
     void get_dataformat();
     char buffer[10001];
-    int buflen;
+	size_t buflen;
 
 public:
     // bind socket to port p
@@ -256,7 +256,7 @@ class NETEXPORT SimpleClientConnection : public Connection
     Host *host;
     Host *lhost;
     char buffer[10001];
-    int buflen;
+	size_t buflen;
 
 public:
     // connect to server at port p on host h
@@ -381,7 +381,7 @@ protected:
     int mSFD;
     int mClieDsc;
     SSL_STATE mState;
-    int mBuflen;
+	size_t mBuflen;
     char mBuffer[10001];
 
     void setPasswdCallback(PasswordCallback *, void *userData);

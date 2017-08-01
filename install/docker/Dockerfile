@@ -1,8 +1,8 @@
-FROM library/ubuntu:15.10
+FROM library/ubuntu:16.04
 MAINTAINER "Martin Aumueller" <aumueller@hlrs.de>
 
 ENV PAR -j8
-ENV ARCHSUFFIX werewolfopt
+ENV ARCHSUFFIX xerusopt
 ENV BUILDTYPE Release
 ENV PREFIX /usr
 ENV BUILDDIR /build
@@ -23,7 +23,8 @@ RUN apt-get update -y && apt-get install -y \
         libboost-atomic-dev libboost-chrono-dev libboost-date-time-dev libboost-exception-dev libboost-filesystem-dev \
         libboost-iostreams-dev libboost-locale-dev libboost-log-dev libboost-math-dev libboost-program-options-dev libboost-python-dev \
         libboost-random-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-thread-dev libboost-timer-dev \
-        libboost-tools-dev libboost-dev
+        libboost-tools-dev libboost-dev \
+        libassimp-dev
 
 WORKDIR ${BUILDDIR}
 RUN git clone --recursive git://github.com/hlrs-vis/covise.git \
@@ -33,7 +34,7 @@ RUN git clone --recursive git://github.com/hlrs-vis/covise.git \
         && export QT_SELECT=5 \
         && mkdir -p build.covise \
         && cd build.covise \
-        && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_TYPE=${BUILDTYPE} -DCOVISE_WARNING_IS_ERROR=FALSE \
+        && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_TYPE=${BUILDTYPE} -DCOVISE_WARNING_IS_ERROR=FALSE -DCOVISE_USE_VISIONARAY=FALSE \
         && make ${PAR} install \
         && cd ${BUILDDIR}/covise \
         && mkdir -p build.cover \

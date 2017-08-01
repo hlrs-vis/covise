@@ -65,6 +65,8 @@ TraCIAPI::~TraCIAPI() {
 void
 TraCIAPI::connect(const std::string& host, int port) {
     mySocket = new tcpip::Socket(host, port);
+	if(mySocket)
+	{
     try {
         mySocket->connect();
     } catch (tcpip::SocketException&) {
@@ -72,6 +74,7 @@ TraCIAPI::connect(const std::string& host, int port) {
         mySocket = 0;
         throw;
     }
+	}
 }
 
 

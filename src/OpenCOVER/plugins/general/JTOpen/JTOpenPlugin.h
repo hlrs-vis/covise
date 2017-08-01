@@ -62,6 +62,7 @@ public:
     virtual bool init();
 
     void setMaterial(osg::Node *, JtkHierarchy *CurrNode);
+    void setShapeMaterial(osg::Node *, JtkShape *currShape);
     osg::Group *createGroup(JtkHierarchy *CurrNode);
     osg::ref_ptr<osg::Group> currentGroup;
     ParentList Parents;

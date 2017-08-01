@@ -16,7 +16,7 @@
  **                                                                        **
  **                                                                        **
 \****************************************************************************/
-
+#include <covise/covise_msg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 
 #include "cover/coTranslator.h"

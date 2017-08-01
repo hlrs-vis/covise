@@ -375,6 +375,8 @@ bool VolumePlugin::init()
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
+    lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
+    preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
 
     tfeBackgroundTexture = new uchar[TEXTURE_RES_BACKGROUND * TEXTURE_RES_BACKGROUND * 4];
 
@@ -488,8 +490,8 @@ bool VolumePlugin::init()
     fpsItem.reset(new coSliderMenuItem("Frame Rate", 5.0, 60.0, chosenFPS));
     boundItem.reset(new coCheckboxMenuItem("Boundaries", false));
     interpolItem.reset(new coCheckboxMenuItem("Interpolation", false));
-    preintItem.reset(new coCheckboxMenuItem("Pre-integration", true));
-    lightingItem.reset(new coCheckboxMenuItem("Lighting", false));
+    preintItem.reset(new coCheckboxMenuItem("Pre-integration", preIntegration));
+    lightingItem.reset(new coCheckboxMenuItem("Lighting", lighting));
     colorsItem.reset(new coPotiMenuItem("Discrete Colors", 0.0, 32.0, 0, VolumeCoim.get(), "DISCRETE_COLORS"));
     hqItem.reset(new coSliderMenuItem("Oversampling", 1.0, MAX_QUALITY * 2., highQualityOversampling));
     allVolumesActiveItem.reset(new coCheckboxMenuItem("All Volumes Active", allVolumesActive));
@@ -547,7 +549,6 @@ bool VolumePlugin::init()
     clipSphereInteractorActive2Item->setMenuListener(this);
     clipSphereRadius2Item->setMenuListener(this);
     preintItem->setMenuListener(this);
-    preintItem->setState(false);
     lightingItem->setMenuListener(this);
     fpsItem->setMenuListener(this);
     hqItem->setMenuListener(this);

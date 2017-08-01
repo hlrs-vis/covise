@@ -14,24 +14,32 @@
  ** Description: SumoTraCI - Traffic Control Interface client                **
  ** for traffic simulations with Sumo software - http://sumo.dlr.de          **
  **                                                                          **
- **                                                                          **
- ** Author: Myriam Guedey	                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Feb-17  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 
-#include <osg/MatrixTransform>
+#include <osg/ShapeDrawable>
+#include <osg/PositionAttitudeTransform>
 
 #include <utils/traci/TraCIAPI.h>
 
 #include <vector>
+#include "Vehicle.h"
+#include "AgentVehicle.h"
+#include "CarGeometry.h"
+#include <net/tokenbuffer.h>
+#include <cover/coVRMSController.h>
 
 using namespace opencover;
+
+struct simData
+{
+    osg::Vec3d position;
+    double  angle;
+    std::string vehicleClass;
+    std::string vehicleType;
+    std::string vehicleID;
+};
 
 class SumoTraCI : public opencover::coVRPlugin
 {
@@ -44,26 +52,26 @@ public:
 
 private:
 	TraCIAPI client;
-	TraCIAPI::TraCIValues result;
-	TraCIAPI::TraCIValues nextResult;
 	TraCIAPI::SubscribedValues simResults;
+	std::vector<simData> currentResults;
+	std::vector<simData> previousResults;
 
 	osg::Group *vehicleGroup;
-	osg::Sphere *vehicleSphere;
-	osg::ref_ptr<osg::MatrixTransform> vehicleMatrixTransform;
-
-	double startTime;
+	std::string vehicleDirectory;
+	osg::ref_ptr<osg::PositionAttitudeTransform> vehiclePositionAttitudeTransform;
+	
+	double simTime;
+	double nextSimTime;
 	double currentTime;
-	double resultTime;
-	double nextResultTime;
+	std::vector<int> variables;
+	std::map<const std::string, AgentVehicle *> loadedVehicles;
 
-	void SumoTraCI::addVehicle();
-	void SumoTraCI::removeVehicle();
-	void SumoTraCI::subscribeToSimulation();
-	void SumoTraCI::updateVehiclePosition();
-	void SumoTraCI::updateVehiclePosition(double time);
-	double SumoTraCI::interpolateLinear(double start, double end, double fraction);
-	TraCIAPI::TraCIValues SumoTraCI::getSimulationResults(const std::string& objID);
-	TraCIAPI::SubscribedValues SumoTraCI::getSimulationResults();
+	void subscribeToSimulation();
+	void updateVehiclePosition();
+	AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+	void interpolateVehiclePosition();
+	osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
+void sendSimResults();
+void readSimResults();
 };
 #endif

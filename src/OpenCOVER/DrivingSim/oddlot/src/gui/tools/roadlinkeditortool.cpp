@@ -20,7 +20,6 @@
 
 #include "src/mainwindow.hpp"
 
-#include "ui_RoadLinkRibbon.h"
 
 // Qt //
 //
@@ -123,20 +122,20 @@ RoadLinkEditorTool::initToolWidget()
 
     ToolWidget *ribbonWidget = new ToolWidget();
     //ribbonWidget->
-    Ui::RoadLinkRibbon *ui = new Ui::RoadLinkRibbon();
+    ui = new Ui::RoadLinkRibbon();
     ui->setupUi(ribbonWidget);
     
     QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     ribbonToolGroup->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
     ribbonToolGroup->addButton(ui->roadLink, ODD::TRL_ROADLINK);
     ribbonToolGroup->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
     
-    connect(ui->thresholdSpinBox, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
+    connect(ui->thresholdSpinBox, SIGNAL(editingFinished()), this, SLOT(setRibbonThreshold()));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Road Link"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -159,6 +158,16 @@ RoadLinkEditorTool::activateEditor()
     delete action;
 }
 
+/*! \brief Gets called when this widget (tab) has been activated.
+*/
+void
+RoadLinkEditorTool::activateRibbonEditor()
+{
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_, ui->thresholdSpinBox->value());
+    emit toolAction(action);
+    delete action;
+}
+
 /*! \brief Gets called when a tool has been selected.
 */
 void
@@ -176,12 +185,39 @@ RoadLinkEditorTool::handleToolClick(int id)
 /*! \brief Gets called when a tool has been selected.
 */
 void
+RoadLinkEditorTool::handleRibbonToolClick(int id)
+{
+    toolId_ = (ODD::ToolId)id;
+
+    // Set a tool //
+    //
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_, ui->thresholdSpinBox->value());
+    emit toolAction(action);
+    delete action;
+}
+
+/*! \brief Gets called when a tool has been selected.
+*/
+void
 RoadLinkEditorTool::setThreshold()
 {
 
     // Set a tool //
     //
     RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(ODD::TRL_SELECT, thresholdEdit_->value());
+    emit toolAction(action);
+    delete action;
+}
+
+/*! \brief Gets called when a tool has been selected.
+*/
+void
+RoadLinkEditorTool::setRibbonThreshold()
+{
+
+    // Set a tool //
+    //
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(ODD::TRL_SELECT, ui->thresholdSpinBox->value());
     emit toolAction(action);
     delete action;
 }

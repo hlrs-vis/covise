@@ -106,7 +106,9 @@ coVRPluginList::~coVRPluginList()
 
 void coVRPluginList::unloadAllPlugins()
 {
-    if (cover->debugLevel(1))
+    bool havePlugins = !m_plugins.empty();
+
+    if (havePlugins && cover->debugLevel(1))
         cerr << "Unloading plugins:";
     bool wasThreading = VRViewer::instance()->areThreadsRunning();
     if (wasThreading)
@@ -125,7 +127,7 @@ void coVRPluginList::unloadAllPlugins()
     unloadQueued();
     if (wasThreading)
         VRViewer::instance()->startThreading();
-    if (cover->debugLevel(1))
+    if (havePlugins && cover->debugLevel(1))
         cerr << endl;
 }
 
@@ -330,7 +332,12 @@ void coVRPluginList::commitTimestep(int t, coVRPlugin *plugin)
     assert(m_requestedTimestep == t);
     assert(m_numOutstandingTimestepPlugins > 0);
     --m_numOutstandingTimestepPlugins;
-    if (m_numOutstandingTimestepPlugins == 0) {
+    if (m_numOutstandingTimestepPlugins < 0)
+    {
+        std::cerr << "coVRPluginList: plugin " << plugin->getName() << " overcommitted timestep " << t << std::endl;
+        m_numOutstandingTimestepPlugins = 0;
+    }
+    if (m_numOutstandingTimestepPlugins <= 0) {
         coVRAnimationManager::instance()->setAnimationFrame(t);
         m_requestedTimestep = -1;
     }

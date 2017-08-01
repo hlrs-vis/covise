@@ -8,6 +8,7 @@
 #include "coVRPlugin.h"
 #include "coVRPluginList.h"
 #include <cassert>
+#include <iostream>
 
 using namespace opencover;
 
@@ -32,6 +33,10 @@ void coVRPlugin::setName(const char *name)
 
 void coVRPlugin::commitTimestep(int t)
 {
+    if (m_outstandingTimestep != t)
+    {
+        std::cerr << "Plugin " << m_name << ": timestep " << t << " committed, but " << m_outstandingTimestep << " was outstanding" << std::endl;
+    }
     assert(m_outstandingTimestep == t);
     m_outstandingTimestep = -1;
     coVRPluginList::instance()->commitTimestep(t, this);

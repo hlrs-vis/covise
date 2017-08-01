@@ -18,6 +18,7 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <osg/Matrix>
+#include <osg/Vec3>
 #include <vector>
 #include <cover/coVRDynLib.h>
 
@@ -56,6 +57,16 @@ public:
     const std::string &getName() const{return m_name;};
     const osg::Matrix &getOffsetMat() const;
     void setOffsetMat(const osg::Matrix &m);
+
+
+	std::string &getCalibrationPointName(int i)
+	{
+		return m_calibrationPointNames[i];
+	}
+	osg::Vec3 &getCalibrationPoint(int i)
+	{
+		return m_calibrationPoints[i];
+	}
     
 
 protected:
@@ -69,12 +80,15 @@ protected:
     std::vector<std::pair<double, double> > m_valuatorRanges;
     std::vector<bool> m_bodyMatricesValid;
     std::vector<osg::Matrix> m_bodyMatrices;
+	osg::Vec3 m_calibrationPoints[3];
+	std::string m_calibrationPointNames[3];
 
     const std::string m_config; //< path to config values for this device
     std::string m_name;
     osg::Matrix m_offsetMatrix; //< system matrix
     bool m_isVarying; //< whether returned values can change
     bool m_is6Dof; //< whether matrices represent position and orientation
+	
 
     // these are called by Input
     size_t numButtons() const

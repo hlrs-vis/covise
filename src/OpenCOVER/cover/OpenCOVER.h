@@ -23,6 +23,10 @@
 #include <util/common.h>
 #include <OpenVRUI/coInteractionManager.h>
 
+#ifdef HAS_MPI
+#include <mpi.h>
+#endif
+
 namespace covise
 {
 class VRBClient;
@@ -58,12 +62,16 @@ private:
     bool m_forceMpi;
 
 public:
-    OpenCOVER(bool forceMpi);
+    OpenCOVER();
+#ifdef HAS_MPI
+    OpenCOVER(const MPI_Comm *comm);
+#endif
 #ifdef WIN32
     OpenCOVER(HWND parentWindow);
 #else
     OpenCOVER(int parentWindow);
 #endif
+    bool run();
     bool init();
     bool initDone();
     ~OpenCOVER();
@@ -93,6 +101,9 @@ public:
 
     static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
     coVRPlugin *visPlugin() const;
+#ifdef HAS_MPI
+    MPI_Comm m_comm;
+#endif
 };
 }
 #endif

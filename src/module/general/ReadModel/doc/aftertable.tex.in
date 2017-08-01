@@ -5,14 +5,18 @@
 %=============================================================
 % examples for using this module
 
-\begin{covimg2}	{}{ReadStlMap}{0.7}\end{covimg2}
+\begin{covimg2}	{}{rmRen}{0.7}\end{covimg2}
 
-The map above shows you how to connect the output ports of ReadStl without
-using normals (Renderer 1) and with using normals (Renderer 2).
+The map above shows you how to connect the output ports of ReadModule without
+using normals (OpenCOVER_1) and with using normals (OpenCOVER_3).
 
-The output shows Renderer 2:  
+Polygon output in OpenCOVER_1:  
 
-\begin{covimg2}	{}{ReadStlRenderer2}{0.6}\end{covimg2} 
+\begin{covimg2}	{}{spider1}{0.6}\end{covimg2} 
+
+Polygon and normal output in OpenCOVER_3:  
+
+\begin{covimg2}	{}{spider}{0.6}\end{covimg2} 
 
 %
 %

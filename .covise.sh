@@ -28,7 +28,9 @@ fi
 export COVISEDIR="`sh -f -c 'cd "$COVISEDIR" ; unset PWD; /bin/pwd'`"
 
 if [ ! -z "$COVISEDIR" ]; then
-    export COVISEDESTDIR=$COVISEDIR
+    if [ -z "$COVISEDESTDIR" ]; then
+        export COVISEDESTDIR=$COVISEDIR
+    fi
 fi
 
 if [ -r "$COVISEDIR"/scripts/covise-functions.sh ]; then

@@ -31,8 +31,18 @@
 #include <util/coviseCompat.h>
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
+#include <do/coDoRectilinearGrid.h>
+#include <do/coDoStructuredGrid.h>
+#include <do/coDoUniformGrid.h>
 #include <do/coDoData.h>
 #include <stdlib.h>
+
+enum Operations
+{
+    OpIdentity,
+    OpSqrt,
+    OpLog
+};
 
 // macros for error handling
 #define ERR0(cond, text, action)     \
@@ -179,12 +189,12 @@ void DisplaceUSG::preHandleObjects(coInputPort **inPorts)
 }
 
 DisplaceUSG::DisplaceUSG(int argc, char *argv[])
-    : coSimpleModule(argc, argv, "Displace USG")
+    : coSimpleModule(argc, argv, "Displace vertices of grids")
 {
-    inMeshPort = addInputPort("GridIn0", "UnstructuredGrid|Polygons|Lines", "Mesh Input");
+    inMeshPort = addInputPort("GridIn0", "UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons|Lines", "Mesh Input");
     inMeshPort->setRequired(1);
 
-    inDataPort = addInputPort("DataIn0", "Vec3", "Data Input");
+    inDataPort = addInputPort("DataIn0", "Float|Vec3", "Data Input");
     inDataPort->setRequired(1);
 
     paramScale = addFloatParam("scale", "Scaling factor");
@@ -192,7 +202,16 @@ DisplaceUSG::DisplaceUSG(int argc, char *argv[])
     paramAbsolute = addBooleanParam("absolute", "Absolute coordinates");
     paramAbsolute->setValue(false);
 
-    outMeshPort = addOutputPort("GridOut0", "UnstructuredGrid|Polygons|Lines", "Mesh Output");
+    const char *DirChoice[] = { "x-axis", "y-axis", "z-axis" };
+    p_direction = addChoiceParam("Direction", "displacement direction for Scalar data");
+    p_direction->setValue(3, DirChoice, 0);
+
+    // keep in sync with Operations enum
+    const char *OpChoice[] = { "Identity", "Square root", "Log" };
+    p_operation = addChoiceParam("Operation", "operation to apply to input data");
+    p_operation->setValue(3, OpChoice, 0);
+
+    outMeshPort = addOutputPort("GridOut0", "StructuredGrid|UnstructuredGrid|Polygons|Lines", "Mesh Output");
 
     run_count = 0;
 }
@@ -210,7 +229,10 @@ int DisplaceUSG::compute(const char *)
     }
     if (!dynamic_cast<const coDoUnstructuredGrid *>(mesh_obj)
         && !dynamic_cast<const coDoPolygons *>(mesh_obj)
-        && !dynamic_cast<const coDoLines *>(mesh_obj))
+        && !dynamic_cast<const coDoLines *>(mesh_obj)
+        && !dynamic_cast<const coDoUniformGrid *>(mesh_obj)
+        && !dynamic_cast<const coDoStructuredGrid *>(mesh_obj)
+        && !dynamic_cast<const coDoRectilinearGrid *>(mesh_obj))
     {
         sendError("Input grids may only be UNSGRD or POLYGN or LINES");
         return FAIL;
@@ -224,9 +246,9 @@ int DisplaceUSG::compute(const char *)
         Covise::sendError("Error receiving dataIn");
         return 0;
     }
-    if (!dynamic_cast<const coDoVec3 *>(data_obj))
+    if (!dynamic_cast<const coDoVec3 *>(data_obj) && !dynamic_cast<const coDoFloat *>(data_obj))
     {
-        sendError("Input data may only be USTVDT");
+        sendError("Input data may only be USTVDT or USTSDT");
         return FAIL;
     }
 
@@ -264,12 +286,10 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
     if (!m)
         return NULL;
 
-    int i;
-
-    int num_coord;
-    float *vert_x, *vert_y, *vert_z;
-    float *o_vert_x, *o_vert_y, *o_vert_z;
-    float *d_x, *d_y, *d_z;
+    int num_coord=0;
+    float *vert_x=NULL, *vert_y=NULL, *vert_z=NULL;
+    float *o_vert_x=NULL, *o_vert_y=NULL, *o_vert_z=NULL;
+    float *d_x=NULL, *d_y=NULL, *d_z=NULL;
 
     coDistributedObject *o_mesh = NULL;
 
@@ -277,11 +297,34 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
 
     const coDoPolygons *poly = dynamic_cast<const coDoPolygons *>(m);
     const coDoLines *lines = dynamic_cast<const coDoLines *>(m);
+    const coDoAbstractData *displ_data = dynamic_cast<const coDoAbstractData *>(d);
+    const coDoVec3 *displ_vec = dynamic_cast<const coDoVec3 *>(d);
+    const coDoFloat *displ_scal = dynamic_cast<const coDoFloat *>(d);
+
+    const int operation = p_operation->getValue();
+
+    ////////////////////////////////////////////////////////////////
+    /////// Get the data
+    if (displ_vec)
+    {
+        displ_vec->getAddresses(&d_x, &d_y, &d_z);
+        num_displ = displ_data->getNumPoints();
+    }
+    else if (displ_scal)
+    {
+        const int axis = p_direction->getValue();
+
+        if (axis == 0)
+            d_x = displ_scal->getAddress();
+        else if (axis == 1)
+            d_y = displ_scal->getAddress();
+        else if (axis == 2)
+            d_z = displ_scal->getAddress();
+        num_displ = displ_data->getNumPoints();
+    }
 
     if (const coDoUnstructuredGrid *mesh = dynamic_cast<const coDoUnstructuredGrid *>(m))
     {
-        const coDoVec3 *displ_data = (const coDoVec3 *)d;
-
         ////////////////////////////////////////////////////////////////
         /////// Get the mesh
 
@@ -291,10 +334,6 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         mesh->getAddresses(&elem_list, &conn_list, &vert_x, &vert_y, &vert_z);
         mesh->getTypeList(&type_list);
 
-        ////////////////////////////////////////////////////////////////
-        /////// Get the data
-        displ_data->getAddresses(&d_x, &d_y, &d_z);
-        num_displ = displ_data->getNumPoints();
 
         ////////////////////////////////////////////////////////////////
         //////// Check consistency
@@ -323,10 +362,70 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         memcpy(o_elem_list, elem_list, num_elem * sizeof(int));
         memcpy(o_conn_list, conn_list, num_conn * sizeof(int));
     }
+    else if (const coDoAbstractStructuredGrid *gr = dynamic_cast<const coDoAbstractStructuredGrid *>(m))
+    {
+        const coDoUniformGrid *uni = dynamic_cast<const coDoUniformGrid *>(m);
+        const coDoRectilinearGrid *rect = dynamic_cast<const coDoRectilinearGrid *>(m);
+        const coDoStructuredGrid *str = dynamic_cast<const coDoStructuredGrid *>(m);
+
+        int nx, ny, nz;
+        gr->getGridSize(&nx, &ny, &nz);
+        o_mesh = new coDoStructuredGrid(meshName, nx, ny, nz);
+        ((coDoStructuredGrid *)o_mesh)->getAddresses(&vert_x, &vert_y, &vert_z);
+        num_coord = nx*ny*nz;
+
+        if (uni)
+        {
+            float dx, dy, dz;
+            uni->getDelta(&dx, &dy, &dz);
+            float minX, maxX, minY, maxY, minZ, maxZ;
+            uni->getMinMax(&minX, &maxX, &minY, &maxY, &minZ, &maxZ);
+
+            for (int ix=0; ix<nx; ++ix)
+            {
+                for (int iy=0; iy<ny; ++iy)
+                {
+                    for (int iz=0; iz<nz; ++iz)
+                    {
+                        int idx = coIndex(ix, iy, iz, nx, ny, nz);
+                        vert_x[idx] = minX + ix*dx;
+                        vert_y[idx] = minY + iy*dy;
+                        vert_z[idx] = minZ + iz*dz;
+                    }
+                }
+            }
+            o_vert_x = vert_x;
+            o_vert_y = vert_y;
+            o_vert_z = vert_z;
+        }
+        else if (rect)
+        {
+            float *xc, *yc, *zc;
+            rect->getAddresses(&xc, &yc, &zc);
+            for (int ix=0; ix<nx; ++ix)
+            {
+                for (int iy=0; iy<ny; ++iy)
+                {
+                    for (int iz=0; iz<nz; ++iz)
+                    {
+                        int idx = coIndex(ix, iy, iz, nx, ny, nz);
+                        vert_x[idx] = xc[ix];
+                        vert_y[idx] = yc[iy];
+                        vert_z[idx] = zc[iz];
+                    }
+                }
+            }
+            o_vert_x = vert_x;
+            o_vert_y = vert_y;
+            o_vert_z = vert_z;
+        }
+        else if (str)
+        {
+            str->getAddresses(&o_vert_x, &o_vert_y, &o_vert_z);
+        }
+    }
     else if (poly || lines)
     {
-        coDoVec3 *displ_data = (coDoVec3 *)d;
-
         ////////////////////////////////////////////////////////////////
         /////// Get the mesh
 
@@ -341,11 +440,6 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         cl = NULL;
 
         poly ? poly->getAddresses(&vert_x, &vert_y, &vert_z, &cl, &pl) : lines->getAddresses(&vert_x, &vert_y, &vert_z, &cl, &pl);
-
-        ////////////////////////////////////////////////////////////////
-        /////// Get the data
-        displ_data->getAddresses(&d_x, &d_y, &d_z);
-        num_displ = displ_data->getNumPoints();
 
         ////////////////////////////////////////////////////////////////
         //////// Check consistency
@@ -382,29 +476,66 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
     {
         if (absolute)
         {
-            for (i = 0; i < num_coord; i++)
+            for (int i = 0; i < num_coord; i++)
             {
-                o_vert_x[i] = d_x[i];
-                o_vert_y[i] = d_y[i];
-                o_vert_z[i] = d_z[i];
+                float dx = d_x ? d_x[i] : 0.;
+                float dy = d_y ? d_y[i] : 0.;
+                float dz = d_z ? d_z[i] : 0.;
+                if (operation == OpLog)
+                {
+                    dx = log(dx);
+                    dy = log(dy);
+                    dz = log(dz);
+                }
+                else if (operation == OpSqrt)
+                {
+                    dx = sqrt(dx);
+                    dy = sqrt(dy);
+                    dz = sqrt(dz);
+                }
+                o_vert_x[i] = d_x ? dx : vert_x[i];
+                o_vert_y[i] = d_y ? dy : vert_y[i];
+                o_vert_z[i] = d_z ? dz : vert_z[i];
             }
         }
         else
         {
-            for (i = 0; i < num_coord; i++)
+            for (int i = 0; i < num_coord; i++)
             {
-                o_vert_x[i] = vert_x[i] + s * d_x[i];
-                o_vert_y[i] = vert_y[i] + s * d_y[i];
-                o_vert_z[i] = vert_z[i] + s * d_z[i];
+                float dx = d_x ? d_x[i] : 0.;
+                float dy = d_y ? d_y[i] : 0.;
+                float dz = d_z ? d_z[i] : 0.;
+                if (operation == OpLog)
+                {
+                    if (dx > 0.)
+                        dx = log(fabs(dx));
+                    if (dy > 0.)
+                        dy = log(fabs(dy));
+                    if (dz > 0.)
+                        dz = log(fabs(dz));
+                }
+                else if (operation == OpSqrt)
+                {
+                    dx = dx >= 0. ? sqrt(dx) : -sqrt(-dx);
+                    dy = dy >= 0. ? sqrt(dy) : -sqrt(-dy);
+                    dz = dz >= 0. ? sqrt(dz) : -sqrt(-dz);
+                }
+
+                o_vert_x[i] = vert_x[i] + s * dx;
+                o_vert_y[i] = vert_y[i] + s * dy;
+                o_vert_z[i] = vert_z[i] + s * dz;
             }
         }
     }
     else
     {
         sendWarning("No displacements available: returning input grid");
-        memcpy(o_vert_x, vert_x, num_coord * sizeof(float));
-        memcpy(o_vert_y, vert_y, num_coord * sizeof(float));
-        memcpy(o_vert_z, vert_z, num_coord * sizeof(float));
+        if (o_vert_x != vert_x)
+            memcpy(o_vert_x, vert_x, num_coord * sizeof(float));
+        if (o_vert_y != vert_y)
+            memcpy(o_vert_y, vert_y, num_coord * sizeof(float));
+        if (o_vert_z != vert_z)
+            memcpy(o_vert_z, vert_z, num_coord * sizeof(float));
     }
 
     return o_mesh;

@@ -127,6 +127,8 @@ public:
     //! called by plugin's commitTimestep method when timestep is prepared
     void commitTimestep(int t, coVRPlugin *caller);
 
+    void unloadAllPlugins();
+
 private:
     coVRPluginList();
     ~coVRPluginList();
@@ -137,7 +139,6 @@ private:
     //! unload all plugins queued for unloading
     void unloadQueued();
 
-    void unloadAllPlugins();
     //! try to load a plugin
     coVRPlugin *loadPlugin(const char *name);
 

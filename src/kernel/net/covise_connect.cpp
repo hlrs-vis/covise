@@ -440,7 +440,7 @@ const char *SimpleClientConnection::readLine()
         if (pos)
         {
             *pos = '\0';
-            int len = (pos - buffer) + 1;
+			size_t len = (pos - buffer) + 1;
             char *line = new char[len];
             strcpy(line, buffer);
             buflen -= len;

@@ -78,7 +78,7 @@ ScenerySystemItem::loadMap(const QString &filename, const QPointF &pos)
 //Exact same method as above, with the exception of this one shrinks the image (without losing detail) before
 //placing it on the scene
 void
-ScenerySystemItem::loadGoogleMap(const QString &filename, const QPointF &pos)
+ScenerySystemItem::loadGoogleMap(const QString &filename, double mapPosLat, double mapPosLon)
 {
     QPixmap pixmap(filename); // this pixmap is only temporary
     if (pixmap.isNull())
@@ -87,8 +87,25 @@ ScenerySystemItem::loadGoogleMap(const QString &filename, const QPointF &pos)
         return;
     }
     SceneryMap *map = new SceneryMap("map0", filename, pixmap.width()*.10, pixmap.height()*.10, SceneryMap::DMT_Aerial);
-    map->setX(pos.x());
-    map->setY(pos.y() - pixmap.height());
+    map->setX(mapPosLat);
+    map->setY(mapPosLon);
+
+    AddMapCommand *command = new AddMapCommand(scenerySystem_, map);
+    getProjectGraph()->executeCommand(command);
+}
+
+void
+ScenerySystemItem::loadBingMap(const QString &filename, double mapPosLat, double mapPosLon)
+{
+    QPixmap pixmap(filename); // this pixmap is only temporary
+    if (pixmap.isNull())
+    {
+        qDebug("ERROR 1006151345! Pixmap could not be loaded!");
+        return;
+    }
+    SceneryMap *map = new SceneryMap("map0", filename, pixmap.width()*.197, pixmap.height()*.197, SceneryMap::DMT_Aerial);
+    map->setX(mapPosLat);
+    map->setY(mapPosLon);
 
     AddMapCommand *command = new AddMapCommand(scenerySystem_, map);
     getProjectGraph()->executeCommand(command);

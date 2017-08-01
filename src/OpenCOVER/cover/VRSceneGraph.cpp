@@ -1582,8 +1582,7 @@ void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingS
     currentMatrix->makeTranslate(-(boundingSphere.center() * scaleFactor[0]));
     if (!resetView)
     {
-        osg::Quat rotation;
-        m_objectsTransform->getMatrix().get(rotation);
+        osg::Quat rotation = m_objectsTransform->getMatrix().getRotate();
         osg::Matrix rotMat;
         rotMat.makeRotate(rotation);
         currentMatrix->postMult(rotMat);

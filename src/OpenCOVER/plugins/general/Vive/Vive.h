@@ -114,6 +114,9 @@ private:
 	size_t maxBodyNumber;
 	size_t numControllers;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
+	bool haveTrackerOrigin;
+	osg::Matrix LighthouseMatrix;
+
 
 };
 #endif

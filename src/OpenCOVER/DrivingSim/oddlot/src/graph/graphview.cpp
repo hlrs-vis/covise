@@ -250,7 +250,7 @@ GraphView::toolAction(ToolAction *toolAction)
 
         if (id == ODD::TJE_CIRCLE)
         {
-            if ((doCircleSelect_ == CircleOff) && junctionEditorAction->isToggled())
+			if (doCircleSelect_ == CircleOff)
             {
                 doCircleSelect_ = CircleActive;
                 radius_ = junctionEditorAction->getThreshold();
@@ -262,17 +262,19 @@ GraphView::toolAction(ToolAction *toolAction)
                 circleItem_->setPen(pen);
                 scene()->addItem(circleItem_);
             }
-            else if ((circleItem_) && !junctionEditorAction->isToggled())
-            {
-                doCircleSelect_ = CircleOff;
-                scene()->removeItem(circleItem_);
-                delete circleItem_;
-            }
-        }
-        else if (id == ODD::TJE_THRESHOLD)
-        {
-            radius_ = junctionEditorAction->getThreshold();
-        }
+		}
+		else
+		{
+			if (id == ODD::TJE_THRESHOLD)
+			{
+				radius_ = junctionEditorAction->getThreshold();
+			}
+			else if (circleItem_)
+			{
+				deleteCircle();
+			}
+		}
+
     }
 
     // Shape Editing Tool //
@@ -303,6 +305,11 @@ GraphView::toolAction(ToolAction *toolAction)
         else if (id == MapTool::TMA_GOOGLE)
         {
             loadGoogleMap();
+            lockMap(false);
+        }
+        else if (id == MapTool::TMA_BING)
+        {
+            loadBingMap();
             lockMap(false);
         }
         else if (id == MapTool::TMA_DELETE)
@@ -639,7 +646,9 @@ GraphView::loadGoogleMap()
                     }
                 }
             }
-        }        
+        }
+
+        //system(qPrintable("echo Y converted to " + QString::number(yPosition) + " X converted to " + QString::number(xPosition) + " z converted to " + QString::number(zPosition)));
         double dlat = lat.toDouble();
         double dlon = lon.toDouble();
 
@@ -662,17 +671,12 @@ GraphView::loadGoogleMap()
         //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
         double xOffset = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
                 - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
-        double yOffset = .00172;
+        double yOffset = .00170;
         QString newLoc;
         double newLat;
         double newLon;
         QString filename;
-        double scale = this->getScale();
 
-
-        //zoom in to the default zoom, so that the map gets placed right
-        resetViewTransformation();
-        scaleView(1.0, 1.0);
 
         //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
         double xSize = sizeX.toDouble();
@@ -685,42 +689,330 @@ GraphView::loadGoogleMap()
 
         //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
         //Uses the previously determined offsets to change the center of each image
-        for (int i = -xSize/2; i < xSize/2; i++)
+        int i = 0;
+        int j = 0;
+        for (i = -xSize/2; i < xSize/2; i++)
         {
-            for (int j = -ySize/2; j < ySize/2; j++)
+            for (j = -ySize/2; j < ySize/2; j++)
             {
                 double latIterator = double(j);
                 double lonIterator = double(i);
                 newLat = dlat + -latIterator*xOffset;
                 newLon = dlon + lonIterator*yOffset;
-                newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
+                newLoc = QString::number(newLat, 'f', 7)+ "," + QString::number(newLon, 'f', 7);
                 system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
                 progress--;
-                system(qPrintable("pwd"));
-                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png ");
-                QString command = uploadPrefix + newFilename + uploadPrefix2 + newLoc + uploadPostfix;
+                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
+                QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
                 system(qPrintable(command));
+
+                double yPosition = (newLat) * DEG_TO_RAD;
+                double xPosition = (newLon) * DEG_TO_RAD;
+                double zPosition = 0.0;
+
+                ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
+
+                scenerySystemItem_->loadGoogleMap(newFilename, xPosition - 63 + i*1.75, yPosition - 65 + -j*1.65);
             }
         }      
-        //mnt/raid/tmp/unirundkurs
 
-        //oddlot Uni_V8f_OE.xodr
-        //Places the images on the scene
-        for (int i = -xSize/2; i < xSize/2; i++)
-        {
-            for (int j = -ySize/2; j < ySize/2; j++)
-            {
-                filename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
-                scenerySystemItem_->loadGoogleMap(filename, mapToScene(i*128+400, j*124-900));
-            }
-        }
         xmlFile.remove();
-        system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 10)));
-        system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 10)));
-        system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 10)));
+        system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 7)));
+        system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 7)));
+        system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 7)));
         directoryOperator.setCurrent("..");
         directoryOperator.setCurrent("..");
     }
+}
+void
+GraphView::loadBingMap()
+{
+    //Request XML with bounding box using:
+    //http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/47.619048,-122.35384/15?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm
+
+
+    QString location;
+    QString mapType;
+    QString sizePair;
+    QDir directoryOperator;
+    bool mapRejected = false;
+
+    //Sets up the UI
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Bing Map Config");
+    QFormLayout form(&dialog);
+    form.addRow(new QLabel("Please enter location, map type, and size"));
+
+    QList<QLineEdit *> fields;
+    QLineEdit *lineEdit1 = new QLineEdit(&dialog);
+    QString label = QString("Location (address or coordinates):");
+    form.addRow(label, lineEdit1);
+    fields << lineEdit1;
+
+    QLineEdit *lineEdit2 = new QLineEdit(&dialog);
+    QString label2 = QString("Map Type (satellite or roadmap):");
+    form.addRow(label2, lineEdit2);
+    lineEdit2->setText("satellite");
+    fields << lineEdit2;
+
+    QLineEdit *lineEdit3 = new QLineEdit(&dialog);
+    QString label3 = QString("Size (XcommaY):");
+    lineEdit3->setText("3,3");
+    form.addRow(label3, lineEdit3);
+    fields << lineEdit3;
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, &dialog);
+    form.addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+    if (dialog.exec() == QDialog::Accepted) {
+        location = lineEdit1->text();
+        mapType  = lineEdit2->text();
+        sizePair = lineEdit3->text();
+        }
+    else
+        mapRejected = true;
+
+    QStringList sizePairList = sizePair.split(",");
+    QString sizeX = sizePairList.value(0);
+    QString sizeY = sizePairList.value(1);
+
+    if(!mapRejected){
+
+        //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
+        //Bing's API to turn a location into a set of coordinates isn't as flexible as Google's, so we'll keep using Google's system for this part.
+        QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+
+        system(qPrintable(XMLlocationCommand));
+
+        QString lat;
+        QString lon;
+
+        QFile xmlFile("location.xml");
+        if(!xmlFile.open(QFile::ReadOnly | QFile::Text))
+            exit(0);
+
+        QXmlStreamReader xmlReader(&xmlFile);
+
+
+        //Finds latitude and longitude of the selected location by parsing downloaded XML document
+
+        if (xmlReader.readNextStartElement())
+        {
+            if(xmlReader.name() == "GeocodeResponse")
+            {
+                while(xmlReader.readNextStartElement())
+                {
+                    if(xmlReader.name() == "status")
+                    {
+                        xmlReader.skipCurrentElement();
+                    }
+                    else if(xmlReader.name() == "result")
+                    {
+                        while(xmlReader.readNextStartElement())
+                        {
+                            if(xmlReader.name() != "geometry")
+                            {
+                                xmlReader.skipCurrentElement();
+                            }
+                            else if (xmlReader.name() == "geometry")
+                                while(xmlReader.readNextStartElement())
+                                {
+                                    if(xmlReader.name() == "location"){
+                                        while(xmlReader.readNextStartElement())
+                                        {
+                                            if(xmlReader.name() == "lat"){
+                                                lat = xmlReader.readElementText();
+                                            }
+                                            if(xmlReader.name() == "lng"){
+                                                lon = xmlReader.readElementText();
+                                            }
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+        }
+
+        //system(qPrintable("echo Y converted to " + QString::number(yPosition) + " X converted to " + QString::number(xPosition) + " z converted to " + QString::number(zPosition)));
+
+        QString folderName = lat + lon + mapType + sizeX + sizeY;
+        directoryOperator.mkdir("OddlotMapImages");
+        directoryOperator.setCurrent("OddlotMapImages");
+        directoryOperator.mkdir(folderName);
+        directoryOperator.setCurrent(folderName);
+        //example format:
+        //wget -O 'http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial?mapArea=48.737,9.097,48.742,9.098&ms=2500,2500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'
+
+        QString XMLlocationCommandBing = "wget -O locationBing.xml 'http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'";
+
+        system(qPrintable(XMLlocationCommandBing));
+
+
+        //Here, we parse the XML file Bing's API gives us to find the bounding coordinates of the tile, so we can get the centers of our other tiles.
+
+        QFile xmlFileBing("locationBing.xml");
+        if(!xmlFileBing.open(QFile::ReadOnly | QFile::Text))
+            exit(0);
+
+        QString boundingSouth;
+        QString boundingWest;
+        QString boundingNorth;
+        QString boundingEast;
+
+        QXmlStreamReader xmlReaderBing(&xmlFileBing);
+
+        if (xmlReaderBing.readNextStartElement())
+        {
+            if(xmlReaderBing.name() == "Response")
+            {
+                while(xmlReaderBing.readNextStartElement())
+                {
+                    if(xmlReaderBing.name() != "ResourceSets")
+                    {
+                        xmlReaderBing.skipCurrentElement();
+                    }
+                    else
+                    {
+                        while(xmlReaderBing.readNextStartElement())
+                        {
+                            if(xmlReaderBing.name() != "ResourceSet")
+                            {
+                                xmlReaderBing.skipCurrentElement();
+                            }
+                            else
+                            {
+                                while(xmlReaderBing.readNextStartElement())
+                                {
+                                    if(xmlReaderBing.name() != "Resources")
+                                    {
+                                        xmlReaderBing.skipCurrentElement();
+                                    }
+                                    else
+                                    {
+                                        while(xmlReaderBing.readNextStartElement())
+                                        {
+                                            if(xmlReaderBing.name() == "StaticMapMetadata")
+                                            {
+                                                while(xmlReaderBing.readNextStartElement())
+                                                {
+                                                    if(xmlReaderBing.name() == "BoundingBox")
+                                                    {
+                                                        while(xmlReaderBing.readNextStartElement())
+                                                        {
+                                                            if(xmlReaderBing.name() == "SouthLatitude")
+                                                            {
+                                                                boundingSouth = xmlReaderBing.readElementText();
+                                                            }
+                                                            if(xmlReaderBing.name() == "WestLongitude")
+                                                            {
+                                                                boundingWest = xmlReaderBing.readElementText();
+                                                            }
+                                                            if(xmlReaderBing.name() == "NorthLatitude")
+                                                            {
+                                                                boundingNorth = xmlReaderBing.readElementText();
+                                                            }
+                                                            if(xmlReaderBing.name() == "EastLongitude")
+                                                            {
+                                                                boundingEast = xmlReaderBing.readElementText();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+
+                                        }
+
+                                    }
+                                }
+                            }
+                    }
+                }
+            }
+        }
+
+        double boundingSouthNum = boundingSouth.toDouble();
+        double boundingWestNum  = boundingWest.toDouble();
+        double boundingNorthNum = boundingNorth.toDouble();
+        double boundingEastNum  = boundingEast.toDouble();
+        /*
+         * TODO: calculate the absolute values of the numbers to figure out what quadrant of the world we're in. Important for size calculations.
+        if(boundingNorthNum > boundingSouthNum)
+        {
+
+        }
+
+        */
+
+
+        double NorthSouthSize = boundingNorthNum - boundingSouthNum;
+        double WestEastSize   = boundingEastNum  - boundingWestNum;
+
+        QString uploadPrefix = "wget -O ";
+        QString uploadPrefix2 ="'http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial/";
+        QString uploadPostfix = "/19?mapSize=1500,1500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'";
+
+
+
+        QString newLoc;
+        double newLat;
+        double newLon;
+        QString filename;
+
+
+        //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
+        //This should either be fixed later or some sort of notice should be given in the program that this is the minimum size.
+        double xSize = sizeX.toDouble();
+        if(xSize < 2)
+            xSize = 3;
+        double ySize = sizeY.toDouble();
+        if (ySize < 2)
+            ySize = 3;
+       int progress = xSize*ySize;
+
+        //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
+        //Uses the previously determined offsets to change the center of each image
+        int i = 0;
+        int j = 0;
+        for (i = -xSize/2; i < xSize/2; i++)
+        {
+            for (j = -ySize/2; j < ySize/2; j++)
+            {
+                double latIterator = double(j);
+                double lonIterator = double(i);
+                newLat = lat.toDouble() + -latIterator*NorthSouthSize;
+                newLon = lon.toDouble() + lonIterator*WestEastSize;
+                system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
+                newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
+                progress--;
+                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".jpg");
+                QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
+                system(qPrintable(command));
+
+                double yPosition = (newLat-NorthSouthSize/2) * DEG_TO_RAD;
+                double xPosition = (newLon-WestEastSize/2) * DEG_TO_RAD;
+                double zPosition = 0.0;
+
+                ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
+
+                scenerySystemItem_->loadBingMap(newFilename, xPosition, yPosition);
+            }
+        }
+        xmlFile.remove();
+        xmlFileBing.remove();
+
+        system(qPrintable("echo Latitude used: " + lat));
+        system(qPrintable("echo Longitude used: " + lon));
+        directoryOperator.setCurrent("..");
+        directoryOperator.setCurrent("..");
+    }
+}
 }
 
 /*! \brief .
@@ -838,10 +1130,6 @@ GraphView::mousePressEvent(QMouseEvent *event)
             scene()->setSelectionArea(circle);
         }
 
-        doCircleSelect_ = CircleOff;
-        scene()->removeItem(circleItem_);
-        delete circleItem_;
-        circleItem_ = NULL;
     }
     else if (doKeyPan_)
     {
@@ -1172,6 +1460,18 @@ void
 	else
 	{
 		QGraphicsView::contextMenuEvent(event);
+	}
+}
+
+void
+	GraphView::deleteCircle()
+{
+	if (circleItem_)
+	{
+		doCircleSelect_ = CircleOff;
+	    scene()->removeItem(circleItem_);
+        delete circleItem_;
+        circleItem_ = NULL;
 	}
 }
 

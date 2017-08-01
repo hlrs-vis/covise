@@ -927,7 +927,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     d_player = NULL;
 
-    if (cover->debugLevel(1))
+    if (cover->debugLevel(3))
         CERR << "d_player: " << d_player << endl;
 
     if (cover->debugLevel(5))
@@ -984,7 +984,7 @@ void ViewerOsg::removeMovieTexture()
     for (; it != moviePs.end(); it++)
     {
         movieImageData *movieProp = (*it);
-        movieProp->imageStream->unref();
+        //movieProp->imageStream->unref();
         delete movieProp;
     }
     moviePs.clear();
@@ -996,19 +996,18 @@ ViewerOsg::~ViewerOsg()
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::~ViewerOsg\n";
-    removeMovieTexture();
 
     viewer = NULL;
     delete d_root;
+    d_root = NULL;
+    removeMovieTexture();
     if (VRMLRoot->getNumParents() > 0 && VRMLRoot->getParent(0) != NULL)
         VRMLRoot->getParent(0)->removeChild(VRMLRoot);
-    if (globalmtl.get())
-    {
-        globalmtl->unref();
-    }
-    //VRMLRoot->unref();
+    VRMLRoot = NULL;
 
     cover->getScene()->removeChild(VRMLCaveRoot);
+    VRMLCaveRoot = NULL;
+
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::~ViewerOsg\n";
 }
@@ -2452,7 +2451,6 @@ void ViewerOsg::setDefaultMaterial(StateSet *geoState)
     if (globalmtl.get() == NULL)
     {
         globalmtl = new Material;
-        globalmtl->ref();
         globalmtl->setColorMode(Material::AMBIENT_AND_DIFFUSE);
         globalmtl->setAmbient(Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
         globalmtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
@@ -4906,7 +4904,7 @@ void ViewerOsg::insertCubeTextureReference(TextureObject t, int nc, int blendMod
 void ViewerOsg::removeCubeTextureObject(TextureObject)
 {
     if (cover->debugLevel(5))
-        cerr << "ViewerOsg::removeTextureObject" << endl;
+        cerr << "ViewerOsg::removeCubeTextureObject" << endl;
     //cerr << "t";
     cerr.flush();
 }

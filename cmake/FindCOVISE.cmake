@@ -515,6 +515,7 @@ ENDMACRO(USING_MESSAGE)
 MACRO(covise_create_using)
   getenv_path(EXTERNLIBS EXTERNLIBS)
   FIND_PROGRAM(GREP_EXECUTABLE grep PATHS ${EXTERNLIBS}/UnixUtils DOC "grep executable")
+  FIND_PROGRAM(FINDSTR_EXECUTABLE findstr DOC "findstr executable")
 
   file(GLOB USING_FILES "${COVISEDIR}/cmake/Using/Use*.cmake")
   if (USING_FILES)
@@ -522,10 +523,21 @@ MACRO(covise_create_using)
         #message("Using: including ${F}")
         include(${F})
      endforeach(F ${USING_FILES})
-     EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
-        COMMAND ${GREP_EXECUTABLE} "^MACRO"
-        OUTPUT_VARIABLE using_list)
-     #message("using_list")
+     if (GREP_EXECUTABLE)
+         EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
+             COMMAND ${GREP_EXECUTABLE} "^MACRO"
+             OUTPUT_VARIABLE using_list)
+         #message("using_list w/ grep")
+     elseif(FINDSTR_EXECUTABLE)
+         STRING(REPLACE "/" \\ USING_FILES "${USING_FILES}")
+         EXECUTE_PROCESS(
+             COMMAND cmd /c type ${USING_FILES}
+             COMMAND ${FINDSTR_EXECUTABLE} /R USE_
+             COMMAND ${FINDSTR_EXECUTABLE} /R "^MACRO"
+             OUTPUT_VARIABLE using_list
+             ERROR_VARIABLE using_list_err)
+         #message("using_list w/ findstr")
+     endif()
      #message("using_list ${using_list}")
   endif()
 

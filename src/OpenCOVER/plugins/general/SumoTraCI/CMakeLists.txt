@@ -1,7 +1,9 @@
-#cmake_minimum_required(VERSION 2.8)
+covise_find_package(V8)
+USING(XERCESC)
 
-set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
-#find_package(COVER REQUIRED)
+if (NOT V8_FOUND)
+    return()
+endif()
 
 set(HEADERS
   SumoTraCI.h
@@ -26,4 +28,14 @@ set(SOURCES
   utils/traci/TraCIAPI.cpp
 )
 
+INCLUDE_DIRECTORIES(
+   ../../../DrivingSim/VehicleUtil
+   ../../../DrivingSim/coTrafficSimulation
+   ${V8_INCLUDE_DIR}
+)
+
 cover_add_plugin(SumoTraCI ${HEADERS} ${SOURCES})
+
+target_link_libraries(SumoTraCI
+ ${EXTRA_LIBS}
+ coTrafficSimulation)

@@ -16,6 +16,7 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
+#include <sstream>
 #include <cassert>
 #include <limits>
 #include <osg/Matrix>
@@ -55,6 +56,17 @@ InputDevice::InputDevice(const std::string &config)
     rot[0] = coCoviseConfig::getFloat("h", configPath("Orientation"), 0);
     rot[1] = coCoviseConfig::getFloat("p", configPath("Orientation"), 0);
     rot[2] = coCoviseConfig::getFloat("r", configPath("Orientation"), 0);
+
+	for (int i = 0; i < 3; i++)
+	{
+        std::stringstream str;
+        str << "CallibrationPoint." << i;
+		std::string cPath = configPath(str.str());
+		m_calibrationPoints[i].x() = coCoviseConfig::getFloat("x", cPath, 0);
+		m_calibrationPoints[i].y() = coCoviseConfig::getFloat("y", cPath, 0);
+		m_calibrationPoints[i].z() = coCoviseConfig::getFloat("z", cPath, 0);
+		m_calibrationPointNames[i] = coCoviseConfig::getEntry("info", cPath, "noName");
+	}
 
     //cout<<" Offset=("<<trans[0]<<" "<<trans[1]<<" "<<trans[2]<<") " <<" Orientation=("<<rot[0]<<" "<<rot[1]<<" "<<rot[2]<<") "<<endl;
 

@@ -298,6 +298,7 @@ void FourWheelDynamicsRealtime::run()
         if (overruns != 0)
         {
             std::cerr << "FourWheelDynamicsRealtimeRealtime::run(): overruns: " << overruns << std::endl;
+            overruns = 0;
         }
         bool leftRoadOnce = false;
         if (oldleftRoad != leftRoad)
@@ -467,6 +468,33 @@ void FourWheelDynamicsRealtime::run()
             integrator.integrate(h);
         }
         current = 0.0;
+        if(pause || movingToGround || returningToAction)
+        {
+            float hr = -ValidateMotionPlatform::posMiddle+ motPlat->getPosition(0);
+            float hl = -ValidateMotionPlatform::posMiddle+ motPlat->getPosition(1);
+            float hh = -ValidateMotionPlatform::posMiddle+ motPlat->getPosition(2);
+            osg::Vec3 left(-ValidateMotionPlatform::sideMotDist,0,hl);
+            osg::Vec3 right(ValidateMotionPlatform::sideMotDist,0,hr);
+            osg::Vec3 rear(0,-ValidateMotionPlatform::rearMotDist,hh);
+            osg::Vec3 toRight = ((left - right)/2.0);
+            osg::Vec3 middle =  left + toRight;
+            osg::Vec3 toFront = rear - middle;
+            toRight.normalize();
+            toFront.normalize();
+            osg::Vec3 up = toRight ^ toFront;
+            osg::Vec3 y = toRight ^ up;
+            osg::Matrix m;
+            m.makeTranslate(middle);
+            m(0,0) = toRight[0];
+            m(1,0) = toRight[1];
+            m(2,0) = toRight[2];
+            m(0,1) = y[0];
+            m(1,1) = y[1];
+            m(2,1) = y[2];
+            m(0,2) = up[0];
+            m(1,2) = up[1];
+            m(2,2) = up[2];
+        }
         //Motion platform handling
         if (movingToGround)
         {

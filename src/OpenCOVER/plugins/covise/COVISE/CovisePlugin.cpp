@@ -39,6 +39,7 @@ using vrui::vruiButtons;
 
 CovisePlugin::CovisePlugin()
 {
+    setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
     new VRCoviseConnection();
 }

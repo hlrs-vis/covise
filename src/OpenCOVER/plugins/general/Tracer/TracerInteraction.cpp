@@ -11,8 +11,8 @@
 #include "TracerFreePoints.h"
 #include "TracerPlugin.h"
 #ifdef USE_COVISE
-#include "../../covise/COVISE/SmokeGeneratorSolutions.h"
-#include "alg/coUniTracer.h"
+#include <CovisePluginUtil/SmokeGeneratorSolutions.h>
+#include <alg/coUniTracer.h>
 #endif
 
 #include <OpenVRUI/coRowMenu.h>

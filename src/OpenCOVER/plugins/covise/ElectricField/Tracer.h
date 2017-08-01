@@ -18,7 +18,7 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <PluginUtil/GenericGuiObject.h>
 
-#include "../../covise/COVISE/SmokeGeneratorSolutions.h"
+#include <CovisePluginUtil/SmokeGeneratorSolutions.h>
 #include "../../general/Tracer/TracerPlane.h"
 
 using namespace opencover;

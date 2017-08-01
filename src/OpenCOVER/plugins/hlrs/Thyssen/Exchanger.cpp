@@ -41,7 +41,9 @@ VrmlNodeType *VrmlNodeExchanger::defineType(VrmlNodeType *t)
     
     t->addExposedField("LandingNumber", VrmlField::SFINT32);
     t->addEventOut("Fraction", VrmlField::SFFLOAT);
-    t->addEventOut("Rotation", VrmlField::SFROTATION);
+	t->addEventOut("Rotation", VrmlField::SFROTATION);
+	t->addEventOut("Unlock", VrmlField::SFTIME);
+	t->addEventOut("Lock", VrmlField::SFTIME);
 
     return t;
 }
@@ -137,21 +139,58 @@ void VrmlNodeExchanger::render(Viewer *)
 }
 void VrmlNodeExchanger::rotateLeft()
 {
-    if(angle !=0)
+    if(angle > 0.001 && rotatingState != UnlockL)
     {
-        rotatingState = RotatingLeft;
+        rotatingState = UnlockL;
+		lockStartTime = cover->frameTime();
+		double timeStamp = System::the->time();
+		d_lockTime.set(timeStamp);
+		eventOut(timeStamp, "Unlock", d_lockTime);
+		if (currentCar) 
+		{
+			currentCar->unlock();
+		}
     }
 }
 void VrmlNodeExchanger::rotateRight()
 {
-    if(angle != M_PI_2)
+    if(angle <= M_PI_2-0.001 && rotatingState != UnlockR)
     {
-        rotatingState = RotatingRight;
+		rotatingState = UnlockR;
+		lockStartTime = cover->frameTime();
+		double timeStamp = System::the->time();
+		d_lockTime.set(timeStamp);
+		eventOut(timeStamp, "Unlock", d_lockTime);
+		if (currentCar) 
+		{
+			currentCar->unlock();
+		}
     }
 }
 
 void VrmlNodeExchanger::update()
 {
+	if (rotatingState == UnlockL)
+	{
+		if (cover->frameTime() > lockStartTime + 2.5) // 1.3 + buffer
+		{
+			rotatingState = RotatingLeft;
+		}
+	}
+	if (rotatingState == UnlockR)
+	{
+		if (cover->frameTime() > lockStartTime + 2.5) // 1.3 + buffer
+		{
+			rotatingState = RotatingRight;
+		}
+	}
+	if (rotatingState == LockL || rotatingState == LockR)
+	{
+		if (cover->frameTime() > lockStartTime + 2.5) // 1.3 + buffer
+		{
+			rotatingState = Idle;
+		}
+	}
     if(rotatingState == RotatingLeft || rotatingState == RotatingRight)
     {
         float dt = cover->frameDuration();
@@ -165,9 +204,24 @@ void VrmlNodeExchanger::update()
             direction = 1;
             diff = M_PI_2 - angle;
             destinationAngle = M_PI_2;
-            if(angle == M_PI_2) // we are there
+            if(angle >= M_PI_2-0.0001) // we are there
             {
-                rotatingState = Idle;
+				angle = M_PI_2;
+				setAngle(angle);
+				if (currentCar) // the car might not be standing in the exchanger but outside and only occupied the exchanger so that noone else uses it thus check here whether we are actually standing at the right position
+				{
+					if ((currentCar->d_carPos.x() == elevator->stations[d_LandingNumber.get()].x()) && (currentCar->d_carPos.y() == elevator->stations[d_LandingNumber.get()].y()))
+						currentCar->setAngle(angle);
+				}
+                rotatingState = LockR;
+				lockStartTime = cover->frameTime();
+				double timeStamp = System::the->time();
+				d_lockTime.set(timeStamp);
+				eventOut(timeStamp, "Lock", d_lockTime);
+				if (currentCar)
+				{
+					currentCar->lock();
+				}
                 av=0;aa=0;
             }
         }
@@ -176,9 +230,24 @@ void VrmlNodeExchanger::update()
             direction = -1;
             diff = angle;
             destinationAngle = 0;
-            if(angle == 0) // we are there
+            if(angle <= 0.0001) // we are there
             {
-                rotatingState = Idle;
+				angle = 0;
+				setAngle(angle);
+				if (currentCar) // the car might not be standing in the exchanger but outside and only occupied the exchanger so that noone else uses it thus check here whether we are actually standing at the right position
+				{
+					if ((currentCar->d_carPos.x() == elevator->stations[d_LandingNumber.get()].x()) && (currentCar->d_carPos.y() == elevator->stations[d_LandingNumber.get()].y()))
+						currentCar->setAngle(angle);
+				}
+                rotatingState = LockL;
+				lockStartTime = cover->frameTime();
+				double timeStamp = System::the->time();
+				d_lockTime.set(timeStamp);
+				eventOut(timeStamp, "Lock", d_lockTime);
+				if (currentCar)
+				{
+					currentCar->lock();
+				}
                 av=0;aa=0;
             }
         }

@@ -72,6 +72,7 @@ if /I "%BASEARCHSUFFIX%" EQU "yoroo"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "berrenda"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "uwp"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
 echo ARCHSUFFIX %ARCHSUFFIX% is not supported!
 echo common.bat [ARCHSUFFIX]
@@ -91,6 +92,7 @@ if exist "%COVISEDIR%"\mysetenv.bat (
    call "%COVISEDIR%"\mysetenv.bat
    echo mysetenv.bat was included
 )
+
 
 
 rem   start microsoft development environment
@@ -121,9 +123,21 @@ if "%BASEARCHSUFFIX%" EQU "win32" (
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
 ) else if "%BASEARCHSUFFIX%" EQU "zebu" (
+   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+    
+    if NOT defined VS150COMNTOOLS% (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
+	)
+) else if "%BASEARCHSUFFIX%" EQU "uwp" (
+   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+    
+    if NOT defined VS150COMNTOOLS% (
+    cd /d "%VS140COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+	)
 ) else if "%BASEARCHSUFFIX%" EQU "berrenda" (
 if defined VS110COMNTOOLS  (
     cd /d "%VS110COMNTOOLS%"\..\..\vc

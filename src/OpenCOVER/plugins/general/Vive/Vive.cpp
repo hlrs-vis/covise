@@ -57,6 +57,8 @@ Vive::Vive()
 	: InputDevice("COVER.Input.Device.Vive")
 {
 	Input::instance()->addDevice("Vive", this);
+	haveTrackerOrigin = false;
+	LighthouseMatrix.makeIdentity();
 }
 
 bool Vive::needsThread() const
@@ -187,7 +189,13 @@ void Vive::preFrame()
 			m_bodyMatrices[nDevice](3, 0) *= 1000;
 			m_bodyMatrices[nDevice](3, 1) *= 1000;
 			m_bodyMatrices[nDevice](3, 2) *= 1000;
+			m_bodyMatrices[nDevice] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
 		}
+	}
+	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T'))
+	{
+		haveTrackerOrigin = true;
+		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
 	}
 	m_mutex.unlock();
 }

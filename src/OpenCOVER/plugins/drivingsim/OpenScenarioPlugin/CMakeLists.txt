@@ -38,54 +38,12 @@ set(SOURCES
   Trajectory.cpp
 )
 
-SET(TS_HEADERS
-  ../TrafficSimulation/Vehicle.h
-  ../TrafficSimulation/DonkeyCar.h
-  ../TrafficSimulation/VehicleGeometry.h
-  ../TrafficSimulation/CarGeometry.h
-  ../TrafficSimulation/VehicleManager.h
-  ../TrafficSimulation/VehicleFactory.h
-  ../TrafficSimulation/HumanVehicle.h
-  ../TrafficSimulation/HumanVehicleGeometry.h
-  ../TrafficSimulation/AgentVehicle.h
-  ../TrafficSimulation/VehicleUtils.h
-  ../TrafficSimulation/mtrand.h
-  ../TrafficSimulation/projects/radarcones.hpp
-  ../TrafficSimulation/PorscheFFZ.h
-  ../TrafficSimulation/UDPBroadcast.h
-  ../TrafficSimulation/PedestrianManager.h
-  ../TrafficSimulation/Pedestrian.h
-  ../TrafficSimulation/PedestrianGeometry.h
-  ../TrafficSimulation/PedestrianFactory.h
-  ../TrafficSimulation/TrafficSimulation.h
-)
-SET(TS_SOURCES
-  ../TrafficSimulation/Vehicle.cpp
-  ../TrafficSimulation/DonkeyCar.cpp
-  ../TrafficSimulation/CarGeometry.cpp
-  ../TrafficSimulation/VehicleManager.cpp
-  ../TrafficSimulation/VehicleFactory.cpp
-  ../TrafficSimulation/HumanVehicle.cpp
-  ../TrafficSimulation/HumanVehicleGeometry.cpp
-  ../TrafficSimulation/AgentVehicle.cpp
-  ../TrafficSimulation/VehicleUtils.cpp
-  ../TrafficSimulation/mtrand.cpp
-  ../TrafficSimulation/projects/radarcones.cpp
-  ../TrafficSimulation/PorscheFFZ.cpp
-  ../TrafficSimulation/UDPBroadcast.cpp
-  ../TrafficSimulation/PedestrianManager.cpp
-  ../TrafficSimulation/Pedestrian.cpp
-  ../TrafficSimulation/PedestrianGeometry.cpp
-  ../TrafficSimulation/PedestrianFactory.cpp
-  ../TrafficSimulation/TrafficSimulation.cpp
-)
-
 
 INCLUDE_DIRECTORIES(
    ../../../DrivingSim/VehicleUtil
-   ../TrafficSimulation
+   ../../../DrivingSim/coTrafficSimulation
    ${OSGTERRAIN_INCLUDE_DIR}
    ${V8_INCLUDE_DIR}
 )
 # build the plugin "OpenScenarioPlugin" from the ingredients listed in HEADERS and SOURCES
-cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${TS_HEADERS} ${TS_SOURCES} coOpenVehicleUtil coOpenScenario ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)
+cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} coOpenVehicleUtil coTrafficSimulation coOpenScenario ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)

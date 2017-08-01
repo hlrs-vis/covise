@@ -1370,7 +1370,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 {
     // Check for validity //
     //
-    if (!road || maps.isEmpty() || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected()) || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
@@ -1487,7 +1487,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 
     // Cubic approximation //
     //
-    if (useCubic_)
+    if (useCubic_ && pointCount>0)
     {
         // Calculate Slopes //
         //
@@ -1567,7 +1567,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 
     // Linear approximation //
     //
-    else
+    else if(pointCount > 0)
     {
         // Create Sections //
         //

@@ -66,6 +66,10 @@ MapTool::MapTool(ToolManager *toolManager)
     loadGoogleAction_->setStatusTip(tr("Load a Google Maps image from the selected location."));
     connect(loadGoogleAction_, SIGNAL(triggered()), this, SLOT(loadGoogleMap()));
 
+    loadBingAction_ = new QAction(tr("Load &Bing Map"), this);
+    loadBingAction_->setStatusTip(tr("Load a Bing Maps image from the selected location."));
+    connect(loadBingAction_, SIGNAL(triggered()), this, SLOT(loadBingMap()));
+
     deleteMapAction_ = new QAction(tr("&Delete Map"), this);
     deleteMapAction_->setStatusTip(tr("Delete the selected background images."));
     connect(deleteMapAction_, SIGNAL(triggered()), this, SLOT(deleteMap()));
@@ -123,6 +127,7 @@ MapTool::MapTool(ToolManager *toolManager)
     mapToolBar->addWidget(opacityComboBox_);
     mapToolBar->addAction(loadMapAction_);
     mapToolBar->addAction(loadGoogleAction_);
+    mapToolBar->addAction(loadBingAction_);
     mapToolBar->addAction(deleteMapAction_);
     mapToolBar->addAction(lockMapAction_);
     //	mapToolBar->addWidget(xLabel);
@@ -145,6 +150,7 @@ MapTool::MapTool(ToolManager *toolManager)
     QMenu *mapMenu = new QMenu("Background Images", viewMenu);
     mapMenu->addAction(loadMapAction_);
     mapMenu->addAction(loadGoogleAction_);
+    mapMenu->addAction(loadBingAction_);
     mapMenu->addAction(deleteMapAction_);
     mapMenu->addAction(lockMapAction_);
 
@@ -170,6 +176,7 @@ MapTool::activateProject(bool active)
     deleteMapAction_->setEnabled(active_);
     lockMapAction_->setEnabled(active_);
     loadGoogleAction_->setEnabled(active_);
+    loadBingAction_->setEnabled(active_);
     //	xLineEdit_->setEnabled(active_);
     //	yLineEdit_->setEnabled(active_);
     //	widthLineEdit_->setEnabled(active_);
@@ -210,6 +217,17 @@ MapTool::loadGoogleMap()
     emit toolAction(action);
     delete action;
 }
+
+/*!
+*/
+void
+MapTool::loadBingMap()
+{
+    MapToolAction *action = new MapToolAction(MapTool::TMA_BING);
+    emit toolAction(action);
+    delete action;
+}
+
 
 /*!
 */

@@ -1206,9 +1206,11 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
     }
 
     else if (getCurrentTool() == ODD::TJE_CIRCLE)
-    {
+	{
+
         if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
         {
+
             if (mouseAction->getEvent()->button() == Qt::LeftButton)
             {
                 // Find selected roads
@@ -1998,9 +2000,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                     getProjectData()->getUndoStack()->endMacro();
                 }
             }
-        }
-        ToolAction *action = new ToolAction(ODD::EJE, ODD::TJE_SELECT);
-        toolAction(action);
+	   }
     }
 
     //	ProjectEditor::mouseAction(mouseAction);
@@ -2396,6 +2396,8 @@ JunctionEditor::kill()
 
     delete laneRoadSystemItem_;
     laneRoadSystemItem_ = NULL;
+
+	getTopviewGraph()->getView()->deleteCircle();
 }
 
 //################//

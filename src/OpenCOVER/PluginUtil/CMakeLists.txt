@@ -31,12 +31,12 @@ SET(PLUGINUTIL_HEADERS
   FileReference.h
   SimReference.h
   coInstanceRenderer.h
-  coBaseCoviseInteractor.h
   coSphere.h
   ProgramCache.h
   coLOD.h
   coSensor.h
   GenericGuiObject.h
+  MultiChannelDrawer.h
 )
 
 SET(SOURCES
@@ -57,12 +57,12 @@ SET(SOURCES
   FileReference.cpp
   SimReference.cpp
   coInstanceRenderer.cpp
-  coBaseCoviseInteractor.cpp
   coSphere.cpp
   ProgramCache.cpp
   coLOD.cpp
   coSensor.cpp
   GenericGuiObject.cpp
+  MultiChannelDrawer.cpp
 )
 
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )

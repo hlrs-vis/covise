@@ -425,7 +425,7 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         delete newNodes;
 
         // Look for '#Viewpoint' syntax
-        if (sourceUrl->urlModifier())
+        if (sourceUrl->urlModifier() && *sourceUrl->urlModifier())
         {
             VrmlNode *vp = d_namespace->findNode(sourceUrl->urlModifier() + 1);
             double timeNow = System::the->time();
@@ -467,10 +467,12 @@ VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
 // yacc globals
 
 #define yyin lexerin
+#define yyrestart lexerrestart
 #define yyparse parserparse
 extern void yystring(char *);
 extern void yyfunction(int (*)(char *, int));
 extern int yyparse();
+extern void yyrestart(FILE *input_file);
 
 extern FILE *yyin;
 extern VrmlNamespace *yyNodeTypes;
@@ -646,6 +648,11 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             //char *tmp = (char *)malloc(12);
             //free(tmp);
             fflush(stderr);
+#if HAVE_LIBPNG
+            yyrestart(NULL);
+#else
+            yyrestart(YYIN);
+#endif
             yyparse();
             //fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
 
@@ -661,6 +668,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             tryUrl->fclose();
 #endif
         }
+        YYIN = 0;
     }
 
     return result;

@@ -19,6 +19,10 @@
  **********************************************************************/
 
 #include "TUIParam.h"
+#include "BufferedStream.h"
+
+ //#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#define MAXSTREAMDECL BufferedStream
 
 #ifndef __TabletUI__H__
 

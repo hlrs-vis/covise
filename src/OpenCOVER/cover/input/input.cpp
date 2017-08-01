@@ -82,7 +82,7 @@ int Input::getDebug()
 
 bool Input::debug(DebugBits facility)
 {
-    return Input::instance()->getDebug() & facility;
+    return (Input::instance()->getDebug() & facility)!=0;
 }
 
 coMousePointer *Input::mouse() const
