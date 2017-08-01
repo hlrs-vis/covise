@@ -471,7 +471,8 @@ void ValidateMotionPlatform::run()
     runTask = true;
     while (runTask)
     {
-        //Send mutex locking
+        //std::cout << "mot plat run task" << std::endl;
+		//Send mutex locking
         sendMutex.acquire(100000);
         //Sending control data
         if (sendControlFrame)
@@ -543,6 +544,7 @@ void ValidateMotionPlatform::run()
         if (overruns > 0)
         {
             std::cerr << "ValidateMotionPlatform::run(): overruns: " << overruns << std::endl;
+			overruns = 0;
         }
         rt_task_wait_period(&overruns);
     }
