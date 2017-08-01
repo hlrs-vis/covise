@@ -348,6 +348,8 @@ void XenomaiSteeringWheelHomingTask::run()
 XenomaiSteeringWheel::XenomaiSteeringWheel(CanOpenController &con, uint8_t id)
     : CanOpenDevice(con, id)
     , XenomaiTask("XenomaiSteeringWheel")
+	, currentMutex("xsw_current_mutex")
+	, positionMutex("xsw_positioni_mutex")
     , runTask(true)
     , taskFinished(false)
     , overruns(0)
@@ -360,6 +362,7 @@ XenomaiSteeringWheel::XenomaiSteeringWheel(CanOpenController &con, uint8_t id)
     , Kdrill(0.005)
     , drillElasticity(0.0)
 {
+	
 }
 
 XenomaiSteeringWheel::~XenomaiSteeringWheel()
@@ -460,7 +463,7 @@ void XenomaiSteeringWheel::run()
     uint8_t RPDOData[6] = { 0x1f, 0, 0, 0, 0, 0 }; //enable op
     writeRPDO(1, RPDOData, 6);
 
-    //unsigned int count = 0;
+    unsigned int count = 0;
     std::deque<int32_t> speedDeque(50, 0);
     std::deque<int32_t>::iterator speedDequeIt;
     int32_t speed = 0;
@@ -468,36 +471,75 @@ void XenomaiSteeringWheel::run()
 
     while (runTask)
     {
-        controller->sendSync();
+        //std::cout << "xenomai wheel run task is running" << std::cout;
+		if (overruns != 0)
+		{
+			std::cerr << "FourWheelDynamicsRealtimeRealtime::run(): overruns: " << overruns << std::endl;
+			overruns=0;
+		}
+		
+		
+		controller->sendSync();
         controller->recvPDO(1);
-
-        uint8_t *TPDOData = readTPDO(1);
-        memcpy(&position, TPDOData, 4);
+		
+		
+        
+		uint8_t *TPDOData = readTPDO(1);
+        
+		positionMutex.acquire(1000000);
+		memcpy(&position, TPDOData, 4);
+		positionMutex.release();
+		
         memcpy(&speed, TPDOData + 4, 3);
         *(((uint8_t *)&speed) + 3) = (*(((uint8_t *)&speed) + 2) & 0x80) ? 0xff : 0x0;
-        speedDeque.pop_front();
-        speedDeque.push_back(speed);
-        lowPassSpeed = 0;
-        for (speedDequeIt = speedDeque.begin(); speedDequeIt != speedDeque.end(); ++speedDequeIt)
-        {
-            lowPassSpeed += (*speedDequeIt);
-        }
-        lowPassSpeed = (double)lowPassSpeed / (double)speedDeque.size();
+        
+		
+		bool useSpringDamper =  false;
+		
+		int32_t springDamperCurrent = 0;
+		
+		if(useSpringDamper)
+		{
+			speedDeque.pop_front();
+			speedDeque.push_back(speed);
+			lowPassSpeed = 0;
+			for (speedDequeIt = speedDeque.begin(); speedDequeIt != speedDeque.end(); ++speedDequeIt)
+			{
+				lowPassSpeed += (*speedDequeIt);
+			}
+			lowPassSpeed = (double)lowPassSpeed / (double)speedDeque.size();
+			
+			springDamperCurrent = (int32_t)(-Kwheel * drillElasticity * (double)position - Dwheel * lowPassSpeed); //Spring-Damping-Model
 
-        int32_t current = (int32_t)(-Kwheel * drillElasticity * (double)position - Dwheel * lowPassSpeed); //Spring-Damping-Model
+			springDamperCurrent += (int32_t)(((rand() / ((double)RAND_MAX)) - 0.5) * rumbleAmplitude); //Rumbling
 
-        current += (int32_t)(((rand() / ((double)RAND_MAX)) - 0.5) * rumbleAmplitude); //Rumbling
-
-        double drillRigidness = 1.0 - drillElasticity;
-        if ((driftPosition - position) > 100000 * drillRigidness)
-            driftPosition = position + (int32_t)(100000 * drillRigidness);
-        else if ((driftPosition - position) < -100000 * drillRigidness)
-            driftPosition = position - (int32_t)(100000 * drillRigidness);
-        current += (int32_t)((double)(driftPosition - position) * Kdrill);
-        //std::cerr << "drift position - position: " << (int32_t)((double)(driftPosition-position)*0.005) << ", drill current: " << (int32_t)((double)(driftPosition-position)*Kdrill) << ", Kdrill: " << Kdrill << std::endl;
-
-        *((int32_t *)(RPDOData + 2)) = (current > peakCurrent) ? peakCurrent : current;
-        writeRPDO(1, RPDOData, 6);
+			double drillRigidness = 1.0 - drillElasticity;
+			if ((driftPosition - position) > 100000 * drillRigidness)
+				driftPosition = position + (int32_t)(100000 * drillRigidness);
+			else if ((driftPosition - position) < -100000 * drillRigidness)
+				driftPosition = position - (int32_t)(100000 * drillRigidness);
+			springDamperCurrent += (int32_t)((double)(driftPosition - position) * Kdrill);
+			//std::cerr << "drift position - position: " << (int32_t)((double)(driftPosition-position)*0.005) << ", drill current: " << (int32_t)((double)(driftPosition-position)*Kdrill) << ", Kdrill: " << Kdrill << std::endl;
+		}
+		
+		
+		if(useSpringDamper)
+		{
+			current = springDamperCurrent;
+		}
+		if (current > peakCurrent)
+		{
+			current = peakCurrent;
+		}
+		else if (current < -peakCurrent)
+		{
+			current = -peakCurrent;
+		}
+		currentMutex.acquire(1000000);
+		*((int32_t *)(RPDOData + 2)) = current;
+		writeRPDO(1, RPDOData, 6);
+		currentMutex.release();
+		
         controller->sendPDO();
 
         //std::cerr << std::dec << "count: " << count << ", overruns: " << overruns << ", position: " << position << ", speed: " << speed << ", low pass speed: " << lowPassSpeed << ", deque size: " << speedDeque.size() << ", setpoint: " << *((int32_t*)(RPDOData+2)) << std::endl;
@@ -613,6 +655,8 @@ void XenomaiSteeringWheel::init()
     RPDOData[3] = 0;
     RPDOData[4] = 0;
     RPDOData[5] = 0;
+	
+	start();
 }
 
 void XenomaiSteeringWheel::shutdown()
