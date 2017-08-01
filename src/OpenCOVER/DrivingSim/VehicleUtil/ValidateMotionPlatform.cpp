@@ -544,7 +544,11 @@ void ValidateMotionPlatform::run()
         if (overruns > 0)
         {
             std::cerr << "ValidateMotionPlatform::run(): overruns: " << overruns << std::endl;
+<<<<<<< HEAD
 			overruns = 0;
+=======
+            overruns =0;
+>>>>>>> 71d96d9f8d0ccfed842e4f29279452bdd3fcad32
         }
         rt_task_wait_period(&overruns);
     }
