@@ -159,20 +159,20 @@ coDistributedObject *TriArea::tri_area(const coDistributedObject *mesh_in, float
                     float viewAngle[3];
                     for (int c=0; c<3; c++)
                     {
-                    viewAngle[c]=center[c]-cameraPosition[c];
+                        viewAngle[c]=center[c]-cameraPosition[c];
                     }
                     Normalise(xpr);
                     Normalise(viewAngle);
                     dotprod(xpr,viewAngle,&l2);
                 }
+                *TA = l2 ;
+                if (l2 != 0.0)
+                {
+                    break;
+                }
             }
-            *TA = l2 ;
-            if (l2 != 0.0)
-            {
-                break;
-            }
+            TA++;
         }
-        TA++;
         delete[] F_Normals_U;
         delete[] F_Normals_V;
         delete[] F_Normals_W;
