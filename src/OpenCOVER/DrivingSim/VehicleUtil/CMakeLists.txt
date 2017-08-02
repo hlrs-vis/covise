@@ -83,6 +83,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
    KLSM.h
    Klima.h
    LinearMotorControlTask.h
+   RoadPointFinder.h
    Seat.h
    ValidateMotionPlatform.h
    VehicleUtil.h
@@ -111,6 +112,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
    Klima.cpp
    LinearMotorControlTask.cpp
    Seat.cpp
+   RoadPointFinder.cpp
    ValidateMotionPlatform.cpp
    VehicleUtil.cpp
    XenomaiSteeringWheel.cpp
