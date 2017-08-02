@@ -370,6 +370,9 @@ on windows open the visual studio project and add enc/backward_references_cost_e
 Build debug and release
 
 
+########
+#gmsh
+for linking OCC set CASROOT
 
 
 
