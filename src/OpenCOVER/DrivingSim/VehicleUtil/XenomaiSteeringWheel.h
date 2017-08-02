@@ -76,11 +76,6 @@ public:
     static const int32_t peakCurrent = 1640;
     //static const int32_t peakCurrent = 40;
 	
-	/*XenomaiMutex &getSteeringSendMutex()
-    {
-        return steeringSendMutex;
-    }*/
-
 protected:
     void run();
     bool runTask;
@@ -113,12 +108,7 @@ inline unsigned long XenomaiSteeringWheel::getPeriodicTaskOverruns()
 
 inline double XenomaiSteeringWheel::getPosition()
 {
-    /*int32_t position;
-    uint8_t *TPDOData = readTPDO(1);
-    memcpy(&position, TPDOData, 4);*/
-	
-	//do mutex thing here
-	positionMutex.acquire(1000000);
+    positionMutex.acquire(1000000);
 	double steerPos =  (double)position / (double)countsPerTurn;
 	positionMutex.release();
 	
