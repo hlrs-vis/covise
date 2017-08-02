@@ -378,7 +378,7 @@ bool VolumePlugin::init()
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
 
-    tfeBackgroundTexture = new uchar[TEXTURE_RES_BACKGROUND * TEXTURE_RES_BACKGROUND * 4];
+    tfeBackgroundTexture.resize(TEXTURE_RES_BACKGROUND * TEXTURE_RES_BACKGROUND * 4);
 
     currentVolume = volumes.end();
 
@@ -1774,8 +1774,8 @@ void VolumePlugin::updateTFEData()
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, tfeBackgroundTexture, vvVolDesc::VV_LINEAR, &fg, 0., 1.);
-                        editor->updateBackground(tfeBackgroundTexture);
+                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LINEAR, &fg, 0., 1.);
+                        editor->updateBackground(&tfeBackgroundTexture[0]);
                     }
 
                     editor->setNumChannels(vd->chan);

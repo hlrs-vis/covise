@@ -240,7 +240,7 @@ private:
     VolumeMap::iterator currentVolume;
     vvVolDesc *volDesc;
     bool reenableCulling;
-    uchar *tfeBackgroundTexture;
+    std::vector<uchar> tfeBackgroundTexture;
     void makeVolumeCurrent(VolumeMap::iterator vol);
 
     static void applyDefaultTransferFunction(void *userData);
