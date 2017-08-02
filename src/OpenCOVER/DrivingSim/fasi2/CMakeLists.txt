@@ -21,7 +21,6 @@ SET(HEADERS
   FWDState.h
   FWDPositionState.h
   FWDAccelerationState.h
-  SteerCom.h
 )
 SET(SOURCES
   fasi2.cpp
@@ -31,7 +30,6 @@ SET(SOURCES
   FWDCarState.cpp
   FWDPositionState.cpp
   FWDAccelerationState.cpp
-  SteerCom.cpp
 )
 
 
