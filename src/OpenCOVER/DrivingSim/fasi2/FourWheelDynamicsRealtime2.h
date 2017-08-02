@@ -11,7 +11,6 @@
 #include "FWDCarState.h"
 #include "FWDState.h"
 #include "FWDIntegrator.h"
-#include "SteerCom.h"
 #include "../VehicleUtil/gealg/CarDynamics.h"
 #include "XenomaiTask.h"
 #include "ValidateMotionPlatform.h"
