@@ -78,6 +78,8 @@ TrafficSimulationPlugin::~TrafficSimulationPlugin()
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
     //coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
+
+	coTrafficSimulation::freeInstance();
 }
 
 
@@ -101,6 +103,7 @@ bool TrafficSimulationPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     //coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     cover->setScale(1000);
+	coTrafficSimulation::useInstance();
 
     pluginTab = new coTUITab("Traffic Simulation", coVRTui::instance()->mainFolder->getID());
     pluginTab->setPos(0, 0);

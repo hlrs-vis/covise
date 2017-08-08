@@ -98,6 +98,8 @@ public:
     static int maxVehicles;
 
 	static coTrafficSimulation *instance();
+	static void useInstance();
+	static void freeInstance();
 
 	xercesc::DOMElement *getOpenDriveRootElement(std::string);
 
@@ -121,6 +123,7 @@ private:
     //osg::Group* roadGroup;
 
 	static coTrafficSimulation *myInstance;
+	static int numInstances;
 
 
     // operator map //

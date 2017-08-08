@@ -69,6 +69,7 @@ int coTrafficSimulation::maxVel = 100;
 int coTrafficSimulation::min_distance_tui = 180;
 int coTrafficSimulation::max_distance_tui = 800;
 int coTrafficSimulation::maxVehicles = 0;
+int coTrafficSimulation::numInstances = 0;
 
 coTrafficSimulation *coTrafficSimulation::instance()
 {
@@ -77,6 +78,18 @@ coTrafficSimulation *coTrafficSimulation::instance()
 		myInstance = new coTrafficSimulation();
 	}
 	return myInstance;
+}
+
+void coTrafficSimulation::useInstance()
+{
+	numInstances++;
+}
+void coTrafficSimulation::freeInstance()
+{
+	numInstances--;
+	if (numInstances == 0)
+		delete myInstance;
+	myInstance = 0;
 }
 
 coTrafficSimulation::coTrafficSimulation()

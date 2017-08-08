@@ -73,12 +73,15 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	// set our own object factory so that our own classes are created and not the bas osc* classes
 	OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
 	osdb->setFullReadCatalogs(true);
+	//todo coTrafficSimulation::useInstance();
 	fprintf(stderr, "OpenScenario::OpenScenario\n");
 }
 
 // this is called if the plugin is removed at runtime
 OpenScenarioPlugin::~OpenScenarioPlugin()
 {
+
+	// coTrafficSimulation::freeInstance();
 	fprintf(stderr, "OpenScenarioPlugin::~OpenScenarioPlugin\n");
 }
 
