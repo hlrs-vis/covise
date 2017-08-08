@@ -95,6 +95,8 @@ public:
     Vive();
     ~Vive();
     void preFrame();
+	//! this function is called from the draw thread before swapbuffers
+	virtual void preSwapBuffers(int /*windowNumber*/);
 	bool init();
 	virtual bool needsThread() const; //< we don't needan extra thread
 

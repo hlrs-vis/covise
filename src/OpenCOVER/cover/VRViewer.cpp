@@ -1473,8 +1473,11 @@ VRViewer::setFrustumAndView(int i)
             }
             else
             {
-                currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+				if (!coco->OpenVR_HMD)
+				{
+					currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+					currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+				}
                 currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
             }
         }
