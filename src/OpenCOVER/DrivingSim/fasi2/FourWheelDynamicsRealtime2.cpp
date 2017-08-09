@@ -57,10 +57,83 @@ FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2()
     overruns = 0;
     motPlat = ValidateMotionPlatform::instance();
 
-    //steering com change
 	steerCon = new CanOpenController("can1");
 	steerWheel = new XenomaiSteeringWheel(*steerCon, 1);
+	roadPointFinder = new RoadPointFinder();
 	
+	roadPointFinder->getLongPosMutex().acquire(period);
+	
+	roadPointFinder->setLongPos(currentLongPosArray[0], 0);
+	roadPointFinder->setLongPos(currentLongPosArray[1], 1);
+	roadPointFinder->setLongPos(currentLongPosArray[2], 2);
+	
+	roadPointFinder->setLongPos(currentLongPosArray[3], 3);
+	roadPointFinder->setLongPos(currentLongPosArray[4], 4);
+	roadPointFinder->setLongPos(currentLongPosArray[5], 5);
+	
+	roadPointFinder->setLongPos(currentLongPosArray[6], 6);
+	roadPointFinder->setLongPos(currentLongPosArray[7], 7);
+	roadPointFinder->setLongPos(currentLongPosArray[8], 8);
+	
+	roadPointFinder->setLongPos(currentLongPosArray[9], 9);
+	roadPointFinder->setLongPos(currentLongPosArray[10], 10);
+	roadPointFinder->setLongPos(currentLongPosArray[11], 11);
+	
+	roadPointFinder->getLongPosMutex().release();
+	
+	roadPointFinder->getRoadMutex().acquire(period);
+	
+	roadPointFinder->setRoad(currentRoadArray[0], 0);
+	roadPointFinder->setRoad(currentRoadArray[1], 1);
+	roadPointFinder->setRoad(currentRoadArray[2], 2);
+	
+	roadPointFinder->setRoad(currentRoadArray[3], 3);
+	roadPointFinder->setRoad(currentRoadArray[4], 4);
+	roadPointFinder->setRoad(currentRoadArray[5], 5);
+	
+	roadPointFinder->setRoad(currentRoadArray[6], 6);
+	roadPointFinder->setRoad(currentRoadArray[7], 7);
+	roadPointFinder->setRoad(currentRoadArray[8], 8);
+	
+	roadPointFinder->setRoad(currentRoadArray[9], 9);
+	roadPointFinder->setRoad(currentRoadArray[10], 10);
+	roadPointFinder->setRoad(currentRoadArray[11], 11);
+
+	roadPointFinder->getRoadMutex().release();
+	
+	roadPointFinder->getPositionMutex().acquire(period);
+	
+	osg::Matrix tempMatrixFL1 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixFL1.getTrans(), 0);
+	osg::Matrix tempMatrixFL2 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixFL2.getTrans(), 1);
+	osg::Matrix tempMatrixFL3 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixFL3.getTrans(), 2);
+	
+	osg::Matrix tempMatrixFR1 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixFR1.getTrans(), 3);
+	osg::Matrix tempMatrixFR2 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixFR2.getTrans(), 4);
+	osg::Matrix tempMatrixFR3 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixFR3.getTrans(), 5);
+	
+	osg::Matrix tempMatrixRR1 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixRR1.getTrans(), 6);
+	osg::Matrix tempMatrixRR2 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixRR2.getTrans(), 7);
+	osg::Matrix tempMatrixRR3 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixRR3.getTrans(), 8);
+	
+	osg::Matrix tempMatrixRL1 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixRL1.getTrans(), 9);
+	osg::Matrix tempMatrixRL2 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixRL2.getTrans(), 10);
+	osg::Matrix tempMatrixRL3 = carState.globalPosOC * Opencover2OddlotRotation;
+	roadPointFinder->setPoint(tempMatrixRL3.getTrans(), 11);
+	
+	roadPointFinder->getPositionMutex().release();
+	
+	roadPointFinder->checkLoadingRoads(false);
     start();
     k_wf_Slider = 17400.0;
     k_wr_Slider = 26100.0;
@@ -91,6 +164,8 @@ FourWheelDynamicsRealtime2::~FourWheelDynamicsRealtime2()
     //steering com change
 	delete steerWheel;
 	delete steerCon;
+	
+	delete roadPointFinder;
 
     delete motPlat;
 }
@@ -201,6 +276,22 @@ void FourWheelDynamicsRealtime2::initState()
 		currentRoadRL2 = startPos.first;
 		currentRoadRL3 = startPos.first;
 		
+		currentRoadArray[0] = currentRoadFL1;
+		currentRoadArray[1] = currentRoadFL2;
+		currentRoadArray[2] = currentRoadFL3;
+		
+		currentRoadArray[3] = currentRoadFR1;
+		currentRoadArray[4] = currentRoadFR2;
+		currentRoadArray[5] = currentRoadFR3;
+		
+		currentRoadArray[6] = currentRoadRR1;
+		currentRoadArray[7] = currentRoadRR2;
+		currentRoadArray[8] = currentRoadRR3;
+		
+		currentRoadArray[9] = currentRoadRL1;
+		currentRoadArray[10] = currentRoadRL2;
+		currentRoadArray[11] = currentRoadRL3;
+		
         currentLongPos = startPos.second.u();
 		
 		currentLongPosFL1 = startPos.second.u();
@@ -218,6 +309,22 @@ void FourWheelDynamicsRealtime2::initState()
 		currentLongPosRL1 = startPos.second.u();
 		currentLongPosRL2 = startPos.second.u();
 		currentLongPosRL3 = startPos.second.u();
+		
+		currentLongPosArray[0] = currentLongPosFL1;
+		currentLongPosArray[1] = currentLongPosFL2;
+		currentLongPosArray[2] = currentLongPosFL3;
+		
+		currentLongPosArray[3] = currentLongPosFR1;
+		currentLongPosArray[4] = currentLongPosFR2;
+		currentLongPosArray[5] = currentLongPosFR3;
+		
+		currentLongPosArray[6] = currentLongPosRR1;
+		currentLongPosArray[7] = currentLongPosRR2;
+		currentLongPosArray[8] = currentLongPosRR3;
+		
+		currentLongPosArray[9] = currentLongPosRL1;
+		currentLongPosArray[10] = currentLongPosRL2;
+		currentLongPosArray[11] = currentLongPosRL3;
 
         leftRoad = false;
         std::cout << "Found road: " << startPos.first->getId() << ", u: " << startPos.second.u() << ", v: " << startPos.second.v() << std::endl;
@@ -228,6 +335,10 @@ void FourWheelDynamicsRealtime2::initState()
 		globalPos.makeTranslate(-p_road[1],p_road[2],-p_road[0]);
 		carState.globalPosOC.makeTranslate(-p_road[1],p_road[2]+0.5/*0.12346*/,-p_road[0]);
 		std::cout << "Road coordinates in" << " 1 " << p_road[0]  << " 2 " << p_road[1]  << " 3 " << p_road[2] << std::endl;
+		std::cout << "first road: " << currentRoadFL1 << " end of first road" << std::endl;
+		std::cout << "first array road: " << currentRoadArray[0] << std::endl;;
+		
+		
     }
     else
     {
@@ -903,10 +1014,82 @@ void FourWheelDynamicsRealtime2::run()
 					leftRoad = true;
 				}
 			}*/
+						
+			roadPointFinder->getLongPosMutex().acquire(period);
 			
-			if(currentRoadFL1)
+			currentLongPosArray[0] = roadPointFinder->getLongPos(0);
+			currentLongPosArray[1] = roadPointFinder->getLongPos(1);
+			currentLongPosArray[2] = roadPointFinder->getLongPos(2);
+			
+			currentLongPosArray[3] = roadPointFinder->getLongPos(3);
+			currentLongPosArray[4] = roadPointFinder->getLongPos(4);
+			currentLongPosArray[5] = roadPointFinder->getLongPos(5);
+			
+			currentLongPosArray[6] = roadPointFinder->getLongPos(6);
+			currentLongPosArray[7] = roadPointFinder->getLongPos(7);
+			currentLongPosArray[8] = roadPointFinder->getLongPos(8);
+			
+			currentLongPosArray[9] = roadPointFinder->getLongPos(9);
+			currentLongPosArray[10] = roadPointFinder->getLongPos(10);
+			currentLongPosArray[11] = roadPointFinder->getLongPos(11);
+			
+			roadPointFinder->getLongPosMutex().release();
+			
+			roadPointFinder->getRoadMutex().acquire(period);
+			
+			currentRoadArray[0] = roadPointFinder->getRoad(0);
+			currentRoadArray[1] = roadPointFinder->getRoad(1);
+			currentRoadArray[2] = roadPointFinder->getRoad(2);
+			
+			currentRoadArray[3] = roadPointFinder->getRoad(3);
+			currentRoadArray[4] = roadPointFinder->getRoad(4);
+			currentRoadArray[5] = roadPointFinder->getRoad(5);
+			
+			currentRoadArray[6] = roadPointFinder->getRoad(6);
+			currentRoadArray[7] = roadPointFinder->getRoad(7);
+			currentRoadArray[8] = roadPointFinder->getRoad(8);
+			
+			currentRoadArray[9] = roadPointFinder->getRoad(9);
+			currentRoadArray[10] = roadPointFinder->getRoad(10);
+			currentRoadArray[11] = roadPointFinder->getRoad(11);
+			
+			roadPointFinder->getRoadMutex().release();
+			
+			roadPointFinder->getPositionMutex().acquire(period);
+			
+			osg::Matrix tempMatrixFL1 = carState.globalPosTireFL1 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixFL1.getTrans(), 0);
+			osg::Matrix tempMatrixFL2 = carState.globalPosTireFL2 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixFL2.getTrans(), 1);
+			osg::Matrix tempMatrixFL3 = carState.globalPosTireFL3 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixFL3.getTrans(), 2);
+			
+			osg::Matrix tempMatrixFR1 = carState.globalPosTireFR1 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixFR1.getTrans(), 3);
+			osg::Matrix tempMatrixFR2 = carState.globalPosTireFR2 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixFR2.getTrans(), 4);
+			osg::Matrix tempMatrixFR3 = carState.globalPosTireFR3 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixFR3.getTrans(), 5);
+			
+			osg::Matrix tempMatrixRR1 = carState.globalPosTireRR1 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixRR1.getTrans(), 6);
+			osg::Matrix tempMatrixRR2 = carState.globalPosTireRR2 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixRR2.getTrans(), 7);
+			osg::Matrix tempMatrixRR3 = carState.globalPosTireRR3 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixRR3.getTrans(), 8);
+			
+			osg::Matrix tempMatrixRL1 = carState.globalPosTireRL1 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixRL1.getTrans(), 9);
+			osg::Matrix tempMatrixRL2 = carState.globalPosTireRL2 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixRL2.getTrans(), 10);
+			osg::Matrix tempMatrixRL3 = carState.globalPosTireRL3 * Opencover2OddlotRotation;
+			roadPointFinder->setPoint(tempMatrixRL3.getTrans(), 11);
+			
+			roadPointFinder->getPositionMutex().release();
+			
+			if(currentRoadArray[0])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireFL1 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireFL1 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				//std::cout << "fl1 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
@@ -922,11 +1105,31 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					std::cout << "tire fl1 left road!" << std::endl;
 					leftRoad = true;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixFL1.getTrans().x(), tempMatrixFL1.getTrans().y(), tempMatrixFL1.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[0]->searchPositionNoBorder(searchInVec, currentLongPosArray[0]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[0] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[0]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightFL1 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire fl1 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
+				
 			}
-			if(currentRoadFL2)
+			if(currentRoadArray[1])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireFL2 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireFL2 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				//std::cout << "fl2 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
@@ -942,11 +1145,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire fl2 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixFL2.getTrans().x(), tempMatrixFL2.getTrans().y(), tempMatrixFL2.getTrans().z());
+				std::cout << "fl2 in: pointx " << searchInVec.x() << " pointy " << searchInVec.y() << " pointz " << searchInVec.z() << std::endl;
+				Vector2D searchOutVec = currentRoadArray[1]->searchPositionNoBorder(searchInVec, currentLongPosArray[1]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[1] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[1]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightFL2 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire fl2 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadFL3)
+			if(currentRoadArray[2])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireFL3 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireFL3 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadFL3, currentLongPosFL3);
@@ -960,14 +1182,33 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire fl3 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixFL3.getTrans().x(), tempMatrixFL3.getTrans().y(), tempMatrixFL3.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[2]->searchPositionNoBorder(searchInVec, currentLongPosArray[2]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[2] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[2]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightFL3 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire fl3 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
 			carState.roadAngleFL = atan(-(carState.roadHeightFL3 - carState.roadHeightFL1) / (cos(carState.wheelAngleZFL) * 2 * carState.contactPatch));
 			//carState.roadHeightFL2 = (carState.roadHeightFL3 + carState.roadHeightFL2 + carState.roadHeightFL1) / 3;
 			
-			if(currentRoadFR1)
+			if(currentRoadArray[3])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireFR1 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireFR1 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadFR1, currentLongPosFR1);
@@ -981,11 +1222,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire fr1 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixFR1.getTrans().x(), tempMatrixFR1.getTrans().y(), tempMatrixFR1.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[3]->searchPositionNoBorder(searchInVec, currentLongPosArray[3]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[3] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[3]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightFR1 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire fr1 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadFR2)
+			if(currentRoadArray[4])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireFR2 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireFR2 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				//std::cout << "fr2 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
@@ -1001,11 +1261,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire fr2 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixFR2.getTrans().x(), tempMatrixFR2.getTrans().y(), tempMatrixFR2.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[4]->searchPositionNoBorder(searchInVec, currentLongPosArray[4]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[4] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[4]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightFR2 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire fr2 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadFR3)
+			if(currentRoadArray[5])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireFR3 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireFR3 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadFR3, currentLongPosFR3);
@@ -1019,14 +1298,33 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire fr3 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixFR3.getTrans().x(), tempMatrixFR3.getTrans().y(), tempMatrixFR3.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[5]->searchPositionNoBorder(searchInVec, currentLongPosArray[5]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[5] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[5]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightFR2 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire fr2 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
 			carState.roadAngleFR = atan(-(carState.roadHeightFR3 - carState.roadHeightFR1) / (cos(carState.wheelAngleZFR) * 2 * carState.contactPatch));
 			//carState.roadHeightFR2 = (carState.roadHeightFR3 + carState.roadHeightFR2 + carState.roadHeightFR1) / 3;
 			
-			if(currentRoadRR1)
+			if(currentRoadArray[6])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireRR1 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireRR1 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadRR1, currentLongPosRR1);
@@ -1040,11 +1338,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire rr1 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixRR1.getTrans().x(), tempMatrixRR1.getTrans().y(), tempMatrixRR1.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[6]->searchPositionNoBorder(searchInVec, currentLongPosArray[6]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[6] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[6]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightRR1 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire rr1 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadRR2)
+			if(currentRoadArray[7])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireRR2 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireRR2 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				//std::cout << "rr2 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
@@ -1062,11 +1379,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire rr2 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixRR2.getTrans().x(), tempMatrixRR2.getTrans().y(), tempMatrixRR2.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[7]->searchPositionNoBorder(searchInVec, currentLongPosArray[7]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[7] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[7]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightRR2 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire rr2 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadRR3)
+			if(currentRoadArray[8])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireRR3 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireRR3 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadRR3, currentLongPosRR3);
@@ -1080,14 +1416,33 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire rr3 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixRR3.getTrans().x(), tempMatrixRR3.getTrans().y(), tempMatrixRR3.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[8]->searchPositionNoBorder(searchInVec, currentLongPosArray[8]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[8] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[8]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightRR3 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire rr3 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
 			carState.roadAngleRR = atan(-(carState.roadHeightRR3 - carState.roadHeightRR1) / (cos(carState.wheelAngleZRR) * 2 * carState.contactPatch));
 			//carState.roadHeightRR2 = (carState.roadHeightRR3 + carState.roadHeightRR2 + carState.roadHeightRR1) / 3;
 			
-			if(currentRoadRL1)
+			if(currentRoadArray[9])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireRL1 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireRL1 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadRL1, currentLongPosRL1);
@@ -1101,11 +1456,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire rl1 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixRL1.getTrans().x(), tempMatrixRL1.getTrans().y(), tempMatrixRL1.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[9]->searchPositionNoBorder(searchInVec, currentLongPosArray[9]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[9] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[9]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightRL1 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire rl1 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadRL2)
+			if(currentRoadArray[10])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireRL2 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireRL2 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				//std::cout << "rl2 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
@@ -1123,11 +1497,30 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire rl2 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixRL2.getTrans().x(), tempMatrixRL2.getTrans().y(), tempMatrixRL2.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[10]->searchPositionNoBorder(searchInVec, currentLongPosArray[10]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[10] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[10]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightRL2 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire rl2 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
-			if(currentRoadRL3)
+			if(currentRoadArray[11])
 			{
-				osg::Matrix tempMatrix = carState.globalPosTireRL3 * Opencover2OddlotRotation;
+				/*osg::Matrix tempMatrix = carState.globalPosTireRL3 * Opencover2OddlotRotation;
 				osg::Vec3d tempVec = tempMatrix.getTrans();
 				Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
 				Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoadRL3, currentLongPosRL3);
@@ -1141,6 +1534,25 @@ void FourWheelDynamicsRealtime2::run()
 				{
 					leftRoad = true;
 					std::cout << "tire rl3 left road!" << std::endl;
+				}*/
+				
+				Vector3D searchInVec(tempMatrixRL3.getTrans().x(), tempMatrixRL3.getTrans().y(), tempMatrixRL3.getTrans().z());
+				
+				Vector2D searchOutVec = currentRoadArray[11]->searchPositionNoBorder(searchInVec, currentLongPosArray[11]);
+				//std::cout << "search road from scratch" << std::endl;
+				if (!searchOutVec.isNaV())
+				{
+					currentLongPosArray[11] = searchOutVec.x();
+					RoadPoint point = currentRoadArray[11]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+					if (!isnan(point.x()))
+					{
+						carState.roadHeightRL3 = point.z();
+						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+					} else 
+					{
+						std::cout << "tire rl3 left road!" << std::endl;
+						leftRoad = true;
+					}
 				}
 			}
 			carState.roadAngleRL = atan(-(carState.roadHeightRL3 - carState.roadHeightRL1) / (cos(carState.wheelAngleZRL) * 2 * carState.contactPatch));
@@ -2144,7 +2556,7 @@ void FourWheelDynamicsRealtime2::run()
 			time++;
 			carState.timerCounter = timerCounter;
 			
-			if(timerCounter == 500 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
+			if(timerCounter == 1 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
 			{
 				//outfile << time << " " << carState.mpLZ << " " << carState.mpRZ << " " << carState.mpBZ << " " << carState.mpHeight << " " << carState.cogOpencoverPos(3,1) << " " 
 				//<< speedState.vZ << " " << current << std::endl;
@@ -2156,7 +2568,7 @@ void FourWheelDynamicsRealtime2::run()
 				//outfile << time << " " << speedState.vX << " " << speedState.vY << " " << speedState.vYaw << " " <<
 				//speedState.slipFL << " " << speedState.slipFR << " " << speedState.slipRR << " " << speedState.slipRL << " " << std::endl;
 				//outfile << time << " " << speedState.vX << " " << speedState.vY << " " << speedState.vYaw << " " <<
-				////carState.accX << " " << carState.accY << std::endl;
+				//carState.accX << " " << carState.accY << std::endl;
 				//carState.globalPosJointFL.getTrans().x() << " " << carState.globalPosJointFL.getTrans().z() << " " <<
 				//carState.globalPosJointFR.getTrans().x() << " " << carState.globalPosJointFR.getTrans().z() << " " <<
 				//carState.globalPosJointRR.getTrans().x() << " " << carState.globalPosJointRR.getTrans().z() << " " <<
@@ -2182,8 +2594,8 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#time " << time << std::endl; 
 				//osg::Vec3d globPosTransVec = carState.globalPosOC.getTrans();
 				//std::cout << "#globalPosTransVec: x " << globPosTransVec.x() << "; y " << globPosTransVec.y() << "; z " << globPosTransVec.z() << std::endl;
-				//osg::Vec3d chassisTransVec = chassisTrans.getTrans();
-				//std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
+				osg::Vec3d chassisTransVec = chassisTrans.getTrans();
+				std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
 				
 				//std::cout << "rot:"<< std::endl;
 				//std::cout << carState.cogOpencoverRot(0,0) << "," << carState.cogOpencoverRot(0,1) << "," << carState.cogOpencoverRot(0,2) << "," << carState.cogOpencoverRot(0,3) << std::endl;
@@ -2222,7 +2634,7 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "vX 1: " << initialSpeeds.vX << " vX 2: " << K1Speed.vX << " vX 3: " << K2Speed.vX << " vX 4: " << K3Speed.vX << std::endl;
 				//std::cout << " " << std::endl;
 				int length = 13;
-				//std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
+				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
 				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
 				//std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
 				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
@@ -2289,6 +2701,9 @@ void FourWheelDynamicsRealtime2::run()
 				
 				//std::cout << " " << std::endl;
 				
+				std::cout << "road used: " << currentRoadFL2 << std::endl;
+				std::cout << "road new: " << currentRoadArray[1] << std::endl;
+				
 				//std::cout << "#vx " << speedState.vX << std::endl;
 				//std::cout << "#vy " << speedState.vY << std::endl;
 				//std::cout << "#vz " << speedState.vZ << " carzspeed: " << carZSpeed << std::endl;
@@ -2300,7 +2715,7 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#yaw " << carState.globalYaw << std::endl;
 				//std::cout << "#roll " << carState.localRoll << std::endl;
 				//std::cout << "#pitch " << carState.localPitch << std::endl;
-				//std::cout << "#=(^-.-^)="<< std::endl;
+				std::cout << "#=(^-.-^)="<< std::endl;
 				
 				//timerTimer++;
 				//fprintf(outFile, "1  2  3%5g%13g%13g%13g%13g%13g\n",timerTimer,carState.localPitch,carState.localRoll,carState.roadHeightFL2,carState.roadHeightFR2,speedState.vZ);
@@ -2315,7 +2730,7 @@ void FourWheelDynamicsRealtime2::run()
 		//std::cout << "steering angle: " << carState.posSteeringWheel << std::endl;
 		//std::cout << "current before: " << current << std::endl;
 		
-		//current = 0;
+		current = 0;
 		
 		double currentLimit = 700;
 		if(current > currentLimit)
@@ -2347,9 +2762,9 @@ void FourWheelDynamicsRealtime2::run()
 			carState.mpBZ = 0;
 		}*/
 		
-		//carState.mpRZ = 0;
-		//carState.mpLZ = 0;
-		//carState.mpBZ = 0;
+		carState.mpRZ = 0;
+		carState.mpLZ = 0;
+		carState.mpBZ = 0;
 		
 		double posLimit = 0.2;
 		if(carState.mpRZ > posLimit)
