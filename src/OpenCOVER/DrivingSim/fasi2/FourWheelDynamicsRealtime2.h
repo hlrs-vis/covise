@@ -16,6 +16,7 @@
 #include "ValidateMotionPlatform.h"
 #include "CanOpenController.h"
 #include "XenomaiSteeringWheel.h"
+#include "RoadPointFinder.h"
 #include <list>
 
 #include "RoadSystem/RoadSystem.h"
@@ -238,6 +239,7 @@ protected:
 
     CanOpenController *steerCon;
     XenomaiSteeringWheel *steerWheel;
+	RoadPointFinder *roadPointFinder;
 	
     double steerPosition;
     int32_t steerSpeed;
@@ -287,6 +289,8 @@ protected:
 	Road *currentRoadRL2;
 	Road *currentRoadRL3;
 	
+	Road *currentRoadArray[12];
+	
 	double currentLongPos;
     double currentLongPosFL1;
 	double currentLongPosFL2;
@@ -304,6 +308,7 @@ protected:
 	double currentLongPosRL2;
 	double currentLongPosRL3;
 	
+	double  currentLongPosArray[12];
 
     std::pair<Road *, Vector2D> startPos;
     bool leftRoad;
