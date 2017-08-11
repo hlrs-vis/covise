@@ -343,7 +343,7 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
         const Config &declutterConf = externals.child("decluttering");
         if (!declutterConf.empty())
         {
-#if OSGEARTH_VERSION_GREATER_THAN(2,4,0)
+#if !OSGEARTH_VERSION_LESS_THAN(2,4,0) && OSGEARTH_VERSION_LESS_THAN(2,9,0)
             osgEarth::Decluttering::setOptions(osgEarth::DeclutteringOptions(declutterConf));
 #endif
         }
