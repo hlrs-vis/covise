@@ -65,15 +65,13 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
             stereoMode = osg::DisplaySettings::HORIZONTAL_INTERLACE;
         else if (strcasecmp(modeName, "CHECKERBOARD") == 0)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
-        else if (strcasecmp(modeName, "MONO") == 0)
+        else if (strcasecmp(modeName, "MONO") == 0
+                || strcasecmp(modeName, "NONE") == 0
+                || strcasecmp(modeName, "") == 0)
         {
             st = false;
             stereoMode = osg::DisplaySettings::LEFT_EYE;
         }
-        else if (strcasecmp(modeName, "NONE") == 0)
-            stereoMode = osg::DisplaySettings::ANAGLYPHIC;
-        else if (modeName[0] == '\0')
-            stereoMode = osg::DisplaySettings::ANAGLYPHIC;
         else
             cerr << "Unknown stereo mode \"" << modeName << "\"" << endl;
     }
