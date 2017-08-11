@@ -302,8 +302,13 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
             if (useSky)
             {
                 double hours = skyConf.value("hours", 12.0);
+#if OSGEARTH_VERSION_LESS_THAN(2,6,0)
+                s_sky = new SkyNode(mapNode->getMap());
+                s_sky->setDateTime(2011, 3, 6, hours);
+#else
                 s_sky = SkyNode::create(mapNode);
                 s_sky->setDateTime(DateTime(2011, 3, 6, hours));
+#endif
                 s_sky->attach(VRViewer::instance());
                 parent->addChild(s_sky);
             }
@@ -337,7 +342,7 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
         const Config &declutterConf = externals.child("decluttering");
         if (!declutterConf.empty())
         {
-#if (OSGEARTH_MAJOR_VERSION > 2 || (OSGEARTH_MAJOR_VERSION == 2 && OSGEARTH_MINOR_VERSION > 3))
+#if OSGEARTH_VERSION_GREATER_THAN(2,4,0)
             osgEarth::Decluttering::setOptions(osgEarth::DeclutteringOptions(declutterConf));
 #endif
         }
