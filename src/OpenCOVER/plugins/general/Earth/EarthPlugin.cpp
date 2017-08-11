@@ -174,6 +174,7 @@ EarthPlugin::EarthPlugin()
     int _maxLights = Registry::instance()->getCapabilities().getMaxLights();
     plugin = this;
     mapNode = NULL;
+    oldDump = NULL;
 
     earthTab = new coTUITab("Earth", coVRTui::instance()->mainFolder->getID());
     earthTab->setPos(0, 0);
@@ -212,23 +213,23 @@ void EarthPlugin::toggle(osg::Group *g, const std::string &name, bool onoff)
 
 void EarthPlugin::tabletEvent(coTUIElement *e)
 {
-    if (e == requestDump)
+    if (e == requestDump && mapNode)
     {
         mapNode->getOverlayDecorator()->requestDump();
     }
-    if (e == cameraCheckBox)
+    if (e == cameraCheckBox && oldDump)
     {
         toggle(static_cast<osg::Group *>(oldDump), "camera", cameraCheckBox->getState());
     }
-    if (e == intersectionsCheckBox)
+    if (e == intersectionsCheckBox && oldDump)
     {
         toggle(static_cast<osg::Group *>(oldDump), "intersection", intersectionsCheckBox->getState());
     }
-    if (e == rttCheckBox)
+    if (e == rttCheckBox && oldDump)
     {
         toggle(static_cast<osg::Group *>(oldDump), "rtt", rttCheckBox->getState());
     }
-    if (e == DebugCheckBox)
+    if (e == DebugCheckBox && mapNode)
     {
         if (DebugCheckBox->getState())
         {
