@@ -43,7 +43,7 @@ public:
 
     double getVelocity()
     {
-		return abs(speedState.vX);
+		return std::abs(speedState.vX);
     }
 
     virtual double getEngineTorque()
