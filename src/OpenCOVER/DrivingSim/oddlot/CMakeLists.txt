@@ -31,6 +31,7 @@ using(TIFF)
 using(JPEG)
 using(PROJ4)
 USING(BOOST)
+using(OpenScenario)
 
 #INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
@@ -40,7 +41,6 @@ USING(BOOST)
 
 #INCLUDE_DIRECTORIES($ENV{COVISEDIR}/src/tools/oddlot)
 INCLUDE_DIRECTORIES(
-   ../OpenScenario
 )
 ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
 ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
@@ -732,7 +732,6 @@ add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_H
 qt_use_modules(oddlot Core Widgets Gui Network Xml)
 TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS}
-   coOpenScenario
 ) 
 
 source_group("testit" FILES src/cover/coverconnection.cpp coverconnection.cpp .*cover.*)

@@ -19,7 +19,7 @@
 #include "src/util/odd.hpp"
 #include "src/data/observer.hpp"
 
-#include "oscCatalog.h"
+#include <OpenScenario/oscCatalog.h>
 
 #include <QTreeWidget>
 

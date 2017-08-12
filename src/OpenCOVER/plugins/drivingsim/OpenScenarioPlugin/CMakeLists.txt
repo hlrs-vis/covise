@@ -4,6 +4,7 @@ using(VRML)
 using(GDAL)
 using(VehicleUtil)
 using(TrafficSimulation)
+using(OpenScenario)
 
 
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
@@ -35,4 +36,4 @@ INCLUDE_DIRECTORIES(
    ${OSGTERRAIN_INCLUDE_DIR}
 )
 # build the plugin "OpenScenarioPlugin" from the ingredients listed in HEADERS and SOURCES
-cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} coOpenScenario ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)
+cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)

@@ -54,8 +54,8 @@
 
 // OpenScenario //
 //
-#include "oscObjectBase.h"
-#include "oscMember.h"
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/oscMember.h>
 
 #include <QWidget>
 #include <QDropEvent>

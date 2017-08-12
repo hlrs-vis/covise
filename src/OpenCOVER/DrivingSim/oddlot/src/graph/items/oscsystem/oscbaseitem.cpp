@@ -45,15 +45,15 @@
 
 // OpenScenario //
 //
-#include "schema/oscVehicle.h"
-#include "schema/oscObject.h"
-#include "oscObjectBase.h"
-#include "oscMember.h"
-#include "schema/oscCatalogs.h"
-#include "schema/oscPosition.h"
-#include "schema/oscTrajectory.h"
-#include "schema/oscPrivateAction.h"
-#include "schema/oscPrivate.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/schema/oscCatalogs.h>
+#include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscPrivateAction.h>
+#include <OpenScenario/schema/oscPrivate.h>
 
 // Qt //
 //
