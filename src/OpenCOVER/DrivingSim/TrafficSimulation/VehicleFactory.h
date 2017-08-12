@@ -10,10 +10,10 @@
 
 #include "Vehicle.h"
 #include "VehicleGeometry.h"
-#include "RoadSystem/Road.h"
+#include <VehicleUtil/RoadSystem/Road.h>
 
 #include <xercesc/dom/DOM.hpp>
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 class TRAFFICSIMULATIONEXPORT VehicleFactory
 {

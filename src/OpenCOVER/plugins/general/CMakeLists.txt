@@ -54,7 +54,6 @@ ADD_SUBDIRECTORY(Sky)
 #ADD_SUBDIRECTORY(SortLastHPParComp)      TODO: ParaComp
 ADD_SUBDIRECTORY(SpaceNavigator)         #TODO: siapp
 #ADD_SUBDIRECTORY(StreetView) missing Position.cpp
-ADD_SUBDIRECTORY(SumoTraCI)
 ADD_SUBDIRECTORY(SwitchData)
 ADD_SUBDIRECTORY(TangiblePosition)
 ADD_SUBDIRECTORY(ThreeDTK)

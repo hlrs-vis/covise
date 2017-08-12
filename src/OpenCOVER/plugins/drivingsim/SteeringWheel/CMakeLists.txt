@@ -7,23 +7,12 @@ USING(XERCESC)
 using(VRML)
 
 
-COVISE_FIND_PACKAGE(V8)
-COVISE_FIND_PACKAGE(OpenCRG)
 COVISE_FIND_PACKAGE(Xenomai)
 #find_package(Boost 1.40 REQUIRED COMPONENTS date_time)
 #find_package(Boost 1.40)
 #USING(BOOST)
 
-
-#plugin SteeringWheel needs library coOpenVehicleUtil
-#for building VehicleUtil OpenCRG is needed
-IF(NOT OPENCRG_FOUND)
- RETURN()
-ENDIF(NOT OPENCRG_FOUND)
-if(NOT V8_FOUND)
-    return()
-endif()
-
+using(VehicleUtil)
 
 SET(HEADERS
  SteeringWheel.h
@@ -86,8 +75,6 @@ ENDIF(WIN32)
 
 
 INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ${V8_INCLUDE_DIR}
 )
 
 
@@ -128,7 +115,6 @@ TARGET_LINK_LIBRARIES(SteeringWheel
 ELSE(WIN32)
 TARGET_LINK_LIBRARIES(SteeringWheel
     ${EXTRA_LIBS}
-   coOpenVehicleUtil
 )
 ENDIF(WIN32)
 COVISE_WNOERROR(SteeringWheel)

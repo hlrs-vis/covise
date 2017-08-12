@@ -34,15 +34,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <util/coExport.h>
 
-#ifdef HAVE_TR1
-#ifdef WIN32
 #include <random>
-#else
-#include <tr1/random>
-#endif
-#else
-#include "mtrand.h"
-#endif
 
 #include "RoadSystem/RoadSystem.h"
 #include "VehicleManager.h"
@@ -141,14 +133,8 @@ private:
     osg::ref_ptr<osg::Material> redmtl;
     osg::ref_ptr<osg::Material> greenmtl;
 
-#ifdef HAVE_TR1
-    std::tr1::mt19937 mersenneTwisterEngine;
-    std::tr1::uniform_real<double> uniformDist;
-    std::tr1::variate_generator<std::tr1::mt19937, std::tr1::uniform_real<double> > variGen;
-#else
-    MTRand_int32 mtGenInt; // 32-bit int generator
-    MTRand mtGenDouble; // double in [0, 1) generator, already init
-#endif
+    std::mt19937 mersenneTwisterEngine;
+    std::uniform_real_distribution<double> uniformDist;
     std::string xodrDirectory;
 
 

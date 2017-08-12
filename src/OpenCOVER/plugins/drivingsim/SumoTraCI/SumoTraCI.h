@@ -24,11 +24,7 @@
 #include <utils/traci/TraCIAPI.h>
 
 #include <vector>
-#include "Vehicle.h"
-#include "AgentVehicle.h"
-#include "CarGeometry.h"
-#include <net/tokenbuffer.h>
-#include <cover/coVRMSController.h>
+#include <TrafficSimulation/AgentVehicle.h>
 
 using namespace opencover;
 

@@ -21,8 +21,8 @@
 
 #include "TrafficSimulationPlugin.h"
 
-#include "FindTrafficLightSwitch.h"
-#include <coTrafficSimulation.h>
+#include <TrafficSimulation/FindTrafficLightSwitch.h>
+#include <TrafficSimulation/coTrafficSimulation.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
@@ -46,10 +46,10 @@
 #include <osg/PolygonOffset>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "HumanVehicle.h"
+#include <TrafficSimulation/HumanVehicle.h>
 #include "../SteeringWheel/Vehicle.h"
 
-#include "PorscheFFZ.h"
+#include <TrafficSimulation/PorscheFFZ.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 
 using namespace covise;

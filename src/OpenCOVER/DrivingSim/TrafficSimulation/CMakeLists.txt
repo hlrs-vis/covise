@@ -2,26 +2,20 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
 
-
-COVISE_FIND_PACKAGE(OSGCAL)
-COVISE_FIND_PACKAGE(CAL3D)
-
 USING(XERCESC OSGCAL CAL3D)
 using(VRML)
+using(V8)
+using(VehicleUtil)
+
+covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
+COVISE_FIND_PACKAGE(osgTerrain)
+COVISE_FIND_PACKAGE(GDAL)
 
 IF(NOT OSGCAL_FOUND)
   RETURN()
 ENDIF()
 
-covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
-COVISE_FIND_PACKAGE(osgTerrain)
-COVISE_FIND_PACKAGE(GDAL)
-COVISE_FIND_PACKAGE(V8)
-
 if(NOT GDAL_FOUND)
-    return()
-endif()
-if(NOT V8_FOUND)
     return()
 endif()
 
@@ -38,7 +32,6 @@ SET(HEADERS
   HumanVehicleGeometry.h
   AgentVehicle.h
   VehicleUtils.h
-  mtrand.h
   PedestrianManager.h
   Pedestrian.h
   PedestrianGeometry.h
@@ -59,7 +52,6 @@ SET(SOURCES
   HumanVehicleGeometry.cpp
   AgentVehicle.cpp
   VehicleUtils.cpp
-  mtrand.cpp
   PedestrianManager.cpp
   Pedestrian.cpp
   PedestrianGeometry.cpp

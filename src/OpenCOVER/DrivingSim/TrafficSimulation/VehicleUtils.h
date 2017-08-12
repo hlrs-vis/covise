@@ -8,8 +8,8 @@
 #ifndef VehicleUtils_h
 #define VehicleUtils_h
 
-#include "RoadSystem/Road.h"
-#include "RoadSystem/Junction.h"
+#include <VehicleUtil/RoadSystem/Road.h>
+#include <VehicleUtil/RoadSystem/Junction.h>
 #include "Vehicle.h"
 #include <limits>
 

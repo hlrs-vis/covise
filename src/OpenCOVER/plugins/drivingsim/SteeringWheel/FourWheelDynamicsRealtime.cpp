@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "FourWheelDynamicsRealtime.h"
-#include <VehicleUtil.h>
+#include <VehicleUtil/VehicleUtil.h>
 
 
 #include <osg/Shape>

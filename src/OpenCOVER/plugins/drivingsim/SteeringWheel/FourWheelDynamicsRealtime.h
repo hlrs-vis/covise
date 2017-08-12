@@ -8,16 +8,16 @@
 #ifndef __FourWheelDynamicsRealtime_h
 #define __FourWheelDynamicsRealtime_h
 
-#include "gealg/CarDynamics.h"
+#include <VehicleUtil/gealg/CarDynamics.h>
 //#include "../../../VehicleUtil/gealg/CarDynamicsPA2004.h"
 
-#include "Vehicle.h"
+#include <TrafficSimulation/Vehicle.h>
 #include "VehicleDynamics.h"
 #ifdef __XENO__
-#include "XenomaiTask.h"
-#include "ValidateMotionPlatform.h"
-#include "CanOpenController.h"
-#include "XenomaiSteeringWheel.h"
+#include <VehicleUtil/XenomaiTask.h>
+#include <VehicleUtil/ValidateMotionPlatform.h>
+#include <VehicleUtil/CanOpenController.h>
+#include <VehicleUtil/XenomaiSteeringWheel.h>
 #ifdef debug
 #undef debug
 #endif
@@ -30,7 +30,7 @@
 #include <osg/MatrixTransform>
 #include <osgUtil/IntersectVisitor>
 
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 //#include <deque>
 

@@ -106,13 +106,7 @@ coTrafficSimulation::coTrafficSimulation()
     , tessellatePaths(true)
     , tessellateBatters(false)
     , tessellateObjects(false)
-    ,
-#ifdef HAVE_TR1
-    mersenneTwisterEngine((int)cover->frameTime() * 1000)
-    , variGen(mersenneTwisterEngine, uniformDist)
-#else
-    mtGenInt((int)cover->frameTime() * 1000)
-#endif
+    , mersenneTwisterEngine((int)cover->frameTime() * 1000)
 {
     //srand ( (int)(cover->frameTime()*1000) );
 }
@@ -144,20 +138,13 @@ void coTrafficSimulation::haltSimulation()
 
 unsigned long coTrafficSimulation::getIntegerRandomNumber()
 {
-#ifdef HAVE_TR1
     return mersenneTwisterEngine();
-#else
-    return mtGenInt();
-#endif
 }
 
 double coTrafficSimulation::getZeroOneRandomNumber()
 {
-#ifdef HAVE_TR1
-    return variGen();
-#else
-    return mtGenDouble();
-#endif
+    auto r = std::bind(uniformDist, mersenneTwisterEngine);
+    return r();
 }
 
 

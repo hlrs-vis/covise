@@ -28,7 +28,7 @@
 #include <vrml97/vrml/VrmlSFTime.h>
 
 //#include "../TrafficSimulation/PorscheFFZ.h" // TEST 19.04.2011
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 #ifndef WIN32
 #include <termios.h>

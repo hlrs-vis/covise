@@ -16,7 +16,7 @@
 #include <osg/BoundingBox>
 #include <vector>
 
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/Types.h>
 
 class TRAFFICSIMULATIONEXPORT CarGeometry : public VehicleGeometry
 {
