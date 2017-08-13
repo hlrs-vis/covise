@@ -45,6 +45,9 @@
   </Module>
 
   <System>
+  <VRB>
+    <!--Server value="169.254.32.217" port="31200" /-->
+   </VRB>
 <!--   <ShmSize value="2097152"/> -->
    <!--<ShmSize value="33554432"/>-->
     <WSInterface value="false" />

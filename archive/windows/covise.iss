@@ -510,7 +510,8 @@ Source: {#PTHREAD}\lib\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#PNG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core     
 Source: {#EXTERNLIBS}\libpng\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
+Source: {#EXTERNLIBS}\OpenVR\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 
 Source: {#EXTERNLIBS}\fmod\lowlevel\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\fmod\studio\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
