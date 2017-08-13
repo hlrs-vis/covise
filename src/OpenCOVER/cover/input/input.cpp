@@ -374,6 +374,11 @@ void Input::addDevice(const std::string &name, InputDevice *dev)
 	if (dev->needsThread())
 		dev->start();
 }
+void Input::removeDevice(const std::string &name, InputDevice *dev)
+{
+	drivers.erase(name);
+}
+
 
 InputDevice *Input::getDevice(const std::string &name)
 {

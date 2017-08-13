@@ -204,6 +204,7 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
+	Input::instance()->removeDevice("Vive", this);
 	fprintf(stderr, "Vive::~Vive\n");
 }
 
@@ -227,6 +228,11 @@ void Vive::preFrame()
 	coVRConfig::instance()->channels[0].rightProj = rProj;
 	coVRConfig::instance()->channels[1].leftProj = lProj;
 	coVRConfig::instance()->channels[1].rightProj = rProj;
+
+}
+
+void Vive::postFrame()
+{
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
@@ -284,7 +290,7 @@ void Vive::preFrame()
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
 			m_bodyMatrices[nDevice] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
-		    // convert to mm
+			// convert to mm
 			m_bodyMatrices[nDevice](3, 0) *= 1000;
 			m_bodyMatrices[nDevice](3, 1) *= 1000;
 			m_bodyMatrices[nDevice](3, 2) *= 1000;
@@ -298,7 +304,6 @@ void Vive::preFrame()
 	}
 	m_mutex.unlock();
 }
-
 
 void Vive::preSwapBuffers(int /*windowNumber*/)
 {

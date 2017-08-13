@@ -94,7 +94,8 @@ class Vive : public opencover::coVRPlugin, public opencover::InputDevice
 public:
     Vive();
     ~Vive();
-    void preFrame();
+	void preFrame();
+	void postFrame();
 	//! this function is called from the draw thread before swapbuffers
 	virtual void preSwapBuffers(int /*windowNumber*/);
 	bool init();
