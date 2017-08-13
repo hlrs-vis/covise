@@ -5985,7 +5985,7 @@ TCHAR *VRML2Export::isMovie(const TCHAR *url)
         _tcscpy(name, url);
         return (name);
     }
-    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
+    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".mpeg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
     {
         suffix = _tcsrchr(url, '.');
         _tcsncpy(name, url, suffix - url);
