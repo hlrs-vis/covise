@@ -39,6 +39,11 @@ PedestrianFactory::PedestrianFactory()
     opencover::cover->getObjectsRoot()->addChild(pedestrianGroup);
 }
 
+PedestrianFactory::~PedestrianFactory()
+{
+	opencover::cover->getObjectsRoot()->removeChild(pedestrianGroup);
+}
+
 /**
  * Delete a given pedestrian from the set
  */

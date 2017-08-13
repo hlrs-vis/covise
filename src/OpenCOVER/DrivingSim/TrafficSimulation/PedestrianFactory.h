@@ -130,6 +130,7 @@ public:
 
 protected:
     PedestrianFactory();
+	~PedestrianFactory();
     static PedestrianFactory *__instance;
 
     std::map<std::string, osg::ref_ptr<osgCal::CoreModel> > coreModelMap;

@@ -93,10 +93,12 @@ void coTrafficSimulation::freeInstance()
 }
 
 coTrafficSimulation::coTrafficSimulation()
-    : system(NULL)
-    , factory(NULL)
-    , roadGroup(NULL)
-    , rootElement(NULL)
+	: system(NULL)
+	, factory(NULL)
+	, roadGroup(NULL)
+	, rootElement(NULL)
+	, trafficSignalGroup(NULL)
+	, terrain(NULL)
     ,
     //operatorMapTab(NULL),
     //operatorMap(NULL),
@@ -415,7 +417,7 @@ bool coTrafficSimulation::loadRoadSystem(const char *filename_chars)
             cover->getObjectsRoot()->addChild(roadGroup);
         }
 
-        osg::Group *trafficSignalGroup = new osg::Group;
+        trafficSignalGroup = new osg::Group;
         trafficSignalGroup->setName("TrafficSignals");
         //Traffic control
         for (int i = 0; i < system->getNumRoadSignals(); ++i)
@@ -519,13 +521,29 @@ void coTrafficSimulation::deleteRoadSystem()
 
     system = NULL;
     RoadSystem::Destroy();
+	PedestrianFactory::Destroy();
     if (roadGroup)
     {
         while (roadGroup->getNumParents())
         {
             roadGroup->getParent(0)->removeChild(roadGroup);
-        }
+		}
     }
+	if (trafficSignalGroup)
+	{
+		while (trafficSignalGroup->getNumParents())
+		{
+			trafficSignalGroup->getParent(0)->removeChild(trafficSignalGroup);
+		}
+	}
+
+	if (terrain)
+	{
+		while (terrain->getNumParents())
+		{
+			terrain->getParent(0)->removeChild(terrain);
+		}
+	}
 }
 
 bool coTrafficSimulation::init()

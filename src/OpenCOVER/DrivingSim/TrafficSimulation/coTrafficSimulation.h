@@ -104,6 +104,8 @@ public:
 	VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
 	osg::PositionAttitudeTransform *roadGroup;
+	osg::Group *trafficSignalGroup;
+	osg::Node *terrain;
 	xercesc::DOMElement *rootElement;
 	bool tessellateRoads;
 	bool tessellatePaths;

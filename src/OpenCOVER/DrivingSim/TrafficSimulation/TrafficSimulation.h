@@ -101,6 +101,8 @@ private:
     //osg::Group* roadGroup;
     osg::PositionAttitudeTransform *roadGroup;
     xercesc::DOMElement *rootElement;
+	osg::Node *terrain;
+	osg::Group *trafficSignalGroup;
 
     coTUITab *pluginTab;
     coTUIButton *startButton;

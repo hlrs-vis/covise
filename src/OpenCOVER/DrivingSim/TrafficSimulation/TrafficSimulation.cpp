@@ -85,6 +85,7 @@ TrafficSimulation::TrafficSimulation()
     , tessellatePaths(true)
     , tessellateBatters(false)
     , tessellateObjects(false)
+    , terrain(NULL)
     , mersenneTwisterEngine((int)cover->frameTime() * 1000)
 {
     //srand ( (int)(cover->frameTime()*1000) );
@@ -391,7 +392,7 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
             cover->getObjectsRoot()->addChild(roadGroup);
         }
 
-        osg::Group *trafficSignalGroup = new osg::Group;
+		trafficSignalGroup = new osg::Group;
         trafficSignalGroup->setName("TrafficSignals");
         //Traffic control
         for (int i = 0; i < system->getNumRoadSignals(); ++i)
@@ -494,6 +495,7 @@ void TrafficSimulation::deleteRoadSystem()
 
     system = NULL;
     RoadSystem::Destroy();
+	PedestrianFactory::Destroy();
     if (roadGroup)
     {
         while (roadGroup->getNumParents())
@@ -501,6 +503,21 @@ void TrafficSimulation::deleteRoadSystem()
             roadGroup->getParent(0)->removeChild(roadGroup);
         }
     }
+	if (trafficSignalGroup)
+	{
+		while (trafficSignalGroup->getNumParents())
+		{
+			trafficSignalGroup->getParent(0)->removeChild(trafficSignalGroup);
+		}
+	}
+	if (terrain)
+	{
+		while (terrain->getNumParents())
+		{
+			terrain->getParent(0)->removeChild(terrain);
+		}
+	}
+	
 }
 
 bool TrafficSimulation::init()
@@ -825,6 +842,7 @@ bool TrafficSimulation::init()
 
 #endif
     sphereTransform = new osg::MatrixTransform();
+	sphereTransform->setName("TSDebugSphere");
     sphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20);
     sphereGeode = new osg::Geode();
     osg::ShapeDrawable *sd = new osg::ShapeDrawable(sphere.get());
@@ -1149,7 +1167,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
         {
             filename.erase(spos, 7);
         }
-        osg::Node *terrain = osgDB::readNodeFile(filename);
+        terrain = osgDB::readNodeFile(filename);
         if (terrain)
         {
             osg::StateSet *terrainStateSet = terrain->getOrCreateStateSet();
@@ -1160,7 +1178,10 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
             terrainStateSet->setAttributeAndModes(offset, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
 
             //osgTerrain::TerrainTile::setTileLoadedCallback(new RoadFootprintTileLoadedCallback());
-
+			if (terrain->getName() == "")
+			{
+				terrain->setName("TS_Terrain");
+			}
             cover->getObjectsRoot()->addChild(terrain);
         }
     }
