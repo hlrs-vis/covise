@@ -220,6 +220,7 @@ public:
 	posWheelRightNeutral,
 	posWheelCombined,
 	deltaWheel,
+	maxDeltaCurrent,
 	
 	//TMEasy
 	cR,
