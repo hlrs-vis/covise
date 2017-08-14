@@ -842,7 +842,7 @@ void FourWheelDynamicsRealtime2::run()
 			if(currentRoadArray[1])
 			{
 				Vector3D searchInVec(tempMatrixFL2.getTrans().x(), tempMatrixFL2.getTrans().y(), tempMatrixFL2.getTrans().z());
-				std::cout << "fl2 in: pointx " << searchInVec.x() << " pointy " << searchInVec.y() << " pointz " << searchInVec.z() << std::endl;
+				//std::cout << "fl2 in: pointx " << searchInVec.x() << " pointy " << searchInVec.y() << " pointz " << searchInVec.z() << std::endl;
 				Vector2D searchOutVec = currentRoadArray[1]->searchPositionNoBorder(searchInVec, currentLongPosArray[1]);
 				//std::cout << "search road from scratch" << std::endl;
 				if (!searchOutVec.isNaV())
@@ -1340,6 +1340,10 @@ void FourWheelDynamicsRealtime2::run()
 			{
 				K1Speed.OmegaYRL = 0;
 			}
+			if((initialSpeeds.vX > 0 && K1Speed.vX < 0) || (initialSpeeds.vX < 0 && K1Speed.vX > 0) || K1Speed.vX == 0)
+			{
+				K1Speed.vX = 0;
+			}
 			
 			K1Speed.phiDotFL1 = K1Acc.phiDotFL1;
 			K1Speed.phiDotFL2 = K1Acc.phiDotFL2;
@@ -1377,6 +1381,10 @@ void FourWheelDynamicsRealtime2::run()
 			{
 				K2Speed.OmegaYRL = 0;
 			}
+			if((initialSpeeds.vX > 0 && K2Speed.vX < 0) || (initialSpeeds.vX < 0 && K2Speed.vX > 0) || K2Speed.vX == 0)
+			{
+				K2Speed.vX = 0;
+			}
 			
 			K2Speed.phiDotFL1 = K2Acc.phiDotFL1;
 			K2Speed.phiDotFL2 = K2Acc.phiDotFL2;
@@ -1413,6 +1421,10 @@ void FourWheelDynamicsRealtime2::run()
 			if((initialSpeeds.OmegaYRL > 0 && K3Speed.OmegaYRL < 0) || (initialSpeeds.OmegaYRL < 0 && K3Speed.OmegaYRL > 0) || K3Speed.OmegaYRL == 0)
 			{
 				K3Speed.OmegaYRL = 0;
+			}
+			if((initialSpeeds.vX > 0 && K3Speed.vX < 0) || (initialSpeeds.vX < 0 && K3Speed.vX > 0) || K3Speed.vX == 0)
+			{
+				K3Speed.vX = 0;
 			}
 			
 			K3Speed.phiDotFL1 = K3Acc.phiDotFL1;
@@ -1517,6 +1529,10 @@ void FourWheelDynamicsRealtime2::run()
 			{
 				speedState.OmegaYRL = 0;
 			}
+			if(K1Speed.vX == 0 && K2Speed.vX == 0 && K3Speed.vX == 0)
+			{
+				speedState.vX = 0;
+			}
 			
 			rpms = speedState.engineRPM / (2 * M_PI);
 			if(rpms > 8000)
@@ -1528,7 +1544,20 @@ void FourWheelDynamicsRealtime2::run()
 				rpms = 0;
 			}
 			
+			double oldCurrent = current;
 			current = -speedState.TcolumnCombined;
+			if(std::abs(current - oldCurrent) > carState.maxDeltaCurrent)
+			{
+				if(current > oldCurrent)
+				{
+					current = oldCurrent + carState.maxDeltaCurrent;
+				}
+				else 
+				{
+					current = oldCurrent - carState.maxDeltaCurrent;
+				}
+			}
+			
 			
 			carState.localZPosSuspFL = carState.localZPosSuspFL + speedState.vSuspZFL * h;
 			carState.localZPosSuspFR = carState.localZPosSuspFR + speedState.vSuspZFR * h;
@@ -1718,6 +1747,8 @@ void FourWheelDynamicsRealtime2::run()
 				//speedState.genericOut11 << " " << speedState.genericOut12 << std::endl;
 				//outfile << time << " " << speedState.vX << " " << engineSpeed << " " << carState.gear << " " << carState.clutchSwitch << " " << carState.clutchState << 
 				//" " << std::abs(speedState.engineRPM - (speedState.OmegaYRR + speedState.OmegaYRL) / 2 * carState.gearRatio * carState.finalDrive) << std::endl;
+				outfile << time << " " << speedState.vX << " " << speedState.TcolumnCombined << " " << carState.posSteeringWheel << " " << carState.vSteeringWheel << " " 
+				<< speedState.phiDotFL1 << " " << speedState.phiDotFL2 << " " << speedState.phiDotFL3 << std::endl;
 				
 				//for 2D log view
 				//std::cout << time << " " << carState.globalPosJointFL.getTrans().x() << " " << carState.globalPosJointFL.getTrans().y() << " " <<
@@ -1734,8 +1765,8 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#time " << time << std::endl; 
 				//osg::Vec3d globPosTransVec = carState.globalPosOC.getTrans();
 				//std::cout << "#globalPosTransVec: x " << globPosTransVec.x() << "; y " << globPosTransVec.y() << "; z " << globPosTransVec.z() << std::endl;
-				osg::Vec3d chassisTransVec = chassisTrans.getTrans();
-				std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
+				//osg::Vec3d chassisTransVec = chassisTrans.getTrans();
+				//std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
 				
 				//std::cout << "rot:"<< std::endl;
 				//std::cout << carState.cogOpencoverRot(0,0) << "," << carState.cogOpencoverRot(0,1) << "," << carState.cogOpencoverRot(0,2) << "," << carState.cogOpencoverRot(0,3) << std::endl;
@@ -1774,7 +1805,7 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "vX 1: " << initialSpeeds.vX << " vX 2: " << K1Speed.vX << " vX 3: " << K2Speed.vX << " vX 4: " << K3Speed.vX << std::endl;
 				//std::cout << " " << std::endl;
 				int length = 13;
-				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
+				//std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
 				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
 				//std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
 				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
@@ -1841,8 +1872,8 @@ void FourWheelDynamicsRealtime2::run()
 				
 				//std::cout << " " << std::endl;
 				
-				std::cout << "road used: " << currentRoadFL2 << std::endl;
-				std::cout << "road new: " << currentRoadArray[1] << std::endl;
+				//std::cout << "road used: " << currentRoadFL2 << std::endl;
+				//std::cout << "road new: " << currentRoadArray[1] << std::endl;
 				
 				//std::cout << "#vx " << speedState.vX << std::endl;
 				//std::cout << "#vy " << speedState.vY << std::endl;
@@ -1855,7 +1886,7 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#yaw " << carState.globalYaw << std::endl;
 				//std::cout << "#roll " << carState.localRoll << std::endl;
 				//std::cout << "#pitch " << carState.localPitch << std::endl;
-				std::cout << "#=(^-.-^)="<< std::endl;
+				//std::cout << "#=(^-.-^)="<< std::endl;
 				
 				//timerTimer++;
 				//fprintf(outFile, "1  2  3%5g%13g%13g%13g%13g%13g\n",timerTimer,carState.localPitch,carState.localRoll,carState.roadHeightFL2,carState.roadHeightFR2,speedState.vZ);
@@ -1870,7 +1901,7 @@ void FourWheelDynamicsRealtime2::run()
 		//std::cout << "steering angle: " << carState.posSteeringWheel << std::endl;
 		//std::cout << "current before: " << current << std::endl;
 		
-		current = 0;
+		//current = 0;
 		
 		double currentLimit = 700;
 		if(current > currentLimit)
@@ -1892,9 +1923,9 @@ void FourWheelDynamicsRealtime2::run()
 		steerWheel->setCurrent(current);
 		
 		//Motion platform handling
-		carState.mpRZ = 0;
-		carState.mpLZ = 0;
-		carState.mpBZ = 0;
+		//carState.mpRZ = 0;
+		//carState.mpLZ = 0;
+		//carState.mpBZ = 0;
 		
 		double posLimit = 0.2;
 		if(carState.mpRZ > posLimit)
