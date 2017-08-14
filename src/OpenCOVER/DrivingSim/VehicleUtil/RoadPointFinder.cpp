@@ -68,7 +68,7 @@ void RoadPointFinder::run()
 		
 		for(int i = 0; i < 12; i++)
 		{
-			std::cout << "currentRoad " << i << ": " << currentRoad[i] << std::endl;
+			//std::cout << "currentRoad " << i << ": " << currentRoad[i] << std::endl;
 			//std::cout << "currentLongPos " << i << ": " << currentLongPos[i] << std::endl;
 			
 			positionMutex.acquire(1000000);
@@ -84,7 +84,7 @@ void RoadPointFinder::run()
 			
 			
 			
-			std::cout << "searchOutVec " << i << ": " << searchOutVec.x() << " " << searchOutVec.y() << std::endl;
+			//std::cout << "searchOutVec " << i << ": " << searchOutVec.x() << " " << searchOutVec.y() << std::endl;
 			
 			//std::cout << "fl2 out" << std::endl << "pointx" << searchOutVec.x() << std::endl << "pointy" << searchOutVec.y() << std::endl;
 			currentLongPos[i] = searchOutVec.x();
