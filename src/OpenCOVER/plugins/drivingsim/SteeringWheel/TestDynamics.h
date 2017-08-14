@@ -144,8 +144,21 @@ private:
 	bool printedOnce;
 	int printCounter;
 	int printMax;
+	
+	osg::Matrix Car2OddlotRotation;
+	osg::Matrix Oddlot2CarRotation;
+	osg::Matrix Oddlot2OpencoverRotation;
+	osg::Matrix Opencover2OddlotRotation;
+	osg::Matrix Car2OpencoverRotation;
+	osg::Matrix Opencover2CarRotation;
+	
+	osg::Matrix globalSpeedMatrix;
 	osg::Matrix globalPos;
 	osg::Matrix rotationPos;
+	osg::Matrix cogPos;
+	osg::Matrix rotMatrix;
+	osg::Matrix tireContactPoint;
+	double tireDist;
 };
 
 #endif
