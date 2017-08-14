@@ -54,14 +54,14 @@ FWDCarState::FWDCarState()
 	contactPatch = 0.1;
 	tireRadF = 0.3;
 	tireRadR = 0.3;
-	csFLSport = 11000;//9000;
-	csFRSport = 11000;//9000;
-	csRRSport = 12000;//9000;
-	csRLSport = 12000;//9000;
-	dsFLSport = 7000;//5000;
-	dsFRSport = 7000;//5000;
-	dsRRSport = 7000;//5000;
-	dsRLSport = 7000;//5000;
+	csFLSport = 13000;//9000;
+	csFRSport = 13000;//9000;
+	csRRSport = 15000;//9000;
+	csRLSport = 15000;//9000;
+	dsFLSport = 8500;//5000;
+	dsFRSport = 8500;//5000;
+	dsRRSport = 9000;//5000;
+	dsRLSport = 9000;//5000;
 	csFLComfort = 8000;//9000;
 	csFRComfort = 8000;//9000;
 	csRRComfort = 9000;//9000;
@@ -78,10 +78,10 @@ FWDCarState::FWDCarState()
 	dsFR = dsFRComfort;
 	dsRR = dsRRComfort;
 	dsRL = dsRLComfort;
-	ctFL = 40000;//40000;
-	ctFR = 40000;//40000;
-	ctRR = 40000;//40000;
-	ctRL = 40000;//40000;
+	ctFL = 45000;//40000;
+	ctFR = 45000;//40000;
+	ctRR = 45000;//40000;
+	ctRL = 45000;//40000;
 	dtFL = 45000;//45000;
 	dtFR = 45000;//45000;
 	dtRR = 45000;//45000;
@@ -141,6 +141,7 @@ FWDCarState::FWDCarState()
 	wheelAngleZFR = toeFR; //rotation of wheel depending on base toe and steering
 	wheelAngleZRR = toeRR; //rotation of wheel depending on base toe and steering
 	wheelAngleZRL = toeRL; //rotation of wheel depending on base toe and steering
+	maxDeltaCurrent = 1000;
 	
 	//distances between center of gravity and origin of car model in open cover
 	modelOriginOffsetX = 0;
@@ -204,8 +205,8 @@ FWDCarState::FWDCarState()
 	phiRL1 = 0;
 	phiRL2 = 0;
 	phiRL3 = 0;*/
-	cBore = 150000;//30000;
-	dBore = 50000;//10000;
+	cBore = 350000;//30000;
+	dBore = 28000;//10000;
 	inBore = 0.001;
 	slipSoundLimit = 0.8;
 	
@@ -223,9 +224,9 @@ FWDCarState::FWDCarState()
 	clutchState = 0;			//1 is connected
 	clutchSwitch = 0;			//1 is sticking
 	clutchSlipBorder = 1;	//when clutch starts to stick, higher is earlier
-	clutchTimer = 400;
-	frictionCoefStatClutch = 600;
-	frictionCoefDynClutch = 100;
+	clutchTimer = 300;
+	frictionCoefStatClutch = 700;
+	frictionCoefDynClutch = 120;
 	
 	//engine
 	idleSpeed = 1000 * 2 * M_PI / 60;
@@ -245,7 +246,7 @@ FWDCarState::FWDCarState()
 	brakeForceAmplification = 20.0;
 	
 	//drag
-	cDrag = 0.45;
+	cDrag = 0.35;
 	
 	//environment
 	aGrav = 9.81;
