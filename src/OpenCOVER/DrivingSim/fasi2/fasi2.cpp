@@ -433,7 +433,7 @@ void fasi2::run()
         }*/
         if (sharedState.PSMState)
         {
-            //running = false; // Stop fasi2
+            running = false; // Stop fasi2
         }
 
         float ccGas = 0.0;
