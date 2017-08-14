@@ -59,16 +59,61 @@
 
 #include <grmsg/coGRKeyWordMsg.h>
 
-using namespace opencover;
 using namespace vrui;
 using namespace grmsg;
 using namespace covise;
 
-opencover::coVRPluginSupport *opencover::cover = NULL;
+namespace opencover
+{
+
+coVRPluginSupport *cover = NULL;
+
+class NotifyBuf: public std::stringbuf
+{
+ public:
+    NotifyBuf(int level): level(level) {}
+    int sync()
+    {
+        coVRPluginList::instance()->notify(level, str().c_str());
+        str("");
+        return 0;
+    }
+ private:
+    int level;
+};
 
 bool coVRPluginSupport::debugLevel(int level) const
 {
     return coVRConfig::instance()->debugLevel(level);
+}
+
+std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
+{
+    std::ostream *str = m_notifyStream[0];
+    if (level < m_notifyStream.size())
+        str = m_notifyStream[level];
+    *str << std::flush;
+
+    return *str;
+}
+
+std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level, const char *fmt, ...) const
+{
+    std::vector<char> text(strlen(fmt)+500);
+
+    va_list args;
+    va_start(args, fmt);
+    int messageSize = vsnprintf(&text[0], text.size(), fmt, args);
+	va_end(args);
+	if (messageSize>text.size())
+	{
+        text.resize(strlen(fmt)+messageSize);
+		va_start(args, fmt);
+		vsnprintf(&text[0], text.size(), fmt, args);
+		va_end(args);
+	}
+
+    return notify(level) << &text[0];
 }
 
 void
@@ -1097,7 +1142,17 @@ coVRPluginSupport::coVRPluginSupport()
     , updateManager(0)
     , activeClippingPlane(0)
 {
+    assert(!cover);
+    cover = this;
+
     START("coVRPluginSupport::coVRPluginSupport");
+
+    for (int level=0; level<Notify::Fatal; ++level)
+    {
+        m_notifyBuf.push_back(new NotifyBuf(level));
+        m_notifyStream.push_back(new std::ostream(m_notifyBuf[level]));
+    }
+
     /// path for the viewpoint file: initialized by 1st param() call
     intersectedNode = NULL;
 
@@ -1109,7 +1164,6 @@ coVRPluginSupport::coVRPluginSupport()
         clipPlanes[i]->setClipPlaneNum(i);
     }
     NoFrameBuffer = new osg::ColorMask(false, false, false, false);
-    cover = this;
     player = NULL;
 
     pointerButton = NULL;
@@ -1151,6 +1205,21 @@ coVRPluginSupport::~coVRPluginSupport()
     START("coVRPluginSupport::~coVRPluginSupport");
     if (debugLevel(2))
         fprintf(stderr, "delete coVRPluginSupport\n");
+
+    delete updateManager;
+
+    while(!m_notifyStream.empty())
+    {
+        delete m_notifyStream.back();
+        m_notifyStream.pop_back();
+    }
+    while(!m_notifyBuf.empty())
+    {
+        delete m_notifyBuf.back();
+        m_notifyBuf.pop_back();
+    }
+
+    cover = NULL;
 }
 
 int coVRPluginSupport::getNumClipPlanes()
@@ -1674,6 +1743,8 @@ void coVRPluginSupport::personSwitched(size_t personNum)
     VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
     coVRNavigationManager::instance()->updatePerson();
 }
+
+} // namespace opencover
 
 covise::TokenBuffer &opencover::operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix)
 {

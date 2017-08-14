@@ -679,7 +679,7 @@ int coReadVolume::compute(const char *)
         // Print message:
         if (
             !pboSequenceFromHeader->getValue()
-         && (numFiles != piSequenceEnd->getValue() - piSequenceBegin->getValue() + 1)
+         && (numFiles != (piSequenceEnd->getValue() - piSequenceBegin->getValue() + piSequenceInc->getValue())/piSequenceInc->getValue())
             )
         {
             skipped << " in sequence.";

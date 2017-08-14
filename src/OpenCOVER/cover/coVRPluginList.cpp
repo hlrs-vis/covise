@@ -137,6 +137,10 @@ coVRPluginList::coVRPluginList()
     m_requestedTimestep = -1;
     m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
+}
+
+void coVRPluginList::loadDefault()
+{
     if (cover->debugLevel(1))
     {
         cerr << "Loading plugins:";
@@ -244,6 +248,11 @@ void coVRPluginList::unloadQueued()
     }
     m_unloadNext = m_unloadQueue;
     m_unloadQueue.clear();
+}
+
+void coVRPluginList::notify(int level, const char *text) const
+{
+    DOALL(plugin->notify((coVRPlugin::NotificationLevel)level, text));
 }
 
 void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const

@@ -35,7 +35,6 @@ namespace opencover
 class COVEREXPORT coVRShadowManager
 {
 public:
-    coVRShadowManager();
     ~coVRShadowManager();
     static coVRShadowManager *instance();
     
@@ -51,6 +50,7 @@ public:
 
 private:
     
+    coVRShadowManager();
     std::string technique;
     static coVRShadowManager* inst;
     osg::ref_ptr<osgShadow::ShadowVolume> sv;

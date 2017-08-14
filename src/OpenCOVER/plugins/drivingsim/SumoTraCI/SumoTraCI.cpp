@@ -29,6 +29,10 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
+#include <TrafficSimulation/Vehicle.h>
+#include <TrafficSimulation/CarGeometry.h>
+#include <net/tokenbuffer.h>
+#include <cover/coVRMSController.h>
 
 int gPrecision;
 

@@ -28,14 +28,15 @@ namespace opencover
 {
 class COVEREXPORT coIntersection : public virtual vrui::vruiIntersection
 {
-public:
+    static coIntersection *intersector;
     coIntersection();
+public:
+    static coIntersection *instance();
     virtual ~coIntersection();
 
     virtual const char *getClassName() const;
     virtual const char *getActionName() const;
 
-    static coIntersection *instance();
     osgUtil::Hit hitInformation;
 
     void isectAllNodes(bool isectAll);
@@ -56,8 +57,6 @@ protected:
 
     static int myFrameIndex;
     static int myFrame;
-
-    static coIntersection *intersector;
 
 private:
     std::vector<std::vector<float> > elapsedTimes;

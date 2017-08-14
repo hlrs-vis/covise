@@ -6,6 +6,8 @@ using namespace opencover;
 coVRShadowManager* coVRShadowManager::inst=NULL;
 coVRShadowManager::coVRShadowManager()
 {
+    assert(!inst);
+
     std::string tech = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
     
     osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
@@ -23,13 +25,19 @@ coVRShadowManager::coVRShadowManager()
     sv = new osgShadow::ShadowVolume;
     setTechnique(tech);
 }
+
+coVRShadowManager::~coVRShadowManager()
+{
+    inst = NULL;
+}
+
 coVRShadowManager* coVRShadowManager::instance()
+{
+    if(inst == NULL)
     {
-        if(inst == NULL)
-        {
-            inst = new coVRShadowManager();
-        }
-        return inst;
+        inst = new coVRShadowManager();
+    }
+    return inst;
 }
 
 void coVRShadowManager::setLight(osg::LightSource *ls)

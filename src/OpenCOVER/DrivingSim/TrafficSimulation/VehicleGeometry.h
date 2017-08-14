@@ -8,7 +8,7 @@
 #ifndef VehicleGeometry_h
 #define VehicleGeometry_h
 
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/Types.h>
 
 class TRAFFICSIMULATIONEXPORT VehicleGeometry
 {

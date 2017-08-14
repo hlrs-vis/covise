@@ -26,6 +26,8 @@ coHud *coHud::instance_ = NULL;
 
 coHud::coHud()
 {
+    assert(!instance_);
+
     visible = false;
     doHide = false;
 
@@ -200,10 +202,9 @@ coHud::coHud()
 
 coHud *coHud::instance()
 {
-    static coHud *singleton = NULL;
-    if (!singleton)
-        singleton = new coHud;
-    return singleton;
+    if (!instance_)
+        instance_ = new coHud;
+    return instance_;
 }
 
 void coHud::redraw()
@@ -271,4 +272,5 @@ void coHud::hide()
 coHud::~coHud()
 {
     hide();
+    instance_ = NULL;
 }

@@ -67,6 +67,8 @@ using namespace opencover;
 using namespace vrui;
 using covise::coCoviseConfig;
 
+VRPinboard *VRPinboard::s_singleton = NULL;
+
 coCheckboxGroup *opencover::groupPointerArray[100];
 
 buttonSpecCell::buttonSpecCell(const buttonSpecCell &s)
@@ -154,10 +156,9 @@ void buttonSpecCell::setMenu(const char *n)
  ************************************************************************/
 VRPinboard *VRPinboard::instance()
 {
-    static VRPinboard *singleton = NULL;
-    if (!singleton)
-        singleton = new VRPinboard();
-    return singleton;
+    if (!s_singleton)
+        s_singleton = new VRPinboard();
+    return s_singleton;
 }
 
 VRPinboard::PinboardFunction::PinboardFunction(const char *fn,
@@ -196,6 +197,8 @@ void VRPinboard::addFunction(const char *fn, int ft, const char *bn, const char 
 /*______________________________________________________________________*/
 VRPinboard::VRPinboard()
 {
+    assert(!s_singleton);
+
     customPinboard = false;
     mainMenu = addMenu("COVER", NULL);
 
@@ -257,6 +260,7 @@ VRPinboard::~VRPinboard()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete VRPinboard\n");
+    s_singleton = NULL;
 }
 
 /*______________________________________________________________________*/

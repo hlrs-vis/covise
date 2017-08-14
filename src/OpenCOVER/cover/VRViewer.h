@@ -79,6 +79,7 @@ public:
     void flipStereo();
 
 private:
+    static VRViewer *s_singleton;
     MSEventHandler *myeh;
 
     // stereo parameters

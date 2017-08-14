@@ -4,7 +4,7 @@
 using namespace std;
 #include<iostream>
 #include<string>
-#include <DrivingSim/OpenScenario/schema/oscFollowTrajectory.h>
+#include <OpenScenario/schema/oscFollowTrajectory.h>
 
 class FollowTrajectory : public OpenScenario::oscFollowTrajectory
 {

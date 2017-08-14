@@ -27,6 +27,7 @@
 #include <osg/Camera>
 #include <osg/Multisample>
 #include <osg/Texture2D>
+#include <osgViewer/GraphicsWindow>
 #include <osgUtil/SceneView>
 #include <string>
 
@@ -135,8 +136,8 @@ struct windowStruct
 {
     int ox, oy;
     int sx, sy;
-    osg::GraphicsContext *context;
-    osgViewer::GraphicsWindow *window;
+    osg::ref_ptr<osg::GraphicsContext> context;
+    osg::ref_ptr<osgViewer::GraphicsWindow> window;
     int pipeNum;
     std::string name;
     bool decoration;
@@ -239,6 +240,8 @@ class COVEREXPORT coVRConfig
     friend class VRSceneGraph;
     friend class OpenCOVER;
     friend class VRViewer;
+
+    static coVRConfig *s_instance;
 
 public:
     static coVRConfig *instance();

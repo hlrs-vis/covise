@@ -44,6 +44,9 @@ using namespace osgUtil;
 using namespace opencover;
 using namespace covise;
 
+osg::Uniform *coVRSceneView::coEnvCorrectMatrixUniform=NULL;
+osg::Uniform *coVRSceneView::coInvEnvCorrectMatrixUniform=NULL;
+
 coVRSceneView::coVRSceneView(DisplaySettings *ds, int c)
     : osgUtil::SceneView(ds)
 {
@@ -60,8 +63,12 @@ coVRSceneView::~coVRSceneView()
 {
 }
 
-    osg::Uniform *coVRSceneView::coEnvCorrectMatrixUniform=NULL;
-    osg::Uniform *coVRSceneView::coInvEnvCorrectMatrixUniform=NULL;
+void coVRSceneView::destroyUniforms()
+{
+    coEnvCorrectMatrixUniform = NULL;
+    coInvEnvCorrectMatrixUniform = NULL;
+}
+
 
 void coVRSceneView::createUniforms(osg::StateSet *stateset)
 {

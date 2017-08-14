@@ -52,11 +52,11 @@
 
 // OpenScenario //
 //
-#include "schema/oscObject.h"
-#include "oscObjectBase.h"
-#include "oscMember.h"
-#include "oscMemberValue.h"
-#include "oscCatalog.h"
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/oscMemberValue.h>
+#include <OpenScenario/oscCatalog.h>
 
 #include <QWidget>
 #include <QDockWidget>

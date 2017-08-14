@@ -4399,6 +4399,7 @@ ViewerOsg::insertMovieTexture(char *filename,
                 d_currentObject->texData[textureNumber].texImage = image;
                 moviePs.push_back(dataSet);
                 d_currentObject->texData[textureNumber].texture = texture = new Texture2D(image);
+				texture->setResizeNonPowerOfTwoHint(false);
 
                 d_currentObject->texData[textureNumber].mirror = 1;
 
@@ -4500,11 +4501,14 @@ void ViewerOsg::insertMovieReference(TextureObject t, int nc, bool environment, 
         else
         {
             d_currentObject->texData[textureNumber].texture = (Texture *)t;
+			d_currentObject->texData[textureNumber].texture->setResizeNonPowerOfTwoHint(false);
             d_currentObject->setTexEnv(environment, textureNumber, blendMode, nc);
             d_currentObject->setTexGen(environment, textureNumber, blendMode);
             osg::Texture *tex = d_currentObject->texData[textureNumber].texture.get();
-            if (osg::Texture2D *tex2d = dynamic_cast<osg::Texture2D *>(tex))
-                d_currentObject->texData[textureNumber].texImage = tex2d->getImage();
+			if (osg::Texture2D *tex2d = dynamic_cast<osg::Texture2D *>(tex))
+			{
+				d_currentObject->texData[textureNumber].texImage = tex2d->getImage();
+			}
             else
                 d_currentObject->texData[textureNumber].texImage = NULL;
             d_currentObject->texData[0].mirror = 1;

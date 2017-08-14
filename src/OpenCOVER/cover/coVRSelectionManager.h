@@ -31,9 +31,10 @@ public:
 
 class COVEREXPORT coVRSelectionManager : public vrui::coUpdateable
 {
+    static coVRSelectionManager *s_instance;
+    coVRSelectionManager();
 
 public:
-    coVRSelectionManager();
     ~coVRSelectionManager();
     static coVRSelectionManager *instance();
     void addListener(coSelectionListener *);

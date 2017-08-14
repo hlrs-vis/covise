@@ -9,9 +9,9 @@
 #define AgentVehicle_h
 #include "Vehicle.h"
 #include "CarGeometry.h"
-#include "RoadSystem/LaneSection.h"
-#include "RoadSystem/Road.h"
-#include "RoadSystem/Crosswalk.h"
+#include <VehicleUtil/RoadSystem/LaneSection.h>
+#include <VehicleUtil/RoadSystem/Road.h>
+#include <VehicleUtil/RoadSystem/Crosswalk.h>
 #include "VehicleUtils.h"
 #include "PorscheFFZ.h"
 

@@ -34,6 +34,8 @@ using namespace opencover;
 using namespace grmsg;
 using namespace covise;
 
+coVRAnimationManager *coVRAnimationManager::s_instance;
+
 coVRAnimationManager::coVRAnimationManager()
     : AnimSliderMin(-25.)
     , AnimSliderMax(25.)
@@ -52,6 +54,8 @@ coVRAnimationManager::coVRAnimationManager()
     , timestepBase(0.0)
     , timestepUnit("Time Step")
 {
+    assert(!s_instance);
+
     initAnimMenu();
     animWheelInteraction = new coTrackerButtonInteraction(coInteraction::Wheel, "Animation", coInteraction::Low);
 }
@@ -67,17 +71,16 @@ coVRAnimationManager::~coVRAnimationManager()
     delete animBackItem;
     delete animFrameItem;
     delete animPingPongItem;
-    delete animSyncItem;
     delete animRowMenu;
+
+    s_instance = NULL;
 }
 
-coVRAnimationManager *
-coVRAnimationManager::instance()
+coVRAnimationManager * coVRAnimationManager::instance()
 {
-    static coVRAnimationManager *singleton;
-    if (!singleton)
-        singleton = new coVRAnimationManager;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRAnimationManager;
+    return s_instance;
 }
 
 void coVRAnimationManager::initAnimMenu()

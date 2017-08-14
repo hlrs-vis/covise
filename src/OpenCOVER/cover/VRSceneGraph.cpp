@@ -97,12 +97,13 @@ using covise::coCoviseConfig;
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+VRSceneGraph *VRSceneGraph::s_instance = NULL;
+
 VRSceneGraph *VRSceneGraph::instance()
 {
-    static VRSceneGraph *singleton = NULL;
-    if (!singleton)
-        singleton = new VRSceneGraph;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRSceneGraph;
+    return s_instance;
 }
 
 VRSceneGraph::VRSceneGraph()
@@ -139,6 +140,8 @@ VRSceneGraph::VRSceneGraph()
     , m_switchToHighQuality(false)
     , m_interactionHQ(NULL)
 {
+    assert(!s_instance);
+
     KeyButton[0] = 0;
     KeyButton[1] = 0;
     KeyButton[2] = 0;
@@ -190,6 +193,8 @@ VRSceneGraph::~VRSceneGraph()
     }
 
     delete statsDisplay;
+
+    s_instance = NULL;
 }
 
 void VRSceneGraph::config()

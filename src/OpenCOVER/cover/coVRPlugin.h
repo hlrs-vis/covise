@@ -71,6 +71,13 @@ class COVEREXPORT coVRPlugin
     friend class coVRPluginList;
 
 public:
+    enum NotificationLevel {
+        Info,
+        Warning,
+        Error,
+        Fatal
+    };
+
     //! called early, if loaded from config, before COVER is fully initialized
     coVRPlugin();
 
@@ -103,6 +110,13 @@ public:
 
     //! set the plugin's name
     void setName(const char *sn);
+
+    //! this function is called when COVER wants to display a message to the user
+    virtual void notify(NotificationLevel level, const char *text)
+    {
+        (void)level;
+        (void)text;
+    }
 
     /// first parameter is a pointer to the scene graph node,
     /// second parameter is a pointer to the COVISE object,

@@ -55,7 +55,7 @@ cat <<EOF
 
 <center><table border=0 cellspacing=0 width="100%" >
 <tr>
-<td>Copyright &copy; 1993-$YEAR <a href="http://www.hlrs.de">HLRS</a>, 2004-2014 <a href="http://vis.uni-koeln.de">RRZK</a>, 2005-2014 <a href="http://visenso.com">Visenso</a></td>
+<td>Copyright &copy; 1993-$YEAR <a href="http://www.hlrs.de">HLRS</a>, 2004-2014 <a href="http://vis.uni-koeln.de">RRZK</a>, 2005-2014 Visenso</td>
 
 <td align=right>
 <div align=right>COVISE Version ${COVISE_VERSION}</div>

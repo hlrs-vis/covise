@@ -47,8 +47,10 @@ class buttonSpecCell;
 class COVEREXPORT coVRAnimationManager : public vrui::coMenuListener
 {
     friend class coVRPluginList;
-public:
+
+    static coVRAnimationManager *s_instance;
     coVRAnimationManager();
+public:
     ~coVRAnimationManager();
     static coVRAnimationManager *instance();
 

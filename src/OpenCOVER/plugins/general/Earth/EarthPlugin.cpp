@@ -174,6 +174,7 @@ EarthPlugin::EarthPlugin()
     int _maxLights = Registry::instance()->getCapabilities().getMaxLights();
     plugin = this;
     mapNode = NULL;
+    oldDump = NULL;
 
     earthTab = new coTUITab("Earth", coVRTui::instance()->mainFolder->getID());
     earthTab->setPos(0, 0);
@@ -212,23 +213,23 @@ void EarthPlugin::toggle(osg::Group *g, const std::string &name, bool onoff)
 
 void EarthPlugin::tabletEvent(coTUIElement *e)
 {
-    if (e == requestDump)
+    if (e == requestDump && mapNode)
     {
         mapNode->getOverlayDecorator()->requestDump();
     }
-    if (e == cameraCheckBox)
+    if (e == cameraCheckBox && oldDump)
     {
         toggle(static_cast<osg::Group *>(oldDump), "camera", cameraCheckBox->getState());
     }
-    if (e == intersectionsCheckBox)
+    if (e == intersectionsCheckBox && oldDump)
     {
         toggle(static_cast<osg::Group *>(oldDump), "intersection", intersectionsCheckBox->getState());
     }
-    if (e == rttCheckBox)
+    if (e == rttCheckBox && oldDump)
     {
         toggle(static_cast<osg::Group *>(oldDump), "rtt", rttCheckBox->getState());
     }
-    if (e == DebugCheckBox)
+    if (e == DebugCheckBox && mapNode)
     {
         if (DebugCheckBox->getState())
         {
@@ -302,8 +303,13 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
             if (useSky)
             {
                 double hours = skyConf.value("hours", 12.0);
+#if OSGEARTH_VERSION_LESS_THAN(2,6,0)
+                s_sky = new SkyNode(mapNode->getMap());
+                s_sky->setDateTime(2011, 3, 6, hours);
+#else
                 s_sky = SkyNode::create(mapNode);
                 s_sky->setDateTime(DateTime(2011, 3, 6, hours));
+#endif
                 s_sky->attach(VRViewer::instance());
                 parent->addChild(s_sky);
             }
@@ -337,7 +343,7 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
         const Config &declutterConf = externals.child("decluttering");
         if (!declutterConf.empty())
         {
-#if (OSGEARTH_MAJOR_VERSION > 2 || (OSGEARTH_MAJOR_VERSION == 2 && OSGEARTH_MINOR_VERSION > 3))
+#if !OSGEARTH_VERSION_LESS_THAN(2,4,0) && OSGEARTH_VERSION_LESS_THAN(2,9,0)
             osgEarth::Decluttering::setOptions(osgEarth::DeclutteringOptions(declutterConf));
 #endif
         }

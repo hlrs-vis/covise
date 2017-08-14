@@ -23,13 +23,13 @@
 
 #include <cover/coVRPlugin.h>
 
-#include "VehicleManager.h"
-#include "VehicleFactory.h"
-#include "PedestrianManager.h"
-#include "PedestrianFactory.h"
-#include "RoadSystem/RoadSystem.h"
-#include "UDPBroadcast.h"
-#include "Vehicle.h"
+#include <TrafficSimulation/VehicleManager.h>
+#include <TrafficSimulation/VehicleFactory.h>
+#include <TrafficSimulation/PedestrianManager.h>
+#include <TrafficSimulation/PedestrianFactory.h>
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <TrafficSimulation/UDPBroadcast.h>
+#include <TrafficSimulation/Vehicle.h>
 #include "myFactory.h"
 
 

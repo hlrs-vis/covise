@@ -95,7 +95,7 @@
 
 // OpenScenario //
 //
-#include "OpenScenarioBase.h"
+#include <OpenScenario/OpenScenarioBase.h>
 #include "src/io/oscparser.hpp"
 
 // Qt //

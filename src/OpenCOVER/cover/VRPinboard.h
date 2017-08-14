@@ -80,6 +80,7 @@ class COVEREXPORT VRPinboard : public vrui::coMenuListener
 {
 
 private:
+    static VRPinboard *s_singleton;
     std::list<VRMenu *> menuList;
     // check if the entry belongs to the permanent entries
     int isPermanentEntry(const char *functionName);
@@ -192,6 +193,7 @@ public:
 
     static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
     void hideQuitMenu();
+
 };
 
 class COVEREXPORT VRMenu : public vrui::coMenuFocusListener

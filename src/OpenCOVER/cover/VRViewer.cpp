@@ -352,12 +352,12 @@ void VRViewer::update()
 // osgViewer::Viewer implemention
 //
 
+VRViewer *VRViewer::s_singleton = NULL;
 VRViewer *VRViewer::instance()
 {
-    static VRViewer *singleton = NULL;
-    if (!singleton)
-        singleton = new VRViewer;
-    return singleton;
+    if (!s_singleton)
+        s_singleton = new VRViewer;
+    return s_singleton;
 }
 
 //OpenCOVER
@@ -365,6 +365,8 @@ VRViewer::VRViewer()
 : animateSeparation(0)
 , stereoOn(true)
 {
+    assert(!s_singleton);
+
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
@@ -454,6 +456,10 @@ VRViewer::~VRViewer()
         }
     }
 #endif
+
+    coVRSceneView::destroyUniforms();
+
+    s_singleton = NULL;
 }
 
 
@@ -1878,7 +1884,7 @@ void VRViewer::startThreading()
             {
                 if(coVRConfig::instance()->windows[i].context == gc)
                 {
-                    osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window);
+                    osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window.get());
 
                     if(coVRConfig::instance()->windows[i].swapGroup > 0)
                         glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);

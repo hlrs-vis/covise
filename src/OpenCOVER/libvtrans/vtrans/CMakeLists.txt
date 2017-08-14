@@ -40,7 +40,9 @@ IF(UNIX)
 ENDIF()
 
 ADD_COVISE_LIBRARY(vtrans ${LIB_TYPE} vtrans.h vtrans.cpp TransFactory.h TransFactory.cpp BoostTranslator.h BoostTranslator.cpp ITranslator.h PathTranslator.h PathTranslator.cpp vtransexport.h vtransexport.cpp)
-
+if(NOT MSVC)
+    add_covise_compile_flags(vtrans "-Wno-error=deprecated-declarations")
+endif()
 TARGET_LINK_LIBRARIES(vtrans  ${Boost_LIBRARIES})
 
 FIND_PACKAGE(ICU)

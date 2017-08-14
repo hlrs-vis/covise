@@ -8,10 +8,10 @@
 #ifndef Pedestrian_h
 #define Pedestrian_h
 
-#include "RoadSystem/Crosswalk.h"
-#include "RoadSystem/LaneSection.h"
-#include "RoadSystem/Junction.h"
-#include "RoadSystem/Road.h"
+#include <VehicleUtil/RoadSystem/Crosswalk.h>
+#include <VehicleUtil/RoadSystem/LaneSection.h>
+#include <VehicleUtil/RoadSystem/Junction.h>
+#include <VehicleUtil/RoadSystem/Road.h>
 #include <string>
 #include <stdarg.h>
 

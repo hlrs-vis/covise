@@ -26,7 +26,7 @@
 #include <vector>
 #include <osg/PositionAttitudeTransform>
 
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "ogrsf_frmts.h"
 #include "DecoratedGeometryTechnique.h"
 

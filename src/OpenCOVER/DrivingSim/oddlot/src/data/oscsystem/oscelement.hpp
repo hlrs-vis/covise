@@ -18,8 +18,8 @@
 
 #include "src/data/dataelement.hpp"
 
-#include "oscObjectBase.h"
-#include "OpenScenarioBase.h"
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/OpenScenarioBase.h>
 
 using namespace OpenScenario;
 

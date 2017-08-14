@@ -1570,6 +1570,8 @@ coVRShader::~coVRShader()
 
 coVRShaderList::coVRShaderList()
 {
+    assert(!s_instance);
+
     projectionMatrix = new osg::Uniform("Projection", osg::Matrixf::translate(100, 0, 0));
     lightMatrix = new osg::Uniform("Light", osg::Matrixf::translate(100, 0, 0));
     if (cover)
@@ -1589,6 +1591,12 @@ coVRShaderList::coVRShaderList()
         viewportHeightUniform = new osg::Uniform("ViewportHeight", 768);
     }
     stereoUniform = new osg::Uniform("Stereo", 0);
+}
+
+coVRShaderList::~coVRShaderList()
+{
+    clear();
+    s_instance = NULL;
 }
 
 void coVRShaderList::loadMaterials()
@@ -1698,15 +1706,15 @@ coVRShader *coVRShaderList::get(const std::string &n, std::map<std::string, std:
     return NULL;
 }
 
+coVRShaderList *coVRShaderList::s_instance = NULL;
 coVRShaderList *coVRShaderList::instance()
 {
-    static coVRShaderList *singleton = NULL;
-    if (!singleton)
+    if (!s_instance)
     {
-        singleton = new coVRShaderList;
-        singleton->loadMaterials();
+        s_instance = new coVRShaderList;
+        s_instance->loadMaterials();
     }
-    return singleton;
+    return s_instance;
 }
 
 void coVRShaderList::setData(TokenBuffer &tb)

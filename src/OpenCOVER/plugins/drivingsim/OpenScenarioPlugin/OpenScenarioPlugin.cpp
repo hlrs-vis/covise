@@ -27,16 +27,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioPlugin.h"
 #include <cover/coVRMSController.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
-#include <ScenarioManager.h>
-#include <Trajectory.h>
-#include "AgentVehicle.h"
-#include "CarGeometry.h"
+#include "ScenarioManager.h"
+#include "Trajectory.h"
+#include <TrafficSimulation/AgentVehicle.h>
+#include <TrafficSimulation/CarGeometry.h>
 #include <algorithm>
 
-#include "FindTrafficLightSwitch.h"
+#include <TrafficSimulation/FindTrafficLightSwitch.h>
 
-#include <DrivingSim/OpenScenario/OpenScenarioBase.h>
-#include <DrivingSim/OpenScenario/schema/oscFileHeader.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include <OpenScenario/schema/oscFileHeader.h>
 #include "myFactory.h"
 
 using namespace OpenScenario; 

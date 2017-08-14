@@ -8,8 +8,8 @@
 #ifndef PedestrianManager_h
 #define PedestrianManager_h
 
-#include "RoadSystem/Road.h"
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/Road.h>
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include <cover/coVRPluginSupport.h>
 
 class Pedestrian;

@@ -29,8 +29,8 @@
 
 // OpenScenario //
 //
-#include "schema/oscObject.h"
-#include "oscMemberValue.h"
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscMemberValue.h>
 
 using namespace OpenScenario;
 

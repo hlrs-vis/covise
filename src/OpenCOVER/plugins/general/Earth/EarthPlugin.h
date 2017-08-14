@@ -25,6 +25,7 @@
 
 #include <osgEarth/MapNode>
 #include <osgEarth/XmlUtils>
+#include <osgEarth/Version>
 #include <osgEarth/Viewpoint>
 
 #include <osgEarthSymbology/Color>
@@ -33,12 +34,15 @@
 //#include <osgEarthAnnotation/Decluttering>
 
 #include <osgEarthDrivers/kml/KML>
-#include <osgEarthDrivers/ocean_simple/SimpleOceanOptions>
 
 #include <osgEarthUtil/EarthManipulator>
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Controls>
+#if OSGEARTH_VERSION_LESS_THAN(2,6,0)
+#include <osgEarthUtil/SkyNode>
+#else
 #include <osgEarthUtil/Sky>
+#endif
 #include <osgEarthUtil/Formatter>
 #include <osgEarthUtil/MouseCoordsTool>
 #include "EarthLayerManager.h"
