@@ -686,68 +686,116 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double TBDRL3 = TBstRL3 + dPhiRL3 * phiADotRL3;
 	
 	double phiDotFL1 = 0;
-	if (std::abs(TBDFL1) < TBmaxFL1)
+	if(!isnan(TBDFL1))
+	{
+		phiDotFL1 = phiADotFL1 * (tanh(((TBmaxFL1 / std::abs(TBDFL1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFL1) < TBmaxFL1)
 	{
 		phiDotFL1 = phiADotFL1;
-	}
+	}*/
 	double phiDotFL2 = 0;
-	if (std::abs(TBDFL2) < TBmaxFL2)
+	if(!isnan(TBDFL2))
+	{
+		phiDotFL2 = phiADotFL2 * (tanh(((TBmaxFL2 / std::abs(TBDFL2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFL2) < TBmaxFL2)
 	{
 		phiDotFL2 = phiADotFL2;
-	}
+	}*/
 	double phiDotFL3 = 0;
-	if (std::abs(TBDFL3) < TBmaxFL3)
+	if(!isnan(TBDFL3))
+	{
+		phiDotFL3 = phiADotFL3 * (tanh(((TBmaxFL3 / std::abs(TBDFL3)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFL3) < TBmaxFL3)
 	{
 		phiDotFL3 = phiADotFL3;
-	}
+	}*/
 	
 	double phiDotFR1 = 0;
-	if (std::abs(TBDFR1) < TBmaxFR1)
+	if(!isnan(TBDFR1))
+	{
+		phiDotFR1 = phiADotFR1 * (tanh(((TBmaxFR1 / std::abs(TBDFR1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFR1) < TBmaxFR1)
 	{
 		phiDotFR1 = phiADotFR1;
-	}
+	}*/
 	double phiDotFR2 = 0;
-	if (std::abs(TBDFR2) < TBmaxFR2)
+	if(!isnan(TBDFR2))
+	{
+		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFR2) < TBmaxFR2)
 	{
 		phiDotFR2 = phiADotFR2;
-	}
+	}*/
 	double phiDotFR3 = 0;
-	if (std::abs(TBDFR3) < TBmaxFR3)
+	if(!isnan(TBDFR3))
+	{
+		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFR3) < TBmaxFR3)
 	{
 		phiDotFR3 = phiADotFR3;
-	}
+	}*/
 	
 	double phiDotRR1 = 0;
-	if (std::abs(TBDRR1) < TBmaxRR1)
+	if(!isnan(TBDRR1))
+	{
+		phiDotRR1 = phiADotRR1 * (tanh(((TBmaxRR1 / std::abs(TBDRR1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRR1) < TBmaxRR1)
 	{
 		phiDotRR1 = phiADotRR1;
-	}
+	}*/
 	double phiDotRR2 = 0;
-	if (std::abs(TBDRR2) < TBmaxRR2)
+	if(!isnan(TBDRR2))
+	{
+		phiDotRR2 = phiADotRR2 * (tanh(((TBmaxRR2 / std::abs(TBDRR2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRR2) < TBmaxRR2)
 	{
 		phiDotRR2 = phiADotRR2;
-	}
+	}*/
 	double phiDotRR3 = 0;
-	if (std::abs(TBDRR3) < TBmaxRR3)
+	if(!isnan(TBDRR3))
+	{
+		phiDotRR3 = phiADotRR3 * (tanh(((TBmaxRR3 / std::abs(TBDRR3)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRR3) < TBmaxRR3)
 	{
 		phiDotRR3 = phiADotRR3;
-	}
+	}*/
 	
 	double phiDotRL1 = 0;
-	if (std::abs(TBDRL1) < TBmaxRL1)
+	if(!isnan(TBDRL1))
+	{
+		phiDotRL1 = phiADotRL1 * (tanh(((TBmaxRL1 / std::abs(TBDRL1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRL1) < TBmaxRL1)
 	{
 		phiDotRL1 = phiADotRL1;
-	}
+	}*/
 	double phiDotRL2 = 0;
-	if (std::abs(TBDRL2) < TBmaxRL2)
+	if(!isnan(TBDRL2))
+	{
+		phiDotRL2 = phiADotRL2 * (tanh(((TBmaxRL2 / std::abs(TBDRL2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRL2) < TBmaxRL2)
 	{
 		phiDotRL2 = phiADotRL2;
-	}
+	}*/
 	double phiDotRL3 = 0;
-	if (std::abs(TBDRL3) < TBmaxRL3)
+	if(!isnan(TBDRL3))
+	{
+		phiDotRL3 = phiADotRL3 * (tanh(((TBmaxRL3 / std::abs(TBDRL3)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRL3) < TBmaxRL3)
 	{
 		phiDotRL3 = phiADotRL3;
-	}
+	}*/
 	
 		
 	//combined forces
