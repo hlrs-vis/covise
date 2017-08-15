@@ -6,6 +6,10 @@
  * License: LGPL 2+ */
 
 #include "PedestrianFactory.h"
+#include <utility>
+
+using std::pair;
+using std::list;
 
 /**
  * Create PedestrianFactory as a singleton
