@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "SteeringWheel.h"
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/Types.h>
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>

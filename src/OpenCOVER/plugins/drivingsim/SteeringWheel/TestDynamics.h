@@ -5,8 +5,8 @@
 #include "RemoteVehicle.h"
 #include "VehicleDynamics.h"
 
-#include "RoadSystem/RoadSystem.h"
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <VehicleUtil/RoadSystem/Types.h>
 #include "TestDynamicsUtil.h"
 
 #include <iostream>
