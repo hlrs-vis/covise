@@ -14,6 +14,9 @@
 // Creation Date: April 24th 2006
 //
 // **************************************************************************
+#include <iostream>
+#include <ostream>
+#include <sstream>
 #include <util/unixcompat.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -40,6 +43,10 @@
 
 #include <PluginUtil/PluginMessageTypes.h>
 
+using std::cerr;
+using std::endl;
+using std::string;
+using std::stringstream;
 using covise::coCoviseConfig;
 
 PDBSequenceDisplay *plugin = NULL;

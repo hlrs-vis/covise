@@ -5,6 +5,8 @@
 
  * License: LGPL 2+ */
 
+#include <cassert>
+
 #include "coVRPluginSupport.h"
 #include "coShutDownHandler.h"
 

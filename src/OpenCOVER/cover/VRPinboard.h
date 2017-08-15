@@ -22,8 +22,6 @@
  \date   20.08.1997
  */
 
-#include <util/common.h>
-
 #include <OpenVRUI/coMenu.h>
 
 #include <OpenVRUI/coRowMenu.h>

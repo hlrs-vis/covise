@@ -18,6 +18,7 @@
  **                                                                          **
 \****************************************************************************/
 
+#include <vector>
 #include <osg/Camera>
 #include <osg/Geode>
 #include <osg/MatrixTransform>
@@ -110,7 +111,7 @@ private:
     void handleThreeBlobs2(TUIO::TuioCursor *left, TUIO::TuioCursor *middle, TUIO::TuioCursor *right);
     void handleThreeBlobs3(TUIO::TuioCursor *left, TUIO::TuioCursor *middle, TUIO::TuioCursor *right);
 
-    void sortCursorsByXVal(vector<TUIO::TuioCursor *> &cursors);
+    void sortCursorsByXVal(std::vector<TUIO::TuioCursor *> &cursors);
 
     float weightedMovingAverageAlpha;
     /**

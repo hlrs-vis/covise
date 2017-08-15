@@ -48,6 +48,7 @@
 #include <osg/BoundingBox>
 
 #include <deque>
+#include <list>
 #include <ostream>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include "VRPinboard.h"
@@ -647,7 +648,7 @@ private:
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     vrml::Player *player;
-    list<void (*)()> playerUseList;
+    std::list<void (*)()> playerUseList;
 
     int activeClippingPlane;
 

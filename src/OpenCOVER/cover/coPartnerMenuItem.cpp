@@ -6,6 +6,9 @@
  * License: LGPL 2+ */
 
 
+#include <iostream>
+#include <ostream>
+
 #include "coPartnerMenuItem.h"
 #include <OpenVRUI/coFlatButtonGeometry.h>
 #include <OpenVRUI/coMenuContainer.h>
@@ -54,13 +57,13 @@ void coPartnerMenuItem::buttonEvent(coButton *button)
 {
     if (button == viewpoint)
     {
-        cerr << "viewpoint pressed " << viewpoint->getState() << endl;
+        std::cerr << "viewpoint pressed " << viewpoint->getState() << std::endl;
     }
     else
     {
         if (cover->getPointerButton()->getState())
         {
-            cerr << "checkbox pressed" << endl;
+            std::cerr << "checkbox pressed" << std::endl;
             if (group)
             {
                 group->toggleCheckbox(this);
@@ -74,7 +77,7 @@ void coPartnerMenuItem::buttonEvent(coButton *button)
         }
         else
         {
-            cerr << "checkbox released" << endl;
+            std::cerr << "checkbox released" << std::endl;
         }
     }
 }
