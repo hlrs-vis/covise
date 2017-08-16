@@ -17,6 +17,8 @@
 
 #include <osg/MatrixTransform>
 
+#include <sstream>
+
 using namespace vrui;
 using namespace opencover;
 
@@ -51,7 +53,7 @@ TracerFreePoints::TracerFreePoints(coInteractor *inter, TracerPlugin *p)
     if (str && strlen(str) > 0)
     {
 
-        istringstream tmp(str);
+        std::istringstream tmp(str);
         tmp >> _numPoints;
 
         for (int i = 0; i < _numPoints; i++)
@@ -103,7 +105,7 @@ TracerFreePoints::update(coInteractor *inter)
     if (!str)
         return;
 
-    istringstream tmp(str);
+    std::istringstream tmp(str);
 
     // check if the number of points changed
     int oldNumPoints = _numPoints;
