@@ -624,6 +624,7 @@ MACRO(COVISE_INSTALL_TARGET targetname)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
           RUNTIME DESTINATION ${ARCHSUFFIX}/bin${_category_path}
+          BUNDLE DESTINATION ${ARCHSUFFIX}/bin${_category_path}
           LIBRARY DESTINATION ${ARCHSUFFIX}/lib
           ARCHIVE DESTINATION ${ARCHSUFFIX}/lib
           COMPONENT modules.${category}
