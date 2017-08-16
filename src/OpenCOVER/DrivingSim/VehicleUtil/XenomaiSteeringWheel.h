@@ -14,32 +14,6 @@
 #include "XenomaiMutex.h"
 #include <deque>
 
-class VEHICLEUTILEXPORT XenomaiSteeringWheelHomingTask : public CanOpenDevice, public XenomaiTask
-{
-public:
-    XenomaiSteeringWheelHomingTask(CanOpenController &, uint8_t);
-
-    bool isDone()
-    {
-        return done;
-    }
-
-    bool isSuccess()
-    {
-        return success;
-    }
-
-protected:
-    void run();
-
-    bool done;
-    bool success;
-
-    const double speedRes = 1875.0 / 262144.0; // = 1 bit
-    const double homingSpeed = 10; //revs/min
-    const int32_t limitSwitchPosition = -369000; //was -380432;
-};
-
 class VEHICLEUTILEXPORT XenomaiSteeringWheel : public CanOpenDevice, public XenomaiTask
 {
 public:
@@ -80,6 +54,7 @@ protected:
     void run();
     bool runTask;
     bool taskFinished;
+	bool homing;
     unsigned long overruns;
 
     int32_t position;
@@ -99,6 +74,11 @@ protected:
 	XenomaiMutex positionMutex;
 	XenomaiMutex currentMutex;
     uint8_t RPDOData[6]; //enable op
+    
+    const double speedRes = 1875.0 / 262144.0; // = 1 bit
+    const double homingSpeed = 10; //revs/min
+    const int32_t limitSwitchPosition = -369000; //was -380432;
+    const int32_t zeroMarkPosition = -331000; 
 };
 
 inline unsigned long XenomaiSteeringWheel::getPeriodicTaskOverruns()
