@@ -608,11 +608,12 @@ void FourWheelDynamicsRealtime2::run()
 			if (doCenter)
 			{
 				doCenter = false;
-				fprintf(stderr, "center\n");
+				//fprintf(stderr, "center\n");
+				std::cout << "do center" << std::endl;
 				
 				//steering com change
-				steerWheel->center();
-				
+				bool centerSuccess = steerWheel->center();
+				std::cout << "center succcess? " << centerSuccess << std::endl;
 				fprintf(stderr, "center done\n");
 			}
 			current = 0.0;
@@ -1725,7 +1726,7 @@ void FourWheelDynamicsRealtime2::run()
 			time++;
 			carState.timerCounter = timerCounter;
 			
-			if(timerCounter == 1 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
+			if(timerCounter == 50 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
 			{
 				//outfile << time << " " << carState.mpLZ << " " << carState.mpRZ << " " << carState.mpBZ << " " << carState.mpHeight << " " << carState.cogOpencoverPos(3,1) << " " 
 				//<< speedState.vZ << " " << current << std::endl;
@@ -1747,8 +1748,8 @@ void FourWheelDynamicsRealtime2::run()
 				//speedState.genericOut11 << " " << speedState.genericOut12 << std::endl;
 				//outfile << time << " " << speedState.vX << " " << engineSpeed << " " << carState.gear << " " << carState.clutchSwitch << " " << carState.clutchState << 
 				//" " << std::abs(speedState.engineRPM - (speedState.OmegaYRR + speedState.OmegaYRL) / 2 * carState.gearRatio * carState.finalDrive) << std::endl;
-				outfile << time << " " << speedState.vX << " " << speedState.TcolumnCombined << " " << carState.posSteeringWheel << " " << carState.vSteeringWheel << " " 
-				<< speedState.phiDotFL1 << " " << speedState.phiDotFL2 << " " << speedState.phiDotFL3 << std::endl;
+				//outfile << time << " " << speedState.vX << " " << speedState.TcolumnCombined << " " << carState.posSteeringWheel << " " << carState.vSteeringWheel << " " 
+				//<< speedState.phiDotFL1 << " " << speedState.phiDotFL2 << " " << speedState.phiDotFL3 << std::endl;
 				
 				//for 2D log view
 				//std::cout << time << " " << carState.globalPosJointFL.getTrans().x() << " " << carState.globalPosJointFL.getTrans().y() << " " <<
@@ -2062,7 +2063,8 @@ void FourWheelDynamicsRealtime2::platformToGround()
 
 void FourWheelDynamicsRealtime2::centerWheel()
 {
-    if (pause)
+    std::cout << "fwd center wheel" << std::endl;
+	if (pause)
     {
 	doCenter = true;
     }
