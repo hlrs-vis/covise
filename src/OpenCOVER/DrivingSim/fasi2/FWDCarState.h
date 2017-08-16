@@ -155,6 +155,10 @@ public:
 	tireDefSpeedRR,
 	tireDefSpeedRL,
 	
+	//anti roll bars
+	arbStiffnessF,
+	arbStiffnessR,
+	
 	//joint offset
 	jointOffsetFL,
 	jointOffsetFR,
