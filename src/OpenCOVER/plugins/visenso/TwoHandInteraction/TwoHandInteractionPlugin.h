@@ -10,10 +10,7 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
-
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
+#include <memory>
 
 namespace TwoHandInteraction
 {
@@ -65,7 +62,7 @@ private:
     osg::ref_ptr<osg::MatrixTransform> m_SecondHandIndicator;
     bool m_HasIndicators;
 
-    std::tr1::shared_ptr<InteractionHandler> m_InteractionHandler;
+    std::shared_ptr<InteractionHandler> m_InteractionHandler;
 };
 }
 #endif

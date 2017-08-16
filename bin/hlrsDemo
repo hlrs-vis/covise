@@ -25,6 +25,7 @@ do
     echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
     echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
+    echo -e "${MENU} ${OPT}  3)  ${MENU} SWA Augsburg             "
 
     echo -e "${MENU}-----${TYP} CFD ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 11)  ${MENU} Audi                      "
@@ -90,7 +91,7 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
-    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Testturm Multi    "
     echo -e "${MENU} ${OPT} 82)  ${MENU} Thyssen Turm              "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
@@ -144,6 +145,12 @@ do
 	    cd /data/recom/SWB/Praesentation/
             opencover Cavepraesentation-SWBremen.wrl 
 	    ;;
+	3)
+	    echo -e "starting SWA"
+	    cd /mnt/raid/home/recberr/StadtwerkeAugsburg/2017/Praesentation
+            opencover Cavepraesentation-SWA.wrl
+	    ;;
+
 
 # CFD
 
@@ -376,7 +383,8 @@ do
 
 	81)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /data/covise_net/2014/ThyssenNeu.net
+            opencover /data/Thyssen/Turm/praesentation.wrl
+	    #covise -e /data/covise_net/2014/ThyssenNeu.net
 	    ;;
 
 	82)
