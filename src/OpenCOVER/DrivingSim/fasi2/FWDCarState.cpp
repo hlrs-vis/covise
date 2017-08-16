@@ -54,14 +54,14 @@ FWDCarState::FWDCarState()
 	contactPatch = 0.1;
 	tireRadF = 0.3;
 	tireRadR = 0.3;
-	csFLSport = 13000;//9000;
-	csFRSport = 13000;//9000;
-	csRRSport = 15000;//9000;
-	csRLSport = 15000;//9000;
-	dsFLSport = 8500;//5000;
-	dsFRSport = 8500;//5000;
-	dsRRSport = 9000;//5000;
-	dsRLSport = 9000;//5000;
+	csFLSport = 30000;//9000;
+	csFRSport = 30000;//9000;
+	csRRSport = 35000;//9000;
+	csRLSport = 35000;//9000;
+	dsFLSport = 7000;//5000;
+	dsFRSport = 7000;//5000;
+	dsRRSport = 7500;//5000;
+	dsRLSport = 7500;//5000;
 	csFLComfort = 8000;//9000;
 	csFRComfort = 8000;//9000;
 	csRRComfort = 9000;//9000;
@@ -94,6 +94,10 @@ FWDCarState::FWDCarState()
 	tireDefSpeedFR = 0;
 	tireDefSpeedRR = 0;
 	tireDefSpeedRL = 0;
+	
+	//anti roll bars
+	arbStiffnessF = 10000;
+	arbStiffnessR = 10000;
 	
 	//joint offset
 	jointOffsetFL = 0.2;
@@ -232,7 +236,7 @@ FWDCarState::FWDCarState()
 	idleSpeed = 1000 * 2 * M_PI / 60;
 	revLimiter = 8000 * 2 * M_PI / 60;
 	bEngine = 0.07;
-	lossCoefEngine = 0.1;
+	lossCoefEngine = 0.07;
 	inertiaEngine = 0.2;
 	
 	//drive train
@@ -246,7 +250,7 @@ FWDCarState::FWDCarState()
 	brakeForceAmplification = 20.0;
 	
 	//drag
-	cDrag = 0.35;
+	cDrag = 0.3;
 	
 	//environment
 	aGrav = 9.81;
