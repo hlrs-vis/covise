@@ -51,6 +51,7 @@ addons:
             - libxerces-c-dev
             - libpng12-dev
             - libopenscenegraph-dev
+            - libosgearth-dev
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew update; fi
