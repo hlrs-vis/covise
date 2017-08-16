@@ -625,10 +625,11 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
         }
         if (p_klima->getFanButtonStat() && oldFanButtonState == false)
         {
+			std::cout << "fasi2 fan button" << std::endl;
             if (vehicleDynamics)
             {
                 vehicleDynamics->centerWheel();
-            }
+			}
             /*#ifdef HAVE_CARDYNAMICSCGA
   else if(cardynCGA) {
       cardynCGA->centerSteeringWheel();
