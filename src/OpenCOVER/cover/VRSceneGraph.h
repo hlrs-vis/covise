@@ -32,7 +32,6 @@
 #include <osg/Multisample>
 #include <osg/Material>
 #include <osg/ClipNode>
-#include <osgShadow/ShadowedScene>
 #include <osgFX/Scribe>
 
 namespace osg
@@ -100,12 +99,12 @@ public:
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    osgShadow::ShadowedScene *getScene()
+    osg::Group *getScene()
     {
         return m_scene.get();
     };
 
-    osgShadow::ShadowedScene *getObjectsScene()
+    osg::Group *getObjectsScene()
     {
         return m_objectsScene.get();
     }
@@ -275,7 +274,7 @@ private:
     float m_forceScale;
 #endif
 
-    osg::ref_ptr<osgShadow::ShadowedScene> m_scene, m_objectsScene;
+    osg::ref_ptr<osg::Group> m_scene, m_objectsScene;
     osg::ref_ptr<osgFX::Scribe> m_lineHider;
     osg::ref_ptr<osg::MatrixTransform> m_handTransform;
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;

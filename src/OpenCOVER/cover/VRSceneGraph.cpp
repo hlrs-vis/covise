@@ -183,6 +183,8 @@ VRSceneGraph::~VRSceneGraph()
 
     m_specialBoundsNodeList.clear();
 
+    delete coVRShadowManager::instance();
+
     int n = m_objectsRoot->getNumChildren();
 
     for (int i = n - 1; i >= 0; i--)
@@ -257,15 +259,13 @@ void VRSceneGraph::initMatrices()
 void VRSceneGraph::initSceneGraph()
 {
     // create the scene node
-    m_scene = new osgShadow::ShadowedScene();
+    m_scene = coVRShadowManager::instance()->newScene();
     m_scene->setName("VR_RENDERER_SCENE_NODE");
-    m_scene->setShadowTechnique(NULL);
+    std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
+    coVRShadowManager::instance()->setTechnique(shadowTechnique);
 
-    m_objectsScene = new osgShadow::ShadowedScene();
+    m_objectsScene = new osg::Group();
     m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
-    m_objectsScene->setShadowTechnique(NULL);
-
-    coVRShadowManager::instance();
 
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();

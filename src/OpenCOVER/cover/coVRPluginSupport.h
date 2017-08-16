@@ -53,7 +53,6 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
-#include <osgShadow/ShadowedScene>
 
 #define MAX_NUMBER_JOYSTICKS 64
 
@@ -221,7 +220,7 @@ public:
     // access to scene graph nodes and transformations
 
     //! get scene group node
-    osgShadow::ShadowedScene *getScene() const;
+    osg::Group *getScene() const;
 
     //! get the group node for all COVISE and model geometry
     osg::ClipNode *getObjectsRoot() const;

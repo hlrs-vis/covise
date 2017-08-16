@@ -5049,10 +5049,7 @@ void ViewerOsg::setShadow(const std::string &technique)
         d_currentObject->addChildrensNodes();
     }
     
-    osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
-
     coVRShadowManager::instance()->setTechnique(technique);
-
 }
 
 // Transforms

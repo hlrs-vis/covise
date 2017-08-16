@@ -604,7 +604,7 @@ osg::ClipNode *coVRPluginSupport::getObjectsRoot() const
     return NULL;
 }
 
-osgShadow::ShadowedScene *coVRPluginSupport::getScene() const
+osg::Group *coVRPluginSupport::getScene() const
 {
     //START("coVRPluginSupport::getScene");
     return (VRSceneGraph::instance()->getScene());

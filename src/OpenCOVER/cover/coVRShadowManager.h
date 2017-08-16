@@ -37,16 +37,15 @@ class COVEREXPORT coVRShadowManager
 public:
     ~coVRShadowManager();
     static coVRShadowManager *instance();
-    
+    osgShadow::ShadowedScene *newScene();
+
     void setLight(osg::LightSource *ls);
 
     void setTechnique(const std::string &tech);
-    std::string getTechnique(){return technique;};
-    void setSoftnessWidth(float w){if(softSM) softSM->setSoftnessWidth(w);};
-    void setJitteringScale(float s){if(softSM) softSM->setJitteringScale(s);};
-    void setTextureSize(osg::Vec2s ts){if(softSM) softSM->setTextureSize(ts);if(shadowMap) shadowMap->setTextureSize(ts);if(standardSM) standardSM->setTextureSize(ts);
-         if(lspsm) lspsm->setTextureSize(ts);if(lspsmcb) lspsmcb->setTextureSize(ts);if(lspsmdb) lspsmdb->setTextureSize(ts);};
-    
+    std::string getTechnique();
+    void setSoftnessWidth(float w);
+    void setJitteringScale(float s);
+    void setTextureSize(osg::Vec2s ts);
 
 private:
     
