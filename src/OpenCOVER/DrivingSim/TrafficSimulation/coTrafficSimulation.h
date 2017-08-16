@@ -34,6 +34,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <util/coExport.h>
 
+#include <functional>
 #include <random>
 
 #include "RoadSystem/RoadSystem.h"
