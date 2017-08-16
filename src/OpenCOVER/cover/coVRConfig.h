@@ -402,6 +402,8 @@ public:
 
     void setFrameRate(float fr);
     float frameRate() const;
+
+    bool continuousRendering() const;
     
     std::vector<screenStruct> screens; // list of physical screens
     std::vector<channelStruct> channels; // list of physical screens
@@ -501,6 +503,7 @@ private:
 
     bool constantFrameRate;
     float constFrameTime;
+    bool m_continuousRendering;
 
     bool m_restrict;
 

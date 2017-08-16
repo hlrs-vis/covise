@@ -256,19 +256,21 @@ struct ViewerRunOperations : public osg::Operation
 };
 
 //OpenCOVER
-void VRViewer::handleEvents()
+bool VRViewer::handleEvents()
 {
-    myeh->update();
+    return myeh->update();
 }
 
 //OpenCOVER
-void VRViewer::update()
+bool VRViewer::update()
 {
+    bool again = false;
     if (cover->debugLevel(5))
         fprintf(stderr, "VRViewer::update\n");
 
     if (animateSeparation)
     {
+        again = true;
         if (animateSeparation == 1)
         {
             separation += ANIMATIONSPEED;
@@ -299,6 +301,7 @@ void VRViewer::update()
             //viewMat.setTrans( viewPos);
             viewMat = vpMarker->getCameraTrans();
         }
+        again = true;
     }
 
     // compute viewer position
@@ -345,6 +348,7 @@ void VRViewer::update()
     {
         setFrustumAndView(i);
     }
+    return again;
 }
 
 //////////////////////////////////////////////////////////////////////////////

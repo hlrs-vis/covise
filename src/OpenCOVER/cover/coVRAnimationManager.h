@@ -66,7 +66,7 @@ public:
     {
         return currentAnimationFrame;
     };
-    void requestAnimationFrame(int currentFrame);
+    bool requestAnimationFrame(int currentFrame);
     void requestAnimationTime(double t);
     float getAnimationSpeed();
     void setAnimationSpeed(float speed);
@@ -102,7 +102,7 @@ public:
     // process key events
     bool keyEvent(int type, int keySym, int mod);
 
-    void update();
+    bool update();
 
     vrui::coMenuItem *getMenuButton(const std::string &functionName);
 
@@ -142,7 +142,7 @@ private:
     bool animRunning;
     double lastAnimationUpdate;
     int currentAnimationFrame, requestedAnimationFrame;
-    void updateAnimationFrame();
+    bool updateAnimationFrame();
 
     void menuEvent(vrui::coMenuItem *);
 
