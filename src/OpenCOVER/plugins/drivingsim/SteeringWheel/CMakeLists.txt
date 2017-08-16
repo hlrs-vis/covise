@@ -1,7 +1,9 @@
 IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
-
+if (APPLE)
+    return()
+endif()
 
 USING(XERCESC)
 using(VRML)

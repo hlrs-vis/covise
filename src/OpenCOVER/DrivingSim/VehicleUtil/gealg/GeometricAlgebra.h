@@ -41,24 +41,12 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#ifdef __CPP0X__
+#if !defined(__CUDACC__) && !defined(__INTEL_COMPILER)
 #include <tuple>
 using std::tuple;
 using std::tuple_element;
 using std::tuple_size;
 using std::get;
-#elif __GNUC__ >= 4 && __GNUC_MINOR__ >= 1 && !defined(__CUDACC__) && !defined(__INTEL_COMPILER)
-#include <tr1/tuple>
-using std::tr1::tuple;
-using std::tr1::tuple_element;
-using std::tr1::tuple_size;
-using std::tr1::get;
-#elif _MSC_VER >= 1500
-#include <tuple>
-using std::tr1::tuple;
-using std::tr1::tuple_element;
-using std::tr1::tuple_size;
-using std::tr1::get;
 #elif defined(__CUDACC__)
 #define GEALG_CUDA __host__ __device__
 #include <thrust/tuple.h>

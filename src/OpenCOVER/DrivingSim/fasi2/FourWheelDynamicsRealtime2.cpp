@@ -247,7 +247,7 @@ void FourWheelDynamicsRealtime2::initState()
         R_b[2] = -transform.q().y();
         R_b[3] = transform.q().x();
         gealg::mv<4, 0x06050300>::type R_xodr = exp(0.5 * (-0.5 * M_PI * cardyn::x * cardyn::y));
-        std::tr1::get<2>(y) = !(R_b * R_xodr);
+        std::get<2>(y) = !(R_b * R_xodr);
 
         gealg::mv<3, 0x040201>::type p_b_init;
         p_b_init[2] = 0.75;
@@ -256,7 +256,7 @@ void FourWheelDynamicsRealtime2::initState()
         p_road[1] = -transform.v().x();
         p_road[2] = transform.v().z();
 		std::cout << "p_road: " << p_road << std::endl;
-        std::tr1::get<0>(y) = p_road + grade<1>((!std::tr1::get<2>(y)) * p_b_init * (std::tr1::get<2>(y)));
+        std::get<0>(y) = p_road + grade<1>((!std::get<2>(y)) * p_b_init * (std::get<2>(y)));
 
         currentRoad = startPos.first;
 				
@@ -328,7 +328,7 @@ void FourWheelDynamicsRealtime2::initState()
 
         leftRoad = false;
         std::cout << "Found road: " << startPos.first->getId() << ", u: " << startPos.second.u() << ", v: " << startPos.second.v() << std::endl;
-        std::cout << "\t p_b: " << std::tr1::get<0>(y) << ", R_b: " << std::tr1::get<2>(y) << std::endl;
+        std::cout << "\t p_b: " << std::get<0>(y) << ", R_b: " << std::get<2>(y) << std::endl;
 		
 		//initial car position
 		carState.cogOpencoverPos.makeTranslate(-p_road[1],p_road[2]+1,-p_road[0]);
@@ -341,8 +341,8 @@ void FourWheelDynamicsRealtime2::initState()
     }
     else
     {
-        std::tr1::get<0>(y)[2] = -0.2; //Initial position
-        std::tr1::get<2>(y)[0] = 1.0; //Initial orientation (Important: magnitude be one!)
+        std::get<0>(y)[2] = -0.2; //Initial position
+        std::get<2>(y)[0] = 1.0; //Initial orientation (Important: magnitude be one!)
         currentRoad = NULL;
 		currentRoadFL1 = NULL;
 		currentRoadFL2 = NULL;
@@ -380,9 +380,9 @@ void FourWheelDynamicsRealtime2::initState()
         leftRoad = true;
 		
     }
-    std::tr1::get<39>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
-    std::tr1::get<40>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
-    std::tr1::get<41>(y)[0] = cardyn::i_a; //Initial steering wheel position: magnitude be one!
+    std::get<39>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
+    std::get<40>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
+    std::get<41>(y)[0] = cardyn::i_a; //Initial steering wheel position: magnitude be one!
 
     r_i[0] = gealg::mv<3, 0x040201>::type();
     r_i[1] = gealg::mv<3, 0x040201>::type();
@@ -423,11 +423,11 @@ void FourWheelDynamicsRealtime2::setVehicleTransformation(const osg::Matrix &m)
 {
     resetState();
 
-    std::tr1::get<0>(y)[0] = -m(3, 2);
-    std::tr1::get<0>(y)[1] = -m(3, 0);
-    std::tr1::get<0>(y)[2] = m(3, 1);
+    std::get<0>(y)[0] = -m(3, 2);
+    std::get<0>(y)[1] = -m(3, 0);
+    std::get<0>(y)[2] = m(3, 1);
 
-    std::cout << "Reset: position: " << std::tr1::get<0>(y) << std::endl;
+    std::cout << "Reset: position: " << std::get<0>(y) << std::endl;
 }
 
 void FourWheelDynamicsRealtime2::resetState()
@@ -452,10 +452,10 @@ void FourWheelDynamicsRealtime2::move()
     gealg::mv<3, 0x040201>::type p_bg = (cardyn::p_b + grade<1>((!cardyn::q_b) * r_bg * cardyn::q_b))(y_frame);
 
     /*chassisTrans.setTrans(osg::Vec3(-p_bg[1], p_bg[2], -p_bg[0]));
-    chassisTrans.setRotate(osg::Quat(std::tr1::get<2>(y_frame)[2],
-                                     std::tr1::get<2>(y_frame)[1],
-                                     -std::tr1::get<2>(y_frame)[3],
-                                     std::tr1::get<2>(y_frame)[0]));*/	
+    chassisTrans.setRotate(osg::Quat(std::get<2>(y_frame)[2],
+                                     std::get<2>(y_frame)[1],
+                                     -std::get<2>(y_frame)[3],
+                                     std::get<2>(y_frame)[0]));*/	
 
     //vehicle->setVRMLVehicle(chassisTrans);
 

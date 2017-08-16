@@ -592,10 +592,10 @@ public:
 
                 // find source with resolution closest to target
                 int foundIndex = 0;
-                float closestResolution = fabsf(composite._sourceList[0]->getSortValue()-_targetResolution);
+                float closestResolution = std::abs(composite._sourceList[0]->getSortValue()-_targetResolution);
                 for(int i=1;i<(int)composite._sourceList.size();++i)
                 {
-                    float delta = fabsf(composite._sourceList[i]->getSortValue()-_targetResolution);
+                    float delta = std::abs(composite._sourceList[i]->getSortValue()-_targetResolution);
                     if (delta<closestResolution)
                     {
                         foundIndex = i;

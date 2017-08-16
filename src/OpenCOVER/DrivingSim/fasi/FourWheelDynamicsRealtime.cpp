@@ -96,7 +96,7 @@ void FourWheelDynamicsRealtime::initState()
         R_b[2] = -transform.q().y();
         R_b[3] = transform.q().x();
         gealg::mv<4, 0x06050300>::type R_xodr = exp(0.5 * (-0.5 * M_PI * cardyn::x * cardyn::y));
-        std::tr1::get<2>(y) = !(R_b * R_xodr);
+        std::get<2>(y) = !(R_b * R_xodr);
 
         gealg::mv<3, 0x040201>::type p_b_init;
         p_b_init[2] = 0.75;
@@ -104,7 +104,7 @@ void FourWheelDynamicsRealtime::initState()
         p_road[0] = transform.v().y();
         p_road[1] = -transform.v().x();
         p_road[2] = transform.v().z();
-        std::tr1::get<0>(y) = p_road + grade<1>((!std::tr1::get<2>(y)) * p_b_init * (std::tr1::get<2>(y)));
+        std::get<0>(y) = p_road + grade<1>((!std::get<2>(y)) * p_b_init * (std::get<2>(y)));
 
         currentRoad[0] = startPos.first;
         currentRoad[1] = startPos.first;
@@ -117,12 +117,12 @@ void FourWheelDynamicsRealtime::initState()
 
         leftRoad = false;
         std::cout << "Found road: " << startPos.first->getId() << ", u: " << startPos.second.u() << ", v: " << startPos.second.v() << std::endl;
-        std::cout << "\t p_b: " << std::tr1::get<0>(y) << ", R_b: " << std::tr1::get<2>(y) << std::endl;
+        std::cout << "\t p_b: " << std::get<0>(y) << ", R_b: " << std::get<2>(y) << std::endl;
     }
     else
     {
-        std::tr1::get<0>(y)[2] = -0.2; //Initial position
-        std::tr1::get<2>(y)[0] = 1.0; //Initial orientation (Important: magnitude be one!)
+        std::get<0>(y)[2] = -0.2; //Initial position
+        std::get<2>(y)[0] = 1.0; //Initial orientation (Important: magnitude be one!)
         currentRoad[0] = NULL;
         currentRoad[1] = NULL;
         currentRoad[2] = NULL;
@@ -133,9 +133,9 @@ void FourWheelDynamicsRealtime::initState()
         currentLongPos[3] = -1.0;
         leftRoad = true;
     }
-    std::tr1::get<39>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
-    std::tr1::get<40>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
-    std::tr1::get<41>(y)[0] = cardyn::i_a; //Initial steering wheel position: magnitude be one!
+    std::get<39>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
+    std::get<40>(y)[0] = 1.0; //Initial steering wheel position: magnitude be one!
+    std::get<41>(y)[0] = cardyn::i_a; //Initial steering wheel position: magnitude be one!
 
     r_i[0] = gealg::mv<3, 0x040201>::type();
     r_i[1] = gealg::mv<3, 0x040201>::type();
@@ -176,11 +176,11 @@ void FourWheelDynamicsRealtime::setVehicleTransformation(const osg::Matrix &m)
 {
     resetState();
 
-    std::tr1::get<0>(y)[0] = -m(3, 2);
-    std::tr1::get<0>(y)[1] = -m(3, 0);
-    std::tr1::get<0>(y)[2] = m(3, 1);
+    std::get<0>(y)[0] = -m(3, 2);
+    std::get<0>(y)[1] = -m(3, 0);
+    std::get<0>(y)[2] = m(3, 1);
 
-    std::cout << "Reset: position: " << std::tr1::get<0>(y) << std::endl;
+    std::cout << "Reset: position: " << std::get<0>(y) << std::endl;
 }
 
 void FourWheelDynamicsRealtime::resetState()
@@ -218,10 +218,10 @@ void FourWheelDynamicsRealtime::move()
     gealg::mv<3, 0x040201>::type p_bg = (cardyn::p_b + grade<1>((!cardyn::q_b) * r_bg * cardyn::q_b))(y_frame);
 
     chassisTrans.setTrans(osg::Vec3(-p_bg[1], p_bg[2], -p_bg[0]));
-    chassisTrans.setRotate(osg::Quat(std::tr1::get<2>(y_frame)[2],
-                                     std::tr1::get<2>(y_frame)[1],
-                                     -std::tr1::get<2>(y_frame)[3],
-                                     std::tr1::get<2>(y_frame)[0]));
+    chassisTrans.setRotate(osg::Quat(std::get<2>(y_frame)[2],
+                                     std::get<2>(y_frame)[1],
+                                     -std::get<2>(y_frame)[3],
+                                     std::get<2>(y_frame)[0]));
 
     //vehicle->setVRMLVehicle(chassisTrans);
 
@@ -326,16 +326,16 @@ void FourWheelDynamicsRealtime::run()
         {
             double h = (double)(period * (overruns + 1)) * 1e-9;
 
-            std::tr1::get<42>(y)[0] = GasPedal::instance()->getActualAngle() / 100.0;
-            std::tr1::get<43>(y)[0] = motPlat->getBrakeForce() * 200.0;
-            std::tr1::get<44>(y)[0] = (1.0 - clutchPedal) * cardyn::k_cn;
+            std::get<42>(y)[0] = GasPedal::instance()->getActualAngle() / 100.0;
+            std::get<43>(y)[0] = motPlat->getBrakeForce() * 200.0;
+            std::get<44>(y)[0] = (1.0 - clutchPedal) * cardyn::k_cn;
             int gear = fasi::instance()->sharedState.gear;
-            std::tr1::get<41>(y)[0] = cardyn::i_g[gear + 1] * cardyn::i_a;
+            std::get<41>(y)[0] = cardyn::i_g[gear + 1] * cardyn::i_a;
             if (gear == 0)
             {
-                std::tr1::get<44>(y)[0] = 0.0;
+                std::get<44>(y)[0] = 0.0;
             }
-            //std::cout << "clutch!" << std::tr1::get<44>(y)[0] << "Gas " << std::tr1::get<42>(y)[0]  << "Brake " << std::tr1::get<43>(y)[0] << std::endl;
+            //std::cout << "clutch!" << std::get<44>(y)[0] << "Gas " << std::get<42>(y)[0]  << "Brake " << std::get<43>(y)[0] << std::endl;
             //std::cout << "gear" << gear  << std::endl;
 
             //Cubic hermite parameter determination
@@ -450,17 +450,17 @@ void FourWheelDynamicsRealtime::run()
 
             if (!leftRoad)
             {
-                std::tr1::get<35>(y) = dh[0];
-                std::tr1::get<36>(y) = dh[1];
-                std::tr1::get<37>(y) = dh[2];
-                std::tr1::get<38>(y) = dh[3];
+                std::get<35>(y) = dh[0];
+                std::get<36>(y) = dh[1];
+                std::get<37>(y) = dh[2];
+                std::get<38>(y) = dh[3];
             }
             else
             {
-                //std::tr1::get<35>(y) = 0;
-                // std::tr1::get<36>(y) = 0;
-                //std::tr1::get<37>(y) = 0;
-                // std::tr1::get<38>(y) = 0;
+                //std::get<35>(y) = 0;
+                // std::get<36>(y) = 0;
+                //std::get<37>(y) = 0;
+                // std::get<38>(y) = 0;
             }
 
             //  std::cout << "h" << h  << std::endl;
@@ -528,8 +528,8 @@ void FourWheelDynamicsRealtime::run()
         else if (!pause)
         {
 
-            double longAngle = atan(((std::tr1::get<8>(y)[0] + std::tr1::get<10>(y)[0]) * 0.5 - (std::tr1::get<4>(y)[0] + std::tr1::get<6>(y)[0]) * 0.5) / (cardyn::r_wfl[0] - cardyn::r_wrl[0])) * 0.5;
-            double latAngle = atan(((std::tr1::get<4>(y)[0] + std::tr1::get<8>(y)[0]) * 0.5 - (std::tr1::get<6>(y)[0] + std::tr1::get<10>(y)[0]) * 0.5) / (cardyn::r_wfl[1] - cardyn::r_wfr[1])) * 0.5;
+            double longAngle = atan(((std::get<8>(y)[0] + std::get<10>(y)[0]) * 0.5 - (std::get<4>(y)[0] + std::get<6>(y)[0]) * 0.5) / (cardyn::r_wfl[0] - cardyn::r_wrl[0])) * 0.5;
+            double latAngle = atan(((std::get<4>(y)[0] + std::get<8>(y)[0]) * 0.5 - (std::get<6>(y)[0] + std::get<10>(y)[0]) * 0.5) / (cardyn::r_wfl[1] - cardyn::r_wfr[1])) * 0.5;
 
             gealg::mv<2, 0x0201>::type r_fl;
             r_fl[0] = 0.41;
@@ -562,7 +562,7 @@ void FourWheelDynamicsRealtime::run()
             //std::cerr << "k_wf: " << cardyn::k_wf(y) << ", k_wr: " << cardyn::k_wr(y) << std::endl;
 
             //Steering wheel handling
-            current = -4000.0 * (std::tr1::get<31>(y)[2] + std::tr1::get<32>(y)[2]) - (double)steerWheel->getSmoothedSpeed() * 0.0002;
+            current = -4000.0 * (std::get<31>(y)[2] + std::get<32>(y)[2]) - (double)steerWheel->getSmoothedSpeed() * 0.0002;
 
             //parking moment model
             /*double drillElasticity = tanh(fabs(yOne.v));
@@ -597,10 +597,10 @@ current += (int32_t)((double)(driftPosition-steerPosition)*steerWheel->getDrillC
         double angleFL = atan(1.0 / (cotSteerAngle - cardyn::r_wfl[1] / (cardyn::r_wfl[0] - cardyn::r_wrl[0])));
         double angleFR = atan(1.0 / (cotSteerAngle - cardyn::r_wfr[1] / (cardyn::r_wfl[0] - cardyn::r_wrl[0])));
 
-        std::tr1::get<39>(y)[0] = cos(angleFL * 0.5);
-        std::tr1::get<39>(y)[1] = sin(angleFL * 0.5);
-        std::tr1::get<40>(y)[0] = cos(angleFR * 0.5);
-        std::tr1::get<40>(y)[1] = sin(angleFR * 0.5);
+        std::get<39>(y)[0] = cos(angleFL * 0.5);
+        std::get<39>(y)[1] = sin(angleFL * 0.5);
+        std::get<40>(y)[0] = cos(angleFR * 0.5);
+        std::get<40>(y)[1] = sin(angleFR * 0.5);
 
         steerCon->sendPDO();
 
