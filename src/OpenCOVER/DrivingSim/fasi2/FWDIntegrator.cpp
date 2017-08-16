@@ -114,6 +114,12 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FtsRL = -(carState.localZPosTireRL) * carState.ctRL/* + (carState.localZPosTireRL) * (carState.localZPosTireRL) * carState.ctRL + carState.FtRL*/;
 	double FtdRL = -carState.tireDefSpeedRL * carState.dtRL;
 	
+	//anti roll bars
+	double arbDiffF = inPosState.vSuspZFL - inPosState.vSuspZFR;
+	double arbForceStaticF = arbDiffF * carState.arbStiffnessF;
+	double arbDiffR = inPosState.vSuspZRL - inPosState.vSuspZRR;
+	double arbForceStaticR = arbDiffR * carState.arbStiffnessR;
+	
 	if(FtsFL < 0)
 	{
 		FtsFL = 0;
@@ -1099,10 +1105,10 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double MZ = MZtires;
 	
 	//Forces on suspension
-	double FsuspZFL = -FssFL - FsdFL + FtsFL + FtdFL - carState.aGrav * carState.mSusFL;
-	double FsuspZFR = -FssFR - FsdFR + FtsFR + FtdFR - carState.aGrav * carState.mSusFR;
-	double FsuspZRR = -FssRR - FsdRR + FtsRR + FtdRR - carState.aGrav * carState.mSusRR;
-	double FsuspZRL = -FssRL - FsdRL + FtsRL + FtdRL - carState.aGrav * carState.mSusRL;
+	double FsuspZFL = -FssFL - FsdFL + FtsFL + FtdFL - arbForceStaticF - carState.aGrav * carState.mSusFL;
+	double FsuspZFR = -FssFR - FsdFR + FtsFR + FtdFR + arbForceStaticF - carState.aGrav * carState.mSusFR;
+	double FsuspZRR = -FssRR - FsdRR + FtsRR + FtdRR - arbForceStaticR - carState.aGrav * carState.mSusRR;
+	double FsuspZRL = -FssRL - FsdRL + FtsRL + FtdRL + arbForceStaticR - carState.aGrav * carState.mSusRL;
 	
 	//Forces on wheels
 	//double MWheelZFL = /*TsFL - TBFL*/ + TrackS - TrackD + TcolumnS + TcolumnD; //TODO removed bore torque
