@@ -340,13 +340,11 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
             }
         }
         // Configure the de-cluttering engine for labels and annotations:
-        const Config &declutterConf = externals.child("decluttering");
-        if (!declutterConf.empty())
-        {
-#if !OSGEARTH_VERSION_LESS_THAN(2,4,0) && OSGEARTH_VERSION_LESS_THAN(2,9,0)
-            osgEarth::Decluttering::setOptions(osgEarth::DeclutteringOptions(declutterConf));
-#endif
-        }
+        //const Config &declutterConf = externals.child("decluttering");
+        //if (!declutterConf.empty())
+        //{
+        //    osgEarth::Decluttering::setOptions(osgEarth::DeclutteringOptions(declutterConf));
+        //}
     }
 
     if (loadedModel)
