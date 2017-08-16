@@ -91,7 +91,7 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
-    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Testturm Multi    "
     echo -e "${MENU} ${OPT} 82)  ${MENU} Thyssen Turm              "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
@@ -383,7 +383,8 @@ do
 
 	81)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /data/covise_net/2014/ThyssenNeu.net
+            opencover /data/Thyssen/Turm/praesentation.wrl
+	    #covise -e /data/covise_net/2014/ThyssenNeu.net
 	    ;;
 
 	82)
