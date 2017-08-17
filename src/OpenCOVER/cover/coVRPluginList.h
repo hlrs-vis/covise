@@ -89,8 +89,8 @@ public:
     void removeObject(const char *objName, bool replaceFlag) const;
     //! call removeNode method of all plugins
     void removeNode(osg::Node *node, bool isGroup = false, osg::Node *realNode = NULL) const;
-    //! call prepareFrame method of all plugins
-    void prepareFrame() const;
+    //! call update method of all plugins
+    bool update() const;
     //! call preFrame method of all plugins
     void preFrame();
     //! call postFrame method of all plugins

@@ -122,11 +122,11 @@ void VRCoviseConnection::sendQuit()
     CoviseRender::send_ui_message("DEL_REQ", "");
 }
 
-static void checkAndHandle()
+static bool checkAndHandle()
 {
     coVRMSController *ms = coVRMSController::instance();
     if (!ms->isCluster())
-        return;
+        return false;
 
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVRMSController::checkAndHandle\n");
@@ -143,7 +143,9 @@ static void checkAndHandle()
             appMsgs[numMessages] = appMsg;
             numMessages++;
         }
+
         ms->sendSlaves(&numMessages, sizeof(int));
+
         for (int i = 0; i < numMessages; i++)
         {
             MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[appMsgs[i]->type]);
@@ -195,13 +197,16 @@ static void checkAndHandle()
 //}
 #endif
     }
+    return numMessages > 0;
 }
 
-void
+bool
 VRCoviseConnection::update(bool handleOneMessageOnly)
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "VRCoviseConnection::update\n");
+
+    bool event = false;
 
     MARK0("COVER checking messages from controller");
     // check for covise messages and call the appropriate callback
@@ -213,15 +218,21 @@ VRCoviseConnection::update(bool handleOneMessageOnly)
 
     if (coVRMSController::instance()->isCluster())
     {
-        checkAndHandle();
+        event = checkAndHandle();
     }
     else
     {
-        while ((CoviseRender::check_and_handle_event()) && (!handleOneMessageOnly) && (!exitFlag))
-            ;
+        while (CoviseRender::check_and_handle_event())
+        {
+            event = true;
+            if (handleOneMessageOnly || exitFlag)
+                break;
+        }
     }
     if (ObjectManager::instance())
         ObjectManager::instance()->update();
+
+    return event;
 }
 
 void

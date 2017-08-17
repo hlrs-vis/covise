@@ -171,8 +171,10 @@ public:
     };
 
     //! this function is called from the main thread before the state for a frame is set up, before preFrame()
-    virtual void prepareFrame()
+    //! return true, if you need the scene to be rendered immediately
+    virtual bool update()
     {
+        return false; // don't request that scene be re-rendered
     }
 
     //! this function is called from the main thread before rendering a frame

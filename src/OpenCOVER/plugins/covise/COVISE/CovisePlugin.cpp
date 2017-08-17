@@ -197,9 +197,13 @@ static void updateScenegraph()
     }
 }
 
+bool CovisePlugin::update()
+{
+    return VRCoviseConnection::covconn->update();
+}
+
 void CovisePlugin::preFrame()
 {
-    VRCoviseConnection::covconn->update();
     updateScenegraph();
 }
 

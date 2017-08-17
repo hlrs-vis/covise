@@ -944,7 +944,12 @@ bool OpenCOVER::frame()
     cover->updateTime();
     if (frameNum > 2)
     {
-        coVRPluginList::instance()->prepareFrame();
+        if (coVRPluginList::instance()->update())
+            render = true;
+    }
+    else
+    {
+        render = true;
     }
     coVRMSController::instance()->syncTime();
 
