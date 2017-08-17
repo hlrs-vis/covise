@@ -5392,10 +5392,11 @@ osg::Vec3 closestPoint(osg::Vec3 a1, osg::Vec3 b1, osg::Vec3 a2, osg::Vec3 b2)
 //
 
 // update is called from a timer callback
-void ViewerOsg::update(double timeNow)
+bool ViewerOsg::update(double timeNow)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::update" << endl;
+    bool updated = false;
     sensorList.update();
     std::list<movieImageData *>::iterator it = moviePs.begin();
     for (; it != moviePs.end(); it++)
@@ -5465,7 +5466,7 @@ void ViewerOsg::update(double timeNow)
     if (d_scene)
     {
         currentTransform.makeIdentity();
-        d_scene->update(timeNow);
+        updated = d_scene->update(timeNow);
         redraw();
     }
     //,j,k;
@@ -6052,6 +6053,8 @@ void ViewerOsg::update(double timeNow)
     }
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::update" << endl;
+
+    return updated;
 }
 
 void ViewerOsg::redraw()
