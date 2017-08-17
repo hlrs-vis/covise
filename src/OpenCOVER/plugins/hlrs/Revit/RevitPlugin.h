@@ -114,6 +114,28 @@ public:
     int ID;
 };
 
+class TextureInfo
+{
+public:
+	TextureInfo(TokenBuffer &tb);
+	double sx, sy, ox, oy, angle;
+	std::string texturePath;
+	unsigned char r,g,b;
+	int ID;
+};
+
+class MaterialInfo
+{
+public:
+	MaterialInfo(TokenBuffer &tb);
+	unsigned char r, g, b, a;
+	TextureInfo *bumpTexture;
+	TextureInfo *diffuseTexture;
+	osg::StateSet *geoState;
+	int ID;
+};
+
+
 
 class RevitParameter : public coTUIListener
 {
@@ -258,6 +280,9 @@ protected:
     ServerConnection *toRevit;
     void handleMessage(Message *m);
 
+	MaterialInfo * getMaterial(int revitID);
+
+
     void setDefaultMaterial(osg::StateSet *geoState);
     osg::ref_ptr<osg::Material> globalmtl;
     osg::ref_ptr<osg::MatrixTransform> revitGroup;
@@ -269,8 +294,10 @@ protected:
     int MovedID;
     RevitInfo  *info;
     std::vector<int> annotationIDs;
-    std::list<AnnotationInfo> annotationInfos;
+	std::map<int, MaterialInfo *> MaterialInfos;
+	
     float scaleFactor;
+	std::string textureDir;
     
 
     Message *msg;
