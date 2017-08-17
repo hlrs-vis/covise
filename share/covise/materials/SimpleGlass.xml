@@ -1,0 +1,152 @@
+
+<fresnelBump transparent="true" cullFace="none">
+
+
+  <uniform name="Time" type="int" value="0"/>
+  <uniform name="WaterScale" type="vec3" value="0.50 0.5 0.3"/>
+  <uniform name="WaterColor" type="vec4" value="1 1 1 1"/>
+
+  <uniform name="WaveSpeed" type="vec3" value="0.2 0.1 0.2"/>
+  <uniform name="WaveSpeed2" type="vec3" value="-0.1 0.2 -0.2"/>
+  <uniform name="WaveScale" type="vec3" value="2 1.5 0.2"/>
+
+  <uniform name="diffuseMap" type="sampler2D" value="0"/>
+  <uniform name="normalMap" type="sampler2D" value="1"/>
+  <uniform name="cubeMap" type="samplerCube" value="2"/>
+
+  <uniform name="FresExp" type="float" value="0.5"/>
+  <uniform name="fps" type="float" value="0.4"/>
+
+  <uniform name="Bumpiness" type="float" value="0.1"/>
+  <uniform name="Transparency" type="float" value="0.2"/>
+
+  <uniform name="KrMin" type="float" value="0.1"/>
+
+  <uniform name="Kr" type="float" value="1.0"/>
+
+
+
+
+  <attribute name="aBinormal" type="binormal" value="6"/>
+
+  <attribute name="aTangent" type="tangent" value="7"/>
+
+  <vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+    varying vec2 Texcoord2;
+    varying vec2 Texcoord3;
+
+    attribute vec3 aBinormal;
+    attribute vec3 aTangent;
+
+    uniform vec3 WaveSpeed;
+    uniform vec3 WaveSpeed2;
+    uniform vec3  WaterScale;
+    uniform vec3 WaveScale;
+    
+    uniform int Time;
+    uniform float fps;
+
+    void main( void )
+    {
+        float time = (Time/1000.0)*fps;
+        normal   = gl_NormalMatrix * gl_Normal;
+        Binormal = gl_NormalMatrix * aBinormal;
+        Tangent  = gl_NormalMatrix * aTangent; 
+        Texcoord.x = gl_MultiTexCoord0.x ;
+        Texcoord.y = gl_MultiTexCoord0.y ;
+        Texcoord2.x = gl_MultiTexCoord0.x *WaterScale.x +time*WaveSpeed.x*WaveScale.x;
+        Texcoord2.y = gl_MultiTexCoord0.y *WaterScale.y +time*WaveSpeed.y*WaveScale.y;
+        Texcoord3.x = gl_MultiTexCoord0.x *WaterScale.x +time*WaveSpeed2.x*WaveScale.x;
+        Texcoord3.y = gl_MultiTexCoord0.y *WaterScale.y +time*WaveSpeed2.y*WaveScale.y;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+     	
+     
+	gl_Position = ftransform();	
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+    }
+  </vertexProgram>
+
+  <fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+    varying vec2 Texcoord2;
+    varying vec2 Texcoord3;
+   
+   
+    uniform sampler2D diffuseMap;
+    uniform sampler2D normalMap;
+    uniform samplerCube cubeMap;
+
+    uniform int Time;
+    uniform vec4  WaterColor;
+   
+    uniform float Bumpiness;
+    uniform float Transparency;
+    uniform float KrMin;
+    uniform float Kr;
+    uniform float FresExp;
+
+
+   
+    void main( void )
+    {
+      vec4 final_color =
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) +
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+
+      vec3 bumpmap = 2.0 * Bumpiness * texture2D( normalMap, Texcoord2 ) - vec3(0.5,0.5,0.5);
+      bumpmap = mix(-bumpmap,2.0 * Bumpiness * texture2D( normalMap, Texcoord3 ) - vec3(0.5,0.5,0.5),0.5);
+	  
+      vec3 N = normalize(normal);
+      vec3 Tn = normalize(Tangent);
+      vec3 Bn = normalize(Binormal);
+      N += (bumpmap.x * Tn + bumpmap.y * Bn);
+      N = normalize(N);
+      
+      eyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+
+      vec3 reflVec   = reflect(-eyeVec, N);
+      vec4 reflColor = textureCube( cubeMap, reflVec );
+      	
+      float lambertTerm = dot(N,L);
+      if(lambertTerm &gt; 0.0)
+      {
+      
+      	final_color += gl_LightSource[0].diffuse *
+      	               WaterColor * lambertTerm*texture2D( diffuseMap, Texcoord);
+        float vdn = dot(eyeVec,N);
+	float fres = KrMin + (Kr-KrMin) * pow(1-abs(vdn),FresExp);
+	final_color = mix(final_color  ,reflColor,fres);
+      //	final_color =	             reflColor;
+      	vec3 E = normalize(eyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+      	final_color += gl_LightSource[0].specular *
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+        final_color.a = max(WaterColor.a,fres)- Transparency;
+        final_color.rgb+=texture2D( diffuseMap, Texcoord);
+      	}
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram>
+
+</fresnelBump>
