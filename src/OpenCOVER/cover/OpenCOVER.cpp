@@ -999,7 +999,10 @@ bool OpenCOVER::frame()
     if (ARToolKit::instance()->remoteAR)
         ARToolKit::instance()->remoteAR->update();
 
-    interactionManager.update();
+    if (interactionManager.update())
+    {
+        render = true;
+    }
 
     if (!render)
     {
