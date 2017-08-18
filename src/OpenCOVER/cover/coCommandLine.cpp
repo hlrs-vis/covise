@@ -34,7 +34,7 @@ coCommandLine *coCommandLine::instance()
     return s_instance;
 }
 
-int coCommandLine::argc()
+int &coCommandLine::argc()
 {
     return s_argc;
 }

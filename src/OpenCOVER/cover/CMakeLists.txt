@@ -88,6 +88,8 @@ SET(COVER_HEADERS
   coTUIFileBrowser/IRemoteData.h
   #coVRDePee.h
   #coVRDePeePass.h
+
+  qt/QtOsgWidget.h
 )
 
 SET(COVER_SOURCES
@@ -161,6 +163,8 @@ SET(COVER_SOURCES
   tridelity.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
+
+  qt/QtOsgWidget.cpp
 )
 
 SET(MUI_SOURCES
@@ -233,6 +237,7 @@ ENDIF(HAVE_NORM)
 
 SET(COVER_MOCS
   coTabletUI.h
+  qt/QtOsgWidget.h
 )
 
 SET(TMP_COVER_MOCS )
@@ -286,4 +291,4 @@ COVISE_INSTALL_HEADERS(cover ${COVER_HEADERS} ${COVER_MOCS})
 COVISE_INSTALL_HEADERS(cover/mui ${MUI_HEADERS})
 COVISE_INSTALL_HEADERS(cover/mui/support ${MUI_SUPPORT_HEADERS})
 COVISE_INSTALL_HEADERS(cover/input ${DEVICE_HEADERS})
-qt_use_modules(${COVERKERNEL_TARGET} Core Network)
+qt_use_modules(${COVERKERNEL_TARGET} Core Network OpenGL)

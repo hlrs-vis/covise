@@ -53,6 +53,7 @@ public:
 
     void lockPipes();
     void update();
+    void updateContents();
 
     void setOrigVSize(int win, int size)
     {

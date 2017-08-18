@@ -462,7 +462,7 @@ bool OpenCOVER::init()
     if (useDISPLAY && getenv("DISPLAY") == NULL)
     {
         useDISPLAY = false;
-        cerr << "DISPLAY not set" << endl;
+        cerr << "DISPLAY not set, defaulting to DISPLAY=:0" << endl;
     }
     else if (useDISPLAY)
     {
@@ -487,6 +487,11 @@ bool OpenCOVER::init()
             {
                 fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
             }
+            putenv(envDisplay);
+        }
+        else if (!getenv("DISPLAY"))
+        {
+            strcpy(envDisplay, "DISPLAY=:0");
             putenv(envDisplay);
         }
     }

@@ -343,17 +343,30 @@ coVRConfig::coVRConfig()
 
     for (size_t i = 0; i < windows.size(); i++)
     {
-        windows[i].window = NULL;
+        auto &w = windows[i];
+        w.window = NULL;
 
-        bool state = coCoverConfig::getWindowConfigEntry(i, windows[i].name,
-                                                         &windows[i].pipeNum, &windows[i].ox, &windows[i].oy,
-                                                         &windows[i].sx, &windows[i].sy, &windows[i].decoration,
-                                                         &windows[i].stereo, &windows[i].resize, &windows[i].embedded, &windows[i].pbuffer, &windows[i].swapGroup, &windows[i].swapBarrier);
-        if (!state)
-        {
-            cerr << "Exit because of erroneous WindowConfig entry." << endl;
-            exit(-1);
-        }
+        char str[200];
+        sprintf(str, "COVER.WindowConfig.Window:%d", i);
+
+        w.name = coCoviseConfig::getEntry("comment", str, "COVER");
+        w.pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
+        w.ox = coCoviseConfig::getInt("left", str, 0);
+        w.oy = coCoviseConfig::getInt("top", str, 0);
+        w.sx = coCoviseConfig::getInt("width", str, 1024);
+        w.sy = coCoviseConfig::getInt("height", str, 768);
+        bool have_bottom = false;
+        coCoviseConfig::getInt("bottom", str, 0, &have_bottom);
+        if (have_bottom)
+            printf("bottom is ignored in %s, please use top\n", str);
+        w.decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
+        w.resize = coCoviseConfig::isOn("resize", str, true);
+        w.stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
+        w.embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
+        w.pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
+        w.qt = coCoviseConfig::isOn("qt", std::string(str), false);
+        w.swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
+        w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
     }
 
     for (size_t i = 0; i < channels.size(); i++)

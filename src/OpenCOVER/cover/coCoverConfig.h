@@ -33,8 +33,6 @@ private:
 
 public:
     static bool getScreenConfigEntry(int pos, std::string &name, int *hsize, int *vsize, int *x, int *y, int *z, float *h, float *p, float *r);
-    static bool getWindowConfigEntry(int pos, std::string &name, int *pipeNum, int *ox, int *oy, int *sx, int *sy, bool *decoration = 0, bool *stereo = 0, bool *resize = 0, bool *embedded =
-    0, bool *pbuffer = 0, int *swapGroup=0, int *swapBarrier=0);
 };
 }
 #endif

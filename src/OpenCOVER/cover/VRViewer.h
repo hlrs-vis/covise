@@ -54,8 +54,6 @@ class COVEREXPORT VRViewer : public osgViewer::Viewer
 {
     friend class OpenCOVER;
 public:
-    void setUpRenderingSupport();
-
     /** Updated the scene.  Handle any queued up events, do an update traversal and set the CameraGroup's setViewByMatrix if any camera manipulators are active.*/
     virtual bool update();
 

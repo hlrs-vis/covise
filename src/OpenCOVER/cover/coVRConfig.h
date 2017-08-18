@@ -143,6 +143,7 @@ struct windowStruct
     bool decoration;
     bool resize;
     bool stereo;
+    bool qt;
     bool embedded;
     bool pbuffer;
     int swapGroup;
@@ -160,6 +161,7 @@ struct windowStruct
     , decoration(true)
     , resize(true)
     , stereo(false)
+    , qt(false)
     , embedded(false)
     , pbuffer(false)
     , swapGroup(-1)
