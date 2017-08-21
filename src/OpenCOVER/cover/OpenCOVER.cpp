@@ -977,13 +977,13 @@ void OpenCOVER::frame()
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
 
-        if (VRViewer::instance()->getStats() && VRViewer::instance()->getStats()->collectStats("plugin"))
+        if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("plugin"))
         {
             int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
             double endTime = VRViewer::instance()->elapsedTime();
-            VRViewer::instance()->getStats()->setAttribute(fn, "Plugin begin time", beginTime);
-            VRViewer::instance()->getStats()->setAttribute(fn, "Plugin end time", endTime);
-            VRViewer::instance()->getStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
         }
     }
 
@@ -1004,13 +1004,13 @@ void OpenCOVER::frame()
 
     coVRMSController::instance()->syncVRBMessages();
 
-    if (VRViewer::instance()->getStats() && VRViewer::instance()->getStats()->collectStats("opencover"))
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
     {
         int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
         endAppTraversal = VRViewer::instance()->elapsedTime();
-        VRViewer::instance()->getStats()->setAttribute(fn, "opencover begin time", beginAppTraversal);
-        VRViewer::instance()->getStats()->setAttribute(fn, "opencover end time", endAppTraversal);
-        VRViewer::instance()->getStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover begin time", beginAppTraversal);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover end time", endAppTraversal);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
     coVRShaderList::instance()->update();

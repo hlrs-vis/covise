@@ -2236,7 +2236,7 @@ void VRViewer::renderingTraversals()
              vitr != views.end();
              ++vitr)
         {
-            View *view = *vitr;
+            osgViewer::View *view = *vitr;
             osg::Stats *stats = view->getStats();
             osg::Node *sceneRoot = view->getSceneData();
             if (sceneRoot && stats)
@@ -2393,9 +2393,9 @@ void VRViewer::renderingTraversals()
             double beginFinish = elapsedTime();
             glFinish();
             double endFinish = elapsedTime();
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
             sync = true;
         }
     }
@@ -2429,9 +2429,9 @@ void VRViewer::renderingTraversals()
             double beginSync = elapsedTime();
             coVRMSController::instance()->syncDraw();
             double endSync = elapsedTime();
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "sync begin time ", beginSync);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "sync end time ", endSync);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "sync time taken", endSync - beginSync);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "sync begin time ", beginSync);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "sync end time ", endSync);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "sync time taken", endSync - beginSync);
         }
         else
             VRViewer::unsyncedFrames--;
@@ -2453,9 +2453,9 @@ void VRViewer::renderingTraversals()
         }
     }
     double endSwap = elapsedTime();
-    getStats()->setAttribute(frameStamp->getFrameNumber(), "swap begin time ", beginSwap);
-    getStats()->setAttribute(frameStamp->getFrameNumber(), "swap end time ", endSwap);
-    getStats()->setAttribute(frameStamp->getFrameNumber(), "swap time taken", endSwap - beginSwap);
+    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "swap begin time ", beginSwap);
+    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "swap end time ", endSwap);
+    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "swap time taken", endSwap - beginSwap);
 
     if (OpenCOVER::instance()->initDone())
     {
@@ -2500,14 +2500,14 @@ void VRViewer::renderingTraversals()
         releaseContext();
     }
 
-    if (getStats() && getStats()->collectStats("update"))
+    if (getViewerStats() && getViewerStats()->collectStats("update"))
     {
         double endRenderingTraversals = elapsedTime();
 
         // update current frames stats
-        getStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals begin time ", beginRenderingTraversals);
-        getStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals end time ", endRenderingTraversals);
-        getStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals time taken", endRenderingTraversals - beginRenderingTraversals);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals begin time ", beginRenderingTraversals);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals end time ", endRenderingTraversals);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals time taken", endRenderingTraversals - beginRenderingTraversals);
     }
 
     _requestRedraw = false;
