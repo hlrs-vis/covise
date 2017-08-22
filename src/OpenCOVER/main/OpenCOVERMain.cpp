@@ -121,7 +121,45 @@ int main(int argc, char *argv[])
     covise::coConfigConstants::setRank(myID);
     covise::coConfigConstants::setMaster(QString::fromStdString(mastername));
 
-    if (!forceMpi)
+    if (argc > 1 && 0 == strcmp(argv[1], "-d"))
+    {
+
+        // find the module's name
+        const char *modname = argv[0];
+        const char *lastSlash = strrchr(modname, '/');
+        if (lastSlash)
+            modname = lastSlash + 1;
+
+        // create port and parameter output if called with the option -d
+        cout << "Module:      \"" << modname << "\"" << endl;
+        cout << "Desc:        \""
+             << "VR-Renderer"
+             << "\"" << endl;
+
+        cout << "Parameters:   " << 2 << endl;
+        cout << "  \"Viewpoints\" \"Browser\" \"./default.vwp *.vwp\" \"Viewpoints\" \"START\"" << endl;
+        cout << "  \"Plugins\" \"String\" \"\" \"Additional plugins\" \"START\"" << endl;
+        cout << "  \"WindowID\" \"IntScalar\" \"0\" \"window ID to render to\" \"START\"" << endl;
+        cout << "OutPorts:     " << 0 << endl;
+        cout << "InPorts:     " << 1 << endl;
+        cout << "  \""
+             << "RenderData"
+             << "\" \""
+             << "Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres"
+             << "\" \""
+             << "render geometry"
+             << "\" \""
+             << "req" << '"' << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    bool useVirtualGL = false;
+    if (getenv("VGL_ISACTIVE"))
+    {
+        useVirtualGL = true;
+    }
+
+    if (!forceMpi && !useVirtualGL)
     {
         //   sleep(30);
         if (covise::coCoviseConfig::getEntry("COVER.MultiPC.SyncMode") == "MPI")
@@ -186,38 +224,6 @@ int main(int argc, char *argv[])
             execvp(argv_mpi[0], argv_mpi);
             exit(0);
         }
-    }
-
-    if (argc > 1 && 0 == strcmp(argv[1], "-d"))
-    {
-
-        // find the module's name
-        const char *modname = argv[0];
-        const char *lastSlash = strrchr(modname, '/');
-        if (lastSlash)
-            modname = lastSlash + 1;
-
-        // create port and parameter output if called with the option -d
-        cout << "Module:      \"" << modname << "\"" << endl;
-        cout << "Desc:        \""
-             << "VR-Renderer"
-             << "\"" << endl;
-
-        cout << "Parameters:   " << 2 << endl;
-        cout << "  \"Viewpoints\" \"Browser\" \"./default.vwp *.vwp\" \"Viewpoints\" \"START\"" << endl;
-        cout << "  \"Plugins\" \"String\" \"\" \"Additional plugins\" \"START\"" << endl;
-        cout << "  \"WindowID\" \"IntScalar\" \"0\" \"window ID to render to\" \"START\"" << endl;
-        cout << "OutPorts:     " << 0 << endl;
-        cout << "InPorts:     " << 1 << endl;
-        cout << "  \""
-             << "RenderData"
-             << "\" \""
-             << "Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres"
-             << "\" \""
-             << "render geometry"
-             << "\" \""
-             << "req" << '"' << endl;
-        exit(EXIT_SUCCESS);
     }
 
 #ifdef _WIN32

@@ -372,6 +372,17 @@ bool OpenCOVER::init()
 
     frameNum = 0;
 
+    bool useVirtualGL = false;
+    if (getenv("VGL_ISACTIVE"))
+    {
+        useVirtualGL = true;
+    }
+
+    if (useVirtualGL)
+    {
+        coVRConfig::instance()->m_useVirtualGL = true;
+    }
+
 #ifdef HAS_MPI
     if (m_forceMpi)
     {
@@ -426,16 +437,11 @@ bool OpenCOVER::init()
 
 #ifndef _WIN32
     bool useDISPLAY = coCoviseConfig::isOn("COVER.HonourDisplay", false);
-#ifdef __linux__
-    if (getenv("LD_PRELOAD"))
+    if (useVirtualGL)
     {
-        if (strstr(getenv("LD_PRELOAD"), "faker.so"))
-        {
-            useDISPLAY = true;
-            cerr << "Apparently running with VirtualGL, using DISPLAY environment variable" << endl;
-        }
+        useDISPLAY = true;
+        cerr << "Apparently running with VirtualGL, using DISPLAY environment variable" << endl;
     }
-#endif
 
     int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
     if (useDISPLAY && getenv("DISPLAY") == NULL)

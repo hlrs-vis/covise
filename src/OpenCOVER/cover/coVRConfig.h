@@ -416,6 +416,11 @@ public:
         return m_useDISPLAY;
     }
 
+    bool useVirtualGL() const
+    {
+        return m_useVirtualGL;
+    }
+
     bool restrictOn() const
     {
         return m_restrict;
@@ -454,6 +459,7 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
+    bool m_useVirtualGL;
     int m_stencilBits;
     float m_sceneSize;
 
