@@ -7,6 +7,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
 #include <OpenVRUI/coMenuItem.h>
+#include <OpenVRUI/coPotiMenuItem.h>
 
 #include <iostream>
 

@@ -24,6 +24,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coTabletUI.h>
 #include <osg/Camera>
+#include <OpenVRUI/coMenu.h>
 
 #include <string>
 

@@ -34,6 +34,7 @@
 #include "HfT_osg_Animation.h"
 #include "HfT_osg_MobiusStrip.h"
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include <grmsg/coGRKeyWordMsg.h>
 

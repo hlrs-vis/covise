@@ -347,7 +347,7 @@ coVRConfig::coVRConfig()
         w.window = NULL;
 
         char str[200];
-        sprintf(str, "COVER.WindowConfig.Window:%d", i);
+        sprintf(str, "COVER.WindowConfig.Window:%d", (int)i);
 
         w.name = coCoviseConfig::getEntry("comment", str, "COVER");
         w.pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);

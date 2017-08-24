@@ -139,16 +139,14 @@ void AlkaneBuilderPlugin::guiParamChanged(opencover::GuiParam *guiParam)
     {
         if (p_xform->getValue())
         {
-            //coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::XForm);
-            opencover::cover->enableNavigation("XForm");
+            opencover::coVRNavigationManager::instance()->setNavMode(opencover::coVRNavigationManager::XForm);
         }
         else
         {
             osg::Matrix identm;
             opencover::cover->setXformMat(identm);
             opencover::cover->setScale(1.0);
-            //coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::NavNone);
-            opencover::cover->disableNavigation("XForm");
+            opencover::coVRNavigationManager::instance()->setNavMode(opencover::coVRNavigationManager::NavNone);
         }
     }
 

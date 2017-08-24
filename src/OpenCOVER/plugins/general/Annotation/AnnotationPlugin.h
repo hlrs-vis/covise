@@ -25,6 +25,7 @@
 #include <OpenVRUI/coLabel.h>
 #include <OpenVRUI/coPopupHandle.h>
 #include <OpenVRUI/coValuePoti.h>
+#include <OpenVRUI/coMenu.h>
 
 #include <PluginUtil/coSensor.h>
 

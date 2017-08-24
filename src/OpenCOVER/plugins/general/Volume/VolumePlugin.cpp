@@ -1151,13 +1151,12 @@ void VolumePlugin::message(int type, int len, const void *buf)
                 if (drawable && drawable->getROISize() > 0.)
                 {
                     roiMode = true;
-                    cover->setButtonState("Region of Interest", 1);
                 }
                 else
                 {
                     roiMode = false;
-                    cover->setButtonState("Region of Interest", 0);
                 }
+                ROIItem->setState(roiMode);
             }
         }
     }
@@ -2148,7 +2147,7 @@ void VolumePlugin::preFrame()
         {
             if (!roiVisible())
             {
-                cover->setButtonState("Region of Interest", 0);
+                ROIItem->setState(false);
 #ifdef VERBOSE
                 cerr << "pointer Released (ROI not visible)" << endl;
 #endif
@@ -2492,7 +2491,7 @@ void VolumePlugin::setROIMode(bool newMode)
         }
         else
         {
-            cover->setButtonState("Region of Interest", 0);
+            ROIItem->setState(false);
         }
     }
     else
@@ -2505,7 +2504,7 @@ void VolumePlugin::setROIMode(bool newMode)
         }
         else
         {
-            cover->setButtonState("Region of Interest", 1);
+            ROIItem->setState(true);
         }
         if (currentVolume != volumes.end())
         {

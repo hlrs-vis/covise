@@ -10,6 +10,7 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
+#include <OpenVRUI/coMenu.h>
 #include <memory>
 
 namespace TwoHandInteraction
