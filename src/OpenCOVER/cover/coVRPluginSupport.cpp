@@ -1145,6 +1145,8 @@ coVRPluginSupport::coVRPluginSupport()
     assert(!cover);
     cover = this;
 
+    ui = new ui::Manager();
+
     START("coVRPluginSupport::coVRPluginSupport");
 
     for (int level=0; level<Notify::Fatal; ++level)

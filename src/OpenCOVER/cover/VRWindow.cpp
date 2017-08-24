@@ -27,6 +27,9 @@
  *									*
  ************************************************************************/
 
+#include "ui/QtView.h"
+#include "ui/Menu.h"
+#include "ui/Action.h"
 #include "qt/QtOsgWidget.h"
 #include <QMainWindow>
 #include <QMenuBar>
@@ -241,8 +244,16 @@ VRWindow::createWin(int i)
         }
 
         QMainWindow *win = new QMainWindow();
-        win->menuBar()->addMenu("COVER");
+#ifdef __APPLE__
+        //auto menubar = new QMenuBar(nullptr);
+        auto menubar = win->menuBar();
+        menubar->setNativeMenuBar(false);
+#else
+        auto menubar = win->menuBar();
+#endif
         win->show();
+        menubar->show();
+        cover->ui->addView(new ui::QtView(menubar));
         QSurfaceFormat format;
         format.setVersion(2, 1);
         format.setProfile(QSurfaceFormat::CompatibilityProfile);

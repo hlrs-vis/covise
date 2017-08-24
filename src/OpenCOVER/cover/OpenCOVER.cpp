@@ -83,6 +83,8 @@
 #include <input/input.h>
 #include <input/coMousePointer.h>
 
+#include "ui/VruiView.h"
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -686,6 +688,7 @@ bool OpenCOVER::init()
     // setup Pinboard
     VRPinboard::instance();
     VRPinboard::instance()->configInteraction();
+    cover->ui->addView(new ui::VruiView);
     coVRLighting::instance()->initMenu();
 
     hud->setText2("loading plugin");
@@ -910,6 +913,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 }
             }
 
+            cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
             coVRAnimationManager::instance()->keyEvent(type, code, state);
@@ -921,6 +925,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
     {
         if (!cover->isKeyboardGrabbed())
         {
+            cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
             coVRAnimationManager::instance()->keyEvent(type, code, state);
@@ -961,6 +966,9 @@ bool OpenCOVER::frame()
     coVRMSController::instance()->syncTime();
 
     //MARK0("COVER reading input devices");
+
+    if (cover->ui->update())
+        render = true;
 
     if (VRViewer::instance()->handleEvents())
     {

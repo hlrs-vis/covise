@@ -203,6 +203,43 @@ SET(MUI_SUPPORT_HEADERS
   mui/support/EventListener.h
 )
 
+SET(UI_HEADERS
+    ui/Export.h
+    ui/Action.h
+    ui/Button.h
+    ui/Container.h
+    ui/Element.h
+    ui/Group.h
+    ui/Label.h
+    ui/Manager.h
+    ui/Menu.h
+    ui/Owner.h
+    ui/RadioGroup.h
+    ui/ShortcutListener.h
+    ui/Slider.h
+    ui/View.h
+    ui/QtView.h
+    ui/VruiView.h
+)
+
+SET(UI_SOURCES
+    ui/Action.cpp
+    ui/Button.cpp
+    ui/Container.cpp
+    ui/Element.cpp
+    ui/Group.cpp
+    ui/Label.cpp
+    ui/Manager.cpp
+    ui/Menu.cpp
+    ui/Owner.cpp
+    ui/RadioGroup.cpp
+    ui/ShortcutListener.cpp
+    ui/Slider.cpp
+    ui/View.cpp
+    ui/QtView.cpp
+    ui/VruiView.cpp
+)
+
 SET(DEVICE_SOURCES
    input/input.cpp
    input/inputdevice.cpp
@@ -238,6 +275,7 @@ ENDIF(HAVE_NORM)
 SET(COVER_MOCS
   coTabletUI.h
   qt/QtOsgWidget.h
+  ui/QtView.h
 )
 
 SET(TMP_COVER_MOCS )
@@ -248,8 +286,8 @@ SET(COVER_MOCS ${TMP_COVER_MOCS})
 
 QT_WRAP_CPP(MOCS ${COVER_MOCS})
 
-SET(ALL_HEADERS ${COVER_HEADERS} ${MUI_HEADERS} ${MUI_SUPPORT_HEADERS} ${DEVICE_HEADERS})
-SET(ALL_SOURCES ${COVER_SOURCES} ${MUI_SOURCES} ${DEVICE_SOURCES})
+SET(ALL_HEADERS ${COVER_HEADERS} ${MUI_HEADERS} ${MUI_SUPPORT_HEADERS} ${DEVICE_HEADERS} ${UI_HEADERS})
+SET(ALL_SOURCES ${COVER_SOURCES} ${MUI_SOURCES} ${DEVICE_SOURCES} ${UI_SOURCES})
 
 ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_SOURCES} ${MOCS})
 
