@@ -377,7 +377,7 @@
  <LOCAL HOST="viscluster52,viscluster53,viscluster55,viscluster56,viscluster57,viscluster59" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -385,7 +385,7 @@
  <LOCAL HOST="viscluster51,visent,visent.hlrs.de,viscluster54,viscluster55,viscluster56,viscluster58,viscluster60" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -400,7 +400,7 @@
     <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
    </ViewportConfig>
    <WindowConfig>
-   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="50" name="0" decoration="true" />
+   <Window ARCH="x11" type="Qt" width="1600" comment="MAIN" window="0" pipeIndex="0" height="1000" left="100" top="50" name="0" decoration="true" />
    </WindowConfig>
   </COVER>
  </LOCAL>
