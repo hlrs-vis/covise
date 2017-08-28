@@ -158,6 +158,7 @@ private:
 
     bool doPan_;
     bool doKeyPan_;
+	bool select_;
 
     BoundingBoxStatusId doBoxSelect_;
     CircleStatusId doCircleSelect_;
@@ -184,6 +185,7 @@ private:
     double scaling_;
 
     QVector<QPointF> splineControlPoints_;
+
 };
 
 #endif // GRAPHVIEW_HPP

@@ -131,9 +131,9 @@ CrossfallEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui->crossfallSelect, ODD::TSE_SELECT);
-    ribbonToolGroup->addButton(ui->crossfallAdd, ODD::TSE_ADD);
-    ribbonToolGroup->addButton(ui->crossfallDelete, ODD::TSE_DEL);
+    ribbonToolGroup->addButton(ui->select, ODD::TCF_SELECT);
+    ribbonToolGroup->addButton(ui->crossfallAdd, ODD::TCF_ADD);
+    ribbonToolGroup->addButton(ui->crossfallDelete, ODD::TCF_DEL);
     //ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TSE_SMOOTH);
     
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRadius()));

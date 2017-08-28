@@ -36,15 +36,15 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QGroupBox" name="typeBox">
+    <widget class="QGroupBox" name="selectionBox">
      <property name="title">
-      <string>TypeSection Tools</string>
+      <string>Selection Tools</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="gridLayout_6">
       <item row="1" column="0">
-       <widget class="QPushButton" name="typeMove">
+       <widget class="QPushButton" name="select">
         <property name="text">
-         <string>Select&amp;Move</string>
+         <string>Select/Move</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -54,7 +54,23 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="typeBox">
+     <property name="title">
+      <string>TypeSection Tools</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
        <widget class="QPushButton" name="typeDelete">
         <property name="text">
          <string>Delete</string>
@@ -64,7 +80,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="0" column="0">
        <widget class="QPushButton" name="typeAdd">
         <property name="text">
          <string>New</string>

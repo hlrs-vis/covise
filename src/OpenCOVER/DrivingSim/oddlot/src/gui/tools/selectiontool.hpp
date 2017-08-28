@@ -72,7 +72,6 @@ signals:
 private slots:
     void activateProject(bool);
     void handleToolClick(int);
-    void boundingBox(bool);
 
 public slots:
 
@@ -99,7 +98,7 @@ class SelectionToolAction : public ToolAction
     //################//
 
 public:
-    explicit SelectionToolAction(SelectionTool::SelectionToolId selectionToolId, bool toggled = true);
+    explicit SelectionToolAction(SelectionTool::SelectionToolId selectionToolId);
     virtual ~SelectionToolAction()
     { /* does nothing */
     }
@@ -108,10 +107,12 @@ public:
     {
         return selectionToolId_;
     }
-    bool isToggled() const
-    {
-        return toggled_;
-    }
+
+	bool SelectionToolAction::getBoundingBoxActive()
+	{
+		return boundingBoxActive_;
+	}
+
 
 protected:
 private:
@@ -127,7 +128,7 @@ protected:
 private:
     SelectionTool::SelectionToolId selectionToolId_;
 
-    bool toggled_;
+	bool boundingBoxActive_;
 };
 
 #endif // SELECTIONTOOL_HPP

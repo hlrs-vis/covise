@@ -129,7 +129,7 @@ LaneEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui->laneSelect, ODD::TLE_SELECT);
+    ribbonToolGroup->addButton(ui->select, ODD::TLE_SELECT);
     ribbonToolGroup->addButton(ui->laneAdd, ODD::TLE_ADD);
     ribbonToolGroup->addButton(ui->laneDelete, ODD::TLE_DEL);
     ribbonToolGroup->addButton(ui->laneAddWidth, ODD::TLE_ADD_WIDTH);

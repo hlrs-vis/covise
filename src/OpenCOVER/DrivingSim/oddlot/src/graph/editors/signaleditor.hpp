@@ -59,23 +59,25 @@ public:
     //
     virtual void toolAction(ToolAction *);
 
-    // Move Signal //
+    // Move Signals //
     //
-    bool translateSignal(Signal * signal, RSystemElementRoad * newRoad, QPointF &to);
+	void duplicate();
+	void move(QPointF &diff);
+    void translateSignal(SignalItem *signal, QPointF &diff);
 
 	// New Signal with properties chosen in SignalTreeWidget //
 	//
 	Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
 
-	bool translateObject(Object * object, RSystemElementRoad * newRoad, QPointF &to);
+	void translateObject(ObjectItem * objectItem, QPointF &diff);
 
 	// New Object with properties chosen in SignalTreeWidget //
 	//
 	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
 
-	bool translateBridge(Bridge * bridge, RSystemElementRoad * newRoad, QPointF &to);
+	void translateBridge(BridgeItem * bridgeItem, QPointF &diff);
 
-
+	void translate(QPointF &diff);
 
     // RoadType //
     //

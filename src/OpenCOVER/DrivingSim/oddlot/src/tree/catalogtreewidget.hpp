@@ -27,6 +27,7 @@ class ProjectData;
 class ProjectWidget;
 class MainWindow;
 class ToolAction;
+class ToolManager;
 class OpenScenarioEditor;
 class OSCBase;
 class OSCElement;
@@ -106,6 +107,7 @@ private:
     ProjectData *projectData_; // Model, linked
 	MainWindow *mainWindow_;
 	OpenScenarioEditor *oscEditor_;
+	ToolManager *toolManager_;
 
 	// OpenScenario Base //
 	//

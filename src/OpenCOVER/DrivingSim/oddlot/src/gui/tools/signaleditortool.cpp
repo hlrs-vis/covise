@@ -43,6 +43,7 @@ SignalEditorTool::SignalEditorTool(ToolManager *toolManager)
     : Tool(toolManager)
     , toolId_(ODD::TSG_SELECT)
     , active_(false)
+	, ui(new Ui::SignalRibbon)
 {
     // Connect //
     //
@@ -127,10 +128,10 @@ SignalEditorTool::initToolWidget()
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
     ToolWidget *ribbonWidget = new ToolWidget();
     //ribbonWidget->
-    Ui::SignalRibbon *ui = new Ui::SignalRibbon();
     ui->setupUi(ribbonWidget);
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    
+	QButtonGroup *ribbonToolGroup = new QButtonGroup;
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
@@ -138,9 +139,18 @@ SignalEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->newController, ODD::TSG_CONTROLLER);
     ribbonToolGroup->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
     ribbonToolGroup->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);
+	ribbonToolGroup->addButton(ui->select, ODD::TSG_SELECT);
+	ribbonToolGroup->addButton(ui->invisibleButton, ODD::TSG_NONE);
+	ui->invisibleButton->hide();
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Signals and Objects"));
     connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+}
+
+void
+SignalEditorTool::signalSelection(bool state)
+{
+	ui->invisibleButton->setChecked(!state);
 }
 
 //################//
@@ -181,6 +191,7 @@ SignalEditorTool::handleToolClick(int id)
     delete action;
 
 }
+
 
 //################//
 //                //

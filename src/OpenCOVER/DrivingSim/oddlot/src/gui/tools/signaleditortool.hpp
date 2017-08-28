@@ -39,6 +39,8 @@ public:
     { /* does nothing */
     }
 
+	void signalSelection(bool);
+
 private:
     SignalEditorTool(); /* not allowed */
     SignalEditorTool(const SignalEditorTool &); /* not allowed */
@@ -68,6 +70,7 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
+	Ui::SignalRibbon *ui;
 
     bool active_;
 };
