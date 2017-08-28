@@ -47,12 +47,12 @@
 using namespace vrui;
 using namespace opencover;
 
+VRWindow *VRWindow::s_instance = NULL;
 VRWindow *VRWindow::instance()
 {
-    static VRWindow *singleton = NULL;
-    if (!singleton)
-        singleton = new VRWindow;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRWindow;
+    return s_instance;
 }
 
 VRWindow::VRWindow()
@@ -61,6 +61,7 @@ VRWindow::VRWindow()
     , _firstTimeEmbedded(false)
     , _eventReceiver(NULL)
 {
+    assert(!s_instance);
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\nnew VRWindow\n");
@@ -77,6 +78,8 @@ VRWindow::~VRWindow()
     }
     delete[] origVSize;
     delete[] origHSize;
+
+    s_instance = NULL;
 }
 
 bool
@@ -334,7 +337,7 @@ VRWindow::createWin(int i)
         cerr << "No valid GL context created" << endl;
         return false;
     }
-    coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(coVRConfig::instance()->windows[i].context);
+    coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(coVRConfig::instance()->windows[i].context.get());
 
     if (opengl3)
     {

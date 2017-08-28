@@ -630,7 +630,7 @@ bool MachinePool::read(const std::string& filename)
             if (fr.read("file",readFilename))
             {
                 read(readFilename);
-                ++itrAdvanced;
+                itrAdvanced = true;
             }
         
             if (fr.matchSequence("Machine {"))

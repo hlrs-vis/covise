@@ -283,6 +283,7 @@ void ReadVTK::update()
 
         if (!vdata)
         {
+            continue;
             Covise::sendInfo("could not read: %s", m_filename);
             return;
         }

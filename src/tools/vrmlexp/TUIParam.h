@@ -35,7 +35,9 @@
 
 #if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
 #include "maxtextfile.h"
-#define MAXSTREAM MaxSDK::Util::TextFile::Writer &
+#include "BufferedStream.h"
+#define MAXSTREAM BufferedStream &
+//#define MAXSTREAM MaxSDK::Util::TextFile::Writer &
 #else
 #define MAXSTREAM FILE *
 #endif

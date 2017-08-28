@@ -134,7 +134,7 @@
 #define VRML97COVEREXPORT COIMPORT
 #endif
 
-#if defined(COVISEPluginUtil_EXPORTS)
+#if defined(CovisePluginUtil_EXPORTS)
 #define COVISEPLUGINEXPORT COEXPORT
 #else
 #define COVISEPLUGINEXPORT COIMPORT

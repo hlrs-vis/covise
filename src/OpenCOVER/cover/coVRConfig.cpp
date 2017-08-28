@@ -20,12 +20,13 @@ using std::endl;
 using namespace covise;
 using namespace opencover;
 
+coVRConfig *coVRConfig::s_instance = NULL;
+
 coVRConfig *coVRConfig::instance()
 {
-    static coVRConfig *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRConfig;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRConfig;
+    return s_instance;
 }
 
 float coVRConfig::getSceneSize() const
@@ -64,15 +65,13 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
             stereoMode = osg::DisplaySettings::HORIZONTAL_INTERLACE;
         else if (strcasecmp(modeName, "CHECKERBOARD") == 0)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
-        else if (strcasecmp(modeName, "MONO") == 0)
+        else if (strcasecmp(modeName, "MONO") == 0
+                || strcasecmp(modeName, "NONE") == 0
+                || strcasecmp(modeName, "") == 0)
         {
             st = false;
             stereoMode = osg::DisplaySettings::LEFT_EYE;
         }
-        else if (strcasecmp(modeName, "NONE") == 0)
-            stereoMode = osg::DisplaySettings::ANAGLYPHIC;
-        else if (modeName[0] == '\0')
-            stereoMode = osg::DisplaySettings::ANAGLYPHIC;
         else
             cerr << "Unknown stereo mode \"" << modeName << "\"" << endl;
     }
@@ -86,12 +85,16 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
 
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
+    , m_useVirtualGL(false)
     , m_orthographic(false)
     , m_mouseNav(true)
     , m_useWiiMote(false)
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
+    , m_continuousRendering(false)
 {
+    assert(!s_instance);
+
     /// path for the viewpoint file: initialized by 1st param() call
 
     m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
@@ -109,6 +112,7 @@ coVRConfig::coVRConfig()
         constantFrameRate = true;
         constFrameTime = 1.0f / frameRate;
     }
+    m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
     m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
@@ -656,6 +660,16 @@ coVRConfig::~coVRConfig()
 {
     if (debugLevel(2))
         fprintf(stderr, "delete coVRConfig\n");
+
+    viewports.clear();
+    blendingTextures.clear();
+    PBOs.clear();
+    channels.clear();
+    screens.clear();
+    windows.clear();
+    pipes.clear();
+
+    s_instance = NULL;
 }
 
 bool
@@ -859,4 +873,9 @@ float coVRConfig::frameRate() const
         return 1.0f / constFrameTime;
     else
         return 0.f;
+}
+
+bool coVRConfig::continuousRendering() const
+{
+    return m_continuousRendering;
 }

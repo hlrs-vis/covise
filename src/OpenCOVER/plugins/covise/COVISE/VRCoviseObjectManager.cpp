@@ -31,7 +31,7 @@
 
 #include <cover/input/VRKeys.h>
 #include "VRCoviseObjectManager.h"
-#include "VRCoviseGeometryManager.h"
+#include <CovisePluginUtil/VRCoviseGeometryManager.h>
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRFileManager.h>
 #include <cover/VRSceneGraph.h>

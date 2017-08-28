@@ -18,8 +18,13 @@
 #include <osg/Geometry>
 #include <osg/Projection>
 
+#include <iostream>
+#include <ostream>
+
 #define COMPOSITOR_TEX_SIZE 1024
 
+using std::cerr;
+using std::endl;
 using namespace osg;
 
 TiledDisplayOSGTexQuadCompositor::TiledDisplayOSGTexQuadCompositor(int channel, TiledDisplayServer *server)

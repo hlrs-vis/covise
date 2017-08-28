@@ -371,7 +371,7 @@ public:
     // Viewer callbacks (not for public consumption)
 
     // Update the model.
-    void update(double time = 0.0);
+    bool update(double time = 0.0);
 
     // Redraw the screen.
     virtual void redraw();

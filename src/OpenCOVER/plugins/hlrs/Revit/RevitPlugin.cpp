@@ -26,6 +26,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRSelectionManager.h>
 #include "cover/coVRTui.h"
+#include "cover/coVRShader.h"
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -45,6 +46,8 @@
 #include <osg/Array>
 #include <osg/CullFace>
 #include <osg/MatrixTransform>
+
+#include <osgDB/ReadFile>
 #include "GenNormals.h"
 
 #include <net/covise_host.h>
@@ -424,6 +427,7 @@ RevitPlugin::RevitPlugin()
     plugin = this;
     MoveFinished = true;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
+	textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
     toRevit = NULL;
     serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
     if (!serverConn->getSocket())
@@ -1057,6 +1061,12 @@ RevitPlugin::handleMessage(Message *m)
             delete (it->second);
         }
         ElementIDMap.clear();
+		for (std::map<int, MaterialInfo *>::iterator it = MaterialInfos.begin(); it != MaterialInfos.end(); it++)
+		{
+			delete (it->second);
+		}
+		MaterialInfos.clear();
+
     }
     break;
     case MSG_NewAnnotation:
@@ -1159,6 +1169,67 @@ RevitPlugin::handleMessage(Message *m)
             annotationIDs[annotationID]=ID;
             // check if we have cached changes for this Annotation and send it to Revit.
         }
+	case MSG_NewMaterial:
+	{
+		TokenBuffer tb(m);
+		MaterialInfo*mi = new MaterialInfo(tb);
+		MaterialInfos[mi->ID] = mi;
+
+		mi->geoState = new osg::StateSet;
+		setDefaultMaterial(mi->geoState);
+		mi->geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+		osg::Material *localmtl = new osg::Material;
+		localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(mi->r / 255.0f, mi->g / 255.0f, mi->b / 255.0f, mi->a / 255.0f));
+		localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(mi->r / 255.0f, mi->g / 255.0f, mi->b / 255.0f, mi->a / 255.0f));
+		localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+		localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+		localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+		mi->geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+		if (mi->diffuseTexture->texturePath != "")
+		{
+			std::string fileName = textureDir + "/" + mi->diffuseTexture->texturePath;
+			osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(fileName);
+			if (!diffuseImage.valid())
+			{
+				osg::notify(osg::ALWAYS) << "Can't open image file" << fileName << std::endl;
+			}
+			else
+			{
+				osg::Texture2D *diffuseTexture = new osg::Texture2D(diffuseImage.get());
+				diffuseTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+				diffuseTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+				diffuseTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
+				diffuseTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+				mi->geoState->setTextureAttribute(0, diffuseTexture);
+
+				coVRShader *shader = coVRShaderList::instance()->get("RevitDiffuse");
+				if (shader)
+				{
+					shader->apply(mi->geoState);
+				}
+			}
+		}
+
+		if (mi->bumpTexture->texturePath != "")
+		{
+			std::string fileName = textureDir + "/" + mi->bumpTexture->texturePath;
+			osg::ref_ptr<osg::Image> bumpImage = osgDB::readImageFile(fileName);
+			if (!bumpImage.valid())
+			{
+				osg::notify(osg::ALWAYS) << "Can't open image file" << fileName << std::endl;
+			}
+			else
+			{
+				osg::Texture2D *bumpTexture = new osg::Texture2D(bumpImage.get());
+				bumpTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+				bumpTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+				mi->geoState->setTextureAttribute(1, bumpTexture);
+			}
+		}
+
+	}
     case MSG_NewObject:
     {
         TokenBuffer tb(m);
@@ -1192,10 +1263,6 @@ RevitPlugin::handleMessage(Message *m)
             geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
             geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
             geode->addDrawable(geom);
-            osg::StateSet *geoState = geode->getOrCreateStateSet();
-            setDefaultMaterial(geoState);
-            geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-            geode->setStateSet(geoState);
 
             // set up geometry
             bool isTwoSided = false;
@@ -1203,12 +1270,6 @@ RevitPlugin::handleMessage(Message *m)
             tb >> tmpChar;
             if (tmpChar != '\0')
                 isTwoSided = true;
-            if (!isTwoSided)
-            {
-                osg::CullFace *cullFace = new osg::CullFace();
-                cullFace->setMode(osg::CullFace::BACK);
-                geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
-            }
 
             int numTriangles;
             tb >> numTriangles;
@@ -1238,28 +1299,50 @@ RevitPlugin::handleMessage(Message *m)
             tb >> b;
             tb >> a;
             tb >> MaterialID;
-            if (a < 250)
-            {
-                geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-                geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
-                geoState->setNestRenderBins(false);
-            }
-            else
-            {
-                geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-                geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
-                geoState->setNestRenderBins(false);
-            }
 
-            osg::Material *localmtl = new osg::Material;
-            localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-            localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
-            localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
-            localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-            localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
-            localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+			osg::StateSet *geoState;
+			MaterialInfo *mi = getMaterial(MaterialID);
+			if (mi && (mi->diffuseTexture->texturePath != ""))
+			{
+				geoState = mi->geoState;
+				geode->setStateSet(geoState);
+			}
+			else
+			{
+				geoState = geode->getOrCreateStateSet();
+				setDefaultMaterial(geoState);
+				geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+				geode->setStateSet(geoState);
+				osg::Material *localmtl = new osg::Material;
+				localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+				localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+				localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+				localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+				localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+				localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
 
-            geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+				geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+			}
+
+			if (a < 250)
+			{
+				geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+				geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
+				geoState->setNestRenderBins(false);
+			}
+			else
+			{
+				geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+				geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
+				geoState->setNestRenderBins(false);
+			}
+
+			if (!isTwoSided)
+			{
+				osg::CullFace *cullFace = new osg::CullFace();
+				cullFace->setMode(osg::CullFace::BACK);
+				geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+			}
 
             geom->setVertexArray(vert);
             geom->addPrimitiveSet(triangles);
@@ -1278,6 +1361,7 @@ RevitPlugin::handleMessage(Message *m)
     
     case MSG_NewPolyMesh:
     {
+		cerr << "not used anymore" << endl;
         TokenBuffer tb(m);
 
         int numPoints;
@@ -1294,11 +1378,7 @@ RevitPlugin::handleMessage(Message *m)
         geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
         geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
         geode->addDrawable(geom);
-        osg::StateSet *geoState = geode->getOrCreateStateSet();
-        setDefaultMaterial(geoState);
-        geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-        geode->setStateSet(geoState);
-
+        
         // set up geometry
       /*  bool isTwoSided = false;
         char tmpChar;
@@ -1380,37 +1460,52 @@ RevitPlugin::handleMessage(Message *m)
                 normals->push_back((*norms)[v3]);
             }
         }
-        /*unsigned char r, g, b, a;
-        int MaterialID;
-        tb >> r;
-        tb >> g;
-        tb >> b;
-        tb >> a;
-        tb >> MaterialID;
-        if (a < 250)
-        {
-            geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-            geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
-            geoState->setNestRenderBins(false);
-        }
-        else
-        {
-            geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-            geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
-            geoState->setNestRenderBins(false);
-        }*/
 
-        osg::Material *localmtl = new osg::Material;
-        localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-        /*
-        localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
-        localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
-        */
-        localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-        localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
-        localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+		unsigned char r, g, b, a;
+		int MaterialID;
+		tb >> r;
+		tb >> g;
+		tb >> b;
+		tb >> a;
+		tb >> MaterialID;
 
-        geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+		osg::StateSet *geoState;
+		MaterialInfo *mi = getMaterial(MaterialID);
+		if (mi)
+		{
+			geoState = mi->geoState;
+			geode->setStateSet(geoState);
+		}
+		else
+		{
+			geoState = geode->getOrCreateStateSet();
+			setDefaultMaterial(geoState);
+			geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+			geode->setStateSet(geoState);
+			osg::Material *localmtl = new osg::Material;
+			localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+			localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+			localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+			localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+			localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+			localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+			geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+		}
+
+		if (a < 250)
+		{
+			geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+			geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
+			geoState->setNestRenderBins(false);
+		}
+		else
+		{
+			geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+			geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
+			geoState->setNestRenderBins(false);
+		}
+
         
         geom->setVertexArray(vert);
         if(numNormals == numPoints)
@@ -1615,30 +1710,65 @@ void RevitPlugin::createNewAnnotation(int id, AnnotationMessage *am)
 }
 void RevitPlugin::changeAnnotation(int id, AnnotationMessage *am)
 {
-    osg::Matrix trans;
-    osg::Matrix ori;
-    for (unsigned y = 0; y < 4; ++y)
-    {
-        for (unsigned x = 0; x < 4; ++x)
-        {
-            ori(x, y) = am->_orientation[y * 4 + x];
-            trans(x, y) = am->_translation[y * 4 + x];
-        }
-    }
-    coCoord orientation(ori);
-    TokenBuffer stb;
-    stb << id;
-    stb << (double)trans.getTrans()[0]/scaleFactor;
-    stb << (double)trans.getTrans()[1]/scaleFactor;
-    stb << (double)trans.getTrans()[2]/scaleFactor;
-    stb << (double)orientation.hpr[0];
-    stb << (double)orientation.hpr[1];
-    stb << (double)orientation.hpr[2];
+	osg::Matrix trans;
+	osg::Matrix ori;
+	for (unsigned y = 0; y < 4; ++y)
+	{
+		for (unsigned x = 0; x < 4; ++x)
+		{
+			ori(x, y) = am->_orientation[y * 4 + x];
+			trans(x, y) = am->_translation[y * 4 + x];
+		}
+	}
+	coCoord orientation(ori);
+	TokenBuffer stb;
+	stb << id;
+	stb << (double)trans.getTrans()[0] / scaleFactor;
+	stb << (double)trans.getTrans()[1] / scaleFactor;
+	stb << (double)trans.getTrans()[2] / scaleFactor;
+	stb << (double)orientation.hpr[0];
+	stb << (double)orientation.hpr[1];
+	stb << (double)orientation.hpr[2];
 
-    Message message(stb);
-    message.type = (int)RevitPlugin::MSG_ChangeAnnotation;
-    RevitPlugin::instance()->sendMessage(message);
+	Message message(stb);
+	message.type = (int)RevitPlugin::MSG_ChangeAnnotation;
+	RevitPlugin::instance()->sendMessage(message);
+}
+MaterialInfo * RevitPlugin::getMaterial(int revitID)
+{
+	std::map<int, MaterialInfo *>::iterator it = MaterialInfos.find(revitID);
+	if (it != MaterialInfos.end())
+	{
+		return(it->second);
+	}
+	return NULL;
+
+
 }
 
 
 COVERPLUGIN(RevitPlugin)
+
+TextureInfo::TextureInfo(TokenBuffer & tb)
+{
+	tb >> texturePath;
+	tb >> sx;
+	tb >> sy;
+	tb >> ox;
+	tb >> oy;
+	tb >> angle;
+	tb >> r;
+	tb >> g;
+	tb >> b;
+}
+
+MaterialInfo::MaterialInfo(TokenBuffer & tb)
+{
+	tb >> ID;
+	diffuseTexture = new TextureInfo(tb);
+	bumpTexture = new TextureInfo(tb);
+	r = diffuseTexture->r;
+	g = diffuseTexture->g;
+	b = diffuseTexture->b;
+	a = 255;
+}

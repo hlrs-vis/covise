@@ -5,6 +5,8 @@
 
  * License: LGPL 2+ */
 
+#include <list>
+
 #include "DigitPanel.h"
 
 // OSG:
@@ -49,7 +51,7 @@ void DigitPanel::addDigit(DigitLabel *digit, int col, int row)
 
 void DigitPanel::removeDigit(DigitLabel *digit)
 {
-    list<PanelDigit *>::iterator iter;
+    std::list<PanelDigit *>::iterator iter;
 
     for (iter = _digits.begin(); iter != _digits.end(); ++iter)
     {
@@ -65,7 +67,7 @@ void DigitPanel::removeDigit(DigitLabel *digit)
 
 bool DigitPanel::setDigitPos(DigitLabel *digit, int col, int row)
 {
-    list<PanelDigit *>::iterator iter;
+    std::list<PanelDigit *>::iterator iter;
     for (iter = _digits.begin(); iter != _digits.end(); ++iter)
     {
         if ((*iter)->_digit == digit)
@@ -103,7 +105,7 @@ void DigitPanel::layout()
         minRow = maxRow = minCol = maxCol = 0;
 
         // calculate grid size:
-        list<PanelDigit *>::const_iterator iter;
+        std::list<PanelDigit *>::const_iterator iter;
         for (iter = _digits.begin(); iter != _digits.end(); ++iter)
         {
             maxCol = ts_max(maxCol, (*iter)->_pos[0] + 1);

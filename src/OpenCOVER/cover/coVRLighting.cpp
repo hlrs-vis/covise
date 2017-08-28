@@ -48,12 +48,13 @@ using namespace opencover;
 using namespace vrui;
 using covise::coCoviseConfig;
 
+coVRLighting *coVRLighting::s_instance = NULL;
+
 coVRLighting *coVRLighting::instance()
 {
-    static coVRLighting *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRLighting;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRLighting;
+    return s_instance;
 }
 
 coVRLighting::coVRLighting()
@@ -105,6 +106,8 @@ coVRLighting::~coVRLighting()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete coVRLighting\n");
+
+    s_instance = NULL;
 }
 
 void coVRLighting::config()

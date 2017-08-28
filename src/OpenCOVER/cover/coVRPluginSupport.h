@@ -48,10 +48,11 @@
 #include <osg/BoundingBox>
 
 #include <deque>
+#include <list>
+#include <ostream>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
-#include <osgShadow/ShadowedScene>
 
 #define MAX_NUMBER_JOYSTICKS 64
 
@@ -86,6 +87,7 @@ namespace opencover
 class coVRPlugin;
 class RenderObject;
 class coInteractor;
+class NotifyBuf;
 struct Isect
 {
     enum IntersectionBits
@@ -106,6 +108,18 @@ struct Isect
 
 private:
 };
+
+namespace Notify
+{
+enum NotificationLevel
+{
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Fatal
+};
+}
 
 /*! \class coPointerButton coVRPluginSupport.h cover/coVRPluginSupport.h
  * Access to buttons and wheel of interaction devices
@@ -169,6 +183,14 @@ public:
           5 all functions which are called continously */
     bool debugLevel(int level) const;
 
+    // show a message to the user
+    std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
+    std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
+#ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+#endif
+        ;
+
     // OpenGL clipping
     /// @cond INTERNAL
     enum
@@ -198,7 +220,7 @@ public:
     // access to scene graph nodes and transformations
 
     //! get scene group node
-    osgShadow::ShadowedScene *getScene() const;
+    osg::Group *getScene() const;
 
     //! get the group node for all COVISE and model geometry
     osg::ClipNode *getObjectsRoot() const;
@@ -596,7 +618,7 @@ public:
         toolBar = tb;
     };
 
-    //! use only during coVRPlugin::prepareFrame()
+    //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
 private:
@@ -625,7 +647,7 @@ private:
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     vrml::Player *player;
-    list<void (*)()> playerUseList;
+    std::list<void (*)()> playerUseList;
 
     int activeClippingPlane;
 
@@ -646,6 +668,9 @@ private:
 
     coVRPluginSupport();
     ~coVRPluginSupport();
+
+    std::vector<std::ostream *> m_notifyStream;
+    std::vector<NotifyBuf *> m_notifyBuf;
 };
 
 COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix);

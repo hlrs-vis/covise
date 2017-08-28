@@ -48,6 +48,9 @@ class buttonSpecCell;
 class coVRLabel;
 class COVEREXPORT coVRNavigationManager : public vrui::coMenuListener
 {
+    static coVRNavigationManager *s_instance;
+    coVRNavigationManager();
+
 public:
     enum NavMode
     {
@@ -66,8 +69,6 @@ public:
     };
 
     float AnalogX, AnalogY;
-
-    coVRNavigationManager();
 
     ~coVRNavigationManager();
     void updatePerson();

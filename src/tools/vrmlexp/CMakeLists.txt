@@ -88,6 +88,7 @@ vrml2.cpp
 vrml_api.cpp
 vrmlexp.cpp
 vrmlpch.cpp
+BufferedStream.cpp
 )
 SET(VRMLEXP_HEADERS
 anchor.h
@@ -139,6 +140,7 @@ vrml2.h
 vrml_api.h
 vrmlexp.h
 vrml.h
+BufferedStream.h
 )
 SET(VRMLEXP_RESOURCES 
 vrmlexp.rc

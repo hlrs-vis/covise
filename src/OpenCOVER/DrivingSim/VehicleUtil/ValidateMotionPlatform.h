@@ -16,6 +16,7 @@
 #include <deque>
 #include <cmath>
 #include <unistd.h>
+#include <osg/Matrix>
 
 class VEHICLEUTILEXPORT ValidateMotionPlatform : public XenomaiTask, public XenomaiSocketCan
 {
@@ -49,6 +50,7 @@ public:
     bool isGrounded();
     bool isMiddleLifted();
     bool isLifted();
+	osg::Matrix motionPlatformPosition();
     bool isInitialized()
     {
         return initialized;
@@ -398,4 +400,15 @@ inline bool ValidateMotionPlatform::isLifted()
     return lifted;
 }
 
+inline osg::Matrix ValidateMotionPlatform::motionPlatformPosition()
+{
+    osg::Matrix outMatrix;
+	
+	//double rz = getPosition(0);
+	//double lz = getPosition(1);
+	//double bz = getPosition(2);
+	
+	
+	return outMatrix;
+}
 #endif

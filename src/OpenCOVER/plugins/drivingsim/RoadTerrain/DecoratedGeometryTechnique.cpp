@@ -24,7 +24,7 @@
 #include <osgSim/ShapeAttribute>
 
 #include "mtrand.h"
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 using namespace osgTerrain;
 

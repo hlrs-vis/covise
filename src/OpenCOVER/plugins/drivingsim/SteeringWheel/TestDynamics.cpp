@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "SteeringWheel.h"
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/Types.h>
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
@@ -96,8 +96,19 @@ TestDynamics::TestDynamics()
 	integrationSteps = 5.0;
 	xodrLoaded = false;
 	printedOnce = false;
-	printCounter = 0;
-	printMax = 1;
+	printCounter = 1;
+	printMax = 100;
+	
+	Car2OddlotRotation.makeRotate(M_PI/2,0,0,1);
+	Oddlot2CarRotation.makeRotate(-M_PI/2,0,0,1);
+	Oddlot2OpencoverRotation.makeRotate(-M_PI/2,1,0,0);
+	Opencover2OddlotRotation.makeRotate(M_PI/2,1,0,0);
+	Car2OpencoverRotation = Car2OddlotRotation * Oddlot2OpencoverRotation;
+	Opencover2CarRotation = Opencover2OddlotRotation * Oddlot2CarRotation;
+	
+	currentRoad[0] = NULL;
+	
+	tireDist = 0.0;
 }
 
 std::pair<Road *, double> TestDynamics::getStartPositionOnRoad()
@@ -476,6 +487,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 {
 	state.psi += state.deltaPsi;
 	
+	//test
 	
 	if (xodrLoaded == false)
 	{
@@ -502,10 +514,12 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 	testMatrix3 = testMatrix3 * testMatrix2AndAHalf * testMatrix1 * testMatrix2;*/
 	globalPos = globalPos * testMatrix2AndAHalf * testMatrix1 * testMatrix2;
 	
+	//test
 	
-	if (xodrLoaded == true)
+	if (false/*xodrLoaded == true*/)
 	{
-		if (leftRoad == false)
+		
+		if (!leftRoad)
 		{
 			Vector2D vecIn(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
 			double oldX = state.X;
@@ -641,8 +655,21 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 			vehicle->setVRMLVehicleRearWheels(idTrans, idTrans);
 			
 		}
-	}	
-	if (leftRoad == true)
+	}
+	//test
+	/*double vXGlobal = 0.01;
+	double vYGlobal = 0.005;
+	double vZGlobal = 0.001;
+	double vYawGlobal = 0;
+	double vRollGlobal = 0;
+	double vPitchGlobal = 0;
+	
+	double forwardSpeed = 0.10;*/
+	
+	osg::Matrix roadPoint;
+	roadPoint.makeTranslate(0,0,0);
+	
+	if (true/*eftRoad == true*/)
 	{
 		osg::Matrix relTrans;
 		relTrans.makeTranslate(state.deltaY, 0, -state.deltaX);
@@ -658,7 +685,192 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		
 		osg::Matrix idTrans;
 		idTrans.makeIdentity();
-
+		/*
+		osg::Matrix rotMatrixInv = rotMatrix;
+		rotMatrixInv = rotMatrixInv.inverse(rotMatrixInv);
+		
+		osg::Matrix CCSpeeds = globalSpeedMatrix * rotMatrixInv * Opencover2CarRotation;
+		
+		std::cout << "CCSpeeds:" << std::endl;
+		std::cout << CCSpeeds(0,0) << "," << CCSpeeds(0,1) << "," << CCSpeeds(0,2) << "," << CCSpeeds(0,3) << std::endl;
+		std::cout << CCSpeeds(1,0) << "," << CCSpeeds(1,1) << "," << CCSpeeds(1,2) << "," << CCSpeeds(1,3) << std::endl;
+		std::cout << CCSpeeds(2,0) << "," << CCSpeeds(2,1) << "," << CCSpeeds(2,2) << "," << CCSpeeds(2,3) << std::endl;
+		std::cout << CCSpeeds(3,0) << "," << CCSpeeds(3,1) << "," << CCSpeeds(3,2) << "," << CCSpeeds(3,3) << std::endl;
+		std::cout << "---"<< std::endl;*/
+		
+		//test
+		/*
+		
+		osg::Matrix xMatrix;
+		double x1 = rotMatrix(0,0);
+		double x2 = rotMatrix(0,1);
+		double x3 = rotMatrix(0,2);
+		if(accelerator > 0)
+		{
+			std::cout << "accelerator on" << std::endl;
+			xMatrix.makeRotate(0.001,x1,x2,x3);
+		}
+		
+		osg::Matrix yMatrix;
+		double y1 = rotMatrix(1,0);
+		double y2 = rotMatrix(1,1);
+		double y3 = rotMatrix(1,2);
+		if(brake > 0)
+		{
+			std::cout << "brake on" << std::endl;
+			yMatrix.makeRotate(0.001,y1,y2,y3);
+		}
+		
+		osg::Matrix zMatrix;
+		double z1 = rotMatrix(2,0);
+		double z2 = rotMatrix(2,1);
+		double z3 = rotMatrix(2,2);
+		if(steering > 0)
+		{
+			std::cout << "steering on" << std::endl;
+			//zMatrix.makeRotate(0.001,z1,z2,z3);
+			yMatrix.makeRotate(-0.001,y1,y2,y3);
+		}
+		
+		//forwardMove.makeTranslate(-forwardSpeed * z1, -forwardSpeed * z2, -forwardSpeed * z3);
+		globalSpeedMatrix.makeTranslate(-vYGlobal, vZGlobal, -vXGlobal);
+		
+		std::cout << xMatrix(0,0) << "," << xMatrix(0,1) << "," << xMatrix(0,2) << "," << xMatrix(0,3) << std::endl;
+		std::cout << xMatrix(1,0) << "," << xMatrix(1,1) << "," << xMatrix(1,2) << "," << xMatrix(1,3) << std::endl;
+		std::cout << xMatrix(2,0) << "," << xMatrix(2,1) << "," << xMatrix(2,2) << "," << xMatrix(2,3) << std::endl;
+		std::cout << xMatrix(3,0) << "," << xMatrix(3,1) << "," << xMatrix(3,2) << "," << xMatrix(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		
+		osg::Matrix cogToChassis;
+		double chassisOffsetZ = 2;
+		cogToChassis.makeTranslate(chassisOffsetZ * z1, chassisOffsetZ * z2, chassisOffsetZ * z3);
+		//cogToChassis.makeTranslate(0,0,2);
+		rotMatrix = rotMatrix * xMatrix * yMatrix * zMatrix;
+		std::cout << rotMatrix(0,0) << "," << rotMatrix(0,1) << "," << rotMatrix(0,2) << "," << rotMatrix(0,3) << std::endl;
+		std::cout << rotMatrix(1,0) << "," << rotMatrix(1,1) << "," << rotMatrix(1,2) << "," << rotMatrix(1,3) << std::endl;
+		std::cout << rotMatrix(2,0) << "," << rotMatrix(2,1) << "," << rotMatrix(2,2) << "," << rotMatrix(2,3) << std::endl;
+		std::cout << rotMatrix(3,0) << "," << rotMatrix(3,1) << "," << rotMatrix(3,2) << "," << rotMatrix(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		cogPos = cogPos * globalSpeedMatrix;
+		chassisTrans = rotMatrix * cogPos * cogToChassis;
+		
+		std::cout << cogPos(0,0) << "," << cogPos(0,1) << "," << cogPos(0,2) << "," << cogPos(0,3) << std::endl;
+		std::cout << cogPos(1,0) << "," << cogPos(1,1) << "," << cogPos(1,2) << "," << cogPos(1,3) << std::endl;
+		std::cout << cogPos(2,0) << "," << cogPos(2,1) << "," << cogPos(2,2) << "," << cogPos(2,3) << std::endl;
+		std::cout << cogPos(3,0) << "," << cogPos(3,1) << "," << cogPos(3,2) << "," << cogPos(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		std::cout << chassisTrans(0,0) << "," << chassisTrans(0,1) << "," << chassisTrans(0,2) << "," << chassisTrans(0,3) << std::endl;
+		std::cout << chassisTrans(1,0) << "," << chassisTrans(1,1) << "," << chassisTrans(1,2) << "," << chassisTrans(1,3) << std::endl;
+		std::cout << chassisTrans(2,0) << "," << chassisTrans(2,1) << "," << chassisTrans(2,2) << "," << chassisTrans(2,3) << std::endl;
+		std::cout << chassisTrans(3,0) << "," << chassisTrans(3,1) << "," << chassisTrans(3,2) << "," << chassisTrans(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		
+		osg::Matrix frontLeft;
+		frontLeft.makeTranslate(1.5,1,0.3);
+		
+		osg::Matrix frontLeftPos = frontLeft * Car2OpencoverRotation * rotMatrix * cogPos;
+		
+		std::cout << frontLeftPos(0,0) << "," << frontLeftPos(0,1) << "," << frontLeftPos(0,2) << "," << frontLeftPos(0,3) << std::endl;
+		std::cout << frontLeftPos(1,0) << "," << frontLeftPos(1,1) << "," << frontLeftPos(1,2) << "," << frontLeftPos(1,3) << std::endl;
+		std::cout << frontLeftPos(2,0) << "," << frontLeftPos(2,1) << "," << frontLeftPos(2,2) << "," << frontLeftPos(2,3) << std::endl;
+		std::cout << frontLeftPos(3,0) << "," << frontLeftPos(3,1) << "," << frontLeftPos(3,2) << "," << frontLeftPos(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		
+		/*osg::Matrix frontLeftPosInOddlot = frontLeftPos * Opencover2OddlotRotation;
+		
+		std::cout << frontLeftPosInOddlot(0,0) << "," << frontLeftPosInOddlot(0,1) << "," << frontLeftPosInOddlot(0,2) << "," << frontLeftPosInOddlot(0,3) << std::endl;
+		std::cout << frontLeftPosInOddlot(1,0) << "," << frontLeftPosInOddlot(1,1) << "," << frontLeftPosInOddlot(1,2) << "," << frontLeftPosInOddlot(1,3) << std::endl;
+		std::cout << frontLeftPosInOddlot(2,0) << "," << frontLeftPosInOddlot(2,1) << "," << frontLeftPosInOddlot(2,2) << "," << frontLeftPosInOddlot(2,3) << std::endl;
+		std::cout << frontLeftPosInOddlot(3,0) << "," << frontLeftPosInOddlot(3,1) << "," << frontLeftPosInOddlot(3,2) << "," << frontLeftPosInOddlot(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		
+		osg::Matrix frontLeftSusp;
+		frontLeftSusp.makeTranslate(1.5,1,+0.3-0.4);
+		
+		osg::Matrix frontLeftSuspPos = frontLeftSusp * Car2OpencoverRotation * rotMatrix * cogPos;
+		
+		std::cout << frontLeftSuspPos(0,0) << "," << frontLeftSuspPos(0,1) << "," << frontLeftSuspPos(0,2) << "," << frontLeftSuspPos(0,3) << std::endl;
+		std::cout << frontLeftSuspPos(1,0) << "," << frontLeftSuspPos(1,1) << "," << frontLeftSuspPos(1,2) << "," << frontLeftSuspPos(1,3) << std::endl;
+		std::cout << frontLeftSuspPos(2,0) << "," << frontLeftSuspPos(2,1) << "," << frontLeftSuspPos(2,2) << "," << frontLeftSuspPos(2,3) << std::endl;
+		std::cout << frontLeftSuspPos(3,0) << "," << frontLeftSuspPos(3,1) << "," << frontLeftSuspPos(3,2) << "," << frontLeftSuspPos(3,3) << std::endl;
+		std::cout << "---"<< std::endl;
+		
+		double dist = sqrt((frontLeftPos(3,0)-frontLeftSuspPos(3,0))*(frontLeftPos(3,0)-frontLeftSuspPos(3,0))+(frontLeftPos(3,1)-frontLeftSuspPos(3,1))*(frontLeftPos(3,1)-frontLeftSuspPos(3,1))+(frontLeftPos(3,2)-frontLeftSuspPos(3,2))*(frontLeftPos(3,2)-frontLeftSuspPos(3,2)));
+		std::cout << "dist: " << dist << std::endl;
+		
+		tireContactPoint.makeTranslate(1.5,1,+0.3-0.4-0.1);
+		tireContactPoint = tireContactPoint * Car2OpencoverRotation * rotMatrix * cogPos;
+		
+		osg::Matrix tempMatrix = tireContactPoint * Opencover2OddlotRotation;
+		osg::Vec3d tempVec = tempMatrix.getTrans();
+		Vector3D searchInVec(tempVec.x(), tempVec.y(), tempVec.z());
+		std::cout << "1" << std::endl;
+		//std::cout << "fl1 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
+		std:;cout << "currentRoad[0]: " << currentRoad[0]->getLength() << " currentLongPos: " << currentLongPos[0] << std::endl;
+		Vector2D searchOutVec = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoad[0], currentLongPos[0]);
+		//std::cout << "fl2 out" << std::endl << "pointx" << searchOutVec.x() << std::endl << "pointy" << searchOutVec.y() << std::endl;
+		//currentLongPosFL1 = searchOutVec.x();
+		std::cout << "2" << std::endl;
+		RoadPoint point = currentRoad[0]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
+		std::cout << "3" << std::endl;
+		if (!isnan(point.x()))
+		{
+			//carState.roadHeightFL1 = point.z();
+			std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
+			tireDist = sqrt((tempMatrix(3,0)-point.x())*(tempMatrix(3,0)-point.x())+(tempMatrix(3,1)-point.y())*(tempMatrix(3,1)-point.y())+(tempMatrix(3,2)-point.z())*(tempMatrix(3,2)-point.z()));
+		} else 
+		{
+			std::cout << "tire fl1 left road!" << std::endl;
+			leftRoad = true;
+		}
+		std::cout << "tireDist: " << tireDist << std::endl;*/
+		/*
+		double motorOffsetXFL = -1.2;
+		double motorOffsetYFL = 0;
+		double motorOffsetZFL = -0.5;
+		double motorOffsetXFR = 0.3;
+		double motorOffsetYFR = 0;
+		double motorOffsetZFR = -0.5;
+		double motorOffsetXR = -0.45;
+		double motorOffsetYR = 0;
+		double motorOffsetZR = 0.75;
+		
+		double l = sqrt(rotMatrix(2,2) * rotMatrix(2,2) + rotMatrix(2,0) * rotMatrix(2,0));
+		//double yawAngle = atan(rotMatrix(2,2) / rotMatrix(2,0)) - M_PI / 2;
+		double yawAngle;
+		if(rotMatrix(2,0) > 0)
+		{
+			yawAngle = asin(rotMatrix(2,2) / l) - M_PI / 2;
+		}
+		else 
+		{
+			yawAngle = -(asin(rotMatrix(2,2) / l) - M_PI / 2);
+		}
+		osg::Matrix carAngle;
+		carAngle.makeRotate(yawAngle,0,1,0);
+		carAngle = rotMatrix * carAngle;
+		
+		double mpLZ = (-motorOffsetXFL * carAngle(1,0) - motorOffsetZFL * carAngle(1,2)) / carAngle(1,1);
+		double mpRZ = (-motorOffsetXFR * carAngle(1,0) - motorOffsetZFR * carAngle(1,2)) / carAngle(1,1);
+		double mpBZ = (-motorOffsetXR * carAngle(1,0) - motorOffsetZR * carAngle(1,2)) / carAngle(1,1);
+		std::cout << "yawAngle " << yawAngle << "mpLZ " << mpLZ << " mpRZ " << mpRZ << " mpBZ " << mpBZ << std::endl;
+		std::cout << carAngle(0,0) << "," << carAngle(0,1) << "," << carAngle(0,2) << "," << carAngle(0,3) << std::endl;
+		std::cout << carAngle(1,0) << "," << carAngle(1,1) << "," << carAngle(1,2) << "," << carAngle(1,3) << std::endl;
+		std::cout << carAngle(2,0) << "," << carAngle(2,1) << "," << carAngle(2,2) << "," << carAngle(2,3) << std::endl;
+		std::cout << carAngle(3,0) << "," << carAngle(3,1) << "," << carAngle(3,2) << "," << carAngle(3,3) << std::endl;*/
+		/*double fGravValue = -4000;
+		osg::Matrix fGrav;
+		osg::Matrix inverseRotMatrix = rotMatrix;
+		inverseRotMatrix = inverseRotMatrix.inverse(inverseRotMatrix);
+		fGrav.makeTranslate(0,fGravValue,0);
+		fGrav = fGrav * inverseRotMatrix * Opencover2CarRotation;
+		std::cout << fGrav(0,0) << "," << fGrav(0,1) << "," << fGrav(0,2) << "," << fGrav(0,3) << std::endl;
+		std::cout << fGrav(1,0) << "," << fGrav(1,1) << "," << fGrav(1,2) << "," << fGrav(1,3) << std::endl;
+		std::cout << fGrav(2,0) << "," << fGrav(2,1) << "," << fGrav(2,2) << "," << fGrav(2,3) << std::endl;
+		std::cout << fGrav(3,0) << "," << fGrav(3,1) << "," << fGrav(3,2) << "," << fGrav(3,3) << std::endl;*/
+		
+		
+		/*std::cout << "=(^-.-^)="<< std::endl;*/
 		vehicle->setVRMLVehicle(chassisTrans);
 		vehicle->setVRMLVehicleBody(bodyTrans);
 		
@@ -668,40 +880,62 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		vehicle->setVRMLVehicleFrontWheels(relRotTireYaw, relRotTireYaw);
 		vehicle->setVRMLVehicleRearWheels(idTrans, idTrans);
 		
-		currentRoad[0] = NULL;
-		osg::Vec3d tempVec = globalPos.getTrans();
+		//currentRoad[0] = NULL;
+		osg::Vec3d tempVec = chassisTrans.getTrans();
 		Vector3D searchInVec(tempVec.x(), -tempVec.z(), tempVec.y());
-		Vector2D v_c = RoadSystem::Instance()->searchPosition(searchInVec, currentRoad[0], currentLongPos[0]);
-		std::cout << "search road from scratch" << std::endl;
-		if (!v_c.isNaV())
+		//Vector3D searchInVec(8, 13, 0);
+		//currentLongPos[0] = 50;
+		//Vector2D v_c = RoadSystem::Instance()->searchPositionFollowingRoad(searchInVec, currentRoad[0], currentLongPos[0]);
+		if(currentRoad[0])
 		{
-			RoadPoint point = currentRoad[0]->getRoadPoint(v_c.u(), v_c.v());
-			globalPos.makeTranslate(point.x(), point.z(), -point.y());
-			state.psi = 0;
-			rotationPos.makeRotate(0, 0, 1, 0);
-			leftRoad = false;
+			Vector2D v_c = currentRoad[0]->searchPositionNoBorder(searchInVec, currentLongPos[0]);
+			//std::cout << "search road from scratch" << std::endl;
+			if (!v_c.isNaV())
+			{
+				currentLongPos[0] = v_c.x();
+				RoadPoint point = currentRoad[0]->getRoadPoint(v_c.u(), v_c.v());
+				roadPoint.makeTranslate(point.x(), point.z(), -point.y());
+				/*globalPos.makeTranslate(point.x(), point.z(), -point.y());
+				state.psi = 0;
+				rotationPos.makeRotate(0, 0, 1, 0);*/
+				leftRoad = false;
+			}
+			else
+			{
+				leftRoad = true;
+			}
 		}
+		else 
+		{
+			leftRoad = true;
+		}
+		
 	}
 	
 	
 	
+	
 	osg::Vec3d testVec = globalPos.getTrans();
-		
-	if (printCounter < printMax) 
+	printCounter++;
+	if (printCounter > printMax) 
 	{
-		cout << "global pos: " << endl << "x: " << testVec.x() << endl << "y: " << testVec.y() << endl << "z: " << testVec.z() << endl;
-		cout << "state.fy: " << state.fy<< endl;
+		cout << "chassis trans: " << endl << "x: " << chassisTrans.getTrans().x() << endl << "y: " << chassisTrans.getTrans().y() << endl << "z: " << chassisTrans.getTrans().z() << endl;
+		cout << "globalPos: " << endl << "x: " << globalPos.getTrans().x() << endl << "y: " << globalPos.getTrans().y() << endl << "z: " << globalPos.getTrans().z() << endl;
+		cout << "road point: " << endl << "x: " << roadPoint.getTrans().x() << endl << "y: " << roadPoint.getTrans().y() << endl << "z: " << roadPoint.getTrans().z() << endl;
+		cout << "current long pos: " << currentLongPos[0] << endl;
+		/*cout << "state.fy: " << state.fy<< endl;
 		cout << "state.vY: " << state.vY<< endl;
 		cout << "state.fx: " << state.fx<< endl;
 		cout << "state.vX: " << state.vX<< endl;
 		cout << "state.deltaPsi: " << state.deltaPsi << endl;
 		cout << "psi " << state.psi << endl;
 		cout << "state.deltaX: " << state.deltaX << endl;
-		cout << "state.deltaY: " << state.deltaY << endl;
+		cout << "state.deltaY: " << state.deltaY << endl;*/
+		cout << "road: " << currentRoad[0] << endl;
 		cout << "leftRoad " << leftRoad << endl;
 		cout << "__/|___/|___/|___/|___/|" << endl;
 		
-		//printCounter +=1;
+		printCounter = 0;
 	}
 	
 }

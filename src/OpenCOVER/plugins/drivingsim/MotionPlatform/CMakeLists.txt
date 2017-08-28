@@ -7,6 +7,9 @@ endif(NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
 
 using(VRML)
 USING(XERCESC BOOST)
+using(VehicleUtil)
+using(V8)
+
 SET(HEADERS
  MotionPlatformPlugin.h
  InvertMatrix.hpp
@@ -14,10 +17,7 @@ SET(HEADERS
 SET(SOURCES
  MotionPlatformPlugin.cpp
 )
-COVISE_FIND_PACKAGE(V8)
 INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ${V8_INCLUDE_DIR}
 )
 
 

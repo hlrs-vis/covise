@@ -52,7 +52,6 @@ private:
     coTUITab *tuiTab;
     std::vector<coTUIToggleButton *> tuiButtons;
     void showHud(const std::string &text);
-    coHud *m_hud;
 
 public:
     char *currentObjectName;

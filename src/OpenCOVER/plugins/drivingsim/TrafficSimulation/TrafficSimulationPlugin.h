@@ -34,24 +34,16 @@
 #include <cover/coTabletUI.h>
 #include <osg/PositionAttitudeTransform>
 
-#ifdef HAVE_TR1
-#ifdef WIN32
 #include <random>
-#else
-#include <tr1/random>
-#endif
-#else
-#include "mtrand.h"
-#endif
 
-#include "RoadSystem/RoadSystem.h"
-#include "VehicleManager.h"
-#include "VehicleFactory.h"
-#include "PedestrianManager.h"
-#include "PedestrianFactory.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <TrafficSimulation/VehicleManager.h>
+#include <TrafficSimulation/VehicleFactory.h>
+#include <TrafficSimulation/PedestrianManager.h>
+#include <TrafficSimulation/PedestrianFactory.h>
 //#include "RoadFootprint.h"
 
-#include "Vehicle.h"
+#include <TrafficSimulation/Vehicle.h>
 using namespace covise;
 using namespace opencover;
 

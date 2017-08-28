@@ -68,7 +68,7 @@ public:
 
     ~VRCoviseConnection();
 
-    void update(bool handleOneMessageOnly = false);
+    bool update(bool handleOneMessageOnly = false);
     void sendQuit();
 
     static void executeCallback(void *sceneGraph, buttonSpecCell *);

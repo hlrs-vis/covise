@@ -11,7 +11,9 @@
 #include "Player.h"
 
 #ifdef HAVE_OPENAL
-#if defined(__APPLE__) || defined(_MSC_VER)
+#if defined(__APPLE__)
+#include <OpenAL/al.h>
+#elif defined(_MSC_VER)
 #include <al.h>
 #else
 #include <AL/al.h>

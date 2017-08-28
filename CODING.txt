@@ -34,6 +34,13 @@ This will make your commits easy to follow by others:
   platforms, too (Linux/Windows)
 
 
+C++ Standard
+============
+
+You can use C++11 features. However, you should remain compatible with GCC 4.8
+and Visual Studio 2015.
+
+
 Coding Style
 ============
 

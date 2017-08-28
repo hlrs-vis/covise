@@ -4,6 +4,7 @@
 #include <OpenVRUI/coFlatPanelGeometry.h>
 #include <OpenVRUI/coInteraction.h>
 #include <config/CoviseConfig.h>
+#include <algorithm>
 
 using namespace std;
 using namespace cui;

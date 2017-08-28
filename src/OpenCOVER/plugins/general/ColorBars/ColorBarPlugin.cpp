@@ -18,6 +18,7 @@
 #include "ColorBarPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
+#include <cover/OpenCOVER.h>
 #include <PluginUtil/ColorBar.h>
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
@@ -42,7 +43,7 @@ bool ColorBarPlugin::init()
 
     // how to attach pinboardButton later to the Coviseentry
     coMenu *coviseMenu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu("COVISE");
+    VRMenu *menu = VRPinboard::instance()->namedMenu(OpenCOVER::instance()->visPlugin()->getName());
     if (menu)
     {
         coviseMenu = menu->getCoMenu();

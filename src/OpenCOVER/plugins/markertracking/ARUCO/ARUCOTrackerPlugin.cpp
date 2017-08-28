@@ -194,7 +194,11 @@ bool ARUCOPlugin::init()
         thresh = coCoviseConfig::getInt("COVER.Plugin.ARUCO.Threshold", 100);
         
         detectorParams = aruco::DetectorParameters::create();
+#if (CV_VERSION_MAJOR < 3 || (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR < 3))
         detectorParams->doCornerRefinement = true; // do corner refinement in markers
+#else
+        detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_CONTOUR;
+#endif
         
         dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
         msgQueue = -1;

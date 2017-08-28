@@ -127,6 +127,7 @@ class COVEREXPORT ARToolKit
 {
 private:
     static ARToolKit *art;
+    ARToolKit();
     std::string m_configPath;
     covise::Message msg;
 
@@ -136,7 +137,6 @@ private:
 
 public:
     bool running;
-    ARToolKit();
     virtual ~ARToolKit();
     static ARToolKit *instance();
     coTUITab *artTab;

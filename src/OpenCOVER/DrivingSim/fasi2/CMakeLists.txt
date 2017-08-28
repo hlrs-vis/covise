@@ -1,0 +1,62 @@
+IF(NOT COVISE_BUILD_DRIVINGSIM)
+  RETURN()
+ENDIF()
+
+OPTION (COVISE_USE_XENOMAI "Use Xenomai" ON)
+COVISE_FIND_PACKAGE(Xenomai)
+if( NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
+ RETURN()
+endif( NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
+
+USING(XERCESC)
+USING(BOOST)
+
+COVISE_FIND_PACKAGE(V8)
+
+SET(HEADERS
+  fasi2.h
+  FourWheelDynamicsRealtime2.h
+  FWDCarState.h
+  FWDIntegrator.h
+  FWDState.h
+  FWDPositionState.h
+  FWDAccelerationState.h
+)
+SET(SOURCES
+  fasi2.cpp
+  FourWheelDynamicsRealtime2.cpp
+  FWDIntegrator.cpp
+  FWDState.cpp
+  FWDCarState.cpp
+  FWDPositionState.cpp
+  FWDAccelerationState.cpp
+)
+
+
+IF(WIN32)
+  RETURN()
+ENDIF(WIN32)
+
+INCLUDE_DIRECTORIES(
+   ../VehicleUtil
+    ${OPENSCENEGRAPH_INCLUDE_DIRS}
+   ${V8_INCLUDE_DIR}
+)
+ 
+ ADD_DEFINITIONS(${XENOMAI_DEFINITIONS})
+
+ INCLUDE_DIRECTORIES(
+   ${XENOMAI_INCLUDE_DIR}
+   ../gaalet/include
+
+ )
+
+
+
+ADD_COVISE_EXECUTABLE(fasi2 ${SOURCES} ${HEADERS})
+TARGET_LINK_LIBRARIES(fasi2 ${OPENSCENEGRAPH_LIBRARIES} coOpenVehicleUtil ${CMAKE_THREAD_LIBS_INIT})
+ADD_COVISE_COMPILE_FLAGS(fasi2 "-g0 -O3 -w -fno-strict-aliasing")
+
+COVISE_INSTALL_TARGET(fasi2)
+
+

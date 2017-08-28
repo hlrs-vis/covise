@@ -84,7 +84,6 @@ SwitchDataPlugin::SwitchDataPlugin()
     , numChoices(0)
     , choices(NULL)
     , tuiTab(NULL)
-    , m_hud(NULL)
     , currentObjectName(NULL)
 {
     // get the parameter names (this is hardcoded)
@@ -117,9 +116,6 @@ SwitchDataPlugin::~SwitchDataPlugin()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n    delete SwitchDataPlugin\n");
-
-    delete m_hud;
-    m_hud = NULL;
 
     if (pinboardButton)
     {
@@ -311,21 +307,18 @@ SwitchDataPlugin::remove(const char * /*objName*/, bool removeMenu)
 void
 SwitchDataPlugin::preFrame()
 {
-    if (m_hud)
-        m_hud->update();
 }
 
 void
 SwitchDataPlugin::showHud(const std::string &text)
 {
-    if (!m_hud)
-        m_hud = new coHud();
-    m_hud->setText1("Please wait:");
-    m_hud->setText2((std::string("Loading ") + text + "...").c_str());
-    m_hud->setText3("");
-    m_hud->show();
-    m_hud->redraw();
-    m_hud->hideLater();
+    coHud *hud = coHud::instance();
+    hud->setText1("Please wait:");
+    hud->setText2((std::string("Loading ") + text + "...").c_str());
+    hud->setText3("");
+    hud->show();
+    hud->redraw();
+    hud->hideLater();
 }
 
 void SwitchDataPlugin::menuEvent(coMenuItem *menuItem)

@@ -23,7 +23,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
-#include <PluginUtil/coBaseCoviseInteractor.h>
+#include <cover/coInteractor.h>
 #include <OpenVRUI/coToolboxMenu.h>
 #include <cover/coVRCollaboration.h>
 #include <config/CoviseConfig.h>

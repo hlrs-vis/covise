@@ -948,6 +948,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
         numberCells = dim.cells;
     }
     coDistributedObject *fieldObj;
+    std::cerr << std::time(0) << "Field with name " << header.object.c_str() << " has dimensions " << header.dimensions.c_str() << std::endl;
     if (header.fieldclass == "volVectorField" || header.fieldclass == "vectorField")
     {
         std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
@@ -1203,7 +1204,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
             std::string realtime = realtime_s.str();
             if (counter % skipfactor == 0)
             {
-                if (meshParam->getValue() || boundaryParam->getValue()
+                if (meshParam->getValue() || boundaryParam->getValue() || true
                         || (m_case.hasParticles && (particleParam->getValue() || !cellIdPorts.empty())))
                 {
                     coModule::sendInfo("Reading mesh/boundary and data. Please wait ...");

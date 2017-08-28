@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 // C++:
+#include <cassert>
 #include <iostream>
 #include <math.h>
 

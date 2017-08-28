@@ -20,7 +20,7 @@
 #include "src/data/observer.hpp"
 #include "src/util/droparea.hpp"
 
-#include "oscMemberValue.h"
+#include <OpenScenario/oscMemberValue.h>
 
 
 namespace Ui

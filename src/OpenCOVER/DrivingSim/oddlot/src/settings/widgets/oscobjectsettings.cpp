@@ -19,12 +19,12 @@
 
 // OpenScenario //
 //
-#include "oscObjectBase.h"
-#include "OpenScenarioBase.h"
-#include "oscVariables.h"
-#include "oscArrayMember.h"
-#include "oscSourceFile.h"
-#include "oscCatalog.h"
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include <OpenScenario/oscVariables.h>
+#include <OpenScenario/oscArrayMember.h>
+#include <OpenScenario/oscSourceFile.h>
+#include <OpenScenario/oscCatalog.h>
 
 // Settings //
 //

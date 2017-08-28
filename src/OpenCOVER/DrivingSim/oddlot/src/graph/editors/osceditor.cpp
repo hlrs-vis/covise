@@ -68,27 +68,27 @@
 
 // OpenScenario //
 //
-#include "oscObjectBase.h"
-#include "schema/oscObject.h"
-#include "schema/oscCatalogs.h"
-#include "oscCatalog.h"
-#include "schema/oscPosition.h"
-#include "oscArrayMember.h"
-#include "schema/oscCatalogReference.h"
-#include "oscArrayMember.h"
-#include "schema/oscTrajectory.h"
-#include "schema/oscActions.h"
-#include "schema/oscPrivateAction.h"
-#include "schema/oscPrivate.h"
-#include "schema/oscTrajectoryCatalog.h"
-#include "schema/oscDriverCatalog.h"
-#include "schema/oscEnvironmentCatalog.h"
-#include "schema/oscManeuverCatalog.h"
-#include "schema/oscMiscObjectCatalog.h"
-#include "schema/oscPedestrianCatalog.h"
-#include "schema/oscPedestrianControllerCatalog.h"
-#include "schema/oscVehicleCatalog.h"
-#include "schema/oscRouteCatalog.h"
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/schema/oscCatalogs.h>
+#include <OpenScenario/oscCatalog.h>
+#include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/oscArrayMember.h>
+#include <OpenScenario/schema/oscCatalogReference.h>
+#include <OpenScenario/oscArrayMember.h>
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscActions.h>
+#include <OpenScenario/schema/oscPrivateAction.h>
+#include <OpenScenario/schema/oscPrivate.h>
+#include <OpenScenario/schema/oscTrajectoryCatalog.h>
+#include <OpenScenario/schema/oscDriverCatalog.h>
+#include <OpenScenario/schema/oscEnvironmentCatalog.h>
+#include <OpenScenario/schema/oscManeuverCatalog.h>
+#include <OpenScenario/schema/oscMiscObjectCatalog.h>
+#include <OpenScenario/schema/oscPedestrianCatalog.h>
+#include <OpenScenario/schema/oscPedestrianControllerCatalog.h>
+#include <OpenScenario/schema/oscVehicleCatalog.h>
+#include <OpenScenario/schema/oscRouteCatalog.h>
 
 
 // Boost //

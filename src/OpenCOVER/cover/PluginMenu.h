@@ -57,6 +57,8 @@ private:
     std::vector<Plugin> items;
     boost::shared_ptr<vrui::coSubMenuItem> pinboardEntry;
     boost::shared_ptr<vrui::coMenu> menu;
+
+    static PluginMenu *s_instance;
 };
 }
 #endif

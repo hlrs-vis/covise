@@ -8,7 +8,7 @@ using namespace std;
 #include<iostream>
 #include<string>
 #include <list>
-#include <DrivingSim/OpenScenario/schema/oscAct.h>
+#include <OpenScenario/schema/oscAct.h>
 
 class Act : public OpenScenario::oscAct
 {

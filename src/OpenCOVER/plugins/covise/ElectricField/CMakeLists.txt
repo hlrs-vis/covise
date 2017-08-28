@@ -1,3 +1,5 @@
+include_directories(..)
+
 SET(HEADERS
 ChargedObject.h
 ChargedObjectHandler.h
@@ -17,4 +19,4 @@ ElectricFieldPlugin.cpp
 Probe.cpp
 Tracer.cpp
 )
-cover_add_plugin(ElectricField COVISEPluginUtil ${COVISE_SHM_LIBRARY} ${COVISE_ALG_LIBRARY} ${COVISE_CORE_LIBRARY} ${COVISE_APPL_LIBRARY} ${COVISE_GRMSG_LIBRARY})
+cover_add_plugin(ElectricField CovisePluginUtil ${COVISE_SHM_LIBRARY} ${COVISE_ALG_LIBRARY} ${COVISE_CORE_LIBRARY} ${COVISE_APPL_LIBRARY} ${COVISE_GRMSG_LIBRARY})

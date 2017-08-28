@@ -32,7 +32,7 @@ SurfacePlugin::SurfacePlugin()
 {
     fprintf(stderr, "SurfacePlugin::SurfacePlugin\n");
     coVRTouchTable::instance()->ttInterface = this;
-    multitouchPlugin = (MultitouchPlugin *)coVRPluginList::instance()->addPlugin("Multitouch");
+    multitouchPlugin = dynamic_cast<MultitouchPlugin *>(coVRPluginList::instance()->addPlugin("Multitouch"));
 }
 
 // this is called if the plugin is removed at runtime
@@ -40,7 +40,8 @@ SurfacePlugin::~SurfacePlugin()
 {
     fprintf(stderr, "SurfacePlugin::~SurfacePlugin\n");
     coVRTouchTable::instance()->ttInterface = NULL;
-    multitouchPlugin->~MultitouchPlugin();
+    coVRPluginList::instance()->unload(multitouchPlugin);
+    multitouchPlugin = NULL;
 }
 
 void SurfacePlugin::manipulation(MotionEvent &me)

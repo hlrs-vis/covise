@@ -3,7 +3,6 @@
 
 #include <visionaray/array_ref.h>
 #include <visionaray/bvh.h>
-#include <visionaray/camera.h>
 #include <visionaray/scheduler.h>
 #include <visionaray/traverse.h>
 #include <visionaray/cpu_buffer_rt.h>

@@ -31,8 +31,8 @@ namespace opencover
 {
 class COVEREXPORT coHud
 {
-public:
     coHud();
+public:
     virtual ~coHud();
     static coHud *instance();
 
