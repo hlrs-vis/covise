@@ -108,7 +108,7 @@ public:
         return selectionToolId_;
     }
 
-	bool SelectionToolAction::getBoundingBoxActive()
+	bool getBoundingBoxActive()
 	{
 		return boundingBoxActive_;
 	}
