@@ -5,27 +5,41 @@
 
  * License: LGPL 2+ */
 
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
 #include "PluginMenu.h"
 #include "coVRPluginList.h"
 #include "coVRPluginSupport.h"
-#include "VRPinboard.h"
+#include <cassert>
 
-using namespace vrui;
+#include <ui/Button.h>
+#include <ui/Menu.h>
 
 namespace opencover
 {
 PluginMenu *PluginMenu::s_instance = NULL;
 
-void PluginMenu::Plugin::add(coMenu *menu)
+void PluginMenu::Plugin::add(ui::Menu *menu)
 {
-    this->menu.reset(new coCheckboxMenuItem(name.c_str(), plugin != NULL));
-    menu->add(this->menu.get());
-    this->menu->setMenuListener(PluginMenu::instance());
+    button = new ui::Button(menu, name);
+    button->setState(plugin != nullptr);
+    button->setCallback([this](bool load){
+        plugin = coVRPluginList::instance()->getPlugin(name.c_str());
+        if (load)
+        {
+            if (!plugin)
+                plugin = coVRPluginList::instance()->addPlugin(name.c_str());
+        }
+        else
+        {
+            if (plugin)
+                coVRPluginList::instance()->unload(plugin);
+            plugin = coVRPluginList::instance()->getPlugin(name.c_str());
+        }
+        button->setState(plugin != NULL);
+    });
 }
 
 PluginMenu::PluginMenu()
+: ui::Owner("PluginMenu", cover->ui)
 {
     assert(!s_instance);
 }
@@ -45,22 +59,17 @@ PluginMenu *PluginMenu::instance()
 
 void PluginMenu::init()
 {
-    menu.reset(new coRowMenu("Plug-Ins", cover->getMenu()));
-
-    pinboardEntry.reset(new coSubMenuItem("Plug-Ins..."));
-    pinboardEntry->setMenu(menu.get());
+    menu = new ui::Menu("Plugins", this);
+    menu->setText("Plug-Ins");
 
     for (size_t i = 0; i < items.size(); ++i)
     {
-        if (!items[i].menu)
+        if (!items[i].button)
         {
             Plugin &p = items[i];
-            p.add(menu.get());
+            p.add(menu);
         }
     }
-
-    if (!items.empty())
-        cover->getMenu()->add(pinboardEntry.get());
 }
 
 void PluginMenu::addEntry(const std::string &name, coVRPlugin *plugin)
@@ -69,12 +78,9 @@ void PluginMenu::addEntry(const std::string &name, coVRPlugin *plugin)
     p.plugin = plugin;
     if (menu)
     {
-        p.add(menu.get());
+        p.add(menu);
     }
     items.push_back(p);
-
-    if (!items.empty() && pinboardEntry)
-        cover->getMenu()->add(pinboardEntry.get());
 }
 
 void PluginMenu::updateState()
@@ -82,31 +88,9 @@ void PluginMenu::updateState()
     for (size_t i = 0; i < items.size(); ++i)
     {
         items[i].plugin = coVRPluginList::instance()->getPlugin(items[i].name.c_str());
-        if (items[i].menu)
-            items[i].menu->setState(items[i].plugin != NULL);
+        if (items[i].button)
+            items[i].button->setState(items[i].plugin != NULL);
     }
 }
 
-void PluginMenu::menuEvent(coMenuItem *item)
-{
-    for (size_t i = 0; i < items.size(); ++i)
-    {
-        if (items[i].menu.get() != item)
-            continue;
-
-        items[i].plugin = coVRPluginList::instance()->getPlugin(items[i].name.c_str());
-        if (items[i].menu->getState())
-        {
-            if (!items[i].plugin)
-                items[i].plugin = coVRPluginList::instance()->addPlugin(items[i].name.c_str());
-        }
-        else
-        {
-            if (items[i].plugin)
-                coVRPluginList::instance()->unload(items[i].plugin);
-            items[i].plugin = coVRPluginList::instance()->getPlugin(items[i].name.c_str());
-        }
-        items[i].menu->setState(items[i].plugin != NULL);
-    }
-}
 }
