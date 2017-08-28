@@ -5,6 +5,11 @@ vec4 Ambient;
 vec4 Diffuse;
 vec4 Specular;
 
+uniform float revitSX;
+uniform float revitSY;
+uniform float revitOX;
+uniform float revitOY;
+
 varying vec2 Texcoord;
 varying vec4 Color;
 
@@ -124,6 +129,8 @@ if(gl_Normal.y &gt; 0.5| gl_Normal.y &lt; -0.5)
 Texcoord = gl_Vertex.xz;
 if(gl_Normal.z &gt; 0.5| gl_Normal.z&lt; -0.5)
 Texcoord = gl_Vertex.xy;
+Texcoord.x/=revitSX;
+Texcoord.y/=revitSY;
 #ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 #endif

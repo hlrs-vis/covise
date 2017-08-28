@@ -266,7 +266,7 @@ void RevitViewpointEntry::activate()
     menuEntry->setState(true);
     isActive = true;
     osg::Matrix mat, rotMat;
-    mat.makeTranslate(-eyePosition[0] * 0.3048, -eyePosition[1] * 0.3048, -eyePosition[2] * 0.3048);
+    mat.makeTranslate(-eyePosition[0] * REVIT_FEET_TO_M, -eyePosition[1] * REVIT_FEET_TO_M, -eyePosition[2] * REVIT_FEET_TO_M);
     //rotMat.makeRotate(-ori[3], Vec3(ori[0],ori[1],ori[2]));
     rotMat.makeIdentity();
     osg::Vec3 xDir = viewDirection ^ upDirection;
@@ -328,9 +328,9 @@ void RevitViewpointEntry::updateCamera()
     rotMat.invert(irotMat);
     mat.postMult(rotMat);
     osg::Vec3 eyePos = mat.getTrans();
-    eyePosition[0] = -eyePos[0]/0.3048;
-    eyePosition[1] = -eyePos[1]/0.3048;
-    eyePosition[2] = -eyePos[2]/0.3048;
+    eyePosition[0] = -eyePos[0]/ REVIT_FEET_TO_M;
+    eyePosition[1] = -eyePos[1]/ REVIT_FEET_TO_M;
+    eyePosition[2] = -eyePos[2]/ REVIT_FEET_TO_M;
     
     viewDirection[0] = rotMat(1, 0);
     viewDirection[1] = rotMat(1, 1);
@@ -466,7 +466,7 @@ bool RevitPlugin::init()
     cover->addPlugin("Move"); // we would like to have the Move plugin
     globalmtl = new osg::Material;
     globalmtl->ref();
-    globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+    globalmtl->setColorMode(osg::Material::OFF);
     globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
     globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
     globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
@@ -474,8 +474,9 @@ bool RevitPlugin::init()
     globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     revitGroup = new osg::MatrixTransform();
     revitGroup->setName("RevitGeometry");
-    scaleFactor = 0.3048;
+    scaleFactor = REVIT_FEET_TO_M; // Revit internal units are always feet
     revitGroup->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+	cover->setScale(1000.0);
     currentGroup.push(revitGroup.get());
     cover->getObjectsRoot()->addChild(revitGroup.get());
     createMenu();
@@ -1179,17 +1180,25 @@ RevitPlugin::handleMessage(Message *m)
 		setDefaultMaterial(mi->geoState);
 		mi->geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
 		osg::Material *localmtl = new osg::Material;
-		localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		localmtl->setColorMode(osg::Material::OFF);
 		localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(mi->r / 255.0f, mi->g / 255.0f, mi->b / 255.0f, mi->a / 255.0f));
 		localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(mi->r / 255.0f, mi->g / 255.0f, mi->b / 255.0f, mi->a / 255.0f));
 		localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
 		localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
 		localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+		int textureUnit = 0;
 
 		mi->geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
 		if (mi->diffuseTexture->texturePath != "")
 		{
 			std::string fileName = textureDir + "/" + mi->diffuseTexture->texturePath;
+
+			std::size_t found = fileName.find_first_of("|", 0);
+			if (found != std::string::npos)
+			{
+				fileName = fileName.substr(0, found );
+			}
+
 			osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(fileName);
 			if (!diffuseImage.valid())
 			{
@@ -1202,19 +1211,32 @@ RevitPlugin::handleMessage(Message *m)
 				diffuseTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
 				diffuseTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
 				diffuseTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
-				mi->geoState->setTextureAttribute(0, diffuseTexture);
+				mi->geoState->setTextureAttribute(textureUnit, diffuseTexture);
+				textureUnit++;
 
-				coVRShader *shader = coVRShaderList::instance()->get("RevitDiffuse");
-				if (shader)
-				{
-					shader->apply(mi->geoState);
-				}
+				osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)mi->diffuseTexture->sx);
+				osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)mi->diffuseTexture->sy);
+				osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)mi->diffuseTexture->ox);
+				osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)mi->diffuseTexture->oy);
+				osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)mi->diffuseTexture->angle);
+				mi->geoState->addUniform(revitSX);
+				mi->geoState->addUniform(revitSY);
+				mi->geoState->addUniform(revitOX);
+				mi->geoState->addUniform(revitOY);
+				mi->geoState->addUniform(revitAngle);
+				mi->shader = coVRShaderList::instance()->get("RevitDiffuse");
 			}
 		}
 
 		if (mi->bumpTexture->texturePath != "")
 		{
 			std::string fileName = textureDir + "/" + mi->bumpTexture->texturePath;
+			std::size_t found = fileName.find_first_of("|", 0);
+			if (found != std::string::npos)
+			{
+				fileName = fileName.substr(0, found);
+			}
+
 			osg::ref_ptr<osg::Image> bumpImage = osgDB::readImageFile(fileName);
 			if (!bumpImage.valid())
 			{
@@ -1225,10 +1247,41 @@ RevitPlugin::handleMessage(Message *m)
 				osg::Texture2D *bumpTexture = new osg::Texture2D(bumpImage.get());
 				bumpTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
 				bumpTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-				mi->geoState->setTextureAttribute(1, bumpTexture);
+				bumpTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
+				bumpTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+				mi->geoState->setTextureAttribute(textureUnit, bumpTexture);
+				textureUnit++;
+
+				osg::Image *ni = createNormalMap(bumpImage.get(),mi->bumpTexture->amount);
+				osg::Texture2D *normalTexture = new osg::Texture2D(ni);
+				normalTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+				normalTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+				normalTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
+				normalTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+				mi->geoState->setTextureAttribute(textureUnit, normalTexture);
+				textureUnit++;
+
+				osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)mi->bumpTexture->sx);
+				osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)mi->bumpTexture->sy);
+				osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)mi->bumpTexture->ox);
+				osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)mi->bumpTexture->oy);
+				osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)mi->bumpTexture->angle);
+				mi->geoState->addUniform(revitSX);
+				mi->geoState->addUniform(revitSY);
+				mi->geoState->addUniform(revitOX);
+				mi->geoState->addUniform(revitOY);
+				mi->geoState->addUniform(revitAngle);
+				if (mi->diffuseTexture->texturePath != "")
+				{
+					mi->shader = coVRShaderList::instance()->get("RevitDiffuseBump");
+				}
+				else
+				{
+					mi->shader = coVRShaderList::instance()->get("RevitBumpOnly");
+				}
 			}
 		}
-
+		break;
 	}
     case MSG_NewObject:
     {
@@ -1300,12 +1353,19 @@ RevitPlugin::handleMessage(Message *m)
             tb >> a;
             tb >> MaterialID;
 
+			geom->setVertexArray(vert);
+			geom->addPrimitiveSet(triangles);
+			GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
+			sv->apply(*geode);
+			ei->nodes.push_back(geode);
+
 			osg::StateSet *geoState;
 			MaterialInfo *mi = getMaterial(MaterialID);
-			if (mi && (mi->diffuseTexture->texturePath != ""))
+			if (mi && mi->shader !=NULL)
 			{
 				geoState = mi->geoState;
 				geode->setStateSet(geoState);
+				mi->shader->apply(geode, geom); // generates tangents if required
 			}
 			else
 			{
@@ -1314,7 +1374,7 @@ RevitPlugin::handleMessage(Message *m)
 				geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
 				geode->setStateSet(geoState);
 				osg::Material *localmtl = new osg::Material;
-				localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+				localmtl->setColorMode(osg::Material::OFF);
 				localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
 				localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
 				localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
@@ -1344,11 +1404,6 @@ RevitPlugin::handleMessage(Message *m)
 				geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
 			}
 
-            geom->setVertexArray(vert);
-            geom->addPrimitiveSet(triangles);
-            GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
-            sv->apply(*geode);
-            ei->nodes.push_back(geode);
             
             RevitInfo *info = new RevitInfo();
             info->ObjectID = ID;
@@ -1359,7 +1414,7 @@ RevitPlugin::handleMessage(Message *m)
     }
     break;
     
-    case MSG_NewPolyMesh:
+ /*   case MSG_NewPolyMesh:
     {
 		cerr << "not used anymore" << endl;
         TokenBuffer tb(m);
@@ -1380,17 +1435,7 @@ RevitPlugin::handleMessage(Message *m)
         geode->addDrawable(geom);
         
         // set up geometry
-      /*  bool isTwoSided = false;
-        char tmpChar;
-        tb >> tmpChar;
-        if (tmpChar != '\0')
-            isTwoSided = true;
-        if (!isTwoSided)
-        {
-            osg::CullFace *cullFace = new osg::CullFace();
-            cullFace->setMode(osg::CullFace::BACK);
-            geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
-        }*/
+      
         osg::Vec3Array *points = new osg::Vec3Array;
         points->resize(numPoints);
         for (int i = 0; i < numPoints; i++)
@@ -1523,13 +1568,13 @@ RevitPlugin::handleMessage(Message *m)
             geom->setTexCoordArray(0,texcoords);
         }
         geom->addPrimitiveSet(triangles);
-        /*GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
-        sv->apply(*geode);
-        ei->nodes.push_back(geode);*/
+        //GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
+        //sv->apply(*geode);
+        //ei->nodes.push_back(geode);
         currentGroup.top()->addChild(geode);
 
     }
-    break;
+    break;*/
     default:
         switch (m->type)
         {
@@ -1600,9 +1645,9 @@ RevitPlugin::preFrame()
 
                 double eyePosition[3];
                 double viewDirection[3];
-                eyePosition[0] = -eyePos[0]/0.3048;
-                eyePosition[1] = -eyePos[1]/0.3048;
-                eyePosition[2] = -eyePos[2]/0.3048;
+                eyePosition[0] = -eyePos[0]/REVIT_FEET_TO_M;
+                eyePosition[1] = -eyePos[1]/REVIT_FEET_TO_M;
+                eyePosition[2] = -eyePos[2]/REVIT_FEET_TO_M;
 
                 viewDirection[0] = rotMat(1, 0);
                 viewDirection[1] = rotMat(1, 1);
@@ -1747,6 +1792,148 @@ MaterialInfo * RevitPlugin::getMaterial(int revitID)
 }
 
 
+
+// pretend types, something like this
+struct pixel
+{
+uint8_t red;
+uint8_t green;
+uint8_t blue;
+uint8_t alpha;
+};
+
+
+// determine intensity of pixel, from 0 - 1
+const double intensity(const pixel& pPixel)
+{
+const double r = static_cast<double>(pPixel.red);
+const double g = static_cast<double>(pPixel.green);
+const double b = static_cast<double>(pPixel.blue);
+
+const double average = (r + g + b) / 3.0;
+
+return average / 255.0;
+}
+
+const int repeat(int pX, int pMax)
+{
+if (pX > pMax)
+{
+return 0;
+}
+else if (pX < 0)
+{
+return pMax;
+}
+else
+{
+return pX;
+}
+}
+
+// transform -1 - 1 to 0 - 255
+const uint8_t map_component(double pX)
+{
+return (pX + 1.0) * (255.0 / 2.0);
+}
+
+osg::Image *RevitPlugin::createNormalMap(osg::Image *srcImage,double pStrength)
+{
+// assume square texture, not necessarily true in real code
+osg::Image *result = new osg::Image();
+int width = srcImage->s();
+int height = srcImage->t();
+result->allocateImage(width, height, 1, GL_RGB, srcImage->getDataType());
+if (srcImage->getPixelFormat() == GL_LUMINANCE || srcImage->getPixelFormat() == GL_INTENSITY || srcImage->getPixelFormat() == GL_ALPHA)
+{
+	for (size_t row = 0; row < height; ++row)
+	{
+		for (size_t column = 0; column < width; ++column)
+		{
+			// surrounding pixels
+			const pixel *topLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row - 1, width));
+			const pixel *top = (const pixel*)srcImage->data(repeat(column, height), repeat(row - 1, width));
+			const pixel *topRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row - 1, width));
+			const pixel *right = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row, width));
+			const pixel *bottomRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row + 1, width));
+			const pixel *bottom = (const pixel*)srcImage->data(repeat(column, height), repeat(row + 1, width));
+			const pixel *bottomLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row + 1, width));
+			const pixel *left = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row, width));
+
+			// their intensities
+			const double tl = topLeft->red / 255.0;
+			const double t = top->red / 255.0;
+			const double tr = topRight->red / 255.0;
+			const double r = right->red / 255.0;
+			const double br = bottomRight->red / 255.0;
+			const double b = bottom->red / 255.0;
+			const double bl = bottomLeft->red / 255.0;
+			const double l = left->red / 255.0;
+
+			// sobel filter
+			const double dX = (tr + 2.0 * r + br) - (tl + 2.0 * l + bl);
+			const double dY = (bl + 2.0 * b + br) - (tl + 2.0 * t + tr);
+			const double dZ = 1.0 / pStrength;
+
+			osg::Vec3d v(dX, dY, dZ);
+			v.normalize();
+
+			// convert to rgb
+			unsigned char* dst_pixel = result->data(column, row, 0);
+			*(dst_pixel++) = map_component(v.x());
+			*(dst_pixel++) = map_component(v.y());
+			*(dst_pixel++) = map_component(v.z());
+		}
+	}
+}
+else
+{
+	for (size_t row = 0; row < height; ++row)
+	{
+		for (size_t column = 0; column < width; ++column)
+		{
+			// surrounding pixels
+			const pixel *topLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row - 1, width));
+			const pixel *top = (const pixel*)srcImage->data(repeat(column, height), repeat(row - 1, width));
+			const pixel *topRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row - 1, width));
+			const pixel *right = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row, width));
+			const pixel *bottomRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row + 1, width));
+			const pixel *bottom = (const pixel*)srcImage->data(repeat(column, height), repeat(row + 1, width));
+			const pixel *bottomLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row + 1, width));
+			const pixel *left = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row, width));
+
+			// their intensities
+			const double tl = intensity(*topLeft);
+			const double t = intensity(*top);
+			const double tr = intensity(*topRight);
+			const double r = intensity(*right);
+			const double br = intensity(*bottomRight);
+			const double b = intensity(*bottom);
+			const double bl = intensity(*bottomLeft);
+			const double l = intensity(*left);
+
+			// sobel filter
+			const double dX = (tr + 2.0 * r + br) - (tl + 2.0 * l + bl);
+			const double dY = (bl + 2.0 * b + br) - (tl + 2.0 * t + tr);
+			const double dZ = 1.0 / pStrength;
+
+			osg::Vec3d v(dX, dY, dZ);
+			v.normalize();
+
+			// convert to rgb
+			unsigned char* dst_pixel = result->data(column, row, 0);
+			*(dst_pixel++) = map_component(v.x());
+			*(dst_pixel++) = map_component(v.y());
+			*(dst_pixel++) = map_component(v.z());
+		}
+	}
+}
+
+return result;
+}
+
+
+
 COVERPLUGIN(RevitPlugin)
 
 TextureInfo::TextureInfo(TokenBuffer & tb)
@@ -1760,6 +1947,7 @@ TextureInfo::TextureInfo(TokenBuffer & tb)
 	tb >> r;
 	tb >> g;
 	tb >> b;
+	amount = 1.0;
 }
 
 MaterialInfo::MaterialInfo(TokenBuffer & tb)
@@ -1767,8 +1955,10 @@ MaterialInfo::MaterialInfo(TokenBuffer & tb)
 	tb >> ID;
 	diffuseTexture = new TextureInfo(tb);
 	bumpTexture = new TextureInfo(tb);
+	tb >> bumpTexture->amount;
 	r = diffuseTexture->r;
 	g = diffuseTexture->g;
 	b = diffuseTexture->b;
 	a = 255;
+	shader = NULL;
 }

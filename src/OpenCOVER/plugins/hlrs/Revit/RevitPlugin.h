@@ -21,6 +21,7 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
+#include <cover/coVRShader.h>
 #include <net/covise_connect.h>
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coLabelMenuItem.h>
@@ -33,6 +34,8 @@
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 // for AnnotationMessage:
 #include <../../general/Annotation/AnnotationPlugin.h>
+
+#define REVIT_FEET_TO_M 0.304799999536704
 
 class RevitInfo : public vrui::vruiUserData
 {
@@ -118,7 +121,7 @@ class TextureInfo
 {
 public:
 	TextureInfo(TokenBuffer &tb);
-	double sx, sy, ox, oy, angle;
+	double sx, sy, ox, oy, angle,amount;
 	std::string texturePath;
 	unsigned char r,g,b;
 	int ID;
@@ -132,6 +135,7 @@ public:
 	TextureInfo *bumpTexture;
 	TextureInfo *diffuseTexture;
 	osg::StateSet *geoState;
+	coVRShader *shader;
 	int ID;
 };
 
@@ -166,6 +170,10 @@ public:
 
 private:
 };
+
+
+
+
 
 class RevitPlugin : public coVRPlugin, public coMenuListener, public coTUIListener
 {
@@ -295,6 +303,8 @@ protected:
     RevitInfo  *info;
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
+
+	osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
 	
     float scaleFactor;
 	std::string textureDir;

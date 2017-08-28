@@ -17,34 +17,9 @@ using Autodesk.Revit.UI;
 
 namespace OpenCOVERPlugin
 {
-
-    /// <summary>
-    /// Send all Elements to OpenCOVER.
-    /// </summary>
-    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
-    public class SendGeometry : IExternalCommand
+    public sealed class geometrySender
     {
-        #region IExternalCommand Members
-
-        /// <summary>
-        /// Implement this method as an external command for Revit.
-        /// </summary>
-        /// <param name="commandData">An object that is passed to the external application
-        /// which contains data related to the command,
-        /// such as the application object and active view.</param>
-        /// <param name="message">A message that can be set by the external application
-        /// which will be displayed if a failure or cancellation is returned by
-        /// the external command.</param>
-        /// <param name="elements">A set of elements to which the external application
-        /// can add elements that are to be highlighted in case of failure or cancellation.</param>
-        /// <returns>Return the status of the external command.
-        /// A result of Succeeded means that the API external method functioned as expected.
-        /// Cancelled can be used to signify that the user cancelled the external operation 
-        /// at some point. Failure should be returned if the application is unable to proceed with
-        /// the operation.</returns>
-        public Autodesk.Revit.UI.Result Execute(ExternalCommandData commandData,
-            ref string message, ElementSet elements)
+        public static Autodesk.Revit.UI.Result DoSend(ExternalCommandData commandData)
         {
 
             using (Transaction transaction = new Transaction(commandData.Application.ActiveUIDocument.Document))
@@ -92,7 +67,38 @@ namespace OpenCOVERPlugin
             }
             return Autodesk.Revit.UI.Result.Failed;
         }
+    }
+    /// <summary>
+    /// Send all Elements to OpenCOVER.
+    /// </summary>
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class SendGeometry : IExternalCommand
+    {
+        #region IExternalCommand Members
+        /// <summary>
+        /// Implement this method as an external command for Revit.
+        /// </summary>
+        /// <param name="commandData">An object that is passed to the external application
+        /// which contains data related to the command,
+        /// such as the application object and active view.</param>
+        /// <param name="message">A message that can be set by the external application
+        /// which will be displayed if a failure or cancellation is returned by
+        /// the external command.</param>
+        /// <param name="elements">A set of elements to which the external application
+        /// can add elements that are to be highlighted in case of failure or cancellation.</param>
+        /// <returns>Return the status of the external command.
+        /// A result of Succeeded means that the API external method functioned as expected.
+        /// Cancelled can be used to signify that the user cancelled the external operation 
+        /// at some point. Failure should be returned if the application is unable to proceed with
+        /// the operation.</returns>
+        public Autodesk.Revit.UI.Result Execute(ExternalCommandData commandData,
+            ref string message, ElementSet elements)
+        {
 
+            return geometrySender.DoSend(commandData);
+
+        }
         #endregion
     }
 
@@ -130,7 +136,8 @@ namespace OpenCOVERPlugin
             {
                 COVER.Instance.ConnectToOpenCOVER(d.getHostname(), d.getPort(), commandData.Application.ActiveUIDocument.Document);
             }
-            return Autodesk.Revit.UI.Result.Succeeded;
+            return geometrySender.DoSend(commandData);
+            //return Autodesk.Revit.UI.Result.Succeeded;
         }
 
         #endregion
@@ -165,7 +172,8 @@ namespace OpenCOVERPlugin
             ref string message, ElementSet elements)
         {
             COVER.Instance.ConnectToOpenCOVER("visent.hlrs.de", 31821, commandData.Application.ActiveUIDocument.Document);
-            return Autodesk.Revit.UI.Result.Succeeded;
+            return geometrySender.DoSend(commandData);
+            //return Autodesk.Revit.UI.Result.Succeeded;
         }
 
         #endregion
@@ -257,11 +265,11 @@ namespace OpenCOVERPlugin
 
             pushButtonSendGeometry.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));
 
-            PushButton pushButtonExportCommand = ribbonPanelPushButtons.AddItem(new PushButtonData("RenderToCOVER",
+           /* PushButton pushButtonExportCommand = ribbonPanelPushButtons.AddItem(new PushButtonData("RenderToCOVER",
                 "ResendRender", System.Reflection.Assembly.GetExecutingAssembly().Location,
                 "OpenCOVERPlugin.ExportCommand")) as PushButton;
             pushButtonExportCommand.ToolTip = "Send Geometry to OpenCOVER through the rendering interface";
-            pushButtonExportCommand.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));
+            pushButtonExportCommand.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));*/
 
 
 
