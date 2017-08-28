@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #endif
+#include <util/unixcompat.h>
 
 #include <gpu/cudaglinterop.h>
 
