@@ -67,9 +67,9 @@ FWDState::FWDState()
 
 void FWDState::limitSpeeds()
 	{
-		double speedLimit = 50;
-		double vxSpeedLimit = 100;
-		double rotLimit = 10;
+		double speedLimit = 200;//200;
+		double vxSpeedLimit = 200;//200;
+		double rotLimit = 50;//50;
 		if(std::abs(vX)>vxSpeedLimit)
 		{
 			if(vX>vxSpeedLimit)
