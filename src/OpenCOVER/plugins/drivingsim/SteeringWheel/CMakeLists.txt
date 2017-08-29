@@ -96,7 +96,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
  INCLUDE_DIRECTORIES(
    ${XENOMAI_INCLUDE_DIR}
    ../../../DrivingSim/gaalet/include
-
+   ../../../DrivingSim/VehicleUtil
  )
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 
