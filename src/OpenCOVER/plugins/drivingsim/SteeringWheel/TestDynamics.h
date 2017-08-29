@@ -102,6 +102,14 @@ protected:
 	std::pair<Road *, double> startPos;
 	bool leftRoad;
 	
+	std::vector<Road*> roadList[4];
+	std::string currentRoadName;
+	int currentRoadId;
+	double currentHeight;
+	double roadHeightIncrement;
+	
+	bool singleRoadSwitch;
+	
 	double targetS;
 	
 private:
