@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(
 
 SET(COVER_HEADERS
   ARToolKit.h
+  Deletable.h
   coActionUserData.h
   coBillboard.h
   coClusterStat.h
@@ -55,7 +56,7 @@ SET(COVER_HEADERS
   OpenCOVER.h
   RenderObject.h
   VRAvatar.h
-  VRPinboard.h
+  QuitDialog.h
   VRSceneGraph.h
   coVRLighting.h
   coVRAnimationManager.h
@@ -91,6 +92,7 @@ SET(COVER_HEADERS
 )
 
 SET(COVER_SOURCES
+  Deletable.cpp
   VRWindow.cpp
   coCommandLine.cpp
   coCoverConfig.cpp
@@ -115,7 +117,7 @@ SET(COVER_SOURCES
   coVRTouchTable.cpp
   EnableGLDebugOperation.cpp
   OpenCOVER.cpp
-  VRPinboard.cpp
+  QuitDialog.cpp
   VRAvatar.cpp
   coCullVisitor.cpp
   VRSceneGraph.cpp

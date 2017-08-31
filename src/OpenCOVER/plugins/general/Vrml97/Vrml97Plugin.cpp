@@ -89,6 +89,8 @@
 #include <grmsg/coGRObjSensorEventMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 
+#include <OpenVRUI/coButtonMenuItem.h>
+
 using namespace covise;
 using namespace grmsg;
 

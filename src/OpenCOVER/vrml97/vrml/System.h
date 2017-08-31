@@ -81,9 +81,11 @@ public:
 
     virtual void removeFile(const char *fn);
 
+#if 0
     virtual void setBuiltInFunctionState(const char *fname, int val) = 0;
     virtual void setBuiltInFunctionValue(const char *fname, float val) = 0;
     virtual void callBuiltInFunctionCallback(const char *fname) = 0;
+#endif
 
     virtual void setSyncMode(const char *mode) = 0;
 

@@ -41,6 +41,8 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/IntersectVisitor>
 #include <osgDB/WriteFile>
 
+#include <OpenVRUI/coButtonMenuItem.h>
+
 #include "ViewerOsg.h"
 #include <cover/coVRPluginSupport.h>
 

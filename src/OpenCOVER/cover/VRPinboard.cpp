@@ -213,6 +213,7 @@ VRPinboard::VRPinboard()
     //lockInteraction = false;
     // initialize the custom entries with the def values
 
+#if 0
     addFunction("XForm", BTYPE_NAVGROUP, "move world", NULL, coVRNavigationManager::xformCallback, coVRNavigationManager::instance());
     addFunction("Scale", BTYPE_NAVGROUP, "scale world", NULL, coVRNavigationManager::scaleCallback, coVRNavigationManager::instance());
     addFunction("ViewAll", BTYPE_FUNC, "view all", NULL, VRSceneGraph::viewallCallback, VRSceneGraph::instance());
@@ -233,19 +234,20 @@ VRPinboard::VRPinboard()
     addFunction("Snap", BTYPE_TOGGLE, "snap", "navigation", coVRNavigationManager::snapCallback, coVRNavigationManager::instance());
 
     addFunction("Freeze", BTYPE_TOGGLE, "stop headtracking", NULL, VRViewer::freezeCallback, VRViewer::instance());
-    addFunction("HighQuality", BTYPE_TOGGLE, "high quality mode", "view options", VRSceneGraph::highQualityCallback, VRSceneGraph::instance());
-    addFunction("CoordAxis", BTYPE_TOGGLE, "show axis", "view options", VRSceneGraph::coordAxisCallback, VRSceneGraph::instance());
-    //addFunction("Specular", BTYPE_TOGGLE, "specular", "view options", coVRLighting::specularCallback, coVRLighting::instance());
-    //addFunction("Spotlight", BTYPE_TOGGLE, "spotlight", "view options", coVRLighting::spotlightCallback, coVRLighting::instance());
-    //addFunction("Headlight", BTYPE_TOGGLE, "headlight", "view options", coVRLighting::headlightCallback, coVRLighting::instance());
-    //addFunction("OtherLights", BTYPE_TOGGLE, "other lights", "view options", coVRLighting::otherlightsCallback, coVRLighting::instance());
+    addFunction("Specular", BTYPE_TOGGLE, "specular", "view options", coVRLighting::specularCallback, coVRLighting::instance());
+    addFunction("Spotlight", BTYPE_TOGGLE, "spotlight", "view options", coVRLighting::spotlightCallback, coVRLighting::instance());
+    addFunction("Headlight", BTYPE_TOGGLE, "headlight", "view options", coVRLighting::headlightCallback, coVRLighting::instance());
+    addFunction("OtherLights", BTYPE_TOGGLE, "other lights", "view options", coVRLighting::otherlightsCallback, coVRLighting::instance());
     addFunction("StereoSeparation", BTYPE_TOGGLE, "stereo separation", "view options", VRViewer::stereoSepCallback, VRViewer::instance());
-    //addFunction("StereoEyeDistance", BTYPE_TOGGLE, "stereo separation", "view options", VRViewer::stereoSepCallback, VRViewer::instance());
+    addFunction("StereoEyeDistance", BTYPE_TOGGLE, "stereo separation", "view options", VRViewer::stereoSepCallback, VRViewer::instance());
     addFunction("OrthographicProjection", BTYPE_TOGGLE, "orthographic projection", "view options", VRViewer::orthographicCallback, VRViewer::instance());
     addFunction("Statistics", BTYPE_TOGGLE, "statistics", "view options", VRViewer::statisticsCallback, VRViewer::instance());
     addFunction("ClusterStatistics", BTYPE_TOGGLE, "cluster statistics", "view options", coVRMSController::statisticsCallback, coVRMSController::instance());
+    addFunction("HighQuality", BTYPE_TOGGLE, "high quality mode", "view options", VRSceneGraph::highQualityCallback, VRSceneGraph::instance());
+    addFunction("CoordAxis", BTYPE_TOGGLE, "show axis", "view options", VRSceneGraph::coordAxisCallback, VRSceneGraph::instance());
     addFunction("Store", BTYPE_FUNC, "store scenegraph", "misc", VRSceneGraph::storeCallback, VRSceneGraph::instance());
     addFunction("ReloadVRML", BTYPE_FUNC, "reload file", "misc", VRSceneGraph::reloadFileCallback, VRSceneGraph::instance());
+#endif
     addFunction("Quit", BTYPE_FUNC, "quit", "misc", VRPinboard::quitCallback, OpenCOVER::instance());
 
     num_perm_functions = functions.size();

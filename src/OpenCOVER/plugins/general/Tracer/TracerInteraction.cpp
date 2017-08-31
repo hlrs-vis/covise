@@ -27,6 +27,10 @@
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#ifdef VRUI
+#else
+#include <cover/ui/Button.h>
+#endif
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coInteractor.h>

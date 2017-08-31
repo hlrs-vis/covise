@@ -94,6 +94,7 @@ void coVRAnimationManager::initAnimMenu()
 #endif
     animRowMenu = new ui::Menu("Animation", this);
     animToggleItem = new ui::Button(animRowMenu, "Animate");
+    animToggleItem->setShortcut("a");
     animToggleItem->setCallback([this](bool flag){
         if (animRunning != flag)
             enableAnimation(flag);
@@ -111,6 +112,7 @@ void coVRAnimationManager::initAnimMenu()
 
     animForwardItem = new ui::Action(animRowMenu, "StepForward");
     animForwardItem->setText("Step forward");
+    animForwardItem->setShortcut(".");
     animForwardItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -118,6 +120,7 @@ void coVRAnimationManager::initAnimMenu()
     });
     animBackItem = new ui::Action(animRowMenu, "StepBackward");
     animBackItem->setText("Step backward");
+    animBackItem->setShortcut(",");
     animBackItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -146,32 +149,6 @@ void coVRAnimationManager::setOscillate(bool state)
 bool coVRAnimationManager::isOscillating() const
 {
     return animPingPongItem->state();
-}
-
-// process key events
-bool coVRAnimationManager::keyEvent(int type, int keySym, int mod)
-{
-    bool handled = false;
-
-    if (type == osgGA::GUIEventAdapter::KEYDOWN)
-    {
-        if (!(mod & osgGA::GUIEventAdapter::MODKEY_ALT))
-        {
-            if (keySym == 'a')
-            {
-                enableAnimation(!animationRunning());
-            }
-            else if (keySym == '.')
-            {
-                requestAnimationFrame(getAnimationFrame() + 1);
-            }
-            else if (keySym == ',')
-            {
-                requestAnimationFrame(getAnimationFrame() - 1);
-            }
-        }
-    }
-    return handled;
 }
 
 void

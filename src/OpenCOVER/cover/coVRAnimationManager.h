@@ -104,9 +104,6 @@ public:
     void setTimestepScale(double scale);
     double getTimestepScale() const;
 
-    // process key events
-    bool keyEvent(int type, int keySym, int mod);
-
     bool update();
 
 private:

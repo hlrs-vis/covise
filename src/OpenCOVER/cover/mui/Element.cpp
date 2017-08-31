@@ -4,6 +4,7 @@
 
 #include <cover/mui/support/EventListener.h>
 #include <cover/mui/Container.h>
+#include <OpenVRUI/coMenu.h>
 #include "support/ConfigManager.h"
 #include <iostream>
 

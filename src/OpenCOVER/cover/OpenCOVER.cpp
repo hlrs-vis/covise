@@ -71,7 +71,6 @@
 #include "VRWindow.h"
 #include "VRViewer.h"
 #include "VRSceneGraph.h"
-#include "VRPinboard.h"
 #include "coVRLighting.h"
 #include "ARToolKit.h"
 #include "VRVruiRenderInterface.h"
@@ -79,11 +78,16 @@
 #include "coVRShader.h"
 #include "coOnscreenDebug.h"
 #include "coShutDownHandler.h" // added by Sebastian for singleton shutdown
+#include "QuitDialog.h"
+#include "Deletable.h"
 
 #include <input/input.h>
 #include <input/coMousePointer.h>
 
 #include "ui/VruiView.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/Group.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -543,6 +547,23 @@ bool OpenCOVER::init()
         fprintf(stderr, "PWD: %s\n", getenv("PWD"));
     }
 
+#if 0
+    m_clusterStats = new ui::Button(cover->viewOptionsMenu, "ClusterStats");
+    m_clusterStats->setText("Cluster statistics");
+    m_clusterStats->setState(coVRMSController::instance()->drawStatistics());
+    m_clusterStats->setCallback([](bool state){
+        coVRMSController::instance()->setDrawStatistics(state);
+    });
+#endif
+
+    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
+
+    m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setCallback([this](){
+        //quitCallback(nullptr, nullptr);
+        auto qd = new QuitDialog;
+        qd->show();
+    });
 
     exitFlag = false;
 
@@ -687,10 +708,6 @@ bool OpenCOVER::init()
         }
     }
 
-    // setup Pinboard
-    VRPinboard::instance();
-    VRPinboard::instance()->configInteraction();
-    cover->ui->addView(new ui::VruiView);
     coVRLighting::instance()->initMenu();
 
     hud->setText2("loading plugin");
@@ -765,6 +782,9 @@ bool OpenCOVER::init()
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
     
     coVRPluginList::instance()->init2();
+
+    cover->vruiView = new ui::VruiView;
+    cover->ui->addView(cover->vruiView);
 
     m_initialized = true;
     return true;
@@ -918,7 +938,6 @@ void OpenCOVER::handleEvents(int type, int state, int code)
             cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
-            coVRAnimationManager::instance()->keyEvent(type, code, state);
         }
         coVRPluginList::instance()->key(type, code, state);
     }
@@ -930,7 +949,6 @@ void OpenCOVER::handleEvents(int type, int state, int code)
             cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
-            coVRAnimationManager::instance()->keyEvent(type, code, state);
         }
         coVRPluginList::instance()->key(type, code, state);
     }
@@ -953,6 +971,8 @@ bool OpenCOVER::frame()
     // NO MODIFICATION OF SCENEGRAPH DATA PRIOR TO THIS POINT
     //=========================================================
     //cerr << "-- OpenCOVER::frame" << endl;
+
+    DeletionManager::the()->run();
 
     bool render = false;
 
@@ -1151,7 +1171,6 @@ OpenCOVER::~OpenCOVER()
     delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
-    delete VRPinboard::instance();
     delete VRSceneGraph::instance();
     delete coVRShaderList::instance();
     delete coVRLighting::instance();

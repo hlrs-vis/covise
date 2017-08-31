@@ -613,6 +613,7 @@ void SystemCover::becomeMaster()
     coVRCommunication::instance()->becomeMaster();
 }
 
+#if 0
 void SystemCover::setBuiltInFunctionState(const char *fname, int val)
 {
     cover->setBuiltInFunctionState(fname, val);
@@ -627,6 +628,7 @@ void SystemCover::callBuiltInFunctionCallback(const char *fname)
 {
     cover->callBuiltInFunctionCallback(fname);
 }
+#endif
 
 Player *SystemCover::getPlayer()
 {
@@ -686,12 +688,12 @@ void SystemCover::setHeadlight(bool enable)
 {
     if (enable)
     {
-        setBuiltInFunctionState("Headlight", 1);
+        //setBuiltInFunctionState("Headlight", 1);
         coVRLighting::instance()->switchLight(coVRLighting::instance()->headlight, true);
     }
     else
     {
-        setBuiltInFunctionState("Headlight", 0);
+        //setBuiltInFunctionState("Headlight", 0);
         coVRLighting::instance()->switchLight(coVRLighting::instance()->headlight, false);
     }
 }
@@ -814,26 +816,26 @@ void SystemCover::setActivePerson(int p) // set the active Person
 
 void SystemCover::setNavigationType(System::NavigationType nav)
 {
+    auto navi = coVRNavigationManager::instance();
     switch (nav)
     {
     case NAV_NONE:
-        cover->enableNavigation("Walk");
-        cover->disableNavigation("Walk");
+        navi->setNavMode(coVRNavigationManager::NavNone);
         break;
     case NAV_FLY:
-        cover->enableNavigation("Fly");
+        navi->setNavMode(coVRNavigationManager::Fly);
         break;
     case NAV_WALK:
-        cover->enableNavigation("Walk");
+        navi->setNavMode(coVRNavigationManager::Walk);
         break;
     case NAV_EXAMINE:
-        cover->enableNavigation("Xform");
+        navi->setNavMode(coVRNavigationManager::XForm);
         break;
     case NAV_DRIVE:
-        cover->enableNavigation("Drive");
+        navi->setNavMode(coVRNavigationManager::Glide);
         break;
     case NAV_SCALE:
-        cover->enableNavigation("Scale");
+        navi->setNavMode(coVRNavigationManager::Scale);
         break;
     default:
         fprintf(stderr, "SystemCover::setNavigationType: unknown navigation type\n");
@@ -848,7 +850,7 @@ void SystemCover::setNavigationStepSize(double stepsize)
 
 void SystemCover::setNavigationDriveSpeed(double speed)
 {
-    cover->setNavigationValue("DriveSpeed", speed);
+    coVRNavigationManager::instance()->setDriveSpeed(speed);
 }
 
 void SystemCover::setNearFar(float nearC, float farC)

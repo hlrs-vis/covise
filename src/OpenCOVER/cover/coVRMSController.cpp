@@ -137,8 +137,8 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
 #endif
     syncMode = SYNC_TCP;
 
-    drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
-    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",drawStatistics);
+    m_drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
+    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",m_drawStatistics);
 
     // Multicast settings
     multicastDebugLevel = coCoviseConfig::getInt("COVER.MultiPC.Multicast.debugLevel", 0);
@@ -481,8 +481,8 @@ coVRMSController::coVRMSController(const MPI_Comm *comm)
     debugMessagesCheck = true;
 #endif
 
-    drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
-    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",drawStatistics);
+    m_drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
+    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",m_drawStatistics);
 
     // Multicast settings
     multicastDebugLevel = coCoviseConfig::getInt("COVER.MultiPC.Multicast.debugLevel", 0);
@@ -622,19 +622,22 @@ void coVRMSController::heartBeat(const std::string &name, bool draw)
     }
 }
 
+bool coVRMSController::drawStatistics() const
+{
+    return m_drawStatistics;
+}
+
+void coVRMSController::setDrawStatistics(bool enable)
+{
+    m_drawStatistics = enable;
+}
+
 void coVRMSController::checkMark(const char *file, int line)
 {
     cerr << file << line << endl;
     std::stringstream str;
     str << file << ":" << line;
     heartBeat(str.str());
-}
-
-void
-coVRMSController::statisticsCallback(void *, buttonSpecCell *spec)
-{
-    (void)spec;
-    //   msController->drawStatistics=(bool)spec->state;
 }
 
 void coVRMSController::connectToMaster(const char *addr, int port)
@@ -934,7 +937,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
 #if defined(NOMCAST) || !defined(HAVE_NORM)
     (void)mcastOverTCP;
 #endif
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -958,7 +961,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
         MPI_Status status;
         MPI_Recv(c, n, MPI_BYTE, 0, AppTag, appComm, &status);
 
-        if (drawStatistics)
+        if (m_drawStatistics)
         {
             networkRecv += cover->currentTime() - startTime;
         }
@@ -1020,7 +1023,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
                 ret = socket->Read((char *)c + read, n - read);
 
             } while ((ret <= 0) && ((errno == EAGAIN) || (errno == EINTR)));
-            if (drawStatistics)
+            if (m_drawStatistics)
             {
                 networkRecv += cover->currentTime() - startTime;
             }
@@ -1038,7 +1041,7 @@ void coVRMSController::sendMaster(const void *c, int n)
 
     int ret;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1063,7 +1066,7 @@ void coVRMSController::sendMaster(const void *c, int n)
         } while ((ret <= 0) && ((errno == EAGAIN) || (errno == EINTR)));
     }
 
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -1085,7 +1088,7 @@ int coVRMSController::readSlaves(SlaveData *c)
     int i;
     int ret = 0;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1100,7 +1103,7 @@ int coVRMSController::readSlaves(SlaveData *c)
         //          return -1;
         //       }
     }
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkRecv += cover->currentTime() - startTime;
     }
@@ -1403,7 +1406,7 @@ void coVRMSController::sendSlave(int i, const void *c, int n)
     assert(i < getNumSlaves());
 
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1417,7 +1420,7 @@ void coVRMSController::sendSlave(int i, const void *c, int n)
     //std::cerr << i << " : " << (char*) data.data[i] << std::endl;
     //std::cerr << i << " : " << data.size() << std::endl;
 
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -1429,7 +1432,7 @@ void coVRMSController::sendSlaves(const SlaveData &data)
 
     int i;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1450,7 +1453,7 @@ void coVRMSController::sendSlaves(const SlaveData &data)
         //std::cerr << i << " : " << data.size() << std::endl;
     }
 
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -1462,7 +1465,7 @@ void coVRMSController::sendSlaves(const void *c, int n)
 
     int i;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1493,7 +1496,7 @@ void coVRMSController::sendSlaves(const void *c, int n)
             slaves[i]->send(c, n);
         }
     }
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -2133,7 +2136,7 @@ void coVRMSController::syncTime()
         return;
     int i;
     static bool oldStat = false;
-    if ((oldStat != drawStatistics) && (master) && cover->getScene() != 0)
+    if ((oldStat != m_drawStatistics) && (master) && cover->getScene() != 0)
     {
         if (stats[0] == NULL)
         {
@@ -2142,7 +2145,7 @@ void coVRMSController::syncTime()
                 stats[i] = new coClusterStat(i);
             }
         }
-        if (drawStatistics)
+        if (m_drawStatistics)
         {
             for (i = 0; i < numSlaves + 1; i++)
             {
@@ -2156,9 +2159,9 @@ void coVRMSController::syncTime()
                 stats[i]->hide();
             }
         }
-        oldStat = drawStatistics;
+        oldStat = m_drawStatistics;
     }
-    if (drawStatistics && cover->getScene() != 0)
+    if (m_drawStatistics && cover->getScene() != 0)
     {
         static double lastTime = 0;
         double currentTime = cover->currentTime();

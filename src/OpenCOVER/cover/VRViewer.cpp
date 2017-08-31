@@ -56,6 +56,7 @@
 #include "EnableGLDebugOperation.h"
 #include "input/input.h"
 #include "tridelity.h"
+#include "ui/Button.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>
@@ -448,6 +449,31 @@ VRViewer::VRViewer()
         vpMarker = new ARToolKitMarker("ViewpointMarker");
     }
     overwritePAndV = false;
+
+    auto stereosep = new ui::Button(cover->viewOptionsMenu, "StereoSep");
+    stereosep->setText("Stereo separation");
+    stereosep->setState(stereoOn);
+    stereosep->setCallback([this](bool state){
+        stereoOn = state;
+        setSeparation(Input::instance()->eyeDistance());
+    });
+
+    auto ortho = new ui::Button(cover->viewOptionsMenu, "Orthographic");
+    ortho->setText("Orthographic projection");
+    ortho->setState(coVRConfig::instance()->orthographic());
+    ortho->setCallback([this](bool state){
+        coVRConfig::instance()->setOrthographic(state);
+    });
+
+#if 0
+    auto stat = new ui::Button(cover->viewOptionsMenu, "Statistics");
+    stat->setState(coVRConfig::instance()->drawStatistics);
+    stat->setCallback([this](bool state){
+        coVRConfig::instance()->drawStatistics = state;
+        statistics(coVRConfig::instance()->drawStatistics);
+        //XXX setInstrumentationMode( coVRConfig::instance()->drawStatistics );
+    });
+#endif
 }
 
 //OpenCOVER
@@ -1694,41 +1720,6 @@ VRViewer::readConfigFile()
     }
 }
 
-/*______________________________________________________________________*/
-// OpenCOVER
-void
-VRViewer::stereoSepCallback(void *data, buttonSpecCell *spec)
-{
-    VRViewer *viewer = static_cast<VRViewer *>(data);
-    int status = (int)spec->state;
-
-    viewer->stereoOn = (status!=0);
-    viewer->setSeparation(Input::instance()->eyeDistance());
-}
-
-/*______________________________________________________________________*/
-// OpenCOVER
-void
-VRViewer::freezeCallback(void *, buttonSpecCell *spec)
-{
-    if (spec->state == 1.0)
-    {
-        coVRConfig::instance()->setFrozen(true);
-    }
-    else
-    {
-        coVRConfig::instance()->setFrozen(false);
-    }
-}
-
-/*______________________________________________________________________*/
-// OpenCOVER
-void
-VRViewer::orthographicCallback(void *, buttonSpecCell *spec)
-{
-    coVRConfig::instance()->setOrthographic((spec->state == 1.0));
-}
-
 // OpenCOVER
 void VRViewer::redrawHUD(double interval)
 {
@@ -2555,37 +2546,14 @@ void VRViewer::renderingTraversals()
     _requestRedraw = false;
 }
 
-void VRViewer::statistics(bool enable)
+void VRViewer::toggleStatistics()
 {
 
     //simulate key press
     osgGA::GUIEventAdapter *ea = new osgGA::GUIEventAdapter;
     ea->setEventType(osgGA::GUIEventAdapter::KEYDOWN);
     ea->setKey(statsHandler->getKeyEventTogglesOnScreenStats());
-    static bool oldEnable = false;
-    if (oldEnable != enable)
-    {
-        if (enable)
-        {
-            //on
-            statsHandler->handle(*ea, *this);
-            //  statsHandler->handle(*ea,*this);
-        }
-        else
-        {
-            //off
-            statsHandler->handle(*ea, *this);
-        }
-    }
-    oldEnable = enable;
-}
-
-void
-VRViewer::statisticsCallback(void *, buttonSpecCell *spec)
-{
-    coVRConfig::instance()->drawStatistics = spec->state != 0.0;
-    VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
-    //XXX VRViewer::instance()->setInstrumentationMode( coVRConfig::instance()->drawStatistics );
+    statsHandler->handle(*ea, *this);
 }
 
 template <typename Cameras, typename F>
