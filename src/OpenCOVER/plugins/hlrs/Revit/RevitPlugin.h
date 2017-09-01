@@ -36,6 +36,7 @@
 #include <../../general/Annotation/AnnotationPlugin.h>
 
 #define REVIT_FEET_TO_M 0.304799999536704
+#define REVIT_M_TO_FEET 3.2808399
 
 class RevitInfo : public vrui::vruiUserData
 {
@@ -140,6 +141,34 @@ public:
 };
 
 
+class DoorInfo
+{
+public:
+	DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuffer &tb);
+	std::string name;
+	osg::MatrixTransform *transformNode;
+	int ID;
+	bool HandFlipped;
+	bool FaceFlipped;
+	bool isSliding;
+	osg::Vec3 HandOrientation;
+	osg::Vec3 FaceOrientation;
+	osg::Vec3 Direction;
+	osg::Vec3 Origin;
+	double maxDistance;
+	osg::Vec3 Center;
+	float activationDistance2;
+	bool entered;
+	bool left;
+	bool isActive;
+	double startTime;
+	double animationTime;
+	void checkStart(osg::Vec3 &viewerPosition); 
+	void translateDoor(float fraction);
+	osg::BoundingBox boundingBox;
+	bool update(osg::Vec3 &viewerPosition); // returns false if updates are done and it can be removed from the list
+};
+
 
 class RevitParameter : public coTUIListener
 {
@@ -231,7 +260,8 @@ public:
         MSG_NewAnnotationID = 522,
         MSG_Views = 523,
         MSG_SetView = 524,
-        MSG_Resend = 525,
+		MSG_Resend = 525,
+		MSG_NewDoorGroup = 526,
     };
     enum ObjectTypes
     {
@@ -251,7 +281,9 @@ public:
     };
 
     // this will be called in PreFrame
-    void preFrame();
+	void preFrame();
+
+	void checkDoors();
 
     void destroyMenu();
     void createMenu();
@@ -269,6 +301,8 @@ public:
     int getRevitAnnotationID(int ai);
     void createNewAnnotation(int id, AnnotationMessage *am);
     void changeAnnotation(int id, AnnotationMessage *am);
+	std::list<DoorInfo *> doors;
+	std::list<DoorInfo *> activeDoors;
 protected:
     static RevitPlugin *plugin;
     coSubMenuItem *REVITButton;

@@ -62,7 +62,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -157,7 +157,7 @@ namespace OpenCOVERPlugin
         IntPtr ApplicationWindow;
         FamilyInstance avatarObject;
 
-        public PushButton pushButtonConnectToOpenCOVER;
+        public PulldownButton pushButtonConnectToOpenCOVER;
         public string ButtonIconsFolder = "";
         BitmapImage connectedImage;
         BitmapImage disconnectedImage;
@@ -781,6 +781,30 @@ namespace OpenCOVERPlugin
                 num++;
             }
         }
+        private void extendBB(BoundingBoxXYZ bb, BoundingBoxXYZ ebb)
+        {
+            double X, Y, Z;
+            X = bb.Min.X;
+            Y = bb.Min.Y;
+            Z = bb.Min.Z;
+            if (X > ebb.Min.X)
+                X = ebb.Min.X;
+            if (Y > ebb.Min.Y)
+                Y = ebb.Min.Y;
+            if (Z > ebb.Min.Z)
+                Z = ebb.Min.Z;
+            bb.Min = new XYZ(X, Y, Z);
+            X = bb.Max.X;
+            Y = bb.Max.Y;
+            Z = bb.Max.Z;
+            if (X < ebb.Max.X)
+                X = ebb.Max.X;
+            if (Y < ebb.Max.Y)
+                Y = ebb.Max.Y;
+            if (Z < ebb.Max.Z)
+                Z = ebb.Max.Z;
+            bb.Max = new XYZ(X, Y, Z);
+        }
         /// <summary>
         /// Draw geometry of element.
         /// </summary>
@@ -794,20 +818,31 @@ namespace OpenCOVERPlugin
             }
             int num = 0;
             // check if subobject is an instance
-            bool isInstance=false;
-            IEnumerator<Autodesk.Revit.DB.GeometryObject> testObjects = elementGeom.GetEnumerator();
-            while (testObjects.MoveNext())
+            BoundingBoxXYZ bb = new BoundingBoxXYZ();
+            bb.Min = new XYZ(100000, 100000, 100000);
+            bb.Max = new XYZ(-100000, -100000, -100000);
+            BoundingBoxXYZ bbL = new BoundingBoxXYZ();
+            bbL.Min = new XYZ(100000, 100000, 100000);
+            bbL.Max = new XYZ(-100000, -100000, -100000);
+            BoundingBoxXYZ bbR = new BoundingBoxXYZ();
+            bbR.Min = new XYZ(100000, 100000, 100000);
+            bbR.Max = new XYZ(-100000, -100000, -100000);
+            bool hasStyle = false;
+            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
             {
-                if (testObjects.Current is Autodesk.Revit.DB.GeometryInstance)
-                {
-                    isInstance = true;
-                    break;
-                }
+                Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
+                Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                if (graphicsStyle != null)
+                    hasStyle = true;
             }
 
-            if (!isInstance && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+
+            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+            if (hasStyle && (fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
             {
-                // doors are sorted
+                bool hasLeft = false;
+                bool hasRight = false;
+                // doors are sorted into fixed and moving parts
                 IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator();
                 while (Objects.MoveNext())
                 {
@@ -820,33 +855,59 @@ namespace OpenCOVERPlugin
                         {
                             sendGeomElement(elem, num, geomObject,false);
                         }
-                    }
-                    num++;
-                }
-                num = 0;
-
-                MessageBuffer mb = new MessageBuffer();
-                mb.add(elem.Id.IntegerValue);
-                mb.add("DoorMovingParts_" + elem.Name);
-                sendMessage(mb.buf, MessageTypes.NewGroup);
-
-                Objects = elementGeom.GetEnumerator();
-                while (Objects.MoveNext())
-                {
-                    Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
-
-                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
-                    if (graphicsStyle != null)
-                    {
-                        if (graphicsStyle.Name != "Frame/Mullion")
+                        if (graphicsStyle.Name.Length > 5 && graphicsStyle.Name.Substring(graphicsStyle.Name.Length-5) == "_Left")
                         {
-                            sendGeomElement(elem, num, geomObject,false);
+                            hasLeft = true;
+                        }
+                        if (graphicsStyle.Name.Length > 6 && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - 6) == "_Right")
+                        {
+                            hasRight = true;
+                        }
+                        Autodesk.Revit.DB.Solid solid = geomObject as Autodesk.Revit.DB.Solid;
+                        if (solid != null)
+                        {
+                            if (graphicsStyle.Name == "Panel")
+                            {
+                                extendBB(bb, solid.GetBoundingBox());
+                            }
+                            if (graphicsStyle.Name == "Panel_Left")
+                            {
+                                extendBB(bbL, solid.GetBoundingBox());
+                            }
+                            if (graphicsStyle.Name == "Panel_Right")
+                            {
+                                extendBB(bbR, solid.GetBoundingBox());
+                            }
                         }
                     }
                     num++;
                 }
-                mb = new MessageBuffer();
-                sendMessage(mb.buf, MessageTypes.EndGroup);
+                if(bb.Min.X == 100000)
+                {
+                    bb.Min = new XYZ(-1, -0.01, -1);
+                    bb.Max = new XYZ(1, 0.01, 1);
+                }
+                if (bbL.Min.X == 100000)
+                {
+                    bbL.Min = new XYZ(-2, -0.01, -1);
+                    bbL.Max = new XYZ(0, 0.01, 1);
+                }
+                if (bbR.Min.X == 100000)
+                {
+                    bbR.Min = new XYZ(0, -0.01, -1);
+                    bbR.Max = new XYZ(2, 0.01, 1);
+                }
+                num = 0;
+                if(hasLeft && hasRight)
+                {
+                    SendDoorPart(elementGeom, elem, fi, bbL, "_Left");
+                    SendDoorPart(elementGeom, elem, fi, bbR, "_Right");
+                }
+                else
+                {
+                    SendDoorPart(elementGeom, elem, fi, bb, "");
+                }
+
             }
             else
             {
@@ -895,6 +956,57 @@ namespace OpenCOVERPlugin
             else
             {
             }
+        }
+        private void SendDoorPart(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem,FamilyInstance fi, BoundingBoxXYZ bb, String name)
+        {
+            int num = 0;
+            MessageBuffer mb = new MessageBuffer();
+            mb.add(elem.Id.IntegerValue);
+            mb.add("DoorMovingParts"+name+"_" + elem.Name);
+            mb.add(fi.HandFlipped);
+            mb.add(fi.HandOrientation);
+            mb.add(fi.FacingFlipped);
+            mb.add(fi.FacingOrientation);
+            Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
+            if (family != null)
+            {
+                IList<Parameter> ps = family.GetParameters("isSliding");
+                if ((ps.Count > 0) && (ps[0] != null))
+                {
+                    mb.add((ps[0].AsInteger() != 0));
+                }
+                else
+                    mb.add(false);
+            }
+            else
+            {
+                mb.add(false);
+            }
+            mb.add(bb.Min);
+            mb.add(bb.Max);
+            sendMessage(mb.buf, MessageTypes.NewDoorGroup);
+            int namelen = name.Length;
+
+            IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator(); 
+            while (Objects.MoveNext())
+            {
+                Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
+
+                Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                if (graphicsStyle != null)
+                {
+                    if (graphicsStyle.Name != "Frame/Mullion")
+                    {
+                        if (namelen == 0 || (graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
+                        {
+                            sendGeomElement(elem, num, geomObject, false);
+                        }
+                    }
+                }
+                num++;
+            }
+            mb = new MessageBuffer();
+            sendMessage(mb.buf, MessageTypes.EndGroup);
         }
 
         private void SendInstance(Autodesk.Revit.DB.GeometryInstance geomInstance, Autodesk.Revit.DB.Element elem)

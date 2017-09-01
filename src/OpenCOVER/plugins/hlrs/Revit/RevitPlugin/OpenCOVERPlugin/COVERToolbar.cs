@@ -179,6 +179,26 @@ namespace OpenCOVERPlugin
         #endregion
     }
     /// <summary>
+     /// connect to OpenCOVER on localhost.
+     /// </summary>
+     /// 
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class ConnectToLocalHost : IExternalCommand
+    {
+        #region IExternalCommand Members
+        
+        public Autodesk.Revit.UI.Result Execute(ExternalCommandData commandData,
+            ref string message, ElementSet elements)
+        {
+            COVER.Instance.ConnectToOpenCOVER("localhost", 31821, commandData.Application.ActiveUIDocument.Document);
+            return geometrySender.DoSend(commandData);
+            //return Autodesk.Revit.UI.Result.Succeeded;
+        }
+
+        #endregion
+    }
+    /// <summary>
     /// Class implements the Revit interface IExternalApplication to create a custom tool bar.
     /// </summary
     /// 
@@ -244,20 +264,13 @@ namespace OpenCOVERPlugin
             // create a button on the panel.
             RibbonPanel ribbonPanelPushButtons = application.CreateRibbonPanel(panelName);
 
-            COVER.Instance.pushButtonConnectToOpenCOVER = ribbonPanelPushButtons.AddItem(new PushButtonData("Connect To OpenCOVER",
-                "Connect", System.Reflection.Assembly.GetExecutingAssembly().Location,
-                "OpenCOVERPlugin.ConnectToCOVER")) as PushButton;
+            COVER.Instance.pushButtonConnectToOpenCOVER = ribbonPanelPushButtons.AddItem(new PulldownButtonData("Connect To OpenCOVER",
+                "Connection")) as PulldownButton;
             COVER.Instance.pushButtonConnectToOpenCOVER.ToolTip = Path.Combine(COVER.Instance.ButtonIconsFolder, "cover_disconnected.png"); // "Connect to OpenCOVER";
 
             COVER.Instance.pushButtonConnectToOpenCOVER.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "cover_disconnected_32.png"), UriKind.Absolute));
 
-            //pushButtonConnectToOpenCOVER.Image = new BitmapImage(new Uri(Path.Combine(ButtonIconsFolder, "cover_disconnected_16.png"), UriKind.Absolute));
 
-            PushButton pushButtonConnectToOpenCAVE = ribbonPanelPushButtons.AddItem(new PushButtonData("Connect To CAVE",
-                "CAVE", System.Reflection.Assembly.GetExecutingAssembly().Location,
-                "OpenCOVERPlugin.ConnectToCAVE")) as PushButton;
-            pushButtonConnectToOpenCAVE.ToolTip = "Connect to CAVE";
-            pushButtonConnectToOpenCAVE.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "cave32.png"), UriKind.Absolute));
             PushButton pushButtonSendGeometry = ribbonPanelPushButtons.AddItem(new PushButtonData("resend",
                 "resend", System.Reflection.Assembly.GetExecutingAssembly().Location,
                 "OpenCOVERPlugin.SendGeometry")) as PushButton;
@@ -265,12 +278,37 @@ namespace OpenCOVERPlugin
 
             pushButtonSendGeometry.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));
 
-           /* PushButton pushButtonExportCommand = ribbonPanelPushButtons.AddItem(new PushButtonData("RenderToCOVER",
-                "ResendRender", System.Reflection.Assembly.GetExecutingAssembly().Location,
-                "OpenCOVERPlugin.ExportCommand")) as PushButton;
-            pushButtonExportCommand.ToolTip = "Send Geometry to OpenCOVER through the rendering interface";
-            pushButtonExportCommand.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));*/
+            //pushButtonConnectToOpenCOVER.Image = new BitmapImage(new Uri(Path.Combine(ButtonIconsFolder, "cover_disconnected_16.png"), UriKind.Absolute));
 
+
+
+            PushButton pushButtonConnectToOpenCAVE = COVER.Instance.pushButtonConnectToOpenCOVER.AddPushButton(new PushButtonData("Connect To CAVE",
+                "CAVE", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                "OpenCOVERPlugin.ConnectToCAVE")) as PushButton;
+            pushButtonConnectToOpenCAVE.ToolTip = "Connect to CAVE";
+            pushButtonConnectToOpenCAVE.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "cave32.png"), UriKind.Absolute));
+
+            PushButton pushButtonConnectToLocalHost = COVER.Instance.pushButtonConnectToOpenCOVER.AddPushButton(new PushButtonData("Connect To LocalHost",
+                 "LocalHost", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                 "OpenCOVERPlugin.ConnectToLocalHost")) as PushButton;
+            pushButtonConnectToLocalHost.ToolTip = "Connect to Revit on localhost";
+            pushButtonConnectToLocalHost.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "localhost.png"), UriKind.Absolute));
+
+            PushButton pushButtonConnectToAnyHost = COVER.Instance.pushButtonConnectToOpenCOVER.AddPushButton(new PushButtonData("Connect To OpenCOVER Prompt",
+                 "Details", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                 "OpenCOVERPlugin.ConnectToCOVER")) as PushButton;
+            pushButtonConnectToAnyHost.ToolTip = "Connect to OpenCOVER";
+            pushButtonConnectToAnyHost.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "prompt.png"), UriKind.Absolute));
+
+
+
+
+
+            /* PushButton pushButtonExportCommand = ribbonPanelPushButtons.AddItem(new PushButtonData("RenderToCOVER",
+                 "ResendRender", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                 "OpenCOVERPlugin.ExportCommand")) as PushButton;
+             pushButtonExportCommand.ToolTip = "Send Geometry to OpenCOVER through the rendering interface";
+             pushButtonExportCommand.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));*/
 
 
         }
