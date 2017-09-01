@@ -24,6 +24,15 @@ using namespace opencover;
 
 coHud *coHud::instance_ = NULL;
 
+class UpdateCamera: public osg::Camera
+{
+ public:
+    UpdateCamera()
+    {
+        setNumChildrenRequiringUpdateTraversal(getNumChildrenRequiringUpdateTraversal()+1);
+    }
+};
+
 coHud::coHud()
 {
     assert(!instance_);
@@ -164,7 +173,7 @@ coHud::coHud()
         geode->addDrawable(geom);
     }
 
-    camera = new osg::Camera;
+    camera = new UpdateCamera;
     camera->setName("HUD");
 
     int projx, projy;

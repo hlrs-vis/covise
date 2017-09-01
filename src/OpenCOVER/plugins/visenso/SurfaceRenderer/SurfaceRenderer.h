@@ -85,8 +85,6 @@ public:
         return menuItemMenu;
     };
 
-    void update();
-
     void setActive(bool active);
     bool isActive()
     {

@@ -17,6 +17,9 @@ public:
 	
 	void setPoint(osg::Vec3d inVector, int contactPointNumber);
 	
+	double getHeight(int contactPointNumber);
+	void setHeight(double height, int contactPointNumber);
+	
 	double getLongPos(int contactPointNumber);
 	void setLongPos(double inLongPos, int contactPointNumber);
 	
@@ -25,6 +28,7 @@ public:
 	XenomaiMutex roadMutex;
 	XenomaiMutex positionMutex;
 	XenomaiMutex longPosMutex;
+	XenomaiMutex currentHeightMutex;
 	
 	XenomaiMutex &getRoadMutex()
     {
@@ -40,6 +44,11 @@ public:
     {
         return longPosMutex;
     }
+    
+    XenomaiMutex &getCurrentHeightMutex()
+    {
+        return currentHeightMutex;
+    }
 	
 protected:
 	void run();
@@ -53,6 +62,14 @@ protected:
     double currentLongPos[12];
 	
 	osg::Vec3d roadPoint[12];
+	
+	std::vector<Road*> roadList[12];
+	std::string currentRoadName[12];
+	int currentRoadId[12];
+	double currentHeight[12];
+	bool singleRoadSwitch[12];
+	double roadHeightIncrement;
+	
 	
 	
 };
@@ -76,6 +93,16 @@ inline void RoadPointFinder::setPoint(osg::Vec3d inVector, int contactPointNumbe
 	
 	roadPoint[contactPointNumber] = inVector;
 	
+}
+
+inline double RoadPointFinder::getHeight(int contactPointNumber)
+{
+	return currentHeight[contactPointNumber];
+}
+
+inline void RoadPointFinder::setHeight(double height, int contactPointNumber)
+{
+	currentHeight[contactPointNumber] = height;
 }
 
 inline void RoadPointFinder::setLongPos(double inLongPos, int contactPointNumber)

@@ -68,6 +68,14 @@ public:
         NumInteractorTypes
     };
 
+    enum RunningState
+    {
+        StateStarted = 0,
+        StateRunning,
+        StateStopped,
+        StateNotRunning
+    };
+
     coInteraction(InteractionType type, const std::string &name, InteractionPriority priority = Medium);
     virtual ~coInteraction();
 
@@ -126,12 +134,30 @@ public:
         return notifyOnly;
     }
 
+    bool wasStarted() const
+    {
+        return (runningState == StateStarted);
+    }
+    bool isRunning() const
+    {
+        return (runningState == StateRunning);
+    }
+    bool wasStopped() const
+    {
+        return (runningState == StateStopped);
+    }
+    bool isIdle() const
+    {
+        return (runningState == StateNotRunning);
+    }
+
 protected:
     std::string name;
 
     InteractionState state;
     InteractionType type;
     InteractionPriority priority;
+    RunningState runningState;
 
     bool notifyOnly;
     bool hasPriorityFlag;

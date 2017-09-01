@@ -62,13 +62,12 @@ set(H ${HEADERS})
 
 cover_add_plugin(Utouch3D)
 
+return()
+
 REMOVE_DEFINITIONS(
 -DUSE_TUIOCLIENT=1
 )
 
-ADD_DEFINITIONS(
--DUSE_TUIOCLIENT=0
-)
 set(SOURCES ${S})
 set(HEADERS ${H})
 

@@ -164,6 +164,8 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
 
     string sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncMode");
     numSlaves = coCoviseConfig::getInt("COVER.MultiPC.NumSlaves", 0);
+    if (coVRConfig::instance()->useVirtualGL())
+        numSlaves = 0;
 
     if (numSlaves==0 && myID>0)
     {
@@ -232,7 +234,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
         syncMode = SYNC_MULTICAST;
 #endif
     }
-    else if (strcasecmp(sm.c_str(), "MPI") == 0)
+    else if (strcasecmp(sm.c_str(), "MPI") == 0 && !coVRConfig::instance()->useVirtualGL())
     {
         MARK0("\tsyncMode: MPI");
         if (debugLevel(3))

@@ -20,7 +20,7 @@ public:
     coInteractionManager();
     virtual ~coInteractionManager();
 
-    void update();
+    bool update();
     void registerInteraction(coInteraction *);
     void unregisterInteraction(coInteraction *);
     bool isOneActive(coInteraction::InteractionType type);

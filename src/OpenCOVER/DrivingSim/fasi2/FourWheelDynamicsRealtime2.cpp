@@ -133,6 +133,15 @@ FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2()
 	
 	roadPointFinder->getPositionMutex().release();
 	
+	roadPointFinder->getCurrentHeightMutex().acquire(period);
+	
+	for(int i = 0; i < 12; i++)
+	{
+		roadPointFinder->setHeight(carState.globalPosOC.getTrans().y(),i);
+	}
+	
+	roadPointFinder->getCurrentHeightMutex().release();
+	
 	roadPointFinder->checkLoadingRoads(false);
     start();
     k_wf_Slider = 17400.0;
@@ -746,7 +755,7 @@ void FourWheelDynamicsRealtime2::run()
 			//get positions of tires on road
 			RoadSystem *rSystem = RoadSystem::Instance();
 			
-			roadPointFinder->getLongPosMutex().acquire(period);
+			/*roadPointFinder->getLongPosMutex().acquire(period);
 			
 			currentLongPosArray[0] = roadPointFinder->getLongPos(0);
 			currentLongPosArray[1] = roadPointFinder->getLongPos(1);
@@ -764,9 +773,9 @@ void FourWheelDynamicsRealtime2::run()
 			currentLongPosArray[10] = roadPointFinder->getLongPos(10);
 			currentLongPosArray[11] = roadPointFinder->getLongPos(11);
 			
-			roadPointFinder->getLongPosMutex().release();
+			roadPointFinder->getLongPosMutex().release();*/
 			
-			roadPointFinder->getRoadMutex().acquire(period);
+			/*roadPointFinder->getRoadMutex().acquire(period);
 			
 			currentRoadArray[0] = roadPointFinder->getRoad(0);
 			currentRoadArray[1] = roadPointFinder->getRoad(1);
@@ -784,7 +793,7 @@ void FourWheelDynamicsRealtime2::run()
 			currentRoadArray[10] = roadPointFinder->getRoad(10);
 			currentRoadArray[11] = roadPointFinder->getRoad(11);
 			
-			roadPointFinder->getRoadMutex().release();
+			roadPointFinder->getRoadMutex().release();*/
 			
 			roadPointFinder->getPositionMutex().acquire(period);
 			
@@ -818,6 +827,31 @@ void FourWheelDynamicsRealtime2::run()
 			
 			roadPointFinder->getPositionMutex().release();
 			
+			roadPointFinder->getCurrentHeightMutex().acquire(period);
+			
+			carState.roadHeightFL1 = roadPointFinder->getHeight(0);
+			carState.roadHeightFL2 = roadPointFinder->getHeight(1);
+			carState.roadHeightFL3 = roadPointFinder->getHeight(2);
+			carState.roadAngleFL = atan(-(carState.roadHeightFL3 - carState.roadHeightFL1) / (cos(carState.wheelAngleZFL) * 2 * carState.contactPatch));
+			
+			carState.roadHeightFR1 = roadPointFinder->getHeight(3);
+			carState.roadHeightFR2 = roadPointFinder->getHeight(4);
+			carState.roadHeightFR3 = roadPointFinder->getHeight(5);
+			carState.roadAngleFR = atan(-(carState.roadHeightFR3 - carState.roadHeightFR1) / (cos(carState.wheelAngleZFR) * 2 * carState.contactPatch));
+			
+			carState.roadHeightRR1 = roadPointFinder->getHeight(6);
+			carState.roadHeightRR2 = roadPointFinder->getHeight(7);
+			carState.roadHeightRR3 = roadPointFinder->getHeight(8);
+			carState.roadAngleRR = atan(-(carState.roadHeightRR3 - carState.roadHeightRR1) / (cos(carState.wheelAngleZRR) * 2 * carState.contactPatch));
+			
+			carState.roadHeightRL1 = roadPointFinder->getHeight(9);
+			carState.roadHeightRL2 = roadPointFinder->getHeight(10);
+			carState.roadHeightRL3 = roadPointFinder->getHeight(11);
+			carState.roadAngleRL = atan(-(carState.roadHeightRL3 - carState.roadHeightRL1) / (cos(carState.wheelAngleZRL) * 2 * carState.contactPatch));
+			
+			roadPointFinder->getCurrentHeightMutex().release();
+			
+			/*
 			if(currentRoadArray[0])
 			{
 				Vector3D searchInVec(tempMatrixFL1.getTrans().x(), tempMatrixFL1.getTrans().y(), tempMatrixFL1.getTrans().z());
@@ -1078,6 +1112,7 @@ void FourWheelDynamicsRealtime2::run()
 				}
 			}
 			carState.roadAngleRL = atan(-(carState.roadHeightRL3 - carState.roadHeightRL1) / (cos(carState.wheelAngleZRL) * 2 * carState.contactPatch));
+			*/
 			
 			currentTicks = (double) rt_timer_read();
 			
@@ -1648,7 +1683,7 @@ void FourWheelDynamicsRealtime2::run()
 				carZSpeed = -tanh(carZSpeed / 15) * carZSpeed;
 			}
 			
-			carState.mpHeight = carState.mpHeight + (carZSpeed + tanh(-carState.mpHeight) * carState.mpZReturnSpeed) * h * 0.5;
+			carState.mpHeight = carState.mpHeight + (carZSpeed + tanh(-carState.mpHeight) * carState.mpZReturnSpeed) * h * 0.01;
 			
 			if(carState.mpHeight > 0.2)
 			{
@@ -1726,7 +1761,7 @@ void FourWheelDynamicsRealtime2::run()
 			time++;
 			carState.timerCounter = timerCounter;
 			
-			if(timerCounter == 50 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
+			if(timerCounter == 500 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
 			{
 				//outfile << time << " " << carState.mpLZ << " " << carState.mpRZ << " " << carState.mpBZ << " " << carState.mpHeight << " " << carState.cogOpencoverPos(3,1) << " " 
 				//<< speedState.vZ << " " << current << std::endl;
@@ -1806,10 +1841,10 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "vX 1: " << initialSpeeds.vX << " vX 2: " << K1Speed.vX << " vX 3: " << K2Speed.vX << " vX 4: " << K3Speed.vX << std::endl;
 				//std::cout << " " << std::endl;
 				int length = 13;
-				//std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
-				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
-				//std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
-				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
+				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
+				std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
+				std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
+				std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
 				//std::cout << "#suspX    " << std::setw(length) << carState.globalPosSuspFL.getTrans().x() 	<< "  suspX     " << std::setw(length) << carState.globalPosSuspFR.getTrans().x() << std::endl;
 				//std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspFL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspFR.getTrans().y() << std::endl;
 				//std::cout << "#suspZ    " << std::setw(length) << carState.globalPosSuspFL.getTrans().z() 	<< "  suspZ     " << std::setw(length) << carState.globalPosSuspFR.getTrans().z() << std::endl;
@@ -1840,13 +1875,13 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#11       " << std::setw(length) << speedState.genericOut11					<< "  12        " << std::setw(length) << speedState.genericOut12 << std::endl;
 				//std::cout << "#13       " << std::setw(length) << speedState.genericOut13					<< "  14        " << std::setw(length) << speedState.genericOut14 << std::endl;
 				//std::cout << " " << std::endl;
-				//std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightRL2					 	<< "  roadZ    " << std::setw(length) << carState.roadHeightRR2 << std::endl;
+				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightRL2					 	<< "  roadZ    " << std::setw(length) << carState.roadHeightRR2 << std::endl;
 				//std::cout << "#whlPosX  " << std::setw(length) << wheelPosRLX									<< "  whlPosX  " << std::setw(length) << wheelPosRRX << std::endl;
 				//std::cout << "#whlPosY  " << std::setw(length) << wheelPosRLY									<< "  whlPosY  " << std::setw(length) << wheelPosRRY << std::endl;
 				
-				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireRL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireRR2.getTrans().x() << std::endl;
-				//std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireRL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireRR2.getTrans().y() << std::endl;
-				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireRL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireRR2.getTrans().z() << std::endl;
+				std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireRL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireRR2.getTrans().x() << std::endl;
+				std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireRL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireRR2.getTrans().y() << std::endl;
+				std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireRL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireRR2.getTrans().z() << std::endl;
 				//std::cout << "#suspX    " << std::setw(length) << carState.globalPosSuspRL.getTrans().x() 	<< "  suspX     " << std::setw(length) << carState.globalPosSuspRR.getTrans().x() << std::endl;
 				//std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspRL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspRR.getTrans().y() << std::endl;
 				//std::cout << "#suspZ    " << std::setw(length) << carState.globalPosSuspRL.getTrans().z() 	<< "  suspZ     " << std::setw(length) << carState.globalPosSuspRR.getTrans().z() << std::endl;
@@ -1887,7 +1922,7 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#yaw " << carState.globalYaw << std::endl;
 				//std::cout << "#roll " << carState.localRoll << std::endl;
 				//std::cout << "#pitch " << carState.localPitch << std::endl;
-				//std::cout << "#=(^-.-^)="<< std::endl;
+				std::cout << "#=(^-.-^)="<< std::endl;
 				
 				//timerTimer++;
 				//fprintf(outFile, "1  2  3%5g%13g%13g%13g%13g%13g\n",timerTimer,carState.localPitch,carState.localRoll,carState.roadHeightFL2,carState.roadHeightFR2,speedState.vZ);
@@ -1895,7 +1930,8 @@ void FourWheelDynamicsRealtime2::run()
 				
 				timerCounter = 0;
 			}
-		} else
+		} 
+		else
 		{
 			current = 0;
 		}

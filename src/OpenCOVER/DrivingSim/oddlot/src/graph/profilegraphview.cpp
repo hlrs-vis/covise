@@ -53,6 +53,8 @@ ProfileGraphView::ProfileGraphView(ProfileGraphScene *scene, QWidget *parent)
     verticalRuler_ = new Ruler(Qt::Vertical);
     scene->addItem(verticalRuler_);
 
+	rubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
+
     // Zoom to mouse pos //
     //
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
@@ -171,29 +173,6 @@ void
 ProfileGraphView::toolAction(ToolAction *toolAction)
 {
 
-    // Selection //
-    //
-    SelectionToolAction *selectionToolAction = dynamic_cast<SelectionToolAction *>(toolAction);
-    if (selectionToolAction)
-    {
-        SelectionTool::SelectionToolId id = selectionToolAction->getSelectionToolId();
-
-        if (id == SelectionTool::TSL_BOUNDINGBOX)
-        {
-            if ((doBoxSelect_ == GraphView::BBOff) && selectionToolAction->isToggled())
-            {
-                doBoxSelect_ = GraphView::BBActive;
-            }
-            else if ((doBoxSelect_ == GraphView::BBActive) && !selectionToolAction->isToggled())
-            {
-                doBoxSelect_ = GraphView::BBOff;
-                if (rubberBand_)
-                {
-                    rubberBand_->hide();
-                }
-            }
-        }
-    }
 }
 
 //################//
@@ -226,25 +205,7 @@ ProfileGraphView::scrollContentsBy(int dx, int dy)
 void
 ProfileGraphView::mousePressEvent(QMouseEvent *event)
 {
-    if (doBoxSelect_ == GraphView::BBActive)
-    {
-
-        if ((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0)
-        {
-            additionalSelection_ = true;
-        }
-
-        mp_ = event->pos();
-        if (!rubberBand_)
-        {
-            rubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
-        }
-        rubberBand_->setGeometry(QRect(mp_, QSize()));
-        rubberBand_->show();
-
-        //		setDragMode(QGraphicsView::RubberBandDrag);
-    }
-    else if (doKeyPan_)
+    if (doKeyPan_)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
         setInteractive(false); // this prevents the event from being passed to the scene
@@ -267,7 +228,30 @@ ProfileGraphView::mousePressEvent(QMouseEvent *event)
     }
 #endif
 
-    QGraphicsView::mousePressEvent(event); // pass to baseclass
+	else if (event->button() == Qt::LeftButton)
+	{
+		QGraphicsItem *item = NULL;
+		if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+		{
+			item = scene()->itemAt(mapToScene(event->pos()), QGraphicsView::transform());
+		}
+
+		if (item)
+		{
+			QGraphicsView::mousePressEvent(event); // pass to baseclass
+		}
+		else
+		{
+			doBoxSelect_ = GraphView::BBActive;
+
+			if ((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0)
+			{
+				additionalSelection_ = true;
+			}
+
+			mp_ = event->pos();
+		}
+	}
 }
 
 /*! \brief Mouse events for panning, etc.
@@ -276,7 +260,7 @@ ProfileGraphView::mousePressEvent(QMouseEvent *event)
 void
 ProfileGraphView::mouseMoveEvent(QMouseEvent *event)
 {
-    if ((doBoxSelect_ == GraphView::BBActive) && rubberBand_)
+    if (doBoxSelect_ == GraphView::BBActive)
     {
 
         // Check for enough drag distance
@@ -285,6 +269,14 @@ ProfileGraphView::mouseMoveEvent(QMouseEvent *event)
 
             return;
         }
+		else
+		{
+			if (!rubberBand_->isVisible())
+			{
+				rubberBand_->show();
+			}
+		}
+
         QPoint ep = event->pos();
 
         rubberBand_->setGeometry(QRect(qMin(mp_.x(), ep.x()), qMin(mp_.y(), ep.y()),
@@ -356,58 +348,96 @@ ProfileGraphView::mouseReleaseEvent(QMouseEvent *event)
             QGraphicsView::mouseReleaseEvent(event);
         }
 
-        if ((doBoxSelect_ == GraphView::BBActive) && rubberBand_)
+        if (doBoxSelect_ == GraphView::BBActive)
         {
-            QList<QGraphicsItem *> oldSelection;
+			doBoxSelect_ = GraphView::BBOff;
 
-            if (additionalSelection_)
-            {
-                // Save old selection
+			if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
+			{
+				if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0)
+				{
 
-                oldSelection = scene()->selectedItems();
-            }
+					// Deselect element from the previous selection
 
-            // Set the new selection area
+					QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
 
-            QPainterPath selectionArea;
+					QGraphicsView::mousePressEvent(event); // pass to baseclass
 
-            selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
-            selectionArea.closeSubpath();
-            scene()->clearSelection();
-            scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+					QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
 
-            // Compare old and new selection lists and invert the selection state of elements contained in both
+					foreach (QGraphicsItem *item, oldSelection)
+					{
+						item->setSelected(true);
+					}
+					if (selectedItem)
+					{
+						if (((event->modifiers() & Qt::ControlModifier) != 0) && !oldSelection.contains(selectedItem))
+						{
+							selectedItem->setSelected(true);
+						}
+						else
+						{
+							selectedItem->setSelected(false);
+						}
+					}
+				}
+				else
+				{
+					QGraphicsView::mousePressEvent(event);
+				}
+				return;
+			}
 
-            QList<QGraphicsItem *> selectList = scene()->selectedItems();
-            foreach (QGraphicsItem *item, oldSelection)
-            {
-                if (selectList.contains(item))
-                {
-                    item->setSelected(false);
-                    selectList.removeOne(item);
-                }
-                else
-                {
-                    item->setSelected(true);
-                }
-            }
+			QList<QGraphicsItem *> oldSelection;
 
-            // deselect elements which were not in the oldSelection
+			if (additionalSelection_)
+			{
+				// Save old selection
 
-            if ((event->modifiers() & Qt::AltModifier) != 0)
-            {
-                foreach (QGraphicsItem *item, selectList)
-                {
-                    item->setSelected(false);
-                }
-            }
+				oldSelection = scene()->selectedItems();
+			}
 
-            rubberBand_->hide();
-            doBoxSelect_ = GraphView::BBOff;
-        }
-    }
+			// Set the new selection area
 
-    doPan_ = false;
+			QPainterPath selectionArea;
+
+			selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
+			selectionArea.closeSubpath();
+			scene()->clearSelection();
+			scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+
+			// Compare old and new selection lists and invert the selection state of elements contained in both
+
+			QList<QGraphicsItem *> selectList = scene()->selectedItems();
+			foreach (QGraphicsItem *item, oldSelection)
+			{
+				if (selectList.contains(item))
+				{
+					item->setSelected(false);
+					selectList.removeOne(item);
+				}
+				else
+				{
+					item->setSelected(true);
+				}
+			}
+
+			// deselect elements which were not in the oldSelection
+
+			if ((event->modifiers() & Qt::AltModifier) != 0)
+			{
+				foreach (QGraphicsItem *item, selectList)
+				{
+					item->setSelected(false);
+				}
+			}
+
+			rubberBand_->hide();
+			doBoxSelect_ = GraphView::BBOff;
+		}
+	}
+
+	doPan_ = false;
     doKeyPan_ = false;
     additionalSelection_ = false;
     setInteractive(true);
@@ -441,10 +471,6 @@ ProfileGraphView::keyReleaseEvent(QKeyEvent *event)
     {
     case Qt::Key_Space:
         doKeyPan_ = false;
-        break;
-
-    case Qt::Key_B:
-        doBoxSelect_ = GraphView::BBActive;
         break;
 
     default:

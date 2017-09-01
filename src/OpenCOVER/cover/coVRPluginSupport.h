@@ -618,7 +618,7 @@ public:
         toolBar = tb;
     };
 
-    //! use only during coVRPlugin::prepareFrame()
+    //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
 private:

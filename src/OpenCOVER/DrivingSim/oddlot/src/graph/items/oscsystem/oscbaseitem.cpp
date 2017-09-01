@@ -137,7 +137,7 @@ OSCBaseItem::init()
 							{
 								double s = oscPosRoad->s.getValue();
 								double t = oscPosRoad->t.getValue();
-								new OSCItem(element, this, object, catalog, road->getGlobalPoint(s, t), roadId);
+								new OSCItem(element, this, object, catalog, oscPosRoad);
 							}
 						}
 						break;
@@ -281,7 +281,7 @@ OSCBaseItem::updateObserver()
 				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
 					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
 				{
-					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getOwnMember());
+					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
 
 					// Root Base item //
 					//
@@ -320,7 +320,7 @@ OSCBaseItem::updateObserver()
 							RSystemElementRoad *road = roadSystem_->getRoad(id);
                             if (road)
                             {
-                                new OSCItem(element, this, object, catalog, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
+                                new OSCItem(element, this, object, catalog, oscPosRoad);
                             }
                         }
                     }

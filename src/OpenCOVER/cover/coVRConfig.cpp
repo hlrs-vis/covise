@@ -85,11 +85,13 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
 
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
+    , m_useVirtualGL(false)
     , m_orthographic(false)
     , m_mouseNav(true)
     , m_useWiiMote(false)
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
+    , m_continuousRendering(false)
 {
     assert(!s_instance);
 
@@ -110,6 +112,7 @@ coVRConfig::coVRConfig()
         constantFrameRate = true;
         constFrameTime = 1.0f / frameRate;
     }
+    m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
     m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
@@ -870,4 +873,9 @@ float coVRConfig::frameRate() const
         return 1.0f / constFrameTime;
     else
         return 0.f;
+}
+
+bool coVRConfig::continuousRendering() const
+{
+    return m_continuousRendering;
 }

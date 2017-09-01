@@ -53,7 +53,6 @@ SelectionTool::SelectionTool(ToolManager *toolManager)
     selectionBox_->setToolTip(tr("Bounding Box"));
     selectionBox_->setCheckable(false);
 
-    connect(selectionBox_, SIGNAL(toggled(bool)), this, SLOT(boundingBox(bool))); // only used if checkable true
     toolGroup->addButton(selectionBox_, SelectionTool::TSL_BOUNDINGBOX);
 
     // Deactivate if no project //
@@ -101,15 +100,6 @@ SelectionTool::handleToolClick(int id)
     delete action;
 }
 
-/*! \brief.
-*/
-void
-SelectionTool::boundingBox(bool active)
-{
-    SelectionToolAction *action = new SelectionToolAction(TSL_BOUNDINGBOX, active);
-    emit toolAction(action);
-    delete action;
-}
 
 void
 SelectionTool::keyAction(KeyAction *keyAction)
@@ -141,9 +131,12 @@ SelectionTool::keyAction(KeyAction *keyAction)
 // a specify editor! So ENO_EDITOR and TNO_TOOL is set (Otherwise an editor would
 // be loaded).
 
-SelectionToolAction::SelectionToolAction(SelectionTool::SelectionToolId selectionToolId, bool toggled)
+SelectionToolAction::SelectionToolAction(SelectionTool::SelectionToolId selectionToolId)
     : ToolAction(ODD::ENO_EDITOR, ODD::TNO_TOOL)
     , selectionToolId_(selectionToolId)
-    , toggled_(toggled)
 {
+	if (selectionToolId == SelectionTool::TSL_BOUNDINGBOX)
+	{
+		boundingBoxActive_ = !boundingBoxActive_;
+	}
 }

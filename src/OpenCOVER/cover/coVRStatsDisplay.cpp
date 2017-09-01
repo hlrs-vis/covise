@@ -59,13 +59,9 @@ coVRStatsDisplay::coVRStatsDisplay()
     _camera->setProjectionResizePolicy(osg::Camera::FIXED);
 }
 
-void coVRStatsDisplay::showStats(int whichStats, osgViewer::View *myview)
+void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 {
 
-    if (!myview)
-        return;
-
-    osgViewer::ViewerBase *viewer = myview->getViewerBase();
     if (viewer && _threadingModelText.valid() && viewer->getThreadingModel() != _threadingModel)
     {
         _threadingModel = viewer->getThreadingModel();

@@ -411,17 +411,28 @@ Vrml97Plugin::~Vrml97Plugin()
     delete System::the;
 }
 
-void
-Vrml97Plugin::preFrame()
+bool
+Vrml97Plugin::update()
 {
+    bool render = false;
+
     if (this->sensorList)
         sensorList->update();
     if (this->viewer)
-        this->viewer->update();
+    {
+        render = this->viewer->update();
+    }
     if (this->player)
         this->player->update();
     if (System::the)
         System::the->update();
+
+    return render;
+}
+
+void
+Vrml97Plugin::preFrame()
+{
     VrmlNodeMatrixLight::updateAll();
     VrmlNodePhotometricLight::updateAll();
     if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))

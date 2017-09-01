@@ -1,5 +1,5 @@
 MACRO(USE_OSGQT)
-  FIND_PACKAGE(OsgQt)
+  COVISE_FIND_PACKAGE(OsgQt)
   IF ((NOT OSGQT_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing OSGQT")
     RETURN()

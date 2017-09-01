@@ -27,6 +27,7 @@ class ZoomTool;
 class PrototypeManager;
 class SelectionTool;
 class OpenScenarioEditorTool;
+class SignalEditorTool;
 
 class QToolBox;
 class QMenu;
@@ -87,6 +88,8 @@ public:
 
     void enableOSCEditorToolButton(bool state);
 	void setPushButtonColor(const QString &name, QColor color);
+    void activateSignalSelection(bool state);
+	void activateOSCObjectSelection(bool state);
 
 protected:
 private:
@@ -145,6 +148,10 @@ private:
     // OpenScenarioEditorTool //
     //
     OpenScenarioEditorTool *oscEditorTool_;
+
+	// SignalEditorTool //
+    //
+    SignalEditorTool *signalEditorTool_;
 
 };
 

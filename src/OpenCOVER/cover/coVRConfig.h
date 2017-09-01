@@ -402,6 +402,8 @@ public:
 
     void setFrameRate(float fr);
     float frameRate() const;
+
+    bool continuousRendering() const;
     
     std::vector<screenStruct> screens; // list of physical screens
     std::vector<channelStruct> channels; // list of physical screens
@@ -414,6 +416,11 @@ public:
     bool useDisplayVariable() const
     {
         return m_useDISPLAY;
+    }
+
+    bool useVirtualGL() const
+    {
+        return m_useVirtualGL;
     }
 
     bool restrictOn() const
@@ -454,6 +461,7 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
+    bool m_useVirtualGL;
     int m_stencilBits;
     float m_sceneSize;
 
@@ -495,6 +503,7 @@ private:
 
     bool constantFrameRate;
     float constFrameTime;
+    bool m_continuousRendering;
 
     bool m_restrict;
 

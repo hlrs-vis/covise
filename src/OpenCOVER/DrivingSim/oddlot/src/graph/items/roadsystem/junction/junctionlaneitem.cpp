@@ -303,6 +303,11 @@ JunctionLaneItem::updateObserver()
     {
         createPath();
     }
+	else if (roadChanges & RSystemElementRoad::CRD_JunctionChange)
+	{
+		updateColor();
+	}
+
 }
 
 //################//

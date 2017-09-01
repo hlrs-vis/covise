@@ -49,10 +49,12 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionType type)
     return false;
 }
 
-void coInteractionManager::update()
+bool coInteractionManager::update()
 {
 
     //std::cerr << "coInteractionManager::update " << std::endl;
+
+    bool change = false;
 
     // for all interactions types = buttons
     for (int i = 0; i < coInteraction::NumInteractorTypes; ++i)
@@ -80,11 +82,13 @@ void coInteractionManager::update()
                     {
                         (*it)->cancelPendingActivation();
                         (*it)->setRemoteActive(true);
+                        change = true;
                     }
                     if ((*it)->getState() == coInteraction::Active)
                     {
                         (*it)->cancelInteraction();
                         (*it)->pause();
+                        change = true;
                     }
                 }
                 if ((*it)->getState() == coInteraction::Active)
@@ -111,16 +115,24 @@ void coInteractionManager::update()
                 if ((*it)->isNotifyOnly())
                 {
                     (*it)->doActivation();
+                    change = true;
                 }
                 else if (isActive)
+                {
                     (*it)->cancelPendingActivation();
+                    change = true;
+                }
                 else
                 {
                     (*it)->doActivation();
+                    change = true;
                 }
             }
             //std::cerr << "updating " << (*it)->getName() << std::endl;
             (*it)->update();
+
+            if ((*it)->isRunning())
+                change = true;
         }
 
         // go through the list of active but unregisted interactions
@@ -141,6 +153,7 @@ void coInteractionManager::update()
                         vruiRendererInterface::the()->remoteUnLock((*it)->remoteLockID);
                     }
                     (*it)->resetState();
+                    change = true;
                     it = activeUnregisteredInteractions[(*it)->getType()].erase(it);
                 }
             }
@@ -149,11 +162,14 @@ void coInteractionManager::update()
                 VRUILOG("coInteractionManager::update fixme: null interaction")
                 (*it)->resetState();
                 it = activeUnregisteredInteractions[i].erase(it);
+                change = true;
             }
             if (it != activeUnregisteredInteractions[i].end())
                 it++;
         }
     }
+
+    return change;
 }
 
 void coInteractionManager::registerInteraction(coInteraction *interaction)

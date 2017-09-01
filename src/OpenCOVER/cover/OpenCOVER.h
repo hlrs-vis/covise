@@ -76,7 +76,7 @@ public:
     bool initDone();
     ~OpenCOVER();
     void loop();
-    void frame();
+    bool frame();
     void doneRendering();
     void setExitFlag(bool flag);
     int getExitFlag()
@@ -104,6 +104,7 @@ public:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
 #endif
+    bool m_renderNext;
 };
 }
 #endif

@@ -379,8 +379,9 @@ SignalRoadItem::updateObserver()
 
             iter++;
         }
-    }
-    else if (changes & RSystemElementRoad::CRD_ObjectChange)
+	}
+
+    if (changes & RSystemElementRoad::CRD_ObjectChange)
     {
         // A object has been added.
         //
@@ -397,7 +398,8 @@ SignalRoadItem::updateObserver()
             iter++;
         }
     }
-    else if (changes & RSystemElementRoad::CRD_BridgeChange)
+
+    if (changes & RSystemElementRoad::CRD_BridgeChange)
     {
         // A bridge has been added.
         //

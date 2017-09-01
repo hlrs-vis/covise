@@ -17,7 +17,7 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
 #include "TuioClient.h"
 #include "TuioListener.h"
 #include "TuioObject.h"
@@ -34,7 +34,7 @@
 #include "TouchInteraction.h"
 
 class Utouch3DPlugin : public opencover::coVRPlugin
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
                        ,
                        public TUIO::TuioListener
 #else
@@ -67,7 +67,7 @@ public:
 
 private:
     InteractionManager *intMan;
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     TUIO::TuioClient *tuioClient;
 
     TouchInteraction *touchInteraction;
@@ -133,7 +133,9 @@ private:
 
     virtual void message(int type, int length, const void *data); // sendMessage...
 
+#ifndef USE_TUIOCLIENT
     virtual void update(); // coInteraction interface
+#endif
 
     bool needsActivation;
     bool needsDeactivation;

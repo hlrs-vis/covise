@@ -57,12 +57,12 @@ public:
     void setUpRenderingSupport();
 
     /** Updated the scene.  Handle any queued up events, do an update traversal and set the CameraGroup's setViewByMatrix if any camera manipulators are active.*/
-    virtual void update();
+    virtual bool update();
 
     /** Dispatch the cull and draw for each of the Camera's for this frame.*/
     virtual void frame();
 
-    void handleEvents();
+    bool handleEvents();
 
     void redrawHUD(double interval);
 

@@ -297,15 +297,17 @@ void coVRPluginList::removeNode(osg::Node *node, bool isGroup, osg::Node *realNo
     DOALL(plugin->removeNode(node, isGroup, realNode));
 }
 
-void coVRPluginList::prepareFrame() const
+bool coVRPluginList::update() const
 {
+    bool ret = false;
 #ifdef DOTIMING
-    MARK0("COVER calling prepareFrame for all plugins");
+    MARK0("COVER calling update for all plugins");
 #endif
-    DOALL(plugin->prepareFrame());
+    DOALL(ret |= plugin->update());
 #ifdef DOTIMING
     MARK0("done");
 #endif
+    return ret;
 }
 
 void coVRPluginList::preFrame()

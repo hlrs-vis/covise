@@ -1911,7 +1911,6 @@ ProjectWidget::keyAction(KeyAction *keyAction)
         projectEditor_->keyAction(keyAction);
     }
     topviewGraph_->keyAction(keyAction);
-    mainWindow_->getToolManager()->getSelectionTool()->keyAction(keyAction);
 }
 
 //################//

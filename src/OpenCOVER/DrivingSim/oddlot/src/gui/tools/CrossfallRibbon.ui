@@ -36,6 +36,35 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="QGroupBox" name="selectionBox">
+     <property name="title">
+      <string>Selection Tools</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="1" column="0">
+       <widget class="QPushButton" name="select">
+        <property name="text">
+         <string>Select</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="crossfallBox">
      <property name="title">
       <string>CrossfallSection Tools</string>
@@ -58,6 +87,9 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="2">
+       <widget class="QDoubleSpinBox" name="radiusEdit"/>
+      </item>
       <item row="1" column="0">
        <widget class="QPushButton" name="crossfallAdd">
         <property name="text">
@@ -67,28 +99,15 @@
          <bool>true</bool>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="crossfallSelect">
-        <property name="text">
-         <string>Select</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QDoubleSpinBox" name="radiusEdit"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_type">
+    <widget class="Line" name="line_type_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
