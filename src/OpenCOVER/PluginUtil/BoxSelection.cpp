@@ -13,13 +13,23 @@
 
 #include <util/common.h>
 
+#ifdef VRUI
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coLabelMenuItem.h>
 
 using namespace vrui;
+#else
+#include <cover/ui/Menu.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Button.h>
+#endif
+
 using namespace opencover;
+using vrui::coInteraction;
+using vrui::coInteractionManager;
 
 float BoxSelection::s_xmin = 0.;
 float BoxSelection::s_ymin = 0.;
@@ -30,35 +40,69 @@ float BoxSelection::s_zmax = 0.;
 BoxSelectionInteractor *BoxSelection::s_boxSelectionInteractor = NULL;
 void (*BoxSelection::s_interactionFinished)() = NULL;
 
-BoxSelection::BoxSelection(coRowMenu *parentMenu, const char *name, const char *title)
+BoxSelection::BoxSelection(ui::Menu *parentMenu, const char *name, const char *title)
+#ifdef VRUI
     : coMenuItem(name)
+#else
+    : ui::Owner(std::string("BoxSelection")+name, cover->ui)
+#endif
 {
+#ifdef VRUI
     // m_title = strcpy ( new char[ strlen(title)+1 ] , title );
     m_parentListener = NULL;
 
     m_selectionSubMenu = new coRowMenu(title, parentMenu);
+#else
+    m_selectionSubMenu = new ui::Menu(title, this);
+    parentMenu->add(m_selectionSubMenu);
+#endif
     createSubMenu();
 
+#ifdef VRUI
     m_infoSubMenuItem = new coSubMenuItem(name);
     m_infoSubMenuItem->setMenu(m_selectionSubMenu);
+#endif
 
     s_boxSelectionInteractor = new BoxSelectionInteractor(
         coInteraction::ButtonA, "BoxSelection", coInteraction::High);
     s_boxSelectionInteractor->registerInteractionFinishedCallback(interactionFinished);
     s_boxSelectionInteractor->registerInteractionRunningCallback(interactionRunning);
 
+#ifdef VRUI
     m_useBoxSelection = new coCheckboxMenuItem(title, false, groupPointerArray[0]);
     m_useBoxSelection->setMenuListener(this);
+#else
+    m_useBoxSelection = new ui::Button("BoxSelection", this);
+    m_useBoxSelection->setText("Box selection");
+    m_useBoxSelection->setGroup(cover->navGroup());
+    m_useBoxSelection->setCallback([this](bool state){
+        if (state)
+        {
+            // enable interaction
+            printf("register boxSelectionInteractor\n");
+            VRSceneGraph::instance()->setPointerType(HAND_SPHERE);
+            coInteractionManager::the()->registerInteraction(s_boxSelectionInteractor);
+        }
+        else
+        {
+            printf("unregister boxSelectionInteractor\n");
+            coInteractionManager::the()->unregisterInteraction(s_boxSelectionInteractor);
+        }
+    });
+#endif
 }
 
 BoxSelection::~BoxSelection()
 {
+#ifdef VRUI
     delete m_selectionSubMenu;
     delete m_infoSubMenuItem;
-    delete s_boxSelectionInteractor;
+#endif
     deleteSubMenu();
+    delete s_boxSelectionInteractor;
 }
 
+#ifdef VRUI
 void
 BoxSelection::setMenuListener(coMenuListener *parentListener)
 {
@@ -69,10 +113,11 @@ coMenuListener *BoxSelection::getMenuListener() const
 {
     return m_parentListener;
 }
+#endif
 
 void BoxSelection::createSubMenu()
 {
-
+#ifdef VRUI
     m_xminItem = new coLabelMenuItem("xmin: ");
     m_yminItem = new coLabelMenuItem("ymin: ");
     m_zminItem = new coLabelMenuItem("zmin: ");
@@ -86,6 +131,8 @@ void BoxSelection::createSubMenu()
     m_selectionSubMenu->add(m_xmaxItem);
     m_selectionSubMenu->add(m_ymaxItem);
     m_selectionSubMenu->add(m_zmaxItem);
+#else
+#endif
 }
 
 void BoxSelection::deleteSubMenu()
@@ -131,11 +178,20 @@ BoxSelection::stringify(float x)
 bool BoxSelection::getCheckboxState() const
 {
     if (m_useBoxSelection)
+    {
+#ifdef VRUI
         return m_useBoxSelection->getState();
+#else
+        return m_useBoxSelection->state();
+#endif
+    }
     else
+    {
         return false;
+    }
 }
 
+#ifdef VRUI
 coCheckboxMenuItem *BoxSelection::getCheckbox() const
 {
     return m_useBoxSelection;
@@ -145,6 +201,12 @@ coSubMenuItem *BoxSelection::getSubMenu() const
 {
     return m_infoSubMenuItem;
 }
+#else
+ui::Button *BoxSelection::getButton() const
+{
+    return m_useBoxSelection;
+}
+#endif
 
 void BoxSelection::interactionFinished()
 {
@@ -173,6 +235,7 @@ void BoxSelection::unregisterInteractionFinishedCallback()
     s_interactionFinished = NULL;
 }
 
+#ifdef VRUI
 void BoxSelection::menuEvent(coMenuItem *menuItem)
 {
     if (menuItem == m_useBoxSelection)
@@ -194,3 +257,4 @@ void BoxSelection::menuEvent(coMenuItem *menuItem)
         }
     }
 }
+#endif

@@ -6,13 +6,17 @@
  * License: LGPL 2+ */
 
 #include "ModuleInteraction.h"
+#ifdef VRUI
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coSubMenuItem.h>
+#else
+#include <cover/coVRPluginSupport.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
+#endif
 #include <cover/coVRConfig.h>
-#include <cover/VRPinboard.h>
 
-using namespace vrui;
 using namespace opencover;
 
 ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName)
@@ -24,30 +28,57 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
 {
 
     int menuItemCounter = 0;
+#ifdef VRUI
     showPickInteractorCheckbox_ = new coCheckboxMenuItem("Pick Interactor", false);
     showPickInteractorCheckbox_->setMenuListener(this);
     menu_->insert(showPickInteractorCheckbox_, menuItemCounter);
+#else
+    showPickInteractorCheckbox_ = new ui::Button(menu_, "PickInteractor");
+    showPickInteractorCheckbox_->setText("Pick interactor");
+    showPickInteractorCheckbox_->setState(showPickInteractor_);
+    showPickInteractorCheckbox_->setCallback([this](bool state){
+        showPickInteractor_ = state;
+        updatePickInteractors(state);
+    });
+#endif
     menuItemCounter++;
 
+#ifdef VRUI
     coSubMenuItem *parent = dynamic_cast<coSubMenuItem *>(menu_->getSubMenuItem());
     if (parent)
         parent->setSecondaryItem(showPickInteractorCheckbox_);
+#endif
 
     if (coVRConfig::instance()->has6DoFInput())
     {
+#ifdef VRUI
         showDirectInteractorCheckbox_ = new coCheckboxMenuItem("Direct Interactor", false, groupPointerArray[0]);
         showDirectInteractorCheckbox_->setMenuListener(this);
         menu_->insert(showDirectInteractorCheckbox_, menuItemCounter);
+#else
+        showDirectInteractorCheckbox_ = new ui::Button(menu_, "DirectInteractor");
+        showDirectInteractorCheckbox_->setText("Direct interactor");
+        showDirectInteractorCheckbox_->setState(showDirectInteractor_);
+        showDirectInteractorCheckbox_->setGroup(cover->navGroup());
+        showDirectInteractorCheckbox_->setCallback([this](bool state){
+            showDirectInteractor_ = state;
+            updateDirectInteractors(state);
+        });
+#endif
         menuItemCounter++;
+#ifdef VRUI
         if (parent)
             parent->setSecondaryItem(showDirectInteractorCheckbox_);
+#endif
     }
 }
 
 ModuleInteraction::~ModuleInteraction()
 {
+#ifdef VRUI
     delete showPickInteractorCheckbox_;
     delete showDirectInteractorCheckbox_;
+#endif
 }
 
 void
@@ -65,6 +96,7 @@ ModuleInteraction::preFrame()
     //fprintf(stderr,"ModuleFeedbackManager::preFrame for object=%s plugin=%s\n", initialObjectName_.c_str(), pName_.c_str());
 }
 
+#ifdef VRUI
 void
 ModuleInteraction::menuEvent(coMenuItem *item)
 {
@@ -95,6 +127,7 @@ ModuleInteraction::menuEvent(coMenuItem *item)
             updateDirectInteractors(false);
     }
 }
+#endif
 
 void
 ModuleInteraction::setShowInteractorFromGui(bool state)
@@ -102,18 +135,46 @@ ModuleInteraction::setShowInteractorFromGui(bool state)
     showPickInteractor_ = state;
     if (state)
     {
-
+#ifdef VRUI
         if (!showPickInteractorCheckbox_->getState())
         {
             showPickInteractorCheckbox_->setState(true, true);
         }
+#else
+        if (!showPickInteractorCheckbox_->state())
+        {
+            showPickInteractorCheckbox_->setState(true);
+        }
+#endif
     }
     else
     {
+#ifdef VRUI
         if (showPickInteractorCheckbox_->getState())
         {
             showPickInteractorCheckbox_->setState(false, true);
         }
+#else
+        if (showPickInteractorCheckbox_->state())
+        {
+            showPickInteractorCheckbox_->setState(false);
+        }
+#endif
     }
     updatePickInteractors(showPickInteractor_);
+}
+
+void ModuleInteraction::triggerHide(bool state)
+{
+    ModuleFeedbackManager::triggerHide(state);
+
+    if (!state && showPickInteractor_)
+        updatePickInteractors(true);
+    else
+        updatePickInteractors(false);
+
+    if (!state  && showDirectInteractor_)
+        updateDirectInteractors(true);
+    else
+        updateDirectInteractors(false);
 }
