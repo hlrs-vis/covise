@@ -27,6 +27,7 @@
 #include <cover/coVRSelectionManager.h>
 #include "cover/coVRTui.h"
 #include "cover/coVRShader.h"
+#include "cover/OpenCOVER.h"
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -1650,6 +1651,10 @@ RevitPlugin::checkDoors()
 	{
 		(*it)->checkStart(ViewerPosition);
 	}
+	if (activeDoors.size() > 0)
+	{
+		OpenCOVER::instance()->m_renderNext = true;
+	}
 	for (std::list<DoorInfo *>::iterator it = activeDoors.begin(); it != activeDoors.end();)
 	{
 		if ((*it)->update(ViewerPosition))
@@ -2048,6 +2053,7 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	tb >> boolValue;
 	FaceFlipped = boolValue;
 	tb >> FaceOrientation;
+	tb >> Origin;
 	tb >> boolValue;
 	isSliding = boolValue;
 	osg::Vec3 BBMin;
@@ -2076,27 +2082,20 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 		fprintf(stderr, "FaceFlipped %d\n", (int)FaceFlipped);
 
 		Direction *= -1;
-		Origin = boundingBox._max;
-		if (FaceFlipped)
+		if(Origin.x() == 10000)
 		{
-		}
-		else
-		{
-			//Origin = boundingBoxes[0]._min;
+			Origin = boundingBox._max;
+			if (strncmp(Name, "DoorMovingParts_Right", 21) == 0)
+			{
+				Origin = boundingBox._min;
+			}
 		}
 		if (strncmp(Name, "DoorMovingParts_Right", 21) == 0)
 		{
 			Direction *= -1;
-			Origin = boundingBox._min;
 		}
-		//if (HandFlipped)
-		//{
-		//}
-		//else
-		//{
-		//	
-		//}
 	}
+
 	Center = boundingBox.center();
 	// transform Center to Object Coordinates
 	Matrix tr;

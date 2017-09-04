@@ -897,15 +897,74 @@ namespace OpenCOVERPlugin
                     bbR.Min = new XYZ(0, -0.01, -1);
                     bbR.Max = new XYZ(2, 0.01, 1);
                 }
+                // try to find out the pivot point of rotating doors by searching for arcs in the floor plan.
+                // multiple arcs might be from multiple door wings or of the same door if they share the same origin.
+                /*Reference panelPlane = fi.GetReferenceByName("PanelPlane");
+                Reference rotPlane = fi.GetReferenceByName("RotPlane");
+                Element el = elem.Document.GetElement(panelPlane.ElementId);
+                ReferencePlane rp = elem.Document.GetElement(panelPlane.ElementId) as Autodesk.Revit.DB.ReferencePlane;
+
+                IList<Reference> refList = fi.GetReferences(FamilyInstanceReferenceType.WeakReference);
+                foreach (Reference r in refList)
+                {
+                    String test = r.ToString();
+
+                }
+                 ViewFamilyType vd = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>().FirstOrDefault(q => q.ViewFamily == ViewFamily.FloorPlan);
+                 using (Transaction transaction = new Transaction(elem.Document))
+                 {
+                     if (transaction.Start("changeParameters") == TransactionStatus.Started)
+                     {
+                         View tempView = ViewPlan.Create(elem.Document, vd.Id, elem.LevelId);
+                         Options geometryOptions = elem.Docu
+                             geometryOptions.view = tempView;
+                         fi.get_Geometry(geometryOptions);
+                     }
+                     transaction.RollBack();
+                 }*/
+                ViewPlan arbitaryFloorPlan = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewPlan)).Cast<ViewPlan>().Where(x => !x.IsTemplate).FirstOrDefault();
+                Options geometryOptions = new Options();
+                geometryOptions.IncludeNonVisibleObjects = true;
+                geometryOptions.ComputeReferences = true;
+                geometryOptions.View = arbitaryFloorPlan;
+                GeometryElement geom = elem.get_Geometry(geometryOptions);
+                XYZ CenterLeft = new XYZ(10000,0,0);
+                XYZ CenterRight = new XYZ(10000, 0, 0); ;
+                if ((geom != null ) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                {
+                    GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                    if(geomInst !=null)
+                    {
+                        GeometryElement geom2 = geomInst.GetSymbolGeometry();
+                        IEnumerator<Autodesk.Revit.DB.GeometryObject> arcObjects = geom2.GetEnumerator();
+                        while (arcObjects.MoveNext())
+                        {
+                            Autodesk.Revit.DB.GeometryObject geomObject = arcObjects.Current;
+                            if (geomObject is Autodesk.Revit.DB.Arc)
+                            {
+                                Arc a = geomObject as Arc;
+                                XYZ c = a.Center;
+                                if (CenterLeft.X == 10000)
+                                {
+                                    CenterLeft = c;
+                                }
+                                if (CenterLeft != c)
+                                {
+                                    CenterRight = c;
+                                }
+                            }
+                        }
+                    }
+                }
                 num = 0;
                 if(hasLeft && hasRight)
                 {
-                    SendDoorPart(elementGeom, elem, fi, bbL, "_Left");
-                    SendDoorPart(elementGeom, elem, fi, bbR, "_Right");
+                    SendDoorPart(elementGeom, elem, fi, bbL, "_Left", CenterLeft);
+                    SendDoorPart(elementGeom, elem, fi, bbR, "_Right", CenterRight);
                 }
                 else
                 {
-                    SendDoorPart(elementGeom, elem, fi, bb, "");
+                    SendDoorPart(elementGeom, elem, fi, bb, "", CenterLeft);
                 }
 
             }
@@ -957,7 +1016,7 @@ namespace OpenCOVERPlugin
             {
             }
         }
-        private void SendDoorPart(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem,FamilyInstance fi, BoundingBoxXYZ bb, String name)
+        private void SendDoorPart(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem,FamilyInstance fi, BoundingBoxXYZ bb, String name, XYZ Center)
         {
             int num = 0;
             MessageBuffer mb = new MessageBuffer();
@@ -967,6 +1026,7 @@ namespace OpenCOVERPlugin
             mb.add(fi.HandOrientation);
             mb.add(fi.FacingFlipped);
             mb.add(fi.FacingOrientation);
+            mb.add(Center);
             Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
             if (family != null)
             {
