@@ -542,6 +542,8 @@ bool OpenCOVER::init()
     coVRMSController::instance()->syncTime();
 
     coVRPluginList::instance();
+
+	coVRPluginList::instance()->loadDefault();
 	Input::instance()->init();
     coVRTui::instance();
 
@@ -619,7 +621,6 @@ bool OpenCOVER::init()
     
     hud = coHud::instance();
 
-    coVRPluginList::instance()->loadDefault();
 
     bool haveWindows = VRWindow::instance()->config();
     if (coVRMSController::instance()->isMaster())
