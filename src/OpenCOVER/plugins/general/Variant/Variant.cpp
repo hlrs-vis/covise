@@ -23,7 +23,7 @@ Variant *Variant::variantClass = NULL;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa, coRowMenu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xml, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state)
+Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa, ui::Menu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xml, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state)
 {
     myboi = boi;
     variantClass = this;
@@ -168,6 +168,7 @@ void Variant::printMatrix(osg::MatrixTransform *mt)
     cout << "/-----------------------  " << endl;
 }
 
+#ifdef VRUI
 void Variant::menuEvent(coMenuItem *item)
 {
     coCheckboxMenuItem *m = dynamic_cast<coCheckboxMenuItem *>(item);
@@ -183,6 +184,7 @@ void Variant::menuEvent(coMenuItem *item)
             cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
     }
 }
+#endif
 
 void Variant::tabletEvent(coTUIElement *item)
 {
