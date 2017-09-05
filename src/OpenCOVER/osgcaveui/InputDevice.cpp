@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+
 #include <iostream>
 #include <fstream>
 #ifndef _USE_MATH_DEFINES
@@ -15,7 +16,8 @@
 using namespace std;
 
 // C++:
-#include <assert.h>
+#include <cassert>
+#include <algorithm>
 
 // OSG:
 #include <osg/MatrixTransform>
