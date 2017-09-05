@@ -14,7 +14,7 @@ class Element;
 class Label;
 class Menu;
 class Group;
-class RadioGroup;
+class ButtonGroup;
 class Button;
 class Action;
 class Slider;
@@ -78,7 +78,7 @@ class COVER_UI_EXPORT View {
     //! implement to create graphical representation of an item group (e.g. a frame, possible with a label)
     virtual ViewElement *elementFactoryImplementation(Group *group) = 0;
     //! implement to create graphical representation of an radio group of toggle buttons
-    virtual ViewElement *elementFactoryImplementation(RadioGroup *rg) = 0;
+    virtual ViewElement *elementFactoryImplementation(ButtonGroup *bg) = 0;
     //! implement to create graphical representation of a text label
     virtual ViewElement *elementFactoryImplementation(Label *label) = 0;
     //! implement to create graphical representation of a stateless button

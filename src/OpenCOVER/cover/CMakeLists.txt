@@ -214,7 +214,7 @@ SET(UI_HEADERS
     ui/Manager.h
     ui/Menu.h
     ui/Owner.h
-    ui/RadioGroup.h
+    ui/ButtonGroup.h
     ui/ShortcutListener.h
     ui/Slider.h
     ui/View.h
@@ -232,7 +232,7 @@ SET(UI_SOURCES
     ui/Manager.cpp
     ui/Menu.cpp
     ui/Owner.cpp
-    ui/RadioGroup.cpp
+    ui/ButtonGroup.cpp
     ui/ShortcutListener.cpp
     ui/Slider.cpp
     ui/View.cpp

@@ -9,7 +9,7 @@
 namespace opencover {
 namespace ui {
 
-class RadioGroup;
+class ButtonGroup;
 
 //! a graphical item showing a text label that can be pressed to toggle between two states
 
@@ -18,11 +18,11 @@ class COVER_UI_EXPORT Button: public Element {
  public:
    Button(const std::string &name, Owner *owner);
    Button(Group *parent, const std::string &name);
-   Button(RadioGroup *parent, const std::string &name, int id=0);
+   Button(ButtonGroup *parent, const std::string &name, int id=0);
 
    int id() const;
-   RadioGroup *radioGroup() const;
-   void setRadioGroup(RadioGroup *rg, int id=0);
+   ButtonGroup *group() const;
+   void setGroup(ButtonGroup *rg, int id=0);
 
    bool state() const;
    void setState(bool flag);
@@ -37,7 +37,7 @@ class COVER_UI_EXPORT Button: public Element {
     void update() const override;
 
  private:
-    RadioGroup *m_radioGroup = nullptr;
+    ButtonGroup *m_radioGroup = nullptr;
     int m_id = 0;
     bool m_state = false;
     std::function<void(bool)> m_callback;

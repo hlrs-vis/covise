@@ -1,6 +1,6 @@
 #include "Button.h"
 #include "Group.h"
-#include "RadioGroup.h"
+#include "ButtonGroup.h"
 #include "Manager.h"
 
 namespace opencover {
@@ -16,7 +16,7 @@ Button::Button(Group *parent, const std::string &name)
 {
 }
 
-Button::Button(RadioGroup *parent, const std::string &name, int id)
+Button::Button(ButtonGroup *parent, const std::string &name, int id)
 : Element(parent, name)
 , m_radioGroup(parent)
 , m_id(id)
@@ -28,12 +28,12 @@ int Button::id() const
     return m_id;
 }
 
-RadioGroup *Button::radioGroup() const
+ButtonGroup *Button::group() const
 {
     return m_radioGroup;
 }
 
-void Button::setRadioGroup(RadioGroup *rg, int id)
+void Button::setGroup(ButtonGroup *rg, int id)
 {
     m_radioGroup = rg;
     m_id = id;
@@ -64,8 +64,8 @@ void Button::triggerImplementation() const
 {
     if (m_callback)
         m_callback(m_state);
-    if (radioGroup())
-        radioGroup()->toggle(this);
+    if (group())
+        group()->toggle(this);
 }
 
 void Button::radioTrigger() const

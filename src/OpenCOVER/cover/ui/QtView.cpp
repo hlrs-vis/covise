@@ -1,7 +1,7 @@
 #include "QtView.h"
 
 #include "Menu.h"
-#include "RadioGroup.h"
+#include "ButtonGroup.h"
 #include "Label.h"
 #include "Action.h"
 #include "Button.h"
@@ -147,7 +147,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     return ve;
 }
 
-QtViewElement *QtView::elementFactoryImplementation(RadioGroup *rg)
+QtViewElement *QtView::elementFactoryImplementation(ButtonGroup *rg)
 {
     auto parent = qtViewParent(rg);
     if (!parent)

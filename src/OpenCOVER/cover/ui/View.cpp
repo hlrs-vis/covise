@@ -2,7 +2,7 @@
 #include "Manager.h"
 
 #include "Menu.h"
-#include "RadioGroup.h"
+#include "ButtonGroup.h"
 #include "Label.h"
 #include "Action.h"
 #include "Button.h"
@@ -44,7 +44,7 @@ View::ViewElement *View::elementFactory(Element *elem)
     {
         ve = elementFactoryImplementation(menu);
     }
-    else if (auto rg = dynamic_cast<RadioGroup *>(elem))
+    else if (auto rg = dynamic_cast<ButtonGroup *>(elem))
     {
         ve = elementFactoryImplementation(rg);
     }

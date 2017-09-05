@@ -1,21 +1,21 @@
-#include "RadioGroup.h"
+#include "ButtonGroup.h"
 #include "Button.h"
 #include <cassert>
 
 namespace opencover {
 namespace ui {
 
-RadioGroup::RadioGroup(const std::string &name, Owner *owner)
+ButtonGroup::ButtonGroup(const std::string &name, Owner *owner)
 : Group(name, owner)
 {
 }
 
-RadioGroup::RadioGroup(Group *parent, const std::string &name)
+ButtonGroup::ButtonGroup(Group *parent, const std::string &name)
 : Group(parent, name)
 {
 }
 
-int RadioGroup::value() const
+int ButtonGroup::value() const
 {
     int id = 0;
     if (numChildren() == 0)
@@ -36,7 +36,7 @@ int RadioGroup::value() const
     return id;
 }
 
-Button *RadioGroup::activeButton() const
+Button *ButtonGroup::activeButton() const
 {
     Button *ret = nullptr;
     int numSet = 0;
@@ -54,7 +54,7 @@ Button *RadioGroup::activeButton() const
     return ret;
 }
 
-bool RadioGroup::add(Element *elem)
+bool ButtonGroup::add(Element *elem)
 {
     auto rb = dynamic_cast<Button *>(elem);
     assert(rb);
@@ -73,7 +73,7 @@ bool RadioGroup::add(Element *elem)
     return false;
 }
 
-bool RadioGroup::remove(Element *elem)
+bool ButtonGroup::remove(Element *elem)
 {
     auto rb = dynamic_cast<Button *>(elem);
     assert(rb);
@@ -91,17 +91,17 @@ bool RadioGroup::remove(Element *elem)
     return false;
 }
 
-void RadioGroup::setCallback(const std::function<void (int)> &f)
+void ButtonGroup::setCallback(const std::function<void (int)> &f)
 {
     m_callback = f;
 }
 
-std::function<void (int)> RadioGroup::callback() const
+std::function<void (int)> ButtonGroup::callback() const
 {
     return m_callback;
 }
 
-void RadioGroup::toggle(const Button *b)
+void ButtonGroup::toggle(const Button *b)
 {
     Button *bset = nullptr;
     for (auto e: m_children)
@@ -140,7 +140,7 @@ void RadioGroup::toggle(const Button *b)
     trigger();
 }
 
-void RadioGroup::triggerImplementation() const
+void ButtonGroup::triggerImplementation() const
 {
     if (m_callback)
         m_callback(value());

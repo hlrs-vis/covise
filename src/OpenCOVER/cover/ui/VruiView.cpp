@@ -14,7 +14,7 @@
 
 #include "Element.h"
 #include "Menu.h"
-#include "RadioGroup.h"
+#include "ButtonGroup.h"
 #include "Label.h"
 #include "Action.h"
 #include "Button.h"
@@ -272,7 +272,7 @@ VruiViewElement *VruiView::elementFactoryImplementation(Button *button)
     return ve;
 }
 
-VruiViewElement *VruiView::elementFactoryImplementation(RadioGroup *rg)
+VruiViewElement *VruiView::elementFactoryImplementation(ButtonGroup *rg)
 {
     auto ve = new VruiViewElement(rg);
     ve->m_group = new vrui::coCheckboxGroup;
