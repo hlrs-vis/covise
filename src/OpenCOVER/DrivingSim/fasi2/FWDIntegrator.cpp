@@ -94,22 +94,22 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FtdRL = -initialVSuspZRL * carState.dtRL;
 	*/
 	
-	double FssFL = (inPosState.vSuspZFL)* carState.csFL + carState.FsFL;
+	double FssFL = (inPosState.vSuspZFL + carState.suspOffsetFL) * carState.csFL + carState.FsFL;
 	double FsdFL = (initialVSuspZFL/* - initialVZ + sin(initialVPitch) * carState.lFront - sin(initialVRoll) * carState.sFrontH*/) * carState.dsFL;
 	double FtsFL = -(carState.localZPosTireFL) * carState.ctFL/* + (carState.localZPosTireFL) * (carState.localZPosTireFL) * carState.ctFL + carState.FtFL*/;
 	double FtdFL = -carState.tireDefSpeedFL * carState.dtFL;
 	
-	double FssFR = (inPosState.vSuspZFR)* carState.csFR + carState.FsFR;
+	double FssFR = (inPosState.vSuspZFR + carState.suspOffsetFR) * carState.csFR + carState.FsFR;
 	double FsdFR = (initialVSuspZFR/* - initialVZ + sin(initialVPitch) * carState.lFront + sin(initialVRoll) * carState.sFrontH*/) * carState.dsFR;
 	double FtsFR = -(carState.localZPosTireFR) * carState.ctFR/* + (carState.localZPosTireFR) * (carState.localZPosTireFR) * carState.ctFR + carState.FtFR*/;
 	double FtdFR = -carState.tireDefSpeedFR * carState.dtFR;
 	
-	double FssRR = (inPosState.vSuspZRR)* carState.csRR + carState.FsRR;
+	double FssRR = (inPosState.vSuspZRR + carState.suspOffsetRR) * carState.csRR + carState.FsRR;
 	double FsdRR = (initialVSuspZRR/* - initialVZ - sin(initialVPitch) * carState.lRear + sin(initialVRoll) * carState.sRearH*/) * carState.dsRR;
 	double FtsRR = -(carState.localZPosTireRR) * carState.ctRR/* + (carState.localZPosTireRR) * (carState.localZPosTireRR) * carState.ctRR + carState.FtRR*/;
 	double FtdRR = -carState.tireDefSpeedRR * carState.dtRR;
 	
-	double FssRL = (inPosState.vSuspZRL)* carState.csRL + carState.FsRL;
+	double FssRL = (inPosState.vSuspZRL + carState.suspOffsetRL) * carState.csRL + carState.FsRL;
 	double FsdRL = (initialVSuspZRL/* - initialVZ - sin(initialVPitch) * carState.lRear - sin(initialVRoll) * carState.sRearH*/) * carState.dsRL;
 	double FtsRL = -(carState.localZPosTireRL) * carState.ctRL/* + (carState.localZPosTireRL) * (carState.localZPosTireRL) * carState.ctRL + carState.FtRL*/;
 	double FtdRL = -carState.tireDefSpeedRL * carState.dtRL;
@@ -874,7 +874,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	} else if (std::abs(syFL) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nFL = LFL * -(1 - we) * (std::abs(syFL) - carState.sy0) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0));
+		nFL = LFL * (1 - we) * (std::abs(syFL) - carState.sy0) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nFL = 0;
@@ -888,7 +888,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	} else if (std::abs(syFR) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nFR = LFR * -(1 - we) * (std::abs(syFR) - carState.sy0) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0));
+		nFR = LFR * (1 - we) * (std::abs(syFR) - carState.sy0) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nFR = 0;
@@ -902,7 +902,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	} else if (std::abs(syRR) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nRR = LRR * -(1 - we) * (std::abs(syRR) - carState.sy0) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0));
+		nRR = LRR * (1 - we) * (std::abs(syRR) - carState.sy0) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nRR = 0;
@@ -916,7 +916,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	} else if (std::abs(syRL) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nRL = LRL * -(1 - we) * (std::abs(syRL) - carState.sy0) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0));
+		nRL = LRL * (1 - we) * (std::abs(syRL) - carState.sy0) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nRL = 0;
