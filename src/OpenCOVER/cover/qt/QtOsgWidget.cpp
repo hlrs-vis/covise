@@ -320,7 +320,7 @@ void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
     }
 
     auto pr = devicePixelRatio();
-    getEventQueue()->mouseButtonRelease(event->x(), pr, event->y()*pr, button);
+    getEventQueue()->mouseButtonRelease(event->x()*pr, event->y()*pr, button);
 }
 
 void QtOsgWidget::wheelEvent(QWheelEvent *event)
