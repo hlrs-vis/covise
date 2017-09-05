@@ -17,7 +17,7 @@ RoadPointFinder::RoadPointFinder()
 	runTask = true;
 	taskFinished = false;
 	
-	roadHeightIncrement = 0.003;
+	roadHeightIncrement = 0.00001;
 	
 	for(int i = 0; i < 12; i++)
 	{
@@ -103,7 +103,18 @@ void RoadPointFinder::run()
 			}*/
 			
 			//list system
-			roadList[i] = RoadSystem::Instance()->searchPositionList(searchInVec);
+			std::vector<Road*> tempRoadList;
+		
+			tempRoadList = RoadSystem::Instance()->searchPositionList(searchInVec);
+			if(tempRoadList.size() != 0)
+			{
+				roadList[i] = tempRoadList;
+			}
+			else
+			{
+				singleRoadSwitch[i] = false;
+				//std::cout << "single road switch false" << std::endl;
+			}
 			
 			//std::cout << "road list at " << i << ": " << roadList[i].size() << std::endl;
 			//std::cout << "search in vector " << i << ": " << roadPoint[i].x() << " " << roadPoint[i].y() << " " << roadPoint[i].z() << std::endl;
@@ -126,6 +137,7 @@ void RoadPointFinder::run()
 				}
 				if(stillOnRoad == false) 
 				{
+					singleRoadSwitch[i] = false;
 					std::cout << "road point " << i << " left previous road" << std::endl;
 					currentRoadName[i] = RoadSystem::Instance()->getRoadId(roadList[i][0]);
 					currentRoadId[i] = 0;
@@ -144,7 +156,7 @@ void RoadPointFinder::run()
 				if(!singleRoadSwitch[i])
 				{
 					
-					if(std::abs(currentHeight[i] - tempHeight) > 0.005)
+					if(std::abs(currentHeight[i] - tempHeight) > 0.01)
 					{
 						if(currentHeight[i] > tempHeight)
 						{
