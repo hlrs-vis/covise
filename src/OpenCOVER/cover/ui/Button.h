@@ -11,6 +11,9 @@ namespace ui {
 
 class RadioGroup;
 
+//! a graphical item showing a text label that can be pressed to toggle between two states
+
+/** \note QToggleButton */
 class COVER_UI_EXPORT Button: public Element {
  public:
    Button(const std::string &name, Owner *owner);

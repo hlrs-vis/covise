@@ -6,6 +6,9 @@
 namespace opencover {
 namespace ui {
 
+//! a graphical Element showing a text label
+
+/** \note QLabel */
 class COVER_UI_EXPORT Label: public Element {
 
  public:

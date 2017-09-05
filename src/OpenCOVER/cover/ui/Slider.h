@@ -9,6 +9,9 @@
 namespace opencover {
 namespace ui {
 
+//! a graphical item showing a text label and value that can be manipulated with a slider or dial
+
+/** \note QSlider */
 class COVER_UI_EXPORT Slider: public Element {
  public:
    typedef double ValueType;
@@ -21,24 +24,37 @@ class COVER_UI_EXPORT Slider: public Element {
    Slider(const std::string &name, Owner *owner);
    Slider(Group *parent, const std::string &name);
 
+   //! notify that slider is currently being manipulated
    void setMoving(bool flag);
+   //! query whether slider is currently being manipulated
    bool isMoving() const;
 
+   //! returns current slider value
    ValueType value() const;
+   //! set slider value
    void setValue(ValueType val);
+   //! set minimum and maximum of slider sange
    void setBounds(ValueType min, ValueType max);
+   //! lower slider bound
    ValueType min() const;
+   //! upper slider bound
    ValueType max() const;
 
+   //! switch slider to representang just integral values
    void setInteger(bool flag);
+   //! whether slider is restricted to integral values
    bool integer() const;
+   //! desired representation of slider (e.g. as a dial or as a slider)
    Presentation presentation() const;
+   //! set desired representation of slider
    void setPresentation(Presentation pres);
 
+   //! set function to be called whenever slider is manipulated, bool parameter is true if slider manipulation stops
     void setCallback(const std::function<void(ValueType, bool)> &f);
     std::function<void(ValueType, bool)> callback() const;
 
     void triggerImplementation() const override;
+
     void update() const override;
 
  private:

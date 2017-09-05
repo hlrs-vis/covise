@@ -12,8 +12,10 @@ class QLabel;
 namespace opencover {
 namespace ui {
 
+//! store the data for the representation of a UI Element within a QtView
 struct QtViewElement: public View::ViewElement
 {
+    //! create for @param elem which has a corresponding @param obj
     QtViewElement(Element *elem, QObject *obj);
 
     QObject *object = nullptr;
@@ -21,6 +23,7 @@ struct QtViewElement: public View::ViewElement
     QLabel *label = nullptr;
 };
 
+//! concrete implementation of View for showing user interface \ref Element "elements" in a QMenuBar
 class QtView: public QObject, public View
 {
     Q_OBJECT
@@ -31,8 +34,10 @@ class QtView: public QObject, public View
  private:
    QMenuBar *m_menubar;
 
+   //! add a previously created QtViewElement to its parent
    void add(QtViewElement *ve);
 
+   // helper functions for navigating UI element hierarchy
    QtViewElement *qtViewElement(const Element *elem) const;
    QtViewElement *qtViewParent(const Element *elem) const;
    QtViewElement *qtViewContainer(const Element *elem) const;

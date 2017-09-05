@@ -11,15 +11,22 @@ namespace ui {
 
 class Manager;
 
+//! Manage the life time of objects: in its destructor it destroys all objects that it owns
 class COVER_UI_EXPORT Owner {
    friend class Manager;
  public:
+   //! construct, owned by owner (deleted with owner)
    Owner(const std::string &name, Owner *owner);
+   //! conrtruct without owner: must be deleted
    Owner(const std::string &name, Manager *manager);
    virtual ~Owner();
+   //! return owner
    Owner *owner() const;
+   //! return name of object
    const std::string &name() const;
+   //! return path to object through all owners
    std::string path() const;
+   //! return manager responsible for this item
    Manager *manager() const;
 
  private:

@@ -6,6 +6,9 @@
 namespace opencover {
 namespace ui {
 
+//! a graphical item showing a menu grouping several interface elements together
+
+/** \note QMenu */
 class COVER_UI_EXPORT Menu: public Group {
 
  public:

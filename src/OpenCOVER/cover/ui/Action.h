@@ -9,6 +9,9 @@
 namespace opencover {
 namespace ui {
 
+//! a graphical item showing a text label that can be pressed to trigger an action
+
+/** \note QPushButton */
 class COVER_UI_EXPORT Action: public Element {
  public:
     Action(const std::string &name, Owner *owner);

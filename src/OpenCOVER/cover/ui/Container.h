@@ -9,6 +9,7 @@ namespace ui {
 
 class Element;
 
+//! mix-in class for containers of UI \ref Element "elements"
 class Container {
  public:
     virtual ~Container();

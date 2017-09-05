@@ -7,6 +7,7 @@
 namespace opencover {
 namespace ui {
 
+//! semantic group of several UI \ref Element "elements"
 class COVER_UI_EXPORT Group: public Element, public Container {
  public:
     Group(const std::string &name, Owner *owner);

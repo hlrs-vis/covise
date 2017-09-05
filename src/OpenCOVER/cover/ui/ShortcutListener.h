@@ -15,6 +15,7 @@ enum Modifiers {
     ModMeta=8
 };
 
+//! mix-in class for UI \ref Element "elements" reacting to keyboard shortcuts
 class ShortcutListener
 {
  public:
