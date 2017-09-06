@@ -291,6 +291,9 @@ bool OpenCOVER::run()
 
 bool OpenCOVER::init()
 {
+    if (m_initialized)
+        return true;
+
     installSignalHandlers();
 
 #ifdef _WIN32
@@ -765,6 +768,7 @@ bool OpenCOVER::init()
     
     coVRPluginList::instance()->init2();
 
+    m_initialized = true;
     return true;
 }
 

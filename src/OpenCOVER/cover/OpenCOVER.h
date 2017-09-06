@@ -105,6 +105,7 @@ public:
     MPI_Comm m_comm;
 #endif
     bool m_renderNext;
+    bool m_initialized = false;
 };
 }
 #endif
