@@ -10,7 +10,6 @@
 
 #include <util/common.h>
 #include "VRSlider.h"
-#include <cover/VRPinboard.h>
 #include <appl/RenderInterface.h>
 #include <CovisePluginUtil/VRCoviseGeometryManager.h>
 #include "VRCoviseObjectManager.h"
@@ -104,7 +103,9 @@ Slider::Slider(const char *attrib, const char *sa, osg::Node *n)
     if (sliderType == 'M')
     {
         stream >> subMenu;
+#ifdef PINBOARD
         updateMenu();
+#endif
     }
     else
     {
@@ -286,8 +287,10 @@ Slider::~Slider()
         sphereTransform = 0;
     }
 
+#ifdef PINBOARD
     if (button)
         button->spec.calledClass = NULL;
+#endif
     delete[] sattrib;
 }
 
@@ -376,6 +379,7 @@ void Slider::updateValue(osg::Vec3 position,
     updatePosition();
 }
 
+#ifdef PINBOARD
 void Slider::updateSpec(buttonSpecCell *spec)
 {
     min = spec->sliderMin;
@@ -391,6 +395,7 @@ void Slider::updateSpec(buttonSpecCell *spec)
         }
     }
 }
+#endif
 
 bool Slider::updateInteraction()
 {
@@ -436,6 +441,7 @@ void Slider::updatePosition()
     }
 }
 
+#ifdef PINBOARD
 void Slider::updateMenu()
 {
     char buf[200];
@@ -509,6 +515,7 @@ void Slider::updateMenu()
         menu->addButton(spec);
     }
 }
+#endif
 
 int Slider::isSlider(const char *n)
 {
@@ -561,11 +568,13 @@ void Slider::doInteraction()
     updateValue(position, direction);
 }
 
+#ifdef PINBOARD
 void Slider::menuCallback(void *slider, buttonSpecCell *spec)
 {
     if (slider)
         ((Slider *)slider)->updateSpec(spec);
 }
+#endif
 
 Slider *SliderList::find(osg::Vec3 position, osg::Vec3 direction, float *distance)
 {

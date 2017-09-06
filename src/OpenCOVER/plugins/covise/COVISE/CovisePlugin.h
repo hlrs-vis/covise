@@ -19,10 +19,11 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 using namespace opencover;
 
-class CovisePlugin : public coVRPlugin
+class CovisePlugin : public coVRPlugin, public ui::Owner
 {
 public:
     CovisePlugin();

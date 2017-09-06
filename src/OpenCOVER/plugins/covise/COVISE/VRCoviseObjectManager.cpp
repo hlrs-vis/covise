@@ -159,6 +159,7 @@ ObjectManager::ObjectManager()
     depthPeeling = coCoviseConfig::isOn("COVER.DepthPeeling", false);
 }
 
+#ifdef PINBOARD
 void
 ObjectManager::removeAllButtons()
 {
@@ -195,6 +196,7 @@ ObjectManager::removeButtonsForContainer(const char *container)
 
     buttonsMap.erase(it);
 }
+#endif
 
 ObjectManager::~ObjectManager()
 {
@@ -202,7 +204,9 @@ ObjectManager::~ObjectManager()
     if (cover->debugLevel(2))
         fprintf(stderr, "delete ObjectManager\n");
     delete interactionA;
+#ifdef PINBOARD
     removeAllButtons();
+#endif
     delete materialList;
     delete GeometryManager::instance();
 }
@@ -591,7 +595,9 @@ void ObjectManager::removeGeometry(const char *name, bool groupobject)
 
     // remove all Menus attached to this geometry
     coVRMenuList::instance()->removeAll(name);
+#ifdef PINBOARD
     removeButtonsForContainer(name);
+#endif
 
     coVRPluginList::instance()->removeObject(name, CoviseRender::isReplace());
     coviseSG->deleteNode(name, groupobject);
@@ -1001,10 +1007,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             const char *name = geometry->getAttribute("OBJECTNAME");
             if (container->getAttribute("OBJECTNAME"))
                 name = container->getAttribute("OBJECTNAME");
+#ifdef PINBOARD
             if (name != NULL)
             {
                 this->addFeedbackButton(container->getName(), feedback_info, name);
             }
+#endif
         }
         // check for VertexOrderStr
         vertexOrderStr = geometry->getAttribute("vertexOrder");
@@ -1154,10 +1162,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             const char *name = geometry->getAttribute("OBJECTNAME");
             if (container->getAttribute("OBJECTNAME"))
                 name = container->getAttribute("OBJECTNAME");
+#ifdef PINBOARD
             if (name != NULL)
             {
                 this->addFeedbackButton(container->getName(), feedback_info, name);
             }
+#endif
         }
         if (normals != NULL)
         {
@@ -1987,6 +1997,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     return NULL;
 }
 
+#ifdef PINBOARD
 void
 ObjectManager::addPinboardButton(const char *buttonId, int moduleInstance, const char *feedback_info, const char *name)
 {
@@ -2314,3 +2325,4 @@ ObjectManager::feedbackCallback(void *objectManager, buttonSpecCell *spec)
 {
     ((ObjectManager *)objectManager)->feedback(spec);
 }
+#endif
