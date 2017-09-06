@@ -7,6 +7,7 @@
 
 class QMenuBar;
 class QAction;
+class QActionGroup;
 class QLabel;
 
 namespace opencover {
@@ -21,6 +22,7 @@ struct QtViewElement: public View::ViewElement
     QObject *object = nullptr;
     QAction *action = nullptr;
     QLabel *label = nullptr;
+    QActionGroup *group = nullptr;
 };
 
 //! concrete implementation of View for showing user interface \ref Element "elements" in a QMenuBar
@@ -52,6 +54,7 @@ class QtView: public QObject, public View
    void updateText(const Element *elem) override;
    void updateState(const Button *) override;
    void updateChildren(const Menu *menu) override;
+   void updateChildren(const SelectionList *sl) override;
    void updateInteger(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
@@ -63,6 +66,7 @@ class QtView: public QObject, public View
    QtViewElement *elementFactoryImplementation(Action *action) override;
    QtViewElement *elementFactoryImplementation(Button *button) override;
    QtViewElement *elementFactoryImplementation(Slider *slider) override;
+   QtViewElement *elementFactoryImplementation(SelectionList *sl) override;
 };
 
 }

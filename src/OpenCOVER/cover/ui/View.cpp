@@ -7,6 +7,7 @@
 #include "Action.h"
 #include "Button.h"
 #include "Slider.h"
+#include "SelectionList.h"
 
 #include <iostream>
 #include <cassert>
@@ -67,6 +68,10 @@ View::ViewElement *View::elementFactory(Element *elem)
     else if (auto slider = dynamic_cast<Slider *>(elem))
     {
         ve = elementFactoryImplementation(slider);
+    }
+    else if (auto sl = dynamic_cast<SelectionList *>(elem))
+    {
+        ve = elementFactoryImplementation(sl);
     }
 
     if (ve)

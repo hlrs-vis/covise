@@ -6,6 +6,7 @@
 #include "Action.h"
 #include "Button.h"
 #include "Slider.h"
+#include "SelectionList.h"
 
 #include <QMenuBar>
 #include <QAction>
@@ -47,6 +48,19 @@ void QtView::add(QtViewElement *ve)
     auto elem = ve->element;
     auto parent = qtViewParent(elem);
     auto container = qtContainerWidget(elem);
+
+    if (auto m = dynamic_cast<QMenu *>(ve->object))
+    {
+        if (auto pmb = dynamic_cast<QMenuBar *>(container))
+        {
+            pmb->addMenu(m);
+        }
+        else if (auto pm = dynamic_cast<QMenu *>(container))
+        {
+            pm->addMenu(m);
+        }
+        return;
+    }
 
     auto a = ve->action;
     if (!a)
@@ -136,14 +150,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     auto m = new QMenu(parent);
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
-    if (auto pmb = dynamic_cast<QMenuBar *>(parent))
-    {
-        pmb->addMenu(m);
-    }
-    else if (auto pm = dynamic_cast<QMenu *>(parent))
-    {
-        pm->addMenu(m);
-    }
+    add(ve);
     return ve;
 }
 
@@ -160,6 +167,7 @@ QtViewElement *QtView::elementFactoryImplementation(ButtonGroup *rg)
     ag->addAction(sep);
 
     auto ve = new QtViewElement(rg, ag);
+    ve->group = ag;
     if (auto w = qtWidget(parent))
         w->addActions(ag->actions());
 #if 0
@@ -182,6 +190,7 @@ QtViewElement *QtView::elementFactoryImplementation(Group *group)
     ag->addAction(sep);
 
     auto ve = new QtViewElement(group, ag);
+    ve->group = ag;
     if (auto w = qtWidget(parent))
         w->addActions(ag->actions());
 #if 0
@@ -318,6 +327,28 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
     return ve;
 }
 
+QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
+{
+    auto parent = qtContainerWidget(sl);
+    auto m = new QMenu(parent);
+    auto ve = new QtViewElement(sl, m);
+    ve->action = m->menuAction();
+    ve->group = new QActionGroup(m);
+    connect(ve->group, &QActionGroup::triggered, [ve, sl](QAction *a){
+        auto al = ve->group->actions();
+        int idx = -1;
+        for (int i=0; i<al.size(); ++i)
+        {
+            if (a == al[i])
+                idx = i;
+        }
+        sl->select(idx);
+        sl->trigger();
+    });
+    add(ve);
+    return ve;
+}
+
 void QtView::updateEnabled(const Element *elem)
 {
     auto w = qtWidget(elem);
@@ -403,6 +434,45 @@ void QtView::updateChildren(const Menu *menu)
         }
     }
 #endif
+}
+
+void QtView::updateChildren(const SelectionList *sl)
+{
+    auto ve = qtViewElement(sl);
+    if (!ve)
+        return;
+    auto ag = ve->group;
+    if (!ag)
+        return;
+    auto m = dynamic_cast<QMenu *>(ve->object);
+    const auto items = sl->items();
+    while (ag->actions().size() < items.size())
+    {
+        ag->addAction(new QAction(ag));
+    }
+    while (ag->actions().size() > items.size())
+    {
+        ag->removeAction(ag->actions().back());
+    }
+    for (size_t i=0; i<items.size(); ++i)
+    {
+        auto &a = ag->actions()[i];
+        a->setText(QString::fromStdString(items[i]));
+        a->setCheckable(true);
+        a->setChecked(sl->selection()[i]);
+    }
+    if (auto m = dynamic_cast<QMenu *>(ve->object))
+    {
+        std::string t = sl->text();
+        int s = sl->selectedIndex();
+        if (s >= 0)
+        {
+            t += ": ";
+            t += sl->items()[s];
+        }
+        m->setTitle(QString::fromStdString(t));
+    }
+    m->addActions(ag->actions());
 }
 
 void QtView::updateInteger(const Slider *slider)

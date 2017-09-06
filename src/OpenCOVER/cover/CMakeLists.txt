@@ -215,6 +215,7 @@ SET(UI_HEADERS
     ui/Menu.h
     ui/Owner.h
     ui/ButtonGroup.h
+    ui/SelectionList.h
     ui/ShortcutListener.h
     ui/Slider.h
     ui/View.h
@@ -233,6 +234,7 @@ SET(UI_SOURCES
     ui/Menu.cpp
     ui/Owner.cpp
     ui/ButtonGroup.cpp
+    ui/SelectionList.cpp
     ui/ShortcutListener.cpp
     ui/Slider.cpp
     ui/View.cpp

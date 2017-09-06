@@ -40,6 +40,7 @@ bool Manager::update()
         {
             v.second->elementFactory(elem);
         }
+        elem->update();
     }
 
     bool ret = m_changed;
@@ -136,6 +137,14 @@ void Manager::updateChildren(const Menu *menu) const
     for (auto v: m_views)
     {
         v.second->updateChildren(menu);
+    }
+}
+
+void Manager::updateChildren(const SelectionList *sl) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateChildren(sl);
     }
 }
 

@@ -18,6 +18,7 @@ class ButtonGroup;
 class Button;
 class Action;
 class Slider;
+class SelectionList;
 
 //! abstract base class for all views onto the user interface elements handled by a Manager
 class COVER_UI_EXPORT View {
@@ -56,8 +57,10 @@ class COVER_UI_EXPORT View {
     virtual void updateText(const Element *elem) = 0;
     //! reflect changed button state in graphical representation
     virtual void updateState(const Button *button) = 0;
-    //! reflect change of child tems in graphical representation
+    //! reflect change of child items in graphical representation
     virtual void updateChildren(const Menu *menu) = 0;
+    //! reflect change of child items in graphical representation
+    virtual void updateChildren(const SelectionList *sl) = 0;
     //! reflect change of slider type in graphical representation
     virtual void updateInteger(const Slider *slider) = 0;
     //! reflect change of slider value in graphical representation
@@ -87,6 +90,8 @@ class COVER_UI_EXPORT View {
     virtual ViewElement *elementFactoryImplementation(Button *button) = 0;
     //! implement to create graphical representation of a slider
     virtual ViewElement *elementFactoryImplementation(Slider *slider) = 0;
+    //! implement to create graphical representation of a selection list
+    virtual ViewElement *elementFactoryImplementation(SelectionList *sl) = 0;
 
  private:
     const std::string m_name;

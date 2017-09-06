@@ -19,6 +19,7 @@
 #include "Action.h"
 #include "Button.h"
 #include "Slider.h"
+#include "SelectionList.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
@@ -202,7 +203,53 @@ void VruiView::updateState(const Button *button)
 
 void VruiView::updateChildren(const Menu *menu)
 {
+}
 
+void VruiView::updateChildren(const SelectionList *sl)
+{
+    auto ve = vruiElement(sl);
+    if (!ve)
+        return;
+
+    auto m = dynamic_cast<coRowMenu *>(ve->m_menu);
+    if (!m)
+        return;
+
+    const auto items = sl->items();
+    while (m->getItemCount() < items.size())
+    {
+        int i = m->getItemCount();
+        coCheckboxMenuItem *item = new coCheckboxMenuItem(items[i], false);
+        item->setMenuListener(ve);
+        m->add(item);
+    }
+    auto all = m->getAllItems();
+    while (m->getItemCount() > items.size())
+    {
+        int i = m->getItemCount()-1;
+        m->remove(all[i]);
+    }
+    for (size_t i=0; i<items.size(); ++i)
+    {
+        auto cb = dynamic_cast<coCheckboxMenuItem *>(all[i]);
+        if (!cb)
+        {
+            std::cerr << "VruiView::updateChildren(SelectionList): menu entry is not a checkbox" << std::endl;
+            continue;
+        }
+        cb->setName(items[i]);
+        cb->setState(sl->selection()[i]);
+    }
+
+    std::string t = sl->text();
+    int s = sl->selectedIndex();
+    if (s >= 0)
+    {
+        t += ": ";
+        t += sl->items()[s];
+    }
+    if (ve->m_menuItem)
+        ve->m_menuItem->setName(t);
 }
 
 void VruiView::updateInteger(const Slider *slider)
@@ -330,6 +377,19 @@ VruiViewElement *VruiView::elementFactoryImplementation(Slider *slider)
 
 }
 
+VruiViewElement *VruiView::elementFactoryImplementation(SelectionList *sl)
+{
+    auto parent = vruiContainer(sl);
+    auto ve = new VruiViewElement(sl);
+    auto smi  = new coSubMenuItem(sl->name());
+    ve->m_menuItem = smi;
+    ve->m_menu = new coRowMenu(ve->m_text.c_str(), parent ? parent->m_menu : m_rootMenu);
+    smi->setMenu(ve->m_menu);
+    smi->closeSubmenu();
+    add(ve, sl);
+    return ve;
+}
+
 VruiViewElement *VruiView::elementFactoryImplementation(Menu *menu)
 {
     auto parent = vruiContainer(menu);
@@ -395,6 +455,18 @@ void VruiViewElement::menuEvent(coMenuItem *menuItem)
             s->setValue(vs->getValue());
         s->setMoving(true);
         s->trigger();
+    }
+    else if (auto sl = dynamic_cast<SelectionList *>(element))
+    {
+        auto m = dynamic_cast<coRowMenu *>(m_menu);
+        if (dynamic_cast<coCheckboxMenuItem *>(menuItem))
+        {
+            if (auto smi = dynamic_cast<coSubMenuItem *>(m_menuItem))
+                smi->closeSubmenu();
+            auto idx = m_menu->index(menuItem);
+            sl->select(idx);
+            sl->trigger();
+        }
     }
 }
 
