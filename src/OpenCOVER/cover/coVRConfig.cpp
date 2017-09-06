@@ -13,6 +13,7 @@
 #include "coVRNavigationManager.h"
 #include "coCoverConfig.h"
 #include "coVRConfig.h"
+#include "coVRMSController.h"
 #include "input/input.h"
 
 using std::cerr;
@@ -113,6 +114,8 @@ coVRConfig::coVRConfig()
         constFrameTime = 1.0f / frameRate;
     }
     m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
+    if (coVRMSController::instance()->isCluster())
+        m_continuousRendering = true;
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
     m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
