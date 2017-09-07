@@ -163,6 +163,7 @@ QtViewElement *QtView::elementFactoryImplementation(Group *group)
     auto ag = new QActionGroup(qtObject(parent));
     ag->setExclusive(false);
     auto sep = new QAction(ag);
+    sep->setShortcutContext(Qt::WidgetShortcut);
     sep->setSeparator(true);
     sep->setText(QString::fromStdString(group->text()));
     ag->addAction(sep);
@@ -201,6 +202,7 @@ QtViewElement *QtView::elementFactoryImplementation(Action *action)
         return nullptr;
 
     auto a = new QAction(qtObject(parent));
+    a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(false);
     auto ve = new QtViewElement(action, a);
     ve->action = a;
@@ -220,6 +222,7 @@ QtViewElement *QtView::elementFactoryImplementation(Button *button)
         return nullptr;
 
     auto a = new QAction(qtObject(parent));
+    a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(true);
     auto ve = new QtViewElement(button, a);
     ve->action = a;
@@ -435,6 +438,7 @@ void QtView::updateChildren(const SelectionList *sl)
     for (size_t i=0; i<items.size(); ++i)
     {
         auto &a = ag->actions()[i];
+        a->setShortcutContext(Qt::WidgetShortcut);
         a->setText(QString::fromStdString(items[i]));
         a->setCheckable(true);
         a->setChecked(sl->selection()[i]);

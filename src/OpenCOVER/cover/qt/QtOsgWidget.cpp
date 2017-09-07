@@ -12,6 +12,9 @@
 
 #include <cover/VRViewer.h>
 
+// there is no header where this could be found
+void qt_set_sequence_auto_mnemonic(bool b);
+
 class QtKeyboardMap
 {
 
@@ -209,6 +212,8 @@ QtOsgWidget::QtOsgWidget(QWidget *parent, Qt::WindowFlags f)
     setFocusPolicy(Qt::StrongFocus);
     setMinimumSize(128, 128);
     setMouseTracking(true);
+
+    qt_set_sequence_auto_mnemonic(false);
 }
 
 QtOsgWidget::~QtOsgWidget()

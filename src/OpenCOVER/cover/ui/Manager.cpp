@@ -178,13 +178,22 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
         return false;
 
     bool handled = false;
+
+    bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
+    bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
+    bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
+
+    if (shift && std::isupper(keySym))
+    {
+        //std::cerr << "ui::Manager: mapping to lower" << std::endl;
+        keySym = std::tolower(keySym);
+    }
+    std::cerr << "keySym: " << (char)keySym << ", shift=" << shift <<", alt=" << alt << std::endl;
+
     for (auto elem: m_elements)
     {
         if (!elem->hasShortcut())
             continue;
-        bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
-        bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
-        bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
 
         auto m = elem->modifiers();
         if (bool(m & ModAlt) != alt)

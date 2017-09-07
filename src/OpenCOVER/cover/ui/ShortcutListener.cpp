@@ -22,7 +22,7 @@ void ShortcutListener::setShortcut(const std::string &shortcut)
         {
             if (havePlus)
             {
-                std::cerr << "ui::ShortcutListener: invalid key sequence with multiple consecutive '+'" << std::endl;
+                std::cerr << "ui::ShortcutListener: invalid key sequence with multiple consecutive '+': " << shortcut << std::endl;
             }
             havePlus = true;
             item = "+";
@@ -38,11 +38,15 @@ void ShortcutListener::setShortcut(const std::string &shortcut)
             m_modifiers |= ModShift;
         else if (item == "meta")
             m_modifiers |= ModMeta;
-        else
+        else if (key.empty() && item.length()==1)
             key = item;
+        else
+            std::cerr << "ui::ShortcutListener: invalid key sequence: " << shortcut << std::endl;
     }
 
     m_symbol = key[0];
+
+    //std::cerr << "ShortcutListener::setShortcut: symbol=" << (char)m_symbol << std::endl;
 }
 
 bool ShortcutListener::hasShortcut() const
