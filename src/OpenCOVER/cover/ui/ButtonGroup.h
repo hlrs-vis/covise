@@ -1,7 +1,8 @@
 #ifndef UI_BUTTONGROUP_H
 #define UI_BUTTONGROUP_H
 
-#include "Group.h"
+#include "Element.h"
+#include "Container.h"
 #include <string>
 #include <functional>
 
@@ -10,14 +11,16 @@ namespace ui {
 
 class Button;
 
-//! Group of Buttons where just a single one can be in pressed state
+//! Container of Buttons where just a single one can be in pressed state
 
 /** \note QActionGroup */
-class COVER_UI_EXPORT ButtonGroup: public Group {
+class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
 
  public:
     ButtonGroup(const std::string &name, Owner *owner);
     ButtonGroup(Group *parent, const std::string &name);
+
+    void enableDeselect(bool flag);
 
     //! value assigned to active (=pressed) Button
     int value() const;
@@ -38,6 +41,7 @@ class COVER_UI_EXPORT ButtonGroup: public Group {
     void triggerImplementation() const override;
 
 private:
+    bool m_allowDeselect = false;
     std::function<void(int)> m_callback;
 };
 

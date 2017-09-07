@@ -154,28 +154,6 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     return ve;
 }
 
-QtViewElement *QtView::elementFactoryImplementation(ButtonGroup *rg)
-{
-    auto parent = qtViewParent(rg);
-    if (!parent)
-        return nullptr;
-
-    auto ag = new QActionGroup(qtObject(parent));
-    auto sep = new QAction(ag);
-    sep->setSeparator(true);
-    sep->setText(QString::fromStdString(rg->text()));
-    ag->addAction(sep);
-
-    auto ve = new QtViewElement(rg, ag);
-    ve->group = ag;
-    if (auto w = qtWidget(parent))
-        w->addActions(ag->actions());
-#if 0
-    connect(a, &QAction::triggered, [rg](bool state){rg->setState(state); rg->trigger();});
-#endif
-    return ve;
-}
-
 QtViewElement *QtView::elementFactoryImplementation(Group *group)
 {
     auto parent = qtViewParent(group);

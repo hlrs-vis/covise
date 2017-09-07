@@ -16,16 +16,16 @@ class ButtonGroup;
 /** \note QToggleButton */
 class COVER_UI_EXPORT Button: public Element {
  public:
-   Button(const std::string &name, Owner *owner);
-   Button(Group *parent, const std::string &name);
-   Button(ButtonGroup *parent, const std::string &name, int id=0);
+   Button(const std::string &name, Owner *owner, ButtonGroup *bg=nullptr, int id=0);
+   Button(Group *parent, const std::string &name, ButtonGroup *bg=nullptr, int id=0);
+   //Button(ButtonGroup *parent, const std::string &name, int id=0);
 
    int id() const;
    ButtonGroup *group() const;
    void setGroup(ButtonGroup *rg, int id=0);
 
    bool state() const;
-   void setState(bool flag);
+   void setState(bool flag, bool updateGroup=true);
 
     void setCallback(const std::function<void(bool)> &f);
     std::function<void(bool)> callback() const;

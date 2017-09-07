@@ -45,10 +45,6 @@ View::ViewElement *View::elementFactory(Element *elem)
     {
         ve = elementFactoryImplementation(menu);
     }
-    else if (auto rg = dynamic_cast<ButtonGroup *>(elem))
-    {
-        ve = elementFactoryImplementation(rg);
-    }
     else if (auto group = dynamic_cast<Group *>(elem))
     {
         ve = elementFactoryImplementation(group);

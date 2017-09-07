@@ -6,21 +6,16 @@
 namespace opencover {
 namespace ui {
 
-Button::Button(const std::string &name, Owner *owner)
+Button::Button(const std::string &name, Owner *owner, ButtonGroup *bg, int id)
 : Element(name, owner)
 {
+    setGroup(bg, id);
 }
 
-Button::Button(Group *parent, const std::string &name)
+Button::Button(Group *parent, const std::string &name, ButtonGroup *bg, int id)
 : Element(parent, name)
 {
-}
-
-Button::Button(ButtonGroup *parent, const std::string &name, int id)
-: Element(parent, name)
-, m_radioGroup(parent)
-, m_id(id)
-{
+    setGroup(bg, id);
 }
 
 int Button::id() const
@@ -35,7 +30,11 @@ ButtonGroup *Button::group() const
 
 void Button::setGroup(ButtonGroup *rg, int id)
 {
+    if (m_radioGroup)
+        m_radioGroup->remove(this);
     m_radioGroup = rg;
+    if (m_radioGroup)
+        m_radioGroup->add(this);
     m_id = id;
 }
 
@@ -44,9 +43,11 @@ bool Button::state() const
     return m_state;
 }
 
-void Button::setState(bool flag)
+void Button::setState(bool flag, bool updateGroup)
 {
     m_state = flag;
+    if (updateGroup && m_radioGroup)
+        m_radioGroup->toggle(this);
     manager()->updateState(this);
 }
 
@@ -62,10 +63,10 @@ std::function<void(bool)> Button::callback() const
 
 void Button::triggerImplementation() const
 {
-    if (m_callback)
-        m_callback(m_state);
     if (group())
         group()->toggle(this);
+    if (m_callback)
+        m_callback(m_state);
 }
 
 void Button::radioTrigger() const

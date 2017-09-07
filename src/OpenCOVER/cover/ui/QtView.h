@@ -60,7 +60,6 @@ class QtView: public QObject, public View
    void updateBounds(const Slider *slider) override;
 
    QtViewElement *elementFactoryImplementation(Menu *menu) override;
-   QtViewElement *elementFactoryImplementation(ButtonGroup *rg) override;
    QtViewElement *elementFactoryImplementation(Group *group) override;
    QtViewElement *elementFactoryImplementation(Label *label) override;
    QtViewElement *elementFactoryImplementation(Action *action) override;

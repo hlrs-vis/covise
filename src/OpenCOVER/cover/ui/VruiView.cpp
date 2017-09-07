@@ -42,6 +42,8 @@ VruiView::VruiView()
 
 coMenu *VruiView::getMenu(const Element *elem) const
 {
+    manager()->update();
+
     auto ve = vruiElement(elem);
     if (ve)
         return ve->m_menu;
@@ -50,6 +52,8 @@ coMenu *VruiView::getMenu(const Element *elem) const
 
 coMenuItem *VruiView::getItem(const Element *elem) const
 {
+    manager()->update();
+
     auto ve = vruiElement(elem);
     if (ve)
         return ve->m_menuItem;
@@ -316,26 +320,6 @@ VruiViewElement *VruiView::elementFactoryImplementation(Button *button)
         vrg = parent->m_group;
     ve->m_menuItem = new coCheckboxMenuItem(button->text(), button->state(), vrg);
     add(ve, button);
-    return ve;
-}
-
-VruiViewElement *VruiView::elementFactoryImplementation(ButtonGroup *rg)
-{
-    auto ve = new VruiViewElement(rg);
-    ve->m_group = new vrui::coCheckboxGroup;
-    //ve->m_menuItem = new coCheckboxMenuItem(rg->text(), rg->state());
-    //add(ve, rg);
-#if 0
-    auto parent = vruiParent(rg);
-    if (parent)
-    {
-        ve->m_menu = parent->m_menu;
-    }
-    else
-    {
-        ve->m_menu = m_rootMenu;
-    }
-#endif
     return ve;
 }
 

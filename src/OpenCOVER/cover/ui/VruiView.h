@@ -56,7 +56,6 @@ class VruiView: public View
    void updateBounds(const Slider *slider) override;
 
    VruiViewElement *elementFactoryImplementation(Menu *menu) override;
-   VruiViewElement *elementFactoryImplementation(ButtonGroup *rg) override;
    VruiViewElement *elementFactoryImplementation(Group *group) override;
    VruiViewElement *elementFactoryImplementation(Label *label) override;
    VruiViewElement *elementFactoryImplementation(Action *action) override;
