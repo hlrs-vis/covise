@@ -18,11 +18,19 @@
 
 #include <cover/coVRPlugin.h>
 #include <CovisePluginUtil/coBaseCoviseInteractor.h>
+#include <cover/ui/Owner.h>
+
+namespace opencover {
+namespace ui {
+class ButtonGroup;
+class Menu;
+}
+}
 
 using namespace covise;
 using namespace opencover;
 
-class FileBrowser : public coVRPlugin
+class FileBrowser : public coVRPlugin, public ui::Owner
 {
 public:
     // Constructor
@@ -47,10 +55,13 @@ private:
     void readDirectory();
     void removeMenuEntry(); // And remove it...
 
+#if 0
     // Callback function for mouse clicks
     static void fileSelection(void *, buttonSpecCell *);
+#endif
 
-    int m_buttonGroup;
+    ui::ButtonGroup *m_buttonGroup = nullptr;
+    ui::Menu *m_menu = nullptr;
 
     coBaseCoviseInteractor *m_interactor;
     std::string m_interactorObjName;
