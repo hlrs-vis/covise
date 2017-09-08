@@ -1090,7 +1090,7 @@ VRViewer::createChannels(int i)
         if (coVRConfig::instance()->windows[win].qt)
         {
             std::cerr << "chan " << i << ": no window" << std::endl;
-            //RenderToWindow = false;
+            RenderToWindow = false;
         }
     }
     else
@@ -1193,22 +1193,26 @@ VRViewer::createChannels(int i)
 
 
         auto &cam = coVRConfig::instance()->channels[i].camera;
-        coVRConfig::instance()->channels[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
-        coVRConfig::instance()->channels[i].camera->setClearStencil(0);
-        cam->setDrawBuffer(GL_NONE);
-        cam->setReadBuffer(GL_NONE);
-
-#if 0
-        GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
-        coVRConfig::instance()->channels[i].camera->setDrawBuffer(buffer);
-        coVRConfig::instance()->channels[i].camera->setReadBuffer(buffer);
-#endif
-        coVRConfig::instance()->channels[i].camera->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
-        coVRConfig::instance()->channels[i].camera->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
-        coVRConfig::instance()->channels[i].camera->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
+        cam->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
+        cam->setClearStencil(0);
+        if (RenderToWindow)
+        {
+            GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
+            cam->setDrawBuffer(buffer);
+            cam->setReadBuffer(buffer);
+            cam->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
+        }
+        else
+        {
+            cam->setDrawBuffer(GL_NONE);
+            cam->setReadBuffer(GL_NONE);
+            cam->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
+        }
+        cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
+        cam->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
+        cam->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
        
-        coVRConfig::instance()->channels[i].camera->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
-        //coVRConfig::instance()->channels[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
+        //cam->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
     {
