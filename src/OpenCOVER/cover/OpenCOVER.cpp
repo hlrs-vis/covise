@@ -250,6 +250,10 @@ void OpenCOVER::waitForWindowID()
             //sleep(5); // we have to wait, window is in creation
             validWindowID = true;
         }
+        else
+        {
+            usleep(10000);
+        }
     }
 }
 
