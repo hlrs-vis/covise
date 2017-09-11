@@ -961,16 +961,6 @@ bool OpenCOVER::frame()
     //cerr << "-- OpenCOVER::frame" << endl;
 
     bool render = false;
-    cover->updateTime();
-    if (frameNum > 2)
-    {
-        if (coVRPluginList::instance()->update())
-            render = true;
-    }
-    else
-    {
-        render = true;
-    }
     coVRMSController::instance()->syncTime();
 
     //MARK0("COVER reading input devices");
@@ -1027,6 +1017,18 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+
+    cover->updateTime();
+    if (frameNum > 2)
+    {
+        if (coVRPluginList::instance()->update())
+            render = true;
+    }
+    else
+    {
+        render = true;
+    }
+    
     if (!render)
     {
         if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)
