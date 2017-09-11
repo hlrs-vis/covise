@@ -10,6 +10,7 @@
 #include "EarthPlugin.h"
 
 #include <osgEarth/Map>
+#include <osgEarth/Version>
 #include <osgEarth/Viewpoint>
 #include <osgEarthAnnotation/AnnotationNode>
 
@@ -24,7 +25,11 @@ EarthViewpoint::EarthViewpoint(coTUIFrame *parent, Viewpoint *vp, int ViewpointN
     parentFrame = parent;
     viewpoint = vp;
     viewpointNumber = ViewpointNumber;
+#if OSGEARTH_VERSION_GREATER_THAN(2,6,0)
     viewpointButton = new coTUIButton(viewpoint->name().get(), parentFrame->getID());
+#else
+    viewpointButton = new coTUIButton(viewpoint->getName(), parentFrame->getID());
+#endif
     viewpointButton->setEventListener(this);
     viewpointButton->setPos(0, ViewpointNumber);
     animateButton = new coTUIToggleButton("animate", parentFrame->getID());
@@ -36,7 +41,11 @@ EarthViewpoint::EarthViewpoint(coTUIFrame *parent, Viewpoint *vp, int ViewpointN
 
 void EarthViewpoint::setScale()
 {
+#if OSGEARTH_VERSION_GREATER_THAN(2,6,0)
     const char *name = viewpoint->name().get().c_str();
+#else
+    const char *name = viewpoint->getName().c_str();
+#endif
     const char *nameEnd = name + strlen(name);
     while (nameEnd > name)
     {
@@ -55,7 +64,11 @@ void EarthViewpoint::setScale()
 }
 void EarthViewpoint::computeToUpright()
 {
+#if OSGEARTH_VERSION_GREATER_THAN(2,6,0)
     new_center = viewpoint->focalPoint().get().vec3d();
+#else
+    new_center = viewpoint->getFocalPoint();
+#endif
     osg::Vec3d localUpVector = osg::Z_AXIS;
     osg::Vec3d upVector = osg::Z_AXIS;
     toUpright.makeIdentity();

@@ -21,8 +21,8 @@
 
 #include "TrafficSimulationPlugin.h"
 
-#include "FindTrafficLightSwitch.h"
-#include <coTrafficSimulation.h>
+#include <TrafficSimulation/FindTrafficLightSwitch.h>
+#include <TrafficSimulation/coTrafficSimulation.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
@@ -46,10 +46,10 @@
 #include <osg/PolygonOffset>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "HumanVehicle.h"
+#include <TrafficSimulation/HumanVehicle.h>
 #include "../SteeringWheel/Vehicle.h"
 
-#include "PorscheFFZ.h"
+#include <TrafficSimulation/PorscheFFZ.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 
 using namespace covise;
@@ -78,6 +78,8 @@ TrafficSimulationPlugin::~TrafficSimulationPlugin()
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
     //coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
+
+	coTrafficSimulation::freeInstance();
 }
 
 
@@ -101,6 +103,7 @@ bool TrafficSimulationPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     //coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     cover->setScale(1000);
+	coTrafficSimulation::useInstance();
 
     pluginTab = new coTUITab("Traffic Simulation", coVRTui::instance()->mainFolder->getID());
     pluginTab->setPos(0, 0);

@@ -41,9 +41,9 @@ void DNADesoxyribose::createGeometry()
 {
     DNABaseUnit::createGeometry();
     // read geometry from file and scale it
-    string connection1 = geofilename_ + "Connection1";
-    string connection2 = geofilename_ + "Connection2";
-    string connection3 = geofilename_ + "Connection3";
+    std::string connection1 = geofilename_ + "Connection1";
+    std::string connection2 = geofilename_ + "Connection2";
+    std::string connection3 = geofilename_ + "Connection3";
     connectionGeom1 = coVRFileManager::instance()->loadIcon(connection1.c_str());
     connectionGeom2 = coVRFileManager::instance()->loadIcon(connection2.c_str());
     connectionGeom3 = coVRFileManager::instance()->loadIcon(connection3.c_str());
@@ -56,7 +56,7 @@ void DNADesoxyribose::createGeometry()
     scaleTransform->addChild(connectionGeom3.get());
 }
 
-void DNADesoxyribose::showConnectionGeom(bool b, string connName)
+void DNADesoxyribose::showConnectionGeom(bool b, std::string connName)
 {
     if (connName.compare("desoxybirose1") == 0)
     {

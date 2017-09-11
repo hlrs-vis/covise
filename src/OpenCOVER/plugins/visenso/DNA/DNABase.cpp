@@ -9,6 +9,7 @@
 #include "DNABaseUnitConnectionPoint.h"
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPluginSupport.h>
+#include <string>
 
 using namespace opencover;
 
@@ -40,14 +41,14 @@ void DNABase::createGeometry()
 {
     DNABaseUnit::createGeometry();
     // read geometry from file and scale it
-    string connection = geofilename_ + "Connections";
+    std::string connection = geofilename_ + "Connections";
     connectionGeom = coVRFileManager::instance()->loadIcon(connection.c_str());
     connectionGeom->setNodeMask(0x0);
     // add geometry to node
     scaleTransform->addChild(connectionGeom.get());
 }
 
-void DNABase::showConnectionGeom(bool b, string connName)
+void DNABase::showConnectionGeom(bool b, std::string connName)
 {
     if (connName.compare("base1") != 0)
     {

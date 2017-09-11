@@ -54,12 +54,13 @@
 using namespace vrui;
 using namespace opencover;
 
+coVRCollaboration *coVRCollaboration::s_instance = NULL;
+
 coVRCollaboration *coVRCollaboration::instance()
 {
-    static coVRCollaboration *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRCollaboration;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRCollaboration;
+    return s_instance;
 }
 
 coVRCollaboration::coVRCollaboration()
@@ -72,6 +73,8 @@ coVRCollaboration::coVRCollaboration()
     , Tight(NULL)
     , MasterSlave(NULL)
 {
+    assert(!s_instance);
+
     init();
 }
 
@@ -90,6 +93,8 @@ coVRCollaboration::~coVRCollaboration()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete coVRCollaboration\n");
+
+    s_instance = NULL;
 }
 
 int coVRCollaboration::readConfigFile()

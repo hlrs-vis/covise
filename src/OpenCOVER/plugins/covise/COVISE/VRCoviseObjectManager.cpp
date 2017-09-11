@@ -56,6 +56,7 @@
 #include <PluginUtil/coLOD.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include <config/CoviseConfig.h>
 #include <util/coLog.h>

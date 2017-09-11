@@ -29,7 +29,7 @@ void update_ledit_items(int gno);
 void set_menus(int sens);
 int get_pagelayout(int p);
 void stufftext(char *s, int sp);
-void cxfree(void *ptr);
+void free(void *ptr);
 void lmfit(char *f, int n, double *x, double *y, double *yf, int np, double *a, double tol, int *info);
 void fixupstr(char *val);
 void extractsets_region(int gfrom, int gto, int rno);
@@ -119,7 +119,7 @@ int setfont(int f);
 int isoneof(int c, char *s);
 void puthersh(int xpos, int ypos, double scale, int dir, int just, int color, void (*vector)(int, int, int), char *s);
 extern "C" {
-void cfree(void *);
+void free(void *);
 double lgamma(double x);
 }
 

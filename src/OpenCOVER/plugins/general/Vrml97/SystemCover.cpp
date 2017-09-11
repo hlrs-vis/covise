@@ -54,6 +54,7 @@
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include "SystemCover.h"
 #include "ViewerObject.h"

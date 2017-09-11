@@ -23,6 +23,8 @@
 //
 // **************************************************************************
 
+#include <iostream>
+#include <ostream>
 #include <cover/coVRPluginSupport.h>
 #include "Molecule.h"
 #include "VRMoleculeViewer.h"
@@ -33,6 +35,8 @@
 #include <osg/Geode>
 #include <osg/CullFace>
 
+using std::cerr;
+using std::endl;
 using namespace osg;
 
 extern VRMoleculeViewer Module;

@@ -58,6 +58,8 @@ public:
     void updateColor();
     virtual void createPath();
     void updatePosition();
+	void duplicate();
+	void move(QPointF &diff);
 
     // Text //
     //

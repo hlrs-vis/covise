@@ -129,7 +129,7 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 
     if (!plugin)
         return NULL;
-    if (plugin->viewer)
+    if (!plugin->viewer)
         return NULL;
 
     osg::Group *g = plugin->viewer->VRMLRoot;
@@ -382,6 +382,8 @@ bool Vrml97Plugin::init()
 // this is called if the plugin is removed at runtime
 Vrml97Plugin::~Vrml97Plugin()
 {
+    unloadVrml("");
+
     if (!coVRMSController::instance()->isSlave())
     {
         if (listener)
@@ -405,19 +407,32 @@ Vrml97Plugin::~Vrml97Plugin()
 
     delete sensorList;
     sensorList = NULL;
+
+    delete System::the;
+}
+
+bool
+Vrml97Plugin::update()
+{
+    bool render = false;
+
+    if (this->sensorList)
+        sensorList->update();
+    if (this->viewer)
+    {
+        render = this->viewer->update();
+    }
+    if (this->player)
+        this->player->update();
+    if (System::the)
+        System::the->update();
+
+    return render;
 }
 
 void
 Vrml97Plugin::preFrame()
 {
-    if (this->sensorList)
-        sensorList->update();
-    if (this->viewer)
-        this->viewer->update();
-    if (this->player)
-        this->player->update();
-    if (System::the)
-        System::the->update();
     VrmlNodeMatrixLight::updateAll();
     VrmlNodePhotometricLight::updateAll();
     if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))

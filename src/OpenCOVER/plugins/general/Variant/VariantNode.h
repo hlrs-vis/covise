@@ -20,8 +20,6 @@
 #include <cover/coVRPlugin.h>
 #include "coVRLabel.h"
 
-using namespace std;
-
 class VariantNode
 {
 public:

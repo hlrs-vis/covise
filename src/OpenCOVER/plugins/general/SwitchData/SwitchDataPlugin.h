@@ -17,6 +17,7 @@ namespace vrui
 class coRowMenu;
 class coSubMenuItem;
 class coCheckboxMenuItem;
+class coCheckboxGroup;
 }
 
 namespace opencover
@@ -24,6 +25,10 @@ namespace opencover
 class coTUITab;
 class coTUIToggleButton;
 class coHud;
+}
+
+namespace vrui
+{
 }
 
 using namespace vrui;
@@ -52,7 +57,6 @@ private:
     coTUITab *tuiTab;
     std::vector<coTUIToggleButton *> tuiButtons;
     void showHud(const std::string &text);
-    coHud *m_hud;
 
 public:
     char *currentObjectName;

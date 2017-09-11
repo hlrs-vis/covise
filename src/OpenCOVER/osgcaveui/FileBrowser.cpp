@@ -9,6 +9,7 @@
 #include <iostream>
 #ifndef WIN32
 #include <dirent.h>
+#include <unistd.h>
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>

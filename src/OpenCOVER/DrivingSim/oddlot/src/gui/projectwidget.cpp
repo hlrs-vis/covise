@@ -95,7 +95,7 @@
 
 // OpenScenario //
 //
-#include "OpenScenarioBase.h"
+#include <OpenScenario/OpenScenarioBase.h>
 #include "src/io/oscparser.hpp"
 
 // Qt //
@@ -1911,7 +1911,6 @@ ProjectWidget::keyAction(KeyAction *keyAction)
         projectEditor_->keyAction(keyAction);
     }
     topviewGraph_->keyAction(keyAction);
-    mainWindow_->getToolManager()->getSelectionTool()->keyAction(keyAction);
 }
 
 //################//

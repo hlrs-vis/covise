@@ -106,7 +106,9 @@ coVRPluginList::~coVRPluginList()
 
 void coVRPluginList::unloadAllPlugins()
 {
-    if (cover->debugLevel(1))
+    bool havePlugins = !m_plugins.empty();
+
+    if (havePlugins && cover->debugLevel(1))
         cerr << "Unloading plugins:";
     bool wasThreading = VRViewer::instance()->areThreadsRunning();
     if (wasThreading)
@@ -125,7 +127,7 @@ void coVRPluginList::unloadAllPlugins()
     unloadQueued();
     if (wasThreading)
         VRViewer::instance()->startThreading();
-    if (cover->debugLevel(1))
+    if (havePlugins && cover->debugLevel(1))
         cerr << endl;
 }
 
@@ -135,6 +137,10 @@ coVRPluginList::coVRPluginList()
     m_requestedTimestep = -1;
     m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
+}
+
+void coVRPluginList::loadDefault()
+{
     if (cover->debugLevel(1))
     {
         cerr << "Loading plugins:";
@@ -244,6 +250,11 @@ void coVRPluginList::unloadQueued()
     m_unloadQueue.clear();
 }
 
+void coVRPluginList::notify(int level, const char *text) const
+{
+    DOALL(plugin->notify((coVRPlugin::NotificationLevel)level, text));
+}
+
 void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const
 {
     DOALL(if (plugin != addingPlugin)
@@ -286,15 +297,17 @@ void coVRPluginList::removeNode(osg::Node *node, bool isGroup, osg::Node *realNo
     DOALL(plugin->removeNode(node, isGroup, realNode));
 }
 
-void coVRPluginList::prepareFrame() const
+bool coVRPluginList::update() const
 {
+    bool ret = false;
 #ifdef DOTIMING
-    MARK0("COVER calling prepareFrame for all plugins");
+    MARK0("COVER calling update for all plugins");
 #endif
-    DOALL(plugin->prepareFrame());
+    DOALL(ret |= plugin->update());
 #ifdef DOTIMING
     MARK0("done");
 #endif
+    return ret;
 }
 
 void coVRPluginList::preFrame()

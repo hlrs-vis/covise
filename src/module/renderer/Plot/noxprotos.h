@@ -551,7 +551,7 @@ void define_colors_popup(void);
 void update_editp_proc(void);
 void set_right_footer(const char *msg);
 
-void cxfree(void *ptr);
+void free(void *ptr);
 void fswap(double *x, double *y);
 void iswap(int *x, int *y);
 int isoneof(int c, char *s);

@@ -146,7 +146,7 @@ LaneSettings::~LaneSettings()
 
     if (lswItem_)
     {
-        delete lswItem_;
+//        delete lswItem_;
     }
 
     if (roadSystemItemPolyGraph_)

@@ -19,6 +19,7 @@
 #include <img/coImage.h>
 #include <osg/Shape>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <vrbclient/VRBClient.h>
 #include <grmsg/coGRSendCurrentDocMsg.h>
 #include <grmsg/coGRSetDocPageSizeMsg.h>

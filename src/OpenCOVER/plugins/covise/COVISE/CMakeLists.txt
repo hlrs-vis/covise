@@ -38,3 +38,4 @@ cover_add_plugin(CovisePlugin)
 TARGET_LINK_LIBRARIES(CovisePlugin CovisePluginUtil ${COVISE_APPL_LIBRARY}
    ${COVISE_CORE_LIBRARY} ${COVISE_DO_LIBRARY} ${COVISE_SHM_LIBRARY}
    ${EXTRA_LIBS})
+set_target_properties(CovisePlugin PROPERTIES OUTPUT_NAME "COVISE")

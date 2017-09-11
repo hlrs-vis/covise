@@ -36,6 +36,8 @@ SET(PLUGINUTIL_HEADERS
   coLOD.h
   coSensor.h
   GenericGuiObject.h
+  MultiChannelDrawer.h
+  StaticSequence.h
 )
 
 SET(SOURCES
@@ -61,6 +63,8 @@ SET(SOURCES
   coLOD.cpp
   coSensor.cpp
   GenericGuiObject.cpp
+  MultiChannelDrawer.cpp
+  StaticSequence.cpp
 )
 
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )

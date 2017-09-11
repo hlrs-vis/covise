@@ -1,0 +1,51 @@
+
+<SimpleMirror transparent="false" cullFace="back">
+
+
+  <uniform name="cubeMap" type="samplerCube" value="0"/>
+
+  <vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+
+
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+	gl_Position = ftransform();	
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+    }
+  </vertexProgram>
+
+  <fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+   
+    uniform samplerCube cubeMap;
+   
+    void main( void )
+    {
+      vec4 final_color;
+
+	  
+      vec3 N = normalize(normal);
+      
+      eyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+
+      vec3 reflVec   = reflect(-eyeVec, N);
+      vec4 reflColor = textureCube( cubeMap, reflVec );
+	gl_FragColor = reflColor;	
+          
+    }
+  </fragmentProgram>
+
+</SimpleMirror>

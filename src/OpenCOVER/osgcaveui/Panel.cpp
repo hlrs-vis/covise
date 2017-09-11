@@ -8,6 +8,7 @@
 // C++:
 #include <fstream>
 #include <iostream>
+#include <list>
 
 // OSG:
 #include <osg/Math>
@@ -115,12 +116,12 @@ void Panel::reset()
     _height = 0.0;
     _width = 0.0;
 
-    list<PanelCard *>::const_iterator iterCard;
+    std::list<PanelCard *>::const_iterator iterCard;
     for (iterCard = _cards.begin(); iterCard != _cards.end(); iterCard++)
     {
         removeWidget((*iterCard)->_card);
     }
-    list<PanelTexture *>::const_iterator iterTex;
+    std::list<PanelTexture *>::const_iterator iterTex;
     for (iterTex = _textures.begin(); iterTex != _textures.end(); iterTex++)
     {
         removeWidget((*iterTex)->_tex);
@@ -680,7 +681,7 @@ void Panel::layout()
 
         // calculate grid size:
         _numRows = _numCols = 0;
-        list<PanelCard *>::const_iterator iterCard;
+        std::list<PanelCard *>::const_iterator iterCard;
         for (iterCard = _cards.begin(); iterCard != _cards.end(); iterCard++)
         {
             _numCols = ts_max(_numCols, (*iterCard)->_pos[0] + 1);
@@ -688,7 +689,7 @@ void Panel::layout()
         }
 
         sizeX = sizeY = 0.0;
-        list<PanelTexture *>::const_iterator iterTex;
+        std::list<PanelTexture *>::const_iterator iterTex;
         for (iterTex = _textures.begin(); iterTex != _textures.end(); iterTex++)
         {
             if (sizeX < ((*iterTex)->_pos[0] + (*iterTex)->_tex->getWidth()))

@@ -97,12 +97,13 @@ using covise::coCoviseConfig;
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+VRSceneGraph *VRSceneGraph::s_instance = NULL;
+
 VRSceneGraph *VRSceneGraph::instance()
 {
-    static VRSceneGraph *singleton = NULL;
-    if (!singleton)
-        singleton = new VRSceneGraph;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRSceneGraph;
+    return s_instance;
 }
 
 VRSceneGraph::VRSceneGraph()
@@ -139,6 +140,8 @@ VRSceneGraph::VRSceneGraph()
     , m_switchToHighQuality(false)
     , m_interactionHQ(NULL)
 {
+    assert(!s_instance);
+
     KeyButton[0] = 0;
     KeyButton[1] = 0;
     KeyButton[2] = 0;
@@ -180,6 +183,8 @@ VRSceneGraph::~VRSceneGraph()
 
     m_specialBoundsNodeList.clear();
 
+    delete coVRShadowManager::instance();
+
     int n = m_objectsRoot->getNumChildren();
 
     for (int i = n - 1; i >= 0; i--)
@@ -190,6 +195,8 @@ VRSceneGraph::~VRSceneGraph()
     }
 
     delete statsDisplay;
+
+    s_instance = NULL;
 }
 
 void VRSceneGraph::config()
@@ -252,15 +259,13 @@ void VRSceneGraph::initMatrices()
 void VRSceneGraph::initSceneGraph()
 {
     // create the scene node
-    m_scene = new osgShadow::ShadowedScene();
+    m_scene = coVRShadowManager::instance()->newScene();
     m_scene->setName("VR_RENDERER_SCENE_NODE");
-    m_scene->setShadowTechnique(NULL);
+    std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
+    coVRShadowManager::instance()->setTechnique(shadowTechnique);
 
-    m_objectsScene = new osgShadow::ShadowedScene();
+    m_objectsScene = new osg::Group();
     m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
-    m_objectsScene->setShadowTechnique(NULL);
-
-    coVRShadowManager::instance();
 
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();

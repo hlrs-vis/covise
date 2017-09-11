@@ -39,6 +39,9 @@ class COVEREXPORT coVRCommunication : public coVrbRegEntryObserver
 {
 
 private:
+    coVRCommunication();
+
+    static coVRCommunication *s_instance;
     char *currentFile;
     coVRPartner *me;
     int RILockArray[1000];
@@ -62,8 +65,6 @@ public:
     void RIRemoteUnLock(int lockID, int remoteID);
     bool isRILocked(int lockID);
     bool isRILockedByMe(int lockID);
-
-    coVRCommunication();
 
     ~coVRCommunication();
 

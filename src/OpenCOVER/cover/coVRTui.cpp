@@ -212,6 +212,8 @@ coVRTui::coVRTui()
     , animationEnabled(true)
     , animationOscillate(false)
 {
+    assert(!tui);
+
     tui = this;
     lastUpdateTime = 0;
     binList = new BinList;
@@ -583,6 +585,8 @@ coVRTui::~coVRTui()
     delete rightContainer;
     delete binList;
     delete inputTUI;
+
+    tui = NULL;
 }
 
 coInputTUI::coInputTUI()

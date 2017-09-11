@@ -361,10 +361,10 @@ void coDefaultFunctionEditor::updateBackground(unsigned char *texture)
     pinedit->updateBackground(texture);
 }
 
-void coDefaultFunctionEditor::updatePinList()
+void coDefaultFunctionEditor::updatePinList(float minv, float maxv)
 {
     pinedit->setTransFuncPtr(&theTransferFunc[activeChannel]);
-    pinedit->updatePinList(minValue[activeChannel], maxValue[activeChannel]);
+    pinedit->updatePinList(minv, maxv);
 }
 
 void coDefaultFunctionEditor::updateColorBar()
@@ -387,14 +387,14 @@ void coDefaultFunctionEditor::setMin(float m)
 {
     minValue[activeChannel] = m;
     updateLabels();
-    updatePinList();
+    updatePinList(minValue[activeChannel], maxValue[activeChannel]);
 }
 
 void coDefaultFunctionEditor::setMax(float m)
 {
     maxValue[activeChannel] = m;
     updateLabels();
-    updatePinList();
+    updatePinList(minValue[activeChannel], maxValue[activeChannel]);
 }
 
 float coDefaultFunctionEditor::getMin()

@@ -6,7 +6,7 @@ using namespace std;
 #include<string>
 #include<vector>
 #include <osg/Vec3>
-#include <DrivingSim/OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscTrajectory.h>
 
 class Trajectory : public OpenScenario::oscTrajectory
 {

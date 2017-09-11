@@ -5,8 +5,8 @@
 #include "RemoteVehicle.h"
 #include "VehicleDynamics.h"
 
-#include "RoadSystem/RoadSystem.h"
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <VehicleUtil/RoadSystem/Types.h>
 #include "TestDynamicsUtil.h"
 
 #include <iostream>
@@ -102,6 +102,18 @@ protected:
 	std::pair<Road *, double> startPos;
 	bool leftRoad;
 	
+	std::vector<Road*> roadList[4];
+	std::string currentRoadName;
+	int currentRoadId;
+	double currentHeight;
+	double roadHeightIncrement;
+	double roadHeightIncrementInit;
+	double roadHeightIncrementDelta;
+	double roadHeightIncrementMax;
+	double roadHeightDelta;
+	
+	bool singleRoadSwitch;
+	
 	double targetS;
 	
 private:
@@ -144,8 +156,21 @@ private:
 	bool printedOnce;
 	int printCounter;
 	int printMax;
+	
+	osg::Matrix Car2OddlotRotation;
+	osg::Matrix Oddlot2CarRotation;
+	osg::Matrix Oddlot2OpencoverRotation;
+	osg::Matrix Opencover2OddlotRotation;
+	osg::Matrix Car2OpencoverRotation;
+	osg::Matrix Opencover2CarRotation;
+	
+	osg::Matrix globalSpeedMatrix;
 	osg::Matrix globalPos;
 	osg::Matrix rotationPos;
+	osg::Matrix cogPos;
+	osg::Matrix rotMatrix;
+	osg::Matrix tireContactPoint;
+	double tireDist;
 };
 
 #endif

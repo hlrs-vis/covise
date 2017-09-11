@@ -425,7 +425,7 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         delete newNodes;
 
         // Look for '#Viewpoint' syntax
-        if (sourceUrl->urlModifier())
+        if (sourceUrl->urlModifier() && *sourceUrl->urlModifier())
         {
             VrmlNode *vp = d_namespace->findNode(sourceUrl->urlModifier() + 1);
             double timeNow = System::the->time();
@@ -648,7 +648,11 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             //char *tmp = (char *)malloc(12);
             //free(tmp);
             fflush(stderr);
-			yyrestart((FILE *)YYIN);
+#if HAVE_LIBPNG
+            yyrestart(NULL);
+#else
+            yyrestart(YYIN);
+#endif
             yyparse();
             //fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
 
@@ -664,6 +668,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             tryUrl->fclose();
 #endif
         }
+        YYIN = 0;
     }
 
     return result;
@@ -1069,9 +1074,13 @@ bool VrmlScene::update(double timeStamp)
             m->update(now);
     }
 
+    bool eventsProcessed = false;
+
     // Pass along events to their destinations
     while (d_firstEvent != d_lastEvent && !d_pendingUrl && !d_pendingNodes)
     {
+        eventsProcessed = true;
+
         Event *e = &d_eventMem[d_firstEvent];
 
         // Ensure that the node is in the scene graph
@@ -1083,6 +1092,7 @@ bool VrmlScene::update(double timeStamp)
             n->addToScene((VrmlScene *)this, urlDoc()->url());
         }
         n->eventIn(e->timeStamp, e->toEventIn, e->value);
+        //fprintf(stderr, "VrmlScene::eventIn: %s::%s\n", n->nodeType()->getName(), n->name());
         // this needs to change if event values are shared...
 
         if (e == &d_eventMem[d_firstEvent])
@@ -1117,7 +1127,7 @@ bool VrmlScene::update(double timeStamp)
     d_sensorEventQueue->update();
 
     // Signal a redisplay if necessary
-    return isModified();
+    return eventsProcessed;
 }
 
 bool VrmlScene::headlightOn()

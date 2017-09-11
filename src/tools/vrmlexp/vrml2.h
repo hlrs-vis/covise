@@ -22,11 +22,15 @@
 #include <string>
 #include <vector>
 #include "tabletui.h"
+#include "BufferedStream.h"
 
-#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && !defined FASTIO
 #include "maxtextfile.h"
-#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+//#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#define MAXSTREAMDECL BufferedStream
+
 #define MSTREAMPRINTF mStream.Printf( _T
+#define MSTREAMPRINTFNOSTRINGS mStream.Printf(
 #else
 #define MAXSTREAMDECL FILE *
 #define MSTREAMPRINTF fprintf((mStream), 

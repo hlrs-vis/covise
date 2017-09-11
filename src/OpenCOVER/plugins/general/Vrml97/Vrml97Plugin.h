@@ -93,6 +93,7 @@ public:
     void activateTouchSensor(int id);
     coMenuItem *getMenuButton(const std::string &buttonName);
 
+    bool update();
     // this will be called in PreFrame
     void preFrame();
     bool isNewVRML;

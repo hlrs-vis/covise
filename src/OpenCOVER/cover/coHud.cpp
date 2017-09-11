@@ -24,8 +24,19 @@ using namespace opencover;
 
 coHud *coHud::instance_ = NULL;
 
+class UpdateCamera: public osg::Camera
+{
+ public:
+    UpdateCamera()
+    {
+        setNumChildrenRequiringUpdateTraversal(getNumChildrenRequiringUpdateTraversal()+1);
+    }
+};
+
 coHud::coHud()
 {
+    assert(!instance_);
+
     visible = false;
     doHide = false;
 
@@ -162,7 +173,7 @@ coHud::coHud()
         geode->addDrawable(geom);
     }
 
-    camera = new osg::Camera;
+    camera = new UpdateCamera;
     camera->setName("HUD");
 
     int projx, projy;
@@ -200,10 +211,9 @@ coHud::coHud()
 
 coHud *coHud::instance()
 {
-    static coHud *singleton = NULL;
-    if (!singleton)
-        singleton = new coHud;
-    return singleton;
+    if (!instance_)
+        instance_ = new coHud;
+    return instance_;
 }
 
 void coHud::redraw()
@@ -271,4 +281,5 @@ void coHud::hide()
 coHud::~coHud()
 {
     hide();
+    instance_ = NULL;
 }

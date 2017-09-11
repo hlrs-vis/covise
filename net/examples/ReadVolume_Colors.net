@@ -8,7 +8,7 @@ LUSER
 ReadVolume
 1
 LOCAL
-IO_Module
+IO
 ReadVolume_1
 22
 33
@@ -59,7 +59,7 @@ Float|Byte
 Scalar volume data channel 7
 default
 
-20
+21
 FilePath
 Browser
 Volume file (or printf format string for sequence)
@@ -81,13 +81,25 @@ First file number in sequence
 SequenceEnd
 IntScalar
 Last file number in sequence
-1
+0
 
 -1
 SequenceInc
 IntScalar
 Increment in sequence
 1
+
+-1
+SequenceFromHeader
+Boolean
+Off: read single file or file sequence, on: process all files in folder, determine order from file header
+FALSE
+
+-1
+PreferByteData
+Boolean
+Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel
+FALSE
 
 -1
 CustomSize
@@ -162,12 +174,6 @@ Offset of raw volume data from file beginning
 0
 
 -1
-PreferByteData
-Boolean
-Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel
-FALSE
-
--1
 minValue
 IntScalar
 Minimum values for 16 bit to 0.0-1.0 float values
@@ -196,7 +202,7 @@ Grid
 req
 
 DataIn0
-Byte|Float|Vec3|RGBA
+Byte|Float|Vec2|Vec3|RGBA
 Colors or Scalar Data for Volume Visualization
 opt
 
@@ -221,10 +227,22 @@ Geometry
 combined object
 default
 
-3
+5
 varName
 String
 name of variant
+
+
+-1
+varVisible
+Boolean
+whether variant should be visible initially
+TRUE
+
+-1
+attribute
+String
+attributes in the form name=value;name2=value2;...
 
 
 -1
@@ -276,7 +294,7 @@ Colors_2
 DataIn0
 Vec3|IntArr|Int|Float|Byte
 scalar data
-opt
+req
 
 DataIn1
 Vec3|IntArr|Int|Float|Byte
@@ -294,15 +312,15 @@ Colormap Input
 opt
 
 3
-DataOut0
-RGBA
-Data as colors
-dep DataIn0
-
 TextureOut0
 Texture
 Data or colormap as texture
 default
+
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
 
 ColormapOut0
 ColorMap
@@ -319,7 +337,7 @@ Minimum and Maximum value
 EditableColormap
 Colormap
 Colormap Editor
-0.00784314 1 RGBAX 3 0 0 1 0 0 0.458824 1 0.611765 1 0.5 1 1 0 1 1
+0.00784314 1 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
 
 -1
 Colormap
@@ -346,6 +364,12 @@ Re-scale and execute immediately
 FALSE
 
 -1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
 annotation
 String
 Colormap Annotation String
@@ -368,12 +392,6 @@ SpikeTopFract
 FloatScalar
 Spike Ratio for high values
 0.050000
-
--1
-opacityFactor
-FloatScalar
-Global opacity multiplicator
-1.000000
 
 -1
 0
@@ -414,4 +432,3 @@ Collect
 1
 LOCAL
 DataIn0
-0

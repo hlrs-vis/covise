@@ -90,6 +90,7 @@ public:
 
     DriverFactoryBase *getDriverPlugin(const std::string &name);
 	void addDevice(const std::string &name, InputDevice *dev); //< add internal device e.g. from a cover plugin
+	void removeDevice(const std::string &name, InputDevice *dev); //< remove internal device e.g. from a cover plugin if the plugin is deleted
     InputDevice *getDevice(const std::string &name); //< get driver instance
     InputDevice *getDevice(size_t idx); //< get driver instance
     TrackingBody *getBody(const std::string &name); //< a single tracked body (matrix)
@@ -101,6 +102,7 @@ public:
 
 private:
     Input();
+    static Input *s_singleton;
 
     int m_debug;
     coMousePointer *m_mouse;

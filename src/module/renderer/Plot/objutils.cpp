@@ -18,10 +18,6 @@
 #include "globals.h"
 #include "noxprotos.h"
 
-extern "C" {
-extern void cfree(void *);
-}
-
 extern void do_select_region(void);
 extern void add_point(int gno, int setno, double px, double py, double tx, double ty, int type);
 extern int inregion(int regno, double x, double y);

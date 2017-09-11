@@ -28,6 +28,7 @@
 #include <grmsg/coGRObjMovedMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/coRowMenu.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
 

@@ -12,7 +12,7 @@ public:
     MSEventHandler();
     ~MSEventHandler();
 
-    void update();
+    bool update();
     virtual bool handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &);
 
 protected:

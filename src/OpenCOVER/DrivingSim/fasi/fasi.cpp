@@ -344,6 +344,10 @@ void fasi::run()
             remoteData.A = vehicleDynamics->getAcceleration();
             remoteData.rpm = vehicleDynamics->getEngineSpeed();
             remoteData.torque = vehicleDynamics->getEngineTorque();
+            remoteData.slipFL = 0;
+            remoteData.slipFR = 0;
+            remoteData.slipRL = 0;
+            remoteData.slipRR = 0;
             remoteData.chassisTransform = vehicleDynamics->getVehicleTransformation();
             remoteData.gear = sharedState.gear;
             remoteData.buttonStates = 0;
@@ -646,7 +650,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
         if (automatic)
         {
             static double oldShiftTime = 0;
-            if (sharedState.frameTime - oldShiftTime > 0.2)
+            if (sharedState.frameTime - oldShiftTime > 0.2 || sharedState.frameTime <= oldShiftTime)
             {
                 int gearDiff;
                 if (sharedState.SportMode)
@@ -668,7 +672,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
                 {
                     sharedState.gear = 5;
                 }
-                fprintf(stderr,"geardiff %d %d\n",gearDiff,sharedState.gear);
+                //fprintf(stderr,"geardiff %d %d\n",gearDiff,sharedState.gear);
                 if (gearDiff != 0)
                 {
                     oldShiftTime = sharedState.frameTime;

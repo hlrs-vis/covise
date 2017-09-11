@@ -51,10 +51,10 @@ private:
 
 protected:
     System();
-    virtual ~System();
 
 public:
     static System *the;
+    virtual ~System();
 
     virtual void update();
 

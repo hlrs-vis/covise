@@ -600,9 +600,9 @@ void do_spline(int set, double start, double stop, int n)
         if (b == NULL || c == NULL || d == NULL)
         {
             errwin("Not enough memory for splines");
-            cxfree(b);
-            cxfree(c);
-            cxfree(d);
+            free(b);
+            free(c);
+            free(d);
             killset(cg, splineset);
             return;
         }
@@ -619,9 +619,9 @@ void do_spline(int set, double start, double stop, int n)
         log_results(buf);
         updatesetminmax(cg, splineset);
         update_set_status(cg, splineset);
-        cxfree(b);
-        cxfree(c);
-        cxfree(d);
+        free(b);
+        free(c);
+        free(d);
         drawgraph();
     }
 }
@@ -961,8 +961,8 @@ bustout:
     ;
     if (rno >= 0 && cnt != 0) /* had a region and allocated memory there */
     {
-        cfree(xt);
-        cfree(yt);
+        free(xt);
+        free(yt);
     }
 }
 
@@ -1058,8 +1058,8 @@ bustout:
     ;
     if (rno >= 0 && cnt != 0) /* had a region and allocated memory there */
     {
-        cfree(xt);
-        cfree(yt);
+        free(xt);
+        free(yt);
     }
 }
 
@@ -1422,7 +1422,7 @@ void histogram(int fromset, int toset, int tograph,
     setcomment(tograph, toset, buf);
     log_results(buf);
     update_set_status(tograph, toset);
-    cxfree(ind);
+    free(ind);
     drawgraph();
 }
 
@@ -1550,7 +1550,7 @@ int get_points_inregion(int rno, int invr, int len, double *x, double *y, int *c
         ytmp = (double *)calloc(clen, sizeof(double));
         if (ytmp == NULL)
         {
-            cfree(xtmp);
+            free(xtmp);
             return 0;
         }
         clen = 0;

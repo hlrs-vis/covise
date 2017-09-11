@@ -4,14 +4,37 @@ LOCAL
 LUSER
 #numModules
 3
-# Module ReadVolume
-ReadVolume
+# Module Renderer
+Renderer
 1
 LOCAL
-IO_Module
-TITLE=ReadVolume_1
+Renderer
+Renderer_1
 25
-36
+171
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ReadVolume
+ReadVolume
+2
+LOCAL
+IO
+ReadVolume_1
+25
+35
 0
 9
 grid
@@ -59,11 +82,17 @@ Float|Byte
 Scalar volume data channel 7
 default
 
-20
+21
 FilePath
 Browser
 Volume file (or printf format string for sequence)
 share/covise/example-data/ReadVolume/lambda.rvf
+
+-1
+FilePath___filter
+BrowserFilter
+Volume file (or printf format string for sequence)
+FilePath *.xvf;*.rvf;*.avf/*.dcm;*.dcom/*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*
 
 -1
 SequenceBegin
@@ -75,13 +104,25 @@ First file number in sequence
 SequenceEnd
 IntScalar
 Last file number in sequence
-1
+0
 
 -1
 SequenceInc
 IntScalar
 Increment in sequence
 1
+
+-1
+SequenceFromHeader
+Boolean
+Off: read single file or file sequence, on: process all files in folder, determine order from file header
+FALSE
+
+-1
+PreferByteData
+Boolean
+Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel
+FALSE
 
 -1
 CustomSize
@@ -156,18 +197,6 @@ Offset of raw volume data from file beginning
 0
 
 -1
-FilePath___filter
-BrowserFilter
-Volume file (or printf format string for sequence)
-FilePath *.xvf;*.rvf;*.avf/*.dcm;*.dcom/*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*
-
--1
-PreferByteData
-Boolean
-Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel
-FALSE
-
--1
 minValue
 IntScalar
 Minimum values for 16 bit to 0.0-1.0 float values
@@ -183,10 +212,10 @@ Maximum values for 16 bit to 0.0-1.0 float values
 0
 # Module Collect
 Collect
-1
+2
 LOCAL
 Tools
-TITLE=Collect_1
+Collect_1
 25
 110
 5
@@ -196,7 +225,7 @@ Grid
 req
 
 DataIn0
-Byte|Float|Vec3|RGBA
+Byte|Float|Vec2|Vec3|RGBA
 Colors or Scalar Data for Volume Visualization
 opt
 
@@ -221,10 +250,22 @@ Geometry
 combined object
 default
 
-3
+5
 varName
 String
 name of variant
+
+
+-1
+varVisible
+Boolean
+whether variant should be visible initially
+TRUE
+
+-1
+attribute
+String
+attributes in the form name=value;name2=value2;...
 
 
 -1
@@ -241,50 +282,27 @@ maximum bound
 
 -1
 0
-# Module Renderer
-Renderer
-1
-LOCAL
-Renderer
-TITLE=Renderer_1
-25
-171
-1
-RenderData
-Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
-render geometry or Inventor file
-req
-
-0
-1
-AnnotationString
-String
-Annotation descr. string
-empty
-
--1
-0
 3
 ReadVolume
-1
+2
 LOCAL
 grid
 
 Collect
-1
+2
 LOCAL
 GridIn0
 ReadVolume
-1
+2
 LOCAL
 channel0
 
 Collect
-1
+2
 LOCAL
 DataIn0
 Collect
-1
+2
 LOCAL
 GeometryOut0
 
@@ -292,4 +310,3 @@ Renderer
 1
 LOCAL
 RenderData
-0

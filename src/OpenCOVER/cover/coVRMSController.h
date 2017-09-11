@@ -103,7 +103,10 @@ public:
     };
 
     static coVRMSController *instance();
-    coVRMSController(bool forceMpi = false, int AmyID = -1, const char *addr = NULL, int port = 0);
+    coVRMSController(int AmyID = -1, const char *addr = NULL, int port = 0);
+#ifdef HAS_MPI
+    coVRMSController(const MPI_Comm *comm);
+#endif
     ~coVRMSController();
     void startSlaves();
     void checkMark(const char *file, int line);

@@ -37,6 +37,9 @@ class buttonSpecCell;
 
 class COVEREXPORT coVRLighting : public vrui::coMenuListener
 {
+    static coVRLighting *s_instance;
+    coVRLighting();
+
 public:
     vrui::coSubMenuItem *lightingButton_;
     vrui::coRowMenu *lightingMenu_;
@@ -79,8 +82,8 @@ public:
         SpotDef spot;
     } LightDef;
 
-    osg::LightSource *light1;
-    osg::LightSource *light2;
+    osg::ref_ptr<osg::LightSource> light1;
+    osg::ref_ptr<osg::LightSource> light2;
 
     // rescue values of specular lights
     osg::Vec4 headlightSpec, light1Spec, light2Spec, spotlightSpec;
@@ -120,16 +123,15 @@ public:
     void init();
 
 public:
-    osg::LightSource *headlight;
-    osg::LightSource *spotlight;
-    osg::LightSource *shadowlight;
+    osg::ref_ptr<osg::LightSource> headlight;
+    osg::ref_ptr<osg::LightSource> spotlight;
+    osg::ref_ptr<osg::LightSource> shadowlight;
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
     static coVRLighting *instance();
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
 
-    coVRLighting();
     virtual ~coVRLighting();
 
     void update();

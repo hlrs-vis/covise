@@ -29,16 +29,18 @@ using namespace covise;
 namespace opencover
 {
 
+VRRegisterSceneGraph *VRRegisterSceneGraph::s_instance = NULL;
+
 VRRegisterSceneGraph *VRRegisterSceneGraph::instance()
 {
-    static VRRegisterSceneGraph *singleton = NULL;
-    if (!singleton)
-        singleton = new VRRegisterSceneGraph;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRRegisterSceneGraph;
+    return s_instance;
 }
 
 VRRegisterSceneGraph::VRRegisterSceneGraph()
 {
+    assert(!s_instance);
     registerId = 0;
     sceneGraphAppendixIdString = "SCGR";
     blocked = false;
@@ -46,6 +48,7 @@ VRRegisterSceneGraph::VRRegisterSceneGraph()
 
 VRRegisterSceneGraph::~VRRegisterSceneGraph()
 {
+    s_instance = NULL;
 }
 
 void VRRegisterSceneGraph::setRegisterStartIndex(int startIndex)

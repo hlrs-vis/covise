@@ -24,6 +24,7 @@
 #include <e57/E57Foundation.h>
 #include <e57/E57Simple.h>
 #endif
+#include <util/unixcompat.h>
 
 #if defined(__GNUC__) && !defined(__clang__)
 #include <parallel/algorithm>

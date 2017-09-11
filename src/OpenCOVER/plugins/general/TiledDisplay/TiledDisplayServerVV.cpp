@@ -6,6 +6,9 @@
  * License: LGPL 2+ */
 
 
+#include <iostream>
+#include <ostream>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -18,6 +21,9 @@
 
 #include "TiledDisplayOGLTexQuadCompositor.h"
 #include "TiledDisplayOSGTexQuadCompositor.h"
+
+using std::cerr;
+using std::endl;
 
 TiledDisplayServerVV::TiledDisplayServerVV(int number)
     : TiledDisplayServer(number)

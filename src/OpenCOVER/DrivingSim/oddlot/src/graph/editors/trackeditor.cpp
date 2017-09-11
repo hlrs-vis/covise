@@ -140,11 +140,6 @@ TrackEditor::toolAction(ToolAction *toolAction)
             selectedRoads_.clear();
         }
 
-        // Select Tool //
-        //
-        if (getCurrentTool() == ODD::TTE_SELECT)
-        {
-        }
         
         if (getCurrentTool() == ODD::TTE_ROAD_MERGE)
         {

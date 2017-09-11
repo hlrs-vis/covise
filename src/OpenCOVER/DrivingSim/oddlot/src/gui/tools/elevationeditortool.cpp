@@ -160,7 +160,7 @@ ElevationEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui->elevationSelect, ODD::TEL_SELECT);
+    ribbonToolGroup->addButton(ui->select, ODD::TEL_SELECT);
     ribbonToolGroup->addButton(ui->elevationAdd, ODD::TEL_ADD);
     ribbonToolGroup->addButton(ui->elevationDelete, ODD::TEL_DEL);
 	ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
@@ -205,6 +205,7 @@ ElevationEditorTool::activateRibbonEditor()
     ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, ui->radiusEdit->value());
     emit toolAction(action);
     delete action;
+
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -226,7 +227,8 @@ ElevationEditorTool::handleToolClick(int id)
 		emit toolAction(action);
 		delete action;
 
-		action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::ButtonPressed, 0.0);
+		toolId_ = ODD::TEL_SELECT;
+		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
 		break;
 	default:
 		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, radiusEdit_->value());
@@ -256,7 +258,8 @@ ElevationEditorTool::handleRibbonToolClick(int id)
 		emit toolAction(action);
 		delete action;
 
-		action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::ButtonPressed, 0.0);
+		toolId_ = ODD::TEL_SELECT;
+		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
 		break;
 	default:
 		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, ui->radiusEdit->value());

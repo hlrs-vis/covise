@@ -128,6 +128,8 @@ public:
 
     Vector2D searchPosition(const Vector3D &, Road *&, double &);
     Vector2D searchPositionFollowingRoad(const Vector3D &, Road *&, double &);
+	
+	std::vector<Road*> searchPositionList(const Vector3D &/*, int initialRoad*/);
 
     void analyzeForCrossingJunctionPaths();
 

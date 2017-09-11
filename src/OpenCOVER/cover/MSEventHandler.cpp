@@ -162,7 +162,7 @@ bool MSEventHandler::openEvdev()
     return false;
 }
 
-void MSEventHandler::update()
+bool MSEventHandler::update()
 {
     int numEventsToSync = 0;
     if (coVRMSController::instance()->isMaster())
@@ -465,9 +465,11 @@ void MSEventHandler::update()
         coVRMSController::instance()->syncData(&eventQueue[0], numEventsToSync * sizeof(eventQueue[0]));
     }
 
+    bool event = false;
     size_t index = 0;
     while (index < eventQueue.size())
     {
+        event = true;
         const Event &event = eventQueue[index];
         OpenCOVER::instance()->handleEvents(event.event, event.mod, event.key);
         index++;
@@ -481,6 +483,8 @@ void MSEventHandler::update()
         }
     }
     eventQueue.erase(eventQueue.begin(), eventQueue.begin()+index);
+
+    return event;
 }
 
 bool MSEventHandler::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &)

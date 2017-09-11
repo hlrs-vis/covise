@@ -20,7 +20,7 @@
 #include "src/util/droparea.hpp"
 #include "src/gui/tools/toolaction.hpp"
 
-#include "oscCatalog.h"
+#include <OpenScenario/oscCatalog.h>
 
 #include <QWidget>
 

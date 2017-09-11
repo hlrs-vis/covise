@@ -16,6 +16,11 @@
 #include <osg/TexEnv>
 #include <osg/Geometry>
 
+#include <iostream>
+#include <ostream>
+
+using std::cerr;
+using std::endl;
 using namespace osg;
 
 TiledDisplayOGLTexQuadCompositor::TiledDisplayOGLTexQuadCompositor(int channel, TiledDisplayServer *server)

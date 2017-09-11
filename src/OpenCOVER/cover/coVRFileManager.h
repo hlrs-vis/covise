@@ -58,7 +58,10 @@ typedef struct
 
 class COVEREXPORT coVRFileManager : public vrui::coUpdateable
 {
+    static coVRFileManager *s_instance;
+
 public:
+    ~coVRFileManager();
     static coVRFileManager *instance();
 
     const char *findFileExt(const char *filename);
@@ -170,7 +173,6 @@ private:
     ReadOperations readOperations;
 
     coVRFileManager();
-    ~coVRFileManager();
 };
 }
 #endif

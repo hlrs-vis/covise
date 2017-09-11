@@ -1,29 +1,20 @@
 IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
-
+if (APPLE)
+    return()
+endif()
 
 USING(XERCESC)
 using(VRML)
 
 
-COVISE_FIND_PACKAGE(V8)
-COVISE_FIND_PACKAGE(OpenCRG)
 COVISE_FIND_PACKAGE(Xenomai)
 #find_package(Boost 1.40 REQUIRED COMPONENTS date_time)
 #find_package(Boost 1.40)
 #USING(BOOST)
 
-
-#plugin SteeringWheel needs library coOpenVehicleUtil
-#for building VehicleUtil OpenCRG is needed
-IF(NOT OPENCRG_FOUND)
- RETURN()
-ENDIF(NOT OPENCRG_FOUND)
-if(NOT V8_FOUND)
-    return()
-endif()
-
+using(VehicleUtil)
 
 SET(HEADERS
  SteeringWheel.h
@@ -49,7 +40,7 @@ SET(HEADERS
  PorscheController.h
  PorscheRealtimeDynamics.h
  HLRSRealtimeDynamics.h
- #TestDynamics.h
+ TestDynamics.h
 )
 SET(SOURCES
  SteeringWheel.cpp
@@ -74,7 +65,7 @@ SET(SOURCES
  PorscheRealtimeDynamics.cpp
  VehicleDynamics.cpp
  HLRSRealtimeDynamics.cpp
- #TestDynamics.cpp
+ TestDynamics.cpp
 )
 #IF(Boost_FOUND)
 # SET(HEADERS ${HEADERS} HLRSRealtimeDynamics.h)
@@ -86,8 +77,6 @@ ENDIF(WIN32)
 
 
 INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ${V8_INCLUDE_DIR}
 )
 
 
@@ -107,7 +96,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
  INCLUDE_DIRECTORIES(
    ${XENOMAI_INCLUDE_DIR}
    ../../../DrivingSim/gaalet/include
-
+   ../../../DrivingSim/VehicleUtil
  )
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 
@@ -128,7 +117,6 @@ TARGET_LINK_LIBRARIES(SteeringWheel
 ELSE(WIN32)
 TARGET_LINK_LIBRARIES(SteeringWheel
     ${EXTRA_LIBS}
-   coOpenVehicleUtil
 )
 ENDIF(WIN32)
 COVISE_WNOERROR(SteeringWheel)
@@ -139,6 +127,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
      TARGET_LINK_LIBRARIES(SteeringWheel
      ${XENOMAI_LIBRARY_ALCHEMY}
      ${XENOMAI_LIBRARY_COPPERPLATE}
+     ${CMAKE_THREAD_LIBS_INIT}
      )
    else(COVISE_USE_MERCURY)
      TARGET_LINK_LIBRARIES(SteeringWheel

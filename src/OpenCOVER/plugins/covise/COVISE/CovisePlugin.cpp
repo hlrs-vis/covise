@@ -39,6 +39,7 @@ using vrui::vruiButtons;
 
 CovisePlugin::CovisePlugin()
 {
+    setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
     new VRCoviseConnection();
 }
@@ -100,6 +101,24 @@ CovisePlugin::~CovisePlugin()
 {
     delete VRCoviseConnection::covconn;
     VRCoviseConnection::covconn = NULL;
+}
+
+void CovisePlugin::notify(NotificationLevel level, const char *text)
+{
+    std::cerr << text << std::endl;
+    switch(level)
+    {
+        case coVRPlugin::Info:
+            CoviseBase::sendInfo("%s", text);
+            break;
+        case coVRPlugin::Warning:
+            CoviseBase::sendWarning("%s", text);
+            break;
+        case coVRPlugin::Error:
+        case coVRPlugin::Fatal:
+            CoviseBase::sendError("%s", text);
+            break;
+    }
 }
 
 void CovisePlugin::param(const char *paramName, bool)
@@ -178,9 +197,13 @@ static void updateScenegraph()
     }
 }
 
+bool CovisePlugin::update()
+{
+    return VRCoviseConnection::covconn->update();
+}
+
 void CovisePlugin::preFrame()
 {
-    VRCoviseConnection::covconn->update();
     updateScenegraph();
 }
 

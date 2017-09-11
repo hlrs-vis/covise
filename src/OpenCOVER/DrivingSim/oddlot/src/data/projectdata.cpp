@@ -37,7 +37,7 @@
 
 // OpenScenario //
 //
-#include "OpenScenarioBase.h"
+#include <OpenScenario/OpenScenarioBase.h>
 
 using namespace OpenScenario;
 

@@ -44,10 +44,10 @@
 
 // OpenScenario //
 //
-#include "schema/oscTrajectory.h"
-#include "schema/oscPosition.h"
-#include "schema/oscWorld.h"
-#include "oscVariables.h"
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/schema/oscWorld.h>
+#include <OpenScenario/oscVariables.h>
 
 // Qt //
 //

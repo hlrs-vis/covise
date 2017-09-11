@@ -2656,7 +2656,8 @@ Vector2D RoadSystem::searchPosition(const Vector3D &worldPos, Road *&road, doubl
     Vector2D pos(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
     if (road)
     {
-        pos = road->searchPosition(worldPos, u);
+        //std::cout << "road exists" << std::endl;
+		pos = road->searchPosition(worldPos, u);
     }
     if (!pos.isNaV())
     {
@@ -2664,7 +2665,9 @@ Vector2D RoadSystem::searchPosition(const Vector3D &worldPos, Road *&road, doubl
     }
     else
     {
-        road = NULL;
+        //std::cout << "road NOT exist" << std::endl;
+		
+		road = NULL;
         u = -1.0;
 
         std::set<Road *, bool (*)(Road *, Road *)> roadSet(Road::compare);
@@ -2673,7 +2676,7 @@ Vector2D RoadSystem::searchPosition(const Vector3D &worldPos, Road *&road, doubl
             Road *searchRoad = roadVector[roadIt];
 	    if(searchRoad)
 	    {
-		osg::Geode *geode= searchRoad->getRoadGeode();
+		osg::Geode *geode = searchRoad->getRoadGeode();
 		if(geode)
 		{
         	    osg::BoundingBox roadBox = geode->getBoundingBox();
@@ -2691,13 +2694,16 @@ Vector2D RoadSystem::searchPosition(const Vector3D &worldPos, Road *&road, doubl
 
         if (!roadSet.empty())
         {
-            for (std::set<Road *, bool (*)(Road *, Road *)>::iterator roadSetIt = roadSet.begin(); roadSetIt != roadSet.end(); ++roadSetIt)
+            //std::cout << "road set not empty" << std::endl;
+			
+			for (std::set<Road *, bool (*)(Road *, Road *)>::iterator roadSetIt = roadSet.begin(); roadSetIt != roadSet.end(); ++roadSetIt)
             {
                 pos = (*roadSetIt)->searchPosition(worldPos, -1);
 
                 if (!pos.isNaV())
                 {
-                    road = (*roadSetIt);
+                    //std::cout << "pos not a nan" << std::endl;
+					road = (*roadSetIt);
                     u = pos.u();
                     break;
                 }
@@ -2796,6 +2802,54 @@ Vector2D RoadSystem::searchPositionFollowingRoad(const Vector3D &worldPos, Road 
             return pos;
         }
     }
+}
+
+std::vector<Road*> RoadSystem::searchPositionList(const Vector3D &worldPos/*, int initialRoad*/)
+{
+	Vector2D pos(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
+	std::vector<Road*> outVector;
+	std::vector<Road> initVector;
+	
+	double u = -1.0;
+	
+	std::set<Road *, bool (*)(Road *, Road *)> roadSet(Road::compare);
+	for (unsigned int roadIt = 0; roadIt < roadVector.size(); ++roadIt)
+	{
+		Road *searchRoad = roadVector[roadIt];
+		if(searchRoad)
+		{
+			osg::Geode *geode = searchRoad->getRoadGeode();
+			if(geode)
+			{
+				osg::BoundingBox roadBox = geode->getBoundingBox();
+				roadBox.zMin() = -1000000; // ignore height
+				roadBox.zMax() = 1000000;
+				if (roadBox.contains(osg::Vec3(worldPos.x(), worldPos.y(), worldPos.z())))
+				{
+					roadSet.insert(searchRoad);
+				}
+			}
+		}
+		//std::cout << "worldPos: " << worldPos.x() << ", " << worldPos.y() << ", " << worldPos.z() << std::endl;
+		//std::cout << "BB: " << roadBox.xMin() << ", " << roadBox.yMin() << ", " << roadBox.zMin() << " - " << roadBox.xMax() << ", " << roadBox.yMax() << ", " << roadBox.zMax() << std::endl;
+	}
+
+	if (!roadSet.empty())
+	{
+		//std::cout << "road set not empty" << std::endl;
+		for (std::set<Road *, bool (*)(Road *, Road *)>::iterator roadSetIt = roadSet.begin(); roadSetIt != roadSet.end(); ++roadSetIt)
+		{
+			pos = (*roadSetIt)->searchPosition(worldPos, -1);
+			//std::cout << /*"roadsetiterator " << roadSetIt << */" pos: " << pos.x() << " " << pos.y() << std::endl;
+			if (!pos.isNaV())
+			{
+				Road* road = (*roadSetIt);
+				outVector.push_back(road);
+			}
+		}
+	}
+	
+	return outVector;
 }
 
 void RoadSystem::analyzeForCrossingJunctionPaths()

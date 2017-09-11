@@ -74,10 +74,10 @@ SignalTreeWidget::init()
 {
 	// Connect with the ToolManager to send the selected signal or object //
     //
-	ToolManager *toolManager = mainWindow_->getToolManager();
-	if (toolManager)
+	toolManager_ = mainWindow_->getToolManager();
+	if (toolManager_)
 	{
-		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager_, SLOT(toolActionSlot(ToolAction *)));
 	}
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -209,6 +209,8 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 {
 	if (signalEditor_ && (selectedItems().size() > 0))
 	{
+		toolManager_->activateSignalSelection(false);
+
 		QTreeWidgetItem *item = selectedItems().at(0);
 		const QString text = item->text(0);
 		SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
@@ -287,7 +289,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			}
 			else
 			{
-				currentTool_ = ODD::TSE_SELECT;
+				currentTool_ = ODD::TSG_SELECT;
 			}
 		}
 
@@ -307,6 +309,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 	{
 		clearSelection();
 		clearFocus();
+		update();
 	}
 
 }

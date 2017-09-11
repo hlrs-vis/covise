@@ -80,6 +80,7 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     , graphScene_(graphScene)
     , doPan_(false)
     , doKeyPan_(false)
+	, select_(true)
     , doBoxSelect_(BBOff)
     , doCircleSelect_(CircleOff)
     , doShapeEdit_(false)
@@ -104,6 +105,10 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     // Zoom to mouse pos //
     //
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
+	// Rubberband //
+	//
+	rubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
 
     // interactive background
     
@@ -183,6 +188,8 @@ GraphView::shapeEditing(bool edit)
 void
 GraphView::toolAction(ToolAction *toolAction)
 {
+	static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TEL_SELECT << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT;
+
     // Zoom //
     //
     ZoomToolAction *zoomToolAction = dynamic_cast<ZoomToolAction *>(toolAction);
@@ -217,30 +224,7 @@ GraphView::toolAction(ToolAction *toolAction)
 
     }
 
-    // Selection //
-    //
-    SelectionToolAction *selectionToolAction = dynamic_cast<SelectionToolAction *>(toolAction);
-    if (selectionToolAction)
-    {
-        SelectionTool::SelectionToolId id = selectionToolAction->getSelectionToolId();
-
-        if (id == SelectionTool::TSL_BOUNDINGBOX)
-        {
-            if ((doBoxSelect_ == BBOff) && selectionToolAction->isToggled())
-            {
-                doBoxSelect_ = BBActive;
-            }
-            else if ((doBoxSelect_ == BBActive) && !selectionToolAction->isToggled())
-            {
-                doBoxSelect_ = BBOff;
-                if (rubberBand_)
-                {
-                    rubberBand_->hide();
-                }
-            }
-        }
-    }
-
+ 
     // Circular Cutting Tool
     //
     JunctionEditorToolAction *junctionEditorAction = dynamic_cast<JunctionEditorToolAction *>(toolAction);
@@ -341,6 +325,19 @@ GraphView::toolAction(ToolAction *toolAction)
         //			setMapHeight(mapToolAction->getHeight(), mapToolAction->isKeepRatio());
         //		}
     }
+
+	ODD::EditorId editorId = toolAction->getEditorId();
+	if (editorId != ODD::ENO_EDITOR)
+	{
+		if (selectionToolIds.contains(toolAction->getToolId()))
+		{
+			select_ = true;
+		}
+		else
+		{
+			select_ = false;
+		}
+	}
 }
 
 
@@ -1100,38 +1097,7 @@ void
 GraphView::mousePressEvent(QMouseEvent *event)
 {
 
-    if (doBoxSelect_ == BBActive)
-    {
-        if ((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0)
-        {
-            additionalSelection_ = true;
-        }
-
-        mp_ = event->pos();
-        if (!rubberBand_)
-        {
-            rubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
-        }
-        rubberBand_->setGeometry(QRect(mp_, QSize()));
-        rubberBand_->show();
-    }
-    else if (doCircleSelect_ == CircleActive)
-    {
-
-        if (event->button() == Qt::LeftButton)
-        {
-            circleCenter_ = mapToScene(event->pos());
-            QPainterPath circle = QPainterPath();
-            circle.addEllipse(circleCenter_, radius_, radius_);
-            circleItem_->setPath(circle);
-
-            // Select roads intersecting with circle
-            //
-            scene()->setSelectionArea(circle);
-        }
-
-    }
-    else if (doKeyPan_)
+    if (doKeyPan_)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
 		QApplication::setOverrideCursor(Qt::OpenHandCursor);
@@ -1156,70 +1122,78 @@ GraphView::mousePressEvent(QMouseEvent *event)
         return;
     }
 #endif
-
-    else if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0)
-    {
-
-        // Deselect element from the previous selection
-
-        QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
-
-        QGraphicsView::mousePressEvent(event); // pass to baseclass
-
-        QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
-
-        foreach (QGraphicsItem *item, oldSelection)
-        {
-            item->setSelected(true);
-        }
-        if (selectedItem)
-        {
-            if (((event->modifiers() & Qt::ControlModifier) != 0) && !oldSelection.contains(selectedItem))
-            {
-                selectedItem->setSelected(true);
-            }
-            else
-            {
-                selectedItem->setSelected(false);
-            }
-        }
-    }
-	else
+	else if (event->button() == Qt::LeftButton)
 	{
-		if (doShapeEdit_)
+		if (select_)
 		{
-			shapeItem_->mousePressEvent(event);
-		}
+			QGraphicsItem *item = NULL;
+			if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+			{
+				item = scene()->itemAt(mapToScene(event->pos()), QGraphicsView::transform());
+			}
 
-		QGraphicsView::mousePressEvent(event); // pass to baseclass
-    }
+			if (item)
+			{
+				QGraphicsView::mousePressEvent(event); // pass to baseclass
+			}
+			else
+			{
+				doBoxSelect_ = BBActive;
+
+				if ((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0)
+				{
+					additionalSelection_ = true;
+				}
+
+				mp_ = event->pos();
+			}
+		}
+		else if (doCircleSelect_ == CircleActive)
+		{
+			circleCenter_ = mapToScene(event->pos());
+			QPainterPath circle = QPainterPath();
+			circle.addEllipse(circleCenter_, radius_, radius_);
+			circleItem_->setPath(circle);
+
+			// Select roads intersecting with circle
+			//
+			scene()->setSelectionArea(circle);
+		}
+		else 
+		{
+			if (doShapeEdit_)
+			{
+				shapeItem_->mousePressEvent(event);
+			}
+
+			QGraphicsView::mousePressEvent(event); // pass to baseclass
+		}
+	}
 }
 
 void
 GraphView::mouseMoveEvent(QMouseEvent *event)
 {
-    if ((doBoxSelect_ == BBActive) && rubberBand_)
+    if (doBoxSelect_ == BBActive)
     {
 
         // Check for enough drag distance
         if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
         {
-
             return;
         }
+		else
+		{
+			if (!rubberBand_->isVisible())
+			{
+				rubberBand_->show();
+			}
+		}
+
         QPoint ep = event->pos();
 
         rubberBand_->setGeometry(QRect(qMin(mp_.x(), ep.x()), qMin(mp_.y(), ep.y()),
                                        qAbs(mp_.x() - ep.x()) + 1, qAbs(mp_.y() - ep.y()) + 1));
-    }
-    else if (doCircleSelect_ == CircleActive)
-    {
-        // Draw circle with radius and mouse pos center
-        //
-        circleCenter_ = mapToScene(event->pos());
-        QPainterPath circle = QPainterPath();
-        circle.addEllipse(circleCenter_, radius_, radius_);
-        circleItem_->setPath(circle);
     }
     else if (doKeyPan_)
     {
@@ -1233,7 +1207,18 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
         delete newEvent;
     }
 #endif
-    else
+	else if (doCircleSelect_ == CircleActive)
+	{
+		// Draw circle with radius and mouse pos center
+		//
+		circleCenter_ = mapToScene(event->pos());
+		QPainterPath circle = QPainterPath();
+		circle.addEllipse(circleCenter_, radius_, radius_);
+		circleItem_->setPath(circle);
+
+		QGraphicsView::mouseMoveEvent(event); // pass to baseclass
+	}
+	else
     {
 		if (doShapeEdit_)
 		{
@@ -1279,16 +1264,55 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 		QGraphicsView::mouseReleaseEvent(event);
 	}
 	//	setDragMode(QGraphicsView::RubberBandDrag);
+	else if (!select_)
+	{
+		QGraphicsView::mouseReleaseEvent(event);
+	}
 
 	else
 	{
-		if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
-		{
-			QGraphicsView::mouseReleaseEvent(event);
-		}
 
-		if ((doBoxSelect_ == BBActive) && rubberBand_)
+		if (doBoxSelect_ == BBActive)
 		{
+			doBoxSelect_ = BBOff;
+
+			if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
+			{
+				if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0)
+				{
+
+					// Deselect element from the previous selection
+
+					QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
+
+					QGraphicsView::mousePressEvent(event); // pass to baseclass
+
+					QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
+
+					foreach (QGraphicsItem *item, oldSelection)
+					{
+						item->setSelected(true);
+					}
+					if (selectedItem)
+					{
+						if (((event->modifiers() & Qt::ControlModifier) != 0) && !oldSelection.contains(selectedItem))
+						{
+							selectedItem->setSelected(true);
+						}
+						else
+						{
+							selectedItem->setSelected(false);
+						}
+					}
+				}
+				else
+				{
+					QGraphicsView::mousePressEvent(event);
+					QGraphicsView::mouseReleaseEvent(event);
+				}
+				return;
+			}
+
 			QList<QGraphicsItem *> oldSelection;
 
 			if (additionalSelection_)
@@ -1334,8 +1358,14 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 			}
 
 			rubberBand_->hide();
-			doBoxSelect_ = BBOff;
+
 		}
+
+		if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+		{
+			QGraphicsView::mouseReleaseEvent(event);
+		}
+
 	}
 
 	additionalSelection_ = false;
@@ -1380,13 +1410,6 @@ GraphView::keyPressEvent(QKeyEvent *event)
     // TODO: This will not notice a key pressed, when the view is not active
     switch (event->key())
     {
-    case Qt::Key_Space:
-        doKeyPan_ = true;
-        if (doBoxSelect_ == BBActive)
-        {
-            doBoxSelect_ = BBPressed;
-        }
-        break;
 
     case Qt::Key_Delete:
     {
@@ -1436,13 +1459,6 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
 {
     switch (event->key())
     {
-    case Qt::Key_Space:
-        doKeyPan_ = true;
-        if (doBoxSelect_ == BBActive)
-        {
-            doBoxSelect_ = BBPressed;
-        }
-        break;
 
     default:
         QGraphicsView::keyReleaseEvent(event);

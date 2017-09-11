@@ -25,7 +25,7 @@
         <MouseNav value="true" />
         <Device>
            <DTrackCave driver="dtrack" port="5000">
-              <Offset x="0" y="-0" z="-1307" />
+              <Offset x="0" y="-0" z="-1327" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
 
@@ -47,8 +47,8 @@
            </CaveHead>
 
            <CaveHand device="DTrackCave" bodyIndex="0">
-              <Offset x="0" y="-170" z="0" />
-              <Orientation h="0" p="0" r="0" />
+              <Offset x="0" y="-120" z="0" />
+              <Orientation h="0" p="-5" r="0" />
            </CaveHand>
 
            <CaveCamera device="DTrackCave" bodyIndex="2">

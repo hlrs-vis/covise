@@ -27,6 +27,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/RenderObject.h>
 #include <osg/io_utils>
 #include <cover/input/input.h>
+#include <cover/coVRConfig.h>
+#include <cover/VRViewer.h>
+#include <config/CoviseConfig.h>
+#include <osg/Texture2D>
+#include <osg/GraphicsContext>
 
 using namespace opencover;
 
@@ -59,16 +64,10 @@ Vive::Vive()
 	Input::instance()->addDevice("Vive", this);
 	haveTrackerOrigin = false;
 	LighthouseMatrix.makeIdentity();
-}
+	maxBodyNumber = 0;
 
-bool Vive::needsThread() const
-{
-	return false;
-} 
-bool Vive::init()
-{
-	fprintf(stderr, "Vive::init\n");
-
+	m_strDriver = "No Driver";
+	m_strDisplay = "No Display";
 	// Loading the SteamVR Runtime
 	vr::EVRInitError eError = vr::VRInitError_None;
 	ivrSystem = vr::VR_Init(&eError, vr::VRApplication_Scene);
@@ -77,7 +76,7 @@ bool Vive::init()
 	{
 		ivrSystem = nullptr;
 		fprintf(stderr, "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(eError));
-		return false;
+		return;
 	}
 
 	if (!vr::VRCompositor())
@@ -85,7 +84,7 @@ bool Vive::init()
 		ivrSystem = nullptr;
 		vr::VR_Shutdown();
 		osg::notify(osg::WARN) << "Error: Compositor initialization failed" << std::endl;
-		return false;
+		return;
 	}
 
 	ivrRenderModels = (vr::IVRRenderModels *)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &eError);
@@ -96,11 +95,9 @@ bool Vive::init()
 		osg::notify(osg::WARN)
 			<< "Error: Unable to get render model interface!\n"
 			<< "Reason: " << vr::VR_GetVRInitErrorAsEnglishDescription(eError) << std::endl;
-		return false;
+		return;
 	}
 
-	m_strDriver = "No Driver";
-	m_strDisplay = "No Display";
 
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
@@ -111,12 +108,103 @@ bool Vive::init()
 	m_strDriver = GetTrackedDeviceString(ivrSystem, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
 	m_strDisplay = GetTrackedDeviceString(ivrSystem, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
 
+	bool exists;
+	if (!covise::coCoviseConfig::isOn("trackingOnly", "COVER.Plugin.Vive", false, &exists))
+	{
+		if (coVRConfig::instance()->numPBOs() == 0)
+		{ // no PBOs configured, thus try an outo config
+			PBOStruct pbol;
+			PBOStruct pbor;
+			uint32_t sx, sy;
+			ivrSystem->GetRecommendedRenderTargetSize(&sx, &sy);
+			pbol.PBOsx = pbor.PBOsx = sx;
+			pbol.PBOsy = pbor.PBOsy = sy;
+			pbor.windowNum = 0;
+			pbol.windowNum = 0;
+			coVRConfig::instance()->PBOs.push_back(pbol);
+			coVRConfig::instance()->PBOs.push_back(pbor);
+
+			channelStruct chanl;
+			channelStruct chanr;
+			chanl.fixedViewer = false;
+			chanl.name = "ViveL";
+			chanl.PBONum = 0;
+			chanl.screenNum = 0;
+			chanl.stereo = true;
+			chanl.stereoMode = osg::DisplaySettings::LEFT_EYE;
+			chanl.viewportNum = -1;
+
+			chanr.fixedViewer = false;
+			chanr.name = "ViveR";
+			chanr.PBONum = 1;
+			chanr.screenNum = 0;
+			chanr.stereo = true;
+			chanr.stereoMode = osg::DisplaySettings::RIGHT_EYE;
+			chanr.viewportNum = -1;
+
+			coVRConfig::instance()->channels.clear();
+			coVRConfig::instance()->channels.push_back(chanl);
+			coVRConfig::instance()->channels.push_back(chanr);
+
+			viewportStruct vpl;
+			viewportStruct vpr;
+			vpl.mode = viewportStruct::Channel;
+			vpl.sourceXMin = vpl.sourceYMin = 0.0;
+			vpl.sourceXMax = vpl.sourceYMax = -1.0;
+			vpl.viewportXMin = vpl.viewportYMin = 0.0;
+			vpl.viewportXMax = vpl.viewportYMax = 1.0;
+			vpl.window = 0;
+			vpl.PBOnum = -1;
+			vpl.distortMeshName = "";
+			vpl.blendingTextureName = "";
+			vpr.mode = viewportStruct::PBO;
+			vpr.sourceXMin = vpr.sourceYMin = 0.0;
+			vpr.sourceXMax = vpr.sourceYMax = 1.0;
+			vpr.viewportXMin = vpr.viewportYMin = 0.0;
+			vpr.viewportXMax = vpr.viewportYMax = 1.0;
+			vpr.window = 0;
+			vpr.PBOnum = 1;
+			vpr.distortMeshName = "";
+			vpr.blendingTextureName = "";
+
+			coVRConfig::instance()->viewports.clear();
+			coVRConfig::instance()->viewports.push_back(vpl);
+			coVRConfig::instance()->viewports.push_back(vpr);
+		}
+
+	}
+}
+
+bool Vive::needsThread() const
+{
+	return false;
+} 
+bool Vive::init()
+{
+	fprintf(stderr, "Vive::init\n");
+	vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+	osg::Matrix lProj = convertMatrix44(mat);
+	mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+	osg::Matrix rProj = convertMatrix44(mat);
+	coVRConfig::instance()->channels[0].leftProj = lProj;
+	coVRConfig::instance()->channels[0].rightProj = rProj;
+	coVRConfig::instance()->channels[1].leftProj = lProj;
+	coVRConfig::instance()->channels[1].rightProj = rProj;
+
+
+	coVRConfig::instance()->OpenVR_HMD = true;
+
+	if (m_strDriver == "No Driver")
+		return false;
+	
+
 	return true;
 }
 
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
+	Input::instance()->removeDevice("Vive", this);
 	fprintf(stderr, "Vive::~Vive\n");
 }
 
@@ -127,7 +215,24 @@ void Vive::preFrame()
 	while (ivrSystem->PollNextEvent(&event, sizeof(event)))
 	{
 		//ProcessVREvent(event);
+		if (event.eventType == vr::VREvent_IpdChanged)
+		{
+			VRViewer::instance()->setSeparation(event.data.ipd.ipdMeters * 1000.0);
+		}
 	}
+	vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+	osg::Matrix lProj = convertMatrix44(mat);
+	mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+	osg::Matrix rProj = convertMatrix44(mat);
+	coVRConfig::instance()->channels[0].leftProj = lProj;
+	coVRConfig::instance()->channels[0].rightProj = rProj;
+	coVRConfig::instance()->channels[1].leftProj = lProj;
+	coVRConfig::instance()->channels[1].rightProj = rProj;
+
+}
+
+void Vive::postFrame()
+{
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
@@ -185,14 +290,14 @@ void Vive::preFrame()
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
 			m_bodyMatrices[nDevice] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
-		    // convert to mm
+			// convert to mm
 			m_bodyMatrices[nDevice](3, 0) *= 1000;
 			m_bodyMatrices[nDevice](3, 1) *= 1000;
 			m_bodyMatrices[nDevice](3, 2) *= 1000;
 			m_bodyMatrices[nDevice] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
 		}
 	}
-	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T'))
+	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
 	{
 		haveTrackerOrigin = true;
 		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
@@ -200,6 +305,15 @@ void Vive::preFrame()
 	m_mutex.unlock();
 }
 
+void Vive::preSwapBuffers(int /*windowNumber*/)
+{
+
+	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[0].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	//vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[1].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Helper to get a string from a tracked device property and turn it
