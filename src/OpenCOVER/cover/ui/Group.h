@@ -12,6 +12,8 @@ class COVER_UI_EXPORT Group: public Element, public Container {
  public:
     Group(const std::string &name, Owner *owner);
     Group(Group *parent, const std::string &name);
+    ~Group();
+
 
     bool add(Element *elem) override;
     bool remove(Element *elem) override;

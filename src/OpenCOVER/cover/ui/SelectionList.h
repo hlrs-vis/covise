@@ -18,6 +18,7 @@ class COVER_UI_EXPORT SelectionList: public Element {
  public:
    SelectionList(Group *parent, const std::string &name);
    SelectionList(const std::string &name, Owner *owner);
+   ~SelectionList();
 
    void setList(const std::vector<std::string> items);
    const std::vector<std::string> &items() const;

@@ -1136,7 +1136,7 @@ OpenCOVER::~OpenCOVER()
     }
     if (m_visPlugin)
     {
-        coVRPluginList::instance()->unload(m_visPlugin);
+        //coVRPluginList::instance()->unload(m_visPlugin);
         m_visPlugin = NULL;
     }
     coVRFileManager::instance()->unloadFile();
@@ -1153,12 +1153,12 @@ OpenCOVER::~OpenCOVER()
 
     cover->intersectedNode = NULL;
     delete VRPinboard::instance();
-    delete VRVruiRenderInterface::theInterface;
     delete VRSceneGraph::instance();
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
     delete VRWindow::instance();
+    delete VRVruiRenderInterface::theInterface;
 
     delete coVRConfig::instance();
 
@@ -1193,8 +1193,10 @@ void OpenCOVER::setExitFlag(bool flag)
             // do not quit, if we are connected to a vr Broker
             // but close connection to Covise
             //CoviseRender::appmod->getConnectionList()->remove(vrbc->getConnection());
+#if 0
             if (m_visPlugin)
                 coVRPluginList::instance()->unload(m_visPlugin);
+#endif
             m_visPlugin = NULL;
             exitFlag = false;
         }

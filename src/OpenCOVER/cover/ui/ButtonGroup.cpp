@@ -15,6 +15,12 @@ ButtonGroup::ButtonGroup(Group *parent, const std::string &name)
 {
 }
 
+ButtonGroup::~ButtonGroup()
+{
+    clearItems();
+    clearChildren();
+}
+
 void ButtonGroup::setDefaultValue(int val)
 {
     m_defaultValue = val;
@@ -102,6 +108,7 @@ bool ButtonGroup::remove(Element *elem)
     assert(rb);
     if (Container::remove(elem))
     {
+        rb->m_radioGroup = nullptr;
         if (rb->state() && numChildren()>0 && !m_allowDeselect)
         {
             auto rb0 = dynamic_cast<Button *>(child(0));

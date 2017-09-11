@@ -33,8 +33,37 @@ void Manager::add(Element *elem)
     ++m_numCreated;
 }
 
+void Manager::remove(Owner *owner)
+{
+    owner->clearItems();
+}
+
 void Manager::remove(Element *elem)
 {
+    //std::cerr << "DESTROY: " << elem->path() << std::endl;
+
+    elem->clearItems();
+
+    for (auto v: m_views)
+    {
+        v.second->removeElement(elem);
+    }
+
+    {
+        auto it = m_elementsById.find(elem->elementId());
+        if (it != m_elementsById.end())
+        {
+            m_elementsById.erase(it);
+        }
+    }
+
+    {
+        auto it = m_elementsByPath.find(elem->path());
+        if (it != m_elementsByPath.end())
+        {
+            m_elementsByPath.erase(it);
+        }
+    }
 }
 
 Element *Manager::getById(int id) const
@@ -328,13 +357,13 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
 
     for (int i=0; i<numUpdates; ++i)
     {
-        std::cerr << "processing " << i << std::flush;
+        //std::cerr << "processing " << i << std::flush;
         int id = -1;
         *updates >> id;
         bool trigger = false;
         *updates >> trigger;
         auto elem = getById(id);
-        std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
+        //std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
         assert(elem);
         elem->load(*updates);
         elem->update();
@@ -370,7 +399,7 @@ void Manager::sync()
     int round = 0;
     while (m_numUpdates > 0)
     {
-        std::cerr << "ui::Manager: processing " << m_numUpdates << " updates in round " << round << std::endl;
+        //std::cerr << "ui::Manager: processing " << m_numUpdates << " updates in round " << round << std::endl;
         std::shared_ptr<covise::TokenBuffer> updates = m_updates;
         m_updates.reset(new covise::TokenBuffer);
         int numUpdates = m_numUpdates;

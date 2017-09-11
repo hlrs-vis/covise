@@ -80,7 +80,9 @@ VruiViewElement *VruiView::vruiElement(const Element *elem) const
 
 VruiViewElement *VruiView::vruiParent(const Element *elem) const
 {
-    return vruiElement(elem->parent());
+    if (elem)
+        return vruiElement(elem->parent());
+    return nullptr;
 }
 
 
@@ -91,7 +93,8 @@ VruiViewElement *VruiView::vruiContainer(const Element *elem) const
     {
         if (p->m_menu)
             return p;
-        return vruiParent(p->element);
+        if (p->element)
+            return vruiParent(p->element);
     }
     return nullptr;
 }
@@ -99,9 +102,9 @@ VruiViewElement *VruiView::vruiContainer(const Element *elem) const
 void VruiView::add(VruiViewElement *ve, const Element *elem)
 {
     if (!ve)
-        std::cerr << "Warning: no VruiViewElement" << std::endl;
+        std::cerr << "VruiView::add: Warning: no VruiViewElement" << std::endl;
     if (!elem)
-        std::cerr << "Warning: Element" << std::endl;
+        std::cerr << "VruiView::add: Warning: no Element" << std::endl;
 
     auto parent = vruiContainer(elem);
 
@@ -147,31 +150,56 @@ void VruiView::updateEnabled(const Element *elem)
 void VruiView::updateVisible(const Element *elem)
 {
     auto ve = vruiElement(elem);
-    if (ve)
+    if (!ve)
+        return;
+
+    if (auto m = dynamic_cast<const Menu *>(elem))
     {
-        if (auto m = dynamic_cast<const Menu *>(elem))
+        if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
         {
-            if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
+            if (!m->visible())
             {
-                if (!m->visible())
-                {
-                    smi->closeSubmenu();
-                    delete smi;
-                    ve->m_menuItem = nullptr;
-                }
-            } else if (!ve->m_menuItem) {
-                if (m->visible())
-                {
-                    auto smi = new coSubMenuItem(m->text()+"...");
-                    smi->setMenu(ve->m_menu);
-                    ve->m_menuItem = smi;
-                    add(ve, m);
-                }
+                smi->closeSubmenu();
+                delete smi;
+                ve->m_menuItem = nullptr;
             }
-            if (ve->m_menu)
+        } else if (!ve->m_menuItem) {
+            if (m->visible())
             {
-                if (!elem->visible())
-                    ve->m_menu->setVisible(elem->visible());
+                auto smi = new coSubMenuItem(m->text()+"...");
+                smi->setMenu(ve->m_menu);
+                ve->m_menuItem = smi;
+                add(ve, m);
+            }
+        }
+        if (ve->m_menu)
+        {
+            if (!elem->visible())
+                ve->m_menu->setVisible(elem->visible());
+        }
+    }
+    else if (ve->m_menuItem)
+    {
+        auto container = vruiContainer(elem);
+        if (container)
+        {
+            //std::cerr << "changing visible: elem=" << elem->path() << ", container=" << container->element->path() << std::endl;
+            auto m = dynamic_cast<const Menu *>(container->element);
+            auto mve = vruiElement(m);
+            if (mve)
+            {
+                auto menu = mve->m_menu;
+                auto idx = menu->index(ve->m_menuItem);
+                if (elem->visible() && idx < 0)
+                {
+                    if (menu)
+                        menu->add(ve->m_menuItem);
+                }
+                else if (!elem->visible() && idx >= 0)
+                {
+                    if (menu)
+                        menu->remove(ve->m_menuItem);
+                }
             }
         }
     }
@@ -291,6 +319,7 @@ void VruiView::updateBounds(const Slider *slider)
     auto ve = vruiElement(slider);
     if (!ve)
         return;
+
     if (auto vp = dynamic_cast<coPotiMenuItem *>(ve->m_menuItem))
     {
         vp->setMin(slider->min());
@@ -410,6 +439,21 @@ VruiViewElement::VruiViewElement(Element *elem)
 : View::ViewElement(elem)
 , m_text(elem->text())
 {
+}
+
+VruiViewElement::~VruiViewElement()
+{
+    if (m_menu)
+        m_menu->closeMenu();
+
+    delete m_menu;
+    m_menu = nullptr;
+
+    delete m_menuItem;
+    m_menuItem = nullptr;
+
+    delete m_group;
+    m_group = nullptr;
 }
 
 namespace {

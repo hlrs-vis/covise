@@ -18,6 +18,11 @@ Slider::Slider(Group *parent, const std::string &name)
 {
 }
 
+Slider::~Slider()
+{
+    manager()->remove(this);
+}
+
 void Slider::setMoving(bool flag)
 {
     m_moving = flag;

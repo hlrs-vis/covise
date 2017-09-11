@@ -23,6 +23,7 @@ class COVER_UI_EXPORT Container {
 
  protected:
     std::vector<Element *> m_children;
+    void clearChildren();
 };
 
 }

@@ -19,6 +19,7 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
  public:
     ButtonGroup(const std::string &name, Owner *owner);
     ButtonGroup(Group *parent, const std::string &name);
+    ~ButtonGroup();
 
     void enableDeselect(bool flag);
     

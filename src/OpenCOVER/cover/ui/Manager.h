@@ -55,6 +55,8 @@ class COVER_UI_EXPORT Manager: public Owner {
    void add(Element *elem);
    //! remove elem from list of managed user interface items
    void remove(Element *elem);
+   //! remove an owner from manager
+   void remove(Owner *owner);
    //! search for an Element by unique id, returs nullptr if not found
    Element *getById(int id) const;
    //! search for an Element by path, returs nullptr if not found

@@ -151,6 +151,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
     add(ve);
+    ve->markForDeletion(m);
     return ve;
 }
 
@@ -162,16 +163,23 @@ QtViewElement *QtView::elementFactoryImplementation(Group *group)
 
     auto ag = new QActionGroup(qtObject(parent));
     ag->setExclusive(false);
+
     auto sep = new QAction(ag);
     sep->setShortcutContext(Qt::WidgetShortcut);
     sep->setSeparator(true);
     sep->setText(QString::fromStdString(group->text()));
     ag->addAction(sep);
 
+    auto sep2 = new QAction(ag);
+    sep2->setShortcutContext(Qt::WidgetShortcut);
+    sep2->setSeparator(true);
+    ag->addAction(sep2);
+
     auto ve = new QtViewElement(group, ag);
     ve->group = ag;
     if (auto w = qtWidget(parent))
         w->addActions(ag->actions());
+    ve->markForDeletion(ag);
 #if 0
     connect(a, &QAction::triggered, [rg](bool state){rg->setState(state); rg->trigger();});
 #endif
@@ -191,6 +199,7 @@ QtViewElement *QtView::elementFactoryImplementation(Label *label)
     auto ve = new QtViewElement(label, la);
     ve->action = la;
     ve->label = l;
+    ve->markForDeletion(la);
     add(ve);
     return ve;
 }
@@ -207,6 +216,7 @@ QtViewElement *QtView::elementFactoryImplementation(Action *action)
     auto ve = new QtViewElement(action, a);
     ve->action = a;
     add(ve);
+    ve->markForDeletion(a);
 #if 0
     if (auto w = qtWidget(parent))
         w->addAction(a);
@@ -227,20 +237,7 @@ QtViewElement *QtView::elementFactoryImplementation(Button *button)
     auto ve = new QtViewElement(button, a);
     ve->action = a;
     add(ve);
-#if 0
-    if (auto ag = dynamic_cast<QActionGroup *>(qtObject((parent))))
-    {
-        //std::cerr << "ui: adding button " << button->path() << " to action group" << std::endl;
-        ag->addAction(a);
-        if (container)
-            container->addActions(ag->actions());
-    }
-    else if (container)
-    {
-        //std::cerr << "ui: adding button " << button->path() << " to widget" << std::endl;
-        container->addAction(a);
-    }
-#endif
+    ve->markForDeletion(a);
     connect(a, &QAction::triggered, [button](bool state){
         button->setState(state);
         button->trigger();
@@ -258,7 +255,7 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
     auto pw = qtWidget(parent);
 
     auto s = new QSlider(Qt::Horizontal, pw);
-    auto a = new QWidgetAction(qtObject(parent));
+    auto a = new QWidgetAction(po);
     a->setDefaultWidget(s);
     pw->addAction(a);
     auto ve = new QtViewElement(slider, s);
@@ -270,6 +267,8 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
     pw->addAction(la);
     ve->label = l;
     add(ve);
+    ve->markForDeletion(la);
+    ve->markForDeletion(a);
 
     connect(s, &QSlider::sliderMoved, [slider](int value){
         if (slider->integer())
@@ -290,21 +289,7 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
         slider->setMoving(false);
         slider->trigger();
     });
-#if 0
-    auto ag = dynamic_cast<QActionGroup *>(po);
-    QtViewElement *ve = nullptr;
-    if (w || ag)
-    {
-        ve->action = a;
 
-        ve->label = l;
-
-    }
-    else
-    {
-        ve = new QtViewElement(slider, nullptr);
-    }
-#endif
     return ve;
 }
 
@@ -314,19 +299,8 @@ QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
     auto m = new QMenu(parent);
     auto ve = new QtViewElement(sl, m);
     ve->action = m->menuAction();
-    ve->group = new QActionGroup(m);
-    connect(ve->group, &QActionGroup::triggered, [ve, sl](QAction *a){
-        auto al = ve->group->actions();
-        int idx = -1;
-        for (int i=0; i<al.size(); ++i)
-        {
-            if (a == al[i])
-                idx = i;
-        }
-        sl->select(idx);
-        sl->trigger();
-    });
     add(ve);
+    ve->markForDeletion(m);
     return ve;
 }
 
@@ -339,22 +313,20 @@ void QtView::updateEnabled(const Element *elem)
 
 void QtView::updateVisible(const Element *elem)
 {
-    auto w = qtWidget(elem);
-    if (w)
+    if (auto w = qtWidget(elem))
     {
         auto m = dynamic_cast<QMenu *>(w);
         if (!m)
         {
             w->setVisible(elem->visible());
         }
-        else if (auto ve = qtViewElement(elem))
-        {
-            auto a = ve->action;
-            if (a)
-                a->setVisible(elem->visible());
-        }
     }
-    //std::cerr << "changing visible: " << elem->path() << " to " << elem->visible() << std::endl;
+
+    if (auto ve = qtViewElement(elem))
+    {
+        if (auto a = ve->action)
+            a->setVisible(elem->visible());
+    }
 }
 
 void QtView::updateText(const Element *elem)
@@ -397,23 +369,28 @@ void QtView::updateChildren(const Menu *menu)
 #if 0
     auto o = qtObject(menu);
     auto m = dynamic_cast<QMenu *>(o);
-    if (m)
+    if (!m)
+        return;
+
+    auto actions = m->actions();
+    for (size_t i=0; i<menu->numChildren(); ++i)
     {
-        m->clear();
-        for (size_t i=0; i<menu->numChildren(); ++i)
-        {
-            auto ve = qtViewElement(menu->child(i));
-            if (!ve)
-                continue;
-            auto obj = ve->object;
-            auto act = ve->action;
-            if (auto a = dynamic_cast<QAction *>(obj))
-                m->addAction(a);
-            else if (auto mm = dynamic_cast<QMenu *>(obj))
-                m->addMenu(mm);
-            else if (auto ag = dynamic_cast<QActionGroup *>(obj))
-                m->addActions(ag->actions());
-        }
+        auto ve = qtViewElement(menu->child(i));
+        if (!ve)
+            continue;
+        auto obj = ve->object;
+        auto act = ve->action;
+        if (!act)
+            act = dynamic_cast<QAction *>(obj);
+        if (!act)
+            continue;
+
+        if (auto a = dynamic_cast<QAction *>(obj))
+            m->addAction(a);
+        else if (auto mm = dynamic_cast<QMenu *>(obj))
+            m->addMenu(mm);
+        else if (auto ag = dynamic_cast<QActionGroup *>(obj))
+            m->addActions(ag->actions());
     }
 #endif
 }
@@ -423,22 +400,37 @@ void QtView::updateChildren(const SelectionList *sl)
     auto ve = qtViewElement(sl);
     if (!ve)
         return;
-    auto ag = ve->group;
-    if (!ag)
-        return;
     auto m = dynamic_cast<QMenu *>(ve->object);
+    if (!m)
+        return;
+    auto ag = ve->group;
+    if (ag)
+    {
+        for (const auto &a: ag->actions())
+        {
+            m->removeAction(a);
+        }
+        delete ag;
+    }
+
+    ve->group = new QActionGroup(m);
+    ag = ve->group;
+    ve->markForDeletion(ag);
+    connect(ve->group, &QActionGroup::triggered, [ve, sl](QAction *a){
+        auto al = ve->group->actions();
+        int idx = -1;
+        for (int i=0; i<al.size(); ++i)
+        {
+            if (a == al[i])
+                idx = i;
+        }
+        const_cast<SelectionList *>(sl)->select(idx);
+        sl->trigger();
+    });
     const auto items = sl->items();
-    while (ag->actions().size() < items.size())
-    {
-        ag->addAction(new QAction(ag));
-    }
-    while (ag->actions().size() > items.size())
-    {
-        ag->removeAction(ag->actions().back());
-    }
     for (size_t i=0; i<items.size(); ++i)
     {
-        auto &a = ag->actions()[(int)i];
+        auto a = new QAction(ag);
         a->setShortcutContext(Qt::WidgetShortcut);
         a->setText(QString::fromStdString(items[i]));
         a->setCheckable(true);
@@ -475,13 +467,19 @@ void QtView::updateValue(const Slider *slider)
     {
         if (slider->integer())
         {
-            s->setValue(slider->value());
+            if (s->value() != slider->value())
+                s->setValue(slider->value());
         }
         else
         {
             auto min = slider->min();
             auto r = slider->max() - min;
-            s->setValue((slider->value()-min)/r*SliderIntMax);
+            auto v = int((slider->value()-min)/r*SliderIntMax);
+            if (v != s->value())
+            {
+                //std::cerr << "update: v=" << v << ", slider=" << s->value() << std::endl;
+                s->setValue(v);
+            }
         }
     }
     if (ve->label)
@@ -496,12 +494,16 @@ void QtView::updateBounds(const Slider *slider)
     {
         if (slider->integer())
         {
-            s->setRange(slider->min(), slider->max());
+            if (s->minimum() != slider->min() || s->maximum() != slider->max())
+                s->setRange(slider->min(), slider->max());
         }
         else
         {
-            s->setRange(0, SliderIntMax);
-            updateValue(slider);
+            if (s->minimum() != 0 || s->maximum() != SliderIntMax)
+            {
+                s->setRange(0, SliderIntMax);
+                updateValue(slider);
+            }
         }
     }
 }
@@ -513,6 +515,33 @@ QtViewElement::QtViewElement(Element *elem, QObject *obj)
     QString n = QString::fromStdString(elem->name());
     if (object)
         object->setObjectName(n);
+}
+
+QtViewElement::~QtViewElement()
+{
+    while (!toDelete.empty())
+    {
+        delete toDelete.back();
+        // automatically removed from deletion list through QObject connection established in markForDeletion
+    }
+
+    action = nullptr;
+    object = nullptr;
+    group = nullptr;
+    label = nullptr;
+}
+
+void QtViewElement::markForDeletion(QObject *obj)
+{
+    obj->connect(obj, &QObject::destroyed, [this](QObject *obj){
+        auto it = std::find(toDelete.begin(), toDelete.end(), obj);
+        if (it != toDelete.end())
+        {
+            //std::cerr << "not deleting something for " << element->path() << std::endl;
+            toDelete.erase(it);
+        }
+    });
+    toDelete.push_back(obj);
 }
 
 }

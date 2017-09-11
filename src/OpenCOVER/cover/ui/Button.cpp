@@ -20,6 +20,12 @@ Button::Button(Group *parent, const std::string &name, ButtonGroup *bg, int id)
     setGroup(bg, id);
 }
 
+Button::~Button()
+{
+    manager()->remove(this);
+    setGroup(nullptr, -1);
+}
+
 int Button::buttonId() const
 {
     return m_buttonId;

@@ -22,13 +22,21 @@ Element::Element(Group *group, const std::string &name)
 , m_parent(group)
 , m_label(name)
 {
-    manager()->add(this);
     assert(m_parent == group);
+    manager()->add(this);
 }
 
 Element::~Element()
 {
     manager()->remove(this);
+    while (!m_containers.empty())
+    {
+        auto it = m_containers.begin();
+        if (*it == m_parent)
+            m_parent = nullptr;
+        (*it)->remove(this);
+    }
+    assert(!m_parent);
 }
 
 int Element::elementId() const

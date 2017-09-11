@@ -70,6 +70,11 @@ SelectionList::SelectionList(const std::string &name, Owner *owner)
 {
 }
 
+SelectionList::~SelectionList()
+{
+    manager()->remove(this);
+}
+
 void SelectionList::setList(const std::vector<std::string> items)
 {
     m_items = items;

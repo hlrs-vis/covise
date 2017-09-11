@@ -14,6 +14,12 @@ Menu::Menu(Group *parent, const std::string &name)
 {
 }
 
+Menu::~Menu()
+{
+    manager()->remove(this);
+    clearItems();
+    clearChildren();
+}
 
 bool Menu::add(Element *elem)
 {

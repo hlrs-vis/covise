@@ -15,9 +15,11 @@ class ButtonGroup;
 
 /** \note QToggleButton */
 class COVER_UI_EXPORT Button: public Element {
+   friend class ButtonGroup;
  public:
    Button(const std::string &name, Owner *owner, ButtonGroup *bg=nullptr, int id=0);
    Button(Group *parent, const std::string &name, ButtonGroup *bg=nullptr, int id=0);
+   ~Button();
    //Button(ButtonGroup *parent, const std::string &name, int id=0);
 
    int buttonId() const;

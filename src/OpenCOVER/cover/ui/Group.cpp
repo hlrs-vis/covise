@@ -1,4 +1,5 @@
 #include "Group.h"
+#include "Manager.h"
 
 #include <algorithm>
 #include <cassert>
@@ -14,6 +15,14 @@ Group::Group(const std::string &name, Owner *owner)
 Group::Group(Group *parent, const std::string &name)
 : Element(parent, name)
 {
+}
+
+Group::~Group()
+{
+    manager()->remove(this);
+
+    clearItems();
+    clearChildren();
 }
 
 bool Group::add(Element *elem)
