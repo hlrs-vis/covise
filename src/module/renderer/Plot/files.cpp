@@ -50,9 +50,6 @@ extern void log_resultsCB(Widget w, XtPointer client_data, XtPointer call_data);
 extern void drawgraph(void);
 extern void set_plotstr_string(plotstr *pstr, char *buf);
 extern void set_left_footer(const char *s);
-extern "C" {
-extern void cfree(void *);
-}
 
 extern void log_results(const char *buf);
 
@@ -333,8 +330,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
     if (x == NULL || y == NULL)
     {
         errwin("Insufficient memory for set");
-        cxfree(x);
-        cxfree(y);
+        free(x);
+        free(y);
         return (0);
     }
     while (fgets(buf, MAX_LINE_LEN, fp) != NULL)
@@ -351,8 +348,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
             {
                 if (yesno("Lots of errors, abort?", NULL, NULL, NULL))
                 {
-                    cxfree(x);
-                    cxfree(y);
+                    free(x);
+                    free(y);
                     return (0);
                 }
                 else
@@ -415,8 +412,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
             {
                 if ((j = nextset(gno)) == -1)
                 {
-                    cxfree(x);
-                    cxfree(y);
+                    free(x);
+                    free(y);
                     return (readset);
                 }
                 activateset(gno, j);
@@ -440,8 +437,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
                 {
                     if (yesno("Lots of errors, abort?", NULL, NULL, NULL))
                     {
-                        cxfree(x);
-                        cxfree(y);
+                        free(x);
+                        free(y);
                         return (0);
                     }
                     else
@@ -456,8 +453,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
             if (x == NULL || y == NULL)
             {
                 errwin("Insufficient memory for set");
-                cxfree(x);
-                cxfree(y);
+                free(x);
+                free(y);
                 return (readset);
             }
             if (readone)
@@ -470,8 +467,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
     {
         if ((j = nextset(gno)) == -1)
         {
-            cxfree(x);
-            cxfree(y);
+            free(x);
+            free(y);
             return (readset);
         }
         activateset(gno, j);
@@ -491,8 +488,8 @@ int readxy(int gno, char *fn, FILE *fp, int readone)
     }
     else
     {
-        cxfree(x);
-        cxfree(y);
+        free(x);
+        free(y);
     }
     if (retval == -1)
     {
@@ -555,8 +552,8 @@ int read_set_fromfile(int gno, int setno, char *fn, int src)
     if (x == NULL || y == NULL)
     {
         errwin("Insufficient memory for set");
-        cxfree(x);
-        cxfree(y);
+        free(x);
+        free(y);
         goto breakout;
     }
     while (fgets(buf, MAX_LINE_LEN, fp) != NULL)
@@ -774,8 +771,8 @@ restart:
             if (x[i] == NULL || y[i] == NULL)
             {
                 errwin("Insufficient memory for set");
-                cxfree(x[i]);
-                cxfree(y[i]);
+                free(x[i]);
+                free(y[i]);
                 for (j = 0; j < i + 1; j++)
                 {
                     killset(gno, setn[j]);
@@ -917,7 +914,7 @@ int readbinary(int gno, char *fn, FILE *fp)
             if (y == NULL)
             {
                 errwin("Can't calloc in readbinary");
-                cxfree(x);
+                free(x);
                 return 0;
             }
             xf = (float *)calloc(npts, sizeof(float));
@@ -930,7 +927,7 @@ int readbinary(int gno, char *fn, FILE *fp)
             if (yf == NULL)
             {
                 errwin("Can't calloc in readbinary");
-                cxfree(xf);
+                free(xf);
                 return 0;
             }
             fread(xf, sizeof(float), npts, fp);
@@ -940,12 +937,12 @@ int readbinary(int gno, char *fn, FILE *fp)
                 x[j] = xf[j];
                 y[j] = yf[j];
             }
-            cfree(xf);
-            cfree(yf);
+            free(xf);
+            free(yf);
             if ((setn = nextset(gno)) == -1)
             {
-                cxfree(x);
-                cxfree(y);
+                free(x);
+                free(y);
                 return 0;
             }
             activateset(gno, setn);
@@ -1012,12 +1009,12 @@ int readxxyy(int gno, char *fn, FILE *fp, int type)
     if (x == NULL || y == NULL)
     {
         errwin("Insufficient memory for set");
-        cxfree(x);
-        cxfree(y);
-        cxfree(dx);
-        cxfree(dy);
-        cxfree(dz);
-        cxfree(dw);
+        free(x);
+        free(y);
+        free(dx);
+        free(dy);
+        free(dz);
+        free(dw);
         return (0);
     }
     while (fgets(buf, MAX_LINE_LEN, fp) != NULL)
@@ -1125,12 +1122,12 @@ int readxxyy(int gno, char *fn, FILE *fp, int type)
             {
                 if ((j = nextset(gno)) == -1)
                 {
-                    cxfree(x);
-                    cxfree(y);
-                    cxfree(dx);
-                    cxfree(dy);
-                    cxfree(dz);
-                    cxfree(dw);
+                    free(x);
+                    free(y);
+                    free(dx);
+                    free(dy);
+                    free(dz);
+                    free(dw);
                     return readset;
                 }
                 activateset(gno, j);
@@ -1154,12 +1151,12 @@ int readxxyy(int gno, char *fn, FILE *fp, int type)
                 {
                     if (yesno("Lots of errors, abort?", NULL, NULL, NULL))
                     {
-                        cxfree(x);
-                        cxfree(y);
-                        cxfree(dx);
-                        cxfree(dy);
-                        cxfree(dz);
-                        cxfree(dw);
+                        free(x);
+                        free(y);
+                        free(dx);
+                        free(dy);
+                        free(dz);
+                        free(dw);
                         return (0);
                     }
                     else
@@ -1206,12 +1203,12 @@ int readxxyy(int gno, char *fn, FILE *fp, int type)
             if (x == NULL || y == NULL)
             {
                 errwin("Insufficient memory for set");
-                cxfree(x);
-                cxfree(y);
-                cxfree(dx);
-                cxfree(dy);
-                cxfree(dz);
-                cxfree(dw);
+                free(x);
+                free(y);
+                free(dx);
+                free(dy);
+                free(dz);
+                free(dw);
                 killset(gno, j);
                 return (readset);
             }
@@ -1221,12 +1218,12 @@ int readxxyy(int gno, char *fn, FILE *fp, int type)
     {
         if ((j = nextset(gno)) == -1)
         {
-            cxfree(x);
-            cxfree(y);
-            cxfree(dx);
-            cxfree(dy);
-            cxfree(dz);
-            cxfree(dw);
+            free(x);
+            free(y);
+            free(dx);
+            free(dy);
+            free(dz);
+            free(dw);
             return readset;
         }
         activateset(gno, j);
@@ -1244,12 +1241,12 @@ int readxxyy(int gno, char *fn, FILE *fp, int type)
     }
     else
     {
-        cxfree(x);
-        cxfree(y);
-        cxfree(dx);
-        cxfree(dy);
-        cxfree(dz);
-        cxfree(dw);
+        free(x);
+        free(y);
+        free(dx);
+        free(dy);
+        free(dz);
+        free(dw);
     }
     if (retval == -1)
     {
@@ -1268,7 +1265,7 @@ void kill_blockdata(void)
     {
         for (j = 0; j < maxblock; j++)
         {
-            cxfree(blockdata[j]);
+            free(blockdata[j]);
         }
     }
 }
@@ -1362,9 +1359,9 @@ int readblockdata(int, char *, FILE *fp)
                         errwin("Insufficient memory for block data");
                         for (k = 0; k < j; k++)
                         {
-                            cxfree(data[k]);
+                            free(data[k]);
                         }
-                        cxfree(data);
+                        free(data);
                         return 0;
                     }
                 }
@@ -1390,9 +1387,9 @@ int readblockdata(int, char *, FILE *fp)
                         {
                             for (k = 0; k < ncols; k++)
                             {
-                                cxfree(data[k]);
+                                free(data[k]);
                             }
-                            cxfree(data);
+                            free(data);
                             return (0);
                         }
                         else
@@ -1420,9 +1417,9 @@ int readblockdata(int, char *, FILE *fp)
                         errwin("Insufficient memory for block data");
                         for (k = 0; k < j; k++)
                         {
-                            cxfree(data[k]);
+                            free(data[k]);
                         }
-                        cxfree(data);
+                        free(data);
                         return 0;
                     }
                 }
@@ -1435,7 +1432,7 @@ int readblockdata(int, char *, FILE *fp)
     {
         blockdata[j] = data[j];
     }
-    cxfree(data);
+    free(data);
     blocklen = i;
     blockncols = ncols;
     return 1;
@@ -1885,8 +1882,8 @@ int readrawspice(int gno, char *, FILE *fp)
                 if (x[i] == NULL || y[i] == NULL)
                 {
                     errwin("Insufficient memory for set; Clearing data");
-                    cxfree(x[i]);
-                    cxfree(y[i]);
+                    free(x[i]);
+                    free(y[i]);
                     for (j = 0; j < i + 1; j++)
                     {
                         killset(gno, setn[j]);
@@ -2080,8 +2077,8 @@ int readnetcdf(int gno,
     if (x == NULL || y == NULL)
     {
         errwin("Insufficient memory for set");
-        cxfree(x);
-        cxfree(y);
+        free(x);
+        free(y);
         ncclose(cdfid);
         return 0;
     }
@@ -2110,7 +2107,7 @@ int readnetcdf(int gno,
             {
                 x[i] = xs[i];
             }
-            cfree(xs);
+            free(xs);
             break;
         case NC_LONG:
             xl = (long *)calloc(n, sizeof(long));
@@ -2119,7 +2116,7 @@ int readnetcdf(int gno,
             {
                 x[i] = xl[i];
             }
-            cfree(xl);
+            free(xl);
             break;
         case NC_FLOAT:
             xf = (float *)calloc(n, sizeof(float));
@@ -2128,15 +2125,15 @@ int readnetcdf(int gno,
             {
                 x[i] = xf[i];
             }
-            cfree(xf);
+            free(xf);
             break;
         case NC_DOUBLE:
             ncvarget(cdfid, x_id, start, count, (void *)x);
             break;
         default:
             errwin("Data type not supported");
-            cxfree(x);
-            cxfree(y);
+            free(x);
+            free(y);
             ncclose(cdfid);
             return 0;
             break;
@@ -2175,15 +2172,15 @@ int readnetcdf(int gno,
         {
             y[i] = yf[i];
         }
-        cfree(yf);
+        free(yf);
         break;
     case NC_DOUBLE:
         ncvarget(cdfid, y_id, start, count, (void *)y);
         break;
     default:
         errwin("Data type not supported");
-        cxfree(x);
-        cxfree(y);
+        free(x);
+        free(y);
         ncclose(cdfid);
         return 0;
         break;
