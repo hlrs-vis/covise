@@ -107,6 +107,10 @@ protected:
 	int currentRoadId;
 	double currentHeight;
 	double roadHeightIncrement;
+	double roadHeightIncrementInit;
+	double roadHeightIncrementDelta;
+	double roadHeightIncrementMax;
+	double roadHeightDelta;
 	
 	bool singleRoadSwitch;
 	
