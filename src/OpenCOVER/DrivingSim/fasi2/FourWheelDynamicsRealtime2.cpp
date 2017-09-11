@@ -1761,7 +1761,7 @@ void FourWheelDynamicsRealtime2::run()
 			time++;
 			carState.timerCounter = timerCounter;
 			
-			if(timerCounter == 500 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
+			if(timerCounter == 100 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
 			{
 				//outfile << time << " " << carState.mpLZ << " " << carState.mpRZ << " " << carState.mpBZ << " " << carState.mpHeight << " " << carState.cogOpencoverPos(3,1) << " " 
 				//<< speedState.vZ << " " << current << std::endl;
@@ -1952,7 +1952,7 @@ void FourWheelDynamicsRealtime2::run()
 		if(isnan(current))
 		{
 			current = 0;
-			std::cout << "current is NAN o.O" << std::endl; 
+			//std::cout << "current is NAN o.O" << std::endl; 
 		}
 		
 		//std::cout << "current after: " << current << std::endl;
