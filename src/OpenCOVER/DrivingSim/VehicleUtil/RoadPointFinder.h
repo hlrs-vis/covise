@@ -68,10 +68,15 @@ protected:
 	int currentRoadId[12];
 	double currentHeight[12];
 	bool singleRoadSwitch[12];
-	double roadHeightIncrement;
-	
-	
-	
+	double roadHeightIncrement[12];
+	double roadHeightDifference[12];
+	double roadHeightDelta[12];
+	double roadHeightIncrementDelta;
+	double roadHeightIncrementMax;
+	double maxHeight;
+	double minHeight;
+	double maxHeightGap;
+	double maxRoadDistance;
 };
 
 inline void RoadPointFinder::setRoad(Road *&road, int contactPointNumber)
