@@ -104,6 +104,7 @@ FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2()
 	roadPointFinder->getPositionMutex().acquire(period);
 	
 	osg::Matrix tempMatrixFL1 = carState.globalPosOC * Opencover2OddlotRotation;
+	std::cout << "tempmatrixfl x: " << tempMatrixFL1.getTrans().x() << " y: " << tempMatrixFL1.getTrans().y() << " z: " << tempMatrixFL1.getTrans().z() << std::endl;
 	roadPointFinder->setPoint(tempMatrixFL1.getTrans(), 0);
 	osg::Matrix tempMatrixFL2 = carState.globalPosOC * Opencover2OddlotRotation;
 	roadPointFinder->setPoint(tempMatrixFL2.getTrans(), 1);
