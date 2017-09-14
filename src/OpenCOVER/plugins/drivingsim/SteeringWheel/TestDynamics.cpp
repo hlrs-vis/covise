@@ -110,7 +110,7 @@ TestDynamics::TestDynamics()
 	currentRoadName = "asdasdasdasdafergbdv;bonesafae";
 	roadHeightIncrementInit = 0.001;
 	roadHeightIncrement = 0.0;
-	roadHeightIncrementDelta = 0.001;
+	roadHeightIncrementDelta = 0.05;
 	roadHeightIncrementMax = 0.01;
 	singleRoadSwitch = false;
 	
@@ -898,10 +898,10 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		
 		if(tempRoadList.size() != 0)
 		{
-			//for(int i = 0; i < tempRoadList.size(); i++)
-			//{
-			//	cout << "road id at position: " << i << "; " << RoadSystem::Instance()->getRoadId(tempRoadList[i]) << endl;
-			//}
+			for(int i = 0; i < tempRoadList.size(); i++)
+			{
+				cout << "road id at position: " << i << "; " << RoadSystem::Instance()->getRoadId(tempRoadList[i]) << endl;
+			}
 			std::vector<Road*> oldRoadList;
 			oldRoadList = roadList[3];
 			roadList[3] = tempRoadList;
@@ -963,7 +963,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 					{
 						RoadPoint point = roadList[3][j]->getRoadPoint(v_c.u(), v_c.v());
 						roadHeightSum = roadHeightSum + point.z();
-						std::cout << "point z: " << point.z() << std::endl;
+						//std::cout << "point z: " << point.z() << std::endl;
 					}
 					else
 					{
@@ -985,6 +985,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 				{
 					RoadPoint point = roadList[3][0]->getRoadPoint(v_c.u(), v_c.v());
 					roadHeightAverage = point.z();
+					//std::cout << "point z: " << point.z() << std::endl;
 				}
 			}
 				
