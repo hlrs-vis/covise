@@ -17,6 +17,8 @@ RoadPointFinder::RoadPointFinder()
 	runTask = true;
 	taskFinished = false;
 	
+	loadingRoad = true;
+	
 	for(int i = 0; i < 12; i++)
 	{
 		currentRoad[i] = NULL;
@@ -25,6 +27,7 @@ RoadPointFinder::RoadPointFinder()
 		roadHeightIncrement[i] = 0.0;
 		roadHeightDifference[i] = 0.0;
 		roadHeightDelta[i] = 0.0;
+		leftRoadSwitch[i] = false;
 	}
 	
 	roadHeightIncrementDelta = 0.0005;
@@ -32,8 +35,8 @@ RoadPointFinder::RoadPointFinder()
 	
 	maxRoadDistance = 0.7;
 	
-	maxHeight = 0.0;
-	minHeight = 0.0;
+	maxHeight = -10000000000.0;
+	minHeight = 10000000000.0;
 	maxHeightGap = 1.5;
 	
 	start();
@@ -66,9 +69,138 @@ void RoadPointFinder::run()
 	
 	while(loadingRoad)
 	{
+		std::cout << "loadingRoad: " << loadingRoad << std::endl;
 	}
 	
 	std::cerr << "RoadPointFinder is done waiting" << std::endl;
+	
+	for(int i = 0; i < 12; i++)
+	{
+		std::cout << "iCounter: " << i << std::endl;
+		positionMutex.acquire(1000000);
+		Vector3D searchInVec(roadPoint[i].x(), roadPoint[i].y(), roadPoint[i].z());//1086.83,1507.96,10.4413);
+		positionMutex.release();
+		
+		std::cout << "searchInVec x: " << searchInVec.x() << " y: " << searchInVec.y() << " z: " << searchInVec.z() << std::endl;
+		
+		currentHeightMutex.acquire(1000000);
+		double tempCurrentHeight = currentHeight[i];
+		currentHeightMutex.release();
+		
+		//list system
+		std::vector<Road*> tempRoadList;
+		std::vector<Road*> oldRoadList;
+		tempRoadList = RoadSystem::Instance()->searchPositionList(searchInVec);
+		
+		bool roadListChanged = false;
+		
+		if(tempRoadList.size() != 0)
+		{
+			std::vector<Road*> oldRoadList;
+			oldRoadList = roadList[i];
+			roadList[i] = tempRoadList;
+			
+			if(oldRoadList.size() == roadList[i].size())
+			{
+				for(int j = 0; j < roadList[i].size(); j++)
+				{
+					bool roadFound = false;
+					std::string tempRoadName = RoadSystem::Instance()->getRoadId(roadList[i][j]);
+					for(int k = 0; k < oldRoadList.size(); k++)
+					{
+						if(tempRoadName.compare(RoadSystem::Instance()->getRoadId(oldRoadList[k])) == 0)
+						{
+							roadFound = true;
+							break;
+						}
+					}
+					if(roadFound == false)
+					{
+						roadListChanged = true;
+						break;
+					}
+				}
+			}
+			else
+			{
+				roadListChanged = true;
+			}
+		}
+		else
+		{
+			singleRoadSwitch[i] = false;
+		}
+		
+		double roadHeightAverage = tempCurrentHeight;
+		if(roadList[i].size() > 0)
+		{
+			if(roadList[i].size() > 1)
+			{
+				int numberInvalidRoads = 0;
+				//calculate average height
+				double roadHeightSum = 0;
+				for(int j = 0; j < roadList[i].size(); j++)
+				{
+					Vector2D v_c = roadList[i][j]->searchPosition(searchInVec, 0);
+					if (!v_c.isNaV())
+					{
+						RoadPoint point = roadList[i][j]->getRoadPoint(v_c.u(), v_c.v());
+						roadHeightSum = roadHeightSum + point.z();
+						
+					}
+					else
+					{
+						numberInvalidRoads++;
+					}
+					
+				}
+				if(!(roadList[i].size() - numberInvalidRoads == 0))
+				{
+					roadHeightAverage = roadHeightSum / (roadList[i].size() - numberInvalidRoads);
+				}
+			}
+			else
+			{
+				Vector2D v_c = roadList[i][0]->searchPositionNoBorder(searchInVec, -1);
+				//std::cout << "v_c: " << v_c.u() << " " << v_c.v() << std::endl;
+				if (!v_c.isNaV())
+				{
+					RoadPoint point = roadList[i][0]->getRoadPoint(v_c.u(), v_c.v());
+					roadHeightAverage = point.z();
+				}
+			}
+			
+			if(roadListChanged)
+			{
+				roadHeightDelta[i] = tempCurrentHeight - roadHeightAverage;
+				roadListChanged = false;
+			}
+			
+			tempCurrentHeight = roadHeightAverage + roadHeightDelta[i];
+				
+			if(roadHeightDelta[i] > 0)
+			{
+				roadHeightDelta[i] = roadHeightDelta[i] - roadHeightIncrementDelta;
+			}
+			if(roadHeightDelta[i] < 0)
+			{
+				roadHeightDelta[i] = roadHeightDelta[i] + roadHeightIncrementDelta;
+			}
+			if(std::abs(roadHeightDelta[i]) < 0.001)
+			{
+				roadHeightDelta[i] = 0.0;
+			}
+			
+			std::cout << "tempCurrentHeight " << i << ": " << tempCurrentHeight << std::endl;
+			
+			
+		}
+		
+		currentHeightMutex.acquire(1000000);
+		currentHeight[i] = tempCurrentHeight;
+		currentHeightMutex.release();
+		
+	}
 	
 	while (runTask)
     {
@@ -80,7 +212,24 @@ void RoadPointFinder::run()
 		
 		//std::cout << "RoadPointFinder running" << std::endl;
 		
+		maxHeight = -10000000000.0;
+		minHeight = 10000000000.0;
+		for(int i = 0; i < 12; i++)
+		{
+			currentHeightMutex.acquire(1000000);
+			if(currentHeight[i] > maxHeight)
+			{
+				maxHeight = currentHeight[i];
+			}
+			if(currentHeight[i] < minHeight)
+			{
+				minHeight = currentHeight[i];
+			}
+			currentHeightMutex.release();
+		}
+		
 		double heightGap = std::abs(minHeight - maxHeight);
+		std::cout << "maxHeight: " << maxHeight << " minHeight: " << minHeight << " height gap: " << heightGap << std::endl;
 		for(int i = 0; i < 12; i++)
 		{
 			//std::cout << "currentRoad " << i << ": " << currentRoad[i] << std::endl;
@@ -91,39 +240,8 @@ void RoadPointFinder::run()
 			positionMutex.release();
 			
 			currentHeightMutex.acquire(1000000);
-			if(currentHeight[i] > maxHeight)
-			{
-				maxHeight = currentHeight[i];
-			}
-			if(currentHeight[i] < minHeight)
-			{
-				minHeight = currentHeight[i];
-			}
 			double tempCurrentHeight = currentHeight[i];
 			currentHeightMutex.release();
-			
-			/*roadMutex.acquire(1000000);
-			longPosMutex.acquire(1000000);
-			//std::cout << "fl1 in" << std:: endl << "pointx" << tempVec.x() << std::endl << "pointy" << tempVec.y() << std::endl << "pointz" << tempVec.z() << std::endl;
-			Vector2D searchOutVec = RoadSystem::Instance()->searchPosition(searchInVec, currentRoad[i], currentLongPos[i]);*/
-			
-			
-			
-			//std::cout << "searchOutVec " << i << ": " << searchOutVec.x() << " " << searchOutVec.y() << std::endl;
-			
-			//std::cout << "fl2 out" << std::endl << "pointx" << searchOutVec.x() << std::endl << "pointy" << searchOutVec.y() << std::endl;
-			/*currentLongPos[i] = searchOutVec.x();
-			longPosMutex.release();*/
-			
-			/*RoadPoint point = currentRoad[i]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-			
-			std::cout << "pointx" << point.x() << std::endl << "pointy" << point.y() << std::endl << "pointz" << point.z() << std::endl;*/
-			
-			//roadMutex.release();
-			/*if (isnan(point.x()))
-			{
-				std::cout << "tire point " << i << " left road!" << std::endl;
-			}*/
 			
 			//list system
 			std::vector<Road*> tempRoadList;
@@ -134,6 +252,12 @@ void RoadPointFinder::run()
 			
 			if(tempRoadList.size() != 0)
 			{
+				/*for(int j = 0; j < tempRoadList.size(); j++)
+				{
+					std::cout << "road id at position: " << j << "; " << RoadSystem::Instance()->getRoadId(tempRoadList[j]) << std::endl;
+					
+				}*/
+				
 				std::vector<Road*> oldRoadList;
 				oldRoadList = roadList[i];
 				roadList[i] = tempRoadList;
@@ -164,10 +288,16 @@ void RoadPointFinder::run()
 				{
 					roadListChanged = true;
 				}
+				if(leftRoadSwitch[i] == true)
+				{
+					leftRoadSwitch[i] = false;
+					roadListChanged = true;
+				}
 			}
 			else
 			{
 				singleRoadSwitch[i] = false;
+				leftRoadSwitch[i] = true;
 				//std::cout << "single road switch false" << std::endl;
 			}
 			
@@ -219,42 +349,12 @@ void RoadPointFinder::run()
 					roadListChanged = false;
 				}
 				
-				tempCurrentHeight = roadHeightAverage + roadHeightDelta[i];
-					
-				if(roadHeightDelta[i] > 0)
-				{
-					roadHeightDelta[i] = roadHeightDelta[i] - roadHeightIncrementDelta;
-				}
-				if(roadHeightDelta[i] < 0)
-				{
-					roadHeightDelta[i] = roadHeightDelta[i] + roadHeightIncrementDelta;
-				}
-				if(std::abs(roadHeightDelta[i]) < 0.001)
-				{
-					roadHeightDelta[i] = 0.0;
-				}
+				std::cout << "roadHeightAverage at position " << i << ": " << roadHeightAverage << std::endl;
 				
-				/*if(heightGap < maxHeightGap)
+				if(heightGap < maxHeightGap)
 				{
-					tempCurrentHeight = roadHeightAverage + roadHeightDelta[i];
-					
-					if(roadHeightDelta[i] > 0)
-					{
-						roadHeightDelta[i] = roadHeightDelta[i] - roadHeightIncrementDelta;
-					}
-					if(roadHeightDelta[i] < 0)
-					{
-						roadHeightDelta[i] = roadHeightDelta[i] + roadHeightIncrementDelta;
-					}
-					if(std::abs(roadHeightDelta[i]) < 0.001)
-					{
-						roadHeightDelta[i] = 0.0;
-					}
-				}
-				else
-				{
-					if(!((roadHeightAverage + roadHeightDelta[i]) > maxHeight || (roadHeightAverage + roadHeightDelta[i]) < minHeight))
-					{
+					if(!((roadHeightAverage + roadHeightDelta[i] > minHeight + maxHeightGap) || (roadHeightAverage + roadHeightDelta[i] < maxHeight - maxHeightGap)))
+					{	
 						tempCurrentHeight = roadHeightAverage + roadHeightDelta[i];
 						
 						if(roadHeightDelta[i] > 0)
@@ -270,154 +370,34 @@ void RoadPointFinder::run()
 							roadHeightDelta[i] = 0.0;
 						}
 					}
-				}*/
-			}
-			
-			
-			/*if(roadList[i].size()==0)
-			{
-				currentRoadName[i] = "asdasdasdasdafergbdv;bonesafae";
-				singleRoadSwitch[i] = false;
-			}
-			else
-			{
-				bool stillOnRoad = false;
-				for(int j = 0; j < roadList[i].size(); j++)
-				{
-					if(currentRoadName[i].compare(RoadSystem::Instance()->getRoadId(roadList[i][j])) == 0)
-					{
-						stillOnRoad = true;
-						currentRoadId[i] = i;
-					}
-				}
-				if(stillOnRoad == false) 
-				{
-					singleRoadSwitch[i] = false;
-					std::cout << "road point " << i << " left previous road" << std::endl;
-					currentRoadName[i] = RoadSystem::Instance()->getRoadId(roadList[i][0]);
-					currentRoadId[i] = 0;
-				}
-			}
-			if(roadList[i].size() == 1)
-			{
-				double tempHeight = tempCurrentHeight;
-				Vector2D v_c = roadList[i][0]->searchPositionNoBorder(searchInVec, -1.0);
-				if (!v_c.isNaV())
-				{
-					RoadPoint point = roadList[i][0]->getRoadPoint(v_c.u(), v_c.v());
-					tempHeight = point.z();
-				}
-				if(!singleRoadSwitch[i])
-				{
-					if(std::abs(tempCurrentHeight - tempHeight) > 0.005)
-					{
-						if(tempCurrentHeight > tempHeight)
-						{
-							if(roadHeightIncrement[i] > -roadHeightIncrementMax)
-							{
-								roadHeightIncrement[i] = roadHeightIncrement[i] - roadHeightIncrementDelta;
-							}
-						}
-						else if(tempCurrentHeight < tempHeight)
-						{
-							if(roadHeightIncrement[i] < roadHeightIncrementMax)
-							{
-								roadHeightIncrement[i] = roadHeightIncrement[i] + roadHeightIncrementDelta;
-							}
-						}
-						tempCurrentHeight = tempCurrentHeight + roadHeightIncrement[i];
-						
-					}
-					else if (std::abs(tempCurrentHeight - tempHeight) > maxRoadDistance)
-					{
-						if(tempCurrentHeight > tempHeight)
-						{
-							tempCurrentHeight = tempHeight + maxRoadDistance;
-						}
-						else if(tempCurrentHeight < tempHeight)
-						{
-							tempCurrentHeight = tempHeight - maxRoadDistance;
-						}
-					}
-					else
-					{
-						roadHeightIncrement[i] = 0.0;
-						singleRoadSwitch[i] = true;
-						//std::cout << "single road switch true for " << i << std::endl;
-						tempCurrentHeight = tempHeight;
-					}
 				}
 				else
 				{
-					tempCurrentHeight = tempHeight;
+					if(!((roadHeightAverage + roadHeightDelta[i]) > maxHeight || (roadHeightAverage + roadHeightDelta[i]) < minHeight))
+					{
+						if(!((roadHeightAverage + roadHeightDelta[i] > minHeight + maxHeightGap) || (roadHeightAverage + roadHeightDelta[i] < maxHeight - maxHeightGap)))
+						{
+							tempCurrentHeight = roadHeightAverage + roadHeightDelta[i];
+							
+							if(roadHeightDelta[i] > 0)
+							{
+								roadHeightDelta[i] = roadHeightDelta[i] - roadHeightIncrementDelta;
+							}
+							if(roadHeightDelta[i] < 0)
+							{
+								roadHeightDelta[i] = roadHeightDelta[i] + roadHeightIncrementDelta;
+							}
+							if(std::abs(roadHeightDelta[i]) < 0.001)
+							{
+								roadHeightDelta[i] = 0.0;
+							}
+						}
+					}
 				}
-				roadHeightDifference[i] = std::abs(tempCurrentHeight - tempHeight);
 			}
-			else if(roadList[i].size() > 1)
-			{
-				singleRoadSwitch[i] = false;
-				int numberInvalidRoads = 0;
-				//calculate average height
-				double roadHeightSum = 0;
-				for(int j = 0; j < roadList[i].size(); j++)
-				{
-					Vector2D v_c = roadList[i][j]->searchPosition(searchInVec, 0);
-					if (!v_c.isNaV())
-					{
-						RoadPoint point = roadList[i][j]->getRoadPoint(v_c.u(), v_c.v());
-						roadHeightSum = roadHeightSum + point.z();
-						if(i == 4 || i == 7)
-						{
-							std::cout << "road height at " << i << " at list position " << j << ": " << point.z() << std::endl; 
-						}
-					}
-					else
-					{
-						numberInvalidRoads++;
-					}
-					
-				}
-				double roadHeightAverage = roadHeightSum / (roadList[i].size() - numberInvalidRoads);
-				if(i == 4 || i == 7)
-				{
-					std::cout << "road height average at " << i << ": " << roadHeightAverage << std::endl; 
-				}
-				if(std::abs(tempCurrentHeight - roadHeightAverage) > 0.005)
-				{
-					if(tempCurrentHeight > roadHeightAverage)
-					{
-						if(roadHeightIncrement[i] > -roadHeightIncrementMax)
-						{
-							roadHeightIncrement[i] = roadHeightIncrement[i] - roadHeightIncrementDelta;
-						}
-					}
-					else if(tempCurrentHeight < roadHeightAverage)
-					{
-						if(roadHeightIncrement[i] < roadHeightIncrementMax)
-						{
-							roadHeightIncrement[i] = roadHeightIncrement[i] + roadHeightIncrementDelta;
-						}
-					}
-				}
-				else if (std::abs(tempCurrentHeight - roadHeightAverage) > maxRoadDistance)
-				{
-					if(tempCurrentHeight > roadHeightAverage)
-					{
-						tempCurrentHeight = roadHeightAverage + maxRoadDistance;
-					}
-					else if(tempCurrentHeight < roadHeightAverage)
-					{
-						tempCurrentHeight = roadHeightAverage - maxRoadDistance;
-					}
-				}
-				else
-				{
-					roadHeightIncrement[i] = 0.0;
-				}
-				
-				tempCurrentHeight = tempCurrentHeight + roadHeightIncrement[i];
-				roadHeightDifference[i] = std::abs(tempCurrentHeight - roadHeightAverage);
-			}*/
+			
+			std::cout << "current height at position " << i << ": " << tempCurrentHeight << std::endl;
+			
 			currentHeightMutex.acquire(1000000);
 			currentHeight[i] = tempCurrentHeight;
 			currentHeightMutex.release();
