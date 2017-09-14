@@ -68,6 +68,7 @@ protected:
 	int currentRoadId[12];
 	double currentHeight[12];
 	bool singleRoadSwitch[12];
+	bool leftRoadSwitch[12];
 	double roadHeightIncrement[12];
 	double roadHeightDifference[12];
 	double roadHeightDelta[12];
