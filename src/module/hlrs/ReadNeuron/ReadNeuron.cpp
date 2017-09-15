@@ -236,7 +236,8 @@ int ReadNeuron::compute(const char *)
     m_somafilename = new char[strlen(m_pSomaFile->getValue()) + 1];
     strcpy(m_somafilename, m_pSomaFile->getValue());
 
-    if ((somafile = fopen(m_somafilename, "r")) <= 0)
+    somafile = fopen(m_somafilename, "r");
+    if (!somafile)
     {
         ///sprintf(bfr, "ERROR: can't open file %s", m_somafilename);
         //sendError(bfr);
@@ -245,7 +246,8 @@ int ReadNeuron::compute(const char *)
     }
 
     // compute parameters
-    if ((file = fopen(m_filename, "r")) <= 0)
+    file = fopen(m_filename, "r");
+    if (!file)
     {
         sendError("ERROR: can't open file %s", m_filename);
         return FAIL;

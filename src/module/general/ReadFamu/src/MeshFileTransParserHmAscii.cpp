@@ -56,7 +56,8 @@ void MeshFileTransParserHmAscii::parseMeshFile(
     (void)noOfTimeStepToSkip;
     (void)noOfTimeStepsToParse;
     // compute parameters
-    if ((_fileHandle = fopen(filename.c_str(), "r")) <= 0)
+    _fileHandle = fopen(filename.c_str(), "r");
+    if (!_fileHandle)
     {
         ERROR1("cannot open mesh file ", filename, _outputHandler);
     }

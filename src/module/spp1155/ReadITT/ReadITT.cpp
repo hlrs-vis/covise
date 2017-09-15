@@ -100,8 +100,8 @@ int ReadITT::compute(const char * /*port*/)
     m_iLookAhead = m_pLookAheadValue->getValue();
 
     // compute parameters
-    FILE *pFile;
-    if ((pFile = Covise::fopen(m_filename.c_str(), "r")) <= 0)
+    FILE *pFile = Covise::fopen(m_filename.c_str(), "r");
+    if (!pFile)
     {
         sendError("ERROR: can't open file: %s", m_filename.c_str());
         return FAIL;

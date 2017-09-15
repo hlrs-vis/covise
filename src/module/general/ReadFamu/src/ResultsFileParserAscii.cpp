@@ -36,7 +36,8 @@ void ResultsFileParserAscii::parseResultsFile(std::string filename,
 {
     _maxNodeNo = meshDataTrans->getMaxNodeNo(0);
 
-    if ((_file = fopen(filename.c_str(), "r")) <= 0)
+    _file = fopen(filename.c_str(), "r");
+    if (!_file)
     {
         ERROR1("cannot open results file ", filename, _outputHandler);
     }
