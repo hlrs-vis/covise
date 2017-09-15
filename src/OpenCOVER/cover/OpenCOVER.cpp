@@ -553,7 +553,6 @@ bool OpenCOVER::init()
     readConfigFile();
 
     cover->updateTime();
-    coVRMSController::instance()->syncTime();
 
     coVRPluginList::instance();
 
@@ -747,7 +746,6 @@ bool OpenCOVER::init()
     frameNum++;
 
     cover->updateTime();
-    coVRMSController::instance()->syncTime();
     if (cover->debugLevel(2))
         cerr << "doneSync" << endl;
 
@@ -961,10 +959,11 @@ bool OpenCOVER::frame()
     //cerr << "-- OpenCOVER::frame" << endl;
 
     bool render = false;
-    coVRMSController::instance()->syncTime();
 
     //MARK0("COVER reading input devices");
 
+    cover->updateTime();
+    
     if (cover->ui->update())
         render = true;
 
@@ -1018,7 +1017,6 @@ bool OpenCOVER::frame()
     }
 
 
-    cover->updateTime();
     if (frameNum > 2)
     {
         if (coVRPluginList::instance()->update())

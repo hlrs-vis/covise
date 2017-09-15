@@ -816,6 +816,8 @@ void coVRPluginSupport::updateTime()
             frameStartTime = frameStartRealTime;
         }
     }
+    
+    coVRMSController::instance()->syncTime();
 #ifdef DOTIMING
     MARK0("done");
 #endif
