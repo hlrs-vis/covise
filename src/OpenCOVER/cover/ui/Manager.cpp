@@ -3,6 +3,7 @@
 #include "Element.h"
 #include "Group.h"
 
+#include <cctype>
 #include <cassert>
 #include <iostream>
 
