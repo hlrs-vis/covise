@@ -111,6 +111,7 @@ protected:
 	double roadHeightIncrementDelta;
 	double roadHeightIncrementMax;
 	double roadHeightDelta;
+	bool leftRoadSwitch;
 	
 	bool singleRoadSwitch;
 	
