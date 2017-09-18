@@ -91,6 +91,37 @@ public:
 		}
     }
     
+    virtual void setSpeeds(double inSpeed)
+	{
+		speedState.vX = inSpeed;
+		speedState.vY = inSpeed;
+		speedState.vZ = inSpeed;
+		speedState.vYaw = inSpeed;
+		speedState.vRoll = inSpeed;
+		speedState.vPitch = inSpeed;
+		speedState.vSuspZFL = inSpeed;
+		speedState.vSuspZFR = inSpeed;
+		speedState.vSuspZRR = inSpeed;
+		speedState.vSuspZRL = inSpeed;
+		speedState.OmegaYFL = inSpeed;
+		speedState.OmegaYFR = inSpeed;
+		speedState.OmegaYRR = inSpeed;
+		speedState.OmegaYRL = inSpeed;
+		speedState.OmegaZFL = inSpeed;
+		speedState.OmegaZFR = inSpeed;
+		speedState.phiDotFL1 = inSpeed;
+		speedState.phiDotFL2 = inSpeed;
+		speedState.phiDotFL3 = inSpeed;
+		speedState.phiDotFR1 = inSpeed;
+		speedState.phiDotFR2 = inSpeed;
+		speedState.phiDotFR3 = inSpeed;
+		speedState.phiDotRR1 = inSpeed;
+		speedState.phiDotRR2 = inSpeed;
+		speedState.phiDotRR3 = inSpeed;
+		speedState.phiDotRL1 = inSpeed;
+		speedState.phiDotRL2 = inSpeed;
+		speedState.phiDotRL3 = inSpeed;
+	}
     virtual void setTyreSlipFL(double inSlip)
 	{
 		speedState.slipFL = inSlip;
