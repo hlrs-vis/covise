@@ -448,16 +448,16 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
                 sprintf(cTmp, m_pParamFilePattern->getValue(), i);
             }
             m_iTimestepMax = i - 1;
-        }
-        std::cout << "Timestep Min: " << m_iTimestepMin << std::endl;
-        std::cout << "Timestep Max: " << m_iTimestepMax << std::endl;
+            std::cout << "Timestep Min: " << m_iTimestepMin << std::endl;
+            std::cout << "Timestep Max: " << m_iTimestepMax << std::endl;
 
-        m_pTimeMin->setValue(m_iTimestepMin);
-        m_pTimeMin->setMin(m_iTimestepMin);
-        m_pTimeMin->setMax(m_iTimestepMax);
-        m_pTimeMax->setValue(m_iTimestepMax);
-        m_pTimeMax->setMin(m_iTimestepMin);
-        m_pTimeMax->setMax(m_iTimestepMax);
+            m_pTimeMin->setValue(m_iTimestepMin);
+            m_pTimeMin->setMin(m_iTimestepMin);
+            m_pTimeMin->setMax(m_iTimestepMax);
+            m_pTimeMax->setValue(m_iTimestepMax);
+            m_pTimeMax->setMin(m_iTimestepMin);
+            m_pTimeMax->setMax(m_iTimestepMax);
+        }
     }
     else if (strcmp(name, m_pTimeMax->getName()) == 0)
     {
