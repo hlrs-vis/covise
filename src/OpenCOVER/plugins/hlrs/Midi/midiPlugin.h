@@ -68,6 +68,7 @@ public:
      
      osg::ref_ptr<osg::Geode> geometryLines;
      osg::Vec3Array *lineVert = new osg::Vec3Array;
+     osg::Vec4Array *lineColor = new osg::Vec4Array;
      osg::DrawArrayLengths *linePrimitives;
      private:
      int lastNum;
@@ -102,6 +103,7 @@ public:
     coTUITab *MIDITab;
     coTUILabel *infoLabel;
     coTUIEditIntField *trackNumber;
+    coTUIButton *reset;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
     static MidiPlugin *plugin;

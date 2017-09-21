@@ -457,6 +457,10 @@ void MidiPlugin::tabletEvent(coTUIElement *elem)
 	    currentTrack=0;
 	    }
     }
+    else if(elem == reset)
+    {
+        lTrack->reset();
+    }
 }
 
 void MidiPlugin::setTempo(int index) {
@@ -537,6 +541,10 @@ void MidiPlugin::MIDItab_create(void)
     trackNumber->setPos(0, 1);
     trackNumber->setValue(currentTrack);
     trackNumber->setEventListener(this);
+    
+    reset = new coTUIButton("Reset", MIDITab->getID());
+    reset->setPos(1, 0);
+    reset->setEventListener(this);
 }
 
 //--------------------------------------------------------------------
@@ -603,13 +611,13 @@ void Track::addNote(Note *n)
      notes.push_back(n);
      if( lastNode == NULL || ((n->event.seconds -lastNode->event.seconds)>1.0) )
      {
-         lastNum = num;    
-         fprintf(stderr,"%d\n",(num-lastNum)+1);
-	 if(num-lastNum == 0)
+	 if(lastNode != NULL && num-lastNum == 0)
 	 {
          fprintf(stderr,"new zero line\n");
          linePrimitives->push_back(1);
 	 }
+         lastNum = num;    
+         fprintf(stderr,"%d\n",(num-lastNum)+1);
          fprintf(stderr,"td\n");
      }
      fprintf(stderr,"num %d lastNum %d\n",num,lastNum);
@@ -625,6 +633,7 @@ void Track::addNote(Note *n)
          (*linePrimitives)[lastPrimitive] = (num-lastNum)+1;
      }
      lineVert->push_back(n->transform->getMatrix().getTrans());
+     lineColor->push_back(osg::Vec4(0,1,1,1));
 }
 
 osg::Geode *Track::createLinesGeometry()
@@ -642,9 +651,13 @@ osg::Geode *Track::createLinesGeometry()
 
     // set up geometry
     lineVert = new osg::Vec3Array;
+    lineColor = new osg::Vec4Array;
+    
     linePrimitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
     linePrimitives->push_back(0);
     geom->setVertexArray(lineVert);
+    geom->setColorArray(lineColor);
+    geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
     geom->addPrimitiveSet(linePrimitives);
     
     geode->addDrawable(geom);
@@ -663,6 +676,10 @@ void Track::reset()
     delete *it;
     }
     notes.clear();
+    lineVert->resize(0);
+    linePrimitives->resize(0);
+    lastNum=0;
+    lastPrimitive=0;
 }
 
 void Track::update()
@@ -757,12 +774,21 @@ void Track::update()
     } 
     }
     int vNum=0;
+    int numNotes = notes.size();
     for(std::list<Note *>::iterator it = notes.begin(); it != notes.end();it++)
     {
         
         (*it)->integrate(cover->frameTime()-oldTime);
-	
-        (*lineVert)[vNum++] = ((*it)->transform->getMatrix().getTrans());
+	osg::Vec3 v = ((*it)->transform->getMatrix().getTrans());
+        (*lineVert)[vNum] = v;
+	float len = v.length();
+	v.normalize();
+	osg::Vec4 c;
+	c[0] =  v[0];
+	c[1] =v[1];
+	c[2] = v[2];
+	c[3] = 1.0;
+        (*lineColor)[vNum++] = c;
     }
 	oldTime = cover->frameTime();
 }
