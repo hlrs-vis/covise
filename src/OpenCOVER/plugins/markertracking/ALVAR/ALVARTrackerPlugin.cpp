@@ -41,6 +41,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
 #include <Pose.h>
 
 #include "Alvar.h"
@@ -182,6 +183,7 @@ ALVARPlugin::ALVARPlugin()
 bool ALVARPlugin::init()
 {
     //sleep(6);
+
     ARToolKit::instance()->arInterface = this;
     ARToolKit::instance()->remoteAR = NULL;
 	ARToolKit::instance()->videoData = NULL;
@@ -533,6 +535,7 @@ ALVARPlugin::preFrame()
 #endif
     if (ARToolKit::instance()->running)
     {
+		OpenCOVER::instance()->m_renderNext = true;
 #ifndef _WIN32
         if (msgQueue > 0)
         {

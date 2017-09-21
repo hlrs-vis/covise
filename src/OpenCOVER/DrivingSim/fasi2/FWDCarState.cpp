@@ -44,10 +44,10 @@ FWDCarState::FWDCarState()
 	std::cout << "rwR: " << rwR << "rwF: " << rwF << std::endl;
 	std::cout << "sinawR: " << sinawR << "cosawR: " << cosawR << "sinawF: " << sinawF << "cosawF: " << cosawF << std::endl;
 	
-	suspOffsetFL = 0.1;
-	suspOffsetFR = 0.1;
-	suspOffsetRR = 0.1;
-	suspOffsetRL = 0.1;
+	suspOffsetFL = 1.0;
+	suspOffsetFR = 1.0;
+	suspOffsetRR = 1.0;
+	suspOffsetRL = 1.0;
 	
 	mCar =1500; //mass of car body
 	mSusFL = 40;

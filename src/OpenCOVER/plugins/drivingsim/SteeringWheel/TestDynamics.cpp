@@ -97,7 +97,7 @@ TestDynamics::TestDynamics()
 	xodrLoaded = false;
 	printedOnce = false;
 	printCounter = 1;
-	printMax = 40;
+	printMax = 10000;
 	
 	Car2OddlotRotation.makeRotate(M_PI/2,0,0,1);
 	Oddlot2CarRotation.makeRotate(-M_PI/2,0,0,1);
@@ -113,6 +113,8 @@ TestDynamics::TestDynamics()
 	roadHeightIncrementDelta = 0.05;
 	roadHeightIncrementMax = 0.01;
 	singleRoadSwitch = false;
+	leftRoadSwitch = false;
+	currentHeight = 0;
 	
 	tireDist = 0.0;
 }
@@ -191,7 +193,8 @@ void TestDynamics::initState()
 		
 		chassisTrans = relTrans * chassisTrans;*/
 		
-		chassisTrans.makeTranslate(rP.x(), rP.z(), -rP.y());
+		//chassisTrans.makeTranslate(rP.x(), rP.z(), -rP.y());
+		chassisTrans.makeTranslate(rP.x(), 0.0, -rP.y());
 		globalPos.makeTranslate(rP.x(), rP.z(), -rP.y());
 		/*state.X = 0.0;
 		state.Y = 0.0;
@@ -894,14 +897,15 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		std::vector<Road*> oldRoadList;
 		tempRoadList = RoadSystem::Instance()->searchPositionList(searchInVec);
 		
+		/*for(int i = 0; i < tempRoadList.size(); i++)
+		{
+			cout << "road id at position: " << i << "; " << RoadSystem::Instance()->getRoadId(tempRoadList[i]) << endl;
+		}*/
+		
 		bool roadListChanged = false;
 		
 		if(tempRoadList.size() != 0)
 		{
-			for(int i = 0; i < tempRoadList.size(); i++)
-			{
-				cout << "road id at position: " << i << "; " << RoadSystem::Instance()->getRoadId(tempRoadList[i]) << endl;
-			}
 			std::vector<Road*> oldRoadList;
 			oldRoadList = roadList[3];
 			roadList[3] = tempRoadList;
@@ -938,10 +942,16 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 			{
 				roadListChanged = true;
 			}
+			/*if(leftRoadSwitch == true)
+			{
+				leftRoadSwitch = false;
+				roadListChanged = true;
+			}*/
 		}
 		else
 		{
 			singleRoadSwitch = false;
+			//leftRoadSwitch = true;
 			//std::cout << "single road switch false" << std::endl;
 		}
 		
@@ -963,7 +973,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 					{
 						RoadPoint point = roadList[3][j]->getRoadPoint(v_c.u(), v_c.v());
 						roadHeightSum = roadHeightSum + point.z();
-						//std::cout << "point z: " << point.z() << std::endl;
+						std::cout << "point z at " << j << ": " << point.z() << std::endl;
 					}
 					else
 					{
@@ -985,7 +995,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 				{
 					RoadPoint point = roadList[3][0]->getRoadPoint(v_c.u(), v_c.v());
 					roadHeightAverage = point.z();
-					//std::cout << "point z: " << point.z() << std::endl;
+					std::cout << "one road point z: " << point.z() << std::endl;
 				}
 			}
 				
@@ -1011,8 +1021,8 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 			{
 				roadHeightDelta = 0.0;
 			}
-			//std::cout << "roadHeightAverage: " << roadHeightAverage << std::endl;
-			//std::cout << "current height: " << currentHeight << std::endl;
+			std::cout << "roadHeightAverage: " << roadHeightAverage << std::endl;
+			std::cout << "current height:    " << currentHeight << std::endl;
 		}
 		
 		/*tempRoadList = RoadSystem::Instance()->searchPositionList(searchInVec);
@@ -1174,6 +1184,11 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		osg::Matrix heightMatrix;
 		heightMatrix.makeTranslate(0,currentHeight,0);
 		osg::Matrix otherMatrix = heightMatrix * chassisTrans;
+		
+		/*std::cout << otherMatrix(0,0) << "," << otherMatrix(0,1) << "," << otherMatrix(0,2) << "," << otherMatrix(0,3) << std::endl;
+		std::cout << otherMatrix(1,0) << "," << otherMatrix(1,1) << "," << otherMatrix(1,2) << "," << otherMatrix(1,3) << std::endl;
+		std::cout << otherMatrix(2,0) << "," << otherMatrix(2,1) << "," << otherMatrix(2,2) << "," << otherMatrix(2,3) << std::endl;
+		std::cout << otherMatrix(3,0) << "," << otherMatrix(3,1) << "," << otherMatrix(3,2) << "," << otherMatrix(3,3) << std::endl;*/
 		
 		vehicle->setVRMLVehicle(otherMatrix);
 		vehicle->setVRMLVehicleBody(bodyTrans);

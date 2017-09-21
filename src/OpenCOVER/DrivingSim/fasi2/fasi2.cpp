@@ -574,6 +574,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
 			vehicleDynamics->setTyreSlipFR(0.0);
 			vehicleDynamics->setTyreSlipRR(0.0);
 			vehicleDynamics->setTyreSlipRL(0.0);
+			vehicleDynamics->setSpeeds(0.0);
         }
         else if (p_ignitionLock->getLockState() == IgnitionLock::IGNITION)
         {
