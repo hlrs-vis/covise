@@ -6,10 +6,15 @@
  * License: LGPL 2+ */
 
 #ifdef WIN32
+#include <SDKDDKVer.h>
 #include <winsock2.h>
 #include <windows.h>
 #include <direct.h>
+#include <stdio.h>
+#include <conio.h>
+#include <mmsystem.h>
 #endif
+#include "cover/OpenCOVER.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRFileManager.h>
@@ -57,6 +62,38 @@
 #ifdef _WINDOWS
 #include <direct.h>
 #define GetCurrentDir _getcwd
+
+
+void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
+{
+	switch (wMsg) {
+	case MIM_OPEN:
+		printf("wMsg=MIM_OPEN\n");
+		break;
+	case MIM_CLOSE:
+		printf("wMsg=MIM_CLOSE\n");
+		break;
+	case MIM_DATA:
+		printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+		break;
+	case MIM_LONGDATA:
+		printf("wMsg=MIM_LONGDATA\n");
+		break;
+	case MIM_ERROR:
+		printf("wMsg=MIM_ERROR\n");
+		break;
+	case MIM_LONGERROR:
+		printf("wMsg=MIM_LONGERROR\n");
+		break;
+	case MIM_MOREDATA:
+		printf("wMsg=MIM_MOREDATA\n");
+		break;
+	default:
+		printf("wMsg = unknown\n");
+		break;
+	}
+	return;
+}
 #else
 #include <unistd.h>
 #define GetCurrentDir getcwd
@@ -383,8 +420,33 @@ currentTrack = 0;
     midi1fd = -1;
     if(coVRMSController::instance()->isMaster())
     {
+#ifndef WIN32
         midi1fd = open("/dev/midi1",O_RDONLY | O_NONBLOCK);
         fprintf(stderr,"open /dev/midi1 %d",midi1fd);
+#else
+		UINT nMidiDeviceNum;
+		nMidiDeviceNum = midiInGetNumDevs();
+		if (nMidiDeviceNum == 0) {
+			fprintf(stderr, "midiInGetNumDevs() return 0...");
+			//return -1;
+		}
+		else
+		{
+		MMRESULT rv;
+		HMIDIIN hMidiDevice = NULL;
+		DWORD nMidiPort = 0;
+		rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD)(void*)MidiInProc, 0, CALLBACK_FUNCTION);
+		if (rv != MMSYSERR_NOERROR) {
+			fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
+			//return -1;
+		}
+		else
+		{
+			midiInStart(hMidiDevice);
+		}
+		}
+
+#endif
     }
     lTrack = NULL;
     lTrack = new Track(tracks.size());
@@ -425,6 +487,8 @@ void MidiPlugin::preFrame()
             tracks[currentTrack]->setVisible(true);
         }
         tracks[currentTrack]->update();
+
+		OpenCOVER::instance()->m_renderNext = true;
     }
 }
 
