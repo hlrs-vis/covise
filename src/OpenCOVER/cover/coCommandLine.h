@@ -31,7 +31,7 @@ class COVEREXPORT coCommandLine
 public:
     coCommandLine(int argc, char *argv[]);
     static coCommandLine *instance();
-    static int argc();
+    static int &argc();
     static char **argv();
     static char *argv(int i);
     static void shift(int amount = 1);

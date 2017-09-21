@@ -58,10 +58,6 @@ static void eblock_type_notify_proc(Widget w, XtPointer client_data, XtPointer c
 static void eblock_accept_notify_proc(Widget w, XtPointer client_data, XtPointer call_data);
 static void update_eblock(void);
 
-extern "C" {
-extern void cfree(void *);
-}
-
 /*
  * Create the files Frame and the files Panel
  */
@@ -398,7 +394,7 @@ static void eblock_accept_notify_proc(Widget, XtPointer, XtPointer)
     ty = (double *)calloc(blocklen, sizeof(double));
     if (ty == NULL)
     {
-        cfree(tx);
+        free(tx);
         errwin("Can't allocate memory for Y");
         return;
     }

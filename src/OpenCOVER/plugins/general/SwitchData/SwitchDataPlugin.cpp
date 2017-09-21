@@ -25,6 +25,7 @@
 #include <cover/coVRTui.h>
 
 using namespace osg;
+using namespace vrui;
 
 void SwitchDataPlugin::newInteractor(const RenderObject *cont, coInteractor *inter)
 {

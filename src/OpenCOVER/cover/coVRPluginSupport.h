@@ -54,6 +54,8 @@
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
 
+#include "ui/Manager.h"
+
 #define MAX_NUMBER_JOYSTICKS 64
 
 namespace osg
@@ -546,6 +548,8 @@ public:
 
     //! update internal state related to current person being tracked - called Input system
     void personSwitched(size_t personNumber);
+
+    ui::Manager *ui = nullptr;
 
     osg::Matrix envCorrectMat;
     osg::Matrix invEnvCorrectMat;

@@ -17,8 +17,6 @@
 
 #include <QtXml>
 
-using namespace std;
-
 class SaveData
 {
 public:

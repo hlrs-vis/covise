@@ -47,6 +47,7 @@ addons:
             - libqt5scripttools5
             - libqt5svg5-dev
             - libqt5opengl5-dev
+            - libqt5widgets5-dev
             - libqt5webkit5-dev
             - libxerces-c-dev
             - libpng12-dev

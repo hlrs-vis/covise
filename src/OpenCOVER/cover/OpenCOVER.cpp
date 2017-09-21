@@ -83,6 +83,8 @@
 #include <input/input.h>
 #include <input/coMousePointer.h>
 
+#include "ui/VruiView.h"
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -248,6 +250,10 @@ void OpenCOVER::waitForWindowID()
             //sleep(5); // we have to wait, window is in creation
             validWindowID = true;
         }
+        else
+        {
+            usleep(10000);
+        }
     }
 }
 
@@ -289,6 +295,9 @@ bool OpenCOVER::run()
 
 bool OpenCOVER::init()
 {
+    if (m_initialized)
+        return true;
+
     installSignalHandlers();
 
 #ifdef _WIN32
@@ -462,7 +471,7 @@ bool OpenCOVER::init()
     if (useDISPLAY && getenv("DISPLAY") == NULL)
     {
         useDISPLAY = false;
-        cerr << "DISPLAY not set" << endl;
+        cerr << "DISPLAY not set, defaulting to DISPLAY=:0" << endl;
     }
     else if (useDISPLAY)
     {
@@ -487,6 +496,11 @@ bool OpenCOVER::init()
             {
                 fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
             }
+            putenv(envDisplay);
+        }
+        else if (!getenv("DISPLAY"))
+        {
+            strcpy(envDisplay, "DISPLAY=:0");
             putenv(envDisplay);
         }
     }
@@ -539,7 +553,6 @@ bool OpenCOVER::init()
     readConfigFile();
 
     cover->updateTime();
-    coVRMSController::instance()->syncTime();
 
     coVRPluginList::instance();
 
@@ -681,6 +694,7 @@ bool OpenCOVER::init()
     // setup Pinboard
     VRPinboard::instance();
     VRPinboard::instance()->configInteraction();
+    cover->ui->addView(new ui::VruiView);
     coVRLighting::instance()->initMenu();
 
     hud->setText2("loading plugin");
@@ -732,7 +746,6 @@ bool OpenCOVER::init()
     frameNum++;
 
     cover->updateTime();
-    coVRMSController::instance()->syncTime();
     if (cover->debugLevel(2))
         cerr << "doneSync" << endl;
 
@@ -757,6 +770,7 @@ bool OpenCOVER::init()
     
     coVRPluginList::instance()->init2();
 
+    m_initialized = true;
     return true;
 }
 
@@ -905,6 +919,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 }
             }
 
+            cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
             coVRAnimationManager::instance()->keyEvent(type, code, state);
@@ -916,6 +931,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
     {
         if (!cover->isKeyboardGrabbed())
         {
+            cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
             coVRAnimationManager::instance()->keyEvent(type, code, state);
@@ -943,19 +959,13 @@ bool OpenCOVER::frame()
     //cerr << "-- OpenCOVER::frame" << endl;
 
     bool render = false;
-    cover->updateTime();
-    if (frameNum > 2)
-    {
-        if (coVRPluginList::instance()->update())
-            render = true;
-    }
-    else
-    {
-        render = true;
-    }
-    coVRMSController::instance()->syncTime();
 
     //MARK0("COVER reading input devices");
+
+    cover->updateTime();
+    
+    if (cover->ui->update())
+        render = true;
 
     if (VRViewer::instance()->handleEvents())
     {
@@ -1006,6 +1016,17 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+
+    if (frameNum > 2)
+    {
+        if (coVRPluginList::instance()->update())
+            render = true;
+    }
+    else
+    {
+        render = true;
+    }
+    
     if (!render)
     {
         if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)

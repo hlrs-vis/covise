@@ -104,6 +104,7 @@ FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2()
 	roadPointFinder->getPositionMutex().acquire(period);
 	
 	osg::Matrix tempMatrixFL1 = carState.globalPosOC * Opencover2OddlotRotation;
+	std::cout << "tempmatrixfl x: " << tempMatrixFL1.getTrans().x() << " y: " << tempMatrixFL1.getTrans().y() << " z: " << tempMatrixFL1.getTrans().z() << std::endl;
 	roadPointFinder->setPoint(tempMatrixFL1.getTrans(), 0);
 	osg::Matrix tempMatrixFL2 = carState.globalPosOC * Opencover2OddlotRotation;
 	roadPointFinder->setPoint(tempMatrixFL2.getTrans(), 1);
@@ -1636,7 +1637,7 @@ void FourWheelDynamicsRealtime2::run()
 			
 			carState.cogOpencoverPos = carState.cogOpencoverPos * deltaX * deltaY * deltaZ;
 			
-			carState.modelOriginOffsetXMatrix.makeTranslate(carState.modelOriginOffsetX * carState.cogOpencoverRotZ1, carState.modelOriginOffsetX * carState.cogOpencoverRotZ1, carState.modelOriginOffsetX * carState.cogOpencoverRotZ1);
+			carState.modelOriginOffsetXMatrix.makeTranslate(carState.modelOriginOffsetX * carState.cogOpencoverRotZ1, carState.modelOriginOffsetY * carState.cogOpencoverRotZ1, carState.modelOriginOffsetZ * carState.cogOpencoverRotZ1);
 			
 			chassisTrans = carState.cogOpencoverRot * carState.cogOpencoverPos * carState.modelOriginOffsetXMatrix;
 			
@@ -1761,7 +1762,7 @@ void FourWheelDynamicsRealtime2::run()
 			time++;
 			carState.timerCounter = timerCounter;
 			
-			if(timerCounter == 500 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
+			if(timerCounter == 100 /*|| speedState.vX != 0 time > 1000 * 2 * M_PI && timerCounter <= 1000 * 2 * M_PI + 1000 * 2 * M_PI*/)
 			{
 				//outfile << time << " " << carState.mpLZ << " " << carState.mpRZ << " " << carState.mpBZ << " " << carState.mpHeight << " " << carState.cogOpencoverPos(3,1) << " " 
 				//<< speedState.vZ << " " << current << std::endl;
@@ -1799,10 +1800,10 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cerr << "integrator run time:" << diffTime << std::endl;
 				//std::cout << "#time period: " << h << std::endl; 
 				//std::cout << "#time " << time << std::endl; 
-				//osg::Vec3d globPosTransVec = carState.globalPosOC.getTrans();
-				//std::cout << "#globalPosTransVec: x " << globPosTransVec.x() << "; y " << globPosTransVec.y() << "; z " << globPosTransVec.z() << std::endl;
-				//osg::Vec3d chassisTransVec = chassisTrans.getTrans();
-				//std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
+				osg::Vec3d globPosTransVec = carState.globalPosOC.getTrans();
+				std::cout << "#globalPosTransVec: x " << globPosTransVec.x() << "; y " << globPosTransVec.y() << "; z " << globPosTransVec.z() << std::endl;
+				osg::Vec3d chassisTransVec = chassisTrans.getTrans();
+				std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
 				
 				//std::cout << "rot:"<< std::endl;
 				//std::cout << carState.cogOpencoverRot(0,0) << "," << carState.cogOpencoverRot(0,1) << "," << carState.cogOpencoverRot(0,2) << "," << carState.cogOpencoverRot(0,3) << std::endl;
@@ -1842,18 +1843,18 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << " " << std::endl;
 				int length = 13;
 				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
-				std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
+				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
 				std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
-				std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
+				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
 				//std::cout << "#suspX    " << std::setw(length) << carState.globalPosSuspFL.getTrans().x() 	<< "  suspX     " << std::setw(length) << carState.globalPosSuspFR.getTrans().x() << std::endl;
-				//std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspFL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspFR.getTrans().y() << std::endl;
+				std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspFL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspFR.getTrans().y() << std::endl;
 				//std::cout << "#suspZ    " << std::setw(length) << carState.globalPosSuspFL.getTrans().z() 	<< "  suspZ     " << std::setw(length) << carState.globalPosSuspFR.getTrans().z() << std::endl;
 				//std::cout << "#susSpeed " << std::setw(length) << speedState.vSuspZFL 						<< "  susSpeed  " << std::setw(length) << speedState.vSuspZFR << std::endl;
 				//std::cout << "#tireSpd  " << std::setw(length) << carState.tireDefSpeedFL 					<< "  tireSpd   " << std::setw(length) << carState.tireDefSpeedFR << std::endl;
 				//std::cout << "#localZS  " << std::setw(length) << carState.localZPosSuspFL 					<< "  localZS   " << std::setw(length) << carState.localZPosSuspFR << std::endl;
 				//std::cout << "#localZT  " << std::setw(length) << carState.localZPosTireFL 					<< "  localZT   " << std::setw(length) << carState.localZPosTireFR << std::endl;
 				//std::cout << "#joint x  " << std::setw(length) << carState.globalPosJointFL.getTrans().x() 	<< "  joint x   " << std::setw(length) << carState.globalPosJointFR.getTrans().x() << std::endl;
-				//std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointFL.getTrans().y() 	<< "  joint y   " << std::setw(length) << carState.globalPosJointFR.getTrans().y() << std::endl;
+				std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointFL.getTrans().y() 	<< "  joint y   " << std::setw(length) << carState.globalPosJointFR.getTrans().y() << std::endl;
 				//std::cout << "#jointz   " << std::setw(length) << carState.globalPosJointFL.getTrans().z() 	<< "  jointz    " << std::setw(length) << carState.globalPosJointFR.getTrans().z() << std::endl;
 				//std::cout << "#weighted " << std::setw(length) << speedState.FweightedFL 						<< "  weighted  " << std::setw(length) << speedState.FweightedFR << std::endl;
 				//std::cout << "#Ftire    " << std::setw(length) << speedState.FtireFL 							<< "  Ftire     " << std::setw(length) << speedState.FtireFR << std::endl;
@@ -1879,18 +1880,18 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#whlPosX  " << std::setw(length) << wheelPosRLX									<< "  whlPosX  " << std::setw(length) << wheelPosRRX << std::endl;
 				//std::cout << "#whlPosY  " << std::setw(length) << wheelPosRLY									<< "  whlPosY  " << std::setw(length) << wheelPosRRY << std::endl;
 				
-				std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireRL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireRR2.getTrans().x() << std::endl;
+				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireRL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireRR2.getTrans().x() << std::endl;
 				std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireRL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireRR2.getTrans().y() << std::endl;
-				std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireRL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireRR2.getTrans().z() << std::endl;
+				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireRL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireRR2.getTrans().z() << std::endl;
 				//std::cout << "#suspX    " << std::setw(length) << carState.globalPosSuspRL.getTrans().x() 	<< "  suspX     " << std::setw(length) << carState.globalPosSuspRR.getTrans().x() << std::endl;
-				//std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspRL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspRR.getTrans().y() << std::endl;
+				std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspRL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspRR.getTrans().y() << std::endl;
 				//std::cout << "#suspZ    " << std::setw(length) << carState.globalPosSuspRL.getTrans().z() 	<< "  suspZ     " << std::setw(length) << carState.globalPosSuspRR.getTrans().z() << std::endl;
 				//std::cout << "#susSpeed " << std::setw(length) << speedState.vSuspZRL 						<< "  susSpeed " << std::setw(length) << speedState.vSuspZRR << std::endl;
 				//std::cout << "#tireSpd  " << std::setw(length) << carState.tireDefSpeedRL 					<< "  tireSpd   " << std::setw(length) << carState.tireDefSpeedRR << std::endl;
 				//std::cout << "#localZS  " << std::setw(length) << carState.localZPosSuspRL 					<< "  localZS   " << std::setw(length) << carState.localZPosSuspRR << std::endl;
 				//std::cout << "#localZT  " << std::setw(length) << carState.localZPosTireRL 					<< "  localZT   " << std::setw(length) << carState.localZPosTireRR << std::endl;
 				//std::cout << "#joint x  " << std::setw(length) << carState.globalPosJointRL.getTrans().x() 	<< "  joint x  " << std::setw(length) << carState.globalPosJointRR.getTrans().x() << std::endl;
-				//std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointRL.getTrans().y() 	<< "  joint y  " << std::setw(length) << carState.globalPosJointRR.getTrans().y() << std::endl;
+				std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointRL.getTrans().y() 	<< "  joint y  " << std::setw(length) << carState.globalPosJointRR.getTrans().y() << std::endl;
 				//std::cout << "#joint z  " << std::setw(length) << carState.globalPosJointRL.getTrans().z() 	<< "  joint z  " << std::setw(length) << carState.globalPosJointRR.getTrans().z() << std::endl;
 				//std::cout << "#weighted " << std::setw(length) << speedState.FweightedRL 						<< "  weighted " << std::setw(length) << speedState.FweightedRR << std::endl;
 				//std::cout << "#Ftire    " << std::setw(length) << speedState.FtireRL 							<< "  Ftire    " << std::setw(length) << speedState.FtireRR << std::endl;
@@ -1952,7 +1953,7 @@ void FourWheelDynamicsRealtime2::run()
 		if(isnan(current))
 		{
 			current = 0;
-			std::cout << "current is NAN o.O" << std::endl; 
+			//std::cout << "current is NAN o.O" << std::endl; 
 		}
 		
 		//std::cout << "current after: " << current << std::endl;
@@ -1960,9 +1961,9 @@ void FourWheelDynamicsRealtime2::run()
 		steerWheel->setCurrent(current);
 		
 		//Motion platform handling
-		//carState.mpRZ = 0;
-		//carState.mpLZ = 0;
-		//carState.mpBZ = 0;
+		carState.mpRZ = 0;
+		carState.mpLZ = 0;
+		carState.mpBZ = 0;
 		
 		double posLimit = 0.2;
 		if(carState.mpRZ > posLimit)

@@ -33,6 +33,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRMSController.h>
 #include <config/CoviseConfig.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 //#define VERBOSE
 

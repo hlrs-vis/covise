@@ -22,7 +22,9 @@
 #include <cover/coVRNavigationManager.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
+#include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coRowMenuItem.h>
+#include <OpenVRUI/coCheckboxMenuItem.h>
 #include <cover/VRSceneGraph.h>
 
 #include <algorithm>

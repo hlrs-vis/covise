@@ -8,17 +8,28 @@
 #include "VariantUI.h"
 #include "VariantPlugin.h"
 #include "Variant.h"
+#include <net/tokenbuffer.h>
+#include <PluginUtil/PluginMessageTypes.h>
 
-using namespace vrui;
 using namespace opencover;
 
-VariantUI::VariantUI(std::string varName, coRowMenu *Variant_menu, coTUITab *VariantPluginTab)
+VariantUI::VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *VariantPluginTab)
 {
+    //new ui::Menu *variantMenu
 
     //Creating the Checkbox for show/hide the variant in the Cover VR-menue
-    Cb_item = new coCheckboxMenuItem(varName.c_str(), true);
-    Cb_item->setMenuListener(Variant::variantClass);
-    Variant_menu->add(Cb_item);
+    Cb_item = new ui::Button(Variant_menu, varName);
+    Cb_item->setState(true);
+    Cb_item->setCallback([this, varName](bool state){
+        TokenBuffer tb;
+        tb << varName;
+        if (state)
+            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+        else
+            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+    });
+    //Cb_item->setMenuListener(Variant::variantClass);
+    //Variant_menu->add(Cb_item);
 
     //Creating the Checkbox for show/hide the variant in the TabletUI ("Variant"-Tab)
     VariantPluginTUIItem = new coTUIToggleButton(varName.c_str(), VariantPluginTab->getID()); //new Button for tabletUi
@@ -49,7 +60,7 @@ VariantUI::~VariantUI()
     delete zTRansItem;
 }
 
-coCheckboxMenuItem *VariantUI::getVRUI_Item()
+ui::Button *VariantUI::getVRUI_Item()
 {
     return Cb_item;
 }

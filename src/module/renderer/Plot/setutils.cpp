@@ -22,9 +22,6 @@
 
 extern int yesno(const char *msg1, const char *s1, const char *s2, const char *helptext);
 extern void errwin(const char *s);
-extern "C" {
-extern void cfree(void *);
-}
 
 extern void set_plotstr_string(plotstr *pstr, char *buf);
 extern void updatesymbols(int gno, int value);
@@ -508,7 +505,7 @@ void updatesetminmax(int gno, int setno)
         }
         if (tmp)
         {
-            cfree(tmp);
+            free(tmp);
         }
     }
     else
@@ -779,7 +776,7 @@ void softkillset(int gno, int setno)
     {
         if (g[gno].p[setno].ex[i] != NULL)
         {
-            cfree(g[gno].p[setno].ex[i]);
+            free(g[gno].p[setno].ex[i]);
         }
         g[gno].p[setno].ex[i] = NULL;
     }
@@ -931,7 +928,7 @@ void sortset(int gno, int setno, int sorton, int stype)
     dtmp = (double *)calloc(len, sizeof(double));
     if (dtmp == NULL)
     {
-        cfree(ind);
+        free(ind);
         errwin("Unable to allocate memory for sort");
         return;
     }
@@ -1388,7 +1385,7 @@ void do_splitsets(int gno, int setno, int lpart)
             errwin("Not enough memory for split");
             for (k = 0; k < j; k++)
             {
-                cxfree(xtmp[k]);
+                free(xtmp[k]);
             }
             return;
         }
@@ -1468,7 +1465,7 @@ void do_splitsets(int gno, int setno, int lpart)
     update_set_status(gno, tmpset);
     for (k = 0; k < ncols; k++)
     {
-        cfree(xtmp[k]);
+        free(xtmp[k]);
     }
 
     drawgraph();
@@ -2275,8 +2272,8 @@ void do_writesets_binary(int gno, int, char *fn)
             fwrite(&n, sizeof(int), 1, cp);
             fwrite(xf, sizeof(float), n, cp);
             fwrite(yf, sizeof(float), n, cp);
-            cfree(xf);
-            cfree(yf);
+            free(xf);
+            free(yf);
         }
     }
     fclose(cp);

@@ -105,6 +105,10 @@ public:
 	cosawR,
 	sinawF,
 	cosawF,
+	suspOffsetFL,
+	suspOffsetFR,
+	suspOffsetRR,
+	suspOffsetRL,
 	mCar, //mass of car body
 	mSusFL,
 	mSusFR,

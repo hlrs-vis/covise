@@ -44,6 +44,10 @@ FWDCarState::FWDCarState()
 	std::cout << "rwR: " << rwR << "rwF: " << rwF << std::endl;
 	std::cout << "sinawR: " << sinawR << "cosawR: " << cosawR << "sinawF: " << sinawF << "cosawF: " << cosawF << std::endl;
 	
+	suspOffsetFL = 1.0;
+	suspOffsetFR = 1.0;
+	suspOffsetRR = 1.0;
+	suspOffsetRL = 1.0;
 	
 	mCar =1500; //mass of car body
 	mSusFL = 40;
@@ -54,10 +58,10 @@ FWDCarState::FWDCarState()
 	contactPatch = 0.1;
 	tireRadF = 0.3;
 	tireRadR = 0.3;
-	csFLSport = 30000;//9000;
-	csFRSport = 30000;//9000;
-	csRRSport = 35000;//9000;
-	csRLSport = 35000;//9000;
+	csFLSport = 50000;//9000;
+	csFRSport = 50000;//9000;
+	csRRSport = 60000;//9000;
+	csRLSport = 60000;//9000;
 	dsFLSport = 7000;//5000;
 	dsFRSport = 7000;//5000;
 	dsRRSport = 7500;//5000;
@@ -78,10 +82,10 @@ FWDCarState::FWDCarState()
 	dsFR = dsFRComfort;
 	dsRR = dsRRComfort;
 	dsRL = dsRLComfort;
-	ctFL = 45000;//40000;
-	ctFR = 45000;//40000;
-	ctRR = 45000;//40000;
-	ctRL = 45000;//40000;
+	ctFL = 120000;//40000;
+	ctFR = 120000;//40000;
+	ctRR = 120000;//40000;
+	ctRL = 120000;//40000;
 	dtFL = 45000;//45000;
 	dtFR = 45000;//45000;
 	dtRR = 45000;//45000;
@@ -170,24 +174,24 @@ FWDCarState::FWDCarState()
 	czN = 190000;
 	cz2N = 206000;
 	vN = 0.000000000001;
-	FxMN = 4500;//3300
-	FxM2N = 7700;//6500
+	FxMN = 5000;//3300
+	FxM2N = 10100;//6500
 	dFx0N = 70000;//90000
 	dFx02N = 140000;//160000
-	FxGN = 3500;//3200;
-	FxG2N = 6500;//6000
-	FyMN = 4000;//3100
-	FyM2N = 6500;//5400
-	dFy0N = 60000;//70000
-	dFy02N = 92000;//100000
-	FyGN = 3500;//3200;
-	FyG2N = 5800;//5300
+	FxGN = 4800;//3200;
+	FxG2N = 9800;//6000
+	FyMN = 4500;//3100
+	FyM2N = 6800;//5400
+	dFy0N = 40000;//70000
+	dFy02N = 60000;//100000
+	FyGN = 4400;//3200;
+	FyG2N = 6700;//5300
 	sxMN = 0.13;//0.09
 	sxM2N = 0.15;//0.11
 	sxGN = 0.5;//0.4
 	sxG2N = 0.6;//0.5
-	syMN = 0.22;//0.18
-	syM2N = 0.29;//0.2
+	syMN = 0.32;//0.18
+	syM2N = 0.38;//0.2
 	syGN = 0.7;//0.6
 	syG2N = 0.9;//0.8
 	nL0 = 0.179;
@@ -250,7 +254,7 @@ FWDCarState::FWDCarState()
 	brakeForceAmplification = 20.0;
 	
 	//drag
-	cDrag = 0.3;
+	cDrag = 0.2;
 	
 	//environment
 	aGrav = 9.81;

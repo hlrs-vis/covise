@@ -12,6 +12,7 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
+#include <OpenVRUI/coMenu.h>
 
 namespace vrui
 {

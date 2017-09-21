@@ -11,7 +11,6 @@
  *
  * Contents:
  *
- * void cxfree() - cfree and check for NULL pointer
  * void fswap()  - swap doubles
  * void iswap()  - swap ints
  * void lowtoupper() - convert a string to upper case
@@ -29,25 +28,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
-
-#ifdef __APPLE__
-extern "C" void cfree(void *p) { free(p); }
-#else
-extern "C" {
-extern void cfree(void *);
-}
-#endif
-
-/*
- * cfree and check for NULL pointer
- */
-void cxfree(void *ptr)
-{
-    if (ptr != NULL)
-    {
-        cfree(ptr);
-    }
-}
 
 /*
  * swap doubles and ints

@@ -1146,32 +1146,34 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
         int minPointer = 0;
         for (int i = 0; i < numSecs; ++i)
         {
-            /*double area = ((supportVectorVector[i]).cross(supportVectorVector[i+1])).length();
-         if(area < minArea) {
-            minArea = area;
-            minPointer = i;
-         }*/
-            /*double circum = supportVectorVector[i].length() + supportVectorVector[i+1].length() + (supportVectorVector[i] - supportVectorVector[i+1]).length();
-         if(circum < minCircum) {
-            minCircum = circum;
-            minPointer = i;
-         }*/
-            Vector3D t = (supportVectorVector[i + 1] - supportVectorVector[i]);
-            double gamma;
-	    Vector3D n(0,0,0);
-	    if(pos[2]==0) // ignore height
-	    {
-	    Vector3D tmp = supportVectorVector[i];
-	    tmp[2]=0;
-	    gamma = t.dot(pos - tmp) / t.dot(t);
-            n = pos - tmp - t * gamma;
-	    }
-	    else
-	    {
-	    gamma = t.dot(pos - supportVectorVector[i]) / t.dot(t);
-            n = pos - supportVectorVector[i] - t * gamma;
-	    }
-	    
+				/*double area = ((supportVectorVector[i]).cross(supportVectorVector[i+1])).length();
+			if(area < minArea) 
+			{
+				minArea = area;
+				minPointer = i;
+			}*/
+			/*double circum = supportVectorVector[i].length() + supportVectorVector[i+1].length() + (supportVectorVector[i] - supportVectorVector[i+1]).length();
+			if(circum < minCircum) 
+			{
+				minCircum = circum;
+				minPointer = i;
+			}*/
+			Vector3D t = (supportVectorVector[i + 1] - supportVectorVector[i]);
+			double gamma;
+			Vector3D n(0,0,0);
+			if(pos[2]==0) // ignore height
+			{
+				Vector3D tmp = supportVectorVector[i];
+				tmp[2]=0;
+				gamma = t.dot(pos - tmp) / t.dot(t);
+				n = pos - tmp - t * gamma;
+			}
+			else
+			{
+				gamma = t.dot(pos - supportVectorVector[i]) / t.dot(t);
+				n = pos - supportVectorVector[i] - t * gamma;
+			}
+			
             double distance = n.dot(n);
             if (distance < minDistance)
             {
@@ -1195,7 +1197,9 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
     {
         s = sinit;
     }
-
+	
+	
+	
     Vector3D rc(0.0);
     Vector3D t(0.0);
     int it = 0;
@@ -1203,10 +1207,10 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
     {
         sOld = s;
         rc = pos - getCenterLinePoint(s);
-	if(pos[2]==0)
-	{
-        rc[2]=0;
-	}
+		if(pos[2]==0)
+		{
+			rc[2]=0;
+		}
         t = getTangentVector(s);
         Vector3D n = getNormalVector(s);
         //Flo old:
@@ -1217,11 +1221,11 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
         double ds = (rc.dot(t) / (-kau * rc.dot(n) - 1.0));
         s = s - ds;
         ++it;
-        //std::cout << "Iteration " << it << ", s: " << s << ", old s: " << sOld << std::endl;
-        //std::cout << ", rc: " << rc << ", t: " << t << ", n: " << n << std::endl;
+		//std::cout << "Iteration " << it << ", s: " << s << ", old s: " << sOld << std::endl;
+		//std::cout << ", rc: " << rc << ", t: " << t << ", n: " << n << std::endl;
         if (s < 0 || s > this->length || it >= 20)
         {
-            //std::cout << "Lost position on road " << getId() << ", pos: " << pos << ", sinit: " << sinit << std::endl;
+            //std::cout << "Lost position on road " << getId() << ", s: " << s << ", iterations: " << it << ", pos: " << pos << ", sinit: " << sinit << ", length: " << this->length << std::endl;
             return Vector2D(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
         }
     } while (fabs(sOld - s) > crit);
@@ -1246,7 +1250,9 @@ Vector2D Road::searchPosition(const Vector3D &pos, double sinit)
     Vector2D road_pos = searchPositionNoBorder(pos, sinit);
     const double &s = road_pos.u();
     const double &v = road_pos.v();
-
+	
+	//std::cout << "roadpos: " << road_pos.u() << ", " << road_pos.v() << std::endl;
+	
     double leftWidth, rightWidth;
     getLaneSection(s)->getRoadWidth(s, leftWidth, rightWidth);
     if ((v < 0 && v < -rightWidth) || (v > 0 && v > leftWidth))

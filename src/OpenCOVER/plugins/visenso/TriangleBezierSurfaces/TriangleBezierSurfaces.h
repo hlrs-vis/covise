@@ -16,7 +16,8 @@
 #include <OpenVRUI/coLabelMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSliderMenuItem.h>
-#include "cover/coVRLabel.h"
+#include <OpenVRUI/coCheckboxMenuItem.h>
+#include <cover/coVRLabel.h>
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>

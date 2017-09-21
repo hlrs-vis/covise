@@ -97,7 +97,7 @@ TestDynamics::TestDynamics()
 	xodrLoaded = false;
 	printedOnce = false;
 	printCounter = 1;
-	printMax = 100;
+	printMax = 10000;
 	
 	Car2OddlotRotation.makeRotate(M_PI/2,0,0,1);
 	Oddlot2CarRotation.makeRotate(-M_PI/2,0,0,1);
@@ -108,8 +108,13 @@ TestDynamics::TestDynamics()
 	
 	currentRoad[0] = NULL;
 	currentRoadName = "asdasdasdasdafergbdv;bonesafae";
-	roadHeightIncrement = 0.001;
+	roadHeightIncrementInit = 0.001;
+	roadHeightIncrement = 0.0;
+	roadHeightIncrementDelta = 0.05;
+	roadHeightIncrementMax = 0.01;
 	singleRoadSwitch = false;
+	leftRoadSwitch = false;
+	currentHeight = 0;
 	
 	tireDist = 0.0;
 }
@@ -188,6 +193,8 @@ void TestDynamics::initState()
 		
 		chassisTrans = relTrans * chassisTrans;*/
 		
+		//chassisTrans.makeTranslate(rP.x(), rP.z(), -rP.y());
+		chassisTrans.makeTranslate(rP.x(), 0.0, -rP.y());
 		globalPos.makeTranslate(rP.x(), rP.z(), -rP.y());
 		/*state.X = 0.0;
 		state.Y = 0.0;
@@ -885,11 +892,155 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		
 		//std::cout << "search in vector : " << searchInVec.x() << " " << searchInVec.y() << " " << searchInVec.z() << std::endl;
 		
-		roadList[3] = RoadSystem::Instance()->searchPositionList(searchInVec);
+		std::vector<Road*> tempRoadList;
+		
+		std::vector<Road*> oldRoadList;
+		tempRoadList = RoadSystem::Instance()->searchPositionList(searchInVec);
+		
+		/*for(int i = 0; i < tempRoadList.size(); i++)
+		{
+			cout << "road id at position: " << i << "; " << RoadSystem::Instance()->getRoadId(tempRoadList[i]) << endl;
+		}*/
+		
+		bool roadListChanged = false;
+		
+		if(tempRoadList.size() != 0)
+		{
+			std::vector<Road*> oldRoadList;
+			oldRoadList = roadList[3];
+			roadList[3] = tempRoadList;
+			
+			if(oldRoadList.size() == roadList[3].size())
+			{
+				for(int j = 0; j < roadList[3].size(); j++)
+				{
+					bool roadFound = false;
+					std::string tempRoadName = RoadSystem::Instance()->getRoadId(roadList[3][j]);
+					for(int k = 0; k < oldRoadList.size(); k++)
+					{
+						if(tempRoadName.compare(RoadSystem::Instance()->getRoadId(oldRoadList[k])) == 0)
+						{
+							roadFound = true;
+							break;
+						}
+					}
+					if(roadFound == false)
+					{
+						roadListChanged = true;
+						std::cout << "road list changed" << std::endl;
+						std::cout << "------" << std::endl;
+						std::cout << "------" << std::endl;
+						std::cout << "------" << std::endl;
+						std::cout << "------" << std::endl;
+						std::cout << "------" << std::endl;
+						std::cout << "------" << std::endl;
+						break;
+					}
+				}
+			}
+			else
+			{
+				roadListChanged = true;
+			}
+			/*if(leftRoadSwitch == true)
+			{
+				leftRoadSwitch = false;
+				roadListChanged = true;
+			}*/
+		}
+		else
+		{
+			singleRoadSwitch = false;
+			//leftRoadSwitch = true;
+			//std::cout << "single road switch false" << std::endl;
+		}
+		
+		//std::cout << "road list at " << i << ": " << roadList[i].size() << std::endl;
+		//std::cout << "search in vector " << i << ": " << roadPoint[i].x() << " " << roadPoint[i].y() << " " << roadPoint[i].z() << std::endl;
+		
+		double roadHeightAverage = currentHeight;
+		if(roadList[3].size() > 0)
+		{
+			if(roadList[3].size() > 1)
+			{
+				int numberInvalidRoads = 0;
+				//calculate average height
+				double roadHeightSum = 0;
+				for(int j = 0; j < roadList[3].size(); j++)
+				{
+					Vector2D v_c = roadList[3][j]->searchPosition(searchInVec, 0);
+					if (!v_c.isNaV())
+					{
+						RoadPoint point = roadList[3][j]->getRoadPoint(v_c.u(), v_c.v());
+						roadHeightSum = roadHeightSum + point.z();
+						std::cout << "point z at " << j << ": " << point.z() << std::endl;
+					}
+					else
+					{
+						numberInvalidRoads++;
+					}
+					
+				}
+				if(!(roadList[3].size() - numberInvalidRoads == 0))
+				{
+					//std::cout << "roadHeightSum: " << roadHeightSum << std::endl;
+					roadHeightAverage = roadHeightSum / (roadList[3].size() - numberInvalidRoads);
+				}
+			}
+			else
+			{
+				Vector2D v_c = roadList[3][0]->searchPositionNoBorder(searchInVec, -1);
+				//std::cout << "v_c: " << v_c.u() << " " << v_c.v() << std::endl;
+				if (!v_c.isNaV())
+				{
+					RoadPoint point = roadList[3][0]->getRoadPoint(v_c.u(), v_c.v());
+					roadHeightAverage = point.z();
+					std::cout << "one road point z: " << point.z() << std::endl;
+				}
+			}
+				
+			
+			if(roadListChanged)
+			{
+				roadHeightDelta = currentHeight - roadHeightAverage;
+				roadListChanged = false;
+			}
+			
+			//std::cout << "roadHeightDelta: " << roadHeightDelta << std::endl;
+			currentHeight = roadHeightAverage + roadHeightDelta;
+			
+			if(roadHeightDelta > 0)
+			{
+				roadHeightDelta = roadHeightDelta - roadHeightIncrementDelta;
+			}
+			if(roadHeightDelta < 0)
+			{
+				roadHeightDelta = roadHeightDelta + roadHeightIncrementDelta;
+			}
+			if(std::abs(roadHeightDelta) < 0.001)
+			{
+				roadHeightDelta = 0.0;
+			}
+			std::cout << "roadHeightAverage: " << roadHeightAverage << std::endl;
+			std::cout << "current height:    " << currentHeight << std::endl;
+		}
+		
+		/*tempRoadList = RoadSystem::Instance()->searchPositionList(searchInVec);
+		if(tempRoadList.size() != 0)
+		{
+			roadList[3] = tempRoadList;
+		}
+		else
+		{
+			singleRoadSwitch = false;
+			std::cout << "single road switch false" << std::endl;
+		}
+		
 		if(roadList[3].size()==0)
 		{
 			currentRoadName = "asdasdasdasdafergbdv;bonesafae";
 			singleRoadSwitch = false;
+			std::cout << "single road switch false" << std::endl;
 		}
 		else
 		{
@@ -904,7 +1055,9 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 			}
 			if(stillOnRoad == false) 
 			{
+				singleRoadSwitch = false;
 				cout << "left previous road" << endl;
+				std::cout << "single road switch false" << std::endl;
 				currentRoadName = RoadSystem::Instance()->getRoadId(roadList[3][0]);
 				currentRoadId = 0;
 			}
@@ -912,7 +1065,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		if(roadList[3].size() == 1)
 		{
 			double tempHeight = currentHeight;
-			Vector2D v_c = roadList[3][0]->searchPositionNoBorder(searchInVec, -1.0);
+			Vector2D v_c = roadList[3][0]->searchPositionNoBorder(searchInVec, -1);
 			//std::cout << "v_c: " << v_c.u() << " " << v_c.v() << std::endl;
 			if (!v_c.isNaV())
 			{
@@ -920,24 +1073,35 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 				tempHeight = point.z();
 				//std::cout << "roadHeight: " << tempHeight << std::endl;
 			}
+			//currentHeight = tempHeight;
+			//singleRoadSwitch = true;
+			
 			if(!singleRoadSwitch)
 			{
-				
 				if(std::abs(currentHeight - tempHeight) > 0.005)
 				{
 					if(currentHeight > tempHeight)
 					{
-						currentHeight = currentHeight - roadHeightIncrement;
+						if(roadHeightIncrement > -roadHeightIncrementMax)
+						{
+							roadHeightIncrement = roadHeightIncrement - roadHeightIncrementDelta;
+						}
 					}
 					else if(currentHeight < tempHeight)
 					{
-						currentHeight = currentHeight + roadHeightIncrement;
+						if(roadHeightIncrement < roadHeightIncrementMax)
+						{
+							roadHeightIncrement = roadHeightIncrement + roadHeightIncrementDelta;
+						}
 					}
+					currentHeight = currentHeight + roadHeightIncrement;
+					
 				}
 				else
 				{
+					roadHeightIncrement = 0.0;
 					singleRoadSwitch = true;
-					std::cout << "single road switch true" << std::endl;
+					//std::cout << "single road switch true" << std::endl;
 					currentHeight = tempHeight;
 				}
 			}
@@ -949,6 +1113,7 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		else if (roadList[3].size() > 1)
 		{
 			singleRoadSwitch = false;
+			//std::cout << "single road switch false" << std::endl;
 			
 			//calculate average height
 			double roadHeightSum = 0;
@@ -962,29 +1127,48 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 				}
 			}
 			double roadHeightAverage = roadHeightSum / roadList[3].size();
-			if(currentHeight > roadHeightAverage)
+			
+			if(std::abs(currentHeight - roadHeightAverage) > 0.005)
 			{
-				currentHeight = currentHeight - roadHeightIncrement;
+				if(currentHeight > roadHeightAverage)
+				{
+					if(roadHeightIncrement > -roadHeightIncrementMax)
+					{
+						roadHeightIncrement = roadHeightIncrement - roadHeightIncrementDelta;
+					}
+				}
+				else if(currentHeight < roadHeightAverage)
+				{
+					if(roadHeightIncrement < roadHeightIncrementMax)
+					{
+						roadHeightIncrement = roadHeightIncrement + roadHeightIncrementDelta;
+					}
+				}
 			}
-			else if(currentHeight < roadHeightAverage)
+			else
 			{
-				currentHeight = currentHeight + roadHeightIncrement;
+				roadHeightIncrement = 0.0;
 			}
+			currentHeight = currentHeight + roadHeightIncrement;
 			
 		}
 		
+		
+		
+		/*Vector2D v_c = RoadSystem::Instance()->searchPosition(searchInVec, currentRoad[0], currentLongPos[0]);
+		
 		if(currentRoad[0])
 		{
-			Vector2D v_c = currentRoad[0]->searchPositionNoBorder(searchInVec, currentLongPos[0]);
+			Vector2D v_c = currentRoad[0]->searchPosition(searchInVec, currentLongPos[0]);
 			//std::cout << "search road from scratch" << std::endl;
 			if (!v_c.isNaV())
 			{
 				currentLongPos[0] = v_c.x();
 				RoadPoint point = currentRoad[0]->getRoadPoint(v_c.u(), v_c.v());
 				roadPoint.makeTranslate(point.x(), point.z(), -point.y());
-				/*globalPos.makeTranslate(point.x(), point.z(), -point.y());
-				state.psi = 0;
-				rotationPos.makeRotate(0, 0, 1, 0);*/
+				//globalPos.makeTranslate(point.x(), point.z(), -point.y());
+				//state.psi = 0;
+				//rotationPos.makeRotate(0, 0, 1, 0);
 				leftRoad = false;
 			}
 			else
@@ -995,11 +1179,16 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		else 
 		{
 			leftRoad = true;
-		}
+		}*/
 		
 		osg::Matrix heightMatrix;
 		heightMatrix.makeTranslate(0,currentHeight,0);
 		osg::Matrix otherMatrix = heightMatrix * chassisTrans;
+		
+		/*std::cout << otherMatrix(0,0) << "," << otherMatrix(0,1) << "," << otherMatrix(0,2) << "," << otherMatrix(0,3) << std::endl;
+		std::cout << otherMatrix(1,0) << "," << otherMatrix(1,1) << "," << otherMatrix(1,2) << "," << otherMatrix(1,3) << std::endl;
+		std::cout << otherMatrix(2,0) << "," << otherMatrix(2,1) << "," << otherMatrix(2,2) << "," << otherMatrix(2,3) << std::endl;
+		std::cout << otherMatrix(3,0) << "," << otherMatrix(3,1) << "," << otherMatrix(3,2) << "," << otherMatrix(3,3) << std::endl;*/
 		
 		vehicle->setVRMLVehicle(otherMatrix);
 		vehicle->setVRMLVehicleBody(bodyTrans);
@@ -1012,9 +1201,6 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		
 	}
 	
-	
-	
-	
 	osg::Vec3d testVec = globalPos.getTrans();
 	printCounter++;
 	if (printCounter > printMax) 
@@ -1023,11 +1209,14 @@ void TestDynamics::move(VrmlNodeVehicle *vehicle)
 		//cout << "globalPos: " << endl << "x: " << globalPos.getTrans().x() << endl << "y: " << globalPos.getTrans().y() << endl << "z: " << globalPos.getTrans().z() << endl;
 		//cout << "road point: " << endl << "x: " << roadPoint.getTrans().x() << endl << "y: " << roadPoint.getTrans().y() << endl << "z: " << roadPoint.getTrans().z() << endl;
 		//cout << "current long pos: " << currentLongPos[0] << endl;
-		cout << "current road name: " << currentRoadName << endl;
-		cout << "current road id: " << currentRoadId << endl;
+		//cout << "current road: " << currentRoad[0] << endl;
+		//cout << "current road name: " << currentRoadName << endl;
+		cout << "roadHeightIncrement: " << roadHeightIncrement<< endl;
+		//cout << "current road id: " << currentRoadId << endl;
+		std::cout << "roadHeightDelta: " << roadHeightDelta << std::endl;
 		cout << "current height: " << currentHeight << endl;
 		cout << "road list size: " << roadList[3].size() << endl;
-		cout << "single road swithc: " << singleRoadSwitch << endl;
+		cout << "single road switch: " << singleRoadSwitch << endl;
 		if(roadList[3].size()>0)
 		{
 			for(int i = 0; i < roadList[3].size(); i++)

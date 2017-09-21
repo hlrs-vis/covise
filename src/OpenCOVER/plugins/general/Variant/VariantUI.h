@@ -15,6 +15,7 @@
 #ifndef _VARIANTUI_H
 #define _VARIANTUI_H
 
+#ifdef VRUI
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coPotiMenuItem.h>
@@ -23,20 +24,27 @@
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coLabelMenuItem.h>
+#else
+#include <cover/ui/Button.h>
+namespace opencover {
+namespace ui {
+class Menu;
+}
+}
+#endif
 
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
 
-using namespace vrui;
 using namespace opencover;
 
 class VariantUI
 {
 public:
-    VariantUI(std::string varName, coRowMenu *Variant_menu, coTUITab *VariantPluginTab);
+    VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *VariantPluginTab);
     ~VariantUI();
 
-    coCheckboxMenuItem *getVRUI_Item();
+    ui::Button *getVRUI_Item();
     coTUIToggleButton *getRadioTUI_Item();
     coTUIToggleButton *getTUI_Item();
     coTUIEditFloatField *getXTransItem();
@@ -47,7 +55,7 @@ public:
     void setTransVec(osg::Vec3d vec);
 
 private:
-    coCheckboxMenuItem *Cb_item;
+    ui::Button *Cb_item;
     coTUIToggleButton *VariantRadioButton;
     coTUIToggleButton *VariantPluginTUIItem;
     coTUIEditFloatField *xTRansItem;

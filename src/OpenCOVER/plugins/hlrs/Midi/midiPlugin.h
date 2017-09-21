@@ -54,14 +54,25 @@ public:
      Track(int tn);
      ~Track();
      std::list<Note *> notes;
+     //std::list<Note *>::iterator lastNoteIt;
      
      osg::ref_ptr<osg::Group> TrackRoot;
      void update();
      void reset();
      void setVisible(bool state);
      int trackNumber;
+     void addNote(Note*);
      vrml::Player::Source *trackSource;
      vrml::Audio *trackAudio;
+     osg::Geode *createLinesGeometry();
+     
+     osg::ref_ptr<osg::Geode> geometryLines;
+     osg::Vec3Array *lineVert = new osg::Vec3Array;
+     osg::DrawArrayLengths *linePrimitives;
+     private:
+     int lastNum;
+     int lastPrimitive;
+    double oldTime=0.0;
 };
 
 class NoteInfo
@@ -120,6 +131,8 @@ public:
     osg::Geode *createGeometry(int i);
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
+    osg::ref_ptr<osg::StateSet> lineStateSet;
+    
     osg::ref_ptr<osg::ShadeModel> shadeModel;
     osg::ref_ptr<osg::Material> globalmtl;
     

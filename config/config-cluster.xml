@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- run two instances of OpenCOVER on one host (for debugging purposes) -->
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <GLOBAL>
+ <COVER>
+ <MultiPC>
+    <NumSlaves value="0" />
+    <SyncMode value="TCP" hosts="localhost" />
+    <Startup ARCH="x11" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
+ </MultiPC>
+ </COVER>
+ </GLOBAL>
+
+</COCONFIG>

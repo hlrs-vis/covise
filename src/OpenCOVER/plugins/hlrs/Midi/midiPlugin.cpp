@@ -44,6 +44,7 @@
 #include <osg/ShadeModel>
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
+#include <osg/LineWidth>
 
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -282,6 +283,15 @@ currentTrack = 0;
     shadeModel = new osg::ShadeModel;
     shadeModel->setMode(osg::ShadeModel::SMOOTH);
     shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
+    
+    lineStateSet = new osg::StateSet();
+    lineStateSet->ref();
+    lineStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
+    lineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    lineStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    lineStateSet->setNestRenderBins(false);
+    osg::LineWidth *lineWidth = new osg::LineWidth(4);
+    lineStateSet->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
 
     noteInfos.resize(180);
     
@@ -612,6 +622,7 @@ COVERPLUGIN(MidiPlugin)
 Track::Track(int tn)
 {
     TrackRoot = new osg::Group();
+    TrackRoot->setName("TrackRoot");
     trackNumber = tn;
     char soundName[200];
     snprintf(soundName,200,"RENDERS/S%d.wav",tn);
@@ -632,9 +643,77 @@ Track::Track(int tn)
 	    
         }
     }
+    
+    geometryLines = createLinesGeometry();
+    TrackRoot->addChild(geometryLines);
+    lastNum=0;
+    lastPrimitive=0;
 }
 Track::~Track()
 {
+}
+void Track::addNote(Note *n)
+{
+
+    Note* lastNode = NULL;
+     int num = notes.size()-1;
+     if(num>=0)
+     {
+         std::list<Note *>::iterator it;
+	 it=notes.end();
+	 it--;
+         lastNode = *it;
+     }
+     notes.push_back(n);
+     if( lastNode == NULL || ((n->event.seconds -lastNode->event.seconds)>1.0) )
+     {
+         lastNum = num;    
+         fprintf(stderr,"%d\n",(num-lastNum)+1);
+	 if(num-lastNum == 0)
+	 {
+         fprintf(stderr,"new zero line\n");
+         linePrimitives->push_back(1);
+	 }
+         fprintf(stderr,"td\n");
+     }
+     fprintf(stderr,"num %d lastNum %d\n",num,lastNum);
+     if(num-lastNum==1)
+     {
+         fprintf(stderr,"new line\n");
+         lastPrimitive = linePrimitives->size();
+         linePrimitives->push_back((num-lastNum)+1);
+     }
+     if(num-lastNum>0)
+     {
+         fprintf(stderr,"addLineVert%d\n",(num-lastNum)+1);
+         (*linePrimitives)[lastPrimitive] = (num-lastNum)+1;
+     }
+     lineVert->push_back(n->transform->getMatrix().getTrans());
+}
+
+osg::Geode *Track::createLinesGeometry()
+{
+    osg::Geode *geode;
+
+    
+    geode = new osg::Geode();
+    geode->setStateSet(MidiPlugin::plugin->lineStateSet.get());
+    
+    
+    osg::Geometry *geom = new osg::Geometry();
+    geom->setUseDisplayList(false);
+    geom->setUseVertexBufferObjects(false);
+
+    // set up geometry
+    lineVert = new osg::Vec3Array;
+    linePrimitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
+    linePrimitives->push_back(0);
+    geom->setVertexArray(lineVert);
+    geom->addPrimitiveSet(linePrimitives);
+    
+    geode->addDrawable(geom);
+    
+    return geode;
 }
 void Track::reset()
 {
@@ -649,6 +728,7 @@ void Track::reset()
     }
     notes.clear();
 }
+
 void Track::update()
 {
     double speed = MidiPlugin::plugin->midifile.getTicksPerQuarterNote();
@@ -674,6 +754,7 @@ void Track::update()
                     int numRead = read(MidiPlugin::plugin->midi1fd,buf,2);
 		    int value = buf[0];
                     me.setP2(buf[0]);
+		    me.seconds = cover->frameTime();
 		    if(value > 0)
                     {
                         // key press
@@ -710,7 +791,7 @@ void Track::update()
         }
         if(me.isNote() && me.getVelocity()>0)
         {
-            notes.push_back(new Note(me,this));
+	    addNote(new Note(me,this));
         }
     }
     else
@@ -739,11 +820,15 @@ void Track::update()
             eventNumber++;
     } 
     }
-    
+    int vNum=0;
     for(std::list<Note *>::iterator it = notes.begin(); it != notes.end();it++)
     {
-        (*it)->integrate(cover->frameDuration());
+        
+        (*it)->integrate(cover->frameTime()-oldTime);
+	
+        (*lineVert)[vNum++] = ((*it)->transform->getMatrix().getTrans());
     }
+	oldTime = cover->frameTime();
 }
 void Track::setVisible(bool state)
 {
@@ -779,7 +864,10 @@ Note::Note(MidiEvent &me, Track *t)
         event.setKeyNumber(27);
     }
     transform->setMatrix(osg::Matrix::scale(s,s,s) * osg::Matrix::translate(ni->initialPosition));
-    transform->addChild(ni->geometry);
+    if(ni->geometry!=NULL)
+    {
+        transform->addChild(ni->geometry);
+    }
     velo = ni->initialVelocity*event.getVelocity()/100.0;
     velo[2] = (event.getVelocity()-32) *20;
     t->TrackRoot->addChild(transform.get());

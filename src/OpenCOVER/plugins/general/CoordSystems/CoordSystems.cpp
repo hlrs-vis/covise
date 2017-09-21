@@ -27,7 +27,6 @@
 #include <cover/coVRFileManager.h>
 #include <osg/CullStack>
 #include <iostream>
-#include <cover/coVRPluginSupport.h>
 
 CoordSystems *CoordSystems::plugin = NULL;
 coRowMenu *CoordSystems::coords_menu = NULL;
@@ -54,11 +53,9 @@ bool CoordSystems::init()
     }
     plugin = this;
 
-    cover_menu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu("COVER");
-    if (menu)
+    cover_menu = cover->getMenu();;
+    if (cover_menu)
     {
-        cover_menu = menu->getCoMenu();
         button = new coSubMenuItem("Coordsys");
         coord_menu = new coRowMenu("Coords");
 

@@ -109,13 +109,17 @@
 using namespace opencover;
 using namespace covise;
 
-static void clearGlWindow()
+static void clearGlWindow(bool doubleBuffer)
 {
-    glDrawBuffer(GL_BACK);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    if (doubleBuffer)
+    {
+        glDrawBuffer(GL_BACK);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-    glDrawBuffer(GL_FRONT);
+        glDrawBuffer(GL_FRONT);
+    }
+
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -247,7 +251,8 @@ struct ViewerRunOperations : public osg::Operation
                 numClears = coVRConfig::instance()->numWindows() * 2;
             }
             numClears--;
-            clearGlWindow();
+            auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(context);
+            clearGlWindow(!emb);
             context->makeCurrent();
         } // OpenCOVER end
 
@@ -1052,12 +1057,14 @@ VRViewer::createChannels(int i)
     if (cover->debugLevel(3))
         fprintf(stderr, "VRViewer::createChannels\n");
 
+#if 0
     osg::GraphicsContext::WindowingSystemInterface *wsi = osg::GraphicsContext::getWindowingSystemInterface();
     if (!wsi)
     {
         osg::notify(osg::NOTICE) << "VRViewer : Error, no WindowSystemInterface available, cannot create windows." << std::endl;
         return;
     }
+#endif
     const int vp = coVRConfig::instance()->channels[i].viewportNum;
     if (vp >= coVRConfig::instance()->numViewports())
     {
@@ -1065,11 +1072,12 @@ VRViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
-    bool RenderToTexture = false;
+    bool RenderToTexture = false, RenderToWindow = true;
     osg::ref_ptr<osg::GraphicsContext> gc = NULL;
     int pboNum = coVRConfig::instance()->channels[i].PBONum;
     if(vp >= 0)
     {
+        std::cerr << "chan " << i << ": have viewport" << std::endl;
         const int win = coVRConfig::instance()->viewports[vp].window;
         if (win < 0 || win >= coVRConfig::instance()->numWindows())
         {
@@ -1079,6 +1087,11 @@ VRViewer::createChannels(int i)
         }
         gc = coVRConfig::instance()->windows[win].context;
         pboNum = -1;
+        if (coVRConfig::instance()->windows[win].qt)
+        {
+            std::cerr << "chan " << i << ": no window" << std::endl;
+            RenderToWindow = false;
+        }
     }
     else
     {
@@ -1179,21 +1192,32 @@ VRViewer::createChannels(int i)
         }
 
 
-        coVRConfig::instance()->channels[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
-        coVRConfig::instance()->channels[i].camera->setClearStencil(0);
-
-        GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
-        coVRConfig::instance()->channels[i].camera->setDrawBuffer(buffer);
-        coVRConfig::instance()->channels[i].camera->setReadBuffer(buffer);
-        coVRConfig::instance()->channels[i].camera->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
-        coVRConfig::instance()->channels[i].camera->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
-        coVRConfig::instance()->channels[i].camera->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
+        auto &cam = coVRConfig::instance()->channels[i].camera;
+        cam->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
+        cam->setClearStencil(0);
+        if (RenderToWindow)
+        {
+            GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
+            cam->setDrawBuffer(buffer);
+            cam->setReadBuffer(buffer);
+            cam->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
+        }
+        else
+        {
+            cam->setDrawBuffer(GL_NONE);
+            cam->setReadBuffer(GL_NONE);
+            cam->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
+        }
+        cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
+        cam->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
+        cam->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
        
-        coVRConfig::instance()->channels[i].camera->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
-        //coVRConfig::instance()->channels[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
+        //cam->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
+    {
         cerr << "window " << coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window << " of channel " << i << " not defined" << endl;
+    }
 
     osg::DisplaySettings *ds = NULL;
     ds = _displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get();
@@ -1717,6 +1741,8 @@ void VRViewer::frame()
         culling(true);
         reEnableCulling = false;
     }
+
+    VRWindow::instance()->updateContents();
 }
 
 void VRViewer::startThreading()
@@ -2389,7 +2415,8 @@ void VRViewer::renderingTraversals()
                     numClears = coVRConfig::instance()->numWindows() * 2;
                 }
                 numClears--;
-                clearGlWindow();
+                auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(*itr);
+                clearGlWindow(!emb);
                 makeCurrent(*itr);
             }
             //cerr << "finish" << endl;

@@ -17,6 +17,7 @@ namespace vrui
 class coRowMenu;
 class coSubMenuItem;
 class coCheckboxMenuItem;
+class coCheckboxGroup;
 }
 
 namespace opencover
@@ -24,6 +25,10 @@ namespace opencover
 class coTUITab;
 class coTUIToggleButton;
 class coHud;
+}
+
+namespace vrui
+{
 }
 
 using namespace vrui;

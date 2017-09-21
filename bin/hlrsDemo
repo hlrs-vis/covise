@@ -232,7 +232,7 @@ do
 # URBAN PLANNING
 	38)
 	    echo -e "starting Spielplatz Stuttgart West";
-            covise -e /data/covise_net/2017/Spielplatz.net
+            covise -e /data/covise_net/2017/spielplatzVR.net
 	    ;;
 
 # LKA
