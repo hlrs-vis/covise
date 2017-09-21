@@ -101,6 +101,7 @@ public:
 
     static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
     coVRPlugin *visPlugin() const;
+private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
 #endif

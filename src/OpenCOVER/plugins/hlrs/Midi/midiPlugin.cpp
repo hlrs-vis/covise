@@ -484,6 +484,11 @@ bool MidiPlugin::destroy()
     return true;
 }
 
+bool MidiPlugin::update()
+{
+    return !tracks.empty();
+}
+
 //------------------------------------------------------------------------------
 void MidiPlugin::preFrame()
 {
@@ -497,8 +502,6 @@ void MidiPlugin::preFrame()
             tracks[currentTrack]->setVisible(true);
         }
         tracks[currentTrack]->update();
-
-		OpenCOVER::instance()->m_renderNext = true;
     }
 }
 

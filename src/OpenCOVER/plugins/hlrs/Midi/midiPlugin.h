@@ -143,6 +143,7 @@ public:
     bool destroy();
 
     // loop
+    bool update();
     void preFrame();
     void postFrame();
 

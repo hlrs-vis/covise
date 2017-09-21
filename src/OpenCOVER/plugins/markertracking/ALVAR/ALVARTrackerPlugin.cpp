@@ -527,6 +527,12 @@ void ALVARPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 {
 }
 
+bool
+ALVARPlugin::update()
+{
+    return ARToolKit::instance()->running;
+}
+
 void
 ALVARPlugin::preFrame()
 {
@@ -535,7 +541,6 @@ ALVARPlugin::preFrame()
 #endif
     if (ARToolKit::instance()->running)
     {
-		OpenCOVER::instance()->m_renderNext = true;
 #ifndef _WIN32
         if (msgQueue > 0)
         {

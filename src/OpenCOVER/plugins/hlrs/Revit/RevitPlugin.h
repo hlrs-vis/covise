@@ -280,10 +280,11 @@ public:
         return plugin;
     };
 
+	bool update();
     // this will be called in PreFrame
 	void preFrame();
 
-	void checkDoors();
+	bool checkDoors();
 
     void destroyMenu();
     void createMenu();

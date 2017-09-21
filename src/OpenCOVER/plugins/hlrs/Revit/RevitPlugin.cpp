@@ -1640,9 +1640,10 @@ RevitPlugin::handleMessage(Message *m)
 	}
 }
 
-void
+bool
 RevitPlugin::checkDoors()
 {
+    bool needUpdate = false;
 
 	osg::Matrix headmat = cover->getViewerMat();
 	headmat *= cover->getInvBaseMat();
@@ -1653,7 +1654,7 @@ RevitPlugin::checkDoors()
 	}
 	if (activeDoors.size() > 0)
 	{
-		OpenCOVER::instance()->m_renderNext = true;
+        needUpdate = true;
 	}
 	for (std::list<DoorInfo *>::iterator it = activeDoors.begin(); it != activeDoors.end();)
 	{
@@ -1666,12 +1667,19 @@ RevitPlugin::checkDoors()
 			it = activeDoors.erase(it);
 		}
 	}
+
+    return needUpdate;
+}
+
+bool
+RevitPlugin::update()
+{
+    return checkDoors();
 }
 
 void
 RevitPlugin::preFrame()
 {
-	checkDoors();
 	if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
 	{
 		//   std::cout << "Trying serverConn..." << std::endl;
