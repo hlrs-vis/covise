@@ -207,6 +207,7 @@
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 
+   <Revit value="true" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" />
 
    </Plugin>
 
@@ -217,6 +218,7 @@
    <SceneSize value="1000" />
    <DebugLevel value="1" />
    <FPS value="true" />
+   
 
    <PipeConfig>
        <Pipe name="0" useDISPLAY="true" />
