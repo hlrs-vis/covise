@@ -401,11 +401,7 @@ bool OpenCOVER::init()
     {
         useVirtualGL = true;
     }
-
-    if (useVirtualGL)
-    {
-        coVRConfig::instance()->m_useVirtualGL = true;
-    }
+    coVRConfig::instance()->m_useVirtualGL = useVirtualGL;
 
 #ifdef HAS_MPI
     if (m_forceMpi)

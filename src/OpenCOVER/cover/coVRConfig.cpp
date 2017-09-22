@@ -114,8 +114,6 @@ coVRConfig::coVRConfig()
         constFrameTime = 1.0f / frameRate;
     }
     m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
-    if (coVRMSController::instance()->isCluster())
-        m_continuousRendering = true;
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
     m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
@@ -290,8 +288,6 @@ coVRConfig::coVRConfig()
 
     if (debugLevel(2))
         fprintf(stderr, "\nnew coVRConfig\n");
-
-    //bool isMaster = coVRMSController::instance()->isMaster();
 
     m_passiveStereo = false;
     m_flatDisplay = true;
@@ -893,5 +889,8 @@ float coVRConfig::frameRate() const
 
 bool coVRConfig::continuousRendering() const
 {
+    if (coVRMSController::instance()->isCluster())
+        return false;
+
     return m_continuousRendering;
 }
