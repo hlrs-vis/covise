@@ -490,8 +490,11 @@ RevitPlugin::~RevitPlugin()
 	while (currentGroup.size() > 1)
 		currentGroup.pop();
 
-	revitGroup->removeChild(0, revitGroup->getNumChildren());
-	cover->getObjectsRoot()->removeChild(revitGroup.get());
+    if (revitGroup)
+    {
+        revitGroup->removeChild(0, revitGroup->getNumChildren());
+        cover->getObjectsRoot()->removeChild(revitGroup.get());
+    }
 
 	delete serverConn;
 	serverConn = NULL;
