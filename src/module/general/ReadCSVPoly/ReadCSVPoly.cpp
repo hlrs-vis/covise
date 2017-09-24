@@ -100,7 +100,6 @@ ReadCSVPoly::readFiles()
     int *ciTmp;
     int newCiSize, oldCiSize = CHUNK_SIZE;
     static int numCiAlloc = 1; // number of 'allocs' for the coordinate index list
-    char vertexString[LINE_SIZE];
 
     int *pi; // polygon list
     int *piTmp;
@@ -109,7 +108,6 @@ ReadCSVPoly::readFiles()
 
     char line[LINE_SIZE]; // line in an obj file
     char *first; // current position in line
-    int numScanned; // number of characters scanned with sscanf
     coDoPolygons *polygonObject; // output object
     const char *polygonObjectName; // output object name assigned by the controller
 

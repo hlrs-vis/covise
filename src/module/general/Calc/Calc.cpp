@@ -1085,7 +1085,7 @@ int CCalc::CheckSyntax(Calc *module, int *AnzManVek)
                     if ((pList[Count].Item)[x] != '.')
                     {
                         OK = false; //syntax-error
-                        x = strlen(pList[Count].Item);
+                        x = (int)strlen(pList[Count].Item);
                     }
                 }
             }

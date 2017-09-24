@@ -47,12 +47,12 @@ int CreateAR_BladeElements(struct axial *ar)
    for (i = 0; i < ar->be_num; i++)
    {
       ar->be[i]->pivot = (ar->piv-ar->be[i]->lec)/
-         (1.0-ar->be[i]->lec-ar->be[i]->tec);
+         (1.0f-ar->be[i]->lec-ar->be[i]->tec);
    }
 
    for (i = 0; i < ar->be_num; i++)
    {
-      ar->be[i]->rad     = 0.5 * ar->ref * (ar->diam[0] + (1.0 - ar->diam[0]) * ar->be[i]->para);
+      ar->be[i]->rad     = 0.5f * ar->ref * (ar->diam[0] + (1.0f - ar->diam[0]) * ar->be[i]->para);
       ar->be[i]->le_part[0] = ar->le_part[0];
       ar->be[i]->le_part[1] = ar->le_part[1];
       ar->be[i]->le_part[2] = ar->le_part[2];
@@ -76,11 +76,11 @@ void DetermineCoefficients(float *x, float *y, float *a)
    float buf;
 
    a[2]  = (y[1] - y[2]) * (x[0] - x[1]) - (y[0] - y[1]) * (x[1] - x[2]);
-   buf   = (pow(x[1], 2) - pow(x[2], 2)) * (x[0] - x[1]);
-   buf  -= ((pow(x[0], 2) - pow(x[1], 2)) * (x[1] - x[2]));
+   buf   = float((pow(x[1], 2) - pow(x[2], 2)) * (x[0] - x[1]));
+   buf  -= float(((pow(x[0], 2) - pow(x[1], 2)) * (x[1] - x[2])));
    a[2] /= buf;
-   a[1]  = ((y[0] - y[1]) - (pow(x[0], 2) - pow(x[1], 2)) * a[2]) / (x[0] - x[1]);
-   a[0]  = y[2] - pow(x[2], 2) * a[2] - x[2] * a[1];
+   a[1]  = float(((y[0] - y[1]) - (pow(x[0], 2) - pow(x[1], 2)) * a[2]) / (x[0] - x[1]));
+   a[0]  = y[2] - float(pow(x[2], 2)) * a[2] - x[2] * a[1];
 }
 
 
@@ -89,7 +89,7 @@ float EvaluateParameter(float x, float *a)
 {
    float val;
 
-   val = a[2] * pow(x, 2) + a[1] * x + a[0];
+   val = a[2] * float(pow(x, 2)) + a[1] * x + a[0];
    return val;
 }
 
@@ -235,30 +235,30 @@ int clock, int clspline)
    s[0]  = s[1]  = s[2]  = 0.0;
    qeq_a = qeq_b = qeq_c = qeq_r = 0.0;
 
-   qeq_a  = (1.0 - be->camb_pos) * pow(tan(RAD(be->angle[0])), 2);
-   qeq_a += (2.0 * be->camb_pos - 1.0) * tan(RAD(be->angle[0])) * tan(RAD(be->angle[1]));
-   qeq_a -= be->camb_pos * pow(tan(RAD(be->angle[1])), 2);
+   qeq_a  = float((1.0 - be->camb_pos) * pow(tan(RAD(be->angle[0])), 2));
+   qeq_a += float((2.0 * be->camb_pos - 1.0) * tan(RAD(be->angle[0])) * tan(RAD(be->angle[1])));
+   qeq_a -= float(be->camb_pos * pow(tan(RAD(be->angle[1])), 2));
 
-   qeq_b  = (1.0 - 2.0 * be->camb_pos) * tan(RAD(be->angle[0])) * tan(RAD(be->angle[1]));
-   qeq_b += 2.0 * (be->camb_pos - 1.0) * pow(tan(RAD(be->angle[0])), 2);
-   qeq_b -= 1.0;
+   qeq_b  = float((1.0 - 2.0 * be->camb_pos) * tan(RAD(be->angle[0])) * tan(RAD(be->angle[1])));
+   qeq_b += float(2.0 * (be->camb_pos - 1.0) * pow(tan(RAD(be->angle[0])), 2));
+   qeq_b -= 1.0f;
 
-   qeq_c  = (1.0 - be->camb_pos) * pow(tan(RAD(be->angle[0])), 2);
-   qeq_c += (1.0 - be->camb_pos);
+   qeq_c  = float((1.0f - be->camb_pos) * pow(tan(RAD(be->angle[0])), 2));
+   qeq_c += (1.0f - be->camb_pos);
 
-   qeq_r = pow(qeq_b, 2) + 4.0 * qeq_a * qeq_c;
+   qeq_r = float(pow(qeq_b, 2) + 4.0 * qeq_a * qeq_c);
    if (qeq_r < 0.0)
    {
       fatal("ERROR-calc. of quadratic eqn. for camber position: only complex solutions.");
    }
    else
    {
-      s[0] = (-qeq_b + sqrt(pow(qeq_b, 2) - 4.0 * qeq_a * qeq_c)) / (2.0 * qeq_a);
-      s[1] = s[0] * tan(RAD(be->angle[1]));
+      s[0] = float((-qeq_b + sqrt(pow(qeq_b, 2) - 4.0 * qeq_a * qeq_c)) / (2.0 * qeq_a));
+      s[1] = float(s[0] * tan(RAD(be->angle[1])));
       if ((s[0] < (0.0 - TOLERANCE)) || (s[0] > (1.0 + TOLERANCE)))
       {
-         s[0] = (-qeq_b - sqrt(pow(qeq_b, 2) - 4.0 * qeq_a * qeq_c)) / (2.0 * qeq_a);
-         s[1] = s[0] * tan(RAD(be->angle[1]));
+         s[0] = float((-qeq_b - sqrt(pow(qeq_b, 2) - 4.0 * qeq_a * qeq_c)) / (2.0 * qeq_a));
+         s[1] = float(s[0] * tan(RAD(be->angle[1])));
          if ((s[0] < (0.0 - TOLERANCE)) || (s[0] > (1.0 + TOLERANCE)))
          {
             fatal("ERROR-calc. of camber position: solutions are outside [0.0;1.0].");
@@ -275,16 +275,16 @@ int clock, int clspline)
    p4[0] = p4[1] = p4[2] = 0.0;
 
    p1[0] = phi_r;
-   p1[1] = phi_r * (s[0] * tan(RAD(be->angle[1])) + (1.0 - s[0]) *
-      tan(RAD(be->angle[0])));
+   p1[1] = float(phi_r * (s[0] * tan(RAD(be->angle[1])) + (1.0 - s[0]) *
+      tan(RAD(be->angle[0]))));
 
    p2[0] = s[0] * phi_r;
    p2[1] = s[1] * phi_r;
 
-   p3[0] = p3[1] = p3[2] = 0.0;
+   p3[0] = p3[1] = p3[2] = 0.0f;
 
-   p4[0] = (1.0 - be->camb_pos) * p1[0];
-   p4[1] = (1.0 - be->camb_pos) * p1[1];
+   p4[0] = (1.0f - be->camb_pos) * p1[0];
+   p4[1] = (1.0f - be->camb_pos) * p1[1];
 
    // rotate blade triangle around TE point, base to x-axis
    q1[0] = q1[1] = q1[2] = 0.0;
@@ -292,11 +292,11 @@ int clock, int clspline)
    q3[0] = q3[1] = q3[2] = 0.0;
    q4[0] = q4[1] = q4[2] = 0.0;
 
-   angle      = M_PI - atan(p1[1]/p1[0]);
-   roma[0][0] =  cos(angle);
-   roma[0][1] = -sin(angle);
-   roma[1][0] =  sin(angle);
-   roma[1][1] =  cos(angle);
+   angle      = float(M_PI - atan(p1[1]/p1[0]));
+   roma[0][0] = float(cos(angle));
+   roma[0][1] = float(-sin(angle));
+   roma[1][0] = float(sin(angle));
+   roma[1][1] = float(cos(angle));
 
    q1[0] = roma[0][0] * p1[0] + roma[0][1] * p1[1];
    q1[1] = roma[1][0] * p1[0] + roma[1][1] * p1[1];
@@ -317,11 +317,11 @@ int clock, int clspline)
    if(clspline)
    {
       // move q4 according to blade element camber and skew param.
-      q4[0] += (be->le_part[2]-0.5)*(q1[0]-q3[0]);
+      q4[0] += (be->le_part[2]-0.5f)*(q1[0]-q3[0]);
       q4[1] = be->camb * q2[1];
       // le point (q1) and first two le points on cl polygon
       AddVPoint(cl_poly, q1);
-      ratio = be->camb / 12.0;
+      ratio = be->camb / 12.0f;
       s[0]  = q1[0] + ratio * (q2[0] - q1[0]);
       s[1]  = q1[1] + ratio * (q2[1] - q1[1]);
       AddVPoint(cl_poly, s);
@@ -348,7 +348,7 @@ int clock, int clspline)
       he_poly = AllocPointStruct();
       he_knot = AllocFlistStruct(INIT_PORTION);
       m[0]  = q3[0] + (q2[0] - q3[0]) / (q2[1] - q3[1]) * (m[1] - q3[1]);
-      ratio = be->camb / 8.0;
+      ratio = be->camb / 8.0f;
       s[0]  = q3[0] + ratio * (q2[0] - q3[0]);
       s[1]  = q3[1] + ratio * (q2[1] - q3[1]);
       s[2]  = 0.0;
@@ -373,11 +373,11 @@ int clock, int clspline)
       // only one spline in triangle
       cl_poly->nump = 0;
       AddVPoint(cl_poly, q1);
-      ratio = be->camb / 12.0;
+      ratio = be->camb / 12.0f;
       s[0]  = q1[0] + ratio * (q2[0] - q1[0]);
       s[1]  = q1[1] + ratio * (q2[1] - q1[1]);
       AddVPoint(cl_poly,s);
-      ratio = be->camb / 8.0;
+      ratio = be->camb / 8.0f;
       m[0]  = q3[0] + ratio * (q2[0] - q3[0]);
       m[1]  = q3[1] + ratio * (q2[1] - q3[1]);
       he_poly = CurvePolygon(s, q2, m, be->le_part[0], be->le_part[1]);
@@ -397,18 +397,18 @@ int clock, int clspline)
    for (i = 0; fp && i < cl_poly->nump; i++)
    {
       if(i < cl_poly->nump-1)
-         alpha = atan((cl_poly->y[i]-cl_poly->y[i+1])/
-            (cl_poly->x[i]-cl_poly->x[i+1]));
+         alpha = float(atan((cl_poly->y[i]-cl_poly->y[i+1])/
+            (cl_poly->x[i]-cl_poly->x[i+1])));
       fprintf(fp, "%f %f   %f\n", cl_poly->x[i], cl_poly->y[i],
          alpha*180.0/M_PI);
    }
    if (fp)  fprintf(fp, "\n\n");
 
    // rotate back cl polygon points, calculate arc length
-   roma[0][0] =  cos(-angle);
-   roma[0][1] = -sin(-angle);
-   roma[1][0] =  sin(-angle);
-   roma[1][1] =  cos(-angle);
+   roma[0][0] = float(cos(-angle));
+   roma[0][1] = float(-sin(-angle));
+   roma[1][0] = float(sin(-angle));
+   roma[1][1] = float(cos(-angle));
    for(i = 0; i < cl_poly->nump; i++)
    {
       s[0]          = roma[0][0] * cl_poly->x[i] + roma[0][1] * cl_poly->y[i];
@@ -419,10 +419,10 @@ int clock, int clspline)
       cl_poly->z[i] = s[2];
       if (i)
       {
-         len  = pow((cl_poly->x[i] - cl_poly->x[i-1]), 2);
-         len += pow((cl_poly->y[i] - cl_poly->y[i-1]), 2);
-         len += pow((cl_poly->z[i] - cl_poly->z[i-1]), 2);
-         len  = sqrt(len);
+         len  = float(pow((cl_poly->x[i] - cl_poly->x[i-1]), 2));
+         len += float(pow((cl_poly->y[i] - cl_poly->y[i-1]), 2));
+         len += float(pow((cl_poly->z[i] - cl_poly->z[i-1]), 2));
+         len  = float(sqrt(len));
          be->cl_len += len;
       }
    }
@@ -432,8 +432,8 @@ int clock, int clspline)
    for (i = 0; fp && i < cl_poly->nump; i++)
    {
       if(i < cl_poly->nump-1)
-         alpha = atan((cl_poly->y[i]-cl_poly->y[i+1])/
-            (cl_poly->x[i]-cl_poly->x[i+1]));
+         alpha = float(atan((cl_poly->y[i]-cl_poly->y[i+1])/
+            (cl_poly->x[i]-cl_poly->x[i+1])));
       fprintf(fp, "%f %f    %f\n", cl_poly->x[i], cl_poly->y[i],
          alpha*180.0/M_PI);
    }
@@ -450,7 +450,7 @@ int clock, int clspline)
    fp2 = fopen(fn, "w");
    for (i = 0; i < be->bp->num; i++)
    {
-      cl_sec = pow(be->bp->c[i], be->bp_shift);
+      cl_sec = float(pow(be->bp->c[i], be->bp_shift));
       BSplinePoint(BSPLN_DEGREE, cl_poly, cl_knot, cl_sec, &s[0]);
       AddVPoint(be->cl, s);
       BSplineNormal(BSPLN_DEGREE, cl_poly, cl_knot, cl_sec, &s[0]);
@@ -469,8 +469,8 @@ int clock, int clspline)
    for (i = 0; i < be->bp->num; i++)
    {
       // pressure side (-) and suction side (+), machine size
-      te   = 0.5 * be->bp->c[i] * be->te_thick;
-      t    = 0.5 * be->cl_len   * be->bp->t[i];
+      te   = 0.5f * be->bp->c[i] * be->te_thick;
+      t    = 0.5f * be->cl_len   * be->bp->t[i];
       s[0] = be->cl->x[i] - be->clg->x[i] * (scale_te * t + te);
       s[1] = be->cl->y[i] - be->clg->y[i] * (scale_te * t + te);
       s[2] = be->cl->z[i] - be->clg->z[i] * (scale_te * t + te);
@@ -485,8 +485,8 @@ int clock, int clspline)
    for (i = 0; fp  && i < be->cl->nump; i++)
    {
       if(i < be->cl->nump-1)
-         alpha = atan((be->cl->y[i]-be->cl->y[i+1])/
-            (be->cl->x[i]-be->cl->x[i+1]));
+         alpha = float(atan((be->cl->y[i]-be->cl->y[i+1])/
+            (be->cl->x[i]-be->cl->x[i+1])));
 
       fprintf(fp, "%f %f  %f  ", be->cl->x[i], be->cl->y[i], alpha*180.0/M_PI);
       fprintf(fp, "%f %f  %f  ", be->ps->x[i], be->ps->y[i], be->ps->z[i]);
@@ -519,10 +519,10 @@ int clock, int clspline)
    if (fp)  fprintf(fp, "\n\n");
 
    // rotate blade element around pivot
-   roma[0][0] =  cos(RAD(bangle));
-   roma[0][1] = -sin(RAD(bangle));
-   roma[1][0] =  sin(RAD(bangle));
-   roma[1][1] =  cos(RAD(bangle));
+   roma[0][0] = float(cos(RAD(bangle)));
+   roma[0][1] = float(-sin(RAD(bangle)));
+   roma[1][0] = float(sin(RAD(bangle)));
+   roma[1][1] = float(cos(RAD(bangle)));
    for (i = 0; i < be->cl->nump; i++)
    {
       s[0] = roma[0][0] * be->cl->x[i] + roma[0][1] * be->cl->y[i];
@@ -549,8 +549,8 @@ int clock, int clspline)
    for (i = 0; fp && i < be->cl->nump; i++)
    {
       if(i < be->cl->nump-1)
-         alpha = atan((be->cl->y[i]-be->cl->y[i+1])/
-            (be->cl->x[i]-be->cl->x[i+1]));
+         alpha = float(atan((be->cl->y[i]-be->cl->y[i+1])/
+            (be->cl->x[i]-be->cl->x[i+1])));
       fprintf(fp, "%f %f  %f  ", be->cl->x[i], be->cl->y[i], alpha*180.0/M_PI);
       fprintf(fp, "%f %f  %f  ", be->ps->x[i], be->ps->y[i], be->ps->z[i]);
       fprintf(fp, "%f %f  %f\n", be->ss->x[i], be->ss->y[i], be->ss->z[i]);
@@ -563,18 +563,18 @@ int clock, int clspline)
    be->ss_cart = AllocPointStruct();
    for (i = 0; i < be->cl->nump; i++)
    {
-      if(clock) factor = -1.0/be->rad;
-      else factor = 1.0/be->rad;
-      s[0] = be->rad * cos(be->cl->x[i]*factor);
-      s[1] = be->rad * sin(be->cl->x[i]*factor);
+      if(clock) factor = -1.0f/be->rad;
+      else factor = 1.0f/be->rad;
+      s[0] = float(be->rad * cos(be->cl->x[i]*factor));
+      s[1] = float(be->rad * sin(be->cl->x[i]*factor));
       s[2] = be->cl->y[i];
       AddVPoint(be->cl_cart, s);
-      s[0] = be->rad * cos(be->ps->x[i]*factor);
-      s[1] = be->rad * sin(be->ps->x[i]*factor);
+      s[0] = float(be->rad * cos(be->ps->x[i]*factor));
+      s[1] = float(be->rad * sin(be->ps->x[i]*factor));
       s[2] = be->ps->y[i];
       AddVPoint(be->ps_cart, s);
-      s[0] = be->rad * cos(be->ss->x[i]*factor);
-      s[1] = be->rad * sin(be->ss->x[i]*factor);
+      s[0] = float(be->rad * cos(be->ss->x[i]*factor));
+      s[1] = float(be->rad * sin(be->ss->x[i]*factor));
       s[2] = be->ss->y[i];
       AddVPoint(be->ss_cart, s);
    }

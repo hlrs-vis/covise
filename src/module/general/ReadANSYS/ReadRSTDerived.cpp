@@ -189,7 +189,11 @@ ReadRST::GetDatasetDerived(int num,
 #ifdef DEBUG
     cout << "ESL offset " << offset << endl;
 #endif
-    fseek(rfp_, offset, SEEK_SET);
+#ifdef WIN32
+	_fseeki64(rfp_, offset, SEEK_SET);
+#else
+	fseek(rfp_, offset, SEEK_SET);
+#endif
 
     // Read now the entire element solutions index table
     int *ESLptrs = new int[solheader_.numelements_];
@@ -296,17 +300,29 @@ ReadRST::GetDatasetDerived(int num,
                     continue;
                 if (!mode64_)
                 {
+#ifdef WIN32
+					_fseeki64(rfp_, solheader_.offset_ + (ESLptrs[elem] + derType) * 4, SEEK_SET);
+#else
                     fseek(rfp_, solheader_.offset_ + (ESLptrs[elem] + derType) * 4, SEEK_SET);
+#endif
                 }
                 else
                 {
                     if (header_.version_ >= 10.)
                     {
+#ifdef WIN32
+						_fseeki64(rfp_, offset + (ESLptrs[elem] + derType - 2) * 4, SEEK_SET);
+#else
                         fseek(rfp_, offset + (ESLptrs[elem] + derType - 2) * 4, SEEK_SET);
+#endif
                     }
                     else
                     {
-                        fseek(rfp_, offset + (ESLptrs[elem] + derType) * 4, SEEK_SET);
+#ifdef WIN32
+						_fseeki64(rfp_, offset + (ESLptrs[elem] + derType) * 4, SEEK_SET);
+#else
+						fseek(rfp_, offset + (ESLptrs[elem] + derType) * 4, SEEK_SET);
+#endif
                     }
                 }
                 if (IntRecord(&ESLSolptrs[elem], 1) != 1)
@@ -353,11 +369,19 @@ ReadRST::GetDatasetDerived(int num,
             {
                 if (!mode64_)
                 {
+#ifdef WIN32
+					_fseeki64(rfp_, offset + ESLptrs[elem] * 4 + ESLSolptrs[elem] * 4 - 8, SEEK_SET);
+#else
                     fseek(rfp_, solheader_.offset_ + ESLSolptrs[elem] * 4, SEEK_SET);
+#endif
                 }
                 else
                 {
+#ifdef WIN32
+					_fseeki64(rfp_, offset + ESLptrs[elem] * 4 + ESLSolptrs[elem] * 4 - 8, SEEK_SET);
+#else
                     fseek(rfp_, offset + ESLptrs[elem] * 4 + ESLSolptrs[elem] * 4 - 8, SEEK_SET);
+#endif
                 }
             }
             if (IntRecord(&lengthBytes, 1) != 1)

@@ -134,7 +134,7 @@ ParticleTrails::compute(const char *)
                     }
                 }
                 std::string lineName = LinesName+boost::lexical_cast<std::string>(i);
-                coDoLines *line = new coDoLines(lineName,xc.size(),&xc[0],&yc[0],&zc[0],numVert,v_l,numLines,l_l);
+                coDoLines *line = new coDoLines(lineName,(int)xc.size(),&xc[0],&yc[0],&zc[0],numVert,v_l,numLines,l_l);
                 lines[i]=line;
             }
             else

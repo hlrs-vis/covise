@@ -125,11 +125,11 @@ ReadCSV::param(const char *paramName, bool inMapLoading)
                         READER_CONTROL->updatePortChoice(DPORT4_3D, dataChoices);
                         READER_CONTROL->updatePortChoice(DPORT5_3D, dataChoices);
                         if (varInfos.size() > 0)
-                            x_col->setValue(varInfos.size() + 1, dataChoices, 1);
+                            x_col->setValue((int)varInfos.size() + 1, dataChoices, 1);
                         if (varInfos.size() > 1)
-                            y_col->setValue(varInfos.size() + 1, dataChoices, 2);
+                            y_col->setValue((int)varInfos.size() + 1, dataChoices, 2);
                         if (varInfos.size() > 2)
-                            z_col->setValue(varInfos.size() + 1, dataChoices, 3);
+                            z_col->setValue((int)varInfos.size() + 1, dataChoices, 3);
                     }
                 }
                 return;
@@ -154,7 +154,7 @@ void ReadCSV::nextLine(FILE *fp)
 int ReadCSV::readHeader()
 {
 
-    int ii_choiseVals = 0, ii;
+    int ii_choiseVals = 0;
 
     nextLine(d_dataFile);
     sendInfo("Found header line : %s", buf);

@@ -1972,7 +1972,7 @@ void VolumePlugin::preFrame()
             {
                 StateSet *state = drawable->getOrCreateStateSet();
                 ClipNode *cn = cover->getObjectsRoot();
-                for (unsigned int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
+                for (int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
                 {
                     ClipPlane *cp = cn->getClipPlane(i);
                     Vec4 v = cp->getClipPlane();

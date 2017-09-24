@@ -6,6 +6,9 @@
 #include "include/cfg.h"
 #include "include/curve.h"
 #include "include/points.h"
+#ifdef WIN32
+#pragma warning (disable : 4244)
+#endif
 
 struct curve * AllocCurveStruct(void)
 {

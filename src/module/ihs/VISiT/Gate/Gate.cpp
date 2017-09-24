@@ -721,8 +721,8 @@ int Gate::compute(const char *)
    bladeang_max = coCoviseConfig::getInt("Module.IHS.GateBladeMax",100);
    if  (bladeang_max!=-100 || bladeang_min!=100)
    {
-      p_BladeAngle->setMin(bladeang_min);
-      p_BladeAngle->setMax(bladeang_max);
+      p_BladeAngle->setMin(float(bladeang_min));
+      p_BladeAngle->setMax(float(bladeang_max));
    }
    else
    {
@@ -855,7 +855,7 @@ void Gate::CreateMenuGateData(void)
    p_BladeAngle = addFloatSliderParam(M_BLADE_ANGLE, M_BLADE_ANGLE);
    bladeang_min = coCoviseConfig::getInt("Module.IHS.GateBladeMin",-100);
    bladeang_max = coCoviseConfig::getInt("Module.IHS.GateBladeMax",100);
-   p_BladeAngle->setValue(bladeang_min, bladeang_max, 0.0);
+   p_BladeAngle->setValue(float(bladeang_min), float(bladeang_max), 0.0f);
 
 }
 

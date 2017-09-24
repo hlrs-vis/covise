@@ -59,14 +59,14 @@ struct Flist *CalcBladeElementBias(int nodes, float t1, float t2, int type, floa
                if (i <= (nodes - 1)/2)
                   step = s1 + ds * 2 * (i - 1)/(nodes - 3);
                else
-                  step = s2 - ds * 2 * (i - 1 - 0.5 * (nodes - 1))/(nodes - 3);
+                  step = s2 - ds * 2 * (i - 1 - 0.5f * (nodes - 1))/(nodes - 3);
             }
             else
             {
                if (i <= (nodes/2))
                   step = s1 + ds * 2 * (i - 1)/(nodes - 2);
                else
-                  step = s2 - ds * 2 * (i - 0.5 * nodes)/(nodes - 2);
+                  step = s2 - ds * 2 * (i - 0.5f * nodes)/(nodes - 2);
             }
             break;
          default:                                 // equidistant spacing

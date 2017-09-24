@@ -363,8 +363,8 @@ VRCoviseConnection::localParam(bool inMapLoading, void *callbackData)
 
     if (strcmp(paramname, "WindowID") == 0)
     {
-        long int windowID;
-        CoviseRender::get_reply_int_scalar(&windowID);
+        int64_t windowID;
+        CoviseRender::get_reply_int64_scalar(&windowID);
         // TODO: check for valid windowID
         for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
         {

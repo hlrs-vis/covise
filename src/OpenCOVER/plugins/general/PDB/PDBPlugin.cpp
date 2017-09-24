@@ -78,6 +78,9 @@
 #include <osgcaveui/CUI.h>
 
 #include "PDBPlugin.h"
+#ifdef WIN32
+#pragma warning (disable : 4018)
+#endif
 
 using namespace osg;
 using namespace osgDB;

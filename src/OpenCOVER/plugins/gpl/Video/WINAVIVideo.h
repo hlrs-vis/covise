@@ -1,4 +1,6 @@
-
+#ifdef WIN32
+#pragma warning (disable: 4005)
+#endif
 #include <vfw.h>
 
 #include <config/coConfigConstants.h>

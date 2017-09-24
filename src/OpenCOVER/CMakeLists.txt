@@ -30,13 +30,14 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    cmake_minimum_required(VERSION 2.8)
    set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
 
+   # preset some initial values for install dir and CFLAGS etc.
+   INCLUDE(CovisePresets)
+   covise_cmake_policy()
+   
    find_package(COVISE REQUIRED)
    find_package(COVISE COMPONENTS GPU REQUIRED)
    #covise_create_using()
 
-   # preset some initial values for install dir and CFLAGS etc.
-   INCLUDE(CovisePresets)
-   covise_cmake_policy()
 
    include(CoviseHelperMacros)
    # global feature tests

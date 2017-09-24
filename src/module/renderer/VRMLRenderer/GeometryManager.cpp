@@ -73,7 +73,7 @@ public:
     int strlen() { return (cur_len); };
     void operator+=(const char *const s)
     {
-        int l = ::strlen(s);
+        int l = (int)::strlen(s);
         if (cur_len + l >= len)
         {
             len += incSize;
@@ -102,7 +102,7 @@ public:
     void operator+=(int n)
     {
         CharNum s(n);
-        int l = ::strlen(s);
+        int l = (int)::strlen(s);
         if (cur_len + l >= len)
         {
             len += incSize;
@@ -117,7 +117,7 @@ public:
     void operator+=(float n)
     {
         CharNum s(n);
-        int l = ::strlen(s);
+        int l = (int)::strlen(s);
         if (cur_len + l >= len)
         {
             len += incSize;
@@ -1082,13 +1082,13 @@ void unpackRGBA(int *pc, int pos, float *r, float *g, float *b, float *a)
 // D. Rantzau
 
 #ifdef BYTESWAP
-    *a = ((float)(*chptr)) / 255.0;
+    *a = ((float)(*chptr)) / 255.0f;
     chptr++;
-    *b = ((float)(*chptr)) / 255.0;
+    *b = ((float)(*chptr)) / 255.0f;
     chptr++;
-    *g = ((float)(*chptr)) / 255.0;
+    *g = ((float)(*chptr)) / 255.0f;
     chptr++;
-    *r = ((float)(*chptr)) / 255.0;
+    *r = ((float)(*chptr)) / 255.0f;
 #else
     *r = ((float)(*chptr)) / 255.0;
     chptr++;

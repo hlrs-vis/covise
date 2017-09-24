@@ -130,7 +130,7 @@ void coChoiceParam::initialize()
     if (d_numChoices)
     {
         // count the length
-        int i, length = 0;
+        size_t i, length = 0;
         for (i = 0; i < d_numChoices; i++)
             length += strlen(d_choice[i]) + 2;
         length += 16; // for selection
@@ -409,7 +409,7 @@ const char *coChoiceParam::getTypeString() const
 const char *coChoiceParam::getValString() const
 {
     static char *valString = NULL;
-    int i, len = 32; // 2 ints : num/active
+    size_t i, len = 32; // 2 ints : num/active
     for (i = 0; i < d_numChoices; i++)
         len += 2 * strlen(d_choice[i]) + 2; //  2* for masking worst case
     delete[] valString;

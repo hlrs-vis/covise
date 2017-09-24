@@ -149,7 +149,7 @@ void ReadNeuron::readLine(int numSegments)
                 yPoints.push_back(y);
                 zPoints.push_back(z);
                 rad.push_back(r);
-                IDs.push_back(ID);
+                IDs.push_back(float(ID));
                 numPoints++;
             }
             else
@@ -343,7 +343,7 @@ int ReadNeuron::compute(const char *)
                     pY.push_back(y);
                     pZ.push_back(z);
 
-                    synIDs.push_back(synID);
+                    synIDs.push_back(float(synID));
 
                     numSynapses++;
                     break;

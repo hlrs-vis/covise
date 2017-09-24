@@ -556,7 +556,7 @@ SimplifySurface::compute(const char *)
     {
 #endif
         int stage;
-        int num_ini_triangles = tri_conn_list.size() / 3;
+        int num_ini_triangles = (int)(tri_conn_list.size() / 3);
         int ziel_triangles = int(tri_conn_list.size() * total_ratio / 3);
         for (stage = 0; stage < 1; ++stage) // @@@ relict from original version
         {
@@ -616,8 +616,8 @@ SimplifySurface::compute(const char *)
         }
 
         coDoPolygons *OutTest = new coDoPolygons(p_meshOut->getObjName(),
-                                                 x_c.size(), tri_conn_list.size(),
-                                                 tri_conn_list.size() / 3);
+                                                 (int)x_c.size(), (int)tri_conn_list.size(),
+                                                 (int)(tri_conn_list.size() / 3));
         float *x_out, *y_out, *z_out;
         int *vl_out, *pl_out;
         OutTest->getAddresses(&x_out, &y_out, &z_out, &vl_out, &pl_out);
@@ -636,7 +636,7 @@ SimplifySurface::compute(const char *)
         // normals
         if (in_normals)
         {
-            coDoVec3 *VData = new coDoVec3(p_normalsOut->getObjName(), normals_c.size() / 3);
+            coDoVec3 *VData = new coDoVec3(p_normalsOut->getObjName(), (int)(normals_c.size() / 3));
             float *u = NULL, *v = NULL, *w = NULL;
             VData->getAddresses(&u, &v, &w);
             vector<float>::iterator it = normals_c.begin();
@@ -666,7 +666,7 @@ SimplifySurface::compute(const char *)
 
         if (in_data && in_data->isType("USTSDT"))
         {
-            coDoFloat *SData = new coDoFloat(p_dataOut[0]->getObjName(), data_c.size());
+            coDoFloat *SData = new coDoFloat(p_dataOut[0]->getObjName(), (int)data_c.size());
             float *data = NULL;
             SData->getAddress(&data);
             std::copy(data_c.begin(), data_c.end(), data);
@@ -675,7 +675,7 @@ SimplifySurface::compute(const char *)
         }
         if (in_data && in_data->isType("USTVDT"))
         {
-            coDoVec3 *VData = new coDoVec3(p_dataOut[0]->getObjName(), data_c.size() / 3);
+            coDoVec3 *VData = new coDoVec3(p_dataOut[0]->getObjName(), (int)(data_c.size() / 3));
             float *u = NULL, *v = NULL, *w = NULL;
             VData->getAddresses(&u, &v, &w);
             vector<float>::iterator it = data_c.begin();
@@ -763,7 +763,7 @@ SimplifySurface::compute(const char *)
         }
 
         // add connectivity
-        int no_tri = tri_conn_list.size() / 3;
+        int no_tri = (int)(tri_conn_list.size() / 3);
         for (i = 0; i < no_tri; i++)
         {
             std::vector<vtkIdType> ids(3);
@@ -1234,7 +1234,7 @@ SimplifySurface::compute(const char *)
                 coDoVec3 *VData = new coDoVec3(p_dataOut[0]->getObjName(), numPoints);
                 float *u = NULL, *v = NULL, *w = NULL;
                 VData->getAddresses(&u, &v, &w);
-                unsigned int i;
+                int i;
                 for (i = 0; i < numPoints; i++)
                 {
                     u[i] = outdata[3 * i + 0];

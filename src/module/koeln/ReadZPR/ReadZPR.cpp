@@ -137,7 +137,7 @@ int coReadZPR::compute(const char *)
 
         char buf[1024];
         sprintf(buf, "%s_%d", poPointName, numTimeSteps - 1);
-        pointLists.push_back(new coDoPoints(buf, x_list.size(),
+        pointLists.push_back(new coDoPoints(buf, (int)x_list.size(),
                                             &x_list.front(), &y_list.front(), &z_list.front()));
         x_list.clear();
         y_list.clear();

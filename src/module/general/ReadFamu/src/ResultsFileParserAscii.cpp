@@ -206,7 +206,7 @@ coDistributedObject *ResultsFileParserAscii::readVec(const char *name,
         return NULL;
     }
     ASSERT0(_xData.size() >= _maxNodeNo, "sorry, and internal error occured.", _outputHandler);
-    coDoVec3 *dataObj = new coDoVec3(name, _xData.size(), &_xData[0], &_yData[0], &_zData[0]);
+    coDoVec3 *dataObj = new coDoVec3(name, (int)_xData.size(), &_xData[0], &_yData[0], &_zData[0]);
     if (strncmp(_names[_currentDataTypeNo], "Displace", 8) == 0)
     {
         //_displacementDataTypeNo = _currentDataTypeNo;
@@ -257,7 +257,7 @@ coDistributedObject *ResultsFileParserAscii::readScal(const char *name)
         return NULL;
     }
     ASSERT0(_xData.size() >= _maxNodeNo, "sorry, and internal error occured.", _outputHandler);
-    coDoFloat *dataObj = new coDoFloat(name, _xData.size(), &_xData[0]);
+    coDoFloat *dataObj = new coDoFloat(name, (int)_xData.size(), &_xData[0]);
     return dataObj;
 }
 

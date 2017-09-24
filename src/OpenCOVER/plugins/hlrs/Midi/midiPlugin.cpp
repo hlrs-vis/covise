@@ -445,7 +445,7 @@ currentTrack = 0;
 		MMRESULT rv;
 		HMIDIIN hMidiDevice = NULL;
 		DWORD nMidiPort = 0;
-		rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD)(void*)MidiInProc, 0, CALLBACK_FUNCTION);
+		rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD_PTR)MidiInProc, 0, CALLBACK_FUNCTION);
 		if (rv != MMSYSERR_NOERROR) {
 			fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
 			//return -1;

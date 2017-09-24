@@ -288,7 +288,7 @@ int Displays::sendCommand(int c, const unsigned char *data, int len)
     pos++;
     for (int i = 0; i < disp.size(); i++)
     {
-        int numWritten = disp[i]->conn->getSocket()->write(buf, pos);
+        int numWritten = disp[i]->conn->getSocket()->write(buf, (unsigned int)pos);
         if (numWritten < pos)
         {
             std::cerr << "could not send all bytes, only" << numWritten << " of " << pos << std::endl;
@@ -322,14 +322,14 @@ int Displays::sendVideoWallCommand(int c, const unsigned char *data, int len)
     }
     for (int i = 0; i < disp.size(); i++)
     {
-        buf[5] = disp.size() - i;
+        buf[5] = (unsigned char)(disp.size() - i);
         buf[pos] = 0x0; // checksum
         for (int n = 1; n < pos; n++)
         {
             buf[pos] += buf[n];
         }
         fprintf(stderr, "%x\n", buf[5]);
-        int numWritten = disp[i]->conn->getSocket()->write(buf, pos + 1);
+        int numWritten = disp[i]->conn->getSocket()->write(buf, (unsigned int)(pos + 1));
         if (numWritten < pos)
         {
             std::cerr << "could not send all bytes, only" << numWritten << " of " << pos + 1 << std::endl;

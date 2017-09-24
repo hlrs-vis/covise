@@ -193,7 +193,8 @@ public:
     static int get_reply_float_slider(float *min, float *max, float *val);
     static int get_reply_int_vector(int pos, long *val);
     static int get_reply_float_vector(int pos, float *val);
-    static int get_reply_int_scalar(long *val);
+	static int get_reply_int_scalar(long *val);
+	static int get_reply_int64_scalar(int64_t *val);
     static int get_reply_float_scalar(float *val);
     static int get_reply_boolean(int *);
     static int get_reply_string(const char **string);

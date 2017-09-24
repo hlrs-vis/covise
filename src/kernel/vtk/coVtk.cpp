@@ -1000,7 +1000,8 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
                 for (int i = 0; i < dim[0]; ++i)
                 {
                     ValueType v[2];
-                    vd->GetTupleValue(l, v);
+                    //vd->GetTupleValue(l, v);
+					vd->GetTypedTuple(l, v);
                     const int idx = coIndex(i, j, k, dim);
                     x[idx] = v[0];
                     y[idx] = v[1];
@@ -1021,7 +1022,8 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
                 for (int i = 0; i < dim[0]; ++i)
                 {
                     ValueType v[3];
-                    vd->GetTupleValue(l, v);
+                    //vd->GetTupleValue(l, v);
+					vd->GetTypedTuple(l, v);
                     const int idx = coIndex(i, j, k, dim);
                     x[idx] = v[0];
                     y[idx] = v[1];
@@ -1042,7 +1044,8 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
                 for (int i = 0; i < dim[0]; ++i)
                 {
                     ValueType v[4];
-                    vd->GetTupleValue(l, v);
+                    //vd->GetTupleValue(l, v);
+					vd->GetTypedTuple(l, v);
                     const int idx = coIndex(i, j, k, dim);
                     char c[4];
                     for (int j = 0; j < 4; ++j)
@@ -1182,7 +1185,8 @@ coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataArray *var
                     {
                         unsigned char c[4];
                         const int idx = coIndex(i, j, k, dim);
-                        vd->GetTupleValue(l, c);
+                        //vd->GetTupleValue(l, c);
+						vd->GetTypedTuple(l, c);
                         memcpy(&d[idx], c, sizeof(c));
                         ++l;
                     }

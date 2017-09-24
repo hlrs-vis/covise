@@ -14,8 +14,8 @@ using namespace covise;
 #include <util/coviseCompat.h>
 
 #define  DIM(x)   (sizeof(x)/sizeof(*x))
-#define RAD(x) ((x) * M_PI/180.0)
-#define GRAD(x)   ((x) * 180.0/M_PI)
+#define RAD(x) (float((x) * M_PI/180.0))
+#define GRAD(x)   (float((x) * 180.0/M_PI))
 
 #ifndef YAC
 class RadialRunner : public coModule

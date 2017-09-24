@@ -440,7 +440,7 @@ coMenuItemVector coMenu::getAllItems()
     return res;
 }
 
-int coMenu::index(const coMenuItem *item)
+size_t coMenu::index(const coMenuItem *item)
 {
     coMenuItemVector allItems = getAllItems();
     size_t i = 0;

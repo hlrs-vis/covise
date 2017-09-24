@@ -2160,7 +2160,7 @@ ViewerOsg::insertShell(unsigned int mask,
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
         {
-            for(int i=0;i<geode->getNumDrawables();i++)
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
             {
                 osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
                 /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/

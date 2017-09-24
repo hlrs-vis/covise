@@ -1336,7 +1336,7 @@ bool ReadNastran::load(const char *filename)
         while (blockdesc[2] <= 0 && !feof(fp))
         {
             fseek(fp, -8, SEEK_CUR);
-            int ret = fread((void *)blockdesc, intSize, BLOCKDESCSIZE, fp);
+            int ret = int(fread((void *)blockdesc, intSize, BLOCKDESCSIZE, fp));
             if (ret != BLOCKDESCSIZE)
             {
                 fprintf(stderr, "ReadNastran::load: fread7 failed: %d instead of %d\n",

@@ -156,7 +156,11 @@ void coIsectSensor::calcDistance()
     N.normalize();
     osg::Vec3 dist;
     dist = v - q0;
-    float h = dist.length2() / Scale2;
+	float h=1.0;
+	if(fabs(Scale2) > 0.0000000001f)
+	{
+	    h = dist.length2() / Scale2;
+	}
     float sprod = H * (N);
     sprod *= sprod;
 

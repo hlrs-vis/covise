@@ -191,7 +191,7 @@ int RadialRunner::CheckDiscretization(coFloatVectorParam *v, int *dis, float *bi
 
 int RadialRunner::SplitPortname(const char *portname, char *name, int *index)
 {
-   int offs = strlen(portname);
+   size_t offs = strlen(portname);
 
    *name = '\0';
    *index = -1;

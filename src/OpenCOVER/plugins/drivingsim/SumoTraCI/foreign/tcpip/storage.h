@@ -12,7 +12,9 @@
  ************************************************************************/
 #ifndef __SHAWN_APPS_TCPIP_STORAGE_H
 #define __SHAWN_APPS_TCPIP_STORAGE_H
-
+#ifdef WIN32
+#pragma warning (disable: 4290)
+#endif
 #ifdef SHAWN
      #include <shawn_config.h>
      #include "_apps_enable_cmake.h"

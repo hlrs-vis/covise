@@ -449,7 +449,7 @@ int ReadStar::handleChangedDataPath(const char *newpath,
     const char *path;
     char bfr[500];
     char tmpfile[500];
-    int i;
+    size_t i;
     //int hdl;
     struct stat statbfr;
     if (strcmp(newpath, "/") == 0)
@@ -692,7 +692,7 @@ int ReadStar::compute(const char *)
     //                     common variables
     ///////////////////////////////////////////////////////////////////
 
-    int i, n;
+    size_t i, n;
 
 #ifdef DEBUGFILES
     static int instance = 0;
@@ -758,7 +758,7 @@ int ReadStar::compute(const char *)
             for (whichPort = 0; whichPort < NUMPORTS; whichPort++)
             {
                 char buffer[64];
-                sprintf(buffer, "data_%d", i);
+                sprintf(buffer, "data_%lld", i);
                 strcat(buffer, "\n");
                 strcat(buffer, choice->getString(p_field[whichPort]->getValue()));
                 // remove trailing \n

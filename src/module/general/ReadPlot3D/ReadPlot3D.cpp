@@ -224,8 +224,8 @@ void Application::compute(const char *)
                     byteswap_flag = 1;
                     byteswap(&bsize1, sizeof(coInt64));
                 }
-#ifdef __sgi
-                seekRes = fseek64(fGrid, bsize1, SEEK_CUR);
+#ifdef WIN32
+                seekRes = _fseeki64(fGrid, bsize1, SEEK_CUR);
 #else
                 seekRes = fseek(fGrid, bsize1, SEEK_CUR);
 #endif

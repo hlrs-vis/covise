@@ -22,6 +22,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <net/Message.h>
 
 #include "cover/coTranslator.h"
 

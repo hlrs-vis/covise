@@ -250,8 +250,8 @@ void AxialRunner::Grid2CtrlPanel(void)
    p_RRInAngle->setValue(1,GRAD(rrg->angle_ext[1]));
 #endif
 
-   p_BoundLayRatio->setValue(0,(1.0-rrg->bl_scale[0]));
-   p_BoundLayRatio->setValue(1,(1.0-rrg->bl_scale[1]));
+   p_BoundLayRatio->setValue(0,(1.0f-rrg->bl_scale[0]));
+   p_BoundLayRatio->setValue(1,(1.0f-rrg->bl_scale[1]));
 
    // bc-values
    rrg->inbc->bcQ   = geo->ar->des->dis;

@@ -115,9 +115,9 @@ coDoVec3 *PeriodicRotResults::rotateDataObject(
     {
         PointCC v = { vx_orig[i], vy_orig[i], vz_orig[i] };
         v = rotateVector(v, angle);
-        vx_cp[i] = v.x;
-        vy_cp[i] = v.y;
-        vz_cp[i] = v.z;
+        vx_cp[i] = float(v.x);
+        vy_cp[i] = float(v.y);
+        vz_cp[i] = float(v.z);
     }
     coDoVec3 *retval = new coDoVec3(dataName.c_str(), noOfPoints, vx_cp, vy_cp, vz_cp);
     delete[] vx_cp;

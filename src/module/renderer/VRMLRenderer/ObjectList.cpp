@@ -305,9 +305,9 @@ void ObjectList::write(FILE *fp)
 
     float distance[3];
 
-    distance[0] = 4.0 / 3.0 * ((bbox[3] - bbox[0])) / (2 * tan(fov / 2.0));
-    distance[1] = 4.0 / 3.0 * ((bbox[4] - bbox[1])) / (2 * tan(fov / 2.0));
-    distance[2] = 4.0 / 3.0 * ((bbox[5] - bbox[2])) / (2 * tan(fov / 2.0));
+    distance[0] = 4.0f / 3.0f * ((bbox[3] - bbox[0])) / (2 * tan(fov / 2.0f));
+    distance[1] = 4.0f / 3.0f * ((bbox[4] - bbox[1])) / (2 * tan(fov / 2.0f));
+    distance[2] = 4.0f / 3.0f * ((bbox[5] - bbox[2])) / (2 * tan(fov / 2.0f));
 
     float dist = MAX(distance[0], MAX(distance[1], distance[2]));
 
@@ -614,14 +614,14 @@ void ObjectList::parseObjects(void)
     char tmp_buff[10000];
 
     sprintf(tmp_buff, "%s", " 2 #VRML V2.0 utf8  \n");
-    m_length += strlen(tmp_buff);
+    m_length += (int)strlen(tmp_buff);
     reset();
     while (current())
     {
         if (strcmp("Endset", current()->name) == 0)
         {
             sprintf(tmp_buff, "%s", "]\n}\n");
-            m_length += strlen(tmp_buff);
+            m_length += (int)strlen(tmp_buff);
             next();
             numbeg--;
             if (numbeg == 0)
@@ -630,7 +630,7 @@ void ObjectList::parseObjects(void)
         else if (strcmp("Beginset", current()->name) == 0)
         {
             sprintf(tmp_buff, "%s", "Group {\n    children [\n");
-            m_length += strlen(tmp_buff);
+            m_length += (int)strlen(tmp_buff);
             next();
             if (numbeg == 1)
                 numt++;
@@ -642,7 +642,7 @@ void ObjectList::parseObjects(void)
             sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", current()->rootname);
             numb++;
             sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", current()->rootname);
-            m_length += strlen(tmp_buff);
+            m_length += (int)strlen(tmp_buff);
             next();
             numt = 0;
             hastime++;
@@ -656,9 +656,9 @@ void ObjectList::parseObjects(void)
             {
                 tmp = (const char *)(*cb);
                 sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", current()->name, current()->rootname);
-                m_length += strlen(tmp_buff);
+                m_length += (int)strlen(tmp_buff);
                 //fprintf(fp,tmp);
-                m_length += strlen(tmp);
+                m_length += (int)strlen(tmp);
                 next();
             }
             if (numbeg == 1)
@@ -669,11 +669,11 @@ void ObjectList::parseObjects(void)
     {
         sprintf(tmp_buff, "%s%s%s%s%s%s%s%sfield SFInt32 sizeOfSwitch %d\n}\n%s",
                 SLIDER, SLIDER2, SLIDER3, SLIDER4, SLIDER5, SLIDER6, SLIDER7, SLIDER8, numtime, ROUTES);
-        m_length += strlen(tmp_buff);
+        m_length += (int)strlen(tmp_buff);
     }
     for (i = 0; i < numb; i++)
     {
-        m_length += strlen(bufs[i]);
+        m_length += (int)strlen(bufs[i]);
         delete[] bufs[i];
     }
 }
@@ -683,7 +683,7 @@ void ObjectList::send_obj(Connection *conn, char *obj, int add_length)
     int intbuff[4];
     int length;
 
-    length = strlen(obj);
+    length = (int)strlen(obj);
 
     intbuff[0] = conn->get_sender_id();
     intbuff[1] = conn->get_sendertype();
@@ -780,7 +780,7 @@ int ObjectList::sendObjects(Connection *conn)
                 {
                     sprintf(tmp_buff, " 6 %s@ROOT#%d\n", current()->name, current()->get_timestep());
                 }
-                int add_l = strlen(tmp);
+                int add_l = (int)strlen(tmp);
                 send_obj(conn, tmp_buff, add_l);
                 current()->m_new = 0;
                 conn->send(tmp, add_l);
@@ -874,7 +874,7 @@ int ObjectList::sendNewObjects(Connection *conn)
                     {
                         sprintf(tmp_buff, " 6 %s@ROOT#%d\n", current()->name, current()->get_timestep());
                     }
-                    int add_l = strlen(tmp);
+                    int add_l = (int)strlen(tmp);
                     send_obj(conn, tmp_buff, add_l);
                     current()->m_new = 0;
                     conn->send(tmp, add_l);

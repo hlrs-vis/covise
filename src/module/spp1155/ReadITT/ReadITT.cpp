@@ -179,7 +179,7 @@ void ReadITT::loadData(const char *moleculepath)
     {
         std::vector<int> noOfAtoms;
         if (structure->getMolIDs(i + 1, &noOfAtoms))
-            atomsPerType[i] = noOfAtoms.size();
+            atomsPerType[i] = (int)noOfAtoms.size();
     }
     //printf("noOfTypes: %d, atomsPerType[i]: %d\n", noOfTypes, atomsPerType[0]);
 
@@ -222,7 +222,7 @@ void ReadITT::loadData(const char *moleculepath)
             continue;
     }
 
-    int noOfTimesteps = anzAtoms.size();
+    int noOfTimesteps = (int)anzAtoms.size();
     fprintf(stderr, "number of timesteps:\t\t\t%d\n", noOfTimesteps);
     fprintf(stderr, "maximum number of atoms per timestep:\t%d\n\n", maxAtomCount);
 
@@ -302,9 +302,9 @@ void ReadITT::loadData(const char *moleculepath)
             //printf("n: %d\n", n);
             if (n == 4)
             {
-                x = x / 10.;
-                y = y / 10.;
-                z = z / 10.;
+                x = x / 10.0f;
+                y = y / 10.0f;
+                z = z / 10.0f;
                 q0 = 0.0f;
                 q1 = 0.0f;
                 q2 = 0.0f;
@@ -312,17 +312,17 @@ void ReadITT::loadData(const char *moleculepath)
             }
             else if (n == 7)
             {
-                q0 = q0 / 1000.;
-                q1 = q1 / 1000.;
-                q2 = q2 / 1000.;
-                q3 = sqrt(1.0f - q0 * q0 - q1 * q1 - q2 * q2);
+                q0 = q0 / 1000.0f;
+                q1 = q1 / 1000.0f;
+                q2 = q2 / 1000.0f;
+                q3 = float(sqrt(1.0f - q0 * q0 - q1 * q1 - q2 * q2));
             }
             else if (n == 8)
             {
-                q0 = q0 / 1000.;
-                q1 = q1 / 1000.;
-                q2 = q2 / 1000.;
-                q3 = q3 / 1000.;
+                q0 = q0 / 1000.0f;
+                q1 = q1 / 1000.0f;
+                q2 = q2 / 1000.0f;
+                q3 = q3 / 1000.0f;
             }
             else
             {
@@ -342,7 +342,7 @@ void ReadITT::loadData(const char *moleculepath)
         std::vector<int> liIDgroup;
         structure->getMolIDs(type, &liIDgroup);
 
-        int typeSize = liIDgroup.size();
+        int typeSize = (int)liIDgroup.size();
         //printf("typeSize: %d\n", typeSize);
         for (int j = 0; j < typeSize; ++j)
         {
@@ -364,14 +364,14 @@ void ReadITT::loadData(const char *moleculepath)
 
             /*Translating and storing of the component of the molecule
            according to the midpoint of the whole molecule*/
-            fcoordx[currAtom] = fpos[0] + (x / 1000. * cubeSize);
-            fcoordy[currAtom] = fpos[1] + (y / 1000. * cubeSize);
-            fcoordz[currAtom] = fpos[2] + (z / 1000. * cubeSize);
+            fcoordx[currAtom] = fpos[0] + (x / 1000.0f * cubeSize);
+            fcoordy[currAtom] = fpos[1] + (y / 1000.0f * cubeSize);
+            fcoordz[currAtom] = fpos[2] + (z / 1000.0f * cubeSize);
 
             //Getting radius of the molecule component
             float size;
             structure->getSigma(liIDgroup[j], &size);
-            fRadii[currAtom] = size / 2.;
+            fRadii[currAtom] = size / 2.0f;
 
             //Setting the color of the molecule component
             if (structure->getVersion() == 0)

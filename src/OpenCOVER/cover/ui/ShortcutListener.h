@@ -16,7 +16,7 @@ enum Modifiers {
 };
 
 //! mix-in class for UI \ref Element "elements" reacting to keyboard shortcuts
-class ShortcutListener
+class COVER_UI_EXPORT ShortcutListener
 {
  public:
    void setShortcut(const std::string &shortcut);

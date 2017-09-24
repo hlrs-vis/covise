@@ -23,6 +23,7 @@
 #include "AlkaneDatabase.h"
 #include "AlkaneBuilder.h"
 #include "AlkaneBuilderPlugin.h"
+#include "net/Message.h"
 
 AlkaneBuilderPlugin *AlkaneBuilderPlugin::plugin = NULL;
 

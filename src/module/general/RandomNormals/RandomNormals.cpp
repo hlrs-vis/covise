@@ -74,11 +74,11 @@ int RandomNormals::compute(const char *)
         dz[i] = drand48() * 2. - 1.;
 #else
 
-        dx[i] = rand() / (double)RAND_MAX * 2. - 1.;
-        dy[i] = rand() / (double)RAND_MAX * 2. - 1.;
-        dz[i] = rand() / (double)RAND_MAX * 2. - 1.;
+        dx[i] = rand() / (float)RAND_MAX * 2.f - 1.f;
+        dy[i] = rand() / (float)RAND_MAX * 2.f - 1.f;
+        dz[i] = rand() / (float)RAND_MAX * 2.f - 1.f;
 #endif
-        double l = sqrt(dx[i] * dx[i] + dy[i] * dy[i] + dz[i] * dz[i]);
+        float l = sqrt(dx[i] * dx[i] + dy[i] * dy[i] + dz[i] * dz[i]);
         dx[i] /= l;
         dy[i] /= l;
         dz[i] /= l;

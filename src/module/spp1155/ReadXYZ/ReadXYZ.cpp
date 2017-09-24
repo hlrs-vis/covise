@@ -171,7 +171,7 @@ int coReadXYZ::compute(const char *)
             else
                 vt.push_back(elem->second);
         } while (!feof(fp));
-        int numAtoms = vt.size();
+        int numAtoms = (int)vt.size();
         totalAtoms += numAtoms;
 
         char name[1024];
@@ -196,8 +196,8 @@ int coReadXYZ::compute(const char *)
     }
 
     // Create set objects:
-    coDoSet *setPoints = new coDoSet(poPoints->getObjName(), points.size(), (coDistributedObject **)&points[0]);
-    coDoSet *setTypes = new coDoSet(poTypes->getObjName(), types.size(), (coDistributedObject **)&types[0]);
+    coDoSet *setPoints = new coDoSet(poPoints->getObjName(), (int)points.size(), (coDistributedObject **)&points[0]);
+    coDoSet *setTypes = new coDoSet(poTypes->getObjName(), (int)types.size(), (coDistributedObject **)&types[0]);
     // Now the arrays can be cleared:
     points.clear();
     types.clear();

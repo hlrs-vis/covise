@@ -520,7 +520,7 @@ void PDBSequenceDisplay::message(int type, int, const void *buf)
             {
                 //Already loaded the file up, so change position
                 string smallestChain;
-                int smallestChainPos;
+                size_t smallestChainPos;
                 myProtein.ClosestAminoAcid(overallChain, mm->x, mm->y, mm->z, smallestChain, smallestChainPos);
                 cerr << "Closest Chain is : " << smallestChain << " Closest Postion is:" << smallestChainPos << endl;
                 GotoChainAndPos(smallestChain, smallestChainPos);

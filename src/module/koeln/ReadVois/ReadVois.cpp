@@ -101,7 +101,7 @@ bool getCircle(xyz v1, xyz v2, xyz v3, xyz& center, double& squaredRadius){
     }
 
     //remember z for return Value
-    int zVal = v1.z;
+    double zVal = v1.z;
 
     //homogenisierung
     v1.z = 1.0;
@@ -234,9 +234,9 @@ void writePly(coBooleanParam **voiActive,
     for(vector<voi_t>::const_iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
         if(voiActive[voi]->getValue()){
             for(vector<contour_t>::const_iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-                numVertices += con_iter->points.size();
+                numVertices += (int)con_iter->points.size();
             }
-            numTriangles += triangles[voi].size();
+            numTriangles += (int)triangles[voi].size();
         }
         ++voi;
     }
@@ -704,7 +704,7 @@ void ReadVois::sendDataToCovise()
     for(vector<voi_t>::iterator voi_iter = voiVector.begin(); voi_iter != voiVector.end(); ++voi_iter){
         if(m_voiActive[voi]->getValue()){
             for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
-                numVertices += con_iter->points.size();
+                numVertices += (int)con_iter->points.size();
             }
         }
         ++voi;
@@ -722,9 +722,9 @@ void ReadVois::sendDataToCovise()
         if(m_voiActive[voi]->getValue()){
             for(vector<contour_t>::iterator con_iter = voi_iter->contours.begin(); con_iter != voi_iter->contours.end(); con_iter++){
                 for(vector<xyz>::iterator point_iter = con_iter->points.begin(); point_iter != con_iter->points.end(); point_iter++) {
-                    x_c[idx] = point_iter->x;
-                    y_c[idx] = point_iter->y;
-                    z_c[idx] = point_iter->z;
+                    x_c[idx] = float(point_iter->x);
+                    y_c[idx] = float(point_iter->y);
+                    z_c[idx] = float(point_iter->z);
                     idx++;
                 }
             }
@@ -737,7 +737,7 @@ void ReadVois::sendDataToCovise()
     voi = 0;
     for ( ; voi < MAXVOIS; ++voi)
         if (m_voiActive[voi])
-            numTriangles += triangles[voi].size();
+            numTriangles += (int)triangles[voi].size();
 
     //create two int arrays to store triangle info temporarily
     std::vector<int> v_l(numTriangles * 3); //for each triangle 3 integer indices into x_c/y_c/z_c

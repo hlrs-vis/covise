@@ -387,7 +387,7 @@ ReadRST::IntRecord(int *buf, int len)
     }
     else
     {
-        ret = fread(buf, sizeof(int), len, rfp_);
+        ret = (int)fread(buf, sizeof(int), len, rfp_);
         if (ret != len)
             return ret;
     }
@@ -409,7 +409,7 @@ ReadRST::DoubleRecord(double *buf, int len)
     }
     else
     {
-        ret = fread(buf, sizeof(double), len, rfp_);
+        ret = (int)fread(buf, sizeof(double), len, rfp_);
         if (ret != len)
             return ret;
     }
@@ -723,7 +723,7 @@ ReadRST::GetDataset(int num, std::vector<int> &codes)
 
     // Erst mal pro DOF einen double-Array erstellen
     DOFData_ = new DOFData; //CreateNewDOFList();
-    DOFData_->anz_ = codes.size() * solheader_.numnodesdata_;
+    DOFData_->anz_ = (int)codes.size() * solheader_.numnodesdata_;
     DOFData_->data_ = new double[DOFData_->anz_];
     DOFData_->displacements_ = new double[3 * solheader_.numnodesdata_];
     DOFData_->nodesdataanz_ = solheader_.numnodesdata_;
@@ -1105,7 +1105,11 @@ ReadRST::GetNodes(void)
         {
             offset = (SwitchEndian(buf[i]) + 2) * 4;
         }
+#ifdef WIN32
+		_fseeki64(rfp_, offset, SEEK_SET);
+#else
         fseek(rfp_, offset, SEEK_SET);
+#endif
 
         if (fread(etybuf, sizeof(int), ghdr.etysize_, rfp_) != ghdr.etysize_)
         {
@@ -1143,7 +1147,11 @@ ReadRST::GetNodes(void)
 
     // hinsurfen und lesen
     offset = (ghdr.ptr_eid_ + 2) * 4;
-    fseek(rfp_, offset, SEEK_SET);
+#ifdef WIN32
+	_fseeki64(rfp_, offset, SEEK_SET);
+#else
+	fseek(rfp_, offset, SEEK_SET);
+#endif
 
     if (fread(buf, sizeof(int), 2 * ghdr.elements_, rfp_) != 2 * ghdr.elements_)
     {
@@ -1166,7 +1174,11 @@ ReadRST::GetNodes(void)
             offset = (SwitchEndian(buf[i]) + 2) * 4;
         }
 
-        fseek(rfp_, offset, SEEK_SET);
+#ifdef WIN32
+		_fseeki64(rfp_, offset, SEEK_SET);
+#else
+		fseek(rfp_, offset, SEEK_SET);
+#endif
         if (fread(etybuf, sizeof(int), 10, rfp_) != 10)
         {
             return (6);

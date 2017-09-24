@@ -241,21 +241,21 @@ ReadStl::outputObjects(
     vector<int> &vl, vector<int> &ll, vector<Color> &colors)
 {
     coDoPolygons *poly = new coDoPolygons(p_polyOut->getObjName(),
-                                          x.size(),
+                                          (int)x.size(),
                                           (x.size() > 0) ? &x[0] : NULL,
                                           (y.size() > 0) ? &y[0] : NULL,
                                           (z.size() > 0) ? &z[0] : NULL,
-                                          connList.size(),
+                                          (int)connList.size(),
                                           (connList.size() > 0) ? &connList[0] : NULL,
-                                          elemList.size(),
+                                          (int)elemList.size(),
                                           (elemList.size() > 0) ? &elemList[0] : NULL);
     poly->addAttribute("vertexOrder", "2");
     if(p_autoColors->getValue())
     {
-#define NUMCOLORS 7
-        static const char *color[NUMCOLORS] = { "white", "red", "magenta", "blue", "cyan", "green", "yellow" };
+#define NUMTEXTCOLORS 7
+        static const char *color[NUMTEXTCOLORS] = { "white", "red", "magenta", "blue", "cyan", "green", "yellow" };
 	colorNumber++;
-        poly->addAttribute("COLOR", color[colorNumber%NUMCOLORS]);
+        poly->addAttribute("COLOR", color[colorNumber%NUMTEXTCOLORS]);
     }
     else
     {
@@ -264,24 +264,24 @@ ReadStl::outputObjects(
 
     coDoVec3 *norm = new coDoVec3(
         p_normOut->getObjName(),
-        nx.size(),
+        (int)nx.size(),
         (nx.size() > 0) ? &nx[0] : NULL,
         (ny.size() > 0) ? &ny[0] : NULL,
         (nz.size() > 0) ? &nz[0] : NULL);
     coDoLines *lines = new coDoLines(p_linesOut->getObjName(),
-                                     lx.size(),
+                                     (int)lx.size(),
                                      (lx.size() > 0) ? &lx[0] : NULL,
                                      (ly.size() > 0) ? &ly[0] : NULL,
                                      (lz.size() > 0) ? &lz[0] : NULL,
-                                     vl.size(),
+                                     (int)vl.size(),
                                      (vl.size() > 0) ? &vl[0] : NULL,
-                                     ll.size(),
+                                     (int)ll.size(),
                                      (ll.size() > 0) ? &ll[0] : NULL);
 
     coDoRGBA *rgba = NULL;
     if (colors.size() > 0)
     {
-        rgba = new coDoRGBA(p_colorOut->getObjName(), elemList.size());
+        rgba = new coDoRGBA(p_colorOut->getObjName(), (int)elemList.size());
     }
     else
     {
@@ -315,15 +315,15 @@ int ReadStl::readBinary()
         }
     }
     // parse for COLOR information in Header
-    int color_pos = string(desc).find(string("COLOR="), 0);
+    size_t color_pos = string(desc).find(string("COLOR="), 0);
     Color baseColor;
 
     if (colType == AUTO && color_pos != string::npos)
     {
-        baseColor.r = desc[color_pos + 6] / 256.;
-        baseColor.g = desc[color_pos + 7] / 256.;
-        baseColor.b = desc[color_pos + 8] / 256.;
-        baseColor.a = desc[color_pos + 8] / 256.;
+        baseColor.r = desc[color_pos + 6] / 256.0f;
+        baseColor.g = desc[color_pos + 7] / 256.0f;
+        baseColor.b = desc[color_pos + 8] / 256.0f;
+        baseColor.a = desc[color_pos + 8] / 256.0f;
 
         if (string(desc).find(string("MATERIAL="), 0) != string::npos)
         {
@@ -393,10 +393,10 @@ int ReadStl::readBinary()
         {
             if ((facet.colors >> 15) == 0)
             {
-                tmpColor.b = ((facet.colors & 0x7c00) >> 10) / 31.;
-                tmpColor.g = ((facet.colors & 0x03e0) >> 5) / 31.;
-                tmpColor.r = (facet.colors & 0x001f) / 31.;
-                tmpColor.a = 1.;
+                tmpColor.b = ((facet.colors & 0x7c00) >> 10) / 31.0f;
+                tmpColor.g = ((facet.colors & 0x03e0) >> 5) / 31.0f;
+                tmpColor.r = (facet.colors & 0x001f) / 31.0f;
+                tmpColor.a = 1.0f;
                 color.push_back(tmpColor);
             }
             else
@@ -408,17 +408,17 @@ int ReadStl::readBinary()
         {
             if ((facet.colors >> 15) == 0) // materialise
             {
-                tmpColor.b = ((facet.colors & 0x7c00) >> 10) / 31.;
-                tmpColor.g = ((facet.colors & 0x03e0) >> 5) / 31.;
-                tmpColor.r = (facet.colors & 0x001f) / 31.;
-                tmpColor.a = 1.;
+                tmpColor.b = ((facet.colors & 0x7c00) >> 10) / 31.0f;
+                tmpColor.g = ((facet.colors & 0x03e0) >> 5) / 31.0f;
+                tmpColor.r = (facet.colors & 0x001f) / 31.0f;
+                tmpColor.a = 1.0f;
             }
             else
             {
-                tmpColor.r = ((facet.colors & 0x7c00) >> 10) / 31.;
-                tmpColor.g = ((facet.colors & 0x03e0) >> 5) / 31.;
-                tmpColor.b = (facet.colors & 0x001f) / 31.;
-                tmpColor.a = 1.;
+                tmpColor.r = ((facet.colors & 0x7c00) >> 10) / 31.0f;
+                tmpColor.g = ((facet.colors & 0x03e0) >> 5) / 31.0f;
+                tmpColor.b = (facet.colors & 0x001f) / 31.0f;
+                tmpColor.a = 1.0f;
             }
             color.push_back(tmpColor);
         }
@@ -476,9 +476,9 @@ int ReadStl::readBinary()
             // we proceed to produce both feature and domain lines
             // in a single object
             std::transform(dll.begin(), dll.end(), dll.begin(),
-                           std::bind2nd(std::plus<int>(), vl.size()));
+                           std::bind2nd(std::plus<int>(), (int)vl.size()));
             std::transform(dvl.begin(), dvl.end(), dvl.begin(),
-                           std::bind2nd(std::plus<int>(), lx.size()));
+                           std::bind2nd(std::plus<int>(), (int)lx.size()));
             std::copy(dll.begin(), dll.end(), std::back_inserter(ll));
             std::copy(dvl.begin(), dvl.end(), std::back_inserter(vl));
             std::copy(dlx.begin(), dlx.end(), std::back_inserter(lx));
@@ -632,9 +632,9 @@ int ReadStl::readASCII()
             // we proceed to produce both feature and domain lines
             // in a single object
             std::transform(dll.begin(), dll.end(), dll.begin(),
-                           std::bind2nd(std::plus<int>(), cl.size()));
+                           std::bind2nd(std::plus<int>(), (int)cl.size()));
             std::transform(dcl.begin(), dcl.end(), dcl.begin(),
-                           std::bind2nd(std::plus<int>(), lx.size()));
+                           std::bind2nd(std::plus<int>(), (int)lx.size()));
             std::copy(dll.begin(), dll.end(), std::back_inserter(ll));
             std::copy(dcl.begin(), dcl.end(), std::back_inserter(cl));
             std::copy(dlx.begin(), dlx.end(), std::back_inserter(lx));
@@ -1181,8 +1181,8 @@ static void checkPoly(vector<int> &connList,
 
     int i, num_conn, num_coord;
 
-    num_conn = connList.size();
-    num_coord = xcoord.size();
+    num_conn = (int)connList.size();
+    num_coord = (int)xcoord.size();
 
     /// create a Replace-List
     int *replBy = new int[num_coord];
