@@ -19,11 +19,11 @@
 #include "../General/include/fatal.h"
 #include "../General/include/v.h"
 
-#define SHROUD_EXT      0.4                       // extension factor of shroud height
-#define SHROUD_R_SCAL   0.5                       // scale factor, r-coord., shroud ext. end point
+#define SHROUD_EXT      0.4f                       // extension factor of shroud height
+#define SHROUD_R_SCAL   0.5f                       // scale factor, r-coord., shroud ext. end point
 #define HUB_EXT_RAD     0.05f                      // radius at hub extension end
-#define IN_EXT_H        0.05                      // height factor for inlet ext.
-#define IN_EXT_R        0.2                       // radius factor for inlet ext.
+#define IN_EXT_H        0.05f                      // height factor for inlet ext.
+#define IN_EXT_R        0.2f                       // radius factor for inlet ext.
 #define BSPLN_DEGREE 3                            // bspline degree
 
 #ifdef DEBUG_MERIDIANS
@@ -70,7 +70,7 @@ int CreateDR_MeridianContours(struct radial *rr)
    // spline polygon partition pars.
    part[0] = part[1] = 0.5;
    // reference RADIUS!
-   rref = rr->ref * 0.5;
+   rref = rr->ref * 0.5f;
 
    // free + allocate memory
    if (rr->le->c)
@@ -100,8 +100,8 @@ int CreateDR_MeridianContours(struct radial *rr)
    v[0]  =  s1[0] - s2[0];
    v[1]  =  s1[1] - s2[1];
    // center pt. of chord s2-s1
-   p[0]  =  s2[0] + 0.5 * v[0];
-   p[1]  =  s2[1] + 0.5 * v[1];
+   p[0]  =  s2[0] + 0.5f * v[0];
+   p[1]  =  s2[1] + 0.5f * v[1];
    // center pt. of sphere on y-axis
    cp[0] = 0.0;
    cp[1] = p[1] + (p[0]/v[1]) * v[0];
@@ -122,10 +122,10 @@ int CreateDR_MeridianContours(struct radial *rr)
       p[1]   =  s1[1] + rr->ref * rr->sphcond * v1[1];
       v[0]   =  p[0] - cp[0];
       v[1]   =  p[1] - cp[1];
-      delta  =  acos(V_Angle(v1,v2));
+      delta  =  float(acos(V_Angle(v1,v2)));
       dalpha =  delta * rr->stpara[0];
-      v3[0]  =  v[0] * cos(dalpha) - v[1] * sin(dalpha);
-      v3[1]  =  v[0] * sin(dalpha) + v[1] * cos(dalpha);
+      v3[0]  =  float(v[0] * cos(dalpha) - v[1] * sin(dalpha));
+      v3[1]  =  float(v[0] * sin(dalpha) + v[1] * cos(dalpha));
       s3[0]  =  cp[0] + v3[0];
       s3[1]  =  cp[1] + v3[1];
       v3[0] *= -1.0;
@@ -144,10 +144,10 @@ int CreateDR_MeridianContours(struct radial *rr)
       p[1]   =  s2[1] + rr->ref * rr->sphcond * v2[1];
       v[0]   =  p[0] - cp[0];
       v[1]   =  p[1] - cp[1];
-      delta  =  acos(V_Angle(v1,v2));
+      delta  =  float(acos(V_Angle(v1,v2)));
       dalpha =  delta * rr->stpara[1];
-      v4[0]  =  v[0] * cos(dalpha) + v[1] * sin(dalpha);
-      v4[1]  = -v[0] * sin(dalpha) + v[1] * cos(dalpha);
+      v4[0]  =  float(v[0] * cos(dalpha) + v[1] * sin(dalpha));
+      v4[1]  = float(-v[0] * sin(dalpha) + v[1] * cos(dalpha));
       s4[0]  =  cp[0] + v4[0];
       s4[1]  =  cp[1] + v4[1];
       v4[0] *= -1.0;
@@ -181,8 +181,8 @@ int CreateDR_MeridianContours(struct radial *rr)
    // inlet
    p1[0] =  rref * rr->diam[0];
    p1[1] =  rr->ref * rr->height;
-   u1[0] = -sin(rr->angle[0]);
-   u1[1] =  cos(rr->angle[0]);
+   u1[0] = float(-sin(rr->angle[0]));
+   u1[1] =  float(cos(rr->angle[0]));
    // outlet point ( = sphere inlet point s1)
    u3[0] =  v1[1];
    u3[1] = -v1[0];
@@ -198,13 +198,13 @@ int CreateDR_MeridianContours(struct radial *rr)
       h_knot = NULL;
    }
    // normal to shroud
-   u[0]   = -sin(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI);
-   u[1]   =  cos(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI);
+   u[0]   = float(-sin(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI));
+   u[1]   = float(cos(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI));
    // inlet point
    p1[0] += rr->ref * rr->cond[0] * u[0];
    p1[1] += rr->ref * rr->cond[0] * u[1];
-   u1[0]  = -sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
-   u1[1]  =  cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
+   u1[0]  = float(-sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
+   u1[1]  = float(cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
    // outlet point ( = s3, u3 unchanged!)
    u3[0] =  v3[1];
    u3[1] = -v3[0];
@@ -212,7 +212,7 @@ int CreateDR_MeridianContours(struct radial *rr)
    h_poly = CurvePolygon(p1, p2, s3, part[0], part[1]);
 
    // translate points
-   z_trans = 0.5 * (h_poly->y[0] + s_poly->y[0]);
+   z_trans = 0.5f * (h_poly->y[0] + s_poly->y[0]);
    for (i = 0; i < s_poly->nump; i++)
       s_poly->y[i] -= z_trans;
    for (i = 0; i < h_poly->nump; i++)
@@ -301,10 +301,10 @@ int CreateDR_MeridianContours(struct radial *rr)
 
    // **************************************************
    // sphere contour points
-   delta  = acos(V_Angle(v1,v2));
+   delta  = float(acos(V_Angle(v1,v2)));
    dalpha = delta/(float)(NPOIN_SPHERE - 1);
-   alpha  = 0.0;
-   phi    = acos(V_Angle(v3,v4));
+   alpha  = 0.0f;
+   phi    = float(acos(V_Angle(v3,v4)));
    dbeta  = phi/(float)(NPOIN_SPHERE - 1);
    beta   = 0.0;
 #ifdef DEBUG_MERIDIANS
@@ -313,13 +313,13 @@ int CreateDR_MeridianContours(struct radial *rr)
 #endif
    for(i = 0; i < NPOIN_SPHERE; i++)
    {
-      v[0] =  cos(beta) * v3[0] + sin(beta) * v3[1];
-      v[1] = -sin(beta) * v3[0] + cos(beta) * v3[1];
+      v[0] = float(cos(beta) * v3[0] + sin(beta) * v3[1]);
+      v[1] = float(-sin(beta) * v3[0] + cos(beta) * v3[1]);
       beta += dbeta;
       p1[0] = cp[0] - v[0] * rsph[0];
       p1[1] = cp[1] - v[1] * rsph[0];
-      v[0] =  cos(alpha) * v1[0] + sin(alpha) * v1[1];
-      v[1] = -sin(alpha) * v1[0] + cos(alpha) * v1[1];
+      v[0] = float(cos(alpha) * v1[0] + sin(alpha) * v1[1]);
+      v[1] = float(-sin(alpha) * v1[0] + cos(alpha) * v1[1]);
       alpha += dalpha;
       p2[0] = cp[0] - v[0] * rsph[1];
       p2[1] = cp[1] - v[1] * rsph[1];
@@ -343,8 +343,8 @@ int CreateDR_MeridianContours(struct radial *rr)
 
    // le points, hub
    alpha = phi * rr->le->para[0];
-   v[0]  =  cos(alpha) * v3[0] + sin(alpha) * v3[1];
-   v[1]  = -sin(alpha) * v3[0] + cos(alpha) * v3[1];
+   v[0]  = float(cos(alpha) * v3[0] + sin(alpha) * v3[1]);
+   v[1]  = float(-sin(alpha) * v3[0] + cos(alpha) * v3[1]);
    p1[0] = cp[0] - v[0] * rsph[0];
    p1[1] = cp[1] - v[1] * rsph[0];
    AddCurvePoint(rr->le->c, p1[0], p1[1], p1[2], 0.0, 0.0);
@@ -353,8 +353,8 @@ int CreateDR_MeridianContours(struct radial *rr)
    rr->le->h_norm[2] = -v[2];
    // shroud
    alpha = delta * rr->le->para[1];
-   v[0]  =  cos(alpha) * v1[0] + sin(alpha) * v1[1];
-   v[1]  = -sin(alpha) * v1[0] + cos(alpha) * v1[1];
+   v[0]  = float(cos(alpha) * v1[0] + sin(alpha) * v1[1]);
+   v[1]  = float(-sin(alpha) * v1[0] + cos(alpha) * v1[1]);
    p1[0] = cp[0] - v[0] * rsph[1];
    p1[1] = cp[1] - v[1] * rsph[1];
    AddCurvePoint(rr->le->c, p1[0], p1[1], p1[2], 0.0, 0.0);
@@ -364,8 +364,8 @@ int CreateDR_MeridianContours(struct radial *rr)
 
    // te points, hub
    alpha = phi * rr->te->para[0];
-   v[0]  =  cos(alpha) * v3[0] + sin(alpha) * v3[1];
-   v[1]  = -sin(alpha) * v3[0] + cos(alpha) * v3[1];
+   v[0]  = float(cos(alpha) * v3[0] + sin(alpha) * v3[1]);
+   v[1]  = float(-sin(alpha) * v3[0] + cos(alpha) * v3[1]);
    p1[0] = cp[0] - v[0] * rsph[0];
    p1[1] = cp[1] - v[1] * rsph[0];
    AddCurvePoint(rr->te->c, p1[0], p1[1], p1[2], 0.0, 0.0);
@@ -374,8 +374,8 @@ int CreateDR_MeridianContours(struct radial *rr)
    rr->te->h_norm[2] = -v[2];
    // shroud
    alpha = delta * rr->te->para[1];
-   v[0]  =  cos(alpha) * v1[0] + sin(alpha) * v1[1];
-   v[1]  = -sin(alpha) * v1[0] + cos(alpha) * v1[1];
+   v[0]  = float(cos(alpha) * v1[0] + sin(alpha) * v1[1]);
+   v[1]  = float(-sin(alpha) * v1[0] + cos(alpha) * v1[1]);
    p1[0] = cp[0] - v[0] * rsph[1];
    p1[1] = cp[1] - v[1] * rsph[1];
    AddCurvePoint(rr->te->c, p1[0], p1[1], p1[2], 0.0, 0.0);
@@ -391,8 +391,8 @@ int CreateDR_MeridianContours(struct radial *rr)
    u1[1]  =  v2[0];
    p3[0]  =  rref * rr->diam[1];
    p3[1]  =  0.0;
-   u3[0]  = -sin(rr->angle[1]);
-   u3[1]  =  cos(rr->angle[1]);
+   u3[0]  = float(-sin(rr->angle[1]));
+   u3[1]  = float(cos(rr->angle[1]));
    LineIntersect(s2,u1, p3,u3, p2);
    s_poly = CurvePolygon(s2, p2, p3, part[0], part[1]);
 
@@ -400,12 +400,12 @@ int CreateDR_MeridianContours(struct radial *rr)
    s4[1] += z_trans;
    u1[0]  = -v4[1];
    u1[1]  =  v4[0];
-   u[0]   = -sin(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI);
-   u[1]   =  cos(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI);
+   u[0]   = float(-sin(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI));
+   u[1]   = float(cos(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI));
    p3[0] +=  rr->ref * rr->cond[1] * u[0];
    p3[1] +=  rr->ref * rr->cond[1] * u[1];
-   u3[0]  = -sin(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1]));
-   u3[1]  =  cos(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1]));
+   u3[0]  = float(-sin(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1])));
+   u3[1]  = float(cos(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1])));
    LineIntersect(s4,u1, p3, u3, p2);
    h_poly = CurvePolygon(s4, p2, p3, part[0], part[1]);
 
@@ -459,7 +459,7 @@ int CreateDR_MeridianContours(struct radial *rr)
    s_ext[1] -= rr->be[be_max]->ml->p->y[p_max-1];
    s_ext[2]  = s_end[2] = rr->be[be_max]->ml->p->z[p_max];
    s_ext[2] -= rr->be[be_max]->ml->p->z[p_max-1];
-   t             = (SHROUD_EXT * rr->height * rr->ref)/fabs(s_ext[1]);
+   t             = float((SHROUD_EXT * rr->height * rr->ref)/fabs(s_ext[1]));
    p3[0] = s_end[0] + t * s_ext[0] * SHROUD_R_SCAL;
    p3[1] = s_end[1] + t * s_ext[1];
    p3[2] = s_end[2] + t * s_ext[2];
@@ -530,16 +530,16 @@ int CreateDR_MeridianContours(struct radial *rr)
    be_max = rr->be_num-1;
    p3[0] = rr->be[be_max]->ml->p->x[p_max];
    p3[1] = rr->be[be_max]->ml->p->y[p_max];
-   v[0]  =  sin(rr->angle[0]);
-   v[1]  = -cos(rr->angle[0]);
+   v[0]  = float(sin(rr->angle[0]));
+   v[1]  = float(-cos(rr->angle[0]));
    // start point
-   p1[0] = (1.0 + IN_EXT_R) * rr->be[be_max]->ml->p->x[p_max];
+   p1[0] = (1.0f + IN_EXT_R) * rr->be[be_max]->ml->p->x[p_max];
    p1[1] = p1[0]/v[0] * v[1] * IN_EXT_H + rr->be[be_max]->ml->p->y[p_max];
    if(rr->be[be_max]->ml->p->x[p_max] <= rr->be[be_max]->ml->p->x[p_max+NPOIN_MERIDIAN])
    {
       u[0]  = -1.0;
       u[1]  = -1.0;
-      delta =  atan(u[1]/u[0]);
+      delta = float(atan(u[1]/u[0]));
    }
    else
    {
@@ -563,13 +563,13 @@ int CreateDR_MeridianContours(struct radial *rr)
    // last point, beginning runner part
    p3[0] = rr->be[0]->ml->p->x[p_max];
    p3[1] = rr->be[0]->ml->p->y[p_max];
-   v[0]    =  sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
-   v[1]    = -cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
+   v[0]    =  float(sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
+   v[1]    = float(-cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
    // starting point.
    if(delta)
    {
-      p1[0] -= rr->ref * rr->cond[0] * cos(delta);
-      p1[1] += rr->ref * rr->cond[0] * sin(delta);
+      p1[0] -= rr->ref * rr->cond[0] * float(cos(delta));
+      p1[1] += rr->ref * rr->cond[0] * float(sin(delta));
    }
    else
    {

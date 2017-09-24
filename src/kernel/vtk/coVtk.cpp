@@ -4,6 +4,9 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
+#ifdef WIN32
+#define _SCL_SECURE_NO_WARNINGS
+#endif
 
 #ifdef HAVE_VTK
 #include <vtkVersion.h>

@@ -55,7 +55,7 @@ int getContourData(struct radial *rr)
 
 	// get data from tables
 	Q11 = nqinterpolate(Q11opt, nq);
-	D2  = sqrt(rr->des->dis/(Q11*sqrt(rr->des->head)));
+	D2  = float(sqrt(rr->des->dis/(Q11*sqrt(rr->des->head))));
 
 	D1  = D2/nqinterpolate(d2d1, nq);
 	D1i = D1*nqinterpolate(d1id1, nq);

@@ -297,7 +297,7 @@ private:
 
 public:
     static ShmConfig *the();
-    static size_t getMallocSize();
+    static covise::shmSizeType getMallocSize();
 };
 
 const int MAX_NO_SHM = 1000;
@@ -661,8 +661,8 @@ public:
         : coDataShmArray<char *, STRINGSHMARRAY>(no, o)
     {
     }
-    char *operator[](int i);
-    const char *operator[](int i) const;
+    char *operator[](unsigned int i);
+    const char *operator[](unsigned int i) const;
     void stringPtrSet(int no, int sn, shmSizeType of)
     {
         char *cptr = (char *)ptr;

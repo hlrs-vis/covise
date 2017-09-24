@@ -71,7 +71,7 @@ Initial revision
 
 using namespace covise;
 
-const coDistributedObject *coShmPtrArray::operator[](int i) const
+const coDistributedObject *coShmPtrArray::operator[](unsigned int i) const
 {
     int *iptr = (int *)getDataPtr();
     const coDistributedObject *tmpptr;
@@ -126,11 +126,12 @@ void coShmPtrArray::set(int i, const coDistributedObject *elem)
     //    print();
 }
 
-int coShmPtrArray::grow(ApplicationProcess *a, int s)
+int coShmPtrArray::grow(ApplicationProcess *a, unsigned int s)
 {
     ShmMessage *shmmsg;
     coShmArray *tmparr;
-    int *iptr_new, *iptr_old, i;
+	int *iptr_new, *iptr_old;
+	unsigned int i;
 
     //    print_comment(__LINE__, __FILE__, "growing coShmPtrArray");
     //    print();
@@ -156,7 +157,7 @@ int coShmPtrArray::grow(ApplicationProcess *a, int s)
 
 void coShmPtrArray::print()
 {
-    int i;
+    unsigned int i;
 
     print_comment(__LINE__, __FILE__, "Printing coShmPtrArray Object ---------");
     int *iptr = (int *)getDataPtr();

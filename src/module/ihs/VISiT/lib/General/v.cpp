@@ -30,7 +30,7 @@ void V_Norm(float *a)
 
 float V_Len(float *a)
 {
-   return (sqrt(V_ScalarProduct(a, a)));
+   return (float(sqrt(V_ScalarProduct(a, a))));
 }
 
 

@@ -61,7 +61,7 @@ void MocGeneral2WayBalance(CtrlType *ctrl, GraphType *graph, float *tpwgts, floa
   perm = idxwspacemalloc(ctrl, nvtxs);
   qnum = idxwspacemalloc(ctrl, nvtxs);
 
-  limit = amin(amax(0.01*nvtxs, 15), 100);
+  limit = (int)(amin(amax(0.01*nvtxs, 15), 100));
 
   /* Initialize the queues */
   for (i=0; i<ncon; i++) {
@@ -110,7 +110,7 @@ void MocGeneral2WayBalance(CtrlType *ctrl, GraphType *graph, float *tpwgts, floa
 
 
   for (i=0; i<ncon; i++) 
-    mindiff[i] = fabs(tpwgts[0]-npwgts[i]);
+    mindiff[i] = (float)(fabs(tpwgts[0]-npwgts[i]));
   minbal = origbal = Compute2WayHLoadImbalance(ncon, npwgts, tpwgts);
   newcut = mincut = graph->mincut;
   mincutorder = -1;
@@ -156,7 +156,7 @@ void MocGeneral2WayBalance(CtrlType *ctrl, GraphType *graph, float *tpwgts, floa
       minbal = newbal;
       mincutorder = nswaps;
       for (i=0; i<ncon; i++)
-        mindiff[i] = fabs(tpwgts[0]-npwgts[i]);
+        mindiff[i] = (float)(fabs(tpwgts[0]-npwgts[i]));
     }
     else if (nswaps-mincutorder > limit) { /* We hit the limit, undo last move */
       newcut += (ed[higain]-id[higain]);

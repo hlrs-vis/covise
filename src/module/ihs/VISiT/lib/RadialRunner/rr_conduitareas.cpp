@@ -59,11 +59,11 @@ int CreateRR_ConduitAreas(struct radial *rr)
 	hub	   = rr->be[0]->ml;
 	shroud = rr->be[rr->be_num-1]->ml;
 	for(i = 0; i < rr->be[0]->ml->p->nump; i++)	{   // loop over points
-		area  = pow((float)(shroud->p->x[i] - hub->p->x[i]),2);
-		area += pow((float)(shroud->p->y[i] - hub->p->y[i]),2);
-		area += pow((float)(shroud->p->z[i] - hub->p->z[i]),2);
-		area  = sqrt(area);
-		area *= 2.0 * M_PI * ((hub->p->x[i] + shroud->p->x[i])/(2.0));
+		area  = float(pow((float)(shroud->p->x[i] - hub->p->x[i]),2));
+		area += float(pow((float)(shroud->p->y[i] - hub->p->y[i]),2));
+		area += float(pow((float)(shroud->p->z[i] - hub->p->z[i]),2));
+		area  = float(sqrt(area));
+		area *= float(2.0 * M_PI * ((hub->p->x[i] + shroud->p->x[i])/(2.0)));
 
 #ifdef DEBUG_AREAS
 		fprintf(fp,"%f	%f	%f	 %f	 %f\n",hub->par[i],shroud->par[i],area, hub->p->x[i],hub->p->z[i]);

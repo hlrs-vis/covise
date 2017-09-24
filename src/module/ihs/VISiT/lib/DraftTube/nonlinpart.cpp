@@ -16,14 +16,14 @@ void nonlinearpartition(float *x, int numx, float len, float factor)
    float delta;
    float part;
 
-   delta = pow((float)factor, (float)(1.0/(double)(numx-2)));
+   delta = float(pow(factor, (1.0/(double)(numx-2))));
    for (sum = 0.0, i = 1; i < numx; i++)
-      sum += mypower(delta, i-1);
+      sum += float(mypower(delta, i-1));
 
-   part = 1.0/sum;
-   x[0] = 0.0;
+   part = 1.0f/sum;
+   x[0] = 0.0f;
    for (i = 1; i < numx-1; i++)
-      x[i] = x[i-1] + part * mypower(delta, i-1) * len;
+      x[i] = x[i-1] + part * float(mypower(delta, i-1) * len);
    x[numx-1] = len;
 #ifdef   DEBUG
    fprintf(stderr, "\tnonlinearpartition(): numx = %d, delta = %f, sum = %f, part = %f, len = %f, factor = %f, part[1] = %f\n", numx, delta, sum, part, len, factor, x[1]);

@@ -58,9 +58,9 @@ public:
         }
     };
     ~coShmPtrArray(){};
-    const coDistributedObject *operator[](int i) const;
+    const coDistributedObject *operator[](unsigned int i) const;
     int holds_object(int);
-    int grow(ApplicationProcess *a, int s); // __alpha
+    int grow(ApplicationProcess *a, unsigned int s); // __alpha
     void set(int i, const coDistributedObject *elem);
     void print();
 };

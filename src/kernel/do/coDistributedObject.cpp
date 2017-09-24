@@ -1618,7 +1618,7 @@ int coDistributedObject::getAllAttributes(const char ***name,
     // Dieser Platz wird beim Delete des Objekts wieder freigegeben
 
     cp = attribs = new char[size + 2 * no_of_attr * sizeof(char *) + 16];
-    *name = (const char **)(cp + size + SIZEOF_ALIGNMENT - ((unsigned long)(cp + size)) % SIZEOF_ALIGNMENT);
+    *name = (const char **)(cp + size + SIZEOF_ALIGNMENT - ((unsigned long long)(cp + size)) % SIZEOF_ALIGNMENT);
     *content = (*name + no_of_attr);
     //*name = new char *[no_of_attr];
     //*content = new char *[no_of_attr];

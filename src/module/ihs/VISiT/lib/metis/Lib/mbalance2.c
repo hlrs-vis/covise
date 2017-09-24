@@ -62,7 +62,7 @@ void MocGeneral2WayBalance2(CtrlType *ctrl, GraphType *graph, float *tpwgts, flo
   perm = idxwspacemalloc(ctrl, nvtxs);
   qnum = idxwspacemalloc(ctrl, nvtxs);
 
-  limit = amin(amax(0.01*nvtxs, 15), 100);
+  limit = (int)(amin(amax(0.01*nvtxs, 15), 100));
 
   /* Setup the weight intervals of the two subdomains */
   minwgt = fwspacemalloc(ctrl, 2*ncon);
@@ -71,7 +71,7 @@ void MocGeneral2WayBalance2(CtrlType *ctrl, GraphType *graph, float *tpwgts, flo
   for (i=0; i<2; i++) {
     for (j=0; j<ncon; j++) {
       maxwgt[i*ncon+j] = tpwgts[i]*ubvec[j];
-      minwgt[i*ncon+j] = tpwgts[i]*(1.0/ubvec[j]);
+      minwgt[i*ncon+j] = tpwgts[i]*(1.0f/ubvec[j]);
     }
   }
 

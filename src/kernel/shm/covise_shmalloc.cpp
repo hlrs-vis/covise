@@ -114,7 +114,7 @@ void ShmAccess::add_new_segment(int k, shmSizeType size)
     // only detach
 }
 
-char *coStringShmArray::operator[](int i)
+char *coStringShmArray::operator[](unsigned int i)
 {
     char *tmpch;
     int sn;
@@ -144,7 +144,7 @@ char *coStringShmArray::operator[](int i)
     return NULL;
 }
 
-const char *coStringShmArray::operator[](int i) const
+const char *coStringShmArray::operator[](unsigned int i) const
 {
     char *tmpch;
     int sn;

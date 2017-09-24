@@ -1503,7 +1503,7 @@ int CtlMessage::create_finall_message()
     }
 
     type = COVISE_MESSAGE_FINALL;
-    length = strlen(data) + 1;
+    length = int(strlen(data) + 1);
 
     return 1;
 }
@@ -1513,9 +1513,9 @@ int CtlMessage::create_finpart_message()
     int size;
 
     size = 1; // final '\0'
-    size += strlen(m_name) + 1;
-    size += strlen(inst_no) + 1;
-    size += strlen(h_name) + 1;
+    size += int(strlen(m_name) + 1);
+    size += int(strlen(inst_no) + 1);
+    size += int(strlen(h_name) + 1);
 
     if (data)
     {
@@ -1533,7 +1533,7 @@ int CtlMessage::create_finpart_message()
     strcat(data, "\n");
 
     type = COVISE_MESSAGE_FINPART;
-    length = strlen(data) + 1;
+    length = int(strlen(data) + 1);
 
     return 1;
 }

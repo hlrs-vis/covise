@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     {
         CoolEmAllClient *cc = new CoolEmAllClient("recs1.coolemall.eu");
         std::string filePath = argv[1];
-        int end = filePath.length();
+        size_t end = filePath.length();
         if (filePath.at(end - 1) == '/')
         {
             filePath = filePath.substr(0, end - 1);

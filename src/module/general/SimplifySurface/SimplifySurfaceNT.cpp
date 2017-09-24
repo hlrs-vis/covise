@@ -576,100 +576,109 @@ SimplifySurface::compute(const char *)
                                                 VertexContainer::VECTOR,
                                                 TriangleContainer::VECTOR,
                                                 EdgeContainer::HASHED_SET);
-            }
-            else
-            {
-                edgeCollapse = new EdgeCollapseSimple(x_c, y_c, z_c,
-                                                      tri_conn_list, data_c, normals_c,
-                                                      VertexContainer::VECTOR,
-                                                      TriangleContainer::VECTOR,
-                                                      EdgeContainer::HASHED_SET);
-            }
-            // reduction is expected here...
-            float num_tri_red = 0;
-            string message("Initial number of triangles for ");
-            char buf[512];
-            sprintf(buf, "is %lu, trying reduction up to %.2f%%...",
-                    (unsigned long)tri_conn_list.size() / 3,
-                    stage_ratio * 100.0);
-            message += buf;
-            sendInfo("%s", message.c_str());
-            while ((1.0 - (num_tri_red / stage_num_ini_triangles)) > stage_ratio)
-            {
-                int reduced = edgeCollapse->EdgeContraction(max_valence);
-                if (reduced < 0)
-                {
-                    sendWarning("...could not attain goal at this stage.");
-                    break;
-                }
-                num_tri_red += reduced;
-            }
-            // get reduced results
-            edgeCollapse->LeftEntities(tri_conn_list, x_c, y_c, z_c, data_c, normals_c);
+			}
+			else
+			{
+				edgeCollapse = new EdgeCollapseSimple(x_c, y_c, z_c,
+					tri_conn_list, data_c, normals_c,
+					VertexContainer::VECTOR,
+					TriangleContainer::VECTOR,
+					EdgeContainer::HASHED_SET);
+			}
+			// reduction is expected here...
+			float num_tri_red = 0;
+			string message("Initial number of triangles for ");
+			char buf[512];
+			sprintf(buf, "is %lu, trying reduction up to %.2f%%...",
+				(unsigned long)tri_conn_list.size() / 3,
+				stage_ratio * 100.0);
+			message += buf;
+			sendInfo("%s", message.c_str());
+			while ((1.0 - (num_tri_red / stage_num_ini_triangles)) > stage_ratio)
+			{
+				int reduced = edgeCollapse->EdgeContraction(max_valence);
+				if (reduced < 0)
+				{
+					sendWarning("...could not attain goal at this stage.");
+					break;
+				}
+				num_tri_red += reduced;
+			}
+			// get reduced results
+			edgeCollapse->LeftEntities(tri_conn_list, x_c, y_c, z_c, data_c, normals_c);
 
-            delete edgeCollapse;
-        }
-        if (num_ini_triangles > 0)
-        {
-            sendInfo("Accomplished reduction to %.2f%%.",
-                     100.0 * tri_conn_list.size() / (3.0 * num_ini_triangles));
-        }
+			delete edgeCollapse;
+		}
+		if (num_ini_triangles > 0)
+		{
+			sendInfo("Accomplished reduction to %.2f%%.",
+				100.0 * tri_conn_list.size() / (3.0 * num_ini_triangles));
+		}
 
-        coDoPolygons *OutTest = new coDoPolygons(p_meshOut->getObjName(),
-                                                 (int)x_c.size(), (int)tri_conn_list.size(),
-                                                 (int)(tri_conn_list.size() / 3));
-        float *x_out, *y_out, *z_out;
-        int *vl_out, *pl_out;
-        OutTest->getAddresses(&x_out, &y_out, &z_out, &vl_out, &pl_out);
-        std::copy(x_c.begin(), x_c.end(), x_out);
-        std::copy(y_c.begin(), y_c.end(), y_out);
-        std::copy(z_c.begin(), z_c.end(), z_out);
-        std::copy(tri_conn_list.begin(), tri_conn_list.end(), vl_out);
-        unsigned int triangle;
-        for (triangle = 0; triangle < tri_conn_list.size() / 3; ++triangle)
-        {
-            pl_out[triangle] = 3 * triangle;
-        }
-        OutTest->copyAllAttributes(inMesh);
-        p_meshOut->setCurrentObject(OutTest);
+		coDoPolygons *OutTest = new coDoPolygons(p_meshOut->getObjName(),
+			(int)x_c.size(), (int)tri_conn_list.size(),
+			(int)(tri_conn_list.size() / 3));
+		float *x_out, *y_out, *z_out;
+		int *vl_out, *pl_out;
+		OutTest->getAddresses(&x_out, &y_out, &z_out, &vl_out, &pl_out);
+		for (size_t i = 0; i < x_c.size(); i++)
+		{
+			x_out[i] = x_c[i];
+			y_out[i] = y_c[i];
+			z_out[i] = z_c[i];
+		}
+		for (size_t i = 0; i < x_c.size(); i++)
+		{
+			vl_out[i] = tri_conn_list[i];
+		}
+		unsigned int triangle;
+		for (triangle = 0; triangle < tri_conn_list.size() / 3; ++triangle)
+		{
+			pl_out[triangle] = 3 * triangle;
+		}
+		OutTest->copyAllAttributes(inMesh);
+		p_meshOut->setCurrentObject(OutTest);
 
-        // normals
-        if (in_normals)
-        {
-            coDoVec3 *VData = new coDoVec3(p_normalsOut->getObjName(), (int)(normals_c.size() / 3));
-            float *u = NULL, *v = NULL, *w = NULL;
-            VData->getAddresses(&u, &v, &w);
-            vector<float>::iterator it = normals_c.begin();
-            unsigned int i;
-            for (i = 0; i < normals_c.size() / 3; ++i)
-            {
-                u[i] = *it;
-                ++it;
-                v[i] = *it;
-                ++it;
-                w[i] = *it;
-                ++it;
-            }
-            VData->copyAllAttributes(in_normals);
-            p_normalsOut->setCurrentObject(VData);
-        }
+		// normals
+		if (in_normals)
+		{
+			coDoVec3 *VData = new coDoVec3(p_normalsOut->getObjName(), (int)(normals_c.size() / 3));
+			float *u = NULL, *v = NULL, *w = NULL;
+			VData->getAddresses(&u, &v, &w);
+			vector<float>::iterator it = normals_c.begin();
+			unsigned int i;
+			for (i = 0; i < normals_c.size() / 3; ++i)
+			{
+				u[i] = *it;
+				++it;
+				v[i] = *it;
+				++it;
+				w[i] = *it;
+				++it;
+			}
+			VData->copyAllAttributes(in_normals);
+			p_normalsOut->setCurrentObject(VData);
+		}
 
-        // data
-        if ((data_factor != 1.0) && (data_factor != 0.0))
-        {
-            unsigned int i;
-            for (i = 0; i < data_c.size(); ++i)
-            {
-                data_c[i] /= data_factor;
-            }
-        }
+		// data
+		if ((data_factor != 1.0) && (data_factor != 0.0))
+		{
+			unsigned int i;
+			for (i = 0; i < data_c.size(); ++i)
+			{
+				data_c[i] /= data_factor;
+			}
+		}
 
-        if (in_data && in_data->isType("USTSDT"))
-        {
-            coDoFloat *SData = new coDoFloat(p_dataOut[0]->getObjName(), (int)data_c.size());
-            float *data = NULL;
-            SData->getAddress(&data);
-            std::copy(data_c.begin(), data_c.end(), data);
+		if (in_data && in_data->isType("USTSDT"))
+		{
+			coDoFloat *SData = new coDoFloat(p_dataOut[0]->getObjName(), (int)data_c.size());
+			float *data = NULL;
+			SData->getAddress(&data);
+			for (size_t i = 0; i < data_c.size(); i++)
+			{
+				data[i] = data_c[i];
+			}
             SData->copyAllAttributes(in_data);
             p_dataOut[0]->setCurrentObject(SData);
         }

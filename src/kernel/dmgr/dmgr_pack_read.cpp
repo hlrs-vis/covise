@@ -266,7 +266,7 @@ coShmPtr *Packer::read_object(char **tmp_name)
     print_comment(__LINE__, __FILE__, "finished level %d", level);
     level--;
     tmp_int_ptr = (int *)shm_ptr->getPtr();
-    tmp_int_ptr[1] = (shm_obj_ptr - tmp_int_ptr) * sizeof(int);
+    tmp_int_ptr[1] = int((shm_obj_ptr - tmp_int_ptr) * int(sizeof(int)));
     return shm_ptr;
 }
 
