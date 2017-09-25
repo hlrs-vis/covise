@@ -43,7 +43,7 @@ private:
     HlExprList *Distribute(types, HlExprList *);
     HlExprList *Distribute(types, HlExprList *, HlExprList *);
 
-    size_t compare(HlExprList *);
+    int compare(HlExprList *);
 
     int is_times_of(HlExprList *);
     int is_power_of(HlExprList *);

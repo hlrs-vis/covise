@@ -44,7 +44,7 @@ bool HlExprList::Depend(HlExprList *v)
 /*                                     this > e ->  1                     */
 /*------------------------------------------------------------------------*/
 
-size_t HlExprList::compare(HlExprList *e)
+int HlExprList::compare(HlExprList *e)
 {
     size_t i, n, h;
 

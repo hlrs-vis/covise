@@ -77,7 +77,7 @@ const coDistributedObject *coShmPtrArray::operator[](unsigned int i) const
     const coDistributedObject *tmpptr;
     coShmArray *tmparr;
 
-    if ((i < 0) || (i >= length) || (iptr[2 * i] == 0)) // aw: identify null obj
+    if ((i >= length) || (iptr[2 * i] == 0)) // aw: identify null obj
         return NULL;
     tmparr = new coShmArray(iptr[2 * i], iptr[2 * i + 1]);
     tmpptr = coDistributedObject::createUnknown(tmparr);

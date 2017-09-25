@@ -739,7 +739,7 @@ NetFile::reCnt()
         }
     }
 
-    for (size_t i = modules_.size() - 1; i >= 0; --i)
+    for (ssize_t i = (ssize_t)modules_.size() - 1; i >= 0; --i)
     {
         int idx;
         std::string thisMdNm = modules_[i].getName();
