@@ -17,13 +17,13 @@
  **                                                                        **
 \****************************************************************************/
 
+#include <net/message.h>
 #include <grmsg/coGRKeyWordMsg.h>
 #include <cover/coVRNavigationManager.h>
 
 #include "AlkaneDatabase.h"
 #include "AlkaneBuilder.h"
 #include "AlkaneBuilderPlugin.h"
-#include "net/Message.h"
 
 AlkaneBuilderPlugin *AlkaneBuilderPlugin::plugin = NULL;
 
