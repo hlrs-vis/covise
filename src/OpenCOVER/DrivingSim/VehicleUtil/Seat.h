@@ -26,8 +26,7 @@
 //--------------------------------------------------------------------
 
 #include "HMIDeviceIface.h"
-//#include <OpenVRUI/coUpdateManager.h>
-#include <cover/coVRPluginSupport.h>
+#include <OpenVRUI/coUpdateManager.h>
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments

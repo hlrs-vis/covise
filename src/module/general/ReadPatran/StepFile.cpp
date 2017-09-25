@@ -17,15 +17,14 @@ StepFile::StepFile(const coModule *mod, const char *filepath)
     , finished(0)
     , module(mod)
 {
-    size_t i, j, found = 0;
+    size_t j, found = 0;
     size_t index_nb, index_suffix;
-    size_t len_file;
     char nb_string[32];
     char c;
 
     strcpy(base, filepath);
-    len_file = strlen(filepath);
-    i = len_file;
+    size_t len_file = strlen(filepath);
+    ssize_t i = len_file;
     while (i >= 0 && !found)
     {
         c = filepath[i];

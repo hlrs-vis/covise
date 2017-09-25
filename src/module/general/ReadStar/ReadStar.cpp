@@ -758,7 +758,7 @@ int ReadStar::compute(const char *)
             for (whichPort = 0; whichPort < NUMPORTS; whichPort++)
             {
                 char buffer[64];
-                sprintf(buffer, "data_%lld", i);
+                sprintf(buffer, "data_%ld", (long)i);
                 strcat(buffer, "\n");
                 strcat(buffer, choice->getString(p_field[whichPort]->getValue()));
                 // remove trailing \n

@@ -412,6 +412,22 @@ VruiViewElement::VruiViewElement(Element *elem)
 {
 }
 
+namespace {
+
+void updateSlider(Slider *s, coMenuItem *item, bool moving)
+{
+    auto vd = dynamic_cast<coPotiMenuItem *>(item);
+    auto vs = dynamic_cast<coSliderMenuItem *>(item);
+    if (vd)
+        s->setValue(vd->getValue());
+    if (vs)
+        s->setValue(vs->getValue());
+    s->setMoving(moving);
+    s->trigger();
+}
+
+}
+
 void VruiViewElement::menuEvent(coMenuItem *menuItem)
 {
     if (auto b = dynamic_cast<Button *>(element))
@@ -431,14 +447,7 @@ void VruiViewElement::menuEvent(coMenuItem *menuItem)
     }
     else if (auto s = dynamic_cast<Slider *>(element))
     {
-        auto vd = dynamic_cast<coPotiMenuItem *>(menuItem);
-        auto vs = dynamic_cast<coSliderMenuItem *>(menuItem);
-        if (vd)
-            s->setValue(vd->getValue());
-        if (vs)
-            s->setValue(vs->getValue());
-        s->setMoving(true);
-        s->trigger();
+        updateSlider(s, menuItem, true);
     }
     else if (auto sl = dynamic_cast<SelectionList *>(element))
     {
@@ -458,14 +467,7 @@ void VruiViewElement::menuReleaseEvent(coMenuItem *menuItem)
 {
     if (auto s = dynamic_cast<Slider *>(element))
     {
-        auto vd = dynamic_cast<coPotiMenuItem *>(menuItem);
-        auto vs = dynamic_cast<coSliderMenuItem *>(menuItem);
-        if (vd)
-            s->setValue(vd->getValue());
-        if (vs)
-            s->setValue(vs->getValue());
-        s->setMoving(false);
-        s->trigger();
+        updateSlider(s, menuItem, false);
     }
 }
 
