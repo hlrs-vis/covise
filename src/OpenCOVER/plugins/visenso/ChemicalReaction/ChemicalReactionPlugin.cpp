@@ -18,7 +18,7 @@
 \****************************************************************************/
 
 #include <grmsg/coGRKeyWordMsg.h>
-#include <net/Message.h>
+#include <net/message.h>
 #include <cover/coVRFileManager.h>
 
 #include "cover/coTranslator.h"

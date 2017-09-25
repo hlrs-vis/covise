@@ -136,7 +136,7 @@ public:
     coMenuItem *getItemByName(const char *name);
 
     // check if menu contains item, return position in menu or -1
-    size_t index(const coMenuItem *item);
+    int index(const coMenuItem *item);
 
     // test change parent
     void setParent(coMenu *newParent)

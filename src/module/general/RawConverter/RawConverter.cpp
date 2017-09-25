@@ -172,7 +172,7 @@ int RawConverter::compute(const char * /* port */)
                     param = float(dataValues[i] - int(pre_cutoff));
                     if (param < 0)
                         param = 0;
-                    outDataValues[i] = unsigned char(RB + ((param - SB) * range_ * rangef));
+                    outDataValues[i] = (unsigned char)(RB + ((param - SB) * range_ * rangef));
                     if (outDataValues[i] < cutoff)
                         outDataValues[i] = 0;
 

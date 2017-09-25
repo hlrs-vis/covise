@@ -30,8 +30,9 @@
 
 #include "DTrackNet.h"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 // internal socket type
 struct _ip_socket_struct
