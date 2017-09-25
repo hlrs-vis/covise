@@ -785,9 +785,9 @@ Unstructured::Unstructured(coDoUnstructuredGrid *grid,
     {
         int numNodeComp = 0;
         if (scal)
-            numNodeComp += scal->size();
+            numNodeComp += int(scal->size());
         if (vect)
-            numNodeComp += vect->size();
+            numNodeComp += int(vect->size());
 
         nodeComponentNb = numNodeComp;
         nodeComponents = new int[nodeComponentNb];
@@ -1631,7 +1631,7 @@ void Unstructured::setupUnstructured(Unstructured *templ, std::vector<DataDesc *
     {
         nodeComponents[c] = (*dv)[c]->veclen;
     }
-    nodeComponentNb = dv->size();
+    nodeComponentNb = int(dv->size());
     nodeComponentLabels = NULL; // #### HACK
 
     // sample pointers to node components data
@@ -2039,7 +2039,7 @@ void Unstructured::mapTransientFile(int fileIdx)
         {
             vecLenTot += getNodeCompVecLen(i);
         }
-        fileSize = transientFilesTimeSteps[transientFileIdx].size() * nNodes * vecLenTot * sizeof(float);
+        fileSize = transientFilesTimeSteps[int(transientFileIdx].size() * nNodes * vecLenTot * sizeof(float));
     }
 
     if (transientFileVerbose == 2)
@@ -2056,7 +2056,7 @@ void Unstructured::mapTransientFile(int fileIdx)
     if (transientFile)
         munmap(transientFile, transientFileSize);
 
-    transientFile = (float *)mmap(0, fileSize, PROT_READ, MAP_SHARED, fd, 0);
+    transientFile = (float *)mmap(0, int(fileSize), PROT_READ, MAP_SHARED, fd, 0);
 
     transientFileSize = fileSize;
 
@@ -2262,7 +2262,7 @@ int Unstructured::getTimeSteps(double time, int &step1, int &step2,
     // ### heuristic
     double epsilon = (transientFilesTimeSteps[transientFileIdx].back() - transientFilesTimeSteps[transientFileIdx].front()) * 1e-6;
 
-    int fileNb = transientFilesTimeSteps.size();
+    int fileNb = int(transientFilesTimeSteps.size());
 
     // map corresponding file, if necessary
     // epsilon applies at first step of first file and last step of last file
@@ -4727,7 +4727,7 @@ int Unstructured::computeNodeNeighborsN(int node, int range, int *neighborsN)
         {
             neighborsN[n] = nodeNeighbors[node][n];
         }
-        return nodeNeighbors[node].size();
+        return int(nodeNeighbors[node].size());
     }
 
     // compute neighbors of neighbors
@@ -5352,7 +5352,7 @@ void Unstructured::gradient(int comp, Unstructured *out, int outComp,
             }
             else
             {
-                neighCnt = nodeNeighbors[i].size();
+                neighCnt = int(nodeNeighbors[i].size());
             }
 
             // ### added 2007-08-16 for treating planar (skipped) cells
@@ -5528,7 +5528,7 @@ void Unstructured::gradient(int comp, Unstructured *out, int outComp,
             }
             else
             {
-                neighCnt = nodeNeighbors[i].size();
+                neighCnt = int(nodeNeighbors[i].size());
             }
 
             // ### added 2007-08-16 for treating planar (skipped) cells
