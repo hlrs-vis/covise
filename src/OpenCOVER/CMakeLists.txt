@@ -23,12 +23,20 @@ option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for
 option(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 option(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 
+macro (GETENV_PATH var name)
+   set(${var} $ENV{${name}})
+   if (WIN32)
+      string(REGEX REPLACE "\\\\" "/" ${var} "${${var}}")
+   endif(WIN32)
+endmacro (GETENV_PATH var name)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(PLUGIN_CATEGORY "default")
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    cmake_minimum_required(VERSION 2.8)
-   set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
+   getenv_path(COVISEDIR COVISEDIR)
+   set(CMAKE_MODULE_PATH "${COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
 
    # preset some initial values for install dir and CFLAGS etc.
    INCLUDE(CovisePresets)
