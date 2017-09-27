@@ -841,8 +841,8 @@ string TabbedDialogPanel::parseString(std::string s, int idx, int limit)
                         _wordsraw[idx].push_back(pair<string, float>(subword, size));
                         wsindex += wsleng;
                     }
-                    _words[idx].push_back(pair<string, float>("\n", 0));
-                    _wordsraw[idx].push_back(pair<string, float>("\n", 0));
+                    _words[idx].push_back(pair<string, float>("\n", 0.0f));
+                    _wordsraw[idx].push_back(pair<string, float>("\n", 0.0f));
                     wsindex++;
                     continue;
                 }
@@ -950,7 +950,7 @@ void TabbedDialogPanel::prepDisplay(int append, int index)
                 if (split1 == "")
                 {
                     //cerr << "moving to next line: " << thing2 << endl;
-                    it = _words[index].insert(it, pair<string, float>("\n", 0.0));
+                    it = _words[index].insert(it, pair<string, float>("\n", 0.0f));
                     it++;
                     thing1.clear();
                     thing2.clear();
@@ -961,7 +961,7 @@ void TabbedDialogPanel::prepDisplay(int append, int index)
                     slabel.setString(split2);
 
                     it = _words[index].insert(it, pair<string, float>(split2, slabel.getWidth()));
-                    it = _words[index].insert(it, pair<string, float>(split1, 0.0));
+                    it = _words[index].insert(it, pair<string, float>(split1, 0.0f));
                     if (rowpos == 0.0)
                     {
                         _rowindex[index].push_back(it);
@@ -986,7 +986,7 @@ void TabbedDialogPanel::prepDisplay(int append, int index)
             else
             {
                 //cerr << "moving to next line: " << thing2 << endl;
-                it = _words[index].insert(it, pair<string, float>("\n", 0.0));
+                it = _words[index].insert(it, pair<string, float>("\n", 0.0f));
                 it++;
                 _rowindex[index].push_back(it);
                 thing1 = it->first;
@@ -998,7 +998,7 @@ void TabbedDialogPanel::prepDisplay(int append, int index)
         }
         else
         {
-            //it = _words.insert(it, pair<string, float>("\n", 0.0));
+            //it = _words.insert(it, pair<string, float>("\n", 0.0f));
             thing1.clear();
             thing2.clear();
             rowpos = 0;

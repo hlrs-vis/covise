@@ -93,11 +93,11 @@ public:
     void show();
     void hide();
     bool isVisible();
-    int getNum() const
+    size_t getNum() const
     {
-        return avatars.size();
+        return (int)avatars.size();
     }
-    VRAvatar *getAvatar(int index)
+    VRAvatar *getAvatar(size_t index)
     {
         return avatars[index];
     }

@@ -157,8 +157,11 @@ void coIsectSensor::calcDistance()
     osg::Vec3 dist;
     dist = v - q0;
 	float h=1.0;
-	if(fabs(Scale2) > 0.0000000001f)
+	if(fabs(Scale2) > 0.0000001f)
 	{
+#ifdef WIN32
+#pragma warning ( suppress : 4723)
+#endif
 	    h = dist.length2() / Scale2;
 	}
     float sprod = H * (N);

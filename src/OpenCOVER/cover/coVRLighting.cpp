@@ -185,19 +185,19 @@ void coVRLighting::initLampLight()
 {
     static const LightDef spotlightDefault = {
         { // diffuse
-          1.0, 1.0, 1.0
+          1.0f, 1.0f, 1.0f
         },
         { // specular
-          1.0, 1.0, 1.0
+          1.0f, 1.0f, 1.0f
         },
         { // abmient
-          0.2, 0.2, 0.2
+          0.2f, 0.2f, 0.2f
         },
         { // position
-          0.0, -1.0, 0.0, 1.0
+          0.0f, -1.0f, 0.0f, 1.0f
         },
         { // Spot: x,y,z,expo,angle
-          0.0, 1.0, 0.0, 1.0, 30.0
+          0.0f, 1.0f, 0.0f, 1.0f, 30.0f
         }
     };
 
@@ -220,19 +220,19 @@ void coVRLighting::initOtherLight()
     //  default values for Lights
     static const LightDef lightDefault = {
         { // diffuse
-          0.5, 0.5, 0.5
+          0.5f, 0.5f, 0.5f
         },
         { // specular
-          0.5, 0.5, 0.5
+          0.5f, 0.5f, 0.5f
         },
         { // abmient
-          0.1, 0.1, 0.1
+          0.1f, 0.1f, 0.1f
         },
         { // position
-          0.0, -10000.0, 0.0, 1.0
+          0.0f, -10000.0f, 0.0f, 1.0f
         },
         { // Spot: x,y,z,expo,angle
-          0.0, 0.0, -1.0, 0.0, M_PI
+          0.0f, 0.0f, -1.0f, 0.0f, float(M_PI)
         }
     };
 

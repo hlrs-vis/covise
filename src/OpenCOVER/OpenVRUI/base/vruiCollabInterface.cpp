@@ -146,7 +146,7 @@ void vruiCollabInterface::sendLockMessage(const char *message)
 void vruiCollabInterface::sendOngoingMessage(const char *message)
 {
 
-    int len = composeMessage('O', message);
+    int len = (int)composeMessage('O', message);
 
     if (coim)
         vruiRendererInterface::the()->sendCollabMessage(this, sendBuf, len);
@@ -158,7 +158,7 @@ void vruiCollabInterface::sendOngoingMessage(const char *message)
 void vruiCollabInterface::sendReleaseMessage(const char *message)
 {
 
-    int len = composeMessage('R', message);
+    int len = (int)composeMessage('R', message);
 
     if (coim)
         vruiRendererInterface::the()->sendCollabMessage(this, sendBuf, len);

@@ -276,6 +276,6 @@ void VRAvatarData::convert()
 }
 
 int VRAvatar::num = 0;
-float VRAvatar::rc[10] = { 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.5, 0.2, 0.1, 0.2 };
-float VRAvatar::gc[10] = { 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.5, 0.4, 0.4, 0.0 };
-float VRAvatar::bc[10] = { 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.1, 0.6, 0.7, 0.7 };
+float VRAvatar::rc[10] = { 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.5f, 0.2f, 0.1f, 0.2f };
+float VRAvatar::gc[10] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.5f, 0.4f, 0.4f, 0.0f };
+float VRAvatar::bc[10] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.1f, 0.6f, 0.7f, 0.7f };

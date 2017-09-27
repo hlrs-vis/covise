@@ -437,7 +437,7 @@ void QtView::updateChildren(const SelectionList *sl)
     }
     for (size_t i=0; i<items.size(); ++i)
     {
-        auto &a = ag->actions()[i];
+        auto &a = ag->actions()[(int)i];
         a->setShortcutContext(Qt::WidgetShortcut);
         a->setText(QString::fromStdString(items[i]));
         a->setCheckable(true);

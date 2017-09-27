@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include "Export.h"
 
 namespace opencover {
 namespace ui {
@@ -10,7 +11,7 @@ namespace ui {
 class Element;
 
 //! mix-in class for containers of UI \ref Element "elements"
-class Container {
+class COVER_UI_EXPORT Container {
  public:
     virtual ~Container();
 
