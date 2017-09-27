@@ -248,8 +248,6 @@ UDP_Sender::getIP(const char *hostname)
 	hints.ai_flags = AI_ADDRCONFIG;
 	hints.ai_protocol = 0;          /* Any protocol */
 
-	char *cPtr = (char *)&v4.s_addr;
-
 	int s = getaddrinfo(hostname, NULL /* service */, &hints, &result);
 	if (s != 0)
 	{
@@ -268,9 +266,10 @@ UDP_Sender::getIP(const char *hostname)
 			if (rp->ai_family != AF_INET)
 				continue;
 
+            char *cPtr = (char *)&v4.s_addr;
 			char address[1000];
 			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
-			memcpy(cPtr, &saddr->sin_addr, sizeof(cPtr));
+			memcpy(cPtr, &saddr->sin_addr, sizeof(v4.s_addr));
 			if (!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
 			{
 				std::cerr << "could not convert address of " << hostname << " to printable format: " << strerror(errno) << std::endl;
@@ -278,7 +277,8 @@ UDP_Sender::getIP(const char *hostname)
 			}
 			else
 			{
-				memcpy(cPtr, &saddr->sin_addr, sizeof(cPtr));
+				memcpy(cPtr, &saddr->sin_addr, sizeof(v4.s_addr));
+                freeaddrinfo(result);           /* No longer needed */
 				return v4.s_addr;
 			}
 		}
