@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <util/string_util.h>
+#include <util/coTypes.h>
 #include <fstream>
 
 //

@@ -410,7 +410,7 @@ bool FunctionParser::AddFunction(const std::string &name,
 
         copyOnWrite();
 
-        data->FuncPtrNames[name] = data->FuncPtrs.size();
+        data->FuncPtrNames[name] = (unsigned int)data->FuncPtrs.size();
         data->FuncPtrs.push_back(Data::FuncPtrData(func, paramsAmount));
         return true;
     }
@@ -444,7 +444,7 @@ bool FunctionParser::AddFunction(const std::string &name,
 
         copyOnWrite();
 
-        data->FuncParserNames[name] = data->FuncParsers.size();
+        data->FuncParserNames[name] = (unsigned int)data->FuncParsers.size();
         data->FuncParsers.push_back(&parser);
         return true;
     }
@@ -464,9 +464,9 @@ int FunctionParser::Parse(const std::string &Function,
     if (!ParseVars(Vars, data->Variables))
     {
         parseErrorType = INVALID_VARS;
-        return Function.size();
+        return (int)Function.size();
     }
-    data->varAmount = data->Variables.size(); // this is for Eval()
+    data->varAmount = (int)data->Variables.size(); // this is for Eval()
     using_var = new bool[data->varAmount];
     memset(using_var, 0, data->varAmount * sizeof(bool));
 
@@ -480,7 +480,7 @@ int FunctionParser::Parse(const std::string &Function,
 
     data->useDegreeConversion = useDegrees;
     if (!Compile(Func))
-        return Function.size();
+        return (int)Function.size();
 
     data->Variables.clear();
 
@@ -591,7 +591,7 @@ int FunctionParser::CheckSyntax(const char *Function)
             Data::VarMap_t::const_iterator fIter = FindVariable(&Function[Ind], FuncPtrNames);
             if (fIter != FuncPtrNames.end())
             {
-                Ind += fIter->first.size();
+                Ind += (int)fIter->first.size();
                 foundFunc = true;
             }
             else
@@ -599,7 +599,7 @@ int FunctionParser::CheckSyntax(const char *Function)
                 Data::VarMap_t::const_iterator pIter = FindVariable(&Function[Ind], FuncParserNames);
                 if (pIter != FuncParserNames.end())
                 {
-                    Ind += pIter->first.size();
+                    Ind += (int)pIter->first.size();
                     foundFunc = true;
                 }
             }
@@ -643,13 +643,13 @@ int FunctionParser::CheckSyntax(const char *Function)
         { // Check for variable
             Data::VarMap_t::const_iterator vIter = FindVariable(&Function[Ind], Variables);
             if (vIter != Variables.end())
-                Ind += vIter->first.size();
+                Ind += (int)vIter->first.size();
             else
             {
                 // Check for constant
                 Data::ConstMap_t::const_iterator cIter = FindConstant(&Function[Ind]);
                 if (cIter != Constants.end())
-                    Ind += cIter->first.size();
+                    Ind += (int)cIter->first.size();
                 else
                 {
                     parseErrorType = SYNTAX_ERROR;
@@ -729,8 +729,8 @@ bool FunctionParser::Compile(const char *Function)
     if (parseErrorType >= 0)
         return false;
 
-    data->ByteCodeSize = byteCode.size();
-    data->ImmedSize = immed.size();
+    data->ByteCodeSize = (unsigned int)byteCode.size();
+    data->ImmedSize = (unsigned int)immed.size();
 
     if (data->ByteCodeSize)
     {
@@ -812,7 +812,7 @@ int FunctionParser::CompileIf(const char *F, int ind)
         return ind2;
     }
     AddCompiledByte(cIf);
-    unsigned curByteCodeSize = tempByteCode->size();
+    unsigned curByteCodeSize = (unsigned int)tempByteCode->size();
     AddCompiledByte(0); // Jump index; to be set later
     AddCompiledByte(0); // Immed jump index; to be set later
 
@@ -826,8 +826,8 @@ int FunctionParser::CompileIf(const char *F, int ind)
         return ind2;
     }
     AddCompiledByte(cJump);
-    unsigned curByteCodeSize2 = tempByteCode->size();
-    unsigned curImmedSize2 = tempImmed->size();
+    unsigned curByteCodeSize2 = (unsigned int)tempByteCode->size();
+    unsigned curImmedSize2 = (unsigned int)tempImmed->size();
     AddCompiledByte(0); // Jump index; to be set later
     AddCompiledByte(0); // Immed jump index; to be set later
 
@@ -844,8 +844,8 @@ int FunctionParser::CompileIf(const char *F, int ind)
     // Set jump indices
     (*tempByteCode)[curByteCodeSize] = curByteCodeSize2 + 1;
     (*tempByteCode)[curByteCodeSize + 1] = curImmedSize2;
-    (*tempByteCode)[curByteCodeSize2] = tempByteCode->size() - 1;
-    (*tempByteCode)[curByteCodeSize2 + 1] = tempImmed->size();
+    (*tempByteCode)[curByteCodeSize2] = (unsigned int)tempByteCode->size() - 1;
+    (*tempByteCode)[curByteCodeSize2 + 1] = (unsigned int)tempImmed->size();
 
     return ind2 + 1;
 }
@@ -898,7 +898,7 @@ int FunctionParser::CompileElement(const char *F, int ind)
         AddImmediate(val);
         AddCompiledByte(cImmed);
         incStackPtr();
-        return ind + (endPtr - startPtr);
+        return ind + int(endPtr - startPtr);
     }
 
     if (isalpha(c) || c == '_') // Function, variable or constant
@@ -914,7 +914,7 @@ int FunctionParser::CompileElement(const char *F, int ind)
             }
 
 #ifndef DISABLE_EVAL
-            unsigned requiredParams = strcmp(func->name, "eval") == 0 ? data->Variables.size() : func->params;
+            unsigned requiredParams = strcmp(func->name, "eval") == 0 ? (unsigned int)data->Variables.size() : func->params;
 #else
             unsigned requiredParams = func->params;
 #endif
@@ -928,7 +928,7 @@ int FunctionParser::CompileElement(const char *F, int ind)
         {
             AddCompiledByte(vIter->second);
             incStackPtr();
-            return ind + vIter->first.size();
+            return ind + (int)vIter->first.size();
         }
 
         Data::ConstMap_t::const_iterator cIter = FindConstant(F + ind);
@@ -937,7 +937,7 @@ int FunctionParser::CompileElement(const char *F, int ind)
             AddImmediate(cIter->second);
             AddCompiledByte(cImmed);
             incStackPtr();
-            return ind + cIter->first.size();
+            return ind + (int)cIter->first.size();
         }
 
         Data::VarMap_t::const_iterator fIter = FindVariable(F + ind, data->FuncPtrNames);
@@ -945,7 +945,7 @@ int FunctionParser::CompileElement(const char *F, int ind)
         {
             unsigned index = fIter->second;
 
-            int ind2 = ind + fIter->first.length();
+            int ind2 = ind + (int)fIter->first.length();
             sws(F, ind2); // F[ind2] is '('
 
             ind2 = CompileFunctionParams(F, ind2 + 1,
@@ -961,7 +961,7 @@ int FunctionParser::CompileElement(const char *F, int ind)
         {
             unsigned index = pIter->second;
 
-            int ind2 = ind + pIter->first.length();
+            int ind2 = ind + (int)pIter->first.length();
             sws(F, ind2); // F[ind2] is '('
 
             ind2 = CompileFunctionParams(F, ind2 + 1, data->FuncParsers[index]->data->varAmount);
@@ -1887,7 +1887,7 @@ public:
         ++tmp;
         return *tmp;
     }
-    unsigned GetArgCount() const { return data->args.size(); }
+    unsigned GetArgCount() const { return (unsigned int)data->args.size(); }
     void Erase(const pit p) { data->args.erase(p); }
 
     SubTree &getp0()
@@ -1944,7 +1944,7 @@ private:
         float voidvalue;
         list<pit> cp;
         float value;
-        unsigned size() const { return cp.size(); }
+        unsigned size() const { return (unsigned int)cp.size(); }
     };
     struct ConstList BuildConstList();
     void KillConst(const ConstList &cl)
@@ -3001,25 +3001,25 @@ void CodeTree::Assemble(vector<unsigned> &byteCode,
         // If the parameter amount is != 3, we're screwed.
         getp0()->Assemble(byteCode, immed);
 
-        unsigned ofs = byteCode.size();
+        unsigned ofs = (unsigned int)byteCode.size();
         AddCmd(cIf);
         AddCmd(0); // code index
         AddCmd(0); // immed index
 
         getp1()->Assemble(byteCode, immed);
 
-        byteCode[ofs + 1] = byteCode.size() + 2;
-        byteCode[ofs + 2] = immed.size();
+        byteCode[ofs + 1] = (unsigned int)byteCode.size() + 2;
+        byteCode[ofs + 2] = (unsigned int)immed.size();
 
-        ofs = byteCode.size();
+        ofs = (unsigned int)byteCode.size();
         AddCmd(cJump);
         AddCmd(0); // code index
         AddCmd(0); // immed index
 
         getp2()->Assemble(byteCode, immed);
 
-        byteCode[ofs + 1] = byteCode.size() - 1;
-        byteCode[ofs + 2] = immed.size();
+        byteCode[ofs + 1] = (unsigned int)byteCode.size() - 1;
+        byteCode[ofs + 2] = (unsigned int)immed.size();
 
         break;
     }
@@ -3535,7 +3535,7 @@ void FunctionParser::Optimize()
 
     delete[] data -> ByteCode;
     data->ByteCode = 0;
-    if ((data->ByteCodeSize = byteCode.size()) > 0)
+    if ((data->ByteCodeSize = (unsigned int)byteCode.size()) > 0)
     {
         data->ByteCode = new unsigned[data->ByteCodeSize];
         for (unsigned a = 0; a < byteCode.size(); ++a)
@@ -3544,7 +3544,7 @@ void FunctionParser::Optimize()
 
     delete[] data -> Immed;
     data->Immed = 0;
-    if ((data->ImmedSize = immed.size()) > 0)
+    if ((data->ImmedSize = (unsigned int)immed.size()) > 0)
     {
         data->Immed = new float[data->ImmedSize];
         for (unsigned a = 0; a < immed.size(); ++a)

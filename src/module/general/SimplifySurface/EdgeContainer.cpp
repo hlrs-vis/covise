@@ -62,7 +62,7 @@ EdgeHashedSet::insert(const Edge &edge)
 int
 EdgeHashedSet::size() const
 {
-    return _edgeSet.size();
+    return int(_edgeSet.size());
 }
 
 void

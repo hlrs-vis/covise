@@ -106,7 +106,7 @@ inline void Topo<P>::computeCenter(point_container_t iPoints) {
 		}
 		else ++unusedPoints;
 	}
-	mCenter*=1.0/(P-unusedPoints);
+	mCenter*=1.0f/(P-unusedPoints);
 }
 
 template<int P>
@@ -120,7 +120,7 @@ inline void Topo<P>::computeAverage(point_container_t iPoints, member_t iSource,
 		}
 		else ++unusedPoints;
 	}
-	oDest*=1.0/(P-unusedPoints);
+	oDest*=float(1.0f/(P-unusedPoints));
 }
 
 template<int P>

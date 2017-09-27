@@ -92,7 +92,7 @@ struct region *reg4, struct region *reg2, struct Ilist *outlet)
       Add2Ilist(reg->nodes[reg->numl], reg->nodes[1]->list[i]);
       for(j = 1; j < reg->line[0]->nump; j++)
       {
-         para = (1.0 - reg->para[2]->list[i]) * reg->para[0]->list[j]
+         para = (1.0f - reg->para[2]->list[i]) * reg->para[0]->list[j]
             + reg->para[2]->list[i] * reg->para[3]->list[j];
          p[0] = u1[0] * para + u2[0];
          p[1] = u1[1] * para + u2[1];

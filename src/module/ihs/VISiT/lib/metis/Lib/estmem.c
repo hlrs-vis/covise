@@ -44,10 +44,10 @@ void METIS_EstimateMemory(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numfl
   gdata = nedges;   /* Assume that the user does not pass weights */
 
   nlevels = (int)(log(100.0/(*nvtxs))/log(vfraction) + .5);
-  vmult = 0.5 + (1.0 - pow(vfraction, nlevels))/(1.0 - vfraction);
-  emult = 1.0 + (1.0 - pow(efraction, nlevels+1))/(1.0 - efraction);
+  vmult = (float)(0.5 + (1.0 - pow(vfraction, nlevels))/(1.0 - vfraction));
+  emult = (float)(1.0 + (1.0 - pow(efraction, nlevels+1))/(1.0 - efraction));
 
-  gdata += vmult*4*(*nvtxs) + emult*2*nedges;
+  gdata += (int)(vmult*4*(*nvtxs) + emult*2*nedges);
   if ((vmult-1.0)*4*(*nvtxs) + (emult-1.0)*2*nedges < 5*(*nvtxs))
     rdata = 0;
   else
@@ -96,8 +96,8 @@ void EstimateCFraction(int nvtxs, idxtype *xadj, idxtype *adjncy, float *vfracti
 
   cnedges = ComputeCoarseGraphSize(nvtxs, xadj, adjncy, cnvtxs, cmap, match, perm);
 
-  *vfraction = (1.0*cnvtxs)/(1.0*nvtxs);
-  *efraction = (1.0*cnedges)/(1.0*xadj[nvtxs]);
+  *vfraction = (1.0f*cnvtxs)/(1.0f*nvtxs);
+  *efraction = (1.0f*cnedges)/(1.0f*xadj[nvtxs]);
 
   GKfree(&cmap, &match, &perm, LTERM);
 }

@@ -159,7 +159,7 @@ void MCMatch_SHEM(CtrlType *ctrl, GraphType *graph)
   degrees = idxwspacemalloc(ctrl, nvtxs);
 
   RandomPermute(nvtxs, tperm, 1);
-  avgdegree = 0.7*(xadj[nvtxs]/nvtxs);
+  avgdegree = (int)(0.7f*(xadj[nvtxs]/nvtxs));
   for (i=0; i<nvtxs; i++) 
     degrees[i] = (xadj[i+1]-xadj[i] > avgdegree ? avgdegree : xadj[i+1]-xadj[i]);
   BucketSortKeysInc(nvtxs, avgdegree, degrees, tperm, perm);
@@ -253,7 +253,7 @@ void MCMatch_SHEBM(CtrlType *ctrl, GraphType *graph, int norm)
   degrees = idxwspacemalloc(ctrl, nvtxs);
 
   RandomPermute(nvtxs, tperm, 1);
-  avgdegree = 0.7*(xadj[nvtxs]/nvtxs);
+  avgdegree = (int)(0.7f*(xadj[nvtxs]/nvtxs));
   for (i=0; i<nvtxs; i++) 
     degrees[i] = (xadj[i+1]-xadj[i] > avgdegree ? avgdegree : xadj[i+1]-xadj[i]);
   BucketSortKeysInc(nvtxs, avgdegree, degrees, tperm, perm);
@@ -354,7 +354,7 @@ void MCMatch_SBHEM(CtrlType *ctrl, GraphType *graph, int norm)
   degrees = idxwspacemalloc(ctrl, nvtxs);
 
   RandomPermute(nvtxs, tperm, 1);
-  avgdegree = 0.7*(xadj[nvtxs]/nvtxs);
+  avgdegree = (int)(0.7f*(xadj[nvtxs]/nvtxs));
   for (i=0; i<nvtxs; i++) 
     degrees[i] = (xadj[i+1]-xadj[i] > avgdegree ? avgdegree : xadj[i+1]-xadj[i]);
   BucketSortKeysInc(nvtxs, avgdegree, degrees, tperm, perm);
@@ -471,13 +471,13 @@ float BetterVBalance(int ncon, int norm, float *vwgt, float *u1wgt, float *u2wgt
       sum1 += vwgt[i]+u1wgt[i];
       sum2 += vwgt[i]+u2wgt[i];
     }
-    sum1 = sum1/(1.0*ncon);
-    sum2 = sum2/(1.0*ncon);
+    sum1 = sum1/(1.0f*ncon);
+    sum2 = sum2/(1.0f*ncon);
 
     diff1 = diff2 = 0.0;
     for (i=0; i<ncon; i++) {
-      diff1 += fabs(sum1 - (vwgt[i]+u1wgt[i]));
-      diff2 += fabs(sum2 - (vwgt[i]+u2wgt[i]));
+      diff1 += (float)fabs(sum1 - (vwgt[i]+u1wgt[i]));
+      diff2 += (float)fabs(sum2 - (vwgt[i]+u2wgt[i]));
     }
 
     return diff1 - diff2;

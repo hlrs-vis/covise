@@ -77,7 +77,7 @@ void SSLClient::run(std::string command)
 
     cerr << "SSLClient::run(): Send Command: " << command.c_str() << endl;
     command += '\n';
-    mConn->send(command.c_str(), command.size());
+    mConn->send(command.c_str(), unsigned int(command.size()));
 
     bIsRunning = true;
     do
@@ -125,5 +125,5 @@ int SSLClient::sslPasswdCallback(char *buf, int size, int rwflag, void *userData
     strncpy(buf, password.c_str(), password.size() /*should be length of buf*/);
     buf[password.size() - 1] = '\0';
 
-    return password.size();
+    return (int)password.size();
 }

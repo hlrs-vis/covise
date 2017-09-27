@@ -107,10 +107,14 @@ int ReadPLY::compute(const char *)
 
     // Copy the indices std::vector to a c-style array.
     int *indicesCopy = new int[m_indices->size()];
-    copy(m_indices->begin(), m_indices->end(), indicesCopy);
+	for (size_t i = 0; i < m_indices->size(); i++)
+		indicesCopy[i] = (*m_indices)[i];
+   // copy(m_indices->begin(), m_indices->end(), indicesCopy);
 
     int *polygonsCopy = new int[m_polygons->size()];
-    copy(m_polygons->begin(), m_polygons->end(), polygonsCopy);
+	for (size_t i = 0; i < m_polygons->size(); i++)
+		polygonsCopy[i] = (*m_polygons)[i];
+    //copy(m_polygons->begin(), m_polygons->end(), polygonsCopy);
 
     // Supply output ports with data.
     polygonObjectName = m_polygonOutPort->getObjName();

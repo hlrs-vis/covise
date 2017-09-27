@@ -28,7 +28,7 @@ void METIS_PartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vw
 
   tpwgts = fmalloc(*nparts, "KMETIS: tpwgts");
   for (i=0; i<*nparts; i++) 
-    tpwgts[i] = 1.0/(1.0*(*nparts));
+    tpwgts[i] = 1.0f/(1.0f*(*nparts));
 
   METIS_WPartGraphKway(nvtxs, xadj, adjncy, vwgt, adjwgt, wgtflag, numflag, nparts, 
                        tpwgts, options, edgecut, part);
@@ -66,7 +66,7 @@ void METIS_WPartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *v
   }
   ctrl.optype = OP_KMETIS;
   ctrl.CoarsenTo = amax((*nvtxs)/(40*log2(*nparts)), 20*(*nparts));
-  ctrl.maxvwgt = 1.5*((graph.vwgt ? idxsum(*nvtxs, graph.vwgt) : (*nvtxs))/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*((graph.vwgt ? idxsum(*nvtxs, graph.vwgt) : (*nvtxs))/ctrl.CoarsenTo));
 
   InitRandom(-1);
 

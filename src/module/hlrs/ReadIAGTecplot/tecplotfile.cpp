@@ -429,75 +429,75 @@ MeshBase * TecplotFile::Zone::ReadData(TecplotFile::Impl * pimpl, int iNumVar, R
 				case FLOWER_SURFACE:
 				case FLOWER_PLANFILE:
 					switch (m) {
-						case 0: points[p][0]=value; break;
-						case 1: points[p][1]=value; break;
-						case 2: points[p][2]=value; break;
-						case 3: points[p].mR=value; break;
-						case 4: points[p].mU.X()=value; break;
-						case 5: points[p].mU.Y()=value; break;
-						case 6: points[p].mU.Z()=value; break;
+						case 0: points[p][0]=float(value); break;
+						case 1: points[p][1]= float(value); break;
+						case 2: points[p][2]= float(value); break;
+						case 3: points[p].mR= float(value); break;
+						case 4: points[p].mU.X()= float(value); break;
+						case 5: points[p].mU.Y()= float(value); break;
+						case 6: points[p].mU.Z()= float(value); break;
 						case 7: break;
-						case 8: points[p].mP=value; break; // cp, in fact, has to be rescaled later on
-						case 18: assert(pimpl->mDataSet==FLOWER_SURFACE); points[p].mN[0]=value; break;
-						case 19: points[p].mN[1]=value; break;
-						case 20: points[p].mN[2]=value; break;
+						case 8: points[p].mP= float(value); break; // cp, in fact, has to be rescaled later on
+						case 18: assert(pimpl->mDataSet==FLOWER_SURFACE); points[p].mN[0]= float(value); break;
+						case 19: points[p].mN[1]= float(value); break;
+						case 20: points[p].mN[2]= float(value); break;
 						default: break;/*assert(0);*/ // just skip rest, nothing more interesting
 					}
 					break;
 				case FLOWER_NOVS:
 				case FLOWER_ACCO:
 					switch (m) {
-						case 0: points[p][0]=value; break;
-						case 1: points[p][1]=value; break;
-						case 2: points[p][2]=value; break;
-						case 3: points[p].mR=value; break;
-						case 4: points[p].mU.X()=value; break;
-						case 5: points[p].mU.Y()=value; break;
-						case 6: points[p].mU.Z()=value; break;
-						case 7: points[p].mP=value; break; // cp, in fact, has to be rescaled later on
+						case 0: points[p][0]= float(value); break;
+						case 1: points[p][1]= float(value); break;
+						case 2: points[p][2]= float(value); break;
+						case 3: points[p].mR= float(value); break;
+						case 4: points[p].mU.X()= float(value); break;
+						case 5: points[p].mU.Y()= float(value); break;
+						case 6: points[p].mU.Z()= float(value); break;
+						case 7: points[p].mP= float(value); break; // cp, in fact, has to be rescaled later on
 						default: break;/*assert(0);*/ // just skip rest, nothing more interesting
 					}
 					break;
 				case FLOWER_VS:
 					switch (m) {
-						case 0: points[p][0]=value; break;
-						case 1: points[p][1]=value; break;
-						case 2: points[p][2]=value; break;
-						case 3: points[p].mR=value; break;
-						case 4: points[p].mU.X()=value; break;
-						case 5: points[p].mU.Y()=value; break;
-						case 6: points[p].mU.Z()=value; break;
-						case 7: points[p].mP=value; break;
-						case 8: points[p].mV.X()=value; break;
-						case 9: points[p].mV.Y()=value; break;
-						case 10: points[p].mV.Z()=value; break;
+						case 0: points[p][0]= float(value); break;
+						case 1: points[p][1]= float(value); break;
+						case 2: points[p][2]= float(value); break;
+						case 3: points[p].mR= float(value); break;
+						case 4: points[p].mU.X()= float(value); break;
+						case 5: points[p].mU.Y()= float(value); break;
+						case 6: points[p].mU.Z()= float(value); break;
+						case 7: points[p].mP= float(value); break;
+						case 8: points[p].mV.X()= float(value); break;
+						case 9: points[p].mV.Y()= float(value); break;
+						case 10: points[p].mV.Z()= float(value); break;
 						default: assert(0);
 					}
 					break;
 				case LIFT_LINE:
 					switch (m) {
 						case 0: break; // psi
-						case 1: points[p][0]=value; break; // segment center, not corner
-						case 2: points[p][1]=value; break;
-						case 3: points[p][2]=value; break;
-						case 4: points[p].mR=value; break; // dr_ACP, not density
-						case 5: points[p].mP=value; break; // clen_ACP, not pressure
-						case 6: points[p].mU.Z()=value; break; // BEWARE: dT/dr
-						case 7: points[p].mV.Z()=value; break; // BEWARE: dD/dr
-						case 8: points[p].mU.X()=points[p].mR*points[p].mU.Z()*value; break; // thrust direction, not fluid velocity
-						case 9: points[p].mU.Y()=points[p].mR*points[p].mU.Z()*value; break; // using just read dr_ACP and dT/dr
-						case 10: points[p].mU.Z()=points[p].mR*points[p].mU.Z()*value; break;
-						case 11: points[p].mV.X()=points[p].mR*points[p].mV.Z()*value; break; // torque direction, not grid velocity
-						case 12: points[p].mV.Y()=points[p].mR*points[p].mV.Z()*value; break; // using just read dr_ACP and dD/dr
-						case 13: points[p].mV.Z()=points[p].mR*points[p].mV.Z()*value; break;
+						case 1: points[p][0]= float(value); break; // segment center, not corner
+						case 2: points[p][1]= float(value); break;
+						case 3: points[p][2]= float(value); break;
+						case 4: points[p].mR= float(value); break; // dr_ACP, not density
+						case 5: points[p].mP= float(value); break; // clen_ACP, not pressure
+						case 6: points[p].mU.Z()= float(value); break; // BEWARE: dT/dr
+						case 7: points[p].mV.Z()= float(value); break; // BEWARE: dD/dr
+						case 8: points[p].mU.X()= float(points[p].mR*points[p].mU.Z()*float(value)); break; // thrust direction, not fluid velocity
+						case 9: points[p].mU.Y()= float(points[p].mR*points[p].mU.Z()*float(value)); break; // using just read dr_ACP and dT/dr
+						case 10: points[p].mU.Z()= float(points[p].mR*points[p].mU.Z()*float(value)); break;
+						case 11: points[p].mV.X()= float(points[p].mR*points[p].mV.Z()*float(value)); break; // torque direction, not grid velocity
+						case 12: points[p].mV.Y()= float(points[p].mR*points[p].mV.Z()*float(value)); break; // using just read dr_ACP and dD/dr
+						case 13: points[p].mV.Z()= float(points[p].mR*points[p].mV.Z()*float(value)); break;
 						default: break;
 					}
 					break;
 				case SURFACE:
 					switch (m) {
-						case 0: points[p][0]=value; break;
-						case 1: points[p][1]=value; break;
-						case 2: points[p][2]=value; break;
+						case 0: points[p][0]= float(value); break;
+						case 1: points[p][1]= float(value); break;
+						case 2: points[p][2]= float(value); break;
 						default: break;
 					}
 					break;
@@ -506,27 +506,27 @@ MeshBase * TecplotFile::Zone::ReadData(TecplotFile::Impl * pimpl, int iNumVar, R
 					switch (m) {
 						case 0: break;						// Time
 						case 1: break;						// Azimuth
-						case 2: points[p][0]=value; break;  // Segment center, not corner
-						case 3: points[p][1]=value; break;
-						case 4: points[p][2]=value; break;
+						case 2: points[p][0]= float(value); break;  // Segment center, not corner
+						case 3: points[p][1]= float(value); break;
+						case 4: points[p][2]= float(value); break;
 						case 5: {							// Force X-dir
-							points[p].mU.X()=value;		
+							points[p].mU.X()= float(value);
 							points[p].mV.X()=0;
 							break;
 						}
 						case 6: {							// Force Y-dir
-							points[p].mU.Y()=value;
+							points[p].mU.Y()= float(value);
 							points[p].mV.Y()=0;
 							break;
 						}
 						case 7: {							// Force Z-dir
-							points[p].mU.Z()=value;
+							points[p].mU.Z()= float(value);
 							points[p].mV.Z()=0;
 							break;
 						}
 						case 8: {							// Section area
 							points[p].mP=1;
-							points[p].mR=value;
+							points[p].mR= float(value);
 							break;
 						}
 						case 9: 							// Density
@@ -658,7 +658,7 @@ MeshBase * TecplotFile::Zone::ReadData(TecplotFile::Impl * pimpl, int iNumVar, R
 				// duplicate points on another z plane
 				for (int i=0; i<mNumPts; ++i) {
 					points[i+mNumPts]=points[i];
-					points[i].Z()=points[i].Z()-0.5;
+					points[i].Z()=points[i].Z()-0.5f;
 					points[i+mNumPts].Z()=points[i].Z()+1;
 				}
 				int counter=0;
@@ -740,17 +740,17 @@ MeshBase * TecplotFile::Zone::ReadData(TecplotFile::Impl * pimpl, int iNumVar, R
 			double value=pimpl->fetchReal(mVarDataFormat[j]);
 			if (pimpl->mDataSet==FLOWER_ACCO &&  j>7) continue;
 			switch (j) {
-				case 0:	points[i][0]=value; break;
-				case 1:	points[i][1]=value; break;
-				case 2:	points[i][2]=value; break;
-				case 3:	points[i].mR=value; break;
-				case 4:	points[i].mU.X()=value; break;
-				case 5:	points[i].mU.Y()=value; break;
-				case 6:	points[i].mU.Z()=value; break;
-				case 7:	points[i].mP=value; break;
-				case 8: points[i].mV.X()=value; break;
-				case 9: points[i].mV.Y()=value; break;
-				case 10: points[i].mV.Z()=value; break;
+				case 0:	points[i][0]= float(value); break;
+				case 1:	points[i][1]= float(value); break;
+				case 2:	points[i][2]= float(value); break;
+				case 3:	points[i].mR= float(value); break;
+				case 4:	points[i].mU.X()= float(value); break;
+				case 5:	points[i].mU.Y()= float(value); break;
+				case 6:	points[i].mU.Z()= float(value); break;
+				case 7:	points[i].mP= float(value); break;
+				case 8: points[i].mV.X()= float(value); break;
+				case 9: points[i].mV.Y()= float(value); break;
+				case 10: points[i].mV.Z()= float(value); break;
 				default: break; // ignore the rest
 			}
 		}

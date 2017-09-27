@@ -108,8 +108,8 @@ TextureMapping::TextureMapping(const float *x_c,
         int stepy = int(ty);
         if (mirror)
         {
-            tx = (stepx % 2 == 0) ? tx - stepx : 1.0 - tx + stepx;
-            ty = (stepy % 2 == 0) ? ty - stepy : 1.0 - ty + stepy;
+            tx = (stepx % 2 == 0) ? tx - stepx : 1.0f - tx + stepx;
+            ty = (stepy % 2 == 0) ? ty - stepy : 1.0f - ty + stepy;
         }
         else
         {

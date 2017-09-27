@@ -158,7 +158,7 @@ TokenBuffer &TokenBuffer::operator<<(const uint32_t i)
 
 TokenBuffer &TokenBuffer::operator<<(const std::string &s)
 {
-    uint32_t slen = (uint32_t)s.length() + 1;
+    int slen = (int)s.length() + 1;
     if (buflen < length + slen)
         incbuf(slen);
     memcpy(currdata, s.c_str(), slen);
@@ -213,40 +213,40 @@ TokenBuffer &TokenBuffer::operator<<(const double f)
     if (networkByteOrder)
     {
 
-        *currdata = (*i & 0xff00000000000000LL) >> 56;
+        *currdata = char((*i & 0xff00000000000000LL) >> 56);
         currdata++;
-        *currdata = (*i & 0x00ff000000000000LL) >> 48;
+        *currdata = char((*i & 0x00ff000000000000LL) >> 48);
         currdata++;
-        *currdata = (*i & 0x0000ff0000000000LL) >> 40;
+        *currdata = char((*i & 0x0000ff0000000000LL) >> 40);
         currdata++;
-        *currdata = (*i & 0x000000ff00000000LL) >> 32;
+        *currdata = char((*i & 0x000000ff00000000LL) >> 32);
         currdata++;
-        *currdata = (*i & 0x00000000ff000000LL) >> 24;
+        *currdata = char((*i & 0x00000000ff000000LL) >> 24);
         currdata++;
-        *currdata = (*i & 0x0000000000ff0000LL) >> 16;
+        *currdata = char((*i & 0x0000000000ff0000LL) >> 16);
         currdata++;
-        *currdata = (*i & 0x000000000000ff00LL) >> 8;
+        *currdata = char((*i & 0x000000000000ff00LL) >> 8);
         currdata++;
-        *currdata = *i & 0x00000000000000ffLL;
+        *currdata = char(*i & 0x00000000000000ffLL);
         currdata++;
     }
     else
     {
-        *currdata = *i & 0x00000000000000ffLL;
+        *currdata = char(*i & 0x00000000000000ffLL);
         currdata++;
-        *currdata = (*i & 0x000000000000ff00LL) >> 8;
+        *currdata = char((*i & 0x000000000000ff00LL) >> 8);
         currdata++;
-        *currdata = (*i & 0x0000000000ff0000LL) >> 16;
+        *currdata = char((*i & 0x0000000000ff0000LL) >> 16);
         currdata++;
-        *currdata = (*i & 0x00000000ff000000LL) >> 24;
+        *currdata = char((*i & 0x00000000ff000000LL) >> 24);
         currdata++;
-        *currdata = (*i & 0x000000ff00000000LL) >> 32;
+        *currdata = char((*i & 0x000000ff00000000LL) >> 32);
         currdata++;
-        *currdata = (*i & 0x0000ff0000000000LL) >> 40;
+        *currdata = char((*i & 0x0000ff0000000000LL) >> 40);
         currdata++;
-        *currdata = (*i & 0x00ff000000000000LL) >> 48;
+        *currdata = char((*i & 0x00ff000000000000LL) >> 48);
         currdata++;
-        *currdata = (*i & 0xff00000000000000LL) >> 56;
+        *currdata = char((*i & 0xff00000000000000LL) >> 56);
         currdata++;
     }
 

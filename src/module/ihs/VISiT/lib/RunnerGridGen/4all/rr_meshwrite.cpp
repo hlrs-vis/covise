@@ -447,12 +447,12 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
 		if(zmax < nod->z)	   zmax = nod->z;
 		else if(zmin > nod->z) zmin = nod->z;
 	}
-	rmid   = 0.5*(rmin+rmax);
-	zmid   = 0.5*(zmax+zmin);
+	rmid   = 0.5f*(rmin+rmax);
+	zmid   = 0.5f*(zmax+zmin);
 	deltar = rmax-rmin;
 	deltaz = zmax-zmin;
-	deltal = sqrt(pow(deltar,2)+pow(deltaz,2));
-	if(deltaz > SMALL) beta = atan(deltar/deltaz);
+	deltal = float(sqrt(pow(deltar,2)+pow(deltaz,2)));
+	if(deltaz > SMALL) beta = float(atan(deltar/deltaz));
 	else beta = (float)M_PI/2.0;
 
 	fprintf(stderr," rmid = %f, deltar = %f, deltaz = %f, deltal = %f\n",
@@ -467,8 +467,8 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
 	cm = inbc->bcQ/area;
 	inbc->cm = cm;
 	if(inbc->useAlpha)
-		cu = cm/tan(inbc->bcAlpha);
-	else cu = -((9.81*inbc->bcH) / (M_PI/30.0*inbc->bcN*rmid));
+		cu = float(cm/tan(inbc->bcAlpha));
+	else cu = float(-((9.81f*inbc->bcH) / (M_PI/30.0*inbc->bcN*rmid)));
 
 	// inflow bc values
 	// memory for values
@@ -487,12 +487,12 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
 
 	// set values, see ~lippold/perl/rotein4.pl as reference.
 	ilist  =  inlet->list;
-	ca	   =  cos(beta);
-	bccm   = -cm*sin(beta);
+	ca	   = float(cos(beta));
+	bccm   = float(-cm*sin(beta));
 	curmid =  cu*rmid;
 	Re	   =  cm*deltal / VISCO;
 	exp	   =  getExp(Re);
-	cmmax  =   cm*(1./exp+1.)*(2./exp+1.)/(2.*pow(1./exp,2.0));
+	cmmax  = float(cm*(1./exp+1.)*(2./exp+1.)/(2.*pow(1./exp,2.0)));
 	fprintf(fp,"# alpha_const=%d, turb_prof=%d, inlet->num=%d\n",
 			alpha_const,turb_prof,inlet->num);
 	fprintf(fp,"# deltar=%.4e, deltaz=%.4e, deltal=%.4e\n",
@@ -509,15 +509,15 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
 			cein   = cm;
 			cunod  = cu;
 			if(turb_prof) {
-				dz = fabs(nod->z-zmid);
+				dz = float(fabs(nod->z-zmid));
 				if(deltaz > SMALL)
-					tf = pow((float)fabs(1.-2.*dz/deltaz),exp);
+					tf = float(pow((float)fabs(1.-2.*dz/deltaz),exp));
 
 				else
-					tf = pow((float)fabs(1.-2.*fabs(nod->r-rmid)/deltar),exp);
+					tf = float(pow((float)fabs(1.-2.*fabs(nod->r-rmid)/deltar),exp));
 				cein = cmmax*tf;
 				cunod = cu*tf;
-				bccm = -cein*sin(beta);
+				bccm = float(-cein*sin(beta));
 			}
 			cm_r   = cein*ca;
 			cu_r   = cunod;
@@ -528,17 +528,17 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
                         //			  pow(val[1],2) +
                         //			  pow(val[2],2) );
 			if(deltaz > SMALL) {
-				val[3] = 3.75e-3 * pow(cm,2)*
-					(1.0+5.0*pow(2.1*(nod->z-zmid)/deltaz,20.0));
-				val[4] = MIN(9.4e-4	 * pow(cm,3) / deltal*
-							 (1.0+10.0*pow(2.1*(nod->z-zmid)/deltaz,30.0)),1.e3);
+				val[3] = float(3.75e-3 * pow(cm,2)*
+					(1.0+5.0*pow(2.1*(nod->z-zmid)/deltaz,20.0)));
+				val[4] = float(MIN(9.4e-4	 * pow(cm,3) / deltal*
+							 (1.0+10.0*pow(2.1*(nod->z-zmid)/deltaz,30.0)),1.e3));
 
 			}
 			else {
-				val[3] = 3.75e-3 * pow(cm,2)*
-					(1.0+5.0*pow(2.1*(nod->r-rmid)/deltar,20.0));
-				val[4] = MIN(9.4e-4 * pow(cm,3) / deltal*
-							 (1.0+10.0*pow(2.1*(nod->r-rmid)/deltar,30.0)),1.e3);
+				val[3] = float(3.75e-3 * pow(cm,2)*
+					(1.0+5.0*pow(2.1*(nod->r-rmid)/deltar,20.0)));
+				val[4] = float(MIN(9.4e-4 * pow(cm,3) / deltal*
+							 (1.0+10.0*pow(2.1*(nod->r-rmid)/deltar,30.0)),1.e3));
 			}
 			if(fp)
 				fprintf(fp,"%6d %14.5e %14.5e %14.5e %14.5e %14.5e %14.5e %14.5e\n",
@@ -553,14 +553,14 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
 			cunod  = curmid/nod->r;
 			if(turb_prof) {
 				if(deltaz > SMALL)
-					dz = fabs(nod->z-zmid);
+					dz = float(fabs(nod->z-zmid));
 				if(deltaz > SMALL)
-					tf = pow((float)fabs(1.-2.*dz/deltaz),exp);
+					tf = float(pow((float)fabs(1.-2.*dz/deltaz),exp));
 				else
-					tf = pow((float)fabs(1.-2.*fabs(nod->r-rmid)/deltar),exp);
+					tf = float(pow((float)fabs(1.-2.*fabs(nod->r-rmid)/deltar),exp));
 				cein = cmmax*tf;
 				cunod = cu*tf;
-				bccm = -cein*sin(beta);
+				bccm = float(-cein*sin(beta));
 			}
 			cm_r   = cein*ca;
 			cu_r   = cunod;
@@ -571,17 +571,17 @@ int CreateInletBCs(struct Ilist *inlet, struct Nodelist *n,struct bc *inbc,
                         //			  pow(val[1],2) +
                         //			  pow(val[2],2) );
 			if(deltaz > SMALL) {
-				val[3] = 3.75e-3 * pow(cm,2)*
-					(1.0+5.0*pow(2.1*(nod->z-zmid)/deltaz,20.0));
-				val[4] = MIN(9.4e-4	 * pow(cm,3) / deltal*
-							 (1.0+10.0*pow((float)2.1*(nod->z-zmid)/deltaz,30)),1.e3);
+				val[3] = float(3.75e-3 * pow(cm,2)*
+					(1.0+5.0*pow(2.1*(nod->z-zmid)/deltaz,20.0)));
+				val[4] = float(MIN(9.4e-4	 * pow(cm,3) / deltal*
+							 (1.0+10.0*pow((float)2.1*(nod->z-zmid)/deltaz,30)),1.e3));
 
 			}
 			else {
-				val[3] = 3.75e-3 * pow(cm,2)*
-					(1.0+5.0*pow(2.1*(nod->r-rmid)/deltar,20.0));
-				val[4] = MIN(9.4e-4 * pow(cm,3) / deltal*
-							 (1.0+10.0*pow(2.1*(nod->r-rmid)/deltar,30.0)),1.e3);
+				val[3] = float(3.75e-3 * pow(cm,2)*
+					(1.0+5.0*pow(2.1*(nod->r-rmid)/deltar,20.0)));
+				val[4] = float(MIN(9.4e-4 * pow(cm,3) / deltal*
+							 (1.0+10.0*pow(2.1*(nod->r-rmid)/deltar,30.0)),1.e3));
 			}
 			if(fp)
 				fprintf(fp,"%6d %14.5e %14.5e %14.5e %14.5e %14.5e %14.5e %14.5e\n",

@@ -246,7 +246,7 @@ void ComputePartitionBalance(GraphType *graph, int nparts, idxtype *where, float
   if (vwgt == NULL) {
     for (i=0; i<nvtxs; i++)
       kpwgts[where[i]]++;
-    ubvec[0] = 1.0*nparts*kpwgts[idxamax(nparts, kpwgts)]/(1.0*nvtxs);
+    ubvec[0] = 1.0f*nparts*kpwgts[idxamax(nparts, kpwgts)]/(1.0f*nvtxs);
   }
   else {
     for (j=0; j<ncon; j++) {
@@ -254,7 +254,7 @@ void ComputePartitionBalance(GraphType *graph, int nparts, idxtype *where, float
       for (i=0; i<graph->nvtxs; i++)
         kpwgts[where[i]] += vwgt[i*ncon+j];
 
-      ubvec[j] = 1.0*nparts*kpwgts[idxamax(nparts, kpwgts)]/(1.0*idxsum(nparts, kpwgts));
+      ubvec[j] = 1.0f*nparts*kpwgts[idxamax(nparts, kpwgts)]/(1.0f*idxsum(nparts, kpwgts));
     }
   }
 
@@ -277,7 +277,7 @@ float ComputeElementBalance(int ne, int nparts, idxtype *where)
   for (i=0; i<ne; i++)
     kpwgts[where[i]]++;
 
-  balance = 1.0*nparts*kpwgts[idxamax(nparts, kpwgts)]/(1.0*idxsum(nparts, kpwgts));
+  balance = 1.0f*nparts*kpwgts[idxamax(nparts, kpwgts)]/(1.0f*idxsum(nparts, kpwgts));
 
   free(kpwgts);
 

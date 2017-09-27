@@ -550,7 +550,7 @@ void SSLDaemon::handleMessage(Message &msg)
 
         if (mAG)
         {
-            mAG->getSocket()->write("masterLeft", strlen("masterLeft") + 1);
+            mAG->getSocket()->write("masterLeft", unsigned int(strlen("masterLeft")) + 1);
         }
         cerr << "SSLDaemon::handleMessage(): controller left" << endl;
     }
@@ -829,7 +829,7 @@ int SSLDaemon::SplitString(const string &input,
                            bool includeEmpties)
 {
     int iPos = 0;
-    int newPos = -1;
+	size_t newPos = -1;
     int sizeS2 = (int)delimiter.size();
     int isize = (int)input.size();
 
@@ -853,8 +853,8 @@ int SSLDaemon::SplitString(const string &input,
     while (newPos >= iPos)
     {
         numFound++;
-        positions.push_back(newPos);
-        iPos = newPos;
+        positions.push_back((int)newPos);
+        iPos = (int)newPos;
         newPos = input.find(delimiter, iPos + sizeS2);
     }
 
@@ -959,7 +959,7 @@ void SSLDaemon::allowPermanent(bool storeGlobal)
         }
         else
         {
-            mConfig->setValue("index", QString(ToString(mSubjectNameList.size()).c_str()), "System.CoviseDaemon.AllowedUID.Subject");
+            mConfig->setValue("index", QString(ToString((int)mSubjectNameList.size()).c_str()), "System.CoviseDaemon.AllowedUID.Subject");
             mConfig->save();
         }
     }
@@ -1024,5 +1024,5 @@ int SSLDaemon::sslPasswdCallback(char *buf, int size, int rwflag, void *userData
     strncpy(buf, obj->mPassword.c_str(), obj->mPassword.size() /*should be length of buf*/);
     buf[obj->mPassword.size() - 1] = '\0';
 
-    return obj->mPassword.size();
+    return int(obj->mPassword.size());
 }

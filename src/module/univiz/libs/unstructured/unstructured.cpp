@@ -26,7 +26,7 @@
 #define close _close
 float dummy;
 #define MAP_FAILED &dummy
-#define dirname(path) printf("fixme")
+//#define dirname(path) printf("fixme")
 #endif
 
 #include "unstructured.h"
@@ -2039,7 +2039,7 @@ void Unstructured::mapTransientFile(int fileIdx)
         {
             vecLenTot += getNodeCompVecLen(i);
         }
-        fileSize = transientFilesTimeSteps[int(transientFileIdx].size() * nNodes * vecLenTot * sizeof(float));
+        fileSize = int(transientFilesTimeSteps[transientFileIdx].size() * nNodes * vecLenTot * sizeof(float));
     }
 
     if (transientFileVerbose == 2)
@@ -2144,7 +2144,16 @@ void Unstructured::setTransientFile(const char *dataInfoFile, int verbose)
             fscanf(fp, "%s", name);
             char path[1024];
             strcpy(path, dataInfoFile);
+#ifdef WIN32
+			char drive[900];
+			char dirname[900];
+			char filename[900];
+			char ext[900];
+			_splitpath_s(path, drive, sizeof(drive), dirname, sizeof(dirname), filename, sizeof(filename), ext, sizeof(ext));
+			sprintf(fileName, "%s/%s", dirname, name);
+#else
             sprintf(fileName, "%s/%s", dirname(path), name);
+#endif
             transientFiles.push_back(string(fileName));
         }
 

@@ -2037,7 +2037,7 @@ void TUISGBrowserTab::showNode(QTreeWidgetItem *item, bool visible)
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 void TUISGBrowserTab::CheckedItems(bool show)
 {
-    int i, mode;
+    int i;
 
     QList<QTreeWidgetItem *> list;
     QTreeWidgetItem *pI = NULL;
