@@ -14,6 +14,7 @@
 #include <io.h>
 #include <direct.h>
 #else
+#include <arpa/inet.h>
 #include <dirent.h>
 #endif
 
