@@ -77,7 +77,7 @@ void SSLClient::run(std::string command)
 
     cerr << "SSLClient::run(): Send Command: " << command.c_str() << endl;
     command += '\n';
-    mConn->send(command.c_str(), unsigned int(command.size()));
+    mConn->send(command.c_str(), (unsigned int)(command.size()));
 
     bIsRunning = true;
     do

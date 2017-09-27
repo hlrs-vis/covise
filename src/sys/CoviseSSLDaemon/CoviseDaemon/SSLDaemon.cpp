@@ -550,7 +550,7 @@ void SSLDaemon::handleMessage(Message &msg)
 
         if (mAG)
         {
-            mAG->getSocket()->write("masterLeft", unsigned int(strlen("masterLeft")) + 1);
+            mAG->getSocket()->write("masterLeft", (unsigned int)(strlen("masterLeft")) + 1);
         }
         cerr << "SSLDaemon::handleMessage(): controller left" << endl;
     }
