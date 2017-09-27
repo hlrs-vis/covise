@@ -189,7 +189,14 @@ void Tacx::update()
             // Running a sync read
             static int errorCounter = 0;
             int bytesTransferred=0;
-            ret = libusb_bulk_transfer(handle, LIBUSB_ENDPOINT_IN, (unsigned char *)&vrdata, 64,&bytesTransferred, 200);
+            int retry = 0;
+            do {
+                ret = libusb_bulk_transfer(handle, LIBUSB_ENDPOINT_IN, (unsigned char *)&vrdata, 64,&bytesTransferred, 200);
+                if (ret == LIBUSB_ERROR_PIPE) {
+                    libusb_clear_halt(handle, LIBUSB_ENDPOINT_IN);
+                }
+                retry++;
+            } while ((ret == LIBUSB_ERROR_PIPE) && (retry<10));
             if (ret < 0 || bytesTransferred!=4)
             {
                     errorCounter++;
