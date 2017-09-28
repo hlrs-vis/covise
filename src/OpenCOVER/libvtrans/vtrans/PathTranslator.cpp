@@ -18,7 +18,9 @@
 //$Id: PathTranslator.cpp 2413 2012-08-07 13:46:06Z wlukutin $
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-
+#ifdef WIN32
+#pragma warning(disable:4996) // std::replace_if
+#endif
 #include <boost/algorithm/string/classification.hpp>
 
 #ifdef BOOST_SYSTEM_FOUND

@@ -58,12 +58,13 @@
 
 #ifndef WIN32
 #define TCP_NODELAY 1
+typedef int SOCKET;
 #endif
 
 /** Open a datagram socket */
-int socketDatagram()
+SOCKET socketDatagram()
 {
-    int sock = -1;
+    SOCKET sock = -1;
 
     if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
     {
@@ -73,9 +74,9 @@ int socketDatagram()
 }
 
 /** Open a stream socket */
-int socketStream()
+SOCKET socketStream()
 {
-    int sock = -1;
+    SOCKET sock = -1;
 
     if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -84,7 +85,7 @@ int socketStream()
     return sock;
 }
 
-int socketConnect(int sock, const sockaddr_in *sa)
+SOCKET socketConnect(SOCKET sock, const sockaddr_in *sa)
 {
     if (connect(sock, (struct sockaddr *)sa, sizeof(struct sockaddr_in)) < 0)
     {
@@ -103,7 +104,7 @@ int socketConnect(int sock, const sockaddr_in *sa)
  * Do REUSEADDR on the socket
  * return sock if OK, else -1
  */
-int setReuseAddr(int sock)
+SOCKET setReuseAddr(SOCKET sock)
 {
     const int one = 1;
 
@@ -116,7 +117,7 @@ int setReuseAddr(int sock)
     return sock;
 }
 
-int setTcpNoDelay(int sock)
+SOCKET setTcpNoDelay(SOCKET sock)
 {
     const int one = 1;
 
@@ -125,7 +126,7 @@ int setTcpNoDelay(int sock)
     p = getprotobyname("tcp");
     if (p && setsockopt(sock, p->p_proto, TCP_NODELAY, (char *)&one, sizeof(one)) < 0)
     {
-        fprintf(stderr, "TCP_NODELAY: %s (%d) sock=%d\n", strerror(errno), errno, sock);
+        fprintf(stderr, "TCP_NODELAY: %s (%d) sock=%d\n", strerror(errno), errno, (int)sock);
         return -1;
     }
 
@@ -137,7 +138,7 @@ int setTcpNoDelay(int sock)
     return sock;
 }
 
-uint16_t getSrcPort(int sock)
+uint16_t getSrcPort(SOCKET sock)
 {
     struct sockaddr_in sa;
 #ifdef WIN32
@@ -161,7 +162,7 @@ uint16_t getSrcPort(int sock)
  * Control blocking(1)/non blocking(0)
  * return sock if OK, else -1
  */
-int handleBlocking(int sock, bool block)
+SOCKET handleBlocking(SOCKET sock, bool block)
 {
 #if HAVE_FCNTL
     int flags;
@@ -186,12 +187,12 @@ int handleBlocking(int sock, bool block)
     return sock;
 }
 
-int setBlocking(int sock)
+SOCKET setBlocking(SOCKET sock)
 {
     return handleBlocking(sock, true);
 }
 
-int setNoBlocking(int sock)
+SOCKET setNoBlocking(SOCKET sock)
 {
     return handleBlocking(sock, false);
 }
@@ -200,7 +201,7 @@ int setNoBlocking(int sock)
  * Set the ttl
  * return sock if OK, else -1
  */
-int setScope(int sock, uint8_t _ttl)
+SOCKET setScope(SOCKET sock, uint8_t _ttl)
 {
 #if defined(__WIN32__) || defined(_WIN32)
 #define TTL_TYPE int
@@ -223,7 +224,7 @@ int setScope(int sock, uint8_t _ttl)
  * Set loopback: active (1) either inactive (0)
  * return sock if OK, else -1
  */
-int handleLoopback(int sock, uint8_t loop)
+SOCKET handleLoopback(SOCKET sock, uint8_t loop)
 {
 #ifdef IP_MULTICAST_LOOP // Windoze doesn't handle IP_MULTICAST_LOOP
     if (setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP,
@@ -243,17 +244,17 @@ int handleLoopback(int sock, uint8_t loop)
     return sock;
 }
 
-int setLoopback(int sock)
+SOCKET setLoopback(SOCKET sock)
 {
     return handleLoopback(sock, 1);
 }
 
-int setNoLoopback(int sock)
+SOCKET setNoLoopback(SOCKET sock)
 {
     return handleLoopback(sock, 0);
 }
 
-int addMembership(int sock, const void *pmreq)
+SOCKET addMembership(SOCKET sock, const void *pmreq)
 {
     if (setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP,
 #ifdef WIN32
@@ -271,7 +272,7 @@ int addMembership(int sock, const void *pmreq)
     return 0;
 }
 
-int dropMembership(int sock, const void *pmreq)
+SOCKET dropMembership(SOCKET sock, const void *pmreq)
 {
     if (setsockopt(sock, IPPROTO_IP, IP_DROP_MEMBERSHIP,
 #ifdef WIN32
@@ -290,7 +291,7 @@ int dropMembership(int sock, const void *pmreq)
 }
 
 /** Set a Multicast socket */
-void setSendSocket(int sock, uint8_t ttl)
+SOCKET setSendSocket(SOCKET sock, uint8_t ttl)
 {
 #ifdef PROXY_MULTICAST
     if (mup.active)
@@ -306,7 +307,7 @@ void setSendSocket(int sock, uint8_t ttl)
 #else
     setNoLoopback(sock); // no loopback (default)
 #endif
-    setNoBlocking(sock);
+    return setNoBlocking(sock);
 }
 
 /**
@@ -315,9 +316,9 @@ void setSendSocket(int sock, uint8_t ttl)
  * Do setScope (ttl) and setLoopback (off)
  * return sock if OK, else -1
  */
-int createSendSocket(uint8_t ttl)
+SOCKET createSendSocket(uint8_t ttl)
 {
-    int sock;
+    SOCKET sock;
 
     if ((sock = socketDatagram()) >= 0)
         setSendSocket(sock, ttl);
@@ -328,9 +329,9 @@ int createSendSocket(uint8_t ttl)
  * Create an Unicast socket
  * return fd, -1 if problem
  */
-int createUcastSocket(uint32_t uni_addr, uint16_t port)
+SOCKET createUcastSocket(uint32_t uni_addr, uint16_t port)
 {
-    int sock;
+    SOCKET sock;
     struct sockaddr_in sa;
 
     if ((sock = socketDatagram()) < 0)

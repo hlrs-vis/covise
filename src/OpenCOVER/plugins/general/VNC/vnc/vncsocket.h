@@ -24,6 +24,7 @@ typedef unsigned int coUInt32;
 /* Microsoft VisualStudio */
 typedef signed __int64 coInt64;
 typedef unsigned __int64 coUInt64;
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #else
 /* MINGW (gcc) */
 #if defined(__LP64__)
@@ -67,23 +68,23 @@ typedef unsigned int uint32_t;
 #include <netinet/in.h>
 #endif
 
-int socketDatagram();
-int socketStream();
-int socketConnect(int sock, const sockaddr_in *sa);
-int setReuseAddr(int sock);
-int setTcpNoDelay(int sock);
-uint16_t getSrcPort(int sock);
-int handleBlocking(int sock, bool block);
-int setBlocking(int sock);
-int setNoBlocking(int sock);
-int handleLoopback(int sock, uint8_t loop);
-int setLoopback(int sock);
-int setNoLoopback(int sock);
-int setScope(int sock, uint8_t ttl);
-int addMembership(int sock, const void *pmreq);
-int dropMembership(int sock, const void *pmreq);
-int createUcastSocket(uint32_t uni_addr, uint16_t port);
-int createSendSocket(uint8_t ttl);
+SOCKET socketDatagram();
+SOCKET socketStream();
+SOCKET socketConnect(SOCKET sock, const sockaddr_in *sa);
+SOCKET setReuseAddr(SOCKET sock);
+SOCKET setTcpNoDelay(SOCKET sock);
+uint16_t getSrcPort(SOCKET sock);
+SOCKET handleBlocking(SOCKET sock, bool block);
+SOCKET setBlocking(SOCKET sock);
+SOCKET setNoBlocking(SOCKET sock);
+SOCKET handleLoopback(SOCKET sock, uint8_t loop);
+SOCKET setLoopback(SOCKET sock);
+SOCKET setNoLoopback(SOCKET sock);
+SOCKET setScope(SOCKET sock, uint8_t ttl);
+SOCKET addMembership(SOCKET sock, const void *pmreq);
+SOCKET dropMembership(SOCKET sock, const void *pmreq);
+SOCKET createUcastSocket(uint32_t uni_addr, uint16_t port);
+SOCKET createSendSocket(uint8_t ttl);
 bool isMulticastAddress(uint32_t address);
 
 #endif // VNC_SOCKET_H
