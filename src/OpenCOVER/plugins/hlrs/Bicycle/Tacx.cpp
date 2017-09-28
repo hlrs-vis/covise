@@ -27,13 +27,21 @@ int Tacx::usbOpenDevice(libusb_device_handle **device, int vendor, const char *v
                 return r;
     }
 
-    handle = libusb_open_device_with_vid_pid(NULL, 0x16c0, 0x0763);
+    handle = libusb_open_device_with_vid_pid(NULL, vendor, product);
     if (handle==NULL)
     {
         fprintf(stderr, "Error finding USB device\n");
         return -1;
     }
-    ret = libusb_claim_interface(handle, 2);
+    if (handle && (libusb_set_configuration(handle, 1) < 0))
+    {
+        printf("failed to set configuration #%d\n", 1);
+    }
+    else
+    {
+        printf("success: set configuration #%d\n", 1);
+    }
+    ret = libusb_claim_interface(handle, 0);
     if (ret < 0)
     {
         fprintf(stderr, "Error claiming interface: %s\n", libusb_error_name(ret));
@@ -44,7 +52,7 @@ int Tacx::usbOpenDevice(libusb_device_handle **device, int vendor, const char *v
         memset(tmp, 0, sizeof(tmp));
         tmp[0] = 2;
         int bytesTransferred=0;
-        ret = libusb_bulk_transfer(handle, LIBUSB_ENDPOINT_OUT, tmp, 4,&bytesTransferred, 5000);
+        ret = libusb_bulk_transfer(handle, EP_OUT, tmp, 4,&bytesTransferred, 5000);
         if (ret < 0 || bytesTransferred!=4)
         {
             printf("error writing:\n%s %d\n", libusb_error_name(ret),bytesTransferred);
@@ -78,7 +86,7 @@ Tacx::~Tacx()
 
 void Tacx::init()
 {
-    if (covise::coCoviseConfig::isOn("Bicycle.udp", true))
+    if (covise::coCoviseConfig::isOn("Bicycle.udp", false))
     {
         const std::string host = covise::coCoviseConfig::getEntry("value", "Bicycle.serverHost", "141.58.8.174");
         unsigned short localPort = covise::coCoviseConfig::getInt("Bicycle.localPort", 31445);
@@ -168,7 +176,7 @@ void Tacx::update()
                 memset(tmp, 0, sizeof(tmp));
                 tmp[0] = 2;
                 int bytesTransferred=0;
-                ret = libusb_bulk_transfer(handle, LIBUSB_ENDPOINT_OUT, tmp, 4,&bytesTransferred, 5000);
+                ret = libusb_bulk_transfer(handle, EP_OUT, tmp, 4,&bytesTransferred, 5000);
                 if (ret < 0 || bytesTransferred!=4)
                 {
                     printf("error writing:\n%s %d\n", libusb_error_name(ret),bytesTransferred);
@@ -188,26 +196,28 @@ void Tacx::update()
             int bytesTransferred=0;
             int retry = 0;
             do {
-                ret = libusb_bulk_transfer(handle, LIBUSB_ENDPOINT_IN, (unsigned char *)&vrdata, 64,&bytesTransferred, 200);
+                ret = libusb_bulk_transfer(handle, EP_IN, (unsigned char *)&vrdata, 64,&bytesTransferred, 200);
                 if (ret == LIBUSB_ERROR_PIPE) {
-                    libusb_clear_halt(handle, LIBUSB_ENDPOINT_IN);
+                    libusb_clear_halt(handle, EP_IN);
+                    printf("error reading:LIBUSB_ERROR_PIPE \n%s count: %d ret: %d\n", libusb_error_name(ret),errorCounter, ret);
                 }
                 retry++;
             } while ((ret == LIBUSB_ERROR_PIPE) && (retry<10));
-            if (ret < 0 || bytesTransferred!=4)
+            if (ret < 0 || bytesTransferred!=64)
             {
                     errorCounter++;
                     printf("error reading:\n%s count: %d ret: %d\n", libusb_error_name(ret),errorCounter, ret);
                     if (errorCounter > 2)
                     {
                         libusb_close(handle);
+			errorCounter=0;
                         nBytes = -5;
                         return;
                     }
             }
             else
             {
-                fprintf(stderr, "\r");
+               /* fprintf(stderr, "\r");
                 fprintf(stderr, "Tasten: %1d ", vrdata.tasten);
                 fprintf(stderr, "Lenkwinkel: %6d ", vrdata.Lenkwinkel);
                 fprintf(stderr, "Drehzahl: %6d ", vrdata.drehzahl);
@@ -215,14 +225,8 @@ void Tacx::update()
                 fprintf(stderr, "Angle: %6f ", getAngle());
                 fprintf(stderr, "Trittfrequenz: %6d ", vrdata.trittfrequenz);
                 //fprintf(stderr,"ti: %1d ",vrdata.trittfreqenzimpuls);
-                /*	unsigned char *tmpc = (unsigned char *)&vrdata;
-		int i;
-		fprintf(stderr,"\r");
-		for(i = 0;i<64;i++)
-		{
-		fprintf(stderr,"%2x ",tmpc[i]);
-		}*/
-
+                
+*/
                 //fprintf(stderr,"\n");
                 errorCounter = 0;
                 vrdataout.unknown0 = 0x00010801;
@@ -230,8 +234,8 @@ void Tacx::update()
                 vrdataout.unknown1 = 0;
                 vrdataout.unknown2 = 0x05145702;
                 int bytesTransferred=0;
-                ret = libusb_bulk_transfer(handle, LIBUSB_ENDPOINT_OUT, (unsigned char *)&vrdataout, 12,&bytesTransferred, 5000);
-                if (ret < 0 || bytesTransferred!=4)
+                ret = libusb_bulk_transfer(handle, EP_OUT, (unsigned char *)&vrdataout, 12,&bytesTransferred, 5000);
+                if (ret < 0 || bytesTransferred!=12)
                 {
                     printf("error writing:\n%s %d\n", libusb_error_name(ret),bytesTransferred);
                     libusb_close(handle);

@@ -57,8 +57,6 @@
 
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
 
-#include <vtrans/vtrans.h>
-
 #define NAV_GROUP_TYPE 0;
 #define FUNC_TYPE 3;
 #define SWITCH_TYPE 4;
@@ -589,30 +587,6 @@ void VRPinboard::makeQuitMenu()
     qtext = "Really quit OpenCOVER?";
     yesText = "Quit";
     noText = "Continue";
-
-    char *covisepath = getenv("COVISE_PATH");
-    if (covisepath)
-    {
-        std::string covisePath(covisepath);
-        //yes, there could be a semicolon in it!
-        covisePath.erase(remove(covisePath.begin(), covisePath.end(), ';'), covisePath.end());
-        qtext = vtrans::VTrans::translate(coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                          covisePath + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ""),
-                                          coCoviseConfig::getEntry("value", "COVER.Localization.CoviseDomain", ""),
-                                          coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                                          qtext);
-
-        yesText = vtrans::VTrans::translate(coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                            covisePath + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ""),
-                                            coCoviseConfig::getEntry("value", "COVER.Localization.CoviseDomain", ""),
-                                            coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                                            yesText);
-        noText = vtrans::VTrans::translate(coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                           covisePath + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ""),
-                                           coCoviseConfig::getEntry("value", "COVER.Localization.CoviseDomain", ""),
-                                           coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                                           noText);
-    }
 
     quitMenu_ = new coRowMenu(qtext.c_str());
     quitMenu_->setVisible(false);

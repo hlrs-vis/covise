@@ -33,6 +33,13 @@ IF (WIN32)
     ${OPENGL_LIBRARY_DIR}
     ${GLUT_ROOT_PATH}/Debug
     )
+   if(NOT GLUT_LIBRARY_DEBUG)
+       FIND_LIBRARY( GLUT_LIBRARY_DEBUG NAMES glut glut32 freeglut
+           PATHS $ENV{EXTERNLIBS}/glut/debug/lib
+           ${OPENGL_LIBRARY_DIR}/debug/lib
+           ${GLUT_ROOT_PATH}/debug/lib
+           )
+   endif()
     FIND_LIBRARY( GLUT_LIBRARY_RELEASE NAMES glut glut32 freeglut
     PATHS
     ${OPENGL_LIBRARY_DIR}

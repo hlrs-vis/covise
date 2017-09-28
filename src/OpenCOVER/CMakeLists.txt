@@ -6,7 +6,7 @@
 
 #COVISE_UNFINISHED()
 
-PROJECT(OpenCOVER CXX C)
+PROJECT(OpenCOVER C CXX)
 
 set(COVISE_EXPORTS_FILE "cover-exports.cmake")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -129,8 +129,8 @@ ADD_SUBDIRECTORY(DrivingSim)
 
 USING(MPI optional)
 using(Boost)
-add_subdirectory(libvtrans)
-include_directories(libvtrans)
+#add_subdirectory(libvtrans)
+#include_directories(libvtrans)
 
 if (COVISE_USE_VIRVO)
    ADD_SUBDIRECTORY(osgcaveui)
