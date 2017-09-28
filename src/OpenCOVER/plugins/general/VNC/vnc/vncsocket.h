@@ -66,6 +66,7 @@ typedef unsigned int uint32_t;
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+typedef int SOCKET;
 #endif
 
 SOCKET socketDatagram();
