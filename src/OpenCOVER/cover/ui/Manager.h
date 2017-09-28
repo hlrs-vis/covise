@@ -5,9 +5,14 @@
 #include <map>
 #include <deque>
 #include <string>
+#include <memory>
 
 #include "View.h"
 #include "Owner.h"
+
+namespace covise {
+class TokenBuffer;
+}
 
 namespace opencover {
 
@@ -48,6 +53,12 @@ class COVER_UI_EXPORT Manager: public Owner {
 
    //! add elem to list of managed user interface items
    void add(Element *elem);
+   //! remove elem from list of managed user interface items
+   void remove(Element *elem);
+   //! search for an Element by unique id, returs nullptr if not found
+   Element *getById(int id) const;
+   //! search for an Element by path, returs nullptr if not found
+   Element *getByPath(const std::string &path) const;
    //! some managed element was changed
    void setChanged();
    //! trigger internal book-keeping and updates
@@ -56,11 +67,25 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! trigger short-cuts configured for user interface elements
    bool keyEvent(int type, int keySym, int mod) const;
 
+   //! mark an element for syncing its state to slaves, optionally triggering its action
+   void queueUpdate(const Element *elem, bool trigger=false);
+   //! sync state and events from master to cluster slaves
+   void sync();
+
  private:
    bool m_changed = false;
+   int m_numCreated = 0;
    std::set<Element *> m_elements;
+   std::map<int, Element *> m_elementsById;
+   std::map<const std::string, Element *> m_elementsByPath;
    std::deque<Element *> m_newElements;
    std::map<const std::string, View *> m_views;
+
+   int m_numUpdates = 0;
+   std::map<int, std::shared_ptr<covise::TokenBuffer>> m_elemState;
+   std::shared_ptr<covise::TokenBuffer> m_updates;
+   void flushUpdates();
+   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
 };
 
 }

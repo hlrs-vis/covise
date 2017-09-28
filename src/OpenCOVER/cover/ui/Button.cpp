@@ -3,6 +3,8 @@
 #include "ButtonGroup.h"
 #include "Manager.h"
 
+#include <net/tokenbuffer.h>
+
 namespace opencover {
 namespace ui {
 
@@ -18,9 +20,9 @@ Button::Button(Group *parent, const std::string &name, ButtonGroup *bg, int id)
     setGroup(bg, id);
 }
 
-int Button::id() const
+int Button::buttonId() const
 {
-    return m_id;
+    return m_buttonId;
 }
 
 ButtonGroup *Button::group() const
@@ -35,7 +37,7 @@ void Button::setGroup(ButtonGroup *rg, int id)
     m_radioGroup = rg;
     if (m_radioGroup)
         m_radioGroup->add(this);
-    m_id = id;
+    m_buttonId = id;
 }
 
 bool Button::state() const
@@ -46,9 +48,9 @@ bool Button::state() const
 void Button::setState(bool flag, bool updateGroup)
 {
     m_state = flag;
+    manager()->queueUpdate(this);
     if (updateGroup && m_radioGroup)
         m_radioGroup->toggle(this);
-    manager()->updateState(this);
 }
 
 void Button::setCallback(const std::function<void(bool)> &f)
@@ -79,6 +81,18 @@ void Button::update() const
 {
     Element::update();
     manager()->updateState(this);
+}
+
+void Button::save(covise::TokenBuffer &buf) const
+{
+    Element::save(buf);
+    buf << m_state;
+}
+
+void Button::load(covise::TokenBuffer &buf)
+{
+    Element::load(buf);
+    buf >> m_state;
 }
 
 void Button::shortcutTriggered()

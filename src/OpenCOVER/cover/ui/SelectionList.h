@@ -36,6 +36,9 @@ class COVER_UI_EXPORT SelectionList: public Element {
     void setCallback(const std::function<void(int)> &f);
     void triggerImplementation() const override;
 
+    void save(covise::TokenBuffer &buf) const override;
+    void load(covise::TokenBuffer &buf) override;
+
  private:
     void shortcutTriggered() override;
     std::vector<std::string> m_items;

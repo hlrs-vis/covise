@@ -57,6 +57,9 @@ class COVER_UI_EXPORT Slider: public Element {
 
     void update() const override;
 
+    void save(covise::TokenBuffer &buf) const override;
+    void load(covise::TokenBuffer &buf) override;
+
  private:
     bool m_integer = false;
     Presentation m_presentation = AsSlider;

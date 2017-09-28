@@ -39,7 +39,7 @@ int ButtonGroup::value() const
         if (b->state())
         {
             ++numSet;
-            id = b->id();
+            id = b->buttonId();
         }
     }
     assert(numSet == 1);

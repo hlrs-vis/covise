@@ -1,3 +1,4 @@
+#undef NDEBUG
 #include "Manager.h"
 #include "View.h"
 #include "Element.h"
@@ -10,6 +11,10 @@
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventAdapter>
 
+#include <cover/coVRMSController.h>
+#include <net/tokenbuffer.h>
+#include <net/message.h>
+
 namespace opencover {
 namespace ui {
 
@@ -21,7 +26,35 @@ Manager::Manager()
 void Manager::add(Element *elem)
 {
     m_newElements.push_back(elem);
+
+    elem->m_id = m_numCreated;
+    m_elementsById.emplace(elem->elementId(), elem);
+    m_elementsByPath.emplace(elem->path(), elem);
+    ++m_numCreated;
 }
+
+void Manager::remove(Element *elem)
+{
+}
+
+Element *Manager::getById(int id) const
+{
+    auto it = m_elementsById.find(id);
+    if (it == m_elementsById.end())
+        return nullptr;
+
+    return it->second;
+}
+
+Element *Manager::getByPath(const std::string &path) const
+{
+    auto it = m_elementsByPath.find(path);
+    if (it == m_elementsByPath.end())
+        return nullptr;
+
+    return it->second;
+}
+
 
 bool Manager::update()
 {
@@ -30,7 +63,8 @@ bool Manager::update()
         m_changed = true;
         auto elem = m_newElements.front();
         m_newElements.pop_front();
-        m_elements.insert(elem);
+        m_elements.emplace(elem);
+
         if (elem->parent())
         {
             auto p = elem->parent();
@@ -66,10 +100,10 @@ bool Manager::addView(View *view)
     m_views.emplace(name, view);
     view->m_manager = this;
 
-    for (auto e: m_elements)
+    for (auto elem: m_elements)
     {
-        view->elementFactory(e);
-        e->update();
+        view->elementFactory(elem);
+        elem->update();
     }
 
     return false;
@@ -227,6 +261,128 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
         }
     }
     return handled;
+}
+
+void Manager::flushUpdates()
+{
+    if (!m_updates)
+    {
+        assert(m_numUpdates == 0);
+        m_updates.reset(new covise::TokenBuffer);
+    }
+
+    for (const auto &state: m_elemState)
+    {
+        auto id = state.first;
+        auto tb = state.second;
+
+        *m_updates << id;
+        *m_updates << false; // trigger
+        *m_updates << *tb;
+
+        ++m_numUpdates;
+    }
+    m_elemState.clear();
+}
+
+void Manager::queueUpdate(const Element *elem, bool trigger)
+{
+    if (elem->elementId() < 0)
+    {
+        assert(!trigger);
+        return;
+    }
+
+    assert(elem->elementId() >= 0);
+
+    auto it = m_elemState.find(elem->elementId());
+    if (trigger)
+    {
+        if (it != m_elemState.end())
+            m_elemState.erase(it);
+        flushUpdates();
+
+        *m_updates << elem->elementId();
+        *m_updates << trigger;
+        elem->save(*m_updates);
+
+        ++m_numUpdates;
+    }
+    else
+    {
+        if (it == m_elemState.end())
+        {
+            it = m_elemState.emplace(elem->elementId(), std::make_shared<covise::TokenBuffer>()).first;
+        }
+        else
+        {
+            it->second->reset();
+        }
+        elem->save(*it->second);
+    }
+}
+
+void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers)
+{
+    updates->rewind();
+
+    for (int i=0; i<numUpdates; ++i)
+    {
+        std::cerr << "processing " << i << std::flush;
+        int id = -1;
+        *updates >> id;
+        bool trigger = false;
+        *updates >> trigger;
+        auto elem = getById(id);
+        std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
+        assert(elem);
+        elem->load(*updates);
+        elem->update();
+        if (trigger && runTriggers)
+            elem->triggerImplementation();
+    }
+}
+
+void Manager::sync()
+{
+    flushUpdates();
+    auto ms = coVRMSController::instance();
+    if (ms->isCluster())
+    {
+        ms->syncData(&m_numUpdates, sizeof(m_numUpdates));
+        if (m_numUpdates > 0)
+        {
+            std::cerr << "ui::Manager: syncing " << m_numUpdates << " updates" << std::endl;
+            if (ms->isMaster())
+            {
+                covise::Message msg(*m_updates);
+                coVRMSController::instance()->sendSlaves(&msg);
+            }
+            else
+            {
+                covise::Message msg;
+                coVRMSController::instance()->readMaster(&msg);
+                m_updates.reset(new covise::TokenBuffer(&msg));
+            }
+        }
+    }
+
+    int round = 0;
+    while (m_numUpdates > 0)
+    {
+        std::cerr << "ui::Manager: processing " << m_numUpdates << " updates in round " << round << std::endl;
+        std::shared_ptr<covise::TokenBuffer> updates = m_updates;
+        m_updates.reset(new covise::TokenBuffer);
+        int numUpdates = m_numUpdates;
+        m_numUpdates = 0;
+
+        if (round > 2)
+            break;
+        processUpdates(updates, numUpdates, round<1);
+        ++round;
+    }
+
+    //assert(m_numUpdates == 0);
 }
 
 }

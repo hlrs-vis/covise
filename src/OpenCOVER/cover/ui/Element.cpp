@@ -1,8 +1,11 @@
+#undef NDEBUG
 #include "Element.h"
 #include "Group.h"
 #include "Manager.h"
 
 #include <cassert>
+
+#include <net/tokenbuffer.h>
 
 namespace opencover {
 namespace ui {
@@ -25,6 +28,12 @@ Element::Element(Group *group, const std::string &name)
 
 Element::~Element()
 {
+    manager()->remove(this);
+}
+
+int Element::elementId() const
+{
+    return m_id;
 }
 
 Group *Element::parent() const
@@ -47,7 +56,7 @@ std::set<Container *> Element::containers()
 void Element::setText(const std::string &label)
 {
     m_label = label;
-    manager()->updateText(this);
+    manager()->queueUpdate(this);
 }
 
 const std::string &Element::text() const
@@ -63,7 +72,7 @@ bool Element::visible() const
 void Element::setVisible(bool flag)
 {
     m_visible = flag;
-    manager()->updateVisible(this);
+    manager()->queueUpdate(this);
 }
 
 bool Element::enabled() const
@@ -74,17 +83,36 @@ bool Element::enabled() const
 void Element::setEnabled(bool flag)
 {
     m_enabled = flag;
-    manager()->updateEnabled(this);
+    manager()->queueUpdate(this);
 }
 
 void Element::trigger() const
 {
     manager()->setChanged();
-    triggerImplementation();
+    manager()->queueUpdate(this, true);
 }
 
 void Element::triggerImplementation() const
 {
+}
+
+void Element::save(covise::TokenBuffer &buf) const
+{
+    buf << elementId();
+    buf << m_visible;
+    buf << m_enabled;
+    buf << m_label;
+
+}
+
+void Element::load(covise::TokenBuffer &buf)
+{
+    int id;
+    buf >> id;
+    assert(m_id == id);
+    buf >> m_visible;
+    buf >> m_enabled;
+    buf >> m_label;
 }
 
 }

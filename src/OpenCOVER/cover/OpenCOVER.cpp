@@ -960,23 +960,19 @@ bool OpenCOVER::frame()
 
     cover->updateTime();
     
-    if (cover->ui->update())
-        render = true;
-
+    Input::instance()->update(); //update all hardware devices
+    // update window size and process events
+    VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
     {
         // handle e.g. mouse events
         render = true;
-        m_renderNext = true;
+        m_renderNext = true; // for possible delayed button release
     }
-    Input::instance()->update(); //update all hardware devices
 
     // wait for all cull and draw threads to complete.
     //
     coVRTui::instance()->update();
-
-    // update window size
-    VRWindow::instance()->update();
 
     if (coVRAnimationManager::instance()->update())
     {
@@ -1011,7 +1007,8 @@ bool OpenCOVER::frame()
     {
         render = true;
     }
-
+    if (cover->ui->update())
+        render = true;
 
     if (frameNum > 2)
     {
@@ -1022,6 +1019,8 @@ bool OpenCOVER::frame()
     {
         render = true;
     }
+
+    cover->ui->sync();
     
     if (!render)
     {
