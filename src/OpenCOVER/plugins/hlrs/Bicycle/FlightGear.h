@@ -8,7 +8,7 @@
 #include <cover/coVRPluginSupport.h>
 #ifdef WIN32
 #include <windows.h>
-#include "lusb0_usb.h"
+//#include "lusb0_usb.h"
 #include <conio.h>
 #else
 #include <usb.h>

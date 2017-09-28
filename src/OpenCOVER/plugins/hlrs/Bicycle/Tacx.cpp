@@ -15,12 +15,9 @@ static float zeroAngle = 1152.;
 int Tacx::usbOpenDevice(libusb_device_handle **device, int vendor, const char *vendorName, int product, const char *productName)
 {
     libusb_device_handle *handle = NULL;
-    libusb_device **devs;
     int errorCode = USB_ERROR_NOTFOUND;
     static int didUsbInit = 0;
-    ssize_t cnt;
     int ret;
-    char string[256];
     if (!didUsbInit)
     {
         didUsbInit = 1;
@@ -203,7 +200,6 @@ void Tacx::update()
                     printf("error reading:\n%s count: %d ret: %d\n", libusb_error_name(ret),errorCounter, ret);
                     if (errorCounter > 2)
                     {
-		        sleep(2);
                         libusb_close(handle);
                         nBytes = -5;
                         return;
