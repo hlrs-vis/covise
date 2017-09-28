@@ -17,8 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define USBDEV_Tacx_VENDOR 13665
-#define USBDEV_VRInterface_PRODUCT 6450
+#define USBDEV_Tacx_VENDOR 0x3561
+#define USBDEV_VRInterface_PRODUCT 0x1932
 
 #define USB_ERROR_NOTFOUND 1
 #define USB_ERROR_ACCESS 2
