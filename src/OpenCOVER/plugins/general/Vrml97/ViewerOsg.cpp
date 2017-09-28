@@ -79,8 +79,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/TangentSpaceGenerator>
 
-#include <vtrans/vtrans.h>
-
 #ifdef HAVE_OSGNV
 #include <osgNVCg/Context>
 #include <osgNVCg/Program>
@@ -6199,6 +6197,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
 {
     std::string retStr(stringToLocalize);
 
+#if 0
     if (coCoviseConfig::isOn("COVER.Plugin.Vrml97.TranslateVRMLTextNodes", false))
     {
         //-------------TRANSLATION BEGIN------------------------
@@ -6218,6 +6217,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
         }
         //-------------TRANSLATION END--------------------------
     }
+#endif
 
     return retStr;
 }

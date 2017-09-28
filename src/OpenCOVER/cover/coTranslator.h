@@ -49,6 +49,8 @@ public:
     * there is a misconfiguration of settings.  
     */
     static std::string coTranslate(const std::string &msg);
+
+    static std::string translatePath(const std::string &path);
 };
 
 //--------------------------------------------------------------------------

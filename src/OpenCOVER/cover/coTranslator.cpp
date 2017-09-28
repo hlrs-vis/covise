@@ -21,7 +21,9 @@
 #include <algorithm>
 #include <cstdlib>
 
+#if 0
 #include <vtrans/vtrans.h>
+#endif
 #include "config/CoviseConfig.h"
 #include "coTranslator.h"
 
@@ -32,14 +34,14 @@ std::string coTranslator::coTranslate(const std::string &msg)
 {
     std::string retMsg = msg;
 
-    char *covisepath = getenv("COVISE_PATH");
-    if (covisepath)
+#if 0
+    char *covisedir = getenv("COVISEDIR");
+    if (covisedir)
     {
-        std::string covisePath(covisepath);
+        std::string coviseDir(covisedir);
         //yes, there could be a semicolon in it!
-        covisePath.erase(std::remove(covisePath.begin(), covisePath.end(), ';'), covisePath.end());
         retMsg = vtrans::VTrans::translate(covise::coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                           covisePath + std::string("/") + covise::coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
+                                           coviseDir + std::string("/") + covise::coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
                                            covise::coCoviseConfig::getEntry("value", "COVER.Localization.ModuleDomain", ""),
                                            covise::coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
                                            retMsg);
@@ -52,8 +54,21 @@ std::string coTranslator::coTranslate(const std::string &msg)
                                            covise::coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
                                            retMsg);
     }
+#endif
 
     return retMsg;
+}
+
+std::string coTranslator::translatePath(const std::string &path)
+{
+    std::string localizedPath = path;
+#if 0
+    localizedPath = vtrans::PathTranslator::TranslatePath(
+        coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ".") + "\\"
+        + coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
+        path);
+#endif
+    return localizedPath;
 }
 
 //--------------------------------------------------------------------------

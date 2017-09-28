@@ -35,6 +35,7 @@
 #include <config/CoviseConfig.h>
 
 #include "OpenCOVER.h"
+#include "coTranslator.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
 #include "coVRNavigationManager.h"
@@ -62,7 +63,6 @@
 #include <osgDB/WriteFile>
 #include <osg/ShapeDrawable>
 
-#include <vtrans/vtrans.h>
 
 using namespace osg;
 using namespace opencover;
@@ -2810,23 +2810,7 @@ void coVRNavigationManager::doShowName()
                 // check if we now have an empty string (containing spaces only)
                 if (nodeName.length() > 0)
                 {
-                    //-------------TRANSLATION BEGIN------------------------
-                    char *covisepath = getenv("COVISE_PATH");
-                    if (covisepath)
-                    {
-                        std::string covisePath(covisepath);
-
-                        //yes, there could be a semicolon in it!
-                        covisePath.erase(remove(covisePath.begin(), covisePath.end(), ';'), covisePath.end());
-
-                        nodeName = vtrans::VTrans::translate(
-                            coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                            std::string(covisepath) + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
-                            coCoviseConfig::getEntry("value", "COVER.Localization.VRMLDomain", ""),
-                            coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                            nodeName);
-                    }
-                    //-------------TRANSLATION END--------------------------
+                    nodeName = coTranslator::coTranslate(nodeName);
 
                     //now remove special names
                     /*
