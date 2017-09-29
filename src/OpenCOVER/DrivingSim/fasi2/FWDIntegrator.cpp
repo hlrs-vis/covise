@@ -870,11 +870,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syFL) / carState.sy0;
-		nFL = LFL * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nFL = LFL * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6; //should be (1 - (3 ...
 	} else if (std::abs(syFL) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nFL = LFL * (1 - we) * (std::abs(syFL) - carState.sy0) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0));
+		nFL = LFL * -1 * (1 - we) * (std::abs(syFL) - carState.sy0) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nFL = 0;
@@ -884,11 +884,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syFR) / carState.sy0;
-		nFR = LFR * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nFR = LFR * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6;
 	} else if (std::abs(syFR) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nFR = LFR * (1 - we) * (std::abs(syFR) - carState.sy0) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0));
+		nFR = LFR * -1 * (1 - we) * (std::abs(syFR) - carState.sy0) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nFR = 0;
@@ -898,11 +898,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syRR) / carState.sy0;
-		nRR = LRR * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nRR = LRR * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6;
 	} else if (std::abs(syRR) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nRR = LRR * (1 - we) * (std::abs(syRR) - carState.sy0) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0));
+		nRR = LRR * -1 * (1 - we) * (std::abs(syRR) - carState.sy0) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nRR = 0;
@@ -912,11 +912,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syRL) / carState.sy0;
-		nRL = LRL * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nRL = LRL * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6;
 	} else if (std::abs(syRL) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nRL = LRL * (1 - we) * (std::abs(syRL) - carState.sy0) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0));
+		nRL = LRL * -1 * (1 - we) * (std::abs(syRL) - carState.sy0) / carState.sy0 * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nRL = 0;
@@ -932,14 +932,14 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		TsFL = nFL * FyFL;
 	} else
 	{
-		TsFL = -nFL * FyFL;
+		TsFL = nFL * FyFL;
 	}
 	if(vXWFR >= 0)
 	{
 		TsFR = nFR * FyFR;
 	} else
 	{
-		TsFR = -nFR * FyFR;
+		TsFR = nFR * FyFR;
 	}
 	if(vXWRR >= 0)
 	{
