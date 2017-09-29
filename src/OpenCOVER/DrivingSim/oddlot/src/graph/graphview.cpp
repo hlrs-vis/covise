@@ -1457,12 +1457,8 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
-    switch (event->key())
-    {
 
-    default:
-        QGraphicsView::keyReleaseEvent(event);
-    }
+	QGraphicsView::keyReleaseEvent(event);
 }
 
 void
