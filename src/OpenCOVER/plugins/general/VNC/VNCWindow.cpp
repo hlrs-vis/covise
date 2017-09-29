@@ -197,8 +197,8 @@ void VNCWindow::sendText(const char *text)
 {
     if (coVRMSController::instance()->isMaster())
     {
-        const int len = strlen(text);
-        for (int i = 0; i < len; ++i)
+        size_t len = strlen(text);
+        for (size_t i = 0; i < len; ++i)
         {
             vncClient->sendKeyPressEvent(text[i]);
         }
@@ -274,7 +274,7 @@ void VNCWindow::init()
         coVRMSController::instance()->sendSlaves((void *)&width, sizeof(int));
         coVRMSController::instance()->sendSlaves((void *)&height, sizeof(int));
 
-        int serverNameLength = serverId.length() + 1;
+        int serverNameLength = (int)serverId.length() + 1;
         coVRMSController::instance()->sendSlaves((void *)&serverNameLength, sizeof(int));
         coVRMSController::instance()->sendSlaves((void *)serverId.c_str(), serverNameLength);
     }
@@ -301,10 +301,10 @@ void VNCWindow::init()
         0,
         eventHandler);
 
-    desktopTexture->setSize(width, height, 0);
-    desktopTexture->setTexSize(width, height);
-    desktopTexture->setMinWidth(width);
-    desktopTexture->setMinHeight(height);
+    desktopTexture->setSize((float)width, (float)height, 0);
+    desktopTexture->setTexSize((float)width, (float)height);
+    desktopTexture->setMinWidth((float)width);
+    desktopTexture->setMinHeight((float)height);
     desktopTexture->setRepeat(true);
 
     popupHandle = new vrui::coPopupHandle(serverId.c_str());
