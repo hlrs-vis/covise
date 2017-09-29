@@ -38,18 +38,18 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    getenv_path(COVISEDIR COVISEDIR)
    set(CMAKE_MODULE_PATH "${COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
 
-   # preset some initial values for install dir and CFLAGS etc.
-   INCLUDE(CovisePresets)
-   covise_cmake_policy()
-   
+   # global feature tests
+   INCLUDE(CoviseGlobalFeatureTests)
+
    find_package(COVISE REQUIRED)
    find_package(COVISE COMPONENTS GPU REQUIRED)
    #covise_create_using()
 
+   # preset some initial values for install dir and CFLAGS etc.
+   INCLUDE(CovisePresets)
+   covise_cmake_policy()
 
    include(CoviseHelperMacros)
-   # global feature tests
-   INCLUDE(CoviseGlobalFeatureTests)
 
    set(CMAKE_INSTALL_PREFIX "${COVISE_INSTALL_PREFIX}")
 
