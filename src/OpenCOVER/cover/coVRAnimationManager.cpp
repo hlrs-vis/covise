@@ -128,6 +128,8 @@ void coVRAnimationManager::initAnimMenu()
     animFrameItem->setBounds(timestepBase, timestepBase);
     animFrameItem->setValue(timestepBase);
     animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        if (animationRunning())
+            enableAnimation(false);
         requestAnimationTime(val);
     });
     animPingPongItem = new ui::Button(animRowMenu, "Oscillate");
