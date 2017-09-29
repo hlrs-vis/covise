@@ -7,7 +7,7 @@
  <GLOBAL>
   <COVER>
    <MultiPC>
-    <SyncMode value="TCP" hosts="localhost" />
+    <SyncMode value="MPI" hosts="localhost,localhost" />
     <NumSlaves value="1" />
     
     <Startup ARCH="x11" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
