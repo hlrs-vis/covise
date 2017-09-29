@@ -254,13 +254,16 @@ bool System::loadUrl(const char *url, int np, char **parameters)
 #include <windows.h>
 #include <WinSock2.h>
 #endif
+#ifndef WIN32
+typedef int SOCKET;
+#endif
 
 int System::connectSocket(const char *host, int port)
 {
     struct sockaddr_in sin;
     struct hostent *he;
 
-    int sockfd = -1;
+    SOCKET sockfd = -1;
 
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;

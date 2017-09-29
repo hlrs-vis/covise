@@ -5,6 +5,10 @@
 
  * License: LGPL 2+ */
 
+#ifdef WIN32
+#pragma warning(disable : 4996)
+#endif
+
 #include "TracerInteraction.h"
 #include "TracerLine.h"
 #include "TracerPlane.h"

@@ -1100,6 +1100,16 @@ VRViewer::createChannels(int i)
             cerr << "channel " << i << ": neither viewport nor PBO configured" << endl;
             return;
         }
+		if (coVRConfig::instance()->PBOs.size() <= pboNum)
+		{
+			cerr << "PBO " << pboNum << " not available" << endl;
+			return;
+		}
+		if (coVRConfig::instance()->windows.size() <= coVRConfig::instance()->PBOs[pboNum].windowNum)
+		{
+			cerr << "PBOs window " << coVRConfig::instance()->PBOs[pboNum].windowNum << " not available PBO nr." << pboNum << endl;
+			return;
+		}
         gc = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[pboNum].windowNum].context;
         RenderToTexture = true;
     }

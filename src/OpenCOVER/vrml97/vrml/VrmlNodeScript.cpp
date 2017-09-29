@@ -230,8 +230,8 @@ VrmlNodeScript *VrmlNodeScript::toScript() const
 
 void VrmlNodeScript::addToScene(VrmlScene *s, const char *relUrl)
 {
-    System::the->debug("VrmlNodeScript::%s 0x%lx addToScene 0x%lx\n",
-                       name(), (unsigned long)this, (unsigned long)s);
+    System::the->debug("VrmlNodeScript::%s 0x%llx addToScene 0x%llx\n",
+                       name(), (uint64_t)this, (uint64_t)s);
 
     d_relativeUrl.set(relUrl);
     if (d_scene == s)

@@ -66,7 +66,7 @@ int HlExprList::compare(HlExprList *e)
             {
                 if ((h = arg(i)->compare(e->arg(i))) != 0)
                 {
-                    return h;
+                    return int(h);
                 }
             }
             return (Length() == e->Length()) ? 0 : (Length() < e->Length()) ? -1 : 1;
