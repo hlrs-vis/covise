@@ -1187,10 +1187,18 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
         //double dis2 = supportVectorVector[minPointer+1].length();
         //s = dis1/(dis1+dis2)*(supportPointVector[minPointer+1]-supportPointVector[minPointer]) + supportPointVector[minPointer];
         s = supportPointVector[minPointer] + minGamma * (supportPointVector[minPointer + 1] - supportPointVector[minPointer]);
-        if (s < 0 || s > this->length)
+        /*if (s < 0 || s > this->length)
         {
             return Vector2D(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
-        }
+        }*/
+		if (s < 0)
+		{
+			s = 0;
+		}
+		if(s > this->length)
+		{
+			s = this->length;
+		}
         //std::cout << "Choosing " << minPointer+1 << ". road piece: initial s: " << s << ", ndist: " << minDistance << ", tgamma: " << minGamma << std::endl;
     }
     else

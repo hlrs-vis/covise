@@ -67,7 +67,7 @@ typedef unsigned int uint32_t;
 #include <netinet/in.h>
 #endif
 #ifndef WIN32
-#typedef int SOCKET
+typedef int SOCKET;
 #endif
 
 SOCKET socketDatagram();

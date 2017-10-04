@@ -486,7 +486,11 @@ void FourWheelDynamicsRealtime2::setSportDamper(bool sport)
 		carState.dsFL = carState.dsFLSport;
 		carState.dsFR = carState.dsFRSport;
 		carState.dsRR = carState.dsRRSport;
-		carState.dsRL = carState.dsRLSport; 
+		carState.dsRL = carState.dsRLSport;
+		carState.suspOffsetFL = carState.suspOffsetSport;
+		carState.suspOffsetFR = carState.suspOffsetSport;
+		carState.suspOffsetRR = carState.suspOffsetSport;
+		carState.suspOffsetRL = carState.suspOffsetSport;
     }
     else
     {
@@ -498,6 +502,10 @@ void FourWheelDynamicsRealtime2::setSportDamper(bool sport)
 		carState.dsFR = carState.dsFRComfort;
 		carState.dsRR = carState.dsRRComfort;
 		carState.dsRL = carState.dsRLComfort; 
+		carState.suspOffsetFL = carState.suspOffsetComfort;
+		carState.suspOffsetFR = carState.suspOffsetComfort;
+		carState.suspOffsetRR = carState.suspOffsetComfort;
+		carState.suspOffsetRL = carState.suspOffsetComfort;
     }
 }
 
@@ -756,46 +764,6 @@ void FourWheelDynamicsRealtime2::run()
 			//get positions of tires on road
 			RoadSystem *rSystem = RoadSystem::Instance();
 			
-			/*roadPointFinder->getLongPosMutex().acquire(period);
-			
-			currentLongPosArray[0] = roadPointFinder->getLongPos(0);
-			currentLongPosArray[1] = roadPointFinder->getLongPos(1);
-			currentLongPosArray[2] = roadPointFinder->getLongPos(2);
-			
-			currentLongPosArray[3] = roadPointFinder->getLongPos(3);
-			currentLongPosArray[4] = roadPointFinder->getLongPos(4);
-			currentLongPosArray[5] = roadPointFinder->getLongPos(5);
-			
-			currentLongPosArray[6] = roadPointFinder->getLongPos(6);
-			currentLongPosArray[7] = roadPointFinder->getLongPos(7);
-			currentLongPosArray[8] = roadPointFinder->getLongPos(8);
-			
-			currentLongPosArray[9] = roadPointFinder->getLongPos(9);
-			currentLongPosArray[10] = roadPointFinder->getLongPos(10);
-			currentLongPosArray[11] = roadPointFinder->getLongPos(11);
-			
-			roadPointFinder->getLongPosMutex().release();*/
-			
-			/*roadPointFinder->getRoadMutex().acquire(period);
-			
-			currentRoadArray[0] = roadPointFinder->getRoad(0);
-			currentRoadArray[1] = roadPointFinder->getRoad(1);
-			currentRoadArray[2] = roadPointFinder->getRoad(2);
-			
-			currentRoadArray[3] = roadPointFinder->getRoad(3);
-			currentRoadArray[4] = roadPointFinder->getRoad(4);
-			currentRoadArray[5] = roadPointFinder->getRoad(5);
-			
-			currentRoadArray[6] = roadPointFinder->getRoad(6);
-			currentRoadArray[7] = roadPointFinder->getRoad(7);
-			currentRoadArray[8] = roadPointFinder->getRoad(8);
-			
-			currentRoadArray[9] = roadPointFinder->getRoad(9);
-			currentRoadArray[10] = roadPointFinder->getRoad(10);
-			currentRoadArray[11] = roadPointFinder->getRoad(11);
-			
-			roadPointFinder->getRoadMutex().release();*/
-			
 			roadPointFinder->getPositionMutex().acquire(period);
 			
 			osg::Matrix tempMatrixFL1 = carState.globalPosTireFL1 * Opencover2OddlotRotation;
@@ -852,269 +820,6 @@ void FourWheelDynamicsRealtime2::run()
 			
 			roadPointFinder->getCurrentHeightMutex().release();
 			
-			/*
-			if(currentRoadArray[0])
-			{
-				Vector3D searchInVec(tempMatrixFL1.getTrans().x(), tempMatrixFL1.getTrans().y(), tempMatrixFL1.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[0]->searchPositionNoBorder(searchInVec, currentLongPosArray[0]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[0] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[0]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightFL1 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire fl1 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-				
-			}
-			if(currentRoadArray[1])
-			{
-				Vector3D searchInVec(tempMatrixFL2.getTrans().x(), tempMatrixFL2.getTrans().y(), tempMatrixFL2.getTrans().z());
-				//std::cout << "fl2 in: pointx " << searchInVec.x() << " pointy " << searchInVec.y() << " pointz " << searchInVec.z() << std::endl;
-				Vector2D searchOutVec = currentRoadArray[1]->searchPositionNoBorder(searchInVec, currentLongPosArray[1]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[1] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[1]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightFL2 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire fl2 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[2])
-			{
-				Vector3D searchInVec(tempMatrixFL3.getTrans().x(), tempMatrixFL3.getTrans().y(), tempMatrixFL3.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[2]->searchPositionNoBorder(searchInVec, currentLongPosArray[2]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[2] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[2]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightFL3 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire fl3 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			carState.roadAngleFL = atan(-(carState.roadHeightFL3 - carState.roadHeightFL1) / (cos(carState.wheelAngleZFL) * 2 * carState.contactPatch));
-			
-			if(currentRoadArray[3])
-			{
-				Vector3D searchInVec(tempMatrixFR1.getTrans().x(), tempMatrixFR1.getTrans().y(), tempMatrixFR1.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[3]->searchPositionNoBorder(searchInVec, currentLongPosArray[3]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[3] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[3]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightFR1 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire fr1 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[4])
-			{
-				Vector3D searchInVec(tempMatrixFR2.getTrans().x(), tempMatrixFR2.getTrans().y(), tempMatrixFR2.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[4]->searchPositionNoBorder(searchInVec, currentLongPosArray[4]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[4] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[4]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightFR2 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire fr2 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[5])
-			{
-				Vector3D searchInVec(tempMatrixFR3.getTrans().x(), tempMatrixFR3.getTrans().y(), tempMatrixFR3.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[5]->searchPositionNoBorder(searchInVec, currentLongPosArray[5]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[5] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[5]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightFR2 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire fr2 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			carState.roadAngleFR = atan(-(carState.roadHeightFR3 - carState.roadHeightFR1) / (cos(carState.wheelAngleZFR) * 2 * carState.contactPatch));
-			
-			if(currentRoadArray[6])
-			{
-				Vector3D searchInVec(tempMatrixRR1.getTrans().x(), tempMatrixRR1.getTrans().y(), tempMatrixRR1.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[6]->searchPositionNoBorder(searchInVec, currentLongPosArray[6]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[6] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[6]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightRR1 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire rr1 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[7])
-			{
-				Vector3D searchInVec(tempMatrixRR2.getTrans().x(), tempMatrixRR2.getTrans().y(), tempMatrixRR2.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[7]->searchPositionNoBorder(searchInVec, currentLongPosArray[7]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[7] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[7]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightRR2 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire rr2 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[8])
-			{
-				Vector3D searchInVec(tempMatrixRR3.getTrans().x(), tempMatrixRR3.getTrans().y(), tempMatrixRR3.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[8]->searchPositionNoBorder(searchInVec, currentLongPosArray[8]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[8] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[8]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightRR3 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire rr3 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			carState.roadAngleRR = atan(-(carState.roadHeightRR3 - carState.roadHeightRR1) / (cos(carState.wheelAngleZRR) * 2 * carState.contactPatch));
-			
-			if(currentRoadArray[9])
-			{
-				Vector3D searchInVec(tempMatrixRL1.getTrans().x(), tempMatrixRL1.getTrans().y(), tempMatrixRL1.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[9]->searchPositionNoBorder(searchInVec, currentLongPosArray[9]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[9] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[9]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightRL1 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire rl1 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[10])
-			{
-				Vector3D searchInVec(tempMatrixRL2.getTrans().x(), tempMatrixRL2.getTrans().y(), tempMatrixRL2.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[10]->searchPositionNoBorder(searchInVec, currentLongPosArray[10]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[10] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[10]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightRL2 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire rl2 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			if(currentRoadArray[11])
-			{
-				Vector3D searchInVec(tempMatrixRL3.getTrans().x(), tempMatrixRL3.getTrans().y(), tempMatrixRL3.getTrans().z());
-				
-				Vector2D searchOutVec = currentRoadArray[11]->searchPositionNoBorder(searchInVec, currentLongPosArray[11]);
-				//std::cout << "search road from scratch" << std::endl;
-				if (!searchOutVec.isNaV())
-				{
-					currentLongPosArray[11] = searchOutVec.x();
-					RoadPoint point = currentRoadArray[11]->getRoadPoint(searchOutVec.x(), searchOutVec.y());
-					if (!isnan(point.x()))
-					{
-						carState.roadHeightRL3 = point.z();
-						//std::cout << "1: pointx" << point.x() << " pointy" << point.y() << " pointz" << point.z() << std::endl;
-					} else 
-					{
-						std::cout << "tire rl3 left road!" << std::endl;
-						leftRoad = true;
-					}
-				}
-			}
-			carState.roadAngleRL = atan(-(carState.roadHeightRL3 - carState.roadHeightRL1) / (cos(carState.wheelAngleZRL) * 2 * carState.contactPatch));
-			*/
-			
 			currentTicks = (double) rt_timer_read();
 			
 			double localZPosTireFLOld = carState.localZPosTireFL;
@@ -1147,24 +852,19 @@ void FourWheelDynamicsRealtime2::run()
 			if (carState.gear == -1) 
 			{
 				carState.gearRatio = carState.gearRatioR;
-			}
-			else if (carState.gear == 1) 
+			} else if (carState.gear == 1) 
 			{
 				carState.gearRatio = carState.gearRatio1;
-			}
-			else if (carState.gear == 2) 
+			} else if (carState.gear == 2) 
 			{
 				carState.gearRatio = carState.gearRatio2;
-			}
-			else if (carState.gear == 3)
+			} else if (carState.gear == 3)
 			{
 				carState.gearRatio = carState.gearRatio3;
-			}
-			else if (carState.gear == 4)
+			} else if (carState.gear == 4)
 			{
 				carState.gearRatio = carState.gearRatio4;
-			}
-			else
+			} else
 			{
 				carState.gearRatio = carState.gearRatio5;
 			}
@@ -1196,8 +896,7 @@ void FourWheelDynamicsRealtime2::run()
 						}
 						
 					}
-				}
-				else 
+				} else 
 				{
 					speedState.OmegaYRR = speedState.engineRPM / (carState.finalDrive * carState.gearRatio);
 					speedState.OmegaYRL = speedState.engineRPM / (carState.finalDrive * carState.gearRatio);
@@ -1219,6 +918,16 @@ void FourWheelDynamicsRealtime2::run()
 			if(carState.clutchTimer < 400)
 			{
 				carState.clutchTimer++;
+				/*if(carState.gear == 1)
+				{
+					carState.clutchTimer++;
+					carState.clutchTimer++;
+				}*/
+			}
+			
+			if(carState.clutchTimer > 400)
+			{
+				carState.clutchTimer = 400;
 			}
 			
 			carState.clutchState = (carState.clutchTimer / 400) * (carState.clutchTimer / 400);
@@ -1800,10 +1509,10 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cerr << "integrator run time:" << diffTime << std::endl;
 				//std::cout << "#time period: " << h << std::endl; 
 				//std::cout << "#time " << time << std::endl; 
-				osg::Vec3d globPosTransVec = carState.globalPosOC.getTrans();
-				std::cout << "#globalPosTransVec: x " << globPosTransVec.x() << "; y " << globPosTransVec.y() << "; z " << globPosTransVec.z() << std::endl;
-				osg::Vec3d chassisTransVec = chassisTrans.getTrans();
-				std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
+				//osg::Vec3d globPosTransVec = carState.globalPosOC.getTrans();
+				//std::cout << "#globalPosTransVec: x " << globPosTransVec.x() << "; y " << globPosTransVec.y() << "; z " << globPosTransVec.z() << std::endl;
+				//osg::Vec3d chassisTransVec = chassisTrans.getTrans();
+				//std::cout << "#chassisTransVec: x " << chassisTransVec.x() << "; y " << chassisTransVec.y() << "; z " << chassisTransVec.z() << std::endl;
 				
 				//std::cout << "rot:"<< std::endl;
 				//std::cout << carState.cogOpencoverRot(0,0) << "," << carState.cogOpencoverRot(0,1) << "," << carState.cogOpencoverRot(0,2) << "," << carState.cogOpencoverRot(0,3) << std::endl;
@@ -1842,19 +1551,19 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "vX 1: " << initialSpeeds.vX << " vX 2: " << K1Speed.vX << " vX 3: " << K2Speed.vX << " vX 4: " << K3Speed.vX << std::endl;
 				//std::cout << " " << std::endl;
 				int length = 13;
-				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
+				//std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightFL2					 	<< "  roadZ     " << std::setw(length) << carState.roadHeightFR2 << std::endl;
 				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireFL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireFR2.getTrans().x() << std::endl;
-				std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
+				//std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireFL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireFR2.getTrans().y() << std::endl;
 				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireFL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireFR2.getTrans().z() << std::endl;
 				//std::cout << "#suspX    " << std::setw(length) << carState.globalPosSuspFL.getTrans().x() 	<< "  suspX     " << std::setw(length) << carState.globalPosSuspFR.getTrans().x() << std::endl;
-				std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspFL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspFR.getTrans().y() << std::endl;
+				//std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspFL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspFR.getTrans().y() << std::endl;
 				//std::cout << "#suspZ    " << std::setw(length) << carState.globalPosSuspFL.getTrans().z() 	<< "  suspZ     " << std::setw(length) << carState.globalPosSuspFR.getTrans().z() << std::endl;
 				//std::cout << "#susSpeed " << std::setw(length) << speedState.vSuspZFL 						<< "  susSpeed  " << std::setw(length) << speedState.vSuspZFR << std::endl;
 				//std::cout << "#tireSpd  " << std::setw(length) << carState.tireDefSpeedFL 					<< "  tireSpd   " << std::setw(length) << carState.tireDefSpeedFR << std::endl;
 				//std::cout << "#localZS  " << std::setw(length) << carState.localZPosSuspFL 					<< "  localZS   " << std::setw(length) << carState.localZPosSuspFR << std::endl;
 				//std::cout << "#localZT  " << std::setw(length) << carState.localZPosTireFL 					<< "  localZT   " << std::setw(length) << carState.localZPosTireFR << std::endl;
 				//std::cout << "#joint x  " << std::setw(length) << carState.globalPosJointFL.getTrans().x() 	<< "  joint x   " << std::setw(length) << carState.globalPosJointFR.getTrans().x() << std::endl;
-				std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointFL.getTrans().y() 	<< "  joint y   " << std::setw(length) << carState.globalPosJointFR.getTrans().y() << std::endl;
+				//std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointFL.getTrans().y() 	<< "  joint y   " << std::setw(length) << carState.globalPosJointFR.getTrans().y() << std::endl;
 				//std::cout << "#jointz   " << std::setw(length) << carState.globalPosJointFL.getTrans().z() 	<< "  jointz    " << std::setw(length) << carState.globalPosJointFR.getTrans().z() << std::endl;
 				//std::cout << "#weighted " << std::setw(length) << speedState.FweightedFL 						<< "  weighted  " << std::setw(length) << speedState.FweightedFR << std::endl;
 				//std::cout << "#Ftire    " << std::setw(length) << speedState.FtireFL 							<< "  Ftire     " << std::setw(length) << speedState.FtireFR << std::endl;
@@ -1876,22 +1585,22 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#11       " << std::setw(length) << speedState.genericOut11					<< "  12        " << std::setw(length) << speedState.genericOut12 << std::endl;
 				//std::cout << "#13       " << std::setw(length) << speedState.genericOut13					<< "  14        " << std::setw(length) << speedState.genericOut14 << std::endl;
 				//std::cout << " " << std::endl;
-				std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightRL2					 	<< "  roadZ    " << std::setw(length) << carState.roadHeightRR2 << std::endl;
+				//std::cout << "#roadZ    " << std::setw(length) << carState.roadHeightRL2					 	<< "  roadZ    " << std::setw(length) << carState.roadHeightRR2 << std::endl;
 				//std::cout << "#whlPosX  " << std::setw(length) << wheelPosRLX									<< "  whlPosX  " << std::setw(length) << wheelPosRRX << std::endl;
 				//std::cout << "#whlPosY  " << std::setw(length) << wheelPosRLY									<< "  whlPosY  " << std::setw(length) << wheelPosRRY << std::endl;
 				
 				//std::cout << "#tirePosX " << std::setw(length) << carState.globalPosTireRL2.getTrans().x()	<< "  tirePosX  " << std::setw(length) << carState.globalPosTireRR2.getTrans().x() << std::endl;
-				std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireRL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireRR2.getTrans().y() << std::endl;
+				//std::cout << "#tirePosY " << std::setw(length) << carState.globalPosTireRL2.getTrans().y()	<< "  tirePosY  " << std::setw(length) << carState.globalPosTireRR2.getTrans().y() << std::endl;
 				//std::cout << "#tirePosZ " << std::setw(length) << carState.globalPosTireRL2.getTrans().z()	<< "  tirePosZ  " << std::setw(length) << carState.globalPosTireRR2.getTrans().z() << std::endl;
 				//std::cout << "#suspX    " << std::setw(length) << carState.globalPosSuspRL.getTrans().x() 	<< "  suspX     " << std::setw(length) << carState.globalPosSuspRR.getTrans().x() << std::endl;
-				std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspRL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspRR.getTrans().y() << std::endl;
+				//std::cout << "#suspY    " << std::setw(length) << carState.globalPosSuspRL.getTrans().y() 	<< "  suspY     " << std::setw(length) << carState.globalPosSuspRR.getTrans().y() << std::endl;
 				//std::cout << "#suspZ    " << std::setw(length) << carState.globalPosSuspRL.getTrans().z() 	<< "  suspZ     " << std::setw(length) << carState.globalPosSuspRR.getTrans().z() << std::endl;
 				//std::cout << "#susSpeed " << std::setw(length) << speedState.vSuspZRL 						<< "  susSpeed " << std::setw(length) << speedState.vSuspZRR << std::endl;
 				//std::cout << "#tireSpd  " << std::setw(length) << carState.tireDefSpeedRL 					<< "  tireSpd   " << std::setw(length) << carState.tireDefSpeedRR << std::endl;
 				//std::cout << "#localZS  " << std::setw(length) << carState.localZPosSuspRL 					<< "  localZS   " << std::setw(length) << carState.localZPosSuspRR << std::endl;
 				//std::cout << "#localZT  " << std::setw(length) << carState.localZPosTireRL 					<< "  localZT   " << std::setw(length) << carState.localZPosTireRR << std::endl;
 				//std::cout << "#joint x  " << std::setw(length) << carState.globalPosJointRL.getTrans().x() 	<< "  joint x  " << std::setw(length) << carState.globalPosJointRR.getTrans().x() << std::endl;
-				std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointRL.getTrans().y() 	<< "  joint y  " << std::setw(length) << carState.globalPosJointRR.getTrans().y() << std::endl;
+				//std::cout << "#joint y  " << std::setw(length) << carState.globalPosJointRL.getTrans().y() 	<< "  joint y  " << std::setw(length) << carState.globalPosJointRR.getTrans().y() << std::endl;
 				//std::cout << "#joint z  " << std::setw(length) << carState.globalPosJointRL.getTrans().z() 	<< "  joint z  " << std::setw(length) << carState.globalPosJointRR.getTrans().z() << std::endl;
 				//std::cout << "#weighted " << std::setw(length) << speedState.FweightedRL 						<< "  weighted " << std::setw(length) << speedState.FweightedRR << std::endl;
 				//std::cout << "#Ftire    " << std::setw(length) << speedState.FtireRL 							<< "  Ftire    " << std::setw(length) << speedState.FtireRR << std::endl;
@@ -1923,7 +1632,7 @@ void FourWheelDynamicsRealtime2::run()
 				//std::cout << "#yaw " << carState.globalYaw << std::endl;
 				//std::cout << "#roll " << carState.localRoll << std::endl;
 				//std::cout << "#pitch " << carState.localPitch << std::endl;
-				std::cout << "#=(^-.-^)="<< std::endl;
+				//std::cout << "#=(^-.-^)="<< std::endl;
 				
 				//timerTimer++;
 				//fprintf(outFile, "1  2  3%5g%13g%13g%13g%13g%13g\n",timerTimer,carState.localPitch,carState.localRoll,carState.roadHeightFL2,carState.roadHeightFR2,speedState.vZ);
@@ -1961,9 +1670,9 @@ void FourWheelDynamicsRealtime2::run()
 		steerWheel->setCurrent(current);
 		
 		//Motion platform handling
-		carState.mpRZ = 0;
-		carState.mpLZ = 0;
-		carState.mpBZ = 0;
+		//carState.mpRZ = 0;
+		//carState.mpLZ = 0;
+		//carState.mpBZ = 0;
 		
 		double posLimit = 0.2;
 		if(carState.mpRZ > posLimit)

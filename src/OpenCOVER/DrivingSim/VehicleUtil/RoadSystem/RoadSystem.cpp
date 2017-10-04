@@ -2839,7 +2839,7 @@ std::vector<Road*> RoadSystem::searchPositionList(const Vector3D &worldPos/*, in
 		//std::cout << "road set not empty" << std::endl;
 		for (std::set<Road *, bool (*)(Road *, Road *)>::iterator roadSetIt = roadSet.begin(); roadSetIt != roadSet.end(); ++roadSetIt)
 		{
-			pos = (*roadSetIt)->searchPosition(worldPos, 0);
+			pos = (*roadSetIt)->searchPosition(worldPos, -1);
 			//std::cout << /*"roadsetiterator " << roadSetIt << */" pos: " << pos.x() << " " << pos.y() << std::endl;
 			if (!pos.isNaV())
 			{
