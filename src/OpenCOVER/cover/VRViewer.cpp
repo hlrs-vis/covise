@@ -1302,7 +1302,8 @@ VRViewer::setClearColor(const osg::Vec4 &color)
 {
     for (int i = 0; i < coVRConfig::instance()->numChannels(); ++i)
     {
-        coVRConfig::instance()->channels[i].camera->setClearColor(color);
+		if(coVRConfig::instance()->channels[i].camera!=NULL)
+            coVRConfig::instance()->channels[i].camera->setClearColor(color);
     }
 }
 

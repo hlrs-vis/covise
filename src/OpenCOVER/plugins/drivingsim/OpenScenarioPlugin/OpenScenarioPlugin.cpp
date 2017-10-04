@@ -19,13 +19,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 **                                                                          **
 \****************************************************************************/
 
-
+#include <OpenVRUI/osg/mathUtils.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRFileManager.h>
 #include "OpenScenarioPlugin.h"
 #include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
+#include <cover/coVRPluginList.h>
+
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 #include "ScenarioManager.h"
 #include "Trajectory.h"
@@ -38,6 +41,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <OpenScenario/OpenScenarioBase.h>
 #include <OpenScenario/schema/oscFileHeader.h>
 #include "myFactory.h"
+#include "CameraSensor.h"
+#include <config/CoviseConfig.h>
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -85,6 +90,10 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 	fprintf(stderr, "OpenScenarioPlugin::~OpenScenarioPlugin\n");
 }
 
+bool OpenScenarioPlugin::update()
+{
+	return true;
+}
 void OpenScenarioPlugin::preFrame()
 {
 	sm->simulationTime = sm->simulationTime + opencover::cover->frameDuration();
@@ -141,6 +150,21 @@ void OpenScenarioPlugin::preFrame()
 			}
 		}
 	}
+	else
+	{
+		// Scenario end
+
+		bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
+		if (doExit)
+		{
+			OpenCOVER::instance()->setExitFlag(true);
+			coVRPluginList::instance()->requestQuit(true);
+		}
+		//fprintf(stderr, "END\n");
+	}
+
+	if (currentCamera != NULL)
+		currentCamera->updateView();
 }			
 
 COVERPLUGIN(OpenScenarioPlugin)
@@ -159,7 +183,8 @@ int OpenScenarioPlugin::loadOSC(const char *filename, osg::Group *g, const char 
 
 int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const char *key)
 {
-	if(osdb->loadFile(filename, "OpenSCENARIO", "OpenSCENARIO") == false)
+	osdb->setValidation(false); // don't validate, we might be on the road where we don't have axxess to the schema files
+	if (osdb->loadFile(filename, "OpenSCENARIO", "OpenSCENARIO") == false)
 	{
 		std::cerr << std::endl;
 		std::cerr << "failed to load OpenSCENARIO from file " << filename << std::endl;
@@ -193,9 +218,12 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	}
 
 	//load xodr 
-	std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
-	const char * xodrName = xodrName_st.c_str();
-	loadRoadSystem(xodrName);
+	if (osdb->RoadNetwork.getObject() != NULL)
+	{
+		std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
+		const char * xodrName = xodrName_st.c_str();
+		loadRoadSystem(xodrName);
+	}
 
 	//load ScenGraph
 	std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
@@ -306,38 +334,96 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	//get initial position and speed of entities
 	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
 	{	
+		Entity *currentTentity = (*entity_iter);
 		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", (*entity_iter)->catalogReferenceName);
 		oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
+		for(int i=0;i<vehicle->ParameterDeclaration->Parameter.size();i++)
+		{
+			if (vehicle->ParameterDeclaration->Parameter[i]->name.getValue() == "CameraX")
+			{
+				double X=0.0, Y=0.0, Z=0.0, H=0.0, P=0.0, R=0.0, FOV=0.0;
+				for (int n = i; n < vehicle->ParameterDeclaration->Parameter.size(); n++)
+				{
+					if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraX")
+					{
+						X = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraY")
+					{
+						Y = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraZ")
+					{
+						Z = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraH")
+					{
+						H = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraP")
+					{
+						P = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraR")
+					{
+						R = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraFOV")
+					{
+						FOV = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+				}
+				coCoord coord;
+				coord.hpr[0] = H;
+				coord.hpr[1] = P;
+				coord.hpr[2] = R;
+				coord.xyz[0] = X;
+				coord.xyz[1] = Y;
+				coord.xyz[2] = Z;
+				osg::Matrix cameraMat;
+				coord.makeMat(cameraMat);
+
+				osg::Matrix rotMat;
+				rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
+
+				CameraSensor *camera = new CameraSensor(currentTentity, vehicle, rotMat*cameraMat, FOV);
+				cameras.push_back(camera);
+				if (currentCamera == NULL)
+					currentCamera = camera;
+				break;
+			}
+		}
+		
 		for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it !=  vehicle->Properties->File.end(); it++)
 		{
 			oscFile* file = ((oscFile*)(*it));
-			(*entity_iter)->filepath = file->filepath.getValue();
+			currentTentity->filepath = file->filepath.getValue();
 		}
 		for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++)
 		{	
 			oscPrivate* actions_private = ((oscPrivate*)(*it));
-			if((*entity_iter)->getName() == actions_private->object.getValue())
+			if(currentTentity->getName() == actions_private->object.getValue())
 			{
 				for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
 				{	
 					oscPrivateAction* action = ((oscPrivateAction*)(*it2));
 					if(action->Longitudinal.exists())
 					{
-						(*entity_iter)->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
+						currentTentity->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
 					}
 					if(action->Position.exists())
 					{
 						//osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
 						//(*entity_iter)->setPosition(initPosition);
-						(*entity_iter)->roadId = action->Position->Lane->roadId.getValue();
-						(*entity_iter)->laneId = action->Position->Lane->laneId.getValue();
-						(*entity_iter)->inits = action->Position->Lane->s.getValue();
+						currentTentity->roadId = action->Position->Lane->roadId.getValue();
+						currentTentity->laneId = action->Position->Lane->laneId.getValue();
+						currentTentity->inits = action->Position->Lane->s.getValue();
 					}
 				}
 			}
 		}
-		int roadId = atoi((*entity_iter)->roadId.c_str());
-		(*entity_iter)->setInitEntityPosition(system->getRoad(roadId));
+		int roadId = atoi(currentTentity->roadId.c_str());
+		currentTentity->setInitEntityPosition(system->getRoad(roadId));
 	}
 
 	//initialize acts
