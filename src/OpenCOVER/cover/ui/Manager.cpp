@@ -183,13 +183,23 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
     bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
     bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
     bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    bool meta = mod & osgGA::GUIEventAdapter::MODKEY_META;
 
     if (shift && std::isupper(keySym))
     {
         //std::cerr << "ui::Manager: mapping to lower" << std::endl;
         keySym = std::tolower(keySym);
     }
-    std::cerr << "keySym: " << (char)keySym << ", shift=" << shift <<", alt=" << alt << std::endl;
+    std::cerr << "key: ";
+    if (meta)
+        std::cerr << "meta+";
+    if (ctrl)
+        std::cerr << "ctrl+";
+    if (alt)
+        std::cerr << "alt+";
+    if (shift)
+        std::cerr << "shift+";
+    std::cerr << "'" << (char)keySym << "'" << std::endl;
 
     for (auto elem: m_elements)
     {
@@ -202,6 +212,8 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
         if (bool(m & ModCtrl) != ctrl)
             continue;
         if (bool(m & ModShift) != shift)
+            continue;
+        if (bool(m & ModMeta) != meta)
             continue;
 
         if (elem->symbol() == keySym)
