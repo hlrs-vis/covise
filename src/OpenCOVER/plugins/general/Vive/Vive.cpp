@@ -231,7 +231,8 @@ void Vive::preFrame()
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
-		if (m_rDevClassChar[nDevice] == 0)
+		// device configuration can be changed on-the-fly!
+		//if (m_rDevClassChar[nDevice] == 0)
 		{
 			switch (ivrSystem->GetTrackedDeviceClass(nDevice))
 			{
@@ -248,11 +249,15 @@ void Vive::preFrame()
 			maxBodyNumber = nDevice;
 		}
 	}
-	if (maxBodyNumber + 1 > m_bodyMatrices.size())
+
+	//cout << "*"; for (int n = 0; n < vr::k_unMaxTrackedDeviceCount; ++n) cout << m_rDevClassChar[n]; cout << "*"<<endl;
+
+	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
+	if (bodyMatSize > m_bodyMatrices.size())
 	{
 		m_mutex.lock();
-		m_bodyMatrices.resize(maxBodyNumber + 1);
-		m_bodyMatricesValid.resize(maxBodyNumber + 1);
+		m_bodyMatrices.resize(bodyMatSize);
+		m_bodyMatricesValid.resize(bodyMatSize);
 		m_mutex.unlock();
 	}
 	if (numControllers * 4 > m_buttonStates.size())
@@ -266,7 +271,7 @@ void Vive::preFrame()
 	{
 		vr::VRControllerState_t state;
 		bool gotState = ivrSystem->GetControllerState(unDevice, &state, sizeof(state));
-		if ((m_rDevClassChar[unDevice] == 'C'))
+		if ((m_rDevClassChar[unDevice] == 'C') && m_rTrackedDevicePose[unDevice].bPoseIsValid)
 		{
 			m_buttonStates[(controllerNumber * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
 			m_buttonStates[(controllerNumber * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
@@ -278,24 +283,74 @@ void Vive::preFrame()
 
 	m_mutex.lock();
 
+	// m_bodyMatrices device order:
+	// 0 -- HMD
+	// 1 -- first tracking camera
+	// 2 -- last tracking camera
+	// 3 -- first Vive controller
+	// 4 -- second Vive controller
+
+	controllerNumber = 0;
+	size_t cameraNumber = 0, idx = 0;
+	size_t firstCameraIdx = 1, lastCameraIdx=2, firstControllerIdx=3,lastControllerIdx=4 ;
+	
 	for (int nDevice = 0; nDevice < maxBodyNumber + 1; ++nDevice)
 	{
-		m_bodyMatricesValid[nDevice] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
-			m_bodyMatrices[nDevice] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+			switch (m_rDevClassChar[nDevice])
+			{
+			case 'T': // a tracking camera
+				idx = firstCameraIdx + cameraNumber;
+				//cerr << "Vive:Camera no=" << cameraNumber<<" Initial idx="<<nDevice<<" Idx="<<idx<<endl;
+				++cameraNumber;
+				if (idx>lastCameraIdx)
+				{
+					cerr << "Vive:Too many cameras;number=" << cameraNumber - 1 << " idx= " << idx << endl;
+					continue;
+				}
+				break;
+			case 'C': //a controller
+				idx = firstControllerIdx + controllerNumber;
+				//cerr << "Vive:Controller no=" << controllerNumber << " Initial idx=" << nDevice << " Idx="<<idx<<endl;
+				++controllerNumber;
+				if (idx > lastControllerIdx)
+				{
+					cerr << "Vive:Too many controllers;number=" << controllerNumber - 1 << " idx= " << idx << endl;
+					continue;
+				}
+				break;
+			case 'H':// the HMD
+				idx = 0;
+				break;
+			default:
+				cerr << "Vive:Unsupported device class:" << m_rDevClassChar[nDevice]<<"  nDevice="<<nDevice<< endl;
+				continue;
+			}
+
+			if (idx >= m_bodyMatrices.size())
+			{
+				cerr << "Vive: idx out of range:"<<idx << endl;
+				continue;
+			}
+
+			m_bodyMatricesValid[idx] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
+			m_bodyMatrices[idx] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 		    // convert to mm
-			m_bodyMatrices[nDevice](3, 0) *= 1000;
-			m_bodyMatrices[nDevice](3, 1) *= 1000;
-			m_bodyMatrices[nDevice](3, 2) *= 1000;
-			m_bodyMatrices[nDevice] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+			m_bodyMatrices[idx](3, 0) *= 1000;
+			m_bodyMatrices[idx](3, 1) *= 1000;
+			m_bodyMatrices[idx](3, 2) *= 1000;
+			//vlad: Why do we need that?
+			//m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
 		}
 	}
-	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
-	{
-		haveTrackerOrigin = true;
-		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
-	}
+	//vlad: Why do we need that?
+	//vlad: device with index 1 is't necessarily a tracking camera
+	//if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
+	//{
+	//	haveTrackerOrigin = true;
+	//	LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
+	//}
 	m_mutex.unlock();
 }
 
