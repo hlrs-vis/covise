@@ -495,7 +495,7 @@ void HfT_osg_StateSet::setColorAndMaterial_Triangle(Vec4 Color, Material *Mat)
 
     Mat->setColorMode(Material::SPECULAR);
     Mat->setAmbient(Material::FRONT_AND_BACK, Color);
-    Mat->setDiffuse(Material::FRONT_AND_BACK, Color * 0.7);
+    Mat->setDiffuse(Material::FRONT_AND_BACK, Color * 0.7f);
     Mat->setSpecular(Material::FRONT_AND_BACK, Vec4(1.0f, 1.0f, 1.0f, 1.f));
     //mtl->setEmission(Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.f));
     Mat->setShininess(Material::FRONT_AND_BACK, 50.0f /*0.1*/);
@@ -514,7 +514,7 @@ void HfT_osg_StateSet::setColorAndMaterial(Vec4 Color, Material *Mat)
     Mat->setEmission(Material::FRONT_AND_BACK, Color);
 
     // Shininess: Lichtreflexion Werte von 0 --> 128
-    Mat->setShininess(Material::FRONT_AND_BACK, 0.1 /*64.*/);
+    Mat->setShininess(Material::FRONT_AND_BACK, 0.1f /*64.*/);
 }
 void HfT_osg_StateSet::recomputeMode(SurfMode iSurfMode)
 {

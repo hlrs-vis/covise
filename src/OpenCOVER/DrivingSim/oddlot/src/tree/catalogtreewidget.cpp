@@ -52,11 +52,11 @@
 
 // OpenScenario //
 //
-#include "schema/oscObject.h"
-#include "oscObjectBase.h"
-#include "oscMember.h"
-#include "oscMemberValue.h"
-#include "oscCatalog.h"
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/oscMemberValue.h>
+#include <OpenScenario/oscCatalog.h>
 
 #include <QWidget>
 #include <QDockWidget>
@@ -108,10 +108,10 @@ CatalogTreeWidget::init()
 		
 	// Connect with the ToolManager to send the selected signal or object //
     //
-	ToolManager *toolManager = mainWindow_->getToolManager();
-	if (toolManager)
+	toolManager_ = mainWindow_->getToolManager();
+	if (toolManager_)
 	{
-		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager_, SLOT(toolActionSlot(ToolAction *)));
 	}
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -225,9 +225,11 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 {
 //	if (oscEditor_)
 	{
-
+		oscEditor_->enableSplineEditing(false);  
 		if (selectedItems().count() > 0)
 		{
+			toolManager_->activateOSCObjectSelection(false);
+
 			const QString text = selectedItems().at(0)->text(0);
 			currentTool_ = ODD::TOS_ELEMENT;
 

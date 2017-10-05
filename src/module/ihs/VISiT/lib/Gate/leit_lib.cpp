@@ -1792,7 +1792,7 @@ int start5, int end6, int end7, int start10, int start11, int start15, double *p
          Add2Ilist(gg->bcoutvol, j*anz_elemente+start15+ase[15][1]-1+(ase[15][1]-1)*i      -1);
 
          // pressure boundary condition
-         Add2Flist(gg->bcpressval, p2[j]);
+         Add2Flist(gg->bcpressval, float(p2[j]));
 
          //fprintf(stream,"%6d %6d %6d %6d %6d %6d\n", elmark_auslauf[4*i]+j*seed+1, elmark_auslauf[4*i+1]+j*seed+1,
          //elmark_auslauf[4*i+2]+j*seed+1, elmark_auslauf[4*i+3]+j*seed+1,

@@ -85,7 +85,8 @@ static int pngreadstr(FILE *fp,
 {
     png_uint_32 width, height;
     int bit_depth, color_type, interlace_type;
-    int bytes_per_row, row;
+	int bytes_per_row;
+	png_uint_32 row;
     int gray_palette;
     unsigned char *pixels, **rows;
 

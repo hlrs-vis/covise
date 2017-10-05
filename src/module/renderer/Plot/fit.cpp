@@ -319,7 +319,7 @@ void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
     if (tmpy == NULL)
     {
         errwin("Can't calloc tmpy in runmedian");
-        cxfree(tmpx);
+        free(tmpx);
         return;
     }
     for (i = 0; i < nlen; i++)
@@ -342,8 +342,8 @@ void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
             ay[i] = (tmpy[ilen / 2] + tmpy[(ilen - 1) / 2]) * 0.5;
         }
     }
-    cxfree(tmpx);
-    cxfree(tmpy);
+    free(tmpx);
+    free(tmpy);
 }
 
 /*
@@ -825,7 +825,7 @@ void ntiles(double *x, double *y, int n, int nt, double *resx, double *resy)
     if (tmpy == NULL)
     {
         errwin("Can't calloc tmpy in percentiles");
-        cxfree(tmpx);
+        free(tmpx);
         return;
     }
     for (i = 0; i < n; i++)
@@ -841,8 +841,8 @@ void ntiles(double *x, double *y, int n, int nt, double *resx, double *resy)
         resy[j] = tmpy[(i * n) / nt];
         j++;
     }
-    cxfree(tmpx);
-    cxfree(tmpy);
+    free(tmpx);
+    free(tmpy);
 }
 
 /*

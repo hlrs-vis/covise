@@ -20,6 +20,12 @@
 // ++**********************************************************************/
 
 // this includes our own class's headers
+
+#ifdef WIN32
+#ifndef _SCL_SECURE_NO_WARNINGS
+#define _SCL_SECURE_NO_WARNINGS
+#endif
+#endif
 #include "Collect.h"
 #include <do/coDoData.h>
 #include <do/coDoGeometry.h>

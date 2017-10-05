@@ -56,7 +56,7 @@ struct tgrid *CreateTGrid(struct tube *tu)
             tg->gs[i]->rr[j][0] = dx*quadx[j];
             tg->gs[i]->rr[j][1] = dy*quady[j];
             V_Copy(tg->gs[i]->dr[j], tg->gs[i]->rr[j]);
-            V_MultScal(tg->gs[i]->dr[j], 1.0 / (float)(GetoColElems(tg, j)));
+            V_MultScal(tg->gs[i]->dr[j], 1.0f / (float)(GetoColElems(tg, j)));
 
             if (j == 1 || j == 3 || j == 5 || j == 7)
             {
@@ -81,12 +81,12 @@ struct tgrid *CreateTGrid(struct tube *tu)
             elems = GetoColElems(tg, j);
             // dr
             V_Sub(tg->gs[i]->rr[j], tg->gs[i]->rr[ind], tg->gs[i]->dr[j]);
-            V_MultScal(tg->gs[i]->dr[j], 1.0 / (float)(elems));
+            V_MultScal(tg->gs[i]->dr[j], 1.0f / (float)(elems));
             // m
             V_Sub(tg->gs[i]->rm[j], tg->gs[i]->rm[ind], tg->gs[i]->m[j]);
             // dm
             V_Copy(tg->gs[i]->dm[j], tg->gs[i]->m[j]);
-            V_MultScal(tg->gs[i]->dm[j], 1.0 / (float)(elems));
+            V_MultScal(tg->gs[i]->dm[j], 1.0f / (float)(elems));
          }
       }
 
@@ -311,7 +311,7 @@ static void MeshPointsISection(struct tgrid *tg, struct gs *gs, int quad)
 
    V_0(r0);
    V_Copy(dr0, gs->rm[quad*2]);
-   V_MultScal(dr0, 1.0 / (float)(cols-1));
+   V_MultScal(dr0, 1.0f / (float)(cols-1));
 
    V_Copy(r1, gs->rm[ind2]);
    V_Copy(dr1, gs->dm[ind1]);
@@ -321,7 +321,7 @@ static void MeshPointsISection(struct tgrid *tg, struct gs *gs, int quad)
       V_Add(r0, dr0, r0);
       V_Add(r1, dr1, r1);
       V_Sub(r1, r0, dr);
-      V_MultScal(dr, 1.0 / (float)(rows-1));
+      V_MultScal(dr, 1.0f / (float)(rows-1));
       V_Copy(P, r0);
       AddPoint(gs->p, P[0], P[1], P[2]);
       for (j = 1; j < rows; j++)
@@ -421,8 +421,8 @@ static void Trimm2Ellipse(float v[3], float a, float b, float rx, float ry)
    {
       V_0(lr);
       V_0(r);
-      sx = (v[0] < 0.0 ? -1.0 : 1.0);
-      sy = (v[1] < 0.0 ? -1.0 : 1.0);
+      sx = (v[0] < 0.0f ? -1.0f : 1.0f);
+      sy = (v[1] < 0.0f ? -1.0f : 1.0f);
       r[0] = (rx - a);
       r[1] = (ry - b);
 
@@ -441,7 +441,7 @@ static void Trimm2Ellipse(float v[3], float a, float b, float rx, float ry)
          A = m*m + (b*b)/(a*a);
          B = 2*m*d;
          C = d*d - b*b;
-         lr[0] = (-B + sqrt(B*B - 4*A*C))/(2*A);
+         lr[0] = (-B + float(sqrt(B*B - 4*A*C))/(2*A));
          lr[1] = (m * lr[0] + d) * sy;
          lr [0] *= sx;
          V_Add(lr, r, v);

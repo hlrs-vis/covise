@@ -222,7 +222,7 @@ int ComputeGrid::compute(const char *)
 coDoPoints *ComputeGrid::getSelectedPointCoordinates(const std::string &name, const coDistributedObject *input)
 {
 
-    coDoPoints *points = new coDoPoints(name, m_particleSelection.size());
+    coDoPoints *points = new coDoPoints(name, (int)m_particleSelection.size());
     float *x, *y, *z;
 
     points->getAddresses(&x, &y, &z);
@@ -231,7 +231,7 @@ coDoPoints *ComputeGrid::getSelectedPointCoordinates(const std::string &name, co
 
         for (int particle = 0; particle < m_particleSelection.size(); particle++)
         {
-            coord->getPointCoordinates(m_particleSelection[particle], &x[particle], &y[particle], &z[particle]);
+            coord->getPointCoordinates((int)m_particleSelection[particle], &x[particle], &y[particle], &z[particle]);
         }
 
     return points;

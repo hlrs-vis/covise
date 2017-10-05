@@ -114,10 +114,10 @@ static int CalcRR_Angles(struct radial *rr)
 													 rr->te->bmpar->list[i]);
 		// meridional, circumferential vel. and rotational part of absolute vel.
 		rr->be[i]->mer_vel[1] = rr->des->dis/rr->be[i]->con_area[1];
-		rr->be[i]->cir_vel[1] = rr->te->bmint->x[i] * M_PI * rr->des->revs/30.0;
+		rr->be[i]->cir_vel[1] = float(rr->te->bmint->x[i] * M_PI * rr->des->revs/30.0);
 		// outlet blade angle
-		rr->be[i]->angle[1]	 = atan( rr->be[i]->mer_vel[1] / (rr->be[i]->cir_vel[1]-rr->be[i]->rot_abs[1]) );
-		rr->be[i]->angle[1]	 = SHIFTANGLE(rr->be[i]->angle[1]);
+		rr->be[i]->angle[1]	 = float(atan( rr->be[i]->mer_vel[1] / (rr->be[i]->cir_vel[1]-rr->be[i]->rot_abs[1]) ));
+		rr->be[i]->angle[1]	 = float(SHIFTANGLE(rr->be[i]->angle[1]));
 		rr->be[i]->angle[1] -= rr->be[i]->mod_angle[1];
 
 		// now do the leading edge
@@ -128,12 +128,12 @@ static int CalcRR_Angles(struct radial *rr)
 		if(rr->des->vratio <= 0.0 || !rr->vratio_flag)
 			rr->be[i]->mer_vel[0] =
 				rr->des->dis/rr->be[i]->con_area[0];
-		rr->be[i]->cir_vel[0]	 = rr->le->bmint->x[i] * M_PI*rr->des->revs/30.0;
-		rr->be[i]->rot_abs[0]	 = (9.81*rr->des->head + rr->be[i]->cir_vel[1]*rr->be[i]->rot_abs[1]) /
+		rr->be[i]->cir_vel[0]	 = float(rr->le->bmint->x[i] * M_PI*rr->des->revs/30.0);
+		rr->be[i]->rot_abs[0]	 = (9.81f*rr->des->head + rr->be[i]->cir_vel[1]*rr->be[i]->rot_abs[1]) /
 			(rr->be[i]->cir_vel[0]);
 		// inlet blade angle
-		rr->be[i]->angle[0]	 = atan( rr->be[i]->mer_vel[0] /( rr->be[i]->cir_vel[0]-rr->be[i]->rot_abs[0]));
-		rr->be[i]->angle[0]	 = SHIFTANGLE(rr->be[i]->angle[0]);
+		rr->be[i]->angle[0]	 = float(atan( rr->be[i]->mer_vel[0] /( rr->be[i]->cir_vel[0]-rr->be[i]->rot_abs[0])));
+		rr->be[i]->angle[0]	 = float(SHIFTANGLE(rr->be[i]->angle[0]));
 		rr->be[i]->angle[0] += rr->be[i]->mod_angle[0];
 		if(rr->be[i]->angle[0] < rr->be[i]->angle[1]) err = EULER_ERR;
 
@@ -203,11 +203,11 @@ static int CalcRR_PumpAngles(struct radial *rr)
 													 rr->le->bmpar->list[i]);
 		// meridional, circumferential vel. and rotational part of absolute vel.
 		rr->be[i]->mer_vel[0] = rr->des->dis/rr->be[i]->con_area[0];
-		rr->be[i]->cir_vel[0] = rr->le->bmint->x[i] * M_PI * rr->des->revs/30.0;
+		rr->be[i]->cir_vel[0] = float(rr->le->bmint->x[i] * M_PI * rr->des->revs/30.0);
 		rr->be[i]->rot_abs[0] = 0.0; // no swirl
 		// inlet blade angle, no swirl at inlet
-		rr->be[i]->angle[0]	 = atan( rr->be[i]->mer_vel[0] / (rr->be[i]->cir_vel[0]) );
-		rr->be[i]->angle[0]	 = SHIFTANGLE(rr->be[i]->angle[0]);
+		rr->be[i]->angle[0]	 = float(atan( rr->be[i]->mer_vel[0] / (rr->be[i]->cir_vel[0]) ));
+		rr->be[i]->angle[0]	 = float(SHIFTANGLE(rr->be[i]->angle[0]));
 		rr->be[i]->angle[0] += rr->be[i]->mod_angle[0];
 
 		// trainling edge
@@ -216,12 +216,12 @@ static int CalcRR_PumpAngles(struct radial *rr)
 													   rr->te->bmpar->list[i]);
 		// meridional, circumferential vel. and rotational part of absolute vel.
 		rr->be[i]->mer_vel[1]    = rr->des->dis/rr->be[i]->con_area[1];
-		rr->be[i]->cir_vel[1]	 = rr->te->bmint->x[i] * M_PI*rr->des->revs/30.0;
-		rr->be[i]->rot_abs[1]	 = (9.81*rr->des->head + rr->be[i]->cir_vel[0]*rr->be[i]->rot_abs[0]) /
+		rr->be[i]->cir_vel[1]	 = float(rr->te->bmint->x[i] * M_PI*rr->des->revs/30.0);
+		rr->be[i]->rot_abs[1]	 = (9.81f*rr->des->head + rr->be[i]->cir_vel[0]*rr->be[i]->rot_abs[0]) /
 			(rr->be[i]->cir_vel[1]);
 		// inlet blade angle
-		rr->be[i]->angle[1]	 = atan( rr->be[i]->mer_vel[1] /( rr->be[i]->cir_vel[1]-rr->be[i]->rot_abs[1]));
-		rr->be[i]->angle[1]	 = SHIFTANGLE(rr->be[i]->angle[1]);
+		rr->be[i]->angle[1]	 = float(atan( rr->be[i]->mer_vel[1] /( rr->be[i]->cir_vel[1]-rr->be[i]->rot_abs[1])));
+		rr->be[i]->angle[1]	 = float(SHIFTANGLE(rr->be[i]->angle[1]));
 		rr->be[i]->angle[1] -= rr->be[i]->mod_angle[1];
 		if(rr->be[i]->angle[0] < rr->be[i]->angle[1]) err = EULER_ERR;
 
@@ -312,7 +312,7 @@ static float InterpolConduitArea(struct Flist *be_area, struct curve *ml,
 float CalcSpecRevs(struct design *desi)
 {
 	if( (desi->head)<= 1.e-8) return -99.99f;
-	return ( (desi -> revs * sqrt(desi -> dis)/pow((float)desi -> head, 0.75f)) );
+	return float( (desi -> revs * sqrt(desi -> dis)/pow((float)desi -> head, 0.75f)) );
 }
 
 
@@ -329,10 +329,10 @@ static int CalcRR_InletMerVel(struct radial *rr)
 #endif
 	// only proper if be_num odd!!
 	v0 = rr->des->dis/(rr->be[rr->be_num/2]->area->list[ifirst]*
-					   (1.0+(rr->des->vratio-1.0)/3.0));
+					   (1.0f+(rr->des->vratio-1.0f)/3.0f));
 	for(i = 0; i < rr->be_num; i++) {
-		rr->be[i]->mer_vel[0] = v0*((rr->des->vratio-1.0)*
-									pow(rr->be[i]->para,2)+1);
+		rr->be[i]->mer_vel[0] = v0*((rr->des->vratio-1.0f)*
+			                    float(pow(rr->be[i]->para,2))+1);
 	}
 
 	return 0;

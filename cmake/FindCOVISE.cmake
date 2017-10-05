@@ -61,8 +61,9 @@ if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "")
         message("COVISE_DESTDIR already set to ${COVISE_DESTDIR}, ignoring $COVISEDESTDIR=$ENV{COVISEDESTDIR}")
     endif()
 else()
-    if (COVISE_DESTDIR STREQUAL "")
-        message("COVISE: COVISEDESTDIR not set")
+    if ("${COVISE_DESTDIR}" STREQUAL "")
+        message("COVISE: COVISEDESTDIR not set, defaulting to COVISEDIR=${COVISEDIR}")
+        set(COVISE_DESTDIR ${COVISEDIR})
     endif()
 endif()
 
@@ -374,6 +375,7 @@ MACRO(COVISE_INSTALL_TARGET targetname)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
      RUNTIME DESTINATION ${COVISE_ARCHSUFFIX}/bin${_category_path}
+     BUNDLE DESTINATION ${COVISE_ARCHSUFFIX}/bin${_category_path}
      LIBRARY DESTINATION ${COVISE_ARCHSUFFIX}/lib
      ARCHIVE DESTINATION ${COVISE_ARCHSUFFIX}/lib
           COMPONENT modules.${category}

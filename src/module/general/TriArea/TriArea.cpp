@@ -76,14 +76,14 @@ int TriArea::compute(const char *)
 ////// workin' routines
 coDistributedObject *TriArea::tri_area(const coDistributedObject *mesh_in, float *cameraPosition, const char *out_name)
 {
-    const coDoLines *lines;
+    //const coDoLines *lines;
     const coDoPolygons *polygons;
     coDoFloat *triArea = NULL;
-    float *x, *y, *z, *TA, *NTA, *NU, *NV, *NW, *U, *V, *W, *F_Normals_U, *F_Normals_V, *F_Normals_W, *F_TA;
+    float *x, *y, *z, *TA, *U, *V, *W, *F_Normals_U, *F_Normals_V, *F_Normals_W;
     int *vl, *pl;
-    int num_n, *nl, *nli, numpoly, numlines, numcoord;
-    int n0, n1, n2, n, i;
-    float v[3][3], xn[3],yn[3],zn[3], xpr[3], x0, x1, x2, y0, y1, y2, z0, z1, z2, l[3], l2; //,ang;
+    int num_n, *nl, *nli, numpoly, numcoord;
+    int n0, n1, n2, i;
+    float v[3][3], xpr[3], l[3], l2; //,ang;
     const char *ptype = mesh_in->getType();
     if (strcmp(ptype, "POLYGN") == 0 )
     {
@@ -136,7 +136,7 @@ coDistributedObject *TriArea::tri_area(const coDistributedObject *mesh_in, float
                 if (areamode == TriangleArea)
                 {
                     xprod(v[0],v[1],xpr);
-                    l2 = 0.5 * vnorm(xpr);
+                    l2 = 0.5f * vnorm(xpr);
                 }
                 if  (areamode == RatioMinToMaxSide)
                 {
@@ -271,7 +271,7 @@ void Normalise(float *normal)
     if (len == 0.0) 
     { 
     } 
-    len = 1.0 / len; 
+    len = 1.0f / len; 
     normal[0] *= len; 
     normal[1] *= len; 
     normal[2] *= len; 

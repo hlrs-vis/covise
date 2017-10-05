@@ -201,7 +201,7 @@ void MEPortSelectionHandler::showPossiblePorts(MEDataPort *port, QGraphicsSceneC
 
             if (port->isConnectable())
             {
-                for (unsigned int i = 0; i < m_selectedPortList[HoverConnectable].count(); i++)
+                for ( int i = 0; i < m_selectedPortList[HoverConnectable].count(); i++)
                 {
                     // create string out of infos
                     MEPort *p = m_selectedPortList[HoverConnectable].at(i);
@@ -218,7 +218,7 @@ void MEPortSelectionHandler::showPossiblePorts(MEDataPort *port, QGraphicsSceneC
                 m_popupItems.sort();
 
                 // fill popup menu
-                for (unsigned int i = 0; i < m_popupItems.count(); i++)
+                for ( int i = 0; i < m_popupItems.count(); i++)
                 {
                     QAction *ac = m_portPopup->addAction(m_popupItems[i]);
                     m_portConnectionList.append(ac);

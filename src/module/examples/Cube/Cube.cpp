@@ -91,37 +91,37 @@ int Cube::compute(const char *port)
     //  .       . .
     //  0.......3
 
-    xCoords[0] = cx - 0.5 * sVal;
-    yCoords[0] = cy - 0.5 * sVal;
-    zCoords[0] = cz - 0.5 * sVal;
+    xCoords[0] = cx - 0.5f * sVal;
+    yCoords[0] = cy - 0.5f * sVal;
+    zCoords[0] = cz - 0.5f * sVal;
 
-    xCoords[1] = cx - 0.5 * sVal;
-    yCoords[1] = cy + 0.5 * sVal;
-    zCoords[1] = cz - 0.5 * sVal;
+    xCoords[1] = cx - 0.5f * sVal;
+    yCoords[1] = cy + 0.5f * sVal;
+    zCoords[1] = cz - 0.5f * sVal;
 
-    xCoords[2] = cx + 0.5 * sVal;
-    yCoords[2] = cy + 0.5 * sVal;
-    zCoords[2] = cz - 0.5 * sVal;
+    xCoords[2] = cx + 0.5f * sVal;
+    yCoords[2] = cy + 0.5f * sVal;
+    zCoords[2] = cz - 0.5f * sVal;
 
-    xCoords[3] = cx + 0.5 * sVal;
-    yCoords[3] = cy - 0.5 * sVal;
-    zCoords[3] = cz - 0.5 * sVal;
+    xCoords[3] = cx + 0.5f * sVal;
+    yCoords[3] = cy - 0.5f * sVal;
+    zCoords[3] = cz - 0.5f * sVal;
 
-    xCoords[4] = cx - 0.5 * sVal;
-    yCoords[4] = cy - 0.5 * sVal;
-    zCoords[4] = cz + 0.5 * sVal;
+    xCoords[4] = cx - 0.5f * sVal;
+    yCoords[4] = cy - 0.5f * sVal;
+    zCoords[4] = cz + 0.5f * sVal;
 
-    xCoords[5] = cx - 0.5 * sVal;
-    yCoords[5] = cy + 0.5 * sVal;
-    zCoords[5] = cz + 0.5 * sVal;
+    xCoords[5] = cx - 0.5f * sVal;
+    yCoords[5] = cy + 0.5f * sVal;
+    zCoords[5] = cz + 0.5f * sVal;
 
-    xCoords[6] = cx + 0.5 * sVal;
-    yCoords[6] = cy + 0.5 * sVal;
-    zCoords[6] = cz + 0.5 * sVal;
+    xCoords[6] = cx + 0.5f * sVal;
+    yCoords[6] = cy + 0.5f * sVal;
+    zCoords[6] = cz + 0.5f * sVal;
 
-    xCoords[7] = cx + 0.5 * sVal;
-    yCoords[7] = cy - 0.5 * sVal;
-    zCoords[7] = cz + 0.5 * sVal;
+    xCoords[7] = cx + 0.5f * sVal;
+    yCoords[7] = cy - 0.5f * sVal;
+    zCoords[7] = cz + 0.5f * sVal;
 
     // get the data object name from the controller
     polygonObjName = p_polyOut->getObjName();

@@ -30,8 +30,9 @@
 
 #include "DTrackNet.h"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 // internal socket type
 struct _ip_socket_struct
@@ -83,19 +84,42 @@ void net_exit(void)
 unsigned int ip_name2ip(const char *name)
 {
     unsigned int ip;
-    struct hostent *hent;
     // try if string contains IP address:
-    if ((ip = inet_addr(name)) != INADDR_NONE)
+	int err = inet_pton(AF_INET, name, &ip);
+    if (err==1)//success
     {
         return ntohl(ip);
     }
-    // try if string contains hostname:
-    hent = gethostbyname(name);
-    if (!hent)
-    {
-        return 0;
-    }
-    return ntohl(((struct in_addr *)hent->h_addr)->s_addr);
+
+	struct addrinfo hints, *result = NULL;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = 0; /* any type of socket */
+	hints.ai_flags = AI_ADDRCONFIG;
+	hints.ai_protocol = 0;          /* Any protocol */
+	int s = getaddrinfo(name, NULL /* service */, &hints, &result);
+	if (s != 0)
+	{
+		fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", name, gai_strerror(s));
+		return 0;
+	}
+	else
+	{
+
+		for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next)
+		{
+			if (rp->ai_family != AF_INET)
+				continue;
+
+			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
+
+			freeaddrinfo(result);           /* No longer needed */
+			return ntohl(saddr->sin_addr.s_addr);
+		}
+
+		freeaddrinfo(result);           /* No longer needed */
+	}
+	return 0;
 }
 
 // ---------------------------------------------------------------------------------------------------

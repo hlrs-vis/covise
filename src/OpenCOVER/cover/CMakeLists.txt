@@ -88,6 +88,8 @@ SET(COVER_HEADERS
   coTUIFileBrowser/IRemoteData.h
   #coVRDePee.h
   #coVRDePeePass.h
+
+  qt/QtOsgWidget.h
 )
 
 SET(COVER_SOURCES
@@ -154,13 +156,15 @@ SET(COVER_SOURCES
   coTUIFileBrowser/NetHelp.cpp
   coTUIFileBrowser/VRBData.cpp
   coShutDownHandler.cpp
-  PluginMenu.cpp
   coTranslator.cpp
+  PluginMenu.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
   tridelity.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
+
+  qt/QtOsgWidget.cpp
 )
 
 SET(MUI_SOURCES
@@ -199,6 +203,45 @@ SET(MUI_SUPPORT_HEADERS
   mui/support/EventListener.h
 )
 
+SET(UI_HEADERS
+    ui/Export.h
+    ui/Action.h
+    ui/Button.h
+    ui/Container.h
+    ui/Element.h
+    ui/Group.h
+    ui/Label.h
+    ui/Manager.h
+    ui/Menu.h
+    ui/Owner.h
+    ui/ButtonGroup.h
+    ui/SelectionList.h
+    ui/ShortcutListener.h
+    ui/Slider.h
+    ui/View.h
+    ui/QtView.h
+    ui/VruiView.h
+)
+
+SET(UI_SOURCES
+    ui/Action.cpp
+    ui/Button.cpp
+    ui/Container.cpp
+    ui/Element.cpp
+    ui/Group.cpp
+    ui/Label.cpp
+    ui/Manager.cpp
+    ui/Menu.cpp
+    ui/Owner.cpp
+    ui/ButtonGroup.cpp
+    ui/SelectionList.cpp
+    ui/ShortcutListener.cpp
+    ui/Slider.cpp
+    ui/View.cpp
+    ui/QtView.cpp
+    ui/VruiView.cpp
+)
+
 SET(DEVICE_SOURCES
    input/input.cpp
    input/inputdevice.cpp
@@ -233,6 +276,8 @@ ENDIF(HAVE_NORM)
 
 SET(COVER_MOCS
   coTabletUI.h
+  qt/QtOsgWidget.h
+  ui/QtView.h
 )
 
 SET(TMP_COVER_MOCS )
@@ -243,8 +288,8 @@ SET(COVER_MOCS ${TMP_COVER_MOCS})
 
 QT_WRAP_CPP(MOCS ${COVER_MOCS})
 
-SET(ALL_HEADERS ${COVER_HEADERS} ${MUI_HEADERS} ${MUI_SUPPORT_HEADERS} ${DEVICE_HEADERS})
-SET(ALL_SOURCES ${COVER_SOURCES} ${MUI_SOURCES} ${DEVICE_SOURCES})
+SET(ALL_HEADERS ${COVER_HEADERS} ${MUI_HEADERS} ${MUI_SUPPORT_HEADERS} ${DEVICE_HEADERS} ${UI_HEADERS})
+SET(ALL_SOURCES ${COVER_SOURCES} ${MUI_SOURCES} ${DEVICE_SOURCES} ${UI_SOURCES})
 
 ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_SOURCES} ${MOCS})
 
@@ -276,9 +321,9 @@ IF(WIN32)
   set(EXTRA_LIBS ${EXTRA_LIBS} ws2_32.lib)
 ENDIF(WIN32)
 
-COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara)
+COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} vtrans coOpenVRUI coOSGVRUI
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(${COVERKERNEL_TARGET})
@@ -286,4 +331,4 @@ COVISE_INSTALL_HEADERS(cover ${COVER_HEADERS} ${COVER_MOCS})
 COVISE_INSTALL_HEADERS(cover/mui ${MUI_HEADERS})
 COVISE_INSTALL_HEADERS(cover/mui/support ${MUI_SUPPORT_HEADERS})
 COVISE_INSTALL_HEADERS(cover/input ${DEVICE_HEADERS})
-qt_use_modules(${COVERKERNEL_TARGET} Core Network)
+qt_use_modules(${COVERKERNEL_TARGET} Core Network OpenGL Widgets)

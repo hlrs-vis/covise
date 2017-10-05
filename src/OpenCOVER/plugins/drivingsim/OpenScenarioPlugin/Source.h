@@ -6,7 +6,7 @@ using namespace std;
 #include<iostream>
 #include<string>
 #include <list>
-#include <DrivingSim/OpenScenario/schema/oscSource.h>
+#include <OpenScenario/schema/oscSource.h>
 
 class Source : public OpenScenario::oscSource
 {

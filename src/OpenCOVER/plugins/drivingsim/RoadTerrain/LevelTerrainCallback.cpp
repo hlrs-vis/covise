@@ -8,7 +8,7 @@
 #include "LevelTerrainCallback.h"
 
 #include <cover/coVRFileManager.h>
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 #include <iostream>
 #include <sstream>

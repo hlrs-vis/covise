@@ -94,25 +94,31 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FtdRL = -initialVSuspZRL * carState.dtRL;
 	*/
 	
-	double FssFL = (inPosState.vSuspZFL)* carState.csFL + carState.FsFL;
+	double FssFL = (inPosState.vSuspZFL + carState.suspOffsetFL) * carState.csFL + carState.FsFL;
 	double FsdFL = (initialVSuspZFL/* - initialVZ + sin(initialVPitch) * carState.lFront - sin(initialVRoll) * carState.sFrontH*/) * carState.dsFL;
 	double FtsFL = -(carState.localZPosTireFL) * carState.ctFL/* + (carState.localZPosTireFL) * (carState.localZPosTireFL) * carState.ctFL + carState.FtFL*/;
 	double FtdFL = -carState.tireDefSpeedFL * carState.dtFL;
 	
-	double FssFR = (inPosState.vSuspZFR)* carState.csFR + carState.FsFR;
+	double FssFR = (inPosState.vSuspZFR + carState.suspOffsetFR) * carState.csFR + carState.FsFR;
 	double FsdFR = (initialVSuspZFR/* - initialVZ + sin(initialVPitch) * carState.lFront + sin(initialVRoll) * carState.sFrontH*/) * carState.dsFR;
 	double FtsFR = -(carState.localZPosTireFR) * carState.ctFR/* + (carState.localZPosTireFR) * (carState.localZPosTireFR) * carState.ctFR + carState.FtFR*/;
 	double FtdFR = -carState.tireDefSpeedFR * carState.dtFR;
 	
-	double FssRR = (inPosState.vSuspZRR)* carState.csRR + carState.FsRR;
+	double FssRR = (inPosState.vSuspZRR + carState.suspOffsetRR) * carState.csRR + carState.FsRR;
 	double FsdRR = (initialVSuspZRR/* - initialVZ - sin(initialVPitch) * carState.lRear + sin(initialVRoll) * carState.sRearH*/) * carState.dsRR;
 	double FtsRR = -(carState.localZPosTireRR) * carState.ctRR/* + (carState.localZPosTireRR) * (carState.localZPosTireRR) * carState.ctRR + carState.FtRR*/;
 	double FtdRR = -carState.tireDefSpeedRR * carState.dtRR;
 	
-	double FssRL = (inPosState.vSuspZRL)* carState.csRL + carState.FsRL;
+	double FssRL = (inPosState.vSuspZRL + carState.suspOffsetRL) * carState.csRL + carState.FsRL;
 	double FsdRL = (initialVSuspZRL/* - initialVZ - sin(initialVPitch) * carState.lRear - sin(initialVRoll) * carState.sRearH*/) * carState.dsRL;
 	double FtsRL = -(carState.localZPosTireRL) * carState.ctRL/* + (carState.localZPosTireRL) * (carState.localZPosTireRL) * carState.ctRL + carState.FtRL*/;
 	double FtdRL = -carState.tireDefSpeedRL * carState.dtRL;
+	
+	//anti roll bars
+	double arbDiffF = inPosState.vSuspZFL - inPosState.vSuspZFR;
+	double arbForceStaticF = arbDiffF * carState.arbStiffnessF;
+	double arbDiffR = inPosState.vSuspZRL - inPosState.vSuspZRR;
+	double arbForceStaticR = arbDiffR * carState.arbStiffnessR;
 	
 	if(FtsFL < 0)
 	{
@@ -187,10 +193,6 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	
 	
 	//bore radius
-	//double RPFL = 0.25 * (LFL + carState.B);
-	//double RPFR = 0.25 * (LFR + carState.B);
-	//double RPRR = 0.25 * (LRR + carState.B);
-	//double RPRL = 0.25 * (LRL + carState.B);
 	double RBFL = 0.25 * (LFL + carState.B) * 2 / 3;
 	double RBFR = 0.25 * (LFR + carState.B) * 2 / 3;
 	double RBRR = 0.25 * (LRR + carState.B) * 2 / 3;
@@ -357,11 +359,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double sGRR = sqrt((sxGRR * cosPhiRR / sxRoofRR) * (sxGRR * cosPhiRR / sxRoofRR) + (syGRR * sinPhiRR / syRoofRR) * (syGRR * sinPhiRR / syRoofRR));
 	double sGRL = sqrt((sxGRL * cosPhiRL / sxRoofRL) * (sxGRL * cosPhiRL / sxRoofRL) + (syGRL * sinPhiRL / syRoofRL) * (syGRL * sinPhiRL / syRoofRL));
 	
-	//bore torque; TODO advanced bore torque model for parking (in lecture notes)
-	/*double TBFL = RBFL * dF0FL * sBFL * 9 / 8;
-	double TBFR = RBFR * dF0FR * sBFR * 9 / 8;
-	double TBRR = RBRR * dF0RR * sBRR * 9 / 8;
-	double TBRL = RBRL * dF0RL * sBRL * 9 / 8;*/
+	//bore torque;
 	double RBFL1 = 0.9 * RBFL;
 	double RBFL2 = RBFL;
 	double RBFL3 = 1.1 * RBFL;
@@ -694,68 +692,116 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double TBDRL3 = TBstRL3 + dPhiRL3 * phiADotRL3;
 	
 	double phiDotFL1 = 0;
-	if (std::abs(TBDFL1) < TBmaxFL1)
+	if(!isnan(TBDFL1))
+	{
+		phiDotFL1 = phiADotFL1 * (tanh(((TBmaxFL1 / std::abs(TBDFL1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFL1) < TBmaxFL1)
 	{
 		phiDotFL1 = phiADotFL1;
-	}
+	}*/
 	double phiDotFL2 = 0;
-	if (std::abs(TBDFL2) < TBmaxFL2)
+	if(!isnan(TBDFL2))
+	{
+		phiDotFL2 = phiADotFL2 * (tanh(((TBmaxFL2 / std::abs(TBDFL2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFL2) < TBmaxFL2)
 	{
 		phiDotFL2 = phiADotFL2;
-	}
+	}*/
 	double phiDotFL3 = 0;
-	if (std::abs(TBDFL3) < TBmaxFL3)
+	if(!isnan(TBDFL3))
+	{
+		phiDotFL3 = phiADotFL3 * (tanh(((TBmaxFL3 / std::abs(TBDFL3)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFL3) < TBmaxFL3)
 	{
 		phiDotFL3 = phiADotFL3;
-	}
+	}*/
 	
 	double phiDotFR1 = 0;
-	if (std::abs(TBDFR1) < TBmaxFR1)
+	if(!isnan(TBDFR1))
+	{
+		phiDotFR1 = phiADotFR1 * (tanh(((TBmaxFR1 / std::abs(TBDFR1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFR1) < TBmaxFR1)
 	{
 		phiDotFR1 = phiADotFR1;
-	}
+	}*/
 	double phiDotFR2 = 0;
-	if (std::abs(TBDFR2) < TBmaxFR2)
+	if(!isnan(TBDFR2))
+	{
+		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFR2) < TBmaxFR2)
 	{
 		phiDotFR2 = phiADotFR2;
-	}
+	}*/
 	double phiDotFR3 = 0;
-	if (std::abs(TBDFR3) < TBmaxFR3)
+	if(!isnan(TBDFR3))
+	{
+		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDFR3) < TBmaxFR3)
 	{
 		phiDotFR3 = phiADotFR3;
-	}
+	}*/
 	
 	double phiDotRR1 = 0;
-	if (std::abs(TBDRR1) < TBmaxRR1)
+	if(!isnan(TBDRR1))
+	{
+		phiDotRR1 = phiADotRR1 * (tanh(((TBmaxRR1 / std::abs(TBDRR1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRR1) < TBmaxRR1)
 	{
 		phiDotRR1 = phiADotRR1;
-	}
+	}*/
 	double phiDotRR2 = 0;
-	if (std::abs(TBDRR2) < TBmaxRR2)
+	if(!isnan(TBDRR2))
+	{
+		phiDotRR2 = phiADotRR2 * (tanh(((TBmaxRR2 / std::abs(TBDRR2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRR2) < TBmaxRR2)
 	{
 		phiDotRR2 = phiADotRR2;
-	}
+	}*/
 	double phiDotRR3 = 0;
-	if (std::abs(TBDRR3) < TBmaxRR3)
+	if(!isnan(TBDRR3))
+	{
+		phiDotRR3 = phiADotRR3 * (tanh(((TBmaxRR3 / std::abs(TBDRR3)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRR3) < TBmaxRR3)
 	{
 		phiDotRR3 = phiADotRR3;
-	}
+	}*/
 	
 	double phiDotRL1 = 0;
-	if (std::abs(TBDRL1) < TBmaxRL1)
+	if(!isnan(TBDRL1))
+	{
+		phiDotRL1 = phiADotRL1 * (tanh(((TBmaxRL1 / std::abs(TBDRL1)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRL1) < TBmaxRL1)
 	{
 		phiDotRL1 = phiADotRL1;
-	}
+	}*/
 	double phiDotRL2 = 0;
-	if (std::abs(TBDRL2) < TBmaxRL2)
+	if(!isnan(TBDRL2))
+	{
+		phiDotRL2 = phiADotRL2 * (tanh(((TBmaxRL2 / std::abs(TBDRL2)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRL2) < TBmaxRL2)
 	{
 		phiDotRL2 = phiADotRL2;
-	}
+	}*/
 	double phiDotRL3 = 0;
-	if (std::abs(TBDRL3) < TBmaxRL3)
+	if(!isnan(TBDRL3))
+	{
+		phiDotRL3 = phiADotRL3 * (tanh(((TBmaxRL3 / std::abs(TBDRL3)) - 1) * 50) + 1) / 2;
+	}
+	/*if (std::abs(TBDRL3) < TBmaxRL3)
 	{
 		phiDotRL3 = phiADotRL3;
-	}
+	}*/
 	
 		
 	//combined forces
@@ -824,11 +870,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syFL) / carState.sy0;
-		nFL = LFL * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nFL = LFL * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6; //should be (1 - (3 ...
 	} else if (std::abs(syFL) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nFL = LFL * -(1 - we) * (std::abs(syFL) - carState.sy0) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0));
+		nFL = LFL * -1 * (1 - we) * (std::abs(syFL) - carState.sy0) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFL))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nFL = 0;
@@ -838,11 +884,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syFR) / carState.sy0;
-		nFR = LFR * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nFR = LFR * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6;
 	} else if (std::abs(syFR) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nFR = LFR * -(1 - we) * (std::abs(syFR) - carState.sy0) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0));
+		nFR = LFR * -1 * (1 - we) * (std::abs(syFR) - carState.sy0) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syFR))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nFR = 0;
@@ -852,11 +898,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syRR) / carState.sy0;
-		nRR = LRR * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nRR = LRR * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6;
 	} else if (std::abs(syRR) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nRR = LRR * -(1 - we) * (std::abs(syRR) - carState.sy0) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0));
+		nRR = LRR * -1 * (1 - we) * (std::abs(syRR) - carState.sy0) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRR))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nRR = 0;
@@ -866,11 +912,11 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		double we = carState.sy0 / carState.syS;
 		double se = std::abs(syRL) / carState.sy0;
-		nRL = LRL * ((1 - we) * (1 - se) + we * (1 * (3 - 2 * se) * se * se));
+		nRL = LRL * ((1 - we) * (1 - se) + we * (1 - (3 - 2 * se) * se * se)) * 0.6;
 	} else if (std::abs(syRL) <= carState.syS)
 	{
 		double we = carState.sy0 / carState.syS;
-		nRL = LRL * -(1 - we) * (std::abs(syRL) - carState.sy0) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0));
+		nRL = LRL * -1 * (1 - we) * (std::abs(syRL) - carState.sy0) / carState.sy0 * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0)) * ((carState.syS - std::abs(syRL))/(carState.syS - carState.sy0));
 	} else 
 	{
 		nRL = 0;
@@ -886,14 +932,14 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		TsFL = nFL * FyFL;
 	} else
 	{
-		TsFL = -nFL * FyFL;
+		TsFL = nFL * FyFL;
 	}
 	if(vXWFR >= 0)
 	{
 		TsFR = nFR * FyFR;
 	} else
 	{
-		TsFR = -nFR * FyFR;
+		TsFR = nFR * FyFR;
 	}
 	if(vXWRR >= 0)
 	{
@@ -917,24 +963,6 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FgravXRR = sin(carState.roadAngleRR) * carState.mTotal / 4.0;//FweightedRR;
 	double FgravXRL = sin(carState.roadAngleRL) * carState.mTotal / 4.0;//FweightedRL;
 	
-	//steering
-	/*double vWheelDiff = initialOmegaZFL - initialOmegaZFR;
-	double vWheelCombined = (initialOmegaZFL + initialOmegaZFR) / 2;
-	
-	double TcolumnS = carState.cRack * (carState.posSteeringWheel * carState.steeringRatio - carState.posWheelCombined);
-	double TcolumnD = carState.dRack * (carState.vSteeringWheel - vWheelCombined);
-	double TrackS = carState.cInt * carState.deltaWheel;
-	double TrackD = carState.dInt * vWheelDiff;*/
-	
-	
-	//temp stuff
-	double Facc = 0;//carState.acceleratorAngle * 3000;
-	double Fsteering = 0;//carState.posSteeringWheel * 30 * tanh(initialVX);
-	double Fbrake = 0;//0.1 * carState.brakeForce * tanh(initialVX);
-	double FresX = 0;//100 * tanh(initialVX);
-	double FresY = 0;//10 * tanh(initialVY);
-	double FresRotZ = 0;//10 * tanh(initialVYaw);
-	
 	//tire forces in car coordinates
 	double FxFLCC = cosWAngleFL * FxFL + sinWAngleFL * FyFL;
 	double FyFLCC = -sinWAngleFL * FxFL + cosWAngleFL * FyFL;
@@ -945,32 +973,12 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FxRLCC = cosWAngleRL * FxRL + sinWAngleRL * FyRL;
 	double FyRLCC = -sinWAngleRL * FxRL + cosWAngleRL * FyRL;
 	
-	/* old drive train
-	double TdriveFL = 0;
-	double TdriveFR = 0;
-	double TdriveRR	= 0;
-	double TdriveRL = 0;
-	if (carState.gear > 0)
-	{
-		TdriveRR = 10 * engineTorque / 2;
-		TdriveRL = 10 * engineTorque / 2;
-	} 
-	else if (carState.gear < 0)
-	{
-		TdriveRR = -10 * engineTorque / 2;
-		TdriveRL = -10 * engineTorque / 2;
-	}*/
-
 	//brake
 	double TbrakeMaxFL = carState.brakeForce / 4;
 	double TbrakeMaxFR = carState.brakeForce / 4;
 	double TbrakeMaxRR = carState.brakeForce / 4;
 	double TbrakeMaxRL = carState.brakeForce / 4;
 	
-	//double TbrakeFL = -0.1 * carState.brakeForce * tanh(initialOmegaYFL) / 4;
-	//double TbrakeFR = -0.1 * carState.brakeForce * tanh(initialOmegaYFL) / 4;
-	//double TbrakeRR = -0.1 * carState.brakeForce * tanh(initialOmegaYFL) / 4;
-	//double TbrakeRL = -0.1 * carState.brakeForce * tanh(initialOmegaYFL) / 4;
 	double TbrakeFL = std::abs(initialOmegaYFL) * carState.bRate + carState.Tstat;
 	double TbrakeFR = std::abs(initialOmegaYFR) * carState.bRate + carState.Tstat;
 	double TbrakeRR = std::abs(initialOmegaYRR) * carState.bRate + carState.Tstat;
@@ -1021,11 +1029,6 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		TbrakeRL = -TbrakeRL;//* std::pow(tanh(initialOmegaYRL),0.01);
 	}
-	
-	/*TbrakeFL = -TbrakeFL * tanh(initialOmegaYFL);
-	TbrakeFR = -TbrakeFR * tanh(initialOmegaYFR);
-	TbrakeRR = -TbrakeRR * tanh(initialOmegaYRR);
-	TbrakeRL = -TbrakeRL * tanh(initialOmegaYRL);*/
 	
 	//drive train
 	double averageWheelSpeed = (initialOmegaYRL + initialOmegaYRR) / 2;
@@ -1099,13 +1102,13 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double MYtires = -(FxFLCC + FxFRCC + FxRRCC + FxRLCC) * carState.cogH;
 	double MY = (FssRR + FsdRR + FssRL + FsdRL) * carState.lRear - (FssFL + FsdFL + FssFR + FsdFR) * carState.lFront + MYtires;
 	double MZtires = FyFLCC * carState.lFront + FyFRCC * carState.lFront - FyRRCC * carState.lRear - FyRLCC * carState.lRear - FxFLCC * carState.sFrontH + FxFRCC * carState.sFrontH + FxRRCC * carState.sRearH - FxRLCC * carState.sRearH;
-	double MZ = Fsteering * carState.lFront - FresRotZ + MZtires;
+	double MZ = MZtires;
 	
 	//Forces on suspension
-	double FsuspZFL = -FssFL - FsdFL + FtsFL + FtdFL - carState.aGrav * carState.mSusFL;
-	double FsuspZFR = -FssFR - FsdFR + FtsFR + FtdFR - carState.aGrav * carState.mSusFR;
-	double FsuspZRR = -FssRR - FsdRR + FtsRR + FtdRR - carState.aGrav * carState.mSusRR;
-	double FsuspZRL = -FssRL - FsdRL + FtsRL + FtdRL - carState.aGrav * carState.mSusRL;
+	double FsuspZFL = -FssFL - FsdFL + FtsFL + FtdFL - arbForceStaticF - carState.aGrav * carState.mSusFL;
+	double FsuspZFR = -FssFR - FsdFR + FtsFR + FtdFR + arbForceStaticF - carState.aGrav * carState.mSusFR;
+	double FsuspZRR = -FssRR - FsdRR + FtsRR + FtdRR - arbForceStaticR - carState.aGrav * carState.mSusRR;
+	double FsuspZRL = -FssRL - FsdRL + FtsRL + FtdRL + arbForceStaticR - carState.aGrav * carState.mSusRL;
 	
 	//Forces on wheels
 	//double MWheelZFL = /*TsFL - TBFL*/ + TrackS - TrackD + TcolumnS + TcolumnD; //TODO removed bore torque
@@ -1143,37 +1146,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	{
 		aWheelYRL == 0;
 	}
-	
-	
-	//double aWheelZFL = MWheelZFL / carState.inertiaWheelZ;
-	//double aWheelZFR = MWheelZFR / carState.inertiaWheelZ;
-	
-	//testestestetetestesetstst
-	/*double c = 50000;
-	double d = 20000;
-	double RB = 0.062417;
-	double dF0 = 14000;
-	double rD = 0.295;
-	double FG = 3200;
-	
-	double cPhi = c * RB * RB;
-	double dPhi = d * RB * RB;
-	
-	double RB2 = RB;
-	double TBmax2 = RB2 * FG;
-	double TBst2 = cPhi * carState.phiFL2;
-	if (abs(TBst2) > TBmax2)
-	{
-		TBst2 = TBst2 * std::abs(TBmax2 / TBst2);
-	}
-	double phiADot2 = -(dF0 * RB2 * RB2 * initialOmegaZFL + rD * std::abs(initialOmegaYFL) * TBst2) / (dF0 * RB2 * RB2 + rD * std::abs(initialOmegaYFL) * dPhi);
-	double TBD2 = TBst2 + dPhi * phiADot2;
-	double phiDot2 = 0;
-	if (abs(TBD2) < TBmax2 )
-	{
-		phiDot2 = phiADot2;
-	}*/
-  
+
 	FWDState outputAccelerationState;
 	//output body speeds
 	outputAccelerationState.vX = axBody;

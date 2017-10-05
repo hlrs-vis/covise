@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #endif
+#include <util/unixcompat.h>
 
 #include <gpu/cudaglinterop.h>
 
@@ -81,6 +82,8 @@
 
 #include <input/input.h>
 #include <input/coMousePointer.h>
+
+#include "ui/VruiView.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -173,6 +176,7 @@ OpenCOVER::OpenCOVER()
 #ifdef HAS_MPI
     , m_comm(MPI_COMM_WORLD)
 #endif
+    , m_renderNext(true)
 {
     initCudaGlInterop();
 
@@ -188,6 +192,7 @@ OpenCOVER::OpenCOVER(const MPI_Comm *comm)
     : m_visPlugin(NULL)
     , m_forceMpi(true)
     , m_comm(*comm)
+    , m_renderNext(true)
 {
     initCudaGlInterop();
 
@@ -207,6 +212,7 @@ OpenCOVER::OpenCOVER(HWND pw)
 #ifdef HAS_MPI
     , m_comm(MPI_COMM_WORLD)
 #endif
+    , m_renderNext(true)
 {
     initCudaGlInterop();
     parentWindow = pw;
@@ -218,6 +224,7 @@ OpenCOVER::OpenCOVER(int pw)
 #ifdef HAS_MPI
     , m_comm(MPI_COMM_WORLD)
 #endif
+    , m_renderNext(true)
 {
     initCudaGlInterop();
 
@@ -243,6 +250,10 @@ void OpenCOVER::waitForWindowID()
             //sleep(5); // we have to wait, window is in creation
             validWindowID = true;
         }
+        else
+        {
+            usleep(10000);
+        }
     }
 }
 
@@ -252,8 +263,18 @@ bool OpenCOVER::run()
 
     if (init())
     {
+        if (!coVRConfig::instance()->continuousRendering())
+        {
+            if (dl >= 1)
+            {
+                fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
+            }
+            VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+        }
+
         if (dl >= 2)
             fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
+
         loop();
 
         doneRendering();
@@ -274,6 +295,9 @@ bool OpenCOVER::run()
 
 bool OpenCOVER::init()
 {
+    if (m_initialized)
+        return true;
+
     installSignalHandlers();
 
 #ifdef _WIN32
@@ -372,6 +396,13 @@ bool OpenCOVER::init()
 
     frameNum = 0;
 
+    bool useVirtualGL = false;
+    if (getenv("VGL_ISACTIVE"))
+    {
+        useVirtualGL = true;
+    }
+    coVRConfig::instance()->m_useVirtualGL = useVirtualGL;
+
 #ifdef HAS_MPI
     if (m_forceMpi)
     {
@@ -392,16 +423,24 @@ bool OpenCOVER::init()
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
 
 #ifdef _OPENMP
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
-    if (openmpThreads == "auto")
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
+    if (openmpThreads == "default")
+    {
+    }
+    else if (openmpThreads == "auto")
     {
         switch (omp_get_num_procs())
         {
         case 1:
             omp_set_num_threads(1);
             break;
-        default:
+        case 2:
+        case 3:
             omp_set_num_threads(2);
+            break;
+        default:
+            omp_set_num_threads(4);
+            break;
         }
     }
     else if (openmpThreads == "off")
@@ -418,22 +457,17 @@ bool OpenCOVER::init()
 
 #ifndef _WIN32
     bool useDISPLAY = coCoviseConfig::isOn("COVER.HonourDisplay", false);
-#ifdef __linux__
-    if (getenv("LD_PRELOAD"))
+    if (useVirtualGL)
     {
-        if (strstr(getenv("LD_PRELOAD"), "faker.so"))
-        {
-            useDISPLAY = true;
-            cerr << "Apparently running with VirtualGL, using DISPLAY environment variable" << endl;
-        }
+        useDISPLAY = true;
+        cerr << "Apparently running with VirtualGL, using DISPLAY environment variable" << endl;
     }
-#endif
 
     int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
     if (useDISPLAY && getenv("DISPLAY") == NULL)
     {
         useDISPLAY = false;
-        cerr << "DISPLAY not set" << endl;
+        cerr << "DISPLAY not set, defaulting to DISPLAY=:0" << endl;
     }
     else if (useDISPLAY)
     {
@@ -458,6 +492,11 @@ bool OpenCOVER::init()
             {
                 fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
             }
+            putenv(envDisplay);
+        }
+        else if (!getenv("DISPLAY"))
+        {
+            strcpy(envDisplay, "DISPLAY=:0");
             putenv(envDisplay);
         }
     }
@@ -510,9 +549,10 @@ bool OpenCOVER::init()
     readConfigFile();
 
     cover->updateTime();
-    coVRMSController::instance()->syncTime();
 
     coVRPluginList::instance();
+
+	coVRPluginList::instance()->loadDefault();
 	Input::instance()->init();
     coVRTui::instance();
 
@@ -587,8 +627,9 @@ bool OpenCOVER::init()
             }
         }
     }
-
+    
     hud = coHud::instance();
+
 
     bool haveWindows = VRWindow::instance()->config();
     if (coVRMSController::instance()->isMaster())
@@ -649,6 +690,7 @@ bool OpenCOVER::init()
     // setup Pinboard
     VRPinboard::instance();
     VRPinboard::instance()->configInteraction();
+    cover->ui->addView(new ui::VruiView);
     coVRLighting::instance()->initMenu();
 
     hud->setText2("loading plugin");
@@ -700,7 +742,6 @@ bool OpenCOVER::init()
     frameNum++;
 
     cover->updateTime();
-    coVRMSController::instance()->syncTime();
     if (cover->debugLevel(2))
         cerr << "doneSync" << endl;
 
@@ -725,6 +766,7 @@ bool OpenCOVER::init()
     
     coVRPluginList::instance()->init2();
 
+    m_initialized = true;
     return true;
 }
 
@@ -733,9 +775,33 @@ bool OpenCOVER::initDone()
     return (frameNum > 1);
 }
 
+class CheckVisitor: public osg::NodeVisitor 
+{
+ public:
+   CheckVisitor()
+       : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
+
+   void apply(osg::Group &group)
+   {
+       if (group.getNumChildrenRequiringUpdateTraversal() > 0) {
+           std::cerr << group.getName() << ": " << group.getNumChildrenRequiringUpdateTraversal() << std::endl;
+       }
+       traverse(group);
+   }
+
+   void apply(osg::Node &node)
+   {
+       if (!node.getName().empty() || node.getUpdateCallback()) {
+           std::cerr << node.getName() << ": " << (node.getUpdateCallback()?"U":".") << std::endl;
+       }
+       traverse(node);
+   }
+};
+
 void OpenCOVER::loop()
 {
-    while (!exitFlag && !VRViewer::instance()->done())
+    bool renderRequired = true;
+    while (!exitFlag)
     {
         if(VRViewer::instance()->done())
             exitFlag = true;
@@ -849,6 +915,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 }
             }
 
+            cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
             coVRAnimationManager::instance()->keyEvent(type, code, state);
@@ -860,6 +927,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
     {
         if (!cover->isKeyboardGrabbed())
         {
+            cover->ui->keyEvent(type, code, state);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
             coVRAnimationManager::instance()->keyEvent(type, code, state);
@@ -880,22 +948,27 @@ void OpenCOVER::handleEvents(int type, int state, int code)
     }
 }
 
-void OpenCOVER::frame()
+bool OpenCOVER::frame()
 {
     // NO MODIFICATION OF SCENEGRAPH DATA PRIOR TO THIS POINT
     //=========================================================
     //cerr << "-- OpenCOVER::frame" << endl;
 
-    cover->updateTime();
-    if (frameNum > 2)
-    {
-        coVRPluginList::instance()->prepareFrame();
-    }
-    coVRMSController::instance()->syncTime();
+    bool render = false;
 
     //MARK0("COVER reading input devices");
 
-    VRViewer::instance()->handleEvents(); // handle e.g. mouse events
+    cover->updateTime();
+    
+    if (cover->ui->update())
+        render = true;
+
+    if (VRViewer::instance()->handleEvents())
+    {
+        // handle e.g. mouse events
+        render = true;
+        m_renderNext = true;
+    }
     Input::instance()->update(); //update all hardware devices
 
     // wait for all cull and draw threads to complete.
@@ -905,7 +978,10 @@ void OpenCOVER::frame()
     // update window size
     VRWindow::instance()->update();
 
-    coVRAnimationManager::instance()->update();
+    if (coVRAnimationManager::instance()->update())
+    {
+        render = true;
+    }
     // update transformations node according to interaction
     coVRNavigationManager::instance()->update();
     VRSceneGraph::instance()->update();
@@ -913,8 +989,73 @@ void OpenCOVER::frame()
 
     // update viewer position and channels
     if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+    {
+        render = true;
         VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
-    VRViewer::instance()->update();
+    }
+    if (VRViewer::instance()->update())
+    {
+        render = true;
+    }
+
+    // copy matrices to plugin support class
+    // pointer ray intersection test
+    // update update manager =:-|
+    cover->update();
+
+    //Remote AR update (send picture if required)
+    if (ARToolKit::instance()->remoteAR)
+        ARToolKit::instance()->remoteAR->update();
+
+    if (interactionManager.update())
+    {
+        render = true;
+    }
+
+
+    if (frameNum > 2)
+    {
+        if (coVRPluginList::instance()->update())
+            render = true;
+    }
+    else
+    {
+        render = true;
+    }
+    
+    if (!render)
+    {
+        if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)
+        {
+            if (!VRViewer::instance()->checkNeedToDoFrame())
+            {
+                if (!m_renderNext)
+                {
+                    usleep(10000);
+                    return false;
+                }
+                m_renderNext = false;
+            }
+        }
+    }
+
+    if (frameNum > 2)
+    {
+        double beginTime = VRViewer::instance()->elapsedTime();
+
+        // call preFrame for all plugins
+        coVRPluginList::instance()->preFrame();
+
+        if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("plugin"))
+        {
+            int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
+            double endTime = VRViewer::instance()->elapsedTime();
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
+        }
+    }
+    ARToolKit::instance()->update();
 
     // print frame rate
     fl_time = cover->frameRealTime();
@@ -943,36 +1084,6 @@ void OpenCOVER::frame()
     }
     old_fl_time = fl_time;
 
-    // copy matrices to plugin support class
-    // pointer ray intersection test
-    // update update manager =:-|
-    cover->update();
-
-    //Remote AR update (send picture if required)
-    if (ARToolKit::instance()->remoteAR)
-        ARToolKit::instance()->remoteAR->update();
-
-    interactionManager.update();
-
-    if (frameNum > 2)
-    {
-        double beginTime = VRViewer::instance()->elapsedTime();
-
-        // call preFrame for all plugins
-        coVRPluginList::instance()->preFrame();
-
-        if (VRViewer::instance()->getStats() && VRViewer::instance()->getStats()->collectStats("plugin"))
-        {
-            int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
-            double endTime = VRViewer::instance()->elapsedTime();
-            VRViewer::instance()->getStats()->setAttribute(fn, "Plugin begin time", beginTime);
-            VRViewer::instance()->getStats()->setAttribute(fn, "Plugin end time", endTime);
-            VRViewer::instance()->getStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
-        }
-    }
-
-    ARToolKit::instance()->update();
-
     coVRMSController::instance()->syncApp(frameNum++);
 
     // NO MODIFICATION OF SCENEGRAPH DATA AFTER THIS POINT
@@ -988,13 +1099,13 @@ void OpenCOVER::frame()
 
     coVRMSController::instance()->syncVRBMessages();
 
-    if (VRViewer::instance()->getStats() && VRViewer::instance()->getStats()->collectStats("opencover"))
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
     {
         int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
         endAppTraversal = VRViewer::instance()->elapsedTime();
-        VRViewer::instance()->getStats()->setAttribute(fn, "opencover begin time", beginAppTraversal);
-        VRViewer::instance()->getStats()->setAttribute(fn, "opencover end time", endAppTraversal);
-        VRViewer::instance()->getStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover begin time", beginAppTraversal);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover end time", endAppTraversal);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
     coVRShaderList::instance()->update();
@@ -1006,6 +1117,7 @@ void OpenCOVER::frame()
     hud->update();
 
     //cerr << "OpenCOVER::frame EMD " << frameCount << endl;
+    return render;
 }
 
 void OpenCOVER::doneRendering()
@@ -1018,11 +1130,11 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
+
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\ndelete OpenCOVER\n");
     }
-    VRViewer::instance()->stopThreading();
     if (m_visPlugin)
     {
         coVRPluginList::instance()->unload(m_visPlugin);
@@ -1030,19 +1142,26 @@ OpenCOVER::~OpenCOVER()
     }
     coVRFileManager::instance()->unloadFile();
     coVRPluginList::instance()->unloadAllPlugins();
+    VRViewer::instance()->stopThreading();
+    VRViewer::instance()->setSceneData(NULL);
     delete coVRPluginList::instance();
-    delete coVRTui::instance();
     //delete vrbHost;
-    coVRPartnerList::instance()->reset();
-    while (coVRPartnerList::instance()->current())
-        coVRPartnerList::instance()->remove();
-    // da sollte noch mehr geloescht werden
+    delete coVRPartnerList::instance();
+    delete coVRAnimationManager::instance();
+    delete coVRNavigationManager::instance();
+    delete coVRCommunication::instance();
+    delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
     delete VRPinboard::instance();
+    delete VRVruiRenderInterface::theInterface;
     delete VRSceneGraph::instance();
+    delete coVRShaderList::instance();
+    delete coVRLighting::instance();
     delete VRViewer::instance();
     delete VRWindow::instance();
+
+    delete coVRConfig::instance();
 
     delete ARToolKit::instance();
 

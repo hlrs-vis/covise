@@ -1642,6 +1642,32 @@ int CoviseBase::get_reply_int_scalar(long *val)
 //=====================================================================
 //
 //=====================================================================
+int CoviseBase::get_reply_int64_scalar(int64_t *val)
+{
+
+	if (appmod != NULL && get_reply_param_name() != NULL)
+	{
+		if (no_of_reply_tokens < 1)
+			return 0;
+		if (NULL == reply_buffer[0])
+		{
+			return 0;
+		}
+#ifdef _WIN32
+		*val = _atoi64(reply_buffer[0]);
+#else
+		*val = atoll(reply_buffer[0]);
+#endif
+
+		return 1;
+	}
+	else
+		return 0;
+}
+
+//=====================================================================
+//
+//=====================================================================
 int CoviseBase::get_reply_float_scalar(float *val)
 {
 

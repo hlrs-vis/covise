@@ -2049,7 +2049,8 @@ int SDomainsurface::ladd_vertex(int v)
 void SDomainsurface::surface()
 {
     // int i, a, c;
-    int i, j, a, c;
+	int i, j, a;
+	size_t c;
     int nb; // ne deleted
 
     bool start_vertex_set;
@@ -2135,7 +2136,7 @@ void SDomainsurface::surface()
                 if (j == el[i] && start_vertex_set == false)
                 {
                     start_vertex = cl[el[i]];
-                    temp_elem_in.push_back(temp_conn_in.size());
+                    temp_elem_in.push_back((int)temp_conn_in.size());
                     temp_conn_in.push_back(start_vertex);
                     start_vertex_set = true;
                 }
@@ -2157,7 +2158,7 @@ void SDomainsurface::surface()
                 if (j > el[i] && start_vertex_set == false)
                 {
                     start_vertex = cl[j];
-                    temp_elem_in.push_back(temp_conn_in.size());
+                    temp_elem_in.push_back((int)temp_conn_in.size());
                     temp_conn_in.push_back(start_vertex);
                     start_vertex_set = true;
                 }
@@ -3021,7 +3022,7 @@ void SDomainsurface::surface()
             // Test for each face
             for (face = 0; face < temp_elem_in.size(); face++)
             {
-                next_face_index = (face < temp_elem_in.size() - 1) ? temp_elem_in[face + 1] : temp_conn_in.size();
+                next_face_index = (face < (int)temp_elem_in.size() - 1) ? temp_elem_in[face + 1] : (int)temp_conn_in.size();
 
                 for (node_count = temp_elem_in[face]; node_count < next_face_index; node_count++)
                 {

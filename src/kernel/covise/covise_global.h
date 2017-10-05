@@ -17,7 +17,7 @@
  *
 */
 
-#define COVISE_POINTER_TYPE unsigned long
+#define COVISE_POINTER_TYPE unsigned long long
 
 #define STD_GROW_SIZE 20
 #endif

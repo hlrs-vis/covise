@@ -8,6 +8,8 @@
 #ifndef _COLOR_WHEEL_H_
 #define _COLOR_WHEEL_H_
 
+#include <list>
+
 // OSG:
 #include <osg/Geometry>
 #include <osg/ShapeDrawable>
@@ -42,7 +44,7 @@ public:
     virtual void cursorLeave(cui::InputDevice *);
     virtual void buttonEvent(cui::InputDevice *, int);
     osg::Vec4 colorAtPoint(osg::Vec3);
-    list<ColorWheelListener *> _colorListeners;
+    std::list<ColorWheelListener *> _colorListeners;
     osg::Vec4 getSelectedColor();
 
 protected:

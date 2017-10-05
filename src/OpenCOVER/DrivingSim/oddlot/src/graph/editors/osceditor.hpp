@@ -36,6 +36,7 @@ class oscPrivateAction;
 }
 
 class OSCBaseItem;
+class OSCItem;
 class OSCRoadSystemItem;
 class OSCElement;
 class OSCBase;
@@ -70,7 +71,9 @@ public:
 
     // Move Object //
     //
-	bool translateObject(OpenScenario::oscPrivateAction *privateAction, const QString &newRoadId, double s, double t);
+	void move(QPointF &diff);
+	void translate(QPointF &diff);
+	void translateObject(OSCItem *oscItem, QPointF &diff);
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);
 	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);

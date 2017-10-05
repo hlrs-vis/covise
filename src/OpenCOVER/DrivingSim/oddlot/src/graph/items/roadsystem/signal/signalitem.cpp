@@ -394,6 +394,36 @@ SignalItem::updatePosition()
     createPath();
 }
 
+/*
+* Duplicate item 
+*/
+void
+	SignalItem::duplicate()
+{
+	Signal * newSignal = signal_->getClone();
+	AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
+	getProjectGraph()->executeCommand(command);
+}
+
+/* 
+* Move item 
+*/
+void
+SignalItem::move(QPointF &diff)
+{
+	if (showPixmap_)
+	{
+		if (pixmapItem_)
+		{
+			pixmapItem_->hide();
+		}
+		showPixmap_ = false;
+	}
+
+	pos_ += diff;
+	createPath();
+}
+
 //*************//
 // Delete Item
 //*************//
@@ -486,6 +516,8 @@ void
 SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     pressPos_ = lastPos_ = event->scenePos();
+	closestRoad_ = road_;
+
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Signal
     if (tool == ODD::TSG_DEL)
     {
@@ -585,9 +617,7 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 		doPan_ = true;
 		if (copyPan_)
 		{
-			Signal * newSignal = signal_->getClone();
-			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
-			getProjectGraph()->executeCommand(command);
+			signalEditor_->duplicate();
 		}
         GraphElement::mousePressEvent(event); // pass to baseclass
 
@@ -599,20 +629,12 @@ SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {	
 	if (doPan_)
 	{
-		if (showPixmap_)
-		{
-			if (pixmapItem_)
-			{
-				pixmapItem_->hide();
-			}
-			showPixmap_ = false;
-		}
 
 		QPointF newPos = event->scenePos();
-		pos_ += newPos - lastPos_;
-		lastPos_ = newPos;
-		createPath();
+		QPointF diff = newPos - lastPos_;
+		signalEditor_->move(diff);
 
+		lastPos_ = newPos;
 		QPointF to = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
 
 		double s;
@@ -647,13 +669,8 @@ SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		double diff = (lastPos_ - pressPos_).manhattanLength();
 		if (diff > 0.01) // otherwise item has not been moved by intention
 		{
-			pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
-			bool parentChanged = signalEditor_->translateSignal(signal_, closestRoad_, pos_);
-
-			if (!parentChanged && pixmapItem_)
-			{
-				updatePosition();
-			}
+			pos_ = lastPos_ - pressPos_;
+			signalEditor_->translate(pos_);
 		}
 		else
 		{

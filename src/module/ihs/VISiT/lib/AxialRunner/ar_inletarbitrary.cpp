@@ -47,14 +47,14 @@ extern int CreateAR_InletArbitrary(struct axial *ar)
 
    // **************************************************
    // shroud contour
-   if((delta_r = ar->d_inl_ext*0.5 - ar->p_score->x[0]) <= 0.0)
+   if((delta_r = ar->d_inl_ext*0.5f - ar->p_score->x[0]) <= 0.0f)
       return INLET_RADIUS_ERR;
-   if((delta_z = ar->h_inl_ext*0.5 - ar->p_score->z[0]) <= 0.0)
+   if((delta_z = ar->h_inl_ext*0.5f - ar->p_score->z[0]) <= 0.0f)
       return INLET_HEIGHT_ERR;
    // inlet width delta_w supposed to be constant
    delta_w = ar->p_score->x[0] - ar->p_hcore->x[0];
 
-   alpha_krit = atan(delta_r/delta_z);
+   alpha_krit = float(atan(delta_r/delta_z));
    arb_angle  = RAD(ar->arb_angle);
    if(arb_angle <= alpha_krit)
    {
@@ -90,7 +90,7 @@ extern int CreateAR_InletArbitrary(struct axial *ar)
    {
       v1[1] =  v3[0] =  v3[1] =  0.0;
       v1[2] =  v3[2] = -1.0;
-      v1[0] = -sin(arb_angle);
+      v1[0] = float(-sin(arb_angle));
       LineIntersectXZ(p1, v1, p3, v3, p2);
       poly = CurvePolygon(p1,p2,p3,ar->arb_part[0], ar->arb_part[1]);
       knot = BSplineKnot(poly, BSPLN_DEGREE);
@@ -106,9 +106,9 @@ extern int CreateAR_InletArbitrary(struct axial *ar)
 
    // **************************************************
    // hub, different alpha_krit
-   delta_r = (ar->p_sbend->x[0] - delta_w*cos(arb_angle) - ar->p_hcore->x[0]);
-   delta_z = (ar->p_sbend->z[0] + delta_w*sin(arb_angle) - ar->p_hcore->z[0]);
-   alpha_krit = atan(delta_r/delta_z);
+   delta_r = float(ar->p_sbend->x[0] - delta_w*cos(arb_angle) - ar->p_hcore->x[0]);
+   delta_z = float(ar->p_sbend->z[0] + delta_w*sin(arb_angle) - ar->p_hcore->z[0]);
+   alpha_krit = (float)atan(delta_r/delta_z);
 
    p3[0] = p1[0] = ar->p_hcore->x[0];
    p3[1] = p1[1] = 0.0;
@@ -136,7 +136,7 @@ extern int CreateAR_InletArbitrary(struct axial *ar)
    {
       v1[1] =  v3[0] =  v3[1] =  0.0;
       v1[2] =  v3[2] = -1.0;
-      v1[0] = -sin(arb_angle);
+      v1[0] = float(-sin(arb_angle));
       LineIntersectXZ(p1, v1, p3, v3, p2);
       poly = CurvePolygon(p1,p2,p3,ar->arb_part[0], ar->arb_part[1]);
       knot = BSplineKnot(poly, BSPLN_DEGREE);

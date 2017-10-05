@@ -71,6 +71,13 @@ class COVEREXPORT coVRPlugin
     friend class coVRPluginList;
 
 public:
+    enum NotificationLevel {
+        Info,
+        Warning,
+        Error,
+        Fatal
+    };
+
     //! called early, if loaded from config, before COVER is fully initialized
     coVRPlugin();
 
@@ -103,6 +110,13 @@ public:
 
     //! set the plugin's name
     void setName(const char *sn);
+
+    //! this function is called when COVER wants to display a message to the user
+    virtual void notify(NotificationLevel level, const char *text)
+    {
+        (void)level;
+        (void)text;
+    }
 
     /// first parameter is a pointer to the scene graph node,
     /// second parameter is a pointer to the COVISE object,
@@ -156,9 +170,11 @@ public:
         (void)(msg);
     };
 
-    //! this function is called from the main thread before the state for a frame is set up, before preFrame()
-    virtual void prepareFrame()
+    //! this function is called from the main thread after the state for a frame is set up, just before preFrame()
+    //! return true, if you need the scene to be rendered immediately
+    virtual bool update()
     {
+        return false; // don't request that scene be re-rendered
     }
 
     //! this function is called from the main thread before rendering a frame

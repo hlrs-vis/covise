@@ -227,7 +227,7 @@ void MocInit2WayBalance2(CtrlType *ctrl, GraphType *graph, float *tpwgts, float 
   imin = 0;
   for (i=1; i<ncon; i++) 
     imin = (ubvec[i] < ubvec[imin] ? i : imin);
-  minwgt = .5/ubvec[imin];
+  minwgt = 0.5f/ubvec[imin];
 
   mincut = graph->mincut;
   nbnd = graph->nbnd;

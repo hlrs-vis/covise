@@ -504,7 +504,7 @@ myPair ShiftValues::find_isovalueUU(const coDoUnstructuredGrid *i_mesh,
     }
 
     i_data_in->getAddress(&i_in);
-    cell = ((coDoUnstructuredGrid *)i_mesh)->getCell(startp,0.001);
+    cell = ((coDoUnstructuredGrid *)i_mesh)->getCell(startp,0.001f);
     //cell = find_startcell_fast(startp, x_in, y_in, z_in, numelem, numconn, el, cl, tl,
     //                           cuc_count, cuc, cuc_pos);
     if (cell >= 0)

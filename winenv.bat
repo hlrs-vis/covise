@@ -74,9 +74,10 @@ if /I "%BASEARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "uwp"    goto LABEL_SETENVIRONMENT
 if /I "%BASEARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
+if /I "%BASEARCHSUFFIX%" EQU "vcpkg"    goto LABEL_SETENVIRONMENT
 echo ARCHSUFFIX %ARCHSUFFIX% is not supported!
 echo common.bat [ARCHSUFFIX]
-echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, zebu, zebuopt, mingw, mingwopt"
+echo "ARCHSUFFIX: vcpkg, vcpkgopt, win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, zebu, zebuopt, mingw, mingwopt"
 pause
 goto END
 
@@ -106,7 +107,23 @@ if defined ProgramFiles(x86)  set PROGFILES=%ProgramFiles(x86)%
 rem echo  %VS100COMNTOOLS%
 cd
 
-if "%BASEARCHSUFFIX%" EQU "win32" (
+if "%BASEARCHSUFFIX%" EQU "zebu"  (
+    set VC14_15=yes
+) else if "%BASEARCHSUFFIX%" EQU "uwp"  (
+    set VC14_15=yes
+) else if "%BASEARCHSUFFIX%" EQU "vcpkg"  (
+    set VC14_15=yes
+)
+
+if "%VC14_15%" EQU "yes" (
+   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+    
+    if NOT defined VS150COMNTOOLS% (
+    cd /d "%VS140COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+	)
+) else if "%BASEARCHSUFFIX%" EQU "win32" (
     call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
 ) else if "%BASEARCHSUFFIX%" EQU "vista" (
     call "%VS80COMNTOOLS%"\..\..\Vc\bin\vcvars32.bat"
@@ -122,22 +139,6 @@ if "%BASEARCHSUFFIX%" EQU "win32" (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
-) else if "%BASEARCHSUFFIX%" EQU "zebu" (
-   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-    
-    if NOT defined VS150COMNTOOLS% (
-    cd /d "%VS140COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
-    cd /d "%COVISEDIR%"\
-	)
-) else if "%BASEARCHSUFFIX%" EQU "uwp" (
-   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-    
-    if NOT defined VS150COMNTOOLS% (
-    cd /d "%VS140COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
-    cd /d "%COVISEDIR%"\
-	)
 ) else if "%BASEARCHSUFFIX%" EQU "berrenda" (
 if defined VS110COMNTOOLS  (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
@@ -157,6 +158,22 @@ if defined VS110COMNTOOLS  (
     cd /d "%COVISEDIR%"\
 ) else if defined VCVARS32 (
     call "%VCVARS32%"
+)
+
+if "%BASEARCHSUFFIX%" EQU "vcpkg" (
+    if "%VCPKG_ROOT%" NEQ "" (
+        set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
+    )
+    set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.5.6"
+)
+if "%ARCHSUFFIX%" EQU "vcpkg" (
+    if "%VCPKG_ROOT%" NEQ "" (
+        set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
+    )
+)
+
+if "%BASEARCHSUFFIX%" EQU "vcpkg" (
+    goto FINALIZE
 )
 
 if not defined QT_HOME ( 
@@ -282,14 +299,21 @@ if not defined Qt5WebEngineWidgets_DIR  (
    set "Qt5WebEngineWidgets_DIR=%EXTERNLIBS%\qt5"
 )
 
+set PATH=%PATH%;%EXTERNLIBS%\bison\bin
 
+:FINALIZE
 set LOGNAME=covise
 set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
-set PATH=%PATH%;%EXTERNLIBS%\bison\bin
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
 if not defined VV_SHADER_PATH  set VV_SHADER_PATH=%COVISEDIR%\src\3rdparty\deskvox\virvo\shader
-if not defined COVISE_PATH     set COVISE_PATH=%COVISEDESTDIR%;%COVISEDIR%
+if not defined COVISE_PATH (
+   if "%COVISEDESTDIR%" EQU "%COVISEDIR%" (
+       set "COVISE_PATH=%COVISEDIR%"
+   ) else (
+       set COVISE_PATH=%COVISEDESTDIR%;%COVISEDIR%
+   )
+)
 
 
 set RM=rmdir /S /Q
@@ -300,6 +324,7 @@ if "%ARCHSUFFIX%" EQU "yoroo"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "berrenda"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "tamarau"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "zebu"  set COVISE_DEVELOPMENT=YES
+if "%ARCHSUFFIX%" EQU "vcpkg"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "mingw"  set COVISE_DEVELOPMENT=YES
 
 set COMMON_ACTIVE=1

@@ -15,7 +15,7 @@
 #include <osg/MatrixTransform>
 #include <osgUtil/IntersectVisitor>
 
-#include "VehicleUtil.h"
+#include <VehicleUtil/VehicleUtil.h>
 
 #include <deque>
 

@@ -56,7 +56,7 @@ void Fenfloss::CreateUserMenu(void)
         for (int index = 0; index < s_simApplication.size(); index ++)
            sims[index] = s_simApplication[index];
 
-	p_simApplication->setValue(s_simApplication.size(), sims, 0);
+	p_simApplication->setValue((int)s_simApplication.size(), sims, 0);
    delete []sims;
    sims = NULL;
 

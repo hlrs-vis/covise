@@ -74,9 +74,9 @@ void InvTextManager::updateCallback(void *userdata, SoAction *ac)
         yMarginRel = (float)(vpSize[1] - yMargin) / (vpSize[1]);
 
     if (aspect > 1.)
-        cm->m_trans->translation.setValue(-aspect * xMarginRel, +0.95 * yMarginRel, 0.0);
+        cm->m_trans->translation.setValue(-aspect * xMarginRel, +0.95f * yMarginRel, 0.0);
     else
-        cm->m_trans->translation.setValue(-1.0 * xMarginRel, +0.95 / aspect * yMarginRel, 0.0);
+        cm->m_trans->translation.setValue(-1.0f * xMarginRel, +0.95f / aspect * yMarginRel, 0.0);
 }
 
 //=========================================================================

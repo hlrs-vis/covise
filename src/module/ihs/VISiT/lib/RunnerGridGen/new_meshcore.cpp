@@ -157,16 +157,16 @@ float angle14)
    // ss angles
    u1[0] = reg->arc[0]->list[1] - reg->arc[0]->list[0];
    u1[1] = reg->line[0]->y[1]   - reg->line[0]->y[0];
-   alpha[0] = atan(u1[1]/u1[0]);
+   alpha[0] = float(atan(u1[1]/u1[0]));
    ix = reg->line[1]->nump-1;
    u1[0] = reg->arc[2]->list[ix] - reg->arc[1]->list[ix];
    u1[1] = reg->line[2]->y[ix]   - reg->line[1]->y[ix];
-   alpha[1] = atan(u1[1]/u1[0]);
+   alpha[1] = float(atan(u1[1]/u1[0]));
    // ps angles
    ix = reg->line[0]->nump-1;
    u1[0] = reg->arc[0]->list[ix-1] - reg->arc[0]->list[ix];
    u1[1] = reg->line[0]->y[ix-1]   - reg->line[0]->y[ix];
-   beta[0] = atan(u1[1]/u1[0]);
+   beta[0] = float(atan(u1[1]/u1[0]));
    if(u1[0] < 0.0f && u1[1] < 0.0f) beta[0] -= (float)M_PI;
    beta[1] = alpha[1]-(float)M_PI;
 #ifdef DEBUG_CORE
@@ -181,7 +181,7 @@ float angle14)
    for(i = 1; i < ispline; i++)
    {
       para    = reg->para[1]->list[i];
-      invpara = 1.0 - para;
+      invpara = 1.0f - para;
       sline->nump = 0;
       spara->num  = 0;
 #ifdef DEBUG_CORE
@@ -197,19 +197,19 @@ float angle14)
       p3[0] = reg->arc[2]->list[i];
       p3[1] = reg->line[2]->y[i];
 
-      v1[0] = cos(alpha[0]*invpara + alpha[1]*para);
-      v1[1] = sin(alpha[0]*invpara + alpha[1]*para);
-      v3[0] = cos(beta[0]*invpara  + beta[1]*para);
-      v3[1] = sin(beta[0]*invpara  + beta[1]*para);
+      v1[0] = float(cos(alpha[0]*invpara + alpha[1]*para));
+      v1[1] = float(sin(alpha[0]*invpara + alpha[1]*para));
+      v3[0] = float(cos(beta[0]*invpara  + beta[1]*para));
+      v3[1] = float(sin(beta[0]*invpara  + beta[1]*para));
 
       // polygon
       if(v1[1] > 0.0 && (double_curved || i == 1))
       {
          double_curved = 1;
-         p[0]  = p1[0] + 0.25*(p3[0] - p1[0]);
-         p[1]  = p1[1] + 0.25*(p3[1] - p1[1]);
+         p[0]  = p1[0] + 0.25f*(p3[0] - p1[0]);
+         p[1]  = p1[1] + 0.25f*(p3[1] - p1[1]);
          u1[0] = 1.0;
-         u1[1] = -tan(angle14*invpara);
+         u1[1] = float(-tan(angle14*invpara));
          LineIntersect(p1,v1, p,u1, p2);
          sspoly = CurvePolygon(p1,p2,p,0.9f,0.2f);
          LineIntersect(p,u1, p3,v3, p2);
@@ -247,7 +247,7 @@ float angle14)
          BSplinePoint(BSPLN_DEGREE, poly, knot,
             reg->para[0]->list[j]*invpara
             + reg->para[3]->list[j]*para, p);
-         slen += sqrt(pow(sline->x[j-1]-p[0],2) + pow(sline->y[j-1]-p[1],2));
+         slen += float(sqrt(pow(sline->x[j-1]-p[0],2) + pow(sline->y[j-1]-p[1],2)));
          AddVPoint(sline,p);
          Add2Flist(spara, slen);
 #ifdef DEBUG_CORE
@@ -355,7 +355,7 @@ float angle14)
    for(i = ispline; i < reg->line[1]->nump-1; i++)
    {
       para    = reg->para[1]->list[i];
-      invpara = 1.0 - para;
+      invpara = 1.0f - para;
       u1[0] = reg->arc[2]->list[i] - reg->arc[1]->list[i];
       u1[1] = reg->line[2]->y[i]   - reg->line[1]->y[i];
       p1[0] = reg->arc[1]->list[i];

@@ -105,6 +105,12 @@ public:
 	cosawR,
 	sinawF,
 	cosawF,
+	suspOffsetSport,
+	suspOffsetComfort,
+	suspOffsetFL,
+	suspOffsetFR,
+	suspOffsetRR,
+	suspOffsetRL,
 	mCar, //mass of car body
 	mSusFL,
 	mSusFR,
@@ -154,6 +160,10 @@ public:
 	tireDefSpeedFR,
 	tireDefSpeedRR,
 	tireDefSpeedRL,
+	
+	//anti roll bars
+	arbStiffnessF,
+	arbStiffnessR,
 	
 	//joint offset
 	jointOffsetFL,
@@ -220,6 +230,7 @@ public:
 	posWheelRightNeutral,
 	posWheelCombined,
 	deltaWheel,
+	maxDeltaCurrent,
 	
 	//TMEasy
 	cR,
@@ -303,10 +314,10 @@ public:
 		5,10,55,100,280,380,
 		5,15,70,100,300,420,
 		5,20,75,115,300,420,
-		5,20,80,115,300,420,
-		5,15,70,120,300,400,
-		5,10,55,100,280,380,
-		5,5,5,10,30,60,
+		0,5,80,115,300,420,
+		0,5,70,120,300,400,
+		0,0,55,100,280,380,
+		0,0,5,10,30,60,
 		0,0,0,0,0,0,
 		0,0,0,0,0,0
 	},

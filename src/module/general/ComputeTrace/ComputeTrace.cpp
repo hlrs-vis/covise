@@ -102,7 +102,7 @@ void ComputeTrace::param(const char *name, bool /*inMapLoading*/)
 
 //creates a char array containing a basis and 1 or 2 indices added
 //separated by underscores
-std::string ComputeTrace::createIndexedName(const char *basis, int i, int j = -1)
+std::string ComputeTrace::createIndexedName(const char *basis, size_t i, int j = -1)
 {
     stringstream ss;
     ss << basis << "_" << i;
@@ -200,14 +200,14 @@ int ComputeTrace::compute(const char *)
             {
                 sendWarning("start is smaller than the beginning of the timestep; start is set to min_timestep");
                 m_start = m_timestepStart;
-                p_start->setValue(m_start);
+                p_start->setValue((int)m_start);
             }
 
             if (m_stop > m_timestepStop)
             {
                 sendWarning("stop is larger than the maximum of timesteps; stop is set to max_timestep");
                 m_stop = m_timestepStop;
-                p_stop->setValue(m_stop);
+                p_stop->setValue((int)m_stop);
             }
 
             // getting the selected particle string and
@@ -390,7 +390,7 @@ int ComputeTrace::compute(const char *)
 float
 ComputeTrace::fade(float /*dummy*/, int exp)
 {
-    return pow(0.98, exp);
+    return pow(0.98f, exp);
 }
 
 float
@@ -423,41 +423,41 @@ coDistributedObject *ComputeTrace::computeFloats(float (*alternative)(float, int
         {
             for (size_t particle = 0; particle < m_particleSelection.size(); particle++)
             {
-                floatSet[particle] = new coDoFloat(createIndexedName(objName, i, particle).c_str(), i + 1 - m_start);
+                floatSet[particle] = new coDoFloat(createIndexedName(objName, i, (int)particle).c_str(), (int)(i + 1 - m_start));
                 float *data = ((coDoFloat *)floatSet[particle])->getAddress();
                 for (size_t j = 0; j < i + 1 - m_start; j++)
                 {
-                    data[j] = alternative(particle / (float)m_particleSelection.size(), (i - m_start - j));
+                    data[j] = alternative(particle / (float)m_particleSelection.size(), (int)(i - m_start - j));
                 }
             }
             //creating the line object set for the current timestep
-            traceFade[i] = new coDoSet(createIndexedName(objName, i).c_str(), floatSet.size(), &floatSet[0]);
+            traceFade[i] = new coDoSet(createIndexedName(objName, i).c_str(), (int)floatSet.size(), &floatSet[0]);
         }
         //last drawn line will be visible for every timestep after stop
-        for (int i = m_stop + 1; i <= m_timestepStop; i++)
+        for (size_t i = m_stop + 1; i <= m_timestepStop; i++)
         {
             traceFade[i] = traceFade[i - 1];
             traceFade[i]->incRefCount();
         }
-        return new coDoSet(objName, traceFade.size(), &traceFade[0]);
+        return new coDoSet(objName, (int)traceFade.size(), &traceFade[0]);
     }
     else
     {
-        coDoFloat *floats = new coDoFloat(objName, steps*m_particleSelection.size());
+        coDoFloat *floats = new coDoFloat(objName, (int)(steps*m_particleSelection.size()));
         float *data = floats->getAddress();
         for (size_t particle = 0; particle < m_particleSelection.size(); particle++)
         {
             for (size_t j = 0; j < steps; j++)
             {
                 size_t idx = m_particleSelection.size()*particle+j;
-                data[idx] = alternative(particle / (float)m_particleSelection.size(), j-m_timestepStart);
+                data[idx] = alternative(particle / (float)m_particleSelection.size(), (int)(j-m_timestepStart));
             }
         }
         return floats;
     }
 }
 
-int ComputeTrace::getIndex(int t, int numIDs, int ID)
+int ComputeTrace::getIndex(size_t t, int numIDs, int ID)
 {
     for (int i = 0; i < numIDs; i++)
     {
@@ -469,8 +469,8 @@ int ComputeTrace::getIndex(int t, int numIDs, int ID)
 coDoLines *ComputeTrace::computeStaticTrace(const std::string &name, const coDoSet *set)
 {
     const int steps = m_timestepStop - m_timestepStart + 1;
-    coDoLines *lines = new coDoLines(name, steps * m_particleSelection.size(),
-                                     steps * m_particleSelection.size(), m_particleSelection.size());
+    coDoLines *lines = new coDoLines(name, (int)(steps * m_particleSelection.size()),
+                                     (int)(steps * m_particleSelection.size()), (int)m_particleSelection.size());
     float *x, *y, *z;
     int *v_l, *l_l;
     lines->getAddresses(&x, &y, &z, &v_l, &l_l);
@@ -488,7 +488,7 @@ coDoLines *ComputeTrace::computeStaticTrace(const std::string &name, const coDoS
                 v_l[i] = i;
                 if (IDs)
                 {
-                    int idx = getIndex(t, coord->getNumElements(), m_particleSelection[particle]);
+                    int idx = getIndex(t, coord->getNumElements(), (int)m_particleSelection[particle]);
                     if (idx >= 0)
                         coord->getPointCoordinates(idx, &x[i], &y[i], &z[i]);
                     else
@@ -509,7 +509,7 @@ coDoLines *ComputeTrace::computeStaticTrace(const std::string &name, const coDoS
                     }
                 }
                 else
-                    coord->getPointCoordinates(m_particleSelection[particle], &x[i], &y[i], &z[i]);
+                    coord->getPointCoordinates((int)m_particleSelection[particle], &x[i], &y[i], &z[i]);
             }
     }
 
@@ -555,10 +555,10 @@ coDistributedObject **ComputeTrace::computeDynamicTrace(const coDoSet *set, bool
     lineSet[m_particleSelection.size()] = NULL;
 
     //successive creation of the traces between start and stop
-    for (int i = m_start; i <= m_stop; i++)
+    for (size_t i = m_start; i <= m_stop; i++)
     {
         //point set of current timestep
-        if (const coDoCoordinates *actualCoordinates = dynamic_cast<const coDoCoordinates *>(set->getElement(i)))
+        if (const coDoCoordinates *actualCoordinates = dynamic_cast<const coDoCoordinates *>(set->getElement((int)i)))
         {
             for (int particle = 0; particle < m_particleSelection.size(); particle++)
             {
@@ -572,7 +572,7 @@ coDistributedObject **ComputeTrace::computeDynamicTrace(const coDoSet *set, bool
 
                 if (IDs)
                 {
-                    int idx = getIndex(i, actualCoordinates->getNumElements(), m_particleSelection[particle]);
+                    int idx = getIndex(i, actualCoordinates->getNumElements(), (int)m_particleSelection[particle]);
                     if (idx >= 0)
                         actualCoordinates->getPointCoordinates(idx, &x, &y, &z);
                     else
@@ -598,18 +598,18 @@ coDistributedObject **ComputeTrace::computeDynamicTrace(const coDoSet *set, bool
                     }
                 }
                 else
-                    actualCoordinates->getPointCoordinates(m_particleSelection[particle], &x, &y, &z);
+                    actualCoordinates->getPointCoordinates((int)m_particleSelection[particle], &x, &y, &z);
 
                 //compute the actual line of the actual particle
                 lineSet[particle] = ComputeTrace::computeCurrentTrace(createIndexedName(nameObjOut, i, particle),
-                                                                      dynamic_cast<coDoLines *>(lineSet[particle]), i - m_start, x, y, z);
+                                                                      dynamic_cast<coDoLines *>(lineSet[particle]), (int)(i - m_start), x, y, z);
             }
             //creating the line object set for the current timestep
             traceLines[i] = new coDoSet(createIndexedName(nameObjOut, i), lineSet);
         }
     }
     //last drawn line will be visible for every timestep after stop
-    for (int i = m_stop + 1; i <= m_timestepStop; i++)
+    for (size_t i = m_stop + 1; i <= m_timestepStop; i++)
     {
         traceLines[i] = traceLines[i - 1];
         traceLines[i]->incRefCount();
@@ -697,7 +697,7 @@ coDoLines *ComputeTrace::computeCurrentTrace(const std::string &name, coDoLines 
 
 coDistributedObject *ComputeTrace::extractStaticData(const std::string &name, const coDoSet *set)
 {
-    int numParticles = m_particleSelection.size();
+    int numParticles = (int)m_particleSelection.size();
     coDoAbstractData *out = NULL;
     for (int t = 0; t <= m_timestepStop; ++t)
     {
@@ -708,7 +708,7 @@ coDistributedObject *ComputeTrace::extractStaticData(const std::string &name, co
             out = data->cloneType(name, numParticles * (m_timestepStop + 1));
         for (int i = 0; i < numParticles; ++i)
         {
-            out->cloneValue(t + i * (m_timestepStop + 1), data, m_particleSelection[i]);
+            out->cloneValue(t + i * (m_timestepStop + 1), data, (int)m_particleSelection[i]);
         }
     }
 
@@ -742,9 +742,9 @@ coDistributedObject *ComputeTrace::extractData(const std::string &name, const co
     {
         std::stringstream ss;
         ss << setNameBase << "_" << i;
-        elems.push_back(extractDataForParticle(ss.str(), set, m_particleSelection[i]));
+        elems.push_back(extractDataForParticle(ss.str(), set, (int)m_particleSelection[i]));
     }
-    coDoSet *out = new coDoSet(setNameBase, elems.size(), &elems[0]);
+    coDoSet *out = new coDoSet(setNameBase, (int)elems.size(), &elems[0]);
     if (!animate)
         return out;
 
@@ -753,7 +753,7 @@ coDistributedObject *ComputeTrace::extractData(const std::string &name, const co
     {
         elems.push_back(out);
     }
-    return new coDoSet(name, elems.size(), &elems[0]);
+    return new coDoSet(name, (int)elems.size(), &elems[0]);
 }
 
 MODULE_MAIN(Filter, ComputeTrace)

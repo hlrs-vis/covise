@@ -12,6 +12,7 @@
 #include "Vehicle.h"
 #include "RemoteVehicle.h"
 #include "FKFSDynamics.h"
+#include "TestDynamics.h"
 #include "EinspurDynamik.h"
 #ifdef __XENO__
 #ifdef HAVE_CARDYNAMICSCGA
@@ -27,7 +28,7 @@
 
 // #include "ITM.h"
 #include "Keyboard.h"
-#include "fasiUpdateManager.h"
+#include <VehicleUtil/fasiUpdateManager.h>
 
 #ifdef HAVE_CARDYNAMICSCGA
 #include "CarDynamicsCGA.h"
@@ -1001,7 +1002,12 @@ bool SteeringWheelPlugin::init()
    else {
    */
     std::string dynString = coCoviseConfig::getEntry("value", "COVER.Plugin.SteeringWheel.Dynamics", "EinspurDynamik");
-    if (dynString == "ITMDynamics")
+    if (dynString == "TestDynamics")
+    {
+        dynamics = new TestDynamics(); //mass, moment of inertia, front to point of mass, rear to point of mass
+        std::cout << "Using test vehicle dynamics..." << std::endl;
+    }
+	else if (dynString == "ITMDynamics")
     {
         dynamics = new ITMDynamics(); //mass, moment of inertia, front to point of mass, rear to point of mass
         std::cout << "Using ITM vehicle dynamics..." << std::endl;

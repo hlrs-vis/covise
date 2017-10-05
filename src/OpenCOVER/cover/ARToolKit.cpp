@@ -58,6 +58,8 @@ using namespace opencover;
 ARToolKit *ARToolKit::art = NULL;
 ARToolKit::ARToolKit()
 {
+    assert(!art);
+
     running = false;
     art = this;
     artTab = new coTUITab("ARToolKit", coVRTui::instance()->mainFolder->getID());
@@ -468,6 +470,8 @@ void ARToolKit::config()
 
 ARToolKit::~ARToolKit()
 {
+    delete artTab;
+    art = NULL;
 }
 
 void ARToolKit::update()

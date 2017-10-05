@@ -21,7 +21,7 @@
 
 #define NUMBER_OF_SECTIONS 36
 #define CHAR_LEN			   200
-#define PLOT_SCALE_ENLARGE	   0.05
+#define PLOT_SCALE_ENLARGE	   0.05f
 
 static int last_err = 0;
 const char *err_msg[] =
@@ -302,11 +302,11 @@ int RotateBlade4Covise(struct covise_info *ci, int nob)
 	np		   = ci->p->nump;
 	npol	   = ci->pol->num;
 	nvx		   = ci->vx->num;
-	rot		   = 2 * M_PI / nob;
-	roma[0][0] =  cos(rot);
-	roma[0][1] = -sin(rot);
-	roma[1][0] =  sin(rot);
-	roma[1][1] =  cos(rot);
+	rot		   = float(2 * M_PI / nob);
+	roma[0][0] = float(cos(rot));
+	roma[0][1] = float(-sin(rot));
+	roma[1][0] = float(sin(rot));
+	roma[1][1] = float(cos(rot));
 
 	for (i = 0; i < nob-1; i++) {
 		nstart = i * np;
@@ -376,10 +376,10 @@ int CreateRR_Contours(struct covise_info *ci, struct radial *rr)
 	// rotate hub contour and append points
 	for (i = 1; i < NUMBER_OF_SECTIONS; i++) {
 		angle	   = i * rot;
-		roma[0][0] =  cos(angle);
-		roma[0][1] = -sin(angle);
-		roma[1][0] =  sin(angle);
-		roma[1][1] =  cos(angle);
+		roma[0][0] = float(cos(angle));
+		roma[0][1] = float(-sin(angle));
+		roma[1][0] = float(sin(angle));
+		roma[1][1] = float(cos(angle));
 		for (j = 0; j < p_meridian+1; j++)
 		{
 			ind = npblade + j;
@@ -407,10 +407,10 @@ int CreateRR_Contours(struct covise_info *ci, struct radial *rr)
 	// rotate shroud contour and append points
 	for (i = 1; i < NUMBER_OF_SECTIONS; i++) {
 		angle	   = i * rot;
-		roma[0][0] =  cos(angle);
-		roma[0][1] = -sin(angle);
-		roma[1][0] =  sin(angle);
-		roma[1][1] =  cos(angle);
+		roma[0][0] = float(cos(angle));
+		roma[0][1] = float(-sin(angle));
+		roma[1][0] = float(sin(angle));
+		roma[1][1] = float(cos(angle));
 		for (j = 0; j < p_meridian; j++)
 		{
 			ind = npblade + nphub + j;
@@ -533,13 +533,13 @@ void GetXMGRCommands(char *plbuf, float *xy,const char *title,const char *xlabel
 			}
 			if( ((i >= 2) && (((int)(b*10000))%((int)(b)*10000))!=0) ||
 				(i < 2 && (b < 0)))
-				b += 0.5*SIGN(b);					  // max-val. -> step up
+				b += 0.5f*SIGN(b);					  // max-val. -> step up
 			b *= 2;									 // double to get 0.5,5,50 ... steps
-			b  = (float)((int)(b))/2.0;
+			b  = (float)((int)(b))/2.0f;
 			if(d)
-				b *= pow((float)10,(int)d);
+				b *= float(pow((float)10,(int)d));
 			else if(m)
-				b /= pow((float)10,(int)m);
+				b /= float(pow((float)10,(int)m));
 			xy[i] = b;
 		}
 	}
@@ -636,13 +636,13 @@ void GetMeridianContourNumbers(int *num_points, float *xy, struct radial *rr, in
 	}
 	xy[0]		= 0.0;
 	xy[1]		= rr->be[be_last]->ml->p->z[ml_lastp]
-		* (1.0 - (SIGN( rr->be[be_last]->ml->p->z[ml_lastp]))*
+		* (1.0f - (SIGN( rr->be[be_last]->ml->p->z[ml_lastp]))*
 		   PLOT_SCALE_ENLARGE);
 	xy[2]		= rr->be[be_last]->ml->p->x[ml_firstp]
-		* (1.0 + (SIGN( rr->be[be_last]->ml->p->x[ml_firstp]))*
+		* (1.0f + (SIGN( rr->be[be_last]->ml->p->x[ml_firstp]))*
 		   PLOT_SCALE_ENLARGE);
 	xy[3]		= rr->be[0]->ml->p->z[ml_firstp]
-		* (1.0 + (SIGN(rr->be[0]->ml->p->z[ml_firstp]))*
+		* (1.0f + (SIGN(rr->be[0]->ml->p->z[ml_firstp]))*
 		   PLOT_SCALE_ENLARGE);
 #ifdef DEBUG
 	fprintf(stderr," num_points = %d\n",*num_points);
@@ -765,22 +765,22 @@ void GetMeridianContourPlotData2(struct radial *rr, float *xpl, float *ypl, int 
 	iend   = rr->be_num-1;
 	ite    = rr->be[0]->cl->nump-1;
 	for(i = istart; i < iend; i++) {
-		xpl[j] = sqrt(pow(rr->be[i]->cl_cart->x[0],2.0f)+
-					  pow(rr->be[i]->cl_cart->y[0],2.0f));
+		xpl[j] = float(sqrt(pow(rr->be[i]->cl_cart->x[0],2.0f)+
+					  pow(rr->be[i]->cl_cart->y[0],2.0f)));
 		ypl[j] = rr->be[i]->cl_cart->z[0];
 		j++;
-		xpl[j] = sqrt(pow(rr->be[i+1]->cl_cart->x[0],2.0f)+
-					  pow(rr->be[i+1]->cl_cart->y[0],2.0f));
+		xpl[j] = float(sqrt(pow(rr->be[i+1]->cl_cart->x[0],2.0f)+
+					  pow(rr->be[i+1]->cl_cart->y[0],2.0f)));
 		ypl[j] = rr->be[i+1]->cl_cart->z[0];
 		j++;
 	}
 	for(i = istart; i < iend; i++) {
-		xpl[j] = sqrt(pow(rr->be[i]->cl_cart->x[ite],2.0f)+
-					  pow(rr->be[i]->cl_cart->y[ite],2.0f));
+		xpl[j] = float(sqrt(pow(rr->be[i]->cl_cart->x[ite],2.0f)+
+					  pow(rr->be[i]->cl_cart->y[ite],2.0f)));
 		ypl[j] = rr->be[i]->cl_cart->z[ite];
 		j++;
-		xpl[j] = sqrt(pow(rr->be[i+1]->cl_cart->x[ite],2.0f)+
-					  pow(rr->be[i+1]->cl_cart->y[ite],2.0f));
+		xpl[j] = float(sqrt(pow(rr->be[i+1]->cl_cart->x[ite],2.0f)+
+					  pow(rr->be[i+1]->cl_cart->y[ite],2.0f)));
 		ypl[j] = rr->be[i+1]->cl_cart->z[ite];
 		j++;
 	}
@@ -817,14 +817,14 @@ void GetConformalViewPlotData(struct radial *rr, float *xpl, float *ypl, float *
 	l0 = rr->te->bmpar->list[c]*
 		rr->be[c]->ml->len[rr->be[c]->ml->p->nump-1]; 
 	cl = GetConformalView(rr->be[c]->cl, l0);
-	ps = GetConformalView(rr->be[c]->ps, l0 + sqrt(pow(rr->be[c]->ps->x[rr->be[c]->ps->nump-1]
+	ps = GetConformalView(rr->be[c]->ps, float(l0 + sqrt(pow(rr->be[c]->ps->x[rr->be[c]->ps->nump-1]
 													   -rr->be[c]->cl->x[rr->be[c]->ps->nump-1],2)
 												   + pow(rr->be[c]->ps->z[rr->be[c]->ps->nump-1]
-														 -rr->be[c]->cl->z[rr->be[c]->ps->nump-1],2)));
-	ss = GetConformalView(rr->be[c]->ss, l0 - sqrt(pow(rr->be[c]->ss->x[rr->be[c]->ss->nump-1]
+														 -rr->be[c]->cl->z[rr->be[c]->ps->nump-1],2))));
+	ss = GetConformalView(rr->be[c]->ss, float(l0 - sqrt(pow(rr->be[c]->ss->x[rr->be[c]->ss->nump-1]
 													   -rr->be[c]->cl->x[rr->be[c]->ss->nump-1],2)
 												   + pow(rr->be[c]->ss->z[rr->be[c]->ss->nump-1]
-														 -rr->be[c]->cl->z[rr->be[c]->ss->nump-1],2)));
+														 -rr->be[c]->cl->z[rr->be[c]->ss->nump-1],2))));
 	FitPSSSCurves(cl,ps,ss);
 	// create plot vectors
 	if(!v_count) {
@@ -876,12 +876,12 @@ static struct Point *GetConformalView(struct Point *src, float l0)
 #endif
 	for(i = src->nump-2; i >= 0; i--) {
 		dl	= -l;
-		l  += sqrt(pow(src->x[i+1]-src->x[i],2) + pow(src->z[i+1]-src->z[i],2));
+		l  += float(sqrt(pow(src->x[i+1]-src->x[i],2) + pow(src->z[i+1]-src->z[i],2)));
 		dl += l;
 		ds	= -s;
-		s  += 0.5*(src->x[i+1] + src->x[i]) * (src->y[i] - src->y[i+1]);
+		s  += 0.5f*(src->x[i+1] + src->x[i]) * (src->y[i] - src->y[i+1]);
 		ds += s;
-		len+= sqrt(dl*dl + ds*ds);
+		len+= float(sqrt(dl*dl + ds*ds));
 		AddPoint(line,s,l,len);
 #ifdef DEBUG
 		fprintf(stderr,"\t %3d	%16.8f	%16.8f	%16.8f (%16.8f)\n",
@@ -927,7 +927,7 @@ static void FitPSSSCurves(struct Point *cl, struct Point *ps, struct Point *ss)
 	dx	  = cl->x[ilast]-ps->x[ilast];
 	dy	  = cl->y[ilast]-ps->y[ilast];
 	for(i = 1; i <= ilast; i++) {
-		para = 1.0 - (len - ps->z[i])/len;
+		para = 1.0f - (len - ps->z[i])/len;
 		ps->x[i] += para*dx;
 		ps->y[i] += para*dy;
 	}
@@ -936,7 +936,7 @@ static void FitPSSSCurves(struct Point *cl, struct Point *ps, struct Point *ss)
 	dx	  = cl->x[ilast]-ss->x[ilast];
 	dy	  = cl->y[ilast]-ss->y[ilast];
 	for(i = 1; i <= ilast; i++) {
-		para = 1.0 - (len - ss->z[i])/len;
+		para = 1.0f - (len - ss->z[i])/len;
 		ss->x[i] += para*dx;
 		ss->y[i] += para*dy;
 	}
@@ -977,7 +977,7 @@ void GetCamberPlotData(struct radial *rr, float *xpl, float *ypl, float *xy,
 
 	// ****************************************
 	// get camber values
-	alpha = atan((cl->y[0]-cl->y[1])/(cl->x[0]-cl->x[1]));
+	alpha = float(atan((cl->y[0]-cl->y[1])/(cl->x[0]-cl->x[1])));
 	len = cl->z[cl->nump-2];
 	if(!v_count) {
 		pcount = 0;
@@ -990,7 +990,7 @@ void GetCamberPlotData(struct radial *rr, float *xpl, float *ypl, float *xy,
 	if(xy[1] > (ypl[pcount] = alpha*rad2deg)) xy[1] = ypl[pcount];
 	pcount++;
 	for(i = 2; i < cl->nump; i++) {
-		alpha	  = atan((cl->y[i-1]-cl->y[i])/(cl->x[i-1]-cl->x[i]));
+		alpha	  = float(atan((cl->y[i-1]-cl->y[i])/(cl->x[i-1]-cl->x[i])));
 		p_l		  = cl->z[i-1]/len;
 		if((alpha_deg = alpha*rad2deg) < 0.0) alpha_deg += 180.0;
 		xpl[pcount] = p_l;
@@ -1040,7 +1040,7 @@ void GetNormalizedCamber(struct radial *rr, float *xpl, float *ypl, float *xy,
 
 	// ****************************************
 	// get camber values
-	alpha = atan((cl->y[0]-cl->y[1])/(cl->x[0]-cl->x[1]));
+	alpha = float(atan((cl->y[0]-cl->y[1])/(cl->x[0]-cl->x[1])));
 	len = cl->z[cl->nump-2];
 	if(!v_count) {
 		pcount = 0;
@@ -1052,7 +1052,7 @@ void GetNormalizedCamber(struct radial *rr, float *xpl, float *ypl, float *xy,
 	ypl[pcount] = alphamin = alpha*rad2deg;
 	pcount++;
 	for(i = 2; i < cl->nump; i++) {
-		alpha	  = atan((cl->y[i-1]-cl->y[i])/(cl->x[i-1]-cl->x[i]));
+		alpha	  = float(atan((cl->y[i-1]-cl->y[i])/(cl->x[i-1]-cl->x[i])));
 		p_l		  = cl->z[i-1]/len;
 		if((alpha_deg = alpha*rad2deg) < 0.0) alpha_deg += 180.0;
 		xpl[pcount] = p_l;
@@ -1065,7 +1065,7 @@ void GetNormalizedCamber(struct radial *rr, float *xpl, float *ypl, float *xy,
 			pcount++;
 		}
 	}
-	delta = 1.0/(alphamax-alphamin);
+	delta = 1.0f/(alphamax-alphamin);
 	for(i = istart; i < pcount; i++) {
 		ypl[i] -= alphamin;
 		ypl[i] *= delta;
@@ -1092,9 +1092,9 @@ void GetMaxThicknessData(struct radial *rr, float *xpl, float *ypl, float *xy)
 		t_max = 0.0;
 		for(j = 0; j < rr->be[i]->cl->nump; j++)
 		{
-			t = sqrt(pow(rr->be[i]->cl_cart->x[j]-rr->be[i]->ss_cart->x[j],2) +
+			t = float(sqrt(pow(rr->be[i]->cl_cart->x[j]-rr->be[i]->ss_cart->x[j],2) +
 					 pow(rr->be[i]->cl_cart->y[j]-rr->be[i]->ss_cart->y[j],2) +
-					 pow(rr->be[i]->cl_cart->z[j]-rr->be[i]->ss_cart->z[j],2));
+					 pow(rr->be[i]->cl_cart->z[j]-rr->be[i]->ss_cart->z[j],2)));
 			if(t_max < t) t_max = t;
 		}
 		xpl[pcount] = rr->be[i]->para;
@@ -1116,9 +1116,9 @@ void GetMaxThicknessData(struct radial *rr, float *xpl, float *ypl, float *xy)
 		t_max = 0.0;
 		for(j = 0; j < rr->be[i]->cl->nump; j++)
 		{
-			t = sqrt(pow(rr->be[i]->cl_cart->x[j]-rr->be[i]->ps_cart->x[j],2) +
+			t = float(sqrt(pow(rr->be[i]->cl_cart->x[j]-rr->be[i]->ps_cart->x[j],2) +
 					 pow(rr->be[i]->cl_cart->y[j]-rr->be[i]->ps_cart->y[j],2) +
-					 pow(rr->be[i]->cl_cart->z[j]-rr->be[i]->ps_cart->z[j],2));
+					 pow(rr->be[i]->cl_cart->z[j]-rr->be[i]->ps_cart->z[j],2)));
 			if(t_max < t) t_max = t;
 		}
 		xpl[pcount] = rr->be[i]->para;
@@ -1136,10 +1136,10 @@ void GetMaxThicknessData(struct radial *rr, float *xpl, float *ypl, float *xy)
 #endif
 	// hub-line
 	xpl[pcount] = xpl[0];
-	ypl[pcount] = xy[1] =  1.2*ypl[0];			   // max. thickness supposed to be at hub (0)
+	ypl[pcount] = xy[1] =  1.2f*ypl[0];			   // max. thickness supposed to be at hub (0)
 	pcount++;
 	xpl[pcount] = xpl[0];
-	ypl[pcount] = xy[3] = -1.2*ypl[0];			   // max. thickness supposed to be at hub (0)
+	ypl[pcount] = xy[3] = -1.2f*ypl[0];			   // max. thickness supposed to be at hub (0)
 	pcount++;
 #ifdef DEBUG
 	fprintf(stderr,"GetMaxThicknessData: pcount = %d\n",pcount);
@@ -1161,16 +1161,16 @@ void GetOverlapPlotData(struct radial *rr, float *xpl, float *ypl, float *xy)
 	xy[1]	= 200.0;
 	rad2deg = 180.0f/(float)M_PI;
 	theta0	= 360.0f/rr->nob;
-	ratio	= 100 * ( ((rr->be[0]->cl->y[0] - rr->be[0]->cl->y[rr->be[0]->cl->nump-1]) * rad2deg)
-					  / theta0 - 1.0);
+	ratio	= 100.0f * ( ((rr->be[0]->cl->y[0] - rr->be[0]->cl->y[rr->be[0]->cl->nump-1]) * rad2deg)
+					  / theta0 - 1.0f);
 	if(xy[1] > ratio) xy[1] = ratio;
 	if(xy[3] < ratio) xy[3] = ratio;
 	xpl[pcount] = rr->be[0]->para;
 	ypl[pcount] = ratio;
 	pcount++;
 	for(i = 1; i < rr->be_num; i++) {
-		ratio	= 100.0 * ( ((rr->be[i]->cl->y[0] - rr->be[i]->cl->y[rr->be[i]->cl->nump-1]) * rad2deg)
-							/ theta0 - 1.0);
+		ratio	= 100.0f * ( ((rr->be[i]->cl->y[0] - rr->be[i]->cl->y[rr->be[i]->cl->nump-1]) * rad2deg)
+							/ theta0 - 1.0f);
 		xpl[pcount] = rr->be[i]->para;
 		ypl[pcount] = ratio;
 		pcount++;
@@ -1210,15 +1210,15 @@ void GetBladeAnglesPlotData(struct radial *rr, float *xpl, float *ypl, float *xy
 		{
 			num = cl->nump-1;
 			// le angle
-			dl	= sqrt(pow(cl->x[1]-cl->x[0],2) + pow(cl->z[1]-cl->z[0],2));
-			ds	= 0.5*(cl->x[1] + cl->x[0]) * (cl->y[0] - cl->y[1]);
-			if( (alpha = atan(dl/ds)*rad2deg) < 0.0) alpha += 180.0;
+			dl	= float(sqrt(pow(cl->x[1]-cl->x[0],2) + pow(cl->z[1]-cl->z[0],2)));
+			ds	= 0.5f*(cl->x[1] + cl->x[0]) * (cl->y[0] - cl->y[1]);
+			if( (alpha = float(atan(dl/ds)*rad2deg)) < 0.0) alpha += 180.0f;
 			Add2Flist(le_ang, alpha);
 			// te_angle
-			dl	= sqrt(pow(cl->x[num]-cl->x[num-1],2) +
-					   pow(cl->z[num]-cl->z[num-1],2));
-			ds	= 0.5*(cl->x[num] + cl->x[num-1]) * (cl->y[num-1] - cl->y[num]);
-			if( (alpha = atan(dl/ds)*rad2deg) < 0.0) alpha += 180.0;
+			dl	= float(sqrt(pow(cl->x[num]-cl->x[num-1],2) +
+					   pow(cl->z[num]-cl->z[num-1],2)));
+			ds	= 0.5f*(cl->x[num] + cl->x[num-1]) * (cl->y[num-1] - cl->y[num]);
+			if( (alpha = float(atan(dl/ds)*rad2deg)) < 0.0) alpha += 180.0f;
 			Add2Flist(te_ang, alpha);
 		}
 	}
@@ -1297,11 +1297,11 @@ void GetEulerAnglesPlotData(struct radial *rr, float *xpl,
 	xy[2]	=  1.0;
 	xy[1]	= 0.0;
 	xy[3]	= 90.0;
-	if(maxangle > xy[3]) xy[3] = maxangle+10.0;
+	if(maxangle > xy[3]) xy[3] = maxangle+10.0f;
 	if(rr->be[0]->angle[0] > xy[3]) {
-		xy[3]  = rr->be[0]->angle[0]+10.0;
+		xy[3]  = rr->be[0]->angle[0]+10.0f;
 		xy[3] *= 0.1f;
-		xy[3]  = (float)((int)xy[3])/0.1;
+		xy[3]  = (float)((int)xy[3])/0.1f;
 	}
 }
 

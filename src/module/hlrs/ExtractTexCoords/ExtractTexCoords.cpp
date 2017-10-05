@@ -198,7 +198,7 @@ int ExtractTexCoords::compute(const char *)
         }
     }
 
-    int num_outer_polys = outer_poly_conn_list.size() / 4;
+    int num_outer_polys = (int)outer_poly_conn_list.size() / 4;
 
     fprintf(stderr, "we have %d polygons at hub and shroud!\n", (int)outer_poly_conn_list.size() / 4);
     if (num_outer_polys != num_hubshroud_nodes) // O-Grid
@@ -335,7 +335,7 @@ int ExtractTexCoords::compute(const char *)
         fprintf(stderr, "different number of nodes at hub and shroud! Error!\n");
         return (FAIL);
     }
-    int num_slices = num_points / (hubshroud1.size() - 1);
+    int num_slices = num_points / ((int)hubshroud1.size() - 1);
 
     fprintf(stderr, "num mesh slices between hub and shroud: %d\n", num_slices);
 
@@ -421,7 +421,7 @@ int ExtractTexCoords::compute(const char *)
     // both running from le to te, one for ps, one for ss
 
     int *shroud2 = new int[hubshroud1.size() + 1];
-    int pos = 0;
+    size_t pos = 0;
     int lepos = 0;
     while (shroud[lepos] != leshroud)
     {
@@ -493,8 +493,8 @@ int ExtractTexCoords::compute(const char *)
     //fprintf(stderr, "side 1 is pressure side, side 2 is suction side.\n");
     shroud_ps = &shroud_side1[0];
     shroud_ss = &shroud_side2[0];
-    num_ps_nodes = shroud_side1.size();
-    num_ss_nodes = shroud_side2.size();
+    num_ps_nodes = (int)shroud_side1.size();
+    num_ss_nodes = (int)shroud_side2.size();
 
     fprintf(stderr, "num nodes on pressure side: %d\n", num_ps_nodes);
     fprintf(stderr, "num nodes on suction side: %d\n", num_ss_nodes);
@@ -518,7 +518,7 @@ int ExtractTexCoords::compute(const char *)
     pos = 0;
     for (i = 0; i < num_points; i++)
     {
-        node_polygon_pointer[i] = pos;
+        node_polygon_pointer[i] = (int)pos;
         pos += nodecounter[i];
     }
 
@@ -676,7 +676,7 @@ int ExtractTexCoords::compute(const char *)
         meridional_radius[i] = meridional_radius[i - 1] + dr;
     }
 
-    float compression_factor = 1. / meridional_radius[num_slices - 1];
+    float compression_factor = 1.0f / meridional_radius[num_slices - 1];
 
     // normalize compression
     for (i = 0; i < num_slices; i++)
@@ -755,7 +755,7 @@ int ExtractTexCoords::compute(const char *)
     float normalizeFactor;
     for (i = 0; i < num_slices; i++)
     {
-        normalizeFactor = 1. / slice_maxLength[i];
+        normalizeFactor = 1.0f / slice_maxLength[i];
         for (j = 0; j < num_psss_nodes; j++)
         {
             blade_s_norm[i * num_psss_nodes + j] = blade_s[i * num_psss_nodes + j] * normalizeFactor;

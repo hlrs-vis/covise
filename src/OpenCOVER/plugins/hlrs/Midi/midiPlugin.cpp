@@ -6,10 +6,15 @@
  * License: LGPL 2+ */
 
 #ifdef WIN32
+#include <SDKDDKVer.h>
 #include <winsock2.h>
 #include <windows.h>
 #include <direct.h>
+#include <stdio.h>
+#include <conio.h>
+#include <mmsystem.h>
 #endif
+#include "cover/OpenCOVER.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRFileManager.h>
@@ -39,6 +44,7 @@
 #include <osg/ShadeModel>
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
+#include <osg/LineWidth>
 
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -57,6 +63,38 @@
 #ifdef _WINDOWS
 #include <direct.h>
 #define GetCurrentDir _getcwd
+
+
+void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
+{
+	switch (wMsg) {
+	case MIM_OPEN:
+		printf("wMsg=MIM_OPEN\n");
+		break;
+	case MIM_CLOSE:
+		printf("wMsg=MIM_CLOSE\n");
+		break;
+	case MIM_DATA:
+		printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+		break;
+	case MIM_LONGDATA:
+		printf("wMsg=MIM_LONGDATA\n");
+		break;
+	case MIM_ERROR:
+		printf("wMsg=MIM_ERROR\n");
+		break;
+	case MIM_LONGERROR:
+		printf("wMsg=MIM_LONGERROR\n");
+		break;
+	case MIM_MOREDATA:
+		printf("wMsg=MIM_MOREDATA\n");
+		break;
+	default:
+		printf("wMsg = unknown\n");
+		break;
+	}
+	return;
+}
 #else
 #include <unistd.h>
 #define GetCurrentDir getcwd
@@ -245,6 +283,15 @@ currentTrack = 0;
     shadeModel = new osg::ShadeModel;
     shadeModel->setMode(osg::ShadeModel::SMOOTH);
     shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
+    
+    lineStateSet = new osg::StateSet();
+    lineStateSet->ref();
+    lineStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
+    lineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    lineStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    lineStateSet->setNestRenderBins(false);
+    osg::LineWidth *lineWidth = new osg::LineWidth(4);
+    lineStateSet->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
 
     noteInfos.resize(180);
     
@@ -383,8 +430,33 @@ currentTrack = 0;
     midi1fd = -1;
     if(coVRMSController::instance()->isMaster())
     {
+#ifndef WIN32
         midi1fd = open("/dev/midi1",O_RDONLY | O_NONBLOCK);
         fprintf(stderr,"open /dev/midi1 %d",midi1fd);
+#else
+		UINT nMidiDeviceNum;
+		nMidiDeviceNum = midiInGetNumDevs();
+		if (nMidiDeviceNum == 0) {
+			fprintf(stderr, "midiInGetNumDevs() return 0...");
+			//return -1;
+		}
+		else
+		{
+		MMRESULT rv;
+		HMIDIIN hMidiDevice = NULL;
+		DWORD nMidiPort = 0;
+		rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD_PTR)MidiInProc, 0, CALLBACK_FUNCTION);
+		if (rv != MMSYSERR_NOERROR) {
+			fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
+			//return -1;
+		}
+		else
+		{
+			midiInStart(hMidiDevice);
+		}
+		}
+
+#endif
     }
     lTrack = NULL;
     lTrack = new Track(tracks.size());
@@ -410,6 +482,11 @@ bool MidiPlugin::destroy()
     MIDItab_delete();
 
     return true;
+}
+
+bool MidiPlugin::update()
+{
+    return !tracks.empty();
 }
 
 //------------------------------------------------------------------------------
@@ -446,6 +523,10 @@ void MidiPlugin::tabletEvent(coTUIElement *elem)
 	    {
 	    currentTrack=0;
 	    }
+    }
+    else if(elem == reset)
+    {
+        lTrack->reset();
     }
 }
 
@@ -527,6 +608,10 @@ void MidiPlugin::MIDItab_create(void)
     trackNumber->setPos(0, 1);
     trackNumber->setValue(currentTrack);
     trackNumber->setEventListener(this);
+    
+    reset = new coTUIButton("Reset", MIDITab->getID());
+    reset->setPos(1, 0);
+    reset->setEventListener(this);
 }
 
 //--------------------------------------------------------------------
@@ -548,6 +633,7 @@ COVERPLUGIN(MidiPlugin)
 Track::Track(int tn)
 {
     TrackRoot = new osg::Group();
+    TrackRoot->setName("TrackRoot");
     trackNumber = tn;
     char soundName[200];
     snprintf(soundName,200,"RENDERS/S%d.wav",tn);
@@ -568,9 +654,82 @@ Track::Track(int tn)
 	    
         }
     }
+    
+    geometryLines = createLinesGeometry();
+    TrackRoot->addChild(geometryLines);
+    lastNum=0;
+    lastPrimitive=0;
 }
 Track::~Track()
 {
+}
+void Track::addNote(Note *n)
+{
+
+    Note* lastNode = NULL;
+     int num = notes.size()-1;
+     if(num>=0)
+     {
+         std::list<Note *>::iterator it;
+	 it=notes.end();
+	 it--;
+         lastNode = *it;
+     }
+     notes.push_back(n);
+     if( lastNode == NULL || ((n->event.seconds -lastNode->event.seconds)>1.0) )
+     {
+	 if(lastNode != NULL && num-lastNum == 0)
+	 {
+         fprintf(stderr,"new zero line\n");
+         linePrimitives->push_back(1);
+	 }
+         lastNum = num;    
+         fprintf(stderr,"%d\n",(num-lastNum)+1);
+         fprintf(stderr,"td\n");
+     }
+     fprintf(stderr,"num %d lastNum %d\n",num,lastNum);
+     if(num-lastNum==1)
+     {
+         fprintf(stderr,"new line\n");
+         lastPrimitive = linePrimitives->size();
+         linePrimitives->push_back((num-lastNum)+1);
+     }
+     if(num-lastNum>0)
+     {
+         fprintf(stderr,"addLineVert%d\n",(num-lastNum)+1);
+         (*linePrimitives)[lastPrimitive] = (num-lastNum)+1;
+     }
+     lineVert->push_back(n->transform->getMatrix().getTrans());
+     lineColor->push_back(osg::Vec4(0,1,1,1));
+}
+
+osg::Geode *Track::createLinesGeometry()
+{
+    osg::Geode *geode;
+
+    
+    geode = new osg::Geode();
+    geode->setStateSet(MidiPlugin::plugin->lineStateSet.get());
+    
+    
+    osg::Geometry *geom = new osg::Geometry();
+    geom->setUseDisplayList(false);
+    geom->setUseVertexBufferObjects(false);
+
+    // set up geometry
+    lineVert = new osg::Vec3Array;
+    lineColor = new osg::Vec4Array;
+    
+    linePrimitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
+    linePrimitives->push_back(0);
+    geom->setVertexArray(lineVert);
+    geom->setColorArray(lineColor);
+    geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    geom->addPrimitiveSet(linePrimitives);
+    
+    geode->addDrawable(geom);
+    
+    return geode;
 }
 void Track::reset()
 {
@@ -584,7 +743,12 @@ void Track::reset()
     delete *it;
     }
     notes.clear();
+    lineVert->resize(0);
+    linePrimitives->resize(0);
+    lastNum=0;
+    lastPrimitive=0;
 }
+
 void Track::update()
 {
     double speed = MidiPlugin::plugin->midifile.getTicksPerQuarterNote();
@@ -610,6 +774,7 @@ void Track::update()
                     int numRead = read(MidiPlugin::plugin->midi1fd,buf,2);
 		    int value = buf[0];
                     me.setP2(buf[0]);
+		    me.seconds = cover->frameTime();
 		    if(value > 0)
                     {
                         // key press
@@ -646,7 +811,7 @@ void Track::update()
         }
         if(me.isNote() && me.getVelocity()>0)
         {
-            notes.push_back(new Note(me,this));
+	    addNote(new Note(me,this));
         }
     }
     else
@@ -675,11 +840,24 @@ void Track::update()
             eventNumber++;
     } 
     }
-    
+    int vNum=0;
+    int numNotes = notes.size();
     for(std::list<Note *>::iterator it = notes.begin(); it != notes.end();it++)
     {
-        (*it)->integrate(cover->frameDuration());
+        
+        (*it)->integrate(cover->frameTime()-oldTime);
+	osg::Vec3 v = ((*it)->transform->getMatrix().getTrans());
+        (*lineVert)[vNum] = v;
+	float len = v.length();
+	v.normalize();
+	osg::Vec4 c;
+	c[0] =  v[0];
+	c[1] =v[1];
+	c[2] = v[2];
+	c[3] = 1.0;
+        (*lineColor)[vNum++] = c;
     }
+	oldTime = cover->frameTime();
 }
 void Track::setVisible(bool state)
 {
@@ -715,7 +893,10 @@ Note::Note(MidiEvent &me, Track *t)
         event.setKeyNumber(27);
     }
     transform->setMatrix(osg::Matrix::scale(s,s,s) * osg::Matrix::translate(ni->initialPosition));
-    transform->addChild(ni->geometry);
+    if(ni->geometry!=NULL)
+    {
+        transform->addChild(ni->geometry);
+    }
     velo = ni->initialVelocity*event.getVelocity()/100.0;
     velo[2] = (event.getVelocity()-32) *20;
     t->TrackRoot->addChild(transform.get());

@@ -25,6 +25,7 @@ do
     echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
     echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
+    echo -e "${MENU} ${OPT}  3)  ${MENU} SWA Augsburg             "
 
     echo -e "${MENU}-----${TYP} CFD ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 11)  ${MENU} Audi                      "
@@ -50,7 +51,8 @@ do
 
     echo -e "${MENU}-----${TYP} Urban Planning ${MENU}------------------------"
     echo -e "${MENU} ${OPT} 38)  ${MENU} Spielplatz Stuttgart West "
-
+    echo -e "${MENU} ${OPT} 39)  ${MENU} Herrenberg"
+    
     echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
     echo -e "${MENU} ${OPT} 42)  ${MENU} Schweizer Autobus         "
@@ -72,7 +74,6 @@ do
     echo -e "${MENU} ${OPT} 57)  ${MENU} City (passing through)               "
     echo -e "${MENU} ${OPT} 58)  ${MENU} City (flyover)                       "
     echo -e "${MENU} ${OPT} 59)  ${MENU} Mountain                             "
-    echo -e "${MENU} ${OPT} 60)  ${MENU} Herrenberg                           "
 
     echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
     echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
@@ -90,7 +91,7 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
-    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Testturm Multi    "
     echo -e "${MENU} ${OPT} 82)  ${MENU} Thyssen Turm              "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
@@ -144,6 +145,12 @@ do
 	    cd /data/recom/SWB/Praesentation/
             opencover Cavepraesentation-SWBremen.wrl 
 	    ;;
+	3)
+	    echo -e "starting SWA"
+	    cd /mnt/raid/home/recberr/StadtwerkeAugsburg/2017/Praesentation
+            opencover Cavepraesentation-SWA.wrl
+	    ;;
+
 
 # CFD
 
@@ -226,6 +233,12 @@ do
 	38)
 	    echo -e "starting Spielplatz Stuttgart West";
             covise -e /data/covise_net/2017/Spielplatz.net
+	    ;; 
+	39)
+	    echo -e "starting Herrenberg";
+	    bash /data/reallabor/herrenberg/sumo/startSumo.sh &
+	    covise -e /data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseR.py
+            #opencover /data/reallabor/herrenberg/vrml/simulierteWelten.wrl
 	    ;;
 
 # LKA
@@ -376,7 +389,8 @@ do
 
 	81)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /data/covise_net/2014/ThyssenNeu.net
+            opencover /data/Thyssen/Turm/praesentation.wrl
+	    #covise -e /data/covise_net/2014/ThyssenNeu.net
 	    ;;
 
 	82)

@@ -4,13 +4,13 @@
 using namespace std;
 #include<iostream>
 #include<string>
-#include<Trajectory.h>
-#include<Entity.h>
+#include "Trajectory.h"
+#include "Entity.h"
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <osg/Vec3>
-#include <DrivingSim/OpenScenario/schema/oscManeuver.h>
+#include <OpenScenario/schema/oscManeuver.h>
 
 
 class Maneuver: public OpenScenario::oscManeuver

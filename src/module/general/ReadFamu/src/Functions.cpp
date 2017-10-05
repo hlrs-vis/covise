@@ -352,8 +352,8 @@ void rotatePoint(Node *origNode, Node centerNode, float degree, int axis)
         if (yDist < 0)
             radian += atan2(yDist, xDist) + 2 * pi;
         radius = sqrt(pow((centerNode.x - origNode->x), 2) + pow((centerNode.y - origNode->y), 2));
-        origNode->x = radius * cos(radian) + centerNode.x;
-        origNode->y = radius * sin(radian) + centerNode.y;
+        origNode->x = radius * float(cos(radian)) + centerNode.x;
+        origNode->y = radius * float(sin(radian)) + centerNode.y;
         break;
 
     // 2 indicts at YZ plane
@@ -366,8 +366,8 @@ void rotatePoint(Node *origNode, Node centerNode, float degree, int axis)
         if (zDist < 0)
             radian += atan2(zDist, yDist) + 2 * pi;
         radius = sqrt(pow((centerNode.y - origNode->y), 2) + pow((centerNode.z - origNode->z), 2));
-        origNode->y = radius * cos(radian) + centerNode.y;
-        origNode->z = radius * sin(radian) + centerNode.z;
+        origNode->y = radius * float(cos(radian)) + centerNode.y;
+        origNode->z = radius * float(sin(radian)) + centerNode.z;
         break;
 
     // 3 indicts at ZX plane
@@ -380,8 +380,8 @@ void rotatePoint(Node *origNode, Node centerNode, float degree, int axis)
         if (xDist < 0)
             radian += atan2(xDist, zDist) + 2 * pi;
         radius = sqrt(pow((centerNode.z - origNode->z), 2) + pow((centerNode.x - origNode->x), 2));
-        origNode->z = radius * cos(radian) + centerNode.z;
-        origNode->x = radius * sin(radian) + centerNode.x;
+        origNode->z = radius * float(cos(radian)) + centerNode.z;
+        origNode->x = radius * float(sin(radian)) + centerNode.x;
         break;
     }
 }
@@ -415,17 +415,17 @@ void transformBlock(const char *blockFile, const char *tempFile, float *moveVec3
                 Out_BlockFile << "  " << stringBuf << " ";
                 // x Coordinate
                 In_BlockFile >> stringBuf;
-                xCoord = atof(stringBuf);
+                xCoord = float(atof(stringBuf));
                 xCoord = xCoord * predScaleVec3[0] * scaleVec3[0] + predMoveVec3[0] + moveVec3[0];
                 Out_BlockFile << xCoord << "         ";
                 // yCoorinate
                 In_BlockFile >> stringBuf;
-                yCoord = atof(stringBuf);
+                yCoord = float(atof(stringBuf));
                 yCoord = yCoord * predScaleVec3[1] * scaleVec3[1] + predMoveVec3[1] + moveVec3[1];
                 Out_BlockFile << yCoord << "         ";
                 //zCoordinate
                 In_BlockFile >> stringBuf;
-                zCoord = atof(stringBuf);
+                zCoord = float(atof(stringBuf));
                 zCoord = zCoord * predScaleVec3[2] * scaleVec3[2] + predMoveVec3[2] + moveVec3[2];
                 Out_BlockFile << zCoord;
 

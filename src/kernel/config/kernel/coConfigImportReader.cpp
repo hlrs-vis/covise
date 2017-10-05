@@ -454,7 +454,7 @@ QDomDocument coConfigImportReader::parse()
 
                         if (elements.length() > 0)
                         {
-                            for (unsigned int ctr = 0; ctr < elements.length(); ++ctr)
+                            for (int ctr = 0; ctr < elements.length(); ++ctr)
                             {
                                 int num = elements.item(ctr).toElement().attribute("name").toInt();
                                 if (num > maxnum)
@@ -600,7 +600,7 @@ void coConfigImportReader::update(QDomElement &rootNode, QDomElement &updater)
     QDomNodeList updateList = updater.childNodes();
 
     // Iterate through all update instructions
-    for (unsigned int ctr = 0; ctr < updateList.length(); ++ctr)
+    for ( int ctr = 0; ctr < updateList.length(); ++ctr)
     {
         QDomElement currentUpdate = updateList.item(ctr).toElement();
         QString name = currentUpdate.attribute("name");
@@ -649,7 +649,7 @@ void coConfigImportReader::updateNode(QDomElement &node, QDomElement &updateInst
         {
             //COCONFIGLOG("coConfigImportReader::updateNode info: updating " << node.tagName());
             QDomNodeList updateSteps = updateInstruction.childNodes();
-            for (unsigned int ctr = 0; ctr < updateSteps.length(); ++ctr)
+            for ( int ctr = 0; ctr < updateSteps.length(); ++ctr)
             {
                 QDomElement entry = updateSteps.item(ctr).toElement();
                 if (entry.isNull())
@@ -671,7 +671,7 @@ void coConfigImportReader::updateEntry(QDomElement &node, QDomElement &updateIns
 
     QDomNodeList instructions = updateInstruction.childNodes();
 
-    for (unsigned int ctr = 0; ctr < instructions.length(); ++ctr)
+    for ( int ctr = 0; ctr < instructions.length(); ++ctr)
     {
 
         QDomElement instruction = instructions.item(ctr).toElement();
@@ -978,7 +978,7 @@ void coConfigImportReader::updateApplyInstruction(QDomElement &node, QDomElement
 
         QDomNodeList children = parent.childNodes();
 
-        for (unsigned int ctr = 0; ctr < children.length(); ++ctr)
+        for ( int ctr = 0; ctr < children.length(); ++ctr)
         {
             QDomElement child = children.item(ctr).toElement();
             if (child.isNull())
@@ -1057,7 +1057,7 @@ void coConfigImportReader::updateMergeNodes(QDomElement &section, QDomElement &n
 
     QDomNamedNodeMap attributes = node.attributes();
 
-    for (unsigned int ctr = 0; ctr < attributes.length(); ++ctr)
+    for ( int ctr = 0; ctr < attributes.length(); ++ctr)
     {
         QDomAttr attribute = attributes.item(ctr).toAttr();
         targetNode.setAttribute(attribute.name(), attribute.value());
@@ -1074,7 +1074,7 @@ void coConfigImportReader::updateMergeNodes(QDomElement &section, QDomElement &n
 QLinkedList<QDomNode> coConfigImportReader::makeNonLiveList(QDomNodeList liveList) const
 {
     QLinkedList<QDomNode> list;
-    for (unsigned int ctr = 0; ctr < liveList.length(); ++ctr)
+    for ( int ctr = 0; ctr < liveList.length(); ++ctr)
         list.append(liveList.item(ctr));
     return list;
 }

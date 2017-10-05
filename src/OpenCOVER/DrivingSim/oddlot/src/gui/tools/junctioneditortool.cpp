@@ -220,6 +220,8 @@ JunctionEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->linkSelected, ODD::TJE_LINK_ROADS);
     ribbonToolGroup->addButton(ui->unlinkSelected, ODD::TJE_UNLINK_ROADS);
     ribbonToolGroup->addButton(ui->cuttingCircle, ODD::TJE_CIRCLE);
+
+	ribbonToolGroup->addButton(ui->select, ODD::TJE_SELECT);
     
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
 
@@ -245,9 +247,7 @@ JunctionEditorTool::activateEditor()
 {
     // Send //
     //
-    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, thresholdEdit_->value());
-    emit toolAction(action);
-    delete action;
+    setRadius();
 }
 
 /*! \brief Gets called when this widget (tab) has been activated.
@@ -258,7 +258,9 @@ JunctionEditorTool::activateRibbonEditor()
 {
     // Send //
     //
-    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, ui->radiusEdit->value());
+    setRRadius();
+
+	JunctionEditorToolAction *action  = new JunctionEditorToolAction(ODD::TJE_SELECT, ui->radiusEdit->value());
     emit toolAction(action);
     delete action;
 }

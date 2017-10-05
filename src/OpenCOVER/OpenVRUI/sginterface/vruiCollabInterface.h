@@ -79,7 +79,7 @@ protected:
     virtual void releaseRemoteLock(const char *message);
 
 private:
-    inline int composeMessage(const char messageType, const char *message);
+    inline size_t composeMessage(const char messageType, const char *message);
 
     int interfaceType; ///< type of this interface
     std::string name; ///< symbolic name of this interface

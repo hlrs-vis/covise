@@ -131,6 +131,7 @@ RoadLinkEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
     ribbonToolGroup->addButton(ui->roadLink, ODD::TRL_ROADLINK);
     ribbonToolGroup->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
+	ribbonToolGroup->addButton(ui->select, ODD::TRL_SELECT);
     
     connect(ui->thresholdSpinBox, SIGNAL(editingFinished()), this, SLOT(setRibbonThreshold()));
 

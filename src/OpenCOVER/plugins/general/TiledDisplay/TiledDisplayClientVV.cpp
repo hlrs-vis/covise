@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include <iostream>
+#include <ostream>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
@@ -15,6 +18,9 @@
 #include <cover/coVRPluginSupport.h>
 
 #include "TiledDisplayClientVV.h"
+
+using std::cerr;
+using std::endl;
 
 TiledDisplayClientVV::TiledDisplayClientVV(int number, const std::string &compositor)
     : TiledDisplayClient(number, compositor)

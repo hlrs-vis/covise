@@ -2585,14 +2585,14 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
                 std::string modName = from_name + "_" + from_nr;
                 if (modName == (*it).first)
                 {
-                    int pos = (*it).second.find_last_of("_");
+                    size_t pos = (*it).second.find_last_of("_");
                     std::string name = (*it).second.substr(0, pos);
                     std::string n = (*it).second.substr(pos + 1); // TODO send Message to Mapeditors
                     CTRLGlobal::getInstance()->netList->change_param(name, n, from_host, portname, value);
                 }
                 else if (modName == (*it).second)
                 {
-                    int pos = (*it).first.find_last_of("_");
+                    size_t pos = (*it).first.find_last_of("_");
                     std::string name = (*it).first.substr(0, pos);
                     std::string n = (*it).first.substr(pos + 1);
                     CTRLGlobal::getInstance()->netList->change_param(name, n, from_host, portname, value);

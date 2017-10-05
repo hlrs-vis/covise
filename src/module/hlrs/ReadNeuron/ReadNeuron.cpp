@@ -149,7 +149,7 @@ void ReadNeuron::readLine(int numSegments)
                 yPoints.push_back(y);
                 zPoints.push_back(z);
                 rad.push_back(r);
-                IDs.push_back(ID);
+                IDs.push_back(float(ID));
                 numPoints++;
             }
             else
@@ -236,7 +236,8 @@ int ReadNeuron::compute(const char *)
     m_somafilename = new char[strlen(m_pSomaFile->getValue()) + 1];
     strcpy(m_somafilename, m_pSomaFile->getValue());
 
-    if ((somafile = fopen(m_somafilename, "r")) <= 0)
+    somafile = fopen(m_somafilename, "r");
+    if (!somafile)
     {
         ///sprintf(bfr, "ERROR: can't open file %s", m_somafilename);
         //sendError(bfr);
@@ -245,7 +246,8 @@ int ReadNeuron::compute(const char *)
     }
 
     // compute parameters
-    if ((file = fopen(m_filename, "r")) <= 0)
+    file = fopen(m_filename, "r");
+    if (!file)
     {
         sendError("ERROR: can't open file %s", m_filename);
         return FAIL;
@@ -341,7 +343,7 @@ int ReadNeuron::compute(const char *)
                     pY.push_back(y);
                     pZ.push_back(z);
 
-                    synIDs.push_back(synID);
+                    synIDs.push_back(float(synID));
 
                     numSynapses++;
                     break;

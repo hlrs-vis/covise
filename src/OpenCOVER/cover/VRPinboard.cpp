@@ -57,8 +57,6 @@
 
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
 
-#include <vtrans/vtrans.h>
-
 #define NAV_GROUP_TYPE 0;
 #define FUNC_TYPE 3;
 #define SWITCH_TYPE 4;
@@ -66,6 +64,8 @@
 using namespace opencover;
 using namespace vrui;
 using covise::coCoviseConfig;
+
+VRPinboard *VRPinboard::s_singleton = NULL;
 
 coCheckboxGroup *opencover::groupPointerArray[100];
 
@@ -154,10 +154,9 @@ void buttonSpecCell::setMenu(const char *n)
  ************************************************************************/
 VRPinboard *VRPinboard::instance()
 {
-    static VRPinboard *singleton = NULL;
-    if (!singleton)
-        singleton = new VRPinboard();
-    return singleton;
+    if (!s_singleton)
+        s_singleton = new VRPinboard();
+    return s_singleton;
 }
 
 VRPinboard::PinboardFunction::PinboardFunction(const char *fn,
@@ -196,6 +195,8 @@ void VRPinboard::addFunction(const char *fn, int ft, const char *bn, const char 
 /*______________________________________________________________________*/
 VRPinboard::VRPinboard()
 {
+    assert(!s_singleton);
+
     customPinboard = false;
     mainMenu = addMenu("COVER", NULL);
 
@@ -257,6 +258,7 @@ VRPinboard::~VRPinboard()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete VRPinboard\n");
+    s_singleton = NULL;
 }
 
 /*______________________________________________________________________*/
@@ -585,30 +587,6 @@ void VRPinboard::makeQuitMenu()
     qtext = "Really quit OpenCOVER?";
     yesText = "Quit";
     noText = "Continue";
-
-    char *covisepath = getenv("COVISE_PATH");
-    if (covisepath)
-    {
-        std::string covisePath(covisepath);
-        //yes, there could be a semicolon in it!
-        covisePath.erase(remove(covisePath.begin(), covisePath.end(), ';'), covisePath.end());
-        qtext = vtrans::VTrans::translate(coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                          covisePath + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ""),
-                                          coCoviseConfig::getEntry("value", "COVER.Localization.CoviseDomain", ""),
-                                          coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                                          qtext);
-
-        yesText = vtrans::VTrans::translate(coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                            covisePath + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ""),
-                                            coCoviseConfig::getEntry("value", "COVER.Localization.CoviseDomain", ""),
-                                            coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                                            yesText);
-        noText = vtrans::VTrans::translate(coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                           covisePath + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ""),
-                                           coCoviseConfig::getEntry("value", "COVER.Localization.CoviseDomain", ""),
-                                           coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                                           noText);
-    }
 
     quitMenu_ = new coRowMenu(qtext.c_str());
     quitMenu_->setVisible(false);

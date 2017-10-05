@@ -143,8 +143,8 @@ TypeEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
-    ribbonToolGroup->addButton(ui->typeMove, ODD::TRT_MOVE);
-    ui->typeMove->setChecked(true);
+    ribbonToolGroup->addButton(ui->select, ODD::TRT_MOVE);
+    ui->select->setChecked(true);
     ribbonToolGroup->addButton(ui->typeAdd, ODD::TRT_ADD);
     ribbonToolGroup->addButton(ui->typeDelete, ODD::TRT_DEL);
     

@@ -233,11 +233,11 @@ void RotateGABlade4Covise(struct covise_info *ci, int nob)
    np         = ci->p->nump;
    npol       = ci->pol->num;
    nvx        = ci->vx->num;
-   rot        = 2 * M_PI / nob;
-   roma[0][0] =  cos(rot);
-   roma[0][1] = -sin(rot);
-   roma[1][0] =  sin(rot);
-   roma[1][1] =  cos(rot);
+   rot        = float(2 * M_PI / nob);
+   roma[0][0] = float(cos(rot));
+   roma[0][1] = float(-sin(rot));
+   roma[1][0] = float(sin(rot));
+   roma[1][1] = float(cos(rot));
 
    for (i = 0; i < nob-1; i++)
    {
@@ -284,8 +284,8 @@ void CreateGA_CoviseContours(struct covise_info *ci, struct gate *ga)
          AddPoint(ga->phub, 0.0, ga->in_rad, ga->in_z + ga->in_height);
          for (i = 0; i < ga->num_hub_arc; i++)    // ellipse corner
          {
-            y = ga->hub_ab[0] * cos (M_PI/2. + i * M_PI/2. / (ga->num_hub_arc - 1));
-            z = ga->hub_ab[1] * sin (M_PI/2. + i * M_PI/2. / (ga->num_hub_arc - 1));
+            y = float(ga->hub_ab[0] * cos (M_PI/2. + i * M_PI/2. / (ga->num_hub_arc - 1)));
+            z = float(ga->hub_ab[1] * sin (M_PI/2. + i * M_PI/2. / (ga->num_hub_arc - 1)));
             AddPoint(ga->phub, 0.0, y + ga->out_rad1 + ga->hub_ab[0] , z + ga->in_z + ga->in_height - ga->hub_ab[1]);
          }
          AddPoint(ga->phub, 0.0, ga->out_rad1, ga->out_z);
@@ -295,8 +295,8 @@ void CreateGA_CoviseContours(struct covise_info *ci, struct gate *ga)
          AddPoint(ga->pshroud, 0.0, ga->in_rad, ga->in_z);
          for (i = 0; i < NPOIN_SHROUD_AB; i++)    // ellipse corner
          {
-            y = ga->shroud_ab[0] * cos (M_PI/2. + i * M_PI/2. / (NPOIN_SHROUD_AB - 1));
-            z = ga->shroud_ab[1] * sin (M_PI/2. + i * M_PI/2. / (NPOIN_SHROUD_AB - 1));
+            y = float(ga->shroud_ab[0] * cos (M_PI/2. + i * M_PI/2. / (NPOIN_SHROUD_AB - 1)));
+            z = float(ga->shroud_ab[1] * sin (M_PI/2. + i * M_PI/2. / (NPOIN_SHROUD_AB - 1)));
             AddPoint(ga->pshroud, 0.0, y + ga->out_rad2 + ga->shroud_ab[0] , z + ga->in_z - ga->shroud_ab[1]);
          }
          AddPoint(ga->pshroud, 0.0, ga->out_rad2, ga->out_z);
@@ -345,10 +345,10 @@ void CreateGA_CoviseContours(struct covise_info *ci, struct gate *ga)
    for (i = 1; i < NUMBER_OF_SECTIONS; i++)
    {
       angle      = i * rot;
-      roma[0][0] =  cos(angle);
-      roma[0][1] = -sin(angle);
-      roma[1][0] =  sin(angle);
-      roma[1][1] =  cos(angle);
+      roma[0][0] = float(cos(angle));
+      roma[0][1] = float(-sin(angle));
+      roma[1][0] = float(sin(angle));
+      roma[1][1] = float(cos(angle));
       for (j = 0; j < ga->phub_n->nump; j++)
       {
          ind = npblade + j;
@@ -372,10 +372,10 @@ void CreateGA_CoviseContours(struct covise_info *ci, struct gate *ga)
    for (i = 1; i < NUMBER_OF_SECTIONS; i++)
    {
       angle      = i * rot;
-      roma[0][0] =  cos(angle);
-      roma[0][1] = -sin(angle);
-      roma[1][0] =  sin(angle);
-      roma[1][1] =  cos(angle);
+      roma[0][0] = float(cos(angle));
+      roma[0][1] = float(-sin(angle));
+      roma[1][0] = float(sin(angle));
+      roma[1][1] = float(cos(angle));
       for (j = 0; j < ga->pshroud->nump; j++)
       {
          ind = npblade + nphub + j;

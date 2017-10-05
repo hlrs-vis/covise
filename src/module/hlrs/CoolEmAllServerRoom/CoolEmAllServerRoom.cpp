@@ -416,7 +416,7 @@ bccheck->setCurrentObject(poly);
         //   3. list of nodes with bc (a node may appear more than one time)
         //      and its types
         sprintf(name, "%s_diricletNodes", basename);
-        int num_diriclet = rg->bcin_nodes.size();
+        int num_diriclet = int(rg->bcin_nodes.size());
 
         size[0] = RG_COL_DIRICLET;
         size[1] = 5 * (num_diriclet);
@@ -482,7 +482,7 @@ bccheck->setCurrentObject(poly);
         //   6. balance
         sprintf(name, "%s_balance", basename);
         size[0] = RG_COL_BALANCE;
-        size[1] = rg->bcinvol.size() + rg->bcoutvol->num;
+        size[1] = int(rg->bcinvol.size() + rg->bcoutvol->num);
 
         coDoIntArr *balance = new coDoIntArr(name, 2, size);
         data = balance->getAddress();
@@ -547,11 +547,11 @@ bccheck->setCurrentObject(poly);
             zinp[i] = rg->p->z[rg->bcin_nodes[i]];
         }
         coDoPoints *in_points;
-        in_points = new coDoPoints(inpoints->getObjName(), rg->bcin_nodes.size(), xinp, yinp, zinp);
+        in_points = new coDoPoints(inpoints->getObjName(), int(rg->bcin_nodes.size()), xinp, yinp, zinp);
         inpoints->setCurrentObject(in_points);
 
         coDoFloat *in_types;
-        in_types = new coDoFloat(intypes->getObjName(), rg->bcin_type2.size(), &rg->bcin_type2[0]);
+        in_types = new coDoFloat(intypes->getObjName(), int(rg->bcin_type2.size()), &rg->bcin_type2[0]);
         intypes->setCurrentObject(in_types);
 
         /*
@@ -617,7 +617,7 @@ void rechenraum::CreateUserMenu(void)
     p_gridSpacing->setValue(4.);
 
     p_model_size = addFloatVectorParam("model_size", "model size");
-    p_model_size->setValue(36.54, 22.54, 3.20);
+    p_model_size->setValue(36.54f, 22.54f, 3.20f);
 
     p_nobjects = addInt32Param("n_objects", "make grid?");
     p_nobjects->setValue(MAX_CUBES);
@@ -626,7 +626,7 @@ void rechenraum::CreateUserMenu(void)
     p_Q_total->setValue(320000.);
 
     p_v_SX9 = addFloatParam("v_SX9", "flow velocity at SX9 inlet and outlet in m/s");
-    p_v_SX9->setValue(0.84);
+    p_v_SX9->setValue(0.84f);
 
     sprintf(path, "%s/racks.txt", coCoviseConfig::getEntry("value", "Module.Rechenraum.GeorbPath", "/data/rechenraum").c_str());
     p_BCFile = addStringParam("BCFile", "BCFile");
@@ -803,226 +803,226 @@ int rechenraum::setGeoParamsStandardForRechenRaum()
     //   fprintf(stderr,"entering setGeoParamsStandardForRechenraum ...\n");
 
     // Infrastruktur
-    rech_cubes_pos[0][0] = 3.60;
-    rech_cubes_size[0][0] = 3.61;
-    rech_cubes_pos[0][1] = 1.97;
-    rech_cubes_size[0][1] = 0.88;
-    rech_cubes_pos[0][2] = 0.00;
-    rech_cubes_size[0][2] = 2.20;
+    rech_cubes_pos[0][0] = 3.60f;
+    rech_cubes_size[0][0] = 3.61f;
+    rech_cubes_pos[0][1] = 1.97f;
+    rech_cubes_size[0][1] = 0.88f;
+    rech_cubes_pos[0][2] = 0.00f;
+    rech_cubes_size[0][2] = 2.20f;
 
     // Phoenix
-    rech_cubes_pos[1][0] = 7.21;
-    rech_cubes_size[1][0] = 1.90;
-    rech_cubes_pos[1][1] = 1.97;
-    rech_cubes_size[1][1] = 0.88;
-    rech_cubes_pos[1][2] = 0.00;
-    rech_cubes_size[1][2] = 2.20;
+    rech_cubes_pos[1][0] = 7.21f;
+    rech_cubes_size[1][0] = 1.90f;
+    rech_cubes_pos[1][1] = 1.97f;
+    rech_cubes_size[1][1] = 0.88f;
+    rech_cubes_pos[1][2] = 0.00f;
+    rech_cubes_size[1][2] = 2.20f;
 
     // NAS
-    rech_cubes_pos[2][0] = 9.11;
-    rech_cubes_size[2][0] = 0.89;
-    rech_cubes_pos[2][1] = 1.97;
-    rech_cubes_size[2][1] = 0.88;
-    rech_cubes_pos[2][2] = 0.00;
-    rech_cubes_size[2][2] = 2.20;
+    rech_cubes_pos[2][0] = 9.11f;
+    rech_cubes_size[2][0] = 0.89f;
+    rech_cubes_pos[2][1] = 1.97f;
+    rech_cubes_size[2][1] = 0.88f;
+    rech_cubes_pos[2][2] = 0.00f;
+    rech_cubes_size[2][2] = 2.20f;
 
     // DDN
-    rech_cubes_pos[3][0] = 10.77;
-    rech_cubes_size[3][0] = 0.67;
-    rech_cubes_pos[3][1] = 1.97;
-    rech_cubes_size[3][1] = 0.88;
-    rech_cubes_pos[3][2] = 0.00;
-    rech_cubes_size[3][2] = 2.00;
+    rech_cubes_pos[3][0] = 10.77f;
+    rech_cubes_size[3][0] = 0.67f;
+    rech_cubes_pos[3][1] = 1.97f;
+    rech_cubes_size[3][1] = 0.88f;
+    rech_cubes_pos[3][2] = 0.00f;
+    rech_cubes_size[3][2] = 2.00f;
 
     // Strider
-    rech_cubes_pos[4][0] = 11.44;
-    rech_cubes_size[4][0] = 2.94;
-    rech_cubes_pos[4][1] = 1.97;
-    rech_cubes_size[4][1] = 0.88;
-    rech_cubes_pos[4][2] = 0.00;
-    rech_cubes_size[4][2] = 2.00;
+    rech_cubes_pos[4][0] = 11.44f;
+    rech_cubes_size[4][0] = 2.94f;
+    rech_cubes_pos[4][1] = 1.97f;
+    rech_cubes_size[4][1] = 0.88f;
+    rech_cubes_pos[4][2] = 0.00f;
+    rech_cubes_size[4][2] = 2.00f;
 
     // Blech
-    rech_cubes_pos[5][0] = 14.38;
-    rech_cubes_size[5][0] = 1.08;
-    rech_cubes_pos[5][1] = 1.97;
-    rech_cubes_size[5][1] = 0.88;
-    rech_cubes_pos[5][2] = 0.00;
-    rech_cubes_size[5][2] = 2.00;
+    rech_cubes_pos[5][0] = 14.38f;
+    rech_cubes_size[5][0] = 1.08f;
+    rech_cubes_pos[5][1] = 1.97f;
+    rech_cubes_size[5][1] = 0.88f;
+    rech_cubes_pos[5][2] = 0.00f;
+    rech_cubes_size[5][2] = 2.00f;
 
     // SX8R
-    rech_cubes_pos[6][0] = 16.06;
-    rech_cubes_size[6][0] = 0.92;
-    rech_cubes_pos[6][1] = 2.25;
-    rech_cubes_size[6][1] = 0.92;
-    rech_cubes_pos[6][2] = 0.00;
-    rech_cubes_size[6][2] = 1.80;
+    rech_cubes_pos[6][0] = 16.06f;
+    rech_cubes_size[6][0] = 0.92f;
+    rech_cubes_pos[6][1] = 2.25f;
+    rech_cubes_size[6][1] = 0.92f;
+    rech_cubes_pos[6][2] = 0.00f;
+    rech_cubes_size[6][2] = 1.80f;
 
     // IBM_BW_Grid
-    rech_cubes_pos[7][0] = 18.00;
-    rech_cubes_size[7][0] = 7.81;
-    rech_cubes_pos[7][1] = 1.85;
-    rech_cubes_size[7][1] = 1.08;
-    rech_cubes_pos[7][2] = 0.00;
-    rech_cubes_size[7][2] = 2.00;
+    rech_cubes_pos[7][0] = 18.00f;
+    rech_cubes_size[7][0] = 7.81f;
+    rech_cubes_pos[7][1] = 1.85f;
+    rech_cubes_size[7][1] = 1.08f;
+    rech_cubes_pos[7][2] = 0.00f;
+    rech_cubes_size[7][2] = 2.00f;
 
     // Disk_Rack_1
-    rech_cubes_pos[8][0] = 2.40;
-    rech_cubes_size[8][0] = 3.03;
-    rech_cubes_pos[8][1] = 5.39;
-    rech_cubes_size[8][1] = 0.78;
-    rech_cubes_pos[8][2] = 0.00;
-    rech_cubes_size[8][2] = 1.60;
+    rech_cubes_pos[8][0] = 2.40f;
+    rech_cubes_size[8][0] = 3.03f;
+    rech_cubes_pos[8][1] = 5.39f;
+    rech_cubes_size[8][1] = 0.78f;
+    rech_cubes_pos[8][2] = 0.00f;
+    rech_cubes_size[8][2] = 1.60f;
 
     // Disk_Rack_2
-    rech_cubes_pos[9][0] = 6.00;
-    rech_cubes_size[9][0] = 3.03;
-    rech_cubes_pos[9][1] = 5.39;
-    rech_cubes_size[9][1] = 0.78;
-    rech_cubes_pos[9][2] = 0.00;
-    rech_cubes_size[9][2] = 1.60;
+    rech_cubes_pos[9][0] = 6.00f;
+    rech_cubes_size[9][0] = 3.03f;
+    rech_cubes_pos[9][1] = 5.39f;
+    rech_cubes_size[9][1] = 0.78f;
+    rech_cubes_pos[9][2] = 0.00f;
+    rech_cubes_size[9][2] = 1.60f;
 
     // Disk_Rack_3
-    rech_cubes_pos[10][0] = 9.60;
-    rech_cubes_size[10][0] = 3.03;
-    rech_cubes_pos[10][1] = 5.39;
-    rech_cubes_size[10][1] = 0.78;
-    rech_cubes_pos[10][2] = 0.00;
-    rech_cubes_size[10][2] = 1.60;
+    rech_cubes_pos[10][0] = 9.60f;
+    rech_cubes_size[10][0] = 3.03f;
+    rech_cubes_pos[10][1] = 5.39f;
+    rech_cubes_size[10][1] = 0.78f;
+    rech_cubes_pos[10][2] = 0.00f;
+    rech_cubes_size[10][2] = 1.60f;
 
     // Disk_Rack_4
-    rech_cubes_pos[11][0] = 13.20;
-    rech_cubes_size[11][0] = 3.03;
-    rech_cubes_pos[11][1] = 5.39;
-    rech_cubes_size[11][1] = 0.78;
-    rech_cubes_pos[11][2] = 0.00;
-    rech_cubes_size[11][2] = 1.60;
+    rech_cubes_pos[11][0] = 13.20f;
+    rech_cubes_size[11][0] = 3.03f;
+    rech_cubes_pos[11][1] = 5.39f;
+    rech_cubes_size[11][1] = 0.78f;
+    rech_cubes_pos[11][2] = 0.00f;
+    rech_cubes_size[11][2] = 1.60f;
 
     // Disk_Rack_5
-    rech_cubes_pos[12][0] = 16.80;
-    rech_cubes_size[12][0] = 2.39;
-    rech_cubes_pos[12][1] = 5.39;
-    rech_cubes_size[12][1] = 0.78;
-    rech_cubes_pos[12][2] = 0.00;
-    rech_cubes_size[12][2] = 1.60;
+    rech_cubes_pos[12][0] = 16.80f;
+    rech_cubes_size[12][0] = 2.39f;
+    rech_cubes_pos[12][1] = 5.39f;
+    rech_cubes_size[12][1] = 0.78f;
+    rech_cubes_pos[12][2] = 0.00f;
+    rech_cubes_size[12][2] = 1.60f;
 
     // Netz1
-    rech_cubes_pos[13][0] = 2.69;
-    rech_cubes_size[13][0] = 0.71;
-    rech_cubes_pos[13][1] = 7.02;
-    rech_cubes_size[13][1] = 2.15;
-    rech_cubes_pos[13][2] = 0.00;
-    rech_cubes_size[13][2] = 2.30;
+    rech_cubes_pos[13][0] = 2.69f;
+    rech_cubes_size[13][0] = 0.71f;
+    rech_cubes_pos[13][1] = 7.02f;
+    rech_cubes_size[13][1] = 2.15f;
+    rech_cubes_pos[13][2] = 0.00f;
+    rech_cubes_size[13][2] = 2.30f;
 
     // Disk_Rack_6
-    rech_cubes_pos[14][0] = 4.22;
-    rech_cubes_size[14][0] = 2.99;
-    rech_cubes_pos[14][1] = 7.18;
-    rech_cubes_size[14][1] = 0.75;
-    rech_cubes_pos[14][2] = 0.00;
-    rech_cubes_size[14][2] = 1.60;
+    rech_cubes_pos[14][0] = 4.22f;
+    rech_cubes_size[14][0] = 2.99f;
+    rech_cubes_pos[14][1] = 7.18f;
+    rech_cubes_size[14][1] = 0.75f;
+    rech_cubes_pos[14][2] = 0.00f;
+    rech_cubes_size[14][2] = 1.60f;
 
     // IOX
-    rech_cubes_pos[15][0] = 7.78;
-    rech_cubes_size[15][0] = 1.22;
-    rech_cubes_pos[15][1] = 7.45;
-    rech_cubes_size[15][1] = 0.93;
-    rech_cubes_pos[15][2] = 0.00;
-    rech_cubes_size[15][2] = 2.00;
+    rech_cubes_pos[15][0] = 7.78f;
+    rech_cubes_size[15][0] = 1.22f;
+    rech_cubes_pos[15][1] = 7.45f;
+    rech_cubes_size[15][1] = 0.93f;
+    rech_cubes_pos[15][2] = 0.00f;
+    rech_cubes_size[15][2] = 2.00f;
 
     // Netz2
-    rech_cubes_pos[16][0] = 9.46;
-    rech_cubes_size[16][0] = 1.47;
-    rech_cubes_pos[16][1] = 7.55;
-    rech_cubes_size[16][1] = 0.85;
-    rech_cubes_pos[16][2] = 0.00;
-    rech_cubes_size[16][2] = 2.30;
+    rech_cubes_pos[16][0] = 9.46f;
+    rech_cubes_size[16][0] = 1.47f;
+    rech_cubes_pos[16][1] = 7.55f;
+    rech_cubes_size[16][1] = 0.85f;
+    rech_cubes_pos[16][2] = 0.00f;
+    rech_cubes_size[16][2] = 2.30f;
 
     // FC_Netz
-    rech_cubes_pos[17][0] = 11.40;
-    rech_cubes_size[17][0] = 1.82;
-    rech_cubes_pos[17][1] = 7.51;
-    rech_cubes_size[17][1] = 0.90;
-    rech_cubes_pos[17][2] = 0.00;
-    rech_cubes_size[17][2] = 1.80;
+    rech_cubes_pos[17][0] = 11.40f;
+    rech_cubes_size[17][0] = 1.82f;
+    rech_cubes_pos[17][1] = 7.51f;
+    rech_cubes_size[17][1] = 0.90f;
+    rech_cubes_pos[17][2] = 0.00f;
+    rech_cubes_size[17][2] = 1.80f;
 
     // Asama
-    rech_cubes_pos[18][0] = 13.80;
-    rech_cubes_size[18][0] = 2.39;
-    rech_cubes_pos[18][1] = 7.61;
-    rech_cubes_size[18][1] = 0.79;
-    rech_cubes_pos[18][2] = 0.00;
-    rech_cubes_size[18][2] = 1.80;
+    rech_cubes_pos[18][0] = 13.80f;
+    rech_cubes_size[18][0] = 2.39f;
+    rech_cubes_pos[18][1] = 7.61f;
+    rech_cubes_size[18][1] = 0.79f;
+    rech_cubes_pos[18][2] = 0.00f;
+    rech_cubes_size[18][2] = 1.80f;
 
     // Disk_Rack_7
-    rech_cubes_pos[19][0] = 16.80;
-    rech_cubes_size[19][0] = 2.41;
-    rech_cubes_pos[19][1] = 7.22;
-    rech_cubes_size[19][1] = 0.75;
-    rech_cubes_pos[19][2] = 0.00;
-    rech_cubes_size[19][2] = 1.60;
+    rech_cubes_pos[19][0] = 16.80f;
+    rech_cubes_size[19][0] = 2.41f;
+    rech_cubes_pos[19][1] = 7.22f;
+    rech_cubes_size[19][1] = 0.75f;
+    rech_cubes_pos[19][2] = 0.00f;
+    rech_cubes_size[19][2] = 1.60f;
 
     // SX9
-    rech_cubes_pos[20][0] = 3.00;
-    rech_cubes_size[20][0] = 18.0;
-    rech_cubes_pos[20][1] = 17.03;
-    rech_cubes_size[20][1] = 1.10;
-    rech_cubes_pos[20][2] = 0.00;
-    rech_cubes_size[20][2] = 1.85;
+    rech_cubes_pos[20][0] = 3.00f;
+    rech_cubes_size[20][0] = 18.0f;
+    rech_cubes_pos[20][1] = 17.03f;
+    rech_cubes_size[20][1] = 1.10f;
+    rech_cubes_pos[20][2] = 0.00f;
+    rech_cubes_size[20][2] = 1.85f;
 
     // Neu1
-    rech_cubes_pos[21][0] = 21.80;
-    rech_cubes_size[21][0] = 6.32;
-    rech_cubes_pos[21][1] = 9.00;
-    rech_cubes_size[21][1] = 1.06;
-    rech_cubes_pos[21][2] = 0.00;
-    rech_cubes_size[21][2] = 2.00;
+    rech_cubes_pos[21][0] = 21.80f;
+    rech_cubes_size[21][0] = 6.32f;
+    rech_cubes_pos[21][1] = 9.00f;
+    rech_cubes_size[21][1] = 1.06f;
+    rech_cubes_pos[21][2] = 0.00f;
+    rech_cubes_size[21][2] = 2.00f;
 
     // Neu2
-    rech_cubes_pos[22][0] = 21.80;
-    rech_cubes_size[22][0] = 6.32;
-    rech_cubes_pos[22][1] = 12.73;
-    rech_cubes_size[22][1] = 1.06;
-    rech_cubes_pos[22][2] = 0.00;
-    rech_cubes_size[22][2] = 2.00;
+    rech_cubes_pos[22][0] = 21.80f;
+    rech_cubes_size[22][0] = 6.32f;
+    rech_cubes_pos[22][1] = 12.73f;
+    rech_cubes_size[22][1] = 1.06f;
+    rech_cubes_pos[22][2] = 0.00f;
+    rech_cubes_size[22][2] = 2.00f;
 
     // Kalthaus Deckel
-    rech_cubes_pos[23][0] = 21.80;
-    rech_cubes_size[23][0] = 6.32;
-    rech_cubes_pos[23][1] = 9.00;
-    rech_cubes_size[23][1] = 4.79;
-    rech_cubes_pos[23][2] = 2.00;
-    rech_cubes_size[23][2] = 0.15;
+    rech_cubes_pos[23][0] = 21.80f;
+    rech_cubes_size[23][0] = 6.32f;
+    rech_cubes_pos[23][1] = 9.00f;
+    rech_cubes_size[23][1] = 4.79f;
+    rech_cubes_pos[23][2] = 2.00f;
+    rech_cubes_size[23][2] = 0.15f;
 
     // Kalthaus Tuer links
-    rech_cubes_pos[24][0] = 21.80;
-    rech_cubes_size[24][0] = 0.15;
-    rech_cubes_pos[24][1] = 10.06;
-    rech_cubes_size[24][1] = 2.67;
-    rech_cubes_pos[24][2] = 0.00;
-    rech_cubes_size[24][2] = 2.00;
+    rech_cubes_pos[24][0] = 21.80f;
+    rech_cubes_size[24][0] = 0.15f;
+    rech_cubes_pos[24][1] = 10.06f;
+    rech_cubes_size[24][1] = 2.67f;
+    rech_cubes_pos[24][2] = 0.00f;
+    rech_cubes_size[24][2] = 2.00f;
 
     // Kalthaus Tuer rechts
-    rech_cubes_pos[25][0] = 27.97;
-    rech_cubes_size[25][0] = 0.15;
-    rech_cubes_pos[25][1] = 10.06;
-    rech_cubes_size[25][1] = 2.67;
-    rech_cubes_pos[25][2] = 0.00;
-    rech_cubes_size[25][2] = 2.00;
+    rech_cubes_pos[25][0] = 27.97f;
+    rech_cubes_size[25][0] = 0.15f;
+    rech_cubes_pos[25][1] = 10.06f;
+    rech_cubes_size[25][1] = 2.67f;
+    rech_cubes_pos[25][2] = 0.00f;
+    rech_cubes_size[25][2] = 2.00f;
 
     // Aufzug
-    rech_cubes_pos[26][0] = 32.29;
-    rech_cubes_size[26][0] = 2.63;
-    rech_cubes_pos[26][1] = 0.95;
-    rech_cubes_size[26][1] = 4.48;
-    rech_cubes_pos[26][2] = 0.00;
-    rech_cubes_size[26][2] = 3.20;
+    rech_cubes_pos[26][0] = 32.29f;
+    rech_cubes_size[26][0] = 2.63f;
+    rech_cubes_pos[26][1] = 0.95f;
+    rech_cubes_size[26][1] = 4.48f;
+    rech_cubes_pos[26][2] = 0.00f;
+    rech_cubes_size[26][2] = 3.20f;
 
     for (i = 0; i < MAX_CUBES; i++)
     {
         if (i < (MAX_CUBES - 1)) // don't move the escalator, the cold house and the new cluster
         {
-            rech_cubes_pos[i][2] += 0.2;
+            rech_cubes_pos[i][2] += 0.2f;
         }
         p_cubes_pos[i]->setValue(rech_cubes_pos[i][0], rech_cubes_pos[i][1], rech_cubes_pos[i][2]);
         p_cubes_size[i]->setValue(rech_cubes_size[i][0], rech_cubes_size[i][1], rech_cubes_size[i][2]);

@@ -13,6 +13,7 @@
 #include "coVRNavigationManager.h"
 #include "coCoverConfig.h"
 #include "coVRConfig.h"
+#include "coVRMSController.h"
 #include "input/input.h"
 
 using std::cerr;
@@ -20,12 +21,13 @@ using std::endl;
 using namespace covise;
 using namespace opencover;
 
+coVRConfig *coVRConfig::s_instance = NULL;
+
 coVRConfig *coVRConfig::instance()
 {
-    static coVRConfig *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRConfig;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRConfig;
+    return s_instance;
 }
 
 float coVRConfig::getSceneSize() const
@@ -64,15 +66,13 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
             stereoMode = osg::DisplaySettings::HORIZONTAL_INTERLACE;
         else if (strcasecmp(modeName, "CHECKERBOARD") == 0)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
-        else if (strcasecmp(modeName, "MONO") == 0)
+        else if (strcasecmp(modeName, "MONO") == 0
+                || strcasecmp(modeName, "NONE") == 0
+                || strcasecmp(modeName, "") == 0)
         {
             st = false;
             stereoMode = osg::DisplaySettings::LEFT_EYE;
         }
-        else if (strcasecmp(modeName, "NONE") == 0)
-            stereoMode = osg::DisplaySettings::ANAGLYPHIC;
-        else if (modeName[0] == '\0')
-            stereoMode = osg::DisplaySettings::ANAGLYPHIC;
         else
             cerr << "Unknown stereo mode \"" << modeName << "\"" << endl;
     }
@@ -86,12 +86,16 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
 
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
+    , m_useVirtualGL(false)
     , m_orthographic(false)
     , m_mouseNav(true)
     , m_useWiiMote(false)
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
+    , m_continuousRendering(false)
 {
+    assert(!s_instance);
+
     /// path for the viewpoint file: initialized by 1st param() call
 
     m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
@@ -109,6 +113,7 @@ coVRConfig::coVRConfig()
         constantFrameRate = true;
         constFrameTime = 1.0f / frameRate;
     }
+    m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
     m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
@@ -284,8 +289,6 @@ coVRConfig::coVRConfig()
     if (debugLevel(2))
         fprintf(stderr, "\nnew coVRConfig\n");
 
-    //bool isMaster = coVRMSController::instance()->isMaster();
-
     m_passiveStereo = false;
     m_flatDisplay = true;
     for (size_t i = 0; i < screens.size(); i++)
@@ -339,17 +342,30 @@ coVRConfig::coVRConfig()
 
     for (size_t i = 0; i < windows.size(); i++)
     {
-        windows[i].window = NULL;
+        auto &w = windows[i];
+        w.window = NULL;
 
-        bool state = coCoverConfig::getWindowConfigEntry(i, windows[i].name,
-                                                         &windows[i].pipeNum, &windows[i].ox, &windows[i].oy,
-                                                         &windows[i].sx, &windows[i].sy, &windows[i].decoration,
-                                                         &windows[i].stereo, &windows[i].resize, &windows[i].embedded, &windows[i].pbuffer, &windows[i].swapGroup, &windows[i].swapBarrier);
-        if (!state)
-        {
-            cerr << "Exit because of erroneous WindowConfig entry." << endl;
-            exit(-1);
-        }
+        char str[200];
+        sprintf(str, "COVER.WindowConfig.Window:%d", (int)i);
+
+        w.name = coCoviseConfig::getEntry("comment", str, "COVER");
+        w.pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
+        w.ox = coCoviseConfig::getInt("left", str, 0);
+        w.oy = coCoviseConfig::getInt("top", str, 0);
+        w.sx = coCoviseConfig::getInt("width", str, 1024);
+        w.sy = coCoviseConfig::getInt("height", str, 768);
+        bool have_bottom = false;
+        coCoviseConfig::getInt("bottom", str, 0, &have_bottom);
+        if (have_bottom)
+            printf("bottom is ignored in %s, please use top\n", str);
+        w.decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
+        w.resize = coCoviseConfig::isOn("resize", str, true);
+        w.stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
+        w.embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
+        w.pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
+        w.qt = coCoviseConfig::isOn("qt", std::string(str), false);
+        w.swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
+        w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
     }
 
     for (size_t i = 0; i < channels.size(); i++)
@@ -656,6 +672,16 @@ coVRConfig::~coVRConfig()
 {
     if (debugLevel(2))
         fprintf(stderr, "delete coVRConfig\n");
+
+    viewports.clear();
+    blendingTextures.clear();
+    PBOs.clear();
+    channels.clear();
+    screens.clear();
+    windows.clear();
+    pipes.clear();
+
+    s_instance = NULL;
 }
 
 bool
@@ -859,4 +885,12 @@ float coVRConfig::frameRate() const
         return 1.0f / constFrameTime;
     else
         return 0.f;
+}
+
+bool coVRConfig::continuousRendering() const
+{
+    if (coVRMSController::instance()->isCluster())
+        return true;
+
+    return m_continuousRendering;
 }

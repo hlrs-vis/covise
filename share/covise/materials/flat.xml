@@ -1,0 +1,30 @@
+<flat><uniform max="30" min="1" name="stripeSize" type="float" value="10"/><uniform name="texUnit0" texture="c:\src\covise/share/covise/materials/Streifen.jpg" type="sampler2D" value="0"/><vertexProgram>varying vec3 N,v;
+
+void main(void)
+{
+
+   v = vec3(gl_ModelViewMatrix * gl_Vertex);       
+   N = normalize(gl_NormalMatrix * gl_Normal); 
+   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; 
+}
+          
+  </vertexProgram><fragmentProgram>varying vec3 N,v;
+
+void main(void)
+{
+   vec3 L = normalize(gl_LightSource[0].position.xyz - v);   
+   vec4 Idiff = vec4(1,0,0,1) * max(dot(N,L), 0.0);  
+   Idiff = clamp(Idiff, 0.0, 1.0); 
+
+   vec3 E = normalize(-v); // we are in Eye Coordinates, so EyePos is (0,0,0)  
+   vec3 R = normalize(-reflect(L,N));  
+
+   vec4 Ispec = vec4(1,1,1,1) 
+                * pow(max(dot(R,E),0.0),30);
+   Ispec = clamp(Ispec, 0.0, 1.0); 
+   gl_FragColor = Idiff + Ispec;
+}
+   
+   
+
+  </fragmentProgram></flat>

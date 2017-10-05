@@ -358,7 +358,7 @@ int UpdateAR_Meridians(struct axial *ar)
             x[1] = ar->me[i]->cl->y[j];
             x[2] = ar->me[i]->cl->z[j];
             if(j < ar->me[i]->cl->nump-1)
-               alpha = atan((x[2]-ar->me[i]->cl->z[j+1])/
+               alpha = (float)atan((x[2]-ar->me[i]->cl->z[j+1])/
                   (x[0]*x[1]-ar->me[i]->cl->x[j+1]*
                   ar->me[i]->cl->y[j+1]));
             fprintf(fp, "%f %f %f   %f\n", x[0], x[1], x[2],

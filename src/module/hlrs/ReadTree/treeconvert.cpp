@@ -51,8 +51,8 @@ void treeheader2iv(char *string);
 
 #define IVBUFLEN 4000
 char *ivFileBuffer = NULL;
-int ivAllocLen = 0;
-int ivBufLen = 0;
+size_t ivAllocLen = 0;
+size_t ivBufLen = 0;
 
 void writeToBuf(const char *format, ...)
 {
@@ -67,7 +67,7 @@ void writeToBuf(const char *format, ...)
     vsprintf(buffer, format, args);
 #endif
     va_end(args);
-    int len = strlen(buffer);
+    size_t len = strlen(buffer);
     while (ivBufLen + len + 1 > ivAllocLen)
     {
         char *oldbuf = ivFileBuffer;

@@ -125,8 +125,8 @@ int InterpolPoint(struct Point *ml, float *len, float dphi,
 				p[2] = cl->x[i];					  // radius
 				p[0] = cl->y[i]-dphi;				  // circumf. angle
 				// use appropriate value for interpolation, radius or height
-				dz = fabs(2.0*(ml->z[j-1]-ml->z[j]) / (ml->z[j-1]+ml->z[j]));
-				dr = fabs(2.0*(ml->x[j-1]-ml->x[j]) / (ml->x[j-1]+ml->x[j]));
+				dz = fabs(2.0f*(ml->z[j-1]-ml->z[j]) / (ml->z[j-1]+ml->z[j]));
+				dr = fabs(2.0f*(ml->x[j-1]-ml->x[j]) / (ml->x[j-1]+ml->x[j]));
 				if( dz/dr <= 1.0)
 				{
 					p[1] = (cl->x[i] - ml->x[j-1])
@@ -196,8 +196,8 @@ int InterpolCurve(struct Point *ml, float *len, float dphi,
 				p[0] = cl->y[i]-dphi;				  // circumf. angle
 				p[2] = cl->x[i];					  // radius
 				// use appropriate value for interpolation, radius or height
-				dz = fabs(2.0*(ml->z[j-1]-ml->z[j]) / (ml->z[j-1]+ml->z[j]));
-				dr = fabs(2.0*(ml->x[j-1]-ml->x[j]) / (ml->x[j-1]+ml->x[j]));
+				dz = fabs(2.0f*(ml->z[j-1]-ml->z[j]) / (ml->z[j-1]+ml->z[j]));
+				dr = fabs(2.0f*(ml->x[j-1]-ml->x[j]) / (ml->x[j-1]+ml->x[j]));
 				if( dz/dr <= 1.0)
 				{
 					p[1] = (cl->x[i] - ml->x[j-1]) / (ml->x[j] - ml->x[j-1])
@@ -474,35 +474,35 @@ int	  CalcEnvelopeCurve(struct Point *envline, struct Flist *learc, struct Point
 	u2[0] = blarc->list[blline->nump-1] - blarc->list[blline->nump-2];
 	u2[1] = blline->y[blline->nump-1] - blline->y[blline->nump-2];
 	if(zero_thick) beta = (float)M_PI/2.0f;
-	else beta  = acos(V_Angle(u1, u2));
+	else beta  = float(acos(V_Angle(u1, u2)));
 	u1[0] = learc->list[0] - learc->list[leline->nump-1];
 	u1[1] = leline->y[0] - leline->y[leline->nump-1];
 	len = V_Len(u1);
 	u2[0] = blarc->list[1] - blarc->list[0];
 	u2[1] = blline->y[1] - blline->y[0];
-	alpha = acos(V_Angle(u1, u2));
+	alpha = float(acos(V_Angle(u1, u2)));
 	if(alpha > M_PI)
 	{
 #ifdef DEBUG_REGIONS
 		fprintf(stderr,"CalcEnvelopeCurve: alpha = %f\n",
 				alpha*180/M_PI);
 #endif
-		alpha = (alpha + beta) * 0.5;
+		alpha = (alpha + beta) * 0.5f;
 	}
 	AddPoint(envline,learc->list[0],
 			 leline->y[0], 0.0);
 	lend = lscale * len;
 	for(i = 1; i < blline->nump-1; i++)
 	{
-		u2[0] = ( blarc->list[i+1] + blarc->list[i] )*0.5
+		u2[0] = ( blarc->list[i+1] + blarc->list[i] )*0.5f
 			- blarc->list[i-1] ;
-		u2[1] = ( blline->y[i+1] + blline->y[i] )*0.5
+		u2[1] = ( blline->y[i+1] + blline->y[i] )*0.5f
 			- blline->y[i-1] ;
 		delta = sign*(alpha + para->list[i]*(beta-alpha));
-		u1[0] =	 cos(delta)*u2[0] - sin(delta)*u2[1];
-		u1[1] =	 sin(delta)*u2[0] + cos(delta)*u2[1];
+		u1[0] = float(cos(delta)*u2[0] - sin(delta)*u2[1]);
+		u1[1] = float(sin(delta)*u2[0] + cos(delta)*u2[1]);
 		V_Norm(u1);
-		scale = (1.0 - para->list[i]) + para->list[i] * lscale;
+		scale = (1.0f - para->list[i]) + para->list[i] * lscale;
 		p[0] = u1[0]*len*scale + blarc->list[i];
 		p[1] = u1[1]*len*scale + blline->y[i];
 		AddVPoint(envline, p);
@@ -582,20 +582,20 @@ int	  CalcEnvelopeCurve2(struct Point *envline, struct Flist *learc, struct Poin
 	u2[0] = blarc->list[blline->nump-1] - blarc->list[blline->nump-2];
 	u2[1] = blline->y[blline->nump-1] - blline->y[blline->nump-2];
 	if(zero_thick) beta = (float) M_PI/2.0f;
-	else beta  = acos(V_Angle(u1, u2));
+	else beta  = float(acos(V_Angle(u1, u2)));
 	u1[0] = learc->list[0] - learc->list[leline->nump-1];
 	u1[1] = leline->y[0] - leline->y[leline->nump-1];
 	len = V_Len(u1);
 	u2[0] = blarc->list[1] - blarc->list[0];
 	u2[1] = blline->y[1] - blline->y[0];
-	alpha = acos(V_Angle(u1, u2));
+	alpha = float(acos(V_Angle(u1, u2)));
 	if(alpha > M_PI)
 	{
 #ifdef DEBUG_REGIONS
 		fprintf(stderr,"CalcEnvelopeCurve: alpha = %f\n",
 				alpha*180/M_PI);
 #endif
-		alpha = (alpha + beta) * 0.5;
+		alpha = (alpha + beta) * 0.5f;
 	}
 	AddPoint(envline,learc->list[0],
 			 leline->y[0], 0.0);
@@ -623,9 +623,9 @@ int	  CalcEnvelopeCurve2(struct Point *envline, struct Flist *learc, struct Poin
 	// calc points
 	for(i = 1; i < blline->nump-1; i++)
 	{
-		u2[0] = ( blarc->list[i+1] + blarc->list[i] )*0.5
+		u2[0] = ( blarc->list[i+1] + blarc->list[i] )*0.5f
 			- blarc->list[i-1] ;
-		u2[1] = ( blline->y[i+1] + blline->y[i] )*0.5
+		u2[1] = ( blline->y[i+1] + blline->y[i] )*0.5f
 			- blline->y[i-1] ;
 		if(i < le_dis)
 		{
@@ -639,15 +639,15 @@ int	  CalcEnvelopeCurve2(struct Point *envline, struct Flist *learc, struct Poin
 		fprintf(stderr,"pp[%03d] = %8.6f, delta = %10.5f\n",i,
 				pp[i],delta*180/M_PI);
 #endif
-		u1[0] =	 cos(delta)*u2[0] - sin(delta)*u2[1];
-		u1[1] =	 sin(delta)*u2[0] + cos(delta)*u2[1];
+		u1[0] = float(cos(delta)*u2[0] - sin(delta)*u2[1]);
+		u1[1] = float(sin(delta)*u2[0] + cos(delta)*u2[1]);
 		V_Norm(u1);
 		scale = (1.0 - para->list[i]) + para->list[i] * lscale;
 		p[0] = u1[0]*len*scale + blarc->list[i];
 		p[1] = u1[1]*len*scale + blline->y[i];
 		AddVPoint(envline, p);
-		lenv += sqrt(pow(p[0] - envline->x[envline->nump-2],2) +
-					 pow(p[1] - envline->y[envline->nump-2],2));
+		lenv += float(sqrt(pow(p[0] - envline->x[envline->nump-2],2) +
+					 pow(p[1] - envline->y[envline->nump-2],2)));
 	}											   // end i, blline->nump
 	if(zero_thick)
 	{
@@ -665,8 +665,8 @@ int	  CalcEnvelopeCurve2(struct Point *envline, struct Flist *learc, struct Poin
 	// recalc. parameters
 	for(i = 1; i < para->num; i++)
 	{
-		len += sqrt(pow(envline->x[i-1] - envline->x[i],2) +
-					pow(envline->y[i-1] - envline->y[i],2));
+		len += float(sqrt(pow(envline->x[i-1] - envline->x[i],2) +
+					pow(envline->y[i-1] - envline->y[i],2)));
 		para->list[i] = len/lenv;
 	}
 	free(pp);
@@ -876,7 +876,7 @@ struct region *AddMeshLines(struct region *reg, int start, int end, int first,
 		for(j = 0; j < reg->para[first]->num; j++)
 		{
 			// interpolate parameter value
-			para = ratio*reg->para[first]->list[j] + (1.0-ratio)*reg->para[last]->list[j];
+			para = ratio*reg->para[first]->list[j] + (1.0f-ratio)*reg->para[last]->list[j];
 			Add2Flist(reg->para[i],para);
 		}
 #ifdef DEBUG_REGIONS

@@ -21,7 +21,7 @@ char *coBlankConv::all(const char *inString)
     if (!inString)
         return NULL;
 
-    int length = strlen(inString);
+    int length = int(strlen(inString));
     if (length == 0)
     {
         static const char empty[2] = { 1, 0 };

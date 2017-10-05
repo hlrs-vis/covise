@@ -455,7 +455,7 @@ CuttingSurfaceModule::preHandleObjects(coInputPort **)
         {
             const char *species = obj->getAttribute("SPECIES");
 
-            int len = 0;
+            size_t len = 0;
             if (species)
                 len += strlen(species) + 3;
             char *buf = new char[len + 64];

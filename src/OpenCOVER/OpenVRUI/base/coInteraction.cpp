@@ -28,6 +28,8 @@ coInteraction::coInteraction(InteractionType type, const string &name, Interacti
     hasPriorityFlag = false;
     remoteLockID = 0; // don't synchronize Interaction
     remoteLock = false;
+
+    runningState = StateNotRunning;
 }
 
 coInteraction::~coInteraction()

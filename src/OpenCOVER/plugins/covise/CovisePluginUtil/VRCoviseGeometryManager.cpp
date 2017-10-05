@@ -59,6 +59,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <PluginUtil/coSphere.h>
+#include <PluginUtil/StaticSequence.h>
 #include <cover/RenderObject.h>
 #include <do/coDoData.h>
 
@@ -106,7 +107,7 @@ GeometryManager::addGroup(const char *object, bool is_timestep)
         printf("\t sequence name  = %s\n", object);
 #endif
 
-        group = new osg::Sequence;
+        group = new StaticSequence;
     }
     else
     {

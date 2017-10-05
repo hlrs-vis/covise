@@ -572,12 +572,12 @@ CaseInfo getCaseInfo(const std::string &casedir, bool exact)
     checkFields(info.constantFields, np, exact);
 
     std::cerr << "  varying: ";
-    checkFields(info.varyingFields, np * info.timedirs.size(), exact);
+    checkFields(info.varyingFields, np * int(info.timedirs.size()), exact);
 
     if (info.hasParticles)
     {
         std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
-        checkFields(info.particleFields, np * info.timedirs.size(), exact);
+        checkFields(info.particleFields, np * int(info.timedirs.size()), exact);
     }
     else
     {
@@ -1019,9 +1019,9 @@ bool readVectorArrayBinary(std::istream &stream, T *x, T *y, T *z, const size_t 
             return false;
         for (size_t j=0; j<nread; ++j)
         {
-            x[i+j] = buf[j*3+0];
-            y[i+j] = buf[j*3+1];
-            z[i+j] = buf[j*3+2];
+            x[i+j] = T(buf[j*3+0]);
+            y[i+j] = T(buf[j*3+1]);
+            z[i+j] = T(buf[j*3+2]);
         }
     }
     return stream.good();
@@ -1051,9 +1051,9 @@ bool readVectorArrayAscii(std::istream &stream, float *x, float *y, float *z, co
         stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
         double vx, vy, vz;
         stream >> vx >> vy >> vz;
-        x[i] = vx;
-        y[i] = vy;
-        z[i] = vz;
+        x[i] = float(vx);
+        y[i] = float(vy);
+        z[i] = float(vz);
         stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
     }
     expect('\n');
@@ -1097,7 +1097,7 @@ bool readArrayBinary(std::istream &stream, T *p, const size_t lines)
              return false;
           for (size_t j=0; j<nread; ++j)
           {
-             p[i+j] = buf[j];
+             p[i+j] = T(buf[j]);
           }
        }
     }
@@ -1140,7 +1140,7 @@ bool readArrayAscii(std::istream &stream, float *p, const size_t lines)
     {
         double val;
         stream >> val;
-        p[i] = val;
+        p[i] = float(val);
         if (!stream.good())
         {
            std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
@@ -1431,9 +1431,9 @@ bool readParticleArrayBinary(std::istream &stream, F *x, F *y, F *z, I *cell, co
             return false;
         if (!readArrayChunkBinary(stream, &ibuf[0], ibuf.size()))
             return false;
-        if (x) x[i] = fbuf[0];
-        if (y) y[i] = fbuf[1];
-        if (z) z[i] = fbuf[2];
+        if (x) x[i] = F(fbuf[0]);
+        if (y) y[i] = F(fbuf[1]);
+        if (z) z[i] = F(fbuf[2]);
         if (cell) cell[i] = ibuf[0];
         expect(')');
         expect('\n');

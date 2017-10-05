@@ -6,7 +6,7 @@
 
 #COVISE_UNFINISHED()
 
-PROJECT(OpenCOVER CXX C)
+PROJECT(OpenCOVER C CXX)
 
 set(COVISE_EXPORTS_FILE "cover-exports.cmake")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -23,12 +23,23 @@ option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for
 option(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 option(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 
+macro (GETENV_PATH var name)
+   set(${var} $ENV{${name}})
+   if (WIN32)
+      string(REGEX REPLACE "\\\\" "/" ${var} "${${var}}")
+   endif(WIN32)
+endmacro (GETENV_PATH var name)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(PLUGIN_CATEGORY "default")
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    cmake_minimum_required(VERSION 2.8)
-   set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
+   getenv_path(COVISEDIR COVISEDIR)
+   set(CMAKE_MODULE_PATH "${COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
+
+   # global feature tests
+   INCLUDE(CoviseGlobalFeatureTests)
 
    find_package(COVISE REQUIRED)
    find_package(COVISE COMPONENTS GPU REQUIRED)
@@ -39,8 +50,6 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    covise_cmake_policy()
 
    include(CoviseHelperMacros)
-   # global feature tests
-   INCLUDE(CoviseGlobalFeatureTests)
 
    set(CMAKE_INSTALL_PREFIX "${COVISE_INSTALL_PREFIX}")
 
@@ -120,8 +129,8 @@ ADD_SUBDIRECTORY(DrivingSim)
 
 USING(MPI optional)
 using(Boost)
-add_subdirectory(libvtrans)
-include_directories(libvtrans)
+#add_subdirectory(libvtrans)
+#include_directories(libvtrans)
 
 if (COVISE_USE_VIRVO)
    ADD_SUBDIRECTORY(osgcaveui)

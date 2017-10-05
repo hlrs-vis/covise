@@ -118,21 +118,21 @@ int SortPoints::compute(const char *)
     float *sx, *sy, *sz;
     points->getAddresses(&sx, &sy, &sz);
     float *x, *y, *z;
-    coDoPoints *pointsLower = new coDoPoints(m_pointLowerOut->getNewObjectInfo(), lowerBin.size());
+    coDoPoints *pointsLower = new coDoPoints(m_pointLowerOut->getNewObjectInfo(), (int)lowerBin.size());
     pointsLower->getAddresses(&x, &y, &z);
     fillBin(x, sx, lowerBin);
     fillBin(y, sy, lowerBin);
     fillBin(z, sz, lowerBin);
     m_pointLowerOut->setCurrentObject(pointsLower);
 
-    coDoPoints *pointsMiddle = new coDoPoints(m_pointMiddleOut->getNewObjectInfo(), middleBin.size());
+    coDoPoints *pointsMiddle = new coDoPoints(m_pointMiddleOut->getNewObjectInfo(), (int)middleBin.size());
     pointsMiddle->getAddresses(&x, &y, &z);
     fillBin(x, sx, middleBin);
     fillBin(y, sy, middleBin);
     fillBin(z, sz, middleBin);
     m_pointMiddleOut->setCurrentObject(pointsMiddle);
 
-    coDoPoints *pointsUpper = new coDoPoints(m_pointUpperOut->getNewObjectInfo(), upperBin.size());
+    coDoPoints *pointsUpper = new coDoPoints(m_pointUpperOut->getNewObjectInfo(), (int)upperBin.size());
     pointsUpper->getAddresses(&x, &y, &z);
     fillBin(x, sx, upperBin);
     fillBin(y, sy, upperBin);
@@ -145,17 +145,17 @@ int SortPoints::compute(const char *)
         {
             int *sd = intData->getAddress();
 
-            coDoInt *lower = new coDoInt(m_dataLowerOut->getNewObjectInfo(), lowerBin.size());
+            coDoInt *lower = new coDoInt(m_dataLowerOut->getNewObjectInfo(), (int)lowerBin.size());
             int *d = lower->getAddress();
             fillBin(d, sd, lowerBin);
             m_dataLowerOut->setCurrentObject(lower);
 
-            coDoInt *middle = new coDoInt(m_dataMiddleOut->getNewObjectInfo(), middleBin.size());
+            coDoInt *middle = new coDoInt(m_dataMiddleOut->getNewObjectInfo(), (int)middleBin.size());
             d = middle->getAddress();
             fillBin(d, sd, middleBin);
             m_dataMiddleOut->setCurrentObject(middle);
 
-            coDoInt *upper = new coDoInt(m_dataUpperOut->getNewObjectInfo(), upperBin.size());
+            coDoInt *upper = new coDoInt(m_dataUpperOut->getNewObjectInfo(), (int)upperBin.size());
             d = upper->getAddress();
             fillBin(d, sd, upperBin);
             m_dataUpperOut->setCurrentObject(upper);
@@ -165,18 +165,18 @@ int SortPoints::compute(const char *)
             float *sd;
             floatData->getAddress(&sd);
 
-            coDoFloat *lower = new coDoFloat(m_dataLowerOut->getNewObjectInfo(), lowerBin.size());
+            coDoFloat *lower = new coDoFloat(m_dataLowerOut->getNewObjectInfo(), (int)lowerBin.size());
             float *d;
             lower->getAddress(&d);
             fillBin(d, sd, lowerBin);
             m_dataLowerOut->setCurrentObject(lower);
 
-            coDoFloat *middle = new coDoFloat(m_dataMiddleOut->getNewObjectInfo(), middleBin.size());
+            coDoFloat *middle = new coDoFloat(m_dataMiddleOut->getNewObjectInfo(), (int)middleBin.size());
             middle->getAddress(&d);
             fillBin(d, sd, middleBin);
             m_dataMiddleOut->setCurrentObject(middle);
 
-            coDoFloat *upper = new coDoFloat(m_dataUpperOut->getNewObjectInfo(), upperBin.size());
+            coDoFloat *upper = new coDoFloat(m_dataUpperOut->getNewObjectInfo(), (int)upperBin.size());
             upper->getAddress(&d);
             fillBin(d, sd, upperBin);
             m_dataUpperOut->setCurrentObject(upper);

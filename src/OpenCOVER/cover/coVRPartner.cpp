@@ -33,7 +33,9 @@ using covise::TokenBuffer;
 using covise::Message;
 
 coCheckboxGroup *coVRPartner::partnerGroup = new coCheckboxGroup();
-coVRPartnerList partners;
+
+coVRPartnerList *coVRPartnerList::s_instance = NULL;
+
 
 coVRPartner::coVRPartner()
 {
@@ -285,10 +287,24 @@ void coVRPartnerList::print()
     }
 }
 
+coVRPartnerList::coVRPartnerList()
+{
+    assert(!s_instance);
+}
+
+coVRPartnerList::~coVRPartnerList()
+{
+    reset();
+    while (current())
+        remove();
+
+    // da sollte noch mehr geloescht werden
+    s_instance = NULL;
+}
+
 coVRPartnerList *coVRPartnerList::instance()
 {
-    static coVRPartnerList *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRPartnerList;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRPartnerList;
+    return s_instance;
 }

@@ -572,15 +572,15 @@ static void CalcTrafo(struct tube *tu, int ics, float n[3])
    if (tu->cs[ics]->d_angletype == T_ANGLE_ABSOLUTE)
    {
       gra = tu->cs[ics]->d_angle;
-      if (tu->cs[ics]->d_angle >= 180.0)
+      if (tu->cs[ics]->d_angle >= 180.0f)
       {
-         gra = tu->cs[ics]->d_angle -180.0;
+         gra = tu->cs[ics]->d_angle -180.0f;
          srot = -1.0;
       }
-      rot = cos(gra/180.0*M_PI);
+      rot = float(cos(gra/180.0*M_PI));
    }
    else if (tu->cs[ics]->d_angletype == T_ANGLE_RELATIV)
-      rot = V_Angle(erz, ez) + cos(tu->cs[ics]->d_angle/180.0*M_PI);
+      rot = float(V_Angle(erz, ez) + cos(tu->cs[ics]->d_angle/180.0*M_PI));
    // REI : NICHT getestet !!!!
    else
       rot = V_Angle(erz, ez);
@@ -592,9 +592,9 @@ static void CalcTrafo(struct tube *tu, int ics, float n[3])
    tu->cs[ics]->T[2][0] = 0.0;
    tu->cs[ics]->T[0][1] = 0.0;
    tu->cs[ics]->T[1][1] = srot*rot;
-   tu->cs[ics]->T[2][1] = srot*sqrt(1-rot*rot);
+   tu->cs[ics]->T[2][1] = srot*float(sqrt(1-rot*rot));
    tu->cs[ics]->T[0][2] = 0.0;
-   tu->cs[ics]->T[1][2] = srot*-sqrt(1-rot*rot);
+   tu->cs[ics]->T[1][2] = srot*-float(sqrt(1-rot*rot));
    tu->cs[ics]->T[2][2] = srot*rot;
 }
 
@@ -605,7 +605,7 @@ static void CalcEllipsePoints(struct cs *cs, float a, float b, float dx, float d
 
    for (phi = as+(float)M_PI/20; phi < ae; phi += (float)M_PI/20)
    {
-      AddPoint(cs->p, a*cos(phi) + dx, b*sin(phi) + dy, 0.0);
+      AddPoint(cs->p, float(a*cos(phi) + dx), float(b*sin(phi) + dy), 0.0f);
    }
 }
 
@@ -646,7 +646,7 @@ int CalcCSGeometry(struct tube *tu, int csi, float n[3])
       // second point of corner and the ellipse points ...
       if (!IS_0(a))
       {
-         CalcEllipsePoints(cs, a, b, sx[ind]*dx, sy[ind]*dy, (M_PI/2)*(ind), (M_PI/2)*(ind)+M_PI/2);
+         CalcEllipsePoints(cs, a, b, sx[ind]*dx, sy[ind]*dy, float(M_PI/2)*(ind), float((M_PI/2)*(ind)+M_PI/2));
          AddPoint(cs->p, sx[ind]*dx, sy[ind]*(dy+b), 0.0);
       }
       cs->cov_ind[ind*2+1] = cs->p->nump-1;
@@ -662,7 +662,7 @@ int CalcCSGeometry(struct tube *tu, int csi, float n[3])
       cs->cov_ind[ind*2] = cs->p->nump-1;
       if (!IS_0(b))
       {
-         CalcEllipsePoints(cs, a, b, sx[ind]*dx, sy[ind]*dy, (M_PI/2)*(ind), (M_PI/2)*(ind)+M_PI/2);
+         CalcEllipsePoints(cs, a, b, sx[ind]*dx, sy[ind]*dy, float((M_PI/2)*(ind)), float((M_PI/2)*(ind)+M_PI/2));
          AddPoint(cs->p, sx[ind]*(dx+a), sy[ind]*dy, 0.0);
       }
       cs->cov_ind[ind*2+1] = cs->p->nump-1;
@@ -773,7 +773,7 @@ float CalcOneCSArea(struct cs *cs)
          a = cs->c_a[j];
          b = cs->c_b[j];
          A -= a*b;                                // Sub the corner rectangle
-         A += M_PI * a * b / 4;                   // Add the part of the ellipse
+         A += float(M_PI * a * b / 4);                   // Add the part of the ellipse
       }
    }
    return A;

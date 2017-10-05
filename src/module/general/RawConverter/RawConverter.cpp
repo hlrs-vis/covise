@@ -100,7 +100,7 @@ int RawConverter::compute(const char * /* port */)
     if (Auto)
         MakeAutoScale();
 
-    range_ = 1.0 / (SE - SB);
+    range_ = 1.0f / (SE - SB);
     rangef = RE - RB;
 
     coDoByte *outObj = NULL;
@@ -132,7 +132,7 @@ int RawConverter::compute(const char * /* port */)
                 lokscale = log(logOffset);
                 for (int i = 0; i < numValues; i++)
                 {
-                    param = dataValues[i] - int(pre_cutoff);
+                    param = float(dataValues[i] - int(pre_cutoff));
                     if (param < 0)
                         param = 0;
                     param = param + logOffset;
@@ -142,7 +142,7 @@ int RawConverter::compute(const char * /* port */)
                         param = -param;
                     }
                     result = ((log(param)) - lokscale);
-                    outDataValues[i] = float(result * 0.2);
+                    outDataValues[i] = (unsigned char)(result * 0.2f);
                 }
                 if (Auto)
                 {
@@ -156,12 +156,12 @@ int RawConverter::compute(const char * /* port */)
                         if (outDataValues[i] < min)
                             min = outDataValues[i];
                     }
-                    range = 1.0 / (max - min);
+                    range = 1.0f / (max - min);
                     for (int i = 0; i < numValues; i++)
                     {
-                        outDataValues[i] = ((outDataValues[i] - min) * range);
+                        outDataValues[i] = (unsigned char)((outDataValues[i] - min) * range);
                         if (outDataValues[i] < cutoff)
-                            outDataValues[i] = 0.0;
+                            outDataValues[i] = 0;
                     }
                 }
             }
@@ -169,12 +169,12 @@ int RawConverter::compute(const char * /* port */)
             {
                 for (int i = 0; i < numValues; i++)
                 {
-                    param = dataValues[i] - int(pre_cutoff);
+                    param = float(dataValues[i] - int(pre_cutoff));
                     if (param < 0)
                         param = 0;
-                    outDataValues[i] = float(RB + ((param - SB) * range_ * rangef));
+                    outDataValues[i] = (unsigned char)(RB + ((param - SB) * range_ * rangef));
                     if (outDataValues[i] < cutoff)
-                        outDataValues[i] = 0.0;
+                        outDataValues[i] = 0;
 
                     //if (outDataValues[i] < RB) 	   outDataValues[i] = RB ;
                     //if (outDataValues[i] > RE)       outDataValues[i] = RE ;
@@ -201,7 +201,7 @@ int RawConverter::compute(const char * /* port */)
                 lokscale = log(logOffset);
                 for (int i = 0; i < numValues; i++)
                 {
-                    param = dataValues[i] - int(pre_cutoff);
+                    param = float(dataValues[i] - int(pre_cutoff));
                     if (param < 0)
                         param = 0;
                     param = param + logOffset;
@@ -225,7 +225,7 @@ int RawConverter::compute(const char * /* port */)
                         if (outDataValues[i] < min)
                             min = outDataValues[i];
                     }
-                    range = 1.0 / (max - min);
+                    range = 1.0f / (max - min);
                     for (int i = 0; i < numValues; i++)
                     {
                         outDataValues[i] = ((outDataValues[i] - min) * range);
@@ -238,7 +238,7 @@ int RawConverter::compute(const char * /* port */)
             {
                 for (int i = 0; i < numValues; i++)
                 {
-                    param = dataValues[i] - int(pre_cutoff);
+                    param = float(dataValues[i] - int(pre_cutoff));
                     if (param < 0)
                         param = 0;
                     outDataValues[i] = float(RB + ((param - SB) * range_ * rangef));
@@ -284,8 +284,8 @@ void RawConverter::MakeHistogram(coOutputPort *myport, bool getfloats, float num
     // Ausgabe
     for (int i = 0; i < maxPKT; i++)
     {
-        xCoords[i] = float(i) * 1.0;
-        yCoords[i] = log(yCoords[i] + 1.0); //                 //  PUNKTKOORDINATEN
+        xCoords[i] = float(i) * 1.0f;
+        yCoords[i] = log(yCoords[i] + 1.0f); //                 //  PUNKTKOORDINATEN
         zCoords[i] = 0.0;
     }
     for (int i = 0; i < maxPKT; i++)

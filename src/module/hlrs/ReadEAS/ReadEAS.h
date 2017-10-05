@@ -133,7 +133,7 @@ private:
     virtual void param(const char *paraName, bool inMapLoading);
     int headerState; // can be FAIL=-1 or SUCCESS=0 or 1 (if not read)
 
-    off_t dataPos;
+    size_t dataPos;
     Kennsatz ks;
 
     coDistributedObject *makegrid(const char *objName);

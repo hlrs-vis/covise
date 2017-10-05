@@ -204,6 +204,7 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
+	Input::instance()->removeDevice("Vive", this);
 	fprintf(stderr, "Vive::~Vive\n");
 }
 
@@ -227,6 +228,11 @@ void Vive::preFrame()
 	coVRConfig::instance()->channels[0].rightProj = rProj;
 	coVRConfig::instance()->channels[1].leftProj = lProj;
 	coVRConfig::instance()->channels[1].rightProj = rProj;
+
+}
+
+void Vive::postFrame()
+{
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
@@ -341,19 +347,19 @@ void Vive::preFrame()
 			m_bodyMatrices[idx](3, 1) *= 1000;
 			m_bodyMatrices[idx](3, 2) *= 1000;
 			//vlad: Why do we need that?
-			//m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+			m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+
 		}
 	}
 	//vlad: Why do we need that?
 	//vlad: device with index 1 is't necessarily a tracking camera
-	//if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
-	//{
-	//	haveTrackerOrigin = true;
-	//	LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
-	//}
+	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
+	{
+		haveTrackerOrigin = true;
+		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
+	}
 	m_mutex.unlock();
 }
-
 
 void Vive::preSwapBuffers(int /*windowNumber*/)
 {

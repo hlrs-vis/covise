@@ -79,8 +79,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/TangentSpaceGenerator>
 
-#include <vtrans/vtrans.h>
-
 #ifdef HAVE_OSGNV
 #include <osgNVCg/Context>
 #include <osgNVCg/Program>
@@ -2160,7 +2158,7 @@ ViewerOsg::insertShell(unsigned int mask,
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
         {
-            for(int i=0;i<geode->getNumDrawables();i++)
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
             {
                 osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
                 /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
@@ -4399,6 +4397,7 @@ ViewerOsg::insertMovieTexture(char *filename,
                 d_currentObject->texData[textureNumber].texImage = image;
                 moviePs.push_back(dataSet);
                 d_currentObject->texData[textureNumber].texture = texture = new Texture2D(image);
+				texture->setResizeNonPowerOfTwoHint(false);
 
                 d_currentObject->texData[textureNumber].mirror = 1;
 
@@ -4500,11 +4499,14 @@ void ViewerOsg::insertMovieReference(TextureObject t, int nc, bool environment, 
         else
         {
             d_currentObject->texData[textureNumber].texture = (Texture *)t;
+			d_currentObject->texData[textureNumber].texture->setResizeNonPowerOfTwoHint(false);
             d_currentObject->setTexEnv(environment, textureNumber, blendMode, nc);
             d_currentObject->setTexGen(environment, textureNumber, blendMode);
             osg::Texture *tex = d_currentObject->texData[textureNumber].texture.get();
-            if (osg::Texture2D *tex2d = dynamic_cast<osg::Texture2D *>(tex))
-                d_currentObject->texData[textureNumber].texImage = tex2d->getImage();
+			if (osg::Texture2D *tex2d = dynamic_cast<osg::Texture2D *>(tex))
+			{
+				d_currentObject->texData[textureNumber].texImage = tex2d->getImage();
+			}
             else
                 d_currentObject->texData[textureNumber].texImage = NULL;
             d_currentObject->texData[0].mirror = 1;
@@ -5045,10 +5047,7 @@ void ViewerOsg::setShadow(const std::string &technique)
         d_currentObject->addChildrensNodes();
     }
     
-    osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
-
     coVRShadowManager::instance()->setTechnique(technique);
-
 }
 
 // Transforms
@@ -5391,10 +5390,11 @@ osg::Vec3 closestPoint(osg::Vec3 a1, osg::Vec3 b1, osg::Vec3 a2, osg::Vec3 b2)
 //
 
 // update is called from a timer callback
-void ViewerOsg::update(double timeNow)
+bool ViewerOsg::update(double timeNow)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::update" << endl;
+    bool updated = false;
     sensorList.update();
     std::list<movieImageData *>::iterator it = moviePs.begin();
     for (; it != moviePs.end(); it++)
@@ -5464,7 +5464,7 @@ void ViewerOsg::update(double timeNow)
     if (d_scene)
     {
         currentTransform.makeIdentity();
-        d_scene->update(timeNow);
+        updated = d_scene->update(timeNow);
         redraw();
     }
     //,j,k;
@@ -6051,6 +6051,8 @@ void ViewerOsg::update(double timeNow)
     }
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::update" << endl;
+
+    return updated;
 }
 
 void ViewerOsg::redraw()
@@ -6195,6 +6197,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
 {
     std::string retStr(stringToLocalize);
 
+#if 0
     if (coCoviseConfig::isOn("COVER.Plugin.Vrml97.TranslateVRMLTextNodes", false))
     {
         //-------------TRANSLATION BEGIN------------------------
@@ -6214,6 +6217,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
         }
         //-------------TRANSLATION END--------------------------
     }
+#endif
 
     return retStr;
 }

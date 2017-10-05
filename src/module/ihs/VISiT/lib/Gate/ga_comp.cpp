@@ -195,7 +195,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
       for (j = 0; j < ga->camb->num; j++)
       {
          p[0] = (1 - ga->camb->loc[j]) * ga->chord;
-         p[1] = ga->camb->val[j] * ga->maxcamb * -1.0;
+         p[1] = ga->camb->val[j] * ga->maxcamb * -1.0f;
          AddVPoint(cl_poly, p);
       }
       cl_knot = BSplineKnot(cl_poly, BSPLN_DEGREE);
@@ -206,7 +206,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
       // centre line points and gradient
       for (j = 0; j < ga->bp->num; j++)
       {
-         cl_sec = pow((float)ga->bp->c[j], (float)ga->bp_shift);
+         cl_sec = float(pow((float)ga->bp->c[j], (float)ga->bp_shift));
          BSplinePoint(BSPLN_DEGREE, cl_poly, cl_knot, cl_sec, &p[0]);
          AddVPoint(ga->cl, p);
          BSplineNormal(BSPLN_DEGREE, cl_poly, cl_knot, cl_sec, &p[0]);
@@ -228,7 +228,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
       {
          // pressure side (-) and suction side (+), machine size
          te   = 0.0;                              // 0.5 * ga->bp->c[j] * ga->te_thick;
-         t    = 0.5 * ga->chord * ga->bp->t[j];
+         t    = 0.5f * ga->chord * ga->bp->t[j];
          p[0] = ga->cl->x[j] - ga->clg->x[j] * (scale_t * t + te);
          p[1] = ga->cl->y[j] - ga->clg->y[j] * (scale_t * t + te);
          p[2] = ga->cl->z[j] - ga->clg->z[j] * (scale_t * t + te);
@@ -334,8 +334,8 @@ int SurfacesGA_BladeElement(struct gate *ga)
    float len_ss = 0.0;
    for (j = 1; j < ga->bp->num; j++)
    {
-      len_ps += pow ( (float)pow((float)(ga->ps->x[j]-ga->ps->x[j-1]),(float)2.) + pow((float)(ga->ps->y[j]-ga->ps->y[j-1]),(float)2.) , (float)0.5);
-      len_ss += pow ( (float)pow((float)(ga->ss->x[j]-ga->ss->x[j-1]),(float)2.) + pow((float)(ga->ss->y[j]-ga->ss->y[j-1]),(float)2.) , (float)0.5);
+      len_ps += float(pow ( (float)pow((float)(ga->ps->x[j]-ga->ps->x[j-1]),(float)2.) + pow((float)(ga->ps->y[j]-ga->ps->y[j-1]),(float)2.) , (float)0.5));
+      len_ss += float(pow ( (float)pow((float)(ga->ss->x[j]-ga->ss->x[j-1]),(float)2.) + pow((float)(ga->ss->y[j]-ga->ss->y[j-1]),(float)2.) , (float)0.5));
    }
 
    // calculate biaslist for profile spline knot information
@@ -446,7 +446,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
    {
       xp = ga->p_pivot->x[0];
       yp = ga->p_pivot->y[0];
-      ga->pivot_rad = pow ( (float)pow((float)ga->p_pivot->x[0],(float)2.)+pow((float)ga->p_pivot->y[0],(float)2.) , (float)0.5 );
+      ga->pivot_rad = float(pow ( (float)pow((float)ga->p_pivot->x[0],(float)2.)+pow((float)ga->p_pivot->y[0],(float)2.) , (float)0.5 ));
    }
 
    j = ga->bp->num-2;
@@ -473,14 +473,14 @@ int SurfacesGA_BladeElement(struct gate *ga)
    // transform to new axis in (0|0)
    for (j = 0; j < ga->bp->num; j++)
    {
-      ga->cl->x[j] -= bx;
-      ga->cl->y[j] -= by;
+      ga->cl->x[j] -= float(bx);
+      ga->cl->y[j] -= float(by);
 
-      ga->ps->x[j] -= bx;
-      ga->ps->y[j] -= by;
+      ga->ps->x[j] -= float(bx);
+      ga->ps->y[j] -= float(by);
 
-      ga->ss->x[j] -= bx;
-      ga->ss->y[j] -= by;
+      ga->ss->x[j] -= float(bx);
+      ga->ss->y[j] -= float(by);
    }
    xp -= bx;
    yp -= by;
@@ -488,11 +488,11 @@ int SurfacesGA_BladeElement(struct gate *ga)
 
    // transform around z-axis (trailing edge and pivot will be on x-axis)
    // pivot coordinates: (xp|yp) = (ga->pivot_rad|0)
-   angle = asin(yp / ga->pivot_rad);
+   angle = float(asin(yp / ga->pivot_rad));
 
    if (xp<0)
    {
-      angle = M_PI - angle;
+      angle = float(M_PI - angle);
    }
    angle *= -1;
    RotateBlade(ga, angle, 0.0, 0.0);
@@ -503,7 +503,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
    y1 = ga->cl->y[j+1];
    x2 = ga->cl->x[j];
    y2 = ga->cl->y[j];
-   ga->beta = acos ( (x2*x2-x1*x2-y1*y2+y2*y2) / ( sqrt (    (x2*x2+y2*y2)*((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)       ) ) ) );
+   ga->beta = float(acos ( (x2*x2-x1*x2-y1*y2+y2*y2) / ( sqrt (    (x2*x2+y2*y2)*((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)       ) ) ) ));
    //printf("******* beta vorher = %5.2lf\n", ga->beta * 180. / M_PI);
 
    // ******** trailing edge and pivot are now on x-axis) **********
@@ -533,7 +533,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
       //printf("******* math. pos. drehende Maschine\n");
       sign=-1;
    }
-   angle =  sign * ga->beta - sign * acos  ( s / r * sin(beta_soll) * sin(beta_soll) + cos(beta_soll) * sqrt(  1-(s*s/r*r)*sin(beta_soll)*sin(beta_soll))    ) ;
+   angle = float(sign * ga->beta - sign * acos  ( s / r * sin(beta_soll) * sin(beta_soll) + cos(beta_soll) * sqrt(  1-(s*s/r*r)*sin(beta_soll)*sin(beta_soll))   ) ) ;
    //printf("******* angle = %5.2lf\n", angle * 180. / M_PI);
    RotateBlade(ga, angle, ga->pivot_rad, 0.0);
    //RotateBlade(ga, angle, xp, yp);
@@ -547,27 +547,27 @@ int SurfacesGA_BladeElement(struct gate *ga)
    x2 = ga->cl->x[j];
    y2 = ga->cl->y[j];
 
-   ga->beta = acos ( (x2*x2-x1*x2-y1*y2+y2*y2) / ( pow (  (float)((x2*x2+y2*y2)*((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)  )) , (float)0.5) ) );
+   ga->beta = float(acos ( (x2*x2-x1*x2-y1*y2+y2*y2) / ( pow (  (float)((x2*x2+y2*y2)*((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)  )) , 0.5f) ) ));
    //printf("******* beta nachher = %5.2lf\n", ga->beta * 180. / M_PI);
 
    // lichte Weite a0opt bestimmen
    // Pivot drehen
    double a0opt;
-   a0opt = get_a0(ga, sign);
+   a0opt = get_a0(ga, (float)sign);
 
    int i;
 
    // array a0(beta)
 
-   angle=sign*(-100./180.)*M_PI;
+   angle= float(sign*(-100./180.)*M_PI);
    for (i=0; i<20; i++)
    {
-      if(i!=0) {angle =sign*(10./180.)*M_PI;}
+      if(i!=0) {angle = float(sign*(10./180.)*M_PI);}
       RotateBlade(ga, angle, ga->pivot_rad, 0.0);
-      ga->a0_beta[i] = get_a0(ga, sign)/a0opt;
+      ga->a0_beta[i] = float(get_a0(ga, (float)sign)/a0opt);
 
    }
-   RotateBlade(ga, sign*(-90./180.)*M_PI, ga->pivot_rad, 0.0);
+   RotateBlade(ga, float(sign*(-90./180.)*M_PI), ga->pivot_rad, 0.0);
 
    /*
       // print dependency beta - a0/a0opt in file
@@ -600,13 +600,13 @@ int SurfacesGA_BladeElement(struct gate *ga)
    y1 = ga->cl->y[j+1];
    x2 = ga->cl->x[j];
    y2 = ga->cl->y[j];
-   ga->beta = acos ( (x2*x2-x1*x2-y1*y2+y2*y2) / ( pow (  float((x2*x2+y2*y2)*((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)  )) , (float)0.5) ) );
+   ga->beta = float(acos ( (x2*x2-x1*x2-y1*y2+y2*y2) / ( pow (  float((x2*x2+y2*y2)*((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)  )) , 0.5f) ) ));
    printf("******* Austrittswinkel beta = %5.2lf\n", ga->beta * 180. / M_PI);
 
    // lichte Weite ao bestimmen
    double a0;
-   a0 = get_a0(ga, sign);
-   ga->Q = a0 / a0opt * ga->Qopt;
+   a0 = get_a0(ga, float(sign));
+   ga->Q = float(a0 / a0opt * ga->Qopt);
 
    return(1);
 }
@@ -663,14 +663,14 @@ int CreateShell(struct gate *ga, int n_circles, int steps, float *xpl, float *yp
 
    int i, j, n;
    float r_fac;
-   float rx = ga->out_rad2 * ga->nopt / pow ((float)ga->H,(float)0.5);
-   float ry = ga->Qopt / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) );
+   float rx = float(ga->out_rad2 * ga->nopt / pow ((float)ga->H,0.5f));
+   float ry = float(ga->Qopt / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ));
    float d_cross_x, d_cross_y;
 
    // generate eta-isolines
    for (j=0; j<n_circles; j++)
    {
-      r_fac = 1./n_circles*(j+1)-0.5/n_circles;
+      r_fac = float(1./n_circles*(j+1)-0.5/n_circles);
       n = j*2*steps;
       xpl[n+0]=rx + r_fac*rx;
       ypl[n+0]=ry;
@@ -678,8 +678,8 @@ int CreateShell(struct gate *ga, int n_circles, int steps, float *xpl, float *yp
       ypl[n+2*steps-1]=ypl[n+0];
       for (i=0; i<steps-1; i++)
       {
-         xpl[n+2*i+1] = rx + r_fac*rx*cos(i*2*M_PI/steps);
-         ypl[n+2*i+1] = ry + r_fac*ry*sin(i*2*M_PI/steps);
+         xpl[n+2*i+1] = float(rx + r_fac*rx*cos(i*2*M_PI/steps));
+         ypl[n+2*i+1] = float(ry + r_fac*ry*sin(i*2*M_PI/steps));
 
          xpl[n+2*i+2] = xpl[n+2*i+1];
          ypl[n+2*i+2] = ypl[n+2*i+1];
@@ -688,18 +688,18 @@ int CreateShell(struct gate *ga, int n_circles, int steps, float *xpl, float *yp
 
    // marker for actual position
    n = 2*n_circles*steps;
-   d_cross_x = 0.66 * 0.1 * rx;
-   d_cross_y = 0.1 * ry;
+   d_cross_x = 0.66f * 0.1f * rx;
+   d_cross_y = 0.1f * ry;
 
-   xpl[n] = ga->out_rad2 / pow ((float)ga->H,(float)0.5) * ga->n - d_cross_x;
-   ypl[n] = 1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q;
-   xpl[n+1] = ga->out_rad2 / pow ((float)ga->H,(float)0.5)* ga->n + d_cross_x;
-   ypl[n+1] = 1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q;
+   xpl[n] = float(ga->out_rad2 / pow ((float)ga->H,(float)0.5) * ga->n - d_cross_x);
+   ypl[n] = float(1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q);
+   xpl[n+1] = float(ga->out_rad2 / pow ((float)ga->H,(float)0.5)* ga->n + d_cross_x);
+   ypl[n+1] = float(1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q);
 
-   xpl[n+2] = ga->out_rad2 / pow ((float)ga->H,(float)0.5) * ga->n;
-   ypl[n+2] =1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q - d_cross_y;
-   xpl[n+3] = ga->out_rad2 / pow ((float)ga->H,(float)0.5) * ga->n;
-   ypl[n+3] = 1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q + d_cross_y;
+   xpl[n+2] = float(ga->out_rad2 / pow ((float)ga->H,(float)0.5) * ga->n);
+   ypl[n+2] = float(1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q - d_cross_y);
+   xpl[n+3] = float(ga->out_rad2 / pow ((float)ga->H,(float)0.5) * ga->n);
+   ypl[n+3] = float(1. / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.) ) * ga->Q + d_cross_y);
 
    return(1);
 }
@@ -730,8 +730,8 @@ int CreateIsoAngleLines(struct gate *ga, int pos, int n_isolines, float xwmin, f
    f0 = ga->a0_beta[i-1];
    f1 = ga->a0_beta[i];
    f2 = ga->a0_beta[i+1];
-   f_0 = ( f1 - ga->a0_beta[i-2] ) / 2.;
-   f_2 = ( ga->a0_beta[i+2] - f1 ) / 2.;
+   f_0 = ( f1 - ga->a0_beta[i-2] ) / 2.0f;
+   f_2 = ( ga->a0_beta[i+2] - f1 ) / 2.0f;
    /*printf("f0 = %5.2lf\n", f0);
    printf("f1 = %5.2lf\n", f1);
    printf("f2 = %5.2lf\n", f2);
@@ -740,8 +740,8 @@ int CreateIsoAngleLines(struct gate *ga, int pos, int n_isolines, float xwmin, f
 
    e = f0;
    d = f_0;
-   c = 0.25 * ( -5*f2 +16*f1 +2*f_2 -8*f_0 -11*f0 );
-   b = 0.25 * ( 7*f2 -16*f1 -3*f_2 +5*f_0 +9*f0 );
+   c = 0.25f * ( -5.0f*f2 +16.0f*f1 +2.0f*f_2 -8.0f*f_0 -11.0f*f0 );
+   b = 0.25f * ( 7.0f*f2 -16.0f*f1 -3.0f*f_2 +5.0f*f_0 +9.0f*f0 );
    a = f1 - b - c - d - e;
 
    cubic_equation(4*a, 3*b, 2*c, 1*d, &num, res);
@@ -812,8 +812,8 @@ int CreateIsoAngleLines(struct gate *ga, int pos, int n_isolines, float xwmin, f
       ga->close=0;
    }
 
-   m = (ga->a0_beta[i+2]-ga->a0_beta[i+1])/10.;
-   b0 = ga->a0_beta[i+1]-m*(i+1-10)*10;
+   m = (ga->a0_beta[i+2]-ga->a0_beta[i+1])/10.0f;
+   b0 = ga->a0_beta[i+1]-m*(i+1-10)*10.0f;
 
    ga->beta_min = -b0/m;
 
@@ -846,14 +846,14 @@ int CreateIsoAngleLines(struct gate *ga, int pos, int n_isolines, float xwmin, f
          }
          else
          {
-            a0_a0opt = ga->a0_beta[j] + ( ga->a0_beta[j+1] - ga->a0_beta[j]) * (beta-10*(j-10)) / 10.;
+            a0_a0opt = ga->a0_beta[j] + ( ga->a0_beta[j+1] - ga->a0_beta[j]) * (beta-10*(j-10)) / 10.0f;
          }
 
          xpl[pos + 2*(i-1)] = 0.;
-         ypl[pos + 2*(i-1)] = ga->Qopt * a0_a0opt / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.));
+         ypl[pos + 2*(i-1)] = float(ga->Qopt * a0_a0opt / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.)));
 
          xpl[pos + 2*(i-1)+1 ] = xwmax;
-         ypl[pos + 2*(i-1)+1] = ga->Qopt * a0_a0opt / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.));
+         ypl[pos + 2*(i-1)+1] = float(ga->Qopt * a0_a0opt / ( pow ((float)ga->H,(float)0.5) * pow((float)ga->out_rad2,(float)2.)));
       }
    }
 
@@ -888,10 +888,10 @@ int RotateBlade(struct gate *ga, float angle, float x_piv, float y_piv)
    }
 
    // rotates blade around (0|0)
-   roma[0][0] =  cos(angle);
-   roma[0][1] = -sin(angle);
-   roma[1][0] =  sin(angle);
-   roma[1][1] =  cos(angle);
+   roma[0][0] = float(cos(angle));
+   roma[0][1] = float(-sin(angle));
+   roma[1][0] = float(sin(angle));
+   roma[1][1] = float(cos(angle));
    for (j = 0; j < ga->bp->num; j++)
    {
       p[0] = roma[0][0] * ga->cl->x[j] + roma[0][1] * ga->cl->y[j];
@@ -946,11 +946,11 @@ float get_a0(struct gate *ga, float sign)
    float roma[2][2];
    float p[3];
 
-   angle = - sign * 2 * M_PI / ga->nob;
-   roma[0][0] =  cos(angle);
-   roma[0][1] = -sin(angle);
-   roma[1][0] =  sin(angle);
-   roma[1][1] =  cos(angle);
+   angle = float(- sign * 2 * M_PI / ga->nob);
+   roma[0][0] = float(cos(angle));
+   roma[0][1] = float(-sin(angle));
+   roma[1][0] = float(sin(angle));
+   roma[1][1] = float(cos(angle));
 
    //exact calculation
    if (sign==1)
@@ -984,7 +984,7 @@ float get_a0(struct gate *ga, float sign)
       }
    }
 
-   return(a0);
+   return(float(a0));
 
 }
 
@@ -1046,20 +1046,20 @@ int cubic_equation(float a, float b, float c, float d, int *num, float res[3])
 
       if ((-4*q + 4*sqrt(D))>0)
       {
-         u = 0.5 * pow((float)(-4*q + 4*sqrt(D)), (float)(1./3.) );
+         u = float(0.5 * pow((float)(-4*q + 4*sqrt(D)), (float)(1./3.) ));
       }
       else
       {
-         u = -0.5 * pow((float)(4*q - 4*sqrt(D)), (float)(1./3.) );
+         u = float(-0.5 * pow((float)(4*q - 4*sqrt(D)), (float)(1./3.) ));
       }
 
       if ((-4*q - 4*sqrt(D))>0)
       {
-         v = 0.5 * pow((float)(-4*q - 4*sqrt(D)), (float)(1./3.) );
+         v = float(0.5 * pow((float)(-4*q - 4*sqrt(D)), (float)(1./3.) ));
       }
       else
       {
-         v = -0.5 * pow((float)(4*q + 4*sqrt(D)), (float)(1./3.) );
+         v = float(-0.5 * pow((float)(4*q + 4*sqrt(D)), (float)(1./3.) ));
       }
 
       y[0] = u+v;
@@ -1072,8 +1072,8 @@ int cubic_equation(float a, float b, float c, float d, int *num, float res[3])
 
       *num = 2;
 
-      u = 0.5 * pow((float)(-4*q), (float)(1./3.));
-      v = 0.5 * pow((float)(-4*q), (float)(1./3.));
+      u = float(0.5 * pow((float)(-4*q), (float)(1./3.)));
+      v = float(0.5 * pow((float)(-4*q), (float)(1./3.)));
 
       y[1] = -(u+v)/2;
       y[2] = -(u+v)/2;
@@ -1086,11 +1086,11 @@ int cubic_equation(float a, float b, float c, float d, int *num, float res[3])
 
       *num = 3;
 
-      phi = acos ( -q / ( 2*sqrt(-p*p*p) ));
+      phi = float(acos ( -q / ( 2*sqrt(-p*p*p) )));
 
-      y[0] = 2 * sqrt(-p) * cos( phi/3 );
-      y[1] = 2 * sqrt(-p) * cos( phi/3 + (2./3.) * M_PI );
-      y[2] = 2 * sqrt(-p) * cos( phi/3 + (4./3.) * M_PI );
+      y[0] = float(2 * sqrt(-p) * cos( phi/3 ));
+      y[1] = float(2 * sqrt(-p) * cos( phi/3 + (2./3.) * M_PI ));
+      y[2] = float(2 * sqrt(-p) * cos( phi/3 + (4./3.) * M_PI ));
 
    }
 

@@ -140,7 +140,8 @@ void coRestraint::cut()
 //==========================================================================
 ssize_t coRestraint::lower() const
 {
-    ssize_t i = 0, low;
+	size_t i = 0;
+	ssize_t low;
     if (!min.empty())
         low = min[0];
     else
@@ -161,7 +162,8 @@ ssize_t coRestraint::lower() const
 //==========================================================================
 ssize_t coRestraint::upper() const
 {
-    ssize_t i = 0, up;
+	size_t i = 0;
+	ssize_t up;
     if (!max.empty())
         up = max[0];
     else
@@ -182,7 +184,7 @@ ssize_t coRestraint::upper() const
 //==========================================================================
 bool coRestraint::operator()(ssize_t val) const
 {
-    ssize_t i = 0;
+    size_t i = 0;
     while (i < min.size())
     {
         if ((val >= min[i]) && (val <= max[i]))
@@ -198,7 +200,7 @@ bool coRestraint::operator()(ssize_t val) const
 bool coRestraint::get(ssize_t val, ssize_t &group) const
 {
     group = 0;
-    while (group < min.size())
+    while (size_t(group) < min.size())
     {
         if ((val >= min[group]) && (val <= max[group]))
             return true;
@@ -231,7 +233,7 @@ const std::string coRestraint::getRestraintString(std::vector<ssize_t> sortedVal
     restraintStream << old;
 
     bool inSequence = false;
-    for (ssize_t i = 1; i < size; ++i)
+    for (size_t i = 1; i < size; ++i)
     {
         const ssize_t cur = sortedValues[i];
         if (cur == old + 1)

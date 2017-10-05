@@ -48,7 +48,7 @@ void METIS_mCPartGraphRecursive(int *nvtxs, int *ncon, idxtype *xadj, idxtype *a
   ctrl.optype = OP_PMETIS;
   ctrl.CoarsenTo = 100;
 
-  ctrl.nmaxvwgt = 1.5/(1.0*ctrl.CoarsenTo);
+  ctrl.nmaxvwgt = 1.5f/(1.0f*ctrl.CoarsenTo);
 
   InitRandom(-1);
 
@@ -102,7 +102,7 @@ void METIS_mCHPartGraphRecursive(int *nvtxs, int *ncon, idxtype *xadj, idxtype *
   ctrl.optype = OP_PMETIS;
   ctrl.CoarsenTo = 100;
 
-  ctrl.nmaxvwgt = 1.5/(1.0*ctrl.CoarsenTo);
+  ctrl.nmaxvwgt = 1.5f/(1.0f*ctrl.CoarsenTo);
 
   myubvec = fmalloc(*ncon, "PWMETIS: mytpwgts");
   scopy(*ncon, ubvec, myubvec);
@@ -155,7 +155,7 @@ void METIS_mCPartGraphRecursiveInternal(int *nvtxs, int *ncon, idxtype *xadj, id
   ctrl.optype = OP_PMETIS;
   ctrl.CoarsenTo = 100;
 
-  ctrl.nmaxvwgt = 1.5/(1.0*ctrl.CoarsenTo);
+  ctrl.nmaxvwgt = 1.5f/(1.0f*ctrl.CoarsenTo);
 
   InitRandom(-1);
 
@@ -203,7 +203,7 @@ void METIS_mCHPartGraphRecursiveInternal(int *nvtxs, int *ncon, idxtype *xadj, i
   ctrl.optype = OP_PMETIS;
   ctrl.CoarsenTo = 100;
 
-  ctrl.nmaxvwgt = 1.5/(1.0*ctrl.CoarsenTo);
+  ctrl.nmaxvwgt = 1.5f/(1.0f*ctrl.CoarsenTo);
 
   myubvec = fmalloc(*ncon, "PWMETIS: mytpwgts");
   scopy(*ncon, ubvec, myubvec);
@@ -246,8 +246,8 @@ int MCMlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idx
   }
 
   /* Determine the weights of the partitions */
-  tpwgts[0] = 1.0*(nparts>>1)/(1.0*nparts);
-  tpwgts[1] = 1.0 - tpwgts[0];
+  tpwgts[0] = 1.0f*(nparts>>1)/(1.0f*nparts);
+  tpwgts[1] = 1.0f - tpwgts[0];
 
   MCMlevelEdgeBisection(ctrl, graph, tpwgts, ubfactor);
   cut = graph->mincut;
@@ -301,8 +301,8 @@ int MCHMlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, id
   }
 
   /* Determine the weights of the partitions */
-  tpwgts[0] = 1.0*(nparts>>1)/(1.0*nparts);
-  tpwgts[1] = 1.0 - tpwgts[0];
+  tpwgts[0] = 1.0f*(nparts>>1)/(1.0f*nparts);
+  tpwgts[1] = 1.0f - tpwgts[0];
 
   /* For now, relax at the coarsest level only */
   if (nparts == 2)
@@ -324,10 +324,10 @@ int MCHMlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, id
 
     for (i=0; i<ncon; i++) {
       lubvec[i] = ubvec[i]*tpwgts[0]/npwgts[i];
-      lubvec[i] = amax(lubvec[i], 1.01);
+      lubvec[i] = amax(lubvec[i], 1.01f);
 
       rubvec[i] = ubvec[i]*tpwgts[1]/npwgts[ncon+i];
-      rubvec[i] = amax(rubvec[i], 1.01);
+      rubvec[i] = amax(rubvec[i], 1.01f);
     }
 
     SplitGraphPart(ctrl, graph, &lgraph, &rgraph);

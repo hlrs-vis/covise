@@ -76,7 +76,7 @@ public:
     bool initDone();
     ~OpenCOVER();
     void loop();
-    void frame();
+    bool frame();
     void doneRendering();
     void setExitFlag(bool flag);
     int getExitFlag()
@@ -101,9 +101,12 @@ public:
 
     static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
     coVRPlugin *visPlugin() const;
+private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
 #endif
+    bool m_renderNext;
+    bool m_initialized = false;
 };
 }
 #endif

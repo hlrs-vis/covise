@@ -24,8 +24,8 @@
 #ifndef SMALL
 #define SMALL 1.0E-04
 #endif
-#define PERI_MOD_MATCH 1.0
-#define PERI_MOD 0.0
+#define PERI_MOD_MATCH 1.0f
+#define PERI_MOD 0.0f
 #ifndef ABS
 #define ABS(a)    ( (a) >= (0) ? (a) : -(a) )
 #endif
@@ -62,7 +62,7 @@ int PutBladeNodes(struct Nodelist *n, struct Ilist *ssnod,
 		dx = n->n[(*nlist)]->x - n->n[(*nprev)]->x;
 		dy = n->n[(*nlist)]->y - n->n[(*nprev)]->y;
 		dz = n->n[(*nlist)]->z - n->n[(*nprev)]->z;
-		len += sqrt(dx*dx + dy*dy + dz*dz);
+		len += float(sqrt(dx*dx + dy*dy + dz*dz));
 		fprintf(fp," %7d   %4.4f   %4.4f     %1.4f  %4.4f\n",
 				n->n[(*nlist)]->id, len, n->n[(*nlist)]->l,
 				n->n[(*nlist)]->phi, n->n[(*nlist)]->r);fflush(fp);
@@ -80,7 +80,7 @@ int PutBladeNodes(struct Nodelist *n, struct Ilist *ssnod,
 		dx = n->n[(*nlist)]->x - n->n[(*nprev)]->x;
 		dy = n->n[(*nlist)]->y - n->n[(*nprev)]->y;
 		dz = n->n[(*nlist)]->z - n->n[(*nprev)]->z;
-		len += sqrt(dx*dx + dy*dy + dz*dz);
+		len += float(sqrt(dx*dx + dy*dy + dz*dz));
 		fprintf(fp," %7d   %4.4f   %4.4f     %1.4f  %4.4f\n",
 				n->n[(*nlist)]->id, len, n->n[(*nlist)]->l,
 				n->n[(*nlist)]->phi, n->n[(*nlist)]->r);fflush(fp);
@@ -169,8 +169,8 @@ int ReadjustPeriodic(struct Nodelist *n, struct Ilist *psle,
 		u[0] = n->n[ssle->list[i]]->x;
 		u[1] = n->n[ssle->list[i]]->y;
 
-		v[0] = u[0]*cos(dphi) - u[1]*sin(dphi);
-		v[1] = u[0]*sin(dphi) + u[1]*cos(dphi);
+		v[0] = float(u[0]*cos(dphi) - u[1]*sin(dphi));
+		v[1] = float(u[0]*sin(dphi) + u[1]*cos(dphi));
 #ifdef DEBUG_PERIODIC
 		fprintf(fp, "    v[0] = %f, v[1] = %f, x = %f, y = %f\n",
 				v[0], v[1], n->n[psle->list[i]]->x,
@@ -227,8 +227,8 @@ int ReadjustPeriodic(struct Nodelist *n, struct Ilist *psle,
 					u[1] = (*tmpssprev)->y +
 						( (*tmpss)->y - (*tmpssprev)->y) / ((*tmpss)->z - (*tmpssprev)->z) *
 						(u[2] - (*tmpssprev)->z);
-					v[0] = u[0]*cos(dphi) - u[1]*sin(dphi);
-					v[1] = u[0]*sin(dphi) + u[1]*cos(dphi);
+					v[0] = float(u[0]*cos(dphi) - u[1]*sin(dphi));
+					v[1] = float(u[0]*sin(dphi) + u[1]*cos(dphi));
 #ifdef DEBUG_PERIODIC
 					fprintf(fp,"ssnode, psnode: %d, %d\n",(*tmpss)->id, (*tmpps)->id);
 					fprintf(fp,"tmpps->z = %f, u[2] = %f, tmpps->x = %f, tmpps->y = %f\n",

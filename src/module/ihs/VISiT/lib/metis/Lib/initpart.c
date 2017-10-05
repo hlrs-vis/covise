@@ -101,10 +101,10 @@ void GrowBisection(CtrlType *ctrl, GraphType *graph, int *tpwgts, float ubfactor
 
   ASSERTP(tpwgts[0]+tpwgts[1] == idxsum(nvtxs, vwgt), ("%d %d\n", tpwgts[0]+tpwgts[1], idxsum(nvtxs, vwgt)));
 
-  maxpwgt[0] = ubfactor*tpwgts[0];
-  maxpwgt[1] = ubfactor*tpwgts[1];
-  minpwgt[0] = (1.0/ubfactor)*tpwgts[0];
-  minpwgt[1] = (1.0/ubfactor)*tpwgts[1];
+  maxpwgt[0] = (int)ubfactor*tpwgts[0];
+  maxpwgt[1] = (int)ubfactor*tpwgts[1];
+  minpwgt[0] = (int)(1.0/ubfactor)*tpwgts[0];
+  minpwgt[1] = (int)(1.0/ubfactor)*tpwgts[1];
 
   nbfs = (nvtxs <= ctrl->CoarsenTo ? SMALLNIPARTS : LARGENIPARTS);
   bestcut = idxsum(nvtxs, graph->adjwgtsum)+1;  /* The +1 is for the 0 edges case */
@@ -227,10 +227,10 @@ void GrowBisectionNode(CtrlType *ctrl, GraphType *graph, float ubfactor)
   tpwgts[1] = tpwgts[0]/2;
   tpwgts[0] -= tpwgts[1];
 
-  maxpwgt[0] = ubfactor*tpwgts[0];
-  maxpwgt[1] = ubfactor*tpwgts[1];
-  minpwgt[0] = (1.0/ubfactor)*tpwgts[0];
-  minpwgt[1] = (1.0/ubfactor)*tpwgts[1];
+  maxpwgt[0] = (int)ubfactor*tpwgts[0];
+  maxpwgt[1] = (int)ubfactor*tpwgts[1];
+  minpwgt[0] = (int)(1.0/ubfactor)*tpwgts[0];
+  minpwgt[1] = (int)(1.0/ubfactor)*tpwgts[1];
 
   /* Allocate memory for graph->rdata. Allocate sufficient memory for both edge and node */
   graph->rdata = idxmalloc(5*nvtxs+3, "GrowBisectionNode: graph->rdata");
@@ -363,10 +363,10 @@ void RandomBisection(CtrlType *ctrl, GraphType *graph, int *tpwgts, float ubfact
 
   ASSERTP(tpwgts[0]+tpwgts[1] == idxsum(nvtxs, vwgt), ("%d %d\n", tpwgts[0]+tpwgts[1], idxsum(nvtxs, vwgt)));
 
-  maxpwgt[0] = ubfactor*tpwgts[0];
-  maxpwgt[1] = ubfactor*tpwgts[1];
-  minpwgt[0] = (1.0/ubfactor)*tpwgts[0];
-  minpwgt[1] = (1.0/ubfactor)*tpwgts[1];
+  maxpwgt[0] = (int)ubfactor*tpwgts[0];
+  maxpwgt[1] = (int)ubfactor*tpwgts[1];
+  minpwgt[0] = (int)(1.0/ubfactor)*tpwgts[0];
+  minpwgt[1] = (int)(1.0/ubfactor)*tpwgts[1];
 
   nbfs = (nvtxs <= ctrl->CoarsenTo ? SMALLNIPARTS : LARGENIPARTS);
   bestcut = idxsum(nvtxs, graph->adjwgtsum)+1;  /* The +1 is for the 0 edges case */

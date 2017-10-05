@@ -1553,19 +1553,19 @@ void MEUserInterface::switchMasterState(bool state)
     // reset items in menubar & toolbar
     m_openRecentMenu->setEnabled(state);
     m_openAutosaveMenu->setEnabled(state);
-    for (unsigned i = 0; i < m_fileActionList.count(); i++)
+    for (int i = 0; i < m_fileActionList.count(); i++)
         m_fileActionList.at(i)->setEnabled(state);
 
-    for (unsigned i = 0; i < m_sessionActionList.count(); i++)
+    for (int i = 0; i < m_sessionActionList.count(); i++)
         m_sessionActionList.at(i)->setEnabled(state);
 
-    for (unsigned i = 0; i < m_editActionList.count(); i++)
+    for (int i = 0; i < m_editActionList.count(); i++)
         m_editActionList.at(i)->setEnabled(state);
 
-    for (unsigned i = 0; i < m_pipeActionList.count(); i++)
+    for (int i = 0; i < m_pipeActionList.count(); i++)
         m_pipeActionList.at(i)->setEnabled(state);
 
-    for (unsigned i = 0; i < m_toolBarActionList.count(); i++)
+    for (int i = 0; i < m_toolBarActionList.count(); i++)
         m_toolBarActionList.at(i)->setEnabled(state);
 
     MEFavoriteListHandler::instance()->setEnabled(state);

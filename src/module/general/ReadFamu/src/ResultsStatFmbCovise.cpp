@@ -88,12 +88,11 @@ void ResultsStatBinary::readDataTypeScalar(
     int noOfMeshNodes = _meshDataStat->getNoOfPoints();
 
     float *results = new float[noOfMeshNodes];
-    int i;
-    for (i = 0; i < noOfMeshNodes; i++)
+    for (int i = 0; i < noOfMeshNodes; i++)
     {
         results[i] = 0;
     }
-    for (i = 0; i < noOfValues; i++)
+    for (unsigned int i = 0; i < noOfValues; i++)
     {
         int nodeNoRes = (int)nodeNoArr_f[i]; // internal node number of results file
         int nodeNoMesh = getNodeNoOfMesh(nodeNoRes); // internal node number of mesh file
@@ -154,7 +153,7 @@ void ResultsStatBinary::readDataTypeVector(
     int _debug_nodeNoMeshMax = 0;
 #endif
 
-    for (i = 0; i < noOfValues; i++)
+    for (unsigned int i = 0; i < noOfValues; i++)
     {
         int nodeNoRes = (int)nodeNoArr[i]; // internal node number of results file
         int nodeNoMesh = getNodeNoOfMesh(nodeNoRes); // internal node number of mesh file

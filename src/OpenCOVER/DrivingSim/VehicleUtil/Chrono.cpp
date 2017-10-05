@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "Chrono.h"
+#include <cover/coVRPluginSupport.h>
 
 // Chrono ////////////////////////////////////////////////////////////
 

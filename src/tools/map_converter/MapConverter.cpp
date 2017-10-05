@@ -322,8 +322,8 @@ int main(int argc, char **argv)
         // userHostStr may be a comma-separated list; split it in parts
         // and call  nFile->replaceUserHost(..) for each part
         std::string pat(",");
-        int end = userHostStr.find_first_of(pat.c_str());
-        int beg = 0;
+        size_t end = userHostStr.find_first_of(pat.c_str());
+        size_t beg = 0;
         if (end == std::string::npos)
         {
             nFile->replaceUserHost(userHostStr);

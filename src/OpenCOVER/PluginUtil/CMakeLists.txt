@@ -37,6 +37,7 @@ SET(PLUGINUTIL_HEADERS
   coSensor.h
   GenericGuiObject.h
   MultiChannelDrawer.h
+  StaticSequence.h
 )
 
 SET(SOURCES
@@ -63,11 +64,15 @@ SET(SOURCES
   coSensor.cpp
   GenericGuiObject.cpp
   MultiChannelDrawer.cpp
+  StaticSequence.cpp
 )
 
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )
 TARGET_LINK_LIBRARIES(coOpenPluginUtil coOpenCOVER coOpenVRUI coOSGVRUI
    ${COVISE_GRMSG_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES})
+
+COVISE_WNOERROR(coOpenPluginUtil BASEARCH zebu)
+
 TARGET_LINK_LIBRARIES(coOpenPluginUtil ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(coOpenPluginUtil)
 COVISE_INSTALL_HEADERS(PluginUtil ${PLUGINUTIL_HEADERS})

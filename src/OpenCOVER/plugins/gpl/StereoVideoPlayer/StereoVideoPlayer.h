@@ -23,6 +23,8 @@ using namespace opencover;
 #include <osg/ImageStream>
 #include <osg/Camera>
 
+#include <string>
+
 class StereoVideoPlayerPlugin;
 
 class MovieData
@@ -79,13 +81,13 @@ private:
     FFMPEGVideoPlayer *videoPlayer;
     bool switchLeftRight;
 
-    bool parseFilename(string *);
+    bool parseFilename(std::string *);
     void createMovieScene(osg::Image *);
     void reloadScene();
     void setCameraProperties(osg::Camera *);
-    bool addMovieEnvironment(string);
+    bool addMovieEnvironment(std::string);
     osg::StateSet *createMovieStateSet(osg::Image *);
-    bool openMovie(string, MovieData *);
+    bool openMovie(std::string, MovieData *);
     osg::Geometry *createPlane(osg::Image *);
     void deltaTex(float, float, float, float, float[]);
     void deltaTexRectangle(float, float, float, float, float[]);

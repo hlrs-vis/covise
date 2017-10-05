@@ -43,6 +43,7 @@ public:
     
     void enableGraphEdit(bool);	
 	void setButtonColor(const QString &name,QColor color);
+	void objectSelection(bool);
 
 private:
     OpenScenarioEditorTool(); /* not allowed */
@@ -67,8 +68,7 @@ public slots:
     void activateEditor();
 	void handleToolClick(int);
 	void handleCatalogSelection(int);
-	void onPushButtonPressed(QString name);
-    void handleGraphState(bool);
+	void handleGraphState(bool);
 
     //################//
     // PROPERTIES     //
@@ -76,7 +76,10 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
+	bool graphEdit_;
 	Ui::OSCRibbon *ui;
+
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class OpenScenarioEditorToolAction : public ToolAction

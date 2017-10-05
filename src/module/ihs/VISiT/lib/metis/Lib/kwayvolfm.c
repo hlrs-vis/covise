@@ -49,9 +49,9 @@ void Random_KWayVolRefine(CtrlType *ctrl, GraphType *graph, int nparts, float *t
   phtable = idxsmalloc(nparts, -1, "Random_KWayVolRefine: phtable");
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -199,9 +199,9 @@ void Random_KWayVolRefineMConn(CtrlType *ctrl, GraphType *graph, int nparts, flo
   ComputeVolSubDomainGraph(graph, nparts, pmat, ndoms);
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -433,9 +433,9 @@ void Greedy_KWayVolBalance(CtrlType *ctrl, GraphType *graph, int nparts, float *
   phtable = idxsmalloc(nparts, -1, "Random_KWayVolRefine: phtable");
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -593,9 +593,9 @@ void Greedy_KWayVolBalanceMConn(CtrlType *ctrl, GraphType *graph, int nparts, fl
   ComputeVolSubDomainGraph(graph, nparts, pmat, ndoms);
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -1423,7 +1423,7 @@ void EliminateVolSubDomainEdges(CtrlType *ctrl, GraphType *graph, int nparts, fl
   /* Compute the maximum allowed weight for each domain */
   tvwgt = idxsum(nparts, pwgts);
   for (i=0; i<nparts; i++)
-    maxpwgt[i] = 1.25*tpwgts[i]*tvwgt;
+    maxpwgt[i] = (idxtype)(1.25*tpwgts[i]*tvwgt);
 
   /* Determine the domain connectivity */
   for (i=0; i<nparts; i++) {
@@ -1680,7 +1680,7 @@ void EliminateVolComponents(CtrlType *ctrl, GraphType *graph, int nparts, float 
       pwgts[where[i]] += vwgt[i];
     tvwgt = idxsum(nparts, pwgts);
     for (i=0; i<nparts; i++)
-      maxpwgt[i] = ubfactor*tpwgts[i]*tvwgt;
+      maxpwgt[i] = (idxtype)(ubfactor*tpwgts[i]*tvwgt);
 
     deltawgt = tvwgt/(100*nparts);
     deltawgt = 5;

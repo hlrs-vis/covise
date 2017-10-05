@@ -43,6 +43,9 @@ namespace opencover
 class buttonSpecCell;
 class COVEREXPORT coVRCollaboration : public vrui::coMenuListener
 {
+    static coVRCollaboration *s_instance;
+    coVRCollaboration();
+
 public:
     enum SyncMode
     {
@@ -63,6 +66,7 @@ private:
     float syncInterval;
 
 public:
+    virtual ~coVRCollaboration();
     void config();
     vrui::coSubMenuItem *collButton;
     void showCollaborative(bool visible);
@@ -93,9 +97,6 @@ public:
     void menuEvent(vrui::coMenuItem *);
     void updateCollaborativeMenu();
 
-    coVRCollaboration();
-
-    virtual ~coVRCollaboration();
     void init();
 
     void update();

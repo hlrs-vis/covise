@@ -8,8 +8,8 @@
 #include "../../General/include/parameter.h"
 #include "../../General/include/profile.h"
 
-#define RAD(x)          ((x)*M_PI/180.0)
-#define GRAD(x)         ((x)*180.0/M_PI)
+#define RAD(x)          (float((x)*M_PI/180.0))
+#define GRAD(x)         (float((x)*180.0/M_PI))
 #define ABS2REL(x,y)    ((x)/(y))
 #define REL2ABS(x,y)    ((x)*(y))
 

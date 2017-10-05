@@ -70,8 +70,8 @@ coShmPtr *coShmAlloc::malloc(shmSizeType size)
         }
         new_shm = new SharedMemory(&tmp_key, new_size);
         print_comment(__LINE__, __FILE__, "key: %d  size: %d", tmp_key, new_size);
-        print_comment(__LINE__, __FILE__, "seq_no: %d  ptr: %lx", new_shm->get_seq_no(),
-                      (long unsigned int)new_shm->get_pointer());
+        print_comment(__LINE__, __FILE__, "seq_no: %d  ptr: %llx", new_shm->get_seq_no(),
+                      ( unsigned long long)new_shm->get_pointer());
         mnode = new_memchunk(new_shm->get_seq_no(),
                              new_shm->get_pointer(), new_size);
 #ifdef DEBUG
@@ -185,6 +185,6 @@ void coShmAlloc::new_desk(void)
 
 void MemChunk::print()
 {
-    print_comment(__LINE__, __FILE__, "address: %lx  size: %ld ", (long unsigned int)&address, (long)size);
+    print_comment(__LINE__, __FILE__, "address: %llx  size: %lld ", (unsigned long long)&address, (long long)size);
     covise_list_size += size;
 }

@@ -337,7 +337,7 @@ int coReadAccretion::compute(const char *)
             while (mass.size() <= i)
                 mass.push_back(0.f);
 
-            for (int j = xx.size(); j < i; ++j)
+            for (size_t j = xx.size(); j < i; ++j)
             {
                 if (j == 0)
                     continue;
@@ -413,18 +413,18 @@ int coReadAccretion::compute(const char *)
         fclose(fp);
 
         // no particle with id 0
-        points.push_back(new coDoPoints(objName(poPoint, timestep), xx.size() - 1, &xx[1], &yy[1], &zz[1]));
-        vels.push_back(new coDoVec3(objName(poVel, timestep), vxx.size() - 1, &vxx[1], &vyy[1], &vzz[1]));
+        points.push_back(new coDoPoints(objName(poPoint, timestep), (int)xx.size() - 1, &xx[1], &yy[1], &zz[1]));
+        vels.push_back(new coDoVec3(objName(poVel, timestep), (int)vxx.size() - 1, &vxx[1], &vyy[1], &vzz[1]));
 
-        masses.push_back(new coDoFloat(objName(poMass, timestep), mass.size() - 1, &mass[1]));
+        masses.push_back(new coDoFloat(objName(poMass, timestep), (int)mass.size() - 1, &mass[1]));
         // only copy remaining particles
         while (initialMass.size() < mass.size())
             initialMass.push_back(0.f);
-        initialMasses.push_back(new coDoFloat(objName(poInitialMass, timestep), mass.size() - 1, &initialMass[1]));
+        initialMasses.push_back(new coDoFloat(objName(poInitialMass, timestep), (int)mass.size() - 1, &initialMass[1]));
 
-        mask.push_back(new coDoInt(objName(poMask, timestep), vmask.size() - 1, &vmask[1]));
-        id.push_back(new coDoInt(objName(poId, timestep), vid.size() - 1, &vid[1]));
-        attrs.push_back(new coDoInt(objName(poAttr, timestep), vattr.size() - 1, &vattr[1]));
+        mask.push_back(new coDoInt(objName(poMask, timestep), (int)vmask.size() - 1, &vmask[1]));
+        id.push_back(new coDoInt(objName(poId, timestep), (int)vid.size() - 1, &vid[1]));
+        attrs.push_back(new coDoInt(objName(poAttr, timestep), (int)vattr.size() - 1, &vattr[1]));
     }
     float starmass[2];
     int nvals = fscanf(starfp, "M1 = %f Msun M2 = %f Msun\n", &starmass[0], &starmass[1]);
@@ -437,15 +437,15 @@ int coReadAccretion::compute(const char *)
     coDoFloat *starMass = new coDoFloat(poMassStars->getObjName(), 2, &starmass[0]);
 
     // Create set objects:
-    coDoSet *setPoints = new coDoSet(poPoint->getObjName(), points.size(), (coDistributedObject **)&points[0]);
-    coDoSet *setVels = new coDoSet(poVel->getObjName(), vels.size(), (coDistributedObject **)&vels[0]);
-    coDoSet *setMasses = new coDoSet(poMass->getObjName(), masses.size(), (coDistributedObject **)&masses[0]);
-    coDoSet *setInitialMasses = new coDoSet(poInitialMass->getObjName(), initialMasses.size(), (coDistributedObject **)&initialMasses[0]);
-    coDoSet *setMasks = new coDoSet(poMask->getObjName(), mask.size(), (coDistributedObject **)&mask[0]);
-    coDoSet *setIds = new coDoSet(poId->getObjName(), id.size(), (coDistributedObject **)&id[0]);
-    coDoSet *setAttrs = new coDoSet(poAttr->getObjName(), attrs.size(), (coDistributedObject **)&attrs[0]);
-    coDoSet *setRStars = new coDoSet(poRStars->getObjName(), rcenter.size(), (coDistributedObject **)&rcenter[0]);
-    coDoSet *setVStars = new coDoSet(poVStars->getObjName(), vcenter.size(), (coDistributedObject **)&vcenter[0]);
+    coDoSet *setPoints = new coDoSet(poPoint->getObjName(), (int)points.size(), (coDistributedObject **)&points[0]);
+    coDoSet *setVels = new coDoSet(poVel->getObjName(), (int)vels.size(), (coDistributedObject **)&vels[0]);
+    coDoSet *setMasses = new coDoSet(poMass->getObjName(), (int)masses.size(), (coDistributedObject **)&masses[0]);
+    coDoSet *setInitialMasses = new coDoSet(poInitialMass->getObjName(), (int)initialMasses.size(), (coDistributedObject **)&initialMasses[0]);
+    coDoSet *setMasks = new coDoSet(poMask->getObjName(), (int)mask.size(), (coDistributedObject **)&mask[0]);
+    coDoSet *setIds = new coDoSet(poId->getObjName(), (int)id.size(), (coDistributedObject **)&id[0]);
+    coDoSet *setAttrs = new coDoSet(poAttr->getObjName(), (int)attrs.size(), (coDistributedObject **)&attrs[0]);
+    coDoSet *setRStars = new coDoSet(poRStars->getObjName(), (int)rcenter.size(), (coDistributedObject **)&rcenter[0]);
+    coDoSet *setVStars = new coDoSet(poVStars->getObjName(), (int)vcenter.size(), (coDistributedObject **)&vcenter[0]);
 
     // Set timestep attribute:
     if (timestep - timestepStart + 1 > 1)

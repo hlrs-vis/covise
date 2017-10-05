@@ -62,12 +62,24 @@ std::string Host::lookupHostname(const char *numericIP)
     static bool onlyNumeric = false;
     if (!onlyNumeric)
     {
-        struct hostent *he = NULL;
-        struct in_addr v4;
-        int err = inet_pton(AF_INET, numericIP, &v4);
+
+		struct sockaddr_in sa;
+		char hostname[NI_MAXHOST];
+		memset(&sa, 0, sizeof sa);
+		sa.sin_family = AF_INET;
+        int err = inet_pton(AF_INET, numericIP, &sa.sin_addr);
         if (err == 1)
         {
-            he = gethostbyaddr((const char *)&v4, sizeof(v4), AF_INET);
+
+			int res = getnameinfo((struct sockaddr*)&sa, sizeof(sa),
+				hostname, sizeof(hostname),
+				NULL, 0, NI_NAMEREQD);
+
+			if (!res) 
+			{
+				retVal = hostname;
+				return retVal;
+			}
         }
 #if 0
         if (err == 0)
@@ -78,71 +90,61 @@ std::string Host::lookupHostname(const char *numericIP)
                 he = gethostbyaddr(&v6, sizeof(v6), AF_INET6);
         }
 #endif
-        if (NULL != he)
-        {
-            retVal = he->h_name;
-        }
-        else
-        {
-            retVal = numericIP;
-            //TODO coConfig - das muss wieder richtig geparst werden
-            coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
-            const char **ipEntries = ipe.getValue();
-            const char *last;
-            if (NULL != ipEntries)
-            {
-                bool gotAll = false;
-                bool found = false;
-                do
-                {
-                    //An IpTable Entry has the form
-                    //<symbolic> <numeric>
-                    //The CoviseConfig::getScopeEntries
-                    //method gets them word by word
-                    //so we have to parse two of them
-                    last = *ipEntries;
-                    fprintf(stderr, "IPTABLE:%s ", last);
-                    ipEntries++;
-                    if (NULL != *ipEntries)
-                    {
-                        fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
-                        if (0 == strcmp(numericIP, *ipEntries))
-                        {
-                            //We found the entry
-                            retVal = last;
-                            found = true;
-                        }
-                        else
-                        {
-                            //There is an entry, but it does not match
-                            ipEntries++;
-                            if (NULL == *ipEntries)
-                            {
-                                onlyNumeric = true;
-                                gotAll = true;
-                                retVal = numericIP;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //We got all entries, the last of which is incomplete
-                        onlyNumeric = true;
-                        gotAll = true;
-                        retVal = numericIP;
-                    }
-                } while ((!gotAll) && (!found));
-            }
-            else
-            {
-                onlyNumeric = true;
-            }
-        }
-    }
-    else
-    {
-        retVal = numericIP;
-    }
+        
+		retVal = numericIP;
+		//TODO coConfig - das muss wieder richtig geparst werden
+		coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
+		const char **ipEntries = ipe.getValue();
+		const char *last;
+		if (NULL != ipEntries)
+		{
+			bool gotAll = false;
+			bool found = false;
+			do
+			{
+				//An IpTable Entry has the form
+				//<symbolic> <numeric>
+				//The CoviseConfig::getScopeEntries
+				//method gets them word by word
+				//so we have to parse two of them
+				last = *ipEntries;
+				fprintf(stderr, "IPTABLE:%s ", last);
+				ipEntries++;
+				if (NULL != *ipEntries)
+				{
+					fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
+					if (0 == strcmp(numericIP, *ipEntries))
+					{
+						//We found the entry
+						retVal = last;
+						found = true;
+					}
+					else
+					{
+						//There is an entry, but it does not match
+						ipEntries++;
+						if (NULL == *ipEntries)
+						{
+							onlyNumeric = true;
+							gotAll = true;
+							retVal = numericIP;
+						}
+					}
+				}
+				else
+				{
+					//We got all entries, the last of which is incomplete
+					onlyNumeric = true;
+					gotAll = true;
+					retVal = numericIP;
+				}
+			} while ((!gotAll) && (!found));
+		}
+		else
+		{
+			onlyNumeric = true;
+		}
+	}
 #ifdef DEBUG
     fprintf(stderr, "lookup result for %s: %s (%f s)\n", numericIP, retVal.c_str(), watch.elapsed());
 #endif

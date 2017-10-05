@@ -21,7 +21,7 @@ normalise(float *e1)
 {
     float len = sqrt(e1[0] * e1[0] + e1[1] * e1[1] + e1[2] * e1[2]);
     if (len > 0.0)
-        len = 1.0 / len;
+        len = 1.0f / len;
     else
         return;
     e1[0] *= len;
@@ -99,16 +99,16 @@ Probe3D::param(const char *portName, bool /*inMapLoading*/)
         p_start1_->getValue(s1[0], s1[1], s1[2]);
         p_start2_->getValue(s2[0], s2[1], s2[2]);
         // take middle of line between two starting points as base point
-        point_[0] = 0.5 * (s1[0] + s2[0]);
-        point_[1] = 0.5 * (s1[1] + s2[1]);
-        point_[2] = 0.5 * (s1[2] + s2[2]);
+        point_[0] = 0.5f * (s1[0] + s2[0]);
+        point_[1] = 0.5f * (s1[1] + s2[1]);
+        point_[2] = 0.5f * (s1[2] + s2[2]);
 
         float s[3], d[3];
         s[0] = s2[0] - s1[0];
         s[1] = s2[1] - s1[1];
         s[2] = s2[2] - s1[2];
 
-        side_ = sqrt(0.5 * (s[0] * s[0] + s[1] * s[1] + s[2] * s[2]));
+        side_ = sqrt(0.5f * (s[0] * s[0] + s[1] * s[1] + s[2] * s[2]));
 
         p_direction_->getValue(d[0], d[1], d[2]);
         dir_[0] = d[0];
@@ -309,7 +309,7 @@ Probe3D::compute(const char *)
 coDoFloat *
 Probe3D::makeField(const char *name, const vector<float> &field) const
 {
-    return new coDoFloat(name, field.size(), field.size() > 0 ? const_cast<float *>(&field[0]) : NULL);
+    return new coDoFloat(name, (int)field.size(), field.size() > 0 ? const_cast<float *>(&field[0]) : NULL);
 }
 
 coDoPolygons *
@@ -330,7 +330,7 @@ Probe3D::makePolygon(const char *name) const
         int basen = base + num_side_nodes;
         for (i = 0; i < num_side_nodes - 1; ++i)
         {
-            pl.push_back(vl.size());
+            pl.push_back((int)vl.size());
             vl.push_back(base + i);
             vl.push_back(base + i + 1);
             vl.push_back(basen + i + 1);
@@ -467,9 +467,9 @@ Probe3D::gOutput(const vector<vector<float> > &gresults, float min, float max, f
                 normal1[2] = normal_[2];
                 normalise(normal1);
 
-                *xStart = point_[0] + normal1[0] * side_ * 0.5;
-                *yStart = point_[1] + normal1[1] * side_ * 0.5;
-                *zStart = point_[2] + normal1[2] * side_ * 0.5;
+                *xStart = point_[0] + normal1[0] * side_ * 0.5f;
+                *yStart = point_[1] + normal1[1] * side_ * 0.5f;
+                *zStart = point_[2] + normal1[2] * side_ * 0.5f;
 
                 staticMinMaxCalculation(smin, smax, savg, gresults[0]);
                 sprintf(attrString, "%f %f %f", smin, smax, savg);
@@ -536,14 +536,14 @@ Probe3D::transientMinMaxCalculation(float &min, float &max, float &avg,
     int time;
     int point;
     avg = 0.0;
-    int timesteps = gresults.size();
+    int timesteps = (int)gresults.size();
     for (time = 0; time < timesteps; ++time)
     {
         float avg2 = 0.0;
         float tsize = 1.0;
         for (point = 0; point < gresults[time].size(); ++point)
         {
-            tsize = point;
+            tsize = float(point);
             if (gresults[time][point] == FLT_MAX)
                 continue;
             avg2 += gresults[time][point];
@@ -688,9 +688,9 @@ Probe3D::loadPoints(vector<float> &x, vector<float> &y, vector<float> &z, bool p
             int steps = p_numsidepoints_->getValue();
             for (int i = 1; i <= steps; i++)
             {
-                point[0] += normal1[0] * side_ * 1. / steps;
-                point[1] += normal1[1] * side_ * 1. / steps;
-                point[2] += normal1[2] * side_ * 1. / steps;
+                point[0] += normal1[0] * side_ * 1.0f / steps;
+                point[1] += normal1[1] * side_ * 1.0f / steps;
+                point[2] += normal1[2] * side_ * 1.0f / steps;
 
                 loadSquarePoints(p_numsidepoints_->getValue(), point, normal,
                                  side_, x, y, z, per_cell);
@@ -745,16 +745,16 @@ Probe3D::loadSquarePoints(int num_sidepoints, vector<float> point,
 
     if (per_cell)
     {
-        centre[0] = point[0] - (side + delta) * 0.5 * (e1[0] + e2[0]);
-        centre[1] = point[1] - (side + delta) * 0.5 * (e1[1] + e2[1]);
-        centre[2] = point[2] - (side + delta) * 0.5 * (e1[2] + e2[2]);
+        centre[0] = point[0] - (side + delta) * 0.5f * (e1[0] + e2[0]);
+        centre[1] = point[1] - (side + delta) * 0.5f * (e1[1] + e2[1]);
+        centre[2] = point[2] - (side + delta) * 0.5f * (e1[2] + e2[2]);
         num++;
     }
     else
     {
-        centre[0] = point[0] - side * 0.5 * (e1[0] + e2[0]);
-        centre[1] = point[1] - side * 0.5 * (e1[1] + e2[1]);
-        centre[2] = point[2] - side * 0.5 * (e1[2] + e2[2]);
+        centre[0] = point[0] - side * 0.5f * (e1[0] + e2[0]);
+        centre[1] = point[1] - side * 0.5f * (e1[1] + e2[1]);
+        centre[2] = point[2] - side * 0.5f * (e1[2] + e2[2]);
     }
     for (j = 0; j < num; ++j)
     {

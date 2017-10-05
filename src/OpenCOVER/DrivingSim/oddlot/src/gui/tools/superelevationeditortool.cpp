@@ -130,7 +130,7 @@ SuperelevationEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui->elevationSelect, ODD::TSE_SELECT);
+    ribbonToolGroup->addButton(ui->select, ODD::TSE_SELECT);
     ribbonToolGroup->addButton(ui->elevationAdd, ODD::TSE_ADD);
     ribbonToolGroup->addButton(ui->elevationDelete, ODD::TSE_DEL);
     //ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TSE_SMOOTH);

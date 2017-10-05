@@ -24,14 +24,18 @@
 #include <QtCore>
 #include <qdom.h>
 
-using namespace std;
+namespace opencover {
+namespace ui {
+class Menu;
+}
+}
 
-class Variant : public coVRPlugin, public coMenuListener, public coTUIListener
+class Variant : public coVRPlugin, public coTUIListener
 {
 public:
     static Variant *variantClass;
 
-    Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList parents, coRowMenu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xmlfile, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state);
+    Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList parents, ui::Menu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xmlfile, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state);
     ~Variant();
     //adding the Group-Node to the Scenegraph:
     void AddToScenegraph();
@@ -54,7 +58,9 @@ public:
     void showVRLabel();
     void hideVRLabel();
     //Events
+#ifdef VRUI
     void menuEvent(coMenuItem *item);
+#endif
     void tabletEvent(coTUIElement *item);
     void setOriginTransMatrix();
     void setOriginTransMatrix(osg::Vec3d vec);

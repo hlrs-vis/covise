@@ -17,10 +17,6 @@
 #include <stdlib.h>
 #include "globals.h"
 
-extern "C" {
-extern void cfree(void *);
-}
-
 extern void do_select_region(void);
 extern void add_point(int gno, int setno, double px, double py, double tx, double ty, int type);
 extern int inregion(int regno, double x, double y);
@@ -278,7 +274,7 @@ void set_default_plotarr(plotarr *p)
         {
             if (p->ex[i] != NULL)
             {
-                cfree(p->ex[i]);
+                free(p->ex[i]);
             }
             p->ex[i] = NULL;
         }

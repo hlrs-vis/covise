@@ -91,7 +91,7 @@ coWriteVolume::coWriteVolume(int argc, char *argv[])
     pboOverwrite->setValue(false);
 
     pchFileType = addChoiceParam("FileType", "File type of volume or slice files");
-    pchFileType->setValue(fileTypes.size(), fileTypes, 0);
+    pchFileType->setValue((int)fileTypes.size(), fileTypes, 0);
 
     pchDataFormat = addChoiceParam("DataFormat", "Volume data format");
     pchDataFormat->setValue(2, formatTypes, 0);

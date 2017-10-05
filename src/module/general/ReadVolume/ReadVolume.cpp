@@ -564,13 +564,13 @@ int coReadVolume::compute(const char *)
                 uchar *bdata = NULL;
                 if (vd->bpc == 1 && pboPreferByteData->getValue())
                 {
-                    dob = new coDoByte(name.str(), vd->vox[0] * vd->vox[1] * vd->vox[2]);
+                    dob = new coDoByte(name.str(), int(vd->vox[0] * vd->vox[1] * vd->vox[2]));
                     bdata = dob->getAddress();
                     timesteps.push_back(dob);
                 }
                 else
                 {
-                    dof = new coDoFloat(name.str(), vd->vox[0] * vd->vox[1] * vd->vox[2]);
+                    dof = new coDoFloat(name.str(), int(vd->vox[0] * vd->vox[1] * vd->vox[2]));
                     fdata = dof->getAddress();
                     timesteps.push_back(dof);
                 }
@@ -654,7 +654,7 @@ int coReadVolume::compute(const char *)
             if (vd->frames > 1)
             {
                 // Create set objects:
-                volumeSet = new coDoSet(poVolume[c]->getObjName(), timesteps.size(), &timesteps[0]);
+                volumeSet = new coDoSet(poVolume[c]->getObjName(), int(timesteps.size()), &timesteps[0]);
 
                 // Set timestep attribute:
                 char buf[1024];
@@ -679,7 +679,7 @@ int coReadVolume::compute(const char *)
         // Print message:
         if (
             !pboSequenceFromHeader->getValue()
-         && (numFiles != piSequenceEnd->getValue() - piSequenceBegin->getValue() + 1)
+         && (numFiles != (piSequenceEnd->getValue() - piSequenceBegin->getValue() + piSequenceInc->getValue())/piSequenceInc->getValue())
             )
         {
             skipped << " in sequence.";

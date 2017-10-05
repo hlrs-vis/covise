@@ -101,7 +101,7 @@ int vruiCollabInterface::getType() const
     return interfaceType;
 }
 
-int vruiCollabInterface::composeMessage(const char messageType, const char *message)
+size_t vruiCollabInterface::composeMessage(const char messageType, const char *message)
 {
 
     size_t len;
@@ -134,10 +134,10 @@ int vruiCollabInterface::composeMessage(const char messageType, const char *mess
 void vruiCollabInterface::sendLockMessage(const char *message)
 {
 
-    int len = composeMessage('L', message);
+    size_t len = composeMessage('L', message);
 
     if (coim)
-        vruiRendererInterface::the()->sendCollabMessage(this, sendBuf, len);
+        vruiRendererInterface::the()->sendCollabMessage(this, sendBuf, (int)len);
 }
 
 /** send interactions to remote interfaces
@@ -146,7 +146,7 @@ void vruiCollabInterface::sendLockMessage(const char *message)
 void vruiCollabInterface::sendOngoingMessage(const char *message)
 {
 
-    int len = composeMessage('O', message);
+    int len = (int)composeMessage('O', message);
 
     if (coim)
         vruiRendererInterface::the()->sendCollabMessage(this, sendBuf, len);
@@ -158,7 +158,7 @@ void vruiCollabInterface::sendOngoingMessage(const char *message)
 void vruiCollabInterface::sendReleaseMessage(const char *message)
 {
 
-    int len = composeMessage('R', message);
+    int len = (int)composeMessage('R', message);
 
     if (coim)
         vruiRendererInterface::the()->sendCollabMessage(this, sendBuf, len);

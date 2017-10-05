@@ -79,7 +79,8 @@ int ReadIVDTubes::compute(const char *)
     strcpy(m_filename, m_pParamFile->getValue());
 
     // compute parameters
-    if ((file = Covise::fopen(m_filename, "r")) <= 0)
+    file = Covise::fopen(m_filename, "r");
+    if (!file)
     {
         Covise::sendError("ERROR: can't open file %s", m_filename);
         return FAIL;

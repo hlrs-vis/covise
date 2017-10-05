@@ -72,7 +72,7 @@ private:
     // Is the current point in element
     int is_in(int element);
 
-    int num_blocks;
+    size_t num_blocks;
     int cur_block;
     int noDummy;
     float **x_c;

@@ -78,14 +78,14 @@ void MeshBase::addMechanics(Vector * oForce, Vector * oMoment, double * oPower) 
 		double s(0);
 		getMechanics(i, &s, &x, &f, &v);
 		space+=s;
-		position+=x*s;
+		position+=x*(float)s;
 		force+=f; // force on body
 		moment+=x^f; // moment on body
 		power-=f*v; // power FROM body
-		velocity += v*s;
+		velocity += v*float(s);
 	}
-	position/=space;
-	velocity/=space;
+	position/=float(space);
+	velocity/=float(space);
 //SHOW_VAR7(mName, position, space, force, moment, power, velocity);
 	*oForce+=force;
 	*oMoment+=moment;
@@ -434,7 +434,7 @@ void SurfaceMesh<TOPO>::getMechanics(int iCell, double * oSpace, Vector * oX, Ve
 	topology_t const & cell(mCells[iCell]);
 	*oSpace=cell.mSpace;
 	*oX=cell.mCenter;
-	*oF= cell.mNormal * cell.mSpace*(mP0-cell.mP);
+	*oF= cell.mNormal * float(cell.mSpace*(mP0-cell.mP));
 	*oV=cell.mV;
 }
 

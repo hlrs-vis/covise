@@ -22,7 +22,7 @@ PQ::~PQ()
 bool
 PQ::OK() const
 {
-    int length = _edgePosition.size();
+    int length = int(_edgePosition.size());
     if (length == 0)
     {
         return true;
@@ -52,7 +52,7 @@ PQ::top()
 void
 PQ::push(Edge *edge)
 {
-    int N = _edgePosition.size();
+    int N = int(_edgePosition.size());
     _edgePosition.insert(pair<Edge *, int>(edge, N));
     _edgeList[N] = edge;
     int test_node = N;
@@ -74,7 +74,7 @@ PQ::push(Edge *edge)
 void
 PQ::AdjustHeapDownwards(int element)
 {
-    int N = _edgePosition.size();
+    int N = int(_edgePosition.size());
     int test_node = element;
     while (1)
     {
@@ -110,7 +110,7 @@ PQ::AdjustHeapDownwards(int element)
 void
 PQ::pop()
 {
-    int N = _edgePosition.size();
+    int N = int(_edgePosition.size());
     if (N == 0)
     {
         return;
@@ -178,7 +178,7 @@ PQ::remove(Edge *edge)
     {
         return;
     }
-    int N = _edgePosition.size();
+    int N = int(_edgePosition.size());
     Edge *reorderEdge = _edgeList[N - 1];
     Swap(it->second, N - 1);
     _edgePosition.erase(edge);
@@ -189,7 +189,7 @@ void PQ::print(std::string pre)
 {
     std::cout << pre << "PQ" << std::endl;
 
-    int size = _edgePosition.size();
+    int size = int(_edgePosition.size());
     for (int i = 0; i < size; ++i)
     {
         _edgeList[i]->print(pre + " ");
@@ -207,7 +207,7 @@ void PQ::print(std::string pre)
 ostream &
 operator<<(ostream &out, const PQ &pq)
 {
-    int size = pq._edgePosition.size();
+    int size = int(pq._edgePosition.size());
     int i;
     for (i = 0; i < size; ++i)
     {

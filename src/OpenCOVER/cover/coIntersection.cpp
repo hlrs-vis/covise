@@ -55,8 +55,10 @@ coIntersection::coIntersection()
     : elapsedTimes(1)
 #endif
 {
+    assert(!intersector);
+
     // should match OpenCOVER.cpp
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
     useOmp = openmpThreads != "off";
 
     //VRUILOG("coIntersection::<init> info: creating");
@@ -84,6 +86,7 @@ bool coIntersection::isVerboseIntersection()
 coIntersection::~coIntersection()
 {
     //VRUILOG("coIntersection::<dest> info: destroying");
+    intersector = NULL;
 }
 
 coIntersection *coIntersection::instance()
@@ -147,13 +150,13 @@ void coIntersection::intersect()
     //coVRMSController::instance()->syncInt(2002);
     }
 
-    if (VRViewer::instance()->getStats() && VRViewer::instance()->getStats()->collectStats("isect"))
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("isect"))
     {
         int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
         double endTime = VRViewer::instance()->elapsedTime();
-        VRViewer::instance()->getStats()->setAttribute(fn, "Isect begin time", beginTime);
-        VRViewer::instance()->getStats()->setAttribute(fn, "Isect end time", endTime);
-        VRViewer::instance()->getStats()->setAttribute(fn, "Isect time taken", endTime - beginTime);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "Isect begin time", beginTime);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "Isect end time", endTime);
+        VRViewer::instance()->getViewerStats()->setAttribute(fn, "Isect time taken", endTime - beginTime);
     }
 }
 

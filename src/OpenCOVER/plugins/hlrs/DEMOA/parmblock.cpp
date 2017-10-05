@@ -10,11 +10,12 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "parmblock.h"
-
 #ifdef WIN32
 #pragma warning(disable : 4786)
+#pragma warning(disable : 4996)
 #endif
+#include "parmblock.h"
+
 
 #include <cctype>
 #include <cstdlib>
@@ -57,14 +58,14 @@ string_parse &parmblock::read(string_parse &data)
     values.clear();
     while (true)
     {
-        unsigned int hi = buf.find('=', lo);
+        unsigned int hi = (unsigned int)buf.find('=', lo);
         if (hi > buf.size() - 1)
         {
             break;
         }
         const std::string &key = buf.substr(lo, hi - lo);
         lo = hi + 1;
-        hi = buf.find(';', lo);
+        hi = (unsigned int)buf.find(';', lo);
         if (hi > buf.size() - 1)
         {
             break;
@@ -95,7 +96,7 @@ T parmblock::get_value(const std::string &valname, const F &f, const T &d) const
                   << std::endl;
         return d;
     }
-    return f(p->second.c_str());
+    return (T)(f(p->second.c_str()));
 }
 
 int parmblock::get_ivalue(const std::string &valname) const
@@ -206,7 +207,7 @@ void parmblock::get_vector(T v[], const int dim, const std::string &valname,
     std::string single;
     for (int ii = 0; ii < dim - 1; ++ii)
     {
-        const int hi = all.find(',', lo);
+        const int hi = (int)all.find(',', lo);
         if (hi > static_cast<int>(all.size()) - 1)
         {
             std::cerr << "Warning! Element '"
@@ -218,11 +219,11 @@ void parmblock::get_vector(T v[], const int dim, const std::string &valname,
             break;
         }
         single = all.substr(lo, hi - lo);
-        v[ii] = f(single.c_str());
+        v[ii] = (T)f(single.c_str());
         lo = hi + 1;
     }
     single = all.substr(lo, all.size() - lo);
-    v[dim - 1] = f(single.c_str());
+    v[dim - 1] = (T)f(single.c_str());
 }
 
 void parmblock::getvector(int v[], const int dim,

@@ -147,7 +147,6 @@ bool PLMXMLParser::parse(const char *fileName, osg::Group *group)
                                         char *name = NULL;
                                         char *id = NULL;
 
-                                        double matrix[4][4];
 
                                         if (inst->hasAttribute(TAG_name))
                                             name = XMLString::transcode(inst->getAttribute(TAG_name));
@@ -408,7 +407,7 @@ void PLMXMLParser::addPart(char *id, osg::Group *parent)
                                 char *unitName = XMLString::transcode(unit);
                                 if (strcasecmp(unitName, "mm") == 0)
                                 {
-                                    scale = 0.001;
+                                    scale = 0.001f;
                                 }
                             }
 
@@ -535,7 +534,7 @@ void PLMXMLParser::addPart(char *id, osg::Group *parent)
                                         char *unitName = XMLString::transcode(unit);
                                         if (strcasecmp(unitName, "mm") == 0)
                                         {
-                                            scale = 0.001;
+                                            scale = 0.001f;
                                         }
                                     }
 

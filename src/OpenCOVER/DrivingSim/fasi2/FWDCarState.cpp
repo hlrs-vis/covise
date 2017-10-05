@@ -29,7 +29,7 @@ FWDCarState::FWDCarState()
 	
 	inertiaPitch = 2000.0;
 	inertiaRoll = 500.0;
-	inertiaYaw = 2000.0;
+	inertiaYaw = 2200.0;
 	cogH = 0.3; //height of center of gravity
 	sRearH = 1.0; //half of track at rear
 	sFrontH = 1.0; //half of track at front
@@ -44,6 +44,12 @@ FWDCarState::FWDCarState()
 	std::cout << "rwR: " << rwR << "rwF: " << rwF << std::endl;
 	std::cout << "sinawR: " << sinawR << "cosawR: " << cosawR << "sinawF: " << sinawF << "cosawF: " << cosawF << std::endl;
 	
+	suspOffsetSport = -0.25;
+	suspOffsetComfort = 0.15;
+	suspOffsetFL = suspOffsetComfort;
+	suspOffsetFR = suspOffsetComfort;
+	suspOffsetRR = suspOffsetComfort;
+	suspOffsetRL = suspOffsetComfort;
 	
 	mCar =1500; //mass of car body
 	mSusFL = 40;
@@ -54,14 +60,14 @@ FWDCarState::FWDCarState()
 	contactPatch = 0.1;
 	tireRadF = 0.3;
 	tireRadR = 0.3;
-	csFLSport = 11000;//9000;
-	csFRSport = 11000;//9000;
-	csRRSport = 12000;//9000;
-	csRLSport = 12000;//9000;
+	csFLSport = 50000;//9000;
+	csFRSport = 50000;//9000;
+	csRRSport = 60000;//9000;
+	csRLSport = 60000;//9000;
 	dsFLSport = 7000;//5000;
 	dsFRSport = 7000;//5000;
-	dsRRSport = 7000;//5000;
-	dsRLSport = 7000;//5000;
+	dsRRSport = 7500;//5000;
+	dsRLSport = 7500;//5000;
 	csFLComfort = 8000;//9000;
 	csFRComfort = 8000;//9000;
 	csRRComfort = 9000;//9000;
@@ -78,10 +84,10 @@ FWDCarState::FWDCarState()
 	dsFR = dsFRComfort;
 	dsRR = dsRRComfort;
 	dsRL = dsRLComfort;
-	ctFL = 40000;//40000;
-	ctFR = 40000;//40000;
-	ctRR = 40000;//40000;
-	ctRL = 40000;//40000;
+	ctFL = 120000;//40000;
+	ctFR = 120000;//40000;
+	ctRR = 120000;//40000;
+	ctRL = 120000;//40000;
 	dtFL = 45000;//45000;
 	dtFR = 45000;//45000;
 	dtRR = 45000;//45000;
@@ -94,6 +100,10 @@ FWDCarState::FWDCarState()
 	tireDefSpeedFR = 0;
 	tireDefSpeedRR = 0;
 	tireDefSpeedRL = 0;
+	
+	//anti roll bars
+	arbStiffnessF = 10000;
+	arbStiffnessR = 10000;
 	
 	//joint offset
 	jointOffsetFL = 0.2;
@@ -141,6 +151,7 @@ FWDCarState::FWDCarState()
 	wheelAngleZFR = toeFR; //rotation of wheel depending on base toe and steering
 	wheelAngleZRR = toeRR; //rotation of wheel depending on base toe and steering
 	wheelAngleZRL = toeRL; //rotation of wheel depending on base toe and steering
+	maxDeltaCurrent = 1000;
 	
 	//distances between center of gravity and origin of car model in open cover
 	modelOriginOffsetX = 0;
@@ -157,7 +168,7 @@ FWDCarState::FWDCarState()
 	//TMEasy
 	cR = 80000;//100000;
 	B = 0.3;//0.15
-	fRoll = 1800.0;
+	fRoll = 1200.0;
 	d = 0.000001;
 	FzN = 4000;
 	lambdaN = 0.375;
@@ -165,29 +176,29 @@ FWDCarState::FWDCarState()
 	czN = 190000;
 	cz2N = 206000;
 	vN = 0.000000000001;
-	FxMN = 4500;//3300
-	FxM2N = 7700;//6500
+	FxMN = 5000;//3300
+	FxM2N = 10100;//6500
 	dFx0N = 70000;//90000
 	dFx02N = 140000;//160000
-	FxGN = 3500;//3200;
-	FxG2N = 6500;//6000
-	FyMN = 4000;//3100
-	FyM2N = 6500;//5400
-	dFy0N = 60000;//70000
-	dFy02N = 92000;//100000
-	FyGN = 3500;//3200;
-	FyG2N = 5800;//5300
+	FxGN = 4800;//3200;
+	FxG2N = 9800;//6000
+	FyMN = 4500;//3100
+	FyM2N = 6800;//5400
+	dFy0N = 40000;//70000
+	dFy02N = 60000;//100000
+	FyGN = 4400;//3200;
+	FyG2N = 6700;//5300
 	sxMN = 0.13;//0.09
 	sxM2N = 0.15;//0.11
 	sxGN = 0.5;//0.4
 	sxG2N = 0.6;//0.5
-	syMN = 0.22;//0.18
-	syM2N = 0.29;//0.2
+	syMN = 0.32;//0.18
+	syM2N = 0.38;//0.2
 	syGN = 0.7;//0.6
 	syG2N = 0.9;//0.8
 	nL0 = 0.179;
-	syS = 0.7;//0.495;
-	sy0 = 0.1;//0.205;
+	syS = 0.6;//0.495;
+	sy0 = 0.6;//0.205;
 	boreXGN = 2500;
 	boreXG2N = 4500;
 	boreYGN = 2500;
@@ -204,10 +215,10 @@ FWDCarState::FWDCarState()
 	phiRL1 = 0;
 	phiRL2 = 0;
 	phiRL3 = 0;*/
-	cBore = 150000;//30000;
-	dBore = 50000;//10000;
+	cBore = 350000;//30000;
+	dBore = 28000;//10000;
 	inBore = 0.001;
-	slipSoundLimit = 0.8;
+	slipSoundLimit = 1.8;
 	
 	//gearbox
 	gear = 0;
@@ -223,20 +234,20 @@ FWDCarState::FWDCarState()
 	clutchState = 0;			//1 is connected
 	clutchSwitch = 0;			//1 is sticking
 	clutchSlipBorder = 1;	//when clutch starts to stick, higher is earlier
-	clutchTimer = 400;
-	frictionCoefStatClutch = 600;
-	frictionCoefDynClutch = 100;
+	clutchTimer = 300;
+	frictionCoefStatClutch = 700;
+	frictionCoefDynClutch = 120;
 	
 	//engine
 	idleSpeed = 1000 * 2 * M_PI / 60;
 	revLimiter = 8000 * 2 * M_PI / 60;
 	bEngine = 0.07;
-	lossCoefEngine = 0.1;
+	lossCoefEngine = 0.02;
 	inertiaEngine = 0.2;
 	
 	//drive train
 	bDrive = 0.3;
-	lossCoefDrive = 0.08;
+	lossCoefDrive = 0.02;
 	inertiaDrive = 2;
 	
 	//brakes
@@ -245,7 +256,7 @@ FWDCarState::FWDCarState()
 	brakeForceAmplification = 20.0;
 	
 	//drag
-	cDrag = 0.45;
+	cDrag = 0.05;
 	
 	//environment
 	aGrav = 9.81;

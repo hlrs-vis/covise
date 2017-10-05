@@ -488,6 +488,7 @@ bool ViewPoints::init()
     
     // add quickNavNode to SG
     qnNode = new Geode();
+	qnNode->setName("qnNode");
     ref_ptr<QuickNavDrawable> qnDraw = new QuickNavDrawable();
     qnNode->addDrawable(qnDraw.get());
     cover->getObjectsRoot()->addChild(qnNode.get());
@@ -541,6 +542,13 @@ ViewPoints::~ViewPoints()
     delete flightMenu_;
 
     delete viewPointMenu_;
+	if (qnNode)
+	{
+		while (qnNode->getNumParents())
+		{
+			qnNode->getParent(0)->removeChild(qnNode);
+		}
+	}
 
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::~ViewPoints done\n");

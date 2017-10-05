@@ -98,7 +98,7 @@ void SetUpGraph(GraphType *graph, int OpType, int nvtxs, int ncon,
 
     for (i=0; i<nvtxs; i++) {
       for (j=0; j<ncon; j++) 
-        nvwgt[i*ncon+j] = (1.0*vwgt[i*ncon+j])/(1.0*tvwgt[j]);
+        nvwgt[i*ncon+j] = (1.0f*vwgt[i*ncon+j])/(1.0f*tvwgt[j]);
     }
 
 
@@ -297,7 +297,7 @@ void VolSetUpGraph(GraphType *graph, int OpType, int nvtxs, int ncon, idxtype *x
 
     for (i=0; i<nvtxs; i++) {
       for (j=0; j<ncon; j++) 
-        nvwgt[i*ncon+j] = (1.0*vwgt[i*ncon+j])/(1.0*tvwgt[j]);
+        nvwgt[i*ncon+j] = (1.0f*vwgt[i*ncon+j])/(1.0f*tvwgt[j]);
     }
     if ((wgtflag&2) == 0) 
       free(vwgt);

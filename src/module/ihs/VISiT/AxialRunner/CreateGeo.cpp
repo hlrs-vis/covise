@@ -8,7 +8,6 @@ void AxialRunner::CreateGeo(void)
 
 	coDoPolygons *poly;
 	struct covise_info *ci;
-	char buf[500];
 
    if ((ci = CreateGeometry4Covise(geo))) {
       sendInfo(" Specific speed: %.4f",geo->ar->des->spec_revs);

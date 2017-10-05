@@ -22,6 +22,7 @@
  */
 
 #include "coVRDynLib.h"
+#include "coVRPlugin.h"
 #include <osg/Drawable>
 #include <map>
 
@@ -38,7 +39,6 @@ class Group;
 
 namespace opencover
 {
-class coVRPlugin;
 class RenderObject;
 class coInteractor;
 
@@ -51,6 +51,9 @@ public:
     // plugin management functions
     //! singleton
     static coVRPluginList *instance();
+    //! load configured plugins
+    void loadDefault();
+
     //! returns the plugin called name
     coVRPlugin *getPlugin(const char *name) const;
 
@@ -62,6 +65,10 @@ public:
 
     //
     // methods forwarded to plugins
+
+    //! call notify method of all plugins
+    void notify(int level, const char *text) const;
+
     //! call addNode method of all plugins
     void addNode(osg::Node *, const RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
 
@@ -82,8 +89,8 @@ public:
     void removeObject(const char *objName, bool replaceFlag) const;
     //! call removeNode method of all plugins
     void removeNode(osg::Node *node, bool isGroup = false, osg::Node *realNode = NULL) const;
-    //! call prepareFrame method of all plugins
-    void prepareFrame() const;
+    //! call update method of all plugins
+    bool update() const;
     //! call preFrame method of all plugins
     void preFrame();
     //! call postFrame method of all plugins

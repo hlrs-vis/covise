@@ -1322,7 +1322,7 @@ static double getSplineCoeff(double a, double b, double c, double d, double dist
         for (j = 0; j < *outFilterSize; j++)
         {
             double v = filter[i * filterSize + j] * scale + error;
-            int intV = floor(v + 0.5);
+            int intV = (int)floor(v + 0.5);
             (*outFilter)[i * (*outFilterSize) + j] = intV;
             error = v - intV;
         }
@@ -1977,7 +1977,7 @@ static void getSubSampleFactors(int *h, int *v, int format)
 
 static uint16_t roundToInt16(int64_t f)
 {
-    int r = (f + (1 << 15)) >> 16;
+    int r = (int)((f + (1 << 15)) >> 16);
     if (r < -0x7FFF)
         return 0x8000;
     else if (r > 0x7FFF)

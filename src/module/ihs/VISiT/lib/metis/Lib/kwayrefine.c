@@ -46,7 +46,7 @@ void RefineKWay(CtrlType *ctrl, GraphType *orggraph, GraphType *graph, int npart
 
     IFSET(ctrl->dbglvl, DBG_TIME, starttimer(ctrl->RefTmr));
 
-    if (2*i >= nlevels && !IsBalanced(graph->pwgts, nparts, tpwgts, 1.04*ubfactor)) {
+    if (2*i >= nlevels && !IsBalanced(graph->pwgts, nparts, tpwgts, 1.04f*ubfactor)) {
       ComputeKWayBalanceBoundary(ctrl, graph, nparts);
       if (ctrl->RType == RTYPE_KWAYRANDOM_MCONN)
         Greedy_KWayEdgeBalanceMConn(ctrl, graph, nparts, tpwgts, ubfactor, 1); 

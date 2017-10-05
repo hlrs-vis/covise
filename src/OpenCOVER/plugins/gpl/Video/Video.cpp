@@ -1,4 +1,7 @@
 #define __STDC_CONSTANT_MACROS
+#ifdef WIN32
+#pragma warning (disable: 4005)
+#endif
 #include <config/CoviseConfig.h>
 
 #include <cover/coVRTui.h>
@@ -6,7 +9,6 @@
 #include <cover/coVRAnimationManager.h>
 #include <grmsg/coGRMsg.h>
 #include <grmsg/coGRSnapshotMsg.h>
-
 #ifdef _MSC_VER
 #include <sys/timeb.h>
 #include "WINAVIVideo.h"

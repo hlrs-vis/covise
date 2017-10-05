@@ -433,7 +433,7 @@ void fasi2::run()
         }*/
         if (sharedState.PSMState)
         {
-            //running = false; // Stop fasi2
+            running = false; // Stop fasi2
         }
 
         float ccGas = 0.0;
@@ -574,6 +574,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
 			vehicleDynamics->setTyreSlipFR(0.0);
 			vehicleDynamics->setTyreSlipRR(0.0);
 			vehicleDynamics->setTyreSlipRL(0.0);
+			vehicleDynamics->setSpeeds(0.0);
         }
         else if (p_ignitionLock->getLockState() == IgnitionLock::IGNITION)
         {
@@ -625,10 +626,11 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
         }
         if (p_klima->getFanButtonStat() && oldFanButtonState == false)
         {
+			std::cout << "fasi2 fan button" << std::endl;
             if (vehicleDynamics)
             {
                 vehicleDynamics->centerWheel();
-            }
+			}
             /*#ifdef HAVE_CARDYNAMICSCGA
   else if(cardynCGA) {
       cardynCGA->centerSteeringWheel();

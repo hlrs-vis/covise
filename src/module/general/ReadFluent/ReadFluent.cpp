@@ -2765,7 +2765,7 @@ int fluentFile::fillBuf()
         lastChar = buf + numRead - 1;
         return numRead;
     }
-    int numLeft = lastChar+1 - currentChar;
+    int numLeft = int(lastChar+1 - currentChar);
     for (int i = 0; i < numLeft; i++)
     {
         buf[i] = currentChar[i];

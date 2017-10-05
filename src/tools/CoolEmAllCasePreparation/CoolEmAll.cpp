@@ -116,7 +116,6 @@ void CoolEmAll::parseFile()
 
 void CoolEmAll::findTemperatures(osg::Node *currNode, osg::Matrix M, std::string DatabasePrefix, std::string PathId, FileReference *lastFileId)
 {
-    osg::Group *currGroup;
     osg::MatrixTransform *transformMatrix = dynamic_cast<osg::MatrixTransform *>(currNode);
     std::string myName;
     std::string myId;
@@ -218,7 +217,6 @@ void CoolEmAll::findTemperatures(osg::Node *currNode, osg::Matrix M, std::string
 }
 void CoolEmAll::findTransform(osg::Node *currNode, osg::Matrix M, std::string DatabasePrefix, std::string PathId, FileReference *lastFileId)
 {
-    osg::Group *currGroup;
     osg::MatrixTransform *transformMatrix = dynamic_cast<osg::MatrixTransform *>(currNode);
     std::string myName;
     std::string myId;

@@ -310,8 +310,6 @@ public:
     };
     bool isClipPlaneEnabled(int plane);
 
-    static void toggleFlightCallback(void *, buttonSpecCell *spec);
-
     static bool string2ViewDesc(const char *line,
                                 float *scale,
                                 float *x, float *y, float *z,

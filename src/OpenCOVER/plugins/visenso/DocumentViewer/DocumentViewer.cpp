@@ -13,6 +13,7 @@
 #include <cover/coVRFileManager.h>
 #include <cover/RenderObject.h>
 #include <cover/OpenCOVER.h>
+#include <cover/coTranslator.h>
 #include <net/message.h>
 #include <net/message_types.h>
 
@@ -31,8 +32,6 @@
 #include <grmsg/coGRSetDocScaleMsg.h>
 #include <grmsg/coGRSendDocNumbersMsg.h>
 #include <grmsg/coGRAddDocMsg.h>
-
-#include <vtrans/PathTranslator.h>
 
 using namespace vrui;
 using namespace grmsg;
@@ -109,12 +108,7 @@ DocumentViewerPlugin::add(const char *documentName, const char *imageName)
         return false;
     }
 
-    //-------------TRANSLATION BEGIN------------------------
-    std::string localizedPath = vtrans::PathTranslator::TranslatePath(
-        coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ".") + "\\"
-        + coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-        std::string(imagePath));
-    //-------------TRANSLATION END--------------------------
+    std::string localizedPath = coTranslator::translatePath(imagePath);
 
     // search if there is already an image viewer for this document
     map<string, coImageViewer *>::iterator it = findDocument_.find(string(documentName));

@@ -22,6 +22,7 @@
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <grmsg/coGRKeyWordMsg.h>
 #include <grmsg/coGRObjTransformCaseMsg.h>

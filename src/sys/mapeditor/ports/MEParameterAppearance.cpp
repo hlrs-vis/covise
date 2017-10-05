@@ -62,7 +62,7 @@ void MEParameterAppearance::insertText(QStringList list)
     appPopup->addAction("Possible Appearance Types");
     appPopup->addSeparator();
 
-    for (unsigned int i = 0; i < list.count(); i++)
+    for ( int i = 0; i < list.count(); i++)
     {
         QAction *ac = appPopup->addAction(list[i]);
         appList << ac;

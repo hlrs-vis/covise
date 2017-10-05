@@ -28,9 +28,6 @@
 
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 
-#ifdef USE_COVISE
-#include <appl/RenderInterface.h>
-#endif
 
 using namespace covise;
 using vrml::VrmlNodeCOVER;
@@ -168,11 +165,7 @@ void TangiblePositionPlugin::updateAndExec()
                     }
                     else
                     {
-#ifdef USE_COVISE
-                        CoviseRender::sendError("wrong parameter type, float vector [3] expected!");
-#else
-                        printf("wrong parameter type, float vector [3] expected!");
-#endif
+                        cover->notify(Notify::Error, "wrong parameter type, float vector [3] expected!");
                     }
                     /* SCBooth
                        if(i-1 == 0)
@@ -223,11 +216,7 @@ void TangiblePositionPlugin::updateAndExec()
                     }
                     else
                     {
-#ifdef USE_COVISE
-                        CoviseRender::sendError("wrong parameter type, float vector [3] expected!");
-#else
-                        printf("wrong parameter type, float vector [3] expected!");
-#endif
+                        cover->notify(Notify::Error, "wrong parameter type, float vector [3] expected!");
                     }
                 }
             }

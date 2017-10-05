@@ -6,7 +6,7 @@
 
 PROJECT(QtRenderer CXX C)
 
-USING(Virvo)
+USING(Virvo optional)
 
 if (WIN32)
     COVISE_FIND_PACKAGE(Coin3D REQUIRED)
