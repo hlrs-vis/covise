@@ -430,15 +430,19 @@ RevitPlugin::RevitPlugin()
 	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
 	textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
 	toRevit = NULL;
-	serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
-	if (!serverConn->getSocket())
-	{
-		cout << "tried to open server Port " << port << endl;
-		cout << "Creation of server failed!" << endl;
-		cout << "Port-Binding failed! Port already bound?" << endl;
-		delete serverConn;
-		serverConn = NULL;
-	}
+    serverConn = NULL;
+    if (coVRMSController::instance()->isMaster())
+    {
+        serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
+        if (!serverConn->getSocket())
+        {
+            cout << "tried to open server Port " << port << endl;
+            cout << "Creation of server failed!" << endl;
+            cout << "Port-Binding failed! Port already bound?" << endl;
+            delete serverConn;
+            serverConn = NULL;
+        }
+    }
 
 	struct linger linger;
 	linger.l_onoff = 0;

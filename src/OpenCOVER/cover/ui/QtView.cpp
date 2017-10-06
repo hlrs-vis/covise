@@ -360,7 +360,8 @@ void QtView::updateVisible(const Element *elem)
 void QtView::updateText(const Element *elem)
 {
     auto ve = qtViewElement(elem);
-    assert(ve);
+    if (!ve)
+        return;
     auto o = qtObject(elem);
     auto t = QString::fromStdString(elem->text());
     if (auto l = dynamic_cast<QLabel *>(o))
@@ -466,6 +467,8 @@ void QtView::updateInteger(const Slider *slider)
 void QtView::updateValue(const Slider *slider)
 {
     auto ve = qtViewElement(slider);
+    if (!ve)
+        return;
     auto o = qtObject(slider);
     auto s = dynamic_cast<QSlider *>(o);
     if (s)
@@ -481,7 +484,7 @@ void QtView::updateValue(const Slider *slider)
             s->setValue((slider->value()-min)/r*SliderIntMax);
         }
     }
-    if (ve && ve->label)
+    if (ve->label)
         ve->label->setText(sliderText(slider));
 }
 

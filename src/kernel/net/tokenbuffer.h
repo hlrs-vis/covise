@@ -73,6 +73,9 @@ class Message;
 class NETEXPORT TokenBuffer // class for tokens
 {
 private:
+    TokenBuffer(const TokenBuffer &other) = delete;
+    TokenBuffer &operator=(const TokenBuffer &other) = delete;
+
     int buflen; // number of allocated bytes
     int length; // number of used bytes
     char *data; // pointer to the tokens
@@ -156,8 +159,8 @@ public:
         length += l;
         return (*this);
     }
-    TokenBuffer &operator<<(TokenBuffer *t);
-    TokenBuffer &operator<<(TokenBuffer t)
+    TokenBuffer &operator<<(const TokenBuffer *t);
+    TokenBuffer &operator<<(const TokenBuffer &t)
     {
         if (buflen < length + t.get_length() + 1)
             incbuf(t.get_length() * 4);
@@ -224,11 +227,11 @@ public:
         currdata++;
         return (ret);
     };
-    int get_length()
+    int get_length() const
     {
         return (length);
     };
-    const char *get_data()
+    const char *get_data() const
     {
         return (data);
     };
@@ -239,6 +242,8 @@ public:
         if (data)
             data[0] = 0;
     };
+
+    void rewind();
 };
 }
 #endif

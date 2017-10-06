@@ -29,7 +29,7 @@ FWDCarState::FWDCarState()
 	
 	inertiaPitch = 2000.0;
 	inertiaRoll = 500.0;
-	inertiaYaw = 2000.0;
+	inertiaYaw = 2200.0;
 	cogH = 0.3; //height of center of gravity
 	sRearH = 1.0; //half of track at rear
 	sFrontH = 1.0; //half of track at front
@@ -44,10 +44,12 @@ FWDCarState::FWDCarState()
 	std::cout << "rwR: " << rwR << "rwF: " << rwF << std::endl;
 	std::cout << "sinawR: " << sinawR << "cosawR: " << cosawR << "sinawF: " << sinawF << "cosawF: " << cosawF << std::endl;
 	
-	suspOffsetFL = 1.0;
-	suspOffsetFR = 1.0;
-	suspOffsetRR = 1.0;
-	suspOffsetRL = 1.0;
+	suspOffsetSport = -0.25;
+	suspOffsetComfort = 0.15;
+	suspOffsetFL = suspOffsetComfort;
+	suspOffsetFR = suspOffsetComfort;
+	suspOffsetRR = suspOffsetComfort;
+	suspOffsetRL = suspOffsetComfort;
 	
 	mCar =1500; //mass of car body
 	mSusFL = 40;
@@ -166,7 +168,7 @@ FWDCarState::FWDCarState()
 	//TMEasy
 	cR = 80000;//100000;
 	B = 0.3;//0.15
-	fRoll = 1800.0;
+	fRoll = 1200.0;
 	d = 0.000001;
 	FzN = 4000;
 	lambdaN = 0.375;
@@ -195,8 +197,8 @@ FWDCarState::FWDCarState()
 	syGN = 0.7;//0.6
 	syG2N = 0.9;//0.8
 	nL0 = 0.179;
-	syS = 0.7;//0.495;
-	sy0 = 0.1;//0.205;
+	syS = 0.6;//0.495;
+	sy0 = 0.6;//0.205;
 	boreXGN = 2500;
 	boreXG2N = 4500;
 	boreYGN = 2500;
@@ -216,7 +218,7 @@ FWDCarState::FWDCarState()
 	cBore = 350000;//30000;
 	dBore = 28000;//10000;
 	inBore = 0.001;
-	slipSoundLimit = 0.8;
+	slipSoundLimit = 1.8;
 	
 	//gearbox
 	gear = 0;
@@ -240,12 +242,12 @@ FWDCarState::FWDCarState()
 	idleSpeed = 1000 * 2 * M_PI / 60;
 	revLimiter = 8000 * 2 * M_PI / 60;
 	bEngine = 0.07;
-	lossCoefEngine = 0.07;
+	lossCoefEngine = 0.02;
 	inertiaEngine = 0.2;
 	
 	//drive train
 	bDrive = 0.3;
-	lossCoefDrive = 0.08;
+	lossCoefDrive = 0.02;
 	inertiaDrive = 2;
 	
 	//brakes
@@ -254,7 +256,7 @@ FWDCarState::FWDCarState()
 	brakeForceAmplification = 20.0;
 	
 	//drag
-	cDrag = 0.2;
+	cDrag = 0.05;
 	
 	//environment
 	aGrav = 9.81;

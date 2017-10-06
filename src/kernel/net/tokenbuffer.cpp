@@ -167,7 +167,7 @@ TokenBuffer &TokenBuffer::operator<<(const std::string &s)
     return *this;
 }
 
-TokenBuffer &TokenBuffer::operator<<(TokenBuffer *t)
+TokenBuffer &TokenBuffer::operator<<(const TokenBuffer *t)
 {
     if (buflen < length + t->get_length() + 1)
         incbuf(t->get_length() * 4);
@@ -544,4 +544,9 @@ TokenBuffer &TokenBuffer::operator>>(std::string &s)
     currdata++;
     s = c;
     return (*this);
+}
+
+void TokenBuffer::rewind()
+{
+    currdata = data;
 }

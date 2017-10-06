@@ -890,7 +890,7 @@ float coVRConfig::frameRate() const
 bool coVRConfig::continuousRendering() const
 {
     if (coVRMSController::instance()->isCluster())
-        return false;
+        return true;
 
     return m_continuousRendering;
 }

@@ -1976,8 +1976,7 @@ void coVRMSController::syncApp(int frameNum)
         }
         if (masterFrameNum != frameNum)
         {
-            cerr << "frame numbers differ" << endl;
-            cerr << "myID=" << myID << endl;
+            cerr << "myId=" << myID << ": frame numbers differ: master=" << masterFrameNum << ", me=" << frameNum << std::endl;
             exit(0);
         }
     }
