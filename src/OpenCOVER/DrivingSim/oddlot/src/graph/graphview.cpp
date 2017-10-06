@@ -1457,8 +1457,6 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
-    switch (event->key())
-    {
     /*switch (event->key())
     {
 
@@ -1467,10 +1465,11 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
     }
     default:*/
         QGraphicsView::keyReleaseEvent(event);
-    //}}
+    //}
+}
 
 void
-    GraphView::contextMenuEvent(QContextMenuEvent *event)
+GraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     if (doShapeEdit_)
     {

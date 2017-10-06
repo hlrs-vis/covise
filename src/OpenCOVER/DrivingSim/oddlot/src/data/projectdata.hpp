@@ -30,6 +30,8 @@ class ChangeManager;
 
 class DataElement;
 
+class GeoReference;
+
 class OSCBase;
 
 class ProjectData : public QObject, public DataElement
@@ -106,6 +108,11 @@ public:
         return west_;
     }
 
+	GeoReference *getGeoReference()
+	{
+		return geoReferenceParams_;
+	}
+
     void setRevMajor(int revMajor);
     void setRevMinor(int revMinor);
 
@@ -117,6 +124,8 @@ public:
     void setSouth(double south);
     void setEast(double east);
     void setWest(double west);
+
+	void setGeoReference(GeoReference *geoParams);
 
     // RoadSystem //
     //
@@ -314,6 +323,10 @@ private:
     // Hidden Elements //
     //
     QList<DataElement *> hiddenElements_; // linked
+
+	// Georeference String //
+	//
+	GeoReference *geoReferenceParams_;
 };
 
 #endif // PROJECTDATA_HPP

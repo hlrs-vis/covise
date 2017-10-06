@@ -30,6 +30,7 @@
 #include "oscsystem/oscbase.hpp"
 
 #include "changemanager.hpp"
+#include "georeference.hpp"
 
 // GUI //
 //
@@ -184,6 +185,17 @@ ProjectData::setWest(double west)
         addProjectDataChanges(ProjectData::CPD_SizeChange);
     }
 }
+
+void 
+ProjectData::setGeoReference(GeoReference *geoParams)
+{
+
+	if (geoReferenceParams_ != geoParams)
+	{
+		geoReferenceParams_ = geoParams;
+	}
+}
+
 
 //##################//
 // SLOTS            //
