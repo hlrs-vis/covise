@@ -194,6 +194,8 @@ bool Vive::init()
 
 	coVRConfig::instance()->OpenVR_HMD = true;
 
+	m_transformOriginToCamera=covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToCamera",false);
+
 	if (m_strDriver == "No Driver")
 		return false;
 	
@@ -299,7 +301,7 @@ void Vive::postFrame()
 	controllerNumber = 0;
 	size_t cameraNumber = 0, idx = 0;
 	size_t firstCameraIdx = 1, lastCameraIdx=2, firstControllerIdx=3,lastControllerIdx=4 ;
-	
+	bool haveCamera=false;				//Will be true if there is any camera
 	for (int nDevice = 0; nDevice < maxBodyNumber + 1; ++nDevice)
 	{
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
@@ -309,6 +311,7 @@ void Vive::postFrame()
 			case 'T': // a tracking camera
 				idx = firstCameraIdx + cameraNumber;
 				//cerr << "Vive:Camera no=" << cameraNumber<<" Initial idx="<<nDevice<<" Idx="<<idx<<endl;
+				haveCamera = true;
 				++cameraNumber;
 				if (idx>lastCameraIdx)
 				{
@@ -346,14 +349,13 @@ void Vive::postFrame()
 			m_bodyMatrices[idx](3, 0) *= 1000;
 			m_bodyMatrices[idx](3, 1) *= 1000;
 			m_bodyMatrices[idx](3, 2) *= 1000;
-			//vlad: Why do we need that?
-			m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+			
+			if (m_transformOriginToCamera) m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
 
 		}
 	}
-	//vlad: Why do we need that?
-	//vlad: device with index 1 is't necessarily a tracking camera
-	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
+	// get the transform matrix from 1st camera if we need that
+	if (!haveTrackerOrigin && haveCamera && m_transformOriginToCamera)
 	{
 		haveTrackerOrigin = true;
 		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);

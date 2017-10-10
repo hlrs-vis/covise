@@ -118,6 +118,7 @@ private:
 	size_t numControllers;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	bool haveTrackerOrigin;
+	bool m_transformOriginToCamera;	//Config variable for origin transform
 	osg::Matrix LighthouseMatrix;
 
 
