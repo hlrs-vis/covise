@@ -12,7 +12,6 @@
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Camera>
-#include <osg/Group>
 #include <osg/TextureRectangle>
 
 #include <util/coExport.h>
@@ -56,7 +55,7 @@ struct ChannelData {
     }
 };
 
-class PLUGIN_UTILEXPORT MultiChannelDrawer: public osg::Group {
+class PLUGIN_UTILEXPORT MultiChannelDrawer: public osg::Camera {
 public:
    typedef opencover::ChannelData ChannelData;
 
