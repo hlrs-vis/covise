@@ -753,7 +753,7 @@ DomParser::parseHeaderElement(QDomElement &element)
 	
 	if ((version > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
 	{
-		qDebug() << "Oddlot only supports OpenDrive versions up to 1.3";
+		qDebug() << "Oddlot only supports OpenDrive versions up to 1.4";
 		return false;
 	}
 
