@@ -282,6 +282,26 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped)
 : m_flipped(flipped)
 , m_mode(MultiChannelDrawer::ReprojectMesh)
 {
+   setAllowEventFocus(false);
+   setProjectionMatrix(osg::Matrix::identity());
+   setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+   setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+   setViewMatrix(osg::Matrix::identity());
+
+   //setRenderTargetImplementation( osg::Camera::FRAME_BUFFER, osg::Camera::FRAME_BUFFER );
+
+
+   //setClearDepth(0.9999);
+   //setClearColor(osg::Vec4f(1., 0., 0., 1.));
+   //setClearMask(GL_COLOR_BUFFER_BIT);
+   //setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   setClearMask(0);
+
+   //int win = coVRConfig::instance()->channels[0].window;
+   //setGraphicsContext(coVRConfig::instance()->windows[win].window);
+   setRenderOrder(osg::Camera::NESTED_RENDER);
+   //setRenderer(new osgViewer::Renderer(m_remoteCam.get()));
+
    int numChannels = coVRConfig::instance()->numChannels();
    for (int i=0; i<numChannels; ++i) {
       m_channelData.push_back(ChannelData(i));
@@ -418,19 +438,6 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       stateSet->addUniform(depSampler);
 
       osg::Program *depthProgramObj = new osg::Program;
-      osg::Shader *depthVertexObj = new osg::Shader( osg::Shader::VERTEX );
-      depthProgramObj->addShader(depthVertexObj);
-      depthVertexObj->setShaderSource(
-            "attribute vec2 vertex;\n"
-            "attribute vec2 tex_coord;\n"
-            "\n"
-            "varying vec2 uv;\n"
-            "\n"
-            "void main(void) {\n"
-            "   gl_Position = vec4(vertex, 0.0, 1.0);\n"
-            "   uv = tex_coord;\n"
-            "}\n"
-            );
       osg::Shader *depthFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
       depthProgramObj->addShader(depthFragmentObj);
       depthFragmentObj->setShaderSource(
@@ -439,22 +446,12 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
             "\n"
             "uniform sampler2DRect col;"
             "uniform sampler2DRect dep;"
-            "\n"
-            "varying vec2 uv;\n"
-            "\n"
             "void main(void) {"
-            "   vec4 color = texture2DRect(col, uv);"
+            "   vec4 color = texture2DRect(col, gl_TexCoord[0].xy);"
             "   gl_FragColor = color;"
-            "   gl_FragDepth = texture2DRect(dep, uv).x;"
+            "   gl_FragDepth = texture2DRect(dep, gl_TexCoord[0].xy).x;"
             "}"
             );
-      depthProgramObj->addBindAttribLocation("vertex", 0);
-      depthProgramObj->addBindAttribLocation("tex_coord", 1);
-      cd.fixedGeo->setVertexAttribArray(0, cd.fixedGeo->getVertexArray());
-      cd.fixedGeo->setVertexAttribBinding(0, osg::Geometry::BIND_PER_VERTEX);
-      cd.fixedGeo->setVertexAttribArray(1, cd.fixedGeo->getTexCoordArray(0));
-      cd.fixedGeo->setVertexAttribBinding(1, osg::Geometry::BIND_PER_VERTEX);
-
       stateSet->setAttributeAndModes(depthProgramObj, osg::StateAttribute::ON);
       cd.fixedGeo->setStateSet(stateSet);
    }
