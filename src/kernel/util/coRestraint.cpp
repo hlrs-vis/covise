@@ -135,7 +135,7 @@ void coRestraint::add(const std::string &selection)
       }
       else
       {
-          fprintf(stderr, "error parsing string: %s in coRestraint::add", selection);
+          fprintf(stderr, "error parsing string: %s in coRestraint::add", selection.c_str());
           inc = 1;
       }
       c += inc;
