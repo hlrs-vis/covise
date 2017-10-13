@@ -203,7 +203,7 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
 {
 
 	FILE *inputFile;
-	cout << "Input Data: " << filename << endl;
+	cout << "Input Data PTX: " << filename << endl;
 
 	inputFile = fopen(filename, "r");
 
@@ -627,7 +627,7 @@ int main(int argc, char **argv)
 				{
 					ReadPTX(argv[i], vec);
 				}
-				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
+				else if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
 				{
 					ReadE57(argv[i], vec);
 				}

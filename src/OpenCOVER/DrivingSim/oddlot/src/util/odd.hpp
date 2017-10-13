@@ -262,7 +262,7 @@ private:
     ColorPalette *colorPalette_;
 
 	// Version //
-	static const unsigned short revMinor_ = 3;
+	static const unsigned short revMinor_ = 4;
 	static const unsigned short revMajor_ = 1;
 };
 

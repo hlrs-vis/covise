@@ -7,7 +7,7 @@
 
 #ifndef COVISE_RESTRAINT_H
 #define COVISE_RESTRAINT_H
-/**************************************************************************\ 
+/**************************************************************************\
  **                                                                        **
  **                                                                        **
  ** Description: Interface classes for application modules to the COVISE   **
@@ -42,34 +42,33 @@ namespace covise
 
 class UTILEXPORT coRestraint
 {
-private:
-    mutable std::vector<ssize_t> values, min, max;
-    mutable bool changed, stringChanged;
-    mutable std::string restraintString;
+   private:
+      bool all;
+      int globalStep = 1;
+      mutable std::vector<ssize_t> values, min, max, step;
+      mutable bool changed, stringCurrent;
+      mutable std::string restraintString;
 
-public:
-    coRestraint();
-    ~coRestraint();
+   public:
+      coRestraint();
+      ~coRestraint();
 
-    void add(ssize_t mi, ssize_t ma);
-    void add(ssize_t val);
-    void add(const char *selection);
-    void cut();
-    bool get(ssize_t val, ssize_t &group) const;
-    size_t getNumGroups() const
-    {
-        return min.size();
-    };
-    void clear();
-    const std::vector<ssize_t> &getValues() const;
-    ssize_t lower() const;
-    ssize_t upper() const;
-    const std::string &getRestraintString() const;
-    const std::string getRestraintString(std::vector<ssize_t>) const;
-    
+      void add(ssize_t mi, ssize_t ma, ssize_t step=1);
+      void add(ssize_t val);
+      void add(const std::string &selection);
+      void cut();
+      bool get(ssize_t val, ssize_t &group) const;
+      size_t getNumGroups() const;
+      void clear();
+      const std::vector<ssize_t> &getValues() const;
+      ssize_t lower() const;
+      ssize_t upper() const;
+      const std::string &getRestraintString() const;
+      const std::string getRestraintString(std::vector<ssize_t>) const;
 
-    // operators
-    bool operator()(ssize_t val) const;
+      // operators
+      bool operator ()(ssize_t val) const;
 };
+
 }
-#endif // COVISE_RESTRAINT_H
+#endif                                            // COVISE_RESTRAINT_H
