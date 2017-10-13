@@ -167,7 +167,9 @@ static QtKeyboardMap s_QtKeyboardMap;
 QtGraphicsWindow::QtGraphicsWindow(QOpenGLWidget *glWidget, int x, int y, int width, int height)
     : osgViewer::GraphicsWindowEmbedded(x, y, width, height)
     , m_glWidget(glWidget)
+    , m_currentCursor(Qt::CrossCursor)
 {
+    useCursor(true);
 }
 
 QOpenGLWidget *QtGraphicsWindow::widget() const
