@@ -28,6 +28,8 @@ class SurfaceSection;
 class CarPool;
 class Pool;
 
+class GeoReference;
+
 
 class DomWriter : public Visitor
 {
@@ -112,6 +114,10 @@ public:
     virtual void visit(Heightmap *);
     virtual void visit(SceneryTesselation *);
 
+	// Georeference //
+	//
+	virtual void visit(GeoReference *);
+
 private:
     DomWriter()
         : Visitor()
@@ -120,6 +126,8 @@ private:
 
     QDomDocument *doc_;
     QDomElement root_;
+
+	QDomElement header_;
 
     QDomElement currentRoad_;
     QDomElement currentPVElement_;

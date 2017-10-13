@@ -20,6 +20,7 @@
 // Data Model //
 //
 #include "src/data/projectdata.hpp"
+#include "src/data/georeference.hpp"
 
 #include "src/data/changemanager.hpp"
 #include "src/data/prototypemanager.hpp"
@@ -752,7 +753,7 @@ DomParser::parseHeaderElement(QDomElement &element)
 	
 	if ((version > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
 	{
-		qDebug() << "Oddlot only supports OpenDrive versions up to 1.3";
+		qDebug() << "Oddlot only supports OpenDrive versions up to 1.4";
 		return false;
 	}
 
@@ -786,6 +787,20 @@ DomParser::parseHeaderElement(QDomElement &element)
     {
         projectData_->setWest(west);
     }
+
+
+	// <OpenDRIVE><georeference> //
+	//
+
+	QDomElement child = element.firstChildElement("geoReference");
+	if (!child.isNull())
+	{
+		QString params = child.text();
+		GeoReference *georeference = new GeoReference(params);
+		projectData_->setGeoReference(georeference);
+
+		qDebug() << "Georefernce: " << params;
+	}
 
     return true;
 }

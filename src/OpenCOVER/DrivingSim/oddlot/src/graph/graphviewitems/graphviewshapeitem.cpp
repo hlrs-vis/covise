@@ -120,7 +120,7 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
     QGraphicsPathItem *pathItem = new QGraphicsPathItem(this);
     graphicItemGroup_->addToGroup(pathItem);
 
-    int pointSize = 3;
+    int pointSize = 1.5;
 
     if (active)
         pathItem->setBrush(QColor(140, 140, 240, 255));
@@ -139,12 +139,12 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
 
     QPainterPath *path = new QPainterPath();
     if (smooth) {
-        path->addEllipse(QRectF(point.x() - pointSize + 0.5,
-                                    point.y() - pointSize + 0.5,
+        path->addEllipse(QRectF(point.x() - pointSize,
+                                    point.y() - pointSize,
                                     pointSize * 2, pointSize * 2));
     } else {
-        path->addRect(QRectF(point.x() - pointSize + 0.5,
-                                 point.y() - pointSize + 0.5,
+        path->addRect(QRectF(point.x() - pointSize,
+                                 point.y() - pointSize,
                                  pointSize * 2, pointSize * 2));
     }
 
@@ -191,7 +191,7 @@ GraphViewShapeItem::createPath()
 
 	
     QGraphicsPathItem *pathCubicItem = new QGraphicsPathItem(this);
-    QPen penCubic(QBrush(Qt::black), 3);
+    QPen penCubic(QBrush(Qt::black), 1.5);
 	penCubic.setCosmetic(true);
     pathCubicItem->setPen(penCubic);
     graphicItemGroup_->addToGroup(pathCubicItem);
@@ -199,7 +199,7 @@ GraphViewShapeItem::createPath()
     QGraphicsPathItem *pathHandleItem = new QGraphicsPathItem(this);
     QPen penHandle(Qt::black);
     penHandle.setStyle(Qt::DashLine);
-    penHandle.setWidth(3);
+    penHandle.setWidth(1.5);
 	penHandle.setCosmetic(true);
     pathHandleItem->setPen(penHandle);
     graphicItemGroup_->addToGroup(pathHandleItem);

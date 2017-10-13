@@ -19,6 +19,7 @@ set(HEADERS
   myFactory.h
   FollowTrajectory.h
   Trajectory.h
+  CameraSensor.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -29,6 +30,7 @@ set(SOURCES
   myFactory.cpp
   FollowTrajectory.cpp
   Trajectory.cpp
+  CameraSensor.cpp
 )
 
 

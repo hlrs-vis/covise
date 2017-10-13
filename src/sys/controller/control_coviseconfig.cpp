@@ -31,9 +31,9 @@ using namespace covise;
 uint32_t ControlConfig::genip(const char *n)
 //----------------------------------------------------------------------------
 {
-    uint32_t addr[4];
+    unsigned addr[4];
 
-    int no_of_no = sscanf(n, "%d.%d.%d.%d", &addr[0],
+    int no_of_no = sscanf(n, "%u.%u.%u.%u", &addr[0],
                           &addr[1], &addr[2], &addr[3]);
 
     if (no_of_no == 4)
@@ -68,7 +68,7 @@ uint32_t ControlConfig::genip(const char *n)
 
 			char address[1000];
 			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
-			memcpy(addr, &saddr->sin_addr, sizeof(addr));
+			memcpy(addr, &saddr->sin_addr, sizeof(saddr->sin_addr));
 			if (!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
 			{
 				std::cerr << "could not convert address of " << n << " to printable format: " << strerror(errno) << std::endl;
@@ -76,7 +76,7 @@ uint32_t ControlConfig::genip(const char *n)
 			}
 			else
 			{
-				memcpy(addr, &saddr->sin_addr, sizeof(addr));
+				memcpy(addr, &saddr->sin_addr, sizeof(saddr->sin_addr));
 				break;
 			}
 		}

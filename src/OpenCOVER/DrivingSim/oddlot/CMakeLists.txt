@@ -355,6 +355,7 @@ SET(ODDLOT_SOURCES
 	src/graph/items/oscsystem/osctextitem.cpp
 	src/graph/graphviewitems/graphviewshapeitem.cpp
 	src/gui/oscsettings.cpp
+	src/data/georeference.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp

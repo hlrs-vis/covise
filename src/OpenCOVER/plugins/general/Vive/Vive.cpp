@@ -194,6 +194,8 @@ bool Vive::init()
 
 	coVRConfig::instance()->OpenVR_HMD = true;
 
+	m_transformOriginToCamera=covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToCamera",false);
+
 	if (m_strDriver == "No Driver")
 		return false;
 	
@@ -237,7 +239,8 @@ void Vive::postFrame()
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
-		if (m_rDevClassChar[nDevice] == 0)
+		// device configuration can be changed on-the-fly!
+		//if (m_rDevClassChar[nDevice] == 0)
 		{
 			switch (ivrSystem->GetTrackedDeviceClass(nDevice))
 			{
@@ -254,11 +257,15 @@ void Vive::postFrame()
 			maxBodyNumber = nDevice;
 		}
 	}
-	if (maxBodyNumber + 1 > m_bodyMatrices.size())
+
+	//cout << "*"; for (int n = 0; n < vr::k_unMaxTrackedDeviceCount; ++n) cout << m_rDevClassChar[n]; cout << "*"<<endl;
+
+	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
+	if (bodyMatSize > m_bodyMatrices.size())
 	{
 		m_mutex.lock();
-		m_bodyMatrices.resize(maxBodyNumber + 1);
-		m_bodyMatricesValid.resize(maxBodyNumber + 1);
+		m_bodyMatrices.resize(bodyMatSize);
+		m_bodyMatricesValid.resize(bodyMatSize);
 		m_mutex.unlock();
 	}
 	if (numControllers * 4 > m_buttonStates.size())
@@ -272,7 +279,7 @@ void Vive::postFrame()
 	{
 		vr::VRControllerState_t state;
 		bool gotState = ivrSystem->GetControllerState(unDevice, &state, sizeof(state));
-		if ((m_rDevClassChar[unDevice] == 'C'))
+		if ((m_rDevClassChar[unDevice] == 'C') && m_rTrackedDevicePose[unDevice].bPoseIsValid)
 		{
 			m_buttonStates[(controllerNumber * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
 			m_buttonStates[(controllerNumber * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
@@ -284,20 +291,71 @@ void Vive::postFrame()
 
 	m_mutex.lock();
 
+	// m_bodyMatrices device order:
+	// 0 -- HMD
+	// 1 -- first tracking camera
+	// 2 -- last tracking camera
+	// 3 -- first Vive controller
+	// 4 -- second Vive controller
+
+	controllerNumber = 0;
+	size_t cameraNumber = 0, idx = 0;
+	size_t firstCameraIdx = 1, lastCameraIdx=2, firstControllerIdx=3,lastControllerIdx=4 ;
+	bool haveCamera=false;				//Will be true if there is any camera
 	for (int nDevice = 0; nDevice < maxBodyNumber + 1; ++nDevice)
 	{
-		m_bodyMatricesValid[nDevice] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
-			m_bodyMatrices[nDevice] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
-			// convert to mm
-			m_bodyMatrices[nDevice](3, 0) *= 1000;
-			m_bodyMatrices[nDevice](3, 1) *= 1000;
-			m_bodyMatrices[nDevice](3, 2) *= 1000;
-			m_bodyMatrices[nDevice] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+			switch (m_rDevClassChar[nDevice])
+			{
+			case 'T': // a tracking camera
+				idx = firstCameraIdx + cameraNumber;
+				//cerr << "Vive:Camera no=" << cameraNumber<<" Initial idx="<<nDevice<<" Idx="<<idx<<endl;
+				haveCamera = true;
+				++cameraNumber;
+				if (idx>lastCameraIdx)
+				{
+					cerr << "Vive:Too many cameras;number=" << cameraNumber - 1 << " idx= " << idx << endl;
+					continue;
+				}
+				break;
+			case 'C': //a controller
+				idx = firstControllerIdx + controllerNumber;
+				//cerr << "Vive:Controller no=" << controllerNumber << " Initial idx=" << nDevice << " Idx="<<idx<<endl;
+				++controllerNumber;
+				if (idx > lastControllerIdx)
+				{
+					cerr << "Vive:Too many controllers;number=" << controllerNumber - 1 << " idx= " << idx << endl;
+					continue;
+				}
+				break;
+			case 'H':// the HMD
+				idx = 0;
+				break;
+			default:
+				cerr << "Vive:Unsupported device class:" << m_rDevClassChar[nDevice]<<"  nDevice="<<nDevice<< endl;
+				continue;
+			}
+
+			if (idx >= m_bodyMatrices.size())
+			{
+				cerr << "Vive: idx out of range:"<<idx << endl;
+				continue;
+			}
+
+			m_bodyMatricesValid[idx] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
+			m_bodyMatrices[idx] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+		    // convert to mm
+			m_bodyMatrices[idx](3, 0) *= 1000;
+			m_bodyMatrices[idx](3, 1) *= 1000;
+			m_bodyMatrices[idx](3, 2) *= 1000;
+			
+			if (m_transformOriginToCamera) m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+
 		}
 	}
-	if (!haveTrackerOrigin && (m_rDevClassChar[1] == 'T') && maxBodyNumber > 0)
+	// get the transform matrix from 1st camera if we need that
+	if (!haveTrackerOrigin && haveCamera && m_transformOriginToCamera)
 	{
 		haveTrackerOrigin = true;
 		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);

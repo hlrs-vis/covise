@@ -74,6 +74,8 @@ class PedFiddleyardSink;
 class JunctionConnection;
 class RSystemElementJunction;
 
+class GeoReference;
+
 //OpenScenario //
 //
 class OSCElement;
@@ -274,6 +276,12 @@ public:
     virtual void visit(SceneryTesselation *)
     {
     }
+
+	// Georeference //
+	//
+	virtual void visit(GeoReference *)
+	{
+	}
 
 private:
     Visitor(const Visitor &); /* not allowed */

@@ -61,6 +61,8 @@
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
 
+#include "src/data/georeference.hpp"
+
 // VehicleSystem //
 //
 #include "src/data/vehiclesystem/vehiclesystem.hpp"
@@ -123,17 +125,23 @@ DomWriter::runToTheHills()
 
     // <header> //
     //
-    QDomElement header = doc_->createElement("header");
-    header.setAttribute("revMajor", projectData_->getRevMajor());
-    header.setAttribute("revMinor", projectData_->getRevMinor());
-    header.setAttribute("name", projectData_->getName());
-    header.setAttribute("version", projectData_->getVersion());
-    header.setAttribute("date", projectData_->getDate());
-    header.setAttribute("north", projectData_->getNorth());
-    header.setAttribute("south", projectData_->getSouth());
-    header.setAttribute("east", projectData_->getEast());
-    header.setAttribute("west", projectData_->getWest());
-    root_.appendChild(header);
+    header_ = doc_->createElement("header");
+	header_.setAttribute("revMajor", projectData_->getRevMajor());
+	header_.setAttribute("revMinor", projectData_->getRevMinor());
+	header_.setAttribute("name", projectData_->getName());
+	header_.setAttribute("version", projectData_->getVersion());
+	header_.setAttribute("date", projectData_->getDate());
+	header_.setAttribute("north", projectData_->getNorth());
+	header_.setAttribute("south", projectData_->getSouth());
+	header_.setAttribute("east", projectData_->getEast());
+	header_.setAttribute("west", projectData_->getWest());
+
+	GeoReference *geoReferenceParams = projectData_->getGeoReference();
+	if (geoReferenceParams)
+	{
+		geoReferenceParams->accept(this);
+	}
+    root_.appendChild(header_);
 
     // Run for your life //
     //
@@ -2005,3 +2013,21 @@ DomWriter::visit(SceneryTesselation *tesselation)
     }
     root_.appendChild(envElement);
 }
+
+//################//
+// GEOREFERENCE      //
+//################//
+
+void
+DomWriter::visit(GeoReference *geoReferenceParams)
+{
+
+	QDomElement geoReferenceElement = doc_->createElement("geoReference");
+
+	QDomCDATASection CDATA = doc_->createCDATASection(geoReferenceParams->getParams());
+
+	geoReferenceElement.appendChild(CDATA);
+
+	header_.appendChild(geoReferenceElement);
+}
+
