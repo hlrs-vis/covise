@@ -47,10 +47,13 @@ bool Button::state() const
 
 void Button::setState(bool flag, bool updateGroup)
 {
-    m_state = flag;
-    manager()->queueUpdate(this);
-    if (updateGroup && m_radioGroup)
-        m_radioGroup->toggle(this);
+    if (flag != m_state)
+    {
+        m_state = flag;
+        manager()->queueUpdate(this);
+        if (updateGroup && group())
+            group()->toggle(this);
+    }
 }
 
 void Button::setCallback(const std::function<void(bool)> &f)

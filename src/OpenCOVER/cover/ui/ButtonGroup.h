@@ -21,6 +21,11 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
     ButtonGroup(Group *parent, const std::string &name);
 
     void enableDeselect(bool flag);
+    
+    //! set value for when no button is selected
+    void setDefaultValue(int val);
+    //! value for when no button is selected
+    int defaultValue() const;
 
     //! value assigned to active (=pressed) Button
     int value() const;
@@ -41,6 +46,7 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
     void triggerImplementation() const override;
 
 private:
+    int m_defaultValue = 0;
     bool m_allowDeselect = false;
     std::function<void(int)> m_callback;
 };
