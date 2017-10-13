@@ -63,6 +63,7 @@ public:
     virtual void visit(TrackElementArc *);
     virtual void visit(TrackElementSpiral *);
     virtual void visit(TrackElementPoly3 *);
+	virtual void visit(TrackElementCubicCurve *);
 
     virtual void visit(SurfaceSection *);
 

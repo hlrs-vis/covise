@@ -45,6 +45,7 @@ class TrackElementLine;
 class TrackElementArc;
 class TrackElementSpiral;
 class TrackElementPoly3;
+class TrackElementCubicCurve;
 
 class ElevationSection;
 class SuperelevationSection;
@@ -161,6 +162,7 @@ public:
     virtual void visit(TrackElementSpiral *);
     virtual void visit(TrackElementPoly3 *);
     virtual void visit(TrackSpiralArcSpiral *);
+	virtual void visit(TrackElementCubicCurve *);
 
     virtual void visit(ElevationSection *)
     {

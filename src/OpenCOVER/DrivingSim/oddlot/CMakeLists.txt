@@ -356,6 +356,7 @@ SET(ODDLOT_SOURCES
 	src/graph/graphviewitems/graphviewshapeitem.cpp
 	src/gui/oscsettings.cpp
 	src/data/georeference.cpp
+	src/data/roadsystem/track/trackelementcubiccurve.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp

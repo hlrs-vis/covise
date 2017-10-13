@@ -51,6 +51,7 @@
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 #include "src/data/roadsystem/track/trackelementpoly3.hpp"
+#include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 
 #include "src/data/roadsystem/sections/typesection.hpp"
 #include "src/data/roadsystem/sections/surfacesection.hpp"
@@ -1220,6 +1221,7 @@ DomParser::parseSpeedElement(QDomElement &element, TypeSection *type)
 {
     QString max = parseToQString(element, "max", "undefined", false); // mandatory
     QString unit = parseToQString(element, "unit", "m/s", true); // otional
+	qDebug() << "Unit: " << unit;
 
     SpeedRecord *sr = new SpeedRecord(max, unit);
     type->setSpeedRecord(sr);
@@ -1845,6 +1847,39 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
         TrackElementPoly3 *poly = new TrackElementPoly3(x, y, hdg / ( M_PI) * 180.0, s, length, a, b, c, d);
         road->addTrackComponent(poly);
     }
+	else if (name == "paramPoly3")
+	{
+		// <poly3> //
+		double aU = parseToDouble(child, "aU", 0.0, false); // mandatory
+		double bU = parseToDouble(child, "bU", 0.0, false); // mandatory
+		double cU = parseToDouble(child, "cU", 0.0, false); // mandatory
+		double dU = parseToDouble(child, "dU", 0.0, false); // mandatory
+		double aV = parseToDouble(child, "aV", 0.0, false); // mandatory
+		double bV = parseToDouble(child, "bV", 0.0, false); // mandatory
+		double cV = parseToDouble(child, "cV", 0.0, false); // mandatory
+		double dV = parseToDouble(child, "dV", 0.0, false); // mandatory
+		QString pRange = parseToQString(child, "pRange", "normalized", false); // mandatory
+
+		Polynomial *polyU = new Polynomial(aU, bU, cU, dU);
+		Polynomial *polyV = new Polynomial(aV, bV, cV, dV);
+		TrackElementCubicCurve *cubicCurve = new TrackElementCubicCurve(x, y, hdg / (M_PI) * 180.0, s, length, polyU, polyV, pRange);
+		road->addTrackComponent(cubicCurve);
+
+		qDebug() << "paramPoly3: " << cubicCurve->getPolynomialU()->getA() << "+" << cubicCurve->getPolynomialU()->getB() << "t+" << cubicCurve->getPolynomialU()->getC() << "t2+" << cubicCurve->getPolynomialU()->getD() << "t3";
+		qDebug() << "paramPoly3: " << cubicCurve->getPolynomialV()->getA() << "+" << cubicCurve->getPolynomialV()->getB() << "t+" << cubicCurve->getPolynomialV()->getC() << "t2+" << cubicCurve->getPolynomialV()->getD() << "t3";
+
+		QPointF p = cubicCurve->getPoint(272,0);
+		qDebug() << "paramPoly3: " << "Point for s=272: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(272);
+		p = cubicCurve->getPoint(0, 0);
+		qDebug() << "paramPoly3: " << "Point for s=0: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(0);
+		p = cubicCurve->getPoint(36, 0);
+		double curv = cubicCurve->getCurvature(36.0);
+		qDebug() << "paramPoly3: " << "Point for s=36: " << p.x() << "," << p.y() << " Curvature: " << curv << " Heading: " << cubicCurve->getHeading(36);
+
+/*		cubicCurve->setLocalStartPoint(QPointF(147, 131));
+		cubicCurve->setLocalEndPoint(QPointF(216, 149));
+		cubicCurve->setLocalStartHeading(30.0);  */
+	}
     else
     {
         // error! unknown //
@@ -2000,6 +2035,24 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 
         child = child.nextSiblingElement("height");
     }
+
+	// <lane><speed> //
+	// Optional, unlimited, not allowed for center lane (id=0)
+	//
+	child = laneElement.firstChildElement("speed");
+	while (!child.isNull() && id != 0)
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		double max = parseToDouble(child, "max", 0.0, false); // mandatory
+		QString unit = parseToQString(child, "unit", "m/s", true); // optional
+
+		LaneSpeed *speedEntry = new LaneSpeed(sOffset, max, unit);
+		lane->addSpeedEntry(speedEntry);
+
+		qDebug() << "lane speed:" << max << "Unit:" << unit;
+
+		child = child.nextSiblingElement("speed");
+	}
 
     // Add Lane To LaneSection //
     //

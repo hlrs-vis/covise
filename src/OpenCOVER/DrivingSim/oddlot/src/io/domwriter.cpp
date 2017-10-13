@@ -42,6 +42,7 @@
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 #include "src/data/roadsystem/track/trackelementpoly3.hpp"
+#include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
@@ -921,6 +922,7 @@ DomWriter::visit(TypeSection *section)
         {
             speedElement.setAttribute("max", QString::number(speed));
         }
+		speedElement.setAttribute("unit", section->getSpeedRecord()->maxUnit);
         element.appendChild(speedElement);
     }
     currentRoad_.appendChild(element);
@@ -1084,6 +1086,29 @@ DomWriter::visit(TrackElementPoly3 *track)
     currentTrackElement_.appendChild(element);
 }
 
+void
+DomWriter::visit(TrackElementCubicCurve *track)
+{
+	currentTrackElement_ = doc_->createElement("geometry");
+	currentPVElement_.appendChild(currentTrackElement_);
+	visit((TrackElement *)track);
+
+	QDomElement element = doc_->createElement("paramPoly3");
+	Polynomial *polynomialU = track->getPolynomialU();
+	Polynomial *polynomialV = track->getPolynomialV();
+	element.setAttribute("aU", polynomialU->getA());
+	element.setAttribute("bU", polynomialU->getB());
+	element.setAttribute("cU", polynomialU->getC());
+	element.setAttribute("dU", polynomialU->getD());
+	element.setAttribute("aV", polynomialV->getA());
+	element.setAttribute("bV", polynomialV->getB());
+	element.setAttribute("cV", polynomialV->getC());
+	element.setAttribute("dV", polynomialV->getD());
+	element.setAttribute("pRange", track->getPRange());
+
+	currentTrackElement_.appendChild(element);
+}
+
 //################//
 // LANES          //
 //################//
@@ -1198,6 +1223,7 @@ DomWriter::visit(LaneSpeed *laneSpeed)
     QDomElement element = doc_->createElement("speed");
     element.setAttribute("sOffset", laneSpeed->getSOffset());
     element.setAttribute("max", laneSpeed->getMaxSpeed());
+	element.setAttribute("unit", laneSpeed->getMaxSpeedUnit());
     currentLaneElement_.appendChild(element);
 }
 
