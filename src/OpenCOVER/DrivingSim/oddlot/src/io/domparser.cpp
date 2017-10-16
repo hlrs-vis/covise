@@ -66,6 +66,7 @@
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
+#include "src/data/roadsystem/sections/shapesection.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
 
@@ -1113,13 +1114,28 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         }
     }
 
+	child = element.firstChildElement("lateralProfile");
+	if (!child.isNull())
+	{
+		child = child.firstChildElement("shape");
+		while (!child.isNull())
+		{
+			foundLateral = true;
+			parseShapeElement(child, road);
+			child = child.nextSiblingElement("shape");
+		}
+	}
+
     if (!foundLateral && (mode_ != DomParser::MODE_PROTOTYPES))
     {
-        SuperelevationSection *sSection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
-        road->addSuperelevationSection(sSection);
+        SuperelevationSection *sESection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
+        road->addSuperelevationSection(sESection);
 
         CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
         road->addCrossfallSection(cSection);
+
+		ShapeSection *sSection = new ShapeSection(0.0);
+		road->addShapeSection(sSection);
     }
 
     // <lanes> //
@@ -1744,6 +1760,28 @@ DomParser::parseCrossfallElement(QDomElement &element, RSystemElementRoad *road)
     road->addCrossfallSection(section);
 
     return true;
+}
+
+bool 
+DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
+{
+	double s = parseToDouble(element, "s", 0.0, false); // mandatory
+	double t = parseToDouble(element, "t", 0.0, false); // mandatory
+	double a = parseToDouble(element, "a", 0.0, false); // mandatory
+	double b = parseToDouble(element, "b", 0.0, false); // mandatory
+	double c = parseToDouble(element, "c", 0.0, false); // mandatory
+	double d = parseToDouble(element, "d", 0.0, false); // mandatory
+
+	Polynomial *poly = new Polynomial(a, b, c, d);
+	ShapeSection *section = road->getShapeSection(s);
+	if (!section)
+	{
+		section = new ShapeSection(s);
+		road->addShapeSection(section);
+	}
+	section->addShape(t, poly);
+
+	return true;
 }
 
 /*! \brief Parses a (road) <surface> element.

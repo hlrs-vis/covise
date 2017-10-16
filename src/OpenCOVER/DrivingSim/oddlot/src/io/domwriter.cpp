@@ -47,6 +47,7 @@
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
+#include "src/data/roadsystem//sections/shapesection.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
@@ -215,7 +216,7 @@ DomWriter::visit(RSystemElementRoad *road)
 
     // <road><lateralProfile> //
     //
-    if (!road->getSuperelevationSections().isEmpty() || !road->getCrossfallSections().isEmpty())
+    if (!road->getSuperelevationSections().isEmpty() || !road->getCrossfallSections().isEmpty() || !road->getShapeSections().isEmpty())
     {
         currentLateralProfileElement_ = doc_->createElement("lateralProfile");
         currentRoad_.appendChild(currentLateralProfileElement_);
@@ -1012,6 +1013,31 @@ DomWriter::visit(CrossfallSection *section)
     element.setAttribute("c", section->getC() * M_PI / 180.0);
     element.setAttribute("d", section->getD() * M_PI / 180.0);
     currentLateralProfileElement_.appendChild(element);
+}
+
+//################//
+// SHAPESECTIONS   //
+//################//
+
+void
+DomWriter::visit(ShapeSection *section)
+{
+
+	QMap<double, Polynomial *>::const_iterator iter = section->getShapes().constBegin();
+	while (iter != section->getShapes().constEnd())
+	{
+		QDomElement element = doc_->createElement("shape");
+		element.setAttribute("s", section->getSStart());
+		element.setAttribute("t", iter.key());
+		Polynomial *poly = iter.value();
+		element.setAttribute("a", poly->getA());
+		element.setAttribute("b", poly->getB());
+		element.setAttribute("c", poly->getC());
+		element.setAttribute("d", poly->getD());
+		currentLateralProfileElement_.appendChild(element);
+
+		iter++;
+	}
 }
 
 //################//

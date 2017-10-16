@@ -50,6 +50,7 @@ class TrackElementCubicCurve;
 class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
+class ShapeSection;
 
 class Object;
 class Bridge;
@@ -173,6 +174,9 @@ public:
     virtual void visit(CrossfallSection *)
     {
     }
+	virtual void visit(ShapeSection *)
+	{
+	}
 
     virtual void visit(Object *)
     {

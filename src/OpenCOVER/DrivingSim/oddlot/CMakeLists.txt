@@ -357,6 +357,7 @@ SET(ODDLOT_SOURCES
 	src/gui/oscsettings.cpp
 	src/data/georeference.cpp
 	src/data/roadsystem/track/trackelementcubiccurve.cpp
+	src/data/roadsystem/sections/shapesection.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp

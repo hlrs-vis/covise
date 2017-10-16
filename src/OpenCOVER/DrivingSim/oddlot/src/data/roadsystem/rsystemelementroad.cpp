@@ -30,6 +30,7 @@
 #include "sections/elevationsection.hpp"
 #include "sections/superelevationsection.hpp"
 #include "sections/crossfallsection.hpp"
+#include "sections/shapesection.hpp"
 #include "sections/lanesection.hpp"
 #include "sections/lane.hpp"
 #include "sections/objectobject.hpp"
@@ -1491,6 +1492,191 @@ RSystemElementRoad::setCrossfallSections(QMap<double, CrossfallSection *> newSec
     addRoadChanges(RSystemElementRoad::CRD_CrossfallSectionChange);
 }
 
+//####################################//
+// road:lateralProfile:shape //
+//####################################//
+
+void
+RSystemElementRoad::addShapeSection(ShapeSection *section)
+{
+	// Notify section //
+	//
+	section->setParentRoad(this);
+
+	// Notify shrinking section //
+	//
+	if (!shapeSections_.isEmpty())
+	{
+		ShapeSection *lastSection = getShapeSection(section->getSStart()); // the section that is here before insertion
+		if (lastSection)
+		{
+			lastSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+		}
+	}
+
+	// Insert and Notify //
+	//
+	shapeSections_.insert(section->getSStart(), section);
+	addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+}
+
+bool
+RSystemElementRoad::delShapeSection(ShapeSection *section)
+{
+	double s = section->getSStart();
+
+	// Delete section //
+	//
+	bool success = delShapeSection(s);
+	if (success)
+	{
+		// Notify expanding section //
+		//
+		ShapeSection *lastSection = getShapeSection(s); // the section that now here
+		if (lastSection)
+		{
+			lastSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+		}
+	}
+	else
+	{
+		qDebug("WARNING 1007151040! Could not delete ShapeSection.");
+	}
+
+	return success;
+}
+
+bool
+RSystemElementRoad::delShapeSection(double s)
+{
+	ShapeSection *section = shapeSections_.value(s, NULL);
+	if (!section)
+	{
+		qDebug("WARNING 1003221754! Tried to delete a road shape section that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		section->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		shapeSections_.remove(s);
+		addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+
+		return true;
+	}
+}
+
+ShapeSection *
+RSystemElementRoad::getShapeSection(double s) const
+{
+	QMap<double, ShapeSection *>::const_iterator i = shapeSections_.upperBound(s);
+	if (i == shapeSections_.constBegin())
+	{
+		//		qDebug("WARNING 1003221755! Trying to get shapeSection but coordinate is out of bounds!");
+		return NULL;
+	}
+	else
+	{
+		--i;
+		return i.value();
+	}
+}
+
+ShapeSection *
+RSystemElementRoad::getShapeSectionBefore(double s) const
+{
+	QMap<double, ShapeSection *>::const_iterator i = shapeSections_.upperBound(s); // the second one after the one we want
+	if (i == shapeSections_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	if (i == shapeSections_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	return i.value();
+}
+
+double
+RSystemElementRoad::getShapeSectionEnd(double s) const
+{
+	QMap<double, ShapeSection *>::const_iterator nextIt = shapeSections_.upperBound(s);
+	if (nextIt == shapeSections_.constEnd())
+	{
+		return getLength(); // road: [0.0, length]
+	}
+	else
+	{
+		return (*nextIt)->getSStart();
+	}
+}
+
+bool
+RSystemElementRoad::moveShapeSection(double oldS, double newS)
+{
+	// Section //
+	//
+	ShapeSection *section = shapeSections_.value(oldS, NULL);
+	if (!section)
+	{
+		return false;
+	}
+
+	// Previous section //
+	//
+	double previousS = 0.0;
+	if (newS > section->getSStart())
+	{
+		// Expand previous section //
+		//
+		previousS = section->getSStart() - 0.001;
+	}
+	else
+	{
+		// Shrink previous section //
+		//
+		previousS = newS;
+	}
+	ShapeSection *previousSection = getShapeSection(previousS);
+	if (previousSection)
+	{
+		previousSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+	}
+
+	// Set and insert //
+	//
+	section->setSStart(newS);
+	shapeSections_.remove(oldS);
+	shapeSections_.insert(newS, section);
+
+	return true;
+}
+
+void
+RSystemElementRoad::setShapeSections(QMap<double, ShapeSection *> newSections)
+{
+	foreach(ShapeSection *section, shapeSections_)
+	{
+		section->setParentRoad(NULL);
+	}
+
+	foreach(ShapeSection *section, newSections)
+	{
+		section->setParentRoad(this);
+	}
+
+	shapeSections_ = newSections;
+	addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+}
+
 //###################//
 // road:laneSection  //
 //###################//
@@ -2500,6 +2686,7 @@ RSystemElementRoad::acceptForChildNodes(Visitor *visitor)
     acceptForElevationSections(visitor);
     acceptForSuperelevationSections(visitor);
     acceptForCrossfallSections(visitor);
+	acceptForShapeSections(visitor);
     acceptForLaneSections(visitor);
     acceptForCrosswalks(visitor);
     acceptForSignals(visitor);
@@ -2582,6 +2769,16 @@ RSystemElementRoad::acceptForCrossfallSections(Visitor *visitor)
 {
     foreach (CrossfallSection *child, crossfallSections_)
         child->accept(visitor);
+}
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
+RSystemElementRoad::acceptForShapeSections(Visitor *visitor)
+{
+	foreach(ShapeSection *child, shapeSections_)
+		child->accept(visitor);
 }
 
 /*!

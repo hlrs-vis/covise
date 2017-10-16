@@ -33,6 +33,7 @@ class TrackComponent;
 class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
+class ShapeSection;
 class LaneSection;
 class Object;
 class Crosswalk;
@@ -85,6 +86,7 @@ public:
         CRD_ElevationSectionChange = 0x4,
         CRD_SuperelevationSectionChange = 0x10,
         CRD_CrossfallSectionChange = 0x20,
+		CRD_ShapeSectionChange = 0x80,
         CRD_LaneSectionChange = 0x40,
         CRD_JunctionChange = 0x100,
         CRD_LengthChange = 0x200,
@@ -235,6 +237,21 @@ public:
         return crossfallSections_;
     }
 
+	// road:lateralProfile:shape //
+	//
+	void addShapeSection(ShapeSection *section);
+	bool delShapeSection(ShapeSection *section);
+	bool moveShapeSection(double oldS, double newS);
+	void setShapeSections(QMap<double, ShapeSection *> newSections);
+
+	ShapeSection *getShapeSection(double s) const;
+	ShapeSection *getShapeSectionBefore(double s) const;
+	double getShapeSectionEnd(double s) const;
+	QMap<double, ShapeSection *> getShapeSections() const
+	{
+		return shapeSections_;
+	}
+
     // road:laneSection //
     //
     void addLaneSection(LaneSection *laneSection);
@@ -338,6 +355,7 @@ public:
     virtual void acceptForElevationSections(Visitor *visitor);
     virtual void acceptForSuperelevationSections(Visitor *visitor);
     virtual void acceptForCrossfallSections(Visitor *visitor);
+	virtual void acceptForShapeSections(Visitor *visitor);
     virtual void acceptForLaneSections(Visitor *visitor);
     virtual void acceptForObjects(Visitor *visitor);
     virtual void acceptForBridges(Visitor *visitor);
@@ -362,6 +380,7 @@ private:
     bool delElevationSection(double s);
     bool delSuperelevationSection(double s);
     bool delCrossfallSection(double s);
+	bool delShapeSection(double s);
     bool delLaneSection(double s);
     bool delObject(double s);
     bool delBridge(double s);
@@ -408,6 +427,9 @@ private:
 
     // crossfall //
     QMap<double, CrossfallSection *> crossfallSections_; // owned
+
+	// shape //
+	QMap<double, ShapeSection *> shapeSections_; // owned
 
     // lanes //
     QMap<double, LaneSection *> laneSections_; // owned

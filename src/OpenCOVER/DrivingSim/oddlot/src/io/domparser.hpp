@@ -130,6 +130,7 @@ public:
     bool parseElevationElement(QDomElement &element, RSystemElementRoad *road);
     bool parseSuperelevationElement(QDomElement &element, RSystemElementRoad *road);
     bool parseCrossfallElement(QDomElement &element, RSystemElementRoad *road);
+	bool parseShapeElement(QDomElement &element, RSystemElementRoad *road);
 
     bool parseLaneSectionElement(QDomElement &element, RSystemElementRoad *road);
     bool parseLaneElement(QDomElement &element, LaneSection *laneSection);
