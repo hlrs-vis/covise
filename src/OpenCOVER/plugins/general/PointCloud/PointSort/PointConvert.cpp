@@ -594,8 +594,6 @@ int main(int argc, char **argv)
 {
 
 	// TODO these values should be command line arguments
-	int maxPointsPerCube = 250000; // note set to -1 if no max points per cube is specified
-	int divisionSize = 16;
 	formatTypes format = FORMAT_IRGB;
 	//format = FORMAT_RGB;
 	std::vector<Point> vec;
@@ -604,6 +602,7 @@ int main(int argc, char **argv)
 	min_x = min_y = min_z = FLT_MAX;
 	max_x = max_y = max_z = FLT_MIN;
 
+    int nread = 0;
 	if (argc < 3) /* argc should be > 3 for correct execution */
 	{
 		printf("Minimal two params required. read README.txt\n");
@@ -612,7 +611,6 @@ int main(int argc, char **argv)
 	{
 		for (int i = 1; i < argc - 1; i++)
 		{
-			printf("Reading in %s\n", argv[i]);
 			int len = strlen(argv[i]);
 			if ((len > 1) && argv[i][0] == '-')
 			{
@@ -620,9 +618,12 @@ int main(int argc, char **argv)
 				{
 					intensityOnly = true;
 				}
+
 			}
 			else
 			{
+                ++nread;
+                printf("Reading in %s\n", argv[i]);
 				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".ptx") == 0)
 				{
 					ReadPTX(argv[i], vec);
@@ -647,7 +648,12 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		WriteData(argv[argc - 1], vec);
+        if (nread > 0)
+            WriteData(argv[argc - 1], vec);
+        else
+            printf("Did not read any data\n");
 	}
+
+    //printf("maxPointsPerCube=%d, divisionSize=%d\n", maxPointsPerCube, divisionSize);
 	return 0;
 }
