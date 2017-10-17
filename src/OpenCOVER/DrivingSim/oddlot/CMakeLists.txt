@@ -358,6 +358,7 @@ SET(ODDLOT_SOURCES
 	src/data/georeference.cpp
 	src/data/roadsystem/track/trackelementcubiccurve.cpp
 	src/data/roadsystem/sections/shapesection.cpp
+	src/data/roadsystem/rsystemelementjunctiongroup.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp

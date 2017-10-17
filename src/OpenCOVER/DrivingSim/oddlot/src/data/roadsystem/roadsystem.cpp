@@ -28,6 +28,7 @@
 #include "rsystemelementjunction.hpp"
 #include "rsystemelementfiddleyard.hpp"
 #include "rsystemelementpedfiddleyard.hpp"
+#include "rsystemelementjunctiongroup.hpp"
 #include "roadlink.hpp"
 
 
@@ -64,6 +65,9 @@ RoadSystem::~RoadSystem()
 
     foreach (RSystemElementPedFiddleyard *child, pedFiddleyards_)
         delete child;
+
+	foreach(RSystemElementJunctionGroup *child, junctionGroups_)
+		delete child;
 }
 
 //##################//
@@ -289,6 +293,72 @@ RoadSystem::delJunction(RSystemElementJunction *junction)
     else
     {
         qDebug("WARNING 1007081034! Delete junction not successful!");
+        return false;
+    }
+}
+
+QList<RSystemElementJunctionGroup *>
+RoadSystem::getTileJunctionGroups(const QString &tileId) const
+{
+	QList<RSystemElementJunctionGroup *> tileJunctionGroups;
+	QMap<QString, RSystemElementJunctionGroup *>::const_iterator it = junctionGroups_.constBegin();
+	while (it != junctionGroups_.constEnd())
+	{
+		if (it.key().startsWith(tileId + "_"))
+		{
+			tileJunctionGroups.append(it.value());
+		}
+
+		it++;
+	}
+
+	return tileJunctionGroups;
+}
+
+void
+RoadSystem::addJunctionGroup(RSystemElementJunctionGroup *junctionGroup)
+{
+    if (getProjectData())
+    {
+        // Id //
+        //
+        QString name = junctionGroup->getName();
+
+        QString id = getUniqueId(junctionGroup->getID(), name);
+        if (id != junctionGroup->getID())
+        {
+            junctionGroup->setID(id);
+            if (name != junctionGroup->getName())
+            {
+                junctionGroup->setName(name);
+            }
+        }
+    }
+
+    // Insert //
+    //
+    junctionGroups_.insert(junctionGroup->getID(), junctionGroup);
+    addRoadSystemChanges(RoadSystem::CRS_JunctionGroupChange);
+
+    junctionGroup->setRoadSystem(this);
+}
+
+bool
+RoadSystem::delJunctionGroup(RSystemElementJunctionGroup *junctionGroup)
+{
+    QStringList parts = junctionGroup->getID().split("_");
+
+    if (junctionGroups_.remove(junctionGroup->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+    {
+        addRoadSystemChanges(RoadSystem::CRS_JunctionGroupChange);
+
+		junctionGroup->clearReferences();
+        junctionGroup->setRoadSystem(NULL);
+        return true;
+    }
+    else
+    {
+        qDebug("WARNING 1007081034! Delete junctionGroup not successful!");
         return false;
     }
 }
@@ -761,6 +831,30 @@ RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
         iter++;
     }
 
+	// JunctionGroups //
+	//
+
+	QMap<QString, RSystemElementJunctionGroup *>::const_iterator juncIt = junctionGroups_.constBegin();
+	
+	while (juncIt != junctionGroups_.constEnd())
+	{
+		RSystemElementJunctionGroup *junctionGroup = juncIt.value();
+		QList<QString> references = junctionGroup->getJunctionReferences();
+
+		for (int i = 0; i < references.size(); i++)
+		{
+			QString referenceId = references.at(i);
+			QString newId = getNewId(idMap, referenceId, "junction");
+			if (newId != referenceId)
+			{
+				junctionGroup->delJunction(referenceId);
+				junctionGroup->addJunction(newId);
+			}
+		}
+
+		juncIt++;
+	}
+
     // Controllers //
     //
     QMap<QString, RSystemElementController *>::const_iterator controlIt = controllers_.constBegin();
@@ -959,6 +1053,9 @@ RoadSystem::acceptForChildNodes(Visitor *visitor)
 
     foreach (RSystemElementPedFiddleyard *child, pedFiddleyards_)
         child->accept(visitor);
+
+	foreach(RSystemElementJunctionGroup *child, junctionGroups_)
+		child->accept(visitor);
 }
 
 /*! \brief Accepts a visitor and passes it to child nodes.
@@ -1004,4 +1101,13 @@ RoadSystem::acceptForPedFiddleyards(Visitor *visitor)
 {
     foreach (RSystemElementPedFiddleyard *child, pedFiddleyards_)
         child->accept(visitor);
+}
+
+/*! \brief Accepts a visitor and passes it to child nodes.
+*/
+void
+RoadSystem::acceptForJunctionGroups(Visitor *visitor)
+{
+	foreach(RSystemElementJunctionGroup *child, junctionGroups_)
+		child->accept(visitor);
 }

@@ -70,7 +70,7 @@ public:
     virtual void visit(ElevationSection *);
     virtual void visit(SuperelevationSection *);
     virtual void visit(CrossfallSection *);
-	virtual void visit(ShapeSection *);
+    virtual void visit(ShapeSection *);
 
     virtual void visit(LaneSection *);
     virtual void visit(Lane *);
@@ -94,6 +94,8 @@ public:
 
     virtual void visit(RSystemElementJunction *);
     virtual void visit(JunctionConnection *);
+
+	virtual void visit(RSystemElementJunctionGroup *);
 
     // VehicleSystem //
     //

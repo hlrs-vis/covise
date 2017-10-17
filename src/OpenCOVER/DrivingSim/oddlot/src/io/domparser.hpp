@@ -137,6 +137,7 @@ public:
 
     bool parseControllerElement(QDomElement &child, QString &oldTileId);
     bool parseJunctionElement(QDomElement &child, QString &oldTileId);
+	bool parseJunctionGroupElement(QDomElement &child, QString &oldTileId);
     bool parseFiddleyardElement(QDomElement &child, QString &oldTileId);
     bool parsePedFiddleyardElement(QDomElement &child, QString &oldTileId);
     bool parseSceneryElement(QDomElement &child);

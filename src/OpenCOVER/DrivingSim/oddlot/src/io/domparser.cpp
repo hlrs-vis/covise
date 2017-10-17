@@ -36,6 +36,7 @@
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/rsystemelementfiddleyard.hpp"
 #include "src/data/roadsystem/rsystemelementpedfiddleyard.hpp"
+#include "src/data/roadsystem/rsystemelementjunctiongroup.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
@@ -927,6 +928,13 @@ DomParser::parseRoadSystem(QDomElement &root)
         parsePedFiddleyardElement(child, oldTileId);
         child = child.nextSiblingElement("pedFiddleyard");
     }
+
+	child = root.firstChildElement("junctionGroup");
+	while (!child.isNull())
+	{
+		parseJunctionGroupElement(child, oldTileId);
+		child = child.nextSiblingElement("junctionGroup");
+	}
 
     return true;
 }
@@ -2237,6 +2245,51 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
     }
 
     return true;
+}
+
+//################//
+// JUNCTIONGROUP      //
+//################//
+
+/** Parses a <junction> element.
+*
+*/
+bool
+DomParser::parseJunctionGroupElement(QDomElement &element, QString &oldTileId)
+{
+
+	// 1.) Parse Attributes //
+	//
+	QString name = parseToQString(element, "name", "Untitled", true); // optional
+	QString id = parseToQString(element, "id", "", false); // mandatory
+	QString type = parseToQString(element, "type", "unknown", false); // mandatory
+
+	RSystemElementJunctionGroup *junctionGroup = new RSystemElementJunctionGroup(name, id, type);
+
+	// 2.) Parse children //
+	//
+	QDomElement child;
+
+	// junction reference, min count: 1) //
+	child = element.firstChildElement("junctionReference");
+	while (!child.isNull())
+	{
+		QString junctionId = parseToQString(child, "junction", "", false); // mandatory
+		junctionGroup->addJunction(junctionId);
+
+		child = child.nextSiblingElement("junctionReference");
+	}
+
+	setTile(id, oldTileId);
+	roadSystem_->addJunctionGroup(junctionGroup);
+
+	if (id != junctionGroup->getID())
+	{
+		RoadSystem::IdType el = { junctionGroup->getID(), "junctionGroup" };
+		elementIDs_.insert(id, el);
+	}
+
+	return true;
 }
 
 //################//

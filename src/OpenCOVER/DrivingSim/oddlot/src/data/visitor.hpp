@@ -76,6 +76,8 @@ class PedFiddleyardSink;
 class JunctionConnection;
 class RSystemElementJunction;
 
+class RSystemElementJunctionGroup;
+
 class GeoReference;
 
 //OpenScenario //
@@ -140,6 +142,9 @@ public:
     virtual void visit(RSystemElementPedFiddleyard *)
     {
     }
+	virtual void visit(RSystemElementJunctionGroup *)
+	{
+	}
 
     // Roads //
     //

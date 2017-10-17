@@ -30,6 +30,7 @@
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/rsystemelementfiddleyard.hpp"
 #include "src/data/roadsystem/rsystemelementpedfiddleyard.hpp"
+#include "src/data/roadsystem/rsystemelementjunctiongroup.hpp"
 
 #include "src/data/roadsystem/roadlink.hpp"
 #include "src/data/roadsystem/junctionconnection.hpp"
@@ -1443,6 +1444,29 @@ DomWriter::visit(JunctionConnection *connection)
         ++i;
         element.appendChild(child);
     }
+}
+
+//################//
+// JUNCTIONGROUP       //
+//################//
+
+void
+DomWriter::visit(RSystemElementJunctionGroup *junctionGroup)
+{
+	// <junctionGroup> //
+	//
+	QDomElement currentJunctionGroupElement = doc_->createElement("junctionGroup");
+	currentJunctionGroupElement.setAttribute("name", junctionGroup->getName());
+	currentJunctionGroupElement.setAttribute("id", junctionGroup->getID());
+	currentJunctionGroupElement.setAttribute("type", junctionGroup->getType());
+
+	foreach(QString reference, junctionGroup->getJunctionReferences())
+	{
+		QDomElement junctionReference = doc_->createElement("junctionReference");
+		junctionReference.setAttribute("junction", reference);
+		currentJunctionGroupElement.appendChild(junctionReference);
+	}
+	root_.appendChild(currentJunctionGroupElement);
 }
 
 
