@@ -17,6 +17,8 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
+#include <cmath>
+
 
 TrackElementCubicCurve::TrackElementCubicCurve(double x, double y, double angleDegrees, double s, double length, Polynomial *polynomialU, Polynomial *polynomialV, const QString &pRange)
     : TrackElement(x, y, angleDegrees, s, length)
