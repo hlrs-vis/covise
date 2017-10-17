@@ -375,6 +375,7 @@ bool VolumePlugin::init()
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
+    showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
 
@@ -1101,7 +1102,8 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
 
     vd->printInfoLine("Loaded");
 
-    editor->show();
+    if (showTFE)
+        editor->show();
     // a volumefile will be loaded now , so show the TFE
 
     updateVolume(fileName, vd, false, fileName);
@@ -1211,7 +1213,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
         cerr << "@ APP @@ Color object type is " << colorObj->getType() << endl;
 #endif
 
-        bool showEditor = true;
+        bool showEditor = showTFE;
         if (colorObj)
         {
             const uchar *byteData = colorObj->getByte(Field::Byte);
