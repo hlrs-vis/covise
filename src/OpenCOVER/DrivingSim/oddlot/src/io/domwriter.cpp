@@ -1145,6 +1145,7 @@ DomWriter::visit(LaneSection *laneSection)
 {
     currentLaneSectionElement_ = doc_->createElement("laneSection");
     currentLaneSectionElement_.setAttribute("s", laneSection->getSStart());
+	currentLaneSectionElement_.setAttribute("singleSide", laneSection->getSide() ? "true" : "false");
     currentLanesElement_.appendChild(currentLaneSectionElement_);
     QDomElement NullNode;
     currentRightLaneElement_ = NullNode;

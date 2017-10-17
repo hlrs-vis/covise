@@ -262,6 +262,20 @@ DomParser::parsePrototypes(QIODevice *source)
         return false;
     }
 
+	QDomElement header = root.firstChildElement("header");
+	if (header.isNull())
+	{
+		opendriveVersion_ = 1.0;
+	}
+	else
+	{
+		if (!parseHeaderElement(header))
+		{
+			return false;
+		}
+	}
+
+
     // Prototypes //
     //
     QDomElement prototypesRoot;
@@ -752,9 +766,9 @@ DomParser::parseHeaderElement(QDomElement &element)
     int revMinor = parseToInt(element, "revMinor", 2, false); // mandatory
 
     QString name = parseToQString(element, "name", "Untitled", true); // optional
-    float version = parseToFloat(element, "version", 1.0f, true); // optional
+    opendriveVersion_ = parseToFloat(element, "version", 1.0f, true); // optional
 	
-	if ((version > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
+	if ((opendriveVersion_ > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
 	{
 		qDebug() << "Oddlot only supports OpenDrive versions up to 1.4";
 		return false;
@@ -771,7 +785,7 @@ DomParser::parseHeaderElement(QDomElement &element)
     projectData_->setRevMinor(revMinor);
 
     projectData_->setName(name);
-    projectData_->setVersion(version);
+    projectData_->setVersion(opendriveVersion_);
     projectData_->setDate(date);
 
     if (north > projectData_->getNorth())
@@ -1592,15 +1606,32 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         QString country = parseToQString(child, "country", "Germany", false); // mandatory
         int type = parseToInt(child, "type", 0, false); // mandatory
         
-        int subtype = parseToInt(child, "subtype", -1, true); // optional
-        double value = parseToDouble(child, "value", 0.0, true); // optional
-        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // optional
-        double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+        int subtype = parseToInt(child, "subtype", -1, false); // optional
+        double value = parseToDouble(child, "value", 0.0, false); // optional
+
 		QString unit = parseToQString(child, "unit", "km/h", true); //optional
-		QString text = parseToQString(child, "text", "", true);//optional
-		double width = parseToDouble(child, "width", 0.0, true);//optional
-		double height = parseToDouble(child, "height", 0.0, true);//optional
-        double roll = parseToDouble(child, "roll", 0.0, true); // optional
+        
+
+		double pitch, width, height, roll, hOffset;
+		QString text;
+		if (opendriveVersion_ > 1.3)
+		{
+			pitch = parseToDouble(child, "pitch", 0.0, false); // mandatory
+			text = parseToQString(child, "text", "", false);//mandatory
+			width = parseToDouble(child, "width", 0.0, false);//mandatory
+			height = parseToDouble(child, "height", 0.0, false);//mandatory
+			roll = parseToDouble(child, "roll", 0.0, false); // mandatory
+			hOffset = parseToDouble(child, "hOffset", 0.0, false); // mandatory
+		}
+		else
+		{
+			hOffset = parseToDouble(child, "hOffset", 0.0, true); // optional
+			pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+			text = parseToQString(child, "text", "", true);//optional
+			width = parseToDouble(child, "width", 0.0, true);//optional
+			height = parseToDouble(child, "height", 0.0, true);//optional
+			roll = parseToDouble(child, "roll", 0.0, true); // optional
+		}
 
         // Get validity record
 
@@ -1940,11 +1971,22 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
 bool
 DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemElementRoad *road)
 {
-    // <laneSection> (mandatory, max count: unlimited) //
-    //
-    double s = parseToDouble(laneSectionElement, "s", 0.0, false); // mandatory
+	// <laneSection> (mandatory, max count: unlimited) //
+	//
+	double s = parseToDouble(laneSectionElement, "s", 0.0, false); // mandatory
 
-    LaneSection *laneSection = new LaneSection(s);
+	QString side = "false";
+	if (opendriveVersion_ > 1.3)
+	{
+		side = parseToQString(laneSectionElement, "singleSide", "false", false);
+	}
+	LaneSection *laneSection = new LaneSection(s, false);
+
+	if (side == "true")
+	{
+		laneSection->setSide(true);
+	}
+
 
     // <laneSection><left/center/right> //
     //

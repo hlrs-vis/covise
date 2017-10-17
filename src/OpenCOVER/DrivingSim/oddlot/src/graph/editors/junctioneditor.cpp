@@ -803,7 +803,7 @@ JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
     }
     else
     {
-        newLaneSection = new LaneSection(0.0);
+        newLaneSection = new LaneSection(0.0, false);
         spiralPrototype->addLaneSection(newLaneSection);
     }
 
@@ -1781,7 +1781,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 }
                                 else
                                 {
-                                    newLaneSection = new LaneSection(0.0);
+                                    newLaneSection = new LaneSection(0.0, false);
                                     spiralPrototype->addLaneSection(newLaneSection);
                                 }
                                 Lane::LaneType lastType = startLanes.value(0)->getLaneType();

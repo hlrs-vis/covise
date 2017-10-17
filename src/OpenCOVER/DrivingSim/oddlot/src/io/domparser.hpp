@@ -157,6 +157,7 @@ protected:
 
 private:
     QDomDocument *doc_;
+	float opendriveVersion_;
 
     bool check(bool success, const QDomElement &element, const QString &attributeName, const QString &type);
     void setTile(const QString &id, QString &oldId);
