@@ -113,15 +113,17 @@ void coVRPluginList::unloadAllPlugins()
     bool wasThreading = VRViewer::instance()->areThreadsRunning();
     if (wasThreading)
         VRViewer::instance()->stopThreading();
-    while (!m_plugins.empty())
+    while (!m_loadedPlugins.empty())
     {
-        PluginMap::iterator it = m_plugins.begin();
-        if (cover->debugLevel(1))
-            cerr << " " << it->first;
-        m_unloadQueue.push_back(it->second->handle);
-        coVRPlugin *plug = it->second;
-        m_plugins.erase(it);
-        plug->destroy();
+        coVRPlugin *plug = m_loadedPlugins.back();
+        if (plug)
+        {
+            if (cover->debugLevel(1))
+                cerr << " " << plug->getName();
+            m_unloadQueue.push_back(plug->handle);
+            plug->destroy();
+        }
+        unmanage(plug);
         delete plug;
     }
     unloadQueued();
@@ -194,7 +196,7 @@ void coVRPluginList::loadDefault()
         {
             if (coVRPlugin *m = loadPlugin(plugins[i].c_str()))
             {
-                m_plugins[plugins[i]] = m; // if init OK, then add new plugin
+                manage(m); // if init OK, then add new plugin
             }
             else
             {
@@ -229,10 +231,7 @@ void coVRPluginList::unload(coVRPlugin *plugin)
     if (plugin->destroy())
     {
         m_unloadQueue.push_back(plugin->handle);
-        if (m_plugins.erase(plugin->getName()) == 0)
-        {
-            cerr << "Plugin to unload not found2: " << plugin->getName() << endl;
-        }
+        unmanage(plugin);
         delete plugin;
         updateState();
     }
@@ -248,6 +247,31 @@ void coVRPluginList::unloadQueued()
     }
     m_unloadNext = m_unloadQueue;
     m_unloadQueue.clear();
+}
+
+void coVRPluginList::manage(coVRPlugin *plugin)
+{
+    m_plugins[plugin->getName()] = plugin;
+    m_loadedPlugins.push_back(plugin);
+}
+
+void coVRPluginList::unmanage(coVRPlugin *plugin)
+{
+    auto it = m_plugins.find(plugin->getName());
+    if (it == m_plugins.end())
+    {
+        cerr << "Plugin to unload not found2: " << plugin->getName() << endl;
+    }
+    else
+    {
+        m_plugins.erase(it);
+    }
+
+    auto it2 = std::find(m_loadedPlugins.begin(), m_loadedPlugins.end(), plugin);
+    if (it2 != m_loadedPlugins.end())
+    {
+        m_loadedPlugins.erase(it2);
+    }
 }
 
 void coVRPluginList::notify(int level, const char *text) const
@@ -424,16 +448,17 @@ void coVRPluginList::init()
     {
         OpenCOVER::instance()->hud->setText3(it->first);
         OpenCOVER::instance()->hud->redraw();
+        auto plug = it->second;
+        ++it;
 
-        if (!it->second->m_initDone && !it->second->init())
+        if (!plug->m_initDone && !plug->init())
         {
-            cerr << "plugin " << it->second->getName() << " failed to initialise" << endl;
-            m_plugins.erase(it++);
+            cerr << "plugin " << plug->getName() << " failed to initialise" << endl;
+            unmanage(plug);
         }
         else
         {
-            it->second->m_initDone = true;
-            ++it;
+            plug->m_initDone = true;
         }
     }
     updateState();
@@ -466,13 +491,14 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name)
         m = loadPlugin(name);
         if (m && m->init())
         {
-            m_plugins[name] = m; // if init OK, then add new plugin
+            manage(m);
             m->m_initDone = true;
             m->init2();
         }
         else
         {
             cerr << "plugin " << name << " failed to initialise" << endl;
+            unmanage(m);
             delete m;
             m = NULL;
         }

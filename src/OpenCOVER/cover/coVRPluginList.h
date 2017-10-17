@@ -145,6 +145,10 @@ private:
     void init2();
     //! unload all plugins queued for unloading
     void unloadQueued();
+    //! add plugin to list of managed plugins
+    void manage(coVRPlugin *plug);
+    //! remove plugin from list of managed plugins
+    void unmanage(coVRPlugin *plug);
 
     //! try to load a plugin
     coVRPlugin *loadPlugin(const char *name);
@@ -161,6 +165,7 @@ private:
 
     typedef std::map<std::string, coVRPlugin *> PluginMap;
     PluginMap m_plugins;
+    std::vector<coVRPlugin *> m_loadedPlugins;
 
     typedef std::vector<CO_SHLIB_HANDLE> HandleList;
     HandleList m_unloadNext, m_unloadQueue;
