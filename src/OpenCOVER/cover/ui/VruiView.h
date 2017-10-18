@@ -20,6 +20,7 @@ namespace ui {
 struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
 {
    VruiViewElement(Element *elem);
+   ~VruiViewElement();
 
    std::string m_text;
    vrui::coMenuItem *m_menuItem = nullptr;

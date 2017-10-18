@@ -7,44 +7,37 @@
 #ifndef USERINTERFACEEXAMPLEPLUGIN_H
 #define USERINTERFACEEXAMPLEPLUGIN_H
 
-#include <boost/smart_ptr.hpp>
-#include <cover/mui/support/EventListener.h>
-
-namespace mui
+namespace opencover
 {
-class ToggleButton;
-class TabFolder;
-class Frame;
-class Tab;
-class ConfigManager;
-class ValueRegulator;
-class LabelElement;
+namespace ui
+{
+class Button;
+class Menu;
+class Group;
+class Slider;
+class Label;
+}
 }
 
-namespace opencover{
-class coTUITab;
-}
+#include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
+using namespace opencover;
 
-class UserInterface: public opencover::coVRPlugin, public mui::EventListener
+class UserInterface: public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
     UserInterface();
     ~UserInterface();
     bool init();
-    mui::ConfigManager *ConfigManager;
-    void muiEvent(mui::Element *muiItem);
 
 private:
-    boost::shared_ptr<mui::Tab> Tab1;
+    ui::Menu *Tab1 = nullptr;
 
-    boost::shared_ptr<mui::ToggleButton> Button1;
-    boost::shared_ptr<mui::ToggleButton> Button2;
-    boost::shared_ptr<mui::ValueRegulator> ValueRegulator1;
-    boost::shared_ptr<mui::Frame> Frame;
-    boost::shared_ptr<mui::LabelElement> Label;
-    boost::shared_ptr<mui::TabFolder> TabFolder1;
+    ui::Button *Button1 = nullptr, *Button2 = nullptr;
+    ui::Slider *ValueRegulator1 = nullptr;
+    ui::Group *Frame = nullptr;
+    ui::Label *Label = nullptr;
 
 };
-
 #endif

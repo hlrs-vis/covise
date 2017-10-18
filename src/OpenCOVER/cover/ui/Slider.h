@@ -23,6 +23,7 @@ class COVER_UI_EXPORT Slider: public Element {
 
    Slider(const std::string &name, Owner *owner);
    Slider(Group *parent, const std::string &name);
+   ~Slider();
 
    //! notify that slider is currently being manipulated
    void setMoving(bool flag);
@@ -56,6 +57,9 @@ class COVER_UI_EXPORT Slider: public Element {
     void triggerImplementation() const override;
 
     void update() const override;
+
+    void save(covise::TokenBuffer &buf) const override;
+    void load(covise::TokenBuffer &buf) override;
 
  private:
     bool m_integer = false;

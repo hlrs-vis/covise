@@ -14,6 +14,7 @@ class COVER_UI_EXPORT Label: public Element {
  public:
    Label(Group *parent, const std::string &name);
    Label(const std::string &name, Owner *owner);
+   ~Label();
 };
 
 }

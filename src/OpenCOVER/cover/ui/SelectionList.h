@@ -18,6 +18,7 @@ class COVER_UI_EXPORT SelectionList: public Element {
  public:
    SelectionList(Group *parent, const std::string &name);
    SelectionList(const std::string &name, Owner *owner);
+   ~SelectionList();
 
    void setList(const std::vector<std::string> items);
    const std::vector<std::string> &items() const;
@@ -35,6 +36,9 @@ class COVER_UI_EXPORT SelectionList: public Element {
 
     void setCallback(const std::function<void(int)> &f);
     void triggerImplementation() const override;
+
+    void save(covise::TokenBuffer &buf) const override;
+    void load(covise::TokenBuffer &buf) override;
 
  private:
     void shortcutTriggered() override;

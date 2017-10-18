@@ -58,6 +58,9 @@ Owner::~Owner()
         m_owner->removeItem(this);
     m_owner = nullptr;
 
+    if (m_manager)
+        m_manager->remove(this);
+
     clearItems();
 }
 

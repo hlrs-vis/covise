@@ -14,15 +14,19 @@ namespace opencover {
 namespace ui {
 
 //! store the data for the representation of a UI Element within a QtView
-struct QtViewElement: public View::ViewElement
+struct QtViewElement: public QObject, public View::ViewElement
 {
     //! create for @param elem which has a corresponding @param obj
     QtViewElement(Element *elem, QObject *obj);
+    ~QtViewElement();
+    void markForDeletion(QObject *obj);
 
     QObject *object = nullptr;
     QAction *action = nullptr;
     QLabel *label = nullptr;
     QActionGroup *group = nullptr;
+
+    std::vector<QObject *> toDelete;
 };
 
 //! concrete implementation of View for showing user interface \ref Element "elements" in a QMenuBar

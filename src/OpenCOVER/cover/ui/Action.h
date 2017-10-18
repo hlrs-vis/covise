@@ -16,6 +16,7 @@ class COVER_UI_EXPORT Action: public Element {
  public:
     Action(const std::string &name, Owner *owner);
     Action(Group *parent, const std::string &name);
+    ~Action();
 
     void setCallback(const std::function<void()> &f);
     std::function<void()> callback() const;

@@ -960,23 +960,19 @@ bool OpenCOVER::frame()
 
     cover->updateTime();
     
-    if (cover->ui->update())
-        render = true;
-
+    Input::instance()->update(); //update all hardware devices
+    // update window size and process events
+    VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
     {
         // handle e.g. mouse events
         render = true;
-        m_renderNext = true;
+        m_renderNext = true; // for possible delayed button release
     }
-    Input::instance()->update(); //update all hardware devices
 
     // wait for all cull and draw threads to complete.
     //
     coVRTui::instance()->update();
-
-    // update window size
-    VRWindow::instance()->update();
 
     if (coVRAnimationManager::instance()->update())
     {
@@ -1011,7 +1007,8 @@ bool OpenCOVER::frame()
     {
         render = true;
     }
-
+    if (cover->ui->update())
+        render = true;
 
     if (frameNum > 2)
     {
@@ -1022,6 +1019,8 @@ bool OpenCOVER::frame()
     {
         render = true;
     }
+
+    cover->ui->sync();
     
     if (!render)
     {
@@ -1137,7 +1136,7 @@ OpenCOVER::~OpenCOVER()
     }
     if (m_visPlugin)
     {
-        coVRPluginList::instance()->unload(m_visPlugin);
+        //coVRPluginList::instance()->unload(m_visPlugin);
         m_visPlugin = NULL;
     }
     coVRFileManager::instance()->unloadFile();
@@ -1154,12 +1153,12 @@ OpenCOVER::~OpenCOVER()
 
     cover->intersectedNode = NULL;
     delete VRPinboard::instance();
-    delete VRVruiRenderInterface::theInterface;
     delete VRSceneGraph::instance();
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
     delete VRWindow::instance();
+    delete VRVruiRenderInterface::theInterface;
 
     delete coVRConfig::instance();
 
@@ -1194,8 +1193,10 @@ void OpenCOVER::setExitFlag(bool flag)
             // do not quit, if we are connected to a vr Broker
             // but close connection to Covise
             //CoviseRender::appmod->getConnectionList()->remove(vrbc->getConnection());
+#if 0
             if (m_visPlugin)
                 coVRPluginList::instance()->unload(m_visPlugin);
+#endif
             m_visPlugin = NULL;
             exitFlag = false;
         }

@@ -3,6 +3,8 @@
 #include "Manager.h"
 #include <cmath>
 
+#include <net/tokenbuffer.h>
+
 namespace opencover {
 namespace ui {
 
@@ -14,6 +16,11 @@ Slider::Slider(const std::string &name, Owner *owner)
 Slider::Slider(Group *parent, const std::string &name)
 : Element(parent, name)
 {
+}
+
+Slider::~Slider()
+{
+    manager()->remove(this);
 }
 
 void Slider::setMoving(bool flag)
@@ -60,6 +67,24 @@ void Slider::update() const
     manager()->updateValue(this);
 }
 
+void Slider::save(covise::TokenBuffer &buf) const
+{
+    Element::save(buf);
+    buf << m_min;
+    buf << m_max;
+    buf << m_value;
+    buf << m_moving;
+}
+
+void Slider::load(covise::TokenBuffer &buf)
+{
+    Element::load(buf);
+    buf >> m_min;
+    buf >> m_max;
+    buf >> m_value;
+    buf >> m_moving;
+}
+
 Slider::ValueType Slider::value() const
 {
     return m_value;
@@ -72,7 +97,7 @@ void Slider::setValue(Slider::ValueType val)
     {
         m_value = std::round(m_value);
     }
-    manager()->updateValue(this);
+    manager()->queueUpdate(this);
 }
 
 Slider::ValueType Slider::min() const
@@ -105,7 +130,7 @@ void Slider::setBounds(Slider::ValueType min, Slider::ValueType max)
         m_min = std::floor(m_min);
         m_max = std::ceil(m_max);
     }
-    manager()->updateBounds(this);
+    manager()->queueUpdate(this);
 }
 
 }

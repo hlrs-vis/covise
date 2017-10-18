@@ -50,7 +50,8 @@ coUIElement::~coUIElement()
 
     delete uiElementProvider;
 
-    vruiRendererInterface::the()->deleteMatrix(transformMatrix);
+    if (vruiRendererInterface::the())
+        vruiRendererInterface::the()->deleteMatrix(transformMatrix);
 }
 
 /** Set the current userdata object.
@@ -197,7 +198,8 @@ void coUIElement::setVisible(bool newState)
         }
         else
         {
-            vruiRendererInterface::the()->getMenuGroup()->addChild(getDCS());
+            if (vruiRendererInterface::the())
+                vruiRendererInterface::the()->getMenuGroup()->addChild(getDCS());
         }
     }
     else
@@ -276,7 +278,7 @@ bool coUIElement::isOfClassName(const char *classname) const
 void coUIElement::createGeometry()
 {
 
-    if (!uiElementProvider)
+    if (!uiElementProvider && vruiRendererInterface::the())
     {
         //VRUILOG("coUIElement::createGeometry info creating uiElementProvider for " << getClassName())
         uiElementProvider = vruiRendererInterface::the()->createUIElementProvider(this);
@@ -300,7 +302,12 @@ const vruiMatrix *coUIElement::getTransformMatrix()
     createGeometry();
 
     if (!transformMatrix)
+    {
+        if (!vruiRendererInterface::the())
+            return NULL;
+
         transformMatrix = vruiRendererInterface::the()->createMatrix();
+    }
 
     transformMatrix->makeIdentity();
     getDCS()->convertToWorld(transformMatrix);

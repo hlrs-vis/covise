@@ -14,6 +14,7 @@ class Manager;
 //! Manage the life time of objects: in its destructor it destroys all objects that it owns
 class COVER_UI_EXPORT Owner {
    friend class Manager;
+   friend class View;
  public:
    //! construct, owned by owner (deleted with owner)
    Owner(const std::string &name, Owner *owner);
@@ -29,8 +30,10 @@ class COVER_UI_EXPORT Owner {
    //! return manager responsible for this item
    Manager *manager() const;
 
- private:
+ protected:
    void clearItems();
+
+ private:
    bool addItem(Owner *item);
    bool removeItem(Owner *item);
 

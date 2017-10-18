@@ -67,6 +67,9 @@ class COVER_UI_EXPORT View {
     //! reflect change of slider range in graphical representation
     virtual void updateBounds(const Slider *slider) = 0;
 
+    //! remove elem from View and delete associated data
+    bool removeElement(Element *elem);
+
     //! find corresponding ViewElement by element path
     ViewElement *viewElement(const std::string &path) const;
     //! find corresponding ViewElement by pointer to abstract element
@@ -93,7 +96,6 @@ class COVER_UI_EXPORT View {
  private:
     const std::string m_name;
     std::map<const Element *, ViewElement *> m_viewElements;
-    std::map<std::string, ViewElement *> m_viewElementsByPath;
     Manager *m_manager = nullptr;
 };
 

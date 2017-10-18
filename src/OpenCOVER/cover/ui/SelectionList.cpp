@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cassert>
 
+#include <net/tokenbuffer.h>
+
 namespace opencover {
 namespace ui {
 
@@ -28,6 +30,29 @@ void SelectionList::triggerImplementation() const
         m_callback(selectedIndex());
 }
 
+void SelectionList::save(covise::TokenBuffer &buf) const
+{
+    Element::save(buf);
+    int sz = m_selection.size();
+    buf << sz;
+    for (size_t i=0; i<m_selection.size(); ++i)
+        buf << m_selection[i];
+}
+
+void SelectionList::load(covise::TokenBuffer &buf)
+{
+    Element::load(buf);
+    int sz = 0;
+    buf >> sz;
+    assert(sz == m_selection.size());
+    for (size_t i=0; i<m_selection.size(); ++i)
+    {
+        bool s = false;
+        buf >> s;
+        m_selection[i] = s;
+    }
+}
+
 void SelectionList::shortcutTriggered()
 {
     int idx = selectedIndex();
@@ -43,6 +68,11 @@ void SelectionList::shortcutTriggered()
 SelectionList::SelectionList(const std::string &name, Owner *owner)
 : Element(name, owner)
 {
+}
+
+SelectionList::~SelectionList()
+{
+    manager()->remove(this);
 }
 
 void SelectionList::setList(const std::vector<std::string> items)
@@ -68,7 +98,7 @@ void SelectionList::setSelection(const std::vector<bool> selection)
 {
     assert(m_selection.size() == m_items.size());
     m_selection = selection;
-    manager()->updateChildren(this);
+    manager()->queueUpdate(this);
 }
 
 const std::vector<bool> &SelectionList::selection() const
@@ -80,7 +110,7 @@ void SelectionList::select(int index)
 {
     for (size_t i=0; i<m_items.size(); ++i)
         m_selection[i] = i==index;
-    manager()->updateChildren(this);
+    manager()->queueUpdate(this);
 }
 
 int SelectionList::selectedIndex() const

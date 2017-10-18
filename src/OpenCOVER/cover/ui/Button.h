@@ -15,12 +15,14 @@ class ButtonGroup;
 
 /** \note QToggleButton */
 class COVER_UI_EXPORT Button: public Element {
+   friend class ButtonGroup;
  public:
    Button(const std::string &name, Owner *owner, ButtonGroup *bg=nullptr, int id=0);
    Button(Group *parent, const std::string &name, ButtonGroup *bg=nullptr, int id=0);
+   ~Button();
    //Button(ButtonGroup *parent, const std::string &name, int id=0);
 
-   int id() const;
+   int buttonId() const;
    ButtonGroup *group() const;
    void setGroup(ButtonGroup *rg, int id=0);
 
@@ -35,10 +37,12 @@ class COVER_UI_EXPORT Button: public Element {
     void shortcutTriggered() override;
 
     void update() const override;
+    void save(covise::TokenBuffer &buf) const override;
+    void load(covise::TokenBuffer &buf) override;
 
  private:
     ButtonGroup *m_radioGroup = nullptr;
-    int m_id = 0;
+    int m_buttonId = 0;
     bool m_state = false;
     std::function<void(bool)> m_callback;
 };

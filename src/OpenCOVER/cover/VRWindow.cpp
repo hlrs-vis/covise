@@ -119,7 +119,10 @@ void
 VRWindow::update()
 {
     if (qApp)
+    {
+        qApp->sendPostedEvents();
         qApp->processEvents();
+    }
 
     if (coVRConfig::instance()->numWindows() <= 0 || coVRConfig::instance()->numScreens() <= 0)
         return;
@@ -192,15 +195,12 @@ VRWindow::update()
 void
 VRWindow::updateContents()
 {
-    if (qApp)
+    for (int i=0; i<coVRConfig::instance()->numWindows(); ++i)
     {
-        for (int i=0; i<coVRConfig::instance()->numWindows(); ++i)
+        auto win = dynamic_cast<QtGraphicsWindow *>(coVRConfig::instance()->windows[i].window.get());
+        if (win && win->widget())
         {
-            auto win = dynamic_cast<QtGraphicsWindow *>(coVRConfig::instance()->windows[i].window.get());
-            if (win && win->widget())
-            {
-                win->widget()->update();
-            }
+            win->widget()->update();
         }
        //qApp->processEvents();
     }
@@ -247,7 +247,7 @@ VRWindow::createWin(int i)
 #ifdef __APPLE__
         //auto menubar = new QMenuBar(nullptr);
         auto menubar = win->menuBar();
-        menubar->setNativeMenuBar(false);
+        //menubar->setNativeMenuBar(false);
 #else
         auto menubar = win->menuBar();
 #endif

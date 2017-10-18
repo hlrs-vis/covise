@@ -6,6 +6,10 @@
 #include "Owner.h"
 #include "ShortcutListener.h"
 
+namespace covise {
+class TokenBuffer;
+}
+
 namespace opencover {
 namespace ui {
 
@@ -52,6 +56,9 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     Element(Group *group, const std::string &name);
     virtual ~Element();
 
+    //! unique element id
+    int elementId() const;
+
     //! item this Element is a child of
     Group *parent() const;
 
@@ -75,14 +82,21 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
 
     //! trigger user callback attached to this item
     void trigger() const;
+
  protected:
     //! reimplement in derived class for calling user callback
     virtual void triggerImplementation() const;
+    //! reimplement in derived class for serialization, also call base class
+    virtual void save(covise::TokenBuffer &buf) const;
+    //! reimplement in derived class for deserialization, also call base class
+    virtual void load(covise::TokenBuffer &buf);
     Group *m_parent = nullptr;
     std::set<Container *> m_containers;
     std::string m_label;
     bool m_visible = true;
     bool m_enabled = true;
+ private:
+    int m_id = -1; // initialized by Manager
 };
 
 }

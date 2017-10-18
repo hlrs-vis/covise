@@ -275,6 +275,7 @@ private:
 
     void updateTFEData();
     bool computeHistogram;
+    bool showTFE; ///< initially show TFE
     bool lighting;
     bool preIntegration;
 };
