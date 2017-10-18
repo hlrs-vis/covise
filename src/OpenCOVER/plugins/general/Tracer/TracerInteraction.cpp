@@ -307,7 +307,7 @@ TracerInteraction::createMenuContents()
 
     _numStartPointsPoti = new ui::Slider(menu_, "NumStartPoints");
     _numStartPointsPoti->setPresentation(ui::Slider::AsDial);
-    _numStartPointsPoti->setInteger(true);
+    _numStartPointsPoti->setIntegral(true);
     _numStartPointsPoti->setCallback([this](double value, bool released){
         _numStartPoints = (int)value;
         inter_->setSliderParam(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);

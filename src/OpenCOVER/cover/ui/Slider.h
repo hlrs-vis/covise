@@ -21,6 +21,12 @@ class COVER_UI_EXPORT Slider: public Element {
        AsDial
    };
 
+   enum Scale
+   {
+       Linear,
+       Logarithmic
+   };
+
    Slider(const std::string &name, Owner *owner);
    Slider(Group *parent, const std::string &name);
    ~Slider();
@@ -34,21 +40,33 @@ class COVER_UI_EXPORT Slider: public Element {
    ValueType value() const;
    //! set slider value
    void setValue(ValueType val);
+   //! set linearized slider value
+   void setLinValue(ValueType val);
    //! set minimum and maximum of slider sange
    void setBounds(ValueType min, ValueType max);
    //! lower slider bound
    ValueType min() const;
    //! upper slider bound
    ValueType max() const;
+   //! linearized lower slider bound
+   ValueType linMin() const;
+   //! linearized upper slider bound
+   ValueType linMax() const;
+   //! linearized slider value
+   ValueType linValue() const;
 
    //! switch slider to representang just integral values
-   void setInteger(bool flag);
+   void setIntegral(bool flag);
    //! whether slider is restricted to integral values
-   bool integer() const;
+   bool integral() const;
    //! desired representation of slider (e.g. as a dial or as a slider)
    Presentation presentation() const;
    //! set desired representation of slider
    void setPresentation(Presentation pres);
+   //! set desired scale (e.g. linear or logarithmic) of slider
+   void setScale(Scale scale);
+   //! retrieve scale of slider (e.g. linear or logarithmic)
+   Scale scale() const;
 
    //! set function to be called whenever slider is manipulated, bool parameter is true if slider manipulation stops
     void setCallback(const std::function<void(ValueType, bool)> &f);
@@ -62,8 +80,9 @@ class COVER_UI_EXPORT Slider: public Element {
     void load(covise::TokenBuffer &buf) override;
 
  private:
-    bool m_integer = false;
+    bool m_integral = false;
     Presentation m_presentation = AsSlider;
+    Scale m_scale = Linear;
     bool m_moving = false;
     ValueType m_value = ValueType(0);
     ValueType m_min = std::numeric_limits<ValueType>::lowest();

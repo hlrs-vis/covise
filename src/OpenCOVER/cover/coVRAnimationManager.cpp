@@ -127,7 +127,7 @@ void coVRAnimationManager::initAnimMenu()
         requestAnimationFrame(getAnimationFrame() - 1);
     });
     animFrameItem = new ui::Slider(animRowMenu, "Timestep");
-    animFrameItem->setInteger(true);
+    animFrameItem->setIntegral(true);
     animFrameItem->setBounds(timestepBase, timestepBase);
     animFrameItem->setValue(timestepBase);
     animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
@@ -599,7 +599,7 @@ void coVRAnimationManager::setTimestepBase(double base)
     timestepBase = base;
     bool integer = (timestepBase == static_cast<int>(timestepBase))
                    && (timestepScale == static_cast<int>(timestepScale));
-    animFrameItem->setInteger(integer);
+    animFrameItem->setIntegral(integer);
     animFrameItem->setBounds(timestepBase, timestepBase + (getNumTimesteps() - 1) * timestepScale);
 }
 
@@ -608,7 +608,7 @@ void coVRAnimationManager::setTimestepScale(double scale)
     timestepScale = scale;
     bool integer = (timestepBase == static_cast<int>(timestepBase))
                    && (timestepScale == static_cast<int>(timestepScale));
-    animFrameItem->setInteger(integer);
+    animFrameItem->setIntegral(integer);
     animFrameItem->setBounds(1, timestepBase + (getNumTimesteps() - 1) * timestepScale);
 }
 

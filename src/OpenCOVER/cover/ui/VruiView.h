@@ -52,7 +52,8 @@ class VruiView: public View
    void updateParent(const Element *elem) override;
    void updateState(const Button *) override;
    void updateChildren(const SelectionList *sl) override;
-   void updateInteger(const Slider *slider) override;
+   void updateIntegral(const Slider *slider) override;
+   void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
 

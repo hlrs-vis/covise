@@ -282,19 +282,25 @@ void VruiView::updateChildren(const SelectionList *sl)
         ve->m_menuItem->setName(t);
 }
 
-void VruiView::updateInteger(const Slider *slider)
+void VruiView::updateIntegral(const Slider *slider)
 {
     auto ve = vruiElement(slider);
     if (!ve)
         return;
     if (auto vp = dynamic_cast<coPotiMenuItem *>(ve->m_menuItem))
     {
-        vp->setInteger(slider->integer());
+        vp->setInteger(slider->integral());
     }
     else if (auto vs = dynamic_cast<coSliderMenuItem *>(ve->m_menuItem))
     {
-        vs->setInteger(slider->integer());
+        vs->setInteger(slider->integral());
     }
+}
+
+void VruiView::updateScale(const Slider *slider)
+{
+    updateBounds(slider);
+    updateValue(slider);
 }
 
 void VruiView::updateValue(const Slider *slider)

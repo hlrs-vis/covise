@@ -44,9 +44,11 @@ class COVER_UI_EXPORT Manager: public Owner {
    void updateState(const Button *button) const;
    //! update list of child elements on all views
    void updateChildren(const SelectionList *sl) const;
+   //! update whether slider is logarithmic on all views
+   void updateScale(const Slider *slider) const;
    //! update whether slider is integral on all views
-   void updateInteger(const Slider *slider) const;
-   //! update slidre value on all attached views
+   void updateIntegral(const Slider *slider) const;
+   //! update slider value on all attached views
    void updateValue(const Slider *slider) const;
    //! update allowed value range for slider on all attached views
    void updateBounds(const Slider *slider) const;

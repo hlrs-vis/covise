@@ -212,11 +212,19 @@ void Manager::updateChildren(const SelectionList *sl) const
     }
 }
 
-void Manager::updateInteger(const Slider *slider) const
+void Manager::updateScale(const Slider *slider) const
 {
     for (auto v: m_views)
     {
-        v.second->updateInteger(slider);
+        v.second->updateScale(slider);
+    }
+}
+
+void Manager::updateIntegral(const Slider *slider) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateIntegral(slider);
     }
 }
 

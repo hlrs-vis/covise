@@ -267,7 +267,7 @@ PickSpherePlugin::createSubmenu()
     startSlider = new ui::Slider(pickSphereSubmenu, "Start");
     startSlider->setBounds(0.0, 0.0);
     startSlider->setValue(0.0);
-    startSlider->setInteger(true);
+    startSlider->setIntegral(true);
     startSlider->setCallback([this](double value, bool released){
         if (inter)
             inter->setSliderParam(startParamName, (int)startSlider->min(), (int)stopSlider->max(), (int)startSlider->value());
@@ -278,7 +278,7 @@ PickSpherePlugin::createSubmenu()
     stopSlider = new ui::Slider(pickSphereSubmenu, "Stop");
     stopSlider->setBounds(0.0, 0.0);
     stopSlider->setValue(0.0);
-    stopSlider->setInteger(true);
+    stopSlider->setIntegral(true);
     stopSlider->setCallback([this](double value, bool released){
         if (inter)
             inter->setSliderParam(stopParamName, (int)stopSlider->min(), (int)stopSlider->max(), (int)stopSlider->value());
@@ -289,7 +289,7 @@ PickSpherePlugin::createSubmenu()
     x_dimSlider = new ui::Slider(pickSphereSubmenu, "x_dimGrid");
     x_dimSlider->setBounds(0.0, 0.0);
     x_dimSlider->setValue(0.0);
-    x_dimSlider->setInteger(true);
+    x_dimSlider->setIntegral(true);
     x_dimSlider->setCallback([this](double value, bool released){
         if (inter)
             inter->setSliderParam(x_dimParamName, (int)x_dimSlider->min(), (int)x_dimSlider->max(), (int)x_dimSlider->value());
@@ -298,7 +298,7 @@ PickSpherePlugin::createSubmenu()
     y_dimSlider = new ui::Slider(pickSphereSubmenu, "y_dimGrid");
     y_dimSlider->setBounds(0.0, 0.0);
     y_dimSlider->setValue(0.0);
-    y_dimSlider->setInteger(true);
+    y_dimSlider->setIntegral(true);
     y_dimSlider->setCallback([this](double value, bool released){
         if (inter)
             inter->setSliderParam(y_dimParamName, (int)y_dimSlider->min(), (int)y_dimSlider->max(), (int)y_dimSlider->value());
@@ -307,7 +307,7 @@ PickSpherePlugin::createSubmenu()
     y_dimSlider = new ui::Slider(pickSphereSubmenu, "z_dimGrid");
     y_dimSlider->setBounds(0.0, 0.0);
     y_dimSlider->setValue(0.0);
-    y_dimSlider->setInteger(true);
+    y_dimSlider->setIntegral(true);
     z_dimSlider->setCallback([this](double value, bool released){
         if (inter)
             inter->setSliderParam(z_dimParamName, (int)z_dimSlider->min(), (int)z_dimSlider->max(), (int)z_dimSlider->value());
