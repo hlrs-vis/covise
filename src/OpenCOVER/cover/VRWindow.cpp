@@ -27,12 +27,8 @@
  *									*
  ************************************************************************/
 
-#include "ui/QtView.h"
 #include "ui/Menu.h"
 #include "ui/Action.h"
-#include "qt/QtOsgWidget.h"
-#include <QMainWindow>
-#include <QMenuBar>
 
 #include <util/common.h>
 #include "VRWindow.h"
@@ -43,6 +39,7 @@
 #include "OpenCOVER.h"
 
 #include "coVRPluginSupport.h"
+#include "coVRPluginList.h"
 #include <osgViewer/GraphicsWindow>
 #if defined(WIN32)
 #include <osgViewer/api/Win32/GraphicsWindowWin32>
@@ -52,10 +49,6 @@
 #include <osgViewer/api/X11/GraphicsWindowX11>
 #endif
 
-#include <QApplication>
-#include <QOpenGLWidget>
-
-using namespace vrui;
 using namespace opencover;
 
 VRWindow *VRWindow::s_instance = NULL;
@@ -87,6 +80,7 @@ VRWindow::~VRWindow()
     {
         fprintf(stderr, "\ndelete VRWindow\n");
     }
+    destroy();
     delete[] origVSize;
     delete[] origHSize;
 
@@ -115,13 +109,24 @@ VRWindow::config()
     return true;
 }
 
+void VRWindow::destroy()
+{
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<conf.numWindows(); ++i)
+    {
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowDestroy(i);
+    }
+}
+
 void
 VRWindow::update()
 {
-    if (qApp)
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<conf.numWindows(); ++i)
     {
-        qApp->sendPostedEvents();
-        qApp->processEvents();
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowCheckEvents(i);
     }
 
     if (coVRConfig::instance()->numWindows() <= 0 || coVRConfig::instance()->numScreens() <= 0)
@@ -195,14 +200,11 @@ VRWindow::update()
 void
 VRWindow::updateContents()
 {
+    auto &conf = *coVRConfig::instance();
     for (int i=0; i<coVRConfig::instance()->numWindows(); ++i)
     {
-        auto win = dynamic_cast<QtGraphicsWindow *>(coVRConfig::instance()->windows[i].window.get());
-        if (win && win->widget())
-        {
-            win->widget()->update();
-        }
-       //qApp->processEvents();
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowUpdateContents(i);
     }
 }
 
@@ -236,44 +238,33 @@ VRWindow::createWin(int i)
             std::cerr << "creating window " << i << " with GL context version " << coVRConfig::instance()->glVersion << ", OpenGL3=" << opengl3 << std::endl;
         }
     }
-    if (conf.windows[i].qt)
-    {
-        if (!qApp)
-        {
-            new QApplication(coCommandLine::argc(), coCommandLine::argv());
-        }
 
-        QMainWindow *win = new QMainWindow();
-#ifdef __APPLE__
-        //auto menubar = new QMenuBar(nullptr);
-        auto menubar = win->menuBar();
-        //menubar->setNativeMenuBar(false);
-#else
-        auto menubar = win->menuBar();
-#endif
-        win->show();
-        menubar->show();
-        cover->ui->addView(new ui::QtView(menubar));
-        QSurfaceFormat format;
-        format.setVersion(2, 1);
-        format.setProfile(QSurfaceFormat::CompatibilityProfile);
-        //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-        //format.setOption(QSurfaceFormat::DebugContext);
-        //format.setRedBufferSize(8);
-        format.setAlphaBufferSize(8);
-        format.setDepthBufferSize(24);
-        format.setRenderableType(QSurfaceFormat::OpenGL);
-        if (conf.m_stencil)
-            format.setStencilBufferSize(conf.m_stencilBits);
-        format.setStereo(conf.windows[i].stereo);
-        QSurfaceFormat::setDefaultFormat(format);
-        auto qtwin = new QtOsgWidget(win);
-        win->setCentralWidget(qtwin);
-        qtwin->show();
-        coVRConfig::instance()->windows[i].context = qtwin->graphicsWindow();
-        //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
+    if (!conf.windows[i].type.empty())
+    {
+        std::string pluginName = conf.windows[i].type;
+        pluginName[0] = std::toupper(pluginName[0]);
+        pluginName = "WindowType"+pluginName;
+        auto windowPlug = coVRPluginList::instance()->addPlugin(pluginName.c_str());
+        if (windowPlug)
+        {
+            if (windowPlug->windowCreate(i))
+            {
+                conf.windows[i].windowPlugin = windowPlug;
+            }
+            else
+            {
+                std::cerr << "VRWindow: plugin failed to create window " << i << " of type " << conf.windows[i].type << std::endl;
+                conf.windows[i].type.clear();
+            }
+        }
+        else
+        {
+            std::cerr << "VRWindow: no plugin for window " << i << " of type " << conf.windows[i].type << std::endl;
+            conf.windows[i].type.clear();
+        }
     }
-    else
+
+    if (conf.windows[i].type.empty())
     {
         osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
         traits->x = coVRConfig::instance()->windows[i].ox;
@@ -368,10 +359,7 @@ VRWindow::createWin(int i)
             }
         }
         //traits->alpha = 8;
-        if (coVRConfig::instance()->m_stencil == true)
-        {
-            traits->stencil = coVRConfig::instance()->numStencilBits();
-        }
+        traits->stencil = coVRConfig::instance()->numStencilBits();
         traits->doubleBuffer = true;
         traits->quadBufferStereo = coVRConfig::instance()->windows[i].stereo;
 

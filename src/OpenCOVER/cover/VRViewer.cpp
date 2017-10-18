@@ -1072,12 +1072,12 @@ VRViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
-    bool RenderToTexture = false, RenderToWindow = true;
+    bool RenderToTexture = false, RenderToOsgWindow = true;
     osg::ref_ptr<osg::GraphicsContext> gc = NULL;
     int pboNum = coVRConfig::instance()->channels[i].PBONum;
     if(vp >= 0)
     {
-        std::cerr << "chan " << i << ": have viewport" << std::endl;
+        //std::cerr << "chan " << i << ": have viewport" << std::endl;
         const int win = coVRConfig::instance()->viewports[vp].window;
         if (win < 0 || win >= coVRConfig::instance()->numWindows())
         {
@@ -1087,10 +1087,10 @@ VRViewer::createChannels(int i)
         }
         gc = coVRConfig::instance()->windows[win].context;
         pboNum = -1;
-        if (coVRConfig::instance()->windows[win].qt)
+        if (!coVRConfig::instance()->windows[win].type.empty())
         {
-            std::cerr << "chan " << i << ": no window" << std::endl;
-            RenderToWindow = false;
+            //std::cerr << "chan " << i << ": no window" << std::endl;
+            RenderToOsgWindow = false;
         }
     }
     else
@@ -1205,7 +1205,7 @@ VRViewer::createChannels(int i)
         auto &cam = coVRConfig::instance()->channels[i].camera;
         cam->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
         cam->setClearStencil(0);
-        if (RenderToWindow)
+        if (RenderToOsgWindow)
         {
             GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
             cam->setDrawBuffer(buffer);

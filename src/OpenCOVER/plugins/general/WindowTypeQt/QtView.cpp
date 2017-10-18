@@ -1,12 +1,12 @@
 #include "QtView.h"
 
-#include "Menu.h"
-#include "ButtonGroup.h"
-#include "Label.h"
-#include "Action.h"
-#include "Button.h"
-#include "Slider.h"
-#include "SelectionList.h"
+#include <cover/ui/Menu.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/SelectionList.h>
 
 #include <QMenuBar>
 #include <QAction>
@@ -546,3 +546,5 @@ void QtViewElement::markForDeletion(QObject *obj)
 
 }
 }
+
+#include "moc_QtView.cpp"

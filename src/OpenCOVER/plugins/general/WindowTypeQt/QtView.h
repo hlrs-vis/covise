@@ -1,7 +1,7 @@
 #ifndef UI_QT_VIEW_H
 #define UI_QT_VIEW_H
 
-#include "View.h"
+#include <cover/ui/View.h>
 
 #include <QObject>
 

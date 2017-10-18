@@ -1140,7 +1140,6 @@ OpenCOVER::~OpenCOVER()
         m_visPlugin = NULL;
     }
     coVRFileManager::instance()->unloadFile();
-    coVRPluginList::instance()->unloadAllPlugins();
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
     delete coVRPluginList::instance();
@@ -1157,6 +1156,8 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
+    VRWindow::instance()->destroy();
+    coVRPluginList::instance()->unloadAllPlugins();
     delete VRWindow::instance();
     delete VRVruiRenderInterface::theInterface;
 

@@ -409,3 +409,5 @@ osgGA::EventQueue* QtOsgWidget::getEventQueue() const
 {
     return m_graphicsWindow->getEventQueue();
 }
+
+#include "moc_QtOsgWidget.cpp"

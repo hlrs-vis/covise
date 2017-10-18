@@ -45,6 +45,8 @@ class GraphicsWindow;
 namespace opencover
 {
 
+class coVRPlugin;
+
 //! describes a physical screen, such as one wall of a CAVE
 struct screenStruct
 {
@@ -143,11 +145,12 @@ struct windowStruct
     bool decoration;
     bool resize;
     bool stereo;
-    bool qt;
     bool embedded;
     bool pbuffer;
     int swapGroup;
     int swapBarrier;
+    std::string type;
+    coVRPlugin *windowPlugin;
 
     windowStruct()
     : ox(-1)
@@ -161,11 +164,11 @@ struct windowStruct
     , decoration(true)
     , resize(true)
     , stereo(false)
-    , qt(false)
     , embedded(false)
     , pbuffer(false)
     , swapGroup(-1)
     , swapBarrier(-1)
+    , windowPlugin(NULL)
     {}
 };
 

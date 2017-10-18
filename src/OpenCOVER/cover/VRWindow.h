@@ -50,6 +50,7 @@ public:
     ~VRWindow();
 
     bool config();
+    void destroy();
 
     void lockPipes();
     void update();
