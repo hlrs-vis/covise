@@ -99,6 +99,11 @@ RSystemElementRoad::~RSystemElementRoad()
 
     foreach (Crosswalk *child, crosswalks_)
         delete child;
+
+	foreach(ShapeSection *child, shapeSections_)
+	{
+		delete child;
+	}
 }
 
 /*! \brief Set the Id of the junction. If the Id is "-1" the road is not a path of any junction.

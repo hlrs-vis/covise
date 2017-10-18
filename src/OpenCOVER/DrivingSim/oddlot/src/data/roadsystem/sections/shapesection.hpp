@@ -39,9 +39,7 @@ public:
 
 public:
     explicit ShapeSection(double s);
-    virtual ~ShapeSection()
-    { /* does nothing */
-    }
+	virtual ~ShapeSection();
 
     // ShapeSection //
     //

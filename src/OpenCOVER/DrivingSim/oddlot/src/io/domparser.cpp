@@ -64,6 +64,7 @@
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/laneheight.hpp"
+#include "src/data/roadsystem/sections/lanerule.hpp"
 
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
@@ -2192,6 +2193,27 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 		qDebug() << "lane speed:" << max << "Unit:" << unit;
 
 		child = child.nextSiblingElement("speed");
+	}
+
+	// <lane><rule> //
+	//
+	child = laneElement.firstChildElement("rule");
+	if (child.isNull())
+	{
+		//default
+		//TODO, OPTIONAL
+		// it is optional	qDebug() << "NOT OPTIONAL: <rule>" << laneElement.lineNumber();
+	}
+	while (!child.isNull())
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		QString value = parseToQString(child, "value", LaneRule::KNOWNVALUES.at(0), false); // mandatory
+
+		LaneRule *ruleEntry = new LaneRule(sOffset, value);
+
+		lane->addLaneRuleEntry(ruleEntry);
+
+		child = child.nextSiblingElement("rule");
 	}
 
     // Add Lane To LaneSection //

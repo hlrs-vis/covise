@@ -27,6 +27,14 @@ ShapeSection::ShapeSection(double s)
 {
 }
 
+ShapeSection::~ShapeSection()
+{
+	foreach(Polynomial *poly, shapes_)
+	{
+		delete poly;
+	}
+}
+
 
 void
 ShapeSection::addShape(double t, Polynomial *poly)

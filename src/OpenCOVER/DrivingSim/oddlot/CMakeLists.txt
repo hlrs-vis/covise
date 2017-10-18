@@ -360,6 +360,7 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/sections/shapesection.cpp
 	src/data/roadsystem/rsystemelementjunctiongroup.cpp
 	src/data/roadsystem/sections/laneborder.cpp
+	src/data/roadsystem/sections/lanerule.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp

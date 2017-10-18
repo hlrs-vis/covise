@@ -21,6 +21,7 @@
 #include "laneroadmark.hpp"
 #include "lanespeed.hpp"
 #include "laneheight.hpp"
+#include "lanerule.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -136,6 +137,9 @@ Lane::~Lane()
 
     foreach (LaneSpeed *child, speeds_)
         delete child;
+
+	foreach(LaneRule *child, rules_)
+		delete child;
 }
 
 void
@@ -372,6 +376,60 @@ Lane::getRoadMarkEnd(double sSection) const
     {
         return (*nextIt)->getSSectionStart();
     }
+}
+
+//####################//
+// LaneRule Functions //
+//####################//
+
+/** Adds a road mark entry to this lane.
+*/
+void
+Lane::addLaneRuleEntry(LaneRule *ruleEntry)
+{
+	rules_.insert(ruleEntry->getSSectionStart(), ruleEntry);
+	ruleEntry->setParentLane(this);
+	addLaneChanges(Lane::CLN_LaneRulesChanged);
+}
+
+/** Returns the road mark entry at the given section coordinate (sSection).
+*/
+LaneRule *
+Lane::getLaneRuleEntry(double sSection) const
+{
+	QMap<double, LaneRule *>::const_iterator i = rules_.upperBound(sSection);
+	if (i == rules_.constBegin())
+	{
+		qDebug("WARNING: Trying to get lane road mark but coordinate is out of bounds!");
+		return NULL;
+	}
+	else
+	{
+		--i;
+		return i.value();
+	}
+}
+
+/** Returns the end coordinate of the road mark
+* containing the lane section coordinate sSection.
+* In lane section coordinates [m].
+* If the road mark is the last in the list, the end of
+* the lane section will be returned. Otherwise the end of
+* a road mark is the start coordinate of the successing one.
+*/
+double
+Lane::getLaneRuleEnd(double sSection) const
+{
+	//sSection = 0.0; // ???
+	QMap<double, LaneRule *>::const_iterator nextIt = rules_.upperBound(sSection);
+	if (nextIt == rules_.constEnd())
+	{
+		return parentLaneSection_->getLength(); // lane section: [0.0, length]
+	}
+	else
+	{
+		return (*nextIt)->getSSectionStart();
+	}
 }
 
 //####################//
@@ -702,6 +760,7 @@ Lane::acceptForChildNodes(Visitor *visitor)
     acceptForRoadMarks(visitor);
     acceptForSpeeds(visitor);
     acceptForHeights(visitor);
+	acceptForRules(visitor);
 }
 
 /*! Accepts a visitor and passes it to the width entries.
@@ -738,4 +797,13 @@ Lane::acceptForHeights(Visitor *visitor)
 {
     foreach (LaneHeight *child, heights_)
         child->accept(visitor);
+}
+
+/*! Accepts a visitor and passes it to the road mark entries.
+*/
+void
+Lane::acceptForRules(Visitor *visitor)
+{
+	foreach(LaneRule *child, rules_)
+		child->accept(visitor);
 }

@@ -25,6 +25,7 @@ class LaneWidth;
 class LaneRoadMark;
 class LaneSpeed;
 class LaneHeight;
+class LaneRule;
 
 class Lane : public DataElement
 {
@@ -48,6 +49,7 @@ public:
         CLN_RoadMarksChanged = 0x80,
         CLN_SpeedsChanged = 0x100,
         CLN_HeightsChanged = 0x200,
+		CLN_LaneRulesChanged = 0x400
     };
 
     // Lane Type //
@@ -169,6 +171,16 @@ public:
     void addHeightEntry(LaneHeight *heightEntry);
     double getHeightEnd(double sSection) const;
 
+	// LaneRule entries //
+	//
+	void addLaneRuleEntry(LaneRule *roadMarkEntry);
+	LaneRule *getLaneRuleEntry(double sSection) const;
+	double getLaneRuleEnd(double sSection) const;
+	const QMap<double, LaneRule *> &getLaneRuleEntries() const
+	{
+		return rules_;
+	}
+
     // Observer Pattern //
     //
     virtual void notificationDone();
@@ -190,6 +202,7 @@ public:
     virtual void acceptForRoadMarks(Visitor *visitor);
     virtual void acceptForSpeeds(Visitor *visitor);
     virtual void acceptForHeights(Visitor *visitor);
+	virtual void acceptForRules(Visitor *visitor);
 
 private:
     Lane(); /* not allowed */
@@ -229,6 +242,7 @@ private:
     QMap<double, LaneRoadMark *> marks_; // owned
     QMap<double, LaneSpeed *> speeds_; // owned
     QMap<double, LaneHeight *> heights_; // owned
+	QMap<double, LaneRule *> rules_; //owned
 };
 
 #endif // LANE_HPP
