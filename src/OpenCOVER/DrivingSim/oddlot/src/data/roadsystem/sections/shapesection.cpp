@@ -49,6 +49,8 @@ ShapeSection::delShape(double t)
 	shapes_.remove(t);
 
 	addShapeSectionChanges(ShapeSection::CSS_ShapeSectionChange);
+
+	return true;
 }
 
 Polynomial *

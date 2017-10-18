@@ -60,6 +60,7 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/laneheight.hpp"
@@ -1987,6 +1988,9 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
 		laneSection->setSide(true);
 	}
 
+	// Add LaneSection to Road //
+	//
+	road->addLaneSection(laneSection);
 
     // <laneSection><left/center/right> //
     //
@@ -2009,10 +2013,6 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
 
         child = child.nextSiblingElement();
     }
-
-    // Add LaneSection to Road //
-    //
-    road->addLaneSection(laneSection);
 
     laneSection->checkAndFixLanes();
 
@@ -2059,11 +2059,6 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
     // <lane><width> //
     //
     child = laneElement.firstChildElement("width"); // optional for id=0 (center)
-    if (child.isNull() && id != 0)
-    {
-
-        // NOT OPTIONAL
-    }
     while (!child.isNull())
     {
         double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
@@ -2077,6 +2072,63 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 
         child = child.nextSiblingElement("width");
     }
+
+	// <lane><border> //
+	//
+	child = laneElement.firstChildElement("border"); // optional 
+	QMap<double, LaneWidth *> widthEntries = lane->getWidthEntries();
+	bool isWidthEntry = !widthEntries.isEmpty();
+	while (!child.isNull())
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		LaneBorder *border = NULL;
+		bool addEntry = false;
+
+		if (isWidthEntry)
+		{
+			QMap<double, LaneWidth *>::const_iterator it = widthEntries.upperBound(sOffset);
+			if (it != widthEntries.constBegin())
+			{
+				it--;
+			}
+
+			if (sOffset > it.key())
+			{
+				border = dynamic_cast<LaneBorder *>(it.value());
+			}
+			else if (it.key() - sOffset > NUMERICAL_ZERO3)
+			{
+				addEntry = true;
+			}
+		}
+
+		if (!isWidthEntry || border || addEntry)
+		{
+
+			double a = parseToDouble(child, "a", 0.0, false); // mandatory
+			double b = parseToDouble(child, "b", 0.0, false); // mandatory
+			double c = parseToDouble(child, "c", 0.0, false); // mandatory
+			double d = parseToDouble(child, "d", 0.0, false); // mandatory
+
+			LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
+			lane->addWidthEntry(borderEntry);
+		}
+
+		child = child.nextSiblingElement("border");
+	}
+
+	if (lane->getWidthEntries().isEmpty())
+	{
+		if (id != 0)
+		{
+			// TODO: NOT OPTIONAL
+			QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+				tr("NOT OPTIONAL: <width> or <border> of <lane>  %1 in laneSection %2 of road %3")
+					.arg(id)
+					.arg(laneSection->getSStart())
+					.arg(laneSection->getParentRoad()->getID()));
+		}
+	}
 
     // <lane><roadMark> //
     //

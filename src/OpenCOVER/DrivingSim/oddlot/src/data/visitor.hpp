@@ -63,6 +63,7 @@ class Surface;
 class LaneSection;
 class Lane;
 class LaneWidth;
+class LaneBorder;
 class LaneRoadMark;
 class LaneSpeed;
 class LaneHeight;
@@ -214,6 +215,9 @@ public:
     virtual void visit(LaneWidth *)
     {
     }
+	virtual void visit(LaneBorder *)
+	{
+	}
     virtual void visit(LaneRoadMark *)
     {
     }
