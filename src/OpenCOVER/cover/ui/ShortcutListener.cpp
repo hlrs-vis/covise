@@ -7,10 +7,20 @@
 namespace opencover {
 namespace ui {
 
+void ShortcutListener::clearShortcuts()
+{
+    m_shortcuts.clear();
+}
+
 void ShortcutListener::setShortcut(const std::string &shortcut)
 {
-    m_modifiers = ModNone;
-    m_symbol = 0;
+    clearShortcuts();
+    addShortcut(shortcut);
+}
+
+void ShortcutListener::addShortcut(const std::string &shortcut)
+{
+    Shortcut sh;
 
     std::stringstream stream(shortcut);
     bool havePlus = false;
@@ -31,37 +41,40 @@ void ShortcutListener::setShortcut(const std::string &shortcut)
             c = std::tolower(c);
 
         if (item == "alt")
-            m_modifiers |= ModAlt;
+            sh.modifiers |= ModAlt;
         else if (item == "ctrl")
-            m_modifiers |= ModCtrl;
+            sh.modifiers |= ModCtrl;
         else if (item == "shift")
-            m_modifiers |= ModShift;
+            sh.modifiers |= ModShift;
         else if (item == "meta")
-            m_modifiers |= ModMeta;
+            sh.modifiers |= ModMeta;
         else if (key.empty() && item.length()==1)
             key = item;
         else
             std::cerr << "ui::ShortcutListener: invalid key sequence: " << shortcut << std::endl;
     }
 
-    m_symbol = key[0];
+    sh.symbol = key[0];
 
     //std::cerr << "ShortcutListener::setShortcut: symbol=" << (char)m_symbol << std::endl;
+
+    m_shortcuts.push_back(sh);
 }
 
 bool ShortcutListener::hasShortcut() const
 {
-    return m_symbol != 0;
+    return !m_shortcuts.empty();
 }
 
-int ShortcutListener::modifiers() const
+bool ShortcutListener::matchShortcut(int mod, int sym) const
 {
-    return m_modifiers;
-}
+    for (const auto &sh: m_shortcuts)
+    {
+        if (sh.modifiers == mod && sh.symbol == sym)
+            return true;
+    }
 
-int ShortcutListener::symbol() const
-{
-    return m_symbol;
+    return false;
 }
 
 void ShortcutListener::shortcutTriggered()

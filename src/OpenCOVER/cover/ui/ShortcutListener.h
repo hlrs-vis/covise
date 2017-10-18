@@ -3,6 +3,7 @@
 
 #include "Export.h"
 #include <string>
+#include <vector>
 
 namespace opencover {
 namespace ui {
@@ -19,16 +20,21 @@ enum Modifiers {
 class COVER_UI_EXPORT ShortcutListener
 {
  public:
+   void clearShortcuts();
    void setShortcut(const std::string &shortcut);
+   void addShortcut(const std::string &shortcut);
    bool hasShortcut() const;
-   int modifiers() const;
-   int symbol() const;
+   bool matchShortcut(int mod, int sym) const;
 
    virtual void shortcutTriggered();
 
  private:
-   int m_modifiers=ModNone;;
-   int m_symbol=0;
+   struct Shortcut
+   {
+       int modifiers=ModNone;;
+       int symbol=0;
+   };
+   std::vector<Shortcut> m_shortcuts;
 };
 
 }

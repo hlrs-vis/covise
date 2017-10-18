@@ -253,33 +253,33 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
         //std::cerr << "ui::Manager: mapping to lower" << std::endl;
         keySym = std::tolower(keySym);
     }
+    int modifiers = 0;
     std::cerr << "key: ";
     if (meta)
+    {
+        modifiers |= ModMeta;
         std::cerr << "meta+";
+    }
     if (ctrl)
+    {
+        modifiers |= ModCtrl;
         std::cerr << "ctrl+";
+    }
     if (alt)
+    {
+        modifiers |= ModAlt;
         std::cerr << "alt+";
+    }
     if (shift)
+    {
+        modifiers |= ModShift;
         std::cerr << "shift+";
+    }
     std::cerr << "'" << (char)keySym << "'" << std::endl;
 
     for (auto elem: m_elements)
     {
-        if (!elem->hasShortcut())
-            continue;
-
-        auto m = elem->modifiers();
-        if (bool(m & ModAlt) != alt)
-            continue;
-        if (bool(m & ModCtrl) != ctrl)
-            continue;
-        if (bool(m & ModShift) != shift)
-            continue;
-        if (bool(m & ModMeta) != meta)
-            continue;
-
-        if (elem->symbol() == keySym)
+        if (elem->matchShortcut(modifiers, keySym))
         {
             elem->shortcutTriggered();
             if (handled)
@@ -287,8 +287,10 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
                 std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
             }
             handled = true;
+            continue;
         }
     }
+
     return handled;
 }
 
