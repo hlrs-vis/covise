@@ -1134,15 +1134,15 @@ OpenCOVER::~OpenCOVER()
     {
         fprintf(stderr, "\ndelete OpenCOVER\n");
     }
+#if 0
     if (m_visPlugin)
-    {
-        //coVRPluginList::instance()->unload(m_visPlugin);
-        m_visPlugin = NULL;
-    }
+        coVRPluginList::instance()->unload(m_visPlugin);
+#endif
+    m_visPlugin = NULL;
     coVRFileManager::instance()->unloadFile();
+    coVRPluginList::instance()->unloadAllPlugins();
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
-    delete coVRPluginList::instance();
     //delete vrbHost;
     delete coVRPartnerList::instance();
     delete coVRAnimationManager::instance();
@@ -1156,12 +1156,11 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
-    VRWindow::instance()->destroy();
-    coVRPluginList::instance()->unloadAllPlugins();
-    delete VRWindow::instance();
     delete VRVruiRenderInterface::theInterface;
-
     delete coVRConfig::instance();
+    delete VRWindow::instance();
+
+    delete coVRPluginList::instance();
 
     delete ARToolKit::instance();
 

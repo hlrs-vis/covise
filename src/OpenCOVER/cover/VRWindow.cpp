@@ -139,7 +139,7 @@ VRWindow::config()
         {
             auto plugName = pluginName(type);
             plugName = coVRMSController::instance()->syncString(plugName);
-            coVRPluginList::instance()->addPlugin(plugName.c_str());
+            coVRPluginList::instance()->addPlugin(plugName.c_str(), coVRPluginList::Window);
         }
     }
     else
@@ -155,7 +155,7 @@ VRWindow::config()
         {
             std::string plugName;
             plugName = coVRMSController::instance()->syncString(plugName);
-            coVRPluginList::instance()->addPlugin(plugName.c_str());
+            coVRPluginList::instance()->addPlugin(plugName.c_str(), coVRPluginList::Window);
         }
     }
 
@@ -181,6 +181,8 @@ void VRWindow::destroy()
         if (conf.windows[i].windowPlugin)
             conf.windows[i].windowPlugin->windowDestroy(i);
     }
+
+    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Window);
 }
 
 void

@@ -100,22 +100,28 @@ coVRPluginList *coVRPluginList::instance()
 
 coVRPluginList::~coVRPluginList()
 {
-    unloadAllPlugins();
+    for (int d=0; d<NumPluginDomains; ++d)
+        unloadAllPlugins(static_cast<PluginDomain>(d));
     singleton = NULL;
 }
 
-void coVRPluginList::unloadAllPlugins()
+void coVRPluginList::unloadAllPlugins(PluginDomain domain)
 {
-    bool havePlugins = !m_plugins.empty();
+    if (domain == Window)
+        return;
+
+    bool havePlugins = !m_loadedPlugins[domain].empty();
 
     if (havePlugins && cover->debugLevel(1))
-        cerr << "Unloading plugins:";
-    bool wasThreading = VRViewer::instance()->areThreadsRunning();
+        cerr << "Unloading plugins (domain " << domain << "):";
+    bool wasThreading = false;
+    if (domain == Default)
+        wasThreading = VRViewer::instance()->areThreadsRunning();
     if (wasThreading)
         VRViewer::instance()->stopThreading();
-    while (!m_loadedPlugins.empty())
+    while (!m_loadedPlugins[domain].empty())
     {
-        coVRPlugin *plug = m_loadedPlugins.back();
+        coVRPlugin *plug = m_loadedPlugins[domain].back();
         if (plug)
         {
             if (cover->debugLevel(1))
@@ -196,7 +202,7 @@ void coVRPluginList::loadDefault()
         {
             if (coVRPlugin *m = loadPlugin(plugins[i].c_str()))
             {
-                manage(m); // if init OK, then add new plugin
+                manage(m, Default); // if init OK, then add new plugin
             }
             else
             {
@@ -249,10 +255,10 @@ void coVRPluginList::unloadQueued()
     m_unloadQueue.clear();
 }
 
-void coVRPluginList::manage(coVRPlugin *plugin)
+void coVRPluginList::manage(coVRPlugin *plugin, PluginDomain domain)
 {
     m_plugins[plugin->getName()] = plugin;
-    m_loadedPlugins.push_back(plugin);
+    m_loadedPlugins[domain].push_back(plugin);
 }
 
 void coVRPluginList::unmanage(coVRPlugin *plugin)
@@ -267,10 +273,13 @@ void coVRPluginList::unmanage(coVRPlugin *plugin)
         m_plugins.erase(it);
     }
 
-    auto it2 = std::find(m_loadedPlugins.begin(), m_loadedPlugins.end(), plugin);
-    if (it2 != m_loadedPlugins.end())
+    for (int d=0; d<NumPluginDomains; ++d)
     {
-        m_loadedPlugins.erase(it2);
+        auto it2 = std::find(m_loadedPlugins[d].begin(), m_loadedPlugins[d].end(), plugin);
+        if (it2 != m_loadedPlugins[d].end())
+        {
+            m_loadedPlugins[d].erase(it2);
+        }
     }
 }
 
@@ -482,7 +491,7 @@ coVRPlugin *coVRPluginList::getPlugin(const char *name) const
     return it->second;
 }
 
-coVRPlugin *coVRPluginList::addPlugin(const char *name)
+coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
 {
     std::string arg(name);
     std::string n = coVRMSController::instance()->syncString(arg);
@@ -497,7 +506,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name)
         m = loadPlugin(name);
         if (m && m->init())
         {
-            manage(m);
+            manage(m, domain);
             m->m_initDone = true;
             m->init2();
         }
