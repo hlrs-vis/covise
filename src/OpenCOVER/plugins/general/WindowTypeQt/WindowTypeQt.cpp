@@ -139,12 +139,16 @@ void WindowTypeQtPlugin::windowDestroy(int num)
 
     auto &win = it->second;
     cover->ui->removeView(win.view);
+    delete win.view;
     delete win.widget;
     delete win.window;
     m_windows.erase(it);
 
     if (m_windows.empty())
     {
+        qApp->quit();
+        qApp->sendPostedEvents();
+        qApp->processEvents();
         delete qApp;
     }
 }
