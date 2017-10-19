@@ -898,6 +898,23 @@ void coVRMSController::sendMaster(const Message *msg)
     }
 }
 
+void coVRMSController::sendMaster(const std::string &s)
+{
+    int sz = s.size();
+    sendMaster(&sz, sizeof(sz));
+    sendMaster(s.c_str(), sz);
+}
+
+void coVRMSController::readSlave(int i, std::string &s)
+{
+    int sz = 0;
+    readSlave(i, &sz, sizeof(sz));
+    std::vector<char> d(sz);
+    readSlave(i, d.data(), sz);
+    std::string result(d.data(), sz);
+    s = result;
+}
+
 // Default for readMaster: if multicast is set, do not send over TCP
 int coVRMSController::readMaster(void *c, int n)
 {

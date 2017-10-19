@@ -484,7 +484,13 @@ coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 
 coVRPlugin *coVRPluginList::addPlugin(const char *name)
 {
-    coVRMSController::instance()->sync();
+    std::string arg(name);
+    std::string n = coVRMSController::instance()->syncString(arg);
+    if (n != arg)
+    {
+        std::cerr << "coVRPluginList::addPlugin(" << arg << "), but master is trying to load " << n << std::endl;
+        abort();
+    }
     coVRPlugin *m = getPlugin(name);
     if (m == NULL)
     {

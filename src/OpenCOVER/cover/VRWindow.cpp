@@ -35,11 +35,13 @@
 #include "coCommandLine.h"
 
 #include <config/CoviseConfig.h>
+#include <net/tokenbuffer.h>
 #include "coVRConfig.h"
 #include "OpenCOVER.h"
 
 #include "coVRPluginSupport.h"
 #include "coVRPluginList.h"
+#include "coVRMSController.h"
 #include <osgViewer/GraphicsWindow>
 #if defined(WIN32)
 #include <osgViewer/api/Win32/GraphicsWindowWin32>
@@ -50,6 +52,18 @@
 #endif
 
 using namespace opencover;
+
+namespace {
+
+std::string pluginName(const std::string &windowType)
+{
+    std::string p= windowType;
+    p[0] = std::toupper(p[0]);
+    p = "WindowType"+p;
+    return p;
+}
+
+}
 
 VRWindow *VRWindow::s_instance = NULL;
 VRWindow *VRWindow::instance()
@@ -93,6 +107,56 @@ VRWindow::config()
     if (cover->debugLevel(3))
     {
         fprintf(stderr, "\nVRWindow::config: %d windows\n", coVRConfig::instance()->numWindows());
+    }
+
+    // load plugins for all window types on master and all slaves
+    std::set<std::string> windowTypes;
+    auto &conf = *coVRConfig::instance();
+    for (int i = 0; i < conf.numWindows(); i++)
+    {
+        auto type = conf.windows[i].type;
+        if (!type.empty())
+            windowTypes.insert(type);
+    }
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        coVRMSController::SlaveData sdCount(sizeof(int));
+        coVRMSController::instance()->readSlaves(&sdCount);
+        for (int s=0; s<coVRMSController::instance()->clusterSize()-1; ++s)
+        {
+            int &count = *static_cast<int *>(sdCount.data[s]);
+            for (int i=0; i<count; ++i)
+            {
+                std::string t;
+                coVRMSController::instance()->readSlave(s, t);
+                windowTypes.insert(t);
+            }
+        }
+        int count = windowTypes.size();
+        coVRMSController::instance()->sendSlaves(&count, sizeof(count));
+        for (auto type: windowTypes)
+        {
+            auto plugName = pluginName(type);
+            plugName = coVRMSController::instance()->syncString(plugName);
+            coVRPluginList::instance()->addPlugin(plugName.c_str());
+        }
+    }
+    else
+    {
+        int count = windowTypes.size();
+        coVRMSController::instance()->sendMaster(&count, sizeof(count));
+        covise::TokenBuffer tb;
+        tb << windowTypes.size();
+        for (auto t: windowTypes)
+            coVRMSController::instance()->sendMaster(t);
+        coVRMSController::instance()->readMaster(&count, sizeof(count));
+        for (int i=0; i<count; ++i)
+        {
+            std::string plugName;
+            plugName = coVRMSController::instance()->syncString(plugName);
+            coVRPluginList::instance()->addPlugin(plugName.c_str());
+        }
     }
 
     origVSize = new int[coVRConfig::instance()->numWindows()];
@@ -241,10 +305,7 @@ VRWindow::createWin(int i)
 
     if (!conf.windows[i].type.empty())
     {
-        std::string pluginName = conf.windows[i].type;
-        pluginName[0] = std::toupper(pluginName[0]);
-        pluginName = "WindowType"+pluginName;
-        auto windowPlug = coVRPluginList::instance()->addPlugin(pluginName.c_str());
+        auto windowPlug = coVRPluginList::instance()->getPlugin(pluginName(conf.windows[i].type).c_str());
         if (windowPlug)
         {
             if (windowPlug->windowCreate(i))

@@ -139,6 +139,8 @@ public:
     void sendSlaves(const covise::Message *msg);
     int readMaster(covise::Message *msg);
     void sendMaster(const covise::Message *msg);
+    void sendMaster(const std::string &s);
+    void readSlave(int i, std::string &s);
     int getID()
     {
         return myID;
