@@ -196,11 +196,11 @@ void Manager::updateState(const Button *button) const
     }
 }
 
-void Manager::updateChildren(const Menu *menu) const
+void Manager::updateParent(const Element *elem) const
 {
     for (auto v: m_views)
     {
-        v.second->updateChildren(menu);
+        v.second->updateParent(elem);
     }
 }
 

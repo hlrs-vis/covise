@@ -32,12 +32,7 @@ namespace ui {
 VruiView::VruiView()
 : View("vrui")
 {
-#if 0
-    m_rootMenu = new coRowMenu("COVER2", nullptr);
-    m_rootMenu->setVisible(true);
-#else
     m_rootMenu = cover->getMenu();
-#endif
 }
 
 coMenu *VruiView::getMenu(const Element *elem) const
@@ -80,9 +75,26 @@ VruiViewElement *VruiView::vruiElement(const Element *elem) const
 
 VruiViewElement *VruiView::vruiParent(const Element *elem) const
 {
-    if (elem)
-        return vruiElement(elem->parent());
-    return nullptr;
+    if (!elem)
+        return nullptr;
+
+    std::string configPath = "COVER.UI." + elem->path();
+    bool exists = false;
+    std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath, &exists);
+    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    if (exists)
+    {
+        if (parentPath.empty())
+        {
+            return nullptr;
+        }
+        if (auto parent = vruiElement(parentPath))
+            return parent;
+
+        std::cerr << "ui::Vrui: did not find configured parent '" << parentPath << "' for '" << elem->path() << "'" << std::endl;
+    }
+
+    return vruiElement(elem->parent());
 }
 
 
@@ -107,20 +119,6 @@ void VruiView::add(VruiViewElement *ve, const Element *elem)
         std::cerr << "VruiView::add: Warning: no Element" << std::endl;
 
     auto parent = vruiContainer(elem);
-
-    std::string configPath = "COVER.UI." + elem->path();
-    bool exists = false;
-    std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath, &exists);
-    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
-    if (exists)
-    {
-        auto p = vruiElement(parentPath);
-        if (!p)
-        {
-            //std::cerr << "ui::Vrui: did not find configured parent '" << parentPath << "' for '" << elem->path() << "'" << std::endl;
-        }
-        parent = p;
-    }
 
     if (ve->m_menuItem)
     {
@@ -233,7 +231,7 @@ void VruiView::updateState(const Button *button)
     }
 }
 
-void VruiView::updateChildren(const Menu *menu)
+void VruiView::updateParent(const Element *elem)
 {
 }
 

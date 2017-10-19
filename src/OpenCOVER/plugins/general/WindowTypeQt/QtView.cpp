@@ -364,7 +364,7 @@ void QtView::updateState(const Button *button)
         a->setChecked(button->state());
 }
 
-void QtView::updateChildren(const Menu *menu)
+void QtView::updateParent(const Element *elem)
 {
 #if 0
     auto o = qtObject(menu);
