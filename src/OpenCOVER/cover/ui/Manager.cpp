@@ -391,7 +391,7 @@ void Manager::sync()
         ms->syncData(&m_numUpdates, sizeof(m_numUpdates));
         if (m_numUpdates > 0)
         {
-            std::cerr << "ui::Manager: syncing " << m_numUpdates << " updates" << std::endl;
+            //std::cerr << "ui::Manager: syncing " << m_numUpdates << " updates" << std::endl;
             if (ms->isMaster())
             {
                 covise::Message msg(*m_updates);
