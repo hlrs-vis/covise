@@ -71,6 +71,8 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     win.window = new QMainWindow();
     win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
+    win.window->show();
+
 #ifdef __APPLE__
     //auto menubar = new QMenuBar(nullptr);
     auto menubar = win.win->menuBar();
@@ -81,6 +83,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     menubar->show();
     win.view = new ui::QtView(menubar);
     cover->ui->addView(win.view);
+
     QSurfaceFormat format;
     format.setVersion(2, 1);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
@@ -96,7 +99,6 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.widget = new QtOsgWidget(win.window);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
-    win.window->show();
     coVRConfig::instance()->windows[i].context = win.widget->graphicsWindow();
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
