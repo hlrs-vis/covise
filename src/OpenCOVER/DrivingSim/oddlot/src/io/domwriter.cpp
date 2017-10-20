@@ -61,6 +61,7 @@
 
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
@@ -264,7 +265,7 @@ void
 DomWriter::visit(Object *object)
 {
     if (object->getType().contains("625")) // conversion to OpenDRIVE 1.4
-    {
+	{
         QStringList parts = object->getType().split("-");
 
         bool number = false;
@@ -457,6 +458,29 @@ DomWriter::visit(Object *object)
         objectElement.setAttribute("hdg", object->getHeading() / 180.0 * (M_PI));
         objectElement.setAttribute("pitch", object->getPitch() / 180.0 * (M_PI));
         objectElement.setAttribute("roll", object->getRoll() / 180.0 * (M_PI));
+
+		ParkingSpace *parkingSpace = object->getParkingSpace();
+		if (parkingSpace)
+		{
+			QDomElement parking = doc_->createElement("parkingSpace");
+			parking.setAttribute("access", ParkingSpace::parseParkingSpaceAccessBack(parkingSpace->getAccess()));
+			parking.setAttribute("restrictions", parkingSpace->getRestrictions());
+
+			QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *> markings = parkingSpace->getMarkings();
+			QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *>::const_iterator it = markings.constBegin();
+			while (it != markings.constEnd())
+			{
+				QDomElement parkingMarking = doc_->createElement("marking");
+				parkingMarking.setAttribute("side", ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(it.key()));
+				parkingMarking.setAttribute("type", LaneRoadMark::parseRoadMarkTypeBack(it.value()->getType()));
+				parkingMarking.setAttribute("width", it.value()->getWidth());
+				parkingMarking.setAttribute("color", LaneRoadMark::parseRoadMarkColorBack(it.value()->getColor()));
+				parking.appendChild(parkingMarking);
+				it++;
+			}
+
+			objectElement.appendChild(parking);
+		}
 
         currentObjectsElement_.appendChild(objectElement);
     }

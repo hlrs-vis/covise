@@ -50,7 +50,11 @@ public:
         RMT_BROKEN,
         RMT_SOLID_SOLID,
         RMT_SOLID_BROKEN,
-        RMT_BROKEN_SOLID
+        RMT_BROKEN_SOLID,
+		RMT_BROKEN_BROKEN,
+		RMT_BOTTS_DOTS,
+		RMT_GRASS,
+		RMT_CURB
     };
     static LaneRoadMark::RoadMarkType parseRoadMarkType(const QString &type);
     static QString parseRoadMarkTypeBack(LaneRoadMark::RoadMarkType type);
@@ -63,10 +67,14 @@ public:
     static LaneRoadMark::RoadMarkWeight parseRoadMarkWeight(const QString &type);
     static QString parseRoadMarkWeightBack(LaneRoadMark::RoadMarkWeight type);
 
-    enum RoadMarkColor
-    {
-        RMC_STANDARD,
-        RMC_YELLOW
+	enum RoadMarkColor
+	{
+		RMC_STANDARD,
+		RMC_YELLOW,
+		RMC_BLUE,
+		RMC_GREEN,
+		RMC_RED,
+		RMC_WHITE
     };
     static LaneRoadMark::RoadMarkColor parseRoadMarkColor(const QString &type);
     static QString parseRoadMarkColorBack(LaneRoadMark::RoadMarkColor type);

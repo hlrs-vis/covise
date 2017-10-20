@@ -16,6 +16,7 @@
 #include "objectobject.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 
 //####################//
 // Constructors       //
@@ -28,6 +29,7 @@ Object::Object(const QString &id, const QString &name, const QString &type, doub
     : RoadSection(s)
     , id_(id)
     , name_(name)
+	, parkingSpace_(NULL)
 {
     objectProps_.type = type;
     objectProps_.t = t;
@@ -67,6 +69,15 @@ Object::getSEnd() const
     {
         return objectRepeat_.s + objectRepeat_.length;
     }
+}
+
+void 
+Object::setParkingSpace(ParkingSpace *parkingSpace)
+{
+	objectProps_.type = "parkingSpace";
+	parkingSpace_ = parkingSpace;
+	parkingSpace->setParentObject(this);
+	addObjectChanges(Object::CEL_TypeChange);
 }
 
 

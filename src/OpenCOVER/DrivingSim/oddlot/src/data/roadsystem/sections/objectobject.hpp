@@ -80,6 +80,8 @@ private:
     double height_;
 };
 
+class ParkingSpace;
+
 class Object : public RoadSection
 {
 
@@ -345,6 +347,14 @@ public:
         objectRepeat_ = objectRepeatProps;
     }
 
+	// Object is parking space //
+	//
+	ParkingSpace *getParkingSpace()
+	{
+		return parkingSpace_;
+	}
+	void setParkingSpace(ParkingSpace *parkingSpace);
+
 
     // Observer Pattern //
     //
@@ -384,6 +394,8 @@ private:
     ObjectProperties objectProps_;
     ObjectRepeatRecord objectRepeat_;
     ObjectUserData userData_;
+
+	ParkingSpace *parkingSpace_;
 
 
     // Change flags //

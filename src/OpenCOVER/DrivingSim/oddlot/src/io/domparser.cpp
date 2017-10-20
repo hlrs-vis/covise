@@ -72,6 +72,7 @@
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/parkingSpaceObject.hpp"
 
 #include "src/data/vehiclesystem/vehiclesystem.hpp"
 #include "src/data/vehiclesystem/vehiclegroup.hpp"
@@ -1284,95 +1285,97 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
         // Don't create objects for the simple poles of signs and the traffic lights
 
-        if (type != "simplePole")
-        {
-            QString name = parseToQString(child, "name", "", false); // mandatory
+if (type != "simplePole")
+{
+	QString name = parseToQString(child, "name", "", false); // mandatory
 
-            bool pole = false;
+	bool pole = false;
 
-            QStringList nameParts = name.split("_"); // return only name in type.typeSubclass-subtype_name_p
-            if (nameParts.size() > 1)
-            {
-                name = nameParts.at(1);
-                if (name == nameParts.at(0)) // only to remove the bugs
-                {
-                    name = "";
-                }
+	QStringList nameParts = name.split("_"); // return only name in type.typeSubclass-subtype_name_p
+	if (nameParts.size() > 1)
+	{
+		name = nameParts.at(1);
+		if (name == nameParts.at(0)) // only to remove the bugs
+		{
+			name = "";
+		}
 
-                if (name == "p")
-                {
-                    name = "";
-                    pole = true;
-                }
-                else if (nameParts.size() > 2)
-                {
-                    pole = true;
-                }
-            }
-            else
-            {
-                name = "";
-            }
+		if (name == "p")
+		{
+			name = "";
+			pole = true;
+		}
+		else if (nameParts.size() > 2)
+		{
+			pole = true;
+		}
+	}
+	else
+	{
+		name = "";
+	}
 
-            QString id = parseToQString(child, "id", "", false); // mandatory
-            QDomElement ancillary = child.firstChildElement("userData");
-            QString modelFile = parseToQString(child, "modelFile", name, true); // optional
-            QString textureFile = parseToQString(child, "textureFile", name, true); // optional
-            while (!ancillary.isNull())
-            {
-                QString code = parseToQString(ancillary, "code", "", true);
-                QString value = parseToQString(ancillary, "value", "", true);
+	QString id = parseToQString(child, "id", "", false); // mandatory
+	QDomElement ancillary = child.firstChildElement("userData");
+	QString modelFile = parseToQString(child, "modelFile", name, true); // optional
+	QString textureFile = parseToQString(child, "textureFile", name, true); // optional
+	while (!ancillary.isNull())
+	{
+		QString code = parseToQString(ancillary, "code", "", true);
+		QString value = parseToQString(ancillary, "value", "", true);
 
-                if (code == "textureFile")
-                {
-                    textureFile = value;
-                }
-                else
-                {
-                    modelFile = value;
-                }
+		if (code == "textureFile")
+		{
+			textureFile = value;
+		}
+		else
+		{
+			modelFile = value;
+		}
 
-                ancillary = ancillary.nextSiblingElement("userData");
-            }
+		ancillary = ancillary.nextSiblingElement("userData");
+	}
 
-            double s = parseToDouble(child, "s", 0.0, false); // mandatory
-            double t = parseToDouble(child, "t", 0.0, false); // mandatory
-            double zOffset = parseToDouble(child, "zOffset", 0.0, true); // optional
-            double validLength = parseToDouble(child, "validLength", 0.0, true); // optional
-            QString orientationString = parseToQString(child, "orientation", "+", true); // optional
-            Object::ObjectOrientation orientation;
-            if (orientationString == "+")
-            {
-                orientation = Object::POSITIVE_TRACK_DIRECTION;
-            }
-            else if (orientationString == "-")
-            {
-                orientation = Object::NEGATIVE_TRACK_DIRECTION;
-            }
-            else
-            {
-                orientation = Object::BOTH_DIRECTIONS;
-            }
-            double length = parseToDouble(child, "length", 0.0, true); // optional
-            double width = parseToDouble(child, "width", 0.0, true); // optional
-            double radius = parseToDouble(child, "radius", 0.0, true); // optional
-            double height = parseToDouble(child, "height", 0.0, true); // optional
-            double hdg = parseToDouble(child, "hdg", 0.0, true); // optional
-            double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
-            double roll = parseToDouble(child, "roll", 0.0, true); // optional
+	double s = parseToDouble(child, "s", 0.0, false); // mandatory
+	double t = parseToDouble(child, "t", 0.0, false); // mandatory
+	double zOffset = parseToDouble(child, "zOffset", 0.0, true); // optional
+	double validLength = parseToDouble(child, "validLength", 0.0, true); // optional
+	QString orientationString = parseToQString(child, "orientation", "+", true); // optional
+	Object::ObjectOrientation orientation;
+	if (orientationString == "+")
+	{
+		orientation = Object::POSITIVE_TRACK_DIRECTION;
+	}
+	else if (orientationString == "-")
+	{
+		orientation = Object::NEGATIVE_TRACK_DIRECTION;
+	}
+	else
+	{
+		orientation = Object::BOTH_DIRECTIONS;
+	}
+	double length = parseToDouble(child, "length", 0.0, true); // optional
+	double width = parseToDouble(child, "width", 0.0, true); // optional
+	double radius = parseToDouble(child, "radius", 0.0, true); // optional
+	double height = parseToDouble(child, "height", 0.0, true); // optional
+	double hdg = parseToDouble(child, "hdg", 0.0, true); // optional
+	double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+	double roll = parseToDouble(child, "roll", 0.0, true); // optional
 
-            double repeatS = -1.0;
-            double repeatLength = -1.0;
-            double repeatDistance = -1.0;
+	double repeatS = -1.0;
+	double repeatLength = -1.0;
+	double repeatDistance = -1.0;
 
-            // Get <repeat> record
-            QDomElement objectChild = child.firstChildElement("repeat");
-            if (!objectChild.isNull())
-            {
-                repeatS = parseToDouble(objectChild, "s", 0.0, false); // mandatory
-                repeatLength = parseToDouble(objectChild, "length", 0.0, false); // mandatory
-                repeatDistance = parseToDouble(objectChild, "distance", 0.0, false); // mandatory
-            }
+	// Get <repeat> record
+	QDomElement objectChild = child.firstChildElement("repeat");
+	if (!objectChild.isNull())
+	{
+		repeatS = parseToDouble(objectChild, "s", 0.0, false); // mandatory
+		repeatLength = parseToDouble(objectChild, "length", 0.0, false); // mandatory
+		repeatDistance = parseToDouble(objectChild, "distance", 0.0, false); // mandatory
+	}
+
+
 
             // Convert old files
             /*	if ((type == "Tree") && (height < 2.0))
@@ -1401,6 +1404,36 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 					RoadSystem::IdType el = {object->getId(), "object"};
                     elementIDs_.insert(id, el);
                 }
+
+				// Get <parkingSpace> record
+				QDomElement objectChild = child.firstChildElement("parkingSpace");
+				if (!objectChild.isNull())
+				{
+					QString access = parseToQString(objectChild, "access", "all", false); // mandatory
+					QString restrictions = parseToQString(objectChild, "restrictions", "", false); // mandatory
+
+					ParkingSpace *parking = new ParkingSpace(ParkingSpace::parseParkingSpaceAccess(access), restrictions);
+
+					QDomElement markingChild = objectChild.firstChildElement("marking");
+					while (!markingChild.isNull())
+					{
+						QString side = parseToQString(markingChild, "side", "", false); // mandatory
+						QString type = parseToQString(markingChild, "type", "none", false);
+						double width = parseToDouble(markingChild, "width", 0.0, false);
+						QString color = parseToQString(markingChild, "color", "standard", false);
+
+						ParkingSpaceMarking::ParkingSpaceMarkingSide parkSide = ParkingSpaceMarking::parseParkingSpaceMarkingSide(side);
+						if (parkSide != ParkingSpaceMarking::PSM_NONE)
+						{
+							ParkingSpaceMarking *marking = new ParkingSpaceMarking(parkSide, LaneRoadMark::parseRoadMarkType(type), width, LaneRoadMark::parseRoadMarkColor(color));
+
+							parking->addMarking(marking);
+						}
+
+						markingChild = markingChild.nextSiblingElement("marking");
+					}
+					object->setParkingSpace(parking);
+				}
             }
        }
 

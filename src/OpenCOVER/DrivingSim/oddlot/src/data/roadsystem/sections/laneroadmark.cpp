@@ -36,6 +36,14 @@ LaneRoadMark::parseRoadMarkType(const QString &type)
         return LaneRoadMark::RMT_SOLID_BROKEN;
     else if (type == "broken solid")
         return LaneRoadMark::RMT_BROKEN_SOLID;
+	else if (type == "broken broken")
+		return LaneRoadMark::RMT_BROKEN_BROKEN;
+	else if (type == "botts dots")
+		return LaneRoadMark::RMT_BOTTS_DOTS;
+	else if (type == "grass")
+		return LaneRoadMark::RMT_GRASS;
+	else if (type == "curb")
+		return LaneRoadMark::RMT_CURB;
     else
     {
         qDebug("WARNING: unknown road mark type: %s", type.toUtf8().constData());
@@ -57,7 +65,15 @@ LaneRoadMark::parseRoadMarkTypeBack(LaneRoadMark::RoadMarkType type)
     else if (type == LaneRoadMark::RMT_SOLID_BROKEN)
         return QString("solid broken");
     else if (type == LaneRoadMark::RMT_BROKEN_SOLID)
-        return QString("broken solid");
+        return QString("broken broken");
+	else if (type == LaneRoadMark::RMT_BROKEN_BROKEN)
+		return QString("botts dots");
+	else if (type == LaneRoadMark::RMT_BOTTS_DOTS)
+		return QString("broken solid");
+	else if (type == LaneRoadMark::RMT_GRASS)
+		return QString("grass");
+	else if (type == LaneRoadMark::RMT_CURB)
+		return QString("curb");
     else
     {
         qDebug("WARNING: unknown road mark type.");
@@ -100,6 +116,14 @@ LaneRoadMark::parseRoadMarkColor(const QString &type)
         return LaneRoadMark::RMC_STANDARD;
     else if (type == "yellow")
         return LaneRoadMark::RMC_YELLOW;
+	else if (type == "blue")
+		return LaneRoadMark::RMC_BLUE;
+	else if (type == "green")
+		return LaneRoadMark::RMC_GREEN;
+	else if (type == "red")
+		return LaneRoadMark::RMC_RED;
+	else if (type == "white")
+		return LaneRoadMark::RMC_WHITE;
     else
     {
         qDebug("WARNING: unknown road mark color type: %s", type.toUtf8().constData());
@@ -114,6 +138,14 @@ LaneRoadMark::parseRoadMarkColorBack(LaneRoadMark::RoadMarkColor type)
         return "standard";
     else if (type == LaneRoadMark::RMC_YELLOW)
         return "yellow";
+	else if (type == LaneRoadMark::RMC_BLUE)
+		return "blue";
+	else if (type == LaneRoadMark::RMC_GREEN)
+		return "green";
+	else if (type == LaneRoadMark::RMC_RED)
+		return "red";
+	else if (type == LaneRoadMark::RMC_WHITE)
+		return "white";
     else
     {
         qDebug("WARNING: unknown road mark color type");
