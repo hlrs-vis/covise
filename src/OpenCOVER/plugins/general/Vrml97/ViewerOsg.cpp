@@ -5129,7 +5129,7 @@ void ViewerOsg::setTransform(float *center,
     d_currentObject->parentTransform = currentTransform;
     currentTransform.preMult(mat);
 
-    void *info = (void *)OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
+    void *info = (void *)vrui::OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
     if (info == NULL)
     {
         // leave alone moved nodes
