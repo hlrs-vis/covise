@@ -1376,32 +1376,31 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Walk)
     {
-        cover->enableNavigation("Walk");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
     }
     else if (tUIItem == Fly)
     {
-        cover->enableNavigation("Fly");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Fly);
     }
     else if (tUIItem == Drive)
     {
-        cover->enableNavigation("Drive");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Glide);
     }
     else if (tUIItem == Scale)
     {
-        cover->enableNavigation("Scale");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Scale);
     }
     else if (tUIItem == XForm)
     {
-        cover->enableNavigation("XForm");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::XForm);
     }
     else if (tUIItem == Collision)
     {
-        cover->setBuiltInFunctionState("Collide", true);
+        coVRNavigationManager::instance()->toggleCollide(true);
     }
     else if (tUIItem == Freeze)
     {
-        coVRConfig::instance()->setFrozen(true);
-        cover->setBuiltInFunctionState("Freeze", true);
+        VRSceneGraph::instance()->toggleHeadTracking(false);
     }
     else if (tUIItem == Wireframe)
     {
@@ -1452,6 +1451,7 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     {
         stopTabNav();
     }
+#if 0
     else if (tUIItem == Walk)
     {
         cover->disableNavigation("Walk");
@@ -1472,14 +1472,14 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     {
         cover->disableNavigation("XForm");
     }
+#endif
     else if (tUIItem == Collision)
     {
-        cover->setBuiltInFunctionState("Collide", false);
+        coVRNavigationManager::instance()->toggleCollide(false);
     }
     else if (tUIItem == Freeze)
     {
-        coVRConfig::instance()->setFrozen(false);
-        cover->setBuiltInFunctionState("Freeze", false);
+        VRSceneGraph::instance()->toggleHeadTracking(true);
     }
     else if (tUIItem == Wireframe)
     {

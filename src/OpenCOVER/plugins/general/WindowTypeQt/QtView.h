@@ -1,7 +1,7 @@
 #ifndef UI_QT_VIEW_H
 #define UI_QT_VIEW_H
 
-#include "View.h"
+#include <cover/ui/View.h>
 
 #include <QObject>
 
@@ -56,10 +56,11 @@ class QtView: public QObject, public View
    void updateEnabled(const Element *elem) override;
    void updateVisible(const Element *elem) override;
    void updateText(const Element *elem) override;
+   void updateParent(const Element *elem) override;
    void updateState(const Button *) override;
-   void updateChildren(const Menu *menu) override;
    void updateChildren(const SelectionList *sl) override;
-   void updateInteger(const Slider *slider) override;
+   void updateIntegral(const Slider *slider) override;
+   void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
 

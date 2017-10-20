@@ -79,9 +79,11 @@ public:
 
     bool loadUrl(const char *url, int np, char **parameters);
 
+#if 0
     virtual void setBuiltInFunctionState(const char *fname, int val);
     virtual void setBuiltInFunctionValue(const char *fname, float val);
     virtual void callBuiltInFunctionCallback(const char *fname);
+#endif
 
     virtual void setSyncMode(const char *mode);
 

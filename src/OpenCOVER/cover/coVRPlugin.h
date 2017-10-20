@@ -317,6 +317,27 @@ public:
         (void)bs;
     }
 
+    virtual bool windowCreate(int num)
+    {
+        (void)num;
+        return false;
+    }
+
+    virtual void windowCheckEvents(int num)
+    {
+        (void)num;
+    }
+
+    virtual void windowUpdateContents(int num)
+    {
+        (void)num;
+    }
+
+    virtual void windowDestroy(int num)
+    {
+        (void)num;
+    }
+
 protected:
     //! call as a response to requestTimestep(t) when timestep t is prepared
     void commitTimestep(int t);

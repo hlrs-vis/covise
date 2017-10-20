@@ -14,7 +14,6 @@
 #include <util/coTimer.h>
 #include <covise/covise_appproc.h>
 #include <appl/RenderInterface.h>
-#include <cover/VRPinboard.h>
 #include <cover/VRSceneGraph.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
@@ -26,11 +25,11 @@
 
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
-
-#include <cover/coVRMSController.h>
-#include <cover/coVRPluginSupport.h>
 #include <cover/coVRPluginList.h>
 #include <cover/coVRFileManager.h>
+
+#include <cover/ui/Action.h>
+#include <cover/ui/Menu.h>
 
 using namespace covise;
 using namespace opencover;
@@ -38,12 +37,14 @@ using namespace std;
 using vrui::vruiButtons;
 
 CovisePlugin::CovisePlugin()
+: ui::Owner("CovisePlugin", cover->ui)
 {
     setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
     new VRCoviseConnection();
 }
 
+#ifdef PINBOARD
 static void initPinboard(VRPinboard *pb)
 {
     pb->addFunction("Execute", VRPinboard::BTYPE_FUNC, "execute", "COVISE", VRCoviseConnection::executeCallback, VRCoviseConnection::covconn);
@@ -83,6 +84,7 @@ static void initPinboard(VRPinboard *pb)
         }
     }
 }
+#endif
 
 static void messageCallback(int len, const void *buf)
 {
@@ -92,13 +94,28 @@ static void messageCallback(int len, const void *buf)
 bool CovisePlugin::init()
 {
     coVRDistributionManager::instance().init();
+#ifdef PINBOARD
     initPinboard(VRPinboard::instance());
+#else
+    if (!cover->visMenu)
+    {
+        cover->visMenu = new ui::Menu("COVISE", this);
+        auto e = new ui::Action(cover->visMenu, "Execute");
+        e->setCallback([this](){
+            executeAll();
+        });
+    }
+#endif
     CoviseRender::set_render_module_callback(messageCallback);
     return VRCoviseConnection::covconn;
 }
 
 CovisePlugin::~CovisePlugin()
 {
+    if (cover->visMenu)
+    {
+        cover->visMenu = NULL;
+    }
     delete VRCoviseConnection::covconn;
     VRCoviseConnection::covconn = NULL;
 }

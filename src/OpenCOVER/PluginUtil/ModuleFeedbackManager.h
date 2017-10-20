@@ -11,8 +11,8 @@
 #include <util/coTypes.h>
 
 #include <string>
-using namespace std;
 
+#ifdef VRUI
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coMenuItem.h>
 
@@ -23,6 +23,17 @@ class coButtonMenuItem;
 class coSubMenuItem;
 class coRowMenu;
 }
+#else
+#include <cover/ui/Owner.h>
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+class Button;
+}
+}
+#endif
+
 class cp3dplane;
 
 namespace opencover
@@ -42,7 +53,12 @@ class coInteractor;
 namespace opencover
 {
 
-class PLUGIN_UTILEXPORT ModuleFeedbackManager : public vrui::coMenuListener
+class PLUGIN_UTILEXPORT ModuleFeedbackManager
+#ifdef VRUI
+        : public vrui::coMenuListener
+#else
+        : public ui::Owner
+#endif
 {
 public:
     ModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const char *pluginName);
@@ -70,14 +86,16 @@ public:
     // empty implementation of 3DTex functionality
     virtual void update3DTex(std::string, cp3dplane *, const char *cmName);
 
-    string ModuleName(const char *) const;
-    string ModuleName()
+    std::string ModuleName(const char *) const;
+    std::string ModuleName()
     {
         return moduleName_;
     };
 
+#ifdef VRUI
     // menu event for general items
     virtual void menuEvent(vrui::coMenuItem *menuItem);
+#endif
 
     // set checkbox and and hide geometry
     void setHideFromGui(bool);
@@ -100,16 +118,19 @@ public:
     //enable feed back to Colors module
     void addColorbarInteractor(coInteractor *i);
 
+    // do hide button functionality
+    virtual void triggerHide(bool state);
+
     opencover::coInteractor *getInteractor()
     {
         return inter_;
-    };
+    }
     bool getSyncState();
 
 protected:
     // helper for constructor
     void createMenu();
-    void registerObjAtUi(string name);
+    void registerObjAtUi(std::string name);
 
     // helper for update
     void updateMenuNames();
@@ -118,8 +139,9 @@ protected:
     // gets either from attribute OBJECTNAME or from the module name
     // a suggestion for the menu name, the result is kept in _menuName
     //std::string suggestMenuName();
-    string getMenuName() const;
+    std::string getMenuName() const;
 
+#ifdef VRUI
     vrui::coSubMenuItem *menuItem_; // submenu entry in covise menu  "Tracer_1..."
     vrui::coRowMenu *menu_; // the menu for the interaction of the module managed by the instance of this class
     vrui::coCheckboxMenuItem *hideCheckbox_; // hide geometry
@@ -130,39 +152,55 @@ protected:
     bool inExecute_; // switch ceckbox off when new object arrived
     vrui::coSubMenuItem *colorsButton_; // open colorbar
     opencover::ColorBar *colorBar_; // colorbar menu
-    opencover::coInteractor *inter_; // the last interaction got from the module at issue
-    string menuName_; // name associated to _menuItem: its updated when a new object is received
+#else
+    ui::Menu *menu_ = nullptr; // the menu for the interaction of the module managed by the instance of this class
+    ui::Button *hideCheckbox_ = nullptr; // hide geometry
+    ui::Button *syncCheckbox_ = nullptr; // sync interaction
+    ui::Action *newButton_ = nullptr; // copy this module
+    ui::Action *deleteButton_ = nullptr; // delete this module
+    ui::Button *executeCheckbox_ = nullptr; // execute module button
+    //ui::coSubMenuItem *colorsButton_; // open colorbar
+#endif
+    opencover::coInteractor *inter_ = nullptr; // the last interaction got from the module at issue
+    bool inExecute_; // switch checkbox off when new object arrived
+    std::string menuName_; // name associated to _menuItem: its updated when a new object is received
 
     // Overload this function if you want to do anything before an EXEC
     // call is sent to a module. Always call it before doing an EXEC call!
-    virtual void preExecCB(opencover::coInteractor *){};
+    virtual void preExecCB(opencover::coInteractor *){}
 
     // search the corresponding node in sg
     osg::Node *findMyNode();
     std::vector<osg::Geode *> findMyGeode();
 
-    string geomObjectName_;
-    string containerObjectName_;
-    string attrObjectName_;
-    string attrPartName_;
+    std::string geomObjectName_;
+    std::string containerObjectName_;
+    std::string attrObjectName_;
+    std::string attrPartName_;
 
-    string initialObjectName_; //we have to save it for the grmsg, because _inter is not always valid
+    std::string initialObjectName_; //we have to save it for the grmsg, because _inter is not always valid
     osg::ref_ptr<osg::MatrixTransform> geometryCaseDCS_;
 
 private:
     // it is used in ModuleFeedbackManager::compare(const char *name)
-    string moduleName_;
+    std::string moduleName_;
 
-    string pName_;
+    std::string pName_;
 
+#ifdef VRUI
     vrui::coMenu *coviseMenu_;
     vrui::coMenu *parentMenu_;
     vrui::coRowMenu *caseMenu_; // up to now this was the "Covise" menu
     vrui::coSubMenuItem *caseMenuItem_;
-    string caseName_;
+#else
+    ui::Menu *coviseMenu_ = nullptr;
+    ui::Menu *parentMenu_ = nullptr;
+    ui::Menu *caseMenu_ = nullptr;
+#endif
+    std::string caseName_;
 
-    string visItemName_; //"Tracer_1..."
-    string visMenuName_; // "Tracer_1"
+    std::string visItemName_; //"Tracer_1..."
+    std::string visMenuName_; // "Tracer_1"
     void sendHideMsg(bool);
     std::vector<osg::Geode *> findRecMyGeode(osg::Node *node);
     osg::ref_ptr<osg::Node> myNode_;

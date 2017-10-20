@@ -33,6 +33,7 @@
 #include <osg/StateSet>
 #include <osg/Point>
 #include <osg/ShadeModel>
+#include <OpenVRUI/coUIElement.h>
 
 using namespace vrui;
 using namespace opencover;

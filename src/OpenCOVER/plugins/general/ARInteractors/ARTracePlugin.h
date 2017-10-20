@@ -27,6 +27,7 @@
 #include <cover/coTabletUI.h>
 #include <cover/coInteractor.h>
 #include <util/DLinkList.h>
+#include <OpenVRUI/coMenu.h>
 
 namespace vrui
 {

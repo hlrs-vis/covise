@@ -50,9 +50,7 @@
     <!--ShmKind value="sysv" /-->
     <WSInterface value="false" />
    <CRB>
-    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="mac" value="Renderer/OpenCOVER" name="Renderer/Renderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -61,6 +59,23 @@
   </System>
 
   <COVER>
+      <UI>
+          <NavigationManager>
+              <Navigation>
+                  <MoveWorld parent="" />
+                  <Scale parent="" />
+                  <Drive parent="" />
+              </Navigation>
+          </NavigationManager>
+          <Manager>
+              <ViewOptions>
+                  <!--Lighting parent="" /-->
+              </ViewOptions>
+          </Manager>
+          <VRSceneGraph>
+              <ViewAll parent="" />
+          </VRSceneGraph>
+      </UI>
       <!--GLVersion value="3.0" /-->
       <!--GLDebug value="true" /-->
       <Snap value="ON" />
@@ -228,7 +243,7 @@
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
-    <Window qt="false" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" embedded="false" decoration="true" />
+    <Window type="Qt" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" embedded="false" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>

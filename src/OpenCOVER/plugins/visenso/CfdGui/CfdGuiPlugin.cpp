@@ -159,6 +159,7 @@ void CfdGuiPlugin::guiToRenderMsg(const char *msg)
                 VRSceneGraph::instance()->viewAll();
             else if (strcmp(keyword, "orthographicProjection") == 0)
             {
+#if 0
                 coMenuItem *item = NULL;
                 item = cover->getBuiltInFunctionMenuItem("OrthographicProjection");
                 if (coCheckboxMenuItem *cb = dynamic_cast<coCheckboxMenuItem *>(item))
@@ -166,6 +167,9 @@ void CfdGuiPlugin::guiToRenderMsg(const char *msg)
                     bool oldState = cb->getState();
                     cb->setState(!oldState, true, true);
                 }
+#else
+                std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": not implemented" << std::endl;
+#endif
             }
         }
     }

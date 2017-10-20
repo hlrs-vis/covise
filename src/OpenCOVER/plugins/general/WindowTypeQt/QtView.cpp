@@ -1,12 +1,12 @@
 #include "QtView.h"
 
-#include "Menu.h"
-#include "ButtonGroup.h"
-#include "Label.h"
-#include "Action.h"
-#include "Button.h"
-#include "Slider.h"
-#include "SelectionList.h"
+#include <cover/ui/Menu.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/SelectionList.h>
 
 #include <QMenuBar>
 #include <QAction>
@@ -271,16 +271,16 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
     ve->markForDeletion(a);
 
     connect(s, &QSlider::sliderMoved, [slider](int value){
-        if (slider->integer())
+        if (slider->integral() && slider->scale()==ui::Slider::Linear)
         {
             slider->setValue(value);
         }
         else
         {
-            auto r = slider->max() - slider->min();
+            auto r = slider->linMax() - slider->linMin();
             auto a = (double)value/SliderIntMax;
-            double val = slider->min()+r*a;
-            slider->setValue(val);
+            double val = slider->linMin()+r*a;
+            slider->setLinValue(val);
         }
         slider->setMoving(true);
         slider->trigger();
@@ -364,7 +364,7 @@ void QtView::updateState(const Button *button)
         a->setChecked(button->state());
 }
 
-void QtView::updateChildren(const Menu *menu)
+void QtView::updateParent(const Element *elem)
 {
 #if 0
     auto o = qtObject(menu);
@@ -450,7 +450,13 @@ void QtView::updateChildren(const SelectionList *sl)
     m->addActions(ag->actions());
 }
 
-void QtView::updateInteger(const Slider *slider)
+void QtView::updateIntegral(const Slider *slider)
+{
+    updateBounds(slider);
+    updateValue(slider);
+}
+
+void QtView::updateScale(const Slider *slider)
 {
     updateBounds(slider);
     updateValue(slider);
@@ -465,16 +471,16 @@ void QtView::updateValue(const Slider *slider)
     auto s = dynamic_cast<QSlider *>(o);
     if (s)
     {
-        if (slider->integer())
+        if (slider->integral() && slider->scale()==Slider::Linear)
         {
             if (s->value() != slider->value())
                 s->setValue(slider->value());
         }
         else
         {
-            auto min = slider->min();
-            auto r = slider->max() - min;
-            auto v = int((slider->value()-min)/r*SliderIntMax);
+            auto min = slider->linMin();
+            auto r = slider->linMax() - min;
+            auto v = int((slider->linValue()-min)/r*SliderIntMax);
             if (v != s->value())
             {
                 //std::cerr << "update: v=" << v << ", slider=" << s->value() << std::endl;
@@ -492,7 +498,7 @@ void QtView::updateBounds(const Slider *slider)
     auto s = dynamic_cast<QSlider *>(o);
     if (s)
     {
-        if (slider->integer())
+        if (slider->integral() && slider->scale()==Slider::Linear)
         {
             if (s->minimum() != slider->min() || s->maximum() != slider->max())
                 s->setRange(slider->min(), slider->max());
@@ -546,3 +552,5 @@ void QtViewElement::markForDeletion(QObject *obj)
 
 }
 }
+
+#include "moc_QtView.cpp"

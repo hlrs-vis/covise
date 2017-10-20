@@ -54,14 +54,16 @@ class COVER_UI_EXPORT View {
     virtual void updateVisible(const Element *elem) = 0;
     //! reflect changed text in graphical representation
     virtual void updateText(const Element *elem) = 0;
+    //! reflect change of parent item in graphical representation
+    virtual void updateParent(const Element *elem) = 0;
     //! reflect changed button state in graphical representation
     virtual void updateState(const Button *button) = 0;
     //! reflect change of child items in graphical representation
-    virtual void updateChildren(const Menu *menu) = 0;
-    //! reflect change of child items in graphical representation
     virtual void updateChildren(const SelectionList *sl) = 0;
     //! reflect change of slider type in graphical representation
-    virtual void updateInteger(const Slider *slider) = 0;
+    virtual void updateIntegral(const Slider *slider) = 0;
+    //! reflect change of slider scale type in graphical representation
+    virtual void updateScale(const Slider *slider) = 0;
     //! reflect change of slider value in graphical representation
     virtual void updateValue(const Slider *slider) = 0;
     //! reflect change of slider range in graphical representation

@@ -320,6 +320,7 @@ bool coVRSelectionManager::haveToDelete(osg::Node *parent, osg::Node *node)
     }
 }
 
+#if 0
 void coVRSelectionManager::selectionCallback(void *, buttonSpecCell *spec)
 {
     //fprintf(stderr,"coVRSelectionManager::selectionCallback\n");
@@ -332,6 +333,7 @@ void coVRSelectionManager::selectionCallback(void *, buttonSpecCell *spec)
         coVRSelectionManager::instance()->setSelectionOnOff(0);
     }
 }
+#endif
 
 void coVRSelectionManager::setSelectionColor(float R, float G, float B)
 {

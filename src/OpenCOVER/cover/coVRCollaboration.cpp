@@ -429,54 +429,6 @@ void coVRCollaboration::showCollaborative(bool visible)
     }
 }
 
-void
-coVRCollaboration::tightCouplingCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->setSyncMode("TIGHT");
-        VRAvatarList::instance()->hide();
-        cover->sendBinMessage("SYNC_MODE", "TIGHT", 6);
-    }
-}
-
-void
-coVRCollaboration::looseCouplingCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->setSyncMode("LOOSE");
-        VRAvatarList::instance()->show();
-        cover->sendBinMessage("SYNC_MODE", "LOOSE", 6);
-    }
-}
-
-void
-coVRCollaboration::msCouplingCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->setSyncMode("MS");
-        VRAvatarList::instance()->hide();
-        cover->sendBinMessage("SYNC_MODE", "MS", 3);
-    }
-}
-
-void
-coVRCollaboration::showAvatarCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->showAvatar = true;
-        VRAvatarList::instance()->show();
-    }
-    else
-    {
-        ((coVRCollaboration *)sceneGraph)->showAvatar = false;
-        VRAvatarList::instance()->hide();
-    }
-}
-
 float coVRCollaboration::getSyncInterval()
 {
     if (vrbc)

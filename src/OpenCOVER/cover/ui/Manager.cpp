@@ -196,11 +196,11 @@ void Manager::updateState(const Button *button) const
     }
 }
 
-void Manager::updateChildren(const Menu *menu) const
+void Manager::updateParent(const Element *elem) const
 {
     for (auto v: m_views)
     {
-        v.second->updateChildren(menu);
+        v.second->updateParent(elem);
     }
 }
 
@@ -212,11 +212,19 @@ void Manager::updateChildren(const SelectionList *sl) const
     }
 }
 
-void Manager::updateInteger(const Slider *slider) const
+void Manager::updateScale(const Slider *slider) const
 {
     for (auto v: m_views)
     {
-        v.second->updateInteger(slider);
+        v.second->updateScale(slider);
+    }
+}
+
+void Manager::updateIntegral(const Slider *slider) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateIntegral(slider);
     }
 }
 
@@ -383,7 +391,7 @@ void Manager::sync()
         ms->syncData(&m_numUpdates, sizeof(m_numUpdates));
         if (m_numUpdates > 0)
         {
-            std::cerr << "ui::Manager: syncing " << m_numUpdates << " updates" << std::endl;
+            //std::cerr << "ui::Manager: syncing " << m_numUpdates << " updates" << std::endl;
             if (ms->isMaster())
             {
                 covise::Message msg(*m_updates);

@@ -17,7 +17,6 @@ class coNavInteraction;
 }
 namespace opencover
 {
-class buttonSpecCell;
 
 class COVEREXPORT coSelectionListener
 {
@@ -45,8 +44,6 @@ public:
     osg::BoundingSphere getBoundingSphere(osg::Node *);
 
     virtual bool update();
-
-    static void selectionCallback(void *, buttonSpecCell *spec);
 
     enum HelperNodeType
     {

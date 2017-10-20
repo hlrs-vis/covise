@@ -54,6 +54,7 @@ void Element::update() const
     manager()->updateText(this);
     manager()->updateVisible(this);
     manager()->updateEnabled(this);
+    manager()->updateParent(this);
 }
 
 std::set<Container *> Element::containers()

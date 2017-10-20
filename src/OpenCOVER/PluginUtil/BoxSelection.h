@@ -9,6 +9,7 @@
 #define _BOX_SELECTION_
 
 #include <util/coExport.h>
+#ifdef VRUI
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coMenuItem.h>
 
@@ -19,24 +20,45 @@ class coRowMenu;
 class coCheckboxMenuItem;
 class coLabelMenuItem;
 }
+#else
+#include <cover/ui/Owner.h>
+namespace opencover
+{
+namespace ui
+{
+class Menu;
+class Button;
+class Label;
+}
+}
+#endif
 
 namespace opencover
 {
 class BoxSelectionInteractor;
 
-class PLUGIN_UTILEXPORT BoxSelection : public vrui::coMenuListener, public vrui::coMenuItem
+class PLUGIN_UTILEXPORT BoxSelection
+#ifdef VRUI
+    : public vrui::coMenuListener, public vrui::coMenuItem
+#else
+    : public ui::Owner
+#endif
 {
 
 public:
-    BoxSelection(vrui::coRowMenu *, const char *name, const char *label);
+    BoxSelection(opencover::ui::Menu *, const char *name, const char *label);
     ~BoxSelection();
     BoxSelection *instance();
     void registerInteractionFinishedCallback(void (*interactionFinished)());
     void unregisterInteractionFinishedCallback();
+#ifdef VRUI
     void setMenuListener(vrui::coMenuListener *);
     vrui::coMenuListener *getMenuListener() const;
     vrui::coSubMenuItem *getSubMenu() const;
     vrui::coCheckboxMenuItem *getCheckbox() const;
+#else
+    ui::Button *getButton() const;
+#endif
     bool getCheckboxState() const;
 
     void getBox(float &xmin, float &ymin, float &zmin, float &xmax, float &ymax, float &zmax);
@@ -44,6 +66,7 @@ public:
 
 private:
     static void (*s_interactionFinished)();
+#ifdef VRUI
     vrui::coMenu *m_pinboard;
     vrui::coSubMenuItem *m_infoSubMenuItem;
     vrui::coCheckboxMenuItem *m_useBoxSelection;
@@ -51,6 +74,15 @@ private:
     vrui::coLabelMenuItem *m_xmaxItem, *m_ymaxItem, *m_zmaxItem;
     vrui::coRowMenu *m_selectionSubMenu;
     vrui::coMenuListener *m_parentListener;
+
+    void menuEvent(coMenuItem *);
+#else
+    ui::Menu *m_pinboard = nullptr;
+    ui::Button *m_useBoxSelection = nullptr;
+    ui::Label *m_xminItem = nullptr, *m_yminItem = nullptr, *m_zminItem = nullptr;
+    ui::Label *m_xmaxItem = nullptr, *m_ymaxItem = nullptr, *m_zmaxItem = nullptr;
+    ui::Menu *m_selectionSubMenu = nullptr;
+#endif
     static float s_xmin;
     static float s_ymin;
     static float s_zmin;
@@ -59,7 +91,6 @@ private:
     static float s_zmax;
 
     static opencover::BoxSelectionInteractor *s_boxSelectionInteractor;
-    void menuEvent(coMenuItem *);
 
     void createSubMenu();
     void deleteSubMenu();

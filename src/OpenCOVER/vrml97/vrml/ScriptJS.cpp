@@ -4385,9 +4385,11 @@ static JSBool setFunctionState(JSContext *cx, JSObject *,
     if (!str)
         return JS_FALSE;
     JS_ValueToNumber(cx, argv[1], &val);
-    System::the->inform("setFunctionState:%s %d", JS_GetStringBytes(str), (int)val);
+    System::the->warn("NOT IMPLEMENTED: setFunctionState:%s %d", JS_GetStringBytes(str), (int)val);
+#if 0
     System::the->setBuiltInFunctionState(JS_GetStringBytes(str), (int)val);
     System::the->callBuiltInFunctionCallback(JS_GetStringBytes(str));
+#endif
     return JS_TRUE;
 }
 
@@ -4413,9 +4415,11 @@ static JSBool setFunctionValue(JSContext *cx, JSObject *,
     if (!str)
         return JS_FALSE;
     JS_ValueToNumber(cx, argv[1], &val);
-    System::the->inform("setFunctionValue:%s %f", JS_GetStringBytes(str), (float)val);
+    System::the->warn("NOT IMPLEMENTED: setFunctionValue:%s %f", JS_GetStringBytes(str), (float)val);
+#if 0
     System::the->setBuiltInFunctionValue(JS_GetStringBytes(str), (float)val);
     System::the->callBuiltInFunctionCallback(JS_GetStringBytes(str));
+#endif
     return JS_TRUE;
 }
 

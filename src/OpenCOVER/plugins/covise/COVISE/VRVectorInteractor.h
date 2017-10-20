@@ -54,14 +54,16 @@ public:
     void updateMenu();
     void updateParameter();
     void update(buttonSpecCell *spec);
-    void addMenue();
     char getType()
     {
         return (feedback_information[0]);
     };
     void updateValue(float x, float y, float z);
     float getMinDist(float x, float y, float z);
+#ifdef PINBOARD
+    void addMenue();
     static void menuCallback(void *sider, buttonSpecCell *spec);
+#endif
     static osg::Node *getArrow();
     VectorInteractor(const char *attrib, const char *sattrib, osg::Node *n);
     ~VectorInteractor();

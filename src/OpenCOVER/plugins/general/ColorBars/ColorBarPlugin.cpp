@@ -20,13 +20,13 @@
 #include <cover/RenderObject.h>
 #include <cover/OpenCOVER.h>
 #include <PluginUtil/ColorBar.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
 
-using namespace vrui;
 using namespace opencover;
 
 ColorBarPlugin::ColorBarPlugin()
+: ui::Owner("ColorBarPlugin", cover->ui)
 {
 }
 
@@ -34,26 +34,16 @@ bool ColorBarPlugin::init()
 {
     //fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
     colorSubmenu = NULL;
-    colorButton = NULL;
     colorsModuleMap.clear();
     tabID = 0;
 
     // create the TabletUI User-Interface
     createMenuEntry();
 
-    // how to attach pinboardButton later to the Coviseentry
-    coMenu *coviseMenu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu(OpenCOVER::instance()->visPlugin()->getName());
-    if (menu)
+    if (cover->visMenu)
     {
-        coviseMenu = menu->getCoMenu();
-
-        // create the button for the pinboard
-        colorButton = new coSubMenuItem("Colors...");
-        colorSubmenu = new coRowMenu("Colors");
-        colorButton->setMenu(colorSubmenu);
-
-        coviseMenu->add(colorButton);
+        colorSubmenu = new ui::Menu("Colors", this);
+        cover->visMenu->add(colorSubmenu);
     }
 
     return true;
@@ -64,8 +54,6 @@ ColorBarPlugin::~ColorBarPlugin()
 {
     //fprintf(stderr,"ColorBarPlugin::~ColorBarPlugin\n");
 
-    delete colorButton;
-    delete colorSubmenu;
     colorsModuleMap.clear();
 
     removeMenuEntry();
@@ -165,7 +153,7 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
 
         if (!found)
         {
-            it = colorsModuleMap.insert(ColorsModuleMap::value_type(inter, ColorsModule())).first;
+            it = colorsModuleMap.insert(ColorsModuleMap::value_type(inter, ColorsModule(inter->getModuleName(), this))).first;
             inter->incRefCount();
         }
         ColorsModule &mod = it->second;
@@ -225,22 +213,27 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
 
         if (found)
         {
-            mod.colorbar->update(species, min, max, numColors, r, g, b, a);
-            mod.colorbar->setName(menuName.c_str());
+            if (mod.colorbar)
+            {
+                mod.colorbar->update(species, min, max, numColors, r, g, b, a);
+                mod.colorbar->setName(menuName.c_str());
+            }
         }
         else
         {
-            vrui::coSubMenuItem *menuItem = new coSubMenuItem(menuName.c_str());
-            _menu = new coRowMenu(menuName.c_str());
-            menuItem->setMenu(_menu);
+            mod.menu = new ui::Menu(menuName, &mod);
+            colorSubmenu->add(mod.menu);
 
-            if (colorSubmenu)
-                colorSubmenu->add(menuItem);
-            mod.menu = menuItem;
-
-            mod.colorbar = new ColorBar(menuItem, _menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
+            if (cover->vruiView)
+            {
+                auto menu = dynamic_cast<vrui::coRowMenu *>(cover->vruiView->getMenu(mod.menu));
+                auto item = dynamic_cast<vrui::coSubMenuItem *>(cover->vruiView->getItem(mod.menu));
+                if (menu && item)
+                    mod.colorbar = new ColorBar(item, menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
+            }
         }
-        mod.colorbar->addInter(inter);
+        if (mod.colorbar)
+            mod.colorbar->addInter(inter);
 
         delete[] species;
         delete[] r;

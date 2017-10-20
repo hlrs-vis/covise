@@ -36,6 +36,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRAnimationManager.h>
+#include <cover/coVRNavigationManager.h>
 #include <string>
 #ifndef WIN32
 #include <sys/time.h>
@@ -1362,11 +1363,8 @@ void PDBPlugin::updateOSGCaveUI()
 /// Called before each frame
 void PDBPlugin::preFrame()
 {
-    coMenuItem *test = cover->getBuiltInFunctionMenuItem("XForm");
-    if (((coCheckboxMenuItem *)test)->getState()) // check for menu mode
-        setAllMovable(true);
-    else
-        setAllMovable(false);
+    auto mode = coVRNavigationManager::instance()->getMode();
+    setAllMovable(mode == coVRNavigationManager::XForm);
 
     // check if the show panel should be visible
     nameHandle->setVisible(nameVisibleCheckbox->getState());
