@@ -77,7 +77,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #ifdef __APPLE__
     //auto menubar = new QMenuBar(nullptr);
     auto menubar = win.window->menuBar();
-    //menubar->setNativeMenuBar(false);
+    menubar->setNativeMenuBar(false);
 #else
     auto menubar = win.window->menuBar();
 #endif
