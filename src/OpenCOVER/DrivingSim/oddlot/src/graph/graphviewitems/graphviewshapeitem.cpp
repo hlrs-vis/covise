@@ -120,7 +120,7 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
     QGraphicsPathItem *pathItem = new QGraphicsPathItem(this);
     graphicItemGroup_->addToGroup(pathItem);
 
-    int pointSize = 1.5;
+    qreal pointSize = 1.5;
 
     if (active)
         pathItem->setBrush(QColor(140, 140, 240, 255));
@@ -199,7 +199,7 @@ GraphViewShapeItem::createPath()
     QGraphicsPathItem *pathHandleItem = new QGraphicsPathItem(this);
     QPen penHandle(Qt::black);
     penHandle.setStyle(Qt::DashLine);
-    penHandle.setWidth(1.5);
+    penHandle.setWidthF(1.5);
 	penHandle.setCosmetic(true);
     pathHandleItem->setPen(penHandle);
     graphicItemGroup_->addToGroup(pathHandleItem);

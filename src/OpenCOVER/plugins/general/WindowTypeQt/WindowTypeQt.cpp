@@ -51,6 +51,7 @@ bool WindowTypeQtPlugin::destroy()
     {
         windowDestroy(m_windows.begin()->second.index);
     }
+    return true;
 }
 
 bool WindowTypeQtPlugin::windowCreate(int i)
@@ -75,7 +76,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
 #ifdef __APPLE__
     //auto menubar = new QMenuBar(nullptr);
-    auto menubar = win.win->menuBar();
+    auto menubar = win.window->menuBar();
     //menubar->setNativeMenuBar(false);
 #else
     auto menubar = win.window->menuBar();
