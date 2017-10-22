@@ -19,6 +19,7 @@
 #include <cover/coCollabInterface.h>
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 #include <virvo/vvvecmath.h>
 #include <virvo/vvtransfunc.h>
@@ -46,13 +47,6 @@ class coDistributedObject;
 
 namespace vrui
 {
-class coSubMenuItem;
-class coCheckboxMenuItem;
-class coSliderMenuItem;
-class coButtonMenuItem;
-class coPotiMenuItem;
-class coLabelMenuItem;
-class coMenuItem;
 class coCombinedButtonInteraction;
 }
 
@@ -60,9 +54,16 @@ namespace opencover
 {
 class coVRPlugin;
 class RenderObject;
+namespace  ui {
+class Menu;
+class Group;
+class Action;
+class Button;
+class SelectionList;
+class Label;
+}
 }
 
-using namespace vrui;
 using namespace opencover;
 using boost::scoped_ptr;
 using boost::shared_ptr;
@@ -90,7 +91,7 @@ extern scoped_ptr<coCOIM> VolumeCoim;
   @author Juergen Schulze-Doebold
   @author Martin Aumueller
 */
-class VolumePlugin : public coMenuListener, public coVRPlugin, public coTUIListener
+class VolumePlugin : public coVRPlugin, public ui::Owner, public coTUIListener
 {
 public:
     VolumePlugin();
@@ -115,7 +116,8 @@ public:
     static int loadVolume(const char *, osg::Group *parent, const char *ck = "");
     static int unloadVolume(const char *, const char *ck = "");
 
-    scoped_ptr<coMenu> filesMenu;
+    ui::Menu *filesMenu = nullptr;
+    ui::Group *filesGroup = nullptr;
 
 private:
     enum
@@ -139,51 +141,15 @@ private:
 
     double start;
 
-    scoped_ptr<coMenu> volumeMenu;
-    scoped_ptr<coMenu> clipMenu;
-    scoped_ptr<coSubMenuItem> pinboardEntry;
-    scoped_ptr<coSubMenuItem> filesItem;
-    scoped_ptr<coSubMenuItem> clipItem;
-    scoped_ptr<coCheckboxMenuItem> ROIItem;
-    scoped_ptr<coCheckboxMenuItem> clipModeItem;
-    scoped_ptr<coCheckboxMenuItem> clipOutlinesItem;
-    scoped_ptr<coCheckboxMenuItem> clipSphereActive0Item;
-    scoped_ptr<coCheckboxMenuItem> clipSphereActive1Item;
-    scoped_ptr<coCheckboxMenuItem> clipSphereActive2Item;
-    scoped_ptr<coCheckboxMenuItem> clipSphereInteractorActive0Item;
-    scoped_ptr<coCheckboxMenuItem> clipSphereInteractorActive1Item;
-    scoped_ptr<coCheckboxMenuItem> clipSphereInteractorActive2Item;
-    scoped_ptr<coSliderMenuItem> clipSphereRadius0Item;
-    scoped_ptr<coSliderMenuItem> clipSphereRadius1Item;
-    scoped_ptr<coSliderMenuItem> clipSphereRadius2Item;
-    scoped_ptr<coCheckboxMenuItem> preintItem;
-    scoped_ptr<coCheckboxMenuItem> lightingItem;
-    scoped_ptr<coSliderMenuItem> fpsItem;
-    scoped_ptr<coCheckboxMenuItem> boundItem;
-    scoped_ptr<coCheckboxMenuItem> interpolItem;
-    scoped_ptr<coPotiMenuItem> colorsItem;
-    scoped_ptr<coButtonMenuItem> cropItem;
-    scoped_ptr<coButtonMenuItem> saveItem;
-    scoped_ptr<coButtonMenuItem> tfeItem;
-    scoped_ptr<coSliderMenuItem> hqItem;
-    scoped_ptr<coCheckboxMenuItem> allVolumesActiveItem;
-    scoped_ptr<coButtonMenuItem> cycleVolumeItem;
-    scoped_ptr<coLabelMenuItem> currentVolumeItem;
-    scoped_ptr<coCheckboxMenuItem> sideBySideItem;
-    scoped_ptr<coButtonMenuItem> unloadItem;
-
-    scoped_ptr<coSubMenuItem> blendModeItem;
-    scoped_ptr<coMenu> blendModeMenu;
-    scoped_ptr<coCheckboxMenuItem> alphaDefBlendItem;
-    scoped_ptr<coCheckboxMenuItem> alphaDarkBlendItem;
-    scoped_ptr<coCheckboxMenuItem> alphaLightBlendItem;
-    scoped_ptr<coCheckboxMenuItem> minIntensityItem;
-    scoped_ptr<coCheckboxMenuItem> maxIntensityItem;
-
-    scoped_ptr<coSubMenuItem> multiChanItem;
-    scoped_ptr<coMenu> multiChanMenu;
-    scoped_ptr<coCheckboxMenuItem> multiDimTFItem;
-    scoped_ptr<coCheckboxMenuItem> singleChannelItem;
+    ui::Menu *volumeMenu = nullptr, *clipMenu = nullptr;
+    ui::Button *ROIItem = nullptr;
+    ui::Button *preintItem = nullptr;
+    ui::Button *lightingItem = nullptr;
+    ui::Button *tfeItem = nullptr;
+    ui::Button *boundItem = nullptr;
+    ui::Button *interpolItem = nullptr;
+    ui::SelectionList *blendModeItem = nullptr;
+    ui::Label *currentVolumeItem = nullptr;
 
     std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
@@ -252,12 +218,11 @@ private:
     bool roiVisible();
     int loadFile(const char *, osg::Group *parent);
     void sendROIMessage(osg::Vec3, float);
-    void menuEvent(coMenuItem *);
 
     void setROIMode(bool);
     void setClippingMode(bool);
-    coCombinedButtonInteraction *interactionA; ///< interaction for first button
-    coCombinedButtonInteraction *interactionB; ///< interaction for second button
+    vrui::coCombinedButtonInteraction *interactionA; ///< interaction for first button
+    vrui::coCombinedButtonInteraction *interactionB; ///< interaction for second button
     int fpsMissed;
     float chosenFPS;
     float radiusScale[NumClipSpheres];
@@ -272,6 +237,8 @@ private:
     TFApplyCBData tfApplyCBData;
 
     virvo::VolumeDrawable *getCurrentDrawable();
+    void applyToVolumes(std::function<void(Volume &)> func);
+
 
     void updateTFEData();
     bool computeHistogram;
@@ -286,9 +253,9 @@ private:
 class FileEntry
 {
 public:
-    char *menuName;
-    char *fileName;
-    coMenuItem *fileMenuItem;
+    char *menuName = nullptr;
+    char *fileName = nullptr;
+    ui::Action *fileMenuItem = nullptr;
 
     FileEntry(const char *, const char *);
     ~FileEntry();

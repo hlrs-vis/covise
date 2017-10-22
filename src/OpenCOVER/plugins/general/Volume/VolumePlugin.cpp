@@ -29,16 +29,15 @@
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginList.h>
+#include <cover/coCollabInterface.h>
 
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coLabelMenuItem.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coFrame.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/SelectionList.h>
+#include <cover/ui/Menu.h>
+
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 
@@ -64,6 +63,7 @@
 #include <osg/io_utils>
 
 using namespace osg;
+using namespace vrui;
 
 #undef VERBOSE
 
@@ -249,9 +249,12 @@ FileEntry::FileEntry(const char *fN, const char *mN)
     }
 
     // Create a menu entry:
-    fileMenuItem = new coButtonMenuItem(menuName);
-    fileMenuItem->setMenuListener(VolumePlugin::plugin);
-    VolumePlugin::plugin->filesMenu->add(fileMenuItem);
+    fileMenuItem = new ui::Action(VolumePlugin::plugin->filesGroup, menuName);
+    fileMenuItem->setCallback([this](){
+        cover->sendMessage(VolumePlugin::plugin,
+                           coVRPluginSupport::TO_SAME, PluginMessageTypes::VolumeLoadFile,
+                           strlen(fileName) + 1, fileName);
+    });
 }
 
 FileEntry::~FileEntry()
@@ -322,12 +325,15 @@ FileHandler fileHandler[] = {
 
 /// Constructor
 VolumePlugin::VolumePlugin()
-    : editor(NULL)
+    : ui::Owner("VolumePlugin", cover->ui)
+    , editor(NULL)
 {
 }
 
 bool VolumePlugin::init()
 {
+    std::cerr << "VolumePlugin::init" << std::endl;
+
     vvDebugMsg::msg(1, "VolumePlugin::VolumePlugin()");
 
     // set virvo debug level ------------------------------
@@ -423,10 +429,7 @@ bool VolumePlugin::init()
     editor->setSaveFunc(saveDefaultTransferFunction);
 
     tfApplyCBData.tfe = editor;
-    pinboardEntry.reset(new coSubMenuItem("Volume..."));
-    cover->getMenu()->add(pinboardEntry.get());
-    volumeMenu.reset(new coRowMenu("Volume", cover->getMenu()));
-    pinboardEntry->setMenu(volumeMenu.get());
+    volumeMenu = new ui::Menu("Volume", this);
 
     // create the TabletUI interface
     functionEditorTab = new coTUIFunctionEditorTab("Volume TFE", coVRTui::instance()->mainFolder->getID());
@@ -472,137 +475,278 @@ bool VolumePlugin::init()
 
     // Create main volume menu:
 
-    filesItem.reset(new coSubMenuItem("Files..."));
-    volumeMenu->add(filesItem.get());
-    filesMenu.reset(new coRowMenu("Files", volumeMenu.get()));
-    filesItem->setMenu(filesMenu.get());
+    tfeItem = new ui::Button(volumeMenu, "ShowTFE");
+    tfeItem->setText("Show TFE");
+    tfeItem->setCallback([this](bool state){
+        if (state)
+            editor->show();
+        else
+            editor->hide();
+    });
 
-    clipItem.reset(new coSubMenuItem("Clipping..."));
-    clipMenu.reset(new coRowMenu("Clipping", volumeMenu.get()));
-    clipItem->setMenu(clipMenu.get());
-    volumeMenu->add(clipItem.get());
+    boundItem = new ui::Button(volumeMenu, "Boundaries");
+    boundItem->setState(false);
+    boundItem->setCallback([this](bool state){
+        applyToVolumes([this, state](Volume &vol){
+            vol.drawable->setBoundaries(state);
+            vol.boundaries = state;
+        });
+    });
 
-    unloadItem.reset(new coButtonMenuItem("Unload Current File"));
-    filesMenu->add(unloadItem.get());
-    tfeItem.reset(new coButtonMenuItem("Display TFE"));
-    ROIItem.reset(new coCheckboxMenuItem("Region of Interest", false));
-    cropItem.reset(new coButtonMenuItem("Crop to ROI"));
-    saveItem.reset(new coButtonMenuItem("Save Volume"));
-    fpsItem.reset(new coSliderMenuItem("Frame Rate", 5.0, 60.0, chosenFPS));
-    boundItem.reset(new coCheckboxMenuItem("Boundaries", false));
-    interpolItem.reset(new coCheckboxMenuItem("Interpolation", false));
-    preintItem.reset(new coCheckboxMenuItem("Pre-integration", preIntegration));
-    lightingItem.reset(new coCheckboxMenuItem("Lighting", lighting));
-    colorsItem.reset(new coPotiMenuItem("Discrete Colors", 0.0, 32.0, 0, VolumeCoim.get(), "DISCRETE_COLORS"));
-    hqItem.reset(new coSliderMenuItem("Oversampling", 1.0, MAX_QUALITY * 2., highQualityOversampling));
-    allVolumesActiveItem.reset(new coCheckboxMenuItem("All Volumes Active", allVolumesActive));
-    cycleVolumeItem.reset(new coButtonMenuItem("Cycle Active Volume"));
-    currentVolumeItem.reset(new coLabelMenuItem("[]"));
-    sideBySideItem.reset(new coCheckboxMenuItem("Side By Side", false));
+    ROIItem = new ui::Button(volumeMenu, "ROI");
+    ROIItem->setText("Region of interest (ROI)");
+    ROIItem->setState(false);
+    ROIItem->setCallback([this](bool state){
+        setROIMode(state);
+    });
 
-    blendModeItem.reset(new coSubMenuItem("Blending..."));
-    blendModeMenu.reset(new coRowMenu("Blending", volumeMenu.get()));
-    blendModeItem->setMenu(blendModeMenu.get());
+    auto cropItem = new ui::Action(volumeMenu, "CropToRoi");
+    cropItem->setText("Crop to ROI");
+    cropItem->setCallback([this](){
+        cropVolume();
+    });
 
-    coCheckboxGroup *blendGroup = new coCheckboxGroup();
-    alphaDefBlendItem.reset(new coCheckboxMenuItem("Alpha Blending (default)", true, blendGroup));
-    alphaLightBlendItem.reset(new coCheckboxMenuItem("Alpha Blending (light)", false, blendGroup));
-    alphaDarkBlendItem.reset(new coCheckboxMenuItem("Alpha Blending (dark)", false, blendGroup));
-    minIntensityItem.reset(new coCheckboxMenuItem("Minimum Intensity", false, blendGroup));
-    maxIntensityItem.reset(new coCheckboxMenuItem("Maximum Intensity", false, blendGroup));
-    blendModeMenu->add(alphaDefBlendItem.get());
-    blendModeMenu->add(alphaLightBlendItem.get());
-    blendModeMenu->add(alphaDarkBlendItem.get());
-    blendModeMenu->add(minIntensityItem.get());
-    blendModeMenu->add(maxIntensityItem.get());
+    clipMenu = new ui::Menu(volumeMenu, "Clipping");
+
+    auto renderGroup = new ui::Group(volumeMenu, "Rendering");
+
+    lightingItem = new ui::Button(renderGroup, "Lighting");
+    lightingItem->setState(lighting);
+    lightingItem->setCallback([this](bool state){
+        applyToVolumes([this, state](Volume &vol){
+            vol.drawable->setLighting(state);
+            vol.lighting = state;
+        });
+    });
+
+    interpolItem = new ui::Button(renderGroup, "Interpolation");
+    interpolItem->setState(false);
+    interpolItem->setCallback([this](bool state){
+        applyToVolumes([this, state](Volume &vol){
+            vol.drawable->setInterpolation(state);
+            vol.interpolation = state;
+        });
+    });
+
+    auto colorsItem = new ui::Slider(renderGroup, "DiscreteColors");
+    colorsItem->setBounds(0., 32.);
+    colorsItem->setIntegral(true);
+    colorsItem->setText("Discrete colors");
+    colorsItem->setPresentation(ui::Slider::AsDial);
+    colorsItem->setCallback([this](double value, bool released){
+        discreteColors = (int)value;
+        editor->updateColorBar();
+        editor->setDiscreteColors(discreteColors);
+    });
+
+    blendModeItem = new ui::SelectionList(renderGroup, "BlendMode");
+    blendModeItem->setText("Blend mode");
+    blendModeItem->append("Alpha");
+    blendModeItem->append("Alpha (dark)");
+    blendModeItem->append("Alpha (light)");
+    blendModeItem->append("Maximum intensity");
+    blendModeItem->append("Minimum intensity");
+    blendModeItem->setCallback([this](int mode){
+        virvo::VolumeDrawable::BlendMode blend = virvo::VolumeDrawable::AlphaBlend;
+        if (mode == 4)
+            blend = virvo::VolumeDrawable::MinimumIntensity;
+        else if (mode == 3)
+            blend = virvo::VolumeDrawable::MaximumIntensity;
+
+        Vec4 bg(0., 0., 0., 1.);
+        switch (blend)
+        {
+        case virvo::VolumeDrawable::AlphaBlend:
+            if (mode == 0)
+            {
+                backgroundColor = BgDefault;
+                bg[0] = covise::coCoviseConfig::getFloat("r", "COVER.Background", 0.f);
+                bg[1] = covise::coCoviseConfig::getFloat("g", "COVER.Background", 0.f);
+                bg[2] = covise::coCoviseConfig::getFloat("b", "COVER.Background", 0.f);
+            }
+            else if (mode == 1)
+            {
+                backgroundColor = BgDark;
+                bg[0] = bg[1] = bg[2] = 0.30f;
+            }
+            else if (mode == 2)
+            {
+                backgroundColor = BgLight;
+                bg[0] = bg[1] = bg[2] = 0.75f;
+            }
+            break;
+        case virvo::VolumeDrawable::MinimumIntensity:
+            bg[0] = bg[1] = bg[2] = 1.;
+            break;
+        case virvo::VolumeDrawable::MaximumIntensity:
+            bg[0] = bg[1] = bg[2] = 0.;
+            break;
+        }
+        VRViewer::instance()->setClearColor(bg);
+
+        applyToVolumes([this, blend, mode](Volume &vol){
+            vol.drawable->setBlendMode(blend);
+            vol.blendMode = blend;
+        });
+    });
+
+    auto hqItem = new ui::Slider(renderGroup, "Oversampling");
+    hqItem->setBounds(1., MAX_QUALITY*2.);
+    hqItem->setValue(highQualityOversampling);
+    hqItem->setCallback([this](double value, bool released){
+        highQualityOversampling = value;
+    });
+
+    auto fpsItem = new ui::Slider(renderGroup, "FrameRate");
+    fpsItem->setText("Frame rate");
+    fpsItem->setBounds(5.0, 60.0);
+    fpsItem->setValue(chosenFPS);
+    fpsItem->setCallback([this](double value, bool released){
+        chosenFPS = value;
+    });
+
+    preintItem = new ui::Button(renderGroup, "PreIntegration");
+    preintItem->setText("Pre-integration");
+    preintItem->setState(preIntegration);
+    preintItem->setCallback([this](bool state){
+        applyToVolumes([this, state](Volume &vol){
+            vol.drawable->setPreintegration(state);
+            vol.preIntegration = state;
+        });
+    });
+
+    auto volumesGroup = new ui::Group(volumeMenu, "Volumes");
+
+    filesMenu = new ui::Menu(volumesGroup, "Files");
+
+    auto saveItem = new ui::Action(filesMenu, "SaveVolume");
+    saveItem->setText("Save volume");
+    saveItem->setCallback([this](){
+        saveVolume();
+    });
+
+    auto unloadItem = new ui::Action(filesMenu, "Unload");
+    unloadItem->setText("Unload current file");
+    unloadItem->setCallback([this](){
+        if (currentVolume != volumes.end())
+        {
+            std::string filename = currentVolume->second.filename;
+            if (!filename.empty())
+                updateVolume(filename, NULL);
+        }
+    });
+
+    filesGroup = new ui::Group(filesMenu, "Files");
+
+    auto allVolumesActiveItem = new ui::Button(volumesGroup, "AllVolumesActive");
+    allVolumesActiveItem->setState(allVolumesActive);
+    allVolumesActiveItem->setText("All volumes active");
+    allVolumesActiveItem->setCallback([this](bool state){
+        allVolumesActive = state;
+    });
+
+    auto sideBySideItem = new ui::Button(volumesGroup, "SideBySide");
+    sideBySideItem->setText("Side by side");
+    sideBySideItem->setState(false);
+    sideBySideItem->setCallback([this](bool state){
+        if (state)
+        {
+            osg::Vec3 maxSize(0.f, 0.f, 0.f);
+            for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
+            {
+                osg::Vec3 sz = it->second.max - it->second.min;
+                for (int i = 0; i < 3; ++i)
+                    if (maxSize[i] < sz[i])
+                        maxSize[i] = sz[i];
+            }
+            int i = 0;
+            for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
+            {
+                osg::Vec3 translate(i * maxSize[0], 0.f, 0.f);
+                translate -= it->second.min;
+                osg::Matrix mat = it->second.transform->getMatrix();
+                mat.setTrans(translate);
+                it->second.transform->setMatrix(mat);
+                ++i;
+            }
+        }
+        else
+        {
+            osg::Matrix ident;
+            ident.makeIdentity();
+            for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
+            {
+                osg::Matrix mat = it->second.transform->getMatrix();
+                mat.setTrans(osg::Vec3(0,0,0));
+                it->second.transform->setMatrix(mat);
+            }
+        }
+    });
+
+    auto cycleVolumeItem = new ui::Action(volumesGroup, "CycleVolume");
+    cycleVolumeItem->setText("Cycle active volume");
+    cycleVolumeItem->setCallback([this](){
+        VolumeMap::iterator cur = currentVolume;
+        if (cur != volumes.end())
+        {
+            ++cur;
+        }
+        if (volumes.end() == cur)
+        {
+            cur = volumes.begin();
+        }
+
+        makeVolumeCurrent(cur);
+    });
+
+    currentVolumeItem = new ui::Label(volumesGroup, "CurrentVolume");
+    currentVolumeItem->setText("[]");
 
     // Create clipping menu
+    auto clipModeItem = new ui::Button(clipMenu, "OpaqueClipping");
+    clipModeItem->setText("Opaque clipping");
+    clipModeItem->setState(false);
+    clipModeItem->setCallback([this](bool state){
+        applyToVolumes([this, state](Volume &vol){
+            vol.drawable->setSingleSliceClipping(state);
+        });
+    });
 
-    clipModeItem.reset(new coCheckboxMenuItem("Opaque Clipping", false));
-    clipOutlinesItem.reset(new coCheckboxMenuItem("Show Box Intersections", true));
-    clipSphereActive0Item.reset(new coCheckboxMenuItem("ClipSphere 0 enable", false));
-    clipSphereInteractorActive0Item.reset(new coCheckboxMenuItem("ClipSphere 0 Interactor", false));
-    clipSphereRadius0Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[0]));
-    clipSphereActive1Item.reset(new coCheckboxMenuItem("ClipSphere 1 enable", false));
-    clipSphereInteractorActive1Item.reset(new coCheckboxMenuItem("ClipSphere 1 Interactor", false));
-    clipSphereRadius1Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[1]));
-    clipSphereActive2Item.reset(new coCheckboxMenuItem("ClipSphere 2 enable", false));
-    clipSphereInteractorActive2Item.reset(new coCheckboxMenuItem("ClipSphere 2 Interactor", false));
-    clipSphereRadius2Item.reset(new coSliderMenuItem("Radius", 0.1, 1.0, radiusScale[2]));
-
-    // Set event listeners
-
-    filesItem->setMenuListener(this);
-    clipItem->setMenuListener(this);
-    blendModeItem->setMenuListener(this);
-    ROIItem->setMenuListener(this);
-    unloadItem->setMenuListener(this);
-
-    clipModeItem->setMenuListener(this);
-    clipOutlinesItem->setMenuListener(this);
-    clipSphereActive0Item->setMenuListener(this);
-    clipSphereInteractorActive0Item->setMenuListener(this);
-    clipSphereRadius0Item->setMenuListener(this);
-    clipSphereActive1Item->setMenuListener(this);
-    clipSphereInteractorActive1Item->setMenuListener(this);
-    clipSphereRadius1Item->setMenuListener(this);
-    clipSphereActive2Item->setMenuListener(this);
-    clipSphereInteractorActive2Item->setMenuListener(this);
-    clipSphereRadius2Item->setMenuListener(this);
-    preintItem->setMenuListener(this);
-    lightingItem->setMenuListener(this);
-    fpsItem->setMenuListener(this);
-    hqItem->setMenuListener(this);
-    boundItem->setMenuListener(this);
-    interpolItem->setMenuListener(this);
-    interpolItem->setState(true);
-    colorsItem->setMenuListener(this);
-    colorsItem->setInteger(true);
-    cropItem->setMenuListener(this);
-    saveItem->setMenuListener(this);
-    tfeItem->setMenuListener(this);
-    cycleVolumeItem->setMenuListener(this);
-    allVolumesActiveItem->setMenuListener(this);
-    alphaDefBlendItem->setMenuListener(this);
-    alphaDarkBlendItem->setMenuListener(this);
-    alphaLightBlendItem->setMenuListener(this);
-    maxIntensityItem->setMenuListener(this);
-    minIntensityItem->setMenuListener(this);
-    sideBySideItem->setMenuListener(this);
-
-    volumeMenu->add(boundItem.get());
-    volumeMenu->add(ROIItem.get());
-    volumeMenu->add(cropItem.get());
-    volumeMenu->add(saveItem.get());
-
-    volumeMenu->add(interpolItem.get());
-    volumeMenu->add(blendModeItem.get());
-    volumeMenu->add(preintItem.get());
-    volumeMenu->add(lightingItem.get());
-    volumeMenu->add(fpsItem.get());
-    volumeMenu->add(hqItem.get());
-    volumeMenu->add(colorsItem.get());
-    volumeMenu->add(tfeItem.get());
-    volumeMenu->add(cycleVolumeItem.get());
-    volumeMenu->add(currentVolumeItem.get());
-    volumeMenu->add(sideBySideItem.get());
-    volumeMenu->add(allVolumesActiveItem.get());
-
-    clipMenu->add(clipModeItem.get());
-    clipMenu->add(clipOutlinesItem.get());
-    clipMenu->add(clipSphereActive0Item.get());
-    clipMenu->add(clipSphereInteractorActive0Item.get());
-    clipMenu->add(clipSphereRadius0Item.get());
-    clipMenu->add(clipSphereActive1Item.get());
-    clipMenu->add(clipSphereInteractorActive1Item.get());
-    clipMenu->add(clipSphereRadius1Item.get());
-    clipMenu->add(clipSphereActive2Item.get());
-    clipMenu->add(clipSphereInteractorActive2Item.get());
-    clipMenu->add(clipSphereRadius2Item.get());
+    auto clipOutlinesItem = new ui::Button(clipMenu, "ClipOutlines");
+    clipOutlinesItem->setText("Show box intersections");
+    clipOutlinesItem->setState(true);
+    clipOutlinesItem->setCallback([this](bool state){
+        showClipOutlines = state;
+    });
 
     // Initialize clip spheres
     for (int i = 0; i < NumClipSpheres; ++i)
     {
+        auto group = new ui::Group(clipMenu, "Sphere"+std::to_string(i));
+        group->setText("Clip sphere "+std::to_string(i));
+
+        auto clipSphereActiveItem = new ui::Button(group, "SphereActive"+std::to_string(i));
+        clipSphereActiveItem->setText("Sphere "+std::to_string(i)+" active");
+        clipSphereActiveItem->setState(false);
+        clipSphereActiveItem->setCallback([this, i](bool state){
+            clipSpheres.at(i)->setActive(state);
+        });
+
+        auto clipSphereInteractorItem = new ui::Button(group, "SphereInteractor"+std::to_string(i));
+        clipSphereInteractorItem->setText("Sphere "+std::to_string(i)+" interactor");
+        clipSphereInteractorItem->setState(false);
+        clipSphereInteractorItem->setCallback([this, i](bool state){
+            clipSpheres.at(i)->setInteractorActive(state);
+        });
+
+        auto clipSphereRadiusItem = new ui::Slider(group, "SphereRadius"+std::to_string(i));
+        clipSphereRadiusItem->setText("Sphere "+std::to_string(i)+" radius");
+        clipSphereRadiusItem->setBounds(0.1, 1.0);
+        clipSphereRadiusItem->setValue(radiusScale[i]);
+        clipSphereRadiusItem->setCallback([this, i](double value, bool released){
+            radiusScale[i] = value;
+        });
+
         clipSpheres.push_back(boost::make_shared<coClipSphere>());
     }
 
@@ -873,7 +1017,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                      it != volumes.end();
                      it++)
                 {
-                    if (allVolumesActiveItem->getState() || data->drawable == it->second.drawable)
+                    if (allVolumesActive || data->drawable == it->second.drawable)
                     {
                         if (it->second.multiDimTF == data->volume->multiDimTF)
                         {
@@ -991,7 +1135,7 @@ void VolumePlugin::applyAllTransferFunctions(void *userData)
              it != volumes.end();
              it++)
         {
-            if (it->second.drawable == data->drawable || allVolumesActiveItem->getState())
+            if (it->second.drawable == data->drawable || allVolumesActive)
             {
                 it->second.tf = tfe->getTransferFuncs();
                 it->second.drawable->setTransferFunctions(it->second.tf);
@@ -1103,7 +1247,10 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
     vd->printInfoLine("Loaded");
 
     if (showTFE)
+    {
         editor->show();
+        tfeItem->setState(true);
+    }
     // a volumefile will be loaded now , so show the TFE
 
     updateVolume(fileName, vd, false, fileName);
@@ -1425,7 +1572,10 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
 
         // a volume file will be loaded now, so show the TFE
         if (showEditor)
+        {
             editor->show();
+            tfeItem->setState(true);
+        }
     }
 }
 
@@ -1587,8 +1737,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         volumes[name].addToScene();
         volumes[name].filename = filename;
         volumes[name].multiDimTF = vd->chan == 1;
-        volumes[name].preIntegration = preintItem->getState();
-        volumes[name].lighting = lightingItem->getState();
+        volumes[name].preIntegration = preintItem->state();
+        volumes[name].lighting = lightingItem->state();
         volumes[name].mapTF = mapTF;
         if (volumes[name].multiDimTF)
         {
@@ -1692,18 +1842,21 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
 
         if (currentVolume->second.blendMode == virvo::VolumeDrawable::AlphaBlend)
         {
-            alphaDefBlendItem->setState(backgroundColor == BgDefault);
-            alphaDarkBlendItem->setState(backgroundColor == BgDark);
-            alphaLightBlendItem->setState(backgroundColor == BgLight);
+            if (backgroundColor == BgDefault)
+                blendModeItem->select(0);
+            else if (backgroundColor == BgDark)
+                blendModeItem->select(1);
+            else if (backgroundColor == BgLight)
+                blendModeItem->select(2);
         }
-        else
+        else if (currentVolume->second.blendMode == virvo::VolumeDrawable::MaximumIntensity)
         {
-            alphaDefBlendItem->setState(false);
-            alphaDarkBlendItem->setState(false);
-            alphaLightBlendItem->setState(false);
+            blendModeItem->select(3);
         }
-        maxIntensityItem->setState(currentVolume->second.blendMode == virvo::VolumeDrawable::MaximumIntensity);
-        minIntensityItem->setState(currentVolume->second.blendMode == virvo::VolumeDrawable::MinimumIntensity);
+        else if (currentVolume->second.blendMode == virvo::VolumeDrawable::MinimumIntensity)
+        {
+            blendModeItem->select(4);
+        }
 
         std::string displayName = currentVolume->second.filename;
         std::string::size_type slash = displayName.rfind('/');
@@ -1711,11 +1864,11 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
             displayName = displayName.substr(slash + 1);
         if (currentVolume->second.filename.empty())
             displayName = "[COVISE]";
-        currentVolumeItem->setLabel(displayName);
+        currentVolumeItem->setText(displayName);
     }
     else
     {
-        currentVolumeItem->setLabel("(none)");
+        currentVolumeItem->setText("(none)");
     }
 
     updateTFEData();
@@ -2176,265 +2329,18 @@ void VolumePlugin::postFrame()
     }
 }
 
-void VolumePlugin::menuEvent(coMenuItem *item)
+void VolumePlugin::applyToVolumes(std::function<void(Volume &)> func)
 {
-    vvDebugMsg::msg(2, "VolumePlugin::menuEvent()");
-
     for (VolumeMap::iterator it = allVolumesActive ? volumes.begin() : currentVolume; it != volumes.end(); ++it)
     {
         virvo::VolumeDrawable *drawable = it->second.drawable;
         if (!drawable)
             continue;
 
-        if (item == clipModeItem.get())
-        {
-            drawable->setSingleSliceClipping(clipModeItem->getState());
-        }
-
-        else if (item == preintItem.get())
-        {
-            drawable->setPreintegration(preintItem->getState());
-            it->second.preIntegration = preintItem->getState();
-        }
-        else if (item == lightingItem.get())
-        {
-            drawable->setLighting(lightingItem->getState());
-            it->second.lighting = lightingItem->getState();
-        }
-
-        else if (item == boundItem.get())
-        {
-            drawable->setBoundaries(boundItem->getState());
-            it->second.boundaries = boundItem->getState();
-        }
-
-        else if (item == interpolItem.get())
-        {
-            drawable->setInterpolation(interpolItem->getState());
-            it->second.interpolation = interpolItem->getState();
-        }
-
-        else if (item == alphaDefBlendItem.get()
-                 || item == alphaDarkBlendItem.get()
-                 || item == alphaLightBlendItem.get()
-                 || item == maxIntensityItem.get()
-                 || item == minIntensityItem.get())
-        {
-            virvo::VolumeDrawable::BlendMode mode = virvo::VolumeDrawable::AlphaBlend;
-            if (minIntensityItem->getState())
-                mode = virvo::VolumeDrawable::MinimumIntensity;
-            else if (maxIntensityItem->getState())
-                mode = virvo::VolumeDrawable::MaximumIntensity;
-
-            drawable->setBlendMode(mode);
-            it->second.blendMode = mode;
-
-            Vec4 bg(0., 0., 0., 1.);
-            switch (mode)
-            {
-            case virvo::VolumeDrawable::AlphaBlend:
-                if (alphaDefBlendItem->getState())
-                {
-                    backgroundColor = BgDefault;
-                    bg[0] = covise::coCoviseConfig::getFloat("r", "COVER.Background", 0.f);
-                    bg[1] = covise::coCoviseConfig::getFloat("g", "COVER.Background", 0.f);
-                    bg[2] = covise::coCoviseConfig::getFloat("b", "COVER.Background", 0.f);
-                }
-                else if (alphaDarkBlendItem->getState())
-                {
-                    backgroundColor = BgDark;
-                    bg[0] = bg[1] = bg[2] = 0.30f;
-                }
-                else if (alphaLightBlendItem->getState())
-                {
-                    backgroundColor = BgLight;
-                    bg[0] = bg[1] = bg[2] = 0.75f;
-                }
-                break;
-            case virvo::VolumeDrawable::MinimumIntensity:
-                bg[0] = bg[1] = bg[2] = 1.;
-                break;
-            case virvo::VolumeDrawable::MaximumIntensity:
-                bg[0] = bg[1] = bg[2] = 0.;
-                break;
-            }
-
-            VRViewer::instance()->setClearColor(bg);
-        }
+        func(it->second);
 
         if (!allVolumesActive)
             break;
-    }
-
-    virvo::VolumeDrawable *drawable = getCurrentDrawable();
-
-    if (item == ROIItem.get())
-    {
-        setROIMode(ROIItem->getState());
-    }
-
-    else if (item == clipOutlinesItem.get())
-    {
-        showClipOutlines = clipOutlinesItem->getState();
-    }
-
-    else if (item == clipSphereActive0Item.get())
-    {
-        clipSpheres.at(0)->setActive(clipSphereActive0Item->getState());
-    }
-
-    else if (item == clipSphereInteractorActive0Item.get())
-    {
-        clipSpheres.at(0)->setInteractorActive(clipSphereInteractorActive0Item->getState());
-    }
-
-    else if (item == clipSphereRadius0Item.get())
-    {
-        radiusScale[0] = clipSphereRadius0Item->getValue();
-    }
-
-    else if (item == clipSphereActive1Item.get())
-    {
-        clipSpheres.at(1)->setActive(clipSphereActive1Item->getState());
-    }
-
-    else if (item == clipSphereInteractorActive1Item.get())
-    {
-        clipSpheres.at(1)->setInteractorActive(clipSphereInteractorActive1Item->getState());
-    }
-
-    else if (item == clipSphereRadius1Item.get())
-    {
-        radiusScale[1] = clipSphereRadius1Item->getValue();
-    }
-
-    else if (item == clipSphereActive2Item.get())
-    {
-        clipSpheres.at(2)->setActive(clipSphereActive2Item->getState());
-    }
-
-    else if (item == clipSphereInteractorActive2Item.get())
-    {
-        clipSpheres.at(2)->setInteractorActive(clipSphereInteractorActive2Item->getState());
-    }
-
-    else if (item == clipSphereRadius2Item.get())
-    {
-        radiusScale[2] = clipSphereRadius2Item->getValue();
-    }
-
-    else if (item == fpsItem.get())
-    {
-        chosenFPS = fpsItem->getValue();
-    }
-
-    else if (item == colorsItem.get())
-    {
-        discreteColors = (int)colorsItem->getValue();
-        editor->updateColorBar();
-        editor->setDiscreteColors(discreteColors);
-    }
-
-    else if (item == tfeItem.get())
-    {
-        editor->show();
-    }
-
-    else if (item == hqItem.get())
-    {
-        highQualityOversampling = hqItem->getValue();
-    }
-
-    else if (item == allVolumesActiveItem.get())
-    {
-        allVolumesActive = allVolumesActiveItem->getState();
-    }
-
-    else if (item == cycleVolumeItem.get())
-    {
-        VolumeMap::iterator cur = currentVolume;
-        if (cur != volumes.end())
-        {
-            ++cur;
-        }
-        if (volumes.end() == cur)
-        {
-            cur = volumes.begin();
-        }
-
-        makeVolumeCurrent(cur);
-    }
-
-    else if (item == unloadItem.get())
-    {
-        if (currentVolume != volumes.end())
-        {
-            std::string filename = currentVolume->second.filename;
-            if (!filename.empty())
-                updateVolume(filename, NULL);
-        }
-    }
-    else if (item == saveItem.get())
-    {
-        saveVolume();
-    }
-    else if (item == cropItem.get())
-    {
-        cropVolume();
-    }
-    else if (item == sideBySideItem.get())
-    {
-        if (sideBySideItem->getState())
-        {
-            osg::Vec3 maxSize(0.f, 0.f, 0.f);
-            for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
-            {
-                osg::Vec3 sz = it->second.max - it->second.min;
-                for (int i = 0; i < 3; ++i)
-                    if (maxSize[i] < sz[i])
-                        maxSize[i] = sz[i];
-            }
-            int i = 0;
-            for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
-            {
-                osg::Vec3 translate(i * maxSize[0], 0.f, 0.f);
-                translate -= it->second.min;
-                osg::Matrix mat = it->second.transform->getMatrix();
-                mat.setTrans(translate);
-                it->second.transform->setMatrix(mat);
-                ++i;
-            }
-        }
-        else
-        {
-            osg::Matrix ident;
-            ident.makeIdentity();
-            for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); ++it)
-            {
-                osg::Matrix mat = it->second.transform->getMatrix();
-                mat.setTrans(osg::Vec3(0,0,0));
-                it->second.transform->setMatrix(mat);
-            }
-        }
-    }
-    else
-    {
-        bool isMaterial = false;
-
-        // Otherwise assume it must be a file entry:
-        if (!isMaterial)
-        {
-            for (list<FileEntry *>::iterator fe = fileList.begin(); fe != fileList.end(); ++fe)
-            {
-                if ((*fe)->fileMenuItem == item)
-                {
-                    cover->sendMessage(this,
-                                       coVRPluginSupport::TO_SAME, PluginMessageTypes::VolumeLoadFile,
-                                       strlen((*fe)->fileName) + 1, (*fe)->fileName);
-                    break;
-                }
-            }
-        }
     }
 }
 

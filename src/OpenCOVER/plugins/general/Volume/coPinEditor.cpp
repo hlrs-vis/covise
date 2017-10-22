@@ -1545,7 +1545,7 @@ void coPinEditor::createLists()
     normalGeostate->setMode(GL_LIGHTING, StateAttribute::ON);
 }
 
-ref_ptr<Group> coPinEditor::createBackgroundGroup()
+osg::ref_ptr<osg::Group> coPinEditor::createBackgroundGroup()
 {
 
     ref_ptr<Geometry> geoset1 = new Geometry();
@@ -1693,7 +1693,7 @@ ref_ptr<Group> coPinEditor::createBackgroundGroup()
     normalGeode->addDrawable(geoset4.get());
     colorGeode->addDrawable(geoset5.get());
 
-    backgroundGroup = new Group();
+    backgroundGroup = new osg::Group();
     backgroundGroup->addChild(backgroundGeode.get());
     backgroundGroup->addChild(normalGeode.get());
     backgroundGroup->addChild(colorGeode.get());
