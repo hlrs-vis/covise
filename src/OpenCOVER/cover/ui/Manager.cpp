@@ -41,6 +41,7 @@ void Manager::remove(Owner *owner)
 void Manager::remove(Element *elem)
 {
     //std::cerr << "DESTROY: " << elem->path() << std::endl;
+    m_elements.erase(elem);
     elem->clearItems();
 
     for (auto v: m_views)
