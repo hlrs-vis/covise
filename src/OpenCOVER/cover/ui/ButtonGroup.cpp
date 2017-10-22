@@ -80,6 +80,23 @@ Button *ButtonGroup::activeButton() const
     return ret;
 }
 
+void ButtonGroup::setActiveButton(Button *button)
+{
+    for (auto e: m_children)
+    {
+        auto b = dynamic_cast<Button *>(e);
+        assert(b);
+        if (b == button)
+        {
+            bool oldState = button->state();
+            button->setState(true, true /* update group */);
+            if (!oldState)
+                button->trigger();
+            return;
+        }
+    }
+}
+
 bool ButtonGroup::add(Element *elem)
 {
     auto rb = dynamic_cast<Button *>(elem);

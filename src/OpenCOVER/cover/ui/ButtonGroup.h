@@ -32,6 +32,8 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
     int value() const;
     //! pointer to active Button
     Button *activeButton() const;
+    //! make button the only one with state true within group
+    void setActiveButton(Button *button);
 
     //! add Button to this ButtonGroup, toggling its state to fulfill constraint that exactly one button be active
     virtual bool add(Element *elem) override;
