@@ -41,7 +41,6 @@ void Manager::remove(Owner *owner)
 void Manager::remove(Element *elem)
 {
     //std::cerr << "DESTROY: " << elem->path() << std::endl;
-
     elem->clearItems();
 
     for (auto v: m_views)
@@ -50,18 +49,17 @@ void Manager::remove(Element *elem)
     }
 
     {
-        auto it = m_elementsById.find(elem->elementId());
-        if (it != m_elementsById.end())
-        {
-            m_elementsById.erase(it);
-        }
-    }
-
-    {
         auto it = m_elementsByPath.find(elem->path());
         if (it != m_elementsByPath.end())
         {
             m_elementsByPath.erase(it);
+        }
+    }
+    {
+        auto it = m_elementsById.find(elem->elementId());
+        if (it != m_elementsById.end())
+        {
+            m_elementsById.erase(it);
         }
     }
 }
@@ -317,7 +315,8 @@ void Manager::flushUpdates()
 
         *m_updates << id;
         *m_updates << false; // trigger
-        *m_updates << *tb;
+        *m_updates << tb->get_length();
+        m_updates->addBinary(tb->get_data(), tb->get_length());
 
         ++m_numUpdates;
     }
@@ -341,9 +340,13 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
             m_elemState.erase(it);
         flushUpdates();
 
+        covise::TokenBuffer tb;
+        elem->save(tb);
+
         *m_updates << elem->elementId();
         *m_updates << trigger;
-        elem->save(*m_updates);
+        *m_updates << tb.get_length();
+        m_updates->addBinary(tb.get_data(), tb.get_length());
 
         ++m_numUpdates;
     }
@@ -372,10 +375,19 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         *updates >> id;
         bool trigger = false;
         *updates >> trigger;
+        int len = 0;
+        *updates >> len;
+        auto data = updates->getBinary(len);
         auto elem = getById(id);
+        if (!elem)
+        {
+            std::cerr << "ui::Manager::processUpdates NOT FOUND: id=" << id << ", trigger=" << trigger << std::endl;
+            continue;
+        }
+        covise::TokenBuffer tb(data, len);
         //std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
         assert(elem);
-        elem->load(*updates);
+        elem->load(tb);
         elem->update();
         if (trigger && runTriggers)
             elem->triggerImplementation();
