@@ -272,13 +272,6 @@ public:
         return 0;
     }
 
-    //! return button corresponding to command name
-    virtual vrui::coMenuItem *getMenuButton(const std::string &buttonName)
-    {
-        (void)buttonName;
-        return NULL;
-    }
-
     //! for visualisation system plugins: request to terminate COVER or COVISE session
     virtual void requestQuit(bool killSession)
     {
