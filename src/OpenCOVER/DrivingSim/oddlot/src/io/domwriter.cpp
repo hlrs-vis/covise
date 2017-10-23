@@ -466,17 +466,22 @@ DomWriter::visit(Object *object)
 			parking.setAttribute("access", ParkingSpace::parseParkingSpaceAccessBack(parkingSpace->getAccess()));
 			parking.setAttribute("restrictions", parkingSpace->getRestrictions());
 
-			QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *> markings = parkingSpace->getMarkings();
-			QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *>::const_iterator it = markings.constBegin();
-			while (it != markings.constEnd())
+			int entries = parkingSpace->getMarkingsSize();
+			if (entries > 0)
 			{
-				QDomElement parkingMarking = doc_->createElement("marking");
-				parkingMarking.setAttribute("side", ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(it.key()));
-				parkingMarking.setAttribute("type", LaneRoadMark::parseRoadMarkTypeBack(it.value()->getType()));
-				parkingMarking.setAttribute("width", it.value()->getWidth());
-				parkingMarking.setAttribute("color", LaneRoadMark::parseRoadMarkColorBack(it.value()->getColor()));
-				parking.appendChild(parkingMarking);
-				it++;
+				QString side, type, color;
+				double width;
+				for (int i = 0; i < entries; i++)
+				{
+					QDomElement parkingMarking = doc_->createElement("marking");
+
+					parkingSpace->getMarking(i, side, type, width, color);
+					parkingMarking.setAttribute("side", side);
+					parkingMarking.setAttribute("type", type);
+					parkingMarking.setAttribute("width", width);
+					parkingMarking.setAttribute("color", color);
+					parking.appendChild(parkingMarking);
+				}
 			}
 
 			objectElement.appendChild(parking);
@@ -1280,6 +1285,37 @@ DomWriter::visit(LaneRoadMark *laneRoadMark)
     element.setAttribute("color", LaneRoadMark::parseRoadMarkColorBack(laneRoadMark->getRoadMarkColor()));
     element.setAttribute("width", laneRoadMark->getRoadMarkWidth());
     element.setAttribute("laneChange", LaneRoadMark::parseRoadMarkLaneChangeBack(laneRoadMark->getRoadMarkLaneChange()));
+	element.setAttribute("material", laneRoadMark->getRoadMarkMaterial());
+	element.setAttribute("height", laneRoadMark->getRoadMarkHeight());
+
+	LaneRoadMarkType *userType = laneRoadMark->getUserType();
+	if (userType)
+	{
+		int size = userType->sizeOfRoadMarkTypeLines();
+		if (size > 0)
+		{
+			QDomElement typeElement = doc_->createElement("type");
+			typeElement.setAttribute("name", userType->getLaneRoadMarkTypeName());
+			typeElement.setAttribute("width", userType->getLaneRoadMarkTypeWidth());
+
+			double length, space, tOffset, sOffset, width;
+			QString rule;
+			for (int i = 0; i < size; i++)
+			{
+				QDomElement lineElement = doc_->createElement("line");
+				userType->getRoadMarkTypeLine(i, length, space, tOffset, sOffset, rule, width);
+				lineElement.setAttribute("length", length);
+				lineElement.setAttribute("space", space);
+				lineElement.setAttribute("tOffset", tOffset);
+				lineElement.setAttribute("sOffset", sOffset);
+				lineElement.setAttribute("rule", rule);
+				lineElement.setAttribute("width", width);
+
+				typeElement.appendChild(lineElement);
+			}
+			element.appendChild(typeElement);
+		}
+	}
     currentLaneElement_.appendChild(element);
 }
 

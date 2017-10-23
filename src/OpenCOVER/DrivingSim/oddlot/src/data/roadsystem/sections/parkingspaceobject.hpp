@@ -19,122 +19,91 @@
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 
 class Object;
-class ParkingSpace;
 
-
-class ParkingSpaceMarking: public DataElement
+class ParkingSpace 
 {
-public:
-	// Observer Pattern //
+	// nested class for marking defintition
 	//
-	enum ParkingSpaceMarkingChange
+
+	class ParkingSpaceMarking
 	{
-		CPSM_ParentChanged = 0x1,
-		CPSM_SideChanged = 0x2,
-		CPSM_TypeChanged = 0x4,
-		CPSM_WidthChanged = 0x8,
-		CPSM_ColorChanged = 0x10
+	public:
+
+
+		enum ParkingSpaceMarkingSide
+		{
+			PSM_NONE,
+			PSM_FRONT,
+			PSM_REAR,
+			PSM_LEFT,
+			PSM_RIGHT
+		};
+
+		static ParkingSpaceMarking::ParkingSpaceMarkingSide parseParkingSpaceMarkingSide(const QString &side);
+		static QString parseParkingSpaceMarkingSideBack(ParkingSpaceMarking::ParkingSpaceMarkingSide side);
+
+		//################//
+		// FUNCTIONS      //
+		//################//
+
+	public:
+		explicit ParkingSpaceMarking(Object *parentObject, ParkingSpaceMarkingSide side, LaneRoadMark::RoadMarkType type, double width, LaneRoadMark::RoadMarkColor color);
+
+		virtual ~ParkingSpaceMarking()
+		{ /* does nothing */
+		}
+
+		ParkingSpace *getParentParkingSpace()
+		{
+			return parentParkingSpace_;
+		}
+		void setParentParkingSpace(ParkingSpace *parkingSpace);
+
+		ParkingSpaceMarkingSide getSide()
+		{
+			return side_;
+		}
+		void setSide(ParkingSpaceMarkingSide side);
+
+		LaneRoadMark::RoadMarkType getType()
+		{
+			return type_;
+		}
+		void setType(LaneRoadMark::RoadMarkType type);
+
+		double getWidth()
+		{
+			return width_;
+		}
+		void setWidth(double width);
+
+		LaneRoadMark::RoadMarkColor getColor()
+		{
+			return color_;
+		}
+		void setColor(LaneRoadMark::RoadMarkColor color);
+
+
+		// Prototype Pattern //
+		//
+		ParkingSpaceMarking *getClone();
+
+
+	private:
+		Object *parentObject_;
+		ParkingSpace *parentParkingSpace_;
+
+		ParkingSpaceMarkingSide side_;
+		LaneRoadMark::RoadMarkType type_;
+		double width_;
+		LaneRoadMark::RoadMarkColor color_;
 	};
-
-	enum ParkingSpaceMarkingSide
-	{
-		PSM_NONE,
-		PSM_FRONT,
-		PSM_REAR,
-		PSM_LEFT,
-		PSM_RIGHT
-	};
-
-	static ParkingSpaceMarking::ParkingSpaceMarkingSide parseParkingSpaceMarkingSide(const QString &side);
-	static QString parseParkingSpaceMarkingSideBack(ParkingSpaceMarking::ParkingSpaceMarkingSide side);
-
-    //################//
-    // FUNCTIONS      //
-    //################//
-
-public:
-	explicit ParkingSpaceMarking(ParkingSpaceMarkingSide side, LaneRoadMark::RoadMarkType type, double width, LaneRoadMark::RoadMarkColor color);
-
-    virtual ~ParkingSpaceMarking()
-    { /* does nothing */
-    }
-
-	ParkingSpace *getParentParkingSpace()
-	{
-		return parentParkingSpace_;
-	}
-	void setParentParkingSpace(ParkingSpace *parkingSpace);
-
-	ParkingSpaceMarkingSide getSide()
-	{
-		return side_;
-	}
-	void setSide(ParkingSpaceMarkingSide side);
-
-	LaneRoadMark::RoadMarkType getType()
-	{
-		return type_;
-	}
-	void setType(LaneRoadMark::RoadMarkType type);
-
-	double getWidth()
-	{
-		return width_;
-	}
-	void setWidth(double width);
-
-	LaneRoadMark::RoadMarkColor getColor()
-	{
-		return color_;
-	}
-	void setColor(LaneRoadMark::RoadMarkColor color);
-
-	// Observer Pattern //
-	//
-	virtual void notificationDone();
-	int getParkingSpaceMarkingChanges() const
-	{
-		return markingChanges_;
-	}
-	void addParkingSpaceMarkingChanges(int changes);
-
-	// Prototype Pattern //
-	//
-	ParkingSpaceMarking *getClone();
-
-	// Visitor Pattern //
-	//
-	virtual void accept(Visitor *visitor);
-
-
-private:
-	ParkingSpace *parentParkingSpace_;
-
-	ParkingSpaceMarkingSide side_;
-	LaneRoadMark::RoadMarkType type_;
-	double width_;
-	LaneRoadMark::RoadMarkColor color_;
-
-	int markingChanges_;
-};
-
-class ParkingSpace : public DataElement
-{
 
     //################//
     // STATIC         //
     //################//
 
 public:
-	// Observer Pattern //
-	//
-	enum ParkingSpaceChange
-	{
-		CPS_ParentChanged = 0x1,
-		CPS_AccessChanged = 0x2,
-		CPS_RestrictionsChanged = 0x4,
-		CPS_MarkingsChanged = 0x10
-	};
 
 	enum ParkingSpaceAccess
 	{
@@ -157,18 +126,18 @@ public:
     //################//
 
 public:
-	explicit ParkingSpace(ParkingSpaceAccess access, const QString &restrictions);
+	explicit ParkingSpace(Object *parentObject,  ParkingSpaceAccess access, const QString &restrictions);
     virtual ~ParkingSpace()
     { /* does nothing */
     }
 
     // Object //
     //
+	void setParentObject(Object *parentObject);
 	Object *getParentObject() const
 	{
 		return parentObject_;
 	}
-	void setParentObject(Object *parentObject);
 
 	ParkingSpaceAccess getAccess() const
     {
@@ -183,29 +152,19 @@ public:
 	void setRestrictions(const QString &restrictions);
 
 	void addMarking(ParkingSpaceMarking *marking);
-	QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *> getMarkings()
+	bool addMarking(QString side, QString type, double width, QString color);
+	int getMarkingsSize()
 	{
-		return markingList_;
+		return markingList_.size();
 	}
+	bool getMarking(int i, QString &side, QString &type, double &width, QString &color);
 
-
-    // Observer Pattern //
-    //
-    virtual void notificationDone();
-    int getParkingSpaceChanges() const
-    {
-        return parkingSpaceChanges_;
-    }
-    void addParkingSpaceChanges(int changes);
 
 
     // Prototype Pattern //
     //
     ParkingSpace *getClone();
 
-    // Visitor Pattern //
-    //
-    virtual void accept(Visitor *visitor);
 
 private:
     ParkingSpace(); /* not allowed */

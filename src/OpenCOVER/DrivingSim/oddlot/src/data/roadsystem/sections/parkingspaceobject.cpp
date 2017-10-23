@@ -14,13 +14,15 @@
 **************************************************************************/
 
 #include "parkingspaceobject.hpp"
+#include "objectobject.hpp"
+
 
 //###################//
 // Static Functions  //
 //###################//
 
-ParkingSpaceMarking::ParkingSpaceMarkingSide
-ParkingSpaceMarking::parseParkingSpaceMarkingSide(const QString &side)
+ParkingSpace::ParkingSpaceMarking::ParkingSpaceMarkingSide
+ParkingSpace::ParkingSpaceMarking::parseParkingSpaceMarkingSide(const QString &side)
 {
 	if (side == "front")
 		return ParkingSpaceMarking::PSM_FRONT;
@@ -38,7 +40,7 @@ ParkingSpaceMarking::parseParkingSpaceMarkingSide(const QString &side)
 }
 
 QString 
-ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(ParkingSpaceMarking::ParkingSpaceMarkingSide side)
+ParkingSpace::ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(ParkingSpaceMarking::ParkingSpaceMarkingSide side)
 {
 	if (side == ParkingSpaceMarking::PSM_NONE)
 		return QString("none");
@@ -61,8 +63,8 @@ ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(ParkingSpaceMarking::Parki
 // Constructors       //
 //####################//
 
-ParkingSpaceMarking::ParkingSpaceMarking(ParkingSpaceMarkingSide side, LaneRoadMark::RoadMarkType type, double width, LaneRoadMark::RoadMarkColor color)
-	: DataElement()
+ParkingSpace::ParkingSpaceMarking::ParkingSpaceMarking(Object *parentObject, ParkingSpaceMarkingSide side, LaneRoadMark::RoadMarkType type, double width, LaneRoadMark::RoadMarkColor color)
+	: parentObject_(parentObject)
 	, side_(side)
 	, type_(type)
 	, width_(width)
@@ -71,38 +73,38 @@ ParkingSpaceMarking::ParkingSpaceMarking(ParkingSpaceMarkingSide side, LaneRoadM
 }
 
 void
-ParkingSpaceMarking::setParentParkingSpace(ParkingSpace *parkingSpace)
+ParkingSpace::ParkingSpaceMarking::setParentParkingSpace(ParkingSpace *parkingSpace)
 {
 	parentParkingSpace_ = parkingSpace;
-	addParkingSpaceMarkingChanges(ParkingSpaceMarking::CPSM_ParentChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void 
-ParkingSpaceMarking::setSide(ParkingSpaceMarkingSide side)
+ParkingSpace::ParkingSpaceMarking::setSide(ParkingSpaceMarkingSide side)
 {
 	side_ = side;
-	addParkingSpaceMarkingChanges(ParkingSpaceMarking::CPSM_SideChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void 
-ParkingSpaceMarking::setType(LaneRoadMark::RoadMarkType type)
+ParkingSpace::ParkingSpaceMarking::setType(LaneRoadMark::RoadMarkType type)
 {
 	type_ = type;
-	addParkingSpaceMarkingChanges(ParkingSpaceMarking::CPSM_TypeChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void 
-ParkingSpaceMarking::setWidth(double width)
+ParkingSpace::ParkingSpaceMarking::setWidth(double width)
 {
 	width_ = width;
-	addParkingSpaceMarkingChanges(ParkingSpaceMarking::CPSM_WidthChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void 
-ParkingSpaceMarking::setColor(LaneRoadMark::RoadMarkColor color)
+ParkingSpace::ParkingSpaceMarking::setColor(LaneRoadMark::RoadMarkColor color)
 {
 	color_ = color;
-	addParkingSpaceMarkingChanges(ParkingSpaceMarking::CPSM_ColorChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 //###################//
@@ -113,58 +115,16 @@ ParkingSpaceMarking::setColor(LaneRoadMark::RoadMarkColor color)
 *
 */
 
-ParkingSpaceMarking *
-ParkingSpaceMarking::getClone()
+ParkingSpace::ParkingSpaceMarking *
+ParkingSpace::ParkingSpaceMarking::getClone()
 {
 	// ParkingSpaceMarking //
 	//
-	ParkingSpaceMarking *clone = new ParkingSpaceMarking(side_, type_, width_, color_);
+	ParkingSpaceMarking *clone = new ParkingSpaceMarking(parentObject_, side_, type_, width_, color_);
 
 	return clone;
 }
 
-//##################//
-// Observer Pattern //
-//##################//
-
-/*! \brief Called after all Observers have been notified.
-*
-* Resets the change flags to 0x0.
-*/
-void
-ParkingSpaceMarking::notificationDone()
-{
-	markingChanges_ = 0x0;
-	DataElement::notificationDone();
-}
-
-/*! \brief Add one or more change flags.
-*
-*/
-void
-ParkingSpaceMarking::addParkingSpaceMarkingChanges(int changes)
-{
-	if (changes)
-	{
-		markingChanges_ |= changes;
-		notifyObservers();
-	}
-}
-
-//###################//
-// Visitor Pattern   //
-//###################//
-
-/*!
-* Accepts a visitor for this section.
-*
-* \param visitor The visitor that will be visited.
-*/
-void
-ParkingSpaceMarking::accept(Visitor *visitor)
-{
-	visitor->visit(this);
-}
 
 
 
@@ -232,32 +192,32 @@ ParkingSpace::parseParkingSpaceAccessBack(ParkingSpace::ParkingSpaceAccess acces
 // Constructors       //
 //####################//
 
-ParkingSpace::ParkingSpace(ParkingSpaceAccess access, const QString &restrictions)
-    : DataElement()
+ParkingSpace::ParkingSpace(Object *parentObject, ParkingSpaceAccess access, const QString &restrictions)
+	: parentObject_(parentObject)
     , access_(access)
     , restrictions_(restrictions)
 {
 }
 
-void 
+void
 ParkingSpace::setParentObject(Object *parentObject)
 {
 	parentObject_ = parentObject;
-	addParkingSpaceChanges(ParkingSpace::CPS_ParentChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void
 ParkingSpace::setAccess(ParkingSpaceAccess access)
 {
 	access_ = access;
-	addParkingSpaceChanges(ParkingSpace::CPS_AccessChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void
 ParkingSpace::setRestrictions(const QString &restrictions)
 {
 	restrictions_ = restrictions;
-	addParkingSpaceChanges(ParkingSpace::CPS_RestrictionsChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
 }
 
 void 
@@ -270,38 +230,45 @@ ParkingSpace::addMarking(ParkingSpaceMarking *marking)
 	}
 
 	markingList_.insert(key, marking);
-	addParkingSpaceChanges(ParkingSpace::CPS_MarkingsChanged);
+	parentObject_->addObjectChanges(Object::CEL_ParkingSpaceChange);
    
 }
 
-
-//##################//
-// Observer Pattern //
-//##################//
-
-/*! \brief Called after all Observers have been notified.
-*
-* Resets the change flags to 0x0.
-*/
-void
-ParkingSpace::notificationDone()
+bool 
+ParkingSpace::addMarking(QString side, QString type, double width, QString color)
 {
-    parkingSpaceChanges_ = 0x0;
-    DataElement::notificationDone();
+	ParkingSpace::ParkingSpaceMarking::ParkingSpaceMarkingSide parkSide = ParkingSpace::ParkingSpaceMarking::parseParkingSpaceMarkingSide(side);
+	if (parkSide == ParkingSpace::ParkingSpaceMarking::PSM_NONE)
+	{
+		return false;
+	}
+	else
+	{
+		ParkingSpaceMarking *marking = new ParkingSpaceMarking(parentObject_, parkSide, LaneRoadMark::parseRoadMarkType(type), width, LaneRoadMark::parseRoadMarkColor(color));		
+		addMarking(marking);
+
+		return true;
+	}
 }
 
-/*! \brief Add one or more change flags.
-*
-*/
-void
-ParkingSpace::addParkingSpaceChanges(int changes)
+bool 
+ParkingSpace::getMarking(int i, QString &side, QString &type, double &width, QString &color)
 {
-    if (changes)
-    {
-        parkingSpaceChanges_ |= changes;
-        notifyObservers();
-    }
+	if (i >= markingList_.size())
+	{
+		return false;
+	}
+
+	QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *>::const_iterator it = markingList_.constBegin() + i;
+	ParkingSpaceMarking *marking = it.value();
+	side = ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(marking->getSide());
+	type = LaneRoadMark::parseRoadMarkTypeBack(marking->getType());
+	width = marking->getWidth();
+	color = LaneRoadMark::parseRoadMarkColorBack(marking->getColor());
+
+	return true;
 }
+
 
 //###################//
 // Prototype Pattern //
@@ -315,22 +282,8 @@ ParkingSpace::getClone()
 {
     // ParkingSpace //
     //
-	ParkingSpace *clone = new ParkingSpace(access_, restrictions_);
+	ParkingSpace *clone = new ParkingSpace(parentObject_, access_, restrictions_);
 
     return clone;
 }
 
-//###################//
-// Visitor Pattern   //
-//###################//
-
-/*!
-* Accepts a visitor for this section.
-*
-* \param visitor The visitor that will be visited.
-*/
-void
-ParkingSpace::accept(Visitor *visitor)
-{
-    visitor->visit(this);
-}

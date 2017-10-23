@@ -84,6 +84,7 @@ class ParkingSpace;
 
 class Object : public RoadSection
 {
+	friend ParkingSpace;
 
     //################//
     // STATIC         //
@@ -93,7 +94,8 @@ public:
     enum ObjectChange
     {
         CEL_ParameterChange = 0x1,
-		CEL_TypeChange = 0x2
+		CEL_TypeChange = 0x2,
+		CEL_ParkingSpaceChange = 0x4
     };
 
     enum ObjectOrientation

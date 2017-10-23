@@ -1412,7 +1412,7 @@ if (type != "simplePole")
 					QString access = parseToQString(objectChild, "access", "all", false); // mandatory
 					QString restrictions = parseToQString(objectChild, "restrictions", "", false); // mandatory
 
-					ParkingSpace *parking = new ParkingSpace(ParkingSpace::parseParkingSpaceAccess(access), restrictions);
+					ParkingSpace *parking = new ParkingSpace(object, ParkingSpace::parseParkingSpaceAccess(access), restrictions);
 
 					QDomElement markingChild = objectChild.firstChildElement("marking");
 					while (!markingChild.isNull())
@@ -1422,12 +1422,13 @@ if (type != "simplePole")
 						double width = parseToDouble(markingChild, "width", 0.0, false);
 						QString color = parseToQString(markingChild, "color", "standard", false);
 
-						ParkingSpaceMarking::ParkingSpaceMarkingSide parkSide = ParkingSpaceMarking::parseParkingSpaceMarkingSide(side);
-						if (parkSide != ParkingSpaceMarking::PSM_NONE)
+						if (!parking->addMarking(side, type, width, color))
 						{
-							ParkingSpaceMarking *marking = new ParkingSpaceMarking(parkSide, LaneRoadMark::parseRoadMarkType(type), width, LaneRoadMark::parseRoadMarkColor(color));
-
-							parking->addMarking(marking);
+							QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+								tr("Error parsing attribute \"%2\" of element <%1> in line %3. This value is not defined. This can lead to major problems.")
+								.arg(markingChild.tagName())
+								.arg("side")
+								.arg(markingChild.lineNumber()));
 						}
 
 						markingChild = markingChild.nextSiblingElement("marking");
@@ -2182,14 +2183,64 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
         double width = parseToDouble(child, "width", -1.0, true); // optional
         QString laneChange = parseToQString(child, "laneChange", "both", true); // optional
 
+		QString material;
+		double height;
+		if (opendriveVersion_ < 1.4)
+		{
+			material = parseToQString(child, "material", "none", true);
+			height = parseToDouble(child, "height", 0.0, true);
+		}
+		else
+		{
+			material = parseToQString(child, "material", "none", false);
+			height = parseToDouble(child, "height", 0.0, false);
+		}
+
         LaneRoadMark *roadMarkEntry = new LaneRoadMark(
             sOffset,
             LaneRoadMark::parseRoadMarkType(type),
             LaneRoadMark::parseRoadMarkWeight(weight),
             LaneRoadMark::parseRoadMarkColor(color),
             width,
-            LaneRoadMark::parseRoadMarkLaneChange(laneChange));
+            LaneRoadMark::parseRoadMarkLaneChange(laneChange),
+			material, height);
         lane->addRoadMarkEntry(roadMarkEntry);
+
+		QDomElement typeChild = child.firstChildElement("type");
+		if (!typeChild.isNull())
+		{
+			QString name = parseToQString(typeChild, "name", "", false);
+			double width = parseToDouble(typeChild, "width", 0.0, false);
+
+			QDomElement lineChild = typeChild.firstChildElement("line");
+			if (lineChild.isNull())
+			{
+				//default
+				//TODO, OPTIONAL
+				qDebug() << "NOT OPTIONAL: <line>" << lineChild.lineNumber();
+			}
+			else
+			{
+				LaneRoadMarkType *roadMarkType = new LaneRoadMarkType(name, width);
+				roadMarkEntry->setUserType(roadMarkType);
+
+				while (!lineChild.isNull())
+				{
+					double length = parseToDouble(lineChild, "length", 0.0, false);
+					double space = parseToDouble(lineChild, "space", 0.0, false);
+					double tOffset = parseToDouble(lineChild, "tOffset", 0.0, false);
+					double sOffset = parseToDouble(lineChild, "sOffset", 0.0, false);
+					QString rule = parseToQString(lineChild, "rule", "none", false);
+					double width = parseToDouble(lineChild, "width", 0.0, false);
+
+					roadMarkType->addRoadMarkTypeLine(roadMarkEntry, length, space, tOffset, sOffset, rule, width);
+
+					lineChild = lineChild.nextSiblingElement("line");
+				}
+			}
+
+
+		}
 
         child = child.nextSiblingElement("roadMark");
     }
