@@ -44,6 +44,26 @@ int Element::elementId() const
     return m_id;
 }
 
+void Element::setPriority(Element::Priority prio)
+{
+    m_priority = prio;
+}
+
+Element::Priority Element::priority() const
+{
+    return m_priority;
+}
+
+void Element::setIcon(const std::string &iconName)
+{
+    m_iconName = iconName;
+}
+
+const std::string &Element::iconName() const
+{
+    return m_iconName;
+}
+
 Group *Element::parent() const
 {
     return m_parent;

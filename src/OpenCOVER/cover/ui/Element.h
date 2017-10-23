@@ -48,6 +48,15 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     friend class Group;
     friend class Container;
  public:
+    enum Priority
+    {
+        Invisible,
+        Low,
+        Default,
+        Medium,
+        Toolbar,
+        High,
+    };
     //! construct as top-level item, life time managed by owner
     /** all derived classes provide a constructor taking the same kind of arguments */
     Element(const std::string &name, Owner *owner);
@@ -60,6 +69,16 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
 
     //! unique element id
     int elementId() const;
+
+    //! set importance of Element
+    void setPriority(Priority prio);
+    //! retrieve importance
+    Priority priority() const;
+
+    //! set icon for Element
+    void setIcon(const std::string &iconName);
+    //! get icon name
+    const std::string &iconName() const;
 
     //! item this Element is a child of
     Group *parent() const;
@@ -97,6 +116,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     std::string m_label;
     bool m_visible = true;
     bool m_enabled = true;
+    Priority m_priority = Default;
+    std::string m_iconName;
  private:
     int m_id = -1; // initialized by Manager
 };
