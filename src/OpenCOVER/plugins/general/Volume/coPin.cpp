@@ -60,10 +60,10 @@ int coPin::getID()
     return id;
 }
 
-void coPin::setPos(float x)
+void coPin::setPos(float x, float minv, float maxv)
 {
-    myX = x;
-    myDCS->setTranslation(x * W, 0.0, 0.0);
+    myX = (x - minv) / (maxv - minv);
+    myDCS->setTranslation(myX * W, 0.0, 0.0);
     jPin->_pos[0] = x;
 }
 

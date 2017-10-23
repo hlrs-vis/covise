@@ -20,8 +20,8 @@ class coAlphaBlankPin : public coPin
 public:
     coAlphaBlankPin(osg::Group *root, float Height, float Width, vvTFSkip *myPin);
     virtual ~coAlphaBlankPin();
-    virtual void setPos(float x);
-    void setWidth(float m);
+    virtual void setPos(float x, float minv = 0.0f, float maxv = 1.0f);
+    void setWidth(float m, float minv = 0.0f, float maxv = 1.0f);
     float w1, w2, w3;
 
 protected:
@@ -31,7 +31,7 @@ protected:
     osg::ref_ptr<osg::Geode> graphGeode;
     osg::ref_ptr<osg::Geometry> geometry;
 
-    void adjustGraph();
+    void adjustGraph(float minv = 0.0f, float maxv = 1.0f);
     void createGraphLists();
     osg::ref_ptr<osg::Geode> createGraphGeode();
 };

@@ -132,29 +132,29 @@ inline material_type osg_cast(osg::Material const *mat, bool specular = true)
     if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
     {
         emissive<float> vsnray_mat;
-        vsnray_mat.set_ce(from_rgb(osg_cast(ce).xyz()));
-        vsnray_mat.set_ls(1.0f);
+        vsnray_mat.ce() = from_rgb(osg_cast(ce).xyz());
+        vsnray_mat.ls() = 1.0f;
         return material_type(vsnray_mat);
     }
     else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f) || !specular)
     {
         matte<float> vsnray_mat;
-        vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-        vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-        vsnray_mat.set_ka(1.0f);
-        vsnray_mat.set_kd(1.0f);
+        vsnray_mat.ca() = from_rgb(osg_cast(ca).xyz());
+        vsnray_mat.cd() = from_rgb(osg_cast(cd).xyz());
+        vsnray_mat.ka() = 1.0f;
+        vsnray_mat.kd() = 1.0f;
         return material_type(vsnray_mat);
     }
     else
     {
         plastic<float> vsnray_mat;
-        vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-        vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-        vsnray_mat.set_cs(from_rgb(osg_cast(cs).xyz()));
-        vsnray_mat.set_ka(1.0f);
-        vsnray_mat.set_kd(1.0f);
-        vsnray_mat.set_ks(1.0f);
-        vsnray_mat.set_specular_exp(mat->getShininess(osg::Material::Face::FRONT));
+        vsnray_mat.ca() = from_rgb(osg_cast(ca).xyz());
+        vsnray_mat.cd() = from_rgb(osg_cast(cd).xyz());
+        vsnray_mat.cs() = from_rgb(osg_cast(cs).xyz());
+        vsnray_mat.ka() = 1.0f;
+        vsnray_mat.kd() = 1.0f;
+        vsnray_mat.ks() = 1.0f;
+        vsnray_mat.specular_exp() = mat->getShininess(osg::Material::Face::FRONT);
         return material_type(vsnray_mat);
     }
 }

@@ -63,7 +63,7 @@ protected:
 
 public:
     virtual void updateColorBar();
-    virtual void updatePinList(float minv = 0.0f, float maxv = 1.0f);
+    virtual void updatePinList();
     virtual void setDiscreteColors(int); // update my pinList to reflect the transferFunction
     virtual void setNumChannels(int num);
     virtual void setActiveChannel(int num);

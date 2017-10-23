@@ -74,13 +74,13 @@ namespace visionaray
     material_type get_default_material()
     {
         plastic<float> vsnray_mat;
-        vsnray_mat.set_ca(from_rgb(0.2f, 0.2f, 0.2f));
-        vsnray_mat.set_cd(from_rgb(0.8f, 0.8f, 0.8f));
-        vsnray_mat.set_cs(from_rgb(0.1f, 0.1f, 0.1f));
-        vsnray_mat.set_ka(1.0f);
-        vsnray_mat.set_kd(1.0f);
-        vsnray_mat.set_ks(1.0f);
-        vsnray_mat.set_specular_exp(32.0f);
+        vsnray_mat.ca() = from_rgb(0.2f, 0.2f, 0.2f);
+        vsnray_mat.cd() = from_rgb(0.8f, 0.8f, 0.8f);
+        vsnray_mat.cs() = from_rgb(0.1f, 0.1f, 0.1f);
+        vsnray_mat.ka() = 1.0f;
+        vsnray_mat.kd() = 1.0f;
+        vsnray_mat.ks() = 1.0f;
+        vsnray_mat.specular_exp() = 32.0f;
         return material_type(vsnray_mat);
     }
 
@@ -1325,19 +1325,19 @@ namespace visionaray
         return reinterpret_cast<depth_type*>(impl_->multi_channel_drawer->depth(cur_channel_));
     }
 
-    size_t renderer::width() const
+    int renderer::width() const
     {
         return impl_->channel_viewing_params[cur_channel_].width;
     }
 
-    size_t renderer::height() const
+    int renderer::height() const
     {
         return impl_->channel_viewing_params[cur_channel_].height;
     }
 
     renderer::ref_type renderer::ref()
     {
-        return typename renderer::ref_type(color(), depth(), width(), height());
+        return { color(), depth(), width(), height() };
     }
 
     void renderer::update_state(

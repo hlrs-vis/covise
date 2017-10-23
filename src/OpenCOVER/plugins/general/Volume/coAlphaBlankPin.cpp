@@ -38,32 +38,29 @@ coAlphaBlankPin::~coAlphaBlankPin()
         (*i)->removeChild(graphGeode.get());
 }
 
-void coAlphaBlankPin::setPos(float x)
+void coAlphaBlankPin::setPos(float x, float minv, float maxv)
 {
-    jPin->_pos[0] = x;
-    myX = x;
-    myDCS->setTranslation(x * W, 0.0, 0.0);
-    adjustGraph();
+    coPin::setPos(x, minv, maxv);
+    adjustGraph(minv, maxv);
 }
 
-void coAlphaBlankPin::setWidth(float w)
+void coAlphaBlankPin::setWidth(float w, float minv, float maxv)
 {
     jPin->_size[0] = w;
     jPin->_size[1] = jPin->_size[2] = 1.;
-    adjustGraph();
+    adjustGraph(minv, maxv);
 }
 
-void coAlphaBlankPin::adjustGraph()
+void coAlphaBlankPin::adjustGraph(float minv, float maxv)
 {
-
-    float x1, x2;
-
     if (jPin->_size[0] < 0.0)
     {
         jPin->_size[0] = 0.0;
     }
-    x1 = myX - jPin->_size[0] / 2.0;
-    x2 = myX + jPin->_size[0] / 2.0;
+
+    // x-coords, [0..1]
+    float x1 = ((myX - jPin->_size[0] - minv) / (maxv - minv)) / 2.0;
+    float x2 = ((myX + jPin->_size[0] - minv) / (maxv - minv)) / 2.0;
     if (x1 < 0.0)
     {
         x1 = 0.0;

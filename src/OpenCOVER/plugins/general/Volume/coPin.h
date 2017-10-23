@@ -31,7 +31,7 @@ public:
     coPin(osg::Group *root, float Height, float Width, vvTFWidget *myPin);
     virtual ~coPin();
 
-    virtual void setPos(float x); // only update Position
+    virtual void setPos(float x, float minv = 0.0f, float maxv = 1.0f); // only update Position
     virtual void select();
     virtual void deSelect();
     int getID();

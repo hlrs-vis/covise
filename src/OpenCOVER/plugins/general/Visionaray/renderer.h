@@ -52,8 +52,8 @@ namespace visionaray
         color_type const* color() const;
         depth_type const* depth() const;
 
-        size_t width() const;
-        size_t height() const;
+        int width() const;
+        int height() const;
 
         ref_type ref();
 

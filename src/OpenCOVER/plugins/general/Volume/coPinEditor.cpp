@@ -371,7 +371,9 @@ void coPinEditor::setTopWidth(float s, int context)
         vvTFPyramid *pyr = dynamic_cast<vvTFPyramid *>(myPin->jPin);
         if (pyr)
         {
-            ((coAlphaHatPin *)myPin)->setTopWidth(fabs(s));
+            ((coAlphaHatPin *)myPin)->setTopWidth(fabs(s),
+                                                  myFunctionEditor->getMin(),
+                                                  myFunctionEditor->getMax());
         }
         updateColorBar();
     }
@@ -395,11 +397,15 @@ void coPinEditor::setBotWidth(float w, int context)
         vvTFSkip *skip = dynamic_cast<vvTFSkip *>(myPin->jPin);
         if (pyr)
         {
-            ((coAlphaHatPin *)myPin)->setBotWidth(w);
+            ((coAlphaHatPin *)myPin)->setBotWidth(w,
+                                                  myFunctionEditor->getMin(),
+                                                  myFunctionEditor->getMax());
         }
         else if (skip)
         {
-            ((coAlphaBlankPin *)myPin)->setWidth(w);
+            ((coAlphaBlankPin *)myPin)->setWidth(w,
+                                                 myFunctionEditor->getMin(),
+                                                 myFunctionEditor->getMax());
         }
         updateColorBar();
     }
@@ -421,7 +427,9 @@ void coPinEditor::setMax(float m, int context)
         vvTFPyramid *pyr = dynamic_cast<vvTFPyramid *>(myPin->jPin);
         if (pyr)
         {
-            ((coAlphaHatPin *)myPin)->setMax(m);
+            ((coAlphaHatPin *)myPin)->setMax(m,
+                                             myFunctionEditor->getMin(),
+                                             myFunctionEditor->getMax());
         }
         updateColorBar();
     }
@@ -474,9 +482,16 @@ int coPinEditor::hit(vruiHit *hit)
             vvTFPyramid *pyrPin = dynamic_cast<vvTFPyramid *>((*pin)->jPin);
             if (pyrPin)
             {
-                float d = (pyrPin->_bottom[0] - pyrPin->_top[0]) / 4. + pyrPin->_top[0] / 2.;
+                // normalize pin parameters
+                float minv = myFunctionEditor->getMin();
+                float maxv = myFunctionEditor->getMax();
+                float bottom = (pyrPin->_bottom[0] - minv) / (maxv - minv);
+                float top = (pyrPin->_top[0] - minv) / (maxv - minv);
+                float pos = (pyrPin->_pos[0] - minv) / (maxv - minv);
+
+                float d = (bottom - top) / 4. + top / 2.;
                 float trans = -d;
-                if (d < 0.1 && pyrPin->_pos[0] >= 0.0 && pyrPin->_pos[0] <= 1.0)
+                if (d < 0.1 && pos >= 0.0 && pos <= 1.0)
                 {
                     trans = 0.;
                 }
@@ -484,19 +499,19 @@ int coPinEditor::hit(vruiHit *hit)
                 {
                     for (int i = 0; i < 2; i++)
                     {
-                        if (pyrPin->_pos[0] + trans < 0.0 && pyrPin->_pos[0] + trans <= 1.0)
+                        if (pos + trans < 0.0 && pos + trans <= 1.0)
                         {
                             trans += d;
                             continue;
                         }
-                        if (pyrPin->_pos[0] + trans > 1.0 && pyrPin->_pos[0] + trans - d >= 0.0)
+                        if (pos + trans > 1.0 && pos + trans - d >= 0.0)
                         {
                             trans -= d;
                             break;
                         }
 
-                        if (fabs(pyrPin->_pos[0] + trans + d - x) < fabs(pyrPin->_pos[0] + trans - x)
-                            && pyrPin->_pos[0] + trans + d <= 1.00001)
+                        if (fabs(pos + trans + d - x) < fabs(pos + trans - x)
+                            && pos + trans + d <= 1.00001)
                         {
                             trans += d;
                         }
@@ -544,7 +559,12 @@ int coPinEditor::hit(vruiHit *hit)
 
     if (mode == ADD_PIN)
     {
-        currentPin->setPos(x - currentPin->handleTrans());
+        float valuex = x - currentPin->handleTrans();
+        x = ts_clamp(x, 0.0f, 1.0f);
+        valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
+        currentPin->setPos(valuex,
+                           myFunctionEditor->getMin(),
+                           myFunctionEditor->getMax());
         sprintf(message, "X%f %f %f", x, .5, .5);
         sendOngoingMessage(message);
         vvTFColor *col = dynamic_cast<vvTFColor *>(currentPin->jPin);
@@ -659,7 +679,12 @@ int coPinEditor::hit(vruiHit *hit)
             {
                 sprintf(message, "M%f", x);
                 sendOngoingMessage(message);
-                currentPin->setPos(x - currentPin->handleTrans());
+                float valuex = x - currentPin->handleTrans();
+                x = ts_clamp(x, 0.0f, 1.0f);
+                valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
+                currentPin->setPos(valuex,
+                                   myFunctionEditor->getMin(),
+                                   myFunctionEditor->getMax());
                 updateColorBar();
                 sortPins();
             }
@@ -729,10 +754,15 @@ void coPinEditor::update()
     if (currentPin)
     {
         static float oldX = -11111;
+        
+        float minv = myFunctionEditor->getMin();
+        float maxv = myFunctionEditor->getMax();
+        float pos = (currentPin->jPin->_pos[0] - minv) / (maxv - minv);
+
         labelBackground->setVisible(true);
-        if (oldX != currentPin->jPin->_pos[0] + currentPin->handleTrans())
+        if (oldX != pos + currentPin->handleTrans())
         {
-            oldX = currentPin->jPin->_pos[0];
+            oldX = pos;
             char num[50];
             scalarRange = myFunctionEditor->getMax() - myFunctionEditor->getMin() + 1.0f;
             if (scalarRange == 256.0f || scalarRange == 4096.0f)
@@ -741,7 +771,7 @@ void coPinEditor::update()
                 formatString = formats[0];
             sprintf(num, formatString, myFunctionEditor->getMin() + (oldX + currentPin->handleTrans()) * (myFunctionEditor->getMax() - myFunctionEditor->getMin()));
             currentScalarLabel->setString(num);
-            labelBackground->setPos(15 + ((currentPin->jPin->_pos[0] + currentPin->handleTrans()) * W) - currentScalarLabel->getWidth() / 2.0, -59, 2);
+            labelBackground->setPos(15 + ((pos + currentPin->handleTrans()) * W) - currentScalarLabel->getWidth() / 2.0, -59, 2);
         }
     }
     else
@@ -820,18 +850,19 @@ void coPinEditor::update()
                         {
                             if (myValue < 0.0)
                                 myValue = 0.0;
-                            ((coAlphaHatPin *)currentPin)->setTopWidth(myValue);
+                            ((coAlphaHatPin *)currentPin)->setTopWidth(myValue,
+                                                                       myFunctionEditor->getMin(),
+                                                                       myFunctionEditor->getMax());
                             myFunctionEditor->topWidth->setValue(myValue);
                             sprintf(message, "S%f", myValue);
                             sendOngoingMessage(message);
                         }
                         else
                         {
-                            if (myValue < 0.0)
-                                myValue = 0.0;
-                            if (myValue > 1.0)
-                                myValue = 1.0;
-                            ((coAlphaHatPin *)currentPin)->setBotWidth(myValue);
+                            myValue = ts_clamp(myValue, myFunctionEditor->getMin(), myFunctionEditor->getMax());
+                            ((coAlphaHatPin *)currentPin)->setBotWidth(myValue,
+                                                                       myFunctionEditor->getMin(),
+                                                                       myFunctionEditor->getMax());
                             myFunctionEditor->botWidth->setValue(myValue);
                             sprintf(message, "A%f", myValue);
                             sendOngoingMessage(message);
@@ -904,10 +935,15 @@ bool coPinEditor::isNearestSelected(float x, float y)
             if (dynamic_cast<vvTFColor *>(p))
                 continue;
         }
-        if (fabs((*pin)->jPin->_pos[0] - x) < minDist)
+
+        float minv = myFunctionEditor->getMin();
+        float maxv = myFunctionEditor->getMax();
+        float pos = ((*pin)->jPin->_pos[0] - minv) / (maxv - minv);
+
+        if (fabs(pos - x) < minDist)
         {
             minPin = (*pin);
-            minDist = fabs((*pin)->jPin->_pos[0] - x);
+            minDist = fabs(pos - x);
         }
     }
 
@@ -935,10 +971,15 @@ void coPinEditor::selectPin(float x, float y)
             if (dynamic_cast<vvTFColor *>(p))
                 continue;
         }
-        if (fabs((*pin)->jPin->_pos[0] + (*pin)->handleTrans() - x) < minDist)
+
+        float minv = myFunctionEditor->getMin();
+        float maxv = myFunctionEditor->getMax();
+        float pos = ((*pin)->jPin->_pos[0] - minv) / (maxv - minv);
+
+        if (fabs(pos + (*pin)->handleTrans() - x) < minDist)
         {
             minPin = (*pin);
-            minDist = fabs((*pin)->jPin->_pos[0] + (*pin)->handleTrans() - x);
+            minDist = fabs(pos + (*pin)->handleTrans() - x);
         }
 
         //cerr << "x: " << x << " current: " << pin->jPin->x << " dist: " <<fabs(pin->jPin->x - x) << endl;
@@ -1122,7 +1163,8 @@ void coPinEditor::addPin(int type, int local)
         currentPin = new coAlphaBlankPin(pinDCS.get(), H, W, skipPin);
     }
     }
-    currentPin->setPos(0.0);
+    float x = myFunctionEditor->getMin();
+    currentPin->setPos(x, myFunctionEditor->getMin(), myFunctionEditor->getMax());
     pinList.push_back(currentPin);
     if (jPin)
         myTransFunc->_widgets.push_back(jPin);
@@ -1231,7 +1273,7 @@ void coPinEditor::deletePin(int ID)
 
 void coPinEditor::updateColorBar()
 {
-    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData, 0., 1., true);
+    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData, myFunctionEditor->getMin(), myFunctionEditor->getMax(), true);
 
     Image *image = tex->getImage();
     image->setImage(TEXTURE_RES_COLOR, 2, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -1264,13 +1306,13 @@ void coPinEditor::setBackgroundType(int mo)
         {
             backgroundGeode->setStateSet(HistoBackgroundGeostate.get());
             backgroundGeometry->setTexCoordArray(0, texcoordColor.get());
-			texcoordColor->dirty();
+            texcoordColor->dirty();
         }
         else
         {
             backgroundGeode->setStateSet(NormalBackgroundGeostate.get());
             backgroundGeometry->setTexCoordArray(0, texcoord.get());
-			texcoord->dirty();
+            texcoord->dirty();
         }
     }
     backgroundGeometry->dirtyDisplayList();
@@ -1281,7 +1323,7 @@ void coPinEditor::setMixChannelsActive(bool active)
     mixChannelsActive = active;
 }
 
-void coPinEditor::updatePinList(float minv, float maxv)
+void coPinEditor::updatePinList()
 {
 
     for (list<coPin *>::iterator pin = pinList.begin(); pin != pinList.end(); ++pin)
@@ -1292,45 +1334,34 @@ void coPinEditor::updatePinList(float minv, float maxv)
     selectedRegion = -1;
     setMode(SELECTION);
     currentPin = NULL;
+    float minv = myFunctionEditor->getMin();
+    float maxv = myFunctionEditor->getMax();
     for (std::vector<vvTFWidget *>::const_iterator it = myTransFunc->_widgets.begin();
          it != myTransFunc->_widgets.end(); ++it)
     {
-        vvTFWidget *jPin = *it;
-        vvTFPyramid *pyrPin = dynamic_cast<vvTFPyramid *>(jPin);
-        vvTFColor *colPin = dynamic_cast<vvTFColor *>(jPin);
-        vvTFSkip *skipPin = dynamic_cast<vvTFSkip *>(jPin);
-        if (colPin)
+        if (vvTFColor *colPin = dynamic_cast<vvTFColor *>(*it))
         {
-            vvTFColor cpy = *colPin;
-            cpy.mapTo01(minv, maxv);
-
             float h, s, v;
-            cpy._col.getHSB(h, s, v);
+            colPin->_col.getHSB(h, s, v);
 
             coHSVPin *pin = new coHSVPin(pinDCS.get(), H, W, colPin);
             pin->setColor(h, s, v);
-            pin->setPos(cpy.pos()[0]);
+            pin->setPos(colPin->pos()[0], minv, maxv);
             pinList.push_back(pin);
         }
-        else if (pyrPin)
+        else if (vvTFPyramid *pyrPin = dynamic_cast<vvTFPyramid *>(*it))
         {
-            vvTFPyramid cpy = *pyrPin;
-            cpy.mapTo01(minv, maxv);
-
             coAlphaHatPin *pin = new coAlphaHatPin(pinDCS.get(), H, W, pyrPin);
-            pin->setTopWidth(cpy.top()[0]);
-            pin->setBotWidth(cpy.bottom()[0]);
-            pin->setPos(cpy.pos()[0]);
+            pin->setTopWidth(pyrPin->top()[0], minv, maxv);
+            pin->setBotWidth(pyrPin->bottom()[0], minv, maxv);
+            pin->setPos(pyrPin->pos()[0], minv, maxv);
             pinList.push_back(pin);
         }
-        else if (skipPin)
+        else if (vvTFSkip *skipPin = dynamic_cast<vvTFSkip *>(*it))
         {
-            vvTFSkip cpy = *skipPin;
-            cpy.mapTo01(minv, maxv);
-
             coAlphaBlankPin *pin = new coAlphaBlankPin(pinDCS.get(), H, W, skipPin);
-            pin->setWidth(cpy.size()[0]);
-            pin->setPos(cpy.pos()[0]);
+            pin->setWidth(skipPin->size()[0], minv, maxv);
+            pin->setPos(skipPin->pos()[0], minv, maxv);
             pinList.push_back(pin);
         }
     }
@@ -1596,7 +1627,7 @@ ref_ptr<Group> coPinEditor::createBackgroundGroup()
     tex->setWrap(Texture::WRAP_T, Texture::CLAMP);
 
     textureData = new unsigned char[3 * 4 * TEXTURE_RES_COLOR];
-    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData, 0., 1., true);
+    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData, myFunctionEditor->getMin(), myFunctionEditor->getMax(), true);
 
     ref_ptr<Image> image = new Image();
     image->setImage(TEXTURE_RES_COLOR, 2, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -1723,7 +1754,7 @@ void coPinEditor::adjustSelectionBar()
     (*selectionBarCoord)[9].set(A + B, -(SELH + A + B + COLORH + A + B), ZOFFSET);
 
     selectionBarGeometry->dirtyDisplayList();
-	selectionBarCoord->dirty();
+    selectionBarCoord->dirty();
     selectionBarGeode->dirtyBound();
 }
 

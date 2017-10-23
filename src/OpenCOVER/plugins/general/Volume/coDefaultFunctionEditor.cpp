@@ -52,11 +52,16 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
 {
     userData = cbUserData;
     applyFunction = applyFunc;
+    for (int i=0; i<MaxChannels; ++i)
+    {
+        minValue[i] = 0.;
+        maxValue[i] = 1.;
+    }
     instantClassification = false;
     defaultColors = defaultAlpha = 0;
     theTransferFunc.resize(1);
-    theTransferFunc[0].setDefaultColors(defaultColors, 0., 1.);
-    theTransferFunc[0].setDefaultAlpha(defaultAlpha, 0., 1.);
+    theTransferFunc[0].setDefaultColors(defaultColors, getMin(), getMax());
+    theTransferFunc[0].setDefaultAlpha(defaultAlpha, getMin(), getMax());
     colorButton = new coToggleButton(new coSquareButtonGeometry("Volume/color-menu"), this);
     colorButton->setPos(0, -10.9);
     alphaPeakButton = new coToggleButton(new coSquareButtonGeometry("Volume/peak-menu"), this);
@@ -106,11 +111,6 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     scalarMax = new coLabel();
     scalarMin->setFontSize(5);
     scalarMax->setFontSize(5);
-    for (int i=0; i<MaxChannels; ++i)
-    {
-        minValue[i] = 0.;
-        maxValue[i] = 1.;
-    }
     setMin(0.);
     setMax(1.);
     scalarMin->setPos(15, -59, 1);
@@ -361,10 +361,10 @@ void coDefaultFunctionEditor::updateBackground(unsigned char *texture)
     pinedit->updateBackground(texture);
 }
 
-void coDefaultFunctionEditor::updatePinList(float minv, float maxv)
+void coDefaultFunctionEditor::updatePinList()
 {
     pinedit->setTransFuncPtr(&theTransferFunc[activeChannel]);
-    pinedit->updatePinList(minv, maxv);
+    pinedit->updatePinList();
 }
 
 void coDefaultFunctionEditor::updateColorBar()
@@ -387,14 +387,14 @@ void coDefaultFunctionEditor::setMin(float m)
 {
     minValue[activeChannel] = m;
     updateLabels();
-    updatePinList(minValue[activeChannel], maxValue[activeChannel]);
+    updatePinList();
 }
 
 void coDefaultFunctionEditor::setMax(float m)
 {
     maxValue[activeChannel] = m;
     updateLabels();
-    updatePinList(minValue[activeChannel], maxValue[activeChannel]);
+    updatePinList();
 }
 
 float coDefaultFunctionEditor::getMin()
@@ -422,6 +422,10 @@ void coDefaultFunctionEditor::update()
     hsvSel->update();
     cube->update();
     pinedit->update();
+
+    float range = getMax() - getMin();
+    topWidth->setMax(2 * range);
+    botWidth->setMax(2 * range);
 }
 
 int coDefaultFunctionEditor::getContext()
@@ -487,7 +491,7 @@ void coDefaultFunctionEditor::remoteOngoing(const char *message)
     {
     case 'C':
     {
-        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, 0., 1.);
+        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, getMin(), getMax());
         if (defaultColors >= theTransferFunc[activeChannel].getNumDefaultColors())
             defaultColors = 0;
         pinedit->updatePinList();
@@ -495,7 +499,7 @@ void coDefaultFunctionEditor::remoteOngoing(const char *message)
     break;
     case 'A':
     {
-        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, 0., 1.);
+        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, getMin(), getMax());
         if (defaultAlpha >= theTransferFunc[activeChannel].getNumDefaultAlpha())
             defaultAlpha = 0;
         pinedit->updatePinList();
@@ -584,7 +588,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
              && (recentlyPressedButton == defColor))
     {
         putUndoBuffer();
-        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, 0., 1.);
+        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, getMin(), getMax());
         if (defaultColors >= theTransferFunc[activeChannel].getNumDefaultColors())
             defaultColors = 0;
         updatePinList();
@@ -594,7 +598,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
              && (recentlyPressedButton == defAlpha)) // default alpha
     {
         putUndoBuffer();
-        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, 0., 1.);
+        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, getMin(), getMax());
         if (defaultAlpha >= theTransferFunc[activeChannel].getNumDefaultAlpha())
             defaultAlpha = 0;
         updatePinList();

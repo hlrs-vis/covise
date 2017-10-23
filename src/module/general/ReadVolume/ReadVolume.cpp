@@ -574,10 +574,14 @@ int coReadVolume::compute(const char *)
                         timesteps.push_back(dof);
                     }
 
-                    std::string min_str = boost::lexical_cast<std::string>(vd->real[c][0]);
-                    std::string max_str = boost::lexical_cast<std::string>(vd->real[c][1]);
-                    timesteps.back()->addAttribute("MIN", min_str.c_str());
-                    timesteps.back()->addAttribute("MAX", max_str.c_str());
+                    std::string mapping_min_str = boost::lexical_cast<std::string>(vd->mapping(c)[0]);
+                    std::string mapping_max_str = boost::lexical_cast<std::string>(vd->mapping(c)[1]);
+                    std::string range_min_str = boost::lexical_cast<std::string>(vd->mapping(c)[0]);
+                    std::string range_max_str = boost::lexical_cast<std::string>(vd->mapping(c)[1]);
+                    timesteps.back()->addAttribute("MAPPING_MIN", mapping_min_str.c_str());
+                    timesteps.back()->addAttribute("MAPPING_MAX", mapping_max_str.c_str());
+                    timesteps.back()->addAttribute("RANGE_MIN", range_min_str.c_str());
+                    timesteps.back()->addAttribute("RANGE_MAX", range_max_str.c_str());
 
                     rawData = vd->getRaw((size_t)t);
 
