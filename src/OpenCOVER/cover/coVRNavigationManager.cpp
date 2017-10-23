@@ -326,6 +326,24 @@ void coVRNavigationManager::initMatrices()
 void coVRNavigationManager::initMenu()
 {
     navMenu_ = new ui::Menu("Navigation", this);
+
+    m_viewAll = new ui::Action(navMenu_, "ViewAll");
+    m_viewAll->setText("View all");
+    m_viewAll->setShortcut("v");
+    m_viewAll->setCallback([this](){
+        VRSceneGraph::instance()->viewAll(false);
+    });
+    m_viewAll->setPriority(ui::Element::Toolbar);
+    m_viewAll->setIcon("zoom-fit-best");
+
+    m_resetView = new ui::Action(navMenu_, "ResetView");
+    m_resetView->setText("Reset view");
+    m_resetView->setShortcut("Shift+V");
+    m_resetView->setCallback([this](){
+        VRSceneGraph::instance()->viewAll(true);
+    });
+    m_resetView->setIcon("zoom-original");
+
     navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
     navGroup_->enableDeselect(true);
     navGroup_->setDefaultValue(NavNone);

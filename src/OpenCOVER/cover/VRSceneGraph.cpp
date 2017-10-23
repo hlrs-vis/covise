@@ -206,25 +206,6 @@ void VRSceneGraph::init()
         toggleAxis(state);
     });
 
-    m_viewAll = new ui::Action("ViewAll", this);
-    cover->viewOptionsMenu->add(m_viewAll);
-    m_viewAll->setText("View all");
-    m_viewAll->setShortcut("v");
-    m_viewAll->setCallback([this](){
-        viewAll(false);
-    });
-    m_viewAll->setPriority(ui::Element::Toolbar);
-    m_viewAll->setIcon("zoom-fit-best");
-
-    m_resetView = new ui::Action("ResetView", this);
-    cover->viewOptionsMenu->add(m_resetView);
-    m_resetView->setText("Reset view");
-    m_resetView->setShortcut("Shift+V");
-    m_resetView->setCallback([this](){
-        viewAll(true);
-    });
-    m_resetView->setIcon("zoom-original");
-
     m_storeScenegraph = new ui::Action("StoreScenegraph", this);
     cover->fileMenu->add(m_storeScenegraph);
     m_storeScenegraph->setText("Store scenegraph");

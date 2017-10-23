@@ -361,7 +361,6 @@ private:
     vrui::coCombinedButtonInteraction *m_interactionHQ;
 
     ui::Menu *m_miscMenu=nullptr;
-    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
     ui::Button *m_trackHead=nullptr;
     ui::Button *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;

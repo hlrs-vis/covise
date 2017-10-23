@@ -93,6 +93,7 @@ void coVRAnimationManager::initAnimMenu()
    animRowMenu->add(rotateObjectsToggleItem);
 #endif
     animRowMenu = new ui::Menu("Animation", this);
+
     animToggleItem = new ui::Button(animRowMenu, "Animate");
     animToggleItem->setShortcut("a");
     animToggleItem->setCallback([this](bool flag){
@@ -103,25 +104,15 @@ void coVRAnimationManager::initAnimMenu()
     animToggleItem->setPriority(ui::Element::Toolbar);
     animToggleItem->setIcon("media-playback-start");
 
-    animSpeedItem = new ui::Slider(animRowMenu, "Speed");
-    animSpeedItem->setPresentation(ui::Slider::AsDial);
-    animSpeedItem->setBounds(AnimSliderMin, AnimSliderMax);
-    animSpeedItem->setValue(animSpeedStartValue);
-    animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        sendAnimationSpeedMessage();
-    });
-    sendAnimationSpeedMessage();
-
-    animForwardItem = new ui::Action(animRowMenu, "StepForward");
-    animForwardItem->setText("Step forward");
-    animForwardItem->setShortcut(".");
-    animForwardItem->setCallback([this](){
+    animFrameItem = new ui::Slider(animRowMenu, "Timestep");
+    animFrameItem->setIntegral(true);
+    animFrameItem->setBounds(timestepBase, timestepBase);
+    animFrameItem->setValue(timestepBase);
+    animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
         if (animationRunning())
             enableAnimation(false);
-        requestAnimationFrame(getAnimationFrame() + 1);
+        requestAnimationTime(val);
     });
-    animForwardItem->setPriority(ui::Element::Toolbar);
-    animForwardItem->setIcon("media-seek-forward");
 
     animBackItem = new ui::Action(animRowMenu, "StepBackward");
     animBackItem->setText("Step backward");
@@ -134,19 +125,31 @@ void coVRAnimationManager::initAnimMenu()
     animBackItem->setPriority(ui::Element::Toolbar);
     animBackItem->setIcon("media-seek-backward");
 
-    animFrameItem = new ui::Slider(animRowMenu, "Timestep");
-    animFrameItem->setIntegral(true);
-    animFrameItem->setBounds(timestepBase, timestepBase);
-    animFrameItem->setValue(timestepBase);
-    animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
+    animForwardItem = new ui::Action(animRowMenu, "StepForward");
+    animForwardItem->setText("Step forward");
+    animForwardItem->setShortcut(".");
+    animForwardItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
-        requestAnimationTime(val);
+        requestAnimationFrame(getAnimationFrame() + 1);
     });
+    animForwardItem->setPriority(ui::Element::Toolbar);
+    animForwardItem->setIcon("media-seek-forward");
+
     animPingPongItem = new ui::Button(animRowMenu, "Oscillate");
     animPingPongItem->setState(false);
     animSyncItem = new ui::Button(animRowMenu, "Synchronize");
     animSyncItem->setState(false);
+
+    animSpeedItem = new ui::Slider(animRowMenu, "Speed");
+    animSpeedItem->setPresentation(ui::Slider::AsDial);
+    animSpeedItem->setBounds(AnimSliderMin, AnimSliderMax);
+    animSpeedItem->setValue(animSpeedStartValue);
+    animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        sendAnimationSpeedMessage();
+    });
+    sendAnimationSpeedMessage();
+
 }
 
 void coVRAnimationManager::setOscillate(bool state)
