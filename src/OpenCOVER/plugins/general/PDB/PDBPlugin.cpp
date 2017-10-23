@@ -258,14 +258,14 @@ bool PDBPlugin::init()
     }
 
     //set pdb url
-    const char *pdbURL = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBUrl").c_str();
-    if (pdbURL)
+    auto pdbURL = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBUrl");
+    if (pdbURL.empty())
     {
-        pdburl = pdbURL;
+        pdburl = "www.pdb.org/pdb/files/";
     }
     else
     {
-        pdburl = "www.pdb.org/pdb/files/";
+        pdburl = pdbURL.c_str();
     }
 
     //set animation url
