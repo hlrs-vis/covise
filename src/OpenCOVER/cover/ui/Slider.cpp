@@ -2,6 +2,7 @@
 #include "Group.h"
 #include "Manager.h"
 #include <cmath>
+#include <algorithm>
 
 #include <net/tokenbuffer.h>
 
