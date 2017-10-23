@@ -556,15 +556,6 @@ bool OpenCOVER::init()
     });
 #endif
 
-    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
-
-    m_quit = new ui::Action(m_quitGroup, "Quit");
-    m_quit->setCallback([this](){
-        //quitCallback(nullptr, nullptr);
-        auto qd = new QuitDialog;
-        qd->show();
-    });
-
     exitFlag = false;
 
     readConfigFile();
@@ -785,6 +776,18 @@ bool OpenCOVER::init()
 
     cover->vruiView = new ui::VruiView;
     cover->ui->addView(cover->vruiView);
+
+    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
+    m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setCallback([this](){
+#if 1
+        quitCallback(nullptr, nullptr);
+#else
+        auto qd = new QuitDialog;
+        qd->show();
+#endif
+    });
+    m_quit->setIcon("application-exit");
 
     m_initialized = true;
     return true;
