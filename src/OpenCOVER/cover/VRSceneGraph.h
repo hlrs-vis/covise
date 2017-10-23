@@ -85,6 +85,7 @@ public:
     {
         return m_menuGroupNode.get();
     }
+    bool menuVisible() const;
     void toggleMenu();
     void setMenu(bool state);
     void setMenuMode(bool state);

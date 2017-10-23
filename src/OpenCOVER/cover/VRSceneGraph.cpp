@@ -213,6 +213,8 @@ void VRSceneGraph::init()
     m_viewAll->setCallback([this](){
         viewAll(false);
     });
+    m_viewAll->setPriority(ui::Element::Toolbar);
+    m_viewAll->setIcon("zoom-fit-best");
 
     m_resetView = new ui::Action("ResetView", this);
     cover->viewOptionsMenu->add(m_resetView);
@@ -221,6 +223,7 @@ void VRSceneGraph::init()
     m_resetView->setCallback([this](){
         viewAll(true);
     });
+    m_resetView->setIcon("zoom-original");
 
     m_storeScenegraph = new ui::Action("StoreScenegraph", this);
     cover->fileMenu->add(m_storeScenegraph);
@@ -704,6 +707,12 @@ VRSceneGraph::setMenu(bool state)
     {
         m_scene->removeChild(m_menuGroupNode.get());
     }
+}
+
+bool
+VRSceneGraph::menuVisible() const
+{
+    return m_showMenu;
 }
 
 void VRSceneGraph::setMenuMode(bool state)

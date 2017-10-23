@@ -332,6 +332,7 @@ void coVRNavigationManager::initMenu()
     xformButton_ = new ui::Button(navMenu_, "MoveWorld", navGroup_, XForm);
     xformButton_->setText("Move world");
     xformButton_->setShortcut("t");
+    xformButton_->setPriority(ui::Element::Toolbar);
     scaleButton_ = new ui::Button(navMenu_, "Scale", navGroup_, Scale);
     scaleButton_->setShortcut("s");
     flyButton_ = new ui::Button(navMenu_, "Fly", navGroup_, Fly);
@@ -340,6 +341,7 @@ void coVRNavigationManager::initMenu()
     walkButton_->setShortcut("w");
     driveButton_ = new ui::Button(navMenu_, "Drive", navGroup_, Glide);
     driveButton_->setShortcut("d");
+    driveButton_->setPriority(ui::Element::Toolbar);
     selectButton_ = new ui::Button(navMenu_, "Selection", navGroup_, Select);
     showNameButton_ = new ui::Button(navMenu_, "ShowName", navGroup_, ShowName);
     showNameButton_->setText("Show name");

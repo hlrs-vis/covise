@@ -100,6 +100,8 @@ void coVRAnimationManager::initAnimMenu()
             enableAnimation(flag);
     });
     animToggleItem->setState(animRunning);
+    animToggleItem->setPriority(ui::Element::Toolbar);
+    animToggleItem->setIcon("media-playback-start");
 
     animSpeedItem = new ui::Slider(animRowMenu, "Speed");
     animSpeedItem->setPresentation(ui::Slider::AsDial);
@@ -118,6 +120,9 @@ void coVRAnimationManager::initAnimMenu()
             enableAnimation(false);
         requestAnimationFrame(getAnimationFrame() + 1);
     });
+    animForwardItem->setPriority(ui::Element::Toolbar);
+    animForwardItem->setIcon("media-seek-forward");
+
     animBackItem = new ui::Action(animRowMenu, "StepBackward");
     animBackItem->setText("Step backward");
     animBackItem->setShortcut(",");
@@ -126,6 +131,9 @@ void coVRAnimationManager::initAnimMenu()
             enableAnimation(false);
         requestAnimationFrame(getAnimationFrame() - 1);
     });
+    animBackItem->setPriority(ui::Element::Toolbar);
+    animBackItem->setIcon("media-seek-backward");
+
     animFrameItem = new ui::Slider(animRowMenu, "Timestep");
     animFrameItem->setIntegral(true);
     animFrameItem->setBounds(timestepBase, timestepBase);
