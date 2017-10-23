@@ -54,6 +54,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     //! construct and add to group, life time managed by group
     /** all derived classes provide a constructor taking the same kind of arguments */
     Element(Group *group, const std::string &name);
+
+    //! remove from UI and parents
     virtual ~Element();
 
     //! unique element id

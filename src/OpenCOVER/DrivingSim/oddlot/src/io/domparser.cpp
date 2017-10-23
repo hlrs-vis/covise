@@ -72,7 +72,7 @@
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
-#include "src/data/roadsystem/sections/parkingSpaceObject.hpp"
+#include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 
 #include "src/data/vehiclesystem/vehiclesystem.hpp"
 #include "src/data/vehiclesystem/vehiclegroup.hpp"

@@ -35,7 +35,6 @@
 #include "coCommandLine.h"
 
 #include <config/CoviseConfig.h>
-#include <net/tokenbuffer.h>
 #include "coVRConfig.h"
 #include "OpenCOVER.h"
 
@@ -146,8 +145,6 @@ VRWindow::config()
     {
         int count = windowTypes.size();
         coVRMSController::instance()->sendMaster(&count, sizeof(count));
-        covise::TokenBuffer tb;
-        tb << windowTypes.size();
         for (auto t: windowTypes)
             coVRMSController::instance()->sendMaster(t);
         coVRMSController::instance()->readMaster(&count, sizeof(count));
