@@ -508,6 +508,8 @@ LaneRoadMark::delUserType()
 
 	delete userType_;
 	userType_ = NULL;
+
+    return true;
 }
 
 
