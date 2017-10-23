@@ -8,12 +8,14 @@ set(CMAKE_AUTOMOC ON)
 set(HEADERS
     QtOsgWidget.h
     QtView.h
+    QtMainWindow.h
     WindowTypeQt.h
 )
 
 set(SOURCES
     QtOsgWidget.cpp
     QtView.cpp
+    QtMainWindow.cpp
     WindowTypeQt.cpp
 )
 

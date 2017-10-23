@@ -18,17 +18,21 @@
 #include "WindowTypeQt.h"
 #include "QtView.h"
 #include "QtOsgWidget.h"
+#include "QtMainWindow.h"
 
+#include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coCommandLine.h>
+#include <cover/VRSceneGraph.h>
+#include <cover/coVRMSController.h>
 
-
-#include <QMainWindow>
 #include <QMenuBar>
+#include <QToolBar>
 #include <QApplication>
 #include <QOpenGLWidget>
 #include <QApplication>
+#include <QLayout>
 
 #include <cassert>
 
@@ -67,6 +71,21 @@ static void iceIOErrorHandler(IceConn conn)
 }
 #endif
 
+bool WindowTypeQtPlugin::update()
+{
+    bool checked = VRSceneGraph::instance()->menuVisible();
+    checked = coVRMSController::instance()->syncBool(checked);
+    if (checked != VRSceneGraph::instance()->menuVisible())
+        VRSceneGraph::instance()->setMenu(checked);
+    for (auto w: m_windows)
+    {
+        w.second.toggleMenu->setChecked(checked);
+    }
+    bool up = m_update;
+    m_update = false;
+    return up;
+}
+
 bool WindowTypeQtPlugin::windowCreate(int i)
 {
     auto &conf = *coVRConfig::instance();
@@ -88,9 +107,20 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto &win = m_windows[i];
     win.index = i;
 
-    win.window = new QMainWindow();
+    auto window = new QtMainWindow();
+    win.window = window;
     win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
     win.window->show();
+
+    win.toggleMenu = new QAction(window);
+    win.toggleMenu->setCheckable(true);
+    win.toggleMenu->setChecked(true);
+    win.toggleMenu->setText("VR Menu");
+    window->connect(win.toggleMenu, &QAction::triggered, [this](bool state){
+        m_update = true;
+        VRSceneGraph::instance()->setMenu(state);
+    });
+    window->addContextAction(win.toggleMenu);
 
 #ifdef __APPLE__
     //auto menubar = new QMenuBar(nullptr);
@@ -100,8 +130,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto menubar = win.window->menuBar();
 #endif
     menubar->show();
-    win.view = new ui::QtView(menubar);
-    cover->ui->addView(win.view);
+    QToolBar *toolbar = nullptr;
+    bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
+    if (useToolbar)
+    {
+        toolbar = new QToolBar("Toolbar", win.window);
+        toolbar->layout()->setSpacing(2);
+        toolbar->layout()->setMargin(0);
+        win.window->addToolBar(toolbar);
+        toolbar->show();
+        window->addContextAction(toolbar->toggleViewAction());
+    }
+    win.view.emplace_back(new ui::QtView(menubar, toolbar));
+    cover->ui->addView(win.view.back());
+#if 0
+    win.view.emplace_back(new ui::QtView(toolbar));
+    cover->ui->addView(win.view.back());
+#endif
 
     QSurfaceFormat format;
     format.setVersion(2, 1);
@@ -157,8 +202,12 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     conf.windows[num].window = nullptr;
 
     auto &win = it->second;
-    cover->ui->removeView(win.view);
-    delete win.view;
+    while (!win.view.empty())
+    {
+        cover->ui->removeView(win.view.back());
+        delete win.view.back();
+        win.view.pop_back();
+    }
     delete win.widget;
     delete win.window;
     m_windows.erase(it);
