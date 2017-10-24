@@ -428,6 +428,9 @@ void coVRAnimationManager::setNumTimesteps(int t)
 void coVRAnimationManager::showAnimMenu(bool visible)
 {
     animRowMenu->setVisible(visible);
+    animToggleItem->setEnabled(visible);
+    animForwardItem->setEnabled(visible);
+    animBackItem->setEnabled(visible);
 }
 
 void
