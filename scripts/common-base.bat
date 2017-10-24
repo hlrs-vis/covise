@@ -1179,7 +1179,7 @@ if not defined XERCESC_HOME (
 
 
 if not defined CFX5_UNITS_DIR (
-   set "CFX5_UNITS_DIR=%COVISEDIR%\icons"
+   set "CFX5_UNITS_DIR=%COVISEDIR%\share\covise\cfx"
 )
 
 if not defined FARO_HOME  (
