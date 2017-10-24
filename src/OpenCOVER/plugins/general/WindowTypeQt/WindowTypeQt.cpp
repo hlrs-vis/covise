@@ -32,6 +32,11 @@
 
 #include <cassert>
 
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+#define USE_X11
+#include <X11/ICE/ICElib.h>
+#endif
+
 using namespace opencover;
 
 WindowTypeQtPlugin::WindowTypeQtPlugin()
@@ -54,11 +59,24 @@ bool WindowTypeQtPlugin::destroy()
     return true;
 }
 
+#ifdef USE_X11
+static void iceIOErrorHandler(IceConn conn)
+{
+    (void)conn;
+    std::cerr << "WindowTypeQt: ignoring ICE IO error" << std::endl;
+}
+#endif
+
 bool WindowTypeQtPlugin::windowCreate(int i)
 {
     auto &conf = *coVRConfig::instance();
     if (!qApp)
+    {
+#ifdef USE_X11
+        IceSetIOErrorHandler(&iceIOErrorHandler);
+#endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
+    }
 
     auto it = m_windows.find(i);
     if (it != m_windows.end())
