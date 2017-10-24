@@ -188,7 +188,7 @@ private:
 class SetObjectPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent = NULL);
+    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const Object::ObjectProperties &objectProps, const Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent = NULL);
     virtual ~SetObjectPropertiesCommand();
 
     virtual int id() const
