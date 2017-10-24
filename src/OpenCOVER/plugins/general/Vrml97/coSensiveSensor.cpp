@@ -41,10 +41,9 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/IntersectVisitor>
 #include <osgDB/WriteFile>
 
-#include <OpenVRUI/coButtonMenuItem.h>
-
 #include "ViewerOsg.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/ui/Action.h>
 
 using namespace osg;
 
@@ -55,11 +54,11 @@ coSensiveSensor::~coSensiveSensor()
     ViewerOsg::viewer->removeSensor(this);
     //delete tt;
     delete VrmlInteraction;
-    delete button;
 }
 
 coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, VrmlScene *s, MatrixTransform *VRoot)
     : coPickSensor(n)
+    , ui::Owner(std::string("coSensiveSensor")+n->getName(), cover->ui)
 {
 
     (void)VRoot;
@@ -79,12 +78,14 @@ coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, V
             break;
         }
     }
-    VrmlInteraction = new coTrackerButtonInteraction(coInteraction::ButtonA, "Vrml", coInteraction::Medium);
+    VrmlInteraction = new vrui::coTrackerButtonInteraction(vrui::coInteraction::ButtonA, "Vrml", vrui::coInteraction::Medium);
 
     //tt = new PointerTooltip(n,"*",0.5);
     //tt = NULL;
     distance = -1;
-    button = new coButtonMenuItem(n->getName());
+#if 0
+    button = new ui::Action(n->getName(), this);
+#endif
     modified = true;
 }
 
@@ -185,7 +186,7 @@ void coSensiveSensor::update()
         {
             if (!VrmlInteraction->isRegistered())
             {
-                coInteractionManager::the()->registerInteraction(VrmlInteraction);
+                vrui::coInteractionManager::the()->registerInteraction(VrmlInteraction);
             }
 
             if (parentSensor)
@@ -313,7 +314,7 @@ void coSensiveSensor::update()
             }
         }
 
-        if (VrmlInteraction->getState() == coInteraction::Idle)
+        if (VrmlInteraction->getState() == vrui::coInteraction::Idle)
         {
             Matrix relMat;
             relMat.mult(firstInvPointerMat, cover->getPointerMat());
@@ -373,9 +374,9 @@ void coSensiveSensor::update()
     }
     else
     {
-        if (VrmlInteraction->isRegistered() && (VrmlInteraction->getState() != coInteraction::Active))
+        if (VrmlInteraction->isRegistered() && (VrmlInteraction->getState() != vrui::coInteraction::Active))
         {
-            coInteractionManager::the()->unregisterInteraction(VrmlInteraction);
+            vrui::coInteractionManager::the()->unregisterInteraction(VrmlInteraction);
         }
     }
 }
