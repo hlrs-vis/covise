@@ -22,37 +22,6 @@
 // Constructors       //
 //####################//
 
-/*Object::Object(const QString &id, const QString &name, const QString &type, double s, double t, double zOffset,
-               double validLength, ObjectOrientation orientation, double length, double width, double radius, double height,
-               double hdg, double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance,
-               const QString &textureFile)
-    : RoadSection(s)
-    , id_(id)
-    , name_(name)
-	, parkingSpace_(NULL)
-{
-    objectProps_.type = type;
-    objectProps_.t = t;
-    objectProps_.zOffset = zOffset;
-    objectProps_.validLength = validLength;
-    objectProps_.orientation = orientation;
-    objectProps_.length = length;
-    objectProps_.width = width;
-    objectProps_.radius = radius;
-    objectProps_.height = height;
-    objectProps_.hdg = hdg;
-    objectProps_.pitch = pitch;
-    objectProps_.roll = roll;
-    objectProps_.pole = pole;
-
-    objectRepeat_.s = repeatS;
-    objectRepeat_.length = repeatLength;
-    objectRepeat_.distance = repeatDistance;
-
-    userData_.modelFile = name;
-    userData_.textureFile = textureFile;
-} */
-
 Object::Object(const QString &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile)
 	: RoadSection(s)
 	, id_(id)

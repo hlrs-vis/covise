@@ -148,9 +148,6 @@ public:
     //################//
 
 public:
- /*   explicit Object(const QString &id, const QString &name, const QString &type, double s, double t, double zOffset,
-                    double validLength, ObjectOrientation orientation, double length, double width, double radius, double height, double hdg,
-                    double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QString &textureFile); */
 	explicit Object(const QString &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile);
     virtual ~Object()
     { /* does nothing */

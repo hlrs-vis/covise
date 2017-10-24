@@ -1882,15 +1882,20 @@ DomParser::parseSurfaceElement(QDomElement &surface, RSystemElementRoad *road)
     {
         SurfaceSection *section = new SurfaceSection();
 
-        while (!child.isNull())
-        {
-            // <CRG> (optional, max count: unlimited) //
-            //
-            QString file = parseToQString(child, "file", "", true);
-            QString sStart = parseToQString(child, "sStart", "", true);
-            QString sEnd = parseToQString(child, "sEnd", "", true);
-            QString orientation = parseToQString(child, "orientation", "", true);
-            QString mode = parseToQString(child, "mode", "", true);
+		while (!child.isNull())
+		{
+			// <CRG> (optional, max count: unlimited) //
+			//
+			QString file = parseToQString(child, "file", "", true);			// TODO: most parameters are not optional
+			QString sStart = parseToQString(child, "sStart", "", true);
+			QString sEnd = parseToQString(child, "sEnd", "", true);
+			QString orientation = parseToQString(child, "orientation", "", true);
+			QString mode = parseToQString(child, "mode", "", true);
+			QString purpose = "";
+			if (opendriveVersion_ >= 1.4)
+			{
+				purpose = parseToQString(child, "purpose", "", false);
+			}
             QString sOffset = parseToQString(child, "sOffset", "", true);
             QString tOffset = parseToQString(child, "tOffset", "", true);
             QString zOffset = parseToQString(child, "zOffset", "", true);
@@ -1902,6 +1907,7 @@ DomParser::parseSurfaceElement(QDomElement &surface, RSystemElementRoad *road)
                             sEnd,
                             orientation,
                             mode,
+						    purpose,
                             sOffset,
                             tOffset,
                             zOffset,

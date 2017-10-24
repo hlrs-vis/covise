@@ -991,6 +991,8 @@ DomWriter::visit(SurfaceSection *section)
             crgElement.setAttribute("orientation", section->getOrientation(i));
         if (section->getMode(i).length() > 0)
             crgElement.setAttribute("mode", section->getMode(i));
+		if (section->getPurpose(i).length() > 0)
+			crgElement.setAttribute("purpose", section->getPurpose(i));
         if (section->getSOffset(i).length() > 0)
             crgElement.setAttribute("sOffset", section->getSOffset(i));
         if (section->getTOffset(i).length() > 0)
