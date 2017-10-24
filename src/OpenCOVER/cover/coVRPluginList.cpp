@@ -263,6 +263,9 @@ void coVRPluginList::manage(coVRPlugin *plugin, PluginDomain domain)
 
 void coVRPluginList::unmanage(coVRPlugin *plugin)
 {
+    if (!plugin)
+        return;
+
     auto it = m_plugins.find(plugin->getName());
     if (it == m_plugins.end())
     {
@@ -513,7 +516,6 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
         else
         {
             cerr << "plugin " << name << " failed to initialise" << endl;
-            unmanage(m);
             delete m;
             m = NULL;
         }
