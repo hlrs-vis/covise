@@ -352,6 +352,15 @@ DomWriter::visit(Object *object)
             }
             repeatElement.setAttribute("length", object->getRepeatLength());
             repeatElement.setAttribute("distance", object->getRepeatDistance());
+			repeatElement.setAttribute("tStart", object->getRepeatTStart());
+			repeatElement.setAttribute("tEnd", object->getRepeatTEnd());
+			repeatElement.setAttribute("widthStart", object->getRepeatWidthStart());
+			repeatElement.setAttribute("widthEnd", object->getRepeatWidthEnd());
+			repeatElement.setAttribute("heightStart", object->getRepeatHeightStart());
+			repeatElement.setAttribute("heightEnd", object->getRepeatHeightEnd());
+			repeatElement.setAttribute("zOffsetStart", object->getRepeatZOffsetStart());
+			repeatElement.setAttribute("zOffsetEnd", object->getRepeatZOffsetEnd());
+
             objectElement.appendChild(repeatElement);
         }
 

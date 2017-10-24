@@ -269,9 +269,11 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 
 						if (object)
 						{
-							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), type, object->getT(), object->getzOffset(), 
-								object->getValidLength(), object->getOrientation(), length, width, radius, height, heading,
-								object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), repeatDistance, object->getTextureFileName());
+							Object::ObjectProperties objectProps{ object->getT(), object->getOrientation(), object->getzOffset(), type, object->getValidLength(), length, width, radius, 
+								height, heading, object->getPitch(), object->getRoll(), object->getPole() };
+							Object::ObjectRepeatRecord repeatProps = object->getRepeatProperties();
+							object->setRepeatDistance(repeatDistance);
+							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectProps, repeatProps, object->getTextureFileName());
 							projectWidget_->getProjectSettings()->executeCommand(command);
 						}
 					}
