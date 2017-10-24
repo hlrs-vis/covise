@@ -193,7 +193,7 @@ void coVRNavigationManager::init()
     rotPoint->addChild(rotPointGeode);
     setRotationPointVisible(rotationPointVisible);
 
-    setNavMode(Glide);
+    setNavMode(XForm);
 }
 
 coVRNavigationManager::~coVRNavigationManager()
