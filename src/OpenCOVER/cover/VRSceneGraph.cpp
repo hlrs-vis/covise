@@ -91,6 +91,7 @@
 #include "ui/Menu.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
+#include "ui/SelectionList.h"
 
 using namespace osg;
 using namespace opencover;
@@ -195,6 +196,16 @@ void VRSceneGraph::init()
     m_allowHighQuality->setShortcut("Shift+H");
     m_allowHighQuality->setCallback([this](bool state){
         toggleHighQuality(state);
+    });
+
+    m_drawStyle = new ui::SelectionList("DrawStyle", this);
+    m_drawStyle->setText("Draw style");
+    cover->viewOptionsMenu->add(m_drawStyle);
+    std::vector<std::string> drawStyles{"As is", "Wireframe", "Hidden lines (dark)", "Hidden lines (bright)"};
+    m_drawStyle->setList(drawStyles);
+    m_drawStyle->setShortcut("Alt+w");
+    m_drawStyle->setCallback([this](int style){
+        setWireframe(WireframeMode(style));
     });
 
     m_showAxis = new ui::Button("ShowAxis", this);
@@ -539,14 +550,6 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
             if (keySym == 'i' || keySym == 710) // i
             {
                 saveScenegraph(false);
-                handled = true;
-            }
-            else if (keySym == 'w' || keySym == 8721) // w
-            {
-                int wf = m_wireframe+1;
-                if (wf > HiddenLineWhite)
-                    wf = Disabled;
-                setWireframe((WireframeMode)wf);
                 handled = true;
             }
             else if (keySym == 'W' || keySym == 8722) // W
@@ -1136,6 +1139,7 @@ VRSceneGraph::setWireframe(WireframeMode wf)
         fprintf(stderr, "VRSceneGraph::setWireframe\n");
 
     m_wireframe = wf;
+    m_drawStyle->select(m_wireframe);
 
     m_lineHider->removeChild(m_objectsTransform);
     m_scene->removeChild(m_objectsTransform);
