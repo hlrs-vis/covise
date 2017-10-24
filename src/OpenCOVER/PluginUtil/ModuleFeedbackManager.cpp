@@ -755,18 +755,16 @@ ModuleFeedbackManager::findMyNode()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ModuleFeedbackManager::findMyNode\n");
-    osg::Geode *geode;
-    osg::Group *group;
     if (attrObjectName_ != "")
     {
         //fprintf(stderr,"looking for attrObjectName_=%s\n", attrObjectName_.c_str());
-        geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrObjectName_.c_str());
+        auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrObjectName_.c_str());
         if (geode != NULL)
         {
             //fprintf(stderr,"found geode with attrObjectName_=%s\n", attrObjectName_.c_str());
             return (geode);
         }
-        group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrObjectName_.c_str());
+        auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrObjectName_.c_str());
         if (group != NULL)
         {
             //fprintf(stderr,"found group with attrObjectName_=%s\n", attrObjectName_.c_str());
@@ -776,13 +774,13 @@ ModuleFeedbackManager::findMyNode()
     if (attrPartName_ != "")
     {
         //fprintf(stderr,"looking for attrPartName_=%s\n", attrPartName_.c_str());
-        geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrPartName_.c_str());
+        auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrPartName_.c_str());
         if (geode != NULL)
         {
             //fprintf(stderr,"found geode with attrPartName_=%s\n", attrPartName_.c_str());
             return (geode);
         }
-        group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrPartName_.c_str());
+        auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrPartName_.c_str());
         if (group != NULL)
         {
             //fprintf(stderr,"found group with attrPartName_=%s\n", attrPartName_.c_str());
@@ -793,14 +791,14 @@ ModuleFeedbackManager::findMyNode()
     if (containerObjectName_ != "")
     {
         //fprintf(stderr,"looking for containerObjectName_=%s\n", containerObjectName_.c_str());
-        geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(containerObjectName_.c_str());
+        auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(containerObjectName_.c_str());
         if (geode != NULL)
         {
             //fprintf(stderr,"found geode with containerObjectName_=%s\n", containerObjectName_.c_str());
             return (geode);
         }
 
-        group = VRSceneGraph::instance()->findFirstNode<osg::Group>(containerObjectName_.c_str());
+        auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(containerObjectName_.c_str());
         if (group)
         {
             //fprintf(stderr,"found group with containerObjectName_=%s\n", containerObjectName_.c_str());
@@ -809,7 +807,7 @@ ModuleFeedbackManager::findMyNode()
     }
 
     //fprintf(stderr,"looking for moduleName_=%s\n", moduleName_.c_str());
-    group = VRSceneGraph::instance()->findFirstNode<osg::Group>(moduleName_.c_str());
+    auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(moduleName_.c_str());
     if (group)
     {
         //fprintf(stderr,"found group with moduleName_=%s\n", moduleName_.c_str());
@@ -817,7 +815,7 @@ ModuleFeedbackManager::findMyNode()
     }
 
     //fprintf(stderr,"looking for geomObjectName_=%s\n", geomObjectName_.c_str());
-    geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(geomObjectName_.c_str());
+    auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(geomObjectName_.c_str());
     if (geode != NULL)
     {
         //fprintf(stderr,"found geode with geomObjectName_=%s\n", geomObjectName_.c_str());
