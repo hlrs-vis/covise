@@ -463,6 +463,8 @@ VRViewer::VRViewer()
     ortho->setState(coVRConfig::instance()->orthographic());
     ortho->setCallback([this](bool state){
         coVRConfig::instance()->setOrthographic(state);
+        update();
+        requestRedraw();
     });
 
 #if 0
