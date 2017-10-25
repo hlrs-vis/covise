@@ -226,6 +226,9 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
+    qApp->sendPostedEvents();
+    qApp->processEvents();
+
     return true;
 }
 

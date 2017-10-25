@@ -177,10 +177,31 @@ QOpenGLWidget *QtGraphicsWindow::widget() const
     return m_glWidget;
 }
 
+bool QtGraphicsWindow::realizeImplementation()
+{
+    if (m_glWidget)
+    {
+        m_glWidget->makeCurrent();
+        if (qApp)
+        {
+            qApp->sendPostedEvents();
+            qApp->processEvents();
+        }
+    }
+    else
+    {
+        std::cerr << "QtGraphicsWindow: realizing without GL widget" << std::endl;
+    }
+    return true;
+}
+
 bool QtGraphicsWindow::makeCurrentImplementation()
 {
     if (m_glWidget)
         m_glWidget->makeCurrent();
+    else
+        std::cerr << "QtGraphicsWindow: making context current without GL widget" << std::endl;
+    glEnable(GL_FRAMEBUFFER_SRGB);
     return true;
 }
 
@@ -286,9 +307,34 @@ osgViewer::GraphicsWindowEmbedded *QtOsgWidget::graphicsWindow() const
     return m_graphicsWindow.get();
 }
 
+void QtOsgWidget::focusWasLost()
+{
+    //std::cerr << "QtOsgWidget: focus lost: releasing all keys" << std::endl;
+    for (auto &key: m_pressedKeys)
+    {
+        if (key.second)
+            getEventQueue()->keyRelease(key.first);
+        key.second = false;
+    }
+    m_pressedKeys.clear();
+
+    m_modifierMask = 0;
+    getEventQueue()->getCurrentEventState()->setModKeyMask(0);
+}
+
+void QtOsgWidget::focusOutEvent(QFocusEvent *event)
+{
+    focusWasLost();
+    event->accept();
+}
+
 void QtOsgWidget::paintEvent(QPaintEvent *paintEvent)
 {
     //opencover::VRViewer::instance()->requestRedraw();
+}
+
+void QtOsgWidget::initializeGL()
+{
 }
 
 void QtOsgWidget::paintGL()
@@ -315,6 +361,7 @@ void QtOsgWidget::setKeyboardModifiers(QInputEvent *event)
 #endif
     if (modkey & Qt::ShiftModifier) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
     if (modkey & Qt::AltModifier) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    m_modifierMask = mask;
     getEventQueue()->getCurrentEventState()->setModKeyMask(mask);
 }
 
@@ -323,6 +370,7 @@ void QtOsgWidget::keyPressEvent(QKeyEvent *event)
     setKeyboardModifiers(event);
     int value = s_QtKeyboardMap.remapKey(event);
     getEventQueue()->keyPress(value);
+    m_pressedKeys[value] = true;
 }
 
 void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
@@ -338,6 +386,7 @@ void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
     {
         int value = s_QtKeyboardMap.remapKey(event);
         getEventQueue()->keyRelease(value);
+        m_pressedKeys[value] = false;
     }
 }
 
