@@ -30,6 +30,7 @@ brew 'mpich'
 brew 'open-scene-graph'
 brew 'audiofile'
 brew 'freealut'
+brew 'proj'
 
 #brew 'tbb'
 #brew 'homebrew/science/hdf5', args: ['with-mpi']
