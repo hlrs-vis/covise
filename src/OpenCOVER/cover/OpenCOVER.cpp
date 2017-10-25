@@ -564,7 +564,6 @@ bool OpenCOVER::init()
 
     coVRPluginList::instance();
 
-	coVRPluginList::instance()->loadDefault();
 	Input::instance()->init();
     coVRTui::instance();
 
@@ -592,6 +591,8 @@ bool OpenCOVER::init()
 
     cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
 
+    bool haveWindows = VRWindow::instance()->config();
+
     // initialize communication
     bool loadCovisePlugin = false;
     if (loadFiles == false && coVRConfig::instance()->collaborativeOptionsFile.empty() && coCommandLine::argc() > 3 && vrbHost == NULL)
@@ -612,6 +613,7 @@ bool OpenCOVER::init()
     {
         //fprintf(stderr, "no covise connection\n");
     }
+    hud = coHud::instance();
 
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
@@ -639,11 +641,9 @@ bool OpenCOVER::init()
             }
         }
     }
-    
-    hud = coHud::instance();
 
+    coVRPluginList::instance()->loadDefault();
 
-    bool haveWindows = VRWindow::instance()->config();
     if (coVRMSController::instance()->isMaster())
     {
         coVRMSController::SlaveData sd(sizeof(haveWindows));
@@ -705,6 +705,38 @@ bool OpenCOVER::init()
 
     coVRPluginList::instance()->init();
 
+    ARToolKit::instance()->config(); // setup Rendering Node
+    VRSceneGraph::instance()->config();
+    coVRAnimationManager::instance();
+
+    coVRTui::instance()->config();
+
+    if (cover->debugLevel(5))
+    {
+        fprintf(stderr, "\nOpenCOVER::preparing rendering loop\n");
+    }
+    sum_time = 0;
+    frameNum++;
+
+    cover->updateTime();
+    if (cover->debugLevel(2))
+        cerr << "doneSync" << endl;
+
+    old_fl_time = cover->frameRealTime();
+
+    printFPS = coCoviseConfig::isOn("COVER.FPS", false);
+
+#if 0
+   sleep(coVRMSController::instance()->getID());
+   std::cerr << "MS id=" << coVRMSController::instance()->getID() << ": pid=" << getpid() << std::endl;
+   Input::instance()->printConfig();
+   sleep(10);
+#endif
+
+    beginAppTraversal = VRViewer::instance()->elapsedTime();
+
+    coVRShaderList::instance()->init();
+
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
     if (coVRMSController::instance()->isMaster())
     {
@@ -735,40 +767,7 @@ bool OpenCOVER::init()
         for (int i = 0; i < num; i++)
             coVRMSController::instance()->loadFile(NULL);
     }
-
-    ARToolKit::instance()->config(); // setup Rendering Node
-    VRSceneGraph::instance()->config();
-    coVRAnimationManager::instance();
-
-    coVRTui::instance()->config();
-
-    if (cover->debugLevel(5))
-    {
-        fprintf(stderr, "\nOpenCOVER::preparing rendering loop\n");
-    }
-    sum_time = 0;
-    frameNum++;
-
-    cover->updateTime();
-    if (cover->debugLevel(2))
-        cerr << "doneSync" << endl;
-
-    old_fl_time = cover->frameRealTime();
-
-    printFPS = coCoviseConfig::isOn("COVER.FPS", false);
-
-#if 0
-   sleep(coVRMSController::instance()->getID());
-   std::cerr << "MS id=" << coVRMSController::instance()->getID() << ": pid=" << getpid() << std::endl;
-   Input::instance()->printConfig();
-   sleep(10);
-#endif
-
     hud->hideLater();
-
-    beginAppTraversal = VRViewer::instance()->elapsedTime();
-
-    coVRShaderList::instance()->init();
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
     

@@ -1730,6 +1730,8 @@ void VRViewer::redrawHUD(double interval)
     {
         unsyncedFrames++; // do not wait for slaves during temporary updates of the headup display
         frame(); // draw one frame
+        VRWindow::instance()->update();
+        VRWindow::instance()->updateContents();
     }
 }
 
