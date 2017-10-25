@@ -1031,6 +1031,8 @@ bool OpenCOVER::frame()
     }
     if (cover->ui->update())
         render = true;
+    if (cover->ui->sync())
+        render = true;
 
     if (frameNum > 2)
     {
@@ -1042,8 +1044,6 @@ bool OpenCOVER::frame()
         render = true;
     }
 
-    cover->ui->sync();
-    
     if (!render)
     {
         if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)

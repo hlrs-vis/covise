@@ -403,8 +403,10 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
     }
 }
 
-void Manager::sync()
+bool Manager::sync()
 {
+    bool changed = false;
+
     flushUpdates();
     auto ms = coVRMSController::instance();
     if (ms->isCluster())
@@ -430,6 +432,8 @@ void Manager::sync()
     int round = 0;
     while (m_numUpdates > 0)
     {
+        changed = true;
+
         //std::cerr << "ui::Manager: processing " << m_numUpdates << " updates in round " << round << std::endl;
         std::shared_ptr<covise::TokenBuffer> updates = m_updates;
         m_updates.reset(new covise::TokenBuffer);
@@ -443,6 +447,7 @@ void Manager::sync()
     }
 
     //assert(m_numUpdates == 0);
+    return changed;
 }
 
 }

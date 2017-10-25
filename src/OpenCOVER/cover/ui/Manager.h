@@ -74,7 +74,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! mark an element for syncing its state to slaves, optionally triggering its action
    void queueUpdate(const Element *elem, bool trigger=false);
    //! sync state and events from master to cluster slaves
-   void sync();
+   bool sync();
 
  private:
    bool m_updateAllElements = false;
