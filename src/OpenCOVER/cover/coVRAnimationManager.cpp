@@ -49,7 +49,7 @@ coVRAnimationManager::coVRAnimationManager()
     , requestedAnimationFrame(-1)
     , timestepScale(1.0)
     , timestepBase(0.0)
-    , timestepUnit("Time Step")
+    , timestepUnit("Time step")
 {
     assert(!s_instance);
 
@@ -105,6 +105,7 @@ void coVRAnimationManager::initAnimMenu()
     animToggleItem->setIcon("media-playback-start");
 
     animFrameItem = new ui::Slider(animRowMenu, "Timestep");
+    animFrameItem->setText(timestepUnit);
     animFrameItem->setIntegral(true);
     animFrameItem->setBounds(timestepBase, timestepBase);
     animFrameItem->setValue(timestepBase);
@@ -113,6 +114,7 @@ void coVRAnimationManager::initAnimMenu()
             enableAnimation(false);
         requestAnimationTime(val);
     });
+    animFrameItem->setPriority(ui::Element::Toolbar);
 
     animBackItem = new ui::Action(animRowMenu, "StepBackward");
     animBackItem->setText("Step backward");
@@ -146,10 +148,8 @@ void coVRAnimationManager::initAnimMenu()
     animSpeedItem->setBounds(AnimSliderMin, AnimSliderMax);
     animSpeedItem->setValue(animSpeedStartValue);
     animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        sendAnimationSpeedMessage();
+        setAnimationSpeed(val);
     });
-    sendAnimationSpeedMessage();
-
 }
 
 void coVRAnimationManager::setOscillate(bool state)
@@ -439,9 +439,11 @@ void coVRAnimationManager::setNumTimesteps(int t)
 void coVRAnimationManager::showAnimMenu(bool visible)
 {
     animRowMenu->setVisible(visible);
+
     animToggleItem->setEnabled(visible);
     animForwardItem->setEnabled(visible);
     animBackItem->setEnabled(visible);
+    animFrameItem->setEnabled(visible);
 }
 
 void
