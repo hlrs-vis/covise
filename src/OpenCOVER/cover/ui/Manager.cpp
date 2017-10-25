@@ -106,6 +106,13 @@ bool Manager::update()
         elem->update();
     }
 
+    if (m_updateAllElements)
+    {
+        m_updateAllElements = false;
+        for (auto elem: m_elements)
+            elem->update();
+    }
+
     bool ret = m_changed;
     m_changed = false;
     return ret;
@@ -131,10 +138,11 @@ bool Manager::addView(View *view)
     for (auto elem: m_elements)
     {
         view->elementFactory(elem);
-        elem->update();
     }
 
-    return false;
+    m_updateAllElements = true;
+
+    return true;
 }
 
 bool Manager::removeView(const View *view)

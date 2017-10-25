@@ -77,6 +77,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    void sync();
 
  private:
+   bool m_updateAllElements = false;
    bool m_changed = false;
    int m_numCreated = 0;
    std::set<Element *> m_elements;
