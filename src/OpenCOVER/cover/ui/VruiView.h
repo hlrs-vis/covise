@@ -66,6 +66,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
+   VruiViewElement *m_root = nullptr;
 };
 
 }

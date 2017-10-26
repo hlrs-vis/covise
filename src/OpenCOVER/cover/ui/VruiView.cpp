@@ -33,6 +33,8 @@ VruiView::VruiView()
 : View("vrui")
 {
     m_rootMenu = cover->getMenu();
+    m_root = new VruiViewElement(nullptr);
+    m_root->m_menu = m_rootMenu;
 }
 
 coMenu *VruiView::getMenu(const Element *elem) const
@@ -86,7 +88,7 @@ VruiViewElement *VruiView::vruiParent(const Element *elem) const
     {
         if (parentPath.empty())
         {
-            return nullptr;
+            return m_root;
         }
         if (auto parent = vruiElement(parentPath))
             return parent;
@@ -118,26 +120,12 @@ void VruiView::add(VruiViewElement *ve, const Element *elem)
     if (!elem)
         std::cerr << "VruiView::add: Warning: no Element" << std::endl;
 
-    auto parent = vruiContainer(elem);
-
     if (ve->m_menuItem)
     {
-        if (parent && parent->m_menu)
-        {
-            parent->m_menu->add(ve->m_menuItem);
-        }
-        else
-        {
-            if (parent)
-            {
-                std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
-            }
-            if (m_rootMenu)
-                m_rootMenu->add(ve->m_menuItem);
-        }
-        if (ve->m_menuItem)
-            ve->m_menuItem->setMenuListener(ve);
+        ve->m_menuItem->setMenuListener(ve);
     }
+
+    updateParent(elem);
 }
 
 void VruiView::updateEnabled(const Element *elem)
@@ -233,6 +221,30 @@ void VruiView::updateState(const Button *button)
 
 void VruiView::updateParent(const Element *elem)
 {
+    auto ve = vruiElement(elem);
+    if (!ve)
+        return;
+    if (ve->m_menuItem)
+    {
+        auto oldMenu = ve->m_menuItem->getParentMenu();
+        if (oldMenu)
+            oldMenu->remove(ve->m_menuItem);
+
+        auto parent = vruiContainer(elem);
+        if (parent && parent->m_menu)
+        {
+            parent->m_menu->add(ve->m_menuItem);
+        }
+        else
+        {
+            if (parent)
+            {
+                std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
+            }
+            if (m_rootMenu && ve->m_menu)
+                m_rootMenu->add(ve->m_menuItem);
+        }
+    }
 }
 
 void VruiView::updateChildren(const SelectionList *sl)
@@ -441,7 +453,7 @@ VruiViewElement *VruiView::elementFactoryImplementation(Action *action)
 
 VruiViewElement::VruiViewElement(Element *elem)
 : View::ViewElement(elem)
-, m_text(elem->text())
+, m_text(elem ? elem->text() : "")
 {
 }
 
