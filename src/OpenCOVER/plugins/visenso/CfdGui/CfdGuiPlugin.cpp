@@ -160,7 +160,7 @@ void CfdGuiPlugin::guiToRenderMsg(const char *msg)
                 VRSceneGraph::instance()->viewAll();
             else if (strcmp(keyword, "orthographicProjection") == 0)
             {
-                auto elem = cover->ui->getByPath("ViewOptions.Orthographic");
+                auto elem = cover->ui->getByPath("Manager.ViewOptions.Orthographic");
                 if (elem)
                 {
                     if (auto button = dynamic_cast<ui::Button *>(elem))
@@ -170,12 +170,12 @@ void CfdGuiPlugin::guiToRenderMsg(const char *msg)
                     }
                     else
                     {
-                        std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": ViewOptions.Orthographic not a Button" << std::endl;
+                        std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": Manager.ViewOptions.Orthographic not a Button" << std::endl;
                     }
                 }
                 else
                 {
-                    std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": did not find ViewOptions.Orthographic" << std::endl;
+                    std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": did not find Manager.ViewOptions.Orthographic" << std::endl;
                 }
             }
         }
