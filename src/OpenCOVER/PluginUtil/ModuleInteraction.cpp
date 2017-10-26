@@ -16,6 +16,7 @@
 #include <cover/ui/Menu.h>
 #endif
 #include <cover/coVRConfig.h>
+#include "FeedbackManager.h"
 
 using namespace opencover;
 
@@ -26,12 +27,14 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
     , showPickInteractorCheckbox_(NULL)
     , showDirectInteractorCheckbox_(NULL)
 {
+    FeedbackManager::instance()->registerFeedback(this, inter);
 
-    int menuItemCounter = 0;
 #ifdef VRUI
+    int menuItemCounter = 0;
     showPickInteractorCheckbox_ = new coCheckboxMenuItem("Pick Interactor", false);
     showPickInteractorCheckbox_->setMenuListener(this);
     menu_->insert(showPickInteractorCheckbox_, menuItemCounter);
+    menuItemCounter++;
 #else
     showPickInteractorCheckbox_ = new ui::Button(menu_, "PickInteractor");
     showPickInteractorCheckbox_->setText("Pick interactor");
@@ -41,7 +44,6 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
         updatePickInteractors(state);
     });
 #endif
-    menuItemCounter++;
 
 #ifdef VRUI
     coSubMenuItem *parent = dynamic_cast<coSubMenuItem *>(menu_->getSubMenuItem());
@@ -55,6 +57,7 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
         showDirectInteractorCheckbox_ = new coCheckboxMenuItem("Direct Interactor", false, groupPointerArray[0]);
         showDirectInteractorCheckbox_->setMenuListener(this);
         menu_->insert(showDirectInteractorCheckbox_, menuItemCounter);
+        menuItemCounter++;
 #else
         showDirectInteractorCheckbox_ = new ui::Button(menu_, "DirectInteractor");
         showDirectInteractorCheckbox_->setText("Direct interactor");
@@ -65,7 +68,6 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
             updateDirectInteractors(state);
         });
 #endif
-        menuItemCounter++;
 #ifdef VRUI
         if (parent)
             parent->setSecondaryItem(showDirectInteractorCheckbox_);
@@ -75,6 +77,8 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
 
 ModuleInteraction::~ModuleInteraction()
 {
+    FeedbackManager::instance()->unregisterFeedback(this);
+
 #ifdef VRUI
     delete showPickInteractorCheckbox_;
     delete showDirectInteractorCheckbox_;
@@ -84,6 +88,7 @@ ModuleInteraction::~ModuleInteraction()
 void
 ModuleInteraction::update(const RenderObject *container, coInteractor *inter)
 {
+    FeedbackManager::instance()->registerFeedback(this, inter);
 
     // base class updates the item in the COVISE menu
     // and the title of the Tracer menu
@@ -162,6 +167,17 @@ ModuleInteraction::setShowInteractorFromGui(bool state)
 #endif
     }
     updatePickInteractors(showPickInteractor_);
+}
+
+void ModuleInteraction::enableDirectInteractorFromGui(bool state)
+{
+    showDirectInteractor_ = false;
+    if (showDirectInteractorCheckbox_)
+    {
+        showDirectInteractor_ = state;
+        showDirectInteractorCheckbox_->setState(state);
+    }
+    updateDirectInteractors(showDirectInteractor_);
 }
 
 void ModuleInteraction::triggerHide(bool state)

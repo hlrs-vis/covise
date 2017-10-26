@@ -479,7 +479,7 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
     }
 }
 
-void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
+coInteractor *ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
 {
 
     CoviseRenderObject *ro[4] = {
@@ -489,6 +489,7 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
         texObj
     };
 
+    coInteractor *ret = nullptr;
     if (geomObj)
     {
         // a new object arrived, look for interactors
@@ -516,10 +517,17 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
                     it->incRefCount();
                     coVRPluginList::instance()->newInteractor(container, it);
                     it->decRefCount();
+
+                    if (it->refCount() > 0)
+                    {
+                        if (strcmp(it->getModuleName(), "Colors") != 0)
+                            ret = it;
+                    }
                 }
             }
         }
     }
+    return ret;
 }
 
 const ColorMap &ObjectManager::getColorMap(const std::string &species)
@@ -1134,7 +1142,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         //fprintf(stderr,"ObjectManager::addGeometry if SETELE\n");
 
         // TODO change all Plugins to user RenderObjects
-        handleInteractors(container, geometry, normals, colors, texture);
+        auto inter = handleInteractors(container, geometry, normals, colors, texture);
         //fprintf(stderr, "++++++ObjectManager::addGeometry3  container=%s geometry=%s\n", container->getName(), geometry->getName() );
         coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
         // retrieve the whole set
@@ -1349,6 +1357,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                     groupNode->addChild(mt);
                 }
             }
+        }
+
+        if (inter && groupNode)
+        {
+            std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
+            groupNode->setUserData(new InteractorReference(inter));
         }
 
         return groupNode;
@@ -1612,7 +1626,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         // add object to VRSceneGraph::instance() depending on type
         //
         // TODO Change all Plugins
-        handleInteractors(container, geometry, normals, colors, texture);
+        coInteractor *inter = handleInteractors(container, geometry, normals, colors, texture);
         coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
 
         osg::Node *newNode = NULL;
@@ -1985,7 +1999,14 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
             bool addNode = coVRMenuList::instance()->add(geometry, newNode);
             if (addNode)
+            {
+                if (inter && newNode)
+                {
+                    std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
+                    newNode->setUserData(new InteractorReference(inter));
+                }
                 return newNode;
+            }
         }
 
         return NULL;

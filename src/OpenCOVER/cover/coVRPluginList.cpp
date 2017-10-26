@@ -309,6 +309,13 @@ void coVRPluginList::newInteractor(const RenderObject *container, coInteractor *
     DOALL(plugin->newInteractor(container, it));
 }
 
+bool coVRPluginList::requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+{
+    DOALL(if (plugin->requestInteraction(inter, triggerNode, isMouse))
+          return true);
+    return false;
+}
+
 void coVRPluginList::coviseError(const char *error) const
 {
     DOALL(plugin->coviseError(error));

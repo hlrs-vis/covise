@@ -16,6 +16,7 @@ INCLUDE_DIRECTORIES(
 SET(PLUGINUTIL_HEADERS
   coColorBar.h
   ColorBar.h
+  FeedbackManager.h
   ModuleFeedbackManager.h
   ModuleFeedbackPlugin.h
   BoxSelection.h
@@ -43,6 +44,7 @@ SET(PLUGINUTIL_HEADERS
 SET(SOURCES
   coColorBar.cpp
   ColorBar.cpp
+  FeedbackManager.cpp
   ModuleFeedbackManager.cpp
   ModuleInteraction.cpp
   ModuleFeedbackPlugin.cpp
