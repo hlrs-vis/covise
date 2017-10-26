@@ -9,9 +9,11 @@
 #define WINDOW_TYPE_QT
 
 #include <cover/coVRPlugin.h>
+#include <vector>
 
 class QMainWindow;
 class QtOsgWidget;
+class QAction;
 
 namespace opencover {
 namespace ui {
@@ -25,6 +27,7 @@ public:
     WindowTypeQtPlugin();
     ~WindowTypeQtPlugin();
     bool destroy() override;
+    bool update() override;
 
     bool windowCreate(int num) override;
     void windowCheckEvents(int num) override;
@@ -37,8 +40,10 @@ private:
         int index = -1;
         QMainWindow *window = nullptr;
         QtOsgWidget *widget = nullptr;
-        opencover::ui::QtView *view = nullptr;
+        QAction *toggleMenu = nullptr;
+        std::vector<opencover::ui::QtView *> view;
     };
     std::map<int, WindowData> m_windows;
+    bool m_update = true;
 };
 #endif

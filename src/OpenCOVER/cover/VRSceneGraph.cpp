@@ -91,6 +91,7 @@
 #include "ui/Menu.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
+#include "ui/SelectionList.h"
 
 using namespace osg;
 using namespace opencover;
@@ -197,6 +198,16 @@ void VRSceneGraph::init()
         toggleHighQuality(state);
     });
 
+    m_drawStyle = new ui::SelectionList("DrawStyle", this);
+    m_drawStyle->setText("Draw style");
+    cover->viewOptionsMenu->add(m_drawStyle);
+    std::vector<std::string> drawStyles{"As is", "Wireframe", "Hidden lines (dark)", "Hidden lines (bright)"};
+    m_drawStyle->setList(drawStyles);
+    m_drawStyle->setShortcut("Alt+w");
+    m_drawStyle->setCallback([this](int style){
+        setWireframe(WireframeMode(style));
+    });
+
     m_showAxis = new ui::Button("ShowAxis", this);
     cover->viewOptionsMenu->add(m_showAxis);
     m_showAxis->setState(m_coordAxis);
@@ -204,22 +215,6 @@ void VRSceneGraph::init()
     m_showAxis->setShortcut("Shift+A");
     m_showAxis->setCallback([this](bool state){
         toggleAxis(state);
-    });
-
-    m_viewAll = new ui::Action("ViewAll", this);
-    cover->viewOptionsMenu->add(m_viewAll);
-    m_viewAll->setText("View all");
-    m_viewAll->setShortcut("v");
-    m_viewAll->setCallback([this](){
-        viewAll(false);
-    });
-
-    m_resetView = new ui::Action("ResetView", this);
-    cover->viewOptionsMenu->add(m_resetView);
-    m_resetView->setText("Reset view");
-    m_resetView->setShortcut("Shift+V");
-    m_resetView->setCallback([this](){
-        viewAll(true);
     });
 
     m_storeScenegraph = new ui::Action("StoreScenegraph", this);
@@ -557,14 +552,6 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 saveScenegraph(false);
                 handled = true;
             }
-            else if (keySym == 'w' || keySym == 8721) // w
-            {
-                int wf = m_wireframe+1;
-                if (wf > HiddenLineWhite)
-                    wf = Disabled;
-                setWireframe((WireframeMode)wf);
-                handled = true;
-            }
             else if (keySym == 'W' || keySym == 8722) // W
             {
                 saveScenegraph(true);
@@ -704,6 +691,12 @@ VRSceneGraph::setMenu(bool state)
     {
         m_scene->removeChild(m_menuGroupNode.get());
     }
+}
+
+bool
+VRSceneGraph::menuVisible() const
+{
+    return m_showMenu;
 }
 
 void VRSceneGraph::setMenuMode(bool state)
@@ -1146,6 +1139,7 @@ VRSceneGraph::setWireframe(WireframeMode wf)
         fprintf(stderr, "VRSceneGraph::setWireframe\n");
 
     m_wireframe = wf;
+    m_drawStyle->select(m_wireframe);
 
     m_lineHider->removeChild(m_objectsTransform);
     m_scene->removeChild(m_objectsTransform);

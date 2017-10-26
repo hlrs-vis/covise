@@ -174,7 +174,7 @@ if [ -z "$COENVERROR" ]; then
    cfxVersion=`which cfx5solve 2> /dev/null` 
    if [[ "$cfxVersion" != *14* ]] ; then
      # unit path for ReadCFX (path to units.cfx)
-     export CFX5_UNITS_DIR="${COVISEDIR}/icons"
+     export CFX5_UNITS_DIR="${COVISEDIR}/share/covise/cfx"
      #echo "CFX5_UNITS_DIR=${CFX5_UNITS_DIR}"
    else
      unset CFX5_UNITS_DIR

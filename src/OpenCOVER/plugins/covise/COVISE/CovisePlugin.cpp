@@ -104,6 +104,8 @@ bool CovisePlugin::init()
         e->setCallback([this](){
             executeAll();
         });
+        e->setIcon("system-run");
+        e->setPriority(ui::Element::Toolbar);
     }
 #endif
     CoviseRender::set_render_module_callback(messageCallback);

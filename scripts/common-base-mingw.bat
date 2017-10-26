@@ -313,7 +313,7 @@ REM if not defined WMFSDK_HOME (
 REM )
 
 if not defined CFX5_UNITS_DIR (
-   set "CFX5_UNITS_DIR=%COVISEDIR%/icons"
+   set "CFX5_UNITS_DIR=%COVISEDIR%/share/covise/cfx"
 )
 
 set "PTHREAD_LIBS=-lpthread"

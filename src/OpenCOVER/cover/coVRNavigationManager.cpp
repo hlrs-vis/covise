@@ -193,7 +193,7 @@ void coVRNavigationManager::init()
     rotPoint->addChild(rotPointGeode);
     setRotationPointVisible(rotationPointVisible);
 
-    setNavMode(Glide);
+    setNavMode(XForm);
 }
 
 coVRNavigationManager::~coVRNavigationManager()
@@ -326,12 +326,31 @@ void coVRNavigationManager::initMatrices()
 void coVRNavigationManager::initMenu()
 {
     navMenu_ = new ui::Menu("Navigation", this);
+
+    m_viewAll = new ui::Action(navMenu_, "ViewAll");
+    m_viewAll->setText("View all");
+    m_viewAll->setShortcut("v");
+    m_viewAll->setCallback([this](){
+        VRSceneGraph::instance()->viewAll(false);
+    });
+    m_viewAll->setPriority(ui::Element::Toolbar);
+    m_viewAll->setIcon("zoom-fit-best");
+
+    m_resetView = new ui::Action(navMenu_, "ResetView");
+    m_resetView->setText("Reset view");
+    m_resetView->setShortcut("Shift+V");
+    m_resetView->setCallback([this](){
+        VRSceneGraph::instance()->viewAll(true);
+    });
+    m_resetView->setIcon("zoom-original");
+
     navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
     navGroup_->enableDeselect(true);
     navGroup_->setDefaultValue(NavNone);
     xformButton_ = new ui::Button(navMenu_, "MoveWorld", navGroup_, XForm);
     xformButton_->setText("Move world");
     xformButton_->setShortcut("t");
+    xformButton_->setPriority(ui::Element::Toolbar);
     scaleButton_ = new ui::Button(navMenu_, "Scale", navGroup_, Scale);
     scaleButton_->setShortcut("s");
     flyButton_ = new ui::Button(navMenu_, "Fly", navGroup_, Fly);
@@ -340,6 +359,7 @@ void coVRNavigationManager::initMenu()
     walkButton_->setShortcut("w");
     driveButton_ = new ui::Button(navMenu_, "Drive", navGroup_, Glide);
     driveButton_->setShortcut("d");
+    driveButton_->setPriority(ui::Element::Toolbar);
     selectButton_ = new ui::Button(navMenu_, "Selection", navGroup_, Select);
     showNameButton_ = new ui::Button(navMenu_, "ShowName", navGroup_, ShowName);
     showNameButton_->setText("Show name");

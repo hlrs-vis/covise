@@ -463,6 +463,8 @@ VRViewer::VRViewer()
     ortho->setState(coVRConfig::instance()->orthographic());
     ortho->setCallback([this](bool state){
         coVRConfig::instance()->setOrthographic(state);
+        update();
+        requestRedraw();
     });
 
 #if 0
@@ -1728,6 +1730,8 @@ void VRViewer::redrawHUD(double interval)
     {
         unsyncedFrames++; // do not wait for slaves during temporary updates of the headup display
         frame(); // draw one frame
+        VRWindow::instance()->update();
+        VRWindow::instance()->updateContents();
     }
 }
 

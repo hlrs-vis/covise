@@ -458,7 +458,7 @@ RemoveObjectCommand::undo()
 //#########################//
 
 
-SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent)
+SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const Object::ObjectProperties &objectProps, const Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)

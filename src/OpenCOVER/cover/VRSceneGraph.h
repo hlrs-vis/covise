@@ -40,6 +40,7 @@ namespace ui {
 class Menu;
 class Action;
 class Button;
+class SelectionList;
 }
 }
 
@@ -85,6 +86,7 @@ public:
     {
         return m_menuGroupNode.get();
     }
+    bool menuVisible() const;
     void toggleMenu();
     void setMenu(bool state);
     void setMenuMode(bool state);
@@ -360,7 +362,7 @@ private:
     vrui::coCombinedButtonInteraction *m_interactionHQ;
 
     ui::Menu *m_miscMenu=nullptr;
-    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
+    ui::SelectionList *m_drawStyle=nullptr;
     ui::Button *m_trackHead=nullptr;
     ui::Button *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;

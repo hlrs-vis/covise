@@ -4,11 +4,15 @@
 #include <cover/ui/View.h>
 
 #include <QObject>
+#include <QWidgetAction>
+#include <QBoxLayout>
 
 class QMenuBar;
+class QToolBar;
 class QAction;
 class QActionGroup;
 class QLabel;
+class QSlider;
 
 namespace opencover {
 namespace ui {
@@ -29,16 +33,90 @@ struct QtViewElement: public QObject, public View::ViewElement
     std::vector<QObject *> toDelete;
 };
 
+
+class QtLabelAction: public QWidgetAction
+{
+    Q_OBJECT
+
+public:
+    QtLabelAction(QObject *parent);
+    void setText(const QString &text);
+
+protected:
+    QWidget *createWidget(QWidget *parent) override;
+};
+
+
+class QtSliderWidget: public QWidget
+{
+    Q_OBJECT
+
+public:
+    QtSliderWidget(QBoxLayout::Direction dir, QWidget *parent);
+    void setDirection(QBoxLayout::Direction dir);
+
+    void setText(const QString &text);
+    void setWidthText(const QString &text);
+    void setRange(int min, int max);
+    void setValue(int value);
+    int value() const;
+    int minimum() const;
+    int maximum() const;
+
+signals:
+    void sliderMoved(int value);
+    void sliderReleased();
+
+private:
+    QBoxLayout *m_layout = nullptr;
+    QLabel *m_label = nullptr;;
+    QSlider *m_slider = nullptr;
+};
+
+
+class QtSliderAction: public QWidgetAction
+{
+    Q_OBJECT
+
+public:
+    QtSliderAction(QObject *parent);
+    void setToolTip(const QString &tip);
+    void setText(const QString &text);
+    void setWidthText(const QString &text);
+    void setRange(int min, int max);
+    void setValue(long value);
+    int value() const;
+    int minimum() const;
+    int maximum() const;
+
+signals:
+    void sliderMoved(int value);
+    void sliderReleased();
+
+protected:
+    QWidget *createWidget(QWidget *parent) override;
+    //void deleteWidget(QWidget *parent) override;
+
+private:
+    QString m_text, m_tip, m_widthText;
+    int m_value = 0;
+    int m_min = 0, m_max = 0;
+};
+
 //! concrete implementation of View for showing user interface \ref Element "elements" in a QMenuBar
 class QtView: public QObject, public View
 {
     Q_OBJECT
 
  public:
-   QtView(QMenuBar *menubar);
+   QtView(QMenuBar *menubar, QToolBar *m_toolbar = nullptr);
+   QtView(QToolBar *toolbar);
 
  private:
-   QMenuBar *m_menubar;
+   QMenuBar *m_menubar = nullptr;
+   QToolBar *m_toolbar = nullptr;
+
+   Group *m_lastToolbarGroup = nullptr;
 
    //! add a previously created QtViewElement to its parent
    void add(QtViewElement *ve);

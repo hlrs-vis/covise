@@ -49,7 +49,7 @@ coVRAnimationManager::coVRAnimationManager()
     , requestedAnimationFrame(-1)
     , timestepScale(1.0)
     , timestepBase(0.0)
-    , timestepUnit("Time Step")
+    , timestepUnit("Time step")
 {
     assert(!s_instance);
 
@@ -93,6 +93,7 @@ void coVRAnimationManager::initAnimMenu()
    animRowMenu->add(rotateObjectsToggleItem);
 #endif
     animRowMenu = new ui::Menu("Animation", this);
+
     animToggleItem = new ui::Button(animRowMenu, "Animate");
     animToggleItem->setShortcut("a");
     animToggleItem->setCallback([this](bool flag){
@@ -100,15 +101,31 @@ void coVRAnimationManager::initAnimMenu()
             enableAnimation(flag);
     });
     animToggleItem->setState(animRunning);
+    animToggleItem->setPriority(ui::Element::Toolbar);
+    animToggleItem->setIcon("media-playback-start");
 
-    animSpeedItem = new ui::Slider(animRowMenu, "Speed");
-    animSpeedItem->setPresentation(ui::Slider::AsDial);
-    animSpeedItem->setBounds(AnimSliderMin, AnimSliderMax);
-    animSpeedItem->setValue(animSpeedStartValue);
-    animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        sendAnimationSpeedMessage();
+    animFrameItem = new ui::Slider(animRowMenu, "Timestep");
+    animFrameItem->setText(timestepUnit);
+    animFrameItem->setIntegral(true);
+    animFrameItem->setBounds(timestepBase, timestepBase);
+    animFrameItem->setValue(timestepBase);
+    animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        if (animationRunning())
+            enableAnimation(false);
+        requestAnimationTime(val);
     });
-    sendAnimationSpeedMessage();
+    animFrameItem->setPriority(ui::Element::Toolbar);
+
+    animBackItem = new ui::Action(animRowMenu, "StepBackward");
+    animBackItem->setText("Step backward");
+    animBackItem->setShortcut(",");
+    animBackItem->setCallback([this](){
+        if (animationRunning())
+            enableAnimation(false);
+        requestAnimationFrame(getAnimationFrame() - 1);
+    });
+    animBackItem->setPriority(ui::Element::Toolbar);
+    animBackItem->setIcon("media-seek-backward");
 
     animForwardItem = new ui::Action(animRowMenu, "StepForward");
     animForwardItem->setText("Step forward");
@@ -118,27 +135,21 @@ void coVRAnimationManager::initAnimMenu()
             enableAnimation(false);
         requestAnimationFrame(getAnimationFrame() + 1);
     });
-    animBackItem = new ui::Action(animRowMenu, "StepBackward");
-    animBackItem->setText("Step backward");
-    animBackItem->setShortcut(",");
-    animBackItem->setCallback([this](){
-        if (animationRunning())
-            enableAnimation(false);
-        requestAnimationFrame(getAnimationFrame() - 1);
-    });
-    animFrameItem = new ui::Slider(animRowMenu, "Timestep");
-    animFrameItem->setIntegral(true);
-    animFrameItem->setBounds(timestepBase, timestepBase);
-    animFrameItem->setValue(timestepBase);
-    animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        if (animationRunning())
-            enableAnimation(false);
-        requestAnimationTime(val);
-    });
+    animForwardItem->setPriority(ui::Element::Toolbar);
+    animForwardItem->setIcon("media-seek-forward");
+
     animPingPongItem = new ui::Button(animRowMenu, "Oscillate");
     animPingPongItem->setState(false);
     animSyncItem = new ui::Button(animRowMenu, "Synchronize");
     animSyncItem->setState(false);
+
+    animSpeedItem = new ui::Slider(animRowMenu, "Speed");
+    animSpeedItem->setPresentation(ui::Slider::AsDial);
+    animSpeedItem->setBounds(AnimSliderMin, AnimSliderMax);
+    animSpeedItem->setValue(animSpeedStartValue);
+    animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        setAnimationSpeed(val);
+    });
 }
 
 void coVRAnimationManager::setOscillate(bool state)
@@ -428,6 +439,11 @@ void coVRAnimationManager::setNumTimesteps(int t)
 void coVRAnimationManager::showAnimMenu(bool visible)
 {
     animRowMenu->setVisible(visible);
+
+    animToggleItem->setEnabled(visible);
+    animForwardItem->setEnabled(visible);
+    animBackItem->setEnabled(visible);
+    animFrameItem->setEnabled(visible);
 }
 
 void
