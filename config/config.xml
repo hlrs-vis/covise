@@ -62,13 +62,16 @@
       <UI>
           <NavigationManager>
               <Navigation>
-                  <MoveWorld parent="" />
+                  <!--MoveWorld parent="" /-->
                   <Scale parent="" />
-                  <Drive parent="" />
+                  <SelectInteract parent="" />
+                  <Snap parent="" />
+                  <!--Drive parent="" /-->
               </Navigation>
           </NavigationManager>
           <Manager>
               <ViewOptions>
+                  <TrackHead parent="" />
                   <!--Lighting parent="" /-->
               </ViewOptions>
           </Manager>
