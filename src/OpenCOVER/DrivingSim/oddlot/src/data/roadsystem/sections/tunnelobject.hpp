@@ -31,6 +31,15 @@ public:
         CEL_ParameterChange = 0x1
     };
 
+	enum TunnelType
+	{
+		TT_STANDARD,
+		TT_UNDERPASS
+	};
+
+	static TunnelType parseTunnelType(const QString &type);
+	static QString parseTunnelTypeBack(int type);
+
     struct TunnelUserData
     {
         QString fileName;
@@ -66,6 +75,7 @@ public:
     {
         daylight_ = daylight;
     }
+
 
     // Observer Pattern //
     //

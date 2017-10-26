@@ -456,10 +456,12 @@ DomWriter::visit(Object *object)
         objectElement.setAttribute("t", object->getT());
         objectElement.setAttribute("zOffset", object->getzOffset());
         objectElement.setAttribute("validLength", object->getValidLength());
-        if (object->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
-            objectElement.setAttribute("orientation", "-");
-        else
-            objectElement.setAttribute("orientation", "+");
+		if (object->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
+			objectElement.setAttribute("orientation", "-");
+		else if (object->getOrientation() == Object::POSITIVE_TRACK_DIRECTION)
+			objectElement.setAttribute("orientation", "+");
+		else
+			objectElement.setAttribute("orientaion", "none");
         objectElement.setAttribute("length", object->getLength());
         objectElement.setAttribute("width", object->getWidth());
         objectElement.setAttribute("radius", object->getRadius());
@@ -616,9 +618,9 @@ DomWriter::visit(Tunnel *tunnel)
         tunnelElement.setAttribute("s", tunnel->getSStart());
         tunnelElement.setAttribute("length", tunnel->getLength());
 
-        tunnelElement.setAttribute("lighting", 0.5);
-        tunnelElement.setAttribute("daylight", 0.5);
-        tunnelElement.setAttribute("type", "standard");
+        tunnelElement.setAttribute("lighting", tunnel->getLighting());
+		tunnelElement.setAttribute("daylight", tunnel->getDaylight());
+        tunnelElement.setAttribute("type", Tunnel::parseTunnelTypeBack(tunnel->getType()));
 
     // model file are ancillary data
     //

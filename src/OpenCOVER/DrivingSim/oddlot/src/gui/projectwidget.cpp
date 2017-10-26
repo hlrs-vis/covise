@@ -1092,7 +1092,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     if(bridge)
     {
-        Bridge *bridge = new Bridge("osmBridge","","",0,0.0,road->getLength());
+        Bridge *bridge = new Bridge("osmBridge","","",Bridge::BT_CONCRETE,0.0,road->getLength());
         road->addBridge(bridge);
     }
 

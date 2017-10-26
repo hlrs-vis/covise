@@ -31,6 +31,19 @@ public:
         CEL_ParameterChange = 0x1
     };
 
+	enum BridgeType
+	{
+		BT_CONCRETE,
+		BT_STEEL,
+		BT_BRICK,
+		BT_WOOD,
+		BT_UNKNOWN
+	};
+
+	static BridgeType parseBridgeType(const QString &type);
+	static QString parseBridgeTypeBack(int type);
+
+
     struct BridgeUserData
     {
         QString fileName;

@@ -44,6 +44,7 @@
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/surfaceobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 
 #include "src/data/roadsystem/roadlink.hpp"
 #include "src/data/roadsystem/junctionconnection.hpp"
@@ -1522,22 +1523,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		double s = parseToDouble(child, "s", 0.0, false); // mandatory
 		double length = parseToDouble(child, "length", 0.0, false); // mandatory
 
-		int typenr = 0; //"concrete"
-		if (type == "steel")
-		{
-			typenr = 1;
-		}
-		else if (type == "brick")
-		{
-			typenr = 2;
-		}
-		else if (type == "wood")
-		{
-			typenr = 3;
-		}
-
 		// Construct bridge object
-		Bridge *bridge = new Bridge(id, modelFile, name, typenr, s, length);
+		Bridge *bridge = new Bridge(id, modelFile, name, Bridge::parseBridgeType(type), s, length);
 
 		setTile(id, oldTileId);
 
@@ -1567,17 +1554,20 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		double s = parseToDouble(child, "s", 0.0, false); // mandatory
 		double length = parseToDouble(child, "length", 0.0, false); // mandatory
 
+		double lighting = parseToDouble(child, "lighting", 0.0, false);
+		double daylight = parseToDouble(child, "daylight", 0.0, false);
+
 		// Construct tunnel object
-		Bridge *bridge = new Bridge(id, modelFile, name, 0, s, length);
+		Tunnel *tunnel = new Tunnel(id, modelFile, name, Tunnel::parseTunnelType(type), s, length, lighting, daylight);
 
 		setTile(id, oldTileId);
 
 		// Add to road
-		road->addBridge(bridge);
+		road->addBridge(tunnel);
 
-		if (id != bridge->getId())
+		if (id != tunnel->getId())
 		{
-			RoadSystem::IdType el = { bridge->getId(), "bridge" };
+			RoadSystem::IdType el = { tunnel->getId(), "tunnel" };
 			elementIDs_.insert(id, el);
 		}
 
