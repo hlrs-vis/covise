@@ -29,6 +29,7 @@ Object::Object(const QString &id, const QString &name, double s, ObjectPropertie
 	, objectProps_(objectProps)
 	, objectRepeat_(repeatRecord)
 	, parkingSpace_(NULL)
+	, outline_(NULL)
 {
 	userData_.modelFile = name;
 	userData_.textureFile = textureFile;
@@ -59,6 +60,14 @@ Object::setParkingSpace(ParkingSpace *parkingSpace)
 	parkingSpace_ = parkingSpace;
 	parkingSpace->setParentObject(this);
 	addObjectChanges(Object::CEL_TypeChange);
+}
+
+void 
+Object::setOutline(Outline *outline)
+{
+	outline_ = outline;
+	outline_->setParentObject(this);
+	addObjectChanges(Object::CEL_OutlineChange);
 }
 
 
@@ -121,3 +130,47 @@ Object::accept(Visitor *visitor)
 {
     visitor->visit(this);
 }
+
+
+
+//####################//
+// Outline            //
+//####################//
+
+Outline::Outline(QList<ObjectCorner *> corners)
+	: corners_(corners)
+{
+
+}
+
+Outline::~Outline()
+{
+	foreach(ObjectCorner *corner, corners_)
+		delete corner;
+}
+
+void 
+Outline::setParentObject(Object *object)
+{
+	parentObject_ = object;
+	object->addObjectChanges(Object::CEL_OutlineChange);
+}
+
+bool 
+Outline::addCorner(ObjectCorner *corner)
+{
+	if (corners_.contains(corner))
+	{
+		return false;
+	}
+
+	corners_.append(corner);
+
+	return true;
+}
+
+
+//####################//
+// ObjectCorner       //
+//####################//
+

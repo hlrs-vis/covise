@@ -1279,7 +1279,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
     // Find all objects (unlimited)
     QDomElement child = element.firstChildElement("object");
     while (!child.isNull())
-    {
+	{
 		Object::ObjectProperties objectProps;
 
         // Get mandatory attributes
@@ -1445,6 +1445,55 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 						markingChild = markingChild.nextSiblingElement("marking");
 					}
 					object->setParkingSpace(parking);
+				}
+
+				// Get <parkingSpace> record
+				objectChild = child.firstChildElement("outline");
+				if (!objectChild.isNull())
+				{
+					QDomElement cornerChild = objectChild.firstChildElement("cornerRoad");
+
+					// Corners of the outline of the object //
+					//
+					QList<ObjectCorner *> corners;
+
+					// Road coordinates
+					//
+					while (!cornerChild.isNull())
+					{
+						double u = parseToDouble(cornerChild, "u", 0.0, false);
+						double v = parseToDouble(cornerChild, "v", 0.0, false);
+						double dz = parseToDouble(cornerChild, "dz", 0.0, false);
+						double height = parseToDouble(cornerChild, "height", 0.0, false);
+
+						ObjectCorner *objectCorner = new ObjectCorner(u, v, dz, height, false);
+						corners.append(objectCorner);
+
+						cornerChild = cornerChild.nextSiblingElement("cornerRoad");
+					}
+
+					cornerChild = objectChild.firstChildElement("cornerLocal");
+
+					// Local coordinates
+					//
+					while (!cornerChild.isNull())
+					{
+						double u = parseToDouble(cornerChild, "u", 0.0, false);
+						double v = parseToDouble(cornerChild, "v", 0.0, false);
+						double z = parseToDouble(cornerChild, "z", 0.0, false);
+						double height = parseToDouble(cornerChild, "height", 0.0, false);
+
+						ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height, true);
+						corners.append(objectCorner);
+
+						cornerChild = cornerChild.nextSiblingElement("cornerLocal");
+					}
+
+					if (!corners.isEmpty())
+					{
+						Outline *outline = new Outline(corners);
+						object->setOutline(outline);
+					}
 				}
 			}
 		}
@@ -3552,7 +3601,7 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &cate
             double z = parseToDouble(corner, "z", 0.0, true);
             double height = parseToDouble(corner, "height", 0.0, true);
 
-            ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height);
+            ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height, true);
             corners.append(objectCorner);
 
             corner = corner.nextSiblingElement("corner");

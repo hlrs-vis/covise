@@ -341,8 +341,8 @@ DomWriter::visit(Object *object)
     else if (object->getType() != "")
     {
         QDomElement objectElement = doc_->createElement("object");
-        if (object->getRepeatS() != -1)
-        {
+        if (object->getRepeatLength() > NUMERICAL_ZERO3)
+		{
             QDomElement repeatElement = doc_->createElement("repeat");
 
             repeatElement.setAttribute("s", object->getRepeatS());
@@ -494,6 +494,39 @@ DomWriter::visit(Object *object)
 			}
 
 			objectElement.appendChild(parking);
+		}
+
+		Outline *outline = object->getOutline();
+		if (outline)
+		{
+			QList<ObjectCorner *> corners = outline->getCorners();
+			if (!corners.isEmpty())
+			{
+				QDomElement outlineElement = doc_->createElement("outline");
+				foreach (ObjectCorner *corner, corners)
+				{
+					QDomElement cornerElement;
+					if (corner->getLocal())
+					{
+						cornerElement = doc_->createElement("cornerLocal");
+						cornerElement.setAttribute("u", corner->getU());
+						cornerElement.setAttribute("v", corner->getV());
+						cornerElement.setAttribute("z", corner->getZ());
+						cornerElement.setAttribute("height", corner->getHeight());
+					}
+					else
+					{
+						cornerElement = doc_->createElement("cornerRoad");
+						cornerElement.setAttribute("u", corner->getU());
+						cornerElement.setAttribute("v", corner->getV());
+						cornerElement.setAttribute("dz", corner->getZ());
+						cornerElement.setAttribute("height", corner->getHeight());
+					}
+					outlineElement.appendChild(cornerElement);
+				}
+				objectElement.appendChild(outlineElement);
+			}
+
 		}
 
         currentObjectsElement_.appendChild(objectElement);
