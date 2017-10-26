@@ -56,7 +56,7 @@ void Button::setState(bool flag, bool updateGroup)
     if (flag != m_state)
     {
         m_state = flag;
-        manager()->queueUpdate(this);
+        manager()->queueUpdate(this, UpdateState);
         if (updateGroup && group())
             group()->toggle(this);
     }
@@ -86,10 +86,11 @@ void Button::radioTrigger() const
         m_callback(m_state);
 }
 
-void Button::update() const
+void Button::update(Element::UpdateMaskType mask) const
 {
-    Element::update();
-    manager()->updateState(this);
+    Element::update(mask);
+    if (mask & UpdateState)
+        manager()->updateState(this);
 }
 
 void Button::save(covise::TokenBuffer &buf) const

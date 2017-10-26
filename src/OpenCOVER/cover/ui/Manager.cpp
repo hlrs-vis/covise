@@ -41,7 +41,11 @@ void Manager::remove(Owner *owner)
 void Manager::remove(Element *elem)
 {
     //std::cerr << "DESTROY: " << elem->path() << std::endl;
-    m_elements.erase(elem);
+    auto it = m_elements.find(elem->m_order);
+    if (it != m_elements.end())
+    {
+        m_elements.erase(it);
+    }
     elem->clearItems();
 
     for (auto v: m_views)
@@ -91,7 +95,9 @@ bool Manager::update()
         m_changed = true;
         auto elem = m_newElements.front();
         m_newElements.pop_front();
-        m_elements.emplace(elem);
+        elem->m_order = m_elemOrder;
+        m_elements.emplace(elem->m_order, elem);
+        ++m_elemOrder;
 
         if (elem->parent())
         {
@@ -110,7 +116,7 @@ bool Manager::update()
     {
         m_updateAllElements = false;
         for (auto elem: m_elements)
-            elem->update();
+            elem.second->update();
     }
 
     bool ret = m_changed;
@@ -137,7 +143,8 @@ bool Manager::addView(View *view)
 
     for (auto elem: m_elements)
     {
-        view->elementFactory(elem);
+        std::cerr << "Creating by id: " << elem.first << " -> " << elem.second->path() << std::endl;
+        view->elementFactory(elem.second);
     }
 
     m_updateAllElements = true;
@@ -292,9 +299,10 @@ bool Manager::keyEvent(int type, int keySym, int mod) const
     }
     std::cerr << "'" << (char)keySym << "'" << std::endl;
 
-    for (auto elem: m_elements)
+    for (auto &elemPair: m_elements)
     {
-        if (elem->matchShortcut(modifiers, keySym))
+        auto &elem = elemPair.second;
+        if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
         {
             elem->shortcutTriggered();
             if (handled)
@@ -320,9 +328,11 @@ void Manager::flushUpdates()
     for (const auto &state: m_elemState)
     {
         auto id = state.first;
-        auto tb = state.second;
+        auto mask = state.second.first;
+        auto tb = state.second.second;
 
         *m_updates << id;
+        *m_updates << mask;
         *m_updates << false; // trigger
         *m_updates << tb->get_length();
         m_updates->addBinary(tb->get_data(), tb->get_length());
@@ -332,8 +342,22 @@ void Manager::flushUpdates()
     m_elemState.clear();
 }
 
-void Manager::queueUpdate(const Element *elem, bool trigger)
+void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, bool trigger)
 {
+    if (mask & Element::UpdateParent)
+    {
+        auto it = m_elements.find(elem->m_order);
+        if (it != m_elements.end())
+        {
+            Element *e = it->second;
+            assert(e == elem);
+            m_elements.erase(it);
+            e->m_order = m_elemOrder;
+            m_elements.emplace(e->m_order, e);
+            ++m_elemOrder;
+        }
+    }
+
     if (elem->elementId() < 0)
     {
         assert(!trigger);
@@ -343,6 +367,8 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
     assert(elem->elementId() >= 0);
 
     auto it = m_elemState.find(elem->elementId());
+    if (it != m_elemState.end())
+        mask |= it->second.first;
     if (trigger)
     {
         if (it != m_elemState.end())
@@ -353,6 +379,7 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
         elem->save(tb);
 
         *m_updates << elem->elementId();
+        *m_updates << mask;
         *m_updates << trigger;
         *m_updates << tb.get_length();
         m_updates->addBinary(tb.get_data(), tb.get_length());
@@ -363,13 +390,14 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
     {
         if (it == m_elemState.end())
         {
-            it = m_elemState.emplace(elem->elementId(), std::make_shared<covise::TokenBuffer>()).first;
+            it = m_elemState.emplace(elem->elementId(), std::make_pair(Element::UpdateMaskType(0),std::make_shared<covise::TokenBuffer>())).first;
         }
         else
         {
-            it->second->reset();
+            it->second.second->reset();
         }
-        elem->save(*it->second);
+        it->second.first = mask;
+        elem->save(*it->second.second);
     }
 }
 
@@ -382,6 +410,8 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         //std::cerr << "processing " << i << std::flush;
         int id = -1;
         *updates >> id;
+        Element::UpdateMaskType mask(0);
+        *updates >> mask;
         bool trigger = false;
         *updates >> trigger;
         int len = 0;
@@ -397,7 +427,7 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         //std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
         assert(elem);
         elem->load(tb);
-        elem->update();
+        elem->update(mask);
         if (trigger && runTriggers)
             elem->triggerImplementation();
     }

@@ -119,7 +119,7 @@ class QtView: public QObject, public View
    Group *m_lastToolbarGroup = nullptr;
 
    //! add a previously created QtViewElement to its parent
-   void add(QtViewElement *ve);
+   void add(QtViewElement *ve, bool update=false);
 
    // helper functions for navigating UI element hierarchy
    QtViewElement *qtViewElement(const Element *elem) const;

@@ -13,10 +13,11 @@ SelectionList::SelectionList(Group *parent, const std::string &name)
 {
 }
 
-void SelectionList::update() const
+void SelectionList::update(Element::UpdateMaskType mask) const
 {
-    Element::update();
-    manager()->updateChildren(this);
+    Element::update(mask);
+    if (mask & UpdateChildren)
+        manager()->updateChildren(this);
 }
 
 void SelectionList::setCallback(const std::function<void (int)> &f)
@@ -103,7 +104,7 @@ void SelectionList::setSelection(const std::vector<bool> selection)
 {
     assert(m_selection.size() == m_items.size());
     m_selection = selection;
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateChildren);
 }
 
 const std::vector<bool> &SelectionList::selection() const
@@ -115,7 +116,7 @@ void SelectionList::select(int index)
 {
     for (size_t i=0; i<m_items.size(); ++i)
         m_selection[i] = i==index;
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateChildren);
 }
 
 int SelectionList::selectedIndex() const

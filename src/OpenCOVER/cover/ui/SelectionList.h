@@ -16,6 +16,11 @@ namespace ui {
 class COVER_UI_EXPORT SelectionList: public Element {
 
  public:
+   enum UpdateMask: UpdateMaskType
+   {
+       UpdateChildren = 0x100
+   };
+
    SelectionList(Group *parent, const std::string &name);
    SelectionList(const std::string &name, Owner *owner);
    ~SelectionList();
@@ -31,7 +36,7 @@ class COVER_UI_EXPORT SelectionList: public Element {
    int selectedIndex() const;
    std::string selectedItem() const;
 
-    void update() const override;
+    void update(UpdateMaskType mask) const override;
     void updateChildren() const;
 
     void setCallback(const std::function<void(int)> &f);

@@ -57,6 +57,16 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
         Toolbar,
         High,
     };
+    typedef uint32_t UpdateMaskType;
+    enum UpdateMask: UpdateMaskType
+    {
+        UpdateNothing = 0,
+        UpdateVisible = 1,
+        UpdateEnabled = 2,
+        UpdateText = 4,
+        UpdateParent = 8,
+        UpdateAll = ~UpdateMaskType(0)
+    };
     //! construct as top-level item, life time managed by owner
     /** all derived classes provide a constructor taking the same kind of arguments */
     Element(const std::string &name, Owner *owner);
@@ -85,7 +95,7 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
 
     std::set<Container *> containers();
     //! request that graphical representation in all views is updated
-    virtual void update() const;
+    virtual void update(UpdateMaskType updateMask=UpdateAll) const;
 
     //! return text label of this item
     const std::string &text() const;
@@ -119,7 +129,7 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     Priority m_priority = Default;
     std::string m_iconName;
  private:
-    int m_id = -1; // initialized by Manager
+    mutable int m_id = -1, m_order = -1; // initialized by Manager
 };
 
 }

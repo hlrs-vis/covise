@@ -36,7 +36,7 @@ bool Group::add(Element *elem)
             assert(!elem->m_parent);
         }
         elem->m_parent = this;
-        manager()->queueUpdate(elem);
+        manager()->queueUpdate(elem, UpdateParent);
         return true;
     }
     return false;
@@ -47,7 +47,7 @@ bool Group::remove(Element *elem)
     if (Container::remove(elem))
     {
         elem->m_parent = nullptr;
-        manager()->queueUpdate(elem);
+        manager()->queueUpdate(elem, UpdateParent);
         return true;
     }
     return false;

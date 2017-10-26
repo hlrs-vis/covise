@@ -35,6 +35,8 @@ class VruiView: public View
 {
  public:
    VruiView();
+   ~VruiView();
+
    COVER_UI_EXPORT vrui::coMenu *getMenu(const Element *elem) const;
    COVER_UI_EXPORT vrui::coMenuItem *getItem(const Element *elem) const;
 

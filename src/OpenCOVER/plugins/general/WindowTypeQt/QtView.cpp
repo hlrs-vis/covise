@@ -63,11 +63,12 @@ QtView::QtView(QToolBar *toolbar)
 {
 }
 
-void QtView::add(QtViewElement *ve)
+void QtView::add(QtViewElement *ve, bool update)
 {
     if (!ve)
         return;
     auto elem = ve->element;
+    bool hasParent = elem && elem->parent();
     auto parent = qtViewParent(elem);
     auto container = qtContainerWidget(elem);
 
@@ -102,26 +103,24 @@ void QtView::add(QtViewElement *ve)
         group = ve->element->parent();
     if (auto ag = dynamic_cast<QActionGroup *>(qtObject(parent)))
     {
-        //std::cerr << "ui: adding button " << button->path() << " to action group" << std::endl;
-        if (ve->action)
-            ag->addAction(ve->action);
-        else if (auto a = dynamic_cast<QAction *>(ve->object))
-            ag->addAction(a);
-        if (container)
-            container->addActions(ag->actions());
-        if (m_toolbar && inToolbar)
+        //std::cerr << "ui: adding button " << elem->path() << " to action group" << std::endl;
+        ag->addAction(a);
+        if (container && hasParent)
+            container->addAction(a);
+        if (m_toolbar && inToolbar && !update)
         {
             if (m_lastToolbarGroup && m_lastToolbarGroup != group)
                 m_toolbar->addSeparator();
-            m_toolbar->addActions(ag->actions());
+            m_toolbar->addAction(a);
             m_lastToolbarGroup = group;
         }
     }
     else if (container)
     {
-        //std::cerr << "ui: adding button " << button->path() << " to widget" << std::endl;
-        container->addAction(a);
-        if (m_toolbar && inToolbar)
+        //std::cerr << "ui: adding button " << elem->path() << " to widget" << std::endl;
+        if (hasParent)
+            container->addAction(a);
+        if (m_toolbar && inToolbar && !update)
         {
             if (m_lastToolbarGroup && m_lastToolbarGroup != group)
                 m_toolbar->addSeparator();
@@ -209,8 +208,10 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 QtViewElement *QtView::elementFactoryImplementation(Group *group)
 {
     auto parent = qtViewParent(group);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
     auto ag = new QActionGroup(qtObject(parent));
     ag->setExclusive(false);
@@ -240,8 +241,10 @@ QtViewElement *QtView::elementFactoryImplementation(Group *group)
 QtViewElement *QtView::elementFactoryImplementation(Label *label)
 {
     auto parent = qtViewParent(label);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
     auto la = new QtLabelAction(qtObject(parent));
     auto ve = new QtViewElement(label, la);
@@ -254,8 +257,10 @@ QtViewElement *QtView::elementFactoryImplementation(Label *label)
 QtViewElement *QtView::elementFactoryImplementation(Action *action)
 {
     auto parent = qtViewParent(action);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
@@ -275,8 +280,10 @@ QtViewElement *QtView::elementFactoryImplementation(Action *action)
 QtViewElement *QtView::elementFactoryImplementation(Button *button)
 {
     auto parent = qtViewParent(button);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
@@ -299,10 +306,11 @@ QtViewElement *QtView::elementFactoryImplementation(Button *button)
 QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
 {
     auto parent = qtViewParent(slider);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
-    auto po = qtObject(parent);
     auto pw = qtWidget(parent);
 
     auto s = new QtSliderAction(pw);
@@ -457,6 +465,7 @@ void QtView::updateState(const Button *button)
 
 void QtView::updateParent(const Element *elem)
 {
+    add(qtViewElement(elem), true);
 #if 0
     auto o = qtObject(menu);
     auto m = dynamic_cast<QMenu *>(o);
