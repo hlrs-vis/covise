@@ -64,10 +64,10 @@ TiledDisplay::TiledDisplay()
     // Check if we are master and internal compositing is on
     if (internalCompositor && number == 0)
     {
-        cerr << "TiledDisplay::<init> info: turning on internal compositor" << endl;
+        cerr << "TiledDisplay::<init> info: turning on internal compositor" << std::endl;
         if (coVRConfig::instance()->numScreens() != 4)
         {
-            cerr << "TiledDisplay::<init> err: missing configuration: need exactly 4 screens and channels" << endl;
+            cerr << "TiledDisplay::<init> err: missing configuration: need exactly 4 screens and channels" << std::endl;
             exit(-1);
         }
 
@@ -95,7 +95,7 @@ TiledDisplay::TiledDisplay()
     {
         if (this->number != -1)
         {
-            cerr << "TiledDisplay::<init> info: new client " << number << endl;
+            cerr << "TiledDisplay::<init> info: new client " << number << std::endl;
 #ifdef HAVE_IBVERBS
             client = new TiledDisplayClientIBVerbs(number, const_cast<char *>(compositor.c_str()));
 #else
@@ -131,7 +131,7 @@ void TiledDisplay::preFrame()
     // Register the post draw callback
     if (initPending && !internalCompositor)
     {
-        cerr << "TiledDisplay::preFrame info: starting client " << number << endl;
+        cerr << "TiledDisplay::preFrame info: starting client " << number << std::endl;
         client->start();
 
         camera = coVRConfig::instance()->channels[0].camera;
@@ -147,7 +147,7 @@ void TiledDisplay::preFrame()
 #ifdef TILE_ENCODE_JPEG
              << ", JPEG encoded"
 #endif
-             << endl;
+             << std::endl;
 
         initPending = false;
 
@@ -169,13 +169,13 @@ void TiledDisplay::updateTextures()
         return;
 
     if (initPending)
-        cerr << "TiledDisplay::updateTextures info: updating textures" << endl;
+        cerr << "TiledDisplay::updateTextures info: updating textures" << std::endl;
 
     if (initPending)
     {
         for (int ctr = 1; ctr < 4; ++ctr)
         {
-            cerr << "TiledDisplay::updateTextures info: starting server " << ctr << endl;
+            cerr << "TiledDisplay::updateTextures info: starting server " << ctr << std::endl;
             servers[ctr]->start();
         }
     }
@@ -193,7 +193,7 @@ void TiledDisplay::updateTextures()
     }
 
     if (initPending)
-        cerr << "TiledDisplay::updateTextures info: done updating textures" << endl;
+        cerr << "TiledDisplay::updateTextures info: done updating textures" << std::endl;
     initPending = false;
 }
 

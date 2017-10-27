@@ -416,7 +416,7 @@ void PBufferSnapShot::preFrame()
         {
             cerr << "PBufferSnapShot::preFrame info: snapping (0, 0, "
                  << (int)tuiResolutionX->getValue() << ", " << (int)tuiResolutionY->getValue() << ")"
-                 << " to " << filename << endl;
+                 << " to " << filename << std::endl;
         }
     }
 }
