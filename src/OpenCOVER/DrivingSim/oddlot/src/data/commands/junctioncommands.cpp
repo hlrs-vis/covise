@@ -45,7 +45,7 @@ RemoveJunctionCommand::RemoveJunctionCommand(RSystemElementJunction *junction, D
     {
         RSystemElementRoad *incomingRoad = roadSystem_->getRoad(conn->getIncomingRoad());
         RSystemElementRoad *connectingRoad = roadSystem_->getRoad(conn->getConnectingRoad());
-        QString contactPoint = conn->getContactPoint();
+        QString contactPoint = JunctionConnection::parseContactPointBack(conn->getContactPoint());
 
         if (connectingRoad)
         {
