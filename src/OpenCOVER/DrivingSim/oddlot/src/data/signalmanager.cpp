@@ -51,7 +51,7 @@ SignalManager::~SignalManager()
 }
 
 void
-SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double heightOffset, const QString &unit, const QString text, double width, double height)
+SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, const QString &type, const QString &typeSubclass, const QString &subType, double value, double distance, double heightOffset, const QString &unit, const QString text, double width, double height)
 {
     signals_.insert(country, new SignalContainer(name, icon, categoryName, type, typeSubclass, subType, value, distance, heightOffset, unit, text, width, height));
 }
@@ -111,7 +111,7 @@ SignalManager::getCountry(ObjectContainer *objectContainer)
 }
 
 SignalContainer *
-SignalManager::getSignalContainer(int type, const QString &typeSubclass, int subType)
+SignalManager::getSignalContainer(const QString &type, const QString &typeSubclass, const QString &subType)
 {
     QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
     while (iter != signals_.constEnd())

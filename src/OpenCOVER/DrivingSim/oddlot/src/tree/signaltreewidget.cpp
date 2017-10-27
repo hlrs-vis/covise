@@ -221,9 +221,9 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			if (signalEditor_ && projectWidget_)
 			{
 				const QString &country = signalManager_->getCountry(signalContainer);
-				int type = signalContainer->getSignalType();
+				QString type = signalContainer->getSignalType();
 				const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
-				int subtype = signalContainer->getSignalSubType();
+				QString subtype = signalContainer->getSignalSubType();
 				double value = signalContainer->getSignalValue();
 
 

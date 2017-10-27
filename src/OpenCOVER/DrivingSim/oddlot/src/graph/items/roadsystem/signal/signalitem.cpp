@@ -548,7 +548,7 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             for (int i = 0; i < selectedControllers.size(); i++)
             {
 
-                ControlEntry * controlEntry = new ControlEntry(signal_->getId(), QString::number(signal_->getType()));
+                ControlEntry * controlEntry = new ControlEntry(signal_->getId(), signal_->getType());
                 AddControlEntryCommand *addControlEntryCommand = new AddControlEntryCommand(selectedControllers.at(i), controlEntry, signal_);
                 getProjectGraph()->executeCommand(addControlEntryCommand);
             }
