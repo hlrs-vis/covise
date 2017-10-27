@@ -106,6 +106,7 @@ public:
     coTUIButton *reset;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
+	std::list<MidiEvent> eventqueue;
     static MidiPlugin *plugin;
     vrml::Player *player;
     //scenegraph
@@ -124,6 +125,8 @@ public:
     void setTimestep(int t);
     int midi1fd;
     Track *lTrack;
+
+	void addEvent(MidiEvent &me);
 
     // constructor
     MidiPlugin();
