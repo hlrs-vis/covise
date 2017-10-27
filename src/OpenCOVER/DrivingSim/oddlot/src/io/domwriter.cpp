@@ -269,16 +269,16 @@ DomWriter::visit(Object *object)
         QStringList parts = object->getType().split("-");
 
         bool number = false;
-        int type = parts.at(0).toInt(&number);
+		QString type = parts.at(0);
         QString subclass = "";
-        int subtype = -1;
+        QString subtype = "-1";
        
         if (number && (parts.size() > 1))
         {
-            subtype = parts.at(1).toInt(&number);
+            subtype = parts.at(1);
             if (!number)
             {
-                subtype = -1;
+                subtype = "-1";
             }
             if (parts.size() > 2)
             {
@@ -748,20 +748,20 @@ DomWriter::visit(Signal *signal)
         {
             if (signal->getSubtype() >= 0)
             {
-                signalName = QString::number(signal->getType()) + "." + signal->getTypeSubclass() + "-" + QString::number(signal->getSubtype());
+                signalName = signal->getType() + "." + signal->getTypeSubclass() + "-" + signal->getSubtype();
             }
             else
             {
-                signalName = QString::number(signal->getType()) + "." + signal->getTypeSubclass();
+                signalName = signal->getType() + "." + signal->getTypeSubclass();
             }
         }
         else if (signal->getSubtype() >= 0)
         {
-            signalName = QString::number(signal->getType()) + "-" + QString::number(signal->getSubtype());
+            signalName = signal->getType() + "-" + signal->getSubtype();
         }
         else
         {
-            signalName = QString::number(signal->getType());
+            signalName = signal->getType();
         }
     }
 
@@ -1449,7 +1449,7 @@ DomWriter::visit(RSystemElementController *controller)
     // Write script file
     if (!controller->getControlEntries().isEmpty())
     {
-        QList<int> signalsType;
+        QList<QString> signalsType;
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);

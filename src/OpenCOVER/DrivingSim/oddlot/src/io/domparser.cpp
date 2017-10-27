@@ -1610,7 +1610,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		}
 
 		// Construct signal object
-		Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
+		Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
 		// Add to road
 		road->addSignal(signal);
 
@@ -1690,9 +1690,9 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         }
         double zOffset = parseToDouble(child, "zOffset", 0.0, false); // mandatory
         QString country = parseToQString(child, "country", "Germany", false); // mandatory
-        int type = parseToInt(child, "type", 0, false); // mandatory
+        QString type = parseToQString(child, "type", "-1", false); // mandatory
         
-        int subtype = parseToInt(child, "subtype", -1, false); // optional
+		QString subtype = parseToQString(child, "subtype", "-1", false); // optional
         double value = parseToDouble(child, "value", 0.0, false); // optional
 
 		QString unit = parseToQString(child, "unit", "km/h", true); //optional
@@ -3538,9 +3538,9 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         //
         QString name = parseToQString(sign, "name", "", false); // mandatory
         QString icon = ":/signalIcons/" + parseToQString(sign, "icon", "", true); // optional
-        int type = parseToInt(sign, "type", 0, false);
+        QString type = parseToQString(sign, "type", "-1", false);
         QString typeSubclass = parseToQString(sign, "subclass", "", true);
-        int subType = parseToInt(sign, "subtype", -1, true);
+        QString subType = parseToQString(sign, "subtype", "-1", true);
         double value = parseToDouble(sign, "value", 0.0, true);
         double distance = parseToDouble(sign, "distance", 0.0, true);
 		double heightOffset = parseToDouble(sign, "heightOffset", 0.0, true);
