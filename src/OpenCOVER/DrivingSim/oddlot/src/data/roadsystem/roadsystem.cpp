@@ -558,7 +558,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                 if (predecessor->getElementType() == "road")
                 {
 					RSystemElementRoad *predecessorRoad = getRoad(predecessor->getElementId());
-					if (predecessor->getContactPoint() == "end")
+					if (predecessor->getContactPoint() == JunctionConnection::JCP_END)
 					{
 						RoadLink *predSuccessor = predecessorRoad->getSuccessor();
 						RoadLink *roadLink = new RoadLink("road", newId, predSuccessor->getContactPoint());
@@ -608,7 +608,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                 if (successor->getElementType() == "road")
                 {
 					RSystemElementRoad *successorRoad = getRoad(successor->getElementId());
-					if (successor->getContactPoint() == "start")
+					if (successor->getContactPoint() == JunctionConnection::JCP_START)
 					{
                     RoadLink *succPredecessor = successorRoad->getPredecessor();
                     RoadLink *roadLink = new RoadLink("road", newId, succPredecessor->getContactPoint());

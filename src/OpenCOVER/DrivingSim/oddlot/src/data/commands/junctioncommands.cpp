@@ -49,11 +49,11 @@ RemoveJunctionCommand::RemoveJunctionCommand(RSystemElementJunction *junction, D
 
         if (connectingRoad)
         {
-            if ((contactPoint == "start") && (connectingRoad->getPredecessor()))
+            if ((contactPoint == JunctionConnection::JCP_START) && (connectingRoad->getPredecessor()))
             {
                 predecessors_.insert(connectingRoad, connectingRoad->getPredecessor());
             }
-            else if ((contactPoint == "end") && (connectingRoad->getSuccessor()))
+            else if ((contactPoint == JunctionConnection::JCP_END) && (connectingRoad->getSuccessor()))
             {
                 successors_.insert(connectingRoad, connectingRoad->getSuccessor());
             }

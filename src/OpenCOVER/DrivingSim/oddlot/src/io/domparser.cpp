@@ -1018,7 +1018,7 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         QString contactPoint = parseToQString(child, "contactPoint", "", isOptional); // optional if junction
         if (!elementId.isEmpty())
         {
-            RoadLink *roadLink = new RoadLink(elementType, elementId, contactPoint);
+            RoadLink *roadLink = new RoadLink(elementType, elementId, JunctionConnection::parseContactPoint(contactPoint));
             road->setPredecessor(roadLink);
         }
     }
@@ -1033,7 +1033,7 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         QString contactPoint = parseToQString(child, "contactPoint", "", isOptional); // optional if junction
         if (!elementId.isEmpty())
         {
-            RoadLink *roadLink = new RoadLink(elementType, elementId, contactPoint);
+            RoadLink *roadLink = new RoadLink(elementType, elementId, JunctionConnection::parseContactPoint(contactPoint));
             road->setSuccessor(roadLink);
         }
     }
@@ -2474,7 +2474,7 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
         }
 
         // <laneLink> //
-        JunctionConnection *connection = new JunctionConnection(childId, incomingRoad, connectingRoad, contactPoint, numerator);
+        JunctionConnection *connection = new JunctionConnection(childId, incomingRoad, connectingRoad, JunctionConnection::parseContactPoint(contactPoint), numerator);
 
         QDomElement link;
         link = child.firstChildElement("laneLink");
