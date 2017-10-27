@@ -82,6 +82,8 @@ void SelectionList::setList(const std::vector<std::string> items)
 {
     m_items = items;
     m_selection.resize(m_items.size(), false);
+    if (selectedIndex() < 0)
+        select(0);
     manager()->updateChildren(this);
 }
 
