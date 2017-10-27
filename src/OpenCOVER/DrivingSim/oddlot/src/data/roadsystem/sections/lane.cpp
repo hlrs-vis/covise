@@ -22,6 +22,7 @@
 #include "lanespeed.hpp"
 #include "laneheight.hpp"
 #include "lanerule.hpp"
+#include "laneaccess.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -54,6 +55,10 @@ Lane::parseLaneType(const QString &type)
         return Lane::LT_RESTRICTED;
     else if (type == "parking")
         return Lane::LT_PARKING;
+	else if (type == "bidirectional")
+		return Lane::LT_BIDIRECTIONAL;
+	else if (type == "median")
+		return Lane::LT_MEDIAN;
     else if (type == "mwyEntry")
         return Lane::LT_MWYENTRY;
     else if (type == "mwyExit")
@@ -64,6 +69,20 @@ Lane::parseLaneType(const QString &type)
         return Lane::LT_SPECIAL2;
     else if (type == "special3")
         return Lane::LT_SPECIAL3;
+	else if (type == "roadWorks")
+		return Lane::LT_ROADWORKS;
+	else if (type == "tram")
+		return Lane::LT_TRAM;
+	else if (type == "rail")
+		return Lane::LT_RAIL;
+	else if (type == "entry")
+		return Lane::LT_ENTRY;
+	else if (type == "exit")
+		return Lane::LT_EXIT;
+	else if (type == "offRamp")
+		return Lane::LT_OFFRAMP;
+	else if (type == "onRamp")
+		return Lane::LT_ONRAMP;
     else
     {
         qDebug("WARNING: unknown lane type: %s", type.toUtf8().constData());
@@ -92,6 +111,10 @@ Lane::parseLaneTypeBack(Lane::LaneType type)
         return QString("restricted");
     else if (type == Lane::LT_PARKING)
         return QString("parking");
+	else if (type == Lane::LT_BIDIRECTIONAL)
+		return QString("bidirectional");
+	else if (type == Lane::LT_MEDIAN)
+		return QString("median");
     else if (type == Lane::LT_MWYENTRY)
         return QString("mwyEntry");
     else if (type == Lane::LT_MWYEXIT)
@@ -102,6 +125,20 @@ Lane::parseLaneTypeBack(Lane::LaneType type)
         return QString("special2");
     else if (type == Lane::LT_SPECIAL3)
         return QString("special3");
+	else if (type == Lane::LT_ROADWORKS)
+		return QString("roadWorks");
+	else if (type == Lane::LT_TRAM)
+		return QString("tram");
+	else if (type == Lane::LT_RAIL)
+		return QString("rail");
+	else if (type == Lane::LT_ENTRY)
+		return QString("entry");
+	else if (type == Lane::LT_EXIT)
+		return QString("exit");
+	else if (type == Lane::LT_OFFRAMP)
+		return QString("offRamp");
+	else if (type == Lane::LT_ONRAMP)
+		return QString("onRamp");
     else
     {
         qDebug("WARNING: unknown lane type.");
@@ -423,6 +460,60 @@ Lane::getLaneRuleEnd(double sSection) const
 	//sSection = 0.0; // ???
 	QMap<double, LaneRule *>::const_iterator nextIt = rules_.upperBound(sSection);
 	if (nextIt == rules_.constEnd())
+	{
+		return parentLaneSection_->getLength(); // lane section: [0.0, length]
+	}
+	else
+	{
+		return (*nextIt)->getSSectionStart();
+	}
+}
+
+//####################//
+// LaneAccess Functions //
+//####################//
+
+/** Adds a road mark entry to this lane.
+*/
+void
+Lane::addLaneAccessEntry(LaneAccess *accessEntry)
+{
+	accesses_.insert(accessEntry->getSSectionStart(), accessEntry);
+	accessEntry->setParentLane(this);
+	addLaneChanges(Lane::CLN_LaneAccessChanged);
+}
+
+/** Returns the road mark entry at the given section coordinate (sSection).
+*/
+LaneAccess *
+Lane::getLaneAccessEntry(double sSection) const
+{
+	QMap<double, LaneAccess *>::const_iterator i = accesses_.upperBound(sSection);
+	if (i == accesses_.constBegin())
+	{
+		qDebug("WARNING: Trying to get lane road mark but coordinate is out of bounds!");
+		return NULL;
+	}
+	else
+	{
+		--i;
+		return i.value();
+	}
+}
+
+/** Returns the end coordinate of the road mark
+* containing the lane section coordinate sSection.
+* In lane section coordinates [m].
+* If the road mark is the last in the list, the end of
+* the lane section will be returned. Otherwise the end of
+* a road mark is the start coordinate of the successing one.
+*/
+double
+Lane::getLaneAccessEnd(double sSection) const
+{
+	//sSection = 0.0; // ???
+	QMap<double, LaneAccess *>::const_iterator nextIt = accesses_.upperBound(sSection);
+	if (nextIt == accesses_.constEnd())
 	{
 		return parentLaneSection_->getLength(); // lane section: [0.0, length]
 	}
@@ -761,6 +852,7 @@ Lane::acceptForChildNodes(Visitor *visitor)
     acceptForSpeeds(visitor);
     acceptForHeights(visitor);
 	acceptForRules(visitor);
+	acceptForAccess(visitor);
 }
 
 /*! Accepts a visitor and passes it to the width entries.
@@ -805,5 +897,14 @@ void
 Lane::acceptForRules(Visitor *visitor)
 {
 	foreach(LaneRule *child, rules_)
+		child->accept(visitor);
+}
+
+/*! Accepts a visitor and passes it to the road mark entries.
+*/
+void
+Lane::acceptForAccess(Visitor *visitor)
+{
+	foreach(LaneAccess *child, accesses_)
 		child->accept(visitor);
 }

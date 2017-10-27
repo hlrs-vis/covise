@@ -58,6 +58,7 @@
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/laneheight.hpp"
 #include "src/data/roadsystem/sections/lanerule.hpp"
+#include "src/data/roadsystem/sections/laneaccess.hpp"
 
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
@@ -1391,6 +1392,15 @@ DomWriter::visit(LaneRule *laneRule)
 	QDomElement element = doc_->createElement("rule");
 	element.setAttribute("sOffset", laneRule->getSOffset());
 	element.setAttribute("value", laneRule->getValue());
+	currentLaneElement_.appendChild(element);
+}
+
+void
+DomWriter::visit(LaneAccess *laneAccess)
+{
+	QDomElement element = doc_->createElement("access");
+	element.setAttribute("sOffset", laneAccess->getSOffset());
+	element.setAttribute("restriction", LaneAccess::parseLaneRestrictionBack(laneAccess->getRestriction()));
 	currentLaneElement_.appendChild(element);
 }
 

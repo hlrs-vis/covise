@@ -80,6 +80,7 @@ public:
     virtual void visit(LaneSpeed *);
     virtual void visit(LaneHeight *);
 	virtual void visit(LaneRule *);
+	virtual void visit(LaneAccess *);
 
     virtual void visit(Object *);
     virtual void visit(Bridge *);

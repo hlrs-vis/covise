@@ -26,6 +26,7 @@ class LaneRoadMark;
 class LaneSpeed;
 class LaneHeight;
 class LaneRule;
+class LaneAccess;
 
 class Lane : public DataElement
 {
@@ -49,7 +50,8 @@ public:
         CLN_RoadMarksChanged = 0x80,
         CLN_SpeedsChanged = 0x100,
         CLN_HeightsChanged = 0x200,
-		CLN_LaneRulesChanged = 0x400
+		CLN_LaneRulesChanged = 0x400,
+		CLN_LaneAccessChanged = 0x800
     };
 
     // Lane Type //
@@ -65,11 +67,20 @@ public:
         LT_BORDER,
         LT_RESTRICTED,
         LT_PARKING,
+		LT_BIDIRECTIONAL,
+		LT_MEDIAN,
         LT_MWYENTRY,
         LT_MWYEXIT,
         LT_SPECIAL1,
         LT_SPECIAL2,
-        LT_SPECIAL3
+        LT_SPECIAL3,
+		LT_ROADWORKS,
+		LT_TRAM,
+		LT_RAIL,
+		LT_ENTRY,
+		LT_EXIT,
+		LT_OFFRAMP,
+		LT_ONRAMP
     };
     static Lane::LaneType parseLaneType(const QString &type);
     static QString parseLaneTypeBack(Lane::LaneType type);
@@ -181,6 +192,16 @@ public:
 		return rules_;
 	}
 
+	// LaneAccess entries //
+	//
+	void addLaneAccessEntry(LaneAccess *accessEntry);
+	LaneAccess *getLaneAccessEntry(double sSection) const;
+	double getLaneAccessEnd(double sSection) const;
+	const QMap<double, LaneAccess *> &getLaneAccessEntries() const
+	{
+		return accesses_;
+	}
+
     // Observer Pattern //
     //
     virtual void notificationDone();
@@ -203,6 +224,7 @@ public:
     virtual void acceptForSpeeds(Visitor *visitor);
     virtual void acceptForHeights(Visitor *visitor);
 	virtual void acceptForRules(Visitor *visitor);
+	virtual void acceptForAccess(Visitor *visitor);
 
 private:
     Lane(); /* not allowed */
@@ -243,6 +265,7 @@ private:
     QMap<double, LaneSpeed *> speeds_; // owned
     QMap<double, LaneHeight *> heights_; // owned
 	QMap<double, LaneRule *> rules_; //owned
+	QMap<double, LaneAccess *> accesses_; //owned
 };
 
 #endif // LANE_HPP

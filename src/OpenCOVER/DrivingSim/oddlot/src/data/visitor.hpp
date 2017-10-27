@@ -68,6 +68,7 @@ class LaneRoadMark;
 class LaneSpeed;
 class LaneHeight;
 class LaneRule;
+class LaneAccess;
 
 class FiddleyardSource;
 class FiddleyardSink;
@@ -229,6 +230,9 @@ public:
     {
     }
 	virtual void visit(LaneRule *)
+	{
+	}
+	virtual void visit(LaneAccess *)
 	{
 	}
 

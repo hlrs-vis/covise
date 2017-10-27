@@ -361,6 +361,7 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/rsystemelementjunctiongroup.cpp
 	src/data/roadsystem/sections/laneborder.cpp
 	src/data/roadsystem/sections/lanerule.cpp
+	src/data/roadsystem/sections/laneaccess.cpp
 	src/data/roadsystem/sections/parkingspaceobject.cpp
 )
 SET(ODDLOT_MOC_HEADERS
