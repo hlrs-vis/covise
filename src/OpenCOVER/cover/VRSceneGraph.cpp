@@ -209,6 +209,7 @@ void VRSceneGraph::init()
     m_drawStyle->setCallback([this](int style){
         setWireframe(WireframeMode(style));
     });
+    m_drawStyle->select(0);
 
     m_showAxis = new ui::Button("ShowAxis", this);
     cover->viewOptionsMenu->add(m_showAxis);
