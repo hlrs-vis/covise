@@ -80,7 +80,6 @@ public:
     void setClipPlaneFromGui(int index, float offset, bool flip);
 
 private:
-    bool wait_;
     bool newObject_;
     bool planeOptionsInMenu_;
 
@@ -111,7 +110,7 @@ private:
         OPTION_CYLZ,
         NumSurfaceStyles
     };
-    int option_, oldOption_;
+    int option_ = OPTION_NONE;
 #if 0
     ui::Menu *optionMenu_=nullptr;
     ui::Button *optionPlane_=nullptr, *optionCylX_=nullptr, *optionCylY_=nullptr, *optionCylZ_=nullptr, *optionSphere_=nullptr;

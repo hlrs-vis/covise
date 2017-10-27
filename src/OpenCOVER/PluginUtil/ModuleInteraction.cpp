@@ -138,34 +138,7 @@ void
 ModuleInteraction::setShowInteractorFromGui(bool state)
 {
     showPickInteractor_ = state;
-    if (state)
-    {
-#ifdef VRUI
-        if (!showPickInteractorCheckbox_->getState())
-        {
-            showPickInteractorCheckbox_->setState(true, true);
-        }
-#else
-        if (!showPickInteractorCheckbox_->state())
-        {
-            showPickInteractorCheckbox_->setState(true);
-        }
-#endif
-    }
-    else
-    {
-#ifdef VRUI
-        if (showPickInteractorCheckbox_->getState())
-        {
-            showPickInteractorCheckbox_->setState(false, true);
-        }
-#else
-        if (showPickInteractorCheckbox_->state())
-        {
-            showPickInteractorCheckbox_->setState(false);
-        }
-#endif
-    }
+    showPickInteractorCheckbox_->setState(state);
     updatePickInteractors(showPickInteractor_);
 }
 

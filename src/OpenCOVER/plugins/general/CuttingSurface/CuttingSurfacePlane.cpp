@@ -63,6 +63,7 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
 
     if (inter_->getFloatVectorParam(CuttingSurfaceInteraction::VERTEX, dummy, n) != -1)
     {
+        std::cerr << "CuttingSurfacePlane: Normal: " << n[0] << " " << n[1] << " " << n[2] << std::endl;
         normal_.set(n[0], n[1], n[2]);
         normal_.normalize();
     }
@@ -95,6 +96,7 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
     createGeometry();
     showGeometry(false);
 }
+
 CuttingSurfacePlane::~CuttingSurfacePlane()
 {
     if (cover->debugLevel(3))
@@ -173,6 +175,11 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
             osg::Vec4 yaxis(0, 1, 0, 0);
             normal = yaxis * m;
             normal.normalize();
+            if (normal.length2() < 0.1f)
+            {
+                std::cerr << "CuttingSurfacePlane: invalid normal" << std::endl;
+                normal = yaxis;
+            }
         }
         else if (restrictToAxis == CuttingSurfaceInteraction::RESTRICT_X)
         {
@@ -195,11 +202,11 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
             showGeometry(true);
             updateGeometry();
         }
-        if (showPickInteractor_ && planePickInteractor_->isRunning())
+        if (planePickInteractor_->isRunning())
         {
             updateGeometry();
         }
-        if (showPickInteractor_ && planePickInteractor_->wasStopped())
+        if (planePickInteractor_->wasStopped())
         {
             if (!wait_)
             {
@@ -402,7 +409,6 @@ void CuttingSurfacePlane::createGeometry()
     }
 
     testPlane_ = new coPlane(normal_, point_);
-    updateGeometry();
 
     outlineGeometry_ = new osg::Geometry();
     outlineGeometry_->setColorArray(outlineColor);
@@ -428,7 +434,12 @@ void CuttingSurfacePlane::createGeometry()
     geode_->setName("CuttingSurfacePlaneOutline");
     geode_->setNodeMask(geode_->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
 
-    parent_->addChild(geode_.get());
+    transform_ = new osg::MatrixTransform;
+    transform_->addChild(geode_.get());
+
+    parent_->addChild(transform_);
+
+    updateGeometry();
 }
 
 void CuttingSurfacePlane::deleteGeometry()
@@ -436,9 +447,9 @@ void CuttingSurfacePlane::deleteGeometry()
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfacePlane::deleteGeometry\n");
 
-    if (geode_.get() && (geode_->getNumParents() > 0))
+    if (transform_.get() && (transform_->getNumParents() > 0))
     {
-        geode_->getParent(0)->removeChild(geode_.get());
+        transform_->getParent(0)->removeChild(transform_.get());
     }
     delete testPlane_;
 }
@@ -462,9 +473,17 @@ void CuttingSurfacePlane::updateGeometry()
 
     if (intersectFlag_ != oldIntersectFlag_)
     {
-
         showGeometry(intersectFlag_);
         oldIntersectFlag_ = intersectFlag_;
+    }
+
+    if (transform_)
+    {
+        osg::Matrix m;
+        osg::Vec3 yaxis(0, 1, 0);
+        m.makeRotate(yaxis, normal_);
+        m.setTrans(point_);
+        transform_->setMatrix(m);
     }
 }
 
@@ -475,16 +494,16 @@ void CuttingSurfacePlane::showGeometry(bool show)
         fprintf(stderr, "showGeometry %d\n", show);
     if (show)
     {
-        if (geode_.get() && geode_->getNumParents() == 0)
+        if (transform_.get() && transform_->getNumParents() == 0)
         {
-            parent_->addChild(geode_.get());
+            parent_->addChild(transform_.get());
         }
     }
     else
     {
-        if (geode_.get() && geode_->getNumParents())
+        if (transform_.get() && transform_->getNumParents())
         {
-            geode_->getParent(0)->removeChild(geode_.get());
+            transform_->getParent(0)->removeChild(transform_.get());
         }
     }
 }
@@ -559,9 +578,9 @@ CuttingSurfacePlane::setCaseTransform(osg::MatrixTransform *t)
     planePickInteractor_->setCaseTransform(t);
     parent_ = t;
     hasCase_ = true;
-    if (geode_.get() && geode_->getNumParents())
+    if (transform_.get() && transform_->getNumParents())
     {
-        geode_->getParent(0)->removeChild(geode_.get());
-        parent_->addChild(geode_.get());
+        transform_->getParent(0)->removeChild(transform_.get());
+        parent_->addChild(transform_.get());
     }
 }
