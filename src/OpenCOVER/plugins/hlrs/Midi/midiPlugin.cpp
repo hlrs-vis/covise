@@ -172,7 +172,7 @@ int MidiPlugin::loadFile(const char *filename, osg::Group *parent)
          setTempo(i);
       }
    }
-   fprintf(stderr,"Tempo %f\n",tempo);
+   //fprintf(stderr,"Tempo %f\n",tempo);
    
    
    }
@@ -278,7 +278,7 @@ currentTrack = 0;
 
     MIDIRoot = new osg::Group;
     MIDIRoot->setName("MIDIRoot");
-    cover->getObjectsRoot()->addChild(MIDIRoot.get());
+    cover->getScene()->addChild(MIDIRoot.get());
     
     globalmtl = new osg::Material;
     globalmtl->ref();
@@ -351,6 +351,9 @@ currentTrack = 0;
 	noteInfos[59] = new NoteInfo(59);//cymbal4-edge
 	noteInfos[59]->color = osg::Vec4(153.0 / 255.0, 153.0 / 255.0, 0, 1);
 	noteInfos[59]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[36] = new NoteInfo(36);//bass
+	noteInfos[36]->color = osg::Vec4(255.0 / 255.0, 255.0 / 255.0, 200.0 / 255.0, 1);
+	noteInfos[36]->initialPosition.set(0.0, 0.0, 0.0);
 	noteInfos[42] = new NoteInfo(42); //hi-hat closed
 	noteInfos[42]->color = osg::Vec4(230.0 / 255.0, 92.0 / 255.0, 0, 1);
 	noteInfos[42]->initialPosition.set(0.0, 0.0, 0.0);
@@ -427,19 +430,19 @@ currentTrack = 0;
     for(int i=0;i<nIs.size();i++)
     {
     nIs[i]->createGeom();
-        float angle = ((float)i/nIs.size())*2.0*M_PI/4.0*4.0;
+        float angle = ((float)i/nIs.size())*2.0*M_PI;
         //float radius = 300.0+(float)i/nIs.size()*800.0;
         float radius = 800.0;
 		if(nIs[i]->initialPosition == osg::Vec3(0,0,0))
 		{
-			nIs[i]->initialPosition.set(sin(angle)*radius, cos(angle)*radius, 0);
-			nIs[i]->initialVelocity.set(sin(angle)*100.0, cos(angle)*100.0, 1000);
+			nIs[i]->initialPosition.set(sin(angle)*radius, 0, cos(angle)*radius);
+			nIs[i]->initialVelocity.set(sin(angle)*100.0,  1000 , cos(angle)*100.0 );
 		}
 		else
 		{
 			osg::Vec3 v = nIs[i]->initialPosition;
 			v.normalize();
-			v[2] = 1000.0;
+			v[1] = 1000.0;
 			nIs[i]->initialVelocity = v;
 		}
     }
@@ -932,7 +935,7 @@ Note::Note(MidiEvent &me, Track *t)
         transform->addChild(ni->geometry);
     }
     velo = ni->initialVelocity*event.getVelocity()/100.0;
-    velo[2] = (event.getVelocity()-32) *20;
+    velo[1] = (event.getVelocity()-32) *40;
     t->TrackRoot->addChild(transform.get());
     
 }
@@ -946,13 +949,13 @@ void Note::integrate(double time)
     osg::Vec3 pos = nm.getTrans();
     osg::Vec3 spiral;
     spiral[0] = pos[1];
-    spiral[1] = -pos[0];
-    spiral[2] = 0.0;
+    spiral[1] = 0.0;
+	spiral[2] = -pos[0];
     spiral *= 0.1;
-    osg::Vec3 a = osg::Vec3(0,0,-300.0);
+    osg::Vec3 a = osg::Vec3(0,-300.0,0);
     a = pos;
     a.normalize();
-    a *= 300;
+    a *= 700;
     velo = velo + a*time;
     pos += (velo + spiral) * time;
     nm.setTrans(pos);
