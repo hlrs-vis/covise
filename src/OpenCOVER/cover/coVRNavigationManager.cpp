@@ -348,8 +348,11 @@ void coVRNavigationManager::initMenu()
     m_resetView->setIcon("zoom-original");
 
     navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
-    navGroup_->enableDeselect(true);
+    //navGroup_->enableDeselect(true);
     navGroup_->setDefaultValue(NavNone);
+    noNavButton_ = new ui::Button(navMenu_, "NavNone", navGroup_, NavNone);
+    noNavButton_->setText("Navigation disabled");
+    noNavButton_->setVisible(false);
     xformButton_ = new ui::Button(navMenu_, "MoveWorld", navGroup_, XForm);
     xformButton_->setText("Move world");
     xformButton_->setShortcut("t");

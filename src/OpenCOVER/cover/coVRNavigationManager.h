@@ -351,6 +351,7 @@ private:
     ui::Menu *navMenu_ = nullptr;
     ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
     ui::ButtonGroup *navGroup_ = nullptr;
+    ui::Button *noNavButton_=nullptr;
     ui::Button *xformButton_=nullptr, *scaleButton_=nullptr, *flyButton_=nullptr, *walkButton_=nullptr, *driveButton_=nullptr;
     ui::Button *xformRotButton_=nullptr, *xformTransButton_=nullptr, *selectButton_=nullptr, *showNameButton_=nullptr;
     ui::Button *selectInteractButton_=nullptr;
