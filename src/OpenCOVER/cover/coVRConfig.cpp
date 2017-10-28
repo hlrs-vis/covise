@@ -116,7 +116,7 @@ coVRConfig::coVRConfig()
     }
     m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
-    m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
+    m_freeze = coCoviseConfig::isOn("COVER.Freeze", false); // don't freeze by default
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);

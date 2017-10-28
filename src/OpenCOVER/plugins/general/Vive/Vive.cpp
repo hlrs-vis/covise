@@ -287,6 +287,8 @@ void Vive::postFrame()
 			{
 				idx = it->second.ID;
 				controllerNumber = it->second.controllerID+1; // +1 because we remote 1 afterwards (see below)
+				if (controllerNumber > numControllers)
+					numControllers = controllerNumber;
 			}
 			else
 			{
@@ -332,12 +334,16 @@ void Vive::postFrame()
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
 			maxBodyNumber = nDevice;
+			if (m_DeviceID[nDevice] > maxBodyNumber)
+				maxBodyNumber == m_DeviceID[nDevice];
 		}
 	}
 
 	//cout << "*"; for (int n = 0; n < vr::k_unMaxTrackedDeviceCount; ++n) cout << m_rDevClassChar[n]; cout << "*"<<endl;
 
 	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
+	if (maxBodyNumber + 1 > bodyMatSize)
+		bodyMatSize + maxBodyNumber;
 	if (bodyMatSize > m_bodyMatrices.size())
 	{
 		m_mutex.lock();

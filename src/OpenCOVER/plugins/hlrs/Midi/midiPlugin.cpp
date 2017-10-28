@@ -325,7 +325,7 @@ currentTrack = 0;
 
 	/* Jeremys drum kit*/
 	noteInfos[4] = new NoteInfo(4); //stomp
-	noteInfos[4]->color = osg::Vec4(1, 0, 1, 1);
+	noteInfos[4]->color = osg::Vec4(1, 0, 0 ,1);
 	noteInfos[4]->initialPosition.set(0.0, 0.0, 0.0);
 	noteInfos[29] = new NoteInfo(29); //cymbal1
 	noteInfos[29]->color = osg::Vec4(1, 1, 102.0 / 255.0, 1);
