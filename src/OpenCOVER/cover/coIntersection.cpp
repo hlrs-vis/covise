@@ -17,6 +17,9 @@
 #include <osg/LineSegment>
 #include <osg/Matrix>
 #include <osg/Vec3>
+#include <osg/io_utils>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 
 #include <OpenVRUI/osg/OSGVruiHit.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>
@@ -162,6 +165,7 @@ void coIntersection::intersect()
 
 void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
 {
+#if 0
 #ifdef _OPENMP
     if (useOmp)
     {
@@ -172,6 +176,9 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
     {
 	intersectTemp<IntersectVisitor>(handMat, mouseHit);
     }
+#else
+    intersectTemp<IntersectionVisitor>(handMat, mouseHit);
+#endif
 }
 
 template<class IsectVisitor>
@@ -189,9 +196,17 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
     q0 = handMat.preMult(q0);
     q1 = handMat.preMult(q1);
 
-    //fprintf(stderr, "--- coIntersection::intersect q0(%f %f %f) q1(%f %f %f) \n", q0.x(),q0.y(),q0.z(),q1.x(),q1.y(),q1.z());
-    //VRUILOG("coIntersection::intersect info: hand " << handMat);
-    //VRUILOG("coIntersection::intersect info: ray from " << q0 << " to " << q1);
+    if ((q1-q0).length2() < std::numeric_limits<float>::epsilon())
+    {
+        std::cerr << "coIntersection: intersectionDist=" << intersectionDist << " too short" << std::endl;
+        return;
+    }
+
+#if 0
+    fprintf(stderr, "--- coIntersection::intersect q0(%f %f %f) q1(%f %f %f) \n", q0.x(),q0.y(),q0.z(),q1.x(),q1.y(),q1.z());
+    std::cerr << "coIntersection::intersect info: hand " << handMat << std::endl;
+    std::cerr << "coIntersection::intersect info: ray from " << q0 << " to " << q1 << std::endl;
+#endif
 
     ref_ptr<LineSegment> ray = new LineSegment();
     ray->set(q0, q1);
@@ -207,7 +222,9 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
         {
             visitor.setTraversalMask(Isect::Intersection);
         }
-        visitor.addLineSegment(ray.get());
+        osg::ref_ptr<LineSegmentIntersector> intersector = new LineSegmentIntersector(ray->start(), ray->end());
+        visitor.setIntersector(intersector.get());
+        //visitor.addLineSegment(ray.get());
 
         {
 
@@ -232,90 +249,89 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
             }
         }
 
-        if (visitor.getNumHits(ray.get()))
+        auto isects = intersector->getIntersections();
+        //VRUILOG("coIntersection::intersect info: hit");
+        //fprintf(stderr, " --- HIT \n");
+
+#if 0
+        std::vector<osgUtil::Hit> hitList;
+        hitList = visitor.getHitList(ray.get());
+#endif
+
+        // check which node in the hit list is also visible
+        bool hasVisibleHit = false;
+        for (const auto &isect: isects)
         {
-            //VRUILOG("coIntersection::intersect info: hit");
-            //fprintf(stderr, " --- HIT \n");
+            auto node = isect.drawable;
 
-            std::vector<osgUtil::Hit> hitList;
-            hitList = visitor.getHitList(ray.get());
-
-            // check which node in the hit list is also visible
-            bool hasVisibleHit = false;
-            for (size_t i = 0; i < hitList.size(); i++)
+            if (node->getNodeMask() & (Isect::Visible))
             {
-
-                if (hitList[i]._geode->getNodeMask() & (Isect::Visible))
+                //hitInformation = hitList[i];
+                hasVisibleHit = true;
+                // check also parents of this visible node,
+                osg::Node *parent;
+                // there could be an invisible dcs above
+                if (node->getNumParents())
+                    parent = node->getParent(0);
+                else
+                    parent = NULL;
+                while (parent && (parent != cover->getObjectsRoot()))
                 {
 
-                    hitInformation = hitList[i];
-                    hasVisibleHit = true;
-                    // check also parents of this visible node,
-                    osg::Node *parent;
-                    // there could be an invisible dcs above
-                    if (hitList[i]._geode->getNumParents())
-                        parent = hitList[i]._geode->getParent(0);
-                    else
-                        parent = NULL;
-                    while (parent && (parent != cover->getObjectsRoot()))
+                    if (parent->getNodeMask() & (Isect::Visible))
                     {
 
-                        if (parent->getNodeMask() & (Isect::Visible))
+                        //parent was also visible, get his parent
+                        if (parent->getNumParents())
                         {
 
-                            //parent was also visible, get his parent
-                            if (parent->getNumParents())
-                            {
-
-                                parent = parent->getParent(0);
-                            }
-                            else
-                                parent = NULL;
+                            parent = parent->getParent(0);
                         }
-                        else // parent not visible
-                        {
-
-                            //stop this while loop for going ip in sg
-                            hasVisibleHit = false;
-                            break;
-                        }
+                        else
+                            parent = NULL;
                     }
-                    if (hasVisibleHit) // all parents are also visible
-                        break; // stop this for loop for going through other hits farer away from nearest
+                    else // parent not visible
+                    {
+
+                        //stop this while loop for going ip in sg
+                        hasVisibleHit = false;
+                        break;
+                    }
                 }
+                if (hasVisibleHit) // all parents are also visible
+                {
+                    cover->intersectionHitPointWorld = isect.getWorldIntersectPoint();
+                    cover->intersectionHitPointWorldNormal = isect.getWorldIntersectNormal();
+                    cover->intersectionHitPointLocal = isect.getLocalIntersectPoint();
+                    cover->intersectionHitPointLocalNormal = isect.getLocalIntersectNormal();
+                    cover->intersectionMatrix = isect.matrix;
+                    cover->intersectedDrawable = isect.drawable;
+                    cover->intersectedNode = nullptr;
+                    if (isect.drawable->getNumParents() > 0)
+                        cover->intersectedNode = dynamic_cast<osg::Geode *>(isect.drawable->getParent(0));
 
-                //else
-                //{
-                //   if (! (hitList[i]._geode->getName().empty()) )
-                //   {
-                //      fprintf(stderr,"intersceting a unvisible node with name %s\n", hitList[i]._geode->getName().c_str());
-                //   }
-                //}
+                    //if( !cover->intersectedNode.get()->getName().empty())
+                    //    fprintf(stderr,"coIntersection::intersect hit node %s\n", cover->intersectedNode.get()->getName().c_str());
+                    //else
+                    //    fprintf(stderr,"coIntersection::intersect hit node without name\n");
+
+                    cover->intersectedNodePath = isect.nodePath;
+                    // walk up to the root and call all coActions
+                    OSGVruiHit hit(isect, mouseHit);
+                    OSGVruiNode node(cover->intersectedNode.get());
+                    callActions(&node, &hit);
+
+                    break; // stop this for loop for going through other hits farer away from nearest
+                }
             }
-            if (hasVisibleHit)
-            {
-                cover->intersectionHitPointWorld = hitInformation.getWorldIntersectPoint();
-                cover->intersectionHitPointWorldNormal = hitInformation.getWorldIntersectNormal();
-                cover->intersectionHitPointLocal = hitInformation.getLocalIntersectPoint();
-                cover->intersectionHitPointLocalNormal = hitInformation.getLocalIntersectNormal();
-                cover->intersectionMatrix = hitInformation._matrix;
-                cover->intersectedNode = hitInformation._geode;
 
-                //if( !cover->intersectedNode.get()->getName().empty())
-                //    fprintf(stderr,"coIntersection::intersect hit node %s\n", cover->intersectedNode.get()->getName().c_str());
-                //else
-                //    fprintf(stderr,"coIntersection::intersect hit node without name\n");
-
-                cover->intersectedNodePath = hitInformation.getNodePath();
-                // walk up to the root and call all coActions
-                OSGVruiHit hit(hitInformation, mouseHit);
-                OSGVruiNode node(cover->intersectedNode.get());
-                callActions(&node, &hit);
-            }
-        }
-        else
-        {
-            //VRUILOG("coIntersection::intersect info: miss");
+            //else
+            //{
+            //   if (! (hitList[i]._geode->getName().empty()) )
+            //   {
+            //      fprintf(stderr,"intersceting a unvisible node with name %s\n", hitList[i]._geode->getName().c_str());
+            //   }
+            //}
         }
     }
    /* // for debug only

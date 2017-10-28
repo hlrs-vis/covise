@@ -449,12 +449,12 @@ int coPinEditor::hit(vruiHit *hit)
         interactionC->setHitByMouse(hit->isMouseHit());
     }
 
-    osgUtil::Hit osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
+    osgUtil::LineSegmentIntersector::Intersection osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
 
     static char message[100];
 
     float x = 0.f, y = 0.f;
-    if (osgHit._geode.valid())
+    if (osgHit.drawable.valid())
     {
         Vec3 point = osgHit.getLocalIntersectPoint();
         x = (point[0] - (A + B)) / W;

@@ -673,6 +673,7 @@ private:
     int activeClippingPlane;
 
     osg::ref_ptr<osg::Geode> intersectedNode;
+    osg::ref_ptr<osg::Drawable> intersectedDrawable;
     //osg::ref_ptr<osg::NodePath> intersectedNodePath;
     osg::NodePath intersectedNodePath;
     osg::Vec3 intersectionHitPointWorld;

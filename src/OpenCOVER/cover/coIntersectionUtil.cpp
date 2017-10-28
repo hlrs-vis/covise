@@ -100,6 +100,12 @@ namespace Private
                 return;
             }
             _length = _d.length();
+            if (_length <= std::numeric_limits<float>::epsilon())
+            {
+                _length = -1;
+                std::cerr << "TriangleIntersect: invalid line segment - direction too short" << std::endl;
+                return;
+            }
             _d /= _length;
         }
 
@@ -240,9 +246,9 @@ namespace Private
             if (!in.valid())
             {
                 std::cerr << "Warning:: Picked up error in TriangleIntersect" << std::endl;
-                OSG_WARN<<"   v=("<<v1<<",\t"<<v2<<",\t"<<v3<<")"<<std::endl;
-                OSG_WARN<<"   1/r=("<<r1<<",\t"<<r2<<",\t"<<r3<<")"<<std::endl;
-                OSG_WARN<<"   total_r=" << total_r << std::endl;
+                std::cerr << "   v=("<<v1<<",\t"<<v2<<",\t"<<v3<<")"<<std::endl;
+                std::cerr << "   1/r=("<<r1<<",\t"<<r2<<",\t"<<r3<<")"<<std::endl;
+                std::cerr << "   total_r=" << total_r << std::endl;
                 return;
             }
 
