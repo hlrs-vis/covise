@@ -2342,8 +2342,8 @@ void coVRMSController::syncVRBMessages()
 #define MAX_VRB_MESSAGES 500
     Message *vrbMsgs[MAX_VRB_MESSAGES];
     int numVrbMessages = 0;
-    if (numSlaves == 0)
-        return;
+    //if (numSlaves == 0) // we have to handle vrb messages also in non cluster mode
+    //    return;
 
     if (cover->debugLevel(4))
         fprintf(stderr, "\ncoVRMSController::syncVRBMessages\n");
