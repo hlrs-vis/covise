@@ -48,7 +48,6 @@ private:
     osg::ref_ptr<osg::Vec3Array> outlineCoords_;
     osg::ref_ptr<osg::Vec3Array> polyCoords_;
     osg::ref_ptr<osg::Vec3Array> polyNormal_;
-    osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Group *parent_ = nullptr;
     bool hasCase_ = false;
 
