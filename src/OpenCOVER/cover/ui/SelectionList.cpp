@@ -84,7 +84,7 @@ void SelectionList::setList(const std::vector<std::string> items)
     m_items = items;
     m_selection.resize(m_items.size(), false);
     if (selectedIndex() < 0)
-        select(0);
+        select(0, false);
     manager()->updateChildren(this);
 }
 
@@ -97,6 +97,8 @@ void SelectionList::append(const std::string &item)
 {
     m_items.push_back(item);
     m_selection.resize(m_items.size(), false);
+    if (m_items.size() == 1)
+        m_selection[0] = true;
     manager()->updateChildren(this);
 }
 
@@ -112,11 +114,12 @@ const std::vector<bool> &SelectionList::selection() const
     return m_selection;
 }
 
-void SelectionList::select(int index)
+void SelectionList::select(int index, bool update)
 {
     for (size_t i=0; i<m_items.size(); ++i)
         m_selection[i] = i==index;
-    manager()->queueUpdate(this, UpdateChildren);
+    if (update)
+        manager()->queueUpdate(this, UpdateChildren);
 }
 
 int SelectionList::selectedIndex() const

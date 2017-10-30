@@ -32,7 +32,7 @@ class COVER_UI_EXPORT SelectionList: public Element {
    void setSelection(const std::vector<bool> selection);
    const std::vector<bool> &selection() const;
 
-   void select(int index);
+   void select(int index, bool update=true);
    int selectedIndex() const;
    std::string selectedItem() const;
 
