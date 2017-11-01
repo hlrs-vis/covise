@@ -114,6 +114,8 @@ bool Manager::update()
 
     if (m_updateAllElements)
     {
+        m_changed = true;
+
         m_updateAllElements = false;
         for (auto elem: m_elements)
             elem.second->update();
@@ -428,8 +430,18 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         assert(elem);
         elem->load(tb);
         elem->update(mask);
-        if (trigger && runTriggers)
-            elem->triggerImplementation();
+        if (trigger)
+        {
+            if (runTriggers)
+            {
+                setChanged();
+                elem->triggerImplementation();
+            }
+            else
+            {
+                std::cerr << "ui::Manager::processUpdates: path=" << elem->path() << " still would trigger" << std::endl;
+            }
+        }
     }
 }
 
@@ -470,8 +482,10 @@ bool Manager::sync()
         int numUpdates = m_numUpdates;
         m_numUpdates = 0;
 
+
         if (round > 2)
             break;
+
         processUpdates(updates, numUpdates, round<1);
         ++round;
     }

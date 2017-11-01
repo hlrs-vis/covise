@@ -99,7 +99,7 @@ public:
 
     void updateHandMat(osg::Matrix &mat);
     void setHandType(int pt);
-    void setNavMode(NavMode mode);
+    void setNavMode(NavMode mode, bool updateGroup=true);
     NavMode getMode()
     {
         return navMode;

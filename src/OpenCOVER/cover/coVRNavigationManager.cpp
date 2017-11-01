@@ -160,10 +160,11 @@ coVRNavigationManager::coVRNavigationManager()
 {
     assert(!s_instance);
 
-    init();
     oldKeyMask = 0;
     oldSelectedNode_ = NULL;
     oldShowNamesNode_ = NULL;
+
+    init();
 }
 
 void coVRNavigationManager::init()
@@ -381,7 +382,7 @@ void coVRNavigationManager::initMenu()
     traverseInteractorButton_->setText("Traverse interactors");
     traverseInteractorButton_->setEnabled(false);
     traverseInteractorButton_->setVisible(false);
-    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value)); });
+    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
 
     collisionButton_ = new ui::Button(navMenu_, "Collision");
     collisionButton_->setState(collision);
@@ -1332,7 +1333,7 @@ coVRNavigationManager::update()
     }
 }
 
-void coVRNavigationManager::setNavMode(NavMode mode)
+void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
 {
     //std::cerr << "navMode = " << mode << ", was " <<  navMode << ", old = " << oldNavMode << std::endl;
 
@@ -1366,30 +1367,48 @@ void coVRNavigationManager::setNavMode(NavMode mode)
     {
     case XForm:
         interactionA->setName("Xform");
+        if (xformButton_)
+            xformButton_->setState(true, updateGroup);
         break;
     case XFormRotate:
         interactionA->setName("XformRotate");
+        if (xformRotButton_)
+            xformRotButton_->setState(true, updateGroup);
         break;
     case XFormTranslate:
         interactionA->setName("XformTranslate");
+        if (xformTransButton_)
+            xformTransButton_->setState(true, updateGroup);
         break;
     case Scale:
         interactionA->setName("Scale");
+        if (scaleButton_)
+            scaleButton_->setState(true, updateGroup);
         break;
     case Fly:
         interactionA->setName("Fly");
+        if (flyButton_)
+            flyButton_->setState(true, updateGroup);
         break;
     case Walk:
         interactionA->setName("Walk");
+        if (walkButton_)
+            walkButton_->setState(true, updateGroup);
         break;
     case Glide:
         interactionA->setName("Drive");
+        if (driveButton_)
+            driveButton_->setState(true, updateGroup);
         break;
     case ShowName:
         interactionA->setName("ShowName");
+        if (showNameButton_)
+            showNameButton_->setState(true, updateGroup);
         break;
     case TraverseInteractors:
         interactionA->setName("TraverseInteractors");
+        if (traverseInteractorButton_)
+            traverseInteractorButton_->setState(true, updateGroup);
         break;
     case Menu:
         interactionA->setName("Menu");
@@ -1397,41 +1416,28 @@ void coVRNavigationManager::setNavMode(NavMode mode)
         break;
     case NavNone:
         interactionA->setName("NoNavigation");
+        if (noNavButton_)
+            noNavButton_->setState(true, updateGroup);
         break;
     case Measure:
         interactionA->setName("Measure");
+        if (measureButton_)
+            measureButton_->setState(true, updateGroup);
         break;
     case Select:
         interactionA->setName("Select");
+        if (selectButton_)
+            selectButton_->setState(true, updateGroup);
         break;
     case SelectInteract:
         interactionA->setName("SelectInteract");
+        if (selectInteractButton_)
+            selectInteractButton_->setState(true, updateGroup);
         break;
     default:
         fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
         break;
     }
-
-    if (xformButton_)
-        xformButton_->setState(mode == XForm);
-    if (scaleButton_)
-        scaleButton_->setState(mode == Scale);
-    if (flyButton_)
-        flyButton_->setState(mode == Fly);
-    if (walkButton_)
-        walkButton_->setState(mode == Walk);
-    if (driveButton_)
-        driveButton_->setState(mode == Glide);
-    if (showNameButton_)
-        showNameButton_->setState(mode == ShowName);
-    if (selectInteractButton_)
-        selectInteractButton_->setState(mode == SelectInteract);
-    if (traverseInteractorButton_)
-        traverseInteractorButton_->setState(mode == TraverseInteractors);
-    if (measureButton_)
-        measureButton_->setState(mode == Measure);
-    if (selectButton_)
-        selectButton_->setState(mode == Select);
 
     if (mode == NavNone || coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
     {
