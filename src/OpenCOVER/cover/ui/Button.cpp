@@ -57,9 +57,9 @@ void Button::setState(bool flag, bool updateGroup)
     {
         m_state = flag;
         manager()->queueUpdate(this, UpdateState);
-        if (updateGroup && group())
-            group()->toggle(this);
     }
+    if (updateGroup && group())
+        group()->toggle(this);
 }
 
 void Button::setCallback(const std::function<void(bool)> &f)
@@ -74,14 +74,13 @@ std::function<void(bool)> Button::callback() const
 
 void Button::triggerImplementation() const
 {
-    if (group())
-        group()->toggle(this);
     if (m_callback)
         m_callback(m_state);
 }
 
 void Button::radioTrigger() const
 {
+    //std::cerr << "radioTrigger, state=" << state() << ": " << this->path() << std::endl;
     if (m_callback)
         m_callback(m_state);
 }
@@ -103,6 +102,7 @@ void Button::load(covise::TokenBuffer &buf)
 {
     Element::load(buf);
     buf >> m_state;
+    //std::cerr << "Button::load " << path() << ": state=" << m_state << std::endl;
 }
 
 void Button::shortcutTriggered()
