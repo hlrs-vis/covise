@@ -583,6 +583,7 @@ bool OpenCOVER::init()
 
     new VRVruiRenderInterface();
 
+    coVRAnimationManager::instance();
     coVRShaderList::instance()->update();
 
     // init scene graph
@@ -708,7 +709,6 @@ bool OpenCOVER::init()
 
     ARToolKit::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
-    coVRAnimationManager::instance();
 
     coVRTui::instance()->config();
 
