@@ -832,7 +832,7 @@ void coVRPluginSupport::setCurrentCursor(osgViewer::GraphicsWindow::MouseCursor 
     currentCursor = cursor;
     for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
     {
-        if (coVRConfig::instance()->windows[i].window)
+        if (coVRConfig::instance()->windows[i].window && cursorVisible)
             coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
     }
 }
@@ -840,27 +840,19 @@ void coVRPluginSupport::setCurrentCursor(osgViewer::GraphicsWindow::MouseCursor 
 // make the cursor visible or invisible
 void coVRPluginSupport::setCursorVisible(bool visible)
 {
-    static bool isVisible = true;
-    if (visible && (!isVisible))
+    if (visible != cursorVisible)
     {
         for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
         {
             if (coVRConfig::instance()->windows[i].window)
             {
-                coVRConfig::instance()->windows[i].window->useCursor(true);
-                coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
+                if (visible)
+                    coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
+                coVRConfig::instance()->windows[i].window->useCursor(visible);
             }
         }
     }
-    if (!visible && (isVisible))
-    {
-        for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
-        {
-            if (coVRConfig::instance()->windows[i].window)
-                coVRConfig::instance()->windows[i].window->useCursor(false);
-        }
-    }
-    isVisible = visible;
+    cursorVisible = visible;
 }
 
 //-----

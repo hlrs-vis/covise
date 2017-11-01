@@ -666,6 +666,7 @@ private:
     double lastFrameStartTime;
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
+    bool cursorVisible = true;
     vrml::Player *player = nullptr;
     std::list<void (*)()> playerUseList;
 

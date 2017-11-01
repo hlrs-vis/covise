@@ -1110,13 +1110,13 @@ bool OpenCOVER::frame()
 
     // NO MODIFICATION OF SCENEGRAPH DATA AFTER THIS POINT
 
-    if (cover->frameRealTime() > Input::instance()->mouse()->eventTime() + 1.5)
-    {
-        cover->setCursorVisible(false);
-    }
-    else if (coVRMSController::instance()->isMaster())
+    if (coVRMSController::instance()->isMaster() && cover->frameRealTime() < Input::instance()->mouse()->eventTime() + 1.5)
     {
         cover->setCursorVisible(coVRConfig::instance()->mouseNav());
+    }
+    else
+    {
+        cover->setCursorVisible(false);
     }
 
     coVRMSController::instance()->syncVRBMessages();
