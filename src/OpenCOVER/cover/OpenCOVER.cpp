@@ -823,7 +823,6 @@ class CheckVisitor: public osg::NodeVisitor
 
 void OpenCOVER::loop()
 {
-    bool renderRequired = true;
     while (!exitFlag)
     {
         if(VRViewer::instance()->done())
@@ -938,7 +937,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 }
             }
 
-            cover->ui->keyEvent(type, code, state);
+            cover->ui->keyEvent(type, state, code);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
         }
@@ -949,7 +948,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
     {
         if (!cover->isKeyboardGrabbed())
         {
-            cover->ui->keyEvent(type, code, state);
+            cover->ui->keyEvent(type, state, code);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
         }

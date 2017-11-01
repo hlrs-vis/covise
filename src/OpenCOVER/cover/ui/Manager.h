@@ -69,8 +69,10 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! trigger internal book-keeping and updates
    /** return true if any change occurred */
    bool update();
-   //! trigger short-cuts configured for user interface elements
-   bool keyEvent(int type, int keySym, int mod) const;
+   //! trigger keyboard short-cuts configured for user interface elements
+   bool keyEvent(int type, int mod, int keySym) const;
+   //! trigger short-cuts from input button presses
+   bool buttonEvent(int buttons) const;
 
    //! mark an element for syncing its state to slaves, optionally triggering its action
    void queueUpdate(const Element *elem, Element::UpdateMaskType mask, bool trigger=false);

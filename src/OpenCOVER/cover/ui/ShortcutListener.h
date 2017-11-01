@@ -16,6 +16,14 @@ enum Modifiers {
     ModMeta=8
 };
 
+enum MouseButton {
+    Left = 1,
+    Middle = 2,
+    Right = 4,
+    ScrollUp = 8,
+    ScrollDown = 16
+};
+
 //! mix-in class for UI \ref Element "elements" reacting to keyboard shortcuts
 class COVER_UI_EXPORT ShortcutListener
 {
@@ -25,14 +33,16 @@ class COVER_UI_EXPORT ShortcutListener
    void addShortcut(const std::string &shortcut);
    bool hasShortcut() const;
    bool matchShortcut(int mod, int sym) const;
+   bool matchButton(int mod, int button) const;
 
    virtual void shortcutTriggered();
 
  private:
    struct Shortcut
    {
-       int modifiers=ModNone;;
+       int modifiers=ModNone;
        int symbol=0;
+       int button=0;
    };
    std::vector<Shortcut> m_shortcuts;
 };

@@ -358,6 +358,7 @@ private:
     ui::Button *measureButton_=nullptr, *traverseInteractorButton_=nullptr;
     ui::Button *collisionButton_=nullptr, *snapButton_=nullptr;
     ui::Slider *driveSpeedSlider_=nullptr;
+    ui::Action *scaleUpAction_=nullptr, *scaleDownAction_=nullptr;
 
     osg::Vec3 rotPointVec;
     osg::ref_ptr<osg::MatrixTransform> rotPoint;

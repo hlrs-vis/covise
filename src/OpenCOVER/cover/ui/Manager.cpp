@@ -260,56 +260,142 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-bool Manager::keyEvent(int type, int keySym, int mod) const
+bool Manager::keyEvent(int type, int mod, int keySym) const
 {
-    if (type != osgGA::GUIEventAdapter::KEYDOWN)
-        return false;
-
     bool handled = false;
 
-    bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
-    bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
-    bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
-    bool meta = mod & osgGA::GUIEventAdapter::MODKEY_META;
+    if (type == osgGA::GUIEventAdapter::KEYDOWN)
+    {
+        std::cerr << "key: ";
 
-    if (shift && std::isupper(keySym))
-    {
-        //std::cerr << "ui::Manager: mapping to lower" << std::endl;
-        keySym = std::tolower(keySym);
+        bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
+        bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
+        bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
+        bool meta = mod & osgGA::GUIEventAdapter::MODKEY_META;
+
+        int modifiers = 0;
+        if (meta)
+        {
+            modifiers |= ModMeta;
+            std::cerr << "meta+";
+        }
+        if (ctrl)
+        {
+            modifiers |= ModCtrl;
+            std::cerr << "ctrl+";
+        }
+        if (alt)
+        {
+            modifiers |= ModAlt;
+            std::cerr << "alt+";
+        }
+        if (shift)
+        {
+            modifiers |= ModShift;
+            std::cerr << "shift+";
+        }
+
+        if (shift && std::isupper(keySym))
+        {
+            //std::cerr << "ui::Manager: mapping to lower" << std::endl;
+            keySym = std::tolower(keySym);
+        }
+        std::cerr << "'" << (char)keySym << "'" << std::endl;
+
+        for (auto &elemPair: m_elements)
+        {
+            auto &elem = elemPair.second;
+            if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
+            {
+                elem->shortcutTriggered();
+                if (handled)
+                {
+                    std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                }
+                handled = true;
+                continue;
+            }
+        }
     }
+    else if (type == osgGA::GUIEventAdapter::RELEASE
+             || type == osgGA::GUIEventAdapter::SCROLL)
+    {
+        std::cerr << "mouse: ";
+
+        int button = 0;
+        int modifiers = 0;
+        if (type == osgGA::GUIEventAdapter::RELEASE)
+        {
+            if (mod == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+                button = Left;
+            if (mod == osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON)
+                button = Middle;
+            if (mod == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON)
+                button = Right;
+        }
+        else
+        {
+            if (mod == osgGA::GUIEventAdapter::SCROLL_UP)
+                button = ScrollUp;
+            if (mod == osgGA::GUIEventAdapter::SCROLL_DOWN)
+                button = ScrollDown;
+        }
+
+        switch (button)
+        {
+        case Left:
+            std::cerr << "Left" << std::endl;
+            break;
+        case Middle:
+            std::cerr << "Middle" << std::endl;
+            break;
+        case Right:
+            std::cerr << "Right" << std::endl;
+            break;
+        case ScrollUp:
+            std::cerr << "ScrollUp" << std::endl;
+            break;
+        case ScrollDown:
+            std::cerr << "ScrollDown" << std::endl;
+            break;
+        }
+
+        if (button != 0)
+        {
+            for (auto &elemPair: m_elements)
+            {
+                auto &elem = elemPair.second;
+                if (elem->enabled() && elem->matchButton(modifiers, button))
+                {
+                    elem->shortcutTriggered();
+                    if (handled)
+                    {
+                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                    }
+                    handled = true;
+                    continue;
+                }
+            }
+        }
+    }
+
+    return handled;
+}
+
+bool Manager::buttonEvent(int button) const
+{
+    bool handled = false;
     int modifiers = 0;
-    std::cerr << "key: ";
-    if (meta)
-    {
-        modifiers |= ModMeta;
-        std::cerr << "meta+";
-    }
-    if (ctrl)
-    {
-        modifiers |= ModCtrl;
-        std::cerr << "ctrl+";
-    }
-    if (alt)
-    {
-        modifiers |= ModAlt;
-        std::cerr << "alt+";
-    }
-    if (shift)
-    {
-        modifiers |= ModShift;
-        std::cerr << "shift+";
-    }
-    std::cerr << "'" << (char)keySym << "'" << std::endl;
 
     for (auto &elemPair: m_elements)
     {
         auto &elem = elemPair.second;
-        if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
+        if (elem->enabled() && elem->matchButton(modifiers, button))
         {
             elem->shortcutTriggered();
             if (handled)
             {
-                std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                std::cerr << "ui::Manager: duplicate mapping for button on " << elem->path() << std::endl;
             }
             handled = true;
             continue;

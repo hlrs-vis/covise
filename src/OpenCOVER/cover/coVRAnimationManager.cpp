@@ -119,6 +119,7 @@ void coVRAnimationManager::initAnimMenu()
     animBackItem = new ui::Action(animRowMenu, "StepBackward");
     animBackItem->setText("Step backward");
     animBackItem->setShortcut(",");
+    //animForwardItem->addShortcut("Alt+MouseScrollDown");
     animBackItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -130,6 +131,7 @@ void coVRAnimationManager::initAnimMenu()
     animForwardItem = new ui::Action(animRowMenu, "StepForward");
     animForwardItem->setText("Step forward");
     animForwardItem->setShortcut(".");
+    //animForwardItem->addShortcut("Alt+MouseScrollUp");
     animForwardItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);

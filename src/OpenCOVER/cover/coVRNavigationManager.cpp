@@ -395,6 +395,30 @@ void coVRNavigationManager::initMenu()
     driveSpeedSlider_->setBounds(0., 30.);
     driveSpeedSlider_->setValue(driveSpeed);;
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+
+    scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
+    scaleUpAction_->setText("SCale up");
+    scaleUpAction_->setVisible(false);
+    scaleUpAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() * 1.1f);
+        stopMouseNav();
+    });
+    scaleUpAction_->setShortcut("=");
+    scaleUpAction_->addShortcut("+");
+    scaleUpAction_->addShortcut("Shift++");
+    scaleUpAction_->addShortcut("Button:ScrollUp");
+    scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
+    scaleDownAction_->setText("SCale down");
+    scaleDownAction_->setVisible(false);
+    scaleDownAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() / 1.1f);
+        stopMouseNav();
+    });
+    scaleDownAction_->setShortcut("-");
+    scaleDownAction_->addShortcut("Button:ScrollDown");
+
 #if 0
     ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
 #endif
@@ -463,17 +487,6 @@ bool coVRNavigationManager::keyEvent(int type, int keySym, int mod)
         {
             // halt
             currentVelocity = 0;
-            handled = true;
-        }
-        else if (keySym == '=' || keySym == '+')
-        {
-            // should check keyboard language
-            doScale(cover->getScale() * 1.1);
-            handled = true;
-        }
-        else if (keySym == '-')
-        {
-            doScale(cover->getScale() * 0.9);
             handled = true;
         }
     }
