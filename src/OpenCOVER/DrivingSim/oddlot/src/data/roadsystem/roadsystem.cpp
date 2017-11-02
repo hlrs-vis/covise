@@ -22,6 +22,8 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/signalreference.hpp"
+#include "src/data/roadsystem/sections/objectreference.hpp"
 
 #include "rsystemelementroad.hpp"
 #include "rsystemelementcontroller.hpp"
@@ -752,62 +754,100 @@ RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
         RSystemElementRoad *road = it.value();
         QStringList parts = road->getID().split("_");
 
-        if (tileId == parts.at(0))
-        {
+		if (tileId == parts.at(0))
+		{
 
-            RoadLink *predecessor = road->getPredecessor();
+			RoadLink *predecessor = road->getPredecessor();
 
-            if (predecessor != NULL)
-            {
+			if (predecessor != NULL)
+			{
 				QString id = predecessor->getElementId();
 				QString type = predecessor->getElementType();
 				QString newId = getNewId(idMap, id, type);
-				
+
 				if (newId != id)
-                {
-                    RoadLink *roadLink = new RoadLink(type, newId, predecessor->getContactPoint());
-                    road->setPredecessor(roadLink);
-                }
-                else
-                {
-//                    qDebug() << "Road " << road->getID() << " Predecessor " << predecessor->getElementId() << " has the old ID!";
-                }
-            }
+				{
+					RoadLink *roadLink = new RoadLink(type, newId, predecessor->getContactPoint());
+					road->setPredecessor(roadLink);
+				}
+				else
+				{
+					//                    qDebug() << "Road " << road->getID() << " Predecessor " << predecessor->getElementId() << " has the old ID!";
+				}
+			}
 
-            RoadLink *successor = road->getSuccessor();
+			RoadLink *successor = road->getSuccessor();
 
-            if (successor != NULL)
-            {
-                QString id = successor->getElementId();
+			if (successor != NULL)
+			{
+				QString id = successor->getElementId();
 				QString type = successor->getElementType();
 				QString newId = getNewId(idMap, id, type);
-				
+
 				if (newId != id)
-                {
-                    RoadLink *roadLink = new RoadLink(type, newId, successor->getContactPoint());
-                    road->setSuccessor(roadLink);
-                }
-                else
-                {
-//                    qDebug() << "Road " << road->getID() << " Successor " << successor->getElementId() << " has the old ID!";
-                }
-            }
+				{
+					RoadLink *roadLink = new RoadLink(type, newId, successor->getContactPoint());
+					road->setSuccessor(roadLink);
+				}
+				else
+				{
+					//                    qDebug() << "Road " << road->getID() << " Successor " << successor->getElementId() << " has the old ID!";
+				}
+			}
 
-            QString junction = road->getJunction();
+			QString junction = road->getJunction();
 
-            if (junction != "-1")
-            {
+			if (junction != "-1")
+			{
 				QString newId = getNewId(idMap, junction, "junction");
-                if (junction != newId)
-                {
-                    road->setJunction(newId);
-                }
-                else
-                {
-//                    qDebug() << "Road " << road->getID() << " Junction " << junction << " has the old ID!";
-                }
-            }
-        }
+				if (junction != newId)
+				{
+					road->setJunction(newId);
+				}
+				else
+				{
+					//                    qDebug() << "Road " << road->getID() << " Junction " << junction << " has the old ID!";
+				}
+			}
+		}
+
+		// SignalReferences //
+		//
+		QMap<double, SignalReference *>::const_iterator signalRefIt = road->getSignalReferences().constBegin();
+
+		while (signalRefIt != road->getSignalReferences().constEnd())
+		{
+			SignalReference *entry = signalRefIt.value();
+
+			QString signalId = entry->getReferenceId();
+
+			QString newId = getNewId(idMap, signalId, "signal");
+			if (signalId != newId)
+			{
+				entry->setReferenceId(newId);
+			}
+
+			signalRefIt++;
+		}
+
+		// ObjectReferences //
+		//
+		QMap<double, ObjectReference *>::const_iterator objectRefIt = road->getObjectReferences().constBegin();
+
+		while (objectRefIt != road->getObjectReferences().constEnd())
+		{
+			ObjectReference *entry = objectRefIt.value();
+
+			QString objectId = entry->getReferenceId();
+
+			QString newId = getNewId(idMap, objectId, "object");
+			if (objectId != newId)
+			{
+				entry->setReferenceId(newId);
+			}
+
+			objectRefIt++;
+		}
 
         it++;
     }
@@ -877,6 +917,7 @@ RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
 
 		controlIt++;
 	}
+
     //FiddleJards //
     //
 

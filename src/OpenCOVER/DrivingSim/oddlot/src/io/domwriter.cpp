@@ -62,8 +62,10 @@
 
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/objectreference.hpp"
 #include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/signalreference.hpp"
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
@@ -300,16 +302,16 @@ DomWriter::visit(Object *object)
 
         do
         {
-            Object::ObjectOrientation orientation = object->getOrientation();
+            Signal::OrientationType orientation = object->getOrientation();
             
 
             int fromLane = 0;
             int toLane = 0;
-            if (orientation == Object::ObjectOrientation::NEGATIVE_TRACK_DIRECTION)
+            if (orientation == Signal::OrientationType::NEGATIVE_TRACK_DIRECTION)
             {
                 fromLane = object->getParentRoad()->getLaneSection(object->getSStart())->getRightmostLaneId();
             }
-            else if (orientation == Object::ObjectOrientation::POSITIVE_TRACK_DIRECTION)
+            else if (orientation == Signal::OrientationType::POSITIVE_TRACK_DIRECTION)
             {
                 toLane = object->getParentRoad()->getLaneSection(object->getSStart())->getLeftmostLaneId();
             }
@@ -457,12 +459,8 @@ DomWriter::visit(Object *object)
         objectElement.setAttribute("t", object->getT());
         objectElement.setAttribute("zOffset", object->getzOffset());
         objectElement.setAttribute("validLength", object->getValidLength());
-		if (object->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
-			objectElement.setAttribute("orientation", "-");
-		else if (object->getOrientation() == Object::POSITIVE_TRACK_DIRECTION)
-			objectElement.setAttribute("orientation", "+");
-		else
-			objectElement.setAttribute("orientaion", "none");
+
+		objectElement.setAttribute("orientation", Signal::parseOrientationTypeBack(object->getOrientation()));
         objectElement.setAttribute("length", object->getLength());
         objectElement.setAttribute("width", object->getWidth());
         objectElement.setAttribute("radius", object->getRadius());
@@ -535,6 +533,37 @@ DomWriter::visit(Object *object)
         currentObjectsElement_.appendChild(objectElement);
     }
 }
+
+//################//
+// SIGNALREFERENCE     //
+//################//
+
+void
+DomWriter::visit(ObjectReference *objectReference)
+{
+
+	QDomElement objectReferenceElement = doc_->createElement("objectReference");
+
+	objectReferenceElement.setAttribute("s", objectReference->getSStart());
+	objectReferenceElement.setAttribute("t", objectReference->getReferenceT());
+	objectReferenceElement.setAttribute("id", objectReference->getReferenceId());
+	objectReferenceElement.setAttribute("zOffset", objectReference->getReferenceZOffset());
+	objectReferenceElement.setAttribute("validLength", objectReference->getReferenceValidLength());
+	objectReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(objectReference->getReferenceOrientation()));
+
+	foreach(Signal::Validity validity, objectReference->getValidityList())
+	{
+		QDomElement validityElement = doc_->createElement("validity");
+
+		validityElement.setAttribute("fromLane", validity.fromLane);
+		validityElement.setAttribute("toLane", validity.toLane);
+
+		objectReferenceElement.appendChild(validityElement);
+	}
+
+	currentObjectsElement_.appendChild(objectReferenceElement);
+}
+
 
 //################//
 // BRIDGE       //
@@ -889,12 +918,8 @@ DomWriter::visit(Signal *signal)
         signalElement.setAttribute("dynamic", "yes");
     else
         signalElement.setAttribute("dynamic", "no");
-    if (signal->getOrientation() == Signal::BOTH_DIRECTIONS)
-        signalElement.setAttribute("orientation", "both");
-    else if (signal->getOrientation() == Signal::NEGATIVE_TRACK_DIRECTION)
-        signalElement.setAttribute("orientation", "-");
-    else
-        signalElement.setAttribute("orientation", "+");
+
+	signalElement.setAttribute("orientation", Signal::parseOrientationTypeBack(signal->getOrientation()));
     signalElement.setAttribute("zOffset", signal->getZOffset());
     signalElement.setAttribute("country", signal->getCountry());
     signalElement.setAttribute("type", signal->getType());
@@ -956,6 +981,35 @@ DomWriter::visit(Signal *signal)
     }
 */
 }
+
+//################//
+// SIGNALREFERENCE     //
+//################//
+
+void
+DomWriter::visit(SignalReference *signalReference)
+{
+
+	QDomElement signalReferenceElement = doc_->createElement("signalReference");
+
+	signalReferenceElement.setAttribute("s", signalReference->getSStart());
+	signalReferenceElement.setAttribute("t", signalReference->getReferenceT());
+	signalReferenceElement.setAttribute("id", signalReference->getReferenceId());
+	signalReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(signalReference->getReferenceOrientation()));
+
+	foreach (Signal::Validity validity, signalReference->getValidityList())
+	{
+		QDomElement validityElement = doc_->createElement("validity");
+
+		validityElement.setAttribute("fromLane", validity.fromLane);
+		validityElement.setAttribute("toLane", validity.toLane);
+
+		signalReferenceElement.appendChild(validityElement);
+	}
+
+	currentSignalsElement_.appendChild(signalReferenceElement);
+}
+
 
 //################//
 // SENSOR         //

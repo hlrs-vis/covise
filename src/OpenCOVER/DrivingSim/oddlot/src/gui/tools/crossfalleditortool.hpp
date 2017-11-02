@@ -20,6 +20,7 @@
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
+#include "ui_CrossfallRibbon.h"
 
 class QDoubleSpinBox;
 
@@ -60,6 +61,9 @@ public slots:
     void activateEditor();
     void handleToolClick(int);
     void setRadius();
+	void activateRibbonEditor();
+	void handleRibbonToolClick(int);
+	void setRibbonRadius();
 
     //################//
     // PROPERTIES     //
@@ -67,6 +71,7 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
+	Ui::CrossfallRibbon *ui_;
 
     QDoubleSpinBox *radiusEdit_;
 };
@@ -100,6 +105,7 @@ private:
     //################//
 
 private:
+
     double radius_;
 };
 

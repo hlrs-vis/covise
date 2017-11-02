@@ -39,8 +39,10 @@
 #include "src/data/roadsystem/rsystemelementjunctiongroup.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/objectreference.hpp"
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/signalreference.hpp"
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/surfaceobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
@@ -1345,19 +1347,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 			objectProps.zOffset = parseToDouble(child, "zOffset", 0.0, true); // optional
 			objectProps.validLength = parseToDouble(child, "validLength", 0.0, true); // optional
 			QString orientationString = parseToQString(child, "orientation", "+", true); // optional
+			objectProps.orientation = Signal::parseOrientationType(orientationString);
 
-			if (orientationString == "+")
-			{
-				objectProps.orientation = Object::POSITIVE_TRACK_DIRECTION;
-			}
-			else if (orientationString == "-")
-			{
-				objectProps.orientation = Object::NEGATIVE_TRACK_DIRECTION;
-			}
-			else
-			{
-				objectProps.orientation = Object::BOTH_DIRECTIONS;
-			}
 			objectProps.length = parseToDouble(child, "length", 0.0, true); // optional
 			objectProps.width = parseToDouble(child, "width", 0.0, true); // optional
 			objectProps.radius = parseToDouble(child, "radius", 0.0, true); // optional
@@ -1504,6 +1495,39 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		child = child.nextSiblingElement("object");
 	}
 
+	child = element.firstChildElement("objectReference");
+
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false);
+		double t = parseToDouble(child, "t", 0.0, false);
+		double zOffset = parseToDouble(child, "zOffset", 0.0, false);
+		double validLength = parseToDouble(child, "validLength", 0.0, false);
+		QString orientation = parseToQString(child, "orientation", false);
+
+		// Get validity record
+		QList<Signal::Validity> validities;
+		QDomElement objectChild = child.firstChildElement("validity");
+		while (!objectChild.isNull())
+		{
+			int fromLane = parseToInt(objectChild, "fromLane", 0, false); // mandatory
+			int toLane = parseToInt(objectChild, "toLane", 0, false); // mandatory
+
+			validities.append(Signal::Validity{ fromLane, toLane });
+
+			objectChild = objectChild.nextSiblingElement("validity");
+		}
+
+
+		ObjectReference *objectReference = new ObjectReference("", NULL, id, s, t, zOffset, validLength, Signal::parseOrientationType(orientation), validities);
+		road->addObjectReference(objectReference);
+
+		// Attempt to locate another signal
+		child = child.nextSiblingElement("objectReference");
+	}
+
 	// Find all bridges (unlimited)
 	child = element.firstChildElement("bridge");
 	while (!child.isNull())
@@ -1633,7 +1657,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
 {
     QDomElement child = element.firstChildElement("signal");
     while (!child.isNull())
-    {
+	{
         // Get mandatory attributes
         QString id = parseToQString(child, "id", "", false); // mandatory
         QString name = parseToQString(child, "name", "", false); // mandatory
@@ -1680,15 +1704,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             dynamic = false;
         }
         QString orientationString = parseToQString(child, "orientation", "+", false); // mandatory
-        Signal::OrientationType orientation = Signal::BOTH_DIRECTIONS;
-        if (orientationString == "+")
-        {
-            orientation = Signal::POSITIVE_TRACK_DIRECTION;
-        }
-        else if (orientationString == "-")
-        {
-            orientation = Signal::NEGATIVE_TRACK_DIRECTION;
-        }
+
         double zOffset = parseToDouble(child, "zOffset", 0.0, false); // mandatory
         QString country = parseToQString(child, "country", "Germany", false); // mandatory
         QString type = parseToQString(child, "type", "-1", false); // mandatory
@@ -1728,7 +1744,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         if (!objectChild.isNull())
         {
             fromLane = parseToInt(objectChild, "fromLane", 0, false); // mandatory
-            toLane = parseToInt(objectChild, "toLane", 0.0, false); // mandatory
+            toLane = parseToInt(objectChild, "toLane", 0, false); // mandatory
         }
         else
         {
@@ -1780,12 +1796,12 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             hOffset = name.toDouble();
 
             // Construct signal object
-            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, "", s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
         else
         {
             // Construct signal object
-            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, name, s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
 
 
@@ -1802,6 +1818,37 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         // Attempt to locate another signal
         child = child.nextSiblingElement("signal");
     } // Find all signals (unlimited)
+
+	child = element.firstChildElement("signalReference");
+
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false);
+		double t = parseToDouble(child, "t", 0.0, false);
+		QString orientation = parseToQString(child, "orientation", false);
+
+		// Get validity record
+		QList<Signal::Validity> validities;
+		QDomElement objectChild = child.firstChildElement("validity");
+		while (!objectChild.isNull())
+		{
+			int fromLane = parseToInt(objectChild, "fromLane", 0, false); // mandatory
+			int toLane = parseToInt(objectChild, "toLane", 0, false); // mandatory
+
+			validities.append(Signal::Validity{ fromLane, toLane });
+
+			objectChild = objectChild.nextSiblingElement("validity");
+		}
+
+
+		SignalReference *signalReference = new SignalReference("", NULL, id, s, t, Signal::parseOrientationType(orientation), validities);
+		road->addSignalReference(signalReference);
+
+		// Attempt to locate another signal
+		child = child.nextSiblingElement("signalReference");
+	}
 
     // Return successfully
     return true;

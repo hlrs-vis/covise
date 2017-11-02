@@ -378,7 +378,7 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 			t += lastObject->getObjectDistance();
 		}
 
-		Object::ObjectProperties objectProps{ t, Object::NEGATIVE_TRACK_DIRECTION, 0.0, lastObject->getObjectType(), 0.0, lastObject->getObjectLength(), lastObject->getObjectWidth(),
+		Object::ObjectProperties objectProps{ t, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, lastObject->getObjectType(), 0.0, lastObject->getObjectLength(), lastObject->getObjectWidth(),
 			lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
 			0.0, 0.0, false };
 
@@ -392,7 +392,7 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 	}
 	else
 	{
-		Object::ObjectProperties objectProps{ t, Object::NEGATIVE_TRACK_DIRECTION, 0.0, "", 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false };
+		Object::ObjectProperties objectProps{ t, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "", 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false };
 		Object::ObjectRepeatRecord repeatProps{ s, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 		Object *newObject = new Object("object", "", s, objectProps, repeatProps, "");
 		AddObjectCommand *command = new AddObjectCommand(newObject, road, NULL);

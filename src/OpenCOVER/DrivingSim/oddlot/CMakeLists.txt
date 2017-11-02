@@ -363,6 +363,8 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/sections/lanerule.cpp
 	src/data/roadsystem/sections/laneaccess.cpp
 	src/data/roadsystem/sections/parkingspaceobject.cpp
+	src/data/roadsystem/sections/objectreference.cpp
+	src/data/roadsystem/sections/signalreference.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
