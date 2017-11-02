@@ -124,7 +124,7 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
 	connect(ui->resetTimeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
 	connect(ui->resetTimeSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
-	if (signal_->getType() != 293)
+	if (signal_->getType() != "293")
 	{
 		enableCrossingParams(false);
 	}
@@ -180,17 +180,17 @@ SignalSettings::updateProperties()
 
 		//Pedestrian Crossing has ancillary data
 		//
-		if ((signal_->getType() == 293) && !ui->crossingPushButton->isVisible())
+		if ((signal_->getType() == "293") && !ui->crossingPushButton->isVisible())
 		{
 			enableCrossingParams(true);
 		}
-		else if (ui->crossingPushButton->isVisible() && (signal_->getType() != 293))
+		else if (ui->crossingPushButton->isVisible() && (signal_->getType() != "293"))
 		{
 			enableCrossingParams(false);
 		}
 
 		// User data //
-		if (signal_->getType() == 293)
+		if (signal_->getType() == "293")
 		{
 			ui->crossingSpinBox->setValue(signal_->getCrossingProbability());
 			ui->resetTimeSpinBox->setValue(signal_->getResetTime());
@@ -262,7 +262,7 @@ SignalSettings::onEditingFinished()
             toLane = fromLane;
         }
 
-        if (signal_->getType() != 293)
+        if (signal_->getType() != "293")
         {
             if (((t < 0) && ((fromLane > 0) || (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId()))) || ((t > 0) && ((fromLane < 0) || (fromLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId()))))
             {

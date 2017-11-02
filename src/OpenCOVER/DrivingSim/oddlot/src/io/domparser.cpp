@@ -1505,7 +1505,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		double t = parseToDouble(child, "t", 0.0, false);
 		double zOffset = parseToDouble(child, "zOffset", 0.0, false);
 		double validLength = parseToDouble(child, "validLength", 0.0, false);
-		QString orientation = parseToQString(child, "orientation", false);
+		QString orientation = parseToQString(child, "orientation", "none", false);
 
 		// Get validity record
 		QList<Signal::Validity> validities;
@@ -1791,7 +1791,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             ancillary = ancillary.nextSiblingElement("userData");
         }
 
-        if ((type == 625) && (subtype == 10) && (typeSubclass == "20"))
+        if ((type == "625") && (subtype == "10") && (typeSubclass == "20"))
         {
             hOffset = name.toDouble();
 
@@ -1827,7 +1827,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
 		QString id = parseToQString(child, "id", "", false); // mandatory
 		double s = parseToDouble(child, "s", 0.0, false);
 		double t = parseToDouble(child, "t", 0.0, false);
-		QString orientation = parseToQString(child, "orientation", false);
+		QString orientation = parseToQString(child, "orientation", "both", false);
 
 		// Get validity record
 		QList<Signal::Validity> validities;

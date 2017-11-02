@@ -750,7 +750,7 @@ DomWriter::visit(Signal *signal)
 
     //Pedestrian Crossing has ancillary data
     //
-    if (signal->getType() == 293)
+    if (signal->getType() == "293")
     {
         userData = doc_->createElement("userData");
 
@@ -772,31 +772,33 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("id", signal->getId());
     QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 
-    if (signal->getType() >= 0)
+    QString type = signal->getType();
+    QString subtype = signal->getSubtype();
+    if ((type != "-1") && (type != "none"))
     {
         if (!signal->getTypeSubclass().isEmpty())
         {
-            if (signal->getSubtype() >= 0)
+            if ((subtype != "-1") && (subtype != "none"))
             {
-                signalName = signal->getType() + "." + signal->getTypeSubclass() + "-" + signal->getSubtype();
+                signalName = type + "." + signal->getTypeSubclass() + "-" + subtype;
             }
             else
             {
-                signalName = signal->getType() + "." + signal->getTypeSubclass();
+                signalName = type + "." + signal->getTypeSubclass();
             }
         }
-        else if (signal->getSubtype() >= 0)
+        else if ((subtype != "-1") && (subtype != "none"))
         {
-            signalName = signal->getType() + "-" + signal->getSubtype();
+            signalName = type + "-" + subtype;
         }
         else
         {
-            signalName = signal->getType();
+            signalName = type;
         }
     }
 
     double hOffset = signal->getHeading();
-    if ((signal->getType() == 625) && (signal->getSubtype() == 10) && (signal->getTypeSubclass() == "20"))
+    if ((type == "625") && (subtype == "10") && (signal->getTypeSubclass() == "20"))
     {
         signalName += "_" + QString("%1").arg(qRound(signal->getHeading()));
         hOffset = 0.0;
@@ -1536,11 +1538,11 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
             }
-            else if (signalsType.at(i) == 2)
+            else if (signalsType.at(i) == "2")
             {
                 out << "      signal_" << control->getSignalId() << ".green=1;\n";
             }
@@ -1552,7 +1554,7 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
                 out << "      signal_" << control->getSignalId() << ".green=1;\n";
@@ -1564,7 +1566,7 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
                 out << "      signal_" << control->getSignalId() << ".green=0;\n";
@@ -1576,11 +1578,11 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
             }
-            else if (signalsType.at(i) == 2)
+            else if (signalsType.at(i) == "2")
             {
                 out << "      signal_" << control->getSignalId() << ".green=0;\n";
             }
