@@ -416,6 +416,7 @@ void QtView::updateText(const Element *elem)
         return;
     auto o = qtObject(elem);
     auto t = QString::fromStdString(elem->text());
+    t.replace('&', "&&");
     if (auto sa = dynamic_cast<QtSliderAction *>(o))
     {
         auto s = dynamic_cast<const Slider *>(elem);

@@ -734,65 +734,69 @@ int coBaseCoviseInteractor::getIntVectorParam(unsigned int paraNo, int &numElem,
         || !d_param[paraNo].value || strcmp(d_param[paraNo].type, "INTVEC"))
         return -1;
 
-    const char *str = d_param[paraNo].value;
-
-    if (!skipSpace(str))
-        return -1; // skip leading blanks, return if end
-
-    // get first number: number of elements
-    if (1 != sscanf(str, "%d", &numElem))
-        return -1;
-    val = new int[numElem];
-
-    if (!skipNonSpace(str))
-        return -1; // skip to next blank return if end
-
-    int i;
-    for (i = 0; i < numElem; i++)
+    if (!d_param[paraNo].value)
     {
-        if (!skipSpace(str))
-            return -1; // skip leading blanks, return if end
-        if (sscanf(str, "%d", &val[i]) != 1) // read one number
-        {
-            cerr << "coBaseCoviseInteractor::getIntVectorParam: sscanf failed" << endl;
-        }
-        if (!skipNonSpace(str))
-            return -1; // skip to next blank, return if end
+        cerr << "coBaseCoviseInteractor::getIntVectorParam: paraNo=" << paraNo << ": value=(null)" << std::endl;
+        return -1;
     }
+
+    std::stringstream str(d_param[paraNo].value);
+    str >> numElem;
+    if (numElem <= 0)
+    {
+        cerr << "coBaseCoviseInteractor::getIntVectorParam: paraNo=" << paraNo << ": invalud no. of elem=" << numElem << ", value=" <<d_param[paraNo].value << std::endl;
+        return -1;
+    }
+
+    val = new int[numElem];
+    for (int i = 0; i < numElem; i++)
+    {
+        str >> val[i];
+    }
+
     return 0;
 }
 
 int coBaseCoviseInteractor::getFloatVectorParam(unsigned int paraNo, int &numElem, float *&val) const
 {
-    if (paraNo >= d_numPara
-        || !d_param[paraNo].value || strcmp(d_param[paraNo].type, "FLOVEC"))
-        return -1;
-
-    const char *str = d_param[paraNo].value;
-
-    if (!skipSpace(str))
-        return -1; // skip leading blanks, return if end
-
-    // get first number: number of elements
-    if (1 != sscanf(str, "%d", &numElem))
-        return -1;
-    val = new float[numElem];
-
-    if (!skipNonSpace(str))
-        return -1; // skip to next blank return if end
-
-    int i;
-    for (i = 0; i < numElem; i++)
+    if (paraNo >= d_numPara)
     {
-        if (!skipSpace(str))
-            return -1; // skip leading blanks, return if end
-        if (sscanf(str, "%f", &val[i]) != 1) // read one number
-        {
-            cerr << "coBaseCoviseInteractor::getFloatVectorParam: sscanf failed" << endl;
-        }
-        if (!skipNonSpace(str))
-            return -1; // skip to next blank, return if end
+        cerr << "coBaseCoviseInteractor::getFloatVectorParam: paraNo=" << paraNo << " out of range (up to " << d_numPara << ")" << std::endl;
+        return -1;
     }
+
+    if (!d_param[paraNo].value)
+    {
+        cerr << "coBaseCoviseInteractor::getFloatVectorParam: paraNo=" << paraNo << ": no value" << std::endl;
+        return -1;
+    }
+
+    if (strcmp(d_param[paraNo].type, "FLOVEC"))
+    {
+        cerr << "coBaseCoviseInteractor::getFloatVectorParam: paraNo=" << paraNo << ": expected FLOVEC, got " << d_param[paraNo].type << std::endl;
+        return -1;
+    }
+
+    if (!d_param[paraNo].value)
+    {
+        cerr << "coBaseCoviseInteractor::getFloatVectorParam: paraNo=" << paraNo << ": value=(null)" << std::endl;
+        return -1;
+    }
+
+    std::stringstream str(d_param[paraNo].value);
+    str >> numElem;
+    if (numElem <= 0)
+    {
+        cerr << "coBaseCoviseInteractor::getFloatVectorParam: paraNo=" << paraNo << ": invalud no. of elem=" << numElem << ", value=" <<d_param[paraNo].value << std::endl;
+        return -1;
+    }
+
+    val = new float[numElem];
+    for (int i = 0; i < numElem; i++)
+    {
+        str >> val[i];
+    }
+
     return 0;
 }
 

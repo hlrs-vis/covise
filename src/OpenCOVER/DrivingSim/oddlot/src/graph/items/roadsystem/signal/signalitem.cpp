@@ -139,7 +139,7 @@ SignalItem::init()
 void
 SignalItem::updateCategory()
 {
-    if ((signal_->getType() == 294) || (signal_->getType() == 293) || (signal_->getType() == 341))
+    if ((signal_->getType() == "294") || (signal_->getType() == "293") || (signal_->getType() == "341"))
     {
         if (pixmapItem_)
         {
@@ -257,7 +257,7 @@ SignalItem::createPath()
 
     // Stopp line
     //
-    if (signal_->getType() == 294)
+    if (signal_->getType() == "294")
     {
         setPen(QPen(QColor(255, 255, 255), 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
@@ -286,7 +286,7 @@ SignalItem::createPath()
 			path.lineTo(pos + width * normal);
         }
     }
-    else if (signal_->getType() == 293)
+    else if (signal_->getType() == "293")
     {
         setPen(QPen(QColor(255, 255, 255), 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
