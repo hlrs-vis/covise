@@ -519,7 +519,8 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
             delete m;
             m = NULL;
         }
-        updateState();
+        if (domain == Default)
+            updateState();
     }
     return m;
 }

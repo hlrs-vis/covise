@@ -390,11 +390,23 @@ InputDevice *Input::getDevice(const std::string &name)
     {
         std::string conf = configPath("Device." + name);
         std::string type = coCoviseConfig::getEntry("driver", conf, "const");
-        if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(type.c_str(), coVRPluginList::Input))
+        if (type.empty())
         {
-            dev = findInMap(drivers, name);
-            if (dev)
-                return dev;
+            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(name.c_str(), coVRPluginList::Input))
+            {
+                dev = findInMap(drivers, name);
+                if (dev)
+                    return dev;
+            }
+        }
+        else if (type != "const")
+        {
+            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(type.c_str(), coVRPluginList::Input))
+            {
+                dev = findInMap(drivers, name);
+                if (dev)
+                    return dev;
+            }
         }
         //std::cerr << "Input: creating dev " << name << ", driver " << type << std::endl;
         DriverFactoryBase *plug = getDriverPlugin(coVRMSController::instance()->isMaster() ? type : "const");
