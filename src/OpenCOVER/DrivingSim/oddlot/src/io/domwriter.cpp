@@ -194,7 +194,7 @@ DomWriter::visit(RSystemElementRoad *road)
             QDomElement predElement = doc_->createElement("predecessor");
             predElement.setAttribute("elementType", pred->getElementType());
             predElement.setAttribute("elementId", pred->getElementId());
-            predElement.setAttribute("contactPoint", pred->getContactPoint());
+            predElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(pred->getContactPoint()));
             linkElement.appendChild(predElement);
         }
 
@@ -203,7 +203,7 @@ DomWriter::visit(RSystemElementRoad *road)
             QDomElement succElement = doc_->createElement("successor");
             succElement.setAttribute("elementType", succ->getElementType());
             succElement.setAttribute("elementId", succ->getElementId());
-            succElement.setAttribute("contactPoint", succ->getContactPoint());
+            succElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(succ->getContactPoint()));
             linkElement.appendChild(succElement);
         }
     }
@@ -1620,7 +1620,7 @@ DomWriter::visit(JunctionConnection *connection)
     element.setAttribute("id", connection->getId());
     element.setAttribute("incomingRoad", connection->getIncomingRoad());
     element.setAttribute("connectingRoad", connection->getConnectingRoad());
-    element.setAttribute("contactPoint", connection->getContactPoint());
+    element.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(connection->getContactPoint()));
 
     QDomElement userData = doc_->createElement("userData");
 
