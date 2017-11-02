@@ -251,9 +251,6 @@ void coInteractionManager::unregisterInteraction(coInteraction *interaction)
     if (!interaction)
         return; // this interaction is not registered
 
-    if (!interaction->registered)
-        return; // this interaction is not registered
-
     for (int i = 0; i < coInteraction::NumInteractorTypes; ++i)
     {
         // go through the list of active but unregisted interactions
@@ -272,6 +269,9 @@ void coInteractionManager::unregisterInteraction(coInteraction *interaction)
                 it++;
         }
     }
+
+    if (!interaction->registered)
+        return; // this interaction is not registered
 
     // remove the interaction icon
     // dr: sollte fuer active interactions verzoegert werden
