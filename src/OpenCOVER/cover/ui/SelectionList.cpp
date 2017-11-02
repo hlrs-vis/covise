@@ -41,16 +41,19 @@ void SelectionList::save(covise::TokenBuffer &buf) const
 
 void SelectionList::load(covise::TokenBuffer &buf)
 {
-    Element::load(buf);
-    int sz = 0;
-    buf >> sz;
-    assert(sz == m_selection.size());
-    for (size_t i=0; i<m_selection.size(); ++i)
-    {
-        bool s = false;
-        buf >> s;
-        m_selection[i] = s;
-    }
+	Element::load(buf);
+	int sz = 0;
+	buf >> sz;
+	if (sz > 0) // during startup we get an update with sz ++ 0 even though there is a list of four entries e.g. in draw style please check this Martin
+	{
+		assert(sz == m_selection.size());
+		for (size_t i = 0; i < m_selection.size(); ++i)
+		{
+			bool s = false;
+			buf >> s;
+			m_selection[i] = s;
+		}
+	}
 }
 
 void SelectionList::shortcutTriggered()

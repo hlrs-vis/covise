@@ -564,6 +564,8 @@ bool OpenCOVER::init()
 
     coVRPluginList::instance();
 
+	coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
+
 	Input::instance()->init();
     coVRTui::instance();
 
@@ -642,7 +644,6 @@ bool OpenCOVER::init()
         }
     }
 
-    coVRPluginList::instance()->loadDefault();
 
     if (coVRMSController::instance()->isMaster())
     {
