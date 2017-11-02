@@ -199,7 +199,7 @@ bool QtGraphicsWindow::setWindowRectangleImplementation(int x, int y, int width,
 
 void QtGraphicsWindow::swapBuffersImplementation()
 {
-    if (m_glWidget)
+    if (m_glWidget && m_glWidget->context())
         m_glWidget->context()->swapBuffers(m_glWidget->context()->surface());
 }
 
