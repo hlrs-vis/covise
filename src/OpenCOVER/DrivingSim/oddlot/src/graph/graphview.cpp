@@ -160,10 +160,7 @@ GraphView::shapeEditing(bool edit)
 	if (edit)
 	{
 		doShapeEdit_ = true;
-		// OpenScenario Editor
-		//
-		OpenScenarioEditor * editor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
-		shapeItem_ = new GraphViewShapeItem(this, editor, x(), y(), width(), height());
+		shapeItem_ = new GraphViewShapeItem(this, x(), y(), width(), height());
 		scene()->addItem(shapeItem_);
 	}
 	else if (doShapeEdit_)

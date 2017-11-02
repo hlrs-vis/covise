@@ -34,8 +34,6 @@
 //
 // #include "src/data/oscsystem/oscelement.hpp"
 
-// Graph //
-//
 #include "src/graph/editors/osceditor.hpp"
 
 #include <QMouseEvent>
@@ -49,12 +47,11 @@
 #include <cmath>
 
 
-GraphViewShapeItem::GraphViewShapeItem(GraphView *view, OpenScenarioEditor *editor, int x, int y, int width, int height) :
+GraphViewShapeItem::GraphViewShapeItem(GraphView *view, int x, int y, int width, int height) :
     QObject()
     , QGraphicsPathItem()
 	, selected(true)
     , view_(view)
-    , editor_(editor)
     , canvasWidth(width)
     , canvasHeight(height)
     , graphicItemGroup_(NULL)
