@@ -93,7 +93,7 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
     else if (key.length()>7 && key.substr(0, 7) == "button:")
     {
         std::string button = key.substr(7);
-        std::cerr << "ui::ShortcutListener: configuring button " << button << std::endl;
+        //std::cerr << "ui::ShortcutListener: configuring button " << button << std::endl;
         if (button == "action")
             sh.button = vrui::vruiButtons::ACTION_BUTTON;
         if (button == "drive")
