@@ -38,7 +38,6 @@ static const int NUM_TEXUNITS = 4;
 
 #include <osg/Group>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 #include <osgDB/WriteFile>
 
 #include "ViewerOsg.h"
