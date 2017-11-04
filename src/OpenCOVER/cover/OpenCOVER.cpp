@@ -427,7 +427,7 @@ bool OpenCOVER::init()
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
 
 #ifdef _OPENMP
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "default");
     if (openmpThreads == "default")
     {
     }
