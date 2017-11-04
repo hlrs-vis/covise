@@ -373,7 +373,7 @@ void coVRNavigationManager::initMenu()
     selectInteractButton_ = new ui::Button(navMenu_, "SelectInteract", navGroup_, SelectInteract);
     selectInteractButton_->setText("Pick & interact");
     selectInteractButton_->setPriority(ui::Element::Toolbar);
-    selectInteractButton_->setShortcut("i");
+    selectInteractButton_->setShortcut("p");
     selectInteractButton_->setEnabled(false);
     selectInteractButton_->setVisible(false);
     measureButton_ = new ui::Button(navMenu_, "Measure", navGroup_, Measure);
@@ -407,7 +407,7 @@ void coVRNavigationManager::initMenu()
     scaleUpAction_->setShortcut("=");
     scaleUpAction_->addShortcut("+");
     scaleUpAction_->addShortcut("Shift++");
-    scaleUpAction_->addShortcut("Button:ScrollUp");
+    scaleUpAction_->addShortcut("Button:WheelDown");
     scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
     scaleDownAction_->setText("SCale down");
     scaleDownAction_->setVisible(false);
@@ -417,7 +417,7 @@ void coVRNavigationManager::initMenu()
         stopMouseNav();
     });
     scaleDownAction_->setShortcut("-");
-    scaleDownAction_->addShortcut("Button:ScrollDown");
+    scaleDownAction_->addShortcut("Button:WheelUp");
 
 #if 0
     ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
@@ -487,36 +487,6 @@ bool coVRNavigationManager::keyEvent(int type, int keySym, int mod)
         {
             // halt
             currentVelocity = 0;
-            handled = true;
-        }
-    }
-    return handled;
-}
-
-bool coVRNavigationManager::mouseEvent(int type, int state, int code)
-{
-    (void)code;
-
-    bool handled = false;
-    if (type == osgGA::GUIEventAdapter::MOVE)
-    {
-        return false;
-    }
-
-    if (type == osgGA::GUIEventAdapter::SCROLL)
-    {
-        if (state == osgGA::GUIEventAdapter::SCROLL_UP)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 1.1);
-            stopMouseNav();
-            handled = true;
-        }
-        else if (state == osgGA::GUIEventAdapter::SCROLL_DOWN)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 0.9);
-            stopMouseNav();
             handled = true;
         }
     }

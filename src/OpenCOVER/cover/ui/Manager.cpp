@@ -260,12 +260,47 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-bool Manager::keyEvent(int type, int mod, int keySym) const
+bool Manager::keyEvent(int type, int mod, int keySym)
 {
     bool handled = false;
 
-    if (type == osgGA::GUIEventAdapter::KEYDOWN)
+    if (type == osgGA::GUIEventAdapter::KEYDOWN
+            || type == osgGA::GUIEventAdapter::KEYUP)
     {
+        bool down = type==osgGA::GUIEventAdapter::KEYDOWN;
+        if (keySym == osgGA::GUIEventAdapter::KEY_Shift_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Shift_R)
+        {
+            if (down)
+                m_modifiers |= ModShift;
+            else
+                m_modifiers &= ~ModShift;
+        }
+        if (keySym == osgGA::GUIEventAdapter::KEY_Control_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Control_R)
+        {
+            if (down)
+                m_modifiers |= ModCtrl;
+            else
+                m_modifiers &= ~ModCtrl;
+        }
+        if (keySym == osgGA::GUIEventAdapter::KEY_Alt_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Alt_R)
+        {
+            if (down)
+                m_modifiers |= ModAlt;
+            else
+                m_modifiers &= ~ModAlt;
+        }
+        if (keySym == osgGA::GUIEventAdapter::KEY_Meta_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Meta_R)
+        {
+            if (down)
+                m_modifiers |= ModMeta;
+            else
+                m_modifiers &= ~ModMeta;
+        }
+
         std::cerr << "key: ";
 
         bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
@@ -295,25 +330,31 @@ bool Manager::keyEvent(int type, int mod, int keySym) const
             std::cerr << "shift+";
         }
 
-        if (shift && std::isupper(keySym))
-        {
-            //std::cerr << "ui::Manager: mapping to lower" << std::endl;
-            keySym = std::tolower(keySym);
-        }
-        std::cerr << "'" << (char)keySym << "'" << std::endl;
+        std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
+        //m_modifiers = modifiers;
 
-        for (auto &elemPair: m_elements)
+        if (down)
         {
-            auto &elem = elemPair.second;
-            if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
+            if (shift && std::isupper(keySym))
             {
-                elem->shortcutTriggered();
-                if (handled)
+                //std::cerr << "ui::Manager: mapping to lower" << std::endl;
+                keySym = std::tolower(keySym);
+            }
+            std::cerr << "'" << (char)keySym << "'" << std::endl;
+
+            for (auto &elemPair: m_elements)
+            {
+                auto &elem = elemPair.second;
+                if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
                 {
-                    std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                    elem->shortcutTriggered();
+                    if (handled)
+                    {
+                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                    }
+                    handled = true;
+                    continue;
                 }
-                handled = true;
-                continue;
             }
         }
     }
@@ -385,12 +426,11 @@ bool Manager::keyEvent(int type, int mod, int keySym) const
 bool Manager::buttonEvent(int button) const
 {
     bool handled = false;
-    int modifiers = 0;
 
     for (auto &elemPair: m_elements)
     {
         auto &elem = elemPair.second;
-        if (elem->enabled() && elem->matchButton(modifiers, button))
+        if (elem->enabled() && elem->matchButton(m_modifiers, button))
         {
             elem->shortcutTriggered();
             if (handled)

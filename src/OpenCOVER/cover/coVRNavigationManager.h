@@ -84,7 +84,6 @@ public:
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    bool mouseEvent(int type, int state, int code);
 
     void doWalkMoveToFloor();
     void processHotKeys(int keymask);

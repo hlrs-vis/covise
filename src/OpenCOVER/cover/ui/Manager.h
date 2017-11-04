@@ -70,7 +70,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    /** return true if any change occurred */
    bool update();
    //! trigger keyboard short-cuts configured for user interface elements
-   bool keyEvent(int type, int mod, int keySym) const;
+   bool keyEvent(int type, int mod, int keySym);
    //! trigger short-cuts from input button presses
    bool buttonEvent(int buttons) const;
 
@@ -94,6 +94,8 @@ class COVER_UI_EXPORT Manager: public Owner {
    std::shared_ptr<covise::TokenBuffer> m_updates;
    void flushUpdates();
    void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
+
+   int m_modifiers = 0;
 };
 
 }
