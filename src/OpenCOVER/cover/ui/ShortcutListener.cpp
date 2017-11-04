@@ -138,7 +138,7 @@ bool ShortcutListener::matchShortcut(int mod, int sym) const
 {
     for (const auto &sh: m_shortcuts)
     {
-        if (sh.modifiers == mod && sh.symbol == sym)
+        if (sh.symbol && sh.modifiers == mod && sh.symbol == sym)
             return true;
     }
 
@@ -149,7 +149,7 @@ bool ShortcutListener::matchButton(int mod, int button) const
 {
     for (const auto &sh: m_shortcuts)
     {
-        if (sh.modifiers == mod && sh.button == button)
+        if (sh.button && sh.modifiers == mod && sh.button == button)
             return true;
     }
 
