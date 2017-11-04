@@ -31,7 +31,6 @@ SET(COVER_HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
-  coIntersectionUtil.h
   coPartnerMenuItem.h
   coVrbRegistryAccess.h
   coVRCommunication.h
@@ -133,7 +132,6 @@ SET(COVER_SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
-  coIntersectionUtil.cpp
   coPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp

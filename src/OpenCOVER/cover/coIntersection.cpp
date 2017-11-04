@@ -30,15 +30,10 @@
 
 #include "coVRNavigationManager.h"
 #include "coVRIntersectionInteractorManager.h"
-#include "coIntersectionUtil.h"
 #include "coVRMSController.h"
 
 #include <util/coWristWatch.h>
 #include <numeric>
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 using namespace osg;
 using namespace osgUtil;
@@ -52,17 +47,9 @@ int coIntersection::myFrameIndex = -1;
 int coIntersection::myFrame = 0;
 
 coIntersection::coIntersection()
-#ifdef _OPENMP
-    : elapsedTimes(omp_get_max_threads())
-#else
     : elapsedTimes(1)
-#endif
 {
     assert(!intersector);
-
-    // should match OpenCOVER.cpp
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
-    useOmp = openmpThreads != "off";
 
     //VRUILOG("coIntersection::<init> info: creating");
 
@@ -165,28 +152,7 @@ void coIntersection::intersect()
 
 void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
 {
-#if 0
-#ifdef _OPENMP
-    if (useOmp)
-    {
-	intersectTemp<opencover::Private::coIntersectionVisitor>(handMat, mouseHit);
-    }
-    else
-#endif
-    {
-	intersectTemp<IntersectVisitor>(handMat, mouseHit);
-    }
-#else
-    intersectTemp<IntersectionVisitor>(handMat, mouseHit);
-#endif
-}
-
-template<class IsectVisitor>
-void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
-{
-
     //VRUILOG("coIntersection::intersect info: called");
-
     Vec3 q0, q1;
 
     q0.set(0.0f, 0.0f, 0.0f);
@@ -213,7 +179,7 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
 
     if (q0 != q1)
     {
-        IsectVisitor visitor;
+        IntersectionVisitor visitor;
         if (numIsectAllNodes > 0)
         {
             visitor.setTraversalMask(Isect::Pick);
@@ -233,11 +199,7 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
 
             if (isVerboseIntersection())
             {
-#ifdef _OPENMP
-                elapsedTimes[omp_get_max_threads() - 1].push_back(watch.elapsed());
-#else
                 elapsedTimes[0].push_back(watch.elapsed());
-#endif
                 std::cerr << " avg. intersection times";
                 for (size_t ctr = 0; ctr < elapsedTimes.size(); ++ctr)
                 {
@@ -252,11 +214,6 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
         auto isects = intersector->getIntersections();
         //VRUILOG("coIntersection::intersect info: hit");
         //fprintf(stderr, " --- HIT \n");
-
-#if 0
-        std::vector<osgUtil::Hit> hitList;
-        hitList = visitor.getHitList(ray.get());
-#endif
 
         // check which node in the hit list is also visible
         bool hasVisibleHit = false;

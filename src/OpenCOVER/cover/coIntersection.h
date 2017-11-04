@@ -23,7 +23,7 @@
 
 #include <OpenVRUI/sginterface/vruiIntersection.h>
 #include <osg/Matrix>
-#include <osgUtil/IntersectVisitor>
+
 namespace opencover
 {
 class COVEREXPORT coIntersection : public virtual vrui::vruiIntersection
@@ -37,8 +37,6 @@ public:
     virtual const char *getClassName() const;
     virtual const char *getActionName() const;
 
-    osgUtil::Hit hitInformation;
-
     void isectAllNodes(bool isectAll);
     void forceIsectAllNodes(bool isectAll);
     int numIsectAllNodes;
@@ -49,8 +47,6 @@ protected:
     virtual void intersect(); // do the intersection
     // do the intersection
     void intersect(const osg::Matrix &mat, bool mouseHit);
-    template<class IsectVisitor>
-    void intersectTemp(const osg::Matrix &mat, bool mouseHit);
 
     /// value of the PointerAppearance.Intersection config var
     float intersectionDist;
@@ -60,7 +56,6 @@ protected:
 
 private:
     std::vector<std::vector<float> > elapsedTimes;
-    bool useOmp;
 };
 }
 #endif
