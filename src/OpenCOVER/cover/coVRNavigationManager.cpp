@@ -397,7 +397,7 @@ void coVRNavigationManager::initMenu()
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
 
     scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
-    scaleUpAction_->setText("SCale up");
+    scaleUpAction_->setText("Scale up");
     scaleUpAction_->setVisible(false);
     scaleUpAction_->setCallback([this](){
         startMouseNav();
@@ -409,7 +409,7 @@ void coVRNavigationManager::initMenu()
     scaleUpAction_->addShortcut("Shift++");
     scaleUpAction_->addShortcut("Button:WheelDown");
     scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
-    scaleDownAction_->setText("SCale down");
+    scaleDownAction_->setText("Scale down");
     scaleDownAction_->setVisible(false);
     scaleDownAction_->setCallback([this](){
         startMouseNav();
