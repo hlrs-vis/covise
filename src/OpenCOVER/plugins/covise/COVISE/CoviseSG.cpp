@@ -106,7 +106,8 @@ void CoviseSG::deleteNode(const char *nodeName, bool isGroup)
     }
     else
     {
-        printf("CoviseSG::deleteNode: node %s not found\n", nodeName);
+        if (cover->debugLevel(3))
+            printf("CoviseSG::deleteNode: node %s not found\n", nodeName);
     }
 }
 
