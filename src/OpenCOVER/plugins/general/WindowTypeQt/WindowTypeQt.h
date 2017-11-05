@@ -36,6 +36,7 @@ public:
     void windowDestroy(int num) override;
 
 private:
+    void aboutCover() const;
     struct WindowData
     {
         int index = -1;

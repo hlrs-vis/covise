@@ -30,6 +30,8 @@ KeyboardHelp::KeyboardHelp(opencover::ui::Manager *mgr, QWidget *parent)
         auto item = new QTreeWidgetItem(tw, columns);
         tw->addTopLevelItem(item);
     }
+    tw->setColumnWidth(0, 200);
+    tw->setColumnWidth(1, 350);
 }
 
 KeyboardHelp::~KeyboardHelp()

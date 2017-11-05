@@ -21,9 +21,11 @@ set(SOURCES
     WindowTypeQt.cpp
     KeyboardHelp.cpp
     KeyboardHelp.ui
+    AboutDialog.ui
 )
 
-cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES})
+qt5_add_resources(QRC_SOURCES about.qrc)
+cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES})
 qt5_use_modules(WindowTypeQt Core Widgets OpenGL)
 
 if (X11_ICE_FOUND)

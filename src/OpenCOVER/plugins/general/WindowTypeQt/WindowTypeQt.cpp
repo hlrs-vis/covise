@@ -22,6 +22,7 @@
 #include "KeyboardHelp.h"
 
 #include <config/CoviseConfig.h>
+#include <util/covise_version.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coCommandLine.h>
@@ -34,6 +35,10 @@
 #include <QOpenGLWidget>
 #include <QApplication>
 #include <QLayout>
+#include <QMessageBox>
+#include <QDialog>
+
+#include "ui_AboutDialog.h"
 
 #include <cassert>
 
@@ -153,9 +158,11 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     QMenu *helpMenu = new QMenu(menubar);
     helpMenu->setTitle("Help");
     menubar->addMenu(helpMenu);
+    win.view.back()->setInsertPosition(helpMenu->menuAction());
+
     QAction *keyboardHelp = new QAction(helpMenu);
     helpMenu->addAction(keyboardHelp);
-    keyboardHelp->setText("Keyboard commands");
+    keyboardHelp->setText("Keyboard commands...");
     window->connect(keyboardHelp, &QAction::triggered, [this](bool){
         if (!m_keyboardHelp)
         {
@@ -163,7 +170,22 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         }
         m_keyboardHelp->show();
     });
-    win.view.back()->setInsertPosition(helpMenu->menuAction());
+
+    helpMenu->addSeparator();
+
+    QAction *aboutQt = new QAction(helpMenu);
+    helpMenu->addAction(aboutQt);
+    aboutQt->setText("About Qt...");
+    window->connect(aboutQt, &QAction::triggered, [this](bool){
+        QMessageBox::aboutQt(new QDialog, "Qt");
+    });
+
+    QAction *about = new QAction(helpMenu);
+    helpMenu->addAction(about);
+    about->setText("About COVER...");
+    window->connect(about, &QAction::triggered, [this](bool){
+        aboutCover();
+    });
 
     QSurfaceFormat format;
     format.setVersion(2, 1);
@@ -184,6 +206,36 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
     return true;
+}
+
+void WindowTypeQtPlugin::aboutCover() const
+{
+    using covise::CoviseVersion;
+
+    QDialog *aboutDialog = new QDialog;
+    Ui::AboutDialog *ui = new Ui::AboutDialog;
+    ui->setupUi(aboutDialog);
+
+    QFile file(":/aboutData/README-3rd-party.txt");
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QString data(file.readAll());
+        ui->textEdit->setPlainText(data);
+    }
+
+    QString text("This is <a href='http://www.hlrs.de/de/solutions-services/service-portfolio/visualization/covise/opencover/'>COVER</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
+    text = text.arg(CoviseVersion::year())
+        .arg(CoviseVersion::month())
+        .arg(CoviseVersion::hash())
+        .arg(CoviseVersion::compileDate())
+        .arg(CoviseVersion::arch());
+    text.append("<br>Follow COVER and COVISE developement on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
+
+    ui->label->setText(text);
+    ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction | Qt::LinksAccessibleByMouse);
+    ui->label->setOpenExternalLinks(true);
+
+    aboutDialog->exec();
 }
 
 void WindowTypeQtPlugin::windowCheckEvents(int num)
