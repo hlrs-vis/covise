@@ -63,6 +63,11 @@ QtView::QtView(QToolBar *toolbar)
 {
 }
 
+void QtView::setInsertPosition(QAction *item)
+{
+    m_insertBefore = item;
+}
+
 void QtView::add(QtViewElement *ve, bool update)
 {
     if (!ve)
@@ -78,7 +83,7 @@ void QtView::add(QtViewElement *ve, bool update)
         {
             if (auto pmb = dynamic_cast<QMenuBar *>(container))
             {
-                pmb->addMenu(m);
+                pmb->insertMenu(m_insertBefore, m);
             }
             else if (auto pm = dynamic_cast<QMenu *>(container))
             {

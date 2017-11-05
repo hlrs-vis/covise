@@ -456,6 +456,7 @@ MACRO(COVER_ADD_PLUGIN targetname)
         #message("Obj: ${f} - ${ext}") 
 		#don#t add obj files as lib
         set(OBJECTS ${OBJECTS} ${f})
+     elseif(ext MATCHES "\\.(ui)\$")
      else()
         #message("Lib: ${f} - ${ext}")
         set(LIBS ${LIBS} ${f})

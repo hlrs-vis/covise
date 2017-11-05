@@ -14,6 +14,7 @@
 class QMainWindow;
 class QtOsgWidget;
 class QAction;
+class QDialog;
 
 namespace opencover {
 namespace ui {
@@ -45,5 +46,6 @@ private:
     };
     std::map<int, WindowData> m_windows;
     bool m_update = true;
+    QDialog *m_keyboardHelp = nullptr;
 };
 #endif

@@ -620,5 +620,15 @@ bool Manager::sync()
     return changed;
 }
 
+std::vector<const Element *> Manager::getAllElements() const
+{
+    std::vector<const Element *> result;
+    for (auto e: m_elements)
+    {
+        result.push_back(e.second);
+    }
+    return result;
+}
+
 }
 }

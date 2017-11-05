@@ -78,6 +78,8 @@ class COVER_UI_EXPORT Manager: public Owner {
    void queueUpdate(const Element *elem, Element::UpdateMaskType mask, bool trigger=false);
    //! sync state and events from master to cluster slaves
    bool sync();
+   //! get all elements
+   std::vector<const Element *> getAllElements() const;
 
  private:
    bool m_updateAllElements = false;

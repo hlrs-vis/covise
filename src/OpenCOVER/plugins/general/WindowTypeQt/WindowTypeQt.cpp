@@ -19,6 +19,7 @@
 #include "QtView.h"
 #include "QtOsgWidget.h"
 #include "QtMainWindow.h"
+#include "KeyboardHelp.h"
 
 #include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
@@ -147,6 +148,22 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.view.emplace_back(new ui::QtView(toolbar));
     cover->ui->addView(win.view.back());
 #endif
+
+
+    QMenu *helpMenu = new QMenu(menubar);
+    helpMenu->setTitle("Help");
+    menubar->addMenu(helpMenu);
+    QAction *keyboardHelp = new QAction(helpMenu);
+    helpMenu->addAction(keyboardHelp);
+    keyboardHelp->setText("Keyboard commands");
+    window->connect(keyboardHelp, &QAction::triggered, [this](bool){
+        if (!m_keyboardHelp)
+        {
+            m_keyboardHelp = new KeyboardHelp(cover->ui);
+        }
+        m_keyboardHelp->show();
+    });
+    win.view.back()->setInsertPosition(helpMenu->menuAction());
 
     QSurfaceFormat format;
     format.setVersion(2, 1);

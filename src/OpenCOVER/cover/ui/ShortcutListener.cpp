@@ -23,6 +23,7 @@ void ShortcutListener::setShortcut(const std::string &shortcut)
 void ShortcutListener::addShortcut(const std::string &shortcut)
 {
     Shortcut sh;
+    sh.text = shortcut;
 
     std::stringstream stream(shortcut);
     bool havePlus = false;
@@ -154,6 +155,30 @@ bool ShortcutListener::matchButton(int mod, int button) const
     }
 
     return false;
+}
+
+size_t ShortcutListener::shortcutCount() const
+{
+    return m_shortcuts.size();
+}
+
+std::string ShortcutListener::shortcutText(size_t idx) const
+{
+    std::string text;
+    if (idx >= m_shortcuts.size())
+        return text;
+
+    const auto &sh = m_shortcuts[idx];
+    if (sh.modifiers & ModAlt)
+        text += "Alt+";
+    if (sh.modifiers & ModCtrl)
+        text += "Ctrl+";
+    if (sh.modifiers & ModMeta)
+        text += "Meta+";
+    if (sh.modifiers & ModShift)
+        text += "Shift+";
+
+    return sh.text;
 }
 
 void ShortcutListener::shortcutTriggered()

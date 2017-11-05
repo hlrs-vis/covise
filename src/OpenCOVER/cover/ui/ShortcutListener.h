@@ -35,11 +35,15 @@ class COVER_UI_EXPORT ShortcutListener
    bool matchShortcut(int mod, int sym) const;
    bool matchButton(int mod, int button) const;
 
+   size_t shortcutCount() const;
+   std::string shortcutText(size_t idx) const;
+
    virtual void shortcutTriggered();
 
  private:
    struct Shortcut
    {
+       std::string text;
        int modifiers=ModNone;
        int symbol=0;
        int button=0;

@@ -112,8 +112,11 @@ class QtView: public QObject, public View
    QtView(QMenuBar *menubar, QToolBar *m_toolbar = nullptr);
    QtView(QToolBar *toolbar);
 
+   void setInsertPosition(QAction *item);
+
  private:
    QMenuBar *m_menubar = nullptr;
+   QAction *m_insertBefore = nullptr;
    QToolBar *m_toolbar = nullptr;
 
    Group *m_lastToolbarGroup = nullptr;
