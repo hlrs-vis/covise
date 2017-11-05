@@ -23,9 +23,42 @@
 
 #include <OpenVRUI/sginterface/vruiIntersection.h>
 #include <osg/Matrix>
+#include <osgUtil/LineSegmentIntersector>
+
+namespace osgUtil {
+class IntersectionVisitor;
+}
 
 namespace opencover
 {
+
+class coIntersector;
+
+class COVEREXPORT IntersectionHandler: public osg::Referenced
+{
+public:
+    virtual ~IntersectionHandler() {}
+
+    virtual bool canHandleDrawable(osg::Drawable *drawable) const = 0;
+    virtual void intersect(osgUtil::IntersectionVisitor &iv, coIntersector &is, osg::Drawable *drawable) = 0;
+};
+
+class COVEREXPORT coIntersector: public osgUtil::LineSegmentIntersector
+{
+public:
+    coIntersector(const osg::Vec3& start, const osg::Vec3& end);
+
+    virtual Intersector* clone(osgUtil::IntersectionVisitor& iv) override;
+    virtual void intersect(osgUtil::IntersectionVisitor& iv, osg::Drawable* drawable) override;
+
+    void addHandler(osg::ref_ptr<IntersectionHandler> handler);
+
+    bool intersectAndClip(osg::Vec3d &s, osg::Vec3d &e, const osg::BoundingBox &bb);
+
+protected:
+    std::vector<osg::ref_ptr<IntersectionHandler>> _handlers;
+};
+
 class COVEREXPORT coIntersection : public virtual vrui::vruiIntersection
 {
     static coIntersection *intersector;
@@ -33,6 +66,8 @@ class COVEREXPORT coIntersection : public virtual vrui::vruiIntersection
 public:
     static coIntersection *instance();
     virtual ~coIntersection();
+
+    void addHandler(osg::ref_ptr<IntersectionHandler> handler);
 
     virtual const char *getClassName() const;
     virtual const char *getActionName() const;
@@ -56,6 +91,7 @@ protected:
 
 private:
     std::vector<std::vector<float> > elapsedTimes;
+    std::vector<osg::ref_ptr<IntersectionHandler>> handlers;
 };
 }
 #endif

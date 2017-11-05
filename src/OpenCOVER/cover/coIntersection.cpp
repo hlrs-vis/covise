@@ -38,13 +38,87 @@
 using namespace osg;
 using namespace osgUtil;
 using namespace vrui;
-using namespace opencover;
 using covise::coCoviseConfig;
+
+namespace  opencover {
 
 coIntersection *coIntersection::intersector = 0;
 
 int coIntersection::myFrameIndex = -1;
 int coIntersection::myFrame = 0;
+
+
+coIntersector::coIntersector(const Vec3 &start, const Vec3 &end)
+: osgUtil::LineSegmentIntersector(start, end)
+{}
+
+void coIntersector::addHandler(osg::ref_ptr<IntersectionHandler> handler)
+{
+    _handlers.push_back(handler);
+}
+
+bool coIntersector::intersectAndClip(Vec3d &s, Vec3d &e, const BoundingBox &bb)
+{
+    return LineSegmentIntersector::intersectAndClip(s, e, bb);
+}
+
+osgUtil::Intersector *coIntersector::clone(osgUtil::IntersectionVisitor &iv)
+{
+    if ( _coordinateFrame==MODEL && iv.getModelMatrix()==0 )
+    {
+        osg::ref_ptr<coIntersector> cloned = new coIntersector(_start, _end);
+        cloned->_parent = this;
+        cloned->_handlers = _handlers;
+        return cloned.release();
+    }
+
+    osg::Matrix matrix;
+    switch (_coordinateFrame)
+    {
+    case WINDOW:
+        if (iv.getWindowMatrix()) matrix.preMult(*iv.getWindowMatrix());
+        if (iv.getProjectionMatrix()) matrix.preMult(*iv.getProjectionMatrix());
+        if (iv.getViewMatrix()) matrix.preMult(*iv.getViewMatrix());
+        if (iv.getModelMatrix()) matrix.preMult(*iv.getModelMatrix());
+        break;
+    case PROJECTION:
+        if (iv.getProjectionMatrix()) matrix.preMult(*iv.getProjectionMatrix() );
+        if (iv.getViewMatrix()) matrix.preMult(*iv.getViewMatrix());
+        if (iv.getModelMatrix()) matrix.preMult(*iv.getModelMatrix());
+        break;
+    case VIEW:
+        if (iv.getViewMatrix()) matrix.preMult(*iv.getViewMatrix());
+        if (iv.getModelMatrix()) matrix.preMult(*iv.getModelMatrix());
+        break;
+    case MODEL:
+        if (iv.getModelMatrix()) matrix = *iv.getModelMatrix();
+        break;
+    }
+
+    osg::Matrix inverse = osg::Matrix::inverse(matrix);
+    osg::ref_ptr<coIntersector> cloned = new coIntersector(_start*inverse, _end*inverse);
+    cloned->_parent = this;
+    cloned->_handlers = _handlers;
+    return cloned.release();
+}
+
+void coIntersector::intersect(osgUtil::IntersectionVisitor &iv, osg::Drawable *drawable)
+{
+    for (auto &h: _handlers)
+    {
+        if (h->canHandleDrawable(drawable))
+        {
+            h->intersect(iv, *this, drawable);
+            return;
+        }
+    }
+
+    osgUtil::LineSegmentIntersector::intersect(iv, drawable);
+}
+
+
+
+
 
 coIntersection::coIntersection()
     : elapsedTimes(1)
@@ -77,6 +151,11 @@ coIntersection::~coIntersection()
 {
     //VRUILOG("coIntersection::<dest> info: destroying");
     intersector = NULL;
+}
+
+void coIntersection::addHandler(osg::ref_ptr<IntersectionHandler> handler)
+{
+    handlers.push_back(handler);
 }
 
 coIntersection *coIntersection::instance()
@@ -188,7 +267,9 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
         {
             visitor.setTraversalMask(Isect::Intersection);
         }
-        osg::ref_ptr<LineSegmentIntersector> intersector = new LineSegmentIntersector(ray->start(), ray->end());
+        osg::ref_ptr<coIntersector> intersector = new coIntersector(ray->start(), ray->end());
+        for (auto h: handlers)
+            intersector->addHandler(h);
         visitor.setIntersector(intersector.get());
         //visitor.addLineSegment(ray.get());
 
@@ -337,4 +418,6 @@ void coIntersection::forceIsectAllNodes(bool isectAll)
     }
 
     //fprintf(stderr,"numIsectAllNodes=%d\n", numIsectAllNodes);
+}
+
 }
