@@ -124,6 +124,7 @@ public:
     void setModified(bool);
     void setActive(bool);
     void setDead(bool);
+    bool isDead() const;
     void setLabel(const QString &text);
     void setDesc(const QString &text);
     void printSibling();
