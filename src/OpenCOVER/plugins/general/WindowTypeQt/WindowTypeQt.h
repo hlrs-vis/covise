@@ -17,6 +17,7 @@ class QAction;
 class QDialog;
 
 namespace opencover {
+class QtMainWindow;
 namespace ui {
 class QtView;
 }
@@ -40,7 +41,7 @@ private:
     struct WindowData
     {
         int index = -1;
-        QMainWindow *window = nullptr;
+        opencover::QtMainWindow *window = nullptr;
         QtOsgWidget *widget = nullptr;
         QAction *toggleMenu = nullptr;
         std::vector<opencover::ui::QtView *> view;

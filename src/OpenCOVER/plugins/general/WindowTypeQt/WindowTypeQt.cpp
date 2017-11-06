@@ -28,6 +28,7 @@
 #include <cover/coCommandLine.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -117,6 +118,9 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.window = window;
     win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
     win.window->show();
+    window->connect(win.window, &QtMainWindow::closing, [this, i](){
+        OpenCOVER::instance()->requestQuit();
+    });
 
     win.toggleMenu = new QAction(window);
     win.toggleMenu->setCheckable(true);

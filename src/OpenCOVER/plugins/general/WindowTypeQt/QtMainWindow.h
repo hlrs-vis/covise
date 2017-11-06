@@ -19,6 +19,10 @@ public:
     QtMainWindow(QWidget *parent = nullptr);
     QMenu *createPopupMenu() override;
     void addContextAction(QAction *act);
+    void closeEvent(QCloseEvent *ev) override;
+
+signals:
+    void closing();
 
 private:
     QList<QAction *> m_contextActions;
