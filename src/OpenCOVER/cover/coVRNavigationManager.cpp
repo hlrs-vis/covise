@@ -1298,7 +1298,7 @@ coVRNavigationManager::update()
         }
         else if (menuButtonStartTime + menuButtonQuitInterval < cover->currentTime())
         {
-            OpenCOVER::instance()->quitCallback(NULL, NULL);
+            OpenCOVER::instance()->requestQuit();
         }
     }
 

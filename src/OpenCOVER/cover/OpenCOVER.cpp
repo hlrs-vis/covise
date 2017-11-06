@@ -779,15 +779,23 @@ bool OpenCOVER::init()
 
     m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
     m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setShortcut("q");
+    m_quit->addShortcut("Q");
+    m_quit->addShortcut("Esc");
     m_quit->setCallback([this](){
 #if 1
-        quitCallback(nullptr, nullptr);
+        requestQuit();
 #else
         auto qd = new QuitDialog;
         qd->show();
 #endif
     });
     m_quit->setIcon("application-exit");
+    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    {
+        m_quit->setEnabled(false);
+        m_quit->setVisible(false);
+    }
 
     m_initialized = true;
     return true;
@@ -916,23 +924,6 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 case 'x':
                     coVRConfig::instance()->m_worldAngle -= 1;
                     cerr << coVRConfig::instance()->worldAngle() << endl;
-                    break;
-                }
-            }
-            else
-            {
-                switch (code)
-                {
-                case osgGA::GUIEventAdapter::KEY_Escape:
-                case 'q':
-                case 'Q':
-                    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
-                    {
-                        break; // embedded OpenCOVER ignores q
-                    }
-                    coVRPluginList::instance()->requestQuit(true);
-                    // exit COVER, even if COVER has a vrb connection
-                    exitFlag = true;
                     break;
                 }
             }
@@ -1246,14 +1237,19 @@ OpenCOVER::readConfigFile()
 }
 
 void
-OpenCOVER::quitCallback(void * /*sceneGraph*/, buttonSpecCell * /*spec*/)
+OpenCOVER::requestQuit()
 {
-    OpenCOVER::instance()->setExitFlag(true);
-    coVRPluginList::instance()->requestQuit(true);
-    if (vrbc)
-        delete vrbc;
+    setExitFlag(true);
+    bool terminateOnCoverQuit = coCoviseConfig::isOn("COVER.TerminateCoviseOnQuit", false);
+    if (getenv("COVISE_TERMINATE_ON_QUIT"))
+    {
+        terminateOnCoverQuit = true;
+    }
+    if (terminateOnCoverQuit)
+        coVRPluginList::instance()->requestQuit(true);
+    delete vrbc;
     vrbc = NULL;
-    OpenCOVER::instance()->setExitFlag(true);
+    setExitFlag(true);
     // exit COVER, even if COVER has a vrb connection
 }
 

@@ -5,6 +5,7 @@
 #include <cctype>
 
 #include <OpenVRUI/sginterface/vruiButtons.h>
+#include <osgGA/GUIEventAdapter>
 
 namespace opencover {
 namespace ui {
@@ -71,8 +72,13 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
         {
             key = item;
         }
+        else if (item == "escape" || item == "esc")
+        {
+            key = item;
+        }
         else
         {
+            key = item;
             std::cerr << "ui::ShortcutListener: invalid key sequence: " << shortcut << std::endl;
         }
     }
@@ -119,6 +125,10 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
             sh.button = vrui::vruiButtons::WHEEL_LEFT;
         if (button == "wheelright" || button == "scrollright")
             sh.button = vrui::vruiButtons::WHEEL_RIGHT;
+    }
+    if (key == "esc" || key == "escape")
+    {
+        sh.symbol = osgGA::GUIEventAdapter::KEY_Escape;
     }
     else
     {

@@ -1368,7 +1368,7 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
 
     if (tUIItem == Quit)
     {
-        OpenCOVER::instance()->quitCallback(NULL, NULL);
+        OpenCOVER::instance()->requestQuit();
     }
     else if (tUIItem == ViewAll)
     {
