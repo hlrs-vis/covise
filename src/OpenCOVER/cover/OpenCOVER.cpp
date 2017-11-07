@@ -973,7 +973,6 @@ bool OpenCOVER::frame()
 
     cover->updateTime();
     
-    Input::instance()->update(); //update all hardware devices
     // update window size and process events
     VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
@@ -982,6 +981,7 @@ bool OpenCOVER::frame()
         render = true;
         m_renderNext = true; // for possible delayed button release
     }
+    Input::instance()->update(); //update all hardware devices
 
     // wait for all cull and draw threads to complete.
     //
