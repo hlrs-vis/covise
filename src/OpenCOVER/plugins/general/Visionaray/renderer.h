@@ -21,7 +21,7 @@
 #include <visionaray/render_target.h>
 
 #define VSNRAY_COLOR_PIXEL_FORMAT	visionaray::PF_RGBA32F
-#define VSNRAY_DEPTH_PIXEL_FORMAT	visionaray::PF_DEPTH32F
+#define VSNRAY_DEPTH_PIXEL_FORMAT	visionaray::PF_DEPTH24_STENCIL8
 
 namespace osg
 {
@@ -75,8 +75,6 @@ namespace visionaray
 
         void begin_frame();
         void end_frame();
-
-        void init();
 
     private:
         struct impl;

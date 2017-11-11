@@ -22,6 +22,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
 #include <cover/VRViewer.h>
+#include <cover/OpenCOVER.h>
 
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
@@ -705,8 +706,6 @@ namespace visionaray
 
         impl_->objroot_node_mask = opencover::cover->getObjectsRoot()->getNodeMask();
 
-        impl_->rend.init();
-
         return true;
     }
 
@@ -725,7 +724,7 @@ namespace visionaray
         if (impl_->state->data_var == Dynamic)
             impl_->state->rebuild = true;
 
-        if (impl_->state->rebuild)
+        if (impl_->state->rebuild && opencover::OpenCOVER::instance()->initDone())
         {
             auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
             impl_->rend.acquire_scene_data(seqs);
@@ -733,7 +732,6 @@ namespace visionaray
         }
 
         impl_->state->animation_frame = opencover::coVRAnimationManager::instance()->getAnimationFrame();
-
         impl_->rend.render_frame(info);
     }
 

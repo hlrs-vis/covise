@@ -893,14 +893,8 @@ namespace visionaray
 #ifdef __CUDACC__
             , device_sched(8, 8)
 #endif
-            , multi_channel_drawer(new opencover::MultiChannelDrawer(false, false))
+            , multi_channel_drawer(nullptr)
         {
-            multi_channel_drawer->setMode(opencover::MultiChannelDrawer::AsIs);
-
-            for (int i = 0; i < multi_channel_drawer->numViews(); i++)
-            {
-                channel_viewing_params.push_back(viewing_params(i));
-            }
         }
 
         std::vector<triangle_list>                              triangles;
@@ -950,6 +944,7 @@ namespace visionaray
     };
 
         osg::ref_ptr<opencover::MultiChannelDrawer> multi_channel_drawer;
+
         std::vector<viewing_params> channel_viewing_params;
 
         size_t total_frame_num = 0;
@@ -984,6 +979,28 @@ namespace visionaray
             GLboolean depth_test;
             GLboolean framebuffer_srgb;
         } gl_state;
+
+        void reset_multi_channel_drawer()
+        {
+            if (multi_channel_drawer != nullptr)
+            {
+                opencover::cover->getScene()->removeChild(multi_channel_drawer);
+
+                multi_channel_drawer = nullptr;
+            }
+
+            multi_channel_drawer = new opencover::MultiChannelDrawer(false, state->device == GPU);
+
+            multi_channel_drawer->setMode(opencover::MultiChannelDrawer::AsIs);
+
+            opencover::cover->getScene()->addChild(multi_channel_drawer);
+
+            channel_viewing_params.clear();
+            for (int i = 0; i < multi_channel_drawer->numViews(); i++)
+            {
+                channel_viewing_params.push_back(viewing_params(i));
+            }
+        }
 
         void update_state(
             std::shared_ptr<render_state> const &state,
@@ -1291,7 +1308,7 @@ namespace visionaray
         : impl_(new impl)
         , cur_channel_(0)
     {
-        
+
     }
 
     renderer::~renderer()
@@ -1514,16 +1531,18 @@ namespace visionaray
 
         impl_->store_gl_state();
 
-        if (impl_->device != impl_->state->device)
+        if (impl_->multi_channel_drawer == nullptr || impl_->device != impl_->state->device)
         {
-            opencover::cover->getScene()->removeChild(impl_->multi_channel_drawer);
+            // Init MultiChannelDrawer on startup or reset when switching device.
+            impl_->reset_multi_channel_drawer();
 
-            impl_->multi_channel_drawer = nullptr;
-            impl_->multi_channel_drawer = new opencover::MultiChannelDrawer(false, impl_->state->device == GPU);
+            // Rebuild scene first thing after launch.
+            if (impl_->multi_channel_drawer == nullptr)
+            {
+                impl_->state->rebuild = true;
 
-            impl_->multi_channel_drawer->setMode(opencover::MultiChannelDrawer::AsIs);
-
-            opencover::cover->getScene()->addChild(impl_->multi_channel_drawer);
+                return;
+            }
         }
 
         // Update scene state
@@ -1721,6 +1740,8 @@ namespace visionaray
                     }
                 }
             }
+
+            vparams.frame_num++;
         }
 
         impl_->multi_channel_drawer->update();
@@ -1743,11 +1764,6 @@ namespace visionaray
     void renderer::end_frame()
     {
 
-    }
-
-    void renderer::init()
-    {
-        opencover::cover->getScene()->addChild(impl_->multi_channel_drawer);
     }
 
 } // namespace visionaray

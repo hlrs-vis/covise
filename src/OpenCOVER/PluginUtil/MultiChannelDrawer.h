@@ -117,8 +117,6 @@ private:
    Mode m_mode;
 
    const bool m_useCuda;
-
-   static bool m_cudaInitialized;
 };
 
 }

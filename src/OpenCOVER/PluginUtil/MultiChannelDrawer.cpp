@@ -40,8 +40,6 @@
 namespace opencover
 {
 
-bool MultiChannelDrawer::m_cudaInitialized = false;
-
 //! osg::Drawable::DrawCallback for rendering selected geometry on one channel only
 /*! decision is made based on cameras currently on osg's stack */
 struct SingleScreenCB: public osg::Drawable::DrawCallback {
@@ -297,34 +295,6 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
 , m_mode(MultiChannelDrawer::ReprojectMesh)
 , m_useCuda(useCuda)
 {
-#ifdef HAVE_CUDA
-    if (!m_cudaInitialized)
-    {
-        int dev = 0;
-        cudaDeviceProp prop;
-        cudaError_t err = cudaChooseDevice(&dev, &prop);
-        if (err != cudaSuccess)
-        {
-            throw std::runtime_error("choose device");
-        }
-
-        err = cudaGLSetGLDevice(dev);
-
-        if (err == cudaErrorSetOnActiveProcess)
-        {
-            err = cudaDeviceReset();
-            err = cudaGLSetGLDevice(dev);
-        }
-
-        if (err != cudaSuccess)
-        {
-            throw std::runtime_error("set GL device");
-        }
-
-        m_cudaInitialized = true;
-    }
-#endif
-
    setAllowEventFocus(false);
    setProjectionMatrix(osg::Matrix::identity());
    setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
@@ -711,11 +681,9 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             cd.colorTex->setSourceType(colorFormat);
             cd.colorTex->setInternalFormat(colorInternalFormat);
 
-            if (cd.camera != nullptr) {
-                osg::State* state = cd.camera->getGraphicsContext()->getState();
+            osg::State* state = cd.camera->getGraphicsContext()->getState();
 
-                static_cast<CudaTextureRectangle*>(cd.colorTex.get())->resize(state, w, h, colorTypeSize);
-            }
+            static_cast<CudaTextureRectangle*>(cd.colorTex.get())->resize(state, w, h, colorTypeSize);
         }
         else
 #endif
@@ -751,6 +719,10 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             depthInternalFormat = GL_DEPTH_COMPONENT32F;
             depthTypeSize = 4;
             break;
+        case GL_UNSIGNED_INT_24_8:
+            depthInternalFormat = GL_DEPTH_COMPONENT24;
+            depthTypeSize = 4;
+            break;
         default:
             throw std::runtime_error("Depth pixel type not supported!");
         }
@@ -760,23 +732,20 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         {
             cd.depthTex->setTextureSize(w, h);
             cd.depthTex->setSourceFormat(GL_DEPTH_COMPONENT);
-            cd.depthTex->setSourceType(depthFormat);
+            cd.depthTex->setSourceType(depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
             cd.depthTex->setInternalFormat(depthInternalFormat);
 
-            if (cd.camera != nullptr) {
-                osg::State* state = cd.camera->getGraphicsContext()->getState();
+            osg::State* state = cd.camera->getGraphicsContext()->getState();
 
-                static_cast<CudaTextureRectangle*>(cd.depthTex.get())->resize(state, w, h, depthTypeSize);
-            }
+            static_cast<CudaTextureRectangle*>(cd.depthTex.get())->resize(state, w, h, depthTypeSize);
         }
         else
 #endif
         {
             osg::Image *dimg = cd.depthTex->getImage();
             dimg->setInternalTextureFormat(depthInternalFormat);
-            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat);
+            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
         }
-
 
         osg::Geometry *geo = cd.reprojGeo;
 #ifdef INSTANCED
