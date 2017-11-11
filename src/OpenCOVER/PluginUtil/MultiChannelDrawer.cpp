@@ -354,7 +354,9 @@ void MultiChannelDrawer::update() {
    auto updateView = [&model](ChannelData &cd, int i, bool second) {
 
        const channelStruct &chan = coVRConfig::instance()->channels[i];
-       const bool left = chan.stereoMode == osg::DisplaySettings::LEFT_EYE || (second && chan.stereoMode == osg::DisplaySettings::QUAD_BUFFER);
+       const bool left = chan.stereoMode == osg::DisplaySettings::LEFT_EYE
+                         || (second && chan.stereoMode == osg::DisplaySettings::QUAD_BUFFER)
+                         || (chan.stereoMode == osg::DisplaySettings::ANAGLYPHIC && cd.frameNum % 2 == 1);
        const osg::Matrix &view = left ? chan.leftView : chan.rightView;
        const osg::Matrix &proj = left ? chan.leftProj : chan.rightProj;
        cd.curModel = model;
@@ -601,6 +603,8 @@ void MultiChannelDrawer::swapFrame() {
 
       cd.depthTex->getImage()->dirty();
       cd.colorTex->getImage()->dirty();
+
+      cd.frameNum++;
    }
 }
 

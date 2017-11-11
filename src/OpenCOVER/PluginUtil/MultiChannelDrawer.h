@@ -23,6 +23,7 @@ namespace opencover
 struct ChannelData {
     int channelNum;
     bool second;
+    int frameNum;
     osg::Matrix curProj, curView, curModel;
     osg::Matrix imgProj, imgView, imgModel;
     osg::Matrix newProj, newView, newModel;
@@ -51,6 +52,7 @@ struct ChannelData {
     ChannelData(int channel=-1)
         : channelNum(channel)
         , second(false)
+        , frameNum(0)
     {
     }
 };
