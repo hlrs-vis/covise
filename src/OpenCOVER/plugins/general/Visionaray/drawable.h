@@ -15,6 +15,14 @@
 #include <osg/BoundingSphere>
 #include <osg/Drawable>
 
+#include <PluginUtil/MultiChannelDrawer.h>
+
+#include <visionaray/pixel_traits.h>
+#include <visionaray/render_target.h>
+
+#define VSNRAY_COLOR_PIXEL_FORMAT	visionaray::PF_RGBA32F
+#define VSNRAY_DEPTH_PIXEL_FORMAT	visionaray::PF_DEPTH32F
+
 namespace osg
 {
     class Sequence;
@@ -26,11 +34,28 @@ namespace visionaray
     struct render_state;
     struct debug_state;
 
-    class drawable : public osg::Drawable
+    class drawable
     {
+    public:
+        using color_type = typename pixel_traits<VSNRAY_COLOR_PIXEL_FORMAT>::type;
+        using depth_type = typename pixel_traits<VSNRAY_DEPTH_PIXEL_FORMAT>::type;
+
+        using ref_type = render_target_ref<VSNRAY_COLOR_PIXEL_FORMAT, VSNRAY_DEPTH_PIXEL_FORMAT>;
+
     public:
         drawable();
         ~drawable();
+
+        color_type* color();
+        depth_type* depth();
+
+        color_type const* color() const;
+        depth_type const* depth() const;
+
+        size_t width() const;
+        size_t height() const;
+
+        ref_type ref();
 
         void expandBoundingSphere(osg::BoundingSphere &bs);
 
@@ -46,17 +71,20 @@ namespace visionaray
         // but keep the Visionaray data structures intact
         void set_suppress_rendering(bool enable);
 
+        void draw(osg::RenderInfo &info);
+
+        void begin_frame();
+        void end_frame();
+
+        void init();
+
     private:
+        osg::ref_ptr<opencover::MultiChannelDrawer> multi_channel_drawer_;
+
+        int cur_channel_;
+
         struct impl;
         std::unique_ptr<impl> impl_;
-
-    private:
-        // osg::Drawable interface
-
-        drawable *cloneType() const;
-        osg::Object *clone(const osg::CopyOp &op) const;
-        drawable(drawable const &rhs, osg::CopyOp const &op = osg::CopyOp::SHALLOW_COPY);
-        void drawImplementation(osg::RenderInfo &info) const;
     };
 
 } // namespace visionaray

@@ -888,12 +888,18 @@ namespace visionaray
     struct drawable::impl
     {
 
-        impl()
+        impl(drawable* drawable_ptr_, opencover::MultiChannelDrawer* multi_channel_drawer_)
             : host_sched(0)
 #ifdef __CUDACC__
             , device_sched(8, 8)
 #endif
+            , drawable_ptr(drawable_ptr_)
+            , multi_channel_drawer(multi_channel_drawer_)
         {
+            for (int i = 0; i < multi_channel_drawer->numViews(); i++)
+            {
+                channel_viewing_params.push_back(viewing_params(i));
+            }
         }
 
         std::vector<triangle_list>                              triangles;
@@ -912,7 +918,7 @@ namespace visionaray
 #ifdef __CUDACC__
         std::vector<thrust::device_vector<vec3>>                device_normals;
         std::vector<thrust::device_vector<vec2>>                device_tex_coords;
-        std::vector<thrust::device_vector<color_type>>          device_colors;
+        std::vector<thrust::device_vector<vertex_color_type>>   device_colors;
         std::vector<thrust::device_vector<material_type>>       device_materials;
         std::vector<device_texture_list>                        device_texture_refs;
         std::vector<device_bvh_type>                            device_bvhs;
@@ -925,18 +931,9 @@ namespace visionaray
 
         scene::Monitor                                          scene_monitor;
 
-        enum eye
-        {
-            Left,
-            Right
-        };
-
         struct viewing_params
         {
-            host_render_target_type host_rt;
-#ifdef __CUDACC__
-            device_render_target_type device_rt;
-#endif
+            int channel_index;
             mat4 view_matrix;
             mat4 proj_matrix;
             int width;
@@ -944,23 +941,16 @@ namespace visionaray
             unsigned frame_num = 0;
             bool need_clear_frame = false;
 
-            void clear_frame()
+            viewing_params(int index) :
+                channel_index(index)
             {
-                frame_num = 0;
-                host_rt.clear_color_buffer();
-                host_rt.clear_depth_buffer();
-#ifdef __CUDACC__
-                device_rt.clear_color_buffer();
-                device_rt.clear_depth_buffer();
-#endif
 
-                need_clear_frame = false;
             }
-        };
+    };
 
-        viewing_params eye_params[2]; // for left and right eye
-
-        eye current_eye = Right;
+        drawable* drawable_ptr;
+        opencover::MultiChannelDrawer* multi_channel_drawer;
+        std::vector<viewing_params> channel_viewing_params;
 
         size_t total_frame_num = 0;
 
@@ -1013,13 +1003,13 @@ namespace visionaray
 
         void store_gl_state();
         void restore_gl_state();
-        void update_viewing_params(osg::DisplaySettings::StereoMode mode);
+        void update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode);
         bool scene_valid();
         void update_device_data(unsigned bits = 0xFFFFFFFF);
         void commit_state();
 
         template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
-        void call_kernel(Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params);
+        void call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params);
     };
 
     void drawable::impl::store_gl_state()
@@ -1062,81 +1052,25 @@ namespace visionaray
         glMatrixMode(gl_state.matrix_mode);
     }
 
-    void drawable::impl::update_viewing_params(osg::DisplaySettings::StereoMode mode)
+    void drawable::impl::update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode)
     {
-        current_eye = Right; // default if no stereo
+        viewing_params& vparams = channel_viewing_params[channel_index];
 
-        if (opencover::coVRConfig::instance()->stereoState())
-        {
-            switch (mode)
-            {
-            // TODO: implement remaining modes
-            case osg::DisplaySettings::ANAGLYPHIC:
-            {
-                if (total_frame_num % 2 == 1)
-                {
-                    current_eye = Left;
-                }
-            }
-            break;
-            case osg::DisplaySettings::QUAD_BUFFER:
-            {
-                GLint db = 0;
-                glGetIntegerv(GL_DRAW_BUFFER, &db);
-                if (db != GL_BACK_RIGHT && db != GL_FRONT_RIGHT && db != GL_RIGHT)
-                {
-                    current_eye = Left;
-                }
-            }
-            break;
-            case osg::DisplaySettings::LEFT_EYE:
-                current_eye = Left;
-                break;
-            case osg::DisplaySettings::RIGHT_EYE:
-                current_eye = Right;
-                break;
-            default:
-                break;
-            }
-        }
-
-        auto osg_cam = opencover::coVRConfig::instance()->channels[0].camera;
-
-        // Matrices
-
-        auto t = opencover::cover->getXformMat();
-        auto s = opencover::cover->getObjectsScale()->getMatrix();
-        auto v = current_eye == Right
-                     ? opencover::coVRConfig::instance()->channels[0].rightView
-                     : opencover::coVRConfig::instance()->channels[0].leftView;
-        auto view = osg_cast(s * t * v);
-        auto proj = current_eye == Right
-                        ? osg_cast(opencover::coVRConfig::instance()->channels[0].rightProj)
-                        : osg_cast(opencover::coVRConfig::instance()->channels[0].leftProj);
-
-        // Viewport
-
+        auto osg_cam = opencover::coVRConfig::instance()->channels[channel_index].camera;
         auto osg_viewport = osg_cam->getViewport();
         int w = osg_viewport->width();
         int h = osg_viewport->height();
 
-        // Reset frame counter on change or if scene is dynamic
+        auto view = osg_cast(multi_channel_drawer->modelMatrix(channel_index) * multi_channel_drawer->viewMatrix(channel_index));
+        auto proj = osg_cast(multi_channel_drawer->projectionMatrix(channel_index));
 
-        auto &vparams = eye_params[current_eye];
+        bool isAnaglyphic = mode == osg::DisplaySettings::StereoMode::ANAGLYPHIC;
+        bool left = vparams.frame_num % 2 == 1;
 
         if (state->data_var == Dynamic || state->algo != algo_current || state->device != device
-            || state->num_bounces != num_bounces || scene_monitor.need_clear_frame())
-        {
-            eye_params[Left].frame_num = 0;
-            eye_params[Right].frame_num = 0;
-
-            if (state->algo == Pathtracing)
-            {
-                eye_params[Left].need_clear_frame = true;
-            }
-        }
-
-        if (vparams.view_matrix != view || vparams.proj_matrix != proj || vparams.width != w || vparams.height != h)
+            || state->num_bounces != num_bounces || scene_monitor.need_clear_frame()
+            || ((vparams.view_matrix != view || vparams.proj_matrix != proj) && !isAnaglyphic)
+            || vparams.width != w || vparams.height != h)
         {
             vparams.frame_num = 0;
 
@@ -1146,21 +1080,16 @@ namespace visionaray
             }
         }
 
-        // Update
-
-        ++total_frame_num;
-
         vparams.view_matrix = view;
         vparams.proj_matrix = proj;
 
-        if (vparams.width != w || vparams.height != h)
+        if (vparams.width != w || vparams.height != h || device != state->device)
         {
+            pixel_format_info dpfi = map_pixel_format(VSNRAY_DEPTH_PIXEL_FORMAT);
+
             vparams.width = w;
             vparams.height = h;
-            vparams.host_rt.resize(w, h);
-#ifdef __CUDACC__
-            vparams.device_rt.resize(w, h);
-#endif
+            multi_channel_drawer->resizeView(channel_index, w, h, dpfi.type);
         }
     }
 
@@ -1292,9 +1221,9 @@ namespace visionaray
     //
 
     template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
-    void drawable::impl::call_kernel(Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params)
+    void drawable::impl::call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params)
     {
-        auto &vparams = eye_params[current_eye];
+        auto &vparams = channel_viewing_params[channel_index];
 
         // Simple scheduler params
         auto sparams = make_sched_params(vparams.view_matrix, vparams.proj_matrix, rt);
@@ -1358,9 +1287,11 @@ namespace visionaray
     //
 
     drawable::drawable()
-        : impl_(new impl)
+        : multi_channel_drawer_(new opencover::MultiChannelDrawer(false))
+        , cur_channel_(0)
+        , impl_(new impl(this, multi_channel_drawer_))
     {
-        setSupportsDisplayList(false);
+        multi_channel_drawer_->setMode(opencover::MultiChannelDrawer::AsIs);
     }
 
     drawable::~drawable()
@@ -1370,6 +1301,43 @@ namespace visionaray
         for (size_t i = 0; i < impl_->outlines_initialized.size(); ++i)
             if (impl_->outlines_initialized[i])
                 impl_->outlines[i].destroy();
+
+        opencover::cover->getScene()->removeChild(multi_channel_drawer_);
+    }
+
+    drawable::color_type* drawable::color()
+    {
+        return reinterpret_cast<color_type*>(multi_channel_drawer_->rgba(cur_channel_));
+    }
+
+    drawable::depth_type* drawable::depth()
+    {
+        return reinterpret_cast<depth_type*>(multi_channel_drawer_->depth(cur_channel_));
+    }
+
+    drawable::color_type const* drawable::color() const
+    {
+        return reinterpret_cast<color_type*>(multi_channel_drawer_->rgba(cur_channel_));
+    }
+
+    drawable::depth_type const* drawable::depth() const
+    {
+        return reinterpret_cast<depth_type*>(multi_channel_drawer_->depth(cur_channel_));
+    }
+
+    size_t drawable::width() const
+    {
+        return impl_->channel_viewing_params[cur_channel_].width;
+    }
+
+    size_t drawable::height() const
+    {
+        return impl_->channel_viewing_params[cur_channel_].height;
+    }
+
+    drawable::ref_type drawable::ref()
+    {
+        return typename drawable::ref_type(color(), depth(), width(), height());
     }
 
     void drawable::update_state(
@@ -1506,30 +1474,10 @@ namespace visionaray
     }
 
     //-------------------------------------------------------------------------------------------------
-    // Private osg::Drawable interface
-    //
-
-    drawable *drawable::cloneType() const
-    {
-        return new drawable;
-    }
-
-    osg::Object *drawable::clone(const osg::CopyOp &op) const
-    {
-        return new drawable(*this, op);
-    }
-
-    drawable::drawable(drawable const &rhs, osg::CopyOp const &op)
-        : osg::Drawable(rhs, op)
-    {
-        setSupportsDisplayList(false);
-    }
-
-    //-------------------------------------------------------------------------------------------------
     // Draw implementation
     //
 
-    void drawable::drawImplementation(osg::RenderInfo &info) const
+    void drawable::draw(osg::RenderInfo &info)
     {
         if (!impl_->state || !impl_->dev_state)
             return;
@@ -1566,29 +1514,22 @@ namespace visionaray
 
         impl_->store_gl_state();
 
+        if (impl_->device != impl_->state->device)
+        {
+            opencover::cover->getScene()->removeChild(multi_channel_drawer_);
+
+            multi_channel_drawer_ = nullptr;
+            multi_channel_drawer_ = new opencover::MultiChannelDrawer(false);
+
+            multi_channel_drawer_->setMode(opencover::MultiChannelDrawer::AsIs);
+
+            opencover::cover->getScene()->addChild(multi_channel_drawer_);
+        }
 
         // Update scene state
 
         impl_->scene_monitor.update();
         impl_->update_device_data(impl_->scene_monitor.update_bits());
-
-        // Camera matrices, render target resize
-
-        impl_->update_viewing_params(get_stereo_mode(info));
-
-        // Finally update state variables. Call after any other updates!
-
-        impl_->commit_state();
-
-        // Kernel params
-
-        int frame = impl_->state->animation_frame + 1; // first BVH contains static data
-
-        auto renderer = dynamic_cast<osgViewer::Renderer *>(opencover::coVRConfig::instance()->channels[0].camera->getRenderer());
-        auto scene_view = renderer->getSceneView(0);
-        auto stateset = scene_view->getGlobalStateSet();
-        auto light_model = dynamic_cast<osg::LightModel *>(stateset->getAttribute(osg::StateAttribute::LIGHTMODEL));
-        auto ambient = osg_cast(light_model->getAmbientIntensity());
 
         light_list lights;
 
@@ -1604,7 +1545,6 @@ namespace visionaray
         // order matters here!)
         lvisitor.setCheckMode(get_light_visitor::CheckStateSets);
         opencover::cover->getScene()->accept(lvisitor);
-
 
         aabb bounds;
         bounds.invalidate();
@@ -1626,142 +1566,188 @@ namespace visionaray
             glDisable(GL_FRAMEBUFFER_SRGB);
         }
 
-        auto &vparams = impl_->eye_params[impl_->current_eye];
-        if (vparams.need_clear_frame)
-            vparams.clear_frame();
+        // Kernel params
 
-        if (impl_->state->device == GPU)
+        int frame = impl_->state->animation_frame + 1; // first BVH contains static data
+
+        for (cur_channel_ = 0; cur_channel_ < impl_->channel_viewing_params.size(); ++cur_channel_)
         {
+            // Camera matrices, render target resize
+
+            impl_->update_viewing_params(cur_channel_, get_stereo_mode(info));
+
+            auto renderer = dynamic_cast<osgViewer::Renderer *>(opencover::coVRConfig::instance()->channels[cur_channel_].camera->getRenderer());
+            auto scene_view = renderer->getSceneView(0);
+            auto stateset = scene_view->getGlobalStateSet();
+            auto light_model = dynamic_cast<osg::LightModel *>(stateset->getAttribute(osg::StateAttribute::LIGHTMODEL));
+            auto ambient = osg_cast(light_model->getAmbientIntensity());
+
+            auto &vparams = impl_->channel_viewing_params[cur_channel_];
+            if (vparams.need_clear_frame)
+            {
+                vparams.frame_num = 0;
+
+                multi_channel_drawer_->clearColor(cur_channel_);
+                multi_channel_drawer_->clearDepth(cur_channel_);
+
+                vparams.need_clear_frame = false;
+            }
+
+            if (impl_->state->device == GPU)
+            {
 #ifdef __CUDACC__
-            thrust::device_vector<device_bvh_type::bvh_ref> primitives;
+                thrust::device_vector<device_bvh_type::bvh_ref> primitives;
 
-            if (impl_->device_bvhs.size() > 0     && impl_->device_bvhs[0].num_primitives())
-                primitives.push_back(impl_->device_bvhs[0].ref());
+                if (impl_->device_bvhs.size() > 0 && impl_->device_bvhs[0].num_primitives())
+                    primitives.push_back(impl_->device_bvhs[0].ref());
 
-            if (impl_->device_bvhs.size() > frame && impl_->device_bvhs[frame].num_primitives())
-                primitives.push_back(impl_->device_bvhs[frame].ref());
+                if (impl_->device_bvhs.size() > frame && impl_->device_bvhs[frame].num_primitives())
+                    primitives.push_back(impl_->device_bvhs[frame].ref());
 
-            thrust::device_vector<light_type> device_lights = lights;
+                thrust::device_vector<light_type> device_lights = lights;
 
-            auto has_prims_func = [&](size_t index)
-            {
-                return impl_->device_bvhs.size() > index && impl_->device_bvhs[index].num_primitives() != 0;
-            };
+                auto has_prims_func = [&](size_t index)
+                {
+                    return impl_->device_bvhs.size() > index && impl_->device_bvhs[index].num_primitives() != 0;
+                };
 
-            two_array_ref<device_normal_list>    normals      = make_two_array_ref(impl_->device_normals, 0, frame, has_prims_func);
-            two_array_ref<device_tex_coord_list> tex_coords   = make_two_array_ref(impl_->device_tex_coords, 0, frame, has_prims_func);
-            two_array_ref<device_material_list>  materials    = make_two_array_ref(impl_->device_materials, 0, frame, has_prims_func);
-            two_array_ref<device_color_list>     colors       = make_two_array_ref(impl_->device_colors, 0, frame, has_prims_func);
-            two_array_ref<device_texture_list>   texture_refs = make_two_array_ref(impl_->device_texture_refs, 0, frame, has_prims_func);
+                two_array_ref<device_normal_list>    normals = make_two_array_ref(impl_->device_normals, 0, frame, has_prims_func);
+                two_array_ref<device_tex_coord_list> tex_coords = make_two_array_ref(impl_->device_tex_coords, 0, frame, has_prims_func);
+                two_array_ref<device_material_list>  materials = make_two_array_ref(impl_->device_materials, 0, frame, has_prims_func);
+                two_array_ref<device_color_list>     colors = make_two_array_ref(impl_->device_colors, 0, frame, has_prims_func);
+                two_array_ref<device_texture_list>   texture_refs = make_two_array_ref(impl_->device_texture_refs, 0, frame, has_prims_func);
 
-            auto kparams = make_kernel_params(
-                normals_per_vertex_binding{},
-                colors_per_vertex_binding{},
-                thrust::raw_pointer_cast(primitives.data()),
-                thrust::raw_pointer_cast(primitives.data()) + primitives.size(),
-                normals,
-                tex_coords,
-                materials,
-                colors,
-                texture_refs,
-                thrust::raw_pointer_cast(device_lights.data()),
-                thrust::raw_pointer_cast(device_lights.data()) + device_lights.size(),
-                bounces,
-                epsilon,
-                vec4(0.0f),
-                impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
+                auto kparams = make_kernel_params(
+                    normals_per_vertex_binding{},
+                    colors_per_vertex_binding{},
+                    thrust::raw_pointer_cast(primitives.data()),
+                    thrust::raw_pointer_cast(primitives.data()) + primitives.size(),
+                    normals,
+                    tex_coords,
+                    materials,
+                    colors,
+                    texture_refs,
+                    thrust::raw_pointer_cast(device_lights.data()),
+                    thrust::raw_pointer_cast(device_lights.data()) + device_lights.size(),
+                    bounces,
+                    epsilon,
+                    vec4(0.0f),
+                    impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
 
-            impl_->device_intersector.tex_coords = kparams.tex_coords;
-            impl_->device_intersector.textures = kparams.textures;
+                impl_->device_intersector.tex_coords = kparams.tex_coords;
+                impl_->device_intersector.textures = kparams.textures;
 
-            impl_->call_kernel(impl_->device_sched,
-                               vparams.device_rt,
-                               impl_->device_intersector,
-                               kparams);
-
-            vparams.device_rt.display_color_buffer();
+                impl_->call_kernel(cur_channel_,
+                    impl_->device_sched,
+                    *this,
+                    impl_->device_intersector,
+                    kparams);
 #endif
-        }
-        else if (impl_->state->device == CPU)
-        {
+            }
+            else if (impl_->state->device == CPU)
+            {
 #ifndef __CUDA_ARCH__
-            aligned_vector<host_bvh_type::bvh_ref> primitives;
+                aligned_vector<host_bvh_type::bvh_ref> primitives;
 
-            if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
-                primitives.push_back(impl_->host_bvhs[0].ref());
+                if (impl_->host_bvhs.size() > 0 && impl_->host_bvhs[0].num_primitives())
+                    primitives.push_back(impl_->host_bvhs[0].ref());
 
-            if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
-                primitives.push_back(impl_->host_bvhs[frame].ref());
+                if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
+                    primitives.push_back(impl_->host_bvhs[frame].ref());
 
-            auto has_prims_func = [&](size_t index)
-            {
-                return impl_->host_bvhs.size() > index && impl_->host_bvhs[index].num_primitives() != 0;
-            };
+                auto has_prims_func = [&](size_t index)
+                {
+                    return impl_->host_bvhs.size() > index && impl_->host_bvhs[index].num_primitives() != 0;
+                };
 
-            two_array_ref<normal_list>    normals      = make_two_array_ref(impl_->normals, 0, frame, has_prims_func);
-            two_array_ref<tex_coord_list> tex_coords   = make_two_array_ref(impl_->tex_coords, 0, frame, has_prims_func);
-            two_array_ref<material_list>  materials    = make_two_array_ref(impl_->materials, 0, frame, has_prims_func);
-            two_array_ref<color_list>     colors       = make_two_array_ref(impl_->colors, 0, frame, has_prims_func);
-            two_array_ref<texture_list>   texture_refs = make_two_array_ref(impl_->texture_refs, 0, frame, has_prims_func);
+                two_array_ref<normal_list>    normals = make_two_array_ref(impl_->normals, 0, frame, has_prims_func);
+                two_array_ref<tex_coord_list> tex_coords = make_two_array_ref(impl_->tex_coords, 0, frame, has_prims_func);
+                two_array_ref<material_list>  materials = make_two_array_ref(impl_->materials, 0, frame, has_prims_func);
+                two_array_ref<color_list>     colors = make_two_array_ref(impl_->colors, 0, frame, has_prims_func);
+                two_array_ref<texture_list>   texture_refs = make_two_array_ref(impl_->texture_refs, 0, frame, has_prims_func);
 
-            auto kparams = make_kernel_params(
-                normals_per_vertex_binding{},
-                colors_per_vertex_binding{},
-                primitives.data(),
-                primitives.data() + primitives.size(),
-                normals,
-                tex_coords,
-                materials,
-                colors,
-                texture_refs,
-                lights.data(),
-                lights.data() + lights.size(),
-                bounces,
-                epsilon,
-                vec4(0.0f),
-                impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
+                auto kparams = make_kernel_params(
+                    normals_per_vertex_binding{},
+                    colors_per_vertex_binding{},
+                    primitives.data(),
+                    primitives.data() + primitives.size(),
+                    normals,
+                    tex_coords,
+                    materials,
+                    colors,
+                    texture_refs,
+                    lights.data(),
+                    lights.data() + lights.size(),
+                    bounces,
+                    epsilon,
+                    vec4(0.0f),
+                    impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
 
-            impl_->host_intersector.tex_coords = kparams.tex_coords;
-            impl_->host_intersector.textures = kparams.textures;
+                impl_->host_intersector.tex_coords = kparams.tex_coords;
+                impl_->host_intersector.textures = kparams.textures;
 
-            impl_->call_kernel(impl_->host_sched,
-                               vparams.host_rt,
-                               impl_->host_intersector,
-                               kparams);
-
-            vparams.host_rt.display_color_buffer();
+                impl_->call_kernel(cur_channel_,
+                    impl_->host_sched,
+                    *this,
+                    impl_->host_intersector,
+                    kparams);
 #endif
-        }
-
-        if (impl_->dev_state->debug_mode && impl_->dev_state->show_bvh)
-        {
-            glDisable(GL_LIGHTING);
-            glDisable(GL_DEPTH_TEST);
-
-            if (impl_->host_bvhs.size() > 0     && impl_->host_bvhs[0].num_primitives())
-            {
-                if (impl_->outlines_initialized[0])
-                    impl_->outlines[0].frame(vparams.view_matrix, vparams.proj_matrix);
-                else
-                {
-                    impl_->outlines[0].init(impl_->host_bvhs[0]);
-                    impl_->outlines_initialized[0] = true;
-                }
             }
 
-            if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
+            if (impl_->dev_state->debug_mode && impl_->dev_state->show_bvh)
             {
-                if (impl_->outlines_initialized[frame])
-                    impl_->outlines[frame].frame(vparams.view_matrix, vparams.proj_matrix);
-                else
+                glDisable(GL_LIGHTING);
+                glDisable(GL_DEPTH_TEST);
+
+                if (impl_->host_bvhs.size() > 0 && impl_->host_bvhs[0].num_primitives())
                 {
-                    impl_->outlines[frame].init(impl_->host_bvhs[frame]);
-                    impl_->outlines_initialized[frame] = true;
+                    if (impl_->outlines_initialized[0])
+                        impl_->outlines[0].frame(vparams.view_matrix, vparams.proj_matrix);
+                    else
+                    {
+                        impl_->outlines[0].init(impl_->host_bvhs[0]);
+                        impl_->outlines_initialized[0] = true;
+                    }
+                }
+
+                if (impl_->host_bvhs.size() > frame && impl_->host_bvhs[frame].num_primitives())
+                {
+                    if (impl_->outlines_initialized[frame])
+                        impl_->outlines[frame].frame(vparams.view_matrix, vparams.proj_matrix);
+                    else
+                    {
+                        impl_->outlines[frame].init(impl_->host_bvhs[frame]);
+                        impl_->outlines_initialized[frame] = true;
+                    }
                 }
             }
         }
+
+        multi_channel_drawer_->update();
+        multi_channel_drawer_->swapFrame();
+
+        // Finally update state variables. Call after any other updates!
+
+        impl_->commit_state();
 
         impl_->restore_gl_state();
+
+        impl_->total_frame_num++;
+    }
+
+    void drawable::begin_frame()
+    {
+
+    }
+
+    void drawable::end_frame()
+    {
+
+    }
+
+    void drawable::init()
+    {
+        opencover::cover->getScene()->addChild(multi_channel_drawer_);
     }
 
 } // namespace visionaray

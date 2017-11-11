@@ -44,8 +44,8 @@ using material_type = visionaray::generic_material<visionaray::matte<float>,
                                                    visionaray::plastic<float>,
                                                    visionaray::emissive<float> >;
 using material_list = visionaray::aligned_vector<material_type>;
-using color_type = visionaray::vector<3, float>;
-using color_list = visionaray::aligned_vector<color_type>;
+using vertex_color_type = visionaray::vector<3, float>;
+using color_list = visionaray::aligned_vector<vertex_color_type>;
 using light_type = visionaray::spot_light<float>;
 using light_list = visionaray::aligned_vector<light_type>;
 using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
@@ -57,15 +57,13 @@ using texture_map = std::map<std::string, host_tex_type>;
 
 using host_ray_type = visionaray::basic_ray<visionaray::simd::float4>;
 using host_bvh_type = visionaray::index_bvh<triangle_type>;
-using host_render_target_type = visionaray::cpu_buffer_rt<visionaray::PF_RGBA32F,
-                                                          visionaray::PF_DEPTH24_STENCIL8>;
 using host_sched_type = visionaray::tiled_sched<host_ray_type>;
 
 #ifdef __CUDACC__
 using device_normal_list = thrust::device_vector<visionaray::vec3>;
 using device_tex_coord_list = thrust::device_vector<visionaray::vec2>;
 using device_material_list = thrust::device_vector<material_type>;
-using device_color_list = thrust::device_vector<color_type>;
+using device_color_list = thrust::device_vector<vertex_color_type>;
 using device_tex_type = visionaray::cuda_texture<visionaray::vector<4, visionaray::unorm<8> >, 2>;
 using device_tex_ref_type = typename device_tex_type::ref_type;
 using device_texture_list = thrust::device_vector<device_tex_ref_type>;
