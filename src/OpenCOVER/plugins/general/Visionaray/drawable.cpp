@@ -888,14 +888,15 @@ namespace visionaray
     struct drawable::impl
     {
 
-        impl(drawable* drawable_ptr_, opencover::MultiChannelDrawer* multi_channel_drawer_)
+        impl()
             : host_sched(0)
 #ifdef __CUDACC__
             , device_sched(8, 8)
 #endif
-            , drawable_ptr(drawable_ptr_)
-            , multi_channel_drawer(multi_channel_drawer_)
+            , multi_channel_drawer(new opencover::MultiChannelDrawer(false, false))
         {
+            multi_channel_drawer->setMode(opencover::MultiChannelDrawer::AsIs);
+
             for (int i = 0; i < multi_channel_drawer->numViews(); i++)
             {
                 channel_viewing_params.push_back(viewing_params(i));
@@ -948,8 +949,7 @@ namespace visionaray
             }
     };
 
-        drawable* drawable_ptr;
-        opencover::MultiChannelDrawer* multi_channel_drawer;
+        osg::ref_ptr<opencover::MultiChannelDrawer> multi_channel_drawer;
         std::vector<viewing_params> channel_viewing_params;
 
         size_t total_frame_num = 0;
@@ -1086,10 +1086,11 @@ namespace visionaray
         if (vparams.width != w || vparams.height != h || device != state->device)
         {
             pixel_format_info dpfi = map_pixel_format(VSNRAY_DEPTH_PIXEL_FORMAT);
+            pixel_format_info cpfi = map_pixel_format(VSNRAY_COLOR_PIXEL_FORMAT);
 
             vparams.width = w;
             vparams.height = h;
-            multi_channel_drawer->resizeView(channel_index, w, h, dpfi.type);
+            multi_channel_drawer->resizeView(channel_index, w, h, dpfi.type, cpfi.type);
         }
     }
 
@@ -1287,11 +1288,10 @@ namespace visionaray
     //
 
     drawable::drawable()
-        : multi_channel_drawer_(new opencover::MultiChannelDrawer(false))
+        : impl_(new impl)
         , cur_channel_(0)
-        , impl_(new impl(this, multi_channel_drawer_))
     {
-        multi_channel_drawer_->setMode(opencover::MultiChannelDrawer::AsIs);
+        
     }
 
     drawable::~drawable()
@@ -1302,27 +1302,27 @@ namespace visionaray
             if (impl_->outlines_initialized[i])
                 impl_->outlines[i].destroy();
 
-        opencover::cover->getScene()->removeChild(multi_channel_drawer_);
+        opencover::cover->getScene()->removeChild(impl_->multi_channel_drawer);
     }
 
     drawable::color_type* drawable::color()
     {
-        return reinterpret_cast<color_type*>(multi_channel_drawer_->rgba(cur_channel_));
+        return reinterpret_cast<color_type*>(impl_->multi_channel_drawer->rgba(cur_channel_));
     }
 
     drawable::depth_type* drawable::depth()
     {
-        return reinterpret_cast<depth_type*>(multi_channel_drawer_->depth(cur_channel_));
+        return reinterpret_cast<depth_type*>(impl_->multi_channel_drawer->depth(cur_channel_));
     }
 
     drawable::color_type const* drawable::color() const
     {
-        return reinterpret_cast<color_type*>(multi_channel_drawer_->rgba(cur_channel_));
+        return reinterpret_cast<color_type*>(impl_->multi_channel_drawer->rgba(cur_channel_));
     }
 
     drawable::depth_type const* drawable::depth() const
     {
-        return reinterpret_cast<depth_type*>(multi_channel_drawer_->depth(cur_channel_));
+        return reinterpret_cast<depth_type*>(impl_->multi_channel_drawer->depth(cur_channel_));
     }
 
     size_t drawable::width() const
@@ -1516,14 +1516,14 @@ namespace visionaray
 
         if (impl_->device != impl_->state->device)
         {
-            opencover::cover->getScene()->removeChild(multi_channel_drawer_);
+            opencover::cover->getScene()->removeChild(impl_->multi_channel_drawer);
 
-            multi_channel_drawer_ = nullptr;
-            multi_channel_drawer_ = new opencover::MultiChannelDrawer(false);
+            impl_->multi_channel_drawer = nullptr;
+            impl_->multi_channel_drawer = new opencover::MultiChannelDrawer(false, impl_->state->device == GPU);
 
-            multi_channel_drawer_->setMode(opencover::MultiChannelDrawer::AsIs);
+            impl_->multi_channel_drawer->setMode(opencover::MultiChannelDrawer::AsIs);
 
-            opencover::cover->getScene()->addChild(multi_channel_drawer_);
+            opencover::cover->getScene()->addChild(impl_->multi_channel_drawer);
         }
 
         // Update scene state
@@ -1587,8 +1587,8 @@ namespace visionaray
             {
                 vparams.frame_num = 0;
 
-                multi_channel_drawer_->clearColor(cur_channel_);
-                multi_channel_drawer_->clearDepth(cur_channel_);
+                impl_->multi_channel_drawer->clearColor(cur_channel_);
+                impl_->multi_channel_drawer->clearDepth(cur_channel_);
 
                 vparams.need_clear_frame = false;
             }
@@ -1723,8 +1723,8 @@ namespace visionaray
             }
         }
 
-        multi_channel_drawer_->update();
-        multi_channel_drawer_->swapFrame();
+        impl_->multi_channel_drawer->update();
+        impl_->multi_channel_drawer->swapFrame();
 
         // Finally update state variables. Call after any other updates!
 
@@ -1747,7 +1747,7 @@ namespace visionaray
 
     void drawable::init()
     {
-        opencover::cover->getScene()->addChild(multi_channel_drawer_);
+        opencover::cover->getScene()->addChild(impl_->multi_channel_drawer);
     }
 
 } // namespace visionaray

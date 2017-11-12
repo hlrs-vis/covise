@@ -24,6 +24,10 @@ struct ChannelData {
     int channelNum;
     bool second;
     int frameNum;
+    int width;
+    int height;
+    GLenum colorFormat;
+    GLenum depthFormat;
     osg::Matrix curProj, curView, curModel;
     osg::Matrix imgProj, imgView, imgModel;
     osg::Matrix newProj, newView, newModel;
@@ -53,6 +57,10 @@ struct ChannelData {
         : channelNum(channel)
         , second(false)
         , frameNum(0)
+        , width(0)
+        , height(0)
+        , colorFormat(0)
+        , depthFormat(0)
     {
     }
 };
@@ -61,7 +69,7 @@ class PLUGIN_UTILEXPORT MultiChannelDrawer: public osg::Camera {
 public:
    typedef opencover::ChannelData ChannelData;
 
-    MultiChannelDrawer(bool flipped=false);
+    MultiChannelDrawer(bool flipped=false, bool useCuda=false);
     ~MultiChannelDrawer();
     int numViews() const;
     void update(); //! to be called each frame, updates current matrices
@@ -86,7 +94,7 @@ public:
    //! set matrices corresponding to RGBA and depth data for view idx
    void updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
    //! resize view idx
-   void resizeView(int idx, int w, int h, GLenum depthFormat=0);
+   void resizeView(int idx, int w, int h, GLenum depthFormat=0, GLenum colorFormat=GL_UNSIGNED_BYTE);
    //! set matrices for which view idx shall be reprojected (mode != AsIs)
    void reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
    //! set matrices from COVER for all views
@@ -107,6 +115,10 @@ private:
    std::vector<ChannelData> m_channelData;
    bool m_flipped;
    Mode m_mode;
+
+   const bool m_useCuda;
+
+   static bool m_cudaInitialized;
 };
 
 }

@@ -79,12 +79,10 @@ namespace visionaray
         void init();
 
     private:
-        osg::ref_ptr<opencover::MultiChannelDrawer> multi_channel_drawer_;
-
-        int cur_channel_;
-
         struct impl;
         std::unique_ptr<impl> impl_;
+
+        int cur_channel_;
     };
 
 } // namespace visionaray

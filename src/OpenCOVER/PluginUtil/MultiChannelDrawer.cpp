@@ -5,9 +5,10 @@
 
  * License: LGPL 2+ */
 
-#include "MultiChannelDrawer.h"
+#include <GL/glew.h>
 
 #include <cassert>
+#include <stdexcept>
 
 #include <osg/Depth>
 #include <osg/Geometry>
@@ -18,6 +19,17 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
 
+#ifdef HAVE_CUDA
+#include <cuda.h>
+#include <cuda_gl_interop.h>
+#include <thrust/fill.h>
+#include <thrust/execution_policy.h>
+#include "CudaTextureRectangle.h"
+#include "CudaGraphicsResource.h"
+#endif
+
+#include "MultiChannelDrawer.h"
+
 //#define INSTANCED
 
 // requires GL 3.2
@@ -27,6 +39,8 @@
 
 namespace opencover
 {
+
+bool MultiChannelDrawer::m_cudaInitialized = false;
 
 //! osg::Drawable::DrawCallback for rendering selected geometry on one channel only
 /*! decision is made based on cameras currently on osg's stack */
@@ -278,10 +292,39 @@ const char reprojMeshGeo[] =
       "   EndPrimitive();\n"
       "}\n";
 
-MultiChannelDrawer::MultiChannelDrawer(bool flipped)
+MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
 : m_flipped(flipped)
 , m_mode(MultiChannelDrawer::ReprojectMesh)
+, m_useCuda(useCuda)
 {
+#ifdef HAVE_CUDA
+    if (!m_cudaInitialized)
+    {
+        int dev = 0;
+        cudaDeviceProp prop;
+        cudaError_t err = cudaChooseDevice(&dev, &prop);
+        if (err != cudaSuccess)
+        {
+            throw std::runtime_error("choose device");
+        }
+
+        err = cudaGLSetGLDevice(dev);
+
+        if (err == cudaErrorSetOnActiveProcess)
+        {
+            err = cudaDeviceReset();
+            err = cudaGLSetGLDevice(dev);
+        }
+
+        if (err != cudaSuccess)
+        {
+            throw std::runtime_error("set GL device");
+        }
+
+        m_cudaInitialized = true;
+    }
+#endif
+
    setAllowEventFocus(false);
    setProjectionMatrix(osg::Matrix::identity());
    setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
@@ -555,19 +598,32 @@ void MultiChannelDrawer::initChannelData(ChannelData &cd) {
 
    cd.camera = coVRConfig::instance()->channels[cd.channelNum].camera;
 
-   cd.colorTex = new osg::TextureRectangle;
-   osg::Image *cimg = new osg::Image();
-   cd.colorTex->setImage(new osg::Image());
-   cimg->setPixelBufferObject(new osg::PixelBufferObject(cimg));
+#ifdef HAVE_CUDA
+   if (m_useCuda)
+   {
+       cd.colorTex = new CudaTextureRectangle;
+       cd.depthTex = new CudaTextureRectangle;
+   }
+   else
+#endif
+   {
+       cd.colorTex = new osg::TextureRectangle;
+       osg::Image *cimg = new osg::Image();
+       cd.colorTex->setImage(new osg::Image());
+       cimg->setPixelBufferObject(new osg::PixelBufferObject(cimg));
+
+       cd.depthTex = new osg::TextureRectangle;
+       osg::Image *dimg = new osg::Image();
+       cd.depthTex->setImage(dimg);
+       dimg->setPixelBufferObject(new osg::PixelBufferObject(dimg));
+   }
+
+
    cd.colorTex->setInternalFormat( GL_RGBA );
    cd.colorTex->setBorderWidth( 0 );
    cd.colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
    cd.colorTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
-   cd.depthTex = new osg::TextureRectangle;
-   osg::Image *dimg = new osg::Image();
-   cd.depthTex->setImage(dimg);
-   dimg->setPixelBufferObject(new osg::PixelBufferObject(dimg));
    cd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
    cd.depthTex->setBorderWidth( 0 );
    cd.depthTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
@@ -601,8 +657,18 @@ void MultiChannelDrawer::swapFrame() {
       cd.imgProj = cd.newProj;
       cd.imgModel = cd.newModel;
 
-      cd.depthTex->getImage()->dirty();
-      cd.colorTex->getImage()->dirty();
+#ifdef HAVE_CUDA
+      if (m_useCuda)
+      {
+          cd.colorTex->dirtyTextureObject();
+          cd.depthTex->dirtyTextureObject();
+      }
+      else
+#endif
+      {
+          cd.depthTex->getImage()->dirty();
+          cd.colorTex->getImage()->dirty();
+      }
 
       cd.frameNum++;
    }
@@ -616,18 +682,56 @@ void MultiChannelDrawer::updateMatrices(int idx, const osg::Matrix &model, const
    cd.newProj = proj;
 }
 
-void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat) {
+void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, GLenum colorFormat) {
     ChannelData &cd = m_channelData[idx];
-    osg::Image *cimg = cd.colorTex->getImage();
-    if (cimg->s() != w || cimg->t() != h) {
-        cimg->allocateImage(w, h, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+
+    if (cd.width != w || cd.height != h || cd.colorFormat != colorFormat)
+    {
+        GLenum colorInternalFormat = 0;
+        int colorTypeSize = 0;
+        switch (colorFormat)
+        {
+        case GL_FLOAT:
+            colorInternalFormat = GL_RGBA32F;
+            colorTypeSize = 16;
+            break;
+        case GL_UNSIGNED_BYTE:
+            colorInternalFormat = GL_RGBA8;
+            colorTypeSize = 4;
+            break;
+        default:
+            throw std::runtime_error("Color pixel type not supported!");
+        }
+
+#ifdef HAVE_CUDA
+        if (m_useCuda)
+        {
+            cd.colorTex->setTextureSize(w, h);
+            cd.colorTex->setSourceFormat(GL_RGBA);
+            cd.colorTex->setSourceType(colorFormat);
+            cd.colorTex->setInternalFormat(colorInternalFormat);
+
+            if (cd.camera != nullptr) {
+                osg::State* state = cd.camera->getGraphicsContext()->getState();
+
+                static_cast<CudaTextureRectangle*>(cd.colorTex.get())->resize(state, w, h, colorTypeSize);
+            }
+        }
+        else
+#endif
+        {
+            osg::Image *cimg = cd.colorTex->getImage();
+            cimg->setInternalTextureFormat(colorFormat);
+            cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
+        }
 
         if (m_flipped) {
             (*cd.texcoord)[0].set(0., h);
             (*cd.texcoord)[1].set(w, h);
             (*cd.texcoord)[2].set(w, 0.);
             (*cd.texcoord)[3].set(0., 0.);
-        } else {
+        }
+        else {
             (*cd.texcoord)[0].set(0., 0.);
             (*cd.texcoord)[1].set(w, 0.);
             (*cd.texcoord)[2].set(w, h);
@@ -637,51 +741,90 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat) {
         cd.fixedGeo->getTexCoordArray(0)->dirty();
     }
 
-    osg::Image *dimg = cd.depthTex->getImage();
-    if (depthFormat != 0) {
-        if (dimg->s() != w || dimg->t() != h || dimg->getDataType() != depthFormat) {
-            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat);
-
-            osg::Geometry *geo = cd.reprojGeo;
-#ifdef INSTANCED
-            if (geo->getNumPrimitiveSets() > 0) {
-                geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-            } else {
-                geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-            }
-#else
-            cd.pointCoord->resizeArray(w*h);
-            for (int y=0; y<h; ++y) {
-                for (int x=0; x<w; ++x) {
-                    (*cd.pointCoord)[y*w+x].set(x+0.5f, m_flipped ? y+0.5f : h-y+0.5f);
-                }
-            }
-            cd.pointCoord->dirty();
-            cd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
-
-            cd.quadCoord->resizeArray((w-1)*(h-1));
-            size_t idx=0;
-            for (int y=0; y<h-1; ++y) {
-                for (int x=0; x<w-1; ++x) {
-                    (*cd.quadCoord)[idx++].set(x+0.5f, m_flipped ? y+0.5f : h-y+0.5f);
-                }
-            }
-            cd.quadCoord->dirty();
-            cd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w-1)*(h-1));
-
-            osg::ref_ptr<osg::DrawArrays> arr = (m_mode==ReprojectMesh||m_mode==ReprojectMeshWithHoles) ? cd.quadArr : cd.pointArr;
-
-            if (geo->getNumPrimitiveSets() > 0) {
-                geo->setPrimitiveSet(0, arr);
-            } else {
-                geo->addPrimitiveSet(arr);
-            }
-            geo->dirtyDisplayList();
-#endif
-            cd.size->set(osg::Vec2(w, h));
-            cd.pixelOffset->set(osg::Vec2((w+1)%2*0.5f, (h+1)%2*0.5f));
+    if ((cd.width != w || cd.height != h || cd.depthFormat != depthFormat) && depthFormat != 0)
+    {
+        GLenum depthInternalFormat = 0;
+        int depthTypeSize = 0;
+        switch (depthFormat)
+        {
+        case GL_FLOAT:
+            depthInternalFormat = GL_DEPTH_COMPONENT32F;
+            depthTypeSize = 4;
+            break;
+        default:
+            throw std::runtime_error("Depth pixel type not supported!");
         }
+
+#ifdef HAVE_CUDA
+        if (m_useCuda)
+        {
+            cd.depthTex->setTextureSize(w, h);
+            cd.depthTex->setSourceFormat(GL_DEPTH_COMPONENT);
+            cd.depthTex->setSourceType(depthFormat);
+            cd.depthTex->setInternalFormat(depthInternalFormat);
+
+            if (cd.camera != nullptr) {
+                osg::State* state = cd.camera->getGraphicsContext()->getState();
+
+                static_cast<CudaTextureRectangle*>(cd.depthTex.get())->resize(state, w, h, depthTypeSize);
+            }
+        }
+        else
+#endif
+        {
+            osg::Image *dimg = cd.depthTex->getImage();
+            dimg->setInternalTextureFormat(depthInternalFormat);
+            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat);
+        }
+
+
+        osg::Geometry *geo = cd.reprojGeo;
+#ifdef INSTANCED
+        if (geo->getNumPrimitiveSets() > 0) {
+            geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
+        }
+        else {
+            geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
+        }
+#else
+        cd.pointCoord->resizeArray(w*h);
+        for (int y = 0; y<h; ++y) {
+            for (int x = 0; x<w; ++x) {
+                (*cd.pointCoord)[y*w + x].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+            }
+        }
+        cd.pointCoord->dirty();
+        cd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
+
+        cd.quadCoord->resizeArray((w - 1)*(h - 1));
+        size_t idx = 0;
+        for (int y = 0; y<h - 1; ++y) {
+            for (int x = 0; x<w - 1; ++x) {
+                (*cd.quadCoord)[idx++].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+            }
+        }
+        cd.quadCoord->dirty();
+        cd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w - 1)*(h - 1));
+
+        osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? cd.quadArr : cd.pointArr;
+
+        if (geo->getNumPrimitiveSets() > 0) {
+            geo->setPrimitiveSet(0, arr);
+        }
+        else {
+            geo->addPrimitiveSet(arr);
+        }
+        geo->dirtyDisplayList();
+#endif
+        cd.size->set(osg::Vec2(w, h));
+        cd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
     }
+
+    cd.width = w;
+    cd.height = h;
+
+    cd.depthFormat = depthFormat;
+    cd.colorFormat = colorFormat;
 }
 
 void MultiChannelDrawer::reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {
@@ -704,28 +847,66 @@ void MultiChannelDrawer::reproject() {
 
 unsigned char *MultiChannelDrawer::rgba(int idx) const {
     const ChannelData &cd = m_channelData[idx];
-    return cd.colorTex->getImage()->data();
+
+#ifdef HAVE_CUDA
+    if (m_useCuda)
+    {
+        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(cd.colorTex.get())->resourceData());
+    }
+    else
+#endif
+    {
+        return cd.colorTex->getImage()->data();
+    }
 }
 
 unsigned char *MultiChannelDrawer::depth(int idx) const {
     const ChannelData &cd = m_channelData[idx];
-    return cd.depthTex->getImage()->data();
+
+#ifdef HAVE_CUDA
+    if (m_useCuda)
+    {
+        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(cd.depthTex.get())->resourceData());
+    }
+    else
+#endif
+    {
+        return cd.depthTex->getImage()->data();
+    }
 }
 
 void MultiChannelDrawer::clearColor(int idx) {
     ChannelData &cd = m_channelData[idx];
- 
-    osg::Image *color =  cd.colorTex->getImage();
-    memset(color->data(), 0, color->getTotalSizeInBytes());
-    color->dirty();
+
+#ifdef HAVE_CUDA
+    if (m_useCuda)
+    {
+        static_cast<CudaTextureRectangle*>(cd.colorTex.get())->clear();
+    }
+    else
+#endif
+    {
+        osg::Image *color = cd.colorTex->getImage();
+        memset(color->data(), 0, color->getTotalSizeInBytes());
+        color->dirty();
+    }
 }
 
 void MultiChannelDrawer::clearDepth(int idx) {
     ChannelData &cd = m_channelData[idx];
- 
-    osg::Image *depth =  cd.depthTex->getImage();
-    memset(depth->data(), 0xff, depth->getTotalSizeInBytes());
-    depth->dirty();
+
+#ifdef HAVE_CUDA
+    if (m_useCuda)
+    {
+        static_cast<CudaTextureRectangle*>(cd.depthTex.get())->clear();
+    }
+    else
+#endif
+    {
+        osg::Image *depth = cd.depthTex->getImage();
+        memset(depth->data(), 0, depth->getTotalSizeInBytes());
+        depth->dirty();
+    }
 }
 
 MultiChannelDrawer::Mode MultiChannelDrawer::mode() const {
