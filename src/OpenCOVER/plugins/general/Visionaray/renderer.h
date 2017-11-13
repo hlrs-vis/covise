@@ -7,8 +7,8 @@
 
 #pragma once
 
-#ifndef VSNRAY_PLUGIN_DRAWABLE_H
-#define VSNRAY_PLUGIN_DRAWABLE_H 1
+#ifndef VSNRAY_PLUGIN_RENDERER_H
+#define VSNRAY_PLUGIN_RENDERER_H 1
 
 #include <memory>
 
@@ -34,7 +34,7 @@ namespace visionaray
     struct render_state;
     struct debug_state;
 
-    class drawable
+    class renderer
     {
     public:
         using color_type = typename pixel_traits<VSNRAY_COLOR_PIXEL_FORMAT>::type;
@@ -43,8 +43,8 @@ namespace visionaray
         using ref_type = render_target_ref<VSNRAY_COLOR_PIXEL_FORMAT, VSNRAY_DEPTH_PIXEL_FORMAT>;
 
     public:
-        drawable();
-        ~drawable();
+        renderer();
+        ~renderer();
 
         color_type* color();
         depth_type* depth();
@@ -71,7 +71,7 @@ namespace visionaray
         // but keep the Visionaray data structures intact
         void set_suppress_rendering(bool enable);
 
-        void draw(osg::RenderInfo &info);
+        void render_frame(osg::RenderInfo &info);
 
         void begin_frame();
         void end_frame();
@@ -87,4 +87,4 @@ namespace visionaray
 
 } // namespace visionaray
 
-#endif // VSNRAY_PLUGIN_DRAWABLE_H
+#endif // VSNRAY_PLUGIN_RENDERER_H

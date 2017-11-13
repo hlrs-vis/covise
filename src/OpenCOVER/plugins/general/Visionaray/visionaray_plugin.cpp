@@ -29,7 +29,7 @@
 #include <OpenVRUI/coSliderMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
 
-#include "drawable.h"
+#include "renderer.h"
 #include "state.h"
 #include "visionaray_plugin.h"
 
@@ -59,12 +59,12 @@ namespace visionaray
         impl()
         {
             init_state_from_config();
-            drawer.update_state(state, dev_state);
+            rend.update_state(state, dev_state);
         }
 
         osg::Node::NodeMask objroot_node_mask;
         osg::ref_ptr<osg::Geode> geode;
-        drawable drawer;
+        renderer rend;
 
         struct
         {
@@ -639,7 +639,7 @@ namespace visionaray
 
     void Visionaray::impl::set_suppress_rendering(bool suppress_rendering)
     {
-        drawer.set_suppress_rendering(suppress_rendering);
+        rend.set_suppress_rendering(suppress_rendering);
         ui.suppress_rendering->setState(suppress_rendering, false);
         tui.suppress_rendering->setState(suppress_rendering);
     }
@@ -705,7 +705,7 @@ namespace visionaray
 
         impl_->objroot_node_mask = opencover::cover->getObjectsRoot()->getNodeMask();
 
-        impl_->drawer.init();
+        impl_->rend.init();
 
         return true;
     }
@@ -728,18 +728,18 @@ namespace visionaray
         if (impl_->state->rebuild)
         {
             auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
-            impl_->drawer.acquire_scene_data(seqs);
+            impl_->rend.acquire_scene_data(seqs);
             impl_->state->rebuild = false;
         }
 
         impl_->state->animation_frame = opencover::coVRAnimationManager::instance()->getAnimationFrame();
 
-        impl_->drawer.draw(info);
+        impl_->rend.render_frame(info);
     }
 
     void Visionaray::expandBoundingSphere(osg::BoundingSphere &bs)
     {
-        impl_->drawer.expandBoundingSphere(bs);
+        impl_->rend.expandBoundingSphere(bs);
     }
 
     void Visionaray::key(int type, int key_sym, int /* mod */)

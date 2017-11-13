@@ -42,7 +42,7 @@
 #include "kernels/normals_kernel.h"
 #include "kernels/tex_coords_kernel.h"
 #include "common.h"
-#include "drawable.h"
+#include "renderer.h"
 #include "scene_monitor.h"
 #include "state.h"
 #include "two_array_ref.h"
@@ -885,7 +885,7 @@ namespace visionaray
     // Private implementation
     //
 
-    struct drawable::impl
+    struct renderer::impl
     {
 
         impl()
@@ -1012,7 +1012,7 @@ namespace visionaray
         void call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params);
     };
 
-    void drawable::impl::store_gl_state()
+    void renderer::impl::store_gl_state()
     {
         glGetIntegerv(GL_MATRIX_MODE, &gl_state.matrix_mode);
         gl_state.lighting = glIsEnabled(GL_LIGHTING);
@@ -1020,7 +1020,7 @@ namespace visionaray
         gl_state.framebuffer_srgb = glIsEnabled(GL_FRAMEBUFFER_SRGB);
     }
 
-    void drawable::impl::restore_gl_state()
+    void renderer::impl::restore_gl_state()
     {
         if (gl_state.framebuffer_srgb)
         {
@@ -1052,7 +1052,7 @@ namespace visionaray
         glMatrixMode(gl_state.matrix_mode);
     }
 
-    void drawable::impl::update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode)
+    void renderer::impl::update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode)
     {
         viewing_params& vparams = channel_viewing_params[channel_index];
 
@@ -1094,7 +1094,7 @@ namespace visionaray
         }
     }
 
-    bool drawable::impl::scene_valid()
+    bool renderer::impl::scene_valid()
     {
         if (host_bvhs.size() == 0)
             return false;
@@ -1114,7 +1114,7 @@ namespace visionaray
         return equal_size;
     }
 
-    void drawable::impl::update_device_data(unsigned bits)
+    void renderer::impl::update_device_data(unsigned bits)
     {
 #ifdef __CUDACC__
         if (!scene_valid())
@@ -1209,7 +1209,7 @@ namespace visionaray
 #endif
     }
 
-    void drawable::impl::commit_state()
+    void renderer::impl::commit_state()
     {
         clr_space = state->clr_space;
         algo_current = state->algo;
@@ -1222,7 +1222,7 @@ namespace visionaray
     //
 
     template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
-    void drawable::impl::call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params)
+    void renderer::impl::call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params)
     {
         auto &vparams = channel_viewing_params[channel_index];
 
@@ -1287,14 +1287,14 @@ namespace visionaray
     //
     //
 
-    drawable::drawable()
+    renderer::renderer()
         : impl_(new impl)
         , cur_channel_(0)
     {
         
     }
 
-    drawable::~drawable()
+    renderer::~renderer()
     {
         set_node_masks_visitor visitor(impl_->node_masks);
         opencover::cover->getObjectsRoot()->accept(visitor);
@@ -1305,49 +1305,49 @@ namespace visionaray
         opencover::cover->getScene()->removeChild(impl_->multi_channel_drawer);
     }
 
-    drawable::color_type* drawable::color()
+    renderer::color_type* renderer::color()
     {
         return reinterpret_cast<color_type*>(impl_->multi_channel_drawer->rgba(cur_channel_));
     }
 
-    drawable::depth_type* drawable::depth()
+    renderer::depth_type* renderer::depth()
     {
         return reinterpret_cast<depth_type*>(impl_->multi_channel_drawer->depth(cur_channel_));
     }
 
-    drawable::color_type const* drawable::color() const
+    renderer::color_type const* renderer::color() const
     {
         return reinterpret_cast<color_type*>(impl_->multi_channel_drawer->rgba(cur_channel_));
     }
 
-    drawable::depth_type const* drawable::depth() const
+    renderer::depth_type const* renderer::depth() const
     {
         return reinterpret_cast<depth_type*>(impl_->multi_channel_drawer->depth(cur_channel_));
     }
 
-    size_t drawable::width() const
+    size_t renderer::width() const
     {
         return impl_->channel_viewing_params[cur_channel_].width;
     }
 
-    size_t drawable::height() const
+    size_t renderer::height() const
     {
         return impl_->channel_viewing_params[cur_channel_].height;
     }
 
-    drawable::ref_type drawable::ref()
+    renderer::ref_type renderer::ref()
     {
-        return typename drawable::ref_type(color(), depth(), width(), height());
+        return typename renderer::ref_type(color(), depth(), width(), height());
     }
 
-    void drawable::update_state(
+    void renderer::update_state(
         std::shared_ptr<render_state> const &state,
         std::shared_ptr<debug_state> const &dev_state)
     {
         impl_->update_state(state, dev_state);
     }
 
-    void drawable::acquire_scene_data(const std::vector<osg::Sequence *> &seqs)
+    void renderer::acquire_scene_data(const std::vector<osg::Sequence *> &seqs)
     {
         // TODO: real dynamic scenes :)
 
@@ -1435,7 +1435,7 @@ namespace visionaray
         impl_->update_device_data();
     }
 
-    void drawable::set_suppress_rendering(bool enable)
+    void renderer::set_suppress_rendering(bool enable)
     {
         if (enable)
         {
@@ -1456,7 +1456,7 @@ namespace visionaray
         impl_->dev_state->suppress_rendering = enable;
     }
 
-    void drawable::expandBoundingSphere(osg::BoundingSphere &bs)
+    void renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     {
         aabb bounds;
         bounds.invalidate();
@@ -1474,10 +1474,10 @@ namespace visionaray
     }
 
     //-------------------------------------------------------------------------------------------------
-    // Draw implementation
+    // Render a frame with Visionaray
     //
 
-    void drawable::draw(osg::RenderInfo &info)
+    void renderer::render_frame(osg::RenderInfo &info)
     {
         if (!impl_->state || !impl_->dev_state)
             return;
@@ -1735,17 +1735,17 @@ namespace visionaray
         impl_->total_frame_num++;
     }
 
-    void drawable::begin_frame()
+    void renderer::begin_frame()
     {
 
     }
 
-    void drawable::end_frame()
+    void renderer::end_frame()
     {
 
     }
 
-    void drawable::init()
+    void renderer::init()
     {
         opencover::cover->getScene()->addChild(impl_->multi_channel_drawer);
     }
