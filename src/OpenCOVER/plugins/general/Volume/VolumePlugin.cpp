@@ -1738,7 +1738,7 @@ void VolumePlugin::updateTFEData()
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LINEAR, &fg, vd->range(0)[0], vd->range(0)[1]);
+                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
                         editor->pinedit->setBackgroundType(0); // histogram
                     }
