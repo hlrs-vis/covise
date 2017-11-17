@@ -60,8 +60,8 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     instantClassification = false;
     defaultColors = defaultAlpha = 0;
     theTransferFunc.resize(1);
-    theTransferFunc[0].setDefaultColors(defaultColors, getMin(), getMax());
-    theTransferFunc[0].setDefaultAlpha(defaultAlpha, getMin(), getMax());
+    theTransferFunc[0].setDefaultColors(defaultColors, minValue[0], maxValue[0]);
+    theTransferFunc[0].setDefaultAlpha(defaultAlpha, minValue[0], maxValue[0]);
     colorButton = new coToggleButton(new coSquareButtonGeometry("Volume/color-menu"), this);
     colorButton->setPos(0, -10.9);
     alphaPeakButton = new coToggleButton(new coSquareButtonGeometry("Volume/peak-menu"), this);
