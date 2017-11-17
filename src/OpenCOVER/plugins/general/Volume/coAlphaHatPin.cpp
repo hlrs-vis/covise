@@ -43,7 +43,7 @@ void coAlphaHatPin::setPos(float x, float minv, float maxv)
 
 void coAlphaHatPin::setTopWidth(float s, float minv, float maxv)
 {
-    myTopWidth = (s - minv) / (maxv - minv);
+    myTopWidth = s / (maxv - minv);
     //cerr << "setTopWidth=" << s << endl;
     if (s > jPin->_bottom[0])
         jPin->_top[0] = jPin->_bottom[0];
@@ -111,7 +111,7 @@ void coAlphaHatPin::setMax(float m, float minv, float maxv)
 
 void coAlphaHatPin::setBotWidth(float m, float minv, float maxv)
 {
-    myBotWidth = (m - minv) / (maxv - minv);
+    myBotWidth = m / (maxv - minv);
     //std::cerr << "setBotWidth=" << m << std::endl;
     if (m < jPin->_top[0])
         jPin->_bottom[0] = jPin->_top[0];
@@ -152,20 +152,20 @@ float coAlphaHatPin::getBotWidth01() const
 void coAlphaHatPin::adjustGraph(float minv, float maxv)
 {
     // x-coords, [0..1]
-    float x2 = myX - ((jPin->_top[0] - minv) / (maxv - minv)) / 2.0;
-    float x3 = myX + ((jPin->_top[0] - minv) / (maxv - minv)) / 2.0;
-    float x1 = myX - ((jPin->_bottom[0] - minv) / (maxv - minv)) / 2.;
-    float x4 = myX + ((jPin->_bottom[0] - minv) / (maxv - minv)) / 2.;
+    float x2 = myX - myTopWidth / 2.0f;
+    float x3 = myX + myTopWidth / 2.0f;
+    float x1 = myX - myBotWidth / 2.0f;
+    float x4 = myX + myBotWidth / 2.0f;
     x1 = ts_clamp(x1, 0.0f, 1.0f);
     x2 = ts_clamp(x2, 0.0f, 1.0f);
     x3 = ts_clamp(x3, 0.0f, 1.0f);
     x4 = ts_clamp(x4, 0.0f, 1.0f);
 
     // x-coords, [minv..maxv]
-    float vx2 = (myX + minv) * (maxv - minv) - jPin->_top[0] / 2.0;
-    float vx3 = (myX + minv) * (maxv - minv) + jPin->_top[0] / 2.0;
-    float vx1 = (myX + minv) * (maxv - minv) - jPin->_bottom[0] / 2.;
-    float vx4 = (myX + minv) * (maxv - minv) + jPin->_bottom[0] / 2.;
+    float vx2 = virvo::lerp(minv, maxv, myX) - jPin->_top[0] / 2.0f;
+    float vx3 = virvo::lerp(minv, maxv, myX) + jPin->_top[0] / 2.0f;
+    float vx1 = virvo::lerp(minv, maxv, myX) - jPin->_bottom[0] / 2.0f;
+    float vx4 = virvo::lerp(minv, maxv, myX) + jPin->_bottom[0] / 2.0f;
     vx1 = ts_clamp(vx1, minv, maxv);
     vx2 = ts_clamp(vx2, minv, maxv);
     vx3 = ts_clamp(vx3, minv, maxv);
