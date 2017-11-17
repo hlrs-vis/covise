@@ -374,7 +374,7 @@ bool VolumePlugin::init()
 
     backgroundColor = BgDefault;
     bool ignore;
-    computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
+    computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", true, &ignore);
     showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
@@ -1740,6 +1740,7 @@ void VolumePlugin::updateTFEData()
                         vvColor fg(1.0f, 1.0f, 1.0f);
                         vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LINEAR, &fg, vd->range(0)[0], vd->range(0)[1]);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
+                        editor->pinedit->setBackgroundType(0); // histogram
                     }
 
                     editor->setNumChannels(vd->chan);
