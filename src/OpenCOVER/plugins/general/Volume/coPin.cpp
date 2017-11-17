@@ -67,6 +67,16 @@ void coPin::setPos(float x, float minv, float maxv)
     jPin->_pos[0] = x;
 }
 
+float coPin::getPosValue() const
+{
+    return jPin->pos()[0];
+}
+
+float coPin::getPos01() const
+{
+    return myX;
+}
+
 void coPin::setHandleTrans(float trans)
 {
     _handleTrans = trans;

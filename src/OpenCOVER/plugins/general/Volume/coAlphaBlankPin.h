@@ -22,6 +22,8 @@ public:
     virtual ~coAlphaBlankPin();
     virtual void setPos(float x, float minv = 0.0f, float maxv = 1.0f);
     void setWidth(float m, float minv = 0.0f, float maxv = 1.0f);
+    float getWidthValue() const; // width in [minv..maxv]
+    float getWidth01() const; // width in [0..1]
     float w1, w2, w3;
 
 protected:
@@ -34,5 +36,7 @@ protected:
     void adjustGraph(float minv = 0.0f, float maxv = 1.0f);
     void createGraphLists();
     osg::ref_ptr<osg::Geode> createGraphGeode();
+
+    float myWidth;
 };
 #endif

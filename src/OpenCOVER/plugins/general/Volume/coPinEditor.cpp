@@ -479,15 +479,12 @@ int coPinEditor::hit(vruiHit *hit)
         // adjust interaction elements on hat pins
         for (list<coPin *>::iterator pin = pinList.begin(); pin != pinList.end(); ++pin)
         {
-            vvTFPyramid *pyrPin = dynamic_cast<vvTFPyramid *>((*pin)->jPin);
-            if (pyrPin)
+            coAlphaHatPin *alphaHatPin = dynamic_cast<coAlphaHatPin *>(*pin);
+            if (alphaHatPin)
             {
-                // normalize pin parameters
-                float minv = myFunctionEditor->getMin();
-                float maxv = myFunctionEditor->getMax();
-                float bottom = (pyrPin->_bottom[0] - minv) / (maxv - minv);
-                float top = (pyrPin->_top[0] - minv) / (maxv - minv);
-                float pos = (pyrPin->_pos[0] - minv) / (maxv - minv);
+                float bottom = alphaHatPin->getBotWidth01();
+                float top = alphaHatPin->getTopWidth01();
+                float pos = alphaHatPin->getPos01();
 
                 float d = (bottom - top) / 4. + top / 2.;
                 float trans = -d;
@@ -755,9 +752,7 @@ void coPinEditor::update()
     {
         static float oldX = -11111;
         
-        float minv = myFunctionEditor->getMin();
-        float maxv = myFunctionEditor->getMax();
-        float pos = (currentPin->jPin->_pos[0] - minv) / (maxv - minv);
+        float pos = currentPin->getPos01();
 
         labelBackground->setVisible(true);
         if (oldX != pos + currentPin->handleTrans())
@@ -909,7 +904,7 @@ public:
 
 bool coPinCompare::operator()(const coPin *p1, const coPin *p2) const
 {
-    return p1->jPin->_pos[0] < p2->jPin->_pos[0];
+    return p1->getPosValue() < p2->getPosValue();
 }
 
 void coPinEditor::sortPins()
@@ -936,9 +931,7 @@ bool coPinEditor::isNearestSelected(float x, float y)
                 continue;
         }
 
-        float minv = myFunctionEditor->getMin();
-        float maxv = myFunctionEditor->getMax();
-        float pos = ((*pin)->jPin->_pos[0] - minv) / (maxv - minv);
+        float pos = (*pin)->getPos01();
 
         if (fabs(pos - x) < minDist)
         {
@@ -972,9 +965,7 @@ void coPinEditor::selectPin(float x, float y)
                 continue;
         }
 
-        float minv = myFunctionEditor->getMin();
-        float maxv = myFunctionEditor->getMax();
-        float pos = ((*pin)->jPin->_pos[0] - minv) / (maxv - minv);
+        float pos = (*pin)->getPos01();
 
         if (fabs(pos + (*pin)->handleTrans() - x) < minDist)
         {
@@ -1134,7 +1125,7 @@ void coPinEditor::addPin(int type, int local)
     {
         vvTFColor *colPin = new vvTFColor();
         jPin = colPin;
-        vvColor col = myTransFunc->computeColor(jPin->_pos[0]);
+        vvColor col = myTransFunc->computeColor(jPin->pos()[0]);
         float h, s, v;
         col.getHSB(h, s, v);
         coHSVPin *pin = new coHSVPin(pinDCS.get(), H, W, colPin);

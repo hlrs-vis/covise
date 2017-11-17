@@ -46,9 +46,20 @@ void coAlphaBlankPin::setPos(float x, float minv, float maxv)
 
 void coAlphaBlankPin::setWidth(float w, float minv, float maxv)
 {
+    myWidth = (w - minv) / (maxv - minv);
     jPin->_size[0] = w;
     jPin->_size[1] = jPin->_size[2] = 1.;
     adjustGraph(minv, maxv);
+}
+
+float coAlphaBlankPin::getWidthValue() const
+{
+    return jPin->size()[0];
+}
+
+float coAlphaBlankPin::getWidth01() const
+{
+    return myWidth;
 }
 
 void coAlphaBlankPin::adjustGraph(float minv, float maxv)

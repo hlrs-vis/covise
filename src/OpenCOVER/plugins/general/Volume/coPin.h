@@ -32,6 +32,8 @@ public:
     virtual ~coPin();
 
     virtual void setPos(float x, float minv = 0.0f, float maxv = 1.0f); // only update Position
+    float getPosValue() const; // position in [minv..maxv]
+    float getPos01() const; // position in [0..1]
     virtual void select();
     virtual void deSelect();
     int getID();

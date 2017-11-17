@@ -43,6 +43,7 @@ void coAlphaHatPin::setPos(float x, float minv, float maxv)
 
 void coAlphaHatPin::setTopWidth(float s, float minv, float maxv)
 {
+    myTopWidth = (s - minv) / (maxv - minv);
     //cerr << "setTopWidth=" << s << endl;
     if (s > jPin->_bottom[0])
         jPin->_top[0] = jPin->_bottom[0];
@@ -69,6 +70,16 @@ void coAlphaHatPin::setTopWidth(float s, float minv, float maxv)
    return slope;
 */
     adjustGraph(minv, maxv);
+}
+
+float coAlphaHatPin::getTopWidthValue() const
+{
+    return jPin->top()[0];
+}
+
+float coAlphaHatPin::getTopWidth01() const
+{
+    return myTopWidth;
 }
 
 void coAlphaHatPin::setMax(float m, float minv, float maxv)
@@ -100,6 +111,7 @@ void coAlphaHatPin::setMax(float m, float minv, float maxv)
 
 void coAlphaHatPin::setBotWidth(float m, float minv, float maxv)
 {
+    myBotWidth = (m - minv) / (maxv - minv);
     //std::cerr << "setBotWidth=" << m << std::endl;
     if (m < jPin->_top[0])
         jPin->_bottom[0] = jPin->_top[0];
@@ -125,6 +137,16 @@ void coAlphaHatPin::setBotWidth(float m, float minv, float maxv)
    }
 */
     adjustGraph(minv, maxv);
+}
+
+float coAlphaHatPin::getBotWidthValue() const
+{
+    return jPin->bottom()[0];
+}
+
+float coAlphaHatPin::getBotWidth01() const
+{
+    return myBotWidth;
 }
 
 void coAlphaHatPin::adjustGraph(float minv, float maxv)
