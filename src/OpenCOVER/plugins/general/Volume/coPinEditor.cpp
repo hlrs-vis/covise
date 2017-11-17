@@ -393,19 +393,13 @@ void coPinEditor::setBotWidth(float w, int context)
 
     if (myPin)
     {
-        vvTFPyramid *pyr = dynamic_cast<vvTFPyramid *>(myPin->jPin);
-        vvTFSkip *skip = dynamic_cast<vvTFSkip *>(myPin->jPin);
-        if (pyr)
+        if (coAlphaHatPin *pin = dynamic_cast<coAlphaHatPin *>(myPin))
         {
-            ((coAlphaHatPin *)myPin)->setBotWidth(w,
-                                                  myFunctionEditor->getMin(),
-                                                  myFunctionEditor->getMax());
+            pin->setBotWidth(w, myFunctionEditor->getMin(), myFunctionEditor->getMax());
         }
-        else if (skip)
+        else if (coAlphaBlankPin *pin = dynamic_cast<coAlphaBlankPin *>(myPin))
         {
-            ((coAlphaBlankPin *)myPin)->setWidth(w,
-                                                 myFunctionEditor->getMin(),
-                                                 myFunctionEditor->getMax());
+            pin->setWidth(w, myFunctionEditor->getMin(), myFunctionEditor->getMax());
         }
         updateColorBar();
     }
@@ -424,12 +418,9 @@ void coPinEditor::setMax(float m, int context)
     }
     if (myPin)
     {
-        vvTFPyramid *pyr = dynamic_cast<vvTFPyramid *>(myPin->jPin);
-        if (pyr)
+        if (coAlphaHatPin *pin = dynamic_cast<coAlphaHatPin *>(myPin))
         {
-            ((coAlphaHatPin *)myPin)->setMax(m,
-                                             myFunctionEditor->getMin(),
-                                             myFunctionEditor->getMax());
+            pin->setMax(m, myFunctionEditor->getMin(), myFunctionEditor->getMax());
         }
         updateColorBar();
     }
