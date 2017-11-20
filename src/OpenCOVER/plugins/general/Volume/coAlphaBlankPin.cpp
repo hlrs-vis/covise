@@ -70,8 +70,8 @@ void coAlphaBlankPin::adjustGraph(float minv, float maxv)
     }
 
     // x-coords, [0..1]
-    float x1 = ((myX - jPin->_size[0] - minv) / (maxv - minv)) / 2.0;
-    float x2 = ((myX + jPin->_size[0] - minv) / (maxv - minv)) / 2.0;
+    float x1 = myX - myWidth / 2.0f;
+    float x2 = myX + myWidth / 2.0f;
     if (x1 < 0.0)
     {
         x1 = 0.0;
