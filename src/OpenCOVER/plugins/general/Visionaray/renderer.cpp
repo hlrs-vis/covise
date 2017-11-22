@@ -1082,7 +1082,6 @@ namespace visionaray
         auto proj = osg_cast(multi_channel_drawer->projectionMatrix(channel_index));
 
         bool isAnaglyphic = mode == osg::DisplaySettings::StereoMode::ANAGLYPHIC;
-        bool left = vparams.frame_num % 2 == 1;
 
         if (state->data_var == Dynamic || state->algo != algo_current || state->device != device
             || state->num_bounces != num_bounces || scene_monitor.need_clear_frame()
