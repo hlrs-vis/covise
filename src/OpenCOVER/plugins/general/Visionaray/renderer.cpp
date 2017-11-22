@@ -15,8 +15,6 @@
 #include <thread>
 #include <type_traits>
 
-#include <GL/glew.h>
-
 #include <osg/io_utils>
 #include <osg/LightModel>
 #include <osg/Material>
@@ -968,17 +966,8 @@ namespace visionaray
 
         gl::debug_callback gl_debug_callback;
 
-        bool glew_init = false;
-
         std::shared_ptr<render_state> state = nullptr;
         std::shared_ptr<debug_state> dev_state = nullptr;
-        struct
-        {
-            GLint matrix_mode;
-            GLboolean lighting;
-            GLboolean depth_test;
-            GLboolean framebuffer_srgb;
-        } gl_state;
 
         void reset_multi_channel_drawer()
         {
@@ -1018,8 +1007,6 @@ namespace visionaray
             }
         }
 
-        void store_gl_state();
-        void restore_gl_state();
         void update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode);
         bool scene_valid();
         void update_device_data(unsigned bits = 0xFFFFFFFF);
@@ -1028,46 +1015,6 @@ namespace visionaray
         template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
         void call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params);
     };
-
-    void renderer::impl::store_gl_state()
-    {
-        glGetIntegerv(GL_MATRIX_MODE, &gl_state.matrix_mode);
-        gl_state.lighting = glIsEnabled(GL_LIGHTING);
-        gl_state.depth_test = glIsEnabled(GL_DEPTH_TEST);
-        gl_state.framebuffer_srgb = glIsEnabled(GL_FRAMEBUFFER_SRGB);
-    }
-
-    void renderer::impl::restore_gl_state()
-    {
-        if (gl_state.framebuffer_srgb)
-        {
-            glEnable(GL_FRAMEBUFFER_SRGB);
-        }
-        else
-        {
-            glDisable(GL_FRAMEBUFFER_SRGB);
-        }
-
-        if (gl_state.depth_test)
-        {
-            glEnable(GL_DEPTH_TEST);
-        }
-        else
-        {
-            glDisable(GL_DEPTH_TEST);
-        }
-
-        if (gl_state.lighting)
-        {
-            glEnable(GL_LIGHTING);
-        }
-        else
-        {
-            glDisable(GL_LIGHTING);
-        }
-
-        glMatrixMode(gl_state.matrix_mode);
-    }
 
     void renderer::impl::update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode)
     {
@@ -1498,12 +1445,6 @@ namespace visionaray
         if (!impl_->state || !impl_->dev_state)
             return;
 
-        if (!impl_->glew_init)
-            impl_->glew_init = glewInit() == GLEW_OK;
-
-        if (!impl_->glew_init)
-            return;
-
         if (impl_->dev_state->suppress_rendering)
             return;
 
@@ -1527,8 +1468,6 @@ namespace visionaray
             params.level = gl::debug_level::High;
         }
         impl_->gl_debug_callback.activate(params);
-
-        impl_->store_gl_state();
 
         if (impl_->multi_channel_drawer == nullptr || impl_->device != impl_->state->device)
         {
@@ -1714,9 +1653,6 @@ namespace visionaray
 
             if (impl_->dev_state->debug_mode && impl_->dev_state->show_bvh)
             {
-                glDisable(GL_LIGHTING);
-                glDisable(GL_DEPTH_TEST);
-
                 if (impl_->host_bvhs.size() > 0 && impl_->host_bvhs[0].num_primitives())
                 {
                     if (impl_->outlines_initialized[0])
@@ -1749,8 +1685,6 @@ namespace visionaray
         // Finally update state variables. Call after any other updates!
 
         impl_->commit_state();
-
-        impl_->restore_gl_state();
 
         impl_->total_frame_num++;
     }

@@ -11,8 +11,6 @@
 #include <map>
 #include <string>
 
-#include <GL/glew.h>
-
 #include <osg/Material>
 #include <osg/MatrixTransform>
 #include <osg/Node>
@@ -22,14 +20,9 @@
 #include <visionaray/texture/texture.h>
 #include <visionaray/aligned_vector.h>
 #include <visionaray/bvh.h>
-#include <visionaray/cpu_buffer_rt.h>
 #include <visionaray/generic_material.h>
 #include <visionaray/scheduler.h>
 #include <visionaray/spot_light.h>
-
-#ifdef __CUDACC__
-#include <visionaray/pixel_unpack_buffer_rt.h>
-#endif
 
 
 //-------------------------------------------------------------------------------------------------
@@ -70,8 +63,6 @@ using device_texture_list = thrust::device_vector<device_tex_ref_type>;
 using device_texture_map = std::map<std::string, device_tex_type>;
 using device_ray_type = visionaray::basic_ray<float>;
 using device_bvh_type = visionaray::cuda_index_bvh<triangle_type>;
-using device_render_target_type = visionaray::pixel_unpack_buffer_rt<visionaray::PF_RGBA32F,
-                                                                     visionaray::PF_DEPTH24_STENCIL8>;
 using device_sched_type = visionaray::cuda_sched<device_ray_type>;
 #endif
 
