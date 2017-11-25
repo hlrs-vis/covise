@@ -97,10 +97,10 @@ GetSetElem::compute(const char *)
 
     //retrieve number of selected elements n_el;
     int n_el = 0;
-    int min = selection.lower();
-    int max = selection.upper();
+    ssize_t min = selection.lower();
+	ssize_t max = selection.upper();
 
-    for (int loop = min; loop <= max; loop++)
+    for (ssize_t loop = min; loop <= max; loop++)
     {
         if (selection(loop) != 0)
         {
@@ -114,9 +114,9 @@ GetSetElem::compute(const char *)
 
     //fill parameter list
     int *subsetElements = new int[n_el];
-    int counter = selection.lower();
-    int limit = selection.upper();
-    int index = 0;
+	ssize_t counter = selection.lower();
+	ssize_t limit = selection.upper();
+	ssize_t index = 0;
 
 #ifdef VERBOSE
     fprintf(stderr, "mapping:");
@@ -129,7 +129,7 @@ GetSetElem::compute(const char *)
 #ifdef VERBOSE
             fprintf(stderr, " %d->%d ", counter, index);
 #endif
-            subsetElements[index] = counter;
+            subsetElements[index] = (int)counter;
             ++index;
         }
         else if (selection(counter) && (index >= n_el))

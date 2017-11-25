@@ -100,8 +100,8 @@ EnvSingleton::scan(const std::string &name, const std::string &del) const
 
     // now we have it and scan the variable
     //    int idx = val.find_first_of(del.c_str());
-    int idx = 0;
-    int start = 0;
+    size_t idx = 0;
+    size_t start = 0;
     // adding spaces at the beginning and end of val is a workaround
     // of a flaw in std::string::find_first_of(..) and will be checked later
     std::string sVal(" ");
@@ -113,7 +113,7 @@ EnvSingleton::scan(const std::string &name, const std::string &del) const
         idx = sVal.find_first_of(del.c_str(), idx + 1);
         if (idx == std::string::npos)
         {
-            int end = sVal.size();
+            size_t end = sVal.size();
             std::string part = strip(sVal.substr(start, end - start));
             if (!part.empty())
                 retVal.push_back(part);

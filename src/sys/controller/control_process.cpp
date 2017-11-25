@@ -25,6 +25,7 @@
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+#include <util/unixcompat.h>
 
 #include "AccessGridDaemon.h"
 #include "CTRLHandler.h"

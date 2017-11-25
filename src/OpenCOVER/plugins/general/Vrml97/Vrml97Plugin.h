@@ -23,7 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include <OpenVRUI/coMenu.h>
+#include <cover/ui/Owner.h>
 #include <PluginUtil/coSensor.h>
 
 class ViewerOsg;
@@ -33,14 +33,20 @@ namespace vrml
 class VrmlScene;
 }
 
+namespace opencover {
+namespace ui {
+class Menu;
+class Element;
+}
+}
+
 using namespace vrml;
-using namespace vrui;
 using namespace opencover;
 
 class ListenerCover;
 class SystemCover;
 
-class VRML97PLUGINEXPORT Vrml97Plugin : public coVRPlugin, coMenuListener
+class VRML97PLUGINEXPORT Vrml97Plugin : public coVRPlugin, public ui::Owner
 {
     friend class ListenerCover;
     friend class SystemCover;
@@ -91,8 +97,9 @@ public:
     }
 
     void activateTouchSensor(int id);
-    coMenuItem *getMenuButton(const std::string &buttonName);
+    ui::Element *getMenuButton(const std::string &buttonName);
 
+    bool update();
     // this will be called in PreFrame
     void preFrame();
     bool isNewVRML;
@@ -110,6 +117,6 @@ private:
 
     bool raw;
 
-    void menuEvent(coMenuItem *);
+    //void menuEvent(coMenuItem *);
 };
 #endif

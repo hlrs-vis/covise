@@ -109,7 +109,7 @@ Skeletons::obtainLocal(const char *bDir)
 
     char *binName = new char[10];
     sprintf(binName, "%s/bin", getenv("ARCHSUFFIX"));
-    int len = strlen(binName);
+    size_t len = strlen(binName);
 
     char *fullBinDir = new char[strlen(bDir) + len + 2];
     strcpy(fullBinDir, bDir);
@@ -264,7 +264,7 @@ Skeletons::parseModOutput(const std::string &group, const std::vector<std::strin
         // or a data line
         char delim[64];
         strcpy(delim, SPACE);
-        int lineLen = lines[lineCntr].size();
+        size_t lineLen = lines[lineCntr].size();
         if (lineLen > 0) // our line is not empty
         {
             //fprintf(stderr, " Skeletons::parseModOutput(..)  line:  %s\n", lines[lineCntr] );
@@ -285,7 +285,7 @@ Skeletons::parseModOutput(const std::string &group, const std::vector<std::strin
                     strcpy(delim, QUOTE);
                     tok = strtok(NULL, delim);
                     tok = strtok(NULL, delim);
-                    int len = strlen(tok) + 1;
+                    size_t len = strlen(tok) + 1;
                     char *p = new char[len];
                     strcpy(p, tok);
                     if (len > 4)
@@ -306,7 +306,7 @@ Skeletons::parseModOutput(const std::string &group, const std::vector<std::strin
                     strcpy(delim, QUOTE);
                     tok = strtok(NULL, delim);
                     tok = strtok(NULL, delim);
-                    int len = strlen(tok) + 1;
+                    size_t len = strlen(tok) + 1;
                     // the describtion field may be empty
                     modDesc = new char[len];
                     if (!strcmp(tok, "\n"))
@@ -350,7 +350,7 @@ Skeletons::parseModOutput(const std::string &group, const std::vector<std::strin
                 if (!strcmp(tok, "Parameters:") && (lineCntr > 1))
                 {
                     tok = strtok(NULL, delim);
-                    int len = strlen(tok) + 1;
+                    size_t len = strlen(tok) + 1;
                     char *buf = new char[len];
                     strcpy(buf, tok);
                     numParam = atoi(buf);
@@ -364,7 +364,7 @@ Skeletons::parseModOutput(const std::string &group, const std::vector<std::strin
                 if (!strcmp(tok, "InPorts:") && (lineCntr > 1))
                 {
                     tok = strtok(NULL, delim);
-                    int len = strlen(tok) + 1;
+                    size_t len = strlen(tok) + 1;
                     char *buf = new char[len];
                     strcpy(buf, tok);
                     numInPorts = atoi(buf);
@@ -378,7 +378,7 @@ Skeletons::parseModOutput(const std::string &group, const std::vector<std::strin
                 if (!strcmp(tok, "OutPorts:") && (lineCntr > 1))
                 {
                     tok = strtok(NULL, delim);
-                    int len = strlen(tok) + 1;
+                    size_t len = strlen(tok) + 1;
                     char *buf = new char[len];
                     strcpy(buf, tok);
                     numOutPorts = atoi(buf);

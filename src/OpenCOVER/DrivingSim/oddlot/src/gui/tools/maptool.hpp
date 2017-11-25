@@ -41,6 +41,8 @@ public:
     {
         TMA_LOAD,
         TMA_DELETE,
+        TMA_GOOGLE,
+        TMA_BING,
         TMA_LOCK,
         TMA_OPACITY,
         TMA_X,
@@ -78,6 +80,8 @@ private slots:
     void activateProject(bool hasActive);
     void loadMap();
     void deleteMap();
+    void loadGoogleMap();
+    void loadBingMap();
     void lockMap(bool lock);
     void setOpacity(const QString &opacity);
     //	void						setX();
@@ -95,6 +99,8 @@ private:
     //
     QAction *loadMapAction_;
     QAction *deleteMapAction_;
+    QAction *loadGoogleAction_;
+    QAction *loadBingAction_;
     QAction *lockMapAction_;
     QComboBox *opacityComboBox_;
     //	QDoubleSpinBox *		xLineEdit_;

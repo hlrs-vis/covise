@@ -17,9 +17,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "globals.h"
-extern "C" {
-extern void cfree(void *);
-}
 
 extern void do_select_region(void);
 extern void add_point(int gno, int setno, double px, double py, double tx, double ty, int type);
@@ -177,12 +174,12 @@ void kill_region(int r)
     {
         if (rg[r].x != NULL)
         {
-            cfree(rg[r].x);
+            free(rg[r].x);
             rg[r].x = NULL;
         }
         if (rg[r].y != NULL)
         {
-            cfree(rg[r].y);
+            free(rg[r].y);
             rg[r].y = NULL;
         }
     }

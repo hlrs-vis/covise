@@ -487,7 +487,7 @@ int DTrackSDK::sendDTrack2Command(const std::string command, std::string *answer
     }
 
     // send TCP command string:
-    if ((tcp_send(d_tcpsock, command.c_str(), command.length() + 1, d_tcptimeout_us)))
+    if ((tcp_send(d_tcpsock, command.c_str(), (int)command.length() + 1, d_tcptimeout_us)))
     {
         lastServerError = ERR_NET;
         return -11;

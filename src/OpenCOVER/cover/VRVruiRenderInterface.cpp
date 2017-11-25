@@ -93,6 +93,7 @@ using std::string;
 
 VRVruiRenderInterface::VRVruiRenderInterface()
 {
+    assert(!vruiRendererInterface::theInterface);
 
     groupNode = 0;
     sceneNode = 0;
@@ -116,8 +117,18 @@ VRVruiRenderInterface::VRVruiRenderInterface()
 VRVruiRenderInterface::~VRVruiRenderInterface()
 {
     delete groupNode;
-    delete sceneNode;
     groupNode = 0;
+    delete sceneNode;
+    sceneNode = NULL;
+
+    delete buttons;
+    delete mouseButtons;
+
+    delete handMatrix;
+    delete headMatrix;
+    delete mouseMatrix;
+
+    //delete coIntersection::instance();
     vruiRendererInterface::theInterface = 0;
 }
 

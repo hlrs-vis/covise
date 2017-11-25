@@ -18,25 +18,24 @@
 \****************************************************************************/
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
-#include <OpenVRUI/coMenuItem.h>
 #include <map>
 
 #include <cover/coTabletUI.h>
 #include <util/coTabletUIMessages.h>
 #include <cover/coVRTui.h>
+#include <PluginUtil/ColorBar.h>
 
-namespace vrui
-{
-class coRowMenu;
-class coSubMenuItem;
-}
+#include <cover/ui/Owner.h>
 
 namespace opencover
 {
-class ColorBar;
+namespace ui
+{
+class Menu;
+}
 }
 
-class ColorBarPlugin : public opencover::coVRPlugin, public opencover::coTUIListener
+class ColorBarPlugin: public opencover::coVRPlugin, public opencover::ui::Owner, public opencover::coTUIListener
 {
 public:
     ColorBarPlugin();
@@ -46,11 +45,14 @@ public:
     // this will be called if an object with feedback arrives
     void newInteractor(const opencover::RenderObject *, opencover::coInteractor *i);
     void removeObject(const char *container, bool replace);
+    void postFrame();
 
 private:
+    void removeInteractor(const std::string &container);
     void tabletPressEvent(opencover::coTUIElement *);
     void createMenuEntry();
     void removeMenuEntry();
+    std::vector<std::string> removeQueue;
 
     /// The TabletUI Interface
     opencover::coTUITab *colorBarTab;
@@ -58,12 +60,28 @@ private:
     int tabID;
 
     // VR Menu
-    vrui::coSubMenuItem *colorButton;
-    vrui::coRowMenu *colorSubmenu;
-    vrui::coRowMenu *_menu;
-    vrui::coMenu *coviseMenu;
-    std::map<std::string, opencover::ColorBar *> colorbars; // from name to colorbar
-    std::map<std::string, opencover::ColorBar *> containerMap; // from container to colorbar
-    std::map<opencover::ColorBar *, vrui::coSubMenuItem *> menuMap; // from color to submenu item
+    opencover::ui::Menu *colorSubmenu;
+    opencover::ui::Menu *_menu;
+    typedef std::map<std::string, opencover::coInteractor *> InteractorMap;
+    InteractorMap interactorMap; // from container to interactor
+    struct ColorsModule: public opencover::ui::Owner
+    {
+        ColorsModule(const std::string &name, opencover::ui::Owner *owner)
+            : opencover::ui::Owner(name, owner)
+            , useCount(0)
+            , colorbar(NULL)
+            , menu(NULL)
+        {}
+        ~ColorsModule()
+        {
+            delete colorbar;
+        }
+
+        int useCount;
+        opencover::ColorBar *colorbar;
+        opencover::ui::Menu *menu;
+    };
+    typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
+    ColorsModuleMap colorsModuleMap;
 };
 #endif

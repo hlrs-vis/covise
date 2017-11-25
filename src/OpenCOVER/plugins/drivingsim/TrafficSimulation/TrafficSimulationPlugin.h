@@ -34,26 +34,16 @@
 #include <cover/coTabletUI.h>
 #include <osg/PositionAttitudeTransform>
 
-#ifdef HAVE_TR1
-#ifdef WIN32
 #include <random>
-#else
-#include <tr1/random>
-#endif
-#else
-#include "mtrand.h"
-#endif
 
-#include "RoadSystem/RoadSystem.h"
-#include "VehicleManager.h"
-#include "VehicleFactory.h"
-#include "PedestrianManager.h"
-#include "PedestrianFactory.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <TrafficSimulation/VehicleManager.h>
+#include <TrafficSimulation/VehicleFactory.h>
+#include <TrafficSimulation/PedestrianManager.h>
+#include <TrafficSimulation/PedestrianFactory.h>
 //#include "RoadFootprint.h"
 
-#include "UDPBroadcast.h"
-
-#include "Vehicle.h"
+#include <TrafficSimulation/Vehicle.h>
 using namespace covise;
 using namespace opencover;
 
@@ -66,14 +56,9 @@ public:
     TrafficSimulationPlugin();
     ~TrafficSimulationPlugin();
 
-    void runSimulation();
-    void haltSimulation();
 
     static int loadOD(const char *filename, osg::Group *loadParent, const char *key);
     static int unloadOD(const char *filename, const char *key);
-
-    VehicleManager *getVehicleManager();
-    PedestrianManager *getPedestrianManager();
 
     bool init();
 
@@ -85,34 +70,8 @@ public:
 
     static TrafficSimulationPlugin *plugin;
 
-    unsigned long getIntegerRandomNumber();
-    double getZeroOneRandomNumber();
-
-    static int counter;
-    static int createFreq;
-    static double min_distance;
-    static int min_distance_tui;
-    static int max_distance_tui;
-    // static int min_distance_50;
-    // static int min_distance_100;
-    static double delete_at;
-    static int delete_delta;
-    static int useCarpool;
-    static float td_multiplier;
-    static float placeholder;
-    static int maxVel;
-    static int minVel;
-    static int maxVehicles;
 
 private:
-    RoadSystem *system;
-    VehicleManager *manager;
-    PedestrianManager *pedestrianManager;
-    VehicleFactory *factory;
-    PedestrianFactory *pedestrianFactory;
-    //osg::Group* roadGroup;
-    osg::PositionAttitudeTransform *roadGroup;
-    xercesc::DOMElement *rootElement;
 
     coTUITab *pluginTab;
     coTUIButton *startButton;
@@ -127,22 +86,14 @@ private:
     // remove agents //
     coTUIButton *removeAgentsButton;
     coTUISlider *removeAgentsSlider;
+	int removeAgentsVelocity_;
 
     coTUIToggleButton *debugRoadButton;
-    int removeAgentsVelocity_;
-
     // operator map //
     //coTUITab* operatorMapTab;
     //coTUIMap* operatorMap;
 
-    // broadcaster for ffz positions //
-    PorscheFFZ *ffzBroadcaster;
 
-    bool runSim;
-    bool tessellateRoads;
-    bool tessellatePaths;
-    bool tessellateBatters;
-    bool tessellateObjects;
 
     osg::ref_ptr<osg::MatrixTransform> sphereTransform;
     osg::ref_ptr<osg::Sphere> sphere;
@@ -150,18 +101,6 @@ private:
     osg::ref_ptr<osg::StateSet> sphereGeoState;
     osg::ref_ptr<osg::Material> redmtl;
     osg::ref_ptr<osg::Material> greenmtl;
-
-#ifdef HAVE_TR1
-    std::tr1::mt19937 mersenneTwisterEngine;
-    std::tr1::uniform_real<double> uniformDist;
-    std::tr1::variate_generator<std::tr1::mt19937, std::tr1::uniform_real<double> > variGen;
-#else
-    MTRand_int32 mtGenInt; // 32-bit int generator
-    MTRand mtGenDouble; // double in [0, 1) generator, already init
-#endif
-    std::string xodrDirectory;
-
-    xercesc::DOMElement *getOpenDriveRootElement(std::string);
 
     //FFZ Tab
     coTUITab *ffzTab;
@@ -239,11 +178,6 @@ private:
     coTUIEditField *tdValueField;
 
     coTUIFrame *test;
-
-    void parseOpenDrive(xercesc::DOMElement *);
-
-    bool loadRoadSystem(const char *filename);
-    void deleteRoadSystem();
 
     void tabletEvent(coTUIElement *tUIItem);
     void tabletPressEvent(coTUIElement *tUIItem);

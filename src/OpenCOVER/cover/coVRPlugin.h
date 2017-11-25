@@ -71,6 +71,13 @@ class COVEREXPORT coVRPlugin
     friend class coVRPluginList;
 
 public:
+    enum NotificationLevel {
+        Info,
+        Warning,
+        Error,
+        Fatal
+    };
+
     //! called early, if loaded from config, before COVER is fully initialized
     coVRPlugin();
 
@@ -103,6 +110,13 @@ public:
 
     //! set the plugin's name
     void setName(const char *sn);
+
+    //! this function is called when COVER wants to display a message to the user
+    virtual void notify(NotificationLevel level, const char *text)
+    {
+        (void)level;
+        (void)text;
+    }
 
     /// first parameter is a pointer to the scene graph node,
     /// second parameter is a pointer to the COVISE object,
@@ -144,6 +158,15 @@ public:
         (void)it;
     }
 
+    //! this function is called when COVER wants to enable interaction with an interactor, return true if plugin accepts request
+    virtual bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+    {
+        (void)inter;
+        (void)triggerNode;
+        (void)isMouse;
+        return false;
+    }
+
     //! this function is called if a error message from the controller is received
     virtual void coviseError(const char *error)
     {
@@ -156,9 +179,11 @@ public:
         (void)(msg);
     };
 
-    //! this function is called from the main thread before the state for a frame is set up, before preFrame()
-    virtual void prepareFrame()
+    //! this function is called from the main thread after the state for a frame is set up, just before preFrame()
+    //! return true, if you need the scene to be rendered immediately
+    virtual bool update()
     {
+        return false; // don't request that scene be re-rendered
     }
 
     //! this function is called from the main thread before rendering a frame
@@ -256,13 +281,6 @@ public:
         return 0;
     }
 
-    //! return button corresponding to command name
-    virtual vrui::coMenuItem *getMenuButton(const std::string &buttonName)
-    {
-        (void)buttonName;
-        return NULL;
-    }
-
     //! for visualisation system plugins: request to terminate COVER or COVISE session
     virtual void requestQuit(bool killSession)
     {
@@ -299,6 +317,27 @@ public:
     virtual void expandBoundingSphere(osg::BoundingSphere &bs)
     {
         (void)bs;
+    }
+
+    virtual bool windowCreate(int num)
+    {
+        (void)num;
+        return false;
+    }
+
+    virtual void windowCheckEvents(int num)
+    {
+        (void)num;
+    }
+
+    virtual void windowUpdateContents(int num)
+    {
+        (void)num;
+    }
+
+    virtual void windowDestroy(int num)
+    {
+        (void)num;
     }
 
 protected:

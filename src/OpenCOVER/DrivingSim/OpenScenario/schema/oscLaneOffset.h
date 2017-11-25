@@ -15,8 +15,8 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscOffsetDynamics.h"
-#include "oscTarget.h"
+#include "oscLaneOffsetDynamics.h"
+#include "oscLaneOffsetTarget.h"
 
 namespace OpenScenario
 {
@@ -25,11 +25,12 @@ class OPENSCENARIOEXPORT oscLaneOffset : public oscObjectBase
 public:
 oscLaneOffset()
 {
-        OSC_OBJECT_ADD_MEMBER(OffsetDynamics, "oscOffsetDynamics", 0);
-        OSC_OBJECT_ADD_MEMBER(Target, "oscTarget", 0);
+        OSC_OBJECT_ADD_MEMBER(Dynamics, "oscLaneOffsetDynamics", 0);
+        OSC_OBJECT_ADD_MEMBER(Target, "oscLaneOffsetTarget", 0);
     };
-    oscOffsetDynamicsMember OffsetDynamics;
-    oscTargetMember Target;
+        const char *getScope(){return "/OSCPrivateAction/Lateral";};
+    oscLaneOffsetDynamicsMember Dynamics;
+    oscLaneOffsetTargetMember Target;
 
 };
 

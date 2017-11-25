@@ -57,6 +57,7 @@ public:
     {
         return circleCenter_;
     };
+	void deleteCircle();
 
     void resetViewTransformation();
 
@@ -112,6 +113,9 @@ public slots:
     // Background Images //
     //
     void loadMap();
+    void loadGoogleMap();
+    void loadBingMap();
+
     void deleteMap();
     void lockMap(bool lock);
     void setMapOpacity(const QString &opacity);
@@ -154,6 +158,7 @@ private:
 
     bool doPan_;
     bool doKeyPan_;
+	bool select_;
 
     BoundingBoxStatusId doBoxSelect_;
     CircleStatusId doCircleSelect_;
@@ -180,6 +185,7 @@ private:
     double scaling_;
 
     QVector<QPointF> splineControlPoints_;
+
 };
 
 #endif // GRAPHVIEW_HPP

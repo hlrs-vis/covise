@@ -20,14 +20,20 @@
  \date
  */
 
+namespace opencover
+{
+namespace ui
+{
+class Menu;
+class Action;
+class Button;
+class Slider;
+}
+}
+#include "ui/Owner.h"
+
 namespace vrui
 {
-class coSubMenuItem;
-class coCheckboxMenuItem;
-class coButtonMenuItem;
-class coSliderMenuItem;
-class coRowMenu;
-class coPotiMenuItem;
 class coTrackerButtonInteraction;
 }
 
@@ -37,18 +43,19 @@ class Sequence;
 };
 
 #include <util/coExport.h>
-#include <OpenVRUI/coMenu.h>
 #include <map>
 #include <vector>
 
 namespace opencover
 {
-class buttonSpecCell;
-class COVEREXPORT coVRAnimationManager : public vrui::coMenuListener
+class COVEREXPORT coVRAnimationManager
+: public ui::Owner
 {
     friend class coVRPluginList;
-public:
+
+    static coVRAnimationManager *s_instance;
     coVRAnimationManager();
+public:
     ~coVRAnimationManager();
     static coVRAnimationManager *instance();
 
@@ -64,7 +71,7 @@ public:
     {
         return currentAnimationFrame;
     };
-    void requestAnimationFrame(int currentFrame);
+    bool requestAnimationFrame(int currentFrame);
     void requestAnimationTime(double t);
     float getAnimationSpeed();
     void setAnimationSpeed(float speed);
@@ -97,12 +104,7 @@ public:
     void setTimestepScale(double scale);
     double getTimestepScale() const;
 
-    // process key events
-    bool keyEvent(int type, int keySym, int mod);
-
-    void update();
-
-    vrui::coMenuItem *getMenuButton(const std::string &functionName);
+    bool update();
 
 private:
     void setAnimationFrame(int currentFrame);
@@ -110,7 +112,6 @@ private:
     std::vector<osg::Sequence *> listOfSeq;
     float AnimSliderMin, AnimSliderMax;
     float timeState;
-    void remove_controls();
 
     int aniDirection; // added for ping pong mode
 
@@ -126,29 +127,20 @@ private:
     void initAnimMenu();
 
     // Animation menu:
-    vrui::coSubMenuItem *animButton;
-    vrui::coCheckboxMenuItem *animToggleItem;
-    vrui::coPotiMenuItem *animSpeedItem;
-    vrui::coButtonMenuItem *animForwardItem;
-    vrui::coButtonMenuItem *animBackItem;
-    vrui::coSliderMenuItem *animFrameItem;
-    vrui::coCheckboxMenuItem *rotateObjectsToggleItem;
-    vrui::coCheckboxMenuItem *animPingPongItem;
-    vrui::coCheckboxMenuItem *animSyncItem;
-    vrui::coRowMenu *animRowMenu;
+    ui::Button *animToggleItem;
+    ui::Slider *animSpeedItem;
+    ui::Action *animForwardItem;
+    ui::Action *animBackItem;
+    ui::Slider *animFrameItem;
+    ui::Button *rotateObjectsToggleItem;
+    ui::Button *animPingPongItem;
+    ui::Button *animSyncItem;
+    ui::Menu *animRowMenu;
 
     bool animRunning;
     double lastAnimationUpdate;
     int currentAnimationFrame, requestedAnimationFrame;
-    void updateAnimationFrame();
-
-    void menuEvent(vrui::coMenuItem *);
-
-    void add_set_controls();
-
-    static void forwardCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void backwardCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void animSpeedCallback(void *sceneGraph, buttonSpecCell *spec);
+    bool updateAnimationFrame();
 
     typedef std::map<const void *, int> TimestepMap;
     TimestepMap timestepMap;

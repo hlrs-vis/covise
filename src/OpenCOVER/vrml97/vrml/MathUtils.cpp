@@ -151,13 +151,13 @@ bool Minvert(double *M, const double *N)
     for (int k = 0; k < 4; k++)
     {
         p[k] = 0;
-        float sup = 0.0;
+        double sup = 0.0;
         for (int i = k; i < 4; i++)
         {
-            float s = 0.0;
+            double s = 0.0;
             for (int j = k; j < 4; j++)
                 s += fabs(M[i * 4 + j]);
-            float q = fabs(M[i * 4 + k]) / s;
+            double q = fabs(M[i * 4 + k]) / s;
             if (sup < q)
             {
                 sup = q;
@@ -169,11 +169,11 @@ bool Minvert(double *M, const double *N)
         if (p[k] != k)
             for (int j = 0; j < 4; j++)
             {
-                float h = M[k * 4 + j];
+                double h = M[k * 4 + j];
                 M[k * 4 + j] = M[p[k] * 4 + j];
                 M[p[k] * 4 + j] = h;
             }
-        float pivot = M[k * 4 + k];
+        double pivot = M[k * 4 + k];
         for (int j = 0; j < 4; j++)
             if (j != k)
             {
@@ -191,7 +191,7 @@ bool Minvert(double *M, const double *N)
         if (p[k] != k)
             for (int i = 0; i < 4; i++)
             {
-                float h = M[i * 4 + k];
+                double h = M[i * 4 + k];
                 M[i * 4 + k] = M[i * 4 + p[k]];
                 M[i * 4 + p[k]] = h;
             }
@@ -267,12 +267,12 @@ bool MgetRot(float orientation[3], float *angle, const double *M)
     }
 
     // extract axis and angle from quaternion
-    *angle = acos(Q[3]);
+    *angle = (float)acos(Q[3]);
     if (!FPZERO(*angle))
     {
-        orientation[0] = Q[0];
-        orientation[1] = Q[1];
-        orientation[2] = Q[2];
+        orientation[0] = (float)Q[0];
+        orientation[1] = (float)Q[1];
+        orientation[2] = (float)Q[2];
         Vnorm(orientation);
         *angle *= 2.0;
     }
@@ -290,7 +290,7 @@ void MgetTrans(float trans[3], const double *M)
 {
     for (int i = 0; i < 3; i++)
     {
-        trans[i] = M[3 * 4 + i];
+        trans[i] = (float)M[3 * 4 + i];
     }
 }
 

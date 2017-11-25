@@ -32,6 +32,7 @@ oscTraffic()
         OSC_OBJECT_ADD_MEMBER(Swarm, "oscSwarm", 1);
         OSC_OBJECT_ADD_MEMBER(Jam, "oscJam", 1);
     };
+        const char *getScope(){return "/OSCGlobalAction";};
     oscSourceMember Source;
     oscSinkMember Sink;
     oscSwarmMember Swarm;

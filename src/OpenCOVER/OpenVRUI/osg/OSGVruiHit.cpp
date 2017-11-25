@@ -18,7 +18,7 @@ using namespace osgUtil;
 namespace vrui
 {
 
-OSGVruiHit::OSGVruiHit(Hit &hit, bool mouseHit)
+OSGVruiHit::OSGVruiHit(const LineSegmentIntersector::Intersection &hit, bool mouseHit)
 {
     this->hit = hit;
     this->mouseHit = mouseHit;
@@ -62,12 +62,12 @@ coVector &OSGVruiHit::getWorldIntersectionPoint() const
     return *isecWorldPoint;
 }
 
-coVector &OSGVruiHit::getIntersectionNormal() const
+coVector &OSGVruiHit::getWorldIntersectionNormal() const
 {
     if (!isecNormal)
     {
         isecNormal = new coVector(3);
-        Vec3 tmp = hit._intersectNormal;
+        Vec3 tmp = hit.getWorldIntersectNormal();
         for (int ctr = 0; ctr < 3; ++ctr)
             isecNormal->vec[ctr] = tmp[ctr];
     }
@@ -79,12 +79,12 @@ vruiNode *OSGVruiHit::getNode()
 {
     if (!node)
     {
-        node = new OSGVruiNode(hit._geode.get());
+        node = new OSGVruiNode(hit.drawable.get());
     }
     return node;
 }
 
-const Hit &OSGVruiHit::getHit() const
+const osgUtil::LineSegmentIntersector::Intersection &OSGVruiHit::getHit() const
 {
     return hit;
 }
@@ -93,4 +93,5 @@ bool OSGVruiHit::isMouseHit() const
 {
     return mouseHit;
 }
+
 }

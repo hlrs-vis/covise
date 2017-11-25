@@ -456,6 +456,7 @@ MACRO(COVER_ADD_PLUGIN targetname)
         #message("Obj: ${f} - ${ext}") 
 		#don#t add obj files as lib
         set(OBJECTS ${OBJECTS} ${f})
+     elseif(ext MATCHES "\\.(ui)\$")
      else()
         #message("Lib: ${f} - ${ext}")
         set(LIBS ${LIBS} ${f})
@@ -624,6 +625,7 @@ MACRO(COVISE_INSTALL_TARGET targetname)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
           RUNTIME DESTINATION ${ARCHSUFFIX}/bin${_category_path}
+          BUNDLE DESTINATION ${ARCHSUFFIX}/bin${_category_path}
           LIBRARY DESTINATION ${ARCHSUFFIX}/lib
           ARCHIVE DESTINATION ${ARCHSUFFIX}/lib
           COMPONENT modules.${category}
@@ -895,17 +897,32 @@ MACRO(TESTIT)
 ENDMACRO(TESTIT)
 
 MACRO(USING_MESSAGE)
-   #MESSAGE(${ARGN})
+   if (COVISE_CMAKE_VERBOSE)
+       MESSAGE(${ARGN})
+   endif()
 ENDMACRO(USING_MESSAGE)
 
 MACRO(CREATE_USING)
   FIND_PROGRAM(GREP_EXECUTABLE grep PATHS $ENV{EXTERNLIBS}/UnixUtils/bin DOC "grep executable")
+  FIND_PROGRAM(FINDSTR_EXECUTABLE findstr DOC "findstr executable")
   
   file(GLOB USING_FILES "${COVISEDIR}/cmake/Using/Use*.cmake")
-  EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
-     COMMAND ${GREP_EXECUTABLE} "^MACRO"
-     OUTPUT_VARIABLE using_list)
-  #message("using_list")
+  if (GREP_EXECUTABLE)
+      EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
+          COMMAND ${GREP_EXECUTABLE} "^MACRO"
+          OUTPUT_VARIABLE using_list)
+      #message("using_list w/ grep")
+  elseif(FINDSTR_EXECUTABLE)
+      STRING(REPLACE "/" \\ USING_FILES "${USING_FILES}")
+      EXECUTE_PROCESS(
+          COMMAND cmd /c type ${USING_FILES}
+          COMMAND ${FINDSTR_EXECUTABLE} /R USE_
+          COMMAND ${FINDSTR_EXECUTABLE} /R "^MACRO"
+          OUTPUT_VARIABLE using_list
+          ERROR_VARIABLE using_list_err
+      )
+      #message("using_list w/ findstr")
+  endif()
   #message("using_list ${using_list}")
 
   STRING(STRIP "${using_list}" using_list)
@@ -1012,6 +1029,9 @@ MACRO(COVISE_FIND_CUDA)
       ADD_DEFINITIONS(-DHAVE_CUDA)
       if(APPLE)
           set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "\"-DBOOST_NOINLINE=__attribute__ ((noinline))\"")
+      endif()
+	  if(BASEARCHSUFFIX STREQUAL "zebu")
+        SET(CUDA_HOST_COMPILER "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/amd64/cl.exe" CACHE STRING "CUDA nvcc host compiler" FORCE)
       endif()
       if("${CUDA_VERSION}" VERSION_LESS 7.0)
           if(APPLE)

@@ -25,11 +25,11 @@ class FileBrowserListener;
 class CUIEXPORT FileBrowser : public CardListener
 {
 public:
-    FileBrowser(string &, string &, cui::Interaction *);
+    FileBrowser(std::string &, std::string &, cui::Interaction *);
     virtual ~FileBrowser();
     bool cardButtonEvent(Card *, int, int);
     bool cardCursorUpdate(Card *, InputDevice *);
-    string getFileName();
+    std::string getFileName();
     virtual void addListener(FileBrowserListener *);
     void setVisible(bool);
 

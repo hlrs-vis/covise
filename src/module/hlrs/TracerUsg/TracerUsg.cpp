@@ -107,6 +107,11 @@ inline float sqr(float val)
     val *= val;
     return val;
 }
+inline double sqr(double val)
+{
+	val *= val;
+	return val;
+}
 
 // works out a determinant
 inline float vol3Vect(const float *p0, const float *p1, const float *p2)
@@ -1943,7 +1948,7 @@ float stepsize(float px[3], float p0[3], float p1[3], float p2[3], float p3[3],
 
 #if defined(__sgi) || defined(_WIN32)
     vol = fabsf(tetra_vol(p0, p1, p2, p3));
-    dt = 1 / vq * powf(vol, 1.0f / 3.0f) / NUM_STEPS;
+    dt = 1.0f / vq * powf(vol, 1.0f / 3.0f) / (float)NUM_STEPS;
 #else
     vol = fabs(tetra_vol(p0, p1, p2, p3));
     dt = 1 / vq * pow(vol, 1. / 3.) / NUM_STEPS;
@@ -2745,7 +2750,9 @@ double p_ang(float p0[3], float p1[3], float p2[3])
 {
     double cos_tn;
 
-    cos_tn = ((double)(p1[0] - p0[0]) * (double)(p2[0] - p1[0]) + (double)(p1[1] - p0[1]) * (double)(p2[1] - p1[1]) + (double)(p1[2] - p0[2]) * (double)(p2[2] - p1[2])) / (sqrt(sqr((double)(p1[0] - p0[0])) + sqr((double)(p1[1] - p0[1])) + sqr((double)(p1[2] - p0[2]))) * sqrt(sqr((double)(p2[0] - p1[0])) + sqr((double)(p2[1] - p1[1])) + sqr((double)(p2[2] - p1[2]))));
+    cos_tn = ((double)(p1[0] - p0[0]) * (double)(p2[0] - p1[0]) + (double)(p1[1] - p0[1]) * (double)(p2[1] - p1[1]) + (double)(p1[2] - p0[2]) * (double)(p2[2] - p1[2])) 
+		/ (sqrt(sqr((double)(p1[0] - p0[0])) + sqr((double)(p1[1] - p0[1])) + sqr((double)(p1[2] - p0[2]))) 
+			* sqrt(sqr((double)(p2[0] - p1[0])) + sqr((double)(p2[1] - p1[1])) + sqr((double)(p2[2] - p1[2]))));
 
     return cos_tn;
 }

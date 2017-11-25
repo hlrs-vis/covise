@@ -34,24 +34,24 @@ std::string mid(std::string s, int nFirst, int nCount)
 
 int find(std::string s, char c)
 {
-    return s.find(c, 0);
+    return int(s.find(c, 0));
 }
 
 int find(std::string &s, std::string &f)
 {
-    return s.find(f, 0);
+    return int(s.find(f, 0));
 }
 
 std::string replace(std::string s, std::string f, std::string r)
 {
-    unsigned int fLength = f.length();
+    size_t fLength = f.length();
 
     int pos = find(s, f);
     if (pos != -1)
     {
-        unsigned int sLength = s.length();
+        size_t sLength = s.length();
         std::string leftString = mid(s, 0, pos);
-        std::string rightString = mid(s, pos + fLength, sLength - pos - fLength);
+        std::string rightString = mid(s, int(pos + fLength), int(sLength - pos - fLength));
         std::ostringstream stream;
         stream << leftString;
         stream << r;

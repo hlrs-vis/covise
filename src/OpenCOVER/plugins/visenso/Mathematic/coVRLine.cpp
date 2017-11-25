@@ -655,7 +655,7 @@ void coVRLine::menuEvent(coMenuItem *menuItem)
 
     if (modeCheckbox_
         && menuItem == modeCheckbox_
-        && mode_ != modeCheckbox_->getState())
+        && (mode_!=0) != modeCheckbox_->getState())
         setMode(modeCheckbox_->getState());
 }
 

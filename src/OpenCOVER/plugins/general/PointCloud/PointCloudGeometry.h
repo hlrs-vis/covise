@@ -80,7 +80,6 @@ private:
     osg::Vec3Array *points;
     osg::Vec3Array *colors;
     osg::VertexBufferObject *vertexBufferArray;
-    osg::VertexBufferObject *colorBufferArray;
     osg::ElementBufferObject *primitiveBufferArray;
 };
 #endif

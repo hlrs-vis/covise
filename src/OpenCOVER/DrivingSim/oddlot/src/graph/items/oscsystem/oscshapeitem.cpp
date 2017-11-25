@@ -44,10 +44,10 @@
 
 // OpenScenario //
 //
-#include "schema/oscTrajectory.h"
-#include "schema/oscPosition.h"
-#include "schema/oscWorld.h"
-#include "oscVariables.h"
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/schema/oscWorld.h>
+#include <OpenScenario/oscVariables.h>
 
 // Qt //
 //
@@ -93,27 +93,27 @@ OSCShapeItem::createPath()
 
         path_ = new QPainterPath();
 
-        int pointSize = 2;
+        int pointSize = 1.0;
         QPointF startPoint = controlPoints_.at(0);
         pos_ = QPointF(0, 0);
         if (!startPoint.isNull())
         {
-            path_->addRect(QRectF(startPoint.x() - pointSize + 0.5,
-                startPoint.y() - pointSize + 0.5,
+            path_->addRect(QRectF(startPoint.x() - pointSize,
+                startPoint.y() - pointSize,
                 pointSize * 2, pointSize * 2));
 
             QPointF endPoint = controlPoints_.at(controlPoints_.size() - 1);
             if (!endPoint.isNull())
             {
-                path_->addRect(QRectF(endPoint.x() - pointSize + 0.5,
-                    endPoint.y() - pointSize + 0.5,
+                path_->addRect(QRectF(endPoint.x() - pointSize,
+                    endPoint.y() - pointSize,
                     pointSize * 2, pointSize * 2));
             }
         }
 
 
 
-        QPen penCubic(QBrush(Qt::blue), 2);
+        QPen penCubic(QBrush(Qt::blue), 0.2);
         setPen(penCubic);
 
         for (int i = 0; i < controlPoints_.size() - 1; i += 3) {

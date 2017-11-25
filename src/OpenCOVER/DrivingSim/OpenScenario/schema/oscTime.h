@@ -27,6 +27,7 @@ oscTime()
         OSC_ADD_MEMBER(min, 0);
         OSC_ADD_MEMBER(sec, 0);
     };
+        const char *getScope(){return "/OSCCondition/ByValue/TimeOfDay";};
     oscUInt hour;
     oscUInt min;
     oscDouble sec;

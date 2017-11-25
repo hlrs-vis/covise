@@ -30,6 +30,7 @@ using namespace opencover;
 #include <cover/coVRConfig.h>
 #include <osg/io_utils>
 #include "MultitouchNavigation.h"
+#include "export.h"
 
 class TouchContact
 {
@@ -48,7 +49,7 @@ public:
 
 class MultitouchNavigation;
 
-class MultitouchPlugin : public coVRPlugin
+class MULTITOUCHEXPORT MultitouchPlugin : public coVRPlugin
 {
 private:
     enum interactionMode

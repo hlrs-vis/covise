@@ -28,6 +28,7 @@
 #include <grmsg/coGRObjMovedMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/coRowMenu.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
 
@@ -319,7 +320,7 @@ void DNAPlugin::guiToRenderMsg(const char *msg)
                 {
                     if ((*it2)->getObjectName().compare(secondObj) == 0)
                     {
-                        (*it)->setConnection(connMsg.getConnPoint1(), connMsg.getConnPoint2(), connMsg.isConnected(), connMsg.isEnabled(), (*it2), false);
+                        (*it)->setConnection(connMsg.getConnPoint1(), connMsg.getConnPoint2(), connMsg.isConnected()!=0, connMsg.isEnabled(), (*it2), false);
                         // remove bothe connPoints from available list
                         if (connMsg.isConnected())
                         {
@@ -347,7 +348,7 @@ void DNAPlugin::guiToRenderMsg(const char *msg)
             else
             {
                 // first connectionPoint is enabled/disabled
-                (*it)->setConnection(connMsg.getConnPoint1(), connMsg.getConnPoint2(), connMsg.isConnected(), connMsg.isEnabled(), NULL, false);
+                (*it)->setConnection(connMsg.getConnPoint1(), connMsg.getConnPoint2(), connMsg.isConnected(), connMsg.isEnabled()!=0, NULL, false);
                 if (connMsg.isEnabled())
                     availableConnectionPoints.push_back((*it)->getConnectionPoint(connMsg.getConnPoint1()));
                 else

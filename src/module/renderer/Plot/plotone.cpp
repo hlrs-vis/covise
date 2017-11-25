@@ -24,9 +24,6 @@ extern void getlineprops(int *col, int *style, int *width);
 extern void set_plotstr_string(plotstr *pstr, char *buf);
 extern void boxplotsym(double x, double med, double il, double iu, double ol, double ou);
 extern void drawpolarpoly(double *x, double *y, int n);
-extern "C" {
-extern void cfree(void *);
-}
 
 void drawsetboxplot(int gno, int setno);
 void drawsetxypolar(plotarr, int);
@@ -909,8 +906,8 @@ void drawsetfill(int gno, plotarr p)
     if (xtmp == NULL || ytmp == NULL)
     {
         errwin("Can't malloc for fills in plotone");
-        cxfree(xtmp);
-        cxfree(ytmp);
+        free(xtmp);
+        free(ytmp);
         return;
     }
     for (i = 0; i < p.len; i++)
@@ -971,8 +968,8 @@ void drawsetfill(int gno, plotarr p)
         setpattern(p.fillpattern);
         fillpattern(len, xtmp, ytmp);
     }
-    cxfree(xtmp);
-    cxfree(ytmp);
+    free(xtmp);
+    free(ytmp);
 }
 
 /*
@@ -1615,7 +1612,7 @@ void drawsetstackedbar(int gno, int maxn, double bsize)
             }
         }
     }
-    cfree(sum);
+    free(sum);
 }
 
 /*
@@ -1716,7 +1713,7 @@ void drawsetstackedhbar(int gno, int maxn, double bsize)
             }
         }
     }
-    cfree(sum);
+    free(sum);
 }
 
 /*

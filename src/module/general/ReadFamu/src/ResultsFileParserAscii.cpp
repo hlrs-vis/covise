@@ -36,7 +36,8 @@ void ResultsFileParserAscii::parseResultsFile(std::string filename,
 {
     _maxNodeNo = meshDataTrans->getMaxNodeNo(0);
 
-    if ((_file = fopen(filename.c_str(), "r")) <= 0)
+    _file = fopen(filename.c_str(), "r");
+    if (!_file)
     {
         ERROR1("cannot open results file ", filename, _outputHandler);
     }
@@ -205,7 +206,7 @@ coDistributedObject *ResultsFileParserAscii::readVec(const char *name,
         return NULL;
     }
     ASSERT0(_xData.size() >= _maxNodeNo, "sorry, and internal error occured.", _outputHandler);
-    coDoVec3 *dataObj = new coDoVec3(name, _xData.size(), &_xData[0], &_yData[0], &_zData[0]);
+    coDoVec3 *dataObj = new coDoVec3(name, (int)_xData.size(), &_xData[0], &_yData[0], &_zData[0]);
     if (strncmp(_names[_currentDataTypeNo], "Displace", 8) == 0)
     {
         //_displacementDataTypeNo = _currentDataTypeNo;
@@ -256,7 +257,7 @@ coDistributedObject *ResultsFileParserAscii::readScal(const char *name)
         return NULL;
     }
     ASSERT0(_xData.size() >= _maxNodeNo, "sorry, and internal error occured.", _outputHandler);
-    coDoFloat *dataObj = new coDoFloat(name, _xData.size(), &_xData[0]);
+    coDoFloat *dataObj = new coDoFloat(name, (int)_xData.size(), &_xData[0]);
     return dataObj;
 }
 

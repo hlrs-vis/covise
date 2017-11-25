@@ -76,12 +76,14 @@ public:
 class COVEREXPORT VRAvatarList
 {
 private:
-    int num;
-    VRAvatar *avatars[100];
+    VRAvatarList();
+    static VRAvatarList *s_instance;
+    typedef std::vector<VRAvatar *> Avatars;
+    Avatars avatars;
     bool visible;
 
 public:
-    VRAvatarList();
+    ~VRAvatarList();
     static VRAvatarList *instance();
     void receiveMessage(const char *messageData);
     void sendMessage();
@@ -91,11 +93,11 @@ public:
     void show();
     void hide();
     bool isVisible();
-    int getNum() const
+    size_t getNum() const
     {
-        return num;
+        return (int)avatars.size();
     }
-    VRAvatar *getAvatar(int index)
+    VRAvatar *getAvatar(size_t index)
     {
         return avatars[index];
     }

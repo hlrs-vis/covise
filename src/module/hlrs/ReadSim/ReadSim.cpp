@@ -151,7 +151,7 @@ void ReadSim::createMesh()
     yDim = dimY->getValue();
     zDim = dimZ->getValue();
 
-    coDoUniformGrid *grid = new coDoUniformGrid(mesh->getObjName(), xDim, yDim, zDim, 0, xDim - 1, 0, yDim - 1, 0, zDim - 1);
+    coDoUniformGrid *grid = new coDoUniformGrid(mesh->getObjName(), xDim, yDim, zDim, 0, xDim - 1.0f, 0, yDim - 1.0f, 0, zDim - 1.0f);
 
 #ifdef YAC
     // set blockno/timestep

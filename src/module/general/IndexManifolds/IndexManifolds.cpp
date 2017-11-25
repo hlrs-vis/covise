@@ -155,7 +155,7 @@ int IndexManifolds::compute(const char *)
     setSliderBounds();
     int dir = DirChoice->getValue();
 
-    if (size[dir] < Index[dir]->getValue())
+    if (size[dir] <= Index[dir]->getValue())
     { // skip this element of the set; therefore create empty objects
         if (gen_strips)
         {

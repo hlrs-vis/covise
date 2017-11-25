@@ -163,11 +163,11 @@
 #elif ARCHSUFFIX == "zebu"
   #define X64Arch
   #define LABEL "_zebu"
-  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.*"
 #elif ARCHSUFFIX == "zebuopt"
   #define X64Arch
   #define LABEL "_zebuopt"
-  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.exe"
+  #define SYS GetEnv("EXTERNLIBS")+"\runtime\*.*"
 #else
   #pragma message "Warning: undefined or unknown ARCHSUFFIX! Cannot set SYS variable!"
   #define LABEL "UNKNOWN"
@@ -336,6 +336,7 @@ Name: runtimes/abaqus; Description: Runtime files of abaqus; Types: standard cus
 Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
@@ -509,7 +510,11 @@ Source: {#PTHREAD}\lib\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#PNG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core     
 Source: {#EXTERNLIBS}\libpng\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
+Source: {#EXTERNLIBS}\OpenVR\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+
+Source: {#EXTERNLIBS}\fmod\lowlevel\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\fmod\studio\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\SDL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#GEOS}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#CG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
@@ -556,6 +561,11 @@ Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\*v110.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\vs2015\*v140.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+
+
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
 Source: {#EXTERNLIBS}\collada\lib\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
@@ -662,6 +672,7 @@ Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\TabletUI.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\oddlot.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\oddlot.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\carsound.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\carSound.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\SurfaceCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\covise.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
@@ -669,9 +680,10 @@ Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.e
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\oddlot.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\carSound.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 #endif
 
 Root: HKCR; Subkey: .wrl; ValueType: string; ValueName: ; ValueData: VRMLFile; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
@@ -851,7 +863,12 @@ Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi""
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec   
+#elif ARCHSUFFIX == "zebuopt"
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec    
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif

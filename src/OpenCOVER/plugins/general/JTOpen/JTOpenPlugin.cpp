@@ -24,6 +24,7 @@
 #include <cover/coVRMSController.h>
 #include <PluginUtil/coLOD.h>
 #include <config/CoviseConfig.h>
+#include <cover/coVRShader.h>
 
 #include "JTOpenPlugin.h"
 #include "findNodeVisitor.h"
@@ -83,6 +84,21 @@ using namespace osg;
 #include <JtTk/JtkStandard.h>
 #include <JtTk/JtkBrep.h>
 #include <JtTk/JtkEntity.h>
+
+
+template<class JT>
+std::string getJtName(JT *node)
+{
+#if JTTK_MAJOR_VERSION >= 8
+	JtkString name = node->name();
+	JtkUTF8* stringUTF8;
+	int length;
+	name.getString(stringUTF8, length);
+    return std::string(stringUTF8, length);
+#else
+    return std::string(node->name());
+#endif
+}
 
 //int my_level = 0;
 int want_details = 1;
@@ -382,8 +398,75 @@ int JTOpenPlugin::PostAction(JtkHierarchy * /*CurrNode*/, int /*level*/, JtkClie
 
 void JTOpenPlugin::setMaterial(osg::Node *osgNode, JtkHierarchy *CurrNode)
 {
+	JtkTexImage *partTexture = NULL;
+	((JtkPart *)CurrNode)->getTexImage(partTexture);
     JtkMaterial *partMaterial = NULL;
     ((JtkPart *)CurrNode)->getMaterial(partMaterial);
+    if (partMaterial)
+    {
+        float *ambient = NULL,
+              *diffuse = NULL,
+              *specular = NULL,
+              *emission = NULL,
+              shininess = -999.0;
+        StateSet *stateset = NULL;
+        osg::Geode *osgGeode = dynamic_cast<osg::Geode *>(osgNode);
+        if (osgGeode)
+        {
+            osg::Drawable *drawable = osgGeode->getDrawable(0);
+            if (drawable)
+            {
+                stateset = drawable->getOrCreateStateSet();
+            }
+            else
+                stateset = osgGeode->getOrCreateStateSet();
+        }
+        else
+            stateset = osgNode->getOrCreateStateSet();
+
+        osg::Material *mtl = new osg::Material();
+
+        partMaterial->getAmbientColor(ambient);
+        if (ambient)
+        {
+            mtl->setAmbient(Material::FRONT_AND_BACK, Vec4(ambient[0], ambient[1], ambient[2], ambient[3]));
+            JtkEntityFactory::deleteMemory(ambient);
+        }
+
+        partMaterial->getDiffuseColor(diffuse);
+        if (diffuse)
+        {
+            mtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(diffuse[0], diffuse[1], diffuse[2], diffuse[3]));
+            JtkEntityFactory::deleteMemory(diffuse);
+        }
+
+        partMaterial->getSpecularColor(specular);
+        if (specular)
+        {
+            mtl->setSpecular(Material::FRONT_AND_BACK, Vec4(specular[0], specular[1], specular[2], specular[3]));
+            JtkEntityFactory::deleteMemory(specular);
+        }
+
+        partMaterial->getEmissionColor(emission);
+        if (emission)
+        {
+            mtl->setEmission(Material::FRONT_AND_BACK, Vec4(emission[0], emission[1], emission[2], emission[3]));
+            JtkEntityFactory::deleteMemory(emission);
+        }
+
+        partMaterial->getShininess(shininess);
+        if (shininess != -999.0)
+        {
+            mtl->setShininess(Material::FRONT_AND_BACK, shininess);
+        }
+        stateset->setAttributeAndModes(mtl, StateAttribute::ON);
+    }
+}
+
+void JTOpenPlugin::setShapeMaterial(osg::Node *osgNode, JtkShape *currShape)
+{
+    JtkMaterial *partMaterial = NULL;
+    currShape->getMaterial(partMaterial);
     if (partMaterial)
     {
         float *ambient = NULL,
@@ -464,7 +547,8 @@ osg::Group *JTOpenPlugin::createGroup(JtkHierarchy *CurrNode)
     {
         newGroup = new osg::Group();
     }
-    newGroup->setName(CurrNode->name());
+
+    newGroup->setName(getJtName(CurrNode));
     return newGroup;
 }
 
@@ -481,6 +565,18 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
             unitRoot->getUnits(Units);
             std::cerr << "Unit: " << Units << std::endl;
          }*/
+
+	for (int i = 0; i < 100; i++)
+	{
+		JtkAttrib *attr=NULL;
+		CurrNode->getAttrib(i, attr);
+		if (attr == NULL)
+			break;
+		fprintf(stderr,"Attrib %s\n", getJtName(attr).c_str());
+			
+	}
+	
+
     switch (CurrNode->typeID())
     {
     case JtkEntity::JtkNONE:
@@ -635,10 +731,12 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
                 ((JtkPart *)CurrNode)->getPolyShape(partShape, lod, shNum);
                 if (partShape)
                 {
-                    char *name = CurrNode->name();
-                    char *shapeName = new char[strlen(name) + 30];
-                    sprintf(shapeName, "%s_%d_%d", name, lod, shNum);
+                    std::string stringUTF8 = getJtName(CurrNode);
+                    char *shapeName = new char[stringUTF8.length() + 30];
+                    sprintf(shapeName, "%s_%d_%d", stringUTF8.c_str(), lod, shNum);
                     osg::Node *n = createShape(partShape, shapeName);
+		    
+                    setShapeMaterial(n, partShape);
                     newLODGroup->addChild(n);
                 }
             }
@@ -678,7 +776,7 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
 
         // Declare an instance of 'findNodeVisitor' class and set its
         // searchForName string equal to "sw1"
-        findNodeVisitor findNode(CurrNode->name());
+        findNodeVisitor findNode(getJtName(CurrNode));
 
         // Initiate traversal of this findNodeVisitor instance starting
         // from tankTwoGroup, searching all its children. Build a list
@@ -709,7 +807,7 @@ int JTOpenPlugin::PreAction(JtkHierarchy *CurrNode, int level, JtkClientData *)
         }
         else
         {
-            fprintf(stderr, "Instance not found %s\n", CurrNode->name());
+            fprintf(stderr, "Instance not found %s\n", getJtName(CurrNode).c_str());
         }
 
         /*
@@ -883,6 +981,8 @@ int JTOpenPlugin::loadJT(const char *filename, osg::Group *loadParent, const cha
             JTOpenPlugin::plugin->Parents.clear();
             root->unref();
             root = NULL;
+	    
+    coVRShaderList::instance()->get("SolidClippingObject")->apply(loadParent);
             VRRegisterSceneGraph::instance()->registerNode(loadParent, filename);
         }
         else

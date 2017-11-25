@@ -18,14 +18,15 @@
 #include "ColorBarPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
+#include <cover/OpenCOVER.h>
 #include <PluginUtil/ColorBar.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
 
-using namespace vrui;
 using namespace opencover;
 
 ColorBarPlugin::ColorBarPlugin()
+: ui::Owner("ColorBarPlugin", cover->ui)
 {
 }
 
@@ -33,26 +34,16 @@ bool ColorBarPlugin::init()
 {
     //fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
     colorSubmenu = NULL;
-    colorButton = NULL;
-    colorbars.clear();
+    colorsModuleMap.clear();
     tabID = 0;
 
     // create the TabletUI User-Interface
     createMenuEntry();
 
-    // how to attach pinboardButton later to the Coviseentry
-    coMenu *coviseMenu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu("COVISE");
-    if (menu)
+    if (cover->visMenu)
     {
-        coviseMenu = menu->getCoMenu();
-
-        // create the button for the pinboard
-        colorButton = new coSubMenuItem("Colors...");
-        colorSubmenu = new coRowMenu("Colors");
-        colorButton->setMenu(colorSubmenu);
-
-        coviseMenu->add(colorButton);
+        colorSubmenu = new ui::Menu("Colors", this);
+        cover->visMenu->add(colorSubmenu);
     }
 
     return true;
@@ -63,15 +54,7 @@ ColorBarPlugin::~ColorBarPlugin()
 {
     //fprintf(stderr,"ColorBarPlugin::~ColorBarPlugin\n");
 
-    delete colorButton;
-    delete colorSubmenu;
-    for (std::map<std::string, ColorBar *>::iterator it = colorbars.begin();
-         it != colorbars.end();
-         ++it)
-    {
-        delete it->second;
-    }
-    colorbars.clear();
+    colorsModuleMap.clear();
 
     removeMenuEntry();
 }
@@ -101,26 +84,50 @@ void ColorBarPlugin::tabletPressEvent(coTUIElement *)
 void
 ColorBarPlugin::removeObject(const char *container, bool replace)
 {
-    if (replace) // partially handled by newInteractor
-        return;
-
-    std::map<std::string, ColorBar *>::iterator it = containerMap.find(container);
-    if (it != containerMap.end())
+    if (replace)
     {
-        for (std::map<std::string, ColorBar *>::iterator it2 = colorbars.begin();
-             it2 != colorbars.end();
+        if (interactorMap.find(container) != interactorMap.end())
+            removeQueue.push_back(container);
+    }
+    else
+    {
+        removeInteractor(container);
+    }
+}
+
+void
+ColorBarPlugin::postFrame()
+{
+    for (size_t i=0; i<removeQueue.size(); ++i)
+        removeInteractor(removeQueue[i]);
+    removeQueue.clear();
+}
+
+void
+ColorBarPlugin::removeInteractor(const std::string &container)
+{
+    InteractorMap::iterator it = interactorMap.find(container);
+    if (it != interactorMap.end())
+    {
+        coInteractor *inter = it->second;
+        interactorMap.erase(it);
+
+        for (ColorsModuleMap::iterator it2 = colorsModuleMap.begin();
+             it2 != colorsModuleMap.end();
              ++it2)
         {
-            if (it->second == it2->second)
+            if (it2->first->isSame(inter))
             {
-                colorbars.erase(it2);
-                break;
+                --it2->second.useCount;
+                if (it2->second.useCount == 0)
+                {
+                    it2->first->decRefCount();
+                    colorsModuleMap.erase(it2);
+                    break;
+                }
             }
         }
-        coSubMenuItem *item = menuMap[it->second];
-        delete it->second;
-        delete item;
-        containerMap.erase(it);
+        inter->decRefCount();
     }
 }
 
@@ -130,6 +137,27 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
     if (strcmp(inter->getPluginName(), "ColorBars") == 0)
     {
         const char *containerName = container->getName();
+        interactorMap[containerName] = inter;
+        inter->incRefCount();
+
+        bool found = false;
+        ColorsModuleMap::iterator it = colorsModuleMap.begin();
+        for (; it != colorsModuleMap.end(); ++it)
+        {
+            if (it->first->isSame(inter))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
+            inter->incRefCount();
+        }
+        ColorsModule &mod = it->second;
+        ++mod.useCount;
 
         const char *colormapString = NULL;
         colormapString = inter->getString(0); // Colormap string
@@ -183,35 +211,29 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         if (container && container->getAttribute("OBJECTNAME"))
             menuName = container->getAttribute("OBJECTNAME");
 
-        map<std::string, ColorBar *>::iterator it = colorbars.find(moduleName);
-        opencover::ColorBar *colorBar = NULL;
-        if (it != colorbars.end())
+        if (found)
         {
-            colorBar = it->second;
-            colorBar->update(species, min, max, numColors, r, g, b, a);
-            colorBar->setName(menuName.c_str());
+            if (mod.colorbar)
+            {
+                mod.colorbar->update(species, min, max, numColors, r, g, b, a);
+                mod.colorbar->setName(menuName.c_str());
+            }
         }
         else
         {
-            vrui::coSubMenuItem *menuItem = new coSubMenuItem(menuName.c_str());
-            _menu = new coRowMenu(menuName.c_str());
-            menuItem->setMenu(_menu);
+            mod.menu = new ui::Menu(menuName, &mod);
+            colorSubmenu->add(mod.menu);
 
-            if (colorSubmenu)
-                colorSubmenu->add(menuItem);
-
-            colorBar = new ColorBar(menuItem, _menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
-            colorbars.insert(pair<std::string, ColorBar *>(moduleName, colorBar));
-            menuMap[colorBar] = menuItem;
+            if (cover->vruiView)
+            {
+                auto menu = dynamic_cast<vrui::coRowMenu *>(cover->vruiView->getMenu(mod.menu));
+                auto item = dynamic_cast<vrui::coSubMenuItem *>(cover->vruiView->getItem(mod.menu));
+                if (menu && item)
+                    mod.colorbar = new ColorBar(item, menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
+            }
         }
-        colorBar->addInter(inter);
-
-        std::map<std::string, ColorBar *>::iterator it2 = containerMap.find(containerName);
-        if (it2 != containerMap.end())
-        {
-            containerMap.erase(it2);
-        }
-        containerMap[containerName] = colorBar;
+        if (mod.colorbar)
+            mod.colorbar->addInter(inter);
 
         delete[] species;
         delete[] r;

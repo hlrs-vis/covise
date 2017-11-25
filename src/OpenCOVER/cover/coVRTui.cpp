@@ -212,6 +212,8 @@ coVRTui::coVRTui()
     , animationEnabled(true)
     , animationOscillate(false)
 {
+    assert(!tui);
+
     tui = this;
     lastUpdateTime = 0;
     binList = new BinList;
@@ -583,6 +585,8 @@ coVRTui::~coVRTui()
     delete rightContainer;
     delete binList;
     delete inputTUI;
+
+    tui = NULL;
 }
 
 coInputTUI::coInputTUI()
@@ -666,6 +670,17 @@ coInputTUI::coInputTUI()
         deviceRot[i]->setEventListener(this);
     }
 
+	calibrateTrackingsystem = new coTUIToggleButton("Calibrate Device", bodiesContainer->getID());
+	calibrateTrackingsystem->setPos(0, 7);
+	calibrateTrackingsystem->setEventListener(this);
+
+	calibrateToHand = new coTUIToggleButton("CalibrateToHand", bodiesContainer->getID());
+	calibrateToHand->setPos(1, 7);
+	calibrateToHand->setEventListener(this);
+
+	calibrationLabel = new coTUILabel("Select device and press Calibrate Device button", bodiesContainer->getID());
+	calibrationLabel->setPos(2, 7);
+
     debugContainer = new coTUIFrame("Debug", inputTab->getID());
     debugContainer->setPos(1,6);
     debugLabel = new coTUILabel("Debug", debugContainer->getID());
@@ -690,6 +705,8 @@ coInputTUI::coInputTUI()
     debugTransformedButton = new coTUIToggleButton("Transformed", debugContainer->getID());
     debugTransformedButton->setPos(4,1);
     debugTransformedButton->setEventListener(this);
+
+	calibrationStep = -2;
 
     updateTUI();
 }
@@ -777,6 +794,10 @@ coInputTUI::~coInputTUI()
         delete deviceRot[i];
         delete deviceRotLabel[i];
     }
+
+	delete calibrateTrackingsystem;
+	delete calibrationLabel;
+	delete calibrateToHand;
     
     delete personContainer;
     delete personsLabel;
@@ -791,6 +812,81 @@ coInputTUI::~coInputTUI()
     
 }
 
+void coInputTUI::update()
+{
+	if (calibrationStep >= -1 && calibrationStep < 3)
+	{
+		if (cover->getPointerButton()->wasReleased() || calibrationStep  == -1)
+		{
+			InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
+			calibrationStep++;
+			char buf[300];
+			sprintf(buf, "step %d, please go to position %s and press any button.", calibrationStep,id->getCalibrationPointName(calibrationStep).c_str());
+			calibrationLabel->setLabel(buf);
+		}
+		if (cover->getPointerButton()->wasPressed())
+		{
+			calibrationPositions[calibrationStep] = cover->getPointerMat().getTrans();
+		}
+		if (calibrationStep == 3) // calibration done, we have all three points
+		{
+			InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
+			osg::Vec3 axisA = id->getCalibrationPoint(1) - id->getCalibrationPoint(0);
+			osg::Vec3 axisB = id->getCalibrationPoint(2) - id->getCalibrationPoint(0);
+			osg::Vec3 axisAm = calibrationPositions[1] - calibrationPositions[0];
+			osg::Vec3 axisBm = calibrationPositions[2] - calibrationPositions[0];
+			osg::Matrix m;
+			m.makeTranslate(id->getCalibrationPoint(0) - calibrationPositions[0]);
+
+			axisA.normalize();
+			axisAm.normalize();
+			axisB.normalize();
+			axisBm.normalize();
+			osg::Vec3 axisC = axisA^axisB;
+			osg::Vec3 axisCm = axisAm^axisBm;
+			axisC.normalize();
+			axisCm.normalize();
+			axisB = axisA^axisC;
+			axisBm = axisAm^axisCm;
+			axisB.normalize();
+			axisBm.normalize();
+
+			osg::Matrix calibCS;
+			osg::Matrix measuredCS;
+			osg::Matrix measuredCSI;
+			calibCS(0, 0) = axisA[0]; calibCS(0, 1) = axisA[1]; calibCS(0, 2) = axisA[2];
+			calibCS(1, 0) = axisB[0]; calibCS(1, 1) = axisB[1]; calibCS(1, 2) = axisB[2];
+			calibCS(2, 0) = axisC[0]; calibCS(2, 1) = axisC[1]; calibCS(2, 2) = axisC[2];
+			calibCS(3, 0) = id->getCalibrationPoint(0)[0]; calibCS(3, 1) = id->getCalibrationPoint(0)[1]; calibCS(3, 2) = id->getCalibrationPoint(0)[2];
+			measuredCS(0, 0) = axisAm[0]; measuredCS(0, 1) = axisAm[1]; measuredCS(0, 2) = axisAm[2];
+			measuredCS(1, 0) = axisBm[0]; measuredCS(1, 1) = axisBm[1]; measuredCS(1, 2) = axisBm[2];
+			measuredCS(2, 0) = axisCm[0]; measuredCS(2, 1) = axisCm[1]; measuredCS(2, 2) = axisCm[2];
+			measuredCS(3, 0) = calibrationPositions[0][0]; measuredCS(3, 1) = calibrationPositions[0][1]; measuredCS(3, 2) = calibrationPositions[0][2];
+			measuredCSI.invert_4x4(measuredCS);
+			m = measuredCSI * calibCS;
+			id->setOffsetMat(m);
+			updateTUI();
+
+			calibrationLabel->setLabel("Calibration done. Select device and press Calibrate Device button");
+			calibrationStep = -2;
+		}
+	}
+	if (calibrateToHand->getState())
+	{
+		InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
+		osg::Matrix m;
+		m.makeIdentity();
+		id->setOffsetMat(m);
+		if (cover->getPointerButton()->wasPressed())
+		{
+			m.invert_4x4(cover->getPointerMat());
+			//m = cover->getPointerMat();
+			id->setOffsetMat(m);
+			updateTUI();
+			calibrateToHand->setState(false);
+		}
+	}
+}
 void coInputTUI::tabletEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == eyeDistanceEdit)
@@ -799,6 +895,31 @@ void coInputTUI::tabletEvent(coTUIElement *tUIItem)
         Input::instance()->getPerson(activePerson)->setEyeDistance(eyeDistanceEdit->getValue());
         VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
     }
+	else if (tUIItem == calibrateTrackingsystem)
+	{
+		if (calibrateTrackingsystem->getState() == true)
+		{
+			calibrationStep = -1;
+
+			InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
+			for (int i = 0; i < 3; i++)
+			{
+				deviceTrans[i]->setValue(0);
+				deviceRot[i]->setValue(0);
+			}
+
+			id->setOffsetMat(osg::Matrix::identity());
+
+			calibrationLabel->setLabel("Select device and press Calibrate Device button");
+		}
+		else
+		{
+			calibrationStep = -2;
+			calibrationLabel->setLabel("Select device and press Calibrate Device button");
+		}
+		delete calibrateTrackingsystem;
+		delete calibrationLabel;
+	}
     else if(tUIItem == personsChoice)
     {
         Input::instance()->setActivePerson(personsChoice->getSelectedEntry());
@@ -878,6 +999,7 @@ void coVRTui::updateFPS(double fps)
 
 void coVRTui::update()
 {
+	inputTUI->update();
     if (debugLevel->getValue() != coVRConfig::instance()->getDebugLevel())
     {
         debugLevel->setValue(coVRConfig::instance()->getDebugLevel());
@@ -885,6 +1007,12 @@ void coVRTui::update()
     if (navigationMode != coVRNavigationManager::instance()->getMode())
     {
         navigationMode = coVRNavigationManager::instance()->getMode();
+
+		XForm->setState(false);
+		Scale->setState(false);
+		Fly->setState(false);
+		Drive->setState(false);
+		Walk->setState(false);
         switch (navigationMode)
         {
         case coVRNavigationManager::XForm:
@@ -1240,7 +1368,7 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
 
     if (tUIItem == Quit)
     {
-        OpenCOVER::instance()->quitCallback(NULL, NULL);
+        OpenCOVER::instance()->requestQuit();
     }
     else if (tUIItem == ViewAll)
     {
@@ -1248,32 +1376,31 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Walk)
     {
-        cover->enableNavigation("Walk");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
     }
     else if (tUIItem == Fly)
     {
-        cover->enableNavigation("Fly");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Fly);
     }
     else if (tUIItem == Drive)
     {
-        cover->enableNavigation("Drive");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Glide);
     }
     else if (tUIItem == Scale)
     {
-        cover->enableNavigation("Scale");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Scale);
     }
     else if (tUIItem == XForm)
     {
-        cover->enableNavigation("XForm");
+        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::XForm);
     }
     else if (tUIItem == Collision)
     {
-        cover->setBuiltInFunctionState("Collide", true);
+        coVRNavigationManager::instance()->toggleCollide(true);
     }
     else if (tUIItem == Freeze)
     {
-        coVRConfig::instance()->setFrozen(true);
-        cover->setBuiltInFunctionState("Freeze", true);
+        VRSceneGraph::instance()->toggleHeadTracking(false);
     }
     else if (tUIItem == Wireframe)
     {
@@ -1324,6 +1451,7 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     {
         stopTabNav();
     }
+#if 0
     else if (tUIItem == Walk)
     {
         cover->disableNavigation("Walk");
@@ -1344,14 +1472,14 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     {
         cover->disableNavigation("XForm");
     }
+#endif
     else if (tUIItem == Collision)
     {
-        cover->setBuiltInFunctionState("Collide", false);
+        coVRNavigationManager::instance()->toggleCollide(false);
     }
     else if (tUIItem == Freeze)
     {
-        coVRConfig::instance()->setFrozen(false);
-        cover->setBuiltInFunctionState("Freeze", false);
+        VRSceneGraph::instance()->toggleHeadTracking(true);
     }
     else if (tUIItem == Wireframe)
     {

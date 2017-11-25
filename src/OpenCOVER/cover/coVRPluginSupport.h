@@ -48,10 +48,21 @@
 #include <osg/BoundingBox>
 
 #include <deque>
+#include <list>
+#include <ostream>
 #include <OpenVRUI/sginterface/vruiButtons.h>
-#include "VRPinboard.h"
 #include "coVRPlugin.h"
-#include <osgShadow/ShadowedScene>
+
+#include "ui/Manager.h"
+#include "ui/Menu.h"
+#include "ui/ButtonGroup.h"
+#include "ui/VruiView.h"
+
+namespace opencover {
+namespace ui {
+class Menu;
+}
+}
 
 #define MAX_NUMBER_JOYSTICKS 64
 
@@ -70,6 +81,7 @@ namespace vrui
 class coUpdateManager;
 class coMenu;
 class coToolboxMenu;
+class coRowMenu;
 }
 namespace vrml
 {
@@ -86,6 +98,7 @@ namespace opencover
 class coVRPlugin;
 class RenderObject;
 class coInteractor;
+class NotifyBuf;
 struct Isect
 {
     enum IntersectionBits
@@ -106,6 +119,18 @@ struct Isect
 
 private:
 };
+
+namespace Notify
+{
+enum NotificationLevel
+{
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Fatal
+};
+}
 
 /*! \class coPointerButton coVRPluginSupport.h cover/coVRPluginSupport.h
  * Access to buttons and wheel of interaction devices
@@ -156,7 +181,6 @@ class COVEREXPORT coVRPluginSupport
     friend class OpenCOVER;
     friend class coVRMSController;
     friend class coIntersection;
-    friend class VRPinboard;
 
 public:
     //! returns true if level <= debugLevel
@@ -168,6 +192,14 @@ public:
           4,
           5 all functions which are called continously */
     bool debugLevel(int level) const;
+
+    // show a message to the user
+    std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
+    std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
+#ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+#endif
+        ;
 
     // OpenGL clipping
     /// @cond INTERNAL
@@ -198,7 +230,7 @@ public:
     // access to scene graph nodes and transformations
 
     //! get scene group node
-    osgShadow::ShadowedScene *getScene() const;
+    osg::Group *getScene() const;
 
     //! get the group node for all COVISE and model geometry
     osg::ClipNode *getObjectsRoot() const;
@@ -272,7 +304,7 @@ public:
     coPointerButton *getMouseButton() const;
 
     //! returns the COVER Menu (Pinboard)
-    vrui::coMenu *getMenu() const;
+    vrui::coMenu *getMenu();
 
     //! return group node of menus
     osg::Group *getMenuGroup() const;
@@ -317,6 +349,8 @@ public:
     //! check if keyboard is grabbed
     bool isKeyboardGrabbed();
 
+
+#if 0
     //! returns a new unique button group id
     /*! if you want to create a new button group you need this id */
     int createUniqueButtonGroupId();
@@ -458,6 +492,7 @@ public:
     // }
     //
     void addConfigurableButton(const char *functionName, const char *defButtonName, const char *defMenuName, int type, void *callback, void *inst, int groupId = -1, void *userData = NULL);
+#endif
 
     void protectScenegraph();
 
@@ -524,6 +559,13 @@ public:
 
     //! update internal state related to current person being tracked - called Input system
     void personSwitched(size_t personNumber);
+
+    ui::Manager *ui = nullptr;
+    ui::Menu *fileMenu = nullptr;
+    ui::Menu *viewOptionsMenu = nullptr;
+    ui::Menu *visMenu = nullptr;
+    ui::ButtonGroup *navGroup() const;
+    ui::VruiView *vruiView = nullptr;
 
     osg::Matrix envCorrectMat;
     osg::Matrix invEnvCorrectMat;
@@ -596,7 +638,7 @@ public:
         toolBar = tb;
     };
 
-    //! use only during coVRPlugin::prepareFrame()
+    //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
 private:
@@ -624,12 +666,14 @@ private:
     double lastFrameStartTime;
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
-    vrml::Player *player;
-    list<void (*)()> playerUseList;
+    bool cursorVisible = true;
+    vrml::Player *player = nullptr;
+    std::list<void (*)()> playerUseList;
 
     int activeClippingPlane;
 
     osg::ref_ptr<osg::Geode> intersectedNode;
+    osg::ref_ptr<osg::Drawable> intersectedDrawable;
     //osg::ref_ptr<osg::NodePath> intersectedNodePath;
     osg::NodePath intersectedNodePath;
     osg::Vec3 intersectionHitPointWorld;
@@ -638,14 +682,18 @@ private:
     osg::Vec3 intersectionHitPointLocalNormal;
     osg::ref_ptr<osg::RefMatrix> intersectionMatrix;
 
-    mutable coPointerButton *pointerButton;
-    mutable coPointerButton *mouseButton;
-    vrui::coToolboxMenu *toolBar;
+    mutable coPointerButton *pointerButton = nullptr;
+    mutable coPointerButton *mouseButton = nullptr;
+    vrui::coToolboxMenu *toolBar = nullptr;
+    vrui::coRowMenu *m_vruiMenu = nullptr;
 
     int numClipPlanes;
 
     coVRPluginSupport();
     ~coVRPluginSupport();
+
+    std::vector<std::ostream *> m_notifyStream;
+    std::vector<NotifyBuf *> m_notifyBuf;
 };
 
 COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix);

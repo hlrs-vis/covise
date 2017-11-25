@@ -71,7 +71,7 @@ void MEFavoriteListHandler::createFavorites()
 
     QToolBar *tb = MEUserInterface::instance()->getToolBar();
 
-    for (unsigned int k = 0; k < favorites.count(); k++)
+    for ( int k = 0; k < favorites.count(); k++)
         favoriteList.append(new MEFavorites(tb, favorites[k]));
     MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" "));
     if (!favoriteList.isEmpty())

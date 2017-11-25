@@ -30,6 +30,7 @@ oscWorld()
         OSC_ADD_MEMBER_OPTIONAL(p, 0);
         OSC_ADD_MEMBER_OPTIONAL(r, 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscDouble x;
     oscDouble y;
     oscDouble z;

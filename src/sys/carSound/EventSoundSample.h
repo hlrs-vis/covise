@@ -9,7 +9,7 @@
 #define EVENT_SOUND_SAMPLE_H
 
 #include <string>
-#include <fmod.hpp>
+#include <fmod_studio.hpp>
 
 class EventSoundSample
 {

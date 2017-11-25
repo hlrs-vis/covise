@@ -11,7 +11,6 @@
 #include <util/common.h>
 #include <util/unixcompat.h>
 #include "VRVectorInteractor.h"
-#include <cover/VRPinboard.h>
 #include <cover/RenderObject.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRPluginSupport.h>
@@ -116,7 +115,9 @@ VectorInteractor::VectorInteractor(const char *attrib, const char *sa, osg::Node
     updatePosition();
     transform->addChild(getArrow());
     cover->getObjectsRoot()->addChild(transform);
+#ifdef PINBOARD
     addMenue();
+#endif
 
     delete[] buf;
 }
@@ -211,6 +212,7 @@ void VectorInteractor::updatePosition()
     //fprintf(stderr,"Value: %f\n",value);
 }
 
+#ifdef PINBOARD
 void
 VectorInteractor::addMenue()
 {
@@ -298,6 +300,7 @@ void VectorInteractor::updateMenu()
         menu->addButton(&spec);
     }
 }
+#endif
 
 int VectorInteractor::isVectorInteractor(const char *n)
 {
@@ -496,6 +499,7 @@ void VectorInteractorList::removeAll(osg::Node *n)
     }
 }
 
+#ifdef PINBOARD
 void VectorInteractor::menuCallback(void *slider, buttonSpecCell *spec)
 {
     if (strcmp(spec->name, "FloatVector") == 0)
@@ -505,6 +509,7 @@ void VectorInteractor::menuCallback(void *slider, buttonSpecCell *spec)
     else
         ((VectorInteractor *)slider)->update(spec);
 }
+#endif
 
 osg::Node *VectorInteractor::getArrow()
 {

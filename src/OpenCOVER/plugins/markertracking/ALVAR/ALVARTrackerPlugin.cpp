@@ -41,6 +41,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
 #include <Pose.h>
 
 #include "Alvar.h"
@@ -182,6 +183,7 @@ ALVARPlugin::ALVARPlugin()
 bool ALVARPlugin::init()
 {
     //sleep(6);
+
     ARToolKit::instance()->arInterface = this;
     ARToolKit::instance()->remoteAR = NULL;
 	ARToolKit::instance()->videoData = NULL;
@@ -523,6 +525,12 @@ void ALVARPlugin::tabletEvent(coTUIElement *tUIItem)
 
 void ALVARPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 {
+}
+
+bool
+ALVARPlugin::update()
+{
+    return ARToolKit::instance()->running;
 }
 
 void

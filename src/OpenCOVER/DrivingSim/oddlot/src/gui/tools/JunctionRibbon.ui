@@ -36,23 +36,13 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QGroupBox" name="crossfallBox">
+    <widget class="QGroupBox" name="selectionBox">
      <property name="title">
-      <string>Junction Tools</string>
+      <string>Selection Tools</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="gridLayout_6">
       <item row="1" column="0">
-       <widget class="QPushButton" name="junctionRemove">
-        <property name="text">
-         <string>Remove</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="junctionSelect">
+       <widget class="QPushButton" name="select">
         <property name="text">
          <string>Select</string>
         </property>
@@ -64,13 +54,26 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="junctionAdd">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="crossfallBox">
+     <property name="title">
+      <string>Junction Tools</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Add</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+         <string>Junction</string>
         </property>
        </widget>
       </item>
@@ -81,6 +84,43 @@
         </property>
         <property name="text">
          <string>Create</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="junctionSelect">
+        <property name="text">
+         <string>Select</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Road</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="junctionRemove">
+        <property name="text">
+         <string>Remove</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="junctionAdd">
+        <property name="text">
+         <string>Add</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -100,7 +140,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Rad Links</string>
+      <string>Road Links</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="1" column="0">
@@ -197,7 +237,11 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QDoubleSpinBox" name="radiusEdit"/>
+       <widget class="QDoubleSpinBox" name="radiusEdit">
+        <property name="value">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="cuttingCircle">

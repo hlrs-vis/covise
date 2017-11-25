@@ -317,7 +317,7 @@ bool coToolboxMenu::update()
                     itemsFrame->getDCS()->setScale(1.0, (float)t_i, 1.0);
 
                     itemsFrame->setPos(itemsFrame->getXpos(),
-                                       (float)itemsFrame->getHeight() * (1.0f - t_i)
+                                       (float)itemsFrame->getHeight() * (1.0f - (float)t_i)
                                        + handle->getVgap(),
                                        itemsFrame->getZpos());
                     break;

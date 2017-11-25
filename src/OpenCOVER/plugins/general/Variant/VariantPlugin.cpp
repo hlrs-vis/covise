@@ -42,19 +42,19 @@ using namespace covise;
 using namespace opencover;
 
 VariantPlugin *VariantPlugin::plugin = NULL;
-coRowMenu *VariantPlugin::variants_menu = NULL;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
 
 VariantPlugin::VariantPlugin()
+: ui::Owner("VariantPlugin", cover->ui)
 {
     assert(plugin == NULL);
     plugin = this;
 
     interActing = false;
-    _interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "MoveMode", coInteraction::Medium);
+    _interactionA = new vrui::coTrackerButtonInteraction(vrui::coInteraction::ButtonA, "MoveMode", vrui::coInteraction::Medium);
     tmpVec.set(1, 1, 1);
     boi = NULL;
     
@@ -66,42 +66,65 @@ bool VariantPlugin::init()
 {
     cover->addPlugin("SGBrowser"); // required for hiding/showing nodes
 
-    cover_menu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu("COVER");
-    if (menu)
-    {
-        cover_menu = menu->getCoMenu();
-        button = new coSubMenuItem("Variants");
-        variant_menu = new coRowMenu("Variants");
+        //variant_menu = new ui::Menu(this, "Variants");
 
-        variants = new coSubMenuItem("Variants");
-        variants_menu = new coRowMenu("Variants");
-        variants->setMenu(variants_menu);
-        variants->setMenuListener(this);
+        variant_menu = new ui::Menu("Variants", this);
 
-        variant_menu->add(variants);
-        button->setMenu(variants_menu);
-        cover_menu->add(button);
+        options_menu = new ui::Menu(variant_menu, "Options");
+        showHideLabels = new ui::Button(options_menu, "Show Labels");
+        showHideLabels->setState(false);
+        showHideLabels->setCallback([this](bool state){
+            if (state)
+            {
+                showAllLabel();
+            }
+            else
+            {
+                hideAllLabel();
+            }
+            setQDomElemLabels(state);
+            tui_showLabel->setState(state);
+        });
 
-        options = new coSubMenuItem("Options");
-        options_menu = new coRowMenu("Options");
-        options->setMenu(options_menu);
-        showHideLabels = new coCheckboxMenuItem("Show Labels", false);
-        showHideLabels->setMenuListener(this);
-        options_menu->add(showHideLabels);
-        variants_menu->add(options);
+        roi_menu = new ui::Menu(variant_menu, "Region of Interest");
+        define_roi = new ui::Button(roi_menu, "Define");
+        define_roi->setState(false);
+        define_roi->setCallback([this](bool state){
+            if (state && firsttime)
+            {
+                float initSize = getTypicalSice() * 0.01;
+                boi->setMatrix(boi->getMat() * boi->getMat().scale(initSize, initSize, initSize));
+                boi->setStartMatrix();
+                printMatrix(boi->getMat());
+                boi->updateClippingPlanes();
+                firsttime = false;
+            }
+            boi->showHide(state);
+        });
 
-        roi = new coSubMenuItem("Region of Interest");
-        roi_menue = new coRowMenu("Region of Interest");
-        roi->setMenu(roi_menue);
-        define_roi = new coCheckboxMenuItem("Define", false);
-        define_roi->setMenuListener(this);
-        roi_menue->add(define_roi);
-        active_roi = new coCheckboxMenuItem("Active", false);
-        active_roi->setMenuListener(this);
-        roi_menue->add(active_roi);
-        variants_menu->add(roi);
-    }
+        active_roi = new ui::Button(roi_menu, "Active");
+        active_roi->setState(false);
+        active_roi->setCallback([this](bool state){
+            // float initSize = cover->getBBox(cover->getObjectsRoot()).radius() * 0.1;
+            std::list<Variant *>::iterator it;
+            if (state)
+            {
+                for (it = varlist.begin(); it != varlist.end(); it++)
+                {
+                    //boi->attachClippingPlanes((*it)->getNode());
+                    (*it)->attachClippingPlane();
+                }
+            }
+            else
+            {
+                for (it = varlist.begin(); it != varlist.end(); it++)
+                {
+                    //boi->releaseClippingPlanes((*it)->getNode());
+                    (*it)->releaseClippingPlane();
+                }
+            }
+            //boi->setMatrix(osg::Vec3(10,10,10),osg::Vec3(1,1,1));
+        });
 
     coVRSelectionManager::instance()->addListener(this);
     //tuTab
@@ -163,6 +186,7 @@ VariantPlugin::~VariantPlugin()
 {
     //fprintf ( stderr,"VariantPlugin::~VariantPlugin\n" );
 
+#ifdef VRUI
     delete showHideLabels;
     delete options_menu;
     delete define_roi;
@@ -174,9 +198,11 @@ VariantPlugin::~VariantPlugin()
     delete variants_menu;
     //
     delete options;
+#endif
 
     delete VariantPluginTab;
     delete boi;
+    plugin = nullptr;
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -374,30 +400,42 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
 
             if (var_att != "NULL" && var_att != "")
             {
+                bool set_default = false;
                 bool default_state = false;
+                if (render->getAttribute("VARIANT_VISIBLE"))
+                {
+                    set_default = true;
+                    if (std::string(render->getAttribute("VARIANT_VISIBLE")) == "off")
+                        default_state = false;
+                    else
+                        default_state = true;
+                }
                 if(var_att.length()>3 && var_att.compare(var_att.length()-3,3,"_on")==0)
                 {
                    var_att = var_att.substr(0,var_att.length()-3);
                    default_state = true;
+                   set_default = true;
                 }
                 if(var_att.length()>4 && var_att.compare(var_att.length()-4,4,"_off")==0)
                 {
                    var_att = var_att.substr(0,var_att.length()-4);
                    default_state = false;
+                   set_default = true;
                 }
+                std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {
                     osg::Node::ParentList parents;
                     if (node)
                         parents = node->getParents();
-                    vari = new Variant(var_att, node, parents, variants_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi,default_state);
+                    vari = new Variant(var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
 
                     varlist.push_back(vari);
 
                     vari->AddToScenegraph();
                     vari->hideVRLabel();
-                    if(default_state==false)
+                    if(set_default && default_state==false)
                     {
                        osg::Node *n = vari->getNode();
                        if (n)
@@ -511,6 +549,7 @@ Variant *VariantPlugin::getVariantbyAttachedNode(osg::Node *node)
 
 //------------------------------------------------------------------------------------------------------------------------------
 
+#ifdef VRUI
 void VariantPlugin::menuEvent(coMenuItem *item)
 {
 
@@ -577,6 +616,7 @@ void VariantPlugin::menuEvent(coMenuItem *item)
         }
     }
 }
+#endif
 //------------------------------------------------------------------------------------------------------------------------------
 
 void VariantPlugin::tabletEvent(coTUIElement *elem)

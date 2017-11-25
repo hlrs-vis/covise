@@ -108,8 +108,8 @@ void NormPointStruct(struct Point *p)
 
    for (i = 0; i < p->nump; i++)
    {
-      mag  = sqrt(pow(p->x[i], 2) + pow(p->y[i], 2) + pow(p->z[i], 2));
-      if (mag > 0.0)
+      mag  = float(sqrt(pow(p->x[i], 2) + pow(p->y[i], 2) + pow(p->z[i], 2)));
+      if (mag > 0.0f)
       {
          p->x[i] /= mag;
          p->y[i] /= mag;

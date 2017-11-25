@@ -89,6 +89,8 @@
 #include <grmsg/coGRObjSensorEventMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 
+#include <cover/ui/Action.h>
+
 using namespace covise;
 using namespace grmsg;
 
@@ -109,7 +111,17 @@ static FileHandler handlers[] = {
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
-      "wrz" }
+      "wrz" },
+	  { Vrml97Plugin::loadVrml,
+	  Vrml97Plugin::loadVrml,
+	  NULL,
+	  Vrml97Plugin::unloadVrml,
+	  "x3d" },
+	  { Vrml97Plugin::loadVrml,
+	  Vrml97Plugin::loadVrml,
+	  NULL,
+	  Vrml97Plugin::unloadVrml,
+	  "x3dv" }
 };
 
 // descend two levels into vrml scene graph
@@ -119,7 +131,7 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 
     if (!plugin)
         return NULL;
-    if (plugin->viewer)
+    if (!plugin->viewer)
         return NULL;
 
     osg::Group *g = plugin->viewer->VRMLRoot;
@@ -286,7 +298,8 @@ void Vrml97Plugin::worldChangedCB(int reason)
 }
 
 Vrml97Plugin::Vrml97Plugin()
-    : listener(NULL)
+    : ui::Owner("Vrml97Plugin", cover->ui)
+    , listener(NULL)
     , viewer(NULL)
     , vrmlScene(NULL)
     , player(NULL)
@@ -330,7 +343,9 @@ bool Vrml97Plugin::init()
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
-    coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[3]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
 
     VrmlNamespace::addBuiltIn(VrmlNodeTUIProgressBar::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeTUITab::defineType());
@@ -370,6 +385,8 @@ bool Vrml97Plugin::init()
 // this is called if the plugin is removed at runtime
 Vrml97Plugin::~Vrml97Plugin()
 {
+    unloadVrml("");
+
     if (!coVRMSController::instance()->isSlave())
     {
         if (listener)
@@ -383,7 +400,9 @@ Vrml97Plugin::~Vrml97Plugin()
         }
     }
 
-    coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[4]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[3]);
+	coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
     coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 
@@ -391,19 +410,32 @@ Vrml97Plugin::~Vrml97Plugin()
 
     delete sensorList;
     sensorList = NULL;
+
+    delete System::the;
+}
+
+bool
+Vrml97Plugin::update()
+{
+    bool render = false;
+
+    if (this->sensorList)
+        sensorList->update();
+    if (this->viewer)
+    {
+        render = this->viewer->update();
+    }
+    if (this->player)
+        this->player->update();
+    if (System::the)
+        System::the->update();
+
+    return render;
 }
 
 void
 Vrml97Plugin::preFrame()
 {
-    if (this->sensorList)
-        sensorList->update();
-    if (this->viewer)
-        this->viewer->update();
-    if (this->player)
-        this->player->update();
-    if (System::the)
-        System::the->update();
     VrmlNodeMatrixLight::updateAll();
     VrmlNodePhotometricLight::updateAll();
     if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
@@ -772,15 +804,22 @@ void Vrml97Plugin::activateTouchSensor(int id)
         dummyMatrix);
 }
 
-coMenuItem *Vrml97Plugin::getMenuButton(const std::string &buttonName)
+ui::Element *Vrml97Plugin::getMenuButton(const std::string &buttonName)
 {
     if (buttonName.find("activateTouchSensor") == 0)
     {
         int i = atoi(buttonName.substr(19).c_str());
         if (viewer && viewer->sensors.size() > i)
         {
-            if (viewer->sensors[i]->getButton()->getMenuListener() == NULL)
-                viewer->sensors[i]->getButton()->setMenuListener(this);
+            if (auto a = viewer->sensors[i]->getButton())
+            {
+                if (!a->callback())
+                {
+                    a->setCallback([this, i](){
+                        activateTouchSensor(i);
+                    });
+                }
+            }
             return viewer->sensors[i]->getButton();
         }
         else
@@ -790,6 +829,7 @@ coMenuItem *Vrml97Plugin::getMenuButton(const std::string &buttonName)
     return NULL;
 }
 
+#if 0
 void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
 {
 
@@ -808,5 +848,6 @@ void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
         }
     }
 }
+#endif
 
 COVERPLUGIN(Vrml97Plugin)

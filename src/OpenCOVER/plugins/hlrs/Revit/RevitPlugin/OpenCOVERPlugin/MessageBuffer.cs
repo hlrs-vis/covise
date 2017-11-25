@@ -107,8 +107,18 @@ namespace OpenCOVERPlugin
          incsize(1);
          buf[currentPos] = b;
          currentPos += 1;
-      }
-      public void add(Autodesk.Revit.DB.Color c)
+        }
+        public void add(TextureInfo ti)
+        {
+            add(ti.textuerPath);
+            add(ti.sx);
+            add(ti.sy);
+            add(ti.ox);
+            add(ti.oy);
+            add(ti.angle);
+            add(ti.color);
+        }
+        public void add(Autodesk.Revit.DB.Color c)
       {
          if (c == null)
          {

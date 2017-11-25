@@ -76,7 +76,10 @@ public:
 
 class COVEREXPORT coVRPartnerList : public covise::DLinkList<coVRPartner *>
 {
+    static coVRPartnerList *s_instance;
+    coVRPartnerList();
 public:
+    ~coVRPartnerList();
     coVRPartner *get(int ID);
     void print();
     static coVRPartnerList *instance();

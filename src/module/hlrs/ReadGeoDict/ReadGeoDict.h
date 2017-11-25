@@ -80,7 +80,15 @@ public:
     varType variableType;
 
 };
-
+class ParticleInfo
+{
+public:
+	int64_t ID;
+	float x;
+	float y;
+	float z;
+	double time;
+};
 class ArrayInfo
 {
 public:
@@ -91,6 +99,8 @@ public:
     int numColumns;
     int numRows;
     std::vector<ArrayColumn *> columnInfos;
+	int columnSize;
+	unsigned char *dataBuf;
 
 };
 

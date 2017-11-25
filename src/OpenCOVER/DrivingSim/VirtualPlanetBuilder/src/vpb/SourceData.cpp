@@ -31,7 +31,7 @@
 #include <gdal_priv.h>
 #include <gdalwarper.h>
 #include <stdio.h>
-#include <RoadSystem/RoadSystem.h>
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 using namespace vpb;
 

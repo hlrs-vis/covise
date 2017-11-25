@@ -26,6 +26,7 @@ oscConditionGroup()
 {
         OSC_OBJECT_ADD_MEMBER(Condition, "oscCondition", 0);
     };
+        const char *getScope(){return "";};
     oscConditionArrayMember Condition;
 
 };

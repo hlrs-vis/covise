@@ -15,8 +15,8 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscDescription.h"
-#include "oscBehavior.h"
+#include "oscParameterDeclaration.h"
+#include "oscPersonDescription.h"
 
 namespace OpenScenario
 {
@@ -26,12 +26,13 @@ public:
 oscDriver()
 {
         OSC_ADD_MEMBER(name, 0);
-        OSC_OBJECT_ADD_MEMBER(Description, "oscDescription", 0);
-        OSC_OBJECT_ADD_MEMBER(Behavior, "oscBehavior", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+        OSC_OBJECT_ADD_MEMBER(Description, "oscPersonDescription", 0);
     };
+        const char *getScope(){return "";};
     oscString name;
-    oscDescriptionMember Description;
-    oscBehaviorMember Behavior;
+    oscParameterDeclarationMember ParameterDeclaration;
+    oscPersonDescriptionMember Description;
 
 };
 

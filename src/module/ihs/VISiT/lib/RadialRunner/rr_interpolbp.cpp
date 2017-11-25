@@ -35,8 +35,8 @@ struct profile *InterpolBladeProfile(struct profile *bp_src)
 	for(i = istart; i < iend; i++) {
 		for(j = 1; j < INTERPOL_PARTS; j++) {
 			ratio = (float)(j)/(float)(INTERPOL_PARTS-1);
-			c = ratio * bp_src->c[i] + (1.0 - ratio) * bp_src->c[i-1];
-			t = ratio * bp_src->t[i] + (1.0 - ratio) * bp_src->t[i-1];
+			c = ratio * bp_src->c[i] + (1.0f - ratio) * bp_src->c[i-1];
+			t = ratio * bp_src->t[i] + (1.0f - ratio) * bp_src->t[i-1];
 			AddProfilePoint(bp_tgt, c, t);
 #ifdef DEBUG_BLADE_PROFILE
 			fprintf(stderr,"i, j: %3d, %3d: ratio, c, t: %f, %f, %f\n",

@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscParameterList.h"
+#include "oscParameterAssignment.h"
 
 namespace OpenScenario
 {
@@ -35,13 +35,14 @@ oscScript()
         OSC_ADD_MEMBER(name, 0);
         OSC_ADD_MEMBER(file, 0);
         OSC_ADD_MEMBER(execution, 0);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterList, "oscParameterList", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(OSCParameterAssignment, "oscParameterAssignment", 0);
         execution.enumType = Enum_Script_executionType::instance();
     };
+        const char *getScope(){return "/OSCUserDefinedAction";};
     oscString name;
     oscString file;
     oscEnum execution;
-    oscParameterListMember OSCParameterList;
+    oscParameterAssignmentMember OSCParameterAssignment;
 
     enum Enum_Script_execution
     {

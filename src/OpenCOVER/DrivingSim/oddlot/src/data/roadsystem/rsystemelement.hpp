@@ -39,7 +39,8 @@ public:
         DRE_Fiddleyard,
         DRE_PedFiddleyard,
         DRE_Signal,
-        DRE_Object
+        DRE_Object,
+		DRE_JunctionGroup
     };
 
     enum RSystemElementChange

@@ -8,6 +8,7 @@
 //Plugin zur Darstellung von Dreiecks-Bezierflaechen
 #include <cover/RenderObject.h>
 #include "cover/VRSceneGraph.h"
+#include <net/message.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRNavigationManager.h>
@@ -17,6 +18,7 @@
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <vrbclient/VRBClient.h>
 #include <grmsg/coGRSendCurrentDocMsg.h>
 #include <cmath>

@@ -83,7 +83,7 @@ private:
 class AddOSCCatalogObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OpenScenario::oscObjectBase *objectBase, const std::string &path, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
+	explicit AddOSCCatalogObjectCommand(OpenScenario::oscCatalog *catalog, const std::string &name, OpenScenario::oscObjectBase *objectBase, OpenScenario::oscCatalogFile *catalogFile, OSCBase *base, OSCElement *element, DataCommand *parent = NULL);
     virtual ~AddOSCCatalogObjectCommand();
 
     virtual int id() const
@@ -101,7 +101,7 @@ private:
 
 private:
 	OpenScenario::oscCatalog * catalog_;
-    std::string path_;
+	OpenScenario::oscCatalogFile *catalogFile_;
 	std::string name_;
 	OpenScenario::oscObjectBase *objectBase_;
 	OSCElement *oscElement_;

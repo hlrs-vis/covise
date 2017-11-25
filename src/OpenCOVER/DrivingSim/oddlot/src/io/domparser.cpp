@@ -20,6 +20,7 @@
 // Data Model //
 //
 #include "src/data/projectdata.hpp"
+#include "src/data/georeference.hpp"
 
 #include "src/data/changemanager.hpp"
 #include "src/data/prototypemanager.hpp"
@@ -35,13 +36,17 @@
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/rsystemelementfiddleyard.hpp"
 #include "src/data/roadsystem/rsystemelementpedfiddleyard.hpp"
+#include "src/data/roadsystem/rsystemelementjunctiongroup.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/objectreference.hpp"
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/signalreference.hpp"
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/surfaceobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 
 #include "src/data/roadsystem/roadlink.hpp"
 #include "src/data/roadsystem/junctionconnection.hpp"
@@ -50,6 +55,7 @@
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 #include "src/data/roadsystem/track/trackelementpoly3.hpp"
+#include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 
 #include "src/data/roadsystem/sections/typesection.hpp"
 #include "src/data/roadsystem/sections/surfacesection.hpp"
@@ -57,15 +63,20 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/laneheight.hpp"
+#include "src/data/roadsystem/sections/lanerule.hpp"
+#include "src/data/roadsystem/sections/laneaccess.hpp"
 
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
+#include "src/data/roadsystem/sections/shapesection.hpp"
 
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 
 #include "src/data/vehiclesystem/vehiclesystem.hpp"
 #include "src/data/vehiclesystem/vehiclegroup.hpp"
@@ -257,6 +268,20 @@ DomParser::parsePrototypes(QIODevice *source)
                              tr("Root element is not <ODDLot>!"));
         return false;
     }
+
+	QDomElement header = root.firstChildElement("header");
+	if (header.isNull())
+	{
+		opendriveVersion_ = 1.0;
+	}
+	else
+	{
+		if (!parseHeaderElement(header))
+		{
+			return false;
+		}
+	}
+
 
     // Prototypes //
     //
@@ -748,11 +773,11 @@ DomParser::parseHeaderElement(QDomElement &element)
     int revMinor = parseToInt(element, "revMinor", 2, false); // mandatory
 
     QString name = parseToQString(element, "name", "Untitled", true); // optional
-    float version = parseToFloat(element, "version", 1.0f, true); // optional
+    opendriveVersion_ = parseToFloat(element, "version", 1.0f, true); // optional
 	
-	if ((version > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
+	if ((opendriveVersion_ > ODD::getVersion()) || (revMajor > ODD::getRevMajor()) || (revMinor > ODD::getRevMinor()))
 	{
-		qDebug() << "Oddlot only supports OpenDrive versions up to 1.3";
+		qDebug() << "Oddlot only supports OpenDrive versions up to 1.4";
 		return false;
 	}
 
@@ -767,7 +792,7 @@ DomParser::parseHeaderElement(QDomElement &element)
     projectData_->setRevMinor(revMinor);
 
     projectData_->setName(name);
-    projectData_->setVersion(version);
+    projectData_->setVersion(opendriveVersion_);
     projectData_->setDate(date);
 
     if (north > projectData_->getNorth())
@@ -786,6 +811,20 @@ DomParser::parseHeaderElement(QDomElement &element)
     {
         projectData_->setWest(west);
     }
+
+
+	// <OpenDRIVE><georeference> //
+	//
+
+	QDomElement child = element.firstChildElement("geoReference");
+	if (!child.isNull())
+	{
+		QString params = child.text();
+		GeoReference *georeference = new GeoReference(params);
+		projectData_->setGeoReference(georeference);
+
+		qDebug() << "Georefernce: " << params;
+	}
 
     return true;
 }
@@ -911,6 +950,13 @@ DomParser::parseRoadSystem(QDomElement &root)
         child = child.nextSiblingElement("pedFiddleyard");
     }
 
+	child = root.firstChildElement("junctionGroup");
+	while (!child.isNull())
+	{
+		parseJunctionGroupElement(child, oldTileId);
+		child = child.nextSiblingElement("junctionGroup");
+	}
+
     return true;
 }
 
@@ -975,7 +1021,7 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         QString contactPoint = parseToQString(child, "contactPoint", "", isOptional); // optional if junction
         if (!elementId.isEmpty())
         {
-            RoadLink *roadLink = new RoadLink(elementType, elementId, contactPoint);
+            RoadLink *roadLink = new RoadLink(elementType, elementId, JunctionConnection::parseContactPoint(contactPoint));
             road->setPredecessor(roadLink);
         }
     }
@@ -990,7 +1036,7 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         QString contactPoint = parseToQString(child, "contactPoint", "", isOptional); // optional if junction
         if (!elementId.isEmpty())
         {
-            RoadLink *roadLink = new RoadLink(elementType, elementId, contactPoint);
+            RoadLink *roadLink = new RoadLink(elementType, elementId, JunctionConnection::parseContactPoint(contactPoint));
             road->setSuccessor(roadLink);
         }
     }
@@ -1097,13 +1143,28 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         }
     }
 
+	child = element.firstChildElement("lateralProfile");
+	if (!child.isNull())
+	{
+		child = child.firstChildElement("shape");
+		while (!child.isNull())
+		{
+			foundLateral = true;
+			parseShapeElement(child, road);
+			child = child.nextSiblingElement("shape");
+		}
+	}
+
     if (!foundLateral && (mode_ != DomParser::MODE_PROTOTYPES))
     {
-        SuperelevationSection *sSection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
-        road->addSuperelevationSection(sSection);
+        SuperelevationSection *sESection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
+        road->addSuperelevationSection(sESection);
 
         CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
         road->addCrossfallSection(cSection);
+
+		ShapeSection *sSection = new ShapeSection(0.0);
+		road->addShapeSection(sSection);
     }
 
     // <lanes> //
@@ -1205,6 +1266,7 @@ DomParser::parseSpeedElement(QDomElement &element, TypeSection *type)
 {
     QString max = parseToQString(element, "max", "undefined", false); // mandatory
     QString unit = parseToQString(element, "unit", "m/s", true); // otional
+	qDebug() << "Unit: " << unit;
 
     SpeedRecord *sr = new SpeedRecord(max, unit);
     type->setSpeedRecord(sr);
@@ -1221,267 +1283,371 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
     // Find all objects (unlimited)
     QDomElement child = element.firstChildElement("object");
     while (!child.isNull())
-    {
+	{
+		Object::ObjectProperties objectProps;
+
         // Get mandatory attributes
-        QString type = parseToQString(child, "type", "", false); // mandatory
+       objectProps.type = parseToQString(child, "type", "", false); // mandatory
 
         // Don't create objects for the simple poles of signs and the traffic lights
 
-        if (type != "simplePole")
-        {
-            QString name = parseToQString(child, "name", "", false); // mandatory
+		if (objectProps.type != "simplePole")
+		{
+			QString name = parseToQString(child, "name", "", false); // mandatory
 
-            bool pole = false;
+			bool pole = false;
 
-            QStringList nameParts = name.split("_"); // return only name in type.typeSubclass-subtype_name_p
-            if (nameParts.size() > 1)
-            {
-                name = nameParts.at(1);
-                if (name == nameParts.at(0)) // only to remove the bugs
-                {
-                    name = "";
-                }
+			QStringList nameParts = name.split("_"); // return only name in type.typeSubclass-subtype_name_p
+			if (nameParts.size() > 1)
+			{
+				name = nameParts.at(1);
+				if (name == nameParts.at(0)) // only to remove the bugs
+				{
+					name = "";
+				}
 
-                if (name == "p")
-                {
-                    name = "";
-                    pole = true;
-                }
-                else if (nameParts.size() > 2)
-                {
-                    pole = true;
-                }
-            }
-            else
-            {
-                name = "";
-            }
+				if (name == "p")
+				{
+					name = "";
+					pole = true;
+				}
+				else if (nameParts.size() > 2)
+				{
+					pole = true;
+				}
+			}
+			else
+			{
+				name = "";
+			}
 
-            QString id = parseToQString(child, "id", "", false); // mandatory
-            QDomElement ancillary = child.firstChildElement("userData");
-            QString modelFile = parseToQString(child, "modelFile", name, true); // optional
-            QString textureFile = parseToQString(child, "textureFile", name, true); // optional
-            while (!ancillary.isNull())
-            {
-                QString code = parseToQString(ancillary, "code", "", true);
-                QString value = parseToQString(ancillary, "value", "", true);
+			QString id = parseToQString(child, "id", "", false); // mandatory
+			QDomElement ancillary = child.firstChildElement("userData");
+			QString modelFile = parseToQString(child, "modelFile", name, true); // optional
+			QString textureFile = parseToQString(child, "textureFile", name, true); // optional
+			while (!ancillary.isNull())
+			{
+				QString code = parseToQString(ancillary, "code", "", true);
+				QString value = parseToQString(ancillary, "value", "", true);
 
-                if (code == "textureFile")
-                {
-                    textureFile = value;
-                }
-                else
-                {
-                    modelFile = value;
-                }
+				if (code == "textureFile")
+				{
+					textureFile = value;
+				}
+				else
+				{
+					modelFile = value;
+				}
 
-                ancillary = ancillary.nextSiblingElement("userData");
-            }
+				ancillary = ancillary.nextSiblingElement("userData");
+			}
 
-            double s = parseToDouble(child, "s", 0.0, false); // mandatory
-            double t = parseToDouble(child, "t", 0.0, false); // mandatory
-            double zOffset = parseToDouble(child, "zOffset", 0.0, true); // optional
-            double validLength = parseToDouble(child, "validLength", 0.0, true); // optional
-            QString orientationString = parseToQString(child, "orientation", "+", true); // optional
-            Object::ObjectOrientation orientation;
-            if (orientationString == "+")
-            {
-                orientation = Object::POSITIVE_TRACK_DIRECTION;
-            }
-            else if (orientationString == "-")
-            {
-                orientation = Object::NEGATIVE_TRACK_DIRECTION;
-            }
-            else
-            {
-                orientation = Object::BOTH_DIRECTIONS;
-            }
-            double length = parseToDouble(child, "length", 0.0, true); // optional
-            double width = parseToDouble(child, "width", 0.0, true); // optional
-            double radius = parseToDouble(child, "radius", 0.0, true); // optional
-            double height = parseToDouble(child, "height", 0.0, true); // optional
-            double hdg = parseToDouble(child, "hdg", 0.0, true); // optional
-            double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
-            double roll = parseToDouble(child, "roll", 0.0, true); // optional
+			double s = parseToDouble(child, "s", 0.0, false); // mandatory
+			objectProps.t = parseToDouble(child, "t", 0.0, false); // mandatory
+			objectProps.zOffset = parseToDouble(child, "zOffset", 0.0, true); // optional
+			objectProps.validLength = parseToDouble(child, "validLength", 0.0, true); // optional
+			QString orientationString = parseToQString(child, "orientation", "+", true); // optional
+			objectProps.orientation = Signal::parseOrientationType(orientationString);
 
-            double repeatS = -1.0;
-            double repeatLength = -1.0;
-            double repeatDistance = -1.0;
+			objectProps.length = parseToDouble(child, "length", 0.0, true); // optional
+			objectProps.width = parseToDouble(child, "width", 0.0, true); // optional
+			objectProps.radius = parseToDouble(child, "radius", 0.0, true); // optional
+			objectProps.height = parseToDouble(child, "height", 0.0, true); // optional
+			objectProps.hdg = parseToDouble(child, "hdg", 0.0, true) * 180.0 / (M_PI); // optional
+			objectProps.pitch = parseToDouble(child, "pitch", 0.0, true) * 180.0 / (M_PI); // optional
+			objectProps.roll = parseToDouble(child, "roll", 0.0, true) * 180.0 / (M_PI); // optional
 
-            // Get <repeat> record
-            QDomElement objectChild = child.firstChildElement("repeat");
-            if (!objectChild.isNull())
-            {
-                repeatS = parseToDouble(objectChild, "s", 0.0, false); // mandatory
-                repeatLength = parseToDouble(objectChild, "length", 0.0, false); // mandatory
-                repeatDistance = parseToDouble(objectChild, "distance", 0.0, false); // mandatory
-            }
+			Object::ObjectRepeatRecord repeatProps{ -1.0, -1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
 
-            // Convert old files
-            /*	if ((type == "Tree") && (height < 2.0))
-            {
-            type = "Bush";
-            }
-            else if ((type == "PoleTraverse") && (width > 1.0))
-            {
-            type = type + QString("_%1").arg(int(width * 10));
-            }
-            */
+			// Get <repeat> record
+			QDomElement objectChild = child.firstChildElement("repeat");
+			if (!objectChild.isNull())
+			{
+				repeatProps.s = parseToDouble(objectChild, "s", 0.0, false); // mandatory
+				repeatProps.length = parseToDouble(objectChild, "length", 0.0, false); // mandatory
+				repeatProps.distance = parseToDouble(objectChild, "distance", 0.0, false); // mandatory
 
-            // Construct object object
-            if (type != "")
-            {
-                Object *object = new Object(id, name, type, s, t, zOffset, validLength, orientation,
-                    length, width, radius, height, hdg * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), pole, repeatS, repeatLength, repeatDistance, textureFile);
+				if (opendriveVersion_ >= 1.4)
+				{
+					repeatProps.tStart = parseToDouble(objectChild, "tStart", 0.0, false);
+					repeatProps.tEnd = parseToDouble(objectChild, "tEnd", 0.0, false);
+					repeatProps.widthStart = parseToDouble(objectChild, "widthStart", 0.0, false);
+					repeatProps.widthEnd = parseToDouble(objectChild, "widthEnd", 0.0, false);
+					repeatProps.heightStart = parseToDouble(objectChild, "heightStart", 0.0, false);
+					repeatProps.heightEnd = parseToDouble(objectChild, "heightEnd", 0.0, false);
+					repeatProps.zOffsetStart = parseToDouble(objectChild, "zOffsetStart", 0.0, false);
+					repeatProps.zOffsetEnd = parseToDouble(objectChild, "zOffsetEnd", 0.0, false);
+				}
+			}
 
-                setTile(id, oldTileId);
 
-                // Add to road
-                road->addObject(object);
+			// Convert old files
+			/*	if ((type == "Tree") && (height < 2.0))
+			{
+			type = "Bush";
+			}
+			else if ((type == "PoleTraverse") && (width > 1.0))
+			{
+			type = type + QString("_%1").arg(int(width * 10));
+			}
+			*/
 
-                if (id != object->getId())
-                {
-					RoadSystem::IdType el = {object->getId(), "object"};
-                    elementIDs_.insert(id, el);
-                }
-            }
-       }
+			// Construct object object;
 
-        // Attempt to locate another object
-        child = child.nextSiblingElement("object");
-    }
+			if (objectProps.type != "")
+			{
+				Object *object = new Object(id, name, s, objectProps, repeatProps, textureFile);
 
-    // Find all bridges (unlimited)
-    child = element.firstChildElement("bridge");
-    while (!child.isNull())
-    {
-        // Get mandatory attributes
-        QString type = parseToQString(child, "type", "", false); // mandatory
-        QString name = parseToQString(child, "name", "", false); // mandatory
-        QString modelFile = parseToQString(child, "modelFile", name, true); // optional
-        QDomElement ancillary = child.firstChildElement("userData");
-        while (!ancillary.isNull())
-        {
-            modelFile = parseToQString(ancillary, "value", name, true);
+				setTile(id, oldTileId);
 
-            ancillary = ancillary.nextSiblingElement("userData");
-        }
+				// Add to road
+				road->addObject(object);
 
-        QString id = parseToQString(child, "id", "", false); // mandatory
-        double s = parseToDouble(child, "s", 0.0, false); // mandatory
-        double length = parseToDouble(child, "length", 0.0, false); // mandatory
+				if (id != object->getId())
+				{
+					RoadSystem::IdType el = { object->getId(), "object" };
+					elementIDs_.insert(id, el);
+				}
 
-        int typenr = 0; //"concrete"
-        if (type == "steel")
-        {
-            typenr = 1;
-        }
-        else if (type == "brick")
-        {
-            typenr = 2;
-        }
-        else if (type == "wood")
-        {
-            typenr = 3;
-        }
+				// Get <parkingSpace> record
+				QDomElement objectChild = child.firstChildElement("parkingSpace");
+				if (!objectChild.isNull())
+				{
+					QString access = parseToQString(objectChild, "access", "all", false); // mandatory
+					QString restrictions = parseToQString(objectChild, "restrictions", "", false); // mandatory
 
-        // Construct bridge object
-        Bridge *bridge = new Bridge(id, modelFile, name, typenr, s, length);
+					ParkingSpace *parking = new ParkingSpace(object, ParkingSpace::parseParkingSpaceAccess(access), restrictions);
 
-        setTile(id, oldTileId);
+					QDomElement markingChild = objectChild.firstChildElement("marking");
+					while (!markingChild.isNull())
+					{
+						QString side = parseToQString(markingChild, "side", "", false); // mandatory
+						QString type = parseToQString(markingChild, "type", "none", false);
+						double width = parseToDouble(markingChild, "width", 0.0, false);
+						QString color = parseToQString(markingChild, "color", "standard", false);
 
-        // Add to road
-        road->addBridge(bridge);
+						if (!parking->addMarking(side, type, width, color))
+						{
+							QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+								tr("Error parsing attribute \"%2\" of element <%1> in line %3. This value is not defined. This can lead to major problems.")
+								.arg(markingChild.tagName())
+								.arg("side")
+								.arg(markingChild.lineNumber()));
+						}
 
-        if (id != bridge->getId())
-        {
-			RoadSystem::IdType el = {bridge->getId(), "bridge"};
-            elementIDs_.insert(id, el);
-        }
+						markingChild = markingChild.nextSiblingElement("marking");
+					}
+					object->setParkingSpace(parking);
+				}
 
-        // Attempt to locate another object
-        child = child.nextSiblingElement("bridge");
-    }
+				// Get <parkingSpace> record
+				objectChild = child.firstChildElement("outline");
+				if (!objectChild.isNull())
+				{
+					QDomElement cornerChild = objectChild.firstChildElement("cornerRoad");
 
-    // Find all tunnels (unlimited)
-    child = element.firstChildElement("tunnel");
-    while (!child.isNull())
-    {
-        // Get mandatory attributes
-        QString type = parseToQString(child, "type", "", false); // mandatory
-        QString name = parseToQString(child, "name", "", false); // mandatory
-        QString modelFile = parseToQString(child, "modelFile", name, true); // optional
+					// Corners of the outline of the object //
+					//
+					QList<ObjectCorner *> corners;
 
-        QString id = parseToQString(child, "id", "", false); // mandatory
-        double s = parseToDouble(child, "s", 0.0, false); // mandatory
-        double length = parseToDouble(child, "length", 0.0, false); // mandatory
+					// Road coordinates
+					//
+					while (!cornerChild.isNull())
+					{
+						double u = parseToDouble(cornerChild, "u", 0.0, false);
+						double v = parseToDouble(cornerChild, "v", 0.0, false);
+						double dz = parseToDouble(cornerChild, "dz", 0.0, false);
+						double height = parseToDouble(cornerChild, "height", 0.0, false);
 
-        // Construct tunnel object
-        Bridge *bridge = new Bridge(id, modelFile, name, 0, s, length);
+						ObjectCorner *objectCorner = new ObjectCorner(u, v, dz, height, false);
+						corners.append(objectCorner);
 
-        setTile(id, oldTileId);
+						cornerChild = cornerChild.nextSiblingElement("cornerRoad");
+					}
 
-        // Add to road
-        road->addBridge(bridge);
+					cornerChild = objectChild.firstChildElement("cornerLocal");
 
-        if (id != bridge->getId())
-        {
-			RoadSystem::IdType el = {bridge->getId(), "bridge"};
-            elementIDs_.insert(id, el);
-        }
+					// Local coordinates
+					//
+					while (!cornerChild.isNull())
+					{
+						double u = parseToDouble(cornerChild, "u", 0.0, false);
+						double v = parseToDouble(cornerChild, "v", 0.0, false);
+						double z = parseToDouble(cornerChild, "z", 0.0, false);
+						double height = parseToDouble(cornerChild, "height", 0.0, false);
 
-        // Attempt to locate another object
-        child = child.nextSiblingElement("tunnel");
-    }
+						ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height, true);
+						corners.append(objectCorner);
 
-    // Find all crosswalks (unlimited) and create a signal. Conversion for old files.
-    //
-    child = element.firstChildElement("crosswalk");
-    while (!child.isNull())
-    {
-        // Get mandatory attributes
-        QString id = parseToQString(child, "id", "", false); // mandatory
-        QString name = parseToQString(child, "name", "", false); // mandatory
-        double s = parseToDouble(child, "s", 0.0, false); // mandatory
-        double length = parseToDouble(child, "length", 0.0, false); // mandatory
+						cornerChild = cornerChild.nextSiblingElement("cornerLocal");
+					}
 
-        // Construct crosswalk object
-        Crosswalk *crosswalk = new Crosswalk(id, name, s, length);
+					if (!corners.isEmpty())
+					{
+						Outline *outline = new Outline(corners);
+						object->setOutline(outline);
+					}
+				}
+			}
+		}
 
-        // Get optional attributes
-        if (parseToQString(child, "crossProb", "", true).length() > 0)
-            crosswalk->setCrossProb(parseToDouble(child, "crossProb", 0.5, true)); // optional
-        if (parseToQString(child, "resetTime", "", true).length() > 0)
-            crosswalk->setResetTime(parseToDouble(child, "resetTime", 20.0, true)); // optional
-        if (parseToQString(child, "type", "", true).length() > 0)
-            crosswalk->setType(parseToQString(child, "type", "crosswalk", true)); // optional
-        if (parseToQString(child, "debugLvl", "", true).length() > 0)
-            crosswalk->setDebugLvl(parseToInt(child, "debugLvl", 0, true)); // optional
+		// Attempt to locate another object
+		child = child.nextSiblingElement("object");
+	}
 
-        // Get <validity> record
-        QDomElement crosswalkChild = child.firstChildElement("validity");
-        if (!crosswalkChild.isNull())
-        {
-            if (parseToQString(crosswalkChild, "fromLane", "", true).length() > 0)
-                crosswalk->setFromLane(parseToInt(crosswalkChild, "fromLane", 0, true)); // optional
-            if (parseToQString(crosswalkChild, "toLane", "", true).length() > 0)
-                crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
-        }
+	child = element.firstChildElement("objectReference");
 
-        // Construct signal object
-        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
-        // Add to road
-        road->addSignal(signal);
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false);
+		double t = parseToDouble(child, "t", 0.0, false);
+		double zOffset = parseToDouble(child, "zOffset", 0.0, false);
+		double validLength = parseToDouble(child, "validLength", 0.0, false);
+		QString orientation = parseToQString(child, "orientation", "none", false);
 
-        // Add to road
-        road->addCrosswalk(crosswalk);
+		// Get validity record
+		QList<Signal::Validity> validities;
+		QDomElement objectChild = child.firstChildElement("validity");
+		while (!objectChild.isNull())
+		{
+			int fromLane = parseToInt(objectChild, "fromLane", 0, false); // mandatory
+			int toLane = parseToInt(objectChild, "toLane", 0, false); // mandatory
 
-        // Attempt to locate another crosswalk
-        child = child.nextSiblingElement("crosswalk");
-    } // Find all crosswalks (unlimited)
+			validities.append(Signal::Validity{ fromLane, toLane });
 
-    // Return successfully
-    return true;
+			objectChild = objectChild.nextSiblingElement("validity");
+		}
+
+
+		ObjectReference *objectReference = new ObjectReference("", NULL, id, s, t, zOffset, validLength, Signal::parseOrientationType(orientation), validities);
+		road->addObjectReference(objectReference);
+
+		// Attempt to locate another signal
+		child = child.nextSiblingElement("objectReference");
+	}
+
+	// Find all bridges (unlimited)
+	child = element.firstChildElement("bridge");
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString type = parseToQString(child, "type", "", false); // mandatory
+		QString name = parseToQString(child, "name", "", false); // mandatory
+		QString modelFile = parseToQString(child, "modelFile", name, true); // optional
+		QDomElement ancillary = child.firstChildElement("userData");
+		while (!ancillary.isNull())
+		{
+			modelFile = parseToQString(ancillary, "value", name, true);
+
+			ancillary = ancillary.nextSiblingElement("userData");
+		}
+
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false); // mandatory
+		double length = parseToDouble(child, "length", 0.0, false); // mandatory
+
+		// Construct bridge object
+		Bridge *bridge = new Bridge(id, modelFile, name, Bridge::parseBridgeType(type), s, length);
+
+		setTile(id, oldTileId);
+
+		// Add to road
+		road->addBridge(bridge);
+
+		if (id != bridge->getId())
+		{
+			RoadSystem::IdType el = { bridge->getId(), "bridge" };
+			elementIDs_.insert(id, el);
+		}
+
+		// Attempt to locate another object
+		child = child.nextSiblingElement("bridge");
+	}
+
+	// Find all tunnels (unlimited)
+	child = element.firstChildElement("tunnel");
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString type = parseToQString(child, "type", "", false); // mandatory
+		QString name = parseToQString(child, "name", "", false); // mandatory
+		QString modelFile = parseToQString(child, "modelFile", name, true); // optional
+
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false); // mandatory
+		double length = parseToDouble(child, "length", 0.0, false); // mandatory
+
+		double lighting = parseToDouble(child, "lighting", 0.0, false);
+		double daylight = parseToDouble(child, "daylight", 0.0, false);
+
+		// Construct tunnel object
+		Tunnel *tunnel = new Tunnel(id, modelFile, name, Tunnel::parseTunnelType(type), s, length, lighting, daylight);
+
+		setTile(id, oldTileId);
+
+		// Add to road
+		road->addBridge(tunnel);
+
+		if (id != tunnel->getId())
+		{
+			RoadSystem::IdType el = { tunnel->getId(), "tunnel" };
+			elementIDs_.insert(id, el);
+		}
+
+		// Attempt to locate another object
+		child = child.nextSiblingElement("tunnel");
+	}
+
+	// Find all crosswalks (unlimited) and create a signal. Conversion for old files.
+	//
+	child = element.firstChildElement("crosswalk");
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		QString name = parseToQString(child, "name", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false); // mandatory
+		double length = parseToDouble(child, "length", 0.0, false); // mandatory
+
+		// Construct crosswalk object
+		Crosswalk *crosswalk = new Crosswalk(id, name, s, length);
+
+		// Get optional attributes
+		if (parseToQString(child, "crossProb", "", true).length() > 0)
+			crosswalk->setCrossProb(parseToDouble(child, "crossProb", 0.5, true)); // optional
+		if (parseToQString(child, "resetTime", "", true).length() > 0)
+			crosswalk->setResetTime(parseToDouble(child, "resetTime", 20.0, true)); // optional
+		if (parseToQString(child, "type", "", true).length() > 0)
+			crosswalk->setType(parseToQString(child, "type", "crosswalk", true)); // optional
+		if (parseToQString(child, "debugLvl", "", true).length() > 0)
+			crosswalk->setDebugLvl(parseToInt(child, "debugLvl", 0, true)); // optional
+
+		// Get <validity> record
+		QDomElement crosswalkChild = child.firstChildElement("validity");
+		if (!crosswalkChild.isNull())
+		{
+			if (parseToQString(crosswalkChild, "fromLane", "", true).length() > 0)
+				crosswalk->setFromLane(parseToInt(crosswalkChild, "fromLane", 0, true)); // optional
+			if (parseToQString(crosswalkChild, "toLane", "", true).length() > 0)
+				crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
+		}
+
+		// Construct signal object
+		Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
+		// Add to road
+		road->addSignal(signal);
+
+		// Add to road
+		road->addCrosswalk(crosswalk);
+
+		// Attempt to locate another crosswalk
+		child = child.nextSiblingElement("crosswalk");
+	} // Find all crosswalks (unlimited)
+
+	// Return successfully
+	return true;
 }
 /*! \brief Parses a road:objects element.
 *
@@ -1491,7 +1657,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
 {
     QDomElement child = element.firstChildElement("signal");
     while (!child.isNull())
-    {
+	{
         // Get mandatory attributes
         QString id = parseToQString(child, "id", "", false); // mandatory
         QString name = parseToQString(child, "name", "", false); // mandatory
@@ -1538,28 +1704,37 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             dynamic = false;
         }
         QString orientationString = parseToQString(child, "orientation", "+", false); // mandatory
-        Signal::OrientationType orientation = Signal::BOTH_DIRECTIONS;
-        if (orientationString == "+")
-        {
-            orientation = Signal::POSITIVE_TRACK_DIRECTION;
-        }
-        else if (orientationString == "-")
-        {
-            orientation = Signal::NEGATIVE_TRACK_DIRECTION;
-        }
+
         double zOffset = parseToDouble(child, "zOffset", 0.0, false); // mandatory
         QString country = parseToQString(child, "country", "Germany", false); // mandatory
-        int type = parseToInt(child, "type", 0, false); // mandatory
+        QString type = parseToQString(child, "type", "-1", false); // mandatory
         
-        int subtype = parseToInt(child, "subtype", -1, true); // optional
-        double value = parseToDouble(child, "value", 0.0, true); // optional
-        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // optional
-        double pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+		QString subtype = parseToQString(child, "subtype", "-1", false); // optional
+        double value = parseToDouble(child, "value", 0.0, false); // optional
+
 		QString unit = parseToQString(child, "unit", "km/h", true); //optional
-		QString text = parseToQString(child, "text", "", true);//optional
-		double width = parseToDouble(child, "width", 0.0, true);//optional
-		double height = parseToDouble(child, "height", 0.0, true);//optional
-        double roll = parseToDouble(child, "roll", 0.0, true); // optional
+        
+
+		double pitch, width, height, roll, hOffset;
+		QString text;
+		if (opendriveVersion_ > 1.3)
+		{
+			pitch = parseToDouble(child, "pitch", 0.0, false); // mandatory
+			text = parseToQString(child, "text", "", false);//mandatory
+			width = parseToDouble(child, "width", 0.0, false);//mandatory
+			height = parseToDouble(child, "height", 0.0, false);//mandatory
+			roll = parseToDouble(child, "roll", 0.0, false); // mandatory
+			hOffset = parseToDouble(child, "hOffset", 0.0, false); // mandatory
+		}
+		else
+		{
+			hOffset = parseToDouble(child, "hOffset", 0.0, true); // optional
+			pitch = parseToDouble(child, "pitch", 0.0, true); // optional
+			text = parseToQString(child, "text", "", true);//optional
+			width = parseToDouble(child, "width", 0.0, true);//optional
+			height = parseToDouble(child, "height", 0.0, true);//optional
+			roll = parseToDouble(child, "roll", 0.0, true); // optional
+		}
 
         // Get validity record
 
@@ -1569,7 +1744,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         if (!objectChild.isNull())
         {
             fromLane = parseToInt(objectChild, "fromLane", 0, false); // mandatory
-            toLane = parseToInt(objectChild, "toLane", 0.0, false); // mandatory
+            toLane = parseToInt(objectChild, "toLane", 0, false); // mandatory
         }
         else
         {
@@ -1616,17 +1791,17 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             ancillary = ancillary.nextSiblingElement("userData");
         }
 
-        if ((type == 625) && (subtype == 10) && (typeSubclass == "20"))
+        if ((type == "625") && (subtype == "10") && (typeSubclass == "20"))
         {
             hOffset = name.toDouble();
 
             // Construct signal object
-            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, "", s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
         else
         {
             // Construct signal object
-            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(id, name, s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
 
 
@@ -1643,6 +1818,37 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         // Attempt to locate another signal
         child = child.nextSiblingElement("signal");
     } // Find all signals (unlimited)
+
+	child = element.firstChildElement("signalReference");
+
+	while (!child.isNull())
+	{
+		// Get mandatory attributes
+		QString id = parseToQString(child, "id", "", false); // mandatory
+		double s = parseToDouble(child, "s", 0.0, false);
+		double t = parseToDouble(child, "t", 0.0, false);
+		QString orientation = parseToQString(child, "orientation", "both", false);
+
+		// Get validity record
+		QList<Signal::Validity> validities;
+		QDomElement objectChild = child.firstChildElement("validity");
+		while (!objectChild.isNull())
+		{
+			int fromLane = parseToInt(objectChild, "fromLane", 0, false); // mandatory
+			int toLane = parseToInt(objectChild, "toLane", 0, false); // mandatory
+
+			validities.append(Signal::Validity{ fromLane, toLane });
+
+			objectChild = objectChild.nextSiblingElement("validity");
+		}
+
+
+		SignalReference *signalReference = new SignalReference("", NULL, id, s, t, Signal::parseOrientationType(orientation), validities);
+		road->addSignalReference(signalReference);
+
+		// Attempt to locate another signal
+		child = child.nextSiblingElement("signalReference");
+	}
 
     // Return successfully
     return true;
@@ -1729,6 +1935,28 @@ DomParser::parseCrossfallElement(QDomElement &element, RSystemElementRoad *road)
     return true;
 }
 
+bool 
+DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
+{
+	double s = parseToDouble(element, "s", 0.0, false); // mandatory
+	double t = parseToDouble(element, "t", 0.0, false); // mandatory
+	double a = parseToDouble(element, "a", 0.0, false); // mandatory
+	double b = parseToDouble(element, "b", 0.0, false); // mandatory
+	double c = parseToDouble(element, "c", 0.0, false); // mandatory
+	double d = parseToDouble(element, "d", 0.0, false); // mandatory
+
+	Polynomial *poly = new Polynomial(a, b, c, d);
+	ShapeSection *section = road->getShapeSection(s);
+	if (!section)
+	{
+		section = new ShapeSection(s);
+		road->addShapeSection(section);
+	}
+	section->addShape(t, poly);
+
+	return true;
+}
+
 /*! \brief Parses a (road) <surface> element.
 *
 */
@@ -1741,15 +1969,20 @@ DomParser::parseSurfaceElement(QDomElement &surface, RSystemElementRoad *road)
     {
         SurfaceSection *section = new SurfaceSection();
 
-        while (!child.isNull())
-        {
-            // <CRG> (optional, max count: unlimited) //
-            //
-            QString file = parseToQString(child, "file", "", true);
-            QString sStart = parseToQString(child, "sStart", "", true);
-            QString sEnd = parseToQString(child, "sEnd", "", true);
-            QString orientation = parseToQString(child, "orientation", "", true);
-            QString mode = parseToQString(child, "mode", "", true);
+		while (!child.isNull())
+		{
+			// <CRG> (optional, max count: unlimited) //
+			//
+			QString file = parseToQString(child, "file", "", true);			// TODO: most parameters are not optional
+			QString sStart = parseToQString(child, "sStart", "", true);
+			QString sEnd = parseToQString(child, "sEnd", "", true);
+			QString orientation = parseToQString(child, "orientation", "", true);
+			QString mode = parseToQString(child, "mode", "", true);
+			QString purpose = "";
+			if (opendriveVersion_ >= 1.4)
+			{
+				purpose = parseToQString(child, "purpose", "", false);
+			}
             QString sOffset = parseToQString(child, "sOffset", "", true);
             QString tOffset = parseToQString(child, "tOffset", "", true);
             QString zOffset = parseToQString(child, "zOffset", "", true);
@@ -1761,6 +1994,7 @@ DomParser::parseSurfaceElement(QDomElement &surface, RSystemElementRoad *road)
                             sEnd,
                             orientation,
                             mode,
+						    purpose,
                             sOffset,
                             tOffset,
                             zOffset,
@@ -1830,6 +2064,39 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
         TrackElementPoly3 *poly = new TrackElementPoly3(x, y, hdg / ( M_PI) * 180.0, s, length, a, b, c, d);
         road->addTrackComponent(poly);
     }
+	else if (name == "paramPoly3")
+	{
+		// <poly3> //
+		double aU = parseToDouble(child, "aU", 0.0, false); // mandatory
+		double bU = parseToDouble(child, "bU", 0.0, false); // mandatory
+		double cU = parseToDouble(child, "cU", 0.0, false); // mandatory
+		double dU = parseToDouble(child, "dU", 0.0, false); // mandatory
+		double aV = parseToDouble(child, "aV", 0.0, false); // mandatory
+		double bV = parseToDouble(child, "bV", 0.0, false); // mandatory
+		double cV = parseToDouble(child, "cV", 0.0, false); // mandatory
+		double dV = parseToDouble(child, "dV", 0.0, false); // mandatory
+		QString pRange = parseToQString(child, "pRange", "normalized", false); // mandatory
+
+		Polynomial *polyU = new Polynomial(aU, bU, cU, dU);
+		Polynomial *polyV = new Polynomial(aV, bV, cV, dV);
+		TrackElementCubicCurve *cubicCurve = new TrackElementCubicCurve(x, y, hdg / (M_PI) * 180.0, s, length, polyU, polyV, pRange);
+		road->addTrackComponent(cubicCurve);
+
+		qDebug() << "paramPoly3: " << cubicCurve->getPolynomialU()->getA() << "+" << cubicCurve->getPolynomialU()->getB() << "t+" << cubicCurve->getPolynomialU()->getC() << "t2+" << cubicCurve->getPolynomialU()->getD() << "t3";
+		qDebug() << "paramPoly3: " << cubicCurve->getPolynomialV()->getA() << "+" << cubicCurve->getPolynomialV()->getB() << "t+" << cubicCurve->getPolynomialV()->getC() << "t2+" << cubicCurve->getPolynomialV()->getD() << "t3";
+
+		QPointF p = cubicCurve->getPoint(272,0);
+		qDebug() << "paramPoly3: " << "Point for s=272: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(272);
+		p = cubicCurve->getPoint(0, 0);
+		qDebug() << "paramPoly3: " << "Point for s=0: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(0);
+		p = cubicCurve->getPoint(36, 0);
+		double curv = cubicCurve->getCurvature(36.0);
+		qDebug() << "paramPoly3: " << "Point for s=36: " << p.x() << "," << p.y() << " Curvature: " << curv << " Heading: " << cubicCurve->getHeading(36);
+
+/*		cubicCurve->setLocalStartPoint(QPointF(147, 131));
+		cubicCurve->setLocalEndPoint(QPointF(216, 149));
+		cubicCurve->setLocalStartHeading(30.0);  */
+	}
     else
     {
         // error! unknown //
@@ -1844,11 +2111,25 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
 bool
 DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemElementRoad *road)
 {
-    // <laneSection> (mandatory, max count: unlimited) //
-    //
-    double s = parseToDouble(laneSectionElement, "s", 0.0, false); // mandatory
+	// <laneSection> (mandatory, max count: unlimited) //
+	//
+	double s = parseToDouble(laneSectionElement, "s", 0.0, false); // mandatory
 
-    LaneSection *laneSection = new LaneSection(s);
+	QString side = "false";
+	if (opendriveVersion_ > 1.3)
+	{
+		side = parseToQString(laneSectionElement, "singleSide", "false", false);
+	}
+	LaneSection *laneSection = new LaneSection(s, false);
+
+	if (side == "true")
+	{
+		laneSection->setSide(true);
+	}
+
+	// Add LaneSection to Road //
+	//
+	road->addLaneSection(laneSection);
 
     // <laneSection><left/center/right> //
     //
@@ -1871,10 +2152,6 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
 
         child = child.nextSiblingElement();
     }
-
-    // Add LaneSection to Road //
-    //
-    road->addLaneSection(laneSection);
 
     laneSection->checkAndFixLanes();
 
@@ -1921,11 +2198,6 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
     // <lane><width> //
     //
     child = laneElement.firstChildElement("width"); // optional for id=0 (center)
-    if (child.isNull() && id != 0)
-    {
-
-        // NOT OPTIONAL
-    }
     while (!child.isNull())
     {
         double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
@@ -1939,6 +2211,63 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 
         child = child.nextSiblingElement("width");
     }
+
+	// <lane><border> //
+	//
+	child = laneElement.firstChildElement("border"); // optional 
+	QMap<double, LaneWidth *> widthEntries = lane->getWidthEntries();
+	bool isWidthEntry = !widthEntries.isEmpty();
+	while (!child.isNull())
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		LaneBorder *border = NULL;
+		bool addEntry = false;
+
+		if (isWidthEntry)
+		{
+			QMap<double, LaneWidth *>::const_iterator it = widthEntries.upperBound(sOffset);
+			if (it != widthEntries.constBegin())
+			{
+				it--;
+			}
+
+			if (sOffset > it.key())
+			{
+				border = dynamic_cast<LaneBorder *>(it.value());
+			}
+			else if (it.key() - sOffset > NUMERICAL_ZERO3)
+			{
+				addEntry = true;
+			}
+		}
+
+		if (!isWidthEntry || border || addEntry)
+		{
+
+			double a = parseToDouble(child, "a", 0.0, false); // mandatory
+			double b = parseToDouble(child, "b", 0.0, false); // mandatory
+			double c = parseToDouble(child, "c", 0.0, false); // mandatory
+			double d = parseToDouble(child, "d", 0.0, false); // mandatory
+
+			LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
+			lane->addWidthEntry(borderEntry);
+		}
+
+		child = child.nextSiblingElement("border");
+	}
+
+	if (lane->getWidthEntries().isEmpty())
+	{
+		if (id != 0)
+		{
+			// TODO: NOT OPTIONAL
+			QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+				tr("NOT OPTIONAL: <width> or <border> of <lane>  %1 in laneSection %2 of road %3")
+					.arg(id)
+					.arg(laneSection->getSStart())
+					.arg(laneSection->getParentRoad()->getID()));
+		}
+	}
 
     // <lane><roadMark> //
     //
@@ -1958,14 +2287,64 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
         double width = parseToDouble(child, "width", -1.0, true); // optional
         QString laneChange = parseToQString(child, "laneChange", "both", true); // optional
 
+		QString material;
+		double height;
+		if (opendriveVersion_ < 1.4)
+		{
+			material = parseToQString(child, "material", "none", true);
+			height = parseToDouble(child, "height", 0.0, true);
+		}
+		else
+		{
+			material = parseToQString(child, "material", "none", false);
+			height = parseToDouble(child, "height", 0.0, false);
+		}
+
         LaneRoadMark *roadMarkEntry = new LaneRoadMark(
             sOffset,
             LaneRoadMark::parseRoadMarkType(type),
             LaneRoadMark::parseRoadMarkWeight(weight),
             LaneRoadMark::parseRoadMarkColor(color),
             width,
-            LaneRoadMark::parseRoadMarkLaneChange(laneChange));
+            LaneRoadMark::parseRoadMarkLaneChange(laneChange),
+			material, height);
         lane->addRoadMarkEntry(roadMarkEntry);
+
+		QDomElement typeChild = child.firstChildElement("type");
+		if (!typeChild.isNull())
+		{
+			QString name = parseToQString(typeChild, "name", "", false);
+			double width = parseToDouble(typeChild, "width", 0.0, false);
+
+			QDomElement lineChild = typeChild.firstChildElement("line");
+			if (lineChild.isNull())
+			{
+				//default
+				//TODO, OPTIONAL
+				qDebug() << "NOT OPTIONAL: <line>" << lineChild.lineNumber();
+			}
+			else
+			{
+				LaneRoadMarkType *roadMarkType = new LaneRoadMarkType(name, width);
+				roadMarkEntry->setUserType(roadMarkType);
+
+				while (!lineChild.isNull())
+				{
+					double length = parseToDouble(lineChild, "length", 0.0, false);
+					double space = parseToDouble(lineChild, "space", 0.0, false);
+					double tOffset = parseToDouble(lineChild, "tOffset", 0.0, false);
+					double sOffset = parseToDouble(lineChild, "sOffset", 0.0, false);
+					QString rule = parseToQString(lineChild, "rule", "none", false);
+					double width = parseToDouble(lineChild, "width", 0.0, false);
+
+					roadMarkType->addRoadMarkTypeLine(roadMarkEntry, length, space, tOffset, sOffset, rule, width);
+
+					lineChild = lineChild.nextSiblingElement("line");
+				}
+			}
+
+
+		}
 
         child = child.nextSiblingElement("roadMark");
     }
@@ -1985,6 +2364,66 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 
         child = child.nextSiblingElement("height");
     }
+
+	// <lane><speed> //
+	// Optional, unlimited, not allowed for center lane (id=0)
+	//
+	child = laneElement.firstChildElement("speed");
+	while (!child.isNull() && id != 0)
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		double max = parseToDouble(child, "max", 0.0, false); // mandatory
+		QString unit = parseToQString(child, "unit", "m/s", true); // optional
+
+		LaneSpeed *speedEntry = new LaneSpeed(sOffset, max, unit);
+		lane->addSpeedEntry(speedEntry);
+
+		qDebug() << "lane speed:" << max << "Unit:" << unit;
+
+		child = child.nextSiblingElement("speed");
+	}
+
+	// <lane><rule> //
+	//
+	child = laneElement.firstChildElement("rule");
+	if (child.isNull())
+	{
+		//default
+		//TODO, OPTIONAL
+		// it is optional	qDebug() << "NOT OPTIONAL: <rule>" << laneElement.lineNumber();
+	}
+	while (!child.isNull())
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		QString value = parseToQString(child, "value", LaneRule::KNOWNVALUES.at(0), false); // mandatory
+
+		LaneRule *ruleEntry = new LaneRule(sOffset, value);
+
+		lane->addLaneRuleEntry(ruleEntry);
+
+		child = child.nextSiblingElement("rule");
+	}
+
+	// <lane><access> //
+	//
+	child = laneElement.firstChildElement("access");
+	if (child.isNull())
+	{
+		//default
+		//TODO, OPTIONAL
+		// it is optional	qDebug() << "NOT OPTIONAL: <access>" << laneElement.lineNumber();
+	}
+	while (!child.isNull())
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		QString restriction = parseToQString(child, "restriction", "none", false); // mandatory
+
+		LaneAccess *accessEntry = new LaneAccess(sOffset, LaneAccess::parseLaneRestriction(restriction));
+
+		lane->addLaneAccessEntry(accessEntry);
+
+		child = child.nextSiblingElement("access");
+	}
 
     // Add Lane To LaneSection //
     //
@@ -2104,7 +2543,7 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
         }
 
         // <laneLink> //
-        JunctionConnection *connection = new JunctionConnection(childId, incomingRoad, connectingRoad, contactPoint, numerator);
+        JunctionConnection *connection = new JunctionConnection(childId, incomingRoad, connectingRoad, JunctionConnection::parseContactPoint(contactPoint), numerator);
 
         QDomElement link;
         link = child.firstChildElement("laneLink");
@@ -2131,6 +2570,51 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
     }
 
     return true;
+}
+
+//################//
+// JUNCTIONGROUP      //
+//################//
+
+/** Parses a <junction> element.
+*
+*/
+bool
+DomParser::parseJunctionGroupElement(QDomElement &element, QString &oldTileId)
+{
+
+	// 1.) Parse Attributes //
+	//
+	QString name = parseToQString(element, "name", "Untitled", true); // optional
+	QString id = parseToQString(element, "id", "", false); // mandatory
+	QString type = parseToQString(element, "type", "unknown", false); // mandatory
+
+	RSystemElementJunctionGroup *junctionGroup = new RSystemElementJunctionGroup(name, id, type);
+
+	// 2.) Parse children //
+	//
+	QDomElement child;
+
+	// junction reference, min count: 1) //
+	child = element.firstChildElement("junctionReference");
+	while (!child.isNull())
+	{
+		QString junctionId = parseToQString(child, "junction", "", false); // mandatory
+		junctionGroup->addJunction(junctionId);
+
+		child = child.nextSiblingElement("junctionReference");
+	}
+
+	setTile(id, oldTileId);
+	roadSystem_->addJunctionGroup(junctionGroup);
+
+	if (id != junctionGroup->getID())
+	{
+		RoadSystem::IdType el = { junctionGroup->getID(), "junctionGroup" };
+		elementIDs_.insert(id, el);
+	}
+
+	return true;
 }
 
 //################//
@@ -3123,9 +3607,9 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         //
         QString name = parseToQString(sign, "name", "", false); // mandatory
         QString icon = ":/signalIcons/" + parseToQString(sign, "icon", "", true); // optional
-        int type = parseToInt(sign, "type", 0, false);
+        QString type = parseToQString(sign, "type", "-1", false);
         QString typeSubclass = parseToQString(sign, "subclass", "", true);
-        int subType = parseToInt(sign, "subtype", -1, true);
+        QString subType = parseToQString(sign, "subtype", "-1", true);
         double value = parseToDouble(sign, "value", 0.0, true);
         double distance = parseToDouble(sign, "distance", 0.0, true);
 		double heightOffset = parseToDouble(sign, "heightOffset", 0.0, true);
@@ -3176,7 +3660,7 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &cate
             double z = parseToDouble(corner, "z", 0.0, true);
             double height = parseToDouble(corner, "height", 0.0, true);
 
-            ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height);
+            ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height, true);
             corners.append(objectCorner);
 
             corner = corner.nextSiblingElement("corner");

@@ -22,6 +22,8 @@
 #include "bookmark.h"
 #include "inline.h"
 
+#include "3dsmaxport.h"
+
 // Parameter block indices
 #define PB_LENGTH 0
 
@@ -53,7 +55,8 @@ HWND VRMLInsObject::hRollup = NULL;
 INT_PTR CALLBACK
     VRMLInsRollupDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    VRMLInsObject *th = (VRMLInsObject *)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+    //VRMLInsObject *th = (VRMLInsObject *)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+	VRMLInsObject *th = DLGetWindowLongPtr<VRMLInsObject *>(hDlg);
     if (!th && message != WM_INITDIALOG)
         return FALSE;
 
@@ -63,7 +66,8 @@ INT_PTR CALLBACK
     {
         th = (VRMLInsObject *)lParam;
         BOOL usingsize = th->GetUseSize();
-        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG)th);
+        //SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG)th);
+		DLSetWindowLongPtr(hDlg, th);
         SetDlgFont(hDlg, th->iObjParams->GetAppHFont());
 
         th->sizeSpin = GetISpinner(GetDlgItem(hDlg, IDC_INS_SIZE_SPINNER));
@@ -74,7 +78,7 @@ INT_PTR CALLBACK
         EnableWindow(GetDlgItem(hDlg, IDC_INS_SIZE), TRUE);
         EnableWindow(GetDlgItem(hDlg, IDC_INS_SIZE_SPINNER), TRUE);
 
-        SendMessage(GetDlgItem(hDlg, IDC_INS_URL), WM_SETTEXT, 0, (LPARAM)th->insURL.data());
+        SendMessage(GetDlgItem(hDlg, IDC_INS_URL), WM_SETTEXT, 0, (LPARAM)(LPCTSTR)th->insURL.data());
         EnableWindow(GetDlgItem(hDlg, IDC_INS_URL), TRUE);
 
         CheckDlgButton(hDlg, IDC_INS_BBOX_SIZE, usingsize);
@@ -119,7 +123,7 @@ INT_PTR CALLBACK
             {
                 // get the new URL information;
                 SendMessage(GetDlgItem(hDlg, IDC_INS_URL), WM_SETTEXT, 0,
-                            (LPARAM)th->insURL.data());
+                            (LPARAM)(LPCTSTR)th->insURL.data());
             }
             break;
         case IDC_INS_URL:
@@ -170,7 +174,8 @@ VRMLInsObject::BeginEditParams(IObjParam *ip, ULONG flags, Animatable *prev)
     }
     else
     {
-        SetWindowLongPtr(hRollup, GWLP_USERDATA, (LONG_PTR) this);
+        //SetWindowLongPtr(hRollup, GWLP_USERDATA, (LONG_PTR) this);
+		DLSetWindowLongPtr(hRollup, this);
 
         // Init the dialog to our values.
     }
@@ -191,7 +196,8 @@ VRMLInsObject::EndEditParams(IObjParam *ip, ULONG flags, Animatable *prev)
     else
     {
         if (hRollup)
-            SetWindowLongPtr(hRollup, GWLP_USERDATA, 0);
+			DLSetWindowLongPtr(hRollup, this);
+            //SetWindowLongPtr(hRollup, GWLP_USERDATA, 0);
     }
 
     iObjParams = NULL;
@@ -242,7 +248,7 @@ RefResult VRMLInsObject::NotifyRefChanged(Interval changeInt, RefTargetHandle hT
             gpd->dim = stdWorldDim;
             break;
         }
-        return REF_STOP;
+        return REF_HALT;
     }
 
     case REFMSG_GET_PARAM_NAME:
@@ -254,7 +260,7 @@ RefResult VRMLInsObject::NotifyRefChanged(Interval changeInt, RefTargetHandle hT
             // gpn->name = TSTR(GetResString(IDS_DB_TAPE_LENGTH));
             break;
         }
-        return REF_STOP;
+        return REF_HALT;
     }
     }
     return (REF_SUCCEED);
@@ -276,10 +282,15 @@ VRMLInsObject::ObjectValidity(TimeValue time)
 }
 
 void
-VRMLInsObject::GetMat(TimeValue t, INode *inode, ViewExp *vpt, Matrix3 &tm)
+VRMLInsObject::GetMat(TimeValue t, INode *inode, ViewExp& vpt, Matrix3 &tm)
 {
     tm = inode->GetObjectTM(t);
 #ifdef FIXED_SIZE
+	if (!vpt.IsAlive())
+	{
+		tm.Zero();
+		return;
+    }
     float scaleFactor = vpt->GetVPWorldWidth(tm.GetTrans()) / (float)360.0;
     if (scaleFactor != 1.0f)
         tm.Scale(Point3(scaleFactor, scaleFactor, scaleFactor));
@@ -289,6 +300,12 @@ VRMLInsObject::GetMat(TimeValue t, INode *inode, ViewExp *vpt, Matrix3 &tm)
 void
 VRMLInsObject::GetLocalBoundBox(TimeValue t, INode *inode, ViewExp *vpt, Box3 &box)
 {
+	if (!vpt || !vpt->IsAlive())
+	{
+		// why are we here?
+		box.Init();
+		return;
+		}
     Matrix3 m = inode->GetObjectTM(t);
     box = mesh.getBoundingBox();
 #ifdef FIXED_SIZE
@@ -300,9 +317,15 @@ VRMLInsObject::GetLocalBoundBox(TimeValue t, INode *inode, ViewExp *vpt, Box3 &b
 void
 VRMLInsObject::GetWorldBoundBox(TimeValue t, INode *inode, ViewExp *vpt, Box3 &box)
 {
+	if (!vpt || !vpt->IsAlive())
+	{
+		// why are we here?
+		box.Init();
+		return;
+	}
     Matrix3 tm;
     BuildMesh(); // 000829  --prs.
-    GetMat(t, inode, vpt, tm);
+    GetMat(t, inode, *vpt, tm);
 
     int nv = mesh.getNumVerts();
     box.Init();
@@ -415,6 +438,12 @@ VRMLInsObject::BuildMesh()
 int
 VRMLInsObject::Display(TimeValue t, INode *inode, ViewExp *vpt, int flags)
 {
+	if (!vpt || !vpt->IsAlive())
+	{
+		// why are we here?
+		DbgAssert(!"Doing Display() on invalid view port!");
+		return FALSE;
+	}
     if (radius <= 0.0)
         return 0;
     BuildMesh();
@@ -423,8 +452,8 @@ VRMLInsObject::Display(TimeValue t, INode *inode, ViewExp *vpt, int flags)
     Material *mtl = gw->getMaterial();
 
     DWORD rlim = gw->getRndLimits();
-    gw->setRndLimits(GW_WIREFRAME | GW_EDGES_ONLY | GW_BACKCULL);
-    GetMat(t, inode, vpt, m);
+    gw->setRndLimits(GW_WIREFRAME | GW_EDGES_ONLY | GW_BACKCULL | (rlim&GW_Z_BUFFER));
+	GetMat(t, inode, *vpt, m);
     gw->setTransform(m);
     if (inode->Selected())
         gw->setColor(LINE_COLOR, 1.0f, 1.0f, 1.0f);
@@ -438,6 +467,12 @@ VRMLInsObject::Display(TimeValue t, INode *inode, ViewExp *vpt, int flags)
 int
 VRMLInsObject::HitTest(TimeValue t, INode *inode, int type, int crossing, int flags, IPoint2 *p, ViewExp *vpt)
 {
+	if (!vpt || !vpt->IsAlive())
+	{
+		// why are we here?
+		DbgAssert(!"Doing HitTest() on invalid view port!");
+		return FALSE;
+	}
     HitRegion hitRegion;
     DWORD savedLimits;
     int res = FALSE;
@@ -446,7 +481,7 @@ VRMLInsObject::HitTest(TimeValue t, INode *inode, int type, int crossing, int fl
     Material *mtl = gw->getMaterial();
     MakeHitRegion(hitRegion, type, crossing, 4, p);
     gw->setRndLimits(((savedLimits = gw->getRndLimits()) | GW_PICK) & ~GW_ILLUM);
-    GetMat(t, inode, vpt, m);
+    GetMat(t, inode, *vpt, m);
     gw->setTransform(m);
     gw->clearHitCode();
     if (mesh.select(gw, mtl, &hitRegion, flags & HIT_ABORTONHIT))

@@ -97,7 +97,7 @@ void setParamChoices(coChoiceParam *param, const std::vector<std::string> &choic
         sval = param->getActLabel();
     std::vector<const char *> vals;
     vals.push_back("(NONE)");
-    for (size_t i=0; i<choices.size(); ++i)
+    for (int i=0; i<(int)choices.size(); ++i)
     {
         if (sval == choices[i])
             ival = i+1;
@@ -105,7 +105,7 @@ void setParamChoices(coChoiceParam *param, const std::vector<std::string> &choic
     }
     if (ival >= vals.size())
         ival = 0;
-    param->setValue(vals.size(), &vals[0], ival);
+    param->setValue((int)vals.size(), &vals[0], ival);
 }
 
 
@@ -225,9 +225,6 @@ void ReadVTK::update()
     coDoVec3 *str_v3d_out = NULL;
     coDoVec3 *unstr_v3d_out = NULL;
 
-    char *out_obj_scalar;
-    char *out_obj_vector;
-    char *obj_name;
     std::string sInfo;
     int iScalar = 0, iVector = 0;
     //char *cValue=NULL;
@@ -283,6 +280,7 @@ void ReadVTK::update()
 
         if (!vdata)
         {
+            continue;
             Covise::sendInfo("could not read: %s", m_filename);
             return;
         }
@@ -345,19 +343,19 @@ void ReadVTK::update()
         outGrid = NULL;
         if (dogrid.size() > 0)
         {
-            outGrid = new coDoSet(m_portGrid->getObjName(), dogrid.size(), &dogrid[0]);
+            outGrid = new coDoSet(m_portGrid->getObjName(), (int)dogrid.size(), &dogrid[0]);
             outGrid->addAttribute("TIMESTEP", buf);
         }
         for (int i=0; i<NumPorts; ++i)
         {
             if (dopoint[i].size() > 0)
             {
-                outPointData[i] = new coDoSet(m_portPointData[i]->getObjName(), dopoint[i].size(), &dopoint[i][0]);
+                outPointData[i] = new coDoSet(m_portPointData[i]->getObjName(), (int)dopoint[i].size(), &dopoint[i][0]);
                 outPointData[i]->addAttribute("TIMESTEP", buf);
             }
             if (docell[i].size() > 0)
             {
-                outCellData[i] = new coDoSet(m_portCellData[i]->getObjName(), docell[i].size(), &docell[i][0]);
+                outCellData[i] = new coDoSet(m_portCellData[i]->getObjName(), (int)docell[i].size(), &docell[i][0]);
                 outCellData[i]->addAttribute("TIMESTEP", buf);
             }
         }
@@ -365,7 +363,7 @@ void ReadVTK::update()
         outNormals = NULL;
         if (donormal.size() > 0)
         {
-            outNormals = new coDoSet(m_portNormals->getObjName(), donormal.size(), &donormal[0]);
+            outNormals = new coDoSet(m_portNormals->getObjName(), (int)donormal.size(), &donormal[0]);
             outNormals->addAttribute("TIMESTEP", buf);
         }
     }
@@ -447,16 +445,16 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
                 sprintf(cTmp, m_pParamFilePattern->getValue(), i);
             }
             m_iTimestepMax = i - 1;
-        }
-        std::cout << "Timestep Min: " << m_iTimestepMin << std::endl;
-        std::cout << "Timestep Max: " << m_iTimestepMax << std::endl;
+            std::cout << "Timestep Min: " << m_iTimestepMin << std::endl;
+            std::cout << "Timestep Max: " << m_iTimestepMax << std::endl;
 
-        m_pTimeMin->setValue(m_iTimestepMin);
-        m_pTimeMin->setMin(m_iTimestepMin);
-        m_pTimeMin->setMax(m_iTimestepMax);
-        m_pTimeMax->setValue(m_iTimestepMax);
-        m_pTimeMax->setMin(m_iTimestepMin);
-        m_pTimeMax->setMax(m_iTimestepMax);
+            m_pTimeMin->setValue(m_iTimestepMin);
+            m_pTimeMin->setMin(m_iTimestepMin);
+            m_pTimeMin->setMax(m_iTimestepMax);
+            m_pTimeMax->setValue(m_iTimestepMax);
+            m_pTimeMax->setMin(m_iTimestepMin);
+            m_pTimeMax->setMax(m_iTimestepMax);
+        }
     }
     else if (strcmp(name, m_pTimeMax->getName()) == 0)
     {

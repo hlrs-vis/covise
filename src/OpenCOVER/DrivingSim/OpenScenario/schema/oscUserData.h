@@ -26,6 +26,7 @@ oscUserData()
         OSC_ADD_MEMBER(code, 0);
         OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCUserDataList";};
     oscString code;
     oscString value;
 

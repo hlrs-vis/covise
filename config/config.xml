@@ -47,11 +47,10 @@
   <System>
 <!--   <ShmSize value="2097152"/> -->
    <!--<ShmSize value="33554432"/>-->
+    <!--ShmKind value="sysv" /-->
     <WSInterface value="false" />
    <CRB>
-    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="mac" value="Renderer/OpenCOVER" name="Renderer/Renderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -60,6 +59,26 @@
   </System>
 
   <COVER>
+      <UI>
+          <NavigationManager>
+              <Navigation>
+                  <!--MoveWorld parent="" /-->
+                  <ViewAll parent="" />
+                  <Scale parent="" />
+                  <SelectInteract parent="" />
+                  <Snap parent="" />
+                  <!--Drive parent="" /-->
+              </Navigation>
+          </NavigationManager>
+          <Manager>
+              <ViewOptions>
+                  <TrackHead parent="" />
+                  <!--Lighting parent="" /-->
+              </ViewOptions>
+          </Manager>
+      </UI>
+      <!--GLVersion value="3.0" /-->
+      <!--GLDebug value="true" /-->
       <Snap value="ON" />
       <DebugTUI value="OFF" />
 	  
@@ -70,9 +89,9 @@
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
-     <TabletUI>
-     <Server host="localhost" port="31802" name="0" />
-   </TabletUI>
+     <TabletPC>
+         <Server value="127.0.0.1"/>
+       </TabletPC>
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />
@@ -81,64 +100,6 @@
    <MultiThreaded value="off" />
    <StencilBits value="8" />
    <Stencil value="true" />
-   <FileManager>
-           <FileType name="bpadxf" plugin="BPA" />
-           <FileType name="nfi" plugin="BPA" />
-           <FileType name="nfix" plugin="BPA" />
-           <FileType name="dani" plugin="DEMOA" />
-           <FileType name="dsim" plugin="DEMOA" />
-           <FileType name="xosc" plugin="OpenScenarioPlugin" />
-           <FileType name="pts" plugin="PointCloud" />
-           <FileType name="ptx" plugin="PointCloud" />
-           <FileType name="xyz" plugin="PointCloud" />
-           <FileType name="ptsb" plugin="PointCloud" />
-           <FileType name="c2m" plugin="PointCloud" />
-           <FileType name="x3dv" plugin="Vrml97" />
-           <FileType name="wrl" plugin="Vrml97" />
-           <FileType name="wrl.gz" plugin="Vrml97" />
-           <FileType name="wrz" plugin="Vrml97" />	
-           <FileType name="avi" plugin="StereoVideoPlayer" />
-	   <FileType name="wmv" plugin="StereoVideoPlayer" />
-	   <FileType name="mov" plugin="StereoVideoPlayer" />
-	   <FileType name="mp4" plugin="StereoVideoPlayer" />
-           <FileType name="xvf" plugin="Volume" />
-           <FileType name="mid" plugin="Midi" />
-           <FileType name="tif" plugin="Volume" />
-           <FileType name="tiff" plugin="Volume" />
-           <FileType name="rvf" plugin="Volume" />
-           <FileType name="avf" plugin="Volume" />
-           <FileType name="js" plugin="Script" />
-           <FileType name="qs" plugin="Script" />
-           <FileType name="plmxml" plugin="PLMXML" />
-           <FileType name="xml" plugin="PLMXML" />
-           <FileType name="jt" plugin="JTOpen" />
-           <FileType name="gcode" plugin="CNC" />
-           <FileType name="bullet" plugin="Bullet" />
-           <FileType name="top" plugin="Amber" />
-           <FileType name="trj" plugin="Amber" />
-           <FileType name="cgl" plugin="CADCv3D" />
-           <FileType name="via" plugin="Molecules" />
-           <FileType name="vim" plugin="Molecules" />
-           <FileType name="vis" plugin="Molecules" />
-           <FileType name="dyn" plugin="VRAnim" />
-           <FileType name="geoall" plugin="VRAnim" />
-           <FileType name="str" plugin="VRAnim" />
-           <FileType name="sensor" plugin="VRAnim" />
-           <FileType name="particle" plugin="Particles" />
-           <FileType name="indent" plugin="Particles" />
-           <FileType name="coord" plugin="Particles" />
-           <FileType name="crist" plugin="Particles" />
-           <FileType name="chkpt" plugin="Particles" />
-           <FileType name="earth" plugin="Earth" />
-           <FileType name="xodr" plugin="TrafficSimulation" />
-           <FileType name="avi" plugin="StereoVideoPlayer" />
-           <FileType name="wmv" plugin="StereoVideoPlayer" />
-           <FileType name="earth" plugin="Earth" />
-           <FileType name="stardust" plugin="starDust" />
-           <FileType name="starDust" plugin="starDust" />
-           <FileType name="oct" plugin="ThreeDTK" />
-           <FileType name="pcd" plugin="PCL" />
-      </FileManager>
 
    <VRUI>
      <VNC>
@@ -160,7 +121,7 @@
    <CompositorIceT menu="true" />
    <Measure menu="true" />
    <PointCloud>
-   <!--PointSize value="10" /-->
+   <PointSize value="4" />
    </PointCloud>
     <Bullet value="off" />
     <Earth value="off" />
@@ -262,6 +223,7 @@
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 
+   <Revit value="off" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" />
 
    </Plugin>
 
@@ -272,18 +234,17 @@
    <SceneSize value="1000" />
    <DebugLevel value="1" />
    <FPS value="true" />
+   
 
    <PipeConfig>
        <Pipe name="0" useDISPLAY="true" />
    </PipeConfig>
 
    <WindowConfig>
-    <OpenGL3 value="false" />
-
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
-    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" />
+    <Window type="Qt" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" embedded="false" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>

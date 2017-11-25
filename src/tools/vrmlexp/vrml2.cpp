@@ -68,6 +68,10 @@ HISTORY: created 7 June, 1996
 #include "onoff.h"
 #include "tabletui.h"
 
+#if MAX_VERSION_MAJOR >= 20
+#include "math.h"
+#endif
+
 #include "coreexp.h"
 #include "IDxMaterial.h"
 #include "RTMax.h"
@@ -216,7 +220,7 @@ VRML2Export::GetLocalTM(INode *node, TimeValue t)
 }
 
 inline float
-round(float f)
+roundToZero(float f)
 {
     if (f < 0.0f)
     {
@@ -244,9 +248,9 @@ VRML2Export::point(Point3 &p)
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(-p.y));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(-p.y));
     CommaScan(buf);
     return buf;
 }
@@ -257,7 +261,7 @@ VRML2Export::color(Color &c)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
-    _stprintf(buf, format, round(c.r), round(c.g), round(c.b));
+    _stprintf(buf, format, roundToZero(c.r), roundToZero(c.g), roundToZero(c.b));
     CommaScan(buf);
     return buf;
 }
@@ -268,7 +272,7 @@ VRML2Export::color(Point3 &c)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
-    _stprintf(buf, format, round(c.x), round(c.y), round(c.z));
+    _stprintf(buf, format, roundToZero(c.x), roundToZero(c.y), roundToZero(c.z));
     CommaScan(buf);
     return buf;
 }
@@ -279,7 +283,7 @@ VRML2Export::floatVal(float f)
     static TCHAR buf[50];
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg"), mDigits);
-    _stprintf(buf, format, round(f));
+    _stprintf(buf, format, roundToZero(f));
     CommaScan(buf);
     return buf;
 }
@@ -295,7 +299,7 @@ VRML2Export::texture(UVVert &uv)
         uv.y = 0.0;
     }
     _stprintf(format, _T("%%.%dg %%.%dg"), mDigits, mDigits);
-    _stprintf(buf, format, round(uv.x), round(uv.y));
+    _stprintf(buf, format, roundToZero(uv.x), roundToZero(uv.y));
     CommaScan(buf);
     return buf;
 }
@@ -308,9 +312,9 @@ VRML2Export::scalePoint(Point3 &p)
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(p.y));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(p.y));
     CommaScan(buf);
     return buf;
 }
@@ -323,9 +327,9 @@ VRML2Export::normPoint(Point3 &p)
     TCHAR format[20];
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg"), mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(-p.y));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(-p.y));
     CommaScan(buf);
     return buf;
 }
@@ -341,11 +345,11 @@ VRML2Export::axisPoint(Point3 &p, float angle)
     _stprintf(format, _T("%%.%dg %%.%dg %%.%dg %%.%dg"),
               mDigits, mDigits, mDigits, mDigits);
     if (mZUp)
-        _stprintf(buf, format, round(p.x), round(p.y), round(p.z),
-                  round(angle));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.y), roundToZero(p.z),
+                  roundToZero(angle));
     else
-        _stprintf(buf, format, round(p.x), round(p.z), round(-p.y),
-                  round(angle));
+        _stprintf(buf, format, roundToZero(p.x), roundToZero(p.z), roundToZero(-p.y),
+                  roundToZero(angle));
     CommaScan(buf);
     return buf;
 }
@@ -359,7 +363,7 @@ VRML2Export::Indent(int level)
     if (level < 0)
         return;
     for (; level; level--)
-      MSTREAMPRINTF  ("  "));
+		MSTREAMPRINTFNOSTRINGS("  "));
 }
 
 // Translates name (if necessary) to VRML compliant name.
@@ -430,11 +434,11 @@ VRML2Export::EndNode(INode *node, Object *obj, int level, BOOL lastChild)
 {
     Indent(level);
     if (IsCamera(node) && !isSwitched(node))
-      MSTREAMPRINTF  ("\n"));
+		MSTREAMPRINTFNOSTRINGS("\n"));
     else if (lastChild || node->GetParentNode()->IsRootNode())
-      MSTREAMPRINTF  ("}\n"));
+		MSTREAMPRINTFNOSTRINGS("}\n"));
     else
-      MSTREAMPRINTF  ("},\n"));
+		MSTREAMPRINTFNOSTRINGS("},\n"));
 }
 
 /* test
@@ -576,7 +580,7 @@ VRML2Export::MaybeNewLine(size_t width, int level)
 {
     if (width > MAX_WIDTH)
     {
-      MSTREAMPRINTF  ("\n"));
+		MSTREAMPRINTFNOSTRINGS("\n"));
       Indent(level);
       return CurrentWidth();
     }
@@ -594,7 +598,7 @@ VRML2Export::OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level,
 
     Indent(level);
 
-   MSTREAMPRINTF  ("normalIndex [\n"));
+	MSTREAMPRINTFNOSTRINGS("normalIndex [\n"));
    Indent(level + 1);
    for (i = 0; i < numfaces; i++)
    {
@@ -629,14 +633,14 @@ VRML2Export::OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level,
                    n = mesh.getFaceNormal(i);
                int index = normTab->GetIndex(n);
                assert(index != -1);
-            width += MSTREAMPRINTF  ("%d, "), index);
+            width += MSTREAMPRINTFNOSTRINGS("%d, "), index);
             width = MaybeNewLine(width, level + 1);
            }
-         width += MSTREAMPRINTF  ("-1, "));
+         width += MSTREAMPRINTFNOSTRINGS("-1, "));
          width = MaybeNewLine(width, level + 1);
        }
    }
-   MSTREAMPRINTF  ("]\n"));
+   MSTREAMPRINTFNOSTRINGS("]\n"));
 }
 
 NormalTable *
@@ -688,8 +692,8 @@ VRML2Export::OutputNormals(Mesh &mesh, int level)
     index = 0;
     NormalDesc *nd;
     Indent(level);
-   MSTREAMPRINTF  ("normal "));
-   MSTREAMPRINTF  ("Normal { vector [\n"));
+	MSTREAMPRINTFNOSTRINGS("normal "));
+	MSTREAMPRINTFNOSTRINGS("Normal { vector [\n"));
    size_t width = CurrentWidth();
    Indent(level + 1);
 
@@ -703,10 +707,10 @@ VRML2Export::OutputNormals(Mesh &mesh, int level)
          width = MaybeNewLine(width, level + 1);
        }
    }
-   MSTREAMPRINTF  ("] }\n"));
+   MSTREAMPRINTFNOSTRINGS("] }\n"));
 
    Indent(level);
-   MSTREAMPRINTF  ("normalPerVertex TRUE\n"));
+   MSTREAMPRINTFNOSTRINGS("normalPerVertex TRUE\n"));
 
 #ifdef DEBUG_NORM_HASH
    normTab->PrintStats(mStream);
@@ -851,10 +855,10 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
             hasColors = true;
             Color c;
             Indent(level);
-         MSTREAMPRINTF  ("colorPerVertex TRUE\n"));
+			MSTREAMPRINTFNOSTRINGS("colorPerVertex TRUE\n"));
          Indent(level);
          width = CurrentWidth();
-         MSTREAMPRINTF  ("color Color { color [\n"));
+		 MSTREAMPRINTFNOSTRINGS("color Color { color [\n"));
          Indent(level + 1);
          cfaces = vxColDiffTab.Count();
          for (i = 0; i < cfaces; i++)
@@ -865,10 +869,10 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
              width = MaybeNewLine(width, level + 1);
          }
          Indent(level);
-         MSTREAMPRINTF  ("] }\n"));
+		 MSTREAMPRINTFNOSTRINGS("] }\n"));
 
          Indent(level);
-         MSTREAMPRINTF  ("colorIndex [\n"));
+		 MSTREAMPRINTFNOSTRINGS("colorIndex [\n"));
          width = CurrentWidth();
          Indent(level + 1);
          cfaces = polyMesh.GetPolygonCnt();
@@ -878,18 +882,18 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
              poly = polyMesh.GetPolygon(i);
              for (j = 0; j < poly->GetVIndexCnt(); j++)
              {
-               width += MSTREAMPRINTF  ("%d, "),
+               width += MSTREAMPRINTFNOSTRINGS("%d, "),
                   polyMesh.LookUpVert(poly->GetVIndex(j)));
                width = MaybeNewLine(width, level + 1);
              }
-            width += MSTREAMPRINTF  ("-1"));
+            width += MSTREAMPRINTFNOSTRINGS("-1"));
             if (i != polyMesh.GetPolygonCnt() - 1)
             {
-               width += MSTREAMPRINTF  (", "));
+               width += MSTREAMPRINTFNOSTRINGS(", "));
                width = MaybeNewLine(width, level + 1);
             }
          }
-         MSTREAMPRINTF  ("]\n"));
+		 MSTREAMPRINTFNOSTRINGS("]\n"));
 
          for (i = 0; i < vxColDiffTab.Count(); i++)
          {
@@ -906,10 +910,10 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
                 hasColors = true;
                 VertColor vColor;
                 Indent(level);
-            MSTREAMPRINTF  ("colorPerVertex TRUE\n"));
+				MSTREAMPRINTFNOSTRINGS("colorPerVertex TRUE\n"));
             Indent(level);
             width = CurrentWidth();
-            MSTREAMPRINTF  ("color Color { color [\n"));
+			MSTREAMPRINTFNOSTRINGS("color Color { color [\n"));
             Indent(level + 1);
 
             int nVerts = polyMesh.GetVertexCnt();
@@ -917,7 +921,7 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
             {
                 /*
                for (j = 0; j < poly->GetVIndexCnt(); j++) {
-               width += MSTREAMPRINTF  ("%d, "),
+               width += MSTREAMPRINTFNOSTRINGS  ("%d, "),
                polyMesh.LookUpVert(poly->GetVIndex(j)));
                width  = MaybeNewLine(width, level+1);
                }
@@ -938,10 +942,10 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
                 width = MaybeNewLine(width, level + 1);
             }
             Indent(level);
-            MSTREAMPRINTF  ("] }\n"));
+			MSTREAMPRINTFNOSTRINGS("] }\n"));
 
             Indent(level);
-            MSTREAMPRINTF  ("colorIndex [\n"));
+			MSTREAMPRINTFNOSTRINGS("colorIndex [\n"));
             width = CurrentWidth();
             Indent(level + 1);
             int cfaces = polyMesh.GetPolygonCnt();
@@ -951,18 +955,18 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
                 poly = polyMesh.GetPolygon(i);
                 for (j = 0; j < poly->GetVIndexCnt(); j++)
                 {
-                  width += MSTREAMPRINTF  ("%d, "),
+                  width += MSTREAMPRINTFNOSTRINGS("%d, "),
                      polyMesh.LookUpVert(poly->GetVIndex(j)));
                   width = MaybeNewLine(width, level + 1);
                 }
-               width += MSTREAMPRINTF  ("-1"));
+               width += MSTREAMPRINTFNOSTRINGS("-1"));
                if (i != polyMesh.GetPolygonCnt() - 1)
                {
-                  width += MSTREAMPRINTF  (", "));
+                  width += MSTREAMPRINTFNOSTRINGS(", "));
                   width = MaybeNewLine(width, level + 1);
                }
             }
-            MSTREAMPRINTF  ("]\n"));
+			MSTREAMPRINTFNOSTRINGS("]\n"));
             }
             else
             {
@@ -976,7 +980,7 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
     {
         Color c;
         Indent(level);
-      MSTREAMPRINTF  ("colorPerVertex FALSE\n"));
+		MSTREAMPRINTFNOSTRINGS("colorPerVertex FALSE\n"));
       Mtl *sub, *mtl = node->GetMtl();
       if (mtl && mtl->ClassID() == Class_ID(BAKE_SHELL_CLASS_ID, 0))
       {
@@ -987,7 +991,7 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
       Indent(level);
       width = CurrentWidth();
 
-      MSTREAMPRINTF  ("color Color { color [\n"));
+	  MSTREAMPRINTFNOSTRINGS("color Color { color [\n"));
       Indent(level + 1);
       for (i = 0; i < num; i++)
       {
@@ -1005,12 +1009,12 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
           width = MaybeNewLine(width, level + 1);
       }
       Indent(level);
-      MSTREAMPRINTF  ("] }\n"));
+	  MSTREAMPRINTFNOSTRINGS("] }\n"));
     }
     if (!hasColors && isMulti && numColors > 0 && textureNum == -1)
     {
         Indent(level);
-      MSTREAMPRINTF  ("colorIndex [\n"));
+		MSTREAMPRINTFNOSTRINGS("colorIndex [\n"));
       width = CurrentWidth();
       Indent(level + 1);
       numfaces = polyMesh.GetPolygonCnt();
@@ -1027,7 +1031,7 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
             width = MaybeNewLine(width, level + 1);
          }
       }
-      MSTREAMPRINTF  ("]\n"));
+	  MSTREAMPRINTFNOSTRINGS("]\n"));
     }
 
     // output coordinate---------
@@ -1049,13 +1053,13 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
          width += MSTREAMPRINTF  ("%s"), point(p));
          if (i < (numV - 1))
          {
-            width += MSTREAMPRINTF  (", "));
+            width += MSTREAMPRINTFNOSTRINGS(", "));
             width = MaybeNewLine(width, level + 1);
          }
       }
-          MSTREAMPRINTF  ("]\n"));
+	  MSTREAMPRINTFNOSTRINGS("]\n"));
           Indent(level);
-          MSTREAMPRINTF  ("}\n"));
+		  MSTREAMPRINTFNOSTRINGS("}\n"));
     }
     else
     {
@@ -1064,7 +1068,7 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
          mNodes.GetNodeName(node));
     }
     Indent(level);
-   MSTREAMPRINTF  ("coordIndex [\n"));
+	MSTREAMPRINTFNOSTRINGS("coordIndex [\n"));
    Indent(level + 1);
    width = CurrentWidth();
    for (i = 0; i < polyMesh.GetPolygonCnt(); i++)
@@ -1072,18 +1076,18 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
        poly = polyMesh.GetPolygon(i);
        for (j = 0; j < poly->GetVIndexCnt(); j++)
        {
-         width += MSTREAMPRINTF  ("%d, "),
+         width += MSTREAMPRINTFNOSTRINGS("%d, "),
             polyMesh.LookUpVert(poly->GetVIndex(j)));
          width = MaybeNewLine(width, level + 1);
        }
-      width += MSTREAMPRINTF  ("-1"));
+      width += MSTREAMPRINTFNOSTRINGS("-1"));
       if (i != polyMesh.GetPolygonCnt() - 1)
       {
-         width += MSTREAMPRINTF  (", "));
+         width += MSTREAMPRINTFNOSTRINGS(", "));
          width = MaybeNewLine(width, level + 1);
       }
    }
-   MSTREAMPRINTF  ("]\n"));
+   MSTREAMPRINTFNOSTRINGS("]\n"));
 
    // Output Texture coordinates
    if (numtverts[0] > 0 && (numTextureDescs || textureNum == 0 || numShaderTextures) && !isWire)
@@ -1101,13 +1105,13 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
             width += MSTREAMPRINTF  ("%s"), texture(t));
             if (i == polyMesh.GetTVertexCnt() - 1)
             {
-               MSTREAMPRINTF  ("]\n"));
+				MSTREAMPRINTFNOSTRINGS("]\n"));
                Indent(level);
-               MSTREAMPRINTF  ("}\n"));
+			   MSTREAMPRINTFNOSTRINGS("}\n"));
             }
             else
             {
-               width += MSTREAMPRINTF  (", "));
+               width += MSTREAMPRINTFNOSTRINGS(", "));
                width = MaybeNewLine(width, level + 1);
             }
          }
@@ -1122,7 +1126,7 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
    if (numtverts[0] > 0 && (numTextureDescs || numShaderTextures) && !isWire)
    {
        Indent(level);
-      MSTREAMPRINTF  ("texCoordIndex [\n"));
+	   MSTREAMPRINTFNOSTRINGS("texCoordIndex [\n"));
       Indent(level + 1);
       width = CurrentWidth();
       int tmp = polyMesh.GetPolygonCnt();
@@ -1136,19 +1140,19 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
           {
               int tmp2 = poly->GetTVIndex(j);
               int tmp3 = polyMesh.LookUpTVert(tmp2);
-            width += MSTREAMPRINTF  ("%d, "),
+            width += MSTREAMPRINTFNOSTRINGS("%d, "),
                //polyMesh.LookUpTVert(poly->GetTVIndex(j)));
                tmp3);
             width = MaybeNewLine(width, level + 1);
           }
-         width += MSTREAMPRINTF  ("-1"));
+         width += MSTREAMPRINTFNOSTRINGS("-1"));
          if (i != polyMesh.GetPolygonCnt() - 1)
          {
-            width += MSTREAMPRINTF  (", "));
+            width += MSTREAMPRINTFNOSTRINGS(", "));
             width = MaybeNewLine(width, level + 1);
          }
       }
-      MSTREAMPRINTF  ("]\n"));
+	  MSTREAMPRINTFNOSTRINGS("]\n"));
    }
 
    // output normals
@@ -1168,12 +1172,12 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
        }
 
        Indent(level);
-      MSTREAMPRINTF  ("normalPerVertex TRUE\n"));
+	   MSTREAMPRINTFNOSTRINGS("normalPerVertex TRUE\n"));
       int index = 0;
       NormalDesc *nd;
       Indent(level);
-      MSTREAMPRINTF  ("normal "));
-      MSTREAMPRINTF  ("Normal { vector [\n"));
+	  MSTREAMPRINTFNOSTRINGS("normal "));
+	  MSTREAMPRINTFNOSTRINGS("Normal { vector [\n"));
       width = CurrentWidth();
       Indent(level + 1);
       /*
@@ -1195,11 +1199,11 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
             width = MaybeNewLine(width, level + 1);
           }
       }
-      MSTREAMPRINTF  ("] }\n"));
+	  MSTREAMPRINTFNOSTRINGS("] }\n"));
 
       Indent(level);
       width = CurrentWidth();
-      MSTREAMPRINTF  ("normalIndex [\n"));
+	  MSTREAMPRINTFNOSTRINGS("normalIndex [\n"));
       Indent(level + 1);
       width = CurrentWidth();
 
@@ -1210,21 +1214,21 @@ VRML2Export::OutputPolygonObject(INode *node, TriObject *obj, BOOL isMulti,
           {
               Point3 n = polyMesh.GetPolygon(i)->GetVNormal(k);
               index = normTab->GetIndex(n);
-            width   += MSTREAMPRINTF  ("%d, "), index);
+            width   += MSTREAMPRINTFNOSTRINGS("%d, "), index);
             width = MaybeNewLine(width, level + 1);
           }
-         width += MSTREAMPRINTF  ("-1, "));
+         width += MSTREAMPRINTFNOSTRINGS("-1, "));
          width = MaybeNewLine(width, level + 1);
       }
       normTab->PrintStats(mStream);
 
-      MSTREAMPRINTF  ("]\n"));
+	  MSTREAMPRINTFNOSTRINGS("]\n"));
 
       delete normTab;
    }
 
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
    for (i = 0; i < numTextureDescs; i++)
        delete textureDescs[i];
 }
@@ -1325,10 +1329,10 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
             int cfaces;
             Color c;
             Indent(level);
-         MSTREAMPRINTF  ("colorPerVertex TRUE\n"));
+			MSTREAMPRINTFNOSTRINGS("colorPerVertex TRUE\n"));
          Indent(level);
          width = CurrentWidth();
-         MSTREAMPRINTF  ("color Color { color [\n"));
+		 MSTREAMPRINTFNOSTRINGS("color Color { color [\n"));
          Indent(level + 1);
          cfaces = vxColDiffTab.Count();
          for (i = 0; i < cfaces; i++)
@@ -1339,25 +1343,25 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
              width = MaybeNewLine(width, level + 1);
          }
          Indent(level);
-         MSTREAMPRINTF  ("] }\n"));
+		 MSTREAMPRINTFNOSTRINGS("] }\n"));
 
          Indent(level);
-         MSTREAMPRINTF  ("colorIndex [\n"));
+		 MSTREAMPRINTFNOSTRINGS("colorIndex [\n"));
          width = CurrentWidth();
          Indent(level + 1);
 
          for (i = 0; i < numfaces; i++)
          {
-            width += MSTREAMPRINTF  ("%d, %d, %d, -1"),
+            width += MSTREAMPRINTFNOSTRINGS("%d, %d, %d, -1"),
                mesh.faces[i].v[0], mesh.faces[i].v[1],
                mesh.faces[i].v[2]);
             if (i != numfaces - 1)
             {
-               width += MSTREAMPRINTF  (", "));
+               width += MSTREAMPRINTFNOSTRINGS(", "));
                width = MaybeNewLine(width, level + 1);
             }
          }
-         MSTREAMPRINTF  ("]\n"));
+		 MSTREAMPRINTFNOSTRINGS("]\n"));
 
          for (i = 0; i < vxColDiffTab.Count(); i++)
          {
@@ -1374,10 +1378,10 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                 hasColors = true;
                 VertColor vColor;
                 Indent(level);
-            MSTREAMPRINTF  ("colorPerVertex TRUE\n"));
+				MSTREAMPRINTFNOSTRINGS("colorPerVertex TRUE\n"));
             Indent(level);
             width = CurrentWidth();
-            MSTREAMPRINTF  ("color Color { color [\n"));
+			MSTREAMPRINTFNOSTRINGS("color Color { color [\n"));
             Indent(level + 1);
 
             /* old
@@ -1391,10 +1395,10 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
             width = MaybeNewLine(width, level+1);
             }
             Indent(level);
-            MSTREAMPRINTF  ("] }\n"));
+            MSTREAMPRINTFNOSTRINGS  ("] }\n"));
 
             Indent(level);
-            MSTREAMPRINTF  ("colorIndex [\n"));
+            MSTREAMPRINTFNOSTRINGS  ("colorIndex [\n"));
             width = CurrentWidth();
             Indent(level+1);
 
@@ -1402,17 +1406,17 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
             int id = mesh.faces[i].getMatID();
             if (textureNum == -1 || id == textureNum) {
             if (!(mesh.faces[i].flags & FACE_HIDDEN)) {
-            width += MSTREAMPRINTF  ("%d, %d, %d, -1"),
+            width += MSTREAMPRINTFNOSTRINGS  ("%d, %d, %d, -1"),
             mesh.faces[i].v[0], mesh.faces[i].v[1],
             mesh.faces[i].v[2]);
             if (i != numfaces-1) {
-            width += MSTREAMPRINTF  (", "));
+            width += MSTREAMPRINTFNOSTRINGS  (", "));
             width = MaybeNewLine(width, level+1);
             }
             }
             }
             }
-            MSTREAMPRINTF  ("]\n"));
+            MSTREAMPRINTFNOSTRINGS  ("]\n"));
             */
             // FIXME need to add colorlist to PMesh
             for (i = 0; i < numCVerts; i++)
@@ -1425,10 +1429,10 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                 width = MaybeNewLine(width, level + 1);
             }
             Indent(level);
-            MSTREAMPRINTF  ("] }\n"));
+			MSTREAMPRINTFNOSTRINGS("] }\n"));
 
             Indent(level);
-            MSTREAMPRINTF  ("colorIndex [\n"));
+			MSTREAMPRINTFNOSTRINGS("colorIndex [\n"));
             width = CurrentWidth();
             Indent(level + 1);
 
@@ -1439,18 +1443,18 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                 {
                     if (!(mesh.faces[i].flags & FACE_HIDDEN))
                     {
-                     width += MSTREAMPRINTF  ("%d, %d, %d, -1"),
+                     width += MSTREAMPRINTFNOSTRINGS("%d, %d, %d, -1"),
                         mesh.vcFace[i].t[0], mesh.vcFace[i].t[1],
                         mesh.vcFace[i].t[2]);
                      if (i != numfaces - 1)
                      {
-                        width += MSTREAMPRINTF  (", "));
+                        width += MSTREAMPRINTFNOSTRINGS(", "));
                         width = MaybeNewLine(width, level + 1);
                      }
                     }
                 }
             }
-            MSTREAMPRINTF  ("]\n"));
+			MSTREAMPRINTFNOSTRINGS("]\n"));
             }
             else
             {
@@ -1464,7 +1468,7 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
     {
         Color c;
         Indent(level);
-      MSTREAMPRINTF  ("colorPerVertex FALSE\n"));
+		MSTREAMPRINTFNOSTRINGS("colorPerVertex FALSE\n"));
       Mtl *sub, *mtl = node->GetMtl();
       if (mtl && mtl->ClassID() == Class_ID(BAKE_SHELL_CLASS_ID, 0))
       {
@@ -1474,7 +1478,7 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
       int num = mtl->NumSubMtls();
       Indent(level);
       width = CurrentWidth();
-      MSTREAMPRINTF  ("color Color { color [\n"));
+	  MSTREAMPRINTFNOSTRINGS("color Color { color [\n"));
       Indent(level + 1);
       for (i = 0; i < num; i++)
       {
@@ -1494,7 +1498,7 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
           width = MaybeNewLine(width, level + 1);
       }
       Indent(level);
-      MSTREAMPRINTF  ("] }\n"));
+	  MSTREAMPRINTFNOSTRINGS("] }\n"));
     }
 
     if (!CoordsWritten)
@@ -1517,14 +1521,14 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
 
          if (i < (numverts - 1))
          {
-            width += MSTREAMPRINTF  (", "));
+            width += MSTREAMPRINTFNOSTRINGS(", "));
             width = MaybeNewLine(width, level + 1);
          }
       }
 
-          MSTREAMPRINTF  ("]\n"));
+	  MSTREAMPRINTFNOSTRINGS("]\n"));
           Indent(level);
-          MSTREAMPRINTF  ("}\n"));
+		  MSTREAMPRINTFNOSTRINGS("}\n"));
     }
     else
     {
@@ -1565,13 +1569,13 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                width += MSTREAMPRINTF  ("%s"), texture(p));
                if (i == numtverts[textureDescs[texNum]->mapChannel] - 1)
                {
-                  MSTREAMPRINTF  ("]\n"));
+				   MSTREAMPRINTFNOSTRINGS("]\n"));
                   Indent(level);
-                  MSTREAMPRINTF  ("}\n"));
+				  MSTREAMPRINTFNOSTRINGS("}\n"));
                }
                else
                {
-                  width += MSTREAMPRINTF  (", "));
+                  width += MSTREAMPRINTFNOSTRINGS(", "));
                   width = MaybeNewLine(width, level + 1);
                }
                 }
@@ -1611,13 +1615,13 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                width += MSTREAMPRINTF  ("%s"), texture(p));
                if (i == numtverts[shaderTextureChannel[texNum]] - 1)
                {
-                  MSTREAMPRINTF  ("]\n"));
+				   MSTREAMPRINTFNOSTRINGS("]\n"));
                   Indent(level);
-                  MSTREAMPRINTF  ("}\n"));
+				  MSTREAMPRINTFNOSTRINGS("}\n"));
                }
                else
                {
-                  width += MSTREAMPRINTF  (", "));
+                  width += MSTREAMPRINTFNOSTRINGS(", "));
                   width = MaybeNewLine(width, level + 1);
                }
                 }
@@ -1635,7 +1639,7 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
     }
     // Output the triangles
     Indent(level);
-   MSTREAMPRINTF  ("coordIndex [\n"));
+	MSTREAMPRINTFNOSTRINGS("coordIndex [\n"));
    Indent(level + 1);
    width = CurrentWidth();
    for (i = 0; i < numfaces; i++)
@@ -1645,18 +1649,18 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
        {
            if (!(mesh.faces[i].flags & FACE_HIDDEN))
            {
-            width += MSTREAMPRINTF  ("%d, %d, %d, -1"),
+            width += MSTREAMPRINTFNOSTRINGS("%d, %d, %d, -1"),
                mesh.faces[i].v[0], mesh.faces[i].v[1],
                mesh.faces[i].v[2]);
             if (i != numfaces - 1)
             {
-               width += MSTREAMPRINTF  (", "));
+               width += MSTREAMPRINTFNOSTRINGS(", "));
                width = MaybeNewLine(width, level + 1);
             }
            }
        }
    }
-   MSTREAMPRINTF  ("]\n"));
+   MSTREAMPRINTFNOSTRINGS("]\n"));
 
    texStageNumber = 0;
    for (texNum = 0; texNum < numTextureDescs; texNum++)
@@ -1665,9 +1669,9 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
        {
            Indent(level);
            if (texStageNumber == 0)
-            MSTREAMPRINTF  ("texCoordIndex [\n"));
+			   MSTREAMPRINTFNOSTRINGS("texCoordIndex [\n"));
            else
-            MSTREAMPRINTF  ("texCoordIndex%d [\n"),texStageNumber+1);
+			   MSTREAMPRINTFNOSTRINGS("texCoordIndex%d [\n"),texStageNumber+1);
            Indent(level + 1);
            width = CurrentWidth();
            for (i = 0; i < numfaces; i++)
@@ -1677,18 +1681,18 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                {
                    if (!(mesh.faces[i].flags & FACE_HIDDEN))
                    {
-                  width += MSTREAMPRINTF  ("%d, %d, %d, -1"),
+                  width += MSTREAMPRINTFNOSTRINGS("%d, %d, %d, -1"),
                      mesh.mapFaces(textureDescs[texNum]->mapChannel)[i].t[0], mesh.mapFaces(textureDescs[texNum]->mapChannel)[i].t[1],
                      mesh.mapFaces(textureDescs[texNum]->mapChannel)[i].t[2]);
                   if (i != numfaces - 1)
                   {
-                     width += MSTREAMPRINTF  (", "));
+                     width += MSTREAMPRINTFNOSTRINGS(", "));
                      width = MaybeNewLine(width, level + 1);
                   }
                    }
                }
            }
-         MSTREAMPRINTF  ("]\n"));
+		   MSTREAMPRINTFNOSTRINGS("]\n"));
 
          texStageNumber++;
        }
@@ -1699,9 +1703,9 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
        {
            Indent(level);
            if (texStageNumber == 0)
-            MSTREAMPRINTF  ("texCoordIndex [\n"));
+			   MSTREAMPRINTFNOSTRINGS("texCoordIndex [\n"));
            else
-            MSTREAMPRINTF  ("texCoordIndex%d [\n"),texStageNumber+1);
+			   MSTREAMPRINTFNOSTRINGS("texCoordIndex%d [\n"),texStageNumber+1);
            Indent(level + 1);
            width = CurrentWidth();
            for (i = 0; i < numfaces; i++)
@@ -1711,18 +1715,18 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
                {
                    if (!(mesh.faces[i].flags & FACE_HIDDEN))
                    {
-                  width += MSTREAMPRINTF  ("%d, %d, %d, -1"),
+                  width += MSTREAMPRINTFNOSTRINGS("%d, %d, %d, -1"),
                      mesh.mapFaces(shaderTextureChannel[texNum])[i].t[0], mesh.mapFaces(shaderTextureChannel[texNum])[i].t[1],
                      mesh.mapFaces(shaderTextureChannel[texNum])[i].t[2]);
                   if (i != numfaces - 1)
                   {
-                     width += MSTREAMPRINTF  (", "));
+                     width += MSTREAMPRINTFNOSTRINGS(", "));
                      width = MaybeNewLine(width, level + 1);
                   }
                    }
                }
            }
-         MSTREAMPRINTF  ("]\n"));
+		   MSTREAMPRINTFNOSTRINGS("]\n"));
 
          texStageNumber++;
        }
@@ -1731,7 +1735,7 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
    if (!hasColors && isMulti && numColors > 0 && textureNum == -1)
    {
        Indent(level);
-      MSTREAMPRINTF  ("colorIndex [\n"));
+	   MSTREAMPRINTFNOSTRINGS("colorIndex [\n"));
       width = CurrentWidth();
       Indent(level + 1);
       for (i = 0; i < numfaces; i++)
@@ -1744,15 +1748,15 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
             if (id >= numColors)
             id = 0;
             */
-            width += MSTREAMPRINTF  ("%d"), id);
+            width += MSTREAMPRINTFNOSTRINGS("%d"), id);
             if (i != numfaces - 1)
             {
-               width += MSTREAMPRINTF  (", "));
+               width += MSTREAMPRINTFNOSTRINGS(", "));
                width = MaybeNewLine(width, level + 1);
             }
           }
       }
-      MSTREAMPRINTF  ("]\n"));
+	  MSTREAMPRINTFNOSTRINGS("]\n"));
    }
    if (mGenNormals && normTab && !isWire)
    {
@@ -1761,7 +1765,7 @@ VRML2Export::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
    }
 
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
    for (i = 0; i < numTextureDescs; i++)
        delete textureDescs[i];
 }
@@ -1772,7 +1776,7 @@ VRML2Export::OutputPolyShapeObject(INode *node, PolyShape &shape, int level)
 {
 
     Indent(level);
-   MSTREAMPRINTF  ("Shape {\n"));
+	MSTREAMPRINTFNOSTRINGS("Shape {\n"));
    Indent(level++);
    if (mExportOccluders)
    {
@@ -1803,23 +1807,23 @@ VRML2Export::OutputPolyShapeObject(INode *node, PolyShape &shape, int level)
 
          if (i < line.numPts - 1)
          {
-            width += MSTREAMPRINTF  (", "));
+            width += MSTREAMPRINTFNOSTRINGS(", "));
             width = MaybeNewLine(width, level + 1);
          }
        }
        if (poly < shape.numLines - 1)
        {
-            width += MSTREAMPRINTF  (", "));
+            width += MSTREAMPRINTFNOSTRINGS(", "));
             width = MaybeNewLine(width, level + 1);
        }
    }
-   MSTREAMPRINTF  ("]\n"));
+   MSTREAMPRINTFNOSTRINGS("]\n"));
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
 
    // Output the lines
    Indent(level);
-   MSTREAMPRINTF  ("coordIndex [\n"));
+   MSTREAMPRINTFNOSTRINGS("coordIndex [\n"));
    Indent(level + 1);
    width = CurrentWidth();
    int coordNum = 0;
@@ -1830,7 +1834,7 @@ VRML2Export::OutputPolyShapeObject(INode *node, PolyShape &shape, int level)
        for (int i = 0; i < line.numPts; i++)
        {
 
-         width += MSTREAMPRINTF  ("%d, "),
+         width += MSTREAMPRINTFNOSTRINGS("%d, "),
             coordNum);
          width = MaybeNewLine(width, level + 1);
 
@@ -1838,21 +1842,21 @@ VRML2Export::OutputPolyShapeObject(INode *node, PolyShape &shape, int level)
        }
        if (line.IsClosed())
        {
-         width += MSTREAMPRINTF  ("%d, "),
+         width += MSTREAMPRINTFNOSTRINGS("%d, "),
             startVert);
        }
-      width += MSTREAMPRINTF  ("-1"));
+      width += MSTREAMPRINTFNOSTRINGS("-1"));
       if (poly != shape.numLines - 1)
       {
-         width += MSTREAMPRINTF  (", "));
+         width += MSTREAMPRINTFNOSTRINGS(", "));
          width = MaybeNewLine(width, level + 1);
       }
    }
-   MSTREAMPRINTF  ("]\n"));
+   MSTREAMPRINTFNOSTRINGS("]\n"));
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
 }
 
 BOOL
@@ -2288,7 +2292,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 
     effect = NO_EFFECT;
     Indent(level++);
-   MSTREAMPRINTF  ("appearance Appearance {\n"));
+	MSTREAMPRINTFNOSTRINGS("appearance Appearance {\n"));
 
    if (mtl && mtl->ClassID() == Class_ID(BAKE_SHELL_CLASS_ID, 0))
    {
@@ -2328,7 +2332,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
            TCHAR title[MAX_PATH];
            //LoadString(hInstance, IDS_OPEN_FAILED, msg, MAX_PATH);
            TCHAR msg[500];
-           _stprintf(msg, _T("%s\nnode:%s\nmaterial:%s"), _T("BakeShell within BakeShell, not supported by VRML exporter (jetzt geht's wirklich)"), mNodes.GetNodeName(node), origMtl->GetFullName());
+           _stprintf(msg, _T("%s\nnode:%s\nmaterial:%s"), _T("BakeShell within BakeShell, not supported by VRML exporter (jetzt geht's wirklich)"), mNodes.GetNodeName(node), origMtl->GetFullName().data());
            LoadString(hInstance, IDS_VRML_EXPORT, title, MAX_PATH);
            MessageBox(GetActiveWindow(), msg, title, MB_OK);
        }
@@ -2341,17 +2345,17 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
    {
        Color col(node->GetWireColor());
        Indent(level);
-         MSTREAMPRINTF  ("material "));
-         MSTREAMPRINTF  (" Material {\n"));
+	   MSTREAMPRINTFNOSTRINGS("material "));
+	   MSTREAMPRINTFNOSTRINGS(" Material {\n"));
          Indent(level + 1);
          MSTREAMPRINTF  ("diffuseColor %s\n"), color(col));
          //        Indent(level+1);
          //        MSTREAMPRINTF  ("specularColor .9 .9 .9\n"));
          //        MSTREAMPRINTF  ("specularColor %s\n"), color(col));
          Indent(level);
-         MSTREAMPRINTF  ("}\n"));
+		 MSTREAMPRINTFNOSTRINGS("}\n"));
          Indent(--level);
-         MSTREAMPRINTF  ("}\n"));
+		 MSTREAMPRINTFNOSTRINGS("}\n"));
          return FALSE;
    }
    IDxMaterial3 *l_pIDxMaterial3 = (IDxMaterial3 *)mtl->GetInterface(IDXMATERIAL3_INTERFACE);
@@ -2509,7 +2513,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
        sm->Update(0, i);
        Indent(level);
    }
-   MSTREAMPRINTF  ("material DEF "));
+   MSTREAMPRINTFNOSTRINGS("material DEF "));
    const TCHAR *mtlName = NULL;
    if (sm)
        mtlName = sm->GetName().data();
@@ -2534,7 +2538,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 
    MSTREAMPRINTF  ("M_%s"),VRMLName(mtlName));
    delete[] matName;
-   MSTREAMPRINTF  (" Material {\n"));
+   MSTREAMPRINTFNOSTRINGS(" Material {\n"));
    Color c;
    Color diffuseColor;
 
@@ -2574,7 +2578,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
    }
    float ambin = (c.r + c.g + c.b) / 3.0f;
    if (ambin >= difin)
-      MSTREAMPRINTF  ("ambientIntensity 1.0\n"));
+	   MSTREAMPRINTFNOSTRINGS("ambientIntensity 1.0\n"));
    else
       MSTREAMPRINTF  ("ambientIntensity %s\n"), floatVal(ambin/difin));
    Indent(level + 1);
@@ -2631,7 +2635,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
    }
    if (isBaked)
    {
-      MSTREAMPRINTF  ("emissiveColor 1 1 1\n"));
+	   MSTREAMPRINTFNOSTRINGS("emissiveColor 1 1 1\n"));
    }
    else
    {
@@ -2643,19 +2647,19 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
        }
    }
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
 
    if (isMulti && textureNum == -1)
    {
        Indent(--level);
-      MSTREAMPRINTF  ("}\n"));
+	   MSTREAMPRINTFNOSTRINGS("}\n"));
       return TRUE;
    }
 
    if (numTextureDescs == 0 && l_pIDxMaterial3 == NULL)
    {
        Indent(--level);
-      MSTREAMPRINTF  ("}\n"));
+	   MSTREAMPRINTFNOSTRINGS("}\n"));
       return FALSE;
    }
    if (l_pIDxMaterial3)
@@ -2664,10 +2668,10 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
        if (mType == Export_X3D_V)
        {
            Indent(level);
-          MSTREAMPRINTF  ("texture MultiTexture {\n"));
+		   MSTREAMPRINTFNOSTRINGS("texture MultiTexture {\n"));
           level++;
           Indent(level);
-          MSTREAMPRINTF  ("texture ["));
+		  MSTREAMPRINTFNOSTRINGS("texture ["));
           for (int texNum = 0; texNum < numShaderTextures; texNum++)
           {
               shaderTextureChannel[texNum] = l_pIDxMaterial3->GetBitmapMappingChannel(texNum);
@@ -2719,14 +2723,14 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                   Indent(level + 1);
                 MSTREAMPRINTF  ("url \"%s\"\n"), url);
                 Indent(level);
-                MSTREAMPRINTF  ("}\n"));
+				MSTREAMPRINTFNOSTRINGS("}\n"));
               }
           }
           Indent(level);
-          MSTREAMPRINTF  ("]\n"));
+		  MSTREAMPRINTFNOSTRINGS("]\n"));
           level--;
           Indent(level);
-          MSTREAMPRINTF  ("}\n"));
+		  MSTREAMPRINTFNOSTRINGS("}\n"));
        }
        else
        {
@@ -2735,12 +2739,12 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                if (texNum == 0)
                {
                    Indent(level);
-                MSTREAMPRINTF  ("texture "));
+				   MSTREAMPRINTFNOSTRINGS("texture "));
                }
                else
                {
                    Indent(level);
-                MSTREAMPRINTF  ("texture%d "),texNum+1);
+				   MSTREAMPRINTFNOSTRINGS("texture%d "),texNum+1);
                }
                shaderTextureChannel[texNum] = l_pIDxMaterial3->GetBitmapMappingChannel(texNum);
                if (shaderTextureChannel[texNum] > MAX_TEXTURES)
@@ -2808,7 +2812,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                 MSTREAMPRINTF  ("url \"%s\"\n"), url);
 
                 Indent(level);
-                MSTREAMPRINTF  ("}\n"));
+				MSTREAMPRINTFNOSTRINGS("}\n"));
                }
            }
        }
@@ -2820,12 +2824,12 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
            if (texNum == 0)
            {
                Indent(level);
-            MSTREAMPRINTF  ("texture "));
+			   MSTREAMPRINTFNOSTRINGS("texture "));
            }
            else
            {
                Indent(level);
-            MSTREAMPRINTF  ("texture%d "),texNum+1);
+			   MSTREAMPRINTFNOSTRINGS("texture%d "),texNum+1);
            }
 
            bool useTexture = false;
@@ -2870,22 +2874,22 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                if (textureDescs[texNum]->tex && (movieName || textureDescs[texNum]->tex->GetStartTime() > 0))
                {
                    if (movieName) MSTREAMPRINTF  ("DEF %s MovieTexture {\n"), texString->textureName);
-                   else MSTREAMPRINTF  (" MovieTexture{\n"));
+                   else MSTREAMPRINTFNOSTRINGS(" MovieTexture{\n"));
                    Indent(level + 1);
                MSTREAMPRINTF  ("speed %s\n"),floatVal(textureDescs[texNum]->tex->GetPlaybackRate()));
                Indent(level + 1);
-               MSTREAMPRINTF  ("startTime %d\n"),textureDescs[texNum]->tex->GetStartTime()/160.0);
+			   MSTREAMPRINTFNOSTRINGS("startTime %d\n"),textureDescs[texNum]->tex->GetStartTime()/160.0);
                Indent(level + 1);
-               MSTREAMPRINTF  ("stopTime -1\n"));
+			   MSTREAMPRINTFNOSTRINGS("stopTime -1\n"));
                if (textureDescs[texNum]->tex->GetEndCondition() == END_LOOP)
                {
                    Indent(level + 1);
-                  MSTREAMPRINTF  ("loop TRUE\n"));
+				   MSTREAMPRINTFNOSTRINGS("loop TRUE\n"));
                }
                else
                {
                    Indent(level + 1);
-                  MSTREAMPRINTF  ("loop FALSE\n"));
+				   MSTREAMPRINTFNOSTRINGS("loop FALSE\n"));
                }
                }
                else if (textureDescs[texNum]->cm)
@@ -2903,7 +2907,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                if ((textureDescs[texNum]->textureID == ID_RL) && (mType == Export_VRML_2_0_COVER))
                {
                    Indent(level + 1);
-                  MSTREAMPRINTF  ("environment TRUE\n"));
+				   MSTREAMPRINTFNOSTRINGS("environment TRUE\n"));
                   /*if(effect == BUMP_MAPPING)
                   {
                   effect=BUMP_MAPPING_ENV;
@@ -2911,16 +2915,16 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                }
                if (textureDescs[texNum]->repeatS == false)
                {
-                  MSTREAMPRINTF  ("repeatS FALSE\n"));
+				   MSTREAMPRINTFNOSTRINGS("repeatS FALSE\n"));
                }
                if (textureDescs[texNum]->repeatT == false)
                {
-                  MSTREAMPRINTF  ("repeatT FALSE\n"));
+				   MSTREAMPRINTFNOSTRINGS("repeatT FALSE\n"));
                }
                if ((textureDescs[texNum]->blendMode > 0) && (mType == Export_VRML_2_0_COVER))
                {
                    Indent(level + 1);
-                  MSTREAMPRINTF  ("blendMode %d\n"),textureDescs[texNum]->blendMode);
+				   MSTREAMPRINTFNOSTRINGS("blendMode %d\n"),textureDescs[texNum]->blendMode);
                }
                if ((textureDescs[texNum]->textureID == ID_BU) && (mType == Export_VRML_2_0_COVER))
                {
@@ -2935,12 +2939,12 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                    if ((textureDescs[texNum]->blendMode > 0) && (mType == Export_VRML_2_0_COVER))
                    {
                        Indent(level + 1);
-                  MSTREAMPRINTF  ("blendMode %d\n"),textureDescs[texNum]->blendMode);
+					   MSTREAMPRINTFNOSTRINGS("blendMode %d\n"),textureDescs[texNum]->blendMode);
                    }
                    else
                    {
                        Indent(level + 1);
-                  MSTREAMPRINTF  ("blendMode 5\n"));
+					   MSTREAMPRINTFNOSTRINGS("blendMode 5\n"));
                    }
                    Indent(level + 1);
                MSTREAMPRINTF  ("urlXP \"%s\"\n"), textureDescs[texNum]->urls[3]);
@@ -2956,7 +2960,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                MSTREAMPRINTF  ("urlZN \"%s\"\n"), textureDescs[texNum]->urls[1]);
                }
                Indent(level);
-            MSTREAMPRINTF  ("}\n"));
+			   MSTREAMPRINTFNOSTRINGS("}\n"));
            }
            if (textureDescs[texNum]->tex) // no need for texture transforms for cube maps
            {
@@ -2978,15 +2982,15 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                    Indent(level);
                    if (texNum == 0)
                    {
-                     MSTREAMPRINTF  ("textureTransform "));
+					   MSTREAMPRINTFNOSTRINGS("textureTransform "));
                    }
                    else
                    {
-                     MSTREAMPRINTF  ("textureTransform%d "),texNum+1);
+					   MSTREAMPRINTFNOSTRINGS("textureTransform%d "),texNum+1);
                    }
-                  MSTREAMPRINTF  ("TextureTransform {\n"));
+				   MSTREAMPRINTFNOSTRINGS("TextureTransform {\n"));
                   Indent(level + 1);
-                  MSTREAMPRINTF  ("center 0.5 0.5\n"));
+				  MSTREAMPRINTFNOSTRINGS("center 0.5 0.5\n"));
                   if (uOff != 0.0f || vOff != 0.0f)
                   {
                       Indent(level + 1);
@@ -3005,7 +3009,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                      MSTREAMPRINTF  ("scale %s\n"), texture(uv));
                   }
                   Indent(level);
-                  MSTREAMPRINTF  ("}\n"));
+				  MSTREAMPRINTFNOSTRINGS("}\n"));
                }
            }
        }
@@ -3015,361 +3019,401 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
        delete textureDescs[texNum];
 
    Indent(--level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
    return FALSE;
 }
 
 BOOL
-VRML2Export::VrmlOutSphereTest(INode *node, Object *obj)
+VRML2Export::VrmlOutSphereTest(INode * node, Object *obj)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float hemi;
-    int basePivot, genUV, smooth;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* sphereParams = so->GetParamBlockByID(SPHERE_PARAMBLOCK_ID);
+	DbgAssert(sphereParams);
+	if (sphereParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	float hemi;
+	int basePivot, genUV, smooth;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    // Reject "base pivot" mapped, non-smoothed and hemisphere spheres
-    so->pblock->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
-    so->pblock->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
-    so->pblock->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
-    if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
-        return FALSE;
-    return TRUE;
+	if (isWire)
+		return FALSE;
+
+	// Reject "base pivot" mapped, non-smoothed and hemisphere spheres
+	sphereParams->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
+	sphereParams->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
+	sphereParams->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
+	sphereParams->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
+	if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
+		return FALSE;
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutSphere(INode *node, Object *obj, int level)
+VRML2Export::VrmlOutSphere(INode * node, Object *obj, int level)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius, hemi;
-    int basePivot, genUV, smooth;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* sphereParams = so->GetParamBlockByID(SPHERE_PARAMBLOCK_ID);
+	DbgAssert(sphereParams);
+	if (sphereParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	float radius, hemi;
+	int basePivot, genUV, smooth;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    // Reject "base pivot" mapped, non-smoothed and hemisphere spheres
-    so->pblock->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
-    so->pblock->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
-    so->pblock->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
-    if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
-        return FALSE;
+	if (isWire)
+		return FALSE;
 
-    so->pblock->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
+	// Reject "base pivot" mapped, non-smoothed and hemisphere spheres
+	sphereParams->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
+	sphereParams->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
+	sphereParams->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
+	sphereParams->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
+	if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
+		return FALSE;
 
-    Indent(level);
+	sphereParams->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
 
-   MSTREAMPRINTF  ("geometry "));
+	Indent(level);
 
-   MSTREAMPRINTF  ("Sphere { radius %s }\n"), floatVal(radius));
+	mStream.Printf(_T("geometry "));
 
-   return TRUE;
+	mStream.Printf(_T("Sphere { radius %s }\n"), floatVal(radius));
+
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCylinderTest(INode *node, Object *obj)
+VRML2Export::VrmlOutCylinderTest(INode* node, Object *obj)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    int sliceOn, genUV, smooth;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* cylParams = so->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
+	DbgAssert(cylParams);
+	if (cylParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	int sliceOn, genUV, smooth;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    // Reject sliced, non-smooth and mapped cylinders
-    so->pblock->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
-    so->pblock->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
-    if (sliceOn || (genUV && td) || !smooth)
-        return FALSE;
-    return TRUE;
+	if (isWire)
+		return FALSE;
+
+	// Reject sliced, non-smooth and mapped cylinders
+	cylParams->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
+	cylParams->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
+	cylParams->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
+	if (sliceOn || (genUV && td) || !smooth)
+		return FALSE;
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCylinderTform(INode *node, Object *obj, int level,
-                                  BOOL mirrored)
+VRML2Export::VrmlOutCylinderTform(INode* node, Object *obj, int level,
+	BOOL mirrored)
 {
-    if (!VrmlOutCylinderTest(node, obj))
-        return FALSE;
+	if (!VrmlOutCylinderTest(node, obj))
+		return FALSE;
 
-    float height;
-    SimpleObject *so = (SimpleObject *)obj;
-    so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* cylParams = so->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
+	DbgAssert(cylParams);
+	if (cylParams == nullptr)
+		return FALSE;
+
+	float height;
+	cylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
 #ifdef MIRROR_BY_VERTICES
-    if (mirrored)
-        height = -height;
+	if (mirrored)
+		height = -height;
 #endif
 
-    Indent(level);
-   MSTREAMPRINTF  ("Transform {\n"));
-   if (mZUp)
-   {
-       Indent(level + 1);
-      MSTREAMPRINTF  ("rotation 1 0 0 %s\n"),
-         floatVal(float(PI/2.0)));
-      Indent(level + 1);
-      MSTREAMPRINTF  ("translation 0 0 %s\n"),
-         floatVal(float(height/2.0)));
-   }
-   else
-   {
-       Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
-       Indent(level + 1);
-      MSTREAMPRINTF  ("translation %s\n"), point(p));
-   }
-   Indent(level + 1);
-   MSTREAMPRINTF  ("children [\n"));
-   return TRUE;
+	Indent(level);
+	mStream.Printf(_T("Transform {\n"));
+	if (mZUp) {
+		Indent(level + 1);
+		mStream.Printf(_T("rotation 1 0 0 %s\n"),
+			floatVal(float(PI / 2.0)));
+		Indent(level + 1);
+		mStream.Printf(_T("translation 0 0 %s\n"),
+			floatVal(float(height / 2.0)));
+	}
+	else {
+		Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
+		Indent(level + 1);
+		mStream.Printf(_T("translation %s\n"), point(p));
+	}
+	Indent(level + 1);
+	mStream.Printf(_T("children [\n"));
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCylinder(INode *node, Object *obj, int level)
+VRML2Export::VrmlOutCylinder(INode* node, Object *obj, int level)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius, height;
-    int sliceOn, genUV, smooth;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* cylParams = so->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
+	DbgAssert(cylParams);
+	if (cylParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	float radius, height;
+	int sliceOn, genUV, smooth;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    // Reject sliced, non-smooth and mapped cylinders
-    so->pblock->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
-    so->pblock->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
-    if (sliceOn || (genUV && td) || !smooth)
-        return FALSE;
+	if (isWire)
+		return FALSE;
 
-    so->pblock->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
-    so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
-    Indent(level);
-   MSTREAMPRINTF  ("geometry "));
-   MSTREAMPRINTF  ("Cylinder { radius %s "), floatVal(radius));
-   MSTREAMPRINTF  ("height %s }\n"), floatVal(float(fabs(height))));
+	// Reject sliced, non-smooth and mapped cylinders
+	cylParams->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
+	cylParams->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
+	cylParams->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
+	if (sliceOn || (genUV && td) || !smooth)
+		return FALSE;
 
-   return TRUE;
+	cylParams->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
+	cylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+	Indent(level);
+	mStream.Printf(_T("geometry "));
+	mStream.Printf(_T("Cylinder { radius %s "), floatVal(radius));
+	mStream.Printf(_T("height %s }\n"), floatVal(float(fabs(height))));
+
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutConeTest(INode *node, Object *obj)
+VRML2Export::VrmlOutConeTest(INode* node, Object *obj)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius2;
-    int sliceOn, genUV, smooth;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* coneParams = so->GetParamBlockByID(CONE_PARAMBLOCK_ID);
+	DbgAssert(coneParams);
+	if (coneParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	float radius2;
+	int sliceOn, genUV, smooth;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    // Reject sliced, non-smooth and mappeded cylinders
-    so->pblock->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
-    so->pblock->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
-    so->pblock->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
-    if (sliceOn || (genUV && td) || !smooth || radius2 > 0.0f)
-        return FALSE;
-    return TRUE;
+	if (isWire)
+		return FALSE;
+
+	// Reject sliced, non-smooth and mappeded cylinders
+	coneParams->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
+	coneParams->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
+	coneParams->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
+	coneParams->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+	if (sliceOn || (genUV &&td) || !smooth || radius2 > 0.0f)
+		return FALSE;
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutConeTform(INode *node, Object *obj, int level,
-                              BOOL mirrored)
+VRML2Export::VrmlOutConeTform(INode* node, Object *obj, int level,
+	BOOL mirrored)
 {
-    if (!VrmlOutConeTest(node, obj))
-        return FALSE;
-    Indent(level);
-   MSTREAMPRINTF  ("Transform {\n"));
+	if (!VrmlOutConeTest(node, obj))
+		return FALSE;
+	Indent(level);
+	mStream.Printf(_T("Transform {\n"));
 
-   float height;
-   SimpleObject *so = (SimpleObject *)obj;
-   so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* coneParams = so->GetParamBlockByID(CONE_PARAMBLOCK_ID);
+	DbgAssert(coneParams);
+	if (coneParams == nullptr)
+		return FALSE;
+
+	float height;
+	coneParams->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
 #ifdef MIRROR_BY_VERTICES
-   if (mirrored)
-       height = -height;
+	if (mirrored)
+		height = -height;
 #endif
 
-   if (mZUp)
-   {
-       Indent(level + 1);
-       if (height > 0.0f)
-         MSTREAMPRINTF  ("rotation 1 0 0 %s\n"),
-         floatVal(float(PI/2.0)));
-       else
-         MSTREAMPRINTF  ("rotation 1 0 0 %s\n"),
-         floatVal(float(-PI/2.0)));
-       Indent(level + 1);
-      MSTREAMPRINTF  ("translation 0 0 %s\n"),
-         floatVal(float(fabs(height)/2.0)));
-   }
-   else
-   {
-       Point3 p = Point3(0.0f, 0.0f, (float)height / 2.0f);
-       if (height < 0.0f)
-       {
-           Indent(level + 1);
-         MSTREAMPRINTF  ("rotation 1 0 0 %s\n"),
-            floatVal(float(PI)));
-       }
-       Indent(level + 1);
-      MSTREAMPRINTF  ("translation %s\n"), point(p));
-   }
+	if (mZUp) {
+		Indent(level + 1);
+		if (height > 0.0f)
+			mStream.Printf(_T("rotation 1 0 0 %s\n"),
+				floatVal(float(PI / 2.0)));
+		else
+			mStream.Printf(_T("rotation 1 0 0 %s\n"),
+				floatVal(float(-PI / 2.0)));
+		Indent(level + 1);
+		mStream.Printf(_T("translation 0 0 %s\n"),
+			floatVal(float(fabs(height) / 2.0)));
+	}
+	else {
+		Point3 p = Point3(0.0f, 0.0f, (float)height / 2.0f);
+		if (height < 0.0f) {
+			Indent(level + 1);
+			mStream.Printf(_T("rotation 1 0 0 %s\n"),
+				floatVal(float(PI)));
+		}
+		Indent(level + 1);
+		mStream.Printf(_T("translation %s\n"), point(p));
+	}
 
-   Indent(level + 1);
-   MSTREAMPRINTF  ("children [\n"));
-   return TRUE;
+	Indent(level + 1);
+	mStream.Printf(_T("children [\n"));
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCone(INode *node, Object *obj, int level)
+VRML2Export::VrmlOutCone(INode* node, Object *obj, int level)
 {
-    SimpleObject *so = (SimpleObject *)obj;
-    float radius1, radius2, height;
-    int sliceOn, genUV, smooth;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* coneParams = so->GetParamBlockByID(CONE_PARAMBLOCK_ID);
+	DbgAssert(coneParams);
+	if (coneParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	float radius1, radius2, height;
+	int sliceOn, genUV, smooth;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    // Reject sliced, non-smooth and mappeded cylinders
-    so->pblock->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
-    so->pblock->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
-    so->pblock->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
-    if (sliceOn || (genUV && td) || !smooth || radius2 > 0.0f)
-        return FALSE;
+	if (isWire)
+		return FALSE;
 
-    so->pblock->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
-    so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
-    Indent(level);
+	// Reject sliced, non-smooth and mappeded cylinders
+	coneParams->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
+	coneParams->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
+	coneParams->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
+	coneParams->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+	if (sliceOn || (genUV &&td) || !smooth || radius2 > 0.0f)
+		return FALSE;
 
-   MSTREAMPRINTF  ("geometry "));
+	coneParams->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
+	coneParams->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+	Indent(level);
 
-   MSTREAMPRINTF  ("Cone { bottomRadius %s "), floatVal(radius1));
-   MSTREAMPRINTF  ("height %s }\n"), floatVal(float(fabs(height))));
+	mStream.Printf(_T("geometry "));
 
-   return TRUE;
+	mStream.Printf(_T("Cone { bottomRadius %s "), floatVal(radius1));
+	mStream.Printf(_T("height %s }\n"), floatVal(float(fabs(height))));
+
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCubeTest(INode *node, Object *obj)
+VRML2Export::VrmlOutCubeTest(INode* node, Object *obj)
 {
-    Mtl *mtl = node->GetMtl();
-    // Multi materials need meshes
-    if (mtl && mtl->ClassID() == Class_ID(BAKE_SHELL_CLASS_ID, 0))
-    {
-        mtl = mtl->GetSubMtl(1);
-    }
-    if (mtl && mtl->IsMultiMtl())
-        return FALSE;
+	Mtl* mtl = node->GetMtl();
+	// Multi materials need meshes
+	if (mtl && mtl->IsMultiMtl())
+		return FALSE;
 
-    SimpleObject *so = (SimpleObject *)obj;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* boxParams = so->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
+	DbgAssert(boxParams);
+	if (boxParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    int genUV, lsegs, wsegs, hsegs;
-    so->pblock->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
-    so->pblock->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
-    so->pblock->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
-    if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
-        return FALSE;
+	if (isWire)
+		return FALSE;
 
-    return TRUE;
+	int genUV, lsegs, wsegs, hsegs;
+	boxParams->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
+	boxParams->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
+	boxParams->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
+	boxParams->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
+	if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
+		return FALSE;
+
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCubeTform(INode *node, Object *obj, int level,
-                              BOOL mirrored)
+VRML2Export::VrmlOutCubeTform(INode* node, Object *obj, int level,
+	BOOL mirrored)
 {
-    if (!VrmlOutCubeTest(node, obj))
-        return FALSE;
-    Indent(level);
-   MSTREAMPRINTF  ("Transform {\n"));
+	if (!VrmlOutCubeTest(node, obj))
+		return FALSE;
+	Indent(level);
+	mStream.Printf(_T("Transform {\n"));
 
-   float height;
-   SimpleObject *so = (SimpleObject *)obj;
-   so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* boxParams = so->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
+	DbgAssert(boxParams);
+	if (boxParams == nullptr)
+		return FALSE;
+
+	float height;
+	boxParams->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
 #ifdef MIRROR_BY_VERTICES
-   if (mirrored)
-       height = -height;
+	if (mirrored)
+		height = -height;
 #endif
 
-   Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
-   // VRML cubes grow from the middle, MAX grows from z=0
-   Indent(level + 1);
-   MSTREAMPRINTF  ("translation %s\n"), point(p));
+	Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
+	// VRML cubes grow from the middle, MAX grows from z=0
+	Indent(level + 1);
+	mStream.Printf(_T("translation %s\n"), point(p));
 
-   Indent(level + 1);
-   MSTREAMPRINTF  ("children [\n"));
-   return TRUE;
+	Indent(level + 1);
+	mStream.Printf(_T("children [\n"));
+	return TRUE;
 }
 
 BOOL
-VRML2Export::VrmlOutCube(INode *node, Object *obj, int level)
+VRML2Export::VrmlOutCube(INode* node, Object *obj, int level)
 {
-    Mtl *mtl = node->GetMtl();
-    // Multi materials need meshes
-    if (mtl && mtl->ClassID() == Class_ID(BAKE_SHELL_CLASS_ID, 0))
-    {
-        mtl = mtl->GetSubMtl(1);
-    }
-    if (mtl && mtl->IsMultiMtl())
-        return FALSE;
+	Mtl* mtl = node->GetMtl();
+	// Multi materials need meshes
+	if (mtl && mtl->IsMultiMtl())
+		return FALSE;
 
-    SimpleObject *so = (SimpleObject *)obj;
-    float length, width, height;
-    BOOL isWire = FALSE;
-    BOOL td = HasTexture(node, isWire);
+	SimpleObject2* so = (SimpleObject2*)obj;
+	IParamBlock2* boxParams = so->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
+	DbgAssert(boxParams);
+	if (boxParams == nullptr)
+		return FALSE;
 
-    if (isWire)
-        return FALSE;
+	float length, width, height;
+	BOOL isWire = FALSE;
+	BOOL td = HasTexture(node, isWire);
 
-    int genUV, lsegs, wsegs, hsegs;
-    so->pblock->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
-    so->pblock->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
-    so->pblock->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
-    so->pblock->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
-    if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
-        return FALSE;
+	if (isWire)
+		return FALSE;
 
-    so->pblock->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
-    so->pblock->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
-    so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
-    Indent(level);
-   MSTREAMPRINTF  ("geometry "));
-   if (mZUp)
-   {
-      MSTREAMPRINTF  ("Box { size %s "),
-         floatVal(float(fabs(width))));
-      MSTREAMPRINTF  ("%s "),
-         floatVal(float(fabs(length))));
-      MSTREAMPRINTF  ("%s }\n"),
-         floatVal(float(fabs(height))));
-   }
-   else
-   {
-      MSTREAMPRINTF  ("Box { size %s "),
-         floatVal(float(fabs(width))));
-      MSTREAMPRINTF  ("%s "),
-         floatVal(float(fabs(height))));
-      MSTREAMPRINTF  ("%s }\n"),
-         floatVal(float(fabs(length))));
-   }
+	int genUV, lsegs, wsegs, hsegs;
+	boxParams->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
+	boxParams->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
+	boxParams->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
+	boxParams->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
+	if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
+		return FALSE;
 
-   return TRUE;
+	boxParams->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
+	boxParams->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
+	boxParams->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+	Indent(level);
+	mStream.Printf(_T("geometry "));
+	if (mZUp) {
+		mStream.Printf(_T("Box { size %s "),
+			floatVal(float(fabs(width))));
+		mStream.Printf(_T("%s "),
+			floatVal(float(fabs(length))));
+		mStream.Printf(_T("%s }\n"),
+			floatVal(float(fabs(height))));
+	}
+	else {
+		mStream.Printf(_T("Box { size %s "),
+			floatVal(float(fabs(width))));
+		mStream.Printf(_T("%s "),
+			floatVal(float(fabs(height))));
+		mStream.Printf(_T("%s }\n"),
+			floatVal(float(fabs(length))));
+	}
+
+	return TRUE;
 }
 
 #define INTENDED_ASPECT_RATIO 1.3333
@@ -3424,10 +3468,10 @@ VRML2Export::VrmlOutCamera(INode *node, Object *obj, int level)
    if (cam->IsOrtho() && (mType == Export_VRML_2_0_COVER))
    {
        Indent(level + 1);
-      MSTREAMPRINTF  ("type \"free\"\n"));
+	   MSTREAMPRINTFNOSTRINGS("type \"free\"\n"));
    }
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
 
    return TRUE;
 }
@@ -3494,11 +3538,11 @@ VRML2Export::VrmlOutSound(INode *node, SoundObject *obj, int level)
    {
        Indent(level + 1);
        //        MSTREAMPRINTF  ("source USE %s\n"), VRMLName(obj->audioClip->GetName()));
-      MSTREAMPRINTF  ("source\n"));
+	   MSTREAMPRINTFNOSTRINGS("source\n"));
       VrmlOutAudioClip(level + 2, obj->audioClip);
    }
    Indent(level);
-   MSTREAMPRINTF  ("}\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n"));
 
    return TRUE;
 }
@@ -3513,18 +3557,18 @@ GetTopLevelParent(INode *node)
 
 void VRML2Export::SensorBindScript(const TCHAR *objName, const TCHAR *name, int level, INode *node, INode *obj, int type)
 {
-   MSTREAMPRINTF  ("\n"));
+	MSTREAMPRINTFNOSTRINGS("\n"));
    Indent(level);
    MSTREAMPRINTF  ("DEF %s%s-SCRIPT Script {\n"), name, objName);
    Indent(level + 1);
-   if (type == KEY_SWITCH_BIND) MSTREAMPRINTF  ("eventIn SFInt32 active\n"));
-   else MSTREAMPRINTF  ("eventIn SFTime active\n"));
+   if (type == KEY_SWITCH_BIND) MSTREAMPRINTFNOSTRINGS("eventIn SFInt32 active\n"));
+   else MSTREAMPRINTFNOSTRINGS("eventIn SFTime active\n"));
    Indent(level + 1);
-   MSTREAMPRINTF  ("eventOut SFBool state\n"));
+   MSTREAMPRINTFNOSTRINGS("eventOut SFBool state\n"));
    Indent(level + 1);
-   MSTREAMPRINTF  ("url \"javascript:\n"));
+   MSTREAMPRINTFNOSTRINGS("url \"javascript:\n"));
    Indent(level + 2);
-   MSTREAMPRINTF  ("function active(t) {\n"));
+   MSTREAMPRINTFNOSTRINGS("function active(t) {\n"));
    Indent(level + 3);
    if (type == KEY_SWITCH_BIND)
    {
@@ -3532,22 +3576,22 @@ void VRML2Export::SensorBindScript(const TCHAR *objName, const TCHAR *name, int 
        int k = 0;
        while ((k < swObj->objects.Count()) && (swObj->objects[k]->node != obj))
            k++;
-      MSTREAMPRINTF  ("if (t == %d) state = TRUE;\n"), k);
+	   MSTREAMPRINTFNOSTRINGS("if (t == %d) state = TRUE;\n"), k);
    }
-   else MSTREAMPRINTF  ("state = TRUE;\n"));
+   else MSTREAMPRINTFNOSTRINGS("state = TRUE;\n"));
    Indent(level + 2);
-   MSTREAMPRINTF  ("}\"\n"));
+   MSTREAMPRINTFNOSTRINGS("}\"\n"));
    Indent(level + 1);
-   MSTREAMPRINTF  ("}\n\n"));
+   MSTREAMPRINTFNOSTRINGS("}\n\n"));
 }
 
 void VRML2Export::TouchSensorMovieScript(TCHAR *objName, int level)
 {
-   MSTREAMPRINTF  ("\n"));
+	MSTREAMPRINTFNOSTRINGS("\n"));
    Indent(level + 1);
    MSTREAMPRINTF  ("DEF %sStartStop Script {\n"), objName);
    Indent(level + 1);
-   MSTREAMPRINTF  ("eventIn SFTime clickTime\n"));
+   MSTREAMPRINTFNOSTRINGS("eventIn SFTime clickTime\n"));
    Indent(level + 1);
    MSTREAMPRINTF  ("eventOut SFTime startTime\n"));
    Indent(level + 1);
@@ -5941,7 +5985,7 @@ TCHAR *VRML2Export::isMovie(const TCHAR *url)
         _tcscpy(name, url);
         return (name);
     }
-    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
+    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".mpeg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
     {
         suffix = _tcsrchr(url, '.');
         _tcsncpy(name, url, suffix - url);
@@ -5977,23 +6021,40 @@ VRML2Export::WriteScripts()
                                        .obj;
         if (so)
         {
+
+			MSTREAMPRINTF("#Script %s\n"), l->GetNode()->GetName());
             // remove unwanted \rs
             const TCHAR *textdata = so->GetUrl().data();
-            TCHAR *buf = new TCHAR[_tcslen(textdata) + 1];
-            TCHAR *b = buf;
-            while (*textdata != '\0')
-            {
-                if (*textdata != '\r')
-                {
-                    *b = *textdata;
-                    b++;
-                }
-                textdata++;
-            }
-            *b = '\0';
 
-         MSTREAMPRINTF  ("#Script %s\n%s\n"),l->GetNode()->GetName(), buf);
-         delete[] buf;
+			size_t dataLen = _tcslen(textdata);
+			size_t lenWritten = 0;
+			size_t toWrite = 0;
+			size_t counter;
+			TCHAR *buf = new TCHAR[LINELENGTH];
+			while (lenWritten < dataLen)
+			{
+				toWrite = dataLen - lenWritten;
+				if (toWrite > 1000)
+					toWrite = 1000;
+				TCHAR *b = buf;
+				counter = 0;
+				while (counter < toWrite && *textdata != '\0')
+				{
+					if (*textdata != '\r')
+					{
+						*b = *textdata;
+						b++;
+					}
+					textdata++;
+					counter++;
+				}
+				*b = '\0';
+				MSTREAMPRINTFNOSTRINGS(buf));
+				lenWritten += toWrite;
+			}
+
+         MSTREAMPRINTF("\n"));
+		 delete[] buf;
         }
     }
 }
@@ -6015,26 +6076,26 @@ VRML2Export::WriteAnimRoutes()
         if (fromObj->ClassID() == ProxSensorClassID)
         {
             if (mAnimRoutes[i].mField == ENTER_FIELD)
-                _stprintf(from, _T("%s.enterTime"), mAnimRoutes[i].mFromName);
+                _stprintf(from, _T("%s.enterTime"), mAnimRoutes[i].mFromName.data());
             else
-                _stprintf(from, _T("%s.exitTime"), mAnimRoutes[i].mFromName);
+                _stprintf(from, _T("%s.exitTime"), mAnimRoutes[i].mFromName.data());
         }
         else if (fromObj->ClassID() == OnOffSwitchClassID)
         {
             if (((OnOffSwitchObject *)fromObj)->onObject == toNode)
-                _stprintf(from, _T("%s-SCRIPT.onTime"), mAnimRoutes[i].mFromName);
+                _stprintf(from, _T("%s-SCRIPT.onTime"), mAnimRoutes[i].mFromName.data());
             else
-                _stprintf(from, _T("%s-SCRIPT.offTime"), mAnimRoutes[i].mFromName);
+                _stprintf(from, _T("%s-SCRIPT.offTime"), mAnimRoutes[i].mFromName.data());
         }
         else if (fromObj->ClassID() == COVERClassID)
         {
             if (mAnimRoutes[i].mField >= 0)
-                _stprintf(from, _T("%s-SCRIPT.key%s"), mAnimRoutes[i].mFromName, ((COVERObject *)fromObj)->objects[mAnimRoutes[i].mField]->keyStr);
+                _stprintf(from, _T("%s-SCRIPT.key%s"), mAnimRoutes[i].mFromName.data(), ((COVERObject *)fromObj)->objects[mAnimRoutes[i].mField]->keyStr.data());
         }
         else if ((fromObj->ClassID() == TabletUIClassID) || (fromObj->ClassID() == SwitchClassID))
-            _stprintf(from, _T("%s"), mAnimRoutes[i].mFromName);
+            _stprintf(from, _T("%s"), mAnimRoutes[i].mFromName.data());
         else
-            _stprintf(from, _T("%s-SENSOR.touchTime"), mAnimRoutes[i].mFromName);
+            _stprintf(from, _T("%s-SENSOR.touchTime"), mAnimRoutes[i].mFromName.data());
         BOOL isCamera = IsCamera(toNode);
         ts = NodeNeedsTimeSensor(toNode);
         if (ts != 0 || toObj->ClassID() == TimeSensorClassID || (toObj->ClassID() == OnOffSwitchClassID))
@@ -6045,7 +6106,7 @@ VRML2Export::WriteAnimRoutes()
                 _stprintf(to, _T("%s-SCRIPT.trigger"), toName);
             else if (toObj->ClassID() == TouchSensorClassID)
             {
-                _stprintf(to, _T("%sStartStop"), mAnimRoutes[i].mFromName);
+                _stprintf(to, _T("%sStartStop"), mAnimRoutes[i].mFromName.data());
             MSTREAMPRINTF  ("ROUTE %s TO %s.clickTime\n"), from, to);
             MSTREAMPRINTF  ("ROUTE %s.startTime TO %s.startTime\n"), to, mAnimRoutes[i].mToName);
             MSTREAMPRINTF  ("ROUTE %s.stopTime TO %s.stopTime\n"), to, mAnimRoutes[i].mToName);
@@ -6081,25 +6142,25 @@ VRML2Export::WriteAnimRoutes()
         else if (fromObj->ClassID() == MultiTouchSensorClassID)
         {
             _stprintf(to, _T("%s.scale"), toName);
-            _stprintf(from, _T("%s-SENSOR.scale_changed"), mAnimRoutes[i].mFromName);
+            _stprintf(from, _T("%s-SENSOR.scale_changed"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
          _stprintf(to, _T("%s.translation"), toName);
-         _stprintf(from, _T("%s-SENSOR.translation_changed"), mAnimRoutes[i].mFromName);
+         _stprintf(from, _T("%s-SENSOR.translation_changed"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
          _stprintf(to, _T("%s.rotation"), toName);
-         _stprintf(from, _T("%s-SENSOR.rotation_changed"), mAnimRoutes[i].mFromName);
+         _stprintf(from, _T("%s-SENSOR.rotation_changed"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
         }
         else if (fromObj->ClassID() == ARSensorClassID)
         {
             _stprintf(to, _T("%s.scale"), toName);
-            _stprintf(from, _T("%s-SENSOR.scale_changed"), mAnimRoutes[i].mFromName);
+            _stprintf(from, _T("%s-SENSOR.scale_changed"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
          _stprintf(to, _T("%s.translation"), toName);
-         _stprintf(from, _T("%s-SENSOR.translation_changed"), mAnimRoutes[i].mFromName);
+         _stprintf(from, _T("%s-SENSOR.translation_changed"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
          _stprintf(to, _T("%s.rotation"), toName);
-         _stprintf(from, _T("%s-SENSOR.rotation_changed"), mAnimRoutes[i].mFromName);
+         _stprintf(from, _T("%s-SENSOR.rotation_changed"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
         }
         else if (fromObj->ClassID() == COVERClassID)
@@ -6107,28 +6168,28 @@ VRML2Export::WriteAnimRoutes()
             if (mAnimRoutes[i].mField < 0)
             {
                 _stprintf(to, _T("%s.translation"), toName);
-                _stprintf(from, _T("%s-SENSOR.avatar1Position"), mAnimRoutes[i].mFromName);
+                _stprintf(from, _T("%s-SENSOR.avatar1Position"), mAnimRoutes[i].mFromName.data());
             MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
             _stprintf(to, _T("%s.rotation"), toName);
-            _stprintf(from, _T("%s-SENSOR.avatar1Orientation"), mAnimRoutes[i].mFromName);
+            _stprintf(from, _T("%s-SENSOR.avatar1Orientation"), mAnimRoutes[i].mFromName.data());
             MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
             }
         }
         else if (fromObj->ClassID() == TabletUIClassID)
         {
-            _stprintf(to, _T("%s"), mAnimRoutes[i].mToName);
+            _stprintf(to, _T("%s"), mAnimRoutes[i].mToName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s\n"), from, to);
         }
         else if (toObj->ClassID() == TouchSensorClassID)
         {
-            _stprintf(to, _T("%sStartStop"), mAnimRoutes[i].mFromName);
+            _stprintf(to, _T("%sStartStop"), mAnimRoutes[i].mFromName.data());
          MSTREAMPRINTF  ("ROUTE %s TO %s.clickTime\n"), from, to);
-         MSTREAMPRINTF  ("ROUTE %s.startTime TO %s.startTime\n"), to, mAnimRoutes[i].mToName);
-         MSTREAMPRINTF  ("ROUTE %s.stopTime TO %s.stopTime\n"), to, mAnimRoutes[i].mToName);
+         MSTREAMPRINTF  ("ROUTE %s.startTime TO %s.startTime\n"), to, mAnimRoutes[i].mToName.data());
+         MSTREAMPRINTF  ("ROUTE %s.stopTime TO %s.stopTime\n"), to, mAnimRoutes[i].mToName.data());
         }
         else if ((fromObj->ClassID() == SwitchClassID) && (toObj->SuperClassID() == CAMERA_CLASS_ID))
         {
-            _stprintf(to, _T("%s"), mAnimRoutes[i].mToName);
+            _stprintf(to, _T("%s"), mAnimRoutes[i].mToName.data());
          MSTREAMPRINTF  ("ROUTE Choice%s-SCRIPT.switchChoice TO %s%s-SCRIPT.active\n"), from, to, from);
          MSTREAMPRINTF  ("ROUTE %s%s-SCRIPT.state TO %s.set_bind\n"), to, from, to);
         }
@@ -8015,7 +8076,7 @@ VRML2Export::VrmlOutNode(INode *node, INode *parent, int level, BOOL isLOD,
         ScanSceneGraph2();
         if (!mHasNavInfo)
         {
-            if (mHasLights)
+            if (mHasLights && mExpLights)
             {
             MSTREAMPRINTF  ("NavigationInfo { headlight FALSE }\n"));
             }
@@ -8110,7 +8171,7 @@ VRML2Export::VrmlOutNode(INode *node, INode *parent, int level, BOOL isLOD,
     }
     bool LODWritten = false;
 
-    if ((/*!isCamera &&*/ isVrml && ((mExportSelected && isChildSelected(node) && (!node->IsHidden() && !mExportHidden) || (!mExportSelected && (!node->IsHidden() && !mExportHidden))) || hasVisController) && !written) || IsAnimTrigger(obj))
+    if ((/*!isCamera &&*/ isVrml && ((mExportSelected && isChildSelected(node) && (!node->IsHidden() || mExportHidden) || (!mExportSelected && (!node->IsHidden() || mExportHidden))) || hasVisController) && !written) || IsAnimTrigger(obj))
     {
         VrmlOutObject(node, parent, obj, level + 2, mirrored ^ mirror);
     }

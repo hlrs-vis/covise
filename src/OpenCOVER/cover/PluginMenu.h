@@ -10,13 +10,15 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
+#include "ui/Owner.h"
 
-namespace vrui
+namespace opencover
 {
-class coCheckboxMenuItem;
+namespace ui
+{
+class Button;
+class Menu;
+}
 }
 
 namespace opencover
@@ -24,7 +26,7 @@ namespace opencover
 
 class coVRPlugin;
 
-class PluginMenu : public vrui::coMenuListener
+class PluginMenu: public ui::Owner
 {
 public:
     static PluginMenu *instance();
@@ -33,8 +35,6 @@ public:
     void addEntry(const std::string &name, coVRPlugin *plugin);
     void init();
 
-    void menuEvent(vrui::coMenuItem *item);
-
 private:
     PluginMenu();
     ~PluginMenu();
@@ -42,21 +42,21 @@ private:
     struct Plugin
     {
         std::string name;
-        boost::shared_ptr<vrui::coCheckboxMenuItem> menu;
-        coVRPlugin *plugin;
+        ui::Button *button = nullptr;
+        coVRPlugin *plugin = nullptr;
 
         Plugin(const std::string &name)
             : name(name)
-            , plugin(NULL)
         {
         }
 
-        void add(vrui::coMenu *menu);
+        void add(ui::Menu *menu);
     };
 
     std::vector<Plugin> items;
-    boost::shared_ptr<vrui::coSubMenuItem> pinboardEntry;
-    boost::shared_ptr<vrui::coMenu> menu;
+    ui::Menu *menu = nullptr;
+
+    static PluginMenu *s_instance;
 };
 }
 #endif

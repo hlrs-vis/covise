@@ -1631,7 +1631,7 @@ void VrmlNodeVehicle::render(Viewer *)
         carTrans = SteeringWheelPlugin::plugin->dynamics->getVehicleTransformation();
 
 #ifdef USE_CAR_SOUND
-        carSound->setSlip(0.0);
+        carSound->setSlip((SteeringWheelPlugin::plugin->dynamics->getTyreSlipFL()+SteeringWheelPlugin::plugin->dynamics->getTyreSlipFR()+SteeringWheelPlugin::plugin->dynamics->getTyreSlipRL()+SteeringWheelPlugin::plugin->dynamics->getTyreSlipRR())/4.0);
 
         //fprintf(stderr,"SlipFL %f",SteeringWheelPlugin::plugin->dynamics->getTyreSlipFL());
         //fprintf(stderr,"SlipRL %f\n",SteeringWheelPlugin::plugin->dynamics->getTyreSlipRL());

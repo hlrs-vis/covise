@@ -206,6 +206,9 @@ ThyssenPlugin::ThyssenPlugin()
 
     plugin = this;
     conn = NULL;
+    sConn=NULL;
+    if(coVRMSController::instance()->isMaster())
+    {
 
     port = coCoviseConfig::getInt("COVER.Plugin.ThyssenPlugin.TCPPort", 52051);
 
@@ -218,6 +221,7 @@ ThyssenPlugin::ThyssenPlugin()
         cout << "Port-Binding failed! Port already bound?" << endl;
         delete sConn;
         sConn = NULL;
+    }
     }
     struct linger linger;
     linger.l_onoff = 0;
@@ -355,8 +359,8 @@ int ThyssenPlugin::readData(char *buf,unsigned int size)
             else 
             {
                 conn = NULL;
-                buf[0]=0xff;
-                buf[1]=0xff;
+                buf[0]=-128;
+                buf[1]=-128;
                 coVRMSController::instance()->sendSlaves(buf, size);
                 return -1;
             }

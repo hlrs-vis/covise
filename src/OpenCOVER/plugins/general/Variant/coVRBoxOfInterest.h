@@ -44,8 +44,6 @@
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 
-using namespace std;
-using namespace vrui;
 using namespace opencover;
 
 enum TRANS
@@ -65,7 +63,7 @@ class coVRBoxOfInterest
     friend class mySensor;
 
 public:
-    coVRBoxOfInterest(VariantPlugin *plug, coTrackerButtonInteraction *_interactionA);
+    coVRBoxOfInterest(VariantPlugin *plug, vrui::coTrackerButtonInteraction *_interactionA);
     ~coVRBoxOfInterest();
     osg::ClipNode *createClipNode(std::string cnName);
     void showHide(bool state);
@@ -93,7 +91,7 @@ public:
     void updateClippingPlanes();
     osg::Matrix getGlobalMat(osg::Node *node);
 
-    coTrackerButtonInteraction *_interactionA; ///< interaction for first button
+    vrui::coTrackerButtonInteraction *_interactionA; ///< interaction for first button
 
 private:
     void createLines(osg::Geode *node, osg::Vec3Array *vertices);
@@ -155,7 +153,7 @@ private:
     osg::MatrixTransform *mt;
 
 public:
-    interactorSpheres(osg::Node *node, osg::Vec3 center, osg::Vec3 length, coTrackerButtonInteraction *_interactionA);
+    interactorSpheres(osg::Node *node, osg::Vec3 center, osg::Vec3 length, vrui::coTrackerButtonInteraction *_interactionA);
     ~interactorSpheres();
     bool isSensorActiv(std::string sensorName);
     void setStateSet(osg::StateSet *stateSet);
@@ -173,7 +171,7 @@ public:
 class mySensor : public coPickSensor
 {
 public:
-    mySensor(osg::Node *node, std::string name, coTrackerButtonInteraction *_interactionA, osg::ShapeDrawable *cSphDr);
+    mySensor(osg::Node *node, std::string name, vrui::coTrackerButtonInteraction *_interactionA, osg::ShapeDrawable *cSphDr);
     ~mySensor();
 
     void activate();
@@ -184,7 +182,7 @@ public:
 private:
     std::string sensorName;
     bool isActive;
-    coTrackerButtonInteraction *_interA;
+    vrui::coTrackerButtonInteraction *_interA;
     osg::ShapeDrawable *shapDr;
 };
 #endif /* _COVRBOXOFInterest_H */

@@ -47,12 +47,12 @@ typedef int ssize_t;
             fprintf(stderr, "COV_READ failed: %s\n", strerror(errno)); \
             break; \
         } else if (retval == 0) { \
-            fprintf(stderr, "COV_READ of %ld bytes failed: EOF after %ld\n", (long)size, (long)bytesRead); \
+            fprintf(stderr, "COV_READ of %ld bytes failed: EOF after %ld\n", (long)(size), (long)(bytesRead)); \
             break; \
         } \
         bytesRead += retval;                                                \
         if (bytesRead < size)                                                \
-            fprintf(stderr, "COV_READ performance warning incomplete read: %ld %ld\n", (long)retval, (long)size); \
+            fprintf(stderr, "COV_READ performance warning incomplete read: %ld %ld\n", (long)(retval), (long)(size)); \
     } while (bytesRead < size) ;                                             \
     }
 
@@ -64,7 +64,7 @@ typedef int ssize_t;
 #define COV_SKIP_INT(fd, data, size)                                       \
     do                                                                     \
     {                                                                      \
-        ssize_t retval;                                                    \
+        long long retval;                                                    \
         retval = _lseeki64(abs(fd), (size) * sizeof(int), SEEK_CUR);           \
         if (retval == -1)                                                  \
             fprintf(stderr, "COV_SKIP_INT failed: %s\n", strerror(errno)); \
@@ -84,7 +84,7 @@ typedef int ssize_t;
 #define COV_SKIP_FLOAT(fd, data, size)                                       \
     do                                                                       \
     {                                                                        \
-        ssize_t retval;                                                      \
+        long long retval;                                                      \
         retval = _lseeki64(abs(fd), (size) * sizeof(float), SEEK_CUR);           \
         if (retval == -1)                                                    \
             fprintf(stderr, "COV_SKIP_FLOAT failed: %s\n", strerror(errno)); \
@@ -104,7 +104,7 @@ typedef int ssize_t;
 #define COV_SKIP_BYTE(fd, data, size)                                       \
     do                                                                      \
     {                                                                       \
-        ssize_t retval;                                                     \
+        long long retval;                                                     \
         retval = _lseeki64(abs(fd), (size) * sizeof(char), SEEK_CUR);           \
         if (retval == -1)                                                   \
             fprintf(stderr, "COV_SKIP_BYTE failed: %s\n", strerror(errno)); \
@@ -221,7 +221,10 @@ int covOpenInFile(const char *filename)
     int fd = _open(filename, _O_RDONLY | _O_BINARY);
 #else
     struct stat s;
-    stat(filename, &s);
+    if (stat(filename, &s) == -1)
+    {
+        return 0;
+    }
     if (S_ISDIR(s.st_mode))
     {
         errno = EISDIR;
@@ -376,7 +379,7 @@ int covReadDescription(int fd, char *name)
 #endif
     if (space == ' ')
     {
-        char buf[1024];
+        unsigned char buf[1024];
         ssize_t nread = read(abs(fd), buf, sizeof(buf));
         if (nread > 0)
         {

@@ -28,8 +28,12 @@ IF /i "%ARCHSUFFIX%" == "win32opt" (
                   IF /i "%ARCHSUFFIX%" == "zebuopt" (
                     set USE_OPT_LIBS=1
                   ) ELSE (
+				    IF /i "%ARCHSUFFIX%" == "uwpopt" (
+                      set USE_OPT_LIBS=1
+                    ) ELSE (
                     set USE_OPT_LIBS=0
                     echo DEBUG-Build !!! 
+					)
                   )
                 )
               )
@@ -53,6 +57,7 @@ if defined ProgramFiles(x86)  set PROGFILES=%ProgramFiles(x86)%
 rem echo  %VS100COMNTOOLS%
 cd
 
+
 if "%ARCHSUFFIX:~0,5%" EQU "win32" (
     call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
 ) else if "%ARCHSUFFIX:~0,5%" EQU "vista" (
@@ -70,9 +75,15 @@ if "%ARCHSUFFIX:~0,5%" EQU "win32" (
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
+
+    if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+	if defined VS150COMNTOOLS% (
+    
+	)else (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
+	)
 ) else if "%ARCHSUFFIX:~0,8%" EQU "berrenda" (
 if defined VS110COMNTOOLS  (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
@@ -1168,7 +1179,7 @@ if not defined XERCESC_HOME (
 
 
 if not defined CFX5_UNITS_DIR (
-   set "CFX5_UNITS_DIR=%COVISEDIR%\icons"
+   set "CFX5_UNITS_DIR=%COVISEDIR%\share\covise\cfx"
 )
 
 if not defined FARO_HOME  (

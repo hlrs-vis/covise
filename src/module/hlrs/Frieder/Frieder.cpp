@@ -371,7 +371,7 @@ char *Application::recvString()
 
 void Application::sendString(const char *buf)
 {
-    int len = strlen(buf);
+    int len = (int)strlen(buf);
     sendInt(len);
     if (len)
     {
@@ -422,9 +422,9 @@ void Application::transformPolygons()
                 vec[1] = group->yCoords[n];
                 vec[2] = group->zCoords[n];
                 vec = group->mat * vec; //vec.fullXformPt(vec,group->mat);
-                group->xCoords[n] = vec[0];
-                group->yCoords[n] = vec[1];
-                group->zCoords[n] = vec[2];
+                group->xCoords[n] = (float)vec[0];
+                group->yCoords[n] = (float)vec[1];
+                group->zCoords[n] = (float)vec[2];
             }
             group->mat.unity();
         }
@@ -474,7 +474,7 @@ void Application::recvFloat(float *floatArray, int num)
 {
     int done = 0, ret, i;
     for (i = 0; i < num; i++)
-        floatArray[i] = i + 1;
+        floatArray[i] = (float)(i + 1);
     while (done < num)
     {
         ret = master->receive(floatArray + done, sizeof(float) * (num - done));

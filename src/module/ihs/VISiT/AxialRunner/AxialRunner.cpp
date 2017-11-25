@@ -333,7 +333,7 @@ int AxialRunner::compute(const char *)
 		float vnorm, lnorm, omega;
 		vnorm = rrg->inbc->cm;
 		lnorm = geo->ar->ref;
-		omega = geo->ar->des->revs*M_PI/30.0;
+		omega = float(geo->ar->des->revs*M_PI/30.0);
 		Covise::getname(name,startFile->getValue());
 		strcat(name, ".new");
 		p_RunFENFLOSS->setValue(0);                 // push off button

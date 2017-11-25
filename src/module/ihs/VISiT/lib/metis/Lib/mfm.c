@@ -45,7 +45,7 @@ void MocFM_2WayEdgeRefine(CtrlType *ctrl, GraphType *graph, float *tpwgts, int n
   perm = idxwspacemalloc(ctrl, nvtxs);
   qnum = idxwspacemalloc(ctrl, nvtxs);
 
-  limit = amin(amax(0.01*nvtxs, 25), 150);
+  limit = (int)amin(amax(0.01*nvtxs, 25), 150);
 
   /* Initialize the queues */
   for (i=0; i<ncon; i++) {
@@ -78,7 +78,7 @@ void MocFM_2WayEdgeRefine(CtrlType *ctrl, GraphType *graph, float *tpwgts, int n
     mincutorder = -1;
     newcut = mincut = initcut = graph->mincut;
     for (i=0; i<ncon; i++)
-      mindiff[i] = fabs(tpwgts[0]-npwgts[i]);
+      mindiff[i] = (float)fabs(tpwgts[0]-npwgts[i]);
     minbal = Compute2WayHLoadImbalance(ncon, npwgts, tpwgts);
 
     ASSERT(ComputeCut(graph, where) == graph->mincut);
@@ -115,7 +115,7 @@ void MocFM_2WayEdgeRefine(CtrlType *ctrl, GraphType *graph, float *tpwgts, int n
         minbal = newbal;
         mincutorder = nswaps;
         for (i=0; i<ncon; i++)
-          mindiff[i] = fabs(tpwgts[0]-npwgts[i]);
+          mindiff[i] = (float)fabs(tpwgts[0]-npwgts[i]);
       }
       else if (nswaps-mincutorder > limit) { /* We hit the limit, undo last move */
         newcut += (ed[higain]-id[higain]);
@@ -306,7 +306,7 @@ int BetterBalance(int ncon, float *npwgts, float *tpwgts, float *diff)
   float ndiff[MAXNCON];
 
   for (i=0; i<ncon; i++)
-    ndiff[i] = fabs(tpwgts[0]-npwgts[i]);
+    ndiff[i] = (float)fabs(tpwgts[0]-npwgts[i]);
    
   return snorm2(ncon, ndiff) < snorm2(ncon, diff);
 }
@@ -323,10 +323,10 @@ float Compute2WayHLoadImbalance(int ncon, float *npwgts, float *tpwgts)
 
   for (i=0; i<ncon; i++) {
     /* temp = amax(npwgts[i]/tpwgts[0], npwgts[ncon+i]/tpwgts[1]); */
-    temp = fabs(tpwgts[0]-npwgts[i])/tpwgts[0];
+    temp = (float)fabs(tpwgts[0]-npwgts[i])/tpwgts[0];
     max = (max < temp ? temp : max);
   }
-  return 1.0+max;
+  return 1.0f+max;
 }
 
 
@@ -339,6 +339,6 @@ void Compute2WayHLoadImbalanceVec(int ncon, float *npwgts, float *tpwgts, float 
   int i;
 
   for (i=0; i<ncon; i++) 
-    lbvec[i] = 1.0 + fabs(tpwgts[0]-npwgts[i])/tpwgts[0];
+    lbvec[i] = (float)(1.0f + fabs(tpwgts[0]-npwgts[i])/tpwgts[0]);
 }
 

@@ -120,8 +120,6 @@ void Application::computeCallback(void *userData, void *)
 
 void Application::compute(const char *)
 {
-    FILE *fData, *fGrid;
-
     // get parameters
     Covise::get_browser_param("grid_path", &grid_path);
     Covise::get_browser_param("data_path", &data_path);
@@ -134,7 +132,9 @@ void Application::compute(const char *)
     Covise::get_scalar_param("max_timesteps", &max_timesteps);
 
     // compute parameters
-    if ((fGrid = Covise::fopen(grid_path, "rb")) <= 0)
+    FILE *fData = NULL;
+    FILE *fGrid = Covise::fopen(grid_path, "rb");
+    if (!fGrid)
     {
         Covise::sendError("ERROR: can't open file %s", grid_path);
         return;
@@ -155,7 +155,8 @@ void Application::compute(const char *)
 
     if (filetype == _FILE_TYPE_BINARY)
     {
-        if ((fGrid = Covise::fopen(grid_path, "rb")) <= 0)
+        fGrid = Covise::fopen(grid_path, "rb");
+        if (!fGrid)
         {
             Covise::sendError("ERROR: can't open file %s", grid_path);
             return;
@@ -223,8 +224,8 @@ void Application::compute(const char *)
                     byteswap_flag = 1;
                     byteswap(&bsize1, sizeof(coInt64));
                 }
-#ifdef __sgi
-                seekRes = fseek64(fGrid, bsize1, SEEK_CUR);
+#ifdef WIN32
+                seekRes = _fseeki64(fGrid, bsize1, SEEK_CUR);
 #else
                 seekRes = fseek(fGrid, bsize1, SEEK_CUR);
 #endif
@@ -255,12 +256,14 @@ void Application::compute(const char *)
 
     if (filetype == _FILE_TYPE_ASCII)
     {
-        if ((fGrid = Covise::fopen(grid_path, "r")) <= 0)
+        fGrid = Covise::fopen(grid_path, "r");
+        if (!fGrid)
         {
             Covise::sendError("ERROR: can't open file %s", grid_path);
             return;
         }
-        if ((fData = Covise::fopen(data_path, "r")) <= 0)
+        fData = Covise::fopen(data_path, "r");
+        if (!fData)
         {
             Covise::sendInfo("WARNING: no data-file selected");
             data_path = NULL;
@@ -268,12 +271,14 @@ void Application::compute(const char *)
     }
     else
     {
-        if ((fGrid = Covise::fopen(grid_path, "rb")) <= 0)
+        fGrid = Covise::fopen(grid_path, "rb");
+        if (!fGrid)
         {
             Covise::sendError("ERROR: can't open file %s", grid_path);
             return;
         }
-        if ((fData = Covise::fopen(data_path, "rb")) <= 0)
+        fData = Covise::fopen(data_path, "rb");
+        if (!fData)
         {
             Covise::sendInfo("WARNING: no data-file selected");
             data_path = NULL;
@@ -412,7 +417,8 @@ void Application::compute(const char *)
 
     if (data_paths.size() == 1)
     {
-        if ((fData = Covise::fopen(data_paths[0].c_str(), "r")) > 0)
+        fData = Covise::fopen(data_paths[0].c_str(), "r");
+        if (fData)
         {
             new_buffer = 1;
             Covise::sendInfo("Reading the data. Please wait ...");
@@ -443,12 +449,15 @@ void Application::compute(const char *)
             sprintf(bfr2, "%s_%d", name2, i);
             sprintf(bfr3, "%s_%d", name3, i);
             fData = Covise::fopen(data_paths[i].c_str(), "r");
-            new_buffer = 1;
-            coDistributedObject **result = ReadPlot3D(fData, _READ_DATA, bfr1, bfr2, bfr3);
-            fclose(fData);
-            data1[i] = result[0];
-            data2[i] = result[1];
-            data3[i] = result[2];
+            if (fData)
+            {
+                new_buffer = 1;
+                coDistributedObject **result = ReadPlot3D(fData, _READ_DATA, bfr1, bfr2, bfr3);
+                fclose(fData);
+                data1[i] = result[0];
+                data2[i] = result[1];
+                data3[i] = result[2];
+            }
         }
         data1[data_paths.size()] = NULL;
         data2[data_paths.size()] = NULL;

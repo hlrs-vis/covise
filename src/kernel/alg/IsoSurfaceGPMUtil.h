@@ -536,13 +536,13 @@ int assign_int_index(ISOSURFACE_EDGE_INTERSECTION_VECTOR intsec_vector, int edge
     {
         if ((edge_vertex1 == intsec_vector[i].vertex1) && (edge_vertex2 == intsec_vector[i].vertex2))
         {
-            index = i;
+            index = (int)i;
             break;
         }
 
         if ((edge_vertex2 == intsec_vector[i].vertex1) && (edge_vertex1 == intsec_vector[i].vertex2))
         {
-            index = i;
+            index = (int)i;
             break;
         }
     }

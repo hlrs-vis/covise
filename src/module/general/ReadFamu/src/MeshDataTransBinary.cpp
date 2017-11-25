@@ -62,7 +62,7 @@ void MeshDataTransBinary::addMesh(MeshDataStat * /*m*/)
 
 int MeshDataTransBinary::getNoOfMeshes(void) const
 {
-    int retval = _meshData.size();
+    int retval = (int)_meshData.size();
     return retval;
 }
 

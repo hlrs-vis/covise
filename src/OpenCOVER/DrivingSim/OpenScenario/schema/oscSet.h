@@ -25,6 +25,7 @@ oscSet()
 {
         OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/ActionParameter";};
     oscString value;
 
 };

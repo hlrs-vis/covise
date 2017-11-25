@@ -111,7 +111,7 @@ public:
         return myY;
     }
     virtual void update();
-    void updatePinList(float minv = 0.0f, float maxv = 1.0f); // update my pinList to reflect the transferFunction
+    void updatePinList(); // update my pinList to reflect the transferFunction
 
     osg::ref_ptr<osg::Group> createBackgroundGroup();
 

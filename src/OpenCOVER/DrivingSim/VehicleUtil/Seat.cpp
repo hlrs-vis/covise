@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "Seat.h"
+#include <cover/coVRPluginSupport.h>
 
 // Seat //////////////////////////////////////////////////////////////
 

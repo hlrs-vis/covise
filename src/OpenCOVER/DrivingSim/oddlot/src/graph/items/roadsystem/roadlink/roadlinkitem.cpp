@@ -301,11 +301,11 @@ RoadLinkItem::createPath()
         {
             thePath.moveTo(handlePoint);
 
-            if (roadLink_->getContactPoint() == "start")
+            if (roadLink_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 thePath.lineTo(targetRoad_->getGlobalPoint(DISTANCE, targetRoad_->getMinWidth(DISTANCE) - DISTANCE));
             }
-            else if (roadLink_->getContactPoint() == "end")
+            else if (roadLink_->getContactPoint() == JunctionConnection::JCP_END)
             {
                 thePath.lineTo(targetRoad_->getGlobalPoint(targetRoad_->getLength() - DISTANCE, targetRoad_->getMaxWidth(targetRoad_->getLength() - DISTANCE) + DISTANCE));
             }
@@ -332,11 +332,11 @@ RoadLinkItem::createPath()
 
                 thePath.moveTo(handlePoint);
 
-                if (connection->getContactPoint() == "start")
+                if (connection->getContactPoint() == JunctionConnection::JCP_START)
                 {
                     thePath.lineTo(targetRoad->getGlobalPoint(DISTANCE, targetRoad->getMinWidth(DISTANCE) - DISTANCE));
                 }
-                else if (connection->getContactPoint() == "end")
+                else if (connection->getContactPoint() == JunctionConnection::JCP_END)
                 {
                     thePath.lineTo(targetRoad->getGlobalPoint(targetRoad->getLength() - DISTANCE, targetRoad->getMaxWidth(targetRoad->getLength() - DISTANCE) + DISTANCE));
                 }

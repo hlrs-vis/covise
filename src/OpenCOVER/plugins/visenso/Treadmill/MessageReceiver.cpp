@@ -133,7 +133,7 @@ int MessageReceiver::_sendData()
     _mutexSendingQueue.lock();
     for (size_t i = 0; i < _sendingQueue.size(); i++)
     {
-        _serverSocket->write((const void *)(_sendingQueue[i].c_str()), _sendingQueue[i].length());
+        _serverSocket->write((const void *)(_sendingQueue[i].c_str()), (unsigned int)_sendingQueue[i].length());
     }
     _sendingQueue.clear();
     _mutexSendingQueue.unlock();
@@ -173,7 +173,7 @@ int MessageReceiver::_receiveData()
             _mutex.unlock();
 
             // send a short ack to indicate we are ready
-            char ack[1];
+            unsigned char ack[1];
             ack[0] = 255;
             _serverSocket->write(ack, 1);
         }

@@ -131,7 +131,6 @@ public:
         TRT_MOVE,
 
         // Track Editor
-        TTE_SELECT,
         TTE_MOVE,
         TTE_MOVE_ROTATE,
         TTE_ADD,
@@ -206,6 +205,7 @@ public:
         TSG_REMOVE_CONTROL_ENTRY,
         TSG_DEL,
         TSG_MOVE,
+		TSG_NONE,
 
 		// OpenScenario Editor
 		TOS_SELECT,
@@ -214,6 +214,7 @@ public:
 		TOS_ELEMENT,
 		TOS_BASE,
         TOS_GRAPHELEMENT,
+		TOS_NONE,
 
 		// OpenScenario Settings
 		OSS_DIRECTORY,
@@ -221,6 +222,8 @@ public:
         // No Tool
         TNO_TOOL
     };
+
+		
 
     //################//
     // FUNCTIONS      //
@@ -259,7 +262,7 @@ private:
     ColorPalette *colorPalette_;
 
 	// Version //
-	static const unsigned short revMinor_ = 3;
+	static const unsigned short revMinor_ = 4;
 	static const unsigned short revMajor_ = 1;
 };
 

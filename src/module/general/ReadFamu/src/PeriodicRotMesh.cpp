@@ -121,9 +121,9 @@ MeshDataStat *PeriodicRotMesh::getRotatedMesh(int timeStepNo,
     {
         PointCC r = { xPointsCopy[i], yPointsCopy[i], zPointsCopy[i] };
         r = rotateVector(r, angle);
-        xPointsCopy[i] = r.x;
-        yPointsCopy[i] = r.y;
-        zPointsCopy[i] = r.z;
+		xPointsCopy[i] = float(r.x);
+        yPointsCopy[i] = float(r.y);
+        zPointsCopy[i] = float(r.z);
     }
 
     // copy mapper array

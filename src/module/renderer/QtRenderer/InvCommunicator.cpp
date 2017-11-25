@@ -1035,7 +1035,7 @@ InvCommunicator::addgeometry(const char *object, int doreplace, int is_timestep,
                     contNm = container->getName();
                     if (!strncmp(contNm, "Collect", 7) || !strncmp(contNm, "Material", 8))
                     {
-                        int preFixLen = 1 + strlen(contNm) + strlen(objName);
+                        int preFixLen = int(1 + strlen(contNm) + strlen(objName));
                         preFix = new char[preFixLen];
                     }
                 }

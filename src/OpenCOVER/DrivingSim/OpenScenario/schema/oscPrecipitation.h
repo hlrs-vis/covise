@@ -35,6 +35,7 @@ oscPrecipitation()
         OSC_ADD_MEMBER(intensity, 0);
         type.enumType = Enum_Precipitation_typeType::instance();
     };
+        const char *getScope(){return "/OSCEnvironment/Weather";};
     oscEnum type;
     oscDouble intensity;
 

@@ -77,9 +77,8 @@ static const int NUM_TEXUNITS = 4;
 
 #include <osgUtil/Tessellator>
 #include <osgUtil/TriStripVisitor>
+#include <osg/KdTree>
 #include <osgUtil/TangentSpaceGenerator>
-
-#include <vtrans/vtrans.h>
 
 #ifdef HAVE_OSGNV
 #include <osgNVCg/Context>
@@ -560,7 +559,7 @@ osg::ref_ptr<osg::TexEnv> tEnvModulate;
 
 // current transformation matrix while traversing the Tree.
 // it is updated, in an endObject call, the setTransform call
-MatrixTransform *ViewerOsg::VRMLCaveRoot = NULL;
+osg::ref_ptr<MatrixTransform> ViewerOsg::VRMLCaveRoot;
 
 struct CopyTextureCallback : public osg::Drawable::DrawCallback
 {
@@ -927,7 +926,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     d_player = NULL;
 
-    if (cover->debugLevel(1))
+    if (cover->debugLevel(3))
         CERR << "d_player: " << d_player << endl;
 
     if (cover->debugLevel(5))
@@ -984,7 +983,7 @@ void ViewerOsg::removeMovieTexture()
     for (; it != moviePs.end(); it++)
     {
         movieImageData *movieProp = (*it);
-        movieProp->imageStream->unref();
+        //movieProp->imageStream->unref();
         delete movieProp;
     }
     moviePs.clear();
@@ -996,19 +995,18 @@ ViewerOsg::~ViewerOsg()
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::~ViewerOsg\n";
-    removeMovieTexture();
 
     viewer = NULL;
     delete d_root;
+    d_root = NULL;
+    removeMovieTexture();
     if (VRMLRoot->getNumParents() > 0 && VRMLRoot->getParent(0) != NULL)
         VRMLRoot->getParent(0)->removeChild(VRMLRoot);
-    if (globalmtl.get())
-    {
-        globalmtl->unref();
-    }
-    //VRMLRoot->unref();
+    VRMLRoot = NULL;
 
     cover->getScene()->removeChild(VRMLCaveRoot);
+    VRMLCaveRoot = NULL;
+
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::~ViewerOsg\n";
 }
@@ -2161,7 +2159,7 @@ ViewerOsg::insertShell(unsigned int mask,
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
         {
-            for(int i=0;i<geode->getNumDrawables();i++)
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
             {
                 osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
                 /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
@@ -2181,6 +2179,13 @@ ViewerOsg::insertShell(unsigned int mask,
     {
         geom->setName(objName);
         geode->addDrawable(geom.get());
+    }
+
+    osg::ref_ptr<osg::KdTreeBuilder> kdb = new osg::KdTreeBuilder;
+    for(unsigned int i=0;i<geode->getNumDrawables();i++)
+    {
+        osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
+        kdb->apply(*geo);
     }
 
     geode->setName(objName);
@@ -2452,7 +2457,6 @@ void ViewerOsg::setDefaultMaterial(StateSet *geoState)
     if (globalmtl.get() == NULL)
     {
         globalmtl = new Material;
-        globalmtl->ref();
         globalmtl->setColorMode(Material::AMBIENT_AND_DIFFUSE);
         globalmtl->setAmbient(Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
         globalmtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
@@ -4401,6 +4405,7 @@ ViewerOsg::insertMovieTexture(char *filename,
                 d_currentObject->texData[textureNumber].texImage = image;
                 moviePs.push_back(dataSet);
                 d_currentObject->texData[textureNumber].texture = texture = new Texture2D(image);
+				texture->setResizeNonPowerOfTwoHint(false);
 
                 d_currentObject->texData[textureNumber].mirror = 1;
 
@@ -4502,11 +4507,14 @@ void ViewerOsg::insertMovieReference(TextureObject t, int nc, bool environment, 
         else
         {
             d_currentObject->texData[textureNumber].texture = (Texture *)t;
+			d_currentObject->texData[textureNumber].texture->setResizeNonPowerOfTwoHint(false);
             d_currentObject->setTexEnv(environment, textureNumber, blendMode, nc);
             d_currentObject->setTexGen(environment, textureNumber, blendMode);
             osg::Texture *tex = d_currentObject->texData[textureNumber].texture.get();
-            if (osg::Texture2D *tex2d = dynamic_cast<osg::Texture2D *>(tex))
-                d_currentObject->texData[textureNumber].texImage = tex2d->getImage();
+			if (osg::Texture2D *tex2d = dynamic_cast<osg::Texture2D *>(tex))
+			{
+				d_currentObject->texData[textureNumber].texImage = tex2d->getImage();
+			}
             else
                 d_currentObject->texData[textureNumber].texImage = NULL;
             d_currentObject->texData[0].mirror = 1;
@@ -4906,7 +4914,7 @@ void ViewerOsg::insertCubeTextureReference(TextureObject t, int nc, int blendMod
 void ViewerOsg::removeCubeTextureObject(TextureObject)
 {
     if (cover->debugLevel(5))
-        cerr << "ViewerOsg::removeTextureObject" << endl;
+        cerr << "ViewerOsg::removeCubeTextureObject" << endl;
     //cerr << "t";
     cerr.flush();
 }
@@ -5047,10 +5055,7 @@ void ViewerOsg::setShadow(const std::string &technique)
         d_currentObject->addChildrensNodes();
     }
     
-    osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
-
     coVRShadowManager::instance()->setTechnique(technique);
-
 }
 
 // Transforms
@@ -5132,7 +5137,7 @@ void ViewerOsg::setTransform(float *center,
     d_currentObject->parentTransform = currentTransform;
     currentTransform.preMult(mat);
 
-    void *info = (void *)OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
+    void *info = (void *)vrui::OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
     if (info == NULL)
     {
         // leave alone moved nodes
@@ -5393,10 +5398,11 @@ osg::Vec3 closestPoint(osg::Vec3 a1, osg::Vec3 b1, osg::Vec3 a2, osg::Vec3 b2)
 //
 
 // update is called from a timer callback
-void ViewerOsg::update(double timeNow)
+bool ViewerOsg::update(double timeNow)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::update" << endl;
+    bool updated = false;
     sensorList.update();
     std::list<movieImageData *>::iterator it = moviePs.begin();
     for (; it != moviePs.end(); it++)
@@ -5466,7 +5472,7 @@ void ViewerOsg::update(double timeNow)
     if (d_scene)
     {
         currentTransform.makeIdentity();
-        d_scene->update(timeNow);
+        updated = d_scene->update(timeNow);
         redraw();
     }
     //,j,k;
@@ -6053,6 +6059,8 @@ void ViewerOsg::update(double timeNow)
     }
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::update" << endl;
+
+    return updated;
 }
 
 void ViewerOsg::redraw()
@@ -6197,6 +6205,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
 {
     std::string retStr(stringToLocalize);
 
+#if 0
     if (coCoviseConfig::isOn("COVER.Plugin.Vrml97.TranslateVRMLTextNodes", false))
     {
         //-------------TRANSLATION BEGIN------------------------
@@ -6216,6 +6225,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
         }
         //-------------TRANSLATION END--------------------------
     }
+#endif
 
     return retStr;
 }

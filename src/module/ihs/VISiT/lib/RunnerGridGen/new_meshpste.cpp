@@ -99,7 +99,7 @@ struct region *reg5, struct Ilist *psnod, struct Ilist *pste, struct Ilist *outl
       Add2Ilist(reg->nodes[reg->numl], reg5->nodes[2]->list[i]);
       for(j = 1; j < reg->line[0]->nump; j++)
       {
-         para = (1.0 - reg->para[1]->list[i]) * reg->para[0]->list[j]
+         para = (1.0f - reg->para[1]->list[i]) * reg->para[0]->list[j]
             + reg->para[1]->list[i] * reg->para[3]->list[j];
 #ifdef DEBUG_PSTE
          fprintf(fp,"para = %f\n",para);

@@ -29,6 +29,7 @@ oscTrafficDefinition()
         OSC_OBJECT_ADD_MEMBER(VehicleDistribution, "oscVehicleDistribution", 0);
         OSC_OBJECT_ADD_MEMBER(DriverDistribution, "oscDriverDistribution", 0);
     };
+        const char *getScope(){return "";};
     oscString name;
     oscVehicleDistributionMember VehicleDistribution;
     oscDriverDistributionMember DriverDistribution;

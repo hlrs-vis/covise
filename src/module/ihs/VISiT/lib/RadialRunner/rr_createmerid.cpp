@@ -30,10 +30,10 @@
 #include "../General/include/fatal.h"
 #include "../General/include/v.h"
 
-#define SHROUD_EXT	0.75			  // extension factor of shroud height
-#define HUB_EXT_RAD	0.1			  // radius at hub extension end
-#define IN_EXT_H	0.05			  // height factor for inlet ext.
-#define IN_EXT_R	0.2			  // radius factor for inlet ext.
+#define SHROUD_EXT	0.75f			  // extension factor of shroud height
+#define HUB_EXT_RAD	0.1f			  // radius at hub extension end
+#define IN_EXT_H	0.05f			  // height factor for inlet ext.
+#define IN_EXT_R	0.2f			  // radius factor for inlet ext.
 #define BSPLN_DEGREE 3				  // bspline degree
 #define SMALL  1.0E-04
 
@@ -99,14 +99,14 @@ int CreateRR_MeridianContours(struct radial *rr)
 	norm[1] = 0.0;
 	// if straight contour at inlet
 	// inlet point and vector
-	p1[0] = rr->ref * rr->diam[0] * 0.5;
+	p1[0] = rr->ref * rr->diam[0] * 0.5f;
 	p1[2] = rr->ref * rr->height;
-	v[0]  = -sin(rr->angle[0]);
-	v[2]  =	 cos(rr->angle[0]);
+	v[0]  = float(-sin(rr->angle[0]));
+	v[2]  = float(cos(rr->angle[0]));
 	// outlet point and vector
-	p3[0] = rr->ref * rr->diam[1] * 0.5;
-	u[0]  = -sin(rr->angle[1]);
-	u[2]  =	 cos(rr->angle[1]);
+	p3[0] = rr->ref * rr->diam[1] * 0.5f;
+	u[0]  = float(-sin(rr->angle[1]));
+	u[2]  = float(cos(rr->angle[1]));
 	// shroud spline polygon
 
 	dprintf(4,"\n CreateRR_MeridianContours(): s_poly-points\n");
@@ -169,19 +169,19 @@ int CreateRR_MeridianContours(struct radial *rr)
 	}
 	h_poly = AllocPointStruct();
 	// inlet point and vector
-	norm[0] = -sin(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI);
-	norm[2] =  cos(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI);
+	norm[0] = float(-sin(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI));
+	norm[2] = float(cos(rr->angle[0] - rr->iop_angle[1] - 0.5 * M_PI));
 	p1[0]  += rr->ref * rr->cond[0] * norm[0];
 	p1[2]  += rr->ref * rr->cond[0] * norm[2];
-	v[0]	= -sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
-	v[2]	=  cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
+	v[0]	= float(-sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
+	v[2]	= float(cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
 	// outlet point and vector
-	norm[0] = -sin(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI);
-	norm[2] =  cos(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI);
+	norm[0] = float(-sin(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI));
+	norm[2] = float(cos(rr->angle[1] - rr->oop_angle[1] + 0.5 * M_PI));
 	p3[0]  +=  rr->ref * rr->cond[1] * norm[0];
 	p3[2]  +=  rr->ref * rr->cond[1] * norm[2];
-	u[0]	= -sin(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1]));
-	u[2]	=  cos(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1]));
+	u[0]	= float(-sin(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1])));
+	u[2]	= float(cos(rr->angle[1] - (rr->oop_angle[0] + rr->oop_angle[1])));
 	// hub spline polygon
 	dprintf(4,"\n CreateRR_MeridianContours(): h_poly-points\n");
 	dprintf(4," p1 = [%16.8f  %16.8f  %16.8f]\n",p1[0],p1[1],p1[2]);
@@ -227,7 +227,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 	dprintf(4," p2 = [%16.8f  %16.8f  %16.8f]\n",p2[0],p2[1],p2[2]);
 	dprintf(4," p3 = [%16.8f  %16.8f  %16.8f]\n",p3[0],p3[1],p3[2]);
 	// translate inlet mid plane to z = 0
-	z_trans = 0.5 * (h_poly->z[0] + s_poly->z[0]);
+	z_trans = 0.5f * (h_poly->z[0] + s_poly->z[0]);
 	for (i = 0; i < s_poly->nump; i++)
 		s_poly->z[i] -= z_trans;
 	for (i = 0; i < h_poly->nump; i++)
@@ -333,7 +333,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 	// shroud contour end point and extension vector
 	be_max = rr->be_num - 1;
 	p_max  = rr->be[be_max]->ml->p->nump - 1;
-	p3[0] = rr->ext_diam[1] * rr->ref * 0.5;
+	p3[0] = rr->ext_diam[1] * rr->ref * 0.5f;
 	p3[2] = rr->ext_height[1]*rr->ref;
 	s_ext[0]  = s_end[0] = rr->be[be_max]->ml->p->x[p_max];
 	s_ext[1]  = s_end[1] = rr->be[be_max]->ml->p->y[p_max];
@@ -348,7 +348,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 	else {
 		s_ext[0] -= rr->be[be_max]->ml->p->x[p_max-1];
 		s_ext[2] -= rr->be[be_max]->ml->p->z[p_max-1];
-		t = (rr->ext_height[1] * rr->ref)/fabs(s_ext[2]);
+		t = float((rr->ext_height[1] * rr->ref)/fabs(s_ext[2]));
 	}
 
 	dprintf(4," rr->ext_diam[1] = %f, p3[0] = %f\n", rr->ext_diam[1], p3[0]);
@@ -374,7 +374,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 	if((fabs(h_ext[0]) < SMALL) && (fabs(p1[0]-p3[0]) > SMALL)) v[0] = 1.0;
 	LineIntersectXZ(p1, h_ext,p3, v, p2);
 	if(p2[2] <= p3[2] || p2[2] >= p1[2]) {
-		p2[2] = 0.5*(p1[2]+p3[2]);
+		p2[2] = 0.5f*(p1[2]+p3[2]);
 		p2[0] = p1[0] + (p2[2]-p1[2])/h_ext[2]*h_ext[0];
 	}
 	h_poly = CurvePolygon(p1, p2, p3, 0.5, 0.5);
@@ -419,13 +419,13 @@ int CreateRR_MeridianContours(struct radial *rr)
 	p_max = NPOIN_EXT-1;
 	p3[0] = rr->be[be_max]->ml->p->x[p_max];
 	p3[2] = rr->be[be_max]->ml->p->z[p_max];
-	v[0]  =	 sin(rr->angle[0]);
-	v[2]  = -cos(rr->angle[0]);
+	v[0]  = float(sin(rr->angle[0]));
+	v[2]  = float(-cos(rr->angle[0]));
 	// start point
-	p1[0] = rr->ext_diam[0] * rr->ref * 0.5;
+	p1[0] = rr->ext_diam[0] * rr->ref * 0.5f;
 	p1[2] = p3[2] + rr->ext_height[0] * rr->ref;
-	u[0] = -sin(rr->ext_iangle);
-	u[2] = -cos(rr->ext_iangle);
+	u[0] = float(-sin(rr->ext_iangle));
+	u[2] = float(-cos(rr->ext_iangle));
 	LineIntersectXZ(p3,v, p1,u, p2);
 	dprintf(4,"p_max = %d\n",p_max);
 	dprintf(4,"rr->be[be_max]->ml->p->nump = %d\n",rr->be[be_max]->ml->p->nump);
@@ -448,11 +448,11 @@ int CreateRR_MeridianContours(struct radial *rr)
 	// last point, beginning runner part
 	p3[0] = rr->be[0]->ml->p->x[p_max];
 	p3[2] = rr->be[0]->ml->p->z[p_max];
-	v[0]	=  sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
-	v[2]	= -cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1]));
+	v[0]	= float(sin(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
+	v[2]	= float(-cos(rr->angle[0] - (rr->iop_angle[0] + rr->iop_angle[1])));
 	// starting point.
-	p1[0] -= rr->ref * rr->ext_cond[0] * cos(rr->ext_iangle);
-	p1[2] += rr->ref * rr->ext_cond[0] * sin(rr->ext_iangle);
+	p1[0] -= rr->ref * rr->ext_cond[0] * float(cos(rr->ext_iangle));
+	p1[2] += rr->ref * rr->ext_cond[0] * float(sin(rr->ext_iangle));
 	LineIntersectXZ(p3,v, p1,u, p2);
 	h_poly = CurvePolygon(p1,p2,p3, rr->hspara_inext[0], rr->hspara_inext[1]);
 	h_knot = BSplineKnot(h_poly, BSPLN_DEGREE);

@@ -23,6 +23,7 @@
 class ProjectData;
 class ProjectWidget;
 class SignalManager;
+class ToolManager;
 class MainWindow;
 class SignalEditor;
 class ToolAction;
@@ -76,6 +77,7 @@ private:
 	ProjectWidget *projectWidget_;
     ProjectData *projectData_; // Model, linked
 	SignalManager *signalManager_;
+	ToolManager *toolManager_;
 	MainWindow *mainWindow_;
 	SignalEditor *signalEditor_;
 	ODD::ToolId currentTool_;

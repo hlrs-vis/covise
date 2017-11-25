@@ -5,8 +5,8 @@
 #include "RemoteVehicle.h"
 #include "VehicleDynamics.h"
 
-#include "RoadSystem/RoadSystem.h"
-#include "RoadSystem/Types.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <VehicleUtil/RoadSystem/Types.h>
 #include "TestDynamicsUtil.h"
 
 #include <iostream>
@@ -102,7 +102,23 @@ protected:
 	std::pair<Road *, double> startPos;
 	bool leftRoad;
 	
-	double targetS = 3.0;
+	std::vector<Road*> roadList[4];
+	std::string currentRoadName;
+	int currentRoadId;
+	double currentHeight;
+	double roadHeightIncrement;
+	double roadHeightIncrementInit;
+	double roadHeightIncrementDelta;
+	double roadHeightIncrementMax;
+	double roadHeightDelta;
+	bool leftRoadSwitch;
+	double accumulatedChange;
+	double accumulatedReset;
+	bool roadListChanged;
+	
+	bool singleRoadSwitch;
+	
+	double targetS;
 	
 private:
 	TestState state;
@@ -110,42 +126,55 @@ private:
 	double accelerator;
 	double steering;
 	double brake;
-	double mass = 1900;
-	double cAero = 0.00002;
-	double mu = 0.005;
-	double lateralMu = 500;
-	double enginePower = 20000;
-	double brakePower = 8000;
-	double g = 9.81;
-	double inertia = 5000;
+	double mass;
+	double cAero;
+	double mu;
+	double lateralMu;
+	double enginePower;
+	double brakePower;
+	double g;
+	double inertia;
 	//F = Fz · D · sin(C · arctan(B·slip - E · (B·slip - arctan(B·slip))))
-	double Bf = 7.5; //10=tarmac; 4=ice
-	double Cf = 1.9; //~2
-	double Df = 0.8; //1=tarmace; 0.1=ice
-	double Ef = 0.99; //0.97=tarmac; 1=ice
-	double Br = 6; //10=tarmac; 4=ice
-	double Cr = 1.9; //~2
-	double Dr = 0.6; //1=tarmace; 0.1=ice
-	double Er = 0.97; //0.97=tarmac; 1=ice
-	double a1 = 1.6;
-	double a2 = 1.65;
-	double vXLimit = 0.001;
-	double vYLimit = 0.01;
-	double vPsiLimit = 0.001;
+	double Bf; //10=tarmac; 4=ice
+	double Cf; //~2
+	double Df; //1=tarmace; 0.1=ice
+	double Ef; //0.97=tarmac; 1=ice
+	double Br; //10=tarmac; 4=ice
+	double Cr; //~2
+	double Dr; //1=tarmace; 0.1=ice
+	double Er; //0.97=tarmac; 1=ice
+	double a1;
+	double a2;
+	double vXLimit;
+	double vYLimit;
+	double vPsiLimit;
 	/*double damping = 60;
 	double springRate = 60;
 	double cogHeight = 0.1;*/
-	double powerDist = 0.8; //1=RWD
-	double brakeDist = 0.5;
-	double steeringRatio = 0.15;
-	double frictionCircleLimit = 6000;
-	double integrationSteps = 5.0;
-	bool xodrLoaded = false;
-	bool printedOnce = false;
-	int printCounter = 0;
-	int printMax = 1;
+	double powerDist; //1=RWD
+	double brakeDist;
+	double steeringRatio;
+	double frictionCircleLimit;
+	double integrationSteps;
+	bool xodrLoaded;
+	bool printedOnce;
+	int printCounter;
+	int printMax;
+	
+	osg::Matrix Car2OddlotRotation;
+	osg::Matrix Oddlot2CarRotation;
+	osg::Matrix Oddlot2OpencoverRotation;
+	osg::Matrix Opencover2OddlotRotation;
+	osg::Matrix Car2OpencoverRotation;
+	osg::Matrix Opencover2CarRotation;
+	
+	osg::Matrix globalSpeedMatrix;
 	osg::Matrix globalPos;
 	osg::Matrix rotationPos;
+	osg::Matrix cogPos;
+	osg::Matrix rotMatrix;
+	osg::Matrix tireContactPoint;
+	double tireDist;
 };
 
 #endif

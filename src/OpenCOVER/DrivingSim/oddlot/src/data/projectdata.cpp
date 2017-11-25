@@ -30,6 +30,7 @@
 #include "oscsystem/oscbase.hpp"
 
 #include "changemanager.hpp"
+#include "georeference.hpp"
 
 // GUI //
 //
@@ -37,7 +38,7 @@
 
 // OpenScenario //
 //
-#include "OpenScenarioBase.h"
+#include <OpenScenario/OpenScenarioBase.h>
 
 using namespace OpenScenario;
 
@@ -184,6 +185,17 @@ ProjectData::setWest(double west)
         addProjectDataChanges(ProjectData::CPD_SizeChange);
     }
 }
+
+void 
+ProjectData::setGeoReference(GeoReference *geoParams)
+{
+
+	if (geoReferenceParams_ != geoParams)
+	{
+		geoReferenceParams_ = geoParams;
+	}
+}
+
 
 //##################//
 // SLOTS            //

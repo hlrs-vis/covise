@@ -77,7 +77,7 @@ coBinImage::coBinImage(int width, int height, int numChannels, int numFrames,
     int numBytes = width * height * numChannels;
     for (i = 0; i < numFrames; i++)
     {
-        int itemsRead = 0;
+        size_t itemsRead = 0;
         pixbuf[i] = new unsigned char[numBytes];
         if (pixbuf[i])
             itemsRead = fread(pixbuf[i], numChannels, width * height, fi);

@@ -24,6 +24,7 @@
 #include "MultitouchPlugin.h"
 #include <cover/input/input.h>
 #include <cover/input/coMousePointer.h>
+#include <util/unixcompat.h>
 
 MultitouchPlugin::MultitouchPlugin()
 {
@@ -566,5 +567,3 @@ void MultitouchPlugin::preFrame()
         }
     }
 }
-
-COVERPLUGIN(MultitouchPlugin)

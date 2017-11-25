@@ -21,6 +21,7 @@
 #include <windows.h>
 #endif
 #include <util/common.h>
+#include <util/unixcompat.h>
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/coEventQueue.h>

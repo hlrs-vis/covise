@@ -18,32 +18,17 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 namespace OpenScenario
 {
-class OPENSCENARIOEXPORT Enum_domain_time_distanceType : public oscEnumType
-{
-public:
-static Enum_domain_time_distanceType *instance();
-    private:
-		Enum_domain_time_distanceType();
-	    static Enum_domain_time_distanceType *inst; 
-};
 class OPENSCENARIOEXPORT oscExtent : public oscObjectBase
 {
 public:
 oscExtent()
 {
-        OSC_ADD_MEMBER(value, 0);
-        OSC_ADD_MEMBER(domain, 0);
-        domain.enumType = Enum_domain_time_distanceType::instance();
+        OSC_ADD_MEMBER_OPTIONAL(time, 0);
+        OSC_ADD_MEMBER_OPTIONAL(distance, 0);
     };
-    oscDouble value;
-    oscEnum domain;
-
-    enum Enum_domain_time_distance
-    {
-time,
-distance,
-
-    };
+        const char *getScope(){return "/OSCPrivateAction/Lateral/LaneChange/LaneChangeDynamics";};
+    oscDouble time;
+    oscDouble distance;
 
 };
 

@@ -51,6 +51,8 @@ public:
     // MapItems //
     //
     void loadMap(const QString &filename, const QPointF &pos);
+    void loadGoogleMap(const QString &filename, double mapPosLat, double mapPosLon);
+    void loadBingMap(const QString &filename, double mapPosLat, double mapPosLon);
     void deleteMap();
     void lockMaps(bool locked);
     void setMapOpacity(double opacity);

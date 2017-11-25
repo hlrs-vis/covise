@@ -74,10 +74,10 @@ SignalTreeWidget::init()
 {
 	// Connect with the ToolManager to send the selected signal or object //
     //
-	ToolManager *toolManager = mainWindow_->getToolManager();
-	if (toolManager)
+	toolManager_ = mainWindow_->getToolManager();
+	if (toolManager_)
 	{
-		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager_, SLOT(toolActionSlot(ToolAction *)));
 	}
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -209,6 +209,8 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 {
 	if (signalEditor_ && (selectedItems().size() > 0))
 	{
+		toolManager_->activateSignalSelection(false);
+
 		QTreeWidgetItem *item = selectedItems().at(0);
 		const QString text = item->text(0);
 		SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
@@ -219,9 +221,9 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			if (signalEditor_ && projectWidget_)
 			{
 				const QString &country = signalManager_->getCountry(signalContainer);
-				int type = signalContainer->getSignalType();
+				QString type = signalContainer->getSignalType();
 				const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
-				int subtype = signalContainer->getSignalSubType();
+				QString subtype = signalContainer->getSignalSubType();
 				double value = signalContainer->getSignalValue();
 
 
@@ -267,9 +269,11 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 
 						if (object)
 						{
-							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), type, object->getT(), object->getzOffset(), 
-								object->getValidLength(), object->getOrientation(), length, width, radius, height, heading,
-								object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), repeatDistance, object->getTextureFileName());
+							Object::ObjectProperties objectProps{ object->getT(), object->getOrientation(), object->getzOffset(), type, object->getValidLength(), length, width, radius, 
+								height, heading, object->getPitch(), object->getRoll(), object->getPole() };
+							Object::ObjectRepeatRecord repeatProps = object->getRepeatProperties();
+							object->setRepeatDistance(repeatDistance);
+							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectProps, repeatProps, object->getTextureFileName());
 							projectWidget_->getProjectSettings()->executeCommand(command);
 						}
 					}
@@ -287,7 +291,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			}
 			else
 			{
-				currentTool_ = ODD::TSE_SELECT;
+				currentTool_ = ODD::TSG_SELECT;
 			}
 		}
 
@@ -307,6 +311,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 	{
 		clearSelection();
 		clearFocus();
+		update();
 	}
 
 }

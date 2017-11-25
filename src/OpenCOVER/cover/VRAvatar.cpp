@@ -18,12 +18,14 @@
 
 using namespace opencover;
 using namespace covise;
+
+VRAvatarList *VRAvatarList::s_instance = NULL;
+
 VRAvatarList *VRAvatarList::instance()
 {
-    static VRAvatarList *singleton = NULL;
-    if (!singleton)
-        singleton = new VRAvatarList;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRAvatarList;
+    return s_instance;
 }
 
 VRAvatar::VRAvatar(const char *name)
@@ -128,8 +130,7 @@ void VRAvatar::updateData(VRAvatarData &ad)
 
 VRAvatar *VRAvatarList::get(const char *name)
 {
-    int i;
-    for (i = 0; i < num; i++)
+    for (size_t i = 0; i < avatars.size(); i++)
     {
         if (strcmp(name, avatars[i]->hostname) == 0)
             return avatars[i];
@@ -139,8 +140,7 @@ VRAvatar *VRAvatarList::get(const char *name)
 
 void VRAvatarList::show()
 {
-    int i;
-    for (i = 0; i < num; i++)
+    for (size_t i = 0; i < avatars.size(); i++)
     {
         avatars[i]->show();
     }
@@ -149,8 +149,7 @@ void VRAvatarList::show()
 
 void VRAvatarList::hide()
 {
-    int i;
-    for (i = 0; i < num; i++)
+    for (size_t i = 0; i < avatars.size(); i++)
     {
         avatars[i]->hide();
     }
@@ -159,8 +158,19 @@ void VRAvatarList::hide()
 
 VRAvatarList::VRAvatarList()
 {
-    num = 0;
+    assert(!s_instance);
+
     visible = true;
+}
+
+VRAvatarList::~VRAvatarList()
+{
+    for (size_t i = 0; i < avatars.size(); i++)
+    {
+        delete avatars[i];
+    }
+    avatars.clear();
+    s_instance = NULL;
 }
 
 bool VRAvatarList::isVisible()
@@ -170,9 +180,8 @@ bool VRAvatarList::isVisible()
 
 void VRAvatarList::add(VRAvatar *a)
 {
-    avatars[num] = a;
-    num++;
-    if (num > 0)
+    avatars.push_back(a);
+    if (!avatars.empty())
     {
         coVRCollaboration::instance()->showCollaborative(true);
     }
@@ -181,21 +190,10 @@ void VRAvatarList::add(VRAvatar *a)
 
 void VRAvatarList::remove(VRAvatar *a)
 {
-    int i;
-    for (i = 0; i < num; i++)
-    {
-        if (avatars[i] == a)
-        {
-            i++;
-            while (i < num)
-            {
-                avatars[i - 1] = avatars[i];
-                i++;
-            }
-            num--;
-            delete a;
-            break;
-        }
+    Avatars::iterator it = std::find(avatars.begin(), avatars.end(), a);
+    if (it != avatars.end()) {
+        delete a;
+        avatars.erase(it);
     }
 }
 
@@ -278,6 +276,6 @@ void VRAvatarData::convert()
 }
 
 int VRAvatar::num = 0;
-float VRAvatar::rc[10] = { 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.5, 0.2, 0.1, 0.2 };
-float VRAvatar::gc[10] = { 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.5, 0.4, 0.4, 0.0 };
-float VRAvatar::bc[10] = { 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.1, 0.6, 0.7, 0.7 };
+float VRAvatar::rc[10] = { 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.5f, 0.2f, 0.1f, 0.2f };
+float VRAvatar::gc[10] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.5f, 0.4f, 0.4f, 0.0f };
+float VRAvatar::bc[10] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.1f, 0.6f, 0.7f, 0.7f };

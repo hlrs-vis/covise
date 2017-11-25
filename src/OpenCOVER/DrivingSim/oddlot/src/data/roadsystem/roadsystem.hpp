@@ -31,6 +31,7 @@ class RSystemElementController;
 class RSystemElementJunction;
 class RSystemElementFiddleyard;
 class RSystemElementPedFiddleyard;
+class RSystemElementJunctionGroup;
 class Tile;
 
 class RoadSystem : public DataElement
@@ -49,6 +50,7 @@ public:
         CRS_JunctionChange = 0x8,
         CRS_FiddleyardChange = 0x10,
         CRS_PedFiddleyardChange = 0x20,
+		CRS_JunctionGroupChange = 0x40
     };
 
 	struct IdType
@@ -115,6 +117,14 @@ public:
     void addPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard);
     bool delPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard);
 
+	QMap<QString, RSystemElementJunctionGroup *> getJunctionGroups() const
+	{
+		return junctionGroups_;
+	}
+	QList<RSystemElementJunctionGroup *> getTileJunctionGroups(const QString &tileId) const;
+	void addJunctionGroup(RSystemElementJunctionGroup *junctionGroup);
+	bool delJunctionGroup(RSystemElementJunctionGroup *junctionGroup);
+
     // ProjectData //
     //
     ProjectData *getParentProjectData() const
@@ -143,6 +153,7 @@ public:
     virtual void acceptForJunctions(Visitor *visitor);
     virtual void acceptForFiddleyards(Visitor *visitor);
     virtual void acceptForPedFiddleyards(Visitor *visitor);
+	virtual void acceptForJunctionGroups(Visitor *visitor);
 
     // IDs //
     //
@@ -198,6 +209,9 @@ private:
 
     // fiddleyard //
     QMap<QString, RSystemElementPedFiddleyard *> pedFiddleyards_; // owned
+
+	// junctionGroup //
+	QMap<QString, RSystemElementJunctionGroup *> junctionGroups_;
 };
 
 #endif // ROADSYSTEM_HPP

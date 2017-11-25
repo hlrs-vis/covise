@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include <iostream>
+#include <ostream>
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 
@@ -15,6 +18,9 @@
 
 #define COMPOSITOR_TEX_SIZE 1024
 #define COMPOSITOR_TEX_TYPE GLubyte
+
+using std::cerr;
+using std::endl;
 
 TiledDisplayOGLTexQuadDrawable::TiledDisplayOGLTexQuadDrawable(TiledDisplayCompositor *compositor)
 {

@@ -15,6 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
+#include "oscParameterDeclaration.h"
 #include "oscEvent.h"
 
 namespace OpenScenario
@@ -25,9 +26,12 @@ public:
 oscManeuver()
 {
         OSC_ADD_MEMBER(name, 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
         OSC_OBJECT_ADD_MEMBER(Event, "oscEvent", 0);
     };
+        const char *getScope(){return "";};
     oscString name;
+    oscParameterDeclarationMember ParameterDeclaration;
     oscEventArrayMember Event;
 
 };

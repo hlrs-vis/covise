@@ -288,7 +288,7 @@ const char *coCallFeedback::getParaName(unsigned int i) const
 
 void coCallFeedback::setBooleanParam(const char *name, int val)
 {
-    int size = 1; // final '\0'
+    size_t size = 1; // final '\0'
     size += 2; // number of params
     size += strlen(name) + 1;
     size += strlen("Boolean") + 1;
@@ -306,7 +306,7 @@ void coCallFeedback::setVectorParam(const char *name, int numElem, float *field)
 {
     char *buf;
     char elemBuf[50]; // big enough for one float
-    int i, size;
+    size_t i, size;
 
     size = 1; // final '\0'
     size += 2; // number of params
@@ -336,7 +336,7 @@ void coCallFeedback::setVectorParam(const char *name, int numElem, int *field)
 {
     char *buf;
     char elemBuf[50]; // big enough for one int
-    int i, size;
+    size_t i, size;
     size = 1; // final '\0'
     size += 2; // number of params
     size += strlen(name) + 1;
@@ -365,8 +365,8 @@ void coCallFeedback::setVectorParam(const char *name, int numElem, int *field)
 void coCallFeedback::setVectorParam(const char *name, float u, float v, float w)
 {
     char *buf;
-    int size;
-    int i;
+    size_t size;
+	size_t i;
     size = 1; // final '\0'
     size += 2; // number of params
     size += strlen(name) + 1;
@@ -384,8 +384,8 @@ void coCallFeedback::setVectorParam(const char *name, float u, float v, float w)
 void coCallFeedback::setVectorParam(const char *name, int u, int v, int w)
 {
     char *buf;
-    int size;
-    int i;
+    size_t size;
+	size_t i;
     size = 1; // final '\0'
     size += 2; // number of params
     size += strlen(name) + 1;
@@ -404,7 +404,7 @@ void coCallFeedback::setVectorParam(const char *name, int u, int v, int w)
 void coCallFeedback::setScalarParam(const char *name, float val)
 {
     char *buf;
-    int size;
+	size_t size;
 
     size = 1; // final '\0'
     size += 2; // number of params
@@ -422,7 +422,7 @@ void coCallFeedback::setScalarParam(const char *name, float val)
 void coCallFeedback::setScalarParam(const char *name, int val)
 {
     char *buf;
-    int size;
+	size_t size;
 
     size = 1; // final '\0'
     size += 2; // number of params
@@ -441,7 +441,7 @@ void coCallFeedback::setScalarParam(const char *name, int val)
 void coCallFeedback::setSliderParam(const char *name, float min, float max, float value)
 {
     char *buf;
-    int size;
+	size_t size;
     size = 1; // final '\0'
     size += 2; // number of params
     size += strlen(name) + 1;
@@ -460,7 +460,7 @@ void coCallFeedback::setSliderParam(const char *name, float min, float max, floa
 void coCallFeedback::setSliderParam(const char *name, int min, int max, int value)
 {
     char *buf;
-    int size;
+	size_t size;
     size = 1; // final '\0'
     size += 2; // number of params
     size += strlen(name) + 1;
@@ -479,7 +479,7 @@ void coCallFeedback::setSliderParam(const char *name, int min, int max, int valu
 void coCallFeedback::setStringParam(const char *name, const char *val)
 {
     char *buf;
-    int size;
+	size_t size;
 
     size = 1; // final '\0'
     size += 2; // number of params
@@ -497,7 +497,7 @@ void coCallFeedback::setStringParam(const char *name, const char *val)
 void coCallFeedback::setFileBrowserParam(const char *name, const char *val)
 {
     char *buf;
-    int size;
+	size_t size;
 
     size = 1; // final '\0'
     size += 2; // number of params
@@ -515,7 +515,7 @@ void coCallFeedback::setFileBrowserParam(const char *name, const char *val)
 void coCallFeedback::setChoiceParam(const char *name, int num, const char *const *list, int pos)
 {
     char *buf;
-    int i, size;
+	size_t i, size;
 
     size = 1; // final '\0'
     size += 2; // number of params

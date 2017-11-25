@@ -47,6 +47,9 @@ IF(MINGW)
   SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/mingw;${CMAKE_MODULE_PATH}")
 ENDIF(MINGW)
 
+message("CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+message("CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}")
+
 # set COVISEDIR, BASEARCHSUFFIX and some other cmake-variables
 SET(COVISEDIR "${CMAKE_SOURCE_DIR}")
 SET(ARCHSUFFIX "$ENV{ARCHSUFFIX}")
@@ -123,6 +126,7 @@ MESSAGE("ARCHSUFFIX=${ARCHSUFFIX}, BASEARCHSUFFIX=${BASEARCHSUFFIX}")
 MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DATE}")
 
 # COVISE global options
+option(COVISE_CMAKE_VERBOSE "more verbose CMake output" OFF)
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
 OPTION(COVISE_BUILD_ONLY_COVER_PREREQ "only build prerequisites for OpenCOVER" OFF)
 OPTION(COVISE_USE_CPP11 "enable C++ 11 features" ON)
@@ -131,7 +135,11 @@ OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<arc
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 IF(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
-  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
+  if (CMAKE_GENERATOR STREQUAL "Ninja")
+      OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
+  else()
+      OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
+  endif()
 ELSE(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" OFF)
   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
@@ -180,12 +188,7 @@ else()
 endif()
 
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
-if (APPLE)
-    # would break dynamic_casts in Visionary COVER plugin
-    OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" OFF)
-else()
-    OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
-endif()
+OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 
 if(NOT COVISE_USE_CPP11)
     set(COVISE_USE_VISIONARAY OFF)

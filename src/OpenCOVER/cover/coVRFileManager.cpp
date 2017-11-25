@@ -48,6 +48,8 @@
 using namespace covise;
 using namespace opencover;
 
+coVRFileManager *coVRFileManager::s_instance = NULL;
+
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
 osg::Node *coVRFileManager::loadIcon(const char *filename)
@@ -729,21 +731,29 @@ void coVRFileManager::unloadFile(const char *file)
         const FileHandler *handler = findFileHandler(file);
         if (handler && handler->unloadFile)
             handler->unloadFile(file, lastCovise_key);
+
+        if (file == lastFileName)
+        {
+            delete[] lastFileName;
+            lastFileName = NULL;
+        }
+        delete[] lastCovise_key;
+        lastCovise_key = NULL;
     }
 }
 
-coVRFileManager *
-coVRFileManager::instance()
+coVRFileManager *coVRFileManager::instance()
 {
-    static coVRFileManager *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRFileManager;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRFileManager;
+    return s_instance;
 }
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
 {
+    assert(!s_instance);
+
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
 
@@ -761,6 +771,8 @@ coVRFileManager::~coVRFileManager()
     if (cover->debugLevel(2))
         fprintf(stderr, "delete coVRFileManager\n");
     cover->getUpdateManager()->remove(this);
+
+    s_instance = NULL;
 }
 
 //=====================================================================
@@ -945,6 +957,8 @@ const FileHandler *coVRFileManager::findFileHandler(const char *pathname)
         for (size_t i = 0; i < extlen; i++)
         {
             lowerExt[i] = tolower(extension[i]);
+            if (lowerExt[i] == '.')
+                lowerExt[i] = '_';
         }
         lowerExt[extlen] = '\0';
 

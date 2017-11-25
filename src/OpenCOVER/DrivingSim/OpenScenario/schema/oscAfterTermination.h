@@ -38,6 +38,7 @@ oscAfterTermination()
         type.enumType = Enum_Story_Element_typeType::instance();
         rule.enumType = Enum_AfterTermination_ruleType::instance();
     };
+        const char *getScope(){return "/OSCCondition/ByState";};
     oscEnum type;
     oscString name;
     oscEnum rule;

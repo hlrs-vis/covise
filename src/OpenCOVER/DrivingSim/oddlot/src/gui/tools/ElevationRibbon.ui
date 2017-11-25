@@ -36,6 +36,35 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="QGroupBox" name="selectionBox">
+     <property name="title">
+      <string>Selection Tools</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="1" column="0">
+       <widget class="QPushButton" name="select">
+        <property name="text">
+         <string>Select/Move</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="elevationBox">
      <property name="minimumSize">
       <size>
@@ -68,19 +97,6 @@
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Smooth Radius</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="elevationSelect">
-        <property name="text">
-         <string>Select</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -123,7 +139,7 @@
       <item row="1" column="2">
        <widget class="QPushButton" name="elevationSmooth">
         <property name="text">
-         <string>Smooth</string>
+         <string>Smooth Roads</string>
         </property>
        </widget>
       </item>
@@ -154,7 +170,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_type">
+    <widget class="Line" name="line_type_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>

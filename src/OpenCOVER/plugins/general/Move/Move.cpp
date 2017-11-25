@@ -20,7 +20,6 @@
 //#include <OpenVRUI/coToolboxMenu.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coPotiMenuItem.h>
-#include <cover/VRPinboard.h>
 #include <osg/BoundingBox>
 #include <osg/Quat>
 #include <osg/Geode>
@@ -39,6 +38,7 @@
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <cover/coVRTui.h>
 #include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include <PluginUtil/PluginMessageTypes.h>
 #include <net/tokenbuffer.h>
@@ -829,7 +829,7 @@ void Move::preFrame()
             getMoveDCS();
             // start of interaction (button press)
             osg::Node *currentNode = NULL;
-            if (moveDCS)
+            if (moveDCS && moveDCS->getNumParents() > 0)
                 currentNode = moveDCS->getParent(0);
             startBaseMat.makeIdentity();
             while (currentNode != NULL)

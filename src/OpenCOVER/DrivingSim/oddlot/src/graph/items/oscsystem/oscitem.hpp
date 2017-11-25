@@ -27,6 +27,8 @@ class oscPedestrian;
 class oscObject;
 class oscCatalog;
 class oscPrivateAction;
+class oscPosition;
+class oscRoad;
 }
 
 class RoadSystem;
@@ -45,7 +47,7 @@ class OSCItem : public GraphElement
     //################//
 
 public:
-	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, const QPointF &pos, const QString &roadId);
+	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad);
     virtual ~OSCItem();
 
 
@@ -53,14 +55,20 @@ public:
     //
     virtual bool deleteRequest();
 
+	OpenScenario::oscObject *getObject()
+	{
+		return oscObject_;
+	}
+
     // Graphics //
     //
 	void updateColor(const std::string &type);
 	
 	// Function for path drawing //
-	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *);
+	QPainterPath (*createPath)(OpenScenario::oscObjectBase *, RSystemElementRoad *);
 
     void updatePosition();
+	void move(QPointF &diff);
 
 
     // Garbage //
@@ -108,24 +116,24 @@ protected:
 
 private:
 	OSCElement *element_;
+	OpenScenario::oscObject *oscObject_;
+	OpenScenario::oscRoad *oscRoad_;
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
-	QString roadID_;
+
     void init();
     QString updateName();
 
-	OpenScenario::oscObject *oscObject_;
-	OpenScenario::oscObjectBase *selectedObject_;
-	OpenScenario::oscPrivateAction *oscPrivateAction_;
 	OpenScenario::oscCatalog *catalog_;
 	RSystemElementRoad *road_;
 	RSystemElementRoad *closestRoad_;
 
 	double s_;
 	double t_;
+	double angle_;
     QPointF pos_;
-	QPainterPath *path_;
+	QPainterPath path_;
 
     QPointF pressPos_;
 	QPointF lastPos_;

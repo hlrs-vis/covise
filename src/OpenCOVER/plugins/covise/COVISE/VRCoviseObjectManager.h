@@ -35,6 +35,8 @@
 namespace osg
 {
 class Group;
+class Image;
+class Texture1D;
 }
 namespace covise
 {
@@ -49,8 +51,25 @@ class CoviseRenderObject;
 namespace opencover
 {
 class RenderObject;
-class buttonSpecCell;
 class coTUIUITab;
+class coVRShader;
+class coInteractor;
+
+struct ColorMap
+{
+    ColorMap();
+    void setMinMax(float min, float max);
+
+    struct RGBA {
+        unsigned char r, g, b, a;
+    };
+
+    float min, max;
+    std::vector<RGBA> lut;
+    osg::ref_ptr<osg::Image> img;
+    osg::ref_ptr<osg::Texture1D> tex;
+    coVRShader *vertexMapShader, *textureMapShader;
+};
 
 //================================================================
 // ObjectManager
@@ -62,8 +81,10 @@ private:
     covise::coMaterialList *materialList;
     CoviseSG *coviseSG;
 
+#ifdef PINBOARD
     typedef std::map<std::string, std::vector<buttonSpecCell *> > ButtonsMap;
     ButtonsMap buttonsMap;
+#endif
     //
     // coDoSet handling
     //
@@ -84,6 +105,7 @@ private:
 
     char currentFeedbackInfo[256];
 
+    void addColorMap(const char *object, CoviseRenderObject *cmap);
     //void addGeometry(char *object, int doreplace,int is_timestep,
     //                 char *root,coDistributedObject *geometry,
     //		     coDistributedObject *normals,
@@ -92,32 +114,45 @@ private:
                            CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container, const char *lod);
     void removeGeometry(const char *name, bool);
 
+#ifdef PINBOARD
     void addPinboardButton(const char *buttonId, int moduleInstance, const char *feedback_info, const char *name);
     void addFeedbackButton(const char *container, const char *feedback_info, const char *name);
     void removeButtonsForContainer(const char *container);
     void removeAllButtons();
 
     void feedback(buttonSpecCell *spec);
+#endif
 
-    void handleInteractors(CoviseRenderObject *container,
+    opencover::coInteractor *handleInteractors(CoviseRenderObject *container,
                            CoviseRenderObject *geo, CoviseRenderObject *norm, CoviseRenderObject *col, CoviseRenderObject *tex) const;
 
     osg::ColorMask *noFrameBuffer;
     vrui::coTrackerButtonInteraction *interactionA; ///< interaction for first button
+
+    typedef std::map<std::string, ColorMap> ColorMaps;
+    ColorMaps colormaps;
+    const ColorMap &getColorMap(const std::string &species);
+
+    typedef std::map<std::string, CoviseRenderObject *> RenderObjectMap;
+    RenderObjectMap m_roMap;
 
 public:
     static ObjectManager *instance();
 
     ~ObjectManager();
     ObjectManager();
+#ifdef PINBOARD
     void addCoviseMenu(const char *container, buttonSpecCell *);
+#endif
     void deleteObject(const char *name, bool groupobj = true);
     void addObject(const char *name, const covise::coDistributedObject *obj = NULL);
     void coviseError(const char *error);
 
     void update(void);
 
+#ifdef PINBOARD
     static void feedbackCallback(void *objectManager, buttonSpecCell *spec);
+#endif
 };
 }
 #endif

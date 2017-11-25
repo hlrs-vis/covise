@@ -26,33 +26,41 @@
 #include <osg/Vec4>
 #include <osg/LightSource>
 #include <osg/ref_ptr>
+#ifdef VRUI
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
+#else
+namespace opencover {
+namespace ui {
+class Menu;
+class Button;
+}
+}
+#endif
 
 namespace opencover
 {
-class buttonSpecCell;
 
-class COVEREXPORT coVRLighting : public vrui::coMenuListener
+class COVEREXPORT coVRLighting
 {
+    static coVRLighting *s_instance;
+    coVRLighting();
+
 public:
-    vrui::coSubMenuItem *lightingButton_;
-    vrui::coRowMenu *lightingMenu_;
-    vrui::coCheckboxMenuItem *switchHeadlight_;
+    ui::Menu *lightingMenu_ = nullptr;
+    ui::Button *switchHeadlight_;
     bool headlightState;
 
-    vrui::coCheckboxMenuItem *switchOtherlights_;
+    ui::Button *switchOtherlights_;
     bool otherlightsState;
 
-    vrui::coCheckboxMenuItem *switchSpecularlight_;
+    ui::Button *switchSpecularlight_;
     bool specularlightState;
 
-    vrui::coCheckboxMenuItem *switchSpotlight_;
+    ui::Button *switchSpotlight_;
     bool spotlightState;
-
-    virtual void menuEvent(vrui::coMenuItem *menuItem);
 
     multimap<string, osg::LightSource *> m;
 
@@ -79,8 +87,8 @@ public:
         SpotDef spot;
     } LightDef;
 
-    osg::LightSource *light1;
-    osg::LightSource *light2;
+    osg::ref_ptr<osg::LightSource> light1;
+    osg::ref_ptr<osg::LightSource> light2;
 
     // rescue values of specular lights
     osg::Vec4 headlightSpec, light1Spec, light2Spec, spotlightSpec;
@@ -120,16 +128,11 @@ public:
     void init();
 
 public:
-    osg::LightSource *headlight;
-    osg::LightSource *spotlight;
-    osg::LightSource *shadowlight;
-    static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
+    osg::ref_ptr<osg::LightSource> headlight;
+    osg::ref_ptr<osg::LightSource> spotlight;
+    osg::ref_ptr<osg::LightSource> shadowlight;
     static coVRLighting *instance();
 
-    // process key events
-    bool keyEvent(int type, int keySym, int mod);
-
-    coVRLighting();
     virtual ~coVRLighting();
 
     void update();

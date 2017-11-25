@@ -5,6 +5,9 @@
 #include "include/points.h"
 #include "include/log.h"
 #include "include/v.h"
+#ifdef WIN32
+#pragma warning (disable : 4244)
+#endif
 
 struct Point *CurvePolygon(float *p1, float *s, float *p2, float m1, float m2)
 {

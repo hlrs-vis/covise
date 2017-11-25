@@ -24,10 +24,14 @@
  ** Cration Date: 26.06.02                                                 **
 \**************************************************************************/
 
+#include <sstream>
+#include <string>
+#include <vector>
 #include <api/coModule.h>
 #include <do/coDoSet.h>
 #include <do/coDoData.h>
 #include <do/coDoUniformGrid.h>
+#include <virvo/fileio/feature.h>
 #include <virvo/math/math.h>
 #include <virvo/vvfileio.h>
 #include <virvo/vvvoldesc.h>
@@ -38,13 +42,16 @@
 coWriteVolume::coWriteVolume(int argc, char *argv[])
     : coModule(argc, argv, "Write volume files or create 2D slice images.")
 {
-    const char *fileTypes[] = {
-        "Extended volume file (xvf)",
-        "Raw volume file (rvf)",
-        "ASCII volume file (avf)",
-        "Raw volume data (dat)",
-        "2D slice images (pgm/ppm)"
-    };
+    std::vector<std::string> fileTypes;
+    fileTypes.push_back("Extended volume file (xvf)");
+    fileTypes.push_back("Raw volume file (rvf)");
+    fileTypes.push_back("ASCII volume file (avf)");
+    fileTypes.push_back("Raw volume data (dat)");
+    fileTypes.push_back("2D slice images (pgm/ppm)");
+    if (virvo::fileio::hasFeature("nifti"))
+    {
+        fileTypes.push_back("NIfTI neuroimaging file (nii.gz)");
+    }
     const char *formatTypes[] = {
         "8 bits per voxel",
         "16 bits per voxel"
@@ -69,14 +76,22 @@ coWriteVolume::coWriteVolume(int argc, char *argv[])
     }
 
     // Create parameters:
+    std::stringstream filetypes;
+    filetypes << "*.xvf/*.rvf/*.avf/*.dat/*.pgm;*.ppm/";
+    if (virvo::fileio::hasFeature("nifti"))
+    {
+        filetypes << "*.nii.gz/";
+    }
+    filetypes << "*";
+    std::string ftstr = filetypes.str();
     pbrVolumeFile = addFileBrowserParam("FileName", "Volume file or first slice of sequence");
-    pbrVolumeFile->setValue("data/volumeFile", "*.xvf/*.rvf/*.avf/*.dat/*.pgm;*.ppm/*");
+    pbrVolumeFile->setValue("data/volumeFile", ftstr.c_str());
 
     pboOverwrite = addBooleanParam("OverwriteExisting", "Overwrite existing files?");
     pboOverwrite->setValue(false);
 
     pchFileType = addChoiceParam("FileType", "File type of volume or slice files");
-    pchFileType->setValue(4, fileTypes, 0);
+    pchFileType->setValue((int)fileTypes.size(), fileTypes, 0);
 
     pchDataFormat = addChoiceParam("DataFormat", "Volume data format");
     pchDataFormat->setValue(2, formatTypes, 0);
@@ -277,7 +292,7 @@ void coWriteVolume::getTimestepData(const coDistributedObject **object, int no_c
             {
                 for (int i = 0; i < vd->getFrameVoxels(); i++)
                 {
-                    vvToolshed::convertFloat2ShortClamp(fData[c] + i, uData + no_channels * i * 2 + c, 1, pfsMin->getValue(), pfsMax->getValue());
+                    vvToolshed::convertFloat2ShortClamp(fData[c] + i, uData + no_channels * i * 2 + c, 1, pfsMin->getValue(), pfsMax->getValue(), virvo::serialization::getEndianness());
                 }
             }
             break;
@@ -347,7 +362,7 @@ int coWriteVolume::compute(const char *)
 {
     const coDistributedObject *tmpObj;
     const coDistributedObject *inObj[MAX_CHANNELS];
-    const char *extension[] = { "xvf", "rvf", "avf", "dat", "pgm" };
+    const char *extension[] = { "xvf", "rvf", "avf", "dat", "pgm", "nii.gz" };
     const char *string1 = "Volume saved to file: ";
     const char *string2 = "Destination file exists: ";
     const char *string3 = "Cannot write file: ";

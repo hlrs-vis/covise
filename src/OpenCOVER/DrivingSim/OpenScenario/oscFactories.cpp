@@ -11,8 +11,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscFactory<oscObjectBase, std::string> staticObjectFactory;
-oscFactory<oscMemberValue, oscMemberValue::MemberTypes> staticValueFactory;
+oscFactory<oscObjectBase, std::string> oscFactories::staticObjectFactory;
+oscFactory<oscMemberValue, oscMemberValue::MemberTypes> oscFactories::staticValueFactory;
 
 oscFactories* oscFactories::inst = NULL;
 

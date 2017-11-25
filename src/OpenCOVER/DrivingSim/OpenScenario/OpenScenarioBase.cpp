@@ -38,11 +38,12 @@ OpenScenarioBase::OpenScenarioBase() :
         m_fullReadCatalogs(false)
 {
     oscFactories::instance();
-    OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
-    OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs", 0);
-    OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork", 0);
-    OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities", 0);
-    OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard", 0);
+	OSC_OBJECT_ADD_MEMBER(FileHeader, "oscFileHeader", 0);
+	OSC_OBJECT_ADD_MEMBER_OPTIONAL(ParameterDeclaration, "oscParameterDeclaration", 0);
+	OSC_OBJECT_ADD_MEMBER(Catalogs, "oscCatalogs", 0);
+	OSC_OBJECT_ADD_MEMBER(RoadNetwork, "oscRoadNetwork", 0);
+	OSC_OBJECT_ADD_MEMBER(Entities, "oscEntities", 0);
+	OSC_OBJECT_ADD_MEMBER(Storyboard, "oscStoryboard", 0);
 
     base = this;
 
@@ -92,16 +93,16 @@ OpenScenarioBase::FileTypeXsdFileNameMap initFuncFileTypeToXsd()
     //set the XSD Schema file name for possible file types
     OpenScenarioBase::FileTypeXsdFileNameMap fileTypeToXsd;
 //	fileTypeToXsd.emplace("", bf::path("OpenScenario_XML-Schema_.xsd"));
-    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_Draft_F.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_DriverCatalog", bf::path("OpenSCENARIO_DriverCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_EnvironmentCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_ManeuverCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_MiscObjectCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_PedestrianCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_PedestrianControllerCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_RouteCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_TrajectoryCatalog.xsd"));
-	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_VehicleCatalog.xsd"));
+    fileTypeToXsd.emplace("OpenSCENARIO", bf::path("OpenSCENARIO_v0.9.xsd"));
+	fileTypeToXsd.emplace("CatalogObject", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_EnvironmentCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_ManeuverCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_MiscObjectCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_PedestrianControllerCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_RouteCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_TrajectoryCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
+	fileTypeToXsd.emplace("OpenSCENARIO_VehicleCatalog", bf::path("OpenSCENARIO_Catalog.xsd"));
 
 /*	fileTypeToXsd.emplace("oscAbsoluteLaneOffsetTypeB", bf::path("OpenScenario_XML-Schema_absoluteLaneOffsetTypeB.xsd"));
 	fileTypeToXsd.emplace("oscAbsoluteTypeA", bf::path("OpenScenario_XML-Schema_absoluteTypeA.xsd"));
@@ -344,6 +345,46 @@ bool OpenScenarioBase::getFullReadCatalogs() const
     return m_fullReadCatalogs;
 }
 
+oscObjectBase *OpenScenarioBase::getCatalogObjectByCatalogReference(std::string catalogName, std::string objectName)
+{
+	if (catalogName=="DriverCatalog")
+		{
+		Catalogs->DriverCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->DriverCatalog->getCatalogObject(objectName);
+		}
+	if (catalogName=="EnvironmentCatalog")
+		{
+		Catalogs->EnvironmentCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->EnvironmentCatalog->getCatalogObject(objectName);
+		}
+	if (catalogName=="ManeuverCatalog")
+		{
+		Catalogs->ManeuverCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->ManeuverCatalog->getCatalogObject(objectName);
+		}
+	if (catalogName=="MiscObjectCatalog")
+		{
+		Catalogs->MiscObjectCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->MiscObjectCatalog->getCatalogObject(objectName);
+		}
+	if (catalogName=="PedestrianCatalog")
+		{
+		Catalogs->PedestrianCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->PedestrianCatalog->getCatalogObject(objectName);
+		}
+	if (catalogName=="TrajectoryCatalog")
+		{
+		Catalogs->TrajectoryCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->TrajectoryCatalog->getCatalogObject(objectName);
+		}
+	if (catalogName=="VehicleCatalog")
+	{
+		Catalogs->VehicleCatalog->fullReadCatalogObjectWithName(objectName);
+		return Catalogs->VehicleCatalog->getCatalogObject(objectName);
+	}
+	return NULL;
+}
+
 
 //
 void OpenScenarioBase::setPathFromCurrentDirToDoc(const bf::path &path)
@@ -406,7 +447,9 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
 
         //set filename for main xosc file with root element "OpenSCENARIO" to fileName
 		bf::path fnPath = srcFileVec[i]->getFileNamePath(fileName);
-        if (srcFileRootElement == "OpenSCENARIO") 
+//        if (srcFileRootElement == "OpenSCENARIO")
+		std::string relPath = srcFileVec[i]->getRelPathFromMainDir().string();
+		if (relPath.find("Catalog") == std::string::npos)
         {
 			if ((fnPath == "") || (fnPath.parent_path() == srcFileVec[i]->getAbsPathToMainDir()))
 			{
@@ -554,6 +597,10 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     {
         tmpRootElem = tmpXmlDoc->getDocumentElement();
         tmpRootElemName = xercesc::XMLString::transcode(tmpRootElem->getNodeName());
+		if (fileName.find("Catalog") != std::string::npos)
+		{
+			tmpRootElemName = "CatalogObject";
+		}
     }
 
     //validation

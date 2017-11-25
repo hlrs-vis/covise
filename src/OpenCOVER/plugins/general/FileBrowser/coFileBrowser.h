@@ -24,11 +24,11 @@ class coFileBrowserListener;
 class coFileBrowser : public CardListener
 {
   public:
-    coFileBrowser(string&, cui::Interaction*);
+    coFileBrowser(std::string&, cui::Interaction*);
     virtual ~coFileBrowser();
     bool cardButtonEvent(Card*, int, int);
     bool cardCursorUpdate(Card*, InputDevice*);
-    string getFileName();
+    std::string getFileName();
     virtual void addListener(coFileBrowserListener*);
     void setVisible(bool);
     osg::Node * getNode();

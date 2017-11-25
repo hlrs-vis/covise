@@ -95,7 +95,7 @@ ReadANSYS::SetNodeChoices()
     for (code = 0; code < variable_codes.size(); ++code)
     {
         my_variable_codes.push_back(variable_codes[code]);
-        int my_size = my_variable_codes.size();
+        size_t my_size = my_variable_codes.size();
         // extra dofs are always scalar fields
         switch (variable_codes[code])
         {
@@ -169,10 +169,10 @@ ReadANSYS::SetNodeChoices()
     }
     if (!inMapLoading && !p_file_name_->isConnected())
     {
-        p_nsol_->setValue(my_variable_codes.size() + 1, Choices, 0);
+        p_nsol_->setValue((int)my_variable_codes.size() + 1, Choices, 0);
     }
     // set the correct state for DOFOptions_
-    DOFOptions_.num_options_ = my_variable_codes.size() + 1;
+    DOFOptions_.num_options_ = (int)my_variable_codes.size() + 1;
     delete[] DOFOptions_.options_;
     delete[] DOFOptions_.codes_;
     DOFOptions_.options_ = new std::string[DOFOptions_.num_options_];
@@ -320,12 +320,12 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
     {
         nodes = &nodes_with_data[0];
     }
-    Map1D nodesDataDecode(nodes_with_data.size(), &nodes_with_data[0]);
+    Map1D nodesDataDecode((int)nodes_with_data.size(), &nodes_with_data[0]);
     if (nodes_without_data.size())
     {
         nodes = &nodes_without_data[0];
     }
-    Map1D nodesNoDataDecode(nodes_without_data.size(), nodes);
+    Map1D nodesNoDataDecode((int)nodes_without_data.size(), nodes);
 
     // now create data for grid with data (and without)
     std::vector<int> e_l_data;
@@ -369,8 +369,8 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
     // now create objects
     if (t_l_no_data.size() == 0) // the whole grid has data
     {
-        coDoUnstructuredGrid *p_grid = new coDoUnstructuredGrid(gridName, e_l_data.size(),
-                                                                v_l_data.size(), x_l_data.size(),
+        coDoUnstructuredGrid *p_grid = new coDoUnstructuredGrid(gridName, (int)e_l_data.size(),
+                                                                (int)v_l_data.size(), (int)x_l_data.size(),
                                                                 &e_l_data[0],
                                                                 &v_l_data[0],
                                                                 &x_l_data[0],
@@ -382,19 +382,19 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
         if (ftype == SCALAR)
         {
             data_set_list.push_back(new coDoFloat(dataName,
-                                                  field_data[0].size(),
+                                                  (int)field_data[0].size(),
                                                   &field_data[0][0]));
         }
         else if (ftype == VECTOR)
         {
             data_set_list.push_back(new coDoVec3(dataName,
-                                                 field_data[0].size(),
+                                                 (int)field_data[0].size(),
                                                  &field_data[0][0],
                                                  &field_data[1][0],
                                                  &field_data[2][0]));
         }
         data_set_list[data_set_list.size() - 1]->addAttribute("SPECIES", DOFOptions_.options_[h_nsol_->getIValue()].c_str());
-        int matSize = m_l_data.size();
+        int matSize = (int)m_l_data.size();
         coDoIntArr *matOut = new coDoIntArr(matName, 1, &matSize);
         memcpy(matOut->getAddress(), &m_l_data[0], m_l_data.size() * sizeof(int));
         mat_set_list.push_back(matOut);
@@ -423,8 +423,8 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
         mat_list[2] = NULL;
 
         // grid
-        grid_list[0] = new coDoUnstructuredGrid(gridNameData, e_l_data.size(),
-                                                v_l_data.size(), x_l_data.size(),
+        grid_list[0] = new coDoUnstructuredGrid(gridNameData, (int)e_l_data.size(),
+                                                (int)v_l_data.size(), (int)x_l_data.size(),
                                                 &e_l_data[0],
                                                 &v_l_data[0],
                                                 &x_l_data[0],
@@ -432,8 +432,8 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
                                                 &z_l_data[0],
                                                 &t_l_data[0]);
         grid_list[0]->addAttribute("COLOR", "White");
-        grid_list[1] = new coDoUnstructuredGrid(gridNameNoData, e_l_no_data.size(),
-                                                v_l_no_data.size(), x_l_no_data.size(),
+        grid_list[1] = new coDoUnstructuredGrid(gridNameNoData, (int)e_l_no_data.size(),
+                                                (int)v_l_no_data.size(), (int)x_l_no_data.size(),
                                                 &e_l_no_data[0],
                                                 &v_l_no_data[0],
                                                 &x_l_no_data[0],
@@ -442,11 +442,11 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
                                                 &t_l_no_data[0]);
         grid_list[1]->addAttribute("COLOR", "White");
         // material
-        int matSize = m_l_data.size();
+        int matSize = int(m_l_data.size());
         coDoIntArr *matOutData = new coDoIntArr(matNameData, 1, &matSize);
         memcpy(matOutData->getAddress(), &m_l_data[0], m_l_data.size() * sizeof(int));
         mat_list[0] = matOutData;
-        matSize = m_l_no_data.size();
+        matSize = int(m_l_no_data.size());
         coDoIntArr *matOutNoData = new coDoIntArr(matNameNoData, 1, &matSize);
         memcpy(matOutNoData->getAddress(), &m_l_no_data[0], m_l_no_data.size() * sizeof(int));
         mat_list[1] = matOutNoData;
@@ -454,14 +454,14 @@ ReadANSYS::MakeGridAndObjects(const std::string &gridName,
         if (ftype == SCALAR)
         {
             data_list[0] = new coDoFloat(dataNameData,
-                                         field_data[0].size(),
+                                         (int)field_data[0].size(),
                                          &field_data[0][0]);
             data_list[1] = new coDoFloat(dataNameNoData, 0);
         }
         else if (ftype == VECTOR)
         {
             data_list[0] = new coDoVec3(dataNameData,
-                                        field_data[0].size(),
+                                        (int)field_data[0].size(),
                                         &field_data[0][0],
                                         &field_data[1][0],
                                         &field_data[2][0]);

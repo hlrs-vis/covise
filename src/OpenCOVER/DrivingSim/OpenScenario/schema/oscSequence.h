@@ -32,6 +32,7 @@ oscSequence()
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(CatalogReference, "oscCatalogReference", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Maneuver, "oscManeuver", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Story/Act";};
     oscUInt numberOfExecutions;
     oscString name;
     oscActorsMember Actors;

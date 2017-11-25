@@ -16,7 +16,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscPosition.h"
-#include "oscNamedEntity.h"
+#include "oscEntity.h"
 
 namespace OpenScenario
 {
@@ -26,10 +26,11 @@ public:
 oscCollisionTarget()
 {
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 1);
-        OSC_OBJECT_ADD_MEMBER(NamedEntity, "oscNamedEntity", 1);
+        OSC_OBJECT_ADD_MEMBER(Entity, "oscEntity", 1);
     };
+        const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition/TimeToCollision";};
     oscPositionMember Position;
-    oscNamedEntityMember NamedEntity;
+    oscEntityMember Entity;
 
 };
 

@@ -15,8 +15,11 @@ else()
 endif()
 
 Using(OpenGL)
-Using(Virvo)
-USING(INVENTOR MOTIF TIFF JPEG)
+Using(Virvo optional)
+USING(INVENTOR)
+USING(MOTIF)
+USING(TIFF)
+USING(JPEG)
 
 INCLUDE_DIRECTORIES(
   ../QtRenderer

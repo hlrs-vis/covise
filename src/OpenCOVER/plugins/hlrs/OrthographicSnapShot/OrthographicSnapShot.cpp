@@ -93,11 +93,11 @@ void
         //fprintf(stderr,"\n--- OrthographicSnapShot::op write file\n" );
         if (plugin_->createScreenshot_)
         {
-            cout << "\nOrthographicSnapShot: Writing file " << plugin_->filename_.c_str() << endl;
+            cout << "\nOrthographicSnapShot: Writing file " << plugin_->filename_.c_str() << std::endl;
             osgDB::writeImageFile(*(plugin_->image_.get()), plugin_->filename_); // save file
         }
 
-        //cerr << plugin_->filename_ << endl;
+        //cerr << plugin_->filename_ << std::endl;
 
         plugin_->cameraCallbackExit(); // tell the plugin
     }
@@ -258,7 +258,7 @@ OrthographicSnapShot::preFrame()
     //
     if (doSnap_)
     {
-        cout << "\n\n########################################################\nRunning OrthographicSnapShot plugin..." << endl;
+        cout << "\n\n########################################################\nRunning OrthographicSnapShot plugin..." << std::endl;
 
         // Filenames //
         //
@@ -269,8 +269,8 @@ OrthographicSnapShot::preFrame()
         //
         double bboxRadius = cover->getObjectsXform()->getBound().radius();
         osg::Vec3d bboxCenter = cover->getObjectsXform()->getBound().center();
-        cout << "\nBoundingBox radius: " << bboxRadius << endl;
-        cout << "\nCenter: " << bboxCenter.x() << " " << bboxCenter.y() << " " << bboxCenter.z() << "\n" << endl;
+        cout << "\nBoundingBox radius: " << bboxRadius << std::endl;
+        cout << "\nCenter: " << bboxCenter.x() << " " << bboxCenter.y() << " " << bboxCenter.z() << "\n" << std::endl;
 
         // Dimensions //
         //
@@ -283,9 +283,9 @@ OrthographicSnapShot::preFrame()
         double stepSizeX = width_ / xRes; // [m/px]
         double stepSizeY = height_ / yRes;
 
-        cout << "\nMin/Max: " << xMin << ", " << yMin << endl;
-        cout << "Size: " << width_ << ", " << height_ << endl;
-        cout << "Resolution: " << xRes << ", " << yRes << endl;
+        cout << "\nMin/Max: " << xMin << ", " << yMin << std::endl;
+        cout << "Size: " << width_ << ", " << height_ << std::endl;
+        cout << "Resolution: " << xRes << ", " << yRes << std::endl;
 
         // Heightmap //
         //
@@ -364,21 +364,21 @@ OrthographicSnapShot::preFrame()
                 }
             }
 
-            cout << "\nmin/max: " << minHeightValue << ", " << maxHeightValue << endl;
+            cout << "\nmin/max: " << minHeightValue << ", " << maxHeightValue << std::endl;
 
             // Save //
             //
-            cout << "\nOrthographicSnapShot: Writing file " << heightFilename_.c_str() << endl;
+            cout << "\nOrthographicSnapShot: Writing file " << heightFilename_.c_str() << std::endl;
             out.writeRawData((char *)heightArray, xRes * yRes * sizeof(double));
             heightfile.close();
         }
 
         // Print out OpenDRIVE (extension) tags //
         //
-        cout << "\n<scenery>" << endl;
+        cout << "\n<scenery>" << std::endl;
         cout << "<heightmap  x=\"" << xMin << "\" y=\"" << yMin << "\" width=\"" << width_ << "\" height=\"" << height_
-             << "\" filename=\"" << filename_ << "\" data=\"" << heightFilename_ << "\" id=\"map0\" />" << endl;
-        cout << "</scenery>\n" << endl;
+             << "\" filename=\"" << filename_ << "\" data=\"" << heightFilename_ << "\" id=\"map0\" />" << std::endl;
+        cout << "</scenery>\n" << std::endl;
     }
 }
 
@@ -390,7 +390,7 @@ OrthographicSnapShot::cameraCallbackExit() const
     doSnap_ = false;
     removeCamera_ = true;
 
-    cout << "Done.\n########################################################\n" << endl;
+    cout << "Done.\n########################################################\n" << std::endl;
 }
 
 //!##########################//

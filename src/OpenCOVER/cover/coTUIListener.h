@@ -51,7 +51,10 @@ class SGTextureThread;
 class LocalData;
 class IData;
 class IRemoteData;
-
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable: 4275)
+#endif
 /// Action listener for events triggered by any coTUIElement.
 class COVEREXPORT coTUIListener : public covise::coAbstractTUIListener
 {
@@ -73,6 +76,10 @@ public:
     virtual void tabletCurrentEvent(coTUIElement *tUIItem);
     virtual void tabletDataEvent(coTUIElement *tUIItem, covise::TokenBuffer &tb);
 };
+
+#ifdef WIN32
+#pragma warning(pop)
+#endif
 
 }
 #endif

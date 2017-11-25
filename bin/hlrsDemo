@@ -25,6 +25,7 @@ do
     echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
     echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
+    echo -e "${MENU} ${OPT}  3)  ${MENU} SWA Augsburg             "
 
     echo -e "${MENU}-----${TYP} CFD ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 11)  ${MENU} Audi                      "
@@ -48,6 +49,10 @@ do
     echo -e "${MENU} ${OPT} 33)  ${MENU} DC Filiale                "
     echo -e "${MENU} ${OPT} 34)  ${MENU} Adidas WOS                "
 
+    echo -e "${MENU}-----${TYP} Urban Planning ${MENU}------------------------"
+    echo -e "${MENU} ${OPT} 38)  ${MENU} Spielplatz Stuttgart West "
+    echo -e "${MENU} ${OPT} 39)  ${MENU} Herrenberg"
+    
     echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
     echo -e "${MENU} ${OPT} 42)  ${MENU} Schweizer Autobus         "
@@ -69,13 +74,13 @@ do
     echo -e "${MENU} ${OPT} 57)  ${MENU} City (passing through)               "
     echo -e "${MENU} ${OPT} 58)  ${MENU} City (flyover)                       "
     echo -e "${MENU} ${OPT} 59)  ${MENU} Mountain                             "
-    echo -e "${MENU} ${OPT} 60)  ${MENU} Herrenberg                           "
 
     echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
     echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
     echo -e "${MENU} ${OPT} 62)  ${MENU} knee                      "
 
     echo -e "${MENU}-----${TYP} Misc. ${MENU}---------------------------------"
+    echo -e "${MENU} ${OPT} 70)  ${MENU} Infinities (KUNST!!!)     "
     echo -e "${MENU} ${OPT} 71)  ${MENU} Draeger OP                "
     echo -e "${MENU} ${OPT} 72)  ${MENU} ISS                       "
     echo -e "${MENU} ${OPT} 73)  ${MENU} Haemoglobin               "
@@ -86,7 +91,7 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
-    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 81)  ${MENU} Thyssen Testturm Multi    "
     echo -e "${MENU} ${OPT} 82)  ${MENU} Thyssen Turm              "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
@@ -109,6 +114,11 @@ do
     echo -e "${MENU} ${OPT} 97)  ${MENU} TiledDisplay Video Wall ON"
     echo -e "${MENU} ${OPT} 98)  ${MENU} CAVE: Frame lock on       "
     echo -e "${MENU} ${OPT} 99)  ${MENU} CAVE: Frame lock off      "
+    echo -e "${MENU} ${OPT} 100)  ${MENU} Receiver: Toggle Mute	   "
+    echo -e "${MENU} ${OPT} 101)  ${MENU} Receiver: Volume Up 	   "
+    echo -e "${MENU} ${OPT} 102)  ${MENU} Receiver: Volume Down	   "
+    echo -e "${MENU} ${OPT} 103)  ${MENU} Receiver: Input: Video 1 "
+    echo -e "${MENU} ${OPT} 104)  ${MENU} Receiver: Input: Aux	   "
     echo -e "                                                      "
     echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
     echo -e "${MENU}---------------------------------------------"
@@ -135,6 +145,12 @@ do
 	    cd /data/recom/SWB/Praesentation/
             opencover Cavepraesentation-SWBremen.wrl 
 	    ;;
+	3)
+	    echo -e "starting SWA"
+	    cd /mnt/raid/home/recberr/StadtwerkeAugsburg/2017/Praesentation
+            opencover Cavepraesentation-SWA.wrl
+	    ;;
+
 
 # CFD
 
@@ -212,6 +228,18 @@ do
 	    echo -e "Adidas"
             opencover /data/strabag/Adidas/04-vrml/praesentation.wrl
  	    ;;
+		
+# URBAN PLANNING
+	38)
+	    echo -e "starting Spielplatz Stuttgart West";
+            covise -e /data/covise_net/2017/Spielplatz.net
+	    ;; 
+	39)
+	    echo -e "starting Herrenberg";
+	    bash /data/reallabor/herrenberg/sumo/startSumo.sh &
+	    covise -e /data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseR.py
+            #opencover /data/reallabor/herrenberg/vrml/simulierteWelten.wrl
+	    ;;
 
 # LKA
 
@@ -294,9 +322,8 @@ do
             opencover /data/pointclouds/riegl/RIEGL_ALS_LMS-Q1560_MountainSorted.ptsb
 	    ;;
 	60)    
-	    echo -e "starting Herrenberg";	    
-	    cd /data/Reallabor/Herrenberg
-	    opencover Herrenberg.wrl  
+	    echo -e "starting Herrenberg";
+	    opencover /data/reallabor/herrenberg/vrml/Herrenberg.wrl
 	    ;;
 
 # VolumeRendering
@@ -310,8 +337,12 @@ do
 	    echo -e "starting knee";
             opencover /data/VolData/vhd/female-knee-marked3.xvf
 	    ;;
+		
 # MISC
-
+    70)
+        echo -e "starting Infinities";
+            opencover /data/Labyrinth/labSoundNew.wrl
+	    ;;
 	71)
 	    echo -e "starting Draeger OP";
             opencover /data/draeger/out/op2.wrl
@@ -358,7 +389,8 @@ do
 
 	81)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /data/covise_net/2014/ThyssenNeu.net
+            opencover /data/Thyssen/Turm/praesentation.wrl
+	    #covise -e /data/covise_net/2014/ThyssenNeu.net
 	    ;;
 
 	82)
@@ -450,6 +482,26 @@ do
         echo -e "CAVE: Frame lock off"
         framelock-cave off
         ;;
+   100)
+	echo -e "Receiver: Toggle Mute"
+	sasuctrl kenwoodMute
+	;;
+   101)
+	echo -e "Receiver: Volume Up"
+	sasuctrl kenwoodVolUp
+	;;
+   102)
+	echo -e "Receiver: Volume Down"
+	sasuctrl kenwoodVolDown
+	;;
+   103)
+	echo -e "Receiver: Switch Input: Video 1"
+	sasuctrl kenwoodVideo
+	;;
+   104)
+	echo -e "Receiver: Switch Input: Aux"
+	sasuctrl kenwoodAux
+	;;
 
 # MENU
 

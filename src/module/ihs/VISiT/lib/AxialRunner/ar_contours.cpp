@@ -75,12 +75,12 @@ int CreateAR_Contours(struct axial *ar)
    }
    ar->p_shroud  = AllocPointStruct();
    // S1
-   s[0][0] = 0.5 * ar->d_inl_ext;
-   s[0][1] = 0.0;
-   s[0][2] = -0.5 * ar->h_inl_ext;
+   s[0][0] = 0.5f * ar->d_inl_ext;
+   s[0][1] = 0.0f;
+   s[0][2] = -0.5f * ar->h_inl_ext;
    AddVPoint(ar->p_shroud, s[0]);
    // translation for hemisphere contour
-   d_hemi = 0.5 * (ar->d_shroud_sphere - ar->diam[1]);
+   d_hemi = 0.5f * (ar->d_shroud_sphere - ar->diam[1]);
    // calculate composite shroud bend, then translate
    // to shroud diametre:
    // centre of shroud corner start arc
@@ -89,11 +89,11 @@ int CreateAR_Contours(struct axial *ar)
    cent1[2] = s[0][2] - ar->r_shroud[0];
    // end point start arc (S3)
    angle   = RAD(-ar->ang_shroud);
-   s[2][0]  = (s[0][0] - cent1[0]) * cos(angle);
-   s[2][0] += (s[0][2] - cent1[2]) * sin(angle) + cent1[0];
+   s[2][0]  = float((s[0][0] - cent1[0]) * cos(angle));
+   s[2][0] += float((s[0][2] - cent1[2]) * sin(angle) + cent1[0]);
    s[2][1]  = 0.0;
-   s[2][2]  = (s[0][0] - cent1[0]) * -sin(angle);
-   s[2][2] += (s[0][2] - cent1[2]) * cos(angle) + cent1[2];
+   s[2][2]  = float((s[0][0] - cent1[0]) * -sin(angle));
+   s[2][2] += float((s[0][2] - cent1[2]) * cos(angle) + cent1[2]);
    // centre of shroud end arc
    cent2[0] = s[2][0] + (cent1[0] - s[2][0]) * ar->r_shroud[1] / ar->r_shroud[0];
    cent2[1] = 0.0;
@@ -104,7 +104,7 @@ int CreateAR_Contours(struct axial *ar)
    s[3][2] = cent2[2];
    dprintf(5,"cent2 = [%f  %f   %f]\n",cent2[0], cent2[1], cent2[2]);
    // distance to shroud diametre, translation (S2)
-   d = 0.5 * ar->diam[1] - s[3][0];
+   d = 0.5f * ar->diam[1] - s[3][0];
    if (ar->shroud_hemi)
    {
       d += d_hemi;
@@ -136,10 +136,10 @@ int CreateAR_Contours(struct axial *ar)
    if (ar->d_shroud_sphere > ar->diam[1])
    {
       ar->shroud_sphere = 1;
-      h_arc = 0.5 * sqrt(pow(ar->d_shroud_sphere, 2) - pow(ar->diam[1], 2));
+      h_arc = float(0.5f * sqrt(pow(ar->d_shroud_sphere, 2) - pow(ar->diam[1], 2)));
       // S5
-      s[4][0] = 0.5 * ar->diam[1];
-      s[4][1] = 0.0;
+      s[4][0] = 0.5f * ar->diam[1];
+      s[4][1] = 0.0f;
       s[4][2] = - ar->h_run + h_arc;
       if (ar->shroud_hemi)
       {
@@ -147,13 +147,13 @@ int CreateAR_Contours(struct axial *ar)
       }
       AddVPoint(ar->p_shroud, s[4]);
       // S6 (shroud arc middle)
-      s[5][0] = 0.5 * ar->d_shroud_sphere;
-      s[5][1] = 0.0;
+      s[5][0] = 0.5f * ar->d_shroud_sphere;
+      s[5][1] = 0.0f;
       s[5][2] = -ar->h_run;
       AddVPoint(ar->p_shroud, s[5]);
       // S7
-      s[6][0] = 0.5 * ar->diam[1];
-      s[6][1] = 0.0;
+      s[6][0] = 0.5f * ar->diam[1];
+      s[6][1] = 0.0f;
       s[6][2] = - ar->h_run - h_arc;
       AddVPoint(ar->p_shroud, s[6]);
       if (p_shroud_arc)
@@ -182,12 +182,12 @@ int CreateAR_Contours(struct axial *ar)
       }
    }
    // draft tube start point (new S8)
-   s[7][0] = 0.5 * ar->d_draft;
-   s[7][1] = 0.0;
+   s[7][0] = 0.5f * ar->d_draft;
+   s[7][1] = 0.0f;
    s[7][2] = - ar->h_run - ar->h_draft;
    if (!ar->shroud_sphere)
    {
-      s[7][0] = 0.5 * ar->diam[1];
+      s[7][0] = 0.5f * ar->diam[1];
    }
    AddVPoint(ar->p_shroud, s[7]);
    if (ar->shroud_counter_rad)
@@ -195,15 +195,15 @@ int CreateAR_Contours(struct axial *ar)
       // centre of counter radius:
       // intersection of line [M_run-S7] (base, vec) and
       // perpendicular bisector to line [S7-S8] (base2, vec2)
-      base[0]  = 0.0;
-      base[1]  = 0.0;
+      base[0]  = 0.0f;
+      base[1]  = 0.0f;
       base[2]  = - ar->h_run;
       vec[0]   = s[6][0] - base[0];
-      vec[1]   = 0.0;
+      vec[1]   = 0.0f;
       vec[2]   = s[6][2] - base[2];
-      base2[0] = 0.5 * (s[6][0] + s[7][0]);
-      base2[1] = 0.0;
-      base2[2] = 0.5 * (s[6][2] + s[7][2]);
+      base2[0] = 0.5f * (s[6][0] + s[7][0]);
+      base2[1] = 0.0f;
+      base2[2] = 0.5f * (s[6][2] + s[7][2]);
       // normal to line [S6-S7]
       vec2[0]  = s[7][2] - s[6][2];
       vec2[1]  = 0.0;
@@ -226,13 +226,13 @@ int CreateAR_Contours(struct axial *ar)
    }
    // outlet extension start point (hub cap height, new S9)
    length  = ar->h_run + ar->p_hubcap->z[ar->cap_nop-1] + s[7][2];
-   s[8][0] = s[7][0] + length * tan(RAD(ar->ang_draft));
+   s[8][0] = float(s[7][0] + length * tan(RAD(ar->ang_draft)));
    s[8][1] = 0.0;
    s[8][2] = s[7][2] - length;
    AddVPoint(ar->p_shroud, s[8]);
    // draft tube end point (new S10)
    length  = ar->p_hubcap->z[ar->cap_nop-1];
-   s[9][0] = s[7][0] + length * tan(RAD(ar->ang_draft));
+   s[9][0] = float(s[7][0] + length * tan(RAD(ar->ang_draft)));
    s[9][1] = 0.0;
    s[9][2] = s[7][2] - length;
    AddVPoint(ar->p_shroud, s[9]);
@@ -408,43 +408,43 @@ int CreateAR_Contours(struct axial *ar)
    }
    ar->p_hub = AllocPointStruct();
    // H1
-   h[0][0] = 0.5 * ar->d_inl_ext;
-   h[0][1] = 0.0;
-   h[0][2] = 0.5 * ar->h_inl_ext;
+   h[0][0] = 0.5f * ar->d_inl_ext;
+   h[0][1] = 0.0f;
+   h[0][2] = 0.5f * ar->h_inl_ext;
    AddVPoint(ar->p_hub, h[0]);
    // H2
    h[1][0] = s[1][0];
-   h[1][1] = 0.0;
-   h[1][2] = 0.5 * ar->h_inl_ext;
+   h[1][1] = 0.0f;
+   h[1][2] = 0.5f * ar->h_inl_ext;
    AddVPoint(ar->p_hub, h[1]);
    // H3
-   h[2][0] = 0.5 * ar->diam[0] + ar->b_hub;
-   h[2][1] = 0.0;
-   h[2][2] = 0.5 * ar->h_inl_ext;
+   h[2][0] = 0.5f * ar->diam[0] + ar->b_hub;
+   h[2][1] = 0.0f;
+   h[2][2] = 0.5f * ar->h_inl_ext;
    AddVPoint(ar->p_hub, h[2]);
    // H4
-   h[3][0] = 0.5 * ar->diam[0];
-   h[3][1] = 0.0;
-   h[3][2] = 0.5 * ar->h_inl_ext - ar->a_hub;
+   h[3][0] = 0.5f * ar->diam[0];
+   h[3][1] = 0.0f;
+   h[3][2] = 0.5f * ar->h_inl_ext - ar->a_hub;
    AddVPoint(ar->p_hub, h[3]);
    // H5
-   h[4][0] = 0.5 * ar->diam[0];
-   h[4][1] = 0.0;
+   h[4][0] = 0.5f * ar->diam[0];
+   h[4][1] = 0.0f;
    h[4][2] = s[3][2];
    AddVPoint(ar->p_hub, h[4]);
    // hub sphere start/end point
    if (ar->d_hub_sphere > ar->diam[0])
    {
       ar->hub_sphere = 1;
-      h_arc = 0.5 * sqrt(pow(ar->d_hub_sphere, 2) - pow(ar->diam[0], 2));
+      h_arc = float(0.5f * sqrt(pow(ar->d_hub_sphere, 2) - pow(ar->diam[0], 2)));
       // H6
-      h[5][0] = 0.5 * ar->diam[0];
-      h[5][1] = 0.0;
+      h[5][0] = 0.5f * ar->diam[0];
+      h[5][1] = 0.0f;
       h[5][2] = - ar->h_run + h_arc;
       AddVPoint(ar->p_hub, h[5]);
       // H7
-      h[6][0] = 0.5 * ar->diam[0];
-      h[6][1] = 0.0;
+      h[6][0] = 0.5f * ar->diam[0];
+      h[6][1] = 0.0f;
       h[6][2] = - ar->h_run - h_arc;
       AddVPoint(ar->p_hub, h[6]);
       if (p_hub_arc)
@@ -456,12 +456,12 @@ int CreateAR_Contours(struct axial *ar)
    // H8 ... H[7+cap_nop]
    for (i = 0; i < ar->cap_nop; i++)
    {
-      h[7+i][0] = 0.5 * ar->p_hubcap->x[i];
+      h[7+i][0] = 0.5f * ar->p_hubcap->x[i];
       h[7+i][1] = 0.0;
       h[7+i][2] = - ar->h_run - ar->p_hubcap->z[i];
       if (!ar->hub_sphere && !i)
       {
-         h[7+i][0] = 0.5 * ar->diam[0];
+         h[7+i][0] = 0.5f * ar->diam[0];
       }
       AddVPoint(ar->p_hub, h[7+i]);
       dprintf(6, "h[7+i(=%d)][0] = %f", i, h[7+i][0]);
@@ -469,7 +469,7 @@ int CreateAR_Contours(struct axial *ar)
       dprintf(6, "  h[7+i(=%d)][2] = %f\n", i, h[7+i][2]);
    }
    // base for outlet extension spline (H[7+cap_nop])
-   base[0] = 0.5 * ar->p_hubcap->x[ar->cap_nop-1];
+   base[0] = 0.5f * ar->p_hubcap->x[ar->cap_nop-1];
    base[1] = 0.0;
    base[2] = - ar->h_run - ar->p_hubcap->z[ar->cap_nop-1];
    // hub cap middle point (H[8+cap_nop])
@@ -489,9 +489,9 @@ int CreateAR_Contours(struct axial *ar)
    h[8+ar->cap_nop][0] *= 2.0;
 
    if(vec[2] < (10.0*vec[0]))
-      h[8+ar->cap_nop][0] = 0.5*ar->p_hubcap->x[ar->cap_nop-1];
+      h[8+ar->cap_nop][0] = 0.5f*ar->p_hubcap->x[ar->cap_nop-1];
    else
-      h[8+ar->cap_nop][0] = POST_HUB_CORE*0.5*ar->p_hubcap->x[ar->cap_nop-1];
+      h[8+ar->cap_nop][0] = POST_HUB_CORE*0.5f*ar->p_hubcap->x[ar->cap_nop-1];
    AddVPoint(ar->p_hub, h[8+ar->cap_nop]);
    // arc part (ellipse)
    if (p_hbend_arc)
@@ -539,14 +539,14 @@ int CreateAR_Contours(struct axial *ar)
          sec  = hbend_bias->list[i];
          x[0] = m - sec * b;
          x[1] = 0.0;
-         x[2] = n + a * sqrt(1.0 - pow((x[0]-m), 2)/pow(b, 2));
+         x[2] = float(n + a * sqrt(1.0 - pow((x[0]-m), 2)/pow(b, 2)));
          AddVPoint(p_hbend_arc, x);
       }
       if (!ar->hub_nos)
       {
-         x[0] = 0.5 * (h[3][0] + p_hbend_arc->x[p_hbend_arc->nump-1]);
-         x[1] = 0.5 * (h[3][1] + p_hbend_arc->y[p_hbend_arc->nump-1]);
-         x[2] = 0.5 * (h[3][2] + p_hbend_arc->z[p_hbend_arc->nump-1]);
+         x[0] = 0.5f * (h[3][0] + p_hbend_arc->x[p_hbend_arc->nump-1]);
+         x[1] = 0.5f * (h[3][1] + p_hbend_arc->y[p_hbend_arc->nump-1]);
+         x[2] = 0.5f * (h[3][2] + p_hbend_arc->z[p_hbend_arc->nump-1]);
          AddVPoint(p_hbend_arc, x);
       }
       AddVPoint(p_hbend_arc, h[3]);

@@ -54,6 +54,10 @@ public:
 
 // Un-comment this line to get data on the normal hash table
 // #define DEBUG_NORM_HASH
+#include "BufferedStream.h"
+
+//#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#define MAXSTREAMDECL BufferedStream
 
 // Hash table for rendering normals
 class NormalTable
@@ -70,7 +74,7 @@ public:
     }
 
 #if MAX_PRODUCT_VERSION_MAJOR > 14 && !defined FASTIO
-    void PrintStats(MaxSDK::Util::TextFile::Writer &mStream);
+    void PrintStats(MAXSTREAMDECL &mStream);
 #else
     void PrintStats(FILE *mStream);
 #endif

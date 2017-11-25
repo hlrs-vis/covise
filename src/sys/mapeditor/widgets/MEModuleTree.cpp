@@ -407,7 +407,7 @@ void MEModuleTree::highlightHistoryModules()
 {
 
     // read infos from mapeditor.xml file and store it in a map
-    for (unsigned int k = 0; k < m_mainHandler->moduleHistory.count(); k++)
+    for (int k = 0; k < m_mainHandler->moduleHistory.count(); k++)
     {
         QString modulename = m_mainHandler->moduleHistory[k].section(":", 1, 1).section("(", 0, 0);
         QString categoryname = m_mainHandler->moduleHistory[k].section("(", 1, 1).section(")", 0, 0);

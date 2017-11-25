@@ -346,6 +346,27 @@ ObjectItem::updatePosition()
     createPath();
 }
 
+/* 
+* Duplicate item
+*/
+void
+	ObjectItem::duplicate()
+{
+	Object * newObject = object_->getClone();
+	AddObjectCommand *command = new AddObjectCommand(newObject, object_->getParentRoad(), NULL);
+	getProjectGraph()->executeCommand(command);
+}
+
+/* 
+* Move item 
+*/
+void
+ObjectItem::move(QPointF &diff)
+{
+	path_->translate(diff);
+	setPath(*path_);
+}
+
 //*************//
 // Delete Item
 //*************//
@@ -423,6 +444,7 @@ void
 ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	pressPos_ = lastPos_ = event->scenePos();
+	closestRoad_ = road_;
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Object
     if (tool == ODD::TSG_DEL)
     {
@@ -434,9 +456,7 @@ ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 		if (copyPan_)
 		{
-			Object * newObject = object_->getClone();
-			AddObjectCommand *command = new AddObjectCommand(newObject, object_->getParentRoad(), NULL);
-			getProjectGraph()->executeCommand(command);
+			signalEditor_->duplicate();
 		}
 
         GraphElement::mousePressEvent(event); // pass to baseclass
@@ -450,9 +470,9 @@ ObjectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 
 		QPointF newPos = event->scenePos();
-		path_->translate(newPos-lastPos_);
+		QPointF p = newPos - lastPos_;
+		signalEditor_->move(p);
 		lastPos_ = newPos;
-		setPath(*path_);
 
 		double s;
 		QVector2D vec;
@@ -488,13 +508,14 @@ ObjectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		{
 			if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
 			{
-				pos_ = road_->getGlobalPoint(object_->getRepeatS(), object_->getT()) + lastPos_ - pressPos_;
+				pos_ = road_->getGlobalPoint(object_->getRepeatS(), object_->getT()) + lastPos_ - pressPos_; //??
 			}
 			else
 			{
 				pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
 			}
-			signalEditor_->translateObject(object_, closestRoad_, pos_);
+			QPointF dist = lastPos_ - pressPos_;
+			signalEditor_->translate(dist);
 
 		}
 	}

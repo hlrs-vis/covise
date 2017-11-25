@@ -20,6 +20,7 @@
 \****************************************************************************/
 
 #include "OfficePlugin.h"
+#include <util/unixcompat.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRMSController.h>

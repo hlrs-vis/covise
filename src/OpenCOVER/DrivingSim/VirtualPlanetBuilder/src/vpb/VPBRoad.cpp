@@ -22,7 +22,7 @@ VPBRoad::VPBRoad(std::string xodrName)
     {
         xercesc::XMLPlatformUtils::Initialize();
     }
-    catch (const xercesc::XMLException &toCatch)
+    catch (const xercesc::XMLException &/*toCatch*/)
     {
         // Do your failure processing here
     }

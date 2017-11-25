@@ -32,6 +32,7 @@ oscSwarm()
         OSC_OBJECT_ADD_MEMBER(CentralObject, "oscCentralObject", 0);
         OSC_OBJECT_ADD_MEMBER(TrafficDefinition, "oscTrafficDefinition", 0);
     };
+        const char *getScope(){return "/OSCGlobalAction/Traffic";};
     oscDouble semiMajorAxis;
     oscDouble semiMinorAxis;
     oscDouble innerRadius;

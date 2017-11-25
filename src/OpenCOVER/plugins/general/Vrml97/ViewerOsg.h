@@ -22,8 +22,10 @@
 #include <osg/Camera>
 
 #include <osg/GL>
+#include <osg/Depth>
 #include <osg/Node>
 #include <osg/Matrix>
+#include <osg/MatrixTransform>
 #include <osg/Material>
 #include <osg/Billboard>
 #include <osg/Texture>
@@ -83,7 +85,6 @@ class Geometry;
 class Texture;
 class Texture2D;
 class StateSet;
-class Depth;
 class ColorMask;
 };
 namespace osgText
@@ -131,10 +132,10 @@ public:
     std::vector<coSensiveSensor *> sensors; // hold all sensors for later access
 
     //osg::ColorMask *NoFrameBuffer;
-    osg::Depth *NoDepthBuffer;
+    osg::ref_ptr<osg::Depth> NoDepthBuffer;
     void setRootNode(osg::Group *group);
-    osg::MatrixTransform *VRMLRoot;
-    static osg::MatrixTransform *VRMLCaveRoot;
+    osg::ref_ptr<osg::MatrixTransform> VRMLRoot;
+    static osg::ref_ptr<osg::MatrixTransform> VRMLCaveRoot;
     double startLoadTime;
     osg::Matrix vrmlBaseMat;
     osg::Matrix currentTransform;
@@ -370,7 +371,7 @@ public:
     // Viewer callbacks (not for public consumption)
 
     // Update the model.
-    void update(double time = 0.0);
+    bool update(double time = 0.0);
 
     // Redraw the screen.
     virtual void redraw();

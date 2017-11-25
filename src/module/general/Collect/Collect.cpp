@@ -20,6 +20,12 @@
 // ++**********************************************************************/
 
 // this includes our own class's headers
+
+#ifdef WIN32
+#ifndef _SCL_SECURE_NO_WARNINGS
+#define _SCL_SECURE_NO_WARNINGS
+#endif
+#endif
 #include "Collect.h"
 #include <do/coDoData.h>
 #include <do/coDoGeometry.h>
@@ -60,15 +66,6 @@ Collect::Collect(int argc, char *argv[])
             );
         p_color[c]->setRequired(c == 0);
     }
-
-    for (int c = 0; c < NumColorMaps; ++c)
-    {
-        std::string data_in_str = "ColormapOut" + boost::lexical_cast<std::string>(c);
-        p_colorMap[c] = addInputPort(data_in_str.c_str(),
-                                     "ColorMap",
-                                     "Colormap Input");
-        p_colorMap[c]->setRequired(false);
-    }
     p_shaderNum = addInt32Param("ShaderNum", "number of virvo shader");
     p_shaderNum->setValue(-1);
 #else
@@ -93,6 +90,8 @@ Collect::Collect(int argc, char *argv[])
 
     p_varName = addStringParam("varName", "name of variant");
     p_varName->setValue("");
+    p_varVisible = addBooleanParam("varVisible", "whether variant should be visible initially");
+    p_varVisible->setValue(true);
 
     p_attribute = addStringParam("attribute", "attributes in the form name=value;name2=value2;...");
     p_attribute->setValue("");
@@ -164,9 +163,6 @@ int Collect::compute(const char *)
     const coDistributedObject *color[NumChannels];
     for (int c = 0; c < NumChannels; ++c)
         color[c] = p_color[c]->getCurrentObject();
-    const coDistributedObject *colorMap[NumColorMaps];
-    for (int c = 0; c < NumColorMaps; ++c)
-        colorMap[c] = p_colorMap[c]->getCurrentObject();
     const coDistributedObject *text = 0;
     const coDistributedObject *norm = 0;
     const coDistributedObject *vertex = 0;
@@ -231,15 +227,6 @@ int Collect::compute(const char *)
             color[c]->incRefCount();
         }
     }
-
-    for (int c = 0; c < NumColorMaps; ++c)
-    {
-        if (colorMap[c])
-        {
-            geom->setColorMap(NONE, colorMap[c], c);
-            colorMap[c]->incRefCount();
-        }
-    }
 #else
     if (color)
     {
@@ -302,9 +289,17 @@ geom->addAttribute(varVal[0].c_str(), varVal[1].c_str());
 }
     }
 
-    geom->addAttribute("VARIANT", p_varName->getValue());
-    if (strlen(p_varName->getValue()) > 0)
-    {
+    std::string variant = p_varName->getValue();
+    if (!variant.empty()) {
+        if (p_varVisible->getValue())
+        {
+            geom->addAttribute("VARIANT_VISIBLE", "on");
+        }
+        else
+        {
+            geom->addAttribute("VARIANT_VISIBLE", "off");
+        }
+        geom->addAttribute("VARIANT", p_varName->getValue());
         geom->addAttribute("MODULE", "Variant");
     }
 
@@ -315,10 +310,6 @@ geom->addAttribute(varVal[0].c_str(), varVal[1].c_str());
     else if (const char *n = grid->getAttribute("OBJECTNAME"))
     {
         geom->addAttribute("OBJECTNAME", n);
-    }
-    else if (strlen(p_varName->getValue()) > 0)
-    {
-        geom->addAttribute("OBJECTNAME", p_varName->getValue());
     }
 
 #ifdef MATERIAL

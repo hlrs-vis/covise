@@ -56,6 +56,7 @@
 #include "EnableGLDebugOperation.h"
 #include "input/input.h"
 #include "tridelity.h"
+#include "ui/Button.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>
@@ -108,6 +109,21 @@
 
 using namespace opencover;
 using namespace covise;
+
+static void clearGlWindow(bool doubleBuffer)
+{
+    if (doubleBuffer)
+    {
+        glDrawBuffer(GL_BACK);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glDrawBuffer(GL_FRONT);
+    }
+
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
 
 int VRViewer::unsyncedFrames = 0;
 // Draw operation, that does a draw on the scene graph.
@@ -236,8 +252,9 @@ struct ViewerRunOperations : public osg::Operation
                 numClears = coVRConfig::instance()->numWindows() * 2;
             }
             numClears--;
+            auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(context);
+            clearGlWindow(!emb);
             context->makeCurrent();
-            context->clear();
         } // OpenCOVER end
 
         context->runOperations();
@@ -245,19 +262,21 @@ struct ViewerRunOperations : public osg::Operation
 };
 
 //OpenCOVER
-void VRViewer::handleEvents()
+bool VRViewer::handleEvents()
 {
-    myeh->update();
+    return myeh->update();
 }
 
 //OpenCOVER
-void VRViewer::update()
+bool VRViewer::update()
 {
+    bool again = false;
     if (cover->debugLevel(5))
         fprintf(stderr, "VRViewer::update\n");
 
     if (animateSeparation)
     {
+        again = true;
         if (animateSeparation == 1)
         {
             separation += ANIMATIONSPEED;
@@ -288,6 +307,7 @@ void VRViewer::update()
             //viewMat.setTrans( viewPos);
             viewMat = vpMarker->getCameraTrans();
         }
+        again = true;
     }
 
     // compute viewer position
@@ -334,6 +354,7 @@ void VRViewer::update()
     {
         setFrustumAndView(i);
     }
+    return again;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -341,12 +362,12 @@ void VRViewer::update()
 // osgViewer::Viewer implemention
 //
 
+VRViewer *VRViewer::s_singleton = NULL;
 VRViewer *VRViewer::instance()
 {
-    static VRViewer *singleton = NULL;
-    if (!singleton)
-        singleton = new VRViewer;
-    return singleton;
+    if (!s_singleton)
+        s_singleton = new VRViewer;
+    return s_singleton;
 }
 
 //OpenCOVER
@@ -354,6 +375,8 @@ VRViewer::VRViewer()
 : animateSeparation(0)
 , stereoOn(true)
 {
+    assert(!s_singleton);
+
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
@@ -426,6 +449,33 @@ VRViewer::VRViewer()
         vpMarker = new ARToolKitMarker("ViewpointMarker");
     }
     overwritePAndV = false;
+
+    auto stereosep = new ui::Button(cover->viewOptionsMenu, "StereoSep");
+    stereosep->setText("Stereo separation");
+    stereosep->setState(stereoOn);
+    stereosep->setCallback([this](bool state){
+        stereoOn = state;
+        setSeparation(Input::instance()->eyeDistance());
+    });
+
+    auto ortho = new ui::Button(cover->viewOptionsMenu, "Orthographic");
+    ortho->setText("Orthographic projection");
+    ortho->setState(coVRConfig::instance()->orthographic());
+    ortho->setCallback([this](bool state){
+        coVRConfig::instance()->setOrthographic(state);
+        update();
+        requestRedraw();
+    });
+
+#if 0
+    auto stat = new ui::Button(cover->viewOptionsMenu, "Statistics");
+    stat->setState(coVRConfig::instance()->drawStatistics);
+    stat->setCallback([this](bool state){
+        coVRConfig::instance()->drawStatistics = state;
+        statistics(coVRConfig::instance()->drawStatistics);
+        //XXX setInstrumentationMode( coVRConfig::instance()->drawStatistics );
+    });
+#endif
 }
 
 //OpenCOVER
@@ -443,6 +493,10 @@ VRViewer::~VRViewer()
         }
     }
 #endif
+
+    coVRSceneView::destroyUniforms();
+
+    s_singleton = NULL;
 }
 
 
@@ -1031,12 +1085,14 @@ VRViewer::createChannels(int i)
     if (cover->debugLevel(3))
         fprintf(stderr, "VRViewer::createChannels\n");
 
+#if 0
     osg::GraphicsContext::WindowingSystemInterface *wsi = osg::GraphicsContext::getWindowingSystemInterface();
     if (!wsi)
     {
         osg::notify(osg::NOTICE) << "VRViewer : Error, no WindowSystemInterface available, cannot create windows." << std::endl;
         return;
     }
+#endif
     const int vp = coVRConfig::instance()->channels[i].viewportNum;
     if (vp >= coVRConfig::instance()->numViewports())
     {
@@ -1044,11 +1100,12 @@ VRViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
-    bool RenderToTexture = false;
+    bool RenderToTexture = false, RenderToOsgWindow = true;
     osg::ref_ptr<osg::GraphicsContext> gc = NULL;
     int pboNum = coVRConfig::instance()->channels[i].PBONum;
     if(vp >= 0)
     {
+        //std::cerr << "chan " << i << ": have viewport" << std::endl;
         const int win = coVRConfig::instance()->viewports[vp].window;
         if (win < 0 || win >= coVRConfig::instance()->numWindows())
         {
@@ -1058,6 +1115,11 @@ VRViewer::createChannels(int i)
         }
         gc = coVRConfig::instance()->windows[win].context;
         pboNum = -1;
+        if (!coVRConfig::instance()->windows[win].type.empty())
+        {
+            //std::cerr << "chan " << i << ": no window" << std::endl;
+            RenderToOsgWindow = false;
+        }
     }
     else
     {
@@ -1066,6 +1128,16 @@ VRViewer::createChannels(int i)
             cerr << "channel " << i << ": neither viewport nor PBO configured" << endl;
             return;
         }
+		if (coVRConfig::instance()->PBOs.size() <= pboNum)
+		{
+			cerr << "PBO " << pboNum << " not available" << endl;
+			return;
+		}
+		if (coVRConfig::instance()->windows.size() <= coVRConfig::instance()->PBOs[pboNum].windowNum)
+		{
+			cerr << "PBOs window " << coVRConfig::instance()->PBOs[pboNum].windowNum << " not available PBO nr." << pboNum << endl;
+			return;
+		}
         gc = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[pboNum].windowNum].context;
         RenderToTexture = true;
     }
@@ -1158,21 +1230,32 @@ VRViewer::createChannels(int i)
         }
 
 
-        coVRConfig::instance()->channels[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
-        coVRConfig::instance()->channels[i].camera->setClearStencil(0);
-
-        GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
-        coVRConfig::instance()->channels[i].camera->setDrawBuffer(buffer);
-        coVRConfig::instance()->channels[i].camera->setReadBuffer(buffer);
-        coVRConfig::instance()->channels[i].camera->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
-        coVRConfig::instance()->channels[i].camera->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
-        coVRConfig::instance()->channels[i].camera->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
+        auto &cam = coVRConfig::instance()->channels[i].camera;
+        cam->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
+        cam->setClearStencil(0);
+        if (RenderToOsgWindow)
+        {
+            GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
+            cam->setDrawBuffer(buffer);
+            cam->setReadBuffer(buffer);
+            cam->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
+        }
+        else
+        {
+            cam->setDrawBuffer(GL_NONE);
+            cam->setReadBuffer(GL_NONE);
+            cam->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
+        }
+        cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
+        cam->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
+        cam->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
        
-        coVRConfig::instance()->channels[i].camera->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
-        //coVRConfig::instance()->channels[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
+        //cam->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
+    {
         cerr << "window " << coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window << " of channel " << i << " not defined" << endl;
+    }
 
     osg::DisplaySettings *ds = NULL;
     ds = _displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get();
@@ -1180,6 +1263,8 @@ VRViewer::createChannels(int i)
     {
         ds = new osg::DisplaySettings(*(_displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get()));
     }
+    if (!coVRConfig::instance()->glVersion.empty())
+        ds->setGLContextVersion(coVRConfig::instance()->glVersion);
 
     // set up the use of stereo by default.
     ds->setStereo(coVRConfig::instance()->stereoState());
@@ -1245,7 +1330,8 @@ VRViewer::setClearColor(const osg::Vec4 &color)
 {
     for (int i = 0; i < coVRConfig::instance()->numChannels(); ++i)
     {
-        coVRConfig::instance()->channels[i].camera->setClearColor(color);
+		if(coVRConfig::instance()->channels[i].camera!=NULL)
+            coVRConfig::instance()->channels[i].camera->setClearColor(color);
     }
 }
 
@@ -1460,8 +1546,11 @@ VRViewer::setFrustumAndView(int i)
             }
             else
             {
-                currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+				if (!coco->OpenVR_HMD)
+				{
+					currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+					currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+				}
                 currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
             }
         }
@@ -1633,41 +1722,6 @@ VRViewer::readConfigFile()
     }
 }
 
-/*______________________________________________________________________*/
-// OpenCOVER
-void
-VRViewer::stereoSepCallback(void *data, buttonSpecCell *spec)
-{
-    VRViewer *viewer = static_cast<VRViewer *>(data);
-    int status = (int)spec->state;
-
-    viewer->stereoOn = (status!=0);
-    viewer->setSeparation(Input::instance()->eyeDistance());
-}
-
-/*______________________________________________________________________*/
-// OpenCOVER
-void
-VRViewer::freezeCallback(void *, buttonSpecCell *spec)
-{
-    if (spec->state == 1.0)
-    {
-        coVRConfig::instance()->setFrozen(true);
-    }
-    else
-    {
-        coVRConfig::instance()->setFrozen(false);
-    }
-}
-
-/*______________________________________________________________________*/
-// OpenCOVER
-void
-VRViewer::orthographicCallback(void *, buttonSpecCell *spec)
-{
-    coVRConfig::instance()->setOrthographic((spec->state == 1.0));
-}
-
 // OpenCOVER
 void VRViewer::redrawHUD(double interval)
 {
@@ -1676,6 +1730,8 @@ void VRViewer::redrawHUD(double interval)
     {
         unsyncedFrames++; // do not wait for slaves during temporary updates of the headup display
         frame(); // draw one frame
+        VRWindow::instance()->update();
+        VRWindow::instance()->updateContents();
     }
 }
 
@@ -1691,6 +1747,8 @@ void VRViewer::frame()
         culling(true);
         reEnableCulling = false;
     }
+
+    VRWindow::instance()->updateContents();
 }
 
 void VRViewer::startThreading()
@@ -1862,7 +1920,7 @@ void VRViewer::startThreading()
             {
                 if(coVRConfig::instance()->windows[i].context == gc)
                 {
-                    osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window);
+                    osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window.get());
 
                     if(coVRConfig::instance()->windows[i].swapGroup > 0)
                         glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);
@@ -2214,7 +2272,7 @@ void VRViewer::renderingTraversals()
              vitr != views.end();
              ++vitr)
         {
-            View *view = *vitr;
+            osgViewer::View *view = *vitr;
             osg::Stats *stats = view->getStats();
             osg::Node *sceneRoot = view->getSceneData();
             if (sceneRoot && stats)
@@ -2363,17 +2421,18 @@ void VRViewer::renderingTraversals()
                     numClears = coVRConfig::instance()->numWindows() * 2;
                 }
                 numClears--;
+                auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(*itr);
+                clearGlWindow(!emb);
                 makeCurrent(*itr);
-                (*itr)->clear();
             }
             //cerr << "finish" << endl;
 	    
             double beginFinish = elapsedTime();
             glFinish();
             double endFinish = elapsedTime();
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
             sync = true;
         }
     }
@@ -2407,9 +2466,9 @@ void VRViewer::renderingTraversals()
             double beginSync = elapsedTime();
             coVRMSController::instance()->syncDraw();
             double endSync = elapsedTime();
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "sync begin time ", beginSync);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "sync end time ", endSync);
-            getStats()->setAttribute(frameStamp->getFrameNumber(), "sync time taken", endSync - beginSync);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "sync begin time ", beginSync);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "sync end time ", endSync);
+            getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "sync time taken", endSync - beginSync);
         }
         else
             VRViewer::unsyncedFrames--;
@@ -2431,9 +2490,9 @@ void VRViewer::renderingTraversals()
         }
     }
     double endSwap = elapsedTime();
-    getStats()->setAttribute(frameStamp->getFrameNumber(), "swap begin time ", beginSwap);
-    getStats()->setAttribute(frameStamp->getFrameNumber(), "swap end time ", endSwap);
-    getStats()->setAttribute(frameStamp->getFrameNumber(), "swap time taken", endSwap - beginSwap);
+    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "swap begin time ", beginSwap);
+    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "swap end time ", endSwap);
+    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "swap time taken", endSwap - beginSwap);
 
     if (OpenCOVER::instance()->initDone())
     {
@@ -2478,50 +2537,27 @@ void VRViewer::renderingTraversals()
         releaseContext();
     }
 
-    if (getStats() && getStats()->collectStats("update"))
+    if (getViewerStats() && getViewerStats()->collectStats("update"))
     {
         double endRenderingTraversals = elapsedTime();
 
         // update current frames stats
-        getStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals begin time ", beginRenderingTraversals);
-        getStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals end time ", endRenderingTraversals);
-        getStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals time taken", endRenderingTraversals - beginRenderingTraversals);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals begin time ", beginRenderingTraversals);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals end time ", endRenderingTraversals);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "Rendering traversals time taken", endRenderingTraversals - beginRenderingTraversals);
     }
 
     _requestRedraw = false;
 }
 
-void VRViewer::statistics(bool enable)
+void VRViewer::toggleStatistics()
 {
 
     //simulate key press
     osgGA::GUIEventAdapter *ea = new osgGA::GUIEventAdapter;
     ea->setEventType(osgGA::GUIEventAdapter::KEYDOWN);
     ea->setKey(statsHandler->getKeyEventTogglesOnScreenStats());
-    static bool oldEnable = false;
-    if (oldEnable != enable)
-    {
-        if (enable)
-        {
-            //on
-            statsHandler->handle(*ea, *this);
-            //  statsHandler->handle(*ea,*this);
-        }
-        else
-        {
-            //off
-            statsHandler->handle(*ea, *this);
-        }
-    }
-    oldEnable = enable;
-}
-
-void
-VRViewer::statisticsCallback(void *, buttonSpecCell *spec)
-{
-    coVRConfig::instance()->drawStatistics = spec->state != 0.0;
-    VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
-    //XXX VRViewer::instance()->setInstrumentationMode( coVRConfig::instance()->drawStatistics );
+    statsHandler->handle(*ea, *this);
 }
 
 template <typename Cameras, typename F>

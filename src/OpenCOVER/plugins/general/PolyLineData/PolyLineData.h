@@ -18,6 +18,8 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
 
+#include <OpenVRUI/coMenu.h>
+
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Array>

@@ -27,6 +27,7 @@
 #include <osg/Camera>
 #include <osg/Multisample>
 #include <osg/Texture2D>
+#include <osgViewer/GraphicsWindow>
 #include <osgUtil/SceneView>
 #include <string>
 
@@ -43,6 +44,8 @@ class GraphicsWindow;
 
 namespace opencover
 {
+
+class coVRPlugin;
 
 //! describes a physical screen, such as one wall of a CAVE
 struct screenStruct
@@ -135,8 +138,8 @@ struct windowStruct
 {
     int ox, oy;
     int sx, sy;
-    osg::GraphicsContext *context;
-    osgViewer::GraphicsWindow *window;
+    osg::ref_ptr<osg::GraphicsContext> context;
+    osg::ref_ptr<osgViewer::GraphicsWindow> window;
     int pipeNum;
     std::string name;
     bool decoration;
@@ -146,6 +149,8 @@ struct windowStruct
     bool pbuffer;
     int swapGroup;
     int swapBarrier;
+    std::string type;
+    coVRPlugin *windowPlugin;
 
     windowStruct()
     : ox(-1)
@@ -163,6 +168,7 @@ struct windowStruct
     , pbuffer(false)
     , swapGroup(-1)
     , swapBarrier(-1)
+    , windowPlugin(NULL)
     {}
 };
 
@@ -239,6 +245,8 @@ class COVEREXPORT coVRConfig
     friend class VRSceneGraph;
     friend class OpenCOVER;
     friend class VRViewer;
+
+    static coVRConfig *s_instance;
 
 public:
     static coVRConfig *instance();
@@ -399,6 +407,8 @@ public:
 
     void setFrameRate(float fr);
     float frameRate() const;
+
+    bool continuousRendering() const;
     
     std::vector<screenStruct> screens; // list of physical screens
     std::vector<channelStruct> channels; // list of physical screens
@@ -411,6 +421,11 @@ public:
     bool useDisplayVariable() const
     {
         return m_useDISPLAY;
+    }
+
+    bool useVirtualGL() const
+    {
+        return m_useVirtualGL;
     }
 
     bool restrictOn() const
@@ -439,6 +454,7 @@ public:
     float HMDViewingAngle;
     float HMDDistance;
     std::string glVersion;
+	bool OpenVR_HMD;
 
 private:
     coVRConfig();
@@ -450,6 +466,7 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
+    bool m_useVirtualGL;
     int m_stencilBits;
     float m_sceneSize;
 
@@ -491,6 +508,7 @@ private:
 
     bool constantFrameRate;
     float constFrameTime;
+    bool m_continuousRendering;
 
     bool m_restrict;
 

@@ -30,6 +30,7 @@ oscLane()
         OSC_ADD_MEMBER(s, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscString roadId;
     oscInt laneId;
     oscDouble offset;

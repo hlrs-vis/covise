@@ -23,19 +23,23 @@
 
 #include <cover/coVRPlugin.h>
 
-#include "VehicleManager.h"
-#include "VehicleFactory.h"
-#include "PedestrianManager.h"
-#include "PedestrianFactory.h"
-#include "RoadSystem/RoadSystem.h"
-#include "UDPBroadcast.h"
-#include "Vehicle.h"
+#include <TrafficSimulation/VehicleManager.h>
+#include <TrafficSimulation/VehicleFactory.h>
+#include <TrafficSimulation/PedestrianManager.h>
+#include <TrafficSimulation/PedestrianFactory.h>
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <TrafficSimulation/UDPBroadcast.h>
+#include <TrafficSimulation/Vehicle.h>
+#include "myFactory.h"
 
 
 namespace OpenScenario
 {
 class OpenScenarioBase;
 }
+
+class Source;
+class CameraSensor;
 
 class OpenScenarioPlugin : public opencover::coVRPlugin
 {
@@ -47,11 +51,18 @@ public:
 	int loadOSCFile(const char *filename, osg::Group *loadParent, const char *key);
 
 	static OpenScenarioPlugin *plugin;
+	static OpenScenarioPlugin *instance() { return plugin; };
+	std::list<CameraSensor *> cameras;
+	CameraSensor *currentCamera=NULL;
 
 	bool init();
 
     // this will be called in PreFrame
     void preFrame();
+	// return if rendering is required
+	bool update();
+
+	void addSource(Source *s) { sources.push_back(s); };
 
 private:
 	OpenScenario::OpenScenarioBase *osdb;
@@ -59,11 +70,13 @@ private:
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);
 	std::string xodrDirectory;
+	std::string xoscDirectory;
 	xercesc::DOMElement *getOpenDriveRootElement(std::string);
 	void parseOpenDrive(xercesc::DOMElement *);
 	xercesc::DOMElement *rootElement;
 	osg::PositionAttitudeTransform *roadGroup;
 	RoadSystem *system;
+	std::list<Source *> sources;
 
 	VehicleManager *manager;
 	PedestrianManager *pedestrianManager;

@@ -28,6 +28,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRPluginList.h>
 
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
@@ -101,12 +102,12 @@ VolumePlugin::Volume::Volume()
 
     node = new osg::Geode();
     node->setStateSet(geoState.get());
+    node->setNodeMask(node->getNodeMask() & ~Isect::Intersection);
     node->addDrawable(drawable.get());
 
     transform = new osg::MatrixTransform();
     transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)));
     transform->addChild(node);
-    transform->setNodeMask(transform->getNodeMask() & ~Isect::Intersection);
 
     min = max = osg::Vec3(0., 0., 0.);
 
@@ -373,9 +374,12 @@ bool VolumePlugin::init()
 
     backgroundColor = BgDefault;
     bool ignore;
-    computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
+    computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", true, &ignore);
+    showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
+    lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
+    preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
 
-    tfeBackgroundTexture = new uchar[TEXTURE_RES_BACKGROUND * TEXTURE_RES_BACKGROUND * 4];
+    tfeBackgroundTexture.resize(TEXTURE_RES_BACKGROUND * TEXTURE_RES_BACKGROUND * 4);
 
     currentVolume = volumes.end();
 
@@ -487,8 +491,8 @@ bool VolumePlugin::init()
     fpsItem.reset(new coSliderMenuItem("Frame Rate", 5.0, 60.0, chosenFPS));
     boundItem.reset(new coCheckboxMenuItem("Boundaries", false));
     interpolItem.reset(new coCheckboxMenuItem("Interpolation", false));
-    preintItem.reset(new coCheckboxMenuItem("Pre-integration", true));
-    lightingItem.reset(new coCheckboxMenuItem("Lighting", false));
+    preintItem.reset(new coCheckboxMenuItem("Pre-integration", preIntegration));
+    lightingItem.reset(new coCheckboxMenuItem("Lighting", lighting));
     colorsItem.reset(new coPotiMenuItem("Discrete Colors", 0.0, 32.0, 0, VolumeCoim.get(), "DISCRETE_COLORS"));
     hqItem.reset(new coSliderMenuItem("Oversampling", 1.0, MAX_QUALITY * 2., highQualityOversampling));
     allVolumesActiveItem.reset(new coCheckboxMenuItem("All Volumes Active", allVolumesActive));
@@ -546,7 +550,6 @@ bool VolumePlugin::init()
     clipSphereInteractorActive2Item->setMenuListener(this);
     clipSphereRadius2Item->setMenuListener(this);
     preintItem->setMenuListener(this);
-    preintItem->setState(false);
     lightingItem->setMenuListener(this);
     fpsItem->setMenuListener(this);
     hqItem->setMenuListener(this);
@@ -710,7 +713,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                     delete[] functionEditorTab -> histogramData;
                     functionEditorTab->histogramData = NULL;
                     functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
-                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, 0, 1);
+                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
 
                     functionEditorTab->sendHistogramData();
                 }
@@ -1099,7 +1102,8 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
 
     vd->printInfoLine("Loaded");
 
-    editor->show();
+    if (showTFE)
+        editor->show();
     // a volumefile will be loaded now , so show the TFE
 
     updateVolume(fileName, vd, false, fileName);
@@ -1149,13 +1153,12 @@ void VolumePlugin::message(int type, int len, const void *buf)
                 if (drawable && drawable->getROISize() > 0.)
                 {
                     roiMode = true;
-                    cover->setButtonState("Region of Interest", 1);
                 }
                 else
                 {
                     roiMode = false;
-                    cover->setButtonState("Region of Interest", 0);
                 }
+                ROIItem->setState(roiMode);
             }
         }
     }
@@ -1173,14 +1176,6 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
     int shader = -1;
 
-    // colorMap is not passed as parameter..
-    size_t MaxColorMap = 8;
-    std::vector<RenderObject *> colorMap(MaxColorMap);
-    for (int c = 0; c < colorMap.size(); ++c)
-    {
-        colorMap[c] = container->getColorMap(c);
-    }
-
     if (container->getAttribute("VOLUME_SHADER"))
     {
         std::string s = container->getAttribute("VOLUME_SHADER");
@@ -1196,6 +1191,12 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
         int sizeX, sizeY, sizeZ;
         geometry->getSize(sizeX, sizeY, sizeZ);
 
+        if (sizeX<=1 || sizeY<=1 || sizeZ<=1)
+        {
+            // ignore 2-dimensional grids: already handled by COVISE plugin
+            return;
+        }
+
         float minX, maxX, minY, maxY, minZ, maxZ;
         geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
 
@@ -1204,7 +1205,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
         cerr << "@ APP @@ Color object type is " << colorObj->getType() << endl;
 #endif
 
-        bool showEditor = true;
+        bool showEditor = showTFE;
         if (colorObj)
         {
             const uchar *byteData = colorObj->getByte(Field::Byte);
@@ -1394,40 +1395,11 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
 
             for (size_t c = 0; c < volDesc->chan; ++c)
             {
-                volDesc->real[c][0] = colorObj->getMin(c);
-                volDesc->real[c][1] = colorObj->getMax(c);
+                volDesc->range(c)[0] = colorObj->getMin(c);
+                volDesc->range(c)[1] = colorObj->getMax(c);
 
-                if (volDesc->real[c][1] == 0 && volDesc->real[c][0] == 0)
-                    volDesc->real[c][1] = 1.0f;
-            }
-
-            // Append color maps as additional transfer functions
-            for (int c = 0; c < MaxColorMap; ++c)
-            {
-                if (colorMap[c] && colorMap[c]->getNumElements() > 0)
-                {
-                    volDesc->tf.resize(volDesc->tf.size() + 1);
-                    volDesc->real.push_back(virvo::vec2(0.0f, 1.0f));
-
-                    const float* rgbax = colorMap[c]->getFloat((Field::Id)c);
-
-                    for (int i = 0; i < colorMap[c]->getNumElements(); ++i)
-                    {
-                        float r = rgbax[i * 5];
-                        float g = rgbax[i * 5 + 1];
-                        float b = rgbax[i * 5 + 2];
-                        float a = rgbax[i * 5 + 3];
-                        volDesc->tf.back()._widgets.push_back(new vvTFPyramid(
-                                vvColor(r, g, b),
-                                true,       // has own color
-                                a,          // opacity
-                                i / 255.0f, // xpos
-                                1 / 255.0f, // width bottom
-                                1 / 255.0f  // width top
-                                )
-                            );
-                    }
-                }
+                if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
+                    volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
             }
 
             if (container->getName())
@@ -1436,6 +1408,10 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                 updateVolume(geometry->getName(), volDesc);
             else
                 updateVolume("Anonymous COVISE object", volDesc);
+            if (currentVolume != volumes.end())
+            {
+                coVRPluginList::instance()->addNode(currentVolume->second.transform, container, this);
+            }
 
             if (shader >= 0 && currentVolume != volumes.end())
             {
@@ -1468,6 +1444,7 @@ void VolumePlugin::removeObject(const char *name, bool)
     vvDebugMsg::msg(2, "VolumePlugin::VRRemoveObject()");
 
     updateVolume(name, NULL);
+
 }
 
 void VolumePlugin::cropVolume()
@@ -1584,6 +1561,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         if (volume == volumes.end())
             return false;
 
+        coVRPluginList::instance()->removeNode(volume->second.transform, false, volume->second.transform);
+
         if (volume == currentVolume)
         {
             VolumeMap::iterator cur = currentVolume;
@@ -1630,8 +1609,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 for (int i = 0; i < volumes[name].tf.size(); ++i)
                 {
-                    volumes[name].tf[i].setDefaultColors(4 + i, 0., 1.);
-                    volumes[name].tf[i].setDefaultAlpha(0, 0., 1.);
+                    volumes[name].tf[i].setDefaultColors(4 + i, vd->range(i)[0], vd->range(i)[1]);
+                    volumes[name].tf[i].setDefaultAlpha(0, vd->range(i)[0], vd->range(i)[1]);
                 }
             }
             else
@@ -1759,8 +1738,9 @@ void VolumePlugin::updateTFEData()
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, tfeBackgroundTexture, vvVolDesc::VV_LINEAR, &fg, 0., 1.);
-                        editor->updateBackground(tfeBackgroundTexture);
+                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
+                        editor->updateBackground(&tfeBackgroundTexture[0]);
+                        editor->pinedit->setBackgroundType(0); // histogram
                     }
 
                     editor->setNumChannels(vd->chan);
@@ -1770,8 +1750,8 @@ void VolumePlugin::updateTFEData()
                     for (int c = 0; c < vd->chan; ++c)
                     {
                         editor->setActiveChannel(c);
-                        editor->setMin(vd->real[c][0]);
-                        editor->setMax(vd->real[c][1]);
+                        editor->setMin(vd->range(c)[0]);
+                        editor->setMax(vd->range(c)[1]);
                     }
 
                     editor->setActiveChannel(currentVolume->second.curChannel);
@@ -1800,9 +1780,12 @@ void VolumePlugin::updateTFEData()
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
                         if (vd->chan == 1)
-                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, 0, 1);
+                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
                         else
-                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, 0, 1);
+                            //TODO: allow to pass in multiple min/max pairs
+                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,
+                                              std::min(vd->range(0)[0], vd->range(1)[0]),
+                                              std::max(vd->range(0)[1], vd->range(1)[1]));
                     }
                 }
             }
@@ -1958,7 +1941,7 @@ void VolumePlugin::preFrame()
             {
                 StateSet *state = drawable->getOrCreateStateSet();
                 ClipNode *cn = cover->getObjectsRoot();
-                for (unsigned int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
+                for (int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
                 {
                     ClipPlane *cp = cn->getClipPlane(i);
                     Vec4 v = cp->getClipPlane();
@@ -2027,7 +2010,10 @@ void VolumePlugin::preFrame()
     if (roiMode && pointerInROI(&mouse))
     {
         if (drawable)
+        {
             drawable->setROISelected(true);
+            drawable->setBoundaries(true);
+        }
         if (!interactionA->isRegistered())
         {
             coInteractionManager::the()->registerInteraction(interactionA);
@@ -2042,32 +2028,35 @@ void VolumePlugin::preFrame()
     else
     {
         unregister = true;
-        if (drawable)
-            drawable->setROISelected(false);
     }
+
     if (interactionA->wasStarted())
     {
         // start ROI move
-        invStartMove.invert(mouse ? cover->getMouseMat() : cover->getPointerMat());
+        invStartMove.invert(interactionA->is2D() ? cover->getMouseMat() : cover->getPointerMat());
         if (currentVolume != volumes.end())
-            startPointerPosWorld = currentVolume->second.roiPosObj * cover->getBaseMat();
+            startPointerPosWorld = currentVolume->second.roiPosObj * currentVolume->second.transform->getMatrix() * cover->getBaseMat();
         else
             startPointerPosWorld = Vec3(0., 0., 0.) * cover->getBaseMat();
     }
-    int rollCoord = mouse ? 1 : 2;
+    //int rollCoord = interactionB->is2D() ? 1 : 2;
+    int rollCoord = interactionB->is2D() ? 0 : 2;
     if (interactionB->wasStarted())
     {
-        coCoord mouseCoord(mouse ? cover->getMouseMat() : cover->getPointerMat());
+        coCoord mouseCoord(interactionB->is2D() ? cover->getMouseMat() : cover->getPointerMat());
         lastRoll = mouseCoord.hpr[rollCoord];
     }
+
     if (interactionA->isRunning())
     {
         Matrix moveMat;
-        Vec3 roiPosWorld;
-        moveMat.mult(invStartMove, mouse ? cover->getMouseMat() : cover->getPointerMat());
-        roiPosWorld = startPointerPosWorld * moveMat;
+        moveMat.mult(invStartMove, interactionA->is2D() ? cover->getMouseMat() : cover->getPointerMat());
+        Vec3 roiPosWorld = startPointerPosWorld * moveMat;
         if (currentVolume != volumes.end())
-            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * currentVolume->second.transform->getMatrix();
+        {
+            osg::Matrix t = osg::Matrix::inverse(currentVolume->second.transform->getMatrix());
+            currentVolume->second.roiPosObj = roiPosWorld * cover->getInvBaseMat() * t;
+        }
 
         if (drawable)
         {
@@ -2086,28 +2075,27 @@ void VolumePlugin::preFrame()
     }
     if (interactionB->isRunning())
     {
-        coCoord mouseCoord(mouse ? cover->getMouseMat() : cover->getPointerMat());
-        if (lastRoll != mouseCoord.hpr[rollCoord])
-        {
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
+        {
+            bool mouse = interactionB->is2D();
+            coCoord mouseCoord(mouse ? cover->getMouseMat() : cover->getPointerMat());
+            if (lastRoll != mouseCoord.hpr[rollCoord])
             {
                 if ((lastRoll - mouseCoord.hpr[rollCoord]) > 180)
                     lastRoll -= 360;
                 if ((lastRoll - mouseCoord.hpr[rollCoord]) < -180)
                     lastRoll += 360;
-                roiCellSize -= (lastRoll - mouseCoord.hpr[rollCoord]) / 90 * (mouse ? 10 : 1);
-                lastRoll = mouseCoord.hpr[rollCoord];
-                if (roiCellSize * roiMaxSize * cover->getScale() < 100)
-                {
-                    //               roiCellSize = 100/(roiMaxSize*cover->getScale());  // retain minimum size for ROI to be visible
-                }
+
+                float rollDiff = (lastRoll - (float)mouseCoord.hpr[rollCoord]) / 90.0f;
+                roiCellSize += rollDiff * (mouse ? 10 : 1);
+                lastRoll = (float)mouseCoord.hpr[rollCoord];
+
                 if (roiCellSize <= 0.1)
                     roiCellSize = 0.1; // retain minimum size for ROI to be visible
                 if (roiCellSize > 1.0)
                     roiCellSize = 1.0;
-
-                cerr << "roi=" << roiCellSize << endl;
+                cerr << "roi=" << roiCellSize << ", mouse=" << mouse << endl;
                 if (drawable)
                     drawable->setROISize(roiCellSize);
                 if (currentVolume != volumes.end())
@@ -2128,7 +2116,7 @@ void VolumePlugin::preFrame()
         {
             if (!roiVisible())
             {
-                cover->setButtonState("Region of Interest", 0);
+                ROIItem->setState(false);
 #ifdef VERBOSE
                 cerr << "pointer Released (ROI not visible)" << endl;
 #endif
@@ -2166,7 +2154,13 @@ void VolumePlugin::preFrame()
         {
             unregister = false;
             if (drawable)
+            {
                 drawable->setROISelected(false);
+                if (currentVolume != volumes.end())
+                    drawable->setBoundaries(currentVolume->second.boundaries);
+                else
+                    drawable->setBoundaries(false);
+            }
         }
     }
 }
@@ -2466,7 +2460,7 @@ void VolumePlugin::setROIMode(bool newMode)
         }
         else
         {
-            cover->setButtonState("Region of Interest", 0);
+            ROIItem->setState(false);
         }
     }
     else
@@ -2479,7 +2473,7 @@ void VolumePlugin::setROIMode(bool newMode)
         }
         else
         {
-            cover->setButtonState("Region of Interest", 1);
+            ROIItem->setState(true);
         }
         if (currentVolume != volumes.end())
         {

@@ -17,7 +17,7 @@
 #include <do/coDoPoints.h>
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
-#include <do/coDoPolygons.h>
+#include <do/coDoUniformGrid.h>
 
 using namespace covise;
 
@@ -26,11 +26,13 @@ enum
 {
 	FILE_BROWSER,
 	GEOPORT3D,
+#if 0
 	DPORT1_3D,
 	DPORT2_3D,
 	DPORT3_3D,
 	DPORT4_3D,
 	DPORT5_3D,
+#endif
 	GEOPORT2D,
 	DPORT1_2D,
 	DPORT2_2D,
@@ -46,10 +48,13 @@ enum
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ReadPandora::ReadPandora(int argc, char *argv[])
-	: coReader(argc, argv, string("simple reader for HDF5 data"))
+	: coReader(argc, argv, string("simple reader for Pandora HDF5 data"))
 {
-	
 
+    p_firstStep = addInt32Param("first_step", "number of first time step to read");
+    p_lastStep = addInt32Param("last_step", "number of last time step to read");
+    p_firstStep->setValue(0);
+    p_lastStep->setValue(-1);
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -72,6 +77,7 @@ file_info(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
 	cout << "Name : " << name << endl;
 	return 0;
 }
+
 int ReadPandora::compute(const char *port)
 {
     (void)port;
@@ -99,42 +105,22 @@ int ReadPandora::compute(const char *port)
     status = H5LTget_attribute_int(file_id, "/global","numTasks", &numTasks);
     if (width==0 || height ==0)
         return STOP_PIPELINE;
-    coDoPolygons **meshes = new coDoPolygons*[numSteps+1];
-    coDoFloat **dataObjects = new coDoFloat*[numSteps+1];
 	string objNameBase2d = READER_CONTROL->getAssocObjName(GEOPORT2D);
     int numPoints = width*height;
     int numQuats = (width-1)*(height-1);
     int numVertices = numQuats*4;
-    meshes[0] = new coDoPolygons(objNameBase2d,numPoints,numVertices,numQuats);
-    float *xc,*yc,*zc;
-    int *vl, *ll;
-    meshes[0]->getAddresses(&xc,&yc,&zc,&vl,&ll);
-    for(int w=0;w<width;w++)
-    {
-        for(int h=0;h<height;h++)
-        {
-            int index = h*width+w;
-            xc[index] = (float)w;
-            yc[index] = (float)h;
-            zc[index] = (float)0.0;
-        }
-    }
-    int vert=0;
-    int polygon = 0;
-    for(int w=1;w<width;w++)
-    {
-        for(int h=1;h<height;h++)
-        {
-            vl[vert] =h*width+w;
-            vl[vert+1] =h*width+w-1;
-            vl[vert+2] =(h-1)*width+w-1;
-            vl[vert+3] =(h-1)*width+w;
-            ll[polygon]=vert;
-            polygon++;
-            vert+=4;
-        }
-    }
-	for (int i = 0; i < numSteps; i++)
+    int first = p_firstStep->getValue();
+    if (first < 0)
+        first = 0;
+    int last = p_lastStep->getValue();
+    if (last < 0)
+        last = numSteps-1;
+    numSteps = 1+last-first;
+
+    std::vector<const coDistributedObject *> meshes(numSteps+1);
+    coDoFloat **dataObjects = new coDoFloat*[numSteps+1];
+    meshes[0] = new coDoUniformGrid(objNameBase2d+"_0", width, height, 1, 0.0f, width-1.0f, 0, height-1.0f, 0.0f, 0.0f);
+    for (int i = 0; i < numSteps; i++)
 	{
 		if (i > 0)
 		{
@@ -144,8 +130,7 @@ int ReadPandora::compute(const char *port)
 		meshes[i + 1] = NULL;
 	}
 
-	coDoSet *meshSet = new coDoSet(objNameBase2d.c_str(), (coDistributedObject **)meshes);
-	delete[] meshes;
+	coDoSet *meshSet = new coDoSet(objNameBase2d.c_str(), &meshes[0]);
 	meshSet->addAttribute("TIMESTEP", "0 0");
 	READER_CONTROL->setAssocPortObj(GEOPORT2D, meshSet);
 
@@ -155,6 +140,8 @@ int ReadPandora::compute(const char *port)
 		if (dataChoice > 0)
 		{
 			std::string objNameBase = READER_CONTROL->getAssocObjName(dNum);
+
+			dataObjects[0] = NULL;
 			for (int i = 0; i < numSteps; i++)
 			{
 				char ch[64];
@@ -163,34 +150,49 @@ int ReadPandora::compute(const char *port)
 				string objName(objNameBase);
 				objName = objNameBase + "_" + num;
 				coDoFloat *fdata = new coDoFloat(objName.c_str(), width*height);
+                fdata->addAttribute("SPECIES", scalChoices[dataChoice].c_str());
 				char datasetName[200];
-				sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i);
+                sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i+first);
+                int dims[] = { width, height, 1 };
 				if (true)
 				{
-					float *fd = fdata->getAddress();
-					H5LTread_dataset_float(file_id, datasetName, fd);
-				}
+                    std::vector<float> data(width*height);
+                    H5LTread_dataset_float(file_id, datasetName, &data[0]);
+                    float *fd = fdata->getAddress();
+                    for (int i = 0; i < width; ++i)
+                    {
+                        for (int j=0; j<height; ++j)
+                        {
+                            int n = coIndex(i, height-1-j, 0, dims);
+                            fd[n] = data[j*width+i];
+                        }
+                    }
+                }
 				else
 				{
-					int *data = new int[width*height];
-					H5LTread_dataset_int(file_id, datasetName, data);
+                    std::vector<int> data(width*height);
+					H5LTread_dataset_int(file_id, datasetName, &data[0]);
 					float *fd = fdata->getAddress();
-					for (int n = 0; n < width * height; n++)
-					{
-						fd[n] = (float)data[n];
-					}
+                    for (int i = 0; i < width; ++i)
+                    {
+                        for (int j=0; j<height; ++j)
+                        {
+                            int n = coIndex(i, height-1-j, 0, dims);
+                            fd[n] = (float)data[j*width+i];
+                        }
+                    }
 				}
 
 				dataObjects[i] = fdata;
 				dataObjects[i + 1] = NULL;
 			}
 			coDoSet *dataSet = new coDoSet(objNameBase.c_str(), (coDistributedObject **)dataObjects);
-			delete[] dataObjects;
 			dataSet->addAttribute("TIMESTEP", "0 0");
 			READER_CONTROL->setAssocPortObj(dNum, dataSet);
 		}
 	}
 
+	delete[] dataObjects;
 
     /* close file */
     status = H5Fclose(file_id);
@@ -237,7 +239,15 @@ ReadPandora::param(const char *paramName, bool inMapLoading)
 						sendInfo("file_id: %d", (int)file_id);
 						return;
 					}
-					std::vector<std::string> groupNames;
+
+                    int numSteps = 0;
+                    herr_t status = H5LTget_attribute_int(file_id, "/global","numSteps", &numSteps);
+                    if (p_firstStep->getValue() >= numSteps)
+                        p_firstStep->setValue(numSteps-1);
+                    if (p_lastStep->getValue() >= numSteps)
+                        p_lastStep->setValue(numSteps-1);
+
+                    std::vector<std::string> groupNames;
 					herr_t idx = H5Literate(file_id, H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, &groupNames);
 
 
@@ -256,11 +266,13 @@ ReadPandora::param(const char *paramName, bool inMapLoading)
 					}
 					if (inMapLoading)
 						return;
+#if 0
 					READER_CONTROL->updatePortChoice(DPORT1_3D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT2_3D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT3_3D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT4_3D, vectChoices);
 					READER_CONTROL->updatePortChoice(DPORT5_3D, vectChoices);
+#endif
 					READER_CONTROL->updatePortChoice(DPORT1_2D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT2_2D, scalChoices);
 					READER_CONTROL->updatePortChoice(DPORT3_2D, scalChoices);
@@ -287,17 +299,19 @@ ReadPandora::param(const char *paramName, bool inMapLoading)
 int main(int argc, char *argv[])
 {
 	// define outline of reader
-	READER_CONTROL->addFile(FILE_BROWSER, "filename", "HDF5 file name", ".", "*.h5;*.H5");
+    READER_CONTROL->addFile(FILE_BROWSER, "filename", "HDF5 file name", ".", "*.h5;*.H5/*");
 
 	READER_CONTROL->addOutputPort(GEOPORT3D, "geoOut_3D", "UnstructuredGrid", "Geometry", false);
 
+#if 0
 	READER_CONTROL->addOutputPort(DPORT1_3D, "sdata1_3D", "Float", "data1-3d");
 	READER_CONTROL->addOutputPort(DPORT2_3D, "sdata2_3D", "Float", "data2-3d");
 	READER_CONTROL->addOutputPort(DPORT3_3D, "sdata3_3D", "Float", "data3-3d");
 	READER_CONTROL->addOutputPort(DPORT4_3D, "vdata1_3D", "Vec3", "data2-3d");
 	READER_CONTROL->addOutputPort(DPORT5_3D, "vdata2_3D", "Vec3", "data2-3d");
+#endif
 
-	READER_CONTROL->addOutputPort(GEOPORT2D, "geoOut_2D", "Polygons", "Geometry", false);
+    READER_CONTROL->addOutputPort(GEOPORT2D, "geoOut_2D", "UniformGrid", "Geometry", false);
 
 	READER_CONTROL->addOutputPort(DPORT1_2D, "sdata1_2D", "Float", "data1-2d");
 	READER_CONTROL->addOutputPort(DPORT2_2D, "sdata2_2D", "Float", "data2-2d");

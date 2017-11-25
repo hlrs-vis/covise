@@ -10,8 +10,9 @@
  * FAMU Copyright (C) 1998-2006 Institute for Theory of Electrical Engineering
  * @author W. Hafla
  */
-
+#ifndef _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE // has to be before any #include statements
+#endif
 #include "archivefileheader.hxx" // container for headerrmation about an archive file.
 #include <time.h>
 #include <sstream>

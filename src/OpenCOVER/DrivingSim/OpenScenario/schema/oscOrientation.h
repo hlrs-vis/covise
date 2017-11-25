@@ -37,6 +37,7 @@ oscOrientation()
         OSC_ADD_MEMBER_OPTIONAL(r, 0);
         type.enumType = Enum_Orientation_typeType::instance();
     };
+        const char *getScope(){return "";};
     oscEnum type;
     oscDouble h;
     oscDouble p;

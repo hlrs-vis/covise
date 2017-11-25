@@ -123,7 +123,7 @@ unsigned int FortranData::ReadFortranDataFormat(const char *format, ...)
                 {
                     for (j = 0; j < fieldLength; j++)
                     {
-                        if (iStringPtr + j >= inputStringLength)
+                        if (iStringPtr + j >= (int)inputStringLength)
                         {
                             inputStringEndReached = true; //end reached, before whole field could be read
                             break;
@@ -168,7 +168,7 @@ unsigned int FortranData::ReadFortranDataFormat(const char *format, ...)
                 {
                     for (j = 0; j < fieldLength; j++)
                     {
-                        if (iStringPtr + j >= inputStringLength)
+                        if (iStringPtr + j >= (int)inputStringLength)
                         {
                             break;
                         }
@@ -226,7 +226,7 @@ unsigned int FortranData::ReadFortranDataFormat(const char *format, ...)
                 {
                     for (j = 0; j < fieldLength; j++)
                     {
-                        if (iStringPtr + j >= inputStringLength)
+                        if (iStringPtr + j >= (int)inputStringLength)
                         {
                             inputStringEndReached = true;
                             break;
@@ -257,7 +257,7 @@ unsigned int FortranData::ReadFortranDataFormat(const char *format, ...)
                     if (precision <= 7)
                     {
                         ptr = va_arg(argList, float *);
-                        *(float *)ptr = atof(readString);
+                        *(float *)ptr = float(atof(readString));
                     }
                     else
                     {
@@ -277,7 +277,7 @@ unsigned int FortranData::ReadFortranDataFormat(const char *format, ...)
         while (*(format + i) != ',' && *(format + i) != 0)
             i++;
 
-        if (iStringPtr >= inputStringLength)
+        if (iStringPtr >= (int)inputStringLength)
             inputStringEndReached = true;
     }
 
@@ -297,7 +297,7 @@ void FortranData::WriteFortranDataFormat(const char *f, ...)
 #endif
     char seps[] = ",";
     char *format = NULL;
-    unsigned int formatLength = strlen(f);
+    unsigned int formatLength = (unsigned int)strlen(f);
 
     unsigned int repeats = 0;
     unsigned int fieldLength = 0;
@@ -335,12 +335,12 @@ void FortranData::WriteFortranDataFormat(const char *f, ...)
             data = new char[fieldLength + 1];
             unsigned int strLen = 0;
 
-            for (int i = 0; i < repeats; i++)
+            for (unsigned int i = 0; i < repeats; i++)
             {
                 argPtr = va_arg(argList, char *);
-                strLen = strlen((const char *)argPtr);
+                strLen = (unsigned int)strlen((const char *)argPtr);
 
-                for (int i = 0; i < fieldLength; i++)
+                for (unsigned int i = 0; i < fieldLength; i++)
                 {
                     if (i < strLen)
                         data[i] = ((const char *)argPtr)[i];
@@ -366,7 +366,7 @@ void FortranData::WriteFortranDataFormat(const char *f, ...)
             data = new char[fieldLength + 1];
             tmp = new char[fieldLength + 1];
 
-            for (int i = 0; i < repeats; i++)
+            for (unsigned int i = 0; i < repeats; i++)
             {
                 argPtr = va_arg(argList, int *);
 
@@ -376,7 +376,7 @@ void FortranData::WriteFortranDataFormat(const char *f, ...)
 
                 sprintf_s(tmp, (fieldLength + 1) * sizeof(char), "%i", *(int *)argPtr);
 
-                pos = strlen(data) - strlen(tmp);
+                pos = int(strlen(data) - strlen(tmp));
 
                 strcpy_s(data + pos, (fieldLength + 1 - pos) * sizeof(char), tmp);
 
@@ -415,7 +415,7 @@ void FortranData::WriteFortranDataFormat(const char *f, ...)
             data = new char[fieldLength + 1];
             tmp = new char[fieldLength + 1];
 
-            for (int i = 0; i < repeats; i++)
+            for (unsigned int i = 0; i < repeats; i++)
             {
                 memset(data, ' ', fieldLength + 1);
                 data[fieldLength] = 0;

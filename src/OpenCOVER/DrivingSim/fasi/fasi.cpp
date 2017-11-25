@@ -344,6 +344,10 @@ void fasi::run()
             remoteData.A = vehicleDynamics->getAcceleration();
             remoteData.rpm = vehicleDynamics->getEngineSpeed();
             remoteData.torque = vehicleDynamics->getEngineTorque();
+            remoteData.slipFL = 0;
+            remoteData.slipFR = 0;
+            remoteData.slipRL = 0;
+            remoteData.slipRR = 0;
             remoteData.chassisTransform = vehicleDynamics->getVehicleTransformation();
             remoteData.gear = sharedState.gear;
             remoteData.buttonStates = 0;
@@ -442,7 +446,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
             float pedal = p_gaspedal->getActualAngle() / 100.0;
             if (pedal > 0.01)
             {
-                fprintf(stderr, "gas %f\n", pedal);
+                //fprintf(stderr, "gas %f\n", pedal);
             }
             if (ccGas > pedal)
                 sharedState.pedalA = ccGas;
@@ -642,10 +646,11 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
         p_kombi->setLEDState(leds);
 
         //std::cerr << "p_beckhoff digitil in 0:" << (int)p_beckhoff->getDigitalIn(0) << ", 1: "  << (int)p_beckhoff->getDigitalIn(1) << ", 2: "  << (int)p_beckhoff->getDigitalIn(2) << std::endl;
+        //fprintf(stderr,"automatic %d  %lf \n", automatic,sharedState.frameTime);
         if (automatic)
         {
             static double oldShiftTime = 0;
-            if (sharedState.frameTime - oldShiftTime > 0.2)
+            if (sharedState.frameTime - oldShiftTime > 0.2 || sharedState.frameTime <= oldShiftTime)
             {
                 int gearDiff;
                 if (sharedState.SportMode)
@@ -667,6 +672,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
                 {
                     sharedState.gear = 5;
                 }
+                //fprintf(stderr,"geardiff %d %d\n",gearDiff,sharedState.gear);
                 if (gearDiff != 0)
                 {
                     oldShiftTime = sharedState.frameTime;

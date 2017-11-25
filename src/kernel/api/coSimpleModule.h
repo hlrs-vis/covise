@@ -101,6 +101,10 @@ protected:
 
     // get total number of set elements at level, only call from compute()
     int getNumberOfElements(int level = -1) const;
+    
+    
+    // current timestep number
+    int currentTimestep;
 
 public:
     coSimpleModule(int argc, char *argv[], const char *desc = NULL, bool propagate = false);

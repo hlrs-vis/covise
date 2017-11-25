@@ -35,16 +35,15 @@ coAlphaHatPin::~coAlphaHatPin()
         (*i)->removeChild(graphGeode.get());
 }
 
-void coAlphaHatPin::setPos(float x)
+void coAlphaHatPin::setPos(float x, float minv, float maxv)
 {
-    jPin->_pos[0] = x;
-    myX = x;
-    myDCS->setTranslation(x * W, 0.0, 0.0);
-    adjustGraph();
+    coPin::setPos(x, minv, maxv);
+    adjustGraph(minv, maxv);
 }
 
-void coAlphaHatPin::setTopWidth(float s)
+void coAlphaHatPin::setTopWidth(float s, float minv, float maxv)
 {
+    myTopWidth = s / (maxv - minv);
     //cerr << "setTopWidth=" << s << endl;
     if (s > jPin->_bottom[0])
         jPin->_top[0] = jPin->_bottom[0];
@@ -70,10 +69,20 @@ void coAlphaHatPin::setTopWidth(float s)
 
    return slope;
 */
-    adjustGraph();
+    adjustGraph(minv, maxv);
 }
 
-void coAlphaHatPin::setMax(float m)
+float coAlphaHatPin::getTopWidthValue() const
+{
+    return jPin->top()[0];
+}
+
+float coAlphaHatPin::getTopWidth01() const
+{
+    return myTopWidth;
+}
+
+void coAlphaHatPin::setMax(float m, float minv, float maxv)
 {
     //cerr << "setMax=" << m << endl;
     jPin->_opacity = m;
@@ -97,12 +106,13 @@ void coAlphaHatPin::setMax(float m)
    }
 */
 
-    adjustGraph();
+    adjustGraph(minv, maxv);
 }
 
-void coAlphaHatPin::setBotWidth(float m)
+void coAlphaHatPin::setBotWidth(float m, float minv, float maxv)
 {
-    //cerr << "setBotWidth=" << m << endl;
+    myBotWidth = m / (maxv - minv);
+    //std::cerr << "setBotWidth=" << m << std::endl;
     if (m < jPin->_top[0])
         jPin->_bottom[0] = jPin->_top[0];
     else
@@ -126,41 +136,50 @@ void coAlphaHatPin::setBotWidth(float m)
       jPin->_bottom[0] += diff;
    }
 */
-    adjustGraph();
+    adjustGraph(minv, maxv);
 }
 
-void coAlphaHatPin::adjustGraph()
+float coAlphaHatPin::getBotWidthValue() const
 {
+    return jPin->bottom()[0];
+}
 
-    float y1, y2, y3, y4, x1, x2, x3, x4;
-    y3 = y1 = 0;
-    y2 = jPin->_opacity;
+float coAlphaHatPin::getBotWidth01() const
+{
+    return myBotWidth;
+}
 
-    x2 = myX - jPin->_top[0] / 2.0;
-    x3 = myX + jPin->_top[0] / 2.0;
-    x1 = myX - jPin->_bottom[0] / 2.;
-    x4 = myX + jPin->_bottom[0] / 2.;
-    if (x2 > 1.0)
-        x2 = 1.0;
-    if (x3 > 1.0)
-        x3 = 1.0;
-    if (x2 < 0.0)
-        x2 = 0.0;
-    if (x3 < 0.0)
-        x3 = 0.0;
-    if (x1 > 1.0)
-        x1 = 1.0;
-    if (x1 < 0.0)
-        x1 = 0.0;
-    if (x4 > 1.0)
-        x4 = 1.0;
-    if (x4 < 0.0)
-        x4 = 0.0;
+void coAlphaHatPin::adjustGraph(float minv, float maxv)
+{
+    // x-coords, [0..1]
+    float x2 = myX - myTopWidth / 2.0f;
+    float x3 = myX + myTopWidth / 2.0f;
+    float x1 = myX - myBotWidth / 2.0f;
+    float x4 = myX + myBotWidth / 2.0f;
+    x1 = ts_clamp(x1, 0.0f, 1.0f);
+    x2 = ts_clamp(x2, 0.0f, 1.0f);
+    x3 = ts_clamp(x3, 0.0f, 1.0f);
+    x4 = ts_clamp(x4, 0.0f, 1.0f);
 
-    y1 = jPin->getOpacity(x1);
-    y2 = jPin->getOpacity(x2);
-    y3 = jPin->getOpacity(x3);
-    y4 = jPin->getOpacity(x4);
+    // x-coords, [minv..maxv]
+    float vx2 = virvo::lerp(minv, maxv, myX) - jPin->_top[0] / 2.0f;
+    float vx3 = virvo::lerp(minv, maxv, myX) + jPin->_top[0] / 2.0f;
+    float vx1 = virvo::lerp(minv, maxv, myX) - jPin->_bottom[0] / 2.0f;
+    float vx4 = virvo::lerp(minv, maxv, myX) + jPin->_bottom[0] / 2.0f;
+    vx1 = ts_clamp(vx1, minv, maxv);
+    vx2 = ts_clamp(vx2, minv, maxv);
+    vx3 = ts_clamp(vx3, minv, maxv);
+    vx4 = ts_clamp(vx4, minv, maxv);
+
+    float y1 = jPin->getOpacity(vx1);
+    float y2 = jPin->getOpacity(vx2);
+    float y3 = jPin->getOpacity(vx3);
+    float y4 = jPin->getOpacity(vx4);
+
+//    std::cout << vx1 << ": " << y1 << ' '
+//              << vx2 << ": " << y2 << ' '
+//              << vx3 << ": " << y3 << ' '
+//              << vx4 << ": " << y4 << '\n';
 
     (*graphCoord)[0].set(W * x1, -((1.0 - y1) * H), ZOFFSET);
     (*graphCoord)[1].set(W * x2, -((1.0 - y2) * H), ZOFFSET);

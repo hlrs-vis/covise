@@ -146,7 +146,7 @@ ReadANSYS::extractName(std::string &newFileName)
     const coDoText *theText = dynamic_cast<const coDoText *>(inObj);
     theText->getAddress(&text);
     istringstream strText(text);
-    int maxLen = strlen(text) + 1;
+    size_t maxLen = strlen(text) + 1;
     std::vector<char> name(maxLen);
     strText >> &name[0];
     if (maxLen > 1)
@@ -920,7 +920,7 @@ ReadANSYS::onlyGeometry()
     }
     // make grid
     coDoUnstructuredGrid *entityGrid = new coDoUnstructuredGrid(p_grid_->getObjName(),
-                                                                e_l.size(), v_l.size(), readRST_.getNumNodes(),
+                                                                (int)e_l.size(), (int)v_l.size(), readRST_.getNumNodes(),
                                                                 &e_l[0], &v_l[0],
                                                                 &x_l[0], &y_l[0], &z_l[0],
                                                                 &t_l[0]);
@@ -1154,7 +1154,7 @@ ReadANSYS::nodalData()
         gridName += buf;
         // find requested DOF AQUI
         // number of fields involved...
-        int numOfFields = DOFOptions_.codes_[h_nsol_->getIValue()].size();
+        size_t numOfFields = DOFOptions_.codes_[h_nsol_->getIValue()].size();
         std::string fieldName(p_field_->getObjName());
         std::string materialName(p_materials_->getObjName());
         fieldName += buf;
@@ -1668,7 +1668,7 @@ ReadANSYS::ReadDisplacements(const Map1D &nodeDecode)
 void
 ReadANSYS::AddDisplacements(std::vector<float> &x_l, std::vector<float> &y_l, std::vector<float> &z_l)
 {
-    int length = x_l.size();
+    size_t length = x_l.size();
     int node;
     float factor = h_scale_->getFValue();
     Node *pnode = const_cast<Node *>(readRST_.getNodes());

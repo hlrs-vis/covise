@@ -25,6 +25,7 @@ oscDirectory()
 {
         OSC_ADD_MEMBER(path, 0);
     };
+        const char *getScope(){return "";};
     oscString path;
 
 };

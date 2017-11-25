@@ -23,7 +23,6 @@
  */
 
 #include <util/common.h>
-#include <OpenVRUI/osg/mathUtils.h>
 #include <osg/Node>
 #include <osg/Matrix>
 #include <osg/Group>
@@ -32,8 +31,18 @@
 #include <osg/Multisample>
 #include <osg/Material>
 #include <osg/ClipNode>
-#include <osgShadow/ShadowedScene>
 #include <osgFX/Scribe>
+
+#include "ui/Owner.h"
+
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+class Button;
+class SelectionList;
+}
+}
 
 namespace osg
 {
@@ -48,10 +57,9 @@ class coCombinedButtonInteraction;
 
 namespace opencover
 {
-class buttonSpecCell;
 class coVRStatsDisplay;
 
-class COVEREXPORT VRSceneGraph
+class COVEREXPORT VRSceneGraph: public ui::Owner
 {
 public:
     enum WireframeMode {
@@ -64,17 +72,10 @@ public:
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
 
-    static void resetviewCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void viewallCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void coordAxisCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void highQualityCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void storeCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void reloadFileCallback(void *sceneGraph, buttonSpecCell *spec);
+    void saveScenegraph(bool withMenu=false);
 #ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
 #endif
-    static void scalePlusCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void scaleMinusCallback(void *sceneGraph, buttonSpecCell *spec);
 
     osg::MatrixTransform *loadAxisGeode(float scale);
     osg::Node *loadHandIcon(const char *name);
@@ -84,12 +85,13 @@ public:
     osg::Group *getMenuGroup()
     {
         return m_menuGroupNode.get();
-    };
+    }
+    bool menuVisible() const;
     void toggleMenu();
     void setMenu(bool state);
     void setMenuMode(bool state);
     void applyMenuModeToMenus();
-    void manipulate(buttonSpecCell *spec);
+    void toggleHeadTracking(bool state);
     void setObjects(bool state);
 
     // rotate world
@@ -100,12 +102,12 @@ public:
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    osgShadow::ShadowedScene *getScene()
+    osg::Group *getScene()
     {
         return m_scene.get();
     };
 
-    osgShadow::ShadowedScene *getObjectsScene()
+    osg::Group *getObjectsScene()
     {
         return m_objectsScene.get();
     }
@@ -262,6 +264,7 @@ public:
     bool isHighQuality() const;
 
 private:
+    static VRSceneGraph *s_instance;
     int readConfigFile();
     void initAxis();
     void initHandDeviceGeometry();
@@ -274,7 +277,7 @@ private:
     float m_forceScale;
 #endif
 
-    osg::ref_ptr<osgShadow::ShadowedScene> m_scene, m_objectsScene;
+    osg::ref_ptr<osg::Group> m_scene, m_objectsScene;
     osg::ref_ptr<osgFX::Scribe> m_lineHider;
     osg::ref_ptr<osg::MatrixTransform> m_handTransform;
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
@@ -350,7 +353,6 @@ private:
     osg::Vec3 transTraversingInteractors;
     bool isFirstTraversal;
 
-    bool storeWithMenu;
     bool isScenegraphProtected_;
 
     typedef std::map<osg::Drawable *, osg::ref_ptr<osg::Material> > StoredMaterialsMap;
@@ -358,6 +360,13 @@ private:
     void storeMaterial(osg::Drawable *drawable);
     bool m_enableHighQualityOption, m_switchToHighQuality, m_highQuality;
     vrui::coCombinedButtonInteraction *m_interactionHQ;
+
+    ui::Menu *m_miscMenu=nullptr;
+    ui::SelectionList *m_drawStyle=nullptr;
+    ui::Button *m_trackHead=nullptr;
+    ui::Button *m_showStats=nullptr;
+    ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
+    ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
 };
 }
 #endif

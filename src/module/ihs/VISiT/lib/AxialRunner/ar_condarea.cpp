@@ -90,12 +90,12 @@ int CreateAR_ConduitAreas(struct axial *ar)
 #else                                          // AREA_FROM_ENTIRE_CURVE
    for(i = 0; i < ar->me[0]->ml->p->nump; i++)
    {
-      area  = pow((ar->me[0]->ml->p->x[i] - ar->me[ar->be_num-1]->ml->p->x[i]), 2);
-      area += pow((ar->me[0]->ml->p->y[i] - ar->me[ar->be_num-1]->ml->p->y[i]), 2);
-      area += pow((ar->me[0]->ml->p->z[i] - ar->me[ar->be_num-1]->ml->p->z[i]), 2);
-      area  = sqrt(area);
-      rad   = 0.5 * (ar->me[0]->ml->p->x[i] + ar->me[ar->be_num-1]->ml->p->x[i]);
-      area *= 2.0 * M_PI * rad;
+      area  = float(pow((ar->me[0]->ml->p->x[i] - ar->me[ar->be_num-1]->ml->p->x[i]), 2));
+      area += float(pow((ar->me[0]->ml->p->y[i] - ar->me[ar->be_num-1]->ml->p->y[i]), 2));
+      area += float(pow((ar->me[0]->ml->p->z[i] - ar->me[ar->be_num-1]->ml->p->z[i]), 2));
+      area  = float(sqrt(area));
+      rad   = 0.5f * (ar->me[0]->ml->p->x[i] + ar->me[ar->be_num-1]->ml->p->x[i]);
+      area *= float(2.0f * M_PI * rad);
       for (j = 0; j < ar->be_num; j++)
          Add2Flist(ar->me[j]->area, area);
    }

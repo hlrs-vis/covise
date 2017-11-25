@@ -237,6 +237,36 @@ BridgeItem::updatePosition()
     createPath();
 }
 
+/*
+* Duplicate item
+*/
+void
+BridgeItem::duplicate()
+{
+	if (tunnel_)
+	{
+		Tunnel *newTunnel = tunnel_->getClone();
+		AddBridgeCommand *command = new AddBridgeCommand(newTunnel, bridge_->getParentRoad(), NULL);
+		getProjectGraph()->executeCommand(command);
+	}
+	else
+	{
+		Bridge *newBridge = bridge_->getClone();
+		AddBridgeCommand * command = new AddBridgeCommand(newBridge, bridge_->getParentRoad(), NULL);
+		getProjectGraph()->executeCommand(command);
+	}
+}
+
+/* 
+* Move item 
+*/
+void
+BridgeItem::move(QPointF &diff)
+{
+	path_->translate(diff);
+	setPath(*path_);
+}
+
 //*************//
 // Delete Item
 //*************//
@@ -314,6 +344,8 @@ void
 BridgeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	pressPos_ = lastPos_ = event->scenePos();
+	closestRoad_ = road_;
+
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Bridge
     if (tool == ODD::TSG_DEL)
     {
@@ -325,18 +357,7 @@ BridgeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 		if (copyPan_)
 		{
-			if (tunnel_)
-			{
-				Tunnel *newTunnel = tunnel_->getClone();
-				AddBridgeCommand *command = new AddBridgeCommand(newTunnel, bridge_->getParentRoad(), NULL);
-				getProjectGraph()->executeCommand(command);
-			}
-			else
-			{
-				Bridge *newBridge = bridge_->getClone();
-				AddBridgeCommand * command = new AddBridgeCommand(newBridge, bridge_->getParentRoad(), NULL);
-				getProjectGraph()->executeCommand(command);
-			}
+			signalEditor_->duplicate();
 		}
         GraphElement::mousePressEvent(event); // pass to baseclass
     }
@@ -347,11 +368,10 @@ BridgeItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {	
 	if (doPan_)
 	{
-
 		QPointF newPos = event->scenePos();
-		path_->translate(newPos - lastPos_);
+		QPointF p = newPos - lastPos_;
+		signalEditor_->move(p);
 		lastPos_ = newPos;
-		setPath(*path_);
 
 		QPointF to = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_;
 
@@ -387,8 +407,9 @@ BridgeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (doPan_)
 		{
-			pos_ = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_;
-			signalEditor_->translateBridge(bridge_, closestRoad_, pos_);
+			pos_ = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_; //??
+			QPointF dist = lastPos_ - pressPos_;
+			signalEditor_->translate(dist);
 		}
 	}
 	else

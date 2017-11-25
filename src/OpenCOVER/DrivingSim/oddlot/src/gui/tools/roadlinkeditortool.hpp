@@ -21,6 +21,8 @@
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
 
+#include "ui_RoadLinkRibbon.h"
+
 class QDoubleSpinBox;
 
 class RoadLinkEditorTool : public Tool
@@ -58,14 +60,18 @@ signals:
 
 public slots:
     void activateEditor();
+	void activateRibbonEditor();
     void handleToolClick(int);
+	void handleRibbonToolClick(int);
     void setThreshold();
+	void setRibbonThreshold();
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
+	Ui::RoadLinkRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *thresholdEdit_;
 };

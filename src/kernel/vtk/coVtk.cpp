@@ -4,6 +4,9 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
+#ifdef WIN32
+#define _SCL_SECURE_NO_WARNINGS
+#endif
 
 #ifdef HAVE_VTK
 #include <vtkVersion.h>
@@ -1000,7 +1003,11 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
                 for (int i = 0; i < dim[0]; ++i)
                 {
                     ValueType v[2];
+#if VTK_MAJOR_VERSION < 7
                     vd->GetTupleValue(l, v);
+#else
+					vd->GetTypedTuple(l, v);
+#endif
                     const int idx = coIndex(i, j, k, dim);
                     x[idx] = v[0];
                     y[idx] = v[1];
@@ -1021,7 +1028,11 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
                 for (int i = 0; i < dim[0]; ++i)
                 {
                     ValueType v[3];
+#if VTK_MAJOR_VERSION < 7
                     vd->GetTupleValue(l, v);
+#else
+					vd->GetTypedTuple(l, v);
+#endif
                     const int idx = coIndex(i, j, k, dim);
                     x[idx] = v[0];
                     y[idx] = v[1];
@@ -1042,7 +1053,11 @@ static coDoAbstractData *vtkArray2Covise(const coObjInfo &info, vtkType *vd, con
                 for (int i = 0; i < dim[0]; ++i)
                 {
                     ValueType v[4];
+#if VTK_MAJOR_VERSION < 7
                     vd->GetTupleValue(l, v);
+#else
+					vd->GetTypedTuple(l, v);
+#endif
                     const int idx = coIndex(i, j, k, dim);
                     char c[4];
                     for (int j = 0; j < 4; ++j)
@@ -1182,7 +1197,11 @@ coDoAbstractData *coVtk::vtkData2Covise(const coObjInfo &info, vtkDataArray *var
                     {
                         unsigned char c[4];
                         const int idx = coIndex(i, j, k, dim);
+#if VTK_MAJOR_VERSION < 7
                         vd->GetTupleValue(l, c);
+#else
+						vd->GetTypedTuple(l, c);
+#endif
                         memcpy(&d[idx], c, sizeof(c));
                         ++l;
                     }

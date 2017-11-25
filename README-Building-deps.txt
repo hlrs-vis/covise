@@ -50,6 +50,7 @@ get latest CURL; go to winbuild
 nmake /F Makefile.vc VC=14 WITH_DEVEL=c:\src\externlibs\zebu\zlib WITH_ZLIB=dll MACHINE=x64 MODE=dll
 nmake /F Makefile.vc VC=14 WITH_DEVEL=c:\src\externlibs\zebu\zlib WITH_ZLIB=dll MACHINE=x64 MODE=dll DEBUG=yes
 rename debug build of curl.exe to curl_debug.exe ; manually copy builds to externlibs:
+copy lib/libcurl_debug to libcurld.lib
 builds\libcurl-vc14-x64-release-dll-zlib-dll-ipv6-sspi-winssl
 #giflib
 get giflib windows version from http://blog.issamsoft.com/?q=en/node/82
@@ -172,6 +173,15 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 adjust project file:
 for tiff: add c:/src/externlibs/zebu/jpeg/lib/jpeg[d].lib
 gdal and ogr: use gdalD_i.lib for the debug version
+nvtt Debug: (Release without d )
+C:\src\externlibs\zebu\nvtt\lib\static\nvttd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvcored.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvimaged.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvmathd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\squishd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\nvthreadd.lib
+C:\src\externlibs\zebu\nvtt\lib\static\bc7d.lib
+C:\src\externlibs\zebu\nvtt\lib\static\bc6hd.lib
 
 #boost
 bootstrap.bat
@@ -214,6 +224,9 @@ cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externli
 
 #osgcal
 cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgcal -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/cal3d
+in core_osgCal Debug change cal3d.lib to cal3d_d.lib
+in applications add C:/src/externlibs/zebu/osgCal/lib to library directories 
+and cal3d_d.lib to input
 
 #assimp
 https://github.com/assimp/assimp.git
@@ -259,3 +272,143 @@ Select Release and Win32 or x64.
 Open context menu on libfftw-3.3, select Properties. Under Configuration Properties > General check Platform toolset. Change from Windows 7.1SDK to Visual Studio 2013 (v120). Go to Configuration Properties > C/C++ > Code Generation > Run time library and change to Multi threaded DLL (/MD). Close dialog with Ok.
 Open context menu on libfftw-3.3, select Add > Existing item, select file SDKROOT\fftw-3.3.4\api\mkprinter-str.c
 Now build project libfftw-3.3
+
+#geos
+# do not get tar geos from https://trac.osgeo.org/geos/ but use git otherwise cmake will fail
+git clone https://git.osgeo.org/gogs/geos/geos.git
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/geos -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+#osgEarth
+fix toplevel cmakeLists.txt 
+FIND_PACKAGE(ZLIB)
+set(ZLIB_LIBRARY ${ZLIB_LIBRARY_RELEASE})
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgEarth -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+
+
+#e57
+change the following in CmakeLists.txt:
+
+
+# Override flags to enable prepare for linking to static runtime
+#set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_overrides.cmake)
+#set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
+
+#set(Boost_USE_STATIC_LIBS   ON)
+#set(Boost_USE_STATIC_RUNTIME ON)
+
+#set(Xerces_USE_STATIC_LIBS On)
+
+#add_definitions(-DBOOST_ALL_NO_LIB )#-DXERCES_STATIC_LIBRARY)
+  add_definitions("-DBOOST_ALL_NO_LIB")
+  add_definitions("-DBOOST_ALL_DYN_LINK")
+  
+add_library( E57RefImpl STATIC
+    src/refimpl/E57Foundation.cpp
+    src/refimpl/E57FoundationImpl.cpp
+    src/refimpl/E57FoundationImpl.h
+    src/refimpl/E57Simple.cpp
+    src/refimpl/E57SimpleImpl.cpp
+    src/refimpl/E57SimpleImpl.h
+    src/time_conversion/time_conversion.c
+    include/E57Foundation.h
+)
+
+
+
+download E57SimpleImpl source and add E57Simple.* to E57RefImpl
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/e57 -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+ 
+
+
+###########
+###########
+#Lamure
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT=c:/src/externlibs/zebu/boost -DGLOBAL_EXT_DIR=c:/src/externlibs/zebu -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/lamure -DCMAKE_DEBUG_POSTFIX=d -DSCHISM_INCLUDE_SEARCH_DIR=D:/src/gitbase/schism -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+add -DSCM_STATIC_BUILD
+
+add to lamure_rendering and _app
+
+C:\src\externlibs\zebu\schism\lib\scm_core-gdd.lib
+C:\src\externlibs\zebu\schism\lib\scm_gl_core-gdd.lib
+C:\src\externlibs\zebu\schism\lib\scm_gl_util-gdd.lib
+C:\src\externlibs\zebu\freeglut\lib\x64\freeglut.lib
+C:\src\externlibs\zebu\schism\lib\scm_input-gdd.lib
+opengl32.lib
+
+#cgal
+https://github.com/CGAL/cgal.git
+cmake .. -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT=c:/src/externlibs/zebu/boost -DGLOBAL_EXT_DIR=c:/src/externlibs/zebu -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cgal -DCMAKE_DEBUG_POSTFIX=d -DSCHISM_INCLUDE_SEARCH_DIR=D:/src/gitbase/schism -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+
+#libqtviewer
+qmake -t vclib libQGLViewer-2.7.0.pro -spec win32-msvc2015
+devenv libQGLViewer-2.vcxproj
+
+#schism
+got to build/cmake/build
+add compiler to schism_compiler.cmake
+add boost search path in schism_boost.cmake
+SET(SCM_BOOST_INCLUDE_SEARCH_DIRS
+    /src/externlibs/zebu/boost/include/boost-1_62
+
+SET(SCM_BOOST_LIBRARY_SEARCH_DIRS
+    /src/externlibs/zebu/boost/lib
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/schism -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/lamure -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+# freeimage
+download freeimage from webpage or sourcecforge
+replace libwebp source by current git repository
+git clone https://github.com/webmproject/libwebp.git
+on windows open the visual studio project and add enc/backward_references_cost_enc.cal3d and dsp/ssim*.c
+Build debug and release
+
+
+########
+#gmsh
+for linking OCC set CASROOT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################
+#########################################
+### UWP
+#########################################
+#########################################
+
+cmake -G "Visual Studio 15 2017"  -DCMAKE_SYSTEM_NAME:STRING="WindowsStore" -DCMAKE_SYSTEM_VERSION:STRING="10.0" -DOSG_BUILD_PLATFORM_UWP:BOOL=ON -DOPENGL_PROFILE:STRING=GLES2 -DOSG_WINDOWING_SYSTEM:STRING=NONE -DOSG_USE_UTF8_FILENAME:BOOL=ON -DDYNAMIC_OPENSCENEGRAPH:BOOL=OFF -DDYNAMIC_OPENTHREADS:BOOL=OFF -DBUILD_OSG_APPLICATIONS:BOOL=OFF -DBUILD_OSG_EXAMPLES:BOOL=OFF -DOPENGL_INCLUDE_DIR:PATH="c:/src/externlibs/uwp/angle/include" -DOPENGL_HEADER1:STRING="#include <GLES2/gl2.h>" -DOPENGL_gl_LIBRARY:STRING="c:/src/externlibs/uwp/angle/libGLESv2.lib" -DEGL_INCLUDE_DIR:PATH="c:/src/externlibs/uwp/angle/include" -DEGL_LIBRARY:STRING="c:/src/externlibs/uwp/angle/lib/libEGL.lib" ..

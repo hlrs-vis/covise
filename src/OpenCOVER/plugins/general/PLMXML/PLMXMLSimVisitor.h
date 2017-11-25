@@ -8,6 +8,8 @@
 #ifndef PLMXMLSIMVISITOR
 #define PLMXMLSIMVISITOR
 
+#include <map>
+
 #include <osg/Group>
 #include <osg/NodeVisitor>
 
@@ -24,7 +26,7 @@ private:
     opencover::coVRPlugin *plugin;
     osg::Node *simNode;
     const char *target;
-    map<osg::Node *, osg::Node *> CAD_SIM_Node;
+    std::map<osg::Node *, osg::Node *> CAD_SIM_Node;
 };
 class PLMXMLCadVisitor : public osg::NodeVisitor
 {

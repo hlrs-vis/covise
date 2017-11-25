@@ -163,17 +163,17 @@ oscMemberValue *oscMember::getOrCreateValue()
 
 
 //
-oscObjectBase *oscMember::getObject() const
+oscObjectBase *oscMember::getObjectBase() const
 {
     return NULL;
 }
 
-oscObjectBase *oscMember::getOrCreateObject()
+oscObjectBase *oscMember::getOrCreateObjectBase()
 {
     return NULL;
 }
 
-oscObjectBase *oscMember::createObject()
+oscObjectBase *oscMember::createObjectBase()
 {
     return NULL;
 }
@@ -236,7 +236,7 @@ unsigned char oscMember::validate()
 	}
 	else 
 	{
-		oscObjectBase *memberObject = getObject();
+		oscObjectBase *memberObject = getObjectBase();
 		{
 			if (!memberObject) 
 			{

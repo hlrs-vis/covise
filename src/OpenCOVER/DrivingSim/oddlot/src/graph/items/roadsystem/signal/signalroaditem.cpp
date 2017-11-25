@@ -222,7 +222,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 		// Add new bridge //
 		//
-		Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
+		Bridge *newBridge = new Bridge("bridge", "", "", Bridge::BT_CONCRETE, s, 100.0);
 		AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
 
 		getProjectGraph()->executeCommand(command);
@@ -233,7 +233,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 		// Add new bridge //
 		//
-		Tunnel *newTunnel = new Tunnel("tunnel", "", "", 0, s, 100.0, 0.0, 0.0);
+		Tunnel *newTunnel = new Tunnel("tunnel", "", "", Tunnel::TT_STANDARD, s, 100.0, 0.0, 0.0);
 		AddBridgeCommand *command = new AddBridgeCommand(newTunnel, road_, NULL);
 
 		getProjectGraph()->executeCommand(command);
@@ -379,8 +379,9 @@ SignalRoadItem::updateObserver()
 
             iter++;
         }
-    }
-    else if (changes & RSystemElementRoad::CRD_ObjectChange)
+	}
+
+    if (changes & RSystemElementRoad::CRD_ObjectChange)
     {
         // A object has been added.
         //
@@ -397,7 +398,8 @@ SignalRoadItem::updateObserver()
             iter++;
         }
     }
-    else if (changes & RSystemElementRoad::CRD_BridgeChange)
+
+    if (changes & RSystemElementRoad::CRD_BridgeChange)
     {
         // A bridge has been added.
         //

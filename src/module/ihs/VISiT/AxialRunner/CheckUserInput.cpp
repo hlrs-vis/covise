@@ -795,7 +795,7 @@ int AxialRunner::CheckUserInput(const char *portname, struct geometry *, struct 
          {
             sendError(" Value for '%s(0)' must be smaller than '%s(0)'! Last change ignored!",
                M_PS_DIS,M_SS_DIS);
-            p_PSDis->setValue(0,rrg->psdis);
+            p_PSDis->setValue(0,float(rrg->psdis));
          }
          changed = CheckDiscretization(p_PSDis, &rrg->psdis,
             &rrg->psbias, &rrg->psbias_type);
@@ -806,7 +806,7 @@ int AxialRunner::CheckUserInput(const char *portname, struct geometry *, struct 
          {
             sendError(" Value for '%s(0)' must be bigger than '%s(0)'! Last change ignored!",
                M_SS_DIS,M_PS_DIS);
-            p_SSDis->setValue(0,rrg->ssdis);
+            p_SSDis->setValue(0, float(rrg->ssdis));
          }
          changed = CheckDiscretization(p_SSDis, &rrg->ssdis,
             &rrg->ssbias, &rrg->ssbias_type);
@@ -819,7 +819,7 @@ int AxialRunner::CheckUserInput(const char *portname, struct geometry *, struct 
          changed = CheckDiscretization(p_MeridOutletDis, &rrg->lowdis,
             &rrg->lowbias, &rrg->lowbias_type);
          rrg->lowindis    = rrg->lowdis;
-         p_OutletCoreDis->setValue(0,rrg->lowdis);
+         p_OutletCoreDis->setValue(0,float(rrg->lowdis));
       }
       else if(!strcmp(M_OUTLET_CORE,pn) && rrg)
       {
@@ -830,7 +830,7 @@ int AxialRunner::CheckUserInput(const char *portname, struct geometry *, struct 
             sendError(" Value for '%s(0)' will be ignored. Must be identical to '%s(0)'",
                M_OUTLET_CORE,M_MERID_OUTLET);
             rrg->lowindis    = rrg->lowdis;
-            p_OutletCoreDis->setValue(0,rrg->lowdis);
+            p_OutletCoreDis->setValue(0,float(rrg->lowdis));
          }
 
       }
@@ -858,8 +858,8 @@ int AxialRunner::CheckUserInput(const char *portname, struct geometry *, struct 
       }
       else if(!strcmp(M_BOUND_LAY_RATIO,pn) && rrg)
       {
-         rrg->bl_scale[0]  = 1.0-p_BoundLayRatio->getValue(0);
-         rrg->bl_scale[1]  = 1.0-p_BoundLayRatio->getValue(1);
+         rrg->bl_scale[0]  = 1.0f-p_BoundLayRatio->getValue(0);
+         rrg->bl_scale[1]  = 1.0f-p_BoundLayRatio->getValue(1);
       }
       else if(!strcmp(M_V14_ANGLE,pn) && rrg)
       {

@@ -22,7 +22,6 @@ coButtonInteraction::coButtonInteraction(InteractionType type, const string &nam
 {
     //fprintf(stderr,"coButtonInteraction::coButtonInteraction \n");
     oldState = Idle;
-    runningState = StateNotRunning;
     wheelCount = 0;
     button = NULL;
     if (type == AllButtons)

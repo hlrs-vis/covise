@@ -10,6 +10,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRTui.h>
+#include <util/unixcompat.h>
 
 #include <osg/Group>
 #include <osg/PositionAttitudeTransform>
@@ -604,13 +605,10 @@ bool AmberPlugin::init()
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
 
-    coMenu *cover_menu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu("COVER");
+    coMenu *cover_menu = cover->getMenu();
 
-    if (menu)
+    if (cover_menu)
     {
-
-        cover_menu = menu->getCoMenu();
         coSubMenuItem *button = new coSubMenuItem("Amber");
         coRowMenu *amber_menu = new coRowMenu("Amber");
 

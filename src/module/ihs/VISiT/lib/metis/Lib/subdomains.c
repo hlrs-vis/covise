@@ -55,9 +55,9 @@ void Random_KWayEdgeRefineMConn(CtrlType *ctrl, GraphType *graph, int nparts, fl
   ASSERT(tvwgt == idxsum(nvtxs, graph->vwgt));
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -346,9 +346,9 @@ void Greedy_KWayEdgeBalanceMConn(CtrlType *ctrl, GraphType *graph, int nparts, f
   ASSERT(tvwgt == idxsum(nvtxs, graph->vwgt));
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -750,7 +750,7 @@ void EliminateSubDomainEdges(CtrlType *ctrl, GraphType *graph, int nparts, float
   /* Compute the maximum allowed weight for each domain */
   tvwgt = idxsum(nparts, pwgts);
   for (i=0; i<nparts; i++)
-    maxpwgt[i] = 1.25*tpwgts[i]*tvwgt;
+    maxpwgt[i] = (idxtype)(1.25*tpwgts[i]*tvwgt);
 
 
   /* Get into the loop eliminating subdomain connections */
@@ -1108,7 +1108,7 @@ void EliminateComponents(CtrlType *ctrl, GraphType *graph, int nparts, float *tp
     /* First determine the max allowed load imbalance */
     tvwgt = idxsum(nparts, pwgts);
     for (i=0; i<nparts; i++)
-      maxpwgt[i] = ubfactor*tpwgts[i]*tvwgt;
+      maxpwgt[i] = (idxtype)(ubfactor*tpwgts[i]*tvwgt);
 
     deltawgt = 5;
 

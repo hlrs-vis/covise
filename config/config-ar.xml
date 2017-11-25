@@ -13,9 +13,9 @@
                     <TrackObjects value="ON" />
 		    <!--  Science Pub Bierglas -->
 		    <Marker name="ObjectMarker0" >
-                        <Pattern value="15" />
-                        <Size value="200" />
-                        <Offset x="0" y="160" z="0" h="0" p="0" r="0" />
+                        <Pattern value="63" />
+                        <Size value="150" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Thyssen Turm klein -->
@@ -265,6 +265,7 @@
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
+                    <!--VideoDevice value="0" width="1280" height="720" /-->
                     <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->

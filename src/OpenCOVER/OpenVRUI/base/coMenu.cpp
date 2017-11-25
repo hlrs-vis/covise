@@ -448,7 +448,7 @@ int coMenu::index(const coMenuItem *item)
     {
         if (allItems[i] == item)
         {
-            return i;
+            return (int)i;
         }
         ++i;
     }

@@ -92,7 +92,7 @@ struct mySmoothTriangleFunctor
         }
     }
 
-    inline void operator()(const osg::Vec3 &v1, const osg::Vec3 &v2, const osg::Vec3 &v3, bool treatVertexDataAsTemporary)
+    inline void operator()(const osg::Vec3 &v1, const osg::Vec3 &v2, const osg::Vec3 &v3, bool treatVertexDataAsTemporary=false)
     {
         if (!treatVertexDataAsTemporary)
         {
@@ -125,7 +125,7 @@ struct InitTriangleFunctor
         _normalBase = nb;
     }
 
-    inline void operator()(const osg::Vec3 &v1, const osg::Vec3 &v2, const osg::Vec3 &v3, bool treatVertexDataAsTemporary)
+    inline void operator()(const osg::Vec3 &v1, const osg::Vec3 &v2, const osg::Vec3 &v3, bool treatVertexDataAsTemporary=false)
     {
         if (!treatVertexDataAsTemporary)
         {

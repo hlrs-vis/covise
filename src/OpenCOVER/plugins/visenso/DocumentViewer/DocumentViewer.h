@@ -8,8 +8,11 @@
 #ifndef _DOCUMENT_VIEWER_PLUGIN_H
 #define _DOCUMENT_VIEWER_PLUGIN_H
 
+#include <string>
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
+#include <OpenVRUI/coMenu.h>
 
 namespace vrui
 {
@@ -31,7 +34,7 @@ public:
     bool init();
 
     void preFrame();
-    void registerObjAtUi(string name);
+    void registerObjAtUi(std::string name);
     void addObject(const RenderObject *container, osg::Group *root, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     void removeObject(const char *objName, bool replace);
     void guiToRenderMsg(const char *msg);
@@ -64,9 +67,9 @@ protected:
     float vsize_;
     float aspect_ratio_;
 
-    std::map<string, coImageViewer *> findCobj_;
-    std::map<string, coImageViewer *> findDocument_;
-    string initialObjectName_;
+    std::map<std::string, coImageViewer *> findCobj_;
+    std::map<std::string, coImageViewer *> findDocument_;
+    std::string initialObjectName_;
 
 private:
     void menuEvent(coMenuItem *);

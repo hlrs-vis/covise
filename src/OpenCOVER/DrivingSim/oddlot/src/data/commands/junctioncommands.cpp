@@ -45,15 +45,15 @@ RemoveJunctionCommand::RemoveJunctionCommand(RSystemElementJunction *junction, D
     {
         RSystemElementRoad *incomingRoad = roadSystem_->getRoad(conn->getIncomingRoad());
         RSystemElementRoad *connectingRoad = roadSystem_->getRoad(conn->getConnectingRoad());
-        QString contactPoint = conn->getContactPoint();
+        JunctionConnection::ContactPointValue contactPoint = conn->getContactPoint();
 
         if (connectingRoad)
         {
-            if ((contactPoint == "start") && (connectingRoad->getPredecessor()))
+            if ((contactPoint == JunctionConnection::JCP_START) && (connectingRoad->getPredecessor()))
             {
                 predecessors_.insert(connectingRoad, connectingRoad->getPredecessor());
             }
-            else if ((contactPoint == "end") && (connectingRoad->getSuccessor()))
+            else if ((contactPoint == JunctionConnection::JCP_END) && (connectingRoad->getSuccessor()))
             {
                 successors_.insert(connectingRoad, connectingRoad->getSuccessor());
             }

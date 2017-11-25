@@ -31,7 +31,7 @@
 
 #include <cover/input/VRKeys.h>
 #include "VRCoviseObjectManager.h"
-#include "VRCoviseGeometryManager.h"
+#include <CovisePluginUtil/VRCoviseGeometryManager.h>
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRFileManager.h>
 #include <cover/VRSceneGraph.h>
@@ -56,6 +56,7 @@
 #include <PluginUtil/coLOD.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include <config/CoviseConfig.h>
 #include <util/coLog.h>
@@ -65,6 +66,7 @@
 #include <osg/Sequence>
 #include <osg/MatrixTransform>
 #include <osg/PolygonOffset>
+#include <osg/Texture1D>
 #include <osg/Texture2D>
 #include <osg/LOD>
 
@@ -76,6 +78,54 @@ using namespace std;
 using namespace opencover;
 using namespace covise;
 using namespace vrui;
+
+ColorMap::ColorMap()
+: min(0.)
+, max(1.)
+, vertexMapShader(NULL)
+, textureMapShader(NULL)
+{
+    tex = new osg::Texture1D;
+    img = new osg::Image;
+    tex->setImage(img);
+    tex->setInternalFormat(GL_RGBA);
+    img->allocateImage(2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+    unsigned char *rgba = img->data();
+    rgba[0] = 16;
+    rgba[1] = 16;
+    rgba[2] = 16;
+    rgba[3] = 255;
+    rgba[4] = 200;
+    rgba[5] = 200;
+    rgba[6] = 200;
+    rgba[7] = 255;
+
+    tex->setBorderWidth( 0 );
+    tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+    tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+    tex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+
+    textureMapShader = coVRShaderList::instance()->getUnique("MapColorsTexture");
+    setMinMax(min, max);
+}
+
+void ColorMap::setMinMax(float min, float max)
+{
+    this->min = min;
+    this->max = max;
+
+    if (vertexMapShader)
+    {
+        vertexMapShader->setFloatUniform("rangeMin", min);
+        vertexMapShader->setFloatUniform("rangeMax", max);
+    }
+    if (textureMapShader)
+    {
+        textureMapShader->setFloatUniform("rangeMin", min);
+        textureMapShader->setFloatUniform("rangeMax", max);
+    }
+}
+
 
 //================================================================
 // ObjectManager methods
@@ -109,6 +159,7 @@ ObjectManager::ObjectManager()
     depthPeeling = coCoviseConfig::isOn("COVER.DepthPeeling", false);
 }
 
+#ifdef PINBOARD
 void
 ObjectManager::removeAllButtons()
 {
@@ -145,6 +196,7 @@ ObjectManager::removeButtonsForContainer(const char *container)
 
     buttonsMap.erase(it);
 }
+#endif
 
 ObjectManager::~ObjectManager()
 {
@@ -152,7 +204,9 @@ ObjectManager::~ObjectManager()
     if (cover->debugLevel(2))
         fprintf(stderr, "delete ObjectManager\n");
     delete interactionA;
+#ifdef PINBOARD
     removeAllButtons();
+#endif
     delete materialList;
     delete GeometryManager::instance();
 }
@@ -395,8 +449,6 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
 
     if (cover->debugLevel(4))
         fprintf(stderr, "--ObjectManager (%s)::addObject %s\n", getenv("HOST") ? getenv("HOST") : "unknown", object);
-    const char *gtype;
-
     if ((!data_obj) && (coVRMSController::instance()->isMaster()))
     {
         data_obj = coDistributedObject::createFromShm(object);
@@ -405,11 +457,16 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
 
     if (ro != NULL)
     {
+        m_roMap[object] = ro;
         //fprintf(stderr, "++++++ObjectManager(%s)::addObject %s  data_obj=%s renderObj=%s\n", getenv("HOST"), object,data_obj->getName(), ro->getName() );
 
-        gtype = ro->getType();
-        if (strcmp(gtype, "DOTEXT") == 0)
+        std::string gtype = ro->getType();
+        if (gtype == "DOTEXT")
         {
+        }
+        else if (gtype == "COLMAP")
+        {
+            addColorMap(object, ro);
         }
         else
         {
@@ -420,10 +477,9 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
             }
         }
     }
-    delete ro;
 }
 
-void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
+coInteractor *ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
 {
 
     CoviseRenderObject *ro[4] = {
@@ -433,6 +489,7 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
         texObj
     };
 
+    coInteractor *ret = nullptr;
     if (geomObj)
     {
         // a new object arrived, look for interactors
@@ -460,10 +517,22 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
                     it->incRefCount();
                     coVRPluginList::instance()->newInteractor(container, it);
                     it->decRefCount();
+
+                    if (it->refCount() > 0)
+                    {
+                        if (strcmp(it->getModuleName(), "Colors") != 0)
+                            ret = it;
+                    }
                 }
             }
         }
     }
+    return ret;
+}
+
+const ColorMap &ObjectManager::getColorMap(const std::string &species)
+{
+   return colormaps[species];
 }
 
 //----------------------------------------------------------------
@@ -515,6 +584,13 @@ void ObjectManager::deleteObject(const char *name, bool groupobject)
     if (feedbackList)
         feedbackList->removeData(name);
 #endif
+    RenderObjectMap::iterator it = m_roMap.find(name);
+    if (it != m_roMap.end())
+    {
+        RenderObject *ro = it->second;
+        m_roMap.erase(it);
+        delete ro;
+    }
 }
 
 //----------------------------------------------------------------
@@ -527,7 +603,9 @@ void ObjectManager::removeGeometry(const char *name, bool groupobject)
 
     // remove all Menus attached to this geometry
     coVRMenuList::instance()->removeAll(name);
+#ifdef PINBOARD
     removeButtonsForContainer(name);
+#endif
 
     coVRPluginList::instance()->removeObject(name, CoviseRender::isReplace());
     coviseSG->deleteNode(name, groupobject);
@@ -623,6 +701,36 @@ static int create_named_color(const char *cname)
 //----------------------------------------------------------------
 //
 //----------------------------------------------------------------
+void ObjectManager::addColorMap(const char *object, CoviseRenderObject *cmap)
+{
+    std::string species;
+    if (const char *sp = cmap->getAttribute("SPECIES"))
+    {
+        species = sp;
+    }
+
+    handleInteractors(cmap, cmap, NULL, NULL, NULL);
+    coVRPluginList::instance()->addObject(cmap, NULL, NULL, NULL, NULL, NULL);
+
+    ColorMap &cm = colormaps[species];
+    cm.setMinMax(cmap->getMin(0), cmap->getMax(0));
+    const float *cols = cmap->getFloat(Field::ColorMap);
+    cm.lut.resize(cmap->getNumColors());
+    for (int i=0; i<cm.lut.size(); ++i)
+    {
+        cm.lut[i].r = cols[i*5+0]*255.99;
+        cm.lut[i].g = cols[i*5+1]*255.99;
+        cm.lut[i].b = cols[i*5+2]*255.99;
+        cm.lut[i].a = cols[i*5+3]*255.99;
+        //std::cerr << "  " << i << ": " << (int)cm.lut[i].r << " " << (int)cm.lut[i].g << " " << (int)cm.lut[i].b << " " << (int)cm.lut[i].a << std::endl;
+    }
+    cm.img->allocateImage(cm.lut.size(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+    memcpy(cm.img->data(), &cm.lut[0], cm.lut.size()*4);
+    cm.tex->setInternalFormat(GL_RGBA);
+    cm.img->dirty();
+    std::cerr << "colormap for species " << species << ": range " << cm.min << " - " << cm.max << ", #steps: " << cmap->getNumColors() << std::endl;
+}
+
 osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, CoviseRenderObject *geometry,
                                       CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container, const char *lod)
 {
@@ -665,7 +773,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     const char *bindingType, *objName;
     char buf[300];
     const char *tstep_attrib = NULL;
-    const char *feedback_info;
+    const char *feedback_info = NULL;
     unsigned int rgba;
     curset = anzset;
     osg::Texture::WrapMode wrapMode = osg::Texture::CLAMP_TO_EDGE;
@@ -907,10 +1015,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             const char *name = geometry->getAttribute("OBJECTNAME");
             if (container->getAttribute("OBJECTNAME"))
                 name = container->getAttribute("OBJECTNAME");
+#ifdef PINBOARD
             if (name != NULL)
             {
                 this->addFeedbackButton(container->getName(), feedback_info, name);
             }
+#endif
         }
         // check for VertexOrderStr
         vertexOrderStr = geometry->getAttribute("vertexOrder");
@@ -1032,7 +1142,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         //fprintf(stderr,"ObjectManager::addGeometry if SETELE\n");
 
         // TODO change all Plugins to user RenderObjects
-        handleInteractors(container, geometry, normals, colors, texture);
+        auto inter = handleInteractors(container, geometry, normals, colors, texture);
         //fprintf(stderr, "++++++ObjectManager::addGeometry3  container=%s geometry=%s\n", container->getName(), geometry->getName() );
         coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
         // retrieve the whole set
@@ -1060,10 +1170,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             const char *name = geometry->getAttribute("OBJECTNAME");
             if (container->getAttribute("OBJECTNAME"))
                 name = container->getAttribute("OBJECTNAME");
+#ifdef PINBOARD
             if (name != NULL)
             {
                 this->addFeedbackButton(container->getName(), feedback_info, name);
             }
+#endif
         }
         if (normals != NULL)
         {
@@ -1245,6 +1357,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                     groupNode->addChild(mt);
                 }
             }
+        }
+
+        if (inter && groupNode)
+        {
+            std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
+            groupNode->setUserData(new InteractorReference(inter));
         }
 
         return groupNode;
@@ -1440,7 +1558,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 colors->getAddresses(rc, gc, bc);
                 gc = NULL;
                 bc = NULL;
-                colorpacking = Pack::None;
+                colorpacking = Pack::Float;
             }
             else if (strcmp(ctype, "USTSDT") == 0)
             {
@@ -1448,7 +1566,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 colors->getAddresses(rc, gc, bc);
                 gc = NULL;
                 bc = NULL;
-                colorpacking = Pack::None;
+                colorpacking = Pack::Float;
             }
             else
             {
@@ -1508,7 +1626,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         // add object to VRSceneGraph::instance() depending on type
         //
         // TODO Change all Plugins
-        handleInteractors(container, geometry, normals, colors, texture);
+        coInteractor *inter = handleInteractors(container, geometry, normals, colors, texture);
         coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
 
         osg::Node *newNode = NULL;
@@ -1519,10 +1637,11 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         {
             if (strcmp(gtype, "UNIGRD") == 0)
             {
-                cover->addPlugin("Volume");
                 newNode = GeometryManager::instance()->addUGrid(object, xsize, ysize, zsize, xmin, xmax, ymin, ymax, zmin, zmax,
                                                                 no_c, colorbinding, colorpacking, rc, gc, bc, pc,
                                                                 no_n, normalbinding, xn, yn, zn, transparency);
+                if (!newNode)
+                    cover->addPlugin("Volume");
             }
             else if (strcmp(gtype, "RCTGRD") == 0)
                 newNode = GeometryManager::instance()->addRGrid(object, xsize, ysize, zsize, x_c, y_c, z_c,
@@ -1577,7 +1696,9 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
                 newNode = GeometryManager::instance()->addLine(object, no_lines, no_vert, no_points,
                                                                x_c, y_c, z_c, v_l, l_l, no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                                                               no_n, normalbinding, xn, yn, zn, isTrace, material, linewidth);
+                                                               no_n, normalbinding, xn, yn, zn, isTrace, material,
+                                                               texW, texH, pixS, texImage, no_t, t_c[0], t_c[1], wrapMode, minfm, magfm,
+                                                               linewidth);
             }
             //else if ( ( strcmp ( gtype,"POINTS" ) == 0 ) || ( strcmp ( gtype,"UNSGRD" ) == 0 ) )
             else if ((strcmp(gtype, "POINTS") == 0))
@@ -1664,9 +1785,24 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 shaderName = texture->getAttribute("SHADER");
             if (!shaderName)
                 shaderName = container->getAttribute("SHADER");
-            if (shaderName)
+            if (shaderName || colorpacking==Pack::Float)
             {
-                coVRShader *shader = coVRShaderList::instance()->get(shaderName);
+                coVRShader *shader = NULL;
+                if (shaderName)
+                {
+                    shader = coVRShaderList::instance()->get(shaderName);
+                }
+                else if (colorpacking == Pack::Float)
+                {
+                    const char *sp= colors->getAttribute("SPECIES");
+                    std::string species;
+                    if (sp)
+                        species = sp;
+                    const ColorMap &cm = getColorMap(species);
+                    shader = cm.textureMapShader;
+                    osg::StateSet *stateset = newNode->getOrCreateStateSet();
+                    stateset->setTextureAttributeAndModes(1, cm.tex, osg::StateAttribute::ON);
+                }
                 if (shader)
                 {
 
@@ -1680,6 +1816,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                         shader->setUniformesFromAttribute(uniformValues);
                     }
                     shader->apply(newNode);
+
                     // add attributes
                 }
                 else
@@ -1862,7 +1999,14 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
             bool addNode = coVRMenuList::instance()->add(geometry, newNode);
             if (addNode)
+            {
+                if (inter && newNode)
+                {
+                    std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
+                    newNode->setUserData(new InteractorReference(inter));
+                }
                 return newNode;
+            }
         }
 
         return NULL;
@@ -1874,6 +2018,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     return NULL;
 }
 
+#ifdef PINBOARD
 void
 ObjectManager::addPinboardButton(const char *buttonId, int moduleInstance, const char *feedback_info, const char *name)
 {
@@ -2201,3 +2346,4 @@ ObjectManager::feedbackCallback(void *objectManager, buttonSpecCell *spec)
 {
     ((ObjectManager *)objectManager)->feedback(spec);
 }
+#endif

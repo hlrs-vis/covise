@@ -216,15 +216,6 @@
     </SteeringWheel-->
    </Plugin>
 
-   <VehicleUtil>
-      <CANProvider>
-         <CANKomfort channel="rtcan1"/>
-         <CANDisplay channel="rtcan0"/>
-      </CANProvider>
-      <XenomaiBeckhoff nodeID="11"/>
-      <BrakePedal nodeID="21"/>
-   </VehicleUtil>
-   
    <TabletPC>
     <!-- Server value="localhost" /-->
     <!--Server value="141.58.8.187" /-->

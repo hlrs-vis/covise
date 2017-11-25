@@ -11,7 +11,9 @@
  *  Created on: Dec 9, 2014
  *      Author: svnvlad
  */
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include "DTrackDriver.h"
 
 #include <config/CoviseConfig.h>

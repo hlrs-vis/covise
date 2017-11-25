@@ -21,6 +21,7 @@ class COVEREXPORT VRRegisterSceneGraph
 {
 
 private:
+    static VRRegisterSceneGraph *s_instance;
     int registerId;
     bool blocked;
     std::string whole_message;

@@ -539,156 +539,165 @@ int coReadVolume::compute(const char *)
                 delete gridData[t];
             }
         }
-        else
+        else if (vd->vox[0] * vd->vox[1] * vd->vox[2] > 0)
         {
             browserFeedback.apply(gridData[0]);
             poGrid->setCurrentObject(gridData[0]);
-        }
 
-        delete[] gridData;
+            delete[] gridData;
 
-        // Copy raw volume data to shared memory:
-        numVoxels = vd->getFrameVoxels();
+            // Copy raw volume data to shared memory:
+            numVoxels = vd->getFrameVoxels();
 
-        for (int c = 0; c < vd->chan && c < MAX_CHANNELS; c++)
-        {
-            std::vector<coDistributedObject *> timesteps;
-            for (t = 0; t < vd->frames; ++t)
+            for (int c = 0; c < vd->chan && c < MAX_CHANNELS; c++)
             {
-                std::stringstream name(poVolume[c]->getObjName());
-                if (vd->frames > 1)
-                    name << "_" << t;
-                coDoByte *dob = NULL;
-                coDoFloat *dof = NULL;
-                float *fdata = NULL;
-                uchar *bdata = NULL;
-                if (vd->bpc == 1 && pboPreferByteData->getValue())
+                std::vector<coDistributedObject *> timesteps;
+                for (t = 0; t < vd->frames; ++t)
                 {
-                    dob = new coDoByte(name.str(), vd->vox[0] * vd->vox[1] * vd->vox[2]);
-                    bdata = dob->getAddress();
-                    timesteps.push_back(dob);
-                }
-                else
-                {
-                    dof = new coDoFloat(name.str(), vd->vox[0] * vd->vox[1] * vd->vox[2]);
-                    fdata = dof->getAddress();
-                    timesteps.push_back(dof);
-                }
-
-                std::string min_str = boost::lexical_cast<std::string>(vd->real[c][0]);
-                std::string max_str = boost::lexical_cast<std::string>(vd->real[c][1]);
-                timesteps.back()->addAttribute("MIN", min_str.c_str());
-                timesteps.back()->addAttribute("MAX", max_str.c_str());
-
-                rawData = vd->getRaw((size_t)t);
-
-                bool bs = pboReadBS->getValue();
-                float minV = (float)minValue->getValue();
-                float range = (float)(maxValue->getValue() - minValue->getValue());
-                {
-                    if (vd->bpc == 1)
+                    std::stringstream name(poVolume[c]->getObjName());
+                    if (vd->frames > 1)
+                        name << "_" << t;
+                    coDoByte *dob = NULL;
+                    coDoFloat *dof = NULL;
+                    float *fdata = NULL;
+                    uchar *bdata = NULL;
+                    if (vd->bpc == 1 && pboPreferByteData->getValue())
                     {
-                        if (fdata)
-                        {
-                            for (size_t i = 0; i < numVoxels; ++i)
-                                fdata[i] = float(rawData[i * vd->chan + c]) / 255.0f;
-                        }
-                        else
-                        {
-                            for (size_t i = 0; i < numVoxels; ++i)
-                                bdata[i] = rawData[i * vd->chan + c];
-                        }
-                    }
-                    else if (vd->bpc == 2)
-                    {
-                        if (bs) //   Big Endian
-                        {
-                            //low
-                            for (size_t i = 0; i < numVoxels; ++i)
-                            {
-                                fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2]))
-                                             + ((float)rawData[(vd->chan * i + c) * 2 + 1]))
-                                            - minV) / range;
-                                fdata[i] = ts_clamp(fdata[i], 0.f, 1.f);
-                            }
-                        }
-                        else //    Little Endian
-                        {
-                            for (size_t i = 0; i < numVoxels; ++i)
-                            {
-                                //high
-                                fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2 + 1]))
-                                             + ((float)rawData[(vd->chan * i + c) * 2]))
-                                            - minV) / range;
-                                fdata[i] = ts_clamp(fdata[i], 0.f, 1.f);
-                            }
-                        } //
-                    }
-                    else if (vd->bpc == 4)
-                    {
-                        if (bs)
-                        {
-                            for (size_t i = 0; i < numVoxels; ++i)
-                            {
-                                uint32_t d = *(uint32_t *)&rawData[(vd->chan * i + c) * 4];
-                                byteSwap(d);
-                                fdata[i] = *(float *)&d;
-                            }
-                        }
-                        else
-                        {
-                            for (size_t i = 0; i < numVoxels; ++i)
-                            {
-                                fdata[i] = *(float *)&rawData[(vd->chan * i + c) * 4];
-                            }
-                        }
+                        dob = new coDoByte(name.str(), int(vd->vox[0] * vd->vox[1] * vd->vox[2]));
+                        bdata = dob->getAddress();
+                        timesteps.push_back(dob);
                     }
                     else
                     {
-                        for (size_t i = 0; i < numVoxels; ++i)
-                            fdata[i] = 0.0f;
+                        dof = new coDoFloat(name.str(), int(vd->vox[0] * vd->vox[1] * vd->vox[2]));
+                        fdata = dof->getAddress();
+                        timesteps.push_back(dof);
+                    }
+
+                    std::string mapping_min_str = boost::lexical_cast<std::string>(vd->mapping(c)[0]);
+                    std::string mapping_max_str = boost::lexical_cast<std::string>(vd->mapping(c)[1]);
+                    std::string range_min_str = boost::lexical_cast<std::string>(vd->mapping(c)[0]);
+                    std::string range_max_str = boost::lexical_cast<std::string>(vd->mapping(c)[1]);
+                    timesteps.back()->addAttribute("MAPPING_MIN", mapping_min_str.c_str());
+                    timesteps.back()->addAttribute("MAPPING_MAX", mapping_max_str.c_str());
+                    timesteps.back()->addAttribute("RANGE_MIN", range_min_str.c_str());
+                    timesteps.back()->addAttribute("RANGE_MAX", range_max_str.c_str());
+
+                    rawData = vd->getRaw((size_t)t);
+
+                    bool bs = pboReadBS->getValue();
+                    float minV = (float)minValue->getValue();
+                    float range = (float)(maxValue->getValue() - minValue->getValue());
+                    {
+                        if (vd->bpc == 1)
+                        {
+                            if (fdata)
+                            {
+                                for (size_t i = 0; i < numVoxels; ++i)
+                                    fdata[i] = float(rawData[i * vd->chan + c]) / 255.0f;
+                            }
+                            else
+                            {
+                                for (size_t i = 0; i < numVoxels; ++i)
+                                    bdata[i] = rawData[i * vd->chan + c];
+                            }
+                        }
+                        else if (vd->bpc == 2)
+                        {
+                            if (bs) //   Big Endian
+                            {
+                                //low
+                                for (size_t i = 0; i < numVoxels; ++i)
+                                {
+                                    fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2]))
+                                                 + ((float)rawData[(vd->chan * i + c) * 2 + 1]))
+                                                - minV) / range;
+                                    fdata[i] = ts_clamp(fdata[i], 0.f, 1.f);
+                                }
+                            }
+                            else //    Little Endian
+                            {
+                                for (size_t i = 0; i < numVoxels; ++i)
+                                {
+                                    //high
+                                    fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2 + 1]))
+                                                 + ((float)rawData[(vd->chan * i + c) * 2]))
+                                                - minV) / range;
+                                    fdata[i] = ts_clamp(fdata[i], 0.f, 1.f);
+                                }
+                            } //
+                        }
+                        else if (vd->bpc == 4)
+                        {
+                            if (bs)
+                            {
+                                for (size_t i = 0; i < numVoxels; ++i)
+                                {
+                                    uint32_t d = *(uint32_t *)&rawData[(vd->chan * i + c) * 4];
+                                    byteSwap(d);
+                                    fdata[i] = *(float *)&d;
+                                }
+                            }
+                            else
+                            {
+                                for (size_t i = 0; i < numVoxels; ++i)
+                                {
+                                    fdata[i] = *(float *)&rawData[(vd->chan * i + c) * 4];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (size_t i = 0; i < numVoxels; ++i)
+                                fdata[i] = 0.0f;
+                        }
                     }
                 }
-            }
 
-            if (vd->frames > 1)
-            {
-                // Create set objects:
-                volumeSet = new coDoSet(poVolume[c]->getObjName(), timesteps.size(), &timesteps[0]);
-
-                // Set timestep attribute:
-                char buf[1024];
-                sprintf(buf, "%d %d", 0, (int)vd->frames - 1);
-                volumeSet->addAttribute("TIMESTEP", buf);
-
-                // Assign sets to output ports:
-                poVolume[c]->setCurrentObject(volumeSet);
-
-                for (t = 0; t < vd->frames; ++t)
+                if (vd->frames > 1)
                 {
-                    delete timesteps[t];
+                    // Create set objects:
+                    volumeSet = new coDoSet(poVolume[c]->getObjName(), int(timesteps.size()), &timesteps[0]);
+
+                    // Set timestep attribute:
+                    char buf[1024];
+                    sprintf(buf, "%d %d", 0, (int)vd->frames - 1);
+                    volumeSet->addAttribute("TIMESTEP", buf);
+
+                    // Assign sets to output ports:
+                    poVolume[c]->setCurrentObject(volumeSet);
+
+                    for (t = 0; t < vd->frames; ++t)
+                    {
+                        delete timesteps[t];
+                    }
+                }
+                else
+                {
+                    // Assign sets to output ports:
+                    poVolume[c]->setCurrentObject(timesteps[0]);
                 }
             }
-            else
-            {
-                // Assign sets to output ports:
-                poVolume[c]->setCurrentObject(timesteps[0]);
-            }
-        }
 
-        // Print message:
-        if (
-            !pboSequenceFromHeader->getValue()
-         && (numFiles != piSequenceEnd->getValue() - piSequenceBegin->getValue() + 1)
-            )
-        {
-            skipped << " in sequence.";
-            sendInfo("%s", skipped.str().c_str());
+            // Print message:
+            if (
+                !pboSequenceFromHeader->getValue()
+             && (numFiles != (piSequenceEnd->getValue() - piSequenceBegin->getValue() + piSequenceInc->getValue())/piSequenceInc->getValue())
+                )
+            {
+                skipped << " in sequence.";
+                sendInfo("%s", skipped.str().c_str());
+            }
+            sendInfo("Volume data loaded: %d x %d x %d voxels, %d channels, %d bytes per channel, %d time %s.",
+                     static_cast<int>(vd->vox[0]), static_cast<int>(vd->vox[1]), static_cast<int>(vd->vox[2]),
+                     static_cast<int>(vd->chan), static_cast<int>(vd->bpc),
+                     static_cast<int>(vd->frames), ((vd->frames == 1) ? "step (no set)" : "steps"));
         }
-        sendInfo("Volume data loaded: %d x %d x %d voxels, %d channels, %d bytes per channel, %d time %s.",
-                 static_cast<int>(vd->vox[0]), static_cast<int>(vd->vox[1]), static_cast<int>(vd->vox[2]),
-                 static_cast<int>(vd->chan), static_cast<int>(vd->bpc),
-                 static_cast<int>(vd->frames), ((vd->frames == 1) ? "step (no set)" : "steps"));
+        else
+        {
+            sendError("Cannot load volume data!");
+            retVal = STOP_PIPELINE;
+        }
     }
     else
     {

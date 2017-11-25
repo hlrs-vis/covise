@@ -31,7 +31,22 @@ static FileHandler handlers[] = {
       PointRayTracerPlugin::sloadPts,
       PointRayTracerPlugin::sloadPts,
       PointRayTracerPlugin::unloadPts,
-      "pts" }
+      "pts" },
+    { NULL,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::unloadPts,
+      "3d" },
+    { NULL,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::unloadPts,
+      "xyz" },
+    { NULL,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::sloadPts,
+      PointRayTracerPlugin::unloadPts,
+      "ply" }
 };
 
 //-----------------------------------------------------------------------------
@@ -46,6 +61,9 @@ PointRayTracerPlugin::PointRayTracerPlugin()
 {
     //register file handler
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[1]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[2]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[3]);
 
     //create drawable
     m_drawable = new PointRayTracerDrawable;
@@ -74,8 +92,8 @@ bool PointRayTracerPlugin::init()
     bool ignore;
     m_useCache = covise::coCoviseConfig::isOn("value", "COVER.Plugin.PointRayTracer.CacheBinaryFile", false, &ignore);
 
-    m_cutUTMdata = true;
-
+    //check if the files contain UTM data that need to be "cut down" like a dog
+    m_cutUTMdata = covise::coCoviseConfig::isOn("value", "COVER.Plugin.PointRayTracer.CutUTMData", false, &ignore);
 
     //init Menu
     prtSubMenuEntry = new coSubMenuItem("Point Ray Tracer");
@@ -94,8 +112,8 @@ bool PointRayTracerPlugin::init()
 
     //ButtonD = forward
     //ButtonE = backward
-    interactionNext = new coTrackerButtonInteraction(coInteraction::ButtonD,"Next Point Cloud", coInteraction::Medium);
-    interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonE,"Previous Point Cloud", coInteraction::Medium);
+    interactionNext = new coTrackerButtonInteraction(coInteraction::ButtonB,"Next Point Cloud", coInteraction::Medium);
+    interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonC,"Previous Point Cloud", coInteraction::Medium);
     coInteractionManager::the()->registerInteraction(interactionNext);
     coInteractionManager::the()->registerInteraction(interactionPrev);
 
@@ -162,8 +180,15 @@ void PointRayTracerPlugin::preFrame()
 {
     //if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::preFrame\n");
 
-    if(interactionNext->wasStarted()) showNextPointCloud();
-    if(interactionPrev->wasStarted()) showPreviousPointCloud();
+    if(interactionNext->wasStarted())
+    {
+        std::cout << "Button Next Pressed" << std::endl;
+        showNextPointCloud();
+    }
+    if(interactionPrev->wasStarted()){
+        std::cout << "Button Prev Pressed" << std::endl;
+        showPreviousPointCloud();
+    }
 
     /*
     static bool takeAction = true;

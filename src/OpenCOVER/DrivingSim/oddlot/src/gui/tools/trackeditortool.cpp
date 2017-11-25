@@ -52,7 +52,7 @@
 TrackEditorTool::TrackEditorTool(PrototypeManager *prototypeManager, ToolManager *toolManager)
     : Tool(toolManager)
     , prototypeManager_(prototypeManager)
-    , toolId_(ODD::TTE_SELECT)
+    , toolId_(ODD::TTE_ROAD_MOVE_ROTATE)
     , currentRoadSystemPrototype_(NULL)
 {
     // Connect //

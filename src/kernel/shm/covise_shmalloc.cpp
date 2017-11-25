@@ -114,7 +114,7 @@ void ShmAccess::add_new_segment(int k, shmSizeType size)
     // only detach
 }
 
-char *coStringShmArray::operator[](int i)
+char *coStringShmArray::operator[](unsigned int i)
 {
     char *tmpch;
     int sn;
@@ -126,7 +126,7 @@ char *coStringShmArray::operator[](int i)
     cerr << "check this, should be only two numbers, not three\n"
          << i << " not in 0.." << length << endl;
 
-    if (i >= 0 && i < length)
+    if (i < length)
     {
         //old sn = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 1;
         //old of = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 2;
@@ -144,7 +144,7 @@ char *coStringShmArray::operator[](int i)
     return NULL;
 }
 
-const char *coStringShmArray::operator[](int i) const
+const char *coStringShmArray::operator[](unsigned int i) const
 {
     char *tmpch;
     int sn;
@@ -155,7 +155,7 @@ const char *coStringShmArray::operator[](int i) const
     
     cerr << "check this, should be only two numbers, not three\n"
          << i << " not in 0.." << length << endl;
-    if (i >= 0 && i < length)
+    if (i < length)
     {
         //old sn = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 1;
         //old of = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 2;

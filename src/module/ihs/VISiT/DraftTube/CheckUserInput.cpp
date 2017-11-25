@@ -110,7 +110,7 @@ void DraftTube::CheckUserInput(const char *portname, struct geometry *geo)
 
 int DraftTube::SplitPortname(const char *portname, char *name, int *index)
 {
-   int offs = strlen(portname);
+   size_t offs = strlen(portname);
 
    *name = '\0';
    *index = -1;

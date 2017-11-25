@@ -30,6 +30,7 @@ oscRelativeWorld()
         OSC_ADD_MEMBER_OPTIONAL(dz, 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
     };
+        const char *getScope(){return "/OSCPosition";};
     oscString object;
     oscDouble dx;
     oscDouble dy;

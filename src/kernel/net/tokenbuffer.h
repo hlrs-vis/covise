@@ -73,6 +73,9 @@ class Message;
 class NETEXPORT TokenBuffer // class for tokens
 {
 private:
+    TokenBuffer(const TokenBuffer &other) = delete;
+    TokenBuffer &operator=(const TokenBuffer &other) = delete;
+
     int buflen; // number of allocated bytes
     int length; // number of used bytes
     char *data; // pointer to the tokens
@@ -125,6 +128,7 @@ public:
         return buf;
     }
 
+    TokenBuffer &operator<<(const bool b);
     TokenBuffer &operator<<(const uint64_t i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
 //TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
@@ -156,8 +160,8 @@ public:
         length += l;
         return (*this);
     }
-    TokenBuffer &operator<<(TokenBuffer *t);
-    TokenBuffer &operator<<(TokenBuffer t)
+    TokenBuffer &operator<<(const TokenBuffer *t);
+    TokenBuffer &operator<<(const TokenBuffer &t)
     {
         if (buflen < length + t.get_length() + 1)
             incbuf(t.get_length() * 4);
@@ -166,6 +170,8 @@ public:
         length += t.get_length();
         return (*this);
     }
+
+    TokenBuffer &operator>>(bool &b);
     TokenBuffer &operator>>(uint64_t &i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
 //TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }
@@ -224,11 +230,11 @@ public:
         currdata++;
         return (ret);
     };
-    int get_length()
+    int get_length() const
     {
         return (length);
     };
-    const char *get_data()
+    const char *get_data() const
     {
         return (data);
     };
@@ -239,6 +245,8 @@ public:
         if (data)
             data[0] = 0;
     };
+
+    void rewind();
 };
 }
 #endif

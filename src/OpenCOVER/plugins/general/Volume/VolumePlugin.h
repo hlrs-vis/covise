@@ -240,7 +240,7 @@ private:
     VolumeMap::iterator currentVolume;
     vvVolDesc *volDesc;
     bool reenableCulling;
-    uchar *tfeBackgroundTexture;
+    std::vector<uchar> tfeBackgroundTexture;
     void makeVolumeCurrent(VolumeMap::iterator vol);
 
     static void applyDefaultTransferFunction(void *userData);
@@ -275,6 +275,9 @@ private:
 
     void updateTFEData();
     bool computeHistogram;
+    bool showTFE; ///< initially show TFE
+    bool lighting;
+    bool preIntegration;
 };
 
 /** File entry for volume rendering plugin.

@@ -26,6 +26,7 @@ public:
     SpeedRecord();
     SpeedRecord(QString &max, QString &unit);
     float maxSpeed;
+	QString maxUnit;
 };
 
 class TypeSection : public RoadSection

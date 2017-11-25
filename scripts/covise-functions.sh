@@ -53,8 +53,13 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=libc++
                     ;;
 
-                15.*|16.*)
+                15.*|16.*|17.*)
 	            export ARCHSUFFIX=macos
+                    ;;
+
+                *)
+	            export ARCHSUFFIX=macos
+                echo "Unknown macOS version `uname -r`: defaulting to ARCHSUFFIX ${ARCHSUFFIX}"
                     ;;
             esac
             ;;

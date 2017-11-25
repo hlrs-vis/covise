@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>550</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -71,13 +71,13 @@ min-width: 0em;</string>
         <x>0</x>
         <y>0</y>
         <width>183</width>
-        <height>550</height>
+        <height>750</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>550</height>
+        <height>750</height>
        </size>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -411,8 +411,8 @@ min-width: 0em;</string>
            <rect>
             <x>0</x>
             <y>450</y>
-            <width>170</width>
-            <height>86</height>
+            <width>155</width>
+            <height>297</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -422,29 +422,17 @@ min-width: 0em;</string>
            </sizepolicy>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
+           <item row="3" column="1">
+            <widget class="QDoubleSpinBox" name="repeatTStartSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="repeatSLabel">
              <property name="text">
               <string>s</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="repeatSSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>2</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximum">
-              <double>99999.990000000005239</double>
              </property>
             </widget>
            </item>
@@ -462,6 +450,69 @@ min-width: 0em;</string>
              </property>
             </widget>
            </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="repeatDistanceSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="repeatTEndSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="repeatDistLabel_4">
+             <property name="text">
+              <string>widthStart</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="repeatDistLabel_2">
+             <property name="text">
+              <string>tStart</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="repeatWidthStartSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="repeatDistLabel_3">
+             <property name="text">
+              <string>tEnd</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="repeatDistLabel_5">
+             <property name="text">
+              <string>widthEnd</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QDoubleSpinBox" name="repeatWidthEndSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="repeatDistLabel_6">
+             <property name="text">
+              <string>heightStart</string>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="repeatDistLabel">
              <property name="text">
@@ -469,10 +520,65 @@ min-width: 0em;</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="repeatDistanceSpinBox">
+           <item row="7" column="1">
+            <widget class="QDoubleSpinBox" name="repeatHeightStartSpinBox">
              <property name="maximum">
               <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="repeatDistLabel_7">
+             <property name="text">
+              <string>heightEnd</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QDoubleSpinBox" name="repeatHeightEndSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="repeatDistLabel_8">
+             <property name="text">
+              <string>zOffsetStart</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="repeatSSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>2</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <widget class="QDoubleSpinBox" name="repeatZOffsetEndSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QDoubleSpinBox" name="repeatZOffsetStartSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="repeatDistLabel_9">
+             <property name="text">
+              <string>zOffsetEnd</string>
              </property>
             </widget>
            </item>

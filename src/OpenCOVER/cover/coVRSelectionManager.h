@@ -17,7 +17,6 @@ class coNavInteraction;
 }
 namespace opencover
 {
-class buttonSpecCell;
 
 class COVEREXPORT coSelectionListener
 {
@@ -31,9 +30,10 @@ public:
 
 class COVEREXPORT coVRSelectionManager : public vrui::coUpdateable
 {
+    static coVRSelectionManager *s_instance;
+    coVRSelectionManager();
 
 public:
-    coVRSelectionManager();
     ~coVRSelectionManager();
     static coVRSelectionManager *instance();
     void addListener(coSelectionListener *);
@@ -44,8 +44,6 @@ public:
     osg::BoundingSphere getBoundingSphere(osg::Node *);
 
     virtual bool update();
-
-    static void selectionCallback(void *, buttonSpecCell *spec);
 
     enum HelperNodeType
     {

@@ -20,16 +20,20 @@
 
 using namespace opencover;
 using namespace vrui;
+
+
+coVRSelectionManager *coVRSelectionManager::s_instance = NULL;
+
 coVRSelectionManager *coVRSelectionManager::instance()
 {
-    static coVRSelectionManager *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRSelectionManager();
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRSelectionManager();
+    return s_instance;
 }
 
 coVRSelectionManager::coVRSelectionManager()
 {
+    assert(!s_instance);
 
     selectionInteractionA = new coNavInteraction(coInteraction::ButtonA, "Selection", coInteraction::High);
     selectedNodeList.clear();
@@ -44,10 +48,13 @@ coVRSelectionManager::coVRSelectionManager()
     updateManager = cover->getUpdateManager();
     updateManager->add(this);
 }
+
 coVRSelectionManager::~coVRSelectionManager()
 {
     delete selectionInteractionA;
     updateManager->remove(this);
+
+    s_instance = NULL;
 }
 
 osg::BoundingSphere coVRSelectionManager::getBoundingSphere(osg::Node *objRoot)
@@ -313,6 +320,7 @@ bool coVRSelectionManager::haveToDelete(osg::Node *parent, osg::Node *node)
     }
 }
 
+#if 0
 void coVRSelectionManager::selectionCallback(void *, buttonSpecCell *spec)
 {
     //fprintf(stderr,"coVRSelectionManager::selectionCallback\n");
@@ -325,6 +333,7 @@ void coVRSelectionManager::selectionCallback(void *, buttonSpecCell *spec)
         coVRSelectionManager::instance()->setSelectionOnOff(0);
     }
 }
+#endif
 
 void coVRSelectionManager::setSelectionColor(float R, float G, float B)
 {

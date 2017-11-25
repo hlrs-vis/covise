@@ -59,11 +59,11 @@ static int CalcAR_InletMerVel(struct axial *ar)
 
    // only proper if be_num odd!!
    v0 = ar->des->dis/(ar->me[ar->be_num/2]->area->list[0]*
-      (1.0+(ar->des->vratio-1.0)/3.0));
+      (1.0f+(ar->des->vratio-1.0f)/3.0f));
    for(i = 0; i < ar->be_num; i++)
    {
-      ar->be[i]->mer_vel[0] = v0*((ar->des->vratio-1.0)*
-         pow(ar->be[i]->para,2)+1);
+      ar->be[i]->mer_vel[0] = float(v0*((ar->des->vratio-1.0f)*
+         pow(ar->be[i]->para,2)+1));
    }
 
    return 0;
@@ -79,8 +79,8 @@ static int CalcAR_Angles(struct axial *ar)
    int i, err = 0;
    float con_area;
 
-   con_area = M_PI *
-      (pow(ar->be[ar->be_num-1]->rad,2)-pow(ar->be[0]->rad,2));
+   con_area = float(M_PI *
+      (pow(ar->be[ar->be_num-1]->rad,2)-pow(ar->be[0]->rad,2)));
    dprintf(5,"\ncon_area = %f, ref = %f, xs = %f, xh = %f\n",
       con_area, ar->ref, ar->be[ar->be_num-1]->rad,
       ar->be[0]->rad);
@@ -93,13 +93,13 @@ static int CalcAR_Angles(struct axial *ar)
       // meridional, circumferential vel. and rotational
       // part of absolute vel.
       ar->be[i]->mer_vel[1] = ar->des->dis/ar->be[i]->con_area[1];
-      ar->be[i]->cir_vel[1] = ar->be[i]->rad *
-         M_PI*ar->des->revs/30.0;
+      ar->be[i]->cir_vel[1] = float(ar->be[i]->rad *
+         M_PI*ar->des->revs/30.0f);
       // outlet blade angle
-      ar->be[i]->angle[1]  = atan( ar->be[i]->mer_vel[1] /
+      ar->be[i]->angle[1]  = float(atan( ar->be[i]->mer_vel[1] /
          (ar->be[i]->cir_vel[1]-
-         ar->be[i]->rot_abs[1]) );
-      ar->be[i]->angle[1]  = SHIFTANGLE(ar->be[i]->angle[1]);
+         ar->be[i]->rot_abs[1]) ));
+      ar->be[i]->angle[1]  = float(SHIFTANGLE(ar->be[i]->angle[1]));
       ar->be[i]->angle[1] *= 180.f/(float)M_PI;
       ar->be[i]->angle[1] -= ar->be[i]->mod_angle[1];
 
@@ -110,17 +110,17 @@ static int CalcAR_Angles(struct axial *ar)
       if(ar->des->vratio <= 0.0 || !ar->vratio_flag)
          ar->be[i]->mer_vel[0] =
             ar->des->dis/ar->be[i]->con_area[0];
-      ar->be[i]->cir_vel[0] = ar->be[i]->rad *
-         M_PI*ar->des->revs/30.0;
-      ar->be[i]->rot_abs[0] = (9.81*ar->des->head +
+      ar->be[i]->cir_vel[0] = float(ar->be[i]->rad *
+         M_PI*ar->des->revs/30.0f);
+      ar->be[i]->rot_abs[0] = (9.81f*ar->des->head +
          ar->be[i]->cir_vel[1]*
          ar->be[i]->rot_abs[1]) /
          (ar->be[i]->cir_vel[0]);
       // inlet blade angle
-      ar->be[i]->angle[0]  = atan( ar->be[i]->mer_vel[0] /
+      ar->be[i]->angle[0]  = float(atan( ar->be[i]->mer_vel[0] /
          ( ar->be[i]->cir_vel[0]-
-         ar->be[i]->rot_abs[0]));
-      ar->be[i]->angle[0]  = SHIFTANGLE(ar->be[i]->angle[0]);
+         ar->be[i]->rot_abs[0])));
+      ar->be[i]->angle[0]  = float(SHIFTANGLE(ar->be[i]->angle[0]));
       ar->be[i]->angle[0] *= 180.f/(float)M_PI;
       ar->be[i]->angle[0] += ar->be[i]->mod_angle[0];
 

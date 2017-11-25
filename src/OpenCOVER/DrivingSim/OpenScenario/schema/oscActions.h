@@ -30,6 +30,7 @@ oscActions()
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserDefined, "oscGlobalAction", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Private, "oscPrivate", 0);
     };
+        const char *getScope(){return "/OpenSCENARIO/Storyboard/Init";};
     oscGlobalActionArrayMember Global;
     oscGlobalActionArrayMember UserDefined;
     oscPrivateArrayMember Private;

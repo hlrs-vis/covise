@@ -79,11 +79,11 @@ protected:
     virtual void releaseRemoteLock(const char *message);
 
 private:
-    inline int composeMessage(const char messageType, const char *message);
+    inline size_t composeMessage(const char messageType, const char *message);
 
     int interfaceType; ///< type of this interface
     std::string name; ///< symbolic name of this interface
-    int bufLen; ///< message buffer length
+	size_t bufLen; ///< message buffer length
     char *sendBuf; ///< message buffer
     bool locked; ///< true if this interface is locked
     vruiCOIM *coim; ///< the collaborative interaction manager

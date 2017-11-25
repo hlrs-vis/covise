@@ -127,6 +127,7 @@ private:
     VrmlSFRotation d_orientation14;
     VrmlSFRotation d_orientation15;
     VrmlSFString d_saveTimestamp;
+	VrmlSFString d_loadPlugin;
 #ifdef VRML_PUI
     coPUITab *pTab1;
     coPUIEditField *pText;

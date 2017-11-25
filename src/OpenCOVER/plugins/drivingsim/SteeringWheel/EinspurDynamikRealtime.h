@@ -8,12 +8,12 @@
 #ifndef __EINSPUR_DYNAMIK_REALTIME_H
 #define __EINSPUR_DYNAMIK_REALTIME_H
 
-#include "Vehicle.h"
+#include <TrafficSimulation/Vehicle.h>
 #include "VehicleDynamics.h"
-#include "ValidateMotionPlatform.h"
-#include "CanOpenController.h"
-#include "XenomaiTask.h"
-#include "XenomaiSteeringWheel.h"
+#include <VehicleUtil/ValidateMotionPlatform.h>
+#include <VehicleUtil/CanOpenController.h>
+#include <VehicleUtil/XenomaiTask.h>
+#include <VehicleUtil/XenomaiSteeringWheel.h>
 
 class EinspurDynamikRealtimeState
 {

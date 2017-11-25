@@ -22,15 +22,15 @@ namespace OpenScenario
 
 //oscVariable
 //
-template class  OPENSCENARIOEXPORT oscVariable<short>;
-template class  OPENSCENARIOEXPORT oscVariable<int>;
-template class  OPENSCENARIOEXPORT oscVariable<unsigned int>;
-template class  OPENSCENARIOEXPORT oscVariable<unsigned short>;
-template class  OPENSCENARIOEXPORT oscVariable<std::string>;
-template class  OPENSCENARIOEXPORT oscVariable<double>;
-template class  OPENSCENARIOEXPORT oscVariable<time_t>;
-template class  OPENSCENARIOEXPORT oscVariable<bool>;
-template class  OPENSCENARIOEXPORT oscVariable<float>;
+template class  oscVariable<short>;
+template class  oscVariable<int>;
+template class  oscVariable<unsigned int>;
+template class  oscVariable<unsigned short>;
+template class  oscVariable<std::string>;
+template class  oscVariable<double>;
+template class  oscVariable<time_t>;
+template class  oscVariable<bool>;
+template class  oscVariable<float>;
 
 template<>
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getValueType() {return oscMemberValue::INT;};
@@ -261,7 +261,8 @@ OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute)
 OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
 {
     std::string valstr = xercesc::XMLString::transcode(attribute->getValue()); 
-    value = enumType->getEnum(valstr);
+	std::string enumName = nameMapping::instance()->getEnumName(valstr);
+    value = enumType->getEnum(enumName);
     return true;
 };
 
@@ -316,6 +317,8 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
+	if (value <= 0)
+		value = time(NULL);
 	strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%S", localtime(&value));
     currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
     return true;
@@ -348,7 +351,9 @@ OPENSCENARIOEXPORT bool oscEnumValue::writeToDOM(xercesc::DOMElement *currentEle
     {
         if(it->second == value)
         {
-            currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(it->first.c_str()));
+			std::string s = it->first.c_str();
+			std::string schemaEnumName = nameMapping::instance()->getSchemaEnumName(s);
+            currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(schemaEnumName.c_str()));
         }
     }
     return true;

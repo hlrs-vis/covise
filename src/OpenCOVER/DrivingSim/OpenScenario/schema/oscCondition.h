@@ -42,6 +42,7 @@ oscCondition()
         OSC_OBJECT_ADD_MEMBER(ByValue, "oscByValue", 1);
         edge.enumType = Enum_Condition_edgeType::instance();
     };
+        const char *getScope(){return "";};
     oscString name;
     oscDouble delay;
     oscEnum edge;

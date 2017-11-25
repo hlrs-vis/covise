@@ -128,7 +128,7 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
   double *tmp_d;
   int *tmp_i;
 
-  int ii_sets, ii_labcro, ii_fup;
+  int ii_sets, ii_labcro;
 
   const int dbg=1;
    
@@ -216,8 +216,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  while (jj < data_length)
             {
 
-	      rec_length = fil_array[jj];
-	      rec_type   = fil_array[jj + 1];
+	      rec_length = (int)fil_array[jj];
+	      rec_type   = (int)fil_array[jj + 1];
 
 	      rec_struct[rec_type] = rec_struct[rec_type] + 1;
 
@@ -284,8 +284,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  while (jj < data_length)
 	    {
 
-	      rec_length = fil_array[jj];
-	      rec_type = fil_array[jj + 1];
+	      rec_length = (int)fil_array[jj];
+	      rec_type = (int)fil_array[jj + 1];
 
 	      switch ( rec_type ) { 
 
@@ -315,8 +315,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 		    
 		  while ( fil_array[kk+1] == 1932 )
 		    {
-		      trec_len  = fil_array[kk];
-		      rec_type  = fil_array[kk+1];
+		      trec_len  = (int)fil_array[kk];
+		      rec_type  = (int)fil_array[kk+1];
 			
 		      set.no_elems =  set.no_elems + trec_len - 2;
 		      kk = kk + trec_len;
@@ -352,8 +352,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 
 		  while ( fil_array[kk+1] == 1934 )
 		    {
-		      trec_len  = fil_array[kk];
-		      rec_type  = fil_array[kk+1];
+		      trec_len  = (int)fil_array[kk];
+		      rec_type  = (int)fil_array[kk+1];
 			
 		      set.no_elems =  set.no_elems + trec_len - 2;
 		      kk = kk + trec_len;
@@ -368,7 +368,7 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	      case 1940 :
 		// Found label cross reference ********************
 
-		cref.cref = fil_array[jj+2];
+		cref.cref = (int)fil_array[jj+2];
 		cref.name = "";
 		  
 		for  (ii = 1; ii <= rec_length-3; ++ii) {
@@ -388,10 +388,10 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 		step.Step_time                   = float(tmp_d[jj + 3]);
 		step.Max_creep_strainrate_ratio  = float(tmp_d[jj + 4]);
 		step.Sol_dep_ampl                = float(tmp_d[jj + 5]);
-		step.Procedure_type              = fil_array[jj + 6];
-		step.Step_no                     = fil_array[jj + 7];
-		step.Inc_no                      = fil_array[jj + 8];
-		step.perturb_flag                = fil_array[jj + 9];
+		step.Procedure_type              = (int)fil_array[jj + 6];
+		step.Step_no                     = (int)fil_array[jj + 7];
+		step.Inc_no                      = (int)fil_array[jj + 8];
+		step.perturb_flag                = (int)fil_array[jj + 9];
 		step.Load_prop_factor            = float(tmp_d[jj + 10]);
 		step.Frequency                   = float(tmp_d[jj + 11]);
 		step.Time_inc                    = float(tmp_d[jj + 12]);
@@ -600,8 +600,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  while (jj < data_length)
             {
 
-	      rec_length = fil_array[jj];
-	      rec_type = fil_array[jj + 1];
+	      rec_length = (int)fil_array[jj];
+	      rec_type = (int)fil_array[jj + 1];
 
 	      if (rec_type == 1900)
                 {
@@ -701,7 +701,7 @@ int ReadABAQUSfil::compute(const char *port)
   int *tmp_i;
   int ii_sets;
   int rec_length, rec_type, trec_len, tloc;
-  int ii, jj, kk, nn;
+  ssize_t ii, jj, kk, nn;
 
   float *nxdataList;
   float *nydataList;
@@ -757,8 +757,8 @@ int ReadABAQUSfil::compute(const char *port)
   while (jj < data_length)
     {
 
-      rec_length  = fil_array[jj];
-      rec_type    = fil_array[jj+1];
+      rec_length  = (int)fil_array[jj];
+      rec_type    = (int)fil_array[jj+1];
 
       switch ( rec_type ) { 
 	 
@@ -768,19 +768,19 @@ int ReadABAQUSfil::compute(const char *port)
 	// Get External Node Numbers in set *******************************
 	tloc = rec_length-3;
 	for(ii=0; ii<tloc; ++ii) {
-	  vsets[ii_sets].elem_numbers[ii] = fil_array[jj+3+ii];
+	  vsets[ii_sets].elem_numbers[ii] = int(fil_array[jj+3+ii]);
 	}
 	    
 	// Check for node set continuations ************************
 	kk = jj + rec_length;
 	    
 	while ( fil_array[kk+1] == 1932 ) {
-	  trec_len  = fil_array[kk];
-	  rec_type  = fil_array[kk+1];
+	  trec_len  = (int)fil_array[kk];
+	  rec_type  = (int)fil_array[kk+1];
 	      
 	  tloc=tloc+1;
 	  for (ii=0; ii <= trec_len-3; ++ii) {
-	    vsets[ii_sets].elem_numbers[tloc+ii] =  fil_array[kk+2+ii];
+	    vsets[ii_sets].elem_numbers[tloc+ii] = (int)fil_array[kk+2+ii];
 	  }
 	  tloc = tloc + trec_len-3;
 	  kk   = kk   + trec_len;
@@ -795,18 +795,18 @@ int ReadABAQUSfil::compute(const char *port)
 	// Get External Element Numbers in set ****************************
 	tloc = rec_length-3;
 	for(ii=0; ii<tloc; ++ii) {
-	  vsets[ii_sets].elem_numbers[ii] = fil_array[jj+3+ii];
+	  vsets[ii_sets].elem_numbers[ii] = (int)fil_array[jj+3+ii];
 	}
 	    
 	// Check for node set continuations ************************
 	kk = jj + rec_length;
 
 	while ( fil_array[kk+1] == 1934 ) {
-	  trec_len  = fil_array[kk];
-	  rec_type  = fil_array[kk+1];
+	  trec_len  = (int)fil_array[kk];
+	  rec_type  = (int)fil_array[kk+1];
 	      
 	  for (ii=0; ii <= trec_len-3; ++ii) {
-	    vsets[ii_sets].elem_numbers[tloc+ii] =  fil_array[kk+2+ii];
+	    vsets[ii_sets].elem_numbers[tloc+ii] = (int)fil_array[kk+2+ii];
 	  }
 	  tloc = tloc + trec_len-2;
 	  kk   = kk   + trec_len;
@@ -870,20 +870,25 @@ int ReadABAQUSfil::compute(const char *port)
 	  ii_nodes = ii_nodes + 1;
         };
 
-      jj = jj + fil_array[jj];
+      jj = jj + (int)fil_array[jj];
     }
+  if (max_ext_nn < 0)
+  {
+      std::cerr << "did not find valid value for max_ext_nn" << std::endl;
+      return STOP_PIPELINE;
+  }
+  assert(max_ext_nn >= 0);
 
   // set up cross reference array for external node numbers *******************
   // WARNING !! It is assumed that the node numbers are in accending order
-  int *cref_nodes;
-  cref_nodes = (int *)malloc(max_ext_nn * sizeof(int));
+  int *cref_nodes = (int *)malloc(max_ext_nn * sizeof(int));
   for (ii = 0; ii < max_ext_nn; ++ii)
     {
       cref_nodes[ii] = -1;
     }
   for (ii = 0; ii < jobhead.no_nodes; ++ii)
     {
-      cref_nodes[ext_nn[ii]] = ii;
+      cref_nodes[ext_nn[ii]] = (int)ii;
     }
 
   jj = 0;
@@ -1016,7 +1021,7 @@ int ReadABAQUSfil::compute(const char *port)
     }
   for (ii = 0; ii < jobhead.no_sup_elems; ++ii)
     {
-      cref_elems[ext_en[ii]] = ii;
+      cref_elems[ext_en[ii]] = (int)ii;
     }
 
   // **************************************************************************
@@ -1114,7 +1119,7 @@ int ReadABAQUSfil::compute(const char *port)
 	  
   	  // Push range to vector *************************
   	  for (ii = jj; ii <= kk; ++ii) {
-  	    set_nums.push_back(ii);
+  	    set_nums.push_back((int)ii);
   	  }
   	}
       }
@@ -1129,7 +1134,7 @@ int ReadABAQUSfil::compute(const char *port)
   	printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
       } else {
   	// Push the number to vector **********************
-  	set_nums.push_back(ii);
+  	set_nums.push_back((int)ii);
       }
     }
   }
@@ -1260,7 +1265,7 @@ int ReadABAQUSfil::compute(const char *port)
 		   float(tmp_d[jj + 2]) * float(tmp_d[jj + 3]) + 
 		   float(tmp_d[jj + 2]) * float(tmp_d[jj + 4]) + 
 		   float(tmp_d[jj + 3]) * float(tmp_d[jj + 4]) + 
-		   3. * (float(tmp_d[jj + 5]) * float(tmp_d[jj + 5]) + 
+		   3.0f * (float(tmp_d[jj + 5]) * float(tmp_d[jj + 5]) + 
 			 float(tmp_d[jj + 6]) * float(tmp_d[jj + 6]) + 
 			 float(tmp_d[jj + 7]) * float(tmp_d[jj + 7])));
 	  };
@@ -1479,7 +1484,7 @@ int ReadABAQUSfil::compute(const char *port)
   	setYCoord[jj] = outYCoord[kk];
   	setZCoord[jj] = outZCoord[kk];
 
-    	l_nn_nd[kk] = jj;
+    	l_nn_nd[kk] = (int)jj;
   	jj = jj + 1;
 	
       } else {

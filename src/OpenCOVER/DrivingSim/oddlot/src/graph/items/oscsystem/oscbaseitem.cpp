@@ -45,15 +45,15 @@
 
 // OpenScenario //
 //
-#include "schema/oscVehicle.h"
-#include "schema/oscObject.h"
-#include "oscObjectBase.h"
-#include "oscMember.h"
-#include "schema/oscCatalogs.h"
-#include "schema/oscPosition.h"
-#include "schema/oscTrajectory.h"
-#include "schema/oscPrivateAction.h"
-#include "schema/oscPrivate.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/schema/oscCatalogs.h>
+#include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscPrivateAction.h>
+#include <OpenScenario/schema/oscPrivate.h>
 
 // Qt //
 //
@@ -137,7 +137,7 @@ OSCBaseItem::init()
 							{
 								double s = oscPosRoad->s.getValue();
 								double t = oscPosRoad->t.getValue();
-								new OSCItem(element, this, object, catalog, road->getGlobalPoint(s, t), roadId);
+								new OSCItem(element, this, object, catalog, oscPosRoad);
 							}
 						}
 						break;
@@ -168,11 +168,11 @@ OSCBaseItem::getCatalog(OpenScenario::oscObject *object)
 	{
 		return NULL;
 	}
-	std::string catalogName = catalogReference->catalog.getValue();
+	std::string catalogName = catalogReference->catalogName.getValue();
 	OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
 	if (catalogMember)
 	{
-		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObject());
+		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObjectBase());
 	}
 
 	return catalog;
@@ -281,7 +281,7 @@ OSCBaseItem::updateObserver()
 				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
 					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
 				{
-					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getOwnMember());
+					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
 
 					// Root Base item //
 					//
@@ -320,7 +320,7 @@ OSCBaseItem::updateObserver()
 							RSystemElementRoad *road = roadSystem_->getRoad(id);
                             if (road)
                             {
-                                new OSCItem(element, this, object, catalog, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
+                                new OSCItem(element, this, object, catalog, oscPosRoad);
                             }
                         }
                     }

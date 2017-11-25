@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include <iostream>
+#include <ostream>
+
 #include "coClusterStat.h"
 #include <util/coTypes.h>
 
@@ -30,6 +33,7 @@
 #include <osg/StateSet>
 #include <osg/Point>
 #include <osg/ShadeModel>
+#include <OpenVRUI/coUIElement.h>
 
 using namespace vrui;
 using namespace opencover;
@@ -148,11 +152,11 @@ void coClusterStat::updateValues()
 void coClusterStat::show()
 {
     cover->getScene()->addChild(graph);
-    cerr << "show" << endl;
+    std::cerr << "show" << std::endl;
 }
 
 void coClusterStat::hide()
 {
     cover->getScene()->removeChild(graph);
-    cerr << "hide" << endl;
+    std::cerr << "hide" << std::endl;
 }

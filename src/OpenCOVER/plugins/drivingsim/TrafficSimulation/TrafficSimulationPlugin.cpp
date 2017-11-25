@@ -21,7 +21,8 @@
 
 #include "TrafficSimulationPlugin.h"
 
-#include "FindTrafficLightSwitch.h"
+#include <TrafficSimulation/FindTrafficLightSwitch.h>
+#include <TrafficSimulation/coTrafficSimulation.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
@@ -45,57 +46,19 @@
 #include <osg/PolygonOffset>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "HumanVehicle.h"
+#include <TrafficSimulation/HumanVehicle.h>
 #include "../SteeringWheel/Vehicle.h"
 
-#include "PorscheFFZ.h"
+#include <TrafficSimulation/PorscheFFZ.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 
 using namespace covise;
 using namespace opencover;
-int TrafficSimulationPlugin::counter = 0;
-int TrafficSimulationPlugin::createFreq = 20;
-double TrafficSimulationPlugin::min_distance = 800;
-int TrafficSimulationPlugin::delete_delta = 50;
-double TrafficSimulationPlugin::delete_at = 230;
-//int TrafficSimulationPlugin::min_distance_50 = 180;
-//int TrafficSimulationPlugin::min_distance_100 = 800;
-int TrafficSimulationPlugin::useCarpool = 1;
-float TrafficSimulationPlugin::td_multiplier = 1.0;
-float TrafficSimulationPlugin::placeholder = -1;
-int TrafficSimulationPlugin::minVel = 50;
-int TrafficSimulationPlugin::maxVel = 100;
-int TrafficSimulationPlugin::min_distance_tui = 180;
-int TrafficSimulationPlugin::max_distance_tui = 800;
-int TrafficSimulationPlugin::maxVehicles = 0;
 
 TrafficSimulationPlugin::TrafficSimulationPlugin()
-    : system(NULL)
-    , manager(NULL)
-    , pedestrianManager(NULL)
-    , factory(NULL)
-    , roadGroup(NULL)
-    , rootElement(NULL)
-    ,
-    //operatorMapTab(NULL),
-    //operatorMap(NULL),
-    ffzBroadcaster(NULL)
-    , runSim(true)
-    , tessellateRoads(true)
-    , tessellatePaths(true)
-    , tessellateBatters(false)
-    , tessellateObjects(false)
-    ,
-#ifdef HAVE_TR1
-    mersenneTwisterEngine((int)cover->frameTime() * 1000)
-    , variGen(mersenneTwisterEngine, uniformDist)
-#else
-    mtGenInt((int)cover->frameTime() * 1000)
-#endif
 {
     plugin = this;
 
-    //srand ( (int)(cover->frameTime()*1000) );
 }
 
 TrafficSimulationPlugin *TrafficSimulationPlugin::plugin = NULL;
@@ -111,441 +74,27 @@ static FileHandler handlers[] = {
 // this is called if the plugin is removed at runtime
 TrafficSimulationPlugin::~TrafficSimulationPlugin()
 {
-    deleteRoadSystem();
 
-    manager = NULL;
-    pedestrianManager = NULL;
-    VehicleManager::Destroy();
-    PedestrianManager::Destroy();
-
-    delete ffzBroadcaster;
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
     //coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
+
+	coTrafficSimulation::freeInstance();
 }
 
-void TrafficSimulationPlugin::runSimulation()
-{
-    runSim = true;
-}
-
-void TrafficSimulationPlugin::haltSimulation()
-{
-    runSim = false;
-}
-
-unsigned long TrafficSimulationPlugin::getIntegerRandomNumber()
-{
-#ifdef HAVE_TR1
-    return mersenneTwisterEngine();
-#else
-    return mtGenInt();
-#endif
-}
-
-double TrafficSimulationPlugin::getZeroOneRandomNumber()
-{
-#ifdef HAVE_TR1
-    return variGen();
-#else
-    return mtGenDouble();
-#endif
-}
 
 int TrafficSimulationPlugin::unloadOD(const char *, const char *key)
 {
-    plugin->deleteRoadSystem();
+	coTrafficSimulation::instance()->deleteRoadSystem();
     return 1;
 }
 
 int TrafficSimulationPlugin::loadOD(const char *filename, osg::Group *, const char *key)
 {
-    if (plugin->loadRoadSystem(filename))
+    if (coTrafficSimulation::instance()->loadRoadSystem(filename))
         return 1;
     else
         return 0;
-}
-
-VehicleManager *TrafficSimulationPlugin::getVehicleManager()
-{
-    return manager;
-}
-
-PedestrianManager *TrafficSimulationPlugin::getPedestrianManager()
-{
-    return pedestrianManager;
-}
-
-xercesc::DOMElement *TrafficSimulationPlugin::getOpenDriveRootElement(std::string filename)
-{
-    try
-    {
-        xercesc::XMLPlatformUtils::Initialize();
-    }
-    catch (const xercesc::XMLException &toCatch)
-    {
-        char *message = xercesc::XMLString::transcode(toCatch.getMessage());
-        std::cout << "Error during initialization! :\n" << message << std::endl;
-        xercesc::XMLString::release(&message);
-        return NULL;
-    }
-
-    xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
-    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
-
-    try
-    {
-        parser->parse(filename.c_str());
-    }
-    catch (...)
-    {
-        std::cerr << "Couldn't parse OpenDRIVE XML-file " << filename << "!" << std::endl;
-    }
-
-    xercesc::DOMDocument *xmlDoc = parser->getDocument();
-    if (xmlDoc)
-    {
-        rootElement = xmlDoc->getDocumentElement();
-    }
-
-    return rootElement;
-}
-
-void TrafficSimulationPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
-{
-    xercesc::DOMNodeList *documentChildrenList = rootElement->getChildNodes();
-
-    for (int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
-    {
-        xercesc::DOMElement *sceneryElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("scenery")) == 0)
-        {
-            std::string fileString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("file")));
-            std::string vpbString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("vpb")));
-
-            std::vector<BoundingArea> voidBoundingAreaVector;
-            std::vector<std::string> shapeFileNameVector;
-
-            xercesc::DOMNodeList *sceneryChildrenList = sceneryElement->getChildNodes();
-            xercesc::DOMElement *sceneryChildElement;
-            for (unsigned int childIndex = 0; childIndex < sceneryChildrenList->getLength(); ++childIndex)
-            {
-                sceneryChildElement = dynamic_cast<xercesc::DOMElement *>(sceneryChildrenList->item(childIndex));
-                if (!sceneryChildElement)
-                    continue;
-
-                if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), xercesc::XMLString::transcode("void")) == 0)
-                {
-                    double xMin = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("xMin"))));
-                    double yMin = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("yMin"))));
-                    double xMax = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("xMax"))));
-                    double yMax = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("yMax"))));
-
-                    voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(xMin, yMin), osg::Vec2(xMax, yMax)));
-                    //voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(506426.839,5398055.357),osg::Vec2(508461.865,5399852.0)));
-                }
-                else if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
-                {
-                    std::string fileString = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("file")));
-                    shapeFileNameVector.push_back(fileString);
-                }
-            }
-
-            if (!fileString.empty())
-            {
-                if (!coVRFileManager::instance()->fileExist((xodrDirectory + "/" + fileString).c_str()))
-                {
-                    std::cerr << "\n#\n# file not found: this may lead to a crash! \n#" << endl;
-                }
-                coVRFileManager::instance()->loadFile((xodrDirectory + "/" + fileString).c_str());
-            }
-
-            if (!vpbString.empty())
-            {
-                coVRPlugin *roadTerrainPlugin = cover->addPlugin("RoadTerrain");
-                fprintf(stderr, "loading %s\n", vpbString.c_str());
-                if (RoadTerrainPlugin::plugin)
-                {
-                    osg::Vec3d offset(0, 0, 0);
-                    const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
-                    offset.set(header.xoffset, header.yoffset, 0.0);
-                    fprintf(stderr, "loading %s offset: %f %f\n", (xodrDirectory + "/" + vpbString).c_str(), offset[0], offset[1]);
-                    RoadTerrainPlugin::plugin->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
-                }
-            }
-        }
-        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("environment")) == 0)
-        {
-            std::string tessellateRoadsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateRoads")));
-            if (tessellateRoadsString == "false" || tessellateRoadsString == "0")
-            {
-                tessellateRoads = false;
-            }
-            else
-            {
-                tessellateRoads = true;
-            }
-
-            std::string tessellatePathsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellatePaths")));
-            if (tessellatePathsString == "false" || tessellatePathsString == "0")
-            {
-                tessellatePaths = false;
-            }
-            else
-            {
-                tessellatePaths = true;
-            }
-
-            std::string tessellateBattersString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateBatters")));
-            if (tessellateBattersString == "true")
-            {
-                tessellateBatters = true;
-            }
-            else
-            {
-                tessellateBatters = false;
-            }
-
-            std::string tessellateObjectsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateObjects")));
-            if (tessellateObjectsString == "true")
-            {
-                tessellateObjects = true;
-            }
-            else
-            {
-                tessellateObjects = false;
-            }
-        }
-    }
-}
-
-bool TrafficSimulationPlugin::loadRoadSystem(const char *filename_chars)
-{
-    std::string filename(filename_chars);
-    std::cerr << "Loading road system!" << std::endl;
-    if (system == NULL)
-    {
-        //Building directory string to xodr file
-        xodrDirectory.clear();
-        if (filename[0] != '/' && filename[0] != '\\' && (!(filename[1] == ':' && (filename[2] == '/' || filename[2] == '\\'))))
-        { // / or backslash or c:/
-            char *workingDir = getcwd(NULL, 0);
-            xodrDirectory.assign(workingDir);
-            free(workingDir);
-        }
-        size_t lastSlashPos = filename.find_last_of('/');
-        size_t lastSlashPos2 = filename.find_last_of('\\');
-        if (lastSlashPos != filename.npos && (lastSlashPos2 == filename.npos || lastSlashPos2 < lastSlashPos))
-        {
-            if (!xodrDirectory.empty())
-                xodrDirectory += "/";
-            xodrDirectory.append(filename, 0, lastSlashPos);
-        }
-        if (lastSlashPos2 != filename.npos && (lastSlashPos == filename.npos || lastSlashPos < lastSlashPos2))
-        {
-            if (!xodrDirectory.empty())
-                xodrDirectory += "\\";
-            xodrDirectory.append(filename, 0, lastSlashPos2);
-        }
-
-        system = RoadSystem::Instance();
-
-        xercesc::DOMElement *openDriveElement = getOpenDriveRootElement(filename);
-        if (!openDriveElement)
-        {
-            std::cerr << "No regular xodr file " << filename << " at: " + xodrDirectory << std::endl;
-            return false;
-        }
-
-        system->parseOpenDrive(openDriveElement);
-        this->parseOpenDrive(rootElement);
-
-        factory = VehicleFactory::Instance();
-        factory->parseOpenDrive(openDriveElement, xodrDirectory);
-
-        pedestrianFactory = PedestrianFactory::Instance();
-        pedestrianFactory->parseOpenDrive(openDriveElement, xodrDirectory);
-
-        //system->parseOpenDrive(filename);
-        //std::cout << "Information about road system: " << std::endl << system;
-
-        //roadGroup = new osg::Group;
-        roadGroup = new osg::PositionAttitudeTransform;
-        roadGroup->setName("RoadSystem");
-        //roadGroup->setPosition(osg::Vec3d(5.0500000000000000e+05, 5.3950000000000000e+06, 0.0));
-        //roadGroup->setPosition(osg::Vec3d(960128.3125, 6158421.5, 0.0));
-
-        //osg::Material* roadGroupMaterial = new osg::Material;
-        //roadGroupMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-        //roadGroupState->setAttribute(roadGroupMaterial);
-
-        int numRoads = system->getNumRoads();
-        for (int i = 0; i < numRoads; ++i)
-        {
-            Road *road = system->getRoad(i);
-            osg::LOD *roadGeodeLOD = new osg::LOD();
-
-            // Tesselation //
-            //
-            if ((!road->isJunctionPath() && tessellateRoads == true) // normal road
-                || (road->isJunctionPath() && tessellatePaths == true) // junction path
-                )
-            {
-                fprintf(stderr, "1tessellateBatters %d\n", tessellateBatters);
-                osg::Group *roadGroup = road->getRoadBatterGroup(tessellateBatters, tessellateObjects);
-                if (roadGroup)
-                {
-                    roadGeodeLOD->addChild(roadGroup, 0.0, 5000.0);
-                }
-            }
-
-            osg::Group *roadObjectsGroup = road->createObjectsGroup();
-            if (roadObjectsGroup->getNumChildren() > 0)
-            {
-                roadGeodeLOD->addChild(roadObjectsGroup, 0.0, 5000.0);
-            }
-
-            osg::Geode *guardRailGeode = road->getGuardRailGeode();
-            if (guardRailGeode)
-            {
-                roadGeodeLOD->addChild(guardRailGeode, 0.0, 5000.0);
-            }
-
-            if (roadGeodeLOD->getNumChildren() > 0)
-            {
-                roadGroup->addChild(roadGeodeLOD);
-            }
-        }
-
-        /*if(tessellatePaths==true) 
-      {
-         unsigned int numJunctions = system->getNumJunctions();
-         for(int i=0; i<numJunctions; ++i) {
-            osg::Geode* junctionGeode = system->getJunction(i)->getJunctionGeode();
-            if(junctionGeode) {
-               roadGroup->addChild(junctionGeode);
-            }
-         }
-      }*/
-
-        if (roadGroup->getNumChildren() > 0)
-        {
-            cover->getObjectsRoot()->addChild(roadGroup);
-        }
-
-        osg::Group *trafficSignalGroup = new osg::Group;
-        trafficSignalGroup->setName("TrafficSignals");
-        //Traffic control
-        for (int i = 0; i < system->getNumRoadSignals(); ++i)
-        {
-            RoadSignal *signal = system->getRoadSignal(i);
-            TrafficLightSignal *trafficLightSignal = dynamic_cast<TrafficLightSignal *>(signal);
-
-            if (trafficLightSignal)
-            {
-                FindTrafficLightSwitch findSwitch(trafficLightSignal->getName());
-                osg::PositionAttitudeTransform *trafficSignalNode = trafficLightSignal->getRoadSignalNode();
-                if (trafficSignalNode)
-                {
-                    trafficSignalGroup->addChild(trafficSignalNode);
-
-                    //findSwitch.traverse(*cover->getObjectsXform());
-                    trafficSignalNode->accept(findSwitch);
-                    TrafficLightSignalTurnCallback *callbackGreen
-                        = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchGreen());
-                    trafficLightSignal->setSignalGreenCallback(callbackGreen);
-
-                    TrafficLightSignalTurnCallback *callbackYellow
-                        = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchYellow());
-                    trafficLightSignal->setSignalYellowCallback(callbackYellow);
-
-                    TrafficLightSignalTurnCallback *callbackRed
-                        = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchRed());
-                    trafficLightSignal->setSignalRedCallback(callbackRed);
-                }
-            }
-            else
-            {
-                osg::PositionAttitudeTransform *roadSignalNode = signal->getRoadSignalNode();
-                if (roadSignalNode)
-                {
-                    trafficSignalGroup->addChild(roadSignalNode);
-                    osg::PositionAttitudeTransform *roadSignalPost = signal->getRoadSignalPost();
-                    if (roadSignalPost)
-                    {
-                        trafficSignalGroup->addChild(roadSignalPost);
-                    }
-                    
-                }
-            }
-        }
-
-        if (trafficSignalGroup->getNumChildren() > 0)
-        {
-            cover->getObjectsRoot()->addChild(trafficSignalGroup);
-        }
-
-        manager = VehicleManager::Instance();
-
-        pedestrianManager = PedestrianManager::Instance();
-    }
-
-    if ((Carpool::Instance()->getPoolVector()).size() > 0)
-        system->scanStreets(); // 29.08.2011
-
-    /*
-         std::cout << " ----------------------- TrafficSimulationPlugin -----------------------" << std::endl;
-         for (int i=0; i<RoadSystem::_tiles_y+1;i++) {
-         for (int j=0; j<RoadSystem::_tiles_x+1;j++) {
-             std::cout << (system->getRLS_List(j,i)).size();
-         }
-         std::cout << std::endl;
-        }*/
-    /*Carpool * carpool = Carpool::Instance();
-        std::vector<Pool*> poolVector = carpool->getPoolVector();
-      //std::cout << " ----------->> poolVector.size(): " << poolVector.size() << std::endl;
-        std::vector<Pool*>::iterator it;
-        for (it = poolVector.begin(); it != poolVector.end(); it++){
-        std::cout << " ----------->> (*it)->getName(): " << (*it)->getName() << " (*it)->getId(): " << (*it)->getId() << " Anzahl FFZ: " << (*it)->getMapSize() << std::endl;
- //              std::cout << " ----------->> (*it)->getRepeatTime(): " << (*it)->getRepeatTime() << std::endl;
-        }
-        */
-
-    if (coVRMSController::instance()->isMaster() && (Carpool::Instance()->getPoolVector()).size() > 0)
-    {
-        if (RoadSystem::_tiles_y <= 400 && RoadSystem::_tiles_x <= 400)
-        {
-            //for (int i=0; i<=_tiles_y;i++) {
-            for (int i = RoadSystem::_tiles_y; i >= 0; i--)
-            {
-                for (int j = 0; j <= RoadSystem::_tiles_x; j++)
-                {
-                    if ((system->getRLS_List(j, i)).size() == 0)
-                        std::cout << "-";
-                    else
-                        std::cout << (system->getRLS_List(j, i)).size();
-                }
-                std::cout << std::endl;
-            }
-        }
-        /*std::cout << "... delta x: " << RoadSystem::delta_x << " | delta y: " << RoadSystem::delta_y << std::endl << " _tiles_x " << RoadSystem::_tiles_x  << " _tiles_y " << RoadSystem::_tiles_y << std::endl;*/
-    }
-
-    return true;
-}
-
-void TrafficSimulationPlugin::deleteRoadSystem()
-{
-
-    system = NULL;
-    RoadSystem::Destroy();
-    if (roadGroup)
-    {
-        while (roadGroup->getNumParents())
-        {
-            roadGroup->getParent(0)->removeChild(roadGroup);
-        }
-    }
 }
 
 bool TrafficSimulationPlugin::init()
@@ -554,6 +103,7 @@ bool TrafficSimulationPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     //coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     cover->setScale(1000);
+	coTrafficSimulation::useInstance();
 
     pluginTab = new coTUITab("Traffic Simulation", coVRTui::instance()->mainFolder->getID());
     pluginTab->setPos(0, 0);
@@ -724,7 +274,7 @@ bool TrafficSimulationPlugin::init()
     /*createFreqButton = new coTUIButton("Create Vehicles every x Frames:", pluginTab->getID());
  *         createFreqButton->setEventListener(this);
  *                 createFreqButton->setPos(0,pos);*/
-    createFreq_ = TrafficSimulationPlugin::createFreq;
+    createFreq_ = coTrafficSimulation::instance()->createFreq;
     createFreqSlider = new coTUISlider("Create Vehicles", createFrame->getID());
     createFreqSlider->setEventListener(this);
     createFreqSlider->setPos(1, pos++);
@@ -842,35 +392,7 @@ bool TrafficSimulationPlugin::init()
 // 		*/
 // 	}
 
-// UDP Broadcast //
-//
-// sends positions of vehicles e.g. to Porsche dSPACE //
-#if 1
-    double sendFrequency = (double)coCoviseConfig::getFloat("sendFrequency", "COVER.Plugin.TrafficSimulation.PorscheFFZ", 60.0f);
 
-    // dSPACE //
-    //
-    std::string dSpaceIp = coCoviseConfig::getEntry("destinationIP", "COVER.Plugin.TrafficSimulation.PorscheFFZ.DSPACE");
-    int dSpacePort = coCoviseConfig::getInt("port", "COVER.Plugin.TrafficSimulation.PorscheFFZ.DSPACE", 52002);
-    int dSpaceLocalPort = coCoviseConfig::getInt("localPort", "COVER.Plugin.TrafficSimulation.PorscheFFZ.DSPACE", 52002);
-
-    // KMS //
-    //
-    std::string kmsIp = coCoviseConfig::getEntry("destinationIP", "COVER.Plugin.TrafficSimulation.PorscheFFZ.KMS");
-    int kmsPort = coCoviseConfig::getInt("port", "COVER.Plugin.TrafficSimulation.PorscheFFZ.KMS", 52002);
-    int kmsLocalPort = coCoviseConfig::getInt("localPort", "COVER.Plugin.TrafficSimulation.PorscheFFZ.KMS", 52002);
-
-    if (!dSpaceIp.empty() && !kmsIp.empty() && sendFrequency != 0.0)
-    {
-        ffzBroadcaster = new PorscheFFZ(sendFrequency);
-        if (coVRMSController::instance()->isMaster())
-        {
-            ffzBroadcaster->setupDSPACE(dSpaceIp, dSpacePort, dSpaceLocalPort);
-            ffzBroadcaster->setupKMS(kmsIp, kmsPort, kmsLocalPort);
-        }
-    }
-
-#endif
     sphereTransform = new osg::MatrixTransform();
     sphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20);
     sphereGeode = new osg::Geode();
@@ -902,7 +424,7 @@ bool TrafficSimulationPlugin::init()
     sphereGeoState->setMode(GL_BLEND, osg::StateAttribute::ON);
     sphereGeoState->setNestRenderBins(false);
 
-    return true;
+    return coTrafficSimulation::instance()->init();
 }
 
 void
@@ -990,88 +512,7 @@ TrafficSimulationPlugin::preFrame()
             }
         }
     }
-    double dt = cover->frameDuration();
-    VehicleList vehOverallList = VehicleManager::Instance()->getVehicleOverallList();
-    osg::Vec2d incoming_pos = HumanVehicle::human_pos; // Robert
-    double v = (double)RoadSystem::dSpace_v;
-    //Löschdistanz ermitteln
-    if (v <= minVel)
-        min_distance = min_distance_tui;
-    else if (v >= maxVel)
-        min_distance = max_distance_tui;
-    else
-        min_distance = (min_distance_tui + ((max_distance_tui - min_distance_tui) / (maxVel - minVel)) * (v - minVel));
-    delete_at = min_distance + delete_delta;
-
-    // Ermitteln in welcher Kachel sich das Eigenfahrzeug befinden würde
-    if ((Carpool::Instance()->getPoolVector()).size() > 0 && useCarpool == 1)
-    { //Ausführung nur falls mindestens ein pool definiert wurde
-        osg::Vec2d current_tile_y = system->get_tile(incoming_pos[0], incoming_pos[1]);
-        std::list<Vehicle *>::iterator it;
-        for (it = vehOverallList.begin(); it != vehOverallList.end(); ++it)
-        {
-            if (it != vehOverallList.begin())
-            {
-                double distance = (*it)->getSquaredDistanceTo(Vector3D(incoming_pos[0], incoming_pos[1], 0.0));
-                distance = sqrt(distance);
-                if (distance > delete_at)
-                {
-                    //if(coVRMSController::instance()->isMaster()) {
-                    //      std::cout << "xxx Distance: " << distance << " Removed Vehicle " << (*it)->getVehicleID() << /*" on Road " << (*it)->getRoad()->getId() <<*/std::endl;
-                    //}*/
-
-                    TrafficSimulationPlugin::plugin->getVehicleManager()->removeVehicle((*it), (*it)->getRoad());
-                }
-            }
-        }
-        if (counter >= createFreq)
-        {
-            if (maxVehicles == 0)
-                factory->createTileVehicle(current_tile_y[0], current_tile_y[1], manager->acitve_fiddleyards);
-            else if (((VehicleManager::Instance()->getVehicleOverallList()).size()) < maxVehicles)
-            {
-                factory->createTileVehicle(current_tile_y[0], current_tile_y[1], manager->acitve_fiddleyards);
-            }
-            counter = 0;
-        }
-        counter++;
-    }
-
-    if (runSim)
-    {
-        if (system)
-        {
-            system->update(dt);
-        }
-
-        if (manager)
-        {
-            manager->moveAllVehicles(dt);
-            manager->updateFiddleyards(dt, incoming_pos);
-            if (coVRMSController::instance()->isMaster())
-            {
-                //if(operatorMap) {
-                //   // send positions of the vehicles to operator map
-                //   manager->sendDataTo(operatorMap);
-                //}
-                if (ffzBroadcaster)
-                {
-                    // send positions of nearby vehicles via UDP Broadcast
-                    manager->sendDataTo(ffzBroadcaster);
-                }
-            }
-            if (ffzBroadcaster)
-            {
-                // receive and parse Data from UDP Broadcast
-                manager->receiveDataFrom(ffzBroadcaster);
-            }
-        }
-        if (pedestrianManager)
-        {
-            pedestrianManager->moveAllPedestrians(dt);
-            pedestrianManager->updateFiddleyards(dt);
-        }
-    }
+	coTrafficSimulation::instance()->preFrame();
 }
 
 void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
@@ -1086,14 +527,14 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             filename.erase(spos, 7);
         }
 
-        system->writeOpenDrive(filename);
+		coTrafficSimulation::instance()->system->writeOpenDrive(filename);
     }
 
     else if (tUIItem == openC4DXMLButton || tUIItem == openLandXMLButton || tUIItem == openIntermapRoadButton)
     {
         if (system == NULL)
         {
-            system = RoadSystem::Instance();
+			coTrafficSimulation::instance()->system = RoadSystem::Instance();
         }
 
         std::string filename;
@@ -1106,7 +547,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
                 filename.erase(spos, 7);
             }
 
-            system->parseCinema4dXml(filename);
+			coTrafficSimulation::instance()->system->parseCinema4dXml(filename);
             std::cout << "Information about road system: " << std::endl << system;
         }
         else if (tUIItem == openLandXMLButton)
@@ -1118,7 +559,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
                 filename.erase(spos, 7);
             }
 
-            system->parseLandXml(filename);
+			coTrafficSimulation::instance()->system->parseLandXml(filename);
             std::cout << "Information about road system: " << std::endl << system;
         }
         else if (tUIItem == openIntermapRoadButton)
@@ -1130,24 +571,24 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
                 filename.erase(spos, 7);
             }
 
-            system->parseIntermapRoad(filename, "+proj=latlong +datum=WGS84", "+proj=merc +x_0=-1008832.89 +y_0=-6179385.47");
+			coTrafficSimulation::instance()->system->parseIntermapRoad(filename, "+proj=latlong +datum=WGS84", "+proj=merc +x_0=-1008832.89 +y_0=-6179385.47");
             //std::cout << "Information about road system: " << std::endl << system;
         }
 
         //roadGroup = new osg::Group;
         //roadGroup->setName(std::string("RoadSystem_")+filename);
-        roadGroup = new osg::PositionAttitudeTransform;
-        roadGroup->setName(std::string("RoadSystem_") + filename);
+		coTrafficSimulation::instance()->roadGroup = new osg::PositionAttitudeTransform;
+		coTrafficSimulation::instance()->roadGroup->setName(std::string("RoadSystem_") + filename);
         //roadGroup->setPosition(osg::Vec3d(5.0500000000000000e+05, 5.3950000000000000e+06, 0.0));
 
-        int numRoads = system->getNumRoads();
+        int numRoads = coTrafficSimulation::instance()->system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            Road *road = coTrafficSimulation::instance()->system->getRoad(i);
             if (true)
             {
-                fprintf(stderr, "2tessellateBatters %d\n", tessellateBatters);
-                osg::Group *roadGroup = road->getRoadBatterGroup(tessellateBatters, tessellateObjects);
+                fprintf(stderr, "2tessellateBatters %d\n", coTrafficSimulation::instance()->tessellateBatters);
+                osg::Group *roadGroup = road->getRoadBatterGroup(coTrafficSimulation::instance()->tessellateBatters, coTrafficSimulation::instance()->tessellateObjects);
                 if (roadGroup)
                 {
                     osg::LOD *roadGeodeLOD = new osg::LOD();
@@ -1158,20 +599,12 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
         }
 
-        if (roadGroup->getNumChildren() > 0)
+        if (coTrafficSimulation::instance()->roadGroup->getNumChildren() > 0)
         {
             //std::cout << "Adding road group: " << roadGroup->getName() << std::endl;
-            cover->getObjectsRoot()->addChild(roadGroup);
+            cover->getObjectsRoot()->addChild(coTrafficSimulation::instance()->roadGroup);
         }
 
-        if (!manager)
-        {
-            manager = VehicleManager::Instance();
-        }
-        if (!pedestrianManager)
-        {
-            pedestrianManager = PedestrianManager::Instance();
-        }
     }
 
     else if (tUIItem == exportSceneGraphButton)
@@ -1184,7 +617,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
         }
         if (filename.size() != 0)
         {
-            osgDB::writeNodeFile(*roadGroup, filename);
+            osgDB::writeNodeFile(*coTrafficSimulation::instance()->roadGroup, filename);
         }
     }
     else if (tUIItem == loadTerrainButton)
@@ -1219,7 +652,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
         {
             createVehiclesAtMin_ = createVehiclesAtMax_;
         }
-        TrafficSimulationPlugin::min_distance_tui = createVehiclesAtMin_;
+		coTrafficSimulation::instance()->min_distance_tui = createVehiclesAtMin_;
         createVehiclesAtMin_Slider->setValue(createVehiclesAtMin_);
     }
     else if (tUIItem == createVehiclesAtMax_Slider)
@@ -1230,7 +663,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
         {
             createVehiclesAtMax_ = createVehiclesAtMin_;
         }
-        TrafficSimulationPlugin::max_distance_tui = createVehiclesAtMax_;
+		coTrafficSimulation::instance()->max_distance_tui = createVehiclesAtMax_;
         //std::cout << std::endl << " >>> Slider TabletEvent - max_distance_tui: " << max_distance_tui << " <<<" << std::endl <<std::endl;
         createVehiclesAtMax_Slider->setValue(createVehiclesAtMax_);
     }
@@ -1242,7 +675,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             minVel_ = maxVel_;
 
         minVel_Slider->setValue(minVel_);
-        TrafficSimulationPlugin::minVel = minVel_;
+		coTrafficSimulation::instance()->minVel = minVel_;
     }
     else if (tUIItem == maxVel_Slider)
     {
@@ -1252,26 +685,26 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             maxVel_ = minVel_;
 
         maxVel_Slider->setValue(maxVel_);
-        TrafficSimulationPlugin::maxVel = maxVel_;
+		coTrafficSimulation::instance()->maxVel = maxVel_;
     }
     else if (tUIItem == removeVehiclesAtSlider)
     {
         removeVehiclesDelta_ = removeVehiclesAtSlider->getValue();
-        TrafficSimulationPlugin::delete_delta = removeVehiclesDelta_;
+		coTrafficSimulation::instance()->delete_delta = removeVehiclesDelta_;
         removeVehiclesAtSlider->setValue(removeVehiclesDelta_);
         //std::cout << std::endl << " >>> delete_delta: " << delete_delta << " , delete Distance: " << (delete_delta+TrafficSimulationPlugin::min_distance) <<"m <<<" << std::endl <<std::endl;
     }
     else if (tUIItem == createFreqSlider)
     {
         createFreq_ = createFreqSlider->getValue();
-        TrafficSimulationPlugin::createFreq = createFreq_;
+		coTrafficSimulation::instance()->createFreq = createFreq_;
         createFreqSlider->setValue(createFreq_);
         //std::cout << std::endl << " >>> Create new vehicles every  " << createFreq << " Frames <<<" << std::endl <<std::endl;
     }
     else if (tUIItem == td_valueSlider)
     {
         placeholder_ = td_valueSlider->getValue();
-        TrafficSimulationPlugin::placeholder = placeholder_;
+		coTrafficSimulation::instance()->placeholder = placeholder_;
         //std::cout << std::endl << " >>> Traffic density on ALL roads: " << td_value << " vehicles/100m <<< placeholder_" << placeholder_ << std::endl <<std::endl;
         //td_valueSlider->setValue(td_value);
         tdField->setText("ON");
@@ -1284,7 +717,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
     else if (tUIItem == td_multSlider)
     {
         td_mult_ = td_multSlider->getValue();
-        TrafficSimulationPlugin::td_multiplier = td_mult_;
+		coTrafficSimulation::instance()->td_multiplier = td_mult_;
         //std::cout << std::endl << " >>> Traffic density multiplier: " << td_multiplier << " <<<" << std::endl <<std::endl;
         //td_multSlider->setValue(td_multiplier);
         tdField->setText("OFF");
@@ -1292,13 +725,13 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
         multiField->setText("ON");
         tdMultField->setColor(Qt::darkGreen);
         placeholder_ = -1;
-        TrafficSimulationPlugin::placeholder = -1;
+		coTrafficSimulation::instance()->placeholder = -1;
         td_multSlider->setValue(td_mult_);
     }
     else if (tUIItem == maxVehiclesSlider)
     {
         maxVehicles_ = maxVehiclesSlider->getValue();
-        TrafficSimulationPlugin::maxVehicles = maxVehicles_;
+		coTrafficSimulation::instance()->maxVehicles = maxVehicles_;
         maxVehiclesSlider->setValue(maxVehicles_);
     }
 }
@@ -1307,11 +740,11 @@ void TrafficSimulationPlugin::tabletPressEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == startButton)
     {
-        runSim = true;
+		coTrafficSimulation::instance()->runSim = true;
     }
     else if (tUIItem == stopButton)
     {
-        runSim = false;
+		coTrafficSimulation::instance()->runSim = false;
     }
     else if (tUIItem == debugRoadButton)
     {
@@ -1329,8 +762,7 @@ void TrafficSimulationPlugin::tabletPressEvent(coTUIElement *tUIItem)
     else if (tUIItem == removeAgentsButton)
     {
         removeAgentsVelocity_ = removeAgentsSlider->getValue();
-        if (manager)
-            manager->removeAllAgents(removeAgentsVelocity_ / 3.6);
+        VehicleManager::Instance()->removeAllAgents(removeAgentsVelocity_ / 3.6);
     }
     else if (tUIItem == removeAgentsSlider)
     {
@@ -1344,7 +776,7 @@ void TrafficSimulationPlugin::tabletPressEvent(coTUIElement *tUIItem)
             if (useCarpool_ == 0)
             {
                 useCarpool_ = 1;
-                TrafficSimulationPlugin::useCarpool = useCarpool_;
+				coTrafficSimulation::instance()->useCarpool = useCarpool_;
                 //carpoolStateField->setValue(useCarpool_);
                 std::cout << std::endl << " !! Bewegliche Fiddleyards aktiviert !!" << std::endl << std::endl;
                 carpoolField->setText("ON");
@@ -1355,7 +787,7 @@ void TrafficSimulationPlugin::tabletPressEvent(coTUIElement *tUIItem)
             else
             {
                 useCarpool_ = 0;
-                TrafficSimulationPlugin::useCarpool = useCarpool_;
+				coTrafficSimulation::instance()->useCarpool = useCarpool_;
                 //carpoolStateField->setValue(useCarpool_);
                 std::cout << std::endl << " !! Bewegliche Fiddleyards deaktiviert !!" << std::endl << std::endl;
                 carpoolStateField->setColor(Qt::red);
@@ -1365,7 +797,7 @@ void TrafficSimulationPlugin::tabletPressEvent(coTUIElement *tUIItem)
         else
         {
             useCarpool_ = 0;
-            TrafficSimulationPlugin::useCarpool = useCarpool_;
+			coTrafficSimulation::instance()->useCarpool = useCarpool_;
             std::cout << std::endl << " !! Es wurde kein Carpool definiert !!" << std::endl << std::endl;
             carpoolStateField->setColor(Qt::red);
             carpoolField->setText("OFF");
@@ -1392,7 +824,7 @@ void TrafficSimulationPlugin::tabletPressEvent(coTUIElement *tUIItem)
             carpoolField->setText("OFF");
             carpoolStateField->setColor(Qt::red);
             useCarpool_ = 0;
-            TrafficSimulationPlugin::useCarpool = 0;
+            coTrafficSimulation::useCarpool = 0;
         }
         else if (useCarpool_ == 1)
         {
@@ -1413,23 +845,23 @@ void TrafficSimulationPlugin::key(int type, int keySym, int mod)
     {
         if (keySym == 108 && mod == 0)
         {
-            manager->switchToNextCamera();
+			VehicleManager::Instance()->switchToNextCamera();
         }
         else if (keySym == 76 && mod == 2)
         {
-            manager->switchToPreviousCamera();
+			VehicleManager::Instance()->switchToPreviousCamera();
         }
         else if (keySym == 12 && mod == 8)
         {
-            manager->unbindCamera();
+			VehicleManager::Instance()->unbindCamera();
         }
-        else if (keySym == 101 && mod == 0)
-        {
-            UDPBroadcast::errorStatus_TS();
-        }
+        //else if (keySym == 101 && mod == 0)
+        //{
+        //    UDPBroadcast::errorStatus_TS();
+        //}
 
         /*else if(keySym==98 && mod==0) {
-         manager->brakeCameraVehicle();
+         VehicleManager::Instance()->brakeCameraVehicle();
       }*/
     }
 }

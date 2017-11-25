@@ -17,6 +17,7 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 #include "coColormapParam.h"
 #include <appl/ApplInterface.h>
 

@@ -255,8 +255,14 @@ ClientConnection::ClientConnection(Host *h, int p, int id, int
     lhost = NULL;
     if (h) // host is not local
         host = h;
-    else // host is local (usually DataManagerConnection uses this)
-        host = lhost = new Host("localhost");
+	else // host is local (usually DataManagerConnection uses this)
+	{
+		host = lhost = new Host("localhost");
+		if (!host->hasValidAddress())
+		{
+			host = lhost = new Host("127.0.0.1");
+		}
+	}
     port = p;
     sender_id = id;
     send_type = s_type;
@@ -361,7 +367,7 @@ const char *SimpleServerConnection::readLine()
 {
     if (check_for_input())
     {
-        int numBytes = sock->read(buffer + buflen, 10000 - buflen);
+        int numBytes = sock->read(buffer + buflen, int(10000 - buflen));
         if (numBytes > 0)
         {
             buflen += numBytes;
@@ -416,7 +422,7 @@ const char *SimpleClientConnection::readLine()
 {
     if (check_for_input())
     {
-        int numBytes = sock->read(buffer + buflen, 10000 - buflen);
+        int numBytes = sock->read(buffer + buflen, int(10000 - buflen));
         if (numBytes > 0)
         {
             buflen += numBytes;
@@ -434,7 +440,7 @@ const char *SimpleClientConnection::readLine()
         if (pos)
         {
             *pos = '\0';
-            int len = (pos - buffer) + 1;
+			size_t len = (pos - buffer) + 1;
             char *line = new char[len];
             strcpy(line, buffer);
             buflen -= len;
@@ -1627,7 +1633,7 @@ const char *SSLConnection::readLine()
         SSLSocket *locSocket = dynamic_cast<SSLSocket *>(sock);
         if (locSocket)
         {
-            numBytes = locSocket->read(mBuffer + mBuflen, 10000 - mBuflen);
+            numBytes = locSocket->read(mBuffer + mBuflen, int(10000 - mBuflen));
         }
         else
         {
@@ -2084,7 +2090,7 @@ std::string SSLServerConnection::getSSLSubjectUID()
     {
         return std::string("Not valid!");
     }
-    ASN1_INTEGER *uid = client_cert->cert_info->serialNumber;
+    ASN1_INTEGER *uid = X509_get_serialNumber(client_cert);
     X509_free(client_cert);
     char *cuid = reinterpret_cast<char *>(uid->data);
     return std::string(cuid);
@@ -2192,7 +2198,14 @@ SSLClientConnection::SSLClientConnection(Host *h, int p, SSLClientConnection::Pa
     SSLSocket *locSock = dynamic_cast<SSLSocket *>(sock);
     this->mSA_server.sin_family = AF_INET;
     this->mSA_server.sin_port = htons(port);
-    this->mSA_server.sin_addr.s_addr = inet_addr(h->getAddress());
+	//this->mSA_server.sin_addr.s_addr = inet_addr(h->getAddress());
+	int err = inet_pton(AF_INET, h->getAddress(), &this->mSA_server.sin_addr.s_addr);
+	if (err != 1)
+	{
+#ifdef WIN32
+		resolveError();
+#endif
+	}
 
     int result = locSock->connect(this->mSA_server /*, retries, 30.0*/);
     if (result != 0)

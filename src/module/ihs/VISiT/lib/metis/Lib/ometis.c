@@ -49,7 +49,7 @@ void METIS_EdgeND(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int 
 
   ctrl.optype = OP_OEMETIS;
   ctrl.CoarsenTo = 20;
-  ctrl.maxvwgt = 1.5*(idxsum(*nvtxs, graph.vwgt)/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*(idxsum(*nvtxs, graph.vwgt)/ctrl.CoarsenTo));
 
   InitRandom(-1);
 
@@ -148,7 +148,7 @@ void METIS_NodeND(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int 
   /*=============================================================
   * Do the nested dissection ordering 
   --=============================================================*/
-  ctrl.maxvwgt = 1.5*(idxsum(graph.nvtxs, graph.vwgt)/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*(idxsum(graph.nvtxs, graph.vwgt)/ctrl.CoarsenTo));
   AllocateWorkSpace(&ctrl, &graph, 2);
 
   if (ctrl.oflags&OFLAG_CCMP) 
@@ -231,7 +231,7 @@ void METIS_NodeWND(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, in
   ctrl.nseps = 2;
   ctrl.optype = OP_ONMETIS;
   ctrl.CoarsenTo = 100;
-  ctrl.maxvwgt = 1.5*(idxsum(*nvtxs, graph.vwgt)/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*(idxsum(*nvtxs, graph.vwgt)/ctrl.CoarsenTo));
 
   InitRandom(-1);
 
@@ -474,7 +474,7 @@ void MlevelNodeBisection(CtrlType *ctrl, GraphType *graph, int *tpwgts, float ub
     ctrl->CoarsenTo = 100;
   else if (ctrl->CoarsenTo < 40)
     ctrl->CoarsenTo = 40;
-  ctrl->maxvwgt = 1.5*((tpwgts[0]+tpwgts[1])/ctrl->CoarsenTo);
+  ctrl->maxvwgt = (int)(1.5*((tpwgts[0]+tpwgts[1])/ctrl->CoarsenTo));
 
   cgraph = Coarsen2Way(ctrl, graph);
 

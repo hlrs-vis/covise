@@ -24,6 +24,7 @@
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 #include "src/data/roadsystem/track/trackelementpoly3.hpp"
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
+#include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 
 #include "src/data/scenerysystem/heightmap.hpp"
 
@@ -77,6 +78,12 @@ void
 Visitor::visit(TrackSpiralArcSpiral *acceptor)
 {
     visit(static_cast<TrackComposite *>(acceptor));
+}
+
+void
+Visitor::visit(TrackElementCubicCurve *acceptor)
+{
+	visit(static_cast<TrackElement *>(acceptor));
 }
 
 void

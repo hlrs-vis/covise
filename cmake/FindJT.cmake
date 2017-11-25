@@ -24,8 +24,8 @@ FIND_PATH(JT_INCLUDE_DIR "JtTk/JtkCADImporter.h"
   DOC "JT - Headers"
 )
 
-SET(JT_NAMES JtTk40 JtTk43)
-SET(JT_DBG_NAMES JtTk40 JtTk43)
+SET(JT_NAMES JtTk40 JtTk43 JtTk85)
+SET(JT_DBG_NAMES JtTk40 JtTk43 JtTk85)
 
 FIND_LIBRARY(JT_LIBRARY NAMES ${JT_NAMES}
   PATHS
@@ -39,7 +39,7 @@ FIND_LIBRARY(JT_LIBRARY NAMES ${JT_NAMES}
   /opt/local
   /opt/csw
   /opt
-  PATH_SUFFIXES lib lib64
+  PATH_SUFFIXES lib lib64 lib/win_64_VS2015
   DOC "JT - Library"
 )
 
@@ -50,7 +50,8 @@ IF(MSVC)
   FIND_LIBRARY(JT_LIBRARY_DEBUG NAMES ${JT_DBG_NAMES}
     PATHS
     $ENV{JT_HOME}/lib
-    $ENV{EXTERNLIBS}/jt/lib
+    $ENV{EXTERNLIBS}/jt
+    PATH_SUFFIXES lib lib64 lib/win_64_VS2015
     DOC "JT - Library (Debug)"
   )
   

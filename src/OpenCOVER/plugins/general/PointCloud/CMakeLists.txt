@@ -1,4 +1,6 @@
 #OpenCOVER plugins calit2 PointCloud
+USING(E57 optional)
+USING(XercesC optional)
 
 SET(HEADERS
   PointCloud.h

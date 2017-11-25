@@ -173,14 +173,8 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     m_localHostID = -1;
     m_mapName = "";
 
-#ifdef YAC
-    framework = "YAC";
-    pm_logo = QPixmap(":/icons/yac.xpm");
-
-#else
     framework = "COVISE";
     pm_logo = QPixmap(":/icons/covise.xpm");
-#endif
 
     // define pixmaps
     pm_bullet = QPixmap(":/icons/bullet.png");
@@ -400,25 +394,6 @@ void MEMainHandler::init()
         localUser = "unknown";
 #endif
 
-#ifdef YAC
-
-#ifdef _WIN32
-    localHost = getenv("USERDOMAIN");
-#else
-    QString temp = getenv("HOSTNAME");
-    ;
-    localHost = temp.section('.', 0, 0);
-#endif
-
-    // register current layout style
-    covise::coSendBuffer sb;
-    QString style = cfg_QtStyle;
-    sb << "UI" << 0 << "LayoutStyle" << style;
-    if (!messageHandler->isStandalone())
-        messageHandler->sendMessage(covise::coCtrlMsg::REGISTRY_SET_VALUE, sb);
-
-#else
-
     if (!messageHandler->isStandalone())
     {
         localHost = QString::fromStdString(covise::Host::lookupHostname(messageHandler->getUIF()->get_hostname()));
@@ -435,14 +410,12 @@ void MEMainHandler::init()
         else
             messageHandler->sendMessage(covise::COVISE_MESSAGE_MSG_OK, "");
     }
-#endif
 }
 
 //!
 void MEMainHandler::embeddedRenderer()
 //!
 {
-#ifndef YAC
     // get sgrender lib
     m_libFileName = getenv("COVISEDIR");
     m_libFileName.append("/");
@@ -466,7 +439,6 @@ void MEMainHandler::embeddedRenderer()
         qWarning() << "MEMainHandler::startRenderer err: lib not found";
         messageHandler->sendMessage(covise::COVISE_MESSAGE_MSG_OK, "");
     }
-#endif
 }
 
 //!
@@ -493,19 +465,7 @@ void MEMainHandler::initModule()
     QSize size = MEGraphicsView::instance()->viewport()->size();
     QPointF pp = MEGraphicsView::instance()->mapToScene(size.width() / 2, size.height() / 2);
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    int id = hostname.toInt();
-    sb << id << category << modulename << (int)pp.x() << (int)pp.y();
-    messageHandler->sendMessage(covise::coUIMsg::UI_START_MODULE, sb);
-    mapWasChanged("UI_START_MODULE");
-
-#else
-
     requestNode(modulename, hostname, (int)pp.x(), (int)pp.y(), NULL, MEMainHandler::NORMAL);
-
-#endif
 }
 
 //!
@@ -559,11 +519,7 @@ void MEMainHandler::readConfigFile()
     }
 
 // create the default path for storing files
-#ifdef YAC
-    QString frame = "yac";
-#else
     QString frame = "covise";
-#endif
 
     cfg_SavePath = "~/." + frame;
 #ifdef _WIN32
@@ -599,21 +555,12 @@ void MEMainHandler::readConfigFile()
     if (serv.isNull())
     {
 
-#ifndef YAC
         flist << "RWCovise:IO"
-              << "Colors:Color"
+              << "Colors:Mapper"
               << "IsoSurface:Mapper"
               << "CuttingSurface:Filter"
               << "Collect:Tools"
-              << "Renderer:Renderer"
-              << "VRRenderer:Renderer";
-#else
-        flist << "RWCovise:Reader"
-              << "IsoSurface:Mapper"
-              << "CuttingSurface:Filter"
-              << "GenDat:Tools"
               << "Renderer:Renderer";
-#endif
     }
 
     else
@@ -746,7 +693,7 @@ void MEMainHandler::checkHelp()
 
     QString name = framework + "_PATH";
 
-    // try to get YACDIR/COVISEDIR
+    // try to get COVISEDIR
     QString helpdir = getenv(name.toLatin1().data());
     if (helpdir.isEmpty())
     {
@@ -761,7 +708,7 @@ void MEMainHandler::checkHelp()
 #endif
 
     // try to get help from local file system
-    // checking COVISE_PATH / YAC_PATH
+    // checking COVISE_PATH
     QString onlineDocPath = "/doc/html";
     for (unsigned int i = 0; i < (unsigned int)list.count(); i++)
     {
@@ -884,12 +831,6 @@ void MEMainHandler::chatCB()
     if (text.isEmpty())
         return;
 
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << localHost << text;
-
-#else
-
     QStringList buffer;
     QString data;
     buffer << "CHAT" << localHost << text;
@@ -897,7 +838,6 @@ void MEMainHandler::chatCB()
     messageHandler->sendMessage(covise::COVISE_MESSAGE_INFO, data);
     buffer.clear();
     mapEditor->getChatLine()->clear();
-#endif
 }
 
 //!
@@ -945,12 +885,6 @@ void MEMainHandler::openNetworkFile(QString filename)
     }
 
 // open file
-#ifdef YAC
-    covise::coSendBuffer sb;
-    messageHandler->sendMessage(covise::coUIMsg::UI_CLEAR_NETWORK, sb);
-    sb << filename << m_localHostID;
-    messageHandler->sendMessage(covise::coUIMsg::UI_OPEN_NETWORK, sb);
-#else
     QString tmp;
     tmp = "UPDATE_LOADED_MAPNAME\n" + filename;
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
@@ -958,7 +892,6 @@ void MEMainHandler::openNetworkFile(QString filename)
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
     tmp = "OPEN\n" + filename;
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
-#endif
 
     setMapModified(false);
 }
@@ -968,9 +901,7 @@ void MEMainHandler::openNetworkFile(QString filename)
 //!
 void MEMainHandler::undoAction()
 {
-#ifndef YAC
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "UNDO");
-#endif
 }
 
 //!
@@ -1032,11 +963,7 @@ void MEMainHandler::autoSaveNet()
 {
     if (!m_inMapLoading && m_autoSave)
     {
-#ifdef YAC
-        saveNetwork("autosave.net");
-#else
         messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "AUTOSAVE");
-#endif
         m_autoSave = false;
     }
 }
@@ -1046,21 +973,11 @@ void MEMainHandler::autoSaveNet()
 //!
 void MEMainHandler::saveNetwork(const QString &filename)
 {
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << filename;
-    sb << m_localHostID;
-    messageHandler->sendMessage(covise::coUIMsg::UI_SAVE_NETWORK, sb);
-
-#else
-
     QStringList buffer;
     buffer << "SAVE" << filename;
     QString tmp = buffer.join("\n");
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
     buffer.clear();
-#endif
 
     // store also the current history
     mapEditor->printMessage("Network saved as " + filename);
@@ -1113,12 +1030,6 @@ void MEMainHandler::addHost()
     if (m_addHostBox == NULL)
         m_addHostBox = new MECSCW(0);
 
-#ifdef YAC
-    else
-        m_addHostBox->showMainPage();
-    m_addHostBox->setGUI(false);
-#endif
-
     QString caption = QString(framework);
     if (m_hostMode == ADDHOST)
         caption.append(" Add Host");
@@ -1160,19 +1071,6 @@ void MEMainHandler::delHost()
     if (m_deleteHostBox->exec() == QDialog::Accepted)
     {
 
-#ifdef YAC
-
-        QStringList list = m_deleteHostBox->getLine().split("@");
-        QString username = list[0];
-        QString hostname = MEHostListHandler::instance()->getDNSHostname(list[1]);
-        int id = MEHostListHandler::instance()->getHostID(username, hostname);
-
-        covise::coSendBuffer sb;
-        sb << id;
-        messageHandler->send(sb, covise::coUIMsg::UI_DELETE_HOST);
-
-#else
-
         QStringList list = m_deleteHostBox->getLine().split("@");
         QString hostname = MEHostListHandler::instance()->getIPAddress(list[1]);
         QStringList text;
@@ -1180,7 +1078,6 @@ void MEMainHandler::delHost()
         QString tmp = text.join("\n");
 
         messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
-#endif
     }
 }
 
@@ -1192,17 +1089,6 @@ void MEMainHandler::changeCB(bool state)
     if (state == m_executeOnChange)
         return;
     m_executeOnChange = state;
-
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << "UI" << 0 << "ExecutionOnChange";
-    if (m_executeOnChange)
-        sb << "true";
-    else
-        sb << "false";
-    messageHandler->sendControlMessage(covise::coCtrlMsg::REGISTRY_SET_VALUE, sb);
-#endif
 }
 
 //!
@@ -1214,81 +1100,6 @@ void MEMainHandler::changeExecButton(bool state)
     mapEditor->changeExecButton(state);
 }
 
-#ifdef YAC
-//!
-// close the application
-//!
-void MEMainHandler::closeApplication(QCloseEvent *ce)
-{
-
-    m_waitForClose = false;
-
-    if (!force)
-    {
-        // ask user what to do with a modified or new map
-        if (m_loadedMapWasModified)
-        {
-            switch (QMessageBox::question(0, framework + " Map Editor",
-                                          "Save your changes before closing the " + framework + " session?",
-                                          "Save && Quit", "Quit", "Cancel",
-                                          1, 2))
-            {
-            case 0:
-                storeSessionParam();
-
-                // overwrite existing network
-                if (!m_mapName.isEmpty())
-                {
-                    saveNetwork(m_mapName);
-                    cerr << "Map Editor ____ Close connection\n" << endl;
-                    ce->accept();
-                }
-
-                // allow user to store network file
-                // wait until user has saved the network
-                else
-                {
-                    m_waitForClose = true;
-                    saveAsNet();
-                    ce->ignore();
-                }
-                break;
-
-            case 1:
-                storeSessionParam();
-                cerr << "Map Editor ____ Close connection\n" << endl;
-                ce->accept();
-                exit(0);
-
-                break;
-
-            case 2:
-                ce->ignore();
-                break;
-            }
-        }
-
-        else
-        {
-            if (!mapEditor->hasMiniGUI())
-            {
-                storeSessionParam();
-            }
-            cerr << "Map Editor ____ Close connection\n" << endl;
-            ce->accept();
-            exit(0);
-        }
-    }
-
-    // quit under all circumstances
-    else
-    {
-        ce->accept();
-        exit(0);
-    }
-}
-
-#else
 
 //!
 //! close the application
@@ -1367,7 +1178,6 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
         messageHandler->sendMessage(covise::COVISE_MESSAGE_QUIT, "");
     }
 }
-#endif
 
 //!
 //! quit MapEditor
@@ -1438,7 +1248,7 @@ void MEMainHandler::about()
         ui->textEdit->setPlainText(data);
     }
 
-    QString text("This is <a href='http://www.hlrs.de/organization/av/vis/covise'>COVISE</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
+    QString text("This is <a href='http://www.hlrs.de/about-us/organization/divisions-departments/av/vis/'>COVISE</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
     text = text.arg(CoviseVersion::year())
         .arg(CoviseVersion::month())
         .arg(CoviseVersion::hash())
@@ -1479,13 +1289,7 @@ void MEMainHandler::clearNet()
         {
         case 0:
         {
-#ifdef YAC
-            covise::coSendBuffer sb;
-            sb << 0;
-            messageHandler->sendMessage(covise::coUIMsg::UI_CLEAR_NETWORK, sb);
-#else
             messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "NEW_ALL\n");
-#endif
         }
         break;
         }
@@ -1494,13 +1298,7 @@ void MEMainHandler::clearNet()
     // reset handler & userinterface
     else
     {
-#ifdef YAC
-        covise::coSendBuffer sb;
-        sb << 0;
-        messageHandler->sendMessage(covise::coUIMsg::UI_CLEAR_NETWORK, sb);
-#else
         messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "NEW_ALL\n");
-#endif
     }
 }
 
@@ -1647,26 +1445,11 @@ void MEMainHandler::addNewHost(MEHost *host)
     // take information from host, category & module
     mapEditor->addHostToModuleTree(host);
 
-#ifdef YAC
-
-    if (m_localHostID == -1)
-    {
-        localHost = host->getShortname();
-        m_localHostID = host->getID();
-        localUser = host->getUsername();
-    }
-
-    // add host to filebrowser
-    MEFileBrowserListHandler::instance()->addHostToBrowser(host);
-
-#else
-
     if (m_mirrorBox)
     {
         delete m_mirrorBox;
         m_mirrorBox = NULL;
     }
-#endif
 
     // update list of possible hosts
     MEGraphicsView::instance()->addHost(host);
@@ -1757,29 +1540,6 @@ void MEMainHandler::removeNodesOfHost(MEHost *host)
     mapWasChanged("UI_REMOVE_NODES");
 }
 
-#ifdef YAC
-//!
-//! init a module node
-//!
-void MEMainHandler::initNode(int nodeid, MEHost *host, covise::coRecvBuffer &tb)
-{
-    // no "exec on change" during initialisation
-    int save_exec = m_executeOnChange;
-    mapEditor->changeExecButton(false);
-
-    // create a new node
-    m_newNode = MENodeListHandler::instance()->addNode(MEGraphicsView::instance());
-    m_newNode->init(nodeid, host, tb);
-
-    // execution is possible
-    enableExecution(true);
-
-    // reset mode
-    mapEditor->changeExecButton(save_exec);
-
-    mapWasChanged("UI_INIT");
-}
-#endif
 
 //!
 //! init a module node
@@ -1944,12 +1704,6 @@ void MEMainHandler::removeLink(MENode *n1, MEPort *p1, MENode *n2, MEPort *p2)
 //!
 void MEMainHandler::showCSCWParameter(const QStringList &list, addHostModes mode)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(mode);
-#else
-
     if (!m_CSCWParam)
         m_CSCWParam = new MECSCWParam(0);
 
@@ -1960,7 +1714,6 @@ void MEMainHandler::showCSCWParameter(const QStringList &list, addHostModes mode
     m_hostMode = mode;
 
     m_CSCWParam->show();
-#endif
 }
 
 //!
@@ -1968,9 +1721,6 @@ void MEMainHandler::showCSCWParameter(const QStringList &list, addHostModes mode
 //!
 void MEMainHandler::showCSCWDefaults(const QStringList &list)
 {
-#ifdef YAC
-    Q_UNUSED(list)
-#else
     if (!m_CSCWParam)
         m_CSCWParam = new MECSCWParam(0);
 
@@ -1979,7 +1729,6 @@ void MEMainHandler::showCSCWDefaults(const QStringList &list)
     m_CSCWParam->setTimeout(list[2]); // timeout
     m_CSCWParam->setHost(list[3]); // host
     m_CSCWParam->show();
-#endif
 }
 
 //!
@@ -1987,7 +1736,6 @@ void MEMainHandler::showCSCWDefaults(const QStringList &list)
 //!
 void MEMainHandler::masterCB()
 {
-#ifndef YAC
     QString data;
     QStringList list;
 
@@ -1997,7 +1745,6 @@ void MEMainHandler::masterCB()
     data = list.join("\n");
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, data);
     list.clear();
-#endif
 }
 
 //!
@@ -2070,7 +1817,6 @@ void MEMainHandler::showHostState(const QStringList &list)
 //!
 void MEMainHandler::setMaster(bool state)
 {
-#ifndef YAC
     if (state == false && m_masterUI == false && m_requestingMaster)
     {
         QMessageBox::information(NULL,
@@ -2079,7 +1825,6 @@ void MEMainHandler::setMaster(bool state)
     }
 
     m_requestingMaster = false;
-#endif
 
     // set new status
     m_masterUI = state;
@@ -2174,9 +1919,7 @@ void MEMainHandler::requestNode(const QString &modulename, const QString &nodena
     }
 
     QString data = buffer.join("\n");
-#ifndef YAC
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, data);
-#endif
     buffer.clear();
     mapWasChanged("INIT/SYNC");
 }

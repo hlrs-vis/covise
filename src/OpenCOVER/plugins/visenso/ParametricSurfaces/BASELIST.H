@@ -57,11 +57,11 @@ public:
     bool Is(double v);
 
     // Zugriff auf Listenelement i
-    HlBaseList *arg(unsigned int i);
-    void setarg(unsigned int i, HlBaseList *e);
+    HlBaseList *arg(size_t i);
+    void setarg(size_t i, HlBaseList *e);
 
     // Argumente i und k vertauschen
-    void changearg(unsigned int i, unsigned int k);
+    void changearg(size_t i, unsigned int k);
 
     // Argumente an this anhaengen
     // Alle Argumente von *e an this anhaengen
@@ -124,19 +124,19 @@ inline HlBaseList::HlBaseList(HlSymEntry *se)
 /*---------------------------------------------------------------*/
 
 // Lesen auf Argument i
-inline HlBaseList *HlBaseList::arg(unsigned int i)
+inline HlBaseList *HlBaseList::arg(size_t i)
 {
     return mArg[i];
 }
 
 // Argument i mit *e belegen
-inline void HlBaseList::setarg(unsigned int i, HlBaseList *e)
+inline void HlBaseList::setarg(size_t i, HlBaseList *e)
 {
     mArg[i] = e;
 }
 
 // Argumente i und k vertauschen
-inline void HlBaseList::changearg(unsigned int i, unsigned int k)
+inline void HlBaseList::changearg(size_t i, unsigned int k)
 {
     HlBaseList *h = mArg[i];
     mArg[i] = mArg[k];
@@ -191,7 +191,7 @@ inline size_t HlBaseList::Length()
 // ~HlBaseList: Rekursiver Destruktor fuer HlBaseList
 inline HlBaseList::~HlBaseList()
 {
-    for (unsigned int i = 0, n = Length(); i < n; i++)
+    for (size_t i = 0, n = Length(); i < n; i++)
         delete mArg[i];
 
     mArg.clear();
@@ -212,7 +212,7 @@ inline HlBaseList *HlBaseList::onlyFirstArg()
 // appargs: Haengt alle Argumente von *e an die Argumentliste an
 inline HlBaseList *HlBaseList::appargs(HlBaseList *e)
 {
-    for (unsigned int i = 0, n = e->Length(); i < n; i++)
+    for (size_t i = 0, n = e->Length(); i < n; i++)
         apparg(e->mArg[i]);
 
     return this;
@@ -236,7 +236,7 @@ inline HlBaseList *HlBaseList::copy()
     HlBaseList *h = new HlBaseList(getsym());
     h->setDoubleVal(getDoubleVal());
 
-    for (unsigned int i = 0, n = Length(); i < n; i++)
+    for (size_t i = 0, n = Length(); i < n; i++)
         h->apparg(mArg[i]->copy());
 
     return h;

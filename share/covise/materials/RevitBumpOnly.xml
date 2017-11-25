@@ -1,0 +1,92 @@
+<_RevitBumpOnly><uniform name="Bumpiness" type="float" value="0.3"/><uniform name="diffuseMap" type="sampler2D" value="1"/><uniform name="normalMap" type="sampler2D" value="1"/><attribute name="aBinormal" type="binormal" value="6"/><attribute name="aTangent" type="tangent" value="7"/><vertexProgram>
+  
+uniform float revitSX;
+uniform float revitSY;
+uniform float revitOX;
+uniform float revitOY;
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+  
+    attribute vec3 aBinormal;
+    attribute vec3 aTangent;
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Binormal = gl_NormalMatrix * aBinormal;
+        Tangent  = gl_NormalMatrix * aTangent; 
+		
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+		// compute texture coordinates (box mapping)
+if(gl_Normal.x &gt; 0.5|| gl_Normal.x &lt; -0.5)
+Texcoord = gl_Vertex.yz;
+if(gl_Normal.y &gt; 0.5| gl_Normal.y &lt; -0.5)
+Texcoord = gl_Vertex.xz;
+if(gl_Normal.z &gt; 0.5| gl_Normal.z&lt; -0.5)
+Texcoord = gl_Vertex.xy;
+Texcoord.x/=revitSX;
+Texcoord.y/=revitSY;
+
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif     
+	gl_Position = ftransform();	
+    }
+  </vertexProgram><fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+    varying vec2 TexcoordL;
+   
+    uniform float Bumpiness;
+    uniform sampler2D diffuseMap;
+    uniform sampler2D normalMap;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+      vec3 bumpmap = 2.0 * Bumpiness * (texture2D( normalMap, Texcoord ) - vec3(0.5,0.5,0.5));
+      
+      vec3 N = normalize(normal);
+      vec3 Tn = normalize(Tangent);
+      vec3 Bn = normalize(Binormal);
+      N += (bumpmap.x * Tn + bumpmap.y * Bn);
+      //N += vec3(bumpmap.x , bumpmap.y,0.0 );
+      N = normalize(N);
+      
+      vec3 nEyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm &gt; 0.0)
+      {
+      	final_color += gl_LightSource[0].diffuse * 
+      	               //texture2D( diffuseMap, Texcoord ) * 
+					   gl_FrontMaterial.diffuse *
+      				   lambertTerm;	
+      		
+      	vec3 E = normalize(nEyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+      	final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+      	}
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram></_RevitBumpOnly>

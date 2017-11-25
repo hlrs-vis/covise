@@ -103,7 +103,7 @@ getLine(istream &str, char *oBuffer, int numChars)
             *cPtr = '\0';
 
         // remove trailing blanks
-        int len = strlen(buffer);
+        size_t len = strlen(buffer);
 
         if (len)
         {

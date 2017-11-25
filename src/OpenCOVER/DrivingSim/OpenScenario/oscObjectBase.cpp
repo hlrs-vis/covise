@@ -221,7 +221,7 @@ oscObjectBase *oscObjectBase::getObjectByName(const std::string &name)
 	oscMember *member = getMember(name);
 	if (member)
 	{
-		return member->getOrCreateObject();
+		return member->getOrCreateObjectBase();
 	}
 
 	return NULL;
@@ -276,7 +276,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 					}
 					else
 					{
-						oscObjectBase *obj = member->getObject();
+						oscObjectBase *obj = member->getObjectBase();
 						if (obj)
 						{
 							//xml document for member
@@ -422,7 +422,8 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 				//member has no value (value doesn't exist)
 				else
 				{
-					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(memTypeName);
+					std::string className = nameMapping::instance()->getClassName(memTypeName, std::string(getScope()));
+					oscObjectBase *obj = oscFactories::instance()->objectFactory->create(className);
 					if (obj)
 					{
 						obj->initialize(base, this, m, srcToUse);
@@ -451,7 +452,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
             }
         }
     }
-
+	finishedParsing();
     return true;
 }
 
@@ -533,7 +534,8 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const 
 
 			//object for objectName
 
-			obj = oscFactories::instance()->objectFactory->create(typeName);
+			std::string className = nameMapping::instance()->getClassName(typeName, std::string(getScope()));
+			obj = oscFactories::instance()->objectFactory->create(className);
 			if(obj)
 			{
 				obj->initialize(getBase(), NULL, NULL, srcFile);

@@ -37,6 +37,8 @@ zebu
 zebuopt
 mingw
 mingwopt
+vcpkg
+vcpkgopt
 hpux
 hpuxopt
 linux32

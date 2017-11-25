@@ -28,7 +28,7 @@ void METIS_PartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtyp
 
   tpwgts = fmalloc(*nparts, "KMETIS: tpwgts");
   for (i=0; i<*nparts; i++) 
-    tpwgts[i] = 1.0/(1.0*(*nparts));
+    tpwgts[i] = 1.0f/(1.0f*(*nparts));
 
   METIS_WPartGraphRecursive(nvtxs, xadj, adjncy, vwgt, adjwgt, wgtflag, numflag, nparts, 
                             tpwgts, options, edgecut, part);
@@ -70,7 +70,7 @@ void METIS_WPartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxty
   }
   ctrl.optype = OP_PMETIS;
   ctrl.CoarsenTo = 20;
-  ctrl.maxvwgt = 1.5*(idxsum(*nvtxs, graph.vwgt)/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*(idxsum(*nvtxs, graph.vwgt)/ctrl.CoarsenTo));
 
   mytpwgts = fmalloc(*nparts, "PWMETIS: mytpwgts");
   for (i=0; i<*nparts; i++) 
@@ -115,7 +115,7 @@ int MlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idxty
 
   /* Determine the weights of the partitions */
   tvwgt = idxsum(nvtxs, graph->vwgt);
-  tpwgts2[0] = tvwgt*ssum(nparts/2, tpwgts);
+  tpwgts2[0] = (int)(tvwgt*ssum(nparts/2, tpwgts));
   tpwgts2[1] = tvwgt-tpwgts2[0];
 
   MlevelEdgeBisection(ctrl, graph, tpwgts2, ubfactor);
@@ -139,8 +139,8 @@ int MlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idxty
 
   /* Scale the fractions in the tpwgts according to the true weight */
   wsum = ssum(nparts/2, tpwgts);
-  sscale(nparts/2, 1.0/wsum, tpwgts);
-  sscale(nparts-nparts/2, 1.0/(1.0-wsum), tpwgts+nparts/2);
+  sscale(nparts/2, 1.0f/wsum, tpwgts);
+  sscale(nparts-nparts/2, 1.0f/(1.0f-wsum), tpwgts+nparts/2);
   /*
   for (i=0; i<nparts; i++)
     printf("%5.3f ", tpwgts[i]);

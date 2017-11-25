@@ -43,6 +43,11 @@ typedef osg::GLExtensions OSG_Texture_Extensions;
 typedef osg::FBOExtensions OSG_GLExtensions;
 typedef osg::Texture::Extensions OSG_Texture_Extensions;
 #endif
+struct serialInfo
+{
+	int ID;
+	int controllerID;
+};
 
 class OpenVRTextureBuffer : public osg::Referenced
 {
@@ -94,7 +99,10 @@ class Vive : public opencover::coVRPlugin, public opencover::InputDevice
 public:
     Vive();
     ~Vive();
-    void preFrame();
+	void preFrame();
+	void postFrame();
+	//! this function is called from the draw thread before swapbuffers
+	virtual void preSwapBuffers(int /*windowNumber*/);
 	bool init();
 	virtual bool needsThread() const; //< we don't needan extra thread
 
@@ -111,9 +119,18 @@ private:
 
 	std::string m_strPoseClasses;                            // what classes we saw poses for this frame
 	char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // for each device, a character representing its class
+	int m_DeviceID[vr::k_unMaxTrackedDeviceCount];  // cover ID for a specific DeviceID
+	int m_ControllerID[vr::k_unMaxTrackedDeviceCount];  // controller ID for a specific DeviceID for button states
+	
+	std::string m_DeviceSerial[vr::k_unMaxTrackedDeviceCount];   // for each device, a character representing its class // index is device ID
+	std::map<std::string, serialInfo> serialID;
 	size_t maxBodyNumber;
 	size_t numControllers;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
+	bool haveTrackerOrigin;
+	bool m_transformOriginToCamera;	//Config variable for origin transform
+	osg::Matrix LighthouseMatrix;
+
 
 };
 #endif

@@ -56,7 +56,8 @@ void MeshFileTransParserHmAscii::parseMeshFile(
     (void)noOfTimeStepToSkip;
     (void)noOfTimeStepsToParse;
     // compute parameters
-    if ((_fileHandle = fopen(filename.c_str(), "r")) <= 0)
+    _fileHandle = fopen(filename.c_str(), "r");
+    if (!_fileHandle)
     {
         ERROR1("cannot open mesh file ", filename, _outputHandler);
     }
@@ -508,7 +509,7 @@ void MeshFileTransParserHmAscii::pushBack(void)
 
 int MeshFileTransParserHmAscii::getMaxNodeNo(void) const
 {
-    int retval = _xPoints.size(); // _xPoints[] is already extended to max. node number (filled with zeros where node no. is not defined)
+    int retval = (int)_xPoints.size(); // _xPoints[] is already extended to max. node number (filled with zeros where node no. is not defined)
     ASSERT0(retval >= _noOfPoints, "sorry, and internal error occured.", _outputHandler);
     return retval;
 }

@@ -41,7 +41,7 @@ void FM_2WayEdgeRefine(CtrlType *ctrl, GraphType *graph, int *tpwgts, int npasse
   swaps = idxwspacemalloc(ctrl, nvtxs);
   perm = idxwspacemalloc(ctrl, nvtxs);
 
-  limit = amin(amax(0.01*nvtxs, 15), 100);
+  limit = (int)amin(amax(0.01f*nvtxs, 15), 100);
   avgvwgt = amin((pwgts[0]+pwgts[1])/20, 2*(pwgts[0]+pwgts[1])/nvtxs);
 
   tmp = graph->adjwgtsum[idxamax(nvtxs, graph->adjwgtsum)];

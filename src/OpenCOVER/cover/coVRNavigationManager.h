@@ -23,12 +23,16 @@
 
 #include <util/common.h>
 
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
+#include "ui/Owner.h"
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+class ButtonGroup;
+class Button;
+class Slider;
+}
+}
 
 #include <osg/Vec3>
 #include <osg/Matrix>
@@ -38,16 +42,20 @@
 namespace vrui
 {
 class coNavInteraction;
-class coTrackerButtonInteraction;
 class coMouseButtonInteraction;
+class coButtonMenuItem;
+class coRowMenu;
 }
 namespace opencover
 {
 class coMeasurement;
-class buttonSpecCell;
 class coVRLabel;
-class COVEREXPORT coVRNavigationManager : public vrui::coMenuListener
+
+class COVEREXPORT coVRNavigationManager: public ui::Owner
 {
+    static coVRNavigationManager *s_instance;
+    coVRNavigationManager();
+
 public:
     enum NavMode
     {
@@ -62,35 +70,20 @@ public:
         XFormTranslate,
         TraverseInteractors,
         Menu,
-        Measure
+        Measure,
+        Select,
+        SelectInteract
     };
 
     float AnalogX, AnalogY;
-
-    coVRNavigationManager();
 
     ~coVRNavigationManager();
     void updatePerson();
 
     static coVRNavigationManager *instance();
-    static void xformCallback(void *mgr, buttonSpecCell *spec);
-    static void xformRotateCallback(void *mgr, buttonSpecCell *spec);
-    static void xformTranslateCallback(void *mgr, buttonSpecCell *spec);
-    static void scaleCallback(void *mgr, buttonSpecCell *spec);
-    static void collideCallback(void *mgr, buttonSpecCell *spec);
-    static void walkCallback(void *mgr, buttonSpecCell *spec);
-    static void driveCallback(void *mgr, buttonSpecCell *spec);
-    static void flyCallback(void *mgr, buttonSpecCell *spec);
-    static void driveSpeedCallback(void *mgr, buttonSpecCell *spec);
-    static void snapCallback(void *mgr, buttonSpecCell *spec);
-    static void showNameCallback(void *mgr, buttonSpecCell *spec);
-    static void measureCallback(void *mgr, buttonSpecCell *spec);
-    static void traverseInteractorsCallback(void *mgr, buttonSpecCell *spec);
-    static void menuCallback(void *mgr, buttonSpecCell *spec);
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    bool mouseEvent(int type, int state, int code);
 
     void doWalkMoveToFloor();
     void processHotKeys(int keymask);
@@ -105,16 +98,12 @@ public:
 
     void updateHandMat(osg::Matrix &mat);
     void setHandType(int pt);
-    void setNavMode(NavMode mode);
-    void setOldNavMode()
-    {
-        setNavMode(oldNavMode);
-    };
+    void setNavMode(NavMode mode, bool updateGroup=true);
     NavMode getMode()
     {
         return navMode;
     }
-    void setMode(NavMode mode);
+    ui::ButtonGroup *navGroup() const;
     bool isNavigationEnabled()
     {
         return navMode != NavNone;
@@ -152,6 +141,10 @@ public:
 
     int readConfigFile();
 
+    void toggleShowName(bool state);
+    void toggleInteractors(bool state);
+    void toggleCollide(bool state);
+#if 0
     void toggleXform(bool state);
     void toggleXformRotate(bool state);
     void toggleXformTranslate(bool state);
@@ -159,12 +152,10 @@ public:
     void toggleFly(bool state);
     void toggleWalk(bool state);
     void toggleGlide(bool state);
-    void toggleCollide(bool state);
     void toggleAxis(bool state);
-    void toggleShowName(bool state);
     void toggleMeasure(bool state);
-    void toggleInteractors(bool state);
     void toggleMenu();
+#endif
 
     void startXform();
     void doXform();
@@ -194,6 +185,12 @@ public:
     void startMeasure();
     void doMeasure();
     void stopMeasure();
+
+    void toggleSelectInteract(bool state);
+    void startSelectInteract();
+    void doSelectInteract();
+    void stopSelectInteract(bool mouse);
+
 
     void doXformRotate();
     void doXformTranslate();
@@ -236,10 +233,12 @@ public:
     {
         guiTranslateFactor = f;
     }
+#if 0
     void setShowName(bool on)
     {
         toggleShowName(on);
     }
+#endif
 
 private:
     bool doMouseNav;
@@ -261,6 +260,10 @@ private:
 
     osg::Matrix invBaseMatrix;
     osg::Matrix oldInvBaseMatrix;
+	osg::Node *oldFloorNode;
+	osg::Matrix oldFloorMatrix;
+	osg::NodePath oldNodePath;
+
 
     float currentVelocity;
 
@@ -335,13 +338,26 @@ private:
     float rotationSpeed;
     int oldKeyMask;
     bool turntable;
+    bool animationWasRunning=false;
 
     bool showNames_;
     bool showGeodeName_;
-    osg::Node *oldShowNamesNode_;
+    osg::Node *oldShowNamesNode_ = nullptr;
+    osg::Node *oldSelectInteractNode_ = nullptr;
     coVRLabel *nameLabel_;
     vrui::coRowMenu *nameMenu_;
     vrui::coButtonMenuItem *nameButton_;
+    ui::Menu *navMenu_ = nullptr;
+    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
+    ui::ButtonGroup *navGroup_ = nullptr;
+    ui::Button *noNavButton_=nullptr;
+    ui::Button *xformButton_=nullptr, *scaleButton_=nullptr, *flyButton_=nullptr, *walkButton_=nullptr, *driveButton_=nullptr;
+    ui::Button *xformRotButton_=nullptr, *xformTransButton_=nullptr, *selectButton_=nullptr, *showNameButton_=nullptr;
+    ui::Button *selectInteractButton_=nullptr;
+    ui::Button *measureButton_=nullptr, *traverseInteractorButton_=nullptr;
+    ui::Button *collisionButton_=nullptr, *snapButton_=nullptr;
+    ui::Slider *driveSpeedSlider_=nullptr;
+    ui::Action *scaleUpAction_=nullptr, *scaleDownAction_=nullptr;
 
     osg::Vec3 rotPointVec;
     osg::ref_ptr<osg::MatrixTransform> rotPoint;
@@ -353,12 +369,13 @@ private:
     void initHandDeviceGeometry();
     void initCollMenu();
     void initMatrices();
+    void initMenu();
     void initShowName();
     void initMeasure();
 
+#ifdef VRUI
     virtual void menuEvent(vrui::coMenuItem *);
-
-    void enableAllNavigations(bool enable);
+#endif
 };
 }
 #endif

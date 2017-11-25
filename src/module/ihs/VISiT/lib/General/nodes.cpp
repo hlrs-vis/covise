@@ -140,15 +140,15 @@ int CalcNodeCoords(struct node **n, int nnum, int clock)
 
 	if(clock) {
 		for(i = 0; i < nnum; i++) {
-			n[i]->x = n[i]->r * cos(n[i]->phi);
-			n[i]->y = -n[i]->r * sin(n[i]->phi);
+			n[i]->x = n[i]->r * float(cos(n[i]->phi));
+			n[i]->y = -n[i]->r * float(sin(n[i]->phi));
 		}
 
 	}
 	else {
 		for(i = 0; i < nnum; i++) {
-			n[i]->x = n[i]->r * cos(n[i]->phi);
-			n[i]->y = n[i]->r * sin(n[i]->phi);
+			n[i]->x = n[i]->r * float(cos(n[i]->phi));
+			n[i]->y = n[i]->r * float(sin(n[i]->phi));
 		}
 	}
 	return 0;

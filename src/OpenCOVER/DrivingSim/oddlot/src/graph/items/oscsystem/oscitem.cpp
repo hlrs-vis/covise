@@ -50,11 +50,11 @@
 
 // OpenScenario //
 //
-#include "schema/oscVehicle.h"
-#include "schema/oscObject.h"
-#include "oscMember.h"
-#include "schema/oscCatalogReference.h"
-//#include "oscNameRefId.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/schema/oscCatalogReference.h>
+//#include <OpenScenario/oscNameRefId.h>
 
 // Qt //
 //
@@ -64,18 +64,16 @@
 #include <QColor>
 #include <QString>
 #include <QKeyEvent>
+#include <QTransform>
 
-OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, const QPointF &pos, const QString &roadId)
+OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad)
     : GraphElement(oscBaseItem, element)
 	, element_(element)
 	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
-	, oscPrivateAction_(NULL)
+	, oscRoad_(oscRoad)
 	, catalog_(catalog)
-	, selectedObject_(NULL)
-	, path_(NULL)
-	, pos_(pos)
-	, roadID_(roadId)
+	, angle_(0)
 {
 
     init();
@@ -88,46 +86,66 @@ OSCItem::~OSCItem()
 /*!
 * Initializes the path 
 */
-QPainterPath *
-	createVehiclePath(OpenScenario::oscObjectBase *vehicle)
+QPainterPath 
+	createVehiclePath(OpenScenario::oscObjectBase *object, RSystemElementRoad *road)
 {
-	QPainterPath *path = new QPainterPath();
-	double width = 10;
-	double height = 10;
-
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getOrCreateValue());
-	if (iv)
+	QPainterPath path = QPainterPath();
+	
+	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(object);
+	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
+	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
+	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
+	if(vehicle)
 	{
-		switch (iv->getValue())
+		switch (vehicle->category.getValue())
 		{
 		case oscVehicle::car:
 			{
 				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0,2) << QPointF(0,2) << QPointF(3.7,4) << QPointF(6.3,4) << QPointF(7.7,2) << QPointF(9.2,2) << QPointF(9.8,1.2) << QPointF(10,0);
-				path->addPolygon(polygon);
-				path->closeSubpath();
-				path->addEllipse(QPointF(2,-0.1), 0.8, 0.8);
-				path->addEllipse(QPointF(8,-0.1), 0.8, 0.8);
+				polygon << QPointF(0,0) << QPointF(0,heightBoundBox/2) << QPointF(lengthBoundBox/3,heightBoundBox) << QPointF(lengthBoundBox/1.5,heightBoundBox) << QPointF(lengthBoundBox/1.2,heightBoundBox/2) << QPointF(lengthBoundBox/1.086,heightBoundBox/2) << QPointF(lengthBoundBox/1.02,heightBoundBox/3.33) << QPointF(lengthBoundBox,0);
+				path.addPolygon(polygon);
+				path.closeSubpath();
+				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
 
-				height = 4;
+				
+				break;
+			}
+		case oscVehicle::truck:
+			{
+				QPolygonF polygon;
+				polygon << QPointF(0,0) << QPointF(0, heightBoundBox) << QPointF(lengthBoundBox/1.88, heightBoundBox) << QPointF(lengthBoundBox/1.88, heightBoundBox/1.5) << QPointF(lengthBoundBox/1.58, heightBoundBox/1.5) << QPointF(lengthBoundBox/1.3, heightBoundBox/3) << QPointF(lengthBoundBox/1.1,heightBoundBox/3) << QPointF(lengthBoundBox/1.08,heightBoundBox/5) << QPointF(lengthBoundBox,0);
+				path.addPolygon(polygon);
+				path.closeSubpath();
+				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+
+				break;
+			}
+		case oscVehicle::bus:
+			{
+				QPolygonF polygon;
+				polygon << QPointF(0,0) << QPointF(0, heightBoundBox) << QPointF(lengthBoundBox, heightBoundBox) << QPointF(lengthBoundBox, 0);
+				path.addPolygon(polygon);
+				path.closeSubpath();
+				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+
 				break;
 			}
 		default:
 			{
-				path->addRect(0, 0, 10, 10);
+				path.addRect( 0,0 , lengthBoundBox, heightBoundBox);
 			}
 
-	/*	truck,
-		trailer,
-		bus,
+	/*	trailer,
 		motorbike,
 		bicycle,
 		train,
 		tram,*/
 		}
 	}
-	path->translate(-width/2, -height/2);
-
+	path.translate(-lengthBoundBox/2, -heightBoundBox/2);
 	return path;
 
 }
@@ -169,13 +187,15 @@ OSCItem::init()
 		return;
 	}
 
-	std::string catalogFileName = catalogReference->name.getValue();
-	oscPrivateAction_ = oscEditor_->getOrCreatePrivateAction(catalogFileName);
+	std::string catalogName = catalogReference->catalogName.getValue();
+	std::string entryName = catalogReference->entryName.getValue();
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
-	road_ = roadSystem_->getRoad(roadID_);
+	road_ = roadSystem_->getRoad(QString::fromStdString(oscRoad_->roadId.getValue()));
 	closestRoad_ = road_;
 	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
+	s_ = oscRoad_->s.getValue();
+	t_ = oscRoad_->t.getValue();
 
 	doPan_ = false;
 	copyPan_ = false;
@@ -185,33 +205,21 @@ OSCItem::init()
 	// TODO: get type and object from catalog reference //
 	//
 
-	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogFileName);
+	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogName,entryName);
 
-	if (!catalogObject)
-	{
-		catalog_->fullReadCatalogObjectWithName(catalogFileName);
-		catalogObject = catalog_->getCatalogObject(catalogFileName);
-	}
-	
+
 	if (catalogObject)
 	{
-		OpenScenario::oscArrayMember *objects = dynamic_cast<OpenScenario::oscArrayMember *>(catalogObject->getMember(catalog_->getCatalogName()));
-		if (objects && !objects->empty())
+
+		if (catalog_->getCatalogName() == "Vehicle")
 		{
-			selectedObject_ = objects->at(0);
+			createPath = createVehiclePath;
+			updateColor(catalog_->getCatalogName());
+			path_ = createPath(catalogObject, road_);
+			pos_ = road_->getGlobalPoint(s_, t_);
+			updatePosition();
 		}
 
-		if (selectedObject_)
-		{
-			if (catalog_->getCatalogName() == "Vehicle")
-			{
-				createPath = createVehiclePath;
-				createPath(selectedObject_);
-
-				updateColor(catalog_->getCatalogName());
-				updatePosition();
-			}
-		}
 	}
 }
 
@@ -237,12 +245,11 @@ OSCItem::updateColor(const std::string &type)
 {
 	if (type == "Vehicle")
 	{
-		color_ = Qt::black;
+		QPen pen;
+		pen.setBrush(Qt::black);
+		pen.setWidthF(0.2);
+		setPen(pen);
 	}
-
-	
-//	setBrush(QBrush(color_));
-	setPen(QPen(color_));
 }
 
 
@@ -252,9 +259,26 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-	path_ = createPath(selectedObject_);
-	path_->translate(pos_ );
-	setPath(*path_);
+	QTransform *transform = new QTransform;
+//	double s = road_->getSFromGlobalPoint(pos_);
+	double heading = road_->getGlobalHeading(s_);
+	double rotation = heading - angle_;
+	transform->rotate(rotation);
+	angle_ = heading;
+	path_ = transform->map(path_);
+	path_.translate(pos_);
+	setPath(path_);
+	oscTextItem_->setPos(pos_);
+}
+
+/* Move
+*/
+void
+OSCItem::move(QPointF &diff)
+{
+	path_.translate(diff); 
+	setPath(path_);
+	pos_ += diff;
 }
 
 //*************//
@@ -280,10 +304,28 @@ bool
 OSCItem::removeElement()
 {
 	OpenScenario::oscObjectBase *parent = oscObject_->getParentObj();
-	OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(parent->getOwnMember());
+	OpenScenario::oscArrayMember *arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(parent->getMember("Object"));
 
-	RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, arrayMember->findObjectIndex(oscObject_), element_);
-	getTopviewGraph()->executeCommand(command); 
+	if (arrayMember)
+	{
+		QUndoStack *undoStack = getProjectData()->getUndoStack();
+		undoStack->beginMacro(QObject::tr("Delete Object"));
+
+		RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, arrayMember->findObjectIndex(oscObject_), element_);
+		getTopviewGraph()->executeCommand(command);
+
+		OpenScenario::oscPrivateAction *oscPrivateAction = oscEditor_->getOrCreatePrivateAction(oscObject_->name.getValue());
+		OpenScenario::oscPrivate *oscPrivate = static_cast<OpenScenario::oscPrivate *>(oscPrivateAction->getParentObj());
+		arrayMember = dynamic_cast<OpenScenario::oscArrayMember *>(oscPrivate->getOwnMember());
+		if (arrayMember)
+		{
+			RemoveOSCArrayMemberCommand *command = new RemoveOSCArrayMemberCommand(arrayMember, arrayMember->findObjectIndex(oscPrivate), NULL);
+			getTopviewGraph()->executeCommand(command);
+		}
+
+		undoStack->endMacro();
+		
+	}
 
 	return false;
 }
@@ -340,6 +382,8 @@ void
 OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     pressPos_ = lastPos_ = event->scenePos();
+	closestRoad_ = road_;
+
     ODD::ToolId tool = oscEditor_->getCurrentTool(); // Editor Delete Signal
     if (tool == ODD::TSG_DEL)
     {
@@ -370,9 +414,9 @@ OSCItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 
 		QPointF newPos = event->scenePos();
-		path_->translate(newPos-lastPos_);
+		QPointF diff = newPos - lastPos_;
+		oscEditor_->move(diff);
 		lastPos_ = newPos;
-		setPath(*path_);
 
 		QVector2D vec;
 
@@ -403,9 +447,8 @@ OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		double diff = (lastPos_ - pressPos_).manhattanLength();
 		if (diff > 0.01) // otherwise item has not been moved by intention
 		{
-			bool parentChanged = oscEditor_->translateObject(oscPrivateAction_, closestRoad_->getID(), s_, t_);
-			pos_ += lastPos_ - pressPos_;
-
+			QPointF diff = lastPos_ - pressPos_;
+			oscEditor_->translate(diff);
 		}
 		else
 		{
@@ -488,9 +531,15 @@ OSCItem::updateObserver()
         //
         if (oscTextItem_)
         {
-            oscTextItem_->updateText(updateName());
-        }
-    }
+			oscTextItem_->updateText(updateName());
+		}
+
+		road_ = roadSystem_->getRoad(QString::fromStdString(oscRoad_->roadId.getValue()));
+		path_.translate(-pos_);
+		s_ = oscRoad_->s.getValue();
+		t_ = oscRoad_->t.getValue();
+		updatePosition();
+	}
 
     // Signal //
     //

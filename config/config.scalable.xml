@@ -382,8 +382,6 @@
    <NumBlendingTextures value="2" />
    <Stereo value="false" />
    <WindowConfig>
-    <OpenGL3 value="false" />
-
     <Window ARCH="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" />
    </WindowConfig>
 

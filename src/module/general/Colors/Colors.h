@@ -68,8 +68,12 @@ private:
     coInputPort *p_data, *p_cmapIn, *p_alphaIn, *p_histoIn;
     coOutputPort *p_color, *p_texture, *p_cmapOut;
 
+#ifdef NO_COLORMAP_PARAM
+    coChoiceParam *p_colorNames;
+#else
     coColormapParam *p_colorMap;
     coColormapChoiceParam *p_colorNames;
+#endif
 
     //coChoiceParam       *p_selectMap;
     coFloatVectorParam *p_minmax;

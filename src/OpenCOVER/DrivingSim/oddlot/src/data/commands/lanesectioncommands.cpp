@@ -1054,7 +1054,7 @@ SplitLaneSectionCommand::SplitLaneSectionCommand(LaneSection *laneSection, doubl
 
     // New section //
     //
-    newSection_ = new LaneSection(splitPos, laneSection);
+    newSection_ = new LaneSection(splitPos, oldSection_->getSide(), laneSection);
 
     // Done //
     //
@@ -1389,7 +1389,7 @@ LaneWidthMovePointsCommand::redo()
         double endWidth = section->getWidth(section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart()) + deltaPos_.y();
         if (endWidth < 0)
             endWidth = 0;
-        double slope = (endWidth - startWidth) / (section->getLength() - section->getParentLane()->getParentLaneSection()->getSStart());
+		double slope = (endWidth - startWidth) / section->getLength();
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }
@@ -1400,10 +1400,9 @@ LaneWidthMovePointsCommand::redo()
         startWidth += deltaPos_.y();
         if (startWidth < 0)
             startWidth = 0;
-        double s = section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart();
+
         double endWidth = section->getWidth(section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart());
-       
-        double slope = (endWidth - startWidth) / (section->getLength() - section->getParentLane()->getParentLaneSection()->getSStart());
+		double slope = (endWidth - startWidth) / section->getLength();
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }
@@ -1570,6 +1569,7 @@ LaneSetWidthCommand::redo()
         double endWidth = newWidth;
         if (!absoluteWidth)
             endWidth = newWidth;
+		double l = section->getLength();
         double slope = (endWidth - startWidth) / (section->getLength());
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
@@ -1580,8 +1580,9 @@ LaneSetWidthCommand::redo()
         double startWidth = newWidth;
         if (!absoluteWidth)
             startWidth = newWidth;
-        double endWidth = section->getWidth(section->getSSectionEnd());
-        double slope = (endWidth - startWidth) / (section->getLength());
+		double l = section->getLength();
+        double endWidth = section->getWidth(l);
+        double slope = (endWidth - startWidth) / l;
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }

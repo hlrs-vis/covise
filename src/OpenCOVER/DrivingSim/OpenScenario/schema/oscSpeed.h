@@ -25,10 +25,11 @@ class OPENSCENARIOEXPORT oscSpeed : public oscObjectBase
 public:
 oscSpeed()
 {
-        OSC_OBJECT_ADD_MEMBER(SpeedDynamics, "oscSpeedDynamics", 0);
+        OSC_OBJECT_ADD_MEMBER(Dynamics, "oscSpeedDynamics", 0);
         OSC_OBJECT_ADD_MEMBER(Target, "oscTarget", 0);
     };
-    oscSpeedDynamicsMember SpeedDynamics;
+        const char *getScope(){return "/OSCPrivateAction/Longitudinal";};
+    oscSpeedDynamicsMember Dynamics;
     oscTargetMember Target;
 
 };

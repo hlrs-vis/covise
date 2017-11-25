@@ -36,6 +36,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRAnimationManager.h>
+#include <cover/coVRNavigationManager.h>
 #include <string>
 #ifndef WIN32
 #include <sys/time.h>
@@ -78,6 +79,9 @@
 #include <osgcaveui/CUI.h>
 
 #include "PDBPlugin.h"
+#ifdef WIN32
+#pragma warning (disable : 4018)
+#endif
 
 using namespace osg;
 using namespace osgDB;
@@ -254,14 +258,14 @@ bool PDBPlugin::init()
     }
 
     //set pdb url
-    const char *pdbURL = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBUrl").c_str();
-    if (pdbURL)
+    auto pdbURL = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBUrl");
+    if (pdbURL.empty())
     {
-        pdburl = pdbURL;
+        pdburl = "www.pdb.org/pdb/files/";
     }
     else
     {
-        pdburl = "www.pdb.org/pdb/files/";
+        pdburl = pdbURL.c_str();
     }
 
     //set animation url
@@ -1359,11 +1363,8 @@ void PDBPlugin::updateOSGCaveUI()
 /// Called before each frame
 void PDBPlugin::preFrame()
 {
-    coMenuItem *test = cover->getBuiltInFunctionMenuItem("XForm");
-    if (((coCheckboxMenuItem *)test)->getState()) // check for menu mode
-        setAllMovable(true);
-    else
-        setAllMovable(false);
+    auto mode = coVRNavigationManager::instance()->getMode();
+    setAllMovable(mode == coVRNavigationManager::XForm);
 
     // check if the show panel should be visible
     nameHandle->setVisible(nameVisibleCheckbox->getState());

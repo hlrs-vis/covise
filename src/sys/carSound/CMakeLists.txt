@@ -17,11 +17,6 @@ INCLUDE_DIRECTORIES(
 SET(CS_SOURCES
   main.cpp
   mainWindow.cpp
-  asio.cpp
-  asiodrivers.cpp
-  asiolist.cpp
-  SoundSample.cpp
-  SoundSweep.cpp
   ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.cpp
   EventSoundSample.cpp
 )

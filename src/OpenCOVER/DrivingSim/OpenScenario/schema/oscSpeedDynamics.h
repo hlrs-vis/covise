@@ -32,11 +32,16 @@ public:
 oscSpeedDynamics()
 {
         OSC_ADD_MEMBER(shape, 0);
-        OSC_ADD_MEMBER(rate, 0);
+        OSC_ADD_MEMBER_OPTIONAL(rate, 0);
+        OSC_ADD_MEMBER_OPTIONAL(time, 0);
+        OSC_ADD_MEMBER_OPTIONAL(distance, 0);
         shape.enumType = Enum_Dynamics_shapeType::instance();
     };
+        const char *getScope(){return "/OSCPrivateAction/Longitudinal/Speed";};
     oscEnum shape;
     oscDouble rate;
+    oscDouble time;
+    oscDouble distance;
 
     enum Enum_Dynamics_shape
     {

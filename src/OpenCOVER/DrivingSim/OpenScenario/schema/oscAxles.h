@@ -30,6 +30,7 @@ oscAxles()
         OSC_OBJECT_ADD_MEMBER(Rear, "oscAxle", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Additional, "oscAxle", 0);
     };
+        const char *getScope(){return "/OSCVehicle";};
     oscAxleMember Front;
     oscAxleMember Rear;
     oscAxleArrayMember Additional;

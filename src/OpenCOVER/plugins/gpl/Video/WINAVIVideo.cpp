@@ -2,6 +2,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #endif
+#ifdef WIN32
+#pragma warning (disable: 4005)
+#endif
 #include <windows.h>
 #include "WINAVIVideo.h"
 #include "cover/coVRPluginSupport.h"

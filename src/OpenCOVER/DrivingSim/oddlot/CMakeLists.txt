@@ -1,4 +1,4 @@
-#cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.6)
 #project (oddlot)
 
 #OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)
@@ -31,6 +31,7 @@ using(TIFF)
 using(JPEG)
 using(PROJ4)
 USING(BOOST)
+using(OpenScenario)
 
 #INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
@@ -39,9 +40,7 @@ USING(BOOST)
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${PROJ4_LIBRARIES})
 
 #INCLUDE_DIRECTORIES($ENV{COVISEDIR}/src/tools/oddlot)
-INCLUDE_DIRECTORIES(
-   ../OpenScenario
-)
+
 ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
 ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
 
@@ -356,6 +355,16 @@ SET(ODDLOT_SOURCES
 	src/graph/items/oscsystem/osctextitem.cpp
 	src/graph/graphviewitems/graphviewshapeitem.cpp
 	src/gui/oscsettings.cpp
+	src/data/georeference.cpp
+	src/data/roadsystem/track/trackelementcubiccurve.cpp
+	src/data/roadsystem/sections/shapesection.cpp
+	src/data/roadsystem/rsystemelementjunctiongroup.cpp
+	src/data/roadsystem/sections/laneborder.cpp
+	src/data/roadsystem/sections/lanerule.cpp
+	src/data/roadsystem/sections/laneaccess.cpp
+	src/data/roadsystem/sections/parkingspaceobject.cpp
+	src/data/roadsystem/sections/objectreference.cpp
+	src/data/roadsystem/sections/signalreference.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -732,7 +741,6 @@ add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_H
 qt_use_modules(oddlot Core Widgets Gui Network Xml)
 TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS}
-   coOpenScenario
 ) 
 
 source_group("testit" FILES src/cover/coverconnection.cpp coverconnection.cpp .*cover.*)

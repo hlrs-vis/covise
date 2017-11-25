@@ -500,6 +500,8 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoColormap *colmap = (coDoColormap *)co;
                 size = colmap->getNumSteps();
                 farr[0] = colmap->getAddress();
+                min_[0] = colmap->getMin();
+                max_[0] = colmap->getMax();
                 if (const char *min = colmap->getAttribute("MIN"))
                 {
                     std::stringstream s(min);
@@ -515,7 +517,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     addInt(size);
                     addFloat(min_[0]);
                     addFloat(max_[0]);
-                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[0], 5 * size * sizeof(float));
                 }
             }
             else
@@ -584,8 +586,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         {
             copyInt(geometryFlag);
         }
-
-        if (strcmp(type, "SETELE") == 0)
+        else if (strcmp(type, "SETELE") == 0)
         {
             copyInt(size);
         }
@@ -795,8 +796,8 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             copyInt(size);
             copyFloat(min_[0]);
             copyFloat(max_[0]);
-            farr[0] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[5 * size];
+            memcpy(farr[0], tb.getBinary(5 * size * sizeof(float)), 5 * size * sizeof(float));
         }
     }
 }
@@ -1398,6 +1399,7 @@ const float *CoviseRenderObject::getFloat(Field::Id idx) const
 
     switch (idx)
     {
+    case Field::ColorMap:
     case Field::X:
     case Field::Red:
         return farr[0];

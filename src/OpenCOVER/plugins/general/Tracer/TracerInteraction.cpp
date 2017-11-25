@@ -5,16 +5,21 @@
 
  * License: LGPL 2+ */
 
+#ifdef WIN32
+#pragma warning(disable : 4996)
+#endif
+
 #include "TracerInteraction.h"
 #include "TracerLine.h"
 #include "TracerPlane.h"
 #include "TracerFreePoints.h"
 #include "TracerPlugin.h"
 #ifdef USE_COVISE
-#include "../../covise/COVISE/SmokeGeneratorSolutions.h"
-#include "alg/coUniTracer.h"
+#include <CovisePluginUtil/SmokeGeneratorSolutions.h>
+#include <alg/coUniTracer.h>
 #endif
 
+#ifdef VRUI
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -23,6 +28,13 @@
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#else
+#include <cover/ui/Button.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/SelectionList.h>
+#endif
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coInteractor.h>
@@ -61,23 +73,9 @@ TracerInteraction::TracerInteraction(const RenderObject *container, coInteractor
     , traceLenMin_(0.f)
     , traceLenMax_(1.f)
     , traceLen_(1.f)
-    , _taskTypeButton(NULL)
-    , _taskTypeMenu(NULL)
-    , _streamlinesCheckbox(NULL)
-    , _particlesCheckbox(NULL)
-    , _pathlinesCheckbox(NULL)
-    , _streaklinesCheckbox(NULL)
-    , _taskTypeGroup(NULL)
     , _numTaskTypes(0)
     , _taskTypeNames(NULL)
     , _selectedTaskType(0)
-    , _startStyleButton(NULL)
-    , _startStyleMenu(NULL)
-    , _planeCheckbox(NULL)
-    , _lineCheckbox(NULL)
-    , _freeCheckbox(NULL)
-    , _cylinderCheckbox(NULL)
-    , _startStyleGroup(NULL)
     , _numStartStyles(0)
     , _startStyleNames(NULL)
     , _selectedStartStyle(0)
@@ -251,9 +249,12 @@ TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
         {
             if (cover->debugLevel(4))
                 fprintf(stderr, "adding checkbox Smoke to menu\n");
-            smokeCheckbox_ = new coCheckboxMenuItem("Smoke", 0);
-            smokeCheckbox_->setMenuListener(this);
-            if (_lineCheckbox->getState() || _planeCheckbox->getState())
+            smokeCheckbox_ = new ui::Button("Smoke", this);
+            smokeCheckbox_->setState(false);
+            smokeCheckbox_->setCallback([this](bool state){
+                showSmoke_ = state;
+            });
+            if (_startStyle->selectedIndex() == STARTSTYLE_LINE || _startStyle->selectedIndex() == STARTSTYLE_PLANE)
             {
                 menu_->add(smokeCheckbox_);
                 smokeInMenu_ = true;
@@ -265,13 +266,16 @@ TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
         if (debugSmoke_)
             fprintf(stderr, "grid and velo not available\n");
 
-        if ((_lineCheckbox->getState() || _planeCheckbox->getState()) && smokeCheckbox_ && smokeInMenu_)
+        if ((_startStyle->selectedIndex() == STARTSTYLE_LINE || _startStyle->selectedIndex() == STARTSTYLE_PLANE)
+                && smokeCheckbox_ && smokeInMenu_)
+        {
             menu_->remove(smokeCheckbox_);
+        }
         delete smokeCheckbox_;
         smokeCheckbox_ = NULL;
     }
 
-    if (hideCheckbox_->getState())
+    if (hideCheckbox_->state())
     {
         hideGeometry(true);
         hideSmoke();
@@ -298,87 +302,103 @@ TracerInteraction::createMenuContents()
         fprintf(stderr, "TracerInteraction::createMenuContents\n");
 
     bool hide = coCoviseConfig::isOn("COVER.Plugin.Tracer.Hide", false);
-    if (hide)
-    {
-        hideCheckbox_->setState(hide, true);
-    }
+    hideCheckbox_->setState(hide);
+    hideCheckbox_->trigger();
 
-    _numStartPointsPoti = new coPotiMenuItem(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);
-    _numStartPointsPoti->setInteger(true);
-    _numStartPointsPoti->setMenuListener(this);
-    menu_->add(_numStartPointsPoti);
+    _numStartPointsPoti = new ui::Slider(menu_, "NumStartPoints");
+    _numStartPointsPoti->setPresentation(ui::Slider::AsDial);
+    _numStartPointsPoti->setIntegral(true);
+    _numStartPointsPoti->setCallback([this](double value, bool released){
+        _numStartPoints = (int)value;
+        inter_->setSliderParam(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);
+        if (released)
+            inter_->executeModule();
+    });
 
-    traceLenPoti_ = new coPotiMenuItem(P_TRACE_LEN, 0, 5 * traceLen_, traceLen_);
-    traceLenPoti_->setMenuListener(this);
-    menu_->add(traceLenPoti_);
-
-    _taskTypeButton = NULL;
-    _taskTypeMenu = NULL;
-    _taskTypeGroup = NULL;
-    _streamlinesCheckbox = NULL;
-    _particlesCheckbox = NULL;
-    _pathlinesCheckbox = NULL;
-    _streaklinesCheckbox = NULL;
+    traceLenPoti_ = new ui::Slider(menu_, P_TRACE_LEN);
+    traceLenPoti_->setCallback([this](double value, bool released){
+        traceLen_ = value;
+        inter_->setScalarParam(P_TRACE_LEN, traceLen_);
+        if (released)
+            inter_->executeModule();
+    });
 
     if (isComplex)
     {
-        _taskTypeButton = new coSubMenuItem("TaskType:---");
-        _taskTypeButton->setMenuListener(this);
-        _taskTypeMenu = new coRowMenu("TaskType", menu_);
-        _taskTypeGroup = new coCheckboxGroup(false);
-
-        _streamlinesCheckbox = new coCheckboxMenuItem("Streamlines", false, _taskTypeGroup);
-        _streamlinesCheckbox->setMenuListener(this);
-
-        _particlesCheckbox = new coCheckboxMenuItem("Moving Points", false, _taskTypeGroup);
-        _particlesCheckbox->setMenuListener(this);
-
-        _pathlinesCheckbox = new coCheckboxMenuItem("Pathlines", false, _taskTypeGroup);
-        _pathlinesCheckbox->setMenuListener(this);
-
-        _streaklinesCheckbox = new coCheckboxMenuItem("StreakLines", false, _taskTypeGroup);
-        _streaklinesCheckbox->setMenuListener(this);
-
-        _taskTypeButton->setMenu(_taskTypeMenu);
-        menu_->add(_taskTypeButton);
-
-        _taskTypeMenu->add(_streamlinesCheckbox);
-        _taskTypeMenu->add(_particlesCheckbox);
-        _taskTypeMenu->add(_pathlinesCheckbox);
-        _taskTypeMenu->add(_streaklinesCheckbox);
+        _taskType = new ui::SelectionList(menu_, "TaskType");
+        _taskType->setText("Task type");
+        _taskType->append("Streamlines");
+        _taskType->append("Moving points");
+        _taskType->append("Pathlines");
+        _taskType->append("Streaklines");
+        _taskType->select(0);
+        _taskType->setCallback([this](int idx){
+            inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, idx);
+            inter_->executeModule();
+        });
     }
-    _startStyleButton = new coSubMenuItem("StartStyle:---");
-    _startStyleButton->setMenuListener(this);
-    _startStyleMenu = new coRowMenu("StartStyle", menu_);
-    _startStyleGroup = new coCheckboxGroup(false);
-
-    _planeCheckbox = new coCheckboxMenuItem("Plane", false, _startStyleGroup);
-    _planeCheckbox->setMenuListener(this);
-
-    _lineCheckbox = new coCheckboxMenuItem("Line", false, _startStyleGroup);
-    _lineCheckbox->setMenuListener(this);
-    _cylinderCheckbox = NULL;
-    _freeCheckbox = NULL;
+    _startStyle = new ui::SelectionList(menu_, "StartStyle");
+    _startStyle->setText("Start style");
+    _startStyle->append("Line");
+    _startStyle->append("Plane");
     if (isComplex)
     {
-        _freeCheckbox = new coCheckboxMenuItem("Free", false, _startStyleGroup);
-        _freeCheckbox->setMenuListener(this);
+        _startStyle->append("Free");
     }
     else
     {
-        _cylinderCheckbox = new coCheckboxMenuItem("Cylinder", false, _startStyleGroup);
-        _cylinderCheckbox->setMenuListener(this);
+        _startStyle->append("Cylinder");
     }
+    _startStyle->setCallback([this](int idx){
+        if (idx == STARTSTYLE_PLANE)
+        {
+            inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_PLANE);
+            _selectedStartStyle = STARTSTYLE_PLANE;
+            updatePickInteractors(showPickInteractor_);
+            updateDirectInteractors(showDirectInteractor_);
+            if (smokeCheckbox_ && !smokeInMenu_)
+            {
+                menu_->add(smokeCheckbox_);
+                smokeInMenu_ = true;
+            }
 
-    _startStyleButton->setMenu(_startStyleMenu);
-    menu_->add(_startStyleButton);
+            if (smokeCheckbox_ && !smokeInMenu_)
+            {
+                menu_->add(smokeCheckbox_);
+                smokeInMenu_ = true;
+            }
+            inter_->executeModule();
+        }
+        else if (idx == STARTSTYLE_LINE)
+        {
+            inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_LINE);
+            _selectedStartStyle = STARTSTYLE_LINE;
+            updatePickInteractors(showPickInteractor_);
+            updateDirectInteractors(showDirectInteractor_);
+            if (smokeCheckbox_ && !smokeInMenu_)
+            {
+                menu_->add(smokeCheckbox_);
+                smokeInMenu_ = true;
+            }
+            inter_->executeModule();
+        }
+        else if (idx == STARTSTYLE_FREE && isComplex)
+        {
+            inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_FREE);
+            _selectedStartStyle = STARTSTYLE_FREE;
+            updatePickInteractors(showPickInteractor_);
+            updateDirectInteractors(showDirectInteractor_);
 
-    _startStyleMenu->add(_planeCheckbox);
-    _startStyleMenu->add(_lineCheckbox);
-    if (_freeCheckbox)
-        _startStyleMenu->add(_freeCheckbox);
-    if (_cylinderCheckbox)
-        _startStyleMenu->add(_cylinderCheckbox);
+            if (smokeCheckbox_ && smokeInMenu_)
+            {
+                menu_->remove(smokeCheckbox_);
+                smokeInMenu_ = false;
+            }
+            inter_->executeModule();
+        }
+    });
+
+    updateMenuContents();
 }
 
 void
@@ -387,140 +407,40 @@ TracerInteraction::updateMenuContents()
     if (cover->debugLevel(4))
         fprintf(stderr, "TracerInteraction::updateMenuContents \n");
 
-    _numStartPointsPoti->setMin(_numStartPointsMin);
-    _numStartPointsPoti->setMax(_numStartPointsMax);
+    _numStartPointsPoti->setBounds(_numStartPointsMin, _numStartPointsMax);
     _numStartPointsPoti->setValue(_numStartPoints);
 
-    traceLenPoti_->setMin(0);
-    traceLenPoti_->setMax(5 * traceLen_);
+    if (traceLen_ > 1e-6)
+        traceLenPoti_->setBounds(0., 5*traceLen_);
+    else
+        traceLenPoti_->setBounds(0., 1.);
     traceLenPoti_->setValue(traceLen_);
-    if (isComplex)
+    if (_taskType)
+        _taskType->select(_selectedTaskType);
+    _startStyle->select(_selectedStartStyle);
+
+    updatePickInteractors(showPickInteractor_);
+    updateDirectInteractors(showDirectInteractor_);
+
+    if (_selectedStartStyle == STARTSTYLE_LINE || _selectedStartStyle == STARTSTYLE_PLANE)
     {
-        switch (_selectedTaskType)
+        if (smokeCheckbox_ && !smokeInMenu_)
         {
-        case TASKTYPE_STREAMLINES:
-            _streamlinesCheckbox->setState(true);
-            _particlesCheckbox->setState(false);
-            _pathlinesCheckbox->setState(false);
-            _streaklinesCheckbox->setState(false);
-            _taskTypeButton->setName("TaskType: Streamlines");
-            break;
-
-        case TASKTYPE_PARTICLES:
-            _particlesCheckbox->setState(true);
-            _streamlinesCheckbox->setState(false);
-            _pathlinesCheckbox->setState(false);
-            _streaklinesCheckbox->setState(false);
-
-            _taskTypeButton->setName("TaskType: Moving Points");
-            break;
-
-        case TASKTYPE_PATHLINES:
-            _pathlinesCheckbox->setState(true);
-            _streamlinesCheckbox->setState(false);
-            _particlesCheckbox->setState(false);
-            _streaklinesCheckbox->setState(false);
-
-            _taskTypeButton->setName("TaskType: Pathlines");
-            break;
-
-        case TASKTYPE_STREAKLINES:
-            _streaklinesCheckbox->setState(true);
-            _streamlinesCheckbox->setState(false);
-            _particlesCheckbox->setState(false);
-            _pathlinesCheckbox->setState(false);
-            _taskTypeButton->setName("TaskType: Streaklines");
-            break;
+            menu_->add(smokeCheckbox_);
+            smokeInMenu_ = true;
+        }
+        if (smokeCheckbox_ && !smokeInMenu_)
+        {
+            menu_->add(smokeCheckbox_);
+            smokeInMenu_ = true;
         }
     }
-
-    switch (_selectedStartStyle)
+    else
     {
-    case STARTSTYLE_PLANE:
-        _planeCheckbox->setState(true);
-        _lineCheckbox->setState(false);
-        if (_freeCheckbox)
-            _freeCheckbox->setState(false);
-        if (_cylinderCheckbox)
-            _cylinderCheckbox->setState(false);
-        _startStyleButton->setName("StartStyle: Plane");
-
-        updatePickInteractors(showPickInteractor_);
-        updateDirectInteractors(showDirectInteractor_);
-
-        if (smokeCheckbox_ && !smokeInMenu_)
+        if (smokeCheckbox_ && smokeInMenu_)
         {
-            menu_->add(smokeCheckbox_);
-            smokeInMenu_ = true;
-        }
-        if (smokeCheckbox_ && !smokeInMenu_)
-        {
-            menu_->add(smokeCheckbox_);
-            smokeInMenu_ = true;
-        }
-        break;
-
-    case STARTSTYLE_LINE:
-
-        _lineCheckbox->setState(true);
-        _planeCheckbox->setState(false);
-        if (_freeCheckbox)
-            _freeCheckbox->setState(false);
-        if (_cylinderCheckbox)
-            _cylinderCheckbox->setState(false);
-        _startStyleButton->setName("StartStyle: Line");
-        updatePickInteractors(showPickInteractor_);
-        updateDirectInteractors(showDirectInteractor_);
-
-        if (smokeCheckbox_ && !smokeInMenu_)
-        {
-            menu_->add(smokeCheckbox_);
-            smokeInMenu_ = true;
-        }
-        break;
-
-    case STARTSTYLE_FREE:
-
-        if (isComplex)
-        {
-            if (_freeCheckbox)
-                _freeCheckbox->setState(true);
-            _planeCheckbox->setState(false);
-            _lineCheckbox->setState(false);
-            if (_cylinderCheckbox)
-                _cylinderCheckbox->setState(false);
-            _startStyleButton->setName("StartStyle: Free");
-            updatePickInteractors(showPickInteractor_);
-            updateDirectInteractors(showDirectInteractor_);
-
-            if (smokeCheckbox_ && smokeInMenu_)
-            {
-                menu_->remove(smokeCheckbox_);
-                smokeInMenu_ = false;
-            }
-
-            break;
-        }
-        else
-        {
-
-            if (_freeCheckbox)
-                _freeCheckbox->setState(false);
-            _planeCheckbox->setState(false);
-            _lineCheckbox->setState(false);
-            if (_cylinderCheckbox)
-                _cylinderCheckbox->setState(true);
-            _startStyleButton->setName("StartStyle: Cylinder");
-            updatePickInteractors(showPickInteractor_);
-            updateDirectInteractors(showDirectInteractor_);
-
-            if (smokeCheckbox_ && smokeInMenu_)
-            {
-                menu_->remove(smokeCheckbox_);
-                smokeInMenu_ = false;
-            }
-
-            break;
+            menu_->remove(smokeCheckbox_);
+            smokeInMenu_ = false;
         }
     }
 }
@@ -528,25 +448,6 @@ TracerInteraction::updateMenuContents()
 void
 TracerInteraction::deleteMenuContents()
 {
-
-    delete _numStartPointsPoti;
-    delete traceLenPoti_;
-
-    delete _taskTypeButton;
-    delete _taskTypeMenu;
-    delete _streamlinesCheckbox;
-    delete _particlesCheckbox;
-    delete _pathlinesCheckbox;
-    delete _streaklinesCheckbox;
-    delete _taskTypeGroup;
-
-    delete _startStyleButton;
-    delete _startStyleMenu;
-    delete _planeCheckbox;
-    delete _lineCheckbox;
-    delete _freeCheckbox;
-    delete _cylinderCheckbox;
-    delete _startStyleGroup;
 }
 
 void
@@ -559,14 +460,14 @@ TracerInteraction::preFrame()
     // in update the new geometry is not in the sg, either use addNode or delay it to preFrame
     if (newObject_ && hideCheckbox_ != NULL)
     {
-        menuEvent(hideCheckbox_);
+        hideCheckbox_->trigger();
         newObject_ = false;
     }
     _tPlane->preFrame();
     _tLine->preFrame();
     _tFree->preFrame();
 
-    if (smokeCheckbox_ && smokeCheckbox_->getState())
+    if (smokeCheckbox_ && smokeCheckbox_->state())
     {
         if (_tLine->wasStarted() || _tPlane->wasStarted())
         {
@@ -737,163 +638,6 @@ TracerInteraction::updateSmokePlane()
 #endif
 }
 
-void
-TracerInteraction::menuEvent(coMenuItem *item)
-{
-
-    if (cover->debugLevel(4))
-        fprintf(stderr, "TracerInteraction::menuEvent %s\n", item->getName());
-    if (item == _numStartPointsPoti)
-    {
-        _numStartPoints = (int)_numStartPointsPoti->getValue();
-        inter_->setSliderParam(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);
-        if (cover->getPointerButton()->wasReleased())
-            inter_->executeModule();
-    }
-
-    else if (item == traceLenPoti_)
-    {
-        traceLen_ = traceLenPoti_->getValue();
-        inter_->setScalarParam(P_TRACE_LEN, traceLen_);
-        if (cover->getPointerButton()->wasReleased())
-            inter_->executeModule();
-    }
-
-    else if (item == _streamlinesCheckbox)
-    {
-        _taskTypeButton->setName("TaskType: Streamlines");
-        _taskTypeButton->closeSubmenu();
-        inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, TASKTYPE_STREAMLINES);
-
-        inter_->executeModule();
-    }
-    else if (item == _particlesCheckbox)
-    {
-        _taskTypeButton->setName("TaskType: Moving Point");
-        _taskTypeButton->closeSubmenu();
-        inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, TASKTYPE_PARTICLES);
-
-        inter_->executeModule();
-    }
-
-    else if (item == _pathlinesCheckbox)
-    {
-        _taskTypeButton->setName("TaskType: Pathlines");
-        _taskTypeButton->closeSubmenu();
-        inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, TASKTYPE_PATHLINES);
-
-        inter_->executeModule();
-    }
-
-    else if (item == _streaklinesCheckbox)
-    {
-        _taskTypeButton->setName("TaskType: Streaklines");
-        _taskTypeButton->closeSubmenu();
-        inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, TASKTYPE_STREAKLINES);
-
-        inter_->executeModule();
-    }
-
-    else if (item == _planeCheckbox)
-    {
-        _startStyleButton->setName("StartStyle: Plane");
-        _startStyleButton->closeSubmenu();
-        inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_PLANE);
-        _selectedStartStyle = STARTSTYLE_PLANE;
-        updatePickInteractors(showPickInteractor_);
-        updateDirectInteractors(showDirectInteractor_);
-        if (smokeCheckbox_ && !smokeInMenu_)
-        {
-            menu_->add(smokeCheckbox_);
-            smokeInMenu_ = true;
-        }
-
-        if (smokeCheckbox_ && !smokeInMenu_)
-        {
-            menu_->add(smokeCheckbox_);
-            smokeInMenu_ = true;
-        }
-
-        inter_->executeModule();
-    }
-
-    else if (item == _lineCheckbox)
-    {
-        _startStyleButton->setName("StartStyle: Line");
-        _startStyleButton->closeSubmenu();
-        inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_LINE);
-        _selectedStartStyle = STARTSTYLE_LINE;
-        updatePickInteractors(showPickInteractor_);
-        updateDirectInteractors(showDirectInteractor_);
-        if (smokeCheckbox_ && !smokeInMenu_)
-        {
-            menu_->add(smokeCheckbox_);
-            smokeInMenu_ = true;
-        }
-
-        inter_->executeModule();
-    }
-
-    else if (item == _freeCheckbox)
-    {
-        _startStyleButton->setName("StartStyle: Free");
-        _startStyleButton->closeSubmenu();
-        inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_FREE);
-        _selectedStartStyle = STARTSTYLE_FREE;
-        updatePickInteractors(showPickInteractor_);
-        updateDirectInteractors(showDirectInteractor_);
-
-        if (smokeCheckbox_ && smokeInMenu_)
-        {
-            menu_->remove(smokeCheckbox_);
-            smokeInMenu_ = false;
-        }
-        inter_->executeModule();
-    }
-
-    else if (smokeCheckbox_)
-    {
-        if (smokeCheckbox_->getState())
-        {
-            showSmoke_ = true;
-        }
-        else
-        {
-            showSmoke_ = false;
-        }
-    }
-
-    else // other menu actions are treated by the base class
-    {
-        ModuleInteraction::menuEvent(item);
-    }
-}
-
-void
-TracerInteraction::menuReleaseEvent(coMenuItem *item)
-{
-
-    if (item == _numStartPointsPoti)
-    {
-        if (cover->debugLevel(3))
-            fprintf(stderr, "TracerInteraction::menuReleaseEvent for _numStartPointsPoti\n");
-
-        _numStartPoints = (int)_numStartPointsPoti->getValue();
-        inter_->setSliderParam(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);
-        inter_->executeModule();
-    }
-
-    if (item == traceLenPoti_)
-    {
-        if (cover->debugLevel(3))
-            fprintf(stderr, "TracerInteraction::menuReleaseEvent for traceLenPointsPoti\n");
-
-        traceLen_ = traceLenPoti_->getValue();
-        inter_->setScalarParam(P_TRACE_LEN, traceLen_);
-        inter_->executeModule();
-    }
-}
-
 /*
 void TracerInteraction::setNew()
 {
@@ -975,7 +719,7 @@ void TracerInteraction::updatePickInteractorVisibility()
 {
 
     // if geometry is hidden, hide also interactor
-    updatePickInteractors(!hideCheckbox_->getState() && showPickInteractorCheckbox_->getState());
+    updatePickInteractors(!hideCheckbox_->state() && showPickInteractorCheckbox_->state());
 }
 
 void
@@ -1026,7 +770,7 @@ TracerInteraction::setDirectionFromGui(float x, float y, float z)
     {
         Vec3 pos(x, y, z);
         _tPlane->setDirection(pos);
-        if (smokeCheckbox_ && smokeCheckbox_->getState())
+        if (smokeCheckbox_ && smokeCheckbox_->state())
         {
             if (guiSliderFirsttime_)
             {
@@ -1098,7 +842,7 @@ TracerInteraction::setShowSmokeFromGui(bool state)
     {
         if (state)
         {
-            if (!smokeCheckbox_->getState())
+            if (!smokeCheckbox_->state())
             {
                 ////smokeCheckbox_->setState(true, true);
                 smokeCheckbox_->setState(true);
@@ -1106,7 +850,7 @@ TracerInteraction::setShowSmokeFromGui(bool state)
         }
         else
         {
-            if (smokeCheckbox_->getState())
+            if (smokeCheckbox_->state())
             {
                 smokeCheckbox_->setState(false);
             }
@@ -1152,7 +896,7 @@ TracerInteraction::interactorSetCaseFromGui(const char *caseName)
 
 void TracerInteraction::updatePickInteractors(bool show)
 {
-    if (show && !hideCheckbox_->getState())
+    if (show && !hideCheckbox_->state())
     {
         if (_selectedStartStyle == STARTSTYLE_LINE)
         {

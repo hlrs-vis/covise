@@ -17,12 +17,17 @@ def printHelp():
 	print "          hdmi      - select HDMI input"
 	print "          vwall_on  - video wall on"
 	print "          vwall_off - video wall off"
+	print "          kenwoodMute - toggle receiver mute"
+	print "          kenwoodVolUp - increase receiver volume"
+	print "          kenwoodVolDown - decrease receiver volume"
+	print "          kenwoodVideo - switch receiver input to Video 1"
+	print "          kenwoodAux - switch receiver input to Aux"
 
 def main(argv):
 	if (len(sys.argv) == 2):
 		command = sys.argv[1]
 
-		if (command in 'on off 3d_on 3d_off dvi hdmi vwall_on vwall_off'):
+		if (command in 'on off 3d_on 3d_off dvi hdmi vwall_on vwall_off kenwoodMute kenwoodVolUp kenwoodVolDown kenwoodVideo kenwoodAux'):
 			print "UDP target IP:", UDP_IP
 			print "UDP target port:", UDP_PORT
 			print "message:", command

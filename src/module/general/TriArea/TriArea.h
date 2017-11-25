@@ -36,13 +36,14 @@ using namespace covise;
 class TriArea : public coSimpleModule
 {
     static const char *s_defMapNames[];
-    coChoiceParam *p_normalstyle;
-    enum NormalSelectMap
+    coChoiceParam *p_areamode;
+    enum AreaSelectMap
     {
-        BisecLargeAngle = 0,
-        BisecSmallAngle = 1,
-        Orthogonal = 2
-    } normalstyle;
+        TriangleArea = 0,
+        RatioMinToMaxSide = 1,
+        AngleNormalToCamera = 2,
+        SomeThingElse = 3
+    } areamode;
 
 private:
     virtual int compute(const char *port);
@@ -50,10 +51,10 @@ private:
     ////////// ports
     coInputPort *p_inPort;
     coOutputPort *p_outPort;
+    coFloatVectorParam *p_cameraPosition; 
 
     //  Shared memory data
-    coDistributedObject *tri_area(const coDistributedObject *m,
-                                     const char *objName);
+    coDistributedObject *tri_area(const coDistributedObject *m, float *cameraPosition, const char *objName);
 
 public:
     TriArea(int argc, char *argv[]);

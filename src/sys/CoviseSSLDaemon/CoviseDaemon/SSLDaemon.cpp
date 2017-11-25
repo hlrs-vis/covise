@@ -9,11 +9,13 @@
 #include <config/CoviseConfig.h>
 #include <config/coConfigEntryString.h>
 
+#include <string>
 #include <QApplication>
 #include <QListWidget>
 #include <QInputDialog>
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>
+#include <iostream>
 #include <sstream>
 #include <VRBClientList.h>
 #include "string_utils.h"
@@ -48,15 +50,15 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
             std::string line = coCoviseConfig::getEntry("System.CoviseDaemon.DebugFile");
             if (!line.empty())
             {
-                cerr << "SSLDaemon::SSLDaemon(): Value of debug-file: " << line << endl;
+                cerr << "SSLDaemon::SSLDaemon(): Value of debug-file: " << line << "\n";
             }
             else
             {
-                cerr << "SSLDaemon::SSLDaemon(): No config entry for debugFile. Using hardcoded!" << endl;
+                cerr << "SSLDaemon::SSLDaemon(): No config entry for debugFile. Using hardcoded!" << std::endl;
                 line = "CoviseSSLDaemon.log";
             }
 
-            cerr << "SSLDaemon::SSLDaemon(): Used debug-file: " << line << endl;
+            cerr << "SSLDaemon::SSLDaemon(): Used debug-file: " << line << std::endl;
             mFile = new ofstream();
             mFile->open(line.c_str(), ios::out);
             mSBuf = std::cerr.rdbuf();
@@ -64,8 +66,8 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
         }
         else if (coCoviseConfig::isOn("System.CoviseDaemon.EnableInternalDebug", false))
         {
-            cerr << "SSLDaemon::SSLDaemon(): Don't use debug file! Dump to GUI-Listview!" << endl;
-            cerr << "SSLDaemon::SSLDaemon(): Only use with -g!" << endl;
+            cerr << "SSLDaemon::SSLDaemon(): Don't use debug file! Dump to GUI-Listview!" << std::endl;
+            cerr << "SSLDaemon::SSLDaemon(): Only use with -g!" << std::endl;
             mLogInternal = new std::stringstream();
             mSBuf = std::cerr.rdbuf();
             std::cerr.rdbuf(mLogInternal->rdbuf());
@@ -73,8 +75,8 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
     }
     else
     {
-        cerr << "SSLDaemon::SSLDaemon(): Dump to NULL stream!" << endl;
-        cerr << "Use config file to enable debugging to console or file!" << endl;
+        cerr << "SSLDaemon::SSLDaemon(): Dump to NULL stream!" << std::endl;
+        cerr << "Use config file to enable debugging to console or file!" << std::endl;
         mFile = new ofstream();
 #ifdef WIN32
         mFile->open("nul", ios::out);
@@ -86,7 +88,7 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
     }
 
     //Creating base Config objects for storing personal SSLDaemon settings
-    cerr << "SSLDaemon::SSLDaemon(): Preparing basic setup for personal settings storage!" << endl;
+    cerr << "SSLDaemon::SSLDaemon(): Preparing basic setup for personal settings storage!" << std::endl;
     mConfig = new coConfigGroup("SSLDaemon");
     mConfig->addConfig(coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "ssldaemon.xml", "local", true);
     coConfig::getInstance()->addConfig(mConfig);
@@ -96,12 +98,12 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
 
     //Get ACL for Hosts
     listentry = list.begin();
-    cerr << "SSLDaemon::SSLDaemon(): Size of list =  " << list.count() << endl;
+    cerr << "SSLDaemon::SSLDaemon(): Size of list =  " << list.count() << std::endl;
     while (listentry != list.end() && (!list.empty()))
     {
-        cerr << "SSLDaemon::SSLDaemon(): " << (*listentry).toStdString() << endl;
+        cerr << "SSLDaemon::SSLDaemon(): " << (*listentry).toStdString() << std::endl;
         QString value = coConfig::getInstance()->getString("hostname", QString("System.CoviseDaemon.HostACL.") + (*listentry), "");
-        cerr << "SSLDaemon::SSLDaemon(): Hostname = " << value.toStdString() << endl;
+        cerr << "SSLDaemon::SSLDaemon(): Hostname = " << value.toStdString() << std::endl;
         mHostList.push_back(value.toStdString());
         listentry++;
     }
@@ -111,13 +113,13 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
 
     //Get ACL for SubjectUIDs
     listentry = list.begin();
-    cerr << "SSLDaemon::SSLDaemon(): Size of list =  " << list.count() << endl;
+    cerr << "SSLDaemon::SSLDaemon(): Size of list =  " << list.count() << std::endl;
     while (listentry != list.end() && (!list.empty()))
     {
         std::string dump = (*listentry).toStdString();
-        cerr << "SSLDaemon::SSLDaemon(): " << (*listentry).toStdString() << endl;
+        cerr << "SSLDaemon::SSLDaemon(): " << (*listentry).toStdString() << std::endl;
         //QString value = coConfig::getInstance()->getString("UID",QString("System.CoviseDaemon.AllowedUID.") + (*listentry),"");
-        //cerr << "SSLDaemon::SSLDaemon(): Hostname = "<< value.toStdString() << endl;
+        //cerr << "SSLDaemon::SSLDaemon(): Hostname = "<< value.toStdString() << std::endl;
         QString name = coConfig::getInstance()->getString("Name", QString("System.CoviseDaemon.AllowedUID.") + (*listentry), "");
         //mSubjectList.push_back(value.toStdString());
         mSubjectNameList.push_back(name.toStdString());
@@ -125,16 +127,16 @@ SSLDaemon::SSLDaemon(frmMainWindow *window)
     }
     mbCertCheck = coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false);
 
-    cerr << "SSLDaemon::SSLDaemon(): Initialize Controller to NULL..." << endl;
+    cerr << "SSLDaemon::SSLDaemon(): Initialize Controller to NULL..." << std::endl;
     mController = NULL;
 
     mPort = 31090;
-    cerr << "SSLDaemon::SSLDaemon(): Default port " << mPort << "..." << endl;
-    cerr << "SSLDaemon::SSLDaemon(): Determine TCP-Port from Covise Config..." << endl;
+    cerr << "SSLDaemon::SSLDaemon(): Default port " << mPort << "..." << std::endl;
+    cerr << "SSLDaemon::SSLDaemon(): Determine TCP-Port from Covise Config..." << std::endl;
     mPort = coCoviseConfig::getInt("port", "System.CoviseDaemon.Server", mPort);
 
-    cerr << "SSLDaemon::SSLDaemon(): TCP-Port is " << mPort << endl;
-    cerr << "SSLDaemon::SSLDaemon(): Finished constructor!" << endl;
+    cerr << "SSLDaemon::SSLDaemon(): TCP-Port is " << mPort << std::endl;
+    cerr << "SSLDaemon::SSLDaemon(): Finished constructor!" << std::endl;
 
     mbConfirmed = false;
 
@@ -152,18 +154,18 @@ std::string SSLDaemon::ToString(int value)
 
 SSLDaemon::~SSLDaemon(void)
 {
-    cerr << "SSLDaemon::~SSLDaemon(): server connection..." << endl;
+    cerr << "SSLDaemon::~SSLDaemon(): server connection..." << std::endl;
     if (mSBuf)
     {
         std::cerr.rdbuf(mSBuf);
     }
-    cerr << "SSLDaemon::~SSLDaemon(): Clearing memory from objects!" << endl;
+    cerr << "SSLDaemon::~SSLDaemon(): Clearing memory from objects!" << std::endl;
     if (mFile)
     {
         delete mFile;
         mFile = NULL;
     }
-    cerr << "SSLDaemon::~SSLDaemon(): Deleted debugFile name variable!" << endl;
+    cerr << "SSLDaemon::~SSLDaemon(): Deleted debugFile name variable!" << std::endl;
     if (mSSLConn)
     {
         delete mSSLConn;
@@ -172,43 +174,43 @@ SSLDaemon::~SSLDaemon(void)
 
     if (mRequest)
     {
-        cerr << "SSLDaemon::~SSLDaemon(): Deleted User request dialog!" << endl;
+        cerr << "SSLDaemon::~SSLDaemon(): Deleted User request dialog!" << std::endl;
         delete mRequest;
         mRequest = NULL;
     }
 
     if (mConfig)
     {
-        cerr << "SSLDaemon::~SSLDaemon(): Deleted config objects!" << endl;
+        cerr << "SSLDaemon::~SSLDaemon(): Deleted config objects!" << std::endl;
         coConfig::getInstance()->removeConfig("SSLDaemon");
         delete mConfig;
         mConfig = NULL;
     }
 
-    cerr << "SSLDaemon::~SSLDaemon(): closed Server connection" << endl;
-    cerr << "SSLDaemon::~SSLDaemon(): Done!" << endl;
+    cerr << "SSLDaemon::~SSLDaemon(): closed Server connection" << std::endl;
+    cerr << "SSLDaemon::~SSLDaemon(): Done!" << std::endl;
 }
 
 bool SSLDaemon::openServer()
 {
-    cerr << "SSLDaemon::openServer(): Create new server connection..." << endl;
+    cerr << "SSLDaemon::openServer(): Create new server connection..." << std::endl;
     mSSLConn = new SSLServerConnection(mPort, 0, (sender_type)0, sslPasswdCallback, this);
 
     //check for valid SimpleServerConnection object
 
     if (!mSSLConn->getSocket())
     {
-        cerr << "SSLDaemon::openServer(): Creation of server failed!" << endl;
-        cerr << "SSLDaemon::openServer(): Port-Binding failed! Port already bound?" << endl;
+        cerr << "SSLDaemon::openServer(): Creation of server failed!" << std::endl;
+        cerr << "SSLDaemon::openServer(): Port-Binding failed! Port already bound?" << std::endl;
         return false;
     }
 
     //   struct linger linger;
     //   linger.l_onoff = 0;
     //   linger.l_linger = 0;
-    cerr << "SSLDaemon::openServer(): Set socket options..." << endl;
+    cerr << "SSLDaemon::openServer(): Set socket options..." << std::endl;
 
-    cerr << "SSLDaemon::openServer(): Set server to listen mode..." << endl;
+    cerr << "SSLDaemon::openServer(): Set server to listen mode..." << std::endl;
     mSSLConn->listen();
     if (!mSSLConn->is_connected()) // could not open server port
     {
@@ -217,12 +219,12 @@ bool SSLDaemon::openServer()
         mSSLConn = NULL;
         return false;
     }
-    cerr << "SSLDaemon::openServer(): Add server connection to connection list..." << endl;
+    cerr << "SSLDaemon::openServer(): Add server connection to connection list..." << std::endl;
     mConnections = new ConnectionList();
     mConnections->add(mSSLConn);
-    cerr << "SSLDaemon::openServer(): adding" << mSSLConn << endl;
+    cerr << "SSLDaemon::openServer(): adding" << mSSLConn << std::endl;
 
-    cerr << "SSLDaemon::openServer(): Server opened!" << endl;
+    cerr << "SSLDaemon::openServer(): Server opened!" << std::endl;
 
     return 0;
 }
@@ -231,31 +233,31 @@ void SSLDaemon::closeServer()
 {
     do
     {
-        cerr << "SSLDaemon::closeServer(): SSLDaemon still running...!" << endl;
+        cerr << "SSLDaemon::closeServer(): SSLDaemon still running...!" << std::endl;
     } while (mIsRunning);
 
     mConnections->remove(mSSLConn);
-    cerr << "SSLDaemon::closeServer(): Remove server connection from list!" << endl;
+    cerr << "SSLDaemon::closeServer(): Remove server connection from list!" << std::endl;
 
     if (mConnections)
     {
         delete mConnections;
-        cerr << "SSLDaemon::closeServer(): Deleted connection list!" << endl;
+        cerr << "SSLDaemon::closeServer(): Deleted connection list!" << std::endl;
         mConnections = NULL;
     }
 
     if (mSSLConn)
     {
         delete mSSLConn;
-        cerr << "SSLDaemon::closeServer(): Deleted SSL server-connection!" << endl;
+        cerr << "SSLDaemon::closeServer(): Deleted SSL server-connection!" << std::endl;
         mSSLConn = NULL;
     }
-    cerr << "SSLDaemon::closeServer(): Server closed...!" << endl;
+    cerr << "SSLDaemon::closeServer(): Server closed...!" << std::endl;
 }
 
 bool SSLDaemon::run()
 {
-    cerr << "SSLDaemon::run(): Creating network notifier!" << endl;
+    cerr << "SSLDaemon::run(): Creating network notifier!" << std::endl;
     /*QSocketNotifier* locNotifier = new QSocketNotifier(mSSLConn->get_id(NULL),QSocketNotifier::Read);
    mNotifier[mSSLConn] = locNotifier;*/
     /*QObject::connect( locNotifier, SIGNAL(activated(int)), this,  SLOT(processMessagesLegacy()));*/
@@ -266,7 +268,7 @@ bool SSLDaemon::run()
 void SSLDaemon::stop()
 {
     std::map<SSLServerConnection *, QSocketNotifier *>::iterator iter;
-    cerr << "SSLDaemon::stop(): Destroying network notifier!" << endl;
+    cerr << "SSLDaemon::stop(): Destroying network notifier!" << std::endl;
     if (!mNotifier.empty())
     {
         iter = mNotifier.begin();
@@ -304,25 +306,25 @@ void SSLDaemon::processMessagesLegacy()
 {
     mIsRunning = true;
     Connection *locConn = NULL;
-    cerr << "SSLDaemon::processMessagesLegacy():Entered SSLDaemon::processMessages()..." << endl;
-    cerr << "SSLDaemon::processMessagesLegacy():Waiting for data ..." << endl;
+    cerr << "SSLDaemon::processMessagesLegacy():Entered SSLDaemon::processMessages()..." << std::endl;
+    cerr << "SSLDaemon::processMessagesLegacy():Waiting for data ..." << std::endl;
     while (mIsRunning)
     {
         if ((locConn = mConnections->check_for_input(mNetworkpollIntervall)))
         {
             //Spawn new SSL Connection
-            cerr << "SSLDaemon::processMessagesLegacy():Received data ..." << endl;
+            cerr << "SSLDaemon::processMessagesLegacy():Received data ..." << std::endl;
             SSLConnection *locSSLConn = dynamic_cast<SSLConnection *>(locConn);
             if (locSSLConn)
             {
                 if (mSSLConn == locSSLConn)
                 {
                     // Connect on server port --> Spawn new connection to client
-                    cerr << "SSLDaemon::processMessagesLegacy():Connect on SSL server-port!" << endl;
+                    cerr << "SSLDaemon::processMessagesLegacy():Connect on SSL server-port!" << std::endl;
                     SSLServerConnection *newSSLConn = mSSLConn->spawnConnection();
 
                     //Check whether Host is allowed
-                    cerr << "SSLDaemon::processMessagesLegacy(): Checking for valid access!" << endl;
+                    cerr << "SSLDaemon::processMessagesLegacy(): Checking for valid access!" << std::endl;
 
                     mCurrentPeer = newSSLConn->getPeerAddress();
 
@@ -339,7 +341,7 @@ void SSLDaemon::processMessagesLegacy()
                     //Query for unkwon machine connect
                     if (mHostList.empty() || (!mIsAllowed))
                     {
-                        cerr << "SSLDaemon::processMessagesLegacy(): Host is not allowed to connect! Add notification and access request for user here!" << endl;
+                        cerr << "SSLDaemon::processMessagesLegacy(): Host is not allowed to connect! Add notification and access request for user here!" << std::endl;
                         mIsAllowed = false;
                         //Query for acceptance based message dialog
                         std::string message = " The computer at " + mCurrentPeer;
@@ -357,20 +359,20 @@ void SSLDaemon::processMessagesLegacy()
                     if (mIsAllowed)
                     {
                         cerr << "SSLDaemon::processMessagesLegacy(): Connecting peer: " << newSSLConn->getPeerAddress().c_str()
-                             << " is in whitelist and allowed to connect!" << endl;
+                             << " is in whitelist and allowed to connect!" << std::endl;
                         if (!newSSLConn)
                         {
-                            cerr << "SSLDaemon::processMessagesLegacy():Creation of new SSL connection failed!" << endl;
+                            cerr << "SSLDaemon::processMessagesLegacy():Creation of new SSL connection failed!" << std::endl;
                             return;
                         }
                         if (newSSLConn->AttachSSLToSocket(newSSLConn->getSocket()) == 0)
                         {
-                            cerr << "SSLDaemon::processMessagesLegacy():SSL-Attach failed!" << endl;
+                            cerr << "SSLDaemon::processMessagesLegacy():SSL-Attach failed!" << std::endl;
                             ERR_print_errors_fp(stderr);
                             return;
                         }
 
-                        cerr << "SSLDaemon::processMessagesLegacy(): Waiting to accept SSL conn!" << endl;
+                        cerr << "SSLDaemon::processMessagesLegacy(): Waiting to accept SSL conn!" << std::endl;
                         int err = 0;
                         int retries = 30;
                         int sslerr = 0;
@@ -382,17 +384,17 @@ void SSLDaemon::processMessagesLegacy()
 #ifdef WIN32
                                 if ((err = WSAGetLastError()) != 10035)
                                 {
-                                    cerr << "SSLDaemon::processMessagesLegacy(): SSL_accept failed with err = " << err << endl;
+                                    cerr << "SSLDaemon::processMessagesLegacy(): SSL_accept failed with err = " << err << std::endl;
                                     break;
                                 }
 #endif
                             }
                             else
                             {
-                                cerr << "SSLDaemon::processMessagesLegacy(): Last error = " << sslerr << endl;
+                                cerr << "SSLDaemon::processMessagesLegacy(): Last error = " << sslerr << std::endl;
                                 break;
                             }
-                            cerr << " Retry: #" << retries << endl;
+                            cerr << " Retry: #" << retries << std::endl;
 #ifdef WIN32
                             Sleep(500);
 #else
@@ -410,7 +412,7 @@ void SSLDaemon::processMessagesLegacy()
 
                             mSubjectUID = newSSLConn->getSSLSubjectName();
 
-                            cerr << "SSLDaemon::processMessagesLegacy(): Subject = !" << mSubjectUID << endl;
+                            cerr << "SSLDaemon::processMessagesLegacy(): Subject = !" << mSubjectUID << std::endl;
 
                             if (mSubjectUID == "")
                             {
@@ -442,8 +444,8 @@ void SSLDaemon::processMessagesLegacy()
                             if (sslerr <= 0)
                             {
                                 resolveError();
-                                cerr << "SSLDaemon::processMessagesLegacy(): " << err << endl;
-                                cerr << "SSLDaemon::processMessagesLegacy(): SSL_Accept failed!" << endl;
+                                cerr << "SSLDaemon::processMessagesLegacy(): " << err << std::endl;
+                                cerr << "SSLDaemon::processMessagesLegacy(): SSL_Accept failed!" << std::endl;
                                 return;
                             }
                             else
@@ -454,7 +456,7 @@ void SSLDaemon::processMessagesLegacy()
 
                             //add new connection to a list of connections for further reference
                             VRBSClient *client = new VRBSClient(newSSLConn, NULL);
-                            cerr << "SSLDaemon::processMessagesLegacy(): Client location: " << client->getIP() << endl;
+                            cerr << "SSLDaemon::processMessagesLegacy(): Client location: " << client->getIP() << std::endl;
                             mConnections->add(newSSLConn);
                         }
                     }
@@ -469,7 +471,7 @@ void SSLDaemon::processMessagesLegacy()
                     // Incoming on client connection
                     // Check for access --> IP --> User(Certificate)
                     // if access granted --> issue command of second data packet
-                    cerr << "SSLDaemon::processMessagesLegacy():Data on SSL client-connection! Expecting command..." << endl;
+                    cerr << "SSLDaemon::processMessagesLegacy():Data on SSL client-connection! Expecting command..." << std::endl;
 
                     //Skip Certs for now
 
@@ -489,7 +491,7 @@ void SSLDaemon::processMessagesLegacy()
                         if (result_code < 0)
                         {
                             //Houston we have a problem
-                            cerr << "SSLDaemon::processMessagesLegacy(): Error while receiving message!" << endl;
+                            cerr << "SSLDaemon::processMessagesLegacy(): Error while receiving message!" << std::endl;
                             this->mConnections->remove(locSSLConn);
                             delete locSSLConn;
                         }
@@ -497,7 +499,7 @@ void SSLDaemon::processMessagesLegacy()
                         {
                             //Check for graceful abort
                             //int ret = SSL_get_error();
-                            //cerr << "SSLERROR: = " << ret << endl;
+                            //cerr << "SSLERROR: = " << ret << std::endl;
                         }
                         else
                         {
@@ -506,7 +508,7 @@ void SSLDaemon::processMessagesLegacy()
                         }
                     }
                 }
-                cerr << "SSLDaemon::processMessagesLegacy(): Processing events" << endl;
+                cerr << "SSLDaemon::processMessagesLegacy(): Processing events" << std::endl;
             }
         }
         mIsAllowed = false;
@@ -516,7 +518,7 @@ void SSLDaemon::processMessagesLegacy()
             updateLog();
         }
     }
-    cerr << "... exiting SSLDaemon::processMessagesLegacy()!" << endl;
+    cerr << "... exiting SSLDaemon::processMessagesLegacy()!" << std::endl;
 }
 
 void SSLDaemon::updateLog()
@@ -550,14 +552,14 @@ void SSLDaemon::handleMessage(Message &msg)
 
         if (mAG)
         {
-            mAG->getSocket()->write("masterLeft", strlen("masterLeft") + 1);
+            mAG->getSocket()->write("masterLeft", (unsigned int)(strlen("masterLeft")) + 1);
         }
-        cerr << "SSLDaemon::handleMessage(): controller left" << endl;
+        cerr << "SSLDaemon::handleMessage(): controller left" << std::endl;
     }
     break;
     default:
     {
-        cerr << "SSLDaemon::handleMessage(): Unknown request" << endl;
+        cerr << "SSLDaemon::handleMessage(): Unknown request" << std::endl;
     }
     }
 }
@@ -570,7 +572,7 @@ void SSLDaemon::parseCommands(SSLConnection *conn)
 
     if (line.compare(std::string("SSLConnectionClosed")) == 0)
     {
-        cerr << "SSLDaemon::parseCommands(): SSLConnection closed by Client!" << endl;
+        cerr << "SSLDaemon::parseCommands(): SSLConnection closed by Client!" << std::endl;
         //Remove connection
         this->mConnections->remove(conn);
         delete conn;
@@ -668,15 +670,15 @@ void SSLDaemon::parseCommands(SSLConnection *conn)
 #endif
     if (std::string("startCovise").compare(line.substr(0, 11)) == 0)
     {
-        cerr << "SSLDaemon::parseCommands(): Command to start covise detected!" << endl;
+        cerr << "SSLDaemon::parseCommands(): Command to start covise detected!" << std::endl;
         mAG = locConn;
         this->startCovise();
         locConn->send("ACK\n", 4);
     }
     if (std::string("startOpenCover").compare(line.substr(0, 14)) == 0)
     {
-        cerr << "SSLDaemon::parseCommands(): Command to start OpenCover detected!" << endl;
-        cerr << "SSLDaemon::parseCommands(): Command to call is: " << line.c_str() << endl;
+        cerr << "SSLDaemon::parseCommands(): Command to start OpenCover detected!" << std::endl;
+        cerr << "SSLDaemon::parseCommands(): Command to call is: " << line.c_str() << std::endl;
 
         //Split line commands
         std::vector<std::string> strOptList;
@@ -690,8 +692,8 @@ void SSLDaemon::parseCommands(SSLConnection *conn)
     }
     if (std::string("startFEN").compare(line.substr(0, 8)) == 0)
     {
-        cerr << "SSLDaemon::parseCommands(): Command to start FEN detected!" << endl;
-        cerr << "SSLDaemon::parseCommands(): Command to call is: " << line << endl;
+        cerr << "SSLDaemon::parseCommands(): Command to start FEN detected!" << std::endl;
+        cerr << "SSLDaemon::parseCommands(): Command to call is: " << line << std::endl;
 
         //Split line commands
         std::vector<std::string> strOptList;
@@ -703,8 +705,8 @@ void SSLDaemon::parseCommands(SSLConnection *conn)
     else
     {
         //Unkown command
-        cerr << "SSLDaemon::parseCommands(): Command unknown" << endl;
-        cerr << "SSLDaemon::parseCommands(): Command is: " << line.c_str() << endl;
+        cerr << "SSLDaemon::parseCommands(): Command unknown" << std::endl;
+        cerr << "SSLDaemon::parseCommands(): Command is: " << line.c_str() << std::endl;
     }
 }
 
@@ -739,14 +741,14 @@ void SSLDaemon::startCovise()
             int err = WSAGetLastError();
             if (err != 10035)
             {
-                cerr << "SSLDaemon::processMessagesLegacy(): SSL_accept failed with err = " << err << endl;
+                cerr << "SSLDaemon::processMessagesLegacy(): SSL_accept failed with err = " << err << std::endl;
                 break;
             }
 #endif
         }
         else
         {
-            cerr << "SSLDaemon::processMessagesLegacy(): Last error = " << sslerr << endl;
+            cerr << "SSLDaemon::processMessagesLegacy(): Last error = " << sslerr << std::endl;
             break;
         }
 #ifdef WIN32
@@ -768,7 +770,7 @@ void SSLDaemon::spawnProcesses(std::string cmd, std::vector<std::string> opt)
     const char **locOpt = new const char *[opt.size() + 2];
     const char **locOptBegin = locOpt;
 
-    cerr << "SSLDaemon::spawnProcesses(): Command: " << cmd.c_str() << endl;
+    cerr << "SSLDaemon::spawnProcesses(): Command: " << cmd.c_str() << std::endl;
 
     //Go through list of std::strings and
     //put char-pointers in pointer array
@@ -778,7 +780,7 @@ void SSLDaemon::spawnProcesses(std::string cmd, std::vector<std::string> opt)
     while (itr != opt.end())
     {
         *locOpt = itr->c_str();
-        cerr << "SSLDaemon::spawnProcesses(): Argument(): " << itr->c_str() << endl;
+        cerr << "SSLDaemon::spawnProcesses(): Argument(): " << itr->c_str() << std::endl;
         itr++;
         locOpt++;
     }
@@ -790,11 +792,11 @@ void SSLDaemon::spawnProcesses(std::string cmd, std::vector<std::string> opt)
     {
         if (*(locOptBegin + i) != NULL)
         {
-            cerr << "SSLDaemon::spawnProcesses(): Argument(" << i << "): " << *(locOptBegin + i) << endl;
+            cerr << "SSLDaemon::spawnProcesses(): Argument(" << i << "): " << *(locOptBegin + i) << std::endl;
         }
         else
         {
-            cerr << "SSLDaemon::spawnProcesses(): End of List! " << endl;
+            cerr << "SSLDaemon::spawnProcesses(): End of List! " << std::endl;
             break;
         }
     }
@@ -810,7 +812,7 @@ void SSLDaemon::spawnProcesses(std::string cmd, std::vector<std::string> opt)
     }
     else if (pid == -1)
     {
-        cerr << "SSLDaemon::spawnProcesses(): Couldn't fork! " << endl;
+        cerr << "SSLDaemon::spawnProcesses(): Couldn't fork! " << std::endl;
     }
     else
     {
@@ -829,7 +831,7 @@ int SSLDaemon::SplitString(const string &input,
                            bool includeEmpties)
 {
     int iPos = 0;
-    int newPos = -1;
+	size_t newPos = -1;
     int sizeS2 = (int)delimiter.size();
     int isize = (int)input.size();
 
@@ -853,8 +855,8 @@ int SSLDaemon::SplitString(const string &input,
     while (newPos >= iPos)
     {
         numFound++;
-        positions.push_back(newPos);
-        iPos = newPos;
+        positions.push_back((int)newPos);
+        iPos = (int)newPos;
         newPos = input.find(delimiter, iPos + sizeS2);
     }
 
@@ -899,7 +901,7 @@ void SSLDaemon::allowPermanent(bool storeGlobal)
     mbConfirmed = true;
     if (mRequest->getCurrentMode() == frmRequestDialog::MachineLevel)
     {
-        cerr << "SSLDaemon::allowPermanent(): Writing host IP = " << mCurrentPeer << endl;
+        cerr << "SSLDaemon::allowPermanent(): Writing host IP = " << mCurrentPeer << std::endl;
 
         if (storeGlobal)
         {
@@ -918,7 +920,7 @@ void SSLDaemon::allowPermanent(bool storeGlobal)
             pos = uniqueID.find(".");
         } while (pos != std::string::npos);
 
-        cerr << "SSLDaemon::allowPermanent(): Writing unique ID = " << uniqueID << endl;
+        cerr << "SSLDaemon::allowPermanent(): Writing unique ID = " << uniqueID << std::endl;
 
         if (storeGlobal)
         {
@@ -932,7 +934,7 @@ void SSLDaemon::allowPermanent(bool storeGlobal)
     }
     else
     {
-        cerr << "SSLDaemon::allowPermanent(): Writing subject Name = " << mSubjectUID << endl;
+        cerr << "SSLDaemon::allowPermanent(): Writing subject Name = " << mSubjectUID << std::endl;
 
         if (storeGlobal)
         {
@@ -951,7 +953,7 @@ void SSLDaemon::allowPermanent(bool storeGlobal)
             pos = uniqueID.find(".");
         } while (pos != std::string::npos);
 
-        cerr << "SSLDaemon::allowPermanent(): Writing unique ID = " << mSubjectUID << endl;
+        cerr << "SSLDaemon::allowPermanent(): Writing unique ID = " << mSubjectUID << std::endl;
 
         if (storeGlobal)
         {
@@ -959,7 +961,7 @@ void SSLDaemon::allowPermanent(bool storeGlobal)
         }
         else
         {
-            mConfig->setValue("index", QString(ToString(mSubjectNameList.size()).c_str()), "System.CoviseDaemon.AllowedUID.Subject");
+            mConfig->setValue("index", QString(ToString((int)mSubjectNameList.size()).c_str()), "System.CoviseDaemon.AllowedUID.Subject");
             mConfig->save();
         }
     }
@@ -1024,5 +1026,5 @@ int SSLDaemon::sslPasswdCallback(char *buf, int size, int rwflag, void *userData
     strncpy(buf, obj->mPassword.c_str(), obj->mPassword.size() /*should be length of buf*/);
     buf[obj->mPassword.size() - 1] = '\0';
 
-    return obj->mPassword.size();
+    return int(obj->mPassword.size());
 }

@@ -15,12 +15,12 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscLongitudinalAction.h"
-#include "oscLateralAction.h"
+#include "oscLongitudinal.h"
+#include "oscLateral.h"
 #include "oscVisibility.h"
 #include "oscMeeting.h"
 #include "oscAutonomous.h"
-#include "oscDriverAction.h"
+#include "oscActionController.h"
 #include "oscPosition.h"
 #include "oscRouting.h"
 
@@ -31,21 +31,22 @@ class OPENSCENARIOEXPORT oscPrivateAction : public oscObjectBase
 public:
 oscPrivateAction()
 {
-        OSC_OBJECT_ADD_MEMBER(LongitudinalAction, "oscLongitudinalAction", 1);
-        OSC_OBJECT_ADD_MEMBER(LateralAction, "oscLateralAction", 1);
+        OSC_OBJECT_ADD_MEMBER(Longitudinal, "oscLongitudinal", 1);
+        OSC_OBJECT_ADD_MEMBER(Lateral, "oscLateral", 1);
         OSC_OBJECT_ADD_MEMBER(Visibility, "oscVisibility", 1);
         OSC_OBJECT_ADD_MEMBER(Meeting, "oscMeeting", 1);
         OSC_OBJECT_ADD_MEMBER(Autonomous, "oscAutonomous", 1);
-        OSC_OBJECT_ADD_MEMBER(DriverAction, "oscDriverAction", 1);
+        OSC_OBJECT_ADD_MEMBER(Controller, "oscActionController", 1);
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 1);
         OSC_OBJECT_ADD_MEMBER(Routing, "oscRouting", 1);
     };
-    oscLongitudinalActionMember LongitudinalAction;
-    oscLateralActionMember LateralAction;
+        const char *getScope(){return "";};
+    oscLongitudinalMember Longitudinal;
+    oscLateralMember Lateral;
     oscVisibilityMember Visibility;
     oscMeetingMember Meeting;
     oscAutonomousMember Autonomous;
-    oscDriverActionMember DriverAction;
+    oscActionControllerMember Controller;
     oscPositionMember Position;
     oscRoutingMember Routing;
 

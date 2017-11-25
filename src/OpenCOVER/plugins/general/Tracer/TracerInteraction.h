@@ -15,11 +15,12 @@ class TracerPlane;
 class TracerFreePoints;
 
 #ifdef USE_COVISE
-#include "../../covise/COVISE/SmokeGeneratorSolutions.h"
+#include <CovisePluginUtil/SmokeGeneratorSolutions.h>
 #endif
+#include <osg/Group>
+#ifdef VRUI
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coMenuItem.h>
-#include <osg/Group>
 
 namespace vrui
 {
@@ -28,6 +29,19 @@ class coSubMenuItem;
 class coCheckboxGroup;
 class coButtonMenuItem;
 }
+#else
+#include <cover/ui/Owner.h>
+namespace opencover {
+namespace ui {
+class Menu;
+class Button;
+class Slider;
+class ButtonGroup;
+class SelectionList;
+}
+}
+#endif
+
 class TracerPlugin;
 
 class TracerInteraction : public opencover::ModuleInteraction
@@ -87,15 +101,16 @@ public:
     float zmin_, zmax_;
     int nx_, ny_, nz_;
     // velocity  info
-    vector<float> u_;
-    vector<float> v_;
-    vector<float> w_;
+    std::vector<float> u_;
+    std::vector<float> v_;
+    std::vector<float> w_;
 
 private:
     bool newObject_; // indicates, that in preFrame visibiliy is checked again
     bool debugSmoke_;
     bool interactorUsed_; //if TracerComp uses 2D part interactorUsed=false
 
+#ifdef VRUI
     virtual void menuEvent(vrui::coMenuItem *menuItem);
     virtual void menuReleaseEvent(vrui::coMenuItem *menuItem);
 
@@ -124,6 +139,37 @@ private:
     vrui::coRowMenu *_startStyleMenu;
     vrui::coCheckboxMenuItem *_planeCheckbox, *_lineCheckbox, *_freeCheckbox, *_cylinderCheckbox;
     vrui::coCheckboxGroup *_startStyleGroup;
+#else
+    opencover::ui::Slider *_numStartPointsPoti = nullptr;
+    int _numStartPointsMin, _numStartPointsMax, _numStartPoints;
+
+    opencover::ui::Slider *traceLenPoti_;
+    float traceLenMin_, traceLenMax_, traceLen_;
+
+    opencover::ui::SelectionList *_taskType = nullptr;
+#if 0
+    opencover::ui::Menu *_taskTypeMenu;
+    opencover::ui::Button *_streamlinesCheckbox, *_particlesCheckbox, *_pathlinesCheckbox, *_streaklinesCheckbox;
+    opencover::ui::ButtonGroup *_taskTypeGroup;
+#endif
+    int _numTaskTypes;
+    char **_taskTypeNames;
+    enum
+    {
+        TASKTYPE_STREAMLINES = 0,
+        TASKTYPE_PARTICLES,
+        TASKTYPE_PATHLINES,
+        TASKTYPE_STREAKLINES
+    };
+    int _selectedTaskType;
+
+    opencover::ui::SelectionList *_startStyle = nullptr;
+#if 0
+    opencover::ui::Menu *_startStyleMenu;
+    opencover::ui::Button *_planeCheckbox, *_lineCheckbox, *_freeCheckbox, *_cylinderCheckbox;
+    opencover::ui::ButtonGroup *_startStyleGroup;
+#endif
+#endif
     int _numStartStyles;
     char **_startStyleNames;
     enum
@@ -146,7 +192,11 @@ private:
     SmokeGeneratorSolutions solutions_;
 #endif
 
+#ifdef VRUI
     vrui::coCheckboxMenuItem *smokeCheckbox_;
+#else
+    opencover::ui::Button *smokeCheckbox_;
+#endif
     bool smokeInMenu_;
 
     // create/update/delete the contents of the tracer submenu

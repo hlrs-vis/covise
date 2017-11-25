@@ -25,6 +25,7 @@ oscAbsolute()
 {
         OSC_ADD_MEMBER(value, 0);
     };
+        const char *getScope(){return "/OSCPrivateAction/Longitudinal/Speed/Target";};
     oscDouble value;
 
 };

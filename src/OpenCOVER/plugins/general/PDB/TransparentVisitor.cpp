@@ -78,7 +78,7 @@ void TransparentVisitor::apply(osg::Geode &node)
     }
 
     // adjust the drawables
-    for (int i = 0; i < node.getNumDrawables(); i++)
+    for (unsigned int i = 0; i < node.getNumDrawables(); i++)
     {
         drawable = dynamic_cast<osg::Drawable *>(node.getDrawable(i));
         if (drawable->asGeometry())

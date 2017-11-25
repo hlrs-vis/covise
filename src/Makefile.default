@@ -10,15 +10,18 @@ endif
 INOPENCOVER=$(shell echo $(CURDIR) | grep -i opencover)
 ifeq ($(INOPENCOVER),)
    PROJBUILDDIR=$(BUILDDIR_PREFIX).covise
+   RELBUILDDIR=$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR);;" -e "s;^$(PROJDIR);;" -e "s;^/;;")
    BUILDDIR=$(PROJBUILDDIR)/$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR);;" -e "s;^$(PROJDIR);;")
 else
    PROJBUILDDIR=$(BUILDDIR_PREFIX).cover
-   BUILDDIR=$(PROJBUILDDIR)/$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR)/src/OpenCOVER;;" -e "s;^$(PROJDIR);;")
+   RELBUILDDIR=$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR)/src/OpenCOVER;;" -e "s;^$(PROJDIR);;" -e "s;^/;;")
    PROJSRCDIR=$(TOPDIR)/src/OpenCOVER
    RELSRCDIR=../../src/OpenCOVER
 endif
-MAKEFILE=$(BUILDDIR)/Makefile
-
+BUILDDIR=$(PROJBUILDDIR)/$(RELBUILDDIR)
+ifeq ($(COVISE_NINJA),)
+   MAKEFILE=$(BUILDDIR)/Makefile
+   GENERATOR="Unix Makefiles"
 
 first: makefile 
 	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE)
@@ -31,45 +34,49 @@ clean: makefile
 
 install: makefile
 	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) $@
+else
+   MAKEFILE=$(PROJBUILDDIR)/build.ninja
+   GENERATOR=Ninja
+ifeq ($(RELBUILDDIR),)
+      TARGETPREFIX=
+else
+      TARGETPREFIX=$(RELBUILDDIR)/
+endif
+
+first: makefile 
+	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) $(TARGETPREFIX)all
+
+verbose: makefile 
+	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) -v $(TARGETPREFIX)all
+
+clean: makefile
+	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) clean
+
+install: makefile
+	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) $(TARGETPREFIX)install
+endif
+
 
 makefile: $(MAKEFILE)
 
 $(MAKEFILE):
-	echo trying to make $(MAKEFILE)
+	@echo trying to make $(MAKEFILE)
 	mkdir -p $(PROJBUILDDIR)
 ifeq ($(ARCHSUFFIX),mingw)
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake  $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake  $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR) \
       -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
       -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingw \
       -DCMAKE_BUILD_TYPE=Debug
 else ifeq ($(ARCHSUFFIX),mingwopt)
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR) \
       -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
       -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingwopt \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
-else ifeq ($(ARCHSUFFIX),libc++)
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
-      -DCOVISE_USE_QT4=FALSE \
-      -DCMAKE_BUILD_TYPE=Debug
-else ifeq ($(ARCHSUFFIX),libc++opt)
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR) \
-      -DCOVISE_USE_QT4=FALSE \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo
-else ifeq ($(ARCHSUFFIX),macos)
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
-      -DCMAKE_BUILD_TYPE=Debug
-else ifeq ($(ARCHSUFFIX),macosopt)
-	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo
 else
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) $(RELSRCDIR)
+	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)
 endif
 
 $(PROJBUILDDIR):
@@ -81,13 +88,6 @@ $(BUILDDIR):
 # TODO these have to be converted to cmake
 #
 
-# tar_bin_core tar_bin_modules tar_bin_plugins tar_dev \
-# tar_dev_examples tar_src_core tar_src_modules tar \
-# src_plugins: makefile
-#     cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) QMAKE=$(QMAKE) QMAKEFLAGS=$(QMAKEFLAGS) $@
-
-# bindist devdist srcdist collectfiles: makefile
-#     cd $(SRCDIR) && $(MAKE) -f $(MAKEFILE) QMAKE=$(QMAKE) QMAKEFLAGS=$(QMAKEFLAGS) $@
 
 # indent html docupdate tex pdf: makefile
 #     $(MAKE) -f $(MAKEFILE) QMAKE=$(QMAKE) QMAKEFLAGS=$(QMAKEFLAGS) $@

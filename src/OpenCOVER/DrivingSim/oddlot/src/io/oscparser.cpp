@@ -27,11 +27,11 @@
 
 // OpenSCENARIO //
 //
-#include "oscFactories.h"
-#include "oscFactory.h"
-#include "OpenScenarioBase.h"
-#include "oscObjectBase.h"
-#include "schema/oscFileHeader.h"
+#include <OpenScenario/oscFactories.h>
+#include <OpenScenario/oscFactory.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/schema/oscFileHeader.h>
 
 
 /*#include "src/data/vehiclesystem/vehiclesystem.hpp"
@@ -165,7 +165,7 @@ OSCParser::createElements(const OpenScenario::oscObjectBase *object)
         {
 			if(member->getType() == oscMemberValue::OBJECT)
             {
-				oscObjectBase *memberObject = member->getObject();
+				oscObjectBase *memberObject = member->getObjectBase();
 				if (memberObject)
 				{
 					OSCElement *oscElement = new OSCElement(QString::fromStdString((*it).name), memberObject); 

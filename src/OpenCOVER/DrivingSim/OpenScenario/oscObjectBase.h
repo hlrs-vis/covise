@@ -83,6 +83,7 @@ protected:
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
+	virtual const char *getScope() { return ""; }; ///< return parent hierarchie in order to uniquely identify chrildren by name
 
     //
     virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source
@@ -119,6 +120,7 @@ public:
     //
     virtual bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src, bool saveInclude = true);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, bool writeInclude = true);
+	virtual void finishedParsing() {}; /// derived classes can implement this to initialize their state after all children have been parsed
 	bool writeToDisk();
 
 

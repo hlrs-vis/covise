@@ -60,36 +60,6 @@ if not defined COFRAMEWORKDIR (
    set COFRAMEWORKDIR=%COVISEDIR%
 )
 
-if /I "%ARCHSUFFIX%" EQU "amdwin64opt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "amdwin64" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "ia64win"  goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "win32opt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "win32"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "vistaopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "vista"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zackelopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zackel"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "angusopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "angus"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "yorooopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "yoroo"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "berrendaopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "berrenda"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "tamarauopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "tamarau"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zebuopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "zebu"    goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "mingwopt" goto LABEL_SETENVIRONMENT
-if /I "%ARCHSUFFIX%" EQU "mingw"    goto LABEL_SETENVIRONMENT
-echo ARCHSUFFIX %ARCHSUFFIX% is not supported!
-echo common.bat [ARCHSUFFIX]
-echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt, zebu, zebuopt, mingw, mingwopt"
-pause
-goto END
-
-
-
-:LABEL_SETENVIRONMENT
 echo Environment settings for ARCHSUFFIX %ARCHSUFFIX%
 
 set BASEARCHSUFFIX=%ARCHSUFFIX:opt=%

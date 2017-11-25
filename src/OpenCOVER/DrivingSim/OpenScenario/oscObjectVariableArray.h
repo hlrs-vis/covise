@@ -17,9 +17,10 @@ namespace OpenScenario
 {
 
 template<typename T>
-class OPENSCENARIOEXPORT oscObjectVariableArray : public oscObjectVariableBase<T, oscArrayMember>
+class oscObjectVariableArray : public oscObjectVariableBase<T, oscArrayMember>
 {
-
+public:
+	T operator[](int i) { return static_cast<T>(std::vector<oscObjectBase *>::operator[](i)); }
 };
 
 }

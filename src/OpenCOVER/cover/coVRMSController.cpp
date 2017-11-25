@@ -96,7 +96,7 @@ coVRMSController *coVRMSController::instance()
     return s_singleton;
 }
 
-coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, int port)
+coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     : m_debugLevel(2)
     , master(true)
     , slave(false)
@@ -114,6 +114,13 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     assert(!s_singleton);
     s_singleton = this;
 
+#ifdef HAS_MPI
+    int mpiInit = 0;
+    MPI_Initialized(&mpiInit);
+    if (mpiInit)
+        MPI_Comm_dup(appComm, &drawComm);
+#endif
+
     MARK0("coVRMSController::coVRMSController");
     if (AmyID >= 0)
     {
@@ -130,8 +137,8 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
 #endif
     syncMode = SYNC_TCP;
 
-    drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
-    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",drawStatistics);
+    m_drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
+    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",m_drawStatistics);
 
     // Multicast settings
     multicastDebugLevel = coCoviseConfig::getInt("COVER.MultiPC.Multicast.debugLevel", 0);
@@ -157,6 +164,8 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
 
     string sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncMode");
     numSlaves = coCoviseConfig::getInt("COVER.MultiPC.NumSlaves", 0);
+    if (coVRConfig::instance()->useVirtualGL())
+        numSlaves = 0;
 
     if (numSlaves==0 && myID>0)
     {
@@ -165,22 +174,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     }
     assert(myID==0 || numSlaves>0);
 
-    if (forceMpi)
-    {
-        syncMode = SYNC_MPI;
-        MARK0("\tsyncMode: forced MPI");
-        if (debugLevel(3))
-            fprintf(stderr, "syncMode: MPI\n");
-
-#if !defined(HAS_MPI)
-        fprintf(stderr, "This OpenCOVER does not have MPI support\n");
-        exit(1);
-#else
-        MPI_Comm_size(appComm, &numSlaves);
-        --numSlaves;
-#endif
-    }
-    else if (strcasecmp(sm.c_str(), "TCP") == 0)
+    if (strcasecmp(sm.c_str(), "TCP") == 0)
     {
         MARK0("\tsyncMode: TCP");
         if (debugLevel(3))
@@ -240,7 +234,7 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
         syncMode = SYNC_MULTICAST;
 #endif
     }
-    else if (strcasecmp(sm.c_str(), "MPI") == 0)
+    else if (strcasecmp(sm.c_str(), "MPI") == 0 && !coVRConfig::instance()->useVirtualGL())
     {
         MARK0("\tsyncMode: MPI");
         if (debugLevel(3))
@@ -452,6 +446,103 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
     assert(covise::coConfigConstants::getRank() == myID);
 }
 
+#ifdef HAS_MPI
+coVRMSController::coVRMSController(const MPI_Comm *comm)
+    : m_debugLevel(2)
+    , master(true)
+    , slave(false)
+    , myID(0)
+    , socket(0)
+    , socketDraw(0)
+    , appComm(*comm)
+    , drawComm(*comm)
+    , heartBeatCounter(0)
+    , heartBeatCounterDraw(0)
+
+{
+    assert(!s_singleton);
+    s_singleton = this;
+
+#ifdef HAS_MPI
+    int mpiInit = 0;
+    MPI_Initialized(&mpiInit);
+    if (mpiInit)
+        MPI_Comm_dup(appComm, &drawComm);
+    assert(mpiInit);
+#endif
+
+    MARK0("coVRMSController::coVRMSController");
+    m_debugLevel = covise::coCoviseConfig::getInt("COVER.DebugLevel", m_debugLevel);
+
+    if (debugLevel(2))
+        fprintf(stderr, "\nnew coVRMSController\n");
+#ifdef DEBUG_MESSAGES
+    debugMessageCounter = 0;
+    debugMessagesCheck = true;
+#endif
+
+    m_drawStatistics = coCoviseConfig::isOn("COVER.MultiPC.Statistics", false);
+    //   cover->setBuiltInFunctionState("CLUSTER_STATISTICS",m_drawStatistics);
+
+    // Multicast settings
+    multicastDebugLevel = coCoviseConfig::getInt("COVER.MultiPC.Multicast.debugLevel", 0);
+    multicastAddress = coCoviseConfig::getEntry("COVER.MultiPC.Multicast.mcastAddr");
+    multicastPort = coCoviseConfig::getInt("COVER.MultiPC.Multicast.mcastPort", 23232);
+    multicastInterface = coCoviseConfig::getEntry("COVER.MultiPC.Multicast.mcastIface");
+    multicastMTU = coCoviseConfig::getInt("COVER.MultiPC.Multicast.mtu", 1500);
+    multicastTTL = coCoviseConfig::getInt("COVER.MultiPC.Multicast.ttl", 1);
+    multicastLoop = coCoviseConfig::isOn("COVER.MultiPC.Multicast.lback", false);
+    multicastBufferSpace = coCoviseConfig::getInt("COVER.MultiPC.Multicast.bufferSpace", 1000000);
+    multicastBlockSize = coCoviseConfig::getInt("COVER.MultiPC.Multicast.blockSize", 4);
+    multicastNumParity = coCoviseConfig::getInt("COVER.MultiPC.Multicast.numParity", 0);
+    multicastTxCacheSize = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txCacheSize", 100000000);
+    multicastTxCacheMin = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txCacheMin", 1);
+    multicastTxCacheMax = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txCacheMax", 128);
+    multicastTxRate = coCoviseConfig::getInt("COVER.MultiPC.Multicast.txRate", 1000);
+    multicastBackoffFactor = (double)coCoviseConfig::getFloat("COVER.MultiPC.Multicast.backoffFactor", 0.0);
+    multicastSockBuffer = coCoviseConfig::getInt("COVER.MultiPC.Multicast.sockBufferSize", 512000);
+    multicastClientTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.readTimeoutSec", 30);
+    multicastServerTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.writeTimeoutMsec", 500);
+    multicastRetryTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.retryTimeout", 100);
+    multicastMaxLength = coCoviseConfig::getInt("COVER.MultiPC.Multicast.maxLength", 1000000);
+
+    syncProcess = SYNC_DRAW;
+    string sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncProcess");
+    if (strcasecmp(sm.c_str(), "APP") == 0)
+    {
+        if (debugLevel(3))
+            fprintf(stderr, "syncProcess: APP\n");
+        syncProcess = SYNC_APP;
+
+        MARK0("\tsyncProcess: APP");
+    }
+    else
+    {
+        MARK0("\tsyncProcess: DRAW");
+        if (debugLevel(3))
+            fprintf(stderr, "syncProcess: DRAW\n");
+    }
+
+    syncMode = SYNC_MPI;
+    MARK0("\tsyncMode: forced MPI");
+    if (debugLevel(3))
+        fprintf(stderr, "syncMode: MPI\n");
+
+    MPI_Comm_size(appComm, &numSlaves);
+    --numSlaves;
+
+    MPI_Comm_rank(appComm, &myID);
+    master = myID == 0;
+    slave = !master;
+
+    if (covise::coConfigConstants::getRank() != myID) {
+        std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
+    }
+    assert(covise::coConfigConstants::getRank() == myID);
+}
+#endif
+
+
 coVRMSController::~coVRMSController()
 {
     delete socket;
@@ -531,19 +622,22 @@ void coVRMSController::heartBeat(const std::string &name, bool draw)
     }
 }
 
+bool coVRMSController::drawStatistics() const
+{
+    return m_drawStatistics;
+}
+
+void coVRMSController::setDrawStatistics(bool enable)
+{
+    m_drawStatistics = enable;
+}
+
 void coVRMSController::checkMark(const char *file, int line)
 {
     cerr << file << line << endl;
     std::stringstream str;
     str << file << ":" << line;
     heartBeat(str.str());
-}
-
-void
-coVRMSController::statisticsCallback(void *, buttonSpecCell *spec)
-{
-    (void)spec;
-    //   msController->drawStatistics=(bool)spec->state;
 }
 
 void coVRMSController::connectToMaster(const char *addr, int port)
@@ -807,6 +901,23 @@ void coVRMSController::sendMaster(const Message *msg)
     }
 }
 
+void coVRMSController::sendMaster(const std::string &s)
+{
+    int sz = s.size();
+    sendMaster(&sz, sizeof(sz));
+    sendMaster(s.c_str(), sz);
+}
+
+void coVRMSController::readSlave(int i, std::string &s)
+{
+    int sz = 0;
+    readSlave(i, &sz, sizeof(sz));
+    std::vector<char> d(sz);
+    readSlave(i, d.data(), sz);
+    std::string result(d.data(), sz);
+    s = result;
+}
+
 // Default for readMaster: if multicast is set, do not send over TCP
 int coVRMSController::readMaster(void *c, int n)
 {
@@ -826,7 +937,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
 #if defined(NOMCAST) || !defined(HAVE_NORM)
     (void)mcastOverTCP;
 #endif
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -850,7 +961,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
         MPI_Status status;
         MPI_Recv(c, n, MPI_BYTE, 0, AppTag, appComm, &status);
 
-        if (drawStatistics)
+        if (m_drawStatistics)
         {
             networkRecv += cover->currentTime() - startTime;
         }
@@ -912,7 +1023,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
                 ret = socket->Read((char *)c + read, n - read);
 
             } while ((ret <= 0) && ((errno == EAGAIN) || (errno == EINTR)));
-            if (drawStatistics)
+            if (m_drawStatistics)
             {
                 networkRecv += cover->currentTime() - startTime;
             }
@@ -930,7 +1041,7 @@ void coVRMSController::sendMaster(const void *c, int n)
 
     int ret;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -955,7 +1066,7 @@ void coVRMSController::sendMaster(const void *c, int n)
         } while ((ret <= 0) && ((errno == EAGAIN) || (errno == EINTR)));
     }
 
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -977,7 +1088,7 @@ int coVRMSController::readSlaves(SlaveData *c)
     int i;
     int ret = 0;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -992,7 +1103,7 @@ int coVRMSController::readSlaves(SlaveData *c)
         //          return -1;
         //       }
     }
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkRecv += cover->currentTime() - startTime;
     }
@@ -1295,7 +1406,7 @@ void coVRMSController::sendSlave(int i, const void *c, int n)
     assert(i < getNumSlaves());
 
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1309,7 +1420,7 @@ void coVRMSController::sendSlave(int i, const void *c, int n)
     //std::cerr << i << " : " << (char*) data.data[i] << std::endl;
     //std::cerr << i << " : " << data.size() << std::endl;
 
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -1321,7 +1432,7 @@ void coVRMSController::sendSlaves(const SlaveData &data)
 
     int i;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1342,7 +1453,7 @@ void coVRMSController::sendSlaves(const SlaveData &data)
         //std::cerr << i << " : " << data.size() << std::endl;
     }
 
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -1354,7 +1465,7 @@ void coVRMSController::sendSlaves(const void *c, int n)
 
     int i;
     double startTime = 0.0;
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         startTime = cover->currentTime();
     }
@@ -1385,7 +1496,7 @@ void coVRMSController::sendSlaves(const void *c, int n)
             slaves[i]->send(c, n);
         }
     }
-    if (drawStatistics)
+    if (m_drawStatistics)
     {
         networkSend += cover->currentTime() - startTime;
     }
@@ -1885,8 +1996,7 @@ void coVRMSController::syncApp(int frameNum)
         }
         if (masterFrameNum != frameNum)
         {
-            cerr << "frame numbers differ" << endl;
-            cerr << "myID=" << myID << endl;
+            cerr << "myId=" << myID << ": frame numbers differ: master=" << masterFrameNum << ", me=" << frameNum << std::endl;
             exit(0);
         }
     }
@@ -2026,7 +2136,7 @@ void coVRMSController::syncTime()
         return;
     int i;
     static bool oldStat = false;
-    if ((oldStat != drawStatistics) && (master) && cover->getScene() != 0)
+    if ((oldStat != m_drawStatistics) && (master) && cover->getScene() != 0)
     {
         if (stats[0] == NULL)
         {
@@ -2035,7 +2145,7 @@ void coVRMSController::syncTime()
                 stats[i] = new coClusterStat(i);
             }
         }
-        if (drawStatistics)
+        if (m_drawStatistics)
         {
             for (i = 0; i < numSlaves + 1; i++)
             {
@@ -2049,9 +2159,9 @@ void coVRMSController::syncTime()
                 stats[i]->hide();
             }
         }
-        oldStat = drawStatistics;
+        oldStat = m_drawStatistics;
     }
-    if (drawStatistics && cover->getScene() != 0)
+    if (m_drawStatistics && cover->getScene() != 0)
     {
         static double lastTime = 0;
         double currentTime = cover->currentTime();
@@ -2206,16 +2316,24 @@ std::string coVRMSController::syncString(const std::string &s)
     {
         sz = s.size();
         sendSlaves(&sz, sizeof(sz));
-        sendSlaves(s.c_str(), sz);
+        if (sz > 0)
+            sendSlaves(s.c_str(), sz);
         return s;
     }
     else
     {
         readMaster(&sz, sizeof(sz));
-        std::vector<char> v(sz);
-        readMaster(&v[0], sz);
-        std::string r(&v[0], sz);
-        return r;
+        if (sz > 0)
+        {
+            std::vector<char> v(sz);
+            readMaster(&v[0], sz);
+            std::string r(&v[0], sz);
+            return r;
+        }
+        else
+        {
+            return std::string();
+        }
     }
 }
 

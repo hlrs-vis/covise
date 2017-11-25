@@ -42,10 +42,6 @@ class DisplaySettings;
 
 namespace opencover
 {
-class buttonSpecCell;
-
-class coVRSceneHandler;
-class coVRSceneView;
 class MSEventHandler;
 class ARToolKitMarker;
 class angleStruct;
@@ -54,15 +50,13 @@ class COVEREXPORT VRViewer : public osgViewer::Viewer
 {
     friend class OpenCOVER;
 public:
-    void setUpRenderingSupport();
-
     /** Updated the scene.  Handle any queued up events, do an update traversal and set the CameraGroup's setViewByMatrix if any camera manipulators are active.*/
-    virtual void update();
+    virtual bool update();
 
     /** Dispatch the cull and draw for each of the Camera's for this frame.*/
     virtual void frame();
 
-    void handleEvents();
+    bool handleEvents();
 
     void redrawHUD(double interval);
 
@@ -79,6 +73,7 @@ public:
     void flipStereo();
 
 private:
+    static VRViewer *s_singleton;
     MSEventHandler *myeh;
 
     // stereo parameters
@@ -159,10 +154,6 @@ public:
     {
         initialViewPos = po;
     };
-    static void freezeCallback(void *viewer, buttonSpecCell *spec);
-    static void stereoSepCallback(void *viewer, buttonSpecCell *spec);
-    static void orthographicCallback(void *, buttonSpecCell *spec);
-    static void statisticsCallback(void *sceneGraph, buttonSpecCell *spec);
 
     void culling(bool enable, osg::CullSettings::CullingModeValues mode = osg::CullSettings::ENABLE_ALL_CULLING, bool once = false);
     
@@ -184,7 +175,7 @@ public:
 
     bool clearWindow; // if set to true, the whole window is cleared once
 
-    void statistics(bool enable);
+    void toggleStatistics();
     void overwriteViewAndProjectionMatrix(bool state)
     {
         overwritePAndV = state;

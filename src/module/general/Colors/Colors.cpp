@@ -49,8 +49,12 @@ void Colors::initCOLORS()
     p_minmax = addFloatVectorParam("MinMax", "Minimum and Maximum value");
     p_minmax->setValue(2, defaultMinmaxValues);
 
+#ifdef NO_COLORMAP_PARAM
+    p_colorNames = addChoiceParam("Colormap", "Select a Colormap");
+#else
     p_colorMap = addColormapParam("EditableColormap", "Colormap Editor");
     p_colorNames = addColormapChoiceParam("Colormap", "Select a Colormap");
+#endif
     readMaps();
 
     int confNumSteps = coCoviseConfig::getInt("Module.Colors.NumSteps", 256);
@@ -150,7 +154,11 @@ void Colors::readMaps()
     const char **keys = keysEntries.getValue();
 
     vector<string> mapNames;
+#ifdef NO_COLORMAP_PARAM
+    mapNames.push_back("COVISE");
+#else
     mapNames.push_back("Editable");
+#endif
     if (keys)
     {
         int i = 0;
@@ -162,12 +170,19 @@ void Colors::readMaps()
     }
 
     // allocate place for n colormaps
-    numColormaps = mapNames.size();
+    numColormaps = (int)mapNames.size();
     colormaps = new TColormapChoice[numColormaps];
     colormapAttributes.resize(numColormaps);
 
     // set first the module defined colormap
+#ifdef NO_COLORMAP_PARAM
+    colormaps[0].mapName = "COVISE";
+#else
     colormaps[0].mapName = "Editable";
+#endif
+#ifdef WIN32
+#pragma warning (disable: 4101)
+#endif
     colormap_type type;
     float min = 0.;
     float max = 1.;
@@ -175,8 +190,17 @@ void Colors::readMaps()
     colormapAttributes[0].max = min;
     colormapAttributes[0].isAbsolute = false;
 
+#ifdef NO_COLORMAP_PARAM
+    int numSteps = 3;
+    const float rgbax[] = {
+        0.f, 0.f, 1.f, 1.f, 0.f,
+        1.f, 0.f, 0.f, 1.f, .5f,
+        1.f, 1.f, 0.f, 1.f, 1.f
+    };
+#else
     const float *rgbax;
     int numSteps = p_colorMap->getValue(&min, &max, &type, &rgbax);
+#endif
     for (int i = 0; i < numSteps; i++)
     {
         for (int c = 0; c < 5; c++)
@@ -201,8 +225,8 @@ void Colors::readMaps()
             no = no / 2;
 
             // read all sampling points
-            float diff = 1.0 / (no - 1);
-            float pos = 0.0;
+            float diff = 1.0f / (no - 1);
+            float pos = 0.0f;
             for (int j = 0; j < no; j++)
             {
                 ostringstream out;
@@ -222,14 +246,14 @@ void Colors::readMaps()
                     uint32_t c = strtol(rgba.c_str(), NULL, 16);
                     if (!rgb)
                     {
-                        a = (c & 0xff) / 255.0;
+                        a = (c & 0xff) / 255.0f;
                         c >>= 8;
                     }
-                    float b = (c & 0xff) / 255.0;
+                    float b = (c & 0xff) / 255.0f;
                     c >>= 8;
-                    float g = (c & 0xff) / 255.0;
+                    float g = (c & 0xff) / 255.0f;
                     c >>= 8;
-                    float r = (c & 0xff) / 255.0;
+                    float r = (c & 0xff) / 255.0f;
                     colormaps[i].mapValues.push_back(r);
                     colormaps[i].mapValues.push_back(g);
                     colormaps[i].mapValues.push_back(b);
@@ -253,13 +277,13 @@ void Colors::readMaps()
 
             if (absolute)
             {
-                double min = colormaps[i].mapValues[0 + 4];
-                double max = colormaps[i].mapValues[(no - 1) * 5 + 4];
+                float min = colormaps[i].mapValues[0 + 4];
+                float max = colormaps[i].mapValues[(no - 1) * 5 + 4];
                 colormapAttributes[i].min = min;
                 colormapAttributes[i].max = max;
                 for (int j = 0; j < no; ++j)
                 {
-                    double x = colormaps[i].mapValues[j * 5 + 4];
+                    float x = colormaps[i].mapValues[j * 5 + 4];
                     colormaps[i].mapValues[j * 5 + 4] = (x - min) / (max - min);
                 }
             }
@@ -268,7 +292,11 @@ void Colors::readMaps()
     }
 
     // set defined colormaps
+#ifdef NO_COLORMAP_PARAM
+    p_colorNames->setValue(numColormaps, mapNames, 0);
+#else
     p_colorNames->setValue(numColormaps, 0, colormaps);
+#endif
 
     /*
    // read values of local colormap files in .covise
@@ -387,6 +415,7 @@ void Colors::param(const char *portName, bool inMapLoading)
         }
     }
 
+#ifndef NO_COLORMAP_PARAM
     // get new module defined colormap
     else if (strcmp(portName, p_colorMap->getName()) == 0)
     {
@@ -406,6 +435,7 @@ void Colors::param(const char *portName, bool inMapLoading)
         if (!inMapLoading)
             p_colorNames->setValue(numColormaps, 0, colormaps);
     }
+#endif
 
     else if (strcmp(portName, p_colorNames->getName()) == 0)
     {
@@ -503,7 +533,7 @@ int Colors::openObj(recObj &base, const coDistributedObject *obj, const char *&s
             base.data = new float[base.numElem];
             int *dataPtr = iObj->getAddress();
             for (int i = 0; i < base.numElem; i++)
-                base.data[i] = dataPtr[i];
+                base.data[i] = (float)(dataPtr[i]);
             return SUCCESS;
         }
 
@@ -838,9 +868,13 @@ int Colors::compute(const char *)
     const char *annotation = NULL; // What's written at the Map
 
     int index = p_colorNames->getValue();
+#ifdef NO_COLORMAP_PARAM
+    TColormapChoice color = colormaps[index];
+#else
     TColormapChoice color = p_colorNames->getValue(index);
+#endif
     float alphaMult = p_alpha->getValue();
-    numColors = color.mapValues.size() / 5;
+    numColors = (int)(color.mapValues.size() / 5);
     d_cmap.clear();
     d_cmap.assign(color.mapValues.begin(), color.mapValues.end());
 
@@ -876,7 +910,9 @@ int Colors::compute(const char *)
             float *mmdata;
             histoData->getAddress(&mmdata);
             int np = histoData->getNumPoints();
+#ifndef NO_COLORMAP_PARAM
             p_colorMap->setData(np, mmdata);
+#endif
         }
     }
 
@@ -1008,7 +1044,7 @@ int Colors::compute(const char *)
 
     // ---- Create the colors
 
-    if (data && p_color)
+    if (data && p_color && p_color->isConnected())
     {
         outName = p_color->getObjName();
         outObj = createColors(base, alpha, actMap, min, max, numSteps, outName, RGBA);
@@ -1021,7 +1057,7 @@ int Colors::compute(const char *)
 
     // ---- Create the color Texture object
 
-    if (p_texture)
+    if (p_texture && p_texture->isConnected())
     {
         outName = p_texture->getObjName();
         outObj = createColors(base, alpha, actMap, min, max, numSteps, outName, TEX);
@@ -1037,11 +1073,12 @@ int Colors::compute(const char *)
     {
         outName = p_cmapOut->getObjName();
         outObj = new coDoColormap(outName, numSteps, min, max, (float *)actMap, annotation);
-        p_cmapOut->setCurrentObject(outObj);
+        outObj->addAttribute("SPECIES", species);
         if (colorMapIn)
             outObj->copyAllAttributes(colorMapIn);
         else
             addColormapAttrib(outName, min, max, outObj, annotation, actMap, numSteps);
+        p_cmapOut->setCurrentObject(outObj);
     }
 
     // delete the map ONLY if not read from a distributed object
@@ -1129,11 +1166,11 @@ inline void readRGB(char *items[], int np, Colors::FlColor &color)
     int i = 0;
     for (int k = 0; k < np * 3; k = k + 3)
     {
-        color[i] = atof(items[k]);
-        color[i + 1] = atof(items[k + 1]);
-        color[i + 2] = atof(items[k + 2]);
-        color[i + 3] = 1.0;
-        color[i + 4] = -1.0;
+        color[i] = (float)atof(items[k]);
+        color[i + 1] = (float)atof(items[k + 1]);
+        color[i + 2] = (float)atof(items[k + 2]);
+        color[i + 3] = 1.0f;
+        color[i + 4] = -1.0f;
         clamp(color[0]);
         clamp(color[1]);
         clamp(color[2]);
@@ -1146,11 +1183,11 @@ inline void readRGBA(char *items[], int np, Colors::FlColor &color)
     int i = 0;
     for (int k = 0; k < np * 4; k = k + 4)
     {
-        color[i] = atof(items[k]);
-        color[i + 1] = atof(items[k + 1]);
-        color[i + 2] = atof(items[k + 2]);
-        color[i + 3] = atof(items[k + 3]);
-        color[i + 4] = -1.0;
+        color[i] = (float)atof(items[k]);
+        color[i + 1] = (float)atof(items[k + 1]);
+        color[i + 2] = (float)atof(items[k + 2]);
+        color[i + 3] = (float)atof(items[k + 3]);
+        color[i + 4] = -1.0f;
         clamp(color[0]);
         clamp(color[1]);
         clamp(color[2]);
@@ -1164,11 +1201,11 @@ inline void readXRGB(char *items[], int np, Colors::FlColor &color)
     int i = 0;
     for (int k = 0; k < np * 4; k = k + 4)
     {
-        color[i + 4] = atof(items[k]);
-        color[i] = atof(items[k + 1]);
-        color[i + 1] = atof(items[k + 2]);
-        color[i + 2] = atof(items[k + 3]);
-        color[i + 3] = 1.0;
+        color[i + 4] = (float)atof(items[k]);
+        color[i] = (float)atof(items[k + 1]);
+        color[i + 1] = (float)atof(items[k + 2]);
+        color[i + 2] = (float)atof(items[k + 3]);
+        color[i + 3] = 1.0f;
         clamp(color[0]);
         clamp(color[1]);
         clamp(color[2]);
@@ -1181,11 +1218,11 @@ inline void readRGBX(char *items[], int np, Colors::FlColor &color)
     int i = 0;
     for (int k = 0; k < np * 4; k = k + 4)
     {
-        color[i] = atof(items[k]);
-        color[i + 1] = atof(items[k + 1]);
-        color[i + 2] = atof(items[k + 2]);
-        color[i + 3] = 1.0;
-        color[i + 4] = atof(items[k + 2]);
+        color[i] = (float)atof(items[k]);
+        color[i + 1] = (float)atof(items[k + 1]);
+        color[i + 2] = (float)atof(items[k + 2]);
+        color[i + 3] = 1.0f;
+        color[i + 4] = (float)atof(items[k + 2]);
         clamp(color[0]);
         clamp(color[1]);
         clamp(color[2]);
@@ -1198,11 +1235,11 @@ inline void readXRGBA(char *items[], int np, Colors::FlColor &color)
     int i = 0;
     for (int k = 0; k < np * 5; k = k + 5)
     {
-        color[i + 4] = atof(items[k]);
-        color[i] = atof(items[k + 1]);
-        color[i + 1] = atof(items[k + 2]);
-        color[i + 2] = atof(items[k + 3]);
-        color[i + 3] = atof(items[k + 4]);
+        color[i + 4] = (float)atof(items[k]);
+        color[i] = (float)atof(items[k + 1]);
+        color[i + 1] = (float)atof(items[k + 2]);
+        color[i + 2] = (float)atof(items[k + 3]);
+        color[i + 3] = (float)atof(items[k + 4]);
         clamp(color[0]);
         clamp(color[1]);
         clamp(color[2]);
@@ -1217,11 +1254,11 @@ inline void readRGBAX(char *items[], int np, Colors::FlColor &color)
     int i = 0;
     for (int k = 0; k < np * 5; k = k + 5)
     {
-        color[i] = atof(items[k]);
-        color[i + 1] = atof(items[k + 1]);
-        color[i + 2] = atof(items[k + 2]);
-        color[i + 3] = atof(items[k + 3]);
-        color[i + 4] = atof(items[k + 4]);
+        color[i] = (float)atof(items[k]);
+        color[i + 1] = (float)atof(items[k + 1]);
+        color[i + 2] = (float)atof(items[k + 2]);
+        color[i + 3] = (float)atof(items[k + 3]);
+        color[i + 4] = (float)atof(items[k + 4]);
         clamp(color[0]);
         clamp(color[1]);
         clamp(color[2]);
@@ -1236,7 +1273,9 @@ void Colors::updateMinMax(float min, float max)
 {
     float values[2] = { min, max };
     p_minmax->setValue(2, values);
+#ifndef NO_COLORMAP_PARAM
     p_colorMap->setMinMax(min, max);
+#endif
 }
 
 // #######################################################################
