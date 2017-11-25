@@ -5,7 +5,7 @@ ENDIF()
 USING(PROJ4)
 USING(XERCESC)
 USING(OpenCRG)
-USING(V8)
+USING(V8 optional)
 
 SET(HEADERS
    ./opencrg/crgSurface.h

@@ -15,10 +15,13 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
     , scriptName(setScriptName)
     , cycleTime(setCycleTime)
     , scriptInitialized(false)
-    , context(v8::Context::New())
-    , context_scope(context)
-    , controlTemplate(v8::ObjectTemplate::New())
 {
+    context=NULL;
+#ifdef HAVE_V8
+    context = v8::Context::New();
+    context_scope = context;
+    controlTemplate = v8::ObjectTemplate::New();
+#endif
     if (scriptName != "")
     {
         initScript(scriptName);
@@ -27,6 +30,7 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
 
 bool Controller::initScript(const std::string &scriptName)
 {
+#ifdef HAVE_V8
     v8::Handle<v8::String> source = readScriptFile(scriptName);
     if (source.IsEmpty())
     {
@@ -48,16 +52,23 @@ bool Controller::initScript(const std::string &scriptName)
     scriptInitialized = true;
 
     return true;
+#else
+    return false;
+#endif
+
 }
 
 void Controller::addTrigger(RoadSensor *sensor, const std::string &functionName)
 {
+#ifdef HAVE_V8
     std::cout << "Adding Trigger function " << functionName << " to sensor " << sensor->getId() << " at s=" << sensor->getS() << std::endl;
     sensor->setTriggerAction(new ControllerRoadSensorTriggerAction(v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::New(functionName.c_str())))));
+#endif
 }
 
 void Controller::addControl(Control *control)
 {
+#ifdef HAVE_V8
     controlVector.push_back(control);
 
     v8::Local<v8::Object> controlObject = controlTemplate->NewInstance();
@@ -67,6 +78,7 @@ void Controller::addControl(Control *control)
     context->Global()->Set(v8::String::New(controlName.c_str()), controlObject);
 
     std::cout << "addControl: added control id=" << controlName << std::endl;
+#endif
 }
 
 bool Controller::setScriptParams(const std::string &name, const double &time)
@@ -94,12 +106,15 @@ Control *Controller::getControl(unsigned int i)
 
 void Controller::init()
 {
+#ifdef HAVE_V8
     v8::Handle<v8::Value> args[] = { v8::Integer::New(0) };
     initFunction->Call(initFunction, 0, args);
+#endif
 }
 
 void Controller::update(const double &dt)
 {
+#ifdef HAVE_V8
     //hard coded script update call at every second
     const double updateTime = 1.0;
 
@@ -118,8 +133,10 @@ void Controller::update(const double &dt)
         v8::Handle<v8::Value> args[] = { v8::Integer::New(time) };
         updateFunction->Call(updateFunction, 1, args);
     }
+#endif
 }
 
+#ifdef HAVE_V8
 v8::Handle<v8::String> Controller::readScriptFile(const std::string &name)
 {
     FILE *file = fopen(name.c_str(), "rb");
@@ -187,3 +204,4 @@ void Controller::switchRedLight(v8::Local<v8::String> property, v8::Local<v8::Va
     void *ptr = wrap->Value();
     static_cast<Control *>(ptr)->switchRedLight(value->Int32Value() != 0);
 }
+#endif
