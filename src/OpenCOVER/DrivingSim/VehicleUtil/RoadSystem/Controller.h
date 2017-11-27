@@ -84,6 +84,7 @@ protected:
 #endif
 };
 
+#ifdef HAVE_V8
 class ControllerRoadSensorTriggerAction : public RoadSensorTriggerAction
 {
 public:
@@ -101,5 +102,6 @@ public:
 protected:
     v8::Local<v8::Function> triggerJSFunction;
 };
+#endif
 
 #endif

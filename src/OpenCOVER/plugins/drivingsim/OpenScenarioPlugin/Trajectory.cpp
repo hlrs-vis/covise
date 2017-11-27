@@ -1,5 +1,7 @@
 #include "Trajectory.h"
 
+using namespace std;
+
 Trajectory::Trajectory():
 oscTrajectory()
 {}

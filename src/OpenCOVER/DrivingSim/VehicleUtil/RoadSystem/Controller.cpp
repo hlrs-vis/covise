@@ -16,8 +16,8 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
     , cycleTime(setCycleTime)
     , scriptInitialized(false)
 {
-    context=NULL;
 #ifdef HAVE_V8
+    context=NULL;
     context = v8::Context::New();
     context_scope = context;
     controlTemplate = v8::ObjectTemplate::New();
