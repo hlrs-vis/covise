@@ -153,6 +153,14 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
 
         std::cerr << "enableGLDebugExtension: " << ext << " enabled on context " << contextId << std::endl;
     }
+
+    bool sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
+
+    if (sRGB)
+    {
+        std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
+        glEnable(GL_FRAMEBUFFER_SRGB);
+    }
 }
 
 void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
