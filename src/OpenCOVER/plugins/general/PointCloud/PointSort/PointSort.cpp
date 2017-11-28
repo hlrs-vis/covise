@@ -499,6 +499,7 @@ int main(int argc, char **argv)
     min_x = min_y = min_z = FLT_MAX;
     max_x = max_y = max_z = FLT_MIN;
 
+    int nread = 0;
     intensityOnly=false;
     if (argc < 3) /* argc should be > 3 for correct execution */
     {
@@ -514,17 +515,59 @@ int main(int argc, char **argv)
                {
                    intensityOnly=true;
                }
+
+                if (argv[i][1] == 'd')
+                {
+                    ++i;
+                    if (i >= argc)
+                    {
+                        printf("-d requires divisionSize argument\n");
+                        continue;
+                    }
+                    divisionSize = atoi(argv[i]);
+                    if (divisionSize == 0)
+                    {
+                        printf("-d divisionSize cannot be 0\n");
+                        continue;
+                        divisionSize = 25;
+                    }
+                }
+
+                if (argv[i][1] == 'p')
+                {
+                    ++i;
+                    if (i >= argc)
+                    {
+                        printf("-p requires maxPointsPerCube argument\n");
+                        continue;
+                    }
+                    maxPointsPerCube = atoi(argv[i]);
+                    if (maxPointsPerCube == 0)
+                    {
+                        printf("-p maxPointsPerCube cannot be 0\n");
+                        continue;
+                        maxPointsPerCube = 100000000;
+                    }
+                }
             }
             else
             {
+                ++nread;
                 printf("Reading in %s\n", argv[i]);
                 ReadData(argv[i], vec, format);
             }
         }
-        printf("Sorting data\n");
-        LabelData(divisionSize, vec, lookUp);
-        printf("Persisting data\n");
-        WriteData(argv[argc - 1], vec, lookUp, maxPointsPerCube);
+        if (nread > 0)
+        {
+            printf("Sorting data\n");
+            LabelData(divisionSize, vec, lookUp);
+            printf("Persisting data\n");
+            WriteData(argv[argc - 1], vec, lookUp, maxPointsPerCube);
+        }
+        else
+        {
+            printf("Nothing read\n");
+        }
     }
     return 0;
 }

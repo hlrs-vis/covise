@@ -20,6 +20,7 @@ namespace ui {
 struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
 {
    VruiViewElement(Element *elem);
+   ~VruiViewElement();
 
    std::string m_text;
    vrui::coMenuItem *m_menuItem = nullptr;
@@ -34,6 +35,8 @@ class VruiView: public View
 {
  public:
    VruiView();
+   ~VruiView();
+
    COVER_UI_EXPORT vrui::coMenu *getMenu(const Element *elem) const;
    COVER_UI_EXPORT vrui::coMenuItem *getItem(const Element *elem) const;
 
@@ -48,10 +51,11 @@ class VruiView: public View
    void updateEnabled(const Element *elem) override;
    void updateVisible(const Element *elem) override;
    void updateText(const Element *elem) override;
+   void updateParent(const Element *elem) override;
    void updateState(const Button *) override;
-   void updateChildren(const Menu *menu) override;
    void updateChildren(const SelectionList *sl) override;
-   void updateInteger(const Slider *slider) override;
+   void updateIntegral(const Slider *slider) override;
+   void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
 
@@ -64,6 +68,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
+   VruiViewElement *m_root = nullptr;
 };
 
 }

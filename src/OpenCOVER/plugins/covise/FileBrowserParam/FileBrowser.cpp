@@ -11,12 +11,17 @@
 #include <cover/RenderObject.h>
 #include <CovisePluginUtil/coBaseCoviseInteractor.h>
 
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
+
 #include "FileBrowser.h"
 
 FileBrowser *FileBrowser::s_instance = NULL;
 
 FileBrowser::FileBrowser()
-    : m_interactor(NULL)
+: ui::Owner("FileBrowser", cover->ui)
+, m_interactor(NULL)
 {
     if (s_instance)
     {
@@ -28,7 +33,8 @@ FileBrowser::FileBrowser()
 
 bool FileBrowser::init()
 {
-    m_buttonGroup = cover->createUniqueButtonGroupId();
+    m_buttonGroup = new ui::ButtonGroup("ButtonGroup", this);
+    m_buttonGroup->enableDeselect(true);
 
     return true;
 }
@@ -94,21 +100,16 @@ FileBrowser::removeObject(const char *name, bool replace)
 
 void FileBrowser::addMenuEntry()
 {
-    cover->addSubmenuButton("File Chooser...", NULL, m_moduleName.c_str(), false, NULL, m_buttonGroup, this);
+    m_menu = new ui::Menu("FileChooser", this);
+    m_menu->setVisible(true);
+
     // generate menu entries for all datafiles in current directory
     readDirectory();
 }
 
 void FileBrowser::removeMenuEntry()
 {
-    cover->removeButton("File Chooser...", NULL);
-
-    for (std::list<std::string>::iterator it = m_files.begin();
-         it != m_files.end();
-         ++it)
-    {
-        cover->removeButton((*it).c_str(), m_moduleName.c_str());
-    }
+    m_menu->setVisible(false);
 }
 
 void FileBrowser::readDirectory()
@@ -144,30 +145,22 @@ void FileBrowser::readDirectory()
          it != m_files.end();
          ++it)
     {
-        cover->addFunctionButton((*it).c_str(), m_moduleName.c_str(), fileSelection, this); // "Datafiles"
-    }
-}
+        std::string name = *it;
+        auto b = new ui::Button(m_menu, "File", m_buttonGroup);
+        b->setText(name);
+        b->setCallback([this, name](bool state){
+            if (state)
+            {
+                std::string filename = m_basedir;
+                if (filename.length() && filename.at(filename.length() - 1) != '/')
+                    filename += "/";
+                filename += name;
 
-void FileBrowser::fileSelection(void *, buttonSpecCell *spec)
-{
-    std::string filename = instance()->m_basedir;
-    if (filename.length() && filename.at(filename.length() - 1) != '/')
-        filename += "/";
-    for (std::list<std::string>::iterator it = instance()->m_files.begin();
-         it != instance()->m_files.end();
-         ++it)
-    {
-        if (!strcmp((*it).c_str(), spec->name))
-        {
-            filename += *it;
-            break;
-        }
+                m_interactor->setFileBrowserParam(instance()->m_paramName.c_str(), filename.c_str());
+                m_interactor->executeModule();
+            }
+        });
     }
-
-    if (cover->debugLevel(2))
-        std::cerr << "FileBrowser plugin: " << filename << "selected to load" << std::endl;
-    instance()->m_interactor->setFileBrowserParam(instance()->m_paramName.c_str(), filename.c_str());
-    instance()->m_interactor->executeModule();
 }
 
 COVERPLUGIN(FileBrowser)

@@ -158,6 +158,15 @@ public:
         (void)it;
     }
 
+    //! this function is called when COVER wants to enable interaction with an interactor, return true if plugin accepts request
+    virtual bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+    {
+        (void)inter;
+        (void)triggerNode;
+        (void)isMouse;
+        return false;
+    }
+
     //! this function is called if a error message from the controller is received
     virtual void coviseError(const char *error)
     {
@@ -272,13 +281,6 @@ public:
         return 0;
     }
 
-    //! return button corresponding to command name
-    virtual vrui::coMenuItem *getMenuButton(const std::string &buttonName)
-    {
-        (void)buttonName;
-        return NULL;
-    }
-
     //! for visualisation system plugins: request to terminate COVER or COVISE session
     virtual void requestQuit(bool killSession)
     {
@@ -315,6 +317,27 @@ public:
     virtual void expandBoundingSphere(osg::BoundingSphere &bs)
     {
         (void)bs;
+    }
+
+    virtual bool windowCreate(int num)
+    {
+        (void)num;
+        return false;
+    }
+
+    virtual void windowCheckEvents(int num)
+    {
+        (void)num;
+    }
+
+    virtual void windowUpdateContents(int num)
+    {
+        (void)num;
+    }
+
+    virtual void windowDestroy(int num)
+    {
+        (void)num;
     }
 
 protected:

@@ -6021,23 +6021,40 @@ VRML2Export::WriteScripts()
                                        .obj;
         if (so)
         {
+
+			MSTREAMPRINTF("#Script %s\n"), l->GetNode()->GetName());
             // remove unwanted \rs
             const TCHAR *textdata = so->GetUrl().data();
-            TCHAR *buf = new TCHAR[_tcslen(textdata) + 1];
-            TCHAR *b = buf;
-            while (*textdata != '\0')
-            {
-                if (*textdata != '\r')
-                {
-                    *b = *textdata;
-                    b++;
-                }
-                textdata++;
-            }
-            *b = '\0';
 
-         MSTREAMPRINTF  ("#Script %s\n%s\n"),l->GetNode()->GetName(), buf);
-         delete[] buf;
+			size_t dataLen = _tcslen(textdata);
+			size_t lenWritten = 0;
+			size_t toWrite = 0;
+			size_t counter;
+			TCHAR *buf = new TCHAR[LINELENGTH];
+			while (lenWritten < dataLen)
+			{
+				toWrite = dataLen - lenWritten;
+				if (toWrite > 1000)
+					toWrite = 1000;
+				TCHAR *b = buf;
+				counter = 0;
+				while (counter < toWrite && *textdata != '\0')
+				{
+					if (*textdata != '\r')
+					{
+						*b = *textdata;
+						b++;
+					}
+					textdata++;
+					counter++;
+				}
+				*b = '\0';
+				MSTREAMPRINTFNOSTRINGS(buf));
+				lenWritten += toWrite;
+			}
+
+         MSTREAMPRINTF("\n"));
+		 delete[] buf;
         }
     }
 }

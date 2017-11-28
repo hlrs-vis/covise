@@ -19,7 +19,43 @@
 
 #include "qmap.h"
 
-JunctionConnection::JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, const QString &contactPoint, double numerator)
+JunctionConnection::ContactPointValue 
+JunctionConnection::parseContactPoint(const QString &value)
+{
+	if (value == "start")
+	{
+		return JunctionConnection::JCP_START;
+	}
+	else if (value == "end")
+	{
+		return JunctionConnection::JCP_END;
+	}
+	else
+	{
+		qDebug("WARNING: unknown connection contact point: %s", value.toUtf8().constData());
+		return JunctionConnection::JCP_NONE;
+	}
+}
+
+QString 
+JunctionConnection::parseContactPointBack(ContactPointValue value)
+{
+	if (value == JunctionConnection::JCP_START)
+	{
+		return QString("start");
+	}
+	else if (value == JunctionConnection::JCP_END)
+	{
+		return QString("end");
+	}
+	else
+	{
+		qDebug("WARNING: unknown connection contact point");
+		return "";
+	}
+}
+
+JunctionConnection::JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator)
     : DataElement()
     , junctionConnectionChanges_(0x0)
     , parentJunction_(NULL)
@@ -61,7 +97,7 @@ JunctionConnection::setConnectingRoad(const QString &id)
 }
 
 void
-JunctionConnection::setContactPoint(const QString &contactPoint)
+JunctionConnection::setContactPoint(JunctionConnection::ContactPointValue contactPoint)
 {
     contactPoint_ = contactPoint;
     addJunctionConnectionChanges(CJC_ContactPointChanged);

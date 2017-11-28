@@ -128,6 +128,7 @@ public:
         return buf;
     }
 
+    TokenBuffer &operator<<(const bool b);
     TokenBuffer &operator<<(const uint64_t i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
 //TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
@@ -169,6 +170,8 @@ public:
         length += t.get_length();
         return (*this);
     }
+
+    TokenBuffer &operator>>(bool &b);
     TokenBuffer &operator>>(uint64_t &i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
 //TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }

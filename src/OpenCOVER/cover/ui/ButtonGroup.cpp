@@ -1,6 +1,7 @@
 #include "ButtonGroup.h"
 #include "Button.h"
 #include <cassert>
+#include <iostream>
 
 namespace opencover {
 namespace ui {
@@ -15,6 +16,22 @@ ButtonGroup::ButtonGroup(Group *parent, const std::string &name)
 {
 }
 
+ButtonGroup::~ButtonGroup()
+{
+    clearItems();
+    clearChildren();
+}
+
+void ButtonGroup::setDefaultValue(int val)
+{
+    m_defaultValue = val;
+}
+
+int ButtonGroup::defaultValue() const
+{
+    return m_defaultValue;
+}
+
 void ButtonGroup::enableDeselect(bool flag)
 {
     m_allowDeselect = flag;
@@ -27,9 +44,7 @@ void ButtonGroup::enableDeselect(bool flag)
 
 int ButtonGroup::value() const
 {
-    int id = 0;
-    if (numChildren() == 0)
-        return id;
+    int id = defaultValue();
 
     int numSet = 0;
     for (auto e: m_children)
@@ -39,10 +54,11 @@ int ButtonGroup::value() const
         if (b->state())
         {
             ++numSet;
-            id = b->id();
+            id = b->buttonId();
         }
     }
-    assert(numSet == 1);
+    assert(numSet <= 1);
+    assert(numChildren()==0 || m_allowDeselect || numSet == 1);
     return id;
 }
 
@@ -60,8 +76,26 @@ Button *ButtonGroup::activeButton() const
             ret = b;
         }
     }
-    assert(numSet == 1);
+    assert(numSet <= 1);
+    assert(numChildren()==0 || m_allowDeselect || numSet == 1);
     return ret;
+}
+
+void ButtonGroup::setActiveButton(Button *button)
+{
+    for (auto e: m_children)
+    {
+        auto b = dynamic_cast<Button *>(e);
+        assert(b);
+        if (b == button)
+        {
+            bool oldState = button->state();
+            button->setState(true, true /* update group */);
+            if (!oldState)
+                button->trigger();
+            return;
+        }
+    }
 }
 
 bool ButtonGroup::add(Element *elem)
@@ -92,6 +126,7 @@ bool ButtonGroup::remove(Element *elem)
     assert(rb);
     if (Container::remove(elem))
     {
+        rb->m_radioGroup = nullptr;
         if (rb->state() && numChildren()>0 && !m_allowDeselect)
         {
             auto rb0 = dynamic_cast<Button *>(child(0));
@@ -116,41 +151,33 @@ std::function<void (int)> ButtonGroup::callback() const
 
 void ButtonGroup::toggle(const Button *b)
 {
-    bool change = false;
-
-    Button *bset = nullptr;
+    //std::cerr << "TOGGLE: group=" << path() << ", toggle=" << b->path() << ", state=" << b->state() << std::endl;
+    Button *bset = nullptr, *bthis = nullptr;;
     for (auto e: m_children)
     {
         auto bb = dynamic_cast<Button *>(e);
         assert(bb);
         if (b == bb)
-        {
-
-        }
-        else
-        {
-            if (bb->state())
-                bset = bb;
-        }
+            bthis = bb;
+        if (b != bb && bb->state())
+            bset = bb;
     }
+
+    bool change = false;
     if (bset)
     {
-        if (b->state())
+        if (b->state() || m_allowDeselect)
         {
             change = true;
             bset->setState(false, false);
             bset->radioTrigger();
         }
     }
-    else if (!m_allowDeselect)
+    else if (!bthis->state())
     {
-        if (!b->state())
-        {
-#if 0
-            b->setState(true, false);
-            b->trigger();
-#endif
-        }
+        change = true;
+        bthis->setState(true, false);
+        bthis->radioTrigger();
     }
 
     if (change)
@@ -159,6 +186,7 @@ void ButtonGroup::toggle(const Button *b)
 
 void ButtonGroup::triggerImplementation() const
 {
+    //std::cerr << "ButtonGroup: trigger: value=" << value() << ", " << path() << std::endl;
     if (m_callback)
         m_callback(value());
 }

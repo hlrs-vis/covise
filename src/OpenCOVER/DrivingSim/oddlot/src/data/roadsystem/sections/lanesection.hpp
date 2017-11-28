@@ -40,10 +40,20 @@ public:
     //################//
 
 public:
-    explicit LaneSection(double s);
-    explicit LaneSection(double s, const LaneSection *oldLaneSection); // create new LaneSection at pos s of oldLaneSection
-    explicit LaneSection(double s, const LaneSection *LanSectionLow, const LaneSection *LanSectionHigh); // create new LaneSection as e merger between low and high
+    explicit LaneSection(double s, bool singleSide);
+    explicit LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection); // create new LaneSection at pos s of oldLaneSection
+    explicit LaneSection(double s, bool singleSide, const LaneSection *LanSectionLow, const LaneSection *LanSectionHigh); // create new LaneSection as e merger between low and high
     virtual ~LaneSection();
+
+	bool getSide()
+	{
+		return singleSide_;
+	}
+
+	void setSide(bool singleSide)
+	{
+		singleSide_ = singleSide;
+	}
 
     // Section Functions //
     //
@@ -112,6 +122,10 @@ private:
     // Change flags //
     //
     int laneSectionChanges_;
+
+	// valid for only one side //
+	// 
+	bool singleSide_;
 
 protected:
     // Lane Entries //

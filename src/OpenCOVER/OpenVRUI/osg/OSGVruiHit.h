@@ -10,7 +10,8 @@
 
 #include <OpenVRUI/sginterface/vruiHit.h>
 
-#include <osgUtil/IntersectVisitor>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 
 namespace vrui
 {
@@ -21,20 +22,20 @@ class OSGVRUIEXPORT OSGVruiHit : public vruiHit
 {
 
 public:
-    OSGVruiHit(osgUtil::Hit &hit, bool mouseHit);
+    OSGVruiHit(const osgUtil::LineSegmentIntersector::Intersection &isect, bool mouseHit);
     virtual ~OSGVruiHit();
 
     virtual coVector &getLocalIntersectionPoint() const;
     virtual coVector &getWorldIntersectionPoint() const;
-    virtual coVector &getIntersectionNormal() const;
+    virtual coVector &getWorldIntersectionNormal() const;
     virtual bool isMouseHit() const;
 
     vruiNode *getNode();
 
-    const osgUtil::Hit &getHit() const;
+    const osgUtil::LineSegmentIntersector::Intersection &getHit() const;
 
 private:
-    osgUtil::Hit hit;
+    osgUtil::LineSegmentIntersector::Intersection hit;
     bool mouseHit;
 
     mutable coVector *isecLocalPoint;

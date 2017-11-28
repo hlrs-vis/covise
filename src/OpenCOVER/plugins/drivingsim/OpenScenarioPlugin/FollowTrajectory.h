@@ -1,8 +1,6 @@
 #ifndef FOLLOW_TRAJECTORY_H
 #define FOLLOW_TRAJECTORY_H
 
-using namespace std;
-#include<iostream>
 #include<string>
 #include <OpenScenario/schema/oscFollowTrajectory.h>
 
@@ -10,7 +8,7 @@ class FollowTrajectory : public OpenScenario::oscFollowTrajectory
 {
 
 private:
-string name;
+  std::string name;
 
 public:
 	FollowTrajectory();

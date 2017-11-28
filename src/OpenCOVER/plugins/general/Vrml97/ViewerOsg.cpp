@@ -77,6 +77,7 @@ static const int NUM_TEXUNITS = 4;
 
 #include <osgUtil/Tessellator>
 #include <osgUtil/TriStripVisitor>
+#include <osg/KdTree>
 #include <osgUtil/TangentSpaceGenerator>
 
 #ifdef HAVE_OSGNV
@@ -2178,6 +2179,13 @@ ViewerOsg::insertShell(unsigned int mask,
     {
         geom->setName(objName);
         geode->addDrawable(geom.get());
+    }
+
+    osg::ref_ptr<osg::KdTreeBuilder> kdb = new osg::KdTreeBuilder;
+    for(unsigned int i=0;i<geode->getNumDrawables();i++)
+    {
+        osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
+        kdb->apply(*geo);
     }
 
     geode->setName(objName);
@@ -5129,7 +5137,7 @@ void ViewerOsg::setTransform(float *center,
     d_currentObject->parentTransform = currentTransform;
     currentTransform.preMult(mat);
 
-    void *info = (void *)OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
+    void *info = (void *)vrui::OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
     if (info == NULL)
     {
         // leave alone moved nodes

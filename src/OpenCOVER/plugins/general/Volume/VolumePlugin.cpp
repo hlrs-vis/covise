@@ -374,7 +374,8 @@ bool VolumePlugin::init()
 
     backgroundColor = BgDefault;
     bool ignore;
-    computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
+    computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", true, &ignore);
+    showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
 
@@ -712,7 +713,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                     delete[] functionEditorTab -> histogramData;
                     functionEditorTab->histogramData = NULL;
                     functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
-                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, 0, 1);
+                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
 
                     functionEditorTab->sendHistogramData();
                 }
@@ -1101,7 +1102,8 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
 
     vd->printInfoLine("Loaded");
 
-    editor->show();
+    if (showTFE)
+        editor->show();
     // a volumefile will be loaded now , so show the TFE
 
     updateVolume(fileName, vd, false, fileName);
@@ -1174,14 +1176,6 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
     int shader = -1;
 
-    // colorMap is not passed as parameter..
-    size_t MaxColorMap = 8;
-    std::vector<RenderObject *> colorMap(MaxColorMap);
-    for (int c = 0; c < colorMap.size(); ++c)
-    {
-        colorMap[c] = container->getColorMap(c);
-    }
-
     if (container->getAttribute("VOLUME_SHADER"))
     {
         std::string s = container->getAttribute("VOLUME_SHADER");
@@ -1211,7 +1205,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
         cerr << "@ APP @@ Color object type is " << colorObj->getType() << endl;
 #endif
 
-        bool showEditor = true;
+        bool showEditor = showTFE;
         if (colorObj)
         {
             const uchar *byteData = colorObj->getByte(Field::Byte);
@@ -1401,40 +1395,11 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
 
             for (size_t c = 0; c < volDesc->chan; ++c)
             {
-                volDesc->real[c][0] = colorObj->getMin(c);
-                volDesc->real[c][1] = colorObj->getMax(c);
+                volDesc->range(c)[0] = colorObj->getMin(c);
+                volDesc->range(c)[1] = colorObj->getMax(c);
 
-                if (volDesc->real[c][1] == 0 && volDesc->real[c][0] == 0)
-                    volDesc->real[c][1] = 1.0f;
-            }
-
-            // Append color maps as additional transfer functions
-            for (int c = 0; c < MaxColorMap; ++c)
-            {
-                if (colorMap[c] && colorMap[c]->getNumElements() > 0)
-                {
-                    volDesc->tf.resize(volDesc->tf.size() + 1);
-                    volDesc->real.push_back(virvo::vec2(0.0f, 1.0f));
-
-                    const float* rgbax = colorMap[c]->getFloat((Field::Id)c);
-
-                    for (int i = 0; i < colorMap[c]->getNumElements(); ++i)
-                    {
-                        float r = rgbax[i * 5];
-                        float g = rgbax[i * 5 + 1];
-                        float b = rgbax[i * 5 + 2];
-                        float a = rgbax[i * 5 + 3];
-                        volDesc->tf.back()._widgets.push_back(new vvTFPyramid(
-                                vvColor(r, g, b),
-                                true,       // has own color
-                                a,          // opacity
-                                i / 255.0f, // xpos
-                                1 / 255.0f, // width bottom
-                                1 / 255.0f  // width top
-                                )
-                            );
-                    }
-                }
+                if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
+                    volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
             }
 
             if (container->getName())
@@ -1644,8 +1609,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 for (int i = 0; i < volumes[name].tf.size(); ++i)
                 {
-                    volumes[name].tf[i].setDefaultColors(4 + i, 0., 1.);
-                    volumes[name].tf[i].setDefaultAlpha(0, 0., 1.);
+                    volumes[name].tf[i].setDefaultColors(4 + i, vd->range(i)[0], vd->range(i)[1]);
+                    volumes[name].tf[i].setDefaultAlpha(0, vd->range(i)[0], vd->range(i)[1]);
                 }
             }
             else
@@ -1773,8 +1738,9 @@ void VolumePlugin::updateTFEData()
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LINEAR, &fg, 0., 1.);
+                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
+                        editor->pinedit->setBackgroundType(0); // histogram
                     }
 
                     editor->setNumChannels(vd->chan);
@@ -1784,8 +1750,8 @@ void VolumePlugin::updateTFEData()
                     for (int c = 0; c < vd->chan; ++c)
                     {
                         editor->setActiveChannel(c);
-                        editor->setMin(vd->real[c][0]);
-                        editor->setMax(vd->real[c][1]);
+                        editor->setMin(vd->range(c)[0]);
+                        editor->setMax(vd->range(c)[1]);
                     }
 
                     editor->setActiveChannel(currentVolume->second.curChannel);
@@ -1814,9 +1780,12 @@ void VolumePlugin::updateTFEData()
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
                         if (vd->chan == 1)
-                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, 0, 1);
+                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
                         else
-                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, 0, 1);
+                            //TODO: allow to pass in multiple min/max pairs
+                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,
+                                              std::min(vd->range(0)[0], vd->range(1)[0]),
+                                              std::max(vd->range(0)[1], vd->range(1)[1]));
                     }
                 }
             }

@@ -81,7 +81,7 @@ protected:
 
     bool keepSquare_;
     bool wait_;
-    string initialObjectName_; //we have to save it for the grmsg, because _inter is not
+    std::string initialObjectName_; //we have to save it for the grmsg, because _inter is not
 
     bool _cyberclassroom; /// hide s1 s2 s3 s4 for cyberclassroom
     TracerPlugin *plugin;

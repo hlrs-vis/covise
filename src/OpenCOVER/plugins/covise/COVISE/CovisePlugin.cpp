@@ -14,7 +14,6 @@
 #include <util/coTimer.h>
 #include <covise/covise_appproc.h>
 #include <appl/RenderInterface.h>
-#include <cover/VRPinboard.h>
 #include <cover/VRSceneGraph.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
@@ -26,11 +25,14 @@
 
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
-
-#include <cover/coVRMSController.h>
-#include <cover/coVRPluginSupport.h>
 #include <cover/coVRPluginList.h>
 #include <cover/coVRFileManager.h>
+
+#include <PluginUtil/FeedbackManager.h>
+#include <PluginUtil/ModuleInteraction.h>
+
+#include <cover/ui/Action.h>
+#include <cover/ui/Menu.h>
 
 using namespace covise;
 using namespace opencover;
@@ -38,12 +40,14 @@ using namespace std;
 using vrui::vruiButtons;
 
 CovisePlugin::CovisePlugin()
+: ui::Owner("CovisePlugin", cover->ui)
 {
     setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
     new VRCoviseConnection();
 }
 
+#ifdef PINBOARD
 static void initPinboard(VRPinboard *pb)
 {
     pb->addFunction("Execute", VRPinboard::BTYPE_FUNC, "execute", "COVISE", VRCoviseConnection::executeCallback, VRCoviseConnection::covconn);
@@ -83,6 +87,7 @@ static void initPinboard(VRPinboard *pb)
         }
     }
 }
+#endif
 
 static void messageCallback(int len, const void *buf)
 {
@@ -92,13 +97,38 @@ static void messageCallback(int len, const void *buf)
 bool CovisePlugin::init()
 {
     coVRDistributionManager::instance().init();
+#ifdef PINBOARD
     initPinboard(VRPinboard::instance());
+#else
+    if (!cover->visMenu)
+    {
+        cover->visMenu = new ui::Menu("COVISE", this);
+        auto e = new ui::Action(cover->visMenu, "Execute");
+        e->setCallback([this](){
+            executeAll();
+        });
+        e->setIcon("view-refresh");
+        e->setPriority(ui::Element::Toolbar);
+
+        auto selectInteract = cover->ui->getByPath("NavigationManager.Navigation.SelectInteract");
+        if (selectInteract)
+        {
+            selectInteract->setEnabled(true);
+            selectInteract->setVisible(true);
+            //cover->visMenu->add(selectInteract);
+        }
+    }
+#endif
     CoviseRender::set_render_module_callback(messageCallback);
     return VRCoviseConnection::covconn;
 }
 
 CovisePlugin::~CovisePlugin()
 {
+    if (cover->visMenu)
+    {
+        cover->visMenu = NULL;
+    }
     delete VRCoviseConnection::covconn;
     VRCoviseConnection::covconn = NULL;
 }
@@ -326,6 +356,20 @@ void CovisePlugin::expandBoundingSphere(osg::BoundingSphere &bsphere)
             bsphere = osg::BoundingSphere(osg::Vec3(b_sphere.x, b_sphere.y, b_sphere.z), b_sphere.radius);
         }
     }
+}
+
+bool CovisePlugin::requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+{
+    (void)triggerNode;
+
+    auto interaction = FeedbackManager::instance()->findFeedback(inter);
+    if (!interaction)
+        return false;
+    if (isMouse)
+        interaction->setShowInteractorFromGui(true);
+    else
+        interaction->enableDirectInteractorFromGui(true);
+    return true;
 }
 
 COVERPLUGIN(CovisePlugin)

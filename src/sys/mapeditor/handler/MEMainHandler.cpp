@@ -556,12 +556,11 @@ void MEMainHandler::readConfigFile()
     {
 
         flist << "RWCovise:IO"
-              << "Colors:Color"
+              << "Colors:Mapper"
               << "IsoSurface:Mapper"
               << "CuttingSurface:Filter"
               << "Collect:Tools"
-              << "Renderer:Renderer"
-              << "VRRenderer:Renderer";
+              << "Renderer:Renderer";
     }
 
     else

@@ -832,8 +832,8 @@ void InvMain::printDesc(const char *callname)
     else
         modName = callname;
 
-    cout << "Module:      \"" << modName << "\"" << endl;
-    cout << "Desc:        \"" << (const char *)module_description.toLatin1() << "\"" << endl;
+    cout << "Module:      \"" << modName << "\"" << std::endl;
+    cout << "Desc:        \"" << (const char *)module_description.toLatin1() << "\"" << std::endl;
 
     int i, numItems;
 
@@ -842,7 +842,7 @@ void InvMain::printDesc(const char *callname)
     for (i = 0; !port_name[i].isNull(); i++)
         if (port_type[i] == PARIN)
             numItems++;
-    cout << "Parameters:   " << numItems << endl;
+    cout << "Parameters:   " << numItems << std::endl;
 
     // print parameters
     numItems = 0;
@@ -865,7 +865,7 @@ void InvMain::printDesc(const char *callname)
                  << "\" \"" << (const char *)port_datatype[i].toLatin1()
                  << "\" \"" << (const char *)port_default[i].toLatin1()
                  << "\" \"" << (const char *)port_description[i].toLatin1()
-                 << "\" \"" << immediate << '"' << endl;
+                 << "\" \"" << immediate << '"' << std::endl;
         }
 
     // count OutPorts
@@ -873,7 +873,7 @@ void InvMain::printDesc(const char *callname)
     for (i = 0; !port_name[i].isNull(); i++)
         if (port_type[i] == OUTPUT_PORT)
             numItems++;
-    cout << "OutPorts:     " << numItems << endl;
+    cout << "OutPorts:     " << numItems << std::endl;
 
     // print outPorts
     for (i = 0; !port_name[i].isNull(); i++)
@@ -893,7 +893,7 @@ void InvMain::printDesc(const char *callname)
             cout << "  \"" << (const char *)port_name[i].toLatin1()
                  << "\" \"" << (const char *)port_datatype[i].toLatin1()
                  << "\" \"" << (const char *)port_description[i].toLatin1()
-                 << "\" \"" << dependency << '"' << endl;
+                 << "\" \"" << dependency << '"' << std::endl;
         }
 
     // count InPorts
@@ -901,7 +901,7 @@ void InvMain::printDesc(const char *callname)
     for (i = 0; !port_name[i].isNull(); i++)
         if (port_type[i] == INPUT_PORT)
             numItems++;
-    cout << "InPorts:      " << numItems << endl;
+    cout << "InPorts:      " << numItems << std::endl;
 
     // print InPorts
     for (i = 0; !port_name[i].isNull(); i++)
@@ -920,7 +920,7 @@ void InvMain::printDesc(const char *callname)
             cout << "  \"" << (const char *)port_name[i].toLatin1()
                  << "\" \"" << (const char *)port_datatype[i].toLatin1()
                  << "\" \"" << (const char *)port_description[i].toLatin1()
-                 << "\" \"" << required << '"' << endl;
+                 << "\" \"" << required << '"' << std::endl;
         }
 }
 
@@ -933,7 +933,7 @@ InvMain::~InvMain()
 //------------------------------------------------------------------------
 void InvMain::closeEvent(QCloseEvent *ce)
 {
-    cerr << "receive close event " << endl;
+    cerr << "receive close event " << std::endl;
     ce->ignore();
 }
 

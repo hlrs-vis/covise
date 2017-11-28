@@ -78,6 +78,20 @@ TokenBuffer::TokenBuffer(const char *dat, int len, bool nbo)
     networkByteOrder = nbo;
 }
 
+TokenBuffer &TokenBuffer::operator>>(bool &b)
+{
+    char byte = 0;
+    (*this) >> byte;
+    b = byte>0;
+    return *this;
+}
+
+TokenBuffer &TokenBuffer::operator<<(const bool b)
+{
+    char byte = b?1:0;
+    return (*this) << byte;
+}
+
 TokenBuffer &TokenBuffer::operator<<(const uint64_t i)
 {
     if (buflen < length + 9)

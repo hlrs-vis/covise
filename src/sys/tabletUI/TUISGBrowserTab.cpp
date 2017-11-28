@@ -1653,18 +1653,15 @@ void TUISGBrowserTab::itemProperties()
             QString str = item->text(8);
             QByteArray ba = str.toUtf8();
             const char *path = ba.data();
-            const char *parentPath;
+            QByteArray baP;
+            const char *parentPath = path;
 
             pI = item->parent();
             if (pI)
             {
                 str = pI->text(8);
-                QByteArray baP = str.toUtf8();
+                baP = str.toUtf8();
                 parentPath = baP.data();
-            }
-            else
-            {
-                parentPath = path;
             }
 
             tb << ID;

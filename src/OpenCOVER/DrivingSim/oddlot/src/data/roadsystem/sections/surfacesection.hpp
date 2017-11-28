@@ -21,45 +21,72 @@
 #include <QString>
 #include <QVector>
 
-struct CRGElement
-{
-    CRGElement(QString file = "",
-               QString sStart = "",
-               QString sEnd = "",
-               QString orientation = "",
-               QString mode = "",
-               QString sOffset = "",
-               QString tOffset = "",
-               QString zOffset = "",
-               QString zScale = "",
-               QString hOffset = "")
-        : file_(file)
-        , sStart_(sStart)
-        , sEnd_(sEnd)
-        , orientation_(orientation)
-        , mode_(mode)
-        , sOffset_(sOffset)
-        , tOffset_(tOffset)
-        , zOffset_(zOffset)
-        , zScale_(zScale)
-        , hOffset_(hOffset)
-    {
-    }
-
-    QString file_;
-    QString sStart_;
-    QString sEnd_;
-    QString orientation_;
-    QString mode_;
-    QString sOffset_;
-    QString tOffset_;
-    QString zOffset_;
-    QString zScale_;
-    QString hOffset_;
-};
-
 class SurfaceSection
 {
+	enum SurfaceOrientation
+	{
+		SSO_SAME = 0,
+		SSO_OPPOSITE = 1
+	};
+	static SurfaceOrientation parseSurfaceOrientation(const QString &orientation);
+	static QString parseSurfaceOrientationBack(SurfaceOrientation orientation);
+
+	enum ApplicationMode
+	{
+		SSA_ATTACHED,
+		SSA_ATTACHED0,
+		SSA_GENUINE
+	};
+	static ApplicationMode parseApplicationMode(const QString &application);
+	static QString parseApplicationModeBack(ApplicationMode application);
+
+	enum SurfacePurpose
+	{
+		SSP_ELEVATION,
+		SSP_FRICTION
+	};
+	static SurfacePurpose parseSurfacePurpose(const QString &purpose);
+	static QString parseSurfacePurposeBack(SurfacePurpose purpose);
+
+	struct CRGElement
+	{
+		CRGElement(QString file = "",
+			QString sStart = "",
+			QString sEnd = "",
+			SurfaceOrientation orientation = SSO_SAME,
+			ApplicationMode mode = SSA_GENUINE,
+			SurfacePurpose purpose = SSP_ELEVATION,
+			QString sOffset = "",
+			QString tOffset = "",
+			QString zOffset = "",
+			QString zScale = "",
+			QString hOffset = "")
+			: file_(file)
+			, sStart_(sStart)
+			, sEnd_(sEnd)
+			, orientation_(orientation)
+			, mode_(mode)
+			, purpose_(purpose)
+			, sOffset_(sOffset)
+			, tOffset_(tOffset)
+			, zOffset_(zOffset)
+			, zScale_(zScale)
+			, hOffset_(hOffset)
+		{
+		}
+
+		QString file_;
+		QString sStart_;
+		QString sEnd_;
+		SurfaceOrientation orientation_;
+		ApplicationMode mode_;
+		SurfacePurpose purpose_;
+		QString sOffset_;
+		QString tOffset_;
+		QString zOffset_;
+		QString zScale_;
+		QString hOffset_;
+	};
 
     //################//
     // FUNCTIONS      //
@@ -76,8 +103,9 @@ public:
     void addCRG(QString file,
                 QString sStart,
                 QString sEnd,
-                QString orientation,
-                QString mode,
+				QString orientation,
+				QString mode,
+				QString purpose,
                 QString sOffset,
                 QString tOffset,
                 QString zOffset,
@@ -87,8 +115,9 @@ public:
         crgs.append(CRGElement(file,
                                sStart,
                                sEnd,
-                               orientation,
-                               mode,
+                               parseSurfaceOrientation(orientation),
+                               parseApplicationMode(mode),
+							   parseSurfacePurpose(purpose),		
                                sOffset,
                                tOffset,
                                zOffset,
@@ -115,12 +144,16 @@ public:
     }
     QString getOrientation(int i) const
     {
-        return crgs[i].orientation_;
+        return parseSurfaceOrientationBack(crgs[i].orientation_);
     }
     QString getMode(int i) const
     {
-        return crgs[i].mode_;
+        return parseApplicationModeBack(crgs[i].mode_);
     }
+	QString getPurpose(int i) const
+	{
+		return parseSurfacePurposeBack(crgs[i].purpose_);
+	}
     QString getSOffset(int i) const
     {
         return crgs[i].sOffset_;

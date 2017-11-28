@@ -4,7 +4,7 @@ ENDIF()
 
 USING(XERCESC OSGCAL CAL3D)
 using(VRML)
-using(V8)
+using(V8 optional)
 using(VehicleUtil)
 
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
@@ -68,7 +68,6 @@ INCLUDE_DIRECTORIES(
    ${OSGCAL3D_INCLUDE_DIR}
    ${CAL3D_INCLUDE_DIR}
    ${GDAL_INCLUDE_DIR}
-   ${V8_INCLUDE_DIR}
 )
 
 

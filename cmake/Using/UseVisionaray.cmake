@@ -26,7 +26,6 @@ MACRO(USE_VISIONARAY)
                 covise_find_package(PTHREAD REQUIRED)
             endif()
 
-            USE_GLEW()
             USE_BOOST()
             include_directories(${OPENGL_INCLUDE_DIR})
             include_directories(${VISIONARAY_INCLUDE_DIR})

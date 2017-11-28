@@ -13,11 +13,12 @@
 
 #include <PluginUtil/ColorBar.h>
 
-#include <OpenVRUI/coMenuItem.h>
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 #include <cover/RenderObject.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
 
 #include <osg/Geode>
 #include <osg/ref_ptr>
@@ -31,11 +32,6 @@
 
 #include <sysdep/opengl.h>
 
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-
 #include <PluginUtil/PluginMessageTypes.h>
 
 #include <cover/coVRMSController.h>
@@ -43,6 +39,8 @@
 #include <net/tokenbuffer.h>
 
 using namespace covise;
+
+using vrui::coInteraction;
 
 CUDAEngine cuttingEngine;
 
@@ -55,8 +53,9 @@ void removeSpikesAdaptive(const float *data, int numElem,
                           float *min, float *max);
 
 cuCuttingSurface::cuCuttingSurface()
-    : initDone(false)
-    , menu(NULL)
+: ui::Owner("cuCuttingSurface", cover->ui)
+, initDone(false)
+, menu(NULL)
 {
 }
 
@@ -96,11 +95,11 @@ void cuCuttingSurface::preDraw(osg::RenderInfo &)
     }
 }
 
-coCheckboxMenuItem *cuCuttingSurface::getMenu(const RenderObject *container,
+ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
                                               const RenderObject * /*data*/,
                                               const RenderObject *tex)
 {
-    coCheckboxMenuItem *check = NULL;
+    ui::Button *check = NULL;
 
     if (!tex)
         tex = container->getTexture();
@@ -108,7 +107,7 @@ coCheckboxMenuItem *cuCuttingSurface::getMenu(const RenderObject *container,
     if (!tex)
         return NULL;
 
-    std::map<std::string, coRowMenu *>::iterator i = menus.find(container->getName());
+    std::map<std::string, ui::Menu *>::iterator i = menus.find(container->getName());
 
     if (i == menus.end())
     {
@@ -129,13 +128,10 @@ coCheckboxMenuItem *cuCuttingSurface::getMenu(const RenderObject *container,
         if (!name)
             name = container->getName();
 
-        coSubMenuItem *subMenu = new coSubMenuItem(name);
-        check = new coCheckboxMenuItem("enable", true);
-        coRowMenu *row = new coRowMenu(name, menu);
-        subMenu->setMenu(row);
-        menu->add(subMenu);
-        row->add(check);
-        menus[container->getName()] = row;
+        ui::Menu *subMenu = new ui::Menu(menu, name); 
+        check = new ui::Button(subMenu, "enable");
+        check->setState(true);
+        menus[container->getName()] = subMenu;
 
         const char *attr = tex->getAttribute("COLORMAP");
         if (attr)
@@ -159,7 +155,9 @@ coCheckboxMenuItem *cuCuttingSurface::getMenu(const RenderObject *container,
     }
     else
     {
-        check = dynamic_cast<coCheckboxMenuItem *>(menus[container->getName()]->getItemByName("enable"));
+        auto sm = i->second;
+        auto path = sm->path()+"."+"enable";
+        check = dynamic_cast<ui::Button *>(cover->ui->getByPath(path));
     }
 
     return check;
@@ -194,16 +192,12 @@ void cuCuttingSurface::removeObject(const char *objName, bool /*replace*/)
         interactors.erase(pi);
     }
 
-    if (menu)
-    {
-        coMenuItem *item = menu->getItemByName(objName);
-        if (item)
-            menu->remove(item);
-    }
-
-    std::map<std::string, coRowMenu *>::iterator mi = menus.find(objName);
+    std::map<std::string, ui::Menu *>::iterator mi = menus.find(objName);
     if (mi != menus.end())
+    {
+        delete mi->second;
         menus.erase(mi);
+    }
 }
 
 void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *normals, const RenderObject *colorObj, const RenderObject *texObj)
@@ -229,11 +223,9 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
 
     if (!menu)
     {
-        coMenu *coviseMenu = (coMenu *)(VRPinboard::instance()->namedMenu("COVISE")->getCoMenu());
-        coSubMenuItem *menuItem = new coSubMenuItem("cuCuttingSurfaceUSG");
-        menu = new coRowMenu("cuCuttingSurfaceUSG", coviseMenu);
-        menuItem->setMenu(menu);
-        coviseMenu->add(menuItem);
+        menu = new ui::Menu("cuCuttingSurfaceUSG", this);
+        if (cover->visMenu)
+            cover->visMenu->add(menu);
     }
 
     if (container)
@@ -361,7 +353,7 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
 
                 g->setStateSet(state.get());
 
-                coCheckboxMenuItem *check = getMenu(container, colorObj, texObj);
+                ui::Button *check = getMenu(container, colorObj, texObj);
                 coVR3DTransRotInteractor *interactor = NULL;
 
                 std::map<std::string, coVR3DTransRotInteractor *>::iterator pi = interactors.find(container->getName());
@@ -387,8 +379,6 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
                          geometry->getName());
                 geode[std::string(name)] = g.get();
                 g->setName(strdup(name));
-                if (check)
-                    check->setMenuListener(draw.get());
 
                 g->addDrawable(draw.get());
                 draw->setUseDisplayList(false);
@@ -480,12 +470,11 @@ void cuCuttingSurface::message(int type, int len, const void *buf)
     }
 }
 
-CuttingDrawable::CuttingDrawable(coCheckboxMenuItem *m,
+CuttingDrawable::CuttingDrawable(ui::Button *m,
                                  coVR3DTransRotInteractor *i, const RenderObject *g,
                                  const RenderObject *map, const RenderObject *data,
                                  float *b, float min = 0.0, float max = 0.0)
     : osg::Geometry()
-    , coMenuListener()
     , state(NULL)
     , geom(g)
     , interactorChanged(false)
@@ -536,6 +525,11 @@ CuttingDrawable::CuttingDrawable(coCheckboxMenuItem *m,
 
         name = geom->getName();
     }
+
+    menu->setCallback([this](bool state){
+            if (!state)
+            interactorChanged = true;
+    });
 }
 
 CuttingDrawable::~CuttingDrawable()
@@ -543,20 +537,9 @@ CuttingDrawable::~CuttingDrawable()
     CleanupState(state);
 }
 
-void CuttingDrawable::menuReleaseEvent(coMenuItem * /*item*/)
-{
-}
-
-void CuttingDrawable::menuEvent(coMenuItem *item)
-{
-    if (item == menu)
-        if (!menu->getState())
-            interactorChanged = true;
-}
-
 void CuttingDrawable::preFrame()
 {
-    if (menu && !menu->getState())
+    if (menu && !menu->state())
         return;
 
     interactorChanged = false;
@@ -566,7 +549,7 @@ void CuttingDrawable::preFrame()
 
 void CuttingDrawable::preDraw()
 {
-    if (menu && !menu->getState())
+    if (menu && !menu->state())
         return;
 
     if (interactorChanged || remoteMatrixChanged)
@@ -612,13 +595,12 @@ void CuttingDrawable::postFrame()
 CuttingDrawable::CuttingDrawable(const CuttingDrawable &draw,
                                  const osg::CopyOp &op)
     : osg::Geometry(draw, op)
-    , coMenuListener()
 {
 }
 
 void CuttingDrawable::drawImplementation(osg::RenderInfo & /*info*/) const
 {
-    if (menu && !menu->getState())
+    if (menu && !menu->state())
         return;
 
     RenderCUDAState(state);

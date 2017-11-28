@@ -89,6 +89,8 @@
 #include <grmsg/coGRObjSensorEventMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 
+#include <cover/ui/Action.h>
+
 using namespace covise;
 using namespace grmsg;
 
@@ -296,7 +298,8 @@ void Vrml97Plugin::worldChangedCB(int reason)
 }
 
 Vrml97Plugin::Vrml97Plugin()
-    : listener(NULL)
+    : ui::Owner("Vrml97Plugin", cover->ui)
+    , listener(NULL)
     , viewer(NULL)
     , vrmlScene(NULL)
     , player(NULL)
@@ -801,15 +804,22 @@ void Vrml97Plugin::activateTouchSensor(int id)
         dummyMatrix);
 }
 
-coMenuItem *Vrml97Plugin::getMenuButton(const std::string &buttonName)
+ui::Element *Vrml97Plugin::getMenuButton(const std::string &buttonName)
 {
     if (buttonName.find("activateTouchSensor") == 0)
     {
         int i = atoi(buttonName.substr(19).c_str());
         if (viewer && viewer->sensors.size() > i)
         {
-            if (viewer->sensors[i]->getButton()->getMenuListener() == NULL)
-                viewer->sensors[i]->getButton()->setMenuListener(this);
+            if (auto a = viewer->sensors[i]->getButton())
+            {
+                if (!a->callback())
+                {
+                    a->setCallback([this, i](){
+                        activateTouchSensor(i);
+                    });
+                }
+            }
             return viewer->sensors[i]->getButton();
         }
         else
@@ -819,6 +829,7 @@ coMenuItem *Vrml97Plugin::getMenuButton(const std::string &buttonName)
     return NULL;
 }
 
+#if 0
 void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
 {
 
@@ -837,5 +848,6 @@ void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
         }
     }
 }
+#endif
 
 COVERPLUGIN(Vrml97Plugin)

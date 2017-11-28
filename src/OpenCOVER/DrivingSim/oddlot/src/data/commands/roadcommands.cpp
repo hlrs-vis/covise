@@ -3012,26 +3012,26 @@ SplitRoadCommand::redo()
     {
         if (road_->getPredecessor()->getElementId() == road_->getID())
         {
-            newRoadA_->setPredecessor(new RoadLink("road", newRoadB_->getID(), "end"));
+            newRoadA_->setPredecessor(new RoadLink("road", newRoadB_->getID(), JunctionConnection::JCP_END));
         }
         else
         {
             newRoadA_->setPredecessor(road_->getPredecessor()->getClone());
         }
     }
-    newRoadA_->setSuccessor(new RoadLink("road", newRoadB_->getID(), "start"));
+    newRoadA_->setSuccessor(new RoadLink("road", newRoadB_->getID(), JunctionConnection::JCP_START));
     if (road_->getSuccessor())
     {
         if (road_->getSuccessor()->getElementId() == road_->getID())
         {
-            newRoadB_->setSuccessor(new RoadLink("road", newRoadA_->getID(), "start"));
+            newRoadB_->setSuccessor(new RoadLink("road", newRoadA_->getID(), JunctionConnection::JCP_START));
         }
         else
         {
             newRoadB_->setSuccessor(road_->getSuccessor()->getClone());
         }
     }
-    newRoadB_->setPredecessor(new RoadLink("road", newRoadA_->getID(), "end"));
+    newRoadB_->setPredecessor(new RoadLink("road", newRoadA_->getID(), JunctionConnection::JCP_END));
     updateLinks(road_, road_, newRoadA_, newRoadB_);
 
     setRedone();
@@ -3064,7 +3064,7 @@ void SplitRoadCommand::updateLinks(RSystemElementRoad *currentA, RSystemElementR
             if (r)
             {
                 RoadLink *rl2;
-                if (rl->getContactPoint() == "end")
+                if (rl->getContactPoint() == JunctionConnection::JCP_END)
                     rl2 = r->getSuccessor();
                 else
                     rl2 = r->getPredecessor();
@@ -3087,7 +3087,7 @@ void SplitRoadCommand::updateLinks(RSystemElementRoad *currentA, RSystemElementR
                         connection->setIncomingRoad(newA->getID());
                         RSystemElementRoad *connectingRoad = roadSystem_->getRoad(connection->getConnectingRoad());
                         RoadLink *rl2;
-                        if (connection->getContactPoint() == "start")
+                        if (connection->getContactPoint() == JunctionConnection::JCP_START)
                         {
                             rl2 = connectingRoad->getPredecessor();
                         }
@@ -3118,7 +3118,7 @@ void SplitRoadCommand::updateLinks(RSystemElementRoad *currentA, RSystemElementR
             if (r)
             {
                 RoadLink *rl2;
-                if (rl->getContactPoint() == "end")
+                if (rl->getContactPoint() == JunctionConnection::JCP_END)
                     rl2 = r->getSuccessor();
                 else
                     rl2 = r->getPredecessor();
@@ -3141,7 +3141,7 @@ void SplitRoadCommand::updateLinks(RSystemElementRoad *currentA, RSystemElementR
                         connection->setIncomingRoad(newB->getID());
                         RSystemElementRoad *connectingRoad = roadSystem_->getRoad(connection->getConnectingRoad());
                         RoadLink *rl2;
-                        if (connection->getContactPoint() == "start")
+                        if (connection->getContactPoint() == JunctionConnection::JCP_START)
                         {
                             rl2 = connectingRoad->getPredecessor();
                         }
@@ -3308,7 +3308,7 @@ SetRoadLinkCommand::redo()
         {
             LaneSection *laneSection = road_->getLaneSection(0.0);
             RSystemElementRoad *linkRoad = roadSystem_->getRoad(newRoadLink_->getElementId());
-            if (newRoadLink_->getContactPoint() == "start")
+            if (newRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 LaneSection *linkSection = linkRoad->getLaneSection(0.0);
                 QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
@@ -3345,7 +3345,7 @@ SetRoadLinkCommand::redo()
         {
             LaneSection *laneSection = road_->getLaneSection(road_->getLength());
             RSystemElementRoad *linkRoad = roadSystem_->getRoad(newRoadLink_->getElementId());
-            if (newRoadLink_->getContactPoint() == "start")
+            if (newRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 LaneSection *linkSection = linkRoad->getLaneSection(0.0);
                 QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
@@ -3403,7 +3403,7 @@ SetRoadLinkCommand::undo()
             {
                 LaneSection *laneSection = road_->getLaneSection(0.0);
                 RSystemElementRoad *linkRoad = roadSystem_->getRoad(oldRoadLink_->getElementId());
-                if (oldRoadLink_->getContactPoint() == "start")
+                if (oldRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
                 {
                     LaneSection *linkSection = linkRoad->getLaneSection(0.0);
                     QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
@@ -3440,7 +3440,7 @@ SetRoadLinkCommand::undo()
             {
                 LaneSection *laneSection = road_->getLaneSection(0.0);
                 RSystemElementRoad *linkRoad = roadSystem_->getRoad(newRoadLink_->getElementId());
-                if (newRoadLink_->getContactPoint() == "start")
+                if (newRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
                 {
                     LaneSection *linkSection = linkRoad->getLaneSection(0.0);
                     QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
@@ -3468,7 +3468,7 @@ SetRoadLinkCommand::undo()
             {
                 LaneSection *laneSection = road_->getLaneSection(road_->getLength());
                 RSystemElementRoad *linkRoad = roadSystem_->getRoad(oldRoadLink_->getElementId());
-                if (oldRoadLink_->getContactPoint() == "start")
+                if (oldRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
                 {
                     LaneSection *linkSection = linkRoad->getLaneSection(0.0);
                     QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
@@ -3505,7 +3505,7 @@ SetRoadLinkCommand::undo()
             {
                 LaneSection *laneSection = road_->getLaneSection(road_->getLength());
                 RSystemElementRoad *linkRoad = roadSystem_->getRoad(newRoadLink_->getElementId());
-                if (newRoadLink_->getContactPoint() == "start")
+                if (newRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
                 {
                     // nothing to change, lanes are linked to lanes with their own id
                 }
@@ -3983,40 +3983,40 @@ SetRoadLinkRoadsCommand::findRoadContactPoints(RSystemElementRoad *road1, RSyste
     {
     case FirstRoadStart | SecondRoadStart:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "start"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_START));
         oldRoadLinks_.insert(road1, road1->getPredecessor());
         roadLinkTypes_.insert(road1, RoadLink::DRL_PREDECESSOR);
-        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), "start"));
+        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), JunctionConnection::JCP_START));
         oldRoadLinks_.insert(road2, road2->getPredecessor());
         roadLinkTypes_.insert(road2, RoadLink::DRL_PREDECESSOR);
     }
     break;
     case FirstRoadEnd | SecondRoadStart:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "start"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_START));
         oldRoadLinks_.insert(road1, road1->getSuccessor());
         roadLinkTypes_.insert(road1, RoadLink::DRL_SUCCESSOR);
-        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), "end"));
+        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), JunctionConnection::JCP_END));
         oldRoadLinks_.insert(road2, road2->getPredecessor());
         roadLinkTypes_.insert(road2, RoadLink::DRL_PREDECESSOR);
     }
     break;
     case FirstRoadEnd | SecondRoadEnd:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "end"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_END));
         oldRoadLinks_.insert(road1, road1->getSuccessor());
         roadLinkTypes_.insert(road1, RoadLink::DRL_SUCCESSOR);
-        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), "end"));
+        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), JunctionConnection::JCP_END));
         oldRoadLinks_.insert(road2, road2->getSuccessor());
         roadLinkTypes_.insert(road2, RoadLink::DRL_SUCCESSOR);
     }
     break;
     case FirstRoadStart | SecondRoadEnd:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "end"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_END));
         oldRoadLinks_.insert(road1, road1->getPredecessor());
         roadLinkTypes_.insert(road1, RoadLink::DRL_PREDECESSOR);
-        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), "start"));
+        newRoadLinks_.insert(road2, new RoadLink("road", road1->getID(), JunctionConnection::JCP_START));
         oldRoadLinks_.insert(road2, road2->getSuccessor());
         roadLinkTypes_.insert(road2, RoadLink::DRL_SUCCESSOR);
     }
@@ -4030,49 +4030,49 @@ SetRoadLinkRoadsCommand::findPathContactPoint(RSystemElementRoad *road1, RSystem
     // Generate two RoadLinks
     // road1 is part of a junction
 
-    QString contactPoint;
+    JunctionConnection::ContactPointValue contactPoint;
     RoadLink::RoadLinkType roadLinkType;
 
     switch (posIndex)
     {
     case FirstRoadStart | SecondRoadStart:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "start"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_START));
         roadLinkTypes_.insert(road1, RoadLink::DRL_PREDECESSOR);
         oldRoadLinks_.insert(road1, road1->getPredecessor());
         roadLinkType = RoadLink::DRL_PREDECESSOR;
         oldRoadLinks_.insert(road2, road2->getPredecessor());
-        contactPoint = "start";
+        contactPoint = JunctionConnection::JCP_START;
     }
     break;
     case FirstRoadEnd | SecondRoadStart:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "start"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_START));
         oldRoadLinks_.insert(road1, road1->getSuccessor());
         roadLinkTypes_.insert(road1, RoadLink::DRL_SUCCESSOR);
         oldRoadLinks_.insert(road2, road2->getPredecessor());
         roadLinkType = RoadLink::DRL_PREDECESSOR;
-        contactPoint = "end";
+        contactPoint = JunctionConnection::JCP_END;
     }
     break;
     case FirstRoadEnd | SecondRoadEnd:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "end"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_END));
         oldRoadLinks_.insert(road1, road1->getSuccessor());
         roadLinkTypes_.insert(road1, RoadLink::DRL_SUCCESSOR);
         oldRoadLinks_.insert(road2, road2->getSuccessor());
         roadLinkType = RoadLink::DRL_SUCCESSOR;
-        contactPoint = "end";
+        contactPoint = JunctionConnection::JCP_END;
     }
     break;
     case FirstRoadStart | SecondRoadEnd:
     {
-        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), "end"));
+        newRoadLinks_.insert(road1, new RoadLink("road", road2->getID(), JunctionConnection::JCP_END));
         roadLinkTypes_.insert(road1, RoadLink::DRL_PREDECESSOR);
         oldRoadLinks_.insert(road1, road1->getPredecessor());
         roadLinkType = RoadLink::DRL_SUCCESSOR;
         oldRoadLinks_.insert(road2, road2->getSuccessor());
-        contactPoint = "start";
+        contactPoint = JunctionConnection::JCP_START;
     }
     break;
     }
@@ -4291,7 +4291,7 @@ RemoveRoadLinkCommand::RemoveRoadLinkCommand(RSystemElementRoad *road, DataComma
 
                 if (linkRoad)
                 {
-                    if (predecessor_->getContactPoint() == "start")
+                    if (predecessor_->getContactPoint() == JunctionConnection::JCP_START)
                     {
                         predecessorLink_ = linkRoad->getPredecessor();
                     }
@@ -4334,7 +4334,7 @@ RemoveRoadLinkCommand::RemoveRoadLinkCommand(RSystemElementRoad *road, DataComma
                 RSystemElementRoad *linkRoad = roadSystem_->getRoad(successor_->getElementId());
                 if (linkRoad)
                 {
-                    if (successor_->getContactPoint() == "start")
+                    if (successor_->getContactPoint() == JunctionConnection::JCP_START)
                     {
                         successorLink_ = linkRoad->getPredecessor();
                     }
@@ -4471,8 +4471,8 @@ RemoveRoadLinkCommand::undo()
                     RoadLink * roadLink;
                     if (predecessor_ && (predecessor_->getElementId() == junctionID))
                     {
-                        roadLink = new RoadLink("road", road_->getID(), "start");
-                        if (connection->getContactPoint() == "start")
+                        roadLink = new RoadLink("road", road_->getID(), JunctionConnection::JCP_START);
+                        if (connection->getContactPoint() == JunctionConnection::JCP_START)
                         {
                             connectingRoad->setPredecessor(roadLink);
                         }
@@ -4494,8 +4494,8 @@ RemoveRoadLinkCommand::undo()
                     }
                     else
                     {
-                        roadLink = new RoadLink("road", road_->getID(), "end");
-                        if (connection->getContactPoint() == "start")
+                        roadLink = new RoadLink("road", road_->getID(), JunctionConnection::JCP_END);
+                        if (connection->getContactPoint() == JunctionConnection::JCP_START)
                         {
                             connectingRoad->setPredecessor(roadLink);
                         }
@@ -4526,7 +4526,7 @@ RemoveRoadLinkCommand::undo()
 
         if (linkRoad)
         {
-            if (predecessor_->getContactPoint() == "start")
+            if (predecessor_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 linkRoad->setPredecessor(predecessorLink_);
                 LaneSection *linkSection = linkRoad->getLaneSection(0.0);
@@ -4561,7 +4561,7 @@ RemoveRoadLinkCommand::undo()
 
         if (linkRoad)
         {
-            if (successor_->getContactPoint() == "start")
+            if (successor_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 linkRoad->setPredecessor(successorLink_);
                 LaneSection *linkSection = linkRoad->getLaneSection(0.0);
@@ -4601,7 +4601,7 @@ void
 
         RSystemElementRoad * connectingRoad = roadSystem_->getRoad(connection->getConnectingRoad());
         QMap<int, int> connectingRoadLaneMap;
-        if (connection->getContactPoint() == "start")
+        if (connection->getContactPoint() == JunctionConnection::JCP_START)
         {
             connectingRoad->delPredecessor();
 
@@ -4645,7 +4645,7 @@ void
 }
 
 void 
-RemoveRoadLinkCommand::removeLinkRoadLink(RSystemElementRoad * linkRoad, const QString &contactPoint)
+RemoveRoadLinkCommand::removeLinkRoadLink(RSystemElementRoad * linkRoad, JunctionConnection::ContactPointValue contactPoint)
 {
     LaneSection *linkSection;
     int connectionCount = 0;
@@ -4654,7 +4654,7 @@ RemoveRoadLinkCommand::removeLinkRoadLink(RSystemElementRoad * linkRoad, const Q
         connectionCount = junction_->getConnections(linkRoad->getID()).count();
     }
 
-    if ((contactPoint == "start") && linkRoad->getPredecessor() && ((linkRoad->getPredecessor()->getElementType() != "junction") || (connectionCount < 1)))
+    if ((contactPoint == JunctionConnection::JCP_START) && linkRoad->getPredecessor() && ((linkRoad->getPredecessor()->getElementType() != "junction") || (connectionCount < 1)))
     {
         linkRoad->delPredecessor();
         linkSection = linkRoad->getLaneSection(0.0);
@@ -4663,7 +4663,7 @@ RemoveRoadLinkCommand::removeLinkRoadLink(RSystemElementRoad * linkRoad, const Q
             lane->setPredecessor(Lane::NOLANE);
         }
     }
-    else if ((contactPoint == "end") && linkRoad->getSuccessor() && ((linkRoad->getSuccessor()->getElementType() != "junction") || (connectionCount < 1)))
+    else if ((contactPoint == JunctionConnection::JCP_END) && linkRoad->getSuccessor() && ((linkRoad->getSuccessor()->getElementType() != "junction") || (connectionCount < 1)))
     {
         linkRoad->delSuccessor();
         linkSection = linkRoad->getLaneSection(linkRoad->getLength());

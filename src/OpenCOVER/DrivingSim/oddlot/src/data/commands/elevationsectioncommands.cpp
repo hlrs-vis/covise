@@ -1830,18 +1830,18 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
         }
 
         RoadLink *link = NULL;
-        if (connection->getContactPoint() == "start")
+        if (connection->getContactPoint() == JunctionConnection::JCP_START)
         {
             link = road->getSuccessor(); // junction -> path start ... path end -> path successor
         }
-        else if (connection->getContactPoint() == "end")
+        else if (connection->getContactPoint() == JunctionConnection::JCP_END)
         {
             link = road->getPredecessor();
         }
 
         if (link)
         {
-            if (link->getContactPoint() == "start" && !startRoadIds.contains(link->getElementId()))
+            if (link->getContactPoint() == JunctionConnection::JCP_START && !startRoadIds.contains(link->getElementId()))
             {
                 startRoadIds.append(link->getElementId());
                 RSystemElementRoad *road = roadSystem->getRoad(link->getElementId());
@@ -1850,7 +1850,7 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
                     startRoads_.append(road);
                 }
             }
-            if (link->getContactPoint() == "end" && !endRoadIds.contains(link->getElementId()))
+            if (link->getContactPoint() == JunctionConnection::JCP_END && !endRoadIds.contains(link->getElementId()))
             {
                 endRoadIds.append(link->getElementId());
                 RSystemElementRoad *road = roadSystem->getRoad(link->getElementId());

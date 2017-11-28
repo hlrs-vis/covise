@@ -356,6 +356,15 @@ SET(ODDLOT_SOURCES
 	src/graph/graphviewitems/graphviewshapeitem.cpp
 	src/gui/oscsettings.cpp
 	src/data/georeference.cpp
+	src/data/roadsystem/track/trackelementcubiccurve.cpp
+	src/data/roadsystem/sections/shapesection.cpp
+	src/data/roadsystem/rsystemelementjunctiongroup.cpp
+	src/data/roadsystem/sections/laneborder.cpp
+	src/data/roadsystem/sections/lanerule.cpp
+	src/data/roadsystem/sections/laneaccess.cpp
+	src/data/roadsystem/sections/parkingspaceobject.cpp
+	src/data/roadsystem/sections/objectreference.cpp
+	src/data/roadsystem/sections/signalreference.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp

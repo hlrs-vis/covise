@@ -1,4 +1,5 @@
 #include "Group.h"
+#include "Manager.h"
 
 #include <algorithm>
 #include <cassert>
@@ -16,6 +17,14 @@ Group::Group(Group *parent, const std::string &name)
 {
 }
 
+Group::~Group()
+{
+    manager()->remove(this);
+
+    clearItems();
+    clearChildren();
+}
+
 bool Group::add(Element *elem)
 {
     if (Container::add(elem))
@@ -27,6 +36,7 @@ bool Group::add(Element *elem)
             assert(!elem->m_parent);
         }
         elem->m_parent = this;
+        manager()->queueUpdate(elem, UpdateParent);
         return true;
     }
     return false;
@@ -37,6 +47,7 @@ bool Group::remove(Element *elem)
     if (Container::remove(elem))
     {
         elem->m_parent = nullptr;
+        manager()->queueUpdate(elem, UpdateParent);
         return true;
     }
     return false;

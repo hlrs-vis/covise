@@ -34,8 +34,6 @@
 //
 // #include "src/data/oscsystem/oscelement.hpp"
 
-// Graph //
-//
 #include "src/graph/editors/osceditor.hpp"
 
 #include <QMouseEvent>
@@ -49,12 +47,11 @@
 #include <cmath>
 
 
-GraphViewShapeItem::GraphViewShapeItem(GraphView *view, OpenScenarioEditor *editor, int x, int y, int width, int height) :
+GraphViewShapeItem::GraphViewShapeItem(GraphView *view, int x, int y, int width, int height) :
     QObject()
     , QGraphicsPathItem()
 	, selected(true)
     , view_(view)
-    , editor_(editor)
     , canvasWidth(width)
     , canvasHeight(height)
     , graphicItemGroup_(NULL)
@@ -120,7 +117,7 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
     QGraphicsPathItem *pathItem = new QGraphicsPathItem(this);
     graphicItemGroup_->addToGroup(pathItem);
 
-    int pointSize = 1.5;
+    qreal pointSize = 1.5;
 
     if (active)
         pathItem->setBrush(QColor(140, 140, 240, 255));
@@ -199,7 +196,7 @@ GraphViewShapeItem::createPath()
     QGraphicsPathItem *pathHandleItem = new QGraphicsPathItem(this);
     QPen penHandle(Qt::black);
     penHandle.setStyle(Qt::DashLine);
-    penHandle.setWidth(1.5);
+    penHandle.setWidthF(1.5);
 	penHandle.setCosmetic(true);
     pathHandleItem->setPen(penHandle);
     graphicItemGroup_->addToGroup(pathHandleItem);

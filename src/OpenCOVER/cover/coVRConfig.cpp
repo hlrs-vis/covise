@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <iostream>
+#include <cctype>
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>
 #include <util/string_util.h>
@@ -115,7 +116,7 @@ coVRConfig::coVRConfig()
     }
     m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
     m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
-    m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
+    m_freeze = coCoviseConfig::isOn("COVER.Freeze", false); // don't freeze by default
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
@@ -363,7 +364,8 @@ coVRConfig::coVRConfig()
         w.stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
         w.embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
         w.pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
-        w.qt = coCoviseConfig::isOn("qt", std::string(str), false);
+        w.type = coCoviseConfig::getEntry("type", std::string(str), "");
+        std::transform(w.type.begin(), w.type.end(), w.type.begin(), ::tolower);
         w.swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
         w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
     }
@@ -835,6 +837,8 @@ float coVRConfig::stereoSeparation() const
 // get number of requested stencil bits (default = 1)
 int coVRConfig::numStencilBits() const
 {
+    if (!m_stencil)
+        return 0;
     return m_stencilBits;
 }
 

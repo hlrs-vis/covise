@@ -17,12 +17,13 @@
 
 #include "lane.hpp"
 
-LaneSpeed::LaneSpeed(double sOffset, double max = -1.0)
+LaneSpeed::LaneSpeed(double sOffset, double max = -1.0, QString unit = "m/s" )
     : DataElement()
     , laneSpeedChanges_(0x0)
     , parentLane_(NULL)
     , sOffset_(sOffset)
     , max_(max)
+	, maxUnit_(unit)
 {
 }
 

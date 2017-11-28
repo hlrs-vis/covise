@@ -87,6 +87,8 @@ GeometryManager::GeometryManager()
     d_stripper = new osgUtil::TriStripVisitor;
     genStrips = coCoviseConfig::isOn("COVER.GenStrips", false);
 
+    d_kdtreeBuilder = new osg::KdTreeBuilder;
+
     float r = coCoviseConfig::getFloat("r", "COVER.CoviseGeometryDefaultColor", 1.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.CoviseGeometryDefaultColor", 1.0f);
     float b = coCoviseConfig::getFloat("b", "COVER.CoviseGeometryDefaultColor", 1.0f);
@@ -1106,6 +1108,7 @@ GeometryManager::addPolygon(const char *object_name,
     {
         d_stripper->stripify(*geom);
     }
+    d_kdtreeBuilder->apply(*geom);
 
     geode->addDrawable(geom);
 
@@ -1424,6 +1427,7 @@ GeometryManager::addTriangles(const char *object_name,
     {
         d_stripper->stripify(*geom);
     }
+    d_kdtreeBuilder->apply(*geom);
 
     geode->addDrawable(geom);
 
@@ -1748,6 +1752,7 @@ GeometryManager::addQuads(const char *object_name,
     {
         d_stripper->stripify(*geom);
     }
+    d_kdtreeBuilder->apply(*geom);
 
     geode->addDrawable(geom);
 

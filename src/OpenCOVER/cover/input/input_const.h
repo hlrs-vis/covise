@@ -20,7 +20,6 @@ public:
     ConstInputDevice(const std::string &name);
 
     bool needsThread() const;
-    bool isVarying() const;
 };
 }
 #endif

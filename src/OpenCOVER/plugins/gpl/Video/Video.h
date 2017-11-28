@@ -92,7 +92,6 @@ public:
     FFMPEGPlugin *sysPlug;
 #endif
 
-    void menuEvent(coMenuItem *);
     void tabletEvent(coTUIElement *);
     void tabletReleaseEvent(coTUIElement *);
     void key(int type, int keySym, int mod);

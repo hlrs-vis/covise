@@ -18,8 +18,6 @@
 \****************************************************************************/
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
 #include <map>
 
 #include <cover/coTabletUI.h>
@@ -27,12 +25,17 @@
 #include <cover/coVRTui.h>
 #include <PluginUtil/ColorBar.h>
 
-namespace vrui
+#include <cover/ui/Owner.h>
+
+namespace opencover
 {
-class coRowMenu;
+namespace ui
+{
+class Menu;
+}
 }
 
-class ColorBarPlugin : public opencover::coVRPlugin, public opencover::coTUIListener
+class ColorBarPlugin: public opencover::coVRPlugin, public opencover::ui::Owner, public opencover::coTUIListener
 {
 public:
     ColorBarPlugin();
@@ -57,28 +60,26 @@ private:
     int tabID;
 
     // VR Menu
-    vrui::coSubMenuItem *colorButton;
-    vrui::coRowMenu *colorSubmenu;
-    vrui::coRowMenu *_menu;
-    vrui::coMenu *coviseMenu;
+    opencover::ui::Menu *colorSubmenu;
+    opencover::ui::Menu *_menu;
     typedef std::map<std::string, opencover::coInteractor *> InteractorMap;
     InteractorMap interactorMap; // from container to interactor
-    struct ColorsModule
+    struct ColorsModule: public opencover::ui::Owner
     {
-        ColorsModule()
-            : useCount(0)
+        ColorsModule(const std::string &name, opencover::ui::Owner *owner)
+            : opencover::ui::Owner(name, owner)
+            , useCount(0)
             , colorbar(NULL)
             , menu(NULL)
         {}
         ~ColorsModule()
         {
             delete colorbar;
-            delete menu;
         }
 
         int useCount;
         opencover::ColorBar *colorbar;
-        vrui::coSubMenuItem *menu;
+        opencover::ui::Menu *menu;
     };
     typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
     ColorsModuleMap colorsModuleMap;

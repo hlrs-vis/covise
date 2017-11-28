@@ -164,7 +164,6 @@ bool MSEventHandler::openEvdev()
 
 bool MSEventHandler::update()
 {
-    int numEventsToSync = 0;
     if (coVRMSController::instance()->isMaster())
     {
 #ifdef CONSOLEINPUT
@@ -175,7 +174,7 @@ bool MSEventHandler::update()
             int key = -1;
             while ((key = getch()) != -1)
             {
-                fprintf(stderr, "key: %d\n", key);
+                fprintf(stderr, "console: key code=%d\n", key);
 
                 if (key == 27)
                 {
@@ -191,14 +190,17 @@ bool MSEventHandler::update()
                     escape = false;
                 }
 
-                if (key >= 1 && key <= 26)
+                if (key == 10)
+                {
+                    key = osgGA::GUIEventAdapter::KEY_Return;
+                }
+                else if (key >= 1 && key <= 26)
                 {
                     // letter together with Ctrl
                     mod |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-                    key += 64;
+                    key += 96;
                 }
-
-                if (key >= 65 && key <= 90)
+                else if (key >= 65 && key <= 90)
                 {
                     mod |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
                 }
@@ -454,7 +456,7 @@ bool MSEventHandler::update()
 #endif
     }
 
-    numEventsToSync = eventQueue.size();
+    int numEventsToSync = eventQueue.size();
     coVRMSController::instance()->syncData(&numEventsToSync, sizeof(numEventsToSync));
     if (coVRMSController::instance()->isSlave())
     {
@@ -477,7 +479,11 @@ bool MSEventHandler::update()
         // Tablets sometimes send push and release in one frame which would not work properly overwise.
         // Idea: It might be better to delay before the push- and release-events (in case it is not the first event in the queue).
         //       Then a change in position () can fully be processed before the click event arrives.
-        if ((event.event == 1) || (event.event == 2) || (event.event == 4) || (event.event == 32) || (event.event == 64))
+        if (event.event==osgGA::GUIEventAdapter::PUSH
+                || event.event==osgGA::GUIEventAdapter::RELEASE
+                || event.event==osgGA::GUIEventAdapter::DOUBLECLICK
+                || event.event==osgGA::GUIEventAdapter::KEYUP
+                || event.event==osgGA::GUIEventAdapter::KEYDOWN)
         {
             break;
         }

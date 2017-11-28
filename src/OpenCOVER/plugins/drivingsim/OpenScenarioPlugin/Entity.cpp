@@ -1,5 +1,6 @@
 #include "Entity.h"
 
+using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
 	name(entityName),

@@ -16,8 +16,7 @@
 
 #include <util/coTypes.h>
 #include <cover/coVRPlugin.h>
-
-#include <OpenVRUI/coMenu.h>
+#include <cover/ui/Owner.h>
 
 #include <cover/coVRTui.h>
 
@@ -27,18 +26,15 @@ class IsoDrawable;
 namespace opencover
 {
 class coVRPlugin;
-}
 
-namespace vrui
+namespace ui
 {
-class coMenuItem;
-class coRowMenu;
-class coSliderMenuItem;
-class coPotiToolboxItem;
-class coMenuItem;
+class Menu;
+class Button;
+class Slider;
+}
 }
 
-using namespace vrui;
 using namespace opencover;
 
 struct minmax
@@ -49,7 +45,7 @@ struct minmax
 /*
  * Author: Florian Niebling
  */
-class cuIsoSurface : public coVRPlugin
+class cuIsoSurface : public coVRPlugin, public ui::Owner
 {
 public:
     cuIsoSurface();
@@ -71,11 +67,10 @@ public:
    */
 private:
     bool initDone;
-    coRowMenu *menu;
+    ui::Menu *menu = nullptr;
     coTUITab *tuiTab;
     std::map<std::string, osg::Geode *> geode;
-    //   std::map<std::string, coSliderMenuItem *> sliders;
-    std::map<std::string, coPotiToolboxItem *> sliders;
+    std::map<std::string, ui::Slider *> sliders;
     std::map<std::string, coTUIFloatSlider *> tuiSliders;
     std::map<std::string, coTUIToggleButton *> tuiButtons;
     std::map<std::string, osg::Group *> groups;
@@ -83,11 +78,11 @@ private:
     std::map<std::string, struct minmax> minMax;
 };
 
-class IsoDrawable : public osg::Drawable, public coMenuListener, public coTUIListener
+class IsoDrawable : public osg::Drawable, public coTUIListener
 {
 public:
     //   IsoDrawable(coSliderMenuItem *slider, coTUIFloatSlider *tui,
-    IsoDrawable(coPotiToolboxItem *slider, coTUIFloatSlider *tui,
+    IsoDrawable(ui::Slider *slider, coTUIFloatSlider *tui,
                 coTUIToggleButton *button,
                 const RenderObject *geo, const RenderObject *map, const RenderObject *data,
                 float *bbox, float min, float max);
@@ -107,8 +102,6 @@ public:
     void preDraw();
     void postFrame();
 
-    virtual void menuEvent(coMenuItem *item);
-    virtual void menuReleaseEvent(coMenuItem *item);
     virtual void tabletEvent(coTUIElement *tUIItem);
 
 private:
@@ -123,8 +116,7 @@ private:
     float threshold;
     float min, max;
 
-    //   coSliderMenuItem *slider;
-    coPotiToolboxItem *slider;
+    ui::Slider *slider = nullptr;
     coTUIFloatSlider *tuiSlider;
     coTUIToggleButton *tuiButton;
 

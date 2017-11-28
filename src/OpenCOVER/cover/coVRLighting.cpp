@@ -34,7 +34,6 @@
 #include "VRSceneGraph.h"
 #include "coVRPluginSupport.h"
 #include "coVRShadowManager.h"
-#include "VRPinboard.h"
 #include <osg/LightSource>
 #include <osg/LightModel>
 #include <osg/Group>
@@ -44,8 +43,10 @@
 #include <osg/StateAttribute>
 #include <iostream>
 
+#include <ui/Button.h>
+#include <ui/Menu.h>
+
 using namespace opencover;
-using namespace vrui;
 using covise::coCoviseConfig;
 
 coVRLighting *coVRLighting::s_instance = NULL;
@@ -58,8 +59,7 @@ coVRLighting *coVRLighting::instance()
 }
 
 coVRLighting::coVRLighting()
-    : lightingButton_(NULL)
-    , lightingMenu_(NULL)
+    : lightingMenu_(NULL)
     , switchHeadlight_(NULL)
     , headlightState(true)
     , switchOtherlights_(NULL)
@@ -407,10 +407,18 @@ int coVRLighting::addLight(osg::LightSource *ls, osg::Group *parent, osg::Node *
         it = m.find(menuName);
         if (it == m.end())
         {
-            coCheckboxMenuItem *temp = new coCheckboxMenuItem(menuName, true);
-            temp->setMenuListener(this);
-            lightingMenu_->add(temp);
+            ui::Button *temp = new ui::Button(lightingMenu_, menuName);
             temp->setState(true);
+            temp->setCallback([this, menuName](bool state){
+                // menuItem must be in map
+                // compare menuItem->getName with key in map and enable/disable linked lights
+                pair<multimap<string, osg::LightSource *>::iterator, multimap<string, osg::LightSource *>::iterator> ppp;
+                ppp = m.equal_range(menuName);
+                for (multimap<string, osg::LightSource *>::iterator it = ppp.first; it != ppp.second; ++it)
+                {
+                    switchLight(((*it).second), state);
+                }
+            });
         }
 
         // then add this light to the map
@@ -473,46 +481,65 @@ osg::LightSource *coVRLighting::removeLight(osg::LightSource *ls)
 void coVRLighting::initMenu()
 {
     // place the menu inside "view options
+    lightingMenu_ = new ui::Menu(cover->viewOptionsMenu, "Lighting");
 
-    coMenu *viewoptionsMenu = NULL;
-    if (VRPinboard::instance()->namedMenu("view options"))
-        viewoptionsMenu = VRPinboard::instance()->namedMenu("view options")->myMenu;
-    else if (VRPinboard::instance()->namedMenu("view options..."))
-        viewoptionsMenu = VRPinboard::instance()->namedMenu("view options..")->myMenu;
+    switchHeadlight_ = new ui::Button(lightingMenu_, "Headlight");
+    switchHeadlight_->setState(headlightState);
+    switchHeadlight_->setCallback([this](bool state){
+        headlightState = state;
+        switchLight(headlight, headlightState);
 
-    if (!viewoptionsMenu)
-    {
-        std::cerr << "coVRLighting: did not find \"view options\" menu, cannot add lighting parameters" << std::endl;
-        return;
-    }
-
-    lightingMenu_ = new coRowMenu("Lighting", viewoptionsMenu);
-    lightingButton_ = new coSubMenuItem("Lighting...");
-    lightingButton_->setMenu(lightingMenu_);
-    viewoptionsMenu->add(lightingButton_);
-
-    switchHeadlight_ = new coCheckboxMenuItem("Headlight", headlightState);
-    switchHeadlight_->setMenuListener(this);
-    lightingMenu_->add(switchHeadlight_);
-    switchHeadlight_->setState(true);
+        // always enable it for menu
+        switchLight(headlight, true, VRSceneGraph::instance()->getMenuGroup());
+        switchLight(headlight, true, VRSceneGraph::instance()->getMenuGroup());
+        switchLight(headlight, true, VRSceneGraph::instance()->getMenuGroup());
+    });
 
     if (light1 || light2)
     {
-        switchOtherlights_ = new coCheckboxMenuItem("Other Lights", otherlightsState);
-        switchOtherlights_->setMenuListener(this);
-        lightingMenu_->add(switchOtherlights_);
-        switchOtherlights_->setState(true);
+        switchOtherlights_ = new ui::Button(lightingMenu_, "OtherLights");
+        switchOtherlights_->setText("Other lights");
+        switchOtherlights_->setState(otherlightsState);
+        switchOtherlights_->setCallback([this](bool state){
+            otherlightsState = state;
+            switchOtherLights(otherlightsState);
+        });
     }
 
-    switchSpecularlight_ = new coCheckboxMenuItem("Specular Light", specularlightState);
-    switchSpecularlight_->setMenuListener(this);
-    lightingMenu_->add(switchSpecularlight_);
+    switchSpecularlight_ = new ui::Button(lightingMenu_, "SpecularLight");
+    switchSpecularlight_->setText("Specular light");
     switchSpecularlight_->setState(specularlightState);
+    switchSpecularlight_->setCallback([this](bool state){
+        specularlightState = state;
+        if (specularlightState)
+        {
+            (headlight->getLight())->setSpecular(headlightSpec);
+            if (light1)
+                (light1->getLight())->setSpecular(light1Spec);
+            if (light2)
+                (light2->getLight())->setSpecular(light2Spec);
+            if (spotlight)
+                (spotlight->getLight())->setSpecular(spotlightSpec);
+        }
+        else
+        {
+            osg::Vec4 black(0, 0, 0, 1);
+            (headlight->getLight())->setSpecular(black);
+            if (light1)
+                (light1->getLight())->setSpecular(black);
+            if (light2)
+                (light2->getLight())->setSpecular(black);
+            if (spotlight)
+                (spotlight->getLight())->setSpecular(black);
+        }
+    });
 
-    switchSpotlight_ = new coCheckboxMenuItem("Spotlight", spotlightState);
-    switchSpotlight_->setMenuListener(this);
-    lightingMenu_->add(switchSpotlight_);
-    switchSpotlight_->setState(false);
+    switchSpotlight_ = new ui::Button(lightingMenu_, "Spotlight");
+    switchSpotlight_->setState(spotlightState);
+    switchSpotlight_->setCallback([this](bool state){
+        spotlightState = state;
+        switchLight(spotlight, spotlightState);
+    });
 }
 
 void coVRLighting::switchOtherLights(bool on)
@@ -568,73 +595,6 @@ osg::LightSource *coVRLighting::switchLight(osg::LightSource *ls, bool on, osg::
         }
     }
     return NULL;
-}
-
-void coVRLighting::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == switchHeadlight_)
-    {
-        headlightState = switchHeadlight_->getState();
-        switchLight(headlight, headlightState);
-
-        // always enable it for menu
-        switchLight(headlight, true, VRSceneGraph::instance()->getMenuGroup());
-        switchLight(headlight, true, VRSceneGraph::instance()->getMenuGroup());
-        switchLight(headlight, true, VRSceneGraph::instance()->getMenuGroup());
-    }
-
-    else if (menuItem == switchOtherlights_)
-    {
-        otherlightsState = switchOtherlights_->getState();
-        switchOtherLights(otherlightsState);
-    }
-
-    else if (menuItem == switchSpecularlight_)
-    {
-        specularlightState = switchSpecularlight_->getState();
-        if (specularlightState)
-        {
-            (headlight->getLight())->setSpecular(headlightSpec);
-            if (light1)
-                (light1->getLight())->setSpecular(light1Spec);
-            if (light2)
-                (light2->getLight())->setSpecular(light2Spec);
-            if (spotlight)
-                (spotlight->getLight())->setSpecular(spotlightSpec);
-        }
-        else
-        {
-            osg::Vec4 black(0, 0, 0, 1);
-            (headlight->getLight())->setSpecular(black);
-            if (light1)
-                (light1->getLight())->setSpecular(black);
-            if (light2)
-                (light2->getLight())->setSpecular(black);
-            if (spotlight)
-                (spotlight->getLight())->setSpecular(black);
-        }
-    }
-
-    else if (menuItem == switchSpotlight_)
-    {
-        spotlightState = switchSpotlight_->getState();
-        switchLight(spotlight, spotlightState);
-    }
-
-    else
-    {
-        // menuItem must be in map
-        // compare menuItem->getName with key in map and enable/disable linked lights
-
-        pair<multimap<string, osg::LightSource *>::iterator, multimap<string, osg::LightSource *>::iterator> ppp;
-
-        ppp = m.equal_range(menuItem->getName());
-
-        for (multimap<string, osg::LightSource *>::iterator it = ppp.first; it != ppp.second; ++it)
-        {
-            switchLight(((*it).second), ((coCheckboxMenuItem *)menuItem)->getState());
-        }
-    }
 }
 
 

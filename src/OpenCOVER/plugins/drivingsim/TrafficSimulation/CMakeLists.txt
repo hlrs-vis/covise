@@ -8,7 +8,7 @@ COVISE_FIND_PACKAGE(CAL3D)
 USING(XERCESC OSGCAL CAL3D)
 using(VRML)
 using(TrafficSimulation)
-using(V8)
+using(V8 optional)
 
 IF(NOT OSGCAL_FOUND)
   RETURN()

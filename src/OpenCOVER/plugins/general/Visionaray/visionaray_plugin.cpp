@@ -22,6 +22,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
 #include <cover/VRViewer.h>
+#include <cover/OpenCOVER.h>
 
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
@@ -29,7 +30,7 @@
 #include <OpenVRUI/coSliderMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
 
-#include "drawable.h"
+#include "renderer.h"
 #include "state.h"
 #include "visionaray_plugin.h"
 
@@ -57,15 +58,14 @@ namespace visionaray
         using vrui_sub_menu     = std::unique_ptr<vrui::coSubMenuItem>;
 
         impl()
-            : drawable_ptr(new drawable)
         {
             init_state_from_config();
-            drawable_ptr->update_state(state, dev_state);
+            rend.update_state(state, dev_state);
         }
 
         osg::Node::NodeMask objroot_node_mask;
         osg::ref_ptr<osg::Geode> geode;
-        osg::ref_ptr<drawable> drawable_ptr;
+        renderer rend;
 
         struct
         {
@@ -640,7 +640,7 @@ namespace visionaray
 
     void Visionaray::impl::set_suppress_rendering(bool suppress_rendering)
     {
-        drawable_ptr->set_suppress_rendering(suppress_rendering);
+        rend.set_suppress_rendering(suppress_rendering);
         ui.suppress_rendering->setState(suppress_rendering, false);
         tui.suppress_rendering->setState(suppress_rendering);
     }
@@ -692,11 +692,6 @@ namespace visionaray
     Visionaray::~Visionaray()
     {
         opencover::cover->getObjectsRoot()->setNodeMask(impl_->objroot_node_mask);
-        if (impl_->geode)
-        {
-            impl_->geode->removeDrawable(impl_->drawable_ptr);
-            opencover::cover->getScene()->removeChild(impl_->geode);
-        }
     }
 
     bool Visionaray::init()
@@ -709,13 +704,7 @@ namespace visionaray
 
         impl_->init_ui();
 
-        impl_->geode = new osg::Geode;
-        impl_->geode->setName("Visionaray");
-        impl_->geode->addDrawable(impl_->drawable_ptr);
-
         impl_->objroot_node_mask = opencover::cover->getObjectsRoot()->getNodeMask();
-
-        opencover::cover->getScene()->addChild(impl_->geode);
 
         return true;
     }
@@ -735,19 +724,20 @@ namespace visionaray
         if (impl_->state->data_var == Dynamic)
             impl_->state->rebuild = true;
 
-        if (impl_->state->rebuild)
+        if (impl_->state->rebuild && opencover::OpenCOVER::instance()->initDone())
         {
             auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
-            impl_->drawable_ptr->acquire_scene_data(seqs);
+            impl_->rend.acquire_scene_data(seqs);
             impl_->state->rebuild = false;
         }
 
         impl_->state->animation_frame = opencover::coVRAnimationManager::instance()->getAnimationFrame();
+        impl_->rend.render_frame(info);
     }
 
     void Visionaray::expandBoundingSphere(osg::BoundingSphere &bs)
     {
-        impl_->drawable_ptr->expandBoundingSphere(bs);
+        impl_->rend.expandBoundingSphere(bs);
     }
 
     void Visionaray::key(int type, int key_sym, int /* mod */)

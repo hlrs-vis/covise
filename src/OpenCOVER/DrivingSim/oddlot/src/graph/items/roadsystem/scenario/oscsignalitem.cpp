@@ -108,7 +108,7 @@ OSCSignalItem::createPath()
 
     // Stopp line
     //
-    if (signal_->getType() == 294)
+    if (signal_->getType() == "294")
     {
 		setPen(QPen(outerColor_, 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
@@ -137,7 +137,7 @@ OSCSignalItem::createPath()
 			path.lineTo(pos + width * normal);
         }
     }
-    else if (signal_->getType() == 293)
+    else if (signal_->getType() == "293")
     {
         setPen(QPen(outerColor_, 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 

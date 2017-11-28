@@ -17,6 +17,9 @@
 #include <osg/LineSegment>
 #include <osg/Matrix>
 #include <osg/Vec3>
+#include <osg/io_utils>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 
 #include <OpenVRUI/osg/OSGVruiHit.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>
@@ -27,39 +30,100 @@
 
 #include "coVRNavigationManager.h"
 #include "coVRIntersectionInteractorManager.h"
-#include "coIntersectionUtil.h"
 #include "coVRMSController.h"
 
 #include <util/coWristWatch.h>
 #include <numeric>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 using namespace osg;
 using namespace osgUtil;
 using namespace vrui;
-using namespace opencover;
 using covise::coCoviseConfig;
+
+namespace  opencover {
 
 coIntersection *coIntersection::intersector = 0;
 
 int coIntersection::myFrameIndex = -1;
 int coIntersection::myFrame = 0;
 
+
+coIntersector::coIntersector(const Vec3 &start, const Vec3 &end)
+: osgUtil::LineSegmentIntersector(start, end)
+{}
+
+void coIntersector::addHandler(osg::ref_ptr<IntersectionHandler> handler)
+{
+    _handlers.push_back(handler);
+}
+
+bool coIntersector::intersectAndClip(Vec3d &s, Vec3d &e, const BoundingBox &bb)
+{
+    return LineSegmentIntersector::intersectAndClip(s, e, bb);
+}
+
+osgUtil::Intersector *coIntersector::clone(osgUtil::IntersectionVisitor &iv)
+{
+    if ( _coordinateFrame==MODEL && iv.getModelMatrix()==0 )
+    {
+        osg::ref_ptr<coIntersector> cloned = new coIntersector(_start, _end);
+        cloned->_parent = this;
+        cloned->_handlers = _handlers;
+        return cloned.release();
+    }
+
+    osg::Matrix matrix;
+    switch (_coordinateFrame)
+    {
+    case WINDOW:
+        if (iv.getWindowMatrix()) matrix.preMult(*iv.getWindowMatrix());
+        if (iv.getProjectionMatrix()) matrix.preMult(*iv.getProjectionMatrix());
+        if (iv.getViewMatrix()) matrix.preMult(*iv.getViewMatrix());
+        if (iv.getModelMatrix()) matrix.preMult(*iv.getModelMatrix());
+        break;
+    case PROJECTION:
+        if (iv.getProjectionMatrix()) matrix.preMult(*iv.getProjectionMatrix() );
+        if (iv.getViewMatrix()) matrix.preMult(*iv.getViewMatrix());
+        if (iv.getModelMatrix()) matrix.preMult(*iv.getModelMatrix());
+        break;
+    case VIEW:
+        if (iv.getViewMatrix()) matrix.preMult(*iv.getViewMatrix());
+        if (iv.getModelMatrix()) matrix.preMult(*iv.getModelMatrix());
+        break;
+    case MODEL:
+        if (iv.getModelMatrix()) matrix = *iv.getModelMatrix();
+        break;
+    }
+
+    osg::Matrix inverse = osg::Matrix::inverse(matrix);
+    osg::ref_ptr<coIntersector> cloned = new coIntersector(_start*inverse, _end*inverse);
+    cloned->_parent = this;
+    cloned->_handlers = _handlers;
+    return cloned.release();
+}
+
+void coIntersector::intersect(osgUtil::IntersectionVisitor &iv, osg::Drawable *drawable)
+{
+    for (auto &h: _handlers)
+    {
+        if (h->canHandleDrawable(drawable))
+        {
+            h->intersect(iv, *this, drawable);
+            return;
+        }
+    }
+
+    osgUtil::LineSegmentIntersector::intersect(iv, drawable);
+}
+
+
+
+
+
 coIntersection::coIntersection()
-#ifdef _OPENMP
-    : elapsedTimes(omp_get_max_threads())
-#else
     : elapsedTimes(1)
-#endif
 {
     assert(!intersector);
-
-    // should match OpenCOVER.cpp
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
-    useOmp = openmpThreads != "off";
 
     //VRUILOG("coIntersection::<init> info: creating");
 
@@ -87,6 +151,11 @@ coIntersection::~coIntersection()
 {
     //VRUILOG("coIntersection::<dest> info: destroying");
     intersector = NULL;
+}
+
+void coIntersection::addHandler(osg::ref_ptr<IntersectionHandler> handler)
+{
+    handlers.push_back(handler);
 }
 
 coIntersection *coIntersection::instance()
@@ -162,24 +231,7 @@ void coIntersection::intersect()
 
 void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
 {
-#ifdef _OPENMP
-    if (useOmp)
-    {
-	intersectTemp<opencover::Private::coIntersectionVisitor>(handMat, mouseHit);
-    }
-    else
-#endif
-    {
-	intersectTemp<IntersectVisitor>(handMat, mouseHit);
-    }
-}
-
-template<class IsectVisitor>
-void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
-{
-
     //VRUILOG("coIntersection::intersect info: called");
-
     Vec3 q0, q1;
 
     q0.set(0.0f, 0.0f, 0.0f);
@@ -189,16 +241,24 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
     q0 = handMat.preMult(q0);
     q1 = handMat.preMult(q1);
 
-    //fprintf(stderr, "--- coIntersection::intersect q0(%f %f %f) q1(%f %f %f) \n", q0.x(),q0.y(),q0.z(),q1.x(),q1.y(),q1.z());
-    //VRUILOG("coIntersection::intersect info: hand " << handMat);
-    //VRUILOG("coIntersection::intersect info: ray from " << q0 << " to " << q1);
+    if ((q1-q0).length2() < std::numeric_limits<float>::epsilon())
+    {
+        std::cerr << "coIntersection: intersectionDist=" << intersectionDist << " too short" << std::endl;
+        return;
+    }
+
+#if 0
+    fprintf(stderr, "--- coIntersection::intersect q0(%f %f %f) q1(%f %f %f) \n", q0.x(),q0.y(),q0.z(),q1.x(),q1.y(),q1.z());
+    std::cerr << "coIntersection::intersect info: hand " << handMat << std::endl;
+    std::cerr << "coIntersection::intersect info: ray from " << q0 << " to " << q1 << std::endl;
+#endif
 
     ref_ptr<LineSegment> ray = new LineSegment();
     ray->set(q0, q1);
 
     if (q0 != q1)
     {
-        IsectVisitor visitor;
+        IntersectionVisitor visitor;
         if (numIsectAllNodes > 0)
         {
             visitor.setTraversalMask(Isect::Pick);
@@ -207,7 +267,11 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
         {
             visitor.setTraversalMask(Isect::Intersection);
         }
-        visitor.addLineSegment(ray.get());
+        osg::ref_ptr<coIntersector> intersector = new coIntersector(ray->start(), ray->end());
+        for (auto h: handlers)
+            intersector->addHandler(h);
+        visitor.setIntersector(intersector.get());
+        //visitor.addLineSegment(ray.get());
 
         {
 
@@ -216,11 +280,7 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
 
             if (isVerboseIntersection())
             {
-#ifdef _OPENMP
-                elapsedTimes[omp_get_max_threads() - 1].push_back(watch.elapsed());
-#else
                 elapsedTimes[0].push_back(watch.elapsed());
-#endif
                 std::cerr << " avg. intersection times";
                 for (size_t ctr = 0; ctr < elapsedTimes.size(); ++ctr)
                 {
@@ -232,90 +292,84 @@ void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
             }
         }
 
-        if (visitor.getNumHits(ray.get()))
+        auto isects = intersector->getIntersections();
+        //VRUILOG("coIntersection::intersect info: hit");
+        //fprintf(stderr, " --- HIT \n");
+
+        // check which node in the hit list is also visible
+        bool hasVisibleHit = false;
+        for (const auto &isect: isects)
         {
-            //VRUILOG("coIntersection::intersect info: hit");
-            //fprintf(stderr, " --- HIT \n");
+            auto node = isect.drawable;
 
-            std::vector<osgUtil::Hit> hitList;
-            hitList = visitor.getHitList(ray.get());
-
-            // check which node in the hit list is also visible
-            bool hasVisibleHit = false;
-            for (size_t i = 0; i < hitList.size(); i++)
+            if (node->getNodeMask() & (Isect::Visible))
             {
-
-                if (hitList[i]._geode->getNodeMask() & (Isect::Visible))
+                //hitInformation = hitList[i];
+                hasVisibleHit = true;
+                // check also parents of this visible node,
+                osg::Node *parent;
+                // there could be an invisible dcs above
+                if (node->getNumParents())
+                    parent = node->getParent(0);
+                else
+                    parent = NULL;
+                while (parent && (parent != cover->getObjectsRoot()))
                 {
 
-                    hitInformation = hitList[i];
-                    hasVisibleHit = true;
-                    // check also parents of this visible node,
-                    osg::Node *parent;
-                    // there could be an invisible dcs above
-                    if (hitList[i]._geode->getNumParents())
-                        parent = hitList[i]._geode->getParent(0);
-                    else
-                        parent = NULL;
-                    while (parent && (parent != cover->getObjectsRoot()))
+                    if (parent->getNodeMask() & (Isect::Visible))
                     {
 
-                        if (parent->getNodeMask() & (Isect::Visible))
+                        //parent was also visible, get his parent
+                        if (parent->getNumParents())
                         {
 
-                            //parent was also visible, get his parent
-                            if (parent->getNumParents())
-                            {
-
-                                parent = parent->getParent(0);
-                            }
-                            else
-                                parent = NULL;
+                            parent = parent->getParent(0);
                         }
-                        else // parent not visible
-                        {
-
-                            //stop this while loop for going ip in sg
-                            hasVisibleHit = false;
-                            break;
-                        }
+                        else
+                            parent = NULL;
                     }
-                    if (hasVisibleHit) // all parents are also visible
-                        break; // stop this for loop for going through other hits farer away from nearest
+                    else // parent not visible
+                    {
+
+                        //stop this while loop for going ip in sg
+                        hasVisibleHit = false;
+                        break;
+                    }
                 }
+                if (hasVisibleHit) // all parents are also visible
+                {
+                    cover->intersectionHitPointWorld = isect.getWorldIntersectPoint();
+                    cover->intersectionHitPointWorldNormal = isect.getWorldIntersectNormal();
+                    cover->intersectionHitPointLocal = isect.getLocalIntersectPoint();
+                    cover->intersectionHitPointLocalNormal = isect.getLocalIntersectNormal();
+                    cover->intersectionMatrix = isect.matrix;
+                    cover->intersectedDrawable = isect.drawable;
+                    cover->intersectedNode = nullptr;
+                    if (isect.drawable->getNumParents() > 0)
+                        cover->intersectedNode = dynamic_cast<osg::Geode *>(isect.drawable->getParent(0));
 
-                //else
-                //{
-                //   if (! (hitList[i]._geode->getName().empty()) )
-                //   {
-                //      fprintf(stderr,"intersceting a unvisible node with name %s\n", hitList[i]._geode->getName().c_str());
-                //   }
-                //}
+                    //if( !cover->intersectedNode.get()->getName().empty())
+                    //    fprintf(stderr,"coIntersection::intersect hit node %s\n", cover->intersectedNode.get()->getName().c_str());
+                    //else
+                    //    fprintf(stderr,"coIntersection::intersect hit node without name\n");
+
+                    cover->intersectedNodePath = isect.nodePath;
+                    // walk up to the root and call all coActions
+                    OSGVruiHit hit(isect, mouseHit);
+                    OSGVruiNode node(cover->intersectedNode.get());
+                    callActions(&node, &hit);
+
+                    break; // stop this for loop for going through other hits farer away from nearest
+                }
             }
-            if (hasVisibleHit)
-            {
-                cover->intersectionHitPointWorld = hitInformation.getWorldIntersectPoint();
-                cover->intersectionHitPointWorldNormal = hitInformation.getWorldIntersectNormal();
-                cover->intersectionHitPointLocal = hitInformation.getLocalIntersectPoint();
-                cover->intersectionHitPointLocalNormal = hitInformation.getLocalIntersectNormal();
-                cover->intersectionMatrix = hitInformation._matrix;
-                cover->intersectedNode = hitInformation._geode;
 
-                //if( !cover->intersectedNode.get()->getName().empty())
-                //    fprintf(stderr,"coIntersection::intersect hit node %s\n", cover->intersectedNode.get()->getName().c_str());
-                //else
-                //    fprintf(stderr,"coIntersection::intersect hit node without name\n");
-
-                cover->intersectedNodePath = hitInformation.getNodePath();
-                // walk up to the root and call all coActions
-                OSGVruiHit hit(hitInformation, mouseHit);
-                OSGVruiNode node(cover->intersectedNode.get());
-                callActions(&node, &hit);
-            }
-        }
-        else
-        {
-            //VRUILOG("coIntersection::intersect info: miss");
+            //else
+            //{
+            //   if (! (hitList[i]._geode->getName().empty()) )
+            //   {
+            //      fprintf(stderr,"intersceting a unvisible node with name %s\n", hitList[i]._geode->getName().c_str());
+            //   }
+            //}
         }
     }
    /* // for debug only
@@ -364,4 +418,6 @@ void coIntersection::forceIsectAllNodes(bool isectAll)
     }
 
     //fprintf(stderr,"numIsectAllNodes=%d\n", numIsectAllNodes);
+}
+
 }

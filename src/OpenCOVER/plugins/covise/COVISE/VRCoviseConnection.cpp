@@ -587,18 +587,39 @@ VRCoviseConnection::receiveRenderMessage()
                 // enable navigationmode showName
                 //coVRNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
                 // set navigationMode
-                if (strcmp(trackingMsg.getNavigationMode(), "") == 0)
+                std::string navmode(trackingMsg.getNavigationMode());
+                auto nav = coVRNavigationManager::instance();
+                if (navmode == "")
                 {
                     // do nothing
                 }
-                else if (strcmp(trackingMsg.getNavigationMode(), "NavNone") == 0)
+                else if (navmode == "NavNone")
                 {
-                    cover->enableNavigation("XForm");
-                    cover->disableNavigation("XForm");
+                    nav->setNavMode(coVRNavigationManager::NavNone);
+                }
+                else if (navmode == "XForm")
+                {
+                    nav->setNavMode(coVRNavigationManager::XForm);
+                }
+                else if (navmode == "Scale")
+                {
+                    nav->setNavMode(coVRNavigationManager::Scale);
+                }
+                else if (navmode == "Walk")
+                {
+                    nav->setNavMode(coVRNavigationManager::Walk);
+                }
+                else if (navmode == "Drive")
+                {
+                    nav->setNavMode(coVRNavigationManager::Glide);
+                }
+                else if (navmode == "Fly")
+                {
+                    nav->setNavMode(coVRNavigationManager::Fly);
                 }
                 else
                 {
-                    cover->enableNavigation(trackingMsg.getNavigationMode());
+                    std::cerr << "VRCoviseConnection: navigation mode " << navmode << " not implemented" << std::endl;
                 }
                 //enable tracking in opencover
 

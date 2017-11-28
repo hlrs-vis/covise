@@ -48,6 +48,14 @@ class COVEREXPORT coVRPluginList
     friend class OpenCOVER;
 
 public:
+    enum PluginDomain
+    {
+        Default,
+        Window,
+        Input,
+        NumPluginDomains // keep last
+    };
+
     // plugin management functions
     //! singleton
     static coVRPluginList *instance();
@@ -58,7 +66,7 @@ public:
     coVRPlugin *getPlugin(const char *name) const;
 
     //! load a plugin, call init, add to list of managed plugins
-    coVRPlugin *addPlugin(const char *name);
+    coVRPlugin *addPlugin(const char *name, PluginDomain domain=Default);
 
     //! mark plugin for unloading
     void unload(coVRPlugin *m);
@@ -78,6 +86,9 @@ public:
 
     //! call newInteractor method of all plugins
     void newInteractor(const RenderObject *container, coInteractor *it) const;
+
+    //! call enableInteraction method of all plugins until one is accepting the request
+    bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse);
 
     //! call coviseError method of all plugins
     void coviseError(const char *error) const;
@@ -134,7 +145,7 @@ public:
     //! called by plugin's commitTimestep method when timestep is prepared
     void commitTimestep(int t, coVRPlugin *caller);
 
-    void unloadAllPlugins();
+    void unloadAllPlugins(PluginDomain domain=Default);
 
 private:
     coVRPluginList();
@@ -145,6 +156,10 @@ private:
     void init2();
     //! unload all plugins queued for unloading
     void unloadQueued();
+    //! add plugin to list of managed plugins
+    void manage(coVRPlugin *plug, PluginDomain domain);
+    //! remove plugin from list of managed plugins
+    void unmanage(coVRPlugin *plug);
 
     //! try to load a plugin
     coVRPlugin *loadPlugin(const char *name);
@@ -161,6 +176,7 @@ private:
 
     typedef std::map<std::string, coVRPlugin *> PluginMap;
     PluginMap m_plugins;
+    std::vector<coVRPlugin *> m_loadedPlugins[NumPluginDomains];
 
     typedef std::vector<CO_SHLIB_HANDLE> HandleList;
     HandleList m_unloadNext, m_unloadQueue;
