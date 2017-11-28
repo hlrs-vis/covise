@@ -1,5 +1,9 @@
 USING(OpenGL)
 USING(PNG)
+covise_find_package(OSMesa)
+if (NOT OSMESA_FOUND)
+    return()
+endif()
 
 set(HEADERS
     WindowTypeMesa.h

@@ -128,30 +128,31 @@ void SumoTraCI::preFrame() {
 
 void SumoTraCI::sendSimResults()
 {
-    int i=0;
     if(currentResults.size() != simResults.size())
     {
         currentResults.resize(simResults.size());
     }
+    int i=0;
     for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) 
     {
         currentResults[i].position = osg::Vec3d(it->second[VAR_POSITION3D].position.x,it->second[VAR_POSITION3D].position.y,it->second[VAR_POSITION3D].position.z);
-	currentResults[i].angle = it->second[VAR_ANGLE].scalar;
-	currentResults[i].vehicleClass = it->second[VAR_VEHICLECLASS].string;
-	currentResults[i].vehicleType = it->second[VAR_TYPE].string;
-	currentResults[i].vehicleID = it->first;		
-	i++;
+        currentResults[i].angle = it->second[VAR_ANGLE].scalar;
+        currentResults[i].vehicleClass = it->second[VAR_VEHICLECLASS].string;
+        currentResults[i].vehicleType = it->second[VAR_TYPE].string;
+        currentResults[i].vehicleID = it->first;		
+        i++;
     }
     covise::TokenBuffer stb;
-    stb << currentResults.size();
-    for(int i=0;i < currentResults.size(); i++)
+    unsigned int currentSize = currentResults.size();
+    stb << currentSize;
+    for(size_t i=0;i < currentResults.size(); i++)
     {
         double x = currentResults[i].position[0];
         double y = currentResults[i].position[1];
         double z = currentResults[i].position[2];
         stb << x;
-	stb << y;
-	stb << z;
+        stb << y;
+        stb << z;
         stb << currentResults[i].angle;
         stb << currentResults[i].vehicleClass;
         stb << currentResults[i].vehicleType;

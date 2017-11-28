@@ -29,10 +29,10 @@
  ************************************************************************/
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-#define USE_X11
+//#define USE_X11
 #include <GL/glew.h>
-#include <GL/glxew.h>
-#include <osgViewer/api/X11/GraphicsWindowX11>
+//#include <GL/glxew.h>
+//#include <osgViewer/api/X11/GraphicsWindowX11>
 #undef Status
 #endif
 
