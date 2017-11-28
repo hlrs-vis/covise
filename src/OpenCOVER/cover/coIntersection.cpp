@@ -300,19 +300,19 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
         bool hasVisibleHit = false;
         for (const auto &isect: isects)
         {
-            auto node = isect.drawable;
+            osg::Node *node = nullptr;
+            if (isect.drawable && isect.drawable->getNumParents()>0)
+                node = isect.drawable->getParent(0);
 
-            if (node->getNodeMask() & (Isect::Visible))
+            if (node && (node->getNodeMask() & (Isect::Visible)))
             {
                 //hitInformation = hitList[i];
                 hasVisibleHit = true;
                 // check also parents of this visible node,
-                osg::Node *parent;
+                osg::Node *parent = NULL;
                 // there could be an invisible dcs above
                 if (node->getNumParents())
                     parent = node->getParent(0);
-                else
-                    parent = NULL;
                 while (parent && (parent != cover->getObjectsRoot()))
                 {
 

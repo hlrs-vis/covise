@@ -11,6 +11,7 @@
 #include <OpenVRUI/sginterface/vruiRendererInterface.h>
 
 #include <osg/Vec3>
+#include <osg/Drawable>
 
 using namespace osg;
 using namespace osgUtil;
@@ -79,7 +80,11 @@ vruiNode *OSGVruiHit::getNode()
 {
     if (!node)
     {
-        node = new OSGVruiNode(hit.drawable.get());
+        if (hit.drawable && hit.drawable->getNumParents()>0)
+        {
+            osg::Node *geode = hit.drawable->getParent(0);
+            node = new OSGVruiNode(geode);
+        }
     }
     return node;
 }
