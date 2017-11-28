@@ -32,7 +32,6 @@
 #include <cover/VRViewer.h>
 
 #include <visionaray/gl/bvh_outline_renderer.h>
-#include <visionaray/gl/debug_callback.h>
 #include <visionaray/array.h>
 #include <visionaray/kernels.h>
 
@@ -964,8 +963,6 @@ namespace visionaray
         std::vector<gl::bvh_outline_renderer> outlines;
         std::vector<bool> outlines_initialized;
 
-        gl::debug_callback gl_debug_callback;
-
         std::shared_ptr<render_state> state = nullptr;
         std::shared_ptr<debug_state> dev_state = nullptr;
 
@@ -1447,27 +1444,6 @@ namespace visionaray
 
         if (impl_->dev_state->suppress_rendering)
             return;
-
-        // Activate debug callback
-
-        gl::debug_params params;
-        if (opencover::cover->debugLevel(4))
-        {
-            params.level = gl::debug_level::Notification;
-        }
-        else if (opencover::cover->debugLevel(2))
-        {
-            params.level = gl::debug_level::Low;
-        }
-        else if (opencover::cover->debugLevel(1))
-        {
-            params.level = gl::debug_level::Medium;
-        }
-        else if (opencover::cover->debugLevel(0))
-        {
-            params.level = gl::debug_level::High;
-        }
-        impl_->gl_debug_callback.activate(params);
 
         if (impl_->multi_channel_drawer == nullptr || impl_->device != impl_->state->device)
         {
