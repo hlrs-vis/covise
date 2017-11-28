@@ -1,4 +1,5 @@
 USING(OpenGL)
+USING(PNG)
 
 set(HEADERS
     WindowTypeMesa.h
