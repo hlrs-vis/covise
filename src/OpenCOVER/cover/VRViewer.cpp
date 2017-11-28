@@ -53,7 +53,7 @@
 #include "coVRConfig.h"
 #include "coCullVisitor.h"
 #include "ARToolKit.h"
-#include "EnableGLDebugOperation.h"
+#include "InitGLOperation.h"
 #include "input/input.h"
 #include "tridelity.h"
 #include "ui/Button.h"
@@ -381,11 +381,7 @@ VRViewer::VRViewer()
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
 
-    const bool glDebug = coCoviseConfig::isOn("COVER.GLDebug", false);
-    if (glDebug) {
-        std::cerr << "VRViewer: enabling GL debugging" << std::endl;
-        setRealizeOperation(new EnableGLDebugOperation());
-    }
+    setRealizeOperation(new InitGLOperation());
 
     unsyncedFrames = 0;
     lastFrameTime = 0.0;

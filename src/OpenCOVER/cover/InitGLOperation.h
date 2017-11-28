@@ -1,5 +1,5 @@
-#ifndef ENABLEGLDEBUGOPERATION_H
-#define ENABLEGLDEBUGOPERATION_H
+#ifndef INITGLOPERATION_H
+#define INITGLOPERATION_H
 
 /* based on https://github.com/ThermalPixel/osgdemos/osgdebug
 
@@ -33,10 +33,10 @@
 
 #include <osgViewer/ViewerEventHandlers>
 
-class EnableGLDebugOperation: public osg::GraphicsOperation
+class InitGLOperation: public osg::GraphicsOperation
 {
 public:
-    EnableGLDebugOperation();
+    InitGLOperation();
     virtual void operator ()(osg::GraphicsContext* gc);
 
 private:
