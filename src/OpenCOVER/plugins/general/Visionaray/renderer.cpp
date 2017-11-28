@@ -946,7 +946,6 @@ namespace visionaray
 
         size_t total_frame_num = 0;
 
-        color_space clr_space = RGB;
         algorithm algo_current = Simple;
         unsigned num_bounces = 4;
         device_type device = CPU;
@@ -1171,7 +1170,6 @@ namespace visionaray
 
     void renderer::impl::commit_state()
     {
-        clr_space = state->clr_space;
         algo_current = state->algo;
         num_bounces = state->num_bounces;
         device = state->device;
@@ -1489,15 +1487,6 @@ namespace visionaray
         auto diagonal = bounds.max - bounds.min;
         auto bounces = impl_->state->num_bounces;
         auto epsilon = max(1E-3f, length(diagonal) * 1E-5f);
-
-        if (impl_->state->clr_space == sRGB)
-        {
-            glEnable(GL_FRAMEBUFFER_SRGB);
-        }
-        else
-        {
-            glDisable(GL_FRAMEBUFFER_SRGB);
-        }
 
         // Kernel params
 

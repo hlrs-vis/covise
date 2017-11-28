@@ -81,7 +81,6 @@ namespace visionaray
 
             // main menu
             tui_check_box       toggle_update_mode;
-            tui_check_box       toggle_color_space;
             tui_label           bounces_label;
             tui_int_edit        bounces_edit;
 
@@ -113,7 +112,6 @@ namespace visionaray
 
             // main menu
             vrui_check_box      toggle_update_mode;
-            vrui_check_box      toggle_color_space;
             vrui_slider         bounces_slider;
 
             // algo menu
@@ -157,7 +155,6 @@ namespace visionaray
         // control state
 
         void set_data_variance(data_variance var);
-        void set_color_space(color_space cs);
         void set_algorithm(algorithm algo);
         void set_num_bounces(unsigned num_bounces);
         void set_device(device_type dev);
@@ -181,7 +178,6 @@ namespace visionaray
         // <Visionaray>
         //     <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
         //     <Algorithm    value="simple"  />                 <!-- "simple" | "whitted" -->
-        //     <Framebuffer  colorSpace="sRGB" />               <!-- colorSpace: "sRGB" | "RGB" -->
         //     <NumBounces   value="4" min="1" max="10" />      <!-- value:Integer | [min:Integer|max:Integer]  -->
         //     <Device       value="CPU"     />                 <!-- "CPU"    | "GPU"     -->
         //     <CPUScheduler numThreads="16" />                 <!-- numThreads:Integer   -->
@@ -202,13 +198,11 @@ namespace visionaray
         auto max_bounces = covise::coCoviseConfig::getInt("max", "COVER.Plugin.Visionaray.NumBounces", 10);
         auto device_str = covise::coCoviseConfig::getEntry("COVER.Plugin.Visionaray.Device");
         auto data_var_str = covise::coCoviseConfig::getEntry("COVER.Plugin.Visionaray.DataVariance");
-        auto clr_space_str = covise::coCoviseConfig::getEntry("colorSpace", "COVER.Plugin.Visionaray.Framebuffer");
         auto num_threads = covise::coCoviseConfig::getInt("numThreads", "COVER.Plugin.Visionaray.CPUScheduler", 0);
 
         to_lower(algo_str);
         to_lower(device_str);
         to_lower(data_var_str);
-        to_lower(clr_space_str);
 
         // Update state
 
@@ -243,15 +237,6 @@ namespace visionaray
 
         state->data_var = data_var_str == "dynamic" ? Dynamic : AnimationFrames;
         state->num_threads = num_threads;
-
-        if (clr_space_str == "rgb")
-        {
-            state->clr_space = RGB;
-        }
-        else
-        {
-            state->clr_space = sRGB;
-        }
     }
 
     void Visionaray::impl::init_ui()
@@ -278,11 +263,6 @@ namespace visionaray
         tui.toggle_update_mode->setState(state->data_var == Dynamic);
         tui.toggle_update_mode->setPos(0, 1);
 
-        tui.toggle_color_space.reset(new coTUIToggleButton("Output sRGB", tui.general_frame->getID()));
-        tui.toggle_color_space->setEventListener(this);
-        tui.toggle_color_space->setState(state->clr_space == sRGB);
-        tui.toggle_color_space->setPos(0, 2);
-
         tui.bounces_label.reset(new coTUILabel("Number of bounces", tui.general_frame->getID()));
         tui.bounces_label->setPos(0, 3);
 
@@ -300,10 +280,6 @@ namespace visionaray
         ui.toggle_update_mode.reset(new coCheckboxMenuItem("Update scene per frame", state->data_var == Dynamic));
         ui.toggle_update_mode->setMenuListener(this);
         ui.main_menu->add(ui.toggle_update_mode.get());
-
-        ui.toggle_color_space.reset(new coCheckboxMenuItem("Output sRGB", state->clr_space == sRGB));
-        ui.toggle_color_space->setMenuListener(this);
-        ui.main_menu->add(ui.toggle_color_space.get());
 
         ui.bounces_slider.reset(new coSliderMenuItem("Number of bounces", state->min_bounces, state->max_bounces, state->num_bounces));
         ui.bounces_slider->setInteger(true);
@@ -462,11 +438,6 @@ namespace visionaray
             set_data_variance(ui.toggle_update_mode->getState() ? Dynamic : Static);
         }
 
-        if (item == ui.toggle_color_space.get())
-        {
-            set_color_space(ui.toggle_color_space->getState() ? sRGB : RGB);
-        }
-
         if (item == ui.bounces_slider.get())
         {
             set_num_bounces(ui.bounces_slider->getValue());
@@ -531,11 +502,6 @@ namespace visionaray
         if (item == tui.toggle_update_mode.get())
         {
             set_data_variance(tui.toggle_update_mode->getState() ? Dynamic : Static);
-        }
-
-        if (item == tui.toggle_color_space.get())
-        {
-            set_color_space(tui.toggle_color_space->getState() ? sRGB : RGB);
         }
 
         if (item == tui.bounces_edit.get())
@@ -605,13 +571,6 @@ namespace visionaray
         state->data_var = var;
         ui.toggle_update_mode->setState(var == Dynamic, false);
         tui.toggle_update_mode->setState(var == Dynamic);
-    }
-
-    void Visionaray::impl::set_color_space(color_space cs)
-    {
-        state->clr_space = cs;
-        ui.toggle_color_space->setState(cs == sRGB, false);
-        tui.toggle_color_space->setState(cs == sRGB);
     }
 
     void Visionaray::impl::set_algorithm(algorithm algo)
