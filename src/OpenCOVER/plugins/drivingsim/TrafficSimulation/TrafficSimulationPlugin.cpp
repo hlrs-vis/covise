@@ -532,7 +532,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
 
     else if (tUIItem == openC4DXMLButton || tUIItem == openLandXMLButton || tUIItem == openIntermapRoadButton)
     {
-        if (system == NULL)
+        if (coTrafficSimulation::instance()->system == NULL)
         {
 			coTrafficSimulation::instance()->system = RoadSystem::Instance();
         }
@@ -548,7 +548,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
 
 			coTrafficSimulation::instance()->system->parseCinema4dXml(filename);
-            std::cout << "Information about road system: " << std::endl << system;
+            std::cout << "Information about road system: " << std::endl << coTrafficSimulation::instance()->system;
         }
         else if (tUIItem == openLandXMLButton)
         {
@@ -560,7 +560,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
 
 			coTrafficSimulation::instance()->system->parseLandXml(filename);
-            std::cout << "Information about road system: " << std::endl << system;
+            std::cout << "Information about road system: " << std::endl << coTrafficSimulation::instance()->system;
         }
         else if (tUIItem == openIntermapRoadButton)
         {
@@ -572,7 +572,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
 
 			coTrafficSimulation::instance()->system->parseIntermapRoad(filename, "+proj=latlong +datum=WGS84", "+proj=merc +x_0=-1008832.89 +y_0=-6179385.47");
-            //std::cout << "Information about road system: " << std::endl << system;
+            //std::cout << "Information about road system: " << std::endl << coTrafficSimulation::instance()->system;
         }
 
         //roadGroup = new osg::Group;
