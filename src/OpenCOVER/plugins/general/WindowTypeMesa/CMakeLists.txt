@@ -1,8 +1,9 @@
-using(OpenGL)
-covise_find_package(OSMesa)
-if (NOT OSMESA_FOUND)
+if (NOT COVISE_USE_OSMESA)
     return()
 endif()
+
+covise_find_package(OSMesa REQUIRED)
+using(OpenGL)
 
 include_directories(${OSMESA_INCLUDE_DIR})
 

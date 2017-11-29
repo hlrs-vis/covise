@@ -364,7 +364,11 @@ coVRConfig::coVRConfig()
         w.stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
         w.embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
         w.pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
+#if USE_OSMESA
+        w.type = coCoviseConfig::getEntry("type", std::string(str), "Mesa");
+#else
         w.type = coCoviseConfig::getEntry("type", std::string(str), "");
+#endif
         std::transform(w.type.begin(), w.type.end(), w.type.begin(), ::tolower);
         w.swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
         w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
