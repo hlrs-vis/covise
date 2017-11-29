@@ -602,6 +602,7 @@ void coVRShader::loadMaterial()
                     if (code != "")
                     {
                         fragmentShader = new osg::Shader(osg::Shader::FRAGMENT, code);
+                        fragmentShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "geometryProgram") == 0)
@@ -661,6 +662,7 @@ void coVRShader::loadMaterial()
                     if (code != "")
                     {
                         vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
+                        vertexShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "tessControlProgram") == 0)
