@@ -6,6 +6,7 @@ USING(XERCESC OSGCAL CAL3D)
 using(VRML)
 using(V8 optional)
 using(VehicleUtil)
+using(RoadTerrain)
 
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)

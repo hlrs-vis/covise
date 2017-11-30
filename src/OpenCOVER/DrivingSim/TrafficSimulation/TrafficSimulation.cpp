@@ -48,7 +48,7 @@
 #include "HumanVehicle.h"
 
 #include "PorscheFFZ.h"
-#include "../../plugins/drivingsim/RoadTerrain/RoadTerrainPlugin.h"
+#include <RoadTerrain/RoadTerrainLoader.h>
 
 using namespace covise;
 using namespace opencover;
@@ -220,15 +220,14 @@ void TrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
 
             if (!vpbString.empty())
             {
-                coVRPlugin *roadTerrainPlugin = cover->addPlugin("RoadTerrain");
                 fprintf(stderr, "loading %s\n", vpbString.c_str());
-                if (RoadTerrainPlugin::plugin)
+                if (RoadTerrainLoader::instance())
                 {
                     osg::Vec3d offset(0, 0, 0);
                     const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
                     offset.set(header.xoffset, header.yoffset, 0.0);
                     fprintf(stderr, "loading %s offset: %f %f\n", (xodrDirectory + "/" + vpbString).c_str(), offset[0], offset[1]);
-                    RoadTerrainPlugin::plugin->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
+                    RoadTerrainLoader::instance()->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
                 }
             }
         }

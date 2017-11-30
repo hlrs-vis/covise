@@ -47,10 +47,8 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <TrafficSimulation/HumanVehicle.h>
-#include "../SteeringWheel/Vehicle.h"
 
 #include <TrafficSimulation/PorscheFFZ.h>
-#include "../RoadTerrain/RoadTerrainPlugin.h"
 
 using namespace covise;
 using namespace opencover;

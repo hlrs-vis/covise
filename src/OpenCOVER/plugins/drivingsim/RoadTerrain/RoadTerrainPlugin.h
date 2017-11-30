@@ -22,14 +22,11 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include <osg/Texture2D>
 #include <vector>
-#include <osg/PositionAttitudeTransform>
 
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "ogrsf_frmts.h"
-#include "DecoratedGeometryTechnique.h"
-#include "RoadTerrainLoader.h"
+#include <RoadTerrain/RoadTerrainLoader.h>
 
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/VrmlNodeType.h>

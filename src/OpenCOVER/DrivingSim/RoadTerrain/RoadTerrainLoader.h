@@ -27,8 +27,9 @@
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "ogrsf_frmts.h"
 #include "DecoratedGeometryTechnique.h"
+#include "export.h"
 
-class ROADTERRAINPLUGINEXPORT RoadTerrainLoader
+class ROADTERRAINEXPORT RoadTerrainLoader
 {
 public:
     RoadTerrainLoader();

@@ -49,8 +49,6 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-#include "LevelTerrainCallback.h"
-
 using namespace covise;
 using namespace opencover;
 
