@@ -15,13 +15,12 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
     , scriptName(setScriptName)
     , cycleTime(setCycleTime)
     , scriptInitialized(false)
-{
 #ifdef HAVE_V8
-    context=NULL;
-    context = v8::Context::New();
-    context_scope = context;
-    controlTemplate = v8::ObjectTemplate::New();
+    , context(v8::Persistent<v8::Context>::New(v8::Context::New()))
+    , context_scope(context)
+    , controlTemplate(v8::Persistent<v8::ObjectTemplate>::New(v8::ObjectTemplate::New()))
 #endif
+{
     if (scriptName != "")
     {
         initScript(scriptName);
