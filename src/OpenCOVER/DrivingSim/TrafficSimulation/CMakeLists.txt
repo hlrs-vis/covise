@@ -63,7 +63,6 @@ SET(SOURCES
 
 
 INCLUDE_DIRECTORIES(
-   ../VehicleUtil
    ${OSGTERRAIN_INCLUDE_DIR}
    ${OSGCAL3D_INCLUDE_DIR}
    ${CAL3D_INCLUDE_DIR}
@@ -81,7 +80,6 @@ target_link_libraries(coTrafficSimulation
  ${OSGCAL_LIBRARIES}
  ${OPENSCENEGRAPH_LIBRARIES}
  ${EXTRA_LIBS}
- RoadTerrain
  #SteeringWheel #required for vrmlNodeVehicle (windows)
  coOpenVehicleUtil)
  

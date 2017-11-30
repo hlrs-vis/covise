@@ -46,7 +46,6 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "HumanVehicle.h"
-#include "../../plugins/drivingsim/SteeringWheel/Vehicle.h"
 
 #include "PorscheFFZ.h"
 #include "../../plugins/drivingsim/RoadTerrain/RoadTerrainPlugin.h"
