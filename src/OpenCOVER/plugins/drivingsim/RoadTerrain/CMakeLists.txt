@@ -7,12 +7,14 @@ using(VehicleUtil)
 
 SET(HEADERS
   RoadTerrainPlugin.h
+  RoadTerrainLoader.h
   LevelTerrainCallback.h
   DecoratedGeometryTechnique.h
   mtrand.h
 )
 SET(SOURCES
   RoadTerrainPlugin.cpp
+  RoadTerrainLoader.cpp
   LevelTerrainCallback.cpp
   DecoratedGeometryTechnique.cpp
   mtrand.cpp
