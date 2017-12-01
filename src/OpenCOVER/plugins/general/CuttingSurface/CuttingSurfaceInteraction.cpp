@@ -11,21 +11,11 @@
 #include "CuttingSurfaceSphere.h"
 #include "CuttingSurfacePlugin.h"
 
-#ifdef VRUI
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#else
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
-#endif
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
@@ -46,7 +36,6 @@
 #include <util/common.h>
 
 using namespace osg;
-using namespace vrui;
 using namespace opencover;
 using namespace grmsg;
 using covise::coCoviseConfig;
@@ -59,17 +48,15 @@ const char *CuttingSurfaceInteraction::SCALAR = "scalar";
 
 CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p)
     : ModuleInteraction(container, inter, pluginName)
-    , wait_(false)
     , newObject_(false)
     , planeOptionsInMenu_(false)
     , option_(0)
-    , oldOption_(0)
     , csPlane_(NULL)
     , csCylX_(NULL)
     , csCylY_(NULL)
     , csCylZ_(NULL)
     , csSphere_(NULL)
-    , activeClipPlane_(0)
+    , activeClipPlane_(-1)
     , clipPlaneMenu_(NULL)
     , clipPlaneIndexGroup_(NULL)
     , clipPlaneNoneCheckbox_(NULL)
@@ -90,7 +77,6 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
 
     option_ = OPTION_PLANE;
     getParameters();
-    oldOption_ = option_;
 
     // create interactors
     csPlane_ = new CuttingSurfacePlane(inter, plugin);
@@ -101,6 +87,7 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
 
     // deafult is no restriction
     restrictToAxis_ = RESTRICT_NONE;
+    csPlane_->restrict(restrictToAxis_);
 
     // default is no clipplane attached
     activeClipPlane_ = -1;
@@ -136,7 +123,6 @@ CuttingSurfaceInteraction::update(const RenderObject *container, coInteractor *i
 
     ModuleInteraction::update(container, inter);
 
-    oldOption_ = option_;
     getParameters();
 
     updateMenu();
@@ -184,123 +170,6 @@ CuttingSurfaceInteraction::preFrame()
     }
 }
 
-#ifdef VRUI
-void
-CuttingSurfaceInteraction::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == orientFree_)
-    {
-        if (orientFree_->state())
-        {
-            restrictNone();
-            sendRestrictNoneMsg();
-        }
-    }
-    else if (menuItem == orientX_)
-    {
-        if (orientX_->state())
-        {
-            restrictX();
-            csPlane_->restrict(RESTRICT_X);
-            wait_ = true;
-            sendRestrictXMsg();
-        }
-    }
-    else if (menuItem == orientY_)
-    {
-        if (orientY_->state())
-        {
-            restrictY();
-            csPlane_->restrict(RESTRICT_Y);
-            wait_ = true;
-            sendRestrictYMsg();
-        }
-    }
-    else if (menuItem == orientZ_)
-    {
-        if (orientZ_->state())
-        {
-            restrictZ();
-            csPlane_->restrict(RESTRICT_Z);
-            wait_ = true;
-            sendRestrictZMsg();
-        }
-    }
-    else if ((menuItem == clipPlaneIndexCheckbox_[0])
-             || (menuItem == clipPlaneIndexCheckbox_[1])
-             || (menuItem == clipPlaneIndexCheckbox_[2])
-             || (menuItem == clipPlaneIndexCheckbox_[3])
-             || (menuItem == clipPlaneIndexCheckbox_[4])
-             || (menuItem == clipPlaneIndexCheckbox_[5]))
-    {
-        int index=0;
-        sscanf(menuItem->getName(), "ClipPlane %d", &index);
-        switchClipPlane(index);
-        sendClipPlaneToGui();
-    }
-    else if (menuItem == clipPlaneNoneCheckbox_)
-    {
-        switchClipPlane(-1);
-        sendClipPlaneToGui();
-    }
-    else if ((menuItem == clipPlaneOffsetSlider_) || (menuItem == clipPlaneFlipCheckbox_))
-    {
-        sendClipPlanePositionMsg(activeClipPlane_);
-        sendClipPlaneToGui();
-    }
-    else if (menuItem == optionPlane_ || menuItem == optionCylX_ || menuItem == optionCylY_ || menuItem == optionCylZ_ || menuItem == optionSphere_)
-    {
-        int numSufaces;
-        char **labels;
-        int active;
-
-        updatePickInteractors(showPickInteractor_);
-        updateDirectInteractors(showDirectInteractor_);
-
-        if (inter_->getChoiceParam("option", numSufaces, labels, active) == 0)
-        {
-            plugin->getSyncInteractors(inter_);
-            if (menuItem == optionPlane_ && optionPlane_->state() && option_ != OPTION_PLANE)
-            {
-                plugin->setChoiceParam("option", numSufaces, labels, 0);
-                switchClipPlane(activeClipPlane_);
-                option_ = OPTION_PLANE;
-                csPlane_->restrict(restrictToAxis_);
-            }
-            else if (menuItem == optionCylX_ && optionCylX_->state() && option_ != OPTION_CYLX)
-            {
-                plugin->setChoiceParam("option", numSufaces, labels, 2);
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_CYLX;
-            }
-            else if (menuItem == optionCylY_ && optionCylY_->state() && option_ != OPTION_CYLY)
-            {
-                plugin->setChoiceParam("option", numSufaces, labels, 3);
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_CYLY;
-            }
-            else if (menuItem == optionCylZ_ && optionCylZ_->state() && option_ != OPTION_CYLZ)
-            {
-                plugin->setChoiceParam("option", numSufaces, labels, 4);
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_CYLZ;
-            }
-            else if (menuItem == optionSphere_ && optionSphere_->state() && option_ != OPTION_SPHERE)
-            {
-                plugin->setChoiceParam("option", numSufaces, labels, 1);
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_SPHERE;
-            }
-            plugin->executeModule();
-        }
-    }
-    else // other menu actions are handeled by the base class
-    {
-        ModuleInteraction::menuEvent(menuItem);
-    }
-}
-#endif
-
 void
 CuttingSurfaceInteraction::restrictX()
 {
@@ -343,23 +212,8 @@ CuttingSurfaceInteraction::createMenu()
     optionChoice_->append("Cylinder: X");
     optionChoice_->append("Cylinder: Y");
     optionChoice_->append("Cylinder: Z");
-    optionChoice_->select(0);
+    optionChoice_->select(option_);
 
-#if 0
-    optionMenu_ = new ui::Menu(menu_, "SurfaceStyle");
-    optionMenu_->setText("Surface style: ---");
-    optionGroup_ = new ui::ButtonGroup("OptionGroup", this);
-    optionPlane_ = new ui::Button(optionGroup_, "Plane", 0);
-    optionPlane_->setState(true);
-    optionCylX_ = new ui::Button(optionGroup_, "CylinderX", 2);
-    optionCylX_->setState(false);
-    optionCylY_ = new ui::Button(optionGroup_, "CylinderY", 3);
-    optionCylY_->setState(false);
-    optionCylZ_ = new ui::Button(optionGroup_, "CylinderZ", 4);
-    optionCylZ_->setState(false);
-    optionSphere_ = new ui::Button(optionGroup_, "Sphere", 1);
-    optionSphere_->setState(false);
-#endif
     optionChoice_->setCallback([this](int idx){
         int numSufaces;
         char **labels;
@@ -373,37 +227,40 @@ CuttingSurfaceInteraction::createMenu()
             plugin->getSyncInteractors(inter_);
             plugin->setChoiceParam("option", numSufaces, labels, idx);
 
-            if (idx==0 && option_ != OPTION_PLANE)
+            if (idx != option_)
             {
-                switchClipPlane(activeClipPlane_);
-                option_ = OPTION_PLANE;
-                csPlane_->restrict(restrictToAxis_);
-            }
-            else if (idx==2 && option_ != OPTION_CYLX)
-            {
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_CYLX;
-            }
-            else if (idx==3 && option_ != OPTION_CYLY)
-            {
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_CYLY;
-            }
-            else if (idx==4 && option_ != OPTION_CYLZ)
-            {
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_CYLZ;
-            }
-            else if (idx==1 && option_ != OPTION_SPHERE)
-            {
-                sendClipPlaneVisibilityMsg(activeClipPlane_, false);
-                option_ = OPTION_SPHERE;
+                option_ = idx;
+                switch (option_) {
+                case OPTION_PLANE:
+                    switchClipPlane(activeClipPlane_);
+                    csPlane_->restrict(restrictToAxis_);
+                    if (!planeOptionsInMenu_)
+                    {
+                        orient_->setVisible(true);
+                        clipPlaneMenu_->setVisible(true);
+                        planeOptionsInMenu_ = true;
+                    }
+                    break;
+                case OPTION_SPHERE:
+                case OPTION_CYLX:
+                case OPTION_CYLY:
+                case OPTION_CYLZ:
+                    sendClipPlaneVisibilityMsg(activeClipPlane_, false);
+                    if (planeOptionsInMenu_)
+                    {
+                        orient_->setVisible(false);
+                        clipPlaneMenu_->setVisible(false);
+                        planeOptionsInMenu_ = false;
+                    }
+                    break;
+                }
             }
             plugin->executeModule();
         }
     });
 
-    orient_ = new ui::SelectionList("Orientation", this);
+    planeOptionsInMenu_ = true;
+    orient_ = new ui::SelectionList(menu_, "Orientation");
     orient_->append("Free");
     orient_->append("X Axis");
     orient_->append("Y Axis");
@@ -411,11 +268,7 @@ CuttingSurfaceInteraction::createMenu()
     orient_->select(0);
     orient_->setCallback([this](int idx){
         restrictToAxis_ = idx;
-        if (idx > 0)
-        {
-            csPlane_->restrict(idx);
-            wait_ = true;
-        }
+        csPlane_->restrict(idx);
 
         switch (idx)
         {
@@ -433,63 +286,17 @@ CuttingSurfaceInteraction::createMenu()
             break;
         }
     });
-#if 0
-    orientGroup_ = new ui::ButtonGroup("OrientationGroup", this);
-
-    orientFree_ = new ui::Button(orientGroup_, "Free");
-    orientFree_->setState(true);
-    orientFree_->setCallback([this](bool state){
-        if (state)
-        {
-            restrictNone();
-            sendRestrictNoneMsg();
-        }
-    });
-    orientX_ = new ui::Button(orientGroup_, "X Axis");
-    orientX_->setState(false);
-    orientX_->setCallback([this](bool state){
-        if (state)
-        {
-            restrictX();
-            csPlane_->restrict(RESTRICT_X);
-            wait_ = true;
-            sendRestrictXMsg();
-        }
-    });
-    orientY_ = new ui::Button(orientGroup_, "Y Axis");
-    orientY_->setState(false);
-    orientY_->setCallback([this](bool state){
-        if (state)
-        {
-            restrictY();
-            csPlane_->restrict(RESTRICT_Y);
-            wait_ = true;
-            sendRestrictYMsg();
-        }
-    });
-    orientZ_ = new ui::Button(orientGroup_, "Z Axis");
-    orientZ_->setState(false);
-    orientZ_->setCallback([this](bool state){
-        if (state)
-        {
-            restrictZ();
-            csPlane_->restrict(RESTRICT_Z);
-            wait_ = true;
-            sendRestrictZMsg();
-        }
-    });
-#endif
 
     char title[100];
     sprintf(title, "%s_ClipPlane", menu_->name().c_str());
-    clipPlaneMenu_ = new ui::Menu(title, this);
+    clipPlaneMenu_ = new ui::Menu(menu_, title);
     clipPlaneMenu_->setText("Attached clip plane");
 
     clipPlaneIndexGroup_ = new ui::ButtonGroup("ClipPlaneIndex", this);
 
     clipPlaneNoneCheckbox_ = new ui::Button(clipPlaneMenu_, "NoClipPlane", clipPlaneIndexGroup_, -1);
     clipPlaneNoneCheckbox_->setText("No clip plane");
-    clipPlaneNoneCheckbox_->setState(true);
+    clipPlaneNoneCheckbox_->setState(activeClipPlane_ < 0);
     for (int i = 0; i < 3; i++)
     {
         char name[100];
@@ -497,12 +304,13 @@ CuttingSurfaceInteraction::createMenu()
         clipPlaneIndexCheckbox_[i] = new ui::Button(clipPlaneMenu_, name, clipPlaneIndexGroup_, i);
         sprintf(name, "Clip plane %d", i);
         clipPlaneIndexCheckbox_[i]->setText(name);
-        clipPlaneIndexCheckbox_[i]->setState(false);
+        clipPlaneIndexCheckbox_[i]->setState(i == activeClipPlane_);
     }
     clipPlaneIndexGroup_->setCallback([this](int idx){
         switchClipPlane(idx);
         sendClipPlaneToGui();
     });
+    assert(clipPlaneIndexGroup_->value() == activeClipPlane_);
 
     clipPlaneOffsetSlider_ = new ui::Slider(clipPlaneMenu_, "Offset");
     clipPlaneOffsetSlider_->setBounds(0., 1.);
@@ -519,86 +327,41 @@ CuttingSurfaceInteraction::createMenu()
         sendClipPlaneToGui();
     });
 
-    if (option_ == OPTION_PLANE)
-    {
-        planeOptionsInMenu_ = true;
-        menu_->add(orient_);
-        menu_->add(clipPlaneMenu_);
-    }
+    orient_->setVisible(planeOptionsInMenu_);
+    clipPlaneMenu_->setVisible(planeOptionsInMenu_);
 }
 
 void
 CuttingSurfaceInteraction::updateMenu()
 {
     optionChoice_->select(option_);
-
-    bool addOpt=false, removeOpt=false;
     switch (option_)
     {
     case OPTION_PLANE:
-        //optionButton_->setName("SurfaceStyle: Plane");
         if (!planeOptionsInMenu_)
-            addOpt=true;
+        {
+            planeOptionsInMenu_ = true;
+            orient_->setVisible(true);
+            clipPlaneMenu_->setVisible(true);
+        }
         break;
-    case OPTION_CYLX:
-        //optionButton_->setName("SurfaceStyle: CylinderX");
+    default:
         if (planeOptionsInMenu_)
-            removeOpt=true;
-        break;
-    case OPTION_CYLY:
-        //optionButton_->setName("SurfaceStyle: CylinderY");
-        if (planeOptionsInMenu_)
-            removeOpt=true;
-        break;
-    case OPTION_CYLZ:
-        //optionButton_->setName("SurfaceStyle: CylinderZ");
-        if (planeOptionsInMenu_)
-            removeOpt=true;
-        break;
-    case OPTION_SPHERE:
-        //optionButton_->setName("SurfaceStyle: Sphere");
-        if (planeOptionsInMenu_)
-            removeOpt=true;
+        {
+            planeOptionsInMenu_ = false;
+            orient_->setVisible(false);
+            clipPlaneMenu_->setVisible(false);
+        }
         break;
     }
 
     updatePickInteractors(showPickInteractor_);
     updateDirectInteractors(showDirectInteractor_);
-
-    if (addOpt)
-    {
-        planeOptionsInMenu_ = true;
-        menu_->add(orient_);
-        menu_->add(clipPlaneMenu_);
-    }
-    else if (removeOpt)
-    {
-        planeOptionsInMenu_ = false;
-        menu_->remove(orient_);
-        menu_->remove(clipPlaneMenu_);
-    }
 }
 
 void
 CuttingSurfaceInteraction::deleteMenu()
 {
-#ifdef VRUI
-    delete optionMenu_;
-    delete optionPlane_;
-    delete optionCylX_;
-    delete optionCylY_;
-    delete optionCylZ_;
-    delete optionSphere_;
-    delete optionGroup_;
-
-    switchClipPlane(-1);
-    delete clipPlaneNoneCheckbox_;
-    for (int i = 0; i < 3; i++)
-        delete clipPlaneIndexCheckbox_[i];
-    delete clipPlaneOffsetSlider_;
-    delete clipPlaneFlipCheckbox_;
-    delete clipPlaneMenu_;
-#endif
 }
 
 void CuttingSurfaceInteraction::updatePickInteractorVisibility()
@@ -607,72 +370,6 @@ void CuttingSurfaceInteraction::updatePickInteractorVisibility()
     // if geometry is hidden, hide also interactor
     updatePickInteractors(!hideCheckbox_->state() && showPickInteractorCheckbox_->state());
 }
-/*
-void 
-CuttingSurfaceInteraction::setShowInteractorFromGui(bool state)
-{  
-   //fprintf(stderr,"\n\nCuttingSurfaceInteraction::setShowInteractorCheckbox %d\n", state);
-
-   if (state)
-   {
-      if( !showPickInteractorCheckbox_->state() )
-      {
-         showPickInteractorCheckbox_->setState(true);
-         showPickInteractor_=true;
-         switch (option_)
-         {
-            case OPTION_PLANE:
-               if (showPickInteractorCheckbox_->state())
-                  csPlane_->showPickInteractor();
-               break;
-            case OPTION_CYLX:
-               if (showPickInteractorCheckbox_->state())
-                  csCylX_->showPickInteractor();
-               break;
-            case OPTION_CYLY:
-               if (showPickInteractorCheckbox_->state())
-                  csCylZ_->showPickInteractor();
-               break;
-            case OPTION_CYLZ:
-               if (showPickInteractorCheckbox_->state())
-                  csCylY_->showPickInteractor();
-               break;
-            case OPTION_SPHERE:
-               if (showPickInteractorCheckbox_->state())
-                  csSphere_->showPickInteractor();
-               break;
-         }
-         //enable intersection??
-      }
-   }
-   else
-   {
-      if( showPickInteractorCheckbox_->state() )
-      {
-         showPickInteractorCheckbox_->setState(false);
-         showPickInteractor_=false;
-         switch (option_)
-         {
-            case OPTION_PLANE:
-               csPlane_->hidePickInteractor();
-               break;
-            case OPTION_CYLX:
-               csCylX_->hidePickInteractor();
-               break;
-            case OPTION_CYLY:
-               csCylY_->hidePickInteractor();
-               break;
-            case OPTION_CYLZ:
-               csCylZ_->hidePickInteractor();
-               break;
-            case OPTION_SPHERE:
-               csSphere_->hidePickInteractor();
-               break;
-         }
-         //disable intersection??
-      }
-   }
-}*/
 
 void
 CuttingSurfaceInteraction::interactorSetCaseFromGui(const char *caseName)

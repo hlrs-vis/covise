@@ -17,6 +17,7 @@ class coCheckboxGroup;
 namespace opencover {
 namespace ui {
 
+//! store the data for the representation of a UI Element within a VruiView
 struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
 {
    VruiViewElement(Element *elem);
@@ -31,10 +32,13 @@ struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
    void menuReleaseEvent(vrui::coMenuItem *menuItem) override;
 };
 
+//! concrete implementation of View for showing user interface \ref Element "elements" in VR based on the OpenVRUI framework
 class VruiView: public View
 {
  public:
    VruiView();
+   ~VruiView();
+
    COVER_UI_EXPORT vrui::coMenu *getMenu(const Element *elem) const;
    COVER_UI_EXPORT vrui::coMenuItem *getItem(const Element *elem) const;
 
@@ -66,6 +70,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
+   VruiViewElement *m_root = nullptr;
 };
 
 }

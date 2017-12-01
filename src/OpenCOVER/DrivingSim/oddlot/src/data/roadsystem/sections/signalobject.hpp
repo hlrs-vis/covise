@@ -32,6 +32,10 @@ public:
         NEGATIVE_TRACK_DIRECTION = 2,
         BOTH_DIRECTIONS = 0
     };
+
+	static OrientationType parseOrientationType(const QString &orientation);
+	static QString parseOrientationTypeBack(OrientationType orientation);
+
     enum SignalChange
     {
         CEL_ParameterChange = 0x1,

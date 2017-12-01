@@ -87,6 +87,9 @@ public:
     //! call newInteractor method of all plugins
     void newInteractor(const RenderObject *container, coInteractor *it) const;
 
+    //! call enableInteraction method of all plugins until one is accepting the request
+    bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse);
+
     //! call coviseError method of all plugins
     void coviseError(const char *error) const;
 

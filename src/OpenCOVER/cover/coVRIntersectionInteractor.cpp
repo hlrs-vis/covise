@@ -44,7 +44,7 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     strcpy(labelStr_, interactorName);
 
     if (s < 0.f)
-        s *= -1. * cover->getSceneSize() / 70.f;
+        s *= -1.f * cover->getSceneSize() / 70.f;
     _interSize = s;
     float interScale = _interSize / cover->getScale();
 
@@ -440,7 +440,6 @@ void coVRIntersectionInteractor::keepSize()
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVRIntersectionInteractor::keepSize scale=%f\n", cover->getScale());
 
-    osg::Matrix mat;
     float interScale;
     if (constantInteractorSize_) // Uwe Mode: scale icon to keep size indepened of interactor position and world scale
     {

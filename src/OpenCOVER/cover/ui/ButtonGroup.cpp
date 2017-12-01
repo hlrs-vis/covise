@@ -1,6 +1,7 @@
 #include "ButtonGroup.h"
 #include "Button.h"
 #include <cassert>
+#include <iostream>
 
 namespace opencover {
 namespace ui {
@@ -150,11 +151,14 @@ std::function<void (int)> ButtonGroup::callback() const
 
 void ButtonGroup::toggle(const Button *b)
 {
-    Button *bset = nullptr;
+    //std::cerr << "TOGGLE: group=" << path() << ", toggle=" << b->path() << ", state=" << b->state() << std::endl;
+    Button *bset = nullptr, *bthis = nullptr;;
     for (auto e: m_children)
     {
         auto bb = dynamic_cast<Button *>(e);
         assert(bb);
+        if (b == bb)
+            bthis = bb;
         if (b != bb && bb->state())
             bset = bb;
     }
@@ -164,16 +168,25 @@ void ButtonGroup::toggle(const Button *b)
     {
         if (b->state() || m_allowDeselect)
         {
+            change = true;
             bset->setState(false, false);
             bset->radioTrigger();
         }
     }
+    else if (!bthis->state())
+    {
+        change = true;
+        bthis->setState(true, false);
+        bthis->radioTrigger();
+    }
 
-    trigger();
+    if (change)
+        trigger();
 }
 
 void ButtonGroup::triggerImplementation() const
 {
+    //std::cerr << "ButtonGroup: trigger: value=" << value() << ", " << path() << std::endl;
     if (m_callback)
         m_callback(value());
 }

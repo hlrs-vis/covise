@@ -53,6 +53,7 @@ namespace opencover
 class RenderObject;
 class coTUIUITab;
 class coVRShader;
+class coInteractor;
 
 struct ColorMap
 {
@@ -122,7 +123,7 @@ private:
     void feedback(buttonSpecCell *spec);
 #endif
 
-    void handleInteractors(CoviseRenderObject *container,
+    opencover::coInteractor *handleInteractors(CoviseRenderObject *container,
                            CoviseRenderObject *geo, CoviseRenderObject *norm, CoviseRenderObject *col, CoviseRenderObject *tex) const;
 
     osg::ColorMask *noFrameBuffer;

@@ -37,6 +37,7 @@ public:
     virtual void updatePickInteractors(bool) = 0;
     virtual void updateDirectInteractors(bool) = 0;
     virtual void setShowInteractorFromGui(bool state);
+    virtual void enableDirectInteractorFromGui(bool state);
 
     void triggerHide(bool state) override;
 

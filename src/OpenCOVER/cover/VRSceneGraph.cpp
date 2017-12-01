@@ -200,13 +200,16 @@ void VRSceneGraph::init()
 
     m_drawStyle = new ui::SelectionList("DrawStyle", this);
     m_drawStyle->setText("Draw style");
+    m_drawStyle->append("As is");
+    m_drawStyle->append("Wireframe");
+    m_drawStyle->append("Hidden lines (dark)");
+    m_drawStyle->append("Hidden lines (bright)");
     cover->viewOptionsMenu->add(m_drawStyle);
-    std::vector<std::string> drawStyles{"As is", "Wireframe", "Hidden lines (dark)", "Hidden lines (bright)"};
-    m_drawStyle->setList(drawStyles);
     m_drawStyle->setShortcut("Alt+w");
     m_drawStyle->setCallback([this](int style){
         setWireframe(WireframeMode(style));
     });
+    m_drawStyle->select(0);
 
     m_showAxis = new ui::Button("ShowAxis", this);
     cover->viewOptionsMenu->add(m_showAxis);

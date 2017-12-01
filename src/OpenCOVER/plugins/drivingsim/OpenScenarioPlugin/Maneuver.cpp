@@ -3,6 +3,8 @@
 #include <iterator>
 #include <math.h>
 
+using namespace std;
+
 Maneuver::Maneuver():
 	maneuverCondition(false),
 	maneuverFinished(false),

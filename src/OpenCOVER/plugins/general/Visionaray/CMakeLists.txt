@@ -25,7 +25,7 @@ set(HEADERS
     kernels/normals_kernel.h
     kernels/tex_coords_kernel.h
     common.h
-    drawable.h
+    renderer.h
     scene_monitor.h
     state.h
     visionaray_plugin.h
@@ -37,11 +37,11 @@ set(SOURCES
 )
 
 if(COVISE_USE_CUDA AND CUDA_FOUND)
-    do_cuda_compile(CUDA_SOURCES drawable.cu)
+    do_cuda_compile(CUDA_SOURCES renderer.cu)
 else()
     set(SOURCES
         ${SOURCES}
-        drawable.cpp
+        renderer.cpp
     )
 endif()
 

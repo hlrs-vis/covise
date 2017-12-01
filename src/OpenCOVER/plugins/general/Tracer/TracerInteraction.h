@@ -101,9 +101,9 @@ public:
     float zmin_, zmax_;
     int nx_, ny_, nz_;
     // velocity  info
-    vector<float> u_;
-    vector<float> v_;
-    vector<float> w_;
+    std::vector<float> u_;
+    std::vector<float> v_;
+    std::vector<float> w_;
 
 private:
     bool newObject_; // indicates, that in preFrame visibiliy is checked again

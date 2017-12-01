@@ -62,19 +62,20 @@
       <UI>
           <NavigationManager>
               <Navigation>
-                  <MoveWorld parent="" />
+                  <!--MoveWorld parent="" /-->
+                  <ViewAll parent="" />
                   <Scale parent="" />
-                  <Drive parent="" />
+                  <SelectInteract parent="" />
+                  <Snap parent="" />
+                  <!--Drive parent="" /-->
               </Navigation>
           </NavigationManager>
           <Manager>
               <ViewOptions>
+                  <TrackHead parent="" />
                   <!--Lighting parent="" /-->
               </ViewOptions>
           </Manager>
-          <VRSceneGraph>
-              <ViewAll parent="" />
-          </VRSceneGraph>
       </UI>
       <!--GLVersion value="3.0" /-->
       <!--GLDebug value="true" /-->

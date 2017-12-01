@@ -17,6 +17,50 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
+Signal::OrientationType 
+Signal::parseOrientationType(const QString &orientation)
+{
+	if (orientation == "+")
+	{
+		return Signal::POSITIVE_TRACK_DIRECTION;
+	}
+	else if (orientation == "-")
+	{
+		return Signal::NEGATIVE_TRACK_DIRECTION;
+	}
+	else if (orientation == "none")
+	{
+		return Signal::BOTH_DIRECTIONS;
+	}
+	else
+	{
+		qDebug("WARNING: unknown signal orientation: %s", orientation.toUtf8().constData());
+		return Signal::BOTH_DIRECTIONS;
+	}
+}
+
+QString 
+Signal::parseOrientationTypeBack(Signal::OrientationType orientation)
+{
+	if (orientation == Signal::POSITIVE_TRACK_DIRECTION)
+	{
+		return QString("+");
+	}
+	else if (orientation == Signal::NEGATIVE_TRACK_DIRECTION)
+	{
+		return QString("-");
+	}
+	else if (orientation == Signal::BOTH_DIRECTIONS)
+	{
+		return QString("none");
+	}
+	else
+	{
+		qDebug("WARNING: unknown signal orientation");
+		return QString("none");
+	}
+}
+
 //####################//
 // Constructors       //
 //####################//

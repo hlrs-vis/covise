@@ -35,6 +35,7 @@
 #include <config/CoviseConfig.h>
 
 #include "OpenCOVER.h"
+#include "coInteractor.h"
 #include "coTranslator.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
@@ -43,6 +44,7 @@
 #include "coVRConfig.h"
 #include "coVRMSController.h"
 #include "coVRCommunication.h"
+#include "coVRPluginList.h"
 #include "VRViewer.h"
 #include <osgGA/GUIActionAdapter>
 #include "coVRLabel.h"
@@ -56,6 +58,7 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#include "coVRAnimationManager.h"
 #ifdef VRUI
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/coMouseButtonInteraction.h>
@@ -157,10 +160,11 @@ coVRNavigationManager::coVRNavigationManager()
 {
     assert(!s_instance);
 
-    init();
     oldKeyMask = 0;
     oldSelectedNode_ = NULL;
     oldShowNamesNode_ = NULL;
+
+    init();
 }
 
 void coVRNavigationManager::init()
@@ -345,8 +349,11 @@ void coVRNavigationManager::initMenu()
     m_resetView->setIcon("zoom-original");
 
     navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
-    navGroup_->enableDeselect(true);
+    //navGroup_->enableDeselect(true);
     navGroup_->setDefaultValue(NavNone);
+    noNavButton_ = new ui::Button(navMenu_, "NavNone", navGroup_, NavNone);
+    noNavButton_->setText("Navigation disabled");
+    noNavButton_->setVisible(false);
     xformButton_ = new ui::Button(navMenu_, "MoveWorld", navGroup_, XForm);
     xformButton_->setText("Move world");
     xformButton_->setShortcut("t");
@@ -363,12 +370,19 @@ void coVRNavigationManager::initMenu()
     selectButton_ = new ui::Button(navMenu_, "Selection", navGroup_, Select);
     showNameButton_ = new ui::Button(navMenu_, "ShowName", navGroup_, ShowName);
     showNameButton_->setText("Show name");
+    selectInteractButton_ = new ui::Button(navMenu_, "SelectInteract", navGroup_, SelectInteract);
+    selectInteractButton_->setText("Pick & interact");
+    selectInteractButton_->setPriority(ui::Element::Toolbar);
+    selectInteractButton_->setShortcut("p");
+    selectInteractButton_->setEnabled(false);
+    selectInteractButton_->setVisible(false);
     measureButton_ = new ui::Button(navMenu_, "Measure", navGroup_, Measure);
     measureButton_->setVisible(false);
     traverseInteractorButton_ = new ui::Button(navMenu_, "TraverseInteractors", navGroup_, TraverseInteractors);
     traverseInteractorButton_->setText("Traverse interactors");
+    traverseInteractorButton_->setEnabled(false);
     traverseInteractorButton_->setVisible(false);
-    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value)); });
+    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
 
     collisionButton_ = new ui::Button(navMenu_, "Collision");
     collisionButton_->setState(collision);
@@ -381,6 +395,30 @@ void coVRNavigationManager::initMenu()
     driveSpeedSlider_->setBounds(0., 30.);
     driveSpeedSlider_->setValue(driveSpeed);;
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+
+    scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
+    scaleUpAction_->setText("Scale up");
+    scaleUpAction_->setVisible(false);
+    scaleUpAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() * 1.1f);
+        stopMouseNav();
+    });
+    scaleUpAction_->setShortcut("=");
+    scaleUpAction_->addShortcut("+");
+    scaleUpAction_->addShortcut("Shift++");
+    scaleUpAction_->addShortcut("Button:WheelDown");
+    scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
+    scaleDownAction_->setText("Scale down");
+    scaleDownAction_->setVisible(false);
+    scaleDownAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() / 1.1f);
+        stopMouseNav();
+    });
+    scaleDownAction_->setShortcut("-");
+    scaleDownAction_->addShortcut("Button:WheelUp");
+
 #if 0
     ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
 #endif
@@ -449,47 +487,6 @@ bool coVRNavigationManager::keyEvent(int type, int keySym, int mod)
         {
             // halt
             currentVelocity = 0;
-            handled = true;
-        }
-        else if (keySym == '=' || keySym == '+')
-        {
-            // should check keyboard language
-            doScale(cover->getScale() * 1.1);
-            handled = true;
-        }
-        else if (keySym == '-')
-        {
-            doScale(cover->getScale() * 0.9);
-            handled = true;
-        }
-    }
-    return handled;
-}
-
-bool coVRNavigationManager::mouseEvent(int type, int state, int code)
-{
-    (void)code;
-
-    bool handled = false;
-    if (type == osgGA::GUIEventAdapter::MOVE)
-    {
-        return false;
-    }
-
-    if (type == osgGA::GUIEventAdapter::SCROLL)
-    {
-        if (state == osgGA::GUIEventAdapter::SCROLL_UP)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 1.1);
-            stopMouseNav();
-            handled = true;
-        }
-        else if (state == osgGA::GUIEventAdapter::SCROLL_DOWN)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 0.9);
-            stopMouseNav();
             handled = true;
         }
     }
@@ -698,6 +695,9 @@ coVRNavigationManager::update()
         case ShowName:
             startShowName();
             break;
+        case SelectInteract:
+            startSelectInteract();
+            break;
         case Measure:
             startMeasure();
             break;
@@ -713,6 +713,9 @@ coVRNavigationManager::update()
         {
         case ShowName:
             stopShowName();
+            break;
+        case SelectInteract:
+            stopSelectInteract(true);
             break;
         case Measure:
             stopMeasure();
@@ -744,6 +747,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             doShowName();
+            break;
+        case SelectInteract:
+            doSelectInteract();
             break;
         case Measure:
             doMeasure();
@@ -783,6 +789,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             startShowName();
+            break;
+        case SelectInteract:
+            startSelectInteract();
             break;
         case Measure:
             startMeasure();
@@ -828,6 +837,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             doShowName();
+            break;
+        case SelectInteract:
+            doSelectInteract();
             break;
         case Measure:
             doMeasure();
@@ -881,6 +893,9 @@ coVRNavigationManager::update()
         case ShowName:
             stopShowName();
             break;
+        case SelectInteract:
+            stopSelectInteract(false);
+            break;
         case Measure:
             stopMeasure();
             break;
@@ -922,7 +937,7 @@ coVRNavigationManager::update()
         float maxAnalogX = (jsXmax - jsZeroPosX) / 10;
         float maxAnalogY = (jsYmax - jsZeroPosY) / 10;
 
-        if ((xMove || yMove) && navMode != Walk && navMode != Fly && navMode != Glide && navMode != ShowName && navMode != Measure && navMode != TraverseInteractors)
+        if ((xMove || yMove) && navMode != Walk && navMode != Fly && navMode != Glide && navMode != ShowName && navMode != Measure && navMode != TraverseInteractors && navMode != SelectInteract)
         {
 
             //einfache Translation in xy-Ebene
@@ -1263,7 +1278,7 @@ coVRNavigationManager::update()
         jump = true;
     }
 
-    if (navMode == ShowName)
+    if (navMode == ShowName || navMode == SelectInteract)
         highlightSelectedNode(cover->getIntersectedNode());
 
     if (coVRConfig::instance()->isMenuModeOn())
@@ -1283,7 +1298,7 @@ coVRNavigationManager::update()
         }
         else if (menuButtonStartTime + menuButtonQuitInterval < cover->currentTime())
         {
-            OpenCOVER::instance()->quitCallback(NULL, NULL);
+            OpenCOVER::instance()->requestQuit();
         }
     }
 
@@ -1301,7 +1316,7 @@ coVRNavigationManager::update()
     }
 }
 
-void coVRNavigationManager::setNavMode(NavMode mode)
+void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
 {
     //std::cerr << "navMode = " << mode << ", was " <<  navMode << ", old = " << oldNavMode << std::endl;
 
@@ -1324,6 +1339,10 @@ void coVRNavigationManager::setNavMode(NavMode mode)
     {
         coVRSelectionManager::instance()->setSelectionOnOff(mode == Select);
     }
+    if (navMode == SelectInteract || mode == SelectInteract)
+    {
+        toggleSelectInteract(mode == SelectInteract);
+    }
 
     navMode = mode;
 
@@ -1331,30 +1350,48 @@ void coVRNavigationManager::setNavMode(NavMode mode)
     {
     case XForm:
         interactionA->setName("Xform");
+        if (xformButton_)
+            xformButton_->setState(true, updateGroup);
         break;
     case XFormRotate:
         interactionA->setName("XformRotate");
+        if (xformRotButton_)
+            xformRotButton_->setState(true, updateGroup);
         break;
     case XFormTranslate:
         interactionA->setName("XformTranslate");
+        if (xformTransButton_)
+            xformTransButton_->setState(true, updateGroup);
         break;
     case Scale:
         interactionA->setName("Scale");
+        if (scaleButton_)
+            scaleButton_->setState(true, updateGroup);
         break;
     case Fly:
         interactionA->setName("Fly");
+        if (flyButton_)
+            flyButton_->setState(true, updateGroup);
         break;
     case Walk:
         interactionA->setName("Walk");
+        if (walkButton_)
+            walkButton_->setState(true, updateGroup);
         break;
     case Glide:
         interactionA->setName("Drive");
+        if (driveButton_)
+            driveButton_->setState(true, updateGroup);
         break;
     case ShowName:
         interactionA->setName("ShowName");
+        if (showNameButton_)
+            showNameButton_->setState(true, updateGroup);
         break;
     case TraverseInteractors:
         interactionA->setName("TraverseInteractors");
+        if (traverseInteractorButton_)
+            traverseInteractorButton_->setState(true, updateGroup);
         break;
     case Menu:
         interactionA->setName("Menu");
@@ -1362,36 +1399,28 @@ void coVRNavigationManager::setNavMode(NavMode mode)
         break;
     case NavNone:
         interactionA->setName("NoNavigation");
+        if (noNavButton_)
+            noNavButton_->setState(true, updateGroup);
         break;
     case Measure:
         interactionA->setName("Measure");
+        if (measureButton_)
+            measureButton_->setState(true, updateGroup);
         break;
     case Select:
         interactionA->setName("Select");
+        if (selectButton_)
+            selectButton_->setState(true, updateGroup);
+        break;
+    case SelectInteract:
+        interactionA->setName("SelectInteract");
+        if (selectInteractButton_)
+            selectInteractButton_->setState(true, updateGroup);
         break;
     default:
         fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
         break;
     }
-
-    if (xformButton_)
-        xformButton_->setState(mode == XForm);
-    if (scaleButton_)
-        scaleButton_->setState(mode == Scale);
-    if (flyButton_)
-        flyButton_->setState(mode == Fly);
-    if (walkButton_)
-        walkButton_->setState(mode == Walk);
-    if (driveButton_)
-        driveButton_->setState(mode == Glide);
-    if (showNameButton_)
-        showNameButton_->setState(mode == ShowName);
-    if (traverseInteractorButton_)
-        traverseInteractorButton_->setState(mode == TraverseInteractors);
-    if (measureButton_)
-        measureButton_->setState(mode == Measure);
-    if (selectButton_)
-        selectButton_->setState(mode == Select);
 
     if (mode == NavNone || coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
     {
@@ -2688,6 +2717,84 @@ void coVRNavigationManager::doMeasure()
 
 void coVRNavigationManager::stopMeasure()
 {
+}
+
+void coVRNavigationManager::toggleSelectInteract(bool state)
+{
+    if (cover->debugLevel(3))
+        fprintf(stderr, "coVRNavigationManager::toggleSelectInteract %d\n", state);
+
+    if (state)
+    {
+        // enable intersection with scene
+        coIntersection::instance()->isectAllNodes(true);
+    }
+    else
+    {
+        if (cover->debugLevel(4))
+            fprintf(stderr, "realtoggle\n");
+        highlightSelectedNode(NULL);
+        // disable intersection with scene
+        coIntersection::instance()->isectAllNodes(false);
+    }
+}
+
+void coVRNavigationManager::startSelectInteract()
+{
+    //fprintf(stderr, "coVRNavigationManager::startSelectInteract\n");
+    animationWasRunning = coVRAnimationManager::instance()->animationRunning();
+    coVRAnimationManager::instance()->enableAnimation(false);
+}
+
+void coVRNavigationManager::doSelectInteract()
+{
+}
+
+void coVRNavigationManager::stopSelectInteract(bool mouse)
+{
+    coVRAnimationManager::instance()->enableAnimation(animationWasRunning);
+
+    if (!cover->getIntersectedNode())
+        return;
+
+    bool changeToInteraction = false;
+    Node *currentNode = cover->getIntersectedNode();
+    while (currentNode != NULL)
+    {
+        if (auto ud = currentNode->getUserData())
+        {
+            if (auto ir = dynamic_cast<InteractorReference *>(ud))
+            {
+                auto inter = ir->interactor();
+                if (inter)
+                {
+                    std::cerr << "doSelectInteract: requesting interaction for node " << currentNode->getName() << std::endl;
+                    changeToInteraction = coVRPluginList::instance()->requestInteraction(inter, cover->getIntersectedNode(), mouse);
+                    if (changeToInteraction)
+                        break;
+                }
+            }
+        }
+        if (currentNode == cover->getObjectsRoot())
+        {
+            break;
+        }
+
+        if (currentNode->getNumParents() > 0)
+        {
+            currentNode = currentNode->getParent(0);
+        }
+        else
+        {
+            currentNode = nullptr;
+        }
+    }
+
+    if (changeToInteraction && mouse)
+    {
+        std::cerr << "doSelectInteract: Accepted interaction" << std::endl;
+        setNavMode(oldNavMode);
+    }
 }
 
 void coVRNavigationManager::wasJumping()

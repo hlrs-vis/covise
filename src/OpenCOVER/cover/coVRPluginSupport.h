@@ -666,12 +666,14 @@ private:
     double lastFrameStartTime;
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
+    bool cursorVisible = true;
     vrml::Player *player = nullptr;
     std::list<void (*)()> playerUseList;
 
     int activeClippingPlane;
 
     osg::ref_ptr<osg::Geode> intersectedNode;
+    osg::ref_ptr<osg::Drawable> intersectedDrawable;
     //osg::ref_ptr<osg::NodePath> intersectedNodePath;
     osg::NodePath intersectedNodePath;
     osg::Vec3 intersectionHitPointWorld;

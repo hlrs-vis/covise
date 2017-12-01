@@ -110,15 +110,20 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
     if (domain == Window)
         return;
 
+    bool wasThreading = false;
     bool havePlugins = !m_loadedPlugins[domain].empty();
 
-    if (havePlugins && cover->debugLevel(1))
-        cerr << "Unloading plugins (domain " << domain << "):";
-    bool wasThreading = false;
-    if (domain == Default)
-        wasThreading = VRViewer::instance()->areThreadsRunning();
-    if (wasThreading)
-        VRViewer::instance()->stopThreading();
+    if (havePlugins)
+    {
+        if (cover->debugLevel(1))
+            cerr << "Unloading plugins (domain " << domain << "):";
+
+        if (domain == Default)
+            wasThreading = VRViewer::instance()->areThreadsRunning();
+        if (wasThreading)
+            VRViewer::instance()->stopThreading();
+    }
+
     while (!m_loadedPlugins[domain].empty())
     {
         coVRPlugin *plug = m_loadedPlugins[domain].back();
@@ -133,10 +138,14 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
         delete plug;
     }
     unloadQueued();
-    if (wasThreading)
-        VRViewer::instance()->startThreading();
-    if (havePlugins && cover->debugLevel(1))
-        cerr << endl;
+
+    if (havePlugins)
+    {
+        if (wasThreading)
+            VRViewer::instance()->startThreading();
+        if (cover->debugLevel(1))
+            cerr << endl;
+    }
 }
 
 coVRPluginList::coVRPluginList()
@@ -307,6 +316,13 @@ void coVRPluginList::addObject(const RenderObject *container, osg::Group *parent
 void coVRPluginList::newInteractor(const RenderObject *container, coInteractor *it) const
 {
     DOALL(plugin->newInteractor(container, it));
+}
+
+bool coVRPluginList::requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+{
+    DOALL(if (plugin->requestInteraction(inter, triggerNode, isMouse))
+          return true);
+    return false;
 }
 
 void coVRPluginList::coviseError(const char *error) const
@@ -519,7 +535,8 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
             delete m;
             m = NULL;
         }
-        updateState();
+        if (domain == Default)
+            updateState();
     }
     return m;
 }

@@ -181,17 +181,19 @@ int OpenScenarioPlugin::loadOSC(const char *filename, osg::Group *g, const char 
 	return plugin->loadOSCFile(filename,g,key);
 }
 
-int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const char *key)
+int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *key)
 {
 	osdb->setValidation(false); // don't validate, we might be on the road where we don't have axxess to the schema files
-	if (osdb->loadFile(filename, "OpenSCENARIO", "OpenSCENARIO") == false)
+	if (osdb->loadFile(file, "OpenSCENARIO", "OpenSCENARIO") == false)
 	{
 		std::cerr << std::endl;
-		std::cerr << "failed to load OpenSCENARIO from file " << filename << std::endl;
+		std::cerr << "failed to load OpenSCENARIO from file " << file << std::endl;
 		std::cerr << std::endl;
 		delete osdb;
+        osdb = nullptr;
+
 		//neu
-		std::string filename(filename);
+		std::string filename(file);
 		xoscDirectory.clear();
 		if (filename[0] != '/' && filename[0] != '\\' && (!(filename[1] == ':' && (filename[2] == '/' || filename[2] == '\\'))))
 		{ // / or backslash or c:/
@@ -896,15 +898,14 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
 
 			if (!vpbString.empty())
 			{
-				coVRPlugin *roadTerrainPlugin = cover->addPlugin("RoadTerrain");
 				fprintf(stderr, "loading %s\n", vpbString.c_str());
-				if (RoadTerrainPlugin::plugin)
+				if (RoadTerrainLoader::instance())
 				{
 					osg::Vec3d offset(0, 0, 0);
 					const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
 					offset.set(header.xoffset, header.yoffset, 0.0);
 					fprintf(stderr, "loading %s offset: %f %f\n", (xodrDirectory + "/" + vpbString).c_str(), offset[0], offset[1]);
-					RoadTerrainPlugin::plugin->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
+					RoadTerrainLoader::instance()->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
 				}
 			}
 		}

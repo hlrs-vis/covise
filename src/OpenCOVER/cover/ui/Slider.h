@@ -26,6 +26,13 @@ class COVER_UI_EXPORT Slider: public Element {
        Linear,
        Logarithmic
    };
+   enum UpdateMask: UpdateMaskType
+   {
+       UpdateValue = 0x100,
+       UpdateScale = 0x200,
+       UpdateIntegral = 0x400,
+       UpdateBounds = 0x800,
+   };
 
    Slider(const std::string &name, Owner *owner);
    Slider(Group *parent, const std::string &name);
@@ -74,7 +81,7 @@ class COVER_UI_EXPORT Slider: public Element {
 
     void triggerImplementation() const override;
 
-    void update() const override;
+    void update(UpdateMaskType mask) const override;
 
     void save(covise::TokenBuffer &buf) const override;
     void load(covise::TokenBuffer &buf) override;

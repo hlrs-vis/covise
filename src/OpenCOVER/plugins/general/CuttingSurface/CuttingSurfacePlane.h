@@ -28,17 +28,16 @@ using namespace opencover;
 class CuttingSurfacePlane
 {
 private:
-    coInteractor *inter_;
-    bool newModule_;
-    bool wait_;
-    bool showPickInteractor_;
-    bool showDirectInteractor_;
+    coInteractor *inter_ = nullptr;
+    bool newModule_ = false;
+    bool wait_ = false;
+    bool showPickInteractor_ = false;
+    bool showDirectInteractor_ = false;
 
     osg::Vec3 point_, normal_;
 
-    coVR3DTransRotInteractor *planePickInteractor_;
-    vrui::coTrackerButtonInteraction *planeDirectInteractor_;
-    float interSize_;
+    coVR3DTransRotInteractor *planePickInteractor_ = nullptr;
+    vrui::coTrackerButtonInteraction *planeDirectInteractor_ = nullptr;
 
     // extract the parameter values from coInteractor
     void getParameters();
@@ -49,11 +48,11 @@ private:
     osg::ref_ptr<osg::Vec3Array> outlineCoords_;
     osg::ref_ptr<osg::Vec3Array> polyCoords_;
     osg::ref_ptr<osg::Vec3Array> polyNormal_;
-    osg::Group *parent_;
-    bool hasCase_;
+    osg::Group *parent_ = nullptr;
+    bool hasCase_ = false;
 
-    coPlane *testPlane_;
-    bool intersectFlag_, oldIntersectFlag_;
+    coPlane *testPlane_ = nullptr;
+    bool intersectFlag_ = false, oldIntersectFlag_ = false;
     // geometry, intersection lines with bounding box
     void createGeometry();
     void deleteGeometry();
@@ -91,15 +90,15 @@ public:
     const osg::Vec3 getInteractorPoint()
     {
         return point_;
-    };
+    }
     const osg::Vec3 getInteractorNormal()
     {
         return normal_;
-    };
+    }
 
     bool sendClipPlane();
 
     void setCaseTransform(osg::MatrixTransform *t);
-    CuttingSurfacePlugin *plugin;
+    CuttingSurfacePlugin *plugin = nullptr;
 };
 #endif

@@ -17,6 +17,10 @@ class ButtonGroup;
 class COVER_UI_EXPORT Button: public Element {
    friend class ButtonGroup;
  public:
+   enum UpdateMask: UpdateMaskType
+   {
+       UpdateState = 0x100
+   };
    Button(const std::string &name, Owner *owner, ButtonGroup *bg=nullptr, int id=0);
    Button(Group *parent, const std::string &name, ButtonGroup *bg=nullptr, int id=0);
    ~Button();
@@ -36,7 +40,7 @@ class COVER_UI_EXPORT Button: public Element {
     void radioTrigger() const;
     void shortcutTriggered() override;
 
-    void update() const override;
+    void update(UpdateMaskType mask) const override;
     void save(covise::TokenBuffer &buf) const override;
     void load(covise::TokenBuffer &buf) override;
 

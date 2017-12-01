@@ -17,6 +17,7 @@
 #define OBJECTOBJECT_HPP
 
 #include "roadsection.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
 
 class Object;
 
@@ -139,17 +140,10 @@ public:
 		CEL_OutlineChange = 0x10
     };
 
-    enum ObjectOrientation
-    {
-        POSITIVE_TRACK_DIRECTION = 1,
-        NEGATIVE_TRACK_DIRECTION = 2,
-        BOTH_DIRECTIONS = 0
-    };
-
     struct ObjectProperties
     {
         double t;
-        ObjectOrientation orientation;
+        Signal::OrientationType orientation;
         double zOffset;
         QString type;
         double validLength;
@@ -183,6 +177,7 @@ public:
         QString textureFile;
         QString modelFile;
     };
+
 
     //################//
     // FUNCTIONS      //
@@ -270,11 +265,11 @@ public:
         objectProps_.validLength = validLength;
     }
 
-    ObjectOrientation getOrientation() const
+	Signal::OrientationType getOrientation() const
     {
         return objectProps_.orientation;
     }
-    void setOrientation(const ObjectOrientation orientation)
+    void setOrientation(const Signal::OrientationType orientation)
     {
         objectProps_.orientation = orientation;
     }

@@ -10,9 +10,12 @@
 #include <util/byteswap.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
+#include <cover/coIntersection.h>
 #include "coSphere.h"
 #include <osg/Shape>
 #include <osg/ShapeDrawable>
+#include <osgUtil/LineSegmentIntersector>
+#include <osg/io_utils>
 
 #include <osg/GLExtensions>
 
@@ -24,7 +27,6 @@
 #endif
 
 using namespace covise;
-using namespace opencover;
 
 #ifdef WIN32
 template <class T>
@@ -33,6 +35,9 @@ inline const T &fmax(const T &a, const T &b)
     return a < b ? b : a;
 }
 #endif
+
+namespace opencover
+{
 
 #ifndef _USE_TEXTURE_LOADING_MS
 typedef struct _AUX_RGBImageRec
@@ -124,10 +129,101 @@ char *coSphere::s_chTexFile = 0;
 bool coSphere::s_configured = false;
 bool coSphere::s_useVertexArrays = false;
 
+class SphereIntersector: public opencover::IntersectionHandler
+{
+public:
+    bool canHandleDrawable(osg::Drawable *drawable) const
+    {
+        auto s = dynamic_cast<coSphere *>(drawable);
+        if (s)
+            return true;
+        return false;
+    }
+
+    void intersect(osgUtil::IntersectionVisitor &iv, coIntersector &is, osg::Drawable *drawable)
+    {
+        osg::Vec3d s(is.getStart()), e(is.getEnd());
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+        osg::BoundingBox bb = drawable->getBoundingBox();
+        if (!is.intersectAndClip(s, e, bb)) return;
+#endif
+        if (iv.getDoDummyTraversal()) return;
+
+        //std::cerr << "SPHERE isect start=" << s << ", end=" << e << std::endl;
+
+        coSphere *sphere = dynamic_cast<coSphere *>(drawable);
+        assert(sphere);
+
+        const osg::Vec3d se = e-s;
+        double a = se.length2();
+
+        for (int i=0; i<sphere->m_numSpheres; ++i)
+        {
+            osg::Vec3 center(sphere->m_coord[i*3], sphere->m_coord[i*3+1], sphere->m_coord[i*3+2]);
+            float radius = sphere->m_radii[i];
+
+            osg::Vec3 sm = s - center;
+            double c = sm.length2()-radius*radius;
+            if (c<0.0)
+            {
+                // inside sphere
+#if 0
+                osgUtil::LineSegmentIntersector::Intersection hit;
+                hit.ratio = 0;
+                hit.nodePath = iv.getNodePath();
+                hit.drawable = drawable;
+                hit.matrix = iv.getModelMatrix();
+                hit.localIntersectionPoint = s;
+                is.insertIntersection(hit);
+#endif
+                continue;
+            }
+
+            double b = (sm*se)*2.0;
+            double disc = b*b-4.0*a*c;
+
+            if (disc<0.0)
+                continue;
+
+            double d = sqrt(disc);
+
+            double div = 1.0/(2.0*a);
+
+            double r1 = (-b-d)*div;
+            double r2 = (-b+d)*div;
+
+            double ratio = r1 <= 0. ? r2 : r1;
+            if (ratio <= 0. || ratio >= 1.)
+                continue;
+
+            //std::cerr << "sphere " << i << ", dist=" << sqrt(c) << ", ratio=" << ratio << std::endl;
+
+#if 0
+            if (ratio >= is.getIntersections().begin()->ratio)
+                continue;
+#endif
+
+            osgUtil::LineSegmentIntersector::Intersection hit;
+            hit.ratio = ratio;
+            hit.nodePath = iv.getNodePath();
+            hit.drawable = drawable;
+            hit.primitiveIndex = i;
+            hit.matrix = iv.getModelMatrix();
+            hit.localIntersectionPoint = s + se*ratio;
+            osg::Vec3d norm = (hit.localIntersectionPoint-center);
+            norm.normalize();
+            hit.localIntersectionNormal = norm;
+            is.insertIntersection(hit);
+        }
+    }
+};
+
 coSphere::coSphere()
 {
     if (!s_configured)
     {
+        coIntersection::instance()->addHandler(new SphereIntersector);
+
         s_useVertexArrays = coCoviseConfig::isOn("COVER.Spheres.UseVertexArrays", false);
         s_configured = true;
     }
@@ -1771,4 +1867,6 @@ void coSphere::bindMatrices(int context) const
         cgGLSetStateMatrixParameter(s_CGVertexParam_modelViewIT[context], CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_INVERSE_TRANSPOSE);
     }
 #endif
+}
+
 }

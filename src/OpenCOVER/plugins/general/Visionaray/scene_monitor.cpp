@@ -5,8 +5,6 @@
 
  * License: LGPL 2+ */
 
-#include <GL/glew.h>
-
 #include <cover/coVRLighting.h>
 
 #include "scene_monitor.h"

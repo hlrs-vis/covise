@@ -23,7 +23,9 @@
 #ifdef False
 #undef False
 #endif
+#ifdef HAVE_V8
 #include <v8.h>
+#endif
 
 class Controller : public Element
 {
@@ -50,6 +52,7 @@ public:
     }
 
 protected:
+#ifdef HAVE_V8
     v8::Handle<v8::String> readScriptFile(const std::string &);
     static v8::Handle<v8::Value> getGreenLight(v8::Local<v8::String>, const v8::AccessorInfo &);
     static void switchGreenLight(v8::Local<v8::String>, v8::Local<v8::Value>, const v8::AccessorInfo &);
@@ -57,6 +60,7 @@ protected:
     static void switchYellowLight(v8::Local<v8::String>, v8::Local<v8::Value>, const v8::AccessorInfo &);
     static v8::Handle<v8::Value> getRedLight(v8::Local<v8::String>, const v8::AccessorInfo &);
     static void switchRedLight(v8::Local<v8::String>, v8::Local<v8::Value>, const v8::AccessorInfo &);
+#endif
 
     std::string name;
 
@@ -69,6 +73,7 @@ protected:
     double cycleTime;
     bool scriptInitialized;
 
+#ifdef HAVE_V8
     v8::HandleScope handle_scope;
     v8::Persistent<v8::Context> context;
     v8::Context::Scope context_scope;
@@ -76,8 +81,10 @@ protected:
     v8::Local<v8::Function> initFunction;
     v8::Local<v8::Function> updateFunction;
     v8::Persistent<v8::ObjectTemplate> controlTemplate;
+#endif
 };
 
+#ifdef HAVE_V8
 class ControllerRoadSensorTriggerAction : public RoadSensorTriggerAction
 {
 public:
@@ -95,5 +102,6 @@ public:
 protected:
     v8::Local<v8::Function> triggerJSFunction;
 };
+#endif
 
 #endif

@@ -226,7 +226,7 @@ ObjectSettings::updateProperties(QString country, ObjectContainer *objectPropert
 void
 ObjectSettings::onEditingFinished(int i)
 {
-    if ((ui->poleCheckBox->isChecked() != object_->getPole()) || (Object::ObjectOrientation)ui->orientationComboBox->currentIndex() != object_->getOrientation())
+    if ((ui->poleCheckBox->isChecked() != object_->getPole()) || (Signal::OrientationType)ui->orientationComboBox->currentIndex() != object_->getOrientation())
     {
         valueChanged_ = true;
         onEditingFinished();
@@ -261,7 +261,7 @@ ObjectSettings::onEditingFinished()
             repeatLength = road->getLength() - ui->repeatSSpinBox->value();
         }
 		
-		Object::ObjectProperties objectProps{ ui->tSpinBox->value(), (Object::ObjectOrientation)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->typeBox->text(),
+		Object::ObjectProperties objectProps{ ui->tSpinBox->value(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->typeBox->text(),
 			ui->validLengthSpinBox->value(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(), 
 			ui->pitchSpinBox->value(), ui->rollSpinBox->value() };
 		Object::ObjectRepeatRecord repeatProps{ ui->repeatSSpinBox->value(), repeatLength, ui->repeatDistanceSpinBox->value(), ui->repeatTStartSpinBox->value(), ui->repeatTEndSpinBox->value(),

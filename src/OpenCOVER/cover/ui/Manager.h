@@ -9,6 +9,7 @@
 
 #include "View.h"
 #include "Owner.h"
+#include "Element.h"
 
 namespace covise {
 class TokenBuffer;
@@ -68,29 +69,35 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! trigger internal book-keeping and updates
    /** return true if any change occurred */
    bool update();
-   //! trigger short-cuts configured for user interface elements
-   bool keyEvent(int type, int keySym, int mod) const;
+   //! trigger keyboard short-cuts configured for user interface elements
+   bool keyEvent(int type, int mod, int keySym);
+   //! trigger short-cuts from input button presses
+   bool buttonEvent(int buttons) const;
 
    //! mark an element for syncing its state to slaves, optionally triggering its action
-   void queueUpdate(const Element *elem, bool trigger=false);
+   void queueUpdate(const Element *elem, Element::UpdateMaskType mask, bool trigger=false);
    //! sync state and events from master to cluster slaves
    bool sync();
+   //! get all elements
+   std::vector<const Element *> getAllElements() const;
 
  private:
    bool m_updateAllElements = false;
    bool m_changed = false;
-   int m_numCreated = 0;
-   std::set<Element *> m_elements;
+   int m_numCreated = 0, m_elemOrder = 0;
+   std::map<int, Element *> m_elements;
    std::map<int, Element *> m_elementsById;
    std::map<const std::string, Element *> m_elementsByPath;
    std::deque<Element *> m_newElements;
    std::map<const std::string, View *> m_views;
 
    int m_numUpdates = 0;
-   std::map<int, std::shared_ptr<covise::TokenBuffer>> m_elemState;
+   std::map<int, std::pair<Element::UpdateMaskType, std::shared_ptr<covise::TokenBuffer>>> m_elemState;
    std::shared_ptr<covise::TokenBuffer> m_updates;
    void flushUpdates();
    void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
+
+   int m_modifiers = 0;
 };
 
 }
