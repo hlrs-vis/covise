@@ -45,6 +45,13 @@ private:
                     GLsizei length, const GLchar *message, void *userData);
     static void  debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                     GLsizei length, const GLchar *message, const void *userData);
+
+    struct DebugCallbackData
+    {
+        int contextId;
+        int debugLevel;
+    };
+    DebugCallbackData m_callbackData;
 };
 
 #endif

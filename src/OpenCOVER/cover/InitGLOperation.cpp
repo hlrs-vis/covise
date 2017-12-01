@@ -29,6 +29,7 @@
 */
 
 #include <iostream>
+#include <sstream>
 
 #include <GL/glew.h>
 
@@ -102,8 +103,10 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
     }
 
     const bool glDebug = covise::coCoviseConfig::isOn("COVER.GLDebug", false);
+    bool glDebugLevelExists = false;
+    int glDebugLevel = covise::coCoviseConfig::getInt("COVER.GLDebug.Level", 1, &glDebugLevelExists);
 
-    if (glDebug) {
+    if (glDebug || glDebugLevelExists && glDebugLevel > 0) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
 
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(m_mutex);
@@ -146,10 +149,11 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
             return;
         }
 
+        m_callbackData = { contextId, glDebugLevel };
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-        glDebugMessageCallback(InitGLOperation::debugCallback, reinterpret_cast<void *>(contextId));
+        glDebugMessageCallback(InitGLOperation::debugCallback, reinterpret_cast<void *>(&m_callbackData));
 
         std::cerr << "enableGLDebugExtension: " << ext << " enabled on context " << contextId << std::endl;
     }
@@ -171,8 +175,9 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
 
 void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                     GLsizei length, const GLchar *message, const void *userData)
-{ 
-    const int ctxId = reinterpret_cast<ptrdiff_t>(userData);
+{
+    InitGLOperation::DebugCallbackData cbdata = *reinterpret_cast<const InitGLOperation::DebugCallbackData *>(userData);
+    const int ctxId = cbdata.contextId;
     std::string srcStr = "UNDEFINED";
     switch(source)
 
@@ -211,6 +216,12 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
         break;
     }
 
-    if (type == GL_DEBUG_TYPE_ERROR)
-        std::cerr << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << std::string(message, length) << std::endl;
+    std::stringstream msg;
+    msg << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << std::string(message, length);
+
+    bool printMsg = cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR
+                 || cbdata.debugLevel >= 2 && type == GL_DEBUG_TYPE_PERFORMANCE
+                 || cbdata.debugLevel >= 3;
+    if (printMsg)
+        std::cerr << msg.str() << std::endl;
 }
