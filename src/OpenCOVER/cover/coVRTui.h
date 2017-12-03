@@ -227,7 +227,7 @@ private:
     coTUIToggleButton *testImage;
     coTUIToggleButton *Freeze;
     coTUIToggleButton *Wireframe;
-    coTUIToggleButton *Menu;
+    coTUIButton *Menu;
     coTUIEditFloatField *posX;
     coTUIEditFloatField *posY;
     coTUIEditFloatField *posZ;

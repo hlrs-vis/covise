@@ -120,8 +120,8 @@ VRSceneGraph::VRSceneGraph()
     , m_handLocked(false)
     , m_wireframe(Disabled)
     , m_textured(true)
-    , m_showMenu(true)
-    , m_showObjects(true)
+    , m_allowMenuOnly(false)
+    , m_menuState(ObjectsAndMenu)
     , m_pointerType(0)
     , m_worldTransformer(false)
     , m_worldTransformerEnabled(true)
@@ -320,6 +320,8 @@ int VRSceneGraph::readConfigFile()
     frameAngle = coCoviseConfig::getFloat("COVER.FrameAngle", 0.9);
 
     wiiPos = coCoviseConfig::getFloat("COVER.WiiPointerPos", -250.0);
+
+    m_allowMenuOnly = coCoviseConfig::isOn("COVER.AllowMenuOnlyState", false);
 
     return 0;
 }
@@ -659,9 +661,7 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
 void
 VRSceneGraph::setObjects(bool state)
 {
-    m_showObjects = state;
-
-    if (m_showObjects)
+    if (state)
     {
         if (m_objectsTransform->getNumParents() == 1)
         {
@@ -681,9 +681,7 @@ VRSceneGraph::setObjects(bool state)
 void
 VRSceneGraph::setMenu(bool state)
 {
-    m_showMenu = state;
-
-    if (m_showMenu)
+    if (state)
     {
         if (m_menuGroupNode->getNumParents() == 0)
         {
@@ -807,9 +805,34 @@ void VRSceneGraph::toggleHeadTracking(bool state)
 void
 VRSceneGraph::toggleMenu()
 {
-    m_showMenu = !m_showMenu;
 
-    setMenu(m_showMenu);
+    if(m_menuState == ObjectsAndMenu)
+    {
+        m_menuState = ObjectsOnly;
+        setMenu(false);
+        setObjects(true);
+    }
+    else if(m_menuState == ObjectsOnly)
+    {
+        if(m_allowMenuOnly)
+        {
+            m_menuState = MenuOnly;
+            setMenu(true);
+            setObjects(false);
+        }
+        else
+        {
+            m_menuState = ObjectsAndMenu;
+            setMenu(true);
+            setObjects(true);
+        }
+    }
+    else if (m_menuState == MenuOnly)
+    {
+        m_menuState = ObjectsAndMenu;
+        setMenu(true);
+        setObjects(true);
+    }
 }
 
 void VRSceneGraph::setScaleFactor(float s, bool sync)
