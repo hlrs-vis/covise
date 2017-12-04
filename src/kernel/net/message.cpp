@@ -68,7 +68,7 @@ Message::Message(TokenBuffer *t)
     print();
 }
 
-Message::Message(TokenBuffer &t)
+Message::Message(const TokenBuffer &t)
     : type(Message::EMPTY)
     , conn(NULL)
     , mustDelete(false)

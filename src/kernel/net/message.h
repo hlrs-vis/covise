@@ -153,7 +153,7 @@ public:
 
     Message(TokenBuffer *);
 
-    Message(TokenBuffer &);
+    Message(const TokenBuffer &);
 
     Message(Connection *c)
         : sender(-1)
