@@ -586,12 +586,12 @@ bool Manager::sync()
             if (ms->isMaster())
             {
                 covise::Message msg(*m_updates);
-                coVRMSController::instance()->sendSlaves(&msg);
+                coVRMSController::instance()->syncMessage(&msg);
             }
             else
             {
                 covise::Message msg;
-                coVRMSController::instance()->readMaster(&msg);
+                coVRMSController::instance()->syncMessage(&msg);
                 m_updates.reset(new covise::TokenBuffer(&msg));
             }
         }
