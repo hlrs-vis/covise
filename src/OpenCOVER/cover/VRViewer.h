@@ -72,6 +72,9 @@ public:
     void setRenderToTexture(bool);
     void flipStereo();
 
+    /** initiate shut down */
+    void disableSync();
+
 private:
     static VRViewer *s_singleton;
     MSEventHandler *myeh;
