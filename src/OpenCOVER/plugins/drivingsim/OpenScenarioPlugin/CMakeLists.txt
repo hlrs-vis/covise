@@ -39,8 +39,5 @@ INCLUDE_DIRECTORIES(
 )
 # build the plugin "OpenScenarioPlugin" from the ingredients listed in HEADERS and SOURCES
 cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS})
-if(BASEARCHSUFFIX == cray64)
-{
 COVISE_WNOERROR(OpenScenarioPlugin)
-}
 set_target_properties(OpenScenarioPlugin PROPERTIES OUTPUT_NAME "OpenScenario")
