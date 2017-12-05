@@ -8,7 +8,6 @@
 	varying vec4 lineColorIn;
 	varying vec4 lineColorOut;
    uniform vec4 LineColor;
-
    attribute vec4 roadMark;
 
   void main(void)
@@ -18,9 +17,8 @@
 #ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 #endif
-
 		lane = sign(roadMark[0]);
-		if(lane==0) {
+		if(lane==0.0) {
 			lane = sign(roadMark[1]);
 		}
 		markWidthIn = abs(roadMark[0]);
@@ -31,8 +29,8 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 		lineColorOut = LineColor;
 	   if(markTypeIn &gt;= 1000.0)
        {
-		    int col = (int)((markTypeIn+0.5)/1000.0);
-			markTypeIn -= col*1000.0;
+		    int col = int(((markTypeIn+0.5)/1000.0));
+			markTypeIn -= float(col)*1000.0;
 			if(col == 1)
 			{
 			lineColorIn = vec4(1,1,0,1);
@@ -41,8 +39,8 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 	   markTypeOut = abs(roadMark[3]);
 	    if(markTypeOut &gt;= 1000.0)
        {
-		    int col = (int)((markTypeOut+0.5)/1000.0);
-			markTypeOut -= col*1000.0;
+		    int col = int((markTypeOut+0.5)/1000.0);
+			markTypeOut -= float(col)*1000.0;
 			if(col == 1)
 			{
 			lineColorOut = vec4(1,1,0,1);
@@ -51,14 +49,13 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 	   priority=0.0;
 	   if(markTypeOut &gt;= 100.0)
        {
-		    priority = (int)((markTypeOut+0.5)/100.0);
+		    priority = ((markTypeOut+0.5)/100.0);
 			markTypeOut -= priority*100.0;
-			priority = 10 - priority;
+			priority = 10.0 - priority;
        }	
   } 
 
    </vertexProgram><fragmentProgram>
-   
    varying float lane;
 	varying float markWidthIn;
 	varying float markWidthOut;
@@ -67,12 +64,11 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 	varying float priority;
 	varying vec4 lineColorIn;
 	varying vec4 lineColorOut;
-
 	uniform sampler2D tarmac;
 
    void main (void)
    { 
-      vec2 texcoord = gl_TexCoord[0];
+      vec2 texcoord = gl_TexCoord[0].xy;
       vec4 tarmacColor  = texture2D(tarmac, texcoord);
 
 	  float zAdd= priority*0.00000005;
@@ -89,19 +85,19 @@ tarmacColor=vec4(0,1,0,1);
 tarmacColor=vec4(0,1,0,1);
 //zAdd = -0.02;
 }
-if(priority == 1)
+if(priority == 1.0)
 tarmacColor=vec4(1,1,0,1);
-if(priority == 2)
+if(priority == 2.0)
 tarmacColor=vec4(1,1,1,1);
-if(priority == 3)
+if(priority == 3.0)
 tarmacColor=vec4(0,1,1,1);
-if(priority == 4)
+if(priority == 4.0)
 tarmacColor=vec4(1,0,1,1);
-if(priority == 5)
+if(priority == 5.0)
 tarmacColor=vec4(0.5,0,1,1);
-if(priority == 6)
+if(priority == 6.0)
 tarmacColor=vec4(0.5,0,0.5,1);
-if(priority == 7)
+if(priority == 7.0)
 tarmacColor=vec4(0.5,0.5,0.5,1);
 	*/	
       if(lane&lt;0.0) {
@@ -158,11 +154,11 @@ tarmacColor=vec4(0.5,0.5,0.5,1);
          }
       }
 
-		if(lane != 0) {
+		if(lane != 0.0) {
     
       	line = step(mod(texcoord.s,repeatLength),lineLength);
 	//line = mod(texcoord.s,0.8);
-		line *= max(step(lane, -1 + markWidthIn), step( 1 - markWidthOut, lane ));
+		line *= max(step(lane, -1.0 + markWidthIn), step( 1.0 - markWidthOut, lane ));
 		}
      // line = line*(0.9+noise1(texcoord)*0.1);
 //comment this out, if you want to see all lines in intersections	
