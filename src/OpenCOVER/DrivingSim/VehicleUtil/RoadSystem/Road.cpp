@@ -193,6 +193,10 @@ void Road::addPlanViewGeometryPolynom(double s, double l, double x, double y, do
 {
     xyMap[s] = (new PlanePolynom(s, l, x, y, hdg, a, b, c, d));
 }
+void Road::addPlanViewGeometryPolynom(double s, double l, double x, double y, double hdg, double aU, double bU, double cU, double dU, double aV, double bV, double cV, double dV, bool normalized)
+{
+	xyMap[s] = (new PlaneParamPolynom(s, l, x, y, hdg, aU, bU, cU, dU, aV, bV, cV, dV,normalized));
+}
 
 void Road::addElevationPolynom(double s, double a, double b, double c, double d)
 {
