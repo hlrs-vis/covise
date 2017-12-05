@@ -35,6 +35,7 @@ WindowTypeMesaPlugin::WindowTypeMesaPlugin()
 {
     fprintf(stderr, "WindowTypeMesaPlugin::WindowTypeMesaPlugin\n");
     frameCounter=0;
+coVRConfig::instance()->setFrameRate(60);
 }
 
 // this is called if the plugin is removed at runtime
@@ -98,7 +99,10 @@ void WindowTypeMesaPlugin::windowUpdateContents(int num)
     char filename[100];
     sprintf(filename,"test%d.png",frameCounter);
     frameCounter++;
+    if((frameCounter % 60) == 0)
+{
     writeImage(filename,win.width,win.height,win.buffer,filename);
+}
 
 }
 
@@ -183,7 +187,7 @@ int WindowTypeMesaPlugin::writeImage(char* filename, int width, int height, char
 	// Write image data
 	int x, y;
 	for (y=0 ; y<height ; y++) {
-		png_write_row(png_ptr, (unsigned char *)(buffer+(y*width*4)));
+		png_write_row(png_ptr, (unsigned char *)(buffer+((height -y)*width*4)));
 	}
 
 	// End write
