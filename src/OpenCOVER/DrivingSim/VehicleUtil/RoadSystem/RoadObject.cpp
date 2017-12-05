@@ -16,6 +16,7 @@
 #include <cover/coVRFileManager.h>
 #include "Road.h"
 #include <osgDB/ReadFile>
+#include <cover/coVRConfig.h>
 
 using namespace opencover;
 
@@ -244,6 +245,8 @@ osg::Geode *RoadObject::createReflectorPostGeode(std::string &textureName)
 
     osg::Geometry *postGeometry;
     postGeometry = new osg::Geometry();
+    postGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    postGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
     postGeode->addDrawable(postGeometry);
 
     postGeometry->setUseDisplayList(true);
@@ -356,6 +359,8 @@ osg::Geode *RoadObject::createGuardRailGeode()
 
     osg::Geometry *guardRailGeometry;
     guardRailGeometry = new osg::Geometry();
+    guardRailGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    guardRailGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
     guardRailGeode->addDrawable(guardRailGeometry);
 
     guardRailGeometry->setUseDisplayList(true);
@@ -376,6 +381,8 @@ osg::Geode *RoadObject::createGuardRailGeode()
 
     osg::Geometry *guardRailPostGeometry;
     guardRailPostGeometry = new osg::Geometry();
+    guardRailPostGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    guardRailPostGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
 
     guardRailGeode->addDrawable(guardRailPostGeometry);
 
@@ -629,6 +636,8 @@ osg::Geode *RoadObject::createSTEPBarrierGeode()
 
     osg::Geometry *STEPBarrierGeometry;
     STEPBarrierGeometry = new osg::Geometry();
+    STEPBarrierGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    STEPBarrierGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
     STEPBarrierGeode->addDrawable(STEPBarrierGeometry);
 
     STEPBarrierGeometry->setUseDisplayList(true);
@@ -762,6 +771,8 @@ osg::Geode *RoadObject::createOutlineGeode()
 
     osg::Geometry *OutlineGeometry;
     OutlineGeometry = new osg::Geometry();
+    OutlineGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    OutlineGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
     OutlineGeode->addDrawable(OutlineGeometry);
 
     OutlineGeometry->setUseDisplayList(true);
