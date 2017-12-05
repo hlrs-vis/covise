@@ -22,7 +22,7 @@
 #if 0
 #include <gaalet.h>
 #endif
-#include <fftw3.h>
+//#include <fftw3.h>
 
 #include <osgDB/WriteFile>
 
