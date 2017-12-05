@@ -723,8 +723,7 @@ void coVRMSController::sendSlaves(const Message *msg)
     else
 
     {
-        int i;
-        for (i = 0; i < numSlaves; i++)
+        for (int i = 0; i < numSlaves; i++)
         {
             slaves[i]->sendMessage(msg);
         }
@@ -2296,6 +2295,39 @@ int coVRMSController::syncData(void *data, int size)
         }
     }
     return size;
+}
+
+int coVRMSController::syncMessage(covise::Message *msg)
+{
+    const int headerSize = 4;
+    int buffer[headerSize];
+
+    if (!coVRMSController::instance()->isCluster())
+        return sizeof(buffer)+msg->length;
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        buffer[0] = msg->sender;
+        buffer[1] = msg->send_type;
+        buffer[2] = msg->type;
+        buffer[3] = msg->length;
+    }
+    int ret = syncData(&buffer[0], sizeof(buffer));
+    if (ret >= 0)
+    {
+        if (coVRMSController::instance()->isSlave())
+        {
+            msg->sender = buffer[0];
+            msg->send_type = buffer[1];
+            msg->type = buffer[2];
+            msg->length = buffer[3];
+            msg->data = new char[msg->length];
+        }
+        int n = syncData(msg->data, msg->length);
+        if (n >= 0)
+            return ret + n;
+    }
+    return -1;
 }
 
 bool coVRMSController::syncBool(bool state)

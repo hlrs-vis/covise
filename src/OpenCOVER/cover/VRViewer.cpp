@@ -1734,6 +1734,11 @@ void VRViewer::redrawHUD(double interval)
     }
 }
 
+void VRViewer::disableSync()
+{
+    unsyncedFrames = 1000000;
+}
+
 // OpenCOVER
 void VRViewer::frame()
 {
