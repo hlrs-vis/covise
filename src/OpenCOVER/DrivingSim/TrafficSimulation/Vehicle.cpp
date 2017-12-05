@@ -7,7 +7,7 @@
 
 #include "Vehicle.h"
 
-#include "RoadSystem/Road.h"
+#include <VehicleUtil/RoadSystem/Road.h>
 #include "VehicleUtils.h"
 
 int Vehicle::vehicleIDs = 0;

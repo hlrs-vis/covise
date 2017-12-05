@@ -7,7 +7,9 @@
 
 #include "OSGPSOParticle.h"
 
+#include <cover/coVRPluginSupport.h>
 #include <osg/ShapeDrawable>
+#include <osg/Material>
 #include <string.h>
 
 std::vector<OSGPSOParticle *> OSGPSOParticle::par;
@@ -59,6 +61,9 @@ void OSGPSOParticle::move()
                                                     3 * p[1][0] * pow(t, 2) + 2 * p[1][1] * t + p[1][2],
                                                     3 * p[2][0] * pow(t, 2) + 2 * p[2][1] * t + p[2][2]));
     setAttitude(OSGRot);
+	osg::Vec3 WorldPos = OSGPos * opencover::cover->getBaseMat();
+	double scale = opencover::cover->getInteractorScale(WorldPos)*1000.0;
+	setScale(osg::Vec3(scale, scale, scale));
 }
 
 void OSGPSOParticle::updateVelocity()
@@ -80,8 +85,21 @@ void OSGPSOParticle::init(double (*setresponse)(double *), double *setlowerbound
 
     par.clear();
 
-    //ParticleGeode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,0), 10)));
-    ParticleGeode->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 0, 0), 0.01f, 0.05f)));
+	osg::Drawable *sphereDrawable, *coneDrawable;
+    //ParticleGeode->addDrawable(sphereDrawable = new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,0), 10)));
+    ParticleGeode->addDrawable(coneDrawable = new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 0, 0), 10*0.01f, 10*0.05f)));
+	ParticleGeode->setName("pCone");
+
+	osg::StateSet *stateset = ParticleGeode->getOrCreateStateSet();
+	osg::Material *material = new osg::Material;
+	material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 0.0, 0.0, 1.0));
+	material->setAlpha(osg::Material::FRONT_AND_BACK, 0.3f);
+	stateset->setAttributeAndModes(material, osg::StateAttribute::OVERRIDE);
+	stateset->setMode(GL_BLEND, osg::StateAttribute::ON);
+	stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+	stateset->setNestRenderBins(false);
+	//sphereDrawable->dirtyDisplayList();
+	coneDrawable->dirtyDisplayList();
 }
 
 void OSGPSOParticle::destroy()

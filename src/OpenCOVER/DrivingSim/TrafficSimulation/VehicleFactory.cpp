@@ -8,7 +8,7 @@
 #include "VehicleFactory.h"
 
 #include "cover/coVRMSController.h"
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "AgentVehicle.h"
 #include "HumanVehicle.h"
 #include "CarGeometry.h"

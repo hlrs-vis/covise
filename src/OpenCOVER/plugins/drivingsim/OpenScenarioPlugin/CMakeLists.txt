@@ -38,8 +38,14 @@ INCLUDE_DIRECTORIES(
    ${OSGTERRAIN_INCLUDE_DIR}
 )
 # build the plugin "OpenScenarioPlugin" from the ingredients listed in HEADERS and SOURCES
+<<<<<<< HEAD
 cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)
 if(BASEARCHSUFFIX == cray64)
 {
 COVISE_WNOERROR(OpenScenarioPlugin)
 }
+=======
+cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS})
+covise_wnoerror(OpenScenarioPlugin)
+set_target_properties(OpenScenarioPlugin PROPERTIES OUTPUT_NAME "OpenScenario")
+>>>>>>> c7be9f77e08addb0cae52532f4f14015d9934d6c

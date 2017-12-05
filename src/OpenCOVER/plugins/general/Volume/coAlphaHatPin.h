@@ -47,7 +47,7 @@ protected:
 
     osg::ref_ptr<osg::Geode> createGraphGeode();
 
-    float myTopWidth;
-    float myBotWidth;
+    float myTopWidth = 0.f;
+    float myBotWidth = 1.f;
 };
 #endif

@@ -32,7 +32,6 @@
 #include <cover/VRViewer.h>
 
 #include <visionaray/gl/bvh_outline_renderer.h>
-#include <visionaray/gl/debug_callback.h>
 #include <visionaray/array.h>
 #include <visionaray/kernels.h>
 
@@ -947,7 +946,6 @@ namespace visionaray
 
         size_t total_frame_num = 0;
 
-        color_space clr_space = RGB;
         algorithm algo_current = Simple;
         unsigned num_bounces = 4;
         device_type device = CPU;
@@ -963,8 +961,6 @@ namespace visionaray
 
         std::vector<gl::bvh_outline_renderer> outlines;
         std::vector<bool> outlines_initialized;
-
-        gl::debug_callback gl_debug_callback;
 
         std::shared_ptr<render_state> state = nullptr;
         std::shared_ptr<debug_state> dev_state = nullptr;
@@ -1174,7 +1170,6 @@ namespace visionaray
 
     void renderer::impl::commit_state()
     {
-        clr_space = state->clr_space;
         algo_current = state->algo;
         num_bounces = state->num_bounces;
         device = state->device;
@@ -1448,27 +1443,6 @@ namespace visionaray
         if (impl_->dev_state->suppress_rendering)
             return;
 
-        // Activate debug callback
-
-        gl::debug_params params;
-        if (opencover::cover->debugLevel(4))
-        {
-            params.level = gl::debug_level::Notification;
-        }
-        else if (opencover::cover->debugLevel(2))
-        {
-            params.level = gl::debug_level::Low;
-        }
-        else if (opencover::cover->debugLevel(1))
-        {
-            params.level = gl::debug_level::Medium;
-        }
-        else if (opencover::cover->debugLevel(0))
-        {
-            params.level = gl::debug_level::High;
-        }
-        impl_->gl_debug_callback.activate(params);
-
         if (impl_->multi_channel_drawer == nullptr || impl_->device != impl_->state->device)
         {
             // Init MultiChannelDrawer on startup or reset when switching device.
@@ -1513,15 +1487,6 @@ namespace visionaray
         auto diagonal = bounds.max - bounds.min;
         auto bounces = impl_->state->num_bounces;
         auto epsilon = max(1E-3f, length(diagonal) * 1E-5f);
-
-        if (impl_->state->clr_space == sRGB)
-        {
-            glEnable(GL_FRAMEBUFFER_SRGB);
-        }
-        else
-        {
-            glDisable(GL_FRAMEBUFFER_SRGB);
-        }
 
         // Kernel params
 

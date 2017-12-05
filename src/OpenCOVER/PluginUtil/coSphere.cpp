@@ -142,10 +142,11 @@ public:
 
     void intersect(osgUtil::IntersectionVisitor &iv, coIntersector &is, osg::Drawable *drawable)
     {
-        osg::BoundingBox bb = drawable->getBoundingBox();
-
         osg::Vec3d s(is.getStart()), e(is.getEnd());
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+        osg::BoundingBox bb = drawable->getBoundingBox();
         if (!is.intersectAndClip(s, e, bb)) return;
+#endif
         if (iv.getDoDummyTraversal()) return;
 
         //std::cerr << "SPHERE isect start=" << s << ", end=" << e << std::endl;

@@ -516,13 +516,12 @@ coInteractor *ObjectManager::handleInteractors(CoviseRenderObject *container, Co
 
                     it->incRefCount();
                     coVRPluginList::instance()->newInteractor(container, it);
-                    it->decRefCount();
-
-                    if (it->refCount() > 0)
+                    if (it->refCount() > 1)
                     {
                         if (strcmp(it->getModuleName(), "Colors") != 0)
                             ret = it;
                     }
+                    it->decRefCount();
                 }
             }
         }
@@ -1304,9 +1303,13 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                                           no_va > 0 ? dobjsva[i] : NULL,
                                           container, lod);
             if (groupNode && node)
+            {
                 groupNode->addChild(node);
+            }
             else
-                std::cerr << "ignoring Set element: no group node" << std::endl;
+            {
+                std::cerr << "ignoring Set element " << objName << ": no " << (node ? "" : "group ") << "node" << std::endl;
+            }
 
             if (dobjsg)
                 delete dobjsg[i];

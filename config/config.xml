@@ -119,6 +119,7 @@
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
    <CompositorIceT menu="true" />
+   <ViewPoint value="true" />
    <Measure menu="true" />
    <PointCloud>
    <PointSize value="4" />

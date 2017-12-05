@@ -19,7 +19,6 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/LightModel>
 
-#include <fftw3.h>
 
 #include <osgDB/WriteFile>
 

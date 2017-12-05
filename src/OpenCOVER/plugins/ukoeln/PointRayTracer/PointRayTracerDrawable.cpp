@@ -1,4 +1,3 @@
-#include <GL/glew.h>
 #include "ColorSphere.h"
 #include "PointRayTracerDrawable.h"
 #include "PointRayTracerKernel.h"
@@ -242,13 +241,6 @@ osg::Object* PointRayTracerDrawable::clone(const osg::CopyOp &op) const
 
 void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
 {
-    //init glew on first draw call
-    if(!m_glewIsInitialized){
-        if(glewInit() == GLEW_OK) m_glewIsInitialized = true;
-    }
-    //quit if init glew did not work
-    if(!m_glewIsInitialized) return;
-
     //delay rendering until we actually have data
     if (m_impl->bvh_refs.size() == 0)
         return;
