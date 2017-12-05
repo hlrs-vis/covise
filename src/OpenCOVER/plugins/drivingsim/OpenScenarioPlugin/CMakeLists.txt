@@ -39,3 +39,7 @@ INCLUDE_DIRECTORIES(
 )
 # build the plugin "OpenScenarioPlugin" from the ingredients listed in HEADERS and SOURCES
 cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)
+if(BASEARCHSUFFIX == cray64)
+{
+COVISE_WNOERROR(OpenScenarioPlugin)
+}
