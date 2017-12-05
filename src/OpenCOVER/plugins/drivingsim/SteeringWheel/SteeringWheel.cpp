@@ -44,11 +44,11 @@
 #include <util/unixcompat.h>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-//#define USE_X11
+//#define USE_XINPUT
 #define USE_LINUX
 #endif
 
-#ifdef USE_X11
+#ifdef USE_XINPUT
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>
 #include <X11/cursorfont.h>
@@ -669,7 +669,7 @@ void SteeringWheelPlugin::UpdateInputState()
             }
         }
     }
-#ifdef USE_X11
+#ifdef USE_XINPUT
     XEvent event;
     if (haveMouse)
     {
@@ -1200,7 +1200,7 @@ bool SteeringWheelPlugin::init()
     }
 #endif
     wheelcounter = 0;
-#ifdef USE_X11
+#ifdef USE_XINPUT
     if (MouseDev)
     {
         display = XOpenDisplay(cover->inputDisplay);

@@ -43,8 +43,7 @@
 
 #include <cassert>
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-#define USE_X11
+#ifdef USE_X11
 #include <X11/ICE/ICElib.h>
 #endif
 
