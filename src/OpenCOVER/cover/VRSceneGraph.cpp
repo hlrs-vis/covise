@@ -386,7 +386,7 @@ void VRSceneGraph::initSceneGraph()
     m_menuGroupNode = new osg::Group();
     m_menuGroupNode->setNodeMask(m_menuGroupNode->getNodeMask()&~Isect::ReceiveShadow);
     m_menuGroupNode->setName("MenuGroupNode");
-    //m_scene->addChild(m_menuGroupNode.get());
+    m_scene->addChild(m_menuGroupNode.get());
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
@@ -687,7 +687,7 @@ VRSceneGraph::setMenu(bool state)
     {
         if (m_menuGroupNode->getNumParents() == 0)
         {
-           // m_scene->addChild(m_menuGroupNode.get());
+            m_scene->addChild(m_menuGroupNode.get());
         }
     }
     else
