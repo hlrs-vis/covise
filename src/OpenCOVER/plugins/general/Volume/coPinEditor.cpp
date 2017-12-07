@@ -1132,7 +1132,7 @@ void coPinEditor::addPin(int type, int local)
         jPin = pyrPin;
         pyrPin->_top[0] = 0.f;
         pyrPin->_opacity = 1.f;
-        pyrPin->_bottom[0] = 1.f;
+        pyrPin->_bottom[0] = myFunctionEditor->getMax() - myFunctionEditor->getMin();
         coAlphaHatPin *pin = new coAlphaHatPin(pinDCS.get(), H, W, pyrPin);
         currentPin = pin;
     }
@@ -1141,7 +1141,7 @@ void coPinEditor::addPin(int type, int local)
     {
         vvTFSkip *skipPin = new vvTFSkip();
         jPin = skipPin;
-        skipPin->_size[0] = 1. / 255.;
+        skipPin->_size[0] = (myFunctionEditor->getMax() - myFunctionEditor->getMin()) / 255.;
         currentPin = new coAlphaBlankPin(pinDCS.get(), H, W, skipPin);
     }
     }
