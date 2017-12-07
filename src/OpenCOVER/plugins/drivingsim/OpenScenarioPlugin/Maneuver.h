@@ -24,8 +24,8 @@ class Maneuver: public OpenScenario::oscManeuver
 	float startTime;
     std::string startConditionType;
     std::string startAfterManeuver;
-    std::string passiveCar;
-    std::string activeCar;
+    std::string passiveCarName;
+    std::string activeCarName;
 	float relativeDistance;
 	float targetSpeed;
 
@@ -40,6 +40,9 @@ class Maneuver: public OpenScenario::oscManeuver
 
 	Maneuver();
 	~Maneuver();
+
+	void checkConditions();
+
 	virtual void finishedParsing();
     std::string &getName();
     osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float speed);

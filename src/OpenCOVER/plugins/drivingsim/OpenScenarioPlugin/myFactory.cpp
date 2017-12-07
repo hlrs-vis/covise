@@ -2,6 +2,7 @@
 #include "Maneuver.h"
 #include "Act.h"
 #include "Trajectory.h"
+#include "Condition.h"
 #include "FollowTrajectory.h"
 #include <DrivingSim/OpenScenario/oscFactories.h>
 
@@ -18,9 +19,13 @@ OpenScenario::oscObjectBase *myFactory::create(const std::string &name)
 	{
 		return new Act();
 	}
-		if (name == "oscTrajectory")
+	if (name == "oscTrajectory")
 	{
 		return new Trajectory();
+	}
+	if (name == "oscCondition")
+	{
+		return new Condition();
 	}
 	if (name == "oscFollowTrajectory")
 	{
