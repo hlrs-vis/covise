@@ -20,10 +20,10 @@ env:
         - APP="covise" STD="CPP03" BUILD_TYPE="Release"
         - APP="covise" STD="CPP11" BUILD_TYPE="Debug"
         - APP="covise" STD="CPP11" BUILD_TYPE="Release"
-        - APP="cover"  STD="CPP03" BUILD_TYPE="Debug"
-        - APP="cover"  STD="CPP03" BUILD_TYPE="Release"
-        - APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
-        - APP="cover"  STD="CPP11" BUILD_TYPE="Release"
+          #- APP="cover"  STD="CPP03" BUILD_TYPE="Debug"
+          #- APP="cover"  STD="CPP03" BUILD_TYPE="Release"
+          #- APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
+          #- APP="cover"  STD="CPP11" BUILD_TYPE="Release"
 
 matrix:
     exclude:
