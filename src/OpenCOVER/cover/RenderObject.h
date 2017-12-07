@@ -20,7 +20,9 @@
 
 #ifndef RENDER_OBJ
 #define RENDER_OBJ
-#include <util/common.h>
+
+#include <util/coExport.h>
+#include <cstdlib>
 
 namespace opencover
 {

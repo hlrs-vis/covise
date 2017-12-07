@@ -19,10 +19,6 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/LightModel>
 
-#if 0
-#include <gaalet.h>
-#endif
-//#include <fftw3.h>
 
 #include <osgDB/WriteFile>
 

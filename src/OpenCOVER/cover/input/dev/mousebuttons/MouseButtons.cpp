@@ -190,7 +190,7 @@ MouseButtons::MouseButtons(const char *buttonDeviceName)
     {
         initPS2();
     }
-#elif defined(USE_X11)
+#elif defined(USE_XINPUT)
     if (buttonDeviceName)
     {
         display = XOpenDisplay(cover->inputDisplay);
@@ -400,7 +400,7 @@ MouseButtons::getButtons(int /* station */, unsigned int *button)
 
 #endif
 
-#ifdef USE_X11
+#ifdef USE_XINPUT
         XEvent event;
         while (XCheckTypedEvent(display, buttonPressEventType, &event))
         {
