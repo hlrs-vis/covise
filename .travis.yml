@@ -66,7 +66,7 @@ before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall qt5 ;fi
 
 install:
-    - if [ "$APP" = "cover" ]; then pip3 install PyQt5; fi
+    #- if [ "$APP" = "cover" ]; then pip3 install PyQt5; fi
 
 script:
 
