@@ -139,9 +139,9 @@ void VideoPlugin::guiToRenderMsg(const char *msg)
                     tabletEvent(widthField);
                     heightField->setValue(height);
                     tabletEvent(heightField);
-                    outWidthField->setValue(width);
+                    outWidthField->setValue(-1);
                     tabletEvent(outWidthField);
-                    outHeightField->setValue(height);
+                    outHeightField->setValue(-1);
                     tabletEvent(outHeightField);
 
                     // change filename
@@ -445,11 +445,11 @@ bool VideoPlugin::init()
     videoSize->setColor(Qt::black);
     outWidthField = new coTUIEditIntField("outWidth", VideoTab->getID());
     outWidthField->setEventListener(this);
-    outWidthField->setValue(640);
+    outWidthField->setValue(-1);
     outWidthField->setPos(1, rowcount);
     outHeightField = new coTUIEditIntField("outHeight", VideoTab->getID());
     outHeightField->setEventListener(this);
-    outHeightField->setValue(480);
+    outHeightField->setValue(-1);
     outHeightField->setPos(2, rowcount++);
     checkPosSize(xPosField, widthField, width);
     checkPosSize(yPosField, heightField, height);
@@ -516,15 +516,15 @@ bool VideoPlugin::init()
     // use Config to fill default values
     time_base = coCoviseConfig::getInt("COVER.Plugin.Video.Framerate", 25);
     cfpsEdit->setValue(time_base);
-    outWidth = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeX", 800);
+    outWidth = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeX", -1);
     outWidthField->setValue(outWidth);
-    outHeight = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeY", 600);
+    outHeight = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeY", -1);
     outHeightField->setValue(outHeight);
 
     filename = coCoviseConfig::getEntry("COVER.Plugin.Video.Filename");
     fillFilenameField(filename, false, false);
 
-    bitrate_ = coCoviseConfig::getInt("COVER.Plugin.Video.Bitrate", 1000);
+    bitrate_ = coCoviseConfig::getInt("COVER.Plugin.Video.Bitrate", 10000);
     sysPlug->bitrateField->setValue(bitrate_);
 
     return true;
@@ -638,7 +638,11 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
                     filename = filename.substr(0, found) + "-" + hostName + stereoEye + filename.substr(found, filename.length());
             }
             outWidth = outWidthField->getValue();
+            if (outWidth <= 0)
+                outWidth = widthField->getValue();
             outHeight = outHeightField->getValue();
+            if (outHeight <= 0)
+                outHeight = heightField->getValue();
             sysPlug->checkFileFormat(filename);
 
             //////////////////////////////////////////////////////////////////////////////
