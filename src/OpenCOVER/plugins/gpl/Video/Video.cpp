@@ -28,7 +28,7 @@ VideoPlugin::VideoPlugin()
 {
     frameCount = 0;
     captureActive = 0;
-    captureAnimActive = 0;
+    captureAnimActive = false;
     waitForFrame = false;
     pixels = NULL;
     time_base = 25;
@@ -509,6 +509,7 @@ bool VideoPlugin::init()
     showFrameCountField = new coTUIEditIntField("framecount", VideoTab->getID());
     showFrameCountField->setEventListener(this);
     showFrameCountField->setPos(1, rowcount + 11);
+    showFrameCountField->setValue(frameCount);
 
     // default off cover->getScene()->addChild( ephemerisModel.get() );
 
@@ -615,6 +616,9 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
 
         if (captureHostButton[hostIndex]->getState())
         {
+            frameCount = 0;
+            showFrameCountField->setValue(frameCount);
+
             if (tUIItem == captureAnimButton)
             {
                 captureButton->setState(true);
@@ -643,6 +647,7 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
 
             if (fileError || sizeError)
             {
+                captureAnimActive = false;
                 captureButton->setState(false);
                 captureAnimButton->setState(false);
                 // fprintf(stderr,"fileError=%d sizeError=%d\n", fileError, sizeError);
@@ -672,7 +677,6 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
                     starttime = cover->frameTime();
                     recordingTime = 0.0;
                     recordingFrames = 0;
-                    frameCount = 0;
                     cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "startingCapture");
                 }
                 else
