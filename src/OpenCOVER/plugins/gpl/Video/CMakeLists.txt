@@ -1,14 +1,6 @@
 USING(XERCESC)
-
-
-
-IF(MSVC)
-
   COVISE_FIND_PACKAGE(WMFSDK)
 
-  ADD_DEFINITIONS(-DNEWOSG)
-  
-   
   SET(HEADERS WINAVIVideo.h rgb2rgb.h swscale.h swscale_internal.h Video.h)
   SET(SOURCES WINWMVVideo.cpp WINAVIVideo.cpp Video.cpp rgb2rgb.c swscale.c yuv2rgb.c)
 

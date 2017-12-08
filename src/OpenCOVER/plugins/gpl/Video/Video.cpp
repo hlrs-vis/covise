@@ -150,10 +150,8 @@ void VideoPlugin::guiToRenderMsg(const char *msg)
                     changeFilename_ = false;
                     fillFilenameField(filename, false, changeFilename_);
 
-#ifdef NEWOSG
                     coVRConfig::instance()->windows[0].window->grabFocus();
                     coVRConfig::instance()->windows[0].window->raiseWindow();
-#endif
 
                     // press capture button
                     captureButton->setState(true);
@@ -659,10 +657,8 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
             else if (!sizeError && !captureActive && captureHostButton[hostIndex]->getState())
             {
 
-#ifdef NEWOSG
                 coVRConfig::instance()->windows[0].window->grabFocus();
                 coVRConfig::instance()->windows[0].window->raiseWindow();
-#endif
                 inWidth = widthField->getValue();
                 inHeight = heightField->getValue();
 
