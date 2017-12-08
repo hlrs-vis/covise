@@ -8,6 +8,8 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
 #include <libavutil/mathematics.h>
 #include <libswscale/swscale.h>
 #define HAVE_SWSCALE_H
@@ -55,10 +57,16 @@ typedef PixelFormat AVPixelFormat;
 
 #include "Video.h"
 
-#define STREAM_FRAME_RATE 25 /* 25 images/s */
-#define STREAM_PIX_FMT AV_PIX_FMT_YUV420P /* default pix_fmt */
+//#define USE_CODECPAR
 
-typedef std::list<AVCodec *> AVCodecList;
+struct CodecListEntry
+{
+    CodecListEntry(AVCodec *codec);
+
+    AVCodec *codec = nullptr;
+    std::vector<std::string> profiles;
+};
+typedef std::list<CodecListEntry> AVCodecList;
 
 typedef struct
 {
@@ -104,8 +112,7 @@ private:
     void close_all(bool stream = false, int format = 0);
     AVFrame *alloc_picture(AVPixelFormat pix_fmt, int width, int height);
     bool add_video_stream(AVCodec *codec, int w, int h, int frame_base, int bitrate, int maxBitrate);
-    void video_tag(const char *cname);
-    int SwConvertScale(int width, int height);
+    AVFrame *SwConvertScale(int width, int height);
     int readParams();
     void loadParams(int);
     void saveParams();
@@ -119,6 +126,9 @@ private:
     AVFormatContext *oc;
     AVStream *video_st;
     AVCodecContext *codecCtx;
+#ifdef USE_CODECPAR
+    AVCodecParameters *codecPar;
+#endif
     AVPacket pkt;
 
     AVFrame *picture, *inPicture, *outPicture;

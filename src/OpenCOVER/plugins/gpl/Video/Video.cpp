@@ -540,6 +540,11 @@ bool VideoPlugin::init()
     return true;
 }
 
+bool VideoPlugin::update()
+{
+    return captureActive || captureAnimActive;
+}
+
 void VideoPlugin::cfpsHide(bool hidden)
 {
     cfpsEdit->setHidden(hidden);
@@ -633,6 +638,8 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
             {
                 captureButton->setState(true);
                 captureAnimActive = true;
+                wasAnimating = coVRAnimationManager::instance()->animationRunning();
+                coVRAnimationManager::instance()->enableAnimation(false);
                 captureAnimFrame = coVRAnimationManager::instance()->getStartFrame();
                 waitForFrame = true;
                 coVRAnimationManager::instance()->requestAnimationFrame(captureAnimFrame);
@@ -661,6 +668,8 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
 
             if (fileError || sizeError)
             {
+                if (captureAnimActive)
+                    coVRAnimationManager::instance()->enableAnimation(wasAnimating);
                 captureAnimActive = false;
                 captureButton->setState(false);
                 captureAnimButton->setState(false);
@@ -721,7 +730,10 @@ void VideoPlugin::stopCapturing()
 {
     sysPlug->close_all(true, selectFormat->getSelectedEntry());
 
+    showFrameCountField->setValue(frameCount);
     captureActive = false;
+    if (captureAnimActive)
+        coVRAnimationManager::instance()->enableAnimation(wasAnimating);
     captureAnimActive = false;
     waitForFrame = false;
     captureButton->setState(false);
@@ -819,12 +831,15 @@ void VideoPlugin::preSwapBuffers(int windowNumber)
     if (waitForFrame)
         return;
 
+    auto &coco = *coVRConfig::instance();
+
     // only capture the first window and only on the master
     if (captureActive && windowNumber == 0 && captureHostButton[hostIndex])
     {
         // fprintf(stderr,"glRead...\n");
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glReadBuffer(GL_BACK);
+        if (coco.windows[windowNumber].doublebuffer)
+            glReadBuffer(GL_BACK);
         // for depth to work, it might be necessary to read from GL_FRONT (chang this, if it does not work like
         // this)
 

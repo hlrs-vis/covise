@@ -74,7 +74,7 @@ public:
     ~VideoPlugin();
     bool init();
 
-    // this will be called in PreFrame
+    bool update();
     void postFrame();
     void preSwapBuffers(int windowNumber);
     void setTimestep(int t);
@@ -137,6 +137,7 @@ private:
     double recordingTime;
     int recordingFrames;
     int frameCount;
+    bool wasAnimating = false;
     bool captureActive;
     bool captureAnimActive;
     int captureAnimFrame;
