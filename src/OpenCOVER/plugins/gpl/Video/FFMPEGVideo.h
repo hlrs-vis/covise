@@ -71,20 +71,16 @@ typedef struct
     int height;
 } VideoParameter;
 
-class FFMPEGPlugin : public coVRPlugin, public coTUIListener
+class FFMPEGPlugin: public SysPlugin
 {
 public:
     FFMPEGPlugin();
     ~FFMPEGPlugin();
 
-    VideoPlugin *myPlugin;
-    coTUIComboBox *selectCodec;
-    coTUIComboBox *selectParams;
 
     friend class VideoPlugin;
 
 private:
-    std::string filterList;
     std::map<AVOutputFormat *, AVCodecList> formatList;
     std::list<VideoParameter> VPList;
 
@@ -110,7 +106,6 @@ private:
     bool add_video_stream(AVCodec *codec, int w, int h, int frame_base, int bitrate, int maxBitrate);
     void video_tag(const char *cname);
     int SwConvertScale(int width, int height);
-    int ImgConvertScale(int width, int height);
     int readParams();
     void loadParams(int);
     void saveParams();
@@ -119,6 +114,7 @@ private:
     void sendParams();
     int getParams();
 
+    AVPixelFormat capture_fmt;
     AVOutputFormat *fmt;
     AVFormatContext *oc;
     AVStream *video_st;
@@ -141,7 +137,6 @@ private:
     coTUILabel *paramLabel;
     coTUILabel *bitrateLabel;
     coTUILabel *maxBitrateLabel;
-    coTUIEditIntField *bitrateField;
     coTUIEditIntField *maxBitrateField;
     coTUIToggleButton *saveButton;
 

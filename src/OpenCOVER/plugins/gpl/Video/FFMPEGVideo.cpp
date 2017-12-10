@@ -249,17 +249,17 @@ bool FFMPEGPlugin::open_video(AVCodec *codec)
 
     outPicture = NULL;
 #ifdef HAVE_SWSCALE_H
-    if (myPlugin->resize || (codecCtx->pix_fmt != myPlugin->capture_fmt))
+    if (myPlugin->resize || (codecCtx->pix_fmt != capture_fmt))
     {
         if (myPlugin->inWidth * myPlugin->inHeight < codecCtx->width * codecCtx->height)
         {
-            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, myPlugin->capture_fmt,
+            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, capture_fmt,
                                            codecCtx->width, codecCtx->height, codecCtx->pix_fmt,
                                            myPlugin->resize ? SWS_BICUBIC : SWS_POINT, NULL, NULL, NULL);
         }
         else
         {
-            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, myPlugin->capture_fmt,
+            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, capture_fmt,
                                            codecCtx->width, codecCtx->height, codecCtx->pix_fmt,
                                            myPlugin->resize ? SWS_BILINEAR : SWS_POINT, NULL, NULL, NULL);
         }
@@ -370,7 +370,7 @@ void FFMPEGPlugin::close_video()
     }
 
 #ifdef HAVE_SWSCALE_H
-    if ((codecCtx) && (myPlugin->resize || (codecCtx->pix_fmt != myPlugin->capture_fmt)))
+    if ((codecCtx) && (myPlugin->resize || (codecCtx->pix_fmt != capture_fmt)))
     {
         if (swsconvertctx)
             sws_freeContext(swsconvertctx);
@@ -448,7 +448,7 @@ void FFMPEGPlugin::close_all(bool stream, int format)
 void FFMPEGPlugin::init_GLbuffers()
 {
     int size;
-    size = avpicture_get_size(myPlugin->capture_fmt, myPlugin->inWidth, myPlugin->inHeight);
+    size = avpicture_get_size(capture_fmt, myPlugin->inWidth, myPlugin->inHeight);
     myPlugin->pixels = (uint8_t *)av_malloc(size);
     mirroredpixels = (uint8_t *)av_malloc(size);
 }
@@ -456,8 +456,29 @@ void FFMPEGPlugin::init_GLbuffers()
 bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBFormat)
 {
 
+#ifdef WIN32
+       myPlugin->GL_fmt = GL_BGR_EXT;
+       capture_fmt = AV_PIX_FMT_RGB24;
+#else
     if (RGBFormat == 1)
-        myPlugin->GL_fmt = GL_BGRA;
+    {
+       myPlugin->GL_fmt = GL_BGRA;
+#ifdef AV_PIX_FMT_RGBA32
+        capture_fmt = AV_PIX_FMT_RGBA32;
+#else
+        capture_fmt = AV_PIX_FMT_RGB32;
+#endif
+    }
+    else
+    {
+        myPlugin->GL_fmt = GL_RGBA;
+#ifdef AV_PIX_FMT_BGRA32
+        capture_fmt = AV_PIX_FMT_BGRA32;
+#else
+        capture_fmt = AV_PIX_FMT_BGR32;
+#endif
+    }
+#endif
     linesize = myPlugin->inWidth * 4;
 
     if (!FFMPEGInit(NULL, NULL, filename, false))
@@ -474,7 +495,11 @@ bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBF
 bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const string &filename,
                               bool test_codecs)
 {
+#ifdef WIN32
+    impl = nullptr;
+#else
     impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+#endif
 
 /* allocate the output media context */
 // need this for newer version todo: #ifdef version oc = avformat_alloc_context();
@@ -699,62 +724,18 @@ void FFMPEGPlugin::checkFileFormat(const string &filename)
     }
 }
 
-#ifndef HAVE_SWSCALE_H
-int VideoPlugin::ImgConvertScale(int width, int height)
-{
-    int y, out_size;
-
-    // 	OpenGL reads bottom-to-top, encoder expects top-to-bottom
-    for (y = height; y > 0; y--)
-        memcpy(&mirroredpixels[(height - y) * linesize], &pixels[(y - 1) * linesize], linesize);
-
-    if (codecCtx->pix_fmt == AV_PIX_FMT_YUV420P)
-    {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
-
-        if (img_convert((AVPicture *)picture, codecCtx->pix_fmt, (AVPicture *)inPicture, myPlugin->capture_fmt,
-                        width, height) < 0)
-        {
-            fprintf(stderr, "Could not convert picture\n");
-            exit(1);
-        }
-    }
-    else if (codecCtx->pix_fmt != myPlugin->capture_fmt)
-    {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
-        img_convert((AVPicture *)picture, codecCtx->pix_fmt, (AVPicture *)inPicture, myPlugin->capture_fmt,
-                    width, height);
-    }
-    else
-    {
-        avpicture_fill((AVPicture *)picture, mirroredpixels, myPlugin->capture_fmt, width, height);
-    }
-
-    // 	scale the image
-    if (resize)
-    {
-        img_resample(imgresamplectx, (AVPicture *)outPicture, (AVPicture *)picture);
-        out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, outPicture);
-    }
-    else
-        /* encode the image */
-        out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, picture);
-
-    return (out_size);
-}
-
-#else
 int FFMPEGPlugin::SwConvertScale(int width, int height)
 {
     //  	OpenGL reads bottom-to-top, encoder expects top-to-bottom
     for (int y = height; y > 0; y--)
         memcpy(&mirroredpixels[(height - y) * linesize], &myPlugin->pixels[(y - 1) * linesize], linesize);
 
+#ifdef HAVE_SWSCALE_H
     AVFrame *result = NULL;
 
-    if (myPlugin->resize || (codecCtx->pix_fmt != myPlugin->capture_fmt))
+    if (myPlugin->resize || (codecCtx->pix_fmt != capture_fmt))
     {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
+        avpicture_fill((AVPicture *)inPicture, mirroredpixels, capture_fmt, width, height);
 
         sws_scale(swsconvertctx, inPicture->data, inPicture->linesize, 0, height, outPicture->data,
                   outPicture->linesize);
@@ -762,11 +743,34 @@ int FFMPEGPlugin::SwConvertScale(int width, int height)
     }
     else
     {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
+        avpicture_fill((AVPicture *)inPicture, mirroredpixels, capture_fmt, width, height);
         result = inPicture;
     }
 
     result->pts = myPlugin->frameCount;
+#else
+    if (codecCtx->pix_fmt != capture_fmt)
+    {
+        avpicture_fill((AVPicture *)inPicture, mirroredpixels, capture_fmt, width, height);
+
+        if (img_convert((AVPicture *)picture, codecCtx->pix_fmt, (AVPicture *)inPicture, capture_fmt,
+                        width, height) < 0)
+        {
+            fprintf(stderr, "Could not convert picture\n");
+            return -1;
+        }
+    }
+    else
+    {
+        avpicture_fill((AVPicture *)picture, mirroredpixels, capture_fmt, width, height);
+    }
+
+    // 	scale the image
+    if (resize)
+    {
+        img_resample(imgresamplectx, (AVPicture *)outPicture, (AVPicture *)picture);
+    }
+#endif
 
     /* encode the image */
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
@@ -785,7 +789,6 @@ int FFMPEGPlugin::SwConvertScale(int width, int height)
   return got_output ? pkt.size : 0;
 #endif
 }
-#endif
 
 void FFMPEGPlugin::videoWrite(int format)
 {
@@ -1223,6 +1226,7 @@ int FFMPEGPlugin::readParams()
     QString path = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
     std::string pathname = path.toStdString();
     pathname += "videoparams.xml";
+#ifndef WIN32
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
@@ -1285,6 +1289,7 @@ int FFMPEGPlugin::readParams()
             }
         }
     }
+#endif
 
     return VPList.size();
 }
@@ -1295,6 +1300,7 @@ void FFMPEGPlugin::saveParams()
     std::string pathname = path.toStdString();
     pathname += "videoparams.xml";
 
+#ifndef WIN32
     xercesc::DOMDocument *xmlDoc = impl->createDocument(0, xercesc::XMLString::transcode("VideoParams"), 0);
     xercesc::DOMElement *rootElement = NULL;
     if (xmlDoc)
@@ -1359,6 +1365,7 @@ void FFMPEGPlugin::saveParams()
 #endif
     }
     delete xmlDoc;
+#endif
 }
 
 void FFMPEGPlugin::addParams()

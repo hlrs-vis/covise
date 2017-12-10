@@ -11,9 +11,13 @@
 #include <grmsg/coGRSnapshotMsg.h>
 #ifdef _MSC_VER
 #include <sys/timeb.h>
-#include "WINAVIVideo.h"
 #else
 #include <sys/time.h>
+#endif
+#ifdef HAVE_WMFSDK
+#include "WINAVIVideo.h"
+#endif
+#ifdef HAVE_FFMPEG
 #include "FFMPEGVideo.h"
 #endif
 
@@ -23,6 +27,10 @@
 
 using namespace covise;
 using namespace grmsg;
+
+SysPlugin::~SysPlugin()
+{
+}
 
 VideoPlugin::VideoPlugin()
 {
@@ -49,12 +57,21 @@ VideoPlugin::VideoPlugin()
     else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
         stereoEye = "LEFT";
 
-#ifdef _MSC_VER
-    sysPlug = new WINAVIPlugin;
-#else
-    sysPlug = new FFMPEGPlugin;
+    sysPlug = nullptr;
+    sysPlugFfmpeg = nullptr;
+    sysPlugWinAvi = nullptr;
+#ifdef HAVE_WMFSDK
+    sysPlugWinAvi = new WINAVIPlugin;
+    sysPlugWinAvi->myPlugin = this;
+    if (!sysPlug)
+        sysPlug = sysPlugWinAvi;
 #endif
-    sysPlug->myPlugin = this;
+#ifdef HAVE_FFMPEG
+    sysPlugFfmpeg = new FFMPEGPlugin;
+    sysPlugFfmpeg->myPlugin = this;
+    if (!sysPlug)
+        sysPlug = sysPlugFfmpeg;
+#endif
 
     // start record from gui
     recordFromGui_ = false;
@@ -339,23 +356,18 @@ void VideoPlugin::fillFilenameField(const string &name, bool browser, bool chang
 
 bool VideoPlugin::init()
 {
+    if (!sysPlug)
+        return false;
 
     resize = false;
     sizeError = false;
     fileError = false;
 #ifdef _MSC_VER
-    capture_fmt = PIX_FMT_RGB24;
     GL_fmt = GL_BGR_EXT;
 #else
-#ifdef HAVE_SWSCALE_H
-#ifdef AV_PIX_FMT_RGBA32
-    capture_fmt = AV_PIX_FMT_RGBA32;
-#else
-    capture_fmt = AV_PIX_FMT_RGB32;
-#endif
     GL_fmt = GL_BGRA;
 #endif
-#endif
+
     captureActive = false;
     waitForFrame = false;
 
@@ -727,7 +739,12 @@ VideoPlugin::~VideoPlugin()
     {
         sysPlug->close_all(false);
     }
-    delete sysPlug;
+#ifdef HAVE_WMFSDK
+    delete sysPlugWinAvi;
+#endif
+#ifdef HAVE_FFMPEG
+    delete sysPlugFfmpeg;
+#endif
 
     delete captureButton;
     delete GLformatButton;
