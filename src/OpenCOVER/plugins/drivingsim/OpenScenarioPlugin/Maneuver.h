@@ -16,6 +16,7 @@ class Maneuver: public OpenScenario::oscManeuver
  public:
    std::string name;
    std::string maneuverType;
+   std::string routeCatalogReference;
    std::string trajectoryCatalogReference;
 
 	//conditions

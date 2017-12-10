@@ -20,6 +20,7 @@ set(HEADERS
   myFactory.h
   FollowTrajectory.h
   Trajectory.h
+  RouteInfo.h
   CameraSensor.h
 )
 set(SOURCES
@@ -32,6 +33,7 @@ set(SOURCES
   myFactory.cpp
   FollowTrajectory.cpp
   Trajectory.cpp
+  RouteInfo.cpp
   CameraSensor.cpp
 )
 

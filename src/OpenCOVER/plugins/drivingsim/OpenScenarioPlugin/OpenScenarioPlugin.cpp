@@ -578,8 +578,16 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 								{
 									if ((*maneuver_iter)->getName() == maneuver->name.getValue())
 									{
-										(*maneuver_iter)->maneuverType="followTrajectory";
-										(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										if (action->Private->Routing->FollowTrajectory.exists())
+										{
+											(*maneuver_iter)->maneuverType = "followTrajectory";
+											(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										}
+										else if (action->Private->Routing->FollowRoute.exists())
+										{
+											(*maneuver_iter)->maneuverType = "FollowRoute";
+											(*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										}
 									}
 								}
 								if(action->Private->Longitudinal.exists())
