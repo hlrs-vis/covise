@@ -18,25 +18,32 @@ set "COVISEDESTDIR=%CD%"
 REM choco -y install cmake --installargs 'ADD_CMAKE_TO_PATH=""System""'
 REM choco -y install git swig winflexbison
 
-%vc% install assimp boost curl freeglut glew giflib libpng qt5 tiff xerces-c zlib libjpeg-turbo vtk  
-%vc% install pthreads tbb libmicrohttpd python3
+"%vc%" install assimp boost curl freeglut glew giflib libpng qt5 tiff xerces-c zlib libjpeg-turbo vtk  
+"%vc%" install pthreads tbb libmicrohttpd python3
 
 %vc% list
 REM %vc% integrate project
 
 mkdir %ARCHSUFFIX%
 cd %ARCHSUFFIX%
+
+:COVISE
 mkdir build.covise
 cd build.covise
 cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%vcdir%\scripts\buildsystems\vcpkg.cmake" -DCOVISE_BUILD_RENDERER:BOOL=OFF ../..
 msbuild /m covise.sln
-
-"%vc%" install osg:%vct%
-
 cd ..
+
+:COVER
+"%vc%" install osg
+"%vc%" install ffmpeg opencv gdal
+"%vc%" install proj4
+
 mkdir build.cover
 cd build.cover
 cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%vcdir%\scripts\buildsystems\vcpkg.cmake" ../../src/OpenCOVER
 msbuild /m OpenCOVER.sln
+cd ..
 
+cd ..
 :END
