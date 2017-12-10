@@ -1,7 +1,11 @@
 REM @echo off
 
 if "%VCPKG_ROOT%" EQU "" (
-    VCPKG_ROOT has to be set
+    set VCPKG_ROOT=C:\vcpkg
+)
+
+if NOT EXIST "%VCPKG_ROOT%\.vcpkg-root" (
+    VCPKG_ROOT has to be set to the root directory of your vcpkg installation
     goto END
 )
 
