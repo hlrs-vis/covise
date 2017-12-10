@@ -127,7 +127,7 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
 	}
 	else 
 	{
-		if (object_->getOwnMember())
+		if (object_ && object_->getOwnMember())
 		{
 			member_ = object_->getOwnMember();
 			objectStackText_ += QString::fromStdString(member_->getName()) + "/";

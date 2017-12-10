@@ -76,6 +76,7 @@ private:
 
 	void createTree();
 	QTreeWidgetItem *getItem(const QString &name);
+	QTreeWidgetItem *getItem(OpenScenario::oscObjectBase *obj);
 
     //################//
     // EVENTS         //

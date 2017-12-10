@@ -95,6 +95,12 @@ QPainterPath
 	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
 	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
 	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
+	if (widthBoundBox < 1.0)
+		widthBoundBox = 1.8;
+	if (lengthBoundBox < 1.0)
+		lengthBoundBox = 3;
+	if (heightBoundBox < 1.0)
+		heightBoundBox = 1.5;
 	if(vehicle)
 	{
 		switch (vehicle->category.getValue())
@@ -102,11 +108,11 @@ QPainterPath
 		case oscVehicle::car:
 			{
 				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0,heightBoundBox/2) << QPointF(lengthBoundBox/3,heightBoundBox) << QPointF(lengthBoundBox/1.5,heightBoundBox) << QPointF(lengthBoundBox/1.2,heightBoundBox/2) << QPointF(lengthBoundBox/1.086,heightBoundBox/2) << QPointF(lengthBoundBox/1.02,heightBoundBox/3.33) << QPointF(lengthBoundBox,0);
+				polygon << QPointF(0,0) << QPointF(0, widthBoundBox /2) << QPointF(lengthBoundBox/3, widthBoundBox) << QPointF(lengthBoundBox/1.5, widthBoundBox) << QPointF(lengthBoundBox/1.2, widthBoundBox /2) << QPointF(lengthBoundBox/1.086, widthBoundBox /2) << QPointF(lengthBoundBox/1.02, widthBoundBox /3.33) << QPointF(lengthBoundBox,0);
 				path.addPolygon(polygon);
 				path.closeSubpath();
-				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/5,-widthBoundBox /40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/1.25,-widthBoundBox /40), lengthBoundBox/12.5,lengthBoundBox/12.5);
 
 				
 				break;
@@ -199,6 +205,7 @@ OSCItem::init()
 
 	doPan_ = false;
 	copyPan_ = false;
+	lastPos_ = pos_;
 
 
 
@@ -217,6 +224,8 @@ OSCItem::init()
 			updateColor(catalog_->getCatalogName());
 			path_ = createPath(catalogObject, road_);
 			pos_ = road_->getGlobalPoint(s_, t_);
+			lastPos_ = pos_;
+			doPan_ = false;
 			updatePosition();
 		}
 
