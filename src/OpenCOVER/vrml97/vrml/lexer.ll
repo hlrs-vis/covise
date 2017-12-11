@@ -47,6 +47,7 @@ using std::vector;
 
 #ifdef _WIN32
 #include <io.h>
+#define YY_NO_UNISTD_H
 #endif
 
 using namespace vrml;

@@ -30,7 +30,7 @@
         <FileType name="vim" plugin="Molecules" />
         <FileType name="vis" plugin="Molecules" />
 
-        <FileType name="xosc" plugin="OpenScenarioPlugin" />
+        <FileType name="xosc" plugin="OpenScenario" />
         
         <FileType name="chkpt" plugin="Particles" />
         <FileType name="coord" plugin="Particles" />

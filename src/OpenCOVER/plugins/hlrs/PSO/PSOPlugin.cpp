@@ -106,6 +106,7 @@ void PSOPlugin::initPSO()
 
             OSGPSOParticleOnResponseSurface::init(quadratic, lbound, ubound, integer, (long int)(1e6 * cover->frameTime()));
             surfaceGeode = new OSGResponseSurface(quadratic, lbound, ubound, integer, 0.01);
+			surfaceGeode->setName("ResponseSurface");
         }
         else if (functionComboBox->getSelectedEntry() == 1)
         {
@@ -116,6 +117,7 @@ void PSOPlugin::initPSO()
             bool integer[2] = { false, false };
 
             surfaceGeode = new OSGResponseSurface(pso::griewank2, lbound, ubound, integer, 0.5);
+			surfaceGeode->setName("ResponseSurface");
             OSGPSOParticleOnResponseSurface::init(pso::griewank2, lbound, ubound, integer, (long int)(1e6 * cover->frameTime()));
         }
         else if (functionComboBox->getSelectedEntry() == 2)
@@ -139,6 +141,7 @@ void PSOPlugin::initPSO()
 
             OSGPSOParticleOnResponseSurface::init(quadratic, lbound, ubound, integer, (long int)(1e6 * cover->frameTime()));
             surfaceGeode = new OSGResponseSurface(quadratic, lbound, ubound, integer, 0.01);
+			surfaceGeode->setName("ResponseSurface");
         }
 
         if (nvar == 2)
@@ -149,6 +152,9 @@ void PSOPlugin::initPSO()
             for (int i = 0; i < npar; ++i)
             {
                 par2D[i] = new OSGPSOParticleOnResponseSurface;
+				char name[100];
+				sprintf(name, "p%d", i);
+				par2D[i]->setName(name);
                 cover->getObjectsRoot()->addChild(par2D[i]);
             }
 
@@ -167,6 +173,9 @@ void PSOPlugin::initPSO()
             for (int i = 0; i < npar; ++i)
             {
                 par3D[i] = new OSGPSOParticle;
+				char name[100];
+				sprintf(name, "p%d", i);
+				par3D[i]->setName(name);
                 cover->getObjectsRoot()->addChild(par3D[i]);
             }
 
@@ -221,6 +230,10 @@ PSOPlugin::~PSOPlugin()
 void
 PSOPlugin::preFrame()
 {
+
+	applyInertiaUpdate = inertiaFunctionToggleButton->getState();
+	applyCrazinessOperator = crazyFunctionToggleButton->getState();
+	applyODS = odsFunctionToggleButton->getState();
     if (isSetup && isRunning)
     {
         if ((cover->frameTime() > oldTime + 1.0))

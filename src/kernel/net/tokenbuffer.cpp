@@ -57,7 +57,7 @@ Initial revision
 
 using namespace covise;
 
-TokenBuffer::TokenBuffer(Message *msg, bool nbo)
+TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
 {
     assert(msg);
     if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)

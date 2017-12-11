@@ -34,6 +34,7 @@ struct QtViewElement: public QObject, public View::ViewElement
 };
 
 
+//! for simultaneous rendering of \ref Label labels in toolbars and menues
 class QtLabelAction: public QWidgetAction
 {
     Q_OBJECT
@@ -47,6 +48,7 @@ protected:
 };
 
 
+//! q Qt widget for showing a slider with a label showing its value
 class QtSliderWidget: public QWidget
 {
     Q_OBJECT
@@ -74,6 +76,7 @@ private:
 };
 
 
+//! for simultaneous rendering of \ref Slider sliders in toolbars and menues
 class QtSliderAction: public QWidgetAction
 {
     Q_OBJECT
@@ -103,7 +106,7 @@ private:
     int m_min = 0, m_max = 0;
 };
 
-//! concrete implementation of View for showing user interface \ref Element "elements" in a QMenuBar
+//! concrete implementation of View for showing user interface \ref Element "elements" in a QMenuBar and QToolBar
 class QtView: public QObject, public View
 {
     Q_OBJECT

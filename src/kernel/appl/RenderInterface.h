@@ -91,7 +91,7 @@ public:
 //
 // Callback and control
 //
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
     static void init(int argc, char *argv[], XtAppContext appContext);
 #else
     static void init(int argc, char *argv[]);

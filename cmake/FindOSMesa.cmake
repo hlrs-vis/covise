@@ -17,6 +17,8 @@ if(NOT OSMESA_INCLUDE_DIR)
 
   if(NOT OSMESA_INCLUDE_DIR)
     find_path(OSMESA_INCLUDE_DIR GL/osmesa.h PATHS
+      /usr/X11/include
+      /usr/X11R6/include
       /usr/openwin/share/include
       /opt/graphics/OpenGL/include
     )
@@ -35,6 +37,8 @@ if(NOT OSMESA_LIBRARY)
 
   if(NOT OSMESA_LIBRARY)
     find_library(OSMESA_LIBRARY NAMES OSMesa OSMesa16 OSMesa32 PATHS
+      /usr/X11/lib
+      /usr/X11R6/lib
       /opt/graphics/OpenGL/lib
       /usr/openwin/lib
     )

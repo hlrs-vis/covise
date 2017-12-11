@@ -30,6 +30,7 @@
 #include <osg/PolygonOffset>
 
 #include <cover/coVRShader.h>
+#include <cover/coVRConfig.h>
 #include <cover/coVRFileManager.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -192,6 +193,10 @@ void Road::addPlanViewGeometryArc(double s, double l, double x, double y, double
 void Road::addPlanViewGeometryPolynom(double s, double l, double x, double y, double hdg, double a, double b, double c, double d)
 {
     xyMap[s] = (new PlanePolynom(s, l, x, y, hdg, a, b, c, d));
+}
+void Road::addPlanViewGeometryPolynom(double s, double l, double x, double y, double hdg, double aU, double bU, double cU, double dU, double aV, double bV, double cV, double dV, bool normalized)
+{
+	xyMap[s] = (new PlaneParamPolynom(s, l, x, y, hdg, aU, bU, cU, dU, aV, bV, cV, dV,normalized));
 }
 
 void Road::addElevationPolynom(double s, double a, double b, double c, double d)
@@ -848,6 +853,8 @@ osg::Geometry *Road::getGuardRailPost(RoadPoint pointDown, RoadPoint pointUp, Ro
 {
     osg::Geometry *guardRailPostGeometry;
     guardRailPostGeometry = new osg::Geometry();
+    guardRailPostGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    guardRailPostGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
 
     osg::Vec3Array *guardRailPostVertices;
     guardRailPostVertices = new osg::Vec3Array;
@@ -1334,6 +1341,8 @@ osg::Geode *Road::createGuardRailGeode(std::map<double, LaneSection *>::iterator
 
     osg::Geometry *guardRailGeometry;
     guardRailGeometry = new osg::Geometry();
+    guardRailGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    guardRailGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
     guardRailGeode->addDrawable(guardRailGeometry);
 
     osg::Vec3Array *guardRailVertices;
@@ -1617,6 +1626,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
         osg::Geometry *roadGeometry;
         roadGeometry = new osg::Geometry();
+        roadGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        roadGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
         roadGeode->addDrawable(roadGeometry);
 
         osg::Vec3Array *roadVertices;
@@ -1839,6 +1850,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
             osg::Geometry *firstbatterGeometry;
             firstbatterGeometry = new osg::Geometry();
+        firstbatterGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        firstbatterGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
             batterGeode->addDrawable(firstbatterGeometry);
 
             osg::Vec3Array *firstbatterVertices;
@@ -1856,6 +1869,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
             osg::Geometry *secondbatterGeometry;
             secondbatterGeometry = new osg::Geometry();
+        secondbatterGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        secondbatterGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
             batterGeode->addDrawable(secondbatterGeometry);
 
             osg::Vec3Array *secondbatterVertices;

@@ -836,7 +836,13 @@ void OpenCOVER::loop()
         if(VRViewer::instance()->done())
             exitFlag = true;
         exitFlag = coVRMSController::instance()->syncBool(exitFlag);
-        if (!exitFlag)
+        if (exitFlag)
+        {
+            VRViewer::instance()->disableSync();
+            frame();
+            frame();
+        }
+        else
         {
             frame();
         }

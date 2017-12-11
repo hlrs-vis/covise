@@ -103,7 +103,7 @@ Build Requirements
 - **GLEW**:
   Used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
 - **OpenSceneGraph**:
-  3.2 or newer is required for the VR renderer OpenCOVER
+  3.2 or newer is required, 3.4 or newer highly recommended for the VR renderer OpenCOVER
 - **Open Inventor**
   The desktop renderer on Linux requires Open Inventor.
   The binaries shipped with most Linux distributions do not correctly render fonts on 64

@@ -1108,7 +1108,9 @@ GeometryManager::addPolygon(const char *object_name,
     {
         d_stripper->stripify(*geom);
     }
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
+#endif
 
     geode->addDrawable(geom);
 
@@ -1427,7 +1429,9 @@ GeometryManager::addTriangles(const char *object_name,
     {
         d_stripper->stripify(*geom);
     }
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
+#endif
 
     geode->addDrawable(geom);
 
@@ -1752,7 +1756,9 @@ GeometryManager::addQuads(const char *object_name,
     {
         d_stripper->stripify(*geom);
     }
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
+#endif
 
     geode->addDrawable(geom);
 

@@ -35,11 +35,11 @@
 #endif
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-#undef USE_X11
+#undef USE_XINPUT
 #define USE_LINUX
 #endif
 
-#ifdef USE_X11
+#ifdef USE_XINPUT
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>
 #include <X11/cursorfont.h>
@@ -51,7 +51,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#undef USE_X11
+#undef USE_XINPUT
 #endif
 
 #define EVENT_TYPE 1
@@ -71,7 +71,7 @@ private:
 #endif
 
     bool useDedicatedButtonDevice;
-#ifdef USE_X11
+#ifdef USE_XINPUT
     int buttonPressEventType;
     int buttonReleaseEventType;
     Display *display;

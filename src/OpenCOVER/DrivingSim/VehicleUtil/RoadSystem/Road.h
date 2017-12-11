@@ -58,7 +58,8 @@ public:
     void addPlanViewGeometryLine(double, double, double, double, double);
     void addPlanViewGeometrySpiral(double, double, double, double, double, double, double);
     void addPlanViewGeometryArc(double, double, double, double, double, double);
-    void addPlanViewGeometryPolynom(double, double, double, double, double, double, double, double, double);
+	void addPlanViewGeometryPolynom(double, double, double, double, double, double, double, double, double);
+	void addPlanViewGeometryPolynom(double, double, double, double, double, double, double, double, double, double, double, double, double, bool);
 
     void addElevationPolynom(double, double, double, double, double);
 

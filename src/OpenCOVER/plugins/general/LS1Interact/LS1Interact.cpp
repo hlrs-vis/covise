@@ -16,8 +16,10 @@
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coPotiMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
+#include <string>
 
 using namespace osg;
+using std::string;
 
 char *LS1Plugin::currentObjectName = NULL;
 LS1Plugin *LS1Plugin::plugin = NULL;

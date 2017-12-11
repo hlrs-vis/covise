@@ -20,10 +20,10 @@ env:
         - APP="covise" STD="CPP03" BUILD_TYPE="Release"
         - APP="covise" STD="CPP11" BUILD_TYPE="Debug"
         - APP="covise" STD="CPP11" BUILD_TYPE="Release"
-        - APP="cover"  STD="CPP03" BUILD_TYPE="Debug"
-        - APP="cover"  STD="CPP03" BUILD_TYPE="Release"
-        - APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
-        - APP="cover"  STD="CPP11" BUILD_TYPE="Release"
+          #- APP="cover"  STD="CPP03" BUILD_TYPE="Debug"
+          #- APP="cover"  STD="CPP03" BUILD_TYPE="Release"
+          #- APP="cover"  STD="CPP11" BUILD_TYPE="Debug"
+          #- APP="cover"  STD="CPP11" BUILD_TYPE="Release"
 
 matrix:
     exclude:
@@ -66,7 +66,7 @@ before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall qt5 ;fi
 
 install:
-    - if [ "$APP" = "cover" ]; then pip3 install PyQt5; fi
+    #- if [ "$APP" = "cover" ]; then pip3 install PyQt5; fi
 
 script:
 

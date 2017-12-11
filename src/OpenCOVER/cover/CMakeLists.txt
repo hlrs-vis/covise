@@ -51,7 +51,7 @@ SET(COVER_HEADERS
   coVRTui.h
   coVRSceneView.h
   coVRTouchTable.h
-  EnableGLDebugOperation.h
+  InitGLOperation.h
   OpenCOVER.h
   RenderObject.h
   VRAvatar.h
@@ -114,7 +114,7 @@ SET(COVER_SOURCES
   coVRSceneView.cpp
   coVRStatsDisplay.cpp
   coVRTouchTable.cpp
-  EnableGLDebugOperation.cpp
+  InitGLOperation.cpp
   OpenCOVER.cpp
   QuitDialog.cpp
   VRAvatar.cpp

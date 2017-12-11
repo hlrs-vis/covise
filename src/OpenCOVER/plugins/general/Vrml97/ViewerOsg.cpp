@@ -2181,12 +2181,14 @@ ViewerOsg::insertShell(unsigned int mask,
         geode->addDrawable(geom.get());
     }
 
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     osg::ref_ptr<osg::KdTreeBuilder> kdb = new osg::KdTreeBuilder;
     for(unsigned int i=0;i<geode->getNumDrawables();i++)
     {
         osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
         kdb->apply(*geo);
     }
+#endif
 
     geode->setName(objName);
     geode->setNodeMask(nodeMask);

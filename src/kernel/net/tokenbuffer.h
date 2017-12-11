@@ -76,11 +76,11 @@ private:
     TokenBuffer(const TokenBuffer &other) = delete;
     TokenBuffer &operator=(const TokenBuffer &other) = delete;
 
-    int buflen; // number of allocated bytes
-    int length; // number of used bytes
-    char *data; // pointer to the tokens
-    char *currdata; // pointer to the tokens
-    bool networkByteOrder;
+    int buflen = 0; // number of allocated bytes
+    int length = 0; // number of used bytes
+    char *data = nullptr; // pointer to the tokens
+    char *currdata = nullptr; // pointer to the tokens
+    bool networkByteOrder = false;
 
     void incbuf(int size = 100);
 
@@ -100,7 +100,7 @@ public:
     }
     virtual ~TokenBuffer();
     void delete_data();
-    TokenBuffer(Message *msg, bool nbo = false);
+    TokenBuffer(const Message *msg, bool nbo = false);
     TokenBuffer(const char *dat, int len, bool nbo = false);
 
     const char *getBinary(int n)

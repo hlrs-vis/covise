@@ -333,6 +333,49 @@ void XodrWriteRoadSystemVisitor::visit(PlanePolynom *poly)
     poly3Element->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
 }
 
+void XodrWriteRoadSystemVisitor::visit(PlaneParamPolynom *poly)
+{
+	xercesc::DOMElement *poly3Element = document->createElement(xercesc::XMLString::transcode("paramPoly3"));
+	geometryElement->appendChild(poly3Element);
+
+	double aU, bU, cU, dU;
+	double aV, bV, cV, dV;
+	poly->getCoefficients(aU, bU, cU, dU, aV, bV, cV, dV);
+
+	std::ostringstream aUStream;
+	aUStream << std::scientific << aU;
+	std::ostringstream bUStream;
+	bUStream << std::scientific << bU;
+	std::ostringstream cUStream;
+	cUStream << std::scientific << cU;
+	std::ostringstream dUStream;
+	dUStream << std::scientific << dU;
+	std::ostringstream aVStream;
+	aVStream << std::scientific << aV;
+	std::ostringstream bVStream;
+	bVStream << std::scientific << bV;
+	std::ostringstream cVStream;
+	cVStream << std::scientific << cV;
+	std::ostringstream dVStream;
+	dVStream << std::scientific << dV;
+
+	poly3Element->setAttribute(xercesc::XMLString::transcode("aU"), xercesc::XMLString::transcode(aUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("bU"), xercesc::XMLString::transcode(bUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("cU"), xercesc::XMLString::transcode(cUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("dU"), xercesc::XMLString::transcode(dUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("aV"), xercesc::XMLString::transcode(aVStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("bV"), xercesc::XMLString::transcode(bVStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("cV"), xercesc::XMLString::transcode(cVStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("dV"), xercesc::XMLString::transcode(dVStream.str().c_str()));
+	if(poly->isNormalized())
+	{
+		poly3Element->setAttribute(xercesc::XMLString::transcode("pRange"), xercesc::XMLString::transcode("normalized"));
+	}
+	else
+	{
+		poly3Element->setAttribute(xercesc::XMLString::transcode("pRange"), xercesc::XMLString::transcode("arcLength"));
+	}
+}
 void XodrWriteRoadSystemVisitor::visit(Polynom *poly)
 {
     xercesc::DOMElement *polyElement;

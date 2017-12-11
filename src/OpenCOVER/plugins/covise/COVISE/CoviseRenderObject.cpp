@@ -522,13 +522,13 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             }
             else
             {
-                tb.addBinary("UNKNOW", 6);
                 cerr << "unknown dataobject" << endl;
             }
         }
         else
         {
-            tb.addBinary("EMPTY ", 6);
+            //std::cerr << "no dataobject" << std::endl;
+            tb.addBinary("EMPTY ", 7);
             tb << "NoName";
             int nix = 0;
             addInt(nix);
@@ -541,7 +541,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         //std::cerr << std::endl;
 
         Message msg(tb);
-        coVRMSController::instance()->sendSlaves(&msg);
+        coVRMSController::instance()->syncMessage(&msg);
 
         //std::cerr << "CoviseRenderObject::<init> info: object " << (co ? co->getName() : "*NULL*") << " sent to slaves" << std::endl;
 
@@ -553,7 +553,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         //std::cerr << "CoviseRenderObject::<init> info: read from master" << std::endl;
 
         Message msg;
-        coVRMSController::instance()->readMaster(&msg);
+        coVRMSController::instance()->syncMessage(&msg);
         TokenBuffer tb(&msg);
 
         strncpy(type, tb.getBinary(7), 7);
@@ -924,7 +924,8 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
             }
             else
             {
-                tb.addBinary("EMPTY ", 6);
+                //std::cerr << "no dataobject" << std::endl;
+                tb.addBinary("EMPTY ", 7);
                 tb << "NoName";
                 int nix = 0;
                 addInt(nix);
@@ -943,7 +944,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
             addFloat(max_[c]);
 
             Message msg(tb);
-            coVRMSController::instance()->sendSlaves(&msg);
+            coVRMSController::instance()->syncMessage(&msg);
         } /* endif coVRMSController->isMaster() */
         else // Slave
         {
@@ -952,7 +953,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
             //std::cerr << "CoviseRenderObject::<init> info: read from master" << std::endl;
 
             Message msg;
-            coVRMSController::instance()->readMaster(&msg);
+            coVRMSController::instance()->syncMessage(&msg);
             TokenBuffer tb(&msg);
 
             strncpy(type, tb.getBinary(7), 7);

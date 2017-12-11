@@ -17,6 +17,8 @@ class WindowData
     OSMesaContext context;
     char *buffer;
     int index;
+    int width;
+    int height;
 };
 
 class WindowTypeMesaPlugin : public opencover::coVRPlugin
@@ -33,6 +35,10 @@ public:
     void windowDestroy(int num) override;
 
 private:
+
+int writeImage(char* filename, int width, int height, char *buffer, char* title);
+
     std::map<int, WindowData> m_windows;
+    int frameCounter;
 };
 #endif
