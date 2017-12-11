@@ -881,7 +881,7 @@ void Bullet::buttonEvent(coButton *cobutton)
     }
 }
 
-void Bullet::message(int type, int len, const void *buf)
+void Bullet::message(int toWhom, int type, int len, const void *buf)
 {
 
     (void)len;

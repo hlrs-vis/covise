@@ -113,7 +113,7 @@ public:
     }
 
     /// receive messages from modules
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
 
     void preFrame();
 

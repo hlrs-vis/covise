@@ -132,7 +132,7 @@ public:
     bool init();
     void buttonEvent(coButton *);
     void preFrame();
-    void message(int type, int, const void *buf);
+    void message(int toWhom, int type, int, const void *buf);
     int FileExists(const char *filename);
 };
 

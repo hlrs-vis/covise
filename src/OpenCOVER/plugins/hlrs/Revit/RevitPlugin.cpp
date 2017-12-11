@@ -591,7 +591,7 @@ void RevitPlugin::sendMessage(Message &m)
 }
 
 
-void RevitPlugin::message(int type, int len, const void *buf)
+void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 {
 	if (type == PluginMessageTypes::MoveAddMoveNode)
 	{

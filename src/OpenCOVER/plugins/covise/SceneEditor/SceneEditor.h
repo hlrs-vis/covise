@@ -35,7 +35,7 @@ public:
     virtual void userEvent(int mod);
     //    virtual void param(const char *paramName, bool inMapLoading );
     virtual void guiToRenderMsg(const char *msg);
-    //    virtual void message(int type, int length, const void *data);
+    //    virtual void message(int toWhom, int type, int length, const void *data);
 
     static int loadCoxml(const char *filename, osg::Group *group, const char *ck = "");
     static int replaceCoxml(const char *filename, osg::Group *group, const char *ck = "");

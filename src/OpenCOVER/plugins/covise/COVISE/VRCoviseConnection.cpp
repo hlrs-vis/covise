@@ -451,7 +451,7 @@ VRCoviseConnection::receiveRenderMessage()
         if (coVRPlugin *ak = coVRPluginList::instance()->getPlugin("AKToolbar"))
         {
             // just indicate if a module is running
-            ak->message(strcmp(key, "FINISHED"), 0, NULL);
+            ak->message(0, strcmp(key, "FINISHED"), 0, NULL);
         }
     }
     else if (strncmp(key, "GRMSG", 5) == 0)

@@ -74,7 +74,7 @@ public:
     virtual void preFrame();
 
     // this function is called if a message arrives
-    virtual void message(int type, int length, void const *data);
+    virtual void message(int toWhom, int type, int length, void const *data);
 
 protected:
     //
