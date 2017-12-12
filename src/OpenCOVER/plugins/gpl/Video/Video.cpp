@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include <config/coConfigConstants.h>
+#include "Video.h"
 
 using namespace covise;
 using namespace grmsg;
