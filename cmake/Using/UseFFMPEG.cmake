@@ -3,7 +3,7 @@ MACRO(USE_FFMPEG)
     SET(FFMPEG_USED TRUE)
     if ((NOT FFMPEG_FOUND) AND (${ARGC} LESS 1))
       return()
-    else()
+    elseif(FFMPEG_FOUND)
       using_message(STATUS "Checking whether we are actually compiling against libav")
       try_compile(LIBAV_FOUND "${CMAKE_BINARY_DIR}/tmp" "${COVISEDIR}/cmake/tests/libav.c" CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${FFMPEG_INCLUDE_DIRS}"
       )
