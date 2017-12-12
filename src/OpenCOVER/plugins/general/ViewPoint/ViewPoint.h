@@ -138,7 +138,7 @@ public:
     //   	FlightManager *flightmanager;
     
     static ViewPoints *instance(){return inst;};
-    bool dataChanged;
+    bool dataChanged = false;
     bool isClipPlaneChecked() {return useClipPlanesCheck_->getState();};
 
 private:

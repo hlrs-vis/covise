@@ -67,6 +67,7 @@ private:
     void processEvents();
 
     ButtonDevice *buttons;
+    bool buttonPressed = false;
 
 public:
     // frame time of last mouse event

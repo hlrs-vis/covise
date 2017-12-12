@@ -205,7 +205,9 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.widget = new QtOsgWidget(win.window);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
-    coVRConfig::instance()->windows[i].context = win.widget->graphicsWindow();
+    conf.windows[i].context = win.widget->graphicsWindow();
+    conf.windows[i].doublebuffer = false;
+
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
     return true;

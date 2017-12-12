@@ -1,4 +1,3 @@
-#ifdef HAVE_WMFSDK
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #endif
@@ -11,13 +10,15 @@
 
 #include <cover/coVRConfig.h>
 
-#pragma comment(lib, "vfw32")
-#pragma comment(lib, "winmm")
 using namespace covise;
 
 #ifndef M_PI
 #define M_PI 3.1415926535897931
 #endif
+
+#ifdef HAVE_WMFSDK
+#pragma comment(lib, "vfw32")
+#pragma comment(lib, "winmm")
 
 void WINAVIPlugin::WMVMenu(int row)
 {
@@ -1695,9 +1696,11 @@ bool WINAVIPlugin::checkBitrateOrQuality(DWORD entry, int bits)
 
     return true;
 }
+#endif
 
 void WINAVIPlugin::tabletEvent(coTUIElement *tUIItem)
 {
+#ifdef HAVE_WMFSDK
     if ((tUIItem == profileNameField) && coVRMSController::instance()->isMaster())
         ProfileNameTest();
     if (tUIItem == selectCodec)
@@ -1778,10 +1781,12 @@ void WINAVIPlugin::tabletEvent(coTUIElement *tUIItem)
         ChooseVideoCodec();
         AVIButton->setState(false);
     }
+#endif
 }
 
 void WINAVIPlugin::changeFormat(coTUIElement *tUIItem, int row)
 {
+#ifdef HAVE_WMFSDK
     if (tUIItem == myPlugin->selectFormat)
         if (myPlugin->selectFormat->getSelectedEntry() == 0)
         {
@@ -1799,7 +1804,7 @@ void WINAVIPlugin::changeFormat(coTUIElement *tUIItem, int row)
             selectCodec->setSelectedEntry(0);
             myPlugin->fileNameBrowser->setFilterList(filterList);
         }
+#endif
     myPlugin->fillFilenameField("", false);
 }
 
-#endif

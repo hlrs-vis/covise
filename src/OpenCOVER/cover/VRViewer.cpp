@@ -1238,7 +1238,7 @@ VRViewer::createChannels(int i)
         else
         {
             cam->setDrawBuffer(GL_NONE);
-            cam->setReadBuffer(GL_NONE);
+            //cam->setReadBuffer(GL_NONE);
             cam->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
         }
         cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
