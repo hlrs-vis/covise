@@ -39,8 +39,9 @@ void RouteInfo::update()
 }
 
 EntityInfo::EntityInfo(Entity *e)
+: entity(e)
+, st(0., 0.)
 {
-	entity = e;
 	currentWaypoint = NULL;
 	currentRoad = NULL;
 	currentLane = NULL;
@@ -53,8 +54,8 @@ EntityInfo::EntityInfo(Entity *e)
 	    int laneNumber = currentRoad->searchLane(st[0], st[1]);
 		if (laneNumber != NULL)
 		{
-			RoadTransition rt(;
-			entity->entityGeometry->addRouteTransition();
+            RoadTransition rt;
+			entity->entityGeometry->addRouteTransition(rt);
 		}
 
 	}
