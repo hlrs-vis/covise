@@ -47,14 +47,16 @@ EntityInfo::EntityInfo(Entity *e)
 	osg::Vec3 pos = e->getPosition();
 	Vector3D p(pos.x(), pos.y(), pos.z());
 	double longPosition;
-	st = RoadSystem::Instance()->searchPosition(p, currentRoad, longPos);
+	Vector2D st = RoadSystem::Instance()->searchPosition(p, currentRoad, longPos);
+	s = st[0];
+	t = st[1];
 	if (currentRoad != NULL)
 	{
-	    int laneNumber = currentRoad->searchLane(st[0], st[1]);
+	    int laneNumber = currentRoad->searchLane(s,t);
 		if (laneNumber != NULL)
 		{
-			RoadTransition rt(;
-			entity->entityGeometry->addRouteTransition();
+			//RoadTransition rt(;
+			//entity->entityGeometry->addRouteTransition();
 		}
 
 	}

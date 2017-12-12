@@ -22,7 +22,7 @@ private:
 	OpenScenario::oscPosition *currentWaypoint;
 	Road *currentRoad;
 	Lane *currentLane;
-	Vector2D st;
+	float s, t;
 	double longPos;
 };
 
