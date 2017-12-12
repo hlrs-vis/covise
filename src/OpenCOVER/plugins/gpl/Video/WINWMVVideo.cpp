@@ -1643,9 +1643,10 @@ HRESULT WINAVIPlugin::InitWMVWriter(const string &filename)
 
     if (myPlugin->resize)
     {
+		capture_fmt = PIX_FMT_RGB24;
         swsconvertctx = sws_getContext(myPlugin->widthField->getValue(), myPlugin->heightField->getValue(),
-                                       myPlugin->capture_fmt, myPlugin->outWidthField->getValue(),
-                                       myPlugin->outHeightField->getValue(), myPlugin->capture_fmt, SWS_BICUBIC,
+                                       capture_fmt, myPlugin->outWidthField->getValue(),
+                                       myPlugin->outHeightField->getValue(), capture_fmt, SWS_BICUBIC,
                                        NULL, NULL, NULL);
 
         inPicture = new Picture;

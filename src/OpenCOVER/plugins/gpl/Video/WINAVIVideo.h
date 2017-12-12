@@ -46,7 +46,7 @@ typedef struct
     GUID guidType;
 } codecStruct;
 
-class WINAVIPlugin : public coVRPlugin, public coTUIListener
+class WINAVIPlugin : public coVRPlugin, public SysPlugin
 {
 public:
     WINAVIPlugin();
@@ -76,12 +76,14 @@ private:
     void free_all();
     void Menu(int row);
     void changeFormat(coTUIElement *, int row);
-    void checkFileFormat(string &name);
-    bool videoCaptureInit(string &name, int format, int RGBFormat);
+    void checkFileFormat(const string &name);
+    bool videoCaptureInit(const string &name, int format, int RGBFormat);
     void fillCodecComboBox();
 
     void init_GLbuffers();
     void close_all(bool stream, int format = 0);
+
+	PixelFormat capture_fmt;
 
     AVISTREAMINFO aviStreamInfo;
     AVICOMPRESSOPTIONS aviCompressOpt;

@@ -416,7 +416,7 @@ void WINAVIPlugin::init_GLbuffers()
         myPlugin->pixels = new uint8_t[myPlugin->inWidth * myPlugin->inHeight * 32 / 8];
 }
 
-void WINAVIPlugin::checkFileFormat(string &name)
+void WINAVIPlugin::checkFileFormat(const string &name)
 {
 
     ofstream dataFile(name.c_str(), ios::app);
@@ -610,9 +610,10 @@ HRESULT WINAVIPlugin::aviInit(const string &filename, short frame_rate)
 
     if (myPlugin->resize)
     {
+		capture_fmt = PIX_FMT_RGB24;
         swsconvertctx = sws_getContext(myPlugin->widthField->getValue(), myPlugin->heightField->getValue(),
-                                       myPlugin->capture_fmt, bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight,
-                                       myPlugin->capture_fmt, SWS_BICUBIC, NULL, NULL, NULL);
+                                       capture_fmt, bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight,
+                                       capture_fmt, SWS_BICUBIC, NULL, NULL, NULL);
 
         inPicture = new Picture;
         memset(inPicture, 0, sizeof(Picture));
@@ -629,7 +630,7 @@ HRESULT WINAVIPlugin::aviInit(const string &filename, short frame_rate)
     return S_OK;
 }
 
-bool WINAVIPlugin::videoCaptureInit(string &name, int format, int RGBFormat)
+bool WINAVIPlugin::videoCaptureInit(const string &name, int format, int RGBFormat)
 {
     HRESULT hr = S_OK;
 
