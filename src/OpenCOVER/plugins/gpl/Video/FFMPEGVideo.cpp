@@ -473,8 +473,11 @@ void FFMPEGPlugin::close_video()
 
 void FFMPEGPlugin::close_all(bool stream, int format)
 {
-    int i;
-
+    if (encodeFuture)
+    {
+        encodeFuture->get();
+        encodeFuture.reset();
+    }
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(57, 24, 102)
     int got_output = 1;
     do
@@ -523,7 +526,7 @@ void FFMPEGPlugin::close_all(bool stream, int format)
     if (oc)
     {
         /* free the streams */
-        for (i = 0; i < oc->nb_streams; i++)
+        for (int i = 0; i < oc->nb_streams; i++)
         {
             av_freep(&oc->streams[i]);
         }
@@ -889,54 +892,69 @@ AVFrame *FFMPEGPlugin::SwConvertScale(int width, int height)
 
 void FFMPEGPlugin::videoWrite(int format)
 {
-    AVFrame *frame = SwConvertScale(myPlugin->inWidth, myPlugin->inHeight);
-    frame->pts = av_rescale_q(myPlugin->frameCount, codecCtx->time_base, video_st->time_base);
+    auto encodeAndWrite = [this](int frameNum, int width, int height) -> bool {
+
+        AVFrame *frame = SwConvertScale(width, height);
+        frame->pts = av_rescale_q(frameNum, codecCtx->time_base, video_st->time_base);
+
+        /* encode the image */
+        AVPacket pkt;
+        av_init_packet(&pkt);
+        pkt.data = video_outbuf;
+        pkt.stream_index = video_st->index;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
+        int out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, frame);
+#else
+        pkt.size = video_outbuf_size;
+        int got_output=0;
+        int err = avcodec_encode_video2(codecCtx, &pkt, frame, &got_output);
+        if (err < 0)
+        {
+            std::cerr << "error " << err << " during encoding frame for pts=" << pkt.pts << std::endl;
+            return false;
+        }
+        if (!got_output)
+            return true;
+        int out_size = pkt.size;
+#endif
+        if (out_size < 0)
+            return false;
+
+        pkt.size = out_size;
+        //std::cerr << "pts: " << pkt.pts << ", dts=" << pkt.dts << std::endl;
+#ifdef AV_PKT_FLAG_KEY
+        if (codecCtx->coded_frame->key_frame)
+            pkt.flags |= AV_PKT_FLAG_KEY;
+#else
+        if (codecCtx->coded_frame->key_frame)
+            pkt.flags |= PKT_FLAG_KEY;
+#endif
+
+        /* write the compressed frame in the media file */
+        int ret = av_write_frame(oc, &pkt);
+        if (ret < 0)
+        {
+            std::cerr << "error " << ret << " during writing frame for pts=" << pkt.pts << std::endl;
+            return false;
+        }
+        return true;
+    };
+
+    if (encodeFuture)
+    {
+        encodeFuture->get();
+    }
+    else
+    {
+        encodeFuture.reset(new std::future<bool>);
+    }
+    *encodeFuture = std::async(std::launch::async, [this,encodeAndWrite](){ return encodeAndWrite(myPlugin->frameCount, myPlugin->inWidth, myPlugin->inHeight); });
 
     myPlugin->frameCount++;
     if (cover->frameTime() - myPlugin->starttime >= 1)
     {
         myPlugin->showFrameCountField->setValue(myPlugin->frameCount);
         myPlugin->starttime = cover->frameTime();
-    }
-
-    /* encode the image */
-    AVPacket pkt;
-    av_init_packet(&pkt);
-    pkt.data = video_outbuf;
-    pkt.stream_index = video_st->index;
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
-    int out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, frame);
-#else
-    pkt.size = video_outbuf_size;
-    int got_output=0;
-    int err = avcodec_encode_video2(codecCtx, &pkt, frame, &got_output);
-    if (err < 0)
-    {
-        std::cerr << "error " << err << " during encoding frame for pts=" << pkt.pts << std::endl;
-        return;
-    }
-    if (!got_output)
-        return;
-    int out_size = pkt.size;
-#endif
-    if (out_size < 0)
-        return;
-
-    pkt.size = out_size;
-    //std::cerr << "pts: " << pkt.pts << ", dts=" << pkt.dts << std::endl;
-#ifdef AV_PKT_FLAG_KEY
-    if (codecCtx->coded_frame->key_frame)
-        pkt.flags |= AV_PKT_FLAG_KEY;
-#else
-    if (codecCtx->coded_frame->key_frame)
-        pkt.flags |= PKT_FLAG_KEY;
-#endif
-
-    /* write the compressed frame in the media file */
-    int ret = av_write_frame(oc, &pkt);
-    if (ret < 0)
-    {
-        std::cerr << "error " << ret << " during writing frame for pts=" << pkt.pts << std::endl;
     }
 }
 
