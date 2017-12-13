@@ -69,7 +69,6 @@
     <!--LODScale value="0.000000000001" /-->
     <DepthPeeling value="false" />
     <LODScale value="1" />
-
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
@@ -94,15 +93,24 @@
      </VNC>
    </VRUI>
 
+    <FloorHeight value="-1503.39" />
    <Input>
     <MouseNav value="ON" />
         <Device>
            <Vive driver="Vive">
-              <Offset x="-1227.37" y="-1320.2" z="-305.804" />
-              <Orientation h="-33.0945" p="85.3717" r="0.360994" />
+              <Offset x="-846.235" y="1021.28" z="-409.376" />
+              <Orientation h="-83.4106" p="85.9763" r="-32.3326" />
               <CalibrationPoint x="-1000" y="-300" z="-1000" info="left_front" name="0"/>
               <CalibrationPoint x="1000" y="-300" z="-1000" info="right_front" name="1"/>
               <CalibrationPoint x="-1000" y="-2000" z="-1000" info="left_back" name="2"/>
+			  <Device serial = "LHR-93C74C3C" index = "0" controllerID = "-1" name="0" />
+			  <Device serial = "LHB-4949C2CC" index = "1" controllerID = "-1" name="1" />
+              <Device serial = "LHB-A0B479A6" index = "2" controllerID = "-1" name="2" />
+              <Device serial = "LHR-FF479D45" index = "4" controllerID = "1" name="4" />
+              <Device serial = "LHR-FFEDF945" index = "3" controllerID = "0" name="3" />
+			   <Device serial = "LHB-4567A9FB" index = "1" controllerID = "-1" name="5" />
+			   <Device serial = "LHB-184E9CAD" index = "2" controllerID = "-1" name="6" />
+			   <TransformOriginToCamera value="TRUE" />
            </Vive>
         </Device>
 
@@ -121,7 +129,7 @@
               <Offset x="0" y="0" z="0" />
               <Orientation h="0" p="-90" r="0" />
            </ViveHand>
-           <ViveHandLeft device="Vive" bodyIndex="4">
+           <ViveHandLeft device="Vive" bodyIndex="2">
               <Offset x="0" y="0" z="0" />
               <Orientation h="0" p="0" r="0" />
            </ViveHandLeft>
