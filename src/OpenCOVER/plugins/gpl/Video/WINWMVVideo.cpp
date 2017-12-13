@@ -1642,8 +1642,12 @@ HRESULT WINAVIPlugin::InitWMVWriter(const string &filename)
     free(wFilename);
 
     if (myPlugin->resize)
-    {
+	{
+#ifdef HAVE_FFMPEG
+		capture_fmt = AV_PIX_FMT_RGB24;
+#else
 		capture_fmt = PIX_FMT_RGB24;
+#endif
         swsconvertctx = sws_getContext(myPlugin->widthField->getValue(), myPlugin->heightField->getValue(),
                                        capture_fmt, myPlugin->outWidthField->getValue(),
                                        myPlugin->outHeightField->getValue(), capture_fmt, SWS_BICUBIC,

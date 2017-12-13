@@ -8,10 +8,13 @@
 #include <vfw.h>
 #include <wmsdk.h>
 #include <qstring.h>
-
+#ifndef HAVE_FFMPEG
 extern "C" {
 #include "swscale.h"
 };
+#else
+#include "FFMPEGVideo.h"
+#endif
 
 #include "Video.h"
 
@@ -83,7 +86,11 @@ private:
     void init_GLbuffers();
     void close_all(bool stream, int format = 0);
 
+#ifdef HAVE_FFMPEG
+	AVPixelFormat capture_fmt;
+#else
 	PixelFormat capture_fmt;
+#endif
 
     AVISTREAMINFO aviStreamInfo;
     AVICOMPRESSOPTIONS aviCompressOpt;

@@ -610,7 +610,11 @@ HRESULT WINAVIPlugin::aviInit(const string &filename, short frame_rate)
 
     if (myPlugin->resize)
     {
+#ifdef HAVE_FFMPEG
+		capture_fmt = AV_PIX_FMT_RGB24;
+#else
 		capture_fmt = PIX_FMT_RGB24;
+#endif
         swsconvertctx = sws_getContext(myPlugin->widthField->getValue(), myPlugin->heightField->getValue(),
                                        capture_fmt, bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight,
                                        capture_fmt, SWS_BICUBIC, NULL, NULL, NULL);
