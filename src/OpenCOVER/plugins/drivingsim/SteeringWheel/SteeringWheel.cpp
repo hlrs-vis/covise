@@ -1658,7 +1658,7 @@ int SteeringWheelPlugin::initUI()
 }
 
 // this function is called if a message arrives
-void SteeringWheelPlugin::message(int type, int length, const void *data)
+void SteeringWheelPlugin::message(int toWhom, int type, int length, const void *data)
 {
     if (type == PluginMessageTypes::HLRS_SteeringWheelRemoteVehiclePosition)
     {

@@ -114,7 +114,7 @@ public:
     coTUITab *revitTab;
     void sendMessage(Message &m);
     
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void handleMessage(OfficeConnection *oc, Message *m);
     coTUITab *officeTab;
     officeList officeConnections;

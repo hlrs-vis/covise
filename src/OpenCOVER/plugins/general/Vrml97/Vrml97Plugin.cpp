@@ -667,23 +667,18 @@ Vrml97Plugin::key(int type, int keySym, int mod)
     }
 }
 
-void Vrml97Plugin::message(int type, int len, const void *buf)
+void Vrml97Plugin::message(int toWhom, int type, int len, const void *buf)
 {
-    int headerSize = 2 * sizeof(int);
-    const char *header = (const char *)buf;
-    header -= headerSize;
-    int toWhom = *((int *)header);
-#ifdef BYTESWAP
-    byteSwap(toWhom);
-#endif
-
-    if (strncmp(((const char *)buf), "activateTouchSensor0", strlen("activateTouchSensor0")) == 0)
+    if (len >= strlen("activateTouchSensor0"))
     {
-        activateTouchSensor(0);
-    }
-    else if (strncmp(((const char *)buf), "activateTouchSensor1", strlen("activateTouchSensor1")) == 0)
-    {
-        activateTouchSensor(1);
+        if (strncmp(((const char *)buf), "activateTouchSensor0", strlen("activateTouchSensor0")) == 0)
+        {
+            activateTouchSensor(0);
+        }
+        else if (strncmp(((const char *)buf), "activateTouchSensor1", strlen("activateTouchSensor1")) == 0)
+        {
+            activateTouchSensor(1);
+        }
     }
 
     if (toWhom != coVRPluginSupport::VRML_EVENT)

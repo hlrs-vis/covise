@@ -869,7 +869,7 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
  * Handle incoming messages
  *
  */
-void AnnotationPlugin::message(int type, int len, const void *buf)
+void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     if (type == PluginMessageTypes::AnnotationMessage) // An AnnotationMessage has been received
     {

@@ -116,7 +116,7 @@ public:
     void key(int type, int keySym, int mod);
     void cfpsHide(bool hidden);
     void guiToRenderMsg(const char *msg);
-    virtual void message(int type, int length, const void *data);
+    virtual void message(int toWhom, int type, int length, const void *data);
 
     friend class WINAVIPlugin;
     friend class FFMPEGPlugin;

@@ -238,8 +238,9 @@ public:
     }
 
     // this function is called if a message arrives
-    virtual void message(int type, int length, const void *data)
+    virtual void message(int toWhom, int type, int length, const void *data)
     {
+        (void)toWhom;
         (void)type;
         (void)length;
         (void)data;

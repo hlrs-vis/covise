@@ -67,7 +67,7 @@ void PolyLineDataPlugin::drawInit()
 {
 }
 
-void PolyLineDataPlugin::message(int type, int len, const void *buf)
+void PolyLineDataPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     switch (type)
     {

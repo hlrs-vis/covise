@@ -369,7 +369,7 @@ Move::~Move()
     fprintf(stderr, "Move::~Move\n");
 }
 
-void Move::message(int type, int len, const void *buf)
+void Move::message(int toWhom, int type, int len, const void *buf)
 {
     if (type == PluginMessageTypes::MoveAddMoveNode)
     {

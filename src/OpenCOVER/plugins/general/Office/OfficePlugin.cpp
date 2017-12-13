@@ -287,7 +287,7 @@ void OfficePlugin::tabletEvent(coTUIElement *tUIItem)
 }
 
 
-void OfficePlugin::message(int type, int len, const void *buf)
+void OfficePlugin::message(int toWhom, int type, int len, const void *buf)
 {
     TokenBuffer tb((const char *)buf,len);
     if (type == PluginMessageTypes::PBufferDoneSnapshot)
