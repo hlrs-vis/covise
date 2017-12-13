@@ -166,7 +166,7 @@ protected:
     float lastRoll;
     float w1, w2, w3, w4;
     int selectedRegion;
-    float pickThreshold;
+    double pickThreshold;
     float moveThreshold;
     bool doMove;
     double pickTime;
