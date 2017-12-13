@@ -13,7 +13,7 @@
 using namespace osg;
 
 coHSVPin::coHSVPin(Group *root, float Height, float Width, vvTFColor *myPin)
-    : coPin(root, Height, Width, myPin)
+    : coPin(root, Height, Width, myPin, false)
 {
 }
 
