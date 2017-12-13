@@ -212,11 +212,21 @@ AVFrame *FFMPEGPlugin::alloc_picture(AVPixelFormat pix_fmt, int width, int heigh
     AVFrame *picture = av_frame_alloc();
     if (!picture)
         return NULL;
-#if 0
+#if FF_API_AVPICTURE
+    int ret = avpicture_alloc((AVPicture *)picture, pix_fmt, width, height);
+    if (ret < 0)
+        return nullptr;
     int size = avpicture_get_size(pix_fmt, width, height);
+    uint8_t *picture_buf = (uint8_t *)av_malloc(size);
+    if (!picture_buf)
+    {
+        av_free(picture);
+        return NULL;
+    }
+    avpicture_fill((AVPicture *)picture, picture_buf, pix_fmt, width, height);
+    return picture;
 #else
     int size = av_image_get_buffer_size(pix_fmt, width, height, 1);
-#endif
     uint8_t *picture_buf = (uint8_t *)av_malloc(size);
     if (!picture_buf)
     {
@@ -224,15 +234,12 @@ AVFrame *FFMPEGPlugin::alloc_picture(AVPixelFormat pix_fmt, int width, int heigh
         av_frame_free(&picture);
         return NULL;
     }
-#if 0
-    avpicture_fill(picture, picture_buf, pix_fmt, width, height);
-#else
     av_image_fill_arrays(picture->data, picture->linesize, picture_buf, pix_fmt, width, height, 1);
-#endif
     picture->format = pix_fmt;
     picture->width = width;
     picture->height = height;
     return picture;
+#endif
 }
 
 bool FFMPEGPlugin::open_codec(AVCodec *codec)
@@ -964,10 +971,14 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
 #endif
         if (!av_codec_is_encoder(codec))
             continue;
+#ifdef AV_CODEC_CAP_AVOID_PROBING
         if (codec->capabilities & AV_CODEC_CAP_AVOID_PROBING)
             continue;
+#endif
+#ifdef AV_CODEC_CAP_EXPERIMENTAL
         if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL)
             continue;
+#endif
 
         std::cerr << "Codec " << codec->id << ", " << codec->name << ": " << codec->long_name << std::endl;
 
