@@ -201,6 +201,9 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
+    <Revit value="on">
+      <textures value="/data/revit/Textures" />
+    </Revit>
     <TrackObjects value="on">
 	    <Objects>
            <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
