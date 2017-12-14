@@ -230,6 +230,7 @@ bool Vive::init()
 Vive::~Vive()
 {
 	Input::instance()->removeDevice("Vive", this);
+	vr::VR_Shutdown();
 	fprintf(stderr, "Vive::~Vive\n");
 }
 
