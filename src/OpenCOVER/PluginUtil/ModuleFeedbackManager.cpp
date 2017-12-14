@@ -251,7 +251,7 @@ void ModuleFeedbackManager::createMenu()
             inter_->deleteModule();
         });
     }
-    if (!covise::coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
+    if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
         executeCheckbox_->setCallback([this](bool){
