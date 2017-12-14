@@ -335,7 +335,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
 
         if (down)
         {
-            if (shift && std::isupper(keySym))
+            if (shift && keySym < 255 && std::isupper(keySym))
             {
                 //std::cerr << "ui::Manager: mapping to lower" << std::endl;
                 keySym = std::tolower(keySym);

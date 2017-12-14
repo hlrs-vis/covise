@@ -58,7 +58,7 @@ public:
     void preSwapBuffers(int windowNumber);
 
     void guiToRenderMsg(const char *msg);
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
 
 private:
     osg::ref_ptr<osg::Camera::DrawCallback> drawCallback;

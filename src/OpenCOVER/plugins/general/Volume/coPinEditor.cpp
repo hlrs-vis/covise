@@ -667,9 +667,9 @@ int coPinEditor::hit(vruiHit *hit)
             {
                 sprintf(message, "M%f", x);
                 sendOngoingMessage(message);
-                float valuex = x - currentPin->handleTrans();
                 x = ts_clamp(x, 0.0f, 1.0f);
-                valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
+                x = x - currentPin->handleTrans();
+                float valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
                 currentPin->setPos(valuex,
                                    myFunctionEditor->getMin(),
                                    myFunctionEditor->getMax());
@@ -924,10 +924,10 @@ bool coPinEditor::isNearestSelected(float x, float y)
 
         float pos = (*pin)->getPos01();
 
-        if (fabs(pos - x) < minDist)
+        if (fabs(pos + (*pin)->handleTrans() - x) < minDist)
         {
             minPin = (*pin);
-            minDist = fabs(pos - x);
+            minDist = fabs(pos + (*pin)->handleTrans() - x);
         }
     }
 

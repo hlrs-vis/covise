@@ -798,7 +798,7 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
     return directory;
 }
 
-void PBufferSnapShot::message(int type, int len, const void *buf)
+void PBufferSnapShot::message(int toWhom, int type, int len, const void *buf)
 {
 
     switch (type)

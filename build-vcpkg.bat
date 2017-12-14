@@ -1,7 +1,11 @@
 REM @echo off
 
 if "%VCPKG_ROOT%" EQU "" (
-    VCPKG_ROOT has to be set
+    set VCPKG_ROOT=C:\vcpkg
+)
+
+if NOT EXIST "%VCPKG_ROOT%\.vcpkg-root" (
+    VCPKG_ROOT has to be set to the root directory of your vcpkg installation
     goto END
 )
 
@@ -20,6 +24,9 @@ REM choco -y install git swig winflexbison
 
 "%vc%" install assimp boost curl freeglut glew giflib libpng qt5 tiff xerces-c zlib libjpeg-turbo vtk  
 "%vc%" install pthreads tbb libmicrohttpd python3
+"%vc%" install osg
+"%vc%" install ffmpeg opencv gdal
+"%vc%" install proj4
 
 %vc% list
 REM %vc% integrate project
@@ -35,9 +42,6 @@ msbuild /m covise.sln
 cd ..
 
 :COVER
-"%vc%" install osg
-"%vc%" install ffmpeg opencv gdal
-"%vc%" install proj4
 
 mkdir build.cover
 cd build.cover

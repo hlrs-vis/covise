@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include <config/coConfigConstants.h>
+#include "Video.h"
 
 using namespace covise;
 using namespace grmsg;
@@ -873,11 +874,11 @@ void VideoPlugin::preSwapBuffers(int windowNumber)
     }
 }
 
-void VideoPlugin::message(int type, int len, const void *data)
+void VideoPlugin::message(int toWhom, int type, int len, const void *data)
 {
     const char *buf = (const char *)data;
     // fprintf(stderr,"VideoPlugin::message type=%d, len=%d data=%s\n", type, len, data);
-    if (strncmp(buf, "stopCapturing", strlen("stopCapturing")) == 0)
+    if (strncmp(buf, "stopCapturing", len) == 0)
     {
         if (captureActive)
         {

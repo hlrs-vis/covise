@@ -781,7 +781,7 @@ void Marker::buttonEvent(coButton *cobutton)
     }
 }
 
-void Marker::message(int type, int len, const void *buf)
+void Marker::message(int toWhom, int type, int len, const void *buf)
 {
 
     (void)len;

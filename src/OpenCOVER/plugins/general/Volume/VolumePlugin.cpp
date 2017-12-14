@@ -1125,7 +1125,7 @@ void VolumePlugin::sendROIMessage(osg::Vec3 roiPos, float size)
                        sizeof(ROIData), &pd);
 }
 
-void VolumePlugin::message(int type, int len, const void *buf)
+void VolumePlugin::message(int toWhom, int type, int len, const void *buf)
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRMessage()");
 

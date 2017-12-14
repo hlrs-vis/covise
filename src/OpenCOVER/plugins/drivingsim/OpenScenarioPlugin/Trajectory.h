@@ -13,7 +13,6 @@ private:
 	
 
 public:
-    std::string name;
     std::vector<osg::Vec3> polylineVertices;
 	Trajectory();
 	~Trajectory();

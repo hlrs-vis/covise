@@ -66,7 +66,7 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
     normal_.set(0., 1., 0.);
     if (inter_->getFloatVectorParam(CuttingSurfaceInteraction::VERTEX, dummy, n) != -1)
     {
-        std::cerr << "CuttingSurfacePlane: Normal: " << n[0] << " " << n[1] << " " << n[2] << std::endl;
+        //std::cerr << "CuttingSurfacePlane: Normal: " << n[0] << " " << n[1] << " " << n[2] << std::endl;
         normal_.set(n[0], n[1], n[2]);
         normal_.normalize();
     }
@@ -537,7 +537,7 @@ CuttingSurfacePlane::testIntersection()
         fprintf(stderr, "%d intersections\n", n);
     if (n > 0)
     {
-        std::cerr << "updating geometry with " << n << " points" << std::endl;
+        //std::cerr << "updating geometry with " << n << " points" << std::endl;
 
         osg::Matrix m;
         if (hasCase_)

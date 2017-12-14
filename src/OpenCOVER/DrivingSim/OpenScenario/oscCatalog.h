@@ -111,6 +111,7 @@ public:
     //bool fullReadCatalogObjectFromFile(const bf::path &fileNamePath); ///< read file, get objectRefId, check and add to ObjectsMap, generate the object structure and add object to ObjectsMap 
    // bool addCatalogObject(oscObjectBase *objectBase); ///< read objectRefId and fileNamePath from oscObjectBase and add entries to ObjectsMap
     bool addCatalogObject(const std::string &name, oscObjectBase *objectBase, oscCatalogFile *catFile); ///< add objectRefId and fileName and objectPtr to ObjectsMap
+	void renameCatalogObject(oscObjectBase *,const std::string &name);
    // bool removeCatalogObject(const std::string &name); ///< remove object with refId objectRefId from ObjectsMap
 	oscObjectBase *getCatalogObject(const std::string &name); ///< return pointer to oscObjectBase for objectRefId from ObjectsMap
 	oscObjectBase *getCatalogObject(const std::string &catalogName, const std::string &entryName); ///< return pointer to oscObjectBase 

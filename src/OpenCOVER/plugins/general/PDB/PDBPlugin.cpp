@@ -2452,7 +2452,7 @@ void PDBPlugin::moveSequenceMarker(SequenceMessage *mm)
     // adjust the location of marker
 }
 
-void PDBPlugin::message(int type, int, const void *buf)
+void PDBPlugin::message(int toWhom, int type, int, const void *buf)
 {
 
     // use type to determine if communicating between plugins

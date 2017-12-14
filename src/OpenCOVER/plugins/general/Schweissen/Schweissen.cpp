@@ -870,7 +870,7 @@ void Schweissen::buttonEvent(coButton *cobutton)
     }
 }
 
-void Schweissen::message(int type, int len, const void *buf)
+void Schweissen::message(int toWhom, int type, int len, const void *buf)
 {
 
     (void)len;

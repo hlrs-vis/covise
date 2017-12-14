@@ -58,7 +58,7 @@ public:
     virtual void addNode(osg::Node *, const RenderObject *);
     virtual void key(int type, int keySym, int mod);
     virtual void guiToRenderMsg(const char *msg);
-    virtual void message(int type, int length, const void *data);
+    virtual void message(int toWhom, int type, int length, const void *data);
     virtual coMenuItem *getMenuButton(const std::string &buttonName);
 
     void readFromDom();
@@ -138,7 +138,7 @@ public:
     //   	FlightManager *flightmanager;
     
     static ViewPoints *instance(){return inst;};
-    bool dataChanged;
+    bool dataChanged = false;
     bool isClipPlaneChecked() {return useClipPlanesCheck_->getState();};
 
 private:

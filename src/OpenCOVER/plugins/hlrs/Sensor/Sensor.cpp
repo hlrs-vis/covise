@@ -389,13 +389,6 @@ int SensorPlugin::initUI()
     return 1;
 }
 
-// this function is called if a message arrives
-void SensorPlugin::message(int /*type*/, int /*length*/, const void * /*data*/)
-{
-    {
-    }
-}
-
 void
 SensorPlugin::stop()
 {

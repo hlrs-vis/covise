@@ -2,6 +2,9 @@
 #define FFMPEGVIDEO_H
 
 #include <osgViewer/GraphicsWindow>
+#include <mutex>
+#include <future>
+#include <memory>
 
 extern "C" {
 #ifdef HAVE_FFMPEG_SEPARATE_INCLUDES
@@ -151,6 +154,7 @@ private:
     coTUIToggleButton *saveButton;
 
     xercesc::DOMImplementation *impl;
+    std::unique_ptr<std::future<bool>> encodeFuture;
 };
 
 #endif

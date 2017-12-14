@@ -25,7 +25,7 @@ class FileBrowserPlugin : public coVRPlugin, public cui::coFileBrowserListener, 
 
     virtual bool fileBrowserEvent(cui::coFileBrowser*, std::string&, std::string&, int, int);
 
-    void message(int, int, const void*);
+    void message(int, int, int, const void*);
 
     coPopupHandle * handle;
     coFrame * frame;

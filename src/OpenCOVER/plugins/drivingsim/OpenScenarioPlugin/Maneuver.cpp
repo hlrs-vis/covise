@@ -2,6 +2,8 @@
 #include <cover/coVRPluginSupport.h>
 #include <iterator>
 #include <math.h>
+#include "OpenScenarioPlugin.h"
+#include "Act.h"
 
 using namespace std;
 
@@ -23,6 +25,44 @@ Maneuver::~Maneuver()
 void Maneuver::finishedParsing()
 {
 	name = oscManeuver::name.getValue();
+}
+
+void Maneuver::checkConditions()
+{
+	if (startConditionType == "time")
+	{
+		if (startTime<OpenScenarioPlugin::instance()->scenarioManager->simulationTime && maneuverFinished != true)
+		{
+			maneuverCondition = true;
+		}
+		else
+		{
+			maneuverCondition = false;
+		}
+	}
+	if (startConditionType == "distance")
+	{
+		auto activeCar = OpenScenarioPlugin::instance()->scenarioManager->getEntityByName(activeCarName);
+		auto passiveCar = OpenScenarioPlugin::instance()->scenarioManager->getEntityByName(passiveCarName);
+		if (activeCar->entityPosition[0] - passiveCar->entityPosition[0] >= relativeDistance && maneuverFinished == false)
+		{
+			maneuverCondition = true;
+		}
+
+	}
+	if (startConditionType == "termination")
+	{
+		for (list<Act*>::iterator act_iter = OpenScenarioPlugin::instance()->scenarioManager->actList.begin(); act_iter != OpenScenarioPlugin::instance()->scenarioManager->actList.end(); act_iter++)
+		{
+			for (list<Maneuver*>::iterator terminatedManeuver = (*act_iter)->maneuverList.begin(); terminatedManeuver != (*act_iter)->maneuverList.end(); terminatedManeuver++)
+			{
+				if ((*terminatedManeuver)->maneuverFinished == true && maneuverFinished == false && (*terminatedManeuver)->getName() == startAfterManeuver)
+				{
+					maneuverCondition = true;
+				}
+			}
+		}
+	}
 }
 
 osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> polylineVertices, float speed)

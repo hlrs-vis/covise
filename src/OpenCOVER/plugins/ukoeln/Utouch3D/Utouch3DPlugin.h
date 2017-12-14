@@ -131,7 +131,7 @@ private:
 
     void handleTouchMoved(const void *data);
 
-    virtual void message(int type, int length, const void *data); // sendMessage...
+    virtual void message(int toWhom, int type, int length, const void *data); // sendMessage...
 
 #ifndef USE_TUIOCLIENT
     virtual void update(); // coInteraction interface

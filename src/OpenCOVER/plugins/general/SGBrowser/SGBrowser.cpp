@@ -769,7 +769,7 @@ void SGBrowser::removeNode(Node *node, bool /*isGroup*/, Node * /*realNode*/)
 void SGBrowser::preFrame()
 {
 }
-void SGBrowser::message(int type, int len, const void *buf)
+void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 {
     TokenBuffer tb((const char *)buf, len);
     //gottlieb<

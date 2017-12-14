@@ -440,8 +440,9 @@ void cuCuttingSurface::postFrame()
 }
 
 // receive messages for Cuttinsurface updates from remote or the script plugin
-void cuCuttingSurface::message(int type, int len, const void *buf)
+void cuCuttingSurface::message(int toWhom, int type, int len, const void *buf)
 {
+    (void)toWhom;
 
     if (type != PluginMessageTypes::HLRS_cuCuttingSurface)
         return;

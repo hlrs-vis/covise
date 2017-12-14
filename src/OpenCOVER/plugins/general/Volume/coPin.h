@@ -28,7 +28,7 @@ class coPin
     friend class coPinEditor;
 
 public:
-    coPin(osg::Group *root, float Height, float Width, vvTFWidget *myPin);
+    coPin(osg::Group *root, float Height, float Width, vvTFWidget *myPin, bool bottom=true);
     virtual ~coPin();
 
     virtual void setPos(float x, float minv = 0.0f, float maxv = 1.0f); // only update Position
@@ -51,6 +51,7 @@ protected:
     static int numPins;
     int id;
     bool selected;
+	bool onBottom;
     vrui::OSGVruiTransformNode *myDCS;
     osg::ref_ptr<osg::MatrixTransform> selectionDCS;
     osg::Vec3 oldScale;

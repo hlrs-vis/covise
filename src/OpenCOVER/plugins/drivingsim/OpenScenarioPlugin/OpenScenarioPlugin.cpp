@@ -48,7 +48,6 @@ using namespace OpenScenario;
 using namespace opencover;
 
 OpenScenarioPlugin *OpenScenarioPlugin::plugin = NULL;
-ScenarioManager *sm = new ScenarioManager();
 
 static FileHandler handlers[] = {
 	{ NULL,
@@ -74,6 +73,8 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	tessellateBatters=false;
 	tessellateObjects=true;
 
+	scenarioManager = new ScenarioManager();
+
 	osdb = new OpenScenario::OpenScenarioBase();
 	// set our own object factory so that our own classes are created and not the bas osc* classes
 	OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
@@ -96,24 +97,24 @@ bool OpenScenarioPlugin::update()
 }
 void OpenScenarioPlugin::preFrame()
 {
-	sm->simulationTime = sm->simulationTime + opencover::cover->frameDuration();
-	//cout << "TIME: " << sm->simulationTime << endl;
+	scenarioManager->simulationTime = scenarioManager->simulationTime + opencover::cover->frameDuration();
+	//cout << "TIME: " << scenarioManager->simulationTime << endl;
 	list<Entity*> usedEntity;
-	list<Entity*> unusedEntity = sm->entityList;
-	list<Entity*> entityList_temp = sm->entityList;
+	list<Entity*> unusedEntity = scenarioManager->entityList;
+	list<Entity*> entityList_temp = scenarioManager->entityList;
 	entityList_temp.sort();unusedEntity.sort();
 
-	sm->conditionControl();
-	if (sm->scenarioCondition == true)
+	scenarioManager->conditionControl();
+	if (scenarioManager->scenarioCondition == true)
 	{
-		for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+		for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 		{
-			sm->conditionControl((*act_iter));//check act start conditions
+			scenarioManager->conditionControl((*act_iter));//check act start conditions
 			if ((*act_iter)->actCondition == true)
 			{
 				for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 				{
-					sm->conditionControl((*maneuver_iter));//check maneuver start conditions
+					scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
 					if ((*maneuver_iter)->maneuverCondition == true)
 					{
 						if((*maneuver_iter)->maneuverType == "followTrajectory")
@@ -329,12 +330,12 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 	for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++)
 	{	
 		oscObject* entity = ((oscObject*)(*it));
-		sm->entityList.push_back(new Entity(entity->name.getValue(), entity->CatalogReference->entryName.getValue()));
+		scenarioManager->entityList.push_back(new Entity(entity->name.getValue(), entity->CatalogReference->entryName.getValue()));
 		cout << "Entity: " <<  entity->name.getValue() << " initialized" << endl;
 	}
 
 	//get initial position and speed of entities
-	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
+	for (list<Entity*>::iterator entity_iter = scenarioManager->entityList.begin(); entity_iter != scenarioManager->entityList.end(); entity_iter++)
 	{	
 		Entity *currentTentity = (*entity_iter);
 		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", (*entity_iter)->catalogReferenceName);
@@ -442,9 +443,9 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 				oscEntity* namedEntity = ((oscEntity*)(*it));
 				if (namedEntity->name.getValue() != "$owner")
 				{
-					activeEntityList_temp.push_back(sm->getEntityByName(namedEntity->name.getValue()));
+					activeEntityList_temp.push_back(scenarioManager->getEntityByName(namedEntity->name.getValue()));
 				}
-				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));
+				else{activeEntityList_temp.push_back(scenarioManager->getEntityByName(story->owner.getValue()));
 				}
 				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->getName() << endl;
 			}
@@ -456,7 +457,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 				cout << "Manuever: " << maneuver->getName() << " created" << endl;
 			}
 			act->initialize(act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp);
-			sm->actList.push_back(act);
+			scenarioManager->actList.push_back(act);
 			cout << "Act: " <<  act->getName() << " initialized" << endl;
 			maneuverList_temp.clear();
 			activeEntityList_temp.clear();
@@ -472,12 +473,12 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			oscCondition* condition = ((oscCondition*)(*it));
 			if(condition->ByValue.exists())
 			{
-					sm->endConditionType = "time";
-					sm->endTime = condition->ByValue->SimulationTime->value.getValue();
+					scenarioManager->endConditionType = "time";
+					scenarioManager->endTime = condition->ByValue->SimulationTime->value.getValue();
 			}
 		}
 	}
-	for (list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 	{
 		for (list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 		{
@@ -554,13 +555,13 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 											if ((*maneuver_iter)->getName() == maneuver->name.getValue())
 											{
 												(*maneuver_iter)->startConditionType="distance";
-												(*maneuver_iter)->passiveCar = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
+												(*maneuver_iter)->passiveCarName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
 												(*maneuver_iter)->relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
 
 												for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
 												{	
 													oscEntity* entity = ((oscEntity*)(*it));
-													(*maneuver_iter)->activeCar = entity->name.getValue();
+													(*maneuver_iter)->activeCarName = entity->name.getValue();
 												}
 											}
 										}
@@ -577,8 +578,16 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 								{
 									if ((*maneuver_iter)->getName() == maneuver->name.getValue())
 									{
-										(*maneuver_iter)->maneuverType="followTrajectory";
-										(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										if (action->Private->Routing->FollowTrajectory.exists())
+										{
+											(*maneuver_iter)->maneuverType = "followTrajectory";
+											(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										}
+										else if (action->Private->Routing->FollowRoute.exists())
+										{
+											(*maneuver_iter)->maneuverType = "FollowRoute";
+											(*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										}
 									}
 								}
 								if(action->Private->Longitudinal.exists())
@@ -598,7 +607,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 	}
 
 	//acess maneuvers in acts
-	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 	{
 		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 		{
