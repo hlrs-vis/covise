@@ -8,6 +8,8 @@ set(HEADERS
   foreign/tcpip/storage.h
   traci-server/TraCIConstants.h
   utils/traci/TraCIAPI.h
+  utils/common/SUMOTime.h
+  libsumo/TraCIDefs.h
 
 )
 set(SOURCES

@@ -13,6 +13,12 @@
   **                                                                          **
  \****************************************************************************/
 
+#ifdef _MSC_VER
+#include <windows_config.h>
+#else
+#include <config.h>
+#endif
+
 #include "SumoTraCI.h"
 
 #include <utils/common/SUMOTime.h>
@@ -22,11 +28,11 @@
 #include <cmath>
 
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRMSController.h>
 #include <config/CoviseConfig.h>
 #include <TrafficSimulation/Vehicle.h>
 #include <TrafficSimulation/CarGeometry.h>
 #include <net/tokenbuffer.h>
-#include <cover/coVRMSController.h>
 
 int gPrecision;
 
