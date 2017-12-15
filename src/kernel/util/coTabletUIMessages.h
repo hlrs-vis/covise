@@ -66,6 +66,7 @@
 #define TABLET_COLOR 42
 #define TABLET_SET_HIDDEN 43
 #define TABLET_REMOVE_ALL 44
+#define TABLET_SET_ENABLED 45
 
 ////////////////////////////////////////////////////////////
 //ObjectTypes

@@ -106,6 +106,12 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
         tb >> hide;
         TUIElement::setHidden(hide ? true : false);
     }
+    else if (type == TABLET_SET_ENABLED)
+    {
+        int en;
+        tb >> en;
+        TUIElement::setEnabled(en ? true : false);
+    }
 }
 
 /** Set my widget.
@@ -175,6 +181,8 @@ QLayout *TUIElement::getLayout()
 void TUIElement::setEnabled(bool en)
 {
     enabled = en;
+    if (getWidget())
+        getWidget()->setEnabled(en);
 }
 
 /** Set highlight state.

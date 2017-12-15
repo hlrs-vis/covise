@@ -74,7 +74,6 @@ class IRemoteData;
  */
 class COVEREXPORT coTabletUI : public QObject, public covise::coAbstractTabletUI
 {
-
     Q_OBJECT
 
     Q_PROPERTY(int id READ getID)
@@ -128,6 +127,7 @@ protected:
     bool debugTUIState;
 };
 
+
 /**
  * Base class for Tablet PC UI Elements.
  */
@@ -149,6 +149,7 @@ public:
     virtual void setEventListener(coTUIListener *);
     virtual coTUIListener *getMenuListener();
     void createSimple(int type);
+    coTabletUI *tui() const;
 
 public slots:
     void setVal(const std::string &value);
@@ -169,6 +170,7 @@ public slots:
     virtual void setLabel(const std::string &l);
     virtual void setColor(Qt::GlobalColor);
     virtual void setHidden(bool);
+    virtual void setEnabled(bool);
     std::string getName() const
     {
         return name;
@@ -176,6 +178,7 @@ public slots:
 
 protected:
     coTUIElement(const std::string &, int pID, int type);
+    coTUIElement(coTabletUI *tui, const std::string &, int pID, int type);
 
     int parentID;
     std::string name; ///< name of this element
@@ -183,8 +186,10 @@ protected:
     int ID; ///< unique ID
     int xs, ys, xp, yp;
     Qt::GlobalColor color;
-    bool hidden;
-    coTUIListener *listener; ///< event listener
+    bool hidden = false;
+    bool enabled = true;
+    coTUIListener *listener = nullptr; ///< event listener
+    coTabletUI *m_tui = nullptr;
 };
 
 /**
@@ -198,6 +203,7 @@ class COVEREXPORT coTUILabel : public coTUIElement
 private:
 public:
     coTUILabel(const std::string &, int pID = 1);
+    coTUILabel(coTabletUI *tui, const std::string &, int pID = 1);
     coTUILabel(QObject *, const std::string &, int pID = 1);
     virtual ~coTUILabel();
     virtual void resend();
@@ -215,6 +221,7 @@ class COVEREXPORT coTUIBitmapButton : public coTUIElement
 private:
 public:
     coTUIBitmapButton(const std::string &, int pID = 1);
+    coTUIBitmapButton(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIBitmapButton(QObject *, const std::string &, int pID = 1);
     virtual ~coTUIBitmapButton();
     virtual void resend();
@@ -238,6 +245,7 @@ class COVEREXPORT coTUIButton : public coTUIElement
 private:
 public:
     coTUIButton(const std::string &, int pID = 1);
+    coTUIButton(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIButton(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIButton();
     virtual void resend();
@@ -263,6 +271,7 @@ public:
         SAVE = 2
     };
     coTUIFileBrowserButton(const char *, int pID = 1);
+    coTUIFileBrowserButton(coTabletUI *tui, const char *, int pID=1);
     virtual ~coTUIFileBrowserButton();
 
     // Sends a directory list to TUI
@@ -1283,6 +1292,7 @@ class COVEREXPORT coTUIUITab : public coTUIElement
 private:
 public:
     coTUIUITab(const std::string &, int pID = 1);
+    coTUIUITab(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUIUITab();
     virtual void resend();
@@ -1313,6 +1323,7 @@ class COVEREXPORT coTUITabFolder : public coTUIElement
 private:
 public:
     coTUITabFolder(const std::string &, int pID = 1);
+    coTUITabFolder(coTabletUI *tui, const std::string &, int pID = 1);
     coTUITabFolder(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUITabFolder();
     virtual void resend();
@@ -1460,6 +1471,7 @@ public:
     };
 
     coTUIFloatSlider(const std::string &, int pID = 1, bool state = true);
+    coTUIFloatSlider(coTabletUI *tui, const std::string &, int pID = 1, bool state = true);
     coTUIFloatSlider(QObject *parent, const std::string &, int pID = 1, bool state = true);
     virtual ~coTUIFloatSlider();
     virtual void resend();
@@ -1851,6 +1863,7 @@ class COVEREXPORT coTUIComboBox : public coTUIElement
 private:
 public:
     coTUIComboBox(const std::string &, int pID = 1);
+    coTUIComboBox(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIComboBox(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIComboBox();
     virtual void resend();
