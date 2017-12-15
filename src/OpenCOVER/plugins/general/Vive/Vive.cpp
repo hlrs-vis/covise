@@ -235,8 +235,8 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
-	Input::instance()->removeDevice("Vive", this);
 	vr::VR_Shutdown();
+	Input::instance()->removeDevice("Vive", this);
 	fprintf(stderr, "Vive::~Vive\n");
 }
 
