@@ -13,12 +13,6 @@
   **                                                                          **
  \****************************************************************************/
 
-#ifdef _MSC_VER
-#include "windows_config.h"
-#else
-#include "config.h"
-#endif
-
 #include "SumoTraCI.h"
 
 #include <utils/common/SUMOTime.h>
@@ -136,11 +130,11 @@ void SumoTraCI::sendSimResults()
     for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) 
     {
         currentResults[i].position = osg::Vec3d(it->second[VAR_POSITION3D].position.x,it->second[VAR_POSITION3D].position.y,it->second[VAR_POSITION3D].position.z);
-	currentResults[i].angle = it->second[VAR_ANGLE].scalar;
-	currentResults[i].vehicleClass = it->second[VAR_VEHICLECLASS].string;
-	currentResults[i].vehicleType = it->second[VAR_TYPE].string;
-	currentResults[i].vehicleID = it->first;		
-	i++;
+		currentResults[i].angle = it->second[VAR_ANGLE].scalar;
+		currentResults[i].vehicleClass = it->second[VAR_VEHICLECLASS].string;
+		currentResults[i].vehicleType = it->second[VAR_TYPE].string;
+		currentResults[i].vehicleID = it->first;		
+		i++;
     }
     covise::TokenBuffer stb;
     stb << currentResults.size();
@@ -150,8 +144,8 @@ void SumoTraCI::sendSimResults()
         double y = currentResults[i].position[1];
         double z = currentResults[i].position[2];
         stb << x;
-	stb << y;
-	stb << z;
+		stb << y;
+		stb << z;
         stb << currentResults[i].angle;
         stb << currentResults[i].vehicleClass;
         stb << currentResults[i].vehicleType;
@@ -181,11 +175,11 @@ void SumoTraCI::readSimResults()
         double y;
         double z;
         rtb >> x;
-	rtb >> y;
-	rtb >> z;
-	currentResults[i].position[0]=x;
-	currentResults[i].position[1]=y;
-	currentResults[i].position[2]=z;
+		rtb >> y;
+		rtb >> z;
+		currentResults[i].position[0]=x;
+		currentResults[i].position[1]=y;
+		currentResults[i].position[2]=z;
         rtb >>  currentResults[i].angle;
         rtb >>  currentResults[i].vehicleClass;
         rtb >>  currentResults[i].vehicleType;
