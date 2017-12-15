@@ -998,7 +998,7 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
             continue;
 #endif
 
-        std::cerr << "Codec " << codec->id << ", " << codec->name << ": " << codec->long_name << std::endl;
+        //std::cerr << "Codec " << codec->id << ", " << codec->name << ": " << codec->long_name << std::endl;
 
         std::list<AVCodec *>::iterator it = codecList.begin();
         for (; it != codecList.end(); it++)
@@ -1018,8 +1018,6 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
         if (it == codecList.end())
             codecList.push_back(codec);
     }
-
-    std::list<AVCodec *>::iterator it = codecList.begin();
 
     AVOutputFormat *lastFormat = NULL;
     for (AVOutputFormat *format = av_oformat_next(nullptr);
@@ -1058,8 +1056,7 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
             AVCodecID cID = format->video_codec;
 #endif
             AVCodec *last = NULL;
-            list<AVCodec *>::iterator it;
-            for (it = codecList.begin(); it != codecList.end(); it++)
+            for (std::list<AVCodec *>::iterator it = codecList.begin(); it != codecList.end(); it++)
             {
 #if LIBAVFORMAT_VERSION_INT < (53 << 16)
                 if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag((const struct AVCodecTag **)format->codec_tag, (*it)->id) > 0)))
@@ -1078,8 +1075,7 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
         }
         else
         {
-            list<AVCodec *>::iterator it;
-            for (it = codecList.begin(); it != codecList.end(); it++)
+            for (std::list<AVCodec *>::iterator it = codecList.begin(); it != codecList.end(); it++)
             {
                 if ((*it)->id == format->video_codec)
                 {
