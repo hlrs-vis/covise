@@ -20,7 +20,7 @@
 
 // Data //
 //
-#include "src/data/roadsystem/lateralSections/polynomiallateralsection.hpp"
+#include "src/data/roadsystem/lateralsections/polynomiallateralsection.hpp"
 
 class ShapeEditor;
 class ShapeSection;
