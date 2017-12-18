@@ -6,16 +6,20 @@ set(HEADERS
   windows_config.h
   foreign/tcpip/socket.h
   foreign/tcpip/storage.h
-  traci-server/TraCIConstants.h
-  utils/traci/TraCIAPI.h
-  utils/common/SUMOTime.h
   libsumo/TraCIDefs.h
+  traci-server/TraCIConstants.h
+  utils/common/StdDefs.h
+  utils/common/SUMOTime.h
+  utils/common/TplConvert.h
+  utils/common/UtilExceptions.h
+  utils/traci/TraCIAPI.h
 
 )
 set(SOURCES
   SumoTraCI.cpp
   foreign/tcpip/socket.cpp
   foreign/tcpip/storage.cpp
+  utils/common/SUMOTime.cpp
   utils/traci/TraCIAPI.cpp
 )
 
