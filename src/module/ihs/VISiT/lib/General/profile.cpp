@@ -147,7 +147,7 @@ int ShiftBladeProfile(struct profile *bp, float shift)
    // (shift = 1.0): no shift
    // (shift < 1.0): shift to trailing edge
    for (i = 0; i < bp->num; i++)
-      bp->c[i] = pow(bp->c[i], shift);
+      bp->c[i] = float(pow(bp->c[i], shift));
 
    return(0);
 }

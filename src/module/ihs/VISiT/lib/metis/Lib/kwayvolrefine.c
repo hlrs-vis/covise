@@ -45,7 +45,7 @@ void RefineVolKWay(CtrlType *ctrl, GraphType *orggraph, GraphType *graph, int np
     MALLOC_CHECK(NULL);
     IFSET(ctrl->dbglvl, DBG_TIME, starttimer(ctrl->RefTmr));
 
-    if (2*i >= nlevels && !IsBalanced(graph->pwgts, nparts, tpwgts, 1.04*ubfactor)) {
+    if (2*i >= nlevels && !IsBalanced(graph->pwgts, nparts, tpwgts, 1.04f*ubfactor)) {
       ComputeVolKWayBalanceBoundary(ctrl, graph, nparts);
       switch (ctrl->RType) {
         case RTYPE_KWAYRANDOM:

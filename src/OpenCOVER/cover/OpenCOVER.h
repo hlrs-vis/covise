@@ -34,6 +34,13 @@ class VRBClient;
 
 namespace opencover
 {
+namespace ui
+{
+class Action;
+class Button;
+class Group;
+}
+
 class coHud;
 class buttonSpecCell;
 class coVRPlugin;
@@ -60,6 +67,10 @@ private:
 
     coVRPlugin *m_visPlugin;
     bool m_forceMpi;
+
+    ui::Group *m_quitGroup=nullptr;
+    ui::Action *m_quit=nullptr;
+    ui::Button *m_clusterStats=nullptr;
 
 public:
     OpenCOVER();
@@ -99,8 +110,9 @@ public:
     int parentWindow;
 #endif
 
-    static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
+    void requestQuit();
     coVRPlugin *visPlugin() const;
+private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
 #endif

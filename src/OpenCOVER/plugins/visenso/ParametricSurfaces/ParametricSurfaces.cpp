@@ -8,6 +8,7 @@
 
 #include <cover/RenderObject.h>
 #include "cover/VRSceneGraph.h"
+#include "net/message.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRNavigationManager.h>
@@ -58,7 +59,6 @@
 #include "HfT_osg_FindNode.h"
 
 #include "cover/coTranslator.h"
-#include <vtrans/PathTranslator.h>
 
 using namespace covise;
 using namespace grmsg;
@@ -1587,12 +1587,7 @@ void ParametricSurfaces::createMenu3()
     std::string imageName = HfT_int_to_string(m_formula) + ".png";
     std::string imagePath = (std::string)coCoviseConfig::getEntry("value", "COVER.Plugin.ParametricSurfaces.DataPath") + "/" + imageName;
 
-    //-------------TRANSLATION BEGIN------------------------
-    std::string localizedPath = vtrans::PathTranslator::TranslatePath(
-        coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ".") + "\\"
-        + coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-        std::string(imagePath));
-    //-------------TRANSLATION END--------------------------
+    std::string localizedPath = coTranslator::translatePath(imagePath);
 
     std::cerr << "Image to load_Loc: " << localizedPath << std::endl;
     std::cerr << "Image to load: " << imagePath << std::endl;

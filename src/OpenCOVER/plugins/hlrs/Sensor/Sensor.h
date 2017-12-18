@@ -170,9 +170,6 @@ public:
     int initUI();
     void UpdateInputState();
 
-    // this function is called if a message arrives
-    virtual void message(int type, int length, const void *data);
-
 private:
 };
 #endif

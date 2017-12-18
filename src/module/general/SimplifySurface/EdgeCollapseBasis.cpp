@@ -19,19 +19,19 @@ EdgeCollapseBasis::EdgeCollapseBasis(const vector<float> &x_c,
                                      TriangleContainer::TYPE triCType,
                                      EdgeContainer::TYPE edgeCType)
 {
-    int no_vertex = x_c.size();
+    int no_vertex = (int)x_c.size();
     _vertexList = VertexContainer::NewVertexContainer(vertCType);
     _triangleList = TriangleContainer::NewTriangleContainer(triCType);
     _edgeSet = EdgeContainer::NewEdgeContainer(edgeCType, conn_list.size() / 3);
 
-    int no_tri = conn_list.size() / 3;
+    int no_tri = int(conn_list.size()) / 3;
     int vertex, tri;
     // set up _vertexList
     _vertexList->reserve(no_vertex);
     int no_data_per_vertex = 0;
     if (no_vertex > 0)
     {
-        no_data_per_vertex = data_c.size() / no_vertex;
+        no_data_per_vertex = int(data_c.size() / no_vertex);
     }
     float *data = new float[no_data_per_vertex];
     float normals[3];

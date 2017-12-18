@@ -82,17 +82,17 @@ public:
     void updateCamera();
     int entryNumber;
     int ID;
-    bool isActive;
+    bool isActive = false;
 
 private:
     std::string name;
-    RevitPlugin *myPlugin;
+    RevitPlugin *myPlugin = nullptr;
     osg::Vec3 eyePosition;
     osg::Vec3 viewDirection;
     osg::Vec3 upDirection;
-    coCheckboxMenuItem *menuItem;
-    coTUIToggleButton *tuiItem;
-    coCheckboxMenuItem *menuEntry;
+    coCheckboxMenuItem *menuItem = nullptr;
+    coTUIToggleButton *tuiItem = nullptr;
+    coCheckboxMenuItem *menuEntry = nullptr;
 };
 
 class ElementInfo
@@ -107,7 +107,7 @@ public:
     std::string name;
 
 private:
-    coTUIFrame *frame;
+    coTUIFrame *frame = nullptr;
     static int yPos;
 };
 class AnnotationInfo
@@ -186,7 +186,7 @@ public:
     int StorageType;
     int ParameterType;
     int number; // param number in Element;
-    ElementInfo *element;
+    ElementInfo *element = nullptr;
     double d;
     int ElementReferenceID;
     int i;
@@ -194,8 +194,8 @@ public:
     void createTUI(coTUIFrame *frame, int pos);
     virtual void tabletEvent(coTUIElement *tUIItem);
 
-    coTUILabel *tuiLabel;
-    coTUIElement *tuiElement;
+    coTUILabel *tuiLabel = nullptr;
+    coTUIElement *tuiElement = nullptr;
 
 private:
 };
@@ -280,10 +280,11 @@ public:
         return plugin;
     };
 
+	bool update();
     // this will be called in PreFrame
 	void preFrame();
 
-	void checkDoors();
+	bool checkDoors();
 
     void destroyMenu();
     void createMenu();
@@ -292,10 +293,10 @@ public:
     virtual void tabletPressEvent(coTUIElement *tUIItem);
 
     int maxEntryNumber;
-    coTUITab *revitTab;
+    coTUITab *revitTab = nullptr;
     void sendMessage(Message &m);
     
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void deactivateAllViewpoints();
     int getAnnotationID(int revitID);
     int getRevitAnnotationID(int ai);
@@ -305,21 +306,21 @@ public:
 	std::list<DoorInfo *> activeDoors;
 protected:
     static RevitPlugin *plugin;
-    coSubMenuItem *REVITButton;
-    coSubMenuItem *roomInfoButton;
-    coLabelMenuItem *label1;
-    coRowMenu *viewpointMenu;
-    coRowMenu *roomInfoMenu;
-    coCheckboxGroup *cbg;
+    coSubMenuItem *REVITButton = nullptr;
+    coSubMenuItem *roomInfoButton = nullptr;
+    coLabelMenuItem *label1 = nullptr;
+    coRowMenu *viewpointMenu = nullptr;
+    coRowMenu *roomInfoMenu = nullptr;
+    coCheckboxGroup *cbg = nullptr;
     std::list<RevitViewpointEntry *> viewpointEntries;
-    coButtonMenuItem *addCameraButton;
-    coButtonMenuItem *updateCameraButton;
-    coTUIButton *addCameraTUIButton;
-    coTUIButton *updateCameraTUIButton;
-    coTUIComboBox *viewsCombo;
+    coButtonMenuItem *addCameraButton = nullptr;
+    coButtonMenuItem *updateCameraButton = nullptr;
+    coTUIButton *addCameraTUIButton = nullptr;
+    coTUIButton *updateCameraTUIButton = nullptr;
+    coTUIComboBox *viewsCombo = nullptr;
 
-    ServerConnection *serverConn;
-    ServerConnection *toRevit;
+    ServerConnection *serverConn = nullptr;
+    ServerConnection *toRevit = nullptr;
     void handleMessage(Message *m);
 
 	MaterialInfo * getMaterial(int revitID);
@@ -334,7 +335,7 @@ protected:
     osg::Matrix lastMoveMat;
     bool MoveFinished;
     int MovedID;
-    RevitInfo  *info;
+    RevitInfo  *info = nullptr;
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
 
@@ -344,6 +345,6 @@ protected:
 	std::string textureDir;
     
 
-    Message *msg;
+    Message *msg = nullptr;
 };
 #endif

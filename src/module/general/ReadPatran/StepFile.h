@@ -22,7 +22,7 @@ class StepFile
 
 private:
     int skip, delta;
-    int len_nb; //length of the start path
+    size_t len_nb; //length of the start path
     int finished;
     int base_number;
     int file_index;

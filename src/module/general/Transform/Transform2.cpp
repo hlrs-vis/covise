@@ -18,7 +18,7 @@ double drem(double x, double y)
     return remainder(x, y);
 }
 
-#elif defined(_WIN32) || defined(__APPLE__)
+#elif defined(__APPLE__)
 double remainder(double x, double y)
 {
     double tmp = x / y;
@@ -63,8 +63,8 @@ AssemblePolygons(const char *name, const coDistributedObject *const *list)
         float *xclist, *yclist, *zclist;
         pol->getAddresses(&xclist, &yclist, &zclist, &vlist, &plist);
         int basis_pl, basis_vl;
-        basis_pl = vl.size();
-        basis_vl = xc.size();
+        basis_pl = (int)vl.size();
+        basis_vl = (int)xc.size();
         int p, v, point;
         for (p = 0; p < no_pl; ++p)
         {
@@ -81,8 +81,8 @@ AssemblePolygons(const char *name, const coDistributedObject *const *list)
             zc.push_back(zclist[point]);
         }
     }
-    return new coDoPolygons(name, xc.size(), &xc[0], &yc[0], &zc[0],
-                            vl.size(), &vl[0], pl.size(), &pl[0]);
+    return new coDoPolygons(name, (int)xc.size(), &xc[0], &yc[0], &zc[0],
+                            (int)vl.size(), &vl[0], (int)pl.size(), &pl[0]);
 }
 
 coDoLines *
@@ -106,8 +106,8 @@ AssembleLines(const char *name, const coDistributedObject *const *list)
         float *xclist, *yclist, *zclist;
         pol->getAddresses(&xclist, &yclist, &zclist, &vlist, &plist);
         int basis_pl, basis_vl;
-        basis_pl = vl.size();
-        basis_vl = xc.size();
+        basis_pl = (int)vl.size();
+        basis_vl = (int)xc.size();
         int p, v, point;
         for (p = 0; p < no_pl; ++p)
         {
@@ -124,8 +124,8 @@ AssembleLines(const char *name, const coDistributedObject *const *list)
             zc.push_back(zclist[point]);
         }
     }
-    return new coDoLines(name, xc.size(), &xc[0], &yc[0], &zc[0],
-                         vl.size(), &vl[0], pl.size(), &pl[0]);
+    return new coDoLines(name, (int)xc.size(), &xc[0], &yc[0], &zc[0],
+		(int)vl.size(), &vl[0], (int)pl.size(), &pl[0]);
 }
 
 coDoPoints *
@@ -151,7 +151,7 @@ AssemblePoints(const char *name, const coDistributedObject *const *list)
             zc.push_back(zclist[point]);
         }
     }
-    return new coDoPoints(name, xc.size(), &xc[0], &yc[0], &zc[0]);
+    return new coDoPoints(name, (int)xc.size(), &xc[0], &yc[0], &zc[0]);
 }
 
 coDoUnstructuredGrid *
@@ -175,8 +175,8 @@ AssembleUnsGrd(const char *name, const coDistributedObject *const *list)
         pol->getAddresses(&plist, &vlist, &xclist, &yclist, &zclist);
         pol->getTypeList(&tlist);
         int basis_pl, basis_vl;
-        basis_pl = vl.size();
-        basis_vl = xc.size();
+        basis_pl = (int)vl.size();
+        basis_vl = (int)xc.size();
         int p, v, point;
         for (p = 0; p < no_pl; ++p)
         {
@@ -194,7 +194,7 @@ AssembleUnsGrd(const char *name, const coDistributedObject *const *list)
             zc.push_back(zclist[point]);
         }
     }
-    return new coDoUnstructuredGrid(name, pl.size(), vl.size(), xc.size(),
+    return new coDoUnstructuredGrid(name, (int)pl.size(), (int)vl.size(), (int)xc.size(),
                                     &pl[0], &vl[0],
                                     &xc[0], &yc[0], &zc[0],
                                     &tl[0]);
@@ -221,8 +221,8 @@ AssembleTriang(const char *name, const coDistributedObject *const *list)
         float *xclist, *yclist, *zclist;
         pol->getAddresses(&xclist, &yclist, &zclist, &vlist, &plist);
         int basis_pl, basis_vl;
-        basis_pl = vl.size();
-        basis_vl = xc.size();
+        basis_pl = (int)vl.size();
+        basis_vl = (int)xc.size();
         int p, v, point;
         for (p = 0; p < no_pl; ++p)
         {
@@ -239,8 +239,8 @@ AssembleTriang(const char *name, const coDistributedObject *const *list)
             zc.push_back(zclist[point]);
         }
     }
-    return new coDoTriangleStrips(name, xc.size(), &xc[0], &yc[0], &zc[0],
-                                  vl.size(), &vl[0], pl.size(), &pl[0]);
+    return new coDoTriangleStrips(name, (int)xc.size(), &xc[0], &yc[0], &zc[0],
+                                  (int)vl.size(), &vl[0], (int)pl.size(), &pl[0]);
 }
 
 coDoFloat *
@@ -264,7 +264,7 @@ AssembleUnsSdt(const char *name, const coDistributedObject *const *list)
             xc.push_back(xclist[point]);
         }
     }
-    return new coDoFloat(name, xc.size(), &xc[0]);
+    return new coDoFloat(name, (int)xc.size(), &xc[0]);
 }
 
 coDoVec3 *
@@ -290,7 +290,7 @@ AssembleUnsVdt(const char *name, const coDistributedObject *const *list)
             zc.push_back(zclist[point]);
         }
     }
-    return new coDoVec3(name, xc.size(), &xc[0], &yc[0], &zc[0]);
+    return new coDoVec3(name, (int)xc.size(), &xc[0], &yc[0], &zc[0]);
 }
 
 coDistributedObject *

@@ -1,4 +1,5 @@
 #include "Action.h"
+#include "Manager.h"
 
 namespace opencover {
 namespace ui {
@@ -11,6 +12,11 @@ Action::Action(const std::string &name, Owner *owner)
 Action::Action(Group *parent, const std::string &name)
 : Element(parent, name)
 {
+}
+
+Action::~Action()
+{
+    manager()->remove(this);
 }
 
 void Action::setCallback(const std::function<void ()> &f)

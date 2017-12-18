@@ -1092,7 +1092,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     if(bridge)
     {
-        Bridge *bridge = new Bridge("osmBridge","","",0,0.0,road->getLength());
+        Bridge *bridge = new Bridge("osmBridge","","",Bridge::BT_CONCRETE,0.0,road->getLength());
         road->addBridge(bridge);
     }
 
@@ -1334,8 +1334,8 @@ bool
 						dir = Signal::NEGATIVE_TRACK_DIRECTION;
 					}
 
-					int type = -1;
-					int subtype = -1;
+					QString type = "-1";
+					QString subtype = "-1";
 					QString typeSubclass = "";
 					QString signNumber = QString::fromStdString(sign);
 					signNumber.replace('.', '-'); // separator type -> typeSubclass + subtype
@@ -1528,72 +1528,72 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         float speed;
                         // #MARKER TrfSign 491.045 0.0 SpeedLimit 0.5 r p M 2.5 0 0 60  0 - M 0 0 - M 0 0
                         sscanf(linestr+16,"%f %f %s %f %s %s %s %f %d %d %f",&s,&dummy,signName,&t, signDir, unknown, unknown, &dummy, &di, &di, &speed);
-                        int type=-1;
-                        int subType=-1;
+                        QString type="-1";
+						QString subType="-1";
                         if(strcmp(signName,"SpeedLimit")==0)
                         {
-                            type = 274;
-                            subType = 50+(speed/10);
+                            type = "274";
+                            subType = QString::number(50+(speed/10));
                         }
                         if(strcmp(signName,"OvertakeProhibitedCC")==0)
                         {
-                            type = 276;
+                            type = "276";
                         }
                         if(strcmp(signName,"OvertakeProhibitedTC")==0)
                         {
-                            type = 280;
+                            type = "280";
                         }
                         if(strcmp(signName,"SCurveR")==0)
                         {
-                            type = 105;
+                            type = "105";
                             subType = 10;
                         }
                         if(strcmp(signName,"SCurveL")==0)
                         {
-                            type = 105;
-                            subType = 20;
+                            type = "105";
+                            subType = "20";
                         }
                         if(strcmp(signName,"CurveR")==0)
                         {
-                            type = 103;
-                            subType = 10;
+                            type = "103";
+                            subType = "10";
                         }
                         if(strcmp(signName,"CurveL")==0)
                         {
-                            type = 103;
-                            subType = 20;
+                            type = "103";
+                            subType = "20";
                         }
                         if(strcmp(signName,"GiveWay")==0)
                         {
-                            type = 205;
+                            type = "205";
                         }
                         if(strcmp(signName,"PedXingCaution")==0)
                         {
-                            type = 134;
+                            type = "134";
                         }
                         if(strcmp(signName,"SpeedLimitEnd")==0)
                         {
-                            type = 278;
-                            subType = 50+(speed/10);
+                            type = "278";
+                            subType = QString::number(50+(speed/10));
                         }
                         if(strcmp(signName,"LaneMergeLeft")==0)
                         {
-                            type = 121;
-                            subType = 20;
+                            type = "121";
+                            subType = "20";
                         }
                         if(strcmp(signName,"LaneMergeRight")==0)
                         {
-                            type = 121;
-                            subType = 10;
+                            type = "121";
+                            subType = "10";
                         }
                         if(strcmp(signName,"Animals")==0)
                         {
-                            type = 142;
-                            subType = 10;
+                            type = "142";
+                            subType = "10";
                         }
                         if(strcmp(signName,"SlipperyRoad")==0)
                         {
-                            type = 114;
+                            type = "114";
                         }
 
                         Signal::OrientationType dir= Signal::BOTH_DIRECTIONS;

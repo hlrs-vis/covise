@@ -88,12 +88,12 @@ bool coReadCellTree::readLine(FILE *fp)
     {
         if (lineBuf && lineBufSize > 1)
         {
-            if (!fgets(lineBuf + offset, lineBufSize - offset, fp))
+            if (!fgets(lineBuf + offset, (int)lineBufSize - offset, fp))
             {
                 return false;
             }
 
-            int len = strlen(lineBuf);
+            int len = (int)strlen(lineBuf);
             if (len > 0)
             {
                 if (lineBuf[len - 1] == '\n')
@@ -110,7 +110,7 @@ bool coReadCellTree::readLine(FILE *fp)
 
         if (lineBufSize > 0)
         {
-            offset = lineBufSize - 1;
+            offset = (int)lineBufSize - 1;
         }
         else
         {
@@ -142,7 +142,7 @@ bool coReadCellTree::readArray(FILE *fp, float **data, int numElems)
 
         if (pos)
         {
-            (*data)[i] = strtod(pos, &npos);
+            (*data)[i] = float(strtod(pos, &npos));
             if (pos == npos)
             {
                 i--;
@@ -200,7 +200,7 @@ void coReadCellTree::param(const char *paramName, bool inMapLoading)
         }
         fclose(fp);
 
-        pRootCell->setValue(cellTypes.size(), &cellTypes[0], 0);
+        pRootCell->setValue((int)cellTypes.size(), &cellTypes[0], 0);
     }
     else
     {
@@ -218,7 +218,7 @@ int coReadCellTree::compute(const char *)
     char *filename = new char[strlen(path) + 1];
     strcpy(filename, path);
 
-    int numCells = cellTypes.size();
+    int numCells = int(cellTypes.size());
     int numDistances = numCells * numCells;
 
     // Read time steps one by one:
@@ -271,7 +271,7 @@ int coReadCellTree::compute(const char *)
     fprintf(stderr, "\n");
     float finish = 1.e-5f;
     float exponent = 1.5f;
-    float forces;
+    double forces;
     float adapt = 0.01f;
     do
     {
@@ -285,7 +285,7 @@ int coReadCellTree::compute(const char *)
                     continue;
 
                 coVector dist = point[j] - point[i];
-                float len = dist.length();
+                double len = dist.length();
                 force[i] = force[i] + dist * (1. / len) * pow(1 - distance[i * numCells + j] / maxDistance, exponent) * (len - distance[i * numCells + j]);
             }
             forces += force[i].length();
@@ -305,9 +305,9 @@ int coReadCellTree::compute(const char *)
     float *z = new float[numCells];
     for (int i = 0; i < numCells; i++)
     {
-        x[i] = point[i][0];
-        y[i] = point[i][1];
-        z[i] = point[i][2];
+        x[i] = float(point[i][0]);
+        y[i] = float(point[i][1]);
+        z[i] = float(point[i][2]);
     }
 
     coDoPoints **points = new coDoPoints *[numCells + 1];
@@ -415,10 +415,10 @@ int coReadCellTree::compute(const char *)
             allLines[lc] = 2 * lc;
 
             coVector dist = point[j] - point[i];
-            float actualDist = dist.length();
-            dia[lc] = pow(realDistance[i * numCells + j] / actualDist, 5) * .02;
+            double actualDist = dist.length();
+            dia[lc] = float(pow(realDistance[i * numCells + j] / actualDist, 5) * .02);
 
-            connect[lc] = conn[i * numCells + j];
+            connect[lc] = float(conn[i * numCells + j]);
 
             lc++;
         }

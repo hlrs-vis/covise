@@ -52,7 +52,7 @@ void CProtein::PrintChain(vector<CChain> userChain)
     }
 }
 
-int CProtein::ReturnChainNumber(std::vector<CChain> &userChain, std::string strChainLabel)
+size_t CProtein::ReturnChainNumber(std::vector<CChain> &userChain, std::string strChainLabel)
 {
     CChain chainTemp;
 
@@ -134,7 +134,8 @@ int CProtein::RetrievePositions(std::vector<CChain> &userChain, std::string strF
                 xavg = x / iAverageCount;
                 yavg = y / iAverageCount;
                 zavg = z / iAverageCount;
-                x = y = z = iAverageCount = 0;
+				x = y = z = 0.0f;
+				iAverageCount = 0;
                 tempSequence.SetData(strOldAA, ++iChainCount, xavg, yavg, zavg);
                 tempChain.chainsequence.push_back(tempSequence);
                 strOldAA = strAminoAcid;
@@ -156,7 +157,8 @@ int CProtein::RetrievePositions(std::vector<CChain> &userChain, std::string strF
                 xavg = x / iAverageCount;
                 yavg = y / iAverageCount;
                 zavg = z / iAverageCount;
-                x = y = z = iAverageCount = 0;
+				x = y = z = 0.0f;
+					iAverageCount = 0;
                 tempSequence.SetData(strOldAA, ++iChainCount, xavg, yavg, zavg);
                 tempChain.chainsequence.push_back(tempSequence);
                 strOldAA = strAminoAcid;
@@ -165,9 +167,9 @@ int CProtein::RetrievePositions(std::vector<CChain> &userChain, std::string strF
                 //				cout << endl << "iCurPos = " << iCurPos << " iOldPos = " << iOldPos; //DEBUG
             }
 
-            x += atof(strx.c_str());
-            y += atof(stry.c_str());
-            z += atof(strz.c_str());
+            x += (float)atof(strx.c_str());
+            y += (float)atof(stry.c_str());
+            z += (float)atof(strz.c_str());
             iAverageCount++;
         }
     }
@@ -176,7 +178,8 @@ int CProtein::RetrievePositions(std::vector<CChain> &userChain, std::string strF
     xavg = x / iAverageCount;
     yavg = y / iAverageCount;
     zavg = z / iAverageCount;
-    x = y = z = iAverageCount = 0;
+	x = y = z = 0.0;
+	iAverageCount = 0;
     tempSequence.SetData(strOldAA, ++iChainCount, xavg, yavg, zavg);
     tempChain.chainsequence.push_back(tempSequence);
     masterVector.push_back(tempChain);
@@ -185,21 +188,22 @@ int CProtein::RetrievePositions(std::vector<CChain> &userChain, std::string strF
     return 1;
 }
 
-int CProtein::RetrieveSubset(CChain &userChain, std::string strFileName, std::string strChain, int startPos, int endPos)
+int CProtein::RetrieveSubset(CChain &userChain, std::string strFileName, std::string strChain, size_t startPos, size_t endPos)
 {
     std::vector<CChain> tempChain;
     CChain holderChain, returnChain;
     CSequence tempSequence;
     RetrievePositions(tempChain, strFileName);
-    int i = 0, chainExists = 0, chainNumber = 0;
+    size_t chainNumber = 0;
+    bool chainExists = false;
 
     //Check if the chain is there
-    for (i = 0; i < int(tempChain.size()); i++)
+    for (size_t i = 0; i < tempChain.size(); i++)
     {
         holderChain = tempChain.at(i);
         if (holderChain.name == strChain)
         {
-            chainExists = 1;
+            chainExists = true;
             chainNumber = i;
             break;
         }
@@ -211,22 +215,16 @@ int CProtein::RetrieveSubset(CChain &userChain, std::string strFileName, std::st
     //Check to see if the numbers are valid (we'll accept larger than the chain size as endpos, but startpos can't be higher
     holderChain = tempChain.at(chainNumber);
 
-    if (startPos < 0)
-        startPos = 0; //Oops, no negatives
-
-    if (size_t(startPos) >= (holderChain.chainsequence.size()))
+    if (startPos >= holderChain.chainsequence.size())
         return 0; //Sequence desired is above the chain size
 
-    if (endPos < 0)
-        return 0; // Can't finish in the negatives
-
-    if (size_t(endPos) >= (holderChain.chainsequence.size()))
-        endPos = (holderChain.chainsequence.size()) - 1; //We don't want their range exceeding the bound, so we'll correct it for them
+    if (endPos >= holderChain.chainsequence.size())
+        endPos = holderChain.chainsequence.size() - 1; //We don't want their range exceeding the bound, so we'll correct it for them
 
     //Now that error checking is done, let's pull out our sequence and spit it back out
-    for (i = startPos; i <= endPos; i++)
+    for (size_t p = startPos; p <= endPos; p++)
     {
-        tempSequence = holderChain.chainsequence.at(i);
+        tempSequence = holderChain.chainsequence.at(p);
         returnChain.chainsequence.push_back(tempSequence);
     }
 
@@ -238,7 +236,7 @@ int CProtein::RetrieveSubset(CChain &userChain, std::string strFileName, std::st
 
 int CProtein::ClosestAminoAcid(std::vector<CChain> &userChain, float
                                                                    xpos,
-                               float ypos, float zpos, std::string &smallestChain, int &smallestChainPos)
+                               float ypos, float zpos, std::string &smallestChain, size_t &smallestChainPos)
 
 {
     std::vector<CChainMatrix> distanceMatrix;

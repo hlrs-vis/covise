@@ -509,10 +509,10 @@ int FreeCut::compute(const char *) //Modul ist executed
             coVector GridStuetz; //Stuetzvektor der Gerade aus Gitterdaten
             coVector GridRicht; //Richtungsvektor der Gerade aus Gitter..
             coVector NormVek; //Normalenvektor der Ebene
-            float PolyLambda1, PolyLambda2; //, PolyLambda2Nenner, PolyLambda2Zaehler, PolyLambda1Nenner, PolyLambda1Zaehler;
+            double PolyLambda1, PolyLambda2; //, PolyLambda2Nenner, PolyLambda2Zaehler, PolyLambda1Nenner, PolyLambda1Zaehler;
             //float GridLambda, GridLambdaNenner;//, GridLambdaZaehler;
             //float testvar;
-            float lambda; //, lambdaNenner, lambdaZaehler;
+            double lambda; //, lambdaNenner, lambdaZaehler;
             //float *Punktsuche;
             std::vector<int> OctreePolygonList;
 
@@ -590,11 +590,11 @@ int FreeCut::compute(const char *) //Modul ist executed
                         /// Berechnung der Lambdas!
 
                         const int n = 3;
-                        float A[n][n]; //Matrix des LGS
+                        double A[n][n]; //Matrix des LGS
                         //float L[n][n];	//Untere linke Dreiecksmatrix
                         //float R[n][n];	//Obere rechte Dreiecksmatrix
-                        float y[n]; //Hilfsvektor
-                        float b[n]; //Vektor der Eingangsgroessen des LGS ... rechte Seite
+                        double y[n]; //Hilfsvektor
+                        double b[n]; //Vektor der Eingangsgroessen des LGS ... rechte Seite
                         //double x, sum;
 
                         bool lambdaausGl1 = true;
@@ -816,7 +816,7 @@ int FreeCut::compute(const char *) //Modul ist executed
                             /// ENDE GAUSS ELIMINATION
                             //Bedingung, dass Schnittpunkt im Dreieck liegt:
                             //0 <= Lambda1 <= 1 und 0 <= Lambda2 <= 1 und Lambda1 + Lambda2 <=1
-                            float testvariable;
+                            double testvariable;
                             lambda = b[0];
                             PolyLambda1 = b[1];
                             PolyLambda2 = b[2];
@@ -826,9 +826,9 @@ int FreeCut::compute(const char *) //Modul ist executed
                             {
                                 //fprintf(stderr,"Kante %d, Element %d, Polygon %d\n",g,i,PolygonNummer);
 
-                                float XCut = GridStuetz[0] + lambda * (GridRicht[0]);
-                                float YCut = GridStuetz[1] + lambda * (GridRicht[1]);
-                                float ZCut = GridStuetz[2] + lambda * (GridRicht[2]);
+                                float XCut = (float)(GridStuetz[0] + lambda * (GridRicht[0]));
+                                float YCut = (float)(GridStuetz[1] + lambda * (GridRicht[1]));
+                                float ZCut = (float)(GridStuetz[2] + lambda * (GridRicht[2]));
 
                                 XCutVek_temp.push_back(XCut);
                                 YCutVek_temp.push_back(YCut);
@@ -843,28 +843,28 @@ int FreeCut::compute(const char *) //Modul ist executed
                                 if (gotScalarData == true)
                                 {
                                     int pos1, pos2; //Sind die momentan verwendeten Knoten des Gitters
-                                    float wert1, wert2, interpWert;
+                                    double wert1, wert2, interpWert;
                                     pos1 = inConnList[inElemList[i] + Start[g]];
                                     pos2 = inConnList[inElemList[i] + Ende[g]];
                                     wert1 = inScalarData[pos1];
                                     wert2 = inScalarData[pos2];
                                     interpWert = wert1 + lambda * (wert2 - wert1);
-                                    ScalarData_temp.push_back(interpWert);
-                                    CutVek_temp.push_back(interpWert);
+                                    ScalarData_temp.push_back((float)interpWert);
+                                    CutVek_temp.push_back((float)interpWert);
                                 }
                                 if (gotVectorData == true)
                                 {
                                     int pos1, pos2;
-                                    float interpWert1, interpWert2, interpWert3;
+                                    double interpWert1, interpWert2, interpWert3;
                                     pos1 = inConnList[inElemList[i] + Start[g]];
                                     pos2 = inConnList[inElemList[i] + Ende[g]];
                                     interpWert1 = VecData1[pos1] + lambda * (VecData1[pos2] - VecData1[pos1]);
                                     interpWert2 = VecData2[pos1] + lambda * (VecData2[pos2] - VecData2[pos1]);
                                     interpWert3 = VecData3[pos1] + lambda * (VecData3[pos2] - VecData3[pos1]);
 
-                                    CutVek_temp.push_back(interpWert1);
-                                    CutVek_temp.push_back(interpWert2);
-                                    CutVek_temp.push_back(interpWert3);
+                                    CutVek_temp.push_back((float)interpWert1);
+                                    CutVek_temp.push_back((float)interpWert2);
+                                    CutVek_temp.push_back((float)interpWert3);
                                 }
                                 myCutVeks_temp.push_back(CutVek_temp);
                                 CutVek_temp.clear();
@@ -924,12 +924,12 @@ int FreeCut::compute(const char *) //Modul ist executed
                 }
                 coVector Kreuzprodukt;
                 //Restliche Vektoren und Winkel/Bogenmase zum Refernzvektor bestimmen
-                float Betrag, aBetrag, bBetrag;
-                float Skalarprodukt;
-                float cosinusX;
-                float X;
-                const float PI = M_PI;
-                float Volumen;
+                double Betrag, aBetrag, bBetrag;
+                double Skalarprodukt;
+                double cosinusX;
+                double X;
+                const double PI = M_PI;
+                double Volumen;
                 coVector Vektor_temp;
                 //vector<float> winkelArray(0);
                 //winkelArray.push_back(0);
@@ -976,7 +976,7 @@ int FreeCut::compute(const char *) //Modul ist executed
                         }
                     }
 
-                    temp[3] = X;
+                    temp[3] = (float)X;
                     myCutVeks.push_back(temp);
                 }
                 //Punkte in Bezug auf ihren Winkel zum Referenzvektor sortieren

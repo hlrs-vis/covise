@@ -20,6 +20,7 @@
 #include <sys/fcntl.h>
 #else
 #include <winsock2.h>
+#include <WS2tcpip.h>
 #include <windows.h>
 #include <io.h>
 #include <fcntl.h>
@@ -180,8 +181,13 @@ typedef int int32;
 
 static struct
 {
-    int soc;
-    int serv;
+#ifdef WIN32
+	SOCKET soc;
+    SOCKET serv;
+#else
+	int soc;
+	int serv;
+#endif
     int verbose;
 } coSimLibData = { -1, -1, 0 };
 
@@ -268,13 +274,17 @@ int coInitConnect()
         if (!inet_aton(env + 2, &ip))
             return -1;
 #else
-        ip.s_addr = inet_addr(env + 2);
+        inet_pton(AF_INET,env + 2, &ip.s_addr);
         if (ip.s_addr == -1)
             return -1;
 #endif
-        if (coSimLibData.verbose > 0)
-            fprintf(stderr, " Starting Client to %s Port %d with %f sec timeout\n",
-                    inet_ntoa(ip), minPort, timeout);
+		if (coSimLibData.verbose > 0)
+		{
+			char buf[100];
+			inet_ntop(AF_INET, &ip.s_addr,buf,100);
+			fprintf(stderr, " Starting Client to %s Port %d with %f sec timeout\n",
+				buf, minPort, timeout);
+		}
 
         /* we try to connect now */
         if ((port = openClient(ip.s_addr, minPort, timeout)) < 0)
@@ -453,7 +463,7 @@ static int coSendC(int32 type, const char *name)
     char buffer[64];
 
     /* check length */
-    int length = strlen(name);
+    size_t length = strlen(name);
     if (length > 63)
         return -1;
 
@@ -804,7 +814,7 @@ int COGPTX(_fcd name, _fcd strdata)
 int COGPTX(const char *name, char *data, int lenName, int lenData)
 {
     char buffer[256];
-    int i;
+    
     if (lenData > 256)
         lenData = 256;
 
@@ -813,7 +823,7 @@ int COGPTX(const char *name, char *data, int lenName, int lenData)
     if (recvData((void *)&buffer, 256) != 256)
         return -1;
     strncpy(data, buffer, lenData);
-    for (i = strlen(buffer); i < lenData; i++) /* FORTRAN is blank padded */
+    for (size_t i = strlen(buffer); i < lenData; i++) /* FORTRAN is blank padded */
         data[i] = ' ';
     return 0;
 }
@@ -854,14 +864,13 @@ int COGOFI(_fcd name, _fcd strdata)
 int COGPFI(const char *name, char *data, int lenNane, int lenData)
 {
     char buffer[256];
-    int i;
     (void)lenData;
     if (coSendFTN(GET_FILE_PARA, name, lenNane))
         return -1;
     if (recvData((void *)&buffer, 256) != 256)
         return -1;
     strcpy(data, buffer);
-    for (i = strlen(buffer); i < 256; i++) /* FORTRAN is blank padded */
+    for (size_t i = strlen(buffer); i < 256; i++) /* FORTRAN is blank padded */
         data[i] = ' ';
     return 0;
 }
@@ -1109,7 +1118,11 @@ int COEXIT()
 
     sendData((void *)&data, sizeof(int32));
 
-    close(coSimLibData.soc);
+#ifdef WIN32
+	closesocket(coSimLibData.soc);
+#else
+	close(coSimLibData.soc);
+#endif
     coSimLibData.soc = -1;
 
     return 0;
@@ -1125,7 +1138,11 @@ int coDetach(void)
     int32 data = COMM_DETACH;
     sendData((void *)&data, sizeof(int32));
 
-    close(coSimLibData.soc);
+#ifdef WIN32
+	closesocket(coSimLibData.soc);
+#else
+	close(coSimLibData.soc);
+#endif
     coSimLibData.soc = -1;
 
     fprintf(stderr, "Simulation detached from COVISE\n");
@@ -1416,7 +1433,7 @@ int sendData(const void *buffer, size_t length)
 {
     register char *bptr = (char *)buffer;
     register int written;
-    register int nbytes = length;
+    register int nbytes = (int)length;
 
     if (coSimLibData.soc == -1)
     {
@@ -1426,7 +1443,7 @@ int sendData(const void *buffer, size_t length)
 
     if (coSimLibData.verbose > 3)
         fprintf(stderr, "coSimClient sending %d Bytes to Socket %d\n",
-                (int)length, coSimLibData.soc);
+                (int)length, (int)coSimLibData.soc);
 
     while (nbytes > 0)
     {
@@ -1438,7 +1455,11 @@ int sendData(const void *buffer, size_t length)
         if (written < 0)
         {
             fprintf(stderr, "coSimClient error: write returned %d\n", written);
-            close(coSimLibData.soc);
+#ifdef WIN32
+			closesocket(coSimLibData.soc);
+#else
+			close(coSimLibData.soc);
+#endif
             coSimLibData.soc = -1;
             return -1;
         }
@@ -1446,14 +1467,18 @@ int sendData(const void *buffer, size_t length)
         bptr += written;
         if (written == 0)
         {
-            close(coSimLibData.soc);
+#ifdef WIN32
+			closesocket(coSimLibData.soc);
+#else
+			close(coSimLibData.soc);
+#endif
             coSimLibData.soc = -1;
             return -1;
         }
     }
     if (coSimLibData.verbose > 3)
         fprintf(stderr, "coSimClient sent %d Bytes\n", (int)length);
-    return length;
+    return (int)length;
 }
 
 /****************************************************
@@ -1476,7 +1501,7 @@ int recvData(void *buffer, size_t length)
 {
     register char *bptr = (char *)buffer;
     register int nread;
-    register int nbytes = length;
+    register int nbytes = (int)length;
 
     if (coSimLibData.soc == -1)
     {
@@ -1486,7 +1511,7 @@ int recvData(void *buffer, size_t length)
 
     if (coSimLibData.verbose > 3)
         fprintf(stderr, " coSimClient waiting for %d Bytes from Socket %d\n",
-                (int)length, coSimLibData.soc);
+                (int)length, (int)coSimLibData.soc);
 
     while (nbytes > 0)
     {
@@ -1498,7 +1523,11 @@ int recvData(void *buffer, size_t length)
         if (nread < 0)
         {
             fprintf(stderr, "coSimClient error: received %d Bytes\n", nread);
-            close(coSimLibData.soc);
+#ifdef WIN32
+			closesocket(coSimLibData.soc);
+#else
+			close(coSimLibData.soc);
+#endif
             coSimLibData.soc = -1;
             return -1;
         }
@@ -1510,7 +1539,11 @@ int recvData(void *buffer, size_t length)
     if (nbytes)
     {
         fprintf(stderr, " error: received 0 Bytes while %d left\n", nbytes);
-        close(coSimLibData.soc);
+#ifdef WIN32
+		closesocket(coSimLibData.soc);
+#else
+		close(coSimLibData.soc);
+#endif
         coSimLibData.soc = -1;
         return -1;
     }
@@ -1518,7 +1551,7 @@ int recvData(void *buffer, size_t length)
     {
         if (coSimLibData.verbose > 3)
             fprintf(stderr, "coSimClient received %d Bytes\n", (int)length);
-        return length;
+        return (int)length;
     }
 }
 
@@ -1564,7 +1597,11 @@ static int openServer(int minPort, int maxPort)
     if (port > maxPort)
     {
         fprintf(stderr, "coSimClient: opening ports failed\n");
+#ifdef WIN32
+		closesocket(coSimLibData.serv);
+#else
         close(coSimLibData.serv);
+#endif
         coSimLibData.serv = -1;
         return -1;
     }
@@ -1628,7 +1665,11 @@ static int openClient(unsigned long ip, int port, float timeout)
 /****************************************************************************/
 static int acceptServer(float wait)
 {
+#ifdef WIN32
+	SOCKET tmp_soc;
+#else
     int tmp_soc;
+#endif
     struct timeval timeout;
     fd_set fdread;
     int i;
@@ -1646,16 +1687,20 @@ static int acceptServer(float wait)
     FD_SET(coSimLibData.serv, &fdread);
     if (wait >= 0)
     { /* wait period was specified */
-        i = select(coSimLibData.serv + 1, &fdread, NULL, NULL, &timeout);
+        i = select((int)coSimLibData.serv + 1, &fdread, NULL, NULL, &timeout);
     }
     else
     { /* wait infinitly */
-        i = select(coSimLibData.serv + 1, &fdread, NULL, NULL, NULL);
+        i = select((int)coSimLibData.serv + 1, &fdread, NULL, NULL, NULL);
     }
 
     if (i == 0) /* nothing happened: return -1 */
     {
-        close(coSimLibData.soc);
+#ifdef WIN32
+		closesocket(coSimLibData.soc);
+#else
+		close(coSimLibData.soc);
+#endif
         coSimLibData.soc = -1;
         return -1;
     }
@@ -1665,7 +1710,11 @@ static int acceptServer(float wait)
     tmp_soc = accept(coSimLibData.serv, (struct sockaddr *)&s_addr_in, &length);
     if (tmp_soc < 0)
     {
-        close(coSimLibData.soc);
+#ifdef WIN32
+		closesocket(coSimLibData.soc);
+#else
+		close(coSimLibData.soc);
+#endif
         coSimLibData.soc = -1;
         return -1;
     }
@@ -1676,12 +1725,16 @@ static int acceptServer(float wait)
     fflush(stdout);
 #endif
 
-    close(coSimLibData.soc);
+#ifdef WIN32
+	closesocket(coSimLibData.soc);
+#else
+	close(coSimLibData.soc);
+#endif
 
     /* use the socket 'accept' delivered */
     coSimLibData.soc = tmp_soc;
 
-    fprintf(stderr, "new coSimLibData.soc: %d\n", coSimLibData.soc);
+    fprintf(stderr, "new coSimLibData.soc: %d\n", (int)coSimLibData.soc);
 
     /* END_CRITICAL(this,"accept") */
     return 0;

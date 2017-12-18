@@ -55,7 +55,7 @@ const char *InvObjectManager::getname(const char *file)
 {
     char *dirname, *covisepath;
     FILE *fp;
-    int i;
+    size_t i;
     static char *buf = NULL;
     static size_t buflen;
 
@@ -2492,7 +2492,7 @@ void InvObjectManager::addObjectCB(const char *rootname,
 {
     (void)add;
 
-    QListWidgetItem *item, *node;
+    //QListWidgetItem *item, *node;
     InvObject *obj = new InvObject(name, ptr);
     QString text = name;
     QString roottext = rootname;

@@ -42,10 +42,6 @@ class DisplaySettings;
 
 namespace opencover
 {
-class buttonSpecCell;
-
-class coVRSceneHandler;
-class coVRSceneView;
 class MSEventHandler;
 class ARToolKitMarker;
 class angleStruct;
@@ -75,6 +71,9 @@ public:
     void setClearColor(const osg::Vec4 &color);
     void setRenderToTexture(bool);
     void flipStereo();
+
+    /** initiate shut down */
+    void disableSync();
 
 private:
     static VRViewer *s_singleton;
@@ -158,10 +157,6 @@ public:
     {
         initialViewPos = po;
     };
-    static void freezeCallback(void *viewer, buttonSpecCell *spec);
-    static void stereoSepCallback(void *viewer, buttonSpecCell *spec);
-    static void orthographicCallback(void *, buttonSpecCell *spec);
-    static void statisticsCallback(void *sceneGraph, buttonSpecCell *spec);
 
     void culling(bool enable, osg::CullSettings::CullingModeValues mode = osg::CullSettings::ENABLE_ALL_CULLING, bool once = false);
     
@@ -183,7 +178,7 @@ public:
 
     bool clearWindow; // if set to true, the whole window is cleared once
 
-    void statistics(bool enable);
+    void toggleStatistics();
     void overwriteViewAndProjectionMatrix(bool state)
     {
         overwritePAndV = state;

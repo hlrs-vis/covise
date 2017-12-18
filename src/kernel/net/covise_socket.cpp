@@ -199,7 +199,13 @@ Socket::Socket(int, int sfd)
 Socket::Socket(int socket_id, sockaddr_in *sockaddr)
 {
     sock_id = socket_id;
-    host = new Host(inet_ntoa(sockaddr->sin_addr));
+	char buf[100];
+	if (!inet_ntop(AF_INET, &sockaddr->sin_addr, buf, sizeof(buf)))
+	{
+		cerr << "Socket::Socket: address    = <unknown>" << endl;
+		buf[0] = '\0';
+	}
+	host = new Host(buf);
     ip_alias_list = NULL;
     host_alias_list = NULL;
     port = ntohs(sockaddr->sin_port);
@@ -1146,7 +1152,13 @@ UDPSocket::UDPSocket(char *address, int p)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    grpaddr.s_addr = inet_addr(address);
+    //grpaddr.s_addr = inet_addr(address);
+	int err = inet_pton(AF_INET, address, &grpaddr.s_addr);
+	if (err != 1)
+	{
+		sock_id = -1;
+		return;
+	}
 
     addr.sin_port = htons(p);
 
@@ -1225,7 +1237,13 @@ MulticastSocket::MulticastSocket(char *MulticastGroup, int p, int ttl_value)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    grpaddr.s_addr = inet_addr(MulticastGroup);
+    //grpaddr.s_addr = inet_addr(MulticastGroup);
+	int err = inet_pton(AF_INET, MulticastGroup, &grpaddr.s_addr);
+	if (err != 1)
+	{
+		sock_id = -1;
+		return;
+	}
 
     addr.sin_port = htons(p);
 
@@ -1433,7 +1451,12 @@ SSLSocket::~SSLSocket()
 std::string SSLSocket::getPeerAddress()
 {
 
-    return inet_ntoa(mPeer.sin_addr);
+	char buf[100];
+	if (!inet_ntop(AF_INET, &mPeer.sin_addr, buf, sizeof(buf)))
+	{
+		cerr << "SSLSocket::getPeerAddress(): address    = <unknown>" << endl;
+	}
+    return std::string(buf);
 }
 
 int SSLSocket::read(void *buf, unsigned int nbyte)
@@ -1548,7 +1571,12 @@ SSLServerConnection *SSLSocket::spawnConnection(SSLConnection::PasswordCallback 
    }*/
 
     cerr << "SSLSocket::spawnConnection(): New socket:" << endl;
-    cerr << "SSLSocket::spawnConnection(): address    = " << inet_ntoa(client_addr.sin_addr) << endl;
+	char buf[100];
+	if (!inet_ntop(AF_INET, &client_addr.sin_addr, buf, sizeof(buf)))
+	{
+		cerr << "SSLSocket::spawnConnection(): address    = <unknown>" << endl;
+	}
+    cerr << "SSLSocket::spawnConnection(): address    = " << buf << endl;
     cerr << "SSLSocket::spawnConnection(): port       = " << ntohs(client_addr.sin_port) << endl;
     cerr << "SSLSocket::spawnConnection(): Socket-ID  = " << new_sock_id << endl;
     cerr << "SSLSocket::spawnConnection(): ServSockID = " << sock_id << endl;

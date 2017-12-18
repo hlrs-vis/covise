@@ -160,10 +160,7 @@ GraphView::shapeEditing(bool edit)
 	if (edit)
 	{
 		doShapeEdit_ = true;
-		// OpenScenario Editor
-		//
-		OpenScenarioEditor * editor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
-		shapeItem_ = new GraphViewShapeItem(this, editor, x(), y(), width(), height());
+		shapeItem_ = new GraphViewShapeItem(this, x(), y(), width(), height());
 		scene()->addItem(shapeItem_);
 	}
 	else if (doShapeEdit_)
@@ -1457,16 +1454,19 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
-    switch (event->key())
+    /*switch (event->key())
     {
 
     default:
         QGraphicsView::keyReleaseEvent(event);
     }
+    default:*/
+        QGraphicsView::keyReleaseEvent(event);
+    //}
 }
 
 void
-    GraphView::contextMenuEvent(QContextMenuEvent *event)
+GraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     if (doShapeEdit_)
     {

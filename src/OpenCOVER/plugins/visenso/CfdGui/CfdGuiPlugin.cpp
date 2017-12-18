@@ -15,6 +15,7 @@
 #include <cover/VRSceneGraph.h>
 #include <config/CoviseConfig.h>
 #include <cover/OpenCOVER.h>
+#include <cover/ui/Button.h>
 #include <net/message_types.h>
 #include <net/message.h>
 
@@ -159,12 +160,22 @@ void CfdGuiPlugin::guiToRenderMsg(const char *msg)
                 VRSceneGraph::instance()->viewAll();
             else if (strcmp(keyword, "orthographicProjection") == 0)
             {
-                coMenuItem *item = NULL;
-                item = cover->getBuiltInFunctionMenuItem("OrthographicProjection");
-                if (coCheckboxMenuItem *cb = dynamic_cast<coCheckboxMenuItem *>(item))
+                auto elem = cover->ui->getByPath("Manager.ViewOptions.Orthographic");
+                if (elem)
                 {
-                    bool oldState = cb->getState();
-                    cb->setState(!oldState, true, true);
+                    if (auto button = dynamic_cast<ui::Button *>(elem))
+                    {
+                        button->setState(!button->state());
+                        button->trigger();
+                    }
+                    else
+                    {
+                        std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": Manager.ViewOptions.Orthographic not a Button" << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cerr << "CfdGuiPlugin:  GRMsg " << keyword << ": did not find Manager.ViewOptions.Orthographic" << std::endl;
                 }
             }
         }

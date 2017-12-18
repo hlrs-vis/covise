@@ -40,7 +40,9 @@
 
 /* Disable "unsafe" warnings for crt functions in VC++ 2005. */
 #if _MSC_VER >= 1400
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 #endif
 
 #ifndef WIN32

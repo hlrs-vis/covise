@@ -6,6 +6,10 @@
 #include "Owner.h"
 #include "ShortcutListener.h"
 
+namespace covise {
+class TokenBuffer;
+}
+
 namespace opencover {
 namespace ui {
 
@@ -44,20 +48,54 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     friend class Group;
     friend class Container;
  public:
+    enum Priority
+    {
+        Invisible,
+        Low,
+        Default,
+        Medium,
+        Toolbar,
+        High,
+    };
+    typedef uint32_t UpdateMaskType;
+    enum UpdateMask: UpdateMaskType
+    {
+        UpdateNothing = 0,
+        UpdateVisible = 1,
+        UpdateEnabled = 2,
+        UpdateText = 4,
+        UpdateParent = 8,
+        UpdateAll = ~UpdateMaskType(0)
+    };
     //! construct as top-level item, life time managed by owner
     /** all derived classes provide a constructor taking the same kind of arguments */
     Element(const std::string &name, Owner *owner);
     //! construct and add to group, life time managed by group
     /** all derived classes provide a constructor taking the same kind of arguments */
     Element(Group *group, const std::string &name);
+
+    //! remove from UI and parents
     virtual ~Element();
+
+    //! unique element id
+    int elementId() const;
+
+    //! set importance of Element
+    void setPriority(Priority prio);
+    //! retrieve importance
+    Priority priority() const;
+
+    //! set icon for Element
+    void setIcon(const std::string &iconName);
+    //! get icon name
+    const std::string &iconName() const;
 
     //! item this Element is a child of
     Group *parent() const;
 
     std::set<Container *> containers();
     //! request that graphical representation in all views is updated
-    virtual void update() const;
+    virtual void update(UpdateMaskType updateMask=UpdateAll) const;
 
     //! return text label of this item
     const std::string &text() const;
@@ -75,14 +113,23 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
 
     //! trigger user callback attached to this item
     void trigger() const;
+
  protected:
     //! reimplement in derived class for calling user callback
     virtual void triggerImplementation() const;
+    //! reimplement in derived class for serialization, also call base class
+    virtual void save(covise::TokenBuffer &buf) const;
+    //! reimplement in derived class for deserialization, also call base class
+    virtual void load(covise::TokenBuffer &buf);
     Group *m_parent = nullptr;
     std::set<Container *> m_containers;
     std::string m_label;
     bool m_visible = true;
     bool m_enabled = true;
+    Priority m_priority = Default;
+    std::string m_iconName;
+ private:
+    mutable int m_id = -1, m_order = -1; // initialized by Manager
 };
 
 }

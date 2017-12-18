@@ -17,6 +17,7 @@
  **                                                                        **
 \****************************************************************************/
 
+#include <net/message.h>
 #include <grmsg/coGRKeyWordMsg.h>
 #include <cover/coVRNavigationManager.h>
 

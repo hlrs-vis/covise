@@ -94,7 +94,7 @@ int ReadIAGTecplot::compute(const char *port)
 
     std::vector<const coDistributedObject *> meshes(numSteps+1);
     coDoFloat **dataObjects = new coDoFloat*[numSteps+1];
-    meshes[0] = new coDoUniformGrid(objNameBase2d+"_0", width, height, 1, 0., width-1, 0, height-1, 0., 0.);
+    meshes[0] = new coDoUniformGrid(objNameBase2d+"_0", width, height, 1, 0.0f, width-1.0f, 0, height-1.0f, 0.0f, 0.0f);
     for (int i = 0; i < numSteps; i++)
 	{
 		if (i > 0)

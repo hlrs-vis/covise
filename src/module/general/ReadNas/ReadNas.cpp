@@ -88,13 +88,13 @@ ReadNas::outputObjects(
     vector<int> &connList, vector<int> &elemList)
 {
     coDoPolygons *poly = new coDoPolygons(p_polyOut->getObjName(),
-                                          x.size(),
+                                          (int)x.size(),
                                           (x.size() > 0) ? &x[0] : NULL,
                                           (y.size() > 0) ? &y[0] : NULL,
                                           (z.size() > 0) ? &z[0] : NULL,
-                                          connList.size(),
+                                          (int)connList.size(),
                                           (connList.size() > 0) ? &connList[0] : NULL,
-                                          elemList.size(),
+                                          (int)elemList.size(),
                                           (elemList.size() > 0) ? &elemList[0] : NULL);
     poly->addAttribute("vertexOrder", "2");
     poly->addAttribute("COLOR", "Grey");
@@ -142,7 +142,7 @@ float ReadNas::readFloat(char *buf, int pos)
     sscanf(fbuf,"%f",&num);
     if(e>0)
     {
-        num = num * pow(10,sign * e);
+        num = num * float(pow(10,sign * e));
     }
     return num;
 }
@@ -187,7 +187,7 @@ int ReadNas::readASCII()
             {
                 cerr << "ReadNas::readASCII: sscanf1 failed" << endl;
             }
-            nnToCoord[nn]=x_coord.size();
+            nnToCoord[nn]=int(x_coord.size());
             x=readFloat(buf,40);
             y=readFloat(buf,56);
             z=readFloat(buf,72);
@@ -204,7 +204,7 @@ int ReadNas::readASCII()
             {
                 cerr << "ReadNas::readASCII: sscanf1 failed" << endl;
             }
-            el.push_back(vl.size());
+            el.push_back((int)vl.size());
             vl.push_back(nnToCoord[v1]);
             vl.push_back(nnToCoord[v2]);
             vl.push_back(nnToCoord[v3]);

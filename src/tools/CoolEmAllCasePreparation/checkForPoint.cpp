@@ -24,7 +24,7 @@ bool checkForPoint(const std::string &point)
         locationInMeshChopper >> number_buffer;
         number.push_back(number_buffer);
     }
-    int i = number.size();
+    size_t i = number.size();
     if (i != 3)
     {
         return false;

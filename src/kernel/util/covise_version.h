@@ -16,7 +16,7 @@
 namespace covise
 {
 
-class COVISEEXPORT CoviseVersion
+class UTILEXPORT CoviseVersion
 {
 public:
     // get the short version string, e.g. "VIR_SNAP-2001-01-F"

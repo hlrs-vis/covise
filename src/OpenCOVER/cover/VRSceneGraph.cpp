@@ -86,9 +86,15 @@
 #include <omp.h>
 #endif
 
+#include <OpenVRUI/osg/mathUtils.h>
+
+#include "ui/Menu.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/SelectionList.h"
+
 using namespace osg;
 using namespace opencover;
-using namespace vrui;
 using covise::coCoviseConfig;
 
 #define SYNC_MODE_GROUP 2
@@ -107,7 +113,8 @@ VRSceneGraph *VRSceneGraph::instance()
 }
 
 VRSceneGraph::VRSceneGraph()
-    : m_vectorInteractor(0)
+    : ui::Owner("VRSceneGraph", cover->ui)
+    , m_vectorInteractor(0)
     , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
     , m_handLocked(false)
@@ -133,7 +140,6 @@ VRSceneGraph::VRSceneGraph()
     , m_scaleTransform(NULL)
     , transTraversingInteractors(Vec3(0, 0, 0))
     , isFirstTraversal(true)
-    , storeWithMenu(false)
     , isScenegraphProtected_(false)
     , m_enableHighQualityOption(true)
     , m_highQuality(false)
@@ -172,8 +178,76 @@ void VRSceneGraph::init()
 
     emptyProgram_ = new osg::Program();
 
-    m_interactionHQ = new coCombinedButtonInteraction(coInteraction::AllButtons, "Anchor", coInteraction::Highest);
+    m_interactionHQ = new vrui::coCombinedButtonInteraction(vrui::coInteraction::AllButtons, "Anchor", vrui::coInteraction::Highest);
     m_interactionHQ->setNotifyOnly(true);
+
+    m_trackHead = new ui::Button(cover->viewOptionsMenu, "TrackHead");
+    m_trackHead->setText("Track head");
+    m_trackHead->setShortcut("Shift+F");
+    m_trackHead->setState(!coVRConfig::instance()->frozen());
+    m_trackHead->setCallback([this](bool state){
+        toggleHeadTracking(state);
+    });
+
+    m_allowHighQuality= new ui::Button("HighQuality", this);
+    cover->viewOptionsMenu->add(m_allowHighQuality);
+    m_allowHighQuality->setState(m_enableHighQualityOption);
+    m_allowHighQuality->setText("Allow high quality");
+    m_allowHighQuality->setShortcut("Shift+H");
+    m_allowHighQuality->setCallback([this](bool state){
+        toggleHighQuality(state);
+    });
+
+    m_drawStyle = new ui::SelectionList("DrawStyle", this);
+    m_drawStyle->setText("Draw style");
+    m_drawStyle->append("As is");
+    m_drawStyle->append("Wireframe");
+    m_drawStyle->append("Hidden lines (dark)");
+    m_drawStyle->append("Hidden lines (bright)");
+    cover->viewOptionsMenu->add(m_drawStyle);
+    m_drawStyle->setShortcut("Alt+w");
+    m_drawStyle->setCallback([this](int style){
+        setWireframe(WireframeMode(style));
+    });
+    m_drawStyle->select(0);
+
+    m_showAxis = new ui::Button("ShowAxis", this);
+    cover->viewOptionsMenu->add(m_showAxis);
+    m_showAxis->setState(m_coordAxis);
+    m_showAxis->setText("Show axis");
+    m_showAxis->setShortcut("Shift+A");
+    m_showAxis->setCallback([this](bool state){
+        toggleAxis(state);
+    });
+
+    m_storeScenegraph = new ui::Action("StoreScenegraph", this);
+    cover->fileMenu->add(m_storeScenegraph);
+    m_storeScenegraph->setText("Store scenegraph");
+    m_storeScenegraph->setCallback([this](){
+        saveScenegraph();
+    });
+
+    m_reloadFile = new ui::Action("ReloadFile", this);
+    cover->fileMenu->add(m_reloadFile);
+    m_reloadFile->setText("Reload file");
+    m_reloadFile->setCallback([this](){
+        coVRFileManager::instance()->reloadFile();
+    });
+
+    m_showStats = new ui::Button("ShowStats", this);
+    m_showStats->setText("Renderer statistics");
+    m_showStats->setShortcut("Alt+Shift+S");
+    cover->viewOptionsMenu->add(m_showStats);
+    m_showStats->setState(coVRConfig::instance()->drawStatistics);
+    m_showStats->setCallback([this](bool state){
+        coVRConfig::instance()->drawStatistics = state;
+        if (coVRConfig::instance()->drawStatistics)
+        {
+            statsDisplay->showStats(coVRStatsDisplay::VIEWER_SCENE_STATS, VRViewer::instance());
+        }
+        else
+            statsDisplay->showStats(0, VRViewer::instance());
+    });
 }
 
 VRSceneGraph::~VRSceneGraph()
@@ -478,22 +552,12 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 fprintf(stderr, "alt: sym=%d\n", keySym);
             if (keySym == 'i' || keySym == 710) // i
             {
-                storeWithMenu = false;
-                storeCallback(this, NULL);
-                handled = true;
-            }
-            else if (keySym == 'w' || keySym == 8721) // w
-            {
-                int wf = m_wireframe+1;
-                if (wf > HiddenLineWhite)
-                    wf = Disabled;
-                setWireframe((WireframeMode)wf);
+                saveScenegraph(false);
                 handled = true;
             }
             else if (keySym == 'W' || keySym == 8722) // W
             {
-                storeWithMenu = true;
-                storeCallback(this, NULL);
+                saveScenegraph(true);
                 handled = true;
             }
             else if (keySym == 's' || keySym == 223) // s
@@ -572,19 +636,6 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 handled = true;
             }
 #endif
-            if (keySym == 'S')
-            {
-                coVRConfig::instance()->drawStatistics = !coVRConfig::instance()->drawStatistics;
-                //VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
-                cover->setBuiltInFunctionState("Statistics", coVRConfig::instance()->drawStatistics);
-                handled = true;
-                if (coVRConfig::instance()->drawStatistics)
-                {
-                    statsDisplay->showStats(4, VRViewer::instance()); 
-                }
-                else
-                    statsDisplay->showStats(0, VRViewer::instance());
-            }
             if (keySym == 'C')
             {
                  VRViewer::instance()->forceCompile();
@@ -592,48 +643,9 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
         } // unmodified keys
         else if (mod & osgGA::GUIEventAdapter::MODKEY_SHIFT)
         {
-            if (keySym == 'h' || keySym == 'H')
-            {
-                if (m_enableHighQualityOption)
-                {
-                    m_switchToHighQuality = true;
-                    handled = true;
-                }
-            }
         }
         else
         {
-            if (keySym == 'F')
-            {
-                coVRConfig::instance()->setFrozen(!coVRConfig::instance()->frozen());
-                cover->setBuiltInFunctionState("Freeze", coVRConfig::instance()->frozen());
-                handled = true;
-            }
-            if (keySym == 'S')
-            {
-                coVRConfig::instance()->drawStatistics = !coVRConfig::instance()->drawStatistics;
-                //VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
-                cover->setBuiltInFunctionState("Statistics", coVRConfig::instance()->drawStatistics);
-                handled = true;
-                if (coVRConfig::instance()->drawStatistics)
-                {
-                        statsDisplay->showStats(2, VRViewer::instance()); 
-                }
-                else
-                    statsDisplay->showStats(0, VRViewer::instance());
-            }
-            if (keySym == 'v')
-            {
-                viewAll();
-                handled = true;
-            }
-
-            if (keySym == 'V')
-            {
-                viewAll(true);
-                handled = true;
-            }
-
             if (keySym == 'm')
             {
                 toggleMenu();
@@ -684,6 +696,12 @@ VRSceneGraph::setMenu(bool state)
     }
 }
 
+bool
+VRSceneGraph::menuVisible() const
+{
+    return m_showMenu;
+}
+
 void VRSceneGraph::setMenuMode(bool state)
 {
     if (state)
@@ -693,7 +711,7 @@ void VRSceneGraph::setMenuMode(bool state)
         applyMenuModeToMenus();
 
         // set joystickmanager active
-        coJoystickManager::instance()->setActive(true);
+        vrui::coJoystickManager::instance()->setActive(true);
 
         // set scene and documents not intersectable
         m_objectsTransform->setNodeMask(m_objectsTransform->getNodeMask() & (~Isect::Intersection));
@@ -740,6 +758,7 @@ void VRSceneGraph::setMenuMode(bool state)
         // set scene intersectable
         m_objectsTransform->setNodeMask(0xffffffff);
 
+#if 0
         // hide quit menu
         for (unsigned int i = 0; i < m_menuGroupNode->getNumChildren(); i++)
         {
@@ -749,11 +768,12 @@ void VRSceneGraph::setMenuMode(bool state)
                 break;
             }
         }
+#endif
 
         applyMenuModeToMenus();
 
         // set joystickmanager inactive
-        coJoystickManager::instance()->setActive(false);
+        vrui::coJoystickManager::instance()->setActive(false);
     }
 }
 
@@ -776,6 +796,12 @@ void VRSceneGraph::applyMenuModeToMenus()
                 m_menuGroupNode->getChild(i)->setNodeMask(0xffffffff & ~Isect::ReceiveShadow);
         }
     }
+}
+
+void VRSceneGraph::toggleHeadTracking(bool state)
+{
+    coVRConfig::instance()->setFrozen(!state);
+    m_trackHead->setState(state);
 }
 
 void
@@ -860,7 +886,7 @@ VRSceneGraph::update()
 
     if (!coVRConfig::instance()->isMenuModeOn())
     {
-        if (button->wasPressed(vruiButtons::MENU_BUTTON))
+        if (button->wasPressed(vrui::vruiButtons::MENU_BUTTON))
             toggleMenu();
     }
 
@@ -1096,7 +1122,7 @@ VRSceneGraph::update()
         m_switchToHighQuality = false;
         if (!m_interactionHQ->isRegistered())
         {
-            coInteractionManager::the()->registerInteraction(m_interactionHQ);
+            vrui::coInteractionManager::the()->registerInteraction(m_interactionHQ);
         }
         m_highQuality = true;
         fprintf(stdout, "\a");
@@ -1105,7 +1131,7 @@ VRSceneGraph::update()
     else if (m_highQuality && (cover->getPointerButton()->wasPressed() || cover->getMouseButton()->wasPressed()))
     {
         m_highQuality = false;
-        coInteractionManager::the()->unregisterInteraction(m_interactionHQ);
+        vrui::coInteractionManager::the()->unregisterInteraction(m_interactionHQ);
     }
 }
 
@@ -1116,6 +1142,7 @@ VRSceneGraph::setWireframe(WireframeMode wf)
         fprintf(stderr, "VRSceneGraph::setWireframe\n");
 
     m_wireframe = wf;
+    m_drawStyle->select(m_wireframe);
 
     m_lineHider->removeChild(m_objectsTransform);
     m_scene->removeChild(m_objectsTransform);
@@ -1166,6 +1193,7 @@ VRSceneGraph::toggleHighQuality(bool state)
         fprintf(stderr, "VRSceneGraph::toggleHighQuality %d\n", state);
 
     m_enableHighQualityOption = state;
+    m_allowHighQuality->setState(state);
 }
 
 bool
@@ -1181,6 +1209,7 @@ VRSceneGraph::toggleAxis(bool state)
         fprintf(stderr, "VRSceneGraph::toggleAxis %d\n", state);
 
     m_coordAxis = state;
+    m_showAxis->setState(m_coordAxis);
     if (m_coordAxis)
     {
         if (m_worldAxis->getNumParents() == 0)
@@ -1594,6 +1623,7 @@ void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingS
     }
 }
 
+#if 0
 void
 VRSceneGraph::manipulate(buttonSpecCell *spec)
 {
@@ -1640,6 +1670,7 @@ VRSceneGraph::manipulate(buttonSpecCell *spec)
         }
     }
 }
+#endif
 
 #ifdef PHANTOM_TRACKER
 void
@@ -1649,6 +1680,7 @@ VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
 }
 #endif
 
+#ifdef VRUI
 void
 VRSceneGraph::viewallCallback(void *sceneGraph, buttonSpecCell *)
 {
@@ -1660,6 +1692,7 @@ VRSceneGraph::resetviewCallback(void *sceneGraph, buttonSpecCell *)
 {
     ((VRSceneGraph *)sceneGraph)->viewAll(true);
 }
+#endif
 
 void
 VRSceneGraph::viewAll(bool resetView)
@@ -1672,6 +1705,7 @@ VRSceneGraph::viewAll(bool resetView)
     coVRCollaboration::instance()->SyncScale();
 }
 
+#ifdef VRUI
 void
 VRSceneGraph::coordAxisCallback(void *sceneGraph, buttonSpecCell *spec)
 {
@@ -1697,6 +1731,7 @@ VRSceneGraph::highQualityCallback(void *sceneGraph, buttonSpecCell *spec)
         ((VRSceneGraph *)sceneGraph)->toggleHighQuality(false);
     }
 }
+#endif
 
 bool
 VRSceneGraph::isHighQuality() const
@@ -1705,12 +1740,10 @@ VRSceneGraph::isHighQuality() const
 }
 
 void
-VRSceneGraph::storeCallback(void *sceneGraph, buttonSpecCell *)
+VRSceneGraph::saveScenegraph(bool storeWithMenu)
 {
-    VRSceneGraph *sg = reinterpret_cast<VRSceneGraph *>(sceneGraph);
-
     std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/OpenCOVER.osgb");
-    if (sg->isScenegraphProtected_)
+    if (isScenegraphProtected_)
     {
         fprintf(stderr, "Cannot store scenegraph. Not allowed!");
         return;
@@ -1724,7 +1757,7 @@ VRSceneGraph::storeCallback(void *sceneGraph, buttonSpecCell *)
                         || !strcmp(filename.c_str() + len - 5, ".osgb")
                         || !strcmp(filename.c_str() + len - 5, ".osgx"))))
     {
-        if (osgDB::writeNodeFile(sg->storeWithMenu ? *static_cast<osg::Group *>(sg->m_scene) : *sg->m_objectsRoot, filename.c_str()))
+        if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
         {
             if (cover->debugLevel(3))
                 std::cerr << "Data written to \"" << filename << "\"." << std::endl;
@@ -1742,6 +1775,7 @@ VRSceneGraph::storeCallback(void *sceneGraph, buttonSpecCell *)
     }
 }
 
+#ifdef VRUI
 void
 VRSceneGraph::reloadFileCallback(void *, buttonSpecCell *)
 {
@@ -1765,6 +1799,7 @@ VRSceneGraph::scaleMinusCallback(void *sceneGraph, buttonSpecCell *)
 
     ((VRSceneGraph *)sceneGraph)->setScaleFromButton(-1.0f);
 }
+#endif
 
 void
 VRSceneGraph::setScaleFromButton(float direction)

@@ -21,9 +21,9 @@
 
 #include <util/coTypes.h>
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
-#include <OpenVRUI/coMenu.h>
 
 struct State;
 class CuttingDrawable;
@@ -32,18 +32,14 @@ namespace opencover
 {
 class coVRPlugin;
 class coColorBar;
-}
 
-namespace vrui
+namespace ui
 {
-class coMenuItem;
-class coRowMenu;
-class coSubMenu;
-class coMenuItem;
-class coCheckboxMenuItem;
+class Menu;
+class Button;
+}
 }
 
-using namespace vrui;
 using namespace opencover;
 
 struct minmax
@@ -54,12 +50,12 @@ struct minmax
 /*
  * Author: Florian Niebling
  */
-class cuCuttingSurface : public coVRPlugin
+class cuCuttingSurface : public coVRPlugin, public ui::Owner
 {
 public:
     cuCuttingSurface();
     virtual ~cuCuttingSurface();
-    coCheckboxMenuItem *getMenu(const RenderObject *container, const RenderObject *data,
+    ui::Button *getMenu(const RenderObject *container, const RenderObject *data,
                                 const RenderObject *tex);
     void removeObject(const char *name, bool replace);
     void addObject(const RenderObject *container, osg::Group * /*setName*/, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
@@ -68,7 +64,7 @@ public:
     virtual void preFrame();
     virtual void preDraw(osg::RenderInfo &);
     virtual void postFrame();
-    virtual void message(int type, int len, const void *buf); // receive messages for Cuttinsurface updates from remote or the script plugin
+    virtual void message(int toWhom, int type, int len, const void *buf); // receive messages for Cuttinsurface updates from remote or the script plugin
     /*
    static void getMinMax(const float *data, int numElem, float &min,
                          float &max, float minV = -FLT_MAX, float maxV = FLT_MAX);
@@ -79,19 +75,19 @@ public:
    */
 private:
     bool initDone;
-    coRowMenu *menu;
+    ui::Menu *menu = nullptr;
     std::map<std::string, osg::Geode *> geode;
     std::map<std::string, coVR3DTransRotInteractor *> interactors;
     std::map<std::string, osg::Group *> groups;
-    std::map<std::string, coRowMenu *> menus;
+    std::map<std::string, ui::Menu *> menus;
 
     std::map<std::string, struct minmax> minMax;
 };
 
-class CuttingDrawable : public osg::Geometry, public coMenuListener
+class CuttingDrawable : public osg::Geometry
 {
 public:
-    CuttingDrawable(coCheckboxMenuItem *menu,
+    CuttingDrawable(ui::Button *menu,
                     coVR3DTransRotInteractor *interactor,
                     const RenderObject *geo, const RenderObject *map, const RenderObject *data,
                     float *bbox, float min, float max);
@@ -113,8 +109,6 @@ public:
     void preFrame();
     void postFrame();
 
-    virtual void menuEvent(coMenuItem *item);
-    virtual void menuReleaseEvent(coMenuItem *item);
     void setMatrix(osg::Matrix &mat)
     {
         remoteMatrixChanged = true;
@@ -132,7 +126,7 @@ private:
     bool interactorChanged;
     float distance;
 
-    coCheckboxMenuItem *menu;
+    ui::Button *menu = nullptr;
     coVR3DTransRotInteractor *planeInteractor;
 
     osg::BoundingBox box;

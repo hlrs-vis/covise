@@ -77,7 +77,7 @@ if "%ARCHSUFFIX:~0,5%" EQU "win32" (
 ) else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
 
     if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-    if defined VS150COMNTOOLS% (
+	if defined VS150COMNTOOLS% (
     
 	)else (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
@@ -1179,7 +1179,7 @@ if not defined XERCESC_HOME (
 
 
 if not defined CFX5_UNITS_DIR (
-   set "CFX5_UNITS_DIR=%COVISEDIR%\icons"
+   set "CFX5_UNITS_DIR=%COVISEDIR%\share\covise\cfx"
 )
 
 if not defined FARO_HOME  (

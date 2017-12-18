@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
             MPI_Init(&argc, &argv);
         forceMpi = true;
         MPI_Comm_rank(comm, &myID);
-        int len = mastername.size();
+        int len = (int)mastername.size();
         MPI_Bcast(&len, 1, MPI_INT, 0, comm);
         if (myID != 0)
             mastername.resize(len);

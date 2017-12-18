@@ -9,7 +9,9 @@
 
 #include "gwApp.h"
 #include "gwTier.h"
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 #include <iostream>
 #include <string>
@@ -25,7 +27,7 @@ gwTier::gwTier(int i, Typ t, gwApp *a, int g)
     stepNum = 0;
     lifeTime = 100;
     path.reserve(1000);
-    direction = ((float)rand() / (float)RAND_MAX) * 2.0 * M_PI;
+    direction = float(((float)rand() / (float)RAND_MAX) * 2.0 * M_PI);
     oldHabitatValue = 0;
     currentHabitatValue = 0;
     stepInHabitat = 0;
@@ -44,16 +46,16 @@ float gwTier::getDir(int x, int y)
     vec2 dir = vec2(x * app->pSize[0], y * app->pSize[0]) - pos;
     dir.normalize();
     if (dir[1] > 0)
-        return (asin(dir[0]));
+        return (float(asin(dir[0])));
     else
-        return ((2 * M_PI) - asin(dir[0]));
+        return float((2 * M_PI) - asin(dir[0]));
 }
 
 void gwTier::scan()
 {
     int startPosX = (int)(pos[0] / app->pSize[0]);
     int startPosY = (int)(pos[1] / app->pSize[1]);
-    int numSteps = app->params[type].visionRange / app->pSize[0];
+    int numSteps = int(app->params[type].visionRange / app->pSize[0]);
     std::pair<float, float> currentMinMaxAngle;
     std::list<std::pair<float, float> > angles;
     currentMinMaxAngle.first = -1000;
@@ -126,7 +128,7 @@ void gwTier::scan()
             {
                 if (value < bestValue)
                 {
-                    bestValue = value;
+                    bestValue = float(value);
                     direction = getDir(x, y);
                 }
             }
@@ -180,9 +182,9 @@ void gwTier::scan()
             }
             if (value < currentHabitatValue)
             {
-                if (value < bestValue)
+                if (float(value) < bestValue)
                 {
-                    bestValue = value;
+                    bestValue = float(value);
                     direction = getDir(x, y);
                 }
             }
@@ -236,9 +238,9 @@ void gwTier::scan()
             }
             if (value < currentHabitatValue)
             {
-                if (value < bestValue)
+                if (float(value) < bestValue)
                 {
-                    bestValue = value;
+                    bestValue = float(value);
                     direction = getDir(x, y);
                 }
             }
@@ -292,9 +294,9 @@ void gwTier::scan()
             }
             if (value < currentHabitatValue)
             {
-                if (value < bestValue)
+                if (float(value) < bestValue)
                 {
-                    bestValue = value;
+                    bestValue = float(value);
                     direction = getDir(x, y);
                 }
             }
@@ -322,13 +324,13 @@ int gwTier::checkForNewHabitat(vec2 v)
             pn = pos + v;
         }
         if (pn[0] >= app->size[0])
-            pn[0] = app->size[0] - 0.001;
-        if (pn[0] < (float)0.001)
-            pn[0] = (float)0.001;
+            pn[0] = app->size[0] - 0.001f;
+        if (pn[0] < 0.001f)
+            pn[0] = 0.001f;
         if (pn[1] >= app->size[1])
-            pn[1] = app->size[1] - 0.001;
-        if (pn[1] < (float)0.001)
-            pn[1] = (float)0.001;
+            pn[1] = app->size[1] - 0.001f;
+        if (pn[1] < 0.001f)
+            pn[1] = 0.001f;
         val = app->getValue(pn);
         if (val != currentHabitatValue && app->params[type].stopAtBoundary[val] == 1) //  we continue or not depending on config file we are crossing a Habitat Should we continue in this habitat as far as we can or should we stop right at the start??
         {
@@ -363,7 +365,7 @@ gwTier::Motion gwTier::move()
 
     do // do it multiple times if we can't walk in the direction we wanted but turned around
     {
-        percentage = ((float)rand() / (float)RAND_MAX) * 100.0;
+        percentage = ((float)rand() / (float)RAND_MAX) * 100.0f;
 
         if (currentState == DirectedWalk)
         {
@@ -375,13 +377,13 @@ gwTier::Motion gwTier::move()
 
             if (reorientStep > app->params[type].reorientation)
             {
-                direction = ((float)rand() / (float)RAND_MAX) * 2.0 * M_PI;
+                direction = float(((float)rand() / (float)RAND_MAX) * 2.0 * M_PI);
                 reorientStep = 0;
             }
         }
         else // random walk
         {
-            direction = ((float)rand() / (float)RAND_MAX) * 2.0 * M_PI;
+            direction = float(((float)rand() / (float)RAND_MAX) * 2.0 * M_PI);
 
             if (stepInHabitat > app->params[type].scanStartFromStep)
             {
@@ -396,10 +398,10 @@ gwTier::Motion gwTier::move()
         }
 
         vec2 v;
-        int index = app->sigmoDist.size() * ((float)rand() / (float)RAND_MAX);
-        if (index >= app->sigmoDist.size())
-            index = app->sigmoDist.size() - 1;
-        float currentSpeed = (app->sigmoDist[index] / 100.0) * app->params[type].maxSpeed[currentHabitatValue];
+        int index = int(app->sigmoDist.size() * ((float)rand() / (float)RAND_MAX));
+        if (index >= int(app->sigmoDist.size()))
+            index = int(app->sigmoDist.size()) - 1;
+        float currentSpeed = float((app->sigmoDist[index] / 100.0f) * app->params[type].maxSpeed[currentHabitatValue]);
 
         v.set(sin(direction) * currentSpeed, cos(direction) * currentSpeed);
 
@@ -435,7 +437,7 @@ gwTier::Motion gwTier::move()
     }
     oldHabitatValue = currentHabitatValue;
     lifeTime -= 1;
-    percentage = ((float)rand() / (float)RAND_MAX) * 99.99;
+    percentage = ((float)rand() / (float)RAND_MAX) * 99.99f;
     if (currentHabitatValue > app->numHabitatValues || percentage < app->deathRate[currentHabitatValue])
     {
         lifeTime = 0; // die from time to time
@@ -468,14 +470,14 @@ gwTier::Motion gwTier::moveOld()
 
             if (reorientStep > app->params[type].reorientation)
             {
-                direction = ((float)rand() / (float)RAND_MAX) * 2.0 * M_PI;
+                direction = float(((float)rand() / (float)RAND_MAX) * 2.0 * M_PI);
                 reorientStep = 0;
             }
         }
     }
     else
     {
-        direction = ((float)rand() / (float)RAND_MAX) * 2.0 * M_PI;
+        direction = float(((float)rand() / (float)RAND_MAX) * 2.0 * M_PI);
         // switch to DirectedWalk mode?
         if (stepNum > app->params[type].directedWalkFromStep && currentHabitatValue >= app->params[type].directedWalkFromValue)
         {
@@ -485,26 +487,26 @@ gwTier::Motion gwTier::moveOld()
     }
 
     vec2 v;
-    int index = app->sigmoDist.size() * ((float)rand() / (float)RAND_MAX);
+    int index = int(app->sigmoDist.size() * ((float)rand() / (float)RAND_MAX));
     if (index >= app->sigmoDist.size())
-        index = app->sigmoDist.size() - 1;
-    float currentSpeed = (app->sigmoDist[index] / 100.0) * app->params[type].maxSpeed[currentHabitatValue];
+        index = int(app->sigmoDist.size() - 1);
+    float currentSpeed = float((app->sigmoDist[index] / 100.0f) * app->params[type].maxSpeed[currentHabitatValue]);
 
     v.set(sin(direction) * currentSpeed, cos(direction) * currentSpeed);
     vec2 oldPos;
     oldPos = pos;
     pos += v;
     if (pos[0] >= app->size[0])
-        pos[0] = app->size[0] - 0.001;
-    if (pos[0] < (float)0.001)
-        pos[0] = (float)0.001;
+        pos[0] = app->size[0] - 0.001f;
+    if (pos[0] < 0.001f)
+        pos[0] = 0.001f;
     if (pos[1] >= app->size[1])
-        pos[1] = app->size[1] - 0.001;
-    if (pos[1] < (float)0.001)
-        pos[1] = (float)0.001;
+        pos[1] = app->size[1] - 0.001f;
+    if (pos[1] < 0.001f)
+        pos[1] = 0.001f;
 
     currentHabitatValue = app->getValue(pos);
-    float percentage = ((float)rand() / (float)RAND_MAX) * 100.0;
+    float percentage = ((float)rand() / (float)RAND_MAX) * 100.0f;
     if (currentHabitatValue >= app->numHabitatValues - 1 || percentage >= app->transitionMatrix[oldHabitatValue][currentHabitatValue])
     {
         direction += (float)M_PI; // turn 180 degrees
@@ -522,7 +524,7 @@ gwTier::Motion gwTier::moveOld()
     }
     oldHabitatValue = currentHabitatValue;
     lifeTime -= 1;
-    percentage = ((float)rand() / (float)RAND_MAX) * 99.99;
+    percentage = ((float)rand() / (float)RAND_MAX) * 99.99f;
     if (currentHabitatValue > app->numHabitatValues || percentage < app->deathRate[currentHabitatValue])
     {
         lifeTime = 0; // die from time to time
@@ -561,7 +563,7 @@ void gwTier::writeSVG(FILE *fp)
 
 void gwTier::writeShape(FILE *fp)
 {
-    int numSteps = path.size();
+    int numSteps = int(path.size());
     char buf[10000];
     if (numSteps > 0)
     {

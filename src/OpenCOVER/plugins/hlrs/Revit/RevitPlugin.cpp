@@ -430,15 +430,19 @@ RevitPlugin::RevitPlugin()
 	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
 	textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
 	toRevit = NULL;
-	serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
-	if (!serverConn->getSocket())
-	{
-		cout << "tried to open server Port " << port << endl;
-		cout << "Creation of server failed!" << endl;
-		cout << "Port-Binding failed! Port already bound?" << endl;
-		delete serverConn;
-		serverConn = NULL;
-	}
+    serverConn = NULL;
+    if (coVRMSController::instance()->isMaster())
+    {
+        serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
+        if (!serverConn->getSocket())
+        {
+            cout << "tried to open server Port " << port << endl;
+            cout << "Creation of server failed!" << endl;
+            cout << "Port-Binding failed! Port already bound?" << endl;
+            delete serverConn;
+            serverConn = NULL;
+        }
+    }
 
 	struct linger linger;
 	linger.l_onoff = 0;
@@ -490,8 +494,11 @@ RevitPlugin::~RevitPlugin()
 	while (currentGroup.size() > 1)
 		currentGroup.pop();
 
-	revitGroup->removeChild(0, revitGroup->getNumChildren());
-	cover->getObjectsRoot()->removeChild(revitGroup.get());
+    if (revitGroup)
+    {
+        revitGroup->removeChild(0, revitGroup->getNumChildren());
+        cover->getObjectsRoot()->removeChild(revitGroup.get());
+    }
 
 	delete serverConn;
 	serverConn = NULL;
@@ -584,7 +591,7 @@ void RevitPlugin::sendMessage(Message &m)
 }
 
 
-void RevitPlugin::message(int type, int len, const void *buf)
+void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 {
 	if (type == PluginMessageTypes::MoveAddMoveNode)
 	{
@@ -1640,9 +1647,10 @@ RevitPlugin::handleMessage(Message *m)
 	}
 }
 
-void
+bool
 RevitPlugin::checkDoors()
 {
+    bool needUpdate = false;
 
 	osg::Matrix headmat = cover->getViewerMat();
 	headmat *= cover->getInvBaseMat();
@@ -1653,7 +1661,7 @@ RevitPlugin::checkDoors()
 	}
 	if (activeDoors.size() > 0)
 	{
-		OpenCOVER::instance()->m_renderNext = true;
+        needUpdate = true;
 	}
 	for (std::list<DoorInfo *>::iterator it = activeDoors.begin(); it != activeDoors.end();)
 	{
@@ -1666,12 +1674,19 @@ RevitPlugin::checkDoors()
 			it = activeDoors.erase(it);
 		}
 	}
+
+    return needUpdate;
+}
+
+bool
+RevitPlugin::update()
+{
+    return checkDoors();
 }
 
 void
 RevitPlugin::preFrame()
 {
-	checkDoors();
 	if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
 	{
 		//   std::cout << "Trying serverConn..." << std::endl;

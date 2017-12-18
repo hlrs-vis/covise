@@ -25,17 +25,23 @@
 
 #include <util/DLinkList.h>
 
+#include <cover/ui/Owner.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/ButtonGroup.h>
+
 using namespace covise;
 using namespace opencover;
 
 class Frame;
 class MoleculeStructure;
 
-class VRMoleculeViewer : public coVRPlugin
+class VRMoleculeViewer : public coVRPlugin, public ui::Owner
 {
 
 private:
     DLinkList<Frame *> framelist;
+
+    ui::Menu *menu = nullptr;
 
     // Performer Objects
     // here is my main DCS
@@ -53,7 +59,7 @@ private:
     double time;
     float animationSpeed;
     double timeBetweenFrames;
-    int uniqueMenu;
+    ui::ButtonGroup *uniqueMenu = nullptr;
     int maxNumberOfMolecules;
     int numberOfTimesteps;
     int moving; // indicates if animation of timesteps is on
@@ -73,7 +79,7 @@ private:
     void stepForward();
     void stepBackward();
 
-    static void Init(void *);
+    void Init();
     void clearUp();
     void readDirectory(const char *parent);
 
@@ -93,6 +99,7 @@ public:
     ~VRMoleculeViewer();
     bool init();
 
+#if 0
     // Callback function for mouse clicks
     static void menuCallback(void *, buttonSpecCell *);
     static void fileSelection(void *, buttonSpecCell *);
@@ -100,6 +107,7 @@ public:
     static void speederCallback(void *c, buttonSpecCell *spec);
     static void sphereCallback(void *c, buttonSpecCell *spec);
     static void updateCallback(void *, buttonSpecCell *);
+#endif
     void setTimestep(int t);
 
     void preFrame(); // Update function , called each frame

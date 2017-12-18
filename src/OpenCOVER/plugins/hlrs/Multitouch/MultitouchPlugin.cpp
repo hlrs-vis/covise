@@ -567,5 +567,3 @@ void MultitouchPlugin::preFrame()
         }
     }
 }
-
-COVERPLUGIN(MultitouchPlugin)

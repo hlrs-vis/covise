@@ -28,7 +28,7 @@ void METIS_PartGraphKway2(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *v
 
   tpwgts = fmalloc(*nparts, "KMETIS: tpwgts");
   for (i=0; i<*nparts; i++) 
-    tpwgts[i] = 1.0/(1.0*(*nparts));
+    tpwgts[i] = 1.0f/(1.0f*(*nparts));
 
   METIS_WPartGraphKway2(nvtxs, xadj, adjncy, vwgt, adjwgt, wgtflag, numflag, nparts, 
                        tpwgts, options, edgecut, part);
@@ -67,7 +67,7 @@ void METIS_WPartGraphKway2(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *
   }
   ctrl.optype = OP_KMETIS;
   ctrl.CoarsenTo = 20*(*nparts);
-  ctrl.maxvwgt = 1.5*((graph.vwgt ? idxsum(*nvtxs, graph.vwgt) : (*nvtxs))/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*((graph.vwgt ? idxsum(*nvtxs, graph.vwgt) : (*nvtxs))/ctrl.CoarsenTo));
 
   InitRandom(options[7]);
 
@@ -152,7 +152,7 @@ void METIS_NodeNDP(int nvtxs, idxtype *xadj, idxtype *adjncy, int npes,
   /*=============================================================
   * Do the nested dissection ordering 
   --=============================================================*/
-  ctrl.maxvwgt = 1.5*(idxsum(graph.nvtxs, graph.vwgt)/ctrl.CoarsenTo);
+  ctrl.maxvwgt = (int)(1.5*(idxsum(graph.nvtxs, graph.vwgt)/ctrl.CoarsenTo));
   AllocateWorkSpace(&ctrl, &graph, 2);
 
   idxset(2*npes-1, 0, sizes);
@@ -286,7 +286,7 @@ void METIS_NodeComputeSeparator(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxt
   ctrl.nseps = 1;
   ctrl.optype = OP_ONMETIS;
   ctrl.CoarsenTo = amin(100, *nvtxs-1);
-  ctrl.maxvwgt = 1.5*tvwgt/ctrl.CoarsenTo;
+  ctrl.maxvwgt = (int)(1.5*tvwgt/ctrl.CoarsenTo);
 
   InitRandom(options[7]);
 
@@ -344,7 +344,7 @@ void METIS_EdgeComputeSeparator(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxt
   ctrl.nseps = 1;
   ctrl.optype = OP_OEMETIS;
   ctrl.CoarsenTo = amin(100, *nvtxs-1);
-  ctrl.maxvwgt = 1.5*tvwgt/ctrl.CoarsenTo;
+  ctrl.maxvwgt = (int)(1.5*tvwgt/ctrl.CoarsenTo);
 
   InitRandom(options[7]);
 

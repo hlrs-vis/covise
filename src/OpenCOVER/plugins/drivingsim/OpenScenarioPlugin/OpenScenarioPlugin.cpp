@@ -19,13 +19,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 **                                                                          **
 \****************************************************************************/
 
-
+#include <OpenVRUI/osg/mathUtils.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRFileManager.h>
 #include "OpenScenarioPlugin.h"
 #include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
+#include <cover/coVRPluginList.h>
+
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 #include "ScenarioManager.h"
 #include "Trajectory.h"
@@ -38,12 +41,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <OpenScenario/OpenScenarioBase.h>
 #include <OpenScenario/schema/oscFileHeader.h>
 #include "myFactory.h"
+#include "CameraSensor.h"
+#include <config/CoviseConfig.h>
 
 using namespace OpenScenario; 
 using namespace opencover;
 
 OpenScenarioPlugin *OpenScenarioPlugin::plugin = NULL;
-ScenarioManager *sm = new ScenarioManager();
 
 static FileHandler handlers[] = {
 	{ NULL,
@@ -69,6 +73,8 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	tessellateBatters=false;
 	tessellateObjects=true;
 
+	scenarioManager = new ScenarioManager();
+
 	osdb = new OpenScenario::OpenScenarioBase();
 	// set our own object factory so that our own classes are created and not the bas osc* classes
 	OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
@@ -85,26 +91,30 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 	fprintf(stderr, "OpenScenarioPlugin::~OpenScenarioPlugin\n");
 }
 
+bool OpenScenarioPlugin::update()
+{
+	return true;
+}
 void OpenScenarioPlugin::preFrame()
 {
-	sm->simulationTime = sm->simulationTime + opencover::cover->frameDuration();
-	//cout << "TIME: " << sm->simulationTime << endl;
+	scenarioManager->simulationTime = scenarioManager->simulationTime + opencover::cover->frameDuration();
+	//cout << "TIME: " << scenarioManager->simulationTime << endl;
 	list<Entity*> usedEntity;
-	list<Entity*> unusedEntity = sm->entityList;
-	list<Entity*> entityList_temp = sm->entityList;
+	list<Entity*> unusedEntity = scenarioManager->entityList;
+	list<Entity*> entityList_temp = scenarioManager->entityList;
 	entityList_temp.sort();unusedEntity.sort();
 
-	sm->conditionControl();
-	if (sm->scenarioCondition == true)
+	scenarioManager->conditionControl();
+	if (scenarioManager->scenarioCondition == true)
 	{
-		for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+		for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 		{
-			sm->conditionControl((*act_iter));//check act start conditions
+			scenarioManager->conditionControl((*act_iter));//check act start conditions
 			if ((*act_iter)->actCondition == true)
 			{
 				for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 				{
-					sm->conditionControl((*maneuver_iter));//check maneuver start conditions
+					scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
 					if ((*maneuver_iter)->maneuverCondition == true)
 					{
 						if((*maneuver_iter)->maneuverType == "followTrajectory")
@@ -141,6 +151,21 @@ void OpenScenarioPlugin::preFrame()
 			}
 		}
 	}
+	else
+	{
+		// Scenario end
+
+		bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
+		if (doExit)
+		{
+			OpenCOVER::instance()->setExitFlag(true);
+			coVRPluginList::instance()->requestQuit(true);
+		}
+		//fprintf(stderr, "END\n");
+	}
+
+	if (currentCamera != NULL)
+		currentCamera->updateView();
 }			
 
 COVERPLUGIN(OpenScenarioPlugin)
@@ -157,16 +182,19 @@ int OpenScenarioPlugin::loadOSC(const char *filename, osg::Group *g, const char 
 	return plugin->loadOSCFile(filename,g,key);
 }
 
-int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const char *key)
+int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *key)
 {
-	if(osdb->loadFile(filename, "OpenSCENARIO", "OpenSCENARIO") == false)
+	osdb->setValidation(false); // don't validate, we might be on the road where we don't have axxess to the schema files
+	if (osdb->loadFile(file, "OpenSCENARIO", "OpenSCENARIO") == false)
 	{
 		std::cerr << std::endl;
-		std::cerr << "failed to load OpenSCENARIO from file " << filename << std::endl;
+		std::cerr << "failed to load OpenSCENARIO from file " << file << std::endl;
 		std::cerr << std::endl;
 		delete osdb;
+        osdb = nullptr;
+
 		//neu
-		std::string filename(filename);
+		std::string filename(file);
 		xoscDirectory.clear();
 		if (filename[0] != '/' && filename[0] != '\\' && (!(filename[1] == ':' && (filename[2] == '/' || filename[2] == '\\'))))
 		{ // / or backslash or c:/
@@ -193,9 +221,12 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	}
 
 	//load xodr 
-	std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
-	const char * xodrName = xodrName_st.c_str();
-	loadRoadSystem(xodrName);
+	if (osdb->RoadNetwork.getObject() != NULL)
+	{
+		std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
+		const char * xodrName = xodrName_st.c_str();
+		loadRoadSystem(xodrName);
+	}
 
 	//load ScenGraph
 	std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
@@ -299,45 +330,103 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++)
 	{	
 		oscObject* entity = ((oscObject*)(*it));
-		sm->entityList.push_back(new Entity(entity->name.getValue(), entity->CatalogReference->entryName.getValue()));
+		scenarioManager->entityList.push_back(new Entity(entity->name.getValue(), entity->CatalogReference->entryName.getValue()));
 		cout << "Entity: " <<  entity->name.getValue() << " initialized" << endl;
 	}
 
 	//get initial position and speed of entities
-	for (list<Entity*>::iterator entity_iter = sm->entityList.begin(); entity_iter != sm->entityList.end(); entity_iter++)
+	for (list<Entity*>::iterator entity_iter = scenarioManager->entityList.begin(); entity_iter != scenarioManager->entityList.end(); entity_iter++)
 	{	
+		Entity *currentTentity = (*entity_iter);
 		oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", (*entity_iter)->catalogReferenceName);
 		oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
+		for(int i=0;i<vehicle->ParameterDeclaration->Parameter.size();i++)
+		{
+			if (vehicle->ParameterDeclaration->Parameter[i]->name.getValue() == "CameraX")
+			{
+				double X=0.0, Y=0.0, Z=0.0, H=0.0, P=0.0, R=0.0, FOV=0.0;
+				for (int n = i; n < vehicle->ParameterDeclaration->Parameter.size(); n++)
+				{
+					if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraX")
+					{
+						X = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraY")
+					{
+						Y = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraZ")
+					{
+						Z = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraH")
+					{
+						H = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraP")
+					{
+						P = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraR")
+					{
+						R = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraFOV")
+					{
+						FOV = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+				}
+				coCoord coord;
+				coord.hpr[0] = H;
+				coord.hpr[1] = P;
+				coord.hpr[2] = R;
+				coord.xyz[0] = X;
+				coord.xyz[1] = Y;
+				coord.xyz[2] = Z;
+				osg::Matrix cameraMat;
+				coord.makeMat(cameraMat);
+
+				osg::Matrix rotMat;
+				rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
+
+				CameraSensor *camera = new CameraSensor(currentTentity, vehicle, rotMat*cameraMat, FOV);
+				cameras.push_back(camera);
+				if (currentCamera == NULL)
+					currentCamera = camera;
+				break;
+			}
+		}
+		
 		for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it !=  vehicle->Properties->File.end(); it++)
 		{
 			oscFile* file = ((oscFile*)(*it));
-			(*entity_iter)->filepath = file->filepath.getValue();
+			currentTentity->filepath = file->filepath.getValue();
 		}
 		for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++)
 		{	
 			oscPrivate* actions_private = ((oscPrivate*)(*it));
-			if((*entity_iter)->getName() == actions_private->object.getValue())
+			if(currentTentity->getName() == actions_private->object.getValue())
 			{
 				for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
 				{	
 					oscPrivateAction* action = ((oscPrivateAction*)(*it2));
 					if(action->Longitudinal.exists())
 					{
-						(*entity_iter)->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
+						currentTentity->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
 					}
 					if(action->Position.exists())
 					{
 						//osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
 						//(*entity_iter)->setPosition(initPosition);
-						(*entity_iter)->roadId = action->Position->Lane->roadId.getValue();
-						(*entity_iter)->laneId = action->Position->Lane->laneId.getValue();
-						(*entity_iter)->inits = action->Position->Lane->s.getValue();
+						currentTentity->roadId = action->Position->Lane->roadId.getValue();
+						currentTentity->laneId = action->Position->Lane->laneId.getValue();
+						currentTentity->inits = action->Position->Lane->s.getValue();
 					}
 				}
 			}
 		}
-		int roadId = atoi((*entity_iter)->roadId.c_str());
-		(*entity_iter)->setInitEntityPosition(system->getRoad(roadId));
+		int roadId = atoi(currentTentity->roadId.c_str());
+		currentTentity->setInitEntityPosition(system->getRoad(roadId));
 	}
 
 	//initialize acts
@@ -354,9 +443,9 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 				oscEntity* namedEntity = ((oscEntity*)(*it));
 				if (namedEntity->name.getValue() != "$owner")
 				{
-					activeEntityList_temp.push_back(sm->getEntityByName(namedEntity->name.getValue()));
+					activeEntityList_temp.push_back(scenarioManager->getEntityByName(namedEntity->name.getValue()));
 				}
-				else{activeEntityList_temp.push_back(sm->getEntityByName(story->owner.getValue()));
+				else{activeEntityList_temp.push_back(scenarioManager->getEntityByName(story->owner.getValue()));
 				}
 				cout << "Entity: " << story->owner.getValue() << " allocated to " << act->getName() << endl;
 			}
@@ -368,7 +457,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 				cout << "Manuever: " << maneuver->getName() << " created" << endl;
 			}
 			act->initialize(act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp);
-			sm->actList.push_back(act);
+			scenarioManager->actList.push_back(act);
 			cout << "Act: " <<  act->getName() << " initialized" << endl;
 			maneuverList_temp.clear();
 			activeEntityList_temp.clear();
@@ -384,12 +473,12 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 			oscCondition* condition = ((oscCondition*)(*it));
 			if(condition->ByValue.exists())
 			{
-					sm->endConditionType = "time";
-					sm->endTime = condition->ByValue->SimulationTime->value.getValue();
+					scenarioManager->endConditionType = "time";
+					scenarioManager->endTime = condition->ByValue->SimulationTime->value.getValue();
 			}
 		}
 	}
-	for (list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 	{
 		for (list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 		{
@@ -466,13 +555,13 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 											if ((*maneuver_iter)->getName() == maneuver->name.getValue())
 											{
 												(*maneuver_iter)->startConditionType="distance";
-												(*maneuver_iter)->passiveCar = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
+												(*maneuver_iter)->passiveCarName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
 												(*maneuver_iter)->relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
 
 												for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
 												{	
 													oscEntity* entity = ((oscEntity*)(*it));
-													(*maneuver_iter)->activeCar = entity->name.getValue();
+													(*maneuver_iter)->activeCarName = entity->name.getValue();
 												}
 											}
 										}
@@ -489,8 +578,16 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 								{
 									if ((*maneuver_iter)->getName() == maneuver->name.getValue())
 									{
-										(*maneuver_iter)->maneuverType="followTrajectory";
-										(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										if (action->Private->Routing->FollowTrajectory.exists())
+										{
+											(*maneuver_iter)->maneuverType = "followTrajectory";
+											(*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										}
+										else if (action->Private->Routing->FollowRoute.exists())
+										{
+											(*maneuver_iter)->maneuverType = "FollowRoute";
+											(*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										}
 									}
 								}
 								if(action->Private->Longitudinal.exists())
@@ -510,7 +607,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *filename, osg::Group *, const ch
 	}
 
 	//acess maneuvers in acts
-	for(list<Act*>::iterator act_iter = sm->actList.begin(); act_iter != sm->actList.end(); act_iter++)
+	for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 	{
 		for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
 		{
@@ -810,15 +907,14 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
 
 			if (!vpbString.empty())
 			{
-				coVRPlugin *roadTerrainPlugin = cover->addPlugin("RoadTerrain");
 				fprintf(stderr, "loading %s\n", vpbString.c_str());
-				if (RoadTerrainPlugin::plugin)
+				if (RoadTerrainLoader::instance())
 				{
 					osg::Vec3d offset(0, 0, 0);
 					const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
 					offset.set(header.xoffset, header.yoffset, 0.0);
 					fprintf(stderr, "loading %s offset: %f %f\n", (xodrDirectory + "/" + vpbString).c_str(), offset[0], offset[1]);
-					RoadTerrainPlugin::plugin->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
+					RoadTerrainLoader::instance()->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);
 				}
 			}
 		}

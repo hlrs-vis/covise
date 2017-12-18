@@ -130,12 +130,14 @@ public:
     bool parseElevationElement(QDomElement &element, RSystemElementRoad *road);
     bool parseSuperelevationElement(QDomElement &element, RSystemElementRoad *road);
     bool parseCrossfallElement(QDomElement &element, RSystemElementRoad *road);
+	bool parseShapeElement(QDomElement &element, RSystemElementRoad *road);
 
     bool parseLaneSectionElement(QDomElement &element, RSystemElementRoad *road);
     bool parseLaneElement(QDomElement &element, LaneSection *laneSection);
 
     bool parseControllerElement(QDomElement &child, QString &oldTileId);
     bool parseJunctionElement(QDomElement &child, QString &oldTileId);
+	bool parseJunctionGroupElement(QDomElement &child, QString &oldTileId);
     bool parseFiddleyardElement(QDomElement &child, QString &oldTileId);
     bool parsePedFiddleyardElement(QDomElement &child, QString &oldTileId);
     bool parseSceneryElement(QDomElement &child);
@@ -155,6 +157,7 @@ protected:
 
 private:
     QDomDocument *doc_;
+	float opendriveVersion_;
 
     bool check(bool success, const QDomElement &element, const QString &attributeName, const QString &type);
     void setTile(const QString &id, QString &oldId);

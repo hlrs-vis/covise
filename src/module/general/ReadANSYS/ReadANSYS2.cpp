@@ -363,8 +363,8 @@ ReadANSYS::derivedData()
             }
             else
             {
-                int num_entries = outputIsVector() ? tmp_vec.size() / 3 : tmp_vec.size();
-                for (int j = 0; j < (outputIsVector() ? 3 : 1); j++)
+                size_t num_entries = outputIsVector() ? tmp_vec.size() / 3 : tmp_vec.size();
+                for (size_t j = 0; j < (outputIsVector() ? 3 : 1); j++)
                 {
                     for (int i = 0; i < num_entries; i++)
                     {
@@ -679,7 +679,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
     int offset = 0;
     int component;
     int topBot = h_top_bottom_->getIValue();
-    int numTimes = 0, node, period = 0;
+    size_t numTimes = 0, node, period = 0;
 
     std::vector<double> enhData;
     std::vector<double> *ptrData = &derData;
@@ -699,7 +699,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
 
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
             break;
         }
@@ -708,23 +708,23 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             if (component < 0)
                 break;
             period = 22;
-            numTimes = derData.size() / period;
+            numTimes = (int)derData.size() / period;
             switch (topBot)
             {
             case BOTTOM:
-                offset = derData.size() / 2;
+                offset = (int)derData.size() / 2;
 
             case TOP:
                 for (node = 0; node < numTimes; ++node)
                 {
-                    ret.push_back(derData[node * period + component + offset]);
+                    ret.push_back(float(derData[node * period + component + offset]));
                 }
                 break;
 
             case AVERAGE:
                 for (node = 0; node < numTimes; ++node)
                 {
-                    ret.push_back(.5 * (derData[node * period + component] + derData[node * period + component + derData.size() / 2]));
+                    ret.push_back(float(0.5 * (derData[node * period + component] + derData[node * period + component + derData.size() / 2])));
                 }
                 break;
 
@@ -740,7 +740,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             component = h_beam_stress_->getIValue() - 1;
             if (component != 0)
                 break;
-            ret.push_back(derData[0]);
+            ret.push_back(float(derData[0]));
             break;
 
         case ANSYS::BEAM3:
@@ -777,10 +777,10 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
                 return ret;
             }
 
-            numTimes = derData.size() / period;
+            numTimes = (int)derData.size() / period;
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
             break;
 
@@ -791,7 +791,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             numTimes = derData.size() / period;
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
             break;
 
@@ -818,10 +818,10 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             if (component == 10)
                 component = 6;
             period = 7;
-            numTimes = derData.size() / period;
+            numTimes = (int)derData.size() / period;
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
             break;
 
@@ -829,7 +829,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             component = h_beam_stress_->getIValue() - 1;
             if (component != 0)
                 break;
-            ret.push_back(derData[0]);
+            ret.push_back(float(derData[0]));
             break;
 
         case ANSYS::BEAM3:
@@ -865,10 +865,10 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
                 ret.push_back(ReadRST::FImpossible_);
                 return ret;
             }
-            numTimes = derData.size() / period;
+            numTimes = (int)derData.size() / period;
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
             break;
 
@@ -888,11 +888,11 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
                 }
             }
 
-            numTimes = derData.size() / period;
+            numTimes = (int)derData.size() / period;
 
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
             break;
 
@@ -914,7 +914,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
                 offset = 8;
                 break;
             }
-            ret.push_back(derData[component + offset]);
+            ret.push_back(float(derData[component + offset]));
             break;
 
         case ANSYS::SHELL:
@@ -956,20 +956,20 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             switch (topBot)
             {
             case BOTTOM:
-                offset = (*ptrData).size() / 2;
+                offset = (int)(*ptrData).size() / 2;
             // break;
             case TOP:
                 numTimes = (*ptrData).size() / (2 * period);
                 for (node = 0; node < numTimes; ++node)
                 {
-                    ret.push_back((*ptrData)[node * period + component + offset]);
+                    ret.push_back(float((*ptrData)[node * period + component + offset]));
                 }
                 break;
             case AVERAGE:
-                numTimes = (*ptrData).size() / period;
+                numTimes = (int)(*ptrData).size() / period;
                 for (node = 0; node < numTimes; ++node)
                 {
-                    ret.push_back(.5 * ((*ptrData)[node * period + component] + (*ptrData)[node * period + component + (*ptrData).size() / 2]));
+                    ret.push_back(float(.5 * ((*ptrData)[node * period + component] + (*ptrData)[node * period + component + (*ptrData).size() / 2])));
                 }
                 break;
             }
@@ -995,12 +995,12 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             return ret;
             break;
         }
-        numTimes = derData.size() / period;
+        numTimes = (int)derData.size() / period;
         if (component != 3) // not a vector
         {
             for (node = 0; node < numTimes; ++node)
             {
-                ret.push_back(derData[node * period + component]);
+                ret.push_back(float(derData[node * period + component]));
             }
         }
         else // vector
@@ -1009,7 +1009,7 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
             {
                 for (node = 0; node < numTimes; ++node)
                 {
-                    ret.push_back(derData[node * period + j]);
+                    ret.push_back(float(derData[node * period + j]));
                 }
             }
         }
@@ -1020,15 +1020,15 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
         switch (component)
         {
         case 0: // volume
-            ret.push_back(derData[0]);
+            ret.push_back(float(derData[0]));
             break;
 
         case 1: // sene
-            ret.push_back(derData[1]);
+            ret.push_back(float(derData[1]));
             break;
 
         case 2: // kene
-            ret.push_back(derData[3]);
+            ret.push_back(float(derData[3]));
             break;
         }
         break;
@@ -1037,24 +1037,24 @@ ReadANSYS::ProcessDerivedField(std::vector<double> &derData,
         component = h_mag_flux_dens_->getIValue() + 1;
         if (component != 5 && component != 1) // not bsum and no vector
         {
-            ret.push_back(derData[component - 2]);
+            ret.push_back(float(derData[component - 2]));
         }
         else if (component != 1) // bsum
         {
-            ret.push_back(sqrt(derData[0] * derData[0] + derData[1] * derData[1] + derData[2] * derData[2]));
+            ret.push_back(float(sqrt(derData[0] * derData[0] + derData[1] * derData[1] + derData[2] * derData[2])));
         }
         else // vector
         {
-            ret.push_back(derData[0]);
-            ret.push_back(derData[1]);
-            ret.push_back(derData[2]);
+            ret.push_back(float(derData[0]));
+            ret.push_back(float(derData[1]));
+            ret.push_back(float(derData[2]));
         }
         break;
 
     case 9:
         for (node = 0; node < derData.size(); ++node)
         {
-            ret.push_back(derData[node]);
+            ret.push_back(float(derData[node]));
         }
         break;
 
@@ -1188,9 +1188,9 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
             z_l_no_data.push_back(z_l[node]);
         }
     }
-    Map1D nodesDataDecode(nodes_with_data.size(), &nodes_with_data[0]);
+    Map1D nodesDataDecode((int)nodes_with_data.size(), &nodes_with_data[0]);
     int *np = (nodes_without_data.size() > 0) ? &nodes_without_data[0] : NULL;
-    Map1D nodesNoDataDecode(nodes_without_data.size(), np);
+    Map1D nodesNoDataDecode((int)nodes_without_data.size(), np);
 
     // now create data for grid with data (and without)
     std::vector<int> e_l_data;
@@ -1247,8 +1247,8 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
     if (t_l_no_data.size() == 0) // the whole grid has data
     {
         coDoUnstructuredGrid *p_grid = new coDoUnstructuredGrid(gridName,
-                                                                e_l_data.size(),
-                                                                v_l_data.size(), x_l_data.size(),
+                                                                (int)e_l_data.size(),
+                                                                (int)v_l_data.size(), (int)x_l_data.size(),
                                                                 &e_l_data[0],
                                                                 &v_l_data[0],
                                                                 &x_l_data[0],
@@ -1260,7 +1260,7 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
         // Trivial node decode indices, if required
         if (h_output_node_decode_->getIValue())
         {
-            int dimArray = x_l_data.size();
+            int dimArray = (int)x_l_data.size();
             coDistributedObject *intArray = new coDoIntArr(nodeIndName, 1, &dimArray);
             node_decode_list.push_back(intArray);
             int *trivial_codes = dynamic_cast<coDoIntArr *>(intArray)->getAddress();
@@ -1274,7 +1274,7 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
         {
             if (!field1)
             {
-                int sz = field_data[0].size();
+                int sz = (int)field_data[0].size();
                 if (sz != 0 && data_per_elem && p_vertex_based_->getValue())
                 {
                     data_set_list.push_back(coInterp.interpolate(p_grid, 1,
@@ -1283,13 +1283,13 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
                 else
                 {
                     data_set_list.push_back(new coDoFloat(dataName,
-                                                          field_data[0].size(),
+                                                          (int)field_data[0].size(),
                                                           &field_data[0][0]));
                 }
             }
             else
             {
-                int sz = field_data[0].size();
+                int sz = (int)field_data[0].size();
                 if (sz != 0 && data_per_elem && p_vertex_based_->getValue())
                 {
                     data_set_list.push_back(coInterp.interpolate(p_grid, 3,
@@ -1302,7 +1302,7 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
                 else
                 {
                     data_set_list.push_back(new coDoVec3(dataName,
-                                                         field_data[0].size(),
+                                                         (int)field_data[0].size(),
                                                          &field_data[0][0],
                                                          &field_data[1][0],
                                                          &field_data[2][0]));
@@ -1313,7 +1313,7 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
                 data_set_list[data_set_list.size() - 1]->addAttribute("SPECIES", p_esol_->getActLabel());
             }
         }
-        int matSize = m_l_data.size();
+        int matSize = (int)m_l_data.size();
         coDoIntArr *matOut = new coDoIntArr(matName, 1, &matSize);
         memcpy(matOut->getAddress(), &m_l_data[0], m_l_data.size() * sizeof(int));
         mat_set_list.push_back(matOut);
@@ -1342,16 +1342,16 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
         mat_list[2] = NULL;
 
         // grid
-        grid_list[0] = new coDoUnstructuredGrid(gridNameData, e_l_data.size(),
-                                                v_l_data.size(), x_l_data.size(),
+        grid_list[0] = new coDoUnstructuredGrid(gridNameData, (int)e_l_data.size(),
+                                                (int)v_l_data.size(), (int)x_l_data.size(),
                                                 &e_l_data[0],
                                                 &v_l_data[0],
                                                 &x_l_data[0],
                                                 &y_l_data[0],
                                                 &z_l_data[0],
                                                 &t_l_data[0]);
-        grid_list[1] = new coDoUnstructuredGrid(gridNameNoData, e_l_no_data.size(),
-                                                v_l_no_data.size(), x_l_no_data.size(),
+        grid_list[1] = new coDoUnstructuredGrid(gridNameNoData, (int)e_l_no_data.size(),
+                                                (int)v_l_no_data.size(), (int)x_l_no_data.size(),
                                                 &e_l_no_data[0],
                                                 &v_l_no_data[0],
                                                 &x_l_no_data[0],
@@ -1361,11 +1361,11 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
         grid_list[0]->addAttribute("COLOR", "White");
         grid_list[1]->addAttribute("COLOR", "White");
         // material
-        int matSize = m_l_data.size();
+        int matSize = (int)m_l_data.size();
         coDoIntArr *matOutData = new coDoIntArr(matNameData, 1, &matSize);
         memcpy(matOutData->getAddress(), &m_l_data[0], m_l_data.size() * sizeof(int));
         mat_list[0] = matOutData;
-        matSize = m_l_no_data.size();
+        matSize = int(m_l_no_data.size());
         coDoIntArr *matOutNoData = new coDoIntArr(matNameNoData, 1, &matSize);
         memcpy(matOutNoData->getAddress(), &m_l_no_data[0], m_l_no_data.size() * sizeof(int));
         mat_list[1] = matOutNoData;
@@ -1377,7 +1377,7 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
         {
             if (!field1)
             {
-                int sz = field_data[0].size();
+                int sz = (int)field_data[0].size();
                 if (sz != 0 && data_per_elem && p_vertex_based_->getValue())
                 {
                     data_list[0] = coInterp.interpolate(grid_list[0], 1,
@@ -1388,14 +1388,14 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
                 else
                 {
                     data_list[0] = new coDoFloat(dataNameData,
-                                                 field_data[0].size(),
+                                                 (int)field_data[0].size(),
                                                  &field_data[0][0]);
                 }
                 data_list[1] = new coDoFloat(dataNameNoData, 0);
             }
             else
             {
-                int sz = field_data[0].size();
+                int sz = (int)field_data[0].size();
                 if (sz != 0 && data_per_elem && p_vertex_based_->getValue())
                 {
                     data_list[0] = coInterp.interpolate(grid_list[0], 3,
@@ -1408,7 +1408,7 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
                 else
                 {
                     data_list[0] = new coDoVec3(dataNameData,
-                                                field_data[0].size(),
+                                                (int)field_data[0].size(),
                                                 &field_data[0][0],
                                                 &field_data[1][0],
                                                 &field_data[2][0]);
@@ -1433,9 +1433,9 @@ ReadANSYS::MakeGridAndObjectsElems(const std::string &gridName,
             nodeIndNameNoData += "_no_data";
             coDistributedObject *node_ind_list[3];
             node_ind_list[2] = NULL;
-            int numData = nodes_with_data.size();
+            int numData = (int)nodes_with_data.size();
             node_ind_list[0] = new coDoIntArr(nodeIndNameData, 1, &numData, &nodes_with_data[0]);
-            int numNoData = nodes_without_data.size();
+            int numNoData = (int)nodes_without_data.size();
             node_ind_list[1] = new coDoIntArr(nodeIndNameNoData, 1, &numNoData, &nodes_without_data[0]);
             node_decode_list.push_back(new coDoSet(nodeIndName, node_ind_list));
         }
@@ -1462,7 +1462,7 @@ ReadANSYS::workOutEqv(std::vector<double> &derData, std::vector<double> &enhData
 {
     enhData.clear();
     int punkt;
-    int n_punkt = derData.size() / 6;
+    int n_punkt = (int)derData.size() / 6;
     for (punkt = 0; punkt < n_punkt; ++punkt)
     {
         int comp;

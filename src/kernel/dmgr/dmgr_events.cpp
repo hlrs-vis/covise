@@ -61,7 +61,6 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     char new_interface_name[256];
     char *tmp_ptr, *data;
     ObjectEntry *oe;
-    Host *tmphost;
     static int first = 1;
     localAlloc = false;
 

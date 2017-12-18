@@ -176,6 +176,7 @@ VrmlNodeType *VrmlNodeCOVER::defineType(VrmlNodeType *t)
     t->addExposedField("animationTimeStep", VrmlField::SFINT32);
     t->addExposedField("activePerson", VrmlField::SFINT32);
     t->addEventIn("saveTimestamp", VrmlField::SFSTRING);
+	t->addExposedField("loadPlugin", VrmlField::SFSTRING);
 
     return t;
 }
@@ -189,6 +190,7 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     d_animationTimeStep.set(0);
     d_activePerson.set(0);
     d_saveTimestamp.set("");
+	d_loadPlugin.set("");
     reference();
 #ifdef VRML_PUI
     pTab1 = new coPUITab("VRML Keyboard");
@@ -440,6 +442,10 @@ void VrmlNodeCOVER::eventIn(double timeStamp,
     {
         System::the->saveTimestamp(d_saveTimestamp.get());
     }
+	else if ((strcmp(eventName, "set_loadPlugin") == 0) || (strcmp(eventName, "loadPlugin") == 0))
+	{
+		System::the->loadPlugin(d_loadPlugin.get());
+	}
     else
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
@@ -517,6 +523,8 @@ void VrmlNodeCOVER::setField(const char *fieldName,
         TRY_FIELD(orientation14, SFRotation)
     else if
         TRY_FIELD(orientation15, SFRotation)
+	else if
+		TRY_FIELD(loadPlugin, SFString)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
     if (strcmp("soundEnvironment", fieldName) == 0)
@@ -535,6 +543,10 @@ void VrmlNodeCOVER::setField(const char *fieldName,
     {
         System::the->setActivePerson(d_activePerson.get());
     }
+	else if ((strcmp(fieldName, "set_loadPlugin") == 0) || (strcmp(fieldName, "loadPlugin") == 0))
+	{
+		System::the->loadPlugin(d_loadPlugin.get());
+	}
 }
 
 // process remote key events, called by eventQueue

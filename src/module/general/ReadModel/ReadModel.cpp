@@ -163,7 +163,7 @@ int ReadModel::compute(const char *) {
 
 	// create a coDoSet in case of multiple meshes
 	if (model.allMeshes.size() > 1) {
-		coDoSet *modelSet = new coDoSet(polyName.c_str(), model.allMeshes.size(), &model.allMeshes.front());
+		coDoSet *modelSet = new coDoSet(polyName.c_str(), (int)model.allMeshes.size(), &model.allMeshes.front());
 		model.allMeshes.clear();
 		p_polyOut->setCurrentObject(modelSet);
 	}
@@ -173,7 +173,7 @@ int ReadModel::compute(const char *) {
 
 	// create a coDoSet in case of multiple meshes
 	if (model.allNormals.size() > 1) {
-		coDoSet *normalSet = new coDoSet(normalName.c_str(), model.allNormals.size(), &model.allNormals.front());
+		coDoSet *normalSet = new coDoSet(normalName.c_str(), (int)model.allNormals.size(), &model.allNormals.front());
 		model.allNormals.clear();
 		p_normalOut->setCurrentObject(normalSet);
 	}

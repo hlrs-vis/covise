@@ -4,8 +4,9 @@ ENDIF()
 
 USING(XERCESC OSGCAL CAL3D)
 using(VRML)
-using(V8)
+using(V8 optional)
 using(VehicleUtil)
+using(RoadTerrain)
 
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
@@ -63,12 +64,10 @@ SET(SOURCES
 
 
 INCLUDE_DIRECTORIES(
-   ../VehicleUtil
    ${OSGTERRAIN_INCLUDE_DIR}
    ${OSGCAL3D_INCLUDE_DIR}
    ${CAL3D_INCLUDE_DIR}
    ${GDAL_INCLUDE_DIR}
-   ${V8_INCLUDE_DIR}
 )
 
 
@@ -82,7 +81,6 @@ target_link_libraries(coTrafficSimulation
  ${OSGCAL_LIBRARIES}
  ${OPENSCENEGRAPH_LIBRARIES}
  ${EXTRA_LIBS}
- RoadTerrain
  #SteeringWheel #required for vrmlNodeVehicle (windows)
  coOpenVehicleUtil)
  

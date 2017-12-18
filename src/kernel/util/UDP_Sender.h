@@ -88,7 +88,11 @@ protected:
     char d_error[1024];
 
     // Socket number
+#ifdef WIN32
+	SOCKET d_socket;
+#else
     int d_socket;
+#endif
 
 private:
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1051,14 +1051,6 @@ int BicyclePlugin::initUI()
     return 1;
 }
 
-// this function is called if a message arrives
-void BicyclePlugin::message(int /*type*/, int /*length*/, const void * /*data*/)
-{
-    //if(type == PluginMessageTypes::HLRS_BicycleRemoteVehiclePosition)
-    {
-    }
-}
-
 void
 BicyclePlugin::stop()
 {

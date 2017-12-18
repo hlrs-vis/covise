@@ -363,8 +363,8 @@ VRCoviseConnection::localParam(bool inMapLoading, void *callbackData)
 
     if (strcmp(paramname, "WindowID") == 0)
     {
-        long int windowID;
-        CoviseRender::get_reply_int_scalar(&windowID);
+        int64_t windowID;
+        CoviseRender::get_reply_int64_scalar(&windowID);
         // TODO: check for valid windowID
         for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
         {
@@ -451,7 +451,7 @@ VRCoviseConnection::receiveRenderMessage()
         if (coVRPlugin *ak = coVRPluginList::instance()->getPlugin("AKToolbar"))
         {
             // just indicate if a module is running
-            ak->message(strcmp(key, "FINISHED"), 0, NULL);
+            ak->message(0, strcmp(key, "FINISHED"), 0, NULL);
         }
     }
     else if (strncmp(key, "GRMSG", 5) == 0)
@@ -587,18 +587,39 @@ VRCoviseConnection::receiveRenderMessage()
                 // enable navigationmode showName
                 //coVRNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
                 // set navigationMode
-                if (strcmp(trackingMsg.getNavigationMode(), "") == 0)
+                std::string navmode(trackingMsg.getNavigationMode());
+                auto nav = coVRNavigationManager::instance();
+                if (navmode == "")
                 {
                     // do nothing
                 }
-                else if (strcmp(trackingMsg.getNavigationMode(), "NavNone") == 0)
+                else if (navmode == "NavNone")
                 {
-                    cover->enableNavigation("XForm");
-                    cover->disableNavigation("XForm");
+                    nav->setNavMode(coVRNavigationManager::NavNone);
+                }
+                else if (navmode == "XForm")
+                {
+                    nav->setNavMode(coVRNavigationManager::XForm);
+                }
+                else if (navmode == "Scale")
+                {
+                    nav->setNavMode(coVRNavigationManager::Scale);
+                }
+                else if (navmode == "Walk")
+                {
+                    nav->setNavMode(coVRNavigationManager::Walk);
+                }
+                else if (navmode == "Drive")
+                {
+                    nav->setNavMode(coVRNavigationManager::Glide);
+                }
+                else if (navmode == "Fly")
+                {
+                    nav->setNavMode(coVRNavigationManager::Fly);
                 }
                 else
                 {
-                    cover->enableNavigation(trackingMsg.getNavigationMode());
+                    std::cerr << "VRCoviseConnection: navigation mode " << navmode << " not implemented" << std::endl;
                 }
                 //enable tracking in opencover
 

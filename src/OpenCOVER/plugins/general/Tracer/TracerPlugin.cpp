@@ -36,7 +36,7 @@ void TracerPlugin::newInteractor(const RenderObject *container, coInteractor *i)
     {
         fprintf(stderr, "\n--- TracerPlugin::newInteractor from module %s\n", i->getModuleName());
         if (container)
-            fprintf(stderr, "container %ld %s\n", (long int)container, container->getName());
+            fprintf(stderr, "container %p %s\n", container, container->getName());
     }
     const char *moduleName = i->getModuleName();
     if ((strncmp(moduleName, "TracerComp", 10) == 0) || (strncmp(moduleName, "Tracer", 6) == 0))

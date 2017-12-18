@@ -676,7 +676,7 @@ void VariantPlugin::tabletEvent(coTUIElement *elem)
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
-void VariantPlugin::message(int type, int len, const void *buf)
+void VariantPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     if (type != PluginMessageTypes::VariantHide && type != PluginMessageTypes::VariantShow)
         return;

@@ -159,9 +159,9 @@ int ShowDistBoco::compute(const char *)
             v[number] = dirichletadr[j+1];
             w[number] = dirichletadr[j+2];*/
 
-            u[number] = _u;                       //adr[j] ist Knoten-Nummer aus UNSGRD
-            v[number] = _v;
-            w[number] = _w;
+            u[number] = float(_u);                       //adr[j] ist Knoten-Nummer aus UNSGRD
+            v[number] = float(_v);
+            w[number] = float(_w);
 
             x = x_g[adr[j]];
             y = y_g[adr[j]];

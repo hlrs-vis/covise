@@ -3,6 +3,7 @@
 <COCONFIG version="1" >
 
  <GLOBAL>
+ 
   <COVER>
    <NumScreens value="0" />
    <NumWindows value="0" />
@@ -10,13 +11,10 @@
  </GLOBAL>
 
  <CLUSTER MASTER="viscluster50">
-   <Bicycle>
-        <udp value="on"/>
-        <serverHost value="141.58.8.173" /> <!-- medialab14 -->
-   </Bicycle>
+
    <COVER>
      
-     <DebugTUI value="false" />
+     <DebugTUI value="true" />
      <!--Background r="1" g="1" b="1" /-->
      <Console ARCH="windows" value="true" file="c:\OpenCOVER" />
      <MenuMode value="false" />
@@ -203,6 +201,9 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
+    <Revit value="on">
+      <textures value="/data/revit/Textures" />
+    </Revit>
     <TrackObjects value="on">
 	    <Objects>
            <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
@@ -253,30 +254,6 @@
    <MultiPC>
     <SyncMode value="TCP" hosts="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60"/>
     <NumSlaves value="10" />
-    
-    <Multicast>
-     <debugLevel value="2" />
-     <mcastAddr value="224.223.222.221" />
-     <mcastPort value="23232" />
-     <mtu value="1500" />
-     <ttl value="1" />
-     <lback value="off" />
-     <sndBufferSpace value="1000000" />
-     <rcvBufferSpace value="1000000" />
-     <blockSize value="4" />
-     <numParity value="0" />
-     <txCacheSize value="100000000" />
-     <txCacheMin value="1" />
-     <txCacheMax value="128" />
-     <txRate value="1000" />
-     <backoffFactor value="0.0" />
-     <sockBufferSize value="512000" />
-     <readTimeoutSec value="30" />
-     <writeTimeoutMsec value="500" />
-     <retryTimeout value="100" />
-     <maxLength value="1000000" />
-    </Multicast>
-    
     <MasterInterface value="192.168.2.150" />
 
     <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
@@ -301,6 +278,29 @@
     <Startup ARCH="windows" value="covRemote OpenCOVER 9;" name="8" />    	 
     <Startup ARCH="windows" value="covRemote OpenCOVER 10;" name="9" />
        
+    <Multicast>
+     <debugLevel value="2" />
+     <mcastAddr value="224.223.222.221" />
+     <mcastPort value="23232" />
+     <mtu value="1500" />
+     <ttl value="1" />
+     <lback value="off" />
+     <sndBufferSpace value="1000000" />
+     <rcvBufferSpace value="1000000" />
+     <blockSize value="4" />
+     <numParity value="0" />
+     <txCacheSize value="100000000" />
+     <txCacheMin value="1" />
+     <txCacheMax value="128" />
+     <txRate value="1000" />
+     <backoffFactor value="0.0" />
+     <sockBufferSize value="512000" />
+     <readTimeoutSec value="30" />
+     <writeTimeoutMsec value="500" />
+     <retryTimeout value="100" />
+     <maxLength value="1000000" />
+    </Multicast>
+    
    </MultiPC>
 
   </COVER>
@@ -377,7 +377,7 @@
  <LOCAL HOST="viscluster52,viscluster53,viscluster55,viscluster56,viscluster57,viscluster59" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -385,7 +385,7 @@
  <LOCAL HOST="viscluster51,visent,visent.hlrs.de,viscluster54,viscluster55,viscluster56,viscluster58,viscluster60" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -400,7 +400,7 @@
     <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
    </ViewportConfig>
    <WindowConfig>
-   <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="50" name="0" decoration="true" />
+   <Window ARCH="x11" type="Qt" width="1600" comment="MAIN" window="0" pipeIndex="0" height="1000" left="100" top="50" name="0" decoration="true" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -547,6 +547,7 @@
    <Bicycle>
    <LenkMaus value="/dev/input/mouse3"/>
    <PedalMaus value="/dev/input/mouse4"/>
+   <isBike value="true"/>
    </Bicycle>
    <SteeringWheel>
 

@@ -70,7 +70,7 @@ int main(int argc, char **argv)
         if (!clientConn)
         {
             cerr << "Creation of ClientConnection failed!" << endl;
-            return false;
+            return 1;
         }
         else
         {
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         if (!(clientConn->is_connected()))
         {
             cerr << "Connection to RemoteDaemon on " << argv[1] << " failed!" << endl;
-            return false;
+            return 1;
         }
         else
         {
@@ -153,6 +153,8 @@ int main(int argc, char **argv)
         cerr << "Delete server object..." << endl;
         delete rd;
     }
+
+    return 0;
 }
 
 /**

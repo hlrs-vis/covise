@@ -27,12 +27,8 @@
  *									*
  ************************************************************************/
 
-#include "ui/QtView.h"
 #include "ui/Menu.h"
 #include "ui/Action.h"
-#include "qt/QtOsgWidget.h"
-#include <QMainWindow>
-#include <QMenuBar>
 
 #include <util/common.h>
 #include "VRWindow.h"
@@ -43,20 +39,32 @@
 #include "OpenCOVER.h"
 
 #include "coVRPluginSupport.h"
+#include "coVRPluginList.h"
+#include "coVRMSController.h"
 #include <osgViewer/GraphicsWindow>
 #if defined(WIN32)
 #include <osgViewer/api/Win32/GraphicsWindowWin32>
 #elif defined(__APPLE__) && !defined(USE_X11)
 #include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
 #else
+#if defined(USE_X11)
 #include <osgViewer/api/X11/GraphicsWindowX11>
 #endif
+#endif
 
-#include <QApplication>
-#include <QOpenGLWidget>
-
-using namespace vrui;
 using namespace opencover;
+
+namespace {
+
+std::string pluginName(const std::string &windowType)
+{
+    std::string p= windowType;
+    p[0] = std::toupper(p[0]);
+    p = "WindowType"+p;
+    return p;
+}
+
+}
 
 VRWindow *VRWindow::s_instance = NULL;
 VRWindow *VRWindow::instance()
@@ -87,6 +95,7 @@ VRWindow::~VRWindow()
     {
         fprintf(stderr, "\ndelete VRWindow\n");
     }
+    destroy();
     delete[] origVSize;
     delete[] origHSize;
 
@@ -99,6 +108,54 @@ VRWindow::config()
     if (cover->debugLevel(3))
     {
         fprintf(stderr, "\nVRWindow::config: %d windows\n", coVRConfig::instance()->numWindows());
+    }
+
+    // load plugins for all window types on master and all slaves
+    std::set<std::string> windowTypes;
+    auto &conf = *coVRConfig::instance();
+    for (int i = 0; i < conf.numWindows(); i++)
+    {
+        auto type = conf.windows[i].type;
+        if (!type.empty())
+            windowTypes.insert(type);
+    }
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        coVRMSController::SlaveData sdCount(sizeof(int));
+        coVRMSController::instance()->readSlaves(&sdCount);
+        for (int s=0; s<coVRMSController::instance()->clusterSize()-1; ++s)
+        {
+            int &count = *static_cast<int *>(sdCount.data[s]);
+            for (int i=0; i<count; ++i)
+            {
+                std::string t;
+                coVRMSController::instance()->readSlave(s, t);
+                windowTypes.insert(t);
+            }
+        }
+        int count = windowTypes.size();
+        coVRMSController::instance()->sendSlaves(&count, sizeof(count));
+        for (auto type: windowTypes)
+        {
+            auto plugName = pluginName(type);
+            plugName = coVRMSController::instance()->syncString(plugName);
+            coVRPluginList::instance()->addPlugin(plugName.c_str(), coVRPluginList::Window);
+        }
+    }
+    else
+    {
+        int count = windowTypes.size();
+        coVRMSController::instance()->sendMaster(&count, sizeof(count));
+        for (auto t: windowTypes)
+            coVRMSController::instance()->sendMaster(t);
+        coVRMSController::instance()->readMaster(&count, sizeof(count));
+        for (int i=0; i<count; ++i)
+        {
+            std::string plugName;
+            plugName = coVRMSController::instance()->syncString(plugName);
+            coVRPluginList::instance()->addPlugin(plugName.c_str(), coVRPluginList::Window);
+        }
     }
 
     origVSize = new int[coVRConfig::instance()->numWindows()];
@@ -115,11 +172,27 @@ VRWindow::config()
     return true;
 }
 
+void VRWindow::destroy()
+{
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<conf.numWindows(); ++i)
+    {
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowDestroy(i);
+    }
+
+    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Window);
+}
+
 void
 VRWindow::update()
 {
-    if (qApp)
-        qApp->processEvents();
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<conf.numWindows(); ++i)
+    {
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowCheckEvents(i);
+    }
 
     if (coVRConfig::instance()->numWindows() <= 0 || coVRConfig::instance()->numScreens() <= 0)
         return;
@@ -192,17 +265,11 @@ VRWindow::update()
 void
 VRWindow::updateContents()
 {
-    if (qApp)
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<coVRConfig::instance()->numWindows(); ++i)
     {
-        for (int i=0; i<coVRConfig::instance()->numWindows(); ++i)
-        {
-            auto win = dynamic_cast<QtGraphicsWindow *>(coVRConfig::instance()->windows[i].window.get());
-            if (win && win->widget())
-            {
-                win->widget()->update();
-            }
-        }
-       //qApp->processEvents();
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowUpdateContents(i);
     }
 }
 
@@ -236,44 +303,30 @@ VRWindow::createWin(int i)
             std::cerr << "creating window " << i << " with GL context version " << coVRConfig::instance()->glVersion << ", OpenGL3=" << opengl3 << std::endl;
         }
     }
-    if (conf.windows[i].qt)
-    {
-        if (!qApp)
-        {
-            new QApplication(coCommandLine::argc(), coCommandLine::argv());
-        }
 
-        QMainWindow *win = new QMainWindow();
-#ifdef __APPLE__
-        //auto menubar = new QMenuBar(nullptr);
-        auto menubar = win->menuBar();
-        menubar->setNativeMenuBar(false);
-#else
-        auto menubar = win->menuBar();
-#endif
-        win->show();
-        menubar->show();
-        cover->ui->addView(new ui::QtView(menubar));
-        QSurfaceFormat format;
-        format.setVersion(2, 1);
-        format.setProfile(QSurfaceFormat::CompatibilityProfile);
-        //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-        //format.setOption(QSurfaceFormat::DebugContext);
-        //format.setRedBufferSize(8);
-        format.setAlphaBufferSize(8);
-        format.setDepthBufferSize(24);
-        format.setRenderableType(QSurfaceFormat::OpenGL);
-        if (conf.m_stencil)
-            format.setStencilBufferSize(conf.m_stencilBits);
-        format.setStereo(conf.windows[i].stereo);
-        QSurfaceFormat::setDefaultFormat(format);
-        auto qtwin = new QtOsgWidget(win);
-        win->setCentralWidget(qtwin);
-        qtwin->show();
-        coVRConfig::instance()->windows[i].context = qtwin->graphicsWindow();
-        //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
+    if (!conf.windows[i].type.empty())
+    {
+        auto windowPlug = coVRPluginList::instance()->getPlugin(pluginName(conf.windows[i].type).c_str());
+        if (windowPlug)
+        {
+            if (windowPlug->windowCreate(i))
+            {
+                conf.windows[i].windowPlugin = windowPlug;
+            }
+            else
+            {
+                std::cerr << "VRWindow: plugin failed to create window " << i << " of type " << conf.windows[i].type << std::endl;
+                conf.windows[i].type.clear();
+            }
+        }
+        else
+        {
+            std::cerr << "VRWindow: no plugin for window " << i << " of type " << conf.windows[i].type << std::endl;
+            conf.windows[i].type.clear();
+        }
     }
-    else
+
+    if (conf.windows[i].type.empty())
     {
         osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
         traits->x = coVRConfig::instance()->windows[i].ox;
@@ -303,7 +356,9 @@ VRWindow::createWin(int i)
 #elif defined(__APPLE__) && !defined(USE_X11)
             traits->inheritedWindowData = new osgViewer::GraphicsWindowCocoa::WindowData(OpenCOVER::instance()->parentWindow);
 #else
+#if defined(USE_X11)
             traits->inheritedWindowData = new osgViewer::GraphicsWindowX11::WindowData(OpenCOVER::instance()->parentWindow);
+#endif
 #endif
         }
 
@@ -368,10 +423,7 @@ VRWindow::createWin(int i)
             }
         }
         //traits->alpha = 8;
-        if (coVRConfig::instance()->m_stencil == true)
-        {
-            traits->stencil = coVRConfig::instance()->numStencilBits();
-        }
+        traits->stencil = coVRConfig::instance()->numStencilBits();
         traits->doubleBuffer = true;
         traits->quadBufferStereo = coVRConfig::instance()->windows[i].stereo;
 
@@ -400,6 +452,7 @@ VRWindow::createWin(int i)
                 }
             }
         }
+        coVRConfig::instance()->windows[i].doublebuffer = traits->doubleBuffer;
     }
 
     if (!coVRConfig::instance()->windows[i].context)

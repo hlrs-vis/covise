@@ -165,14 +165,14 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
                 RSystemElementRoad *road = sink->getParentRoad();
 
-                QString contactPoint;
+                JunctionConnection::ContactPointValue contactPoint;
                 if (sink->getIsStart())
                 {
-                    contactPoint = "start";
+                    contactPoint = JunctionConnection::JCP_START;
                 }
                 else
                 {
-                    contactPoint = "end";
+                    contactPoint = JunctionConnection::JCP_END;
                 }
                 RoadLink *newRoadLink = NULL;
                 RSystemElementJunction *junction = NULL;

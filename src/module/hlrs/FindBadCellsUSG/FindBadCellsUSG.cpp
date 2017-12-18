@@ -141,16 +141,16 @@ struct polyData FindBadCellsUSG::createPolygons(coOutputPort *polyPort,
                                          0, 2, 3,
                                          1, 2, 3 };
 
-                    polyList.push_back(cornerList.size());
-                    polyList.push_back(cornerList.size() + 3);
-                    polyList.push_back(cornerList.size() + 6);
-                    polyList.push_back(cornerList.size() + 9);
+                    polyList.push_back((int)cornerList.size());
+                    polyList.push_back((int)cornerList.size() + 3);
+                    polyList.push_back((int)cornerList.size() + 6);
+                    polyList.push_back((int)cornerList.size() + 9);
                     corner = elemList[elemIndex];
 
                     for (int index = 0; index < 12; index++)
                     {
                         elem = connList[corner + facelist[index]];
-                        cornerList.push_back(px.size());
+                        cornerList.push_back((int)px.size());
                         dataList.push_back(test);
                         px.push_back(x[elem]);
                         py.push_back(y[elem]);
@@ -172,19 +172,19 @@ struct polyData FindBadCellsUSG::createPolygons(coOutputPort *polyPort,
                                          3, 4, 1, 0,
                                          1, 4, 5, 2 };
 
-                    polyList.push_back(cornerList.size());
-                    polyList.push_back(cornerList.size() + 3);
+                    polyList.push_back((int)cornerList.size());
+                    polyList.push_back((int)cornerList.size() + 3);
 
-                    polyList.push_back(cornerList.size() + 6);
-                    polyList.push_back(cornerList.size() + 10);
-                    polyList.push_back(cornerList.size() + 14);
+                    polyList.push_back((int)cornerList.size() + 6);
+                    polyList.push_back((int)cornerList.size() + 10);
+                    polyList.push_back((int)cornerList.size() + 14);
 
                     corner = elemList[elemIndex];
 
                     for (int index = 0; index < 18; index++)
                     {
                         elem = connList[corner + facelist[index]];
-                        cornerList.push_back(px.size());
+                        cornerList.push_back((int)px.size());
                         dataList.push_back(test);
                         px.push_back(x[elem]);
                         py.push_back(y[elem]);
@@ -207,19 +207,19 @@ struct polyData FindBadCellsUSG::createPolygons(coOutputPort *polyPort,
                                          1, 2, 6, 5,
                                          0, 3, 7, 4 };
 
-                    polyList.push_back(cornerList.size());
-                    polyList.push_back(cornerList.size() + 4);
-                    polyList.push_back(cornerList.size() + 8);
-                    polyList.push_back(cornerList.size() + 12);
-                    polyList.push_back(cornerList.size() + 16);
-                    polyList.push_back(cornerList.size() + 20);
+                    polyList.push_back((int)cornerList.size());
+                    polyList.push_back((int)cornerList.size() + 4);
+                    polyList.push_back((int)cornerList.size() + 8);
+                    polyList.push_back((int)cornerList.size() + 12);
+                    polyList.push_back((int)cornerList.size() + 16);
+                    polyList.push_back((int)cornerList.size() + 20);
 
                     corner = elemList[elemIndex];
 
                     for (int index = 0; index < 24; index++)
                     {
                         elem = connList[corner + facelist[index]];
-                        cornerList.push_back(px.size());
+                        cornerList.push_back((int)px.size());
                         dataList.push_back(test);
                         px.push_back(x[elem]);
                         py.push_back(y[elem]);
@@ -238,8 +238,8 @@ struct polyData FindBadCellsUSG::createPolygons(coOutputPort *polyPort,
             }
         }
 
-        poly = new coDoPolygons(polyPort->getObjName(), px.size(), &px[0], &py[0], &pz[0], cornerList.size(), &cornerList[0], polyList.size(), &polyList[0]);
-        data = new coDoFloat(dataPort->getObjName(), dataList.size(), &dataList[0]);
+        poly = new coDoPolygons(polyPort->getObjName(), (int)px.size(), &px[0], &py[0], &pz[0], (int)cornerList.size(), &cornerList[0], (int)polyList.size(), &polyList[0]);
+        data = new coDoFloat(dataPort->getObjName(), (int)dataList.size(), &dataList[0]);
     }
 
     struct polyData polyData;
@@ -318,7 +318,7 @@ float FindBadCellsUSG::testTetrahedron(int elemIndex, int *elemList, int *connLi
                    y[lines[index][2]] - y[lines[index][3]],
                    z[lines[index][2]] - z[lines[index][3]]);
 
-        float alpha = (acos((a * b) / (a.length() * b.length()))) * 180 / M_PI;
+        float alpha = float((acos((a * b) / (a.length() * b.length()))) * 180 / M_PI);
 
         if (alpha < threshold)
             return alpha;
@@ -384,7 +384,7 @@ float FindBadCellsUSG::testPrism(int elemIndex, int *elemList, int *connList, fl
                    y[lines[index][2]] - y[lines[index][3]],
                    z[lines[index][2]] - z[lines[index][3]]);
 
-        float alpha = (acos((a * b) / (a.length() * b.length()))) * 180 / M_PI;
+        float alpha = float((acos((a * b) / (a.length() * b.length()))) * 180 / M_PI);
 
         if (alpha < threshold)
             return alpha;
@@ -460,7 +460,7 @@ float FindBadCellsUSG::testHexaeder(int elemIndex, int *elemList, int *connList,
                    y[lines[index][2]] - y[lines[index][3]],
                    z[lines[index][2]] - z[lines[index][3]]);
 
-        float alpha = (acos((a * b) / (a.length() * b.length()))) * 180 / M_PI;
+        float alpha = float((acos((a * b) / (a.length() * b.length()))) * 180 / M_PI);
 
         if (alpha < threshold)
             return alpha;

@@ -28,6 +28,8 @@ class SurfaceSection;
 class CarPool;
 class Pool;
 
+class GeoReference;
+
 
 class DomWriter : public Visitor
 {
@@ -61,25 +63,32 @@ public:
     virtual void visit(TrackElementArc *);
     virtual void visit(TrackElementSpiral *);
     virtual void visit(TrackElementPoly3 *);
+	virtual void visit(TrackElementCubicCurve *);
 
     virtual void visit(SurfaceSection *);
 
     virtual void visit(ElevationSection *);
     virtual void visit(SuperelevationSection *);
     virtual void visit(CrossfallSection *);
+    virtual void visit(ShapeSection *);
 
     virtual void visit(LaneSection *);
     virtual void visit(Lane *);
     virtual void visit(LaneWidth *);
+	virtual void visit(LaneBorder *);
     virtual void visit(LaneRoadMark *);
     virtual void visit(LaneSpeed *);
     virtual void visit(LaneHeight *);
+	virtual void visit(LaneRule *);
+	virtual void visit(LaneAccess *);
 
     virtual void visit(Object *);
+	virtual void visit(ObjectReference *);
     virtual void visit(Bridge *);
     virtual void visit(Tunnel *);
     virtual void visit(Crosswalk *);
     virtual void visit(Signal *);
+	virtual void visit (SignalReference *);
     virtual void visit(Sensor *);
 
     virtual void visit(FiddleyardSink *);
@@ -90,6 +99,8 @@ public:
 
     virtual void visit(RSystemElementJunction *);
     virtual void visit(JunctionConnection *);
+
+	virtual void visit(RSystemElementJunctionGroup *);
 
     // VehicleSystem //
     //
@@ -112,6 +123,10 @@ public:
     virtual void visit(Heightmap *);
     virtual void visit(SceneryTesselation *);
 
+	// Georeference //
+	//
+	virtual void visit(GeoReference *);
+
 private:
     DomWriter()
         : Visitor()
@@ -120,6 +135,8 @@ private:
 
     QDomDocument *doc_;
     QDomElement root_;
+
+	QDomElement header_;
 
     QDomElement currentRoad_;
     QDomElement currentPVElement_;

@@ -46,12 +46,12 @@ void MocFM_2WayEdgeRefine2(CtrlType *ctrl, GraphType *graph, float *tpwgts, floa
   perm = idxwspacemalloc(ctrl, nvtxs);
   qnum = idxwspacemalloc(ctrl, nvtxs);
 
-  limit = amin(amax(0.01*nvtxs, 15), 100);
+  limit = (int)amin(amax(0.01*nvtxs, 15), 100);
 
   Compute2WayHLoadImbalanceVec(ncon, npwgts, tpwgts, origbal);
   for (i=0; i<ncon; i++) {
-    origdiff[i] = fabs(tpwgts[0]-npwgts[i]);
-    ubvec[i] = amax(origbal[i], orgubvec[i]);
+    origdiff[i] = (float)(fabs(tpwgts[0]-npwgts[i]));
+    ubvec[i] =(float) amax(origbal[i], orgubvec[i]);
   }
 
   /* Setup the weight intervals of the two subdomains */
@@ -61,7 +61,7 @@ void MocFM_2WayEdgeRefine2(CtrlType *ctrl, GraphType *graph, float *tpwgts, floa
   for (i=0; i<2; i++) {
     for (j=0; j<ncon; j++) {
       maxwgt[i*ncon+j] = tpwgts[i]*ubvec[j];
-      minwgt[i*ncon+j] = tpwgts[i]*(1.0/ubvec[j]);
+      minwgt[i*ncon+j] = tpwgts[i]*(1.0f/ubvec[j]);
     }
   }
 

@@ -379,8 +379,6 @@ int ReadIdea::compute(const char *)
     float factor;
     float dummy;
 
-    FILE *datafile;
-
     for (int i = 0; i < nCoord2D; i++)
     {
         factor = 1. / nMeasurements[i];
@@ -389,7 +387,8 @@ int ReadIdea::compute(const char *)
         {
             file = path + caseName + "-" + fileNames[i][j];
 
-            if ((datafile = fopen(file.c_str(), "r")) <= 0)
+            FILE *datafile = fopen(file.c_str(), "r");
+            if (!datafile)
             {
                 sendError("ERROR: can't open file: %s", file.c_str());
                 return STOP_PIPELINE;

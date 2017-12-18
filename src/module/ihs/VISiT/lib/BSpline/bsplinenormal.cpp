@@ -33,7 +33,7 @@ void BSplineNormal(int deg, struct Point *d, struct Flist *t, float t0, float *g
    grad[1] = p2[1] - p1[1];
    grad[2] = p2[2] - p1[2];
    // normalize
-   mag      = sqrt(pow(grad[0], 2) + pow(grad[1], 2) + pow(grad[2], 2));
+   mag      = float(sqrt(pow(grad[0], 2) + pow(grad[1], 2) + pow(grad[2], 2)));
    grad[0] /= mag;
    grad[1] /= mag;
    grad[2] /= mag;
@@ -60,7 +60,7 @@ void BSplineNormalXZ(int deg, struct Point *d, struct Flist *t, float t0, float 
    grad[1] = p2[1] - p1[1];
    grad[2] = p2[2] - p1[2];
    // normalize
-   mag      = sqrt(pow(grad[0], 2) + pow(grad[1], 2) + pow(grad[2], 2));
+   mag      = float(sqrt(pow(grad[0], 2) + pow(grad[1], 2) + pow(grad[2], 2)));
    grad[0] /= mag;
    grad[1] /= mag;
    grad[2] /= mag;

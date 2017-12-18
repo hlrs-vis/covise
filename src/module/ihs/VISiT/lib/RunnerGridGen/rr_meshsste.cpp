@@ -94,7 +94,7 @@ struct Ilist *ssnod, struct Ilist *sste, struct Ilist *outlet)
       u2[1] = reg->line[1]->y[i];
       for(j = 0; j < reg->line[0]->nump; j++)
       {
-         para = (1.0 - reg->para[1]->list[i])*reg->para[0]->list[j]
+         para = (1.0f - reg->para[1]->list[i])*reg->para[0]->list[j]
             + reg->para[1]->list[i]*reg->para[3]->list[j];
          p[0] = u1[0]*para + u2[0];
          p[1] = u1[1]*para + u2[1];

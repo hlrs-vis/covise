@@ -608,7 +608,7 @@ inline int Unstructured::cellNeighborCnt(int cell, int connectivity)
         return cellFaceNeighborsCnt[cell];
         break;
     case CONN_NODE:
-        return getCellNeighbors(cell)->size();
+        return int(getCellNeighbors(cell)->size());
         break;
     default:
         printf("Unstructured::cellNeighborCnt: unsupported connectivity\n");
@@ -1488,7 +1488,7 @@ inline float Unstructured::getTransientFileEntry(int node, int ucdComponent,
 
     // TODO: check if in transientFile mode
 
-    int timeStepNb = transientFilesTimeSteps[transientFileIdx].size();
+    int timeStepNb = int(transientFilesTimeSteps[transientFileIdx].size());
 
     // ######### hard coded 3-vector !!!!
     //return transientFile[(node * timeStepNb + timeStep) * 3 + vectorComponent];

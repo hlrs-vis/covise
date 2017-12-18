@@ -19,7 +19,7 @@
 #include <dirent.h>
 #endif
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
@@ -104,7 +104,7 @@ protected:
     static char *port_dependency[MAX_PORTS];
     static int port_required[MAX_PORTS];
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
     static XtInputId X_id;
     static XtAppContext appContext;
 #endif
@@ -128,7 +128,7 @@ protected:
 #endif
 #endif
     static void init_emergency_message(void);
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
     static void socketCommunicationCB(XtPointer client_data, int *source, XtInputId *id);
 #endif
 
@@ -193,7 +193,8 @@ public:
     static int get_reply_float_slider(float *min, float *max, float *val);
     static int get_reply_int_vector(int pos, long *val);
     static int get_reply_float_vector(int pos, float *val);
-    static int get_reply_int_scalar(long *val);
+	static int get_reply_int_scalar(long *val);
+	static int get_reply_int64_scalar(int64_t *val);
     static int get_reply_float_scalar(float *val);
     static int get_reply_boolean(int *);
     static int get_reply_string(const char **string);

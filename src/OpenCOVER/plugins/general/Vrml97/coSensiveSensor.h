@@ -27,13 +27,19 @@
 #include <vrml97/vrml/VrmlNode.h>
 
 #include <cover/coVRPluginSupport.h>
-
-using namespace vrui;
-using namespace vrml;
-using namespace opencover;
-
+#include <cover/ui/Owner.h>
 #include <util/DLinkList.h>
 #include <PluginUtil/coSensor.h>
+
+
+namespace opencover {
+namespace ui {
+class Action;
+}
+}
+
+using namespace vrml;
+using namespace opencover;
 
 namespace osg
 {
@@ -46,10 +52,9 @@ class coCubeMap;
 namespace vrui
 {
 class coTrackerButtonInteraction;
-class coButtonMenuItem;
 }
 
-class VRML97COVEREXPORT coSensiveSensor : public coPickSensor
+class VRML97COVEREXPORT coSensiveSensor : public coPickSensor, public ui::Owner
 {
 public:
     static bool modified;
@@ -78,7 +83,7 @@ public:
     {
         return vrmlObject;
     };
-    coButtonMenuItem *getButton()
+    ui::Action *getButton() const
     {
         return button;
     };
@@ -97,7 +102,7 @@ protected:
     void resetChildActive();
     void setChildActive();
     //PointerTooltip *tt;
-    coTrackerButtonInteraction *VrmlInteraction;
-    coButtonMenuItem *button;
+    vrui::coTrackerButtonInteraction *VrmlInteraction;
+    ui::Action *button = nullptr;
 };
 #endif

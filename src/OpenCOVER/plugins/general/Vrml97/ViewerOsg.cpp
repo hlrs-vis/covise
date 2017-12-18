@@ -77,9 +77,8 @@ static const int NUM_TEXUNITS = 4;
 
 #include <osgUtil/Tessellator>
 #include <osgUtil/TriStripVisitor>
+#include <osg/KdTree>
 #include <osgUtil/TangentSpaceGenerator>
-
-#include <vtrans/vtrans.h>
 
 #ifdef HAVE_OSGNV
 #include <osgNVCg/Context>
@@ -2160,7 +2159,7 @@ ViewerOsg::insertShell(unsigned int mask,
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
         {
-            for(int i=0;i<geode->getNumDrawables();i++)
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
             {
                 osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
                 /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
@@ -2181,6 +2180,15 @@ ViewerOsg::insertShell(unsigned int mask,
         geom->setName(objName);
         geode->addDrawable(geom.get());
     }
+
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+    osg::ref_ptr<osg::KdTreeBuilder> kdb = new osg::KdTreeBuilder;
+    for(unsigned int i=0;i<geode->getNumDrawables();i++)
+    {
+        osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
+        kdb->apply(*geo);
+    }
+#endif
 
     geode->setName(objName);
     geode->setNodeMask(nodeMask);
@@ -5131,7 +5139,7 @@ void ViewerOsg::setTransform(float *center,
     d_currentObject->parentTransform = currentTransform;
     currentTransform.preMult(mat);
 
-    void *info = (void *)OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
+    void *info = (void *)vrui::OSGVruiUserDataCollection::getUserData(d_currentObject->pNode.get(), "MoveInfo");
     if (info == NULL)
     {
         // leave alone moved nodes
@@ -6199,6 +6207,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
 {
     std::string retStr(stringToLocalize);
 
+#if 0
     if (coCoviseConfig::isOn("COVER.Plugin.Vrml97.TranslateVRMLTextNodes", false))
     {
         //-------------TRANSLATION BEGIN------------------------
@@ -6218,6 +6227,7 @@ std::string ViewerOsg::localizeString(const std::string &stringToLocalize) const
         }
         //-------------TRANSLATION END--------------------------
     }
+#endif
 
     return retStr;
 }

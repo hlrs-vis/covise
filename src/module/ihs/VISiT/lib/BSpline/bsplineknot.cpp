@@ -22,10 +22,10 @@ struct Flist *BSplineKnot(struct Point *d, int deg)
    for (i = 1; i < d->nump; i++)
    {
       dist  = 0.0;
-      dist += pow((d->x[i] - d->x[i-1]), 2);
-      dist += pow((d->y[i] - d->y[i-1]), 2);
-      dist += pow((d->z[i] - d->z[i-1]), 2);
-      len  += sqrt(dist);
+      dist += float(pow((d->x[i] - d->x[i-1]), 2));
+      dist += float(pow((d->y[i] - d->y[i-1]), 2));
+      dist += float(pow((d->z[i] - d->z[i-1]), 2));
+      len  += float(sqrt(dist));
       para[i] = len;
    }
 
@@ -54,7 +54,7 @@ struct Flist *BSplineKnot(struct Point *d, int deg)
    for (i = deg; i < d->nump; i++)
    {
       if (deg_mod)
-         Add2Flist(t, (0.5*(para[i-deg_int]+para[i-1-deg_int])));
+         Add2Flist(t, (0.5f*(para[i-deg_int]+para[i-1-deg_int])));
       else
          Add2Flist(t, para[i-deg_int]);
    }

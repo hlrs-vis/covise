@@ -30,11 +30,14 @@
 #include "sections/elevationsection.hpp"
 #include "sections/superelevationsection.hpp"
 #include "sections/crossfallsection.hpp"
+#include "sections/shapesection.hpp"
 #include "sections/lanesection.hpp"
 #include "sections/lane.hpp"
 #include "sections/objectobject.hpp"
+#include "sections/objectreference.hpp"
 #include "sections/crosswalkobject.hpp"
 #include "sections/signalobject.hpp"
+#include "sections/signalreference.hpp"
 #include "sections/sensorobject.hpp"
 #include "sections/bridgeobject.hpp"
 #include "sections/tunnelobject.hpp"
@@ -98,6 +101,11 @@ RSystemElementRoad::~RSystemElementRoad()
 
     foreach (Crosswalk *child, crosswalks_)
         delete child;
+
+	foreach(ShapeSection *child, shapeSections_)
+	{
+		delete child;
+	}
 }
 
 /*! \brief Set the Id of the junction. If the Id is "-1" the road is not a path of any junction.
@@ -1491,6 +1499,191 @@ RSystemElementRoad::setCrossfallSections(QMap<double, CrossfallSection *> newSec
     addRoadChanges(RSystemElementRoad::CRD_CrossfallSectionChange);
 }
 
+//####################################//
+// road:lateralProfile:shape //
+//####################################//
+
+void
+RSystemElementRoad::addShapeSection(ShapeSection *section)
+{
+	// Notify section //
+	//
+	section->setParentRoad(this);
+
+	// Notify shrinking section //
+	//
+	if (!shapeSections_.isEmpty())
+	{
+		ShapeSection *lastSection = getShapeSection(section->getSStart()); // the section that is here before insertion
+		if (lastSection)
+		{
+			lastSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+		}
+	}
+
+	// Insert and Notify //
+	//
+	shapeSections_.insert(section->getSStart(), section);
+	addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+}
+
+bool
+RSystemElementRoad::delShapeSection(ShapeSection *section)
+{
+	double s = section->getSStart();
+
+	// Delete section //
+	//
+	bool success = delShapeSection(s);
+	if (success)
+	{
+		// Notify expanding section //
+		//
+		ShapeSection *lastSection = getShapeSection(s); // the section that now here
+		if (lastSection)
+		{
+			lastSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+		}
+	}
+	else
+	{
+		qDebug("WARNING 1007151040! Could not delete ShapeSection.");
+	}
+
+	return success;
+}
+
+bool
+RSystemElementRoad::delShapeSection(double s)
+{
+	ShapeSection *section = shapeSections_.value(s, NULL);
+	if (!section)
+	{
+		qDebug("WARNING 1003221754! Tried to delete a road shape section that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		section->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		shapeSections_.remove(s);
+		addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+
+		return true;
+	}
+}
+
+ShapeSection *
+RSystemElementRoad::getShapeSection(double s) const
+{
+	QMap<double, ShapeSection *>::const_iterator i = shapeSections_.upperBound(s);
+	if (i == shapeSections_.constBegin())
+	{
+		//		qDebug("WARNING 1003221755! Trying to get shapeSection but coordinate is out of bounds!");
+		return NULL;
+	}
+	else
+	{
+		--i;
+		return i.value();
+	}
+}
+
+ShapeSection *
+RSystemElementRoad::getShapeSectionBefore(double s) const
+{
+	QMap<double, ShapeSection *>::const_iterator i = shapeSections_.upperBound(s); // the second one after the one we want
+	if (i == shapeSections_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	if (i == shapeSections_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	return i.value();
+}
+
+double
+RSystemElementRoad::getShapeSectionEnd(double s) const
+{
+	QMap<double, ShapeSection *>::const_iterator nextIt = shapeSections_.upperBound(s);
+	if (nextIt == shapeSections_.constEnd())
+	{
+		return getLength(); // road: [0.0, length]
+	}
+	else
+	{
+		return (*nextIt)->getSStart();
+	}
+}
+
+bool
+RSystemElementRoad::moveShapeSection(double oldS, double newS)
+{
+	// Section //
+	//
+	ShapeSection *section = shapeSections_.value(oldS, NULL);
+	if (!section)
+	{
+		return false;
+	}
+
+	// Previous section //
+	//
+	double previousS = 0.0;
+	if (newS > section->getSStart())
+	{
+		// Expand previous section //
+		//
+		previousS = section->getSStart() - 0.001;
+	}
+	else
+	{
+		// Shrink previous section //
+		//
+		previousS = newS;
+	}
+	ShapeSection *previousSection = getShapeSection(previousS);
+	if (previousSection)
+	{
+		previousSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+	}
+
+	// Set and insert //
+	//
+	section->setSStart(newS);
+	shapeSections_.remove(oldS);
+	shapeSections_.insert(newS, section);
+
+	return true;
+}
+
+void
+RSystemElementRoad::setShapeSections(QMap<double, ShapeSection *> newSections)
+{
+	foreach(ShapeSection *section, shapeSections_)
+	{
+		section->setParentRoad(NULL);
+	}
+
+	foreach(ShapeSection *section, newSections)
+	{
+		section->setParentRoad(this);
+	}
+
+	shapeSections_ = newSections;
+	addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+}
+
 //###################//
 // road:laneSection  //
 //###################//
@@ -1874,6 +2067,130 @@ RSystemElementRoad::moveObject(RoadSection *section, double newS)
     return true;
 }
 
+Object *
+RSystemElementRoad::getObject(const QString &id)
+{
+	QMap<double, Object *>::ConstIterator iter = objects_.constBegin();
+
+	while (iter != objects_.constEnd())
+	{
+		Object *object = iter.value();
+		if (object->getId() == id)
+		{
+			return object;
+		}
+
+		iter++;
+	}
+
+	return NULL;
+}
+
+//#############################//
+// road:objects:objectReferences      //
+//#############################//
+
+/** \brief Adds a signal reference to the road
+*
+* This is a pedestrian signal reference
+*/
+void
+RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
+{
+
+	// Notify objectReference //
+	//
+	objectReference->setParentRoad(this);
+
+	// Id //
+	//
+	QString name = "";
+	Object *object = objectReference->getObject();
+	if (object)
+	{
+		name = object->getName();
+	}
+
+	QString id = getRoadSystem()->getUniqueId(objectReference->getId(), name);
+	if (id != objectReference->getId())
+	{
+		objectReference->setId(id);
+	}
+
+	// Insert and Notify //
+	//
+	objectReferences_.insert(objectReference->getSStart(), objectReference);
+	addRoadChanges(RSystemElementRoad::CRD_ObjectReferenceChange);
+}
+
+bool
+RSystemElementRoad::delObjectReference(ObjectReference *objectReference)
+{
+	QList<ObjectReference *> objectReferenceList = objectReferences_.values(objectReference->getSStart());
+	if (!objectReferenceList.contains(objectReference))
+	{
+		qDebug("WARNING 1003221758! Tried to delete a objectReference that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		objectReference->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		objectReferences_.remove(objectReference->getSStart(), objectReference);
+		addRoadChanges(RSystemElementRoad::CRD_ObjectReferenceChange);
+
+		return true;
+	}
+}
+
+bool
+RSystemElementRoad::moveObjectReference(RoadSection *section, double newS)
+{
+	// Section //
+	//
+	ObjectReference *objectReference = static_cast<ObjectReference *>(section);
+
+	if (!objectReference)
+	{
+		return false;
+	}
+
+	// Set and insert //
+	//
+	double oldS = objectReference->getSStart();
+	objectReference->setSStart(newS);
+	objectReferences_.remove(oldS, objectReference);
+	objectReferences_.insert(newS, objectReference);
+
+	objectReference->addObjectReferenceChanges(ObjectReference::ORC_ParameterChange);
+
+	return true;
+}
+
+
+ObjectReference *
+RSystemElementRoad::getObjectReference(const QString &id)
+{
+	QMap<double, ObjectReference *>::ConstIterator iter = objectReferences_.constBegin();
+
+	while (iter != objectReferences_.constEnd())
+	{
+		ObjectReference * objectReference = iter.value();
+		if (objectReference->getReferenceId() == id)
+		{
+			return objectReference;
+		}
+
+		iter++;
+	}
+
+	return NULL;
+}
+
 //#############################//
 // road:objects:bridge      //
 //#############################//
@@ -2149,6 +2466,111 @@ RSystemElementRoad::getSignal(const QString &id)
     }
 
     return NULL;
+}
+
+//#############################//
+// road:objects:signalReferences      //
+//#############################//
+
+/** \brief Adds a signal reference to the road
+*
+* This is a pedestrian signal reference
+*/
+void
+RSystemElementRoad::addSignalReference(SignalReference *signalReference)
+{
+
+	// Notify signalReference //
+	//
+	signalReference->setParentRoad(this);
+
+	// Id //
+	//
+	QString name =  ""; 
+	Signal *signal = signalReference->getSignal();
+	if (signal)
+	{
+		name = signal->getName();
+	}
+
+	QString id = getRoadSystem()->getUniqueId(signalReference->getId(), name);
+	if (id != signalReference->getId())
+	{
+		signalReference->setId(id);
+	}
+
+	// Insert and Notify //
+	//
+	signalReferences_.insert(signalReference->getSStart(), signalReference);
+	addRoadChanges(RSystemElementRoad::CRD_SignalReferenceChange);
+}
+
+bool
+RSystemElementRoad::delSignalReference(SignalReference *signalReference)
+{
+	QList<SignalReference *> signalReferenceList = signalReferences_.values(signalReference->getSStart());
+	if (!signalReferenceList.contains(signalReference))
+	{
+		qDebug("WARNING 1003221758! Tried to delete a signalReference that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		signalReference->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		signalReferences_.remove(signalReference->getSStart(), signalReference);
+		addRoadChanges(RSystemElementRoad::CRD_SignalReferenceChange);
+
+		return true;
+	}
+}
+
+bool
+RSystemElementRoad::moveSignalReference(RoadSection *section, double newS)
+{
+	// Section //
+	//
+	SignalReference *signalReference = static_cast<SignalReference *>(section);
+
+	if (!signalReference)
+	{
+		return false;
+	}
+
+	// Set and insert //
+	//
+	double oldS = signalReference->getSStart();
+	signalReference->setSStart(newS);
+	signalReferences_.remove(oldS, signalReference);
+	signalReferences_.insert(newS, signalReference);
+
+	signalReference->addSignalReferenceChanges(SignalReference::SRC_ParameterChange);
+
+	return true;
+}
+
+
+SignalReference *
+RSystemElementRoad::getSignalReference(const QString &id)
+{
+	QMap<double, SignalReference *>::ConstIterator iter = signalReferences_.constBegin();
+
+	while (iter != signalReferences_.constEnd())
+	{
+		SignalReference * signalReference = iter.value();
+		if (signalReference->getReferenceId() == id)
+		{
+			return signalReference;
+		}
+
+		iter++;
+	}
+
+	return NULL;
 }
 
 //#############################//
@@ -2500,11 +2922,14 @@ RSystemElementRoad::acceptForChildNodes(Visitor *visitor)
     acceptForElevationSections(visitor);
     acceptForSuperelevationSections(visitor);
     acceptForCrossfallSections(visitor);
+	acceptForShapeSections(visitor);
     acceptForLaneSections(visitor);
     acceptForCrosswalks(visitor);
     acceptForSignals(visitor);
+	acceptForSignalReferences(visitor);
     acceptForSensors(visitor);
     acceptForObjects(visitor);
+	acceptForObjectReferences(visitor);
     acceptForBridges(visitor);
 }
 
@@ -2588,6 +3013,16 @@ RSystemElementRoad::acceptForCrossfallSections(Visitor *visitor)
 * Accepts a visitor and passes it to the lane sections.
 */
 void
+RSystemElementRoad::acceptForShapeSections(Visitor *visitor)
+{
+	foreach(ShapeSection *child, shapeSections_)
+		child->accept(visitor);
+}
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
 RSystemElementRoad::acceptForLaneSections(Visitor *visitor)
 {
     foreach (LaneSection *child, laneSections_)
@@ -2618,6 +3053,16 @@ RSystemElementRoad::acceptForSignals(Visitor *visitor)
 * Accepts a visitor and passes it to the lane sections.
 */
 void
+RSystemElementRoad::acceptForSignalReferences(Visitor *visitor)
+{
+	foreach(SignalReference *child, signalReferences_)
+		child->accept(visitor);
+}
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
 RSystemElementRoad::acceptForSensors(Visitor *visitor)
 {
     foreach (Sensor *child, sensors_)
@@ -2632,6 +3077,16 @@ RSystemElementRoad::acceptForObjects(Visitor *visitor)
 {
     foreach (Object *child, objects_)
         child->accept(visitor);
+}
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
+RSystemElementRoad::acceptForObjectReferences(Visitor *visitor)
+{
+	foreach(ObjectReference *child, objectReferences_)
+		child->accept(visitor);
 }
 
 /*!

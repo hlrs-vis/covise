@@ -143,7 +143,7 @@ public:
         {
             if (!b.compare(boundaries[i].name))
             {
-                result = i;
+                result = (int)i;
                 break;
             }
         }
@@ -156,7 +156,7 @@ public:
         {
             const Boundary &b = procboundaries[i];
             if (b.neighborProc == proc)
-                return i;
+                return (int)i;
         }
         return -1;
     }

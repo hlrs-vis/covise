@@ -9,6 +9,7 @@
 #include <cover/RenderObject.h>
 #include <cover/VRSceneGraph.h>
 #include "cover/VRSceneGraph.h"
+#include <net/message.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRNavigationManager.h>

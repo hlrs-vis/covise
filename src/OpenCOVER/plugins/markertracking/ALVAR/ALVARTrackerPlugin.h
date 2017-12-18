@@ -59,6 +59,7 @@ public:
 
     // this will be called in PreFrame
     virtual bool init();
+    virtual bool update();
     virtual void preFrame();
 
 private:

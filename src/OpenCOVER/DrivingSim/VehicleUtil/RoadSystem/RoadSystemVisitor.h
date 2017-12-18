@@ -21,6 +21,7 @@ class PlaneStraightLine;
 class PlaneArc;
 class PlaneClothoid;
 class PlanePolynom;
+class PlaneParamPolynom;
 class Polynom;
 class SuperelevationPolynom;
 class CrossfallPolynom;
@@ -77,7 +78,8 @@ public:
     void visit(PlaneStraightLine *);
     void visit(PlaneArc *);
     void visit(PlaneClothoid *);
-    void visit(PlanePolynom *);
+	void visit(PlanePolynom *);
+	void visit(PlaneParamPolynom *);
     void visit(Polynom *);
     void visit(SuperelevationPolynom *);
     void visit(CrossfallPolynom *);

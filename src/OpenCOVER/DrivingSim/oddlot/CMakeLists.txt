@@ -355,6 +355,16 @@ SET(ODDLOT_SOURCES
 	src/graph/items/oscsystem/osctextitem.cpp
 	src/graph/graphviewitems/graphviewshapeitem.cpp
 	src/gui/oscsettings.cpp
+	src/data/georeference.cpp
+	src/data/roadsystem/track/trackelementcubiccurve.cpp
+	src/data/roadsystem/sections/shapesection.cpp
+	src/data/roadsystem/rsystemelementjunctiongroup.cpp
+	src/data/roadsystem/sections/laneborder.cpp
+	src/data/roadsystem/sections/lanerule.cpp
+	src/data/roadsystem/sections/laneaccess.cpp
+	src/data/roadsystem/sections/parkingspaceobject.cpp
+	src/data/roadsystem/sections/objectreference.cpp
+	src/data/roadsystem/sections/signalreference.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -728,7 +738,7 @@ QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
 
 
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
-qt_use_modules(oddlot Core Widgets Gui Network Xml)
+qt_use_modules(oddlot Core Widgets Gui Network Xml Svg)
 TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS}
 ) 

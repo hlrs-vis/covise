@@ -506,6 +506,37 @@ private:
     double hdgs;
 };
 
+class VEHICLEUTILEXPORT PlaneParamPolynom : public PlaneCurve
+{
+public:
+	PlaneParamPolynom(double, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, bool = true);
+
+	Vector3D getPoint(double);
+	double getOrientation(double);
+	double getCurvature(double);
+	Vector2D getTangentVector(double);
+	Vector2D getNormalVector(double);
+
+	double getCurveLength(double from, double to);
+
+	void getCoefficients(double &, double &, double &, double &, double &, double &, double &, double &);
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	bool isNormalized() { return normalized; };
+
+private:
+	double getT(double);
+	double g(double x, double factor, double delta);
+
+	double aU, bU, cU, dU;
+	double aV, bV, cV, dV;
+	bool normalized;
+	//double sinhdg, coshdg;
+	Matrix2D2D A;
+	//double xs, ys;
+	Vector2D cs;
+	double hdgs;
+};
 class VEHICLEUTILEXPORT LateralProfile : public Curve
 {
 public:

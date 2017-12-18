@@ -77,9 +77,8 @@ void Application::compute(void *)
     //
 
     // read input parameters and data object name
-    char buf[300];
     char *adress;
-    int length;
+    size_t length;
     int doColor = true;
     int ignoreLength = false;
 
@@ -101,7 +100,7 @@ void Application::compute(void *)
 
     if (IvDescr != NULL)
     {
-        descr = new coDoText(IvDescr, length);
+        descr = new coDoText(IvDescr, (int)length);
         if (descr->objectOk())
         {
             descr->getAddress(&adress);

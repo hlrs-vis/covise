@@ -441,8 +441,6 @@ float Trajectory::distance(Trajectory *t,int gi,int git)
 float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1) // p1 is a start estimate and also returns the intersection point
 {
     float minDist = 100000;
-    int minI;
-    int minN;
 
     if (vert->size() > 0 && t->vert->size() > 0)
     {

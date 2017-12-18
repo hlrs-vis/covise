@@ -462,6 +462,133 @@ void PlanePolynom::accept(XodrWriteRoadSystemVisitor *visitor)
     visitor->visit(this);
 }
 
+
+PlaneParamPolynom::PlaneParamPolynom(double s, double l, double xstart, double ystart, double hdg, double aU, double bU, double cU, double dU, double aV, double bV, double cV, double dV, bool n)
+	: A(cos(hdg), -sin(hdg),
+		sin(hdg), cos(hdg))
+	, cs(xstart,
+		ystart)
+{
+	start = s;
+	length = l;
+
+	hdgs = hdg;
+
+	this->aU = aU, this->bU = bU, this->cU = cU, this->dU = dU;
+	this->aV = aV, this->bV = bV, this->cV = cV, this->dV = dV;
+	normalized = n;
+}
+
+Vector3D PlaneParamPolynom::getPoint(double s)
+{
+	s -= start;
+	double t = getT(s);
+
+	double u = (aU + bU * t + cU * t * t + dU * t * t * t);
+	double v = (aV + bV * t + cV * t * t + dV * t * t * t);
+
+	Vector2D cm(u, v);
+	return Vector3D(A * cm + cs, atan((3 * dV * t * t + 2 * cV * t + bV) / (3 * dU * t * t + 2 * cU * t + bU)) + hdgs);
+}
+
+double PlaneParamPolynom::getOrientation(double s)
+{
+	s -= start;
+	double t = getT(s);
+	return atan((3 * dV * t * t + 2 * cV * t + bV )/(3 * dU * t * t + 2 * cU * t + bU)) + hdgs;
+}
+
+double PlaneParamPolynom::getCurvature(double s)
+{
+	s -= start;
+	double t = getT(s);
+	double dv = bV + 2 * cV * t + 3 * dV * t * t;
+	double ddv = 2 * cV + 6 * dV * t;
+	double du = bU + 2 * cU * t + 3 * dU * t * t;
+	double ddu = 2 * cU + 6 * dU * t;
+	return abs(du*ddv - dv*ddu) / pow((du*du + dv * dv), 1.5); //https://en.wikipedia.org/wiki/Curvature#Local_expressions
+}
+
+Vector2D PlaneParamPolynom::getTangentVector(double s)
+{
+	s -= start;
+	double t = getT(s);
+	return A * Vector2D(3 * dU * t * t + 2 * cU * t + bU, 3 * dV * t * t + 2 * cV * t + bV);
+}
+
+Vector2D PlaneParamPolynom::getNormalVector(double s)
+{
+	s -= start;
+	double t = getT(s);
+	return A * Vector2D(-(3 * dV * t * t + 2 * cV * t + bV), 3 * dU * t * t + 2 * cU * t + bU);
+}
+
+void PlaneParamPolynom::getCoefficients(double &aU, double &bU, double &cU, double &dU, double &aV, double &bV, double &cV, double &dV)
+{
+	aU = this->aU;
+	bU = this->bU;
+	cU = this->cU;
+	dU = this->dU;
+	aV = this->aV;
+	bV = this->bV;
+	cV = this->cV;
+	dV = this->dV;
+}
+
+double PlaneParamPolynom::getT(double s)
+{
+	if(normalized)
+	{ 
+
+		//Cut taylor series approximation (1-degree) of arc length integral, solved with Newton-Raphson for t with respect to s
+		double t = s;
+		for (int i = 0; i < 5; ++i)
+		{
+			//       double f = t*sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)-s;
+			//       double df = sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)+(t*((3*d*t)/2+c)*((3*d*pow(t,2))/4+c*t+b))/sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1);
+
+			// New code with integration //
+			//
+			double f = getCurveLength(0.0, t) - s;
+			double df = sqrt((bU + 2.0 * cU * t + 3.0 * dU * t * t) * (bU + 2.0 * cU * t + 3.0 * dU * t * t) + (bV + 2.0 * cV * t + 3.0 * dV * t * t) * (bV + 2.0 * cV * t + 3.0 * dV * t * t));
+
+			t -= f / df;
+		}
+		return t;
+	}
+	return s;
+}
+
+/*! Calculates the length [m] of a curve segment.
+*
+* Uses a Gauss-Legendre integration (n=5). Should be good enough.
+*/
+double PlaneParamPolynom::getCurveLength(double from, double to)
+{
+	double factor = (to - from) / 2.0; // new length = 2.0
+	double deltaX = (to + from) / 2.0; // center
+	return (0.236926885056189 * g(-0.906179845938664, factor, deltaX)
+		+ 0.478628670499366 * g(-0.538469310105683, factor, deltaX)
+		+ 0.568888888888889 * g(0.0, factor, deltaX)
+		+ 0.478628670499366 * g(0.538469310105683, factor, deltaX)
+		+ 0.236926885056189 * g(0.906179845938664, factor, deltaX)) * factor;
+}
+
+/*! Support function for Gauss-Legendre integration.
+*
+* GLI is in interval [-1.0, 1.0], so a factor and an offset is needed.
+* The calculation is based on the curve length integral(sqrt(1+f')).
+*/
+double PlaneParamPolynom::g(double x, double factor, double delta)
+{
+	x = x * factor + delta;
+	return sqrt((bU + 2.0 * cU * x + 3.0 * dU * x * x) * (bU + 2.0 * cU * x + 3.0 * dU * x * x) + (bV + 2.0 * cV * x + 3.0 * dV * x * x) * (bV + 2.0 * cV * x + 3.0 * dV * x * x));
+}
+
+void PlaneParamPolynom::accept(XodrWriteRoadSystemVisitor *visitor)
+{
+	visitor->visit(this);
+}
 SuperelevationPolynom::SuperelevationPolynom(double s, double a, double b, double c, double d)
 {
     start = s;

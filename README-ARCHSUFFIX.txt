@@ -25,8 +25,31 @@
 # 
 # 
 # ARCHSUFFIXes currently used
-# ================================
+# ===========================
 # 
+# ARCHSUFFIX    Meaning
+# ----------------------------------------------------------------------
+
+zebu            Visual Studio 2015 Update 3, Visual Studio 2017 for x86_64
+vcpkg           Visual Studio 2015 Update 3, Visual Studio 2017 with 3rd party libraries from vcpkg
+
+linux32         Generic x86 Linux
+linux64         Generic x86_64 Linux
+cray64         Cray x86_64 Linux software rendering
+rhel7           Red Hat Enterprise Linux 7 with updates on x86_64 (64 bit mode)
+
+darwin          Generic macOS
+libc++          Mac OS X 10.9-10.12, x86_64 with libc++
+macos           macOS, x86_64 with libc++
+
+
+
+
+
+#
+# outdated, unsupported ARCHSUFFIXes
+# ==================================
+#
 # ARCHSUFFIX    Meaning
 # ----------------------------------------------------------------------
 
@@ -38,13 +61,10 @@ angus           Windows XP/Vista with Visual Studio 2008 on x86_64
 yoroo           Visual Studio 2010 for ia32
 berrenda        Visual Studio 2010 for x86_64
 tamarau         Visual Studio 2012 for x86_64
-zebu            Visual Studio 2015 for x86_64
 mingw           Windows XP/Vista with gcc 4.4.0 on ia32
 
 hpux_ia64       HP-UX 11 for IA64
 
-linux32         Generic x86 Linux
-linux64         Generic x86_64 Linux
 linux           Red Hat 7.3 (with GCC 2.96) on ia32
 gcc3            Red Hat 8 with glibc 2.3.2 on ia32
 rhel3           Red Hat Enterprise Linux 3 with updates on x86_64 (64 bit mode)
@@ -55,8 +75,6 @@ rhel51          Red Hat Enterprise Linux 5.1 with updates on x86_64 (64 bit mode
 rhel52          Red Hat Enterprise Linux 5.2 with updates on x86_64 (64 bit mode)
 rhel53          Red Hat Enterprise Linux 5.3 with updates on x86_64 (64 bit mode)
 rhel6           Red Hat Enterprise Linux 6 with updates on x86_64 (64 bit mode)
-rhel7           Red Hat Enterprise Linux 7 with updates on x86_64 (64 bit mode)
-
 ia64            Red Hat Enterprise Linux 3 on ia64 (e.g. SGI Prism)
 ia64icc         Red Hat Enterprise Linux 3 on ia64 with Intel Compiler
 ia64_glibc23    SGI ProPack 3SP5 for Linux, ia64, glibc-2.3.2-95.30sgi305r1, libgcc-3.2.3-47
@@ -152,11 +170,8 @@ sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1
 sgi64           IRIX 6.5, 64 bit
 
-darwin          Generic Mac OS
 macx            Mac OS X 10.3, PPC
 tiger           Mac OS X 10.4
 osx11           Mac OS X 10.4 on ia32 with X11 and fink
 leopard         Mac OS X 10.5 or 10.6, Universal
 lion            Mac OS X 10.7-10.9, x86_64 with libstdc++
-libc++          Mac OS X 10.9-10.12, x86_64 with libc++
-macos           macOS, x86_64 with libc++

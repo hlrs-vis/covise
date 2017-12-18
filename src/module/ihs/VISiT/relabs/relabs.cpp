@@ -180,7 +180,7 @@ int relabs::compute(const char *)
    // calculation
 
    //float factor;
-   float omega = M_PI*rotspeed/30.;
+   float omega = float(M_PI*rotspeed/30.0);
    int abs2rel=p_direction->getValue();
    float rad, vu, vr;
 

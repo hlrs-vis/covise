@@ -101,7 +101,11 @@ protected:
 
     // Socket number
     int d_socket;
+#ifdef WIN32
+	SOCKET d_rsocket; // receive socket
+#else
     int d_rsocket; // receive socket
+#endif
 
 private:
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

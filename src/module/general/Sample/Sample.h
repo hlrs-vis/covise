@@ -109,7 +109,7 @@ compress(std::vector<T> &iarray, int item)
         iarray.clear();
         return;
     }
-    int length = iarray.size();
+    size_t length = iarray.size();
     T *buffer = new T[length - 1];
     for (int count = 0; count < item; ++count)
     {

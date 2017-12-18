@@ -234,7 +234,7 @@ float linlet, float lhub)
       elem[4] = (*tmpelem)[2];
       elem[3] = (*tmpelem)[3];
       midlen  = (n->n[elem[1]]->l + n->n[elem[2]]->l
-         + n->n[elem[3]]->l + n->n[elem[4]]->l) / 4.0;
+         + n->n[elem[3]]->l + n->n[elem[4]]->l) / 4.0f;
       if(midlen < linlet)
       {
          AddElement(shroudext, elem);
@@ -315,7 +315,7 @@ struct Nodelist *n, int offset, int ge_num, float linlet, float lhub)
       elem[4] = (*tmpelem)[6];
       elem[3] = (*tmpelem)[7];
       midlen  = (n->n[elem[1]]->l + n->n[elem[2]]->l
-         + n->n[elem[3]]->l + n->n[elem[4]]->l) / 4.0;
+         + n->n[elem[3]]->l + n->n[elem[4]]->l) / 4.0f;
       if(midlen < linlet)
       {
          AddElement(shroudext, elem);

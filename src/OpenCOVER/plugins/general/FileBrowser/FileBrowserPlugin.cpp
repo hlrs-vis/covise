@@ -92,7 +92,7 @@ void FileBrowserPlugin::preFrame()
     {
 	for(int i = 0; i < _storedMessages.size(); i++)
 	{
-	    message(_storedMessages[i].first, 0, (void *)_storedMessages[i].second);
+        message(0, _storedMessages[i].first, 0, (void *)_storedMessages[i].second);
 	    delete _storedMessages[i].second;
 	}
 	_storedMessages.clear();
@@ -150,7 +150,7 @@ void FileBrowserPlugin::updateOSGCaveUI()
 
 }
 
-void FileBrowserPlugin::message(int type, int, const void * buf)
+void FileBrowserPlugin::message(int toWhom, int type, int, const void * buf)
 {    
     struct BrowserMessage * bm = (BrowserMessage *)buf;
     if(!_isInit)

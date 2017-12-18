@@ -456,6 +456,7 @@ MACRO(COVER_ADD_PLUGIN targetname)
         #message("Obj: ${f} - ${ext}") 
 		#don#t add obj files as lib
         set(OBJECTS ${OBJECTS} ${f})
+     elseif(ext MATCHES "\\.(ui)\$")
      else()
         #message("Lib: ${f} - ${ext}")
         set(LIBS ${LIBS} ${f})
@@ -624,6 +625,7 @@ MACRO(COVISE_INSTALL_TARGET targetname)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
           RUNTIME DESTINATION ${ARCHSUFFIX}/bin${_category_path}
+          BUNDLE DESTINATION ${ARCHSUFFIX}/bin${_category_path}
           LIBRARY DESTINATION ${ARCHSUFFIX}/lib
           ARCHIVE DESTINATION ${ARCHSUFFIX}/lib
           COMPONENT modules.${category}

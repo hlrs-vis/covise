@@ -49,7 +49,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 	int readjust_rrin = 0;
 
 	float t, t2, t3, tt, slen, a[3], b[3];
-	float dphi = 2*M_PI / nob;
+	float dphi = float(2*M_PI / nob);
 	float phi[3], l0, r0, arc[2];
 	float p[3];
 	float p1[3], p2[3], p3[3];
@@ -101,7 +101,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 	fprintf(stderr,"\n CreateRR_GridRegions()\n");
 #endif
 
-	grid->out_part[1]	= 1.0 - grid->out_part[0];
+	grid->out_part[1]	= 1.0f - grid->out_part[0];
 	grid->lowindis		= grid->lowdis;
 	if(grid->ssdis <= grid->psdis) {
 		fatal("illegal discretization parameters! grid->ssdis <= grid->psdis");
@@ -150,8 +150,8 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 	DetermineCoefficients(u1,v1,b);
 #ifdef BL_REF
 	arc[0]	= phi[0]*r0;
-	u1[0]	= (cge->clarc->list[0] - arc[0]) * (1.0 - grid->bl_scale[0]);
-	u1[1]	= (cge->cl->y[0] - l0) * (1.0 - grid->bl_scale[0]);
+	u1[0]	= (cge->clarc->list[0] - arc[0]) * (1.0f - grid->bl_scale[0]);
+	u1[1]	= (cge->cl->y[0] - l0) * (1.0f - grid->bl_scale[0]);
 	u1[2]	= 0.0;
 	blthick = V_Len(u1);
 #endif
@@ -190,7 +190,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		else if(grid->mesh_ext) {
 			// get straight periodic areas at inlet
 			readjust_rrin = 1;
-			t  = 1.0-l0/cge->cl->y[0];
+			t  = 1.0f-l0/cge->cl->y[0];
 			t2 = (grid->phi0_ext*phi[2]*grid->ge[i]->ml->p->x[0]-
 				  cge->clarc->list[0]);
 			phi[0]  = (cge->clarc->list[0]+t*t2)/r0;
@@ -224,14 +224,14 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 			p1[1] =	 l0;
 			p1[2] =	 0.0;
 			v1[0] =	 1.0;
-			v1[1] =	 tan(-grid->angle_ext[0]);
+			v1[1] = float(tan(-grid->angle_ext[0]));
 			v1[2] =	 0.0;
 			// last point & vector, ps
 			p3[0] =	 arc[0] + dphi*r0;
 			p3[1] =	 l0;
 			p3[2] =	 0.0;
 			v3[0] = -1.0;
-			v3[1] = -tan(grid->angle_ext[1]);
+			v3[1] = float(-tan(grid->angle_ext[1]));
 			v3[2] =	 0.0;
 			t = 0.5;
 			LineIntersect(p3,v3, p1,v1, p2);
@@ -317,7 +317,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		reg->arc[0] = GetCircleArclen(reg->line[0]);
 
 		// pres. side, blade surface (4.3)
-		t2 = grid->psle_part[0] * (1.0 - grid->ge[i]->para) +
+		t2 = grid->psle_part[0] * (1.0f - grid->ge[i]->para) +
 			grid->psle_part[1] * grid->ge[i]->para;
 #ifdef DEBUG_REGIONS
 		fprintf(stderr," 4.3\n");
@@ -371,8 +371,8 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 
 		// ss, blade surface (2.2)
 		// section for connection point with ps-envelope
-		t  = (1.0 - grid->ge[i]->para) * grid->ss_part[0] + grid->ge[i]->para * grid->ss_part[1];
-		t2 = grid->ssle_part[0] * (1.0 - grid->ge[i]->para) +
+		t  = (1.0f - grid->ge[i]->para) * grid->ss_part[0] + grid->ge[i]->para * grid->ss_part[1];
+		t2 = grid->ssle_part[0] * (1.0f - grid->ge[i]->para) +
 			grid->ssle_part[1] * grid->ge[i]->para;
 		reg->para[1] = CalcBladeElementBias(grid->le_dis,0.0, t2, 1, -2.0);
 		reg->para[1] = Add2Bias(reg->para[1], grid->psdis-grid->le_dis+1, t2,t,
@@ -450,7 +450,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		u2[2] = 0.0;
 		V_Norm(u2);
 		V_Add(u1, u2, v3);
-		t3 = tan(grid->v14_angle[1]);
+		t3 = float(tan(grid->v14_angle[1]));
 		tt = (v3[1]/v3[0]);
 #ifdef DEBUG_REGIONS
 		VPRINTF(v3,fpdebug);
@@ -477,14 +477,14 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		}
 		else {
 			t3 = 0.75;
-			v1[0] = (1.0 - t) * v1[0] + t3 * v1prev[0];
-			v1[1] = (1.0 - t) * v1[1] + t3 * v1prev[1];
+			v1[0] = (1.0f - t) * v1[0] + t3 * v1prev[0];
+			v1[1] = (1.0f - t) * v1[1] + t3 * v1prev[1];
 			v1prev[0] = v1[0];
 			v1prev[1] = v1[1];
 
-			t3 = 0.5;
-			v3[0] = (1.0 - t) * v3[0] + t3 * v3prev[0];
-			v3[1] = (1.0 - t) * v3[1] + t3 * v3prev[1];
+			t3 = 0.5f;
+			v3[0] = (1.0f - t) * v3[0] + t3 * v3prev[0];
+			v3[1] = (1.0f - t) * v3[1] + t3 * v3prev[1];
 			v3prev[0] = v3[0];
 			v3prev[1] = v3[1];
 		}
@@ -519,7 +519,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		}
 #else										// DOUBLE_SPLINE14
 		if((-v1[1]/v1[0]) < tan(grid->v14_angle[0]))
-			v1[1] = -v1[0]*tan(grid->v14_angle[0]);
+			v1[1] = -v1[0]* float(tan(grid->v14_angle[0]));
 		LineIntersect(p3,v3, p1,v1, p2);
 		poly = CurvePolygon(p1,p2,p3, t, t2);
 #endif										// DOUBLE_SPLINE14
@@ -535,8 +535,8 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		// spline
 		for(j = 0; j < grid->cledis; j++) {
 			BSplinePoint(BSPLN_DEGREE, poly, node, reg->para[3]->list[j], p);
-			if(j>0) slen += sqrt(pow(sline->x[j-1]-p[0],2) + 
-									pow(sline->y[j-1]-p[1],2));
+			if(j>0) slen += float(sqrt(pow(sline->x[j-1]-p[0],2) +
+									pow(sline->y[j-1]-p[1],2)));
 			AddVPoint(sline,p);
 			Add2Flist(spara, slen);
 		}
@@ -572,11 +572,11 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		slen = 0.0;
 		Add2Flist(reg->para[3],slen);
 		for(j = 1; j < reg->line[3]->nump; j++) {
-			slen += sqrt(pow(reg->line[3]->x[j-1]-reg->line[3]->x[j],2) + 
-						 pow(reg->line[3]->y[j-1]-reg->line[3]->y[j],2));
+			slen += float(sqrt(pow(reg->line[3]->x[j-1]-reg->line[3]->x[j],2) +
+						 pow(reg->line[3]->y[j-1]-reg->line[3]->y[j],2)));
 			Add2Flist(reg->para[3],slen);
 		}
-		slen = 1.0/slen;
+		slen = 1.0f/slen;
 		
 		for(j = 1; j < reg->line[3]->nump; j++) reg->para[3]->list[j] *= slen;
 		Add2Flist(reg->para[3],1.0);
@@ -700,7 +700,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		else {
 			reg->para[0] = AllocFlistStruct(cge->reg[1]->para[3]->num+1);
 			for(j = cge->reg[1]->para[3]->num-1; j >= 0; j--)
-				Add2Flist(reg->para[0], 1.0-cge->reg[1]->para[3]->list[j]);
+				Add2Flist(reg->para[0], 1.0f-cge->reg[1]->para[3]->list[j]);
 			reg->arc[0]	 = AllocFlistStruct(cge->reg[1]->para[3]->num+1);
 		}
 		for(j = (cge->reg[1]->line[3]->nump-1); j >= 0; j--) {
@@ -752,7 +752,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		LineIntersect(p3,v3, p1,v1, p2);
 		if(p2[1] > grid->ge[i]->ml->len[grid->ge[i]->ml->p->nump-1]) {
 			fprintf(stderr," 5.2: CreateRR_GridRegions: %d: ill intersection point, point shifted!\n", i+1);
-			p2[1] = grid->ge[i]->ml->len[grid->ge[i]->ml->p->nump-1] * 0.95;
+			p2[1] = grid->ge[i]->ml->len[grid->ge[i]->ml->p->nump-1] * 0.95f;
 		}
 		t  = 0.6f;
 		t2 = 0.6f;
@@ -840,7 +840,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		}
 
 		// t has to be calculated for each plane
-		t = 1.0 - CalcTEParameter(cge->reg[3], cge->clarc, cge->cl, 2, 1, dphi);
+		t = 1.0f - CalcTEParameter(cge->reg[3], cge->clarc, cge->cl, 2, 1, dphi);
 
 		reg->para[0] = CalcBladeElementBias(grid->psedis, 0.0f, t,
 											grid->psebias_type, grid->psebias);
@@ -879,7 +879,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 		}											// t < 1.0
 		CalcPointCoords(reg->line[0], &reg->arc[0], grid->ge[i]->ml);
 		// ps-envelope extension, 7.2
-		t = (1.0 - grid->ge[i]->para) * grid->ps_part[0]
+		t = (1.0f - grid->ge[i]->para) * grid->ps_part[0]
 			+ grid->ge[i]->para * grid->ps_part[1];
 		reg->para[1] = CalcBladeElementBias( (grid->ssdis - grid->psdis + 1), 0.0,t,
 											 grid->ssbias_type, grid->ssbias);
@@ -1095,7 +1095,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 				for(j = 1; j < reg->line[1]->nump; j++) {
 					u1[0] = reg->arc[1]->list[j]-reg->arc[1]->list[j-1];
 					u1[1] = reg->line[1]->y[j]-reg->line[1]->y[j-1];
-					slen += sqrt( u1[0]*u1[0] + u1[1]*u1[1]);
+					slen += float(sqrt( u1[0]*u1[0] + u1[1]*u1[1]));
 					Add2Flist(spara,slen);
 				}
 				for(j = 1; j < cge->reg[0]->line[1]->nump; j++) {
@@ -1103,7 +1103,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 						cge->reg[0]->arc[1]->list[j-1];
 					u1[1] = cge->reg[0]->line[1]->y[j]-
 						cge->reg[0]->line[1]->y[j-1];
-					slen += sqrt( u1[0]*u1[0] + u1[1]*u1[1]);
+					slen += float(sqrt( u1[0]*u1[0] + u1[1]*u1[1]));
 					Add2Flist(spara,slen);
 				}
 				slen = 1.0f/slen;

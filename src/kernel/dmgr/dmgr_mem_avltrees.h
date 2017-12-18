@@ -85,7 +85,7 @@ public:
     coShmPtr *getAddress()
     {
         SharedMemory *shm = get_shared_memory();
-        coShmPtr *ptr = new coShmPtr(seq_no, address - (char *)shm->get_pointer(seq_no));
+        coShmPtr *ptr = new coShmPtr(seq_no, covise::shmSizeType(address - (char *)shm->get_pointer(seq_no)));
         return ptr;
     };
     char *get_plain_address()
@@ -212,7 +212,11 @@ public:
         }
     };
 };
-
+#ifdef WIN32
+#pragma warning (push)
+#pragma warning (disable : 4311)
+#pragma warning (disable : 4302)
+#endif
 class DMGREXPORT AddressOrderedTree
 {
 private:
@@ -239,6 +243,10 @@ public:
             trees[i].empty_tree(dispo_chunk);
     };
 };
+
+#ifdef WIN32
+#pragma warning (pop)
+#endif
 
 class DMGREXPORT CO_MemSizeAVLNode /* structure for AVL-trees */
 {

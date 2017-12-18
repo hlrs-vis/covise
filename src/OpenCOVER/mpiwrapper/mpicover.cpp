@@ -90,7 +90,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int argc, char *argv[])
 
     int myID = 0;
     MPI_Comm_rank(comm, &myID);
-    int len = mastername.size();
+    int len = (int)mastername.size();
     MPI_Bcast(&len, 1, MPI_INT, 0, comm);
     if (myID != 0)
         mastername.resize(len);

@@ -35,6 +35,8 @@
 #include <config/CoviseConfig.h>
 
 #include "OpenCOVER.h"
+#include "coInteractor.h"
+#include "coTranslator.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
 #include "coVRNavigationManager.h"
@@ -42,6 +44,7 @@
 #include "coVRConfig.h"
 #include "coVRMSController.h"
 #include "coVRCommunication.h"
+#include "coVRPluginList.h"
 #include "VRViewer.h"
 #include <osgGA/GUIActionAdapter>
 #include "coVRLabel.h"
@@ -49,10 +52,23 @@
 #include "coIntersection.h"
 #include <input/input.h>
 #include <input/coMousePointer.h>
+#include <OpenVRUI/coNavInteraction.h>
+#include <OpenVRUI/coMouseButtonInteraction.h>
+#include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/osg/mathUtils.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coButtonMenuItem.h>
+#include "coVRAnimationManager.h"
+#ifdef VRUI
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/coMouseButtonInteraction.h>
-#include <OpenVRUI/coNavInteraction.h>
-#include <OpenVRUI/osg/OSGVruiMatrix.h>
+#else
+#include <ui/Menu.h>
+#include <ui/Action.h>
+#include <ui/Button.h>
+#include <ui/ButtonGroup.h>
+#include <ui/Slider.h>
+#endif
 #include "coVRIntersectionInteractorManager.h"
 #include "coMeasurement.h"
 
@@ -62,7 +78,6 @@
 #include <osgDB/WriteFile>
 #include <osg/ShapeDrawable>
 
-#include <vtrans/vtrans.h>
 
 using namespace osg;
 using namespace opencover;
@@ -109,7 +124,8 @@ coVRNavigationManager *coVRNavigationManager::instance()
 }
 
 coVRNavigationManager::coVRNavigationManager()
-    : AnalogX(-10.0)
+    : ui::Owner("NavigationManager", cover->ui)
+    , AnalogX(-10.0)
     , AnalogY(-10.0)
     , collision(false)
     , ignoreCollision(true)
@@ -136,13 +152,19 @@ coVRNavigationManager::coVRNavigationManager()
     , driveSpeed(1.0)
     , navigating(false)
     , jump(true)
+    , snapping(false)
+    , snappingD(false)
+    , snapDegrees(-1.0)
+    , rotationSpeed(50.0f)
+    , turntable(false)
 {
     assert(!s_instance);
 
-    init();
     oldKeyMask = 0;
     oldSelectedNode_ = NULL;
     oldShowNamesNode_ = NULL;
+
+    init();
 }
 
 void coVRNavigationManager::init()
@@ -156,22 +178,11 @@ void coVRNavigationManager::init()
 
     initMatrices();
 
+    initMenu();
+
     initShowName();
 
-    // parse snapping and tell NavigationManager
-    snapping = coCoviseConfig::isOn("COVER.Snap", false);
-    snapDegrees = coCoviseConfig::getFloat("COVER.SnapDegrees", -1);
-    rotationSpeed = coCoviseConfig::getFloat("COVER.RotationSpeed", 50.0f);
-    if (snapDegrees > 0)
-    {
-        snappingD = true;
-        snapping = true;
-    }
-    else
-    {
-        snappingD = false;
-    }
-    turntable = coCoviseConfig::isOn("COVER.Turntable", false);
+    updatePerson();
 
     oldHandPos = Vec3(0, 0, 0);
 
@@ -185,6 +196,8 @@ void coVRNavigationManager::init()
     rotPoint = new osg::MatrixTransform();
     rotPoint->addChild(rotPointGeode);
     setRotationPointVisible(rotationPointVisible);
+
+    setNavMode(XForm);
 }
 
 coVRNavigationManager::~coVRNavigationManager()
@@ -256,8 +269,6 @@ void coVRNavigationManager::initInteractionDevice()
     interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
     interactionMC = new coMouseButtonInteraction(coInteraction::ButtonC, "MouseNav");
 
-    updatePerson();
-
     wiiNav = coVRConfig::instance()->useWiiNavigationVisenso();
     /*if (wiiNav)
       fprintf(stderr, "Wii Navigation Visenso on\n");
@@ -292,6 +303,21 @@ int coVRNavigationManager::readConfigFile()
 
     menuButtonQuitInterval = coCoviseConfig::getFloat("value", "COVER.MenuButtonQuitInterval", -1.0f);
 
+    // parse snapping and tell NavigationManager
+    snapping = coCoviseConfig::isOn("COVER.Snap", snapping);
+    snapDegrees = coCoviseConfig::getFloat("COVER.SnapDegrees", snapDegrees);
+    rotationSpeed = coCoviseConfig::getFloat("COVER.RotationSpeed", rotationSpeed);
+    if (snapDegrees > 0)
+    {
+        snappingD = true;
+        snapping = true;
+    }
+    else
+    {
+        snappingD = false;
+    }
+    turntable = coCoviseConfig::isOn("COVER.Turntable", turntable);
+
     return 0;
 }
 
@@ -299,6 +325,103 @@ void coVRNavigationManager::initMatrices()
 {
     invBaseMatrix.makeIdentity();
     oldInvBaseMatrix.makeIdentity();
+}
+
+void coVRNavigationManager::initMenu()
+{
+    navMenu_ = new ui::Menu("Navigation", this);
+
+    m_viewAll = new ui::Action(navMenu_, "ViewAll");
+    m_viewAll->setText("View all");
+    m_viewAll->setShortcut("v");
+    m_viewAll->setCallback([this](){
+        VRSceneGraph::instance()->viewAll(false);
+    });
+    m_viewAll->setPriority(ui::Element::Toolbar);
+    m_viewAll->setIcon("zoom-fit-best");
+
+    m_resetView = new ui::Action(navMenu_, "ResetView");
+    m_resetView->setText("Reset view");
+    m_resetView->setShortcut("Shift+V");
+    m_resetView->setCallback([this](){
+        VRSceneGraph::instance()->viewAll(true);
+    });
+    m_resetView->setIcon("zoom-original");
+
+    navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
+    //navGroup_->enableDeselect(true);
+    navGroup_->setDefaultValue(NavNone);
+    noNavButton_ = new ui::Button(navMenu_, "NavNone", navGroup_, NavNone);
+    noNavButton_->setText("Navigation disabled");
+    noNavButton_->setVisible(false);
+    xformButton_ = new ui::Button(navMenu_, "MoveWorld", navGroup_, XForm);
+    xformButton_->setText("Move world");
+    xformButton_->setShortcut("t");
+    xformButton_->setPriority(ui::Element::Toolbar);
+    scaleButton_ = new ui::Button(navMenu_, "Scale", navGroup_, Scale);
+    scaleButton_->setShortcut("s");
+    flyButton_ = new ui::Button(navMenu_, "Fly", navGroup_, Fly);
+    flyButton_->setShortcut("f");
+    walkButton_ = new ui::Button(navMenu_, "Walk", navGroup_, Walk);
+    walkButton_->setShortcut("w");
+    driveButton_ = new ui::Button(navMenu_, "Drive", navGroup_, Glide);
+    driveButton_->setShortcut("d");
+    driveButton_->setPriority(ui::Element::Toolbar);
+    selectButton_ = new ui::Button(navMenu_, "Selection", navGroup_, Select);
+    showNameButton_ = new ui::Button(navMenu_, "ShowName", navGroup_, ShowName);
+    showNameButton_->setText("Show name");
+    selectInteractButton_ = new ui::Button(navMenu_, "SelectInteract", navGroup_, SelectInteract);
+    selectInteractButton_->setText("Pick & interact");
+    selectInteractButton_->setPriority(ui::Element::Toolbar);
+    selectInteractButton_->setShortcut("p");
+    selectInteractButton_->setEnabled(false);
+    selectInteractButton_->setVisible(false);
+    measureButton_ = new ui::Button(navMenu_, "Measure", navGroup_, Measure);
+    measureButton_->setVisible(false);
+    traverseInteractorButton_ = new ui::Button(navMenu_, "TraverseInteractors", navGroup_, TraverseInteractors);
+    traverseInteractorButton_->setText("Traverse interactors");
+    traverseInteractorButton_->setEnabled(false);
+    traverseInteractorButton_->setVisible(false);
+    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
+
+    collisionButton_ = new ui::Button(navMenu_, "Collision");
+    collisionButton_->setState(collision);
+    collisionButton_->setCallback([this](bool state){collision = state;});
+    snapButton_ = new ui::Button(navMenu_, "Snap");
+    snapButton_->setState(snapping);
+    snapButton_->setCallback([this](bool state){snapping=state;});
+    driveSpeedSlider_ = new ui::Slider(navMenu_, "DriveSpeed");
+    driveSpeedSlider_->setText("Drive speed");
+    driveSpeedSlider_->setBounds(0., 30.);
+    driveSpeedSlider_->setValue(driveSpeed);;
+    driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+
+    scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
+    scaleUpAction_->setText("Scale up");
+    scaleUpAction_->setVisible(false);
+    scaleUpAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() * 1.1f);
+        stopMouseNav();
+    });
+    scaleUpAction_->setShortcut("=");
+    scaleUpAction_->addShortcut("+");
+    scaleUpAction_->addShortcut("Shift++");
+    scaleUpAction_->addShortcut("Button:WheelDown");
+    scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
+    scaleDownAction_->setText("Scale down");
+    scaleDownAction_->setVisible(false);
+    scaleDownAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() / 1.1f);
+        stopMouseNav();
+    });
+    scaleDownAction_->setShortcut("-");
+    scaleDownAction_->addShortcut("Button:WheelUp");
+
+#if 0
+    ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
+#endif
 }
 
 void coVRNavigationManager::initShowName()
@@ -312,9 +435,9 @@ void coVRNavigationManager::initShowName()
 
     showGeodeName_ = coCoviseConfig::isOn("COVER.ShowGeodeName", true);
 
-    nameMenu_ = new coRowMenu("Object Name");
+    nameMenu_ = new vrui::coRowMenu("Object Name");
     nameMenu_->setVisible(false);
-    OSGVruiMatrix t, r, m;
+    vrui::OSGVruiMatrix t, r, m;
     float px = coCoviseConfig::getFloat("x", "COVER.NameMenuPosition", -0.5 * cover->getSceneSize());
     float py = coCoviseConfig::getFloat("y", "COVER.NameMenuPosition", 0.0);
     float pz = coCoviseConfig::getFloat("z", "COVER.NameMenuPosition", 0.3 * cover->getSceneSize());
@@ -366,120 +489,8 @@ bool coVRNavigationManager::keyEvent(int type, int keySym, int mod)
             currentVelocity = 0;
             handled = true;
         }
-        else if (keySym == '=' || keySym == '+')
-        {
-            // should check keyboard language
-            doScale(cover->getScale() * 1.1);
-            handled = true;
-        }
-        else if (keySym == '-')
-        {
-            doScale(cover->getScale() * 0.9);
-            handled = true;
-        }
-
-        if (!(mod & osgGA::GUIEventAdapter::MODKEY_ALT))
-        {
-            if (keySym == 'f')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Fly");
-                handled = true;
-            }
-            if (keySym == 'd')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Drive");
-                handled = true;
-            }
-            if (keySym == 'w')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Walk");
-                handled = true;
-            }
-            if (keySym == 't')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("XForm");
-                handled = true;
-            }
-            if (keySym == 's')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Scale");
-                handled = true;
-            }
-        }
     }
     return handled;
-}
-
-bool coVRNavigationManager::mouseEvent(int type, int state, int code)
-{
-    (void)code;
-
-    bool handled = false;
-    if (type == osgGA::GUIEventAdapter::MOVE)
-    {
-        return false;
-    }
-
-    if (type == osgGA::GUIEventAdapter::SCROLL)
-    {
-        if (state == osgGA::GUIEventAdapter::SCROLL_UP)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 1.1);
-            stopMouseNav();
-            handled = true;
-        }
-        else if (state == osgGA::GUIEventAdapter::SCROLL_DOWN)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 0.9);
-            stopMouseNav();
-            handled = true;
-        }
-    }
-    return handled;
-}
-
-void coVRNavigationManager::enableAllNavigations(bool enable)
-{
-    if (enable)
-    {
-        cover->enableNavigation("XForm");
-        cover->enableNavigation("XFormTranslate");
-        cover->enableNavigation("XFormRotate");
-        cover->enableNavigation("Fly");
-        cover->enableNavigation("Scale");
-        cover->enableNavigation("Drive");
-        cover->enableNavigation("Walk");
-        cover->enableNavigation("ShowName");
-        cover->enableNavigation("Scale");
-        cover->enableNavigation("Menu");
-        cover->enableNavigation("Measure");
-    }
-    else
-    {
-        cover->disableNavigation("XForm");
-        cover->disableNavigation("XFormTranslate");
-        cover->disableNavigation("XFormRotate");
-        cover->disableNavigation("Fly");
-        cover->disableNavigation("Scale");
-        cover->disableNavigation("Drive");
-        cover->disableNavigation("Walk");
-        cover->disableNavigation("ShowName");
-        cover->disableNavigation("Scale");
-        cover->disableNavigation("Menu");
-        cover->disableNavigation("Measure");
-    }
 }
 
 void coVRNavigationManager::saveCurrentBaseMatAsOldBaseMat()
@@ -640,56 +651,6 @@ coVRNavigationManager::update()
     if (cover->debugLevel(5))
         fprintf(stderr, "coVRNavigationManager::update\n");
 
-    bool lo = coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM);
-    static bool olo = false;
-    if (lo && !olo)
-    {
-        /*
-      if(interactionA->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionA);
-      }
-      if(interactionMA->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionMA);
-      }
-      if(interactionB->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionB);
-      }
-      if(interactionMB->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionMB);
-      }
-      if(interactionC->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionC);
-      }
-      if(interactionMC->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionMC);
-      }
-*/
-        fprintf(stderr, "TRANSFORM locked\n");
-    }
-    else if (!lo && olo)
-        fprintf(stderr, "TRANSFORM not locked\n");
-    /*
-      setNavMode(navMode);
-      if(VRTracker::instance()->getTrackingSystem()!=MOUSE)
-      {
-         coInteractionManager::the()->registerInteraction(interactionB);
-         coInteractionManager::the()->registerInteraction(interactionC);
-      }
-      if(doMouseNav)
-      {
-         cerr << "using mouse nav " << endl;
-         coInteractionManager::the()->registerInteraction(interactionMB);
-         coInteractionManager::the()->registerInteraction(interactionMC);
-      }
-   }
-*/
-    olo = lo;
     coPointerButton *button = cover->getPointerButton();
     oldHandDir = handDir;
     if (!wiiNav)
@@ -734,6 +695,9 @@ coVRNavigationManager::update()
         case ShowName:
             startShowName();
             break;
+        case SelectInteract:
+            startSelectInteract();
+            break;
         case Measure:
             startMeasure();
             break;
@@ -749,6 +713,9 @@ coVRNavigationManager::update()
         {
         case ShowName:
             stopShowName();
+            break;
+        case SelectInteract:
+            stopSelectInteract(true);
             break;
         case Measure:
             stopMeasure();
@@ -780,6 +747,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             doShowName();
+            break;
+        case SelectInteract:
+            doSelectInteract();
             break;
         case Measure:
             doMeasure();
@@ -819,6 +789,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             startShowName();
+            break;
+        case SelectInteract:
+            startSelectInteract();
             break;
         case Measure:
             startMeasure();
@@ -864,6 +837,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             doShowName();
+            break;
+        case SelectInteract:
+            doSelectInteract();
             break;
         case Measure:
             doMeasure();
@@ -917,6 +893,9 @@ coVRNavigationManager::update()
         case ShowName:
             stopShowName();
             break;
+        case SelectInteract:
+            stopSelectInteract(false);
+            break;
         case Measure:
             stopMeasure();
             break;
@@ -958,7 +937,7 @@ coVRNavigationManager::update()
         float maxAnalogX = (jsXmax - jsZeroPosX) / 10;
         float maxAnalogY = (jsYmax - jsZeroPosY) / 10;
 
-        if ((xMove || yMove) && navMode != Walk && navMode != Fly && navMode != Glide && navMode != ShowName && navMode != Measure && navMode != TraverseInteractors)
+        if ((xMove || yMove) && navMode != Walk && navMode != Fly && navMode != Glide && navMode != ShowName && navMode != Measure && navMode != TraverseInteractors && navMode != SelectInteract)
         {
 
             //einfache Translation in xy-Ebene
@@ -1299,13 +1278,16 @@ coVRNavigationManager::update()
         jump = true;
     }
 
-    if (navMode == ShowName)
+    if (navMode == ShowName || navMode == SelectInteract)
         highlightSelectedNode(cover->getIntersectedNode());
 
     if (coVRConfig::instance()->isMenuModeOn())
     {
         if (button->wasReleased(vruiButtons::MENU_BUTTON))
-            menuCallback(coVRNavigationManager::instance(), NULL);
+        {
+            setMenuMode(true);
+            //menuCallback(coVRNavigationManager::instance(), NULL);
+        }
     }
 
     if ((button->getState() == vruiButtons::MENU_BUTTON) && (menuButtonQuitInterval >= 0.0))
@@ -1316,7 +1298,7 @@ coVRNavigationManager::update()
         }
         else if (menuButtonStartTime + menuButtonQuitInterval < cover->currentTime())
         {
-            OpenCOVER::instance()->quitCallback(NULL, NULL);
+            OpenCOVER::instance()->requestQuit();
         }
     }
 
@@ -1334,40 +1316,82 @@ coVRNavigationManager::update()
     }
 }
 
-void coVRNavigationManager::setNavMode(NavMode mode)
+void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
 {
+    //std::cerr << "navMode = " << mode << ", was " <<  navMode << ", old = " << oldNavMode << std::endl;
+
     if (navMode != NavNone)
         oldNavMode = navMode;
+
+    if (navMode == ShowName || mode == ShowName)
+    {
+        toggleShowName(mode == ShowName);
+    }
+    if (navMode == TraverseInteractors || mode == TraverseInteractors)
+    {
+        toggleInteractors(mode == TraverseInteractors);
+    }
+    if (navMode == Menu || mode == Menu)
+    {
+        setMenuMode(mode == Menu);
+    }
+    if (navMode == Select || mode == Select)
+    {
+        coVRSelectionManager::instance()->setSelectionOnOff(mode == Select);
+    }
+    if (navMode == SelectInteract || mode == SelectInteract)
+    {
+        toggleSelectInteract(mode == SelectInteract);
+    }
+
     navMode = mode;
 
     switch (mode)
     {
     case XForm:
         interactionA->setName("Xform");
+        if (xformButton_)
+            xformButton_->setState(true, updateGroup);
         break;
     case XFormRotate:
         interactionA->setName("XformRotate");
+        if (xformRotButton_)
+            xformRotButton_->setState(true, updateGroup);
         break;
     case XFormTranslate:
         interactionA->setName("XformTranslate");
+        if (xformTransButton_)
+            xformTransButton_->setState(true, updateGroup);
         break;
     case Scale:
         interactionA->setName("Scale");
+        if (scaleButton_)
+            scaleButton_->setState(true, updateGroup);
         break;
     case Fly:
         interactionA->setName("Fly");
+        if (flyButton_)
+            flyButton_->setState(true, updateGroup);
         break;
     case Walk:
         interactionA->setName("Walk");
+        if (walkButton_)
+            walkButton_->setState(true, updateGroup);
         break;
     case Glide:
         interactionA->setName("Drive");
+        if (driveButton_)
+            driveButton_->setState(true, updateGroup);
         break;
     case ShowName:
         interactionA->setName("ShowName");
+        if (showNameButton_)
+            showNameButton_->setState(true, updateGroup);
         break;
     case TraverseInteractors:
         interactionA->setName("TraverseInteractors");
+        if (traverseInteractorButton_)
+            traverseInteractorButton_->setState(true, updateGroup);
         break;
     case Menu:
         interactionA->setName("Menu");
@@ -1375,9 +1399,23 @@ void coVRNavigationManager::setNavMode(NavMode mode)
         break;
     case NavNone:
         interactionA->setName("NoNavigation");
+        if (noNavButton_)
+            noNavButton_->setState(true, updateGroup);
         break;
     case Measure:
         interactionA->setName("Measure");
+        if (measureButton_)
+            measureButton_->setState(true, updateGroup);
+        break;
+    case Select:
+        interactionA->setName("Select");
+        if (selectButton_)
+            selectButton_->setState(true, updateGroup);
+        break;
+    case SelectInteract:
+        interactionA->setName("SelectInteract");
+        if (selectInteractButton_)
+            selectInteractButton_->setState(true, updateGroup);
         break;
     default:
         fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
@@ -1441,93 +1479,9 @@ void coVRNavigationManager::setNavMode(NavMode mode)
     }
 }
 
-void coVRNavigationManager::toggleXform(bool state)
+ui::ButtonGroup *coVRNavigationManager::navGroup() const
 {
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXform %d\n", state);
-
-    if (state)
-    {
-        setNavMode(XForm);
-    }
-    else if (navMode == XForm || (oldNavMode == XForm && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleXformRotate(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXformRotate %d\n", state);
-
-    if (state)
-    {
-        setNavMode(XFormRotate);
-    }
-    else if (navMode == XFormRotate || (oldNavMode == XFormRotate && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleXformTranslate(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXform %d\n", state);
-
-    if (state)
-    {
-        setNavMode(XFormTranslate);
-    }
-    else if (navMode == XFormTranslate || (oldNavMode == XFormTranslate && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleScale(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleScale %d\n", state);
-
-    if (state)
-    {
-        setNavMode(Scale);
-    }
-    else if (navMode == Scale || (oldNavMode == Scale && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleFly(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleFly %d\n", int(state));
-    if (state)
-    {
-        setNavMode(Fly);
-    }
-    else if (navMode == Fly || (oldNavMode == Fly && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleGlide(bool state)
-{
-    if (state)
-    {
-        setNavMode(Glide);
-    }
-    else if (navMode == Glide || (oldNavMode == Glide && navMode == Menu))
-        setNavMode(NavNone);
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleGlide %d\n", state);
-}
-
-void coVRNavigationManager::toggleWalk(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleWalk %d\n", state);
-
-    if (state)
-    {
-        setNavMode(Walk);
-    }
-    else if (navMode == Walk || (oldNavMode == Walk && navMode == Menu))
-        setNavMode(NavNone);
+    return navGroup_;
 }
 
 void coVRNavigationManager::toggleCollide(bool state)
@@ -1536,6 +1490,7 @@ void coVRNavigationManager::toggleCollide(bool state)
         fprintf(stderr, "coVRNavigationManager::toggleCollide %d\n", state);
 
     collision = state;
+    collisionButton_->setState(collision);
 }
 
 void coVRNavigationManager::toggleShowName(bool state)
@@ -1545,41 +1500,18 @@ void coVRNavigationManager::toggleShowName(bool state)
 
     if (state)
     {
-        if (navMode != ShowName)
-        {
-            setNavMode(ShowName);
-            // enable intersection with scene
-            coIntersection::instance()->isectAllNodes(true);
-        }
+        // enable intersection with scene
+        coIntersection::instance()->isectAllNodes(true);
     }
     else
     {
-        if (navMode == ShowName || (oldNavMode == ShowName && navMode == Menu))
-        {
-            if (cover->debugLevel(4))
-                fprintf(stderr, "realtoggle\n");
-            setNavMode(NavNone);
-            nameLabel_->hide();
-            nameMenu_->setVisible(false);
-            highlightSelectedNode(NULL);
-            // disable intersection with scene
-            coIntersection::instance()->isectAllNodes(false);
-        }
-    }
-}
-
-void coVRNavigationManager::toggleMeasure(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXform %d\n", state);
-
-    if (state)
-    {
-        setNavMode(Measure);
-    }
-    else if (navMode == Measure || (oldNavMode == Measure && navMode == Menu))
-    {
-        setNavMode(NavNone);
+        if (cover->debugLevel(4))
+            fprintf(stderr, "realtoggle\n");
+        nameLabel_->hide();
+        nameMenu_->setVisible(false);
+        highlightSelectedNode(NULL);
+        // disable intersection with scene
+        coIntersection::instance()->isectAllNodes(false);
     }
 }
 
@@ -1591,11 +1523,9 @@ void coVRNavigationManager::toggleInteractors(bool state)
     if (state)
     {
         coVRIntersectionInteractorManager::the()->enableCycleThroughInteractors();
-        setNavMode(TraverseInteractors);
     }
     else if (navMode == TraverseInteractors || (oldNavMode == TraverseInteractors && navMode == Menu))
     {
-        setNavMode(NavNone);
         coVRIntersectionInteractorManager::the()->disableCycleThroughInteractors();
     }
 }
@@ -1608,131 +1538,19 @@ void coVRNavigationManager::setMenuMode(bool state)
     if (!coVRConfig::instance()->isMenuModeOn())
         return;
 
-    if (state && (navMode != Menu))
+    if (state)
     {
         VRSceneGraph::instance()->setMenuMode(true);
-        setNavMode(Menu);
     }
-    else if (!state && (navMode == Menu))
+    else
     {
         VRSceneGraph::instance()->setMenuMode(false);
-        if (oldNavMode != Menu)
-        {
-            setNavMode(oldNavMode);
-        }
-        else
-        {
-            setNavMode(NavNone);
-        }
 
     } /* else if (!state)
    {
       VRSceneGraph::instance()->setMenuMode(true);
       VRSceneGraph::instance()->setMenuMode(false);
    }*/
-}
-
-void coVRNavigationManager::toggleMenu()
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleMenu\n");
-
-    if (!coVRConfig::instance()->isMenuModeOn())
-        return;
-
-    if (navMode != Menu)
-    {
-        VRSceneGraph::instance()->setMenuMode(true);
-        setNavMode(Menu);
-    }
-    else
-    {
-        VRSceneGraph::instance()->setMenuMode(false);
-        if (oldNavMode != Menu)
-        {
-            setNavMode(oldNavMode);
-        }
-        else
-        {
-            setNavMode(NavNone);
-        }
-    }
-}
-
-void coVRNavigationManager::xformCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleXform(spec->state != 0.0);
-}
-
-void coVRNavigationManager::xformTranslateCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleXformTranslate(spec->state != 0.0);
-}
-
-void coVRNavigationManager::xformRotateCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleXformRotate(spec->state != 0.0);
-}
-
-void coVRNavigationManager::collideCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleCollide(spec->state != 0.0);
-}
-
-void coVRNavigationManager::scaleCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleScale(spec->state != 0.0);
-}
-
-void coVRNavigationManager::walkCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleWalk(spec->state != 0.0);
-}
-
-void coVRNavigationManager::driveCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleGlide(spec->state != 0.0);
-}
-
-void coVRNavigationManager::flyCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleFly(spec->state != 0.0);
-}
-
-void coVRNavigationManager::driveSpeedCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->driveSpeed = spec->state;
-}
-
-void coVRNavigationManager::snapCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->enableSnapping(spec->state != 0.f);
-}
-
-void coVRNavigationManager::showNameCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleShowName(spec->state != 0.0);
-}
-
-void coVRNavigationManager::measureCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleMeasure(spec->state != 0.0);
-}
-
-void coVRNavigationManager::traverseInteractorsCallback(void *mgr, buttonSpecCell *spec)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::traverseInteractorsCallback\n"); ///
-
-    ((coVRNavigationManager *)mgr)->toggleInteractors(spec->state != 0.0);
-}
-
-void coVRNavigationManager::menuCallback(void *mgr, buttonSpecCell *)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::menuCallback\n"); ///
-
-    ((coVRNavigationManager *)mgr)->toggleMenu();
 }
 
 float coVRNavigationManager::getPhiZVerti(float y2, float y1, float x2, float widthX, float widthY)
@@ -2810,23 +2628,7 @@ void coVRNavigationManager::doShowName()
                 // check if we now have an empty string (containing spaces only)
                 if (nodeName.length() > 0)
                 {
-                    //-------------TRANSLATION BEGIN------------------------
-                    char *covisepath = getenv("COVISE_PATH");
-                    if (covisepath)
-                    {
-                        std::string covisePath(covisepath);
-
-                        //yes, there could be a semicolon in it!
-                        covisePath.erase(remove(covisePath.begin(), covisePath.end(), ';'), covisePath.end());
-
-                        nodeName = vtrans::VTrans::translate(
-                            coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                            std::string(covisepath) + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
-                            coCoviseConfig::getEntry("value", "COVER.Localization.VRMLDomain", ""),
-                            coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                            nodeName);
-                    }
-                    //-------------TRANSLATION END--------------------------
+                    nodeName = coTranslator::coTranslate(nodeName);
 
                     //now remove special names
                     /*
@@ -2917,11 +2719,82 @@ void coVRNavigationManager::stopMeasure()
 {
 }
 
-void coVRNavigationManager::menuEvent(coMenuItem *menuItem)
+void coVRNavigationManager::toggleSelectInteract(bool state)
 {
-    (void)menuItem;
     if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::menuEvent\n");
+        fprintf(stderr, "coVRNavigationManager::toggleSelectInteract %d\n", state);
+
+    if (state)
+    {
+        // enable intersection with scene
+        coIntersection::instance()->isectAllNodes(true);
+    }
+    else
+    {
+        if (cover->debugLevel(4))
+            fprintf(stderr, "realtoggle\n");
+        highlightSelectedNode(NULL);
+        // disable intersection with scene
+        coIntersection::instance()->isectAllNodes(false);
+    }
+}
+
+void coVRNavigationManager::startSelectInteract()
+{
+    //fprintf(stderr, "coVRNavigationManager::startSelectInteract\n");
+    animationWasRunning = coVRAnimationManager::instance()->animationRunning();
+    coVRAnimationManager::instance()->enableAnimation(false);
+}
+
+void coVRNavigationManager::doSelectInteract()
+{
+}
+
+void coVRNavigationManager::stopSelectInteract(bool mouse)
+{
+    coVRAnimationManager::instance()->enableAnimation(animationWasRunning);
+
+    if (!cover->getIntersectedNode())
+        return;
+
+    bool changeToInteraction = false;
+    Node *currentNode = cover->getIntersectedNode();
+    while (currentNode != NULL)
+    {
+        if (auto ud = currentNode->getUserData())
+        {
+            if (auto ir = dynamic_cast<InteractorReference *>(ud))
+            {
+                auto inter = ir->interactor();
+                if (inter)
+                {
+                    std::cerr << "doSelectInteract: requesting interaction for node " << currentNode->getName() << std::endl;
+                    changeToInteraction = coVRPluginList::instance()->requestInteraction(inter, cover->getIntersectedNode(), mouse);
+                    if (changeToInteraction)
+                        break;
+                }
+            }
+        }
+        if (currentNode == cover->getObjectsRoot())
+        {
+            break;
+        }
+
+        if (currentNode->getNumParents() > 0)
+        {
+            currentNode = currentNode->getParent(0);
+        }
+        else
+        {
+            currentNode = nullptr;
+        }
+    }
+
+    if (changeToInteraction && mouse)
+    {
+        std::cerr << "doSelectInteract: Accepted interaction" << std::endl;
+        setNavMode(oldNavMode);
+    }
 }
 
 void coVRNavigationManager::wasJumping()
@@ -2932,12 +2805,11 @@ void coVRNavigationManager::wasJumping()
 void coVRNavigationManager::setDriveSpeed(float speed)
 {
     driveSpeed = speed;
-    cover->setNavigationValue("DriveSpeed", speed);
+    driveSpeedSlider_->setValue(speed);
 }
 
 float coVRNavigationManager::getDriveSpeed()
 {
-    cover->getBuiltInFunctionValue("DriveSpeed", &driveSpeed);
     return driveSpeed;
 }
 

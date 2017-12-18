@@ -85,12 +85,12 @@ bool coReadMeteo::readLine(FILE *fp)
     {
         if (lineBuf && lineBufSize > 1)
         {
-            if (!fgets(lineBuf + offset, lineBufSize - offset, fp))
+            if (!fgets(lineBuf + offset, int(lineBufSize - offset), fp))
             {
                 return false;
             }
 
-            int len = strlen(lineBuf);
+            int len = (int)strlen(lineBuf);
             if (len > 0)
             {
                 if (lineBuf[len - 1] == '\n')
@@ -107,7 +107,7 @@ bool coReadMeteo::readLine(FILE *fp)
 
         if (lineBufSize > 0)
         {
-            offset = lineBufSize - 1;
+            offset = int(lineBufSize - 1);
         }
         else
         {
@@ -139,7 +139,7 @@ bool coReadMeteo::readArray(FILE *fp, float **data, int numElems)
 
         if (pos)
         {
-            (*data)[i] = strtod(pos, &npos);
+            (*data)[i] = float(strtod(pos, &npos));
             (*data)[i] *= scale;
             if (pos == npos)
             {
@@ -208,8 +208,8 @@ int coReadMeteo::compute(const char *)
                 {
                     for (int i = 0; i < dimX; i++)
                     {
-                        x[i * dimY * dimZ + j * dimZ + k] = i;
-                        y[i * dimY * dimZ + j * dimZ + k] = j;
+                        x[i * dimY * dimZ + j * dimZ + k] = float(i);
+                        y[i * dimY * dimZ + j * dimZ + k] = float(j);
                         z[i * dimY * dimZ + j * dimZ + k] = rawData[k * dimY * dimX + j * dimX + i];
                     }
                 }

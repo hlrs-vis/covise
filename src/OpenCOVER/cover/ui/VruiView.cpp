@@ -32,12 +32,14 @@ namespace ui {
 VruiView::VruiView()
 : View("vrui")
 {
-#if 0
-    m_rootMenu = new coRowMenu("COVER2", nullptr);
-    m_rootMenu->setVisible(true);
-#else
     m_rootMenu = cover->getMenu();
-#endif
+    m_root = new VruiViewElement(nullptr);
+    m_root->m_menu = m_rootMenu;
+}
+
+VruiView::~VruiView()
+{
+    delete m_root;
 }
 
 coMenu *VruiView::getMenu(const Element *elem) const
@@ -80,6 +82,25 @@ VruiViewElement *VruiView::vruiElement(const Element *elem) const
 
 VruiViewElement *VruiView::vruiParent(const Element *elem) const
 {
+    if (!elem)
+        return nullptr;
+
+    std::string configPath = "COVER.UI." + elem->path();
+    bool exists = false;
+    std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath, &exists);
+    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    if (exists)
+    {
+        if (parentPath.empty())
+        {
+            return m_root;
+        }
+        if (auto parent = vruiElement(parentPath))
+            return parent;
+
+        std::cerr << "ui::Vrui: did not find configured parent '" << parentPath << "' for '" << elem->path() << "'" << std::endl;
+    }
+
     return vruiElement(elem->parent());
 }
 
@@ -91,7 +112,8 @@ VruiViewElement *VruiView::vruiContainer(const Element *elem) const
     {
         if (p->m_menu)
             return p;
-        return vruiParent(p->element);
+        if (p->element)
+            return vruiParent(p->element);
     }
     return nullptr;
 }
@@ -99,44 +121,16 @@ VruiViewElement *VruiView::vruiContainer(const Element *elem) const
 void VruiView::add(VruiViewElement *ve, const Element *elem)
 {
     if (!ve)
-        std::cerr << "Warning: no VruiViewElement" << std::endl;
+        std::cerr << "VruiView::add: Warning: no VruiViewElement" << std::endl;
     if (!elem)
-        std::cerr << "Warning: Element" << std::endl;
-
-    auto parent = vruiContainer(elem);
-
-    std::string configPath = "COVER.UI." + elem->path();
-    bool exists = false;
-    std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath, &exists);
-    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
-    if (exists)
-    {
-        auto p = vruiElement(parentPath);
-        if (!p)
-        {
-            //std::cerr << "ui::Vrui: did not find configured parent '" << parentPath << "' for '" << elem->path() << "'" << std::endl;
-        }
-        parent = p;
-    }
+        std::cerr << "VruiView::add: Warning: no Element" << std::endl;
 
     if (ve->m_menuItem)
     {
-        if (parent && parent->m_menu)
-        {
-            parent->m_menu->add(ve->m_menuItem);
-        }
-        else
-        {
-            if (parent)
-            {
-                std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
-            }
-            if (m_rootMenu)
-                m_rootMenu->add(ve->m_menuItem);
-        }
-        if (ve->m_menuItem)
-            ve->m_menuItem->setMenuListener(ve);
+        ve->m_menuItem->setMenuListener(ve);
     }
+
+    updateParent(elem);
 }
 
 void VruiView::updateEnabled(const Element *elem)
@@ -146,33 +140,62 @@ void VruiView::updateEnabled(const Element *elem)
 
 void VruiView::updateVisible(const Element *elem)
 {
+    //std::cerr << "Vrui: updateVisible(" << elem->path() << ")" << std::endl;
     auto ve = vruiElement(elem);
-    if (ve)
+    if (!ve)
+        return;
+
+    if (auto m = dynamic_cast<const Menu *>(elem))
     {
-        if (auto m = dynamic_cast<const Menu *>(elem))
+        if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
         {
-            if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
+            if (!m->visible())
             {
-                if (!m->visible())
-                {
-                    smi->closeSubmenu();
-                    delete smi;
-                    ve->m_menuItem = nullptr;
-                }
-            } else if (!ve->m_menuItem) {
-                if (m->visible())
-                {
-                    auto smi = new coSubMenuItem(m->text()+"...");
-                    smi->setMenu(ve->m_menu);
-                    ve->m_menuItem = smi;
-                    add(ve, m);
-                }
+                smi->closeSubmenu();
+                delete smi;
+                ve->m_menuItem = nullptr;
             }
-            if (ve->m_menu)
+        } else if (!ve->m_menuItem) {
+            if (m->visible())
             {
-                if (!elem->visible())
-                    ve->m_menu->setVisible(elem->visible());
+                auto smi = new coSubMenuItem(m->text()+"...");
+                smi->setMenu(ve->m_menu);
+                ve->m_menuItem = smi;
+                add(ve, m);
             }
+        }
+        if (ve->m_menu)
+        {
+            if (!elem->visible())
+                ve->m_menu->setVisible(elem->visible());
+        }
+    }
+    else if (ve->m_menuItem)
+    {
+        auto container = vruiContainer(elem);
+        if (container)
+        {
+            //std::cerr << "changing visible to " << elem->visible() << ": elem=" << elem->path() << ", container=" << (container&&container->element ? container->element->path() : "(null)") << std::endl;
+            //auto m = dynamic_cast<const Menu *>(container->element);
+            //auto mve = vruiElement(m);
+            //if (mve)
+            //{
+                auto menu = container->m_menu;
+                if (menu)
+                {
+                auto idx = menu->index(ve->m_menuItem);
+                if (elem->visible() && idx < 0)
+                {
+                    if (menu)
+                        menu->add(ve->m_menuItem);
+                }
+                else if (!elem->visible() && idx >= 0)
+                {
+                    if (menu)
+                        menu->remove(ve->m_menuItem);
+                }
+                }
+            //}
         }
     }
 }
@@ -205,8 +228,33 @@ void VruiView::updateState(const Button *button)
     }
 }
 
-void VruiView::updateChildren(const Menu *menu)
+void VruiView::updateParent(const Element *elem)
 {
+    auto ve = vruiElement(elem);
+    if (!ve)
+        return;
+    if (ve->m_menuItem)
+    {
+        auto oldMenu = ve->m_menuItem->getParentMenu();
+        if (oldMenu)
+            oldMenu->remove(ve->m_menuItem);
+
+        auto parent = vruiContainer(elem);
+        if (parent && parent->m_menu)
+        {
+            parent->m_menu->add(ve->m_menuItem);
+        }
+        else
+        {
+            if (parent)
+            {
+                std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
+            }
+            if (m_rootMenu && ve->m_menu)
+                m_rootMenu->add(ve->m_menuItem);
+        }
+    }
+    updateVisible(elem);
 }
 
 void VruiView::updateChildren(const SelectionList *sl)
@@ -256,19 +304,25 @@ void VruiView::updateChildren(const SelectionList *sl)
         ve->m_menuItem->setName(t);
 }
 
-void VruiView::updateInteger(const Slider *slider)
+void VruiView::updateIntegral(const Slider *slider)
 {
     auto ve = vruiElement(slider);
     if (!ve)
         return;
     if (auto vp = dynamic_cast<coPotiMenuItem *>(ve->m_menuItem))
     {
-        vp->setInteger(slider->integer());
+        vp->setInteger(slider->integral());
     }
     else if (auto vs = dynamic_cast<coSliderMenuItem *>(ve->m_menuItem))
     {
-        vs->setInteger(slider->integer());
+        vs->setInteger(slider->integral());
     }
+}
+
+void VruiView::updateScale(const Slider *slider)
+{
+    updateBounds(slider);
+    updateValue(slider);
 }
 
 void VruiView::updateValue(const Slider *slider)
@@ -291,6 +345,7 @@ void VruiView::updateBounds(const Slider *slider)
     auto ve = vruiElement(slider);
     if (!ve)
         return;
+
     if (auto vp = dynamic_cast<coPotiMenuItem *>(ve->m_menuItem))
     {
         vp->setMin(slider->min());
@@ -408,8 +463,39 @@ VruiViewElement *VruiView::elementFactoryImplementation(Action *action)
 
 VruiViewElement::VruiViewElement(Element *elem)
 : View::ViewElement(elem)
-, m_text(elem->text())
+, m_text(elem ? elem->text() : "")
 {
+}
+
+VruiViewElement::~VruiViewElement()
+{
+    if (m_menu)
+        m_menu->closeMenu();
+
+    delete m_menu;
+    m_menu = nullptr;
+
+    delete m_menuItem;
+    m_menuItem = nullptr;
+
+    delete m_group;
+    m_group = nullptr;
+}
+
+namespace {
+
+void updateSlider(Slider *s, coMenuItem *item, bool moving)
+{
+    auto vd = dynamic_cast<coPotiMenuItem *>(item);
+    auto vs = dynamic_cast<coSliderMenuItem *>(item);
+    if (vd)
+        s->setValue(vd->getValue());
+    if (vs)
+        s->setValue(vs->getValue());
+    s->setMoving(moving);
+    s->trigger();
+}
+
 }
 
 void VruiViewElement::menuEvent(coMenuItem *menuItem)
@@ -431,14 +517,7 @@ void VruiViewElement::menuEvent(coMenuItem *menuItem)
     }
     else if (auto s = dynamic_cast<Slider *>(element))
     {
-        auto vd = dynamic_cast<coPotiMenuItem *>(menuItem);
-        auto vs = dynamic_cast<coSliderMenuItem *>(menuItem);
-        if (vd)
-            s->setValue(vd->getValue());
-        if (vs)
-            s->setValue(vs->getValue());
-        s->setMoving(true);
-        s->trigger();
+        updateSlider(s, menuItem, true);
     }
     else if (auto sl = dynamic_cast<SelectionList *>(element))
     {
@@ -458,14 +537,7 @@ void VruiViewElement::menuReleaseEvent(coMenuItem *menuItem)
 {
     if (auto s = dynamic_cast<Slider *>(element))
     {
-        auto vd = dynamic_cast<coPotiMenuItem *>(menuItem);
-        auto vs = dynamic_cast<coSliderMenuItem *>(menuItem);
-        if (vd)
-            s->setValue(vd->getValue());
-        if (vs)
-            s->setValue(vs->getValue());
-        s->setMoving(false);
-        s->trigger();
+        updateSlider(s, menuItem, false);
     }
 }
 

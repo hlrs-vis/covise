@@ -25,9 +25,11 @@
 #include <OpenVRUI/coRowMenuItem.h>
 #include <OpenVRUI/coLabelMenuItem.h>
 
-#include "string.h"
+#include <cstring>
+#include <string>
 
 using namespace osg;
+using std::string;
 
 char *FamuPlugin::currentObjectName = NULL;
 

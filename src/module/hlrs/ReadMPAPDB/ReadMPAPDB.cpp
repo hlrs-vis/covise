@@ -249,7 +249,8 @@ int ReadMPAPDB::compute(const char *)
     {
         cerr << "timestep=" << timestep << endl;
         int nAtoms = 0;
-        if ((pFile = fopen(filenames[timestep].c_str(), "r")) <= 0)
+        pFile = fopen(filenames[timestep].c_str(), "r");
+        if (!pFile)
         {
             sendError("ERROR: can't open file %s", filenames[timestep].c_str());
             return STOP_PIPELINE;
@@ -276,7 +277,8 @@ int ReadMPAPDB::compute(const char *)
 
     for (int timestep = 0; timestep < m_pNTimesteps->getValue(); timestep += m_pStepTimesteps->getValue())
     {
-        if ((pFile = fopen(filenames[timestep].c_str(), "r")) <= 0)
+        pFile = fopen(filenames[timestep].c_str(), "r");
+        if (!pFile)
         {
             sendError("ERROR: can't open file %s", m_pParamFile->getValue());
             return STOP_PIPELINE;

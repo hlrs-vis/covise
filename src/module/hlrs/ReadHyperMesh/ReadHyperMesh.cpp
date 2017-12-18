@@ -196,7 +196,8 @@ int ReadHyperMesh::compute(const char *)
 {
 
     // compute parameters
-    if ((file = fopen(fileName->getValue(), "r")) <= 0)
+    file = fopen(fileName->getValue(), "r");
+    if (!file)
     {
         sendError("ERROR: can't open file %s", fileName->getValue());
         return FAIL;
@@ -634,7 +635,8 @@ int ReadHyperMesh::compute(const char *)
         return FAIL;
     }
 
-    if ((file = fopen(resultsFileName->getValue(), "r")) <= 0)
+    file = fopen(resultsFileName->getValue(), "r");
+    if (!file)
     {
         sendError("ERROR: can't open file %s", resultsFileName->getValue());
         return FAIL;

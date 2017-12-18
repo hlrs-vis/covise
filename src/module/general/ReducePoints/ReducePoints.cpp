@@ -198,7 +198,7 @@ int ReducePoints::compute(const char *)
         return STOP_PIPELINE;
     }
 
-    coDoPoints *points = new coDoPoints(poPoints->getNewObjectInfo(), coordX.size(),
+    coDoPoints *points = new coDoPoints(poPoints->getNewObjectInfo(), (int)coordX.size(),
                                         &coordX[0], &coordY[0], &coordZ[0]);
     poPoints->setCurrentObject(points);
     coordX.clear();

@@ -121,7 +121,7 @@ RSystemElementController::updateObserver()
             {
                 if (controlEntry->getSignalId() == iter.key())
                 {
-                    controlEntry->setType(QString::number(signal->getType()));
+                    controlEntry->setType(signal->getType());
                     if (iter.key() != signal->getId())
                     {
                         delControlEntry(controlEntry, signal);

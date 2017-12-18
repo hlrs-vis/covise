@@ -1054,7 +1054,7 @@ SplitLaneSectionCommand::SplitLaneSectionCommand(LaneSection *laneSection, doubl
 
     // New section //
     //
-    newSection_ = new LaneSection(splitPos, laneSection);
+    newSection_ = new LaneSection(splitPos, oldSection_->getSide(), laneSection);
 
     // Done //
     //

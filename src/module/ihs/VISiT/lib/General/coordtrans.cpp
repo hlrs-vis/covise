@@ -3,9 +3,13 @@
 #include <math.h>
 #include "include/coordtrans.h"
 
+#ifdef WIN32
+#pragma warning (disable : 4244)
+#endif
+
 int CalcCylindricalCoords(float *x)
 {
-   float r;
+   double r;
 
    r    = sqrt(pow(x[0], 2) + pow(x[1], 2));
    if (x[1] >= 0.0)

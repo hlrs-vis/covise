@@ -130,24 +130,24 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 
 	// get real blade length from meridian points
 	bllen = 0;
-	bllen = sqrt(pow( (float)(rte - be->ml->p->x[ite]), 2) + pow( (float)(hte - be->ml->p->z[ite]), 2) );
+	bllen = float(sqrt(pow( (float)(rte - be->ml->p->x[ite]), 2) + pow( (float)(hte - be->ml->p->z[ite]), 2) ));
 	// length coord. of leading & trailing edge
-	lelen = be->ml->len[ile] + sqrt(pow( (float)(rle - be->ml->p->x[ile]), 2)
-									+ pow( (float)(hle - be->ml->p->z[ile]), 2) );
+	lelen = float(be->ml->len[ile] + sqrt(pow( (float)(rle - be->ml->p->x[ile]), 2)
+									+ pow( (float)(hle - be->ml->p->z[ile]), 2) ));
 	telen = be->ml->len[ite] + bllen;
-	bllen *= 0.5*(1/rte + 1/be->ml->p->x[ite]);
+	bllen *= 0.5f*(1/rte + 1/be->ml->p->x[ite]);
 #ifdef DEBUG_SURFACES
 	fprintf(fpdebug,"bllen = %f\n",bllen);
 #endif
 	for(i = ite; i > ile+1; i--) {
-		bllen += (be->ml->len[i] - be->ml->len[i-1]) * 0.5*(1/be->ml->p->x[i] + 1/be->ml->p->x[i-1]);
+		bllen += (be->ml->len[i] - be->ml->len[i-1]) * 0.5f*(1/be->ml->p->x[i] + 1/be->ml->p->x[i-1]);
 #ifdef DEBUG_SURFACES
 		fprintf(fpdebug," i = %d, bllen = %f, ml->len[i] = %f, ml->p->x[i] = %f\n",
 				i, bllen, be->ml->len[i], be->ml->p->x[i]);
 #endif
 	}
-	bllen += sqrt(pow( (float)(rle - be->ml->p->x[ile+1]), 2) + pow( (float)(hle - be->ml->p->z[ile+1]), 2) )
-		* 0.5*(1/rle + 1/be->ml->p->x[ile+1]);
+	bllen += float(sqrt(pow( (float)(rle - be->ml->p->x[ile+1]), 2) + pow( (float)(hle - be->ml->p->z[ile+1]), 2) )
+		* 0.5*(1/rle + 1/be->ml->p->x[ile+1]));
 	bllen *= rref;
 
 #ifdef DEBUG_SURFACES
@@ -165,10 +165,10 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	p3[0]  = be->te_wrap * rref;
 	p3[1]  = 0.0;
 
-	v1[0]  = -cos(be->angle[0]);
-	v1[1]  = -sin(be->angle[0]);
-	v3[0]  =  cos(be->angle[1]);
-	v3[1]  =  sin(be->angle[1]);
+	v1[0]  = float(-cos(be->angle[0]));
+	v1[1]  = float(-sin(be->angle[0]));
+	v3[0]  = float(cos(be->angle[1]));
+	v3[1]  = float(sin(be->angle[1]));
 
 	LineIntersect(p3,v3, p1,v1, p2);
 	if( (p2[1] > p1[1])	 || (p2[0] < p3[0]) ) {
@@ -182,9 +182,9 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	if(camb_flag) {
 		// force max. camber to given position, using polygon
 		// transform points for simplicity
-		delta = M_PI   - atan( (p1[1] - p3[1])/(p1[0] - p3[0]));
-		cdel  = cos(delta);
-		sdel  = sin(delta);
+		delta = float(M_PI   - atan( (p1[1] - p3[1])/(p1[0] - p3[0])));
+		cdel  = float(cos(delta));
+		sdel  = float(sin(delta));
 		q[2] = q1[2] = q2[2] = q3[2] = q4[2] = 0.0;
 		q1[0] = cdel * p1[0] - sdel * p1[1];
 		q1[1] = sdel * p1[0] + cdel * p1[1];
@@ -301,7 +301,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 		knot  = BSplineKnot(poly, BSPLN_DEGREE);
 		for(i = 1; i < POLY_POINTS; i++) {
 			ratio = (float)(i)/(float)(POLY_POINTS-1);
-			ratio = pow((float)ratio,1.5f);
+			ratio = float(pow((float)ratio,1.5f));
 			BSplinePoint(BSPLN_DEGREE, poly, knot, ratio, p);
 			AddVPoint(poly2,p);
 		}
@@ -508,7 +508,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	fprintf(fp,"# centre line\n");
 #endif
 	for(i = 0; i < be->bp->num; i++) {
-		sec = pow(be->bp->c[i], be->bp_shift);
+		sec = float(pow(be->bp->c[i], be->bp_shift));
 		BSplinePoint(BSPLN_DEGREE, poly, knot, sec, p);
 		AddVPoint(be->cl, p);
 		BSplineNormal(BSPLN_DEGREE, poly, knot, sec, p);
@@ -532,8 +532,8 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	// cl length in projection
 	be->cl_len = 0.0;
 	for(i = 1; i < be->bp->num; i++) {
-		be->cl_len += sqrt(pow( (float)(be->cl->x[i]-be->cl->x[i-1]), 2)
-						   + pow( (float)(be->cl->y[i]-be->cl->y[i-1]), 2) );
+		be->cl_len += float(sqrt(pow( (float)(be->cl->x[i]-be->cl->x[i-1]), 2)
+						   + pow( (float)(be->cl->y[i]-be->cl->y[i-1]), 2) ));
 	}
 
 	scale = be->p_thick;
@@ -542,8 +542,8 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 #endif
 	// calc. pressure side surface
 	for (i = 0; i < be->bp->num; i++) {
-		t1 = 0.5 * be->cl_len * be->bp->t[i];
-		t2 = 0.5 * be->te_thick * be->bp->c[i];
+		t1 = 0.5f * be->cl_len * be->bp->t[i];
+		t2 = 0.5f * be->te_thick * be->bp->c[i];
 		p[0] = be->cl->x[i] - be->clg->x[i] * (scale * t1 + t2);
 		p[1] = be->cl->y[i] - be->clg->y[i] * (scale * t1 + t2);
 		p[2] = be->cl->z[i] - be->clg->z[i] * (scale * t1 + t2);
@@ -558,8 +558,8 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 #endif
 	// calc. suct. side surface
 	for (i = 0; i < be->bp->num; i++) {
-		t1 = 0.5 * be->cl_len * be->bp->t[i];
-		t2 = 0.5 * be->te_thick * be->bp->c[i];
+		t1 = 0.5f * be->cl_len * be->bp->t[i];
+		t2 = 0.5f * be->te_thick * be->bp->c[i];
 		p[0] = be->cl->x[i] + be->clg->x[i] * (scale * t1 + t2);
 		p[1] = be->cl->y[i] + be->clg->y[i] * (scale * t1 + t2);
 		p[2] = be->cl->z[i] + be->clg->z[i] * (scale * t1 + t2);
@@ -782,7 +782,7 @@ static struct Point *GetMeridionalView(struct Point *cl, struct curve *ml,
 		jnext = ile;
 		for(i = 1; i < nump; i++) {
 			lprev = l;
-			l = lprev + ( (cl->y[i-1] - cl->y[i]) / rref ) * 0.5*(line->x[i-1]+line->x[i]);
+			l = lprev + ( (cl->y[i-1] - cl->y[i]) / rref ) * 0.5f*(line->x[i-1]+line->x[i]);
 			for(j = jnext; j < ite+jadd; j++) {
 				if(l <= ml->len[j])
 				{
@@ -844,8 +844,8 @@ struct Point *GetCartesianCoord(struct Point *src)
 	line = AllocPointStruct();
 
 	for(i = 0; i < src->nump; i++) {
-		p[0] = src->x[i] * cos(src->y[i]);
-		p[1] = src->x[i] * sin(src->y[i]);
+		p[0] = float(src->x[i] * cos(src->y[i]));
+		p[1] = float(src->x[i] * sin(src->y[i]));
 		p[2] = src->z[i];
 		AddVPoint(line,p);
 	}

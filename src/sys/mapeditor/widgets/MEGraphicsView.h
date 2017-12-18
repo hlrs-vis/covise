@@ -121,6 +121,7 @@ private:
     QList<QGraphicsItem *> movedItemList;
     qreal offxr, offxl, offyt, offyb;
     bool m_autoSelectNewNodes;
+    bool m_devmode = false;
 
     void initPopupStuff();
     void makePortList(MEPort *port, QGraphicsSceneMouseEvent *e);

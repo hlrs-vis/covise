@@ -706,7 +706,7 @@ public:
     virtual void undo();
     virtual void redo();
 
-    void removeLinkRoadLink(RSystemElementRoad * linkRoad, const QString &contactPoint);
+    void removeLinkRoadLink(RSystemElementRoad * linkRoad, JunctionConnection::ContactPointValue contactPoint);
     void saveConnectingRoadLanes(RSystemElementJunction * junction);
 
 private:

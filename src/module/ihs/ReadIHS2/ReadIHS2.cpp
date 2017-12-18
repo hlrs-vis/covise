@@ -535,7 +535,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
 		  sendError("%s",errbuf);
 		  return FAIL ;
       }
-	  len=strlen(buf);
+	  len=(int)strlen(buf);
 	  for(int j=0; j < len; j++)
              buf[j] = tolower(buf[j]);
 	  if (strstr(buf,"#")) {
@@ -1448,7 +1448,7 @@ cerr << "geo->n_bcperiodic2 = " << geo->n_bcperiodic2 << endl;
 
       if (p_abs2rel->getValue())
       {
-         float omega = M_PI * p_n->getValue() / 30.;
+         float omega = float(M_PI * p_n->getValue() / 30.);
          int rotaxis = p_RotAxis->getValue();
 
          if (!strcmp(s_RotAxis[rotaxis], "x"))
@@ -2157,7 +2157,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
       }
       if (p_abs2rel->getValue())
       {
-         float omega = M_PI * p_n->getValue() / 30.;
+         float omega = float(M_PI * p_n->getValue() / 30.);
          int rotaxis = p_RotAxis->getValue();
          int nodenr;
 

@@ -15,6 +15,9 @@
 // (C) 2001 by VirCinity IT Consulting
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Changes:
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#endif
 //
 #include "UDPComm.h"
 
@@ -238,19 +241,20 @@ void UDPComm::setup(const char *hostname, int port, int localPort,
 
     if (mcastif)
     {
-        in_addr_t ifaddr = inet_addr(mcastif);
 
-        if (ifaddr == INADDR_NONE)
+		struct in_addr v4;
+		int err = inet_pton(AF_INET, mcastif, &v4);
+
+        if (v4.s_addr == INADDR_NONE)
         {
             fprintf(stderr, "Error converting multicast interface address %s: %s",
                     mcastif, strerror(errno));
             return;
         }
-        struct in_addr inaddr = { ifaddr };
 #ifdef WIN32
-        if (-1 == setsockopt(d_socket, IPPROTO_IP, IP_MULTICAST_IF, (const char *)&inaddr, sizeof(inaddr)))
+        if (-1 == setsockopt(d_socket, IPPROTO_IP, IP_MULTICAST_IF, (const char *)&v4, sizeof(v4)))
 #else
-        if (-1 == setsockopt(d_socket, IPPROTO_IP, IP_MULTICAST_IF, &inaddr, sizeof(inaddr)))
+        if (-1 == setsockopt(d_socket, IPPROTO_IP, IP_MULTICAST_IF, &v4, sizeof(v4)))
 #endif
         {
             fprintf(stderr, "Error setting multicast interface %s: %s",
@@ -371,28 +375,62 @@ unsigned long
 UDPComm::getIP(const char *hostname)
 {
     // try dot notation
-    unsigned int binAddr;
-    binAddr = inet_addr(hostname);
-    if (binAddr != INADDR_NONE)
-        return binAddr;
+
+	struct in_addr v4;
+	int err = inet_pton(AF_INET, hostname, &v4);
+
+   
+    if (v4.s_addr != INADDR_NONE)
+        return v4.s_addr;
 
     // try nameserver
-    struct hostent *hostRecord = gethostbyname(hostname);
-    if (hostRecord == NULL)
-        return INADDR_NONE;
+	struct addrinfo hints, *result = NULL;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = 0; /* any type of socket */
+	hints.ai_flags = AI_ADDRCONFIG;
+	hints.ai_protocol = 0;          /* Any protocol */
 
-    // analyse 1st result
-    if (hostRecord->h_addrtype == AF_INET)
-    {
-        char *cPtr = (char *)&binAddr;
-        cPtr[0] = *hostRecord->h_addr_list[0];
-        cPtr[1] = *(hostRecord->h_addr_list[0] + 1);
-        cPtr[2] = *(hostRecord->h_addr_list[0] + 2);
-        cPtr[3] = *(hostRecord->h_addr_list[0] + 3);
-        return binAddr;
-    }
-    else
-        return INADDR_NONE;
+	char *cPtr = (char *)&v4.s_addr;
+
+	int s = getaddrinfo(hostname, NULL /* service */, &hints, &result);
+	if (s != 0)
+	{
+		fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", hostname, gai_strerror(s));
+		return INADDR_NONE;
+	}
+	else
+	{
+		/* getaddrinfo() returns a list of address structures.
+		Try each address until we successfully connect(2).
+		If socket(2) (or connect(2)) fails, we (close the socket
+		and) try the next address. */
+
+		for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next)
+		{
+			if (rp->ai_family != AF_INET)
+				continue;
+
+			char address[1000];
+			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
+			memcpy(cPtr, &saddr->sin_addr, sizeof(v4.s_addr));
+			if (!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
+			{
+				std::cerr << "could not convert address of " << hostname << " to printable format: " << strerror(errno) << std::endl;
+				continue;
+			}
+			else
+			{
+				memcpy(cPtr, &saddr->sin_addr, sizeof(v4.s_addr));
+                freeaddrinfo(result);           /* No longer needed */
+				return v4.s_addr;
+			}
+		}
+
+		freeaddrinfo(result);           /* No longer needed */
+	}
+	return INADDR_NONE;
+
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

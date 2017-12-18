@@ -45,7 +45,7 @@ public:
     float z;
     float distance;
     std::string chain;
-    int seqno;
+    size_t seqno;
 };
 
 class CProtein
@@ -56,7 +56,7 @@ public:
     void PrintMatrix(std::vector<CChainMatrix> userMatrix);
     int RetrievePositions(std::vector<CChain> &userChain, std::string strFileName);
     int RetrieveSubset(CChain &userChain, std::vector<CChain> &tempChain, std::string strChain, int startPos, int endPos);
-    int RetrieveSubset(CChain &userChain, std::string strFileName, std::string strChain, int startPos, int endPos);
-    int ClosestAminoAcid(std::vector<CChain> &userChain, float xpos, float ypos, float zpos, std::string &smallestChain, int &smallestChainPos);
-    int ReturnChainNumber(std::vector<CChain> &userChain, std::string strChainName);
+    int RetrieveSubset(CChain &userChain, std::string strFileName, std::string strChain, size_t startPos, size_t endPos);
+    int ClosestAminoAcid(std::vector<CChain> &userChain, float xpos, float ypos, float zpos, std::string &smallestChain, size_t &smallestChainPos);
+    size_t ReturnChainNumber(std::vector<CChain> &userChain, std::string strChainName);
 };

@@ -25,8 +25,6 @@ coVR3DTransRotInteractor::coVR3DTransRotInteractor(osg::Matrix m, float s, coInt
         fprintf(stderr, "new coVR3DTransRotInteractor(%s)\n", interactorName);
     }
 
-    osg::Matrix sm;
-
     _interMat_o = m;
     ////interMat_o.print(0, 1,"interMat_o :", stderr);
 

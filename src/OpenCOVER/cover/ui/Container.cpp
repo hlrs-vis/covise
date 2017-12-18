@@ -8,6 +8,7 @@ namespace ui {
 
 Container::~Container()
 {
+    clearChildren();
 }
 
 size_t Container::numChildren() const
@@ -42,6 +43,14 @@ bool Container::remove(Element *elem)
 Element *Container::child(size_t index) const
 {
     return m_children[index];
+}
+
+void Container::clearChildren()
+{
+    while (!m_children.empty())
+    {
+        remove(m_children.back());
+    }
 }
 
 }

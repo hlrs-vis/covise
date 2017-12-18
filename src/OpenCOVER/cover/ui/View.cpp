@@ -75,22 +75,35 @@ View::ViewElement *View::elementFactory(Element *elem)
         assert(ve->element == elem);
         ve->view = this;
         m_viewElements[elem] = ve;
-        m_viewElementsByPath[elem->path()] = ve;
-        elem->update();
     }
 
     return ve;
 }
 
-View::ViewElement *View::viewElement(const std::string &path) const
+bool View::removeElement(Element *elem)
 {
-    auto it = m_viewElementsByPath.find(path);
-    if (it == m_viewElementsByPath.end())
+    for (auto item: elem->m_items)
     {
-        return nullptr;
+        if (auto e = dynamic_cast<Element *>(item.second))
+            removeElement(e);
     }
 
-    return it->second;
+    //std::cerr << "REMOVE: " << elem->path() << std::endl;
+    auto it = m_viewElements.find(elem);
+    if (it == m_viewElements.end())
+        return false;
+    auto ve = it->second;
+    m_viewElements.erase(it);
+    if (!ve)
+        return false;
+    delete ve;
+    return true;
+}
+
+View::ViewElement *View::viewElement(const std::string &path) const
+{
+    auto elem = manager()->getByPath(path);
+    return viewElement(elem);
 }
 
 View::ViewElement *View::viewElement(const Element *elem) const

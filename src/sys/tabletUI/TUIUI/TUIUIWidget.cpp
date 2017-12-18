@@ -69,7 +69,7 @@ void TUIUIWidget::addModule(const QDomNode &module)
         if (type.endsWith("Vector"))
         {
             QDomNodeList values = parameter.firstChildElement("values").elementsByTagName("value");
-            for (unsigned int v = 0; v < values.length(); ++v)
+            for ( int v = 0; v < values.length(); ++v)
                 names << (parameter.firstChildElement("name").text() + "_" + QString::number(v));
         }
         else
@@ -155,7 +155,7 @@ void TUIUIWidget::addModule(const QDomNode &module)
         {
             QDomNodeList values = parameter.firstChildElement("values").elementsByTagName("value");
             QList<QVariant> valueList;
-            for (unsigned int ctr = 0; ctr < values.length(); ++ctr)
+            for ( int ctr = 0; ctr < values.length(); ++ctr)
                 valueList << values.at(ctr).toElement().text();
             value = valueList;
         }
@@ -246,7 +246,7 @@ void TUIUIWidget::processMessage(const QString &m)
                 QList<QVariant> valueList;
                 QDomNodeList values = parameter.firstChildElement("values").elementsByTagName("value");
 
-                for (unsigned int ctr = 0; ctr < values.length(); ++ctr)
+                for ( int ctr = 0; ctr < values.length(); ++ctr)
                 {
                     valueList << values.at(ctr).toElement().text();
                 }

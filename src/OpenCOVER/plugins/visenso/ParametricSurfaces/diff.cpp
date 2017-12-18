@@ -160,7 +160,7 @@ HlExprList *HlExprList::diff_plus(HlExprList *dv)
 {
     HlExprList *q = N(PLUS);
 
-    for (int i = 0, n = Length(); i < n; i++)
+    for (size_t i = 0, n = Length(); i < n; i++)
     {
         if (arg(i)->Depend(dv))
             q->apparg(arg(i)->diff_all(dv));
@@ -175,7 +175,7 @@ HlExprList *HlExprList::diff_times(HlExprList *dv)
     HlExprList *q = N(PLUS);
     HlExprList *a;
 
-    for (int i = 0, n = Length(); i < n; i++)
+    for (size_t i = 0, n = Length(); i < n; i++)
     {
         if (arg(i)->Depend(dv))
         {

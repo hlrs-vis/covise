@@ -19,13 +19,21 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
  public:
     ButtonGroup(const std::string &name, Owner *owner);
     ButtonGroup(Group *parent, const std::string &name);
+    ~ButtonGroup();
 
     void enableDeselect(bool flag);
+    
+    //! set value for when no button is selected
+    void setDefaultValue(int val);
+    //! value for when no button is selected
+    int defaultValue() const;
 
     //! value assigned to active (=pressed) Button
     int value() const;
     //! pointer to active Button
     Button *activeButton() const;
+    //! make button the only one with state true within group
+    void setActiveButton(Button *button);
 
     //! add Button to this ButtonGroup, toggling its state to fulfill constraint that exactly one button be active
     virtual bool add(Element *elem) override;
@@ -41,6 +49,7 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
     void triggerImplementation() const override;
 
 private:
+    int m_defaultValue = 0;
     bool m_allowDeselect = false;
     std::function<void(int)> m_callback;
 };

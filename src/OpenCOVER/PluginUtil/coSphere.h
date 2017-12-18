@@ -36,6 +36,7 @@ namespace opencover
 {
 class PLUGIN_UTILEXPORT coSphere : public osg::Drawable
 {
+    friend class SphereIntersector;
 public:
     // keep in sync with Sphere module
     enum RenderMethod

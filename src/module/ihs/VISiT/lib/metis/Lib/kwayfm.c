@@ -44,9 +44,9 @@ void Random_KWayEdgeRefine(CtrlType *ctrl, GraphType *graph, int nparts, float *
   ASSERT(tvwgt == idxsum(nvtxs, graph->vwgt));
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -248,9 +248,9 @@ void Greedy_KWayEdgeRefine(CtrlType *ctrl, GraphType *graph, int nparts, float *
   ASSERT(tvwgt == idxsum(nvtxs, graph->vwgt));
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);
@@ -478,9 +478,9 @@ void Greedy_KWayEdgeBalance(CtrlType *ctrl, GraphType *graph, int nparts, float 
   ASSERT(tvwgt == idxsum(nvtxs, graph->vwgt));
 
   for (i=0; i<nparts; i++) {
-    itpwgts[i] = tpwgts[i]*tvwgt;
-    maxwgt[i] = tpwgts[i]*tvwgt*ubfactor;
-    minwgt[i] = tpwgts[i]*tvwgt*(1.0/ubfactor);
+    itpwgts[i] = (idxtype)(tpwgts[i]*tvwgt);
+    maxwgt[i] = (idxtype)(tpwgts[i]*tvwgt*ubfactor);
+    minwgt[i] = (idxtype)(tpwgts[i]*tvwgt*(1.0/ubfactor));
   }
 
   perm = idxwspacemalloc(ctrl, nvtxs);

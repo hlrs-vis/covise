@@ -40,6 +40,16 @@ public:
         CJC_LaneLinkChanged = 0x40
     };
 
+	enum ContactPointValue
+	{
+		JCP_NONE,
+		JCP_START,
+		JCP_END
+	};
+
+	static ContactPointValue parseContactPoint(const QString &value);
+	static QString parseContactPointBack(ContactPointValue value);
+
     struct ConnectionUserData
     {
         double numerator;
@@ -50,7 +60,7 @@ public:
     //################//
 
 public:
-    explicit JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, const QString &contactPoint, double numerator);
+    explicit JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator);
     virtual ~JunctionConnection()
     { /* does nothing */
     }
@@ -83,11 +93,11 @@ public:
     }
     void setConnectingRoad(const QString &id);
 
-    QString getContactPoint() const
+	ContactPointValue getContactPoint() const
     {
         return contactPoint_;
     }
-    void setContactPoint(const QString &contactPoint);
+    void setContactPoint(ContactPointValue contactPoint);
 
     double getNumerator() const
     {
@@ -155,7 +165,7 @@ private:
     QString id_;
     QString incomingRoad_;
     QString connectingRoad_;
-    QString contactPoint_;
+	ContactPointValue contactPoint_;
     ConnectionUserData userData_;
 
     // LaneLinks //

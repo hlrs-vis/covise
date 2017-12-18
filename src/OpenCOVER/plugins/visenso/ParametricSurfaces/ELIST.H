@@ -14,8 +14,8 @@ class HlExprList : private HlBaseList
 {
 
 private:
-    HlExprList *arg(int i);
-    void setarg(int i, HlExprList *e);
+    HlExprList *arg(size_t i);
+    void setarg(size_t i, HlExprList *e);
     HlExprList *First();
     HlExprList *Second();
     HlExprList *Third();
@@ -155,12 +155,12 @@ inline int HlExprList::getEvalError()
     return 1;
 }
 
-inline HlExprList *HlExprList::arg(int i)
+inline HlExprList *HlExprList::arg(size_t i)
 {
     return (HlExprList *)HlBaseList::arg(i);
 }
 
-inline void HlExprList::setarg(int i, HlExprList *e)
+inline void HlExprList::setarg(size_t i, HlExprList *e)
 {
     HlBaseList::setarg(i, e);
 }

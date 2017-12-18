@@ -41,6 +41,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
 #include <Pose.h>
 
 #include "Alvar.h"
@@ -182,6 +183,7 @@ ALVARPlugin::ALVARPlugin()
 bool ALVARPlugin::init()
 {
     //sleep(6);
+
     ARToolKit::instance()->arInterface = this;
     ARToolKit::instance()->remoteAR = NULL;
 	ARToolKit::instance()->videoData = NULL;
@@ -525,6 +527,12 @@ void ALVARPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 {
 }
 
+bool
+ALVARPlugin::update()
+{
+    return ARToolKit::instance()->running;
+}
+
 void
 ALVARPlugin::preFrame()
 {
@@ -541,175 +549,182 @@ ALVARPlugin::preFrame()
             msgsnd(msgQueue, &message, 1, 0);
         }
 #endif
-        if (cap)
-        {
-            IplImage *frame = cap->captureImage();
-            if (frame)
-            {
+		if (cap)
+		{
+			IplImage *frame = cap->captureImage();
+			if (frame)
+			{
 
-                ARToolKit::instance()->videoData = (unsigned char *)frame->imageData;
+				ARToolKit::instance()->videoData = (unsigned char *)frame->imageData;
+				if (frame->imageData == NULL)
+				{
+					fprintf(stderr, "Video input dropped frame\n");
+				}
+				else
+				{
 
-                double error = 0.0;
-                marker_detector.Detect(frame, &cam, true, visualizeButton->getState());
+					double error = 0.0;
+					marker_detector.Detect(frame, &cam, true, visualizeButton->getState());
 
-                if (marker_detector.Detect(frame, &cam, true, visualizeButton->getState(), 0.0))
-                {
-                    if (detectAdditional->getState())
-                    {
-                        error = multiMarkerBundle->Update(marker_detector.markers, &cam, bundlePose);
-                        multiMarkerBundle->SetTrackMarkers(marker_detector, &cam, bundlePose, visualizeButton->getState() ? frame : NULL);
-                        marker_detector.DetectAdditional(frame, &cam, visualizeButton->getState());
-                    }
-                    if (visualizeButton->getState())
-                        error = multiMarkerBundle->Update(marker_detector.markers, &cam, bundlePose, frame);
-                    else
-                        error = multiMarkerBundle->Update(marker_detector.markers, &cam, bundlePose);
-                }
-
-                static double oldTime = 0;
-                for (size_t i = 0; i < marker_detector.markers->size(); i++)
-                {
-                    if (i >= 32)
-                        break;
-
-                    alvar::Pose p = (*(marker_detector.markers))[i].pose;
-                    if (cover->frameTime() > oldTime + 2)
-                    {
-                        fprintf(stderr, "Marker: %d\n", (*(marker_detector.markers))[i].data.id);
-                        if (i == marker_detector.markers->size() - 1)
-                            oldTime = cover->frameTime();
-                    }
-                    /*if((*(marker_detector.markers))[i].data.id== 1)
+					if (marker_detector.Detect(frame, &cam, true, visualizeButton->getState(), 0.0))
 					{
-					}*/
-                    /*					p.GetMatrixGL(d[i].gl_mat);
+						if (detectAdditional->getState())
+						{
+							error = multiMarkerBundle->Update(marker_detector.markers, &cam, bundlePose);
+							multiMarkerBundle->SetTrackMarkers(marker_detector, &cam, bundlePose, visualizeButton->getState() ? frame : NULL);
+							marker_detector.DetectAdditional(frame, &cam, visualizeButton->getState());
+						}
+						if (visualizeButton->getState())
+							error = multiMarkerBundle->Update(marker_detector.markers, &cam, bundlePose, frame);
+						else
+							error = multiMarkerBundle->Update(marker_detector.markers, &cam, bundlePose);
+					}
 
-					int id = (*(marker_detector.markers))[i].GetId();
-					double r = 1.0 - double(id+1)/32.0;
-					double g = 1.0 - double(id*3%32+1)/32.0;
-					double b = 1.0 - double(id*7%32+1)/32.0;
-					d[i].SetColor(r, g, b);
+					static double oldTime = 0;
+					for (size_t i = 0; i < marker_detector.markers->size(); i++)
+					{
+						if (i >= 32)
+							break;
 
-					GlutViewer::DrawableAdd(&(d[i]));*/
-                }
-                if (sfm)
-                {
-                    if (sfm->Update(frame, false, true, 7.f, 15.f))
-                    {
-                        // Draw the camera (The GlutViewer has little weirdness here...)q
-                        alvar::Pose pose = *(sfm->GetPose());
-                        double gl[16];
-                        pose.GetMatrixGL(gl, true);
+						alvar::Pose p = (*(marker_detector.markers))[i].pose;
+						if (cover->frameTime() > oldTime + 2)
+						{
+							fprintf(stderr, "Marker: %d\n", (*(marker_detector.markers))[i].data.id);
+							if (i == marker_detector.markers->size() - 1)
+								oldTime = cover->frameTime();
+						}
+						/*if((*(marker_detector.markers))[i].data.id== 1)
+						{
+						}*/
+						/*					p.GetMatrixGL(d[i].gl_mat);
 
-                        if (visualizeButton->getState())
-                        {
-                            // Draw features
-                            std::map<int, alvar::SimpleSfM::Feature>::iterator iter;
-                            iter = sfm->container.begin();
-                            for (; iter != sfm->container.end(); iter++)
-                            {
-                                if (sfm->container_triangulated.find(iter->first) != sfm->container_triangulated.end())
-                                    continue;
-                                if (iter->second.has_p3d)
-                                {
-                                    /*if (own_drawable_count < 1000) {
-										memset(d_points[own_drawable_count].gl_mat, 0, 16*sizeof(double));
-										d_points[own_drawable_count].gl_mat[0]  = 1;
-										d_points[own_drawable_count].gl_mat[5]  = 1;
-										d_points[own_drawable_count].gl_mat[10] = 1;
-										d_points[own_drawable_count].gl_mat[15] = 1;
-										d_points[own_drawable_count].gl_mat[12] = iter->second.p3d.x;
-										d_points[own_drawable_count].gl_mat[13] = iter->second.p3d.y;
-										d_points[own_drawable_count].gl_mat[14] = iter->second.p3d.z;
-										if (iter->second.type_id == 0) d_points[own_drawable_count].SetColor(1,0,0);
-										else d_points[own_drawable_count].SetColor(0,1,0);
-										GlutViewer::DrawableAdd(&(d_points[own_drawable_count]));
-										own_drawable_count++;
-									}*/
-                                }
-                            }
+						int id = (*(marker_detector.markers))[i].GetId();
+						double r = 1.0 - double(id+1)/32.0;
+						double g = 1.0 - double(id*3%32+1)/32.0;
+						double b = 1.0 - double(id*7%32+1)/32.0;
+						d[i].SetColor(r, g, b);
 
-                            // Draw triangulated features
-                            iter = sfm->container_triangulated.begin();
-                            for (; iter != sfm->container_triangulated.end(); iter++)
-                            {
-                                if (iter->second.has_p3d)
-                                {
-                                    /*if (own_drawable_count < 1000) {
-										memset(d_points[own_drawable_count].gl_mat, 0, 16*sizeof(double));
-										d_points[own_drawable_count].gl_mat[0]  = 1;
-										d_points[own_drawable_count].gl_mat[5]  = 1;
-										d_points[own_drawable_count].gl_mat[10] = 1;
-										d_points[own_drawable_count].gl_mat[15] = 1;
-										d_points[own_drawable_count].gl_mat[12] = iter->second.p3d.x;
-										d_points[own_drawable_count].gl_mat[13] = iter->second.p3d.y;
-										d_points[own_drawable_count].gl_mat[14] = iter->second.p3d.z;
-										 d_points[own_drawable_count].SetColor(0,0,1);
-										GlutViewer::DrawableAdd(&(d_points[own_drawable_count]));
-										own_drawable_count++;
-									}*/
-                                }
-                            }
-                        }
-                    }
-                }
-                if (doCalibrate)
-                {
+						GlutViewer::DrawableAdd(&(d[i]));*/
+					}
+					if (sfm)
+					{
+						if (sfm->Update(frame, false, true, 7.f, 15.f))
+						{
+							// Draw the camera (The GlutViewer has little weirdness here...)q
+							alvar::Pose pose = *(sfm->GetPose());
+							double gl[16];
+							pose.GetMatrixGL(gl, true);
 
-                    const int calibCountMax = 50;
-                    const int calibRows = 6;
-                    const int calibColumns = 8;
-                    if (!calibrated)
-                    {
-                        // If we have already collected enough data to make the calibration
-                        // - We are ready to end the capture loop
-                        // - Calibrate
-                        // - Save the calibration file
-                        if (calibCount >= calibCountMax)
-                        {
-                            std::cout << "Calibrating..." << endl;
-                            calibCount = 0;
-                            cam.Calibrate(projPoints);
-                            projPoints.Reset();
-                            cam.SaveCalib(calibrationFilename.c_str());
-                            std::cout << "Saving calibration: " << calibrationFilename << endl;
-                            adjustScreen();
-                            calibrated = true;
-                        }
-                        // If we are still collecting calibration data
-                        // - For every 1.5s add calibration data from detected 7*9 chessboard (and visualize it if true)
-                        else
-                        {
-                            static double lastTime = 0;
-                            double currentTime = cover->frameTime();
-                            if (currentTime > (lastTime + 0.5))
-                            {
-                                if (projPoints.AddPointsUsingChessboard(frame, 2.42, calibRows, calibColumns, true))
-                                {
-                                    lastTime = currentTime;
-                                    calibCount++;
-                                    //cout<<calibCount<<"/"<<calibCountMax<<endl;
-                                    char tmpText[100];
-                                    sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax) * 100.0));
-                                    calibrateLabel->setLabel(tmpText);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (projPoints.AddPointsUsingChessboard(frame, 2.5, calibRows, calibColumns, true))
-                        {
-                            alvar::Pose pose;
-                            cam.CalcExteriorOrientation(projPoints.object_points, projPoints.image_points, &pose);
-                            cam.ProjectPoints(projPoints.object_points, &pose, projPoints.image_points);
-                            for (size_t i = 0; i < projPoints.image_points.size(); i++)
-                            {
-                                cvCircle(frame, cvPoint((int)projPoints.image_points[i].x, (int)projPoints.image_points[i].y), 6, CV_RGB(0, 0, 255));
-                            }
-                            projPoints.Reset();
-                        }
-                    }
+							if (visualizeButton->getState())
+							{
+								// Draw features
+								std::map<int, alvar::SimpleSfM::Feature>::iterator iter;
+								iter = sfm->container.begin();
+								for (; iter != sfm->container.end(); iter++)
+								{
+									if (sfm->container_triangulated.find(iter->first) != sfm->container_triangulated.end())
+										continue;
+									if (iter->second.has_p3d)
+									{
+										/*if (own_drawable_count < 1000) {
+											memset(d_points[own_drawable_count].gl_mat, 0, 16*sizeof(double));
+											d_points[own_drawable_count].gl_mat[0]  = 1;
+											d_points[own_drawable_count].gl_mat[5]  = 1;
+											d_points[own_drawable_count].gl_mat[10] = 1;
+											d_points[own_drawable_count].gl_mat[15] = 1;
+											d_points[own_drawable_count].gl_mat[12] = iter->second.p3d.x;
+											d_points[own_drawable_count].gl_mat[13] = iter->second.p3d.y;
+											d_points[own_drawable_count].gl_mat[14] = iter->second.p3d.z;
+											if (iter->second.type_id == 0) d_points[own_drawable_count].SetColor(1,0,0);
+											else d_points[own_drawable_count].SetColor(0,1,0);
+											GlutViewer::DrawableAdd(&(d_points[own_drawable_count]));
+											own_drawable_count++;
+										}*/
+									}
+								}
+
+								// Draw triangulated features
+								iter = sfm->container_triangulated.begin();
+								for (; iter != sfm->container_triangulated.end(); iter++)
+								{
+									if (iter->second.has_p3d)
+									{
+										/*if (own_drawable_count < 1000) {
+											memset(d_points[own_drawable_count].gl_mat, 0, 16*sizeof(double));
+											d_points[own_drawable_count].gl_mat[0]  = 1;
+											d_points[own_drawable_count].gl_mat[5]  = 1;
+											d_points[own_drawable_count].gl_mat[10] = 1;
+											d_points[own_drawable_count].gl_mat[15] = 1;
+											d_points[own_drawable_count].gl_mat[12] = iter->second.p3d.x;
+											d_points[own_drawable_count].gl_mat[13] = iter->second.p3d.y;
+											d_points[own_drawable_count].gl_mat[14] = iter->second.p3d.z;
+											 d_points[own_drawable_count].SetColor(0,0,1);
+											GlutViewer::DrawableAdd(&(d_points[own_drawable_count]));
+											own_drawable_count++;
+										}*/
+									}
+								}
+							}
+						}
+					}
+					if (doCalibrate)
+					{
+
+						const int calibCountMax = 50;
+						const int calibRows = 6;
+						const int calibColumns = 8;
+						if (!calibrated)
+						{
+							// If we have already collected enough data to make the calibration
+							// - We are ready to end the capture loop
+							// - Calibrate
+							// - Save the calibration file
+							if (calibCount >= calibCountMax)
+							{
+								std::cout << "Calibrating..." << endl;
+								calibCount = 0;
+								cam.Calibrate(projPoints);
+								projPoints.Reset();
+								cam.SaveCalib(calibrationFilename.c_str());
+								std::cout << "Saving calibration: " << calibrationFilename << endl;
+								adjustScreen();
+								calibrated = true;
+							}
+							// If we are still collecting calibration data
+							// - For every 1.5s add calibration data from detected 7*9 chessboard (and visualize it if true)
+							else
+							{
+								static double lastTime = 0;
+								double currentTime = cover->frameTime();
+								if (currentTime > (lastTime + 0.5))
+								{
+									if (projPoints.AddPointsUsingChessboard(frame, 2.42, calibRows, calibColumns, true))
+									{
+										lastTime = currentTime;
+										calibCount++;
+										//cout<<calibCount<<"/"<<calibCountMax<<endl;
+										char tmpText[100];
+										sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax) * 100.0));
+										calibrateLabel->setLabel(tmpText);
+									}
+								}
+							}
+						}
+						else
+						{
+							if (projPoints.AddPointsUsingChessboard(frame, 2.5, calibRows, calibColumns, true))
+							{
+								alvar::Pose pose;
+								cam.CalcExteriorOrientation(projPoints.object_points, projPoints.image_points, &pose);
+								cam.ProjectPoints(projPoints.object_points, &pose, projPoints.image_points);
+								for (size_t i = 0; i < projPoints.image_points.size(); i++)
+								{
+									cvCircle(frame, cvPoint((int)projPoints.image_points[i].x, (int)projPoints.image_points[i].y), 6, CV_RGB(0, 0, 255));
+								}
+								projPoints.Reset();
+							}
+						}
+					}
                 }
             }
         }

@@ -47,12 +47,13 @@ addons:
             - libqt5scripttools5
             - libqt5svg5-dev
             - libqt5opengl5-dev
-            - libqt5widgets5-dev
             - libqt5webkit5-dev
             - libxerces-c-dev
             - libpng12-dev
             - libopenscenegraph-dev
             - libosgearth-dev
+            - libavcodec-dev
+            - libswscale-dev
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew update; fi
@@ -65,9 +66,6 @@ before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall boost ;fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall python3 ;fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew reinstall qt5 ;fi
-
-install:
-    - if [ "$APP" = "cover" ]; then pip3 install PyQt5; fi
 
 script:
 
@@ -82,4 +80,5 @@ script:
     - if [ "${BUILD_TYPE}" != "Debug" ]; then export ARCHSUFFIX=${ARCHSUFFIX}opt; fi
     - source .covise.sh
     - if [ "$APP" = "covise" ]; then make covise -j6; fi
+    - if [ "$APP" = "cover" ];  then unset PYTHON_HOME; fi
     - if [ "$APP" = "cover" ]; then make -j6; fi

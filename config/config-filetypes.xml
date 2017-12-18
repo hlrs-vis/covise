@@ -30,7 +30,7 @@
         <FileType name="vim" plugin="Molecules" />
         <FileType name="vis" plugin="Molecules" />
 
-        <FileType name="xosc" plugin="OpenScenarioPlugin" />
+        <FileType name="xosc" plugin="OpenScenario" />
         
         <FileType name="chkpt" plugin="Particles" />
         <FileType name="coord" plugin="Particles" />
@@ -73,7 +73,7 @@
         
         <FileType name="avf" plugin="Volume" />
         <FileType name="nii" plugin="Volume" />
-        <FileType name="nii.gz" plugin="Volume" />
+        <FileType name="nii_gz" plugin="Volume" />
         <FileType name="rvf" plugin="Volume" />
         <FileType name="tif" plugin="Volume" />
         <FileType name="tiff" plugin="Volume" />
@@ -85,7 +85,7 @@
         <FileType name="str" plugin="VRAnim" />
         
         <FileType name="wrl" plugin="Vrml97" />
-        <FileType name="wrl.gz" plugin="Vrml97" />
+        <FileType name="wrl_gz" plugin="Vrml97" />
         <FileType name="wrz" plugin="Vrml97" />
         <FileType name="x3d" plugin="Vrml97" />
         <FileType name="x3dv" plugin="Vrml97" />

@@ -27,15 +27,17 @@
 /*!
  *
  */
-LaneSection::LaneSection(double s)
-    : RoadSection(s),
-      laneSectionChanges_(0x0)
+LaneSection::LaneSection(double s, bool singleSide)
+    : RoadSection(s)
+	, singleSide_(singleSide)
+    , laneSectionChanges_(0x0)
 {
 }
 
-LaneSection::LaneSection(double s, const LaneSection *oldLaneSection) // create new LaneSection at pos s of oldLaneSection
-    : RoadSection(s),
-      laneSectionChanges_(0x0)
+LaneSection::LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection) // create new LaneSection at pos s of oldLaneSection
+    : RoadSection(s)
+	, singleSide_(singleSide)
+    , laneSectionChanges_(0x0)
 {
     setParentRoad(oldLaneSection->getParentRoad());
     foreach (Lane *child, oldLaneSection->lanes_)
@@ -44,10 +46,11 @@ LaneSection::LaneSection(double s, const LaneSection *oldLaneSection) // create 
     }
 }
 
-LaneSection::LaneSection(double s, const LaneSection *laneSectionLow,
+LaneSection::LaneSection(double s, bool singleSide, const LaneSection *laneSectionLow,
         const LaneSection *laneSectionHigh) // create new LaneSection as e merger between low and high
-    : RoadSection(s),
-      laneSectionChanges_(0x0)
+    : RoadSection(s)
+	, singleSide_(singleSide)
+    , laneSectionChanges_(0x0)
 {
     setParentRoad(laneSectionLow->getParentRoad());
     foreach (Lane *childLow, laneSectionLow->lanes_)
@@ -447,7 +450,7 @@ LaneSection::getClone() const
 {
 // LaneSection //
 //
-    LaneSection *clone = new LaneSection(getSStart());
+    LaneSection *clone = new LaneSection(getSStart(), singleSide_);
 
 // Lanes //
 //
@@ -466,7 +469,7 @@ LaneSection::getClone(double sStart, double sEnd) const
 {
 // LaneSection //
 //
-    LaneSection *clone = new LaneSection(getSStart());
+    LaneSection *clone = new LaneSection(getSStart(), singleSide_);
 
 // Lanes //
 //

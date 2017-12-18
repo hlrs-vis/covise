@@ -18,8 +18,7 @@
 #include "VolumeOfInterestPlugin.h"
 #include "VolumeOfInterestInteractor.h"
 #include <cover/RenderObject.h>
-
-#include <OpenVRUI/coCheckboxMenuItem.h>
+#include <cover/ui/Button.h>
 
 using namespace osg;
 
@@ -30,7 +29,8 @@ static VolumeOfInterestPlugin *plugin = NULL;
 //-----------------------------------------------------------------------------
 
 VolumeOfInterestPlugin::VolumeOfInterestPlugin()
-    : m_volumeOfInterestInteractor(new VolumeOfInterestInteractor(coInteraction::ButtonC, "BoxSelection", coInteraction::High))
+    : ui::Owner("VolumeOfInterestPlugin", cover->ui)
+    , m_volumeOfInterestInteractor(new VolumeOfInterestInteractor(vrui::coInteraction::ButtonC, "BoxSelection", vrui::coInteraction::High))
     , m_originalMatrix(osg::Matrix())
     , m_destinationMatrix(osg::Matrix())
     , m_originalScaleFactor(1.f)
@@ -70,15 +70,22 @@ VolumeOfInterestPlugin *VolumeOfInterestPlugin::instance()
 void VolumeOfInterestPlugin::createMenuEntry()
 {
     VolumeOfInterestPlugin::s_boxSelection = new BoxSelection(0, "Volume Of Interest", "Volume of Interest");
-    VolumeOfInterestPlugin::s_boxSelection->setMenuListener(this);
     VolumeOfInterestPlugin::s_boxSelection->registerInteractionFinishedCallback(defineVolumeCallback);
-
-    cover->getMenu()->add(VolumeOfInterestPlugin::s_boxSelection->getCheckbox());
+    s_boxSelection->getButton()->setCallback([this](bool state){
+         if (state)
+         {
+            if (m_stateHistory.size() > 0)
+                vrui::coInteractionManager::the()->registerInteraction(m_volumeOfInterestInteractor);
+        }
+        else
+        {
+            vrui::coInteractionManager::the()->unregisterInteraction(m_volumeOfInterestInteractor);
+        }
+    });
 }
 
 void VolumeOfInterestPlugin::deleteMenuEntry()
 {
-    cover->getMenu()->remove(VolumeOfInterestPlugin::s_boxSelection->getCheckbox());
     delete VolumeOfInterestPlugin::s_boxSelection;
 }
 
@@ -99,7 +106,7 @@ void VolumeOfInterestPlugin::preFrame()
                     originalState.matrix = m_originalMatrix;
                     originalState.scaleFactor = m_originalScaleFactor;
                     m_stateHistory.push_back(originalState);
-                    coInteractionManager::the()->registerInteraction(m_volumeOfInterestInteractor);
+                    vrui::coInteractionManager::the()->registerInteraction(m_volumeOfInterestInteractor);
                     BoundingBox bbox;
                     bbox.expandBy(m_min);
                     bbox.expandBy(m_max);
@@ -176,23 +183,7 @@ void VolumeOfInterestPlugin::setToPreviousState()
     }
     else
     {
-        coInteractionManager::the()->unregisterInteraction(m_volumeOfInterestInteractor);
-    }
-}
-
-void VolumeOfInterestPlugin::menuEvent(coMenuItem *menuItem)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "VolumeOfInterestPlugin::menuEvent for %s\n", menuItem->getName());
-    if (menuItem == s_boxSelection)
-    {
-        if (s_boxSelection->getCheckbox()->getState())
-        {
-            if (m_stateHistory.size() > 0)
-                coInteractionManager::the()->registerInteraction(m_volumeOfInterestInteractor);
-        }
-        else
-            coInteractionManager::the()->unregisterInteraction(m_volumeOfInterestInteractor);
+        vrui::coInteractionManager::the()->unregisterInteraction(m_volumeOfInterestInteractor);
     }
 }
 

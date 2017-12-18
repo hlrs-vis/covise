@@ -91,7 +91,7 @@ JunctionSettings::updateConnections()
         ui->connectionTableWidget->setItem(row, 0, new QTableWidgetItem(element->getId()));
         ui->connectionTableWidget->setItem(row, 1, new QTableWidgetItem(element->getIncomingRoad()));
         ui->connectionTableWidget->setItem(row, 2, new QTableWidgetItem(element->getConnectingRoad()));
-        ui->connectionTableWidget->setItem(row, 3, new QTableWidgetItem(element->getContactPoint()));
+        ui->connectionTableWidget->setItem(row, 3, new QTableWidgetItem(JunctionConnection::parseContactPointBack(element->getContactPoint())));
         ++row;
     }
 }

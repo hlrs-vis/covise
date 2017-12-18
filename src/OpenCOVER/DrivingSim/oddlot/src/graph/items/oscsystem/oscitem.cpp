@@ -65,6 +65,8 @@
 #include <QString>
 #include <QKeyEvent>
 #include <QTransform>
+#include "QtSvg/qsvgrenderer.h"
+
 
 OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad)
     : GraphElement(oscBaseItem, element)
@@ -81,11 +83,54 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
 
 OSCItem::~OSCItem()
 {
+	delete svgItem;
 }
 
+void OSCItem::updateIcon()
+{
+	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(oscObject_);
+	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
+	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
+	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
+	if (widthBoundBox < 1.0)
+		widthBoundBox = 1.8;
+	if (lengthBoundBox < 1.0)
+		lengthBoundBox = 3;
+	if (heightBoundBox < 1.0)
+		heightBoundBox = 1.5;
+	if (vehicle)
+	{
+		//svgItem->setElementId((int)vehicle->category.getValue())
+		switch (vehicle->category.getValue())
+		{
+		case oscVehicle::car:
+		{
+			break;
+		}
+		case oscVehicle::truck:
+		{
+			break;
+		}
+		case oscVehicle::bus:
+		{
+			break;
+		}
+		default:
+		{
+			//path.addRect(0, 0, lengthBoundBox, heightBoundBox);
+		}
+
+		//	trailer,
+		//	motorbike,
+		//	bicycle,
+		//		train,
+		//	tram,
+		}
+	}
+}
 /*!
 * Initializes the path 
-*/
+
 QPainterPath 
 	createVehiclePath(OpenScenario::oscObjectBase *object, RSystemElementRoad *road)
 {
@@ -95,6 +140,12 @@ QPainterPath
 	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
 	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
 	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
+	if (widthBoundBox < 1.0)
+		widthBoundBox = 1.8;
+	if (lengthBoundBox < 1.0)
+		lengthBoundBox = 3;
+	if (heightBoundBox < 1.0)
+		heightBoundBox = 1.5;
 	if(vehicle)
 	{
 		switch (vehicle->category.getValue())
@@ -102,11 +153,11 @@ QPainterPath
 		case oscVehicle::car:
 			{
 				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0,heightBoundBox/2) << QPointF(lengthBoundBox/3,heightBoundBox) << QPointF(lengthBoundBox/1.5,heightBoundBox) << QPointF(lengthBoundBox/1.2,heightBoundBox/2) << QPointF(lengthBoundBox/1.086,heightBoundBox/2) << QPointF(lengthBoundBox/1.02,heightBoundBox/3.33) << QPointF(lengthBoundBox,0);
+				polygon << QPointF(0,0) << QPointF(0, widthBoundBox /2) << QPointF(lengthBoundBox/3, widthBoundBox) << QPointF(lengthBoundBox/1.5, widthBoundBox) << QPointF(lengthBoundBox/1.2, widthBoundBox /2) << QPointF(lengthBoundBox/1.086, widthBoundBox /2) << QPointF(lengthBoundBox/1.02, widthBoundBox /3.33) << QPointF(lengthBoundBox,0);
 				path.addPolygon(polygon);
 				path.closeSubpath();
-				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/5,-widthBoundBox /40), lengthBoundBox/12.5,lengthBoundBox/12.5);
+				path.addEllipse(QPointF(lengthBoundBox/1.25,-widthBoundBox /40), lengthBoundBox/12.5,lengthBoundBox/12.5);
 
 				
 				break;
@@ -138,17 +189,17 @@ QPainterPath
 				path.addRect( 0,0 , lengthBoundBox, heightBoundBox);
 			}
 
-	/*	trailer,
-		motorbike,
-		bicycle,
-		train,
-		tram,*/
+	//	trailer,
+	//	motorbike,
+	//	bicycle,
+//		train,
+	//	tram,
 		}
 	}
 	path.translate(-lengthBoundBox/2, -heightBoundBox/2);
 	return path;
 
-}
+}*/
 
 void
 OSCItem::init()
@@ -199,6 +250,7 @@ OSCItem::init()
 
 	doPan_ = false;
 	copyPan_ = false;
+	lastPos_ = pos_;
 
 
 
@@ -208,15 +260,36 @@ OSCItem::init()
 	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogName,entryName);
 
 
+#ifdef WIN32
+	char *pValue;
+	size_t len;
+	errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+	if (err || pValue == NULL || strlen(pValue) == 0)
+		err = _dupenv_s(&pValue, &len, "COVISEDIR");
+	if (err)
+		return;
+	covisedir_ = pValue;
+#else
+	covisedir_ = getenv("ODDLOTDIR");
+	if (covisedir_ == "")
+		covisedir_ = getenv("COVISEDIR");
+#endif
+	std::string fn = covisedir_+"/share/covise/icons/svg/car.svg";
+	svgItem = new QGraphicsSvgItem(this);
+	renderer = new QSvgRenderer(QLatin1String(fn.c_str()));
+	svgItem->setSharedRenderer(renderer);
+
 	if (catalogObject)
 	{
 
 		if (catalog_->getCatalogName() == "Vehicle")
 		{
-			createPath = createVehiclePath;
+			createPath = NULL;
 			updateColor(catalog_->getCatalogName());
-			path_ = createPath(catalogObject, road_);
+			//path_ = createPath(catalogObject, road_);
 			pos_ = road_->getGlobalPoint(s_, t_);
+			lastPos_ = pos_;
+			doPan_ = false;
 			updatePosition();
 		}
 
@@ -259,15 +332,14 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-	QTransform *transform = new QTransform;
+	QTransform transform;
 //	double s = road_->getSFromGlobalPoint(pos_);
 	double heading = road_->getGlobalHeading(s_);
-	double rotation = heading - angle_;
-	transform->rotate(rotation);
+	transform.rotate(road_->getGlobalHeading(s_));
+	transform.translate(pos_.x(),pos_.y());
+	svgItem->setTransform(transform);
 	angle_ = heading;
-	path_ = transform->map(path_);
-	path_.translate(pos_);
-	setPath(path_);
+
 	oscTextItem_->setPos(pos_);
 }
 

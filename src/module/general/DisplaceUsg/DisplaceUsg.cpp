@@ -478,9 +478,9 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         {
             for (int i = 0; i < num_coord; i++)
             {
-                float dx = d_x ? d_x[i] : 0.;
-                float dy = d_y ? d_y[i] : 0.;
-                float dz = d_z ? d_z[i] : 0.;
+                float dx = d_x ? d_x[i] : 0.0f;
+                float dy = d_y ? d_y[i] : 0.0f;
+                float dz = d_z ? d_z[i] : 0.0f;
                 if (operation == OpLog)
                 {
                     dx = log(dx);
@@ -502,9 +502,9 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         {
             for (int i = 0; i < num_coord; i++)
             {
-                float dx = d_x ? d_x[i] : 0.;
-                float dy = d_y ? d_y[i] : 0.;
-                float dz = d_z ? d_z[i] : 0.;
+                float dx = d_x ? d_x[i] : 0.0f;
+                float dy = d_y ? d_y[i] : 0.0f;
+                float dz = d_z ? d_z[i] : 0.0f;
                 if (operation == OpLog)
                 {
                     if (dx > 0.)

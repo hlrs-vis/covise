@@ -54,14 +54,26 @@ public:
      Track(int tn);
      ~Track();
      std::list<Note *> notes;
+     //std::list<Note *>::iterator lastNoteIt;
      
      osg::ref_ptr<osg::Group> TrackRoot;
      void update();
      void reset();
      void setVisible(bool state);
      int trackNumber;
+     void addNote(Note*);
      vrml::Player::Source *trackSource;
      vrml::Audio *trackAudio;
+     osg::Geode *createLinesGeometry();
+     
+     osg::ref_ptr<osg::Geode> geometryLines;
+     osg::Vec3Array *lineVert = new osg::Vec3Array;
+     osg::Vec4Array *lineColor = new osg::Vec4Array;
+     osg::DrawArrayLengths *linePrimitives;
+     private:
+     int lastNum;
+     int lastPrimitive;
+    double oldTime=0.0;
 };
 
 class NoteInfo
@@ -91,8 +103,10 @@ public:
     coTUITab *MIDITab;
     coTUILabel *infoLabel;
     coTUIEditIntField *trackNumber;
+    coTUIButton *reset;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
+	std::list<MidiEvent> eventqueue;
     static MidiPlugin *plugin;
     vrml::Player *player;
     //scenegraph
@@ -112,6 +126,8 @@ public:
     int midi1fd;
     Track *lTrack;
 
+	void addEvent(MidiEvent &me);
+
     // constructor
     MidiPlugin();
 
@@ -120,6 +136,8 @@ public:
     osg::Geode *createGeometry(int i);
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
+    osg::ref_ptr<osg::StateSet> lineStateSet;
+    
     osg::ref_ptr<osg::ShadeModel> shadeModel;
     osg::ref_ptr<osg::Material> globalmtl;
     
@@ -128,6 +146,7 @@ public:
     bool destroy();
 
     // loop
+    bool update();
     void preFrame();
     void postFrame();
 

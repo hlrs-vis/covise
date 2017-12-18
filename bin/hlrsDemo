@@ -51,7 +51,8 @@ do
 
     echo -e "${MENU}-----${TYP} Urban Planning ${MENU}------------------------"
     echo -e "${MENU} ${OPT} 38)  ${MENU} Spielplatz Stuttgart West "
-
+    echo -e "${MENU} ${OPT} 39)  ${MENU} Herrenberg"
+    
     echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
     echo -e "${MENU} ${OPT} 42)  ${MENU} Schweizer Autobus         "
@@ -73,7 +74,6 @@ do
     echo -e "${MENU} ${OPT} 57)  ${MENU} City (passing through)               "
     echo -e "${MENU} ${OPT} 58)  ${MENU} City (flyover)                       "
     echo -e "${MENU} ${OPT} 59)  ${MENU} Mountain                             "
-    echo -e "${MENU} ${OPT} 60)  ${MENU} Herrenberg                           "
 
     echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
     echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
@@ -232,7 +232,13 @@ do
 # URBAN PLANNING
 	38)
 	    echo -e "starting Spielplatz Stuttgart West";
-            covise -e /data/covise_net/2017/spielplatzVR.net
+            covise -e /data/covise_net/2017/Spielplatz.net
+	    ;; 
+	39)
+	    echo -e "starting Herrenberg";
+	    bash /data/reallabor/herrenberg/sumo/startSumo.sh &
+	    covise -e /data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseR.py
+            #opencover /data/reallabor/herrenberg/vrml/simulierteWelten.wrl
 	    ;;
 
 # LKA

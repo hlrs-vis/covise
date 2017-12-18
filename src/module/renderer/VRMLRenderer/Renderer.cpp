@@ -176,7 +176,7 @@ void Renderer::quit(void *callbackData)
         p_msg = new Message;
         p_msg->type = COVISE_MESSAGE_SOCKET_CLOSED;
         p_msg->data = (char *)" ";
-        p_msg->length = strlen(p_msg->data) + 1;
+        p_msg->length = (int)strlen(p_msg->data) + 1;
 
         m_wconn->send_msg(p_msg);
         delete p_msg;
@@ -511,7 +511,7 @@ int Renderer::check_aws(void)
     p_msg = new Message;
     p_msg->type = COVISE_MESSAGE_INIT;
     p_msg->data = (char *)m_host->getName();
-    p_msg->length = strlen(p_msg->data) + 1;
+    p_msg->length = (int)strlen(p_msg->data) + 1;
 
     m_wconn->send_msg(p_msg);
     delete p_msg;
@@ -547,7 +547,7 @@ int Renderer::register_vrml(void)
     p_msg = new Message;
     p_msg->type = COVISE_MESSAGE_START;
     p_msg->data = &txt[0];
-    p_msg->length = strlen(p_msg->data) + 1;
+    p_msg->length = (int)strlen(p_msg->data) + 1;
 
     m_wconn->send_msg(p_msg);
 
@@ -568,7 +568,7 @@ int Renderer::sendObjectOK(void)
     Message *p_msg = new Message;
     p_msg->type = COVISE_MESSAGE_OBJECT_OK;
     p_msg->data = (char *)" ";
-    p_msg->length = strlen(p_msg->data) + 1;
+    p_msg->length = (int)strlen(p_msg->data) + 1;
     //cerr << endl << "&&&& Sending OBJECT_OK " << endl;
     m_wconn->send_msg(p_msg);
 
@@ -589,7 +589,7 @@ int Renderer::sendViewPoint(void)
             Message *p_msg = new Message;
             p_msg->type = COVISE_MESSAGE_PARINFO;
             p_msg->data = camera;
-            p_msg->length = strlen(p_msg->data) + 1;
+            p_msg->length = (int)strlen(p_msg->data) + 1;
             //cerr << endl << "&&&& Sending CAMERA: " << camera << endl;
             m_wconn->send_msg(p_msg); // send ViewPoint
 

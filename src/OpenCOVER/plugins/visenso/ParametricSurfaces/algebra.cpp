@@ -46,7 +46,7 @@ bool HlExprList::Depend(HlExprList *v)
 
 int HlExprList::compare(HlExprList *e)
 {
-    int i, n, h;
+    size_t i, n, h;
 
     if (Is(e->typeOfHead()))
     {
@@ -66,7 +66,7 @@ int HlExprList::compare(HlExprList *e)
             {
                 if ((h = arg(i)->compare(e->arg(i))) != 0)
                 {
-                    return h;
+                    return int(h);
                 }
             }
             return (Length() == e->Length()) ? 0 : (Length() < e->Length()) ? -1 : 1;

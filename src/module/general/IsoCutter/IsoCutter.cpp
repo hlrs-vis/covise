@@ -215,12 +215,12 @@ void IsoCutter::calc_cropped_polygons()
 Returns true, if polygon could be cropped and was added to the output.
 False, if polygon doesn't have an iso line it could be cut along.
 */
-bool IsoCutter::add_isocropped_polygon(int poly, int num_values, float *values)
+bool IsoCutter::add_isocropped_polygon(int poly, unsigned int num_values, float *values)
 {
     // breche vorzeitig ab, wenn an den polygonkanten kein iso-uebergang existiert
     bool lower = false;
     bool higher = false;
-    for (int j = 0; j < num_values; j++)
+    for (unsigned int j = 0; j < num_values; j++)
     {
         if (values[j] < p_isovalue->getValue())
             lower = true;

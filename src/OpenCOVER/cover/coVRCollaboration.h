@@ -25,6 +25,7 @@
 #include <util/common.h>
 
 #include <OpenVRUI/coRowMenu.h>
+#include <osg/Matrix>
 
 namespace vrui
 {
@@ -40,7 +41,6 @@ class Group;
 
 namespace opencover
 {
-class buttonSpecCell;
 class COVEREXPORT coVRCollaboration : public vrui::coMenuListener
 {
     static coVRCollaboration *s_instance;
@@ -93,16 +93,12 @@ public:
     vrui::coPotiMenuItem *SyncInterval;
 
     // process key events
-    bool keyEvent(int type, int keySym, int mod);
     void menuEvent(vrui::coMenuItem *);
     void updateCollaborativeMenu();
 
     void init();
 
     void update();
-
-    // menu interactions
-    void manipulate(buttonSpecCell *spec);
 
     void SyncXform()
     {
@@ -120,11 +116,6 @@ public:
     {
         syncScale = false;
     }
-
-    static void tightCouplingCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void looseCouplingCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void msCouplingCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void showAvatarCallback(void *sceneGraph, buttonSpecCell *spec);
 
     void remoteTransform(osg::Matrix &mat);
     void remoteScale(float d);

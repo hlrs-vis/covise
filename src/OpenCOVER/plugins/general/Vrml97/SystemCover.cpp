@@ -47,14 +47,13 @@
 #include <vrbclient/VRBMessage.h>
 
 #include <cover/coVRLighting.h>
-#include "cover/coVRTui.h"
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coButtonMenuItem.h>
+#include <cover/coVRTui.h>
 #include <OpenVRUI/osg/mathUtils.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Group.h>
+#include <cover/ui/Action.h>
 
 #include "SystemCover.h"
 #include "ViewerObject.h"
@@ -81,7 +80,6 @@
 using namespace covise;
 
 ViewpointEntry::ViewpointEntry(VrmlNodeViewpoint *aViewPoint, VrmlScene *aScene)
-    : menuItem(NULL)
 {
     scene = aScene;
     viewPoint = aViewPoint;
@@ -94,12 +92,17 @@ ViewpointEntry::ViewpointEntry(VrmlNodeViewpoint *aViewPoint, VrmlScene *aScene)
 
 ViewpointEntry::~ViewpointEntry()
 {
+    delete tuiItem;
     delete menuItem;
 }
 
-void ViewpointEntry::setMenuItem(coCheckboxMenuItem *aButton)
+void ViewpointEntry::setMenuItem(ui::Button *aButton)
 {
     menuItem = aButton;
+    menuItem->setCallback([this](bool state){
+        if (state)
+            activate();
+    });
 }
 
 void ViewpointEntry::activate()
@@ -107,17 +110,12 @@ void ViewpointEntry::activate()
     double timeNow = System::the->time();
     VrmlSFBool flag(true);
     viewPoint->eventIn(timeNow, "set_bind", &flag);
-}
-
-void ViewpointEntry::menuEvent(coMenuItem *aButton)
-{
-    if (((coCheckboxMenuItem *)aButton)->getState())
-    {
-        activate();
-    }
+    menuItem->setState(true);
+    tuiItem->setState(true);
 }
 
 SystemCover::SystemCover()
+    : ui::Owner("SystemCover", cover->ui)
 {
     mFileManager = coVRFileManager::instance();
     maxEntryNumber = 0;
@@ -195,20 +193,20 @@ bool SystemCover::loadUrl(const char *url, int np, char **parameters)
 void SystemCover::createMenu()
 {
 
-    cbg = new coCheckboxGroup();
-    viewpointMenu = new coRowMenu("VRML Viewpoints");
+    cbg = new ui::ButtonGroup("ViewPointsGroup", this);
+    vrmlMenu = new ui::Menu("VrmlMenu", this);
+    vrmlMenu->setText("VRML");
+    viewpointGroup = new ui::Group(vrmlMenu, "Viewpoints");
 
-    VRMLButton = new coSubMenuItem("VRML");
-    VRMLButton->setMenu(viewpointMenu);
-
-    addVPButton = new coButtonMenuItem("SaveViewpoint");
-    addVPButton->setMenuListener(this);
-    viewpointMenu->add(addVPButton);
-    reloadButton = new coButtonMenuItem("Reload");
-    reloadButton->setMenuListener(this);
-    viewpointMenu->add(reloadButton);
-
-    cover->getMenu()->add(VRMLButton);
+    reloadButton = new ui::Action(vrmlMenu, "Reload");
+    reloadButton->setCallback([this](){
+        coVRFileManager::instance()->reloadFile();
+    });
+    addVPButton = new ui::Action(vrmlMenu, "SaveViewpoint");
+    addVPButton->setText("Save viewpoint");
+    addVPButton->setCallback([this](){
+        printViewpoint();
+    });
 
     vrmlTab = new coTUITab("Vrml97", coVRTui::instance()->mainFolder->getID());
     vrmlTab->setPos(0, 0);
@@ -226,17 +224,6 @@ void SystemCover::createMenu()
     saveAnimation->setPos(0, 2);
 }
 
-void SystemCover::menuEvent(coMenuItem *aButton)
-{
-    if (aButton == reloadButton)
-    {
-        coVRFileManager::instance()->reloadFile();
-    }
-    if (aButton == addVPButton)
-    {
-        printViewpoint();
-    }
-}
 // reload has been moved to tabletPressEvent because it causes a destruction of
 // the vrml menu and thus the TUI Item and this causes a crash when
 // tabletPressEvent is called after tabletEvent and the menu item is no longer
@@ -457,10 +444,7 @@ void SystemCover::printViewpoint()
 
 void SystemCover::destroyMenu()
 {
-    //coMenu *menu = cover->getMenu();
-    //menu->remove(VRMLButton);
-    delete viewpointMenu;
-    delete VRMLButton;
+    delete vrmlMenu;
     delete cbg;
 
     delete saveAnimation;
@@ -613,6 +597,7 @@ void SystemCover::becomeMaster()
     coVRCommunication::instance()->becomeMaster();
 }
 
+#if 0
 void SystemCover::setBuiltInFunctionState(const char *fname, int val)
 {
     cover->setBuiltInFunctionState(fname, val);
@@ -627,6 +612,7 @@ void SystemCover::callBuiltInFunctionCallback(const char *fname)
 {
     cover->callBuiltInFunctionCallback(fname);
 }
+#endif
 
 Player *SystemCover::getPlayer()
 {
@@ -686,12 +672,12 @@ void SystemCover::setHeadlight(bool enable)
 {
     if (enable)
     {
-        setBuiltInFunctionState("Headlight", 1);
+        //setBuiltInFunctionState("Headlight", 1);
         coVRLighting::instance()->switchLight(coVRLighting::instance()->headlight, true);
     }
     else
     {
-        setBuiltInFunctionState("Headlight", 0);
+        //setBuiltInFunctionState("Headlight", 0);
         coVRLighting::instance()->switchLight(coVRLighting::instance()->headlight, false);
     }
 }
@@ -715,16 +701,10 @@ float SystemCover::getSyncInterval()
 
 void SystemCover::addViewpoint(VrmlScene *scene, VrmlNodeViewpoint *viewpoint)
 {
-    coCheckboxMenuItem *menuEntry;
-
     // add viewpoint to menu
     ViewpointEntry *vpe = new ViewpointEntry(viewpoint, scene);
-    if (viewpoint == scene->bindableViewpointTop())
-        menuEntry = new coCheckboxMenuItem(viewpoint->description(), true, cbg);
-    else
-        menuEntry = new coCheckboxMenuItem(viewpoint->description(), false, cbg);
-    menuEntry->setMenuListener(vpe);
-    viewpointMenu->add(menuEntry);
+    auto menuEntry = new ui::Button(viewpointGroup, viewpoint->description(), cbg);
+    menuEntry->setState(viewpoint == scene->bindableViewpointTop(), true);
     vpe->setMenuItem(menuEntry);
     viewpointEntries.push_back(vpe);
 }
@@ -759,6 +739,7 @@ bool SystemCover::removeViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *vie
 
 bool SystemCover::setViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpoint)
 {
+    std::cerr << "setting viewpoint to " << viewpoint->name() << std::endl;
     (void)scene;
 
     list<ViewpointEntry *>::iterator it = viewpointEntries.begin();
@@ -775,11 +756,12 @@ bool SystemCover::setViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpo
         it++;
     }
     it = viewpointEntries.begin();
+
     while (it != viewpointEntries.end())
     {
         if ((*it)->getViewpoint() == viewpoint)
         {
-            cbg->setState((*it)->getMenuItem(), true);
+            cbg->setActiveButton((*it)->getMenuItem());
             return true;
         }
         else
@@ -799,7 +781,7 @@ void SystemCover::setCurrentFile(const char *filename)
 
 void SystemCover::setMenuVisibility(bool vis)
 {
-    viewpointMenu->setVisible(vis);
+    vrmlMenu->setVisible(vis);
 }
 
 void SystemCover::setTimeStep(int ts) // set the timestep number for COVISE Animations
@@ -814,26 +796,26 @@ void SystemCover::setActivePerson(int p) // set the active Person
 
 void SystemCover::setNavigationType(System::NavigationType nav)
 {
+    auto navi = coVRNavigationManager::instance();
     switch (nav)
     {
     case NAV_NONE:
-        cover->enableNavigation("Walk");
-        cover->disableNavigation("Walk");
+        navi->setNavMode(coVRNavigationManager::NavNone);
         break;
     case NAV_FLY:
-        cover->enableNavigation("Fly");
+        navi->setNavMode(coVRNavigationManager::Fly);
         break;
     case NAV_WALK:
-        cover->enableNavigation("Walk");
+        navi->setNavMode(coVRNavigationManager::Walk);
         break;
     case NAV_EXAMINE:
-        cover->enableNavigation("Xform");
+        navi->setNavMode(coVRNavigationManager::XForm);
         break;
     case NAV_DRIVE:
-        cover->enableNavigation("Drive");
+        navi->setNavMode(coVRNavigationManager::Glide);
         break;
     case NAV_SCALE:
-        cover->enableNavigation("Scale");
+        navi->setNavMode(coVRNavigationManager::Scale);
         break;
     default:
         fprintf(stderr, "SystemCover::setNavigationType: unknown navigation type\n");
@@ -848,7 +830,7 @@ void SystemCover::setNavigationStepSize(double stepsize)
 
 void SystemCover::setNavigationDriveSpeed(double speed)
 {
-    cover->setNavigationValue("DriveSpeed", speed);
+    coVRNavigationManager::instance()->setDriveSpeed(speed);
 }
 
 void SystemCover::setNearFar(float nearC, float farC)

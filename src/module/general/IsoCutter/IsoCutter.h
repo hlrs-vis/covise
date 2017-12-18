@@ -66,7 +66,7 @@ private:
     float *out_data;
 
     void calc_cropped_polygons();
-    bool add_isocropped_polygon(int poly, int num_values, float *values);
+    bool add_isocropped_polygon(int poly, unsigned int num_values, float *values);
 
 public:
     IsoCutter(int argc, char *argv[]);

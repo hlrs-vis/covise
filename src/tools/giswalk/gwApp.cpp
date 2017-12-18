@@ -142,20 +142,20 @@ void __declspec(dllexport) __stdcall initialize()
 
 gwParamSet::gwParamSet()
 {
-    directedWalkFromValue = 2.0;
+    directedWalkFromValue = 2;
     directedWalkFromStep = 10;
-    streightness = 1.0;
-    reorientation = 1.0;
+    streightness = 1.0f;
+    reorientation = 1;
     scanStartFromStep = 20;
-    visionRange = 2.0;
+    visionRange = 2.0f;
     satisfactoryHabitat = 3;
     settlement = 1000000000;
-    maxSpeed[0] = 5.0;
-    maxSpeed[1] = 15.0;
-    maxSpeed[2] = 25.0;
-    maxSpeed[3] = 35.0;
-    maxSpeed[4] = 45.0;
-    maxSpeed[5] = 55.0;
+    maxSpeed[0] = 5.0f;
+    maxSpeed[1] = 15.0f;
+    maxSpeed[2] = 25.0f;
+    maxSpeed[3] = 35.0f;
+    maxSpeed[4] = 45.0f;
+    maxSpeed[5] = 55.0f;
     stopAtBoundary[0] = 0;
     stopAtBoundary[1] = 0;
     stopAtBoundary[2] = 0;
@@ -310,7 +310,7 @@ gwApp::gwApp(const char *filename)
     if (filename)
     {
         std::string fn(filename);
-        int pos = fn.rfind(".");
+        int pos = int(fn.rfind("."));
         if (pos != std::string::npos)
         {
             ending = fn.substr(pos);
@@ -354,16 +354,16 @@ gwApp::gwApp(const char *filename)
         percentColonizers = 100;
     }
 
-    int numColonizers = tiere.size() * ((float)percentColonizers / 100.0);
-    int numPhilopatric = tiere.size() - numColonizers;
+    int numColonizers = int(tiere.size() * ((float)percentColonizers / 100.0f));
+    int numPhilopatric = int(tiere.size() - numColonizers);
     if (percentColonizers > 50)
     {
         int i = 0;
         ti = tiere.begin();
-        int stepSize = (tiere.size() / numColonizers) * 2;
+        int stepSize = int(tiere.size() / numColonizers) * 2;
         while (i < numColonizers)
         {
-            int step = stepSize * ((float)rand() / (float)RAND_MAX);
+            int step = int(stepSize * ((float)rand() / (float)RAND_MAX));
             while (ti != tiere.end() && step > 0)
             {
                 ti++;
@@ -387,10 +387,10 @@ gwApp::gwApp(const char *filename)
         }
         int i = 0;
         ti = tiere.begin();
-        int stepSize = (tiere.size() / numColonizers) * 2;
+        int stepSize = int((tiere.size() / numColonizers) * 2);
         while (i < numPhilopatric)
         {
-            int step = stepSize * ((float)rand() / (float)RAND_MAX);
+            int step = int(stepSize * ((float)rand() / (float)RAND_MAX));
             while (ti != tiere.end() && step > 0)
             {
                 ti++;
@@ -409,7 +409,7 @@ gwApp::gwApp(const char *filename)
     for (ti = tiere.begin(); ti != tiere.end(); ti++)
     {
         gwTier *t = (*ti);
-        t->setLifeTime(minLifeTime + ((float)rand() / (float)RAND_MAX) * (maxLifeTime - minLifeTime));
+        t->setLifeTime(int(minLifeTime + ((float)rand() / (float)RAND_MAX) * (maxLifeTime - minLifeTime)));
     }
 
     double k = G * (2.0 * log(G - 1.0) / (mDist * G));
@@ -628,13 +628,13 @@ void gwApp::readConfigFile(std::string filename)
                     if (directedWalkFromStep && directedWalkFromStep[0] != '\0')
                         params[type].directedWalkFromStep = atoi(directedWalkFromStep);
                     if (streightness && streightness[0] != '\0')
-                        params[type].streightness = atof(streightness);
+                        params[type].streightness = float(atof(streightness));
                     if (reorientation && reorientation[0] != '\0')
-                        params[type].reorientation = atoi(reorientation);
+                        params[type].reorientation = int(atoi(reorientation));
                     if (scanStartFromStep && scanStartFromStep[0] != '\0')
                         params[type].scanStartFromStep = atoi(scanStartFromStep);
                     if (visionRange && visionRange[0] != '\0')
-                        params[type].visionRange = atof(visionRange);
+                        params[type].visionRange = float(atof(visionRange));
                     if (satisfactoryHabitat && satisfactoryHabitat[0] != '\0')
                         params[type].satisfactoryHabitat = atoi(satisfactoryHabitat) - 1;
                     if (settlement && settlement[0] != '\0')
@@ -650,7 +650,7 @@ void gwApp::readConfigFile(std::string filename)
 
                     numHabitatValues = lastNumHValues;
                     if (numHabitatValuesA && numHabitatValuesA[0] != '\0')
-                        numHabitatValues = atof(numHabitatValuesA);
+                        numHabitatValues = int(atof(numHabitatValuesA));
 
                     if (lastNumHValues != -1 && lastNumHValues != numHabitatValues)
                     {
@@ -742,7 +742,7 @@ void gwApp::readConfigFile(std::string filename)
 
                     if (percentColonizersA && percentColonizersA[0] != '\0')
                     {
-                        percentColonizers = atof(percentColonizersA);
+                        percentColonizers = float(atof(percentColonizersA));
                     }
                 }
                 /* else if(strcmp(tagName,"fragmentProgram")==0)
@@ -857,9 +857,9 @@ unsigned char *gwApp::readHDR(std::string filename)
             fprintf(stderr, "Could not open FLT file %s\n", fltFile.c_str());
         }
         if (xCenter)
-            XLLCorner = XLLCenter - (nCols / 2.0 * CellSize);
+            XLLCorner = XLLCenter - (nCols / 2.0f * CellSize);
         if (yCenter)
-            YLLCorner = YLLCenter - (nRows / 2.0 * CellSize);
+            YLLCorner = YLLCenter - (nRows / 2.0f * CellSize);
 
         delete[] fbuf;
         return buf;
@@ -960,9 +960,9 @@ unsigned char *gwApp::readTXT(std::string filename)
             }
         }
         if (xCenter)
-            XLLCorner = XLLCenter - (nCols / 2.0 * CellSize);
+            XLLCorner = XLLCenter - (nCols / 2.0f * CellSize);
         if (yCenter)
-            YLLCorner = YLLCenter - (nRows / 2.0 * CellSize);
+            YLLCorner = YLLCenter - (nRows / 2.0f * CellSize);
 
         return buf;
     }

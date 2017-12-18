@@ -78,7 +78,7 @@ public:
     bool init();
     void addNode(osg::Node *, const RenderObject *);
     void removeNode(osg::Node *node, bool /*isGroup*/, osg::Node *realNode);
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void setMenuItem(Variant *var, bool state);
     void tabletEvent(coTUIElement *);
 

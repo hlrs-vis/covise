@@ -107,14 +107,18 @@ int ReadPLY::compute(const char *)
 
     // Copy the indices std::vector to a c-style array.
     int *indicesCopy = new int[m_indices->size()];
-    copy(m_indices->begin(), m_indices->end(), indicesCopy);
+	for (size_t i = 0; i < m_indices->size(); i++)
+		indicesCopy[i] = (*m_indices)[i];
+   // copy(m_indices->begin(), m_indices->end(), indicesCopy);
 
     int *polygonsCopy = new int[m_polygons->size()];
-    copy(m_polygons->begin(), m_polygons->end(), polygonsCopy);
+	for (size_t i = 0; i < m_polygons->size(); i++)
+		polygonsCopy[i] = (*m_polygons)[i];
+    //copy(m_polygons->begin(), m_polygons->end(), polygonsCopy);
 
     // Supply output ports with data.
     polygonObjectName = m_polygonOutPort->getObjName();
-    polygonObject = new coDoPolygons(polygonObjectName, m_numVertices, m_vx, m_vy, m_vz, m_indices->size(),
+    polygonObject = new coDoPolygons(polygonObjectName, m_numVertices, m_vx, m_vy, m_vz, (int)m_indices->size(),
                                      indicesCopy, m_numFaces, polygonsCopy);
     m_polygonOutPort->setCurrentObject(polygonObject);
     polygonObject->addAttribute("vertexOrder", "2");
@@ -464,7 +468,7 @@ bool ReadPLY::processVertices(float *&vx, float *&vy, float *&vz,
             unsigned char *bny = new unsigned char[4];
             unsigned char *bnz = new unsigned char[4];
 
-            int chksum = 0;
+            size_t chksum = 0;
             chksum += fread(bx, 4, 1, m_fileHandle);
             chksum += fread(by, 4, 1, m_fileHandle);
             chksum += fread(bz, 4, 1, m_fileHandle);
@@ -535,7 +539,7 @@ bool ReadPLY::processFaces(std::vector<int> *indices, std::vector<int> *polygons
 
     if (ident == FcUcharRgb)
     {
-        int chksum = 0;
+        size_t chksum = 0;
         for (int i = 0; i < m_numCurrentFaces; ++i)
         {
             // Determine index count for this face.
@@ -670,7 +674,7 @@ float ReadPLY::toIEEE754(unsigned char *bytes)
         sign = -1.0f;
     }
 
-    float exp = bytes[0] << 1;
+    float exp = float(bytes[0] << 1);
     if (bytes[1] & 0x80)
     {
         bytes[1] -= 0x80;
@@ -694,8 +698,8 @@ float ReadPLY::toIEEE754(unsigned char *bytes)
     mantissa += ((bytes[2] & 0x10) >> 4) * 0.00048828125f;
     mantissa += ((bytes[2] & 0x8) >> 3) * 0.000244140625f;
     mantissa += ((bytes[2] & 0x4) >> 2) * 0.0001220703125f;
-    mantissa += ((bytes[2] & 0x2) >> 1) * 0.00006103515625;
-    mantissa += (bytes[2] & 0x1) * 0.000030517578125;
+    mantissa += ((bytes[2] & 0x2) >> 1) * 0.00006103515625f;
+    mantissa += (bytes[2] & 0x1) * 0.000030517578125f;
 
     mantissa += ((bytes[3] & 0x80) >> 7) * 0.0000152587890625f;
     mantissa += ((bytes[3] & 0x40) >> 6) * 0.00000762939453125f;

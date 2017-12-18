@@ -85,7 +85,7 @@ static void siqst(idxtype *base, idxtype *max)
   int lo;
   int hi;
 
-  lo = max - base;		/* number of elements as idxtype */
+  lo = (int)(max - base);		/* number of elements as idxtype */
   do {
     mid = base + ((unsigned) lo>>1);
     if (lo >= MTHRESH) {
@@ -136,7 +136,7 @@ swap:
     }
 
     i = (j = mid) + 1;
-    if ((lo = j - base) <= (hi = max - i)) {
+    if ((lo = (int)(j - base)) <= (hi =(int)(max - i))) {
       if (lo >= THRESH)
         siqst(base, j);
       base = i;
@@ -214,7 +214,7 @@ static void iiqst(int *base, int *max)
   int lo;
   int hi;
 
-  lo = max - base;		/* number of elements as ints */
+  lo = (int)(max - base);		/* number of elements as ints */
   do {
     mid = base + ((unsigned) lo>>1);
     if (lo >= MTHRESH) {
@@ -265,7 +265,7 @@ swap:
     }
 
     i = (j = mid) + 1;
-    if ((lo = j - base) <= (hi = max - i)) {
+    if ((lo = (int)(j - base)) <= (hi = (int)(max - i))) {
       if (lo >= THRESH)
         iiqst(base, j);
       base = i;
@@ -351,7 +351,7 @@ static void keyiqst(KeyValueType *base, KeyValueType *max)
   int lo;
   int hi;
 
-  lo = (max - base)>>1;		/* number of elements as KeyValueType */
+  lo = (int)((max - base)>>1);		/* number of elements as KeyValueType */
   do {
     mid = base + ((unsigned) lo>>1);
     if (lo >= MTHRESH) {
@@ -402,7 +402,7 @@ swap:
     }
 
     i = (j = mid) + 1;
-    if ((lo = (j - base)>>1) <= (hi = (max - i)>>1)) {
+    if ((lo = (int)((j - base)>>1)) <= (hi = (int)((max - i)>>1))) {
       if (lo >= THRESH)
         keyiqst(base, j);
       base = i;
@@ -479,7 +479,7 @@ static void keyvaliqst(KeyValueType *base, KeyValueType *max)
   int lo;
   int hi;
 
-  lo = (max - base)>>1;		/* number of elements as KeyValueType */
+  lo = (int)((max - base)>>1);		/* number of elements as KeyValueType */
   do {
     mid = base + ((unsigned) lo>>1);
     if (lo >= MTHRESH) {
@@ -530,7 +530,7 @@ swap:
     }
 
     i = (j = mid) + 1;
-    if ((lo = (j - base)>>1) <= (hi = (max - i)>>1)) {
+    if ((lo = (int)((j - base)>>1)) <= (hi = (int)((max - i)>>1))) {
       if (lo >= THRESH)
         keyvaliqst(base, j);
       base = i;

@@ -62,7 +62,7 @@ void MCRandom_KWayEdgeRefineHorizontal(CtrlType *ctrl, GraphType *graph, int npa
     for (i=0; i<nparts; i++) {
       for (j=0; j<ncon; j++) {
         maxwgt[i*ncon+j] = ubvec[j]/nparts;
-        minwgt[i*ncon+j] = 1.0/(ubvec[j]*nparts);
+        minwgt[i*ncon+j] = 1.0f/(ubvec[j]*nparts);
       }
     }
   }
@@ -74,7 +74,7 @@ void MCRandom_KWayEdgeRefineHorizontal(CtrlType *ctrl, GraphType *graph, int npa
     for (i=0; i<nparts; i++) {
       for (j=0; j<ncon; j++) {
         maxwgt[i*ncon+j] = maxlb/nparts;
-        minwgt[i*ncon+j] = 1.0/(maxlb*nparts);
+        minwgt[i*ncon+j] = 1.0f/(maxlb*nparts);
       }
     }
   }
@@ -285,7 +285,7 @@ void MCGreedy_KWayEdgeBalanceHorizontal(CtrlType *ctrl, GraphType *graph, int np
   for (i=0; i<nparts; i++) {
     for (j=0; j<ncon; j++) {
       maxwgt[i*ncon+j] = ubvec[j]/nparts;
-      minwgt[i*ncon+j] = 1.0/(ubvec[j]*nparts);
+      minwgt[i*ncon+j] = 1.0f/(ubvec[j]*nparts);
     }
   }
 

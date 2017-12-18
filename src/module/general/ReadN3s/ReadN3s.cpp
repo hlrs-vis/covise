@@ -450,7 +450,7 @@ ReadN3s::readGeoFile()
                        &node_number,
                        &dummy, &dummy, &dummy, &dummy, &dummy,
                        &dummy, &dummy, &dummy, &dummy, &dummyl);
-                length = strlen(buffer) - 1;
+                length = (int)strlen(buffer) - 1;
                 sscanf(buffer + length - DIGITALS_OF_COORD, "%f", &(z[node_number - 1]));
                 buffer[length - DIGITALS_OF_COORD] = '\0';
                 sscanf(buffer + length - 2 * DIGITALS_OF_COORD, "%f", &(y[node_number - 1]));
@@ -607,7 +607,7 @@ ReadN3s::readResultFile()
                     fprintf(stderr, "fgets_20 failed in ReadN3s.cpp");
                 }
                 // get the rest of the line
-                for (k = strlen(buffer) / DIGITALS_OF_VALUE - 1; k >= 0; k--)
+                for (k = (int)strlen(buffer) / DIGITALS_OF_VALUE - 1; k >= 0; k--)
                 {
                     if (k >= rest)
                         sscanf(buffer + k * DIGITALS_OF_VALUE, "%f", &dummy);
@@ -648,7 +648,7 @@ ReadN3s::readResultFile()
                 fprintf(stderr, "fgets_22 failed in ReadN3s.cpp");
             }
             // get the rest of the line
-            for (k = strlen(buffer) / DIGITALS_OF_VALUE - 1; k >= 0; k--)
+            for (k = (int)strlen(buffer) / DIGITALS_OF_VALUE - 1; k >= 0; k--)
             {
                 if (k >= rest)
                     sscanf(buffer + k * DIGITALS_OF_VALUE, "%f", &dummy);

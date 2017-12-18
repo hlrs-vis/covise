@@ -51,7 +51,7 @@ int InitAR_BladeElements(struct axial *ar)
          fatal("memory for (struct be)");
       // assign bias and abs. radius to blade elements
       ar->be[i]->para = bias->list[i];
-      ar->be[i]->rad  = 0.5 * ar->ref * (ar->diam[0] + (1.0 - ar->diam[0]) * ar->be[i]->para);
+      ar->be[i]->rad  = 0.5f * ar->ref * (ar->diam[0] + (1.0f - ar->diam[0]) * ar->be[i]->para);
       // interpolate parameter set data to blade elements
       ar->be[i]->pivot        = ar->piv;
       ar->be[i]->angle[0]     = InterpolateParameterSet(ar->iang, ar->be[i]->para, ar->extrapol);

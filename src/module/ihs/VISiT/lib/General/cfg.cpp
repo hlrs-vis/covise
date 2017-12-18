@@ -190,7 +190,7 @@ static int splitline(char *buf, char *key, char *value)
    char *s;
    char *p = NULL;
    char *d;
-   int len;
+   size_t len;
 
    if ((d = strrchr(buf, '\n')) != NULL)
       *d = '\0';

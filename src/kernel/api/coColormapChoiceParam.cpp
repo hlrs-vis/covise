@@ -115,9 +115,9 @@ void coColormapChoiceParam::initialize()
         os << d_activeChoice << " " << d_numChoices;
         for (int i = 0; i < d_numChoices; i++)
         {
-            int ll = colormaps[i].mapValues.size();
+            size_t ll = colormaps[i].mapValues.size();
             os << " " << colormaps[i].mapName << " " << ll / 5;
-            for (int k = 0; k < ll; k++)
+            for (size_t k = 0; k < ll; k++)
                 os << " " << colormaps[i].mapValues[k];
         }
 

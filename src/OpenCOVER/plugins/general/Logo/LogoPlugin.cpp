@@ -126,7 +126,7 @@ LogoPlugin::preFrame()
     }
 }
 
-void LogoPlugin::message(int, int, const void *data)
+void LogoPlugin::message(int toWhom, int, int, const void *data)
 {
     if (!camera)
     {

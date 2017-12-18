@@ -47,7 +47,7 @@ int BezierGrid::compute(const char *port)
     grid->getGridSize(&xdim,&ydim,&zdim);
     grid->getAddresses(&x,&y,&z);
 
-    double u, v;
+    float u, v;
     int gridSize=xdim*ydim*zdim;
     vector <float> controlPoints;
     vector <float> x_start, y_start, z_start; 
@@ -58,11 +58,11 @@ int BezierGrid::compute(const char *port)
     vector<float> pnt;
     int step_u = 0;
     int step_v = 0;
-     for (v = 0; v <= 1.00; v += 0.1)
+     for (v = 0; v <= 1.00f; v += 0.1f)
      {
           step_v += 1;
           step_u = 0;
-          for (u = 0; u <= 1.00; u += 0.1)
+          for (u = 0; u <= 1.00f; u += 0.1f)
           {
               int counter = 0;
               for (size_t i = 0; i < gridSize; i++)
@@ -110,11 +110,11 @@ return SUCCESS;
 
 vector<float> BezierGrid::casteljauAproximation(std::vector<vector<float> > points, float t)
 {
-    int steps = points.size() - 1;
+    size_t steps = points.size() - 1;
     vector<float>  output;
     output.reserve(3);
 
-      for (size_t j = 0; ssize_t(j) < steps; j++)
+      for (size_t j = 0; size_t(j) < steps; j++)
       {
           for (size_t k = 0; k < steps-j; k++)
           {

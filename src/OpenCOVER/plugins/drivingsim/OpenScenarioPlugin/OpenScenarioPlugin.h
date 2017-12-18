@@ -31,6 +31,7 @@
 #include <TrafficSimulation/UDPBroadcast.h>
 #include <TrafficSimulation/Vehicle.h>
 #include "myFactory.h"
+#include "ScenarioManager.h"
 
 
 namespace OpenScenario
@@ -39,6 +40,7 @@ class OpenScenarioBase;
 }
 
 class Source;
+class CameraSensor;
 
 class OpenScenarioPlugin : public opencover::coVRPlugin
 {
@@ -51,13 +53,19 @@ public:
 
 	static OpenScenarioPlugin *plugin;
 	static OpenScenarioPlugin *instance() { return plugin; };
+	std::list<CameraSensor *> cameras;
+	CameraSensor *currentCamera=NULL;
 
 	bool init();
 
     // this will be called in PreFrame
     void preFrame();
+	// return if rendering is required
+	bool update();
 
 	void addSource(Source *s) { sources.push_back(s); };
+
+	ScenarioManager *scenarioManager;
 
 private:
 	OpenScenario::OpenScenarioBase *osdb;
@@ -77,6 +85,7 @@ private:
 	PedestrianManager *pedestrianManager;
     VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
+
 
 	bool tessellateRoads;
 	bool tessellatePaths;

@@ -173,6 +173,7 @@ MEGraphicsView::~MEGraphicsView()
 
 void MEGraphicsView::developerMode(bool devmode)
 {
+    m_devmode = devmode;
     m_restartAction->setVisible(devmode);
     m_restartDebugAction->setVisible(devmode);
     m_restartMemcheckAction->setVisible(devmode);
@@ -1189,6 +1190,7 @@ void MEGraphicsView::showNodeActions(MENode *node, QGraphicsSceneContextMenuEven
     m_popupNode = node;
     m_replaceAction->setEnabled(false);
     m_renameAction->setText("Add prefix...");
+    m_restartAction->setVisible(m_devmode || node->isDead());
 
     // look how many nodes are selected
     QList<QGraphicsItem *> list = scene()->selectedItems();

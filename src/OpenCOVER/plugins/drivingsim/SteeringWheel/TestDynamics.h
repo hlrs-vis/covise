@@ -111,6 +111,10 @@ protected:
 	double roadHeightIncrementDelta;
 	double roadHeightIncrementMax;
 	double roadHeightDelta;
+	bool leftRoadSwitch;
+	double accumulatedChange;
+	double accumulatedReset;
+	bool roadListChanged;
 	
 	bool singleRoadSwitch;
 	

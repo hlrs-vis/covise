@@ -292,7 +292,7 @@ int AxialRunner::CheckDiscretization(coFloatVectorParam *v, int *dis, float *bia
 
 int AxialRunner::SplitPortname(const char *portname, char *name, int *index)
 {
-   int offs = strlen(portname);
+   size_t offs = strlen(portname);
    int ret = 0;
 
    *name = '\0';

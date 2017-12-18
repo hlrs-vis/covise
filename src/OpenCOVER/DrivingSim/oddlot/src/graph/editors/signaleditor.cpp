@@ -320,7 +320,7 @@ SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 	}
 	else
 	{
-		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", "-1", "", "-1", 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
@@ -351,8 +351,11 @@ SignalEditor::translateObject(ObjectItem * objectItem, QPointF &diff)
         road = newRoad;
     }  
 
-
-    SetObjectPropertiesCommand * objectPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), object->getType(), dist, object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getTextureFileName());
+	Object::ObjectProperties objectProps = object->getProperties();
+	objectProps.t = dist;
+	Object::ObjectRepeatRecord repeatProps = object->getRepeatProperties();
+	repeatProps.s = s;
+	SetObjectPropertiesCommand * objectPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectProps, repeatProps, object->getTextureFileName());
     getProjectGraph()->executeCommand(objectPropertiesCommand);
     MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(object, s, RSystemElementRoad::DRS_ObjectSection);
     getProjectGraph()->executeCommand(moveSectionCommand);
@@ -374,15 +377,24 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 		{
 			t += lastObject->getObjectDistance();
 		}
-		newObject = new Object("object", "", lastObject->getObjectType(), s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, lastObject->getObjectLength(), 
+
+		Object::ObjectProperties objectProps{ t, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, lastObject->getObjectType(), 0.0, lastObject->getObjectLength(), lastObject->getObjectWidth(),
+			lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
+			0.0, 0.0, false };
+
+		Object::ObjectRepeatRecord repeatProps{ s, 0.0, lastObject->getObjectRepeatDistance(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
+		newObject = new Object("object", "", s, objectProps, repeatProps, lastObject->getObjectFile());
+/*		newObject = new Object("object", "", lastObject->getObjectType(), s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, lastObject->getObjectLength(), 
 			lastObject->getObjectWidth(), lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
-					0.0, 0.0, false, s, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile());
+					0.0, 0.0, false, s, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile()); */
 		AddObjectCommand *command = new AddObjectCommand(newObject, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
 	else
 	{
-		Object *newObject = new Object("object", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, "");
+		Object::ObjectProperties objectProps{ t, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "", 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false };
+		Object::ObjectRepeatRecord repeatProps{ s, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+		Object *newObject = new Object("object", "", s, objectProps, repeatProps, "");
 		AddObjectCommand *command = new AddObjectCommand(newObject, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}

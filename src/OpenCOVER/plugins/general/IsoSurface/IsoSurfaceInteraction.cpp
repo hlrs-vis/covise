@@ -14,12 +14,15 @@
 #include <cover/coInteractor.h>
 #include <cover/coVRPluginSupport.h>
 
-//#include <OpenVRUI/coMenu.h>
-//#include <OpenVRUI/coRowMenu.h>
+#ifdef VRUI
 #include <OpenVRUI/coSliderMenuItem.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
-
 using namespace vrui;
+#else
+#include <cover/ui/Slider.h>
+#include <cover/ui/Button.h>
+#endif
+
 using namespace opencover;
 
 const char *IsoSurfaceInteraction::ISOVALUE = "isovalue";
@@ -58,12 +61,12 @@ IsoSurfaceInteraction::update(const RenderObject *container, coInteractor *inter
 void IsoSurfaceInteraction::updateInteractorVisibility()
 {
     // if geometry is hidden, hide also interactor
-    if (!hideCheckbox_->getState() && showPickInteractorCheckbox_->getState())
+    if (!hideCheckbox_->state() && showPickInteractorCheckbox_->state())
         isoPoint_->showPickInteractor();
     else
         isoPoint_->hidePickInteractor();
 
-    if (!hideCheckbox_->getState() && showDirectInteractorCheckbox_ && showDirectInteractorCheckbox_->getState())
+    if (!hideCheckbox_->state() && showDirectInteractorCheckbox_ && showDirectInteractorCheckbox_->state())
         isoPoint_->showDirectInteractor();
     else
         isoPoint_->hideDirectInteractor();
@@ -75,6 +78,7 @@ IsoSurfaceInteraction::preFrame()
     isoPoint_->preFrame();
 }
 
+#ifdef VRUI
 void
 IsoSurfaceInteraction::menuEvent(coMenuItem *menuItem)
 {
@@ -99,15 +103,26 @@ IsoSurfaceInteraction::menuReleaseEvent(coMenuItem *menuItem)
         ModuleInteraction::menuReleaseEvent(menuItem);
     }
 }
+#endif
 
 void
 IsoSurfaceInteraction::createMenu()
 {
     // create the value poti
     inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
-    valueSlider_ = new coSliderMenuItem("IsoValue", minValue_, maxValue_, isoValue_);
-    valueSlider_->setMenuListener(this);
-    menu_->add(valueSlider_);
+    valueSlider_ = new ui::Slider(menu_, "IsoValue");
+    valueSlider_->setBounds(minValue_, maxValue_);
+    valueSlider_->setValue(isoValue_);
+    valueSlider_->setText("Isovalue");
+    valueSlider_->setCallback([this](double value, bool released){
+        if (!released)
+            return;
+        inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
+        isoValue_ = value;
+        plugin->getSyncInteractors(inter_);
+        plugin->setSliderParam("isovalue", minValue_, maxValue_, isoValue_);
+        plugin->executeModule();
+    });
 }
 
 void
@@ -120,8 +135,7 @@ void
 IsoSurfaceInteraction::updateMenu()
 {
     // now set menu items accordingly
-    valueSlider_->setMin(minValue_);
-    valueSlider_->setMax(maxValue_);
+    valueSlider_->setBounds(minValue_, maxValue_);
     valueSlider_->setValue(isoValue_);
 }
 

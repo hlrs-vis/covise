@@ -209,7 +209,7 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
       // extension vector
       u[0]  = ma->dr;
       u[1]  = ma->ps_ext->z[i];
-      u_mag = sqrt(pow(u[0], 2) + pow(u[1], 2));
+      u_mag = (float)sqrt(pow(u[0], 2) + pow(u[1], 2));
       // extension end point
       e[0]  = b[0] + s_ext * u[0];
       e[1]  = b[1] + s_ext * u[1];
@@ -219,9 +219,9 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
       for (j = nc_start; j < nc_end; j++)
       {
          // two contour curve points
-         h1[0] = sqrt(pow(c->p->x[j], 2) + pow(c->p->y[j], 2));
+         h1[0] = (float)sqrt(pow(c->p->x[j], 2) + pow(c->p->y[j], 2));
          h1[1] = c->p->z[j];
-         h2[0] = sqrt(pow(c->p->x[j+1], 2) + pow(c->p->y[j+1], 2));
+         h2[0] = (float)sqrt(pow(c->p->x[j+1], 2) + pow(c->p->y[j+1], 2));
          h2[1] = c->p->z[j+1];
          // vector difference to extension base point
          v1[0] = h1[0] - b[0];
@@ -273,7 +273,7 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
       // extension vector
       u[0]  = ma->dr;
       u[1]  = ma->ss_ext->z[i];
-      u_mag = sqrt(pow(u[0], 2) + pow(u[1], 2));
+      u_mag = (float)sqrt(pow(u[0], 2) + pow(u[1], 2));
       // extension end point
       e[0]  = b[0] + s_ext * u[0];
       e[1]  = b[1] + s_ext * u[1];
@@ -283,9 +283,9 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
       for (j = nc_start; j < nc_end; j++)
       {
          // two contour curve points
-         h1[0] = sqrt(pow(c->p->x[j], 2) + pow(c->p->y[j], 2));
+         h1[0] = (float)sqrt(pow(c->p->x[j], 2) + pow(c->p->y[j], 2));
          h1[1] = c->p->z[j];
-         h2[0] = sqrt(pow(c->p->x[j+1], 2) + pow(c->p->y[j+1], 2));
+         h2[0] = (float)sqrt(pow(c->p->x[j+1], 2) + pow(c->p->y[j+1], 2));
          h2[1] = c->p->z[j+1];
          // vector difference to extension base point
          v1[0] = h1[0] - b[0];
@@ -336,7 +336,7 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
       // extension vector
       u[0]  = ma->dr;
       u[1]  = ma->cl_ext->z[i];
-      u_mag = sqrt(pow(u[0], 2) + pow(u[1], 2));
+      u_mag = (float)sqrt(pow(u[0], 2) + pow(u[1], 2));
       // extension end point
       e[0]  = b[0] + s_ext * u[0];
       e[1]  = b[1] + s_ext * u[1];
@@ -346,9 +346,9 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
       for (j = nc_start; j < nc_end; j++)
       {
          // two contour curve points
-         h1[0] = sqrt(pow(c->p->x[j], 2) + pow(c->p->y[j], 2));
+         h1[0] = (float)sqrt(pow(c->p->x[j], 2) + pow(c->p->y[j], 2));
          h1[1] = c->p->z[j];
-         h2[0] = sqrt(pow(c->p->x[j+1], 2) + pow(c->p->y[j+1], 2));
+         h2[0] = (float)sqrt(pow(c->p->x[j+1], 2) + pow(c->p->y[j+1], 2));
          h2[1] = c->p->z[j+1];
          // vector difference to extension base point
          v1[0] = h1[0] - b[0];

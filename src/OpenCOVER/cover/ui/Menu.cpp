@@ -14,25 +14,11 @@ Menu::Menu(Group *parent, const std::string &name)
 {
 }
 
-
-bool Menu::add(Element *elem)
+Menu::~Menu()
 {
-    if (Group::add(elem))
-    {
-        manager()->updateChildren(this);
-        return true;
-    }
-    return false;
-}
-
-bool Menu::remove(Element *elem)
-{
-    if (Group::remove(elem))
-    {
-        manager()->updateChildren(this);
-        return true;
-    }
-    return false;
+    manager()->remove(this);
+    clearItems();
+    clearChildren();
 }
 
 }

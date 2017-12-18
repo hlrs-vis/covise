@@ -9,7 +9,6 @@
 // 28.10.1997
 
 #include "coVRTUIParam.h"
-#include <cover/VRPinboard.h>
 #include <util/common.h>
 #include <appl/RenderInterface.h>
 #include <cover/VRSceneGraph.h>

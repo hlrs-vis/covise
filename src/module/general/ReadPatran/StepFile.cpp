@@ -17,15 +17,14 @@ StepFile::StepFile(const coModule *mod, const char *filepath)
     , finished(0)
     , module(mod)
 {
-    int i, j, found = 0;
-    int index_nb, index_suffix;
-    int len_file;
+    size_t j, found = 0;
+    size_t index_nb, index_suffix;
     char nb_string[32];
     char c;
 
     strcpy(base, filepath);
-    len_file = strlen(filepath);
-    i = len_file;
+    size_t len_file = strlen(filepath);
+    ssize_t i = len_file;
     while (i >= 0 && !found)
     {
         c = filepath[i];
@@ -66,8 +65,9 @@ StepFile::StepFile(const coModule *mod, const char *filepath)
 
 void StepFile::get_nextpath(char **resultpath)
 {
-    int len_file_index, found = 0;
-    int i, j, k;
+	size_t len_file_index;
+	size_t found = 0;
+	size_t i, j, k;
     FILE *fd;
     char file_index_string[32], buffer[128];
 

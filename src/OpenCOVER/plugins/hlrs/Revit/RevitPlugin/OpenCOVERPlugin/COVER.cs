@@ -485,10 +485,10 @@ namespace OpenCOVERPlugin
         //
         public void SendElement(Autodesk.Revit.DB.Element elem)
         {
-            if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
+           /* if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
             {
                 return;
-            }
+            }*/
             if (elem is Autodesk.Revit.DB.View)
             {
                 sendViewpoint(elem);
@@ -828,6 +828,10 @@ namespace OpenCOVERPlugin
             bbR.Min = new XYZ(100000, 100000, 100000);
             bbR.Max = new XYZ(-100000, -100000, -100000);
             bool hasStyle = false;
+            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
+            {
+                hasStyle = false;
+            }
             if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
             {
                 Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);

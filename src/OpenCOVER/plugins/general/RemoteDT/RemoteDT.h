@@ -85,7 +85,7 @@ public:
     void preFrame();
     virtual void menuEvent(coMenuItem *menuItem);
     void drawInit();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
 
     /**
        * this is here until there are other means to get events

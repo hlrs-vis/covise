@@ -267,7 +267,9 @@ int Gnuplot::readStdOut(void *_Buf, unsigned int _MaxCharCount)
 
 int Gnuplot::compute(const char *)
 {
+#ifndef WIN32
     pid_t pid;
+#endif
 
     if (!gnuplot_running)
     {
@@ -332,7 +334,7 @@ int Gnuplot::compute(const char *)
 
     if (windowed->getValue())
     {
-        writeStdIn(command, strlen(command));
+        writeStdIn(command, (unsigned int)strlen(command));
         int block = 0;
         int blockLine = 0;
         int blockLength = dataBlockSize[block];
@@ -355,7 +357,7 @@ int Gnuplot::compute(const char *)
                 blockLine++;
                 snprintf(line, 40, "%f %f\n", x_data[index], y_data[index]);
             }
-            writeStdIn(line, strlen(line));
+            writeStdIn(line, (int)strlen(line));
         }
         gnuplot_running = true;
     }
@@ -367,8 +369,8 @@ int Gnuplot::compute(const char *)
         int fd = open("schnubb.gp", O_WRONLY | O_CREAT);
 #endif
         const char *w = "set terminal png size 1024, 1024; ";
-        writeStdIn(w, strlen(w));
-        if (write(fd, w, strlen(w)) == -1)
+        writeStdIn(w, (unsigned int)strlen(w));
+        if (write(fd, w, (unsigned int)strlen(w)) == -1)
         {
             fprintf(stderr, "write error 1: %s\n", strerror(errno));
         }
@@ -378,8 +380,8 @@ int Gnuplot::compute(const char *)
 
         char line[40];
 
-        writeStdIn(command, strlen(command));
-        if (write(fd, command, strlen(command)) == -1)
+        writeStdIn(command, (unsigned int)strlen(command));
+        if (write(fd, command, (unsigned int)strlen(command)) == -1)
         {
             fprintf(stderr, "write error 2: %s\n", strerror(errno));
         }
@@ -400,8 +402,8 @@ int Gnuplot::compute(const char *)
                 blockLine++;
                 snprintf(line, 40, "%f %f\n", x_data[index], y_data[index]);
             }
-            writeStdIn(line, strlen(line));
-            if (write(fd, line, strlen(line)) == -1)
+            writeStdIn(line, (unsigned int)strlen(line));
+            if (write(fd, line, (unsigned int)strlen(line)) == -1)
             {
                 fprintf(stderr, "write error 3: %s\n", strerror(errno));
             }
@@ -414,18 +416,18 @@ int Gnuplot::compute(const char *)
         char *tmpDir = getenv("TEMP");
         char *tempName = new char[strlen(tmpDir) + 1000];
         sprintf(tempName, "%s\\%s", tmpDir, "test.png");
-        int slen = strlen(tempName);
+        int slen = (int)strlen(tempName);
         for (int i = 0; i < slen; i++)
         {
             if (tempName[i] == '\\')
                 tempName[i] = '/';
         }
         snprintf(cbuf, 1000, "set output \"%s\"; ", tempName);
-        writeStdIn(cbuf, strlen(cbuf));
+        writeStdIn(cbuf, (unsigned int)strlen(cbuf));
 #endif
-        writeStdIn(command, strlen(command));
+        writeStdIn(command, (unsigned int)strlen(command));
         command = "\n";
-        writeStdIn(command, strlen(command));
+        writeStdIn(command, (unsigned int)strlen(command));
 #ifndef WIN32
         close(fdpc[1]);
 #else
@@ -436,7 +438,9 @@ int Gnuplot::compute(const char *)
 #endif
         gnuplot_running = false;
 
-        int bufSize = 4096, length = 0, s;
+		int bufSize = 4096;
+		size_t length = 0;
+		size_t s;
         char *buf = (char *)malloc(bufSize);
 #ifdef WIN32
         FILE *fp;
@@ -510,14 +514,14 @@ int Gnuplot::compute(const char *)
 
             png_bytep *row_pointers = (png_bytep *)malloc(sizeof(png_bytep) * height);
 
-            for (int y = 0; y < height; y++)
+            for (unsigned int y = 0; y < height; y++)
                 row_pointers[y] = (png_byte *)malloc(png_get_rowbytes(png_ptr, info_ptr));
             png_read_image(png_ptr, row_pointers);
 
-            for (int y = 0; y < height; y++)
+            for (unsigned int y = 0; y < height; y++)
             {
                 png_byte *row = row_pointers[y];
-                for (int x = 0; x < width; x++)
+                for (unsigned int x = 0; x < width; x++)
                 {
                     png_byte *ptr = &(row[x * 3]);
                     pixels[(x + y * width) * 3 + 0] = ptr[0];
@@ -526,7 +530,7 @@ int Gnuplot::compute(const char *)
                 }
             }
 
-            for (int y = 0; y < height; y++)
+            for (unsigned int y = 0; y < height; y++)
                 free(row_pointers[y]);
             free(row_pointers);
 
