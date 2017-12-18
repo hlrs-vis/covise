@@ -442,6 +442,20 @@ bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
     }
 }
 */
+
+void oscCatalog::renameCatalogObject(oscObjectBase *object, const std::string &name)
+{
+	for (auto it = m_Objects.begin(); it != m_Objects.end(); it++)
+	{
+		ObjectParams params = it->second;
+		if (params.object == object)
+		{
+			m_Objects.erase(it);
+			std::pair<ObjectsMap::const_iterator, bool> returnVal = m_Objects.emplace(name, params);
+			return;
+		}
+	}
+}
 bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *objectBase, oscCatalogFile *catf)
 {
 

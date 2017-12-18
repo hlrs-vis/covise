@@ -111,7 +111,7 @@ public:
         return myY;
     }
     virtual void update();
-    void updatePinList(float minv = 0.0f, float maxv = 1.0f); // update my pinList to reflect the transferFunction
+    void updatePinList(); // update my pinList to reflect the transferFunction
 
     osg::ref_ptr<osg::Group> createBackgroundGroup();
 
@@ -166,7 +166,7 @@ protected:
     float lastRoll;
     float w1, w2, w3, w4;
     int selectedRegion;
-    float pickThreshold;
+    double pickThreshold;
     float moveThreshold;
     bool doMove;
     double pickTime;

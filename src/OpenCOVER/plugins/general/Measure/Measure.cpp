@@ -753,7 +753,7 @@ void Measure::menuEvent(coMenuItem *item)
     }
 }
 
-void Measure::message(int type, int len, const void *buf)
+void Measure::message(int toWhom, int type, int len, const void *buf)
 {
 
     if (type != PluginMessageTypes::Measure0 && type != PluginMessageTypes::Measure1)

@@ -37,7 +37,7 @@ public:
     virtual void key(int type, int keySym, int mod);
     //    virtual void param(const char *paramName, bool inMapLoading );
     //    virtual void guiToRenderMsg(const char *msg);
-    //    virtual void message(int type, int length, const void *data);
+    //    virtual void message(int toWhom, int type, int length, const void *data);
 
 private:
     MessageReceiver *_messageReceiver;

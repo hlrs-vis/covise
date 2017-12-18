@@ -1,5 +1,5 @@
-#ifndef ENABLEGLDEBUGOPERATION_H
-#define ENABLEGLDEBUGOPERATION_H
+#ifndef INITGLOPERATION_H
+#define INITGLOPERATION_H
 
 /* based on https://github.com/ThermalPixel/osgdemos/osgdebug
 
@@ -33,10 +33,10 @@
 
 #include <osgViewer/ViewerEventHandlers>
 
-class EnableGLDebugOperation: public osg::GraphicsOperation
+class InitGLOperation: public osg::GraphicsOperation
 {
 public:
-    EnableGLDebugOperation();
+    InitGLOperation();
     virtual void operator ()(osg::GraphicsContext* gc);
 
 private:
@@ -45,6 +45,13 @@ private:
                     GLsizei length, const GLchar *message, void *userData);
     static void  debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                     GLsizei length, const GLchar *message, const void *userData);
+
+    struct DebugCallbackData
+    {
+        int contextId;
+        int debugLevel;
+    };
+    DebugCallbackData m_callbackData;
 };
 
 #endif

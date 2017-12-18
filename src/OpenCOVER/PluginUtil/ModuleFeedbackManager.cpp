@@ -63,6 +63,9 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
     : ui::Owner(std::string("ModuleFeedbackManager")+pluginName, cover->ui)
     , inter_(inter)
 {
+    if (inter_)
+        inter_->incRefCount();
+
     if (cover->debugLevel(3))
     {
         if (containerObject)
@@ -196,42 +199,8 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
 
 ModuleFeedbackManager::~ModuleFeedbackManager()
 {
-#ifdef VRUI
-    parentMenu_->remove(menuItem_);
-
-    if (colorBar_)
-        delete colorBar_;
-
-    delete hideCheckbox_;
-
-    delete syncCheckbox_;
-
-    if (newButton_)
-        delete newButton_;
-
-    if (deleteButton_)
-        delete deleteButton_;
-
-    if (executeCheckbox_)
-        delete executeCheckbox_;
-
-    delete colorsButton_;
-
-    delete menu_;
-
-    delete menuItem_;
-
-    if (parentMenu_ != coviseMenu_)
-    {
-        // erst checken ob es leer ist !!!TODO!!!
-
-        //delete caseMenu_;
-
-        //fprintf(stderr,"deleting case menu item\n");
-
-        //delete caseMenuItem_;
-    }
-#endif
+    if (inter_)
+        inter_->decRefCount();
 }
 
 // -----------------------------------------------------------------
@@ -254,47 +223,7 @@ void ModuleFeedbackManager::createMenu()
     else
         visMenuName_ = moduleName_;
 
-    bool cfdgui = covise::coCoviseConfig::isOn("COVERConfig.CfdGui", false);
-#ifdef VRUI
-    visItemName_ = visMenuName_;
-    visItemName_ += "...";
-
-    menuItem_ = new coSubMenuItem(visItemName_.c_str());
-    //menu_ = new coRowMenu(visMenuName_.c_str(),coviseMenu_, cover->getMaxMenuItems());
-    menu_ = new coRowMenu(visMenuName_.c_str(), coviseMenu_);
-    menuItem_->setMenu(menu_);
-
-    coviseMenu_->add(menuItem_);
-
-    // hide geometry
-    hideCheckbox_ = new coCheckboxMenuItem("Hide", false);
-    hideCheckbox_->setMenuListener(this);
-
-    // sync interaction
-    syncCheckbox_ = new coCheckboxMenuItem("Sync", true);
-    syncCheckbox_->setMenuListener(this);
-
-    // new module, for complex modules only adn disable for gui
-    newButton_ = NULL;
-    deleteButton_ = NULL;
-    int len = strlen(moduleName_.c_str());
-    if (len >= 4 && !cfdgui && string("Comp") == moduleName_.c_str() + len - 4)
-    {
-        newButton_ = new coButtonMenuItem("New");
-        newButton_->setMenuListener(this);
-
-        deleteButton_ = new coButtonMenuItem("Delete");
-        deleteButton_->setMenuListener(this);
-    }
-
-    // if ExecuteOnChange is not on, provide execute button
-    executeCheckbox_ = NULL;
-    if (!covise::coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
-    {
-        executeCheckbox_ = new coCheckboxMenuItem("Execute", false);
-        executeCheckbox_->setMenuListener(this);
-    }
-#else
+    bool cfdgui = covise::coCoviseConfig::isOn("COVER.Plugin.CfdGui", false);
     menu_ = new ui::Menu(visMenuName_, this);
     if (cover->visMenu)
         cover->visMenu->add(menu_);
@@ -331,7 +260,6 @@ void ModuleFeedbackManager::createMenu()
             inter_->executeModule();
         });
     }
-#endif
 
     inExecute_ = false;
 
@@ -673,37 +601,6 @@ ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
     }
 #endif
 }
-
-#ifdef VRUI
-// --------------------------------------------------------------------------
-// EventListener
-// --------------------------------------------------------------------------
-void
-ModuleFeedbackManager::menuEvent(coMenuItem *item)
-{
-    //fprintf(stderr,"ModuleFeedbackManager::menuEvent\n");
-    if (item == hideCheckbox_)
-    {
-        hideGeometry(hideCheckbox_->getState());
-        sendHideMsg(hideCheckbox_->getState());
-    }
-    else if (item == newButton_) // copy this module and execute it
-    {
-        // copy this module and execute it
-        inter_->copyModuleExec();
-    }
-    else if (item == deleteButton_) // delete this module
-    {
-        // delete this module
-        inter_->deleteModule();
-    }
-    else if (item == executeCheckbox_)
-    {
-        inExecute_ = true;
-        inter_->executeModule();
-    }
-}
-#endif
 
 // hides geometry
 // needed for menuevent

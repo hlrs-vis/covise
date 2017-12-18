@@ -22,6 +22,7 @@ option(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
 option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 option(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 option(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
+option(COVISE_USE_OSMESA "Use OSMesa OpenGL library for CPU based off-screen rendering" OFF)
 
 macro (GETENV_PATH var name)
    set(${var} $ENV{${name}})
@@ -103,6 +104,9 @@ else()
   set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
+if(COVISE_USE_X11)
+    add_definitions(-DUSE_X11)
+endif()
 
 
 # find dependencies for coVRML library
@@ -111,6 +115,11 @@ covise_find_package(BISON)
 
 include_directories(${COVISE_INCLUDE_DIRS})
 include_directories(.)
+
+if (COVISE_USE_OSMESA)
+    add_definitions(-DUSE_OSMESA)
+endif()
+
 
 
 IF(COVISE_EXPORT_TO_INSTALL)

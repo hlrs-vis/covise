@@ -327,11 +327,13 @@ void QtOsgWidget::keyPressEvent(QKeyEvent *event)
 
 void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 {
+#if 0
     if( event->isAutoRepeat() )
     {
         event->ignore();
     }
     else
+#endif
     {
         setKeyboardModifiers(event);
         int value = s_QtKeyboardMap.remapKey(event);

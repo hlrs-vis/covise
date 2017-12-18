@@ -17,6 +17,8 @@ coInteractor::coInteractor()
 {
 }
 
+
+
 // if you get an interactor and you want to keep it use ...
 void coInteractor::incRefCount()
 {
@@ -27,6 +29,7 @@ void coInteractor::incRefCount()
 void coInteractor::decRefCount()
 {
     d_refCount--;
+    assert(d_refCount >= 0);
     if (d_refCount <= 0)
         delete this;
 }
@@ -35,4 +38,11 @@ coInteractor::~coInteractor()
 {
     assert(d_refCount == 0);
 }
+
+int coInteractor::refCount() const
+{
+    assert(d_refCount >= 0);
+    return d_refCount;
+}
+
 }

@@ -45,6 +45,10 @@ public:
     OSGResponseSurface *surfaceGeode;
 
     bool init();
+	virtual bool update()
+	{
+		return true; //  request that scene be re-rendered
+	}
 
 private:
     void initPSO();

@@ -153,7 +153,7 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
 
         if (!found)
         {
-            it = colorsModuleMap.insert(ColorsModuleMap::value_type(inter, ColorsModule(inter->getModuleName(), this))).first;
+            it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
             inter->incRefCount();
         }
         ColorsModule &mod = it->second;

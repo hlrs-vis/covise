@@ -14,7 +14,7 @@ else()
         use_proj4(${OPT})
         use_xercesc(${OPT})
         use_opencrg(${OPT})
-        use_v8(${OPT})
+        use_v8(optional)
 
         set(EXTRA_LIBS ${EXTRA_LIBS} coOpenVehicleUtil)
         include_directories(${COVISEDIR}/src/OpenCOVER/DrivingSim)

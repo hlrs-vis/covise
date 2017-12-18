@@ -761,7 +761,7 @@ QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
 
 
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
-qt_use_modules(oddlot Core Widgets Gui Network Xml)
+qt_use_modules(oddlot Core Widgets Gui Network Xml Svg)
 TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS}
 ) 

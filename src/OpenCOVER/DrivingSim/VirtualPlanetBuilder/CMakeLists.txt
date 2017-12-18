@@ -2,6 +2,12 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
 
+USING(GDAL)
+USING(XERCESC)
+USING(OSGTERRAIN)
+USING(V8 optional)
+USING(VehicleUtil)
+
 SUBDIRS(
         src
         applications

@@ -66,7 +66,7 @@ public:
         return this->covise_;
     }
 
-    void message(int type, int len, const void *buf);
+    void message(int towhom, int type, int len, const void *buf);
 
 private:
     static ScriptPlugin *plugin;

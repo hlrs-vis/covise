@@ -147,6 +147,7 @@ struct windowStruct
     bool stereo;
     bool embedded;
     bool pbuffer;
+    bool doublebuffer;
     int swapGroup;
     int swapBarrier;
     std::string type;
@@ -166,6 +167,7 @@ struct windowStruct
     , stereo(false)
     , embedded(false)
     , pbuffer(false)
+    , doublebuffer(true)
     , swapGroup(-1)
     , swapBarrier(-1)
     , windowPlugin(NULL)

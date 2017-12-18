@@ -6,8 +6,8 @@
  * License: LGPL 2+ */
 
 #include "AgentVehicle.h"
-#include "RoadSystem/Junction.h"
-#include "RoadSystem/Lane.h"
+#include <VehicleUtil/RoadSystem/Junction.h>
+#include <VehicleUtil/RoadSystem/Lane.h>
 #include "TrafficSimulation.h"
 #include <algorithm>
 #include <math.h>
@@ -1301,6 +1301,7 @@ bool AgentVehicle::laneChangeIsSafe(std::vector<ObstacleRelation> vehRelVec)
          return false;
       }
    }
+   */
 
 /*
    if((frontDec>vehPars.decSave) || (backDec>vehPars.decSave)) {

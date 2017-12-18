@@ -14,8 +14,10 @@
 class QMainWindow;
 class QtOsgWidget;
 class QAction;
+class QDialog;
 
 namespace opencover {
+class QtMainWindow;
 namespace ui {
 class QtView;
 }
@@ -35,15 +37,17 @@ public:
     void windowDestroy(int num) override;
 
 private:
+    void aboutCover() const;
     struct WindowData
     {
         int index = -1;
-        QMainWindow *window = nullptr;
+        opencover::QtMainWindow *window = nullptr;
         QtOsgWidget *widget = nullptr;
         QAction *toggleMenu = nullptr;
         std::vector<opencover::ui::QtView *> view;
     };
     std::map<int, WindowData> m_windows;
     bool m_update = true;
+    QDialog *m_keyboardHelp = nullptr;
 };
 #endif

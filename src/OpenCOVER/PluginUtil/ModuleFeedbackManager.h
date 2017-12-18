@@ -12,18 +12,6 @@
 
 #include <string>
 
-#ifdef VRUI
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coMenuItem.h>
-
-namespace vrui
-{
-class coCheckboxMenuItem;
-class coButtonMenuItem;
-class coSubMenuItem;
-class coRowMenu;
-}
-#else
 #include <cover/ui/Owner.h>
 namespace opencover {
 namespace ui {
@@ -32,7 +20,6 @@ class Action;
 class Button;
 }
 }
-#endif
 
 class cp3dplane;
 
@@ -54,11 +41,7 @@ namespace opencover
 {
 
 class PLUGIN_UTILEXPORT ModuleFeedbackManager
-#ifdef VRUI
-        : public vrui::coMenuListener
-#else
         : public ui::Owner
-#endif
 {
 public:
     ModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const char *pluginName);
@@ -91,11 +74,6 @@ public:
     {
         return moduleName_;
     };
-
-#ifdef VRUI
-    // menu event for general items
-    virtual void menuEvent(vrui::coMenuItem *menuItem);
-#endif
 
     // set checkbox and and hide geometry
     void setHideFromGui(bool);
@@ -141,18 +119,6 @@ protected:
     //std::string suggestMenuName();
     std::string getMenuName() const;
 
-#ifdef VRUI
-    vrui::coSubMenuItem *menuItem_; // submenu entry in covise menu  "Tracer_1..."
-    vrui::coRowMenu *menu_; // the menu for the interaction of the module managed by the instance of this class
-    vrui::coCheckboxMenuItem *hideCheckbox_; // hide geometry
-    vrui::coCheckboxMenuItem *syncCheckbox_; // sync interaction
-    vrui::coButtonMenuItem *newButton_; // copy this module
-    vrui::coButtonMenuItem *deleteButton_; // delete this module
-    vrui::coCheckboxMenuItem *executeCheckbox_; // execute module button
-    bool inExecute_; // switch ceckbox off when new object arrived
-    vrui::coSubMenuItem *colorsButton_; // open colorbar
-    opencover::ColorBar *colorBar_; // colorbar menu
-#else
     ui::Menu *menu_ = nullptr; // the menu for the interaction of the module managed by the instance of this class
     ui::Button *hideCheckbox_ = nullptr; // hide geometry
     ui::Button *syncCheckbox_ = nullptr; // sync interaction
@@ -160,7 +126,6 @@ protected:
     ui::Action *deleteButton_ = nullptr; // delete this module
     ui::Button *executeCheckbox_ = nullptr; // execute module button
     //ui::coSubMenuItem *colorsButton_; // open colorbar
-#endif
     opencover::coInteractor *inter_ = nullptr; // the last interaction got from the module at issue
     bool inExecute_; // switch checkbox off when new object arrived
     std::string menuName_; // name associated to _menuItem: its updated when a new object is received
@@ -187,16 +152,9 @@ private:
 
     std::string pName_;
 
-#ifdef VRUI
-    vrui::coMenu *coviseMenu_;
-    vrui::coMenu *parentMenu_;
-    vrui::coRowMenu *caseMenu_; // up to now this was the "Covise" menu
-    vrui::coSubMenuItem *caseMenuItem_;
-#else
     ui::Menu *coviseMenu_ = nullptr;
     ui::Menu *parentMenu_ = nullptr;
     ui::Menu *caseMenu_ = nullptr;
-#endif
     std::string caseName_;
 
     std::string visItemName_; //"Tracer_1..."

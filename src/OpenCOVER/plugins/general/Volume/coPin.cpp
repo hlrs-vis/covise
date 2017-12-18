@@ -25,13 +25,14 @@ using namespace osg;
 using namespace vrui;
 using namespace opencover;
 
-coPin::coPin(Group *root, float Height, float Width, vvTFWidget *myPin)
+coPin::coPin(Group *root, float Height, float Width, vvTFWidget *myPin,bool bottom)
 {
     myX = 0.0;
     A = 0.6;
     B = 0.5;
     H = Height;
     W = Width;
+	onBottom = bottom;
     jPin = myPin;
     selected = false;
     createLists();
@@ -60,11 +61,21 @@ int coPin::getID()
     return id;
 }
 
-void coPin::setPos(float x)
+void coPin::setPos(float x, float minv, float maxv)
 {
-    myX = x;
-    myDCS->setTranslation(x * W, 0.0, 0.0);
+    myX = (x - minv) / (maxv - minv);
+    myDCS->setTranslation(myX * W, 0.0, 0.0);
     jPin->_pos[0] = x;
+}
+
+float coPin::getPosValue() const
+{
+    return jPin->pos()[0];
+}
+
+float coPin::getPos01() const
+{
+    return myX;
 }
 
 void coPin::setHandleTrans(float trans)
@@ -108,15 +119,31 @@ void coPin::createLists()
     coord = new Vec3Array(8);
     normal = new Vec3Array(2);
 
-    (*coord)[0].set(B, 0.0, 0.0);
-    (*coord)[1].set(0.0, 0.0, A);
-    (*coord)[2].set(0.0, -(H), A);
-    (*coord)[3].set(B, -(H), 0.0);
+	if(onBottom)
+	{
+		(*coord)[0].set(B, -(H / 2.0f), 0.0);
+		(*coord)[1].set(0.0, -(H / 2.0f), A);
+		(*coord)[2].set(0.0, -(H), A);
+		(*coord)[3].set(B, -(H), 0.0);
 
-    (*coord)[4].set(0.0, 0.0, A);
-    (*coord)[5].set(-B, 0.0, 0.0);
-    (*coord)[6].set(-B, -(H), 0.0);
-    (*coord)[7].set(0.0, -(H), A);
+		(*coord)[4].set(0.0, -(H / 2.0f), A);
+		(*coord)[5].set(-B, -(H / 2.0f), 0.0);
+		(*coord)[6].set(-B, -(H), 0.0);
+		(*coord)[7].set(0.0, -(H), A);
+	}
+	else
+	{
+		(*coord)[0].set(B, 0.0, 0.0);
+		(*coord)[1].set(0.0, 0.0, A);
+		(*coord)[2].set(0.0, -(H / 2.0f), A);
+		(*coord)[3].set(B, -(H / 2.0f), 0.0);
+
+		(*coord)[4].set(0.0, 0.0, A);
+		(*coord)[5].set(-B, 0.0, 0.0);
+		(*coord)[6].set(-B, -(H / 2.0f), 0.0);
+		(*coord)[7].set(0.0, -(H / 2.0f), A);
+	}
+
 
 #if 0
    coord1 = new Vec3Array(24);

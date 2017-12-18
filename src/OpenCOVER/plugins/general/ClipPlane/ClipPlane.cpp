@@ -35,7 +35,7 @@ using namespace osg;
 using covise::coCoviseConfig;
 using vrui::coInteraction;
 
-void ClipPlanePlugin::message(int type, int len, const void *buf)
+void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
 {
     const int numClip = cover->getNumClipPlanes();
 

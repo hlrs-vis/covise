@@ -22,13 +22,11 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include <osg/Texture2D>
 #include <vector>
-#include <osg/PositionAttitudeTransform>
 
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "ogrsf_frmts.h"
-#include "DecoratedGeometryTechnique.h"
+#include <RoadTerrain/RoadTerrainLoader.h>
 
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/VrmlNodeType.h>
@@ -96,12 +94,6 @@ public:
 
     bool init();
 
-    // key handling
-    void key(int type, int keySym, int mod);
-
-    // this will be called in PreFrame
-    void preFrame();
-
     bool loadTerrain(std::string filename, osg::Vec3d offset,
                      const std::vector<BoundingArea> &voidBoundingAreaVector = std::vector<BoundingArea>(),
                      const std::vector<std::string> &shapeFileVector = std::vector<std::string>());
@@ -110,19 +102,10 @@ public:
     static RoadTerrainPlugin *plugin;
 
 private:
-    osg::PositionAttitudeTransform *roadGroup;
-    xercesc::DOMElement *rootElement;
-
     coTUITab *pluginTab;
     coTUIFileBrowserButton *loadTerrainButton;
     coTUIFileBrowserButton *loadLayerButton;
 
     void tabletEvent(coTUIElement *tUIItem);
-    void tabletPressEvent(coTUIElement *tUIItem);
-
-    bool terrainLoaded;
-    bool layerLoaded;
-
-    std::vector<OGRLayer *> layerVector;
 };
 #endif

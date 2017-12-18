@@ -89,7 +89,7 @@ void QuitDialog::menuEvent(coMenuItem *item)
     if (item == yesButton_)
     {
         hide();
-        OpenCOVER::instance()->quitCallback(NULL, NULL);
+        OpenCOVER::instance()->requestQuit();
     }
     else if (item == cancelButton_)
     {

@@ -1,5 +1,6 @@
 #include "QtMainWindow.h"
 #include <QMenu>
+#include <QCloseEvent>
 
 namespace opencover
 {
@@ -23,6 +24,12 @@ QMenu *QtMainWindow::createPopupMenu()
 void QtMainWindow::addContextAction(QAction *act)
 {
     m_contextActions.push_back(act);
+}
+
+void QtMainWindow::closeEvent(QCloseEvent *ev)
+{
+    emit closing();
+    ev->accept();
 }
 
 }

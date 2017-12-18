@@ -31,6 +31,7 @@
 #include <TrafficSimulation/UDPBroadcast.h>
 #include <TrafficSimulation/Vehicle.h>
 #include "myFactory.h"
+#include "ScenarioManager.h"
 
 
 namespace OpenScenario
@@ -64,6 +65,8 @@ public:
 
 	void addSource(Source *s) { sources.push_back(s); };
 
+	ScenarioManager *scenarioManager;
+
 private:
 	OpenScenario::OpenScenarioBase *osdb;
 
@@ -82,6 +85,7 @@ private:
 	PedestrianManager *pedestrianManager;
     VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
+
 
 	bool tessellateRoads;
 	bool tessellatePaths;

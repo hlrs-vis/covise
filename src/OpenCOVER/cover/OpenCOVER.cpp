@@ -427,7 +427,7 @@ bool OpenCOVER::init()
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
 
 #ifdef _OPENMP
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "auto");
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "default");
     if (openmpThreads == "default")
     {
     }
@@ -779,15 +779,23 @@ bool OpenCOVER::init()
 
     m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
     m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setShortcut("q");
+    m_quit->addShortcut("Q");
+    m_quit->addShortcut("Esc");
     m_quit->setCallback([this](){
 #if 1
-        quitCallback(nullptr, nullptr);
+        requestQuit();
 #else
         auto qd = new QuitDialog;
         qd->show();
 #endif
     });
     m_quit->setIcon("application-exit");
+    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    {
+        m_quit->setEnabled(false);
+        m_quit->setVisible(false);
+    }
 
     m_initialized = true;
     return true;
@@ -823,13 +831,18 @@ class CheckVisitor: public osg::NodeVisitor
 
 void OpenCOVER::loop()
 {
-    bool renderRequired = true;
     while (!exitFlag)
     {
         if(VRViewer::instance()->done())
             exitFlag = true;
         exitFlag = coVRMSController::instance()->syncBool(exitFlag);
-        if (!exitFlag)
+        if (exitFlag)
+        {
+            VRViewer::instance()->disableSync();
+            frame();
+            frame();
+        }
+        else
         {
             frame();
         }
@@ -920,25 +933,8 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                     break;
                 }
             }
-            else
-            {
-                switch (code)
-                {
-                case osgGA::GUIEventAdapter::KEY_Escape:
-                case 'q':
-                case 'Q':
-                    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
-                    {
-                        break; // embedded OpenCOVER ignores q
-                    }
-                    coVRPluginList::instance()->requestQuit(true);
-                    // exit COVER, even if COVER has a vrb connection
-                    exitFlag = true;
-                    break;
-                }
-            }
 
-            cover->ui->keyEvent(type, code, state);
+            cover->ui->keyEvent(type, state, code);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
         }
@@ -949,7 +945,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
     {
         if (!cover->isKeyboardGrabbed())
         {
-            cover->ui->keyEvent(type, code, state);
+            cover->ui->keyEvent(type, state, code);
             coVRNavigationManager::instance()->keyEvent(type, code, state);
             VRSceneGraph::instance()->keyEvent(type, code, state);
         }
@@ -983,7 +979,6 @@ bool OpenCOVER::frame()
 
     cover->updateTime();
     
-    Input::instance()->update(); //update all hardware devices
     // update window size and process events
     VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
@@ -992,6 +987,7 @@ bool OpenCOVER::frame()
         render = true;
         m_renderNext = true; // for possible delayed button release
     }
+    Input::instance()->update(); //update all hardware devices
 
     // wait for all cull and draw threads to complete.
     //
@@ -1110,13 +1106,13 @@ bool OpenCOVER::frame()
 
     // NO MODIFICATION OF SCENEGRAPH DATA AFTER THIS POINT
 
-    if (cover->frameRealTime() > Input::instance()->mouse()->eventTime() + 1.5)
-    {
-        cover->setCursorVisible(false);
-    }
-    else if (coVRMSController::instance()->isMaster())
+    if (coVRMSController::instance()->isMaster() && cover->frameRealTime() < Input::instance()->mouse()->eventTime() + 1.5)
     {
         cover->setCursorVisible(coVRConfig::instance()->mouseNav());
+    }
+    else
+    {
+        cover->setCursorVisible(false);
     }
 
     coVRMSController::instance()->syncVRBMessages();
@@ -1247,14 +1243,19 @@ OpenCOVER::readConfigFile()
 }
 
 void
-OpenCOVER::quitCallback(void * /*sceneGraph*/, buttonSpecCell * /*spec*/)
+OpenCOVER::requestQuit()
 {
-    OpenCOVER::instance()->setExitFlag(true);
-    coVRPluginList::instance()->requestQuit(true);
-    if (vrbc)
-        delete vrbc;
+    setExitFlag(true);
+    bool terminateOnCoverQuit = coCoviseConfig::isOn("COVER.TerminateCoviseOnQuit", false);
+    if (getenv("COVISE_TERMINATE_ON_QUIT"))
+    {
+        terminateOnCoverQuit = true;
+    }
+    if (terminateOnCoverQuit)
+        coVRPluginList::instance()->requestQuit(true);
+    delete vrbc;
     vrbc = NULL;
-    OpenCOVER::instance()->setExitFlag(true);
+    setExitFlag(true);
     // exit COVER, even if COVER has a vrb connection
 }
 

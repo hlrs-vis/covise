@@ -117,7 +117,11 @@ bool Owner::addItem(Owner *item)
 bool Owner::removeItem(Owner *item)
 {
     auto it = m_items.find(item->name());
-    assert(it != m_items.end());
+    if (it == m_items.end())
+    {
+        std::cerr << "ui::Owner::removeItem: item to remove not found: " << item->name() << std::endl;
+    }
+    //assert(it != m_items.end());
     if (it != m_items.end())
     {
         m_items.erase(it);

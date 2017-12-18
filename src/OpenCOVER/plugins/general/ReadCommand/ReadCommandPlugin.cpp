@@ -71,7 +71,7 @@ void ReadCommandPlugin::preFrame()
         QString command = queue.takeFirst();
         if (command == "quit")
         {
-            OpenCOVER::instance()->quitCallback(NULL, NULL);
+            OpenCOVER::instance()->requestQuit();
         }
         else if (command.startsWith("load"))
         {

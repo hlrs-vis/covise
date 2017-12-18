@@ -110,7 +110,7 @@ public:
     int parentWindow;
 #endif
 
-    static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
+    void requestQuit();
     coVRPlugin *visPlugin() const;
 private:
 #ifdef HAS_MPI

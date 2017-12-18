@@ -11,7 +11,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <set>
 #include <limits>
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "TrafficSimulation.h"
 
 #ifdef __XENO__

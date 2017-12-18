@@ -285,7 +285,7 @@ void OddlotPlugin::sendMessage(Message &m)
 }
 
 
-void OddlotPlugin::message(int type, int len, const void *buf)
+void OddlotPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     if (type == PluginMessageTypes::MoveAddMoveNode)
     {

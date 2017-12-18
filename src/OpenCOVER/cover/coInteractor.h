@@ -26,6 +26,7 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
+#include <osg/Referenced>
 
 namespace opencover
 {
@@ -37,6 +38,9 @@ class COVEREXPORT coInteractor
 public:
     coInteractor();
     virtual ~coInteractor();
+
+    //! return no. of users
+    int refCount() const;
 
     //! if you get an interactor and you want to keep it use ...
     void incRefCount();
@@ -145,5 +149,31 @@ public:
 private:
     int d_refCount;
 };
+
+class COVEREXPORT InteractorReference: public osg::Referenced
+{
+public:
+    InteractorReference(opencover::coInteractor *inter)
+    : m_interactor(inter)
+    {
+        if (m_interactor)
+            m_interactor->incRefCount();
+    }
+
+    ~InteractorReference()
+    {
+        if (m_interactor)
+            m_interactor->decRefCount();
+    }
+
+    opencover::coInteractor *interactor() const
+    {
+        return m_interactor;
+    }
+
+private:
+    opencover::coInteractor *m_interactor = nullptr;
+};
+
 }
 #endif
