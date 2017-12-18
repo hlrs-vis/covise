@@ -132,6 +132,7 @@ void SumoTraCI::sendSimResults()
     {
         currentResults.resize(simResults.size());
     }
+    size_t i = 0;
     for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) 
     {
         currentResults[i].position = osg::Vec3d(it->second[VAR_POSITION3D].position.x,it->second[VAR_POSITION3D].position.y,it->second[VAR_POSITION3D].position.z);
