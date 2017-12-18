@@ -79,6 +79,8 @@ public:
     explicit DomParser(ProjectData *, QObject *parent = NULL);
     ~DomParser();
 
+
+	void warning(QString title, QString text);
     // XODR //
     //
     bool parseXODR(QIODevice *device);
@@ -179,6 +181,7 @@ private:
 
     QMultiMap<QString, RoadSystem::IdType> elementIDs_;
     QMap<int, int> tileCounts_;
+	bool disableWarnings;
 };
 
 #endif // DOMPARSER_HPP
