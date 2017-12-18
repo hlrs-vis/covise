@@ -18,6 +18,8 @@
 
 #include <QGraphicsScene>
 
+class MouseAction;
+
 class ProfileGraphScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -31,6 +33,13 @@ public:
     //	virtual ~ProfileGraphScene(){ /* does nothing */ }
 
 protected:
+	//################//
+	// SIGNALS        //
+	//################//
+
+	signals :
+			void mouseActionSignal(MouseAction *);
+
 private:
     ProfileGraphScene(); /* not allowed */
     ProfileGraphScene(const ProfileGraphScene &); /* not allowed */
@@ -44,6 +53,8 @@ private:
 
 public:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     void doDeselect(bool s)
     {

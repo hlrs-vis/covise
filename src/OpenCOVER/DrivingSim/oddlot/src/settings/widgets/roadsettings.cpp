@@ -93,6 +93,10 @@ RoadSettings::addLaneSectionPrototypes()
     {
         ui->crossfallComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
     }
+	foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype))
+	{
+		ui->shapeComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
+	}
 }
 
 void
@@ -385,6 +389,43 @@ RoadSettings::on_crossfallComboBox_activated(int id)
     {
         getProjectData()->getUndoStack()->endMacro();
     }
+}
+
+void
+RoadSettings::on_shapeComboBox_activated(int id)
+{
+
+	QList<PrototypeContainer<RSystemElementRoad *> *> prototypeList = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
+	RSystemElementRoad *shapePrototype = prototypeList.at(id)->getPrototype();
+
+	QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
+
+	// Macro Command //
+	//
+	int numberOfSelectedElements = selectedElements.size();
+	if (numberOfSelectedElements > 1)
+	{
+		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Shape Prototype"));
+	}
+
+	// Change types of selected items //
+	//
+	foreach(DataElement *element, selectedElements)
+	{
+		RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
+		if (road)
+		{
+			ChangeShapePrototypeCommand *command = new ChangeShapePrototypeCommand(road, shapePrototype, NULL);
+			getProjectSettings()->executeCommand(command);
+		}
+	}
+
+	// Macro Command //
+	//
+	if (numberOfSelectedElements > 1)
+	{
+		getProjectData()->getUndoStack()->endMacro();
+	}
 }
 
 //##################//

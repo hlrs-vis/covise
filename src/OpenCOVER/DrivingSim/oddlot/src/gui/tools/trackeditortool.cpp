@@ -318,6 +318,21 @@ TrackEditorTool::initToolWidget()
     groupBoxLayout->addWidget(label, groupBoxLayoutRow++, 0);
     groupBoxLayout->addWidget(comboBox, groupBoxLayoutRow++, 0);
 
+	// RoadShape Prototype //
+	//
+	label = new QLabel(tr("RoadShape Prototype"));
+	comboBox = new QComboBox;
+	foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype))
+	{
+		comboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
+	}
+	comboBox->setIconSize(QSize(16, 16));
+	connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleShapeSelection(int)));
+	comboBox->setCurrentIndex(0);
+	handleShapeSelection(0);
+	groupBoxLayout->addWidget(label, groupBoxLayoutRow++, 0);
+	groupBoxLayout->addWidget(comboBox, groupBoxLayoutRow++, 0);
+
     // RoadSystem Prototypes //
     //
     //
@@ -522,6 +537,16 @@ TrackEditorTool::handleCrossfallSelection(int id)
 {
     currentPrototypes_.insert(PrototypeManager::PTP_CrossfallPrototype, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype).at(id)->getPrototype());
     sendToolAction();
+}
+
+/*! \brief Gets called when a prototype has been selected.
+*
+*/
+void
+TrackEditorTool::handleShapeSelection(int id)
+{
+	currentPrototypes_.insert(PrototypeManager::PTP_RoadShapePrototype, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype).at(id)->getPrototype());
+	sendToolAction();
 }
 
 /*! \brief Gets called when a prototype has been selected.

@@ -105,6 +105,7 @@ public:
         EEL, /*!< ElevationEditor */
         ESE, /*!< SuperelevationEditor */
         ECF, /*!< CrossfallEditor */
+		ERS, /*!< RoadShapeEditor */
         EJE, /*!< JunctionEditor */
         ESG, /*!< SignalEditor */
 		EOS, /*!< OpenScenatioEditor */
@@ -171,6 +172,11 @@ public:
 
         // Crossfall Editor
         TLN_SELECT,
+
+		// RoadShape Editor
+		TRS_SELECT,
+		TRS_ADD,
+		TRS_DEL,
 
         // Lane Editor
         TLE_SELECT,

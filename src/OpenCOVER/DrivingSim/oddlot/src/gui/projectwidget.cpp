@@ -59,6 +59,7 @@
 #include "src/graph/editors/elevationeditor.hpp"
 #include "src/graph/editors/superelevationeditor.hpp"
 #include "src/graph/editors/crossfalleditor.hpp"
+#include "src/graph/editors/shapeeditor.hpp"
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/editors/junctioneditor.hpp"
 #include "src/graph/editors/signaleditor.hpp"
@@ -197,6 +198,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     splitter->addWidget(profileGraph_);
     splitter->setStretchFactor(1, 1);
 
+	// Routes the tool, mouse and key events to the project widget.
+	connect(profileGraph_, SIGNAL(mouseActionSignal(MouseAction *)), this, SLOT(mouseAction(MouseAction *)));
+
     // The ChangeManager triggers the view's garbage disposal.
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), profileGraph_, SLOT(garbageDisposal()));
 
@@ -219,6 +223,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::EEL, new ElevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ESE, new SuperelevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ECF, new CrossfallEditor(this, projectData_, topviewGraph_, profileGraph_));
+	editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
@@ -252,10 +257,12 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     QList<PrototypeContainer<RSystemElementRoad *> *> laneSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> superelevationPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> crossfallPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype);
+	QList<PrototypeContainer<RSystemElementRoad *> *> shapePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
     currentRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(laneSectionPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
+	currentRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 
     testRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
@@ -263,6 +270,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     testRoadPrototype_->superposePrototype(laneSectionPrototypes.at(3)->getPrototype());
     testRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
+	testRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 }
 
 /*!
@@ -327,7 +335,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // ProfileGraph //
         //
-        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF)
+        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF || id == ODD::ERS)
         {
             profileGraph_->show();
         }
@@ -1051,6 +1059,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
+	osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, typeName));
 
     road->superposePrototype(osmPrototype);
     if(maxspeed>=0)

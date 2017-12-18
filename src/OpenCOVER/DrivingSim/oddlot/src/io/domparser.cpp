@@ -448,6 +448,35 @@ DomParser::parsePrototypes(QIODevice *source)
         }
     }
 
+	// RoadShape Prototypes //
+	//
+	prototypes = prototypesRoot.firstChildElement("shapePrototypes");
+	if (!prototypes.isNull())
+	{
+		QDomElement prototype = prototypes.firstChildElement("shapePrototype");
+		while (!prototype.isNull())
+		{
+			// Name and Icon //
+			//
+			QString name = parseToQString(prototype, "name", "noname", false); // mandatory
+			QString icon = parseToQString(prototype, "icon", "", true); // optional
+			QString system = parseToQString(prototype, "system", "", true); // optional
+			QString type = parseToQString(prototype, "type", "", true); // optional
+			QString lanes = parseToQString(prototype, "lanes", "", true); // optional
+
+																		  // Road //
+																		  //
+			QDomElement child = prototype.firstChildElement("road");
+			QString p = "p";
+			RSystemElementRoad *road = parseRoadElement(child, p);
+			road->accept(spArcSMergeVisitor);
+
+			ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_RoadShapePrototype, system, type, lanes);
+
+			prototype = prototype.nextSiblingElement("shapePrototype");
+		}
+	}
+
     // LaneSection Prototypes //
     //
     prototypes = prototypesRoot.firstChildElement("laneSectionPrototypes");
@@ -1143,29 +1172,6 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         }
     }
 
-	child = element.firstChildElement("lateralProfile");
-	if (!child.isNull())
-	{
-		child = child.firstChildElement("shape");
-		while (!child.isNull())
-		{
-			foundLateral = true;
-			parseShapeElement(child, road);
-			child = child.nextSiblingElement("shape");
-		}
-	}
-
-    if (!foundLateral && (mode_ != DomParser::MODE_PROTOTYPES))
-    {
-        SuperelevationSection *sESection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
-        road->addSuperelevationSection(sESection);
-
-        CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
-        road->addCrossfallSection(cSection);
-
-		ShapeSection *sSection = new ShapeSection(0.0);
-		road->addShapeSection(sSection);
-    }
 
     // <lanes> //
     child = element.firstChildElement("lanes");
@@ -1189,6 +1195,48 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         // TODO: NOT OPTIONAL
         //		qDebug("NOT OPTIONAL: <lanes>");
     }
+
+	child = element.firstChildElement("lateralProfile");
+	if (!child.isNull())
+	{
+		child = child.firstChildElement("shape");
+		while (!child.isNull())
+		{
+			foundLateral = true;
+			parseShapeElement(child, road);
+			child = child.nextSiblingElement("shape");
+		}
+	}
+
+	if (!foundLateral)
+	{
+		if (mode_ != DomParser::MODE_PROTOTYPES)
+		{
+			SuperelevationSection *sESection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
+			road->addSuperelevationSection(sESection);
+
+			CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
+			road->addCrossfallSection(cSection);
+
+			ShapeSection *sSection = new ShapeSection(0.0, -road->getMinWidth(0.0));
+			road->addShapeSection(sSection);
+		}
+	}
+	else
+	{
+		foreach(ShapeSection *section, road->getShapeSections())
+		{
+			foreach(PolynomialLateralSection *poly, section->getShapes())
+			{
+				poly->getControlPointsFromParameters();
+				PolynomialLateralSection *lastLateralSection = section->getPolynomialLateralSectionBefore(poly->getTStart());
+				if (lastLateralSection)
+				{
+					section->checkSmooth(lastLateralSection, poly);
+				}
+			}
+		}
+	}
 
     // <objects>                //
     // (optional, max count: 1) //
@@ -1938,6 +1986,7 @@ DomParser::parseCrossfallElement(QDomElement &element, RSystemElementRoad *road)
 bool 
 DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
 {
+
 	double s = parseToDouble(element, "s", 0.0, false); // mandatory
 	double t = parseToDouble(element, "t", 0.0, false); // mandatory
 	double a = parseToDouble(element, "a", 0.0, false); // mandatory
@@ -1945,14 +1994,17 @@ DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
 	double c = parseToDouble(element, "c", 0.0, false); // mandatory
 	double d = parseToDouble(element, "d", 0.0, false); // mandatory
 
-	Polynomial *poly = new Polynomial(a, b, c, d);
+	PolynomialLateralSection *polynomialLateralSection = new PolynomialLateralSection(t, a, b, c, d);
 	ShapeSection *section = road->getShapeSection(s);
-	if (!section)
+	if (!section || (abs(section->getSStart() - s) > NUMERICAL_ZERO3))
 	{
-		section = new ShapeSection(s);
+		section = new ShapeSection(s, t, polynomialLateralSection);
 		road->addShapeSection(section);
 	}
-	section->addShape(t, poly);
+	else
+	{
+		section->addShape(t, polynomialLateralSection);
+	}
 
 	return true;
 }

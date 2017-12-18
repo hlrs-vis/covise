@@ -57,12 +57,13 @@ public:
         DRS_TypeSection = 0x1,
         DRS_TrackSection = 0x2,
         DRS_ElevationSection = 0x4,
+		DRS_ShapeSection = 0x8,
         DRS_SuperelevationSection = 0x10,
         DRS_CrossfallSection = 0x20,
         DRS_LaneSection = 0x40,
-        DRS_SignalSection = 0x50,
-        DRS_ObjectSection = 0x60,
-        DRS_BridgeSection = 0x70
+        DRS_SignalSection = 0x80,
+        DRS_ObjectSection = 0x100,
+        DRS_BridgeSection = 0x200
     };
 
     enum DRoadObjectType

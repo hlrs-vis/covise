@@ -30,6 +30,7 @@
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
+#include "src/data/roadsystem//sections/shapesection.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 
 #include "src/data/roadsystem/sections/lane.hpp"
@@ -1742,6 +1743,126 @@ ChangeCrossfallPrototypeCommand::undo()
     }
 
     setUndone();
+}
+
+//#########################//
+// ChangeShapePrototypeCommand //
+//#########################//
+
+ChangeShapePrototypeCommand::ChangeShapePrototypeCommand(RSystemElementRoad *road, RSystemElementRoad *prototype, DataCommand *parent)
+	: DataCommand(parent)
+	, road_(road)
+	, prototype_(prototype)
+{
+
+	// Check for validity //
+	//
+	if (!road_ || !prototype_ || prototype_->getShapeSections().empty())
+	{
+		setInvalid(); // Invalid
+		setText(QObject::tr("Change (invalid!)"));
+		return;
+	}
+
+	oldShapeSections_ = road_->getShapeSections();
+
+	// Delete old ShapeSections //
+	//
+	foreach(ShapeSection *ShapeSection, oldShapeSections_)
+	{
+		road_->delShapeSection(ShapeSection);
+	}
+
+	// New ShapeSections //
+	//
+	if (road_->getShapeSections().empty())
+	{
+
+		foreach(ShapeSection *section, prototype_->getShapeSections())
+		{
+			road_->addShapeSection(section->getClone());
+		}
+	}
+	newShapeSections_ = road_->getShapeSections();
+
+	// Done //
+	//
+	setValid();
+	setText(QObject::tr("Change"));
+}
+
+/*! \brief .
+*
+*/
+ChangeShapePrototypeCommand::~ChangeShapePrototypeCommand()
+{
+	// Clean up //
+	//
+	if (isUndone())
+	{
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			delete section; // delete sections
+		}
+	}
+	else
+	{
+		// nothing to be done (tracks are now owned by the road)
+	}
+}
+
+/*! \brief .
+*
+*/
+void
+ChangeShapePrototypeCommand::redo()
+{
+
+	if (!newShapeSections_.isEmpty())
+	{
+		// Delete old ShapeSections //
+		//
+		foreach(ShapeSection *ShapeSection, oldShapeSections_)
+		{
+			road_->delShapeSection(ShapeSection);
+		}
+
+		// New ShapeSections //
+		//
+
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			road_->addShapeSection(section);
+		}
+	}
+
+	setRedone();
+}
+
+/*! \brief .
+*
+*/
+void
+ChangeShapePrototypeCommand::undo()
+{
+	QMap<double, ShapeSection *> newShapeSections;
+
+	// Delete old ShapeSections //
+	//
+	foreach(ShapeSection *ShapeSection, newShapeSections_)
+	{
+		road_->delShapeSection(ShapeSection);
+	}
+
+	// New ShapeSections //
+	//
+
+	foreach(ShapeSection *section, oldShapeSections_)
+	{
+		road_->addShapeSection(section);
+	}
+
+	setUndone();
 }
 
 //#########################//
