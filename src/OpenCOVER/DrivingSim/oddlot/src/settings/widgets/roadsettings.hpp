@@ -61,6 +61,7 @@ private slots:
     void on_elevationComboBox_activated(int);
     void on_superelevationComboBox_activated(int);
     void on_crossfallComboBox_activated(int);
+	void on_shapeComboBox_activated(int);
 
     //################//
     // PROPERTIES     //

@@ -1158,13 +1158,13 @@ void
 DomWriter::visit(ShapeSection *section)
 {
 
-	QMap<double, Polynomial *>::const_iterator iter = section->getShapes().constBegin();
+	QMap<double, PolynomialLateralSection *>::const_iterator iter = section->getShapes().constBegin();
 	while (iter != section->getShapes().constEnd())
 	{
 		QDomElement element = doc_->createElement("shape");
 		element.setAttribute("s", section->getSStart());
 		element.setAttribute("t", iter.key());
-		Polynomial *poly = iter.value();
+		PolynomialLateralSection *poly = iter.value();
 		element.setAttribute("a", poly->getA());
 		element.setAttribute("b", poly->getB());
 		element.setAttribute("c", poly->getC());

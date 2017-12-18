@@ -333,7 +333,7 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 
     ODD::ToolId tool = parentLaneSectionItem_->getLaneEditor()->getCurrentTool();
-    if (tool == ODD::TLE_ADD_WIDTH && (event->button() == Qt::LeftButton))
+    if ((tool == ODD::TLE_ADD_WIDTH) && (event->button() == Qt::LeftButton))
     {
         RSystemElementRoad *road = parentLaneSection_->getParentRoad();
         double s = road->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());

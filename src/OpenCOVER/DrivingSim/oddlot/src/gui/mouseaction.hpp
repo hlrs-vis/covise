@@ -30,10 +30,18 @@ public:
 	*/
     enum MouseActionType
     {
+		// TopviewGraph //
+		//
         ATM_MOVE,
         ATM_PRESS,
         ATM_RELEASE,
-        ATM_DOUBLECLICK
+        ATM_DOUBLECLICK,
+
+		// ProfileGraph //
+		//
+		PATM_PRESS,
+		PATM_RELEASE,
+		PATM_MOVE
     };
 
     //################//

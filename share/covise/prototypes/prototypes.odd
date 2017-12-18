@@ -132,6 +132,16 @@
 				</road>
 			</crossfallPrototype>
 		</crossfallPrototypes>
+		
+		<shapePrototypes>
+			<shapePrototype name = "Planar 0.0" icon = "">
+				<road name="Unknown" length="100.0" id="prototype" junction="-1">
+					<lateralProfile>
+						<shape s="0.0" t="0.0" a="0.0" b="0.0" c="0.0" d="0.0"/>
+					</lateralProfile>
+				</road>
+			</shapePrototype>
+		</shapePrototypes>
 
 		<laneSectionPrototypes>
 		

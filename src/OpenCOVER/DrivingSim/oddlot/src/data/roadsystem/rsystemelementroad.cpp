@@ -96,6 +96,7 @@ RSystemElementRoad::~RSystemElementRoad()
     foreach (CrossfallSection *child, crossfallSections_)
         delete child;
 
+
     foreach (LaneSection *child, laneSections_)
         delete child;
 
@@ -103,9 +104,7 @@ RSystemElementRoad::~RSystemElementRoad()
         delete child;
 
 	foreach(ShapeSection *child, shapeSections_)
-	{
 		delete child;
-	}
 }
 
 /*! \brief Set the Id of the junction. If the Id is "-1" the road is not a path of any junction.
@@ -224,6 +223,10 @@ RSystemElementRoad::moveRoadSection(RoadSection *section, double newS, RSystemEl
     {
         success = moveCrossfallSection(section->getSStart(), newS);
     }
+	else if (sectionType == RSystemElementRoad::DRS_ShapeSection)
+	{
+		success = moveShapeSection(section->getSStart(), newS);
+	}
     else if (sectionType == RSystemElementRoad::DRS_LaneSection)
     {
         success = moveLaneSection(section->getSStart(), newS);
@@ -273,6 +276,10 @@ RSystemElementRoad::getRoadSectionBefore(double s, RSystemElementRoad::DRoadSect
     {
         return getCrossfallSectionBefore(s);
     }
+	else if (sectionType == RSystemElementRoad::DRS_ShapeSection)
+	{
+		return getShapeSectionBefore(s);
+	}
     else if (sectionType == RSystemElementRoad::DRS_LaneSection)
     {
         return getLaneSectionBefore(s);
@@ -2757,6 +2764,20 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
             addLaneSection(section->getClone());
         }
     }
+
+	if (!prototypeRoad->shapeSections_.empty() && shapeSections_.empty())
+	{
+		foreach(ShapeSection *section, prototypeRoad->shapeSections_)
+		{
+			ShapeSection *clone = section->getClone();
+			addShapeSection(clone);
+/*			if (!laneSections_.isEmpty())
+			{
+				double s = section->getSStart();
+				clone->moveLateralSection(clone->getFirstPolynomialLateralSection(), getMinWidth(s));
+			} */
+		}
+	}
 }
 
 ///*! \brief Adds some road sections from a prototype at the back or front.
@@ -2843,6 +2864,9 @@ RSystemElementRoad::getClone() const
 
     foreach (CrossfallSection *child, crossfallSections_)
         clonedRoad->addCrossfallSection(child->getClone());
+
+	foreach(ShapeSection *child, shapeSections_)
+		clonedRoad->addShapeSection(child->getClone());
 
     foreach (LaneSection *child, laneSections_)
         clonedRoad->addLaneSection(child->getClone());

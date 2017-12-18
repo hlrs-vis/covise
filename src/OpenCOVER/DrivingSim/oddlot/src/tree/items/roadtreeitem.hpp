@@ -82,6 +82,7 @@ private:
     QTreeWidgetItem *elevationsItem_;
     QTreeWidgetItem *superelevationsItem_;
     QTreeWidgetItem *crossfallsItem_;
+	QTreeWidgetItem *shapesItem_;
     QTreeWidgetItem *lanesItem_;
     QTreeWidgetItem *bridgesItem_;
 };

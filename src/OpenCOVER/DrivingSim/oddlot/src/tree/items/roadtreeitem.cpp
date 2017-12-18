@@ -23,6 +23,7 @@
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
+#include "src/data/roadsystem/sections/shapesection.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
@@ -37,6 +38,7 @@
 #include "elevationsectiontreeitem.hpp"
 #include "superelevationtreeitem.hpp"
 #include "crossfalltreeitem.hpp"
+#include "shapetreeitem.hpp"
 #include "lanesectiontreeitem.hpp"
 #include "objecttreeitem.hpp"
 #include "crosswalktreeitem.hpp"
@@ -153,6 +155,16 @@ RoadTreeItem::init()
         new CrossfallSectionTreeItem(this, element, crossfallsItem_);
     }
 
+	// RoadShapeSections //
+	//
+	shapesItem_ = new QTreeWidgetItem(this);
+	shapesItem_->setText(0, tr("shapes"));
+
+	foreach(ShapeSection *element, road_->getShapeSections())
+	{
+		new ShapeSectionTreeItem(this, element, shapesItem_);
+	}
+
     // LaneSections //
     //
     lanesItem_ = new QTreeWidgetItem(this);
@@ -263,6 +275,18 @@ RoadTreeItem::updateObserver()
             }
         }
     }
+
+	if (changes & RSystemElementRoad::CRD_ShapeSectionChange)
+	{
+		foreach(ShapeSection *element, road_->getShapeSections())
+		{
+			if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+				|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+			{
+				new ShapeSectionTreeItem(this, element, shapesItem_);
+			}
+		}
+	}
 
     if (changes & RSystemElementRoad::CRD_LaneSectionChange)
     {

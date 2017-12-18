@@ -17,7 +17,7 @@
 #define SHAPESECTION_HPP
 
 #include "roadsection.hpp"
-#include "src/util/math/polynomial.hpp"
+#include "src/data/roadsystem/lateralSections/polynomiallateralsection.hpp"
 
 class ShapeSection : public RoadSection
 {
@@ -30,35 +30,62 @@ public:
     enum ShapeSectionChange
     {
         CSS_ParameterChange = 0x1,
-		CSS_ShapeSectionChange = 0x2
+		CSS_ShapeSectionChange = 0x2,
+		CSS_LengthChange=0x4
     };
 
-    //################//
+    //################//	
     // FUNCTIONS      //
     //################//
 
 public:
-    explicit ShapeSection(double s);
+	explicit ShapeSection(double s, double t, PolynomialLateralSection *lateralSection = NULL);
+
 	virtual ~ShapeSection();
 
     // ShapeSection //
     //
-	void addShape(double t, Polynomial *poly);
-	bool delShape(double t);
-	Polynomial *getShape(double t) const;
-	double getShapeElevationDegree(double t);
 
-	QMap<double, Polynomial *> getShapes()
+	void addShape(double t, PolynomialLateralSection *poly);
+	bool delShape(double t);
+	PolynomialLateralSection *getShape(double t) const;
+	bool moveLateralSection(LateralSection *section, double newT);
+	double getShapeElevationDegree(double t);
+	double getWidth();
+	double getLength(double t);
+
+	QMap<double, PolynomialLateralSection *> getShapes()
 	{
 		return shapes_;
 	}
+	int getShapesMaxDegree();
+
+	void checkSmooth(PolynomialLateralSection *lateralSectionBefore, PolynomialLateralSection *lateralSection);
+
+//	QVector<QPointF> getControlPoints();
+//	void setPolynomialParameters(QVector<QPointF> controlPoints);
 
 
     // RoadSection //
     //
     //virtual double		getSStart() const { return s_; }
     virtual double getSEnd() const;
-    virtual double getLength() const;
+	virtual double getLength() const;
+
+	// PolynomialLateralSections //
+	//
+	double getPolynomialLateralSectionEnd(double t) const;
+	PolynomialLateralSection *getPolynomialLateralSection(double t) const;
+	PolynomialLateralSection *getPolynomialLateralSectionBefore(double t) const;
+	PolynomialLateralSection *getPolynomialLateralSectionNext(double t) const;
+	PolynomialLateralSection *getFirstPolynomialLateralSection() const;
+	PolynomialLateralSection *getLastPolynomialLateralSection() const;
+
+	QMap<double, PolynomialLateralSection *> getPolynomialLateralSections()
+	{
+		return shapes_;
+	}
+	void setPolynomialLateralSections(QMap<double, PolynomialLateralSection *> newShapes);
 
     // Observer Pattern //
     //
@@ -93,7 +120,7 @@ private:
 
 	// Shapes for consecutive stations //
 	//
-	QMap<double, Polynomial *> shapes_;
+	QMap<double, PolynomialLateralSection *> shapes_;
 };
 
 #endif // SHAPESECTION_HPP
