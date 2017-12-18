@@ -28,6 +28,7 @@ public:
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
     virtual void setSize(int w, int h);
+    virtual void setLabel(QString textl);
 
     /// get the Element's classname
     virtual char *getClassName();

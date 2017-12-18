@@ -129,3 +129,12 @@ bool TUIButton::isOfClassName(char *classname)
     // nobody is NULL
     return false;
 }
+
+void TUIButton::setLabel(QString textl)
+{
+    TUIElement::setLabel(textl);
+    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget))
+    {
+        b->setText(textl);
+    }
+}
