@@ -19,6 +19,8 @@
  //
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
+#include <cmath>
+
 
 
 //#######################//
@@ -87,7 +89,7 @@ MovePointLateralShapeSectionCommand::redo()
 		QPointF p1 = newPoints_.at(i++);
 		QPointF p2 = newPoints_.at(i++);
 		QPointF p3 = newPoints_.at(i++);
-		if (abs(p0.x() - lateralSection->getTStart()) > NUMERICAL_ZERO6)
+		if (std::abs(p0.x() - lateralSection->getTStart()) > NUMERICAL_ZERO6)
 		{
 			lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
 		}
@@ -112,7 +114,7 @@ MovePointLateralShapeSectionCommand::undo()
 		QPointF p1 = oldPoints_.at(i++);
 		QPointF p2 = oldPoints_.at(i++);
 		QPointF p3 = oldPoints_.at(i++);
-		if (abs(p0.x() - lateralSection->getRealPointLow()->getPoint().x()) > NUMERICAL_ZERO6)
+		if (std::abs(p0.x() - lateralSection->getRealPointLow()->getPoint().x()) > NUMERICAL_ZERO6)
 		{
 			lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
 		}
