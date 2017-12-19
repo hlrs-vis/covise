@@ -229,11 +229,7 @@ static void updateScenegraph()
 
 bool CovisePlugin::update()
 {
-    bool updateNeeded = m_updateNeeded;
-    m_updateNeeded = false;
-    if (VRCoviseConnection::covconn->update())
-        updateNeeded = true;
-    return updateNeeded;
+    return VRCoviseConnection::covconn->update();
 }
 
 void CovisePlugin::preFrame()
@@ -280,7 +276,6 @@ bool CovisePlugin::sendVisMessage(const Message *msg)
         if (coVRMSController::instance()->isMaster())
         {
             CoviseRender::appmod->send_ctl_msg(msg);
-            m_updateNeeded |= VRCoviseConnection::covconn->update();
         }
         return true;
     }
