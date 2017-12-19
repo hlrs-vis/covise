@@ -786,6 +786,7 @@ bool OpenCOVER::init()
     tabletUIs.push_back(mapeditorTui);
 
     m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
+    m_quitGroup->setText("");
     m_quit = new ui::Action(m_quitGroup, "Quit");
     m_quit->setShortcut("q");
     m_quit->addShortcut("Q");

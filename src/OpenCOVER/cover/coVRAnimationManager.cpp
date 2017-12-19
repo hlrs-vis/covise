@@ -104,7 +104,10 @@ void coVRAnimationManager::initAnimMenu()
     animToggleItem->setPriority(ui::Element::Toolbar);
     animToggleItem->setIcon("media-playback-start");
 
-    animFrameItem = new ui::Slider(animRowMenu, "Timestep");
+    animStepGroup = new ui::Group(animRowMenu, "TimestepGroup");
+    animStepGroup->setText("");
+
+    animFrameItem = new ui::Slider(animStepGroup, "Timestep");
     animFrameItem->setText(timestepUnit);
     animFrameItem->setIntegral(true);
     animFrameItem->setBounds(timestepBase, timestepBase);
@@ -116,7 +119,7 @@ void coVRAnimationManager::initAnimMenu()
     });
     animFrameItem->setPriority(ui::Element::Toolbar);
 
-    animBackItem = new ui::Action(animRowMenu, "StepBackward");
+    animBackItem = new ui::Action(animStepGroup, "StepBackward");
     animBackItem->setText("Step backward");
     animBackItem->setShortcut(",");
     animBackItem->addShortcut("Alt+Button:WheelDown");
@@ -128,7 +131,7 @@ void coVRAnimationManager::initAnimMenu()
     animBackItem->setPriority(ui::Element::Toolbar);
     animBackItem->setIcon("media-seek-backward");
 
-    animForwardItem = new ui::Action(animRowMenu, "StepForward");
+    animForwardItem = new ui::Action(animStepGroup, "StepForward");
     animForwardItem->setText("Step forward");
     animForwardItem->setShortcut(".");
     animForwardItem->addShortcut("Alt+Button:WheelUp");
@@ -153,7 +156,10 @@ void coVRAnimationManager::initAnimMenu()
         setAnimationSpeed(val);
     });
 
-    animStartItem = new ui::Slider(animRowMenu, "StartTimestep");
+    animLimitGroup = new ui::Group(animRowMenu, "LimitGroup");
+    animLimitGroup->setText("");
+
+    animStartItem = new ui::Slider(animLimitGroup, "StartTimestep");
     animStartItem->setText("Start timestep");
     animStartItem->setIntegral(true);
     animStartItem->setBounds(timestepBase, timestepBase);
@@ -164,7 +170,7 @@ void coVRAnimationManager::initAnimMenu()
     });
     animStartItem->setPriority(ui::Element::Low);
 
-    animStopItem = new ui::Slider(animRowMenu, "StopTimestep");
+    animStopItem = new ui::Slider(animLimitGroup, "StopTimestep");
     animStopItem->setText("Stop timestep");
     animStopItem->setIntegral(true);
     animStopItem->setBounds(timestepBase, timestepBase);

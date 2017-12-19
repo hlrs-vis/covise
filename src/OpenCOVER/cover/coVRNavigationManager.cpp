@@ -351,34 +351,36 @@ void coVRNavigationManager::initMenu()
     navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
     //navGroup_->enableDeselect(true);
     navGroup_->setDefaultValue(NavNone);
-    noNavButton_ = new ui::Button(navMenu_, "NavNone", navGroup_, NavNone);
+    navModes_ = new ui::Group(navMenu_, "Modes");
+    navModes_->setText("");
+    noNavButton_ = new ui::Button(navModes_, "NavNone", navGroup_, NavNone);
     noNavButton_->setText("Navigation disabled");
     noNavButton_->setVisible(false);
-    xformButton_ = new ui::Button(navMenu_, "MoveWorld", navGroup_, XForm);
+    xformButton_ = new ui::Button(navModes_, "MoveWorld", navGroup_, XForm);
     xformButton_->setText("Move world");
     xformButton_->setShortcut("t");
     xformButton_->setPriority(ui::Element::Toolbar);
-    scaleButton_ = new ui::Button(navMenu_, "Scale", navGroup_, Scale);
+    scaleButton_ = new ui::Button(navModes_, "Scale", navGroup_, Scale);
     scaleButton_->setShortcut("s");
-    flyButton_ = new ui::Button(navMenu_, "Fly", navGroup_, Fly);
+    flyButton_ = new ui::Button(navModes_, "Fly", navGroup_, Fly);
     flyButton_->setShortcut("f");
-    walkButton_ = new ui::Button(navMenu_, "Walk", navGroup_, Walk);
+    walkButton_ = new ui::Button(navModes_, "Walk", navGroup_, Walk);
     walkButton_->setShortcut("w");
-    driveButton_ = new ui::Button(navMenu_, "Drive", navGroup_, Glide);
+    driveButton_ = new ui::Button(navModes_, "Drive", navGroup_, Glide);
     driveButton_->setShortcut("d");
     driveButton_->setPriority(ui::Element::Toolbar);
-    selectButton_ = new ui::Button(navMenu_, "Selection", navGroup_, Select);
-    showNameButton_ = new ui::Button(navMenu_, "ShowName", navGroup_, ShowName);
+    selectButton_ = new ui::Button(navModes_, "Selection", navGroup_, Select);
+    showNameButton_ = new ui::Button(navModes_, "ShowName", navGroup_, ShowName);
     showNameButton_->setText("Show name");
-    selectInteractButton_ = new ui::Button(navMenu_, "SelectInteract", navGroup_, SelectInteract);
+    selectInteractButton_ = new ui::Button(navModes_, "SelectInteract", navGroup_, SelectInteract);
     selectInteractButton_->setText("Pick & interact");
     selectInteractButton_->setPriority(ui::Element::Toolbar);
     selectInteractButton_->setShortcut("p");
     selectInteractButton_->setEnabled(false);
     selectInteractButton_->setVisible(false);
-    measureButton_ = new ui::Button(navMenu_, "Measure", navGroup_, Measure);
+    measureButton_ = new ui::Button(navModes_, "Measure", navGroup_, Measure);
     measureButton_->setVisible(false);
-    traverseInteractorButton_ = new ui::Button(navMenu_, "TraverseInteractors", navGroup_, TraverseInteractors);
+    traverseInteractorButton_ = new ui::Button(navModes_, "TraverseInteractors", navGroup_, TraverseInteractors);
     traverseInteractorButton_->setText("Traverse interactors");
     traverseInteractorButton_->setEnabled(false);
     traverseInteractorButton_->setVisible(false);
@@ -395,6 +397,17 @@ void coVRNavigationManager::initMenu()
     driveSpeedSlider_->setBounds(0., 30.);
     driveSpeedSlider_->setValue(driveSpeed);;
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+
+    scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
+    scaleSlider_->setText("Scale factor");
+    scaleSlider_->setScale(ui::Slider::Logarithmic);
+    scaleSlider_->setBounds(1e-3, 1e6);
+    scaleSlider_->setValue(cover->getScale());
+    scaleSlider_->setCallback([this](double val, bool released){
+        startMouseNav();
+        doScale(val);
+        stopMouseNav();
+    });
 
     scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
     scaleUpAction_->setText("Scale up");
@@ -650,6 +663,8 @@ coVRNavigationManager::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "coVRNavigationManager::update\n");
+
+    scaleSlider_->setValue(cover->getScale());
 
     coPointerButton *button = cover->getPointerButton();
     oldHandDir = handDir;

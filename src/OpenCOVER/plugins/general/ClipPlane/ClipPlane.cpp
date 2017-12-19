@@ -142,9 +142,15 @@ bool ClipPlanePlugin::init()
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
         char name[100];
+        sprintf(name, "Plane%d", i);
+
+        plane[i].UiGroup = new ui::Group(clipMenu, name);
+        auto group = plane[i].UiGroup;
+        sprintf(name, "Plane %d", i);
+        group->setText(name);
 
         sprintf(name, "Enable plane %d", i);
-        plane[i].EnableButton = new ui::Button(clipMenu, "Enable"+std::to_string(i));
+        plane[i].EnableButton = new ui::Button(group, "Enable"+std::to_string(i));
         plane[i].EnableButton->setText(name);
         //plane[i].EnableButton->setPos(0, i);
         plane[i].EnableButton->setCallback([this, i](bool state){
@@ -162,7 +168,7 @@ bool ClipPlanePlugin::init()
         });
 
         sprintf(name, "Pick interactor for plane %d", i);
-        plane[i].PickInteractorButton = new ui::Button(clipMenu, "Pick"+std::to_string(i));
+        plane[i].PickInteractorButton = new ui::Button(group, "Pick"+std::to_string(i));
         plane[i].PickInteractorButton->setText(name);
         //plane[i].PickInteractorButton->setPos(1, i);
         plane[i].PickInteractorButton->setCallback([this, i](bool state){
@@ -192,7 +198,7 @@ bool ClipPlanePlugin::init()
         if (coVRConfig::instance()->has6DoFInput())
         {
             sprintf(name, "Direct interactor for plane %d", i);
-            plane[i].DirectInteractorButton = new ui::Button(clipMenu, "Direct"+std::to_string(i));
+            plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
             plane[i].DirectInteractorButton->setGroup(cover->navGroup());
             plane[i].DirectInteractorButton->setText(name);
             //plane[i].DirectInteractorButton->setPos(2, i);
