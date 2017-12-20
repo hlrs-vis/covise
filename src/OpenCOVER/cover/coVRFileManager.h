@@ -81,8 +81,6 @@ public:
     // unload the previously loaded file
     void unloadFile(const char *file=NULL);
 
-    osg::Node *getLastModelNode();
-
     // set name of a file to store Viewpoints; if unset, this is derived from the loaded FileName
     void setViewPointFile(const std::string &viewPointFile);
 
@@ -140,7 +138,7 @@ private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
 
-    char *lastFileName;
+    std::string lastFileName;
     char *lastCovise_key;
     std::string viewPointFile;
     osg::Node *lastNode;

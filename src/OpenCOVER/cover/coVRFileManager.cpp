@@ -29,6 +29,8 @@
 #include "VRRegisterSceneGraph.h"
 #include "coVRConfig.h"
 #include "coVRRenderer.h"
+#include <util/string_util.h>
+#include <cctype>
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -49,6 +51,214 @@ using namespace covise;
 using namespace opencover;
 
 coVRFileManager *coVRFileManager::s_instance = NULL;
+
+namespace {
+
+struct Url
+{
+    Url(const std::string &url);
+    static Url fromFileOrUrl(const std::string &furl);
+    static std::string decode(const std::string &str, bool path=false);
+
+    std::string str() const;
+    operator std::string() const;
+
+    bool valid = false;
+
+    std::string scheme;
+    std::string authority;
+    bool haveAuthority = false;
+        std::string userinfo;
+        std::string host;
+        std::string port;
+    std::string path;
+    std::string query;
+    std::string fragment;
+
+    std::string extension() const;
+
+private:
+    Url();
+};
+
+Url::Url(const std::string &url)
+{
+    if (url.empty())
+        return;
+
+    auto it = url.begin();
+    // must contain scheme and must begin with an aplhabet character
+    if (!isalpha(*it))
+        return;
+
+    for ( ; it != url.end(); ++it)
+    {
+        if (std::isalnum(*it))
+            continue;
+        if (*it == '+')
+            continue;
+        if (*it == '-')
+            continue;
+        if (*it == '.')
+            continue;
+        if (*it == ':')
+            break;
+
+        // weird character in URL scheme
+        return;
+    }
+    if (it == url.end())
+        return;
+    scheme = std::string(url.begin(), it);
+    ++it;
+
+#ifdef WIN32
+    // probably just a drive letter, not a URL scheme
+    if (it - str.begin() <= 1)
+        return;
+#endif
+
+    int numSlash = 0;
+    auto authorityBegin = it;
+    for ( ; it != url.end(); ++it)
+    {
+        if (*it != '/')
+            break;
+        ++numSlash;
+        if (numSlash >= 2)
+            break;
+    }
+    if (numSlash >= 2)
+    {
+        haveAuthority = true;
+        auto slash = std::find(it, url.end(), '/');
+        auto question = std::find(it, url.end(), '?');
+        auto hash = std::find(it, url.end(), '#');
+        auto end = slash;
+        if (hash < end)
+            end = hash;
+        if (question < end)
+            end = question;
+        authority = std::string(it, end);
+        it = end;
+        if (it != url.end())
+            ++it;
+    }
+    else
+    {
+        // no authority
+        it = authorityBegin;
+    }
+
+    if (scheme == "file")
+    {
+        path = std::string(it, url.end());
+        path = decode(path);
+        valid = true;
+        return;
+    }
+
+    auto question = std::find(it, url.end(), '?');
+    auto hash = std::find(it, url.end(), '#');
+    if (question == url.end())
+    {
+        path = std::string(it, hash);
+    }
+    else
+    {
+        path = std::string(it, question);
+        it = question;
+        ++it;
+        hash = std::find(it, url.end(), '#');
+        query = std::string(it, hash);
+    }
+    it = hash;
+    if (it != url.end())
+        ++it;
+    fragment = std::string(it, url.end());
+
+    authority = decode(authority);
+    path = decode(path, true);
+    query = decode(query);
+    fragment = decode(fragment);
+
+    valid = true;
+}
+
+Url Url::fromFileOrUrl(const std::string &furl)
+{
+    Url url(furl);
+    if (url.valid)
+        return url;
+
+    Url file;
+    file.scheme = "file";
+    file.path = furl;
+    file.valid = true;
+    return file;
+}
+
+std::string Url::decode(const std::string &str, bool path)
+{
+    return url_decode(str, path);
+}
+
+std::string Url::str() const
+{
+    if (!valid)
+        return "(invalid)";
+
+    if (scheme == "file")
+        return path;
+
+    std::string str = scheme;
+    str += ":";
+    if (haveAuthority)
+        str += "//";
+    str += path;
+    if (!query.empty())
+    {
+        str += "?";
+        str += query;
+    }
+    if (!fragment.empty())
+    {
+        str += "#";
+        str += fragment;
+    }
+
+    return str;
+}
+
+std::string Url::extension() const
+{
+    if (!valid)
+        return std::string();
+    if (path.empty())
+        return std::string();
+    auto pos = path.find_last_of('.');
+    if (pos == std::string::npos)
+        return std::string();
+    return path.substr(pos);
+}
+
+Url::Url()
+{
+}
+
+bool isUrl(const std::string &str)
+{
+    Url url(str);
+    return url.valid;
+}
+
+std::ostream &operator<<(std::ostream &os, const Url &url)
+{
+    os << url.str();
+    return os;
+}
+
+}
 
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
@@ -181,20 +391,13 @@ bool coVRFileManager::fileExist(const char *fileName)
     return false;
 }
 
-osg::Node *coVRFileManager::getLastModelNode()
-{
-    START("coVRFileManager::getLastModelNode");
-    return lastNode;
-}
-
 osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
     START("coVRFileManager::loadFile");
-   
 
-    char *adjustedFileName = NULL;
+    std::string adjustedFileName;
     std::string key;
-    bool allocated = false;
+    osg::Node *result = nullptr;
 
 
     if (fb)
@@ -204,13 +407,25 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         fileFBMap[key] = fb;
     }
 
-    if (strncmp(fileName, "file://", 7) == 0)
+    Url url = Url::fromFileOrUrl(fileName);
+    std::cerr << "URL: " << url << std::endl;
+    if (!url.valid)
+        return  nullptr;
+
+    if (url.scheme == "file")
     {
-        adjustedFileName = new char[sizeof(char) * strlen(fileName)];
-        allocated = true;
-        strncpy(adjustedFileName, strstr(fileName, "file://") + 7, strlen(fileName) - 6);
+        adjustedFileName = url.path;
         if (cover->debugLevel(3))
             std::cerr << " New filename: " << adjustedFileName << std::endl;
+    }
+    else
+    {
+        adjustedFileName = url.str();
+    }
+
+#if 0
+    if (strncmp(fileName, "file://", 7) == 0)
+    {
     }
     else
     {
@@ -228,7 +443,6 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
                 adjustedFileName = new char[sizeof(char) * (fileLocation.size() + 1)];
                 strncpy(adjustedFileName, fileLocation.c_str(), fileLocation.size());
                 adjustedFileName[fileLocation.size()] = '\0';
-                allocated = true;
             }
             else
             {
@@ -240,6 +454,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             adjustedFileName = (char *)fileName;
         }
     }
+#endif
 
     if (!parent)
         parent = cover->getObjectsRoot();
@@ -254,11 +469,11 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     OpenCOVER::instance()->hud->redraw();
     /// read the 1st line of file and try to guess the type
     char fileTypeBuf[10] = "";
-    const char *fileTypeString = findFileExt(adjustedFileName);
+    const char *fileTypeString = findFileExt(adjustedFileName.c_str());
     if(viewPointFile == "")
     {
         
-        const char *ext = strchr(adjustedFileName, '.');
+        const char *ext = strchr(adjustedFileName.c_str(), '.');
         if(ext)
         {
             viewPointFile = fileName;
@@ -268,9 +483,9 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
 
     }
-    if (!strcmp(fileTypeString, adjustedFileName))
+    if (!strcmp(fileTypeString, adjustedFileName.c_str()))
     {
-        if (!strncmp(adjustedFileName, "http://", 7) || !strncmp(adjustedFileName, "file://", 7))
+        if (!strncmp(adjustedFileName.c_str(), "http://", 7) || !strncmp(adjustedFileName.c_str(), "file://", 7))
         {
             char *url = new char[strlen(fileName) + 1];
             strcpy(url, fileName);
@@ -291,20 +506,20 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
     }
 
-    const FileHandler *handler = findFileHandler(adjustedFileName);
-    coVRIOReader *reader = findIOHandler(adjustedFileName);
+    const FileHandler *handler = findFileHandler(adjustedFileName.c_str());
+    coVRIOReader *reader = findIOHandler(adjustedFileName.c_str());
 
-    delete[] lastFileName;
     delete[] lastCovise_key;
-    lastFileName = NULL;
+    lastFileName.clear();
     lastCovise_key = NULL;
     if (handler)
     {
+        osg::ref_ptr<osg::Group> fakeParent = new osg::Group;
         if (cover->debugLevel(3))
             fprintf(stderr, "coVRFileManager::loadFile(name=%s)   handler\n", fileName);
         if (handler->loadUrl)
         {
-            handler->loadUrl(adjustedFileName, parent, covise_key);
+            handler->loadUrl(adjustedFileName.c_str(), fakeParent, covise_key);
         }
         else
         {
@@ -315,19 +530,26 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
                     tmpFileName = adjustedFileName;
 
                 if (handler->loadFile)
-                    handler->loadFile(tmpFileName.c_str(), parent, covise_key);
+                    handler->loadFile(tmpFileName.c_str(), fakeParent, covise_key);
             }
             else
             {
                 if (handler->loadFile)
-                    handler->loadFile(adjustedFileName, parent, covise_key);
+                    handler->loadFile(adjustedFileName.c_str(), fakeParent, covise_key);
             }
         }
-        lastFileName = new char[strlen(adjustedFileName) + 1];
-        strcpy(lastFileName, adjustedFileName);
+        lastFileName = adjustedFileName;
         lastCovise_key = new char[strlen(covise_key) + 1];
         strcpy(lastCovise_key, covise_key);
-        coVRCommunication::instance()->setCurrentFile(adjustedFileName);
+        coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
+        if (fakeParent->getNumChildren() == 1)
+        {
+            result = fakeParent->getChild(0);
+        }
+        for (size_t i=0; i<fakeParent->getNumChildren(); ++i)
+        {
+            parent->addChild(fakeParent->getChild(i));
+        }
         OpenCOVER::instance()->hud->setText2("done loading");
         OpenCOVER::instance()->hud->redraw();
     }
@@ -361,11 +583,10 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             reader->load(filenameToLoad, parent);
         }
 
-        lastFileName = new char[strlen(adjustedFileName) + 1];
-        strcpy(lastFileName, adjustedFileName);
+        lastFileName = adjustedFileName;
         lastCovise_key = new char[strlen(covise_key) + 1];
         strcpy(lastCovise_key, covise_key);
-        coVRCommunication::instance()->setCurrentFile(adjustedFileName);
+        coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
         OpenCOVER::instance()->hud->setText2("done loading");
         OpenCOVER::instance()->hud->redraw();
     }
@@ -391,7 +612,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
                 node->setName(fileName);
             }
             parent->addChild(node);
-            coVRCommunication::instance()->setCurrentFile(adjustedFileName);
+            coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
             VRRegisterSceneGraph::instance()->registerNode(node, parent->getName());
             node->setNodeMask(node->getNodeMask() & (~Isect::Intersection));
             if (cover->debugLevel(3))
@@ -399,13 +620,12 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
         else
         {
-            if (covise::coFile::exists(adjustedFileName))
+            if (covise::coFile::exists(adjustedFileName.c_str()))
                 cerr << "WARNING: Could not load file " << adjustedFileName << ": no handler for " << fileTypeString << endl;
         }
         if (node)
         {
-            lastFileName = new char[strlen(adjustedFileName) + 1];
-            strcpy(lastFileName, adjustedFileName);
+            lastFileName = adjustedFileName;
             lastCovise_key = new char[strlen(covise_key) + 1];
             strcpy(lastCovise_key, covise_key);
             OpenCOVER::instance()->hud->setText2("done loading");
@@ -423,20 +643,15 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
 
     this->fileFBMap.erase(key);
-    if (allocated)
-    {
-        delete[] adjustedFileName;
-    }
     //VRViewer::instance()->forceCompile();
-    return NULL;
+    return result;
 }
 
 osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
     START("coVRFileManager::replaceFile");
     std::string key;
-    char *adjustedFileName = NULL;
-    bool allocated = false;
+    std::string adjustedFileName;
 
     if (fb)
     {
@@ -445,15 +660,22 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
         fileFBMap[key] = fb;
     }
 
-    if (strncmp(fileName, "file://", 7) == 0)
+    Url url = Url::fromFileOrUrl(fileName);
+    if (!url.valid)
+        return nullptr;
+
+    if (url.scheme == "file")
     {
-        adjustedFileName = new char[sizeof(char) * strlen(fileName)];
-        allocated = true;
-        strncpy(adjustedFileName, strstr(fileName, "file://") + 7, strlen(fileName) - 6);
+        adjustedFileName = url.path;
         if (cover->debugLevel(3))
             std::cerr << " New filename: " << adjustedFileName << std::endl;
     }
     else
+    {
+        adjustedFileName = url.str();
+    }
+
+#if 0
     {
         std::string tempFN = fileName;
         std::string::size_type pos = tempFN.find("://", 0);
@@ -481,17 +703,18 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
             adjustedFileName = (char *)fileName;
         }
     }
+#endif
 
     const FileHandler *oldHandler = NULL;
-    if (lastFileName)
+    if (!lastFileName.empty())
     {
-        oldHandler = findFileHandler(lastFileName);
+        oldHandler = findFileHandler(lastFileName.c_str());
     }
 
-    if (adjustedFileName == NULL)
+    if (adjustedFileName.empty())
     {
         if (oldHandler && oldHandler->unloadFile)
-            oldHandler->unloadFile(lastFileName, lastCovise_key);
+            oldHandler->unloadFile(lastFileName.c_str(), lastCovise_key);
         else if (lastNode)
         {
             while (lastNode->getNumParents() > 0)
@@ -501,7 +724,7 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
                 lastNode->getParent(0)->removeChild(lastNode);
             }
         }
-        lastFileName = NULL;
+        lastFileName.clear();
         lastCovise_key = NULL;
     }
     else
@@ -510,22 +733,21 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
         {
             parent = cover->getObjectsRoot();
         }
-        const FileHandler *handler = findFileHandler(adjustedFileName);
+        const FileHandler *handler = findFileHandler(adjustedFileName.c_str());
         if (handler)
         {
             if (handler == oldHandler && handler->replaceFile)
             {
-                handler->replaceFile(adjustedFileName, parent, covise_key);
+                handler->replaceFile(adjustedFileName.c_str(), parent, covise_key);
             }
             else
             {
                 if (oldHandler && oldHandler->unloadFile)
-                    oldHandler->unloadFile(lastFileName, lastCovise_key);
-                handler->loadFile(adjustedFileName, parent, covise_key);
+                    oldHandler->unloadFile(lastFileName.c_str(), lastCovise_key);
+                handler->loadFile(adjustedFileName.c_str(), parent, covise_key);
             }
-            lastFileName = new char[strlen(adjustedFileName) + 1];
+            lastFileName = adjustedFileName;
             lastCovise_key = new char[strlen(covise_key) + 1];
-            strcpy(lastFileName, adjustedFileName);
             strcpy(lastCovise_key, covise_key);
 
             // TODO: CHECK!
@@ -540,11 +762,11 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
         {
             if (oldHandler)
             {
-                oldHandler->unloadFile(lastFileName, lastCovise_key);
+                oldHandler->unloadFile(lastFileName.c_str(), lastCovise_key);
             }
-            delete lastFileName;
-            delete lastCovise_key;
-            lastFileName = NULL;
+            delete[] lastCovise_key;
+            lastCovise_key = nullptr;
+            lastFileName.clear();
             lastCovise_key = NULL;
 
             osg::Node *node = osgDB::readNodeFile(adjustedFileName);
@@ -559,13 +781,7 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
             }
 
             // Store filename of new scene as lastFileName
-            if (allocated)
-            {
-                delete[] lastFileName;
-                delete[] lastCovise_key;
-            }
-            lastFileName = new char[strlen(adjustedFileName) + 1];
-            strcpy(lastFileName, adjustedFileName);
+            lastFileName = adjustedFileName;
             lastCovise_key = new char[strlen(covise_key) + 1];
             strcpy(lastCovise_key, covise_key);
 
@@ -574,10 +790,6 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
     }
 
     this->fileFBMap.erase(key);
-    if (allocated)
-    {
-        delete[] adjustedFileName;
-    }
     return NULL;
 }
 
@@ -705,18 +917,18 @@ const char *coVRFileManager::findFileExt(const char *filename)
 void coVRFileManager::reloadFile()
 {
     START("coVRFileManager::reloadFile");
-    if (lastFileName && lastCovise_key)
+    if (!lastFileName.empty() && lastCovise_key)
     {
-        const FileHandler *handler = findFileHandler(lastFileName);
+        const FileHandler *handler = findFileHandler(lastFileName.c_str());
         if (!handler)
             return;
 
         if (handler->replaceFile)
-            handler->replaceFile(lastFileName, NULL, lastCovise_key);
+            handler->replaceFile(lastFileName.c_str(), NULL, lastCovise_key);
         else if (handler->loadFile && handler->unloadFile)
         {
-            handler->unloadFile(lastFileName, lastCovise_key);
-            handler->loadFile(lastFileName, NULL, lastCovise_key);
+            handler->unloadFile(lastFileName.c_str(), lastCovise_key);
+            handler->loadFile(lastFileName.c_str(), NULL, lastCovise_key);
         }
     }
 }
@@ -724,7 +936,7 @@ void coVRFileManager::reloadFile()
 void coVRFileManager::unloadFile(const char *file)
 {
     if (!file)
-        file = lastFileName;
+        file = lastFileName.c_str();
     START("coVRFileManager::unloadFile");
     if (file && lastCovise_key)
     {
@@ -732,10 +944,9 @@ void coVRFileManager::unloadFile(const char *file)
         if (handler && handler->unloadFile)
             handler->unloadFile(file, lastCovise_key);
 
-        if (file == lastFileName)
+        if (file == lastFileName.c_str())
         {
-            delete[] lastFileName;
-            lastFileName = NULL;
+            lastFileName.clear();
         }
         delete[] lastCovise_key;
         lastCovise_key = NULL;
@@ -757,7 +968,7 @@ coVRFileManager::coVRFileManager()
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
 
-    lastFileName = NULL;
+    lastFileName.clear();
     lastCovise_key = NULL;
     if (cover != NULL)
         cover->getUpdateManager()->add(this);
