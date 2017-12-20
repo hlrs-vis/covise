@@ -145,18 +145,20 @@ void VruiView::updateVisible(const Element *elem)
     if (!ve)
         return;
 
+    bool inMenu = elem->priority() >= ui::Element::Default;
+
     if (auto m = dynamic_cast<const Menu *>(elem))
     {
         if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
         {
-            if (!m->visible())
+            if (!m->visible() || !inMenu)
             {
                 smi->closeSubmenu();
                 delete smi;
                 ve->m_menuItem = nullptr;
             }
         } else if (!ve->m_menuItem) {
-            if (m->visible())
+            if (m->visible() && inMenu)
             {
                 auto smi = new coSubMenuItem(m->text()+"...");
                 smi->setMenu(ve->m_menu);
@@ -166,7 +168,7 @@ void VruiView::updateVisible(const Element *elem)
         }
         if (ve->m_menu)
         {
-            if (!elem->visible())
+            if (!elem->visible() || !inMenu)
                 ve->m_menu->setVisible(elem->visible());
         }
     }
@@ -184,12 +186,12 @@ void VruiView::updateVisible(const Element *elem)
                 if (menu)
                 {
                 auto idx = menu->index(ve->m_menuItem);
-                if (elem->visible() && idx < 0)
+                if ((inMenu && elem->visible()) && idx < 0)
                 {
                     if (menu)
                         menu->add(ve->m_menuItem);
                 }
-                else if (!elem->visible() && idx >= 0)
+                else if ((!elem->visible() || !inMenu) && idx >= 0)
                 {
                     if (menu)
                         menu->remove(ve->m_menuItem);
@@ -239,19 +241,23 @@ void VruiView::updateParent(const Element *elem)
         if (oldMenu)
             oldMenu->remove(ve->m_menuItem);
 
-        auto parent = vruiContainer(elem);
-        if (parent && parent->m_menu)
+        bool inMenu = elem->priority() >= ui::Element::Default;
+        if (inMenu)
         {
-            parent->m_menu->add(ve->m_menuItem);
-        }
-        else
-        {
-            if (parent)
+            auto parent = vruiContainer(elem);
+            if (parent && parent->m_menu)
             {
-                std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
+                parent->m_menu->add(ve->m_menuItem);
             }
-            if (m_rootMenu && ve->m_menu)
-                m_rootMenu->add(ve->m_menuItem);
+            else
+            {
+                if (parent)
+                {
+                    std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
+                }
+                if (m_rootMenu && ve->m_menu)
+                    m_rootMenu->add(ve->m_menuItem);
+            }
         }
     }
     updateVisible(elem);
