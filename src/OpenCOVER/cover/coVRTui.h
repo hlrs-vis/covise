@@ -190,8 +190,6 @@ public:
 private:
     static coVRTui *tui;
 
-    coPluginEntryList *availablePlugins;
-    coTUITab *pluginTab;
     coTUITab *coverTab;
     coTUIFrame *topContainer;
     coTUIFrame *bottomContainer;

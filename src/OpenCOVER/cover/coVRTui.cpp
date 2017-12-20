@@ -10,7 +10,6 @@
 #endif
 
 #include <util/common.h>
-#include <util/string_util.h>
 
 #include "coVRTui.h"
 #include "VRSceneGraph.h"
@@ -54,151 +53,6 @@ coVRTui *coVRTui::instance()
     return tui;
 }
 
-coPluginEntry::coPluginEntry(const char *libName, coTUITab *tab, int n)
-{
-    name = new char[strlen(libName) + 1];
-#ifdef WIN32
-    strcpy(name, libName);
-#else
-    strcpy(name, libName + 3);
-#endif
-
-#ifdef WIN32
-    name[strlen(name) - 4] = '\0';
-#else
-#ifdef __APPLE__
-    name[strlen(name) - 3] = '\0';
-#else
-    name[strlen(name) - 3] = '\0';
-#endif
-#endif
-
-    tuiEntry = new coTUIToggleButton(name, tab->getID());
-    tuiEntry->setEventListener(this);
-    tuiEntry->setPos(n % 6, n / 6);
-}
-
-coPluginEntry::~coPluginEntry()
-{
-    delete tuiEntry;
-    delete[] name;
-}
-
-void coPluginEntry::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == tuiEntry)
-    {
-        if (tuiEntry->getState())
-            cover->addPlugin(name);
-        else
-            cover->removePlugin(name);
-    }
-}
-
-void coPluginEntry::tabletPressEvent(coTUIElement * /*tUIItem*/)
-{
-}
-
-void coPluginEntry::tabletReleaseEvent(coTUIElement * /*tUIItem*/)
-{
-}
-
-coPluginEntryList::coPluginEntryList(coTUITab *tab)
-{
-    myTab = tab;
-    const char *coviseDir = getenv("COVISEDIR");
-    const char *archsuffix = getenv("ARCHSUFFIX");
-    const char *covisepath = getenv("COVISE_PATH");
-    char buf[1024];
-    int n = 0;
-    std::vector<std::string> paths;
-#ifdef __APPLE__
-    std::string bundlepath = getBundlePath();
-    if (!bundlepath.empty())
-    {
-        sprintf(buf, "%s/Contents/PlugIns/", bundlepath.c_str());
-        paths.push_back(buf);
-    }
-#endif
-    if (covisepath && archsuffix)
-    {
-#ifdef WIN32
-        std::vector<std::string> p = split(covisepath, ';');
-#else
-        std::vector<std::string> p = split(covisepath, ':');
-#endif
-        for (std::vector<std::string>::iterator it = p.begin(); it != p.end(); ++it)
-        {
-#ifdef WIN32
-            sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", it->c_str(), archsuffix);
-#else
-            sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", it->c_str(), archsuffix);
-#endif
-            paths.push_back(buf);
-        }
-    }
-    else if ((coviseDir != NULL) && (archsuffix != NULL))
-    {
-#ifdef WIN32
-        sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", coviseDir, archsuffix);
-#else
-        sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", coviseDir, archsuffix);
-#endif
-        paths.push_back(buf);
-    }
-
-    for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
-    {
-        coDirectory *dir = coDirectory::open(it->c_str());
-        for (int i = 0; dir && i < dir->count(); i++)
-        {
-            if (dir->match(dir->name(i),
-#ifdef WIN32
-                           "*.dll"
-#elif defined(__APPLE__)
-                           "*.so"
-#else
-                           "*.so"
-#endif
-                           ))
-#ifdef __APPLE__
-                if (!dir->match(dir->name(i), "*.?.?.so"))
-#endif
-                {
-                    if (!strstr(dir->name(i), "input_"))
-                    {
-                        append(new coPluginEntry(dir->name(i), myTab, n));
-                        n++;
-                    }
-                }
-        }
-    }
-    updateState();
-}
-
-coPluginEntryList::~coPluginEntryList()
-{
-}
-
-void coPluginEntryList::updateState()
-{
-    reset();
-    while (current())
-    {
-        if (cover->getPlugin(current()->name))
-        {
-            if (current()->tuiEntry->getState() == false)
-                current()->tuiEntry->setState(true);
-        }
-        else
-        {
-            if (current()->tuiEntry->getState() == true)
-                current()->tuiEntry->setState(false);
-        }
-        next();
-    }
-}
-
 coVRTui::coVRTui()
     : collision(false)
     , navigationMode(coVRNavigationManager::NavNone)
@@ -220,7 +74,6 @@ coVRTui::coVRTui()
     mainFolder = new coTUITabFolder("testfolder");
     coverTab = new coTUITab("COVER", mainFolder->getID());
     animTab = new coTUITab("Animation", mainFolder->getID());
-    pluginTab = new coTUITab("Plugins", mainFolder->getID());
     inputTUI = new coInputTUI();
     topContainer = new coTUIFrame("Buttons", coverTab->getID());
     bottomContainer = new coTUIFrame("Nav", coverTab->getID());
@@ -421,7 +274,6 @@ coVRTui::coVRTui()
     posX->setValue(viewPos[0]);
     posY->setValue(viewPos[1]);
     posZ->setValue(viewPos[2]);
-    availablePlugins = new coPluginEntryList(pluginTab);
 
     // Animation tab
     Animate = new coTUIToggleButton("Animate", animTab->getID());
@@ -986,8 +838,6 @@ void coInputTUI::tabletReleaseEvent(coTUIElement *tUIItem)
 
 void coVRTui::updateState()
 {
-    if (availablePlugins)
-        availablePlugins->updateState();
 }
 
 void coVRTui::updateFPS(double fps)
