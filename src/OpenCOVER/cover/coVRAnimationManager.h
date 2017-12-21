@@ -135,6 +135,8 @@ private:
     ui::Button *rotateObjectsToggleItem;
     ui::Button *animPingPongItem;
     ui::Button *animSyncItem;
+    ui::Slider *animStartItem, *animStopItem;
+    ui::Slider *presentationStep;
     ui::Menu *animRowMenu;
 
     bool animRunning;
