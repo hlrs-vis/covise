@@ -124,12 +124,12 @@ void TUIToggleBitmapButton::setSize(int w, int h)
     b->setFixedSize(b->sizeHint());
 }
 
-char *TUIToggleBitmapButton::getClassName()
+const char *TUIToggleBitmapButton::getClassName() const
 {
-    return (char *)"TUIToggleBitmapButton";
+    return "TUIToggleBitmapButton";
 }
 
-bool TUIToggleBitmapButton::isOfClassName(char *classname)
+bool TUIToggleBitmapButton::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

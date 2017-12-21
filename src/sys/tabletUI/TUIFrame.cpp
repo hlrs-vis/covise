@@ -90,12 +90,12 @@ void TUIFrame::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-char *TUIFrame::getClassName()
+const char *TUIFrame::getClassName() const
 {
-    return (char *)"TUIFrame";
+    return "TUIFrame";
 }
 
-bool TUIFrame::isOfClassName(char *classname)
+bool TUIFrame::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

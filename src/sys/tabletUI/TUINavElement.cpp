@@ -133,12 +133,12 @@ void TUINavElement::setHighlighted(bool hl)
     (void)hl;
 }
 
-char *TUINavElement::getClassName()
+const char *TUINavElement::getClassName() const
 {
-    return (char *)"TUINavElement";
+    return "TUINavElement";
 }
 
-bool TUINavElement::isOfClassName(char *classname)
+bool TUINavElement::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

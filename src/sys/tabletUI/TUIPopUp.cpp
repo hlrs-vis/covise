@@ -95,12 +95,12 @@ void TUIPopUp::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIPopUp::getClassName()
+const char *TUIPopUp::getClassName() const
 {
-    return (char *)"TUIPopUp";
+    return "TUIPopUp";
 }
 
-bool TUIPopUp::isOfClassName(char *classname)
+bool TUIPopUp::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

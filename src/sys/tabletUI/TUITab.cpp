@@ -141,12 +141,12 @@ void TUITab::setHidden(bool hide)
     }
 }
 
-char *TUITab::getClassName()
+const char *TUITab::getClassName() const
 {
-    return (char *)"TUITab";
+    return "TUITab";
 }
 
-bool TUITab::isOfClassName(char *classname)
+bool TUITab::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

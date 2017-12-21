@@ -368,12 +368,12 @@ void TUIMap::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIMap::getClassName()
+const char *TUIMap::getClassName() const
 {
-    return (char *)"TUIMap";
+    return "TUIMap";
 }
 
-bool TUIMap::isOfClassName(char *classname)
+bool TUIMap::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

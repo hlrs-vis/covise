@@ -30,9 +30,9 @@ public:
     virtual void setColor(Qt::GlobalColor color);
 
     /// get the Element's classname
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual bool isOfClassName(const char *) const;
     virtual void setValue(int type, covise::TokenBuffer &tb);
     virtual void setLabel(QString text);
     virtual void setPixmap(const QPixmap &pm);
