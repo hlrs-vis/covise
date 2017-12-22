@@ -29,6 +29,7 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
     : TUIElement(id, type, w, parent, name)
 {
     //int row  = 0;
+    width = 2;
 
     min = 0.0;
     max = 0.0;
@@ -57,11 +58,13 @@ TUIFloatSlider::~TUIFloatSlider()
 
 void TUIFloatSlider::setPos(int x, int y)
 {
+    const int w = width;
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
+    width = w-1;
+    TUIContainer *parent = getParent();
     widget = slider;
-    if ((parent = getParent()))
+    if (parent)
     {
         parent->addElementToLayout(this);
     }
@@ -69,9 +72,10 @@ void TUIFloatSlider::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    xPos++;
+    xPos = x+w-1;
+    width = 1;
     widget = string;
-    if ((parent = getParent()))
+    if (parent)
     {
         parent->addElementToLayout(this);
     }
@@ -79,7 +83,8 @@ void TUIFloatSlider::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    xPos--;
+    width = w;
+    xPos = x;
     slider->setVisible(!hidden);
     string->setVisible(!hidden);
 }

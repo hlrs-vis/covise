@@ -30,6 +30,8 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
 {
     //int row  = 0;
 
+    width = 2;
+
     min = 0;
     max = 0;
     value = 0;
@@ -56,11 +58,13 @@ TUISlider::~TUISlider()
 
 void TUISlider::setPos(int x, int y)
 {
+    const int w = width;
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
+    width = w-1;
+    TUIContainer *parent = getParent();
     widget = slider;
-    if ((parent = getParent()))
+    if (parent)
     {
         parent->addElementToLayout(this);
     }
@@ -68,9 +72,10 @@ void TUISlider::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    xPos++;
+    xPos = x+w-1;
+    width = 1;
     widget = string;
-    if ((parent = getParent()))
+    if (parent)
     {
         parent->addElementToLayout(this);
     }
@@ -78,7 +83,8 @@ void TUISlider::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    xPos--;
+    width = w;
+    xPos = x;
     slider->setVisible(!hidden);
     string->setVisible(!hidden);
 }
