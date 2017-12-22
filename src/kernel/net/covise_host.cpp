@@ -345,7 +345,7 @@ void Host::HostSymbolic(const char *n)
 
 Host::Host(const char *n, bool numeric)
 {
-    std::cerr << "Host: n=" << (n?n:"(null)") << ", numeric=" << numeric << std::endl;
+    //std::cerr << "Host: n=" << (n?n:"(null)") << ", numeric=" << numeric << std::endl;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -656,7 +656,7 @@ bool Host::hasRoutableAddress() const
 
 Host::Host()
 {
-    std::cerr << "Host()" << std::endl;
+    //std::cerr << "Host()" << std::endl;
     m_addressValid = false;
     m_nameValid = false;
 
