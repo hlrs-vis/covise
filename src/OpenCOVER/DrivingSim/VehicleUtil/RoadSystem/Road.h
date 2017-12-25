@@ -64,7 +64,8 @@ public:
     void addElevationPolynom(double, double, double, double, double);
 
     void addSuperelevationPolynom(double, double, double, double, double);
-    void addCrossfallPolynom(double, double, double, double, double, std::string);
+	void addCrossfallPolynom(double, double, double, double, double, std::string);
+	void addCrossfallPolynom(double, double, double, double, double, double);
 
     void addRoadType(double, RoadType);
     void addRoadType(double, std::string);

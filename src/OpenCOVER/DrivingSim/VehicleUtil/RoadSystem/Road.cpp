@@ -224,6 +224,10 @@ void Road::addCrossfallPolynom(double s, double a, double b, double c, double d,
         lateralProfileMap[s] = (new CrossfallPolynom(s, a, b, c, d));
     }
 }
+void Road::addCrossfallPolynom(double s, double a, double b, double c, double d, double t)
+{
+		lateralProfileMap[s] = (new CrossfallPolynom(s, a, b, c, d,t,t));
+}
 
 void Road::addLaneSection(LaneSection *section)
 {

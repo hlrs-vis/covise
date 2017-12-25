@@ -488,6 +488,7 @@ Vector3D PlaneParamPolynom::getPoint(double s)
 	double v = (aV + bV * t + cV * t * t + dV * t * t * t);
 
 	Vector2D cm(u, v);
+
 	return Vector3D(A * cm + cs, atan((3 * dV * t * t + 2 * cV * t + bV) / (3 * dU * t * t + 2 * cU * t + bU)) + hdgs);
 }
 
@@ -541,7 +542,7 @@ double PlaneParamPolynom::getT(double s)
 	{ 
 
 		//Cut taylor series approximation (1-degree) of arc length integral, solved with Newton-Raphson for t with respect to s
-		double t = s;
+		double t = 0.5;
 		for (int i = 0; i < 5; ++i)
 		{
 			//       double f = t*sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)-s;
@@ -626,7 +627,7 @@ CrossfallPolynom::CrossfallPolynom(double s, double a, double b, double c, doubl
 double CrossfallPolynom::getAngle(double s, double t)
 {
     s -= start;
-    double absval = a + b * s + c * s * s + d * s * s * s;
+    double absval = a + b * t + c * t * t + d * t * t * t;
     return (t < 0) ? rightFactor * absval : leftFactor * absval;
 }
 

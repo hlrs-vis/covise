@@ -403,6 +403,16 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 std::string crossfallSide(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("side"))));
                                 road->addCrossfallPolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallSide);
                             }
+							else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
+							{
+								double crossfallStart = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+								double crossfallA = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+								double crossfallB = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
+								double crossfallC = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
+								double crossfallD = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+								double crossfallT = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("t"))));
+								road->addCrossfallPolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallT);
+							}
                         }
                     }
 
