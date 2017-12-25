@@ -33,9 +33,9 @@ public:
     virtual void setValue(int type, covise::TokenBuffer &);
 
     /// get the Element's classname
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual bool isOfClassName(const char *) const;
     void setPos(int x, int y);
     QLineEdit *string;
     QSlider *slider;

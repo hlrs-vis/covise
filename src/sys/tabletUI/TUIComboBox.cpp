@@ -62,12 +62,12 @@ void TUIComboBox::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIComboBox::getClassName()
+const char *TUIComboBox::getClassName() const
 {
-    return (char *)"TUIComboBox";
+    return "TUIComboBox";
 }
 
-bool TUIComboBox::isOfClassName(char *classname)
+bool TUIComboBox::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

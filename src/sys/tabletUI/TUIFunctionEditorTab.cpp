@@ -155,9 +155,9 @@ void TUIFunctionEditorTab::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-char *TUIFunctionEditorTab::getClassName()
+const char *TUIFunctionEditorTab::getClassName() const
 {
-    return (char *)"TUIFunctionEditorTab";
+    return "TUIFunctionEditorTab";
 }
 
 void TUIFunctionEditorTab::make1DEditor()

@@ -27,7 +27,7 @@ public:
     TUIUITab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIUITab();
 
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     virtual void setValue(int type, covise::TokenBuffer &tb);
 
 public slots:

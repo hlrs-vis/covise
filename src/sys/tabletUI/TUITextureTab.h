@@ -136,7 +136,7 @@ class TUITextureTab : public QObject, public TUITab
 public:
     TUITextureTab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUITextureTab();
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     virtual void setValue(int type, covise::TokenBuffer &tb);
     void changeTexture(int, uint64_t);
     void setClient(covise::Connection *conn)

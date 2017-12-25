@@ -70,12 +70,12 @@ void TUIProgressBar::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIProgressBar::getClassName()
+const char *TUIProgressBar::getClassName() const
 {
-    return (char *)"TUIProgressBar";
+    return "TUIProgressBar";
 }
 
-bool TUIProgressBar::isOfClassName(char *classname)
+bool TUIProgressBar::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

@@ -100,7 +100,7 @@ class TUISGBrowserTab : public QObject, public TUITab
 public:
     TUISGBrowserTab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUISGBrowserTab();
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     virtual void setValue(int type, covise::TokenBuffer &tb);
 
     void changeTexture(int, std::string);

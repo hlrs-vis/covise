@@ -241,9 +241,9 @@ bool TUIElement::isVisible()
     return visible;
 }
 
-char *TUIElement::getClassName()
+const char *TUIElement::getClassName() const
 {
-    return (char *)"TUIElement";
+    return "TUIElement";
 }
 
 QWidget *TUIElement::getWidget()
@@ -251,7 +251,7 @@ QWidget *TUIElement::getWidget()
     return widget;
 }
 
-bool TUIElement::isOfClassName(char *classname)
+bool TUIElement::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

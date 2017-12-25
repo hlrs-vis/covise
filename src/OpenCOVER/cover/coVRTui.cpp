@@ -598,13 +598,13 @@ coInputTUI::coInputTUI()
     personsLabel= new coTUILabel("Person",personContainer->getID());
     personsLabel->setPos(0,0);
     personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
-    personsChoice->setPos(1,0);
+    personsChoice->setPos(0,1);
     personsChoice->setEventListener(this);
 
     eyeDistanceLabel = new coTUILabel("Eye distance", personContainer->getID());
-    eyeDistanceLabel->setPos(1,3);
+    eyeDistanceLabel->setPos(0,3);
     eyeDistanceEdit = new coTUIEditFloatField("EyeDistance", personContainer->getID());
-    eyeDistanceEdit->setPos(1,4);
+    eyeDistanceEdit->setPos(0,4);
     eyeDistanceEdit->setEventListener(this);
     
     bodiesContainer = new coTUIFrame("bc",inputTab->getID());
@@ -675,14 +675,14 @@ coInputTUI::coInputTUI()
 	calibrateTrackingsystem->setEventListener(this);
 
 	calibrateToHand = new coTUIToggleButton("CalibrateToHand", bodiesContainer->getID());
-	calibrateToHand->setPos(1, 7);
+    calibrateToHand->setPos(2, 7);
 	calibrateToHand->setEventListener(this);
 
-	calibrationLabel = new coTUILabel("Select device and press Calibrate Device button", bodiesContainer->getID());
-	calibrationLabel->setPos(2, 7);
+    calibrationLabel = new coTUILabel("Select device and press Calibrate Device button", inputTab->getID());
+    calibrationLabel->setPos(1, 6);
 
     debugContainer = new coTUIFrame("Debug", inputTab->getID());
-    debugContainer->setPos(1,6);
+    debugContainer->setPos(1,7);
     debugLabel = new coTUILabel("Debug", debugContainer->getID());
     debugLabel->setPos(0,0);
 

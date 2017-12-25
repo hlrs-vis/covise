@@ -143,12 +143,12 @@ void TUIFloatSlider::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIFloatSlider::getClassName()
+const char *TUIFloatSlider::getClassName() const
 {
-    return (char *)"TUIFloatSlider";
+    return "TUIFloatSlider";
 }
 
-bool TUIFloatSlider::isOfClassName(char *classname)
+bool TUIFloatSlider::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())
