@@ -205,7 +205,8 @@ TrackEditor::toolAction(ToolAction *toolAction)
         if (isCurrentTool(ODD::TTE_ADD)
             || isCurrentTool(ODD::TTE_ADD_LINE)
             || isCurrentTool(ODD::TTE_ADD_CURVE)
-            || isCurrentTool(ODD::TTE_ROAD_NEW))
+			|| isCurrentTool(ODD::TTE_ROAD_NEW)
+			|| isCurrentTool(ODD::TTE_ROAD_CIRCLE))
         {
             delete currentRoadPrototype_;
 
