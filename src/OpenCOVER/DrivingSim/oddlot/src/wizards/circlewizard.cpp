@@ -233,7 +233,10 @@ CircleWizard::runCalculation()
 	Object::ObjectProperties objectProps2{ -5.0, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
-	float sOffset = radius / 3.0;
+	
+	float sOffset = sin(acos((radius + (1 * laneWidth))/(radius + (2 * laneWidth))))* (radius+(2*laneWidth));
+
+
 	Object::ObjectRepeatRecord repeatProps2{ sOffset, (M_PI*radius) - (2* sOffset), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
 	Object *gr2 = new Object("gr2", "guardRail", 0.0, objectProps2, repeatProps2, "none");
 	newRoadLeft->addObject(gr2);
