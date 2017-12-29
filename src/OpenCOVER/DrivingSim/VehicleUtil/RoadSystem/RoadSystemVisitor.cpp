@@ -521,6 +521,37 @@ void XodrWriteRoadSystemVisitor::visit(CrossfallPolynom *fall)
 	}
 }
 
+
+void XodrWriteRoadSystemVisitor::visit(ShapePolynom *sp)
+{
+		xercesc::DOMElement *shapelElement = document->createElement(xercesc::XMLString::transcode("shape"));
+		lateralProfileElement->appendChild(shapelElement);
+		double a, b, c, d;
+		sp->getCoefficients(a, b, c, d);
+		std::ostringstream sstream;
+		sstream << std::scientific << sp->getS();
+		shapelElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << a;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << b;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << c;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << d;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << sp->getTStart();
+		shapelElement->setAttribute(xercesc::XMLString::transcode("t"), xercesc::XMLString::transcode(sstream.str().c_str()));
+	
+}
+
+void XodrWriteRoadSystemVisitor::visit(roadShapePolynoms *sps)
+{
+	for (auto it = sps->shapes.begin(); it != sps->shapes.end();)
+	{
+		visit(it->second);
+	}
+}
+
 void XodrWriteRoadSystemVisitor::visit(LaneSection *section)
 {
     xercesc::DOMElement *laneSectionElement = document->createElement(xercesc::XMLString::transcode("laneSection"));

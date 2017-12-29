@@ -2027,7 +2027,6 @@ DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
 	{
 		section->addShape(t, polynomialLateralSection);
 	}
-
 	return true;
 }
 

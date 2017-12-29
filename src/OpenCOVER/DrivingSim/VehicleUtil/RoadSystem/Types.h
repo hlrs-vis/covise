@@ -578,6 +578,58 @@ private:
     double leftFactor, rightFactor;
 };
 
+
+class VEHICLEUTILEXPORT ShapePolynom
+{
+public:
+	ShapePolynom(double s, double a = 0, double b = 0, double c = 0, double d = 0, double t = 0.0);
+
+	double getHeight(double t);
+	double getSlope(double t);
+	void getCoefficients(double &, double &, double &, double &);
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	double getS() { return s; };
+	double getTStart() { return tStart; };
+
+private:
+	double a, b, c, d, tStart, s;
+};
+
+class VEHICLEUTILEXPORT roadShapePolynoms
+{
+public:
+	roadShapePolynoms(double s);
+
+	double getHeight(double t);
+	double getSlope(double t);
+	//ShapePolynom * getShape(double t);
+	double getS() { return s; };
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	void addPolynom(ShapePolynom *sp);
+	std::map<double, ShapePolynom *> shapes;
+
+private:
+	double s;
+};
+
+class VEHICLEUTILEXPORT roadShapeSections
+{
+public:
+	roadShapeSections();
+
+	double getHeight(double s, double t);
+	double getSlope(double s, double t);
+	roadShapePolynoms * getShapePolynoms(double s);
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	void addPolynom(ShapePolynom *sp);
+	std::map<double, roadShapePolynoms *> shapesSections;
+
+};
+
+
 inline Vector2D::Vector2D(const double &x, const double &y)
 {
     p[0] = x;

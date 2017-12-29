@@ -50,6 +50,7 @@ float *Road::speedLimits = NULL;
 Road::Road(std::string id, std::string name, double l, Junction *junc)
     : Tarmac(id, name)
 {
+	shapeSections = NULL;
     length = l;
     junction = junc;
     priority = 0;
@@ -224,9 +225,13 @@ void Road::addCrossfallPolynom(double s, double a, double b, double c, double d,
         lateralProfileMap[s] = (new CrossfallPolynom(s, a, b, c, d));
     }
 }
-void Road::addCrossfallPolynom(double s, double a, double b, double c, double d, double t)
+void Road::addShapePolynom(double s, double a, double b, double c, double d, double t)
 {
-		lateralProfileMap[s] = (new CrossfallPolynom(s, a, b, c, d,t,t));
+	if (shapeSections == NULL)
+	{
+		shapeSections = new roadShapeSections;
+	}
+	shapeSections->addPolynom(new ShapePolynom(s, a, b, c, d, t));
 }
 
 void Road::addLaneSection(LaneSection *section)
@@ -677,21 +682,54 @@ void Road::getLaneRoadPoints(double s, int i, RoadPoint &pointIn, RoadPoint &poi
     double heightIn = 0.0;
     double heightOut = 0.0;
     section->getLaneBorderHeights(s, i, heightIn, heightOut);
+	LateralProfile *lateralProfile = ((--lateralProfileMap.upper_bound(s))->second);
 
-    double alpha = ((--lateralProfileMap.upper_bound(s))->second)->getAngle(s, (disOut + disIn) * 0.5);
-    double beta = zPoint[1];
-    double gamma = xyPoint[2];
-    double Tx = (sin(alpha) * sin(beta) * cos(gamma) - cos(alpha) * sin(gamma));
-    double Ty = (sin(alpha) * sin(beta) * sin(gamma) + cos(alpha) * cos(gamma));
-    double Tz = (sin(alpha) * cos(beta));
-    //std::cout << "s: " << s << ", i: " << i << ", alpha: " << alpha << ", beta: " << beta << ", gamma: " << gamma << std::endl;
+	CrossfallPolynom *cp = dynamic_cast<CrossfallPolynom *>(lateralProfile);
+	double Tx, Ty, Tz;
+	double nx, ny, nz;
+	if ( cp != 0)
+	{
+		double beta = zPoint[1];
+		double gamma = xyPoint[2];
+		Tx = (sin(beta) * cos(gamma));
+		Ty = (sin(beta) * sin(gamma));
+		Tz = 0.0;
 
-    double nx = sin(alpha) * sin(gamma) + cos(alpha) * sin(beta) * cos(gamma);
-    double ny = cos(alpha) * sin(beta) * sin(gamma) - sin(alpha) * cos(gamma);
-    double nz = cos(alpha) * cos(beta);
+		nx = sin(beta) * cos(gamma);
+		ny = sin(beta) * sin(gamma);
+		nz = cos(beta);
 
-    pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
-    pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+		if (shapeSections)
+		{
+			double h1 = shapeSections->getHeight(s, disIn);
+			double h2 = shapeSections->getHeight(s, disOut);
+			pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn + h1, nx, ny, nz);
+			pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut + h2, nx, ny, nz);
+		}
+		else
+		{
+			pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
+			pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+		}
+	}
+	else
+	{
+
+		double alpha = lateralProfile->getAngle(s, (disOut + disIn) * 0.5);
+		double beta = zPoint[1];
+		double gamma = xyPoint[2];
+		Tx = (sin(alpha) * sin(beta) * cos(gamma) - cos(alpha) * sin(gamma));
+		Ty = (sin(alpha) * sin(beta) * sin(gamma) + cos(alpha) * cos(gamma));
+		Tz = (sin(alpha) * cos(beta));
+		//std::cout << "s: " << s << ", i: " << i << ", alpha: " << alpha << ", beta: " << beta << ", gamma: " << gamma << std::endl;
+
+		nx = sin(alpha) * sin(gamma) + cos(alpha) * sin(beta) * cos(gamma);
+		ny = cos(alpha) * sin(beta) * sin(gamma) - sin(alpha) * cos(gamma);
+		nz = cos(alpha) * cos(beta);
+		pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
+		pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+	}
+
     //std::cout << "s: " << s << ", i: " << i << ", inner: x: " << pointIn.x() << ", y: " << pointIn.y() << ", z: " << pointIn.z() << std::endl;
     //std::cout << "s: " << s << ", i: " << i << ", outer: x: " << pointOut.x() << ", y: " << pointOut.y() << ", z: " << pointOut.z() << std::endl << std::endl;
 }

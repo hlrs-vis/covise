@@ -654,6 +654,118 @@ void CrossfallPolynom::accept(XodrWriteRoadSystemVisitor *visitor)
     visitor->visit(this);
 }
 
+
+ShapePolynom::ShapePolynom(double s, double a, double b, double c, double d, double t)
+{
+	this->a = a, this->b = b, this->c = c, this->d = d;
+	this->s = s; tStart = t;
+}
+
+double ShapePolynom::getHeight(double tAbs)
+{
+	double t = tAbs-tStart;
+	return a + b * t + c * t * t + d * t * t * t;
+}
+
+double ShapePolynom::getSlope(double tAbs)
+{
+	double t = tAbs - tStart;
+	return b  + 2 * c * t + 3 * d * t * t;
+}
+
+void ShapePolynom::getCoefficients(double &a, double &b, double &c, double &d)
+{
+	a = this->a;
+	b = this->b;
+	c = this->c;
+	d = this->d;
+}
+
+void ShapePolynom::accept(XodrWriteRoadSystemVisitor *visitor)
+{
+	visitor->visit(this);
+}
+
+roadShapePolynoms::roadShapePolynoms(double sSection)
+{
+	s = sSection;
+}
+void roadShapePolynoms::addPolynom(ShapePolynom *sp)
+{
+	shapes[sp->getTStart()] = sp;
+}
+
+double roadShapePolynoms::getHeight(double t)
+{
+	auto it = shapes.lower_bound(t);
+	if (it != shapes.end())
+	{
+		it->second->getHeight(t);
+	}
+	return 0.0;
+}
+
+roadShapeSections::roadShapeSections()
+{
+}
+
+void roadShapePolynoms::accept(XodrWriteRoadSystemVisitor *visitor)
+{
+	for (auto it = shapes.begin(); it != shapes.end(); it++)
+	{
+		visitor->visit(it->second);
+	}
+}
+
+double roadShapeSections::getHeight(double s, double t)
+{
+	auto it = shapesSections.lower_bound(s);
+	if (it == shapesSections.end())
+	{
+		if (it != shapesSections.begin())
+		{
+			it--;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	auto it2 = it;
+	it2++;
+	if (it2 == shapesSections.end())
+	{
+		// we have only one profile
+		return it->second->getHeight(t);
+	}
+	//we have two profiles, interpoate linearly
+	roadShapePolynoms *sp1 = it->second;
+	roadShapePolynoms *sp2 = it2->second;
+	double s1 = sp1->getS();
+	double s2 = sp2->getS();
+	double h1 = sp1->getHeight(t);
+	double h2 = sp2->getHeight(t);
+	if (s2 - s1 < 0.000001)
+	{
+		return it->second->getHeight(t);
+	}
+	double f = (s - s1) / (s2 - s1);
+	return h1 + ((h2 - h1)*f);
+}
+
+void roadShapeSections::addPolynom(ShapePolynom *sp)
+{
+	auto it = shapesSections.find(sp->getS());
+	if ( it == shapesSections.end()) {
+		// not found
+		shapesSections[sp->getS()] = new roadShapePolynoms(sp->getS());
+	}
+	else {
+		// found
+		it->second->addPolynom(sp);
+	}
+}
+
 std::ostream &operator<<(std::ostream &os, const Vector3D &vec)
 {
     os << "( " << vec[0] << " \t" << vec[1] << " \t" << vec[2] << " \t)" << std::endl;
