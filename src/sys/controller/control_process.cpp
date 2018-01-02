@@ -228,6 +228,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
 AppModule *Controller::start_datamanager(Host *rhost, const char *user, const char *name,
                                          int exec_type, const char *script_name)
 {
+    //std::cerr << "Controller::start_datamanager: name=" << name << ", rhost name=" <<  rhost->getName() << ", v4=" << rhost->get_ipv4() << std::endl;
     char chport[10];
     char chid[10];
     int port;
@@ -497,6 +498,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
 AppModule *Controller::start_applicationmodule(sender_type peer_type,
                                                const char *name, AppModule *dmod, const char *instance, enum Start::Flags flags)
 {
+    //std::cerr << "Controller::start_applicationmodule: dmod host name=" << dmod->get_host()->getName() << std::endl;
     char remote_command[300];
     int port;
     int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());

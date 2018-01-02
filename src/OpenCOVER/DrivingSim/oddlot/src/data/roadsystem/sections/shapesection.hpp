@@ -17,7 +17,7 @@
 #define SHAPESECTION_HPP
 
 #include "roadsection.hpp"
-#include "src/data/roadsystem/lateralSections/polynomiallateralsection.hpp"
+#include "src/data/roadsystem/lateralsections/polynomiallateralsection.hpp"
 
 class ShapeSection : public RoadSection
 {

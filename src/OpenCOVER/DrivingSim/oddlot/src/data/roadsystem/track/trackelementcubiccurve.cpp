@@ -195,7 +195,7 @@ TrackElementCubicCurve::getT(double s)
 
 	if (pRange_ == "arcLength")
 	{
-		t = 0.5 * s;
+		t = s;
 	}
 
 	for (int i = 0; i < 20; ++i)
@@ -240,9 +240,10 @@ TrackElementCubicCurve::parametricF(double t, double factor)
 double 
 TrackElementCubicCurve::hdgRad(double t) const
 {
-	double q = sqrt((Ub_ + 2.0 * Uc_ * t + 3.0 * Ud_ * t * t) * (Ub_ + 2.0 * Uc_ * t + 3.0 * Ud_ * t * t) + (Vb_ + 2.0 * Vc_ * t + 3.0 * Vd_ * t * t) * (Vb_ + 2.0 * Vc_ * t + 3.0 * Vd_ * t * t));
-	q = q / abs(f(Ua_, Ub_, Uc_, Ud_, t));
-	return atan2(q, 1);
+	//double q = sqrt((Ub_ + 2.0 * Uc_ * t + 3.0 * Ud_ * t * t) * (Ub_ + 2.0 * Uc_ * t + 3.0 * Ud_ * t * t) + (Vb_ + 2.0 * Vc_ * t + 3.0 * Vd_ * t * t) * (Vb_ + 2.0 * Vc_ * t + 3.0 * Vd_ * t * t));
+	//q = q / abs(f(Ua_, Ub_, Uc_, Ud_, t));
+	//return atan2(q, 1);
+		return atan2((3 * Vd_ * t * t + 2 * Vc_ * t + Vb_) , (3 * Ud_ * t * t + 2 * Uc_ * t + Ub_));
 }
 
 void

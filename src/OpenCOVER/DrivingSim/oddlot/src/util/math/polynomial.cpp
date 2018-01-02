@@ -102,8 +102,11 @@ Polynomial::getT(double y, double xApprox) const
 double
 Polynomial::f(double x) const
 {
-	double t = getT(x, 0.5);
-    return (a_ + b_ * t + c_ * t * t + d_ * t * t * t);
+	//double t = getT(x, 0.5);
+	//return (a_ + b_ * t + c_ * t * t + d_ * t * t * t);
+	// polynomials in OpenDrive are defined as function of x , not a different parameter t, x can be a local coordinate
+	// this coordinate is sometimes caled u or t in the standard document but it is always the local "x" coordinate of the track or the local s coordinate (for the width or height polynom) 
+	return (a_ + b_ * x + c_ * x * x + d_ * x * x * x);
 }
 
 /** Calculates the first derivative of the polynomial

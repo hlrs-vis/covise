@@ -140,12 +140,12 @@ void TUIFileBrowserButton::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIFileBrowserButton::getClassName()
+const char *TUIFileBrowserButton::getClassName() const
 {
-    return (char *)"TUIFileBrowserButton";
+    return "TUIFileBrowserButton";
 }
 
-bool TUIFileBrowserButton::isOfClassName(char *classname)
+bool TUIFileBrowserButton::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

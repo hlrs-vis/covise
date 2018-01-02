@@ -130,12 +130,12 @@ void TUIToggleButton::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIToggleButton::getClassName()
+const char *TUIToggleButton::getClassName() const
 {
-    return (char *)"TUIToggleButton";
+    return "TUIToggleButton";
 }
 
-bool TUIToggleButton::isOfClassName(char *classname)
+bool TUIToggleButton::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

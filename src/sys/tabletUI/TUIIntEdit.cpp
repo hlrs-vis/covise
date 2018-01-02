@@ -83,12 +83,12 @@ void TUIIntEdit::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIIntEdit::getClassName()
+const char *TUIIntEdit::getClassName() const
 {
-    return (char *)"TUIIntEdit";
+    return "TUIIntEdit";
 }
 
-bool TUIIntEdit::isOfClassName(char *classname)
+bool TUIIntEdit::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

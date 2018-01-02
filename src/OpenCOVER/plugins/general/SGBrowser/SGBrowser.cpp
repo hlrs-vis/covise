@@ -235,7 +235,7 @@ SGBrowser::SGBrowser()
 
 bool SGBrowser::init()
 {
-    sGBrowserTab = new coTUISGBrowserTab("Scenegraph-Browser", coVRTui::instance()->mainFolder->getID());
+    sGBrowserTab = new coTUISGBrowserTab("Scenegraph", coVRTui::instance()->mainFolder->getID());
     sGBrowserTab->setPos(0, 0);
 
     sGBrowserTab->setEventListener(this);

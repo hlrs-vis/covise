@@ -105,12 +105,12 @@ void TUIButton::setSize(int w, int h)
     b->setFixedSize(b->sizeHint());
 }
 
-char *TUIButton::getClassName()
+const char *TUIButton::getClassName() const
 {
-    return (char *)"TUIButton";
+    return "TUIButton";
 }
 
-bool TUIButton::isOfClassName(char *classname)
+bool TUIButton::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())
@@ -128,4 +128,13 @@ bool TUIButton::isOfClassName(char *classname)
 
     // nobody is NULL
     return false;
+}
+
+void TUIButton::setLabel(QString textl)
+{
+    TUIElement::setLabel(textl);
+    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget))
+    {
+        b->setText(textl);
+    }
 }

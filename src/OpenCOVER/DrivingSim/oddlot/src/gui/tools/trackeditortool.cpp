@@ -165,6 +165,11 @@ TrackEditorTool::initToolWidget()
     toolLayout->addWidget(toolButton, row, 1);
     toolGroup->addButton(toolButton, ODD::TTE_ROAD_SNAP); // button, id
 
+	toolButton = new QPushButton("New Circle");
+	toolButton->setCheckable(true);
+	toolLayout->addWidget(toolButton, ++row, 0, 1, ColumnCount);
+	toolGroup->addButton(toolButton, ODD::TTE_ROAD_CIRCLE); // button, id
+
     line = new QFrame();
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
     line->setLineWidth(1);
@@ -389,7 +394,8 @@ TrackEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->roadSplit, ODD::TTE_ROAD_SPLIT);
     ribbonToolGroup->addButton(ui->roadMerge, ODD::TTE_ROAD_MERGE);
     ribbonToolGroup->addButton(ui->roadSnap, ODD::TTE_ROAD_SNAP);
-    ribbonToolGroup->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
+	ribbonToolGroup->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
+	ribbonToolGroup->addButton(ui->roadCircle, ODD::TTE_ROAD_CIRCLE);
     
     ribbonToolGroup->addButton(ui->tileMove, ODD::TTE_TILE_MOVE);
     ribbonToolGroup->addButton(ui->tileNew, ODD::TTE_TILE_NEW);

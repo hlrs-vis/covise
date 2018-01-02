@@ -82,12 +82,12 @@ void TUILabel::setColor(Qt::GlobalColor color)
     TUIElement::setColor(color);
 }
 
-char *TUILabel::getClassName()
+const char *TUILabel::getClassName() const
 {
-    return (char *)"TUILabel";
+    return "TUILabel";
 }
 
-bool TUILabel::isOfClassName(char *classname)
+bool TUILabel::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

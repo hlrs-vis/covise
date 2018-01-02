@@ -16,6 +16,7 @@
 #include "shapesection.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include <cmath>
 
 
 //####################//
@@ -209,7 +210,7 @@ ShapeSection::checkSmooth(PolynomialLateralSection *lateralSectionBefore, Polyno
 	double df1 = lateralSectionBefore->df(lateralSection->getTStart() - lateralSectionBefore->getTStart());
 	double df2 = lateralSection->df(0.0);
 
-	if (abs(df2 - df1) < NUMERICAL_ZERO6)
+	if (std::abs(df2 - df1) < NUMERICAL_ZERO6)
 	{
 		lateralSectionBefore->getRealPointHigh()->setSmooth(true);
 		lateralSectionBefore->getSplineControlPointHigh()->setSmooth(true);

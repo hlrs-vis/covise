@@ -29,9 +29,9 @@ public:
     virtual void setHighlighted(bool hl);
 
     /// get the Element's classname
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual bool isOfClassName(const char *) const;
 
 public slots:
     void popupButtonClicked();
