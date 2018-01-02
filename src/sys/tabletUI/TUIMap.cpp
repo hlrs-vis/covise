@@ -687,7 +687,7 @@ void CamItem::moveBy(double dx, double dy)
 }
 
 CamItem::CamItem(NodeItem *f, NodeItem *t, QGraphicsScene *canvas)
-    : QGraphicsPolygonItem(0)
+    : QGraphicsPolygonItem(0), pa(8), pao(8)
 {
     from = f;
     to = t;
