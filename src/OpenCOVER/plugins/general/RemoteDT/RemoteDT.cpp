@@ -410,7 +410,7 @@ void RemoteDT::menuEvent(coMenuItem *menuItem)
     }
 }
 
-void RemoteDT::message(int type, int len, const void *buf)
+void RemoteDT::message(int toWhom, int type, int len, const void *buf)
 {
     switch (type)
     {

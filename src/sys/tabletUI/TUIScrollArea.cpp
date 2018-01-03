@@ -71,12 +71,12 @@ void TUIScrollArea::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-char *TUIScrollArea::getClassName()
+const char *TUIScrollArea::getClassName() const
 {
-    return (char *)"TUIScrollArea";
+    return "TUIScrollArea";
 }
 
-bool TUIScrollArea::isOfClassName(char *classname)
+bool TUIScrollArea::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

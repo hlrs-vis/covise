@@ -28,9 +28,8 @@
  *									*
  ************************************************************************/
 
-#if !defined(_WIN32) && !defined(__APPLE__)
-#define USE_X11
 #include <GL/glew.h>
+#ifdef USE_X11
 #include <GL/glxew.h>
 #include <osgViewer/api/X11/GraphicsWindowX11>
 #undef Status
@@ -1239,7 +1238,7 @@ VRViewer::createChannels(int i)
         else
         {
             cam->setDrawBuffer(GL_NONE);
-            cam->setReadBuffer(GL_NONE);
+            //cam->setReadBuffer(GL_NONE);
             cam->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
         }
         cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
@@ -1547,7 +1546,10 @@ VRViewer::setFrustumAndView(int i)
 					currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
 					currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
 				}
-                currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+				if (currentChannel->camera)
+				{
+					currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+				}
             }
         }
     }
@@ -1729,6 +1731,11 @@ void VRViewer::redrawHUD(double interval)
         VRWindow::instance()->update();
         VRWindow::instance()->updateContents();
     }
+}
+
+void VRViewer::disableSync()
+{
+    unsyncedFrames = 1000000;
 }
 
 // OpenCOVER

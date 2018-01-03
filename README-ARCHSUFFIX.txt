@@ -35,6 +35,7 @@ vcpkg           Visual Studio 2015 Update 3, Visual Studio 2017 with 3rd party l
 
 linux32         Generic x86 Linux
 linux64         Generic x86_64 Linux
+cray64         Cray x86_64 Linux software rendering
 rhel7           Red Hat Enterprise Linux 7 with updates on x86_64 (64 bit mode)
 
 darwin          Generic macOS

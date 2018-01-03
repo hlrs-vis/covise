@@ -64,12 +64,12 @@ void TUISplitter::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-char *TUISplitter::getClassName()
+const char *TUISplitter::getClassName() const
 {
-    return (char *)"TUISplitter";
+    return "TUISplitter";
 }
 
-bool TUISplitter::isOfClassName(char *classname)
+bool TUISplitter::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

@@ -335,7 +335,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
 
         if (down)
         {
-            if (shift && std::isupper(keySym))
+            if (shift && keySym < 255 && std::isupper(keySym))
             {
                 //std::cerr << "ui::Manager: mapping to lower" << std::endl;
                 keySym = std::tolower(keySym);
@@ -586,12 +586,12 @@ bool Manager::sync()
             if (ms->isMaster())
             {
                 covise::Message msg(*m_updates);
-                coVRMSController::instance()->sendSlaves(&msg);
+                coVRMSController::instance()->syncMessage(&msg);
             }
             else
             {
                 covise::Message msg;
-                coVRMSController::instance()->readMaster(&msg);
+                coVRMSController::instance()->syncMessage(&msg);
                 m_updates.reset(new covise::TokenBuffer(&msg));
             }
         }

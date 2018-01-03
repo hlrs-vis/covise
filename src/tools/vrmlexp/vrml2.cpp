@@ -3468,7 +3468,7 @@ VRML2Export::VrmlOutCamera(INode *node, Object *obj, int level)
    if (cam->IsOrtho() && (mType == Export_VRML_2_0_COVER))
    {
        Indent(level + 1);
-	   MSTREAMPRINTFNOSTRINGS("type \"free\"\n"));
+	   MSTREAMPRINTFNOSTRINGS("type \"ortho\"\n"));
    }
    Indent(level);
    MSTREAMPRINTFNOSTRINGS("}\n"));
@@ -7559,6 +7559,12 @@ VRML2Export::VrmlOutTopLevelCamera(int level, INode *node, BOOL topLevel)
    MSTREAMPRINTF  ("fieldOfView %s\n"), floatVal(vp.fov));
    Indent(level + 1);
    MSTREAMPRINTF  ("description \"%s\"\n"), mNodes.GetNodeName(node));
+
+   if (cam->IsOrtho() && (mType == Export_VRML_2_0_COVER))
+   {
+	   Indent(level + 1);
+	   MSTREAMPRINTFNOSTRINGS("type \"ortho\"\n"));
+   }
    Indent(level);
    MSTREAMPRINTF  ("}\n"));
 

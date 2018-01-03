@@ -74,8 +74,8 @@ void ScenarioManager::conditionControl(Maneuver* maneuver)
 	}
 	if (maneuver->startConditionType=="distance")
 	{
-		auto activeCar = getEntityByName(maneuver->activeCar);
-		auto passiveCar = getEntityByName(maneuver->passiveCar);
+		auto activeCar = getEntityByName(maneuver->activeCarName);
+		auto passiveCar = getEntityByName(maneuver->passiveCarName);
 		if (activeCar->entityPosition[0]-passiveCar->entityPosition[0] >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
 		{
 			maneuver->maneuverCondition = true;

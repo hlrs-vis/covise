@@ -31,6 +31,7 @@ using namespace covise;
 uint32_t ControlConfig::genip(const char *n)
 //----------------------------------------------------------------------------
 {
+    //std::cerr << "genip: n=" << n << std::endl;
     unsigned addr[4];
 
     int no_of_no = sscanf(n, "%u.%u.%u.%u", &addr[0],
@@ -51,7 +52,7 @@ uint32_t ControlConfig::genip(const char *n)
 	int s = getaddrinfo(n, NULL /* service */, &hints, &result);
 	if (s != 0)
 	{
-		fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
+		fprintf(stderr, "ControlConfig::genip: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
 		return INADDR_NONE;
 	}
 	else

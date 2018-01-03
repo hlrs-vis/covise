@@ -506,6 +506,37 @@ private:
     double hdgs;
 };
 
+class VEHICLEUTILEXPORT PlaneParamPolynom : public PlaneCurve
+{
+public:
+	PlaneParamPolynom(double, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, double = 0, bool = true);
+
+	Vector3D getPoint(double);
+	double getOrientation(double);
+	double getCurvature(double);
+	Vector2D getTangentVector(double);
+	Vector2D getNormalVector(double);
+
+	double getCurveLength(double from, double to);
+
+	void getCoefficients(double &, double &, double &, double &, double &, double &, double &, double &);
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	bool isNormalized() { return normalized; };
+
+private:
+	double getT(double);
+	double g(double x, double factor, double delta);
+
+	double aU, bU, cU, dU;
+	double aV, bV, cV, dV;
+	bool normalized;
+	//double sinhdg, coshdg;
+	Matrix2D2D A;
+	//double xs, ys;
+	Vector2D cs;
+	double hdgs;
+};
 class VEHICLEUTILEXPORT LateralProfile : public Curve
 {
 public:
@@ -546,6 +577,58 @@ private:
     double a, b, c, d;
     double leftFactor, rightFactor;
 };
+
+
+class VEHICLEUTILEXPORT ShapePolynom
+{
+public:
+	ShapePolynom(double s, double a = 0, double b = 0, double c = 0, double d = 0, double t = 0.0);
+
+	double getHeight(double t);
+	double getSlope(double t);
+	void getCoefficients(double &, double &, double &, double &);
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	double getS() { return s; };
+	double getTStart() { return tStart; };
+
+private:
+	double a, b, c, d, tStart, s;
+};
+
+class VEHICLEUTILEXPORT roadShapePolynoms
+{
+public:
+	roadShapePolynoms(double s);
+
+	double getHeight(double t);
+	double getSlope(double t);
+	//ShapePolynom * getShape(double t);
+	double getS() { return s; };
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	void addPolynom(ShapePolynom *sp);
+	std::map<double, ShapePolynom *> shapes;
+
+private:
+	double s;
+};
+
+class VEHICLEUTILEXPORT roadShapeSections
+{
+public:
+	roadShapeSections();
+
+	double getHeight(double s, double t);
+	double getSlope(double s, double t);
+	roadShapePolynoms * getShapePolynoms(double s);
+
+	void accept(XodrWriteRoadSystemVisitor *);
+	void addPolynom(ShapePolynom *sp);
+	std::map<double, roadShapePolynoms *> shapesSections;
+
+};
+
 
 inline Vector2D::Vector2D(const double &x, const double &y)
 {

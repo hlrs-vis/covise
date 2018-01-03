@@ -181,6 +181,12 @@ bool Vive::needsThread() const
 } 
 bool Vive::init()
 {
+	if (!ivrSystem)
+	{
+		fprintf(stderr, "Vive::init() failed -- ivrSystem is null\n");
+		return false;
+	}
+
 	fprintf(stderr, "Vive::init\n");
 	vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
 	osg::Matrix lProj = convertMatrix44(mat);
@@ -229,6 +235,7 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
+	vr::VR_Shutdown();
 	Input::instance()->removeDevice("Vive", this);
 	fprintf(stderr, "Vive::~Vive\n");
 }

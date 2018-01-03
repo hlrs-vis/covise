@@ -43,8 +43,7 @@
 
 #include <cassert>
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-#define USE_X11
+#ifdef USE_X11
 #include <X11/ICE/ICElib.h>
 #endif
 
@@ -206,7 +205,9 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.widget = new QtOsgWidget(win.window);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
-    coVRConfig::instance()->windows[i].context = win.widget->graphicsWindow();
+    conf.windows[i].context = win.widget->graphicsWindow();
+    conf.windows[i].doublebuffer = false;
+
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
     return true;

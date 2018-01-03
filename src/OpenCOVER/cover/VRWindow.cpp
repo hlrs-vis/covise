@@ -47,7 +47,9 @@
 #elif defined(__APPLE__) && !defined(USE_X11)
 #include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
 #else
+#if defined(USE_X11)
 #include <osgViewer/api/X11/GraphicsWindowX11>
+#endif
 #endif
 
 using namespace opencover;
@@ -354,7 +356,9 @@ VRWindow::createWin(int i)
 #elif defined(__APPLE__) && !defined(USE_X11)
             traits->inheritedWindowData = new osgViewer::GraphicsWindowCocoa::WindowData(OpenCOVER::instance()->parentWindow);
 #else
+#if defined(USE_X11)
             traits->inheritedWindowData = new osgViewer::GraphicsWindowX11::WindowData(OpenCOVER::instance()->parentWindow);
+#endif
 #endif
         }
 
@@ -448,6 +452,7 @@ VRWindow::createWin(int i)
                 }
             }
         }
+        coVRConfig::instance()->windows[i].doublebuffer = traits->doubleBuffer;
     }
 
     if (!coVRConfig::instance()->windows[i].context)

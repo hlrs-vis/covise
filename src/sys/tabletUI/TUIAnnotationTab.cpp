@@ -208,9 +208,9 @@ TUIAnnotationTab::~TUIAnnotationTab()
 //*************************************************************
 //*****                 Virtual Funtions                  *****
 //*************************************************************
-char *TUIAnnotationTab::getClassName()
+const char *TUIAnnotationTab::getClassName()
 {
-    return (char *)"TUIAnnotationTab";
+    return "TUIAnnotationTab";
 }
 
 void TUIAnnotationTab::setValue(int type, covise::TokenBuffer &tb)

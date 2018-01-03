@@ -33,6 +33,7 @@ class TypeSection;
 class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
+class ShapeSection;
 class LaneSection;
 class SplitTrackComponentCommand;
 
@@ -343,6 +344,37 @@ private:
 
     QMap<double, CrossfallSection *> newCrossfallSections_;
     QMap<double, CrossfallSection *> oldCrossfallSections_;
+};
+
+//#########################//
+// ChangeShapePrototypeCommand //
+//#########################//
+
+class ChangeShapePrototypeCommand : public DataCommand
+{
+public:
+	explicit ChangeShapePrototypeCommand(RSystemElementRoad *road, RSystemElementRoad *prototype, DataCommand *parent = NULL);
+	virtual ~ChangeShapePrototypeCommand();
+
+	virtual int id() const
+	{
+		return 0x1001;
+	}
+
+	virtual void undo();
+	virtual void redo();
+
+private:
+	ChangeShapePrototypeCommand(); /* not allowed */
+	ChangeShapePrototypeCommand(const ChangeShapePrototypeCommand &); /* not allowed */
+	ChangeShapePrototypeCommand &operator=(const ChangeShapePrototypeCommand &); /* not allowed */
+
+private:
+	RSystemElementRoad *road_; // linked
+	RSystemElementRoad *prototype_; // now owned
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//

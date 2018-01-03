@@ -17,6 +17,7 @@
 #define OSCITEM_HPP
 
 #include "oscbaseitem.hpp"
+#include <QtSvg/QGraphicsSvgItem>
 
 namespace OpenScenario
 {
@@ -121,8 +122,13 @@ private:
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
+	QGraphicsSvgItem *svgItem;
+	QSvgRenderer *renderer;
+	std::string covisedir_;
+	
 
     void init();
+	void updateIcon();
     QString updateName();
 
 	OpenScenario::oscCatalog *catalog_;

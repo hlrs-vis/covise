@@ -226,7 +226,7 @@ public:
     bool init();
 
     void preFrame(); ///< this will be called in PreFrame
-    void message(int type, int len, const void *buf); ///< handle incoming messages
+    void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void setCurrentAnnotation(Annotation *m); ///< change current annotation
     int menuSelected; ///< TRUE if menu item "New Annotation" was selected
     void deleteAllAnnotations(); ///< deletes all unlocked/local annotations

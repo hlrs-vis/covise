@@ -87,7 +87,6 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
 
     // deafult is no restriction
     restrictToAxis_ = RESTRICT_NONE;
-    csPlane_->restrict(restrictToAxis_);
 
     // default is no clipplane attached
     activeClipPlane_ = -1;

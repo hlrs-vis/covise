@@ -333,6 +333,49 @@ void XodrWriteRoadSystemVisitor::visit(PlanePolynom *poly)
     poly3Element->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
 }
 
+void XodrWriteRoadSystemVisitor::visit(PlaneParamPolynom *poly)
+{
+	xercesc::DOMElement *poly3Element = document->createElement(xercesc::XMLString::transcode("paramPoly3"));
+	geometryElement->appendChild(poly3Element);
+
+	double aU, bU, cU, dU;
+	double aV, bV, cV, dV;
+	poly->getCoefficients(aU, bU, cU, dU, aV, bV, cV, dV);
+
+	std::ostringstream aUStream;
+	aUStream << std::scientific << aU;
+	std::ostringstream bUStream;
+	bUStream << std::scientific << bU;
+	std::ostringstream cUStream;
+	cUStream << std::scientific << cU;
+	std::ostringstream dUStream;
+	dUStream << std::scientific << dU;
+	std::ostringstream aVStream;
+	aVStream << std::scientific << aV;
+	std::ostringstream bVStream;
+	bVStream << std::scientific << bV;
+	std::ostringstream cVStream;
+	cVStream << std::scientific << cV;
+	std::ostringstream dVStream;
+	dVStream << std::scientific << dV;
+
+	poly3Element->setAttribute(xercesc::XMLString::transcode("aU"), xercesc::XMLString::transcode(aUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("bU"), xercesc::XMLString::transcode(bUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("cU"), xercesc::XMLString::transcode(cUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("dU"), xercesc::XMLString::transcode(dUStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("aV"), xercesc::XMLString::transcode(aVStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("bV"), xercesc::XMLString::transcode(bVStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("cV"), xercesc::XMLString::transcode(cVStream.str().c_str()));
+	poly3Element->setAttribute(xercesc::XMLString::transcode("dV"), xercesc::XMLString::transcode(dVStream.str().c_str()));
+	if(poly->isNormalized())
+	{
+		poly3Element->setAttribute(xercesc::XMLString::transcode("pRange"), xercesc::XMLString::transcode("normalized"));
+	}
+	else
+	{
+		poly3Element->setAttribute(xercesc::XMLString::transcode("pRange"), xercesc::XMLString::transcode("arcLength"));
+	}
+}
 void XodrWriteRoadSystemVisitor::visit(Polynom *poly)
 {
     xercesc::DOMElement *polyElement;
@@ -410,49 +453,103 @@ void XodrWriteRoadSystemVisitor::visit(SuperelevationPolynom *elev)
 
 void XodrWriteRoadSystemVisitor::visit(CrossfallPolynom *fall)
 {
-    xercesc::DOMElement *crossfallElement = document->createElement(xercesc::XMLString::transcode("crossfall"));
-    lateralProfileElement->appendChild(crossfallElement);
+	if (fall->getLeftFallFactor() == fall->getRightFallFactor() )
+	{
+		xercesc::DOMElement *shapelElement = document->createElement(xercesc::XMLString::transcode("shape"));
+		lateralProfileElement->appendChild(shapelElement);
+		double a, b, c, d;
+		fall->getCoefficients(a, b, c, d);
+		std::ostringstream sstream;
+		sstream << std::scientific << fall->getStart();
+		shapelElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << a;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << b;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << c;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << d;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << fall->getRightFallFactor();
+		shapelElement->setAttribute(xercesc::XMLString::transcode("t"), xercesc::XMLString::transcode(sstream.str().c_str()));
+	}
+	else
+	{
+		xercesc::DOMElement *crossfallElement = document->createElement(xercesc::XMLString::transcode("crossfall"));
+		lateralProfileElement->appendChild(crossfallElement);
 
-    double a, b, c, d;
-    fall->getCoefficients(a, b, c, d);
+		double a, b, c, d;
+		fall->getCoefficients(a, b, c, d);
 
-    std::ostringstream sStream;
-    sStream << std::scientific << fall->getStart();
-    std::ostringstream aStream;
-    aStream << std::scientific << a;
-    std::ostringstream bStream;
-    bStream << std::scientific << b;
-    std::ostringstream cStream;
-    cStream << std::scientific << c;
-    std::ostringstream dStream;
-    dStream << std::scientific << d;
-    std::string side;
-    if (fall->getLeftFallFactor() < 0 && fall->getRightFallFactor() > 0)
-    {
-        side = "both";
-    }
-    else
-    {
-        if (fall->getLeftFallFactor() < 0)
-        {
-            side = "left";
-        }
-        else if (fall->getRightFallFactor() > 0)
-        {
-            side = "right";
-        }
-        else
-        {
-            side = "both";
-        }
-    }
+		std::ostringstream sStream;
+		sStream << std::scientific << fall->getStart();
+		std::ostringstream aStream;
+		aStream << std::scientific << a;
+		std::ostringstream bStream;
+		bStream << std::scientific << b;
+		std::ostringstream cStream;
+		cStream << std::scientific << c;
+		std::ostringstream dStream;
+		dStream << std::scientific << d;
+		std::string side;
+		if (fall->getLeftFallFactor() < 0 && fall->getRightFallFactor() > 0)
+		{
+			side = "both";
+		}
+		else
+		{
+			if (fall->getLeftFallFactor() < 0)
+			{
+				side = "left";
+			}
+			else if (fall->getRightFallFactor() > 0)
+			{
+				side = "right";
+			}
+			else
+			{
+				side = "both";
+			}
+		}
 
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("side"), xercesc::XMLString::transcode(side.c_str()));
+		crossfallElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
+		crossfallElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));
+		crossfallElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));
+		crossfallElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));
+		crossfallElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
+		crossfallElement->setAttribute(xercesc::XMLString::transcode("side"), xercesc::XMLString::transcode(side.c_str()));
+	}
+}
+
+
+void XodrWriteRoadSystemVisitor::visit(ShapePolynom *sp)
+{
+		xercesc::DOMElement *shapelElement = document->createElement(xercesc::XMLString::transcode("shape"));
+		lateralProfileElement->appendChild(shapelElement);
+		double a, b, c, d;
+		sp->getCoefficients(a, b, c, d);
+		std::ostringstream sstream;
+		sstream << std::scientific << sp->getS();
+		shapelElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << a;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << b;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << c;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << d;
+		shapelElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(sstream.str().c_str()));
+		sstream << std::scientific << sp->getTStart();
+		shapelElement->setAttribute(xercesc::XMLString::transcode("t"), xercesc::XMLString::transcode(sstream.str().c_str()));
+	
+}
+
+void XodrWriteRoadSystemVisitor::visit(roadShapePolynoms *sps)
+{
+	for (auto it = sps->shapes.begin(); it != sps->shapes.end();)
+	{
+		visit(it->second);
+	}
 }
 
 void XodrWriteRoadSystemVisitor::visit(LaneSection *section)

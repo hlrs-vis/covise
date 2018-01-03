@@ -192,7 +192,7 @@ public:
 
     // this will be called in PreFrame
     void preFrame();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void setCurrentBullet(BulletProbe *m);
     int menuSelected; // TRUE if menu itme "Cube" was selected
     //void setBullets(string);

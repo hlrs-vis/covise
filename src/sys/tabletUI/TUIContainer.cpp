@@ -129,12 +129,12 @@ void TUIContainer::setHighlighted(bool hl)
     }
 }
 
-char *TUIContainer::getClassName()
+const char *TUIContainer::getClassName() const
 {
-    return (char *)"TUIContainer";
+    return "TUIContainer";
 }
 
-bool TUIContainer::isOfClassName(char *classname)
+bool TUIContainer::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

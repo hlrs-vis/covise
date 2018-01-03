@@ -96,7 +96,7 @@ public:
     //
     // TUI interface
     //
-    virtual char *getClassName();
+    virtual const char *getClassName() const;
     virtual void setValue(int type, covise::TokenBuffer &tb);
 
     // To update the cover counterpart

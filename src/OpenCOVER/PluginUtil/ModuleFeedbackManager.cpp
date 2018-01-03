@@ -223,35 +223,51 @@ void ModuleFeedbackManager::createMenu()
     else
         visMenuName_ = moduleName_;
 
-    bool cfdgui = covise::coCoviseConfig::isOn("COVER.Plugin.CfdGui", false);
     menu_ = new ui::Menu(visMenuName_, this);
+    bool covise = false;
     if (cover->visMenu)
+    {
+        covise = cover->visMenu->text() == "COVISE";
         cover->visMenu->add(menu_);
+    }
     hideCheckbox_ = new ui::Button(menu_, "Hide");
     hideCheckbox_->setState(false);
     hideCheckbox_->setCallback([this](bool state){
         triggerHide(state);
     });
     syncCheckbox_ = new ui::Button(menu_, "Sync");
-    syncCheckbox_->setState(true);
+    syncCheckbox_->setVisible(covise);
+    syncCheckbox_->setState(covise);
     syncCheckbox_->setCallback([this](bool state){
     });
 
-    int len = strlen(moduleName_.c_str());
-    if (len >= 4 && !cfdgui && string("Comp") == moduleName_.c_str() + len - 4)
+#if 0
+    std::vector<std::string> complexModules;
+    complexModules.push_back("TracerComp");
+    complexModules.push_back("CuttingSurfaceComp");
+    complexModules.push_back("IsoSurfaceComp");
+    bool complex = false;
+    for (auto mod: complexModules)
+    {
+        if (moduleName_.substr(0, mod.length()) == mod)
+            complex = true;
+    }
+    bool cfdgui = covise::coCoviseConfig::isOn("COVER.Plugin.CfdGui", false);
+    if (!cfdgui && complex)
     {
         newButton_ = new ui::Action(menu_, "New");
         newButton_->setCallback([this](){
             // copy this module and execute it
             inter_->copyModuleExec();
         });
-        deleteButton_ = new ui::Action(menu_, "New");
+        deleteButton_ = new ui::Action(menu_, "Delete");
         deleteButton_->setCallback([this](){
             // delete this module
             inter_->deleteModule();
         });
     }
-    if (!covise::coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
+#endif
+    if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
         executeCheckbox_->setCallback([this](bool){

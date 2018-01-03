@@ -1176,7 +1176,6 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
             }
         }
     }
-
     else if (getCurrentTool() == ODD::TJE_SELECT_JUNCTION)
     {
         if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)

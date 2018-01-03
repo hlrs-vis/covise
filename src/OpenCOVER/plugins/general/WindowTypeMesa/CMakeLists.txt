@@ -4,6 +4,7 @@ endif()
 
 covise_find_package(OSMesa REQUIRED)
 using(OpenGL)
+USING(PNG)
 
 include_directories(${OSMESA_INCLUDE_DIR})
 

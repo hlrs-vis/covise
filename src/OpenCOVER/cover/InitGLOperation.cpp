@@ -106,7 +106,7 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
     bool glDebugLevelExists = false;
     int glDebugLevel = covise::coCoviseConfig::getInt("COVER.GLDebug.Level", 1, &glDebugLevelExists);
 
-    if (glDebug || glDebugLevelExists && glDebugLevel > 0) {
+    if (glDebug || (glDebugLevelExists && glDebugLevel > 0)) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
 
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(m_mutex);
@@ -219,9 +219,9 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
     std::stringstream msg;
     msg << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << std::string(message, length);
 
-    bool printMsg = cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR
-                 || cbdata.debugLevel >= 2 && type == GL_DEBUG_TYPE_PERFORMANCE
-                 || cbdata.debugLevel >= 3;
+    bool printMsg = (cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR)
+                 || (cbdata.debugLevel >= 2 && type == GL_DEBUG_TYPE_PERFORMANCE)
+                 ||  cbdata.debugLevel >= 3;
     if (printMsg)
         std::cerr << msg.str() << std::endl;
 }

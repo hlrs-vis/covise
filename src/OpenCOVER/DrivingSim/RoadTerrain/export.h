@@ -3,7 +3,7 @@
 
 #include <util/coExport.h>
 
-#if defined(RoadTerrain_EXPORTS)
+#if defined(coRoadTerrain_EXPORTS)
 #define ROADTERRAINEXPORT COEXPORT
 #else
 #define ROADTERRAINEXPORT COIMPORT

@@ -19,7 +19,6 @@
 #include <cover/coVRPlugin.h>
 
 #include <osg/ShapeDrawable>
-#include <osg/PositionAttitudeTransform>
 
 #include <utils/traci/TraCIAPI.h>
 
@@ -54,8 +53,7 @@ private:
 
 	osg::Group *vehicleGroup;
 	std::string vehicleDirectory;
-	osg::ref_ptr<osg::PositionAttitudeTransform> vehiclePositionAttitudeTransform;
-	
+
 	double simTime;
 	double nextSimTime;
 	double currentTime;

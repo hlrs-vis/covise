@@ -637,7 +637,7 @@ public:
     bool loadDataImage(string);
     string getRelativeTempPath();
     string getCurrentPath();
-    void message(int, int, const void *);
+    void message(int, int, int, const void *);
 };
 #endif
 

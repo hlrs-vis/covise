@@ -751,7 +751,7 @@ void ViewPoints::addNode(Node *n, const RenderObject *)
     }
 }
 
-void ViewPoints::message(int, int, const void *data)
+void ViewPoints::message(int, int, int, const void *data)
 {
     const char *chbuf = (const char *)data;
     if (strncmp(chbuf, "SnapshotPlugin", strlen("SnapshotPlugin")) == 0)

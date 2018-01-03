@@ -1,18 +1,17 @@
 USING(TrafficSimulation)
 
-
 set(HEADERS
   SumoTraCI.h
   config.h
   windows_config.h
   foreign/tcpip/socket.h
   foreign/tcpip/storage.h
+  libsumo/TraCIDefs.h
   traci-server/TraCIConstants.h
-  traci-server/TraCIDefs.h
-  utils/common/SUMOTime.h
   utils/common/StdDefs.h
-  utils/common/UtilExceptions.h
+  utils/common/SUMOTime.h
   utils/common/TplConvert.h
+  utils/common/UtilExceptions.h
   utils/traci/TraCIAPI.h
 
 )

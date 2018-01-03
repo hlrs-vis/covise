@@ -64,12 +64,12 @@ void TUITabFolder::addElementToLayout(TUIElement *el)
     }
 }
 
-char *TUITabFolder::getClassName()
+const char *TUITabFolder::getClassName() const
 {
-    return (char *)"TUITabFolder";
+    return "TUITabFolder";
 }
 
-bool TUITabFolder::isOfClassName(char *classname)
+bool TUITabFolder::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

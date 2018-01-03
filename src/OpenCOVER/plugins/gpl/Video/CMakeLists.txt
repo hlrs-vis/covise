@@ -1,34 +1,28 @@
-USING(XERCESC)
+using(FFMPEG optional)
+using(XERCESC)
+covise_find_package(WMFSDK)
 
+SET(HEADERS Video.h)
+SET(SOURCES Video.cpp)
 
+IF(WMFSDK_FOUND)
+  ADD_DEFINITIONS(-DHAVE_WMFSDK)
 
-IF(MSVC)
+  SET(HEADERS ${HEADERS} WINAVIVideo.h rgb2rgb.h swscale.h swscale_internal.h)
+  SET(SOURCES ${SOURCES} WINWMVVideo.cpp WINAVIVideo.cpp rgb2rgb.c swscale.c yuv2rgb.c)
 
-  COVISE_FIND_PACKAGE(WMFSDK)
-
-  ADD_DEFINITIONS(-DNEWOSG)
+  INCLUDE_DIRECTORIES(${WMFSDK_INCLUDE_DIRS})
+  SET(EXTRA_LIBS ${EXTRA_LIBS} ${WMFSDK_LIBRARIES})
+endif()
   
-   
-  SET(HEADERS WINAVIVideo.h rgb2rgb.h swscale.h swscale_internal.h Video.h)
-  SET(SOURCES WINWMVVideo.cpp WINAVIVideo.cpp Video.cpp rgb2rgb.c swscale.c yuv2rgb.c)
-
-  IF(WMFSDK_FOUND)
-    INCLUDE_DIRECTORIES(${WMFSDK_INCLUDE_DIRS})
-    ADD_DEFINITIONS(-DHAVE_WMFSDK)
-    SET(EXTRA_LIBS ${EXTRA_LIBS} ${WMFSDK_LIBRARIES})
-  ENDIF()
-  
-ELSE(MSVC)
-  
-  using(FFMPEG)
+if (FFMPEG_FOUND)
   ADD_DEFINITIONS("-DHAVE_CODEC_CTX_PTR")
   
-  SET(HEADERS FFMPEGVideo.h Video.h)
-  SET(SOURCES FFMPEGVideo.cpp Video.cpp)
-  
-ENDIF(MSVC)
+  SET(HEADERS ${HEADERS} FFMPEGVideo.h)
+  SET(SOURCES ${SOURCES} FFMPEGVideo.cpp)
+ENDIF(FFMPEG_FOUND)
 
-cover_add_plugin(Video ${HEADERS} ${SOURCES})
+cover_add_plugin(Video)
 
 IF(MSVC AND NOT MSVC10)
   ADD_COVISE_COMPILE_FLAGS(Video "/Zc:wchar_t-")

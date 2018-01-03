@@ -336,6 +336,25 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                         double curveD = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("d"))));
                                         road->addPlanViewGeometryPolynom(geometryStart, geometryLength, geometryX, geometryY, geometryHdg, curveA, curveB, curveC, curveD);
                                     }
+									else if (xercesc::XMLString::compareIString(curveElement->getTagName(), xercesc::XMLString::transcode("paramPoly3")) == 0)
+									{
+										double curveAU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("aU"))));
+										double curveBU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("bU"))));
+										double curveCU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("cU"))));
+										double curveDU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("dU"))));
+										double curveAV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("aV"))));
+										double curveBV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("bV"))));
+										double curveCV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("cV"))));
+										double curveDV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("dV"))));
+										bool normalized = true;
+										if(curveElement->getAttribute(xercesc::XMLString::transcode("pRange")))
+										{
+										    std::string pRange = xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("pRange")));
+											if (pRange == "arcLength")
+												normalized = false;
+										}
+										road->addPlanViewGeometryPolynom(geometryStart, geometryLength, geometryX, geometryY, geometryHdg, curveAU, curveBU, curveCU, curveDU, curveAV, curveBV, curveCV, curveDV,normalized);
+									}
                                 }
                             }
                         }
@@ -384,6 +403,16 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 std::string crossfallSide(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("side"))));
                                 road->addCrossfallPolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallSide);
                             }
+							else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
+							{
+								double crossfallStart = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+								double crossfallA = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+								double crossfallB = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
+								double crossfallC = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
+								double crossfallD = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+								double crossfallT = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("t"))));
+								road->addShapePolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallT);
+							}
                         }
                     }
 
@@ -475,8 +504,17 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                                     else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("speed")) == 0)
                                                     {
                                                         double speedLimitStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                                        double speedLimitNum = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("max"))));
-                                                        lane->addSpeedLimit(speedLimitStart, speedLimitNum);
+														double speedLimitNum = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("max"))));
+														double factor = 1.0;
+														if(laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")))
+														{
+														std::string speedUnit = xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")));
+														if (speedUnit == "mph")
+															factor = 0.44704;
+														if (speedUnit == "km/h")
+															factor = 0.277778;
+														}
+                                                        lane->addSpeedLimit(speedLimitStart, speedLimitNum*factor);
                                                     }
                                                     else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("height")) == 0)
                                                     {
@@ -791,6 +829,32 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 }
                                 else
                                 {
+									if (name == "")
+									{
+										if ((type != -1) )
+										{
+											if (subclass != "")
+											{
+												if (subtype != -1)
+												{
+													name = std::to_string(type) + "." + subclass + "-" + std::to_string(subtype);
+												}
+												else
+												{
+													name = std::to_string(type) + "." + subclass;
+												}
+											}
+											else if (subtype != -1) 
+											{
+												name = std::to_string(type) + "-" + std::to_string(subtype);
+											}
+											else
+											{
+												name = std::to_string(type);
+											}
+										}
+
+									}
                                     roadSignal = new RoadSignal(id, name, s, t, dynamic, orientation, zOffset, country,
                                                                 type, subtype, subclass, size, value, hdg, pitch, roll, unit, text, width, height);
                                     //std::cout << "Adding road signal id=" << id << std::endl;

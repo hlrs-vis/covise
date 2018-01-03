@@ -122,6 +122,7 @@ DomParser::DomParser(ProjectData *projectData, QObject *parent)
     , tileCount_(0x0)
 {
     doc_ = new QDomDocument();
+	disableWarnings = false;
 }
 
 /** DESTRUCTOR.
@@ -135,6 +136,26 @@ DomParser::~DomParser()
 //################//
 // XODR           //
 //################//
+
+void DomParser::warning(QString title, QString text)
+{
+	if (!disableWarnings)
+	{
+		QMessageBox msgBox;
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setWindowTitle(title);
+		msgBox.setText(text);
+		QPushButton* pButtonYes = msgBox.addButton(tr("Ok"), QMessageBox::YesRole);
+		QPushButton* pButtonDisable = msgBox.addButton(tr("Disable Warnings"), QMessageBox::NoRole);
+
+		msgBox.exec();
+
+		if (msgBox.clickedButton() == (QAbstractButton *)pButtonDisable)
+		{
+			disableWarnings = true;
+		}
+	}
+}
 
 /*! \brief Opens a .xodr file, creates a DOM tree and reads in the first level.
 *
@@ -160,11 +181,12 @@ DomParser::parseXODR(QIODevice *source)
 
     if (!doc_->setContent(source, true, &errorStr, &errorLine, &errorColumn))
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning(tr("ODD: XML Parser Error"),
                              tr("Parse error at line %1, column %2:\n%3")
                                  .arg(errorLine)
                                  .arg(errorColumn)
                                  .arg(errorStr));
+		
         return false;
     }
 
@@ -173,7 +195,7 @@ DomParser::parseXODR(QIODevice *source)
     QDomElement root = doc_->documentElement();
     if (root.tagName() != "OpenDRIVE")
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Root element is not <OpenDRIVE>!"));
         return false;
     }
@@ -184,7 +206,7 @@ DomParser::parseXODR(QIODevice *source)
     child = root.firstChildElement("header");
     if (child.isNull())
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Missing <header> element!"));
         return false;
     }
@@ -251,7 +273,7 @@ DomParser::parsePrototypes(QIODevice *source)
 
     if (!doc_->setContent(source, true, &errorStr, &errorLine, &errorColumn))
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Parse error at line %1, column %2:\n%3")
                                  .arg(errorLine)
                                  .arg(errorColumn)
@@ -264,7 +286,7 @@ DomParser::parsePrototypes(QIODevice *source)
     QDomElement root = doc_->documentElement();
     if (root.tagName() != "ODDLot")
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Root element is not <ODDLot>!"));
         return false;
     }
@@ -289,7 +311,7 @@ DomParser::parsePrototypes(QIODevice *source)
     prototypesRoot = root.firstChildElement("prototypes");
     if (prototypesRoot.isNull())
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Missing <prototypes> element!"));
         return false;
     }
@@ -448,6 +470,35 @@ DomParser::parsePrototypes(QIODevice *source)
         }
     }
 
+	// RoadShape Prototypes //
+	//
+	prototypes = prototypesRoot.firstChildElement("shapePrototypes");
+	if (!prototypes.isNull())
+	{
+		QDomElement prototype = prototypes.firstChildElement("shapePrototype");
+		while (!prototype.isNull())
+		{
+			// Name and Icon //
+			//
+			QString name = parseToQString(prototype, "name", "noname", false); // mandatory
+			QString icon = parseToQString(prototype, "icon", "", true); // optional
+			QString system = parseToQString(prototype, "system", "", true); // optional
+			QString type = parseToQString(prototype, "type", "", true); // optional
+			QString lanes = parseToQString(prototype, "lanes", "", true); // optional
+
+																		  // Road //
+																		  //
+			QDomElement child = prototype.firstChildElement("road");
+			QString p = "p";
+			RSystemElementRoad *road = parseRoadElement(child, p);
+			road->accept(spArcSMergeVisitor);
+
+			ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_RoadShapePrototype, system, type, lanes);
+
+			prototype = prototype.nextSiblingElement("shapePrototype");
+		}
+	}
+
     // LaneSection Prototypes //
     //
     prototypes = prototypesRoot.firstChildElement("laneSectionPrototypes");
@@ -499,14 +550,14 @@ DomParser::parsePrototypes(QIODevice *source)
             {
                 if (road->getTrackSections().isEmpty())
                 {
-                    QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+                    warning( tr("ODD: XML Parser Error"),
                                          tr("Prototype has a road without Tracks (PlanView)!"));
                     return false;
                 }
 
                 if (road->getLaneSections().isEmpty())
                 {
-                    QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+                    warning( tr("ODD: XML Parser Error"),
                                          tr("Prototype has a road without LaneSections!"));
                     return false;
                 }
@@ -562,7 +613,7 @@ DomParser::check(bool success, const QDomElement &element, const QString &attrib
 {
     if (!success)
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Error parsing attribute \"%2\" of element <%1> in line %4 to type %3. A default value will be used. This can lead to major problems.")
                                  .arg(element.tagName())
                                  .arg(attributeName)
@@ -906,7 +957,7 @@ DomParser::parseRoadSystem(QDomElement &root)
     QDomElement child = root.firstChildElement("road");
     if (child.isNull())
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Missing <road> element!"));
         return false;
     }
@@ -1143,29 +1194,6 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         }
     }
 
-	child = element.firstChildElement("lateralProfile");
-	if (!child.isNull())
-	{
-		child = child.firstChildElement("shape");
-		while (!child.isNull())
-		{
-			foundLateral = true;
-			parseShapeElement(child, road);
-			child = child.nextSiblingElement("shape");
-		}
-	}
-
-    if (!foundLateral && (mode_ != DomParser::MODE_PROTOTYPES))
-    {
-        SuperelevationSection *sESection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
-        road->addSuperelevationSection(sESection);
-
-        CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
-        road->addCrossfallSection(cSection);
-
-		ShapeSection *sSection = new ShapeSection(0.0);
-		road->addShapeSection(sSection);
-    }
 
     // <lanes> //
     child = element.firstChildElement("lanes");
@@ -1189,6 +1217,48 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         // TODO: NOT OPTIONAL
         //		qDebug("NOT OPTIONAL: <lanes>");
     }
+
+	child = element.firstChildElement("lateralProfile");
+	if (!child.isNull())
+	{
+		child = child.firstChildElement("shape");
+		while (!child.isNull())
+		{
+			foundLateral = true;
+			parseShapeElement(child, road);
+			child = child.nextSiblingElement("shape");
+		}
+	}
+
+	if (!foundLateral)
+	{
+		if (mode_ != DomParser::MODE_PROTOTYPES)
+		{
+			SuperelevationSection *sESection = new SuperelevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
+			road->addSuperelevationSection(sESection);
+
+			CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
+			road->addCrossfallSection(cSection);
+
+			ShapeSection *sSection = new ShapeSection(0.0, -road->getMinWidth(0.0));
+			road->addShapeSection(sSection);
+		}
+	}
+	else
+	{
+		foreach(ShapeSection *section, road->getShapeSections())
+		{
+			foreach(PolynomialLateralSection *poly, section->getShapes())
+			{
+				poly->getControlPointsFromParameters();
+				PolynomialLateralSection *lastLateralSection = section->getPolynomialLateralSectionBefore(poly->getTStart());
+				if (lastLateralSection)
+				{
+					section->checkSmooth(lastLateralSection, poly);
+				}
+			}
+		}
+	}
 
     // <objects>                //
     // (optional, max count: 1) //
@@ -1428,7 +1498,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
 						if (!parking->addMarking(side, type, width, color))
 						{
-							QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+							warning( tr("ODD: XML Parser Error"),
 								tr("Error parsing attribute \"%2\" of element <%1> in line %3. This value is not defined. This can lead to major problems.")
 								.arg(markingChild.tagName())
 								.arg("side")
@@ -1938,6 +2008,7 @@ DomParser::parseCrossfallElement(QDomElement &element, RSystemElementRoad *road)
 bool 
 DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
 {
+
 	double s = parseToDouble(element, "s", 0.0, false); // mandatory
 	double t = parseToDouble(element, "t", 0.0, false); // mandatory
 	double a = parseToDouble(element, "a", 0.0, false); // mandatory
@@ -1945,15 +2016,17 @@ DomParser::parseShapeElement(QDomElement &element, RSystemElementRoad *road)
 	double c = parseToDouble(element, "c", 0.0, false); // mandatory
 	double d = parseToDouble(element, "d", 0.0, false); // mandatory
 
-	Polynomial *poly = new Polynomial(a, b, c, d);
+	PolynomialLateralSection *polynomialLateralSection = new PolynomialLateralSection(t, a, b, c, d);
 	ShapeSection *section = road->getShapeSection(s);
-	if (!section)
+	if (!section || (abs(section->getSStart() - s) > NUMERICAL_ZERO3))
 	{
-		section = new ShapeSection(s);
+		section = new ShapeSection(s, t, polynomialLateralSection);
 		road->addShapeSection(section);
 	}
-	section->addShape(t, poly);
-
+	else
+	{
+		section->addShape(t, polynomialLateralSection);
+	}
 	return true;
 }
 
@@ -2261,7 +2334,7 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 		if (id != 0)
 		{
 			// TODO: NOT OPTIONAL
-			QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+			warning( tr("ODD: XML Parser Error"),
 				tr("NOT OPTIONAL: <width> or <border> of <lane>  %1 in laneSection %2 of road %3")
 					.arg(id)
 					.arg(laneSection->getSStart())
@@ -3507,7 +3580,7 @@ DomParser::parseSignals(QIODevice *source)
 
     if (!doc_->setContent(source, true, &errorStr, &errorLine, &errorColumn))
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Parse error at line %1, column %2:\n%3")
                                  .arg(errorLine)
                                  .arg(errorColumn)
@@ -3535,7 +3608,7 @@ DomParser::parseSignals(QIODevice *source)
     QDomElement root = doc_->documentElement();
     if (root.tagName() != "ODDLot")
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Root element is not <ODDLot>!"));
         return false;
     }
@@ -3546,7 +3619,7 @@ DomParser::parseSignals(QIODevice *source)
     signalsRoot = root.firstChildElement("signalsObjects");
     if (signalsRoot.isNull())
     {
-        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+        warning( tr("ODD: XML Parser Error"),
                              tr("Missing <signals> element!"));
         return false;
     }

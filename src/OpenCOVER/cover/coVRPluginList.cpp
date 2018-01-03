@@ -496,9 +496,9 @@ void coVRPluginList::init2()
     DOALL(plugin->init2());
 }
 
-void coVRPluginList::message(int t, int l, const void *b) const
+void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
 {
-    DOALL(plugin->message(t, l, b));
+    DOALL(plugin->message(toWhom, t, l, b));
 }
 
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const
@@ -559,7 +559,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         || (toWhom == coVRPluginSupport::TO_ALL_OTHERS)
         || (toWhom == coVRPluginSupport::VRML_EVENT))
     {
-        message(type, len - headerSize, ((const char *)buf) + headerSize);
+        message(toWhom, type, len - headerSize, ((const char *)buf) + headerSize);
     }
     else
     {
@@ -568,7 +568,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         if (mod)
         {
             int ssize = strlen(name) + 1 + (8 - ((strlen(name) + 1) % 8));
-            mod->message(type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
+            mod->message(toWhom, type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
         }
     }
 }

@@ -1018,18 +1018,18 @@ public:
     void parseTextureMessage();
 
 protected:
-    int texturesToChange;
-    int height;
-    int width;
-    int depth;
-    int dataLength;
-    char *data;
+    int texturesToChange = 0;
+    int height = 0;
+    int width = 0;
+    int depth = 0;
+    int dataLength = 0;
+    char *data = nullptr;
     int textureNumber;
 
     int index;
 
-    osg::Node *changedNode;
-    covise::Connection *conn;
+    osg::Node *changedNode = nullptr;
+    covise::Connection *conn = nullptr;
 
     std::queue<int> _heightList;
     std::queue<int> _widthList;
@@ -1042,14 +1042,14 @@ protected:
     int textureTexGenMode;
     int alpha;
 
-    covise::Host *serverHost;
-    covise::Host *localHost;
+    covise::Host *serverHost = nullptr;
+    covise::Host *localHost = nullptr;
     int texturePort;
     float timeout;
-    SGTextureThread *thread;
+    SGTextureThread *thread = nullptr;
     OpenThreads::Mutex mutex;
 
-    osg::Node *currentNode;
+    osg::Node *currentNode = nullptr;
     std::string currentPath;
     std::string changedPath;
 };

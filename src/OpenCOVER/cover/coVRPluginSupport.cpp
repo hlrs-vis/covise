@@ -865,9 +865,9 @@ void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, in
     int size = len + 2 * sizeof(int);
 
     if (toWhom == coVRPluginSupport::TO_SAME)
-        sender->message(type, len, buf);
+        sender->message(toWhom, type, len, buf);
     if (toWhom == coVRPluginSupport::TO_ALL)
-        coVRPluginList::instance()->message(type, len, buf);
+        coVRPluginList::instance()->message(toWhom, type, len, buf);
 
     if ((toWhom == coVRPluginSupport::TO_SAME) || (toWhom == coVRPluginSupport::TO_SAME_OTHERS))
     {
@@ -914,7 +914,7 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
     coVRPlugin *dest = coVRPluginList::instance()->getPlugin(destination);
     if (dest)
     {
-        dest->message(type, len, buf);
+        dest->message(0, type, len, buf);
     }
     else if (strcmp(destination, "AKToolbar") != 0)
     {

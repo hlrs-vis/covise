@@ -142,6 +142,12 @@ CatalogTreeWidget::init()
 	createTree();
 }
 
+struct TreeDataTyoe {
+	QString str;
+	OpenScenario::oscObjectBase *obj;
+};
+Q_DECLARE_METATYPE(TreeDataTyoe);
+
 void
 CatalogTreeWidget::createTree()
 {
@@ -182,8 +188,13 @@ CatalogTreeWidget::createTree()
 				}
 
 				QTreeWidgetItem *item = new QTreeWidgetItem();
+				TreeDataTyoe td;
+				td.str = elementName;
+				td.obj = obj;
+				item->setData(0, Qt::UserRole, qVariantFromValue<TreeDataTyoe>(td));
 				item->setText(0,elementName);
 				item->setFlags(Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+				
 
 				rootList.append(item);
 			}
@@ -204,6 +215,20 @@ QTreeWidgetItem *CatalogTreeWidget::getItem(const QString &name)
 	return NULL;
 }
 
+QTreeWidgetItem *CatalogTreeWidget::getItem(OpenScenario::oscObjectBase *obj)
+{
+	QTreeWidgetItemIterator it(this);
+	while (*it)
+	{
+		if ((*it)->data(0, Qt::UserRole).value<TreeDataTyoe>().obj == obj)
+		{
+			return (*it);
+		}
+		++it;
+	}
+
+	return NULL;
+}
 
 void 
 CatalogTreeWidget::setOpenScenarioEditor(OpenScenarioEditor *oscEditor)
@@ -417,13 +442,16 @@ CatalogTreeWidget::updateObserver()
 		{
 			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
 			QString text = QString::fromStdString(sv->getValue());
+			QTreeWidgetItem *currentEditedItem = getItem(oscElement_->getObject());
 
-			if (selectedItems().size() > 0)
+			if (currentEditedItem != NULL)
 			{
-				QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
-				if (currentEditedItem && (text != currentEditedItem->text(0)))
+				QString elementName = "Loaded(" + text + ")";
+				if (currentEditedItem && (elementName != currentEditedItem->text(0)))
 				{
-					currentEditedItem->setText(0, text);
+					//OpenScenario::oscObjectBase *oscObject = catalog_->getCatalogObject(currentEditedItem->text(0));
+					catalog_->renameCatalogObject(obj, text.toStdString());
+					currentEditedItem->setText(0, elementName);
 
 					// Update Editor //
 					//

@@ -96,6 +96,7 @@ void QtView::add(QtViewElement *ve, bool update)
     std::string configPath = "COVER.UI." + elem->path();
     bool exists = false;
     bool inToolbar = covise::coCoviseConfig::isOn("toolbar", configPath, elem->priority()>=ui::Element::Toolbar, &exists);
+    bool inMenu = elem->priority() >= ui::Element::Default;
 
     auto a = ve->action;
     if (!a)
@@ -109,8 +110,9 @@ void QtView::add(QtViewElement *ve, bool update)
     if (auto ag = dynamic_cast<QActionGroup *>(qtObject(parent)))
     {
         //std::cerr << "ui: adding button " << elem->path() << " to action group" << std::endl;
-        ag->addAction(a);
-        if (container && hasParent)
+        if (inMenu)
+            ag->addAction(a);
+        if (container && inMenu && hasParent)
             container->addAction(a);
         if (m_toolbar && inToolbar && !update)
         {
@@ -123,7 +125,7 @@ void QtView::add(QtViewElement *ve, bool update)
     else if (container)
     {
         //std::cerr << "ui: adding button " << elem->path() << " to widget" << std::endl;
-        if (hasParent)
+        if (hasParent && inMenu)
             container->addAction(a);
         if (m_toolbar && inToolbar && !update)
         {
