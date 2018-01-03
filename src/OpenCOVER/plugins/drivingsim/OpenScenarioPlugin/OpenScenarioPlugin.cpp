@@ -126,7 +126,7 @@ void OpenScenarioPlugin::preFrame()
 								{
 
                                     if ((*trajectory_iter)->mode == "World"){
-                                        (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*activeEntity)->getSpeed(),sm->simulationTime));
+                                        (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*activeEntity)->getSpeed(),scenarioManager->simulationTime));
 
                                     }
                                     else if((*trajectory_iter)->mode == "RelativeWorld"){
