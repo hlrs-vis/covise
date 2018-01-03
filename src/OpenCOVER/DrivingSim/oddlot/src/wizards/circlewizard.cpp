@@ -38,7 +38,7 @@
 #include "src/cover/coverconnection.hpp"
 #include "src/data/prototypemanager.hpp"
 #include <qdialogbuttonbox.h>
-#include <qPushButton.h>
+#include <qpushbutton.h>
 #include <qundostack.h>
 
 
