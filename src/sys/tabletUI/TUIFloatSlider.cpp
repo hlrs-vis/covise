@@ -13,6 +13,7 @@
 #include <QSlider>
 #include <QString>
 #include <QLineEdit>
+#include <QGridLayout>
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
@@ -28,7 +29,6 @@
 TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    //int row  = 0;
     width = 2;
 
     min = 0.0;
@@ -43,10 +43,18 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
     slider->setMinimum(0);
     slider->setMaximum(1000);
 
-    widget = slider;
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
     connect(slider, SIGNAL(sliderPressed()), this, SLOT(pressed()));
     connect(slider, SIGNAL(sliderReleased()), this, SLOT(released()));
+
+    auto gl = new QGridLayout;
+    layout = gl;
+    gl->addWidget(slider, 1, 0, 1, width-1);
+    gl->addWidget(string, 1, width-1);
+    for (int i=0; i<width-1; ++i)
+        gl->setColumnStretch(i, 100);
+
+    widget = slider;
 }
 
 /// Destructor
@@ -54,16 +62,14 @@ TUIFloatSlider::~TUIFloatSlider()
 {
     delete string;
     delete slider;
+    delete label;
 }
 
 void TUIFloatSlider::setPos(int x, int y)
 {
-    const int w = width;
     xPos = x;
     yPos = y;
-    width = w-1;
     TUIContainer *parent = getParent();
-    widget = slider;
     if (parent)
     {
         parent->addElementToLayout(this);
@@ -72,21 +78,10 @@ void TUIFloatSlider::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    xPos = x+w-1;
-    width = 1;
-    widget = string;
-    if (parent)
-    {
-        parent->addElementToLayout(this);
-    }
-    else
-    {
-        TUIMainWindow::getInstance()->addElementToLayout(this);
-    }
-    width = w;
-    xPos = x;
     slider->setVisible(!hidden);
     string->setVisible(!hidden);
+    if (label)
+        label->setVisible(!hidden);
 }
 
 void TUIFloatSlider::sliderChanged(int ival)
@@ -132,45 +127,9 @@ void TUIFloatSlider::released()
     //TUIMainWindow::getInstance()->getStatusBar()->message(QString("Floatslider: %1").arg(value));
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIFloatSlider::setEnabled(bool en)
-{
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIFloatSlider::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
 const char *TUIFloatSlider::getClassName() const
 {
     return "TUIFloatSlider";
-}
-
-bool TUIFloatSlider::isOfClassName(const char *classname) const
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
 }
 
 void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
@@ -236,4 +195,16 @@ void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
             slider->setOrientation(Qt::Vertical);
     }
     TUIElement::setValue(type, tb);
+}
+
+void TUIFloatSlider::setLabel(QString textl)
+{
+    TUIElement::setLabel(textl);
+    if (!label)
+    {
+        label = new QLabel(widget->parentWidget());
+        label->setBuddy(string);
+        static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
+    }
+    label->setText(textl);
 }

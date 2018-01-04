@@ -152,7 +152,8 @@ void TUIElement::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    if (widget)
+        widget->setVisible(!hidden);
 }
 
 /** Get parent container.
@@ -161,6 +162,11 @@ void TUIElement::setPos(int x, int y)
 TUIContainer *TUIElement::getParent()
 {
     return parentContainer;
+}
+
+QLayout *TUIElement::getLayout()
+{
+    return layout;
 }
 
 /** Set activation state.

@@ -23,6 +23,7 @@
 #include <util/coTabletUIMessages.h>
 class TUIContainer;
 class QWidget;
+class QLayout;
 class TUITab;
 namespace covise
 {
@@ -47,6 +48,7 @@ public:
     virtual ~TUIElement();
     virtual void setParent(TUIContainer *);
     virtual TUIContainer *getParent();
+    virtual QLayout *getLayout();
     virtual QWidget *getWidget();
     virtual void setWidget(QWidget *);
 
@@ -104,9 +106,10 @@ protected:
     int ID;
     int ParentID;
     int xPos, yPos;
-    int height, width;
+    int height = 1, width = 1;
     QString label;
-    QWidget *widget;
+    QWidget *widget = nullptr;
+    QLayout *layout = nullptr;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
     bool visible; ///< true if UI element is visible, false if not visible but still present in scene tree
