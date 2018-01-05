@@ -67,11 +67,12 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
     frame = new QFrame(w);
     frame->setFrameStyle(QFrame::NoFrame);
 
-    layout = new QGridLayout(frame);
+    auto grid = new QGridLayout(frame);
+    layout = grid;
     widget = frame;
 
     externTexView = new PixScrollPane(frame);
-    layout->addWidget(externTexView, 0, 1, Qt::AlignLeft);
+    grid->addWidget(externTexView, 0, 1, Qt::AlignLeft);
     extLayout = new VButtonLayout(externTexView->viewport(), true, 100, 1);
     extLayout->setObjectName("extLayout");
     externTexView->setFixedWidth(95);
@@ -79,7 +80,7 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
     connect(extLayout, SIGNAL(buttonPressed(int)), this, SLOT(sendChangeTextureRequest(int)));
 
     sceneTexView = new PixScrollPane(frame);
-    layout->addWidget(sceneTexView, 0, 2, Qt::AlignLeft);
+    grid->addWidget(sceneTexView, 0, 2, Qt::AlignLeft);
     sceneLayout = new VButtonLayout(sceneTexView->viewport(), false, 100, 1);
     sceneLayout->setObjectName("sceneLayout");
     sceneTexView->add(sceneLayout);
@@ -87,7 +88,7 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
     connect(sceneLayout, SIGNAL(buttonPressed(int)), this, SLOT(sendChangeTextureRequest(int)));
 
     searchTexView = new PixScrollPane(frame);
-    layout->addWidget(searchTexView, 0, 3, Qt::AlignLeft);
+    grid->addWidget(searchTexView, 0, 3, Qt::AlignLeft);
     searchLayout = new VButtonLayout(searchTexView->viewport(), false, 100, 1);
     searchLayout->setObjectName("searchLayout");
     searchTexView->add(searchLayout);
@@ -96,12 +97,12 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
 
     loadTextureButton = new QPushButton(frame);
     loadTextureButton->setText("load");
-    layout->addWidget(loadTextureButton, 1, 1, Qt::AlignCenter);
+    grid->addWidget(loadTextureButton, 1, 1, Qt::AlignCenter);
     connect(loadTextureButton, SIGNAL(clicked()), this, SLOT(loadTexture()));
 
     updateTexturesButton = new QPushButton(frame);
     updateTexturesButton->setText(" update ");
-    layout->addWidget(updateTexturesButton, 1, 2, Qt::AlignCenter);
+    grid->addWidget(updateTexturesButton, 1, 2, Qt::AlignCenter);
     connect(updateTexturesButton, SIGNAL(clicked()), this, SLOT(updateTextures()));
 
     fromURLButton = new QPushButton(frame);
@@ -132,8 +133,8 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
     searchButtonLayout->addWidget(nextButton, 0, 2, Qt::AlignCenter);
     searchButtonLayout->addWidget(fromURLButton, 0, 1, Qt::AlignCenter);
 
-    layout->addLayout(searchButtonLayout, 1, 3);
-    layout->addWidget(searchField, 2, 3);
+    grid->addLayout(searchButtonLayout, 1, 3);
+    grid->addWidget(searchField, 2, 3);
 
     textureNumberSpin = new QSpinBox(frame);
     textureNumberSpin->setObjectName("textureNumberSpin");
@@ -172,7 +173,7 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
     spinLayout->addWidget(textureNumberSpin, 0, 0, Qt::AlignCenter);
     spinLayout->addWidget(textureModeComboBox, 1, 0, Qt::AlignCenter);
     spinLayout->addWidget(textureTexGenModeComboBox, 2, 0, Qt::AlignCenter);
-    layout->addLayout(spinLayout, 1, 0);
+    grid->addLayout(spinLayout, 1, 0);
 
     fileBrowser = new DirView(frame);
     fileBrowser->setObjectName("fileBrowser");
@@ -190,7 +191,7 @@ TUITextureTab::TUITextureTab(int id, int type, QWidget *w, int parent, QString n
     Directory *root = new Directory(fileBrowser, StaticProps::getTextureDir());
     root->setOpen(true);
     fileBrowser->show();
-    layout->addWidget(fileBrowser, 0, 0, Qt::AlignCenter);
+    grid->addWidget(fileBrowser, 0, 0, Qt::AlignCenter);
 
     menu = new QMenu(frame);
     menu->setObjectName("menu");

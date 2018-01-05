@@ -36,10 +36,11 @@ public:
     /// get the Element's classname
     virtual const char *getClassName() const override;
 
+    QGridLayout *gridLayout() const;
+
 protected:
     /// List of children elements
     typedef std::list<TUIElement *> ElementList;
     ElementList elements;
-    QGridLayout *layout;
 };
 #endif

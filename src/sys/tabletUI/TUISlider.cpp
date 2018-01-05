@@ -53,7 +53,8 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
     for (int i=0; i<width-1; ++i)
         gl->setColumnStretch(i, 100);
 
-    widget = slider;
+    widgets.insert(string);
+    widgets.insert(slider);
 }
 
 /// Destructor
@@ -189,7 +190,8 @@ void TUISlider::setLabel(QString textl)
     TUIElement::setLabel(textl);
     if (!label)
     {
-        label = new QLabel(widget->parentWidget());
+        label = new QLabel(slider->parentWidget());
+        widgets.insert(label);
         label->setBuddy(string);
         static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
     }

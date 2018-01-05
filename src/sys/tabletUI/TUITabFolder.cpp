@@ -55,6 +55,9 @@ void TUITabFolder::valueChanged(int index)
 */
 void TUITabFolder::addElementToLayout(TUIElement *el)
 {
+    if (!el->getWidget())
+        return;
+
     if (tabWidget->indexOf(el->getWidget()) < 0)
     {
         if (!el->isHidden())

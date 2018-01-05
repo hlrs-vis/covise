@@ -16,7 +16,6 @@
 TUIContainer::TUIContainer(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    layout = NULL;
 }
 
 /// Destructor
@@ -41,7 +40,7 @@ void TUIContainer::removeAllChildren()
 */
 void TUIContainer::addElementToLayout(TUIElement *el)
 {
-    if (layout)
+    if (auto gl = gridLayout())
     {
         /*
       if((el->getHeight() != 0) && (el->getWidth() != 0))
@@ -52,18 +51,18 @@ void TUIContainer::addElementToLayout(TUIElement *el)
 
         if (!el->isHidden())
         {
-            if (el->getLayout())
-                layout->addLayout(el->getLayout(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth(), Qt::AlignBaseline);
-            else
-                layout->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+            if (el->getWidget())
+                gl->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+            else if (el->getLayout())
+                gl->addLayout(el->getLayout(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth(), Qt::AlignBaseline);
         }
 
-        for (int i = 0; i < layout->rowCount(); i++)
-            layout->setRowStretch(i, 0);
-        layout->setRowStretch(layout->rowCount(), 100);
-        for (int i = 0; i < layout->columnCount(); i++)
-            layout->setColumnStretch(i, 0);
-        layout->setColumnStretch(layout->columnCount(), 100);
+        for (int i = 0; i < gl->rowCount(); i++)
+            gl->setRowStretch(i, 0);
+        gl->setRowStretch(gl->rowCount(), 100);
+        for (int i = 0; i < gl->columnCount(); i++)
+            gl->setColumnStretch(i, 0);
+        gl->setColumnStretch(gl->columnCount(), 100);
     }
 }
 
@@ -136,4 +135,9 @@ void TUIContainer::setHighlighted(bool hl)
 const char *TUIContainer::getClassName() const
 {
     return "TUIContainer";
+}
+
+QGridLayout *TUIContainer::gridLayout() const
+{
+    return dynamic_cast<QGridLayout *>(layout);
 }

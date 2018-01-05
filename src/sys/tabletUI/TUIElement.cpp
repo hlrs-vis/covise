@@ -119,7 +119,9 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
 */
 void TUIElement::setWidget(QWidget *w)
 {
+    widgets.erase(widget);
     widget = w;
+    widgets.insert(w);
 }
 
 /** Set parent container.
@@ -202,6 +204,14 @@ void TUIElement::setColor(Qt::GlobalColor color)
         palette.setColor(widget->foregroundRole(), color);
         widget->setPalette(palette);
     }
+
+    for (auto &w: widgets)
+    {
+        QPalette palette = w->palette();
+        palette.setColor(w->backgroundRole(), color);
+        palette.setColor(w->foregroundRole(), color);
+        w->setPalette(palette);
+    }
 }
 
 /** Set element visibility.
@@ -221,6 +231,10 @@ void TUIElement::setHidden(bool hide)
     hidden = hide;
     if (getWidget())
         getWidget()->setVisible(!hidden);
+    for (auto &w: widgets)
+    {
+        w->setVisible(!hidden);
+    }
 }
 
 /** Get hiding state.

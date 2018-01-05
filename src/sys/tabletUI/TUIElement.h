@@ -21,6 +21,7 @@
 #include "wce_connect.h"
 #endif
 #include <util/coTabletUIMessages.h>
+#include <set>
 class TUIContainer;
 class QWidget;
 class QLayout;
@@ -108,8 +109,9 @@ protected:
     int xPos, yPos;
     int height = 1, width = 1;
     QString label;
-    QWidget *widget = nullptr;
     QLayout *layout = nullptr;
+    QWidget *widget = nullptr;
+    std::set<QWidget *> widgets;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
     bool visible; ///< true if UI element is visible, false if not visible but still present in scene tree
