@@ -53,6 +53,7 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
     gl->addWidget(string, 1, width-1);
     for (int i=0; i<width-1; ++i)
         gl->setColumnStretch(i, 100);
+    gl->setContentsMargins(0, 0, 0, 0);
 
     widgets.insert(string);
     widgets.insert(slider);
@@ -61,6 +62,7 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
 /// Destructor
 TUIFloatSlider::~TUIFloatSlider()
 {
+    delete layout;
     delete string;
     delete slider;
     delete label;
@@ -194,6 +196,19 @@ void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
             slider->setOrientation(Qt::Horizontal);
         else
             slider->setOrientation(Qt::Vertical);
+    }
+    else if (type == TABLET_ORIENTATION)
+    {
+        int orientation;
+        tb >> orientation;
+        if (orientation == Qt::Vertical)
+        {
+            slider->setOrientation(Qt::Vertical);
+        }
+        else
+        {
+            slider->setOrientation(Qt::Horizontal);
+        }
     }
     TUIElement::setValue(type, tb);
 }

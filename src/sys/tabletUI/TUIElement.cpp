@@ -41,6 +41,9 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
 /// Destructor
 TUIElement::~TUIElement()
 {
+    widget = nullptr;
+    widgets.clear();
+
     if (parentContainer)
     {
         parentContainer->removeElement(this);

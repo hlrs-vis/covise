@@ -52,6 +52,7 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
     gl->addWidget(string, 1, width-1);
     for (int i=0; i<width-1; ++i)
         gl->setColumnStretch(i, 100);
+    gl->setContentsMargins(0, 0, 0, 0);
 
     widgets.insert(string);
     widgets.insert(slider);
@@ -60,6 +61,7 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
 /// Destructor
 TUISlider::~TUISlider()
 {
+    delete layout;
     delete string;
     delete slider;
     delete label;
@@ -180,6 +182,19 @@ void TUISlider::setValue(int type, covise::TokenBuffer &tb)
             slider->setOrientation(Qt::Horizontal);
         else
             slider->setOrientation(Qt::Vertical);
+    }
+    else if (type == TABLET_ORIENTATION)
+    {
+        int orientation;
+        tb >> orientation;
+        if (orientation == Qt::Vertical)
+        {
+            slider->setOrientation(Qt::Vertical);
+        }
+        else
+        {
+            slider->setOrientation(Qt::Horizontal);
+        }
     }
 
     TUIElement::setValue(type, tb);
