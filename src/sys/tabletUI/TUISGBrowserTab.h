@@ -51,29 +51,6 @@
 
 #include "qtpropertyDialog.h"
 
-#if 0
-#include <qevent.h>
-#include <q3dragobject.h>
-#include <qsignalmapper.h>
-#include <q3urloperator.h>
-#include <q3network.h>
-#include <qregexp.h>
-#include <qdatetime.h>
-#include <qlineedit.h>
-#include <qtimer.h>
-#include <qobject.h>
-#include <qdialog.h>
-#include <qdatastream.h>
-#include <q3listview.h>
-#include <qmessagebox.h>
-#include <qspinbox.h>
-#include <qcombobox.h>
-#include <q3canvas.h>
-#include <q3memarray.h>
-#include <qtooltip.h>
-#include <QMouseEvent>
-#endif
-
 #ifndef WIN32
 #include <stdint.h>
 #endif

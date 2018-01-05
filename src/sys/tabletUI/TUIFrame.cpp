@@ -96,26 +96,6 @@ const char *TUIFrame::getClassName() const
     return "TUIFrame";
 }
 
-bool TUIFrame::isOfClassName(const char *classname) const
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
-}
-
 void TUIFrame::setValue(int type, covise::TokenBuffer &tb)
 {
     QFrame *frame = (QFrame *)widget;

@@ -54,45 +54,9 @@ void TUIProgressBar::setPos(int x, int y)
     pb->setVisible(!hidden);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIProgressBar::setEnabled(bool en)
-{
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIProgressBar::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
 const char *TUIProgressBar::getClassName() const
 {
     return "TUIProgressBar";
-}
-
-bool TUIProgressBar::isOfClassName(const char *classname) const
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
 }
 
 void TUIProgressBar::setValue(int type, covise::TokenBuffer &tb)

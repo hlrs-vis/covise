@@ -22,16 +22,12 @@ class TUILineEdit : public QObject, public TUIElement
 public:
     TUILineEdit(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUILineEdit();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(int type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(const char *) const;
+    virtual const char *getClassName() const override;
 
-    void setPos(int x, int y);
+    void setPos(int x, int y) override;
 
 public slots:
     void valueChanged();

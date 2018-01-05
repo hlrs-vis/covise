@@ -101,22 +101,6 @@ void TUIToggleBitmapButton::valueChanged(bool)
     TUIMainWindow::getInstance()->send(tb);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIToggleBitmapButton::setEnabled(bool en)
-{
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIToggleBitmapButton::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
 void TUIToggleBitmapButton::setSize(int w, int h)
 {
     QPushButton *b = (QPushButton *)widget;
@@ -127,26 +111,6 @@ void TUIToggleBitmapButton::setSize(int w, int h)
 const char *TUIToggleBitmapButton::getClassName() const
 {
     return "TUIToggleBitmapButton";
-}
-
-bool TUIToggleBitmapButton::isOfClassName(const char *classname) const
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
 }
 
 void TUIToggleBitmapButton::setValue(int type, covise::TokenBuffer &tb)

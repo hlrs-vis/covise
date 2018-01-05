@@ -24,19 +24,18 @@ private:
 public:
     TUITab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUITab();
-    virtual void setPos(int x, int y);
+    virtual void setPos(int x, int y) override;
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
+    virtual const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(const char *) const;
-    virtual void deActivate(TUITab *activedTab);
-    virtual void setValue(int type, covise::TokenBuffer &tb);
-    virtual void setHidden(bool hide);
+    virtual void deActivate(TUITab *activedTab) override;
+    virtual void setValue(int type, covise::TokenBuffer &tb) override;
+    virtual void setHidden(bool hide) override;
 
     virtual void activated();
 
-    virtual void setLabel(QString textl);
+    virtual void setLabel(QString textl) override;
 
 protected:
     int firstTime;

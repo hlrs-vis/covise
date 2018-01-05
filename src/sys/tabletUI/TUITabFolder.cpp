@@ -70,23 +70,3 @@ const char *TUITabFolder::getClassName() const
 {
     return "TUITabFolder";
 }
-
-bool TUITabFolder::isOfClassName(const char *classname) const
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
-}

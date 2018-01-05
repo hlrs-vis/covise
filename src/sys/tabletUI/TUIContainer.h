@@ -25,8 +25,8 @@ private:
 public:
     TUIContainer(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIContainer();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
+    virtual void setEnabled(bool en) override;
+    virtual void setHighlighted(bool hl) override;
     virtual void addElementToLayout(TUIElement *el);
     virtual void addElement(TUIElement *el);
     virtual void removeElement(TUIElement *el);
@@ -34,9 +34,7 @@ public:
     void removeAllChildren();
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(const char *) const;
+    virtual const char *getClassName() const override;
 
 protected:
     /// List of children elements

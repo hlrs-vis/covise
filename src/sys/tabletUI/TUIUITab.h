@@ -27,8 +27,8 @@ public:
     TUIUITab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIUITab();
 
-    virtual const char *getClassName() const;
-    virtual void setValue(int type, covise::TokenBuffer &tb);
+    virtual const char *getClassName() const override;
+    virtual void setValue(int type, covise::TokenBuffer &tb) override;
 
 public slots:
     void sendCommand(const QString &target, const QString &command);

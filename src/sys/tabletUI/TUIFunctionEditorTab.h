@@ -96,8 +96,8 @@ public:
     //
     // TUI interface
     //
-    virtual const char *getClassName() const;
-    virtual void setValue(int type, covise::TokenBuffer &tb);
+    virtual const char *getClassName() const override;
+    virtual void setValue(int type, covise::TokenBuffer &tb) override;
 
     // To update the cover counterpart
 public slots:
