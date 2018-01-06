@@ -664,13 +664,14 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             tb >> parent;
             tb >> name;
             //cerr << "TUIApplication::handleClient info: Create: ID: " << ID << " Type: " << elementType << " name: "<< name << " parent: " << parent << std::endl;
-            TUIContainer *parentElem = (TUIContainer *)getElement(parent);
+            TUIElement *parentElement = getElement(parent);
+            TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
+            if (parentElement && !parentElem)
+                std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
 
-            QWidget *parentWidget;
+            QWidget *parentWidget = mainFrame;
             if (parentElem)
                 parentWidget = parentElem->getWidget();
-            else
-                parentWidget = mainFrame;
 
             TUIElement *newElement = createElement(ID, elementType, parentWidget, parent, name);
             if (newElement)
