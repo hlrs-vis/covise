@@ -13,6 +13,8 @@
 #include "TUIContainer.h"
 
 class QTabWidget;
+class QStackedWidget;
+class QComboBox;
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -31,12 +33,18 @@ public:
 
     /// get the Element's classname
     virtual const char *getClassName() const override;
+    int indexOf(QWidget *widget) const;
+    void addTab(QWidget *widget, QString label);
+    void removeTab(int index);
 
 public slots:
 
     void valueChanged(int);
+    void setCurrentIndex(int);
 
 protected:
-    QTabWidget *tabWidget;
+    QTabWidget *tabWidget = nullptr;
+    QComboBox *switchWidget = nullptr;
+    QStackedWidget *stackWidget = nullptr;
 };
 #endif

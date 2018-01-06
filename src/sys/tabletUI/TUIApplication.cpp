@@ -462,7 +462,10 @@ void TUIMainWindow::processMessages()
 void TUIMainWindow::addElementToLayout(TUIElement *elem)
 //------------------------------------------------------------------------
 {
-    mainGrid->addWidget(elem->getWidget(), elem->getXpos(), elem->getYpos());
+    if (elem->getWidget())
+        mainGrid->addWidget(elem->getWidget(), elem->getXpos(), elem->getYpos());
+    else if (elem->getLayout())
+        mainGrid->addLayout(elem->getLayout(), elem->getXpos(), elem->getYpos());
 }
 
 //------------------------------------------------------------------------
