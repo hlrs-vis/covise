@@ -16,7 +16,7 @@ bool checkName(const std::string &name)
         if (!isalnum(c) && c != '_')
         {
             std::cerr << "ui::Owner: invalid name " << name << std::endl;
-            assert("Invalid owner name" == 0);
+            //assert("Invalid owner name" == 0);
             return false;
         }
     }

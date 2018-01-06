@@ -51,13 +51,17 @@ void TUIContainer::addElementToLayout(TUIElement *el)
       */
 
         if (!el->isHidden())
-            layout->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+        {
+            if (el->getLayout())
+                layout->addLayout(el->getLayout(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth(), Qt::AlignBaseline);
+            else
+                layout->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+        }
 
-        int i;
-        for (i = 0; i < layout->rowCount(); i++)
+        for (int i = 0; i < layout->rowCount(); i++)
             layout->setRowStretch(i, 0);
         layout->setRowStretch(layout->rowCount(), 100);
-        for (i = 0; i < layout->columnCount(); i++)
+        for (int i = 0; i < layout->columnCount(); i++)
             layout->setColumnStretch(i, 0);
         layout->setColumnStretch(layout->columnCount(), 100);
     }

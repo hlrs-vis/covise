@@ -11,6 +11,7 @@
 #include <QFrame>
 #include <QTabWidget>
 #include <QGridLayout>
+#include <QScrollArea>
 
 #include "TUITab.h"
 #include "TUIApplication.h"
@@ -27,17 +28,34 @@ TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
     : TUIContainer(id, type, w, parent, name)
 {
     label = name;
+    QScrollArea *scroll = nullptr;
 
-    QFrame *frame = new QFrame(w);
-    frame->setFrameStyle(QFrame::NoFrame);
-#ifdef _WIN32_WCE
-    frame->setContentsMargins(1, 1, 1, 1);
-#else
-    frame->setContentsMargins(5, 5, 5, 5);
-#endif
+    bool inMainFolder = parent==3;
+    auto parentWidget = w;
+    if (inMainFolder)
+    {
+        scroll = new QScrollArea(w);
+        scroll->setMinimumWidth(300);
+        scroll->setMinimumHeight(300);
+        scroll->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+        scroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+        scroll->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+        parentWidget = scroll;
+    }
 
-    layout = new QGridLayout(frame);
+    QFrame *frame = new QFrame(parentWidget);
+    frame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+    frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+    frame->setContentsMargins(0, 0, 0, 0);
     widget = frame;
+    layout = new QGridLayout(frame);
+    if (scroll)
+    {
+        scroll->setWidget(frame);
+        scroll->setWidgetResizable(true);
+        widget = scroll;
+    }
+
     firstTime = true;
 }
 
@@ -46,7 +64,9 @@ TUITab::~TUITab()
 {
     removeAllChildren();
     delete layout;
+    layout = nullptr;
     delete widget;
+    widget = nullptr;
 }
 
 void TUITab::activated()
@@ -87,8 +107,8 @@ void TUITab::setPos(int x, int y)
 {
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
-    if ((parent = getParent()))
+    TUIContainer *parent = getParent();
+    if (parent)
     {
         parent->addElementToLayout(this);
         if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))

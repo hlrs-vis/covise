@@ -187,11 +187,6 @@ void SumoTraCI::readSimResults()
         currentResults[i].position[0]=x;
         currentResults[i].position[1]=y;
         currentResults[i].position[2]=z;
-        rtb >> y;
-        rtb >> z;
-        currentResults[i].position[0]=x;
-        currentResults[i].position[1]=y;
-        currentResults[i].position[2]=z;
         rtb >>  currentResults[i].angle;
         rtb >>  currentResults[i].vehicleClass;
         rtb >>  currentResults[i].vehicleType;

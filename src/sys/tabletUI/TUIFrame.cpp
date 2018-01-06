@@ -55,6 +55,7 @@ TUIFrame::TUIFrame(int id, int type, QWidget *w, int parent, QString name)
 #else
     frame->setContentsMargins(5, 5, 5, 5);
 #endif
+    frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
     layout = new QGridLayout(frame);
     widget = frame;
