@@ -126,7 +126,7 @@ void OpenScenarioPlugin::preFrame()
 								{
 
                                     if ((*trajectory_iter)->mode == "World"){
-                                        (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*activeEntity)->getSpeed(),scenarioManager->simulationTime));
+                                        (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,scenarioManager->simulationTime));
 
                                     }
                                     else if((*trajectory_iter)->mode == "RelativeWorld"){
@@ -633,7 +633,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 				for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
 				{	
 					oscVertex* vertex = ((oscVertex*)(*it));
-                    if (vertex->Position->RelativeWorld->dx.exists()) {
+                    if (vertex->Position->RelativeWorld.exists()) {
                         osg::Vec3 polyVec_temp (vertex->Position->RelativeWorld->dx.getValue(),vertex->Position->RelativeWorld->dy.getValue(),vertex->Position->RelativeWorld->dz.getValue());
                         polylineVertices_temp.push_back(polyVec_temp);
                         mode_temp = "RelativeWorld";

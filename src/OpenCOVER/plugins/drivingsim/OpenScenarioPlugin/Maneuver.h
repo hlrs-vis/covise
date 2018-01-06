@@ -33,7 +33,7 @@ public:
 
     //followTrajectory
     float totalDistance;
-
+    float speed;
     osg::Vec3 totaldirectionVector;
     osg::Vec3 verticeStartPos;
     float totaldirectionVectorLength;
@@ -54,7 +54,7 @@ public:
     virtual void finishedParsing();
 
     std::string &getName();
-    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float speed, float timer);
+    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float timer);
     osg::Vec3 &followTrajectoryRel(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float speed);
     void changeSpeedOfEntity(Entity *aktivCar, float dt);
 };

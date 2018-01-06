@@ -27,7 +27,7 @@ void Maneuver::finishedParsing()
 	name = oscManeuver::name.getValue();
 }
 
-osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> polylineVertices, float speed,float timer)
+osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> polylineVertices, float timer)
 
 {
     int verticesCounter = polylineVertices.size();
@@ -38,14 +38,14 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> po
         verticeStartPos = currentPos;
         targetPosition = polylineVertices[visitedVertices];
 
-        float xcoord = currentPos[0];
+        // calculate speed
+        totaldirectionVector = targetPosition - verticeStartPos;
+        totaldirectionVectorLength = totaldirectionVector.length();
+        speed = totaldirectionVectorLength/deltat;
 
         fprintf(stderr,"%f, ",timer);
-        fprintf(stderr, "%s, %i, %f, %f,\n",name.c_str(),visitedVertices,xcoord,targetPosition[0]);
+        fprintf(stderr, "%s, %i, %f, %f,\n",name.c_str(),visitedVertices,currentPos[0],targetPosition[0]);
 
-        if (visitedVertices > 170){
-            int blup = 1;
-        }
     }
 //    std::string testvar = name.c_str();
 
@@ -57,18 +57,11 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> po
     //substract vectors
     directionVector = targetPosition - currentPos;
     float distance = directionVector.length();
-
-
-    // calculate speed
-    totaldirectionVector = targetPosition - verticeStartPos;
-    totaldirectionVectorLength = totaldirectionVector.length();
-    speed = totaldirectionVectorLength/deltat;
-
     directionVector.normalize();
 
     //calculate step distance
-    float step_distance = speed*opencover::cover->frameDuration();
-    //float step_distance = speed*1/60;
+    //float step_distance = speed*opencover::cover->frameDuration();
+    float step_distance = speed*1/60;
 
     if(totalDistance <= 0)
 	{
@@ -103,7 +96,9 @@ osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, vector<osg::Vec3>
     float distance = directionVector.length();
     directionVector.normalize();
     //calculate step distance
-    float step_distance = speed*opencover::cover->frameDuration();
+    //float step_distance = speed*opencover::cover->frameDuration();
+    float step_distance = speed*1/60;
+
     if(totalDistance == 0)
     {
         totalDistance = distance;
@@ -122,6 +117,7 @@ osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, vector<osg::Vec3>
             maneuverFinished = true;
         }
     }
+
     return newPosition;
 }
 
