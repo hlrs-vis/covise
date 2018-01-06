@@ -104,6 +104,7 @@
 #define TABLET_SCROLLAREA 32
 #define TABLET_POPUP 33
 #define TABLET_UI_TAB 34
+#define TABLET_GROUPBOX 35
 
 ////////////////////////////////////////////////////////////
 // MESSAGES

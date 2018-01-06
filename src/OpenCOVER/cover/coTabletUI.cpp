@@ -1428,6 +1428,12 @@ coTUITab::coTUITab(const std::string &n, int pID)
 {
 }
 
+coTUITab::coTUITab(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_TAB)
+{
+
+}
+
 coTUITab::coTUITab(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TAB)
 {
@@ -3389,6 +3395,15 @@ void coTUISplitter::setOrientation(int orient)
 
 coTUIFrame::coTUIFrame(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_FRAME)
+{
+    style = Sunken;
+    shape = StyledPanel;
+    setShape(shape);
+    setStyle(style);
+}
+
+coTUIFrame::coTUIFrame(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_FRAME)
 {
     style = Sunken;
     shape = StyledPanel;
@@ -5626,3 +5641,62 @@ void coTabletUI::removeElement(coTUIElement *e)
         iter.remove();
 }
 
+
+coTUIGroupBox::coTUIGroupBox(const std::string &n, int pID)
+    : coTUIElement(n, pID, TABLET_GROUPBOX)
+{
+
+}
+
+coTUIGroupBox::coTUIGroupBox(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_GROUPBOX)
+{
+
+}
+
+coTUIGroupBox::coTUIGroupBox(QObject *parent, const std::string &n, int pID)
+    : coTUIElement(parent, n, pID, TABLET_GROUPBOX)
+{
+
+}
+
+coTUIGroupBox::~coTUIGroupBox()
+{
+
+}
+
+void coTUIGroupBox::resend()
+{
+    createSimple(TABLET_GROUPBOX);
+    coTUIElement::resend();
+}
+
+void coTUIGroupBox::parseMessage(TokenBuffer &tb)
+{
+    int i;
+    tb >> i;
+    if (i == TABLET_ACTIVATED)
+    {
+        emit tabletEvent();
+        emit tabletPressEvent();
+        if (listener)
+        {
+            listener->tabletEvent(this);
+            listener->tabletPressEvent(this);
+        }
+    }
+    else if (i == TABLET_DISACTIVATED)
+    {
+        emit tabletEvent();
+        emit tabletReleaseEvent();
+        if (listener)
+        {
+            listener->tabletEvent(this);
+            listener->tabletReleaseEvent(this);
+        }
+    }
+    else
+    {
+        cerr << "unknown event " << i << endl;
+    }
+}

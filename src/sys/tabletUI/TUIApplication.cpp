@@ -77,6 +77,7 @@
 #include "TUIIntEdit.h"
 #include "TUILabel.h"
 #include "TUIFrame.h"
+#include "TUIGroupBox.h"
 #include "TUIScrollArea.h"
 #include "TUISplitter.h"
 #include "TUIFileBrowserButton.h"
@@ -529,6 +530,8 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
         return new TUIColorTab(id, type, w, parent, name);
     case TABLET_FRAME:
         return new TUIFrame(id, type, w, parent, name);
+    case TABLET_GROUPBOX:
+        return new TUIGroupBox(id, type, w, parent, name);
     case TABLET_SCROLLAREA:
         return new TUIScrollArea(id, type, w, parent, name);
     case TABLET_SPLITTER:

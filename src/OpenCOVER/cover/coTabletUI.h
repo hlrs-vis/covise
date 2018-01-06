@@ -1196,6 +1196,7 @@ protected:
     int style;
     int orientation;
 };
+
 /**
  * a Frame.
  */
@@ -1230,6 +1231,7 @@ public:
     };
 
     coTUIFrame(const std::string &, int pID = 1);
+    coTUIFrame(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIFrame(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIFrame();
     virtual void resend();
@@ -1258,6 +1260,31 @@ protected:
     int shape;
 };
 /**
+ * a GroupBox.
+ */
+class COVEREXPORT coTUIGroupBox : public coTUIElement
+{
+
+    Q_OBJECT
+
+private:
+public:
+    coTUIGroupBox(const std::string &, int pID = 1);
+    coTUIGroupBox(coTabletUI *tui, const std::string &, int pID = 1);
+    coTUIGroupBox(QObject *parent, const std::string &, int pID = 1);
+    virtual ~coTUIGroupBox();
+    virtual void resend();
+    virtual void parseMessage(covise::TokenBuffer &tb);
+
+public slots:
+
+signals:
+    void tabletEvent();
+    void tabletPressEvent();
+    void tabletReleaseEvent();
+};
+
+/**
  * a tab.
  */
 class COVEREXPORT coTUITab : public coTUIElement
@@ -1268,6 +1295,7 @@ class COVEREXPORT coTUITab : public coTUIElement
 private:
 public:
     coTUITab(const std::string &, int pID = 1);
+    coTUITab(coTabletUI *tui, const std::string &, int pID);
     coTUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUITab();
     virtual void resend();
