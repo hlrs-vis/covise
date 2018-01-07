@@ -1167,6 +1167,7 @@ OpenCOVER::~OpenCOVER()
     delete coVRAnimationManager::instance();
     delete coVRNavigationManager::instance();
     delete coVRCommunication::instance();
+    delete ARToolKit::instance();
     delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
@@ -1179,8 +1180,6 @@ OpenCOVER::~OpenCOVER()
     delete VRWindow::instance();
 
     delete coVRPluginList::instance();
-
-    delete ARToolKit::instance();
 
     coShutDownHandlerList::instance()->shutAllDown();
     delete coShutDownHandlerList::instance();
