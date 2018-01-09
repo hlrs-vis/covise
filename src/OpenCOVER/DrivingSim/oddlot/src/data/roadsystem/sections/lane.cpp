@@ -630,7 +630,7 @@ Lane::addLaneChanges(int changes)
 {
     if (changes == CLN_WidthsChanged)
     {
-        if (parentLaneSection_)
+        if (parentLaneSection_ && parentLaneSection_->getParentRoad())
             parentLaneSection_->getParentRoad()->addRoadChanges(RSystemElementRoad::CRD_ShapeChange);
     }
     if (changes)

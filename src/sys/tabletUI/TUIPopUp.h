@@ -24,14 +24,10 @@ class TUIPopUp : public QObject, public TUIElement
 public:
     TUIPopUp(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIPopUp();
-    virtual void setValue(int type, covise::TokenBuffer &);
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
+    virtual void setValue(int type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
 public slots:
     void popupButtonClicked();

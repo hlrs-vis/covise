@@ -17,9 +17,6 @@
 
 #include <string>
 #include <vector>
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 #include <osg/Vec4f>
 
@@ -48,8 +45,8 @@ public:
     float GetRadius() const;
     void SetRadius(float radius);
 
-    std::tr1::shared_ptr<Point> GetCenterPoint() const;
-    void SetCenterPoint(std::tr1::shared_ptr<Point> point);
+    std::shared_ptr<Point> GetCenterPoint() const;
+    void SetCenterPoint(std::shared_ptr<Point> point);
 
     void SetColor(const osg::Vec4f &color);
     void SetColor(const std::string &color);
@@ -58,7 +55,7 @@ public:
 private:
     Axis m_Axis;
     float m_Radius;
-    std::tr1::shared_ptr<Point> m_CenterPoint;
+    std::shared_ptr<Point> m_CenterPoint;
     osg::Vec4f m_Color;
 };
 }

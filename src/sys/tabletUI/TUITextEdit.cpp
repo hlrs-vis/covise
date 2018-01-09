@@ -67,45 +67,9 @@ void TUITextEdit::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUITextEdit::setEnabled(bool en)
+const char *TUITextEdit::getClassName() const
 {
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUITextEdit::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUITextEdit::getClassName()
-{
-    return (char *)"TUITextEdit";
-}
-
-bool TUITextEdit::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUITextEdit";
 }
 
 void TUITextEdit::setValue(int type, covise::TokenBuffer &tb)

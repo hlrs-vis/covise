@@ -15,7 +15,7 @@
 
 #include "lateralsectioncommands.hpp"
 
-#include "src/data/roadsystem/lateralSections/lateralsection.hpp"
+#include "src/data/roadsystem/lateralsections/lateralsection.hpp"
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
 

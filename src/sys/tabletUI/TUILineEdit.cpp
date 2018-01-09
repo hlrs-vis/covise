@@ -60,45 +60,9 @@ void TUILineEdit::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUILineEdit::setEnabled(bool en)
+const char *TUILineEdit::getClassName() const
 {
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUILineEdit::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUILineEdit::getClassName()
-{
-    return (char *)"TUILineEdit";
-}
-
-bool TUILineEdit::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUILineEdit";
 }
 
 void TUILineEdit::setValue(int type, covise::TokenBuffer &tb)

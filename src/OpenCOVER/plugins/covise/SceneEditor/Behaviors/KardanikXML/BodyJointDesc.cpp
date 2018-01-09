@@ -8,7 +8,6 @@
 #include "BodyJointDesc.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -17,28 +16,28 @@ BodyJointDesc::BodyJointDesc()
 {
 }
 
-BodyJointDesc::BodyJointDesc(std::tr1::shared_ptr<Body> body, std::tr1::shared_ptr<Point> point)
+BodyJointDesc::BodyJointDesc(std::shared_ptr<Body> body, std::shared_ptr<Point> point)
     : m_Body(body)
     , m_Point(point)
 {
 }
 
-void BodyJointDesc::SetBody(std::tr1::shared_ptr<Body> body)
+void BodyJointDesc::SetBody(std::shared_ptr<Body> body)
 {
     m_Body = body;
 }
 
-std::tr1::shared_ptr<Body> BodyJointDesc::GetBody() const
+std::shared_ptr<Body> BodyJointDesc::GetBody() const
 {
     return m_Body;
 }
 
-void BodyJointDesc::SetPointInBody(std::tr1::shared_ptr<Point> point)
+void BodyJointDesc::SetPointInBody(std::shared_ptr<Point> point)
 {
     m_Point = point;
 }
 
-std::tr1::shared_ptr<Point> BodyJointDesc::GetPoint() const
+std::shared_ptr<Point> BodyJointDesc::GetPoint() const
 {
     return m_Point;
 }

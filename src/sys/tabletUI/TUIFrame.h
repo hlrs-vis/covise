@@ -24,13 +24,11 @@ private:
 public:
     TUIFrame(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIFrame();
-    virtual void setPos(int x, int y);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setPos(int x, int y) override;
+    virtual void setValue(int type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
 protected:
 };

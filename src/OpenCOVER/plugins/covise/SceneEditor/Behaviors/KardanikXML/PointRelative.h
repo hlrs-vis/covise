@@ -16,9 +16,6 @@
 #define POINTRELATIVE_H_
 
 #include <string>
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 #include "Point.h"
 
@@ -41,7 +38,7 @@ public:
     void SetZOffset(float z);
     float GetZOffset() const;
 
-    void ResolveAgainst(std::tr1::shared_ptr<Point> referencePoint);
+    void ResolveAgainst(std::shared_ptr<Point> referencePoint);
     const std::string &GetPointRefID() const;
 
 private:

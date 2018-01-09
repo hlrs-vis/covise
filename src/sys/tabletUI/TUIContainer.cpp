@@ -51,13 +51,17 @@ void TUIContainer::addElementToLayout(TUIElement *el)
       */
 
         if (!el->isHidden())
-            layout->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+        {
+            if (el->getLayout())
+                layout->addLayout(el->getLayout(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth(), Qt::AlignBaseline);
+            else
+                layout->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+        }
 
-        int i;
-        for (i = 0; i < layout->rowCount(); i++)
+        for (int i = 0; i < layout->rowCount(); i++)
             layout->setRowStretch(i, 0);
         layout->setRowStretch(layout->rowCount(), 100);
-        for (i = 0; i < layout->columnCount(); i++)
+        for (int i = 0; i < layout->columnCount(); i++)
             layout->setColumnStretch(i, 0);
         layout->setColumnStretch(layout->columnCount(), 100);
     }
@@ -129,27 +133,7 @@ void TUIContainer::setHighlighted(bool hl)
     }
 }
 
-char *TUIContainer::getClassName()
+const char *TUIContainer::getClassName() const
 {
-    return (char *)"TUIContainer";
-}
-
-bool TUIContainer::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUIContainer";
 }

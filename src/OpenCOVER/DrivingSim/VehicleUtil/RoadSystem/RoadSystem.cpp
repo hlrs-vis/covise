@@ -403,6 +403,16 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 std::string crossfallSide(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("side"))));
                                 road->addCrossfallPolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallSide);
                             }
+							else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
+							{
+								double crossfallStart = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+								double crossfallA = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+								double crossfallB = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
+								double crossfallC = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
+								double crossfallD = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+								double crossfallT = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("t"))));
+								road->addShapePolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallT);
+							}
                         }
                     }
 
@@ -819,6 +829,32 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 }
                                 else
                                 {
+									if (name == "")
+									{
+										if ((type != -1) )
+										{
+											if (subclass != "")
+											{
+												if (subtype != -1)
+												{
+													name = std::to_string(type) + "." + subclass + "-" + std::to_string(subtype);
+												}
+												else
+												{
+													name = std::to_string(type) + "." + subclass;
+												}
+											}
+											else if (subtype != -1) 
+											{
+												name = std::to_string(type) + "-" + std::to_string(subtype);
+											}
+											else
+											{
+												name = std::to_string(type);
+											}
+										}
+
+									}
                                     roadSignal = new RoadSignal(id, name, s, t, dynamic, orientation, zOffset, country,
                                                                 type, subtype, subclass, size, value, hdg, pitch, roll, unit, text, width, height);
                                     //std::cout << "Adding road signal id=" << id << std::endl;

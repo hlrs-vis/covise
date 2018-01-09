@@ -106,6 +106,12 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
         tb >> hide;
         TUIElement::setHidden(hide ? true : false);
     }
+    else if (type == TABLET_SET_ENABLED)
+    {
+        int en;
+        tb >> en;
+        TUIElement::setEnabled(en ? true : false);
+    }
 }
 
 /** Set my widget.
@@ -143,8 +149,8 @@ void TUIElement::setPos(int x, int y)
 {
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
-    if ((parent = getParent()))
+    TUIContainer *parent = getParent();
+    if (parent)
     {
         parent->addElementToLayout(this);
     }
@@ -152,7 +158,8 @@ void TUIElement::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    if (widget)
+        widget->setVisible(!hidden);
 }
 
 /** Get parent container.
@@ -163,12 +170,19 @@ TUIContainer *TUIElement::getParent()
     return parentContainer;
 }
 
+QLayout *TUIElement::getLayout()
+{
+    return layout;
+}
+
 /** Set activation state.
   @param en true = element enabled
 */
 void TUIElement::setEnabled(bool en)
 {
     enabled = en;
+    if (getWidget())
+        getWidget()->setEnabled(en);
 }
 
 /** Set highlight state.
@@ -241,9 +255,9 @@ bool TUIElement::isVisible()
     return visible;
 }
 
-char *TUIElement::getClassName()
+const char *TUIElement::getClassName() const
 {
-    return (char *)"TUIElement";
+    return "TUIElement";
 }
 
 QWidget *TUIElement::getWidget()
@@ -251,7 +265,7 @@ QWidget *TUIElement::getWidget()
     return widget;
 }
 
-bool TUIElement::isOfClassName(char *classname)
+bool TUIElement::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

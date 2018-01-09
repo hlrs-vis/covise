@@ -13,16 +13,19 @@
 **
 **************************************************************************/
 
-#ifndef WIZARDMANAGER_HPP
-#define WIZARDMANAGER_HPP
+#ifndef CIRCLEWIZARD_HPP
+#define CIRCLEWIZARD_HPP
 
-#include <QObject>
+#include <QDialog>
 
-class MainWindow;
+class ProjectData;
 
-#include <QAction>
+namespace Ui
+{
+class CircleWizard;
+}
 
-class WizardManager : public QObject
+class CircleWizard : public QDialog
 {
     Q_OBJECT
 
@@ -31,14 +34,14 @@ class WizardManager : public QObject
     //################//
 
 public:
-    explicit WizardManager(MainWindow *mainWindow);
-    virtual ~WizardManager();
+    explicit CircleWizard(ProjectData *projectData, QWidget *parent = 0);
+    virtual ~CircleWizard();
 
 protected:
 private:
-    WizardManager(); /* not allowed */
-    WizardManager(const WizardManager &); /* not allowed */
-    WizardManager &operator=(const WizardManager &); /* not allowed */
+    CircleWizard(); /* not allowed */
+    CircleWizard(const CircleWizard &); /* not allowed */
+    CircleWizard &operator=(const CircleWizard &); /* not allowed */
 
     void init();
 
@@ -52,21 +55,16 @@ public:
     //################//
 
 public slots:
-    void runElevationWizard();
-    void runSuperelevationWizard();
-	void runFlatJunctionsWizard();
-	void runCircleWizard();
-    void runRoadLinkWizard();
+    void runCalculation();
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-    MainWindow *mainWindow_;
+    Ui::CircleWizard *ui;
 
-    QAction *elevatioWizardAction_;
-    QAction *supereelevatioWizardAction_;
+    ProjectData *projectData_;
 };
 
-#endif // WIZARDMANAGER_HPP
+#endif // CIRCLEWIZARD_HPP

@@ -199,31 +199,22 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
     // widget that contains the main windows(mainFrame)
 
-    QWidget *w;
+    QWidget *w = nullptr;
 #ifdef _WIN32_WCE
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setBackgroundRole(QPalette::Dark);
     w = scrollArea;
-#else
-    w = new QWidget(this);
-    QScrollArea *scrollArea = new QScrollArea();
-    scrollArea->setBackgroundRole(QPalette::Dark);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(w);
 #endif
-
-    QVBoxLayout *vbox = new QVBoxLayout(w);
 
 // main windows
 #ifdef _WIN32_WCE
     mainFrame = new QFrame(w);
     mainFrame->setContentsMargins(1, 1, 1, 1);
 #else
-    mainFrame = new QFrame();
-    mainFrame->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
-    mainFrame->setContentsMargins(2, 2, 2, 2);
+    mainFrame = new QFrame(this);
+    mainFrame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+    mainFrame->setContentsMargins(0, 0, 0, 0);
 #endif
-    vbox->addWidget(mainFrame, 1);
 
     // main layout
     mainGrid = new QGridLayout(mainFrame);
@@ -235,7 +226,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     setCentralWidget(w);
 #else
     setWindowTitle("COVISE: TabletUI");
-    setCentralWidget(scrollArea);
+    setCentralWidget(mainFrame);
 #endif
 
     // set a logo &size
@@ -673,13 +664,14 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             tb >> parent;
             tb >> name;
             //cerr << "TUIApplication::handleClient info: Create: ID: " << ID << " Type: " << elementType << " name: "<< name << " parent: " << parent << std::endl;
-            TUIContainer *parentElem = (TUIContainer *)getElement(parent);
+            TUIElement *parentElement = getElement(parent);
+            TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
+            if (parentElement && !parentElem)
+                std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
 
-            QWidget *parentWidget;
+            QWidget *parentWidget = mainFrame;
             if (parentElem)
                 parentWidget = parentElem->getWidget();
-            else
-                parentWidget = mainFrame;
 
             TUIElement *newElement = createElement(ID, elementType, parentWidget, parent, name);
             if (newElement)

@@ -8,8 +8,8 @@ LUSER
 RWCovise
 1
 LOCAL
-IO_Module
-TITLE=RW:tiny_geo
+IO
+RW:tiny_geo
 132
 20
 1
@@ -31,28 +31,10 @@ File path
 share/covise/example-data/tutorial//tiny_geo.covise
 
 1
-stepNo
-IntScalar
-stepNo
-0
-
--1
-rotate_output
-Boolean
-Rotate output
-FALSE
-
--1
-rotation_axis
-Choice
-Rotation axis
-3 x y z
-
--1
-rot_speed
-FloatScalar
-Rotation speed
-2.000000
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
 
 -1
 forceReading
@@ -79,10 +61,28 @@ number of steps to skip between timesteps
 0
 
 -1
-grid_path___filter
-BrowserFilter
-File path
-grid_path *.covise/*
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
 
 -1
 increment_filename
@@ -97,7 +97,7 @@ DomainSurface
 1
 LOCAL
 Filter
-TITLE=DomainSurface_1
+DomainSurface_1
 132
 172
 2
@@ -163,7 +163,7 @@ BoundingBox
 1
 LOCAL
 Tools
-TITLE=BoundingBox_1
+BoundingBox_1
 20
 174
 1
@@ -180,35 +180,12 @@ default
 
 0
 0
-# Module Renderer
-Renderer
-1
-LOCAL
-Renderer
-TITLE=Renderer_1
-336
-410
-1
-RenderData
-Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
-render geometry or Inventor file
-req
-
-0
-1
-AnnotationString
-String
-Annotation descr. string
-empty
-
--1
-0
 # Module CutGeometry
 CutGeometry
 1
 LOCAL
 Filter
-TITLE=CutGeometry_1
+CutGeometry_1
 130
 260
 6
@@ -269,6 +246,18 @@ data
 dep DataIn3
 
 9
+method
+Choice
+cut geometry based on data or based on geometry
+1 GeoCut DataCut
+
+-1
+geoMethod
+Choice
+cut with a plane, cylider or sphere
+1 Plane Cylinder Sphere
+
+-1
 distance
 FloatScalar
 distance of plane or cylinder radius - use negative radius to invert cylinder cut!
@@ -281,10 +270,10 @@ normal of plane or cylinder axis
 0 0 -1.
 
 -1
-method
-Choice
-cut geometry based on data or based on geometry
-1 GeoCut DataCut 
+bottom
+FloatVector
+point on cylinder axis or center of sphere
+0 0 0
 
 -1
 data_min
@@ -311,25 +300,13 @@ one vertex out of bound is enough to erase polygon
 FALSE
 
 -1
-geoMethod
-Choice
-cut with a plane, cylider or sphere
-1 Plane Cylinder Sphere 
-
--1
-bottom
-FloatVector
-point on cylinder axis or center of sphere
-0 0 0
-
--1
 0
 # Module Colors
 Colors
 1
 LOCAL
 Mapper
-TITLE=Colors_1
+Colors_1
 443
 85
 4
@@ -354,15 +331,15 @@ Colormap Input
 opt
 
 3
-DataOut0
-RGBA
-Data as colors
-dep DataIn0
-
 TextureOut0
 Texture
 Data or colormap as texture
 default
+
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
 
 ColormapOut0
 ColorMap
@@ -373,25 +350,25 @@ default
 MinMax
 FloatVector
 Minimum and Maximum value
--0.470838 3.733306
+-0.470838 3.73331
 
 -1
-annotation
-String
-Colormap Annotation String
-Colors
+EditableColormap
+Colormap
+Colormap Editor
+-0.470838 3.73331 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
 
 -1
 numSteps
 IntScalar
 Number of Steps in Map
 16
-
--1
-EditableColormap
-Colormap
-Colormap Editor
-0.0 1.0 RGBAX 3 0.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0 0.5 1.0 1.0 0.0 1.0 1.0
 
 -1
 autoScales
@@ -406,16 +383,22 @@ Re-scale and execute immediately
 FALSE
 
 -1
-Colormap
-ColormapChoice
-Select a Colormap
-1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
 
 -1
 SpikeAlgo
 Choice
 Select Spike removal algorithm
-1 None Adaptive Interval Elements 
+1 None Adaptive Interval Elements
 
 -1
 SpikeLowFract
@@ -430,19 +413,13 @@ Spike Ratio for high values
 0.050000
 
 -1
-opacityFactor
-FloatScalar
-Global opacity multiplicator
-1.000000
-
--1
 0
 # Module RWCovise
 RWCovise
 2
 LOCAL
-IO_Module
-TITLE=RW:tiny_p
+IO
+RW:tiny_p
 340
 20
 1
@@ -464,28 +441,10 @@ File path
 share/covise/example-data/tutorial//tiny_p.covise
 
 1
-stepNo
-IntScalar
-stepNo
-0
-
--1
-rotate_output
-Boolean
-Rotate output
-FALSE
-
--1
-rotation_axis
-Choice
-Rotation axis
-3 x y z
-
--1
-rot_speed
-FloatScalar
-Rotation speed
-2.000000
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
 
 -1
 forceReading
@@ -512,10 +471,28 @@ number of steps to skip between timesteps
 0
 
 -1
-grid_path___filter
-BrowserFilter
-File path
-grid_path *.covise/*
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
 
 -1
 increment_filename
@@ -529,8 +506,8 @@ FALSE
 RWCovise
 3
 LOCAL
-IO_Module
-TITLE=RW:tiny_velocity
+IO
+RW:tiny_velocity
 538
 20
 1
@@ -552,28 +529,10 @@ File path
 share/covise/example-data/tutorial//tiny_velocity.covise
 
 1
-stepNo
-IntScalar
-stepNo
-0
-
--1
-rotate_output
-Boolean
-Rotate output
-FALSE
-
--1
-rotation_axis
-Choice
-Rotation axis
-3 x y z
-
--1
-rot_speed
-FloatScalar
-Rotation speed
-2.000000
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
 
 -1
 forceReading
@@ -600,10 +559,28 @@ number of steps to skip between timesteps
 0
 
 -1
-grid_path___filter
-BrowserFilter
-File path
-grid_path *.covise/*
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
 
 -1
 increment_filename
@@ -613,221 +590,12 @@ FALSE
 
 -1
 0
-# Module CuttingSurfaceComp
-CuttingSurfaceComp
-1
-LOCAL
-Filter
-TITLE=CuttingSurfaceComp_1
-248
-173
-8
-GridIn0
-UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
-input mesh
-req
-
-DataIn0
-Byte|Float|Vec3
-input data
-req
-
-DataIn1
-Float
-Data for isolines
-opt
-
-DataIn2
-MinMax_Data
-MinMax values for isolines
-opt
-
-DataIn3
-Text
-this char Array marks cells to be processed or not
-opt
-
-ColormapIn0
-ColorMap
-color map to create geometry
-opt
-
-GridIn1
-UniformGrid
-Sample grid
-opt
-
-DataIn4
-Float|Vec3
-Sample data
-opt
-
-5
-GeometryOut0
-Geometry
-Cutting plane
-default
-
-GridOut0
-Polygons|TriangleStrips
-Cuttingplane
-default
-
-DataOut0
-Float|Vec3
-interpolated data
-default
-
-DataOut1
-Vec3
-Surface normals
-default
-
-DataOut2
-Lines
-Isolines
-default
-
-22
-vertex
-FloatVector
-Normal of cuttingplane, center of sphere or point on cylinder axis
-0 0 1.
-
--1
-point
-FloatVector
-Point on cuttingplane, or on sphere or Point on a cylinder
-0.000000 0.000000 0.000000
-
--1
-scalar
-FloatScalar
-Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
-0.000000
-
--1
-option
-Choice
-Plane or sphere
-1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
-
--1
-gennormals
-Boolean
-Supply normals
-TRUE
-
--1
-genstrips
-Boolean
-convert triangles to strips
-FALSE
-
--1
-genDummyS
-Boolean
-generate a dummy surface if the object hasn't been cut
-TRUE
-
--1
-offset
-FloatScalar
-Offset of the isolines
-0.100000
-
--1
-numiso
-IntScalar
-Number of isolines
-0
-
--1
-isostart
-FloatScalar
-First isovalue
-0.000000
-
--1
-isoend
-FloatScalar
-Last isovalue
-0.100000
-
--1
-color_or_texture
-Boolean
-colors or texture
-TRUE
-
--1
-scale
-FloatSlider
-Scale factor
-0 1 1.
-
--1
-length
-Choice
-Length of vectors
-1 1*scale length*scale
-
--1
-num_sectors
-IntScalar
-number of lines for line tip
-0
-
--1
-vector
-Choice
-SurfaceOrLines
-1 SurfaceAndLines OnlySurface OnlyLines
-
--1
-vertex_ratio
-FloatScalar
-Vertex Alloc Ratio
-4.000000
-
--1
-arrow_head_factor
-FloatScalar
-Relative length of arrow head
-0.200000
-
--1
-arrow_head_angle
-FloatScalar
-Opening angle of arrow head
-9.500000
-
--1
-project_lines
-Boolean
-project lines onto the surface
-FALSE
-
--1
-MinMax
-FloatVector
-Minimum and Maximum value
-0 0
-
--1
-autoScales
-Boolean
-Automatically adjust Min and Max
-FALSE
-
--1
-0
 # Module IsoSurfaceComp
 IsoSurfaceComp
 1
 LOCAL
 Mapper
-TITLE=IsoSurfaceComp_1
+IsoSurfaceComp_1
 400
 173
 5
@@ -905,7 +673,7 @@ Point for isosurface
 isovalue
 FloatSlider
 Value for isosurfaces
--0.470838 3.733306 0.000000
+-0.470838 3.73331 0
 
 -1
 autominmax
@@ -950,7 +718,7 @@ TracerComp
 1
 LOCAL
 Tracer
-TITLE=TracerComp_1
+TracerComp_1
 581
 191
 8
@@ -1040,6 +808,30 @@ Square of starting points
 0 1 0.
 
 -1
+cyl_axis
+FloatVector
+axis of starting cylinder
+0 0 1
+
+-1
+cyl_radius
+FloatScalar
+diameter of starting cylinder
+1.000000
+
+-1
+cyl_height
+FloatScalar
+height of starting cylinder
+1.000000
+
+-1
+cyl_bottompoint_on_axis
+FloatVector
+point on starting cylinder
+1 0 0
+
+-1
 Displacement
 FloatVector
 Shift traces
@@ -1127,13 +919,25 @@ FALSE
 ThrowNewParticles
 Boolean
 If true, do throw new particles at the same position for dynamic data
-FALSE
+1
 
 -1
 ParticlesReleaseRate
 FloatScalar
 Frequency at which new particles are released
 0.000000
+
+-1
+RandomOffset
+Boolean
+If true, Particles are started at a random offset in stationary data fields
+FALSE
+
+-1
+RandomStartpoints
+Boolean
+If true, numStartpoints are randomly picked from the overall number of points in an input mesh
+FALSE
 
 -1
 divideCell
@@ -1178,64 +982,10 @@ Radius of output spheres
 0.200000
 
 -1
-FreeStartPoints
-String
-Free start points
-
-
--1
-autoScales
-Boolean
-Automatically adjust Min and Max
-FALSE
-
--1
-cyl_axis
-FloatVector
-axis of starting cylinder
-0 0 1
-
--1
-cyl_radius
-FloatScalar
-diameter of starting cylinder
-1.000000
-
--1
-cyl_height
-FloatScalar
-height of starting cylinder
-1.000000
-
--1
-cyl_bottompoint_on_axis
-FloatVector
-point on starting cylinder
-1 0 0
-
--1
-MinMax
-FloatVector
-Minimum and Maximum value
-0 0
-
--1
-RandomOffset
-Boolean
-If true, Particles are started at a random offset in stationary data fields
-FALSE
-
--1
-RandomStartpoints
-Boolean
-If true, numStartpoints are randomly picked from the overall number of points in an input mesh
-FALSE
-
--1
 TubeWidth
 FloatScalar
 Width of Pathline
-0.000000
+0
 
 -1
 TrailLength
@@ -1244,8 +994,243 @@ Length of a pathline
 0
 
 -1
+FreeStartPoints
+String
+Free start points
+
+
+-1
+MinMax
+FloatVector
+Minimum and Maximum value
+0 0
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+FALSE
+
+-1
 0
-16
+# Module CuttingSurfaceComp
+CuttingSurfaceComp
+2
+LOCAL
+Filter
+CuttingSurfaceComp_1
+272
+187
+6
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+ColormapIn0
+ColorMap
+color map to create geometry
+opt
+
+GridIn1
+UniformGrid
+Sample grid
+opt
+
+DataIn4
+Float|Vec3
+Sample data
+opt
+
+4
+GeometryOut0
+Geometry
+Cutting plane
+default
+
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+19
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+0 0 1.
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0 0 0
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0
+
+-1
+skew
+Boolean
+Modify vertex and point slightly in order to avoid cutting exactly on cell boundaries
+FALSE
+
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+
+-1
+gennormals
+Boolean
+Supply normals
+TRUE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+FALSE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+TRUE
+
+-1
+color_or_texture
+Boolean
+colors or texture
+TRUE
+
+-1
+scale
+FloatSlider
+Scale factor
+0 1 1.
+
+-1
+length
+Choice
+Length of vectors
+1 1*scale length*scale
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.200000
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+project_lines
+Boolean
+project lines onto the surface
+FALSE
+
+-1
+vector
+Choice
+SurfaceOrLines
+1 SurfaceAndLines OnlySurface OnlyLines
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+MinMax
+FloatVector
+Minimum and Maximum value
+-0.192753 3.71608
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+0
+# Module Renderer
+Renderer
+13
+LOCAL
+Renderer
+Renderer_1
+336
+410
+1
+RenderData
+ColorMap|Geometry|UnstructuredGrid|Points|Spheres|StructuredGrid|Polygons|TriangleStrips|Lines|Float|Vec3
+render geometry
+req
+
+0
+4
+Viewpoints
+Browser
+Viewpoints
+/mnt/raid/home/hpcmaumu/covise//default.vwp
+
+-1
+Viewpoints___filter
+BrowserFilter
+Viewpoints
+Viewpoints *.vwp/*
+
+-1
+Plugins
+String
+Additional plugins
+
+
+-1
+WindowID
+IntScalar
+window ID to render to
+0
+
+-1
+0
+18
 RWCovise
 1
 LOCAL
@@ -1282,6 +1267,15 @@ TracerComp
 1
 LOCAL
 meshIn
+RWCovise
+1
+LOCAL
+mesh
+
+CuttingSurfaceComp
+2
+LOCAL
+GridIn0
 DomainSurface
 1
 LOCAL
@@ -1297,7 +1291,7 @@ LOCAL
 GridOut1
 
 Renderer
-1
+13
 LOCAL
 RenderData
 CutGeometry
@@ -1306,7 +1300,7 @@ LOCAL
 GridOut0
 
 Renderer
-1
+13
 LOCAL
 RenderData
 Colors
@@ -1314,7 +1308,7 @@ Colors
 LOCAL
 ColormapOut0
 
-CuttingSurfaceComp
+IsoSurfaceComp
 1
 LOCAL
 ColormapIn0
@@ -1323,8 +1317,8 @@ Colors
 LOCAL
 ColormapOut0
 
-IsoSurfaceComp
-1
+CuttingSurfaceComp
+2
 LOCAL
 ColormapIn0
 RWCovise
@@ -1355,6 +1349,15 @@ IsoSurfaceComp
 LOCAL
 DataIn1
 RWCovise
+2
+LOCAL
+mesh
+
+CuttingSurfaceComp
+2
+LOCAL
+DataIn0
+RWCovise
 3
 LOCAL
 mesh
@@ -1363,22 +1366,13 @@ TracerComp
 1
 LOCAL
 dataIn
-CuttingSurfaceComp
-1
-LOCAL
-GeometryOut0
-
-Renderer
-1
-LOCAL
-RenderData
 IsoSurfaceComp
 1
 LOCAL
 GeometryOut0
 
 Renderer
-1
+13
 LOCAL
 RenderData
 TracerComp
@@ -1387,7 +1381,15 @@ LOCAL
 geometry
 
 Renderer
-1
+13
 LOCAL
 RenderData
-0
+CuttingSurfaceComp
+2
+LOCAL
+GeometryOut0
+
+Renderer
+13
+LOCAL
+RenderData

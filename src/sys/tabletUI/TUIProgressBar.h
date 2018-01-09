@@ -27,15 +27,11 @@ class TUIProgressBar : public QObject, public TUIElement
 public:
     TUIProgressBar(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIProgressBar();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(int type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
-    void setPos(int x, int y);
+    virtual const char *getClassName() const override;
+    void setPos(int x, int y) override;
     QProgressBar *pb;
     int max;
     int value;

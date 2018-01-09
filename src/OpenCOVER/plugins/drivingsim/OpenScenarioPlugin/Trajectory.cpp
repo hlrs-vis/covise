@@ -10,7 +10,8 @@ Trajectory::~Trajectory(){}
 void Trajectory::finishedParsing()
 {
 }
-void Trajectory::initialize(vector<osg::Vec3> vec_temp)
+void Trajectory::initialize(vector<osg::Vec3> vec_temp, std::string mode_temp)
 {
 	polylineVertices = vec_temp;
+    mode = mode_temp;
 }

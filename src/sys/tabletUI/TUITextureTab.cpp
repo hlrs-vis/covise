@@ -539,9 +539,9 @@ void TUITextureTab::changeTexture(int buttonNumber, uint64_t geode)
     }
 }
 
-char *TUITextureTab::getClassName()
+const char *TUITextureTab::getClassName() const
 {
-    return (char *)"TUITextureTab";
+    return "TUITextureTab";
 }
 
 QPixmap TUITextureTab::smoothPix(const QPixmap &pic, int dim)

@@ -288,6 +288,7 @@ SET(ODDLOT_SOURCES
     src/graph/items/roadsystem/roadtextitem.cpp
     src/graph/items/roadsystem/junctionitem.cpp
     src/wizards/roadlinkwizard.cpp
+    src/wizards/circlewizard.cpp
     src/graph/items/roadsystem/lanes/lanelinkitem.cpp
     src/graph/topviewgraph.cpp
     src/graph/profilegraph.cpp
@@ -545,6 +546,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/wizards/elevationwizard.hpp
 	 src/wizards/superelevationwizard.hpp
 	 src/wizards/wizardmanager.hpp
+     src/wizards/circlewizard.hpp
 	 src/tree/projecttreewidget.hpp
 	 src/tree/signaltreewidget.hpp
 	 src/data/scenerysystem/heightmap.hpp
@@ -701,6 +703,7 @@ SET(ODDLOT_MOC_HEADERS
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
+	 src/wizards/circlewizard.ui
 	 src/wizards/elevationwizard.ui
 	 src/wizards/superelevationwizard.ui
 	 src/settings/widgets/elevationsettings.ui

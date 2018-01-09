@@ -1372,9 +1372,7 @@ void MEUserInterface::resetModuleFilter()
 //!
 void MEUserInterface::removeRenderer()
 {
-#ifndef YAC
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, "DEL_REQ\n" + m_renderName + "\n" + m_renderInstance + "\n" + m_renderHost);
-#endif
 }
 
 //!
@@ -1392,13 +1390,11 @@ void MEUserInterface::gridProxy()
 //!
 void MEUserInterface::restartRenderer()
 {
-#ifndef YAC
 /*tabWidgets->removePage(renderer);
    int xx = m_graphicsView->childX(renderNode);
    int yy = m_graphicsView->childY(renderNode);
    requestNode(renderNode->getName(), renderNode->getIPAddress(), xx, yy, renderNode, MEUserInterface::MOVE);
    lastFolderClosed();*/
-#endif
 }
 
 //!

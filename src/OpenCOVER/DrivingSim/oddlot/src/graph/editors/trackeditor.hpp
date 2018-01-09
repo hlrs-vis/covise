@@ -36,6 +36,7 @@ class RoadMoveHandle;
 class RoadRotateHandle;
 
 class QGraphicsLineItem;
+class QGraphicsEllipseItem;
 class CircularRotateHandle;
 
 class TrackRoadSystemItem;
@@ -158,10 +159,16 @@ private:
     // MouseAction //
     //
     QPointF pressPoint_;
+	QPointF firstPressPoint_;
 
     // New Road Tool //
     //
     QGraphicsLineItem *newRoadLineItem_;
+
+
+	// New Circle Tool //
+	//
+	QGraphicsEllipseItem *newRoadCircleItem_;
 
     // Add RoadSystem Tool //
     //

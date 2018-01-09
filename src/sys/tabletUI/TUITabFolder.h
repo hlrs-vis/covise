@@ -27,12 +27,10 @@ class TUITabFolder : public QObject, public TUIContainer
 public:
     TUITabFolder(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUITabFolder();
-    virtual void addElementToLayout(TUIElement *el);
+    virtual void addElementToLayout(TUIElement *el) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
 public slots:
 

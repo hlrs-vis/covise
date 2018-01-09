@@ -244,7 +244,7 @@ void TUIColorTab::setValue(int type, covise::TokenBuffer &tb)
     TUIElement::setValue(type, tb);
 }
 
-char *TUIColorTab::getClassName()
+const char *TUIColorTab::getClassName() const
 {
-    return (char *)"TUIColorTab";
+    return "TUIColorTab";
 }

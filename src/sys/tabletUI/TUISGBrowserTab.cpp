@@ -2182,9 +2182,9 @@ void TUISGBrowserTab::updateItemState(QTreeWidgetItem *item, int column)
     }
 }
 
-char *TUISGBrowserTab::getClassName()
+const char *TUISGBrowserTab::getClassName() const
 {
-    return (char *)"TUISGBrowserTab";
+    return "TUISGBrowserTab";
 }
 
 bool TUISGBrowserTab::decision(int nodetype, QString &name, QColor &color)

@@ -18,7 +18,9 @@
 TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString name)
     : TUIContainer(id, type, w, parent, name)
 {
+    width = -1;
     tabWidget = new QTabWidget(w);
+    tabWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     widget = tabWidget;
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(valueChanged(int)));
 }
@@ -64,27 +66,7 @@ void TUITabFolder::addElementToLayout(TUIElement *el)
     }
 }
 
-char *TUITabFolder::getClassName()
+const char *TUITabFolder::getClassName() const
 {
-    return (char *)"TUITabFolder";
-}
-
-bool TUITabFolder::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUITabFolder";
 }
