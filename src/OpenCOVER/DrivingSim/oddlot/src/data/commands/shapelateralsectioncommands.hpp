@@ -124,33 +124,5 @@ private:
 };
 
 
-//################//
-// Smooth point    //
-//################//
-
-class SmoothPointLateralShapeSectionCommand : public DataCommand
-{
-public:
-	explicit SmoothPointLateralShapeSectionCommand(QList<SplineControlPoint *> &corners, bool smooth, DataCommand *parent = NULL);
-	virtual ~SmoothPointLateralShapeSectionCommand();
-
-	virtual int id() const
-	{
-		return 0x1304;
-	}
-
-	virtual void undo();
-	virtual void redo();
-
-private:
-	SmoothPointLateralShapeSectionCommand(); /* not allowed */
-	SmoothPointLateralShapeSectionCommand(const SmoothPointLateralShapeSectionCommand &); /* not allowed */
-	SmoothPointLateralShapeSectionCommand &operator=(const SmoothPointLateralShapeSectionCommand &); /* not allowed */
-
-private:
-	QList<SplineControlPoint *> corners_;
-	bool smooth_;
-};
-
 
 #endif // SHAPELATERALSECTIONCOMMANDS_HPP

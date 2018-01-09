@@ -26,7 +26,7 @@ class PolynomialLateralSection;
 class SplineControlPoint 
 {
 public:
-	explicit SplineControlPoint(PolynomialLateralSection *parentLateralSection, QPointF p, bool real, bool low, bool smooth = false);
+	explicit SplineControlPoint(PolynomialLateralSection *parentLateralSection, QPointF p, bool low, bool smooth = false);
 	~SplineControlPoint() {};
 
 	PolynomialLateralSection *getParent()
@@ -44,26 +44,12 @@ public:
 		return low_;
 	}
 
-	bool isReal()
-	{
-		return real_;
-	}
-
-	bool isSmooth()
-	{
-		return smooth_;
-	}
-
-	void setSmooth(bool smooth);
-
 
 	SplineControlPoint *getClone();
 
 private:
 	QPointF point_;
-	bool real_;
 	bool low_;
-	bool smooth_;
 
 	PolynomialLateralSection *parentLateralSection_;
 };
@@ -99,14 +85,7 @@ public:
     //
 	void getRealPointsFromParameters();
 	void getControlPointsFromParameters();
-	SplineControlPoint *getSplineControlPointLow()
-	{
-		return controlPointLow_;
-	}
-	SplineControlPoint *getSplineControlPointHigh()
-	{
-		return controlPointHigh_;
-	}
+
 	SplineControlPoint *getRealPointLow()
 	{
 		return realPointLow_;
@@ -115,10 +94,8 @@ public:
 	{
 		return realPointHigh_;
 	}
-	void setPolynomialParameters();
 
-	void setControlPoints(SplineControlPoint &p0, SplineControlPoint &p1, SplineControlPoint &p2, SplineControlPoint &p3);
-	void setControlPoints(QPointF p0, QPointF p1, QPointF p2, QPointF p3);
+	void setControlPoints(QPointF p0, QPointF p1); 
 
 
     // Observer Pattern //
@@ -152,7 +129,7 @@ private:
     //
     int polynomialLateralSectionChanges_;
 
-	SplineControlPoint *realPointLow_, *realPointHigh_, *controlPointLow_, *controlPointHigh_;   // 2 real points on the curve and 2 spline control points
+	SplineControlPoint *realPointLow_, *realPointHigh_; 
 };
 
 #endif // POLYNOMIALLATERALSECTION_HPP

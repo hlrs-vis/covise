@@ -60,8 +60,8 @@ private:
 
 public slots:
 	void deleteCorner();
-	void smooth();
-	void corner();
+/*	void smooth();
+	void corner(); */
 
     //################//
     // EVENTS         //
@@ -92,8 +92,8 @@ private:
 	ShapeSection *shapeSection_;
 
 	QAction *deleteAction_;
-	QAction *smoothAction_;
-	QAction *cornerAction_;
+/*	QAction *smoothAction_;
+	QAction *cornerAction_; */
 
 	bool firstShapeSectionPoint_;
 	bool lastShapeSectionPoint_;

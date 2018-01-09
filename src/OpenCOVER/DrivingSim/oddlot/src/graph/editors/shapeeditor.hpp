@@ -65,14 +65,17 @@ public:
     void addSelectedShapeSection(ShapeSection *shapeSection);
     int delSelectedShapeSection(ShapeSection *shapeSection);
 
-	QMap<double, PolynomialLateralSection *>::ConstIterator addLateralSectionsBeforeToEasingCurve(QEasingCurve &easingCurve, QMap<double, PolynomialLateralSection *>::ConstIterator it, 
+/*	QMap<double, PolynomialLateralSection *>::ConstIterator addLateralSectionsBeforeToEasingCurve(QEasingCurve &easingCurve, QMap<double, PolynomialLateralSection *>::ConstIterator it, 
 		PolynomialLateralSection *lateralSectionBefore, PolynomialLateralSection *nextLateralSection, ShapeSectionPolynomialItems *polyItems);
-	void addLateralSectionsNextToEasingCurve(QEasingCurve &easingCurve, QMap<double, PolynomialLateralSection *>::ConstIterator it, ShapeSection *shapeSection, ShapeSectionPolynomialItems *polyItems);
+	void addLateralSectionsNextToEasingCurve(QEasingCurve &easingCurve, QMap<double, PolynomialLateralSection *>::ConstIterator it, ShapeSection *shapeSection, ShapeSectionPolynomialItems *polyItems); */
+	QMap<double, PolynomialLateralSection *>::ConstIterator addLateralSectionsBefore(QList<QPointF> &scenePoints, QMap<double, PolynomialLateralSection *>::ConstIterator it,
+		PolynomialLateralSection *lateralSectionBefore, ShapeSectionPolynomialItems *polyItems);
+	void addLateralSectionsNext(QList<QPointF> &scenePoints, QMap<double, PolynomialLateralSection *>::ConstIterator it, ShapeSection *shapeSection, ShapeSectionPolynomialItems *polyItems);
 
 	// Transformations //
 	//
 	void translateMoveHandles(const QPointF &mousePos, SplineControlPoint *corner);
-	QList<QPointF> setEasingCurve(ShapeSectionPolynomialItems *,SplineControlPoint *start, const QEasingCurve &easingCurve);
+//	QList<QPointF> setEasingCurve(ShapeSectionPolynomialItems *,SplineControlPoint *start, const QEasingCurve &easingCurve);
 	void fitBoundingBoxInView();
 
 	// Add lateral section (insert real point in spline) //
@@ -82,8 +85,8 @@ public:
 
 	// Smooth real point //
 	//
-	void smoothPoint(bool smooth, SplineControlPoint *corner);
-	void cornerPoint(SplineControlPoint *corner);
+/*	void smoothPoint(bool smooth, SplineControlPoint *corner);
+	void cornerPoint(SplineControlPoint *corner); */
 
 
     // Tool, Mouse & Key //

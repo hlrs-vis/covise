@@ -57,8 +57,6 @@ public:
 		return parentShapeSectionPolynomialItems_;
 	}
 
-	void contextMenu(QGraphicsSceneContextMenuEvent *event);
-
 	// set Handles //
 	//
 	void deleteControlPointHandles();
@@ -93,7 +91,6 @@ public:
 	//################//
 
 signals:
-	void easingCurveChanged();
 
     //################//
     // SLOTS          //
@@ -101,7 +98,6 @@ signals:
 
 public slots:
     virtual bool removeSection();
-//	void setEasingCurve(const QEasingCurve &easingCurve);
 
     //################//
     // EVENTS         //
@@ -109,9 +105,6 @@ public slots:
 
 
 public:
-/*	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event); */
 
 
     //################//
@@ -132,55 +125,9 @@ private:
 	//
 	ShapeEditor *shapeEditor_;
 
-    // ContextMenu //
-    //
-    QAction *splitAction_;
-
 	// SplineMoveHandles //
 	//
-	SplineMoveHandle *realPointLowHandle_, *controlPointLowHandle_, *controlPointHighHandle_, *realPointHighHandle_;
-
-	// Spline Control Points
-	//
-	QVector<QPointF> controlPoints_;
-	QVector<bool> smoothList_;
-
-	int numberOfSegments_;
-	int activeControlPoint_ ;
-	bool mouseDrag_;
-	int canvasWidth_, canvasHeight_;
-	QPointF startPoint_, endPoint_;
-
-	QAction *addPoint_;
-	QAction *appendPoint_;
-
-	QPointF mapToCanvas(const QPointF &point);
-	QPointF mapFromCanvas(const QPointF &point);
-
-	void invalidate();
-	void invalidateSmoothList();
-
-	QEasingCurve easingCurve() const
-	{
-		return easingCurve_;
-	}
-
-	QPainterPath  paintControlPoint(const QPointF &point, bool edit, bool realPoint, bool active, bool smooth);
-
-	int findControlPoint(const QPointF &point, qreal &distance);
-	int findRealPoint(const QPointF &point);
-	bool isSmooth(int i) const;
-
-	void smoothPoint(int index);
-	void cornerPoint(int index);
-	void deletePoint(int index);
-	void addPoint(const QPointF point);
-	void appendPoint(const QPointF point);
-
-	bool isControlPointSmooth(int i) const;
-
-	QEasingCurve easingCurve_;
-	QPointF mousePress_;
+	SplineMoveHandle *realPointLowHandle_, *realPointHighHandle_; 
 };
 
 #endif // SHAPESECTIONPOLYNOMIALITEM_HPP

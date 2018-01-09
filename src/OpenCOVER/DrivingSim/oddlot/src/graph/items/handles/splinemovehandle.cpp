@@ -88,28 +88,20 @@ SplineMoveHandle::init()
 
 	// ContextMenu //
 	//
-	if (corner_->isReal())
+
+	if (!firstShapeSectionPoint_ && !lastShapeSectionPoint_)
 	{
-		if (!firstShapeSectionPoint_ && !lastShapeSectionPoint_)
-		{
-			deleteAction_ = getContextMenu()->addAction("Delete point");
-			smoothAction_ = getContextMenu()->addAction("Smooth point");
-			cornerAction_ = getContextMenu()->addAction("Corner point");
+		deleteAction_ = getContextMenu()->addAction("Delete point");
+		connect(deleteAction_, SIGNAL(triggered()), this, SLOT(deleteCorner()));
 
-			smoothAction_->setCheckable(true);
-
-			connect(deleteAction_, SIGNAL(triggered()), this, SLOT(deleteCorner()));
-			connect(smoothAction_, SIGNAL(triggered()), this, SLOT(smooth()));
-			connect(cornerAction_, SIGNAL(triggered()), this, SLOT(corner()));
-		}
-
-		QString text = QString("%1,%2").arg(corner_->getPoint().x(), 0, 'f', 2).arg(corner_->getPoint().y(), 0, 'f', 2);
-		textHandle_ = new QGraphicsTextItem(text, this);
-		QTransform trafo;
-		trafo.rotate(180, Qt::XAxis);
-		textHandle_->setTransform(trafo);
-		textHandle_->setVisible(false);
 	}
+
+	QString text = QString("%1,%2").arg(corner_->getPoint().x(), 0, 'f', 2).arg(corner_->getPoint().y(), 0, 'f', 2);
+	textHandle_ = new QGraphicsTextItem(text, this);
+	QTransform trafo;
+	trafo.rotate(180, Qt::XAxis);
+	textHandle_->setTransform(trafo);
+	textHandle_->setVisible(false);
 
 	// Color //
 	//
@@ -120,24 +112,8 @@ SplineMoveHandle::init()
 void
 SplineMoveHandle::updateColor()
 {
-    if (corner_->isSmooth())
-    {
-        setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
-        setPen(QPen(ODD::instance()->colors()->darkGreen()));
-		if (corner_->isReal() && !firstShapeSectionPoint_ && !lastShapeSectionPoint_)
-		{
-			smoothAction_->setChecked(true);
-		}
-    }
-	else 
-	{
-		setBrush(QBrush(ODD::instance()->colors()->brightRed()));
-		setPen(QPen(ODD::instance()->colors()->darkRed()));
-		if (corner_->isReal() && !firstShapeSectionPoint_ && !lastShapeSectionPoint_)
-		{
-			smoothAction_->setChecked(false);
-		}
-	}
+	setBrush(QBrush(ODD::instance()->colors()->brightRed()));
+	setPen(QPen(ODD::instance()->colors()->darkRed()));
 }
 
 
@@ -152,7 +128,7 @@ SplineMoveHandle::deleteCorner()
 	shapeEditor_->deleteLateralSection(corner_);
 }
 
-void
+/*void
 SplineMoveHandle::smooth()
 {
 	// Command: Smooth ShapeSection Polynomials at this point
@@ -166,7 +142,7 @@ SplineMoveHandle::corner()
 {
 	//  Command: If smooth polynomials make them straight
 	shapeEditor_->cornerPoint(corner_);
-}
+} */
 
 
 //################//

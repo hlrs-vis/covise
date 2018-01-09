@@ -17,6 +17,9 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
+// Eigen //
+//
+#include <Eigen/Dense>
 
 //####################//
 // Constructors       //
@@ -203,70 +206,111 @@ ShapeSection::getLength(double tStart)
 
 }
 
-void 
-ShapeSection::checkSmooth(PolynomialLateralSection *lateralSectionBefore, PolynomialLateralSection *lateralSection)
+void
+ShapeSection::calculateShapeParameters()
 {
-	double df1 = lateralSectionBefore->df(lateralSection->getTStart() - lateralSectionBefore->getTStart());
-	double df2 = lateralSection->df(0.0);
+	int n = shapes_.size() - 1;
+	Eigen::VectorXd b(n), c(n);
+	Eigen::MatrixXd A(n, n);
+	A = Eigen::ArrayXXd::Zero(n, n);
 
-	if (abs(df2 - df1) < NUMERICAL_ZERO6)
+
+	if (n == 0)
 	{
-		lateralSectionBefore->getRealPointHigh()->setSmooth(true);
-		lateralSectionBefore->getSplineControlPointHigh()->setSmooth(true);
-		lateralSection->getRealPointLow()->setSmooth(true);
-		lateralSection->getSplineControlPointLow()->setSmooth(true);
+		PolynomialLateralSection *poly = getPolynomialLateralSection(0.0);
+		poly->setParameters(0.0, 0.0, 0.0, 0.0);
+		poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
+		return;
 	}
-}
 
-/*
-QVector<QPointF> 
-ShapeSection::getControlPoints()
-{
-	QVector<QPointF> controlPoints;
-	QPointF p0, p1, p2, p3;
+
 	QMap<double, PolynomialLateralSection *>::const_iterator it = shapes_.constBegin();
+	it++;
+	int i = 1;
 	while (it != shapes_.constEnd())
 	{
-		Polynomial *poly = it.value();
-		double xlength;
-		if (shapes_.size() < 2)
+		PolynomialLateralSection *poly = it.value();
+		PolynomialLateralSection *lateralSectionBefore = getPolynomialLateralSectionBefore(poly->getTStart());
+		PolynomialLateralSection *nextLateralSection = getPolynomialLateralSectionNext(poly->getTStart());
+		double a2 = poly->getRealPointHigh()->getPoint().y();
+		double a1 = poly->getRealPointLow()->getPoint().y();
+		double a0 = lateralSectionBefore->getRealPointLow()->getPoint().y();
+		double x2 = poly->getRealPointHigh()->getPoint().x();
+
+		double x1 = poly->getTStart();
+		double x0 = lateralSectionBefore->getTStart();
+
+		b(i - 1) = (3 * ((a2 - a1) / (x2 - x1) - (a1 - a0) / (x1 - x0)));
+
+		if (i > 1)
 		{
-			xlength = getParentRoad()->getMaxWidth(getSStart()) - getParentRoad()->getMinWidth(getSStart());
+			A(i - 1, i - 2) = A(i - 2, i - 1) = x2 - x1;
 		}
-		else if (it == shapes_.constEnd() - 1)
+		A(i - 1, i - 1) = 2 * (x2 - x0);
+
+		i++;
+		it++;
+	}
+
+
+	Eigen::ColPivHouseholderQR<Eigen::MatrixXd> dec(A);
+
+	if (dec.info() != Eigen::ComputationInfo::Success)
+	{
+		qDebug() << "Solver not successful!";
+		return;
+	} 
+
+	c = dec.solve(b);
+
+	it = shapes_.constBegin();
+
+	PolynomialLateralSection *poly = it.value();
+	PolynomialLateralSection *nextLateralSection = getPolynomialLateralSectionNext(poly->getTStart());
+	double a0 = poly->getRealPointLow()->getPoint().y();
+	double a1 = nextLateralSection->getRealPointLow()->getPoint().y();
+	double x = nextLateralSection->getTStart() - poly->getTStart();
+
+	double b0 = (a1 - a0) / x - (c(0) * x / 3);
+	double d0 = c(0) / (3 * x);
+
+	poly->setParameters(a0, b0, 0.0, d0);
+//	qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a0 << "," << b0 << ",0.0," << d0;
+	poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
+	it++;
+	i = 1;
+	while (it != shapes_.constEnd())
+	{
+		PolynomialLateralSection *poly = it.value();
+		a1 = poly->getRealPointLow()->getPoint().y();
+		PolynomialLateralSection *nextLateralSection = getPolynomialLateralSectionNext(poly->getTStart());
+		double a2 = poly->getRealPointHigh()->getPoint().y();
+		double x = poly->getTEnd() - poly->getTStart();
+		double b1, d1;
+
+		if (nextLateralSection)
 		{
-			xlength = getParentRoad()->getMaxWidth(getSStart()) - getParentRoad()->getMinWidth(getSStart()) - it.key();
+			b1 = (a2 - a1) / x - (c(i) - c(i - 1)) * x / 3  - c(i - 1) * x;
+			d1 = (c(i) - c(i - 1)) / (3 * x);
 		}
 		else
 		{
-			xlength = (it + 1).key() - it.key();
+			b1 = (a2 - a1) / x + c(i - 1) * x / 3 - c(i - 1) * x;
+			d1 = -c(i - 1) / (3 * x);
 		}
-		poly->getControlPoints(xlength, p0, p1, p2, p3);
-		controlPoints.append(p0);
-		controlPoints.append(p1);
-		controlPoints.append(p2);
+
+		poly->setParameters(a1, b1, c(i-1), d1);
+//		qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
+		poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
 
 		it++;
-	}
-	controlPoints.append(p3);
-
-	return controlPoints;
-}
-
-void 
-ShapeSection::setPolynomialParameters(QVector<QPointF> controlPoints)
-{
-	int i = 0;
-	QMap<double, Polynomial *>::const_iterator it = shapes_.constBegin();
-	while ((it != shapes_.constEnd()) && (i + 3 < controlPoints.size()))
-	{
-		it.value()->setParametersFromControlPoints(controlPoints.at(i), controlPoints.at(i + 1), controlPoints.at(i + 2), controlPoints.at(i + 3));
-		i += 3;
+		i++;
 	}
 
 	addShapeSectionChanges(ShapeSection::CSS_ParameterChange);
+
 }
-*/
+
 
 PolynomialLateralSection *
 ShapeSection::getFirstPolynomialLateralSection() const

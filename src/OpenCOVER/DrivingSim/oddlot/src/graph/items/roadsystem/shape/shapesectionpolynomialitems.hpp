@@ -42,6 +42,7 @@ public:
 	// ShapeSectionPolynomialItems //
 	//
 	void createPolynomialItems();
+
 	virtual QRectF boundingRect();
 	QRectF *getCanvas()
 	{
@@ -51,20 +52,6 @@ public:
 	void initNormalization();
 	QPointF normalize(const QPointF &p);
 	QPointF sceneCoords(const QPointF &start, const QPointF &p);
-
-/*	void appendShapeSectionPolynomialItem(ShapeSectionPolynomialItem *polynomialItem);
-	bool removeShapeSectionPolynomialItem(ShapeSectionPolynomialItem *polynomialItem);*/
-/*	QMap<QString, RoadItem *> getRoadItems() const
-	{
-		return roadItems_;
-	} */
-
-	// RoadSystem //
-	//
-/*	RoadSystem *getRoadSystem() const
-	{
-		return roadSystem_;
-	} */
 
 
     // Obsever Pattern //

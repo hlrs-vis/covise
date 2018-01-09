@@ -74,10 +74,6 @@ void
 ShapeSectionPolynomialItems::createPolynomialItems()
 {
 	splineCanvas_ = new QRectF(0, 0, 0, 0);
-/*	foreach(PolynomialLateralSection *shape, shapeSection_->getShapes())
-	{
-		shape->getRealPointsFromParameters();
-	} */
 
 	if (shapeEditor_)
 	{
@@ -99,19 +95,15 @@ ShapeSectionPolynomialItems::boundingRect()
 	
 	foreach(PolynomialLateralSection *shape, shapeSection_->getShapes())
 	{
-		QPointF p0 = shape->getRealPointLow()->getPoint();
-		QPointF p1 = shape->getSplineControlPointLow()->getPoint();
-		QPointF p2 = shape->getSplineControlPointHigh()->getPoint();
-		QPointF p3 = shape->getRealPointHigh()->getPoint();
-		double y = fmin(fmin(p0.y(), p1.y()), fmin(p2.y(), p3.y()));
-		if (y < ymin)
+		double ymin = fmin(shape->getRealPointLow()->getPoint().y(), shape->getRealPointHigh()->getPoint().y());
+		double ymax;
+		if (ymin == shape->getRealPointLow()->getPoint().y())
 		{
-			ymin = y;
+			ymax = shape->getRealPointHigh()->getPoint().y();
 		}
-		y = fmax(fmax(p0.y(), p1.y()), fmax(p2.y(), p3.y()));
-		if (y > ymax)
+		else
 		{
-			ymax = y;
+			ymax = shape->getRealPointLow()->getPoint().y();
 		}
 	}
 	return QRectF { 0, ymax, shapeSection_->getParentRoad()->getMaxWidth(shapeSection_->getSStart()) - shapeSection_->getParentRoad()->getMinWidth(shapeSection_->getSStart()), ymax - ymin };

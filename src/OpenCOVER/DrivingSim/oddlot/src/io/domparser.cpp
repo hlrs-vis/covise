@@ -1229,11 +1229,6 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
 			foreach(PolynomialLateralSection *poly, section->getShapes())
 			{
 				poly->getControlPointsFromParameters();
-				PolynomialLateralSection *lastLateralSection = section->getPolynomialLateralSectionBefore(poly->getTStart());
-				if (lastLateralSection)
-				{
-					section->checkSmooth(lastLateralSection, poly);
-				}
 			}
 		}
 	}

@@ -53,6 +53,7 @@ public:
 	double getShapeElevationDegree(double t);
 	double getWidth();
 	double getLength(double t);
+	void calculateShapeParameters();
 
 	QMap<double, PolynomialLateralSection *> getShapes()
 	{
@@ -60,7 +61,7 @@ public:
 	}
 	int getShapesMaxDegree();
 
-	void checkSmooth(PolynomialLateralSection *lateralSectionBefore, PolynomialLateralSection *lateralSection);
+//	void checkSmooth(PolynomialLateralSection *lateralSectionBefore, PolynomialLateralSection *lateralSection);
 
 //	QVector<QPointF> getControlPoints();
 //	void setPolynomialParameters(QVector<QPointF> controlPoints);

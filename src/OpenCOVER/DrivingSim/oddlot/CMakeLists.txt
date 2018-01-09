@@ -32,6 +32,8 @@ using(JPEG)
 using(PROJ4)
 USING(BOOST)
 using(OpenScenario)
+USING(OpenCRG)
+using(EIGEN)
 
 #INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
@@ -380,6 +382,7 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/lateralsections/polynomiallateralsection.cpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
+	src/graph/items/oscsystem/svgitem.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -694,6 +697,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/graph/items/roadsystem/shape/shapesectionpolynomialitem.hpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.hpp
 	src/graph/items/handles/splinemovehandle.hpp
+	src/graph/items/oscsystem/svgitem.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
@@ -753,7 +757,7 @@ IF(COVISE_FOUND)
     SET(EXTRA_LIBS ${EXTRA_LIBS} ${COVISE_NET_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_CONFIG_LIBRARY})
 ENDIF(COVISE_FOUND)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}) 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${OPENCRG_INCLUDE_DIR} ${EIGEN_INCLUDE_DIR}) 
 
 QT_WRAP_CPP(ODDLOT_MOC_SRCS ${ODDLOT_MOC_HEADERS})
 QT_WRAP_UI(ODDLOT_UI_HEADERS ${ODDLOT_FORMS})
@@ -763,7 +767,7 @@ QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
 qt_use_modules(oddlot Core Widgets Gui Network Xml Svg)
 TARGET_LINK_LIBRARIES(oddlot
-   ${EXTRA_LIBS}
+   ${EXTRA_LIBS} ${OPENCRG_LIBRARIES}
 ) 
 
 source_group("testit" FILES src/cover/coverconnection.cpp coverconnection.cpp .*cover.*)

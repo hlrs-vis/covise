@@ -171,16 +171,16 @@ ShapeEditor::fitBoundingBoxInView()
 	profileGraph_->getView()->fitInView(boundingBox_); */
 }
 
-QMap<double, PolynomialLateralSection *>::ConstIterator ShapeEditor::addLateralSectionsBeforeToEasingCurve(QEasingCurve &easingCurve, QMap<double, PolynomialLateralSection *>::ConstIterator it,
-	PolynomialLateralSection *lateralSectionBefore, PolynomialLateralSection *nextLateralSection, ShapeSectionPolynomialItems *polyItems)
+QMap<double, PolynomialLateralSection *>::ConstIterator 
+ShapeEditor::addLateralSectionsBefore(QList<QPointF> &scenePoints, QMap<double, PolynomialLateralSection *>::ConstIterator it, PolynomialLateralSection *lateralSectionBefore, ShapeSectionPolynomialItems *polyItems)
 {
 	if (lateralSectionBefore)
 	{
 		PolynomialLateralSection *polySection = it.value();
 		while (polySection != lateralSectionBefore)
 		{
-			easingCurve.addCubicBezierSegment(polyItems->normalize(polySection->getSplineControlPointLow()->getPoint()),
-				polyItems->normalize(polySection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(polySection->getRealPointHigh()->getPoint()));
+			scenePoints.append(polySection->getRealPointLow()->getPoint());
+			scenePoints.append(polySection->getRealPointHigh()->getPoint());
 			it++;
 			polySection = it.value();
 		}
@@ -190,13 +190,13 @@ QMap<double, PolynomialLateralSection *>::ConstIterator ShapeEditor::addLateralS
 }
 
 void 
-ShapeEditor::addLateralSectionsNextToEasingCurve(QEasingCurve &easingCurve, QMap<double, PolynomialLateralSection *>::ConstIterator it, ShapeSection *shapeSection, ShapeSectionPolynomialItems *polyItems)
+ShapeEditor::addLateralSectionsNext(QList<QPointF> &scenePoints, QMap<double, PolynomialLateralSection *>::ConstIterator it, ShapeSection *shapeSection, ShapeSectionPolynomialItems *polyItems)
 {
 	while (it != shapeSection->getPolynomialLateralSections().constEnd())
 	{
 		PolynomialLateralSection *polySection = it.value();
-		easingCurve.addCubicBezierSegment(polyItems->normalize(polySection->getSplineControlPointLow()->getPoint()),
-			polyItems->normalize(polySection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(polySection->getRealPointHigh()->getPoint()));
+		scenePoints.append(polySection->getRealPointLow()->getPoint());
+		scenePoints.append(polySection->getRealPointHigh()->getPoint());
 		it++;
 	}
 }
@@ -208,448 +208,64 @@ ShapeEditor::translateMoveHandles(const QPointF &mousePos, SplineControlPoint *c
 	ShapeSection *shapeSection = lateralSection->getParentSection();
 	double t = lateralSection->getTStart();
 	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
-	PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
 
-	if (corner->isReal())
-	{
 		if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (lateralSection && (mousePos.x() >= lateralSection->getTEnd())))
 		{
 			qDebug() << "return";
 			return;
 		}
-	}
 
 	ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
-
-	polyItems->initNormalization();
-	SplineControlPoint *startPoint = shapeSection->getFirstPolynomialLateralSection()->getRealPointLow()->getClone();
-
-	QEasingCurve easingCurve(QEasingCurve::BezierSpline);
+	QList<QPointF> scenePoints;
 
 	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-	it = addLateralSectionsBeforeToEasingCurve(easingCurve, it, lateralSectionBefore, nextLateralSection, polyItems);
+	it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
 
-	if (corner == shapeSection->getFirstPolynomialLateralSection()->getRealPointLow()) // Lateralprofile start
+	if (lateralSectionBefore)
 	{
-		qreal d = QLineF(mousePos, corner->getPoint()).length();
-		if (d < 10)
-		{
-			QPointF distance = mousePos - corner->getPoint();  
-			startPoint->getPoint().setY(mousePos.y());
-			QPointF p1 = lateralSection->getSplineControlPointLow()->getPoint();
-			p1 += distance;
-			easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(lateralSection->getSplineControlPointHigh()->getPoint()), 
-				polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-			it++;
-
-			if (nextLateralSection)
-			{
-				easingCurve.addCubicBezierSegment(polyItems->normalize(nextLateralSection->getSplineControlPointLow()->getPoint()),
-					polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-				it++;
-			}
-
-		}
+		scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
+		scenePoints.append(mousePos);
+		it++;
 	}
 
-	else
-	{
-		if (corner->isReal()) 
-		{
-			//move also the tangents
-			QPointF distance = mousePos - corner->getPoint();
+	scenePoints.append(mousePos);
+	scenePoints.append(lateralSection->getRealPointHigh()->getPoint());
+	it++;
 
-			if (corner->isLow())
-			{
-				QPointF p0 = lateralSection->getRealPointLow()->getPoint();
-				p0 += distance;
-				QPointF p1 = lateralSection->getSplineControlPointLow()->getPoint();
-				p1 += distance;
-
-				if (lateralSectionBefore)
-				{
-					QPointF p2 = lateralSectionBefore->getSplineControlPointHigh()->getPoint();
-					p2 += distance;
-					easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()),
-						polyItems->normalize(p2), polyItems->normalize(p0));
-					it++;
-				}
-
-				easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(lateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-				it++;
-
-
-				if (nextLateralSection)
-				{
-					easingCurve.addCubicBezierSegment(polyItems->normalize(nextLateralSection->getSplineControlPointLow()->getPoint()),
-						polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-					it++;
-				} 
-			}
-			else
-			{
-				if (lateralSectionBefore)
-				{
-					easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()),
-						polyItems->normalize(lateralSectionBefore->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSectionBefore->getRealPointHigh()->getPoint()));
-					it++;
-				}
-
-				QPointF p3 = lateralSection->getRealPointHigh()->getPoint();
-				p3 += distance;
-				QPointF p2 = lateralSection->getSplineControlPointHigh()->getPoint();
-				p2 += distance;
-				easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSection->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(p3));
-				it++;
-
-				if (nextLateralSection)
-				{
-					QPointF p1 = nextLateralSection->getSplineControlPointLow()->getPoint();
-					p1 += distance;
-					easingCurve.addCubicBezierSegment(polyItems->normalize(p1),
-						polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-					it++;
-				}
-			}
-		}
-		else
-		{
-			if (!corner->isSmooth())
-			{
-				if (lateralSectionBefore)
-				{
-					easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()),
-						polyItems->normalize(lateralSectionBefore->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSectionBefore->getRealPointHigh()->getPoint()));
-					it++;
-				}
-
-
-				if (corner->isLow())
-				{
-					easingCurve.addCubicBezierSegment(polyItems->normalize(mousePos), polyItems->normalize(lateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-				}
-				else
-				{
-					easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSection->getSplineControlPointLow()->getPoint()), polyItems->normalize(mousePos), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-				}
-				it++;
-			}
-			else
-			{
-				QPointF distance = mousePos - corner->getPoint();
-
-				if (corner->isLow())
-				{
-					if (lateralSectionBefore)
-					{
-						QPointF p2 = lateralSectionBefore->getSplineControlPointHigh()->getPoint();
-						p2 -= distance;
-						easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(lateralSectionBefore->getRealPointHigh()->getPoint()));
-						it++;
-					}
-
-					QPointF p1 = lateralSection->getSplineControlPointLow()->getPoint();
-					p1 += distance;
-					easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(lateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-					it++;
-
-					if (nextLateralSection)
-					{
-						easingCurve.addCubicBezierSegment(polyItems->normalize(nextLateralSection->getSplineControlPointLow()->getPoint()),
-							polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-						it++;
-					}
-				}
-				else
-				{
-					if (lateralSectionBefore)
-					{
-						easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()),
-							polyItems->normalize(lateralSectionBefore->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSectionBefore->getRealPointHigh()->getPoint()));
-						it++;
-					}
-
-					QPointF p2 = lateralSection->getSplineControlPointHigh()->getPoint();
-					p2 += distance;
-					easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSection->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-					it++;
-
-					PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
-					if (nextLateralSection)
-					{
-						QPointF p1 = nextLateralSection->getSplineControlPointLow()->getPoint();
-						p1 += distance;
-						easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-						it++;
-					}
-				}
-			}
-
-		}
-	}
-
-	addLateralSectionsNextToEasingCurve(easingCurve, it, shapeSection, polyItems);
-
-	QList<QPointF> scenePoints = setEasingCurve(polyItems, startPoint, easingCurve);
-
+	addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
 
 	MovePointLateralShapeSectionCommand *command = new MovePointLateralShapeSectionCommand(shapeSection, corner, scenePoints);
 	getProjectGraph()->executeCommand(command);
+
 }
 
-
-QList<QPointF>
-ShapeEditor::setEasingCurve(ShapeSectionPolynomialItems *polyItems, SplineControlPoint *start, const QEasingCurve &easingCurve)
-{
-
-	QVector<QPointF> points = easingCurve.toCubicSpline();
-	QList<QPointF> scenePoints;
-
-	QPointF startPoint = start->getPoint();
-	QPointF p0 = startPoint;
-	int i = 0;
-	while (i < points.size())
-	{
-		scenePoints.append(p0);
-		QPointF p = polyItems->sceneCoords(startPoint, points.at(i));
-		scenePoints.append(polyItems->sceneCoords(startPoint, points.at(i++)));
-		p = polyItems->sceneCoords(startPoint, points.at(i));
-		scenePoints.append(polyItems->sceneCoords(startPoint, points.at(i++)));
-		p = polyItems->sceneCoords(startPoint, points.at(i));
-		scenePoints.append(polyItems->sceneCoords(startPoint, points.at(i++)));
-		p0 = scenePoints.last();
-	}
-
-	return scenePoints;
-}
-
-void 
+void
 ShapeEditor::addLateralSection(ShapeSection *shapeSection, const QPointF &mousePos)
 {
 	double t = mousePos.x();
 	PolynomialLateralSection *polySection = shapeSection->getShape(t);
-	PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
 	ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
 
-	polyItems->initNormalization();
-	SplineControlPoint *startPoint = shapeSection->getFirstPolynomialLateralSection()->getRealPointLow()->getClone();
-
-	QEasingCurve easingCurve(QEasingCurve::BezierSpline);
-
+	QList<QPointF> scenePoints;
 	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-	it = addLateralSectionsBeforeToEasingCurve(easingCurve, it, polySection, nextLateralSection, polyItems);
+	it = addLateralSectionsBefore(scenePoints, it, polySection, polyItems);
 
 	PolynomialLateralSection *newPolySection = new PolynomialLateralSection(t);
+	scenePoints.append(polySection->getRealPointLow()->getPoint());
+	scenePoints.append(mousePos);
 
-
-	QPointF realPointBefore = polySection->getRealPointLow()->getPoint();
-	QPointF p2 = (mousePos + realPointBefore) / 2;
-	easingCurve.addCubicBezierSegment(polyItems->normalize(polySection->getSplineControlPointLow()->getPoint()),
-		polyItems->normalize(p2), polyItems->normalize(mousePos));
+	scenePoints.append(mousePos);
+	scenePoints.append(polySection->getRealPointHigh()->getPoint());
 	it++;
 
-	if (polySection->getRealPointHigh()->isSmooth())
-	{
-		QPointF after;
-		if (nextLateralSection)
-		{
-			after = nextLateralSection->getRealPointHigh()->getPoint();
-		}
-		else
-		{
-			after = polySection->getRealPointHigh()->getPoint();
-		}
-
-		QPointF tangent = (after - mousePos) / 6;
-
-		QPointF realPointNext = polySection->getRealPointHigh()->getPoint();
-		QPointF p1 = (mousePos + realPointNext) / 2;
-		QPointF p2 = realPointNext - tangent;
-		easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(p2), polyItems->normalize(realPointNext));
-
-		if (nextLateralSection)
-		{
-			QPointF p1 = realPointNext + tangent;
-			easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-			it++;
-		}
-	}
-	else
-	{
-
-		QPointF realPointNext = polySection->getRealPointHigh()->getPoint();
-		QPointF p1 = (mousePos + realPointNext) / 2;
-		easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(polySection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(polySection->getRealPointHigh()->getPoint()));
-
-		if (nextLateralSection)
-		{
-			easingCurve.addCubicBezierSegment(polyItems->normalize(nextLateralSection->getSplineControlPointLow()->getPoint()),
-				polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-			it++;
-		}
-	}
-
-	addLateralSectionsNextToEasingCurve(easingCurve, it, shapeSection, polyItems);
+	addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
 
 
-	QList<QPointF> scenePoints = setEasingCurve(polyItems, startPoint, easingCurve);
-
-	if (polySection->getRealPointHigh()->isSmooth())
-	{
-
-
-		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Add Point"));
-
-		newPolySection->getRealPointHigh()->setSmooth(true);
-		newPolySection->getSplineControlPointHigh()->setSmooth(true);
-
-		AddLateralShapeSectionCommand *command = new AddLateralShapeSectionCommand(shapeSection, newPolySection, scenePoints);
-		getProjectGraph()->executeCommand(command);
-
-		QList<SplineControlPoint *> corners;
-		corners.append(polySection->getSplineControlPointHigh());
-		corners.append(polySection->getRealPointHigh());
-		SmoothPointLateralShapeSectionCommand *smoothCommand = new SmoothPointLateralShapeSectionCommand(corners, false);
-		getProjectGraph()->executeCommand(smoothCommand);
-
-		getProjectData()->getUndoStack()->endMacro();
-	}
-	else
-	{
-		AddLateralShapeSectionCommand *command = new AddLateralShapeSectionCommand(shapeSection, newPolySection, scenePoints);
-		getProjectGraph()->executeCommand(command);
-	}
-}
-
-void
-ShapeEditor::smoothPoint(bool smooth, SplineControlPoint *corner)
-{
-	PolynomialLateralSection *lateralSection = corner->getParent();
-	ShapeSection *shapeSection = lateralSection->getParentSection();
-	double t = lateralSection->getTStart();
-	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
-	PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
-	if (smooth)
-	{
-		ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
-
-		SplineControlPoint *startPoint = shapeSection->getFirstPolynomialLateralSection()->getRealPointLow()->getClone();
-//		QPointF before = polyItems->normalize(lateralSectionBefore->getRealPointLow()->getPoint());
-		QPointF before = lateralSectionBefore->getRealPointLow()->getPoint();
-		QPointF after;
-		if (nextLateralSection)
-		{
-			after = nextLateralSection->getRealPointHigh()->getPoint();
-		}
-		else
-		{
-			after = lateralSection->getRealPointHigh()->getPoint();
-		}
-
-		QPointF tangent = (after - before) / 6;
-
-		QEasingCurve easingCurve(QEasingCurve::BezierSpline);
-		QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-		it = addLateralSectionsBeforeToEasingCurve(easingCurve, it, lateralSectionBefore, lateralSection, polyItems);
-
-		QList<SplineControlPoint *> corners;
-
-		if (lateralSectionBefore)
-		{
-			QPointF p2 = corner->getPoint() - tangent;
-			easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(lateralSectionBefore->getRealPointHigh()->getPoint()));
-			it++;
-			corners.append(lateralSectionBefore->getRealPointHigh());
-			corners.append(lateralSectionBefore->getSplineControlPointHigh());
-		}
-
-		corners.append(corner);
-
-		QPointF p1 = corner->getPoint() + tangent;
-		easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(lateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-		it++;
-		corners.append(lateralSection->getSplineControlPointLow());
-
-		addLateralSectionsNextToEasingCurve(easingCurve, it, shapeSection, polyItems);
-
-
-		QList<QPointF> scenePoints = setEasingCurve(polyItems, startPoint, easingCurve);
-
-		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Smooth Point"));
-		MovePointLateralShapeSectionCommand *command = new MovePointLateralShapeSectionCommand(shapeSection, corner, scenePoints);
-		getProjectGraph()->executeCommand(command);
-
-		SmoothPointLateralShapeSectionCommand *smoothCommand = new SmoothPointLateralShapeSectionCommand(corners, smooth);
-		getProjectGraph()->executeCommand(smoothCommand);
-		getProjectData()->getUndoStack()->endMacro();
-
-	}
-	else
-	{
-		QList<SplineControlPoint *> corners;
-		corners.append(corner);
-		corners.append(lateralSection->getSplineControlPointLow());
-
-		if (lateralSectionBefore)
-		{
-			corners.append(lateralSectionBefore->getSplineControlPointHigh());
-		}
-		SmoothPointLateralShapeSectionCommand *smoothCommand = new SmoothPointLateralShapeSectionCommand(corners, smooth);
-		getProjectGraph()->executeCommand(smoothCommand);
-	}
-
-}
-
-void
-ShapeEditor::cornerPoint(SplineControlPoint *corner)
-{
-	PolynomialLateralSection *lateralSection = corner->getParent();
-	ShapeSection *shapeSection = lateralSection->getParentSection();
-	double t = lateralSection->getTStart();
-	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
-	PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
-	ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
-
-	SplineControlPoint *startPoint = shapeSection->getFirstPolynomialLateralSection()->getRealPointLow()->getClone();
-
-	QEasingCurve easingCurve(QEasingCurve::BezierSpline);
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-	it = addLateralSectionsBeforeToEasingCurve(easingCurve, it, lateralSectionBefore, lateralSection, polyItems);
-
-
-	QList<SplineControlPoint *> corners;
-	if (lateralSectionBefore)
-	{
-		QPointF p2 = (lateralSectionBefore->getRealPointLow()->getPoint() - corner->getPoint()) / 3 + corner->getPoint();
-		easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(lateralSectionBefore->getRealPointHigh()->getPoint()));
-		it++;
-
-		corners.append(corner);
-		corners.append(lateralSectionBefore->getSplineControlPointHigh());
-	}
-
-
-	QPointF p1 = (lateralSection->getRealPointHigh()->getPoint() - corner->getPoint()) / 3 + corner->getPoint();
-	easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(lateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(lateralSection->getRealPointHigh()->getPoint()));
-	it++;
-	corners.append(lateralSection->getSplineControlPointLow());
-
-	addLateralSectionsNextToEasingCurve(easingCurve, it, shapeSection, polyItems);
-
-
-	QList<QPointF> scenePoints = setEasingCurve(polyItems, startPoint, easingCurve);
-
-	getProjectData()->getUndoStack()->beginMacro(QObject::tr("Smooth Point"));
-	MovePointLateralShapeSectionCommand *command = new MovePointLateralShapeSectionCommand(shapeSection, corner, scenePoints);
+	AddLateralShapeSectionCommand *command = new AddLateralShapeSectionCommand(shapeSection, newPolySection, scenePoints);
 	getProjectGraph()->executeCommand(command);
-
-	SmoothPointLateralShapeSectionCommand *smoothCommand = new SmoothPointLateralShapeSectionCommand(corners, false);
-	getProjectGraph()->executeCommand(smoothCommand);
-	getProjectData()->getUndoStack()->endMacro();
-
 }
 
-void 
+void
 ShapeEditor::deleteLateralSection(SplineControlPoint *corner)
 {
 	PolynomialLateralSection *polySection = corner->getParent();
@@ -660,93 +276,22 @@ ShapeEditor::deleteLateralSection(SplineControlPoint *corner)
 	{
 		ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
 
-		polyItems->initNormalization();
-		SplineControlPoint *startPoint = shapeSection->getFirstPolynomialLateralSection()->getRealPointLow()->getClone();
-
-		QEasingCurve easingCurve(QEasingCurve::BezierSpline);
-
+		QList<QPointF> scenePoints;
 		QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-		it = addLateralSectionsBeforeToEasingCurve(easingCurve, it, lateralSectionBefore, polySection, polyItems);
+		it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
 
-		QList<SplineControlPoint *> smoothCorners;
-		QList<SplineControlPoint *> corners;
-		PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(polySection->getTStart());
-
-		if (nextLateralSection && nextLateralSection->getRealPointLow()->isSmooth())
-		{
-			QPointF before = lateralSectionBefore->getRealPointLow()->getPoint();
-			QPointF after = nextLateralSection->getRealPointHigh()->getPoint();
-
-			QPointF tangent = (after - before) / 6;
-
-			QPointF p2 = nextLateralSection->getRealPointLow()->getPoint() - tangent;
-			easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(polySection->getRealPointHigh()->getPoint()));
-			it++;
-
-			QPointF p1 = nextLateralSection->getRealPointLow()->getPoint() + tangent;
-			easingCurve.addCubicBezierSegment(polyItems->normalize(p1), polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-			it++;
-
-			if (!corner->isSmooth())
-			{
-				smoothCorners.append(lateralSectionBefore->getSplineControlPointHigh()); //smooth true
-				smoothCorners.append(lateralSectionBefore->getRealPointHigh());
-			}
-		}
-		else
-		{
-			QPointF p2 = (lateralSectionBefore->getRealPointLow()->getPoint() - polySection->getRealPointHigh()->getPoint()) / 3 + polySection->getRealPointHigh()->getPoint();
-			easingCurve.addCubicBezierSegment(polyItems->normalize(lateralSectionBefore->getSplineControlPointLow()->getPoint()), polyItems->normalize(p2), polyItems->normalize(polySection->getRealPointHigh()->getPoint()));
-			it++;
-
-			if (nextLateralSection)
-			{
-				easingCurve.addCubicBezierSegment(polyItems->normalize(nextLateralSection->getSplineControlPointLow()->getPoint()),
-					polyItems->normalize(nextLateralSection->getSplineControlPointHigh()->getPoint()), polyItems->normalize(nextLateralSection->getRealPointHigh()->getPoint()));
-				it++;
-			}
-
-			if (corner->isSmooth())
-			{
-				corners.append(lateralSectionBefore->getSplineControlPointHigh()); //smooth false
-				corners.append(lateralSectionBefore->getRealPointHigh());
-			}
-		}
+		scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
+		scenePoints.append(polySection->getRealPointHigh()->getPoint());
+		it++;
 		it++;
 
-		addLateralSectionsNextToEasingCurve(easingCurve, it, shapeSection, polyItems);
+		addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
 
-		QList<QPointF> scenePoints = setEasingCurve(polyItems, startPoint, easingCurve);
-
-
-		if (corners.isEmpty() && smoothCorners.isEmpty())
-		{
-			DeleteLateralShapeSectionCommand *command = new DeleteLateralShapeSectionCommand(shapeSection, polySection, scenePoints);
-			getProjectGraph()->executeCommand(command);
-		}
-		else
-		{
-			getProjectData()->getUndoStack()->beginMacro(QObject::tr("Delete Point"));
-
-			DeleteLateralShapeSectionCommand *command = new DeleteLateralShapeSectionCommand(shapeSection, polySection, scenePoints);
-			getProjectGraph()->executeCommand(command);
-
-			if (!smoothCorners.isEmpty())
-			{
-				SmoothPointLateralShapeSectionCommand *smoothCommand = new SmoothPointLateralShapeSectionCommand(smoothCorners, true);
-				getProjectGraph()->executeCommand(smoothCommand);
-			}
-
-			if (!corners.isEmpty())
-			{
-				SmoothPointLateralShapeSectionCommand *smoothCommand = new SmoothPointLateralShapeSectionCommand(corners, false);
-				getProjectGraph()->executeCommand(smoothCommand);
-			}
-
-			getProjectData()->getUndoStack()->endMacro();
-		}
+		DeleteLateralShapeSectionCommand *command = new DeleteLateralShapeSectionCommand(shapeSection, polySection, scenePoints);
+		getProjectGraph()->executeCommand(command);
 	}
 }
+
 
 //################//
 // TOOL           //
@@ -797,16 +342,9 @@ ShapeEditor::mouseAction(MouseAction *mouseAction)
 				d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();
 				if (d > 0.5)
 				{
-					d = QLineF(lateralSection->getSplineControlPointLow()->getPoint(), mousePoint).length();
-					if (d > 0.5)
-					{
-						d = QLineF(lateralSection->getSplineControlPointHigh()->getPoint(), mousePoint).length();
-						if (d > 0.5)
-						{
-							d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
-						}
-					}
+					d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
 				}
+
 				if (d < 0.5)
 				{
 					profileGraph_->getView()->setCursor(Qt::OpenHandCursor);
@@ -843,16 +381,9 @@ ShapeEditor::mouseAction(MouseAction *mouseAction)
 					double d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();
 					if (d > 0.5)
 					{
-						d = QLineF(lateralSection->getSplineControlPointLow()->getPoint(), mousePoint).length();
-						if (d > 0.5)
-						{
-							d = QLineF(lateralSection->getSplineControlPointHigh()->getPoint(), mousePoint).length();
-							if (d > 0.5)
-							{
-								d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
-							}
-						}
+						d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
 					}
+
 					if (d < 0.5)
 					{
 						profileGraph_->getView()->setCursor(Qt::ClosedHandCursor);

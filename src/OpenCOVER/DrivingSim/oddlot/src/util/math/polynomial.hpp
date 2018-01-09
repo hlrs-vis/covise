@@ -69,6 +69,7 @@ public:
 
 	bool getPolynomialControlPoints(double length,QPointF &p0, QPointF &p1, QPointF &p2, QPointF &p3);
 	void setParametersFromControlPoints(QPointF p0, QPointF p1, QPointF p2, QPointF p3);
+	void setParameters(double a, double b, double c, double d);
 
 protected:
     // four doubles = 0 is the same Polynomial(); /* not allowed */

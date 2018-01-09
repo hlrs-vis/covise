@@ -102,8 +102,7 @@ Polynomial::getT(double y, double xApprox) const
 double
 Polynomial::f(double x) const
 {
-	double t = getT(x, 0.5);
-    return (a_ + b_ * t + c_ * t * t + d_ * t * t * t);
+    return (a_ + b_ * x + c_ * x * x + d_ * x * x * x);
 }
 
 /** Calculates the first derivative of the polynomial
@@ -267,6 +266,14 @@ Polynomial::getPolynomialControlPoints(double l, QPointF &p0, QPointF &p1, QPoin
 	return false;
 }
 
+void 
+Polynomial::setParameters(double a, double b, double c, double d)
+{
+	a_ = a;
+	b_ = b;
+	c_ = c;
+	d_ = d;
+}
 
 void 
 Polynomial::setParametersFromControlPoints(QPointF p0, QPointF p1, QPointF p2, QPointF p3)

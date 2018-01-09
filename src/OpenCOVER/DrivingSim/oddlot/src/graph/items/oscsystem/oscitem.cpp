@@ -41,6 +41,7 @@
 //#include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/items/oscsystem/oscbaseitem.hpp"
+#include "src/graph/items/oscsystem/svgitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
 
 // Tools //
@@ -65,7 +66,6 @@
 #include <QString>
 #include <QKeyEvent>
 #include <QTransform>
-#include "QtSvg/qsvgrenderer.h"
 
 
 OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad)
@@ -83,7 +83,7 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
 
 OSCItem::~OSCItem()
 {
-	delete svgItem;
+	delete svgItem_;
 }
 
 void OSCItem::updateIcon()
@@ -275,9 +275,8 @@ OSCItem::init()
 		covisedir_ = getenv("COVISEDIR");
 #endif
 	std::string fn = covisedir_+"/share/covise/icons/svg/car.svg";
-	svgItem = new QGraphicsSvgItem(this);
-	renderer = new QSvgRenderer(QLatin1String(fn.c_str()));
-	svgItem->setSharedRenderer(renderer);
+	svgItem_ = new SVGItem(this, fn);
+
 
 	if (catalogObject)
 	{
@@ -337,7 +336,14 @@ OSCItem::updatePosition()
 	double heading = road_->getGlobalHeading(s_);
 	transform.rotate(road_->getGlobalHeading(s_));
 	transform.translate(pos_.x(),pos_.y());
-	svgItem->setTransform(transform);
+	QRectF rect = svgItem_->boundingRect();
+//	qDebug() << rect.width() << " " << rect.height();
+	transform.scale(0.1, 0.1);
+	svgItem_->setTransform(transform);
+
+/*	path_ = transform.map(path_);
+	setPath(path_); */
+
 	angle_ = heading;
 
 	oscTextItem_->setPos(pos_);
@@ -351,6 +357,7 @@ OSCItem::move(QPointF &diff)
 	path_.translate(diff); 
 	setPath(path_);
 	pos_ += diff;
+	updatePosition();
 }
 
 //*************//

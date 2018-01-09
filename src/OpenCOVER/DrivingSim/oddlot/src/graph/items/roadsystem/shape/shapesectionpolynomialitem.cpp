@@ -84,8 +84,6 @@ ShapeSectionPolynomialItem::init()
 	}
 
 	realPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointLow());
-	controlPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getSplineControlPointLow());
-	controlPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getSplineControlPointHigh());
 
 	shapeSection_ = polynomialLateralSection_->getParentSection();
 	if (shapeSection_->getLastPolynomialLateralSection() == polynomialLateralSection_)
@@ -120,27 +118,6 @@ ShapeSectionPolynomialItem::updateColor()
 
 	pen.setColor(ODD::instance()->colors()->darkRed());
 
-/*    if (shapeSection_->getDegree() == 3)
-    {
-        pen->setColor(ODD::instance()->colors()->darkRed());
-    }
-    else if (shapeSection_->getDegree() == 2)
-    {
-        pen->setColor(ODD::instance()->colors()->darkOrange());
-    }
-    else if (shapeSection_->getDegree() == 1)
-    {
-        pen->setColor(ODD::instance()->colors()->darkGreen());
-    }
-    else if (shapeSection_->getDegree() == 0)
-    {
-        pen->setColor(ODD::instance()->colors()->darkCyan());
-    }
-    else
-    {
-        pen->setColor(ODD::instance()->colors()->darkBlue());
-    } */
-
     setPen(pen);
 }
 
@@ -149,14 +126,26 @@ ShapeSectionPolynomialItem::createPath()
 {
 	QPainterPath path;
 
-	path.moveTo(polynomialLateralSection_->getRealPointLow()->getPoint());
-	path.cubicTo(polynomialLateralSection_->getSplineControlPointLow()->getPoint(), polynomialLateralSection_->getSplineControlPointHigh()->getPoint(), polynomialLateralSection_->getRealPointHigh()->getPoint());
+	//	double pointsPerMeter = 1.0; // BAD: hard coded!
+	double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
+	double tStart = polynomialLateralSection_->getTStart();
+	double tEnd = polynomialLateralSection_->getTEnd();
+	int pointCount = int(ceil((tEnd - tStart) * pointsPerMeter)); // TODO curvature...
+	if (pointCount <= 1)
+	{
+		pointCount = 2; // should be at least 2 to get a quad
+	}
+	pointCount = pointCount * 10;
+	QVector<QPointF> points(pointCount + 1);
+	double segmentLength = (tEnd - tStart) / pointCount;
 
-	path.moveTo(polynomialLateralSection_->getRealPointLow()->getPoint());
-	path.lineTo(polynomialLateralSection_->getSplineControlPointLow()->getPoint());
-	path.moveTo(polynomialLateralSection_->getRealPointHigh()->getPoint());
-	path.lineTo(polynomialLateralSection_->getSplineControlPointHigh()->getPoint()); 
+	for (int i = 0; i <= pointCount; i++)
+	{
+		double x = i * segmentLength; 
+		points[i] = QPointF(tStart + x, polynomialLateralSection_->f(x));
+	}
 
+	path.addPolygon(QPolygonF(points)); 
 	setPath(path);
 }
 
@@ -167,20 +156,10 @@ ShapeSectionPolynomialItem::deleteControlPointHandles()
 	if (profileGraph)
 	{
 		profileGraph->getScene()->removeItem(realPointLowHandle_);
-		profileGraph->getScene()->removeItem(controlPointLowHandle_);
-		profileGraph->getScene()->removeItem(controlPointHighHandle_);
 
 		realPointLowHandle_->setParent(NULL);
 		getProjectGraph()->addToGarbage(realPointLowHandle_);
 		realPointLowHandle_ = NULL;
-
-		controlPointLowHandle_->setParent(NULL);
-		getProjectGraph()->addToGarbage(controlPointLowHandle_);
-		controlPointLowHandle_ = NULL;
-
-		controlPointHighHandle_->setParent(NULL);
-		getProjectGraph()->addToGarbage(controlPointHighHandle_);
-		controlPointHighHandle_ = NULL;
 	}
 }
 
@@ -239,12 +218,9 @@ ShapeSectionPolynomialItem::updateObserver()
 		{
 			realPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointHigh());
 		}
-		
-	/*	deleteControlPointHandles();
 
-		controlPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getSplineControlPointLow());
-		controlPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getSplineControlPointHigh());
-		realPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointLow()); */
+		createPath();
+		updateColor();
 
 	}
 }

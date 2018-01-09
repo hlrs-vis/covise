@@ -49,8 +49,6 @@ MovePointLateralShapeSectionCommand::MovePointLateralShapeSectionCommand(ShapeSe
 	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
 	{
 		oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getSplineControlPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getSplineControlPointHigh()->getPoint());
 		oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
 	}
 
@@ -85,14 +83,13 @@ MovePointLateralShapeSectionCommand::redo()
 	{
 		QPointF p0 = newPoints_.at(i++);
 		QPointF p1 = newPoints_.at(i++);
-		QPointF p2 = newPoints_.at(i++);
-		QPointF p3 = newPoints_.at(i++);
 		if (abs(p0.x() - lateralSection->getTStart()) > NUMERICAL_ZERO6)
 		{
-			lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
+			shapeSection_->moveLateralSection(lateralSection, p0.x());
 		}
-		lateralSection->setControlPoints(p0, p1, p2, p3);
+		lateralSection->setControlPoints(p0, p1);    // , p2, p3);
 	}
+	shapeSection_->calculateShapeParameters();
 
     setRedone();
 }
@@ -110,14 +107,13 @@ MovePointLateralShapeSectionCommand::undo()
 	{
 		QPointF p0 = oldPoints_.at(i++);
 		QPointF p1 = oldPoints_.at(i++);
-		QPointF p2 = oldPoints_.at(i++);
-		QPointF p3 = oldPoints_.at(i++);
 		if (abs(p0.x() - lateralSection->getRealPointLow()->getPoint().x()) > NUMERICAL_ZERO6)
 		{
 			lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
 		}
-		lateralSection->setControlPoints(p0, p1, p2, p3);
+		lateralSection->setControlPoints(p0, p1);   // , p2, p3);
 	}
+	shapeSection_->calculateShapeParameters();
 
 
     setUndone();
@@ -180,8 +176,6 @@ AddLateralShapeSectionCommand::AddLateralShapeSectionCommand(ShapeSection *shape
 	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
 	{
 		oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getSplineControlPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getSplineControlPointHigh()->getPoint());
 		oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
 	}
 
@@ -215,22 +209,24 @@ AddLateralShapeSectionCommand::redo()
 	int i = 0;
 	while ((it != shapeSection_->getPolynomialLateralSections().constEnd()) && (it.value() != shapeSection_->getPolynomialLateralSectionNext(newSection_->getTStart())))
 	{
-		it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i+1), newPoints_.at(i+2), newPoints_.at(i+3));
+		it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
 		it++;
-		i += 4;
+		i += 2;
 	}
 
-	newSection_->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1), newPoints_.at(i + 2), newPoints_.at(i + 3));
-	i += 4;
+	newSection_->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
+	i += 2;
 
 	while (it != shapeSection_->getPolynomialLateralSections().constEnd())
 	{
-		it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1), newPoints_.at(i + 2), newPoints_.at(i + 3));
+		it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
 		it++;
-		i += 4;
+		i += 2;
 	} 
 
 	shapeSection_->addShape(newSection_->getTStart(), newSection_);
+
+	shapeSection_->calculateShapeParameters();
 
 	setRedone();
 }
@@ -248,9 +244,11 @@ AddLateralShapeSectionCommand::undo()
 	int i = 0;
 	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
 	{
-		lateralSection->setControlPoints(oldPoints_.at(i), oldPoints_.at(i+1), oldPoints_.at(i+2), oldPoints_.at(i+3));
-		i += 4;
+		lateralSection->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
+		i += 2;//		
 	}
+
+	shapeSection_->calculateShapeParameters();
 
 	setUndone();
 }
@@ -283,8 +281,6 @@ DeleteLateralShapeSectionCommand::DeleteLateralShapeSectionCommand(ShapeSection 
 	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
 	{
 		oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getSplineControlPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getSplineControlPointHigh()->getPoint());
 		oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
 	}
 
@@ -318,22 +314,24 @@ DeleteLateralShapeSectionCommand::undo()
 	int i = 0;
 	while ((it != shapeSection_->getPolynomialLateralSections().constEnd()) && (it.value() != shapeSection_->getPolynomialLateralSectionNext(polySection_->getTStart())))
 	{
-		it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1), oldPoints_.at(i + 2), oldPoints_.at(i + 3));
+		it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
 		it++;
-		i += 4;
+		i += 2;//		i += 4;
 	}
 
-	polySection_->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1), oldPoints_.at(i + 2), oldPoints_.at(i + 3));
-	i += 4;
+	polySection_->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
+	i += 2;//		i += 4;
 
 	while (it != shapeSection_->getPolynomialLateralSections().constEnd())
 	{
-		it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1), oldPoints_.at(i + 2), oldPoints_.at(i + 3));
+		it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
 		it++;
-		i += 4;
+		i += 2;//		i += 4;
 	}
 
 	shapeSection_->addShape(polySection_->getTStart(), polySection_);
+
+	shapeSection_->calculateShapeParameters();
 
 	setUndone();
 }
@@ -351,84 +349,15 @@ DeleteLateralShapeSectionCommand::redo()
 	int i = 0;
 	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
 	{
-		lateralSection->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1), newPoints_.at(i + 2), newPoints_.at(i + 3));
-		i += 4;
+		lateralSection->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
+		i += 2;//		i += 4;
 	}
+
+	shapeSection_->calculateShapeParameters();
 
 	setRedone();
 }
 
-//#######################//
-// SmoothPointLateralShapeSectionCommand //
-//#######################//
-
-SmoothPointLateralShapeSectionCommand::SmoothPointLateralShapeSectionCommand(QList<SplineControlPoint *> &corners, bool smooth, DataCommand *parent)
-	: DataCommand(parent)
-	, corners_(corners)
-	, smooth_(smooth)
-{
-	// Check for validity //
-	//
-	if (corners.isEmpty())
-	{
-		setInvalid(); // Invalid
-		setText(QObject::tr("SmoothPoint LateralShapeSection (invalid!)"));
-		return;
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("SmoothPoint LateralShapeSection"));
-	}
-}
-
-/*! \brief .
-*
-*/
-SmoothPointLateralShapeSectionCommand::~SmoothPointLateralShapeSectionCommand()
-{
-	if (isUndone())
-	{
-
-	}
-	else
-	{
-		// nothing to be done
-		// the section is now owned by the road
-	}
-}
-
-/*! \brief .
-*
-*/
-void
-SmoothPointLateralShapeSectionCommand::redo()
-{
-	// set or unset smooth //
-	//
-	foreach(SplineControlPoint *corner, corners_)
-	{
-		corner->setSmooth(smooth_);
-	}
-
-	setRedone();
-}
-
-/*! \brief .
-*
-*/
-void
-SmoothPointLateralShapeSectionCommand::undo()
-{
-	// revert to former value //
-	//
-	foreach(SplineControlPoint *corner, corners_)
-	{
-		corner->setSmooth(!smooth_);
-	}
-
-	setUndone();
-}
 
 
 
