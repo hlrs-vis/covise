@@ -18,7 +18,6 @@
 #include "Point.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -40,10 +39,10 @@ Body::GetLineStrips() const
     return m_LineStrips;
 }
 
-void Body::AddLineStrip(std::tr1::shared_ptr<LineStrip> lineStrip)
+void Body::AddLineStrip(std::shared_ptr<LineStrip> lineStrip)
 {
     m_LineStrips.push_back(lineStrip);
-    BOOST_FOREACH (std::tr1::shared_ptr<Point> point, lineStrip->GetPoints())
+    BOOST_FOREACH (std::shared_ptr<Point> point, lineStrip->GetPoints())
     {
         AddPoint(point);
     }
@@ -55,7 +54,7 @@ Body::GetLines() const
     return m_Lines;
 }
 
-void Body::AddLine(std::tr1::shared_ptr<Line> line)
+void Body::AddLine(std::shared_ptr<Line> line)
 {
     m_Lines.push_back(line);
     AddPoint(line->GetPointA());
@@ -68,7 +67,7 @@ Body::GetPoints() const
     return m_Points;
 }
 
-void Body::AddPoint(std::tr1::shared_ptr<Point> point)
+void Body::AddPoint(std::shared_ptr<Point> point)
 {
     m_Points.push_back(point);
 }
@@ -104,16 +103,16 @@ void Body::SetMotionType(MotionType motionType)
     m_MotionType = motionType;
 }
 
-std::tr1::shared_ptr<Point> Body::GetPointByName(const string &name) const
+std::shared_ptr<Point> Body::GetPointByName(const string &name) const
 {
-    BOOST_FOREACH (std::tr1::shared_ptr<Point> point, m_Points)
+    BOOST_FOREACH (std::shared_ptr<Point> point, m_Points)
     {
         if (point && point->GetName() == name)
         {
             return point;
         }
     }
-    return std::tr1::shared_ptr<Point>();
+    return std::shared_ptr<Point>();
 }
 
 void Body::SetMotionType(const string &motionType)
@@ -136,12 +135,12 @@ void Body::SetMotionType(const string &motionType)
     }
 }
 
-std::tr1::shared_ptr<Anchor> Body::GetAnchor() const
+std::shared_ptr<Anchor> Body::GetAnchor() const
 {
     return m_Anchor;
 }
 
-void Body::SetAnchor(std::tr1::shared_ptr<Anchor> anchor)
+void Body::SetAnchor(std::shared_ptr<Anchor> anchor)
 {
     m_Anchor = anchor;
 }
@@ -156,12 +155,12 @@ unsigned int Body::GetMotionID() const
     return m_MotionID;
 }
 
-void Body::AddConnectedJoint(std::tr1::shared_ptr<Joint> connectedJoint)
+void Body::AddConnectedJoint(std::shared_ptr<Joint> connectedJoint)
 {
     m_ConnectedJoints.push_back(connectedJoint);
 }
 
-const std::vector<std::tr1::weak_ptr<Joint> > &Body::GetConnectedJoints() const
+const std::vector<std::weak_ptr<Joint> > &Body::GetConnectedJoints() const
 {
     return m_ConnectedJoints;
 }
@@ -171,17 +170,17 @@ const Body::OperatingRanges &Body::GetOperatingRanges() const
     return m_OperatingRanges;
 }
 
-void Body::AddOperatingRange(std::tr1::shared_ptr<OperatingRange> range)
+void Body::AddOperatingRange(std::shared_ptr<OperatingRange> range)
 {
     m_OperatingRanges.push_back(range);
 }
 
-void Body::SetParentConstruction(std::tr1::weak_ptr<Construction> construction)
+void Body::SetParentConstruction(std::weak_ptr<Construction> construction)
 {
     m_ParentConstruction = construction;
 }
 
-std::tr1::weak_ptr<Construction> Body::GetParentConstruction() const
+std::weak_ptr<Construction> Body::GetParentConstruction() const
 {
     return m_ParentConstruction;
 }
