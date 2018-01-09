@@ -691,8 +691,8 @@ void Road::getLaneRoadPoints(double s, int i, RoadPoint &pointIn, RoadPoint &poi
 	{
 		double beta = zPoint[1];
 		double gamma = xyPoint[2];
-		Tx = (sin(beta) * cos(gamma));
-		Ty = (sin(beta) * sin(gamma));
+		Tx = (sin(beta) * cos(gamma) - sin(gamma));
+		Ty = (sin(beta) * sin(gamma) + cos(gamma));
 		Tz = 0.0;
 
 		nx = sin(beta) * cos(gamma);
