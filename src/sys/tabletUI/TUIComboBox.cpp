@@ -112,11 +112,18 @@ void TUIComboBox::setValue(int type, covise::TokenBuffer &tb)
 
 void TUIComboBox::setLabel(QString textl)
 {
-    if (!label)
+    if (textl.isEmpty())
+    {
+        widgets.erase(label);
+        delete label;
+        label = nullptr;
+    }
+    else if (!label)
     {
         label = new QLabel(widget);
         auto grid = static_cast<QGridLayout *>(layout);
         grid->addWidget(label, 0, 0);
     }
-    label->setText(textl);
+    if (label)
+        label->setText(textl);
 }

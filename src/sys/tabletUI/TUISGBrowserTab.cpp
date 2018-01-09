@@ -74,7 +74,6 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     : TUITab(id, type, w, parent, name)
     , simu(0)
 {
-    label = name;
     numItems = 0;
     receivedTextures = 0;
     currentTexture = false;

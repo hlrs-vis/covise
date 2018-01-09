@@ -205,12 +205,19 @@ void TUISlider::setValue(int type, covise::TokenBuffer &tb)
 void TUISlider::setLabel(QString textl)
 {
     TUIElement::setLabel(textl);
-    if (!label)
+    if (textl.isEmpty())
+    {
+        widgets.erase(label);
+        delete label;
+        label = nullptr;
+    }
+    else if (!label)
     {
         label = new QLabel(slider->parentWidget());
         widgets.insert(label);
         label->setBuddy(string);
         static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
     }
-    label->setText(textl);
+    if (label)
+        label->setText(textl);
 }
