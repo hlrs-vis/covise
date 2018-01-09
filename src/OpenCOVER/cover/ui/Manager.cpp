@@ -12,6 +12,7 @@
 #include <osgGA/GUIEventAdapter>
 
 #include <cover/coVRMSController.h>
+#include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
 #include <net/message.h>
 
@@ -551,6 +552,8 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             std::cerr << "ui::Manager::processUpdates NOT FOUND: id=" << id << ", trigger=" << trigger << std::endl;
             continue;
         }
+        if (cover->debugLevel(5))
+            std::cerr << "ui::Manager::processUpdates for id=" << id << ": " << elem->path() << std::endl;
         covise::TokenBuffer tb(data, len);
         //std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
         assert(elem);

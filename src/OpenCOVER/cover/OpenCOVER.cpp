@@ -993,6 +993,8 @@ bool OpenCOVER::frame()
     VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of mouse input" << std::endl;
         // handle e.g. mouse events
         render = true;
         m_renderNext = true; // for possible delayed button release
@@ -1005,6 +1007,8 @@ bool OpenCOVER::frame()
 
     if (coVRAnimationManager::instance()->update())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of animation" << std::endl;
         render = true;
     }
     // update transformations node according to interaction
@@ -1015,11 +1019,15 @@ bool OpenCOVER::frame()
     // update viewer position and channels
     if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
         render = true;
         VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
     }
     if (VRViewer::instance()->update())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of VRViewer" << std::endl;
         render = true;
     }
 
@@ -1030,7 +1038,11 @@ bool OpenCOVER::frame()
     for (auto tui: tabletUIs)
     {
         if (tui->update())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of tabletUI on " << tui->connectedHost << std::endl;
             render = true;
+        }
     }
 
     //Remote AR update (send picture if required)
@@ -1039,17 +1051,31 @@ bool OpenCOVER::frame()
 
     if (interactionManager.update())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of interactionManager" << std::endl;
         render = true;
     }
     if (cover->ui->update())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of ui update" << std::endl;
         render = true;
+    }
     if (cover->ui->sync())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of ui sync" << std::endl;
         render = true;
+    }
 
     if (frameNum > 2)
     {
         if (coVRPluginList::instance()->update())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of plugins" << std::endl;
             render = true;
+        }
     }
     else
     {
