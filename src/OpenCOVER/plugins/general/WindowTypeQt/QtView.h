@@ -155,6 +155,9 @@ class QtView: public QObject, public View
    QtViewElement *elementFactoryImplementation(Button *button) override;
    QtViewElement *elementFactoryImplementation(Slider *slider) override;
    QtViewElement *elementFactoryImplementation(SelectionList *sl) override;
+
+   void updateContainer(const Element *elem);
+   void updateMenu(const Menu *menu, const Group *subGroup);
 };
 
 }

@@ -107,26 +107,13 @@ void QtView::add(QtViewElement *ve, bool update)
     Group *group = nullptr;
     if (ve->element)
         group = ve->element->parent();
-    if (auto ag = dynamic_cast<QActionGroup *>(qtObject(parent)))
-    {
-        //std::cerr << "ui: adding button " << elem->path() << " to action group" << std::endl;
-        if (inMenu)
-            ag->addAction(a);
-        if (container && inMenu && hasParent)
-            container->addAction(a);
-        if (m_toolbar && inToolbar && !update)
-        {
-            if (m_lastToolbarGroup && m_lastToolbarGroup != group)
-                m_toolbar->addSeparator();
-            m_toolbar->addAction(a);
-            m_lastToolbarGroup = group;
-        }
-    }
-    else if (container)
+    if (container)
     {
         //std::cerr << "ui: adding button " << elem->path() << " to widget" << std::endl;
         if (hasParent && inMenu)
+        {
             container->addAction(a);
+        }
         if (m_toolbar && inToolbar && !update)
         {
             if (m_lastToolbarGroup && m_lastToolbarGroup != group)
@@ -205,6 +192,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     auto parent = qtContainerWidget(menu);
     auto m = new QMenu(parent);
     m->setTearOffEnabled(true);
+    m->setSeparatorsCollapsible(false);
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
     add(ve);
@@ -215,33 +203,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 QtViewElement *QtView::elementFactoryImplementation(Group *group)
 {
     auto parent = qtViewParent(group);
-#if 0
-    if (!parent)
-        return nullptr;
-#endif
-
-    auto ag = new QActionGroup(qtObject(parent));
-    ag->setExclusive(false);
-
-    auto sep = new QAction(ag);
-    sep->setShortcutContext(Qt::WidgetShortcut);
-    sep->setSeparator(true);
-    sep->setText(QString::fromStdString(group->text()));
-    ag->addAction(sep);
-
-    auto sep2 = new QAction(ag);
-    sep2->setShortcutContext(Qt::WidgetShortcut);
-    sep2->setSeparator(true);
-    ag->addAction(sep2);
-
-    auto ve = new QtViewElement(group, ag);
-    ve->group = ag;
-    if (auto w = qtWidget(parent))
-        w->addActions(ag->actions());
-    ve->markForDeletion(ag);
-#if 0
-    connect(a, &QAction::triggered, [rg](bool state){rg->setState(state); rg->trigger();});
-#endif
+    auto ve = new QtViewElement(group, nullptr);
     return ve;
 }
 
@@ -345,44 +307,6 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
         slider->trigger();
     });
 
-#if 0
-    auto s = new QSlider(Qt::Horizontal, pw);
-    auto a = new QWidgetAction(po);
-    a->setDefaultWidget(s);
-    pw->addAction(a);
-    auto ve = new QtViewElement(slider, s);
-    ve->action = a;
-
-    auto l = new QLabel(pw);
-    auto la = new QWidgetAction(po);
-    la->setDefaultWidget(l);
-    pw->addAction(la);
-    ve->label = l;
-    add(ve);
-    ve->markForDeletion(la);
-    ve->markForDeletion(a);
-
-    connect(s, &QSlider::sliderMoved, [slider](int value){
-        if (slider->integral() && slider->scale()==ui::Slider::Linear)
-        {
-            slider->setValue(value);
-        }
-        else
-        {
-            auto r = slider->linMax() - slider->linMin();
-            auto a = (double)value/SliderIntMax;
-            double val = slider->linMin()+r*a;
-            slider->setLinValue(val);
-        }
-        slider->setMoving(true);
-        slider->trigger();
-    });
-    connect(s, &QSlider::sliderReleased, [slider](){
-        slider->setMoving(false);
-        slider->trigger();
-    });
-#endif
-
     return ve;
 }
 
@@ -395,6 +319,54 @@ QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
     add(ve);
     ve->markForDeletion(m);
     return ve;
+}
+
+void QtView::updateContainer(const Element *elem)
+{
+    if (!elem)
+        return;
+    auto parent = elem->parent();
+    if (!parent)
+        return;
+    if (auto menu = dynamic_cast<Menu *>(parent))
+        updateMenu(menu, menu);
+    else
+        updateContainer(parent);
+}
+
+void QtView::updateMenu(const Menu *menu, const Group *subGroup)
+{
+    if (auto sgmenu = dynamic_cast<QMenu *>(qtWidget(subGroup)))
+    {
+        auto actions = sgmenu->actions();
+        for (const auto &a: actions)
+        {
+            sgmenu->removeAction(a);
+        }
+    }
+
+    auto qmenu = dynamic_cast<QMenu *>(qtWidget(menu));
+    for (size_t i=0; i<subGroup->numChildren(); ++i)
+    {
+        auto child = subGroup->child(i);
+        auto qt = qtViewElement(child);
+        if (auto sg = dynamic_cast<const Group *>(child))
+        {
+            if (qmenu)
+            {
+                qmenu->addSection(QString::fromStdString(sg->text()));
+            }
+            updateMenu(menu, sg);
+            if (qmenu)
+            {
+                qmenu->addSeparator();
+            }
+        }
+        else
+        {
+            add(qt, true);
+        }
+    }
 }
 
 void QtView::updateEnabled(const Element *elem)
@@ -472,34 +444,7 @@ void QtView::updateState(const Button *button)
 
 void QtView::updateParent(const Element *elem)
 {
-    add(qtViewElement(elem), true);
-#if 0
-    auto o = qtObject(menu);
-    auto m = dynamic_cast<QMenu *>(o);
-    if (!m)
-        return;
-
-    auto actions = m->actions();
-    for (size_t i=0; i<menu->numChildren(); ++i)
-    {
-        auto ve = qtViewElement(menu->child(i));
-        if (!ve)
-            continue;
-        auto obj = ve->object;
-        auto act = ve->action;
-        if (!act)
-            act = dynamic_cast<QAction *>(obj);
-        if (!act)
-            continue;
-
-        if (auto a = dynamic_cast<QAction *>(obj))
-            m->addAction(a);
-        else if (auto mm = dynamic_cast<QMenu *>(obj))
-            m->addMenu(mm);
-        else if (auto ag = dynamic_cast<QActionGroup *>(obj))
-            m->addActions(ag->actions());
-    }
-#endif
+    updateContainer(elem);
 }
 
 void QtView::updateChildren(const SelectionList *sl)
