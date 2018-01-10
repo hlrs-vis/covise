@@ -176,7 +176,7 @@ private:
     QAction *m_about_a, *m_about_qt_a, *m_tutorial_a, *m_usersguide_a, *m_moduleguide_a, *m_progguide_a, *m_reportbug_a;
     QAction *m_gridproxy_a, *m_whatsthis_a, *m_undo_a;
     QAction *m_selectAll_a, *m_deleteAll_a, *m_keyDelete_a;
-    QAction *m_showDataViewer_a, *m_showColorMap_a, *m_showRegistry_a;
+    QAction *m_showDataViewer_a;
     QAction *m_showTabletUI_a, *m_showToolbar_a, *m_showMessageArea_a, *m_showControlPanel_a;
     QAction *m_execOnChange_a, *m_help_a;
     QAction *m_showCME_a, *m_showReg_a, *m_viewAll_a, *m_view100_a, *m_view50_a;

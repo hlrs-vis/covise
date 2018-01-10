@@ -27,7 +27,7 @@ class TUITabFolder : public QObject, public TUIContainer
     Q_OBJECT
 
 public:
-    TUITabFolder(int id, int type, QWidget *w, int parent, QString name);
+    TUITabFolder(int id, int type, QWidget *w, int parent, QString name, QTabWidget *reuseTabWidget=nullptr);
     virtual ~TUITabFolder();
     virtual void addElementToLayout(TUIElement *el) override;
 
@@ -43,6 +43,7 @@ public slots:
     void setCurrentIndex(int);
 
 protected:
+    bool deleteTabWidget = true;
     QTabWidget *tabWidget = nullptr;
     QComboBox *switchWidget = nullptr;
     QStackedWidget *stackWidget = nullptr;

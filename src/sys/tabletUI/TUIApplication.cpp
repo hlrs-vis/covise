@@ -122,8 +122,9 @@ TUIMainWindow *TUIMainWindow::getInstance()
 //======================================================================
 #ifdef TABLET_PLUGIN
 
-TUIMainWindow::TUIMainWindow(QWidget *parent)
+TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QFrame(parent)
+    , mainFolder(mainFolder)
     , port(31803)
     , lastID(-10)
     , serverSN(NULL)
@@ -141,6 +142,9 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
     // main layout
     mainGrid = new QGridLayout(mainFrame);
+#ifdef TABLET_PLUGIN
+    mainFrame->setVisible(false);
+#endif
 
     // init some values
     appwin = this;
@@ -162,8 +166,9 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
 /// ============================================================
 
-TUIMainWindow::TUIMainWindow(QWidget *parent)
+TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QMainWindow(parent)
+    , mainFolder(mainFolder)
     , port(31802)
     , lastID(-10)
     , serverSN(NULL)
@@ -280,6 +285,18 @@ void TUIMainWindow::closeServer()
         delete clientConn;
         clientConn = NULL;
     }
+
+    //remove all UI Elements
+    while (!elements.empty())
+    {
+        TUIElement *ele = &*elements.back();
+        delete ele;
+    }
+    if (!tabs.empty())
+    {
+        std::cerr << "TUIMainWindow::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
+    }
+    assert(tabs.empty());
 }
 
 //------------------------------------------------------------------------
@@ -482,6 +499,10 @@ void TUIMainWindow::addElement(TUIElement *e)
 void TUIMainWindow::removeElement(TUIElement *e)
 //------------------------------------------------------------------------
 {
+#ifdef TABLET_PLUGIN
+    if (e->getID() == firstTabFolderID)
+        firstTabFolderID = -1;
+#endif
     tabs.erase(static_cast<TUITab *>(e));
     auto iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement *el, int id){ return el->getID()<id;});
     if (iter == elements.end())
@@ -562,6 +583,13 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
     case TABLET_INT_EDIT_FIELD:
         return new TUIIntEdit(id, type, w, parent, name);
     case TABLET_TAB_FOLDER:
+#ifdef TABLET_PLUGIN
+        if (parent==1 && firstTabFolderID<0)
+        {
+            firstTabFolderID = id;
+            return new TUITabFolder(id, type, w, parent, name, mainFolder);
+        }
+#endif
         return new TUITabFolder(id, type, w, parent, name);
     case TABLET_MAP:
         return new TUIMap(id, type, w, parent, name);
@@ -706,6 +734,23 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
                 }
 #endif
             }
+
+#ifdef TABLET_PLUGIN
+            if (newElement->getID() != firstTabFolderID && parentWidget == mainFrame)
+            {
+                if (mainFolder)
+                {
+                    if (mainFolder->indexOf(this) == -1)
+                    {
+                        mainFolder->addTab(this, "Tablet UI");
+                        mainFolder->setTabToolTip(mainFolder->indexOf(this), "This is the new beautiful OpenCOVER user interface");
+                    }
+
+                    mainFolder->setCurrentWidget(this);
+                    mainFrame->setVisible(true);
+                }
+            }
+#endif
         }
         break;
         case TABLET_SET_VALUE:
@@ -783,18 +828,6 @@ void TUIMainWindow::closeEvent(QCloseEvent *ce)
 {
 
     closeServer();
-
-    //remove all UI Elements
-    while (!elements.empty())
-    {
-        TUIElement *ele = &*elements.back();
-        delete ele;
-    }
-    if (!tabs.empty())
-    {
-        std::cerr << "TUIMainWindow::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
-    }
-    assert(tabs.empty());
 
     ce->accept();
 }

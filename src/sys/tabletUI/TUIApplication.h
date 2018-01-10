@@ -46,7 +46,7 @@ class TUIMainWindow :
     Q_OBJECT
 
 public:
-    TUIMainWindow(QWidget *parent = 0);
+    TUIMainWindow(QWidget *parent = nullptr, QTabWidget *mainFolder=nullptr);
 
     ~TUIMainWindow();
 
@@ -93,11 +93,13 @@ private:
 #ifndef TABLET_PLUGIN
     void createMenubar();
     void createToolbar();
+#else
+    int firstTabFolderID = -1;
 #endif
+    QTabWidget *mainFolder = nullptr;
 
     static TUIMainWindow *appwin;
     TUIElement *createElement(int id, int type, QWidget *w, int parent, QString name);
-    void createTabWidget(QSplitter *);
 
     int smsg;
     int port;

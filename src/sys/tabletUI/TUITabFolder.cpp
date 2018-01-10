@@ -21,12 +21,18 @@ const bool StackToplevelTabs = false;
 const bool StackTabs = false;
 
 /// Constructor
-TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString name)
+TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString name, QTabWidget *reuseTabWidget)
     : TUIContainer(id, type, w, parent, name)
 {
     width = -1;
     bool toplevel = parent == 1;
-    if (!StackTabs && !(toplevel && StackToplevelTabs))
+    if (reuseTabWidget)
+    {
+        deleteTabWidget = false;
+        tabWidget = reuseTabWidget;
+        connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(valueChanged(int)));
+    }
+    else if (!StackTabs && !(toplevel && StackToplevelTabs))
     {
         tabWidget = new QTabWidget(w);
         tabWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -61,7 +67,8 @@ TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString nam
 TUITabFolder::~TUITabFolder()
 {
     removeAllChildren();
-    delete tabWidget;
+    if (deleteTabWidget)
+        delete tabWidget;
     delete switchWidget;
     delete stackWidget;
 }
