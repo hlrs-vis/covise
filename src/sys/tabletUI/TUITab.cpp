@@ -137,7 +137,7 @@ void TUITab::setValue(int type, covise::TokenBuffer &tb)
                 std::cerr << "error: parent is not a TUITabFolder" << std::endl;
         }
     }
-    TUIElement::setValue(type, tb);
+    TUIContainer::setValue(type, tb);
 }
 
 void TUITab::setHidden(bool hide)

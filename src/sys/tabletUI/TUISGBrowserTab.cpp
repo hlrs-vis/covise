@@ -808,7 +808,7 @@ void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
         propertyDialog->setOutputType(SName, value);
     }
 
-    TUIElement::setValue(type, tb);
+    TUITab::setValue(type, tb);
 }
 
 void TUISGBrowserTab::centerObject()
