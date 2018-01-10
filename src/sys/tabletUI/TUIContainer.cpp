@@ -29,8 +29,8 @@ void TUIContainer::removeAllChildren()
 {
     while (!elements.empty())
     {
-        TUIElement *el = elements.front();
-        elements.pop_front();
+        TUIElement *el = elements.back();
+        elements.pop_back();
         el->setParent(NULL);
         delete el;
     }

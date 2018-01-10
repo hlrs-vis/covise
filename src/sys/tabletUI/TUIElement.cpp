@@ -27,7 +27,6 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     hidden = false;
     visible = false;
     highlighted = false;
-    TUIMainWindow::getInstance()->addElement(this);
     ParentID = parent;
     ID = id;
     label = "";
@@ -36,6 +35,7 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     width = 1;
     height = 1;
     this->name = name;
+    TUIMainWindow::getInstance()->addElement(this);
 }
 
 /// Destructor

@@ -77,7 +77,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *);
-    std::list<TUIElement *> elements;
+    std::vector<TUIElement *> elements; // sorted by ID
     std::set<TUITab *> tabs;
 
 private slots:

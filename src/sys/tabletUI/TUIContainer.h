@@ -9,7 +9,7 @@
 #define CO_UI_CONTAINER_H
 
 #include "TUIElement.h"
-#include <list>
+#include <vector>
 #include <set>
 
 class QGridLayout;
@@ -48,7 +48,7 @@ public:
 
 protected:
     /// List of children elements
-    typedef std::list<TUIElement *> ElementList;
+    typedef std::vector<TUIElement *> ElementList;
     ElementList elements;
 
     int numberOfColumns = -1;

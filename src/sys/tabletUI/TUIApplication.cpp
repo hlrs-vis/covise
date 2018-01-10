@@ -469,7 +469,13 @@ void TUIMainWindow::addElementToLayout(TUIElement *elem)
 void TUIMainWindow::addElement(TUIElement *e)
 //------------------------------------------------------------------------
 {
-    elements.push_back(e);
+    //std::cerr << "new element: ID=" << e->getID() << ", name=" << e->getName().toStdString() << std::endl;
+    auto iter = elements.end();
+    if (!elements.empty() && e->getID() < elements.back()->getID())
+    {
+        iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement *el, int id){ return el->getID()<id;});
+    }
+    elements.insert(iter, e);
 }
 
 //------------------------------------------------------------------------
@@ -477,7 +483,12 @@ void TUIMainWindow::removeElement(TUIElement *e)
 //------------------------------------------------------------------------
 {
     tabs.erase(static_cast<TUITab *>(e));
-    elements.remove(e);
+    auto iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement *el, int id){ return el->getID()<id;});
+    if (iter == elements.end())
+        return;
+    if (*iter != e)
+        return;
+    elements.erase(iter);
 }
 
 //------------------------------------------------------------------------
@@ -583,10 +594,9 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
 void TUIMainWindow::deActivateTab(TUITab *activedTab)
 //------------------------------------------------------------------------
 {
-    std::list<TUIElement *>::iterator iter;
-    for (iter = elements.begin(); iter != elements.end(); iter++)
+    for (auto el: elements)
     {
-        (*iter)->deActivate(activedTab);
+        el->deActivate(activedTab);
     }
 }
 
@@ -594,31 +604,22 @@ void TUIMainWindow::deActivateTab(TUITab *activedTab)
 TUIElement *TUIMainWindow::getElement(int ID)
 //------------------------------------------------------------------------
 {
-    std::list<TUIElement *>::iterator iter;
-    for (iter = elements.begin(); iter != elements.end(); iter++)
+    auto iter = std::lower_bound(elements.begin(), elements.end(), ID, [](const TUIElement *el, int id){ return el->getID()<id;});
+    if (iter != elements.end())
     {
         if ((*iter)->getID() == ID)
-        {
             return *iter;
-            break;
-        }
+        std::cerr << "TUIMainWindow: expected ID=" << ID << ", got " << (*iter)->getID() << std::endl;
     }
-    return NULL;
+    return nullptr;
 }
 
 //------------------------------------------------------------------------
 QWidget *TUIMainWindow::getWidget(int ID)
 //------------------------------------------------------------------------
 {
-    std::list<TUIElement *>::iterator iter;
-    for (iter = elements.begin(); iter != elements.end(); iter++)
-    {
-        if ((*iter)->getID() == ID)
-        {
-            return (*iter)->getWidget();
-            break;
-        }
-    }
+    if (auto el = getElement(ID))
+        return el->getWidget();
     return mainFrame;
 }
 
@@ -638,9 +639,9 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         lastID = -10;
 
         //remove all UI Elements
-        while (elements.size())
+        while (!elements.empty())
         {
-            TUIElement *ele = *(elements.begin()); // destructor removes the element from the list
+            TUIElement *ele = &*elements.back(); // destructor removes the element from the list
             delete ele;
         }
 
@@ -712,7 +713,7 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             int type;
             tb >> type;
             tb >> ID;
-            //cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << endl;
+            //std::cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
             if (ID == lastID && (lastElement))
             {
                 lastElement->setValue(type, tb);
@@ -786,7 +787,7 @@ void TUIMainWindow::closeEvent(QCloseEvent *ce)
     //remove all UI Elements
     while (!elements.empty())
     {
-        TUIElement *ele = *(elements.begin());
+        TUIElement *ele = &*elements.back();
         delete ele;
     }
     if (!tabs.empty())
