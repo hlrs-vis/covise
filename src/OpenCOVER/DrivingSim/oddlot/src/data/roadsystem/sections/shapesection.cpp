@@ -244,7 +244,7 @@ ShapeSection::calculateShapeParameters()
 
 		if (i > 1)
 		{
-			A(i - 1, i - 2) = A(i - 2, i - 1) = x2 - x1;
+			A(i - 1, i - 2) = A(i - 2, i - 1) = x1 - x0;
 		}
 		A(i - 1, i - 1) = 2 * (x2 - x0);
 
@@ -300,7 +300,7 @@ ShapeSection::calculateShapeParameters()
 		}
 
 		poly->setParameters(a1, b1, c(i-1), d1);
-//		qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
+	//	qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
 		poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
 
 		it++;
