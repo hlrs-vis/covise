@@ -89,7 +89,7 @@ MovePointLateralShapeSectionCommand::redo()
 		{
 			shapeSection_->moveLateralSection(lateralSection, p0.x());
 		}
-		lateralSection->setControlPoints(p0, p1);    // , p2, p3);
+		lateralSection->setControlPoints(p0, p1); 
 	}
 	shapeSection_->calculateShapeParameters();
 
@@ -113,7 +113,7 @@ MovePointLateralShapeSectionCommand::undo()
 		{
 			lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
 		}
-		lateralSection->setControlPoints(p0, p1);   // , p2, p3);
+		lateralSection->setControlPoints(p0, p1); 
 	}
 	shapeSection_->calculateShapeParameters();
 

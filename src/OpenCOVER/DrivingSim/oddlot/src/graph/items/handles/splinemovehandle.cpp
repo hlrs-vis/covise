@@ -48,8 +48,6 @@
 SplineMoveHandle::SplineMoveHandle(ShapeEditor *shapeEditor, ShapeSectionPolynomialItem *parent, SplineControlPoint *corner)
     : MoveHandle(parent)
 	, corner_(corner)
-	, firstShapeSectionPoint_(false)
-	, lastShapeSectionPoint_(false)
 	, parentPolynomialItem_(parent)
 	, textHandle_(NULL)
 {
@@ -85,12 +83,11 @@ SplineMoveHandle::init()
 	{
 		parentPolynomialItems_->getCanvas()->setTopRight(corner_->getPoint());
 	}
-
-	// ContextMenu //
-	//
-
-	if (!firstShapeSectionPoint_ && !lastShapeSectionPoint_)
+	else
 	{
+		// ContextMenu //
+		//
+
 		deleteAction_ = getContextMenu()->addAction("Delete point");
 		connect(deleteAction_, SIGNAL(triggered()), this, SLOT(deleteCorner()));
 
@@ -128,22 +125,6 @@ SplineMoveHandle::deleteCorner()
 	shapeEditor_->deleteLateralSection(corner_);
 }
 
-/*void
-SplineMoveHandle::smooth()
-{
-	// Command: Smooth ShapeSection Polynomials at this point
-
-	shapeEditor_->smoothPoint(smoothAction_->isChecked(), corner_);
-
-}
-
-void
-SplineMoveHandle::corner()
-{
-	//  Command: If smooth polynomials make them straight
-	shapeEditor_->cornerPoint(corner_);
-} */
-
 
 //################//
 // EVENTS         //
@@ -165,7 +146,6 @@ SplineMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (abs(event->scenePos().x() - lateralSection_->getTStart()) > 0.1)
 		{
-			qDebug() << "firstShape";
 			return;
 		}
 
@@ -176,7 +156,6 @@ SplineMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (abs(event->scenePos().x() - lateralSection_->getTEnd()) > 0.1)
 		{
-			qDebug() << "lastShape";
 			return;
 		}
 

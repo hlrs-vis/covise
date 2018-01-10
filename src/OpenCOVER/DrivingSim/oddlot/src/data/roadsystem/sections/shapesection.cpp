@@ -19,7 +19,7 @@
 
 // Eigen //
 //
-#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 //####################//
 // Constructors       //
@@ -211,8 +211,9 @@ ShapeSection::calculateShapeParameters()
 {
 	int n = shapes_.size() - 1;
 	Eigen::VectorXd b(n), c(n);
-	Eigen::MatrixXd A(n, n);
-	A = Eigen::ArrayXXd::Zero(n, n);
+	typedef Eigen::Triplet<double> T;
+	std::vector<T> tripletList;
+	tripletList.reserve(n);
 
 
 	if (n == 0)
@@ -244,24 +245,29 @@ ShapeSection::calculateShapeParameters()
 
 		if (i > 1)
 		{
-			A(i - 1, i - 2) = A(i - 2, i - 1) = x2 - x1;
+			tripletList.push_back(T(i - 1, i - 2, x1 - x0));
+			tripletList.push_back(T(i - 2, i - 1, x1 - x0));
+
 		}
-		A(i - 1, i - 1) = 2 * (x2 - x0);
+		tripletList.push_back(T(i - 1, i - 1, 2 * (x2 - x0)));
 
 		i++;
 		it++;
 	}
 
 
-	Eigen::ColPivHouseholderQR<Eigen::MatrixXd> dec(A);
+	Eigen::SparseMatrix<double> A(n, n);
+	A.setFromTriplets(tripletList.begin(), tripletList.end());
+	Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> solver;
 
-	if (dec.info() != Eigen::ComputationInfo::Success)
+	solver.compute(A);
+	if (solver.info() != Eigen::ComputationInfo::Success)
 	{
 		qDebug() << "Solver not successful!";
 		return;
 	} 
 
-	c = dec.solve(b);
+	c = solver.solve(b);
 
 	it = shapes_.constBegin();
 
@@ -300,7 +306,7 @@ ShapeSection::calculateShapeParameters()
 		}
 
 		poly->setParameters(a1, b1, c(i-1), d1);
-//		qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
+	//	qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
 		poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
 
 		it++;

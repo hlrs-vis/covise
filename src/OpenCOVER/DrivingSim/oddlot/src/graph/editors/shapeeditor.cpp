@@ -209,27 +209,35 @@ ShapeEditor::translateMoveHandles(const QPointF &mousePos, SplineControlPoint *c
 	double t = lateralSection->getTStart();
 	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
 
-		if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (lateralSection && (mousePos.x() >= lateralSection->getTEnd())))
-		{
-			qDebug() << "return";
-			return;
-		}
+	if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (lateralSection && (mousePos.x() >= lateralSection->getTEnd())))
+	{
+		return;
+	}
 
 	ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
 	QList<QPointF> scenePoints;
 
 	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-	it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
 
-	if (lateralSectionBefore)
+	if (shapeSection->getLastPolynomialLateralSection()->getRealPointHigh() == corner)   // last point
 	{
-		scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
+		it = addLateralSectionsBefore(scenePoints, it, lateralSection, polyItems);
+		scenePoints.append(lateralSection->getRealPointLow()->getPoint());
 		scenePoints.append(mousePos);
-		it++;
 	}
+	else
+	{
+		it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
+		if (lateralSectionBefore)
+		{
+			scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
+			scenePoints.append(mousePos);
+			it++;
+		}
 
-	scenePoints.append(mousePos);
-	scenePoints.append(lateralSection->getRealPointHigh()->getPoint());
+		scenePoints.append(mousePos);
+		scenePoints.append(lateralSection->getRealPointHigh()->getPoint());
+	}
 	it++;
 
 	addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
