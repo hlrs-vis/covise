@@ -94,8 +94,8 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
         char *l;
         tb >> l;
         QString text = l;
-        TUIElement::setLabel(text);
         setLabel(text);
+        TUIElement::setLabel(text);
     }
     else if (type == TABLET_COLOR)
     {
@@ -107,12 +107,14 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
     {
         int hide;
         tb >> hide;
+        setHidden(hide ? true : false);
         TUIElement::setHidden(hide ? true : false);
     }
     else if (type == TABLET_SET_ENABLED)
     {
         int en;
         tb >> en;
+        setEnabled(en ? true : false);
         TUIElement::setEnabled(en ? true : false);
     }
 }
