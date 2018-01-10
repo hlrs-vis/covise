@@ -47,11 +47,8 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> po
         fprintf(stderr, "%s, %i, %f, %f,\n",name.c_str(),visitedVertices,currentPos[0],targetPosition[0]);
 
     }
-//    std::string testvar = name.c_str();
 
-//    if (testvar == "laneChange0") {
-//        fprintf(stderr, " x[%i], %f, %f,\n",visitedVertices,timer,currentPos[0]);
-//    }
+
 
 
     //substract vectors
@@ -60,8 +57,8 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> po
     directionVector.normalize();
 
     //calculate step distance
-    //float step_distance = speed*opencover::cover->frameDuration();
-    float step_distance = speed*1/60;
+    float step_distance = speed*opencover::cover->frameDuration();
+    //float step_distance = speed*1/60;
 
     if(totalDistance <= 0)
 	{

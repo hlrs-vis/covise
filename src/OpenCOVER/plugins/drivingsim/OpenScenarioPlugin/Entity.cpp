@@ -26,7 +26,6 @@ void Entity::setInitEntityPosition(Road *r)
 
 void Entity::moveLongitudinal()
 {
-	directionVector.set(1, 0, 0);
 	float step_distance = speed*opencover::cover->frameDuration();
 	entityPosition[0] = entityPosition[0] + step_distance;
 }
