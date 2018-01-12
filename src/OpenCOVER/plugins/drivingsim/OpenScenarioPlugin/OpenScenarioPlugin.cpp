@@ -114,12 +114,12 @@ void OpenScenarioPlugin::preFrame()
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
+                    Maneuver* test = (*maneuver_iter);
                     scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
                     if ((*maneuver_iter)->maneuverCondition == true)
                     {
                         if((*maneuver_iter)->maneuverType == "followTrajectory")
                         {
-                            //Maneuver* test = (*maneuver_iter);
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
                                 for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
@@ -603,17 +603,18 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                                             (*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
                                         }
                                     }
-                                    if(action->Private->Longitudinal.exists())
+                                }
+                                if(action->Private->Longitudinal.exists())
+                                {
+                                    if ((*maneuver_iter)->getName() == maneuver->name.getValue())
                                     {
-                                        if ((*maneuver_iter)->getName() == maneuver->name.getValue())
-                                        {
-                                            (*maneuver_iter)->maneuverType="break";
-                                            (*maneuver_iter)->targetSpeed = action->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
-                                        }
+                                        (*maneuver_iter)->maneuverType="break";
+                                        (*maneuver_iter)->targetSpeed = action->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
                                     }
                                 }
-
                             }
+
+
                         }
                     }
                 }
