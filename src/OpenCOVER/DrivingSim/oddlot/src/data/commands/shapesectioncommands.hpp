@@ -54,36 +54,6 @@ private:
     double splitPos_;
 };
 
-//################//
-// Merge          //
-//################//
-
-class MergeShapeSectionCommand : public DataCommand
-{
-public:
-    explicit MergeShapeSectionCommand(ShapeSection *shapeSectionLow, ShapeSection *shapeSectionHigh, DataCommand *parent = NULL);
-    virtual ~MergeShapeSectionCommand();
-
-    virtual int id() const
-    {
-        return 0x1102;
-    }
-
-    virtual void undo();
-    virtual void redo();
-
-private:
-    MergeShapeSectionCommand(); /* not allowed */
-    MergeShapeSectionCommand(const MergeShapeSectionCommand &); /* not allowed */
-    MergeShapeSectionCommand &operator=(const MergeShapeSectionCommand &); /* not allowed */
-
-private:
-    ShapeSection *oldSectionLow_;
-    ShapeSection *oldSectionHigh_;
-    ShapeSection *newSection_;
-
-    RSystemElementRoad *parentRoad_;
-};
 
 //################//
 // Remove          //
@@ -109,11 +79,7 @@ private:
     RemoveShapeSectionCommand &operator=(const RemoveShapeSectionCommand &); /* not allowed */
 
 private:
-    ShapeSection *oldSectionLow_;
-    ShapeSection *oldSectionMiddle_;
-    ShapeSection *oldSectionHigh_;
-
-    ShapeSection *newSectionHigh_;
+    ShapeSection *oldSection_;
 
     RSystemElementRoad *parentRoad_;
 };

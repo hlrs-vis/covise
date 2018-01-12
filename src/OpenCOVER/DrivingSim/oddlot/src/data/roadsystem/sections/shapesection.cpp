@@ -201,6 +201,7 @@ ShapeSection::getLength(double tStart)
 	{
 		return nextSection->getTStart() - tStart;
 	}
+
 	
 	return getParentRoad()->getMaxWidth(getSStart()) - tStart;
 
@@ -254,6 +255,8 @@ ShapeSection::calculateShapeParameters()
 		i++;
 		it++;
 	}
+//	PolynomialLateralSection *p = (--it).value();
+//	qDebug() << "Last Point " << p->getRealPointHigh()->getPoint().x() << "," << p->getRealPointHigh()->getPoint().y();
 
 
 	Eigen::SparseMatrix<double> A(n, n);
@@ -291,7 +294,7 @@ ShapeSection::calculateShapeParameters()
 		a1 = poly->getRealPointLow()->getPoint().y();
 		PolynomialLateralSection *nextLateralSection = getPolynomialLateralSectionNext(poly->getTStart());
 		double a2 = poly->getRealPointHigh()->getPoint().y();
-		double x = poly->getTEnd() - poly->getTStart();
+		double x = poly->getRealPointHigh()->getPoint().x() - poly->getTStart();
 		double b1, d1;
 
 		if (nextLateralSection)
@@ -306,7 +309,7 @@ ShapeSection::calculateShapeParameters()
 		}
 
 		poly->setParameters(a1, b1, c(i-1), d1);
-	//	qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
+//		qDebug() << "point: " << poly->getRealPointLow()->getPoint().x() << "," << poly->getRealPointLow()->getPoint().y() << " parameter: " << a1 << "," << b1 << "," << c(i-1) << "," << d1;
 		poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
 
 		it++;

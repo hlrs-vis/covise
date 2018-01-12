@@ -32,8 +32,8 @@ PolynomialLateralSection::PolynomialLateralSection(double t, double a, double b,
 	, Polynomial(a, b, c, d)
 	, polynomialLateralSectionChanges_(0x0)
 {
-	realPointLow_ = new SplineControlPoint(this, QPointF(0, 0), true, true);
-	realPointHigh_ = new SplineControlPoint(this, QPointF(0, 0), true, false);
+	realPointLow_ = new SplineControlPoint(this, QPointF(0, 0), true);
+	realPointHigh_ = new SplineControlPoint(this, QPointF(0, 0), false);
 }
 
 PolynomialLateralSection::~PolynomialLateralSection()
@@ -57,6 +57,7 @@ PolynomialLateralSection::getControlPointsFromParameters()
 
 	QPointF T(getTStart(), 0);
 	double l = getLength();
+
 
 	realPointLow_->getPoint() = QPointF(0, a_) + T;
 	realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
