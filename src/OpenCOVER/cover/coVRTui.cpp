@@ -687,23 +687,23 @@ coInputTUI::coInputTUI()
     debugLabel->setPos(0,0);
 
     debugMatrices = new coTUIToggleButton("Matrices", debugContainer->getID());
-    debugMatrices->setPos(2,0);
+    debugMatrices->setPos(2,1);
     debugMatrices->setEventListener(this);
     debugOther = new coTUIToggleButton("Buttons+Valuators", debugContainer->getID());
-    debugOther->setPos(3,0);
+    debugOther->setPos(3,1);
     debugOther->setEventListener(this);
     
     debugMouseButton = new coTUIToggleButton("Mouse", debugContainer->getID());
-    debugMouseButton->setPos(0,1);
+    debugMouseButton->setPos(0,2);
     debugMouseButton->setEventListener(this);
     debugDriverButton = new coTUIToggleButton("Driver", debugContainer->getID());
-    debugDriverButton->setPos(1,1);
+    debugDriverButton->setPos(1,2);
     debugDriverButton->setEventListener(this);
     debugRawButton = new coTUIToggleButton("Raw", debugContainer->getID());
-    debugRawButton->setPos(2,1);
+    debugRawButton->setPos(2,2);
     debugRawButton->setEventListener(this);
     debugTransformedButton = new coTUIToggleButton("Transformed", debugContainer->getID());
-    debugTransformedButton->setPos(3,1);
+    debugTransformedButton->setPos(3,2);
     debugTransformedButton->setEventListener(this);
 
 	calibrationStep = -2;
