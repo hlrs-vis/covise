@@ -18,6 +18,7 @@
 // Data //
 //
 #include "src/data/roadsystem/sections/shapesection.hpp"
+#include "src/data/roadsystem/rsystemelementroad.hpp"
 
 // Graph //
 //
@@ -75,15 +76,8 @@ SplineMoveHandle::init()
 	lateralSection_->attachObserver(this);
 	shapeSection_ = lateralSection_->getParentSection();
 
-	if (shapeSection_->getFirstPolynomialLateralSection()->getRealPointLow() == corner_) 
-	{
-		parentPolynomialItems_->getCanvas()->setBottomLeft(corner_->getPoint());
-	}
-	else if (shapeSection_->getLastPolynomialLateralSection()->getRealPointHigh() == corner_)
-	{
-		parentPolynomialItems_->getCanvas()->setTopRight(corner_->getPoint());
-	}
-	else
+	if ((shapeSection_->getFirstPolynomialLateralSection()->getRealPointLow() != corner_) 
+	&& (shapeSection_->getLastPolynomialLateralSection()->getRealPointHigh() != corner_))
 	{
 		// ContextMenu //
 		//
@@ -139,29 +133,37 @@ SplineMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void 
 SplineMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+	const double snapDistance = 0.1;
 
 	// handled by ShapeEditor
 	//
+	double y = event->scenePos().y();
+	if ((y < 0) && (y > -snapDistance))
+	{
+		y = 0;
+	}
+
 	if (shapeSection_->getFirstPolynomialLateralSection()->getRealPointLow() == corner_)
 	{
-		if (abs(event->scenePos().x() - lateralSection_->getTStart()) > 0.1)
+		double width = shapeSection_->getParentRoad()->getMinWidth(shapeSection_->getSStart());
+		if (abs(event->scenePos().x() - width) < snapDistance)
 		{
+			shapeEditor_->translateMoveHandles(QPointF(width, y), corner_);
 			return;
 		}
-
-		parentPolynomialItems_->getCanvas()->setBottomLeft(event->scenePos());
 
 	}
 	else if (shapeSection_->getLastPolynomialLateralSection()->getRealPointHigh() == corner_)
 	{
-		if (abs(event->scenePos().x() - lateralSection_->getTEnd()) > 0.1)
+		double width = shapeSection_->getParentRoad()->getMaxWidth(shapeSection_->getSStart());
+		if (abs(event->scenePos().x() - width) < snapDistance)
 		{
+			shapeEditor_->translateMoveHandles(QPointF(width, y), corner_);
 			return;
 		}
 
-		parentPolynomialItems_->getCanvas()->setTopRight(event->scenePos());
 	}
-	shapeEditor_->translateMoveHandles(event->scenePos(), corner_);
+	shapeEditor_->translateMoveHandles(QPointF(event->scenePos().x(), y), corner_);
 }
 
 void

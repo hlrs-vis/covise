@@ -39,20 +39,15 @@ public:
 		return profileGraph_;
 	}
 
+	virtual void createPath(); // draws lanes
+
 	// ShapeSectionPolynomialItems //
 	//
 	void createPolynomialItems();
 
 	virtual QRectF boundingRect();
-	QRectF *getCanvas()
-	{
-		return splineCanvas_;
-	}
 
-	void initNormalization();
-	QPointF normalize(const QPointF &p);
-	QPointF sceneCoords(const QPointF &start, const QPointF &p);
-
+	double getSectionWidth();
 
     // Obsever Pattern //
     //
@@ -80,12 +75,6 @@ private:
 	ShapeEditor *shapeEditor_;
 
     ShapeSection *shapeSection_;
-	QTransform *transform_;  // transformation matrix to map points to values between (0,0) and (1,1) recommended by QEasingCurve
-	QTransform *transformInverted_;
-
-	QRectF *splineCanvas_;
-
-	SplineMoveHandle *lastSplineMoveHandle_;
 };
 
 #endif // SHAPESECTIONPOLYNOMIALITEMS_HPP

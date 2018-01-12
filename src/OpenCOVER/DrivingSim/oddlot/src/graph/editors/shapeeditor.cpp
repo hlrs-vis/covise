@@ -61,18 +61,18 @@
 //################//
 
 ShapeEditor::ShapeEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph)
-    : ProjectEditor(projectWidget, projectData, topviewGraph)
-    , roadSystemItem_(NULL)
-    , profileGraph_(profileGraph)
-    , insertSectionHandle_(NULL)
-	, boundingBox_(QRectF( -7.5, 0, 15.0, 15.0))
+	: ProjectEditor(projectWidget, projectData, topviewGraph)
+	, roadSystemItem_(NULL)
+	, profileGraph_(profileGraph)
+	, insertSectionHandle_(NULL)
+	, boundingBox_(QRectF(-7.5, 0, 15.0, 8.0))
 {
 
 }
 
 ShapeEditor::~ShapeEditor()
 {
-    kill();
+	kill();
 }
 
 //################//
@@ -82,11 +82,11 @@ ShapeEditor::~ShapeEditor()
 SectionHandle *
 ShapeEditor::getInsertSectionHandle()
 {
-if (!insertSectionHandle_)
-{
-	qDebug("ERROR 1006211555! ShapeEditor not yet initialized.");
-}
-return insertSectionHandle_;
+	if (!insertSectionHandle_)
+	{
+		qDebug("ERROR 1006211555! ShapeEditor not yet initialized.");
+	}
+	return insertSectionHandle_;
 }
 
 /*! \brief Adds a road to the list of selected roads.
@@ -107,15 +107,9 @@ ShapeEditor::addSelectedShapeSection(ShapeSection *shapeSection)
 
 		// Fit View //
 		//
+		double width = shapeSectionPolynomialItems->getSectionWidth();
 		QRectF BB = shapeSectionPolynomialItems->boundingRect();
-		if (BB.width() > boundingBox_.width())
-		{
-			boundingBox_.setWidth(BB.width());
-		}
-		if (BB.height() > boundingBox_.height())
-		{
-			boundingBox_.setHeight(BB.height());
-		}
+		boundingBox_ = QRectF(-width, BB.y(), 2 * width, (BB.height() > 8.0) ? BB.height() : 8.0);
 
 		profileGraph_->getView()->fitInView(boundingBox_);
 		profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
@@ -208,8 +202,13 @@ ShapeEditor::translateMoveHandles(const QPointF &mousePos, SplineControlPoint *c
 	ShapeSection *shapeSection = lateralSection->getParentSection();
 	double t = lateralSection->getTStart();
 	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
+	PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
 
-	if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (lateralSection && (mousePos.x() >= lateralSection->getTEnd())))
+	if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (nextLateralSection && (mousePos.x() >= nextLateralSection->getTStart())))
+	{
+		return;
+	}
+	if (!nextLateralSection && (corner->isLow() && (mousePos.x() >= lateralSection->getRealPointHigh()->getPoint().x())) || (!corner->isLow() && (mousePos.x()) <= lateralSection->getTStart()))
 	{
 		return;
 	}
@@ -344,6 +343,10 @@ ShapeEditor::mouseAction(MouseAction *mouseAction)
 		{
 			ShapeSection *shapeSection = selectedShapeSectionItems_.firstKey();
 			PolynomialLateralSection *lateralSection = shapeSection->getPolynomialLateralSection(mousePoint.x());
+			if (!lateralSection)
+			{
+				lateralSection = shapeSection->getFirstPolynomialLateralSection();
+			}
 			double d;
 			if (lateralSection)
 			{
@@ -384,6 +387,10 @@ ShapeEditor::mouseAction(MouseAction *mouseAction)
 			{
 				ShapeSection *shapeSection = selectedShapeSectionItems_.firstKey();
 				PolynomialLateralSection *lateralSection = shapeSection->getPolynomialLateralSection(mousePoint.x());
+				if (!lateralSection)
+				{
+					lateralSection = shapeSection->getFirstPolynomialLateralSection();
+				}
 				if (lateralSection)
 				{
 					double d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();

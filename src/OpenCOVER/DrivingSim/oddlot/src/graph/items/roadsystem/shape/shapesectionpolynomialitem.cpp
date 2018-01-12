@@ -128,8 +128,8 @@ ShapeSectionPolynomialItem::createPath()
 
 	//	double pointsPerMeter = 1.0; // BAD: hard coded!
 	double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
-	double tStart = polynomialLateralSection_->getTStart();
-	double tEnd = polynomialLateralSection_->getTEnd();
+	double tStart = polynomialLateralSection_->getRealPointLow()->getPoint().x();
+	double tEnd = polynomialLateralSection_->getRealPointHigh()->getPoint().x();
 	int pointCount = int(ceil((tEnd - tStart) * pointsPerMeter)); // TODO curvature...
 	if (pointCount <= 1)
 	{

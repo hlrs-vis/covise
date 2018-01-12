@@ -20,6 +20,9 @@
 
 #include "src/data/roadsystem/sections/shapesection.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/sections/laneroadmark.hpp"
 
 // Graph //
 //
@@ -63,17 +66,15 @@ ShapeSectionPolynomialItems::~ShapeSectionPolynomialItems()
 void
 ShapeSectionPolynomialItems::init()
 {
-	transform_ = new QTransform();
-	transformInverted_ = new QTransform();
 	shapeEditor_ = dynamic_cast<ShapeEditor *>(profileGraph_->getProjectWidget()->getProjectEditor());
+	createPath();
 	createPolynomialItems();
-
+	
 }
 
 void 
 ShapeSectionPolynomialItems::createPolynomialItems()
 {
-	splineCanvas_ = new QRectF(0, 0, 0, 0);
 
 	if (shapeEditor_)
 	{
@@ -87,6 +88,73 @@ ShapeSectionPolynomialItems::createPolynomialItems()
 
 }
 
+void
+ShapeSectionPolynomialItems::createPath()
+{
+	double s = shapeSection_->getSStart();
+	RSystemElementRoad *road = shapeSection_->getParentRoad();
+	LaneSection *laneSection = road->getLaneSection(shapeSection_->getSStart());
+
+	QRectF bb = boundingRect();
+
+	QGraphicsItemGroup *graphicItemGroup = new QGraphicsItemGroup(this);
+	QGraphicsPathItem *pathItemRL = new QGraphicsPathItem(this);
+	graphicItemGroup->addToGroup(pathItemRL);
+	QGraphicsPathItem *pathItemM = new QGraphicsPathItem(this);
+	graphicItemGroup->addToGroup(pathItemM);
+	QPainterPath pathRL;
+	QPainterPath pathM;
+
+	pathItemRL->setPen(QPen(ODD::instance()->colors()->brightGrey(), 0.05));
+
+	pathItemM->setPen(QPen(ODD::instance()->colors()->brightGrey()));
+	foreach(Lane *lane, laneSection->getLanes())
+	{
+		if (lane->getId() > 0)
+		{
+			pathRL.moveTo(laneSection->getLaneSpanWidth(0, lane->getId(), s), 0.0);
+			pathRL.lineTo(laneSection->getLaneSpanWidth(0, lane->getId(), s), shapeSection_->getLength());
+		}
+		else if (lane->getId() < 0)
+		{
+			pathRL.moveTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s), 0.0);
+			pathRL.lineTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s), shapeSection_->getLength());
+		}
+		else
+		{
+
+			// Width //
+			//
+			LaneRoadMark *roadMark = lane->getRoadMarkEntry(laneSection->getSStart());
+			double width = roadMark->getRoadMarkWidth();
+			if (width >= 0.0)
+			{
+				pathItemM->setPen(QPen(ODD::instance()->colors()->brightGrey(), width));
+
+				// Type //
+				//
+				LaneRoadMark::RoadMarkType type = roadMark->getRoadMarkType();
+				if (type == LaneRoadMark::RMT_BROKEN)
+				{
+					// TODO: no hard coding
+					const QVector<qreal> pattern(2, 3.0 / width); // hard coded 3.0m for town
+																  // init with 2 values
+																  // 0: length of the line, 1: length of the free space
+																  // actual length will be multiplied with the width
+					QPen pen = pathItemM->pen();
+					pen.setDashPattern(pattern);
+					pathItemM->setPen(pen);
+				}
+
+				pathM.moveTo(0.0, 0.0);
+				pathM.lineTo(0.0, shapeSection_->getLength());
+			}
+		}
+	}
+	pathItemM->setPath(pathM);
+	pathItemRL->setPath(pathRL);
+}
+
 QRectF 
 ShapeSectionPolynomialItems::boundingRect()
 {
@@ -95,51 +163,33 @@ ShapeSectionPolynomialItems::boundingRect()
 	
 	foreach(PolynomialLateralSection *shape, shapeSection_->getShapes())
 	{
-		double ymin = fmin(shape->getRealPointLow()->getPoint().y(), shape->getRealPointHigh()->getPoint().y());
-		double ymax;
+		double y0 = fmin(shape->getRealPointLow()->getPoint().y(), shape->getRealPointHigh()->getPoint().y());
+		if (y0 < ymin)
+		{
+			ymin = y0;
+		}
+		double y1;
 		if (ymin == shape->getRealPointLow()->getPoint().y())
 		{
-			ymax = shape->getRealPointHigh()->getPoint().y();
+			y1 = shape->getRealPointHigh()->getPoint().y();
 		}
 		else
 		{
-			ymax = shape->getRealPointLow()->getPoint().y();
+			y1 = shape->getRealPointLow()->getPoint().y();
+		}
+		if (y1 > ymax)
+		{
+			ymax = y1;
 		}
 	}
-	return QRectF { 0, ymax, shapeSection_->getParentRoad()->getMaxWidth(shapeSection_->getSStart()) - shapeSection_->getParentRoad()->getMinWidth(shapeSection_->getSStart()), ymax - ymin };
+	return QRectF { 0, ymin, shapeSection_->getParentRoad()->getMaxWidth(shapeSection_->getSStart()) - shapeSection_->getParentRoad()->getMinWidth(shapeSection_->getSStart()), ymax - ymin };
 }
 
-void
-ShapeSectionPolynomialItems::initNormalization()
+
+double 
+ShapeSectionPolynomialItems::getSectionWidth()
 {
-	QPointF end = splineCanvas_->topRight();
-	QPointF start = splineCanvas_->bottomLeft();
-
-	transform_->reset();
-	double alpha = atan((end.y() - start.y()) / (end.x() - start.x())) * 180 / M_PI;
-	transform_->rotate(45.0 - alpha);
-	transform_->translate(-start.x(), -start.y());
-	QPointF end1 = transform_->map(end);
-	transform_->reset();
-	transform_->scale(1 / end1.x(), 1 / end1.y());
-	transform_->rotate(45.0 - alpha);
-	transform_->translate(-start.x(), -start.y());
-	
-	*transformInverted_ = transform_->inverted();
-}
-
-QPointF 
-ShapeSectionPolynomialItems::normalize(const QPointF &p)
-{
-
-	return transform_->map(p);
-}
-
-QPointF 
-ShapeSectionPolynomialItems::sceneCoords(const QPointF &start, const QPointF &p)
-{
-
-	return transformInverted_->map(p);
+	return shapeSection_->getWidth();
 }
 
 
