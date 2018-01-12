@@ -22,6 +22,7 @@
 
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementline.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -34,6 +35,7 @@
 #include "src/data/commands/trackcommands.hpp"
 #include "src/data/commands/roadcommands.hpp"
 #include "src/data/commands/roadsystemcommands.hpp"
+#include "src/data/commands/junctioncommands.hpp"
 
 #include "src/cover/coverconnection.hpp"
 #include "src/data/prototypemanager.hpp"
@@ -126,26 +128,33 @@ CircleWizard::runCalculation()
 	newRoad->addTrackComponent(arc1);
 	newRoad->superposePrototype(Prototype4);
 	RSystemElementRoad *newRoadLeft = new RSystemElementRoad("LeftCircle", "", "-1");
-	TrackElementArc *arc2 = new TrackElementArc(0.0, 0.0 + radius, 180.0, 0.0, M_PI*radius, 1 / radius);
+	TrackElementArc *arc2 = new TrackElementArc(0.0, 0.0 + radius, 180.0, 0.0, M_PI_2*radius, 1 / radius);
 	newRoadLeft->addTrackComponent(arc2);
 	newRoadLeft->superposePrototype(Prototype3);
+	RSystemElementRoad *newRoadLowerLeft = new RSystemElementRoad("LowerLeftCircle", "", "-1");
+	TrackElementArc *arc3 = new TrackElementArc(0.0-radius, 0.0, 270.0, 0.0, M_PI_2*radius, 1 / radius);
+	newRoadLowerLeft->addTrackComponent(arc3);
+	newRoadLowerLeft->superposePrototype(Prototype3);
+
+
+
 
 
 	LaneSection *lsThreeLanes = newRoadLeft->getLaneSection(0)->getClone();
 	lsThreeLanes->setSStart(enterExitLength);
 	LaneSection *lsFourLanes = newRoad->getLaneSection(0)->getClone();
-	LaneWidth *lw1 = lsFourLanes->getLane(-2)->getWidthEntry(0.0);
+	LaneWidth *lw1 = lsFourLanes->getLane(-3)->getWidthEntry(0.0);
 	lw1->setParameters(0.0, .25, 0.0, 0.0);
 	LaneWidth *lw2 = new LaneWidth(14, 3.5, 0.0, 0.0, 0.0);
-	lsFourLanes->getLane(-2)->addWidthEntry(lw1);
-	lsFourLanes->getLane(-2)->addWidthEntry(lw2);
+	lsFourLanes->getLane(-3)->addWidthEntry(lw1);
+	lsFourLanes->getLane(-3)->addWidthEntry(lw2);
 	lsFourLanes->setSStart(M_PI*radius - enterExitLength);
 	newRoad->addLaneSection(lsThreeLanes);
 	newRoad->addLaneSection(lsFourLanes);
 
 	LaneSection *lsFourLanesFirst = newRoad->getLaneSection(0);
 	LaneWidth *lw3 = new LaneWidth(lsFourLanesFirst->getLength()-14.0, 3.5, -0.25, 0.0, 0.0);
-	lsFourLanesFirst->getLane(-2)->addWidthEntry(lw3);
+	lsFourLanesFirst->getLane(-3)->addWidthEntry(lw3);
 
 
 	NewRoadCommand *command = new NewRoadCommand(newRoad, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), NULL);
@@ -173,6 +182,18 @@ CircleWizard::runCalculation()
 		return; // usually not the case, only if road or prototype are NULL
 	}
 
+	command = new NewRoadCommand(newRoadLowerLeft, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), NULL);
+	if (command->isValid())
+	{
+		projectData_->getUndoStack()->push(command);
+	}
+	else
+	{
+		//printStatusBarMsg(command->text(), 4000);
+		delete command;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
 
 
 	RSystemElementRoad *PrototypeSingle = new RSystemElementRoad("prototype", "prototype", "-1");
@@ -181,7 +202,7 @@ CircleWizard::runCalculation()
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:1"));
 
 	RSystemElementRoad *newRoadEntry = new RSystemElementRoad("CircleEntry", "", "-1");
-	TrackElementLine *line1 = new TrackElementLine(0.0, 0.0 - (radius + (laneWidth*2)), 180.0, 0.0, linearLength);
+	TrackElementLine *line1 = new TrackElementLine(0.0, 0.0 - (radius + (laneWidth*4)), 180.0, 0.0, linearLength);
 	newRoadEntry->addTrackComponent(line1);
 	newRoadEntry->superposePrototype(PrototypeSingle);
 
@@ -199,8 +220,8 @@ CircleWizard::runCalculation()
 
 
 
-	RSystemElementRoad *newRoadExit = new RSystemElementRoad("CircleEntry", "", "-1");
-	TrackElementLine *line2 = new TrackElementLine(0.0, 0.0 + radius+laneWidth, 180.0, 0.0, linearLength);
+	RSystemElementRoad *newRoadExit = new RSystemElementRoad("CircleExit", "", "-1");
+	TrackElementLine *line2 = new TrackElementLine(0.0, 0.0 + radius+(laneWidth*3), 180.0, 0.0, linearLength);
 	newRoadExit->addTrackComponent(line2);
 	newRoadExit->superposePrototype(PrototypeSingle);
 
@@ -215,7 +236,207 @@ CircleWizard::runCalculation()
 		delete command;
 		return; // usually not the case, only if road or prototype are NULL
 	}
+	RSystemElementJunction *newJunction = new RSystemElementJunction("EntryJunction", "");
+	NewJunctionCommand *jcommand = new NewJunctionCommand(newJunction, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem());
+	if (jcommand->isValid())
+	{
+		projectData_->getUndoStack()->push(jcommand);
+	}
+	else
+	{
+		//printStatusBarMsg(command->text(), 4000);
+		delete jcommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
 
+	AddToJunctionCommand *ajcommand = new AddToJunctionCommand(ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), newRoadEntry, newJunction);
+	if (ajcommand->isValid())
+	{
+		projectData_->getUndoStack()->push(ajcommand);
+	}
+	else
+	{
+		delete ajcommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	ajcommand = new AddToJunctionCommand(ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), newRoadLowerLeft, newJunction);
+	if (ajcommand->isValid())
+	{
+		projectData_->getUndoStack()->push(ajcommand);
+	}
+	else
+	{
+		delete ajcommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	RSystemElementJunction *newExitJunction = new RSystemElementJunction("ExitJunction", "");
+	jcommand = new NewJunctionCommand(newExitJunction, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem());
+	if (jcommand->isValid())
+	{
+		projectData_->getUndoStack()->push(jcommand);
+	}
+	else
+	{
+		//printStatusBarMsg(command->text(), 4000);
+		delete jcommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+	ajcommand = new AddToJunctionCommand(ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), newRoadExit, newExitJunction);
+	if (ajcommand->isValid())
+	{
+		projectData_->getUndoStack()->push(ajcommand);
+	}
+	else
+	{
+		delete ajcommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	ajcommand = new AddToJunctionCommand(ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), newRoadLeft, newExitJunction);
+	if (ajcommand->isValid())
+	{
+		projectData_->getUndoStack()->push(ajcommand);
+	}
+	else
+	{
+		delete ajcommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+
+	JunctionConnection* newConnection = new JunctionConnection("jc0", newRoad->getID(), newRoadEntry->getID(), JunctionConnection::JCP_START, 0);
+
+	RoadLink *roadLink = new RoadLink("junction", newJunction->getID(), JunctionConnection::JCP_NONE);
+	SetRoadLinkCommand *slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_PREDECESSOR, roadLink, newConnection, newJunction);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	newConnection = new JunctionConnection("jc1",  newRoad->getID(), newRoadLowerLeft->getID(), JunctionConnection::JCP_END, 0);
+
+	roadLink = new RoadLink("junction", newJunction->getID(), JunctionConnection::JCP_NONE);
+	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_PREDECESSOR, roadLink, newConnection, newJunction);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+	newConnection = new JunctionConnection("jc0", newRoad->getID(), newRoadExit->getID(), JunctionConnection::JCP_START, 0);
+	roadLink = new RoadLink("junction", newExitJunction->getID(), JunctionConnection::JCP_NONE);
+	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_SUCCESSOR, roadLink, newConnection, newExitJunction);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	newConnection = new JunctionConnection("jc1", newRoad->getID(), newRoadLeft->getID(), JunctionConnection::JCP_START, 0);
+
+	roadLink = new RoadLink("junction", newExitJunction->getID(), JunctionConnection::JCP_NONE);
+	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_SUCCESSOR, roadLink, newConnection, newExitJunction);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+	roadLink = new RoadLink("road", newRoadLowerLeft->getID(), JunctionConnection::JCP_END);
+	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_PREDECESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+	roadLink = new RoadLink("road", newRoadLowerLeft->getID(), JunctionConnection::JCP_START);
+	slCommand = new SetRoadLinkCommand(newRoadLeft, RoadLink::DRL_SUCCESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	roadLink = new RoadLink("road", newRoadLeft->getID(), JunctionConnection::JCP_END);
+	slCommand = new SetRoadLinkCommand(newRoadLowerLeft, RoadLink::DRL_PREDECESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	roadLink = new RoadLink("road", newRoad->getID(), JunctionConnection::JCP_END);
+	slCommand = new SetRoadLinkCommand(newRoadLeft, RoadLink::DRL_PREDECESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+	roadLink = new RoadLink("road", newRoad->getID(), JunctionConnection::JCP_END);
+	slCommand = new SetRoadLinkCommand(newRoadExit, RoadLink::DRL_PREDECESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+	roadLink = new RoadLink("road", newRoad->getID(), JunctionConnection::JCP_START);
+	slCommand = new SetRoadLinkCommand(newRoadEntry, RoadLink::DRL_PREDECESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
+
+	roadLink = new RoadLink("road", newRoad->getID(), JunctionConnection::JCP_START);
+	slCommand = new SetRoadLinkCommand(newRoadLowerLeft, RoadLink::DRL_SUCCESSOR, roadLink, NULL, NULL);
+	if (slCommand->isValid())
+	{
+		projectData_->getUndoStack()->push(slCommand);
+	}
+	else
+	{
+		delete slCommand;
+		return; // usually not the case, only if road or prototype are NULL
+	}
 
 	Object::ObjectProperties objectProps{ -8.60, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
