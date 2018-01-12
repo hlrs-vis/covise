@@ -128,8 +128,8 @@ inline material_type osg_cast(osg::Material const *mat, bool specular = true)
         glass<float> vsnray_mat;
         vsnray_mat.ct() = from_rgb(osg_cast(cd).xyz());
         vsnray_mat.cr() = from_rgb(osg_cast(cs).xyz());
-        vsnray_mat.kt() = alpha;
-        vsnray_mat.kr() = 1.0f - alpha;
+        vsnray_mat.kt() = 1.0f;
+        vsnray_mat.kr() = 1.0f;
         vsnray_mat.ior() = spectrum<float>(1.3f); // TODO
         return material_type(vsnray_mat);
     }
