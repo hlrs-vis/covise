@@ -38,6 +38,6 @@ public:
     virtual void setLabel(QString textl) override;
 
 protected:
-    int firstTime;
+    bool firstTime = true;
 };
 #endif

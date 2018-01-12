@@ -84,6 +84,8 @@ void TUISlider::setPos(int x, int y)
     string->setVisible(!hidden);
     if (label)
         label->setVisible(!hidden);
+
+    slider->setMinimumWidth((width-1)*string->width());
 }
 
 void TUISlider::sliderChanged(int ival)

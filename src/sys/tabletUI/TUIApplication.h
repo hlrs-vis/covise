@@ -8,6 +8,7 @@
 #ifndef TUIAPPLICATION_H
 #define TUIAPPLICATION_H
 #include <list>
+#include <set>
 #include <QMainWindow>
 #include <QFrame>
 #include <QFont>
@@ -77,6 +78,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *);
     std::list<TUIElement *> elements;
+    std::set<TUITab *> tabs;
 
 private slots:
     void timerDone();
@@ -102,9 +104,7 @@ private:
     int lastID;
 
     QSocketNotifier *serverSN, *clientSN;
-    QTimer *timer, *start;
-    QDialog *dialog;
-    QTabWidget *tabs;
+    QTimer *timer;
     QAction *_exit, *_help;
 
     covise::ServerConnection *sConn;
@@ -116,5 +116,6 @@ private:
 
     covise::ServerConnection *texConn;
     covise::ServerConnection *sgConn;
+    int numberOfColumns = 5;
 };
 #endif

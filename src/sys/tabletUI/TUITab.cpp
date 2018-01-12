@@ -50,6 +50,7 @@ TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
     frame->setContentsMargins(0, 0, 0, 0);
     widget = frame;
     layout = new QGridLayout(frame);
+    frame->setLayout(layout);
     if (scroll)
     {
         scroll->setWidget(frame);

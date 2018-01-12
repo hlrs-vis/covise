@@ -10,6 +10,7 @@
 
 #include "TUIElement.h"
 #include <list>
+#include <set>
 
 class QGridLayout;
 
@@ -38,9 +39,19 @@ public:
 
     QGridLayout *gridLayout() const;
 
+    /// set number of columns after which lines should be wrapped (-1: no wrapping)
+    void setNumberOfColumns(int columns);
+    int maximumNumberOfColumns() const;
+
+    void relayout();
+
+
 protected:
     /// List of children elements
     typedef std::list<TUIElement *> ElementList;
     ElementList elements;
+
+    int numberOfColumns = -1;
+    std::set<TUIElement *> inLayout;
 };
 #endif

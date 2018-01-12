@@ -127,7 +127,6 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
-    , dialog(NULL)
     , sConn(NULL)
     , clientConn(NULL)
     , lastElement(NULL)
@@ -168,7 +167,6 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
-    , dialog(NULL)
     , sConn(NULL)
     , clientConn(NULL)
     , lastElement(NULL)
@@ -479,6 +477,7 @@ void TUIMainWindow::addElement(TUIElement *e)
 void TUIMainWindow::removeElement(TUIElement *e)
 //------------------------------------------------------------------------
 {
+    tabs.erase(static_cast<TUITab *>(e));
     elements.remove(e);
 }
 
@@ -508,8 +507,12 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
         return new TUIButton(id, type, w, parent, name);
     case TABLET_FILEBROWSER_BUTTON:
         return new TUIFileBrowserButton(id, type, w, parent, name);
-    case TABLET_TAB:
-        return new TUITab(id, type, w, parent, name);
+    case TABLET_TAB: {
+        auto tab = new TUITab(id, type, w, parent, name);
+        tabs.insert(tab);
+        tab->setNumberOfColumns(numberOfColumns);
+        return tab;
+    }
     case TABLET_TEXTURE_TAB:
         return new TUITextureTab(id, type, w, parent, name);
     case TABLET_BROWSER_TAB:
@@ -780,11 +783,16 @@ void TUIMainWindow::closeEvent(QCloseEvent *ce)
     closeServer();
 
     //remove all UI Elements
-    while (elements.size())
+    while (!elements.empty())
     {
         TUIElement *ele = *(elements.begin());
         delete ele;
     }
+    if (!tabs.empty())
+    {
+        std::cerr << "TUIMainWindow::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
+    }
+    assert(tabs.empty());
 
     ce->accept();
 }
@@ -875,7 +883,7 @@ void TUIMainWindow::createToolbar()
 
     // fontsizes
     // label
-    QLabel *l = new QLabel("FontSizes :", toolbar);
+    QLabel *l = new QLabel("Font size: ", toolbar);
     l->setFont(mainFont);
     l->setToolTip("Select a new font size");
     toolbar->addWidget(l);
@@ -926,7 +934,7 @@ void TUIMainWindow::createToolbar()
 
     //styles
     // label
-    l = new QLabel("QtStyles :", toolbar);
+    l = new QLabel("Qt style: ", toolbar);
     l->setFont(mainFont);
     l->setToolTip("Select another style");
     toolbar->addWidget(l);
@@ -967,5 +975,35 @@ void TUIMainWindow::createToolbar()
 
     connect(qtstyles, SIGNAL(activated(const QString &)),
             this, SLOT(styleCB(const QString &)));
+
+
+    toolbar->addSeparator();
+    l = new QLabel("Columns: ", toolbar);
+    l->setFont(mainFont);
+    l->setToolTip("Number of columns in flexible layouts");
+    toolbar->addWidget(l);
+
+    list.clear();
+    list << "Unlimited" << "1" << "2" << "3" << "4" << "5" << "6" << "8" << "10" << "12" << "15" << "20";
+    QComboBox *numColumns = new QComboBox();
+    numColumns->insertItems(0, list);
+    int idx = numColumns->findText(QString::number(numberOfColumns));
+    if (idx < 0 && numberOfColumns > 0)
+    {
+        numColumns->addItem(QString::number(numberOfColumns));
+        idx = numColumns->findText(QString::number(numberOfColumns));
+    }
+    numColumns->setCurrentIndex(idx);
+    void (QComboBox::*activated)(const QString &) = &QComboBox::activated;
+    connect(numColumns, activated, [this](QString num){
+        int ncol = -1;
+        if (num != "Unlimited")
+            ncol = num.toInt();
+        numberOfColumns = ncol;
+        for (auto t: tabs)
+            t->setNumberOfColumns(ncol);
+    });
+    toolbar->addWidget(numColumns);
+
 }
 #endif

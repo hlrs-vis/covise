@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <QLayout>
+#include <QWidget>
 
 #include "TUIContainer.h"
 #include <iostream>
@@ -40,23 +41,22 @@ void TUIContainer::removeAllChildren()
 */
 void TUIContainer::addElementToLayout(TUIElement *el)
 {
+    inLayout.insert(el);
+    if (numberOfColumns > 0)
+    {
+        relayout();
+        return;
+    }
+
     if (auto gl = gridLayout())
     {
-        /*
-      if((el->getHeight() != 0) && (el->getWidth() != 0))
-
-      else
-         layout->addWidget(el->getWidget(),el->getYpos(),el->getXpos());
-      */
-
         if (!el->isHidden())
         {
             if (el->getWidget())
-                gl->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth());
+                gl->addWidget(el->getWidget(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth(), Qt::AlignBaseline);
             else if (el->getLayout())
                 gl->addLayout(el->getLayout(), el->getYpos(), el->getXpos(), el->getHeight(), el->getWidth(), Qt::AlignBaseline);
         }
-
         for (int i = 0; i < gl->rowCount(); i++)
             gl->setRowStretch(i, 0);
         gl->setRowStretch(gl->rowCount(), 100);
@@ -102,6 +102,10 @@ void TUIContainer::showElement(TUIElement *)
 */
 void TUIContainer::removeElement(TUIElement *el)
 {
+    inLayout.erase(el);
+    if (numberOfColumns > 0)
+        relayout();
+
     ElementList::iterator it = std::find(elements.begin(), elements.end(), el);
     if (it != elements.end())
         elements.erase(it);
@@ -140,4 +144,126 @@ const char *TUIContainer::getClassName() const
 QGridLayout *TUIContainer::gridLayout() const
 {
     return dynamic_cast<QGridLayout *>(layout);
+}
+
+void TUIContainer::setNumberOfColumns(int columns)
+{
+    numberOfColumns = columns;
+    relayout();
+}
+
+int TUIContainer::maximumNumberOfColumns() const
+{
+    return numberOfColumns;
+}
+
+void TUIContainer::relayout()
+{
+    if (auto grid = gridLayout())
+    {
+        // remove everything from layout
+        while (layout->takeAt(0))
+            ;
+
+        int minWidth = 0, maxWidth = 0;
+        std::vector<int> rowLength;
+        std::vector<std::vector<TUIElement *>> rowElements;
+        for (auto el: inLayout)
+        {
+            if (el->isHidden())
+                continue;
+
+            int x = el->getXpos();
+            int y = el->getYpos();
+            int w = el->getWidth();
+            if (x<0 || y<0)
+                continue;
+
+            if (minWidth < w)
+                minWidth = w;
+            if (y >= rowLength.size())
+            {
+                rowLength.resize(y+1);
+                rowElements.resize(y+1);
+            }
+            rowElements[y].push_back(el);
+            if (x+w > rowLength[y])
+                rowLength[y] = x+w;
+            if (maxWidth < rowLength[y])
+                maxWidth = rowLength[y];
+        }
+
+        int numColumns = maxWidth;
+        if (numberOfColumns > 0)
+            numColumns = std::max(minWidth, numberOfColumns);
+        numColumns = std::max(numColumns, 1);
+        std::vector<int> row;
+        row.resize(rowLength.size());
+        std::vector<int> rowLengthWrapped;
+        rowLengthWrapped.resize(rowLength.size());
+        for (size_t i=0; i<rowLength.size(); ++i)
+        {
+            std::sort(rowElements[i].begin(), rowElements[i].end(), [](const TUIElement *e1, const TUIElement *e2){
+                return e1->getXpos() < e2->getXpos();
+            });
+            for (auto el: rowElements[i])
+            {
+                int c = rowLengthWrapped[i];
+                if (c % numColumns + el->getWidth() > numColumns)
+                    c += numColumns-c%numColumns;
+                rowLengthWrapped[i] = c + el->getWidth();
+            }
+            if (i > 0)
+            {
+                bool wrap = false;
+                for (auto el: rowElements[i-1])
+                {
+                    if (el->getXpos() + el->getWidth() > numColumns)
+                        wrap = true;
+                }
+
+                int l = wrap ? rowLengthWrapped[i-1] : rowLength[i-1];
+                row[i] = row[i-1] + (l+numColumns-1)/numColumns;
+            }
+        }
+
+        for (size_t i=0; i<rowLength.size(); ++i)
+        {
+            bool wrap = false;
+            for (auto el: rowElements[i])
+            {
+                if (el->getXpos() + el->getWidth() > numColumns)
+                    wrap = true;
+            }
+
+            int pos = 0;
+            for (auto el: rowElements[i])
+            {
+                int x = el->getXpos();
+                int c = x % numColumns;
+                if (wrap)
+                {
+                    c = pos % numColumns;
+                    if (c + el->getWidth() > numColumns)
+                    {
+                        pos += numColumns-c%numColumns;
+                        c = 0;
+                    }
+                }
+                int r = row[el->getYpos()] + pos/numColumns;
+                if (el->getWidget())
+                    grid->addWidget(el->getWidget(), r, c, el->getHeight(), el->getWidth(), Qt::AlignBottom);
+                else if (el->getLayout())
+                    grid->addLayout(el->getLayout(), r, c, el->getHeight(), el->getWidth(), Qt::AlignBottom);
+                pos += el->getWidth();
+            }
+        }
+
+        for (int i = 0; i < grid->rowCount(); i++)
+            grid->setRowStretch(i, 0);
+        grid->setRowStretch(grid->rowCount(), 100);
+        for (int i = 0; i < grid->columnCount(); i++)
+            grid->setColumnStretch(i, 0);
+        grid->setColumnStretch(grid->columnCount(), 100);
+    }
 }
