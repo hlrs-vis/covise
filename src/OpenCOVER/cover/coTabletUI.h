@@ -27,6 +27,7 @@
 #include <OpenThreads/Mutex>
 #include <queue>
 #include <map>
+#include <string>
 //#ifndef WIN32
 //#include <stdint.h>
 //#define FILESYS_SEP "\\"
@@ -87,12 +88,13 @@ public slots:
 
 public:
     coTabletUI();
+    coTabletUI(const std::string &host, int port);
     virtual ~coTabletUI();
     static coTabletUI *instance();
-    virtual void update();
+
+    virtual bool update();
     void addElement(coTUIElement *);
     void removeElement(coTUIElement *e);
-    covise::Connection *conn;
     void send(covise::TokenBuffer &tb);
     void tryConnect();
     void close();
@@ -112,19 +114,21 @@ public:
         return serverHost;
     }
 
-    bool serverMode;
-    covise::Connection *textureConn;
-    covise::Connection *sgConn;
+    bool serverMode = false;
+    covise::Connection *conn = nullptr;
+    covise::Connection *textureConn = nullptr;
+    covise::Connection *sgConn = nullptr;
 
 protected:
+    void init();
     covise::coDLPtrList<coTUIElement *> elements;
-    covise::ServerConnection *serverConn;
-    covise::Host *serverHost;
-    covise::Host *localHost;
-    int port;
-    int ID;
-    float timeout;
-    bool debugTUIState;
+    covise::ServerConnection *serverConn = nullptr;
+    covise::Host *serverHost = nullptr;
+    covise::Host *localHost = nullptr;
+    int port = 31802;
+    int ID = 3;
+    float timeout = 0.f;
+    bool debugTUIState = false;
 };
 
 
@@ -1376,6 +1380,7 @@ class COVEREXPORT coTUIToggleButton : public coTUIElement
 private:
 public:
     coTUIToggleButton(const std::string &, int pID = 1, bool state = false);
+    coTUIToggleButton(coTabletUI *tui, const std::string &, int pID = 1, bool state = false);
     coTUIToggleButton(QObject *parent, const std::string &, int pID = 1, bool state = false);
     virtual ~coTUIToggleButton();
     virtual void resend();
@@ -1567,6 +1572,7 @@ public:
     };
 
     coTUISlider(const std::string &, int pID = 1, bool state = true);
+    coTUISlider(coTabletUI *tui, const std::string &, int pID = 1, bool state = true);
     coTUISlider(QObject *parent, const std::string &, int pID = 1, bool state = true);
     virtual ~coTUISlider();
     virtual void resend();

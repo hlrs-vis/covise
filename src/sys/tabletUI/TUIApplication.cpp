@@ -124,7 +124,7 @@ TUIMainWindow *TUIMainWindow::getInstance()
 
 TUIMainWindow::TUIMainWindow(QWidget *parent)
     : QFrame(parent)
-    , port(31802)
+    , port(31803)
     , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
@@ -145,7 +145,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     // init some values
     appwin = this;
 
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", 31802);
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
@@ -176,9 +176,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     appwin = this;
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", 31802);
-#else
-    port = 31802;
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
 #endif
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.

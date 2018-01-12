@@ -3495,6 +3495,13 @@ coTUIToggleButton::coTUIToggleButton(const std::string &n, int pID, bool s)
     setVal(state);
 }
 
+coTUIToggleButton::coTUIToggleButton(coTabletUI *tui, const std::string &n, int pID, bool s)
+    : coTUIElement(tui, n, pID, TABLET_TOGGLE_BUTTON)
+{
+    state = s;
+    setVal(state);
+}
+
 coTUIToggleButton::coTUIToggleButton(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_TOGGLE_BUTTON)
 {
@@ -4257,6 +4264,17 @@ void coTUIFloatSlider::resend()
 
 coTUISlider::coTUISlider(const std::string &n, int pID, bool s)
     : coTUIElement(n, pID, TABLET_SLIDER)
+    , actValue(0)
+{
+    actValue = 0;
+    minValue = 0;
+    maxValue = 0;
+    orientation = s;
+    setVal(orientation);
+}
+
+coTUISlider::coTUISlider(coTabletUI *tui, const std::string &n, int pID, bool s)
+    : coTUIElement(tui, n, pID, TABLET_SLIDER)
     , actValue(0)
 {
     actValue = 0;
@@ -5250,54 +5268,15 @@ void coTUIElement::setSize(int x, int y)
 
 coTabletUI::coTabletUI()
 {
-    localHost = NULL;
-    serverHost = NULL;
-    connectedHost = NULL;
-    serverConn = NULL;
-    conn = NULL;
-    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI",false);
-    elements.setNoDelete();
-    ID = 3;
-    timeout = 0.0;
+    assert(!tUI);
     tUI = this;
-    tryConnect();
-}
 
-void coTabletUI::close()
-{
-    delete conn;
-    conn = NULL;
+    init();
 
-    delete serverConn;
-    serverConn = NULL;
-
-    delete serverHost;
-    serverHost = NULL;
-
-    delete localHost;
-    localHost = NULL;
-
-    tryConnect();
-}
-
-    bool coTabletUI::debugTUI()
-    {
-        return debugTUIState;
-    }
-
-void coTabletUI::tryConnect()
-{
-    delete serverHost;
-    delete serverConn;
-    serverConn = NULL;
-    serverHost = NULL;
-    delete localHost;
-    localHost = NULL;
     std::string line;
     if (getenv("COVER_TABLETPC"))
     {
         std::string env(getenv("COVER_TABLETPC"));
-        port = 31802;
         std::string::size_type p = env.find(':');
         if (p != std::string::npos)
         {
@@ -5310,12 +5289,11 @@ void coTabletUI::tryConnect()
     }
     else
     {
-        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", 31802);
+        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", port);
         line = coCoviseConfig::getEntry("COVER.TabletPC.Server");
         serverMode = coCoviseConfig::isOn("COVER.TabletPC.ServerMode", false);
     }
 
-    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
     if (!line.empty())
     {
         if (strcasecmp(line.c_str(), "NONE") != 0)
@@ -5328,10 +5306,57 @@ void coTabletUI::tryConnect()
     {
         localHost = new Host("localhost");
     }
+
+    tryConnect();
+}
+
+coTabletUI::coTabletUI(const std::string &host, int port)
+: port(port)
+{
+    init();
+
+    serverMode = false;
+    serverHost = new Host(host.c_str());
+
+    tryConnect();
+}
+
+void coTabletUI::init()
+{
+    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
+    elements.setNoDelete();
+
+    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
+}
+
+void coTabletUI::close()
+{
+    delete conn;
+    conn = NULL;
+
+    delete serverConn;
+    serverConn = NULL;
+
+    tryConnect();
+}
+
+bool coTabletUI::debugTUI()
+{
+    return debugTUIState;
+}
+
+void coTabletUI::tryConnect()
+{
+    delete serverConn;
+    serverConn = NULL;
 }
 
 coTabletUI::~coTabletUI()
 {
+    if (tUI == this)
+        tUI = nullptr;
+
+    delete serverConn;
     delete conn;
     delete serverHost;
     delete localHost;
@@ -5351,10 +5376,10 @@ void coTabletUI::send(TokenBuffer &tb)
     conn->send_msg(&m);
 }
 
-void coTabletUI::update()
+bool coTabletUI::update()
 {
     if (coVRMSController::instance() == NULL)
-        return;
+        return false;
 
     static double oldTime = 0.0;
     static bool firstConnection = true;
@@ -5426,13 +5451,9 @@ void coTabletUI::update()
                     {
                         fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
                                 localHost->getName(), port, strerror(errno));
-                        delete localHost;
-                        localHost = NULL;
                     }
 #else
                     fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-                    delete localHost;
-                    localHost = NULL;
 #endif
                     delete conn;
                     conn = NULL;
@@ -5540,6 +5561,7 @@ void coTabletUI::update()
         }
     }
 
+    bool changed = false;
     bool gotMessage = false;
     do
     {
@@ -5580,6 +5602,7 @@ void coTabletUI::update()
         }
         if (gotMessage)
         {
+            changed = true;
 
             TokenBuffer tb(&m);
             switch (m.type)
@@ -5626,6 +5649,8 @@ void coTabletUI::update()
             }
         }
     } while (gotMessage);
+
+    return changed;
 }
 
 void coTabletUI::addElement(coTUIElement *e)
