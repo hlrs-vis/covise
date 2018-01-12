@@ -51,6 +51,7 @@ void Entity::setSpeed(float speed_temp)
 	speed = speed_temp;
 }
 
+
 float &Entity::getSpeed()
 {
 	return speed;

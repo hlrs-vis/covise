@@ -25,6 +25,7 @@ class Entity {
     void moveLongitudinal();
     std::string &getName();
 	void setSpeed(float speed_temp);
+
 	float &getSpeed();
     osg::Vec3 &getPosition();
     void setPosition(osg::Vec3 &newPosition);   

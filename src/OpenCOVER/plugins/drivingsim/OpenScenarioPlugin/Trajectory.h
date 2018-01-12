@@ -14,11 +14,11 @@ private:
 
 public:
     std::vector<osg::Vec3> polylineVertices;
-	Trajectory();
-    std::string mode;
+    std::vector<bool> isRelVertice;
+    Trajectory();
 	~Trajectory();
 	virtual void finishedParsing();
-    void initialize(std::vector<osg::Vec3> vec_temp, std::string mode_temp);
+    void initialize(std::vector<osg::Vec3> vec_temp, std::vector<bool> isRelVertice_temp);
 };
 
 #endif // TRAJECTORY_H

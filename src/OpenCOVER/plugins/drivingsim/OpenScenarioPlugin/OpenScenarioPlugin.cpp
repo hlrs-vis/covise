@@ -122,17 +122,16 @@ void OpenScenarioPlugin::preFrame()
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
+
                                 for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                                 {
 
-                                    if ((*trajectory_iter)->mode == "World"){
-                                        (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,scenarioManager->simulationTime));
-
+                                    (*maneuver_iter)->setTargetPosition((*maneuver_iter)->checkRelVertex((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*trajectory_iter)->isRelVertice));
+                                    if((*trajectory_iter)->domain.getValue() == 0){
+                                       (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*maneuver_iter)->verticeStartPos, (*maneuver_iter)->targetPosition));
                                     }
-                                    else if((*trajectory_iter)->mode == "RelativeWorld"){
-                                        (*activeEntity)->setPosition((*maneuver_iter)->followTrajectoryRel((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*activeEntity)->getSpeed()));
-                                    }
-                                    osg::Vec3 test = (*maneuver_iter)->directionVector;
+                                    (*activeEntity)->setPosition((*maneuver_iter)->followTrajectoryRel((*activeEntity)->entityPosition,(*maneuver_iter)->targetPosition,(*activeEntity)->getSpeed()));
+                                    //(*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,scenarioManager->simulationTime));
                                     (*activeEntity)->setDirection((*maneuver_iter)->directionVector);
 
                                     unusedEntity.remove(*activeEntity);
@@ -440,7 +439,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
         }
         int roadId = atoi(currentTentity->roadId.c_str());
         currentTentity->setInitEntityPosition(system->getRoad(roadId));
-        int pleasedontjump=1;
     }
 
     //initialize acts
@@ -628,25 +626,34 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
         for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
         {
             vector<osg::Vec3>polylineVertices_temp;
+            vector<bool>isRelVertice_temp;
             if((*maneuver_iter)->trajectoryCatalogReference != "")
             {
                 oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
                 oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
-                std::string mode_temp = "";
 
+                // hier noch irgendwo dt berechnen
                 for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
                 {
                     oscVertex* vertex = ((oscVertex*)(*it));
+
                     if (vertex->Position->RelativeWorld.exists()) {
+                        if(it == trajectory->Vertex.begin()){
+
+                        }
+
                         osg::Vec3 polyVec_temp (vertex->Position->RelativeWorld->dx.getValue(),vertex->Position->RelativeWorld->dy.getValue(),vertex->Position->RelativeWorld->dz.getValue());
                         polylineVertices_temp.push_back(polyVec_temp);
-                        mode_temp = "RelativeWorld";
+
+                        isRelVertice_temp.push_back(true);
+
 
                     }
                     else {
                         osg::Vec3 polyVec_temp (vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
                         polylineVertices_temp.push_back(polyVec_temp);
-                        mode_temp = "World";
+
+                        isRelVertice_temp.push_back(false);
 
 
                     }
@@ -655,8 +662,10 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
                 Trajectory* traj = ((Trajectory*)(trajectoryClass));
                 (*maneuver_iter)->trajectoryList.push_back(traj);
-                traj->initialize(polylineVertices_temp, mode_temp);
+
+                traj->initialize(polylineVertices_temp,isRelVertice_temp);
                 polylineVertices_temp.clear();
+                isRelVertice_temp.clear();
             }
         }
     }
