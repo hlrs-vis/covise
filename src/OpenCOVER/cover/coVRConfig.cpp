@@ -16,6 +16,7 @@
 #include "coVRConfig.h"
 #include "coVRMSController.h"
 #include "input/input.h"
+#include "coVRStatsDisplay.h"
 
 using std::cerr;
 using std::endl;
@@ -279,7 +280,7 @@ coVRConfig::coVRConfig()
     m_LODScale = coCoviseConfig::getFloat("COVER.LODScale", 1.0);
     m_worldAngle = coCoviseConfig::getFloat("COVER.WorldAngle", 0.);
 
-    drawStatistics = coCoviseConfig::isOn("COVER.Statistics", false);
+    drawStatistics = coCoviseConfig::isOn("COVER.Statistics", false) ? coVRStatsDisplay::VIEWER_STATS : coVRStatsDisplay::NO_STATS;
     HMDMode = coCoviseConfig::isOn("mode", std::string("COVER.HMD"), false);
     HMDViewingAngle = coCoviseConfig::getFloat("angle", "COVER.HMD", 60.0f);
 
