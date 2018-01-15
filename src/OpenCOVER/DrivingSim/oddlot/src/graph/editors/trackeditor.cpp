@@ -210,7 +210,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
         {
             delete currentRoadPrototype_;
 
-            currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+            currentRoadPrototype_ = new RSystemElementRoad("prototype");
 
             // Superpose user prototypes //
             //
@@ -332,7 +332,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                         //
                         TrackElementLine *line = new TrackElementLine(0.0, 0.0, 0.0, 0.0, length);
 
-                        linePrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+                        linePrototype = new RSystemElementRoad("prototype");
                         linePrototype->addTrackComponent(line);
 
                         // Append Prototype //
@@ -427,7 +427,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                                 }
                             }
 
-                            spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+                            spiralPrototype = new RSystemElementRoad("prototype");
                             spiralPrototype->addTrackComponent(spiral);
                         }
                         else
@@ -478,7 +478,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                                 }
                             }
 
-                            spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+                            spiralPrototype = new RSystemElementRoad("prototype");
                             spiralPrototype->addTrackComponent(spiral);
                         }
 
@@ -820,7 +820,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                     {
                         // Road //
                         //
-                        RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed", "", "-1");
+                        RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed");
 
                         // Track //
                         //
@@ -918,7 +918,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 					{
 						// Road //
 						//
-						RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed", "", "-1");
+						RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed");
 
 						// Track //
 						//

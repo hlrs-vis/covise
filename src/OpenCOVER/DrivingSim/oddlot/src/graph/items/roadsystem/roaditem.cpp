@@ -130,14 +130,10 @@ RoadItem::removeRoadLink()
 void
 RoadItem::addToCurrentTile()
 {
-    QStringList parts = road_->getID().split("_");
-    if (parts.at(0) != getProjectData()->getTileSystem()->getCurrentTile()->getID())
-    {
-        QString name = road_->getName();
-        QString newId = road_->getRoadSystem()->getUniqueId("", name);
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, NULL);
-        getProjectGraph()->executeCommand(command);
-    }
+	odrID newId = road_->getID();
+	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, NULL);
+	getProjectGraph()->executeCommand(command);
 }
 
 //##################//

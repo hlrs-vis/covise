@@ -33,6 +33,7 @@
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/changemanager.hpp"
+#include "src/data/odrID.hpp"
 
 // Commands //
 //
@@ -365,7 +366,7 @@ OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
 
 	OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getOrCreateObject();
 
-	QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
+	odrID roadId(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "");
 	RSystemElementRoad *road = getProjectData()->getRoadSystem()->getRoad(roadId);
 	if (road)
 	{
@@ -375,12 +376,12 @@ OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
 		double dist;
 		QPointF to = road->getGlobalPoint(s, t) + diff;
 		RSystemElementRoad * newRoad = getProjectData()->getRoadSystem()->findClosestRoad( to, s, dist, vec);
-		QString newRoadId = newRoad->getID();
+		odrID newRoadId = newRoad->getID();
 		OSCElement *oscElement = oscBase_->getOSCElement(oscObject);
 
 		if (roadId != newRoadId)
 		{
-			SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscPosRoad, "roadId", newRoadId.toStdString());
+			SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscPosRoad, "roadId", newRoadId.getID().toStdString());
 			getProjectGraph()->executeCommand(command);
 		}
 

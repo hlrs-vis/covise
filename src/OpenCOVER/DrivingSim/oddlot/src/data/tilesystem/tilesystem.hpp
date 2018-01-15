@@ -17,6 +17,7 @@
 #define TILESYSTEM_HPP
 
 #include "src/data/dataelement.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 // Qt //
 //
@@ -50,8 +51,8 @@ public:
 
     // Tiles //
     //
-    Tile *getTile(const QString &id) const;
-    QMap<QString, Tile *> getTiles() const
+    Tile *getTile(const odrID &id) const;
+    QMap<odrID, Tile *> getTiles() const
     {
         return tiles_;
     }
@@ -94,9 +95,6 @@ private:
     TileSystem(const TileSystem &); /* not allowed */
     TileSystem &operator=(const TileSystem &); /* not allowed */
 
-    // IDs //
-    //
-    const QString getUniqueId(const QString &suggestion, QString &name);
 
     //################//
     // PROPERTIES     //
@@ -114,8 +112,7 @@ private:
     // Tiles
     //
 
-    QMap<QString, Tile *> tiles_;
-    QStringList tileIds_;
+    QMap<odrID, Tile *> tiles_;
     Tile *currentTile_;
 };
 

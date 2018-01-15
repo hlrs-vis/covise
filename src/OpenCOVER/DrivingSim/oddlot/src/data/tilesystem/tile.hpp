@@ -17,6 +17,7 @@
 #define TILE_HPP
 
 #include "src/data/tilesystem/tilesystem.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 //
 class DataElement;
@@ -55,14 +56,14 @@ public:
     {
         return name_;
     }
-    const QString &getID() const
+    const odrID &getID() const
     {
         return id_;
     }
     QString getIdName() const;
 
     void setName(const QString &name);
-    void setID(const QString &id);
+    void setID(const odrID &id);
 
     //Observer Pattern //
 
@@ -90,7 +91,7 @@ private:
     // Element properties //
     //
     QString name_; // name of the element
-    QString id_; // unique ID within database
+    odrID id_; // unique ID within database
 };
 
 #endif // TILE_HPP

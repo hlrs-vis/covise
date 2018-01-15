@@ -251,7 +251,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
 	connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
 
-    currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+    currentRoadPrototype_ = new RSystemElementRoad("prototype");
 
     QList<PrototypeContainer<RSystemElementRoad *> *> roadTypePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> laneSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype);
@@ -264,7 +264,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     currentRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
 	currentRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 
-    testRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+	testRoadPrototype_ = new RSystemElementRoad("prototype");
 
     testRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(laneSectionPrototypes.at(3)->getPrototype());
@@ -659,7 +659,7 @@ size_t ProjectWidget::getMaxLinearLength(size_t start)
 float ProjectWidget::getArcError(size_t start, size_t len, TrackSpiralArcSpiral *curve)
 {
     float maxDist = 0;
-    RSystemElementRoad *tmpRoad = new RSystemElementRoad("testRoad", "rID_test", "");
+    RSystemElementRoad *tmpRoad = new RSystemElementRoad("testRoad");
     tmpRoad->addTrackComponent(curve);
     double clen = curve->getLength();
     for (size_t i = start + 1; i < start + len - 1; i++) // do not need to check the first and last point both distances are 0
@@ -790,7 +790,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
-    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "-1");
+    RSystemElementRoad *road = new RSystemElementRoad(name);
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());
@@ -1054,7 +1054,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     road->setElevationSections(newSections);
     QString typeName="osm:"+osmWay::getTypeName(type)+":"+QString::number(numLanes);
 
-    RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+    RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype");
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
@@ -1101,7 +1101,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     if(bridge)
     {
-        Bridge *bridge = new Bridge("osmBridge","","",Bridge::BT_CONCRETE,0.0,road->getLength());
+        Bridge *bridge = new Bridge(odrID::invalidID(),"","osmBridge",Bridge::BT_CONCRETE,0.0,road->getLength());
         road->addBridge(bridge);
     }
 
@@ -1371,7 +1371,7 @@ bool
 					RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
 					if (road) // addSignal
 					{
-						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
+						Signal *trafficSign = new Signal(odrID::invalidID(), "signal",  s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
 						road->addSignal(trafficSign);
 					}
 				}
@@ -1614,7 +1614,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal(odrID::invalidID(), "signal",  s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }

@@ -21,6 +21,7 @@
 #include "datacommand.hpp"
 
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 #include <QMap>
 
@@ -91,8 +92,8 @@ private:
 class SetControllerPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetControllerPropertiesCommand(RSystemElementController *controller, const QString &id, const QString &name, int sequence, const QString &script, double cycleTime, DataCommand *parent = NULL);
-    explicit SetControllerPropertiesCommand(RSystemElementController *controller, const QString &id, const QString &name, int sequence, const RSystemElementController::ControllerUserData &controllerUserData, DataCommand *parent = NULL);
+    explicit SetControllerPropertiesCommand(RSystemElementController *controller, const odrID &id, const QString &name, int sequence, const QString &script, double cycleTime, DataCommand *parent = NULL);
+    explicit SetControllerPropertiesCommand(RSystemElementController *controller, const odrID &id, const QString &name, int sequence, const RSystemElementController::ControllerUserData &controllerUserData, DataCommand *parent = NULL);
     virtual ~SetControllerPropertiesCommand();
 
     virtual int id() const
@@ -110,13 +111,13 @@ private:
 
 private:
     RSystemElementController *controller_;
-    QString newId_;
+    odrID newId_;
     QString newName_;
     int newSequence_;
     RSystemElementController::ControllerUserData newControllerUserData_;
     QList<ControlEntry *> newControlEntries_;
 
-    QString oldId_;
+    odrID oldId_;
     QString oldName_;
     int oldSequence_;
     RSystemElementController::ControllerUserData oldControllerUserData_;   

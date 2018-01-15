@@ -25,6 +25,7 @@
 #include <QList>
 
 #include "rsystemelement.hpp"
+#include "odrID.hpp"
 
 class RSystemElementRoad;
 class RSystemElementController;
@@ -33,6 +34,7 @@ class RSystemElementFiddleyard;
 class RSystemElementPedFiddleyard;
 class RSystemElementJunctionGroup;
 class Tile;
+
 
 class RoadSystem : public DataElement
 {
@@ -53,11 +55,7 @@ public:
 		CRS_JunctionGroupChange = 0x40
     };
 
-	struct IdType
-	{
-		QString id;
-		QString type;
-	};
+	
 
     //################//
     // FUNCTIONS      //
@@ -69,59 +67,59 @@ public:
 
     // RSystemElements //
     //
-    RSystemElementRoad *getRoad(const QString &id) const;
-    QMap<QString, RSystemElementRoad *> getRoads() const
+    RSystemElementRoad *getRoad(const odrID &id) const;
+    QMap<uint32_t, RSystemElementRoad *> getRoads() const
     {
         return roads_;
     }
-    QList<RSystemElementRoad *> getRoads(const QString &junction) const;
+    QList<RSystemElementRoad *> getRoads(const odrID &junction) const;
 
-    QList<RSystemElementRoad *> getTileRoads(const QString &tileId) const;
+    QList<RSystemElementRoad *> getTileRoads(const odrID &tileId) const;
 
     void addRoad(RSystemElementRoad *road);
     bool delRoad(RSystemElementRoad *road);
 
-    RSystemElementController *getController(const QString &id) const;
-    QMap<QString, RSystemElementController *> getControllers() const
+    RSystemElementController *getController(const odrID &id) const;
+    QMap<uint32_t, RSystemElementController *> getControllers() const
     {
         return controllers_;
     }
-    QList<RSystemElementController *> getTileControllers(const QString &tileId) const;
+    QList<RSystemElementController *> getTileControllers(const odrID &tileId) const;
     void addController(RSystemElementController *controller);
     bool delController(RSystemElementController *controller);
 
-    RSystemElementJunction *getJunction(const QString &id) const;
-    QMap<QString, RSystemElementJunction *> getJunctions() const
+    RSystemElementJunction *getJunction(const odrID &id) const;
+    QMap<uint32_t, RSystemElementJunction *> getJunctions() const
     {
         return junctions_;
     }
-    QList<RSystemElementJunction *> getTileJunctions(const QString &tileId) const;
+    QList<RSystemElementJunction *> getTileJunctions(const odrID &tileId) const;
     void addJunction(RSystemElementJunction *junction);
     bool delJunction(RSystemElementJunction *junction);
 
-    RSystemElementFiddleyard *getFiddleyard(const QString &id) const;
-    QMap<QString, RSystemElementFiddleyard *> getFiddleyards() const
+    RSystemElementFiddleyard *getFiddleyard(const odrID &id) const;
+    QMap<uint32_t, RSystemElementFiddleyard *> getFiddleyards() const
     {
         return fiddleyards_;
     }
-    QList<RSystemElementFiddleyard *> getTileFiddleyards(const QString &tileId) const;
+    QList<RSystemElementFiddleyard *> getTileFiddleyards(const odrID &tileId) const;
     void addFiddleyard(RSystemElementFiddleyard *fiddleyard);
     bool delFiddleyard(RSystemElementFiddleyard *fiddleyard);
 
-    RSystemElementPedFiddleyard *getPedFiddleyard(const QString &id) const;
-    QMap<QString, RSystemElementPedFiddleyard *> getPedFiddleyards() const
+    RSystemElementPedFiddleyard *getPedFiddleyard(const odrID &id) const;
+    QMap<uint32_t, RSystemElementPedFiddleyard *> getPedFiddleyards() const
     {
         return pedFiddleyards_;
     }
-    QList<RSystemElementPedFiddleyard *> getTilePedFiddleyards(const QString &tileId) const;
+    QList<RSystemElementPedFiddleyard *> getTilePedFiddleyards(const odrID &tileId) const;
     void addPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard);
     bool delPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard);
 
-	QMap<QString, RSystemElementJunctionGroup *> getJunctionGroups() const
+	QMap<uint32_t, RSystemElementJunctionGroup *> getJunctionGroups() const
 	{
 		return junctionGroups_;
 	}
-	QList<RSystemElementJunctionGroup *> getTileJunctionGroups(const QString &tileId) const;
+	QList<RSystemElementJunctionGroup *> getTileJunctionGroups(const odrID &tileId) const;
 	void addJunctionGroup(RSystemElementJunctionGroup *junctionGroup);
 	bool delJunctionGroup(RSystemElementJunctionGroup *junctionGroup);
 
@@ -157,10 +155,15 @@ public:
 
     // IDs //
     //
-    void checkIDs(const QMultiMap<QString, IdType> &roadIds);
-	QString getNewId(const QMultiMap<QString, IdType> &idMap, QString id, QString type);
-    void changeUniqueId(RSystemElement *element, QString newId);
-    const QString getUniqueId(const QString &suggestion, QString &name);
+
+	odrID RoadSystem::getID(const QString &name, odrID::IDType t);
+	odrID RoadSystem::getID(int32_t tileID, odrID::IDType t);
+	odrID RoadSystem::getID(odrID::IDType t);// creates a unique ID with name unknown in current Tile
+	odrID RoadSystem::getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t);
+
+    void checkIDs(const QMultiMap<odrID, odrID> &roadIds);
+    void changeUniqueId(RSystemElement *element, const odrID &newId);
+	int32_t uniqueID();
     void updateControllers();
 
 	// Find closest road to global point //
@@ -196,22 +199,22 @@ private:
     // RSystemElements //
     //
     // road //
-    QMap<QString, RSystemElementRoad *> roads_; // owned
+    QMap<uint32_t, RSystemElementRoad *> roads_; // owned
 
     // controller //
-    QMap<QString, RSystemElementController *> controllers_; // owned
+    QMap<uint32_t, RSystemElementController *> controllers_; // owned
 
     // junction //
-    QMap<QString, RSystemElementJunction *> junctions_; // owned
+    QMap<uint32_t, RSystemElementJunction *> junctions_; // owned
 
     // fiddleyard //
-    QMap<QString, RSystemElementFiddleyard *> fiddleyards_; // owned
+    QMap<uint32_t, RSystemElementFiddleyard *> fiddleyards_; // owned
 
     // fiddleyard //
-    QMap<QString, RSystemElementPedFiddleyard *> pedFiddleyards_; // owned
+    QMap<uint32_t, RSystemElementPedFiddleyard *> pedFiddleyards_; // owned
 
 	// junctionGroup //
-	QMap<QString, RSystemElementJunctionGroup *> junctionGroups_;
+	QMap<uint32_t, RSystemElementJunctionGroup *> junctionGroups_;
 };
 
 #endif // ROADSYSTEM_HPP

@@ -24,7 +24,7 @@ class Signal;
 class ControlEntry
 {
 public:
-    explicit ControlEntry(const QString &signalId, const QString &type)
+    explicit ControlEntry(const odrID &signalId, const QString &type)
     {
         signalId_ = signalId;
         type_ = type;
@@ -32,11 +32,11 @@ public:
     virtual ~ControlEntry(){ /* does nothing */ };
 
 
-    void setSignalId(const QString &signalId)
+    void setSignalId(const odrID &signalId)
     {
         signalId_ = signalId;
     }
-    QString getSignalId() const
+    odrID getSignalId() const
     {
         return signalId_;
     }
@@ -51,7 +51,7 @@ public:
     }
 
 private:
-    QString signalId_;
+    odrID signalId_;
     QString type_;
 };
 
@@ -146,12 +146,12 @@ public:
     void addControlEntry(ControlEntry *controlEntry, Signal *signal);
     bool delControlEntry(ControlEntry *controlEntry, Signal *signal);
 
-    QMap<QString, Signal *> getSignals()
+    QMap<odrID, Signal *> getSignals()
     {
         return signals_;
     }
 
-    Signal * getSignal(const QString &id) const
+    Signal * getSignal(const odrID &id) const
     {
         return signals_.value(id, NULL);
     }
@@ -171,7 +171,7 @@ private:
 
 
     QList<ControlEntry *> controlEntries_;
-    QMap<QString, Signal *> signals_; // Signals listed in the control entries
+    QMap<odrID, Signal *> signals_; // Signals listed in the control entries
 
     // Change flags //
     //

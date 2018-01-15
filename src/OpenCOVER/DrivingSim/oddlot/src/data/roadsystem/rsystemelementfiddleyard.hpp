@@ -32,11 +32,11 @@ class FiddleyardSource : public Acceptor
 {
 
 public:
-    FiddleyardSource(QString &id, int lane, double startTime, double repeatTime, double velocity, double velocityDeviance);
+    FiddleyardSource(const odrID &id, int lane, double startTime, double repeatTime, double velocity, double velocityDeviance);
 
     // <source> //
     //
-    QString getId() const
+    odrID getId() const
     {
         return id_;
     }
@@ -61,7 +61,7 @@ public:
         return velocityDeviance_;
     }
 
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     };
@@ -90,7 +90,7 @@ private:
     FiddleyardSource &operator=(const FiddleyardSource &); /* not allowed */
 
 private:
-    QString id_;
+    odrID id_;
     int lane_;
 
     double startTime_;
@@ -178,7 +178,7 @@ public:
     {
         return elementType_;
     }
-    QString getElementId() const
+    const odrID &getElementId() const
     {
         return elementId_;
     }
@@ -188,14 +188,14 @@ public:
     }
 
     void setElementType(const QString &elementType);
-    void setElementId(const QString &elementId);
+    void setElementId(const odrID &elementId);
     void setContactPoint(const QString &contactPoint);
 
     // Prototype Pattern //
     //
     RSystemElementFiddleyard *getClone();
 
-    void updateIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds);
+    void updateIds(const QMultiMap<odrID, odrID> &roadIds);
 
     // Visitor Pattern //
     //
@@ -217,7 +217,7 @@ private:
     // <link> //
     //
     QString elementType_;
-    QString elementId_;
+    odrID elementId_;
     QString contactPoint_;
 
     // <source> //

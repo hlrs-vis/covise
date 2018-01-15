@@ -123,16 +123,16 @@ AddRoadSystemPrototypeCommand::redo()
 {
     // Changed Ids //
     //
-    QMap<QString, QString> roadIds;
-    QMap<QString, QString> controllerIds;
-    QMap<QString, QString> junctionIds;
-    QMap<QString, QString> fiddleyardIds;
+    QMap<odrID, odrID> roadIds;
+    QMap<odrID, odrID> controllerIds;
+    QMap<odrID, odrID> junctionIds;
+    QMap<odrID, odrID> fiddleyardIds;
 
     // RoadSystemElements //
     //
     foreach (RSystemElementRoad *road, newRoads_)
     {
-        QString oldId = road->getID();
+        odrID oldId = road->getID();
         roadSystem_->addRoad(road);
         if (oldId != road->getID()) // The Id has been changed.
         {
@@ -141,7 +141,7 @@ AddRoadSystemPrototypeCommand::redo()
     }
     foreach (RSystemElementController *controller, newControllers_)
     {
-        QString oldId = controller->getID();
+        odrID oldId = controller->getID();
         roadSystem_->addController(controller);
         if (oldId != controller->getID()) // The Id has been changed.
         {
@@ -150,7 +150,7 @@ AddRoadSystemPrototypeCommand::redo()
     }
     foreach (RSystemElementJunction *junction, newJunctions_)
     {
-        QString oldId = junction->getID();
+		odrID oldId = junction->getID();
         roadSystem_->addJunction(junction);
         if (oldId != junction->getID()) // The Id has been changed.
         {
@@ -159,7 +159,7 @@ AddRoadSystemPrototypeCommand::redo()
     }
     foreach (RSystemElementFiddleyard *fiddleyard, newFiddleyards_)
     {
-        QString oldId = fiddleyard->getID();
+		odrID oldId = fiddleyard->getID();
         roadSystem_->addFiddleyard(fiddleyard);
         if (oldId != fiddleyard->getID()) // The Id has been changed.
         {
@@ -232,7 +232,7 @@ AddRoadSystemPrototypeCommand::undo()
 // SetRSystemElementIdCommand //
 //#########################//
 
-SetRSystemElementIdCommand::SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const QString &Id, const QString &name, DataCommand *parent)
+SetRSystemElementIdCommand::SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const odrID &Id, const QString &name, DataCommand *parent)
     : DataCommand(parent)
     , roadSystem_(roadSystem)
     , element_(element)
@@ -309,7 +309,7 @@ AddToJunctionCommand::AddToJunctionCommand(RoadSystem *roadSystem, RSystemElemen
     }
     if (junction_ == NULL)
     {
-        junction_ = new RSystemElementJunction("unnamed", "junction");
+        junction_ = new RSystemElementJunction("unnamed");
         roadSystem_->addJunction(junction_);
     }
 
@@ -420,7 +420,7 @@ RemoveFromJunctionCommand::~RemoveFromJunctionCommand()
 void
 RemoveFromJunctionCommand::redo()
 {
-    QMultiMap<QString, JunctionConnection *>::const_iterator connectionIterator = oldJunction_->getConnections().constBegin();
+    auto connectionIterator = oldJunction_->getConnections().constBegin();
 
     while (connectionIterator != oldJunction_->getConnections().constEnd())
     {
@@ -433,7 +433,7 @@ RemoveFromJunctionCommand::redo()
         connectionIterator++;
     }
 
-    road_->setJunction("-1");
+    road_->setJunction(odrID::invalidID());
 
     /*
 		JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
@@ -451,8 +451,8 @@ RemoveFromJunctionCommand::undo()
 {
     road_->setJunction(junction_->getID());
 
-    QMultiMap<QString, JunctionConnection *> newConnections = junction_->getConnections();
-    QMultiMap<QString, JunctionConnection *>::const_iterator connectionIterator = oldJunction_->getConnections().constBegin();
+    auto newConnections = junction_->getConnections();
+    auto connectionIterator = oldJunction_->getConnections().constBegin();
     while (connectionIterator != oldJunction_->getConnections().constEnd())
     {
         if (!newConnections.contains(connectionIterator.key()))

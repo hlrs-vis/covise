@@ -18,6 +18,7 @@
 
 #include "roadsection.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class Object;
 
@@ -184,18 +185,18 @@ public:
     //################//
 
 public:
-	explicit Object(const QString &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile);
+	explicit Object(const odrID &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile);
     virtual ~Object()
     { /* does nothing */
     }
 
     // Object //
     //
-    QString getId() const
+    odrID getId() const
     {
         return id_;
     }
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     }
@@ -513,7 +514,7 @@ private:
     // Object //
     //
     // Mandatory
-    QString id_;
+    odrID id_;
     QString name_;
 
     ObjectProperties objectProps_;

@@ -1395,7 +1395,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     {
         // TODO
         pointCount = 2;
-        qDebug() << road->getID() << " Segment too short: duplicate points per meter";
+        qDebug() << road->getID().speakingName() << " Segment too short: duplicate points per meter";
     }
     double segmentLength = (sEnd - sStart) / (pointCount - 1);
 
@@ -1811,13 +1811,13 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
     // Roads //
     //
     RoadSystem *roadSystem = junction_->getRoadSystem();
-    QStringList pathIds;
-    QStringList endRoadIds;
-    QStringList startRoadIds;
+    QList<odrID> pathIds;
+	QList<odrID> endRoadIds;
+	QList<odrID> startRoadIds;
 
     foreach (JunctionConnection *connection, junction_->getConnections())
     {
-        QString pathId = connection->getConnectingRoad();
+        odrID pathId = connection->getConnectingRoad();
         RSystemElementRoad *road = roadSystem->getRoad(pathId);
         if (!road)
         {

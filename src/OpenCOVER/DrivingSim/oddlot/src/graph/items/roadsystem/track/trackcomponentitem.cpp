@@ -260,14 +260,10 @@ void
 TrackComponentItem::addToCurrentTile()
 {
     RSystemElementRoad *road = getParentTrackRoadItem()->getRoad();
-    QStringList parts = road->getID().split("_");
-    if (parts.at(0) != getProjectData()->getTileSystem()->getCurrentTile()->getID())
-    {
-        QString name = road->getName();
-        QString newId = road->getRoadSystem()->getUniqueId("", name);
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road->getRoadSystem(), road, newId, NULL);
-        getProjectGraph()->executeCommand(command);
-    }
+	odrID newId = road->getID();
+	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road->getRoadSystem(), road, newId, NULL);
+	getProjectGraph()->executeCommand(command);
 }
 
 //*************//

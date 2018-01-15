@@ -109,29 +109,29 @@ CircleWizard::runCalculation()
 	RSystemElementRoad *Prototype4;
 
 
-	Prototype3 = new RSystemElementRoad("prototype", "prototype", "-1");
+	Prototype3 = new RSystemElementRoad("prototype");
 	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_ElevationPrototype, "Planar 0.0"));
 	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, "Planar 0.0"));
 	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:3"));
 
-	Prototype4 = new RSystemElementRoad("prototype", "prototype", "-1");
+	Prototype3 = new RSystemElementRoad("prototype");
 	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_ElevationPrototype, "Planar 0.0"));
 	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, "Planar 0.0"));
 	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:4"));
 
 	// Road //
 	//
-	RSystemElementRoad *newRoad = new RSystemElementRoad("RightCircle", "", "-1");
+	RSystemElementRoad *newRoad = new RSystemElementRoad("RightCircle");
 	// Track //
 	double radius = ui->DiameterBox->value() / 2.0;
 	TrackElementArc *arc1 = new TrackElementArc(0.0, 0.0 - radius, 0.0, 0.0, M_PI*radius, 1 / radius);
 	newRoad->addTrackComponent(arc1);
 	newRoad->superposePrototype(Prototype4);
-	RSystemElementRoad *newRoadLeft = new RSystemElementRoad("LeftCircle", "", "-1");
+	RSystemElementRoad *newRoadLeft = new RSystemElementRoad("LeftCircle");
 	TrackElementArc *arc2 = new TrackElementArc(0.0, 0.0 + radius, 180.0, 0.0, M_PI_2*radius, 1 / radius);
 	newRoadLeft->addTrackComponent(arc2);
 	newRoadLeft->superposePrototype(Prototype3);
-	RSystemElementRoad *newRoadLowerLeft = new RSystemElementRoad("LowerLeftCircle", "", "-1");
+	RSystemElementRoad *newRoadLowerLeft = new RSystemElementRoad("LowerLeftCircle");
 	TrackElementArc *arc3 = new TrackElementArc(0.0-radius, 0.0, 270.0, 0.0, M_PI_2*radius, 1 / radius);
 	newRoadLowerLeft->addTrackComponent(arc3);
 	newRoadLowerLeft->superposePrototype(Prototype3);
@@ -196,12 +196,12 @@ CircleWizard::runCalculation()
 
 
 
-	RSystemElementRoad *PrototypeSingle = new RSystemElementRoad("prototype", "prototype", "-1");
+	RSystemElementRoad *PrototypeSingle = new RSystemElementRoad("prototype", odrID::invalidID(), odrID::invalidID());
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_ElevationPrototype, "Planar 0.0"));
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, "Planar 0.0"));
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:1"));
 
-	RSystemElementRoad *newRoadEntry = new RSystemElementRoad("CircleEntry", "", "-1");
+	RSystemElementRoad *newRoadEntry = new RSystemElementRoad("CircleEntry", odrID::invalidID(), odrID::invalidID());
 	TrackElementLine *line1 = new TrackElementLine(0.0, 0.0 - (radius + (laneWidth*4)), 180.0, 0.0, linearLength);
 	newRoadEntry->addTrackComponent(line1);
 	newRoadEntry->superposePrototype(PrototypeSingle);
@@ -220,7 +220,7 @@ CircleWizard::runCalculation()
 
 
 
-	RSystemElementRoad *newRoadExit = new RSystemElementRoad("CircleExit", "", "-1");
+	RSystemElementRoad *newRoadExit = new RSystemElementRoad("CircleExit");
 	TrackElementLine *line2 = new TrackElementLine(0.0, 0.0 + radius+(laneWidth*3), 180.0, 0.0, linearLength);
 	newRoadExit->addTrackComponent(line2);
 	newRoadExit->superposePrototype(PrototypeSingle);
@@ -236,7 +236,7 @@ CircleWizard::runCalculation()
 		delete command;
 		return; // usually not the case, only if road or prototype are NULL
 	}
-	RSystemElementJunction *newJunction = new RSystemElementJunction("EntryJunction", "");
+	RSystemElementJunction *newJunction = new RSystemElementJunction("EntryJunction");
 	NewJunctionCommand *jcommand = new NewJunctionCommand(newJunction, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem());
 	if (jcommand->isValid())
 	{
@@ -269,7 +269,7 @@ CircleWizard::runCalculation()
 		delete ajcommand;
 		return; // usually not the case, only if road or prototype are NULL
 	}
-	RSystemElementJunction *newExitJunction = new RSystemElementJunction("ExitJunction", "");
+	RSystemElementJunction *newExitJunction = new RSystemElementJunction("ExitJunction");
 	jcommand = new NewJunctionCommand(newExitJunction, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem());
 	if (jcommand->isValid())
 	{
@@ -442,13 +442,13 @@ CircleWizard::runCalculation()
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps{ 0.0, M_PI*radius, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-	Object *gr1 = new Object("gr1", "guardRail", 0.0, objectProps, repeatProps, "none");
+	Object *gr1 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps, repeatProps, "none");
 	newRoad->addObject(gr1);
 
 	Object::ObjectProperties objectPropsInnen{ 8.60, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
-	Object *gr1i = new Object("gr1i", "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
+	Object *gr1i = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
 	newRoad->addObject(gr1i);
 
 	Object::ObjectProperties objectProps2{ -5.0, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
@@ -459,23 +459,23 @@ CircleWizard::runCalculation()
 
 
 	Object::ObjectRepeatRecord repeatProps2{ sOffset, (M_PI*radius) - (2* sOffset), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-	Object *gr2 = new Object("gr2", "guardRail", 0.0, objectProps2, repeatProps2, "none");
+	Object *gr2 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps2, repeatProps2, "none");
 	newRoadLeft->addObject(gr2);
-	Object *gr2i = new Object("gr2i", "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
+	Object *gr2i = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
 	newRoadLeft->addObject(gr2i);
 
 	Object::ObjectProperties objectProps3{ 1.6, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps3{ 0, linearLength-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-	Object *gr3 = new Object("gr3", "guardRail", 0.0, objectProps3, repeatProps3, "none");
+	Object *gr3 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps3, repeatProps3, "none");
 	newRoadEntry->addObject(gr3);
 
 	Object::ObjectProperties objectProps4{-5.1, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps4{ sOffset, linearLength-(sOffset+1), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-	Object *gr4 = new Object("gr4", "guardRail", 0.0, objectProps4, repeatProps4, "none");
+	Object *gr4 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps4, repeatProps4, "none");
 	newRoadEntry->addObject(gr4);
 
 
@@ -483,14 +483,14 @@ CircleWizard::runCalculation()
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps5{ 0, linearLength - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-	Object *gr5 = new Object("gr5", "guardRail", 0.0, objectProps5, repeatProps5, "none");
+	Object *gr5 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps5, repeatProps5, "none");
 	newRoadExit->addObject(gr5);
 
 	Object::ObjectProperties objectProps6{ 1.6, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps6{ sOffset, linearLength - (sOffset + 1), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-	Object *gr6 = new Object("gr6", "guardRail", 0.0, objectProps6, repeatProps6, "none");
+	Object *gr6 = new Object(projectData_->getRoadSystem()->getID("guardRail",odrID::ID_Object), "guardRail", 0.0, objectProps6, repeatProps6, "none");
 	newRoadExit->addObject(gr6);
 
     // Macro Command //
