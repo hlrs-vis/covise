@@ -815,8 +815,10 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
     break;
     default:
     {
-        if (msg->type > 0)
+        if (msg->type >= 0 && msg->type < covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE)
             std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << " " << covise::covise_msg_types_array[msg->type] << std::endl;
+        else
+            std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << std::endl;
     }
     break;
     }

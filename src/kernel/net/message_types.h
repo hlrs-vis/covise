@@ -202,7 +202,7 @@ enum covise_msg_type
 };
 
 #ifdef DEFINE_MSG_TYPES
-NETEXPORT const char *covise_msg_types_array[] = {
+NETEXPORT const char *covise_msg_types_array[COVISE_MESSAGE_LAST_DUMMY_MESSAGE+1] = {
     "FAILED", //  0
     "OK", //  1
     "INIT", //  2
@@ -337,18 +337,10 @@ NETEXPORT const char *covise_msg_types_array[] = {
     "CRB_EXEC_MEMCHECK", // 131
     "SSLDAEMON", // 132
     "VISENSO_UI", // 133
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME",
-    "GIVE_ME_A_NAME"
+    "LAST_DUMMY_MESSAGE",
 };
 #else
-NETEXPORT extern const char *covise_msg_types_array[];
+NETEXPORT extern const char *covise_msg_types_array[COVISE_MESSAGE_LAST_DUMMY_MESSAGE+1];
 #endif
 
 enum sender_type
