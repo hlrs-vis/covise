@@ -153,6 +153,7 @@ public:
     void syncDraw();
     void syncTime();
     int syncData(void *data, int size);
+    int syncMessage(covise::Message *msg);
     bool syncBool(bool);
     std::string syncString(const std::string &s);
     void syncVRBMessages();

@@ -9,11 +9,15 @@
 #define WINDOW_TYPE_QT
 
 #include <cover/coVRPlugin.h>
+#include <vector>
 
 class QMainWindow;
 class QtOsgWidget;
+class QAction;
+class QDialog;
 
 namespace opencover {
+class QtMainWindow;
 namespace ui {
 class QtView;
 }
@@ -25,6 +29,7 @@ public:
     WindowTypeQtPlugin();
     ~WindowTypeQtPlugin();
     bool destroy() override;
+    bool update() override;
 
     bool windowCreate(int num) override;
     void windowCheckEvents(int num) override;
@@ -32,13 +37,17 @@ public:
     void windowDestroy(int num) override;
 
 private:
+    void aboutCover() const;
     struct WindowData
     {
         int index = -1;
-        QMainWindow *window = nullptr;
+        opencover::QtMainWindow *window = nullptr;
         QtOsgWidget *widget = nullptr;
-        opencover::ui::QtView *view = nullptr;
+        QAction *toggleMenu = nullptr;
+        std::vector<opencover::ui::QtView *> view;
     };
     std::map<int, WindowData> m_windows;
+    bool m_update = true;
+    QDialog *m_keyboardHelp = nullptr;
 };
 #endif

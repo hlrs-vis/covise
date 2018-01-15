@@ -416,7 +416,7 @@ void PBufferSnapShot::preFrame()
         {
             cerr << "PBufferSnapShot::preFrame info: snapping (0, 0, "
                  << (int)tuiResolutionX->getValue() << ", " << (int)tuiResolutionY->getValue() << ")"
-                 << " to " << filename << endl;
+                 << " to " << filename << std::endl;
         }
     }
 }
@@ -798,7 +798,7 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
     return directory;
 }
 
-void PBufferSnapShot::message(int type, int len, const void *buf)
+void PBufferSnapShot::message(int toWhom, int type, int len, const void *buf)
 {
 
     switch (type)

@@ -53,10 +53,12 @@ class CrossfallSection;
 class ShapeSection;
 
 class Object;
+class ObjectReference;
 class Bridge;
 class Tunnel;
 class Crosswalk;
 class Signal;
+class SignalReference;
 class Sensor;
 class Surface;
 
@@ -68,6 +70,7 @@ class LaneRoadMark;
 class LaneSpeed;
 class LaneHeight;
 class LaneRule;
+class LaneAccess;
 
 class FiddleyardSource;
 class FiddleyardSink;
@@ -188,12 +191,18 @@ public:
     virtual void visit(Object *)
     {
     }
+	virtual void visit(ObjectReference *)
+	{
+	}
     virtual void visit(Crosswalk *)
     {
     }
     virtual void visit(Signal *)
     {
     }
+	virtual void visit(SignalReference *)
+	{
+	}
     virtual void visit(Sensor *)
     {
     }
@@ -229,6 +238,9 @@ public:
     {
     }
 	virtual void visit(LaneRule *)
+	{
+	}
+	virtual void visit(LaneAccess *)
 	{
 	}
 

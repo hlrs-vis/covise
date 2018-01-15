@@ -18,22 +18,32 @@
 #include "WindowTypeQt.h"
 #include "QtView.h"
 #include "QtOsgWidget.h"
+#include "QtMainWindow.h"
+#include "KeyboardHelp.h"
 
+#include <config/CoviseConfig.h>
+#include <util/covise_version.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coCommandLine.h>
+#include <cover/VRSceneGraph.h>
+#include <cover/coVRMSController.h>
+#include <cover/OpenCOVER.h>
 
-
-#include <QMainWindow>
 #include <QMenuBar>
+#include <QToolBar>
 #include <QApplication>
 #include <QOpenGLWidget>
 #include <QApplication>
+#include <QLayout>
+#include <QMessageBox>
+#include <QDialog>
+
+#include "ui_AboutDialog.h"
 
 #include <cassert>
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-#define USE_X11
+#ifdef USE_X11
 #include <X11/ICE/ICElib.h>
 #endif
 
@@ -67,6 +77,21 @@ static void iceIOErrorHandler(IceConn conn)
 }
 #endif
 
+bool WindowTypeQtPlugin::update()
+{
+    bool checked = VRSceneGraph::instance()->menuVisible();
+    checked = coVRMSController::instance()->syncBool(checked);
+    if (checked != VRSceneGraph::instance()->menuVisible())
+        VRSceneGraph::instance()->setMenu(checked);
+    for (auto w: m_windows)
+    {
+        w.second.toggleMenu->setChecked(checked);
+    }
+    bool up = m_update;
+    m_update = false;
+    return up;
+}
+
 bool WindowTypeQtPlugin::windowCreate(int i)
 {
     auto &conf = *coVRConfig::instance();
@@ -88,9 +113,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto &win = m_windows[i];
     win.index = i;
 
-    win.window = new QMainWindow();
+    auto window = new QtMainWindow();
+    win.window = window;
     win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
     win.window->show();
+    window->connect(win.window, &QtMainWindow::closing, [this, i](){
+        OpenCOVER::instance()->requestQuit();
+    });
+
+    win.toggleMenu = new QAction(window);
+    win.toggleMenu->setCheckable(true);
+    win.toggleMenu->setChecked(true);
+    win.toggleMenu->setText("VR Menu");
+    window->connect(win.toggleMenu, &QAction::triggered, [this](bool state){
+        m_update = true;
+        VRSceneGraph::instance()->setMenu(state);
+    });
+    window->addContextAction(win.toggleMenu);
 
 #ifdef __APPLE__
     //auto menubar = new QMenuBar(nullptr);
@@ -100,8 +139,57 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto menubar = win.window->menuBar();
 #endif
     menubar->show();
-    win.view = new ui::QtView(menubar);
-    cover->ui->addView(win.view);
+    QToolBar *toolbar = nullptr;
+    bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
+    if (useToolbar)
+    {
+        toolbar = new QToolBar("Toolbar", win.window);
+        toolbar->layout()->setSpacing(2);
+        toolbar->layout()->setMargin(0);
+        win.window->addToolBar(toolbar);
+        toolbar->show();
+        window->addContextAction(toolbar->toggleViewAction());
+    }
+    win.view.emplace_back(new ui::QtView(menubar, toolbar));
+    cover->ui->addView(win.view.back());
+#if 0
+    win.view.emplace_back(new ui::QtView(toolbar));
+    cover->ui->addView(win.view.back());
+#endif
+
+
+    QMenu *helpMenu = new QMenu(menubar);
+    helpMenu->setTearOffEnabled(true);
+    helpMenu->setTitle("Help");
+    menubar->addMenu(helpMenu);
+    win.view.back()->setInsertPosition(helpMenu->menuAction());
+
+    QAction *keyboardHelp = new QAction(helpMenu);
+    helpMenu->addAction(keyboardHelp);
+    keyboardHelp->setText("Keyboard commands...");
+    window->connect(keyboardHelp, &QAction::triggered, [this](bool){
+        if (!m_keyboardHelp)
+        {
+            m_keyboardHelp = new KeyboardHelp(cover->ui);
+        }
+        m_keyboardHelp->show();
+    });
+
+    helpMenu->addSeparator();
+
+    QAction *aboutQt = new QAction(helpMenu);
+    helpMenu->addAction(aboutQt);
+    aboutQt->setText("About Qt...");
+    window->connect(aboutQt, &QAction::triggered, [this](bool){
+        QMessageBox::aboutQt(new QDialog, "Qt");
+    });
+
+    QAction *about = new QAction(helpMenu);
+    helpMenu->addAction(about);
+    about->setText("About COVER...");
+    window->connect(about, &QAction::triggered, [this](bool){
+        aboutCover();
+    });
 
     QSurfaceFormat format;
     format.setVersion(2, 1);
@@ -118,10 +206,42 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.widget = new QtOsgWidget(win.window);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
-    coVRConfig::instance()->windows[i].context = win.widget->graphicsWindow();
+    conf.windows[i].context = win.widget->graphicsWindow();
+    conf.windows[i].doublebuffer = false;
+
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
     return true;
+}
+
+void WindowTypeQtPlugin::aboutCover() const
+{
+    using covise::CoviseVersion;
+
+    QDialog *aboutDialog = new QDialog;
+    Ui::AboutDialog *ui = new Ui::AboutDialog;
+    ui->setupUi(aboutDialog);
+
+    QFile file(":/aboutData/README-3rd-party.txt");
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QString data(file.readAll());
+        ui->textEdit->setPlainText(data);
+    }
+
+    QString text("This is <a href='http://www.hlrs.de/de/solutions-services/service-portfolio/visualization/covise/opencover/'>COVER</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
+    text = text.arg(CoviseVersion::year())
+        .arg(CoviseVersion::month())
+        .arg(CoviseVersion::hash())
+        .arg(CoviseVersion::compileDate())
+        .arg(CoviseVersion::arch());
+    text.append("<br>Follow COVER and COVISE developement on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
+
+    ui->label->setText(text);
+    ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction | Qt::LinksAccessibleByMouse);
+    ui->label->setOpenExternalLinks(true);
+
+    aboutDialog->exec();
 }
 
 void WindowTypeQtPlugin::windowCheckEvents(int num)
@@ -157,8 +277,12 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     conf.windows[num].window = nullptr;
 
     auto &win = it->second;
-    cover->ui->removeView(win.view);
-    delete win.view;
+    while (!win.view.empty())
+    {
+        cover->ui->removeView(win.view.back());
+        delete win.view.back();
+        win.view.pop_back();
+    }
     delete win.widget;
     delete win.window;
     m_windows.erase(it);

@@ -17,7 +17,9 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRDynLib.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRPluginList.h>
 #include <net/tokenbuffer.h>
+#include <OpenVRUI/sginterface/vruiButtons.h>
 
 #include "coMousePointer.h"
 #include "input.h"
@@ -389,6 +391,24 @@ InputDevice *Input::getDevice(const std::string &name)
     {
         std::string conf = configPath("Device." + name);
         std::string type = coCoviseConfig::getEntry("driver", conf, "const");
+        if (type.empty())
+        {
+            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(name.c_str(), coVRPluginList::Input))
+            {
+                dev = findInMap(drivers, name);
+                if (dev)
+                    return dev;
+            }
+        }
+        else if (type != "const")
+        {
+            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(type.c_str(), coVRPluginList::Input))
+            {
+                dev = findInMap(drivers, name);
+                if (dev)
+                    return dev;
+            }
+        }
         //std::cerr << "Input: creating dev " << name << ", driver " << type << std::endl;
         DriverFactoryBase *plug = getDriverPlugin(coVRMSController::instance()->isMaster() ? type : "const");
         if (!plug)
@@ -557,13 +577,31 @@ void Input::update()
     unsigned nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
     unsigned int len = 0;
     osg::Matrix mouse = osg::Matrix::identity();
+
+    auto processWheel = [this](){
+
+        {
+            int pressed = m_mouse->wheel(0) < 0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;
+            int count = std::abs(m_mouse->wheel(0));
+            for (int i=0; i<count; ++i)
+                cover->ui->buttonEvent(pressed);
+        }
+
+        {
+            int pressed = m_mouse->wheel(1) < 0 ? vrui::vruiButtons::WHEEL_LEFT : vrui::vruiButtons::WHEEL_RIGHT;
+            int count = std::abs(m_mouse->wheel(1));
+            for (int i=0; i<count; ++i)
+                cover->ui->buttonEvent(pressed);
+        }
+    };
+
     if (coVRMSController::instance()->isMaster())
     {
 
         for (DriverMap::iterator it = drivers.begin(); it != drivers.end(); ++it)
-	{
+        {
             it->second->update();
-	}
+        }
 
         TokenBuffer tb;
         tb << activePerson;
@@ -599,6 +637,7 @@ void Input::update()
             tb << m_mouse->xres << m_mouse->yres << m_mouse->width << m_mouse->height;
             mouse = m_mouse->getMatrix();
             tb << m_mouse->wheel(0) << m_mouse->wheel(1) << m_mouse->x() << m_mouse->y() <<  mouse;
+            processWheel();
         }
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
@@ -611,6 +650,9 @@ void Input::update()
                 std::cerr << "Input: transformed " << ob->second->name() << " buttons=0x" << std::hex << b->getButtonState() << std::endl;
             }
             tb << b->getButtonState();
+            unsigned pressed = ~old & b->getButtonState();
+            if (pressed)
+                cover->ui->buttonEvent(pressed);
         }
 
         for (ValuatorMap::iterator it = valuators.begin(); it != valuators.end(); ++it)
@@ -683,12 +725,17 @@ void Input::update()
         tb >> m_mouse->xres >> m_mouse->yres >> m_mouse->width >> m_mouse->height;
         tb >> m_mouse->wheelCounter[0] >> m_mouse->wheelCounter[1] >> m_mouse->mouseX >> m_mouse->mouseY >> mouse;
         m_mouse->setMatrix(mouse);
+        processWheel();
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
         {
+            unsigned old = ob->second->getButtonState();
             unsigned int bs;
             tb >> bs;
             ob->second->setButtonState(bs);
+            unsigned pressed = ~old & ob->second->getButtonState();
+            if (pressed)
+                cover->ui->buttonEvent(pressed);
         }
 
         for (ValuatorMap::iterator it = valuators.begin(); it != valuators.end(); ++it)

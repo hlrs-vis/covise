@@ -183,7 +183,8 @@ IdChangeVisitor::visit(JunctionConnection *connection)
     //
     if (roadIds_.contains(connection->getConnectingRoad()))
     {
-        connection->setContactPoint(roadIds_.value(connection->getConnectingRoad()));
+ //       connection->setContactPoint(roadIds_.value(connection->getConnectingRoad()));
+		connection->setConnectingRoad(roadIds_.value(connection->getConnectingRoad()));
     }
 }
 

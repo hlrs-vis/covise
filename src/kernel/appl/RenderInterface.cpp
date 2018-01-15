@@ -446,7 +446,7 @@ char *CoviseRender::get_description_message()
 #endif
 }
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
 //=====================================================================
 //
 //=====================================================================
@@ -480,7 +480,7 @@ void CoviseRender::init(int argc, char *argv[], XtAppContext appcon)
 #endif
     init_flag = 1;
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
     //
     // add X input
     //
@@ -995,7 +995,7 @@ void CoviseRender::remove_render_callback(void)
     renderCallbackData = (void *)NULL;
 }
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
 
 //=====================================================================
 //

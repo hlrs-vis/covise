@@ -44,17 +44,41 @@ int Element::elementId() const
     return m_id;
 }
 
+void Element::setPriority(Element::Priority prio)
+{
+    m_priority = prio;
+}
+
+Element::Priority Element::priority() const
+{
+    return m_priority;
+}
+
+void Element::setIcon(const std::string &iconName)
+{
+    m_iconName = iconName;
+}
+
+const std::string &Element::iconName() const
+{
+    return m_iconName;
+}
+
 Group *Element::parent() const
 {
     return m_parent;
 }
 
-void Element::update() const
+void Element::update(UpdateMaskType mask) const
 {
-    manager()->updateText(this);
-    manager()->updateVisible(this);
-    manager()->updateEnabled(this);
-    manager()->updateParent(this);
+    if (mask & UpdateText)
+        manager()->updateText(this);
+    if (mask & UpdateVisible)
+        manager()->updateVisible(this);
+    if (mask & UpdateEnabled)
+        manager()->updateEnabled(this);
+    if (mask & UpdateParent)
+        manager()->updateParent(this);
 }
 
 std::set<Container *> Element::containers()
@@ -65,7 +89,7 @@ std::set<Container *> Element::containers()
 void Element::setText(const std::string &label)
 {
     m_label = label;
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateText);
 }
 
 const std::string &Element::text() const
@@ -81,7 +105,7 @@ bool Element::visible() const
 void Element::setVisible(bool flag)
 {
     m_visible = flag;
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateVisible);
 }
 
 bool Element::enabled() const
@@ -92,13 +116,13 @@ bool Element::enabled() const
 void Element::setEnabled(bool flag)
 {
     m_enabled = flag;
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateEnabled);
 }
 
 void Element::trigger() const
 {
     manager()->setChanged();
-    manager()->queueUpdate(this, true);
+    manager()->queueUpdate(this, UpdateNothing, true);
 }
 
 void Element::triggerImplementation() const

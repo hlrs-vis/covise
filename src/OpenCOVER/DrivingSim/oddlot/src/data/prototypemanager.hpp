@@ -139,6 +139,7 @@ public:
         PTP_ScenerySystemPrototype = 0x18,
         PTP_VehicleSystemPrototype = 0x100,
         PTP_PedestrianSystemPrototype = 0x200,
+		PTP_RoadShapePrototype = 0x20
     };
 
     //################//

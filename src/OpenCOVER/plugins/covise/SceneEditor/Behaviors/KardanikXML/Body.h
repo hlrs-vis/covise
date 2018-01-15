@@ -18,9 +18,6 @@
 
 #include <string>
 #include <vector>
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 
 namespace KardanikXML
@@ -37,9 +34,9 @@ class Construction;
 class Body
 {
 public:
-    typedef std::vector<std::tr1::shared_ptr<LineStrip> > LineStrips;
-    typedef std::vector<std::tr1::shared_ptr<Line> > Lines;
-    typedef std::vector<std::tr1::shared_ptr<Point> > Points;
+    typedef std::vector<std::shared_ptr<LineStrip> > LineStrips;
+    typedef std::vector<std::shared_ptr<Line> > Lines;
+    typedef std::vector<std::shared_ptr<Point> > Points;
 
     Body();
     Body(const std::string &name);
@@ -61,30 +58,30 @@ public:
     unsigned int GetMotionID() const;
 
     const LineStrips &GetLineStrips() const;
-    void AddLineStrip(std::tr1::shared_ptr<LineStrip> lineStrip);
+    void AddLineStrip(std::shared_ptr<LineStrip> lineStrip);
 
     const Lines &GetLines() const;
-    void AddLine(std::tr1::shared_ptr<Line> line);
+    void AddLine(std::shared_ptr<Line> line);
 
     const Points &GetPoints() const;
-    void AddPoint(std::tr1::shared_ptr<Point> point);
+    void AddPoint(std::shared_ptr<Point> point);
 
-    std::tr1::shared_ptr<Point> GetPointByName(const std::string &name) const;
+    std::shared_ptr<Point> GetPointByName(const std::string &name) const;
     MotionType GetMotionType() const;
     void SetMotionType(MotionType motionType);
     void SetMotionType(const std::string &motionType);
 
-    std::tr1::shared_ptr<Anchor> GetAnchor() const;
-    void SetAnchor(std::tr1::shared_ptr<Anchor> anchor);
+    std::shared_ptr<Anchor> GetAnchor() const;
+    void SetAnchor(std::shared_ptr<Anchor> anchor);
 
-    const std::vector<std::tr1::shared_ptr<OperatingRange> > &GetOperatingRanges() const;
-    void AddOperatingRange(std::tr1::shared_ptr<OperatingRange> range);
+    const std::vector<std::shared_ptr<OperatingRange> > &GetOperatingRanges() const;
+    void AddOperatingRange(std::shared_ptr<OperatingRange> range);
 
-    void AddConnectedJoint(std::tr1::shared_ptr<Joint> connectedJoint);
-    const std::vector<std::tr1::weak_ptr<Joint> > &GetConnectedJoints() const;
+    void AddConnectedJoint(std::shared_ptr<Joint> connectedJoint);
+    const std::vector<std::weak_ptr<Joint> > &GetConnectedJoints() const;
 
-    void SetParentConstruction(std::tr1::weak_ptr<Construction> construction);
-    std::tr1::weak_ptr<Construction> GetParentConstruction() const;
+    void SetParentConstruction(std::weak_ptr<Construction> construction);
+    std::weak_ptr<Construction> GetParentConstruction() const;
 
 private:
     std::string m_Name;
@@ -92,15 +89,15 @@ private:
     LineStrips m_LineStrips;
     Lines m_Lines;
     Points m_Points;
-    std::tr1::shared_ptr<Anchor> m_Anchor;
-    typedef std::vector<std::tr1::shared_ptr<OperatingRange> > OperatingRanges;
+    std::shared_ptr<Anchor> m_Anchor;
+    typedef std::vector<std::shared_ptr<OperatingRange> > OperatingRanges;
     OperatingRanges m_OperatingRanges;
-    std::tr1::weak_ptr<Construction> m_ParentConstruction;
+    std::weak_ptr<Construction> m_ParentConstruction;
     MotionType m_MotionType;
     float m_Radius;
     unsigned int m_MotionID;
 
-    typedef std::vector<std::tr1::weak_ptr<Joint> > ConnectedJoints;
+    typedef std::vector<std::weak_ptr<Joint> > ConnectedJoints;
     ConnectedJoints m_ConnectedJoints;
 };
 }

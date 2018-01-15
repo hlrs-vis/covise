@@ -20,16 +20,13 @@ class TUIFileBrowserButton : public QObject, public TUIElement
     Q_OBJECT
 public:
     TUIFileBrowserButton(int id, int type, QWidget *w, int parent, QString name);
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &tb);
+    ~TUIFileBrowserButton();
+
+    virtual void setValue(int type, covise::TokenBuffer &tb) override;
     void sendVal(int type);
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
-    ~TUIFileBrowserButton(void);
+    virtual const char *getClassName() const override;
 
 signals:
     void dirUpdate(QStringList list);

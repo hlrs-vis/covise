@@ -39,7 +39,12 @@ using namespace opencover;
 //#define FILEBROWSER_DEBUG
 
 coTUIButton::coTUIButton(const std::string &n, int pID)
-    : coTUIElement(n, pID, TABLET_BUTTON)
+: coTUIElement(n, pID, TABLET_BUTTON)
+{
+}
+
+coTUIButton::coTUIButton(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_BUTTON)
 {
 }
 
@@ -68,9 +73,13 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_RELEASED)
     {
+        emit tabletEvent();
         emit tabletReleaseEvent();
         if (listener)
+        {
+            listener->tabletEvent(this);
             listener->tabletReleaseEvent(this);
+        }
     }
     else
     {
@@ -78,10 +87,9 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUIButton::resend()
+void coTUIButton::resend(bool create)
 {
-    createSimple(TABLET_BUTTON);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 //TABLET_FILEBROWSER_BUTTON
@@ -127,7 +135,7 @@ coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     std::string path = mDataObj->getCurrentPath();
     tb << path.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 coTUIFileBrowserButton::~coTUIFileBrowserButton()
@@ -176,7 +184,7 @@ void coTUIFileBrowserButton::setClientList(Message &msg)
         rt << locString.c_str();
     }
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
@@ -396,7 +404,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
             rtb << TABLET_SET_MASTER;
             rtb << ID;
             rtb << coVRCommunication::instance()->isMaster();
-            coTabletUI::instance()->send(rtb);
+            tui()->send(rtb);
         }
     }
     else if (i == TABLET_REQ_LOCATION)
@@ -411,7 +419,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
         std::cerr << "Host to be used for file lists: = " << this->mLocation.c_str() << std::endl;
 #endif
 
-        coTabletUI::instance()->send(rtb);
+        tui()->send(rtb);
     }
     else if (i == TABLET_SET_LOCATION)
     {
@@ -550,7 +558,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
             rtb << (int)false;
         }
 
-        coTabletUI::instance()->send(rtb);
+        tui()->send(rtb);
     }
     else
     {
@@ -558,9 +566,9 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUIFileBrowserButton::resend()
+void coTUIFileBrowserButton::resend(bool create)
 {
-    createSimple(TABLET_FILEBROWSER_BUTTON);
+    coTUIElement::resend(create);
     TokenBuffer rt;
 
     // Send current Directory
@@ -569,7 +577,7 @@ void coTUIFileBrowserButton::resend()
     rt << ID;
     rt << this->getData("vrb")->getCurrentPath().c_str();
     //std::cerr << "Resend: Current directory: " << this->mDataObj->getCurrentPath().c_str() << std::endl;
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 
     rt.delete_data();
     //Send FileList
@@ -586,7 +594,7 @@ void coTUIFileBrowserButton::resend()
         rt << sfl.c_str();
         //std::cerr << "Resend: FileList entry #" << i << " = " << sfl.c_str() << std::endl;
     }
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 
     rt.delete_data();
     //Send DirList
@@ -604,7 +612,7 @@ void coTUIFileBrowserButton::resend()
         rt << sdl.c_str();
         //std::cerr << "Resend: DirList entry #" << i << " = " << sdl.c_str() << std::endl;
     }
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 
     //Send DirList
     rt.delete_data();
@@ -613,16 +621,14 @@ void coTUIFileBrowserButton::resend()
     rt << ID;
     rt << (int)this->mMode;
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 
     rt.delete_data();
     rt << TABLET_SET_VALUE;
     rt << TABLET_SET_FILTERLIST;
     rt << ID;
     rt << mFilterList.c_str();
-    coTabletUI::instance()->send(rt);
-
-    coTUIElement::resend();
+    tui()->send(rt);
 }
 
 void coTUIFileBrowserButton::setFileList(Message &msg)
@@ -653,7 +659,7 @@ void coTUIFileBrowserButton::setFileList(Message &msg)
         this->mFileList.push_back(entry);
     }
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 IData *coTUIFileBrowserButton::getData(std::string protocol)
@@ -700,7 +706,7 @@ void coTUIFileBrowserButton::setDirList(Message &msg)
         this->mDirList.push_back(entry);
     }
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 void coTUIFileBrowserButton::setDrives(Message &ms)
@@ -727,7 +733,7 @@ void coTUIFileBrowserButton::setDrives(Message &ms)
         rt << entry;
     }
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 void coTUIFileBrowserButton::setCurDir(Message &msg)
@@ -771,7 +777,7 @@ void coTUIFileBrowserButton::setCurDir(const char *dir)
     std::cerr << "Contains path = " << sdir.c_str() << std::endl;
 #endif
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 void coTUIFileBrowserButton::sendList(TokenBuffer & /*tb*/)
@@ -831,7 +837,7 @@ void coTUIFileBrowserButton::setMode(DialogMode mode)
     rt << ID;
     rt << (int)mMode;
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 // Method which is called from external of coTabletUI to allow
@@ -846,7 +852,7 @@ void coTUIFileBrowserButton::setFilterList(std::string filterList)
     rt << ID;
     rt << filterList.c_str();
 
-    coTabletUI::instance()->send(rt);
+    tui()->send(rt);
 }
 
 std::string coTUIFileBrowserButton::getSelectedPath()
@@ -918,13 +924,12 @@ void coTUIColorTriangle::setColor(float r, float g, float b)
     setVal(TABLET_BLUE, b);
 }
 
-void coTUIColorTriangle::resend()
+void coTUIColorTriangle::resend(bool create)
 {
-    createSimple(TABLET_COLOR_TRIANGLE);
+    coTUIElement::resend(create);
     setVal(TABLET_RED, red);
     setVal(TABLET_GREEN, green);
     setVal(TABLET_BLUE, blue);
-    coTUIElement::resend();
 }
 
 coTUIColorButton::coTUIColorButton(const std::string &n, int pID)
@@ -995,12 +1000,13 @@ void coTUIColorButton::setColor(float r, float g, float b, float a)
     t << green;
     t << blue;
     t << alpha;
-    coTabletUI::instance()->send(t);
+    tui()->send(t);
 }
 
-void coTUIColorButton::resend()
+void coTUIColorButton::resend(bool create)
 {
-    createSimple(TABLET_COLOR_BUTTON);
+    coTUIElement::resend(create);
+
     TokenBuffer t;
     t << TABLET_SET_VALUE;
     t << TABLET_RGBA;
@@ -1009,8 +1015,7 @@ void coTUIColorButton::resend()
     t << green;
     t << blue;
     t << alpha;
-    coTabletUI::instance()->send(t);
-    coTUIElement::resend();
+    tui()->send(t);
 }
 
 //----------------------------------------------------------
@@ -1074,14 +1079,13 @@ void coTUIColorTab::setColor(float r, float g, float b, float a)
     t << g;
     t << b;
     t << a;
-    coTabletUI::instance()->send(t);
+    tui()->send(t);
 }
 
-void coTUIColorTab::resend()
+void coTUIColorTab::resend(bool create)
 {
-    createSimple(TABLET_COLOR_TAB);
+    coTUIElement::resend(create);
     setColor(red, green, blue, alpha);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -1132,10 +1136,9 @@ void coTUINav::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUINav::resend()
+void coTUINav::resend(bool create)
 {
-    createSimple(TABLET_NAV_ELEMENT);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -1143,6 +1146,11 @@ void coTUINav::resend()
 
 coTUIBitmapButton::coTUIBitmapButton(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_BITMAP_BUTTON)
+{
+}
+
+coTUIBitmapButton::coTUIBitmapButton(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_BITMAP_BUTTON)
 {
 }
 
@@ -1171,9 +1179,13 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_RELEASED)
     {
+        emit tabletEvent();
         emit tabletReleaseEvent();
         if (listener)
+        {
+            listener->tabletEvent(this);
             listener->tabletReleaseEvent(this);
+        }
     }
     else
     {
@@ -1181,10 +1193,9 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUIBitmapButton::resend()
+void coTUIBitmapButton::resend(bool create)
 {
-    createSimple(TABLET_BITMAP_BUTTON);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -1192,6 +1203,12 @@ void coTUIBitmapButton::resend()
 
 coTUILabel::coTUILabel(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_TEXT_FIELD)
+{
+    color = Qt::black;
+}
+
+coTUILabel::coTUILabel(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_TEXT_FIELD)
 {
     color = Qt::black;
 }
@@ -1206,12 +1223,10 @@ coTUILabel::~coTUILabel()
 {
 }
 
-void coTUILabel::resend()
+void coTUILabel::resend(bool create)
 {
-
-    createSimple(TABLET_TEXT_FIELD);
+    coTUIElement::resend(create);
     setColor(color);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -1219,6 +1234,11 @@ void coTUILabel::resend()
 
 coTUITabFolder::coTUITabFolder(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_TAB_FOLDER)
+{
+}
+
+coTUITabFolder::coTUITabFolder(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_TAB_FOLDER)
 {
 }
 
@@ -1247,6 +1267,7 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+        emit tabletEvent();
         emit tabletReleaseEvent();
         if (listener)
         {
@@ -1260,11 +1281,12 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUITabFolder::resend()
+void coTUITabFolder::resend(bool create)
 {
-    createSimple(TABLET_TAB_FOLDER);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
+
+
 
 //----------------------------------------------------------
 //----------------------------------------------------------
@@ -1272,6 +1294,12 @@ void coTUITabFolder::resend()
 coTUIUITab::coTUIUITab(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_UI_TAB)
 {
+}
+
+coTUIUITab::coTUIUITab(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_UI_TAB)
+{
+
 }
 
 coTUIUITab::coTUIUITab(QObject *parent, const std::string &n, int pID)
@@ -1299,6 +1327,7 @@ void coTUIUITab::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+        emit tabletEvent();
         emit tabletReleaseEvent();
         if (listener)
         {
@@ -1335,13 +1364,12 @@ void coTUIUITab::sendEvent(const QString &source, const QString &event)
     tb << (event.size() + 1) * 2;
     tb.addBinary((const char *)event.utf16(), (event.size() + 1) * 2);
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
-void coTUIUITab::resend()
+void coTUIUITab::resend(bool create)
 {
-    createSimple(TABLET_UI_TAB);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 bool coTUIUITab::loadUIFile(const std::string &filename)
@@ -1378,7 +1406,7 @@ bool coTUIUITab::loadUIFile(const std::string &filename)
     tb << (this->uiDescription.size() + 1) * 2;
     tb.addBinary((const char *)this->uiDescription.utf16(), (this->uiDescription.size() + 1) * 2);
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 
     return true;
 }
@@ -1389,6 +1417,12 @@ bool coTUIUITab::loadUIFile(const std::string &filename)
 coTUITab::coTUITab(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_TAB)
 {
+}
+
+coTUITab::coTUITab(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_TAB)
+{
+
 }
 
 coTUITab::coTUITab(QObject *parent, const std::string &n, int pID)
@@ -1416,6 +1450,7 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+        emit tabletEvent();
         emit tabletReleaseEvent();
         if (listener)
         {
@@ -1429,10 +1464,9 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUITab::resend()
+void coTUITab::resend(bool create)
 {
-    createSimple(TABLET_TAB);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -1564,7 +1598,10 @@ void coTUITextureTab::parseMessage(TokenBuffer &tb)
     {
         thread->setType(TABLET_TEX_UPDATE);
         if (listener)
+        {
+            listener->tabletEvent(this);
             listener->tabletReleaseEvent(this);
+        }
     }
     if (i == TABLET_TEX_PORT)
     {
@@ -1585,7 +1622,7 @@ void coTUITextureTab::parseMessage(TokenBuffer &tb)
             t << ID;
             t << buttonNumber;
             t << (uint64_t)(uintptr_t)currentNode;
-            coTabletUI::instance()->send(t);
+            tui()->send(t);
             //thread->setType(TABLET_TEX_CHANGE);
             texturesToChange++;
         }
@@ -1676,7 +1713,7 @@ void coTUITextureTab::setTexture(int height, int width, int depth, int dataLengt
 
 void coTUITextureTab::setTexture(int texNumber, int mode, int texGenMode)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -1687,13 +1724,12 @@ void coTUITextureTab::setTexture(int texNumber, int mode, int texGenMode)
     tb << mode;
     tb << texGenMode;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
-void coTUITextureTab::resend()
+void coTUITextureTab::resend(bool create)
 {
-    createSimple(TABLET_TEXTURE_TAB);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 void coTUITextureTab::tryConnect()
@@ -1702,7 +1738,7 @@ void coTUITextureTab::tryConnect()
     localHost = new Host("localhost");
 
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
-    serverHost = coTabletUI::instance()->getServerHost();
+    serverHost = tui()->getServerHost();
     conn = new ClientConnection(serverHost, texturePort, 0, (sender_type)0, 0);
     if (!conn->is_connected()) // could not open server port
     {
@@ -1833,24 +1869,15 @@ void SGTextureThread::run()
 coTUISGBrowserTab::coTUISGBrowserTab(const char *n, int pID)
     : coTUIElement(n, pID, TABLET_BROWSER_TAB)
 {
+    thread = NULL;
+
     conn = NULL;
     currentNode = 0;
     changedNode = 0;
     texturesToChange = 0;
 
     texturePort = 0;
-    thread = NULL;
     // next port is for Texture communication
-
-    if (!coTabletUI::instance()->serverMode)
-    {
-        thread = new SGTextureThread(this);
-        thread->setType(THREAD_NOTHING_TO_DO);
-        thread->traversingFinished(false);
-        thread->nodeFinished(false);
-        thread->noTexturesFound(false);
-        thread->start();
-    }
 
     currentPath = "";
     loadFile = false; //gottlieb
@@ -1868,7 +1895,7 @@ int coTUISGBrowserTab::openServer()
     tb << ID;
     tb << texturePort;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 
     if (sConn->acceptOne(60) < 0)
     {
@@ -2000,29 +2027,29 @@ void coTUISGBrowserTab::send(TokenBuffer &tb)
 void coTUISGBrowserTab::tryConnect()
 {
     ClientConnection *cConn = NULL;
-    coTabletUI::instance()->lock();
-    if (coTabletUI::instance()->connectedHost)
+    tui()->lock();
+    if (tui()->connectedHost)
     {
         //timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
 
-        cConn = new ClientConnection(coTabletUI::instance()->connectedHost, texturePort, 0, (sender_type)0, 10, 2.0);
+        cConn = new ClientConnection(tui()->connectedHost, texturePort, 0, (sender_type)0, 10, 2.0);
         if (!cConn->is_connected()) // could not open server port
         {
 #ifndef _WIN32
             if (errno != ECONNREFUSED)
             {
                 fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        coTabletUI::instance()->connectedHost->getName(), texturePort, strerror(errno));
+                        tui()->connectedHost->getName(), texturePort, strerror(errno));
             }
 #else
-            fprintf(stderr, "Could not connect to TextureThread %s; port %d\n", coTabletUI::instance()->connectedHost->getName(), texturePort);
+            fprintf(stderr, "Could not connect to TextureThread %s; port %d\n", tui()->connectedHost->getName(), texturePort);
 #endif
             delete cConn;
             cConn = NULL;
         }
     }
     conn = cConn;
-    coTabletUI::instance()->unlock();
+    tui()->unlock();
 }
 
 void coTUISGBrowserTab::parseTextureMessage(TokenBuffer &tb)
@@ -2110,7 +2137,7 @@ void coTUISGBrowserTab::setTexture(int height, int width, int depth, int texInde
 
 void coTUISGBrowserTab::setTexture(int texNumber, int mode, int texGenMode, int texIndex)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2122,13 +2149,13 @@ void coTUISGBrowserTab::setTexture(int texNumber, int mode, int texGenMode, int 
     tb << texGenMode;
     tb << texIndex;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendType(int type, const char *nodeType, const char *name, const char *path, const char *pPath, int mode, int numChildren)
 {
 
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2143,23 +2170,23 @@ void coTUISGBrowserTab::sendType(int type, const char *nodeType, const char *nam
     tb << pPath;
     tb << numChildren;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendEnd()
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_BROWSER_END;
     tb << ID;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     int i;
@@ -2181,12 +2208,12 @@ void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int 
     for (i = 0; i < 4; i++)
         tb << emissive[i];
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[])
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     int i;
@@ -2213,7 +2240,7 @@ void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int 
         tb << mat[i];
     }
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
@@ -2224,7 +2251,7 @@ void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
     if (listener)
         listener->tabletCurrentEvent(this);
 
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     const char *currentPath = path.c_str();
@@ -2233,13 +2260,13 @@ void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
     tb << ID;
     tb << currentPath;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendRemoveNode(std::string path, std::string parentPath)
 {
 
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     const char *removePath = path.c_str();
@@ -2250,12 +2277,12 @@ void coTUISGBrowserTab::sendRemoveNode(std::string path, std::string parentPath)
     tb << removePath;
     tb << removePPath;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendShader(std::string name)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     const char *shaderName = name.c_str();
@@ -2265,12 +2292,12 @@ void coTUISGBrowserTab::sendShader(std::string name)
     tb << ID;
     tb << shaderName;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendUniform(std::string name, std::string type, std::string value, std::string min, std::string max, std::string textureFile)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2283,12 +2310,12 @@ void coTUISGBrowserTab::sendUniform(std::string name, std::string type, std::str
     tb << max.c_str();
     tb << textureFile.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::sendShaderSource(std::string vertex, std::string fragment, std::string geometry, std::string tessControl, std::string tessEval)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2300,12 +2327,12 @@ void coTUISGBrowserTab::sendShaderSource(std::string vertex, std::string fragmen
     tb << tessControl.c_str();
     tb << tessEval.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateUniform(std::string shader, std::string name, std::string value, std::string textureFile)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2316,12 +2343,12 @@ void coTUISGBrowserTab::updateUniform(std::string shader, std::string name, std:
     tb << value.c_str();
     tb << textureFile.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderSourceV(std::string shader, std::string vertex)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2330,12 +2357,12 @@ void coTUISGBrowserTab::updateShaderSourceV(std::string shader, std::string vert
     tb << shader.c_str();
     tb << vertex.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderSourceTC(std::string shader, std::string tessControl)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2344,12 +2371,12 @@ void coTUISGBrowserTab::updateShaderSourceTC(std::string shader, std::string tes
     tb << shader.c_str();
     tb << tessControl.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderSourceTE(std::string shader, std::string tessEval)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2358,12 +2385,12 @@ void coTUISGBrowserTab::updateShaderSourceTE(std::string shader, std::string tes
     tb << shader.c_str();
     tb << tessEval.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderSourceF(std::string shader, std::string fragment)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2372,12 +2399,12 @@ void coTUISGBrowserTab::updateShaderSourceF(std::string shader, std::string frag
     tb << shader.c_str();
     tb << fragment.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderSourceG(std::string shader, std::string geometry)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2386,12 +2413,12 @@ void coTUISGBrowserTab::updateShaderSourceG(std::string shader, std::string geom
     tb << shader.c_str();
     tb << geometry.c_str();
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderNumVertices(std::string shader, int value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2400,12 +2427,12 @@ void coTUISGBrowserTab::updateShaderNumVertices(std::string shader, int value)
     tb << shader.c_str();
     tb << value;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::updateShaderOutputType(std::string shader, int value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2414,11 +2441,11 @@ void coTUISGBrowserTab::updateShaderOutputType(std::string shader, int value)
     tb << shader.c_str();
     tb << value;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 void coTUISGBrowserTab::updateShaderInputType(std::string shader, int value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2427,7 +2454,7 @@ void coTUISGBrowserTab::updateShaderInputType(std::string shader, int value)
     tb << shader.c_str();
     tb << value;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
@@ -2440,7 +2467,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     case TABLET_INIT_SECOND_CONNECTION:
     {
 
-        if (coTabletUI::instance()->serverMode)
+        if (tui()->serverMode)
         {
             openServer();
         }
@@ -2585,7 +2612,10 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
         thread->setType(TABLET_TEX_UPDATE);
         sendImageMode = SEND_IMAGES;
         if (listener)
+        {
+            listener->tabletEvent(this);
             listener->tabletReleaseEvent(this);
+        }
         break;
     }
     case TABLET_TEX_PORT:
@@ -2609,7 +2639,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
             t << ID;
             t << buttonNumber;
             t << path;
-            coTabletUI::instance()->send(t);
+            tui()->send(t);
             //thread->setType(TABLET_TEX_CHANGE);
             texturesToChange++;
         }
@@ -2622,7 +2652,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUISGBrowserTab::resend()
+void coTUISGBrowserTab::resend(bool create)
 {
     if (thread)
     {
@@ -2644,12 +2674,14 @@ void coTUISGBrowserTab::resend()
     thread->noTexturesFound(false);
     thread->start();
 
-    createSimple(TABLET_BROWSER_TAB);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 
     sendImageMode = SEND_LIST;
     if (listener)
+    {
+        listener->tabletEvent(this);
         listener->tabletReleaseEvent(this);
+    }
     //gottlieb<
     if (loadFile)
         setVal(TABLET_LOADFILE_SATE, 1);
@@ -2669,11 +2701,10 @@ coTUIAnnotationTab::~coTUIAnnotationTab()
 {
 }
 
-void coTUIAnnotationTab::resend()
+void coTUIAnnotationTab::resend(bool create)
 {
     //std::cout << "coTUIAnnotationTab::resend()" << std::endl;
-    createSimple(TABLET_ANNOTATION_TAB);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 void coTUIAnnotationTab::parseMessage(TokenBuffer &tb)
@@ -2683,7 +2714,7 @@ void coTUIAnnotationTab::parseMessage(TokenBuffer &tb)
 
 void coTUIAnnotationTab::setNewButtonState(bool state)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2692,12 +2723,12 @@ void coTUIAnnotationTab::setNewButtonState(bool state)
     tb << ID;
     tb << (char)state;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIAnnotationTab::addAnnotation(int id)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2706,12 +2737,12 @@ void coTUIAnnotationTab::addAnnotation(int id)
     tb << ID;
     tb << id;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIAnnotationTab::deleteAnnotation(int mode, int id)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2721,12 +2752,12 @@ void coTUIAnnotationTab::deleteAnnotation(int mode, int id)
     tb << mode;
     tb << id;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIAnnotationTab::setSelectedAnnotation(int id)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2735,7 +2766,7 @@ void coTUIAnnotationTab::setSelectedAnnotation(int id)
     tb << ID;
     tb << id;
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 //----------------------------------------------------------
@@ -2765,13 +2796,12 @@ void coTUIFunctionEditorTab::setDimension(int dim)
     tfDim = dim;
 }
 
-void coTUIFunctionEditorTab::resend()
+void coTUIFunctionEditorTab::resend(bool create)
 {
-    //std::cout << "coTUIFunctionEditorTab::resend()" << std::endl;
-    createSimple(TABLET_FUNCEDIT_TAB);
+    coTUIElement::resend(create);
 
     //resend the transfer function information
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -2955,12 +2985,10 @@ void coTUIFunctionEditorTab::resend()
     }
 
     // send TFE info
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 
     // send histogram
     sendHistogramData();
-
-    coTUIElement::resend();
 }
 
 void coTUIFunctionEditorTab::sendHistogramData()
@@ -3003,7 +3031,7 @@ void coTUIFunctionEditorTab::sendHistogramData()
         }
     }
 
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIFunctionEditorTab::parseMessage(TokenBuffer &tb)
@@ -3295,10 +3323,9 @@ void coTUISplitter::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUISplitter::resend()
+void coTUISplitter::resend(bool create)
 {
-    createSimple(TABLET_SPLITTER);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
     setShape(shape);
     setStyle(style);
     setOrientation(orientation);
@@ -3312,7 +3339,7 @@ void coTUISplitter::setShape(int s)
     tb << TABLET_SHAPE;
     tb << ID;
     tb << shape;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISplitter::setStyle(int t)
@@ -3323,7 +3350,7 @@ void coTUISplitter::setStyle(int t)
     tb << TABLET_STYLE;
     tb << ID;
     tb << (style | shape);
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUISplitter::setOrientation(int orient)
@@ -3334,7 +3361,7 @@ void coTUISplitter::setOrientation(int orient)
     tb << TABLET_ORIENTATION;
     tb << ID;
     tb << orientation;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 //----------------------------------------------------------
@@ -3342,6 +3369,15 @@ void coTUISplitter::setOrientation(int orient)
 
 coTUIFrame::coTUIFrame(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_FRAME)
+{
+    style = Sunken;
+    shape = StyledPanel;
+    setShape(shape);
+    setStyle(style);
+}
+
+coTUIFrame::coTUIFrame(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_FRAME)
 {
     style = Sunken;
     shape = StyledPanel;
@@ -3400,7 +3436,7 @@ void coTUIFrame::setShape(int s)
     tb << TABLET_SHAPE;
     tb << ID;
     tb << shape;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIFrame::setStyle(int t)
@@ -3411,14 +3447,12 @@ void coTUIFrame::setStyle(int t)
     tb << TABLET_STYLE;
     tb << ID;
     tb << (style | shape);
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
-void coTUIFrame::resend()
+void coTUIFrame::resend(bool create)
 {
-    createSimple(TABLET_FRAME);
-
-    coTUIElement::resend();
+    coTUIElement::resend(create);
     setShape(shape);
     setStyle(style);
 }
@@ -3428,6 +3462,13 @@ void coTUIFrame::resend()
 
 coTUIToggleButton::coTUIToggleButton(const std::string &n, int pID, bool s)
     : coTUIElement(n, pID, TABLET_TOGGLE_BUTTON)
+{
+    state = s;
+    setVal(state);
+}
+
+coTUIToggleButton::coTUIToggleButton(coTabletUI *tui, const std::string &n, int pID, bool s)
+    : coTUIElement(tui, n, pID, TABLET_TOGGLE_BUTTON)
 {
     state = s;
     setVal(state);
@@ -3490,11 +3531,10 @@ bool coTUIToggleButton::getState() const
     return state;
 }
 
-void coTUIToggleButton::resend()
+void coTUIToggleButton::resend(bool create)
 {
-    createSimple(TABLET_TOGGLE_BUTTON);
+    coTUIElement::resend(create);
     setVal(state);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -3570,12 +3610,11 @@ bool coTUIToggleBitmapButton::getState() const
     return state;
 }
 
-void coTUIToggleBitmapButton::resend()
+void coTUIToggleBitmapButton::resend(bool create)
 {
-    createSimple(TABLET_BITMAP_TOGGLE_BUTTON);
+    coTUIElement::resend(create);
     setVal(bmpDown);
     setVal(state);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -3595,10 +3634,9 @@ coTUIMessageBox::~coTUIMessageBox()
 {
 }
 
-void coTUIMessageBox::resend()
+void coTUIMessageBox::resend(bool create)
 {
-    createSimple(TABLET_MESSAGE_BOX);
-    coTUIElement::resend();
+    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -3659,12 +3697,11 @@ const std::string &coTUIEditField::getText() const
     return text;
 }
 
-void coTUIEditField::resend()
+void coTUIEditField::resend(bool create)
 {
-    createSimple(TABLET_EDIT_FIELD);
+    coTUIElement::resend(create);
     setVal(text);
     setVal(immediate);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -3716,12 +3753,11 @@ const std::string &coTUIEditTextField::getText() const
     return text;
 }
 
-void coTUIEditTextField::resend()
+void coTUIEditTextField::resend(bool create)
 {
-    createSimple(TABLET_EDIT_FIELD);
+    coTUIElement::resend(create);
     setVal(text);
     setVal(immediate);
-    coTUIElement::resend();
 }
 
 //##########################################################
@@ -3790,14 +3826,13 @@ void coTUIEditIntField::setValue(int val)
     }
 }
 
-void coTUIEditIntField::resend()
+void coTUIEditIntField::resend(bool create)
 {
-    createSimple(TABLET_INT_EDIT_FIELD);
+    coTUIElement::resend(create);
     setVal(TABLET_MIN, min);
     setVal(TABLET_MAX, max);
     setVal(value);
     setVal(immediate);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -3846,12 +3881,11 @@ void coTUIEditFloatField::setValue(float val)
     }
 }
 
-void coTUIEditFloatField::resend()
+void coTUIEditFloatField::resend(bool create)
 {
-    createSimple(TABLET_FLOAT_EDIT_FIELD);
+    coTUIElement::resend(create);
     setVal(value);
     setVal(immediate);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -3923,14 +3957,13 @@ void coTUISpinEditfield::setMax(int maxV)
     setVal(TABLET_MAX, maxValue);
 }
 
-void coTUISpinEditfield::resend()
+void coTUISpinEditfield::resend(bool create)
 {
-    createSimple(TABLET_SPIN_EDIT_FIELD);
+    coTUIElement::resend(create);
     setVal(TABLET_MIN, minValue);
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_STEP, step);
     setVal(actValue);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -3993,14 +4026,13 @@ void coTUITextSpinEditField::setMax(int maxV)
     setVal(TABLET_MAX, maxValue);
 }
 
-void coTUITextSpinEditField::resend()
+void coTUITextSpinEditField::resend(bool create)
 {
-    createSimple(TABLET_TEXT_SPIN_EDIT_FIELD);
+    coTUIElement::resend(create);
     setVal(TABLET_MIN, minValue);
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_STEP, step);
     setVal(text);
-    coTUIElement::resend();
 }
 
 void coTUITextSpinEditField::setText(const std::string &t)
@@ -4045,12 +4077,11 @@ void coTUIProgressBar::setMax(int maxV)
     setVal(TABLET_MAX, maxValue);
 }
 
-void coTUIProgressBar::resend()
+void coTUIProgressBar::resend(bool create)
 {
-    createSimple(TABLET_PROGRESS_BAR);
+    coTUIElement::resend(create);
     setVal(TABLET_MAX, maxValue);
     setVal(actValue);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4059,6 +4090,20 @@ void coTUIProgressBar::resend()
 coTUIFloatSlider::coTUIFloatSlider(const std::string &n, int pID, bool s)
     : coTUIElement(n, pID, TABLET_FLOAT_SLIDER)
 {
+    label = "";
+    actValue = 0;
+    minValue = 0;
+    maxValue = 0;
+    ticks = 10;
+
+    orientation = s;
+    setVal(orientation);
+}
+
+coTUIFloatSlider::coTUIFloatSlider(coTabletUI *tui, const std::string &n, int pID, bool s)
+: coTUIElement(tui, n, pID, TABLET_FLOAT_SLIDER)
+{
+    label = "";
     actValue = 0;
     minValue = 0;
     maxValue = 0;
@@ -4071,6 +4116,7 @@ coTUIFloatSlider::coTUIFloatSlider(const std::string &n, int pID, bool s)
 coTUIFloatSlider::coTUIFloatSlider(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_FLOAT_SLIDER)
 {
+    label = "";
     actValue = 0;
     minValue = 0;
     maxValue = 0;
@@ -4167,15 +4213,14 @@ void coTUIFloatSlider::setOrientation(bool o)
     setVal(orientation);
 }
 
-void coTUIFloatSlider::resend()
+void coTUIFloatSlider::resend(bool create)
 {
-    createSimple(TABLET_FLOAT_SLIDER);
+    coTUIElement::resend(create);
     setVal(TABLET_MIN, minValue);
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_NUM_TICKS, ticks);
     setVal(actValue);
     setVal(orientation);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4185,6 +4230,19 @@ coTUISlider::coTUISlider(const std::string &n, int pID, bool s)
     : coTUIElement(n, pID, TABLET_SLIDER)
     , actValue(0)
 {
+    label = "";
+    actValue = 0;
+    minValue = 0;
+    maxValue = 0;
+    orientation = s;
+    setVal(orientation);
+}
+
+coTUISlider::coTUISlider(coTabletUI *tui, const std::string &n, int pID, bool s)
+    : coTUIElement(tui, n, pID, TABLET_SLIDER)
+    , actValue(0)
+{
+    label = "";
     actValue = 0;
     minValue = 0;
     maxValue = 0;
@@ -4196,6 +4254,7 @@ coTUISlider::coTUISlider(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_SLIDER)
     , actValue(0)
 {
+    label = "";
     actValue = 0;
     minValue = 0;
     maxValue = 0;
@@ -4285,15 +4344,14 @@ void coTUISlider::setOrientation(bool o)
     setVal(orientation);
 }
 
-void coTUISlider::resend()
+void coTUISlider::resend(bool create)
 {
-    createSimple(TABLET_SLIDER);
+    coTUIElement::resend(create);
     setVal(TABLET_MIN, minValue);
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_NUM_TICKS, ticks);
     setVal(actValue);
     setVal(orientation);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4302,6 +4360,15 @@ void coTUISlider::resend()
 coTUIComboBox::coTUIComboBox(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_COMBOBOX)
 {
+    label = "";
+    text = "";
+    selection = -1;
+}
+
+coTUIComboBox::coTUIComboBox(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_COMBOBOX)
+{
+    label = "";
     text = "";
     selection = -1;
 }
@@ -4309,6 +4376,7 @@ coTUIComboBox::coTUIComboBox(const std::string &n, int pID)
 coTUIComboBox::coTUIComboBox(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_COMBOBOX)
 {
+    label = "";
     text = "";
     selection = -1;
 }
@@ -4348,7 +4416,7 @@ void coTUIComboBox::addEntry(const std::string &t)
     tb << TABLET_ADD_ENTRY;
     tb << ID;
     tb << t.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIComboBox::delEntry(const std::string &t)
@@ -4358,7 +4426,7 @@ void coTUIComboBox::delEntry(const std::string &t)
     tb << TABLET_REMOVE_ENTRY;
     tb << ID;
     tb << t.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
     iter = elements.first();
     while (iter)
     {
@@ -4382,7 +4450,7 @@ void coTUIComboBox::clear()
     tb << TABLET_SET_VALUE;
     tb << TABLET_REMOVE_ALL;
     tb << ID;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
     elements.clean();
 }
 
@@ -4394,7 +4462,7 @@ void coTUIComboBox::setSelectedText(const std::string &t)
     tb << TABLET_SELECT_ENTRY;
     tb << ID;
     tb << text.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
     int i = 0;
     iter = elements.first();
     while (iter)
@@ -4433,12 +4501,12 @@ void coTUIComboBox::setSelectedEntry(int e)
     tb << TABLET_SELECT_ENTRY;
     tb << ID;
     tb << text.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
-void coTUIComboBox::resend()
+void coTUIComboBox::resend(bool create)
 {
-    createSimple(TABLET_COMBOBOX);
+    coTUIElement::resend(create);
     iter = elements.first();
     while (iter)
     {
@@ -4447,7 +4515,7 @@ void coTUIComboBox::resend()
         tb << TABLET_ADD_ENTRY;
         tb << ID;
         tb << (*iter).c_str();
-        coTabletUI::instance()->send(tb);
+        tui()->send(tb);
         iter++;
     }
     if (text != "")
@@ -4457,10 +4525,8 @@ void coTUIComboBox::resend()
         tb << TABLET_SELECT_ENTRY;
         tb << ID;
         tb << text.c_str();
-        coTabletUI::instance()->send(tb);
+        tui()->send(tb);
     }
-
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4515,7 +4581,7 @@ void coTUIListBox::addEntry(const std::string &t)
     tb << TABLET_ADD_ENTRY;
     tb << ID;
     tb << t.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIListBox::delEntry(const std::string &t)
@@ -4525,7 +4591,7 @@ void coTUIListBox::delEntry(const std::string &t)
     tb << TABLET_REMOVE_ENTRY;
     tb << ID;
     tb << t.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
     iter = elements.first();
     while (iter)
     {
@@ -4546,7 +4612,7 @@ void coTUIListBox::setSelectedText(const std::string &t)
     tb << TABLET_SELECT_ENTRY;
     tb << ID;
     tb << text.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
     int i = 0;
     iter = elements.first();
     while (iter)
@@ -4584,12 +4650,13 @@ void coTUIListBox::setSelectedEntry(int e)
     tb << TABLET_SELECT_ENTRY;
     tb << ID;
     tb << text.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
-void coTUIListBox::resend()
+void coTUIListBox::resend(bool create)
 {
-    createSimple(TABLET_LISTBOX);
+    coTUIElement::resend(create);
+
     iter = elements.first();
     while (iter)
     {
@@ -4598,7 +4665,7 @@ void coTUIListBox::resend()
         tb << TABLET_ADD_ENTRY;
         tb << ID;
         tb << (*iter).c_str();
-        coTabletUI::instance()->send(tb);
+        tui()->send(tb);
         iter++;
     }
     if (text != "")
@@ -4608,10 +4675,8 @@ void coTUIListBox::resend()
         tb << TABLET_SELECT_ENTRY;
         tb << ID;
         tb << text.c_str();
-        coTabletUI::instance()->send(tb);
+        tui()->send(tb);
     }
-
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4673,12 +4738,13 @@ void coTUIMap::addMap(const char *name, float ox, float oy, float xSize, float y
     tb << md->xSize;
     tb << md->ySize;
     tb << md->height;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
-void coTUIMap::resend()
+void coTUIMap::resend(bool create)
 {
-    createSimple(TABLET_MAP);
+    coTUIElement::resend(create);
+
     iter = maps.first();
     while (iter)
     {
@@ -4692,11 +4758,9 @@ void coTUIMap::resend()
         tb << iter->xSize;
         tb << iter->ySize;
         tb << iter->height;
-        coTabletUI::instance()->send(tb);
+        tui()->send(tb);
         iter++;
     }
-
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4743,12 +4807,11 @@ void coTUIPopUp::setText(const std::string &t)
     setVal(text);
 }
 
-void coTUIPopUp::resend()
+void coTUIPopUp::resend(bool create)
 {
-    createSimple(TABLET_POPUP);
+    coTUIElement::resend(create);
     setVal(text);
     setVal(immediate);
-    coTUIElement::resend();
 }
 
 //----------------------------------------------------------
@@ -4765,30 +4828,10 @@ coTabletUI *coTabletUI::instance()
 //----------------------------------------------------------
 //----------------------------------------------------------
 
-coTUIElement::coTUIElement(const std::string &n, int pID)
-    : QObject(0)
-{
-    abort();
-    xs = -1;
-    ys = -1;
-    xp = 0;
-    yp = 0;
-    parentID = pID;
-    name = n;
-    label = "";
-    ID = coTabletUI::instance()->getID();
-    coTabletUI::instance()->addElement(this);
-    listener = NULL;
-    hidden = false;
-    if(coTabletUI::instance()->debugTUI())
-    {
-        coVRMSController::instance()->syncStringStop(name);
-        coVRMSController::instance()->syncInt(ID);
-    }
-}
-
 coTUIElement::coTUIElement(const std::string &n, int pID, int type)
-    : QObject(0)
+: QObject(0)
+, type(type)
+, m_tui(coTabletUI::instance())
 {
     xs = -1;
     ys = -1;
@@ -4796,21 +4839,23 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     yp = 0;
     parentID = pID;
     name = n;
-    label = "";
-    ID = coTabletUI::instance()->getID();
-    coTabletUI::instance()->addElement(this);
+    label = n;
+    ID = tui()->getID();
     listener = NULL;
-    createSimple(type);
     hidden = false;
-    if(coTabletUI::instance()->debugTUI())
+    tui()->addElement(this);
+    createSimple(type);
+    if(tui()->debugTUI())
     {
         coVRMSController::instance()->syncStringStop(name);
         coVRMSController::instance()->syncInt(ID);
     }
 }
 
-coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
-    : QObject(parent)
+coTUIElement::coTUIElement(coTabletUI *tabletUI, const std::string &n, int pID, int type)
+: QObject(0)
+, type(type)
+, m_tui(tabletUI)
 {
     xs = -1;
     ys = -1;
@@ -4818,20 +4863,46 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     yp = 0;
     parentID = pID;
     name = n;
-    label = "";
-    ID = coTabletUI::instance()->getID();
-    coTabletUI::instance()->addElement(this);
+    label = n;
+    ID = tui()->getID();
     listener = NULL;
     hidden = false;
-    if(coTabletUI::instance()->debugTUI())
+    tui()->addElement(this);
+    createSimple(type);
+    if(tui()->debugTUI())
     {
         coVRMSController::instance()->syncStringStop(name);
         coVRMSController::instance()->syncInt(ID);
     }
 }
+
+#if 0
+coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
+: QObject(parent)
+{
+    xs = -1;
+    ys = -1;
+    xp = 0;
+    yp = 0;
+    parentID = pID;
+    name = n;
+    label = n;
+    ID = tui()->getID();
+    tui()->addElement(this);
+    listener = NULL;
+    hidden = false;
+    if(tui()->debugTUI())
+    {
+        coVRMSController::instance()->syncStringStop(name);
+        coVRMSController::instance()->syncInt(ID);
+    }
+}
+#endif
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int type)
-    : QObject(parent)
+: QObject(parent)
+, type(type)
+, m_tui(coTabletUI::instance())
 {
     xs = -1;
     ys = -1;
@@ -4839,13 +4910,12 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     yp = 0;
     parentID = pID;
     name = n;
-    label = "";
-    ID = coTabletUI::instance()->getID();
-    coTabletUI::instance()->addElement(this);
+    label = n;
+    ID = tui()->getID();
     listener = NULL;
-    createSimple(type);
     hidden = false;
-    if(coTabletUI::instance()->debugTUI())
+    tui()->addElement(this);
+    if(tui()->debugTUI())
     {
         coVRMSController::instance()->syncStringStop(name);
         coVRMSController::instance()->syncInt(ID);
@@ -4857,8 +4927,8 @@ coTUIElement::~coTUIElement()
     TokenBuffer tb;
     tb << TABLET_REMOVE;
     tb << ID;
-    coTabletUI::instance()->send(tb);
-    coTabletUI::instance()->removeElement(this);
+    tui()->send(tb);
+    tui()->removeElement(this);
 }
 
 void coTUIElement::createSimple(int type)
@@ -4869,7 +4939,15 @@ void coTUIElement::createSimple(int type)
     tb << type;
     tb << parentID;
     tb << name.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
+}
+
+coTabletUI *coTUIElement::tui() const
+{
+    if (m_tui)
+        return m_tui;
+    else
+        return coTabletUI::instance();
 }
 
 void coTUIElement::setLabel(const char *l)
@@ -4888,7 +4966,7 @@ void coTUIElement::setLabel(const std::string &l)
     tb << TABLET_LABEL;
     tb << ID;
     tb << label.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 int coTUIElement::getID() const
@@ -4912,7 +4990,7 @@ coTUIListener *coTUIElement::getMenuListener()
 
 void coTUIElement::setVal(float value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -4920,12 +4998,12 @@ void coTUIElement::setVal(float value)
     tb << TABLET_FLOAT;
     tb << ID;
     tb << value;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setVal(bool value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -4933,12 +5011,12 @@ void coTUIElement::setVal(bool value)
     tb << TABLET_BOOL;
     tb << ID;
     tb << (char)value;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setVal(int value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -4946,12 +5024,12 @@ void coTUIElement::setVal(int value)
     tb << TABLET_INT;
     tb << ID;
     tb << value;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setVal(const std::string &value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     //cerr << "coTUIElement::setVal info: " << (value ? value : "*NULL*") << endl;
@@ -4961,12 +5039,12 @@ void coTUIElement::setVal(const std::string &value)
     tb << TABLET_STRING;
     tb << ID;
     tb << value.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setVal(int type, int value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -4974,12 +5052,12 @@ void coTUIElement::setVal(int type, int value)
     tb << type;
     tb << ID;
     tb << value;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setVal(int type, float value)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -4987,11 +5065,11 @@ void coTUIElement::setVal(int type, float value)
     tb << type;
     tb << ID;
     tb << value;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 void coTUIElement::setVal(int type, int value, const std::string &nodePath)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -4999,11 +5077,11 @@ void coTUIElement::setVal(int type, int value, const std::string &nodePath)
     tb << ID;
     tb << value;
     tb << nodePath.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 void coTUIElement::setVal(int type, const std::string &nodePath, const std::string &simPath, const std::string &simName)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -5013,12 +5091,12 @@ void coTUIElement::setVal(int type, const std::string &nodePath, const std::stri
     tb << nodePath.c_str();
     tb << simPath.c_str();
     tb << simName.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setVal(int type, int value, const std::string &nodePath, const std::string &parentPath)
 {
-    if (coTabletUI::instance()->conn == NULL)
+    if (tui()->conn == NULL)
         return;
 
     TokenBuffer tb;
@@ -5028,19 +5106,15 @@ void coTUIElement::setVal(int type, int value, const std::string &nodePath, cons
     tb << value;
     tb << nodePath.c_str();
     tb << parentPath.c_str();
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
-void coTUIElement::resend()
+void coTUIElement::resend(bool create)
 {
+    if (create)
+        createSimple(type);
+
     TokenBuffer tb;
-    if (label != "")
-    {
-        tb << TABLET_SET_VALUE;
-        tb << TABLET_LABEL;
-        tb << ID;
-        tb << label.c_str();
-        coTabletUI::instance()->send(tb);
-    }
+
     if (xs > 0)
     {
         tb.reset();
@@ -5049,15 +5123,43 @@ void coTUIElement::resend()
         tb << ID;
         tb << xs;
         tb << ys;
-        coTabletUI::instance()->send(tb);
+        tui()->send(tb);
     }
+
     tb.reset();
     tb << TABLET_SET_VALUE;
     tb << TABLET_POS;
     tb << ID;
     tb << xp;
     tb << yp;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
+
+    if (hidden)
+    {
+        tb.reset();
+        tb << TABLET_SET_VALUE;
+        tb << TABLET_SET_HIDDEN;
+        tb << ID;
+        tb << hidden;
+        tui()->send(tb);
+    }
+
+    if (!enabled)
+    {
+        tb.reset();
+        tb << TABLET_SET_VALUE;
+        tb << TABLET_SET_ENABLED;
+        tb << ID;
+        tb << enabled;
+        tui()->send(tb);
+    }
+
+    tb.reset();
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_LABEL;
+    tb << ID;
+    tb << label.c_str();
+    tui()->send(tb);
 }
 
 void coTUIElement::setPos(int x, int y)
@@ -5079,7 +5181,7 @@ void coTUIElement::setPos(int x, int y)
     tb << ID;
     tb << xp;
     tb << yp;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setHidden(bool newState)
@@ -5093,7 +5195,21 @@ void coTUIElement::setHidden(bool newState)
     tb << TABLET_SET_HIDDEN;
     tb << ID;
     tb << hidden;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
+}
+
+void coTUIElement::setEnabled(bool newState)
+{
+    if (enabled == newState)
+        return;
+
+    enabled = newState;
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_SET_ENABLED;
+    tb << ID;
+    tb << enabled;
+    tui()->send(tb);
 }
 
 void coTUIElement::setColor(Qt::GlobalColor color)
@@ -5105,7 +5221,7 @@ void coTUIElement::setColor(Qt::GlobalColor color)
     tb << TABLET_COLOR;
     tb << ID;
     tb << this->color;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 void coTUIElement::setSize(int x, int y)
@@ -5118,59 +5234,20 @@ void coTUIElement::setSize(int x, int y)
     tb << ID;
     tb << xs;
     tb << ys;
-    coTabletUI::instance()->send(tb);
+    tui()->send(tb);
 }
 
 coTabletUI::coTabletUI()
 {
-    localHost = NULL;
-    serverHost = NULL;
-    connectedHost = NULL;
-    serverConn = NULL;
-    conn = NULL;
-    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI",false);
-    elements.setNoDelete();
-    ID = 3;
-    timeout = 0.0;
+    assert(!tUI);
     tUI = this;
-    tryConnect();
-}
 
-void coTabletUI::close()
-{
-    delete conn;
-    conn = NULL;
+    init();
 
-    delete serverConn;
-    serverConn = NULL;
-
-    delete serverHost;
-    serverHost = NULL;
-
-    delete localHost;
-    localHost = NULL;
-
-    tryConnect();
-}
-
-    bool coTabletUI::debugTUI()
-    {
-        return debugTUIState;
-    }
-
-void coTabletUI::tryConnect()
-{
-    delete serverHost;
-    delete serverConn;
-    serverConn = NULL;
-    serverHost = NULL;
-    delete localHost;
-    localHost = NULL;
     std::string line;
     if (getenv("COVER_TABLETPC"))
     {
         std::string env(getenv("COVER_TABLETPC"));
-        port = 31802;
         std::string::size_type p = env.find(':');
         if (p != std::string::npos)
         {
@@ -5183,12 +5260,11 @@ void coTabletUI::tryConnect()
     }
     else
     {
-        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", 31802);
+        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", port);
         line = coCoviseConfig::getEntry("COVER.TabletPC.Server");
         serverMode = coCoviseConfig::isOn("COVER.TabletPC.ServerMode", false);
     }
 
-    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
     if (!line.empty())
     {
         if (strcasecmp(line.c_str(), "NONE") != 0)
@@ -5201,10 +5277,57 @@ void coTabletUI::tryConnect()
     {
         localHost = new Host("localhost");
     }
+
+    tryConnect();
+}
+
+coTabletUI::coTabletUI(const std::string &host, int port)
+: port(port)
+{
+    init();
+
+    serverMode = false;
+    serverHost = new Host(host.c_str());
+
+    tryConnect();
+}
+
+void coTabletUI::init()
+{
+    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
+    elements.setNoDelete();
+
+    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
+}
+
+void coTabletUI::close()
+{
+    delete conn;
+    conn = NULL;
+
+    delete serverConn;
+    serverConn = NULL;
+
+    tryConnect();
+}
+
+bool coTabletUI::debugTUI()
+{
+    return debugTUIState;
+}
+
+void coTabletUI::tryConnect()
+{
+    delete serverConn;
+    serverConn = NULL;
 }
 
 coTabletUI::~coTabletUI()
 {
+    if (tUI == this)
+        tUI = nullptr;
+
+    delete serverConn;
     delete conn;
     delete serverHost;
     delete localHost;
@@ -5224,13 +5347,11 @@ void coTabletUI::send(TokenBuffer &tb)
     conn->send_msg(&m);
 }
 
-void coTabletUI::update()
+bool coTabletUI::update()
 {
     if (coVRMSController::instance() == NULL)
-        return;
+        return false;
 
-    static double oldTime = 0.0;
-    static bool firstConnection = true;
     if (conn)
     {
     }
@@ -5299,13 +5420,9 @@ void coTabletUI::update()
                     {
                         fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
                                 localHost->getName(), port, strerror(errno));
-                        delete localHost;
-                        localHost = NULL;
                     }
 #else
                     fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-                    delete localHost;
-                    localHost = NULL;
 #endif
                     delete conn;
                     conn = NULL;
@@ -5378,7 +5495,7 @@ void coTabletUI::update()
                     iter = elements.first();
                     while (iter)
                     {
-                        iter->resend();
+                        iter->resend(true);
                         iter++;
                     }
                 }
@@ -5407,12 +5524,19 @@ void coTabletUI::update()
             iter = elements.first();
             while (iter)
             {
-                iter->resend();
+                iter->resend(true);
                 iter++;
             }
         }
     }
 
+    for (auto el: newElements)
+    {
+        el->resend(false);
+    }
+    newElements.clear();
+
+    bool changed = false;
     bool gotMessage = false;
     do
     {
@@ -5453,6 +5577,7 @@ void coTabletUI::update()
         }
         if (gotMessage)
         {
+            changed = true;
 
             TokenBuffer tb(&m);
             switch (m.type)
@@ -5499,18 +5624,82 @@ void coTabletUI::update()
             }
         }
     } while (gotMessage);
+
+    return changed;
 }
 
 void coTabletUI::addElement(coTUIElement *e)
 {
     elements.append(e);
+    newElements.push_back(e);
 }
 
 void coTabletUI::removeElement(coTUIElement *e)
 {
+    auto it = std::find(newElements.begin(), newElements.end(), e);
+    if (it != newElements.end())
+        newElements.erase(it);
     coDLListIter<coTUIElement *> iter;
     iter = elements.findElem(e);
     if (iter)
         iter.remove();
 }
 
+
+coTUIGroupBox::coTUIGroupBox(const std::string &n, int pID)
+    : coTUIElement(n, pID, TABLET_GROUPBOX)
+{
+
+}
+
+coTUIGroupBox::coTUIGroupBox(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_GROUPBOX)
+{
+
+}
+
+coTUIGroupBox::coTUIGroupBox(QObject *parent, const std::string &n, int pID)
+    : coTUIElement(parent, n, pID, TABLET_GROUPBOX)
+{
+
+}
+
+coTUIGroupBox::~coTUIGroupBox()
+{
+
+}
+
+void coTUIGroupBox::resend(bool create)
+{
+    coTUIElement::resend(create);
+}
+
+void coTUIGroupBox::parseMessage(TokenBuffer &tb)
+{
+    int i;
+    tb >> i;
+    if (i == TABLET_ACTIVATED)
+    {
+        emit tabletEvent();
+        emit tabletPressEvent();
+        if (listener)
+        {
+            listener->tabletEvent(this);
+            listener->tabletPressEvent(this);
+        }
+    }
+    else if (i == TABLET_DISACTIVATED)
+    {
+        emit tabletEvent();
+        emit tabletReleaseEvent();
+        if (listener)
+        {
+            listener->tabletEvent(this);
+            listener->tabletReleaseEvent(this);
+        }
+    }
+    else
+    {
+        cerr << "unknown event " << i << endl;
+    }
+}

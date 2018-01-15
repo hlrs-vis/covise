@@ -34,26 +34,26 @@ OSGResponseSurface::OSGResponseSurface(double (*setresponse)(double *), double *
         ++nvertx0;
     }
 
+	lineBase = new osg::DrawElementsUInt(osg::PrimitiveSet::LINES, nvertx0*(nvertx1 - 1));
     for (int i = 0; i < nvertx0; ++i)
     {
         for (int j = 0; j < (nvertx1 - 1); ++j)
         {
-            lineBase = new osg::DrawElementsUInt(osg::PrimitiveSet::LINES, 0);
             lineBase->push_back(i * nvertx1 + j);
             lineBase->push_back(i * nvertx1 + j + 1);
-            lineGeometry->addPrimitiveSet(lineBase);
         }
     }
+	lineGeometry->addPrimitiveSet(lineBase);
 
+	lineBase = new osg::DrawElementsUInt(osg::PrimitiveSet::LINES, nvertx1*(nvertx0 - 1));
     for (int i = 0; i < nvertx1; ++i)
     {
         for (int j = 0; j < (nvertx0 - 1); ++j)
         {
-            lineBase = new osg::DrawElementsUInt(osg::PrimitiveSet::LINES, 0);
             lineBase->push_back(j * nvertx1 + i);
             lineBase->push_back((j + 1) * nvertx1 + i);
-            lineGeometry->addPrimitiveSet(lineBase);
         }
     }
+	lineGeometry->addPrimitiveSet(lineBase);
     lineGeometry->setStateSet(VRSceneGraph::instance()->loadUnlightedGeostate());
 }

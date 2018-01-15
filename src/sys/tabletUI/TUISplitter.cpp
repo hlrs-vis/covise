@@ -64,29 +64,9 @@ void TUISplitter::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-char *TUISplitter::getClassName()
+const char *TUISplitter::getClassName() const
 {
-    return (char *)"TUISplitter";
-}
-
-bool TUISplitter::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUISplitter";
 }
 
 void TUISplitter::setValue(int type, covise::TokenBuffer &tb)

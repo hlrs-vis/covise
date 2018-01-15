@@ -64,7 +64,7 @@ public:
     virtual void preFrame();
     virtual void preDraw(osg::RenderInfo &);
     virtual void postFrame();
-    virtual void message(int type, int len, const void *buf); // receive messages for Cuttinsurface updates from remote or the script plugin
+    virtual void message(int toWhom, int type, int len, const void *buf); // receive messages for Cuttinsurface updates from remote or the script plugin
     /*
    static void getMinMax(const float *data, int numElem, float &min,
                          float &max, float minV = -FLT_MAX, float maxV = FLT_MAX);

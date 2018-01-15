@@ -56,7 +56,6 @@
 #include "../Settings.h"
 
 using namespace std;
-using namespace std::tr1;
 
 // #define KARDANIK_DEBUG_FPE 1
 #ifdef KARDANIK_DEBUG_FPE
@@ -292,14 +291,14 @@ void KinematicsBehavior::CreateAnchorNodesMap(osg::Node *rootNode, ConstructionI
     }
 }
 
-KinematicsBehavior::CollectedNodes KinematicsBehavior::CollectAnchorNodes(osg::Node *rootNode, std::tr1::shared_ptr<KardanikXML::ConstructionParser> parser)
+KinematicsBehavior::CollectedNodes KinematicsBehavior::CollectAnchorNodes(osg::Node *rootNode, std::shared_ptr<KardanikXML::ConstructionParser> parser)
 {
     CollectedNodes collectedNodes;
     CollectAnchorNodesSubtree(rootNode, collectedNodes, parser);
     return collectedNodes;
 }
 
-void KinematicsBehavior::CollectAnchorNodesSubtree(osg::Node *node, CollectedNodes &collectedNodes, std::tr1::shared_ptr<KardanikXML::ConstructionParser> parser)
+void KinematicsBehavior::CollectAnchorNodesSubtree(osg::Node *node, CollectedNodes &collectedNodes, std::shared_ptr<KardanikXML::ConstructionParser> parser)
 {
     if (!node)
     {
@@ -470,8 +469,8 @@ EventErrors::Type KinematicsBehavior::receiveEvent(Event *e)
             // move planes to startPickPos (dont adjust the normal!)
             m_DragPlane->update(m_DragPlane->getNormal(), m_startPickPos);
 
-            std::tr1::tuple<std::tr1::shared_ptr<KardanikXML::Body>, osg::Vec3f> bodyInfo = GetBodyAndPickPosition();
-            std::tr1::shared_ptr<KardanikXML::Body> body = get<0>(bodyInfo);
+            std::tuple<std::shared_ptr<KardanikXML::Body>, osg::Vec3f> bodyInfo = GetBodyAndPickPosition();
+            std::shared_ptr<KardanikXML::Body> body = get<0>(bodyInfo);
             if (!body || body->GetMotionType() == KardanikXML::Body::MOTION_STATIC)
             {
                 m_AnimationRunning = false;
@@ -591,7 +590,7 @@ float KinematicsBehavior::getDeltaTimeMicroseconds() const
     return dt;
 }
 
-void KinematicsBehavior::AttachConstraintToBody(std::tr1::shared_ptr<KardanikXML::Body> body, const osg::Vec3f &scenePositionAttach)
+void KinematicsBehavior::AttachConstraintToBody(std::shared_ptr<KardanikXML::Body> body, const osg::Vec3f &scenePositionAttach)
 {
     // get rigidbody for body
     btRigidBody *rigidBody = m_KardanikConstructor->GetRigidBody(body);
@@ -644,7 +643,7 @@ void KinematicsBehavior::RemoveConstraintFromBody()
     m_PickConstraint = 0;
 }
 
-std::tr1::shared_ptr<KardanikXML::Body> KinematicsBehavior::GetBodyFromNodePath(const osg::NodePathList &nodePathList) const
+std::shared_ptr<KardanikXML::Body> KinematicsBehavior::GetBodyFromNodePath(const osg::NodePathList &nodePathList) const
 {
     BOOST_FOREACH (const osg::NodePath &nodePath, nodePathList)
     {
@@ -663,15 +662,15 @@ std::tr1::shared_ptr<KardanikXML::Body> KinematicsBehavior::GetBodyFromNodePath(
             }
         }
     }
-    return std::tr1::shared_ptr<KardanikXML::Body>();
+    return std::shared_ptr<KardanikXML::Body>();
 }
 
-std::tr1::tuple<std::tr1::shared_ptr<KardanikXML::Body>, osg::Vec3f> KinematicsBehavior::GetBodyAndPickPosition() const
+std::tuple<std::shared_ptr<KardanikXML::Body>, osg::Vec3f> KinematicsBehavior::GetBodyAndPickPosition() const
 {
-    std::tr1::shared_ptr<KardanikXML::Body> body = GetBodyFromNodePath(m_PickedNode->getParentalNodePaths(_sceneObject->getGeometryNode()));
+    std::shared_ptr<KardanikXML::Body> body = GetBodyFromNodePath(m_PickedNode->getParentalNodePaths(_sceneObject->getGeometryNode()));
     if (!body)
     {
-        return std::tr1::make_tuple(std::tr1::shared_ptr<KardanikXML::Body>(), osg::Vec3f());
+        return std::make_tuple(std::shared_ptr<KardanikXML::Body>(), osg::Vec3f());
     }
 
     osg::Matrixf worldTransformNode = osg::computeLocalToWorld(m_PickedNodePath);
@@ -682,7 +681,7 @@ std::tr1::tuple<std::tr1::shared_ptr<KardanikXML::Body>, osg::Vec3f> KinematicsB
     m_WorldToSceneMatrix = worldTransformNodeInv * sceneMatrix;
 
     osg::Vec3f pickPosScene = m_startPickPos * m_WorldToSceneMatrix;
-    return std::tr1::make_tuple(body, pickPosScene);
+    return std::make_tuple(body, pickPosScene);
 }
 
 bool KinematicsBehavior::buildFromXML(QDomElement *behaviorElement)
@@ -698,8 +697,8 @@ bool KinematicsBehavior::buildFromXML(QDomElement *behaviorElement)
         ConstructionInfo cInfo;
         cInfo.parser.reset(new KardanikXML::ConstructionParser);
 
-        cInfo.parser->setBodyNamespaceLookupCallback(std::tr1::bind(&KinematicsBehavior::LookupBodyByNamespace, this, std::tr1::placeholders::_1, std::tr1::placeholders::_2));
-        cInfo.parser->setPointNamespaceLookupCallback(std::tr1::bind(&KinematicsBehavior::LookupPointByNamespace, this, std::tr1::placeholders::_1, std::tr1::placeholders::_2));
+        cInfo.parser->setBodyNamespaceLookupCallback(std::bind(&KinematicsBehavior::LookupBodyByNamespace, this, std::placeholders::_1, std::placeholders::_2));
+        cInfo.parser->setPointNamespaceLookupCallback(std::bind(&KinematicsBehavior::LookupPointByNamespace, this, std::placeholders::_1, std::placeholders::_2));
 
         cInfo.parser->parseConstructionElement(construction);
         m_ConstructionInfos.push_back(cInfo);
@@ -785,7 +784,7 @@ void KinematicsBehavior::setOperatingRangesVisible(bool visible)
     }
 }
 
-std::tr1::shared_ptr<KardanikXML::Body> KinematicsBehavior::LookupBodyByNamespace(std::string theNamespace, std::string theID)
+std::shared_ptr<KardanikXML::Body> KinematicsBehavior::LookupBodyByNamespace(std::string theNamespace, std::string theID)
 {
     BOOST_FOREACH (const ConstructionInfo &cInfo, m_ConstructionInfos)
     {
@@ -795,10 +794,10 @@ std::tr1::shared_ptr<KardanikXML::Body> KinematicsBehavior::LookupBodyByNamespac
         }
         return cInfo.parser->getBodyByNameLocal(theID);
     }
-    return std::tr1::shared_ptr<KardanikXML::Body>();
+    return std::shared_ptr<KardanikXML::Body>();
 }
 
-std::tr1::shared_ptr<KardanikXML::Point> KinematicsBehavior::LookupPointByNamespace(std::string theNamespace, std::string theID)
+std::shared_ptr<KardanikXML::Point> KinematicsBehavior::LookupPointByNamespace(std::string theNamespace, std::string theID)
 {
     BOOST_FOREACH (const ConstructionInfo &cInfo, m_ConstructionInfos)
     {
@@ -808,11 +807,11 @@ std::tr1::shared_ptr<KardanikXML::Point> KinematicsBehavior::LookupPointByNamesp
         }
         return cInfo.parser->getPointByNameLocal(theID);
     }
-    return std::tr1::shared_ptr<KardanikXML::Point>();
+    return std::shared_ptr<KardanikXML::Point>();
 }
 
 osg::MatrixTransform *
-KinematicsBehavior::GetAnchorNodeByName(const string &nodeName, std::tr1::shared_ptr<KardanikXML::Construction> construction) const
+KinematicsBehavior::GetAnchorNodeByName(const string &nodeName, std::shared_ptr<KardanikXML::Construction> construction) const
 {
     BOOST_FOREACH (const ConstructionInfo &info, m_ConstructionInfos)
     {
@@ -831,9 +830,9 @@ KinematicsBehavior::GetAnchorNodeByName(const string &nodeName, std::tr1::shared
     return 0;
 }
 
-KardanikXML::MotionState *KinematicsBehavior::CreateMotionStateForBody(std::tr1::shared_ptr<KardanikXML::Body> body, const btTransform &centerOfMass)
+KardanikXML::MotionState *KinematicsBehavior::CreateMotionStateForBody(std::shared_ptr<KardanikXML::Body> body, const btTransform &centerOfMass)
 {
-    std::tr1::shared_ptr<KardanikXML::Anchor> anchor = body->GetAnchor();
+    std::shared_ptr<KardanikXML::Anchor> anchor = body->GetAnchor();
     if (!anchor)
     {
         btTransform centerOfMassOffset;
@@ -841,14 +840,14 @@ KardanikXML::MotionState *KinematicsBehavior::CreateMotionStateForBody(std::tr1:
         return new KardanikXML::MotionState(NULL, this, centerOfMass, centerOfMassOffset, body->GetName());
     }
 
-    std::tr1::shared_ptr<KardanikXML::Point> anchorPoint = anchor->GetAnchorPoint();
+    std::shared_ptr<KardanikXML::Point> anchorPoint = anchor->GetAnchorPoint();
 
     btTransform anchorPointTransform;
     anchorPointTransform.setIdentity();
     anchorPointTransform.setOrigin(btVector3(anchorPoint->GetX(), anchorPoint->GetY(), anchorPoint->GetZ()));
     btTransform centerOfMassOffset = centerOfMass.inverse() * anchorPointTransform;
 
-    std::tr1::shared_ptr<KardanikXML::Construction> construction = body->GetParentConstruction().lock();
+    std::shared_ptr<KardanikXML::Construction> construction = body->GetParentConstruction().lock();
     osg::MatrixTransform *anchorNode = GetAnchorNodeByName(anchor->GetAnchorNodeName(), construction);
 
     if (!body->GetOperatingRanges().empty())
@@ -857,9 +856,9 @@ KardanikXML::MotionState *KinematicsBehavior::CreateMotionStateForBody(std::tr1:
         circleSwitch->setAllChildrenOff();
         anchorNode->addChild(circleSwitch);
 
-        BOOST_FOREACH (std::tr1::shared_ptr<KardanikXML::OperatingRange> range, body->GetOperatingRanges())
+        BOOST_FOREACH (std::shared_ptr<KardanikXML::OperatingRange> range, body->GetOperatingRanges())
         {
-            std::tr1::shared_ptr<KardanikXML::Point> centerPoint = range->GetCenterPoint();
+            std::shared_ptr<KardanikXML::Point> centerPoint = range->GetCenterPoint();
             osg::ref_ptr<osg::MatrixTransform> centerPointTransform(new osg::MatrixTransform);
             osg::ref_ptr<osg::Geode> circleGeom(new osg::Geode);
             centerPointTransform->addChild(circleGeom);
@@ -892,7 +891,7 @@ void KinematicsBehavior::initPhysicsSimulation()
 {
     BOOST_FOREACH (ConstructionInfo &constructionInfo, m_ConstructionInfos)
     {
-        std::tr1::shared_ptr<KardanikXML::ConstructionParser> parser = constructionInfo.parser;
+        std::shared_ptr<KardanikXML::ConstructionParser> parser = constructionInfo.parser;
         string geomNamespace = parser->getConstruction()->GetNamespace();
         CreateAnchorNodesMap(getSceneObject()->getGeometryNode(geomNamespace), constructionInfo);
         m_KardanikConstructor->InstanciateConstruction(parser->getConstruction());

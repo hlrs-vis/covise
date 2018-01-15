@@ -10,14 +10,12 @@
 #endif
 
 #include <util/common.h>
-#include <util/string_util.h>
 
 #include "coVRTui.h"
 #include "VRSceneGraph.h"
 #include "coVRFileManager.h"
 #include "coVRNavigationManager.h"
 #include "coVRCollaboration.h"
-#include "coVRAnimationManager.h"
 #include "VRViewer.h"
 #include "coVRPluginSupport.h"
 #include "coVRConfig.h"
@@ -42,6 +40,8 @@
 #include <input/inputdevice.h>
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 
+//#define PRESENTATION
+
 using namespace opencover;
 using namespace grmsg;
 using namespace covise;
@@ -54,163 +54,11 @@ coVRTui *coVRTui::instance()
     return tui;
 }
 
-coPluginEntry::coPluginEntry(const char *libName, coTUITab *tab, int n)
-{
-    name = new char[strlen(libName) + 1];
-#ifdef WIN32
-    strcpy(name, libName);
-#else
-    strcpy(name, libName + 3);
-#endif
-
-#ifdef WIN32
-    name[strlen(name) - 4] = '\0';
-#else
-#ifdef __APPLE__
-    name[strlen(name) - 3] = '\0';
-#else
-    name[strlen(name) - 3] = '\0';
-#endif
-#endif
-
-    tuiEntry = new coTUIToggleButton(name, tab->getID());
-    tuiEntry->setEventListener(this);
-    tuiEntry->setPos(n % 6, n / 6);
-}
-
-coPluginEntry::~coPluginEntry()
-{
-    delete tuiEntry;
-    delete[] name;
-}
-
-void coPluginEntry::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == tuiEntry)
-    {
-        if (tuiEntry->getState())
-            cover->addPlugin(name);
-        else
-            cover->removePlugin(name);
-    }
-}
-
-void coPluginEntry::tabletPressEvent(coTUIElement * /*tUIItem*/)
-{
-}
-
-void coPluginEntry::tabletReleaseEvent(coTUIElement * /*tUIItem*/)
-{
-}
-
-coPluginEntryList::coPluginEntryList(coTUITab *tab)
-{
-    myTab = tab;
-    const char *coviseDir = getenv("COVISEDIR");
-    const char *archsuffix = getenv("ARCHSUFFIX");
-    const char *covisepath = getenv("COVISE_PATH");
-    char buf[1024];
-    int n = 0;
-    std::vector<std::string> paths;
-#ifdef __APPLE__
-    std::string bundlepath = getBundlePath();
-    if (!bundlepath.empty())
-    {
-        sprintf(buf, "%s/Contents/PlugIns/", bundlepath.c_str());
-        paths.push_back(buf);
-    }
-#endif
-    if (covisepath && archsuffix)
-    {
-#ifdef WIN32
-        std::vector<std::string> p = split(covisepath, ';');
-#else
-        std::vector<std::string> p = split(covisepath, ':');
-#endif
-        for (std::vector<std::string>::iterator it = p.begin(); it != p.end(); ++it)
-        {
-#ifdef WIN32
-            sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", it->c_str(), archsuffix);
-#else
-            sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", it->c_str(), archsuffix);
-#endif
-            paths.push_back(buf);
-        }
-    }
-    else if ((coviseDir != NULL) && (archsuffix != NULL))
-    {
-#ifdef WIN32
-        sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", coviseDir, archsuffix);
-#else
-        sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", coviseDir, archsuffix);
-#endif
-        paths.push_back(buf);
-    }
-
-    for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
-    {
-        coDirectory *dir = coDirectory::open(it->c_str());
-        for (int i = 0; dir && i < dir->count(); i++)
-        {
-            if (dir->match(dir->name(i),
-#ifdef WIN32
-                           "*.dll"
-#elif defined(__APPLE__)
-                           "*.so"
-#else
-                           "*.so"
-#endif
-                           ))
-#ifdef __APPLE__
-                if (!dir->match(dir->name(i), "*.?.?.so"))
-#endif
-                {
-                    if (!strstr(dir->name(i), "input_"))
-                    {
-                        append(new coPluginEntry(dir->name(i), myTab, n));
-                        n++;
-                    }
-                }
-        }
-    }
-    updateState();
-}
-
-coPluginEntryList::~coPluginEntryList()
-{
-}
-
-void coPluginEntryList::updateState()
-{
-    reset();
-    while (current())
-    {
-        if (cover->getPlugin(current()->name))
-        {
-            if (current()->tuiEntry->getState() == false)
-                current()->tuiEntry->setState(true);
-        }
-        else
-        {
-            if (current()->tuiEntry->getState() == true)
-                current()->tuiEntry->setState(false);
-        }
-        next();
-    }
-}
-
 coVRTui::coVRTui()
     : collision(false)
     , navigationMode(coVRNavigationManager::NavNone)
     , driveSpeed(0.0)
     , ScaleValue(1.0)
-    , numTimesteps(1)
-    , animationCurrentFrame(0)
-    , animationSpeed(1.0)
-    , animationSliderMin(0.0)
-    , animationSliderMax(30.)
-    , animationEnabled(true)
-    , animationOscillate(false)
 {
     assert(!tui);
 
@@ -219,8 +67,9 @@ coVRTui::coVRTui()
     binList = new BinList;
     mainFolder = new coTUITabFolder("testfolder");
     coverTab = new coTUITab("COVER", mainFolder->getID());
-    animTab = new coTUITab("Animation", mainFolder->getID());
-    pluginTab = new coTUITab("Plugins", mainFolder->getID());
+#ifdef PRESENTATION
+    presentationTab = new coTUITab("Presentation", mainFolder->getID());
+#endif
     inputTUI = new coInputTUI();
     topContainer = new coTUIFrame("Buttons", coverTab->getID());
     bottomContainer = new coTUIFrame("Nav", coverTab->getID());
@@ -421,28 +270,13 @@ coVRTui::coVRTui()
     posX->setValue(viewPos[0]);
     posY->setValue(viewPos[1]);
     posZ->setValue(viewPos[2]);
-    availablePlugins = new coPluginEntryList(pluginTab);
 
+#ifdef PRESENTATION
     // Animation tab
-    Animate = new coTUIToggleButton("Animate", animTab->getID());
-    Animate->setState(animationEnabled);
-    AnimSpeedLabel = new coTUILabel("Animation speed (fps)", animTab->getID());
-    AnimSpeed = new coTUIFloatSlider("Speed", animTab->getID());
-    AnimForward = new coTUIButton("Step forward", animTab->getID());
-    AnimBack = new coTUIButton("Step backward", animTab->getID());
-    //AnimRotate = new coTUIToggleButton("Rotate objects", animTab->getID());
-    AnimTimestepLabel = new coTUILabel("Time step", animTab->getID());
-    AnimTimestep = new coTUISlider("TimeStep", animTab->getID());
-    AnimOscillate = new coTUIToggleButton("Oscillate", animTab->getID());
-    AnimStartStepLabel = new coTUILabel("Start time step", animTab->getID());
-    AnimStartStep = new coTUISlider("StartTimeStep", animTab->getID());
-    AnimStopStepLabel = new coTUILabel("Stop time step", animTab->getID());
-    AnimStopStep = new coTUISlider("StopTimeStep", animTab->getID());
-
-    PresentationLabel = new coTUILabel("Presentation", animTab->getID());
-    PresentationForward = new coTUIButton("Forward", animTab->getID());
-    PresentationBack = new coTUIButton("Back", animTab->getID());
-    PresentationStep = new coTUIEditIntField("PresStep", animTab->getID());
+    PresentationLabel = new coTUILabel("Presentation", presentationTab->getID());
+    PresentationForward = new coTUIButton("Forward", presentationTab->getID());
+    PresentationBack = new coTUIButton("Back", presentationTab->getID());
+    PresentationStep = new coTUIEditIntField("PresStep", presentationTab->getID());
     PresentationForward->setEventListener(this);
     PresentationBack->setEventListener(this);
     PresentationStep->setEventListener(this);
@@ -454,60 +288,7 @@ coVRTui::coVRTui()
     PresentationBack->setPos(0, 11);
     PresentationStep->setPos(1, 11);
     PresentationForward->setPos(2, 11);
-
-    // anim speed was configurable in 5.2 where animSpeed was a slider
-    // for the dial where min=-max we use the greater value as animationSliderMax
-    animationSpeed = animationSliderMax * 0.96; // 24 FPS for 25.0
-
-    float min, max;
-    min = coCoviseConfig::getFloat("min", "COVER.AnimationSpeed", animationSliderMin);
-    max = coCoviseConfig::getFloat("max", "COVER.AnimationSpeed", animationSliderMax);
-    animationSpeed = coCoviseConfig::getFloat("default", "COVER.AnimationSpeed", animationSpeed);
-
-    if (min > max)
-        std::swap(min, max);
-
-    animationSliderMin = min;
-    animationSliderMax = max;
-
-    AnimSpeed->setMin(animationSliderMin);
-    AnimSpeed->setMax(animationSliderMax);
-    AnimSpeed->setValue(animationSpeed);
-
-    AnimTimestep->setMin(0);
-    AnimTimestep->setMax(numTimesteps);
-    AnimTimestep->setValue(animationCurrentFrame);
-    AnimStartStep->setMin(0);
-    AnimStartStep->setMax(numTimesteps);
-    AnimStartStep->setValue(animationCurrentFrame);
-    AnimStopStep->setMin(0);
-    AnimStopStep->setMax(numTimesteps);
-    AnimStopStep->setValue(animationCurrentFrame);
-    AnimOscillate->setState(animationOscillate);
-
-    Animate->setEventListener(this);
-    AnimSpeed->setEventListener(this);
-    AnimForward->setEventListener(this);
-    AnimBack->setEventListener(this);
-    //AnimRotate->setEventListener(this);
-    AnimTimestep->setEventListener(this);
-    AnimOscillate->setEventListener(this);
-    AnimStartStep->setEventListener(this);
-    AnimStopStep->setEventListener(this);
-
-    Animate->setPos(0, 0);
-    //AnimRotate->setPos(1,0);
-    AnimSpeedLabel->setPos(0, 1);
-    AnimSpeed->setPos(0, 2);
-    AnimBack->setPos(0, 3);
-    AnimForward->setPos(1, 3);
-    AnimTimestepLabel->setPos(0, 4);
-    AnimTimestep->setPos(0, 5);
-    AnimOscillate->setPos(2, 5);
-    AnimStartStepLabel->setPos(0, 6);
-    AnimStartStep->setPos(0, 7);
-    AnimStopStepLabel->setPos(0, 8);
-    AnimStopStep->setPos(0, 9);
+#endif
 
     nearEdit->setValue(coVRConfig::instance()->nearClip());
     farEdit->setValue(coVRConfig::instance()->farClip());
@@ -527,14 +308,6 @@ coVRTui::~coVRTui()
     delete PresentationForward;
     delete PresentationBack;
     delete PresentationStep;
-    delete Animate;
-    delete AnimSpeedLabel;
-    delete AnimSpeed;
-    delete AnimForward;
-    delete AnimBack;
-    //delete AnimRotate;
-    delete AnimTimestepLabel;
-    delete AnimTimestep;
     delete Walk;
     delete Drive;
     delete Fly;
@@ -598,13 +371,13 @@ coInputTUI::coInputTUI()
     personsLabel= new coTUILabel("Person",personContainer->getID());
     personsLabel->setPos(0,0);
     personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
-    personsChoice->setPos(1,0);
+    personsChoice->setPos(0,1);
     personsChoice->setEventListener(this);
 
     eyeDistanceLabel = new coTUILabel("Eye distance", personContainer->getID());
-    eyeDistanceLabel->setPos(1,3);
+    eyeDistanceLabel->setPos(0,3);
     eyeDistanceEdit = new coTUIEditFloatField("EyeDistance", personContainer->getID());
-    eyeDistanceEdit->setPos(1,4);
+    eyeDistanceEdit->setPos(0,4);
     eyeDistanceEdit->setEventListener(this);
     
     bodiesContainer = new coTUIFrame("bc",inputTab->getID());
@@ -675,35 +448,35 @@ coInputTUI::coInputTUI()
 	calibrateTrackingsystem->setEventListener(this);
 
 	calibrateToHand = new coTUIToggleButton("CalibrateToHand", bodiesContainer->getID());
-	calibrateToHand->setPos(1, 7);
+    calibrateToHand->setPos(2, 7);
 	calibrateToHand->setEventListener(this);
 
-	calibrationLabel = new coTUILabel("Select device and press Calibrate Device button", bodiesContainer->getID());
-	calibrationLabel->setPos(2, 7);
+    calibrationLabel = new coTUILabel("Select device and press Calibrate Device button", inputTab->getID());
+    calibrationLabel->setPos(1, 6);
 
     debugContainer = new coTUIFrame("Debug", inputTab->getID());
-    debugContainer->setPos(1,6);
+    debugContainer->setPos(1,7);
     debugLabel = new coTUILabel("Debug", debugContainer->getID());
     debugLabel->setPos(0,0);
 
     debugMatrices = new coTUIToggleButton("Matrices", debugContainer->getID());
-    debugMatrices->setPos(3,0);
+    debugMatrices->setPos(2,1);
     debugMatrices->setEventListener(this);
     debugOther = new coTUIToggleButton("Buttons+Valuators", debugContainer->getID());
-    debugOther->setPos(4,0);
+    debugOther->setPos(3,1);
     debugOther->setEventListener(this);
     
     debugMouseButton = new coTUIToggleButton("Mouse", debugContainer->getID());
-    debugMouseButton->setPos(1,1);
+    debugMouseButton->setPos(0,2);
     debugMouseButton->setEventListener(this);
     debugDriverButton = new coTUIToggleButton("Driver", debugContainer->getID());
-    debugDriverButton->setPos(2,1);
+    debugDriverButton->setPos(1,2);
     debugDriverButton->setEventListener(this);
     debugRawButton = new coTUIToggleButton("Raw", debugContainer->getID());
-    debugRawButton->setPos(3,1);
+    debugRawButton->setPos(2,2);
     debugRawButton->setEventListener(this);
     debugTransformedButton = new coTUIToggleButton("Transformed", debugContainer->getID());
-    debugTransformedButton->setPos(4,1);
+    debugTransformedButton->setPos(3,2);
     debugTransformedButton->setEventListener(this);
 
 	calibrationStep = -2;
@@ -986,8 +759,6 @@ void coInputTUI::tabletReleaseEvent(coTUIElement *tUIItem)
 
 void coVRTui::updateState()
 {
-    if (availablePlugins)
-        availablePlugins->updateState();
 }
 
 void coVRTui::updateFPS(double fps)
@@ -1096,47 +867,6 @@ void coVRTui::update()
         }
     }
 
-    if (numTimesteps != coVRAnimationManager::instance()->getNumTimesteps())
-    {
-        if (cover->frameRealTime() > lastUpdateTime + 0.5)
-        {
-            lastUpdateTime = cover->frameRealTime();
-            numTimesteps = coVRAnimationManager::instance()->getNumTimesteps();
-            if (numTimesteps > 0)
-                AnimTimestep->setMax(numTimesteps - 1);
-            else
-                AnimTimestep->setMax(0);
-            AnimTimestep->setMin(0);
-        }
-        AnimStopStep->setMax(numTimesteps - 1);
-        AnimStopStep->setMin(0);
-        AnimStartStep->setMax(numTimesteps - 1);
-        AnimStartStep->setMin(0);
-    }
-    if (AnimStartStep->getValue() != coVRAnimationManager::instance()->getStartFrame())
-        AnimStartStep->setValue(coVRAnimationManager::instance()->getStartFrame());
-    if (AnimStopStep->getValue() != coVRAnimationManager::instance()->getStopFrame())
-        AnimStopStep->setValue(coVRAnimationManager::instance()->getStopFrame());
-    if (animationCurrentFrame != coVRAnimationManager::instance()->getAnimationFrame())
-    {
-        animationCurrentFrame = coVRAnimationManager::instance()->getAnimationFrame();
-        AnimTimestep->setValue(animationCurrentFrame);
-    }
-    if (animationEnabled != coVRAnimationManager::instance()->animationRunning())
-    {
-        animationEnabled = coVRAnimationManager::instance()->animationRunning();
-        Animate->setState(animationEnabled);
-    }
-    if (animationSpeed != coVRAnimationManager::instance()->getAnimationSpeed())
-    {
-        animationSpeed = coVRAnimationManager::instance()->getAnimationSpeed();
-        AnimSpeed->setValue(animationSpeed);
-    }
-    if (animationOscillate != coVRAnimationManager::instance()->isOscillating())
-    {
-        animationOscillate = coVRAnimationManager::instance()->isOscillating();
-        AnimOscillate->setState(animationOscillate);
-    }
     if (inputTUI)
         inputTUI->updateTUI();
 }
@@ -1291,29 +1021,6 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
             my = panNav->y;
         }
     }
-    else if (tUIItem == AnimTimestep)
-    {
-        animationCurrentFrame = AnimTimestep->getValue();
-        coVRAnimationManager::instance()->requestAnimationFrame(animationCurrentFrame);
-    }
-    else if (tUIItem == AnimSpeed)
-    {
-        animationSpeed = AnimSpeed->getValue();
-        coVRAnimationManager::instance()->setAnimationSpeed(animationSpeed);
-    }
-    else if (tUIItem == AnimOscillate)
-    {
-        animationOscillate = AnimOscillate->getState();
-        coVRAnimationManager::instance()->setOscillate(animationOscillate);
-    }
-    else if (tUIItem == AnimStartStep)
-    {
-        coVRAnimationManager::instance()->setStartFrame(AnimStartStep->getValue() - 1);
-    }
-    else if (tUIItem == AnimStopStep)
-    {
-        coVRAnimationManager::instance()->setStopFrame(AnimStopStep->getValue() - 1);
-    }
     else if (tUIItem == FileBrowser)
     {
         //Retrieve Data object
@@ -1368,7 +1075,7 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
 
     if (tUIItem == Quit)
     {
-        OpenCOVER::instance()->quitCallback(NULL, NULL);
+        OpenCOVER::instance()->requestQuit();
     }
     else if (tUIItem == ViewAll)
     {
@@ -1413,20 +1120,6 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     else if ((tUIItem == panNav) || (tUIItem == driveNav))
     {
         startTabNav();
-    }
-    else if (tUIItem == Animate)
-    {
-        coVRAnimationManager::instance()->enableAnimation(true);
-    }
-    else if (tUIItem == AnimForward)
-    {
-        coVRAnimationManager::instance()->enableAnimation(false);
-        coVRAnimationManager::instance()->requestAnimationFrame(coVRAnimationManager::instance()->getAnimationFrame() + 1);
-    }
-    else if (tUIItem == AnimBack)
-    {
-        coVRAnimationManager::instance()->enableAnimation(false);
-        coVRAnimationManager::instance()->requestAnimationFrame(coVRAnimationManager::instance()->getAnimationFrame() - 1);
     }
 }
 
@@ -1488,10 +1181,6 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     else if (tUIItem == Menu)
     {
         VRSceneGraph::instance()->setMenu(true);
-    }
-    else if (tUIItem == Animate)
-    {
-        coVRAnimationManager::instance()->enableAnimation(false);
     }
 }
 

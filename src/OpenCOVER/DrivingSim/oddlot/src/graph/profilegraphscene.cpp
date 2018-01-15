@@ -16,6 +16,8 @@
 #include "profilegraphscene.hpp"
 #include "qgraphicssceneevent.h"
 
+#include "src/gui/mouseaction.hpp"
+
 ProfileGraphScene::ProfileGraphScene(const QRectF &sceneRect, QObject *parent)
     : QGraphicsScene(sceneRect, parent)
 {
@@ -44,5 +46,31 @@ void ProfileGraphScene::mousePressEvent(QGraphicsSceneMouseEvent *mevent)
         if (!pItemUnderMouse)
             return;
     }
-    QGraphicsScene::mousePressEvent(mevent);
+
+	MouseAction *mouseAction = new MouseAction(MouseAction::PATM_PRESS, mevent);
+	emit(mouseActionSignal(mouseAction));
+	delete mouseAction;
+
+	QGraphicsScene::mousePressEvent(mevent);
 }
+
+void 
+ProfileGraphScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+	MouseAction *mouseAction = new MouseAction(MouseAction::PATM_MOVE, event);
+	emit(mouseActionSignal(mouseAction));
+	delete mouseAction;
+
+	QGraphicsScene::mouseMoveEvent(event);
+}
+
+void
+ProfileGraphScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	MouseAction *mouseAction = new MouseAction(MouseAction::PATM_RELEASE, event);
+	emit(mouseActionSignal(mouseAction));
+	delete mouseAction;
+
+	QGraphicsScene::mouseMoveEvent(event);
+}
+

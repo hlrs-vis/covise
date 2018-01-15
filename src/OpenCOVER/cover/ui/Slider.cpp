@@ -80,13 +80,17 @@ void Slider::triggerImplementation() const
         m_callback(value(), !isMoving());
 }
 
-void Slider::update() const
+void Slider::update(UpdateMaskType mask) const
 {
-    Element::update();
-    manager()->updateScale(this);
-    manager()->updateIntegral(this);
-    manager()->updateBounds(this);
-    manager()->updateValue(this);
+    Element::update(mask);
+    if (mask & UpdateScale)
+        manager()->updateScale(this);
+    if (mask & UpdateIntegral)
+        manager()->updateIntegral(this);
+    if (mask & UpdateBounds)
+        manager()->updateBounds(this);
+    if (mask & UpdateValue)
+        manager()->updateValue(this);
 }
 
 void Slider::save(covise::TokenBuffer &buf) const
@@ -114,12 +118,15 @@ Slider::ValueType Slider::value() const
 
 void Slider::setValue(Slider::ValueType val)
 {
-    m_value = val;
     if (m_integral)
     {
-        m_value = std::round(m_value);
+        val = std::round(val);
     }
-    manager()->queueUpdate(this);
+    if (m_value != val)
+    {
+        m_value = val;
+        manager()->queueUpdate(this, UpdateValue);
+    }
 }
 
 void Slider::setLinValue(Slider::ValueType val)
@@ -192,7 +199,7 @@ void Slider::setBounds(Slider::ValueType min, Slider::ValueType max)
         m_min = std::floor(m_min);
         m_max = std::ceil(m_max);
     }
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateBounds);
 }
 
 }

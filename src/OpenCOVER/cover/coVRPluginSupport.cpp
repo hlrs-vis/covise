@@ -28,7 +28,6 @@
 #include "input/input.h"
 #include "input/coMousePointer.h"
 #include "VRViewer.h"
-#include "coTabletUI.h"
 #ifdef DOTIMING
 #include <util/coTimer.h>
 #endif
@@ -446,7 +445,6 @@ void coVRPluginSupport::update()
 
     invCalculated = 0;
     updateManager->update();
-    coTabletUI::instance()->update();
     //get rotational part of Xform only
     osg::Matrix frontRot(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
     if (VRViewer::instance()->isMatrixOverwriteOn())
@@ -832,7 +830,7 @@ void coVRPluginSupport::setCurrentCursor(osgViewer::GraphicsWindow::MouseCursor 
     currentCursor = cursor;
     for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
     {
-        if (coVRConfig::instance()->windows[i].window)
+        if (coVRConfig::instance()->windows[i].window && cursorVisible)
             coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
     }
 }
@@ -840,27 +838,19 @@ void coVRPluginSupport::setCurrentCursor(osgViewer::GraphicsWindow::MouseCursor 
 // make the cursor visible or invisible
 void coVRPluginSupport::setCursorVisible(bool visible)
 {
-    static bool isVisible = true;
-    if (visible && (!isVisible))
+    if (visible != cursorVisible)
     {
         for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
         {
             if (coVRConfig::instance()->windows[i].window)
             {
-                coVRConfig::instance()->windows[i].window->useCursor(true);
-                coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
+                if (visible)
+                    coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
+                coVRConfig::instance()->windows[i].window->useCursor(visible);
             }
         }
     }
-    if (!visible && (isVisible))
-    {
-        for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
-        {
-            if (coVRConfig::instance()->windows[i].window)
-                coVRConfig::instance()->windows[i].window->useCursor(false);
-        }
-    }
-    isVisible = visible;
+    cursorVisible = visible;
 }
 
 //-----
@@ -873,9 +863,9 @@ void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, in
     int size = len + 2 * sizeof(int);
 
     if (toWhom == coVRPluginSupport::TO_SAME)
-        sender->message(type, len, buf);
+        sender->message(toWhom, type, len, buf);
     if (toWhom == coVRPluginSupport::TO_ALL)
-        coVRPluginList::instance()->message(type, len, buf);
+        coVRPluginList::instance()->message(toWhom, type, len, buf);
 
     if ((toWhom == coVRPluginSupport::TO_SAME) || (toWhom == coVRPluginSupport::TO_SAME_OTHERS))
     {
@@ -922,7 +912,7 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
     coVRPlugin *dest = coVRPluginList::instance()->getPlugin(destination);
     if (dest)
     {
-        dest->message(type, len, buf);
+        dest->message(0, type, len, buf);
     }
     else if (strcmp(destination, "AKToolbar") != 0)
     {

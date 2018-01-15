@@ -74,8 +74,6 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     : TUITab(id, type, w, parent, name)
     , simu(0)
 {
-    label = name;
-
     numItems = 0;
     receivedTextures = 0;
     currentTexture = false;
@@ -107,11 +105,12 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     frame = new QFrame(w);
     frame->setFrameStyle(QFrame::NoFrame);
 
-    layout = new QGridLayout(frame);
+    auto grid = new QGridLayout(frame);
+    layout = grid;
     widget = frame;
 
     Treelayout = new QHBoxLayout();
-    layout->addLayout(Treelayout, 0, 0, Qt::AlignLeft);
+    grid->addLayout(Treelayout, 0, 0, Qt::AlignLeft);
 
     treeWidget = new nodeTree(frame);
     treeWidget->init();
@@ -129,7 +128,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     connect(treeWidget, SIGNAL(itemCheckStateChanged(QTreeWidgetItem *,bool)), this, SLOT(showNode(QTreeWidgetItem *,bool)));
 
     QHBoxLayout *Hlayout = new QHBoxLayout();
-    layout->addLayout(Hlayout, 1, 0, 1, 1, Qt::AlignLeft);
+    grid->addLayout(Hlayout, 1, 0, 1, 1, Qt::AlignLeft);
     QGridLayout *findlayout = new QGridLayout();
 
     findEdit = new QLineEdit(frame);
@@ -186,14 +185,14 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     selectionModeCB->addItem("Wireframe object color");
     selectionModeCB->addItem("Outline");
     selectionModeCB->setCurrentIndex(polyMode);
-    layout->addWidget(selectionModeCB, 2, 0, Qt::AlignRight);
+    grid->addWidget(selectionModeCB, 2, 0, Qt::AlignRight);
     connect(selectionModeCB, SIGNAL(activated(int)), this, SLOT(changeSelectionMode(int)));
 
     selModeCBox = new QCheckBox(frame);
     selModeCBox->setText("Show selection");
     selModeCBox->setToolTip("show /hide selection in OpenCover");
     selModeCBox->setChecked(true);
-    layout->addWidget(selModeCBox, 2, 0, Qt::AlignLeft);
+    grid->addWidget(selModeCBox, 2, 0, Qt::AlignLeft);
     connect(selModeCBox, SIGNAL(toggled(bool)), this, SLOT(setSelMode(bool)));
 
     selMode = 1;
@@ -201,22 +200,22 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
 
     selectCBox = new QCheckBox(frame);
     selectCBox->setText("Select &All");
-    layout->addWidget(selectCBox, 3, 0, Qt::AlignLeft);
+    grid->addWidget(selectCBox, 3, 0, Qt::AlignLeft);
     connect(selectCBox, SIGNAL(toggled(bool)), this, SLOT(selectAllNodes(bool)));
 
     QPushButton *propButton = new QPushButton(frame);
     propButton->setText(" &Properties ");
-    layout->addWidget(propButton, 3, 0, Qt::AlignRight);
+    grid->addWidget(propButton, 3, 0, Qt::AlignRight);
     connect(propButton, SIGNAL(clicked()), this, SLOT(showhideDialog()));
 
     showCBox = new QCheckBox(frame);
     showCBox->setText("Show all nodes");
-    layout->addWidget(showCBox, 4, 0, Qt::AlignLeft);
+    grid->addWidget(showCBox, 4, 0, Qt::AlignLeft);
     connect(showCBox, SIGNAL(toggled(bool)), this, SLOT(showAllNodes(bool)));
 
     updateButton = new QPushButton(frame);
     updateButton->setText(" &Update ");
-    layout->addWidget(updateButton, 4, 0, Qt::AlignRight);
+    grid->addWidget(updateButton, 4, 0, Qt::AlignRight);
     connect(updateButton, SIGNAL(clicked()), this, SLOT(updateScene()));
 
     showNodes = showCBox->isChecked();
@@ -809,7 +808,7 @@ void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
         propertyDialog->setOutputType(SName, value);
     }
 
-    TUIElement::setValue(type, tb);
+    TUITab::setValue(type, tb);
 }
 
 void TUISGBrowserTab::centerObject()
@@ -1653,18 +1652,15 @@ void TUISGBrowserTab::itemProperties()
             QString str = item->text(8);
             QByteArray ba = str.toUtf8();
             const char *path = ba.data();
-            const char *parentPath;
+            QByteArray baP;
+            const char *parentPath = path;
 
             pI = item->parent();
             if (pI)
             {
                 str = pI->text(8);
-                QByteArray baP = str.toUtf8();
+                baP = str.toUtf8();
                 parentPath = baP.data();
-            }
-            else
-            {
-                parentPath = path;
             }
 
             tb << ID;
@@ -2185,9 +2181,9 @@ void TUISGBrowserTab::updateItemState(QTreeWidgetItem *item, int column)
     }
 }
 
-char *TUISGBrowserTab::getClassName()
+const char *TUISGBrowserTab::getClassName() const
 {
-    return (char *)"TUISGBrowserTab";
+    return "TUISGBrowserTab";
 }
 
 bool TUISGBrowserTab::decision(int nodetype, QString &name, QColor &color)

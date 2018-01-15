@@ -111,8 +111,6 @@ MEUserInterface::MEUserInterface()
     , m_deleteAll_a(NULL)
     , m_keyDelete_a(NULL)
     , m_showDataViewer_a(NULL)
-    , m_showColorMap_a(NULL)
-    , m_showRegistry_a(NULL)
     , m_showTabletUI_a(NULL)
     , m_showToolbar_a(NULL)
     , m_showMessageArea_a(NULL)
@@ -220,9 +218,6 @@ void MEUserInterface::init()
 
     // react on a selected developer mode inside the settings
     connect(MEMainHandler::instance(), SIGNAL(developerMode(bool)), this, SLOT(developerMode(bool)));
-#ifdef YAC
-    show();
-#endif
 
     m_foregroundCount = 0;
     bringApplicationToForeground();
@@ -277,11 +272,6 @@ void MEUserInterface::makeMainWidgets()
     // The message is updated when buttons are clicked etc.
     // Use statusbar also for Chat
     makeStatusBar();
-#ifdef YAC
-    m_progressBar = new QProgressBar(statusBar());
-    statusBar()->addWidget(m_progressBar, 1);
-    statusBar()->showMessage("Welcome to YAC");
-#endif
 
     // set the central widget
     setCentralWidget(m_main);
@@ -391,23 +381,6 @@ void MEUserInterface::makeCenter()
 
     // create dataviewer folder
     m_dataPanel = MEDataViewer::instance();
-
-#ifdef YAC
-
-    const char *text8 = "<p>The purpose of the colormap editor is to define the <em>transfer function</em>. "
-                        "This means the mapping from scalar values to opacity (inverse transparency) and colour values. "
-                        "The range of your data is mapped to $[0, 1]$ for the purpose of defining colour mappings.</p>";
-
-    // create the colormap folder
-    m_colorMap = new MEColorMap(NULL, 0);
-    m_colorMap->setWhatsThis(text8);
-
-    // register area
-    MERegistry::instance();
-
-    // preference area
-    MEPreference::instance();
-#endif
 
     // show the programming area by default
     m_tabWidgets->setCurrentWidget(m_mainArea);
@@ -642,16 +615,6 @@ void MEUserInterface::createActions()
     addShowAction(m_showTabletUI_a, "Tablet UI", ocstate, showTabletUI);
     showTabletUI(ocstate);
 
-#ifdef YAC
-    ocstate = mapConfig->isOn("ColorMap", "System.MapEditor.Session", false);
-    addShowAction(m_showCME_a, "ColorMap Editor", ocstate, showColorMap);
-    showColorMap(ocstate);
-
-    ocstate = mapConfig->isOn("Registry", "System.MapEditor.Session", false);
-    addShowAction(m_showReg_a, "Registry", ocstate, showRegistry);
-    showRegistry(ocstate);
-#endif
-
     // programming area is the main visible tab widget
 
     if (m_tabWidgets)
@@ -708,9 +671,7 @@ void MEUserInterface::createMenubar()
     m_editActionList.append(m_selectAll_a);
     m_editActionList.append(m_deleteAll_a);
     m_editActionList.append(filePopup->addSeparator());
-#ifndef YAC
     m_editActionList.append(m_undo_a);
-#endif
 
     edit->addActions(m_editActionList);
 
@@ -721,10 +682,6 @@ void MEUserInterface::createMenubar()
     tools->addAction(m_showToolbar_a);
     tools->addAction(m_showMessageArea_a);
     tools->addAction(m_showDataViewer_a);
-#ifdef YAC
-    tools->addAction(m_showCME_a);
-    tools->addAction(m_showReg_a);
-#endif
     tools->addAction(m_showTabletUI_a);
     tools->addAction(m_showControlPanel_a);
 
@@ -744,19 +701,15 @@ void MEUserInterface::createMenubar()
     //----------------------------------------------------------------
     QMenu *session = menuBar()->addMenu("&CSCW");
 
-#ifndef YAC
     m_sessionActionList.append(m_master_a);
     m_sessionActionList.append(session->addSeparator());
-#endif
     m_sessionActionList.append(m_addhost_a);
     m_sessionActionList.append(m_addpartner_a);
     m_sessionActionList.append(m_delhost_a);
-#ifndef YAC
     m_sessionActionList.append(session->addSeparator());
 //sessionActionList.append(_setmirror);
 //sessionActionList.append(_startmirror);
 //sessionActionList.append(_delmirror);
-#endif
     session->addActions(m_sessionActionList);
 
 #ifdef HAVE_GLOBUS
@@ -805,9 +758,7 @@ void MEUserInterface::createToolbar()
     m_toolBarActionList.append(m_filesave_a);
     m_toolBarActionList.append(m_exec_a);
     m_toolBarActionList.append(m_execOnChange_a);
-#ifndef YAC
     m_toolBarActionList.append(m_undo_a);
-#endif
     m_toolBarActionList.append(m_whatsthis_a);
 
     m_toolBar->addActions(m_toolBarActionList);
@@ -913,18 +864,6 @@ void MEUserInterface::storeSessionParam(bool store)
     else
         mapConfig->setValue("MessageArea", "false", "System.MapEditor.Session");
 
-#ifdef YAC
-    if (m_showCME_a->isChecked())
-        mapConfig->setValue("ColorMap", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("ColorMap", "false", "System.MapEditor.Session");
-
-    if (m_showReg_a->isChecked())
-        mapConfig->setValue("Registry", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("Registry", "false", "System.MapEditor.Session");
-#endif
-
     if (store)
     {
 
@@ -1010,19 +949,11 @@ void MEUserInterface::openBrowser(const QString &title, const QString &mapName, 
 
     if (m_mainBrowser == NULL)
     {
-#ifdef YAC
-        m_mainBrowser = new MEFileBrowser(0);
-        if (mapName.isEmpty())
-            m_mainBrowser->setPathname("net", false);
-        else
-            m_mainBrowser->setPathname(m_mainHandler->getMapPath(), false);
-#else
         m_mainBrowser = new MEFileBrowser(this);
         if (mapName.isEmpty())
             m_mainBrowser->lookupFile("", "net", MEFileBrowser::FB_OPEN);
         else
             m_mainBrowser->lookupFile("", mapName, MEFileBrowser::FB_OPEN);
-#endif
     }
     m_mainBrowser->setWindowTitle(title);
     m_mainBrowser->setNetType(mode);
@@ -1065,11 +996,9 @@ void MEUserInterface::reset()
    {
    }*/
 
-#ifndef YAC
     m_renderer = NULL;
     if (MEDataViewer::instance())
         MEDataViewer::instance()->reset();
-#endif
 }
 
 //!
@@ -1085,12 +1014,8 @@ void MEUserInterface::showMapName(const QString &text)
 //!
 void MEUserInterface::updateMainBrowser(const QStringList &list)
 {
-#ifdef YAC
-    Q_UNUSED(list);
-#else
     if (m_mainBrowser)
         m_mainBrowser->updateTree(list);
-#endif
 }
 
 //!
@@ -1098,14 +1023,8 @@ void MEUserInterface::updateMainBrowser(const QStringList &list)
 //!
 void MEUserInterface::lookupResult(const QString &text, const QString &filename, QString &type)
 {
-#ifdef YAC
-    Q_UNUSED(text);
-    Q_UNUSED(filename);
-    Q_UNUSED(type);
-#else
     if (m_mainBrowser)
         m_mainBrowser->lookupResult(text, filename, type);
-#endif
 }
 
 //!
@@ -1303,13 +1222,16 @@ void MEUserInterface::showTabletUI(bool state)
     {
         if (state)
         {
-            if (m_tabWidgets->indexOf(m_tablet) == -1)
+            if (!MEMainHandler::instance()->cfg_TabletUITabs)
             {
-                m_tabWidgets->addTab(m_tablet, "Tablet UI");
-                m_tabWidgets->setTabToolTip(m_tabWidgets->indexOf(m_tablet), "This is the new beautiful OpenCOVER user interface");
+                if (m_tabWidgets->indexOf(m_tablet) == -1)
+                {
+                    m_tabWidgets->addTab(m_tablet, "Tablet UI");
+                    m_tabWidgets->setTabToolTip(m_tabWidgets->indexOf(m_tablet), "This is the new beautiful OpenCOVER user interface");
+                }
             }
-
-            m_tabWidgets->setCurrentWidget(m_tablet);
+            if (m_tabWidgets->indexOf(m_tablet) >= 0)
+                m_tabWidgets->setCurrentWidget(m_tablet);
         }
 
         else
@@ -1372,9 +1294,7 @@ void MEUserInterface::resetModuleFilter()
 //!
 void MEUserInterface::removeRenderer()
 {
-#ifndef YAC
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, "DEL_REQ\n" + m_renderName + "\n" + m_renderInstance + "\n" + m_renderHost);
-#endif
 }
 
 //!
@@ -1392,13 +1312,11 @@ void MEUserInterface::gridProxy()
 //!
 void MEUserInterface::restartRenderer()
 {
-#ifndef YAC
 /*tabWidgets->removePage(renderer);
    int xx = m_graphicsView->childX(renderNode);
    int yy = m_graphicsView->childY(renderNode);
    requestNode(renderNode->getName(), renderNode->getIPAddress(), xx, yy, renderNode, MEUserInterface::MOVE);
    lastFolderClosed();*/
-#endif
 }
 
 //!
@@ -1622,7 +1540,6 @@ void MEUserInterface::removeTabletUI()
 //!
 void MEUserInterface::activateTabletUI()
 {
-#ifndef YAC
     const char *text = "<p>The <b>Tablet Userinterface</b> contains items for navigation with the OpenCOVER.</p>";
 
     if (m_tabletUIisDead)
@@ -1651,7 +1568,10 @@ void MEUserInterface::activateTabletUI()
         // create tablet widget if no exists
         if (!m_tablet)
         {
-            m_tablet = new TUIMainWindow(m_tabWidgets);
+            if (MEMainHandler::instance()->cfg_TabletUITabs)
+                m_tablet = new TUIMainWindow(m_tabWidgets, m_tabWidgets);
+            else
+                m_tablet = new TUIMainWindow(m_tabWidgets);
             m_tablet->setWhatsThis(text);
         }
     }
@@ -1673,15 +1593,17 @@ void MEUserInterface::activateTabletUI()
             {
                 m_showTabletUI_a->setEnabled(true);
                 printMessage("Opening socket connection for TabletUI");
-                if (m_showTabletUI_a->isChecked())
+                if (!MEMainHandler::instance()->cfg_TabletUITabs)
                 {
-                    m_tabWidgets->addTab(m_tablet, "Tablet UI");
-                    m_tabWidgets->setTabToolTip(m_tabWidgets->indexOf(m_tablet), "This is the new beautiful OpenCOVER user interface");
+                    if (m_showTabletUI_a->isChecked())
+                    {
+                        m_tabWidgets->addTab(m_tablet, "Tablet UI");
+                        m_tabWidgets->setTabToolTip(m_tabWidgets->indexOf(m_tablet), "This is the new beautiful OpenCOVER user interface");
+                    }
                 }
             }
         }
     }
-#endif
 }
 
 //!
@@ -1742,10 +1664,8 @@ void MEUserInterface::startRenderer(const QStringList &arguments)
     delete[] argv;
 
 // send message to m_mainHandler, that a render tab inside the mapeditor is available
-#ifndef YAC
     QString tmp = "RENDERER_IMBEDDED_ACTIVE\n" + m_mainHandler->localIP + "\n" + m_mainHandler->localUser + "\nTRUE";
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
-#endif
 
     qDebug() << "________________MEUserInterface::startRenderer info: start renderer ";
     m_renderer->show();
@@ -1769,12 +1689,8 @@ void MEUserInterface::stopRenderer(const QString &name, const QString &number, c
             }
 
 // send message to controller, that a render tab inside the mapeditor is availablee
-
-#ifndef YAC
-
             QString tmp = "RENDERER_IMBEDDED_ACTIVE\n" + m_mainHandler->localIP + "\n" + m_mainHandler->localUser + "\nFALSE";
             MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
-#endif
 
             m_willStartRenderer = false;
             qDebug() << "________________MEUserInterface::startRenderer info: stop renderer ";

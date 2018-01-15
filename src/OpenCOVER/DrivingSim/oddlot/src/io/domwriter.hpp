@@ -80,12 +80,15 @@ public:
     virtual void visit(LaneSpeed *);
     virtual void visit(LaneHeight *);
 	virtual void visit(LaneRule *);
+	virtual void visit(LaneAccess *);
 
     virtual void visit(Object *);
+	virtual void visit(ObjectReference *);
     virtual void visit(Bridge *);
     virtual void visit(Tunnel *);
     virtual void visit(Crosswalk *);
     virtual void visit(Signal *);
+	virtual void visit (SignalReference *);
     virtual void visit(Sensor *);
 
     virtual void visit(FiddleyardSink *);

@@ -27,8 +27,8 @@ class TUIColorTab : public QObject, public TUITab
 public:
     TUIColorTab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIColorTab();
-    virtual char *getClassName();
-    virtual void setValue(int type, covise::TokenBuffer &tb);
+    virtual const char *getClassName() const override;
+    virtual void setValue(int type, covise::TokenBuffer &tb) override;
 
 private:
     QFrame *frame;

@@ -59,6 +59,7 @@
 #include "src/graph/editors/elevationeditor.hpp"
 #include "src/graph/editors/superelevationeditor.hpp"
 #include "src/graph/editors/crossfalleditor.hpp"
+#include "src/graph/editors/shapeeditor.hpp"
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/editors/junctioneditor.hpp"
 #include "src/graph/editors/signaleditor.hpp"
@@ -197,6 +198,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     splitter->addWidget(profileGraph_);
     splitter->setStretchFactor(1, 1);
 
+	// Routes the tool, mouse and key events to the project widget.
+	connect(profileGraph_, SIGNAL(mouseActionSignal(MouseAction *)), this, SLOT(mouseAction(MouseAction *)));
+
     // The ChangeManager triggers the view's garbage disposal.
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), profileGraph_, SLOT(garbageDisposal()));
 
@@ -219,6 +223,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::EEL, new ElevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ESE, new SuperelevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ECF, new CrossfallEditor(this, projectData_, topviewGraph_, profileGraph_));
+	editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
@@ -252,10 +257,12 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     QList<PrototypeContainer<RSystemElementRoad *> *> laneSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> superelevationPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> crossfallPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype);
+	QList<PrototypeContainer<RSystemElementRoad *> *> shapePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
     currentRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(laneSectionPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
+	currentRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 
     testRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
@@ -263,6 +270,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     testRoadPrototype_->superposePrototype(laneSectionPrototypes.at(3)->getPrototype());
     testRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
+	testRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 }
 
 /*!
@@ -327,7 +335,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // ProfileGraph //
         //
-        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF)
+        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF || id == ODD::ERS)
         {
             profileGraph_->show();
         }
@@ -1051,6 +1059,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
+	osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, typeName));
 
     road->superposePrototype(osmPrototype);
     if(maxspeed>=0)
@@ -1092,7 +1101,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     if(bridge)
     {
-        Bridge *bridge = new Bridge("osmBridge","","",0,0.0,road->getLength());
+        Bridge *bridge = new Bridge("osmBridge","","",Bridge::BT_CONCRETE,0.0,road->getLength());
         road->addBridge(bridge);
     }
 
@@ -1334,8 +1343,8 @@ bool
 						dir = Signal::NEGATIVE_TRACK_DIRECTION;
 					}
 
-					int type = -1;
-					int subtype = -1;
+					QString type = "-1";
+					QString subtype = "-1";
 					QString typeSubclass = "";
 					QString signNumber = QString::fromStdString(sign);
 					signNumber.replace('.', '-'); // separator type -> typeSubclass + subtype
@@ -1528,72 +1537,72 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         float speed;
                         // #MARKER TrfSign 491.045 0.0 SpeedLimit 0.5 r p M 2.5 0 0 60  0 - M 0 0 - M 0 0
                         sscanf(linestr+16,"%f %f %s %f %s %s %s %f %d %d %f",&s,&dummy,signName,&t, signDir, unknown, unknown, &dummy, &di, &di, &speed);
-                        int type=-1;
-                        int subType=-1;
+                        QString type="-1";
+						QString subType="-1";
                         if(strcmp(signName,"SpeedLimit")==0)
                         {
-                            type = 274;
-                            subType = 50+(speed/10);
+                            type = "274";
+                            subType = QString::number(50+(speed/10));
                         }
                         if(strcmp(signName,"OvertakeProhibitedCC")==0)
                         {
-                            type = 276;
+                            type = "276";
                         }
                         if(strcmp(signName,"OvertakeProhibitedTC")==0)
                         {
-                            type = 280;
+                            type = "280";
                         }
                         if(strcmp(signName,"SCurveR")==0)
                         {
-                            type = 105;
+                            type = "105";
                             subType = 10;
                         }
                         if(strcmp(signName,"SCurveL")==0)
                         {
-                            type = 105;
-                            subType = 20;
+                            type = "105";
+                            subType = "20";
                         }
                         if(strcmp(signName,"CurveR")==0)
                         {
-                            type = 103;
-                            subType = 10;
+                            type = "103";
+                            subType = "10";
                         }
                         if(strcmp(signName,"CurveL")==0)
                         {
-                            type = 103;
-                            subType = 20;
+                            type = "103";
+                            subType = "20";
                         }
                         if(strcmp(signName,"GiveWay")==0)
                         {
-                            type = 205;
+                            type = "205";
                         }
                         if(strcmp(signName,"PedXingCaution")==0)
                         {
-                            type = 134;
+                            type = "134";
                         }
                         if(strcmp(signName,"SpeedLimitEnd")==0)
                         {
-                            type = 278;
-                            subType = 50+(speed/10);
+                            type = "278";
+                            subType = QString::number(50+(speed/10));
                         }
                         if(strcmp(signName,"LaneMergeLeft")==0)
                         {
-                            type = 121;
-                            subType = 20;
+                            type = "121";
+                            subType = "20";
                         }
                         if(strcmp(signName,"LaneMergeRight")==0)
                         {
-                            type = 121;
-                            subType = 10;
+                            type = "121";
+                            subType = "10";
                         }
                         if(strcmp(signName,"Animals")==0)
                         {
-                            type = 142;
-                            subType = 10;
+                            type = "142";
+                            subType = "10";
                         }
                         if(strcmp(signName,"SlipperyRoad")==0)
                         {
-                            type = 114;
+                            type = "114";
                         }
 
                         Signal::OrientationType dir= Signal::BOTH_DIRECTIONS;

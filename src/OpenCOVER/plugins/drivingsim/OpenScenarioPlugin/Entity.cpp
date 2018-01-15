@@ -1,5 +1,6 @@
 #include "Entity.h"
 
+using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
 	name(entityName),
@@ -25,7 +26,6 @@ void Entity::setInitEntityPosition(Road *r)
 
 void Entity::moveLongitudinal()
 {
-	directionVector.set(1, 0, 0);
 	float step_distance = speed*opencover::cover->frameDuration();
 	entityPosition[0] = entityPosition[0] + step_distance;
 }
@@ -50,6 +50,7 @@ void Entity::setSpeed(float speed_temp)
 {
 	speed = speed_temp;
 }
+
 
 float &Entity::getSpeed()
 {

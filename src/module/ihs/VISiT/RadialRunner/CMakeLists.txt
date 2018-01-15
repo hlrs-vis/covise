@@ -28,3 +28,4 @@ SET(SOURCES
 
 covise_add_module(VISiT RadialRunner_dev ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(RadialRunner_dev coApi coAppl coCore visit_radialrunner visit_runnergridgen visit_general visit_bspline)
+covise_install_target(RadialRunner_dev)

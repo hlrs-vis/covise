@@ -17,6 +17,7 @@
 #define ROADLINK_HPP
 
 #include "src/data/dataelement.hpp"
+#include "src/data/roadsystem/junctionconnection.hpp"
 
 class RoadLink : public DataElement
 {
@@ -46,7 +47,7 @@ public:
     //################//
 
 public:
-    explicit RoadLink(const QString &elementType, const QString &elementId, const QString &contactPoint);
+    explicit RoadLink(const QString &elementType, const QString &elementId, JunctionConnection::ContactPointValue contactPoint);
     virtual ~RoadLink();
 
     // RoadLink //
@@ -63,11 +64,11 @@ public:
     }
     void setElementId(const QString &elementId);
 
-    QString getContactPoint() const
+	JunctionConnection::ContactPointValue getContactPoint() const
     {
         return contactPoint_;
     }
-    void setContactPoint(const QString &contactPoint);
+    void setContactPoint(JunctionConnection::ContactPointValue contactPoint);
 
     RoadLinkType getRoadLinkType() const
     {
@@ -142,7 +143,7 @@ private:
     //
     QString elementType_; // "road" or "junction"
     QString elementId_; // ID of the linked road
-    QString contactPoint_; // contact point of the linked element ("start" or "end")
+	JunctionConnection::ContactPointValue contactPoint_; // contact point of the linked element ("start" or "end")
 };
 
 #endif // ROADLINK_HPP

@@ -3468,7 +3468,7 @@ VRML2Export::VrmlOutCamera(INode *node, Object *obj, int level)
    if (cam->IsOrtho() && (mType == Export_VRML_2_0_COVER))
    {
        Indent(level + 1);
-	   MSTREAMPRINTFNOSTRINGS("type \"free\"\n"));
+	   MSTREAMPRINTFNOSTRINGS("type \"ortho\"\n"));
    }
    Indent(level);
    MSTREAMPRINTFNOSTRINGS("}\n"));
@@ -6021,23 +6021,40 @@ VRML2Export::WriteScripts()
                                        .obj;
         if (so)
         {
+
+			MSTREAMPRINTF("#Script %s\n"), l->GetNode()->GetName());
             // remove unwanted \rs
             const TCHAR *textdata = so->GetUrl().data();
-            TCHAR *buf = new TCHAR[_tcslen(textdata) + 1];
-            TCHAR *b = buf;
-            while (*textdata != '\0')
-            {
-                if (*textdata != '\r')
-                {
-                    *b = *textdata;
-                    b++;
-                }
-                textdata++;
-            }
-            *b = '\0';
 
-         MSTREAMPRINTF  ("#Script %s\n%s\n"),l->GetNode()->GetName(), buf);
-         delete[] buf;
+			size_t dataLen = _tcslen(textdata);
+			size_t lenWritten = 0;
+			size_t toWrite = 0;
+			size_t counter;
+			TCHAR *buf = new TCHAR[LINELENGTH];
+			while (lenWritten < dataLen)
+			{
+				toWrite = dataLen - lenWritten;
+				if (toWrite > 1000)
+					toWrite = 1000;
+				TCHAR *b = buf;
+				counter = 0;
+				while (counter < toWrite && *textdata != '\0')
+				{
+					if (*textdata != '\r')
+					{
+						*b = *textdata;
+						b++;
+					}
+					textdata++;
+					counter++;
+				}
+				*b = '\0';
+				MSTREAMPRINTFNOSTRINGS(buf));
+				lenWritten += toWrite;
+			}
+
+         MSTREAMPRINTF("\n"));
+		 delete[] buf;
         }
     }
 }
@@ -7542,6 +7559,12 @@ VRML2Export::VrmlOutTopLevelCamera(int level, INode *node, BOOL topLevel)
    MSTREAMPRINTF  ("fieldOfView %s\n"), floatVal(vp.fov));
    Indent(level + 1);
    MSTREAMPRINTF  ("description \"%s\"\n"), mNodes.GetNodeName(node));
+
+   if (cam->IsOrtho() && (mType == Export_VRML_2_0_COVER))
+   {
+	   Indent(level + 1);
+	   MSTREAMPRINTFNOSTRINGS("type \"ortho\"\n"));
+   }
    Indent(level);
    MSTREAMPRINTF  ("}\n"));
 

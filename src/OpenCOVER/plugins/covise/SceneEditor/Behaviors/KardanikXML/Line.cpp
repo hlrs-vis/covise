@@ -8,7 +8,6 @@
 #include "Line.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -18,7 +17,7 @@ Line::Line()
 {
 }
 
-Line::Line(std::tr1::shared_ptr<Point> pointA, std::tr1::shared_ptr<Point> pointB)
+Line::Line(std::shared_ptr<Point> pointA, std::shared_ptr<Point> pointB)
     : m_Radius(0.2f)
     , m_PointA(pointA)
     , m_PointB(pointB)
@@ -26,24 +25,24 @@ Line::Line(std::tr1::shared_ptr<Point> pointA, std::tr1::shared_ptr<Point> point
 }
 
 void
-Line::SetPointA(std::tr1::shared_ptr<Point> pointA)
+Line::SetPointA(std::shared_ptr<Point> pointA)
 {
     m_PointA = pointA;
 }
 
-std::tr1::shared_ptr<Point>
+std::shared_ptr<Point>
 Line::GetPointA() const
 {
     return m_PointA;
 }
 
 void
-Line::SetPointB(std::tr1::shared_ptr<Point> pointB)
+Line::SetPointB(std::shared_ptr<Point> pointB)
 {
     m_PointB = pointB;
 }
 
-std::tr1::shared_ptr<Point>
+std::shared_ptr<Point>
 Line::GetPointB() const
 {
     return m_PointB;

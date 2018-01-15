@@ -58,11 +58,14 @@
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/laneheight.hpp"
 #include "src/data/roadsystem/sections/lanerule.hpp"
+#include "src/data/roadsystem/sections/laneaccess.hpp"
 
 #include "src/data/roadsystem/sections/crosswalkobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/objectreference.hpp"
 #include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/signalreference.hpp"
 #include "src/data/roadsystem/sections/sensorobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
@@ -191,7 +194,7 @@ DomWriter::visit(RSystemElementRoad *road)
             QDomElement predElement = doc_->createElement("predecessor");
             predElement.setAttribute("elementType", pred->getElementType());
             predElement.setAttribute("elementId", pred->getElementId());
-            predElement.setAttribute("contactPoint", pred->getContactPoint());
+            predElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(pred->getContactPoint()));
             linkElement.appendChild(predElement);
         }
 
@@ -200,7 +203,7 @@ DomWriter::visit(RSystemElementRoad *road)
             QDomElement succElement = doc_->createElement("successor");
             succElement.setAttribute("elementType", succ->getElementType());
             succElement.setAttribute("elementId", succ->getElementId());
-            succElement.setAttribute("contactPoint", succ->getContactPoint());
+            succElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(succ->getContactPoint()));
             linkElement.appendChild(succElement);
         }
     }
@@ -269,16 +272,16 @@ DomWriter::visit(Object *object)
         QStringList parts = object->getType().split("-");
 
         bool number = false;
-        int type = parts.at(0).toInt(&number);
+		QString type = parts.at(0);
         QString subclass = "";
-        int subtype = -1;
+        QString subtype = "-1";
        
         if (number && (parts.size() > 1))
         {
-            subtype = parts.at(1).toInt(&number);
+            subtype = parts.at(1);
             if (!number)
             {
-                subtype = -1;
+                subtype = "-1";
             }
             if (parts.size() > 2)
             {
@@ -299,16 +302,16 @@ DomWriter::visit(Object *object)
 
         do
         {
-            Object::ObjectOrientation orientation = object->getOrientation();
+            Signal::OrientationType orientation = object->getOrientation();
             
 
             int fromLane = 0;
             int toLane = 0;
-            if (orientation == Object::ObjectOrientation::NEGATIVE_TRACK_DIRECTION)
+            if (orientation == Signal::OrientationType::NEGATIVE_TRACK_DIRECTION)
             {
                 fromLane = object->getParentRoad()->getLaneSection(object->getSStart())->getRightmostLaneId();
             }
-            else if (orientation == Object::ObjectOrientation::POSITIVE_TRACK_DIRECTION)
+            else if (orientation == Signal::OrientationType::POSITIVE_TRACK_DIRECTION)
             {
                 toLane = object->getParentRoad()->getLaneSection(object->getSStart())->getLeftmostLaneId();
             }
@@ -341,8 +344,8 @@ DomWriter::visit(Object *object)
     else if (object->getType() != "")
     {
         QDomElement objectElement = doc_->createElement("object");
-        if (object->getRepeatS() != -1)
-        {
+        if (object->getRepeatLength() > NUMERICAL_ZERO3)
+		{
             QDomElement repeatElement = doc_->createElement("repeat");
 
             repeatElement.setAttribute("s", object->getRepeatS());
@@ -456,10 +459,8 @@ DomWriter::visit(Object *object)
         objectElement.setAttribute("t", object->getT());
         objectElement.setAttribute("zOffset", object->getzOffset());
         objectElement.setAttribute("validLength", object->getValidLength());
-        if (object->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
-            objectElement.setAttribute("orientation", "-");
-        else
-            objectElement.setAttribute("orientation", "+");
+
+		objectElement.setAttribute("orientation", Signal::parseOrientationTypeBack(object->getOrientation()));
         objectElement.setAttribute("length", object->getLength());
         objectElement.setAttribute("width", object->getWidth());
         objectElement.setAttribute("radius", object->getRadius());
@@ -496,9 +497,73 @@ DomWriter::visit(Object *object)
 			objectElement.appendChild(parking);
 		}
 
+		Outline *outline = object->getOutline();
+		if (outline)
+		{
+			QList<ObjectCorner *> corners = outline->getCorners();
+			if (!corners.isEmpty())
+			{
+				QDomElement outlineElement = doc_->createElement("outline");
+				foreach (ObjectCorner *corner, corners)
+				{
+					QDomElement cornerElement;
+					if (corner->getLocal())
+					{
+						cornerElement = doc_->createElement("cornerLocal");
+						cornerElement.setAttribute("u", corner->getU());
+						cornerElement.setAttribute("v", corner->getV());
+						cornerElement.setAttribute("z", corner->getZ());
+						cornerElement.setAttribute("height", corner->getHeight());
+					}
+					else
+					{
+						cornerElement = doc_->createElement("cornerRoad");
+						cornerElement.setAttribute("u", corner->getU());
+						cornerElement.setAttribute("v", corner->getV());
+						cornerElement.setAttribute("dz", corner->getZ());
+						cornerElement.setAttribute("height", corner->getHeight());
+					}
+					outlineElement.appendChild(cornerElement);
+				}
+				objectElement.appendChild(outlineElement);
+			}
+
+		}
+
         currentObjectsElement_.appendChild(objectElement);
     }
 }
+
+//################//
+// SIGNALREFERENCE     //
+//################//
+
+void
+DomWriter::visit(ObjectReference *objectReference)
+{
+
+	QDomElement objectReferenceElement = doc_->createElement("objectReference");
+
+	objectReferenceElement.setAttribute("s", objectReference->getSStart());
+	objectReferenceElement.setAttribute("t", objectReference->getReferenceT());
+	objectReferenceElement.setAttribute("id", objectReference->getReferenceId());
+	objectReferenceElement.setAttribute("zOffset", objectReference->getReferenceZOffset());
+	objectReferenceElement.setAttribute("validLength", objectReference->getReferenceValidLength());
+	objectReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(objectReference->getReferenceOrientation()));
+
+	foreach(Signal::Validity validity, objectReference->getValidityList())
+	{
+		QDomElement validityElement = doc_->createElement("validity");
+
+		validityElement.setAttribute("fromLane", validity.fromLane);
+		validityElement.setAttribute("toLane", validity.toLane);
+
+		objectReferenceElement.appendChild(validityElement);
+	}
+
+	currentObjectsElement_.appendChild(objectReferenceElement);
+}
+
 
 //################//
 // BRIDGE       //
@@ -583,9 +648,9 @@ DomWriter::visit(Tunnel *tunnel)
         tunnelElement.setAttribute("s", tunnel->getSStart());
         tunnelElement.setAttribute("length", tunnel->getLength());
 
-        tunnelElement.setAttribute("lighting", 0.5);
-        tunnelElement.setAttribute("daylight", 0.5);
-        tunnelElement.setAttribute("type", "standard");
+        tunnelElement.setAttribute("lighting", tunnel->getLighting());
+		tunnelElement.setAttribute("daylight", tunnel->getDaylight());
+        tunnelElement.setAttribute("type", Tunnel::parseTunnelTypeBack(tunnel->getType()));
 
     // model file are ancillary data
     //
@@ -685,7 +750,7 @@ DomWriter::visit(Signal *signal)
 
     //Pedestrian Crossing has ancillary data
     //
-    if (signal->getType() == 293)
+    if (signal->getType() == "293")
     {
         userData = doc_->createElement("userData");
 
@@ -707,31 +772,33 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("id", signal->getId());
     QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 
-    if (signal->getType() >= 0)
+    QString type = signal->getType();
+    QString subtype = signal->getSubtype();
+    if ((type != "-1") && (type != "none"))
     {
         if (!signal->getTypeSubclass().isEmpty())
         {
-            if (signal->getSubtype() >= 0)
+            if ((subtype != "-1") && (subtype != "none"))
             {
-                signalName = QString::number(signal->getType()) + "." + signal->getTypeSubclass() + "-" + QString::number(signal->getSubtype());
+                signalName = type + "." + signal->getTypeSubclass() + "-" + subtype;
             }
             else
             {
-                signalName = QString::number(signal->getType()) + "." + signal->getTypeSubclass();
+                signalName = type + "." + signal->getTypeSubclass();
             }
         }
-        else if (signal->getSubtype() >= 0)
+        else if ((subtype != "-1") && (subtype != "none"))
         {
-            signalName = QString::number(signal->getType()) + "-" + QString::number(signal->getSubtype());
+            signalName = type + "-" + subtype;
         }
         else
         {
-            signalName = QString::number(signal->getType());
+            signalName = type;
         }
     }
 
     double hOffset = signal->getHeading();
-    if ((signal->getType() == 625) && (signal->getSubtype() == 10) && (signal->getTypeSubclass() == "20"))
+    if ((type == "625") && (subtype == "10") && (signal->getTypeSubclass() == "20"))
     {
         signalName += "_" + QString("%1").arg(qRound(signal->getHeading()));
         hOffset = 0.0;
@@ -853,12 +920,8 @@ DomWriter::visit(Signal *signal)
         signalElement.setAttribute("dynamic", "yes");
     else
         signalElement.setAttribute("dynamic", "no");
-    if (signal->getOrientation() == Signal::BOTH_DIRECTIONS)
-        signalElement.setAttribute("orientation", "both");
-    else if (signal->getOrientation() == Signal::NEGATIVE_TRACK_DIRECTION)
-        signalElement.setAttribute("orientation", "-");
-    else
-        signalElement.setAttribute("orientation", "+");
+
+	signalElement.setAttribute("orientation", Signal::parseOrientationTypeBack(signal->getOrientation()));
     signalElement.setAttribute("zOffset", signal->getZOffset());
     signalElement.setAttribute("country", signal->getCountry());
     signalElement.setAttribute("type", signal->getType());
@@ -920,6 +983,35 @@ DomWriter::visit(Signal *signal)
     }
 */
 }
+
+//################//
+// SIGNALREFERENCE     //
+//################//
+
+void
+DomWriter::visit(SignalReference *signalReference)
+{
+
+	QDomElement signalReferenceElement = doc_->createElement("signalReference");
+
+	signalReferenceElement.setAttribute("s", signalReference->getSStart());
+	signalReferenceElement.setAttribute("t", signalReference->getReferenceT());
+	signalReferenceElement.setAttribute("id", signalReference->getReferenceId());
+	signalReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(signalReference->getReferenceOrientation()));
+
+	foreach (Signal::Validity validity, signalReference->getValidityList())
+	{
+		QDomElement validityElement = doc_->createElement("validity");
+
+		validityElement.setAttribute("fromLane", validity.fromLane);
+		validityElement.setAttribute("toLane", validity.toLane);
+
+		signalReferenceElement.appendChild(validityElement);
+	}
+
+	currentSignalsElement_.appendChild(signalReferenceElement);
+}
+
 
 //################//
 // SENSOR         //
@@ -1066,13 +1158,13 @@ void
 DomWriter::visit(ShapeSection *section)
 {
 
-	QMap<double, Polynomial *>::const_iterator iter = section->getShapes().constBegin();
+	QMap<double, PolynomialLateralSection *>::const_iterator iter = section->getShapes().constBegin();
 	while (iter != section->getShapes().constEnd())
 	{
 		QDomElement element = doc_->createElement("shape");
 		element.setAttribute("s", section->getSStart());
 		element.setAttribute("t", iter.key());
-		Polynomial *poly = iter.value();
+		PolynomialLateralSection *poly = iter.value();
 		element.setAttribute("a", poly->getA());
 		element.setAttribute("b", poly->getB());
 		element.setAttribute("c", poly->getC());
@@ -1359,6 +1451,15 @@ DomWriter::visit(LaneRule *laneRule)
 	currentLaneElement_.appendChild(element);
 }
 
+void
+DomWriter::visit(LaneAccess *laneAccess)
+{
+	QDomElement element = doc_->createElement("access");
+	element.setAttribute("sOffset", laneAccess->getSOffset());
+	element.setAttribute("restriction", LaneAccess::parseLaneRestrictionBack(laneAccess->getRestriction()));
+	currentLaneElement_.appendChild(element);
+}
+
 //################//
 // CONTROLLER     //
 //################//
@@ -1414,7 +1515,7 @@ DomWriter::visit(RSystemElementController *controller)
     // Write script file
     if (!controller->getControlEntries().isEmpty())
     {
-        QList<int> signalsType;
+        QList<QString> signalsType;
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
@@ -1437,11 +1538,11 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
             }
-            else if (signalsType.at(i) == 2)
+            else if (signalsType.at(i) == "2")
             {
                 out << "      signal_" << control->getSignalId() << ".green=1;\n";
             }
@@ -1453,7 +1554,7 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
                 out << "      signal_" << control->getSignalId() << ".green=1;\n";
@@ -1465,7 +1566,7 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
                 out << "      signal_" << control->getSignalId() << ".green=0;\n";
@@ -1477,11 +1578,11 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            if (signalsType.at(i) == 3)
+            if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
             }
-            else if (signalsType.at(i) == 2)
+            else if (signalsType.at(i) == "2")
             {
                 out << "      signal_" << control->getSignalId() << ".green=0;\n";
             }
@@ -1519,7 +1620,7 @@ DomWriter::visit(JunctionConnection *connection)
     element.setAttribute("id", connection->getId());
     element.setAttribute("incomingRoad", connection->getIncomingRoad());
     element.setAttribute("connectingRoad", connection->getConnectingRoad());
-    element.setAttribute("contactPoint", connection->getContactPoint());
+    element.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(connection->getContactPoint()));
 
     QDomElement userData = doc_->createElement("userData");
 

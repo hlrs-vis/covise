@@ -497,7 +497,7 @@ void PDBSequenceDisplay::ChangeProtein(string filename)
     }
 }
 
-void PDBSequenceDisplay::message(int type, int, const void *buf)
+void PDBSequenceDisplay::message(int toWhom, int type, int, const void *buf)
 {
     if (type == PluginMessageTypes::PDBMoveMark)
     {

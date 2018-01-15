@@ -8,7 +8,7 @@
 #include "VehicleManager.h"
 
 #include "TrafficSimulation.h"
-#include "RoadSystem/RoadSystem.h"
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include "VehicleFactory.h"
 #include "HumanVehicle.h"
 #include "AgentVehicle.h"

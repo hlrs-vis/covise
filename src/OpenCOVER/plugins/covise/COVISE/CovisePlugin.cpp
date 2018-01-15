@@ -28,6 +28,9 @@
 #include <cover/coVRPluginList.h>
 #include <cover/coVRFileManager.h>
 
+#include <PluginUtil/FeedbackManager.h>
+#include <PluginUtil/ModuleInteraction.h>
+
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
 
@@ -104,6 +107,16 @@ bool CovisePlugin::init()
         e->setCallback([this](){
             executeAll();
         });
+        e->setIcon("view-refresh");
+        e->setPriority(ui::Element::Toolbar);
+
+        auto selectInteract = cover->ui->getByPath("NavigationManager.Navigation.SelectInteract");
+        if (selectInteract)
+        {
+            selectInteract->setEnabled(true);
+            selectInteract->setVisible(true);
+            //cover->visMenu->add(selectInteract);
+        }
     }
 #endif
     CoviseRender::set_render_module_callback(messageCallback);
@@ -343,6 +356,20 @@ void CovisePlugin::expandBoundingSphere(osg::BoundingSphere &bsphere)
             bsphere = osg::BoundingSphere(osg::Vec3(b_sphere.x, b_sphere.y, b_sphere.z), b_sphere.radius);
         }
     }
+}
+
+bool CovisePlugin::requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+{
+    (void)triggerNode;
+
+    auto interaction = FeedbackManager::instance()->findFeedback(inter);
+    if (!interaction)
+        return false;
+    if (isMouse)
+        interaction->setShowInteractorFromGui(true);
+    else
+        interaction->enableDirectInteractorFromGui(true);
+    return true;
 }
 
 COVERPLUGIN(CovisePlugin)

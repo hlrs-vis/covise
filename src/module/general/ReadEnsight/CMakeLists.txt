@@ -1,6 +1,9 @@
 COVISE_FIND_PACKAGE(BISON++)
 using(FLEX)
 
+if(NOT FLEX_INCLUDE_DIR)
+   return()
+endif()
 IF(NOT BISON++_FOUND)
    RETURN()
 ENDIF()

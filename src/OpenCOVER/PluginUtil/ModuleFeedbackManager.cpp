@@ -63,6 +63,9 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
     : ui::Owner(std::string("ModuleFeedbackManager")+pluginName, cover->ui)
     , inter_(inter)
 {
+    if (inter_)
+        inter_->incRefCount();
+
     if (cover->debugLevel(3))
     {
         if (containerObject)
@@ -196,42 +199,8 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
 
 ModuleFeedbackManager::~ModuleFeedbackManager()
 {
-#ifdef VRUI
-    parentMenu_->remove(menuItem_);
-
-    if (colorBar_)
-        delete colorBar_;
-
-    delete hideCheckbox_;
-
-    delete syncCheckbox_;
-
-    if (newButton_)
-        delete newButton_;
-
-    if (deleteButton_)
-        delete deleteButton_;
-
-    if (executeCheckbox_)
-        delete executeCheckbox_;
-
-    delete colorsButton_;
-
-    delete menu_;
-
-    delete menuItem_;
-
-    if (parentMenu_ != coviseMenu_)
-    {
-        // erst checken ob es leer ist !!!TODO!!!
-
-        //delete caseMenu_;
-
-        //fprintf(stderr,"deleting case menu item\n");
-
-        //delete caseMenuItem_;
-    }
-#endif
+    if (inter_)
+        inter_->decRefCount();
 }
 
 // -----------------------------------------------------------------
@@ -254,75 +223,51 @@ void ModuleFeedbackManager::createMenu()
     else
         visMenuName_ = moduleName_;
 
-    bool cfdgui = covise::coCoviseConfig::isOn("COVERConfig.CfdGui", false);
-#ifdef VRUI
-    visItemName_ = visMenuName_;
-    visItemName_ += "...";
-
-    menuItem_ = new coSubMenuItem(visItemName_.c_str());
-    //menu_ = new coRowMenu(visMenuName_.c_str(),coviseMenu_, cover->getMaxMenuItems());
-    menu_ = new coRowMenu(visMenuName_.c_str(), coviseMenu_);
-    menuItem_->setMenu(menu_);
-
-    coviseMenu_->add(menuItem_);
-
-    // hide geometry
-    hideCheckbox_ = new coCheckboxMenuItem("Hide", false);
-    hideCheckbox_->setMenuListener(this);
-
-    // sync interaction
-    syncCheckbox_ = new coCheckboxMenuItem("Sync", true);
-    syncCheckbox_->setMenuListener(this);
-
-    // new module, for complex modules only adn disable for gui
-    newButton_ = NULL;
-    deleteButton_ = NULL;
-    int len = strlen(moduleName_.c_str());
-    if (len >= 4 && !cfdgui && string("Comp") == moduleName_.c_str() + len - 4)
-    {
-        newButton_ = new coButtonMenuItem("New");
-        newButton_->setMenuListener(this);
-
-        deleteButton_ = new coButtonMenuItem("Delete");
-        deleteButton_->setMenuListener(this);
-    }
-
-    // if ExecuteOnChange is not on, provide execute button
-    executeCheckbox_ = NULL;
-    if (!covise::coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
-    {
-        executeCheckbox_ = new coCheckboxMenuItem("Execute", false);
-        executeCheckbox_->setMenuListener(this);
-    }
-#else
     menu_ = new ui::Menu(visMenuName_, this);
+    bool covise = false;
     if (cover->visMenu)
+    {
+        covise = cover->visMenu->text() == "COVISE";
         cover->visMenu->add(menu_);
+    }
     hideCheckbox_ = new ui::Button(menu_, "Hide");
     hideCheckbox_->setState(false);
     hideCheckbox_->setCallback([this](bool state){
         triggerHide(state);
     });
     syncCheckbox_ = new ui::Button(menu_, "Sync");
-    syncCheckbox_->setState(true);
+    syncCheckbox_->setVisible(covise);
+    syncCheckbox_->setState(covise);
     syncCheckbox_->setCallback([this](bool state){
     });
 
-    int len = strlen(moduleName_.c_str());
-    if (len >= 4 && !cfdgui && string("Comp") == moduleName_.c_str() + len - 4)
+#if 0
+    std::vector<std::string> complexModules;
+    complexModules.push_back("TracerComp");
+    complexModules.push_back("CuttingSurfaceComp");
+    complexModules.push_back("IsoSurfaceComp");
+    bool complex = false;
+    for (auto mod: complexModules)
+    {
+        if (moduleName_.substr(0, mod.length()) == mod)
+            complex = true;
+    }
+    bool cfdgui = covise::coCoviseConfig::isOn("COVER.Plugin.CfdGui", false);
+    if (!cfdgui && complex)
     {
         newButton_ = new ui::Action(menu_, "New");
         newButton_->setCallback([this](){
             // copy this module and execute it
             inter_->copyModuleExec();
         });
-        deleteButton_ = new ui::Action(menu_, "New");
+        deleteButton_ = new ui::Action(menu_, "Delete");
         deleteButton_->setCallback([this](){
             // delete this module
             inter_->deleteModule();
         });
     }
-    if (!covise::coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
+#endif
+    if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
         executeCheckbox_->setCallback([this](bool){
@@ -331,7 +276,6 @@ void ModuleFeedbackManager::createMenu()
             inter_->executeModule();
         });
     }
-#endif
 
     inExecute_ = false;
 
@@ -674,37 +618,6 @@ ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
 #endif
 }
 
-#ifdef VRUI
-// --------------------------------------------------------------------------
-// EventListener
-// --------------------------------------------------------------------------
-void
-ModuleFeedbackManager::menuEvent(coMenuItem *item)
-{
-    //fprintf(stderr,"ModuleFeedbackManager::menuEvent\n");
-    if (item == hideCheckbox_)
-    {
-        hideGeometry(hideCheckbox_->getState());
-        sendHideMsg(hideCheckbox_->getState());
-    }
-    else if (item == newButton_) // copy this module and execute it
-    {
-        // copy this module and execute it
-        inter_->copyModuleExec();
-    }
-    else if (item == deleteButton_) // delete this module
-    {
-        // delete this module
-        inter_->deleteModule();
-    }
-    else if (item == executeCheckbox_)
-    {
-        inExecute_ = true;
-        inter_->executeModule();
-    }
-}
-#endif
-
 // hides geometry
 // needed for menuevent
 void
@@ -755,18 +668,16 @@ ModuleFeedbackManager::findMyNode()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ModuleFeedbackManager::findMyNode\n");
-    osg::Geode *geode;
-    osg::Group *group;
     if (attrObjectName_ != "")
     {
         //fprintf(stderr,"looking for attrObjectName_=%s\n", attrObjectName_.c_str());
-        geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrObjectName_.c_str());
+        auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrObjectName_.c_str());
         if (geode != NULL)
         {
             //fprintf(stderr,"found geode with attrObjectName_=%s\n", attrObjectName_.c_str());
             return (geode);
         }
-        group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrObjectName_.c_str());
+        auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrObjectName_.c_str());
         if (group != NULL)
         {
             //fprintf(stderr,"found group with attrObjectName_=%s\n", attrObjectName_.c_str());
@@ -776,13 +687,13 @@ ModuleFeedbackManager::findMyNode()
     if (attrPartName_ != "")
     {
         //fprintf(stderr,"looking for attrPartName_=%s\n", attrPartName_.c_str());
-        geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrPartName_.c_str());
+        auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrPartName_.c_str());
         if (geode != NULL)
         {
             //fprintf(stderr,"found geode with attrPartName_=%s\n", attrPartName_.c_str());
             return (geode);
         }
-        group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrPartName_.c_str());
+        auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrPartName_.c_str());
         if (group != NULL)
         {
             //fprintf(stderr,"found group with attrPartName_=%s\n", attrPartName_.c_str());
@@ -793,14 +704,14 @@ ModuleFeedbackManager::findMyNode()
     if (containerObjectName_ != "")
     {
         //fprintf(stderr,"looking for containerObjectName_=%s\n", containerObjectName_.c_str());
-        geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(containerObjectName_.c_str());
+        auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(containerObjectName_.c_str());
         if (geode != NULL)
         {
             //fprintf(stderr,"found geode with containerObjectName_=%s\n", containerObjectName_.c_str());
             return (geode);
         }
 
-        group = VRSceneGraph::instance()->findFirstNode<osg::Group>(containerObjectName_.c_str());
+        auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(containerObjectName_.c_str());
         if (group)
         {
             //fprintf(stderr,"found group with containerObjectName_=%s\n", containerObjectName_.c_str());
@@ -809,7 +720,7 @@ ModuleFeedbackManager::findMyNode()
     }
 
     //fprintf(stderr,"looking for moduleName_=%s\n", moduleName_.c_str());
-    group = VRSceneGraph::instance()->findFirstNode<osg::Group>(moduleName_.c_str());
+    auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(moduleName_.c_str());
     if (group)
     {
         //fprintf(stderr,"found group with moduleName_=%s\n", moduleName_.c_str());
@@ -817,7 +728,7 @@ ModuleFeedbackManager::findMyNode()
     }
 
     //fprintf(stderr,"looking for geomObjectName_=%s\n", geomObjectName_.c_str());
-    geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(geomObjectName_.c_str());
+    auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(geomObjectName_.c_str());
     if (geode != NULL)
     {
         //fprintf(stderr,"found geode with geomObjectName_=%s\n", geomObjectName_.c_str());

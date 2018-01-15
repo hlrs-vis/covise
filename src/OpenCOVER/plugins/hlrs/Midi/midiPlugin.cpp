@@ -65,6 +65,14 @@
 #define GetCurrentDir _getcwd
 
 
+class MIDIMessage
+{
+public:
+	int			mTime;
+	UCHAR		mStatus;
+	UCHAR		mParam1;
+	UCHAR		mParam2;
+};
 void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
 	switch (wMsg) {
@@ -75,7 +83,16 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		printf("wMsg=MIM_CLOSE\n");
 		break;
 	case MIM_DATA:
-		printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+	{
+		//printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+		MIDIMessage md;
+		md.mTime = dwParam2;
+		md.mStatus = (UCHAR)(dwParam1 & 0xFF);
+		md.mParam1 = (UCHAR)((dwParam1 >> 8) & 0xFF);
+		md.mParam2 = (UCHAR)((dwParam1 >> 16) & 0xFF);
+		MidiEvent me(md.mStatus, md.mParam1, md.mParam2);
+		MidiPlugin::plugin->addEvent(me);
+	}
 		break;
 	case MIM_LONGDATA:
 		printf("wMsg=MIM_LONGDATA\n");
@@ -155,7 +172,7 @@ int MidiPlugin::loadFile(const char *filename, osg::Group *parent)
          setTempo(i);
       }
    }
-   fprintf(stderr,"Tempo %f\n",tempo);
+   //fprintf(stderr,"Tempo %f\n",tempo);
    
    
    }
@@ -261,7 +278,7 @@ currentTrack = 0;
 
     MIDIRoot = new osg::Group;
     MIDIRoot->setName("MIDIRoot");
-    cover->getObjectsRoot()->addChild(MIDIRoot.get());
+    cover->getScene()->addChild(MIDIRoot.get());
     
     globalmtl = new osg::Material;
     globalmtl->ref();
@@ -300,67 +317,92 @@ currentTrack = 0;
     
     for(int i=0;i<180;i++)
        noteInfos[i]=NULL;
-   /* noteInfos[27] = new NoteInfo(27);
-    noteInfos[27]->color = osg::Vec4(1,0,1,1);
-    noteInfos[28] = new NoteInfo(28);
-    noteInfos[28]->color = osg::Vec4(1,0,0.5,1);
-    
-    noteInfos[29] = new NoteInfo(29);
-    noteInfos[29]->color = osg::Vec4(1,0,0,1);
-    noteInfos[30] = new NoteInfo(30);
-    noteInfos[30]->color = osg::Vec4(1,0,0,1);
-    
-    noteInfos[31] = new NoteInfo(31);
-    noteInfos[31]->color = osg::Vec4(1,0.2,0.2,1);
-    noteInfos[32] = new NoteInfo(32);
-    noteInfos[32]->color = osg::Vec4(1,0.2,0.2,1);
-    
-    noteInfos[36] = new NoteInfo(36);
-    noteInfos[36]->color = osg::Vec4(1,1,0,1);
-    
-    noteInfos[38] = new NoteInfo(38);
-    noteInfos[38]->color = osg::Vec4(1,1,0.2,1);
-    
-    noteInfos[40] = new NoteInfo(40);
-    noteInfos[40]->color = osg::Vec4(1,1,0.4,1);
-    
-    noteInfos[41] = new NoteInfo(41);
-    noteInfos[41]->color = osg::Vec4(0.4,0.4,1,1);
-    noteInfos[39] = new NoteInfo(39);
-    noteInfos[39]->color = osg::Vec4(0.4,0.4,1,1);
-    
-    noteInfos[43] = new NoteInfo(43);
-    noteInfos[43]->color = osg::Vec4(0.2,0.2,1,1);
-    noteInfos[58] = new NoteInfo(58);
-    noteInfos[58]->color = osg::Vec4(0.2,0.2,1,1);
-    
-    noteInfos[46] = new NoteInfo(46);
-    noteInfos[46]->color = osg::Vec4(0,0,1,1);
-    noteInfos[44] = new NoteInfo(44);
-    noteInfos[44]->color = osg::Vec4(0,0,1,1);
-    
-    noteInfos[48] = new NoteInfo(48);
-    noteInfos[48]->color = osg::Vec4(0,0,0.8,1);
-    
-    noteInfos[49] = new NoteInfo(49);
-    noteInfos[49]->color = osg::Vec4(1,1,0.3,1);
-    noteInfos[55] = new NoteInfo(55);
-    noteInfos[55]->color = osg::Vec4(1,1,0.3,1);
-    
-    noteInfos[51] = new NoteInfo(51);
-    noteInfos[51]->color = osg::Vec4(1,1,0.1,1);
-    noteInfos[59] = new NoteInfo(59);
-    noteInfos[59]->color = osg::Vec4(1,1,0.1,1);
-    
-    noteInfos[53] = new NoteInfo(53);
-    noteInfos[53]->color = osg::Vec4(0.8,0.8,0.0,1);
-    
-    noteInfos[57] = new NoteInfo(57);
-    noteInfos[57]->color = osg::Vec4(0.9,0.9,0.9,1);
-    noteInfos[52] = new NoteInfo(52);
-    noteInfos[52]->color = osg::Vec4(0.9,0.9,0.9,1);*/
-    
-    
+
+
+	noteInfos[0] = new NoteInfo(0); //kick
+	noteInfos[0]->color = osg::Vec4(1, 1, 1, 1);
+	noteInfos[0]->initialPosition.set(0.0, 0.0, 0.0);
+
+	/* Jeremys drum kit*/
+	noteInfos[4] = new NoteInfo(4); //stomp
+	noteInfos[4]->color = osg::Vec4(1, 0, 0 ,1);
+	noteInfos[4]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[29] = new NoteInfo(29); //cymbal1
+	noteInfos[29]->color = osg::Vec4(1, 1, 102.0 / 255.0, 1);
+	noteInfos[29]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[49] = new NoteInfo(49);//cymbal2
+	noteInfos[49]->color = osg::Vec4(1, 1, 26.0 / 255.0, 1);
+	noteInfos[49]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[55] = new NoteInfo(55);//cymbal2 edge
+	noteInfos[55]->color = osg::Vec4(1, 1, 0, 1);
+	noteInfos[55]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[57] = new NoteInfo(57);//cymbal3
+	noteInfos[57]->color = osg::Vec4(230.0/255.0, 230.0 / 255.0, 0, 1);
+	noteInfos[57]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[52] = new NoteInfo(52);//cymbal 3 edge
+	noteInfos[52]->color = osg::Vec4(204.0 / 255.0, 204.0 / 255.0, 0, 1);
+	noteInfos[52]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[53] = new NoteInfo(53);//cymbal4 bell
+	noteInfos[53]->color = osg::Vec4(179.0 / 255.0, 179.0 / 255.0, 0, 1);
+	noteInfos[53]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[51] = new NoteInfo(51);//cymbal4
+	noteInfos[51]->color = osg::Vec4(128.0 / 255.0, 128.0 / 255.0, 0, 1);
+	noteInfos[51]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[59] = new NoteInfo(59);//cymbal4-edge
+	noteInfos[59]->color = osg::Vec4(153.0 / 255.0, 153.0 / 255.0, 0, 1);
+	noteInfos[59]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[36] = new NoteInfo(36);//bass
+	noteInfos[36]->color = osg::Vec4(255.0 / 255.0, 255.0 / 255.0, 200.0 / 255.0, 1);
+	noteInfos[36]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[42] = new NoteInfo(42); //hi-hat closed
+	noteInfos[42]->color = osg::Vec4(230.0 / 255.0, 92.0 / 255.0, 0, 1);
+	noteInfos[42]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[46] = new NoteInfo(46);//hi-Hat open
+	noteInfos[46]->color = osg::Vec4(204.0 / 255.0, 82.0 / 255.0, 0, 1);
+	noteInfos[46]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[84] = new NoteInfo(84);//hi-Hat Stomp
+	noteInfos[84]->color = osg::Vec4(1, 102.0 / 255.0, 20.0 / 255.0, 1);
+	noteInfos[84]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[44] = new NoteInfo(44);//hi-Hat Stomp
+	noteInfos[44]->color = osg::Vec4(1, 102.0 / 255.0, 0, 1);
+	noteInfos[44]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[31] = new NoteInfo(31);//pad1
+	noteInfos[31]->color = osg::Vec4(179.0 / 255.0,204.0 / 255.0, 1, 1);
+	noteInfos[31]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[32] = new NoteInfo(32);//pad1 Rim
+	noteInfos[32]->color = osg::Vec4(128.0 / 255.0, 170.0 / 255.0, 1, 1);
+	noteInfos[32]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[27] = new NoteInfo(27);//tom1
+	noteInfos[27]->color = osg::Vec4(77.0 / 255.0, 136.0 / 255.0, 1, 1);
+	noteInfos[27]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[48] = new NoteInfo(48);//tom2
+	noteInfos[48]->color = osg::Vec4(26.0 / 255.0, 102.0 / 255.0, 1, 1);
+	noteInfos[48]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[45] = new NoteInfo(45);//tom3
+	noteInfos[45]->color = osg::Vec4(0, 77.0 / 255.0, 230.0 / 255.0, 1);
+	noteInfos[45]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[43] = new NoteInfo(43);//tom4
+	noteInfos[43]->color = osg::Vec4(0, 60.0 / 255.0, 179.0 / 255.0, 1);
+	noteInfos[43]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[58] = new NoteInfo(58);//tom4-edge
+	noteInfos[58]->color = osg::Vec4(0, 51.0 / 255.0, 153.0 / 255.0, 1);
+	noteInfos[58]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[41] = new NoteInfo(41);//tom5
+	noteInfos[41]->color = osg::Vec4(0, 43.0/255.0, 128.0 / 255.0, 1);
+	noteInfos[41]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[39] = new NoteInfo(39);//tom5-edge
+	noteInfos[39]->color = osg::Vec4(0, 34.0 / 255.0, 102.0 / 255.0, 1);
+	noteInfos[39]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[38] = new NoteInfo(38);//snare
+	noteInfos[38]->color = osg::Vec4(128.0/255.0, 51.0/255.0, 150/255.0, 1);
+	noteInfos[38]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[40] = new NoteInfo(40);//snare-edge
+	noteInfos[40]->color = osg::Vec4(153.0/255.0, 51.0/255.0, 153.0/255.0, 1);
+	noteInfos[40]->initialPosition.set(0.0, 0.0, 0.0);
+
+   
+   /* HLRS Drum kit*/ 
+    /*
     noteInfos[36] = new NoteInfo(36); //kick
     noteInfos[36]->color = osg::Vec4(1,0,1,1);
     noteInfos[43] = new NoteInfo(43);//tom3
@@ -381,50 +423,28 @@ currentTrack = 0;
     noteInfos[49]->color = osg::Vec4(1,1,0.4,1);
     
     noteInfos[51] = new NoteInfo(51);//ride
-    noteInfos[51]->color = osg::Vec4(0.4,0.4,1,1);
-   /* noteInfos[39] = new NoteInfo(39);
-    noteInfos[39]->color = osg::Vec4(0.4,0.4,1,1);
-    
-    noteInfos[43] = new NoteInfo(43);
-    noteInfos[43]->color = osg::Vec4(0.2,0.2,1,1);
-    noteInfos[58] = new NoteInfo(58);
-    noteInfos[58]->color = osg::Vec4(0.2,0.2,1,1);
-    
-    noteInfos[46] = new NoteInfo(46);
-    noteInfos[46]->color = osg::Vec4(0,0,1,1);
-    noteInfos[44] = new NoteInfo(44);
-    noteInfos[44]->color = osg::Vec4(0,0,1,1);
-    
-    noteInfos[48] = new NoteInfo(48);
-    noteInfos[48]->color = osg::Vec4(0,0,0.8,1);
-    
-    noteInfos[49] = new NoteInfo(49);
-    noteInfos[49]->color = osg::Vec4(1,1,0.3,1);
-    noteInfos[55] = new NoteInfo(55);
-    noteInfos[55]->color = osg::Vec4(1,1,0.3,1);
-    
-    noteInfos[51] = new NoteInfo(51);
-    noteInfos[51]->color = osg::Vec4(1,1,0.1,1);
-    noteInfos[59] = new NoteInfo(59);
-    noteInfos[59]->color = osg::Vec4(1,1,0.1,1);
-    
-    noteInfos[53] = new NoteInfo(53);
-    noteInfos[53]->color = osg::Vec4(0.8,0.8,0.0,1);
-    
-    noteInfos[57] = new NoteInfo(57);
-    noteInfos[57]->color = osg::Vec4(0.9,0.9,0.9,1);
-    noteInfos[52] = new NoteInfo(52);
-    noteInfos[52]->color = osg::Vec4(0.9,0.9,0.9,1);*/
+    noteInfos[51]->color = osg::Vec4(0.4,0.4,1,1);*/
+   
 
     
     for(int i=0;i<nIs.size();i++)
     {
     nIs[i]->createGeom();
-        float angle = ((float)i/nIs.size())*2.0*M_PI/4.0*4.0;
+        float angle = ((float)i/nIs.size())*2.0*M_PI;
         //float radius = 300.0+(float)i/nIs.size()*800.0;
         float radius = 800.0;
-        nIs[i]->initialPosition.set(sin(angle)*radius,cos(angle)*radius,0);
-        nIs[i]->initialVelocity.set(sin(angle)*100.0,cos(angle)*100.0,1000);
+		if(nIs[i]->initialPosition == osg::Vec3(0,0,0))
+		{
+			nIs[i]->initialPosition.set(sin(angle)*radius, 0, cos(angle)*radius);
+			nIs[i]->initialVelocity.set(sin(angle)*100.0,  1000 , cos(angle)*100.0 );
+		}
+		else
+		{
+			osg::Vec3 v = nIs[i]->initialPosition;
+			v.normalize();
+			v[1] = 1000.0;
+			nIs[i]->initialVelocity = v;
+		}
     }
 
     midi1fd = -1;
@@ -471,6 +491,13 @@ MidiPlugin::~MidiPlugin()
 delete lTrack;
 }
 
+void MidiPlugin::addEvent(MidiEvent &me)
+{
+	if (me.isNoteOn() && me.getVelocity()>0)
+	{
+		eventqueue.push_back(me);
+	}
+}
 bool MidiPlugin::destroy()
 {
 
@@ -492,6 +519,13 @@ bool MidiPlugin::update()
 //------------------------------------------------------------------------------
 void MidiPlugin::preFrame()
 {
+	while (eventqueue.size() > 0)
+	{
+		MidiEvent me = *eventqueue.begin();
+		eventqueue.pop_front();
+		lTrack->addNote(new Note(me, lTrack));
+		printf("key: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+	}
     //fprintf(stderr,"tracks %d\n",tracks.size());
     if(tracks.size() > 0)
     {
@@ -857,6 +891,9 @@ void Track::update()
 	c[3] = 1.0;
         (*lineColor)[vNum++] = c;
     }
+	lineVert->dirty();
+	lineColor->dirty();
+	linePrimitives->dirty();
 	oldTime = cover->frameTime();
 }
 void Track::setVisible(bool state)
@@ -889,8 +926,8 @@ Note::Note(MidiEvent &me, Track *t)
     if(ni==NULL)
     {
         fprintf(stderr,"no NoteInfo for Key %d\n",me.getKeyNumber());
-        ni = MidiPlugin::plugin->noteInfos[27];
-        event.setKeyNumber(27);
+        ni = MidiPlugin::plugin->noteInfos[0];
+        event.setKeyNumber(0);
     }
     transform->setMatrix(osg::Matrix::scale(s,s,s) * osg::Matrix::translate(ni->initialPosition));
     if(ni->geometry!=NULL)
@@ -898,7 +935,7 @@ Note::Note(MidiEvent &me, Track *t)
         transform->addChild(ni->geometry);
     }
     velo = ni->initialVelocity*event.getVelocity()/100.0;
-    velo[2] = (event.getVelocity()-32) *20;
+    velo[1] = (event.getVelocity()-32) *40;
     t->TrackRoot->addChild(transform.get());
     
 }
@@ -912,13 +949,13 @@ void Note::integrate(double time)
     osg::Vec3 pos = nm.getTrans();
     osg::Vec3 spiral;
     spiral[0] = pos[1];
-    spiral[1] = -pos[0];
-    spiral[2] = 0.0;
+    spiral[1] = 0.0;
+	spiral[2] = -pos[0];
     spiral *= 0.1;
-    osg::Vec3 a = osg::Vec3(0,0,-300.0);
+    osg::Vec3 a = osg::Vec3(0,-300.0,0);
     a = pos;
     a.normalize();
-    a *= 300;
+    a *= 700;
     velo = velo + a*time;
     pos += (velo + spiral) * time;
     nm.setTrans(pos);

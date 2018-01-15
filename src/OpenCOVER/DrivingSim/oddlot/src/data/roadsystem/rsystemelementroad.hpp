@@ -36,8 +36,10 @@ class CrossfallSection;
 class ShapeSection;
 class LaneSection;
 class Object;
+class ObjectReference;
 class Crosswalk;
 class Signal;
+class SignalReference;
 class Sensor;
 class Surface;
 class Bridge;
@@ -55,12 +57,13 @@ public:
         DRS_TypeSection = 0x1,
         DRS_TrackSection = 0x2,
         DRS_ElevationSection = 0x4,
+		DRS_ShapeSection = 0x8,
         DRS_SuperelevationSection = 0x10,
         DRS_CrossfallSection = 0x20,
         DRS_LaneSection = 0x40,
-        DRS_SignalSection = 0x50,
-        DRS_ObjectSection = 0x60,
-        DRS_BridgeSection = 0x70
+        DRS_SignalSection = 0x80,
+        DRS_ObjectSection = 0x100,
+        DRS_BridgeSection = 0x200
     };
 
     enum DRoadObjectType
@@ -84,6 +87,7 @@ public:
         CRD_TypeSectionChange = 0x1,
         CRD_TrackSectionChange = 0x2,
         CRD_ElevationSectionChange = 0x4,
+		CRD_SignalReferenceChange = 0x8,
         CRD_SuperelevationSectionChange = 0x10,
         CRD_CrossfallSectionChange = 0x20,
 		CRD_ShapeSectionChange = 0x80,
@@ -99,7 +103,8 @@ public:
         CRD_SensorChange = 0x10000,
         CRD_SurfaceChange = 0x20000,
         CRD_BridgeChange = 0x40000,
-		CRD_TunnelChange = 0x80000
+		CRD_TunnelChange = 0x80000,
+		CRD_ObjectReferenceChange = 0x100000
     };
 
     //################//
@@ -295,6 +300,18 @@ public:
     }
     bool delObject(Object *object);
     bool moveObject(RoadSection *section, double newS);
+	Object *getObject(const QString &id);
+
+	// road:objectreference //
+	//
+	void addObjectReference(ObjectReference *objectReference);
+	QMultiMap<double, ObjectReference *> getObjectReferences() const
+	{
+		return objectReferences_;
+	}
+	ObjectReference *getObjectReference(const QString &id);
+	bool delObjectReference(ObjectReference *objectReference);
+	bool moveObjectReference(RoadSection *section, double newS);
 
     // road:objects:bridge //
     //
@@ -317,6 +334,17 @@ public:
     bool moveSignal(RoadSection *section, double newS);
     int getValidLane(double s, double t);
     Signal * getSignal(const QString &id);
+
+	// road:signalreference //
+	//
+	void addSignalReference(SignalReference *signalReference);
+	QMultiMap<double, SignalReference *> getSignalReferences() const
+	{
+		return signalReferences_;
+	}
+	SignalReference *getSignalReference(const QString &id);
+	bool delSignalReference(SignalReference *signalReference);
+	bool moveSignalReference(RoadSection *section, double newS);
 
     // road:objects:sensor //
     //
@@ -358,9 +386,11 @@ public:
 	virtual void acceptForShapeSections(Visitor *visitor);
     virtual void acceptForLaneSections(Visitor *visitor);
     virtual void acceptForObjects(Visitor *visitor);
+	virtual void acceptForObjectReferences(Visitor *visitor);
     virtual void acceptForBridges(Visitor *visitor);
     virtual void acceptForCrosswalks(Visitor *visitor);
     virtual void acceptForSignals(Visitor *visitor);
+	virtual void acceptForSignalReferences(Visitor *visitor);
     virtual void acceptForSensors(Visitor *visitor);
     
     double updateLength();
@@ -439,13 +469,15 @@ private:
 
     QMultiMap<double, Object *> objects_; // owned
     QStringList objectIds_;
-    int objectIdCount_;
+	int objectIdCount_;
+	QMultiMap<double, ObjectReference *> objectReferences_;
 
     QMultiMap<double, Bridge *> bridges_; // owned
 
     QMultiMap<double, Signal *> signals_; // owned
     QStringList signalIds_;
     int signalIdCount_;
+	QMultiMap<double, SignalReference *> signalReferences_; // owned
 
     QMap<double, Sensor *> sensors_; // owned
     QMap<double, Surface *> surfaces_; // owned

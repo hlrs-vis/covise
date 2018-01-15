@@ -11,8 +11,6 @@
 #include <map>
 #include <string>
 
-#include <GL/glew.h>
-
 #include <osg/Material>
 #include <osg/MatrixTransform>
 #include <osg/Node>
@@ -22,14 +20,9 @@
 #include <visionaray/texture/texture.h>
 #include <visionaray/aligned_vector.h>
 #include <visionaray/bvh.h>
-#include <visionaray/cpu_buffer_rt.h>
 #include <visionaray/generic_material.h>
 #include <visionaray/scheduler.h>
 #include <visionaray/spot_light.h>
-
-#ifdef __CUDACC__
-#include <visionaray/pixel_unpack_buffer_rt.h>
-#endif
 
 
 //-------------------------------------------------------------------------------------------------
@@ -42,10 +35,11 @@ using normal_list = visionaray::aligned_vector<visionaray::vec3>;
 using tex_coord_list = visionaray::aligned_vector<visionaray::vec2>;
 using material_type = visionaray::generic_material<visionaray::matte<float>,
                                                    visionaray::plastic<float>,
+                                                   visionaray::glass<float>,
                                                    visionaray::emissive<float> >;
 using material_list = visionaray::aligned_vector<material_type>;
-using color_type = visionaray::vector<3, float>;
-using color_list = visionaray::aligned_vector<color_type>;
+using vertex_color_type = visionaray::vector<3, float>;
+using color_list = visionaray::aligned_vector<vertex_color_type>;
 using light_type = visionaray::spot_light<float>;
 using light_list = visionaray::aligned_vector<light_type>;
 using node_mask_map = std::map<osg::ref_ptr<osg::Node>, osg::Node::NodeMask>;
@@ -57,23 +51,19 @@ using texture_map = std::map<std::string, host_tex_type>;
 
 using host_ray_type = visionaray::basic_ray<visionaray::simd::float4>;
 using host_bvh_type = visionaray::index_bvh<triangle_type>;
-using host_render_target_type = visionaray::cpu_buffer_rt<visionaray::PF_RGBA32F,
-                                                          visionaray::PF_DEPTH24_STENCIL8>;
 using host_sched_type = visionaray::tiled_sched<host_ray_type>;
 
 #ifdef __CUDACC__
 using device_normal_list = thrust::device_vector<visionaray::vec3>;
 using device_tex_coord_list = thrust::device_vector<visionaray::vec2>;
 using device_material_list = thrust::device_vector<material_type>;
-using device_color_list = thrust::device_vector<color_type>;
+using device_color_list = thrust::device_vector<vertex_color_type>;
 using device_tex_type = visionaray::cuda_texture<visionaray::vector<4, visionaray::unorm<8> >, 2>;
 using device_tex_ref_type = typename device_tex_type::ref_type;
 using device_texture_list = thrust::device_vector<device_tex_ref_type>;
 using device_texture_map = std::map<std::string, device_tex_type>;
 using device_ray_type = visionaray::basic_ray<float>;
 using device_bvh_type = visionaray::cuda_index_bvh<triangle_type>;
-using device_render_target_type = visionaray::pixel_unpack_buffer_rt<visionaray::PF_RGBA32F,
-                                                                     visionaray::PF_DEPTH24_STENCIL8>;
 using device_sched_type = visionaray::cuda_sched<device_ray_type>;
 #endif
 
@@ -131,32 +121,44 @@ inline material_type osg_cast(osg::Material const *mat, bool specular = true)
     auto cs = mat->getSpecular(osg::Material::Face::FRONT);
     auto ce = mat->getEmission(osg::Material::Face::FRONT);
 
-    if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
+    auto alpha = std::min(ca.a(), std::min(cd.a(), std::min(cs.a(), 1.0f)));
+
+    if (alpha < 1.0f)
+    {
+        glass<float> vsnray_mat;
+        vsnray_mat.ct() = from_rgb(osg_cast(cd).xyz());
+        vsnray_mat.cr() = from_rgb(osg_cast(cs).xyz());
+        vsnray_mat.kt() = alpha;
+        vsnray_mat.kr() = 1.0f - alpha;
+        vsnray_mat.ior() = spectrum<float>(1.3f); // TODO
+        return material_type(vsnray_mat);
+    }
+    else if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
     {
         emissive<float> vsnray_mat;
-        vsnray_mat.set_ce(from_rgb(osg_cast(ce).xyz()));
-        vsnray_mat.set_ls(1.0f);
+        vsnray_mat.ce() = from_rgb(osg_cast(ce).xyz());
+        vsnray_mat.ls() = 1.0f;
         return material_type(vsnray_mat);
     }
     else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f) || !specular)
     {
         matte<float> vsnray_mat;
-        vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-        vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-        vsnray_mat.set_ka(1.0f);
-        vsnray_mat.set_kd(1.0f);
+        vsnray_mat.ca() = from_rgb(osg_cast(ca).xyz());
+        vsnray_mat.cd() = from_rgb(osg_cast(cd).xyz());
+        vsnray_mat.ka() = 1.0f;
+        vsnray_mat.kd() = 1.0f;
         return material_type(vsnray_mat);
     }
     else
     {
         plastic<float> vsnray_mat;
-        vsnray_mat.set_ca(from_rgb(osg_cast(ca).xyz()));
-        vsnray_mat.set_cd(from_rgb(osg_cast(cd).xyz()));
-        vsnray_mat.set_cs(from_rgb(osg_cast(cs).xyz()));
-        vsnray_mat.set_ka(1.0f);
-        vsnray_mat.set_kd(1.0f);
-        vsnray_mat.set_ks(1.0f);
-        vsnray_mat.set_specular_exp(mat->getShininess(osg::Material::Face::FRONT));
+        vsnray_mat.ca() = from_rgb(osg_cast(ca).xyz());
+        vsnray_mat.cd() = from_rgb(osg_cast(cd).xyz());
+        vsnray_mat.cs() = from_rgb(osg_cast(cs).xyz());
+        vsnray_mat.ka() = 1.0f;
+        vsnray_mat.kd() = 1.0f;
+        vsnray_mat.ks() = 1.0f;
+        vsnray_mat.specular_exp() = mat->getShininess(osg::Material::Face::FRONT);
         return material_type(vsnray_mat);
     }
 }

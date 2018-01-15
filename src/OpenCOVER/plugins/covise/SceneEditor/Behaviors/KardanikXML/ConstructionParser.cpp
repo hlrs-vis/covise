@@ -31,7 +31,6 @@
 #include "OperatingRange.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -43,9 +42,9 @@ ConstructionParser::ConstructionParser()
 {
 }
 
-std::tr1::shared_ptr<Body> ConstructionParser::parseBodyElement(const QDomElement &bodyElement)
+std::shared_ptr<Body> ConstructionParser::parseBodyElement(const QDomElement &bodyElement)
 {
-    std::tr1::shared_ptr<Body> body(new Body());
+    std::shared_ptr<Body> body(new Body());
     string bodyName = getOrCreateBodyName(bodyElement);
     body->SetName(bodyName);
     string motionType = bodyElement.attribute("motionType", "MOTION_DYNAMIC_NOCOLLISION").toStdString();
@@ -57,32 +56,32 @@ std::tr1::shared_ptr<Body> ConstructionParser::parseBodyElement(const QDomElemen
     {
         if (child.toElement().tagName() == "line")
         {
-            std::tr1::shared_ptr<KardanikXML::Line> line = parseLineElement(child.toElement());
+            std::shared_ptr<KardanikXML::Line> line = parseLineElement(child.toElement());
             body->AddLine(line);
         }
         else if (child.toElement().tagName() == "linestrip")
         {
-            std::tr1::shared_ptr<KardanikXML::LineStrip> lineStrip = parseLinestripElement(child.toElement());
+            std::shared_ptr<KardanikXML::LineStrip> lineStrip = parseLinestripElement(child.toElement());
             body->AddLineStrip(lineStrip);
         }
         else if (child.toElement().tagName() == "point")
         {
-            std::tr1::shared_ptr<KardanikXML::Point> point = parsePointElement(child.toElement());
+            std::shared_ptr<KardanikXML::Point> point = parsePointElement(child.toElement());
             body->AddPoint(point);
         }
         else if (child.toElement().tagName() == "point_rel")
         {
-            std::tr1::shared_ptr<KardanikXML::PointRelative> point = parsePointElementRelative(child.toElement());
+            std::shared_ptr<KardanikXML::PointRelative> point = parsePointElementRelative(child.toElement());
             body->AddPoint(point);
         }
         else if (child.toElement().tagName() == "anchor")
         {
-            std::tr1::shared_ptr<KardanikXML::Anchor> anchor = parseAnchorElement(child.toElement(), body);
+            std::shared_ptr<KardanikXML::Anchor> anchor = parseAnchorElement(child.toElement(), body);
             body->SetAnchor(anchor);
         }
         else if (child.toElement().tagName() == "operating_range")
         {
-            std::tr1::shared_ptr<KardanikXML::OperatingRange> range = parseOperatingRangeElement(child.toElement(), body);
+            std::shared_ptr<KardanikXML::OperatingRange> range = parseOperatingRangeElement(child.toElement(), body);
             body->AddOperatingRange(range);
         }
         child = child.nextSibling();
@@ -108,9 +107,9 @@ string ConstructionParser::getOrCreateBodyName(const QDomElement &bodyElement)
     }
 }
 
-std::tr1::shared_ptr<Line> ConstructionParser::parseLineElement(const QDomElement &lineElement)
+std::shared_ptr<Line> ConstructionParser::parseLineElement(const QDomElement &lineElement)
 {
-    std::tr1::shared_ptr<Line> line(new Line());
+    std::shared_ptr<Line> line(new Line());
     float radius = m_DefaultLineSize;
     if (lineElement.hasAttribute("radius"))
     {
@@ -120,22 +119,22 @@ std::tr1::shared_ptr<Line> ConstructionParser::parseLineElement(const QDomElemen
     QDomElement pointAElement = lineElement.firstChildElement();
     if (!pointAElement.isNull())
     {
-        std::tr1::shared_ptr<KardanikXML::Point> pointA = parsePoint(pointAElement);
+        std::shared_ptr<KardanikXML::Point> pointA = parsePoint(pointAElement);
         line->SetPointA(pointA);
     }
 
     QDomElement pointBElement = pointAElement.nextSiblingElement();
     if (!pointBElement.isNull())
     {
-        std::tr1::shared_ptr<KardanikXML::Point> pointB = parsePoint(pointBElement);
+        std::shared_ptr<KardanikXML::Point> pointB = parsePoint(pointBElement);
         line->SetPointB(pointB);
     }
     return line;
 }
 
-std::tr1::shared_ptr<Joint> ConstructionParser::parseJointElement(const QDomElement &jointElement)
+std::shared_ptr<Joint> ConstructionParser::parseJointElement(const QDomElement &jointElement)
 {
-    std::tr1::shared_ptr<Joint> joint(new Joint());
+    std::shared_ptr<Joint> joint(new Joint());
 
     string axisName = jointElement.attribute("axis", "Y_AXIS").toStdString();
     joint->SetAxis(axisName);
@@ -158,33 +157,33 @@ std::tr1::shared_ptr<Joint> ConstructionParser::parseJointElement(const QDomElem
     QDomElement bodyDescAElement = jointElement.firstChildElement("bodydesc");
     if (!bodyDescAElement.isNull())
     {
-        std::tr1::shared_ptr<BodyJointDesc> bodyDescA = parseBodyDescElement(bodyDescAElement);
+        std::shared_ptr<BodyJointDesc> bodyDescA = parseBodyDescElement(bodyDescAElement);
         joint->SetBodyJointDescA(bodyDescA);
     }
 
     QDomElement bodyDescBElement = bodyDescAElement.nextSiblingElement("bodydesc");
     if (!bodyDescBElement.isNull())
     {
-        std::tr1::shared_ptr<BodyJointDesc> bodyDescB = parseBodyDescElement(bodyDescBElement);
+        std::shared_ptr<BodyJointDesc> bodyDescB = parseBodyDescElement(bodyDescBElement);
         joint->SetBodyJointDescB(bodyDescB);
     }
     return joint;
 }
 
-std::tr1::shared_ptr<BodyJointDesc> ConstructionParser::parseBodyDescElement(const QDomElement &bodyDescElement)
+std::shared_ptr<BodyJointDesc> ConstructionParser::parseBodyDescElement(const QDomElement &bodyDescElement)
 {
-    std::tr1::shared_ptr<BodyJointDesc> bodyDesc(new BodyJointDesc());
+    std::shared_ptr<BodyJointDesc> bodyDesc(new BodyJointDesc());
     QDomNode child = bodyDescElement.firstChild();
     while (!child.isNull())
     {
         if (child.toElement().tagName().toStdString() == "bodyref")
         {
-            std::tr1::shared_ptr<Body> bodyref = parseBodyRefElement(child.toElement());
+            std::shared_ptr<Body> bodyref = parseBodyRefElement(child.toElement());
             bodyDesc->SetBody(bodyref);
         }
         else if (child.toElement().tagName().toStdString() == "pointref")
         {
-            std::tr1::shared_ptr<Point> pointref = parsePointRefElement(child.toElement());
+            std::shared_ptr<Point> pointref = parsePointRefElement(child.toElement());
             bodyDesc->SetPointInBody(pointref);
         }
         child = child.nextSibling();
@@ -207,13 +206,13 @@ void ConstructionParser::setPointNamespaceLookupCallback(PointNamespaceLookup na
     m_PointNamespaceLookup = namespaceLookup;
 }
 
-std::tr1::shared_ptr<Body> ConstructionParser::getBodyByNameLocal(const std::string &bodyID) const
+std::shared_ptr<Body> ConstructionParser::getBodyByNameLocal(const std::string &bodyID) const
 {
     BodyMap::const_iterator foundBody = m_BodyMap.find(bodyID);
     if (foundBody == m_BodyMap.end())
     {
         std::cerr << "No body " << bodyID << " found in namespace " << m_Construction->GetNamespace() << " !" << std::endl;
-        return std::tr1::shared_ptr<Body>();
+        return std::shared_ptr<Body>();
     }
     else
     {
@@ -221,13 +220,13 @@ std::tr1::shared_ptr<Body> ConstructionParser::getBodyByNameLocal(const std::str
     }
 }
 
-std::tr1::shared_ptr<Point> ConstructionParser::getPointByNameLocal(const std::string &pointID) const
+std::shared_ptr<Point> ConstructionParser::getPointByNameLocal(const std::string &pointID) const
 {
     PointMap::const_iterator foundPoint = m_PointMap.find(pointID);
     if (foundPoint == m_PointMap.end())
     {
         std::cerr << "No point " << pointID << " found in namespace " << m_Construction->GetNamespace() << " !" << std::endl;
-        return std::tr1::shared_ptr<Point>();
+        return std::shared_ptr<Point>();
     }
     else
     {
@@ -235,18 +234,18 @@ std::tr1::shared_ptr<Point> ConstructionParser::getPointByNameLocal(const std::s
     }
 }
 
-std::tr1::shared_ptr<Body> ConstructionParser::getBodyByNameGlobal(const std::string &bodyID) const
+std::shared_ptr<Body> ConstructionParser::getBodyByNameGlobal(const std::string &bodyID) const
 {
     if (idHasNamespace(bodyID))
     {
-        std::tr1::tuple<std::string, std::string> seperatedID = splitID(bodyID);
+        std::tuple<std::string, std::string> seperatedID = splitID(bodyID);
         if (m_BodyNamespaceLookup)
         {
             return m_BodyNamespaceLookup(get<0>(seperatedID), get<1>(seperatedID));
         }
         else
         {
-            return std::tr1::shared_ptr<Body>();
+            return std::shared_ptr<Body>();
         }
     }
     else
@@ -255,18 +254,18 @@ std::tr1::shared_ptr<Body> ConstructionParser::getBodyByNameGlobal(const std::st
     }
 }
 
-std::tr1::shared_ptr<Point> ConstructionParser::getPointByNameGlobal(const std::string &pointID) const
+std::shared_ptr<Point> ConstructionParser::getPointByNameGlobal(const std::string &pointID) const
 {
     if (idHasNamespace(pointID))
     {
-        std::tr1::tuple<std::string, std::string> seperatedID = splitID(pointID);
+        std::tuple<std::string, std::string> seperatedID = splitID(pointID);
         if (m_PointNamespaceLookup)
         {
             return m_PointNamespaceLookup(get<0>(seperatedID), get<1>(seperatedID));
         }
         else
         {
-            return std::tr1::shared_ptr<Point>();
+            return std::shared_ptr<Point>();
         }
     }
     else
@@ -275,27 +274,27 @@ std::tr1::shared_ptr<Point> ConstructionParser::getPointByNameGlobal(const std::
     }
 }
 
-std::tr1::tuple<std::string, std::string> ConstructionParser::splitID(const std::string &id) const
+std::tuple<std::string, std::string> ConstructionParser::splitID(const std::string &id) const
 {
     std::string::size_type colonPos = id.rfind(':');
-    return std::tr1::make_tuple(id.substr(0, colonPos), id.substr(colonPos + 1, std::string::npos));
+    return std::make_tuple(id.substr(0, colonPos), id.substr(colonPos + 1, std::string::npos));
 }
 
-std::tr1::shared_ptr<Body> ConstructionParser::parseBodyRefElement(const QDomElement &bodyRefElement)
+std::shared_ptr<Body> ConstructionParser::parseBodyRefElement(const QDomElement &bodyRefElement)
 {
     string bodyName = bodyRefElement.attribute("id", "").toStdString();
     return getBodyByNameGlobal(bodyName);
 }
 
-std::tr1::shared_ptr<Point> ConstructionParser::parsePointRefElement(const QDomElement &pointRefElement)
+std::shared_ptr<Point> ConstructionParser::parsePointRefElement(const QDomElement &pointRefElement)
 {
     string pointName = pointRefElement.attribute("id", "").toStdString();
     return getPointByNameGlobal(pointName);
 }
 
-std::tr1::shared_ptr<LineStrip> ConstructionParser::parseLinestripElement(const QDomElement &linestripElement)
+std::shared_ptr<LineStrip> ConstructionParser::parseLinestripElement(const QDomElement &linestripElement)
 {
-    std::tr1::shared_ptr<LineStrip> linestrip(new LineStrip());
+    std::shared_ptr<LineStrip> linestrip(new LineStrip());
     float radius = m_DefaultLineSize;
     if (linestripElement.hasAttribute("radius"))
     {
@@ -307,18 +306,18 @@ std::tr1::shared_ptr<LineStrip> ConstructionParser::parseLinestripElement(const 
 
     while (!pointElement.isNull())
     {
-        std::tr1::shared_ptr<Point> point = parsePoint(pointElement);
+        std::shared_ptr<Point> point = parsePoint(pointElement);
         linestrip->AddPoint(point);
         pointElement = pointElement.nextSiblingElement();
     }
     return linestrip;
 }
 
-std::tr1::shared_ptr<Point> ConstructionParser::parsePoint(const QDomElement &pointElement)
+std::shared_ptr<Point> ConstructionParser::parsePoint(const QDomElement &pointElement)
 {
     if (pointElement.isNull())
     {
-        return std::tr1::shared_ptr<Point>();
+        return std::shared_ptr<Point>();
     }
     if (pointElement.tagName() == "point")
     {
@@ -328,12 +327,12 @@ std::tr1::shared_ptr<Point> ConstructionParser::parsePoint(const QDomElement &po
     {
         return parsePointElementRelative(pointElement);
     }
-    return std::tr1::shared_ptr<Point>();
+    return std::shared_ptr<Point>();
 }
 
-std::tr1::shared_ptr<Point> ConstructionParser::parsePointElement(const QDomElement &pointElement)
+std::shared_ptr<Point> ConstructionParser::parsePointElement(const QDomElement &pointElement)
 {
-    std::tr1::shared_ptr<Point> point(new Point());
+    std::shared_ptr<Point> point(new Point());
     float x = pointElement.attribute("x", "0.0").toFloat();
     point->SetX(x);
     float y = pointElement.attribute("y", "0.0").toFloat();
@@ -349,9 +348,9 @@ std::tr1::shared_ptr<Point> ConstructionParser::parsePointElement(const QDomElem
     return point;
 }
 
-std::tr1::shared_ptr<PointRelative> ConstructionParser::parsePointElementRelative(const QDomElement &pointElement)
+std::shared_ptr<PointRelative> ConstructionParser::parsePointElementRelative(const QDomElement &pointElement)
 {
-    std::tr1::shared_ptr<PointRelative> point(new PointRelative());
+    std::shared_ptr<PointRelative> point(new PointRelative());
     float x = pointElement.attribute("xoffset", "0.0").toFloat();
     point->SetXOffset(x);
     float y = pointElement.attribute("yoffset", "0.0").toFloat();
@@ -363,7 +362,7 @@ std::tr1::shared_ptr<PointRelative> ConstructionParser::parsePointElementRelativ
     {
         std::string pointID = pointElement.attribute("point_id").toStdString();
 
-        std::tr1::shared_ptr<Point> refPoint = getPointByNameGlobal(pointID);
+        std::shared_ptr<Point> refPoint = getPointByNameGlobal(pointID);
         point->ResolveAgainst(refPoint);
     }
 
@@ -375,15 +374,15 @@ std::tr1::shared_ptr<PointRelative> ConstructionParser::parsePointElementRelativ
     return point;
 }
 
-std::tr1::shared_ptr<Anchor> ConstructionParser::parseAnchorElement(const QDomElement &anchorElement, std::tr1::shared_ptr<Body> body)
+std::shared_ptr<Anchor> ConstructionParser::parseAnchorElement(const QDomElement &anchorElement, std::shared_ptr<Body> body)
 {
-    std::tr1::shared_ptr<Anchor> anchor(new Anchor());
+    std::shared_ptr<Anchor> anchor(new Anchor());
     anchor->SetParentBody(body);
     string pointID = anchorElement.attribute("point_id", "").toStdString();
     string anchorNodeID = anchorElement.attribute("node_id", "").toStdString();
 
     anchor->SetAnchorNodeName(anchorNodeID);
-    std::tr1::shared_ptr<Point> point = body->GetPointByName(pointID);
+    std::shared_ptr<Point> point = body->GetPointByName(pointID);
 
     anchor->SetAnchorPoint(point);
 
@@ -393,12 +392,12 @@ std::tr1::shared_ptr<Anchor> ConstructionParser::parseAnchorElement(const QDomEl
     return anchor;
 }
 
-std::tr1::shared_ptr<OperatingRange> ConstructionParser::parseOperatingRangeElement(const QDomElement &rangeElement, std::tr1::shared_ptr<Body> body)
+std::shared_ptr<OperatingRange> ConstructionParser::parseOperatingRangeElement(const QDomElement &rangeElement, std::shared_ptr<Body> body)
 {
-    std::tr1::shared_ptr<OperatingRange> range(new OperatingRange());
+    std::shared_ptr<OperatingRange> range(new OperatingRange());
 
     string pointID = rangeElement.attribute("point_id", "").toStdString();
-    std::tr1::shared_ptr<Point> point = body->GetPointByName(pointID);
+    std::shared_ptr<Point> point = body->GetPointByName(pointID);
     range->SetCenterPoint(point);
 
     float radius = rangeElement.attribute("radius", "1.0").toFloat();
@@ -430,7 +429,7 @@ string ConstructionParser::getOrCreatePointName(const QDomElement &pointElement)
     }
 }
 
-std::tr1::shared_ptr<Construction> ConstructionParser::parseConstructionElement(const QDomElement &constructionElement)
+std::shared_ptr<Construction> ConstructionParser::parseConstructionElement(const QDomElement &constructionElement)
 {
     if (!m_Construction)
     {
@@ -445,7 +444,7 @@ std::tr1::shared_ptr<Construction> ConstructionParser::parseConstructionElement(
     {
         if (child.toElement().tagName() == "body")
         {
-            std::tr1::shared_ptr<Body> body = parseBodyElement(child.toElement());
+            std::shared_ptr<Body> body = parseBodyElement(child.toElement());
             if (body)
             {
                 m_Construction->AddBody(body);
@@ -453,7 +452,7 @@ std::tr1::shared_ptr<Construction> ConstructionParser::parseConstructionElement(
         }
         else if (child.toElement().tagName() == "joint")
         {
-            std::tr1::shared_ptr<Joint> joint = parseJointElement(child.toElement());
+            std::shared_ptr<Joint> joint = parseJointElement(child.toElement());
             if (joint)
             {
                 m_Construction->AddJoint(joint);
@@ -477,7 +476,7 @@ bool ConstructionParser::hasAnchorNodeWithName(const std::string &anchorNodeName
     }
 }
 
-std::tr1::shared_ptr<Body> ConstructionParser::getBodyForAnchor(const std::string &anchorNodeName) const
+std::shared_ptr<Body> ConstructionParser::getBodyForAnchor(const std::string &anchorNodeName) const
 {
     AnchorNodeNameToBodyMap::const_iterator foundAnchorNode = m_AnchorNodeNameToBodyMap.find(anchorNodeName);
     if (foundAnchorNode != m_AnchorNodeNameToBodyMap.end())
@@ -486,11 +485,11 @@ std::tr1::shared_ptr<Body> ConstructionParser::getBodyForAnchor(const std::strin
     }
     else
     {
-        return std::tr1::shared_ptr<Body>();
+        return std::shared_ptr<Body>();
     }
 }
 
-std::tr1::shared_ptr<Construction> ConstructionParser::getConstruction() const
+std::shared_ptr<Construction> ConstructionParser::getConstruction() const
 {
     return m_Construction;
 }

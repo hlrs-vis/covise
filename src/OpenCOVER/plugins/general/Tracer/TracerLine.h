@@ -60,7 +60,7 @@ private:
     bool _wait;
     osg::Matrix computeM0();
 
-    string initialObjectName_; //we have to save it for the grmsg, because _inter is not always valid
+    std::string initialObjectName_; //we have to save it for the grmsg, because _inter is not always valid
     //    osg::MatrixTransform *interactorCaseDCS_;
     TracerPlugin *plugin;
 

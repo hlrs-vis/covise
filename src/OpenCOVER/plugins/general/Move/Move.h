@@ -71,7 +71,7 @@ public:
     virtual ~Move();
     bool init();
     void preFrame();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void newInteractor(const RenderObject *container, coInteractor *it);
     void addNode(osg::Node *, const RenderObject *);
     void removeNode(osg::Node *, bool isGroup, osg::Node *realNode);

@@ -434,7 +434,7 @@ public:
     {
         if (type != typenum)
         {
-            cerr << "wrong type from shared memory in coDataShm constructor: was" << type << ", expected " << typenum << endl;
+            cerr << "wrong type from shared memory in coDataShm constructor: was" << type << ", expected " << typenum << std::endl;
             print_exit(__LINE__, __FILE__, 1);
         }
     };
@@ -459,7 +459,7 @@ public:
         coShmPtr::setPtr(no, o);
         if (type != typenum)
         {
-            cerr << "wrong type associated in coDataShm->setPtr: was" << type << ", expected " << typenum << endl;
+            cerr << "wrong type associated in coDataShm->setPtr: was" << type << ", expected " << typenum << std::endl;
             print_exit(__LINE__, __FILE__, 1);
         }
     };
@@ -566,7 +566,7 @@ public:
     {
         if (type != typenum)
         {
-            cerr << "wrong type in coDataShmArray constructor from shared memory: expected " << typenum << ", was " << type << endl;
+            cerr << "wrong type in coDataShmArray constructor from shared memory: expected " << typenum << ", was " << type << std::endl;
             print_exit(__LINE__, __FILE__, 1);
         }
     }
@@ -575,7 +575,7 @@ public:
         coShmArray::setPtr(no, o);
         if (type != typenum)
         {
-            cerr << "wrong type in coDataShmArray->setPtr constructor from shared memory: expected " << typenum << ", was " << type << endl;
+            cerr << "wrong type in coDataShmArray->setPtr constructor from shared memory: expected " << typenum << ", was " << type << std::endl;
             print_exit(__LINE__, __FILE__, 1);
         }
         if (length < 0)
@@ -589,7 +589,7 @@ public:
             return ((DataType *)(((char *)ptr) + sizeof(int)+sizeof(ArrayLengthType)))[i];
         // else
         cerr << "Access error for coDataShmArray\n"
-             << i << " not in 0.." << length - 1 << endl;
+             << i << " not in 0.." << length - 1 << std::endl;
         assert(i >= 0 && i < length);
         return null_return;
     }
@@ -600,7 +600,7 @@ public:
             return ((DataType *)(((char *)ptr) + 2 * sizeof(int)))[i];
         // else
         cerr << "Access error for coDataShmArray\n"
-             << i << " not in 0.." << length - 1 << endl;
+             << i << " not in 0.." << length - 1 << std::endl;
         assert(i >= 0 && i < length);
         return null_return;
     }

@@ -136,6 +136,7 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     , cfg_AutoConnect("System.MapEditor.General.AutoConnectHosts")
     , cfg_TopLevelBrowser("System.MapEditor.General.TopLevelBrowser")
     , cfg_ImbeddedRenderer("System.MapEditor.General.TopLevelBrowser")
+    , cfg_TabletUITabs("System.MapEditor.General.TabletUITabs")
     , cfg_AutoSaveTime("time", "System.MapEditor.Saving.AutoSave")
     , cfg_ModuleHistoryLength("System.MapEditor.Saving.ModuleHistoryLength")
     , cfg_GridSize("System.MapEditor.VisualProgramming.SnapFactor")
@@ -227,6 +228,7 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     cfg_AutoConnect.setAutoUpdate(true);
     cfg_TopLevelBrowser.setAutoUpdate(true);
     cfg_ImbeddedRenderer.setAutoUpdate(true);
+    cfg_TabletUITabs.setAutoUpdate(true);
     cfg_AutoSaveTime.setAutoUpdate(true);
     cfg_ModuleHistoryLength.setAutoUpdate(true);
     cfg_GridSize.setAutoUpdate(true);
@@ -237,6 +239,7 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     cfg_HideUnusedModules.setSaveToGroup(mapConfig);
     cfg_AutoConnect.setSaveToGroup(mapConfig);
     cfg_TopLevelBrowser.setSaveToGroup(mapConfig);
+    cfg_TabletUITabs.setSaveToGroup(mapConfig);
     cfg_ErrorHandling.setSaveToGroup(mapConfig);
     cfg_DeveloperMode.setSaveToGroup(mapConfig);
     cfg_AutoSaveTime.setSaveToGroup(mapConfig);
@@ -501,6 +504,8 @@ void MEMainHandler::readConfigFile()
         cfg_AutoConnect = true;
     if (!cfg_TopLevelBrowser.hasValidValue())
         cfg_TopLevelBrowser = true;
+    if (!cfg_TabletUITabs.hasValidValue())
+        cfg_TabletUITabs = true;
     if (!cfg_storeWindowConfig.hasValidValue())
         cfg_storeWindowConfig = false;
     if (!cfg_ImbeddedRenderer.hasValidValue())
@@ -556,12 +561,11 @@ void MEMainHandler::readConfigFile()
     {
 
         flist << "RWCovise:IO"
-              << "Colors:Color"
+              << "Colors:Mapper"
               << "IsoSurface:Mapper"
               << "CuttingSurface:Filter"
               << "Collect:Tools"
-              << "Renderer:Renderer"
-              << "VRRenderer:Renderer";
+              << "Renderer:Renderer";
     }
 
     else

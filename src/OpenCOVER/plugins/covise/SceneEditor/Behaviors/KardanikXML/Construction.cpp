@@ -12,7 +12,6 @@
 #include "Body.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -27,7 +26,7 @@ Construction::GetBodies() const
     return m_Bodies;
 }
 void
-Construction::AddBody(std::tr1::shared_ptr<Body> body)
+Construction::AddBody(std::shared_ptr<Body> body)
 {
     m_Bodies.push_back(body);
     body->SetParentConstruction(shared_from_this());
@@ -40,22 +39,22 @@ Construction::GetJoints() const
 }
 
 void
-Construction::AddJoint(std::tr1::shared_ptr<Joint> joint)
+Construction::AddJoint(std::shared_ptr<Joint> joint)
 {
     m_Joints.push_back(joint);
 }
 
-std::tr1::shared_ptr<Body>
+std::shared_ptr<Body>
 Construction::GetBodyByName(const std::string &name) const
 {
-    BOOST_FOREACH (std::tr1::shared_ptr<Body> body, m_Bodies)
+    BOOST_FOREACH (std::shared_ptr<Body> body, m_Bodies)
     {
         if (body && body->GetName() == name)
         {
             return body;
         }
     }
-    return std::tr1::shared_ptr<Body>();
+    return std::shared_ptr<Body>();
 }
 
 void Construction::SetNamespace(const std::string &theNamespace)

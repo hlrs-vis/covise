@@ -193,7 +193,7 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 
 				e57::CompressedVectorReader dataReader = eReader.SetUpData3DPointsData(
 					scanIndex,			//!< data block index given by the NewData3D
-					nRow,				//!< size of each of the buffers given
+					nSize,				//!< size of each of the buffers given
 					xData,				//!< pointer to a buffer with the x data
 					yData,				//!< pointer to a buffer with the y data
 					zData,				//!< pointer to a buffer with the z data

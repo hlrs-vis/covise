@@ -11,9 +11,6 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <assert.h>
 #include <iostream>
-#ifndef WIN32
-#include <boost/tr1/functional.hpp>
-#endif
 #include <functional>
 #include <algorithm>
 #include <iostream>
@@ -33,7 +30,6 @@
 
 using namespace KardanikXML;
 using namespace std;
-using namespace std::tr1;
 
 namespace
 {
@@ -84,7 +80,7 @@ void KardanikConstructor::SetDynamicWorld(btDynamicsWorld *dynamicsWorld)
     m_DynamicsWorld = dynamicsWorld;
 }
 
-void KardanikConstructor::InstanciateConstruction(std::tr1::shared_ptr<KardanikXML::Construction> construction)
+void KardanikConstructor::InstanciateConstruction(std::shared_ptr<KardanikXML::Construction> construction)
 {
     if (!construction)
     {
@@ -92,12 +88,12 @@ void KardanikConstructor::InstanciateConstruction(std::tr1::shared_ptr<KardanikX
     }
 
     for_each(construction->GetBodies().begin(), construction->GetBodies().end(),
-             bind(&KardanikConstructor::AddBody, this, std::tr1::placeholders::_1));
+             bind(&KardanikConstructor::AddBody, this, std::placeholders::_1));
     for_each(construction->GetJoints().begin(), construction->GetJoints().end(),
-             bind(&KardanikConstructor::AddJoint, this, std::tr1::placeholders::_1));
+             bind(&KardanikConstructor::AddJoint, this, std::placeholders::_1));
 }
 
-void KardanikConstructor::AddBody(std::tr1::shared_ptr<Body> body)
+void KardanikConstructor::AddBody(std::shared_ptr<Body> body)
 {
     if (!body)
     {
@@ -114,14 +110,14 @@ void KardanikConstructor::AddBody(std::tr1::shared_ptr<Body> body)
     btCompoundShape *bodyShape = new btCompoundShape();
 
     // import LineStrips
-    BOOST_FOREACH (std::tr1::shared_ptr<LineStrip> lineStrip, body->GetLineStrips())
+    BOOST_FOREACH (std::shared_ptr<LineStrip> lineStrip, body->GetLineStrips())
     {
         if (!lineStrip)
         {
             continue;
         }
-        std::tr1::shared_ptr<Point> lastPoint;
-        BOOST_FOREACH (std::tr1::shared_ptr<Point> point, lineStrip->GetPoints())
+        std::shared_ptr<Point> lastPoint;
+        BOOST_FOREACH (std::shared_ptr<Point> point, lineStrip->GetPoints())
         {
             if (!lastPoint)
             {
@@ -134,7 +130,7 @@ void KardanikConstructor::AddBody(std::tr1::shared_ptr<Body> body)
     }
 
     // import Lines
-    BOOST_FOREACH (std::tr1::shared_ptr<Line> line, body->GetLines())
+    BOOST_FOREACH (std::shared_ptr<Line> line, body->GetLines())
     {
         if (!line)
         {
@@ -199,7 +195,7 @@ void KardanikConstructor::TransformChildrenRelativeToCenterOfMass(btCompoundShap
     }
 }
 
-void KardanikConstructor::AddJoint(std::tr1::shared_ptr<Joint> joint)
+void KardanikConstructor::AddJoint(std::shared_ptr<Joint> joint)
 {
     if (!joint)
     {
@@ -222,8 +218,8 @@ void KardanikConstructor::AddJoint(std::tr1::shared_ptr<Joint> joint)
         return;
     }
 
-    std::tr1::shared_ptr<BodyJointDesc> bodyADesc = joint->GetBodyA();
-    std::tr1::shared_ptr<BodyJointDesc> bodyBDesc = joint->GetBodyB();
+    std::shared_ptr<BodyJointDesc> bodyADesc = joint->GetBodyA();
+    std::shared_ptr<BodyJointDesc> bodyBDesc = joint->GetBodyB();
 
     if (!bodyADesc || !bodyBDesc)
     {
@@ -275,8 +271,8 @@ bool AlmostEqual(float a, float b, float epsilon = 0.0001)
 }
 }
 
-void KardanikConstructor::AddLineToCompound(btCompoundShape *shape, std::tr1::shared_ptr<KardanikXML::Point> start,
-                                            std::tr1::shared_ptr<KardanikXML::Point> end, float radius, bool objectIsEmpty)
+void KardanikConstructor::AddLineToCompound(btCompoundShape *shape, std::shared_ptr<KardanikXML::Point> start,
+                                            std::shared_ptr<KardanikXML::Point> end, float radius, bool objectIsEmpty)
 {
     btVector3 lineStart(start->GetX(), start->GetY(), start->GetZ());
     btVector3 lineEnd(end->GetX(), end->GetY(), end->GetZ());
@@ -349,7 +345,7 @@ btHingeConstraint *KardanikConstructor::CreateHinge(btRigidBody &rbA, btRigidBod
     return pHinge;
 }
 
-btRigidBody *KardanikConstructor::GetRigidBody(std::tr1::shared_ptr<KardanikXML::Body> body) const
+btRigidBody *KardanikConstructor::GetRigidBody(std::shared_ptr<KardanikXML::Body> body) const
 {
     BodyToRigidBody::const_iterator foundBody = m_BodyToRigidBody.find(body);
     if (foundBody == m_BodyToRigidBody.end())
@@ -359,7 +355,7 @@ btRigidBody *KardanikConstructor::GetRigidBody(std::tr1::shared_ptr<KardanikXML:
     return foundBody->second.m_RigidBody;
 }
 
-btTransform KardanikConstructor::GetCenterOfMass(std::tr1::shared_ptr<KardanikXML::Body> body) const
+btTransform KardanikConstructor::GetCenterOfMass(std::shared_ptr<KardanikXML::Body> body) const
 {
     BodyToRigidBody::const_iterator foundBody = m_BodyToRigidBody.find(body);
     if (foundBody == m_BodyToRigidBody.end())
@@ -369,7 +365,7 @@ btTransform KardanikConstructor::GetCenterOfMass(std::tr1::shared_ptr<KardanikXM
     return foundBody->second.m_RigidBody->getCenterOfMassTransform();
 }
 
-btVector3 KardanikConstructor::PointToVector(std::tr1::shared_ptr<KardanikXML::Point> point) const
+btVector3 KardanikConstructor::PointToVector(std::shared_ptr<KardanikXML::Point> point) const
 {
     if (!point)
     {
@@ -383,20 +379,20 @@ void KardanikConstructor::SetMotionStateFactory(KardanikXML::MotionStateFactory 
     m_MotionStateFactory = motionStateFactory;
 }
 
-void KardanikConstructor::MakeHigherBodiesStatic(std::tr1::shared_ptr<KardanikXML::Body> touchedBody, bool freeHigher)
+void KardanikConstructor::MakeHigherBodiesStatic(std::shared_ptr<KardanikXML::Body> touchedBody, bool freeHigher)
 {
     const unsigned int specialBodyID = 99;
 
     unsigned int bodyID = touchedBody->GetMotionID();
     BOOST_FOREACH (const BodyToRigidBody::value_type &bodyPair, m_BodyToRigidBody)
     {
-        std::tr1::shared_ptr<Body> body = bodyPair.first;
+        std::shared_ptr<Body> body = bodyPair.first;
         LockConnectedJoints(body);
     }
 
     BOOST_FOREACH (const BodyToRigidBody::value_type &bodyPair, m_BodyToRigidBody)
     {
-        std::tr1::shared_ptr<Body> body = bodyPair.first;
+        std::shared_ptr<Body> body = bodyPair.first;
         unsigned int thisBodyID = body->GetMotionID();
         if ((thisBodyID < bodyID) && freeHigher)
         {
@@ -411,7 +407,7 @@ void KardanikConstructor::MakeHigherBodiesStatic(std::tr1::shared_ptr<KardanikXM
     // if special body like tft or marLED ist touched, keep it locked
     BOOST_FOREACH (const BodyToRigidBody::value_type &bodyPair, m_BodyToRigidBody)
     {
-        std::tr1::shared_ptr<Body> body = bodyPair.first;
+        std::shared_ptr<Body> body = bodyPair.first;
         unsigned int thisBodyID = body->GetMotionID();
         if ((thisBodyID == bodyID) && (bodyID == specialBodyID) && freeHigher)
         {
@@ -423,7 +419,7 @@ void KardanikConstructor::MakeHigherBodiesStatic(std::tr1::shared_ptr<KardanikXM
 void KardanikConstructor::ResetBodyMotions()
 {
     //    BOOST_FOREACH(const BodyToRigidBody::value_type& bodyPair, m_BodyToRigidBody) {
-    //        std::tr1::shared_ptr<Body>  body = bodyPair.first;
+    //        std::shared_ptr<Body>  body = bodyPair.first;
     //        btRigidBody*  rigidBody = bodyPair.second.m_RigidBody;
     //        if (body->GetMotionType() == KardanikXML::Body::MOTION_STATIC) {
     //            rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
@@ -433,15 +429,15 @@ void KardanikConstructor::ResetBodyMotions()
     //    }
 }
 
-void KardanikConstructor::LockConnectedJoints(std::tr1::shared_ptr<Body> body)
+void KardanikConstructor::LockConnectedJoints(std::shared_ptr<Body> body)
 {
-    BOOST_FOREACH (std::tr1::weak_ptr<Joint> weakJoint, body->GetConnectedJoints())
+    BOOST_FOREACH (std::weak_ptr<Joint> weakJoint, body->GetConnectedJoints())
     {
         if (weakJoint.expired())
         {
             continue;
         }
-        std::tr1::shared_ptr<Joint> joint = weakJoint.lock();
+        std::shared_ptr<Joint> joint = weakJoint.lock();
         btHingeConstraint *hinge = m_JointToHinge[joint];
         if (!hinge)
         {
@@ -454,7 +450,7 @@ void KardanikConstructor::LockConnectedJoints(std::tr1::shared_ptr<Body> body)
 
 void KardanikConstructor::MoveJointsToInitialPositions()
 {
-    BOOST_REVERSE_FOREACH(std::tr1::shared_ptr<Joint> joint, m_Joints)
+    BOOST_REVERSE_FOREACH(std::shared_ptr<Joint> joint, m_Joints)
     {
         if (!joint->GetInitialAngle())
         {
@@ -471,7 +467,7 @@ void KardanikConstructor::SetJointLimits()
 {
     BOOST_FOREACH (const JointToHinge::value_type &jointHingePair, m_JointToHinge)
     {
-        std::tr1::shared_ptr<Joint> joint = jointHingePair.first;
+        std::shared_ptr<Joint> joint = jointHingePair.first;
         if (!(joint->GetLowerLimit() && joint->GetUpperLimit()))
         {
             continue;
@@ -485,21 +481,21 @@ void KardanikConstructor::SetJointLimits()
     m_DynamicsWorld->stepSimulation(25.0 / 50.0, 10, 1.0 / 240.0);
 }
 
-void KardanikConstructor::UnlockConnectedJoints(std::tr1::shared_ptr<Body> body, bool unlockLower)
+void KardanikConstructor::UnlockConnectedJoints(std::shared_ptr<Body> body, bool unlockLower)
 {
     unsigned int bodyMotionID = body->GetMotionID();
 
-    BOOST_FOREACH (std::tr1::weak_ptr<Joint> weakJoint, body->GetConnectedJoints())
+    BOOST_FOREACH (std::weak_ptr<Joint> weakJoint, body->GetConnectedJoints())
     {
         if (weakJoint.expired())
         {
             continue;
         }
-        std::tr1::shared_ptr<Joint> joint = weakJoint.lock();
-        std::tr1::shared_ptr<Body> bodyA = joint->GetBodyA()->GetBody();
-        std::tr1::shared_ptr<Body> bodyB = joint->GetBodyB()->GetBody();
+        std::shared_ptr<Joint> joint = weakJoint.lock();
+        std::shared_ptr<Body> bodyA = joint->GetBodyA()->GetBody();
+        std::shared_ptr<Body> bodyB = joint->GetBodyB()->GetBody();
 
-        std::tr1::shared_ptr<Body> otherBody = bodyB;
+        std::shared_ptr<Body> otherBody = bodyB;
         if (bodyB == body)
         {
             otherBody = bodyA;
@@ -531,8 +527,8 @@ void KardanikConstructor::SetInitialBodyTransforms(const BodyTransforms &bodyTra
 {
     BOOST_FOREACH (const BodyToRigidBody::value_type &bodyRigid, m_BodyToRigidBody)
     {
-        std::tr1::shared_ptr<Body> body = bodyRigid.first;
-        std::tr1::shared_ptr<Construction> construction = body->GetParentConstruction().lock();
+        std::shared_ptr<Body> body = bodyRigid.first;
+        std::shared_ptr<Construction> construction = body->GetParentConstruction().lock();
         BodyTransforms::const_iterator foundBody = bodyTransforms.find(construction->GetNamespace() + ":" + body->GetName());
         if (foundBody != bodyTransforms.end())
         {
@@ -548,8 +544,8 @@ KardanikConstructor::BodyTransforms KardanikConstructor::GetBodyTransforms() con
 
     BOOST_FOREACH (const BodyToRigidBody::value_type &body, m_BodyToRigidBody)
     {
-        std::tr1::shared_ptr<Body> bPtr = body.first;
-        std::tr1::shared_ptr<Construction> construction = bPtr->GetParentConstruction().lock();
+        std::shared_ptr<Body> bPtr = body.first;
+        std::shared_ptr<Construction> construction = bPtr->GetParentConstruction().lock();
 
         bodyTransforms.insert(BodyTransforms::value_type(construction->GetNamespace() + ":" + bPtr->GetName(), body.second.m_RigidBody->getCenterOfMassTransform()));
     }

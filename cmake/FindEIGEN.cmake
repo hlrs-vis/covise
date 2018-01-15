@@ -13,7 +13,7 @@ FIND_PATH(EIGEN_INCLUDE_DIR "Eigen/Eigen"
   PATHS
   $ENV{EIGEN_HOME}/include
   $ENV{EXTERNLIBS}/eigen3/include
-  $ENV{EXTERNLIBS}/eigen3/
+  $ENV{EXTERNLIBS}/eigen/include
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local

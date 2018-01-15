@@ -52,14 +52,16 @@ Build Requirements
 ------------------
 
 - **C++ compiler**:
-  C++03 or C++11
+  C++11
 
-  On Windows, we currently use Visual Studio 2015 (VC14).
+  On Windows, we currently use Visual Studio 2017 (VC14).
+  GCC 4.8 and newer should work.
+
 - **CMake**:
   2.8.10 or newer should work, but currently we suggest CMake 3.7
 - **XercesC**:
 - **Qt**:
-  Either Qt 4 or 5 is required by the graphical user interface.
+  Qt 5 is required by the graphical user interface.
   If you want to use the Qt/Coin3D/SoQt based desktop renderer (QtRender),
   then this version of Qt has to match the one that SoQt is built against.
 
@@ -101,7 +103,7 @@ Build Requirements
 - **GLEW**:
   Used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
 - **OpenSceneGraph**:
-  3.2 or newer is required for the VR renderer OpenCOVER
+  3.2 or newer is required, 3.4 or newer highly recommended for the VR renderer OpenCOVER
 - **Open Inventor**
   The desktop renderer on Linux requires Open Inventor.
   The binaries shipped with most Linux distributions do not correctly render fonts on 64

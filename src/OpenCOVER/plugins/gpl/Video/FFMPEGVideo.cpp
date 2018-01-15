@@ -28,22 +28,17 @@
 
 using namespace covise;
 
-void FFMPEGPlugin::video_tag(const char *cname)
+CodecListEntry::CodecListEntry(AVCodec *codec)
+: codec(codec)
 {
-    char *tail;
-#ifdef HAVE_CODEC_CTX_PTR
-    video_st->codec->codec_tag = strtol(cname, &tail, 0);
-#else
-    video_st->codec.codec_tag = strtol(cname, &tail, 0);
-#endif
-
-    if (!tail || *tail)
+    if (codec && codec->profiles)
     {
-#ifdef HAVE_CODEC_CTX_PTR
-        video_st->codec->codec_tag = cname[0] + (cname[1] << 8) + (cname[2] << 16) + (cname[3] << 24);
-#else
-        video_st->codec.codec_tag = cname[0] + (cname[1] << 8) + (cname[2] << 16) + (cname[3] << 24);
-#endif
+        for (const AVProfile *pro = codec->profiles;
+             pro->profile != FF_PROFILE_UNKNOWN;
+             ++pro)
+        {
+            profiles.push_back(pro->name);
+        }
     }
 }
 
@@ -67,9 +62,18 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
     }
 
 #ifdef HAVE_CODEC_CTX_PTR
+    video_st->codec = avcodec_alloc_context3(codec);
     codecCtx = video_st->codec;
 #else
     codecCtx = &video_st->codec;
+#endif
+#ifdef USE_CODECPAR
+    codecPar = video_st->codecpar;
+
+    codecPar->codec_id = codec->id;
+    codecPar->codec_type = codec->type;
+    codecPar->width = w;
+    codecPar->height = h;
 #endif
 
     codecCtx->codec_id = codec->id;
@@ -99,14 +103,20 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
             return false;
         }
     }
-
     codecCtx->time_base.den = fps.num;
     codecCtx->time_base.num = fps.den;
+    video_st->time_base.den = fps.num;
+    video_st->time_base.num = fps.den;
+
     //   myPlugin->selectFrameRate->setSelectedText(fps.num);
     codecCtx->bit_rate = bitrate;
     codecCtx->rc_min_rate = 0;
     codecCtx->rc_max_rate = maxBitrate;
+#ifdef USE_CODECPAR
+    codecPar->bit_rate = bitrate;
+#endif
 
+#if 0
     /*  sample parameters */
     if (codecCtx->width * codecCtx->height <= 352 * 288) /*352*288,320x240*/
     {
@@ -132,14 +142,21 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
     }
     else
     {
-
-        codecCtx->rc_buffer_size = 1024 * 1024 * 8; /*buffer_size, packet_size noch anpassen */
+        codecCtx->bit_rate = 20000000;
+        codecCtx->rc_min_rate = 0;
+        codecCtx->rc_max_rate = 30000000;
+        codecCtx->rc_buffer_size = w * h * 8; /*buffer_size, packet_size noch anpassen */
         oc->packet_size = 24000;
     }
     /* To avoid underflow problems change buffer and packet size */
     codecCtx->mb_decision = FF_MB_DECISION_RD;
     codecCtx->bit_rate_tolerance = 4000 * 1000;
     codecCtx->rc_buffer_aggressivity = 1.0;
+#endif
+
+#ifdef USE_CODECPAR
+    codecPar->bit_rate = codecCtx->bit_rate;
+#endif
 
 #if !defined(HAVE_LIBAV)
 # if LIBAVFORMAT_VERSION_MAJOR < 54
@@ -152,7 +169,7 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
 
     oc->max_delay = (int)(0.7 * AV_TIME_BASE);
 
-    codecCtx->gop_size = 12; /* emit one intra frame every twelve frames at most */
+    //codecCtx->gop_size = 12; /* emit one intra frame every twelve frames at most */
 
     if (codec->id == AV_CODEC_ID_RAWVIDEO)
     {
@@ -165,8 +182,21 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
     }
     else
     {
-        codecCtx->pix_fmt = codec->pix_fmts[0]; // pix_fmts[0] should be the the best suited pix_fmt let's just
+        AVPixelFormat best = codec->pix_fmts[0]; // pix_fmts[0] should be the the best suited pix_fmt let's just
+#if 0
+        for (int i=0; codec->pix_fmts[i]!=-1; ++i)
+        {
+            if (codec->pix_fmts[i] == AV_PIX_FMT_RGB24)
+                best = codec->pix_fmts[i];
+            if (codec->pix_fmts[i] == AV_PIX_FMT_YUV444P && best != AV_PIX_FMT_RGB24)
+                best = codec->pix_fmts[i];
+        }
+#endif
+        codecCtx->pix_fmt = best;
     }
+#ifdef USE_CODECPAR
+    codecPar->format = codecCtx->pix_fmt;
+#endif
     // use that one. BTW: here we already know it's defined
 
     if (oc->oformat->flags & AVFMT_GLOBALHEADER)
@@ -179,15 +209,15 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
 
 AVFrame *FFMPEGPlugin::alloc_picture(AVPixelFormat pix_fmt, int width, int height)
 {
-    AVFrame *picture;
-    uint8_t *picture_buf;
-    int size;
-
-    picture = av_frame_alloc();
+    AVFrame *picture = av_frame_alloc();
     if (!picture)
         return NULL;
-    size = avpicture_get_size(pix_fmt, width, height);
-    picture_buf = (uint8_t *)av_malloc(size);
+#if FF_API_AVPICTURE
+    int ret = avpicture_alloc((AVPicture *)picture, pix_fmt, width, height);
+    if (ret < 0)
+        return nullptr;
+    int size = avpicture_get_size(pix_fmt, width, height);
+    uint8_t *picture_buf = (uint8_t *)av_malloc(size);
     if (!picture_buf)
     {
         av_free(picture);
@@ -195,27 +225,62 @@ AVFrame *FFMPEGPlugin::alloc_picture(AVPixelFormat pix_fmt, int width, int heigh
     }
     avpicture_fill((AVPicture *)picture, picture_buf, pix_fmt, width, height);
     return picture;
+#else
+    int size = av_image_get_buffer_size(pix_fmt, width, height, 1);
+    uint8_t *picture_buf = (uint8_t *)av_malloc(size);
+    if (!picture_buf)
+    {
+        av_free(picture);
+        av_frame_free(&picture);
+        return NULL;
+    }
+    av_image_fill_arrays(picture->data, picture->linesize, picture_buf, pix_fmt, width, height, 1);
+    picture->format = pix_fmt;
+    picture->width = width;
+    picture->height = height;
+    return picture;
+#endif
 }
 
 bool FFMPEGPlugin::open_codec(AVCodec *codec)
 {
-
     if (!codec)
     {
-        fprintf(stderr, "codec with id %d  not found\n", codecCtx->codec_id);
+        fprintf(stderr, "codec with id %d not found\n", codecCtx->codec_id);
         return false;
     }
 
 /* open the codec */
+    AVDictionary *options = nullptr;
 #if LIBAVCODEC_VERSION_MAJOR < 54
     if (avcodec_open(codecCtx, codec) < 0)
 #else
-    if (avcodec_open2(codecCtx, codec, NULL) < 0)
+    if (!strcmp(codec->name, "libx264") || !strcmp(codec->name, "libx264rgb"))
+    {
+        //av_dict_set(&options, "vpre", "ultrafast", 0);
+        //av_dict_set(&options, "preset", "ultrafast", 0);
+        av_dict_set(&options, "crf", "18", 0);
+        //av_dict_set(&options, "profile", "high444", 0);
+        //av_dict_set(&options, "profile", "main", 0);
+        //av_dict_set(&options, "preset", "medium", 0);
+        //av_dict_set(&options, "vprofile", "high444", 0);
+        //av_dict_set(&options, "vpre", "medium", 0);
+        //av_dict_set(&options, "vpreset", "medium", 0);
+        //av_dict_set(&options, "preset", "medium", 0);
+        //av_set_options_string(codecCtx, "profile=baseline", "=", ":");
+        //av_set_options_string(codecCtx, "profile=high:preset=medium:vpre=medium", "=", ":");
+        //av_set_options_string(codecCtx, "vpre=medium", "=", ":");
+        //codecCtx->profile = FF_PROFILE_H264_HIGH;
+        //codecCtx->profile = FF_PROFILE_H264_HIGH_444;
+    }
+    if (avcodec_open2(codecCtx, codec, &options) < 0)
 #endif
     {
-        fprintf(stderr, "could not open codec\n");
+        av_dict_free(&options);
+        fprintf(stderr, "could not open codec %s\n", codec->name);
         return false;
     }
+    av_dict_free(&options);
 
     return true;
 }
@@ -249,17 +314,17 @@ bool FFMPEGPlugin::open_video(AVCodec *codec)
 
     outPicture = NULL;
 #ifdef HAVE_SWSCALE_H
-    if (myPlugin->resize || (codecCtx->pix_fmt != myPlugin->capture_fmt))
+    if (myPlugin->resize || (codecCtx->pix_fmt != capture_fmt))
     {
         if (myPlugin->inWidth * myPlugin->inHeight < codecCtx->width * codecCtx->height)
         {
-            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, myPlugin->capture_fmt,
+            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, capture_fmt,
                                            codecCtx->width, codecCtx->height, codecCtx->pix_fmt,
                                            myPlugin->resize ? SWS_BICUBIC : SWS_POINT, NULL, NULL, NULL);
         }
         else
         {
-            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, myPlugin->capture_fmt,
+            swsconvertctx = sws_getContext(myPlugin->inWidth, myPlugin->inHeight, capture_fmt,
                                            codecCtx->width, codecCtx->height, codecCtx->pix_fmt,
                                            myPlugin->resize ? SWS_BILINEAR : SWS_POINT, NULL, NULL, NULL);
         }
@@ -370,7 +435,7 @@ void FFMPEGPlugin::close_video()
     }
 
 #ifdef HAVE_SWSCALE_H
-    if ((codecCtx) && (myPlugin->resize || (codecCtx->pix_fmt != myPlugin->capture_fmt)))
+    if ((codecCtx) && (myPlugin->resize || (codecCtx->pix_fmt != capture_fmt)))
     {
         if (swsconvertctx)
             sws_freeContext(swsconvertctx);
@@ -408,7 +473,48 @@ void FFMPEGPlugin::close_video()
 
 void FFMPEGPlugin::close_all(bool stream, int format)
 {
-    int i;
+    if (encodeFuture)
+    {
+        encodeFuture->get();
+        encodeFuture.reset();
+    }
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(57, 24, 102)
+    int got_output = 1;
+    do
+    {
+        AVPacket pkt;
+        av_init_packet(&pkt);
+        pkt.data = video_outbuf;
+        pkt.stream_index = video_st->index;
+        pkt.size = video_outbuf_size;
+        int err = avcodec_encode_video2(codecCtx, &pkt, nullptr, &got_output);
+        if (err < 0)
+        {
+            std::cerr << "error " << err << " during encoding frame for pts=" << pkt.pts << std::endl;
+            break;
+        }
+
+        if (got_output)
+        {
+#ifdef AV_PKT_FLAG_KEY
+            if (codecCtx->coded_frame->key_frame)
+                pkt.flags |= AV_PKT_FLAG_KEY;
+#else
+            if (codecCtx->coded_frame->key_frame)
+                pkt.flags |= PKT_FLAG_KEY;
+#endif
+
+            /* write the compressed frame in the media file */
+            int ret = av_write_frame(oc, &pkt);
+            if (ret < 0)
+            {
+                std::cerr << "error " << ret << " during writing frame for pts=" << pkt.pts << std::endl;
+                break;
+            }
+        }
+    }
+    while (got_output);
+#endif
 
     /* write the trailer, if any */
     av_write_trailer(oc);
@@ -420,7 +526,7 @@ void FFMPEGPlugin::close_all(bool stream, int format)
     if (oc)
     {
         /* free the streams */
-        for (i = 0; i < oc->nb_streams; i++)
+        for (int i = 0; i < oc->nb_streams; i++)
         {
             av_freep(&oc->streams[i]);
         }
@@ -448,7 +554,7 @@ void FFMPEGPlugin::close_all(bool stream, int format)
 void FFMPEGPlugin::init_GLbuffers()
 {
     int size;
-    size = avpicture_get_size(myPlugin->capture_fmt, myPlugin->inWidth, myPlugin->inHeight);
+    size = avpicture_get_size(capture_fmt, myPlugin->inWidth, myPlugin->inHeight);
     myPlugin->pixels = (uint8_t *)av_malloc(size);
     mirroredpixels = (uint8_t *)av_malloc(size);
 }
@@ -456,8 +562,29 @@ void FFMPEGPlugin::init_GLbuffers()
 bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBFormat)
 {
 
+#ifdef WIN32
+       myPlugin->GL_fmt = GL_BGR_EXT;
+       capture_fmt = AV_PIX_FMT_RGB24;
+#else
     if (RGBFormat == 1)
-        myPlugin->GL_fmt = GL_BGRA;
+    {
+       myPlugin->GL_fmt = GL_BGRA;
+#ifdef AV_PIX_FMT_RGBA32
+        capture_fmt = AV_PIX_FMT_RGBA32;
+#else
+        capture_fmt = AV_PIX_FMT_RGB32;
+#endif
+    }
+    else
+    {
+        myPlugin->GL_fmt = GL_RGBA;
+#ifdef AV_PIX_FMT_BGRA32
+        capture_fmt = AV_PIX_FMT_BGRA32;
+#else
+        capture_fmt = AV_PIX_FMT_BGR32;
+#endif
+    }
+#endif
     linesize = myPlugin->inWidth * 4;
 
     if (!FFMPEGInit(NULL, NULL, filename, false))
@@ -474,14 +601,23 @@ bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBF
 bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const string &filename,
                               bool test_codecs)
 {
+#ifdef WIN32
+    impl = nullptr;
+#else
     impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+#endif
 
 /* allocate the output media context */
 // need this for newer version todo: #ifdef version oc = avformat_alloc_context();
 #if LIBAVFORMAT_VERSION_INT < (53 << 16)
     oc = av_alloc_format_context();
 #else
-    oc = avformat_alloc_context();
+    int result = avformat_alloc_output_context2(&oc, outfmt, outfmt ? outfmt->name : nullptr, filename.c_str());
+    if (result < 0)
+    {
+        std::cerr << "avformat_alloc_output_context2 failed: " << result << std::endl;
+        oc = avformat_alloc_context();
+    }
 #endif
     if (!oc)
     {
@@ -518,25 +654,31 @@ bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const stri
 
         if (selectCodec->getSelectedEntry() < 0)
             selectCodec->setSelectedEntry(0);
-        std::list<AVCodec *>::iterator itlist;
+        std::list<CodecListEntry *>::iterator itlist;
 
-        for (itlist = (*it).second.begin(); itlist != (*it).second.end(); itlist++)
+        fmt->video_codec = AV_CODEC_ID_NONE;
+        for (auto itlist = (*it).second.begin(); itlist != (*it).second.end(); itlist++)
         {
-            if (strcmp((*itlist)->long_name, selectCodec->getSelectedText().c_str()) == 0)
+            if (strcmp(itlist->codec->long_name, selectCodec->getSelectedText().c_str()) == 0)
             {
-                fmt->video_codec = (*itlist)->id;
-                codec = *itlist;
+                fmt->video_codec = itlist->codec->id;
+                codec = itlist->codec;
                 break;
             }
         }
-        if (itlist == (*it).second.end())
-            fmt->video_codec = AV_CODEC_ID_NONE;
 
         /* Configure video stream */
         if (fmt->video_codec != AV_CODEC_ID_NONE)
         {
+            int br = bitrateField->getValue();
+            int mbr = maxBitrateField->getValue();
+            if (mbr < br)
+            {
+                mbr = br;
+                maxBitrateField->setValue(mbr);
+            }
             if (!add_video_stream(codec, myPlugin->outWidth, myPlugin->outHeight, myPlugin->time_base,
-                                  bitrateField->getValue() * 1000, maxBitrateField->getValue() * 1000))
+                                  br * 1000, mbr * 1000))
                 return false;
         }
         else
@@ -551,13 +693,6 @@ bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const stri
     {
         fmt = outfmt;
         oc->oformat = fmt;
-#ifdef AVFMT_NODIMENSIONS
-        if (fmt->flags & AVFMT_NODIMENSIONS)
-        {
-            fprintf(stderr, "image format\n");
-            return false;
-        }
-#endif
 
         video_st = NULL;
         fmt->video_codec = codec->id;
@@ -585,27 +720,29 @@ bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const stri
         }
     }
 
+    if (!test_codecs)
+    {
 #if LIBAVFORMAT_VERSION_INT <= AV_VERSION_INT(52, 64, 2)
 
-    /* set the output parameters (must be done even if no parameters). */
-    if (av_set_parameters(oc, NULL) < 0)
-    {
-        fprintf(stderr, "Invalid output format parameters\n");
-        if (video_st)
-            close_video();
-        av_free(oc);
-        return (false);
-    }
-    dump_format(oc, 0, filename.c_str(), 1);
+        /* set the output parameters (must be done even if no parameters). */
+        if (av_set_parameters(oc, NULL) < 0)
+        {
+            fprintf(stderr, "Invalid output format parameters\n");
+            if (video_st)
+                close_video();
+            av_free(oc);
+            return (false);
+        }
+        dump_format(oc, 0, filename.c_str(), 1);
 #else
-    av_dump_format(oc, 0, filename.c_str(), 1);
+        av_dump_format(oc, 0, filename.c_str(), 1);
 #endif
+    }
 
     /* now that all the parameters are set, we can open the audio and
       video codecs and allocate the necessary encode buffers */
     if (video_st)
     {
-
         if ((test_codecs && !open_codec(codec)) || (!test_codecs && !open_video(codec)))
         {
             // FIXME this leaks memory
@@ -672,7 +809,7 @@ void FFMPEGPlugin::checkFileFormat(const string &filename)
         }
 
         if (selectCodec->getSelectedEntry() < 0)
-            codecName = (*(*it).second.begin())->long_name;
+            codecName = (*(*it).second.begin()).codec->long_name;
         else
             codecName = selectCodec->getSelectedText().c_str();
 
@@ -699,62 +836,17 @@ void FFMPEGPlugin::checkFileFormat(const string &filename)
     }
 }
 
-#ifndef HAVE_SWSCALE_H
-int VideoPlugin::ImgConvertScale(int width, int height)
-{
-    int y, out_size;
-
-    // 	OpenGL reads bottom-to-top, encoder expects top-to-bottom
-    for (y = height; y > 0; y--)
-        memcpy(&mirroredpixels[(height - y) * linesize], &pixels[(y - 1) * linesize], linesize);
-
-    if (codecCtx->pix_fmt == AV_PIX_FMT_YUV420P)
-    {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
-
-        if (img_convert((AVPicture *)picture, codecCtx->pix_fmt, (AVPicture *)inPicture, myPlugin->capture_fmt,
-                        width, height) < 0)
-        {
-            fprintf(stderr, "Could not convert picture\n");
-            exit(1);
-        }
-    }
-    else if (codecCtx->pix_fmt != myPlugin->capture_fmt)
-    {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
-        img_convert((AVPicture *)picture, codecCtx->pix_fmt, (AVPicture *)inPicture, myPlugin->capture_fmt,
-                    width, height);
-    }
-    else
-    {
-        avpicture_fill((AVPicture *)picture, mirroredpixels, myPlugin->capture_fmt, width, height);
-    }
-
-    // 	scale the image
-    if (resize)
-    {
-        img_resample(imgresamplectx, (AVPicture *)outPicture, (AVPicture *)picture);
-        out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, outPicture);
-    }
-    else
-        /* encode the image */
-        out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, picture);
-
-    return (out_size);
-}
-
-#else
-int FFMPEGPlugin::SwConvertScale(int width, int height)
+AVFrame *FFMPEGPlugin::SwConvertScale(int width, int height)
 {
     //  	OpenGL reads bottom-to-top, encoder expects top-to-bottom
     for (int y = height; y > 0; y--)
         memcpy(&mirroredpixels[(height - y) * linesize], &myPlugin->pixels[(y - 1) * linesize], linesize);
 
     AVFrame *result = NULL;
-
-    if (myPlugin->resize || (codecCtx->pix_fmt != myPlugin->capture_fmt))
+#ifdef HAVE_SWSCALE_H
+    if (myPlugin->resize || (codecCtx->pix_fmt != capture_fmt))
     {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
+        avpicture_fill((AVPicture *)inPicture, mirroredpixels, capture_fmt, width, height);
 
         sws_scale(swsconvertctx, inPicture->data, inPicture->linesize, 0, height, outPicture->data,
                   outPicture->linesize);
@@ -762,51 +854,74 @@ int FFMPEGPlugin::SwConvertScale(int width, int height)
     }
     else
     {
-        avpicture_fill((AVPicture *)inPicture, mirroredpixels, myPlugin->capture_fmt, width, height);
+        avpicture_fill((AVPicture *)inPicture, mirroredpixels, capture_fmt, width, height);
         result = inPicture;
     }
-
-    result->pts = myPlugin->frameCount;
-
-    /* encode the image */
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
-    return avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, result);
 #else
-  AVPacket pkt;
-  av_init_packet(&pkt);
-  pkt.data = (uint8_t*)video_outbuf;
-  pkt.size = video_outbuf_size;
-  int got_output=0;
-  int ret = avcodec_encode_video2(codecCtx, &pkt, inPicture, &got_output);
-  if (ret < 0)
-  {
-    return -1;
-  }
-  return got_output ? pkt.size : 0;
+    if (codecCtx->pix_fmt != capture_fmt)
+    {
+        avpicture_fill((AVPicture *)inPicture, mirroredpixels, capture_fmt, width, height);
+
+        if (img_convert((AVPicture *)picture, codecCtx->pix_fmt, (AVPicture *)inPicture, capture_fmt,
+                        width, height) < 0)
+        {
+            fprintf(stderr, "Could not convert picture\n");
+            return -1;
+        }
+    }
+    else
+    {
+        avpicture_fill((AVPicture *)picture, mirroredpixels, capture_fmt, width, height);
+    }
+    result = picture;
+
+    // 	scale the image
+    if (resize)
+    {
+        img_resample(imgresamplectx, (AVPicture *)outPicture, (AVPicture *)picture);
+        result = outPicture;
+    }
 #endif
+
+    result->format = codecCtx->pix_fmt;
+    result->width = width;
+    result->height = height;
+
+    return result;
 }
-#endif
 
 void FFMPEGPlugin::videoWrite(int format)
 {
-    int ret, out_size;
+    auto encodeAndWrite = [this](int frameNum, int width, int height) -> bool {
 
-//        #ifdef SWSCALE
-#ifdef HAVE_SWSCALE_H
-    out_size = SwConvertScale(myPlugin->inWidth, myPlugin->inHeight);
-#else
-    out_size = ImgConvertScale(myPlugin->inWidth, myPlugin->inHeight);
-#endif
+        AVFrame *frame = SwConvertScale(width, height);
+        frame->pts = av_rescale_q(frameNum, codecCtx->time_base, video_st->time_base);
 
-    /* if zero size, it means the image was buffered */
-    if (out_size > 0)
-    {
+        /* encode the image */
+        AVPacket pkt;
         av_init_packet(&pkt);
-
-        pkt.stream_index = video_st->index;
         pkt.data = video_outbuf;
+        pkt.stream_index = video_st->index;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 24, 102)
+        int out_size = avcodec_encode_video(codecCtx, video_outbuf, video_outbuf_size, frame);
+#else
+        pkt.size = video_outbuf_size;
+        int got_output=0;
+        int err = avcodec_encode_video2(codecCtx, &pkt, frame, &got_output);
+        if (err < 0)
+        {
+            std::cerr << "error " << err << " during encoding frame for pts=" << pkt.pts << std::endl;
+            return false;
+        }
+        if (!got_output)
+            return true;
+        int out_size = pkt.size;
+#endif
+        if (out_size < 0)
+            return false;
+
         pkt.size = out_size;
-        pkt.pts = av_rescale_q(codecCtx->coded_frame->pts, codecCtx->time_base, video_st->time_base);
+        //std::cerr << "pts: " << pkt.pts << ", dts=" << pkt.dts << std::endl;
 #ifdef AV_PKT_FLAG_KEY
         if (codecCtx->coded_frame->key_frame)
             pkt.flags |= AV_PKT_FLAG_KEY;
@@ -816,16 +931,31 @@ void FFMPEGPlugin::videoWrite(int format)
 #endif
 
         /* write the compressed frame in the media file */
-        ret = av_write_frame(oc, &pkt);
-        myPlugin->frameCount++;
-        if (cover->frameTime() - myPlugin->starttime >= 1)
+        int ret = av_write_frame(oc, &pkt);
+        if (ret < 0)
         {
-            myPlugin->showFrameCountField->setValue(myPlugin->frameCount);
-            myPlugin->starttime = cover->frameTime();
+            std::cerr << "error " << ret << " during writing frame for pts=" << pkt.pts << std::endl;
+            return false;
         }
+        return true;
+    };
+
+    if (encodeFuture)
+    {
+        encodeFuture->get();
     }
     else
-        ret = 0;
+    {
+        encodeFuture.reset(new std::future<bool>);
+    }
+    *encodeFuture = std::async(std::launch::async, [this,encodeAndWrite](){ return encodeAndWrite(myPlugin->frameCount, myPlugin->inWidth, myPlugin->inHeight); });
+
+    myPlugin->frameCount++;
+    if (cover->frameTime() - myPlugin->starttime >= 1)
+    {
+        myPlugin->showFrameCountField->setValue(myPlugin->frameCount);
+        myPlugin->starttime = cover->frameTime();
+    }
 }
 
 void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
@@ -838,104 +968,127 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
 #if LIBAVFORMAT_VERSION_MAJOR < 54
     avcodec_init();
 #else
-// avcodec_init() has been removed
+    // avcodec_init() has been removed
 #endif
 #endif
 
-    AVOutputFormat *format = av_oformat_next(NULL);
-    AVCodec *codec;
+    unInitialize();
+
     std::list<AVCodec *> codecList;
 
-    codec = av_codec_next(NULL);
-    do
+    for (AVCodec *codec = av_codec_next(NULL);
+         codec != nullptr;
+         codec = av_codec_next(codec))
     {
 #if LIBAVCODEC_VERSION_MAJOR >= 53
-        if (codec->type == AVMEDIA_TYPE_VIDEO)
+        if (codec->type != AVMEDIA_TYPE_VIDEO)
+            continue;
 #else
-        if (codec->type == CODEC_TYPE_VIDEO)
+        if (codec->type != CODEC_TYPE_VIDEO)
+            continue;
 #endif
-        {
-            if (avcodec_find_encoder(codec->id) && avcodec_find_decoder(codec->id))
-            {
-                std::list<AVCodec *>::iterator it = codecList.begin();
-                for (; it != codecList.end(); it++)
-                    if ((*it)->id > codec->id)
-                    {
-                        codecList.insert(it, codec);
-                        break;
-                    }
-                    else if ((*it)->id == codec->id)
-                        break;
+        if (!av_codec_is_encoder(codec))
+            continue;
+#ifdef AV_CODEC_CAP_AVOID_PROBING
+        if (codec->capabilities & AV_CODEC_CAP_AVOID_PROBING)
+            continue;
+#endif
+#ifdef AV_CODEC_CAP_EXPERIMENTAL
+        if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL)
+            continue;
+#endif
 
-                if (it == codecList.end())
-                    codecList.push_back(codec);
+        //std::cerr << "Codec " << codec->id << ", " << codec->name << ": " << codec->long_name << std::endl;
+
+        std::list<AVCodec *>::iterator it = codecList.begin();
+        for (; it != codecList.end(); it++)
+        {
+            if ((*it)->id > codec->id)
+            {
+                codecList.insert(it, codec);
+                break;
+            }
+            else if ((*it)->id == codec->id)
+            {
+                codecList.insert(it, codec);
+                break;
             }
         }
 
-        codec = av_codec_next(codec);
-    } while (codec != NULL);
-
-    std::list<AVCodec *>::iterator it = codecList.begin();
+        if (it == codecList.end())
+            codecList.push_back(codec);
+    }
 
     AVOutputFormat *lastFormat = NULL;
-    while (format != NULL)
+    for (AVOutputFormat *format = av_oformat_next(nullptr);
+         format != nullptr;
+         format = av_oformat_next(format))
     {
+        if (format->video_codec == 0)
+            continue;
+        if (format->flags & AVFMT_NEEDNUMBER)
+            continue;
+#ifdef AVFMT_NODIMENSIONS
+        if (format->flags & AVFMT_NODIMENSIONS)
+            continue;
+#endif
+        if (lastFormat && (strcmp(format->long_name, lastFormat->long_name) == 0))
+            continue;
 
-        if (((!lastFormat) || (strcmp(format->long_name, lastFormat->long_name) != 0)) && (format->video_codec != 0))
+        std::string f(format->name);
+        if (f != "avi"
+                && f != "asf"
+                && f != "m4v"
+                && f != "matroska"
+                && f != "mov"
+                && f != "mp4"
+                && f != "mpeg"
+                && f != "ogv"
+                && f != "webm")
+            continue;
+
+        AVCodecList sublist;
+        if (format->codec_tag != 0)
         {
-
-            list<AVCodec *>::iterator it;
-            AVCodecList sublist;
-            AVCodec *last = NULL;
-
-            if (format->codec_tag != 0)
-            {
 #if LIBAVCODEC_VERSION_MAJOR < 54
-                CodecID cID = format->video_codec;
+            CodecID cID = format->video_codec;
 #else
-                AVCodecID cID = format->video_codec;
+            AVCodecID cID = format->video_codec;
 #endif
-                for (it = codecList.begin(); it != codecList.end(); it++)
-                {
-#if LIBAVFORMAT_VERSION_INT < (53 << 16)
-                    if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag((const struct AVCodecTag **)format->codec_tag, (*it)->id) > 0)) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
-#else
-                    if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag(format->codec_tag, (*it)->id) > 0)) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
-#endif
-                    {
-
-                        if ((*it)->id == cID)
-                            sublist.push_front((*it));
-                        else
-                            sublist.push_back((*it));
-                        last = (*it);
-                        unInitialize();
-                    }
-                }
-            }
-            else
+            AVCodec *last = NULL;
+            for (std::list<AVCodec *>::iterator it = codecList.begin(); it != codecList.end(); it++)
             {
-                for (it = codecList.begin(); it != codecList.end(); it++)
+#if LIBAVFORMAT_VERSION_INT < (53 << 16)
+                if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag((const struct AVCodecTag **)format->codec_tag, (*it)->id) > 0)))
+#else
+                if (((!last) || (strcmp((*it)->long_name, last->long_name) != 0)) && (((*it)->id == AV_CODEC_ID_RAWVIDEO) || (av_codec_get_tag(format->codec_tag, (*it)->id) > 0)))
+#endif
                 {
-                    if (((*it)->id == format->video_codec) && (coVRMSController::instance()->isSlave() || (coVRMSController::instance()->isMaster() && FFMPEGInit(format, *it, filename, true))))
-                    {
+
+                    if ((*it)->id == cID)
+                        sublist.push_front((*it));
+                    else
                         sublist.push_back((*it));
-                        unInitialize();
-                        break;
-                    }
+                    last = (*it);
                 }
             }
-
-            if (!sublist.empty())
-                formatList.insert(pair<AVOutputFormat *, AVCodecList>(format, sublist));
-            lastFormat = format;
+        }
+        else
+        {
+            for (std::list<AVCodec *>::iterator it = codecList.begin(); it != codecList.end(); it++)
+            {
+                if ((*it)->id == format->video_codec)
+                {
+                    sublist.push_back((*it));
+                    break;
+                }
+            }
         }
 
-        do
-        {
-            format = av_oformat_next(format);
-        } while (formatList.find(format) != formatList.end());
-    };
+        if (!sublist.empty())
+            formatList.insert(pair<AVOutputFormat *, AVCodecList>(format, sublist));
+        lastFormat = format;
+    }
 }
 
 void FFMPEGPlugin::FillComboBoxSetExtension(int selection, int row)
@@ -975,18 +1128,16 @@ void FFMPEGPlugin::FillComboBoxSetExtension(int selection, int row)
         coVRMSController::instance()->sendSlaves(filterList.c_str(), length + 1);
         count = (*it).second.size();
         coVRMSController::instance()->sendSlaves((char *)&count, sizeof(int));
-        std::list<AVCodec *>::iterator itlist;
-        for (itlist = (*it).second.begin(); itlist != (*it).second.end(); itlist++)
+        for (auto itlist = (*it).second.begin(); itlist != (*it).second.end(); itlist++)
         {
-            selectCodec->addEntry((*itlist)->long_name);
-            length = strlen((*itlist)->long_name);
+            selectCodec->addEntry(itlist->codec->long_name);
+            length = strlen(itlist->codec->long_name);
             coVRMSController::instance()->sendSlaves((char *)&length, sizeof(length));
-            coVRMSController::instance()->sendSlaves((*itlist)->long_name, length + 1);
+            coVRMSController::instance()->sendSlaves(itlist->codec->long_name, length + 1);
         }
     }
     else
     {
-
         int length;
         coVRMSController::instance()->readMaster((char *)&length, sizeof(int));
         char *charString = new char[length + 1];
@@ -1167,7 +1318,7 @@ void FFMPEGPlugin::tabletEvent(coTUIElement *tUIItem)
         }
 
         if (selectCodec->getSelectedEntry() < 0)
-            codecName = (*(*it).second.begin())->long_name;
+            codecName = (*(*it).second.begin()).codec->long_name;
         else
             codecName = selectCodec->getSelectedText().c_str();
 
@@ -1215,6 +1366,8 @@ void FFMPEGPlugin::loadParams(int select)
         myPlugin->cfpsHide(true);
     }
     bitrateField->setValue(VP.avgBitrate);
+    if (VP.maxBitrate < VP.avgBitrate)
+        VP.maxBitrate = VP.avgBitrate;
     maxBitrateField->setValue(VP.maxBitrate);
 }
 
@@ -1223,6 +1376,7 @@ int FFMPEGPlugin::readParams()
     QString path = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
     std::string pathname = path.toStdString();
     pathname += "videoparams.xml";
+#ifndef WIN32
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
@@ -1285,6 +1439,7 @@ int FFMPEGPlugin::readParams()
             }
         }
     }
+#endif
 
     return VPList.size();
 }
@@ -1295,6 +1450,7 @@ void FFMPEGPlugin::saveParams()
     std::string pathname = path.toStdString();
     pathname += "videoparams.xml";
 
+#ifndef WIN32
     xercesc::DOMDocument *xmlDoc = impl->createDocument(0, xercesc::XMLString::transcode("VideoParams"), 0);
     xercesc::DOMElement *rootElement = NULL;
     if (xmlDoc)
@@ -1359,6 +1515,7 @@ void FFMPEGPlugin::saveParams()
 #endif
     }
     delete xmlDoc;
+#endif
 }
 
 void FFMPEGPlugin::addParams()
@@ -1406,6 +1563,11 @@ void FFMPEGPlugin::addParams()
     VP.constFrames = myPlugin->cfpsEdit->getValue();
     VP.maxBitrate = maxBitrateField->getValue();
     VP.avgBitrate = bitrateField->getValue();
+    if (VP.maxBitrate < VP.avgBitrate)
+    {
+        VP.maxBitrate = VP.avgBitrate;
+        maxBitrateField->setValue(VP.maxBitrate);
+    }
 
     if (!overwrite)
     {

@@ -25,15 +25,11 @@ class TUIToggleBitmapButton : public QObject, public TUIElement
 public:
     TUIToggleBitmapButton(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIToggleBitmapButton();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
-    virtual void setSize(int w, int h);
+    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setSize(int w, int h) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
 public slots:
 

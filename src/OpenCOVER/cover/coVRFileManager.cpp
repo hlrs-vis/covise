@@ -957,6 +957,8 @@ const FileHandler *coVRFileManager::findFileHandler(const char *pathname)
         for (size_t i = 0; i < extlen; i++)
         {
             lowerExt[i] = tolower(extension[i]);
+            if (lowerExt[i] == '.')
+                lowerExt[i] = '_';
         }
         lowerExt[extlen] = '\0';
 

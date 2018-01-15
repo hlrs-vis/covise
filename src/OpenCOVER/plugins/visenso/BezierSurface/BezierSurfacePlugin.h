@@ -123,7 +123,7 @@ private:
     void casteljauAnimation();
     void removeMenuEntries();
     void changeStatus();
-    //      void message(int , int , const void *iData);
+    //      void message(int, int , int , const void *iData);
     void setMenuVisible(bool visible);
 };
 

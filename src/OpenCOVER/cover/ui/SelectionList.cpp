@@ -13,10 +13,11 @@ SelectionList::SelectionList(Group *parent, const std::string &name)
 {
 }
 
-void SelectionList::update() const
+void SelectionList::update(Element::UpdateMaskType mask) const
 {
-    Element::update();
-    manager()->updateChildren(this);
+    Element::update(mask);
+    if (mask & UpdateChildren)
+        manager()->updateChildren(this);
 }
 
 void SelectionList::setCallback(const std::function<void (int)> &f)
@@ -41,16 +42,19 @@ void SelectionList::save(covise::TokenBuffer &buf) const
 
 void SelectionList::load(covise::TokenBuffer &buf)
 {
-    Element::load(buf);
-    int sz = 0;
-    buf >> sz;
-    assert(sz == m_selection.size());
-    for (size_t i=0; i<m_selection.size(); ++i)
-    {
-        bool s = false;
-        buf >> s;
-        m_selection[i] = s;
-    }
+	Element::load(buf);
+	int sz = 0;
+	buf >> sz;
+	if (sz > 0) // during startup we get an update with sz ++ 0 even though there is a list of four entries e.g. in draw style please check this Martin
+	{
+		assert(sz == m_selection.size());
+		for (size_t i = 0; i < m_selection.size(); ++i)
+		{
+			bool s = false;
+			buf >> s;
+			m_selection[i] = s;
+		}
+	}
 }
 
 void SelectionList::shortcutTriggered()
@@ -79,6 +83,8 @@ void SelectionList::setList(const std::vector<std::string> items)
 {
     m_items = items;
     m_selection.resize(m_items.size(), false);
+    if (selectedIndex() < 0)
+        select(0, false);
     manager()->updateChildren(this);
 }
 
@@ -91,6 +97,8 @@ void SelectionList::append(const std::string &item)
 {
     m_items.push_back(item);
     m_selection.resize(m_items.size(), false);
+    if (m_items.size() == 1)
+        m_selection[0] = true;
     manager()->updateChildren(this);
 }
 
@@ -98,7 +106,7 @@ void SelectionList::setSelection(const std::vector<bool> selection)
 {
     assert(m_selection.size() == m_items.size());
     m_selection = selection;
-    manager()->queueUpdate(this);
+    manager()->queueUpdate(this, UpdateChildren);
 }
 
 const std::vector<bool> &SelectionList::selection() const
@@ -106,11 +114,12 @@ const std::vector<bool> &SelectionList::selection() const
     return m_selection;
 }
 
-void SelectionList::select(int index)
+void SelectionList::select(int index, bool update)
 {
     for (size_t i=0; i<m_items.size(); ++i)
         m_selection[i] = i==index;
-    manager()->queueUpdate(this);
+    if (update)
+        manager()->queueUpdate(this, UpdateChildren);
 }
 
 int SelectionList::selectedIndex() const

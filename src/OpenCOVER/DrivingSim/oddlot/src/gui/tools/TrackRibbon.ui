@@ -78,20 +78,10 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="roadSplit">
+      <item row="2" column="2">
+       <widget class="QPushButton" name="roadCut">
         <property name="text">
-         <string>Split</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="roadModify">
-        <property name="text">
-         <string>Select/Modify</string>
+         <string>Cut</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -114,30 +104,20 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="roadNew">
-        <property name="text">
-         <string>New</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="roadDelete">
-        <property name="text">
-         <string>Delete</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="roadSnap">
         <property name="text">
          <string>Snap to</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="roadNew">
+        <property name="text">
+         <string>New</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -160,13 +140,40 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="roadCut">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="roadDelete">
         <property name="text">
-         <string>Cut</string>
+         <string>Delete</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="roadModify">
+        <property name="text">
+         <string>Select/Modify</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="roadSplit">
+        <property name="text">
+         <string>Split</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QPushButton" name="roadCircle">
+        <property name="text">
+         <string>Circle</string>
         </property>
        </widget>
       </item>

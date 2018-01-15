@@ -17,6 +17,9 @@
 #define OBJECTOBJECT_HPP
 
 #include "roadsection.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
+
+class Object;
 
 class ObjectCorner
 {
@@ -25,12 +28,13 @@ class ObjectCorner
     //################//
 
 public:
-    explicit ObjectCorner(double u, double v, double z, double height)
+    explicit ObjectCorner(double u, double v, double z, double height, bool local)
     {
         u_ = u;
         v_ = v;
         z_ = z;
         height_ = height;
+		local_ = local;
     };
     virtual ~ObjectCorner()
     { /* does nothing */
@@ -73,17 +77,54 @@ public:
     }
 
 
+	double getLocal() const
+	{
+		return local_;
+	}
+	void setLocal(const double local)
+	{
+		local_ = local;
+	}
+
+	void setObjectParent(Object *parent)
+	{
+		parentObject_ = parent;
+	}
+
+
 private:
+	Object *parentObject_;
+
     double u_;
     double v_;
     double z_;
     double height_;
+	bool local_;
+};
+
+class Outline
+{
+public:
+	Outline(QList<ObjectCorner *> corners);
+	~Outline();
+
+	void setParentObject(Object *object);
+	bool addCorner(ObjectCorner *corner);
+	QList<ObjectCorner *> getCorners()
+	{
+		return corners_;
+	}
+
+private:
+	Object *parentObject_;
+	QList<ObjectCorner *> corners_;
 };
 
 class ParkingSpace;
 
 class Object : public RoadSection
 {
+	friend Outline;
 	friend ParkingSpace;
 
     //################//
@@ -95,20 +136,14 @@ public:
     {
         CEL_ParameterChange = 0x1,
 		CEL_TypeChange = 0x2,
-		CEL_ParkingSpaceChange = 0x4
-    };
-
-    enum ObjectOrientation
-    {
-        POSITIVE_TRACK_DIRECTION = 1,
-        NEGATIVE_TRACK_DIRECTION = 2,
-        BOTH_DIRECTIONS = 0
+		CEL_ParkingSpaceChange = 0x4,
+		CEL_OutlineChange = 0x10
     };
 
     struct ObjectProperties
     {
         double t;
-        ObjectOrientation orientation;
+        Signal::OrientationType orientation;
         double zOffset;
         QString type;
         double validLength;
@@ -142,6 +177,7 @@ public:
         QString textureFile;
         QString modelFile;
     };
+
 
     //################//
     // FUNCTIONS      //
@@ -229,11 +265,11 @@ public:
         objectProps_.validLength = validLength;
     }
 
-    ObjectOrientation getOrientation() const
+	Signal::OrientationType getOrientation() const
     {
         return objectProps_.orientation;
     }
-    void setOrientation(const ObjectOrientation orientation)
+    void setOrientation(const Signal::OrientationType orientation)
     {
         objectProps_.orientation = orientation;
     }
@@ -436,6 +472,14 @@ public:
 	}
 	void setParkingSpace(ParkingSpace *parkingSpace);
 
+	// Object is outline //
+	//
+	Outline *getOutline()
+	{
+		return outline_;
+	}
+	void setOutline(Outline *outline);
+
 
     // Observer Pattern //
     //
@@ -477,6 +521,7 @@ private:
     ObjectUserData userData_;
 
 	ParkingSpace *parkingSpace_;
+	Outline *outline_;
 
 
     // Change flags //

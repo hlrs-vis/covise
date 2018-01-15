@@ -31,7 +31,6 @@ SET(COVER_HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
-  coIntersectionUtil.h
   coPartnerMenuItem.h
   coVrbRegistryAccess.h
   coVRCommunication.h
@@ -52,7 +51,7 @@ SET(COVER_HEADERS
   coVRTui.h
   coVRSceneView.h
   coVRTouchTable.h
-  EnableGLDebugOperation.h
+  InitGLOperation.h
   OpenCOVER.h
   RenderObject.h
   VRAvatar.h
@@ -115,7 +114,7 @@ SET(COVER_SOURCES
   coVRSceneView.cpp
   coVRStatsDisplay.cpp
   coVRTouchTable.cpp
-  EnableGLDebugOperation.cpp
+  InitGLOperation.cpp
   OpenCOVER.cpp
   QuitDialog.cpp
   VRAvatar.cpp
@@ -133,7 +132,6 @@ SET(COVER_SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
-  coIntersectionUtil.cpp
   coPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp
@@ -182,6 +180,7 @@ SET(UI_HEADERS
     ui/Slider.h
     ui/View.h
     ui/VruiView.h
+    ui/TabletView.h
 )
 
 SET(UI_SOURCES
@@ -200,6 +199,7 @@ SET(UI_SOURCES
     ui/Slider.cpp
     ui/View.cpp
     ui/VruiView.cpp
+    ui/TabletView.cpp
 )
 
 SET(DEVICE_SOURCES

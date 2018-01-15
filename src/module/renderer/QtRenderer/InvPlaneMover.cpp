@@ -257,7 +257,7 @@ void InvPlaneMover::sendFeedback(float *data)
 {
     if (!feedbackInfo_)
     {
-        cerr << "InvPlaneMover::sendFeedback(..) have NO feedback-info can't send feedback message" << endl;
+        cerr << "InvPlaneMover::sendFeedback(..) have NO feedback-info can't send feedback message" << std::endl;
         return;
     }
 
@@ -473,7 +473,7 @@ void InvPlaneMover::dragStartCB(void *me, SoDragger *drag)
 {
     (void)me;
     (void)drag;
-    //cerr << "InvPlaneMover::dragStartCB(..) called" << endl;
+    //cerr << "InvPlaneMover::dragStartCB(..) called" << std::endl;
 
     //InvPlaneMover *mee = static_cast<InvPlaneMover *>(me);
     // fill in whatever you like to do at the beginning of a dragging action

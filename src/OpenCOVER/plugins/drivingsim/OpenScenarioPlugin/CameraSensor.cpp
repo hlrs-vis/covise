@@ -26,9 +26,9 @@ void CameraSensor::updateView()
 	iscMat.invert(scMat);
 	osg::Matrix trans = iscMat  * cameraPosition *  vehicleMat* scMat;
 
-	osg::Vec3 p;
+	/*osg::Vec3 p;
 	p = trans.getTrans();
-	fprintf(stderr, "pos %f %f %f\n", (float)p[0], (float)p[1], (float)p[2]);
+	fprintf(stderr, "pos %f %f %f\n", (float)p[0], (float)p[1], (float)p[2]);*/
 	osg::Matrix itrans;
 	itrans.invert(trans);
 

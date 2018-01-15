@@ -30,6 +30,7 @@
 #include <osg/PolygonOffset>
 
 #include <cover/coVRShader.h>
+#include <cover/coVRConfig.h>
 #include <cover/coVRFileManager.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -49,6 +50,7 @@ float *Road::speedLimits = NULL;
 Road::Road(std::string id, std::string name, double l, Junction *junc)
     : Tarmac(id, name)
 {
+	shapeSections = NULL;
     length = l;
     junction = junc;
     priority = 0;
@@ -193,6 +195,10 @@ void Road::addPlanViewGeometryPolynom(double s, double l, double x, double y, do
 {
     xyMap[s] = (new PlanePolynom(s, l, x, y, hdg, a, b, c, d));
 }
+void Road::addPlanViewGeometryPolynom(double s, double l, double x, double y, double hdg, double aU, double bU, double cU, double dU, double aV, double bV, double cV, double dV, bool normalized)
+{
+	xyMap[s] = (new PlaneParamPolynom(s, l, x, y, hdg, aU, bU, cU, dU, aV, bV, cV, dV,normalized));
+}
 
 void Road::addElevationPolynom(double s, double a, double b, double c, double d)
 {
@@ -218,6 +224,14 @@ void Road::addCrossfallPolynom(double s, double a, double b, double c, double d,
     {
         lateralProfileMap[s] = (new CrossfallPolynom(s, a, b, c, d));
     }
+}
+void Road::addShapePolynom(double s, double a, double b, double c, double d, double t)
+{
+	if (shapeSections == NULL)
+	{
+		shapeSections = new roadShapeSections;
+	}
+	shapeSections->addPolynom(new ShapePolynom(s, a, b, c, d, t));
 }
 
 void Road::addLaneSection(LaneSection *section)
@@ -668,21 +682,54 @@ void Road::getLaneRoadPoints(double s, int i, RoadPoint &pointIn, RoadPoint &poi
     double heightIn = 0.0;
     double heightOut = 0.0;
     section->getLaneBorderHeights(s, i, heightIn, heightOut);
+	LateralProfile *lateralProfile = ((--lateralProfileMap.upper_bound(s))->second);
 
-    double alpha = ((--lateralProfileMap.upper_bound(s))->second)->getAngle(s, (disOut + disIn) * 0.5);
-    double beta = zPoint[1];
-    double gamma = xyPoint[2];
-    double Tx = (sin(alpha) * sin(beta) * cos(gamma) - cos(alpha) * sin(gamma));
-    double Ty = (sin(alpha) * sin(beta) * sin(gamma) + cos(alpha) * cos(gamma));
-    double Tz = (sin(alpha) * cos(beta));
-    //std::cout << "s: " << s << ", i: " << i << ", alpha: " << alpha << ", beta: " << beta << ", gamma: " << gamma << std::endl;
+	CrossfallPolynom *cp = dynamic_cast<CrossfallPolynom *>(lateralProfile);
+	double Tx, Ty, Tz;
+	double nx, ny, nz;
+	if ( cp != 0)
+	{
+		double beta = zPoint[1];
+		double gamma = xyPoint[2];
+		Tx = (sin(beta) * cos(gamma) - sin(gamma));
+		Ty = (sin(beta) * sin(gamma) + cos(gamma));
+		Tz = 0.0;
 
-    double nx = sin(alpha) * sin(gamma) + cos(alpha) * sin(beta) * cos(gamma);
-    double ny = cos(alpha) * sin(beta) * sin(gamma) - sin(alpha) * cos(gamma);
-    double nz = cos(alpha) * cos(beta);
+		nx = sin(beta) * cos(gamma);
+		ny = sin(beta) * sin(gamma);
+		nz = cos(beta);
 
-    pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
-    pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+		if (shapeSections)
+		{
+			double h1 = shapeSections->getHeight(s, disIn);
+			double h2 = shapeSections->getHeight(s, disOut);
+			pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn + h1, nx, ny, nz);
+			pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut + h2, nx, ny, nz);
+		}
+		else
+		{
+			pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
+			pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+		}
+	}
+	else
+	{
+
+		double alpha = lateralProfile->getAngle(s, (disOut + disIn) * 0.5);
+		double beta = zPoint[1];
+		double gamma = xyPoint[2];
+		Tx = (sin(alpha) * sin(beta) * cos(gamma) - cos(alpha) * sin(gamma));
+		Ty = (sin(alpha) * sin(beta) * sin(gamma) + cos(alpha) * cos(gamma));
+		Tz = (sin(alpha) * cos(beta));
+		//std::cout << "s: " << s << ", i: " << i << ", alpha: " << alpha << ", beta: " << beta << ", gamma: " << gamma << std::endl;
+
+		nx = sin(alpha) * sin(gamma) + cos(alpha) * sin(beta) * cos(gamma);
+		ny = cos(alpha) * sin(beta) * sin(gamma) - sin(alpha) * cos(gamma);
+		nz = cos(alpha) * cos(beta);
+		pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
+		pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+	}
+
     //std::cout << "s: " << s << ", i: " << i << ", inner: x: " << pointIn.x() << ", y: " << pointIn.y() << ", z: " << pointIn.z() << std::endl;
     //std::cout << "s: " << s << ", i: " << i << ", outer: x: " << pointOut.x() << ", y: " << pointOut.y() << ", z: " << pointOut.z() << std::endl << std::endl;
 }
@@ -848,6 +895,8 @@ osg::Geometry *Road::getGuardRailPost(RoadPoint pointDown, RoadPoint pointUp, Ro
 {
     osg::Geometry *guardRailPostGeometry;
     guardRailPostGeometry = new osg::Geometry();
+    guardRailPostGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    guardRailPostGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
 
     osg::Vec3Array *guardRailPostVertices;
     guardRailPostVertices = new osg::Vec3Array;
@@ -1334,6 +1383,8 @@ osg::Geode *Road::createGuardRailGeode(std::map<double, LaneSection *>::iterator
 
     osg::Geometry *guardRailGeometry;
     guardRailGeometry = new osg::Geometry();
+    guardRailGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+    guardRailGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
     guardRailGeode->addDrawable(guardRailGeometry);
 
     osg::Vec3Array *guardRailVertices;
@@ -1617,6 +1668,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
         osg::Geometry *roadGeometry;
         roadGeometry = new osg::Geometry();
+        roadGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        roadGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
         roadGeode->addDrawable(roadGeometry);
 
         osg::Vec3Array *roadVertices;
@@ -1839,6 +1892,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
             osg::Geometry *firstbatterGeometry;
             firstbatterGeometry = new osg::Geometry();
+        firstbatterGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        firstbatterGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
             batterGeode->addDrawable(firstbatterGeometry);
 
             osg::Vec3Array *firstbatterVertices;
@@ -1856,6 +1911,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
             osg::Geometry *secondbatterGeometry;
             secondbatterGeometry = new osg::Geometry();
+        secondbatterGeometry->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        secondbatterGeometry->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
             batterGeode->addDrawable(secondbatterGeometry);
 
             osg::Vec3Array *secondbatterVertices;

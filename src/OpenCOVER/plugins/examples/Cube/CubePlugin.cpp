@@ -20,8 +20,10 @@
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
+#include <string>
 
 using namespace osg;
+using std::string;
 
 char *CubePlugin::currentObjectName = NULL;
 CubePlugin *CubePlugin::plugin = NULL;

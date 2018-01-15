@@ -87,6 +87,9 @@ public:
     //! call newInteractor method of all plugins
     void newInteractor(const RenderObject *container, coInteractor *it) const;
 
+    //! call enableInteraction method of all plugins until one is accepting the request
+    bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse);
+
     //! call coviseError method of all plugins
     void coviseError(const char *error) const;
 
@@ -122,7 +125,7 @@ public:
     //! call setTimestep method of all plugins
     void setTimestep(int timestep) const;
     //! send a message to all plugins
-    void message(int t, int l, const void *b) const;
+    void message(int toWhom, int t, int l, const void *b) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
     void forwardMessage(int len, const void *buf) const;

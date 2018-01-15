@@ -29,14 +29,10 @@ public:
     TUIColorTriangle(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIColorTriangle();
 
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
     virtual void setValue(int type, covise::TokenBuffer &);
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const;
 
 public slots:
 

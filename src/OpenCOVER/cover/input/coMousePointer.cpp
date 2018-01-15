@@ -150,18 +150,22 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
 
     if (type & osgGA::GUIEventAdapter::SCROLL)
     {
-        if (state == osgGA::GUIEventAdapter::SCROLL_UP)
-            ++newWheelCounter[0];
-        else if (state == osgGA::GUIEventAdapter::SCROLL_DOWN)
-            --newWheelCounter[0];
-        else if (state == osgGA::GUIEventAdapter::SCROLL_RIGHT)
-            ++newWheelCounter[1];
-        else if (state == osgGA::GUIEventAdapter::SCROLL_LEFT)
-            --newWheelCounter[1];
+        if (!buttonPressed)
+        {
+            if (state == osgGA::GUIEventAdapter::SCROLL_UP)
+                ++newWheelCounter[0];
+            else if (state == osgGA::GUIEventAdapter::SCROLL_DOWN)
+                --newWheelCounter[0];
+            else if (state == osgGA::GUIEventAdapter::SCROLL_RIGHT)
+                ++newWheelCounter[1];
+            else if (state == osgGA::GUIEventAdapter::SCROLL_LEFT)
+                --newWheelCounter[1];
+        }
     }
 
     if (type & osgGA::GUIEventAdapter::PUSH)
     {
+        buttonPressed = bool(state);
         if (mouseTime == mouseButtonTime)
             queueEvent(type, state, code);
         else
@@ -179,6 +183,7 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
             buttons->setButtonState(state, true);
             mouseButtonTime = cover->frameRealTime();
         }
+        buttonPressed = bool(state);
     }
 
     if (type & osgGA::GUIEventAdapter::DOUBLECLICK)

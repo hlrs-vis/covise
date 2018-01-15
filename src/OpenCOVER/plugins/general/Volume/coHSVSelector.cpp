@@ -237,9 +237,9 @@ int coHSVSelector::hit(vruiHit *hit)
 
     if (interactionA->isRunning())
     {
-        osgUtil::Hit osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
+        osgUtil::LineSegmentIntersector::Intersection osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
 
-        if (osgHit._geode.valid())
+        if (osgHit.drawable.valid())
         {
             float x, y, h, s;
             Vec3 point = osgHit.getLocalIntersectPoint();

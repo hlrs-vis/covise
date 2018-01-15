@@ -16,6 +16,7 @@
 #include <osg/ClipPlane>
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <cover/coVRPlugin.h>
 
 namespace vrui
 {
@@ -26,6 +27,7 @@ namespace opencover {
 namespace ui {
 class Button;
 class Menu;
+class Group;
 }
 }
 
@@ -41,6 +43,7 @@ private:
         bool enabled=false;
         bool valid=false; // valid is false before first use
         osg::ref_ptr<osg::ClipPlane> clip;
+        ui::Group *UiGroup = nullptr;
         ui::Button *EnableButton = nullptr;
         ui::Button *DirectInteractorButton = nullptr;
         ui::Button *PickInteractorButton = nullptr;
@@ -86,6 +89,6 @@ public:
     ClipPlanePlugin();
     virtual ~ClipPlanePlugin();
     bool init();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void preFrame();
 };

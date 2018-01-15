@@ -296,7 +296,7 @@ public:
     coTUITab *revitTab = nullptr;
     void sendMessage(Message &m);
     
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void deactivateAllViewpoints();
     int getAnnotationID(int revitID);
     int getRevitAnnotationID(int ai);

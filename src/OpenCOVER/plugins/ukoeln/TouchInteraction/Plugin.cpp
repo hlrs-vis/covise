@@ -213,7 +213,7 @@ void Plugin::preFrame()
 //--------------------------------------------------------------------------------------------------
 //
 //--------------------------------------------------------------------------------------------------
-void Plugin::message(int type, int length, void const *data)
+void Plugin::message(int toWhom, int type, int length, void const *data)
 {
     TouchInteraction::onMessage(type, length, data);
 }

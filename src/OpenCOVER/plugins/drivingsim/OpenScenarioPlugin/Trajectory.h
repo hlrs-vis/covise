@@ -1,8 +1,6 @@
 #ifndef TRAJECTORY_H
 #define TRAJECTORY_H
 
-using namespace std;
-#include<iostream>
 #include<string>
 #include<vector>
 #include <osg/Vec3>
@@ -15,12 +13,12 @@ private:
 	
 
 public:
-	string name;
-	vector<osg::Vec3> polylineVertices;
-	Trajectory();
+    std::vector<osg::Vec3> polylineVertices;
+    std::vector<bool> isRelVertice;
+    Trajectory();
 	~Trajectory();
 	virtual void finishedParsing();
-	void initialize(vector<osg::Vec3> vec_temp);
+    void initialize(std::vector<osg::Vec3> vec_temp, std::vector<bool> isRelVertice_temp);
 };
 
 #endif // TRAJECTORY_H

@@ -33,27 +33,30 @@ public:
 
     void updateState();
     void addEntry(const std::string &name, coVRPlugin *plugin);
+    void addEntry(const std::string &name);
     void init();
 
 private:
     PluginMenu();
     ~PluginMenu();
+    void scanPlugins();
 
     struct Plugin
     {
         std::string name;
         ui::Button *button = nullptr;
         coVRPlugin *plugin = nullptr;
+        bool configured = false;
 
         Plugin(const std::string &name)
             : name(name)
         {
         }
 
-        void add(ui::Menu *menu);
+        void add(ui::Menu *menu, bool onlyTui=false);
     };
 
-    std::vector<Plugin> items;
+    std::map<std::string, Plugin> items;
     ui::Menu *menu = nullptr;
 
     static PluginMenu *s_instance;

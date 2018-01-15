@@ -155,9 +155,9 @@ void TUIFunctionEditorTab::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-char *TUIFunctionEditorTab::getClassName()
+const char *TUIFunctionEditorTab::getClassName() const
 {
-    return (char *)"TUIFunctionEditorTab";
+    return "TUIFunctionEditorTab";
 }
 
 void TUIFunctionEditorTab::make1DEditor()
@@ -399,7 +399,8 @@ void TUIFunctionEditorTab::makeEditor()
     connect(chooser, SIGNAL(changedColor(QColor)), this, SLOT(showNewColor(QColor)));
     mainLayout->addWidget(chooser, 0);
 
-    layout->addLayout(mainLayout, 0, 0);
+    if (auto gl = gridLayout())
+        gl->addLayout(mainLayout, 0, 0);
     gb = NULL;
     functionEditor = NULL;
     chkOwnColor = NULL;

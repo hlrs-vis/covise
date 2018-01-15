@@ -26,6 +26,7 @@
 #include "ui/Owner.h"
 namespace opencover {
 namespace ui {
+class Group;
 class Menu;
 class Action;
 class ButtonGroup;
@@ -71,7 +72,8 @@ public:
         TraverseInteractors,
         Menu,
         Measure,
-        Select
+        Select,
+        SelectInteract
     };
 
     float AnalogX, AnalogY;
@@ -83,7 +85,6 @@ public:
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    bool mouseEvent(int type, int state, int code);
 
     void doWalkMoveToFloor();
     void processHotKeys(int keymask);
@@ -98,7 +99,7 @@ public:
 
     void updateHandMat(osg::Matrix &mat);
     void setHandType(int pt);
-    void setNavMode(NavMode mode);
+    void setNavMode(NavMode mode, bool updateGroup=true);
     NavMode getMode()
     {
         return navMode;
@@ -185,6 +186,12 @@ public:
     void startMeasure();
     void doMeasure();
     void stopMeasure();
+
+    void toggleSelectInteract(bool state);
+    void startSelectInteract();
+    void doSelectInteract();
+    void stopSelectInteract(bool mouse);
+
 
     void doXformRotate();
     void doXformTranslate();
@@ -332,20 +339,28 @@ private:
     float rotationSpeed;
     int oldKeyMask;
     bool turntable;
+    bool animationWasRunning=false;
 
     bool showNames_;
     bool showGeodeName_;
-    osg::Node *oldShowNamesNode_;
+    osg::Node *oldShowNamesNode_ = nullptr;
+    osg::Node *oldSelectInteractNode_ = nullptr;
     coVRLabel *nameLabel_;
     vrui::coRowMenu *nameMenu_;
     vrui::coButtonMenuItem *nameButton_;
     ui::Menu *navMenu_ = nullptr;
+    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
+    ui::Group *navModes_ = nullptr;
     ui::ButtonGroup *navGroup_ = nullptr;
+    ui::Button *noNavButton_=nullptr;
     ui::Button *xformButton_=nullptr, *scaleButton_=nullptr, *flyButton_=nullptr, *walkButton_=nullptr, *driveButton_=nullptr;
     ui::Button *xformRotButton_=nullptr, *xformTransButton_=nullptr, *selectButton_=nullptr, *showNameButton_=nullptr;
+    ui::Button *selectInteractButton_=nullptr;
     ui::Button *measureButton_=nullptr, *traverseInteractorButton_=nullptr;
     ui::Button *collisionButton_=nullptr, *snapButton_=nullptr;
     ui::Slider *driveSpeedSlider_=nullptr;
+    ui::Action *scaleUpAction_=nullptr, *scaleDownAction_=nullptr;
+    ui::Slider *scaleSlider_=nullptr;
 
     osg::Vec3 rotPointVec;
     osg::ref_ptr<osg::MatrixTransform> rotPoint;

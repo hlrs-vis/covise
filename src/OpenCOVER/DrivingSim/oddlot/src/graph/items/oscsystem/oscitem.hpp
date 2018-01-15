@@ -35,6 +35,7 @@ class RoadSystem;
 class OpenScenarioEditor;
 class OSCTextItem;
 class OSCBaseItem;
+class SVGItem;
 
 class QColor;
 
@@ -121,8 +122,12 @@ private:
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
+	SVGItem *svgItem_;
+	std::string covisedir_;
+	
 
     void init();
+	void updateIcon();
     QString updateName();
 
 	OpenScenario::oscCatalog *catalog_;

@@ -63,6 +63,7 @@ ARToolKit::ARToolKit()
     running = false;
     art = this;
     artTab = new coTUITab("ARToolKit", coVRTui::instance()->mainFolder->getID());
+    artTab->setHidden(true); // hide until a marker is added
     arInterface = NULL;
     remoteAR = 0;
     objTracking = false;
@@ -476,6 +477,8 @@ ARToolKit::~ARToolKit()
 
 void ARToolKit::update()
 {
+    artTab->setHidden(markers.empty());
+
     if (isRunning())
     {
         std::list<ARToolKitMarker *>::iterator it;

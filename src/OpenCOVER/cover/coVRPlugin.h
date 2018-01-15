@@ -158,6 +158,15 @@ public:
         (void)it;
     }
 
+    //! this function is called when COVER wants to enable interaction with an interactor, return true if plugin accepts request
+    virtual bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+    {
+        (void)inter;
+        (void)triggerNode;
+        (void)isMouse;
+        return false;
+    }
+
     //! this function is called if a error message from the controller is received
     virtual void coviseError(const char *error)
     {
@@ -229,8 +238,9 @@ public:
     }
 
     // this function is called if a message arrives
-    virtual void message(int type, int length, const void *data)
+    virtual void message(int toWhom, int type, int length, const void *data)
     {
+        (void)toWhom;
         (void)type;
         (void)length;
         (void)data;

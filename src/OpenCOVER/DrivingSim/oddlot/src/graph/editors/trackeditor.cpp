@@ -26,6 +26,7 @@
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 #include "src/data/roadsystem/track/trackelementline.hpp"
+#include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 
 #include "src/data/tilesystem/tilesystem.hpp"
@@ -204,7 +205,8 @@ TrackEditor::toolAction(ToolAction *toolAction)
         if (isCurrentTool(ODD::TTE_ADD)
             || isCurrentTool(ODD::TTE_ADD_LINE)
             || isCurrentTool(ODD::TTE_ADD_CURVE)
-            || isCurrentTool(ODD::TTE_ROAD_NEW))
+			|| isCurrentTool(ODD::TTE_ROAD_NEW)
+			|| isCurrentTool(ODD::TTE_ROAD_CIRCLE))
         {
             delete currentRoadPrototype_;
 
@@ -848,6 +850,106 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             }
         }
     }
+	// NEW CIRCLE //
+	//
+	else if (getCurrentTool() == ODD::TTE_ROAD_CIRCLE)
+	{
+		QPointF mousePoint = mouseAction->getEvent()->scenePos();
+
+		// Length //
+		//
+		if (mouseEvent->modifiers() & Qt::ControlModifier)
+		{
+			mousePoint = QPointF(floor(mousePoint.x() + 0.5), floor(mousePoint.y() + 0.5)); // rounded = floor(x+0.5)
+		}
+		else
+		{
+			mousePoint = mouseAction->getEvent()->scenePos();
+		}
+		QVector2D mouseLine(mousePoint - pressPoint_);
+		double length = mouseLine.length();
+
+		if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
+		{
+			if (mouseEvent->button() == Qt::LeftButton)
+			{
+				if (mouseEvent->modifiers() & Qt::ControlModifier)
+				{
+					pressPoint_ = QPointF(floor(mouseAction->getEvent()->scenePos().x() + 0.5), floor(mouseAction->getEvent()->scenePos().y() + 0.5)); // rounded = floor(x+0.5)
+				}
+				else
+				{
+					pressPoint_ = mouseAction->getEvent()->scenePos();
+				}
+				QPointF diff = pressPoint_ - mousePoint;
+				double radius = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
+				state_ = TrackEditor::STE_NEW_PRESSED;
+				newRoadCircleItem_->setRect(pressPoint_.x() - radius, pressPoint_.y() - radius, radius * 2, radius * 2);
+				newRoadCircleItem_->show();
+			}
+		}
+
+		else if (mouseAction->getMouseActionType() == MouseAction::ATM_MOVE)
+		{
+			if (state_ == TrackEditor::STE_NEW_PRESSED)
+			{
+				QPointF diff = pressPoint_ - mousePoint;
+				double radius = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
+				state_ = TrackEditor::STE_NEW_PRESSED;
+				newRoadCircleItem_->setRect(pressPoint_.x() - radius, pressPoint_.y() - radius, radius * 2, radius * 2);
+				printStatusBarMsg(QString("New circle: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 4000);
+			}
+		}
+
+		else if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
+		{
+			if (mouseAction->getEvent()->button() == Qt::LeftButton)
+			{
+				state_ = TrackEditor::STE_NONE;
+				newRoadCircleItem_->hide();
+
+				if (length < 10.0)
+				{
+					printStatusBarMsg("New circle: to short. Please click and drag.", 4000);
+				}
+				else
+				{
+					if (currentRoadPrototype_)
+					{
+						// Road //
+						//
+						RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed", "", "-1");
+
+						// Track //
+						//
+						QPointF diff = pressPoint_ - mousePoint;
+						double radius = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
+						TrackElementArc *arc1 = new TrackElementArc(pressPoint_.x(), pressPoint_.y()- radius, 0.0, 0.0, 2*M_PI*radius, 1/radius);
+						newRoad->addTrackComponent(arc1);
+
+						// Append Prototype //
+						//
+						newRoad->superposePrototype(currentRoadPrototype_);
+						NewRoadCommand *command = new NewRoadCommand(newRoad, getProjectData()->getRoadSystem(), NULL);
+						if (command->isValid())
+						{
+							getProjectData()->getUndoStack()->push(command);
+						}
+						else
+						{
+							printStatusBarMsg(command->text(), 4000);
+							delete command;
+							return; // usually not the case, only if road or prototype are NULL
+						}
+					}
+					else
+					{
+						printStatusBarMsg("New road: Please reselect a Prototype.", 8000);
+					}
+				}
+			}
+		}
+	}
 
     // DELETE //
     //
@@ -1401,6 +1503,10 @@ TrackEditor::init()
         newRoadLineItem_ = new QGraphicsLineItem(trackRoadSystemItem_);
         newRoadLineItem_->setPen(pen);
         newRoadLineItem_->hide();
+
+		newRoadCircleItem_ = new QGraphicsEllipseItem(trackRoadSystemItem_);
+		newRoadCircleItem_->setPen(pen);
+		newRoadCircleItem_->hide();
 
         // Add RoadSystem Item //
         //

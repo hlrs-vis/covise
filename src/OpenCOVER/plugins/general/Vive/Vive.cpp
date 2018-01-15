@@ -181,6 +181,12 @@ bool Vive::needsThread() const
 } 
 bool Vive::init()
 {
+	if (!ivrSystem)
+	{
+		fprintf(stderr, "Vive::init() failed -- ivrSystem is null\n");
+		return false;
+	}
+
 	fprintf(stderr, "Vive::init\n");
 	vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
 	osg::Matrix lProj = convertMatrix44(mat);
@@ -196,6 +202,29 @@ bool Vive::init()
 
 	m_transformOriginToCamera=covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToCamera",false);
 
+
+	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+	{
+		m_DeviceID[nDevice] = -1;  // cover ID for a specific DeviceID
+		m_ControllerID[nDevice] = 0;
+		m_DeviceSerial[nDevice] = "";   // for each device, a character representing its class // index is device ID
+	}
+
+	int numSerialConfigs = 0;
+	char str[200];
+	bool exists=false;
+	do {
+		sprintf(str, "COVER.Input.Device.Vive.Device:%d", numSerialConfigs);
+		std::string serial = covise::coCoviseConfig::getEntry("serial", str, "", &exists);
+		serialInfo si;
+		si.ID = covise::coCoviseConfig::getInt("index", str, 0);
+		si.controllerID = covise::coCoviseConfig::getInt("controllerID", str, 0);
+		serialID[serial] = si;
+		numSerialConfigs++;
+	} while (exists);
+	
+
+
 	if (m_strDriver == "No Driver")
 		return false;
 	
@@ -206,6 +235,7 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
+	vr::VR_Shutdown();
 	Input::instance()->removeDevice("Vive", this);
 	fprintf(stderr, "Vive::~Vive\n");
 }
@@ -236,31 +266,91 @@ void Vive::preFrame()
 void Vive::postFrame()
 {
 
+
+	size_t controllerNumber = 0;
+	size_t baseStationNumber = 0;
+
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		// device configuration can be changed on-the-fly!
-		//if (m_rDevClassChar[nDevice] == 0)
+		// map devices to numbers depending on their serial number
+		std::string serial = GetTrackedDeviceString(ivrSystem, nDevice, vr::Prop_SerialNumber_String);
+		if (m_DeviceSerial[nDevice] != serial)
 		{
+			// new device or device changed
 			switch (ivrSystem->GetTrackedDeviceClass(nDevice))
 			{
-			case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; numControllers++; break;
-			case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
-			case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-			case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
-			case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
-			default:                                       m_rDevClassChar[nDevice] = '?'; break;
+			    case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; numControllers++; break;
+			    case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
+			    case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
+			    case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
+			    case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+			    default:                                       m_rDevClassChar[nDevice] = '?'; break;
 			}
+			int idx;
+			std::map<std::string, serialInfo>::iterator it = serialID.find(std::string(serial));
+			if (it != serialID.end())
+			{
+				idx = it->second.ID;
+				controllerNumber = it->second.controllerID+1; // +1 because we remote 1 afterwards (see below)
+				if (controllerNumber > numControllers)
+					numControllers = controllerNumber;
+			}
+			else
+			{
+
+				// m_bodyMatrices device order:
+				// 0 -- HMD
+				// 1 -- first base station
+				// 2 -- last base station
+				// 3 -- first Vive controller
+				// 4 -- second Vive controller
+				size_t firstBaseStationIdx = 1, lastBaseStationIdx = 2, firstControllerIdx = 3;
+
+				switch (m_rDevClassChar[nDevice])
+				{
+				case 'T': // a tracking camera
+					idx = firstBaseStationIdx + baseStationNumber;
+					++baseStationNumber;
+					if (idx > lastBaseStationIdx)
+					{
+						cerr << "Vive:Too many baseStations;number=" << baseStationNumber - 1 << " idx= " << idx << endl;
+						continue;
+					}
+					break;
+				case 'C': //a controller
+					idx = firstControllerIdx + controllerNumber;
+					++controllerNumber;
+					break;
+				case 'H':// the HMD
+					idx = 0;
+					break;
+				default:
+					cerr << "Vive:Unsupported device class:" << m_rDevClassChar[nDevice] << "  nDevice=" << nDevice << endl;
+					continue;
+				}
+
+				cerr << "Vive: unconfigured device! add the following config entry to assure persistant device mappings" << endl;
+				cerr << " <Device serial = \""<< serial << "\" index = \""<< idx << "\" controllerID = \"" << (controllerNumber-1) << "\" name=\"<number from 0 to n>\" />" << endl;
+			}
+			m_DeviceID[nDevice] = idx;
+			m_ControllerID[nDevice] = (controllerNumber-1);
+			m_DeviceSerial[nDevice] = serial;
 		}
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
 			maxBodyNumber = nDevice;
+			if (m_DeviceID[nDevice] > maxBodyNumber)
+				maxBodyNumber == m_DeviceID[nDevice];
 		}
 	}
 
 	//cout << "*"; for (int n = 0; n < vr::k_unMaxTrackedDeviceCount; ++n) cout << m_rDevClassChar[n]; cout << "*"<<endl;
 
 	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
+	if (maxBodyNumber + 1 > bodyMatSize)
+		bodyMatSize + maxBodyNumber;
 	if (bodyMatSize > m_bodyMatrices.size())
 	{
 		m_mutex.lock();
@@ -272,90 +362,47 @@ void Vive::postFrame()
 	{
 		m_buttonStates.resize(numControllers * 4);
 	}
-
+	bool haveBaseStation = false;
 	// Process SteamVR controller state
-	size_t controllerNumber = 0;
 	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
 	{
 		vr::VRControllerState_t state;
 		bool gotState = ivrSystem->GetControllerState(unDevice, &state, sizeof(state));
 		if ((m_rDevClassChar[unDevice] == 'C') && m_rTrackedDevicePose[unDevice].bPoseIsValid)
 		{
-			m_buttonStates[(controllerNumber * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
-			m_buttonStates[(controllerNumber * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
-			m_buttonStates[(controllerNumber * 4) + 2] = ((state.ulButtonPressed & ((uint64_t)1 << 1)) != 0);
-			m_buttonStates[(controllerNumber * 4) + 3] = ((state.ulButtonPressed & ((uint64_t)1 << 2)) != 0);
-			controllerNumber++;
+			m_buttonStates[(m_ControllerID[unDevice] * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
+			m_buttonStates[(m_ControllerID[unDevice] * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
+			m_buttonStates[(m_ControllerID[unDevice] * 4) + 2] = ((state.ulButtonPressed & ((uint64_t)1 << 1)) != 0);
+			m_buttonStates[(m_ControllerID[unDevice] * 4) + 3] = ((state.ulButtonPressed & ((uint64_t)1 << 2)) != 0);
+		}
+		if (m_rDevClassChar[unDevice] == 'T')
+		{
+			haveBaseStation = true;
 		}
 	}
 
 	m_mutex.lock();
 
-	// m_bodyMatrices device order:
-	// 0 -- HMD
-	// 1 -- first tracking camera
-	// 2 -- last tracking camera
-	// 3 -- first Vive controller
-	// 4 -- second Vive controller
-
-	controllerNumber = 0;
-	size_t cameraNumber = 0, idx = 0;
-	size_t firstCameraIdx = 1, lastCameraIdx=2, firstControllerIdx=3,lastControllerIdx=4 ;
-	bool haveCamera=false;				//Will be true if there is any camera
 	for (int nDevice = 0; nDevice < maxBodyNumber + 1; ++nDevice)
 	{
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
-			switch (m_rDevClassChar[nDevice])
-			{
-			case 'T': // a tracking camera
-				idx = firstCameraIdx + cameraNumber;
-				//cerr << "Vive:Camera no=" << cameraNumber<<" Initial idx="<<nDevice<<" Idx="<<idx<<endl;
-				haveCamera = true;
-				++cameraNumber;
-				if (idx>lastCameraIdx)
-				{
-					cerr << "Vive:Too many cameras;number=" << cameraNumber - 1 << " idx= " << idx << endl;
-					continue;
-				}
-				break;
-			case 'C': //a controller
-				idx = firstControllerIdx + controllerNumber;
-				//cerr << "Vive:Controller no=" << controllerNumber << " Initial idx=" << nDevice << " Idx="<<idx<<endl;
-				++controllerNumber;
-				if (idx > lastControllerIdx)
-				{
-					cerr << "Vive:Too many controllers;number=" << controllerNumber - 1 << " idx= " << idx << endl;
-					continue;
-				}
-				break;
-			case 'H':// the HMD
-				idx = 0;
-				break;
-			default:
-				cerr << "Vive:Unsupported device class:" << m_rDevClassChar[nDevice]<<"  nDevice="<<nDevice<< endl;
-				continue;
-			}
-
-			if (idx >= m_bodyMatrices.size())
-			{
-				cerr << "Vive: idx out of range:"<<idx << endl;
-				continue;
-			}
-
-			m_bodyMatricesValid[idx] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
-			m_bodyMatrices[idx] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+			m_bodyMatricesValid[m_DeviceID[nDevice]] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
+			m_bodyMatrices[m_DeviceID[nDevice]] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 		    // convert to mm
-			m_bodyMatrices[idx](3, 0) *= 1000;
-			m_bodyMatrices[idx](3, 1) *= 1000;
-			m_bodyMatrices[idx](3, 2) *= 1000;
+			m_bodyMatrices[m_DeviceID[nDevice]](3, 0) *= 1000;
+			m_bodyMatrices[m_DeviceID[nDevice]](3, 1) *= 1000;
+			m_bodyMatrices[m_DeviceID[nDevice]](3, 2) *= 1000;
 			
-			if (m_transformOriginToCamera) m_bodyMatrices[idx] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+			if (m_transformOriginToCamera)
+			{
+				m_bodyMatrices[m_DeviceID[nDevice]] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
+			}
 
 		}
 	}
 	// get the transform matrix from 1st camera if we need that
-	if (!haveTrackerOrigin && haveCamera && m_transformOriginToCamera)
+	if (!haveTrackerOrigin && haveBaseStation && m_transformOriginToCamera)
 	{
 		haveTrackerOrigin = true;
 		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);

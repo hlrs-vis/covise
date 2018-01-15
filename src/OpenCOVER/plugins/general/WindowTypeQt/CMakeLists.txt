@@ -4,21 +4,30 @@ if (X11_ICE_FOUND)
 endif()
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 
 set(HEADERS
     QtOsgWidget.h
     QtView.h
+    QtMainWindow.h
     WindowTypeQt.h
+    KeyboardHelp.h
 )
 
 set(SOURCES
     QtOsgWidget.cpp
     QtView.cpp
+    QtMainWindow.cpp
     WindowTypeQt.cpp
+    KeyboardHelp.cpp
+    KeyboardHelp.ui
+    AboutDialog.ui
 )
 
-cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES})
-qt_use_modules(WindowTypeQt Core Widgets OpenGL)
+qt5_add_resources(QRC_SOURCES about.qrc)
+qt5_wrap_ui(UI_SOURCES AboutDialog.ui KeyboardHelp.ui)
+cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES})
+qt5_use_modules(WindowTypeQt Core Widgets OpenGL)
 
 if (X11_ICE_FOUND)
     target_link_libraries(WindowTypeQt ${X11_ICE_LIB})

@@ -199,7 +199,7 @@ bool QtGraphicsWindow::setWindowRectangleImplementation(int x, int y, int width,
 
 void QtGraphicsWindow::swapBuffersImplementation()
 {
-    if (m_glWidget)
+    if (m_glWidget && m_glWidget->context())
         m_glWidget->context()->swapBuffers(m_glWidget->context()->surface());
 }
 
@@ -327,11 +327,13 @@ void QtOsgWidget::keyPressEvent(QKeyEvent *event)
 
 void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 {
+#if 0
     if( event->isAutoRepeat() )
     {
         event->ignore();
     }
     else
+#endif
     {
         setKeyboardModifiers(event);
         int value = s_QtKeyboardMap.remapKey(event);

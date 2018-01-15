@@ -29,6 +29,7 @@
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
 #include <osg/Material>
+#include <osg/io_utils>
 
 using namespace vrui;
 using namespace opencover;
@@ -56,13 +57,16 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
     // extract parameters from covise
     float *p = NULL, *n = NULL;
     int dummy; // we know that the vector has 3 elements
+    point_.set(0., 0., 0.);
     if (inter_->getFloatVectorParam(CuttingSurfaceInteraction::POINT, dummy, p) != -1)
     {
         point_.set(p[0], p[1], p[2]);
     }
 
+    normal_.set(0., 1., 0.);
     if (inter_->getFloatVectorParam(CuttingSurfaceInteraction::VERTEX, dummy, n) != -1)
     {
+        //std::cerr << "CuttingSurfacePlane: Normal: " << n[0] << " " << n[1] << " " << n[2] << std::endl;
         normal_.set(n[0], n[1], n[2]);
         normal_.normalize();
     }
@@ -95,6 +99,7 @@ CuttingSurfacePlane::CuttingSurfacePlane(coInteractor *inter, CuttingSurfacePlug
     createGeometry();
     showGeometry(false);
 }
+
 CuttingSurfacePlane::~CuttingSurfacePlane()
 {
     if (cover->debugLevel(3))
@@ -118,7 +123,6 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
         newModule_ = false;
         if (!wait_)
         {
-
             osg::Matrix pointerMat = cover->getPointerMat();
             //printMatrix("pointer", pointerMat);
             osg::Matrix w_to_o = cover->getInvBaseMat();
@@ -167,12 +171,18 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
     {
         osg::Matrix m = planePickInteractor_->getMatrix();
         osg::Vec3 point = m.getTrans();
+        //std::cerr << "CuttingSurfacePlane::preFrame(): point=" << point << std::endl;
         osg::Vec4 normal;
         if (restrictToAxis == CuttingSurfaceInteraction::RESTRICT_NONE)
         {
             osg::Vec4 yaxis(0, 1, 0, 0);
             normal = yaxis * m;
             normal.normalize();
+            if (normal.length2() < 0.1f)
+            {
+                std::cerr << "CuttingSurfacePlane: invalid normal" << std::endl;
+                normal = yaxis;
+            }
         }
         else if (restrictToAxis == CuttingSurfaceInteraction::RESTRICT_X)
         {
@@ -186,6 +196,10 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
         {
             normal = osg::Vec4(0, 0, 1, 0);
         }
+        else
+        {
+            std::cerr << "CuttingSurfacePlane: invalid restrictToAxis: " << restrictToAxis << std::endl;
+        }
 
         point_.set(point[0], point[1], point[2]);
         normal_.set(normal[0], normal[1], normal[2]);
@@ -195,15 +209,15 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
             showGeometry(true);
             updateGeometry();
         }
-        if (showPickInteractor_ && planePickInteractor_->isRunning())
+        if (planePickInteractor_->isRunning())
         {
             updateGeometry();
         }
-        if (showPickInteractor_ && planePickInteractor_->wasStopped())
+        if (planePickInteractor_->wasStopped())
         {
+            updateGeometry();
             if (!wait_)
             {
-                updateGeometry();
                 showGeometry(false);
                 plugin->getSyncInteractors(inter_);
                 plugin->setVectorParam(CuttingSurfaceInteraction::POINT, point_[0], point_[1], point_[2]);
@@ -258,9 +272,12 @@ CuttingSurfacePlane::update(coInteractor *inter)
 
     if (inter_->getFloatVectorParam(CuttingSurfaceInteraction::VERTEX, dummy, n) != -1)
     {
-        //fprintf(stderr,"receive normal [%f %f %f]\n", n[0], n[1], n[2]);
         normal_.set(n[0], n[1], n[2]);
         normal_.normalize();
+    }
+    else
+    {
+        std::cerr << "getFloatVectorParam(" << CuttingSurfaceInteraction::VERTEX << ") failed" << std::endl;
     }
 
     if (p && n)
@@ -385,7 +402,7 @@ void CuttingSurfacePlane::createGeometry()
 
     osg::Vec4Array *polyColor;
     polyColor = new osg::Vec4Array(1);
-    (*polyColor)[0].set(1, 0.5, 0.5, 0.5);
+    (*polyColor)[0].set(1.0, 0.5, 0.5, 0.5);
 
     polyCoords_ = new osg::Vec3Array(6);
     (*polyCoords_)[0].set(-0.05, 0.0, -0.05);
@@ -402,7 +419,6 @@ void CuttingSurfacePlane::createGeometry()
     }
 
     testPlane_ = new coPlane(normal_, point_);
-    updateGeometry();
 
     outlineGeometry_ = new osg::Geometry();
     outlineGeometry_->setColorArray(outlineColor);
@@ -428,7 +444,9 @@ void CuttingSurfacePlane::createGeometry()
     geode_->setName("CuttingSurfacePlaneOutline");
     geode_->setNodeMask(geode_->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
 
-    parent_->addChild(geode_.get());
+    parent_->addChild(geode_);
+
+    updateGeometry();
 }
 
 void CuttingSurfacePlane::deleteGeometry()
@@ -441,6 +459,7 @@ void CuttingSurfacePlane::deleteGeometry()
         geode_->getParent(0)->removeChild(geode_.get());
     }
     delete testPlane_;
+    testPlane_ = nullptr;
 }
 
 void CuttingSurfacePlane::updateGeometry()
@@ -448,21 +467,10 @@ void CuttingSurfacePlane::updateGeometry()
     if (cover->debugLevel(5))
         fprintf(stderr, "CuttingSurfacePlane::updateGeometry\n");
 
-    osg::Vec3 p;
-    if (hasCase_)
-    {
-        p = point_ * ((osg::MatrixTransform *)parent_)->getMatrix();
-    }
-    else
-        p = point_;
-    //fprintf(stderr,"point=[%f %f %f]\n", p[0], p[1], p[2]);
-    testPlane_->update(normal_, p);
-
     intersectFlag_ = testIntersection() != 0;
 
     if (intersectFlag_ != oldIntersectFlag_)
     {
-
         showGeometry(intersectFlag_);
         oldIntersectFlag_ = intersectFlag_;
     }
@@ -497,12 +505,7 @@ CuttingSurfacePlane::testIntersection()
         fprintf(stderr, "cuttingSurfacePlane::testIntersection\n");
 
     // get bounding box of objectsRoot
-    cover->getObjectsRoot()->dirtyBound();
     osg::BoundingBox bb = cover->getBBox(cover->getObjectsRoot());
-
-    int i;
-    osg::Vec3 isectPoints[6];
-    int n;
 
     // NULL objects (which appear when the cuttingsurface was outside) have an inverted bbox
     // if we have only a plane and no other geom in the scenegraph
@@ -514,28 +517,40 @@ CuttingSurfacePlane::testIntersection()
     {
         if (cover->debugLevel(3))
             fprintf(stderr, "strange bbox: min=[%f %f %f] max=[%f %f %f]\n", bb._min.x(), bb._min.y(), bb._min.z(), bb._max.x(), bb._max.y(), bb._max.z());
-        return false;
+        return 0;
     }
 
-    n = testPlane_->getBoxIntersectionPoints(bb, isectPoints);
+    osg::Vec3 p;
+    if (hasCase_)
+    {
+        p = point_ * ((osg::MatrixTransform *)parent_)->getMatrix();
+    }
+    else
+        p = point_;
+    //fprintf(stderr,"point=[%f %f %f]\n", p[0], p[1], p[2]);
+    testPlane_->update(normal_, p);
+
+    osg::Vec3 isectPoints[6];
+    int n = testPlane_->getBoxIntersectionPoints(bb, isectPoints);
 
     if (cover->debugLevel(5))
         fprintf(stderr, "%d intersections\n", n);
     if (n > 0)
     {
+        //std::cerr << "updating geometry with " << n << " points" << std::endl;
 
         osg::Matrix m;
         if (hasCase_)
             m.invert(((osg::MatrixTransform *)parent_)->getMatrix());
         else
             m.makeIdentity();
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++)
         {
             (*outlineCoords_)[i] = isectPoints[i] * m;
             (*polyCoords_)[i] = isectPoints[i] * m;
         }
 
-        for (i = n; i < 6; i++)
+        for (int i = n; i < 6; i++)
         {
             (*outlineCoords_)[i] = (*outlineCoords_)[n - 1];
             (*polyCoords_)[i] = (*polyCoords_)[n - 1];
@@ -553,6 +568,7 @@ CuttingSurfacePlane::testIntersection()
         return 0;
     }
 }
+
 void
 CuttingSurfacePlane::setCaseTransform(osg::MatrixTransform *t)
 {

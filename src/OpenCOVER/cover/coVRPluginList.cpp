@@ -110,15 +110,20 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
     if (domain == Window)
         return;
 
+    bool wasThreading = false;
     bool havePlugins = !m_loadedPlugins[domain].empty();
 
-    if (havePlugins && cover->debugLevel(1))
-        cerr << "Unloading plugins (domain " << domain << "):";
-    bool wasThreading = false;
-    if (domain == Default)
-        wasThreading = VRViewer::instance()->areThreadsRunning();
-    if (wasThreading)
-        VRViewer::instance()->stopThreading();
+    if (havePlugins)
+    {
+        if (cover->debugLevel(1))
+            cerr << "Unloading plugins (domain " << domain << "):";
+
+        if (domain == Default)
+            wasThreading = VRViewer::instance()->areThreadsRunning();
+        if (wasThreading)
+            VRViewer::instance()->stopThreading();
+    }
+
     while (!m_loadedPlugins[domain].empty())
     {
         coVRPlugin *plug = m_loadedPlugins[domain].back();
@@ -133,10 +138,14 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
         delete plug;
     }
     unloadQueued();
-    if (wasThreading)
-        VRViewer::instance()->startThreading();
-    if (havePlugins && cover->debugLevel(1))
-        cerr << endl;
+
+    if (havePlugins)
+    {
+        if (wasThreading)
+            VRViewer::instance()->startThreading();
+        if (cover->debugLevel(1))
+            cerr << endl;
+    }
 }
 
 coVRPluginList::coVRPluginList()
@@ -307,6 +316,13 @@ void coVRPluginList::addObject(const RenderObject *container, osg::Group *parent
 void coVRPluginList::newInteractor(const RenderObject *container, coInteractor *it) const
 {
     DOALL(plugin->newInteractor(container, it));
+}
+
+bool coVRPluginList::requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+{
+    DOALL(if (plugin->requestInteraction(inter, triggerNode, isMouse))
+          return true);
+    return false;
 }
 
 void coVRPluginList::coviseError(const char *error) const
@@ -480,9 +496,9 @@ void coVRPluginList::init2()
     DOALL(plugin->init2());
 }
 
-void coVRPluginList::message(int t, int l, const void *b) const
+void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
 {
-    DOALL(plugin->message(t, l, b));
+    DOALL(plugin->message(toWhom, t, l, b));
 }
 
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const
@@ -519,7 +535,8 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
             delete m;
             m = NULL;
         }
-        updateState();
+        if (domain == Default)
+            updateState();
     }
     return m;
 }
@@ -542,7 +559,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         || (toWhom == coVRPluginSupport::TO_ALL_OTHERS)
         || (toWhom == coVRPluginSupport::VRML_EVENT))
     {
-        message(type, len - headerSize, ((const char *)buf) + headerSize);
+        message(toWhom, type, len - headerSize, ((const char *)buf) + headerSize);
     }
     else
     {
@@ -551,7 +568,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         if (mod)
         {
             int ssize = strlen(name) + 1 + (8 - ((strlen(name) + 1) % 8));
-            mod->message(type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
+            mod->message(toWhom, type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
         }
     }
 }

@@ -11,3 +11,4 @@ SET(SOURCES
 )
 covise_add_module(VISiT Fenfloss ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(Fenfloss coApi coAppl coCore visit_general)
+covise_install_target(Fenfloss)

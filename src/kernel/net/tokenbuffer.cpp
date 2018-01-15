@@ -57,12 +57,12 @@ Initial revision
 
 using namespace covise;
 
-TokenBuffer::TokenBuffer(Message *msg, bool nbo)
+TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
 {
     assert(msg);
     if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
     {
-        std::cerr << "TokenBuffer: cannot handle SOCKET_CLOSED message" << std::endl;
+        //std::cerr << "TokenBuffer: cannot handle SOCKET_CLOSED message" << std::endl;
     }
     buflen = 0;
     length = msg->length;

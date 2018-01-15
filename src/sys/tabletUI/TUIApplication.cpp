@@ -77,6 +77,7 @@
 #include "TUIIntEdit.h"
 #include "TUILabel.h"
 #include "TUIFrame.h"
+#include "TUIGroupBox.h"
 #include "TUIScrollArea.h"
 #include "TUISplitter.h"
 #include "TUIFileBrowserButton.h"
@@ -121,13 +122,13 @@ TUIMainWindow *TUIMainWindow::getInstance()
 //======================================================================
 #ifdef TABLET_PLUGIN
 
-TUIMainWindow::TUIMainWindow(QWidget *parent)
+TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QFrame(parent)
-    , port(31802)
+    , mainFolder(mainFolder)
+    , port(31803)
     , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
-    , dialog(NULL)
     , sConn(NULL)
     , clientConn(NULL)
     , lastElement(NULL)
@@ -141,11 +142,14 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
     // main layout
     mainGrid = new QGridLayout(mainFrame);
+#ifdef TABLET_PLUGIN
+    mainFrame->setVisible(false);
+#endif
 
     // init some values
     appwin = this;
 
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", 31802);
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
@@ -162,13 +166,13 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
 /// ============================================================
 
-TUIMainWindow::TUIMainWindow(QWidget *parent)
+TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QMainWindow(parent)
+    , mainFolder(mainFolder)
     , port(31802)
     , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
-    , dialog(NULL)
     , sConn(NULL)
     , clientConn(NULL)
     , lastElement(NULL)
@@ -177,9 +181,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     appwin = this;
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", 31802);
-#else
-    port = 31802;
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
 #endif
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
@@ -199,31 +201,22 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
 
     // widget that contains the main windows(mainFrame)
 
-    QWidget *w;
+    QWidget *w = nullptr;
 #ifdef _WIN32_WCE
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setBackgroundRole(QPalette::Dark);
     w = scrollArea;
-#else
-    w = new QWidget(this);
-    QScrollArea *scrollArea = new QScrollArea();
-    scrollArea->setBackgroundRole(QPalette::Dark);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(w);
 #endif
-
-    QVBoxLayout *vbox = new QVBoxLayout(w);
 
 // main windows
 #ifdef _WIN32_WCE
     mainFrame = new QFrame(w);
     mainFrame->setContentsMargins(1, 1, 1, 1);
 #else
-    mainFrame = new QFrame();
-    mainFrame->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
-    mainFrame->setContentsMargins(2, 2, 2, 2);
+    mainFrame = new QFrame(this);
+    mainFrame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+    mainFrame->setContentsMargins(0, 0, 0, 0);
 #endif
-    vbox->addWidget(mainFrame, 1);
 
     // main layout
     mainGrid = new QGridLayout(mainFrame);
@@ -235,7 +228,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent)
     setCentralWidget(w);
 #else
     setWindowTitle("COVISE: TabletUI");
-    setCentralWidget(scrollArea);
+    setCentralWidget(mainFrame);
 #endif
 
     // set a logo &size
@@ -292,6 +285,18 @@ void TUIMainWindow::closeServer()
         delete clientConn;
         clientConn = NULL;
     }
+
+    //remove all UI Elements
+    while (!elements.empty())
+    {
+        TUIElement *ele = &*elements.back();
+        delete ele;
+    }
+    if (!tabs.empty())
+    {
+        std::cerr << "TUIMainWindow::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
+    }
+    assert(tabs.empty());
 }
 
 //------------------------------------------------------------------------
@@ -471,21 +476,40 @@ void TUIMainWindow::processMessages()
 void TUIMainWindow::addElementToLayout(TUIElement *elem)
 //------------------------------------------------------------------------
 {
-    mainGrid->addWidget(elem->getWidget(), elem->getXpos(), elem->getYpos());
+    if (elem->getWidget())
+        mainGrid->addWidget(elem->getWidget(), elem->getXpos(), elem->getYpos());
+    else if (elem->getLayout())
+        mainGrid->addLayout(elem->getLayout(), elem->getXpos(), elem->getYpos());
 }
 
 //------------------------------------------------------------------------
 void TUIMainWindow::addElement(TUIElement *e)
 //------------------------------------------------------------------------
 {
-    elements.push_back(e);
+    //std::cerr << "new element: ID=" << e->getID() << ", name=" << e->getName().toStdString() << std::endl;
+    auto iter = elements.end();
+    if (!elements.empty() && e->getID() < elements.back()->getID())
+    {
+        iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement *el, int id){ return el->getID()<id;});
+    }
+    elements.insert(iter, e);
 }
 
 //------------------------------------------------------------------------
 void TUIMainWindow::removeElement(TUIElement *e)
 //------------------------------------------------------------------------
 {
-    elements.remove(e);
+#ifdef TABLET_PLUGIN
+    if (e->getID() == firstTabFolderID)
+        firstTabFolderID = -1;
+#endif
+    tabs.erase(static_cast<TUITab *>(e));
+    auto iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement *el, int id){ return el->getID()<id;});
+    if (iter == elements.end())
+        return;
+    if (*iter != e)
+        return;
+    elements.erase(iter);
 }
 
 //------------------------------------------------------------------------
@@ -514,8 +538,12 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
         return new TUIButton(id, type, w, parent, name);
     case TABLET_FILEBROWSER_BUTTON:
         return new TUIFileBrowserButton(id, type, w, parent, name);
-    case TABLET_TAB:
-        return new TUITab(id, type, w, parent, name);
+    case TABLET_TAB: {
+        auto tab = new TUITab(id, type, w, parent, name);
+        tabs.insert(tab);
+        tab->setNumberOfColumns(numberOfColumns);
+        return tab;
+    }
     case TABLET_TEXTURE_TAB:
         return new TUITextureTab(id, type, w, parent, name);
     case TABLET_BROWSER_TAB:
@@ -532,6 +560,8 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
         return new TUIColorTab(id, type, w, parent, name);
     case TABLET_FRAME:
         return new TUIFrame(id, type, w, parent, name);
+    case TABLET_GROUPBOX:
+        return new TUIGroupBox(id, type, w, parent, name);
     case TABLET_SCROLLAREA:
         return new TUIScrollArea(id, type, w, parent, name);
     case TABLET_SPLITTER:
@@ -553,6 +583,13 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
     case TABLET_INT_EDIT_FIELD:
         return new TUIIntEdit(id, type, w, parent, name);
     case TABLET_TAB_FOLDER:
+#ifdef TABLET_PLUGIN
+        if (parent==1 && firstTabFolderID<0)
+        {
+            firstTabFolderID = id;
+            return new TUITabFolder(id, type, w, parent, name, mainFolder);
+        }
+#endif
         return new TUITabFolder(id, type, w, parent, name);
     case TABLET_MAP:
         return new TUIMap(id, type, w, parent, name);
@@ -585,10 +622,9 @@ TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int paren
 void TUIMainWindow::deActivateTab(TUITab *activedTab)
 //------------------------------------------------------------------------
 {
-    std::list<TUIElement *>::iterator iter;
-    for (iter = elements.begin(); iter != elements.end(); iter++)
+    for (auto el: elements)
     {
-        (*iter)->deActivate(activedTab);
+        el->deActivate(activedTab);
     }
 }
 
@@ -596,31 +632,22 @@ void TUIMainWindow::deActivateTab(TUITab *activedTab)
 TUIElement *TUIMainWindow::getElement(int ID)
 //------------------------------------------------------------------------
 {
-    std::list<TUIElement *>::iterator iter;
-    for (iter = elements.begin(); iter != elements.end(); iter++)
+    auto iter = std::lower_bound(elements.begin(), elements.end(), ID, [](const TUIElement *el, int id){ return el->getID()<id;});
+    if (iter != elements.end())
     {
         if ((*iter)->getID() == ID)
-        {
             return *iter;
-            break;
-        }
+        std::cerr << "TUIMainWindow: expected ID=" << ID << ", got " << (*iter)->getID() << std::endl;
     }
-    return NULL;
+    return nullptr;
 }
 
 //------------------------------------------------------------------------
 QWidget *TUIMainWindow::getWidget(int ID)
 //------------------------------------------------------------------------
 {
-    std::list<TUIElement *>::iterator iter;
-    for (iter = elements.begin(); iter != elements.end(); iter++)
-    {
-        if ((*iter)->getID() == ID)
-        {
-            return (*iter)->getWidget();
-            break;
-        }
-    }
+    if (auto el = getElement(ID))
+        return el->getWidget();
     return mainFrame;
 }
 
@@ -640,9 +667,9 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         lastID = -10;
 
         //remove all UI Elements
-        while (elements.size())
+        while (!elements.empty())
         {
-            TUIElement *ele = *(elements.begin()); // destructor removes the element from the list
+            TUIElement *ele = &*elements.back(); // destructor removes the element from the list
             delete ele;
         }
 
@@ -673,13 +700,14 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             tb >> parent;
             tb >> name;
             //cerr << "TUIApplication::handleClient info: Create: ID: " << ID << " Type: " << elementType << " name: "<< name << " parent: " << parent << std::endl;
-            TUIContainer *parentElem = (TUIContainer *)getElement(parent);
+            TUIElement *parentElement = getElement(parent);
+            TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
+            if (parentElement && !parentElem)
+                std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
 
-            QWidget *parentWidget;
+            QWidget *parentWidget = mainFrame;
             if (parentElem)
                 parentWidget = parentElem->getWidget();
-            else
-                parentWidget = mainFrame;
 
             TUIElement *newElement = createElement(ID, elementType, parentWidget, parent, name);
             if (newElement)
@@ -706,6 +734,23 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
                 }
 #endif
             }
+
+#ifdef TABLET_PLUGIN
+            if (newElement->getID() != firstTabFolderID && parentWidget == mainFrame)
+            {
+                if (mainFolder)
+                {
+                    if (mainFolder->indexOf(this) == -1)
+                    {
+                        mainFolder->addTab(this, "Tablet UI");
+                        mainFolder->setTabToolTip(mainFolder->indexOf(this), "This is the new beautiful OpenCOVER user interface");
+                    }
+
+                    mainFolder->setCurrentWidget(this);
+                    mainFrame->setVisible(true);
+                }
+            }
+#endif
         }
         break;
         case TABLET_SET_VALUE:
@@ -713,7 +758,7 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             int type;
             tb >> type;
             tb >> ID;
-            //cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << endl;
+            //std::cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
             if (ID == lastID && (lastElement))
             {
                 lastElement->setValue(type, tb);
@@ -783,13 +828,6 @@ void TUIMainWindow::closeEvent(QCloseEvent *ce)
 {
 
     closeServer();
-
-    //remove all UI Elements
-    while (elements.size())
-    {
-        TUIElement *ele = *(elements.begin());
-        delete ele;
-    }
 
     ce->accept();
 }
@@ -880,7 +918,7 @@ void TUIMainWindow::createToolbar()
 
     // fontsizes
     // label
-    QLabel *l = new QLabel("FontSizes :", toolbar);
+    QLabel *l = new QLabel("Font size: ", toolbar);
     l->setFont(mainFont);
     l->setToolTip("Select a new font size");
     toolbar->addWidget(l);
@@ -931,7 +969,7 @@ void TUIMainWindow::createToolbar()
 
     //styles
     // label
-    l = new QLabel("QtStyles :", toolbar);
+    l = new QLabel("Qt style: ", toolbar);
     l->setFont(mainFont);
     l->setToolTip("Select another style");
     toolbar->addWidget(l);
@@ -972,5 +1010,35 @@ void TUIMainWindow::createToolbar()
 
     connect(qtstyles, SIGNAL(activated(const QString &)),
             this, SLOT(styleCB(const QString &)));
+
+
+    toolbar->addSeparator();
+    l = new QLabel("Columns: ", toolbar);
+    l->setFont(mainFont);
+    l->setToolTip("Number of columns in flexible layouts");
+    toolbar->addWidget(l);
+
+    list.clear();
+    list << "Unlimited" << "1" << "2" << "3" << "4" << "5" << "6" << "8" << "10" << "12" << "15" << "20";
+    QComboBox *numColumns = new QComboBox();
+    numColumns->insertItems(0, list);
+    int idx = numColumns->findText(QString::number(numberOfColumns));
+    if (idx < 0 && numberOfColumns > 0)
+    {
+        numColumns->addItem(QString::number(numberOfColumns));
+        idx = numColumns->findText(QString::number(numberOfColumns));
+    }
+    numColumns->setCurrentIndex(idx);
+    void (QComboBox::*activated)(const QString &) = &QComboBox::activated;
+    connect(numColumns, activated, [this](QString num){
+        int ncol = -1;
+        if (num != "Unlimited")
+            ncol = num.toInt();
+        numberOfColumns = ncol;
+        for (auto t: tabs)
+            t->setNumberOfColumns(ncol);
+    });
+    toolbar->addWidget(numColumns);
+
 }
 #endif

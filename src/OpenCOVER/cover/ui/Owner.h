@@ -20,6 +20,7 @@ class COVER_UI_EXPORT Owner {
    Owner(const std::string &name, Owner *owner);
    //! conrtruct without owner: must be deleted
    Owner(const std::string &name, Manager *manager);
+   Owner() = delete;
    virtual ~Owner();
    //! return owner
    Owner *owner() const;

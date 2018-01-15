@@ -1,13 +1,12 @@
 IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
-if (APPLE)
+if(APPLE)
     return()
 endif()
 
 USING(XERCESC)
 using(VRML)
-
 
 COVISE_FIND_PACKAGE(Xenomai)
 #find_package(Boost 1.40 REQUIRED COMPONENTS date_time)

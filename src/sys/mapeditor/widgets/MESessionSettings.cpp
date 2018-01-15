@@ -93,6 +93,7 @@ void MESessionSettings::initState()
     hideUnusedModulesBox->setChecked(MEMainHandler::instance()->cfg_HideUnusedModules);
     autoConnectBox->setChecked(MEMainHandler::instance()->cfg_AutoConnect);
     browserBox->setChecked(!MEMainHandler::instance()->cfg_TopLevelBrowser);
+    tabletUITabsBox->setChecked(MEMainHandler::instance()->cfg_TabletUITabs);
     developerModeCheckBox->setChecked(MEMainHandler::instance()->cfg_DeveloperMode);
     //imbeddedRenderBox->setChecked(MEMainHandler::instance()->cfg_ImbeddedRenderer);
 
@@ -162,6 +163,9 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
     addSetting(QCheckBox, browserBox, "Embedded browsers",
                "Enabled: Filebrowsers and color maps are embedded into Module Parameter windows and Control Panel \nDisabled: Filebrowsers and color maps appear as toplevel window");
     i++;
+    addSetting(QCheckBox, tabletUITabsBox, "Tablet UI as tabs",
+               "Enabled: show tabs from tablet UI as siblings of map editor tabs\nDisabled: show tabs from tablet UI in their own sub-tab");
+    i++;
     //addSetting(QCheckBox, imbeddedRenderBox, "Embedded ViNCE Renderer",
     //  "Enabled: ViNCE renderer is embedded into the MEMainHandler::instance()\nDisabled: ViNCE renderer appears as a toplevel window");i++;
     addSetting(QCheckBox, autoConnectBox, "Auto connect hosts",
@@ -222,6 +226,8 @@ void MESessionSettings::save()
         MEMainHandler::instance()->cfg_AutoConnect = autoConnectBox->isChecked();
     if (MEMainHandler::instance()->cfg_TopLevelBrowser == browserBox->isChecked())
         MEMainHandler::instance()->cfg_TopLevelBrowser = !browserBox->isChecked();
+    if (MEMainHandler::instance()->cfg_TabletUITabs != tabletUITabsBox->isChecked())
+        MEMainHandler::instance()->cfg_TabletUITabs = tabletUITabsBox->isChecked();
 
     if (MEMainHandler::instance()->cfg_HideUnusedModules != hideUnusedModulesBox->isChecked())
     {
@@ -281,4 +287,5 @@ void MESessionSettings::resetValues()
     qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText("Default"));
 
     browserBox->setChecked(true);
+    tabletUITabsBox->setChecked(true);
 }

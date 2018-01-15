@@ -34,8 +34,10 @@
 #include "sections/lanesection.hpp"
 #include "sections/lane.hpp"
 #include "sections/objectobject.hpp"
+#include "sections/objectreference.hpp"
 #include "sections/crosswalkobject.hpp"
 #include "sections/signalobject.hpp"
+#include "sections/signalreference.hpp"
 #include "sections/sensorobject.hpp"
 #include "sections/bridgeobject.hpp"
 #include "sections/tunnelobject.hpp"
@@ -94,6 +96,7 @@ RSystemElementRoad::~RSystemElementRoad()
     foreach (CrossfallSection *child, crossfallSections_)
         delete child;
 
+
     foreach (LaneSection *child, laneSections_)
         delete child;
 
@@ -101,9 +104,7 @@ RSystemElementRoad::~RSystemElementRoad()
         delete child;
 
 	foreach(ShapeSection *child, shapeSections_)
-	{
 		delete child;
-	}
 }
 
 /*! \brief Set the Id of the junction. If the Id is "-1" the road is not a path of any junction.
@@ -222,6 +223,10 @@ RSystemElementRoad::moveRoadSection(RoadSection *section, double newS, RSystemEl
     {
         success = moveCrossfallSection(section->getSStart(), newS);
     }
+	else if (sectionType == RSystemElementRoad::DRS_ShapeSection)
+	{
+		success = moveShapeSection(section->getSStart(), newS);
+	}
     else if (sectionType == RSystemElementRoad::DRS_LaneSection)
     {
         success = moveLaneSection(section->getSStart(), newS);
@@ -271,6 +276,10 @@ RSystemElementRoad::getRoadSectionBefore(double s, RSystemElementRoad::DRoadSect
     {
         return getCrossfallSectionBefore(s);
     }
+	else if (sectionType == RSystemElementRoad::DRS_ShapeSection)
+	{
+		return getShapeSectionBefore(s);
+	}
     else if (sectionType == RSystemElementRoad::DRS_LaneSection)
     {
         return getLaneSectionBefore(s);
@@ -2065,6 +2074,130 @@ RSystemElementRoad::moveObject(RoadSection *section, double newS)
     return true;
 }
 
+Object *
+RSystemElementRoad::getObject(const QString &id)
+{
+	QMap<double, Object *>::ConstIterator iter = objects_.constBegin();
+
+	while (iter != objects_.constEnd())
+	{
+		Object *object = iter.value();
+		if (object->getId() == id)
+		{
+			return object;
+		}
+
+		iter++;
+	}
+
+	return NULL;
+}
+
+//#############################//
+// road:objects:objectReferences      //
+//#############################//
+
+/** \brief Adds a signal reference to the road
+*
+* This is a pedestrian signal reference
+*/
+void
+RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
+{
+
+	// Notify objectReference //
+	//
+	objectReference->setParentRoad(this);
+
+	// Id //
+	//
+	QString name = "";
+	Object *object = objectReference->getObject();
+	if (object)
+	{
+		name = object->getName();
+	}
+
+	QString id = getRoadSystem()->getUniqueId(objectReference->getId(), name);
+	if (id != objectReference->getId())
+	{
+		objectReference->setId(id);
+	}
+
+	// Insert and Notify //
+	//
+	objectReferences_.insert(objectReference->getSStart(), objectReference);
+	addRoadChanges(RSystemElementRoad::CRD_ObjectReferenceChange);
+}
+
+bool
+RSystemElementRoad::delObjectReference(ObjectReference *objectReference)
+{
+	QList<ObjectReference *> objectReferenceList = objectReferences_.values(objectReference->getSStart());
+	if (!objectReferenceList.contains(objectReference))
+	{
+		qDebug("WARNING 1003221758! Tried to delete a objectReference that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		objectReference->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		objectReferences_.remove(objectReference->getSStart(), objectReference);
+		addRoadChanges(RSystemElementRoad::CRD_ObjectReferenceChange);
+
+		return true;
+	}
+}
+
+bool
+RSystemElementRoad::moveObjectReference(RoadSection *section, double newS)
+{
+	// Section //
+	//
+	ObjectReference *objectReference = static_cast<ObjectReference *>(section);
+
+	if (!objectReference)
+	{
+		return false;
+	}
+
+	// Set and insert //
+	//
+	double oldS = objectReference->getSStart();
+	objectReference->setSStart(newS);
+	objectReferences_.remove(oldS, objectReference);
+	objectReferences_.insert(newS, objectReference);
+
+	objectReference->addObjectReferenceChanges(ObjectReference::ORC_ParameterChange);
+
+	return true;
+}
+
+
+ObjectReference *
+RSystemElementRoad::getObjectReference(const QString &id)
+{
+	QMap<double, ObjectReference *>::ConstIterator iter = objectReferences_.constBegin();
+
+	while (iter != objectReferences_.constEnd())
+	{
+		ObjectReference * objectReference = iter.value();
+		if (objectReference->getReferenceId() == id)
+		{
+			return objectReference;
+		}
+
+		iter++;
+	}
+
+	return NULL;
+}
+
 //#############################//
 // road:objects:bridge      //
 //#############################//
@@ -2343,6 +2476,111 @@ RSystemElementRoad::getSignal(const QString &id)
 }
 
 //#############################//
+// road:objects:signalReferences      //
+//#############################//
+
+/** \brief Adds a signal reference to the road
+*
+* This is a pedestrian signal reference
+*/
+void
+RSystemElementRoad::addSignalReference(SignalReference *signalReference)
+{
+
+	// Notify signalReference //
+	//
+	signalReference->setParentRoad(this);
+
+	// Id //
+	//
+	QString name =  ""; 
+	Signal *signal = signalReference->getSignal();
+	if (signal)
+	{
+		name = signal->getName();
+	}
+
+	QString id = getRoadSystem()->getUniqueId(signalReference->getId(), name);
+	if (id != signalReference->getId())
+	{
+		signalReference->setId(id);
+	}
+
+	// Insert and Notify //
+	//
+	signalReferences_.insert(signalReference->getSStart(), signalReference);
+	addRoadChanges(RSystemElementRoad::CRD_SignalReferenceChange);
+}
+
+bool
+RSystemElementRoad::delSignalReference(SignalReference *signalReference)
+{
+	QList<SignalReference *> signalReferenceList = signalReferences_.values(signalReference->getSStart());
+	if (!signalReferenceList.contains(signalReference))
+	{
+		qDebug("WARNING 1003221758! Tried to delete a signalReference that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		signalReference->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		signalReferences_.remove(signalReference->getSStart(), signalReference);
+		addRoadChanges(RSystemElementRoad::CRD_SignalReferenceChange);
+
+		return true;
+	}
+}
+
+bool
+RSystemElementRoad::moveSignalReference(RoadSection *section, double newS)
+{
+	// Section //
+	//
+	SignalReference *signalReference = static_cast<SignalReference *>(section);
+
+	if (!signalReference)
+	{
+		return false;
+	}
+
+	// Set and insert //
+	//
+	double oldS = signalReference->getSStart();
+	signalReference->setSStart(newS);
+	signalReferences_.remove(oldS, signalReference);
+	signalReferences_.insert(newS, signalReference);
+
+	signalReference->addSignalReferenceChanges(SignalReference::SRC_ParameterChange);
+
+	return true;
+}
+
+
+SignalReference *
+RSystemElementRoad::getSignalReference(const QString &id)
+{
+	QMap<double, SignalReference *>::ConstIterator iter = signalReferences_.constBegin();
+
+	while (iter != signalReferences_.constEnd())
+	{
+		SignalReference * signalReference = iter.value();
+		if (signalReference->getReferenceId() == id)
+		{
+			return signalReference;
+		}
+
+		iter++;
+	}
+
+	return NULL;
+}
+
+//#############################//
 // road:objects:sensor      //
 //#############################//
 
@@ -2526,6 +2764,20 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
             addLaneSection(section->getClone());
         }
     }
+
+	if (!prototypeRoad->shapeSections_.empty() && shapeSections_.empty())
+	{
+		foreach(ShapeSection *section, prototypeRoad->shapeSections_)
+		{
+			ShapeSection *clone = section->getClone();
+			addShapeSection(clone);
+/*			if (!laneSections_.isEmpty())
+			{
+				double s = section->getSStart();
+				clone->moveLateralSection(clone->getFirstPolynomialLateralSection(), getMinWidth(s));
+			} */
+		}
+	}
 }
 
 ///*! \brief Adds some road sections from a prototype at the back or front.
@@ -2613,6 +2865,9 @@ RSystemElementRoad::getClone() const
     foreach (CrossfallSection *child, crossfallSections_)
         clonedRoad->addCrossfallSection(child->getClone());
 
+	foreach(ShapeSection *child, shapeSections_)
+		clonedRoad->addShapeSection(child->getClone());
+
     foreach (LaneSection *child, laneSections_)
         clonedRoad->addLaneSection(child->getClone());
 
@@ -2695,8 +2950,10 @@ RSystemElementRoad::acceptForChildNodes(Visitor *visitor)
     acceptForLaneSections(visitor);
     acceptForCrosswalks(visitor);
     acceptForSignals(visitor);
+	acceptForSignalReferences(visitor);
     acceptForSensors(visitor);
     acceptForObjects(visitor);
+	acceptForObjectReferences(visitor);
     acceptForBridges(visitor);
 }
 
@@ -2820,6 +3077,16 @@ RSystemElementRoad::acceptForSignals(Visitor *visitor)
 * Accepts a visitor and passes it to the lane sections.
 */
 void
+RSystemElementRoad::acceptForSignalReferences(Visitor *visitor)
+{
+	foreach(SignalReference *child, signalReferences_)
+		child->accept(visitor);
+}
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
 RSystemElementRoad::acceptForSensors(Visitor *visitor)
 {
     foreach (Sensor *child, sensors_)
@@ -2834,6 +3101,16 @@ RSystemElementRoad::acceptForObjects(Visitor *visitor)
 {
     foreach (Object *child, objects_)
         child->accept(visitor);
+}
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
+RSystemElementRoad::acceptForObjectReferences(Visitor *visitor)
+{
+	foreach(ObjectReference *child, objectReferences_)
+		child->accept(visitor);
 }
 
 /*!

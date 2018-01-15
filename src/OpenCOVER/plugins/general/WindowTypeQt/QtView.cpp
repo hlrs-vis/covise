@@ -1,5 +1,7 @@
 #include "QtView.h"
 
+#include <config/CoviseConfig.h>
+
 #include <cover/ui/Menu.h>
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Label.h>
@@ -9,11 +11,15 @@
 #include <cover/ui/SelectionList.h>
 
 #include <QMenuBar>
+#include <QToolBar>
 #include <QAction>
 #include <QActionGroup>
 #include <QLabel>
 #include <QWidgetAction>
 #include <QSlider>
+#include <QVBoxLayout>
+#include <QTextStream>
+#include <QFontMetrics>
 
 #include <cassert>
 #include <iostream>
@@ -24,43 +30,73 @@ namespace ui {
 namespace {
 const int SliderIntMax = 1000000000;
 
-QString sliderText(const Slider *slider)
+QString sliderText(const Slider *slider, double value, int digits=0)
 {
-    QString text = QString::fromStdString(slider->text());
-    text += ": ";
-    text += QString::number(slider->value());
+    QString text;
+    QTextStream(&text) << QString::fromStdString(slider->text()) << ": " << qSetPadChar('0') << qSetFieldWidth(digits) << value;
     return text;
 }
 
+QString sliderText(const Slider *slider)
+{
+    return sliderText(slider, slider->value());
 }
 
+QString sliderWidthText(const Slider *slider)
+{
+    int digits = std::max(QString::number(slider->min()).size(), QString::number(slider->max()).size());
+    return sliderText(slider, 0.0, digits);
+}
 
-QtView::QtView(QMenuBar *menubar)
+}
+
+QtView::QtView(QMenuBar *menubar, QToolBar *toolbar)
 : View("Qt")
 , m_menubar(menubar)
+, m_toolbar(toolbar)
 {
 }
 
-void QtView::add(QtViewElement *ve)
+QtView::QtView(QToolBar *toolbar)
+: View("QtToolbar")
+, m_toolbar(toolbar)
+{
+}
+
+void QtView::setInsertPosition(QAction *item)
+{
+    m_insertBefore = item;
+}
+
+void QtView::add(QtViewElement *ve, bool update)
 {
     if (!ve)
         return;
     auto elem = ve->element;
+    bool hasParent = elem && elem->parent();
     auto parent = qtViewParent(elem);
     auto container = qtContainerWidget(elem);
 
-    if (auto m = dynamic_cast<QMenu *>(ve->object))
+    if (m_menubar)
     {
-        if (auto pmb = dynamic_cast<QMenuBar *>(container))
+        if (auto m = dynamic_cast<QMenu *>(ve->object))
         {
-            pmb->addMenu(m);
+            if (auto pmb = dynamic_cast<QMenuBar *>(container))
+            {
+                pmb->insertMenu(m_insertBefore, m);
+            }
+            else if (auto pm = dynamic_cast<QMenu *>(container))
+            {
+                pm->addMenu(m);
+            }
+            return;
         }
-        else if (auto pm = dynamic_cast<QMenu *>(container))
-        {
-            pm->addMenu(m);
-        }
-        return;
     }
+
+    std::string configPath = "COVER.UI." + elem->path();
+    bool exists = false;
+    bool inToolbar = covise::coCoviseConfig::isOn("toolbar", configPath, elem->priority()>=ui::Element::Toolbar, &exists);
+    bool inMenu = elem->priority() >= ui::Element::Default;
 
     auto a = ve->action;
     if (!a)
@@ -68,20 +104,24 @@ void QtView::add(QtViewElement *ve)
     if (!a)
         return;
 
-    if (auto ag = dynamic_cast<QActionGroup *>(qtObject(parent)))
+    Group *group = nullptr;
+    if (ve->element)
+        group = ve->element->parent();
+    if (container)
     {
-        //std::cerr << "ui: adding button " << button->path() << " to action group" << std::endl;
-        if (ve->action)
-            ag->addAction(ve->action);
-        else if (auto a = dynamic_cast<QAction *>(ve->object))
-            ag->addAction(a);
-        if (container)
-            container->addActions(ag->actions());
-    }
-    else if (container)
-    {
-        //std::cerr << "ui: adding button " << button->path() << " to widget" << std::endl;
-        container->addAction(a);
+        //std::cerr << "ui: adding button " << elem->path() << " to widget" << std::endl;
+        if (hasParent && inMenu)
+        {
+            container->addAction(a);
+        }
+        if (m_toolbar && inToolbar && !update)
+        {
+            if (m_lastToolbarGroup && m_lastToolbarGroup != group)
+                m_toolbar->addSeparator();
+            //std::cerr << "ui: adding action for " << ve->element->path() << " to toolbar" << std::endl;
+            m_toolbar->addAction(a);
+            m_lastToolbarGroup = group;
+        }
     }
 }
 
@@ -136,18 +176,23 @@ QWidget *QtView::qtWidget(const QtViewElement *elem) const
 
 QWidget *QtView::qtContainerWidget(const Element *elem) const
 {
-    auto parent = viewParent(elem);
     auto ve = qtViewContainer(elem);
     auto w = qtWidget(ve);
-    if (!parent && !w)
+    if (!w)
+        w = qtWidget(qtViewElement(elem->parent()));
+    if (w)
+        return w;
+    if (m_menubar)
         return m_menubar;
-    return w;
+    return m_toolbar;
 }
 
 QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 {
     auto parent = qtContainerWidget(menu);
     auto m = new QMenu(parent);
+    m->setTearOffEnabled(true);
+    m->setSeparatorsCollapsible(false);
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
     add(ve);
@@ -158,47 +203,21 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 QtViewElement *QtView::elementFactoryImplementation(Group *group)
 {
     auto parent = qtViewParent(group);
-    if (!parent)
-        return nullptr;
-
-    auto ag = new QActionGroup(qtObject(parent));
-    ag->setExclusive(false);
-
-    auto sep = new QAction(ag);
-    sep->setShortcutContext(Qt::WidgetShortcut);
-    sep->setSeparator(true);
-    sep->setText(QString::fromStdString(group->text()));
-    ag->addAction(sep);
-
-    auto sep2 = new QAction(ag);
-    sep2->setShortcutContext(Qt::WidgetShortcut);
-    sep2->setSeparator(true);
-    ag->addAction(sep2);
-
-    auto ve = new QtViewElement(group, ag);
-    ve->group = ag;
-    if (auto w = qtWidget(parent))
-        w->addActions(ag->actions());
-    ve->markForDeletion(ag);
-#if 0
-    connect(a, &QAction::triggered, [rg](bool state){rg->setState(state); rg->trigger();});
-#endif
+    auto ve = new QtViewElement(group, nullptr);
     return ve;
 }
 
 QtViewElement *QtView::elementFactoryImplementation(Label *label)
 {
     auto parent = qtViewParent(label);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
-    auto la = new QWidgetAction(qtObject(parent));
-    auto l = new QLabel(qtWidget(parent));
-    la->setDefaultWidget(l);
-
+    auto la = new QtLabelAction(qtObject(parent));
     auto ve = new QtViewElement(label, la);
     ve->action = la;
-    ve->label = l;
     ve->markForDeletion(la);
     add(ve);
     return ve;
@@ -207,20 +226,22 @@ QtViewElement *QtView::elementFactoryImplementation(Label *label)
 QtViewElement *QtView::elementFactoryImplementation(Action *action)
 {
     auto parent = qtViewParent(action);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(false);
+    if (!action->iconName().empty())
+    {
+        a->setIcon(QIcon::fromTheme(QString::fromStdString(action->iconName())));
+    }
     auto ve = new QtViewElement(action, a);
     ve->action = a;
     add(ve);
     ve->markForDeletion(a);
-#if 0
-    if (auto w = qtWidget(parent))
-        w->addAction(a);
-#endif
     connect(a, &QAction::triggered, [action](bool){action->trigger();});
     return ve;
 }
@@ -228,12 +249,18 @@ QtViewElement *QtView::elementFactoryImplementation(Action *action)
 QtViewElement *QtView::elementFactoryImplementation(Button *button)
 {
     auto parent = qtViewParent(button);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(true);
+    if (!button->iconName().empty())
+    {
+        a->setIcon(QIcon::fromTheme(QString::fromStdString(button->iconName())));
+    }
     auto ve = new QtViewElement(button, a);
     ve->action = a;
     add(ve);
@@ -248,29 +275,19 @@ QtViewElement *QtView::elementFactoryImplementation(Button *button)
 QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
 {
     auto parent = qtViewParent(slider);
+#if 0
     if (!parent)
         return nullptr;
+#endif
 
-    auto po = qtObject(parent);
     auto pw = qtWidget(parent);
 
-    auto s = new QSlider(Qt::Horizontal, pw);
-    auto a = new QWidgetAction(po);
-    a->setDefaultWidget(s);
-    pw->addAction(a);
+    auto s = new QtSliderAction(pw);
     auto ve = new QtViewElement(slider, s);
-    ve->action = a;
-
-    auto l = new QLabel(pw);
-    auto la = new QWidgetAction(po);
-    la->setDefaultWidget(l);
-    pw->addAction(la);
-    ve->label = l;
+    ve->action = s;
+    ve->markForDeletion(s);
     add(ve);
-    ve->markForDeletion(la);
-    ve->markForDeletion(a);
-
-    connect(s, &QSlider::sliderMoved, [slider](int value){
+    connect(s, &QtSliderAction::sliderMoved, [slider](int value){
         if (slider->integral() && slider->scale()==ui::Slider::Linear)
         {
             slider->setValue(value);
@@ -285,7 +302,7 @@ QtViewElement *QtView::elementFactoryImplementation(Slider *slider)
         slider->setMoving(true);
         slider->trigger();
     });
-    connect(s, &QSlider::sliderReleased, [slider](){
+    connect(s, &QtSliderAction::sliderReleased, [slider](){
         slider->setMoving(false);
         slider->trigger();
     });
@@ -304,11 +321,61 @@ QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
     return ve;
 }
 
+void QtView::updateContainer(const Element *elem)
+{
+    if (!elem)
+        return;
+    auto parent = elem->parent();
+    if (!parent)
+        return;
+    if (auto menu = dynamic_cast<Menu *>(parent))
+        updateMenu(menu, menu);
+    else
+        updateContainer(parent);
+}
+
+void QtView::updateMenu(const Menu *menu, const Group *subGroup)
+{
+    if (auto sgmenu = dynamic_cast<QMenu *>(qtWidget(subGroup)))
+    {
+        auto actions = sgmenu->actions();
+        for (const auto &a: actions)
+        {
+            sgmenu->removeAction(a);
+        }
+    }
+
+    auto qmenu = dynamic_cast<QMenu *>(qtWidget(menu));
+    for (size_t i=0; i<subGroup->numChildren(); ++i)
+    {
+        auto child = subGroup->child(i);
+        auto qt = qtViewElement(child);
+        if (auto sg = dynamic_cast<const Group *>(child))
+        {
+            if (qmenu)
+            {
+                qmenu->addSection(QString::fromStdString(sg->text()));
+            }
+            updateMenu(menu, sg);
+            if (qmenu)
+            {
+                qmenu->addSeparator();
+            }
+        }
+        else
+        {
+            add(qt, true);
+        }
+    }
+}
+
 void QtView::updateEnabled(const Element *elem)
 {
-    auto w = qtWidget(elem);
-    if (w)
+    if (auto w = qtWidget(elem))
         w->setEnabled(elem->enabled());
+    auto ve = qtViewElement(elem);
+    if (ve && ve->action)
+        ve->action->setEnabled(elem->enabled());
 }
 
 void QtView::updateVisible(const Element *elem)
@@ -336,7 +403,18 @@ void QtView::updateText(const Element *elem)
         return;
     auto o = qtObject(elem);
     auto t = QString::fromStdString(elem->text());
-    if (auto l = dynamic_cast<QLabel *>(o))
+    t.replace('&', "&&");
+    if (auto sa = dynamic_cast<QtSliderAction *>(o))
+    {
+        auto s = dynamic_cast<const Slider *>(elem);
+        sa->setText(sliderText(s));
+        sa->setWidthText(sliderWidthText(s));
+    }
+    else if (auto la = dynamic_cast<QtLabelAction *>(o))
+    {
+        la->setText(t);
+    }
+    else if (auto l = dynamic_cast<QLabel *>(o))
     {
         l->setText(t);
     }
@@ -366,33 +444,7 @@ void QtView::updateState(const Button *button)
 
 void QtView::updateParent(const Element *elem)
 {
-#if 0
-    auto o = qtObject(menu);
-    auto m = dynamic_cast<QMenu *>(o);
-    if (!m)
-        return;
-
-    auto actions = m->actions();
-    for (size_t i=0; i<menu->numChildren(); ++i)
-    {
-        auto ve = qtViewElement(menu->child(i));
-        if (!ve)
-            continue;
-        auto obj = ve->object;
-        auto act = ve->action;
-        if (!act)
-            act = dynamic_cast<QAction *>(obj);
-        if (!act)
-            continue;
-
-        if (auto a = dynamic_cast<QAction *>(obj))
-            m->addAction(a);
-        else if (auto mm = dynamic_cast<QMenu *>(obj))
-            m->addMenu(mm);
-        else if (auto ag = dynamic_cast<QActionGroup *>(obj))
-            m->addActions(ag->actions());
-    }
-#endif
+    updateContainer(elem);
 }
 
 void QtView::updateChildren(const SelectionList *sl)
@@ -468,7 +520,7 @@ void QtView::updateValue(const Slider *slider)
     if (!ve)
         return;
     auto o = qtObject(slider);
-    auto s = dynamic_cast<QSlider *>(o);
+    auto s = dynamic_cast<QtSliderAction *>(o);
     if (s)
     {
         if (slider->integral() && slider->scale()==Slider::Linear)
@@ -487,6 +539,7 @@ void QtView::updateValue(const Slider *slider)
                 s->setValue(v);
             }
         }
+        s->setText(sliderText(slider));
     }
     if (ve->label)
         ve->label->setText(sliderText(slider));
@@ -495,9 +548,11 @@ void QtView::updateValue(const Slider *slider)
 void QtView::updateBounds(const Slider *slider)
 {
     auto o = qtObject(slider);
-    auto s = dynamic_cast<QSlider *>(o);
+    auto s = dynamic_cast<QtSliderAction *>(o);
     if (s)
     {
+        s->setToolTip(QString("%1 - %2").arg(slider->min()).arg(slider->max()));
+        s->setWidthText(sliderWidthText(slider));
         if (slider->integral() && slider->scale()==Slider::Linear)
         {
             if (s->minimum() != slider->min() || s->maximum() != slider->max())
@@ -548,6 +603,218 @@ void QtViewElement::markForDeletion(QObject *obj)
         }
     });
     toDelete.push_back(obj);
+}
+
+QtLabelAction::QtLabelAction(QObject *parent)
+: QWidgetAction(parent)
+{
+}
+
+void QtLabelAction::setText(const QString &text)
+{
+    for (auto w: createdWidgets())
+    {
+        auto l = dynamic_cast<QLabel *>(w);
+        assert(l);
+        l->setText(text);
+    }
+}
+
+QWidget *QtLabelAction::createWidget(QWidget *parent)
+{
+    return new QLabel(parent);
+}
+
+QtSliderWidget::QtSliderWidget(QBoxLayout::Direction dir, QWidget *parent)
+: QWidget (parent)
+, m_layout(new QBoxLayout(dir))
+, m_label(new QLabel(this))
+, m_slider(new QSlider(Qt::Horizontal, this))
+{
+    m_slider->setFocusPolicy(Qt::NoFocus);
+
+    m_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    m_layout->setSpacing(0);
+    m_layout->setMargin(1);
+    //m_layout->setContentsMargins(1, 1, 1, 1);
+    m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_slider->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    m_slider->setMaximumWidth(400);
+    m_layout->addWidget(m_label);
+    m_layout->addWidget(m_slider);
+    setLayout(m_layout);
+    //connect(m_slider, &QSlider::sliderMoved, [this](int value){ emit sliderMoved(value); });
+    connect(m_slider, &QSlider::actionTriggered, [this](int action){
+        switch (action) {
+        case QSlider::SliderSingleStepAdd:
+        case QSlider::SliderSingleStepSub:
+        case QSlider::SliderPageStepAdd:
+        case QSlider::SliderPageStepSub:
+        case QSlider::SliderToMinimum:
+        case QSlider::SliderToMaximum:
+        case QSlider::SliderMove:
+            emit sliderMoved(m_slider->sliderPosition());
+            break;
+        }
+    });
+
+    connect(m_slider, &QSlider::sliderReleased, [this](){ emit sliderReleased(); });
+}
+
+void QtSliderWidget::setDirection(QBoxLayout::Direction dir)
+{
+    m_layout->setDirection(dir);
+}
+
+void QtSliderWidget::setText(const QString &text)
+{
+    m_label->setText(text);
+}
+
+void QtSliderWidget::setWidthText(const QString &text)
+{
+    QFontMetrics fm(m_label->font());
+    int w = fm.width(text);
+    m_label->setMinimumWidth(w);
+    //std::cerr << "Slider label width " << w << " for " << text.toStdString() << std::endl;
+}
+
+void QtSliderWidget::setRange(int min, int max)
+{
+    m_slider->setRange(min, max);
+}
+
+void QtSliderWidget::setValue(int value)
+{
+    m_slider->setValue(value);
+}
+
+int QtSliderWidget::value() const
+{
+    return m_slider->value();
+}
+
+int QtSliderWidget::minimum() const
+{
+    return m_slider->minimum();
+}
+
+int QtSliderWidget::maximum() const
+{
+    return m_slider->maximum();
+}
+
+QtSliderAction::QtSliderAction(QObject *parent)
+: QWidgetAction(parent)
+{
+}
+
+void QtSliderAction::setToolTip(const QString &tip)
+{
+    m_tip = tip;
+    QWidgetAction::setToolTip(tip);
+    for (auto w: createdWidgets())
+    {
+        auto s = dynamic_cast<QtSliderWidget *>(w);
+        assert(s);
+        s->setToolTip(tip);
+    }
+}
+
+void QtSliderAction::setText(const QString &text)
+{
+    m_text = text;
+    for (auto w: createdWidgets())
+    {
+        auto s = dynamic_cast<QtSliderWidget *>(w);
+        assert(s);
+        s->setText(text);
+    }
+}
+
+void QtSliderAction::setWidthText(const QString &text)
+{
+    m_widthText = text;
+    for (auto w: createdWidgets())
+    {
+        auto s = dynamic_cast<QtSliderWidget *>(w);
+        assert(s);
+        s->setWidthText(text);
+    }
+}
+
+void QtSliderAction::setRange(int min, int max)
+{
+    m_min = min;
+    m_max = max;
+    for (auto w: createdWidgets())
+    {
+        auto s = dynamic_cast<QtSliderWidget *>(w);
+        assert(s);
+        s->setRange(min, max);
+    }
+}
+
+void QtSliderAction::setValue(long value)
+{
+    m_value = value;
+    for (auto w: createdWidgets())
+    {
+        auto s = dynamic_cast<QtSliderWidget *>(w);
+        assert(s);
+        s->setValue(value);
+    }
+}
+
+int QtSliderAction::value() const
+{
+    return m_value;
+}
+
+int QtSliderAction::minimum() const
+{
+    return m_min;
+}
+
+int QtSliderAction::maximum() const
+{
+    return m_max;
+}
+
+QWidget *QtSliderAction::createWidget(QWidget *parent)
+{
+    QBoxLayout::Direction dir = QBoxLayout::TopToBottom;
+    auto toolbar = dynamic_cast<QToolBar *>(parent);
+    auto s =  new QtSliderWidget(dir, parent);
+    if (toolbar)
+    {
+        auto changeOrient = [this, s](Qt::Orientation ori){
+            if (ori == Qt::Horizontal)
+                s->setDirection(QBoxLayout::LeftToRight);
+            else
+                s->setDirection(QBoxLayout::BottomToTop);
+        };
+        connect(toolbar, &QToolBar::orientationChanged, changeOrient);
+        changeOrient(toolbar->orientation());
+    }
+    s->setToolTip(m_tip);
+    s->setRange(m_min, m_max);
+    s->setValue(m_value);
+    s->setText(m_text);
+    s->setWidthText(m_widthText);
+    connect(s, &QtSliderWidget::sliderMoved, [this, s](int value){
+        m_value = value;
+        for (auto w: createdWidgets())
+        {
+            auto sw = dynamic_cast<QtSliderWidget *>(w);
+            assert(sw);
+            if (sw != s)
+                sw->setValue(value);
+        }
+        emit sliderMoved(value);
+    });
+    connect(s, &QtSliderWidget::sliderReleased, [this](){ emit sliderReleased(); });
+    return s;
 }
 
 }

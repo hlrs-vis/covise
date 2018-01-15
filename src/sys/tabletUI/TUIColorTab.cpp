@@ -40,9 +40,10 @@ TUIColorTab::TUIColorTab(int id, int type, QWidget *w, int parent, QString name)
     alpha = 255;
     rGBtoHSV();
 
-    layout = new QGridLayout(frame);
+    auto grid = new QGridLayout(frame);
+    layout = grid;
     colorTriangle = new QtColorTriangle(frame);
-    layout->addWidget(colorTriangle, 0, 0, 1, 2, Qt::AlignCenter);
+    grid->addWidget(colorTriangle, 0, 0, 1, 2, Qt::AlignCenter);
 
     redSlider = new EditSlider(0, 255, 1, red, frame, "");
     greenSlider = new EditSlider(0, 255, 1, green, frame, "");
@@ -52,13 +53,13 @@ TUIColorTab::TUIColorTab(int id, int type, QWidget *w, int parent, QString name)
     valueSlider = new EditSlider(0, 255, 1, value, frame, "");
     alphaSlider = new EditSlider(0, 255, 1, alpha, frame, "");
 
-    layout->addWidget(redSlider, 1, 0, Qt::AlignCenter);
-    layout->addWidget(greenSlider, 2, 0, Qt::AlignCenter);
-    layout->addWidget(blueSlider, 3, 0, Qt::AlignCenter);
-    layout->addWidget(alphaSlider, 4, 0, Qt::AlignCenter);
-    layout->addWidget(hueSlider, 1, 1, Qt::AlignCenter);
-    layout->addWidget(saturationSlider, 2, 1, Qt::AlignCenter);
-    layout->addWidget(valueSlider, 3, 1, Qt::AlignCenter);
+    grid->addWidget(redSlider, 1, 0, Qt::AlignCenter);
+    grid->addWidget(greenSlider, 2, 0, Qt::AlignCenter);
+    grid->addWidget(blueSlider, 3, 0, Qt::AlignCenter);
+    grid->addWidget(alphaSlider, 4, 0, Qt::AlignCenter);
+    grid->addWidget(hueSlider, 1, 1, Qt::AlignCenter);
+    grid->addWidget(saturationSlider, 2, 1, Qt::AlignCenter);
+    grid->addWidget(valueSlider, 3, 1, Qt::AlignCenter);
 
     connect(colorTriangle, SIGNAL(colorChanged(const QColor &)), this, SLOT(changedTriangle(const QColor &)));
     connect(colorTriangle, SIGNAL(released(const QColor &)), this, SLOT(changedTriangle(const QColor &)));
@@ -244,7 +245,7 @@ void TUIColorTab::setValue(int type, covise::TokenBuffer &tb)
     TUIElement::setValue(type, tb);
 }
 
-char *TUIColorTab::getClassName()
+const char *TUIColorTab::getClassName() const
 {
-    return (char *)"TUIColorTab";
+    return "TUIColorTab";
 }

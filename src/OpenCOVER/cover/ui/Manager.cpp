@@ -12,6 +12,7 @@
 #include <osgGA/GUIEventAdapter>
 
 #include <cover/coVRMSController.h>
+#include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
 #include <net/message.h>
 
@@ -41,7 +42,11 @@ void Manager::remove(Owner *owner)
 void Manager::remove(Element *elem)
 {
     //std::cerr << "DESTROY: " << elem->path() << std::endl;
-    m_elements.erase(elem);
+    auto it = m_elements.find(elem->m_order);
+    if (it != m_elements.end())
+    {
+        m_elements.erase(it);
+    }
     elem->clearItems();
 
     for (auto v: m_views)
@@ -91,7 +96,9 @@ bool Manager::update()
         m_changed = true;
         auto elem = m_newElements.front();
         m_newElements.pop_front();
-        m_elements.emplace(elem);
+        elem->m_order = m_elemOrder;
+        m_elements.emplace(elem->m_order, elem);
+        ++m_elemOrder;
 
         if (elem->parent())
         {
@@ -104,6 +111,15 @@ bool Manager::update()
             v.second->elementFactory(elem);
         }
         elem->update();
+    }
+
+    if (m_updateAllElements)
+    {
+        m_changed = true;
+
+        m_updateAllElements = false;
+        for (auto elem: m_elements)
+            elem.second->update();
     }
 
     bool ret = m_changed;
@@ -130,11 +146,13 @@ bool Manager::addView(View *view)
 
     for (auto elem: m_elements)
     {
-        view->elementFactory(elem);
-        elem->update();
+        std::cerr << "Creating by id: " << elem.first << " -> " << elem.second->path() << std::endl;
+        view->elementFactory(elem.second);
     }
 
-    return false;
+    m_updateAllElements = true;
+
+    return true;
 }
 
 bool Manager::removeView(const View *view)
@@ -243,55 +261,182 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-bool Manager::keyEvent(int type, int keySym, int mod) const
+bool Manager::keyEvent(int type, int mod, int keySym)
 {
-    if (type != osgGA::GUIEventAdapter::KEYDOWN)
-        return false;
-
     bool handled = false;
 
-    bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
-    bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
-    bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
-    bool meta = mod & osgGA::GUIEventAdapter::MODKEY_META;
+    if (type == osgGA::GUIEventAdapter::KEYDOWN
+            || type == osgGA::GUIEventAdapter::KEYUP)
+    {
+        bool down = type==osgGA::GUIEventAdapter::KEYDOWN;
+        if (keySym == osgGA::GUIEventAdapter::KEY_Shift_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Shift_R)
+        {
+            if (down)
+                m_modifiers |= ModShift;
+            else
+                m_modifiers &= ~ModShift;
+        }
+        if (keySym == osgGA::GUIEventAdapter::KEY_Control_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Control_R)
+        {
+            if (down)
+                m_modifiers |= ModCtrl;
+            else
+                m_modifiers &= ~ModCtrl;
+        }
+        if (keySym == osgGA::GUIEventAdapter::KEY_Alt_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Alt_R)
+        {
+            if (down)
+                m_modifiers |= ModAlt;
+            else
+                m_modifiers &= ~ModAlt;
+        }
+        if (keySym == osgGA::GUIEventAdapter::KEY_Meta_L
+                || keySym == osgGA::GUIEventAdapter::KEY_Meta_R)
+        {
+            if (down)
+                m_modifiers |= ModMeta;
+            else
+                m_modifiers &= ~ModMeta;
+        }
 
-    if (shift && std::isupper(keySym))
-    {
-        //std::cerr << "ui::Manager: mapping to lower" << std::endl;
-        keySym = std::tolower(keySym);
-    }
-    int modifiers = 0;
-    std::cerr << "key: ";
-    if (meta)
-    {
-        modifiers |= ModMeta;
-        std::cerr << "meta+";
-    }
-    if (ctrl)
-    {
-        modifiers |= ModCtrl;
-        std::cerr << "ctrl+";
-    }
-    if (alt)
-    {
-        modifiers |= ModAlt;
-        std::cerr << "alt+";
-    }
-    if (shift)
-    {
-        modifiers |= ModShift;
-        std::cerr << "shift+";
-    }
-    std::cerr << "'" << (char)keySym << "'" << std::endl;
+        std::cerr << "key: ";
 
-    for (auto elem: m_elements)
+        bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
+        bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
+        bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
+        bool meta = mod & osgGA::GUIEventAdapter::MODKEY_META;
+
+        int modifiers = 0;
+        if (meta)
+        {
+            modifiers |= ModMeta;
+            std::cerr << "meta+";
+        }
+        if (ctrl)
+        {
+            modifiers |= ModCtrl;
+            std::cerr << "ctrl+";
+        }
+        if (alt)
+        {
+            modifiers |= ModAlt;
+            std::cerr << "alt+";
+        }
+        if (shift)
+        {
+            modifiers |= ModShift;
+            std::cerr << "shift+";
+        }
+
+        std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
+        //m_modifiers = modifiers;
+
+        if (down)
+        {
+            if (shift && keySym < 255 && std::isupper(keySym))
+            {
+                //std::cerr << "ui::Manager: mapping to lower" << std::endl;
+                keySym = std::tolower(keySym);
+            }
+            std::cerr << "'" << (char)keySym << "'" << std::endl;
+
+            for (auto &elemPair: m_elements)
+            {
+                auto &elem = elemPair.second;
+                if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
+                {
+                    elem->shortcutTriggered();
+                    if (handled)
+                    {
+                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                    }
+                    handled = true;
+                    continue;
+                }
+            }
+        }
+    }
+    else if (type == osgGA::GUIEventAdapter::RELEASE
+             || type == osgGA::GUIEventAdapter::SCROLL)
     {
-        if (elem->matchShortcut(modifiers, keySym))
+        std::cerr << "mouse: ";
+
+        int button = 0;
+        int modifiers = 0;
+        if (type == osgGA::GUIEventAdapter::RELEASE)
+        {
+            if (mod == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+                button = Left;
+            if (mod == osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON)
+                button = Middle;
+            if (mod == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON)
+                button = Right;
+        }
+        else
+        {
+            if (mod == osgGA::GUIEventAdapter::SCROLL_UP)
+                button = ScrollUp;
+            if (mod == osgGA::GUIEventAdapter::SCROLL_DOWN)
+                button = ScrollDown;
+        }
+
+        switch (button)
+        {
+        case Left:
+            std::cerr << "Left" << std::endl;
+            break;
+        case Middle:
+            std::cerr << "Middle" << std::endl;
+            break;
+        case Right:
+            std::cerr << "Right" << std::endl;
+            break;
+        case ScrollUp:
+            std::cerr << "ScrollUp" << std::endl;
+            break;
+        case ScrollDown:
+            std::cerr << "ScrollDown" << std::endl;
+            break;
+        }
+
+        if (button != 0)
+        {
+            for (auto &elemPair: m_elements)
+            {
+                auto &elem = elemPair.second;
+                if (elem->enabled() && elem->matchButton(modifiers, button))
+                {
+                    elem->shortcutTriggered();
+                    if (handled)
+                    {
+                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                    }
+                    handled = true;
+                    continue;
+                }
+            }
+        }
+    }
+
+    return handled;
+}
+
+bool Manager::buttonEvent(int button) const
+{
+    bool handled = false;
+
+    for (auto &elemPair: m_elements)
+    {
+        auto &elem = elemPair.second;
+        if (elem->enabled() && elem->matchButton(m_modifiers, button))
         {
             elem->shortcutTriggered();
             if (handled)
             {
-                std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                std::cerr << "ui::Manager: duplicate mapping for button on " << elem->path() << std::endl;
             }
             handled = true;
             continue;
@@ -312,9 +457,11 @@ void Manager::flushUpdates()
     for (const auto &state: m_elemState)
     {
         auto id = state.first;
-        auto tb = state.second;
+        auto mask = state.second.first;
+        auto tb = state.second.second;
 
         *m_updates << id;
+        *m_updates << mask;
         *m_updates << false; // trigger
         *m_updates << tb->get_length();
         m_updates->addBinary(tb->get_data(), tb->get_length());
@@ -324,8 +471,22 @@ void Manager::flushUpdates()
     m_elemState.clear();
 }
 
-void Manager::queueUpdate(const Element *elem, bool trigger)
+void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, bool trigger)
 {
+    if (mask & Element::UpdateParent)
+    {
+        auto it = m_elements.find(elem->m_order);
+        if (it != m_elements.end())
+        {
+            Element *e = it->second;
+            assert(e == elem);
+            m_elements.erase(it);
+            e->m_order = m_elemOrder;
+            m_elements.emplace(e->m_order, e);
+            ++m_elemOrder;
+        }
+    }
+
     if (elem->elementId() < 0)
     {
         assert(!trigger);
@@ -335,6 +496,8 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
     assert(elem->elementId() >= 0);
 
     auto it = m_elemState.find(elem->elementId());
+    if (it != m_elemState.end())
+        mask |= it->second.first;
     if (trigger)
     {
         if (it != m_elemState.end())
@@ -345,6 +508,7 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
         elem->save(tb);
 
         *m_updates << elem->elementId();
+        *m_updates << mask;
         *m_updates << trigger;
         *m_updates << tb.get_length();
         m_updates->addBinary(tb.get_data(), tb.get_length());
@@ -355,13 +519,14 @@ void Manager::queueUpdate(const Element *elem, bool trigger)
     {
         if (it == m_elemState.end())
         {
-            it = m_elemState.emplace(elem->elementId(), std::make_shared<covise::TokenBuffer>()).first;
+            it = m_elemState.emplace(elem->elementId(), std::make_pair(Element::UpdateMaskType(0),std::make_shared<covise::TokenBuffer>())).first;
         }
         else
         {
-            it->second->reset();
+            it->second.second->reset();
         }
-        elem->save(*it->second);
+        it->second.first = mask;
+        elem->save(*it->second.second);
     }
 }
 
@@ -374,6 +539,8 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         //std::cerr << "processing " << i << std::flush;
         int id = -1;
         *updates >> id;
+        Element::UpdateMaskType mask(0);
+        *updates >> mask;
         bool trigger = false;
         *updates >> trigger;
         int len = 0;
@@ -385,18 +552,32 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             std::cerr << "ui::Manager::processUpdates NOT FOUND: id=" << id << ", trigger=" << trigger << std::endl;
             continue;
         }
+        if (cover->debugLevel(5))
+            std::cerr << "ui::Manager::processUpdates for id=" << id << ": " << elem->path() << std::endl;
         covise::TokenBuffer tb(data, len);
         //std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
         assert(elem);
         elem->load(tb);
-        elem->update();
-        if (trigger && runTriggers)
-            elem->triggerImplementation();
+        elem->update(mask);
+        if (trigger)
+        {
+            if (runTriggers)
+            {
+                setChanged();
+                elem->triggerImplementation();
+            }
+            else
+            {
+                std::cerr << "ui::Manager::processUpdates: path=" << elem->path() << " still would trigger" << std::endl;
+            }
+        }
     }
 }
 
-void Manager::sync()
+bool Manager::sync()
 {
+    bool changed = false;
+
     flushUpdates();
     auto ms = coVRMSController::instance();
     if (ms->isCluster())
@@ -408,12 +589,12 @@ void Manager::sync()
             if (ms->isMaster())
             {
                 covise::Message msg(*m_updates);
-                coVRMSController::instance()->sendSlaves(&msg);
+                coVRMSController::instance()->syncMessage(&msg);
             }
             else
             {
                 covise::Message msg;
-                coVRMSController::instance()->readMaster(&msg);
+                coVRMSController::instance()->syncMessage(&msg);
                 m_updates.reset(new covise::TokenBuffer(&msg));
             }
         }
@@ -422,19 +603,34 @@ void Manager::sync()
     int round = 0;
     while (m_numUpdates > 0)
     {
+        changed = true;
+
         //std::cerr << "ui::Manager: processing " << m_numUpdates << " updates in round " << round << std::endl;
         std::shared_ptr<covise::TokenBuffer> updates = m_updates;
         m_updates.reset(new covise::TokenBuffer);
         int numUpdates = m_numUpdates;
         m_numUpdates = 0;
 
+
         if (round > 2)
             break;
+
         processUpdates(updates, numUpdates, round<1);
         ++round;
     }
 
     //assert(m_numUpdates == 0);
+    return changed;
+}
+
+std::vector<const Element *> Manager::getAllElements() const
+{
+    std::vector<const Element *> result;
+    for (auto e: m_elements)
+    {
+        result.push_back(e.second);
+    }
+    return result;
 }
 
 }

@@ -52,7 +52,7 @@ float PointRelative::GetZOffset() const
     return m_ZOffset;
 }
 
-void PointRelative::ResolveAgainst(std::tr1::shared_ptr<Point> referencePoint)
+void PointRelative::ResolveAgainst(std::shared_ptr<Point> referencePoint)
 {
     float x = m_XOffset;
     float y = m_YOffset;

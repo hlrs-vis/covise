@@ -66,14 +66,14 @@ public:
 
     static void worldChangedCB(int reason);
 
-    bool init();
+    bool init() override;
 
-    void key(int type, int keySym, int mod);
+    void key(int type, int keySym, int mod) override;
 
-    void message(int type, int len, const void *buf);
-    void guiToRenderMsg(const char *msg);
+    void message(int toWhom, int type, int len, const void *buf) override;
+    void guiToRenderMsg(const char *msg) override;
 
-    virtual void addNode(osg::Node *, const RenderObject *);
+    virtual void addNode(osg::Node *, const RenderObject *) override;
 
     Player *getPlayer() const
     {
@@ -99,9 +99,9 @@ public:
     void activateTouchSensor(int id);
     ui::Element *getMenuButton(const std::string &buttonName);
 
-    bool update();
+    bool update() override;
     // this will be called in PreFrame
-    void preFrame();
+    void preFrame() override;
     bool isNewVRML;
 
 protected:
