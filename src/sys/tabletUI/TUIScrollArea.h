@@ -25,7 +25,7 @@ public:
     TUIScrollArea(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIScrollArea();
     virtual void setPos(int x, int y) override;
-    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
     virtual const char *getClassName() const override;

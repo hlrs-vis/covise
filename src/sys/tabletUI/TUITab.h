@@ -30,7 +30,7 @@ public:
     virtual const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
     virtual void deActivate(TUITab *activedTab) override;
-    virtual void setValue(int type, covise::TokenBuffer &tb) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &tb) override;
     virtual void setHidden(bool hide) override;
 
     virtual void activated();

@@ -125,7 +125,7 @@ void TUITab::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-void TUITab::setValue(int type, covise::TokenBuffer &tb)
+void TUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_BOOL)
     {

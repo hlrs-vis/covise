@@ -51,7 +51,7 @@ TUIElement::~TUIElement()
     TUIMainWindow::getInstance()->removeElement(this);
 }
 
-void TUIElement::setValue(int type, covise::TokenBuffer &tb)
+void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue" << type << endl;
     if (type == TABLET_POS)

@@ -341,7 +341,7 @@ void TUITextureTab::updateTextureButtons()
     }
 }
 
-void TUITextureTab::setValue(int type, covise::TokenBuffer &tb)
+void TUITextureTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     int texNumber;
     int width;
@@ -908,9 +908,10 @@ void TUITextureTab::handleClient(covise::Message *msg)
         {
         case TABLET_SET_VALUE:
         {
-            int type;
-            tb >> type;
+            int typeInt;
+            tb >> typeInt;
             tb >> ID;
+            TabletValue type = static_cast<TabletValue>(typeInt);
             this->setValue(type, tb);
         }
         break;

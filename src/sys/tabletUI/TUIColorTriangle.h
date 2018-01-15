@@ -29,7 +29,7 @@ public:
     TUIColorTriangle(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIColorTriangle();
 
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &);
 
     /// get the Element's classname
     virtual const char *getClassName() const;

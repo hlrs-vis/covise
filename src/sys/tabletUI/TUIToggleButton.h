@@ -25,7 +25,7 @@ class TUIToggleButton : public QObject, public TUIElement
 public:
     TUIToggleButton(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIToggleButton();
-    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
     virtual void setLabel(QString textl) override;
 
     /// get the Element's classname

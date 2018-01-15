@@ -84,7 +84,7 @@ public:
     {
         return height;
     };
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &);
     virtual void setLabel(QString textl);
     virtual QString getLabel() const
     {

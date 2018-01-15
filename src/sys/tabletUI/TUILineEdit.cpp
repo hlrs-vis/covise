@@ -65,7 +65,7 @@ const char *TUILineEdit::getClassName() const
     return "TUILineEdit";
 }
 
-void TUILineEdit::setValue(int type, covise::TokenBuffer &tb)
+void TUILineEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUILineEdit::setValue info: type = " << type << endl;
     if (type == TABLET_STRING)

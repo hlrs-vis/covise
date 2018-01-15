@@ -84,7 +84,7 @@ void TUIGroupBox::setLabel(QString textl)
     gb->setTitle(textl);
 }
 
-void TUIGroupBox::setValue(int type, covise::TokenBuffer &tb)
+void TUIGroupBox::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_SHAPE)
     {

@@ -90,7 +90,7 @@ void TUIColorButton::releaseColor(const QColor &col)
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIColorButton::setValue(int type, covise::TokenBuffer &tb)
+void TUIColorButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
 
     if (type == TABLET_RGBA)

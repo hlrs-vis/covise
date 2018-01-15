@@ -137,7 +137,7 @@ const char *TUIFloatSlider::getClassName() const
     return "TUIFloatSlider";
 }
 
-void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
+void TUIFloatSlider::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUIFloatSlider::setValue " << name.toStdString()<< ": type = " << type << endl;
     if (type == TABLET_MIN)

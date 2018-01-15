@@ -22,7 +22,7 @@ public:
     TUIFileBrowserButton(int id, int type, QWidget *w, int parent, QString name);
     ~TUIFileBrowserButton();
 
-    virtual void setValue(int type, covise::TokenBuffer &tb) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &tb) override;
     void sendVal(int type);
 
     /// get the Element's classname

@@ -69,7 +69,7 @@ const char *TUISplitter::getClassName() const
     return "TUISplitter";
 }
 
-void TUISplitter::setValue(int type, covise::TokenBuffer &tb)
+void TUISplitter::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     QSplitter *split = (QSplitter *)widget;
     if (type == TABLET_SHAPE)

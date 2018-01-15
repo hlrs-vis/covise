@@ -28,7 +28,7 @@ class TUIComboBox : public QObject, public TUIElement
 public:
     TUIComboBox(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIComboBox();
-    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
     void setLabel(QString textl) override;
 
     /// get the Element's classname

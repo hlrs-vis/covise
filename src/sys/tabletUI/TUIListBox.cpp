@@ -52,7 +52,7 @@ const char *TUIListBox::getClassName() const
     return "TUIListBox";
 }
 
-void TUIListBox::setValue(int type, covise::TokenBuffer &tb)
+void TUIListBox::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue " << type << endl;
     if (type == TABLET_ADD_ENTRY)

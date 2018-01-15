@@ -28,7 +28,7 @@ public:
     virtual ~TUIUITab();
 
     virtual const char *getClassName() const override;
-    virtual void setValue(int type, covise::TokenBuffer &tb) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &tb) override;
 
 public slots:
     void sendCommand(const QString &target, const QString &command);

@@ -215,7 +215,7 @@ void TUIColorTab::sendColor()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIColorTab::setValue(int type, covise::TokenBuffer &tb)
+void TUIColorTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
 
     if (type == TABLET_RGBA)

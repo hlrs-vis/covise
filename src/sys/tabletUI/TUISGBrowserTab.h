@@ -78,7 +78,7 @@ public:
     TUISGBrowserTab(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUISGBrowserTab();
     virtual const char *getClassName() const;
-    virtual void setValue(int type, covise::TokenBuffer &tb);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &tb);
 
     void changeTexture(int, std::string);
     covise::Connection *getClient()
