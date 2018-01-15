@@ -114,6 +114,7 @@ struct Isect
         Right = 256,
         CastShadow = 512,
         ReceiveShadow = 1024,
+		Update = 2048,
         OsgEarthSecondary = 0x80000000,
     };
 
