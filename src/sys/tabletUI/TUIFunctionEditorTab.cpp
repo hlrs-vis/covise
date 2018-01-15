@@ -137,6 +137,8 @@ void TUIFunctionEditorTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     case TABLET_TF_HISTOGRAM:
         histogramMessage(tb);
         break;
+    default:
+        break;
     }
 
     TUIElement::setValue(type, tb);

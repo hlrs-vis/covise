@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
+#include <cmath>
 
 #include <QLabel>
 #include <QSlider>
