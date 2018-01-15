@@ -73,6 +73,7 @@ void QtView::add(QtViewElement *ve, bool update)
     if (!ve)
         return;
     auto elem = ve->element;
+    //std::cerr << "adding " << elem->path() << std::endl;
     bool hasParent = elem && elem->parent();
     auto parent = qtViewParent(elem);
     auto container = qtContainerWidget(elem);
@@ -192,7 +193,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     auto parent = qtContainerWidget(menu);
     auto m = new QMenu(parent);
     m->setTearOffEnabled(true);
-    m->setSeparatorsCollapsible(false);
+    //m->setSeparatorsCollapsible(false);
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
     add(ve);
@@ -204,6 +205,7 @@ QtViewElement *QtView::elementFactoryImplementation(Group *group)
 {
     auto parent = qtViewParent(group);
     auto ve = new QtViewElement(group, nullptr);
+    add(ve);
     return ve;
 }
 
@@ -329,7 +331,9 @@ void QtView::updateContainer(const Element *elem)
     if (!parent)
         return;
     if (auto menu = dynamic_cast<Menu *>(parent))
+    {
         updateMenu(menu, menu);
+    }
     else
         updateContainer(parent);
 }
@@ -350,7 +354,11 @@ void QtView::updateMenu(const Menu *menu, const Group *subGroup)
     {
         auto child = subGroup->child(i);
         auto qt = qtViewElement(child);
-        if (auto sg = dynamic_cast<const Group *>(child))
+        if (auto sm = dynamic_cast<const Menu *>(child))
+        {
+            add(qt, true);
+        }
+        else if (auto sg = dynamic_cast<const Group *>(child))
         {
             if (qmenu)
             {
