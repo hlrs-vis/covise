@@ -112,16 +112,16 @@ public:
     //################//
 
 public:
-    explicit RSystemElementRoad(const QString &name, const odrID &id = odrID::invalidID(), const odrID &junction=odrID::invalidID());
+    explicit RSystemElementRoad(const QString &name, const QString &id, const QString &junction);
     virtual ~RSystemElementRoad();
 
     // road //
     //
-	const odrID &getJunction() const
+    QString getJunction() const
     {
         return junction_;
     }
-    void setJunction(const odrID &junctionId);
+    void setJunction(const QString &junctionId);
 
     double getLength() const
     {
@@ -300,7 +300,7 @@ public:
     }
     bool delObject(Object *object);
     bool moveObject(RoadSection *section, double newS);
-	Object *getObject(const odrID &id);
+	Object *getObject(const QString &id);
 
 	// road:objectreference //
 	//
@@ -309,7 +309,7 @@ public:
 	{
 		return objectReferences_;
 	}
-	ObjectReference *getObjectReference(const odrID &id);
+	ObjectReference *getObjectReference(const QString &id);
 	bool delObjectReference(ObjectReference *objectReference);
 	bool moveObjectReference(RoadSection *section, double newS);
 
@@ -333,7 +333,7 @@ public:
     bool delSignal(Signal *signal);
     bool moveSignal(RoadSection *section, double newS);
     int getValidLane(double s, double t);
-    Signal * getSignal(const odrID &id);
+    Signal * getSignal(const QString &id);
 
 	// road:signalreference //
 	//
@@ -342,7 +342,7 @@ public:
 	{
 		return signalReferences_;
 	}
-	SignalReference *getSignalReference(const odrID &id);
+	SignalReference *getSignalReference(const QString &id);
 	bool delSignalReference(SignalReference *signalReference);
 	bool moveSignalReference(RoadSection *section, double newS);
 
@@ -401,6 +401,9 @@ private:
     RSystemElementRoad &operator=(const RSystemElementRoad &); /* not allowed */
 
 
+    // IDs //
+    //
+    const QString getUniqueId(const QString &suggestion, RSystemElement::DRoadSystemElementType elementType);
 
     bool delTypeSection(double s);
     bool delTrackComponent(double s);
@@ -427,7 +430,7 @@ private:
 
     // road //
     //
-	odrID junction_; // ID of the junction (if road is a path), otherwise -1
+    QString junction_; // ID of the junction (if road is a path), otherwise -1
     double cachedLength_; // total length of the road (xy-plane)
 
     // link //
@@ -465,7 +468,7 @@ private:
     QMap<double, Crosswalk *> crosswalks_; // owned
 
     QMultiMap<double, Object *> objects_; // owned
-    QList<odrID> objectIds_;
+    QStringList objectIds_;
 	int objectIdCount_;
 	QMultiMap<double, ObjectReference *> objectReferences_;
 

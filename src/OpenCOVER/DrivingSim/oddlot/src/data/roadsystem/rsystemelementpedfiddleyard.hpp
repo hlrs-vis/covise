@@ -32,11 +32,11 @@ class PedFiddleyardSource : public Acceptor
 {
 
 public:
-    PedFiddleyardSource(const odrID &id, int lane, double velocity);
+    PedFiddleyardSource(const QString &id, int lane, double velocity);
 
     // <source> //
     // Mandatory attributes
-    odrID getId() const
+    QString getId() const
     {
         return id_;
     }
@@ -200,7 +200,7 @@ private:
     PedFiddleyardSource &operator=(const PedFiddleyardSource &); /* not allowed */
 
 private:
-	odrID id_;
+    QString id_;
     int lane_;
     double velocity_;
 
@@ -244,10 +244,10 @@ class PedFiddleyardSink : public Acceptor
 {
 
 public:
-    PedFiddleyardSink(const odrID &id, int lane);
+    PedFiddleyardSink(const QString &id, int lane);
 
     // Mandatory attributes
-	odrID getId() const
+    QString getId() const
     {
         return id_;
     }
@@ -329,7 +329,7 @@ private:
     PedFiddleyardSink &operator=(const PedFiddleyardSink &); /* not allowed */
 
 private:
-	odrID id_;
+    QString id_;
     int lane_;
 
     double sinkProb_;
@@ -351,23 +351,23 @@ private:
 class RSystemElementPedFiddleyard : public RSystemElement
 {
 public:
-    RSystemElementPedFiddleyard(const odrID &id, const QString &name, const odrID &roadId);
+    RSystemElementPedFiddleyard(const QString &id, const QString &name, const QString &roadId);
     virtual ~RSystemElementPedFiddleyard();
 
     // <source/sink> //
     //
     void addSource(PedFiddleyardSource *source);
     void addSink(PedFiddleyardSink *sink);
-    QMap<odrID, PedFiddleyardSource *> getSources() const
+    QMap<QString, PedFiddleyardSource *> getSources() const
     {
         return sources_;
     }
-    QMap<odrID, PedFiddleyardSink *> getSinks() const
+    QMap<QString, PedFiddleyardSink *> getSinks() const
     {
         return sinks_;
     }
 
-	odrID getRoadId() const
+    QString getRoadId() const
     {
         return roadId_;
     }
@@ -395,13 +395,13 @@ private:
 private:
     // <source> //
     //
-    QMap<odrID, PedFiddleyardSource *> sources_; // owned
+    QMap<QString, PedFiddleyardSource *> sources_; // owned
 
     // <sink> //
     //
-    QMap<odrID, PedFiddleyardSink *> sinks_; // owned
+    QMap<QString, PedFiddleyardSink *> sinks_; // owned
 
-	odrID roadId_; // owned
+    QString roadId_; // owned
 };
 
 #endif // RSYSTEMELEMENTPEDFIDDLEYARD_HPP

@@ -74,7 +74,7 @@ Bridge::parseBridgeTypeBack(int type)
 // Constructors       //
 //####################//
 
-Bridge::Bridge(const odrID &id, const QString &file, const QString &name, int type, double s, double length)
+Bridge::Bridge(const QString &id, const QString &file, const QString &name, int type, double s, double length)
     : RoadSection(s)
     , id_(id)
     , name_(name)

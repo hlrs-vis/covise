@@ -18,7 +18,6 @@
 
 #include "src/data/dataelement.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
-#include "src/data/roadsystem/odrID.hpp"
 
 // TODO: Observer Pattern
 
@@ -61,7 +60,7 @@ public:
     //################//
 
 public:
-    explicit JunctionConnection(const QString &id, const odrID &incomingRoad, const odrID &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator);
+    explicit JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator);
     virtual ~JunctionConnection()
     { /* does nothing */
     }
@@ -76,23 +75,23 @@ public:
 
     // JunctionConnection //
     //
-	const QString &getId() const
+    QString getId() const
     {
         return id_;
     }
     void setId(const QString &id);
 
-	const odrID & getIncomingRoad() const
+    QString getIncomingRoad() const
     {
         return incomingRoad_;
     }
-    void setIncomingRoad(const odrID &id);
+    void setIncomingRoad(const QString &id);
 
-    const odrID &getConnectingRoad() const
+    QString getConnectingRoad() const
     {
         return connectingRoad_;
     }
-    void setConnectingRoad(const odrID &id);
+    void setConnectingRoad(const QString &id);
 
 	ContactPointValue getContactPoint() const
     {
@@ -164,8 +163,8 @@ private:
     // JunctionConnection //
     //
     QString id_;
-    odrID incomingRoad_;
-    odrID connectingRoad_;
+    QString incomingRoad_;
+    QString connectingRoad_;
 	ContactPointValue contactPoint_;
     ConnectionUserData userData_;
 

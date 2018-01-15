@@ -22,7 +22,7 @@
 //                          //
 //##########################//
 
-RSystemElementFiddleyard::RSystemElementFiddleyard(const QString &name, const odrID &id, const QString &elementType, const QString &elementId, const QString &contactPoint)
+RSystemElementFiddleyard::RSystemElementFiddleyard(const QString &name, const QString &id, const QString &elementType, const QString &elementId, const QString &contactPoint)
     : RSystemElement(name, id, RSystemElement::DRE_Fiddleyard)
     , elementType_(elementType)
     , elementId_(elementId)

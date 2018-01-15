@@ -148,7 +148,7 @@ RemoveControllerCommand::undo()
 //#########################//
 // SetControllerPropertiesCommand //
 //#########################//
-SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementController *controller, const odrID &id, const QString &name, int sequence, const QString &script, double cycleTime, DataCommand *parent)
+SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementController *controller, const QString &id, const QString &name, int sequence, const QString &script, double cycleTime, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -178,7 +178,7 @@ SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementCon
     oldControllerUserData_ = controller_->getControllerUserData();
 }
 
-SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementController *controller, const odrID &id, const QString &name, int sequence, const RSystemElementController::ControllerUserData &controllerUserData, DataCommand *parent)
+SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementController *controller, const QString &id, const QString &name, int sequence, const RSystemElementController::ControllerUserData &controllerUserData, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)

@@ -755,8 +755,8 @@ private:
     RoadLink *successorLink_;
     RSystemElementJunction *junction_;
     QList<JunctionConnection *> junctionConnections_;
-    QMap<odrID, QMap<int,int>> laneLinksRoadStart_;
-    QMap<odrID, QMap<int,int>> laneLinksRoadEnd_;
+    QMap<QString, QMap<int,int>> laneLinksRoadStart_;
+    QMap<QString, QMap<int,int>> laneLinksRoadEnd_;
 };
 
 
@@ -832,10 +832,10 @@ private:
     RSystemElementJunction *junction_;
     JunctionConnection *junctionPredecessorConnection_;
     JunctionConnection *junctionSuccessorConnection_;
-    QMultiMap<odrID, LaneLinkPair> newSuccessorLaneLinks_;
-    QMultiMap<odrID, LaneLinkPair> oldSuccessorLaneLinks_;
-    QMultiMap<odrID, LaneLinkPair> newPredecessorLaneLinks_;
-    QMultiMap<odrID, LaneLinkPair> oldPredecessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> newSuccessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> oldSuccessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> newPredecessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> oldPredecessorLaneLinks_;
 };
 
 //#########################//

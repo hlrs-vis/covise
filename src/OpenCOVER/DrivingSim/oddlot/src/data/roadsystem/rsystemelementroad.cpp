@@ -53,7 +53,7 @@
 /** CONSTRUCTOR.
 *	The length will be defined by its child tracks.
 */
-RSystemElementRoad::RSystemElementRoad(const QString &name, const odrID &id, const odrID &junction)
+RSystemElementRoad::RSystemElementRoad(const QString &name, const QString &id, const QString &junction)
     : RSystemElement(name, id, RSystemElement::DRE_Road)
     , roadChanges_(0x0)
     , junction_(junction)
@@ -111,7 +111,7 @@ RSystemElementRoad::~RSystemElementRoad()
 *
 */
 void
-RSystemElementRoad::setJunction(const odrID &junctionId)
+RSystemElementRoad::setJunction(const QString &junctionId)
 {
     junction_ = junctionId;
     addRoadChanges(RSystemElementRoad::CRD_JunctionChange);
@@ -2009,7 +2009,17 @@ RSystemElementRoad::addObject(Object *object)
 
     // Id //
     //
-	object->setId(getRoadSystem()->getID(object->getName()));
+    QString name = object->getName();
+
+    QString id = getRoadSystem()->getUniqueId(object->getId(), name);
+    if (id != object->getId())
+    {
+        object->setId(id);
+        if (name != object->getName())
+        {
+            object->setName(name);
+        }
+    }
 
     // Insert and Notify //
     //
@@ -2065,7 +2075,7 @@ RSystemElementRoad::moveObject(RoadSection *section, double newS)
 }
 
 Object *
-RSystemElementRoad::getObject(const odrID &id)
+RSystemElementRoad::getObject(const QString &id)
 {
 	QMap<double, Object *>::ConstIterator iter = objects_.constBegin();
 
@@ -2108,7 +2118,11 @@ RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
 		name = object->getName();
 	}
 
-	objectReference->setId(getRoadSystem()->getID(name));
+	QString id = getRoadSystem()->getUniqueId(objectReference->getId(), name);
+	if (id != objectReference->getId())
+	{
+		objectReference->setId(id);
+	}
 
 	// Insert and Notify //
 	//
@@ -2166,7 +2180,7 @@ RSystemElementRoad::moveObjectReference(RoadSection *section, double newS)
 
 
 ObjectReference *
-RSystemElementRoad::getObjectReference(const odrID &id)
+RSystemElementRoad::getObjectReference(const QString &id)
 {
 	QMap<double, ObjectReference *>::ConstIterator iter = objectReferences_.constBegin();
 
@@ -2203,7 +2217,15 @@ RSystemElementRoad::addBridge(Bridge *bridge)
     //
     QString name = bridge->getName();
 
-    bridge->setId(getRoadSystem()->getID(name));
+    QString id = getRoadSystem()->getUniqueId(bridge->getId(), name);
+    if (id != bridge->getId())
+    {
+        bridge->setId(id);
+        if (name != bridge->getName())
+        {
+            bridge->setName(name);
+        }
+    }
 
     // Insert and Notify //
     //
@@ -2353,12 +2375,15 @@ RSystemElementRoad::addSignal(Signal *signal)
     //
     QString name = signal->getName();
 
-    odrID id = getRoadSystem()->getID(name);
+    QString id = getRoadSystem()->getUniqueId(signal->getId(), name);
+    if (id != signal->getId())
+    {
         signal->setId(id);
         if (name != signal->getName())
         {
             signal->setName(name);
         }
+    }
 
     // Insert and Notify //
     //
@@ -2432,7 +2457,7 @@ RSystemElementRoad::getValidLane(double s, double t)
 }
 
 Signal *
-RSystemElementRoad::getSignal(const odrID &id)
+RSystemElementRoad::getSignal(const QString &id)
 {
     QMap<double, Signal *>::ConstIterator iter = signals_.constBegin();
 
@@ -2475,8 +2500,11 @@ RSystemElementRoad::addSignalReference(SignalReference *signalReference)
 		name = signal->getName();
 	}
 
-	odrID id = getRoadSystem()->getID(name);
-	signalReference->setId(id);
+	QString id = getRoadSystem()->getUniqueId(signalReference->getId(), name);
+	if (id != signalReference->getId())
+	{
+		signalReference->setId(id);
+	}
 
 	// Insert and Notify //
 	//
@@ -2534,7 +2562,7 @@ RSystemElementRoad::moveSignalReference(RoadSection *section, double newS)
 
 
 SignalReference *
-RSystemElementRoad::getSignalReference(const odrID &id)
+RSystemElementRoad::getSignalReference(const QString &id)
 {
 	QMap<double, SignalReference *>::ConstIterator iter = signalReferences_.constBegin();
 
@@ -2613,6 +2641,70 @@ RSystemElementRoad::delSensor(double s)
     }
 }
 
+//##################//
+// IDs              //
+//##################//
+
+const QString
+RSystemElementRoad::getUniqueId(const QString &suggestion, RSystemElement::DRoadSystemElementType elementType)
+{
+    if (elementType == RSystemElement::DRE_Signal)
+    {
+        // Try suggestion //
+        //
+        if (!suggestion.isNull())
+        {
+            if (!signalIds_.contains(suggestion))
+            {
+                signalIds_.append(suggestion);
+                return suggestion;
+            }
+        }
+
+        // Create new one //
+        //
+
+        QString id = QString("signal%1").arg(signalIdCount_);
+        while (signalIds_.contains(id))
+        {
+            id = QString("signal%1").arg(signalIdCount_);
+            ++signalIdCount_;
+        }
+        ++signalIdCount_;
+        signalIds_.append(id);
+        return id;
+    }
+    else if (elementType == RSystemElement::DRE_Object)
+    {
+        // Try suggestion //
+        //
+        if (!suggestion.isNull())
+        {
+            if (!objectIds_.contains(suggestion))
+            {
+                objectIds_.append(suggestion);
+                return suggestion;
+            }
+        }
+
+        // Create new one //
+        //
+
+        QString id = QString("object%1").arg(objectIdCount_);
+        while (objectIds_.contains(id))
+        {
+            id = QString("object%1").arg(objectIdCount_);
+            ++objectIdCount_;
+        }
+        ++objectIdCount_;
+        objectIds_.append(id);
+        return id;
+    }
+    else
+    {
+        return suggestion;
+    }
+}
 
 //###################//
 // Prototype Pattern //

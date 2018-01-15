@@ -19,7 +19,6 @@
 // 800
 
 #include "datacommand.hpp"
-#include "src/data/roadsystem/odrID.hpp"
 
 class ElevationSection;
 class RSystemElementRoad;
@@ -428,8 +427,8 @@ private:
     QList<RSystemElementRoad *> endRoads_;
     QList<RSystemElementRoad *> startRoads_;
 
-    QMultiMap<odrID, ElevationSection *> newSections_;
-    QMultiMap<odrID, ElevationSection *> oldSections_;
+    QMultiMap<QString, ElevationSection *> newSections_;
+    QMultiMap<QString, ElevationSection *> oldSections_;
 
     QList<SetEndElevationCommand *> roadCommands_;
 };

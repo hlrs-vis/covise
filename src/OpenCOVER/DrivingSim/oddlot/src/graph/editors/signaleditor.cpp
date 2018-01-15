@@ -314,13 +314,13 @@ SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 		{
 			t += lastSignal->getSignalDistance();
 		}
-		newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, lastSignal->getSignalheightOffset(), signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), 0.0, 0.0, 0.0, lastSignal->getSignalUnit(), lastSignal->getSignalText(),lastSignal->getSignalWidth(), lastSignal->getSignalHeight(), true, 2, validFromLane, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, lastSignal->getSignalheightOffset(), signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), 0.0, 0.0, 0.0, lastSignal->getSignalUnit(), lastSignal->getSignalText(),lastSignal->getSignalWidth(), lastSignal->getSignalHeight(), true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
 	else
 	{
-		newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", "-1", "", "-1", 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", "-1", "", "-1", 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
@@ -383,7 +383,7 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 			0.0, 0.0, false };
 
 		Object::ObjectRepeatRecord repeatProps{ s, 0.0, lastObject->getObjectRepeatDistance(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
-		newObject = new Object(odrID::invalidID(), "object", s, objectProps, repeatProps, lastObject->getObjectFile());
+		newObject = new Object("object", "", s, objectProps, repeatProps, lastObject->getObjectFile());
 /*		newObject = new Object("object", "", lastObject->getObjectType(), s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, lastObject->getObjectLength(), 
 			lastObject->getObjectWidth(), lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
 					0.0, 0.0, false, s, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile()); */
@@ -394,7 +394,7 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 	{
 		Object::ObjectProperties objectProps{ t, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "", 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false };
 		Object::ObjectRepeatRecord repeatProps{ s, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-		Object *newObject = new Object(odrID::invalidID(), "object",  s, objectProps, repeatProps, "");
+		Object *newObject = new Object("object", "", s, objectProps, repeatProps, "");
 		AddObjectCommand *command = new AddObjectCommand(newObject, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}

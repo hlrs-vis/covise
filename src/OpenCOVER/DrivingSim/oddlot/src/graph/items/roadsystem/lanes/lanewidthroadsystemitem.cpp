@@ -81,7 +81,7 @@ void LaneWidthRoadSystemItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     if (settings)
     {
         LaneWidth *laneWidth = settings->getLane()->getWidthEntry(0);
-        settings->getSectionHandle()->updatePos(this->getRoadItem(odrID::invalidID()), event->scenePos(), laneWidth->getSSectionStart(), laneWidth->getSSectionEnd());
+        settings->getSectionHandle()->updatePos(this->getRoadItem(""), event->scenePos(), laneWidth->getSSectionStart(), laneWidth->getSSectionEnd());
     }
 }
 

@@ -52,7 +52,6 @@ ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
 SET(ODDLOT_SOURCES 
      src/main.cpp 
 	 src/mainwindow.cpp
-	 src/data/roadsystem/odrID.cpp
 	 src/data/roadsystem/track/trackcomponent.cpp
 	 src/data/roadsystem/track/trackelement.cpp
 	 src/data/roadsystem/track/trackcomposite.cpp
@@ -389,7 +388,6 @@ SET(ODDLOT_SOURCES
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
 	 src/globalDefines.hpp
-	 src/data/roadsystem/odrID.hpp
 	 src/data/roadsystem/track/trackcomponent.hpp
 	 src/data/roadsystem/track/trackelement.hpp
 	 src/data/roadsystem/track/trackcomposite.hpp

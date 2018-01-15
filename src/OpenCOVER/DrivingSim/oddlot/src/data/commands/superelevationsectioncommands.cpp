@@ -752,7 +752,7 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     {
         // TODO
         pointCount = 2;
-        qDebug() << road->getID().speakingName() << " Segment too short: duplicate points per meter";
+        qDebug() << road->getID() << " Segment too short: duplicate points per meter";
     }
     double segmentLength = (sEnd - sStart) / (pointCount - 1);
 

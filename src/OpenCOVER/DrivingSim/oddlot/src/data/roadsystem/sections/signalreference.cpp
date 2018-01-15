@@ -24,7 +24,7 @@
 // Constructors       //
 //####################//
 
-SignalReference::SignalReference(const odrID &id, Signal *signal, const odrID &refId, double s, double t, Signal::OrientationType orientation, QList<Signal::Validity> validity)
+SignalReference::SignalReference(const QString &id, Signal *signal, const QString &refId, double s, double t, Signal::OrientationType orientation, QList<Signal::Validity> validity)
     : RoadSection(s)
 	, id_(id)
 	, refId_(refId)

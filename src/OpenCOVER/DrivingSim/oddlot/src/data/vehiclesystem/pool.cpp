@@ -20,7 +20,7 @@
 
 Pool::Pool(
     const QString &name,
-    const odrID &id,
+    const QString &id,
     double velocity,
     double velocityDeviance,
     double numerator)

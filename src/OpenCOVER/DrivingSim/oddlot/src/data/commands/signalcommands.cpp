@@ -150,7 +150,7 @@ RemoveSignalCommand::undo()
 //#########################//
 // SetSignalPropertiesCommand //
 //#########################//
-SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const odrID &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, const QString &type, const QString &typeSubclass, const QString &subtype, double value, double hOffset, double pitch, double roll, const QString &unit, const QString &text, double width, double height, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
+SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, const QString &type, const QString &typeSubclass, const QString &subtype, double value, double hOffset, double pitch, double roll, const QString &unit, const QString &text, double width, double height, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -226,7 +226,7 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const odr
     oldUserData_.typeSubclass = signal_->getTypeSubclass();
 }
 
-SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const odrID &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent)
+SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -458,7 +458,7 @@ RemoveObjectCommand::undo()
 //#########################//
 
 
-SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const odrID &id, const QString &name, const Object::ObjectProperties &objectProps, const Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent)
+SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const Object::ObjectProperties &objectProps, const Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -681,7 +681,7 @@ RemoveBridgeCommand::undo()
 //#########################//
 // SetBridgePropertiesCommand //
 //#########################//
-SetBridgePropertiesCommand::SetBridgePropertiesCommand(Bridge *bridge, const odrID &id, const QString &file, const QString &name, int type, double length, DataCommand *parent)
+SetBridgePropertiesCommand::SetBridgePropertiesCommand(Bridge *bridge, const QString &id, const QString &file, const QString &name, int type, double length, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -764,7 +764,7 @@ SetBridgePropertiesCommand::undo()
 //#########################//
 // SetTunnelPropertiesCommand //
 //#########################//
-SetTunnelPropertiesCommand::SetTunnelPropertiesCommand(Tunnel *tunnel, const odrID &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent)
+SetTunnelPropertiesCommand::SetTunnelPropertiesCommand(Tunnel *tunnel, const QString &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent)
 	: SetBridgePropertiesCommand(tunnel, id, file, name, type, length, parent)
     , tunnel_(tunnel)
 	, newLighting_(lighting)

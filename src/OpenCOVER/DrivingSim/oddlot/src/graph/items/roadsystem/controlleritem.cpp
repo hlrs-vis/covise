@@ -82,7 +82,7 @@ ControllerItem::init()
 
     // Text //
     //
-    textHandle_ = new TextHandle(controller_->getID().speakingName(), this);
+    textHandle_ = new TextHandle(controller_->getID(), this);
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkOrange()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
@@ -145,10 +145,14 @@ ControllerItem::removeController()
 void
 ControllerItem::addToCurrentTile()
 {
-	odrID newId = controller_->getID();
-	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
-    SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(controller_->getRoadSystem(), controller_, newId, NULL);
-    getProjectGraph()->executeCommand(command);
+    QStringList parts = controller_->getID().split("_");
+    if (parts.at(0) != getProjectData()->getTileSystem()->getCurrentTile()->getID())
+    {
+        QString name = controller_->getName();
+        QString newId = controller_->getRoadSystem()->getUniqueId("", name);
+        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(controller_->getRoadSystem(), controller_, newId, NULL);
+        getProjectGraph()->executeCommand(command);
+    }
 }
 
 //################//

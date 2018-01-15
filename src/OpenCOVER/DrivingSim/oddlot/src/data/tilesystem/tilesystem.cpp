@@ -18,7 +18,6 @@
 // Data //
 //
 #include "src/data/projectdata.hpp"
-#include "src/data/roadsystem/roadsystem.hpp"
 #include "tile.hpp"
 
 /*! \brief CONSTRUCTOR.
@@ -44,7 +43,7 @@ TileSystem::~TileSystem()
 //##################//
 
 Tile *
-TileSystem::getTile(const odrID &id) const
+TileSystem::getTile(const QString &id) const
 {
     return tiles_.value(id, NULL);
 }
@@ -56,8 +55,16 @@ TileSystem::addTile(Tile *tile)
     {
         // Id //
         //
-        odrID id = getProjectData()->getRoadSystem()->getID(tile->getName());
-        tile->setID(id);
+        QString name = tile->getName();
+        QString id = getUniqueId(tile->getID(), name);
+        if (id != tile->getID())
+        {
+            tile->setID(id);
+            if (name != tile->getName())
+            {
+                tile->setName(name);
+            }
+        }
     }
 
     // Insert //
@@ -79,7 +86,7 @@ TileSystem::delTile(Tile *tile)
         return false;
     }
 
-    if (tiles_.remove(tile->getID()))
+    if (tiles_.remove(tile->getID()) && tileIds_.removeOne(tile->getID()))
     {
         addTileSystemChanges(TileSystem::CTS_TileChange);
 
@@ -115,6 +122,39 @@ TileSystem::setCurrentTile(Tile *tile)
 		currentTile_ = tile;
 		tile->setElementSelected(true);
 	}
+}
+
+//##################//
+// IDs              //
+//##################//
+
+const QString
+TileSystem::getUniqueId(const QString &suggestion, QString &name)
+{
+    // Try suggestion //
+    //
+    if (!suggestion.isNull() && !suggestion.isEmpty())
+    {
+        if (!tileIds_.contains(suggestion))
+        {
+            tileIds_.append(suggestion);
+            return suggestion;
+        }
+    }
+
+    // Create new one //
+    //
+
+    int index = 0;
+    while ((index < tileIds_.size()) && tileIds_.contains(QString("%1").arg(index)))
+    {
+        index++;
+    }
+
+    QString id = QString("%1").arg(index);
+    name = "Tile" + id;
+    tileIds_.append(id);
+    return id;
 }
 
 //##################//

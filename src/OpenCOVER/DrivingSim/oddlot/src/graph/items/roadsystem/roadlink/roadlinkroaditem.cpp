@@ -145,7 +145,7 @@ RoadLinkRoadItem::updateColor()
         pen.setColor(ODD::instance()->colors()->darkOrange());
     }
 
-    if (getRoad()->getJunction().isValid())
+    if (getRoad()->getJunction() != "-1")
     {
         pen.setColor(ODD::instance()->colors()->darkPurple());
     }

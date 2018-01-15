@@ -58,7 +58,7 @@ Tunnel::parseTunnelTypeBack(int type)
 // Constructors       //
 //####################//
 
-Tunnel::Tunnel(const odrID &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight)
+Tunnel::Tunnel(const QString &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight)
     : Bridge(id, file, name, type, s, length)
 	, lighting_(lighting)
 	, daylight_(daylight)

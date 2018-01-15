@@ -2850,8 +2850,8 @@ SplitRoadCommand::splitBefore(double s)
 {
     //	qDebug(QString("split at %1").arg(s).toUtf8());
 
-    newRoadA_ = new RSystemElementRoad(road_->getName(), odrID::invalidID(), road_->getJunction());
-    newRoadB_ = new RSystemElementRoad(road_->getName(), odrID::invalidID(), road_->getJunction());
+    newRoadA_ = new RSystemElementRoad(road_->getName(), "", road_->getJunction());
+    newRoadB_ = new RSystemElementRoad(road_->getName(), "", road_->getJunction());
 
     // planView //
     QMap<double, TrackComponent *> trackSectionsA;
@@ -3200,7 +3200,7 @@ void SplitRoadCommand::updateLinks(RSystemElementRoad *currentA, RSystemElementR
             RSystemElementJunction *j = roadSystem_->getJunction(rl->getElementId());
             if (j)
             {
-                auto connections = j->getConnections();
+                QMultiMap<QString, JunctionConnection *> connections = j->getConnections();
                 foreach (JunctionConnection *connection, connections)
                 {
                     if (connection->getIncomingRoad() == currentA->getID())
@@ -3254,7 +3254,7 @@ void SplitRoadCommand::updateLinks(RSystemElementRoad *currentA, RSystemElementR
             RSystemElementJunction *j = roadSystem_->getJunction(rl->getElementId());
             if (j)
             {
-                auto connections = j->getConnections();
+                QMultiMap<QString, JunctionConnection *> connections = j->getConnections();
                 foreach (JunctionConnection *connection, connections)
                 {
                     if (connection->getIncomingRoad() == currentB->getID())
@@ -3676,12 +3676,12 @@ SetRoadLinkRoadsCommand::SetRoadLinkRoadsCommand(const QList<RSystemElementRoad 
 
     for (int i = 0; i < roads_.size(); i++)
     {
-        if (roads_.at(i)->getJunction().getID() != -1)
+        if (roads_.at(i)->getJunction() != "-1" && roads_.at(i)->getJunction() != "")
         {
 
             for (int k = i + 1; k < roads_.size(); k++)
             {
-                if (roads_.at(k)->getJunction().getID() == -1) // Otherwise we have two junctions
+                if (roads_.at(k)->getJunction() == "-1" || roads_.at(k)->getJunction() == "") // Otherwise we have two junctions
                 {
                     distanceRoads(roads_.at(i), roads_.at(k), threshold, &distRoadPairs);
                 }
@@ -3692,7 +3692,7 @@ SetRoadLinkRoadsCommand::SetRoadLinkRoadsCommand(const QList<RSystemElementRoad 
             distanceRoad(roads_.at(i), threshold, &distRoadPairs);
             for (int k = i + 1; k < roads_.size(); k++)
             {
-                if (roads_.at(k)->getJunction().getID() != -1)
+                if (roads_.at(k)->getJunction() != "-1" && roads_.at(k)->getJunction() != "")
                 {
                     distanceRoads(roads_.at(k), roads_.at(i), threshold, &distRoadPairs);
                 }
@@ -3709,7 +3709,7 @@ SetRoadLinkRoadsCommand::SetRoadLinkRoadsCommand(const QList<RSystemElementRoad 
     while (it != distRoadPairs.end())
     {
         RoadPair roadPair = it.value(); // make Connections
-        if (roadPair.road1->getJunction().getID() == -1|| roadPair.road2->getJunction().getID() == -1) // at least one of the roads has to be outside
+        if (roadPair.road1->getJunction() == "-1" || roadPair.road1->getJunction() == "" || roadPair.road2->getJunction() == "-1" || roadPair.road2->getJunction() == "") // at least one of the roads has to be outside
         {
             findConnections(roadPair.road1, roadPair.road2, roadPair.positionIndex);
         }
@@ -3727,7 +3727,7 @@ SetRoadLinkRoadsCommand::SetRoadLinkRoadsCommand(const QList<RSystemElementRoad 
 			while (it != distRoadPairs.end()) 
 			{
 				RoadPair roadPair = it.value();
-				if (roadPair.road1->getJunction().isValid())
+				if (roadPair.road1->getJunction() != "-1")
 				{
 					if ((roadPair.road1 == roadPairMin.road1) && 
 						(((roadPair.positionIndex & FirstRoadStart) == (roadPairMin.positionIndex & FirstRoadStart)) || 
@@ -3804,7 +3804,7 @@ SetRoadLinkRoadsCommand::SetRoadLinkRoadsCommand(const QList<RoadPair *> &roadPa
     {
         RoadPair *roadPair = roadPairs.at(i); // make Connections
 
-        if (roadPair->road1->getJunction().getID() == -1|| roadPair->road2->getJunction().getID() == -1) // at least one of the roads has to be outside
+        if (roadPair->road1->getJunction() == "-1" || roadPair->road1->getJunction() == "" || roadPair->road2->getJunction() == "-1" || roadPair->road2->getJunction() == "") // at least one of the roads has to be outside
         {
             findConnections(roadPair->road1, roadPair->road2, roadPair->positionIndex);
         }
@@ -4079,12 +4079,12 @@ void
 SetRoadLinkRoadsCommand::findConnections(RSystemElementRoad *road1, RSystemElementRoad *road2, short int index)
 {
 
-    if (road1->getJunction().getID() != -1)
+    if (road1->getJunction() != "-1" && road1->getJunction() != "")
     {
         RSystemElementJunction *junction = road1->getRoadSystem()->getJunction(road1->getJunction());
         findPathContactPoint(road1, road2, index, junction);
     }
-    else if (road2->getJunction().getID() != -1)
+    else if (road2->getJunction() != "-1" && road2->getJunction() != "")
     {
         RSystemElementJunction *junction = road2->getRoadSystem()->getJunction(road2->getJunction());
         findPathContactPoint(road1, road2, index, junction);
@@ -4371,7 +4371,7 @@ RemoveRoadLinkCommand::RemoveRoadLinkCommand(RSystemElementRoad *road, DataComma
         successor_ = road_->getSuccessor();
         roadSystem_ = road_->getRoadSystem();
 
-        if (road_->getJunction().getID() != -1)
+        if (road_->getJunction() != "-1" && road_->getJunction() != "")
         {
             junction_ = roadSystem_->getJunction(road_->getJunction());
             if (junction_)
@@ -4579,13 +4579,13 @@ RemoveRoadLinkCommand::undo()
 
         foreach (JunctionConnection *connection, junctionConnections_)
         {
-            odrID junctionID = roadSystem_->getRoad(connection->getConnectingRoad())->getJunction();
+            QString junctionID = roadSystem_->getRoad(connection->getConnectingRoad())->getJunction();
 
             RSystemElementJunction * junction = roadSystem_->getJunction(junctionID);
             if (junction)
             {
                 junction->addConnection(connection);
-                odrID connectingRoadID = connection->getConnectingRoad();
+                QString connectingRoadID = connection->getConnectingRoad();
                 RSystemElementRoad * connectingRoad = roadSystem_->getRoad(connectingRoadID);
                 if (connectingRoad)
                 {
@@ -5008,8 +5008,9 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
 
     RoadLink * roadPredecessor = road_->getPredecessor();
     RoadLink * roadSuccessor = road_->getSuccessor();        // Successor
+    QString roadId = road_->getID();
 
-    if (road_->getJunction().isValid())
+    if (road_->getJunction() != "-1")
     {
         junction_ = roadSystem_->getJunction(road->getJunction());
 
@@ -5035,9 +5036,9 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
             if ((lane->getPredecessor() != Lane::NOLANE) || (laneWidth < NUMERICAL_ZERO3))
             {
                 LaneLinkPair laneLinkPairOld = { id, lane->getPredecessor()};
-                oldPredecessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
                 LaneLinkPair laneLinkPairNew = { id, Lane::NOLANE};
-                newPredecessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
             }
         }
     }
@@ -5052,8 +5053,8 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
 
             double nextStart;
             bool start = true;
-            QMultiMap<odrID, LaneLinkPair> oldLaneLinks;
-            QMultiMap<odrID, LaneLinkPair> newLaneLinks;
+            QMultiMap<QString, LaneLinkPair> oldLaneLinks;
+            QMultiMap<QString, LaneLinkPair> newLaneLinks;
             if (vecStart.length() > vecEnd.length())
             {
                 start = false;
@@ -5079,9 +5080,9 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
                     if (nextLaneId != Lane::NOLANE)
                     {
                         LaneLinkPair laneLinkPairOld = { id, nextLaneId};
-                        oldPredecessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                        oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
                         LaneLinkPair laneLinkPairNew = {nextLaneId, Lane::NOLANE};
-                        newPredecessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                        newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
                     }
                 }
                 else // find the connecting lane 
@@ -5110,18 +5111,18 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
                         if (laneId == 0)
                         {
                             LaneLinkPair laneLinkPairOld = { id, nextLaneId};
-                            oldPredecessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                            oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
                             LaneLinkPair laneLinkPairNew = {id, Lane::NOLANE};
-                            newPredecessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                            newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
                             continue;
                         }
 
                         LaneLinkPair laneLinkPairOld = { id, nextLaneId};
-                        oldPredecessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                        oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
                         LaneLinkPair laneLinkPairNew = {id, laneId};
-                        newPredecessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                        newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
 
-                        odrID predRoadId = predRoad->getID();
+                        QString predRoadId = predRoad->getID();
                         LaneLinkPair laneLinkNextOld = { laneId, nextLaneSection->getLane(laneId)->getPredecessor()};
                         oldLaneLinks.insert(predRoadId, laneLinkNextOld);
                         if (!junctionPredecessorConnection_)
@@ -5153,9 +5154,9 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
             if ((lane->getSuccessor() != Lane::NOLANE) || (laneWidth < NUMERICAL_ZERO3))
             {
                 LaneLinkPair laneLinkPairOld = { id, lane->getSuccessor()};
-                oldSuccessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
                 LaneLinkPair laneLinkPairNew = { id, Lane::NOLANE};
-                newSuccessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
             }
         }
     }
@@ -5170,8 +5171,8 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
 
             bool start = true;
             double nextStart;
-            QMultiMap<odrID, LaneLinkPair> oldLaneLinks;
-            QMultiMap<odrID, LaneLinkPair> newLaneLinks;
+            QMultiMap<QString, LaneLinkPair> oldLaneLinks;
+            QMultiMap<QString, LaneLinkPair> newLaneLinks;
             if (vecStart.length() > vecEnd.length())
             {
                 start = false;
@@ -5197,9 +5198,9 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
                     if (nextLaneId != Lane::NOLANE)
                     {
                         LaneLinkPair laneLinkPairOld = { id, nextLaneId};
-                        oldLaneLinks.insert(road->getID(), laneLinkPairOld);
+                        oldLaneLinks.insert(roadId, laneLinkPairOld);
                         LaneLinkPair laneLinkPairNew = {nextLaneId, Lane::NOLANE};
-                        newLaneLinks.insert(road->getID(), laneLinkPairNew);
+                        newLaneLinks.insert(roadId, laneLinkPairNew);
                     }
                 }
                 else // find the connecting lane 
@@ -5228,18 +5229,18 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
                         if (laneId == 0)
                         {
                             LaneLinkPair laneLinkPairOld = { id, nextLaneId};
-                            oldSuccessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                            oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
                             LaneLinkPair laneLinkPairNew = {id, Lane::NOLANE};
-                            newSuccessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                            newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
                             continue;
                         }
 
                         LaneLinkPair laneLinkPairOld = { id, nextLaneId};
-                        oldSuccessorLaneLinks_.insert(road->getID(), laneLinkPairOld);
+                        oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
                         LaneLinkPair laneLinkPairNew = {id, laneId};
-                        newSuccessorLaneLinks_.insert(road->getID(), laneLinkPairNew);
+                        newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
 
-                        odrID succRoadId = succRoad->getID();
+                        QString succRoadId = succRoad->getID();
 
                         LaneLinkPair laneLinkNextOld = { laneId, nextLaneSection->getLane(laneId)->getPredecessor()};
                         oldLaneLinks.insert(succRoadId, laneLinkNextOld);
@@ -5306,7 +5307,7 @@ CreateNextRoadLaneLinksCommand::~CreateNextRoadLaneLinksCommand()
 void
 CreateNextRoadLaneLinksCommand::redo()
 {
-    auto it = newSuccessorLaneLinks_.constBegin();
+    QMultiMap<QString, LaneLinkPair>::const_iterator it = newSuccessorLaneLinks_.constBegin();
     while (it != newSuccessorLaneLinks_.constEnd())
     {
         RSystemElementRoad * road = roadSystem_->getRoad(it.key());
@@ -5386,7 +5387,7 @@ CreateNextRoadLaneLinksCommand::redo()
 void
 CreateNextRoadLaneLinksCommand::undo()
 {
-    auto it = oldSuccessorLaneLinks_.constBegin();
+    QMultiMap<QString, LaneLinkPair>::const_iterator it = oldSuccessorLaneLinks_.constBegin();
     while (it != oldSuccessorLaneLinks_.constEnd())
     {
         RSystemElementRoad * road = roadSystem_->getRoad(it.key());
@@ -5424,7 +5425,7 @@ CreateNextRoadLaneLinksCommand::undo()
     it = oldPredecessorLaneLinks_.constBegin();
     while (it != oldPredecessorLaneLinks_.constEnd())
     {
-        odrID predRoadId = it.key();
+        QString predRoadId = it.key();
         RSystemElementRoad * road = roadSystem_->getRoad(it.key());
         LaneSection * laneSection = road->getLaneSection(0.0);
         LaneLinkPair laneLinkPair = it.value();

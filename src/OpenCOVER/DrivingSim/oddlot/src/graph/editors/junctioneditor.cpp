@@ -401,7 +401,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 		if(isCurrentTool(ODD::TJE_CREATE_JUNCTION))
 		{
 
-			RSystemElementRoad * currentRoadPrototype_ = new RSystemElementRoad("prototype", odrID::invalidID(), odrID::invalidID());
+			RSystemElementRoad * currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
 
 			// Superpose user prototypes //
 			//
@@ -927,7 +927,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             }
         }
 
-        spiralPrototype = new RSystemElementRoad("prototype");
+        spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
         spiralPrototype->addTrackComponent(spiral);
 
         // Transform the spiralprototype to endPoint //
@@ -986,7 +986,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             }
         }
 
-        spiralPrototype = new RSystemElementRoad("prototype");
+        spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
         spiralPrototype->addTrackComponent(spiral);
 
         // Transform the spiralprototype to endPoint //
@@ -1146,7 +1146,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                     {
                         // Road //
                         //
-                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed");
+                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed", "road", "-1");
 
 						// Track //
 						//

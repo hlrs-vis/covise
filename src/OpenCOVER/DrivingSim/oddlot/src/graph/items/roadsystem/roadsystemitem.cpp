@@ -85,7 +85,7 @@ RoadSystemItem::init()
 void
 RoadSystemItem::appendRoadItem(RoadItem *roadItem)
 {
-    uint32_t id = roadItem->getRoad()->getID().getID();
+    QString id = roadItem->getRoad()->getID();
     if (!roadItems_.contains(id))
     {
         roadItems_.insert(id, roadItem);
@@ -95,7 +95,7 @@ RoadSystemItem::appendRoadItem(RoadItem *roadItem)
 bool
 RoadSystemItem::removeRoadItem(RoadItem *roadItem)
 {
-    return roadItems_.remove(roadItem->getRoad()->getID().getID());
+    return roadItems_.remove(roadItem->getRoad()->getID());
 }
 
 //##################//

@@ -19,7 +19,7 @@
 //
 #include "junctionconnection.hpp"
 
-RSystemElementJunction::RSystemElementJunction(const QString &name, const odrID &id)
+RSystemElementJunction::RSystemElementJunction(const QString &name, const QString &id)
     : RSystemElement(name, id, RSystemElement::DRE_Junction)
     , junctionChanges_(0x0)
 {
@@ -34,14 +34,14 @@ RSystemElementJunction::~RSystemElementJunction()
 }
 
 QList<JunctionConnection *>
-RSystemElementJunction::getConnections(const odrID &incomingRoad) const
+RSystemElementJunction::getConnections(const QString &incomingRoad) const
 {
 
     return connections_.values(incomingRoad);
 }
 
 QList<JunctionConnection *>
-RSystemElementJunction::getConnectingRoadConnections(const odrID &connectingRoad) const
+RSystemElementJunction::getConnectingRoadConnections(const QString &connectingRoad) const
 {
     QList<JunctionConnection *> junctionConnections;
 
@@ -55,7 +55,7 @@ RSystemElementJunction::getConnectingRoadConnections(const odrID &connectingRoad
     return junctionConnections;
 }
 
-JunctionConnection *RSystemElementJunction::getConnection(const odrID &incomingRoad, const odrID &connectingRoad) const
+JunctionConnection *RSystemElementJunction::getConnection(const QString &incomingRoad, const QString &connectingRoad) const
 {
     foreach (JunctionConnection *conn, connections_)
     {
@@ -82,7 +82,7 @@ RSystemElementJunction::addConnection(JunctionConnection *connection)
 
     int connectionIdCount = 0;
     QString id = connection->getId();
-    auto it = connections_.constBegin();
+    QMap<QString, JunctionConnection *>::const_iterator it = connections_.constBegin();
     while (it != connections_.constEnd())
     {
         if (it.value()->getId() == id)
@@ -119,30 +119,31 @@ RSystemElementJunction::delConnections()
 }
 
 void
-RSystemElementJunction::checkConnectionIds(const QMultiMap<odrID, odrID> &ids)
+RSystemElementJunction::checkConnectionIds(const QMultiMap<QString, RoadSystem::IdType> &ids)
 {
 	RoadSystem *roadSystem = getRoadSystem();
 
     QList<JunctionConnection *> newConnections;
-    auto connectionIt = connections_.constBegin();
+    QMultiMap<QString, JunctionConnection *>::const_iterator connectionIt = connections_.constBegin();
 
     while (connectionIt != connections_.constEnd())
     {
         JunctionConnection *connection = connectionIt.value();
         JunctionConnection *newConnection = connection->getClone();
 
-		odrID id = connection->getIncomingRoad();
-		auto it = ids.find(connection->getIncomingRoad());
-		if (it!=ids.end())
+		QString id = connection->getIncomingRoad();
+		QString newId = roadSystem->getNewId(ids, id, "road");
+		if (id != newId)
 		{
-			newConnection->setIncomingRoad(it.value());
+			newConnection->setIncomingRoad(newId);
 		}
 
-		auto it = ids.find(connection->getConnectingRoad());
-		if (it != ids.end())
-		{
-			newConnection->setConnectingRoad(it.value());
-		}
+        id = connection->getConnectingRoad();
+		newId = roadSystem->getNewId(ids, id, "road");
+		if (id != newId)
+        {
+            newConnection->setConnectingRoad(newId);
+        }
 
         newConnections.append(newConnection);
 

@@ -15,7 +15,6 @@
 
 #include "bridgesettings.hpp"
 #include "ui_bridgesettings.h"
-#include "src/data/roadsystem/odrID.hpp"
 
 #include "src/mainwindow.hpp"
 
@@ -84,7 +83,7 @@ BridgeSettings::updateProperties()
     if (bridge_)
     {
         ui->nameBox->setText(bridge_->getName());
-        ui->idLabel->setText(bridge_->getId().speakingName());
+        ui->idLabel->setText(bridge_->getId());
         ui->sSpinBox->setValue(bridge_->getSStart());
         ui->typeComboBox->setCurrentIndex(bridge_->getType());
 
@@ -111,8 +110,20 @@ BridgeSettings::onEditingFinished()
     if (valueChanged_)
     {
         QString filename = ui->nameBox->text();
-        odrID newId = bridge_->getId();
-		newId.setName(filename);
+        QString newId = bridge_->getId();
+        if (filename != bridge_->getName())
+        {
+            QStringList parts = bridge_->getId().split("_");
+
+            if (parts.size() > 2)
+            {
+                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+            }
+            else
+            {
+                newId = bridge_->getParentRoad()->getRoadSystem()->getUniqueId(bridge_->getId(), filename);
+            }
+        }
     
 
         SetBridgePropertiesCommand *command = new SetBridgePropertiesCommand(bridge_, newId, filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value());

@@ -49,7 +49,7 @@ TileTreeItem::updateName()
 {
     QString text = tile_->getName();
     text.append(" (");
-    text.append(tile_->getID().speakingName());
+    text.append(tile_->getID());
     text.append(")");
 
     setText(0, text);

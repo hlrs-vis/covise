@@ -50,7 +50,7 @@ public:
     //################//
 
 public:
-    explicit Tunnel(const odrID &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight);
+    explicit Tunnel(const QString &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight);
     virtual ~Tunnel()
     { /* does nothing */
     }

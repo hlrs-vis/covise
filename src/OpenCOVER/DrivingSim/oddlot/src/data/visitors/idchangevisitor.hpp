@@ -17,7 +17,6 @@
 #define IDCHANGEVISITOR_HPP
 
 #include "src/data/acceptor.hpp"
-#include "src/data/roadsystem/odrID.hpp"
 
 #include <QMap>
 
@@ -29,7 +28,7 @@ class IdChangeVisitor : public Visitor
     //################//
 
 public:
-    explicit IdChangeVisitor(const QMap<odrID, odrID> &roadIds, const QMap<odrID, odrID> &controllerIds, const QMap<odrID, odrID> &junctionIds, const QMap<odrID, odrID> &fiddleyardIds);
+    explicit IdChangeVisitor(const QMap<QString, QString> &roadIds, const QMap<QString, QString> &controllerIds, const QMap<QString, QString> &junctionIds, const QMap<QString, QString> &fiddleyardIds);
     virtual ~IdChangeVisitor()
     { /* does nothing */
     }
@@ -54,9 +53,9 @@ private:
     //################//
 
 private:
-    QMap<odrID, odrID> roadIds_;
-    QMap<odrID, odrID> controllerIds_;
-    QMap<odrID, odrID> junctionIds_;
-    QMap<odrID, odrID> fiddleyardIds_;
+    QMap<QString, QString> roadIds_;
+    QMap<QString, QString> controllerIds_;
+    QMap<QString, QString> junctionIds_;
+    QMap<QString, QString> fiddleyardIds_;
 };
 #endif // IDCHANGEVISITOR_HPP

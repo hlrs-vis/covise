@@ -16,7 +16,6 @@
 #include "junctionconnection.hpp"
 
 #include "rsystemelementjunction.hpp"
-#include "src/data/projectdata.hpp"
 
 #include "qmap.h"
 
@@ -56,7 +55,7 @@ JunctionConnection::parseContactPointBack(ContactPointValue value)
 	}
 }
 
-JunctionConnection::JunctionConnection(const QString &id, const odrID &incomingRoad, const odrID &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator)
+JunctionConnection::JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator)
     : DataElement()
     , junctionConnectionChanges_(0x0)
     , parentJunction_(NULL)
@@ -84,14 +83,14 @@ JunctionConnection::setId(const QString &id)
 }
 
 void
-JunctionConnection::setIncomingRoad(const odrID &id)
+JunctionConnection::setIncomingRoad(const QString &id)
 {
     incomingRoad_ = id;
     addJunctionConnectionChanges(CJC_IncomingRoadChanged);
 }
 
 void
-JunctionConnection::setConnectingRoad(const odrID &id)
+JunctionConnection::setConnectingRoad(const QString &id)
 {
     connectingRoad_ = id;
     addJunctionConnectionChanges(CJC_ConnectingRoadChanged);
@@ -176,7 +175,7 @@ JunctionConnection::getClone()
 {
     // New JunctionConnection //
     //
-    JunctionConnection *clonedJunctionConnection = new JunctionConnection("clonedJunction", incomingRoad_, connectingRoad_, contactPoint_, userData_.numerator);
+    JunctionConnection *clonedJunctionConnection = new JunctionConnection("clone", incomingRoad_, connectingRoad_, contactPoint_, userData_.numerator);
 
     // LaneLinks //
     //

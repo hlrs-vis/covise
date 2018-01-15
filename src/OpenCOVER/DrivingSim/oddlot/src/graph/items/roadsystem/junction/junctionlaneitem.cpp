@@ -202,7 +202,7 @@ JunctionLaneItem::updateColor()
         qDebug("WARNING 1010181018! Unknown Lane Type!");
     }
 
-    if (grandparentRoad_->getJunction().getID() != -1)
+    if (grandparentRoad_->getJunction() != "-1")
     {
         setPen(QPen(ODD::instance()->colors()->darkPurple()));
     }

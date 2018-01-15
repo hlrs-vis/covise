@@ -147,7 +147,7 @@ SignalSettings::updateProperties()
     if (signal_)
     {
         ui->nameBox->setText(signal_->getName());
-        ui->idLabel->setText(signal_->getId().speakingName());
+        ui->idLabel->setText(signal_->getId());
         ui->sSpinBox->setValue(signal_->getSStart());
         ui->tSpinBox->setValue(signal_->getT());
         ui->zOffsetSpinBox->setValue(signal_->getZOffset());
@@ -333,13 +333,22 @@ SignalSettings::onEditingFinished()
 void
 SignalSettings::onNameBoxEditingFinished()
 {
-    QString name = ui->nameBox->text();
+    QString filename = ui->nameBox->text();
 
-    if (name != signal_->getName())
+    if (filename != signal_->getName())
     {
-		odrID newId = signal_->getId();
-		newId.setName(name);
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, newId, name, signal_->getProperties(), signal_->getValidity(), signal_->getSignalUserData(), NULL);
+        QString newId;
+        QStringList parts = signal_->getId().split("_");
+
+        if (parts.size() > 2)
+        {
+            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+        }
+        else
+        {
+            newId = signal_->getParentRoad()->getRoadSystem()->getUniqueId(signal_->getId(), filename);
+        }
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, newId, filename, signal_->getProperties(), signal_->getValidity(), signal_->getSignalUserData(), NULL);
         getProjectSettings()->executeCommand(command);
     }
 }

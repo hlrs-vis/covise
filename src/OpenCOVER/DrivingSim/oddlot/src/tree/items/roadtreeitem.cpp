@@ -181,7 +181,7 @@ RoadTreeItem::updateName()
 {
     QString text = road_->getName();
     text.append(" (");
-    text.append(road_->getID().speakingName());
+    text.append(road_->getID());
     text.append(")");
 
     setText(0, text);

@@ -19,7 +19,6 @@
 // 1000
 
 #include "datacommand.hpp"
-#include "src/data/roadsystem/odrID.hpp"
 
 #include <QMap>
 
@@ -58,7 +57,7 @@ private:
 
     // JunctionConnections //
     //
-    QMultiMap<odrID, JunctionConnection *> connections_;
+    QMultiMap<QString, JunctionConnection *> connections_;
 
     // Predecessors, Successors //
     //

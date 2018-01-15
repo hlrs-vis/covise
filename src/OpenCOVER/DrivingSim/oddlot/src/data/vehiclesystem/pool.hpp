@@ -17,7 +17,6 @@
 #define POOL_HPP
 
 #include "src/data/dataelement.hpp"
-#include "src/data/roadsystem/odrID.hpp"
 
 class CarPool;
 class PoolVehicle;
@@ -46,7 +45,7 @@ public:
 public:
     explicit Pool(
         const QString &name,
-        const odrID &id,
+        const QString &id,
         double velocity,
         double velocityDeviance,
         double numerator);
@@ -58,7 +57,7 @@ public:
     {
         return name_;
     }
-    odrID getID() const
+    QString getID() const
     {
         return id_;
     }
@@ -127,7 +126,7 @@ private:
     // Pool //
     //
     QString name_;
-	odrID id_;
+    QString id_;
     double velocity_;
     double velocityDeviance_;
     double numerator_;

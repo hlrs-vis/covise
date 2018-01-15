@@ -91,7 +91,7 @@ ControllerSettings::updateProperties()
     if (controller_)
     {
         ui->nameBox->setText(controller_->getName());
-        ui->idLabel->setText(controller_->getID().speakingName());
+        ui->idLabel->setText(controller_->getID());
         ui->sequenceSpinBox->setValue(controller_->getSequence());
         ui->scriptLineEdit->setText(controller_->getScript());
         ui->cycleTimeSpinBox->setValue(controller_->getCycleTime());
@@ -153,8 +153,20 @@ ControllerSettings::onEditingFinished()
     if (valueChanged_)
     {
         QString filename = ui->nameBox->text();
-        odrID newId = controller_->getID();
-		newId.setName(filename);
+        QString newId = controller_->getID();
+        if (filename != controller_->getName())
+        {
+            QStringList parts = controller_->getID().split("_");
+
+            if (parts.size() > 2)
+            {
+                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+            }
+            else
+            {
+                newId = controller_->getProjectData()->getRoadSystem()->getUniqueId(controller_->getID(), filename);
+            }
+        }
     
 
         SetControllerPropertiesCommand *command = new SetControllerPropertiesCommand(controller_, newId, filename, ui->sequenceSpinBox->value(), ui->scriptLineEdit->text(), ui->cycleTimeSpinBox->value());

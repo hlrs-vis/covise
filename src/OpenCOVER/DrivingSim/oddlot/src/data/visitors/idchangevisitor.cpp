@@ -32,7 +32,7 @@
 * so all is fine so far!
 *
 */
-IdChangeVisitor::IdChangeVisitor(const QMap<odrID, odrID> &roadIds, const QMap<odrID, odrID> &controllerIds, const QMap<odrID, odrID> &junctionIds, const QMap<odrID, odrID> &fiddleyardIds)
+IdChangeVisitor::IdChangeVisitor(const QMap<QString, QString> &roadIds, const QMap<QString, QString> &controllerIds, const QMap<QString, QString> &junctionIds, const QMap<QString, QString> &fiddleyardIds)
     : roadIds_(roadIds)
     , controllerIds_(controllerIds)
     , junctionIds_(junctionIds)
@@ -125,7 +125,7 @@ IdChangeVisitor::visit(RSystemElementRoad *road)
 
     // Junction (if road is a path) //
     //
-    if (road->getJunction().isValid())
+    if (road->getJunction() != "-1" && road->getJunction() != "")
     {
         if (junctionIds_.contains(road->getJunction()))
         {

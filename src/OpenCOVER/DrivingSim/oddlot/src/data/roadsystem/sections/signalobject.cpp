@@ -65,7 +65,7 @@ Signal::parseOrientationTypeBack(Signal::OrientationType orientation)
 // Constructors       //
 //####################//
 
-Signal::Signal(const odrID &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, const QString &type, const QString typeSubclass, const QString &subtype, double value, double hOffset, double pitch, double roll, QString unit, QString text, double width, double height, bool pole, int size, int validFromLane, int validToLane, double probability, double resetTime)
+Signal::Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, const QString &type, const QString typeSubclass, const QString &subtype, double value, double hOffset, double pitch, double roll, QString unit, QString text, double width, double height, bool pole, int size, int validFromLane, int validToLane, double probability, double resetTime)
     : RoadSection(s)
     , id_(id)
     , name_(name)
@@ -96,7 +96,7 @@ Signal::Signal(const odrID &id, const QString &name, double s, double t, bool dy
     signalUserData_.size = size;
 }
 
-Signal::Signal(const odrID &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData)
+Signal::Signal(const QString &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData)
     : RoadSection(s)
     , id_(id)
     , name_(name)

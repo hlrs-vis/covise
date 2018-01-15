@@ -17,7 +17,6 @@
 #define BRIDGEOBJECT_HPP
 
 #include "roadsection.hpp"
-#include "src/data/roadsystem/odrID.hpp"
 
 class Bridge : public RoadSection
 {
@@ -55,18 +54,18 @@ public:
     //################//
 
 public:
-    explicit Bridge(const odrID &id, const QString &file, const QString &name, int type, double s, double length);
+    explicit Bridge(const QString &id, const QString &file, const QString &name, int type, double s, double length);
     virtual ~Bridge()
     { /* does nothing */
     }
 
     // Bridge //
     //
-    const odrID &getId() const
+    QString getId() const
     {
         return id_;
     }
-    void setId(const odrID &id)
+    void setId(const QString &id)
     {
         id_ = id;
     }
@@ -139,7 +138,7 @@ private:
     // Bridge //
     //
     // Mandatory
-    odrID id_;
+    QString id_;
     QString name_;
     int type_;
 

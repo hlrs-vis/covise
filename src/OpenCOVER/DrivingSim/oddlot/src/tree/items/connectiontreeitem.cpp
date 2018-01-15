@@ -57,9 +57,9 @@ void
 ConnectionTreeItem::updateName()
 {
     QString text = connection_->getId();
-    text.append(QString(" (%1").arg(connection_->getIncomingRoad().speakingName()));
-    text.append(QString(" > %1").arg(connection_->getConnectingRoad().speakingName()));
-    text.append(JunctionConnection::parseContactPointBack(connection_->getContactPoint()));
+    text.append(QString(" (%1").arg(connection_->getIncomingRoad()));
+    text.append(QString(" > %1").arg(connection_->getConnectingRoad()));
+    text.append(QString(" %1)").arg(connection_->getContactPoint()));
     setText(0, text);
 }
 
