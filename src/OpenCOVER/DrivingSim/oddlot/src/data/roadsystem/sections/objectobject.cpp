@@ -22,7 +22,7 @@
 // Constructors       //
 //####################//
 
-Object::Object(const QString &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile)
+Object::Object(const odrID &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile)
 	: RoadSection(s)
 	, id_(id)
 	, name_(name)

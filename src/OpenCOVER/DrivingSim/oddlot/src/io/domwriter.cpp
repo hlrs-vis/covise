@@ -176,8 +176,8 @@ DomWriter::visit(RSystemElementRoad *road)
     currentRoad_ = doc_->createElement("road");
     currentRoad_.setAttribute("name", road->getName());
     currentRoad_.setAttribute("length", road->getLength());
-    currentRoad_.setAttribute("id", road->getID());
-    currentRoad_.setAttribute("junction", road->getJunction());
+    currentRoad_.setAttribute("id", (int)road->getID().getID());
+    currentRoad_.setAttribute("junction", (int)road->getJunction().getID());
     root_.appendChild(currentRoad_);
 
     // <road><link><predecessor/successor> //
@@ -193,7 +193,7 @@ DomWriter::visit(RSystemElementRoad *road)
         {
             QDomElement predElement = doc_->createElement("predecessor");
             predElement.setAttribute("elementType", pred->getElementType());
-            predElement.setAttribute("elementId", pred->getElementId());
+            predElement.setAttribute("elementId", pred->getElementId().getID());
             predElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(pred->getContactPoint()));
             linkElement.appendChild(predElement);
         }
@@ -202,7 +202,7 @@ DomWriter::visit(RSystemElementRoad *road)
         {
             QDomElement succElement = doc_->createElement("successor");
             succElement.setAttribute("elementType", succ->getElementType());
-            succElement.setAttribute("elementId", succ->getElementId());
+            succElement.setAttribute("elementId", succ->getElementId().getID());
             succElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(succ->getContactPoint()));
             linkElement.appendChild(succElement);
         }
@@ -323,7 +323,7 @@ DomWriter::visit(Object *object)
             }
 
             QString name = object->getName();
-            QString id = roadSystem->getUniqueId(object->getId(), name);
+            odrID id = roadSystem->getID(name);
 
             Signal * signal = new Signal(id, "", s, object->getT(), false, (Signal::OrientationType)orientation, object->getzOffset(), "Germany", type, subclass, subtype, 0.0, object->getHeading(), object->getPitch(), object->getRoll(), "km/h", "", object->getWidth(), object->getHeight(), object->getPole(), 2, fromLane, toLane, 0, 0);
             
@@ -395,7 +395,7 @@ DomWriter::visit(Object *object)
         }
 
         // Set mandatory attributes
-        objectElement.setAttribute("id", object->getId());
+        objectElement.setAttribute("id", object->getId().getID());
         //Texture and model file are ancillary data
         //
         QDomElement userData;
@@ -546,7 +546,7 @@ DomWriter::visit(ObjectReference *objectReference)
 
 	objectReferenceElement.setAttribute("s", objectReference->getSStart());
 	objectReferenceElement.setAttribute("t", objectReference->getReferenceT());
-	objectReferenceElement.setAttribute("id", objectReference->getReferenceId());
+	objectReferenceElement.setAttribute("id", objectReference->getReferenceId().getID());
 	objectReferenceElement.setAttribute("zOffset", objectReference->getReferenceZOffset());
 	objectReferenceElement.setAttribute("validLength", objectReference->getReferenceValidLength());
 	objectReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(objectReference->getReferenceOrientation()));
@@ -578,7 +578,7 @@ DomWriter::visit(Bridge *bridge)
     bridgeElement = doc_->createElement("bridge");
 
     // Set mandatory attributes
-    bridgeElement.setAttribute("id", bridge->getId());
+    bridgeElement.setAttribute("id", bridge->getId().getID());
 
     QString bridgeName;
 
@@ -641,7 +641,7 @@ DomWriter::visit(Tunnel *tunnel)
         tunnelElement = doc_->createElement("tunnel");
 
         // Set mandatory attributes
-        tunnelElement.setAttribute("id", tunnel->getId());
+        tunnelElement.setAttribute("id", tunnel->getId().getID());
 
         tunnelElement.setAttribute("name", tunnel->getName());
 
@@ -769,7 +769,7 @@ DomWriter::visit(Signal *signal)
     }
 
     // Set mandatory attributes
-    signalElement.setAttribute("id", signal->getId());
+    signalElement.setAttribute("id", signal->getId().getID());
     QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 
     QString type = signal->getType();
@@ -996,7 +996,7 @@ DomWriter::visit(SignalReference *signalReference)
 
 	signalReferenceElement.setAttribute("s", signalReference->getSStart());
 	signalReferenceElement.setAttribute("t", signalReference->getReferenceT());
-	signalReferenceElement.setAttribute("id", signalReference->getReferenceId());
+	signalReferenceElement.setAttribute("id", signalReference->getReferenceId().getID());
 	signalReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(signalReference->getReferenceOrientation()));
 
 	foreach (Signal::Validity validity, signalReference->getValidityList())
@@ -1475,8 +1475,7 @@ DomWriter::visit(RSystemElementController *controller)
     double cycleTime = controller->getCycleTime();
     if (script == "")
     {
-        QStringList parts = controller->getID().split("_");
-        script = QString("%1_%2.qs").arg("lights").arg(parts[1]);
+        script = QString("%1_%2.qs").arg("lights").arg(controller->getID().getID());
         cycleTime = 40.0;
     }
     userData.setAttribute("code", "script");
@@ -1506,7 +1505,7 @@ DomWriter::visit(RSystemElementController *controller)
     }
 
     // Set mandatory attributes
-    controllerElement.setAttribute("id", controller->getID());
+    controllerElement.setAttribute("id", controller->getID().getID());
     controllerElement.setAttribute("name", controller->getName());
     controllerElement.setAttribute("sequence", controller->getSequence());
 
@@ -1606,7 +1605,7 @@ DomWriter::visit(RSystemElementJunction *junction)
     //
     currentJunctionElement_ = doc_->createElement("junction");
     currentJunctionElement_.setAttribute("name", junction->getName());
-    currentJunctionElement_.setAttribute("id", junction->getID());
+    currentJunctionElement_.setAttribute("id", junction->getID().getID());
     root_.appendChild(currentJunctionElement_);
 
 
@@ -1618,8 +1617,8 @@ DomWriter::visit(JunctionConnection *connection)
 {
     QDomElement element = doc_->createElement("connection");
     element.setAttribute("id", connection->getId());
-    element.setAttribute("incomingRoad", connection->getIncomingRoad());
-    element.setAttribute("connectingRoad", connection->getConnectingRoad());
+    element.setAttribute("incomingRoad", connection->getIncomingRoad().getID());
+    element.setAttribute("connectingRoad", connection->getConnectingRoad().getID());
     element.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(connection->getContactPoint()));
 
     QDomElement userData = doc_->createElement("userData");
@@ -1653,7 +1652,7 @@ DomWriter::visit(RSystemElementJunctionGroup *junctionGroup)
 	//
 	QDomElement currentJunctionGroupElement = doc_->createElement("junctionGroup");
 	currentJunctionGroupElement.setAttribute("name", junctionGroup->getName());
-	currentJunctionGroupElement.setAttribute("id", junctionGroup->getID());
+	currentJunctionGroupElement.setAttribute("id", junctionGroup->getID().getID());
 	currentJunctionGroupElement.setAttribute("type", junctionGroup->getType());
 
 	foreach(QString reference, junctionGroup->getJunctionReferences())
@@ -1676,7 +1675,7 @@ DomWriter::visit(RSystemElementFiddleyard *fiddleyard)
     // <fiddleyard> //
     //
     currentFiddleyardElement_ = doc_->createElement("fiddleyard");
-    currentFiddleyardElement_.setAttribute("id", fiddleyard->getID());
+    currentFiddleyardElement_.setAttribute("id", fiddleyard->getID().getID());
     currentFiddleyardElement_.setAttribute("name", fiddleyard->getName());
     root_.appendChild(currentFiddleyardElement_);
 
@@ -1684,7 +1683,7 @@ DomWriter::visit(RSystemElementFiddleyard *fiddleyard)
     //
     QDomElement linkElement = doc_->createElement("link");
     linkElement.setAttribute("elementType", fiddleyard->getElementType());
-    linkElement.setAttribute("elementId", fiddleyard->getElementId());
+    linkElement.setAttribute("elementId", fiddleyard->getElementId().getID());
     linkElement.setAttribute("contactPoint", fiddleyard->getContactPoint());
     currentFiddleyardElement_.appendChild(linkElement);
 
@@ -1703,7 +1702,7 @@ DomWriter::visit(FiddleyardSource *source)
     // <fiddleyard><source> //
     //
     QDomElement sourceElement = doc_->createElement("source");
-    sourceElement.setAttribute("id", source->getId());
+    sourceElement.setAttribute("id", source->getId().getID());
     sourceElement.setAttribute("lane", source->getLane());
     sourceElement.setAttribute("startTime", source->getStartTime());
     sourceElement.setAttribute("repeatTime", source->getRepeatTime());
@@ -1746,9 +1745,9 @@ DomWriter::visit(RSystemElementPedFiddleyard *fiddleyard)
     // <pedFiddleyard> //
     //
     currentPedFiddleyardElement_ = doc_->createElement("pedFiddleyard");
-    currentPedFiddleyardElement_.setAttribute("id", fiddleyard->getID());
+    currentPedFiddleyardElement_.setAttribute("id", fiddleyard->getID().getID());
     currentPedFiddleyardElement_.setAttribute("name", fiddleyard->getName());
-    currentPedFiddleyardElement_.setAttribute("roadId", fiddleyard->getRoadId());
+    currentPedFiddleyardElement_.setAttribute("roadId", fiddleyard->getRoadId().getID());
     root_.appendChild(currentPedFiddleyardElement_);
 
     // <pedFiddleyard><source> //
@@ -1768,7 +1767,7 @@ DomWriter::visit(PedFiddleyardSource *source)
     QDomElement sourceElement = doc_->createElement("source");
 
     // Set mandatory attributes
-    sourceElement.setAttribute("id", source->getId());
+    sourceElement.setAttribute("id", source->getId().getID());
     sourceElement.setAttribute("lane", source->getLane());
     sourceElement.setAttribute("velocity", source->getVelocity());
 
@@ -1817,7 +1816,7 @@ DomWriter::visit(PedFiddleyardSink *sink)
     QDomElement sinkElement = doc_->createElement("sink");
 
     // Set mandatory attributes
-    sinkElement.setAttribute("id", sink->getId());
+    sinkElement.setAttribute("id", sink->getId().getID());
     sinkElement.setAttribute("lane", sink->getLane());
 
     // Set optional attributes
@@ -1858,7 +1857,7 @@ DomWriter::visit(Pool *pool)
     QDomElement poolElement = doc_->createElement("pool");
     currentCarPoolElement_.appendChild(poolElement);
 
-    poolElement.setAttribute("id", pool->getID());
+    poolElement.setAttribute("id", pool->getID().getID());
     poolElement.setAttribute("name", pool->getName());
     poolElement.setAttribute("velocity", pool->getVelocity());
     poolElement.setAttribute("velocityDeviance", pool->getVelocityDeviance());

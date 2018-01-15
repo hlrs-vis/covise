@@ -179,7 +179,7 @@ private:
 
     DomParser::Mode mode_;
 
-    QMultiMap<QString, RoadSystem::IdType> elementIDs_;
+    QMap<odrID, odrID> elementIDs_;
     QMap<int, int> tileCounts_;
 	bool disableWarnings;
 };

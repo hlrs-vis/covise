@@ -47,7 +47,7 @@ ControllerTreeItem::init()
 void
 ControllerTreeItem::updateName()
 {
-    QString text = controller_->getID();
+    QString text = controller_->getID().speakingName();
     if (!controller_->getName().isEmpty())
     {
         text.append(" (");
