@@ -1523,6 +1523,7 @@ public slots:
     virtual void setMin(float minV);
     virtual void setMax(float maxV);
     virtual void setRange(float minV, float maxV);
+    virtual void setLogarithmic(bool val);
 
     virtual float getValue() const
     {
@@ -1544,6 +1545,10 @@ public slots:
     {
         return this->maxValue;
     }
+    virtual bool getLogarithmic() const
+    {
+        return this->logarithmic;
+    }
 signals:
     void tabletEvent();
     void tabletPressEvent();
@@ -1555,6 +1560,7 @@ protected:
     float maxValue;
     int ticks;
     bool orientation;
+    bool logarithmic = false;
 };
 /**
  * a slider.

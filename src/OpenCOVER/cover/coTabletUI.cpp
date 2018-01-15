@@ -4213,12 +4213,19 @@ void coTUIFloatSlider::setOrientation(bool o)
     setVal(orientation);
 }
 
+void coTUIFloatSlider::setLogarithmic(bool val)
+{
+    logarithmic = val;
+    setVal(TABLET_SLIDER_SCALE, logarithmic ? TABLET_SLIDER_LOGARITHMIC : TABLET_SLIDER_LINEAR);
+}
+
 void coTUIFloatSlider::resend(bool create)
 {
     coTUIElement::resend(create);
     setVal(TABLET_MIN, minValue);
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_NUM_TICKS, ticks);
+    setVal(TABLET_SLIDER_SCALE, logarithmic ? TABLET_SLIDER_LOGARITHMIC : TABLET_SLIDER_LINEAR);
     setVal(actValue);
     setVal(orientation);
 }

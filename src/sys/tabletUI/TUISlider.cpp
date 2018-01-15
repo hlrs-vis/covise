@@ -98,7 +98,7 @@ void TUISlider::sliderChanged(int ival)
         string->setText(tmp);
         covise::TokenBuffer tb;
         tb << ID;
-        tb << 10;
+        tb << TABLET_MOVED;
         tb << value;
         TUIMainWindow::getInstance()->send(tb);
     }

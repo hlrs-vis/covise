@@ -283,6 +283,21 @@ void TabletView::updateIntegral(const Slider *slider)
 
 void TabletView::updateScale(const Slider *slider)
 {
+    auto ve = tuiElement(slider);
+    if (!ve)
+        return;
+    if (!slider->integral())
+    {
+        if (auto ts = dynamic_cast<coTUIFloatSlider *>(ve->m_elem))
+        {
+            ts->setLogarithmic(slider->scale() == Slider::Logarithmic);
+        }
+        else
+        {
+            std::cerr << "TabletView::updateScale: " << slider->path() << " not a coTUIFloatSlider" << std::endl;
+
+        }
+    }
     updateBounds(slider);
     updateValue(slider);
 }
@@ -292,9 +307,9 @@ void TabletView::updateValue(const Slider *slider)
     auto ve = tuiElement(slider);
     if (!ve)
         return;
-    if (auto vp = dynamic_cast<coTUIFloatSlider *>(ve->m_elem))
+    if (auto vs = dynamic_cast<coTUIFloatSlider *>(ve->m_elem))
     {
-        vp->setValue(slider->value());
+        vs->setValue(slider->value());
     }
     else if (auto vs = dynamic_cast<coTUISlider *>(ve->m_elem))
     {

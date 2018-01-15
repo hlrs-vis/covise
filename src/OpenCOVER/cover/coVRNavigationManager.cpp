@@ -401,7 +401,7 @@ void coVRNavigationManager::initMenu()
     scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
     scaleSlider_->setText("Scale factor");
     scaleSlider_->setScale(ui::Slider::Logarithmic);
-    scaleSlider_->setBounds(1e-3, 1e6);
+    scaleSlider_->setBounds(1e-5, 1e5);
     scaleSlider_->setValue(cover->getScale());
     scaleSlider_->setCallback([this](double val, bool released){
         startMouseNav();

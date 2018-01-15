@@ -107,7 +107,7 @@ coVRTui::coVRTui()
     Wireframe = new coTUIToggleButton("Wireframe", topContainer->getID());
     ViewAll = new coTUIButton("View all", topContainer->getID());
     Menu = new coTUIToggleButton("Hide menu", topContainer->getID());
-    scaleLabel = new coTUILabel("Scale factor (log10)", topContainer->getID());
+    scaleLabel = new coTUILabel("Scale factor", topContainer->getID());
     ScaleSlider = new coTUIFloatSlider("ScaleFactor", topContainer->getID());
     Menu->setState(false);
     debugLabel = new coTUILabel("Debug level", topContainer->getID());
@@ -187,9 +187,10 @@ coVRTui::coVRTui()
     SaveFileFB->setMode(coTUIFileBrowserButton::OPEN);
 #endif
 
-    ScaleSlider->setMin(-5.);
-    ScaleSlider->setMax(+5.);
-    ScaleSlider->setValue(0.);
+    ScaleSlider->setMin(1e-5);
+    ScaleSlider->setMax(1e+5);
+    ScaleSlider->setValue(1.);
+    ScaleSlider->setLogarithmic(true);
 
     NavSpeed->setMin(0.03);
     NavSpeed->setMax(30);
@@ -840,7 +841,7 @@ void coVRTui::update()
     if (ScaleValue != cover->getScale())
     {
         ScaleValue = cover->getScale();
-        ScaleSlider->setValue(log(ScaleValue) / log(10.));
+        ScaleSlider->setValue(ScaleValue);
     }
 
     if ((driveNav->down || panNav->down) && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM)))
@@ -1002,7 +1003,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == ScaleSlider)
     {
-        ScaleValue = powf(10.f, ScaleSlider->getValue());
+        ScaleValue = ScaleSlider->getValue();
         cover->setScale(ScaleValue);
     }
     else if (tUIItem == driveNav)

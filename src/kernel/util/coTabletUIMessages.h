@@ -62,7 +62,8 @@ enum TabletEvent  {
     TABLET_PRESSED = 1,
     TABLET_RELEASED,
     TABLET_ACTIVATED,
-    TABLET_DISACTIVATED
+    TABLET_DISACTIVATED,
+    TABLET_MOVED,
 };
 
 ////////////////////////////////////////////////////////////
@@ -113,6 +114,7 @@ enum TabletValue {
     TABLET_SET_HIDDEN,
     TABLET_REMOVE_ALL,
     TABLET_SET_ENABLED,
+    TABLET_SLIDER_SCALE,
 
     ////////////////////////////////////////////////////////////
     // VALUES from SGBrowser (100)
@@ -625,6 +627,11 @@ enum TabletSgNode {
     SG_POSITION_ADDITUDE_TRANSFORM,
     SG_CLIP_NODE,
     SG_SIM_NODE,
+};
+
+enum TabletSliderScale {
+    TABLET_SLIDER_LINEAR = 1,
+    TABLET_SLIDER_LOGARITHMIC,
 };
 
 #endif

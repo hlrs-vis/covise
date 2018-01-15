@@ -42,11 +42,15 @@ public slots:
     void released();
 
 protected:
+    void showSliderValue(float min, float max, float val);
+
     QLineEdit *string = nullptr;
     QSlider *slider = nullptr;
     QLabel *label = nullptr;
     float min;
     float max;
     float value;
+    int ival = 0;
+    bool logScale = false;
 };
 #endif
