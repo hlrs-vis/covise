@@ -348,6 +348,40 @@ void coVRNavigationManager::initMenu()
     });
     m_resetView->setIcon("zoom-original");
 
+    scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
+    scaleSlider_->setText("Scale factor");
+    scaleSlider_->setScale(ui::Slider::Logarithmic);
+    scaleSlider_->setBounds(1e-5, 1e5);
+    scaleSlider_->setValue(cover->getScale());
+    scaleSlider_->setCallback([this](double val, bool released){
+        startMouseNav();
+        doScale(val);
+        stopMouseNav();
+    });
+
+    scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
+    scaleUpAction_->setText("Scale up");
+    scaleUpAction_->setVisible(false);
+    scaleUpAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() * 1.1f);
+        stopMouseNav();
+    });
+    scaleUpAction_->setShortcut("=");
+    scaleUpAction_->addShortcut("+");
+    scaleUpAction_->addShortcut("Shift++");
+    scaleUpAction_->addShortcut("Button:WheelDown");
+    scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
+    scaleDownAction_->setText("Scale down");
+    scaleDownAction_->setVisible(false);
+    scaleDownAction_->setCallback([this](){
+        startMouseNav();
+        doScale(cover->getScale() / 1.1f);
+        stopMouseNav();
+    });
+    scaleDownAction_->setShortcut("-");
+    scaleDownAction_->addShortcut("Button:WheelUp");
+
     navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
     //navGroup_->enableDeselect(true);
     navGroup_->setDefaultValue(NavNone);
@@ -397,40 +431,6 @@ void coVRNavigationManager::initMenu()
     driveSpeedSlider_->setBounds(0., 30.);
     driveSpeedSlider_->setValue(driveSpeed);;
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
-
-    scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
-    scaleSlider_->setText("Scale factor");
-    scaleSlider_->setScale(ui::Slider::Logarithmic);
-    scaleSlider_->setBounds(1e-5, 1e5);
-    scaleSlider_->setValue(cover->getScale());
-    scaleSlider_->setCallback([this](double val, bool released){
-        startMouseNav();
-        doScale(val);
-        stopMouseNav();
-    });
-
-    scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
-    scaleUpAction_->setText("Scale up");
-    scaleUpAction_->setVisible(false);
-    scaleUpAction_->setCallback([this](){
-        startMouseNav();
-        doScale(cover->getScale() * 1.1f);
-        stopMouseNav();
-    });
-    scaleUpAction_->setShortcut("=");
-    scaleUpAction_->addShortcut("+");
-    scaleUpAction_->addShortcut("Shift++");
-    scaleUpAction_->addShortcut("Button:WheelDown");
-    scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
-    scaleDownAction_->setText("Scale down");
-    scaleDownAction_->setVisible(false);
-    scaleDownAction_->setCallback([this](){
-        startMouseNav();
-        doScale(cover->getScale() / 1.1f);
-        stopMouseNav();
-    });
-    scaleDownAction_->setShortcut("-");
-    scaleDownAction_->addShortcut("Button:WheelUp");
 
 #if 0
     ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
