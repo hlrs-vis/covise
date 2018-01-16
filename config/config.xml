@@ -64,10 +64,12 @@
               <Navigation>
                   <!--MoveWorld parent="" /-->
                   <ViewAll parent="" />
-                  <Scale parent="" />
-                  <SelectInteract parent="" />
                   <Snap parent="" />
-                  <!--Drive parent="" /-->
+                  <Modes>
+                      <Scale parent="" />
+                      <SelectInteract parent="" />
+                      <!--Drive parent="" /-->
+                  </Modes>
               </Navigation>
           </NavigationManager>
           <Manager>
