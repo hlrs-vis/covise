@@ -140,9 +140,7 @@ int main(int argc, char **argv)
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/dfn.pem"));
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/uni-stuttgart.pem"));
 
-#ifndef YAC
     covise::Socket::initialize();
-#endif
 
     // start user interface process
     MEApplication a(argc, argv);
@@ -154,10 +152,11 @@ int main(int argc, char **argv)
     qRegisterMetaType<MEHost *>("MEHost");
 
 #ifdef Q_OS_MAC
-    QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus);
+    a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
 #if QT_VERSION >= 0x050000
-    QApplication::instance()->setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+    a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+    a.setAttribute(Qt::AA_EnableHighDpiScaling, true);
 #endif
 
     //DebugBreak();
