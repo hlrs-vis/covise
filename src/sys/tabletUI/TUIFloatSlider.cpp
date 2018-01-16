@@ -26,7 +26,7 @@
 #include "TUIApplication.h"
 #include "TUIContainer.h"
 
-const float SliderMax = 1000.f;
+const float SliderMax = 1000000.f;
 const float SliderTiny = 1e-15f;
 
 /// Constructor
@@ -112,6 +112,8 @@ void TUIFloatSlider::sliderChanged(int ival)
         value = min + (delta * ival);
     }
 
+    //std::cerr << "FloatSliderChanged: val=" << value << std::endl;
+
     QString tmp;
     tmp = QString("%1").arg(value);
     string->setText(tmp);
@@ -174,22 +176,28 @@ void TUIFloatSlider::showSliderValue(float min, float max, float value)
             float lval = std::log10(std::max(SliderTiny, value));
             lval = lmin + ((lmax - lmin) * ((int)(SliderMax * ((lval - lmin) / (lmax - lmin)))) / SliderMax);
             ival = (int)(0.5f+(SliderMax * ((lval - lmin) / (lmax - lmin))));
+#if 0
             lval = lmin + ((lmax - lmin)/SliderMax*ival);
             value = std::pow(10.f, lval);
+#endif
         }
         else
         {
             ival = (int)(0.5f+(SliderMax * ((value - min) / (max - min))));
+#if 0
             value = min + ((max - min)/SliderMax*ival);
+#endif
         }
     }
     if (ival != oival)
     {
+        //std::cerr << "setting slider value: " << oival << " -> " << ival << std::endl;
         slider->setValue(ival);
+
+        QString tmp;
+        tmp = QString("%1").arg(value);
+        string->setText(tmp);
     }
-    QString tmp;
-    tmp = QString("%1").arg(value);
-    string->setText(tmp);
 }
 
 void TUIFloatSlider::setValue(TabletValue type, covise::TokenBuffer &tb)
