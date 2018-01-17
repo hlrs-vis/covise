@@ -336,6 +336,9 @@ bool VolumePlugin::init()
 
     vvDebugMsg::msg(1, "VolumePlugin::VolumePlugin()");
 
+    std::string rendererName = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.Renderer");
+    bool enableSphereClipping = rendererName == "rayrend";
+
     // set virvo debug level ------------------------------
 
     // Debug level value may be either [NO_MESSAGES|FEW_MESSAGES|MOST_MESSAGES|ALL_MESSAGES]
@@ -719,35 +722,38 @@ bool VolumePlugin::init()
         showClipOutlines = state;
     });
 
-    // Initialize clip spheres
-    for (int i = 0; i < NumClipSpheres; ++i)
+    if (enableSphereClipping)
     {
-        auto group = new ui::Group(clipMenu, "Sphere"+std::to_string(i));
-        group->setText("Clip sphere "+std::to_string(i));
+        // Initialize clip spheres
+        for (int i = 0; i < NumClipSpheres; ++i)
+        {
+            auto group = new ui::Group(clipMenu, "Sphere"+std::to_string(i));
+            group->setText("Clip sphere "+std::to_string(i));
 
-        auto clipSphereActiveItem = new ui::Button(group, "SphereActive"+std::to_string(i));
-        clipSphereActiveItem->setText("Sphere "+std::to_string(i)+" active");
-        clipSphereActiveItem->setState(false);
-        clipSphereActiveItem->setCallback([this, i](bool state){
-            clipSpheres.at(i)->setActive(state);
-        });
+            auto clipSphereActiveItem = new ui::Button(group, "SphereActive"+std::to_string(i));
+            clipSphereActiveItem->setText("Sphere "+std::to_string(i)+" active");
+            clipSphereActiveItem->setState(false);
+            clipSphereActiveItem->setCallback([this, i](bool state){
+                clipSpheres.at(i)->setActive(state);
+            });
 
-        auto clipSphereInteractorItem = new ui::Button(group, "SphereInteractor"+std::to_string(i));
-        clipSphereInteractorItem->setText("Sphere "+std::to_string(i)+" interactor");
-        clipSphereInteractorItem->setState(false);
-        clipSphereInteractorItem->setCallback([this, i](bool state){
-            clipSpheres.at(i)->setInteractorActive(state);
-        });
+            auto clipSphereInteractorItem = new ui::Button(group, "SphereInteractor"+std::to_string(i));
+            clipSphereInteractorItem->setText("Sphere "+std::to_string(i)+" interactor");
+            clipSphereInteractorItem->setState(false);
+            clipSphereInteractorItem->setCallback([this, i](bool state){
+                clipSpheres.at(i)->setInteractorActive(state);
+            });
 
-        auto clipSphereRadiusItem = new ui::Slider(group, "SphereRadius"+std::to_string(i));
-        clipSphereRadiusItem->setText("Sphere "+std::to_string(i)+" radius");
-        clipSphereRadiusItem->setBounds(0.1, 1.0);
-        clipSphereRadiusItem->setValue(radiusScale[i]);
-        clipSphereRadiusItem->setCallback([this, i](double value, bool released){
-            radiusScale[i] = value;
-        });
+            auto clipSphereRadiusItem = new ui::Slider(group, "SphereRadius"+std::to_string(i));
+            clipSphereRadiusItem->setText("Sphere "+std::to_string(i)+" radius");
+            clipSphereRadiusItem->setBounds(0.1, 1.0);
+            clipSphereRadiusItem->setValue(radiusScale[i]);
+            clipSphereRadiusItem->setCallback([this, i](double value, bool released){
+                radiusScale[i] = value;
+            });
 
-        clipSpheres.push_back(boost::make_shared<coClipSphere>());
+            clipSpheres.push_back(boost::make_shared<coClipSphere>());
+        }
     }
 
     // Read volume file entries from covise.config:
