@@ -337,7 +337,7 @@ bool VolumePlugin::init()
     vvDebugMsg::msg(1, "VolumePlugin::VolumePlugin()");
 
     std::string rendererName = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.Renderer");
-    bool enableSphereClipping = rendererName == "rayrend";
+    bool enableSphereClipping = rendererName.find("rayrend") == 0;
 
     // set virvo debug level ------------------------------
 
