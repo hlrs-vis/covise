@@ -156,6 +156,8 @@ int main(int argc, char **argv)
 #endif
 #if QT_VERSION >= 0x050000
     a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+#endif
+#if QT_VERSION >= 0x050600
     a.setAttribute(Qt::AA_EnableHighDpiScaling, true);
 #endif
 
