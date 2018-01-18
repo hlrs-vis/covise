@@ -85,7 +85,7 @@ osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetP
 {
 
     //substract vectors
-    directionVector = targetPosition - currentPos;
+    directionVector = totaldirectionVector;//targetPosition - currentPos;
     float distance = directionVector.length();
     directionVector.normalize();
     //calculate step distance
@@ -100,7 +100,7 @@ osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetP
     totalDistance = totalDistance-step_distance;
     //calculate new position
     newPosition = currentPos+(directionVector*step_distance);
-    if (totalDistance < 0)
+    if (totalDistance <= 0)
     {
         visitedVertices++;
         totalDistance = 0;
@@ -170,7 +170,7 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	aktivCar->setSpeed(targetSpeed);
 	}
 }
-osg::Vec3 &Maneuver::checkRelVertex(osg::Vec3 currentPos,vector<osg::Vec3> polylineVertices,vector<bool> isRelVertice){
+osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 currentPos,vector<osg::Vec3> polylineVertices,vector<bool> isRelVertice){
     verticesCounter = polylineVertices.size();
 
 
@@ -181,8 +181,10 @@ osg::Vec3 &Maneuver::checkRelVertex(osg::Vec3 currentPos,vector<osg::Vec3> polyl
             polylineVertices[visitedVertices] = currentPos + polylineVertices[visitedVertices];
         }
         targetPosition = polylineVertices[visitedVertices];
+        totaldirectionVector = targetPosition - verticeStartPos;
+
     }
-    return targetPosition;
+    //return targetPosition;
 }
 
 
@@ -190,17 +192,10 @@ float &Maneuver::getTrajSpeed(osg::Vec3 verticeStartPos, osg::Vec3 targetPositio
 {
     if(totalDistance == 0)
     {
-
         // calculate speed
-        totaldirectionVector = targetPosition - verticeStartPos;
         totaldirectionVectorLength = totaldirectionVector.length();
         speed = totaldirectionVectorLength/deltat;
 
     }
     return speed;
-}
-
-void Maneuver::setTargetPosition(osg::Vec3 init_TargetPosition)
-{
-    targetPosition = init_TargetPosition;
 }
