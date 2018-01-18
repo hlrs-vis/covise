@@ -116,6 +116,9 @@ bool ViewPoints::init()
     eyepoint[2] = coCoviseConfig::getFloat("z", "COVER.ViewerPosition", 0.0f);
 
     flyingMode = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.FlyingMode", true);
+
+    loopMode = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", loopMode);
+
     // send flyingMode to Gui
     sendFlyingModeToGui();
 
@@ -514,7 +517,7 @@ bool ViewPoints::init2()
         readFromDom();
 
     updateSHMData();
-    if (coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", false))
+    if (loopMode)
         completeFlight();
 
     return true;
@@ -1684,7 +1687,7 @@ void ViewPoints::preFrame()
 
     if (!activeVP)
     {
-        if (coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", false))
+        if (loopMode)
             completeFlight();
     }
 
@@ -1883,7 +1886,7 @@ void ViewPoints::preFrame()
             {
                 updateViewPointIndex();
                 flyingStatus = 0;
-                if (coCoviseConfig::isOn("VRViewpoints.LOOP", false))
+                if (loopMode)
                     completeFlight();
             }
         } // end else lambda

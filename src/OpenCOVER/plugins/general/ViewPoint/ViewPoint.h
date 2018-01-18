@@ -216,4 +216,5 @@ private:
     double turnTableStepInitTime_;
     osg::Matrix turnTableStepInitMat_, turnTableStepDestMat_;
     static ViewPoints *inst;
+    bool loopMode = false;
 };
