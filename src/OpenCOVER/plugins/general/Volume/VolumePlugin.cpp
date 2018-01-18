@@ -782,6 +782,12 @@ bool VolumePlugin::init()
     return true;
 }
 
+bool VolumePlugin::update()
+{
+    ++updateCount;
+    return false;
+}
+
 /// Destructor
 VolumePlugin::~VolumePlugin()
 {
@@ -1959,6 +1965,9 @@ void VolumePlugin::preFrame()
     float change;
     static bool firstFPSmeasurement = true;
 
+    bool framesSkipped = updateCount > 1;
+    updateCount = 0;
+
     vvDebugMsg::msg(3, "VolumePlugin::VRPreFrame()");
 
     if (editor)
@@ -2028,7 +2037,8 @@ void VolumePlugin::preFrame()
         float threshold = 0.1f * chosenFPS;
         if (fabs(fps - chosenFPS) > threshold)
         {
-            fpsMissed++;
+            if (!framesSkipped)
+                fpsMissed++;
         }
         else
         {

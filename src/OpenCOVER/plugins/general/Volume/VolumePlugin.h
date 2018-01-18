@@ -97,13 +97,14 @@ public:
     VolumePlugin();
     virtual ~VolumePlugin();
     static VolumePlugin *plugin;
-    bool init();
-    void preFrame();
-    void message(int, int, int, const void *);
-    void addObject(const RenderObject *, osg::Group *parent, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
-    void removeObject(const char *, bool);
-    void postFrame();
-    void setTimestep(int);
+    bool init() override;
+    bool update() override;
+    void preFrame() override;
+    void message(int, int, int, const void *) override;
+    void addObject(const RenderObject *, osg::Group *parent, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *) override;
+    void removeObject(const char *, bool) override;
+    void postFrame() override;
+    void setTimestep(int) override;
     bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string());
     void saveVolume();
     void cropVolume();
@@ -223,6 +224,7 @@ private:
     void setClippingMode(bool);
     vrui::coCombinedButtonInteraction *interactionA; ///< interaction for first button
     vrui::coCombinedButtonInteraction *interactionB; ///< interaction for second button
+    int updateCount = 0;
     int fpsMissed;
     float chosenFPS;
     float radiusScale[NumClipSpheres];
