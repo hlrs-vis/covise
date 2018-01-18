@@ -110,8 +110,8 @@ public:
     void cropVolume();
 
     //tablet UI listener
-    void tabletPressEvent(coTUIElement *tUIItem);
-    void tabletEvent(coTUIElement *tUIItem);
+    void tabletPressEvent(coTUIElement *tUIItem) override;
+    void tabletEvent(coTUIElement *tUIItem) override;
     //void tabletDataEvent(coTUIElement* tUIItem, TokenBuffer &tb);
 
     static int loadVolume(const char *, osg::Group *parent, const char *ck = "");
