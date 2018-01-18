@@ -10,27 +10,26 @@
 #include <vector>
 #include <cover/coVRPluginSupport.h>
 
-using namespace vrui;
-using namespace opencover;
-
 #include <cover/coVRPlugin.h>
 #include <OpenVRUI/osg/mathUtils.h>
-#include <OpenVRUI/coMenuItem.h>
 #include "FlightPathVisualizer.h"
 #include "Interpolator.h"
-//#include "FlightManager.h"
-// #include "QuickNavDrawable.h"
+
+#include <cover/ui/Owner.h>
 
 #define MAXFILECOL 200
 
-namespace vrui
-{
-class coRowMenu;
-class coSubMenuItem;
-class coButtonMenuItem;
-class coCheckboxMenuItem;
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+class Button;
 }
+}
+
 class ViewDesc;
+
+using namespace opencover;
 
 const int SHARED_VP_NAME_LENGTH = 1024;
 
@@ -43,8 +42,9 @@ typedef struct SharedActiveVPData
     int hasClipPlane[6];
 } SharedActiveVPData;
 
-class ViewPoints : public coVRPlugin, public coMenuListener
+class ViewPoints : public coVRPlugin, public ui::Owner
 {
+    friend class ViewDesc;
 public:
     // create pinboard button viewpoints and submenu
     ViewPoints();
@@ -52,14 +52,15 @@ public:
 
     static SharedActiveVPData *actSharedVPData;
     
-    virtual bool init();
-    virtual bool init2();
-    virtual void preFrame();
-    virtual void addNode(osg::Node *, const RenderObject *);
-    virtual void key(int type, int keySym, int mod);
-    virtual void guiToRenderMsg(const char *msg);
-    virtual void message(int toWhom, int type, int length, const void *data);
-    virtual coMenuItem *getMenuButton(const std::string &buttonName);
+    virtual bool init() override;
+    virtual bool init2() override;
+    virtual bool update() override;
+    virtual void preFrame() override;
+    virtual void addNode(osg::Node *, const RenderObject *) override;
+    virtual void key(int type, int keySym, int mod) override;
+    virtual void guiToRenderMsg(const char *msg) override;
+    virtual void message(int toWhom, int type, int length, const void *data) override;
+    virtual ui::Action *getMenuButton(const std::string &buttonName);
 
     void readFromDom();
     void saveAllViewPoints();
@@ -88,6 +89,7 @@ public:
     void loadViewpoint(int id);
     void loadViewpoint(const char *name);
     void loadViewpoint(ViewDesc *viewDesc);
+    void activateViewpoint(ViewDesc *viewDesc);
     void startTurnTableAnimation(float time);
     void turnTableStep();
 
@@ -113,25 +115,24 @@ public:
     static Interpolator::TranslationMode curr_translationMode;
     static Interpolator::RotationMode curr_rotationMode;
 
-    coRowMenu *editVPMenu_;
-    coCheckboxMenuItem *showFlightpathCheck_;
-    coCheckboxMenuItem *showCameraCheck_;
-    coCheckboxMenuItem *showViewpointsCheck_;
-    coCheckboxMenuItem *showInteractorsCheck_;
+    ui::Menu *editVPMenu_ = nullptr;
+    ui::Button *showFlightpathCheck_ = nullptr;
+    ui::Button *showCameraCheck_ = nullptr;
+    ui::Button *showViewpointsCheck_ = nullptr;
+    ui::Button *showInteractorsCheck_ = nullptr;
 
-    coSubMenuItem *editVPMenuButton_;
-    coCheckboxMenuItem *shiftFlightpathCheck_;
-    coButtonMenuItem *vpSaveButton_;
-    coButtonMenuItem *vpReloadButton_;
+    ui::Button *shiftFlightpathCheck_ = nullptr;
+    ui::Action *vpSaveButton_ = nullptr;
+    ui::Action *vpReloadButton_ = nullptr;
 
-    coButtonMenuItem *setCatmullRomButton_;
-    coButtonMenuItem *setStraightButton_;
-    coButtonMenuItem *setEqualTangentsButton_;
-    coButtonMenuItem *alignZButton_;
-    coButtonMenuItem *alignXButton_;
-    coButtonMenuItem *alignYButton_;
-    coSubMenuItem *alignMenuButton_;
-    coRowMenu *alignMenu_; //< menu for Aligning Viewpoints
+    ui::Action *setCatmullRomButton_ = nullptr;
+    ui::Action *setStraightButton_ = nullptr;
+    ui::Action *setEqualTangentsButton_ = nullptr;
+    ui::Action *alignXButton_ = nullptr;
+    ui::Action *alignYButton_ = nullptr;
+    ui::Action *alignZButton_ = nullptr;
+
+    ui::Menu *alignMenu_ = nullptr;
 
     FlightPathVisualizer *flightPathVisualizer;
     Interpolator *vpInterpolator;
@@ -139,7 +140,7 @@ public:
     
     static ViewPoints *instance(){return inst;};
     bool dataChanged = false;
-    bool isClipPlaneChecked() {return useClipPlanesCheck_->getState();};
+    bool isClipPlaneChecked();;
 
 private:
     Vec3 eyepoint;
@@ -159,17 +160,15 @@ private:
 
     FILE *fp;
 
-    coRowMenu *viewPointMenu_; //< menu for View Points
-    coRowMenu *flightMenu_; //< menu for Flight
-    coSubMenuItem *viewPointButton_;
-    coSubMenuItem *flightMenuButton_;
-    coButtonMenuItem *saveButton_;
-    coCheckboxMenuItem *flyingModeCheck_;
-    coButtonMenuItem *runButton_;
-    coButtonMenuItem *startStopRecButton_;
-    coCheckboxMenuItem *useClipPlanesCheck_;
-    coCheckboxMenuItem *turnTableAnimationCheck_;
-    coButtonMenuItem *turnTableStepButton_;
+    ui::Menu *viewPointMenu_; //< menu for View Points
+    ui::Menu *flightMenu_; //< menu for Flight
+    ui::Action *saveButton_;
+    ui::Button *flyingModeCheck_;
+    ui::Action *runButton_;
+    ui::Action *startStopRecButton_;
+    ui::Button *useClipPlanesCheck_;
+    ui::Button *turnTableAnimationCheck_;
+    ui::Action *turnTableStepButton_;
 
     osg::ref_ptr<osg::Geode> qnNode;
     std::vector<ViewDesc *> viewpoints; //< list of viewpoints
@@ -181,7 +180,6 @@ private:
     void startStopRec();
 
     void updateSHMData();
-    virtual void menuEvent(coMenuItem *menuItem);
 
     void sendDefaultViewPoint();
     void sendNewViewpointMsgToGui(const char *name, int index, const char *str, const char *plane);
@@ -217,4 +215,5 @@ private:
     osg::Matrix turnTableStepInitMat_, turnTableStepDestMat_;
     static ViewPoints *inst;
     bool loopMode = false;
+    bool sendActivatedViewpointMsg = false;
 };

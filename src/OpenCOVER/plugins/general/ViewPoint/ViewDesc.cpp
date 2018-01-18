@@ -15,13 +15,11 @@
 #include <util/unixcompat.h>
 #include <PluginUtil/PluginMessageTypes.h>
 #include "ViewDesc.h"
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coMenu.h>
 #include <osg/ClipNode>
 #include <config/CoviseConfig.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRNavigationManager.h>
+#include <cover/coVRPluginSupport.h>
 #include <osg/MatrixTransform>
 #include <osg/Matrix>
 #include <osg/ClipNode>
@@ -35,13 +33,20 @@
 #include <osg/LineWidth>
 #include <osg/Material>
 #include <cmath>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <OpenVRUI/coInteraction.h>
 
 using namespace osg;
 using covise::coCoviseConfig;
+using namespace opencover;
+using vrui::coInteraction;
 
 ViewDesc::ViewDesc(const char *n, int id, const char *line,
-                   coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                   coMenuListener *master, bool isChangeable)
+                   ui::Menu *menu, ui::Menu *flightMenu, ui::Menu *editMenu,
+                   ViewPoints *master, bool isChangeable)
+: ui::Owner("Viewpoint"+std::to_string(id), cover->ui)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "----- ViewDesc::ViewDesc [id=%d][name=%s][line=%s]\n", id, n, line);
@@ -51,11 +56,9 @@ ViewDesc::ViewDesc(const char *n, int id, const char *line,
     isViewAll_ = false;
     isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", false);
 
-    vp_line = new char[strlen(line) + 1];
-    strcpy(vp_line, line);
+    vp_line = line;
     scale_ = 1.0;
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    name = n;
     flightState_ = true;
     hasGeometry_ = false;
     hasTangentOut_ = true;
@@ -104,8 +107,9 @@ ViewDesc::ViewDesc(const char *n, int id, const char *line,
 }
 
 ViewDesc::ViewDesc(const char *n, int id, float scale, Matrix m,
-                   coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                   coMenuListener *master, bool isChangeable)
+                   ui::Menu *menu, ui::Menu *flightMenu, ui::Menu *editMenu,
+                   ViewPoints *master, bool isChangeable)
+: ui::Owner("Viewpoint"+std::to_string(id), cover->ui)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "----- ViewDesc::ViewDesc [id=%d][name=%s][scale=%f][matrix=%f %f %f %f | %f %f %f %f | %f %f %f %f | %f %f %f %f]\n", id, n, scale, m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
@@ -113,8 +117,7 @@ ViewDesc::ViewDesc(const char *n, int id, float scale, Matrix m,
     id_ = id;
     isChangeable_ = isChangeable;
     scale_ = scale;
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    name = n;
     xformMat_ = m;
     tangentIn = Vec3(0, -500, 0);
     tangentOut = Vec3(0, 500, 0);
@@ -136,8 +139,9 @@ ViewDesc::ViewDesc(const char *n, int id, float scale, Matrix m,
 }
 
 ViewDesc::ViewDesc(const char *n, int id,
-                   coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                   coMenuListener *master, bool isChangeable)
+                   ui::Menu *menu, ui::Menu *flightMenu, ui::Menu *editMenu,
+                   ViewPoints *master, bool isChangeable)
+: ui::Owner("Viewpoint"+std::to_string(id), cover->ui)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "----- new ViewDesc [%d] [%s]\n", id, n);
@@ -160,8 +164,7 @@ ViewDesc::ViewDesc(const char *n, int id,
     hasTangentIn_ = false;
     flightPathActivated = true;
 
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    name = n;
     flightState_ = true;
 
     coord.xyz[0] = coord.xyz[1] = coord.xyz[2] = coord.hpr[0] = coord.hpr[1] = coord.hpr[2] = 0.0;
@@ -170,8 +173,9 @@ ViewDesc::ViewDesc(const char *n, int id,
 }
 
 ViewDesc::ViewDesc(const char *n, int id, float scale,
-                   coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                   coMenuListener *master, bool isChangeable)
+                   ui::Menu *menu, ui::Menu *flightMenu, ui::Menu *editMenu,
+                   ViewPoints *master, bool isChangeable)
+: ui::Owner("Viewpoint"+std::to_string(id), cover->ui)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "----- new ViewDesc [id=%d][name=%s][scale=%f]\n", id, n, scale);
@@ -194,16 +198,16 @@ ViewDesc::ViewDesc(const char *n, int id, float scale,
     hasTangentIn_ = false;
     flightPathActivated = true;
 
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    name = n;
     flightState_ = true;
 
     createGeometry();
 }
 
 ViewDesc::ViewDesc(const char *n, int id, Vec3 hpr,
-                   coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                   coMenuListener *master, bool isChangeable)
+                   ui::Menu *menu, ui::Menu *flightMenu, ui::Menu *editMenu,
+                   ViewPoints *master, bool isChangeable)
+: ui::Owner("Viewpoint"+std::to_string(id), cover->ui)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "----- new ViewDesc [id=%d][name=%s] hpr=[%f %f %f]\n", id, n, hpr[0], hpr[1], hpr[2]);
@@ -222,8 +226,7 @@ ViewDesc::ViewDesc(const char *n, int id, Vec3 hpr,
     hasTangentOut_ = false;
     hasTangentIn_ = false;
     flightPathActivated = true;
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    name = n;
     flightState_ = true;
 
     coord.xyz = osg::Vec3(0.0f, 0.0f, 0.0f);
@@ -270,14 +273,26 @@ void ViewDesc::changeViewDesc(float scale, Matrix m)
 }
 
 void ViewDesc::createButtons(const char *name,
-                             coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                             coMenuListener *master)
+                             ui::Menu *menu, ui::Menu *flightMenu, ui::Menu *editMenu,
+                             ViewPoints *master)
 {
-    button_ = new coButtonMenuItem(name);
-    flightButton_ = new coCheckboxMenuItem(name, true);
+    button_ = new ui::Action("Button", this);
+    button_->setText(name);
+    menu->add(button_);
+    button_->setCallback([this](){
+        //fprintf(stderr,"menuItem == button_");
+        bool clip = ViewPoints::instance()->useClipPlanesCheck_->state();
+        activate(clip);
+        ViewPoints::instance()->activateViewpoint(this);
+    });
 
-    button_->setMenuListener(master);
-    flightButton_->setMenuListener(this);
+    flightButton_ = new ui::Button("Flight", this);
+    flightButton_->setText(name);
+    flightButton_->setState(true);
+    flightMenu->add(flightButton_);
+    flightButton_->setCallback([this](bool state){
+        flightState_ = state;
+    });
 
     viewpointVisible = false;
     tangentVisible = false;
@@ -285,42 +300,107 @@ void ViewDesc::createButtons(const char *name,
     editTangent = false;
 
     // submenu for each viewpoint
-    editVPMenu_ = new coRowMenu(name, editMenu);
-    editVPMenuButton_ = new coSubMenuItem(name);
-    editVPMenuButton_->setMenu(editVPMenu_);
+    editVPMenu_ = new ui::Menu("Edit", this);
+    editVPMenu_->setText(name);
+    editMenu->add(editVPMenu_);
 
-    showViewpointCheck_ = new coCheckboxMenuItem("Show/hide Viewpoint", viewpointVisible);
-    showViewpointCheck_->setMenuListener(this);
-    editVPMenu_->add(showViewpointCheck_);
+    showViewpointCheck_ = new ui::Button(editVPMenu_, "ShowHideViewpoint");
+    showViewpointCheck_->setText("Show/hide viewpoint");
+    showViewpointCheck_->setState(viewpointVisible);
+    showViewpointCheck_->setCallback([this](bool state){
+        viewpointVisible = state;
+        flightPathActivated = viewpointVisible;
 
-    showTangentCheck_ = new coCheckboxMenuItem("Show/hide Tangent", tangentVisible);
-    showTangentCheck_->setMenuListener(this);
-    editVPMenu_->add(showTangentCheck_);
+        if (viewpointVisible == false)
+        {
+            showMoveInteractors(false);
+            showTangent(false);
+            showTangentInteractors(false);
+            showTangentInteractorsCheck_->setState(false);
+        }
+        showGeometry(viewpointVisible);
+    });
 
-    showMoveInteractorsCheck_ = new coCheckboxMenuItem("Move/Scale Viewpoint", editViewpoint);
-    showMoveInteractorsCheck_->setMenuListener(this);
-    editVPMenu_->add(showMoveInteractorsCheck_);
+    showTangentCheck_ = new ui::Button(editVPMenu_, "ShowHideTangent");
+    showTangentCheck_->setText("Show/hide tangent");
+    showTangentCheck_->setState(tangentVisible);
+    showTangentCheck_->setCallback([this](bool state){
+        tangentVisible = state;
 
-    showTangentInteractorsCheck_ = new coCheckboxMenuItem("Edit Tangents", editTangent);
-    showTangentInteractorsCheck_->setMenuListener(this);
-    editVPMenu_->add(showTangentInteractorsCheck_);
+        if (tangentVisible == false)
+        {
+            showTangentInteractors(false);
+            showTangentInteractorsCheck_->setState(false);
+        }
 
-    updateViewButton = new coButtonMenuItem("Update To Current Position");
-    updateViewButton->setMenuListener(this);
-    editVPMenu_->add(updateViewButton);
+        showTangent(tangentVisible);
+    });
 
-    editMenu->add(editVPMenuButton_);
-    menu->add(button_);
-    flightMenu->add(flightButton_);
+    showMoveInteractorsCheck_ = new ui::Button(editVPMenu_, "MoveScaleViewpoint");
+    showMoveInteractorsCheck_->setText("Move/scale viewpoint");
+    showMoveInteractorsCheck_->setState(editViewpoint);
+    showMoveInteractorsCheck_->setCallback([this](bool state){
+        editViewpoint = state;
+        if (editViewpoint)
+        {
+            // also show viewpoint
+            viewpointVisible = true;
+            flightPathActivated = true;
+            showViewpointCheck_->setState(true);
+            showGeometry(editViewpoint);
+        }
+        showMoveInteractors(editViewpoint);
+    });
 
-   /* if (isChangeable_ && isChangeableFromCover_)
+    showTangentInteractorsCheck_ = new ui::Button(editVPMenu_, "EditTangents");
+    showTangentInteractorsCheck_->setText("Edit tangents");
+    showTangentInteractorsCheck_->setState(editTangent);
+    showTangentInteractorsCheck_->setCallback([this](bool state){
+        editTangent = state;
+        if (editTangent)
+        {
+            // also show tangent
+            tangentVisible = true;
+            showTangentCheck_->setState(true);
+            showTangent(true);
+        }
+        showTangentInteractors(editTangent);
+    });
+
+    updateViewButton = new ui::Action(editVPMenu_, "UpdateToCurrentPosition");
+    updateViewButton->setText("Update to current position");
+    updateViewButton->setCallback([this](){
+        osg::Matrix m = cover->getObjectsXform()->getMatrix();
+        coord = m;
+        ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
+        if (ViewPoints::instance()->isClipPlaneChecked())
+        {
+
+            for (unsigned int i = 0; i < clipNode->getNumClipPlanes(); i++)
+            {
+                ClipPlane *cp = clipNode->getClipPlane(i);
+                Vec4 plane = cp->getClipPlane();
+                char planeString[1024];
+
+                snprintf(planeString, 1024, "%d %f %f %f %f ", cp->getClipPlaneNum(), plane[0], plane[1], plane[2], plane[3]);
+                // add to the current viewpoint
+                addClipPlane(planeString);
+            }
+        }
+        ViewPoints::instance()->saveAllViewPoints();
+    });
+
+    if (isChangeable_ && isChangeableFromCover_)
     {
+        changeButton_ = new ui::Action("Change", this);
         string text = "Change ";
         text.append(name);
-        changeButton_ = new coButtonMenuItem(text.c_str());
-        changeButton_->setMenuListener(master);
+        changeButton_->setText(text);
         menu->add(changeButton_);
-    }*/
+        changeButton_->setCallback([this](){
+            ViewPoints::instance()->changeViewDesc(this);
+        });
+    }
 }
 
 ViewDesc::~ViewDesc()
@@ -329,17 +409,9 @@ ViewDesc::~ViewDesc()
         fprintf(stderr, "ViewDesc::~ViewDesc\n");
 
     deleteGeometry();
-    delete button_; // buttons automatically remove from Menus on delete
-    delete changeButton_;
-    delete flightButton_;
-    delete editVPMenuButton_;
-    delete editVPMenu_;
-
-    delete[] name;
-    delete[] vp_line;
 }
 
-bool ViewDesc::string2ViewDesc(const char *line,
+bool ViewDesc::string2ViewDesc(const std::string &line,
                                float *scale,
                                float *x, float *y, float *z,
                                float *h, float *p, float *r,
@@ -353,7 +425,7 @@ bool ViewDesc::string2ViewDesc(const char *line,
     *x = *y = *z = *h = *p = *r = 0.0;
     *tanInX = *tanInY = *tanInZ = *tanOutX = *tanOutY = *tanOutZ = 0.0;
 
-    int numRes = sscanf(line, "%f %f %f %f %f %f %f %f %f %f %f %f %f", scale, x, y, z, h, p, r,
+    int numRes = sscanf(line.c_str(), "%f %f %f %f %f %f %f %f %f %f %f %f %f", scale, x, y, z, h, p, r,
                         tanInX, tanInY, tanInZ, tanOutX, tanOutY, tanOutZ);
     if (numRes == 7)
     {
@@ -371,7 +443,7 @@ bool ViewDesc::string2ViewDesc(const char *line,
         return true;
 }
 
-bool ViewDesc::string2ViewDesc(const char *line,
+bool ViewDesc::string2ViewDesc(const std::string &line,
                                float *scale,
                                double *m00, double *m01, double *m02, double *m03,
                                double *m10, double *m11, double *m12, double *m13,
@@ -391,7 +463,7 @@ bool ViewDesc::string2ViewDesc(const char *line,
     *m30 = *m31 = *m32 = 0.0;
     *tanInX = *tanInY = *tanInZ = *tanOutX = *tanOutY = *tanOutZ = 0.0;
 
-    int numRes = sscanf(line, "%f %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %f %f %f %f %f %f ", scale, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33, tanInX, tanInY, tanInZ, tanOutX, tanOutY, tanOutZ);
+    int numRes = sscanf(line.c_str(), "%f %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %f %f %f %f %f %f ", scale, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33, tanInX, tanInY, tanInZ, tanOutX, tanOutY, tanOutZ);
     //   fprintf(stderr, "%f\n %lf %lf %lf %lf \n %lf %lf %lf %lf \n  %lf %lf %lf %lf \n %lf %lf %lf %lf \n %f %f %f \n %f %f %f \n",*scale, *m00, *m01, *m02, *m03, *m10, *m11, *m12, *m13, *m20, *m21, *m22, *m23, *m30, *m31, *m32, *m33, *tanInX, *tanInY, *tanInZ, *tanOutX, *tanOutY, *tanOutZ);
     if (numRes == 17)
     {
@@ -559,7 +631,7 @@ const char *ViewDesc::getClipPlane(int i)
 void ViewDesc::activate(bool clipplane)
 {
     if (cover->debugLevel(4))
-        fprintf(stderr, "ViewDesc::activate(%s)\n", name);
+        fprintf(stderr, "ViewDesc::activate(%s)\n", name.c_str());
 
     updateToViewAll();
 
@@ -618,7 +690,7 @@ void ViewDesc::activate(bool clipplane)
 
     if (!hasPosition_ && !hasOrientation_ && !hasScale_)
     {
-        if (strncasecmp(name, "center", 6) == 0)
+        if (strncasecmp(name.c_str(), "center", 6) == 0)
         {
             //fprintf(stderr,"viewpoint center\n");
             osg::BoundingBox box;
@@ -666,7 +738,7 @@ void ViewDesc::activate(bool clipplane)
             cover->getObjectsXform()->setMatrix(m);
         }
 
-        if (strncasecmp(name, "behind", 6) == 0)
+        if (strncasecmp(name.c_str(), "behind", 6) == 0)
         {
             //fprintf(stderr,"viewpoint behind\n");
             osg::BoundingBox box;
@@ -703,7 +775,7 @@ void ViewDesc::activate(bool clipplane)
             cover->getObjectsXform()->setMatrix(m);
         }
 
-        if (strncasecmp(name, "onfloor", 6) == 0)
+        if (strncasecmp(name.c_str(), "onfloor", 6) == 0)
         {
             //fprintf(stderr,"viewpoint onfloor\n");
             osg::BoundingBox box;
@@ -794,92 +866,6 @@ bool ViewDesc::isClipPlaneEnabled(int plane)
         return false;
 
     return clipPlanes[plane].enabled;
-}
-
-// called when pressing the button in the menu
-void ViewDesc::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == button_)
-    {
-        //fprintf(stderr,"menuItem == button_");
-        coMenuItem *clipplane = button_->getParentMenu()->getItemByName("Set ClipPlanes");
-        activate(((coCheckboxMenuItem *)clipplane)->getState());
-    }
-    else if (menuItem == flightButton_)
-        flightState_ = flightButton_->getState();
-
-    else if (menuItem == showViewpointCheck_)
-    {
-        viewpointVisible = showViewpointCheck_->getState();
-        flightPathActivated = viewpointVisible;
-
-        if (viewpointVisible == false)
-        {
-            showMoveInteractors(false);
-            showTangent(false);
-            showTangentInteractors(false);
-            showTangentInteractorsCheck_->setState(false);
-        }
-        showGeometry(viewpointVisible);
-    }
-    else if (menuItem == showMoveInteractorsCheck_)
-    {
-        editViewpoint = showMoveInteractorsCheck_->getState();
-        if (editViewpoint)
-        {
-            // also show viewpoint
-            viewpointVisible = true;
-            flightPathActivated = true;
-            showViewpointCheck_->setState(true);
-            showGeometry(editViewpoint);
-        }
-        showMoveInteractors(editViewpoint);
-    }
-    else if (menuItem == showTangentInteractorsCheck_)
-    {
-        editTangent = showTangentInteractorsCheck_->getState();
-        if (editTangent)
-        {
-            // also show tangent
-            tangentVisible = true;
-            showTangentCheck_->setState(true);
-            showTangent(true);
-        }
-        showTangentInteractors(editTangent);
-    }
-    else if (menuItem == updateViewButton)
-    {
-        osg::Matrix m = cover->getObjectsXform()->getMatrix();
-        coord = m;
-        ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
-        if (ViewPoints::instance()->isClipPlaneChecked())
-        {
-
-            for (unsigned int i = 0; i < clipNode->getNumClipPlanes(); i++)
-            {
-                ClipPlane *cp = clipNode->getClipPlane(i);
-                Vec4 plane = cp->getClipPlane();
-                char planeString[1024];
-
-                snprintf(planeString, 1024, "%d %f %f %f %f ", cp->getClipPlaneNum(), plane[0], plane[1], plane[2], plane[3]);
-                // add to the current viewpoint
-                addClipPlane(planeString);
-            }
-        }
-        ViewPoints::instance()->saveAllViewPoints();
-    }
-    else if (menuItem == showTangentCheck_)
-    {
-        tangentVisible = showTangentCheck_->getState();
-
-        if (tangentVisible == false)
-        {
-            showTangentInteractors(false);
-            showTangentInteractorsCheck_->setState(false);
-        }
-
-        showTangent(tangentVisible);
-    }
 }
 
 bool ViewDesc::equalVP(Matrix m)
@@ -1129,7 +1115,7 @@ void ViewDesc::showGeometry(bool state)
         }
         showViewpointCheck_->setState(state);
 
-        if ((showTangentCheck_->getState() == false) && (showViewpointCheck_->getState() == false))
+        if ((showTangentCheck_->state() == false) && (showViewpointCheck_->state() == false))
             localDCS->setNodeMask(localDCS->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
     }
 }
@@ -1148,12 +1134,6 @@ void ViewDesc::deleteGeometry()
         cover->getObjectsRoot()->removeChild(localDCS);
         localDCS = NULL;
 
-        delete button_; // buttons automatically remove from Menus on delete
-        //fprintf(stderr, "deleteGeometry");
-        // delete changeButton_;  //nicht vorhanden ?
-        delete flightButton_;
-        delete editVPMenuButton_;
-        delete editVPMenu_;
         hasGeometry_ = false;
     }
 }
@@ -1180,7 +1160,7 @@ void ViewDesc::showTangent(bool state)
         }
         showTangentCheck_->setState(state);
 
-        if ((showTangentCheck_->getState() == false) && (showViewpointCheck_->getState() == false))
+        if ((showTangentCheck_->state() == false) && (showViewpointCheck_->state() == false))
             localDCS->setNodeMask(localDCS->getNodeMask() & (~(Isect::Visible| Isect::OsgEarthSecondary)));
     }
 }
@@ -1668,14 +1648,12 @@ void ViewDesc::setFlightPathActivated(bool active)
 
 void ViewDesc::setName(const char *n)
 {
-    delete[] name;
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    name = n;
 
     if (button_)
-        button_->setName(name, true);
+        button_->setText(name);
     if (flightButton_)
-        flightButton_->setName(name, true);
-    if (editVPMenuButton_)
-        editVPMenuButton_->setName(name, true);
+        flightButton_->setText(name);
+    if (editVPMenu_)
+        editVPMenu_->setText(name);
 }
