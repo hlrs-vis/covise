@@ -39,18 +39,12 @@
 //========================================================================================
 using namespace osg;
 
-namespace vrui
-{
-class coButtonMenuItem;
-class coCheckboxMenuItem;
-class coMenu;
-}
-
 namespace opencover {
 namespace ui {
 class Action;
 class Button;
 class Menu;
+class Input;
 }
 }
 
@@ -90,8 +84,8 @@ private:
     bool hasOrientation_;
     bool hasMatrix_;
     bool activated_; // flag if flight is finished and viewpoint is reached
-    bool isChangeable_;
-    bool isChangeableFromCover_;
+    bool isChangeable_ = true;
+    bool isChangeableFromCover_ = false;
     osg::Matrix xformMat_;
     // common functionality of C'tors
     void createButtons(const char *name,
@@ -104,6 +98,7 @@ private:
     //========================================================================================
     opencover::ui::Menu *editVPMenu_; //< Edit Viewpoint- menu
 
+    opencover::ui::Input *editNameInput_;
     opencover::ui::Button *showViewpointCheck_;
     opencover::ui::Button *showTangentCheck_;
     opencover::ui::Button *showMoveInteractorsCheck_;
@@ -180,28 +175,28 @@ public:
     // constructor with covise.config_entry
     ViewDesc(const char *name, int id, const char *line,
              opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
-             ViewPoints *master, bool isChangeable = false);
+             ViewPoints *master, bool isChangeable = true);
     // S%f=X%f=Y%f=Z%f=H%f=P%f=R%f
 
     // constructor with matrix
     ViewDesc(const char *name, int id, float scale, osg::Matrix m,
              opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
-             ViewPoints *master, bool isChangeable = false);
+             ViewPoints *master, bool isChangeable = true);
 
     // construct empty point with name only
     ViewDesc(const char *name, int id,
              opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
-             ViewPoints *master, bool isChangeable = false);
+             ViewPoints *master, bool isChangeable = true);
 
     // constructor with only scale
     ViewDesc(const char *name, int id, float scale,
              opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
-             ViewPoints *master, bool isChangeable = false);
+             ViewPoints *master, bool isChangeable = true);
 
     // constructor with only orientation
     ViewDesc(const char *name, int id, osg::Vec3 hpr,
              opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
-             ViewPoints *master, bool isChangeable = false);
+             ViewPoints *master, bool isChangeable = true);
 
     virtual ~ViewDesc();
 

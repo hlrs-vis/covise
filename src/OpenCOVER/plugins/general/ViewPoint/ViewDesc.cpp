@@ -36,6 +36,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Input.h>
 #include <OpenVRUI/coInteraction.h>
 
 using namespace osg;
@@ -122,7 +123,7 @@ ViewDesc::ViewDesc(const char *n, int id, float scale, Matrix m,
     tangentIn = Vec3(0, -500, 0);
     tangentOut = Vec3(0, 500, 0);
     isViewAll_ = false;
-    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", false);
+    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", isChangeableFromCover_);
 
     flightState_ = true;
     hasScale_ = hasOrientation_ = hasPosition_ = true;
@@ -148,7 +149,7 @@ ViewDesc::ViewDesc(const char *n, int id,
 
     id_ = id;
     isChangeable_ = isChangeable;
-    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", false);
+    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", isChangeableFromCover_);
     isViewAll_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ViewAll", false);
     hasScale_ = isViewAll_;
 
@@ -183,7 +184,7 @@ ViewDesc::ViewDesc(const char *n, int id, float scale,
     id_ = id;
     isChangeable_ = isChangeable;
     isViewAll_ = false;
-    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", false);
+    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", isChangeableFromCover_);
 
     createButtons(n, menu, flightMenu, editMenu, master);
 
@@ -233,7 +234,7 @@ ViewDesc::ViewDesc(const char *n, int id, Vec3 hpr,
     coord.hpr = hpr;
 
     // if not here, Viewpoints name is not read in correctly
-    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", false);
+    isChangeableFromCover_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ChangeableFromCover", isChangeableFromCover_);
 
     isViewAll_ = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.ViewAll", false);
     hasScale_ = isViewAll_;
@@ -254,7 +255,7 @@ void ViewDesc::changeViewDesc()
     hasMatrix_ = true;
 
     if (cover->debugLevel(3))
-        fprintf(stderr, "----- ViewDesc::changeViewDesc for [id=%d][name=%s] into [scale=%f][matrix=%f %f %f %f | %f %f %f %f | %f %f %f %f | %f %f %f %f]\n", id_, name, scale_, xformMat_(0, 0), xformMat_(0, 1), xformMat_(0, 2), xformMat_(0, 3), xformMat_(1, 0), xformMat_(1, 1), xformMat_(1, 2), xformMat_(1, 3), xformMat_(2, 0), xformMat_(2, 1), xformMat_(2, 2), xformMat_(2, 3), xformMat_(3, 0), xformMat_(3, 1), xformMat_(3, 2), xformMat_(3, 3));
+        fprintf(stderr, "----- ViewDesc::changeViewDesc for [id=%d][name=%s] into [scale=%f][matrix=%f %f %f %f | %f %f %f %f | %f %f %f %f | %f %f %f %f]\n", id_, name.c_str(), scale_, xformMat_(0, 0), xformMat_(0, 1), xformMat_(0, 2), xformMat_(0, 3), xformMat_(1, 0), xformMat_(1, 1), xformMat_(1, 2), xformMat_(1, 3), xformMat_(2, 0), xformMat_(2, 1), xformMat_(2, 2), xformMat_(2, 3), xformMat_(3, 0), xformMat_(3, 1), xformMat_(3, 2), xformMat_(3, 3));
 }
 
 void ViewDesc::changeViewDesc(float scale, Matrix m)
@@ -263,7 +264,7 @@ void ViewDesc::changeViewDesc(float scale, Matrix m)
         return;
 
     if (cover->debugLevel(3))
-        fprintf(stderr, "----- ViewDesc::changeViewDesc for [id=%d][name=%s] into [scale=%f][matrix=%f %f %f %f | %f %f %f %f | %f %f %f %f | %f %f %f %f]\n", id_, name, scale, m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
+        fprintf(stderr, "----- ViewDesc::changeViewDesc for [id=%d][name=%s] into [scale=%f][matrix=%f %f %f %f | %f %f %f %f | %f %f %f %f | %f %f %f %f]\n", id_, name.c_str(), scale, m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
 
     scale_ = scale;
     hasScale_ = true;
@@ -279,11 +280,11 @@ void ViewDesc::createButtons(const char *name,
     button_ = new ui::Action("Button", this);
     button_->setText(name);
     menu->add(button_);
-    button_->setCallback([this](){
+    button_->setCallback([this, master](){
         //fprintf(stderr,"menuItem == button_");
-        bool clip = ViewPoints::instance()->useClipPlanesCheck_->state();
+        bool clip = master->useClipPlanesCheck_->state();
         activate(clip);
-        ViewPoints::instance()->activateViewpoint(this);
+        master->activateViewpoint(this);
     });
 
     flightButton_ = new ui::Button("Flight", this);
@@ -303,6 +304,13 @@ void ViewDesc::createButtons(const char *name,
     editVPMenu_ = new ui::Menu("Edit", this);
     editVPMenu_->setText(name);
     editMenu->add(editVPMenu_);
+
+    editNameInput_ = new ui::Input(editVPMenu_, "Name");
+    editNameInput_->setValue(name);
+    editNameInput_->setCallback([this, master](const std::string &text){
+        setName(text.c_str());
+        master->dataChanged = true;
+    });
 
     showViewpointCheck_ = new ui::Button(editVPMenu_, "ShowHideViewpoint");
     showViewpointCheck_->setText("Show/hide viewpoint");
@@ -369,11 +377,11 @@ void ViewDesc::createButtons(const char *name,
 
     updateViewButton = new ui::Action(editVPMenu_, "UpdateToCurrentPosition");
     updateViewButton->setText("Update to current position");
-    updateViewButton->setCallback([this](){
+    updateViewButton->setCallback([this, master](){
         osg::Matrix m = cover->getObjectsXform()->getMatrix();
         coord = m;
         ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
-        if (ViewPoints::instance()->isClipPlaneChecked())
+        if (master->isClipPlaneChecked())
         {
 
             for (unsigned int i = 0; i < clipNode->getNumClipPlanes(); i++)
@@ -387,7 +395,7 @@ void ViewDesc::createButtons(const char *name,
                 addClipPlane(planeString);
             }
         }
-        ViewPoints::instance()->saveAllViewPoints();
+        master->saveAllViewPoints();
     });
 
     if (isChangeable_ && isChangeableFromCover_)
@@ -397,8 +405,8 @@ void ViewDesc::createButtons(const char *name,
         text.append(name);
         changeButton_->setText(text);
         menu->add(changeButton_);
-        changeButton_->setCallback([this](){
-            ViewPoints::instance()->changeViewDesc(this);
+        changeButton_->setCallback([this, master](){
+            master->changeViewDesc(this);
         });
     }
 }
