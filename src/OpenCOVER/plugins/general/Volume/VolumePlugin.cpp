@@ -1973,6 +1973,7 @@ void VolumePlugin::preFrame()
             }
         }
         editor->update();
+        tfeItem->setState(editor->isVisible());
     }
     else
     {
