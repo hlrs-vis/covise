@@ -12,6 +12,8 @@
 #include <OpenVRUI/coSliderMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 
+#include <OpenVRUI/coToolboxMenu.h>
+
 #include "Element.h"
 #include "Menu.h"
 #include "ButtonGroup.h"
@@ -20,8 +22,10 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
+#include "Input.h"
 
 #include <cover/coVRPluginSupport.h>
+#include <cover/VRVruiRenderInterface.h>
 #include <config/CoviseConfig.h>
 
 using namespace vrui;
@@ -29,12 +33,70 @@ using namespace vrui;
 namespace opencover {
 namespace ui {
 
+using covise::coCoviseConfig;
+
+bool toolbar = false;
+
 VruiView::VruiView()
 : View("vrui")
 {
-    m_rootMenu = cover->getMenu();
     m_root = new VruiViewElement(nullptr);
+    m_rootMenu = cover->getMenu();
     m_root->m_menu = m_rootMenu;
+
+    if (toolbar && !cover->getToolBar())
+    {
+        auto tb = new coToolboxMenu("Toolbar");
+
+        //////////////////////////////////////////////////////////
+        // position AK-Toolbar and make it visible
+        float x = coCoviseConfig::getFloat("x", "COVER.Plugin.AKToolbar.Position", -100);
+        float y = coCoviseConfig::getFloat("y", "COVER.Plugin.AKToolbar.Position", 20);
+        float z = coCoviseConfig::getFloat("z", "COVER.Plugin.AKToolbar.Position", -50);
+
+        float h = coCoviseConfig::getFloat("h", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float p = coCoviseConfig::getFloat("p", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float r = coCoviseConfig::getFloat("r", "COVER.Plugin.AKToolbar.Orientation", 0);
+
+        float scale = coCoviseConfig::getFloat("COVER.Plugin.AKToolbar.Scale", 0.2);
+
+        int attachment = coUIElement::TOP;
+        std::string att = coCoviseConfig::getEntry("COVER.Plugin.AKToolbar.Attachment");
+        if (att != "")
+        {
+            if (!strcasecmp(att.c_str(), "BOTTOM"))
+            {
+                attachment = coUIElement::BOTTOM;
+            }
+            else if (!strcasecmp(att.c_str(), "LEFT"))
+            {
+                attachment = coUIElement::LEFT;
+            }
+            else if (!strcasecmp(att.c_str(), "RIGHT"))
+            {
+                attachment = coUIElement::RIGHT;
+            }
+        }
+
+        //float sceneSize = cover->getSceneSize();
+
+        vruiMatrix *mat = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *rot = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *trans = vruiRendererInterface::the()->createMatrix();
+
+        rot->makeEuler(h, p, r);
+        trans->makeTranslate(x, y, z);
+        mat->makeIdentity();
+        mat->mult(rot);
+        mat->mult(trans);
+        tb->setTransformMatrix(mat);
+        tb->setScale(scale);
+        tb->setVisible(true);
+        tb->fixPos(true);
+        tb->setAttachment(attachment);
+
+        cover->setToolBar(tb);
+    }
 }
 
 VruiView::~VruiView()
@@ -213,6 +275,10 @@ void VruiView::updateText(const Element *elem)
         {
             itemText += "...";
         }
+        else if (auto i = dynamic_cast<const Input *>(elem))
+        {
+            itemText += ": " + i->value();
+        }
         if (ve->m_menuItem)
             ve->m_menuItem->setName(itemText);
         if (auto re = dynamic_cast<coRowMenu *>(ve->m_menu))
@@ -364,6 +430,11 @@ void VruiView::updateBounds(const Slider *slider)
     }
 }
 
+void VruiView::updateValue(const Input *input)
+{
+    updateText(input);
+}
+
 VruiViewElement *VruiView::elementFactoryImplementation(Label *label)
 {
     auto ve = new VruiViewElement(label);
@@ -432,6 +503,14 @@ VruiViewElement *VruiView::elementFactoryImplementation(SelectionList *sl)
     smi->setMenu(ve->m_menu);
     smi->closeSubmenu();
     add(ve, sl);
+    return ve;
+}
+
+VruiViewElement *VruiView::elementFactoryImplementation(Input *input)
+{
+    auto ve = new VruiViewElement(input);
+    ve->m_menuItem = new coLabelMenuItem(input->text());
+    add(ve, input);
     return ve;
 }
 

@@ -14,6 +14,7 @@
 
 class QLineEdit;
 class QWidget;
+class QLabel;
 
 class TUILineEdit : public QObject, public TUIElement
 {
@@ -28,12 +29,14 @@ public:
     virtual const char *getClassName() const override;
 
     void setPos(int x, int y) override;
+    void setLabel(QString textl) override;
 
 public slots:
     void valueChanged();
 
 protected:
-    QLineEdit *editField;
+    QLineEdit *editField = nullptr;
     QString value;
+    QLabel *label = nullptr;
 };
 #endif

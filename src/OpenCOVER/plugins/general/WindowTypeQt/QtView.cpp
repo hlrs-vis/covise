@@ -9,6 +9,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/Input.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -323,6 +324,19 @@ QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
     return ve;
 }
 
+QtViewElement *QtView::elementFactoryImplementation(Input *input)
+{
+    auto parent = qtViewParent(input);
+
+    auto la = new QtLabelAction(qtObject(parent));
+    auto ve = new QtViewElement(input, la);
+    ve->action = la;
+    ve->markForDeletion(la);
+    add(ve);
+    return ve;
+
+}
+
 void QtView::updateContainer(const Element *elem)
 {
     if (!elem)
@@ -412,6 +426,12 @@ void QtView::updateText(const Element *elem)
     auto o = qtObject(elem);
     auto t = QString::fromStdString(elem->text());
     t.replace('&', "&&");
+    if (auto i = dynamic_cast<const Input *>(elem))
+    {
+        t += ": ";
+        t += QString::fromStdString(i->value());
+    }
+    //std::cerr << "updateText(" << elem->path() << "): " << t.toStdString() << std::endl;
     if (auto sa = dynamic_cast<QtSliderAction *>(o))
     {
         auto s = dynamic_cast<const Slider *>(elem);
@@ -575,6 +595,11 @@ void QtView::updateBounds(const Slider *slider)
             }
         }
     }
+}
+
+void QtView::updateValue(const Input *input)
+{
+    updateText(input);
 }
 
 QtViewElement::QtViewElement(Element *elem, QObject *obj)

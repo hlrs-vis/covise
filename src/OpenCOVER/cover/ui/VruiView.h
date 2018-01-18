@@ -60,6 +60,7 @@ class VruiView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
+   void updateValue(const Input *input) override;
 
    VruiViewElement *elementFactoryImplementation(Menu *menu) override;
    VruiViewElement *elementFactoryImplementation(Group *group) override;
@@ -68,6 +69,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(Button *button) override;
    VruiViewElement *elementFactoryImplementation(Slider *slider) override;
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
+   VruiViewElement *elementFactoryImplementation(Input *input) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
    VruiViewElement *m_root = nullptr;

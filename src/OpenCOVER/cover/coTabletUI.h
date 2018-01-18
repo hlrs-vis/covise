@@ -1750,6 +1750,7 @@ class COVEREXPORT coTUIEditField : public coTUIElement
 private:
 public:
     coTUIEditField(const std::string &, int pID = 1);
+    coTUIEditField(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIEditField(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIEditField();
     virtual void resend(bool create) override;
@@ -1787,6 +1788,7 @@ class COVEREXPORT coTUIEditTextField : public coTUIElement
 private:
 public:
     coTUIEditTextField(const std::string &, int pID = 1);
+    coTUIEditTextField(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIEditTextField(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIEditTextField();
     virtual void resend(bool create) override;
@@ -1823,6 +1825,7 @@ class COVEREXPORT coTUIEditIntField : public coTUIElement
 private:
 public:
     coTUIEditIntField(const std::string &, int pID = 1, int def = 0);
+    coTUIEditIntField(coTabletUI *tui, const std::string &, int pID = 1, int def = 0);
     coTUIEditIntField(QObject *parent, const std::string &, int pID = 1, int def = 0);
     virtual ~coTUIEditIntField();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1873,6 +1876,7 @@ class COVEREXPORT coTUIEditFloatField : public coTUIElement
 private:
 public:
     coTUIEditFloatField(const std::string &, int pID = 1, float def = 0);
+    coTUIEditFloatField(coTabletUI *tui, const std::string &, int pID = 1, float def = 0);
     coTUIEditFloatField(QObject *parent, const std::string &, int pID = 1, float def = 0);
     virtual ~coTUIEditFloatField();
     virtual void resend(bool create) override;
