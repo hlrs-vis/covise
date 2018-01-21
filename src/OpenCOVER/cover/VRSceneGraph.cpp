@@ -142,8 +142,8 @@ VRSceneGraph::VRSceneGraph()
     , isFirstTraversal(true)
     , isScenegraphProtected_(false)
     , m_enableHighQualityOption(true)
-    , m_highQuality(false)
     , m_switchToHighQuality(false)
+    , m_highQuality(false)
     , m_interactionHQ(NULL)
 {
     assert(!s_instance);
@@ -189,13 +189,22 @@ void VRSceneGraph::init()
         toggleHeadTracking(state);
     });
 
-    m_allowHighQuality= new ui::Button("HighQuality", this);
+    m_allowHighQuality= new ui::Button("AllowHighQuality", this);
     cover->viewOptionsMenu->add(m_allowHighQuality);
     m_allowHighQuality->setState(m_enableHighQualityOption);
     m_allowHighQuality->setText("Allow high quality");
-    m_allowHighQuality->setShortcut("Shift+H");
     m_allowHighQuality->setCallback([this](bool state){
         toggleHighQuality(state);
+    });
+
+    auto switchToHighQuality = new ui::Action("SwitchToHighQuality", this);
+    switchToHighQuality->setVisible(false);
+    cover->viewOptionsMenu->add(switchToHighQuality);
+    switchToHighQuality->setText("Enable high quality rendering");
+    switchToHighQuality->setShortcut("Shift+H");
+    switchToHighQuality->setCallback([this](){
+        if (m_enableHighQualityOption && !m_highQuality)
+            m_switchToHighQuality = true;
     });
 
     m_drawStyle = new ui::SelectionList("DrawStyle", this);
