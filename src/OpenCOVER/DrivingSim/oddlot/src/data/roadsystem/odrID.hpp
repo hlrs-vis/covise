@@ -1,4 +1,3 @@
-
 #ifndef ODRID_HPP
 #define ODRID_HPP
 #include <stdint.h>
@@ -128,4 +127,4 @@ private:
 	IDType type;
 };
 
-#endif ODRID_HPP
+#endif //ODRID_HPP

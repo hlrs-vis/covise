@@ -156,10 +156,10 @@ public:
     // IDs //
     //
 
-	odrID RoadSystem::getID(const QString &name, odrID::IDType t);
-	odrID RoadSystem::getID(int32_t tileID, odrID::IDType t);
-	odrID RoadSystem::getID(odrID::IDType t);// creates a unique ID with name unknown in current Tile
-	odrID RoadSystem::getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t);
+	odrID getID(const QString &name, odrID::IDType t);
+	odrID getID(int32_t tileID, odrID::IDType t);
+	odrID getID(odrID::IDType t);// creates a unique ID with name unknown in current Tile
+	odrID getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t);
 
 	void StringToNumericalIDs(const QMap<odrID, odrID> &idMap);
     void changeUniqueId(RSystemElement *element, const odrID &newId);
