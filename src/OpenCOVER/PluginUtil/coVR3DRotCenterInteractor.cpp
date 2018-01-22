@@ -6,12 +6,13 @@
  * License: LGPL 2+ */
 
 #include "coVR3DRotCenterInteractor.h"
-#include "cover/VRSceneGraph.h"
-#include "cover/coVRConfig.h"
-#include "cover/coVRPluginSupport.h"
-#include "cover/coVRNavigationManager.h"
+#include <cover/VRSceneGraph.h>
+#include <cover/coVRPluginSupport.h>
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
+
+namespace opencover
+{
 
 coVR3DRotCenterInteractor::coVR3DRotCenterInteractor(osg::Matrix m, osg::Vec3 p, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority)
     : coVRIntersectionInteractor(s, type, iconName, interactorName, priority)
@@ -38,7 +39,7 @@ coVR3DRotCenterInteractor::coVR3DRotCenterInteractor(osg::Matrix m, osg::Vec3 p,
 coVR3DRotCenterInteractor::~coVR3DRotCenterInteractor()
 {
     if (opencover::cover->debugLevel(2))
-        fprintf(stderr, "\ndelete ~coVR3DRotInteractor");
+        fprintf(stderr, "\ndelete ~coVR3DRotCenterInteractor");
 }
 
 void coVR3DRotCenterInteractor::createGeometry()
@@ -115,7 +116,7 @@ void coVR3DRotCenterInteractor::updateTransform(osg::Matrix m, osg::Vec3 p)
 void coVR3DRotCenterInteractor::updatePosition(osg::Vec3 pos)
 {
     if (opencover::cover->debugLevel(2))
-        fprintf(stderr, "coVR3DRotInteractor::updateRotationPoint %s \n", _interactorName);
+        fprintf(stderr, "coVR3DRotCenterInteractor::updateRotationPoint %s \n", _interactorName);
 
     p_ = pos;
     m_ = opencover::cover->getPointerMat();
@@ -124,4 +125,6 @@ void coVR3DRotCenterInteractor::updatePosition(osg::Vec3 pos)
     m_(3, 2) = p_[2];
 
     moveTransform->setMatrix(m_);
+}
+
 }
