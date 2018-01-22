@@ -20,7 +20,7 @@ class COVER_UI_EXPORT Input: public Element {
 
    Input(Group *parent, const std::string &name);
    Input(const std::string &name, Owner *owner);
-   ~Input();
+   virtual ~Input();
 
    void setValue(const std::string &text);
    void setValue(double num);

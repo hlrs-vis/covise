@@ -22,7 +22,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
-#include "Input.h"
+#include "UIInput.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>

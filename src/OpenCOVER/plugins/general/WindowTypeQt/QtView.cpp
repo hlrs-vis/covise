@@ -9,7 +9,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
-#include <cover/ui/Input.h>
+#include <cover/ui/UIInput.h>
 
 #include <QMenuBar>
 #include <QToolBar>

@@ -10,7 +10,7 @@ namespace opencover {
 namespace ui {
 
 //! store the data for the representation of a UI Element within a TabletView
-struct TabletViewElement: public View::ViewElement, public coTUIListener
+struct COVER_UI_EXPORT TabletViewElement: public View::ViewElement, public coTUIListener
 {
    TabletViewElement(Element *elem);
    ~TabletViewElement();
@@ -31,7 +31,7 @@ struct TabletViewElement: public View::ViewElement, public coTUIListener
 };
 
 //! concrete implementation of View for showing user interface \ref Element "elements" in VR based on the OpenVRUI framework
-class TabletView: public View
+class COVER_UI_EXPORT TabletView: public View
 {
  public:
    TabletView(const std::string &name, coTabletUI *tui);

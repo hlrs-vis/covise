@@ -36,7 +36,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
-#include <cover/ui/Input.h>
+#include <cover/ui/UIInput.h>
 #include <OpenVRUI/coInteraction.h>
 
 using namespace osg;
