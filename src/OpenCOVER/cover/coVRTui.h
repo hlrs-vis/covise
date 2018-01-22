@@ -177,7 +177,6 @@ private:
     coTUIToggleButton *Walk;
     coTUIToggleButton *DebugBins;
     coTUIToggleButton *FlipStereo;
-    coTUIComboBox *ShadowChoice;
     coTUIToggleButton *Drive;
     coTUIToggleButton *Fly;
     coTUIToggleButton *XForm;
