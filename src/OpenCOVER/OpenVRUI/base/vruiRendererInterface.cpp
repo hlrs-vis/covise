@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
-#include <OpenVRUI/sginterface/vruiButtons.h>
+#include "vruiRendererInterface.h"
+#include "vruiButtons.h"
 
 namespace vrui
 {
@@ -20,6 +20,10 @@ vruiRendererInterface::vruiRendererInterface()
     interactionScaleSensitivity = 1.0;
     upVector = coVector(0.0, 0.0, 1.0);
     ray = true;
+}
+
+vruiRendererInterface::~vruiRendererInterface()
+{
 }
 
 vruiRendererInterface *vruiRendererInterface::the()

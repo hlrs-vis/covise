@@ -46,16 +46,14 @@ class OPENVRUIEXPORT vruiRendererInterface
 
 public:
     vruiRendererInterface();
-    virtual ~vruiRendererInterface()
-    {
-    }
+    virtual ~vruiRendererInterface();
 
     virtual vruiNode *getMenuGroup() = 0;
 
     virtual vruiNode *getScene()
     {
         return NULL;
-    };
+    }
 
     virtual vruiUIElementProvider *createUIElementProvider(coUIElement *element) = 0;
     virtual vruiButtonProvider *createButtonProvider(coButtonGeometry *button) = 0;
@@ -100,17 +98,17 @@ public:
     virtual coJoystickManager *getJoystickManager()
     {
         return NULL;
-    };
+    }
     /// is menu pickable via ray
     virtual bool isRayActive()
     {
         return ray;
-    };
+    }
     /// set menu pickable via ray
     virtual void setRayActive(bool b)
     {
         ray = b;
-    };
+    }
     /// is menu selectable vie joystick
     virtual bool isJoystickActive();
     /// set menu selectable via joystick
@@ -134,7 +132,7 @@ public:
     virtual bool isMultiTouchDevice() const
     {
         return false;
-    };
+    }
 
     virtual void sendCollabMessage(vruiCollabInterface *myinterface, const char *buffer, int length) = 0;
     virtual void remoteLock(int)
@@ -160,16 +158,16 @@ public:
     float getInteractionScaleSensitivity()
     {
         return interactionScaleSensitivity;
-    };
+    }
 
     void setUpVector(coVector v)
     {
         upVector = v;
-    };
+    }
     coVector getUpVector()
     {
         return upVector;
-    };
+    }
 
     /* needed for RTT   
       virtual vruiMatrix *doBillboarding(vruiMatrix *invStartHandTrans, coVector pickPosition, coVector localPickPosition, float myScale) = 0;*/

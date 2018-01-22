@@ -23,9 +23,7 @@ public:
     vruiMatrix()
     {
     }
-    virtual ~vruiMatrix()
-    {
-    }
+    virtual ~vruiMatrix();
 
     virtual vruiMatrix *makeIdentity() = 0;
     virtual vruiMatrix *makeEuler(double h, double p, double r) = 0;

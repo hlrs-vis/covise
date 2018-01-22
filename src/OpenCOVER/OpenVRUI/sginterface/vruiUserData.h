@@ -20,9 +20,7 @@ public:
     vruiUserData() ///< Constructor
     {
     }
-    virtual ~vruiUserData()
-    {
-    }
+    virtual ~vruiUserData();
 };
 }
 #endif

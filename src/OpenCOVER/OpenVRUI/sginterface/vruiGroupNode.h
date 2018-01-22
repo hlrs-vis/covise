@@ -18,7 +18,7 @@ class OPENVRUIEXPORT vruiGroupNode : public virtual vruiNode
 
 public:
     vruiGroupNode();
-    virtual ~vruiGroupNode(){};
+    virtual ~vruiGroupNode();;
 };
 }
 #endif
