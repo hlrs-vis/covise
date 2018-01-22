@@ -117,6 +117,14 @@ RoadLink::setElementType(const QString &elementType)
     }
 }
 
+QString RoadLink::getContactPointString() const
+{
+	if(contactPoint_ == JunctionConnection::JCP_END)
+		return "end";
+	if (contactPoint_ == JunctionConnection::JCP_START)
+		return "start";
+	return "none";
+}
 void
 RoadLink::setContactPoint(JunctionConnection::ContactPointValue contactPoint)
 {

@@ -161,7 +161,7 @@ public:
 	odrID RoadSystem::getID(odrID::IDType t);// creates a unique ID with name unknown in current Tile
 	odrID RoadSystem::getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t);
 
-    void checkIDs(const QMultiMap<odrID, odrID> &roadIds);
+	void StringToNumericalIDs(const QMap<odrID, odrID> &idMap);
     void changeUniqueId(RSystemElement *element, const odrID &newId);
 	int32_t uniqueID();
     void updateControllers();
@@ -189,6 +189,7 @@ private:
     // Change flags //
     //
     int roadSystemChanges_;
+	QSet<int> allIDs;
 
     // ProjectData //
     //

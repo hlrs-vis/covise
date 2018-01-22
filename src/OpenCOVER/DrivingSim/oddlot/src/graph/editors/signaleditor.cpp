@@ -684,7 +684,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
         else if (currentTool == ODD::TSG_CONTROLLER)
         {
             QList<ControlEntry *>controlEntryList;
-            RSystemElementController *newController = new RSystemElementController("unnamed", "", 0,"", 0.0, controlEntryList);
+            RSystemElementController *newController = new RSystemElementController("controller",getProjectData()->getRoadSystem()->getID(odrID::ID_Controller), 0,"", 0.0, controlEntryList);
             AddControllerCommand *command = new AddControllerCommand(newController, getProjectData()->getRoadSystem(), NULL);
 
             getProjectGraph()->executeCommand(command);

@@ -131,7 +131,7 @@ OSCBaseItem::init()
 						if (oscPosRoad)
 						{
 
-							odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "");
+							odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
 							RSystemElementRoad *road = roadSystem_->getRoad(roadID);
 							if (road)
 							{
@@ -316,7 +316,7 @@ OSCBaseItem::updateObserver()
 						OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
 						if (oscPosRoad)
 						{
-							odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "");
+							odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
 							RSystemElementRoad *road = roadSystem_->getRoad(roadID);
                             if (road)
                             {

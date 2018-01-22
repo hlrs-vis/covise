@@ -19,6 +19,7 @@
 // Data //
 //
 #include "src/data/projectdata.hpp"
+#include "src/data/changemanager.hpp"
 
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -112,12 +113,18 @@ CircleWizard::runCalculation()
 	Prototype3 = new RSystemElementRoad("prototype");
 	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_ElevationPrototype, "Planar 0.0"));
 	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, "Planar 0.0"));
+	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, "Planar 0.0"));
+	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype, "Planar 0.0"));
 	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:3"));
+	Prototype3->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype, "Motorway"));
 
-	Prototype3 = new RSystemElementRoad("prototype");
+	Prototype4 = new RSystemElementRoad("prototype");
 	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_ElevationPrototype, "Planar 0.0"));
 	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, "Planar 0.0"));
+	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, "Planar 0.0"));
+	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype, "Planar 0.0"));
 	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:4"));
+	Prototype4->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype, "Motorway"));
 
 	// Road //
 	//
@@ -199,7 +206,10 @@ CircleWizard::runCalculation()
 	RSystemElementRoad *PrototypeSingle = new RSystemElementRoad("prototype", odrID::invalidID(), odrID::invalidID());
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_ElevationPrototype, "Planar 0.0"));
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, "Planar 0.0"));
+	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, "Planar 0.0"));
+	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype, "Planar 0.0"));
 	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, "Circle:Right:1"));
+	PrototypeSingle->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype, "Rural"));
 
 	RSystemElementRoad *newRoadEntry = new RSystemElementRoad("CircleEntry", odrID::invalidID(), odrID::invalidID());
 	TrackElementLine *line1 = new TrackElementLine(0.0, 0.0 - (radius + (laneWidth*4)), 180.0, 0.0, linearLength);
@@ -438,31 +448,38 @@ CircleWizard::runCalculation()
 		return; // usually not the case, only if road or prototype are NULL
 	}
 
-	Object::ObjectProperties objectProps{ -8.60, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
+	Object::ObjectProperties objectProps{ -15.60, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps{ 0.0, M_PI*radius, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
 	Object *gr1 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps, repeatProps, "none");
 	newRoad->addObject(gr1);
 
-	Object::ObjectProperties objectPropsInnen{ 8.60, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
+	Object::ObjectProperties objectPropsInnen{ 1.60, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object *gr1i = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
 	newRoad->addObject(gr1i);
 
-	Object::ObjectProperties objectProps2{ -5.0, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
+	Object::ObjectProperties objectProps2{ -12.1, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	
 	float sOffset = sin(acos((radius + (1 * laneWidth))/(radius + (2 * laneWidth))))* (radius+(2*laneWidth));
 
 
-	Object::ObjectRepeatRecord repeatProps2{ sOffset, (M_PI*radius) - (2* sOffset), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
+	Object::ObjectRepeatRecord repeatProps2{ sOffset, (M_PI_2*radius) - (sOffset), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
 	Object *gr2 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps2, repeatProps2, "none");
 	newRoadLeft->addObject(gr2);
 	Object *gr2i = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
 	newRoadLeft->addObject(gr2i);
+
+	Object::ObjectRepeatRecord repeatProps22{ 0, (M_PI_2*radius) - ( sOffset), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
+	Object *gr22 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps2, repeatProps22, "none");
+	newRoadLowerLeft->addObject(gr22);
+	Object *gr22i = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectPropsInnen, repeatProps, "none");
+	newRoadLowerLeft->addObject(gr22i);
+	
 
 	Object::ObjectProperties objectProps3{ 1.6, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
@@ -471,7 +488,7 @@ CircleWizard::runCalculation()
 	Object *gr3 = new Object(projectData_->getRoadSystem()->getID("guardRail", odrID::ID_Object), "guardRail", 0.0, objectProps3, repeatProps3, "none");
 	newRoadEntry->addObject(gr3);
 
-	Object::ObjectProperties objectProps4{-5.1, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
+	Object::ObjectProperties objectProps4{-4.9, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps4{ sOffset, linearLength-(sOffset+1), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
@@ -479,7 +496,7 @@ CircleWizard::runCalculation()
 	newRoadEntry->addObject(gr4);
 
 
-	Object::ObjectProperties objectProps5{  - 5.1, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
+	Object::ObjectProperties objectProps5{  -4.9, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "guardRail", 0.0, 4.0, 0.0,
 		0.0, 0.0, 0.0,
 		0.0, 0.0, false };
 	Object::ObjectRepeatRecord repeatProps5{ 0, linearLength - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };  // TODO: add properties to container
@@ -500,4 +517,6 @@ CircleWizard::runCalculation()
     // Quit //
     //
     done(0);
+
+	projectData_->getChangeManager()->notifyObservers();
 }

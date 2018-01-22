@@ -284,7 +284,9 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
             // Create new Junction Element //
             //
-            RSystemElementJunction *newJunction = new RSystemElementJunction("unnamed", "junction");
+			odrID ID;
+			ID.setType(odrID::ID_Junction);
+            RSystemElementJunction *newJunction = new RSystemElementJunction("junction");
 
             NewJunctionCommand *command = new NewJunctionCommand(newJunction, getProjectData()->getRoadSystem(), NULL);
             if (command->isValid())
@@ -1254,7 +1256,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                     // Create new Junction Element //
                     //
-                    RSystemElementJunction *newJunction = new RSystemElementJunction("unnamed", "junction");
+                    RSystemElementJunction *newJunction = new RSystemElementJunction("junction",getProjectData()->getRoadSystem()->getID(odrID::ID_Junction));
 
                     NewJunctionCommand *junctionCommand = new NewJunctionCommand(newJunction, getProjectData()->getRoadSystem(), NULL);
                     if (junctionCommand->isValid())

@@ -40,7 +40,8 @@ public:
     };
 
 public:
-    explicit Tile(const QString &name, const QString &id);
+    explicit Tile(const odrID &tileID);
+	explicit Tile(int tid);
     virtual ~Tile();
 
 public:
@@ -75,6 +76,10 @@ public:
     }
     void addTileChanges(int changes);
 
+	const QString getUniqueOSCID(const QString &suggestion,const QString &name);
+	void removeOSCID(const QString &ID);
+	int32_t uniqueID(odrID::IDType t);
+
     // Visitor Pattern //
     //
 
@@ -92,6 +97,8 @@ private:
     //
     QString name_; // name of the element
     odrID id_; // unique ID within database
+	QSet<QString> oscIDs;
+	QSet<int32_t> odrIDs[odrID::NUM_IDs];
 };
 
 #endif // TILE_HPP

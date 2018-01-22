@@ -41,7 +41,7 @@ public:
     //################//
 
 public:
-	explicit ObjectReference(const odrID &id, Object *object, const QString &referenceId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity);
+	explicit ObjectReference(const odrID &id, Object *object, const odrID &referenceId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity);
     virtual ~ObjectReference()
     { /* does nothing */
     }

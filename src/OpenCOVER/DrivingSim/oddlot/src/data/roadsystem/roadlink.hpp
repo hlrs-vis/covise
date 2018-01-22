@@ -69,6 +69,7 @@ public:
     {
         return contactPoint_;
     }
+	QString getContactPointString() const;
     void setContactPoint(JunctionConnection::ContactPointValue contactPoint);
 
     RoadLinkType getRoadLinkType() const

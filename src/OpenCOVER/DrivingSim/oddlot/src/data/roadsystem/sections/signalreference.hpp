@@ -40,7 +40,7 @@ public:
     //################//
 
 public:
-	explicit SignalReference(const odrID &id, Signal *signal, const QString &referenceId, double s, double t, Signal::OrientationType orientation, QList<Signal::Validity> validity);
+	explicit SignalReference(const odrID &id, Signal *signal, const odrID &referenceId, double s, double t, Signal::OrientationType orientation, QList<Signal::Validity> validity);
     virtual ~SignalReference()
     { /* does nothing */
     }

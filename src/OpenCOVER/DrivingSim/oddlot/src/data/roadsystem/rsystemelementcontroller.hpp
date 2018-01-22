@@ -75,8 +75,8 @@ public:
     // FUNCTIONS      //
     //################//
 
-    explicit RSystemElementController(const QString &name, const QString &id, int sequence, const QString &script, double cycleTime, const QList<ControlEntry *> &controlEntries);
-    explicit RSystemElementController(const QString &name, const QString &id, int sequence, ControllerUserData &controllerUserData, const QList<ControlEntry *> &controlEntries);
+    explicit RSystemElementController(const QString &name, const odrID &id, int sequence, const QString &script, double cycleTime, const QList<ControlEntry *> &controlEntries);
+    explicit RSystemElementController(const QString &name, const odrID &id, int sequence, ControllerUserData &controllerUserData, const QList<ControlEntry *> &controlEntries);
     virtual ~RSystemElementController();
 
     // Observer Pattern //

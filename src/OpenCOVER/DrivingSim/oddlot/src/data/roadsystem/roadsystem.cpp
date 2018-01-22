@@ -121,7 +121,10 @@ RoadSystem::getTileRoads(const odrID &tileId) const
 void
 RoadSystem::addRoad(RSystemElementRoad *road)
 {
-	road->setID(getID(road->getName(),odrID::ID_Road));
+	if (road->getID().isInvalid())
+	{
+		road->setID(getID(road->getName(), odrID::ID_Road));
+	}
 
     // Insert //
     //
@@ -176,7 +179,10 @@ void
 RoadSystem::addController(RSystemElementController *controller)
 {
     QString name = controller->getName();
-	controller->setID(getID(name, odrID::ID_Controller));
+	if (controller->getID().isInvalid())
+	{
+		controller->setID(getID(name, odrID::ID_Controller));
+	}
     controller->setRoadSystem(this);
     controllers_.insert(controller->getID().getID(), controller);
 
@@ -228,13 +234,16 @@ RoadSystem::getTileJunctions(const odrID &tileId) const
 void
 RoadSystem::addJunction(RSystemElementJunction *junction)
 {
-    if (getProjectData())
-    {
-        // Id //
-        //
-        QString name = junction->getName();
-		junction->setID(getID(name, odrID::ID_Junction));
-    }
+	if (junction->getID().isInvalid())
+	{
+		if (getProjectData())
+		{
+			// Id //
+			//
+			QString name = junction->getName();
+			junction->setID(getID(name, odrID::ID_Junction));
+		}
+	}
 
     // Insert //
     //
@@ -284,12 +293,12 @@ RoadSystem::getTileJunctionGroups(const odrID &tileId) const
 void
 RoadSystem::addJunctionGroup(RSystemElementJunctionGroup *junctionGroup)
 {
-    if (getProjectData())
+    if (junctionGroup->getID().isInvalid() && getProjectData())
     {
         // Id //
         //
         QString name = junctionGroup->getName();
-		junctionGroup->setID(getID(name, odrID::ID_JunctionGroup));
+		junctionGroup->setID(getID(name, odrID::ID_Junction));
     }
 
     // Insert //
@@ -347,9 +356,12 @@ RoadSystem::getTileFiddleyards(const odrID &tileId) const
 void
 RoadSystem::addFiddleyard(RSystemElementFiddleyard *fiddleyard)
 {
-    addRoadSystemChanges(RoadSystem::CRS_FiddleyardChange);
-    QString name = fiddleyard->getName();
-	fiddleyard->setID(getID(name, odrID::ID_Fiddleyard));
+	addRoadSystemChanges(RoadSystem::CRS_FiddleyardChange);
+	if (fiddleyard->getID().isInvalid())
+	{
+		QString name = fiddleyard->getName();
+		fiddleyard->setID(getID(name, odrID::ID_Fiddleyard));
+	}
     fiddleyard->setRoadSystem(this);
 }
 
@@ -399,8 +411,11 @@ void
 RoadSystem::addPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard)
 {
     addRoadSystemChanges(RoadSystem::CRS_PedFiddleyardChange);
-    QString name = fiddleyard->getName();
-	fiddleyard->setID(getID(name,odrID::ID_PedFiddleyard));
+	if (fiddleyard->getID().isInvalid())
+	{
+		QString name = fiddleyard->getName();
+		fiddleyard->setID(getID(name, odrID::ID_PedFiddleyard));
+	}
 	fiddleyard->setRoadSystem(this);
 }
 
@@ -604,7 +619,11 @@ RoadSystem::changeUniqueId(RSystemElement *element, const odrID &newId)
 
 odrID RoadSystem::getID(const QString &name, odrID::IDType t)
 {
-	return odrID(uniqueID(), getProjectData()->getTileSystem()->getCurrentTile()->getID().getID(), name,t);
+	if (getProjectData() && getProjectData()->getTileSystem()->getCurrentTile())
+	{
+		return odrID(getProjectData()->getTileSystem()->getCurrentTile()->uniqueID(t), getProjectData()->getTileSystem()->getCurrentTile()->getID().getID(), name, t);
+	}
+	return odrID(uniqueID(), 0, name, t);
 }
 odrID RoadSystem::getID(int32_t tileID, odrID::IDType t)
 {
@@ -613,19 +632,30 @@ odrID RoadSystem::getID(int32_t tileID, odrID::IDType t)
 
 odrID RoadSystem::getID(odrID::IDType t)// creates a unique ID with name unknown in current Tile
 {
-	return odrID(uniqueID(), getProjectData()->getTileSystem()->getCurrentTile()->getID().getID(), "unknown",t);
+	
+	return getID("unknown",t);
 }
 
 odrID RoadSystem::getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t)
 {
 	return odrID(ID,tileID,name,t);
 }
+
+int RoadSystem::uniqueID()
+{
+	static int lastID = 0;
+	while (allIDs.contains(lastID))
+		lastID++;
+	allIDs.insert(lastID);
+	return lastID;
+}
+
 void
-RoadSystem::checkIDs(const QMultiMap<odrID, odrID> &idMap)
+RoadSystem::StringToNumericalIDs(const QMap<odrID, odrID> &idMap)
 {
     //Roads //
     //
-    odrID tileId = getProjectData()->getTileSystem()->getCurrentTile()->getID();
+/*    odrID tileId = getProjectData()->getTileSystem()->getCurrentTile()->getID();
     auto it = roads_.constBegin();
 
     while (it != roads_.constEnd())
@@ -813,7 +843,7 @@ RoadSystem::checkIDs(const QMultiMap<odrID, odrID> &idMap)
         }
 
         fIter++;
-    }
+    }*/
 }
 
 void 

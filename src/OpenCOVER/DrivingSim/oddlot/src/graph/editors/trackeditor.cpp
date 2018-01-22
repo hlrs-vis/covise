@@ -231,7 +231,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
         else if (isCurrentTool(ODD::TTE_TILE_NEW))
         {
-            Tile *tile = new Tile("Tile0", "0");
+            Tile *tile = new Tile(getProjectData()->getRoadSystem()->getID(odrID::ID_Tile));
             NewTileCommand *command = new NewTileCommand(tile, getProjectData()->getTileSystem(), NULL);
             getProjectGraph()->executeCommand(command);
         }

@@ -406,7 +406,7 @@ ProjectWidget::newFile()
     projectMenuAction_->setText(strippedFileName_);
 
     // Create a Tile
-    Tile *tile = new Tile("Tile0", "0");
+    Tile *tile = new Tile(projectData_->getRoadSystem()->getID(odrID::ID_Tile));
     projectData_->getTileSystem()->addTile(tile);
     projectData_->getTileSystem()->setCurrentTile(tile);
 
@@ -497,7 +497,7 @@ ProjectWidget::loadFile(const QString &fileName, FileType type)
 		// Create a Tile
 		if (!projectData_->getTileSystem()->getCurrentTile())
 		{
-			Tile *tile = new Tile("Tile0", "0");
+			Tile *tile = new Tile(projectData_->getRoadSystem()->getID(odrID::ID_Tile));
 			projectData_->getTileSystem()->addTile(tile);
 			projectData_->getTileSystem()->setCurrentTile(tile); 
 		}
@@ -1862,14 +1862,16 @@ void
 ProjectWidget::toolAction(ToolAction *toolAction)
 {
 	static ODD::EditorId lastId = ODD::ENO_EDITOR;
+	static ProjectData* lastProjectData = NULL;
 
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
-    if ((id != lastId) && (id != ODD::ENO_EDITOR))
+    if ((id != lastId || projectData_ != lastProjectData) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
 		lastId = id;
+		lastProjectData = projectData_;
     }
 
     // Pass to Editor/Graph //

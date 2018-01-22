@@ -2009,7 +2009,7 @@ RSystemElementRoad::addObject(Object *object)
 
     // Id //
     //
-	object->setId(getRoadSystem()->getID(object->getName()));
+	object->setId(getRoadSystem()->getID(object->getName(),odrID::ID_Object));
 
     // Insert and Notify //
     //
@@ -2108,7 +2108,7 @@ RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
 		name = object->getName();
 	}
 
-	objectReference->setId(getRoadSystem()->getID(name));
+	objectReference->setId(getRoadSystem()->getID(name, odrID::ID_Road));
 
 	// Insert and Notify //
 	//
@@ -2203,7 +2203,7 @@ RSystemElementRoad::addBridge(Bridge *bridge)
     //
     QString name = bridge->getName();
 
-    bridge->setId(getRoadSystem()->getID(name));
+    bridge->setId(getRoadSystem()->getID(name, odrID::ID_Bridge));
 
     // Insert and Notify //
     //
@@ -2353,7 +2353,7 @@ RSystemElementRoad::addSignal(Signal *signal)
     //
     QString name = signal->getName();
 
-    odrID id = getRoadSystem()->getID(name);
+    odrID id = getRoadSystem()->getID(name,  odrID::ID_Object);
         signal->setId(id);
         if (name != signal->getName())
         {
@@ -2475,7 +2475,7 @@ RSystemElementRoad::addSignalReference(SignalReference *signalReference)
 		name = signal->getName();
 	}
 
-	odrID id = getRoadSystem()->getID(name);
+	odrID id = getRoadSystem()->getID(name, odrID::ID_Object);
 	signalReference->setId(id);
 
 	// Insert and Notify //

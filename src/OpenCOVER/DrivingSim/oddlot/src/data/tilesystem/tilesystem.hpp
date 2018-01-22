@@ -26,6 +26,8 @@
 #include <QStringList>
 
 #include "tile.hpp"
+class QDomElement;
+class QDomDocument;
 
 class TileSystem : public DataElement
 {
@@ -51,13 +53,17 @@ public:
 
     // Tiles //
     //
-    Tile *getTile(const odrID &id) const;
+	Tile *getTile(const odrID &id) const;
+	Tile *getTile(int tid) const;
     QMap<odrID, Tile *> getTiles() const
     {
         return tiles_;
     }
     void addTile(Tile *tile);
     bool delTile(Tile *tile);
+	void addTileIfNecessary(const odrID &elementID);
+
+	void write(QDomDocument *doc_, QDomElement &root);
 
     Tile *getCurrentTile()
     {

@@ -122,7 +122,7 @@ RoadSettings::updateRoadLinks()
     if (road_->getPredecessor())
     {
         RoadLink *link = road_->getPredecessor();
-        QString text = link->getElementType().append(" ").append(link->getElementId().speakingName()).append(" ").append(link->getContactPoint());
+        QString text = link->getElementType().append(" ").append(link->getElementId().speakingName()).append(" ").append(link->getContactPointString());
         ui->predecessorBox->setText(text);
         ui->predecessorBox->setEnabled(true);
     }
@@ -134,7 +134,7 @@ RoadSettings::updateRoadLinks()
     if (road_->getSuccessor())
     {
         RoadLink *link = road_->getSuccessor();
-        QString text = link->getElementType().append(" ").append(link->getElementId().speakingName()).append(" ").append(link->getContactPoint());
+        QString text = link->getElementType().append(" ").append(link->getElementId().speakingName()).append(" ").append(link->getContactPointString());
         ui->successorBox->setText(text);
         ui->successorBox->setEnabled(true);
     }

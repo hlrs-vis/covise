@@ -31,6 +31,10 @@ JunctionConnection::parseContactPoint(const QString &value)
 	{
 		return JunctionConnection::JCP_END;
 	}
+	else if (value == "none")
+	{
+		return JunctionConnection::JCP_NONE;
+	}
 	else
 	{
 		qDebug("WARNING: unknown connection contact point: %s", value.toUtf8().constData());

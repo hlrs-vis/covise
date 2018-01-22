@@ -15,6 +15,8 @@
 
 #include "tilesystem.hpp"
 
+#include "QDomDocument"
+
 // Data //
 //
 #include "src/data/projectdata.hpp"
@@ -49,17 +51,17 @@ TileSystem::getTile(const odrID &id) const
     return tiles_.value(id, NULL);
 }
 
+Tile *
+TileSystem::getTile(int tid) const
+{
+	odrID ID;
+	ID.setID(tid);
+	return tiles_.value(ID, NULL);
+}
+
 void
 TileSystem::addTile(Tile *tile)
 {
-    if (getProjectData())
-    {
-        // Id //
-        //
-        odrID id = getProjectData()->getRoadSystem()->getID(tile->getName());
-        tile->setID(id);
-    }
-
     // Insert //
     //
     tile->setTileSystem(this);
@@ -101,6 +103,31 @@ TileSystem::delTile(Tile *tile)
         qDebug("WARNING 1005311350! Delete tile not successful!");
         return false;
     }
+}
+
+void TileSystem::write(QDomDocument *doc_, QDomElement &root)
+{
+	foreach(Tile *tile, tiles_)
+	{
+		QDomElement userData = doc_->createElement("userData");
+
+		userData.setAttribute("code", "tile");
+		userData.setAttribute("value", QString::number(tile->getID().getID()) + " " + tile->getID().getName());
+		root.appendChild(userData);
+	}
+
+}
+
+void TileSystem::addTileIfNecessary(const odrID &elementID)
+{
+	odrID tid;
+	tid.setTileID(elementID.getTileID());
+	tid.setType(odrID::ID_Tile);
+	Tile *t = getTile(tid);
+	if (t == NULL)
+	{
+		addTile(new Tile(tid));
+	}
 }
 
 void

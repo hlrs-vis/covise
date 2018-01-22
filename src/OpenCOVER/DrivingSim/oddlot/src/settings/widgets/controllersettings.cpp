@@ -118,7 +118,7 @@ ControllerSettings::updateControlEntries()
     int row = 0;
     foreach (ControlEntry *element, controlEntries)
     {
-        ui->controlEntryTableWidget->setItem(row, 0, new QTableWidgetItem(element->getSignalId()));
+        ui->controlEntryTableWidget->setItem(row, 0, new QTableWidgetItem(element->getSignalId().speakingName()));
         ui->controlEntryTableWidget->setItem(row, 1, new QTableWidgetItem(element->getType()));
         ++row;
     }

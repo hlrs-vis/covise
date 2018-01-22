@@ -243,7 +243,7 @@ OSCItem::init()
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
 
-	odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, "");
+	odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
 	road_ = roadSystem_->getRoad(roadID);
 	closestRoad_ = road_;
 	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
@@ -614,7 +614,7 @@ OSCItem::updateObserver()
         {
 			oscTextItem_->updateText(updateName());
 		}
-		odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, "");
+		odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, "",odrID::ID_Road);
 		road_ = roadSystem_->getRoad(roadID);
 		path_.translate(-pos_);
 		s_ = oscRoad_->s.getValue();

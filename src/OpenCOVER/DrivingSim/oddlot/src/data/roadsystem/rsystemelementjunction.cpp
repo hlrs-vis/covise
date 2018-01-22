@@ -138,7 +138,7 @@ RSystemElementJunction::checkConnectionIds(const QMultiMap<odrID, odrID> &ids)
 			newConnection->setIncomingRoad(it.value());
 		}
 
-		auto it = ids.find(connection->getConnectingRoad());
+		it = ids.find(connection->getConnectingRoad());
 		if (it != ids.end())
 		{
 			newConnection->setConnectingRoad(it.value());

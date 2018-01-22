@@ -17,6 +17,8 @@
 
 #include "pool.hpp"
 #include "vehiclesystem.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/projectdata.hpp"
 
 CarPool::CarPool()
     : DataElement()
@@ -32,7 +34,7 @@ void
 CarPool::addPool(Pool *pool)
 {
     addCarPoolChanges(CarPool::CVR_PoolChanged);
-    pools_.insert(parentVehicleSystem_->getUniqueId(pool->getID()), pool);
+    pools_.insert(parentVehicleSystem_->getProjectData()->getRoadSystem()->getID(pool->getID().getTileID(),odrID::ID_Fiddleyard), pool);
 
     pool->setParentCarPool(this);
 }

@@ -15,6 +15,7 @@
 
 #include "roadcommands.hpp"
 #include "trackcommands.hpp"
+#include <QMessageBox>
 
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -3429,6 +3430,15 @@ SetRoadLinkCommand::redo()
         {
             LaneSection *laneSection = road_->getLaneSection(0.0);
             RSystemElementRoad *linkRoad = roadSystem_->getRoad(newRoadLink_->getElementId());
+			if (linkRoad == NULL)
+			{
+				QMessageBox msgBox;
+				msgBox.setIcon(QMessageBox::Critical);
+				msgBox.setWindowTitle("link error");
+				msgBox.setText("wrong road link");
+				msgBox.exec();
+				return;
+			}
             if (newRoadLink_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 LaneSection *linkSection = linkRoad->getLaneSection(0.0);
