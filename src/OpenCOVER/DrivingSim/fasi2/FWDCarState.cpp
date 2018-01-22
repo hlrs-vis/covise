@@ -288,5 +288,5 @@ FWDCarState::FWDCarState()
 	motorOffsetZR = 0.75;
 	carZ = 0;
 	mpHeight = 0;
-	mpZReturnSpeed = 0.5;
+	mpZReturnSpeed = 50.0;
 }
