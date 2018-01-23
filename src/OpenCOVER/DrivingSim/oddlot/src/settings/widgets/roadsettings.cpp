@@ -103,10 +103,10 @@ void
 RoadSettings::updateProperties()
 {
     ui->nameBox->setText(road_->getName());
-    ui->idLabel->setText(road_->getID());
+    ui->idLabel->setText(road_->getID().speakingName());
     ui->lengthBox->setValue(road_->getLength());
-    ui->junctionBox->setText(road_->getJunction());
-    if (road_->getJunction() == QString("-1") || road_->getJunction() != QString(""))
+    ui->junctionBox->setText(road_->getJunction().speakingName());
+    if (road_->getJunction().isInvalid())
     {
         ui->junctionBox->setEnabled(false);
     }
@@ -122,7 +122,7 @@ RoadSettings::updateRoadLinks()
     if (road_->getPredecessor())
     {
         RoadLink *link = road_->getPredecessor();
-        QString text = link->getElementType().append(" ").append(link->getElementId()).append(" ").append(link->getContactPoint());
+        QString text = link->getElementType().append(" ").append(link->getElementId().speakingName()).append(" ").append(link->getContactPointString());
         ui->predecessorBox->setText(text);
         ui->predecessorBox->setEnabled(true);
     }
@@ -134,7 +134,7 @@ RoadSettings::updateRoadLinks()
     if (road_->getSuccessor())
     {
         RoadLink *link = road_->getSuccessor();
-        QString text = link->getElementType().append(" ").append(link->getElementId()).append(" ").append(link->getContactPoint());
+        QString text = link->getElementType().append(" ").append(link->getElementId().speakingName()).append(" ").append(link->getContactPointString());
         ui->successorBox->setText(text);
         ui->successorBox->setEnabled(true);
     }
@@ -158,22 +158,13 @@ RoadSettings::updateRoadLinks()
 void
 RoadSettings::on_editingFinished()
 {
-    QString filename = ui->nameBox->text();
-    if (filename != road_->getName())
+    QString name = ui->nameBox->text();
+    if (name != road_->getName())
     {
-        QString newId;
-        QStringList parts = road_->getID().split("_");
-
-        if (parts.size() > 2)
-        {
-            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
-        }
-        else
-        {
-            newId = road_->getRoadSystem()->getUniqueId(road_->getID(), filename);
-        }
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, filename, NULL);
-        getProjectSettings()->executeCommand(command);
+		odrID newId = road_->getID();
+		newId.setName(name);
+		SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, name, NULL);
+		getProjectSettings()->executeCommand(command);
     }
 
  
@@ -186,13 +177,23 @@ RoadSettings::on_addButton_released()
     QStringList junctions;
     foreach (RSystemElementJunction *junction, getProjectData()->getRoadSystem()->getJunctions())
     {
-        junctions.append(junction->getID());
+        junctions.append(junction->getID().speakingName());
     }
     bool ok = false;
     QString newValue = QInputDialog::getItem(this, tr("ODD: Junction"), tr("Please select a junction:"), junctions, junctions.size() - 1, false, &ok);
     if (ok && !newValue.isEmpty())
     {
-        RSystemElementJunction *junction = getProjectData()->getRoadSystem()->getJunction(newValue);
+		QStringList parts = newValue.split("_");
+		odrID newID;
+		if (parts.size() >= 1)
+		{
+			newID.setID(QVariant(parts[0]).toInt());
+		}
+		else
+		{
+			newID.setID(QVariant(newValue).toInt());
+		}
+        RSystemElementJunction *junction = getProjectData()->getRoadSystem()->getJunction(newID);
         AddToJunctionCommand *command = new AddToJunctionCommand(getProjectData()->getRoadSystem(), road_, junction, NULL);
         getProjectSettings()->executeCommand(command);
     }

@@ -10,6 +10,8 @@
 
 #include <QComboBox>
 #include <QLabel>
+#include <QGridLayout>
+#include <QFrame>
 
 #include "TUIComboBox.h"
 #include "TUIApplication.h"
@@ -23,25 +25,33 @@
 TUIComboBox::TUIComboBox(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    QComboBox *b = new QComboBox(w);
-    b->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    widget = b;
-    connect(b, SIGNAL(activated(int)), this, SLOT(valueChanged(int)));
+    auto frame = new QFrame(w);
+    frame->setFrameStyle(QFrame::Plain | QFrame::NoFrame);
+    frame->setContentsMargins(0, 0, 0, 0);
+    widget = frame;
+    combo = new QComboBox(widget);
+    combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    connect(combo, SIGNAL(activated(int)), this, SLOT(valueChanged(int)));
+    auto grid = new QGridLayout(frame);
+    frame->setLayout(grid);
+    layout = grid;
+    layout->setContentsMargins(0, 0, 0, 0);
+    grid->addWidget(combo, 1, 0);
 }
 
 /// Destructor
 TUIComboBox::~TUIComboBox()
 {
-    delete widget;
+    delete layout;
+    delete combo;
+    delete label;
 }
 
 void TUIComboBox::valueChanged(int)
 {
-    QComboBox *cb = (QComboBox *)widget;
-
     covise::TokenBuffer tb;
     tb << ID;
-    QByteArray ba = cb->currentText().toUtf8();
+    QByteArray ba = combo->currentText().toUtf8();
     tb << ba.data();
     TUIMainWindow::getInstance()->send(tb);
 }
@@ -51,7 +61,7 @@ const char *TUIComboBox::getClassName() const
     return "TUIComboBox";
 }
 
-void TUIComboBox::setValue(int type, covise::TokenBuffer &tb)
+void TUIComboBox::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue " << type << endl;
     if (type == TABLET_ADD_ENTRY)
@@ -59,46 +69,61 @@ void TUIComboBox::setValue(int type, covise::TokenBuffer &tb)
         char *en;
         tb >> en;
         QString entry(en);
-        ((QComboBox *)widget)->addItem(entry);
+        combo->addItem(entry);
     }
     else if (type == TABLET_REMOVE_ENTRY)
     {
-        QComboBox *cb = (QComboBox *)widget;
-        int num = cb->count();
+        int num = combo->count();
         int i;
         char *en;
         tb >> en;
         QString entry(en);
         for (i = 0; i < num; i++)
         {
-            if (cb->itemText(i) == entry)
+            if (combo->itemText(i) == entry)
             {
-                cb->removeItem(i);
+                combo->removeItem(i);
                 break;
             }
         }
     }
     else if (type == TABLET_SELECT_ENTRY)
     {
-        QComboBox *cb = (QComboBox *)widget;
-        int num = cb->count();
+        int num = combo->count();
         int i;
         char *en;
         tb >> en;
         QString entry(en);
         for (i = 0; i < num; i++)
         {
-            if (cb->itemText(i) == entry)
+            if (combo->itemText(i) == entry)
             {
-                cb->setCurrentIndex(i);
+                combo->setCurrentIndex(i);
                 break;
             }
         }
     }
     else if (type == TABLET_REMOVE_ALL)
     {
-        QComboBox *cb = (QComboBox *)widget;
-        cb->clear();
+        combo->clear();
     }
     TUIElement::setValue(type, tb);
+}
+
+void TUIComboBox::setLabel(QString textl)
+{
+    if (textl.isEmpty())
+    {
+        widgets.erase(label);
+        delete label;
+        label = nullptr;
+    }
+    else if (!label)
+    {
+        label = new QLabel(widget);
+        auto grid = static_cast<QGridLayout *>(layout);
+        grid->addWidget(label, 0, 0);
+    }
+    if (label)
+        label->setText(textl);
 }

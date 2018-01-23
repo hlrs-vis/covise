@@ -28,7 +28,6 @@
 #include "input/input.h"
 #include "input/coMousePointer.h"
 #include "VRViewer.h"
-#include "coTabletUI.h"
 #ifdef DOTIMING
 #include <util/coTimer.h>
 #endif
@@ -446,7 +445,6 @@ void coVRPluginSupport::update()
 
     invCalculated = 0;
     updateManager->update();
-    coTabletUI::instance()->update();
     //get rotational part of Xform only
     osg::Matrix frontRot(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
     if (VRViewer::instance()->isMatrixOverwriteOn())

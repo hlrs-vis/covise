@@ -490,7 +490,7 @@ private:
 
     bool trackedHMD;
 
-    bool drawStatistics;
+    int drawStatistics;
 
     // multi-sampling
     int multisampleSamples;

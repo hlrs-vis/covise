@@ -51,6 +51,7 @@ void Entity::setSpeed(float speed_temp)
 	speed = speed_temp;
 }
 
+
 float &Entity::getSpeed()
 {
 	return speed;
@@ -58,5 +59,7 @@ float &Entity::getSpeed()
 
 void Entity::setDirection(osg::Vec3 &dir)
 {
-	directionVector = dir;
+    directionVector = dir;
+    directionVector.normalize();
+
 }

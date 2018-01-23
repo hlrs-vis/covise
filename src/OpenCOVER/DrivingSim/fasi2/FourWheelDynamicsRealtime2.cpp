@@ -1384,6 +1384,8 @@ void FourWheelDynamicsRealtime2::run()
 			double oldCarZ = carState.carZ;
 			carState.carZ = carState.cogOpencoverPos(3,1);
 			double carZSpeed = (carState.carZ - oldCarZ) / h;
+			if(oldCarZ == 0) // first carZ is not OK.
+			    carZSpeed = 0;
 			if(carZSpeed >= 0)
 			{
 				carZSpeed = tanh(carZSpeed / 15) * carZSpeed;
@@ -1407,6 +1409,13 @@ void FourWheelDynamicsRealtime2::run()
 			osg::Matrix mpPlane = carState.cogOpencoverRot;
 			mpPlane.makeRotate(yawAngle,0,1,0);
 			mpPlane = carState.cogOpencoverRot * mpPlane;
+			//fprintf(stderr,"mpPlane x%f y%f z%f\n",mpPlane(0,4),mpPlane(1,4),mpPlane(2,4));
+			fprintf(stderr,"carState.mpHeight %f\n",carState.mpHeight);
+			fprintf(stderr,"carZSpeed %f\n",carZSpeed);
+			fprintf(stderr,"carState.mpZReturnSpeed %f\n",carState.mpZReturnSpeed);
+			fprintf(stderr,"h %f\n",h);
+			//fprintf(stderr,"carState.motorOffsetXR %f\n",carState.motorOffsetXR);
+			//fprintf(stderr,"carState.motorOffsetZR %f\n",carState.motorOffsetZR);
 			
 			
 			double motPlatSpeedLim = 0;

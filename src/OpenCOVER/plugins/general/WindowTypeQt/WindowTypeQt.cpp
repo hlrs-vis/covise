@@ -159,6 +159,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
 
     QMenu *helpMenu = new QMenu(menubar);
+    helpMenu->setTearOffEnabled(true);
     helpMenu->setTitle("Help");
     menubar->addMenu(helpMenu);
     win.view.back()->setInsertPosition(helpMenu->menuAction());

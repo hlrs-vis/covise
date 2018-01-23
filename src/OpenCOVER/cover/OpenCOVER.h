@@ -44,6 +44,7 @@ class Group;
 class coHud;
 class buttonSpecCell;
 class coVRPlugin;
+class coTabletUI;
 
 extern COVEREXPORT covise::VRBClient *vrbc;
 
@@ -118,6 +119,8 @@ private:
 #endif
     bool m_renderNext;
     bool m_initialized = false;
+
+    std::vector<coTabletUI *> tabletUIs;
 };
 }
 #endif

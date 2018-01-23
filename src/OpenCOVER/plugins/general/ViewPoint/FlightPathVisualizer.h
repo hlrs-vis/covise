@@ -37,7 +37,7 @@ using namespace osg;
 class FlightPathVisualizer
 {
 private:
-    list<ViewDesc *> vpList;
+    std::list<ViewDesc *> vpList;
     std::vector<BezierCurveVisualizer *> bezierCurveVis;
 
     ref_ptr<Geode> cameraGeode;
@@ -94,7 +94,7 @@ private:
 
 public:
     FlightPathVisualizer(const FlightPathVisualizer &cc);
-    FlightPathVisualizer(coVRPluginSupport *cover, std::vector<ViewDesc *> *viewPoints);
+    FlightPathVisualizer(opencover::coVRPluginSupport *cover, std::vector<ViewDesc *> *viewPoints);
     ~FlightPathVisualizer();
 
     void addViewpoint(ViewDesc *viewDesc);

@@ -21,6 +21,7 @@
 #include "wce_connect.h"
 #endif
 #include <util/coTabletUIMessages.h>
+#include <set>
 class TUIContainer;
 class QWidget;
 class QLayout;
@@ -65,35 +66,35 @@ public:
     {
         (void)activedTab;
     };
-    virtual int getXpos() ///< Returns element x position
+    virtual int getXpos() const ///< Returns element x position
     {
         return xPos;
     };
-    virtual int getYpos() ///< Returns element y position
+    virtual int getYpos()  const ///< Returns element y position
     {
         return yPos;
     };
     virtual void setPos(int, int); ///< Set element location.
     virtual void setSize(int w = 1, int h = 1);
-    virtual int getWidth()
+    virtual int getWidth() const
     {
         return width;
     };
-    virtual int getHeight()
+    virtual int getHeight() const
     {
         return height;
     };
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &);
     virtual void setLabel(QString textl);
-    virtual QString getLabel()
+    virtual QString getLabel() const
     {
         return label;
     };
-    virtual QString getName()
+    virtual QString getName() const
     {
         return name;
     };
-    int getID()
+    int getID() const
     {
         return ID;
     };
@@ -108,8 +109,9 @@ protected:
     int xPos, yPos;
     int height = 1, width = 1;
     QString label;
-    QWidget *widget = nullptr;
     QLayout *layout = nullptr;
+    QWidget *widget = nullptr;
+    std::set<QWidget *> widgets;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
     bool visible; ///< true if UI element is visible, false if not visible but still present in scene tree

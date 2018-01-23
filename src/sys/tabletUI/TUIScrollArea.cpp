@@ -76,7 +76,7 @@ const char *TUIScrollArea::getClassName() const
     return "TUIScrollArea";
 }
 
-void TUIScrollArea::setValue(int type, covise::TokenBuffer &tb)
+void TUIScrollArea::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     QFrame *frame = (QFrame *)widget;
     if (type == TABLET_TYPE)

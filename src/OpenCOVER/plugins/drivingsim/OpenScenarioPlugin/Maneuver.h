@@ -37,7 +37,7 @@ public:
     osg::Vec3 totaldirectionVector;
     osg::Vec3 verticeStartPos;
     float totaldirectionVectorLength;
-
+    int verticesCounter;
     osg::Vec3 directionVector;
 
     std::list<Trajectory*> trajectoryList;
@@ -55,8 +55,11 @@ public:
 
     std::string &getName();
     osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float timer);
-    osg::Vec3 &followTrajectoryRel(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float speed);
+    osg::Vec3 &followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetPosition, float speed);
     void changeSpeedOfEntity(Entity *aktivCar, float dt);
+    float &getTrajSpeed(osg::Vec3 verticeStartPos, osg::Vec3 polylineVertices);
+    osg::Vec3 &setTargetPosition(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices,std::vector<bool> isRelVertice);
+
 };
 
 #endif // MANEUVER_H

@@ -33,7 +33,7 @@ const char *TUIUITab::getClassName() const
     return "TUIUITab";
 }
 
-void TUIUITab::setValue(int type, covise::TokenBuffer &tb)
+void TUIUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_UI_USE_DESCRIPTION)
     {

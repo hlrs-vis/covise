@@ -9,7 +9,8 @@
 #define CO_UI_CONTAINER_H
 
 #include "TUIElement.h"
-#include <list>
+#include <vector>
+#include <set>
 
 class QGridLayout;
 
@@ -36,10 +37,21 @@ public:
     /// get the Element's classname
     virtual const char *getClassName() const override;
 
+    QGridLayout *gridLayout() const;
+
+    /// set number of columns after which lines should be wrapped (-1: no wrapping)
+    void setNumberOfColumns(int columns);
+    int maximumNumberOfColumns() const;
+
+    void relayout();
+
+
 protected:
     /// List of children elements
-    typedef std::list<TUIElement *> ElementList;
+    typedef std::vector<TUIElement *> ElementList;
     ElementList elements;
-    QGridLayout *layout;
+
+    int numberOfColumns = -1;
+    std::set<TUIElement *> inLayout;
 };
 #endif

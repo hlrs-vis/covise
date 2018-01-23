@@ -33,6 +33,7 @@ private:
     QCheckBox *hideUnusedModulesBox;
     QCheckBox *autoConnectBox;
     QCheckBox *browserBox;
+    QCheckBox *tabletUITabsBox;
     QCheckBox *developerModeCheckBox;
     //QCheckBox * imbeddedRenderBox;
 

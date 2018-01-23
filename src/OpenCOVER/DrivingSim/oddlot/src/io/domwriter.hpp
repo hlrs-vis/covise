@@ -17,8 +17,11 @@
 #define DOMWRITER_HPP
 
 #include "../data/acceptor.hpp"
+#include "../data/roadsystem/odrID.hpp"
 
 #include <QDomElement>
+#include <QMap>
+#include <QSet>
 
 class QDomDocument;
 class ProjectData;
@@ -29,6 +32,7 @@ class CarPool;
 class Pool;
 
 class GeoReference;
+class TileSystem;
 
 
 class DomWriter : public Visitor
@@ -48,6 +52,8 @@ public:
     virtual void visit(Acceptor * /*acceptor*/)
     { /* does nothing by default */
     }
+
+	void addTileInfo(QDomElement element, uint32_t tileID);
 
     virtual void visit(RoadSystem *);
     virtual void visit(RSystemElementRoad *);
@@ -132,6 +138,11 @@ private:
         : Visitor()
     {
     }
+	///write original ID if possible, otherwise create a unique ID based on the original one
+	QString getIDString(const odrID &ID, const QString &name);
+
+	QMap<odrID, QString> writtenIDs[odrID::NUM_IDs];
+	QSet<QString> writtenIDStrings[odrID::NUM_IDs];
 
     QDomDocument *doc_;
     QDomElement root_;
@@ -169,6 +180,7 @@ private:
     QDomElement currentPedestrianGroupElement_;
 
     ProjectData *projectData_;
+	TileSystem *tileSystem_;
 
     SignalManager *signalManager_;
 };

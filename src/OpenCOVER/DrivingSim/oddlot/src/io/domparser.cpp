@@ -120,6 +120,7 @@ DomParser::DomParser(ProjectData *projectData, QObject *parent)
     , prototypeElementCount_(0x0)
     , elementCount_(0x0)
     , tileCount_(0x0)
+	, tileSystem_(NULL)
 {
     doc_ = new QDomDocument();
 	disableWarnings = false;
@@ -217,18 +218,14 @@ DomParser::parseXODR(QIODevice *source)
 			return false;
 		}
     }
-
+	
     // RoadSystem / Tile //
     //
 
     parseTile(root);
     parseRoadSystem(root);
 
-    if (!elementIDs_.empty())
-    {
-        roadSystem_->checkIDs(elementIDs_);
-        elementIDs_.clear();
-    }
+    
     roadSystem_->verify();
     roadSystem_->updateControllers();
 
@@ -261,9 +258,16 @@ DomParser::parseXODR(QIODevice *source)
 bool
 DomParser::parsePrototypes(QIODevice *source)
 {
-    // Mode //
-    //
-    mode_ = DomParser::MODE_PROTOTYPES;
+	// Mode //
+	//
+	mode_ = DomParser::MODE_PROTOTYPES;
+	for (int i = 0; i < odrID::NUM_IDs; i++)
+	{
+		if (!elementIDs_[i].empty())
+		{
+			elementIDs_[i].clear();
+		}
+	}
 
     // Open file and parse tree //
     //
@@ -344,8 +348,7 @@ DomParser::parsePrototypes(QIODevice *source)
             // Road //
             //
             QDomElement child = prototype.firstChildElement("road");
-            QString p = "p";
-            RSystemElementRoad *road = parseRoadElement(child, p);
+            RSystemElementRoad *road = parseRoadElement(child);
             road->accept(spArcSMergeVisitor);
 
             ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_RoadTypePrototype,system,type,lanes);
@@ -373,8 +376,7 @@ DomParser::parsePrototypes(QIODevice *source)
             // Road //
             //
             QDomElement child = prototype.firstChildElement("road");
-            QString p = "p";
-            RSystemElementRoad *road = parseRoadElement(child, p);
+            RSystemElementRoad *road = parseRoadElement(child);
             road->accept(spArcSMergeVisitor);
 
             ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_TrackPrototype,system,type,lanes);
@@ -402,8 +404,7 @@ DomParser::parsePrototypes(QIODevice *source)
             // Road //
             //
             QDomElement child = prototype.firstChildElement("road");
-            QString p = "p";
-            RSystemElementRoad *road = parseRoadElement(child, p);
+            RSystemElementRoad *road = parseRoadElement(child);
             road->accept(spArcSMergeVisitor);
 
             ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_ElevationPrototype,system,type,lanes);
@@ -431,8 +432,7 @@ DomParser::parsePrototypes(QIODevice *source)
             // Road //
             //
             QDomElement child = prototype.firstChildElement("road");
-            QString p = "p";
-            RSystemElementRoad *road = parseRoadElement(child, p);
+            RSystemElementRoad *road = parseRoadElement(child);
             road->accept(spArcSMergeVisitor);
 
             ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_SuperelevationPrototype,system,type,lanes);
@@ -460,8 +460,7 @@ DomParser::parsePrototypes(QIODevice *source)
             // Road //
             //
             QDomElement child = prototype.firstChildElement("road");
-            QString p = "p";
-            RSystemElementRoad *road = parseRoadElement(child, p);
+            RSystemElementRoad *road = parseRoadElement(child);
             road->accept(spArcSMergeVisitor);
 
             ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_CrossfallPrototype,system,type,lanes);
@@ -489,8 +488,7 @@ DomParser::parsePrototypes(QIODevice *source)
 																		  // Road //
 																		  //
 			QDomElement child = prototype.firstChildElement("road");
-			QString p = "p";
-			RSystemElementRoad *road = parseRoadElement(child, p);
+			RSystemElementRoad *road = parseRoadElement(child);
 			road->accept(spArcSMergeVisitor);
 
 			ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_RoadShapePrototype, system, type, lanes);
@@ -518,8 +516,7 @@ DomParser::parsePrototypes(QIODevice *source)
             // Road //
             //
             QDomElement child = prototype.firstChildElement("road");
-            QString p = "p";
-            RSystemElementRoad *road = parseRoadElement(child, p);
+            RSystemElementRoad *road = parseRoadElement(child);
             road->accept(spArcSMergeVisitor);
 
             ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_LaneSectionPrototype,system,type,lanes);
@@ -752,63 +749,6 @@ DomParser::parseToQString(const QDomElement &element, const QString &attributeNa
     }
 }
 
-/* New Element ID [Tilenumber]_[Elementnumber]_[UserDefined Name]
-*/
-
-void
-DomParser::setTile(const QString &id, QString &oldTileId)
-{
-
-    if (id.count("_") >= 2)
-    {
-        bool number = false;
-        QStringList parts = id.split("_");
-
-        QString tileId = parts.at(0);
-        if (oldTileId.isEmpty())
-        {
-            oldTileId = tileId;
-        }
-
-        int tileNumber = tileId.toInt(&number);
-        if (number)
-        {
-            parts.at(1).toInt(&number);
-
-            if (number) // IDs are formatted
-            {
-                if (tileId != oldTileId) //New Tile
-                {
-                    if (!tileCounts_.contains(tileNumber))
-                    {
-                        oldTileId = tileId;
-                        tileCount_++;
-                        QString tileName = QString("Tile%1").arg(tileCount_);
-                        tileCounts_.insert(tileNumber, tileCount_);
-                        Tile *tile = new Tile(tileName, QString("%1").arg(tileCount_));
-
-                        tileSystem_->addTile(tile);
-                    }
-                    else if (!tileSystem_->getTile(tileId))
-                    {
-                        tileCount_++;
-                        QString tileName = QString("Tile%1").arg(tileCount_);
-                        Tile *tile = new Tile(tileName, QString("%1").arg(tileCount_));
-
-                        tileSystem_->addTile(tile);
-                    }
-
-                    tileSystem_->setCurrentTile(tileSystem_->getTile(tileId));
-                    oldTileId = tileId;
-                }
-                else if (!tileCounts_.contains(tileNumber))
-                {
-                    tileCounts_.insert(tileNumber, tileCount_);
-                }
-            }
-        }
-    }
-}
 
 //################//
 // HEADER         //
@@ -887,57 +827,33 @@ DomParser::parseHeaderElement(QDomElement &element)
 bool
 DomParser::parseTile(QDomElement &root)
 {
+	QDomElement ancillary = root.firstChildElement("userData");
+	while (!ancillary.isNull())
+	{
+		QString code = parseToQString(ancillary, "code", "", true);
+		QString value = parseToQString(ancillary, "value", "", true);
 
-    /*    QDomElement child = root.firstChildElement("tile");
-    if(child.isNull())
-    {*/
-    // Create a tile
-    //
-    QString id = QString("%1").arg(tileCount_);
-    QString tileName = QString("Tile%1").arg(id);
-    Tile *tile = new Tile(tileName, id);
-
-    tileSystem_->addTile(tile);
-
-    /*   }
-    else
-    {
-        while(!child.isNull())
-        {*/
-    //           QString name = parseToQString(child,"name","Untitled", true);
-    //           QString id = parseToQString(child,"id","",true);
-    /*			QString id = QString("%1").arg(projectData_->getTileSystem()->getTileCount());
-           if (id.isEmpty())
-           {
-               id = parseToQString(child,"ID","",false);
-           }
-		   QString tileName = QString("Tile%1").arg(id);
-           Tile * tile = new Tile(tileName, id);*/
-    // TODO: Tile getUniqueID
-
-    /*          QDomElement child2 = child.firstChildElement("road");
-           while(!child2.isNull()){
-               RSystemElementRoad * road = parseRoadElement(child2);
-               QString id2 = road->getID();
-               QString idNew = QString("%1_%2_%3").arg(id).arg(id2).arg(road->getName());
-               road->setID(idNew);
-               roadSystem_->addRoad(road);
-//               tile->getRoadSystem()->addRoad(road);
-//               fprintf(stderr,"%s != %s\n",idNew.toUtf8().constData(),road->getID().toUtf8().constData());
-               if(idNew != road->getID())
-               {
-				   idsChanged = 1;
-				   qDebug() << "Domparser: Warning! Road ID assigned twice: %1. This won't go so smoothly with road linkage, so you'd better check your file..." << id;
-               }
-               child2 = child2.nextSiblingElement("road");
-           }*/
-
-    /*           child = child.nextSiblingElement("tile");
-        }
-
-    }*/
+		if (code == "tile")
+		{
+			QStringList param = value.split(" ");
+			if (param.length() > 1)
+			{
+				int intID = param[0].toInt();
+				odrID id;
+				id.setID(intID);
+				id.setName(param[1]);
+				tileSystem_->addTile(new Tile(id));
+			}
+		}
+		else
+		{
+		}
+		ancillary = ancillary.nextSiblingElement("userData");
+	}
+    
     return true;
 }
+
 
 //################//
 // ROAD           //
@@ -949,7 +865,6 @@ DomParser::parseTile(QDomElement &root)
 bool
 DomParser::parseRoadSystem(QDomElement &root)
 {
-    QString oldTileId = QString();
 
     // <OpenDRIVE><road> //
     //
@@ -965,7 +880,7 @@ DomParser::parseRoadSystem(QDomElement &root)
     {
         while (!child.isNull())
         {
-            RSystemElementRoad *road = parseRoadElement(child, oldTileId);
+            RSystemElementRoad *road = parseRoadElement(child);
 
             child = child.nextSiblingElement("road");
         }
@@ -976,47 +891,103 @@ DomParser::parseRoadSystem(QDomElement &root)
     child = root.firstChildElement("controller");
     while (!child.isNull())
     {
-        parseControllerElement(child, oldTileId);
+        parseControllerElement(child);
         child = child.nextSiblingElement("controller");
     }
 
     child = root.firstChildElement("junction");
     while (!child.isNull())
     {
-        parseJunctionElement(child, oldTileId);
+        parseJunctionElement(child);
         child = child.nextSiblingElement("junction");
     }
 
     child = root.firstChildElement("fiddleyard");
     while (!child.isNull())
     {
-        parseFiddleyardElement(child, oldTileId);
+        parseFiddleyardElement(child);
         child = child.nextSiblingElement("fiddleyard");
     }
 
     child = root.firstChildElement("pedFiddleyard");
     while (!child.isNull())
     {
-        parsePedFiddleyardElement(child, oldTileId);
+        parsePedFiddleyardElement(child);
         child = child.nextSiblingElement("pedFiddleyard");
     }
 
 	child = root.firstChildElement("junctionGroup");
 	while (!child.isNull())
 	{
-		parseJunctionGroupElement(child, oldTileId);
+		parseJunctionGroupElement(child);
 		child = child.nextSiblingElement("junctionGroup");
 	}
 
     return true;
 }
 
+void DomParser::StringToID(QString id, odrID &ID, odrID::IDType t, int TileID)
+{
+	if (id == "-1" || id == "" ) // for example no junction
+	{
+		ID = odrID::invalidID();
+		return;
+	}
+	ID = elementIDs_[t].value(id,odrID::invalidID());
+	if (!ID.isInvalid()) // we already created an ID for this string, thus use it.
+	{
+		return;
+	}
+	ID.setName(id);
+	ID.setType(t);
+	ID.setTileID(TileID);
+	if (tileSystem_ != NULL)
+	{
+		Tile *tile = tileSystem_->getTile(TileID);
+		ID.setID(tile->uniqueID(t));
+	}
+	else
+	{
+		ID.setID(elementIDs_[t].size());
+	}
+	elementIDs_[t].insert(id, ID);
+}
+
+int DomParser::parseTileID(const QDomElement &element)
+{
+	int tileID = 0;
+	if (tileSystem_ != NULL)
+	{
+		QDomElement ancillary = element.firstChildElement("userData");
+		while (!ancillary.isNull())
+		{
+			QString code = parseToQString(ancillary, "code", "", true);
+			QString value = parseToQString(ancillary, "value", "", true);
+			if (code == "tile")
+			{
+				tileID = value.toInt();
+			}
+			ancillary = ancillary.nextSiblingElement("userData");
+		}
+		if (tileSystem_->getTile(tileID) == NULL)
+		{
+			if(tileID>0)
+			{
+				warning("tile not found", "tileID=" + QString::number(tileID));
+			}
+			tileSystem_->addTile(new Tile(tileID));
+		}
+	}
+	return tileID;
+}
 /** Parses a <road> element.
 *
 */
 RSystemElementRoad *
-DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
+DomParser::parseRoadElement(QDomElement &element)
 {
+	int tileID = parseTileID(element);
+
     // 1.) Parse Attributes //
     //
     QString name = parseToQString(element, "name", "Untitled", true); // optional
@@ -1026,35 +997,33 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
     {
         id = parseToQString(element, "ID", "", false); // ...but at least "ID" should be there
     }
+	odrID roadID;
+	StringToID(id, roadID, odrID::ID_Road, tileID);
     QString junction = parseToQString(element, "junction", "-1", true); // optional
 
-    // For Testing //
-    //
-    //	if(id != "17")
-    //	{
-    //		return NULL;
-    //	}
+	odrID junctionID;
+	StringToID(junction, junctionID, odrID::ID_Junction,tileID);
 
-    RSystemElementRoad *road = new RSystemElementRoad(name, id, junction);
+    RSystemElementRoad *road = new RSystemElementRoad(name, roadID, junctionID);
 
     if (projectData_) // Change ids not for Prototypes
     {
         // Check if the ids have the format [Tilenumber]_[Elementnumber]_[Name]
         //
-        QString id = road->getID();
-
-        setTile(id, oldTileId);
+        odrID id = road->getID();
+		tileSystem_->addTileIfNecessary(id);
 
         roadSystem_->addRoad(road); // This may change the ID!
-        if (id != road->getID())
-        {
-			RoadSystem::IdType el = {road->getID(), "road"};
-            elementIDs_.insert(id, el);
-        }
+       
     }
-    else if (roadSystem_)
+    else if (roadSystem_) // load as prototype --> IDs are only unique within prototypes but not globally
+		// they well be changed once they are added to a read roadSystem
     {
-        road->setID(QString("p_%1_%2").arg(prototypeElementCount_++).arg(road->getName()));
+		odrID id;
+		id.setID(prototypeElementCount_++);
+		id.setName(road->getName());
+		id.setType(odrID::ID_Road);
+        road->setID(id);
         roadSystem_->addRoad(road); // This may change the ID!
     }
 
@@ -1068,11 +1037,24 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
     {
         QString elementType = parseToQString(child, "elementType", "", false); // mandatory
         QString elementId = parseToQString(child, "elementId", "", false); // mandatory
+		
         bool isOptional = (elementType == "junction");
         QString contactPoint = parseToQString(child, "contactPoint", "", isOptional); // optional if junction
         if (!elementId.isEmpty())
         {
-            RoadLink *roadLink = new RoadLink(elementType, elementId, JunctionConnection::parseContactPoint(contactPoint));
+			odrID ID;
+			RoadLink *roadLink = NULL;
+			if (elementType == "junction")
+			{
+				StringToID(elementId, ID, odrID::ID_Junction, tileID);
+				roadLink = new RoadLink(elementType, ID, JunctionConnection::JCP_NONE);
+			}
+			else
+			{
+				StringToID(elementId, ID, odrID::ID_Road,tileID);
+				roadLink = new RoadLink(elementType, ID, JunctionConnection::parseContactPoint(contactPoint));
+			}
+
             road->setPredecessor(roadLink);
         }
     }
@@ -1087,7 +1069,18 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
         QString contactPoint = parseToQString(child, "contactPoint", "", isOptional); // optional if junction
         if (!elementId.isEmpty())
         {
-            RoadLink *roadLink = new RoadLink(elementType, elementId, JunctionConnection::parseContactPoint(contactPoint));
+			odrID ID;
+			RoadLink *roadLink = NULL;
+			if (elementType == "junction")
+			{
+				StringToID(elementId, ID, odrID::ID_Junction, tileID);
+				roadLink = new RoadLink(elementType, ID, JunctionConnection::JCP_NONE);
+			}
+			else
+			{
+				StringToID(elementId, ID, odrID::ID_Road, tileID);
+				roadLink = new RoadLink(elementType, ID, JunctionConnection::parseContactPoint(contactPoint));
+			}
             road->setSuccessor(roadLink);
         }
     }
@@ -1260,7 +1253,7 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
     child = element.firstChildElement("objects");
     if (!child.isNull())
     {
-        parseObjectsElement(child, road, oldTileId);
+        parseObjectsElement(child, road);
 
         // Check that the maximum (1) is not exceeded
         child = child.nextSiblingElement("objects");
@@ -1272,7 +1265,7 @@ DomParser::parseRoadElement(QDomElement &element, QString &oldTileId)
     child = element.firstChildElement("signals");
     if (!child.isNull())
     {
-        parseSignalsElement(child, road, oldTileId);
+        parseSignalsElement(child, road);
 
         // Check that the maximum (1) is not exceeded
         child = child.nextSiblingElement("signals");
@@ -1343,12 +1336,13 @@ DomParser::parseSpeedElement(QDomElement &element, TypeSection *type)
 *
 */
 bool
-DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, QString &oldTileId)
+DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 {
     // Find all objects (unlimited)
     QDomElement child = element.firstChildElement("object");
     while (!child.isNull())
 	{
+		int tileID = parseTileID(child);
 		Object::ObjectProperties objectProps;
 
         // Get mandatory attributes
@@ -1461,18 +1455,15 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
 			if (objectProps.type != "")
 			{
-				Object *object = new Object(id, name, s, objectProps, repeatProps, textureFile);
 
-				setTile(id, oldTileId);
+				odrID ID;
+				StringToID(id, ID, odrID::ID_Object,tileID);
+				Object *object = new Object(ID, name, s, objectProps, repeatProps, textureFile);
+
+				tileSystem_->addTileIfNecessary(ID);
 
 				// Add to road
 				road->addObject(object);
-
-				if (id != object->getId())
-				{
-					RoadSystem::IdType el = { object->getId(), "object" };
-					elementIDs_.insert(id, el);
-				}
 
 				// Get <parkingSpace> record
 				QDomElement objectChild = child.firstChildElement("parkingSpace");
@@ -1564,6 +1555,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
 	while (!child.isNull())
 	{
+		int tileID = parseTileID(element);
 		// Get mandatory attributes
 		QString id = parseToQString(child, "id", "", false); // mandatory
 		double s = parseToDouble(child, "s", 0.0, false);
@@ -1586,7 +1578,11 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		}
 
 
-		ObjectReference *objectReference = new ObjectReference("", NULL, id, s, t, zOffset, validLength, Signal::parseOrientationType(orientation), validities);
+		odrID refID;
+		StringToID(id, refID, odrID::ID_Bridge,tileID);
+		odrID ID;
+		
+		ObjectReference *objectReference = new ObjectReference(ID, NULL, refID, s, t, zOffset, validLength, Signal::parseOrientationType(orientation), validities);
 		road->addObjectReference(objectReference);
 
 		// Attempt to locate another signal
@@ -1597,6 +1593,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 	child = element.firstChildElement("bridge");
 	while (!child.isNull())
 	{
+		int tileID = parseTileID(element);
 		// Get mandatory attributes
 		QString type = parseToQString(child, "type", "", false); // mandatory
 		QString name = parseToQString(child, "name", "", false); // mandatory
@@ -1613,19 +1610,15 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		double s = parseToDouble(child, "s", 0.0, false); // mandatory
 		double length = parseToDouble(child, "length", 0.0, false); // mandatory
 
+		odrID ID;
+		StringToID(id, ID, odrID::ID_Bridge,tileID);
 		// Construct bridge object
-		Bridge *bridge = new Bridge(id, modelFile, name, Bridge::parseBridgeType(type), s, length);
+		Bridge *bridge = new Bridge(ID, modelFile, name, Bridge::parseBridgeType(type), s, length);
 
-		setTile(id, oldTileId);
+		tileSystem_->addTileIfNecessary(ID);
 
 		// Add to road
 		road->addBridge(bridge);
-
-		if (id != bridge->getId())
-		{
-			RoadSystem::IdType el = { bridge->getId(), "bridge" };
-			elementIDs_.insert(id, el);
-		}
 
 		// Attempt to locate another object
 		child = child.nextSiblingElement("bridge");
@@ -1635,6 +1628,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 	child = element.firstChildElement("tunnel");
 	while (!child.isNull())
 	{
+		int tileID = parseTileID(element);
 		// Get mandatory attributes
 		QString type = parseToQString(child, "type", "", false); // mandatory
 		QString name = parseToQString(child, "name", "", false); // mandatory
@@ -1647,19 +1641,15 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 		double lighting = parseToDouble(child, "lighting", 0.0, false);
 		double daylight = parseToDouble(child, "daylight", 0.0, false);
 
+		odrID ID;
+		StringToID(id, ID, odrID::ID_Object,tileID);
 		// Construct tunnel object
-		Tunnel *tunnel = new Tunnel(id, modelFile, name, Tunnel::parseTunnelType(type), s, length, lighting, daylight);
+		Tunnel *tunnel = new Tunnel(ID, modelFile, name, Tunnel::parseTunnelType(type), s, length, lighting, daylight);
 
-		setTile(id, oldTileId);
+		tileSystem_->addTileIfNecessary(ID);
 
 		// Add to road
 		road->addBridge(tunnel);
-
-		if (id != tunnel->getId())
-		{
-			RoadSystem::IdType el = { tunnel->getId(), "tunnel" };
-			elementIDs_.insert(id, el);
-		}
 
 		// Attempt to locate another object
 		child = child.nextSiblingElement("tunnel");
@@ -1670,14 +1660,17 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 	child = element.firstChildElement("crosswalk");
 	while (!child.isNull())
 	{
+		int tileID = parseTileID(element);
 		// Get mandatory attributes
 		QString id = parseToQString(child, "id", "", false); // mandatory
 		QString name = parseToQString(child, "name", "", false); // mandatory
 		double s = parseToDouble(child, "s", 0.0, false); // mandatory
 		double length = parseToDouble(child, "length", 0.0, false); // mandatory
 
+		odrID ID;
+		StringToID(id, ID, odrID::ID_Object, tileID);
 		// Construct crosswalk object
-		Crosswalk *crosswalk = new Crosswalk(id, name, s, length);
+		Crosswalk *crosswalk = new Crosswalk(ID, name, s, length);
 
 		// Get optional attributes
 		if (parseToQString(child, "crossProb", "", true).length() > 0)
@@ -1699,8 +1692,10 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 				crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
 		}
 
+		ID;
+		StringToID(id, ID, odrID::ID_Object,tileID);
 		// Construct signal object
-		Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
+		Signal *signal = new Signal(ID, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
 		// Add to road
 		road->addSignal(signal);
 
@@ -1718,11 +1713,12 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 *
 */
 bool
-DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, QString &oldTileId)
+DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road)
 {
     QDomElement child = element.firstChildElement("signal");
     while (!child.isNull())
 	{
+		int tileID = parseTileID(element);
         // Get mandatory attributes
         QString id = parseToQString(child, "id", "", false); // mandatory
         QString name = parseToQString(child, "name", "", false); // mandatory
@@ -1856,29 +1852,26 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             ancillary = ancillary.nextSiblingElement("userData");
         }
 
+		odrID ID;
+		StringToID(id, ID, odrID::ID_Object,tileID);
         if ((type == "625") && (subtype == "10") && (typeSubclass == "20"))
         {
             hOffset = name.toDouble();
 
             // Construct signal object
-            signal = new Signal(id, "", s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(ID, "", s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
         else
         {
             // Construct signal object
-            signal = new Signal(id, name, s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
+            signal = new Signal(ID, name, s, t, dynamic, Signal::parseOrientationType(orientationString), zOffset, country, type, typeSubclass, subtype, value, hOffset * 180.0 / (M_PI), pitch  * 180.0 / (M_PI), roll  * 180.0 / (M_PI), unit, text, width, height, pole, size, fromLane, toLane, crossProb, resetTime);
         }
 
 
-        setTile(id, oldTileId);
+		tileSystem_->addTileIfNecessary(ID);
 
         // Add to road
         road->addSignal(signal);
-        if (id != signal->getId())
-        {
-			RoadSystem::IdType el = {signal->getId(), "signal"};
-            elementIDs_.insert(id, el);
-        }
 
         // Attempt to locate another signal
         child = child.nextSiblingElement("signal");
@@ -1888,6 +1881,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
 
 	while (!child.isNull())
 	{
+		int tileID = parseTileID(child);
 		// Get mandatory attributes
 		QString id = parseToQString(child, "id", "", false); // mandatory
 		double s = parseToDouble(child, "s", 0.0, false);
@@ -1908,7 +1902,11 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
 		}
 
 
-		SignalReference *signalReference = new SignalReference("", NULL, id, s, t, Signal::parseOrientationType(orientation), validities);
+		odrID refID;
+		StringToID(id, refID, odrID::ID_Signal,tileID);
+		odrID ID;
+
+		SignalReference *signalReference = new SignalReference(ID, NULL, refID, s, t, Signal::parseOrientationType(orientation), validities);
 		road->addSignalReference(signalReference);
 
 		// Attempt to locate another signal
@@ -2210,7 +2208,7 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
         {
 
             // TODO: NOT OPTIONAL
-            qDebug() << "NOT OPTIONAL: <laneSection><left/center/right><lane> at road: " << road->getID() << " " << road->getName();
+            qDebug() << "NOT OPTIONAL: <laneSection><left/center/right><lane> at road: " << road->getID().speakingName() << " " << road->getName();
         }
         while (!lane.isNull())
         {
@@ -2333,7 +2331,7 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 				tr("NOT OPTIONAL: <width> or <border> of <lane>  %1 in laneSection %2 of road %3")
 					.arg(id)
 					.arg(laneSection->getSStart())
-					.arg(laneSection->getParentRoad()->getID()));
+					.arg(laneSection->getParentRoad()->getID().speakingName()));
 		}
 	}
 
@@ -2508,8 +2506,9 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 *
 */
 bool
-DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTileId)
+DomParser::parseControllerElement(QDomElement &controllerElement)
 {
+	int tileID = parseTileID(controllerElement);
     // Get mandatory attributes
     QString name = parseToQString(controllerElement, "name", "", false); // mandatory
     QString id = parseToQString(controllerElement, "id", "", false); // mandatory
@@ -2548,7 +2547,9 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
         QString signalId = parseToQString(control, "signalId", "", false);
         QString type = parseToQString(control, "type", "", false);
 
-        ControlEntry *entry = new ControlEntry(signalId, type);
+		odrID signalID;
+		StringToID(signalId, signalID, odrID::ID_Signal,tileID);
+        ControlEntry *entry = new ControlEntry(signalID, type);
         controlEntries.append(entry);
 
         control = control.nextSiblingElement("control");
@@ -2556,17 +2557,13 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
 
     // Construct Controller
     //
-    RSystemElementController *controller = new RSystemElementController(name, id, sequence, script, cycleTime, controlEntries);
 
-    setTile(id, oldTileId);
+	odrID ID;
+	StringToID(id, ID, odrID::ID_Controller,tileID);
+    RSystemElementController *controller = new RSystemElementController(name, ID, sequence, script, cycleTime, controlEntries);
+
+	tileSystem_->addTileIfNecessary(ID);
     roadSystem_->addController(controller);
-
-
-    if (id != controller->getID())
-    {
-		RoadSystem::IdType el = {controller->getID(), "controller"};
-        elementIDs_.insert(id, el);
-    }
 
     return true;
 }
@@ -2579,15 +2576,18 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
 *
 */
 bool
-DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
+DomParser::parseJunctionElement(QDomElement &element)
 {
 
+	int tileID = parseTileID(element);
     // 1.) Parse Attributes //
     //
     QString name = parseToQString(element, "name", "Untitled", true); // optional
     QString id = parseToQString(element, "id", "", false); // mandatory
 
-    RSystemElementJunction *junction = new RSystemElementJunction(name, id);
+	odrID ID;
+	StringToID(id, ID, odrID::ID_Junction,tileID);
+    RSystemElementJunction *junction = new RSystemElementJunction(name, ID);
 
     // 2.) Parse children //
     //
@@ -2610,8 +2610,13 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
             ancillary = ancillary.nextSiblingElement("userData");
         }
 
+
+		odrID incommingID;
+		odrID connectingID;
+		StringToID(incomingRoad, incommingID, odrID::ID_Road,tileID);
+		StringToID(connectingRoad, connectingID, odrID::ID_Road,tileID);
         // <laneLink> //
-        JunctionConnection *connection = new JunctionConnection(childId, incomingRoad, connectingRoad, JunctionConnection::parseContactPoint(contactPoint), numerator);
+        JunctionConnection *connection = new JunctionConnection(childId, incommingID, connectingID, JunctionConnection::parseContactPoint(contactPoint), numerator);
 
         QDomElement link;
         link = child.firstChildElement("laneLink");
@@ -2628,14 +2633,12 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
         child = child.nextSiblingElement("connection");
     }
 
-    setTile(id, oldTileId);
+	if(tileSystem_!=NULL)
+	{
+		tileSystem_->addTileIfNecessary(ID);
+	}
     roadSystem_->addJunction(junction);
 
-    if (id != junction->getID())
-    {
-		RoadSystem::IdType el = {junction->getID(), "junction"};
-        elementIDs_.insert(id, el);
-    }
 
     return true;
 }
@@ -2648,16 +2651,19 @@ DomParser::parseJunctionElement(QDomElement &element, QString &oldTileId)
 *
 */
 bool
-DomParser::parseJunctionGroupElement(QDomElement &element, QString &oldTileId)
+DomParser::parseJunctionGroupElement(QDomElement &element)
 {
 
+	int tileID = parseTileID(element);
 	// 1.) Parse Attributes //
 	//
 	QString name = parseToQString(element, "name", "Untitled", true); // optional
 	QString id = parseToQString(element, "id", "", false); // mandatory
 	QString type = parseToQString(element, "type", "unknown", false); // mandatory
 
-	RSystemElementJunctionGroup *junctionGroup = new RSystemElementJunctionGroup(name, id, type);
+	odrID ID;
+	StringToID(id, ID, odrID::ID_Junction,tileID);
+	RSystemElementJunctionGroup *junctionGroup = new RSystemElementJunctionGroup(name, ID, type);
 
 	// 2.) Parse children //
 	//
@@ -2673,14 +2679,9 @@ DomParser::parseJunctionGroupElement(QDomElement &element, QString &oldTileId)
 		child = child.nextSiblingElement("junctionReference");
 	}
 
-	setTile(id, oldTileId);
+	tileSystem_->addTileIfNecessary(ID);
 	roadSystem_->addJunctionGroup(junctionGroup);
 
-	if (id != junctionGroup->getID())
-	{
-		RoadSystem::IdType el = { junctionGroup->getID(), "junctionGroup" };
-		elementIDs_.insert(id, el);
-	}
 
 	return true;
 }
@@ -2693,9 +2694,10 @@ DomParser::parseJunctionGroupElement(QDomElement &element, QString &oldTileId)
 *
 */
 bool
-DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
+DomParser::parseFiddleyardElement(QDomElement &element)
 {
 
+	int tileID = parseTileID(element);
     // 1.) Parse Attributes //
     //
     QString name = parseToQString(element, "name", "Untitled", true); // optional
@@ -2722,7 +2724,11 @@ DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
         qDebug("NOT OPTIONAL: <fiddleyard><link>");
     }
 
-    RSystemElementFiddleyard *fiddleyard = new RSystemElementFiddleyard(name, id, elementType, elementId, contactPoint);
+	odrID ID;
+	StringToID(id, ID, odrID::ID_Fiddleyard,tileID);
+	odrID elementID;
+	StringToID(elementId, elementID, odrID::ID_Road,tileID);
+    RSystemElementFiddleyard *fiddleyard = new RSystemElementFiddleyard(name, ID, elementType, elementID, contactPoint);
 
     // <source>(optional, max count: unlimited) //
     child = element.firstChildElement("source");
@@ -2735,14 +2741,19 @@ DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
         double velocity = parseToDouble(child, "velocity", 20.0, false); // mandatory
         double velocityDeviance = parseToDouble(child, "velocityDeviance", 0.0, false); // mandatory
 
-        FiddleyardSource *source = new FiddleyardSource(id, lane, startTime, repeatTime, velocity, velocityDeviance);
+		odrID ID;
+		StringToID(id, ID, odrID::ID_Fiddleyard,tileID);
+        FiddleyardSource *source = new FiddleyardSource(ID, lane, startTime, repeatTime, velocity, velocityDeviance);
 
         QDomElement subchild = child.firstChildElement("vehicle");
         while (!subchild.isNull())
         {
             QString id = parseToQString(subchild, "id", "", false); // mandatory
             double numerator = parseToDouble(subchild, "numerator", 1.0, true); // optional
-            source->addVehicle(id, numerator);
+
+			odrID ID;
+			StringToID(id, ID, odrID::ID_Vehicle,tileID);
+            source->addVehicle(ID, numerator);
             subchild = subchild.nextSiblingElement("vehicle");
         }
 
@@ -2758,19 +2769,16 @@ DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
         QString id = parseToQString(child, "id", "", false); // mandatory
         int lane = parseToInt(child, "lane", 0, false); // mandatory
 
-        fiddleyard->addSink(new FiddleyardSink(id, lane));
+		odrID ID;
+		StringToID(id, ID, odrID::ID_Fiddleyard,tileID);
+        fiddleyard->addSink(new FiddleyardSink(ID, lane));
 
         child = child.nextSiblingElement("sink");
     }
 
-    setTile(id, oldTileId);
+	tileSystem_->addTileIfNecessary(ID);
     roadSystem_->addFiddleyard(fiddleyard);
 
-    if (id != fiddleyard->getID())
-    {
-		RoadSystem::IdType el = {fiddleyard->getID(), "fiddleyard"};
-        elementIDs_.insert(id, el);
-    }
 
     return true;
 }
@@ -2783,16 +2791,21 @@ DomParser::parseFiddleyardElement(QDomElement &element, QString &oldTileId)
 *
 */
 bool
-DomParser::parsePedFiddleyardElement(QDomElement &element, QString &oldTileId)
+DomParser::parsePedFiddleyardElement(QDomElement &element)
 {
 
+	int tileID = parseTileID(element);
     // 1.) Parse Attributes //
     //
     QString id = parseToQString(element, "id", "", false); // mandatory
     QString name = parseToQString(element, "name", "", false); // mandatory
     QString roadId = parseToQString(element, "roadId", "", false); // mandatory
 
-    RSystemElementPedFiddleyard *fiddleyard = new RSystemElementPedFiddleyard(id, name, roadId);
+	odrID ID;
+	StringToID(id, ID, odrID::ID_PedFiddleyard,tileID);
+	odrID roadID;
+	StringToID(roadId, roadID, odrID::ID_Road,tileID);
+    RSystemElementPedFiddleyard *fiddleyard = new RSystemElementPedFiddleyard(ID, name, roadID);
 
     // 2.) Parse children //
     //
@@ -2807,8 +2820,10 @@ DomParser::parsePedFiddleyardElement(QDomElement &element, QString &oldTileId)
         int lane = parseToInt(child, "lane", 0, false); // mandatory
         double velocity = parseToDouble(child, "velocity", 0.0, false); // mandatory
 
+		odrID ID;
+		StringToID(id, ID, odrID::ID_PedFiddleyard,tileID);
         // Create source
-        PedFiddleyardSource *source = new PedFiddleyardSource(id,
+        PedFiddleyardSource *source = new PedFiddleyardSource(ID,
                                                               lane,
                                                               velocity);
 
@@ -2857,8 +2872,10 @@ DomParser::parsePedFiddleyardElement(QDomElement &element, QString &oldTileId)
         QString id = parseToQString(child, "id", "", false); // mandatory
         int lane = parseToInt(child, "lane", 0, false); // mandatory
 
+		odrID ID;
+		StringToID(id, ID, odrID::ID_PedFiddleyard,tileID);
         // Create sink
-        PedFiddleyardSink *sink = new PedFiddleyardSink(id, lane);
+        PedFiddleyardSink *sink = new PedFiddleyardSink(ID, lane);
 
         // Add optional attributes
         if (parseToQString(child, "sinkProb", "", true).length() > 0)
@@ -2877,14 +2894,9 @@ DomParser::parsePedFiddleyardElement(QDomElement &element, QString &oldTileId)
         child = child.nextSiblingElement("sink");
     }
 
-    setTile(id, oldTileId);
+	tileSystem_->addTileIfNecessary(ID);
     roadSystem_->addPedFiddleyard(fiddleyard);
 
-    if (id != fiddleyard->getID())
-    {
-		RoadSystem::IdType el = {fiddleyard->getID(), "pedFiddleyard"};
-        elementIDs_.insert(id, el);
-    }
 
     return true;
 }
@@ -2924,15 +2936,18 @@ Pool *
 DomParser::parsePool(const QDomElement &element)
 {
 
+	int tileID = parseTileID(element);
     // pool //
     //
-    QString elementId = parseToQString(element, "id", "", false); // mandatory
+    QString id = parseToQString(element, "id", "", false); // mandatory
     QString elementName = parseToQString(element, "name", "", true); // optional
     double velocity = parseToDouble(element, "velocity", 33.0, true); // optional
     double velocityDeviance = parseToDouble(element, "velocityDeviance", 5.0, true); // optional
     double numerator = parseToDouble(element, "numerator", 20, true); // optional
 
-    Pool *pool = new Pool(elementId, elementName, velocity, velocityDeviance, numerator);
+	odrID ID;
+	StringToID(id, ID, odrID::ID_PedFiddleyard,tileID);
+    Pool *pool = new Pool(elementName, ID, velocity, velocityDeviance, numerator);
 
     // carpool:pool::vehicle //
     //

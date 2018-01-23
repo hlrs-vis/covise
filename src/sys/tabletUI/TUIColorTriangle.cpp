@@ -71,7 +71,7 @@ void TUIColorTriangle::releaseColor(const QColor &col)
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIColorTriangle::setValue(int type, covise::TokenBuffer &tb)
+void TUIColorTriangle::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
 
     if (type == TABLET_RED)

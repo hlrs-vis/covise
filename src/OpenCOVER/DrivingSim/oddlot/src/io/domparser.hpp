@@ -120,13 +120,14 @@ public:
     bool parseCarPool(const QDomElement &element);
     PoolVehicle *parsePoolVehicle(const QDomElement &element);
     Pool *parsePool(const QDomElement &element);
+	void StringToID(QString id, odrID &ID, odrID::IDType, int tileID);
 
-    RSystemElementRoad *parseRoadElement(QDomElement &child, QString &oldTileId);
+    RSystemElementRoad *parseRoadElement(QDomElement &child);
     bool parseTypeElement(QDomElement &element, RSystemElementRoad *road);
     bool parseSpeedElement(QDomElement &element, TypeSection *type);
     bool parseSurfaceElement(QDomElement &element, RSystemElementRoad *road);
-    bool parseObjectsElement(QDomElement &element, RSystemElementRoad *road, QString &oldTileId);
-    bool parseSignalsElement(QDomElement &element, RSystemElementRoad *road, QString &oldTileId);
+    bool parseObjectsElement(QDomElement &element, RSystemElementRoad *road);
+    bool parseSignalsElement(QDomElement &element, RSystemElementRoad *road);
     bool parseSensorsElement(QDomElement &element, RSystemElementRoad *road);
     bool parseGeometryElement(QDomElement &element, RSystemElementRoad *road);
     bool parseElevationElement(QDomElement &element, RSystemElementRoad *road);
@@ -137,11 +138,11 @@ public:
     bool parseLaneSectionElement(QDomElement &element, RSystemElementRoad *road);
     bool parseLaneElement(QDomElement &element, LaneSection *laneSection);
 
-    bool parseControllerElement(QDomElement &child, QString &oldTileId);
-    bool parseJunctionElement(QDomElement &child, QString &oldTileId);
-	bool parseJunctionGroupElement(QDomElement &child, QString &oldTileId);
-    bool parseFiddleyardElement(QDomElement &child, QString &oldTileId);
-    bool parsePedFiddleyardElement(QDomElement &child, QString &oldTileId);
+    bool parseControllerElement(QDomElement &child);
+    bool parseJunctionElement(QDomElement &child);
+	bool parseJunctionGroupElement(QDomElement &child);
+    bool parseFiddleyardElement(QDomElement &child);
+    bool parsePedFiddleyardElement(QDomElement &child);
     bool parseSceneryElement(QDomElement &child);
     bool parseEnvironmentElement(QDomElement &child);
 
@@ -158,6 +159,7 @@ protected:
     //################//
 
 private:
+	int parseTileID(const QDomElement &element);
     QDomDocument *doc_;
 	float opendriveVersion_;
 
@@ -179,8 +181,7 @@ private:
 
     DomParser::Mode mode_;
 
-    QMultiMap<QString, RoadSystem::IdType> elementIDs_;
-    QMap<int, int> tileCounts_;
+    QMap<QString, odrID> elementIDs_[odrID::NUM_IDs];
 	bool disableWarnings;
 };
 

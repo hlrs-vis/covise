@@ -84,7 +84,7 @@ const char *TUIPopUp::getClassName() const
     return "TUIPopUp";
 }
 
-void TUIPopUp::setValue(int type, covise::TokenBuffer &tb)
+void TUIPopUp::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_STRING)
     {

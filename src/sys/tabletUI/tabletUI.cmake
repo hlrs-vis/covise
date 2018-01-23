@@ -15,6 +15,7 @@ SET(TUI_SOURCES
   TUIToggleButton.cpp
   TUIToggleBitmapButton.cpp
   TUIFrame.cpp
+  TUIGroupBox.cpp
   TUIScrollArea.cpp
   TUISplitter.cpp
   TUIComboBox.cpp
@@ -51,6 +52,7 @@ SET(TUI_HEADERS
   TUIContainer.h
   TUIElement.h
   TUIFrame.h
+  TUIGroupBox.h
   TUILabel.h
   TUINavElement.h
   TUISplitter.h

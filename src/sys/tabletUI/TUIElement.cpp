@@ -27,7 +27,6 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     hidden = false;
     visible = false;
     highlighted = false;
-    TUIMainWindow::getInstance()->addElement(this);
     ParentID = parent;
     ID = id;
     label = "";
@@ -36,11 +35,15 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     width = 1;
     height = 1;
     this->name = name;
+    TUIMainWindow::getInstance()->addElement(this);
 }
 
 /// Destructor
 TUIElement::~TUIElement()
 {
+    widget = nullptr;
+    widgets.clear();
+
     if (parentContainer)
     {
         parentContainer->removeElement(this);
@@ -48,7 +51,7 @@ TUIElement::~TUIElement()
     TUIMainWindow::getInstance()->removeElement(this);
 }
 
-void TUIElement::setValue(int type, covise::TokenBuffer &tb)
+void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue" << type << endl;
     if (type == TABLET_POS)
@@ -91,8 +94,8 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
         char *l;
         tb >> l;
         QString text = l;
-        TUIElement::setLabel(text);
         setLabel(text);
+        TUIElement::setLabel(text);
     }
     else if (type == TABLET_COLOR)
     {
@@ -104,12 +107,14 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
     {
         int hide;
         tb >> hide;
+        setHidden(hide ? true : false);
         TUIElement::setHidden(hide ? true : false);
     }
     else if (type == TABLET_SET_ENABLED)
     {
         int en;
         tb >> en;
+        setEnabled(en ? true : false);
         TUIElement::setEnabled(en ? true : false);
     }
 }
@@ -119,7 +124,9 @@ void TUIElement::setValue(int type, covise::TokenBuffer &tb)
 */
 void TUIElement::setWidget(QWidget *w)
 {
+    widgets.erase(widget);
     widget = w;
+    widgets.insert(w);
 }
 
 /** Set parent container.
@@ -202,6 +209,14 @@ void TUIElement::setColor(Qt::GlobalColor color)
         palette.setColor(widget->foregroundRole(), color);
         widget->setPalette(palette);
     }
+
+    for (auto &w: widgets)
+    {
+        QPalette palette = w->palette();
+        palette.setColor(w->backgroundRole(), color);
+        palette.setColor(w->foregroundRole(), color);
+        w->setPalette(palette);
+    }
 }
 
 /** Set element visibility.
@@ -221,6 +236,10 @@ void TUIElement::setHidden(bool hide)
     hidden = hide;
     if (getWidget())
         getWidget()->setVisible(!hidden);
+    for (auto &w: widgets)
+    {
+        w->setVisible(!hidden);
+    }
 }
 
 /** Get hiding state.

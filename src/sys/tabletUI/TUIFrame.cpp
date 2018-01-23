@@ -96,7 +96,7 @@ const char *TUIFrame::getClassName() const
     return "TUIFrame";
 }
 
-void TUIFrame::setValue(int type, covise::TokenBuffer &tb)
+void TUIFrame::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     QFrame *frame = (QFrame *)widget;
     if (type == TABLET_SHAPE)

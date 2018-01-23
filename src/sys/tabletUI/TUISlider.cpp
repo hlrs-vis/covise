@@ -52,13 +52,16 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
     gl->addWidget(string, 1, width-1);
     for (int i=0; i<width-1; ++i)
         gl->setColumnStretch(i, 100);
+    gl->setContentsMargins(0, 0, 0, 0);
 
-    widget = slider;
+    widgets.insert(string);
+    widgets.insert(slider);
 }
 
 /// Destructor
 TUISlider::~TUISlider()
 {
+    delete layout;
     delete string;
     delete slider;
     delete label;
@@ -81,6 +84,8 @@ void TUISlider::setPos(int x, int y)
     string->setVisible(!hidden);
     if (label)
         label->setVisible(!hidden);
+
+    slider->setMinimumWidth((width-1)*string->width());
 }
 
 void TUISlider::sliderChanged(int ival)
@@ -93,7 +98,7 @@ void TUISlider::sliderChanged(int ival)
         string->setText(tmp);
         covise::TokenBuffer tb;
         tb << ID;
-        tb << 10;
+        tb << TABLET_MOVED;
         tb << value;
         TUIMainWindow::getInstance()->send(tb);
     }
@@ -129,7 +134,7 @@ const char *TUISlider::getClassName() const
     return "TUISlider";
 }
 
-void TUISlider::setValue(int type, covise::TokenBuffer &tb)
+void TUISlider::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUISlider::setValue info: type = " << type << endl;
     if (type == TABLET_MIN)
@@ -180,6 +185,19 @@ void TUISlider::setValue(int type, covise::TokenBuffer &tb)
         else
             slider->setOrientation(Qt::Vertical);
     }
+    else if (type == TABLET_ORIENTATION)
+    {
+        int orientation;
+        tb >> orientation;
+        if (orientation == Qt::Vertical)
+        {
+            slider->setOrientation(Qt::Vertical);
+        }
+        else
+        {
+            slider->setOrientation(Qt::Horizontal);
+        }
+    }
 
     TUIElement::setValue(type, tb);
 }
@@ -187,11 +205,19 @@ void TUISlider::setValue(int type, covise::TokenBuffer &tb)
 void TUISlider::setLabel(QString textl)
 {
     TUIElement::setLabel(textl);
-    if (!label)
+    if (textl.isEmpty())
     {
-        label = new QLabel(widget->parentWidget());
+        widgets.erase(label);
+        delete label;
+        label = nullptr;
+    }
+    else if (!label)
+    {
+        label = new QLabel(slider->parentWidget());
+        widgets.insert(label);
         label->setBuddy(string);
         static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
     }
-    label->setText(textl);
+    if (label)
+        label->setText(textl);
 }

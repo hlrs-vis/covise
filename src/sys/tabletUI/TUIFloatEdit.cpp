@@ -68,7 +68,7 @@ const char *TUIFloatEdit::getClassName() const
     return "TUIFloatEdit";
 }
 
-void TUIFloatEdit::setValue(int type, covise::TokenBuffer &tb)
+void TUIFloatEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue " << type << endl;
     if (type == TABLET_MIN)

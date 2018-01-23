@@ -284,7 +284,9 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
             // Create new Junction Element //
             //
-            RSystemElementJunction *newJunction = new RSystemElementJunction("unnamed", "junction");
+			odrID ID;
+			ID.setType(odrID::ID_Junction);
+            RSystemElementJunction *newJunction = new RSystemElementJunction("junction");
 
             NewJunctionCommand *command = new NewJunctionCommand(newJunction, getProjectData()->getRoadSystem(), NULL);
             if (command->isValid())
@@ -401,7 +403,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 		if(isCurrentTool(ODD::TJE_CREATE_JUNCTION))
 		{
 
-			RSystemElementRoad * currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+			RSystemElementRoad * currentRoadPrototype_ = new RSystemElementRoad("prototype", odrID::invalidID(), odrID::invalidID());
 
 			// Superpose user prototypes //
 			//
@@ -927,7 +929,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             }
         }
 
-        spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+        spiralPrototype = new RSystemElementRoad("prototype");
         spiralPrototype->addTrackComponent(spiral);
 
         // Transform the spiralprototype to endPoint //
@@ -986,7 +988,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             }
         }
 
-        spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+        spiralPrototype = new RSystemElementRoad("prototype");
         spiralPrototype->addTrackComponent(spiral);
 
         // Transform the spiralprototype to endPoint //
@@ -1146,7 +1148,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                     {
                         // Road //
                         //
-                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed", "road", "-1");
+                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed");
 
 						// Track //
 						//
@@ -1254,7 +1256,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                     // Create new Junction Element //
                     //
-                    RSystemElementJunction *newJunction = new RSystemElementJunction("unnamed", "junction");
+                    RSystemElementJunction *newJunction = new RSystemElementJunction("junction",getProjectData()->getRoadSystem()->getID(odrID::ID_Junction));
 
                     NewJunctionCommand *junctionCommand = new NewJunctionCommand(newJunction, getProjectData()->getRoadSystem(), NULL);
                     if (junctionCommand->isValid())

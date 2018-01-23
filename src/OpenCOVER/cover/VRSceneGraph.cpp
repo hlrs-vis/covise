@@ -234,19 +234,19 @@ void VRSceneGraph::init()
         coVRFileManager::instance()->reloadFile();
     });
 
-    m_showStats = new ui::Button("ShowStats", this);
+    m_showStats = new ui::SelectionList("ShowStats", this);
     m_showStats->setText("Renderer statistics");
     m_showStats->setShortcut("Alt+Shift+S");
+    m_showStats->append("Off");
+    m_showStats->append("Frames/s");
+    m_showStats->append("Viewer");
+    m_showStats->append("Viewer+camera");
+    m_showStats->append("Viewer+camera+nodes");
     cover->viewOptionsMenu->add(m_showStats);
-    m_showStats->setState(coVRConfig::instance()->drawStatistics);
-    m_showStats->setCallback([this](bool state){
-        coVRConfig::instance()->drawStatistics = state;
-        if (coVRConfig::instance()->drawStatistics)
-        {
-            statsDisplay->showStats(coVRStatsDisplay::VIEWER_SCENE_STATS, VRViewer::instance());
-        }
-        else
-            statsDisplay->showStats(0, VRViewer::instance());
+    m_showStats->select(coVRConfig::instance()->drawStatistics);
+    m_showStats->setCallback([this](int val){
+        coVRConfig::instance()->drawStatistics = val;
+        statsDisplay->showStats(val, VRViewer::instance());
     });
 }
 

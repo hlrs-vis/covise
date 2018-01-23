@@ -26,6 +26,7 @@
 #include "ui/Owner.h"
 namespace opencover {
 namespace ui {
+class Group;
 class Menu;
 class Action;
 class ButtonGroup;
@@ -349,6 +350,7 @@ private:
     vrui::coButtonMenuItem *nameButton_;
     ui::Menu *navMenu_ = nullptr;
     ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
+    ui::Group *navModes_ = nullptr;
     ui::ButtonGroup *navGroup_ = nullptr;
     ui::Button *noNavButton_=nullptr;
     ui::Button *xformButton_=nullptr, *scaleButton_=nullptr, *flyButton_=nullptr, *walkButton_=nullptr, *driveButton_=nullptr;
@@ -358,6 +360,7 @@ private:
     ui::Button *collisionButton_=nullptr, *snapButton_=nullptr;
     ui::Slider *driveSpeedSlider_=nullptr;
     ui::Action *scaleUpAction_=nullptr, *scaleDownAction_=nullptr;
+    ui::Slider *scaleSlider_=nullptr;
 
     osg::Vec3 rotPointVec;
     osg::ref_ptr<osg::MatrixTransform> rotPoint;

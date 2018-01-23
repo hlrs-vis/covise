@@ -171,7 +171,19 @@ namespace OpenCOVERPlugin
         public Autodesk.Revit.UI.Result Execute(ExternalCommandData commandData,
             ref string message, ElementSet elements)
         {
-            COVER.Instance.ConnectToOpenCOVER("visent.hlrs.de", 31821, commandData.Application.ActiveUIDocument.Document);
+            string CAVEHost = "visent.hlrs.de";
+            try
+            {
+                CAVEHost = System.Environment.GetEnvironmentVariable("CAVEHOST");
+            }
+            catch
+            {
+            }
+            if (CAVEHost == null || CAVEHost.Length == 0)
+            {
+                CAVEHost = "visent.hlrs.de";
+            }
+            COVER.Instance.ConnectToOpenCOVER(CAVEHost, 31821, commandData.Application.ActiveUIDocument.Document);
             return geometrySender.DoSend(commandData);
             //return Autodesk.Revit.UI.Result.Succeeded;
         }

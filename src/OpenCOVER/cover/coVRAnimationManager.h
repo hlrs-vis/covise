@@ -24,6 +24,7 @@ namespace opencover
 {
 namespace ui
 {
+class Group;
 class Menu;
 class Action;
 class Button;
@@ -131,10 +132,14 @@ private:
     ui::Slider *animSpeedItem;
     ui::Action *animForwardItem;
     ui::Action *animBackItem;
+    ui::Group *animStepGroup;
     ui::Slider *animFrameItem;
     ui::Button *rotateObjectsToggleItem;
     ui::Button *animPingPongItem;
     ui::Button *animSyncItem;
+    ui::Group *animLimitGroup;
+    ui::Slider *animStartItem, *animStopItem;
+    ui::Slider *presentationStep;
     ui::Menu *animRowMenu;
 
     bool animRunning;

@@ -32,11 +32,11 @@ class FiddleyardSource : public Acceptor
 {
 
 public:
-    FiddleyardSource(QString &id, int lane, double startTime, double repeatTime, double velocity, double velocityDeviance);
+    FiddleyardSource(const odrID &id, int lane, double startTime, double repeatTime, double velocity, double velocityDeviance);
 
     // <source> //
     //
-    QString getId() const
+    odrID getId() const
     {
         return id_;
     }
@@ -61,18 +61,18 @@ public:
         return velocityDeviance_;
     }
 
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     };
 
     // <source><vehicle> //
     //
-    QMap<QString, double> getVehicles() const
+    QMap<odrID, double> getVehicles() const
     {
         return vehicles_;
     }
-    void addVehicle(const QString &id, double numerator);
+    void addVehicle(const odrID &id, double numerator);
 
     // Prototype Pattern //
     //
@@ -90,7 +90,7 @@ private:
     FiddleyardSource &operator=(const FiddleyardSource &); /* not allowed */
 
 private:
-    QString id_;
+    odrID id_;
     int lane_;
 
     double startTime_;
@@ -98,7 +98,7 @@ private:
     double velocity_;
     double velocityDeviance_;
 
-    QMap<QString, double> vehicles_;
+    QMap<odrID, double> vehicles_;
 };
 
 //########################//
@@ -111,9 +111,9 @@ class FiddleyardSink : public Acceptor
 {
 
 public:
-    FiddleyardSink(const QString &id, int lane);
+    FiddleyardSink(const odrID &id, int lane);
 
-    QString getId() const
+    odrID getId() const
     {
         return id_;
     }
@@ -122,7 +122,7 @@ public:
         return lane_;
     }
 
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     };
@@ -143,7 +143,7 @@ private:
     FiddleyardSink &operator=(const FiddleyardSink &); /* not allowed */
 
 private:
-    QString id_;
+    odrID id_;
     int lane_;
 };
 
@@ -156,18 +156,18 @@ private:
 class RSystemElementFiddleyard : public RSystemElement
 {
 public:
-    RSystemElementFiddleyard(const QString &name, const QString &id, const QString &elementType, const QString &elementId, const QString &contactPoint);
+    RSystemElementFiddleyard(const QString &name, const odrID &id, const QString &elementType, const odrID &elementId, const QString &contactPoint);
     virtual ~RSystemElementFiddleyard();
 
     // <source/sink> //
     //
     void addSource(FiddleyardSource *source);
     void addSink(FiddleyardSink *sink);
-    QMap<QString, FiddleyardSource *> getSources() const
+    QMap<odrID, FiddleyardSource *> getSources() const
     {
         return sources_;
     }
-    QMap<QString, FiddleyardSink *> getSinks() const
+    QMap<odrID, FiddleyardSink *> getSinks() const
     {
         return sinks_;
     }
@@ -178,7 +178,7 @@ public:
     {
         return elementType_;
     }
-    QString getElementId() const
+    const odrID &getElementId() const
     {
         return elementId_;
     }
@@ -188,14 +188,14 @@ public:
     }
 
     void setElementType(const QString &elementType);
-    void setElementId(const QString &elementId);
+    void setElementId(const odrID &elementId);
     void setContactPoint(const QString &contactPoint);
 
     // Prototype Pattern //
     //
     RSystemElementFiddleyard *getClone();
 
-    void updateIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds);
+    void updateIds(const QMap<odrID, odrID> &roadIds);
 
     // Visitor Pattern //
     //
@@ -217,16 +217,16 @@ private:
     // <link> //
     //
     QString elementType_;
-    QString elementId_;
+    odrID elementId_;
     QString contactPoint_;
 
     // <source> //
     //
-    QMap<QString, FiddleyardSource *> sources_; // owned
+    QMap<odrID, FiddleyardSource *> sources_; // owned
 
     // <sink> //
     //
-    QMap<QString, FiddleyardSink *> sinks_; // owned
+    QMap<odrID, FiddleyardSink *> sinks_; // owned
 };
 
 #endif // RSYSTEMELEMENTFIDDLEYARD_HPP

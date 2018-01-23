@@ -90,7 +90,7 @@ void TUIColorButton::releaseColor(const QColor &col)
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIColorButton::setValue(int type, covise::TokenBuffer &tb)
+void TUIColorButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
 
     if (type == TABLET_RGBA)
@@ -99,14 +99,14 @@ void TUIColorButton::setValue(int type, covise::TokenBuffer &tb)
         tb >> green;
         tb >> blue;
         tb >> alpha;
-    }
-    int r = (int)(red * 255);
-    int g = (int)(green * 255);
-    int b = (int)(blue * 255);
-    int a = (int)(alpha * 255);
+        int r = (int)(red * 255);
+        int g = (int)(green * 255);
+        int b = (int)(blue * 255);
+        int a = (int)(alpha * 255);
 
-    QColor col(r, g, b, a);
-    colorButton->setPalette(QPalette(col));
+        QColor col(r, g, b, a);
+        colorButton->setPalette(QPalette(col));
+    }
 
     TUIElement::setValue(type, tb);
 }

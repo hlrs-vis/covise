@@ -72,7 +72,7 @@ const char *TUIIntEdit::getClassName() const
     return "TUIIntEdit";
 }
 
-void TUIIntEdit::setValue(int type, covise::TokenBuffer &tb)
+void TUIIntEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUIIntEdit::setValue info: type = " << type << endl;
     if (type == TABLET_MIN)

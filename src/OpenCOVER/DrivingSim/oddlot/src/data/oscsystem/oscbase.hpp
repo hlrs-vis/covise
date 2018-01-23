@@ -17,6 +17,7 @@
 #define OSCBASE_HPP
 
 #include "src/data/dataelement.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 
 namespace OpenScenario
@@ -88,7 +89,7 @@ public:
     void addOSCElement(OSCElement *oscElement);
     bool delOSCElement(OSCElement *oscElement);
 
-	const QString getUniqueId(const QString &suggestion, QString &name);
+	const QString getUniqueId(const QString &suggestion, const QString &name);
 
 	// Visitor Pattern //
     //
@@ -126,7 +127,6 @@ private:
 	//
 	QMap<QString, OSCElement *> oscElements_;
 
-	QMultiMap<QString, int> elementIds_;
 
     // Observer Pattern //
     //

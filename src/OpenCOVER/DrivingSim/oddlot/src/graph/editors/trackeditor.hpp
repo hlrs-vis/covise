@@ -17,6 +17,7 @@
 #define TRACKEDITOR_HPP
 
 #include "projecteditor.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 #include <QMultiMap>
 #include <QPointF>
@@ -192,7 +193,7 @@ private:
 
     // Move Tile Tool //
     //
-    QString currentTile_;
+    odrID currentTile_;
 
     // State //
     //

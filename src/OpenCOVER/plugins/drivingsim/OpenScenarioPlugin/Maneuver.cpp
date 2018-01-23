@@ -81,15 +81,11 @@ osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, vector<osg::Vec3> po
 	return newPosition;
 }
 
-osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, vector<osg::Vec3> polylineVertices, float speed)
+osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetPosition,float speed)
 {
-    if(totalDistance == 0)
-    {
-    targetPosition = currentPos + polylineVertices[visitedVertices];
-    }
-    int verticesCounter = polylineVertices.size();
+
     //substract vectors
-    directionVector = targetPosition - currentPos;
+    directionVector = totaldirectionVector;//targetPosition - currentPos;
     float distance = directionVector.length();
     directionVector.normalize();
     //calculate step distance
@@ -104,7 +100,7 @@ osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, vector<osg::Vec3>
     totalDistance = totalDistance-step_distance;
     //calculate new position
     newPosition = currentPos+(directionVector*step_distance);
-    if (totalDistance < 0)
+    if (totalDistance <= 0)
     {
         visitedVertices++;
         totalDistance = 0;
@@ -173,4 +169,33 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	{
 	aktivCar->setSpeed(targetSpeed);
 	}
+}
+osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 currentPos,vector<osg::Vec3> polylineVertices,vector<bool> isRelVertice){
+    verticesCounter = polylineVertices.size();
+
+
+    if(totalDistance == 0){
+
+        verticeStartPos = currentPos;
+        if(isRelVertice[visitedVertices] == true){
+            polylineVertices[visitedVertices] = currentPos + polylineVertices[visitedVertices];
+        }
+        targetPosition = polylineVertices[visitedVertices];
+        totaldirectionVector = targetPosition - verticeStartPos;
+
+    }
+    //return targetPosition;
+}
+
+
+float &Maneuver::getTrajSpeed(osg::Vec3 verticeStartPos, osg::Vec3 targetPosition)
+{
+    if(totalDistance == 0)
+    {
+        // calculate speed
+        totaldirectionVectorLength = totaldirectionVector.length();
+        speed = totaldirectionVectorLength/deltat;
+
+    }
+    return speed;
 }

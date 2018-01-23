@@ -113,7 +113,7 @@ const char *TUIToggleBitmapButton::getClassName() const
     return "TUIToggleBitmapButton";
 }
 
-void TUIToggleBitmapButton::setValue(int type, covise::TokenBuffer &tb)
+void TUIToggleBitmapButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_BOOL)
     {

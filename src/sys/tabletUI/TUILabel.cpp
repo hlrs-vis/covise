@@ -18,6 +18,8 @@
 TUILabel::TUILabel(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
+    label = name;
+
     l = new QLabel(w);
     if (name.contains("."))
     {
@@ -28,7 +30,7 @@ TUILabel::TUILabel(int id, int type, QWidget *w, int parent, QString name)
             QPixmap pm(covisedir + "/" + name);
             if (pm.isNull())
             {
-                l->setText(name);
+                l->setText(label);
             }
             else
             {
@@ -41,7 +43,7 @@ TUILabel::TUILabel(int id, int type, QWidget *w, int parent, QString name)
         }
     }
     else
-        l->setText(name);
+        l->setText(label);
 
     l->setMinimumSize(l->sizeHint());
     widget = l;

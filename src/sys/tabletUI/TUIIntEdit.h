@@ -23,7 +23,7 @@ class TUIIntEdit : public QObject, public TUIElement
 public:
     TUIIntEdit(int id, int type, QWidget *w, int parent, QString name);
     ~TUIIntEdit();
-    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
     virtual const char *getClassName() const override;
