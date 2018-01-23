@@ -1709,8 +1709,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 const char *var = container ? container->getAttribute("VARIANT") : 0;
                 if (!var || strncmp(var, "GPGPU", 5))
                     newNode = GeometryManager::instance()->addPoint(object, no_points,
-                                                                    x_c, y_c, z_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                                                                    material, pointsize);
+                                                                    x_c, y_c, z_c, no_c, colorbinding, colorpacking, rc, gc, bc, pc,
+                                                                    material,
+                                                                    texW, texH, pixS, texImage, no_t, t_c[0], t_c[1], wrapMode, minfm, magfm,
+                                                                    pointsize);
             }
             else if (strcmp(gtype, "SPHERE") == 0)
             {
