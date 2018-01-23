@@ -541,7 +541,8 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
 				OpenScenario::oscControlPoint1 *controlPoint = spline->ControlPoint1.createObject();
 				char buf[100];
 
-				sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+				QPointF dist = controlPoints.at(index) - controlPoints.at(i);
+				sprintf(buf, "%lf %lf", dist.x(), dist.y());
 				controlPoint->status.setValue(buf);
 			}
 
@@ -550,7 +551,9 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
 			{
 				OpenScenario::oscControlPoint2 *controlPoint = spline->ControlPoint2.createObject();
 				char buf[100];
-				sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+
+				QPointF dist = controlPoints.at(index) - controlPoints.at(i);
+				sprintf(buf, "%lf %lf", dist.x(), dist.y());
 				controlPoint->status.setValue(buf);
 			}
 		}
@@ -1024,6 +1027,8 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			if (action)
 			{
 				// Save catalog //
+				oscCatalog_->addCatalogObjects(); // Load not already loaded objects
+			
 				oscCatalog_->writeCatalogsToDisk();
 
 

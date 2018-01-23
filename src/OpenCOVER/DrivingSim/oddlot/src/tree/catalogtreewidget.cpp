@@ -319,7 +319,8 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
 							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand); */
 
-							obj->writeToDisk();
+//							catalog_->writeToDisk();
+//							obj->writeToDisk();
 						}
 					}
 				}

@@ -241,6 +241,7 @@ OSCItem::init()
 	std::string catalogName = catalogReference->catalogName.getValue();
 	std::string entryName = catalogReference->entryName.getValue();
 
+
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
 	road_ = roadSystem_->getRoad(QString::fromStdString(oscRoad_->roadId.getValue()));
 	closestRoad_ = road_;
@@ -258,6 +259,14 @@ OSCItem::init()
 	//
 
 	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogName,entryName);
+
+/*	OpenScenario::oscMember *categoryMember = catalogObject->getMember("category");
+	if (categoryMember)
+	{
+		OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(categoryMember);
+		oscIntValue *iv = dynamic_cast<oscIntValue *>(categoryMember->getValue()); 
+		qDebug() << "Category: " << oscVar->getValueAsStr(iv->getValue()).c_str();
+	} */
 
 
 #ifdef WIN32

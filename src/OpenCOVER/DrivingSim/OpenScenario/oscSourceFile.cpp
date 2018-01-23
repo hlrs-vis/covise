@@ -41,6 +41,11 @@ void oscSourceFile::setNameAndPath(const std::string &fileName, const std::strin
 {
 	setSrcFileHref(bf::path());
     bf::path fnPath = getFileNamePath(fileName);
+	if (fileName.find(pathFromCurrentDirToDoc.string()) == std::string::npos)
+	{
+		fnPath = pathFromCurrentDirToDoc.string();
+		fnPath /= fileName;
+	}
     setSrcFileName(fnPath.filename());
     setPathFromCurrentDirToMainDir(pathFromCurrentDirToDoc);
     setAbsPathToMainDir(fnPath.parent_path());

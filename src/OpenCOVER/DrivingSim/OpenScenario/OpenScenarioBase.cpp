@@ -433,7 +433,7 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
     }
 }
 
-bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* default false */)
+bool OpenScenarioBase::saveFile(const std::string &fileName, bool catalogs, bool overwrite/* default false */)
 {
     xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
     //oscSourceFile for OpenScenarioBase
@@ -448,8 +448,8 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         //set filename for main xosc file with root element "OpenSCENARIO" to fileName
 		bf::path fnPath = srcFileVec[i]->getFileNamePath(fileName);
 //        if (srcFileRootElement == "OpenSCENARIO")
-		std::string relPath = srcFileVec[i]->getRelPathFromMainDir().string();
-		if (relPath.find("Catalog") == std::string::npos)
+		std::string absPath = srcFileVec[i]->getAbsPathToMainDir().string();
+		if (absPath.find("Catalog") == std::string::npos)
         {
 			if ((fnPath == "") || (fnPath.parent_path() == srcFileVec[i]->getAbsPathToMainDir()))
 			{
@@ -462,9 +462,15 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
 				srcFileVec[i] = source;
 			}
 			osbSourceFile = srcFileVec[i];
+
+			if (!srcFileVec[i]->getXmlDoc())
+			{
+				xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);
+				srcFileVec[i]->setXmlDoc(xmlSrcDoc);
+			}
         }
 		
-        if (!srcFileVec[i]->getXmlDoc())
+        else if (catalogs && !srcFileVec[i]->getXmlDoc())
         {
             xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);
             srcFileVec[i]->setXmlDoc(xmlSrcDoc);
@@ -480,20 +486,24 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        //get the file name to write
-        bf::path srcFileName = srcFileVec[i]->getSrcFileName();
+		std::string absPath = srcFileVec[i]->getAbsPathToMainDir().string();
+		if (catalogs || (absPath.find("Catalog") == std::string::npos))
+		{
+			//get the file name to write
+			bf::path srcFileName = srcFileVec[i]->getSrcFileName();
 
-        //////
-        //for testing: generate a new filename
-        //
-        if (srcFileName != fileName)
-        {
-            srcFileName += "_out.xml";
-        }
-        //
-        //////
+			//////
+			//for testing: generate a new filename
+			//
+			if (srcFileName != fileName)
+			{
+				srcFileName += "_out.xml";
+			}
+			//
+			//////
 
-		srcFileVec[i]->writeFileToDisk();
+			srcFileVec[i]->writeFileToDisk();
+		}
     }
 
     return true;
