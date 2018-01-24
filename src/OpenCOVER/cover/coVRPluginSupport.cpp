@@ -692,7 +692,7 @@ osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node) const
 
 bool coVRPluginSupport::restrictOn() const
 {
-    return coVRConfig::instance()->restrictOn();
+    return coVRNavigationManager::instance()->restrictOn();
 }
 
 coToolboxMenu *coVRPluginSupport::getToolBar() const

@@ -133,6 +133,7 @@ public:
     float snappingDegrees() const;
     void enableSnapping(bool enable);
     void enableDegreeSnapping(bool enable, float degree);
+    bool restrictOn() const;
 
     void setStepSize(float stepsize);
     float getStepSize() const;
@@ -336,6 +337,7 @@ private:
     bool snapping;
     bool snappingD;
     float snapDegrees;
+    bool m_restrict = false;
     float rotationSpeed;
     int oldKeyMask;
     bool turntable;

@@ -223,7 +223,6 @@ coVRConfig::coVRConfig()
 
     std::string msMode = coCoviseConfig::getEntry("mode", "COVER.Multisample", "FASTEST");
 
-    m_restrict = coCoviseConfig::isOn("COVER.Restrict", false);
     if (msMode == "FASTEST")
     {
         multisampleMode = osg::Multisample::FASTEST;

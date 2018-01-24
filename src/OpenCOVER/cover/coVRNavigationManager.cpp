@@ -318,6 +318,8 @@ int coVRNavigationManager::readConfigFile()
     }
     turntable = coCoviseConfig::isOn("COVER.Turntable", turntable);
 
+    m_restrict = coCoviseConfig::isOn("COVER.Restrict", m_restrict);
+
     return 0;
 }
 
@@ -420,17 +422,27 @@ void coVRNavigationManager::initMenu()
     traverseInteractorButton_->setVisible(false);
     navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
 
-    collisionButton_ = new ui::Button(navMenu_, "Collision");
-    collisionButton_->setState(collision);
-    collisionButton_->setCallback([this](bool state){collision = state;});
-    snapButton_ = new ui::Button(navMenu_, "Snap");
-    snapButton_->setState(snapping);
-    snapButton_->setCallback([this](bool state){snapping=state;});
     driveSpeedSlider_ = new ui::Slider(navMenu_, "DriveSpeed");
     driveSpeedSlider_->setText("Drive speed");
     driveSpeedSlider_->setBounds(0., 30.);
     driveSpeedSlider_->setValue(driveSpeed);;
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+    collisionButton_ = new ui::Button(navMenu_, "Collision");
+    collisionButton_->setState(collision);
+    collisionButton_->setCallback([this](bool state){collision = state;});
+
+    snapButton_ = new ui::Button(navMenu_, "Snap");
+    snapButton_->setState(snapping);
+    snapButton_->setCallback([this](bool state){snapping=state;});
+
+    auto restrictButton = new ui::Button(navMenu_, "Restrict");
+    restrictButton->setText("Restrict interactors");
+    restrictButton->setState(m_restrict);
+    restrictButton->setCallback([this](bool state){
+        m_restrict = state;
+    });
+    restrictButton->setVisible(true);
+    restrictButton->setVisible(false, ui::View::VR);
 
 #if 0
     ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
@@ -2847,6 +2859,11 @@ void coVRNavigationManager::enableDegreeSnapping(bool val, float degrees)
 {
     snapDegrees = degrees;
     snappingD = val;
+}
+
+bool coVRNavigationManager::restrictOn() const
+{
+    return m_restrict;
 }
 
 float coVRNavigationManager::snappingDegrees() const
