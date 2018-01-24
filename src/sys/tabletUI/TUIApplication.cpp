@@ -106,6 +106,9 @@
 #include <signal.h>
 #endif
 
+#include <cassert>
+
+
 TUIMainWindow *TUIMainWindow::appwin = 0;
 
 //======================================================================

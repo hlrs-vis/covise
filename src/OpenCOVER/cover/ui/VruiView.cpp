@@ -27,6 +27,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 using namespace vrui;
 
