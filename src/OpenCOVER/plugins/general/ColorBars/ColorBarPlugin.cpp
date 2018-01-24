@@ -45,7 +45,7 @@ bool ColorBarPlugin::init()
         colorSubmenu = new ui::Menu("Colors", this);
         colorSubmenu->setVisible(false);
         colorSubmenu->setVisible(true, ui::View::VR);
-        cover->visMenu->add(colorSubmenu);
+        cover->visMenu->add(colorSubmenu, 1); // after Execute
     }
 
     return true;
