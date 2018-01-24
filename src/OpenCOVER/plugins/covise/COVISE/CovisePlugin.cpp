@@ -110,7 +110,7 @@ bool CovisePlugin::init()
         e->setIcon("view-refresh");
         e->setPriority(ui::Element::Toolbar);
 
-        auto selectInteract = cover->ui->getByPath("NavigationManager.Navigation.SelectInteract");
+        auto selectInteract = cover->ui->getByPath("NavigationManager.Navigation.Modes.SelectInteract");
         if (selectInteract)
         {
             selectInteract->setEnabled(true);
