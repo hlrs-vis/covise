@@ -595,12 +595,6 @@ int coVRPluginSupport::isPointerLocked()
     return (false);
 }
 
-bool coVRPluginSupport::isNavigating()
-{
-    START("coVRPluginSupport::isNavigating");
-    return (coInteractionManager::the()->isOneActive(coInteraction::ButtonA));
-}
-
 float coVRPluginSupport::getSqrDistance(osg::Node *n, osg::Vec3 &p,
                                         osg::MatrixTransform **path = NULL, int pathLength = 0) const
 {
@@ -684,7 +678,7 @@ float coVRPluginSupport::getViewerScreenDistance()
     return viewerDist;
 }
 
-osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node)
+osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node) const
 {
     osg::ComputeBoundsVisitor cbv;
     cbv.setTraversalMask(Isect::Visible);
@@ -694,6 +688,21 @@ osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node)
     //for (osg::NodePath::const_iterator it = path.begin(); it != path.end(); it++)
     //fprintf(stderr, "    node - %s(%s)\n", (*it)->getName(), (*it)->className());
     return cbv.getBoundingBox();
+}
+
+bool coVRPluginSupport::restrictOn() const
+{
+    return coVRConfig::instance()->restrictOn();
+}
+
+coToolboxMenu *coVRPluginSupport::getToolBar() const
+{
+    return toolBar;
+}
+
+void coVRPluginSupport::setToolBar(coToolboxMenu *tb)
+{
+    toolBar = tb;
 }
 
 coVRPluginSupport::coVRPluginSupport()
@@ -756,8 +765,6 @@ coVRPluginSupport::coVRPluginSupport()
 
     currentCursor = osgViewer::GraphicsWindow::LeftArrowCursor;
     setCurrentCursor(currentCursor);
-
-    resOn = coVRConfig::instance()->restrictOn();
 
     frontWindowHorizontalSize = 0;
 

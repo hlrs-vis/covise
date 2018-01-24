@@ -117,7 +117,6 @@ VRSceneGraph::VRSceneGraph()
     , m_vectorInteractor(0)
     , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
-    , m_handLocked(false)
     , m_wireframe(Disabled)
     , m_textured(true)
     , m_showMenu(true)
@@ -147,11 +146,6 @@ VRSceneGraph::VRSceneGraph()
     , m_interactionHQ(NULL)
 {
     assert(!s_instance);
-
-    KeyButton[0] = 0;
-    KeyButton[1] = 0;
-    KeyButton[2] = 0;
-    KeyButton[3] = 0;
 }
 /*bis hier neu*/
 
@@ -517,33 +511,9 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
     // Beschleunigung
     if (type == osgGA::GUIEventAdapter::KEYUP)
     {
-        if (keySym == 65365)
-        {
-            KeyButton[0] = false;
-        }
-        if (keySym == 65366)
-        {
-            KeyButton[2] = false;
-        }
-        if (keySym == 46)
-        {
-            KeyButton[1] = false;
-        }
     }
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {
-        if (keySym == 65365)
-        {
-            KeyButton[0] = true;
-        }
-        if (keySym == 65366)
-        {
-            KeyButton[2] = true;
-        }
-        if (keySym == 46)
-        {
-            KeyButton[1] = true;
-        }
         if (keySym == ' ')
         {
             m_worldTransformerEnabled = !m_worldTransformerEnabled;
@@ -975,14 +945,6 @@ VRSceneGraph::update()
     // static osg::Vec3Array *coord = new osg::Vec3Array(4*6);
     osg::Matrix dcs_mat, rot_mat, tmpMat;
     //int collided[6] = {0, 0, 0, 0, 0, 0}; /* front,back,right,left,up,down */
-    if (cover->isPointerLocked())
-    {
-        m_handLocked = true;
-    }
-    else
-    {
-        m_handLocked = false;
-    }
 
 #ifdef OLDINPUT
     if (VRTracker::instance()->getCameraSensorStation() != -1)

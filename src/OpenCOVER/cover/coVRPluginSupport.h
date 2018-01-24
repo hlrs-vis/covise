@@ -547,10 +547,6 @@ public:
     // returns true if another plugin locked the pointer
     int isPointerLocked();
 
-    // deprecated, use coInteraction instead
-    // returns true if USER is currently navigating
-    bool isNavigating();
-
     // old COVISE Messages
     int sendBinMessage(const char *keyword, const char *data, int len);
     // update frametime
@@ -608,13 +604,10 @@ public:
     float getViewerScreenDistance();
 
     //! compute the box of all visible nodes above and included node
-    osg::BoundingBox getBBox(osg::Node *node);
+    osg::BoundingBox getBBox(osg::Node *node) const;
 
-    //restrict interactors to visible scne
-    bool restrictOn()
-    {
-        return resOn;
-    };
+    //restrict interactors to visible scene
+    bool restrictOn() const;
 
     /// @endcond INTERNAL
 
@@ -630,21 +623,13 @@ public:
     };
     /// @endcond INTERNAL
 
-    vrui::coToolboxMenu *getToolBar()
-    {
-        return toolBar;
-    };
-    void setToolBar(vrui::coToolboxMenu *tb)
-    {
-        toolBar = tb;
-    };
+    vrui::coToolboxMenu *getToolBar() const;
+    void setToolBar(vrui::coToolboxMenu *tb);
 
     //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
 private:
-    bool resOn; // flag for restrict interactors to visible scene
-
     void setFrameRealTime(double ft);
 
     //! calls the callback

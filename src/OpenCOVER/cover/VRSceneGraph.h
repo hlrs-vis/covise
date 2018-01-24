@@ -259,8 +259,6 @@ public:
 
     int m_vectorInteractor; //< don't use - for COVISE plugin only
 
-    bool KeyButton[4];
-
     bool isHighQuality() const;
 
 private:
@@ -304,7 +302,6 @@ private:
     osg::ClipNode *m_objectsRoot;
 
     float m_floorHeight;
-    bool m_handLocked; /* =true: no hand input is accepted until button is released */
     WireframeMode m_wireframe;
     bool m_textured; /* =true: textures are drawn as intended */
     bool m_coordAxis; /* =true: coord Axis will be drawn */
