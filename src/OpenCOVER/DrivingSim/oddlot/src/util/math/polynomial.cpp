@@ -277,6 +277,8 @@ Polynomial::setParameters(double a, double b, double c, double d)
 	b_ = b;
 	c_ = c;
 	d_ = d;
+
+	recalculateDegree();
 }
 
 void 

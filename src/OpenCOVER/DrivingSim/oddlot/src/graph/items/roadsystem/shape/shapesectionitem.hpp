@@ -66,6 +66,11 @@ private:
 public slots:
     virtual bool removeSection();
 
+	// Copy Shape Section //
+	//
+	void copyShapeSection();
+	void pasteShapeSection();
+
     //################//
     // EVENTS         //
     //################//
@@ -91,6 +96,9 @@ private:
     ShapeSection *shapeSection_;
 
 	ShapeSectionPolynomialItems *shapeSectionPolynomialItems_;
+
+	QAction *copyShapeSectionAction_;
+	QAction *pasteShapeSectionAction_;
 };
 
 #endif // SHAPESECTIONITEM_HPP

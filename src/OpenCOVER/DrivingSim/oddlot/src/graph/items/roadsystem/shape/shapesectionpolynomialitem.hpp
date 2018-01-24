@@ -57,11 +57,6 @@ public:
 		return parentShapeSectionPolynomialItems_;
 	}
 
-	// set Handles //
-	//
-	void deleteControlPointHandles();
-	void deleteRealPointHighHandle();
-
     // Graphics //
     //
     void updateColor();

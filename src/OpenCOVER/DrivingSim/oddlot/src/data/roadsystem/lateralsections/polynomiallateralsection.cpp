@@ -27,6 +27,7 @@
 // Constructors       //
 //####################//
 
+
 PolynomialLateralSection::PolynomialLateralSection(double t, double a, double b, double c, double d)
     : LateralSection(t)
 	, Polynomial(a, b, c, d)
@@ -143,8 +144,8 @@ PolynomialLateralSection::getClone()
     // PolynomialLateralSection //
     //
     PolynomialLateralSection *clone = new PolynomialLateralSection(getTStart(), getA(), getB(), getC(), getD());
-	clone->realPointLow_ = realPointLow_->getClone();
-	clone->realPointHigh_ = realPointHigh_->getClone();
+	clone->realPointLow_ = new SplineControlPoint(clone, realPointLow_->getPoint(), true);
+	clone->realPointHigh_ = new SplineControlPoint(clone, realPointHigh_->getPoint(), false);
 
     return clone;
 }
@@ -176,9 +177,4 @@ SplineControlPoint::SplineControlPoint(PolynomialLateralSection *parentLateralSe
 {
 }
 
-SplineControlPoint *
-SplineControlPoint::getClone()
-{
-	return new SplineControlPoint(parentLateralSection_, point_, low_);
-}
 
