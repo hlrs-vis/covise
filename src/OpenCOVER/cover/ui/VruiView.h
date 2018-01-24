@@ -39,6 +39,8 @@ class VruiView: public View
    VruiView();
    ~VruiView();
 
+   ViewType typeBit() const override;
+
    COVER_UI_EXPORT vrui::coMenu *getMenu(const Element *elem) const;
    COVER_UI_EXPORT vrui::coMenuItem *getItem(const Element *elem) const;
 

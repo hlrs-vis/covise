@@ -52,6 +52,11 @@ TabletView::~TabletView()
     delete m_root;
 }
 
+View::ViewType TabletView::typeBit() const
+{
+    return View::Tablet;
+}
+
 TabletViewElement *TabletView::tuiElement(const std::string &path) const
 {
     auto e = viewElement(path);
@@ -206,7 +211,7 @@ void TabletView::updateVisible(const Element *elem)
     auto te = ve->m_elem;
     if (!te)
         return;
-    te->setHidden(!elem->visible());
+    te->setHidden(!elem->visible(this));
 }
 
 void TabletView::updateText(const Element *elem)

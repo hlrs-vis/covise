@@ -37,6 +37,7 @@ class TabletView: public View
    TabletView(const std::string &name, coTabletUI *tui);
    TabletView(coTUITabFolder *root);
    ~TabletView();
+   ViewType typeBit() const override;
 
  private:
    TabletViewElement *tuiElement(const std::string &path) const;

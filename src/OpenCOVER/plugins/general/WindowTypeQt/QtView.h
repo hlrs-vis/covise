@@ -114,6 +114,7 @@ class QtView: public QObject, public View
  public:
    QtView(QMenuBar *menubar, QToolBar *m_toolbar = nullptr);
    QtView(QToolBar *toolbar);
+   ViewType typeBit() const override;
 
    void setInsertPosition(QAction *item);
 

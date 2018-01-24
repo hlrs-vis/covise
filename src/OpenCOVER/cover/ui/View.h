@@ -25,6 +25,14 @@ class COVER_UI_EXPORT View {
     friend class Manager;
 
  public:
+    enum ViewType
+    {
+        Other = 1,
+        WindowMenu = 2,
+        VR = 4,
+        Tablet = 8,
+        Phone = 16,
+    };
     //! base class for objects where a view stores all the data for the graphical representation of an Element
     struct ViewElement
     {
@@ -41,6 +49,8 @@ class COVER_UI_EXPORT View {
     //! destroy view and all data from its ViewElements
     virtual ~View();
 
+    //! return a bit identifying this View type
+    virtual ViewType typeBit() const = 0;
     //! return name of this view
     const std::string &name() const;
     //! return manager this view is attached to

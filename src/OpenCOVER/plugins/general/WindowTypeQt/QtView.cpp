@@ -64,6 +64,11 @@ QtView::QtView(QToolBar *toolbar)
 {
 }
 
+View::ViewType QtView::typeBit() const
+{
+    return View::WindowMenu;
+}
+
 void QtView::setInsertPosition(QAction *item)
 {
     m_insertBefore = item;
@@ -407,14 +412,14 @@ void QtView::updateVisible(const Element *elem)
         auto m = dynamic_cast<QMenu *>(w);
         if (!m)
         {
-            w->setVisible(elem->visible());
+            w->setVisible(elem->visible(this));
         }
     }
 
     if (auto ve = qtViewElement(elem))
     {
         if (auto a = ve->action)
-            a->setVisible(elem->visible());
+            a->setVisible(elem->visible(this));
     }
 }
 
