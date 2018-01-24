@@ -855,38 +855,39 @@ VRSceneGraph::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "VRSceneGraph::update\n");
-    static bool firstTime = true;
-    if (firstTime)
+    if (m_firstTime)
     {
-        windowStruct *ws = &(coVRConfig::instance()->windows[0]);
-        if (ws && ws->window)
+        if (coVRConfig::instance()->numWindows() > 0)
         {
-#ifdef WIN32
-            if (OpenCOVER::instance()->parentWindow == NULL)
-#endif
+            const auto &ws = coVRConfig::instance()->windows[0];
+            if (ws.window)
             {
-                ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
-                ws->window->setWindowDecoration(ws->decoration);
+#ifdef WIN32
+                if (OpenCOVER::instance()->parentWindow == NULL)
+#endif
+                {
+                    ws.window->setWindowRectangle(ws.ox, ws.oy, ws.sx, ws.sy);
+                    ws.window->setWindowDecoration(ws.decoration);
+                }
             }
         }
-        firstTime = false;
+        m_firstTime = false;
     }
 
-    static bool pointerVisible = false;
     if (Input::instance()->hasHand() && Input::instance()->isTrackingOn())
     {
-        if (!pointerVisible)
+        if (!m_pointerVisible)
         {
             m_scene->addChild(m_handTransform.get());
-            pointerVisible = true;
+            m_pointerVisible = true;
         }
     }
     else
     {
-        if (pointerVisible)
+        if (m_pointerVisible)
         {
             m_scene->removeChild(m_handTransform.get());
-            pointerVisible = false;
+            m_pointerVisible = false;
         }
     }
 

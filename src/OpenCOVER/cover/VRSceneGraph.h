@@ -310,6 +310,8 @@ private:
     bool m_coordAxis; /* =true: coord Axis will be drawn */
     bool m_showMenu;
     bool m_showObjects;
+    bool m_firstTime = true;
+    bool m_pointerVisible = false;
 
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
