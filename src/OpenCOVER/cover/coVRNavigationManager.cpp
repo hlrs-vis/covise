@@ -351,6 +351,7 @@ void coVRNavigationManager::initMenu()
     m_resetView->setIcon("zoom-original");
 
     scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
+    scaleSlider_->setVisible(false, ui::View::VR);
     scaleSlider_->setText("Scale factor");
     scaleSlider_->setBounds(1e-5, 1e5);
     scaleSlider_->setScale(ui::Slider::Logarithmic);
