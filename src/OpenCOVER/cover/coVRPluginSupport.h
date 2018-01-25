@@ -646,6 +646,8 @@ private:
     mutable vrui::coUpdateManager *updateManager;
 
     mutable int invCalculated;
+    osg::Matrix handMat;
+    bool wasHandValid = false;
     osg::Matrix baseMatrix;
     mutable osg::Matrix invBaseMatrix;
     int buttonGroup;

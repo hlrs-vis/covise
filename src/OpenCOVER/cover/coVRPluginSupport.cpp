@@ -221,8 +221,8 @@ const osg::Matrix &coVRPluginSupport::getPointerMat() const
 {
     //START("coVRPluginSupport::getPointerMat");
 
-    if (Input::instance()->hasHand())
-        return Input::instance()->getHandMat();
+    if (wasHandValid)
+        return handMat;
     else
         return getMouseMat();
 }
@@ -385,6 +385,12 @@ void coVRPluginSupport::update()
     /// START("coVRPluginSupport::update");
     if (debugLevel(5))
         fprintf(stderr, "coVRPluginSupport::update\n");
+
+    if (Input::instance()->hasHand() && Input::instance()->isHandValid())
+    {
+        wasHandValid = true;
+        handMat = Input::instance()->getHandMat();
+    }
 
     getMouseButton()->setWheel(Input::instance()->mouse()->wheel());
     getMouseButton()->setState(Input::instance()->mouse()->buttonState());
