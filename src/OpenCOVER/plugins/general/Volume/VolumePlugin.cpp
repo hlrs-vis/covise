@@ -862,7 +862,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                     functionEditorTab->setDimension(vd->chan);
 
                     // refresh the histogram
-                    unsigned int buckets[2];
+                    int buckets[2];
                     buckets[0] = coTUIFunctionEditorTab::histogramBuckets;
                     buckets[1] = coTUIFunctionEditorTab::histogramBuckets;
 
@@ -1937,7 +1937,7 @@ void VolumePlugin::updateTFEData()
                     delete[] functionEditorTab -> histogramData;
                     functionEditorTab->histogramData = NULL;
 
-                    unsigned int buckets[2] = {
+                    int buckets[2] = {
                         coTUIFunctionEditorTab::histogramBuckets,
                         vd->chan == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
                     };
