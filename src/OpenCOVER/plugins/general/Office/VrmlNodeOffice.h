@@ -40,7 +40,7 @@ class VrmlNodeOffice : public VrmlNodeChild
 {
 
 public:
-    static list<VrmlNodeOffice *> allOffice;
+    static std::list<VrmlNodeOffice *> allOffice;
     // Define the fields of Office nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
@@ -54,7 +54,7 @@ public:
 
     virtual VrmlNodeOffice *toOffice() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
+    virtual std::ostream &printFields(ostream &os, int indent);
 
     virtual void setField(const char *fieldName, const VrmlField &fieldValue);
     const VrmlField *getField(const char *fieldName) const;

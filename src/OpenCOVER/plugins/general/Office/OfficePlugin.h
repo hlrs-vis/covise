@@ -22,35 +22,30 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <net/covise_connect.h>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coLabelMenuItem.h>
 #include <osg/Material>
 #include <osg/StateSet>
 #include <osg/Group>
 #include <stack>
 #include <map>
-#include <cover/coTabletUI.h>
-#include <OpenVRUI/sginterface/vruiActionUserData.h>
-// for AnnotationMessage:
-#include <../../general/Annotation/AnnotationPlugin.h>
+#include <cover/ui/Owner.h>
 
-namespace vrui
+namespace opencover
 {
-class coCheckboxMenuItem;
-class coSubMenuItem;
-class coRowMenu;
-class coCheckboxGroup;
-class coButtonMenuItem;
+namespace ui
+{
+class Menu;
+class Label;
+class Group;
+class Button;
+class Input;
+}
 }
 
-class OfficePlugin;
-
-using namespace vrui;
 using namespace opencover;
 using covise::Message;
 using covise::ServerConnection;
 
-class OfficeConnection: public coTUIListener
+class OfficeConnection: public ui::Owner
 {
 public:
     std::string applicationType;
@@ -61,15 +56,13 @@ public:
     const ServerConnection *ServerOc = nullptr;
     void sendMessage(Message &m);
     void handleMessage(Message *m);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
 private:
     
-    coTUILabel *productLabel = nullptr;
-    coTUIFrame *myFrame = nullptr;
-    coTUIEditField *commandLine = nullptr;
-    coTUILabel *lastMessage = nullptr;
+    ui::Group *myFrame = nullptr;
+    ui::Input *commandLine = nullptr;
+    ui::Label *lastMessage = nullptr;
 };
+
 class officeList: public std::list<OfficeConnection *>
 {
     Message *msg = nullptr;
@@ -83,7 +76,7 @@ public:
 };
 
 
-class OfficePlugin : public coVRPlugin, public coMenuListener, public coTUIListener
+class OfficePlugin : public coVRPlugin, public ui::Owner
 {
 public:
    
@@ -103,15 +96,12 @@ public:
 
     void destroyMenu();
     void createMenu();
-    virtual void menuEvent(coMenuItem *aButton) override;
-    virtual void tabletEvent(coTUIElement *tUIItem) override;
-    virtual void tabletPressEvent(coTUIElement *tUIItem) override;
 
     void sendMessage(Message &m);
     
     void message(int toWhom, int type, int len, const void *buf) override;
     void handleMessage(OfficeConnection *oc, Message *m);
-    coTUITab *officeTab = nullptr;
+    ui::Menu *menu = nullptr;;
     officeList officeConnections;
 protected:
     static OfficePlugin *plugin;

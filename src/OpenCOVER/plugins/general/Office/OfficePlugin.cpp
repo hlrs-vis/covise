@@ -22,31 +22,11 @@
 #include "OfficePlugin.h"
 #include <util/unixcompat.h>
 #include <cover/coVRPluginSupport.h>
-#include <cover/RenderObject.h>
 #include <cover/coVRMSController.h>
-#include <cover/coVRConfig.h>
-#include <cover/coVRSelectionManager.h>
-#include "cover/coVRTui.h"
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
 #include <OpenVRUI/osg/mathUtils.h>
 
 #include <PluginUtil/PluginMessageTypes.h>
 #include <vrml97/vrml/VrmlNamespace.h>
-
-
-#include <osg/Geode>
-#include <osg/Switch>
-#include <osg/Geometry>
-#include <osg/PrimitiveSet>
-#include <osg/Array>
-#include <osg/CullFace>
-#include <osg/MatrixTransform>
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -54,40 +34,33 @@
 #include <config/CoviseConfig.h>
 #include "VrmlNodeOffice.h"
 #include <sys/stat.h>
+#include <cassert>
+
+#include <cover/ui/Manager.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Input.h>
+#include <cover/ui/Label.h>
+
+#include <osg/Matrix>
+#include <osg/MatrixTransform>
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
 OfficeConnection::OfficeConnection(ServerConnection *to)
+: ui::Owner("Server"+std::to_string((intptr_t)to), OfficePlugin::instance())
 {
     if (coVRMSController::instance()->isMaster())
         toOffice = to;
     ServerOc = to;
     
-    productLabel = new coTUILabel("product",OfficePlugin::instance()->officeTab->getID());
-    productLabel->setPos(OfficePlugin::instance()->officeConnections.size(),0);
-    myFrame = new coTUIFrame("connectionFrame",OfficePlugin::instance()->officeTab->getID());
-    myFrame->setPos(OfficePlugin::instance()->officeConnections.size(),1);
-    commandLine = new coTUIEditField("commandline",myFrame->getID());
-    commandLine->setPos(0,0);
-    commandLine->setEventListener(this);
-    lastMessage = new coTUILabel("none",myFrame->getID());
-    lastMessage->setPos(0,1);
-}
+    auto menu = OfficePlugin::instance()->menu;
+    myFrame = new ui::Group("Product", this);
+    menu->add(myFrame);
 
-OfficeConnection::~OfficeConnection()
-{
-    delete lastMessage;
-    delete commandLine;
-    delete myFrame;
-    delete productLabel;
-}
-
-void OfficeConnection::tabletEvent(coTUIElement *tUIItem)
-{
-    if(tUIItem == commandLine)
-    {
-        std::string cmd = commandLine->getText();
+    commandLine = new ui::Input(myFrame, "CommandLine");
+    commandLine->setText("Command line");
+    commandLine->setCallback([this](const std::string &cmd){
         if(cmd.length()>0)
         {
             TokenBuffer stb;
@@ -96,14 +69,22 @@ void OfficeConnection::tabletEvent(coTUIElement *tUIItem)
             Message message(stb);
             message.type = (int)OfficePlugin::MSG_String;
             sendMessage(message);
-            commandLine->setText("");
+            commandLine->setValue("");
         }
-    }
+    });
+    auto group = new ui::Group(menu, "LastMessageGroup");
+    group->setText("");
+    group->setPriority(ui::Element::Low);
+    auto label = new ui::Label(group, "LastMessageLabel");
+    label->setText("Last message: ");
+    lastMessage = new ui::Label(group, "LastMessage");
+    lastMessage->setText("");
 }
-void OfficeConnection::tabletPressEvent(coTUIElement *)
+
+OfficeConnection::~OfficeConnection()
 {
-    
 }
+
 void OfficeConnection::sendMessage(Message &m)
 {
     if(toOffice) // false on slaves
@@ -111,8 +92,8 @@ void OfficeConnection::sendMessage(Message &m)
         toOffice->send_msg(&m);
     }
 }
-void
-OfficeConnection::handleMessage(Message *m)
+
+void OfficeConnection::handleMessage(Message *m)
 {
     enum OfficePlugin::MessageTypes type = (enum OfficePlugin::MessageTypes)m->type;
     TokenBuffer tb(m);
@@ -123,7 +104,7 @@ OfficeConnection::handleMessage(Message *m)
         {
             char *line;
             tb >> line;
-            lastMessage->setLabel(line);
+            lastMessage->setText(line);
             if(strncmp(line,"setViewpoint",12)==0)
             {
                 float scale=1.0;
@@ -155,11 +136,11 @@ OfficeConnection::handleMessage(Message *m)
             tb >> pn;
             productName = pn;
             fprintf(stderr,"applicationType: %s  product: %s\n",at,pn);
-            productLabel->setLabel(pn);
+            myFrame->setText(pn);
         }
         break;
     default:
-        cerr << "Unknown message [" << m->type << "] " << endl;
+        std::cerr << "Unknown message [" << m->type << "] " << std::endl;
         break;
     }
 }
@@ -184,8 +165,9 @@ OfficePlugin::handleMessage(OfficeConnection *oc,Message *m)
 
 void OfficePlugin::createMenu()
 {
-    officeTab = new coTUITab("Office", coVRTui::instance()->mainFolder->getID());
-    officeTab->setPos(0, 0);
+    menu = new ui::Menu("Office", this);
+    menu->setVisible(false);
+    menu->setVisible(true, ui::View::Tablet);
 
   /*  updateCameraTUIButton = new coTUIButton("Update Camera", officeTab->getID());
     updateCameraTUIButton->setEventListener(this);
@@ -194,10 +176,10 @@ void OfficePlugin::createMenu()
 
 void OfficePlugin::destroyMenu()
 {
-    delete officeTab;
 }
 
 OfficePlugin::OfficePlugin()
+: ui::Owner("OfficePlugin", cover->ui)
 {
     assert(!plugin);
     fprintf(stderr, "OfficePlugin::OfficePlugin\n");
@@ -213,9 +195,9 @@ bool OfficePlugin::init()
         serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
         if (!serverConn->getSocket())
         {
-            cout << "tried to open server Port " << port << endl;
-            cout << "Creation of server failed!" << endl;
-            cout << "Port-Binding failed! Port already bound?" << endl;
+            std::cout << "tried to open server Port " << port << std::endl;
+            std::cout << "Creation of server failed!" << std::endl;
+            std::cout << "Port-Binding failed! Port already bound?" << std::endl;
             delete serverConn;
             serverConn = NULL;
         }
@@ -223,12 +205,12 @@ bool OfficePlugin::init()
         struct linger linger;
         linger.l_onoff = 0;
         linger.l_linger = 0;
-        cout << "Set socket options..." << endl;
+        std::cout << "Set socket options..." << std::endl;
         if (serverConn)
         {
             setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-            cout << "Set server to listen mode..." << endl;
+            std::cout << "Set server to listen mode..." << std::endl;
             serverConn->listen();
             if (!serverConn->is_connected()) // could not open server port
             {
@@ -263,27 +245,6 @@ OfficePlugin::~OfficePlugin()
     delete serverConn;
     serverConn = NULL;
     plugin = nullptr;
-}
-
-void OfficePlugin::menuEvent(coMenuItem *aButton)
-{
- //   if (aButton == updateCameraButton)
-    {
-    }
-}
-void OfficePlugin::tabletPressEvent(coTUIElement *tUIItem)
-{
-   // if (tUIItem == updateCameraTUIButton)
-    {
-       
-    }
-}
-
-void OfficePlugin::tabletEvent(coTUIElement *tUIItem)
-{
-   // if (tUIItem == addCameraTUIButton)
-    {
-    }
 }
 
 void OfficePlugin::message(int toWhom, int type, int len, const void *buf)
@@ -432,7 +393,7 @@ void officeList::checkAndHandleMessages()
                 else
                 {
                     sc = NULL;
-                    cerr << "could not read message" << endl;
+                    std::cerr << "could not read message" << std::endl;
                     break;
                 }
             }
