@@ -87,6 +87,16 @@ void InputDevice::setOffsetMat(const osg::Matrix &m)
     m_offsetMatrix = m;
 }
 
+string &InputDevice::getCalibrationPointName(int i)
+{
+    return m_calibrationPointNames[i];
+}
+
+osg::Vec3 &InputDevice::getCalibrationPoint(int i)
+{
+    return m_calibrationPoints[i];
+}
+
 InputDevice::~InputDevice()
 {
     stopLoop();
@@ -113,6 +123,11 @@ bool InputDevice::is6Dof() const
 {
 
     return m_is6Dof;
+}
+
+const string &InputDevice::getName() const
+{
+    return m_name;
 }
 
 std::string InputDevice::configPath(const std::string &ent) const
@@ -181,6 +196,10 @@ void InputDevice::update()
 {
     m_mutex.lock();
 
+    if (m_bodyMatricesRelativeFrame.size() != m_bodyMatricesRelative.size())
+        m_bodyMatricesRelativeFrame.resize(m_bodyMatricesRelative.size());
+    std::copy(m_bodyMatricesRelative.begin(), m_bodyMatricesRelative.end(), m_bodyMatricesRelativeFrame.begin());
+
     if (m_bodyMatricesValidFrame.size() != m_bodyMatricesValid.size())
         m_bodyMatricesValidFrame.resize(m_bodyMatricesValid.size());
     std::copy(m_bodyMatricesValid.begin(), m_bodyMatricesValid.end(), m_bodyMatricesValidFrame.begin());
@@ -244,6 +263,14 @@ bool InputDevice::isBodyMatrixValid(size_t idx) const
     return m_bodyMatricesValidFrame[idx];
 }
 
+bool InputDevice::isBodyMatrixRelative(size_t idx) const
+{
+    if (idx >= m_bodyMatricesRelativeFrame.size())
+        return false;
+
+    return m_bodyMatricesRelativeFrame[idx];
+}
+
 const osg::Matrix &InputDevice::getBodyMatrix(size_t idx) const
 {
 
@@ -274,5 +301,10 @@ const std::string &DriverFactoryBase::name() const
 {
 
     return m_name;
+}
+
+CO_SHLIB_HANDLE DriverFactoryBase::getLibHandle() const
+{
+    return m_handle;
 }
 }

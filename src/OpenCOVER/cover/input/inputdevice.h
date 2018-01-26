@@ -54,20 +54,12 @@ public:
 
     bool isVarying() const;
     bool is6Dof() const;
-    const std::string &getName() const{return m_name;};
+    const std::string &getName() const;
     const osg::Matrix &getOffsetMat() const;
     void setOffsetMat(const osg::Matrix &m);
 
-
-	std::string &getCalibrationPointName(int i)
-	{
-		return m_calibrationPointNames[i];
-	}
-	osg::Vec3 &getCalibrationPoint(int i)
-	{
-		return m_calibrationPoints[i];
-	}
-    
+    std::string &getCalibrationPointName(int i);
+    osg::Vec3 &getCalibrationPoint(int i);
 
 protected:
     static osg::Matrix s_identity; //< identity matrix, for returning a valid reference
@@ -79,6 +71,7 @@ protected:
     std::vector<double> m_valuatorValues;
     std::vector<std::pair<double, double> > m_valuatorRanges;
     std::vector<bool> m_bodyMatricesValid;
+    std::vector<bool> m_bodyMatricesRelative;
     std::vector<osg::Matrix> m_bodyMatrices;
 	osg::Vec3 m_calibrationPoints[3];
 	std::string m_calibrationPointNames[3];
@@ -109,6 +102,7 @@ protected:
         return m_bodyMatrices.size();
     }
     bool isBodyMatrixValid(size_t idx) const;
+    bool isBodyMatrixRelative(size_t idx) const;
     const osg::Matrix &getBodyMatrix(size_t idx) const;
 
     virtual void update(); //< called by Input::update()
@@ -119,6 +113,7 @@ private:
     std::vector<double> m_valuatorValuesFrame;
     std::vector<std::pair<double, double> > m_valuatorRangesFrame;
     std::vector<bool> m_bodyMatricesValidFrame;
+    std::vector<bool> m_bodyMatricesRelativeFrame;
     std::vector<osg::Matrix> m_bodyMatricesFrame;
 };
 
@@ -133,7 +128,7 @@ public:
 
     virtual InputDevice *newInstance(const std::string &name) = 0;
     const std::string &name() const;
-	CO_SHLIB_HANDLE getLibHandle() {return m_handle;};
+    CO_SHLIB_HANDLE getLibHandle() const;
 
 private:
     void setLibHandle(CO_SHLIB_HANDLE handle);
