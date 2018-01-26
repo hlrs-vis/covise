@@ -637,6 +637,63 @@ OpenScenarioEditor::getOrCreatePrivateAction(const std::string &selectedObjectNa
 
 }
 
+std::string 
+OpenScenarioEditor::getName(OpenScenario::oscArrayMember *arrayMember, const std::string &basename)
+{
+	// Unique name for action and object
+	//
+	int i = 0;
+	OpenScenario::oscArrayMember::iterator it;
+	std::string newname;
+	do
+	{
+		newname = basename + std::to_string(i++);
+		for (it = arrayMember->begin(); it != arrayMember->end(); it++)
+		{
+			std::string name = (static_cast<OpenScenario::oscObject *>(*it))->name.getValue();
+			if (name == newname)
+			{
+				break;
+			}
+		}
+
+	} while (it != arrayMember->cend());
+
+	return newname;
+}
+
+void 
+OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject)
+{
+	getProjectData()->getUndoStack()->beginMacro("Clone Entity");
+
+	OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(oscObject->getOwnMember());
+	OSCElement *oscElement = new OSCElement("Object");
+	if (oscElement)
+	{
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscObjectArray, oscObject->getParentObj(), NULL, "Object", element->getOSCBase(), oscElement);
+		getProjectGraph()->executeCommand(command);
+		OpenScenario::oscObject *clone = static_cast<OpenScenario::oscObject *>(oscElement->getObject());
+		clone->cloneMembers(oscObject);
+
+		OpenScenario::oscCatalogReference *catalogReference = oscObject->CatalogReference.getOrCreateObject();
+		std::string name;
+		if (catalogReference)
+		{
+			name = catalogReference->entryName.getValue();
+		}
+		if (name.empty())
+		{
+			name = oscObject->name.getValue();
+		}
+		clone->name.setValue(getName(oscObjectArray, name));
+		OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(clone->name.getValue());
+		privateAction->cloneMembers(getOrCreatePrivateAction(oscObject->name.getValue()));
+	}
+
+	getProjectData()->getUndoStack()->endMacro();
+}
+
 
 //################//
 // MOUSE & KEY    //
@@ -786,25 +843,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							OpenScenario::oscCatalogReference *catalogReference = oscObject->CatalogReference.getOrCreateObject();
 							if (oscObject->name.getValue() == "")
 							{
-								// Unique name for action and object
-								//
-								int i = 0;
-								OpenScenario::oscArrayMember::iterator it;
-								std::string newname;
-								do
-								{
-									newname = selectedObjectName + std::to_string(i++);
-									for (it = oscObjectArray->begin(); it != oscObjectArray->end(); it++)
-									{
-										std::string name = (static_cast<OpenScenario::oscObject *>(*it))->name.getValue();
-										if (name == newname)
-										{
-											break;
-										}
-									}
-
-								}while (it != oscObjectArray->cend());
-								oscObject->name.setValue(newname);
+								oscObject->name.setValue(getName(oscObjectArray, selectedObjectName));
 							}
 							catalogReference->entryName.setValue(selectedObjectName);
 							catalogReference->catalogName.setValue(oscCatalog_->getCatalogName() + "Catalog");

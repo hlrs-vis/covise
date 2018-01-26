@@ -45,6 +45,7 @@ SVGItem::init()
 	
 	QSvgRenderer *renderer = new QSvgRenderer(QLatin1String(file_.c_str()));
 	setFlag(ItemIsSelectable);
+	setFlag(ItemIsFocusable);
 	setFlag(ItemIsMovable);
 	setSharedRenderer(renderer);
 }
@@ -86,4 +87,18 @@ SVGItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsItem::mouseReleaseEvent(event);
 	parentItem_->mouseReleaseEvent(event);
 } 
+
+void
+SVGItem::keyPressEvent(QKeyEvent *event)
+{
+	QGraphicsItem::keyPressEvent(event);
+	parentItem_->keyPressEvent(event);
+}
+
+void
+SVGItem::keyReleaseEvent(QKeyEvent *event)
+{
+	QGraphicsItem::keyReleaseEvent(event);
+	parentItem_->keyReleaseEvent(event);
+}
 
