@@ -60,22 +60,9 @@ using covise::coCoviseConfig;
 
 OfficeConnection::OfficeConnection(ServerConnection *to)
 {
-    toOffice = to;
-    
-    productLabel = new coTUILabel("product",OfficePlugin::instance()->officeTab->getID());
-    productLabel->setPos(OfficePlugin::instance()->officeConnections.size(),0);
-    myFrame = new coTUIFrame("connectionFrame",OfficePlugin::instance()->officeTab->getID());
-    myFrame->setPos(OfficePlugin::instance()->officeConnections.size(),1);
-    commandLine = new coTUIEditField("commandline",myFrame->getID());
-    commandLine->setPos(0,0);
-    commandLine->setEventListener(this);
-    lastMessage = new coTUILabel("none",myFrame->getID());
-    lastMessage->setPos(0,1);
-}
-OfficeConnection::OfficeConnection(const OfficeConnection *to)
-{
+    if (coVRMSController::instance()->isMaster())
+        toOffice = to;
     ServerOc = to;
-    toOffice = NULL;
     
     productLabel = new coTUILabel("product",OfficePlugin::instance()->officeTab->getID());
     productLabel->setPos(OfficePlugin::instance()->officeConnections.size(),0);
@@ -87,6 +74,7 @@ OfficeConnection::OfficeConnection(const OfficeConnection *to)
     lastMessage = new coTUILabel("none",myFrame->getID());
     lastMessage->setPos(0,1);
 }
+
 OfficeConnection::~OfficeConnection()
 {
     delete lastMessage;
@@ -358,7 +346,7 @@ void OfficePlugin::sendMessage(Message &m)
 
 void OfficePlugin::preFrame()
 {
-    covise::ServerConnection *toOffice=NULL;
+    ServerConnection *toOffice = nullptr;
     if (coVRMSController::instance()->isMaster())
     {
         if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
@@ -369,7 +357,11 @@ void OfficePlugin::preFrame()
             {
                 fprintf(stderr, "Connected to Office system\n");
             }
-
+            else
+            {
+                delete toOffice;
+                toOffice = nullptr;
+            }
         }
         coVRMSController::instance()->sendSlaves(&toOffice, sizeof(toOffice));
     }
@@ -377,10 +369,12 @@ void OfficePlugin::preFrame()
     {
         coVRMSController::instance()->readMaster(&toOffice, sizeof(toOffice));
     }
-    if(toOffice!=NULL)
+
+    if (toOffice)
     {
         officeConnections.push_back(new OfficeConnection(toOffice));
     }
+
     officeConnections.checkAndHandleMessages();
 }
 
@@ -414,7 +408,7 @@ void officeList::destroy(OfficeConnection *oc)
 
 void officeList::checkAndHandleMessages()
 {
-    OfficeConnection *oc=NULL;
+    const ServerConnection *sc=NULL;
     deletedConnection=false;
     if (coVRMSController::instance()->isMaster())
     {
@@ -425,8 +419,9 @@ void officeList::checkAndHandleMessages()
                 (*it)->toOffice->recv_msg(msg);
                 if (msg)
                 {
-                    oc=(*it);
-                    coVRMSController::instance()->sendSlaves(&oc, sizeof(oc));
+                    auto oc=(*it);
+                    sc = oc->ServerOc;
+                    coVRMSController::instance()->sendSlaves(&sc, sizeof(sc));
                     coVRMSController::instance()->sendSlaves(msg);
 
                     cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg->type-OfficePlugin::MSG_String,msg->length, msg->data);
@@ -436,46 +431,45 @@ void officeList::checkAndHandleMessages()
                 }
                 else
                 {
-                    oc = NULL;
+                    sc = NULL;
                     cerr << "could not read message" << endl;
                     break;
                 }
             }
         }
-        oc = NULL;
-        coVRMSController::instance()->sendSlaves(&oc, sizeof(oc));
+        sc = NULL;
+        coVRMSController::instance()->sendSlaves(&sc, sizeof(sc));
     }
     else
     {
         do
         {
-            coVRMSController::instance()->readMaster(&oc, sizeof(oc));
-            if (oc != NULL)
+            coVRMSController::instance()->readMaster(&sc, sizeof(sc));
+            if (sc != NULL)
             {
                 // find the local oc for this master connection
                 // 
                 OfficeConnection *localOc=NULL;
                 for(iterator it=begin();it!=end();it++)
                 {
-                     if((*it)->ServerOc == oc)
-                     {
-                         localOc = (*it);
-                     }
+                    if((*it)->ServerOc == sc)
+                    {
+                        localOc = (*it);
+                    }
                 }
-                if(localOc == NULL)
-                {
-                    localOc = new OfficeConnection(oc);
-                    push_back(localOc);
-                }
-                if(localOc)
-                {
                 Message msg;
                 coVRMSController::instance()->readMaster(&msg);
                 cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg.type-OfficePlugin::MSG_String,msg.length, msg.data);
-                OfficePlugin::instance()->handleMessage(localOc,&msg);
+                if(localOc)
+                {
+                    OfficePlugin::instance()->handleMessage(localOc,&msg);
+                }
+                else
+                {
+                    std::cerr << "Office: did not find connection on slave" << std::endl;
                 }
             }
-        } while (oc != NULL);
+        } while (sc != NULL);
     }
 }
 
