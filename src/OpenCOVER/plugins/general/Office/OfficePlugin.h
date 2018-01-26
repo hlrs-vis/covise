@@ -56,24 +56,24 @@ public:
     std::string applicationType;
     std::string productName;
     OfficeConnection(ServerConnection *toOffice);
-    OfficeConnection(OfficeConnection *ServerOc);
+    OfficeConnection(const OfficeConnection *ServerOc);
     ~OfficeConnection();
-    ServerConnection *toOffice;
-    OfficeConnection *ServerOc;
+    ServerConnection *toOffice = nullptr;
+    const OfficeConnection *ServerOc = nullptr;
     void sendMessage(Message &m);
     void handleMessage(Message *m);
     virtual void tabletEvent(coTUIElement *tUIItem);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
 private:
     
-    coTUILabel *productLabel;
-    coTUIFrame *myFrame;
-    coTUIEditField *commandLine;
-    coTUILabel *lastMessage;
+    coTUILabel *productLabel = nullptr;
+    coTUIFrame *myFrame = nullptr;
+    coTUIEditField *commandLine = nullptr;
+    coTUILabel *lastMessage = nullptr;
 };
 class officeList: public std::list<OfficeConnection *>
 {
-    Message *msg;
+    Message *msg = nullptr;
     bool deletedConnection;
 public:
     officeList();
@@ -96,35 +96,28 @@ public:
     };
     OfficePlugin();
     ~OfficePlugin();
-    virtual bool init();
-    static OfficePlugin *instance()
-    {
-        return plugin;
-    };
+    virtual bool init() override;
+    static OfficePlugin *instance();
 
     // this will be called in PreFrame
-    void preFrame();
+    void preFrame() override;
 
     void destroyMenu();
     void createMenu();
-    virtual void menuEvent(coMenuItem *aButton);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    virtual void menuEvent(coMenuItem *aButton) override;
+    virtual void tabletEvent(coTUIElement *tUIItem) override;
+    virtual void tabletPressEvent(coTUIElement *tUIItem) override;
 
-    coTUITab *revitTab;
     void sendMessage(Message &m);
     
-    void message(int toWhom, int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf) override;
     void handleMessage(OfficeConnection *oc, Message *m);
-    coTUITab *officeTab;
+    coTUITab *officeTab = nullptr;
     officeList officeConnections;
 protected:
     static OfficePlugin *plugin;
-    coSubMenuItem *OfficeButton;
     //coButtonMenuItem *addCameraButton;
 
-    ServerConnection *serverConn;
-
-    Message *msg;
+    ServerConnection *serverConn = nullptr;
 };
 #endif

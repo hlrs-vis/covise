@@ -72,7 +72,7 @@ OfficeConnection::OfficeConnection(ServerConnection *to)
     lastMessage = new coTUILabel("none",myFrame->getID());
     lastMessage->setPos(0,1);
 }
-OfficeConnection::OfficeConnection(OfficeConnection *to)
+OfficeConnection::OfficeConnection(const OfficeConnection *to)
 {
     ServerOc = to;
     toOffice = NULL;
@@ -196,11 +196,6 @@ OfficePlugin::handleMessage(OfficeConnection *oc,Message *m)
 
 void OfficePlugin::createMenu()
 {
-    OfficeButton = new coSubMenuItem("Office");
-//    OfficeButton->setMenu(viewpointMenu);
-    
-    cover->getMenu()->add(OfficeButton);
-
     officeTab = new coTUITab("Office", coVRTui::instance()->mainFolder->getID());
     officeTab->setPos(0, 0);
 
@@ -211,58 +206,75 @@ void OfficePlugin::createMenu()
 
 void OfficePlugin::destroyMenu()
 {
-    delete OfficeButton;
     delete officeTab;
 }
 
 OfficePlugin::OfficePlugin()
 {
+    assert(!plugin);
     fprintf(stderr, "OfficePlugin::OfficePlugin\n");
     plugin = this;
-    int port = coCoviseConfig::getInt("port", "COVER.Plugin.Office.Server", 31315);
-    serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
-    if (!serverConn->getSocket())
-    {
-        cout << "tried to open server Port " << port << endl;
-        cout << "Creation of server failed!" << endl;
-        cout << "Port-Binding failed! Port already bound?" << endl;
-        delete serverConn;
-        serverConn = NULL;
-    }
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-    cout << "Set socket options..." << endl;
-    if (serverConn)
-    {
-        setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-        cout << "Set server to listen mode..." << endl;
-        serverConn->listen();
-        if (!serverConn->is_connected()) // could not open server port
-        {
-            fprintf(stderr, "Could not open server port %d\n", port);
-            delete serverConn;
-            serverConn = NULL;
-        }
-    }
-    msg = new Message;
-    
-    VrmlNamespace::addBuiltIn(VrmlNodeOffice::defineType());
 }
 
 bool OfficePlugin::init()
 {
-    createMenu();
-    return true;
+    bool connected = false;
+    if (coVRMSController::instance()->isMaster())
+    {
+        int port = coCoviseConfig::getInt("port", "COVER.Plugin.Office.Server", 31315);
+        serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
+        if (!serverConn->getSocket())
+        {
+            cout << "tried to open server Port " << port << endl;
+            cout << "Creation of server failed!" << endl;
+            cout << "Port-Binding failed! Port already bound?" << endl;
+            delete serverConn;
+            serverConn = NULL;
+        }
+
+        struct linger linger;
+        linger.l_onoff = 0;
+        linger.l_linger = 0;
+        cout << "Set socket options..." << endl;
+        if (serverConn)
+        {
+            setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+            cout << "Set server to listen mode..." << endl;
+            serverConn->listen();
+            if (!serverConn->is_connected()) // could not open server port
+            {
+                fprintf(stderr, "Could not open server port %d\n", port);
+                delete serverConn;
+                serverConn = NULL;
+            }
+        }
+
+        connected = true;
+    }
+
+    connected = coVRMSController::instance()->syncBool(connected);
+
+    if (connected)
+    {
+        VrmlNamespace::addBuiltIn(VrmlNodeOffice::defineType());
+        createMenu();
+    }
+    return connected;
 }
+
+OfficePlugin *OfficePlugin::instance()
+{
+    return plugin;
+}
+
 // this is called if the plugin is removed at runtime
 OfficePlugin::~OfficePlugin()
 {
     destroyMenu();
     delete serverConn;
     serverConn = NULL;
+    plugin = nullptr;
 }
 
 void OfficePlugin::menuEvent(coMenuItem *aButton)
@@ -286,69 +298,67 @@ void OfficePlugin::tabletEvent(coTUIElement *tUIItem)
     }
 }
 
-
 void OfficePlugin::message(int toWhom, int type, int len, const void *buf)
 {
     TokenBuffer tb((const char *)buf,len);
     if (type == PluginMessageTypes::PBufferDoneSnapshot)
     {
-            std::string fileName;
-            tb >> fileName;
+        std::string fileName;
+        tb >> fileName;
 #ifdef WIN32
-            int fileDesc = open(fileName.c_str(), O_RDONLY|O_BINARY);
+        int fileDesc = open(fileName.c_str(), O_RDONLY|O_BINARY);
 #else
-            int fileDesc = open(fileName.c_str(), O_RDONLY);
+        int fileDesc = open(fileName.c_str(), O_RDONLY);
 #endif
-            if (fileDesc >= 0)
-            {
-                int fileSize = 0;
+        if (fileDesc >= 0)
+        {
+            int fileSize = 0;
 #ifndef WIN32
-                struct stat statbuf;
-                fstat(fileDesc, &statbuf);
+            struct stat statbuf;
+            fstat(fileDesc, &statbuf);
 #else
-                struct _stat statbuf;
-                _fstat(fileDesc, &statbuf);
+            struct _stat statbuf;
+            _fstat(fileDesc, &statbuf);
 #endif
-                fileSize = statbuf.st_size;
-                char *buf = new char[fileSize];
-                read(fileDesc,buf,fileSize);
-                TokenBuffer stb;
-                stb << fileSize;
-                stb.addBinary(buf,fileSize);
-                    
-                std::string transform;
-                osg::Matrix m = cover->getObjectsXform()->getMatrix();
-                coCoord coord(m);
-                char *tmps = new char[200];
-                snprintf(tmps,200,"scale=%f,position=%f;%f;%f,orientation=%f;%f;%f",cover->getScale(),coord.xyz[0],coord.xyz[1],coord.xyz[2],coord.hpr[0],coord.hpr[1],coord.hpr[2]);
-                transform = tmps;
-                delete[] tmps;
-                stb << transform;
-                Message message(stb);
-                message.type = (int)OfficePlugin::MSG_PNGSnapshot;
-                sendMessage(message);
-                delete[] buf;
-            }
-            else
-            {
-                fprintf(stderr, "Office Plugin:: failed to open %s\n", fileName.c_str());
-            }
+            fileSize = statbuf.st_size;
+            char *buf = new char[fileSize];
+            read(fileDesc,buf,fileSize);
+            TokenBuffer stb;
+            stb << fileSize;
+            stb.addBinary(buf,fileSize);
+
+            std::string transform;
+            osg::Matrix m = cover->getObjectsXform()->getMatrix();
+            coCoord coord(m);
+            char *tmps = new char[200];
+            snprintf(tmps,200,"scale=%f,position=%f;%f;%f,orientation=%f;%f;%f",cover->getScale(),coord.xyz[0],coord.xyz[1],coord.xyz[2],coord.hpr[0],coord.hpr[1],coord.hpr[2]);
+            transform = tmps;
+            delete[] tmps;
+            stb << transform;
+            Message message(stb);
+            message.type = (int)OfficePlugin::MSG_PNGSnapshot;
+            sendMessage(message);
+            delete[] buf;
         }
+        else
+        {
+            fprintf(stderr, "Office Plugin:: failed to open %s\n", fileName.c_str());
+        }
+    }
 }
 
 OfficePlugin *OfficePlugin::plugin = NULL;
 
 
-    void OfficePlugin::sendMessage(Message &m)
-    {
-        officeConnections.sendMessage("Word",m);
-        officeConnections.sendMessage("PowerPoint",m);
-    }
-void
-OfficePlugin::preFrame()
+void OfficePlugin::sendMessage(Message &m)
+{
+    officeConnections.sendMessage("Word",m);
+    officeConnections.sendMessage("PowerPoint",m);
+}
+
+void OfficePlugin::preFrame()
 {
     covise::ServerConnection *toOffice=NULL;
-    char gotMsg = '\0';
     if (coVRMSController::instance()->isMaster())
     {
         if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
@@ -389,16 +399,19 @@ officeList::officeList()
 {
     msg = new Message;
 }
+
 officeList::~officeList()
 {
     delete msg;
 }
+
 void officeList::destroy(OfficeConnection *oc)
 {
     remove(oc);
     delete oc;
     deletedConnection=true;
 }
+
 void officeList::checkAndHandleMessages()
 {
     OfficeConnection *oc=NULL;
@@ -458,6 +471,7 @@ void officeList::checkAndHandleMessages()
                 {
                 Message msg;
                 coVRMSController::instance()->readMaster(&msg);
+                cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg.type-OfficePlugin::MSG_String,msg.length, msg.data);
                 OfficePlugin::instance()->handleMessage(localOc,&msg);
                 }
             }
