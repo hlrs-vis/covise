@@ -42,9 +42,11 @@ osg::Matrix InputDevice::s_identity = osg::Matrix::identity();
 InputDevice::InputDevice(const std::string &config)
     : loop_is_running(true)
     , m_config(config)
+    , m_valid(false)
     , m_offsetMatrix(osg::Matrix::identity())
     , m_isVarying(true)
     , m_is6Dof(false)
+    , m_validFrame(m_valid)
 {
     if(m_config.compare(0,19,"COVER.Input.Device.")==0)
         m_name = m_config.substr(19,std::string::npos);
@@ -158,6 +160,11 @@ void InputDevice::stopLoop()
     }
 }
 
+bool InputDevice::isValid() const
+{
+    return m_validFrame;
+}
+
 /**
  * @brief InputDevice::run InputDevice main loop
  *
@@ -195,6 +202,8 @@ bool InputDevice::poll()
 void InputDevice::update()
 {
     m_mutex.lock();
+
+    m_validFrame = m_valid;
 
     if (m_bodyMatricesRelativeFrame.size() != m_bodyMatricesRelative.size())
         m_bodyMatricesRelativeFrame.resize(m_bodyMatricesRelative.size());

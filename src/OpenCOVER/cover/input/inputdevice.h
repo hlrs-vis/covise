@@ -52,6 +52,7 @@ public:
     virtual bool needsThread() const; //< whether a thread should be spawned - reimplement if not necessary
     void stopLoop(); //< request run()/other thread to terminate
 
+    bool isValid() const;
     bool isVarying() const;
     bool is6Dof() const;
     const std::string &getName() const;
@@ -66,22 +67,22 @@ protected:
     bool loop_is_running; /// If true, the main loop will run
     OpenThreads::Mutex m_mutex; //< protect state data structures
 
-    // state data, update during poll(), create them with the correct size
-    std::vector<bool> m_buttonStates;
-    std::vector<double> m_valuatorValues;
-    std::vector<std::pair<double, double> > m_valuatorRanges;
-    std::vector<bool> m_bodyMatricesValid;
-    std::vector<bool> m_bodyMatricesRelative;
-    std::vector<osg::Matrix> m_bodyMatrices;
-	osg::Vec3 m_calibrationPoints[3];
-	std::string m_calibrationPointNames[3];
-
     const std::string m_config; //< path to config values for this device
     std::string m_name;
     osg::Matrix m_offsetMatrix; //< system matrix
     bool m_isVarying; //< whether returned values can change
     bool m_is6Dof; //< whether matrices represent position and orientation
 	
+    // state data, update during poll(), create them with the correct size
+    bool m_valid;
+    std::vector<bool> m_buttonStates;
+    std::vector<double> m_valuatorValues;
+    std::vector<std::pair<double, double> > m_valuatorRanges;
+    std::vector<bool> m_bodyMatricesValid;
+    std::vector<bool> m_bodyMatricesRelative;
+    std::vector<osg::Matrix> m_bodyMatrices;
+    osg::Vec3 m_calibrationPoints[3];
+    std::string m_calibrationPointNames[3];
 
     // these are called by Input
     size_t numButtons() const
@@ -109,6 +110,7 @@ protected:
 
 private:
     // per-frame state
+    bool m_validFrame;
     std::vector<bool> m_buttonStatesFrame;
     std::vector<double> m_valuatorValuesFrame;
     std::vector<std::pair<double, double> > m_valuatorRangesFrame;

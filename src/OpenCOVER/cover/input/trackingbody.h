@@ -37,7 +37,6 @@ public:
     bool isVarying() const;
     bool is6Dof() const;
 
-
 private:
     TrackingBody(const std::string &name);
 
@@ -48,12 +47,23 @@ private:
     void setVarying(bool isVar);
     void set6Dof(bool is6Dof);
 
-    TrackingBody *m_baseBody;
-    bool m_valid, m_oldValid;
-    size_t m_idx;
+    TrackingBody *m_baseBody = nullptr;
+    bool m_valid = false, m_oldValid = false;
+    size_t m_idx = 0;
     osg::Matrix m_mat, m_oldMat;
     osg::Matrix m_deviceOffsetMat;
-    bool m_varying, m_6dof;
+    bool m_varying = true, m_6dof = false;
+
+    struct Assemble
+    {
+        InputDevice *device = nullptr;
+        int valuator = -1;
+        double scale = 1.;
+        double shift = 0.;
+    };
+
+    bool m_assemble = false;
+    Assemble m_valuator[6];
 };
 }
 #endif /* TRACKINGBODY_H_ */
