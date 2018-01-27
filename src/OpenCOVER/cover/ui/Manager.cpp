@@ -542,6 +542,7 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
 {
     updates->rewind();
 
+    std::vector<ButtonGroup *> delayed;
     for (int i=0; i<numUpdates; ++i)
     {
         //std::cerr << "processing " << i << std::flush;
@@ -572,7 +573,10 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             if (runTriggers)
             {
                 setChanged();
-                elem->triggerImplementation();
+                if (auto bg = dynamic_cast<ButtonGroup *>(elem))
+                    delayed.push_back(bg);
+                else
+                    elem->triggerImplementation();
             }
             else
             {
@@ -580,6 +584,9 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             }
         }
     }
+
+    for (auto &bg: delayed)
+        bg->triggerImplementation();
 }
 
 bool Manager::sync()
