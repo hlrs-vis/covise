@@ -211,10 +211,29 @@ bool Input::isHandValid(int num) const
     return activePerson->isHandValid(num);
 }
 
+bool Input::hasRelative() const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->hasRelative();
+}
+
+bool Input::isRelativeValid() const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->isRelativeValid();
+}
+
 const osg::Matrix &Input::getHeadMat() const
 {
 
     return activePerson->getHeadMat();
+}
+
+const osg::Matrix &Input::getRelativeMat() const
+{
+    return activePerson->getRelativeMat();
 }
 
 const osg::Matrix &Input::getHandMat(int num) const
