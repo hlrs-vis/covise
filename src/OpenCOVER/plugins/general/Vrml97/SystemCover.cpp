@@ -701,9 +701,14 @@ float SystemCover::getSyncInterval()
 
 void SystemCover::addViewpoint(VrmlScene *scene, VrmlNodeViewpoint *viewpoint)
 {
+    if (viewpointEntries.empty())
+        viewPointCount = 0;
+    ++viewPointCount;
+
     // add viewpoint to menu
     ViewpointEntry *vpe = new ViewpointEntry(viewpoint, scene);
-    auto menuEntry = new ui::Button(viewpointGroup, viewpoint->description(), cbg);
+    auto menuEntry = new ui::Button(viewpointGroup, "Viewpoint"+std::to_string(viewPointCount), cbg);
+    menuEntry->setText(viewpoint->description());
     menuEntry->setState(viewpoint == scene->bindableViewpointTop(), true);
     vpe->setMenuItem(menuEntry);
     viewpointEntries.push_back(vpe);

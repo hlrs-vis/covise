@@ -105,12 +105,13 @@ std::string Owner::path() const
 bool Owner::addItem(Owner *item)
 {
     auto it = m_items.find(item->name());
-    assert(it == m_items.end());
     if (it == m_items.end())
     {
         m_items.emplace(item->name(), item);
         return true;
     }
+    std::cerr << "ui::Owner: " << path() << " has duplicate entry " << item->name() << std::endl;
+    assert(it == m_items.end());
     return false;
 }
 
