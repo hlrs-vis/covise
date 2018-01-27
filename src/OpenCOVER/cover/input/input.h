@@ -58,7 +58,7 @@ public:
 
     void printConfig() const; //< debug output
 
-    void update(); //< global update, call once per frame
+    bool update(); //< global update, call once per frame
 
     bool isTrackingOn() const;
 
