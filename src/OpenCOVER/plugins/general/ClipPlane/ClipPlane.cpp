@@ -309,31 +309,15 @@ void ClipPlanePlugin::preFrame()
         // direct interaction started or stopped or running
         if (plane[i].directInteractor && !plane[i].directInteractor->isIdle())
         {
-
-            // get the transformation matrix of the transform
-            pointerMatrix = pointerTransform->getMatrix();
-            if (coVRNavigationManager::instance()->isSnapping())
-            {
-                Matrix w_to_o = cover->getInvBaseMat();
-                pointerMatrix.postMult(w_to_o);
-                if (!coVRNavigationManager::instance()->isDegreeSnapping())
-                    snapTo45Degrees(&pointerMatrix);
-                else
-                    snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &pointerMatrix);
-                Matrix o_to_w = cover->getBaseMat();
-                pointerMatrix.postMult(o_to_w);
-                coCoord coord = pointerMatrix;
-                coord.makeMat(pointerMatrix);
-            }
-            // rotate geometry
-            interactorTransform->setMatrix(pointerMatrix);
+            auto mat = cover->updateInteractorTransform(interactorTransform->getMatrix(), true);
+            interactorTransform->setMatrix(mat);
 
             covise::TokenBuffer tb;
 
             tb << cover->getActiveClippingPlane();
 
             Vec4d eq;
-            Matrix pointerMatrix_w(pointerMatrix);
+            Matrix pointerMatrix_w(mat);
             Matrix pointerMatrix_o;
             pointerMatrix_o = pointerMatrix_w * cover->getInvBaseMat();
 

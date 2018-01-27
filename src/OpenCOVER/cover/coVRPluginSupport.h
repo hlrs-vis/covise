@@ -539,6 +539,9 @@ public:
     //! get normal of intersection hit
     const osg::Vec3 &getIntersectionHitPointWorldNormal() const;
 
+    //! update matrix of an interactor, honouring snapping, ...
+    osg::Matrix updateInteractorTransform(osg::Matrix mat, bool usePointer) const;
+
     /*********************************************************************/
     // do not use anything beyond this line
 

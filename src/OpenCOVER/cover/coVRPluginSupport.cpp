@@ -1006,6 +1006,40 @@ const osg::Vec3 &coVRPluginSupport::getIntersectionHitPointWorldNormal() const
     return intersectionHitPointWorldNormal;
 }
 
+osg::Matrix coVRPluginSupport::updateInteractorTransform(osg::Matrix mat, bool usePointer) const
+{
+    if (usePointer && Input::instance()->hasHand() && Input::instance()->isHandValid())
+    {
+        // get the transformation matrix of the transform
+        mat = getPointer()->getMatrix();
+        if (coVRNavigationManager::instance()->isSnapping())
+        {
+            osg::Matrix w_to_o = cover->getInvBaseMat();
+            mat.postMult(w_to_o);
+            if (!coVRNavigationManager::instance()->isDegreeSnapping())
+                snapTo45Degrees(&mat);
+            else
+                snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &mat);
+            osg::Matrix o_to_w = cover->getBaseMat();
+            mat.postMult(o_to_w);
+            coCoord coord = mat;
+            coord.makeMat(mat);
+        }
+    }
+
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        auto rel = Input::instance()->getRelativeMat();
+        auto tr = rel.getTrans();
+        coCoord coord(rel);
+        MAKE_EULER_MAT_VEC(rel, -coord.hpr);
+        rel.setTrans(-tr);
+        mat *= rel;
+    }
+
+    return mat;
+}
+
 coPointerButton::coPointerButton(const std::string &name)
     : m_name(name)
 {

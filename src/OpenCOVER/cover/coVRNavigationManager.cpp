@@ -946,6 +946,115 @@ coVRNavigationManager::update()
         stopXform();
     }
 
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        osg::Matrix relMat = Input::instance()->getRelativeMat();
+        coCoord co(relMat);
+        osg::Matrix tf = VRSceneGraph::instance()->getTransform()->getMatrix();
+        auto tr = relMat.getTrans();
+        for (int i=0; i<3; ++i)
+            tr[i] = 1000.*speedFactor(tr[i]);
+
+        switch (getMode())
+        {
+        case XForm:
+        {
+            osg::BoundingSphere bsphere = VRSceneGraph::instance()->getBoundingSphere();
+            if (bsphere.radius() == 0.f)
+                bsphere.radius() = 1.f;
+            osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
+
+            relMat.makeTranslate(-tr);
+            tf *= relMat;
+
+            MAKE_EULER_MAT(relMat, -co.hpr[0], -co.hpr[1], -co.hpr[2]);
+            osg::Matrix originTrans, invOriginTrans;
+            originTrans.makeTranslate(originInWorld); // rotate arround the center of the objects in objectsRoot
+            invOriginTrans.makeTranslate(-originInWorld);
+            relMat = invOriginTrans * relMat * originTrans;
+            tf *= relMat;
+            break;
+        }
+        case Fly:
+        {
+            relMat.setTrans(tr);
+            tf *= relMat;
+            break;
+        }
+        case Glide:
+        case Walk:
+        {
+            MAKE_EULER_MAT(relMat, co.hpr[0], 0, 0);
+            relMat.setTrans(tr);
+            tf *= relMat;
+            break;
+        }
+        }
+
+        if (tf != VRSceneGraph::instance()->getTransform()->getMatrix())
+        {
+            VRSceneGraph::instance()->getTransform()->setMatrix(tf);
+            coVRCollaboration::instance()->SyncXform();
+        }
+    }
+
+#if 0
+        transformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
+        float speed = coVRNavigationManager::instance()->getDriveSpeed();
+        if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::XForm)
+        {
+
+            osg::BoundingSphere bsphere = VRSceneGraph::instance()->getBoundingSphere();
+            if (bsphere.radius() == 0.f)
+                bsphere.radius() = 1.f;
+
+            osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
+
+            osg::Matrix relMat;
+            relMat.makeTranslate(smd.tx * speed, smd.ty * speed, smd.tz * speed);
+            transformMat *= relMat;
+
+            //relMat.makeRotate(angle/500.0,rotX,rotY,rotZ);
+            MAKE_EULER_MAT(relMat, smd.h, smd.p, smd.r);
+            osg::Matrix originTrans, invOriginTrans;
+            originTrans.makeTranslate(originInWorld); // rotate arround the center of the objects in objectsRoot
+            invOriginTrans.makeTranslate(-originInWorld);
+            relMat = invOriginTrans * relMat * originTrans;
+            transformMat *= relMat;
+        }
+        else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Fly)
+        {
+
+            osg::Matrix relMat;
+            relMat.makeTranslate(-smd.tx * speed, -smd.ty * speed, -smd.tz * speed);
+            transformMat *= relMat;
+
+            //relMat.makeRotate(-angle/5000.0,rotX,rotY,rotZ);
+            MAKE_EULER_MAT(relMat, -smd.h, -smd.p, -smd.r);
+
+            transformMat *= relMat;
+        }
+        else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Glide || coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Walk)
+        {
+            osg::Matrix relMat;
+            relMat.makeTranslate(-smd.tx * speed, -smd.ty * speed, -smd.tz * speed);
+            transformMat *= relMat;
+
+            relMat.makeRotate(-smd.h / 10.0, 0, 0, 1);
+            //MAKE_EULER_MAT(relMat,-smd.h, -smd.p, -smd.r);
+            transformMat *= relMat;
+
+            if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Walk)
+            {
+                coVRNavigationManager::instance()->doWalkMoveToFloor();
+
+                for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+                    coVRConfig::instance()->screens[i].xyz[2] += (smd.p * 10);
+            }
+        }
+    }
+#endif
+
     // was ist wenn mehrere Objekte geladen sind???
 
     if (jsEnabled && AnalogX >= 0.0 && AnalogY >= 0.0
