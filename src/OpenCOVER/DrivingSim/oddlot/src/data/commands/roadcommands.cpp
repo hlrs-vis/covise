@@ -4208,7 +4208,7 @@ SetRoadLinkRoadsCommand::findPathContactPoint(RSystemElementRoad *road1, RSystem
     break;
     }
 
-    JunctionConnection *newConnection = new JunctionConnection(QString("jc0"), road2->getID(), road1->getID(), contactPoint, 1);
+    JunctionConnection *newConnection = new JunctionConnection(QString("0"), road2->getID(), road1->getID(), contactPoint, 1);
 
 /*    QMap<double, LaneSection *> lanes = road1->getLaneSections();
     LaneSection *lsC = *lanes.begin();

@@ -61,6 +61,7 @@ SET(ODDLOT_SOURCES
      src/gui/osmimport.cpp
      src/gui/projectionsettings.cpp
      src/gui/importsettings.cpp
+     src/gui/exportsettings.cpp
 	 src/gui/lodsettings.cpp
 	 src/data/projectdata.cpp
 	 src/data/roadsystem/roadsystem.cpp
@@ -398,6 +399,7 @@ SET(ODDLOT_MOC_HEADERS
      src/gui/osmimport.hpp
      src/gui/projectionsettings.hpp
      src/gui/importsettings.hpp
+     src/gui/exportsettings.hpp
 	 src/gui/lodsettings.hpp
 	 src/data/projectdata.hpp
 	 src/data/roadsystem/roadsystem.hpp
@@ -716,6 +718,7 @@ SET(ODDLOT_FORMS
      src/settings/widgets/roadsettings.ui
      src/gui/osmimport.ui
      src/gui/importsettings.ui
+     src/gui/exportsettings.ui
      src/gui/projectionsettings.ui
 	 src/gui/lodsettings.ui
 	 src/gui/tools/TrackRibbon.ui

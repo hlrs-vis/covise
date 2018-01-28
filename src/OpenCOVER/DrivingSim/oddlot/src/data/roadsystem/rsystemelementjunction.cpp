@@ -87,7 +87,7 @@ RSystemElementJunction::addConnection(JunctionConnection *connection)
     {
         if (it.value()->getId() == id)
         {
-            id = QString("jc%1").arg(connectionIdCount);
+            id = QString("%1").arg(connectionIdCount);
             connectionIdCount++;
             it = connections_.constBegin();
 

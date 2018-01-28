@@ -18,6 +18,7 @@
 
 #include "../data/acceptor.hpp"
 #include "../data/roadsystem/odrID.hpp"
+#include "src/gui/exportsettings.hpp"
 
 #include <QDomElement>
 #include <QMap>
@@ -138,6 +139,7 @@ private:
         : Visitor()
     {
     }
+	ExportSettings::ExportIDVariants exportIDvar;
 	///write original ID if possible, otherwise create a unique ID based on the original one
 	QString getIDString(const odrID &ID, const QString &name);
 

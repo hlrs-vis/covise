@@ -150,18 +150,18 @@ CircleWizard::runCalculation()
 	LaneSection *lsThreeLanes = newRoadLeft->getLaneSection(0)->getClone();
 	lsThreeLanes->setSStart(enterExitLength);
 	LaneSection *lsFourLanes = newRoad->getLaneSection(0)->getClone();
-	LaneWidth *lw1 = lsFourLanes->getLane(-3)->getWidthEntry(0.0);
+	LaneWidth *lw1 = lsFourLanes->getLane(-4)->getWidthEntry(0.0);
 	lw1->setParameters(0.0, .25, 0.0, 0.0);
 	LaneWidth *lw2 = new LaneWidth(14, 3.5, 0.0, 0.0, 0.0);
-	lsFourLanes->getLane(-3)->addWidthEntry(lw1);
-	lsFourLanes->getLane(-3)->addWidthEntry(lw2);
+	lsFourLanes->getLane(-4)->addWidthEntry(lw1);
+	lsFourLanes->getLane(-4)->addWidthEntry(lw2);
 	lsFourLanes->setSStart(M_PI*radius - enterExitLength);
 	newRoad->addLaneSection(lsThreeLanes);
 	newRoad->addLaneSection(lsFourLanes);
 
 	LaneSection *lsFourLanesFirst = newRoad->getLaneSection(0);
 	LaneWidth *lw3 = new LaneWidth(lsFourLanesFirst->getLength()-14.0, 3.5, -0.25, 0.0, 0.0);
-	lsFourLanesFirst->getLane(-3)->addWidthEntry(lw3);
+	lsFourLanesFirst->getLane(-4)->addWidthEntry(lw3);
 
 
 	NewRoadCommand *command = new NewRoadCommand(newRoad, ODD::mainWindow()->getActiveProject()->getProjectData()->getRoadSystem(), NULL);
@@ -314,7 +314,7 @@ CircleWizard::runCalculation()
 	}
 
 
-	JunctionConnection* newConnection = new JunctionConnection("jc0", newRoad->getID(), newRoadEntry->getID(), JunctionConnection::JCP_START, 0);
+	JunctionConnection* newConnection = new JunctionConnection("0", newRoad->getID(), newRoadEntry->getID(), JunctionConnection::JCP_START, 0);
 
 	RoadLink *roadLink = new RoadLink("junction", newJunction->getID(), JunctionConnection::JCP_NONE);
 	SetRoadLinkCommand *slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_PREDECESSOR, roadLink, newConnection, newJunction);
@@ -327,7 +327,7 @@ CircleWizard::runCalculation()
 		delete slCommand;
 		return; // usually not the case, only if road or prototype are NULL
 	}
-	newConnection = new JunctionConnection("jc1",  newRoad->getID(), newRoadLowerLeft->getID(), JunctionConnection::JCP_END, 0);
+	newConnection = new JunctionConnection("1",  newRoad->getID(), newRoadLowerLeft->getID(), JunctionConnection::JCP_END, 0);
 
 	roadLink = new RoadLink("junction", newJunction->getID(), JunctionConnection::JCP_NONE);
 	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_PREDECESSOR, roadLink, newConnection, newJunction);
@@ -341,7 +341,7 @@ CircleWizard::runCalculation()
 		return; // usually not the case, only if road or prototype are NULL
 	}
 
-	newConnection = new JunctionConnection("jc0", newRoad->getID(), newRoadExit->getID(), JunctionConnection::JCP_START, 0);
+	newConnection = new JunctionConnection("0", newRoad->getID(), newRoadExit->getID(), JunctionConnection::JCP_START, 0);
 	roadLink = new RoadLink("junction", newExitJunction->getID(), JunctionConnection::JCP_NONE);
 	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_SUCCESSOR, roadLink, newConnection, newExitJunction);
 	if (slCommand->isValid())
@@ -353,7 +353,7 @@ CircleWizard::runCalculation()
 		delete slCommand;
 		return; // usually not the case, only if road or prototype are NULL
 	}
-	newConnection = new JunctionConnection("jc1", newRoad->getID(), newRoadLeft->getID(), JunctionConnection::JCP_START, 0);
+	newConnection = new JunctionConnection("1", newRoad->getID(), newRoadLeft->getID(), JunctionConnection::JCP_START, 0);
 
 	roadLink = new RoadLink("junction", newExitJunction->getID(), JunctionConnection::JCP_NONE);
 	slCommand = new SetRoadLinkCommand(newRoad, RoadLink::DRL_SUCCESSOR, roadLink, newConnection, newExitJunction);
