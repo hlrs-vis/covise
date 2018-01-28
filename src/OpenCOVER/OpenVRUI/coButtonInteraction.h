@@ -36,6 +36,9 @@ public:
     }
 
 protected:
+    virtual bool conditionMet() const;
+    virtual bool conditionWasMet() const;
+
     void updateState(vruiButtons *button);
 
     InteractionState oldState;

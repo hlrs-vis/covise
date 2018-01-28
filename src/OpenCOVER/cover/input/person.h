@@ -50,6 +50,7 @@ public:
     const osg::Matrix &getRelativeMat() const;
 
     unsigned int getButtonState(size_t num) const;
+    unsigned int getRelativeButtonState(size_t num) const;
     double getValuatorValue(size_t idx) const;
     
     float eyeDistance() const;
@@ -68,6 +69,7 @@ private:
     TrackingBody *m_relative = nullptr;
     std::vector<TrackingBody *> m_hands;
     ButtonDevice *m_buttondev = nullptr;
+    ButtonDevice *m_relativebuttondev = nullptr;
     std::vector<Valuator *> m_valuators;
     float m_eyeDistance = 0.f;
     bool m_activateOnAction = false;

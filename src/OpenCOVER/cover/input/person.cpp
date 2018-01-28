@@ -62,6 +62,7 @@ Person::Person(const std::string &name)
     }
 
     m_buttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("buttons", conf, ""));
+    m_relativebuttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("relativeButtons", conf, ""));
 
     for (int i = 0; i < 4; ++i)
     {
@@ -197,11 +198,18 @@ const osg::Matrix &Person::getRelativeMat() const
 
 unsigned int Person::getButtonState(size_t num) const
 {
-
     if (!m_buttondev)
         return 0;
 
     return m_buttondev->getButtonState();
+}
+
+unsigned int Person::getRelativeButtonState(size_t num) const
+{
+    if (!m_relativebuttondev)
+        return 0;
+
+    return m_relativebuttondev->getButtonState();
 }
 
 double Person::getValuatorValue(size_t idx) const

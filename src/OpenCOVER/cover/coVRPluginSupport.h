@@ -248,6 +248,9 @@ public:
     //! (the same as getPointerMat for MOUSE tracking)
     const osg::Matrix &getMouseMat() const;
 
+    //! get matrix for relative input (identity if no input)
+    const osg::Matrix &getRelativeMat() const;
+
     //! get the MatrixTransform for objects translation and rotation
     osg::MatrixTransform *getObjectsXform() const;
 

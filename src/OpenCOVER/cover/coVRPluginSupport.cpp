@@ -217,6 +217,11 @@ const osg::Matrix &coVRPluginSupport::getMouseMat() const
     return Input::instance()->mouse()->getMatrix();
 }
 
+const osg::Matrix &coVRPluginSupport::getRelativeMat() const
+{
+    return Input::instance()->getRelativeMat();
+}
+
 const osg::Matrix &coVRPluginSupport::getPointerMat() const
 {
     //START("coVRPluginSupport::getPointerMat");

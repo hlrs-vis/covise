@@ -65,6 +65,7 @@ public:
         Wheel, // = vruiButtons::WHEEL,
         Joystick,
         AllButtons, // = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
+        NoButton, // non-zero relative input
         NumInteractorTypes
     };
 
