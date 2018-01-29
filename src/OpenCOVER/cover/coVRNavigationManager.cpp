@@ -2178,9 +2178,10 @@ void coVRNavigationManager::doFly()
     dcs_mat.postMult(tmp);
 
     /* apply translation */
-    dcs_mat.postMult(osg::Matrix::translate(speedFactor(delta[0]),
-                                            speedFactor(delta[1]),
-                                            speedFactor(delta[2])));
+    double l = speedFactor(delta.length());
+    delta.normalize();
+    delta *= l;
+    dcs_mat.postMult(osg::Matrix::translate(delta));
 
     /* apply direction change */
     if ((dirAxis[0] != 0.0) || (dirAxis[1] != 0.0) || (dirAxis[2] != 0.0))
@@ -2245,9 +2246,10 @@ void coVRNavigationManager::doDrive()
     dcs_mat.postMult(osg::Matrix::translate(-viewerPos[0], -viewerPos[1], -viewerPos[2]));
 
     /* apply translation */
-    dcs_mat.postMult(osg::Matrix::translate(speedFactor(delta[0]),
-                                            speedFactor(delta[1]),
-                                            speedFactor(delta[2])));
+    double l = speedFactor(delta.length());
+    delta.normalize();
+    delta *= l;
+    dcs_mat.postMult(osg::Matrix::translate(delta));
 
     /* apply direction change */
     osg::Matrix rot_mat;
