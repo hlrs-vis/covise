@@ -99,7 +99,7 @@ private:
     QTabWidget *mainFolder = nullptr;
 
     static TUIMainWindow *appwin;
-    TUIElement *createElement(int id, int type, QWidget *w, int parent, QString name);
+    TUIElement *createElement(int id, TabletObjectType type, QWidget *w, int parent, QString name);
 
     int smsg;
     int port;

@@ -19,6 +19,7 @@
 // 2000
 
 #include "datacommand.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 #include <QList>
 #include <QTransform>
@@ -78,7 +79,7 @@ private:
 class SetRSystemElementIdCommand : public DataCommand
 {
 public:
-    explicit SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const QString &Id, const QString &name, DataCommand *parent = NULL);
+    explicit SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const odrID &Id, const QString &name, DataCommand *parent = NULL);
     virtual ~SetRSystemElementIdCommand();
 
     virtual int id() const
@@ -101,8 +102,8 @@ private:
 
     RoadSystem *roadSystem_;
 
-    QString oldId_;
-    QString newId_;
+    odrID oldId_;
+	odrID newId_;
     QString oldName_;
     QString newName_;
 };
@@ -136,7 +137,7 @@ private:
     RoadSystem *roadSystem_;
     RSystemElementRoad *road_;
     RSystemElementJunction *junction_;
-    QString oldJunctionID_;
+    odrID oldJunctionID_;
     QList<JunctionConnection *> connections_;
 };
 

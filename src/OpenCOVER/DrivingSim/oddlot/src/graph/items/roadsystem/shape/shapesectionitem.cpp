@@ -78,6 +78,14 @@ ShapeSectionItem::~ShapeSectionItem()
 void
 ShapeSectionItem::init()
 {
+	// ContextMenu //
+	//
+	copyShapeSectionAction_ = getContextMenu()->addAction(tr("Copy Shapes"));
+	connect(copyShapeSectionAction_, SIGNAL(triggered()), this, SLOT(copyShapeSection()));
+
+	pasteShapeSectionAction_ = getContextMenu()->addAction(tr("Paste Shapes"));
+	connect(pasteShapeSectionAction_, SIGNAL(triggered()), this, SLOT(pasteShapeSection()));
+
 	if (shapeSection_->isElementSelected())
 	{
 		shapeSectionPolynomialItems_ = new ShapeSectionPolynomialItems(getProfileGraph(), shapeSection_);
@@ -216,7 +224,7 @@ ShapeSectionItem::updateObserver()
     //
     int changes = shapeSection_->getShapeSectionChanges();
 
-    if (changes & ShapeSection::CSS_ParameterChange)
+    if ((changes & ShapeSection::CSS_ParameterChange) || (changes & ShapeSection::CSS_ShapeSectionChange))
     {
         // Change of the road coordinate s or degree //
         //
@@ -253,6 +261,17 @@ ShapeSectionItem::removeSection()
 {
     RemoveShapeSectionCommand *command = new RemoveShapeSectionCommand(shapeSection_, NULL);
     return getProjectGraph()->executeCommand(command);
+}
+
+void
+ShapeSectionItem::copyShapeSection()
+{
+	shapeEditor_->setClipboard(shapeSection_);
+}
+
+void ShapeSectionItem::pasteShapeSection()
+{
+	shapeEditor_->pastePolynomialLateralSections(shapeSection_);
 }
 
 //################//

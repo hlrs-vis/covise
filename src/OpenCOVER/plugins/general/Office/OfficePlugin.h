@@ -22,58 +22,50 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <net/covise_connect.h>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coLabelMenuItem.h>
 #include <osg/Material>
 #include <osg/StateSet>
 #include <osg/Group>
 #include <stack>
 #include <map>
-#include <cover/coTabletUI.h>
-#include <OpenVRUI/sginterface/vruiActionUserData.h>
-// for AnnotationMessage:
-#include <../../general/Annotation/AnnotationPlugin.h>
+#include <cover/ui/Owner.h>
 
-namespace vrui
+namespace opencover
 {
-class coCheckboxMenuItem;
-class coSubMenuItem;
-class coRowMenu;
-class coCheckboxGroup;
-class coButtonMenuItem;
+namespace ui
+{
+class Menu;
+class Label;
+class Group;
+class Button;
+class Input;
+}
 }
 
-class OfficePlugin;
-
-using namespace vrui;
 using namespace opencover;
 using covise::Message;
 using covise::ServerConnection;
 
-class OfficeConnection: public coTUIListener
+class OfficeConnection: public ui::Owner
 {
 public:
     std::string applicationType;
     std::string productName;
     OfficeConnection(ServerConnection *toOffice);
-    OfficeConnection(OfficeConnection *ServerOc);
     ~OfficeConnection();
-    ServerConnection *toOffice;
-    OfficeConnection *ServerOc;
+    ServerConnection *toOffice = nullptr;
+    const ServerConnection *ServerOc = nullptr;
     void sendMessage(Message &m);
     void handleMessage(Message *m);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
 private:
     
-    coTUILabel *productLabel;
-    coTUIFrame *myFrame;
-    coTUIEditField *commandLine;
-    coTUILabel *lastMessage;
+    ui::Group *myFrame = nullptr;
+    ui::Input *commandLine = nullptr;
+    ui::Label *lastMessage = nullptr;
 };
+
 class officeList: public std::list<OfficeConnection *>
 {
-    Message *msg;
+    Message *msg = nullptr;
     bool deletedConnection;
 public:
     officeList();
@@ -84,7 +76,7 @@ public:
 };
 
 
-class OfficePlugin : public coVRPlugin, public coMenuListener, public coTUIListener
+class OfficePlugin : public coVRPlugin, public ui::Owner
 {
 public:
    
@@ -96,35 +88,25 @@ public:
     };
     OfficePlugin();
     ~OfficePlugin();
-    virtual bool init();
-    static OfficePlugin *instance()
-    {
-        return plugin;
-    };
+    virtual bool init() override;
+    static OfficePlugin *instance();
 
     // this will be called in PreFrame
-    void preFrame();
+    void preFrame() override;
 
     void destroyMenu();
     void createMenu();
-    virtual void menuEvent(coMenuItem *aButton);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
 
-    coTUITab *revitTab;
     void sendMessage(Message &m);
     
-    void message(int toWhom, int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf) override;
     void handleMessage(OfficeConnection *oc, Message *m);
-    coTUITab *officeTab;
+    ui::Menu *menu = nullptr;;
     officeList officeConnections;
 protected:
     static OfficePlugin *plugin;
-    coSubMenuItem *OfficeButton;
     //coButtonMenuItem *addCameraButton;
 
-    ServerConnection *serverConn;
-
-    Message *msg;
+    ServerConnection *serverConn = nullptr;
 };
 #endif

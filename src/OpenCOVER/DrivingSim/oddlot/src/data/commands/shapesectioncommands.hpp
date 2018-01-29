@@ -22,6 +22,9 @@
 
 class RSystemElementRoad;
 class ShapeSection;
+class PolynomialLateralSection;
+
+#include <QMap>
 
 
 //################//
@@ -82,6 +85,35 @@ private:
     ShapeSection *oldSection_;
 
     RSystemElementRoad *parentRoad_;
+};
+
+//################//
+// Paste Lateral Sections          //
+//################//
+
+class PasteLateralShapeSectionsCommand : public DataCommand
+{
+public:
+	explicit PasteLateralShapeSectionsCommand(ShapeSection *shapeSection, QMap<double, PolynomialLateralSection *> oldSections, QMap<double, PolynomialLateralSection *> newSections, DataCommand *parent = NULL);
+	virtual ~PasteLateralShapeSectionsCommand();
+
+	virtual int id() const
+	{
+		return 0x1104;
+	}
+
+	virtual void undo();
+	virtual void redo();
+
+private:
+	PasteLateralShapeSectionsCommand(); /* not allowed */
+	PasteLateralShapeSectionsCommand(const PasteLateralShapeSectionsCommand &); /* not allowed */
+	PasteLateralShapeSectionsCommand &operator=(const PasteLateralShapeSectionsCommand &); /* not allowed */
+
+private:
+	ShapeSection *shapeSection_;
+	QMap<double, PolynomialLateralSection *> oldSections_;
+	QMap<double, PolynomialLateralSection *> newSections_;
 };
 
 

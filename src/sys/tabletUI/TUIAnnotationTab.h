@@ -45,7 +45,7 @@ public:
     virtual ~TUIAnnotationTab();
 
     virtual const char *getClassName();
-    virtual void setValue(int type, covise::TokenBuffer &tb);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &tb);
 
 private:
     QFrame *frame;

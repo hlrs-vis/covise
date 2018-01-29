@@ -2683,9 +2683,11 @@ osg::Node *GeometryManager::addLine(const char *object_name,
 
 osg::Node *
 GeometryManager::addPoint(const char *object_name, int no_of_points,
-                          float *x_c, float *y_c, float *z_c,
+                          float *x_c, float *y_c, float *z_c, int no_of_colors,
                           int colorbinding, int colorpacking,
                           float *r, float *g, float *b, int *pc, coMaterial *material,
+                          int texWidth, int texHeight, int pixelSize, unsigned char *image,
+                          int no_of_texCoords, float *tx, float *ty, osg::Texture::WrapMode wm, osg::Texture::FilterMode minfm, osg::Texture::FilterMode magfm,
                           float pointsize)
 
 {
@@ -2719,66 +2721,81 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
     geom->addPrimitiveSet(primitives);
 
     bool transparent = false;
-    switch (colorbinding)
+    if (no_of_colors && material == NULL && image == NULL) // material should overwrite object colors, so ignore them if a material is present
     {
-    case Bind::PerVertex:
-    {
-        //fprintf(stderr,"COVER INFO: colorbinding per vertex\n");
-
-        osg::Vec4Array *colArr = new osg::Vec4Array();
-
-        for (int i = 0; i < no_of_points; i++)
+        switch (colorbinding)
         {
+        case Bind::PerVertex:
+        {
+            //fprintf(stderr,"COVER INFO: colorbinding per vertex\n");
+
+            osg::Vec4Array *colArr = new osg::Vec4Array();
+
+            for (int i = 0; i < no_of_points; i++)
+            {
+                if (colorpacking == Pack::RGBA)
+                {
+                    float r, g, b, a;
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    if (a < 1.f)
+                        transparent = true;
+                    colArr->push_back(osg::Vec4(r, g, b, a));
+                }
+                else
+                    colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f));
+            }
+            geom->setColorArray(colArr);
+            geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+        }
+            break;
+
+        case Bind::OverAll:
+        {
+            osg::Vec4Array *colArr = new osg::Vec4Array();
+
             if (colorpacking == Pack::RGBA)
             {
                 float r, g, b, a;
-                unpackRGBA(pc, i, &r, &g, &b, &a);
+                unpackRGBA(pc, 0, &r, &g, &b, &a);
                 if (a < 1.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r, g, b, a));
             }
             else
-                colArr->push_back(osg::Vec4(r[i], g[i], b[i], 1.0f));
+                colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f));
+            geom->setColorArray(colArr);
+            geom->setColorBinding(osg::Geometry::BIND_OVERALL);
         }
-        geom->setColorArray(colArr);
-        geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
-    break;
+            break;
 
-    case Bind::OverAll:
-    {
-        osg::Vec4Array *colArr = new osg::Vec4Array();
-
-        if (colorpacking == Pack::RGBA)
-        {
-            float r, g, b, a;
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            if (a < 1.f)
-                transparent = true;
-            colArr->push_back(osg::Vec4(r, g, b, a));
-        }
-        else
-            colArr->push_back(osg::Vec4(r[0], g[0], b[0], 1.0f));
-        geom->setColorArray(colArr);
-        geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-    }
-    break;
-    default:
-        if (material != NULL)
-        {
-            geom->setColorBinding(osg::Geometry::BIND_OFF);
-        }
-        else
+        default:
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
             colArr->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
         }
-        break;
+            break;
+        }
+    }
+    else
+    {
+        if (material)
+            geom->setColorBinding(osg::Geometry::BIND_OFF);
     }
 
     geode->addDrawable(geom);
+
+    if (no_of_texCoords)
+    {
+        osg::Vec2Array *tcArray = new osg::Vec2Array();
+
+        for (int i = 0; i < no_of_points; i++)
+        {
+            tcArray->push_back(osg::Vec2(tx[i], ty[i]));
+        }
+        geom->setTexCoordArray(0, tcArray);
+    }
 
     osg::StateSet *geoState = geode->getOrCreateStateSet();
     // geoState->setGlobalDefaults();
@@ -2795,6 +2812,8 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
     osg::Point *point = new osg::Point();
     point->setSize(pointsize);
     geoState->setAttributeAndModes(point, osg::StateAttribute::ON);
+
+    setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
 

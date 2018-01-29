@@ -106,6 +106,9 @@
 #include <signal.h>
 #endif
 
+#include <cassert>
+
+
 TUIMainWindow *TUIMainWindow::appwin = 0;
 
 //======================================================================
@@ -524,7 +527,7 @@ void TUIMainWindow::send(covise::TokenBuffer &tb)
 }
 
 //------------------------------------------------------------------------
-TUIElement *TUIMainWindow::createElement(int id, int type, QWidget *w, int parent, QString name)
+TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget *w, int parent, QString name)
 //------------------------------------------------------------------------
 {
 
@@ -694,11 +697,12 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         case TABLET_CREATE:
         {
             tb >> ID;
-            int elementType, parent;
+            int elementTypeInt, parent;
             char *name;
-            tb >> elementType;
+            tb >> elementTypeInt;
             tb >> parent;
             tb >> name;
+            enum TabletObjectType elementType = static_cast<TabletObjectType>(elementTypeInt);
             //cerr << "TUIApplication::handleClient info: Create: ID: " << ID << " Type: " << elementType << " name: "<< name << " parent: " << parent << std::endl;
             TUIElement *parentElement = getElement(parent);
             TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
@@ -755,9 +759,10 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         break;
         case TABLET_SET_VALUE:
         {
-            int type;
-            tb >> type;
+            int typeInt;
+            tb >> typeInt;
             tb >> ID;
+            auto type = static_cast<TabletValue>(typeInt);
             //std::cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
             if (ID == lastID && (lastElement))
             {
@@ -813,8 +818,10 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
     break;
     default:
     {
-        if (msg->type > 0)
+        if (msg->type >= 0 && msg->type < covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE)
             std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << " " << covise::covise_msg_types_array[msg->type] << std::endl;
+        else
+            std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << std::endl;
     }
     break;
     }

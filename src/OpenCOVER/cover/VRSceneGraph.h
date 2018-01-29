@@ -259,8 +259,6 @@ public:
 
     int m_vectorInteractor; //< don't use - for COVISE plugin only
 
-    bool KeyButton[4];
-
     bool isHighQuality() const;
 
 private:
@@ -304,12 +302,13 @@ private:
     osg::ClipNode *m_objectsRoot;
 
     float m_floorHeight;
-    bool m_handLocked; /* =true: no hand input is accepted until button is released */
     WireframeMode m_wireframe;
     bool m_textured; /* =true: textures are drawn as intended */
     bool m_coordAxis; /* =true: coord Axis will be drawn */
     bool m_showMenu;
     bool m_showObjects;
+    bool m_firstTime = true;
+    bool m_pointerVisible = false;
 
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
@@ -364,7 +363,7 @@ private:
     ui::Menu *m_miscMenu=nullptr;
     ui::SelectionList *m_drawStyle=nullptr;
     ui::Button *m_trackHead=nullptr;
-    ui::Button *m_showStats=nullptr;
+    ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
 };

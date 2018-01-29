@@ -844,6 +844,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
     tmpMat.makeRotate(M_PI / 2.0, 1.0, 0.0, 0.0);
     //tmpMat.scale(Vec3(1000.f, 1000.f, 1000.f));
     VRMLRoot->setMatrix(tmpMat);
+	VRMLRoot->setNodeMask(~Isect::Update);
     VRMLCaveRoot = new MatrixTransform();
     VRMLCaveRoot->setName("VRMLCaveRoot");
     VRMLCaveRoot->setMatrix(tmpMat);

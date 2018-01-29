@@ -9,6 +9,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/Input.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -63,6 +64,11 @@ QtView::QtView(QToolBar *toolbar)
 {
 }
 
+View::ViewType QtView::typeBit() const
+{
+    return View::WindowMenu;
+}
+
 void QtView::setInsertPosition(QAction *item)
 {
     m_insertBefore = item;
@@ -73,6 +79,7 @@ void QtView::add(QtViewElement *ve, bool update)
     if (!ve)
         return;
     auto elem = ve->element;
+    //std::cerr << "adding " << elem->path() << std::endl;
     bool hasParent = elem && elem->parent();
     auto parent = qtViewParent(elem);
     auto container = qtContainerWidget(elem);
@@ -192,7 +199,7 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
     auto parent = qtContainerWidget(menu);
     auto m = new QMenu(parent);
     m->setTearOffEnabled(true);
-    m->setSeparatorsCollapsible(false);
+    //m->setSeparatorsCollapsible(false);
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
     add(ve);
@@ -204,6 +211,7 @@ QtViewElement *QtView::elementFactoryImplementation(Group *group)
 {
     auto parent = qtViewParent(group);
     auto ve = new QtViewElement(group, nullptr);
+    add(ve);
     return ve;
 }
 
@@ -321,6 +329,19 @@ QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
     return ve;
 }
 
+QtViewElement *QtView::elementFactoryImplementation(Input *input)
+{
+    auto parent = qtViewParent(input);
+
+    auto la = new QtLabelAction(qtObject(parent));
+    auto ve = new QtViewElement(input, la);
+    ve->action = la;
+    ve->markForDeletion(la);
+    add(ve);
+    return ve;
+
+}
+
 void QtView::updateContainer(const Element *elem)
 {
     if (!elem)
@@ -329,7 +350,9 @@ void QtView::updateContainer(const Element *elem)
     if (!parent)
         return;
     if (auto menu = dynamic_cast<Menu *>(parent))
+    {
         updateMenu(menu, menu);
+    }
     else
         updateContainer(parent);
 }
@@ -350,7 +373,11 @@ void QtView::updateMenu(const Menu *menu, const Group *subGroup)
     {
         auto child = subGroup->child(i);
         auto qt = qtViewElement(child);
-        if (auto sg = dynamic_cast<const Group *>(child))
+        if (auto sm = dynamic_cast<const Menu *>(child))
+        {
+            add(qt, true);
+        }
+        else if (auto sg = dynamic_cast<const Group *>(child))
         {
             if (qmenu)
             {
@@ -385,14 +412,14 @@ void QtView::updateVisible(const Element *elem)
         auto m = dynamic_cast<QMenu *>(w);
         if (!m)
         {
-            w->setVisible(elem->visible());
+            w->setVisible(elem->visible(this));
         }
     }
 
     if (auto ve = qtViewElement(elem))
     {
         if (auto a = ve->action)
-            a->setVisible(elem->visible());
+            a->setVisible(elem->visible(this));
     }
 }
 
@@ -404,6 +431,12 @@ void QtView::updateText(const Element *elem)
     auto o = qtObject(elem);
     auto t = QString::fromStdString(elem->text());
     t.replace('&', "&&");
+    if (auto i = dynamic_cast<const Input *>(elem))
+    {
+        t += ": ";
+        t += QString::fromStdString(i->value());
+    }
+    //std::cerr << "updateText(" << elem->path() << "): " << t.toStdString() << std::endl;
     if (auto sa = dynamic_cast<QtSliderAction *>(o))
     {
         auto s = dynamic_cast<const Slider *>(elem);
@@ -567,6 +600,11 @@ void QtView::updateBounds(const Slider *slider)
             }
         }
     }
+}
+
+void QtView::updateValue(const Input *input)
+{
+    updateText(input);
 }
 
 QtViewElement::QtViewElement(Element *elem, QObject *obj)

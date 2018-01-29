@@ -23,9 +23,7 @@ coTrackerButtonInteraction::~coTrackerButtonInteraction()
 
 void coTrackerButtonInteraction::update()
 {
-    if (!button)
-        button = vruiRendererInterface::the()->getButtons();
-
+    button = vruiRendererInterface::the()->getButtons();
     coButtonInteraction::update();
 }
 }

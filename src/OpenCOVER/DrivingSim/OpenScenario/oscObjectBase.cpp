@@ -42,6 +42,75 @@ oscObjectBase::~oscObjectBase()
 
 }
 
+/************
+* clone members
+************/
+void oscObjectBase::cloneMembers(oscObjectBase *objectBase)
+{
+	initialize(base, objectBase->getParentObj(), objectBase->getOwnMember(), objectBase->getSource());
+
+	std::list<oscObjectBase::MemberElement> cloneMembers = objectBase->getMembers();
+	for (auto it = cloneMembers.cbegin(); it != cloneMembers.cend(); ++it)
+	{
+		oscMember *cloneMember = (*it).member;
+		oscObjectBase *memberObject = cloneMember->getObjectBase();
+		if (memberObject)
+		{
+			oscObjectBase *obj = getMember((*it).name)->createObjectBase();
+			obj->cloneMembers(memberObject);
+
+		}
+		else
+		{
+			oscMemberValue *value = cloneMember->getValue();
+			if (value)
+			{
+				oscMemberValue *val = getMember((*it).name)->createValue();
+				if (oscIntValue *iv = dynamic_cast<oscIntValue *>(value))
+				{
+					val->setValue(iv->getValue());
+				}
+				else if (oscUIntValue *uv = dynamic_cast<oscUIntValue *>(value))
+				{
+					val->setValue(uv->getValue());
+				}
+				else if (oscShortValue *sv = dynamic_cast<oscShortValue *>(value))
+				{
+					val->setValue(sv->getValue());
+				}
+				else if (oscUShortValue *usv = dynamic_cast<oscUShortValue *>(value))
+				{
+					val->setValue(usv->getValue());
+				}
+				else if (oscFloatValue *fv = dynamic_cast<oscFloatValue *>(value))
+				{
+					val->setValue(fv->getValue());
+				}
+				else if (oscDoubleValue *dv = dynamic_cast<oscDoubleValue *>(value))
+				{
+					val->setValue(dv->getValue());
+				}
+				else if (oscStringValue *sv = dynamic_cast<oscStringValue *>(value))
+				{
+					val->setValue(sv->getValue());
+				}
+
+				else if (oscBoolValue *iv = dynamic_cast<oscBoolValue *>(value))
+				{
+					val->setValue(iv->getValue());
+				}
+
+				else if (oscDateTimeValue *iv = dynamic_cast<oscDateTimeValue *>(value))
+				{
+					val->setValue(iv->getValue());
+
+				}
+			}
+		}
+
+	}
+
+}
 
 //
 void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s)

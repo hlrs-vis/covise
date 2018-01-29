@@ -45,8 +45,6 @@ public:
 	}
 
 
-	SplineControlPoint *getClone();
-
 private:
 	QPointF point_;
 	bool low_;

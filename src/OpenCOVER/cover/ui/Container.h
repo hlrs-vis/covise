@@ -13,9 +13,13 @@ class Element;
 //! mix-in class for containers of UI \ref Element "elements"
 class COVER_UI_EXPORT Container {
  public:
+    enum Position {
+        Front = -1,
+        Back = -2,
+    };
     virtual ~Container();
 
-    virtual bool add(Element *elem);
+    virtual bool add(Element *elem, int where=Back);
     virtual bool remove(Element *elem);
 
     size_t numChildren() const;

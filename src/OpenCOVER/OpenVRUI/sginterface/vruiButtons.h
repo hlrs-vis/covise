@@ -20,9 +20,7 @@ public:
     vruiButtons()
     {
     }
-    virtual ~vruiButtons()
-    {
-    }
+    virtual ~vruiButtons();
 
     enum Button
     {

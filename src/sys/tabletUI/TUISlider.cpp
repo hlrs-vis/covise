@@ -98,7 +98,7 @@ void TUISlider::sliderChanged(int ival)
         string->setText(tmp);
         covise::TokenBuffer tb;
         tb << ID;
-        tb << 10;
+        tb << TABLET_MOVED;
         tb << value;
         TUIMainWindow::getInstance()->send(tb);
     }
@@ -134,7 +134,7 @@ const char *TUISlider::getClassName() const
     return "TUISlider";
 }
 
-void TUISlider::setValue(int type, covise::TokenBuffer &tb)
+void TUISlider::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUISlider::setValue info: type = " << type << endl;
     if (type == TABLET_MIN)

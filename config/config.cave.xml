@@ -397,7 +397,7 @@
     <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
+    <Viewport width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
    </ViewportConfig>
    <WindowConfig>
    <Window ARCH="x11" type="Qt" width="1600" comment="MAIN" window="0" pipeIndex="0" height="1000" left="100" top="50" name="0" decoration="true" />

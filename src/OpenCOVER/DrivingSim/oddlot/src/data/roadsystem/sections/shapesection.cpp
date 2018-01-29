@@ -220,8 +220,12 @@ ShapeSection::calculateShapeParameters()
 	if (n == 0)
 	{
 		PolynomialLateralSection *poly = getPolynomialLateralSection(0.0);
-		poly->setParameters(0.0, 0.0, 0.0, 0.0);
+		QPointF low = poly->getRealPointLow()->getPoint();
+		QPointF high = poly->getRealPointHigh()->getPoint();
+		poly->setParameters(low.y(), (high.y() - low.y()) / (high.x() - low.x()), 0.0, 0.0);
+
 		poly->addPolynomialLateralSectionChanges(PolynomialLateralSection::CPL_ParameterChange);
+		addShapeSectionChanges(ShapeSection::CSS_ParameterChange);
 		return;
 	}
 

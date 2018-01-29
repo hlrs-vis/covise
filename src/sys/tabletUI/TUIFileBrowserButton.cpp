@@ -145,7 +145,7 @@ void TUIFileBrowserButton::sendSelectedFile(QString file, QString dir, bool load
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIFileBrowserButton::setValue(int type, covise::TokenBuffer &tb)
+void TUIFileBrowserButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     int size;
     char *entry;

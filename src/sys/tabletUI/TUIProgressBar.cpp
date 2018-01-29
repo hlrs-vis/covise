@@ -59,7 +59,7 @@ const char *TUIProgressBar::getClassName() const
     return "TUIProgressBar";
 }
 
-void TUIProgressBar::setValue(int type, covise::TokenBuffer &tb)
+void TUIProgressBar::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUIProgressBar::setValue info: type = " << type << endl;
 

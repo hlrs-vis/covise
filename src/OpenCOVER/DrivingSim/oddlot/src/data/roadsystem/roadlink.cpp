@@ -18,7 +18,7 @@
 #include "rsystemelementroad.hpp"
 #include "roadsystem.hpp"
 
-RoadLink::RoadLink(const QString &elementType, const QString &elementId, JunctionConnection::ContactPointValue contactPoint)
+RoadLink::RoadLink(const QString &elementType, const odrID &elementId, JunctionConnection::ContactPointValue contactPoint)
     : DataElement()
     , roadLinkChange_(0x0)
     , parentRoad_(NULL)
@@ -82,7 +82,7 @@ RoadLink::isLinkValid() const
 //################//
 
 void
-RoadLink::setElementId(const QString &elementId)
+RoadLink::setElementId(const odrID &elementId)
 {
     elementId_ = elementId;
     addRoadLinkChanges(RoadLink::CRL_IdChanged);
@@ -117,6 +117,14 @@ RoadLink::setElementType(const QString &elementType)
     }
 }
 
+QString RoadLink::getContactPointString() const
+{
+	if(contactPoint_ == JunctionConnection::JCP_END)
+		return "end";
+	if (contactPoint_ == JunctionConnection::JCP_START)
+		return "start";
+	return "none";
+}
 void
 RoadLink::setContactPoint(JunctionConnection::ContactPointValue contactPoint)
 {

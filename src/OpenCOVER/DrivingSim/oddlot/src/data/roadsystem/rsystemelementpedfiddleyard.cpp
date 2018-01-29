@@ -21,7 +21,7 @@
 //                             //
 //#############################//
 
-RSystemElementPedFiddleyard::RSystemElementPedFiddleyard(const QString &id, const QString &name, const QString &roadId)
+RSystemElementPedFiddleyard::RSystemElementPedFiddleyard(const odrID &id, const QString &name, const odrID &roadId)
     : RSystemElement(name, id, RSystemElement::DRE_PedFiddleyard)
     , roadId_(roadId)
 {
@@ -125,7 +125,7 @@ RSystemElementPedFiddleyard::acceptForChildNodes(Visitor *visitor)
 //                        //
 //########################//
 
-PedFiddleyardSource::PedFiddleyardSource(const QString &id, int lane, double velocity)
+PedFiddleyardSource::PedFiddleyardSource(const odrID &id, int lane, double velocity)
     : id_(id)
     , lane_(lane)
     , velocity_(velocity)
@@ -202,7 +202,7 @@ PedFiddleyardSource::getClone()
 //                        //
 //########################//
 
-PedFiddleyardSink::PedFiddleyardSink(const QString &id, int lane)
+PedFiddleyardSink::PedFiddleyardSink(const odrID &id, int lane)
     : id_(id)
     , lane_(lane)
     , sinkProbSet_(false)

@@ -61,7 +61,7 @@ const char *TUIComboBox::getClassName() const
     return "TUIComboBox";
 }
 
-void TUIComboBox::setValue(int type, covise::TokenBuffer &tb)
+void TUIComboBox::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue " << type << endl;
     if (type == TABLET_ADD_ENTRY)

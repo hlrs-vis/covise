@@ -24,7 +24,7 @@
 #include <cover/coTabletUI.h>
 #include <cover/coVRShader.h>
 
-#include "opencrg/crgSurface.h"
+#include "VehicleUtil/opencrg/crgSurface.h"
 using namespace opencover;
 
 class OpenCRGPlugin : public coVRPlugin, public coTUIListener

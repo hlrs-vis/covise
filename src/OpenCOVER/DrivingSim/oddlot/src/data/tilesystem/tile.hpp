@@ -17,6 +17,7 @@
 #define TILE_HPP
 
 #include "src/data/tilesystem/tilesystem.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 //
 class DataElement;
@@ -39,7 +40,8 @@ public:
     };
 
 public:
-    explicit Tile(const QString &name, const QString &id);
+    explicit Tile(const odrID &tileID);
+	explicit Tile(int tid);
     virtual ~Tile();
 
 public:
@@ -55,14 +57,14 @@ public:
     {
         return name_;
     }
-    const QString &getID() const
+    const odrID &getID() const
     {
         return id_;
     }
     QString getIdName() const;
 
     void setName(const QString &name);
-    void setID(const QString &id);
+    void setID(const odrID &id);
 
     //Observer Pattern //
 
@@ -73,6 +75,10 @@ public:
         return tileChanges_;
     }
     void addTileChanges(int changes);
+
+	const QString getUniqueOSCID(const QString &suggestion,const QString &name);
+	void removeOSCID(const QString &ID);
+	int32_t uniqueID(odrID::IDType t);
 
     // Visitor Pattern //
     //
@@ -90,7 +96,9 @@ private:
     // Element properties //
     //
     QString name_; // name of the element
-    QString id_; // unique ID within database
+    odrID id_; // unique ID within database
+	QSet<QString> oscIDs;
+	QSet<int32_t> odrIDs[odrID::NUM_IDs];
 };
 
 #endif // TILE_HPP

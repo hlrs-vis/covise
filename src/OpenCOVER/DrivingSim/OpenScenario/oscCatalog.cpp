@@ -38,7 +38,7 @@ oscCatalogFile *oscCatalog::getCatalogFile(const std::string &catalogName, const
 	std::string filename = catalogName + ".xosc";
 	for (size_t i = 0; i < xoscFiles.size(); i++)
 	{
-		if (xoscFiles[i]->getPath() == filename)
+		if ((xoscFiles[i]->getPath() == filename) || (xoscFiles[i]->getPath() == path + '/' + filename))
 		{
 			return xoscFiles[i];
 		}
@@ -482,6 +482,19 @@ bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *object
 	}
 
 	return false;
+}
+
+void oscCatalog::addCatalogObjects()
+{
+
+	for (auto it = m_Objects.begin(); it != m_Objects.end(); it++)
+	{
+		OpenScenario::oscObjectBase *obj = it->second.object;
+		if (!obj)
+		{
+			fullReadCatalogObjectWithName(it->first);
+		}
+	}
 }
 
 void oscCatalogFile::removeObject(oscObjectBase *obj)

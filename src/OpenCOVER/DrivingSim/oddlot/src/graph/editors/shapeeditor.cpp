@@ -299,6 +299,16 @@ ShapeEditor::deleteLateralSection(SplineControlPoint *corner)
 	}
 }
 
+void 
+ShapeEditor::pastePolynomialLateralSections(ShapeSection *section)
+{
+	QMap<double, PolynomialLateralSection *> oldSections = section->getPolynomialLateralSections();
+	QMap<double, PolynomialLateralSection *> newSections = clipboardShapeSection_->getPolynomialLateralSections();
+
+	PasteLateralShapeSectionsCommand *command = new PasteLateralShapeSectionsCommand(section, oldSections, newSections);
+	getProjectGraph()->executeCommand(command);
+}
+
 
 //################//
 // TOOL           //

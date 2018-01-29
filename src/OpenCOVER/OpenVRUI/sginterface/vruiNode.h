@@ -25,9 +25,7 @@ public:
     vruiNode()
     {
     }
-    virtual ~vruiNode()
-    {
-    }
+    virtual ~vruiNode();
 
     virtual void addChild(vruiNode *node) = 0;
     virtual void removeChild(vruiNode *node) = 0;

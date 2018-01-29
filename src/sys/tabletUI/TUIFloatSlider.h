@@ -29,7 +29,7 @@ class TUIFloatSlider : public QObject, public TUIElement
 public:
     TUIFloatSlider(int id, int type, QWidget *w, int parent, QString namw);
     virtual ~TUIFloatSlider();
-    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
     virtual void setLabel(QString textl) override;
 
     /// get the Element's classname
@@ -42,11 +42,15 @@ public slots:
     void released();
 
 protected:
+    void showSliderValue(float min, float max, float val);
+
     QLineEdit *string = nullptr;
     QSlider *slider = nullptr;
     QLabel *label = nullptr;
     float min;
     float max;
     float value;
+    int ival = 0;
+    bool logScale = false;
 };
 #endif

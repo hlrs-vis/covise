@@ -15,7 +15,6 @@ namespace vrui
 coCombinedButtonInteraction::coCombinedButtonInteraction(InteractionType type,
                                                          const std::string &name, InteractionPriority priority)
     : coButtonInteraction(type, name, priority)
-    , mousebutton(NULL)
     , mouse(false)
 {
 }
@@ -36,21 +35,15 @@ bool coCombinedButtonInteraction::isMouse() const
 
 void coCombinedButtonInteraction::update()
 {
-    if (!mousebutton)
-        mousebutton = vruiRendererInterface::the()->getMouseButtons();
-
-    if (!mousebutton)
-        return;
-
-    if (!button)
+    if (mouse)
+        button = vruiRendererInterface::the()->getMouseButtons();
+    else
         button = vruiRendererInterface::the()->getButtons();
 
     if (!button)
-        button = mousebutton;
+        return;
 
-    vruiButtons *curbutton = mouse ? mousebutton : button;
-
-    updateState(curbutton);
+    coButtonInteraction::update();
 }
 
 bool coCombinedButtonInteraction::is2D() const

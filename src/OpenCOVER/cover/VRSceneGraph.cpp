@@ -117,7 +117,6 @@ VRSceneGraph::VRSceneGraph()
     , m_vectorInteractor(0)
     , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
-    , m_handLocked(false)
     , m_wireframe(Disabled)
     , m_textured(true)
     , m_showMenu(true)
@@ -142,16 +141,11 @@ VRSceneGraph::VRSceneGraph()
     , isFirstTraversal(true)
     , isScenegraphProtected_(false)
     , m_enableHighQualityOption(true)
-    , m_highQuality(false)
     , m_switchToHighQuality(false)
+    , m_highQuality(false)
     , m_interactionHQ(NULL)
 {
     assert(!s_instance);
-
-    KeyButton[0] = 0;
-    KeyButton[1] = 0;
-    KeyButton[2] = 0;
-    KeyButton[3] = 0;
 }
 /*bis hier neu*/
 
@@ -189,13 +183,22 @@ void VRSceneGraph::init()
         toggleHeadTracking(state);
     });
 
-    m_allowHighQuality= new ui::Button("HighQuality", this);
+    m_allowHighQuality= new ui::Button("AllowHighQuality", this);
     cover->viewOptionsMenu->add(m_allowHighQuality);
     m_allowHighQuality->setState(m_enableHighQualityOption);
     m_allowHighQuality->setText("Allow high quality");
-    m_allowHighQuality->setShortcut("Shift+H");
     m_allowHighQuality->setCallback([this](bool state){
         toggleHighQuality(state);
+    });
+
+    auto switchToHighQuality = new ui::Action("SwitchToHighQuality", this);
+    switchToHighQuality->setVisible(false);
+    cover->viewOptionsMenu->add(switchToHighQuality);
+    switchToHighQuality->setText("Enable high quality rendering");
+    switchToHighQuality->setShortcut("Shift+H");
+    switchToHighQuality->setCallback([this](){
+        if (m_enableHighQualityOption && !m_highQuality)
+            m_switchToHighQuality = true;
     });
 
     m_drawStyle = new ui::SelectionList("DrawStyle", this);
@@ -234,19 +237,19 @@ void VRSceneGraph::init()
         coVRFileManager::instance()->reloadFile();
     });
 
-    m_showStats = new ui::Button("ShowStats", this);
+    m_showStats = new ui::SelectionList("ShowStats", this);
     m_showStats->setText("Renderer statistics");
     m_showStats->setShortcut("Alt+Shift+S");
+    m_showStats->append("Off");
+    m_showStats->append("Frames/s");
+    m_showStats->append("Viewer");
+    m_showStats->append("Viewer+camera");
+    m_showStats->append("Viewer+camera+nodes");
     cover->viewOptionsMenu->add(m_showStats);
-    m_showStats->setState(coVRConfig::instance()->drawStatistics);
-    m_showStats->setCallback([this](bool state){
-        coVRConfig::instance()->drawStatistics = state;
-        if (coVRConfig::instance()->drawStatistics)
-        {
-            statsDisplay->showStats(coVRStatsDisplay::VIEWER_SCENE_STATS, VRViewer::instance());
-        }
-        else
-            statsDisplay->showStats(0, VRViewer::instance());
+    m_showStats->select(coVRConfig::instance()->drawStatistics);
+    m_showStats->setCallback([this](int val){
+        coVRConfig::instance()->drawStatistics = val;
+        statsDisplay->showStats(val, VRViewer::instance());
     });
 }
 
@@ -508,33 +511,9 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
     // Beschleunigung
     if (type == osgGA::GUIEventAdapter::KEYUP)
     {
-        if (keySym == 65365)
-        {
-            KeyButton[0] = false;
-        }
-        if (keySym == 65366)
-        {
-            KeyButton[2] = false;
-        }
-        if (keySym == 46)
-        {
-            KeyButton[1] = false;
-        }
     }
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {
-        if (keySym == 65365)
-        {
-            KeyButton[0] = true;
-        }
-        if (keySym == 65366)
-        {
-            KeyButton[2] = true;
-        }
-        if (keySym == 46)
-        {
-            KeyButton[1] = true;
-        }
         if (keySym == ' ')
         {
             m_worldTransformerEnabled = !m_worldTransformerEnabled;
@@ -846,38 +825,39 @@ VRSceneGraph::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "VRSceneGraph::update\n");
-    static bool firstTime = true;
-    if (firstTime)
+    if (m_firstTime)
     {
-        windowStruct *ws = &(coVRConfig::instance()->windows[0]);
-        if (ws && ws->window)
+        if (coVRConfig::instance()->numWindows() > 0)
         {
-#ifdef WIN32
-            if (OpenCOVER::instance()->parentWindow == NULL)
-#endif
+            const auto &ws = coVRConfig::instance()->windows[0];
+            if (ws.window)
             {
-                ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
-                ws->window->setWindowDecoration(ws->decoration);
+#ifdef WIN32
+                if (OpenCOVER::instance()->parentWindow == NULL)
+#endif
+                {
+                    ws.window->setWindowRectangle(ws.ox, ws.oy, ws.sx, ws.sy);
+                    ws.window->setWindowDecoration(ws.decoration);
+                }
             }
         }
-        firstTime = false;
+        m_firstTime = false;
     }
 
-    static bool pointerVisible = false;
     if (Input::instance()->hasHand() && Input::instance()->isTrackingOn())
     {
-        if (!pointerVisible)
+        if (!m_pointerVisible)
         {
             m_scene->addChild(m_handTransform.get());
-            pointerVisible = true;
+            m_pointerVisible = true;
         }
     }
     else
     {
-        if (pointerVisible)
+        if (m_pointerVisible)
         {
             m_scene->removeChild(m_handTransform.get());
-            pointerVisible = false;
+            m_pointerVisible = false;
         }
     }
 
@@ -965,14 +945,6 @@ VRSceneGraph::update()
     // static osg::Vec3Array *coord = new osg::Vec3Array(4*6);
     osg::Matrix dcs_mat, rot_mat, tmpMat;
     //int collided[6] = {0, 0, 0, 0, 0, 0}; /* front,back,right,left,up,down */
-    if (cover->isPointerLocked())
-    {
-        m_handLocked = true;
-    }
-    else
-    {
-        m_handLocked = false;
-    }
 
 #ifdef OLDINPUT
     if (VRTracker::instance()->getCameraSensorStation() != -1)

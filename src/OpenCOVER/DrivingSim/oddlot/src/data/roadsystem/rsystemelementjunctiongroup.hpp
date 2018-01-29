@@ -41,7 +41,7 @@ public:
     //################//
 
 public:
-    explicit RSystemElementJunctionGroup(const QString &name, const QString &id, const QString &type);
+    explicit RSystemElementJunctionGroup(const QString &name, const odrID &id, const QString &type);
     virtual ~RSystemElementJunctionGroup();
 
 	QString getType()

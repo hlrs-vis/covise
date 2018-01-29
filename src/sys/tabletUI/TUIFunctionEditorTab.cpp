@@ -126,7 +126,7 @@ void TUIFunctionEditorTab::histogramMessage(covise::TokenBuffer &tb)
 
 // receive a list of colors, rgba, and uses them to update the
 // color map for the transfer function
-void TUIFunctionEditorTab::setValue(int type, covise::TokenBuffer &tb)
+void TUIFunctionEditorTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     switch (type)
     {
@@ -136,6 +136,8 @@ void TUIFunctionEditorTab::setValue(int type, covise::TokenBuffer &tb)
 
     case TABLET_TF_HISTOGRAM:
         histogramMessage(tb);
+        break;
+    default:
         break;
     }
 

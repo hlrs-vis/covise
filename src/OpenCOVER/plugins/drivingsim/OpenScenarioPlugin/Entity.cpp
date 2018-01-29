@@ -59,5 +59,7 @@ float &Entity::getSpeed()
 
 void Entity::setDirection(osg::Vec3 &dir)
 {
-	directionVector = dir;
+    directionVector = dir;
+    directionVector.normalize();
+
 }

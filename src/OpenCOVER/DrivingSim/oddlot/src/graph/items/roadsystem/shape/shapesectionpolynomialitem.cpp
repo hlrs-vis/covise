@@ -68,11 +68,7 @@ ShapeSectionPolynomialItem::ShapeSectionPolynomialItem(ShapeSectionPolynomialIte
 
 ShapeSectionPolynomialItem::~ShapeSectionPolynomialItem()
 {
-	deleteControlPointHandles();
-	if (realPointHighHandle_)
-	{
-		deleteRealPointHighHandle();
-	}
+
 }
 
 void
@@ -149,33 +145,6 @@ ShapeSectionPolynomialItem::createPath()
 	setPath(path);
 }
 
-void 
-ShapeSectionPolynomialItem::deleteControlPointHandles()
-{
-	ProfileGraph *profileGraph = getProfileGraph();
-	if (profileGraph)
-	{
-		profileGraph->getScene()->removeItem(realPointLowHandle_);
-
-		realPointLowHandle_->setParent(NULL);
-		getProjectGraph()->addToGarbage(realPointLowHandle_);
-		realPointLowHandle_ = NULL;
-	}
-}
-
-void
-ShapeSectionPolynomialItem::deleteRealPointHighHandle()
-{
-	ProfileGraph *profileGraph = getProfileGraph();
-	if (profileGraph)
-	{
-		profileGraph->getScene()->removeItem(realPointHighHandle_);
-
-		realPointHighHandle_->setParent(NULL);
-		getProjectGraph()->addToGarbage(realPointHighHandle_);
-		realPointHighHandle_ = NULL;
-	}
-}
 
 //################//
 // OBSERVER       //
@@ -211,7 +180,9 @@ ShapeSectionPolynomialItem::updateObserver()
 		{
 			if (shapeSection_->getLastPolynomialLateralSection() != polynomialLateralSection_)
 			{
-				deleteRealPointHighHandle();
+				realPointHighHandle_->setParent(NULL);
+				getProjectGraph()->addToGarbage(realPointHighHandle_);
+				realPointHighHandle_ = NULL;
 			}
 		}
 		else if (shapeSection_->getLastPolynomialLateralSection() == polynomialLateralSection_)

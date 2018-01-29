@@ -1022,6 +1022,7 @@ VRViewer::config()
         setFrustumAndView(i);
     }
     assignSceneDataToCameras();
+	getUpdateVisitor()->setTraversalMask(Isect::Update);
 }
 
 //OpenCOVER

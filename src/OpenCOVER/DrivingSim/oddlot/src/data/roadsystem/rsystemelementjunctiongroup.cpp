@@ -16,7 +16,7 @@
 #include "rsystemelementjunctiongroup.hpp"
 
 
-RSystemElementJunctionGroup::RSystemElementJunctionGroup(const QString &name, const QString &id, const QString &type)
+RSystemElementJunctionGroup::RSystemElementJunctionGroup(const QString &name, const odrID &id, const QString &type)
     : RSystemElement(name, id, RSystemElement::DRE_JunctionGroup)
 	, type_(type)
     , junctionGroupChanges_(0x0)

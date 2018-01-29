@@ -430,11 +430,6 @@ public:
         return m_useVirtualGL;
     }
 
-    bool restrictOn() const
-    {
-        return m_restrict;
-    }
-
     void setNearFar(float nearC, float farC)
     {
         if (nearC > 0 && farC > 0)
@@ -490,7 +485,7 @@ private:
 
     bool trackedHMD;
 
-    bool drawStatistics;
+    int drawStatistics;
 
     // multi-sampling
     int multisampleSamples;
@@ -511,8 +506,6 @@ private:
     bool constantFrameRate;
     float constFrameTime;
     bool m_continuousRendering;
-
-    bool m_restrict;
 
     int m_language;
 

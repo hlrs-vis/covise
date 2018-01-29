@@ -114,7 +114,7 @@ void OpenScenarioPlugin::preFrame()
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
-                    Maneuver* test = (*maneuver_iter);
+                    //Maneuver* currentManeuver = (*maneuver_iter);
                     scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
                     if ((*maneuver_iter)->maneuverCondition == true)
                     {
@@ -122,17 +122,20 @@ void OpenScenarioPlugin::preFrame()
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
-
+                                //Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                                 {
+                                    //Entity* currentEntity = (*activeEntity);
 
-                                    (*maneuver_iter)->setTargetPosition((*maneuver_iter)->checkRelVertex((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*trajectory_iter)->isRelVertice));
+                                    (*maneuver_iter)->setTargetPosition((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*trajectory_iter)->isRelVertice);
+
                                     if((*trajectory_iter)->domain.getValue() == 0){
                                        (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*maneuver_iter)->verticeStartPos, (*maneuver_iter)->targetPosition));
                                     }
+
+                                    (*activeEntity)->setDirection((*maneuver_iter)->totaldirectionVector);
+
                                     (*activeEntity)->setPosition((*maneuver_iter)->followTrajectoryRel((*activeEntity)->entityPosition,(*maneuver_iter)->targetPosition,(*activeEntity)->getSpeed()));
-                                    //(*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,scenarioManager->simulationTime));
-                                    (*activeEntity)->setDirection((*maneuver_iter)->directionVector);
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -151,7 +154,6 @@ void OpenScenarioPlugin::preFrame()
                         }
                     }
                 }
-
             }
         }
         for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++)

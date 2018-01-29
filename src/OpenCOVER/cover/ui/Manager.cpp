@@ -261,6 +261,14 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
+void Manager::updateValue(const Input *input) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateValue(input);
+    }
+}
+
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
     bool handled = false;

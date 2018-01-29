@@ -164,3 +164,99 @@ RemoveShapeSectionCommand::undo()
 
     setUndone();
 }
+
+//##################################//
+// PasteLateralShapeSectionsCommand //
+//##################################//
+
+PasteLateralShapeSectionsCommand::PasteLateralShapeSectionsCommand(ShapeSection *shapeSection, QMap<double, PolynomialLateralSection *> oldSections, QMap<double, PolynomialLateralSection *> newSections, DataCommand *parent)
+	: DataCommand(parent)
+	, shapeSection_(shapeSection)
+	, oldSections_(oldSections)
+{
+	// Check for validity //
+	//
+	if (!shapeSection)
+	{
+		setInvalid(); // Invalid
+		setText(QObject::tr("Paste LateralShapeSections (invalid!)"));
+		return;
+	}
+	else
+	{
+		setValid();
+		setText(QObject::tr("Paste LateralShapeSections"));
+	}
+
+	foreach(PolynomialLateralSection *poly, newSections)
+	{
+		newSections_.insert(poly->getTStart(), poly->getClone());
+	}
+
+}
+
+/*! \brief .
+*
+*/
+PasteLateralShapeSectionsCommand::~PasteLateralShapeSectionsCommand()
+{
+	if (isUndone())
+	{
+		newSections_.clear();
+	}
+	else
+	{
+		oldSections_.clear();
+	}
+}
+
+/*! \brief .
+*
+*/
+void
+PasteLateralShapeSectionsCommand::redo()
+{
+	// set new polynomials //
+	//
+	QMap<double, PolynomialLateralSection *>::ConstIterator it = oldSections_.constBegin();
+	while (it != oldSections_.constEnd())
+	{
+		shapeSection_->delShape(it.key());
+		it++;
+	}
+
+	it = newSections_.constBegin();
+	while (it != newSections_.constEnd())
+	{
+		shapeSection_->addShape(it.key(), it.value());
+		it++;
+	}
+
+	setRedone();
+}
+
+/*! \brief .
+*
+*/
+void
+PasteLateralShapeSectionsCommand::undo()
+{
+	// set old polynomials //
+	//
+	QMap<double, PolynomialLateralSection *>::ConstIterator it = newSections_.constBegin();
+	while (it != newSections_.constEnd())
+	{
+		shapeSection_->delShape(it.key());
+		it++;
+	}
+
+	it = oldSections_.constBegin();
+	while (it != oldSections_.constEnd())
+	{
+		shapeSection_->addShape(it.key(), it.value());
+		it++;
+	}
+
+	setUndone();
+}
+

@@ -29,7 +29,7 @@ class TUISlider : public QObject, public TUIElement
 public:
     TUISlider(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUISlider();
-    virtual void setValue(int type, covise::TokenBuffer &) override;
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
     virtual void setLabel(QString textl) override;
 
     /// get the Element's classname

@@ -100,7 +100,7 @@ public:
                                                                                  \param fileName file to load.
                                                                                  \param fileType type of the imported file.
                                                                                  \return false if loading the file failed.*/
-    bool saveFile(const std::string &fileName, bool overwrite = false);/*!< store an OpenScenario database to a file in xml format
+    bool saveFile(const std::string &fileName, bool catalogs = true, bool overwrite = false);/*!< store an OpenScenario database to a file in xml format
                                                                       \param fileName file to save to.
                                                                       \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is returned if a file with that name already exists.
                                                                       \return false if writing to the file failed.*/

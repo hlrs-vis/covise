@@ -37,6 +37,7 @@ class TabletView: public View
    TabletView(const std::string &name, coTabletUI *tui);
    TabletView(coTUITabFolder *root);
    ~TabletView();
+   ViewType typeBit() const override;
 
  private:
    TabletViewElement *tuiElement(const std::string &path) const;
@@ -58,6 +59,7 @@ class TabletView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
+   void updateValue(const Input *input) override;
 
    TabletViewElement *elementFactoryImplementation(Menu *menu) override;
    TabletViewElement *elementFactoryImplementation(Group *group) override;
@@ -66,6 +68,7 @@ class TabletView: public View
    TabletViewElement *elementFactoryImplementation(Button *button) override;
    TabletViewElement *elementFactoryImplementation(Slider *slider) override;
    TabletViewElement *elementFactoryImplementation(SelectionList *sl) override;
+   TabletViewElement *elementFactoryImplementation(Input *input) override;
 
    TabletViewElement *m_root = nullptr;
 

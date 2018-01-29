@@ -33,6 +33,7 @@ class oscObject;
 class oscCatalog;
 class oscTrajectory;
 class oscPrivateAction;
+class oscArrayMember;
 }
 
 class OSCBaseItem;
@@ -77,6 +78,8 @@ public:
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);
 	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
+	std::string getName(OpenScenario::oscArrayMember *arrayMember, const std::string &baseName);
+	void cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject);
 
 
 	// Catalog dock widget changed //

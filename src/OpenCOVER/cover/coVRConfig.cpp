@@ -16,6 +16,7 @@
 #include "coVRConfig.h"
 #include "coVRMSController.h"
 #include "input/input.h"
+#include "coVRStatsDisplay.h"
 
 using std::cerr;
 using std::endl;
@@ -186,8 +187,8 @@ coVRConfig::coVRConfig()
     }
     pipes.resize(numPipes);
 
-    m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     glVersion = coCoviseConfig::getEntry("COVER.GLVersion");
+    m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
     m_stereoSeparation = 64.0f;
     string line = coCoviseConfig::getEntry("separation", "COVER.Stereo");
@@ -222,13 +223,6 @@ coVRConfig::coVRConfig()
 
     std::string msMode = coCoviseConfig::getEntry("mode", "COVER.Multisample", "FASTEST");
 
-    std::string lang = coCoviseConfig::getEntry("value", "COVER.Menu.Language", "ENGLISH");
-    if (lang == "GERMAN")
-        m_language = GERMAN;
-    else
-        m_language = ENGLISH;
-
-    m_restrict = coCoviseConfig::isOn("COVER.Restrict", false);
     if (msMode == "FASTEST")
     {
         multisampleMode = osg::Multisample::FASTEST;
@@ -279,7 +273,7 @@ coVRConfig::coVRConfig()
     m_LODScale = coCoviseConfig::getFloat("COVER.LODScale", 1.0);
     m_worldAngle = coCoviseConfig::getFloat("COVER.WorldAngle", 0.);
 
-    drawStatistics = coCoviseConfig::isOn("COVER.Statistics", false);
+    drawStatistics = coCoviseConfig::isOn("COVER.Statistics", false) ? coVRStatsDisplay::VIEWER_STATS : coVRStatsDisplay::NO_STATS;
     HMDMode = coCoviseConfig::isOn("mode", std::string("COVER.HMD"), false);
     HMDViewingAngle = coCoviseConfig::getFloat("angle", "COVER.HMD", 60.0f);
 
@@ -672,6 +666,12 @@ coVRConfig::coVRConfig()
         bt.blendingTextureName = coCoviseConfig::getEntry("blendingTexture", str, "");
 
     }
+
+    std::string lang = coCoviseConfig::getEntry("value", "COVER.Menu.Language", "ENGLISH");
+    if (lang == "GERMAN")
+        m_language = GERMAN;
+    else
+        m_language = ENGLISH;
 }
 
 coVRConfig::~coVRConfig()

@@ -21,7 +21,7 @@
 // Constructors       //
 //####################//
 
-Crosswalk::Crosswalk(const QString &id, const QString &name, double s, double length)
+Crosswalk::Crosswalk(const odrID &id, const QString &name, double s, double length)
     : RoadSection(s)
     , id_(id)
     , name_(name)

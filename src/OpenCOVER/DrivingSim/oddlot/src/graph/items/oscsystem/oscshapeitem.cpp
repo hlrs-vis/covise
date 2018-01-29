@@ -215,9 +215,9 @@ OSCShapeItem::createControlPoints()
         if (controlPoint1)
         {
 			std::string s = controlPoint1->status.getValue();
-            int x, y;
-            sscanf(s.c_str(), "%d %d", &x, &y);
-            QPointF p1(x, y);
+            double x, y;
+            sscanf(s.c_str(), "%lf %lf", &x, &y);
+            QPointF p1(p0.x() + x, p0.y() + y);
 
             controlPoints_.push_back(p1);
         }
@@ -228,9 +228,9 @@ OSCShapeItem::createControlPoints()
         if (controlPoint2)
         {
             std::string s = controlPoint2->status.getValue();
-            int x, y;
-            sscanf(s.c_str(), "%d %d", &x, &y);
-            QPointF p1(x, y);
+            double x, y;
+            sscanf(s.c_str(), "%lf %lf", &x, &y);
+            QPointF p1(p0.x() + x, p0.y() + y);
 
             controlPoints_.push_back(p1);
         }

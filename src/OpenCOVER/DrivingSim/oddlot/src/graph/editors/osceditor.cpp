@@ -33,6 +33,7 @@
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/changemanager.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 // Commands //
 //
@@ -365,7 +366,7 @@ OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
 
 	OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getOrCreateObject();
 
-	QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
+	odrID roadId(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "",odrID::ID_Road);
 	RSystemElementRoad *road = getProjectData()->getRoadSystem()->getRoad(roadId);
 	if (road)
 	{
@@ -375,12 +376,12 @@ OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
 		double dist;
 		QPointF to = road->getGlobalPoint(s, t) + diff;
 		RSystemElementRoad * newRoad = getProjectData()->getRoadSystem()->findClosestRoad( to, s, dist, vec);
-		QString newRoadId = newRoad->getID();
+		odrID newRoadId = newRoad->getID();
 		OSCElement *oscElement = oscBase_->getOSCElement(oscObject);
 
 		if (roadId != newRoadId)
 		{
-			SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscPosRoad, "roadId", newRoadId.toStdString());
+			SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscPosRoad, "roadId", newRoadId.writeString().toStdString());
 			getProjectGraph()->executeCommand(command);
 		}
 
@@ -541,7 +542,8 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
 				OpenScenario::oscControlPoint1 *controlPoint = spline->ControlPoint1.createObject();
 				char buf[100];
 
-				sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+				QPointF dist = controlPoints.at(index) - controlPoints.at(i);
+				sprintf(buf, "%lf %lf", dist.x(), dist.y());
 				controlPoint->status.setValue(buf);
 			}
 
@@ -550,7 +552,9 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
 			{
 				OpenScenario::oscControlPoint2 *controlPoint = spline->ControlPoint2.createObject();
 				char buf[100];
-				sprintf(buf, "%d %d", qRound(controlPoints.at(index).x()), qRound(controlPoints.at(index).y()));
+
+				QPointF dist = controlPoints.at(index) - controlPoints.at(i);
+				sprintf(buf, "%lf %lf", dist.x(), dist.y());
 				controlPoint->status.setValue(buf);
 			}
 		}
@@ -631,6 +635,63 @@ OpenScenarioEditor::getOrCreatePrivateAction(const std::string &selectedObjectNa
 
 	return privateAction;
 
+}
+
+std::string 
+OpenScenarioEditor::getName(OpenScenario::oscArrayMember *arrayMember, const std::string &basename)
+{
+	// Unique name for action and object
+	//
+	int i = 0;
+	OpenScenario::oscArrayMember::iterator it;
+	std::string newname;
+	do
+	{
+		newname = basename + std::to_string(i++);
+		for (it = arrayMember->begin(); it != arrayMember->end(); it++)
+		{
+			std::string name = (static_cast<OpenScenario::oscObject *>(*it))->name.getValue();
+			if (name == newname)
+			{
+				break;
+			}
+		}
+
+	} while (it != arrayMember->cend());
+
+	return newname;
+}
+
+void 
+OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject)
+{
+	getProjectData()->getUndoStack()->beginMacro("Clone Entity");
+
+	OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(oscObject->getOwnMember());
+	OSCElement *oscElement = new OSCElement("Object");
+	if (oscElement)
+	{
+		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscObjectArray, oscObject->getParentObj(), NULL, "Object", element->getOSCBase(), oscElement);
+		getProjectGraph()->executeCommand(command);
+		OpenScenario::oscObject *clone = static_cast<OpenScenario::oscObject *>(oscElement->getObject());
+		clone->cloneMembers(oscObject);
+
+		OpenScenario::oscCatalogReference *catalogReference = oscObject->CatalogReference.getOrCreateObject();
+		std::string name;
+		if (catalogReference)
+		{
+			name = catalogReference->entryName.getValue();
+		}
+		if (name.empty())
+		{
+			name = oscObject->name.getValue();
+		}
+		clone->name.setValue(getName(oscObjectArray, name));
+		OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(clone->name.getValue());
+		privateAction->cloneMembers(getOrCreatePrivateAction(oscObject->name.getValue()));
+	}
+
+	getProjectData()->getUndoStack()->endMacro();
 }
 
 
@@ -782,25 +843,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							OpenScenario::oscCatalogReference *catalogReference = oscObject->CatalogReference.getOrCreateObject();
 							if (oscObject->name.getValue() == "")
 							{
-								// Unique name for action and object
-								//
-								int i = 0;
-								OpenScenario::oscArrayMember::iterator it;
-								std::string newname;
-								do
-								{
-									newname = selectedObjectName + std::to_string(i++);
-									for (it = oscObjectArray->begin(); it != oscObjectArray->end(); it++)
-									{
-										std::string name = (static_cast<OpenScenario::oscObject *>(*it))->name.getValue();
-										if (name == newname)
-										{
-											break;
-										}
-									}
-
-								}while (it != oscObjectArray->cend());
-								oscObject->name.setValue(newname);
+								oscObject->name.setValue(getName(oscObjectArray, selectedObjectName));
 							}
 							catalogReference->entryName.setValue(selectedObjectName);
 							catalogReference->catalogName.setValue(oscCatalog_->getCatalogName() + "Catalog");
@@ -809,7 +852,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(oscObject->name.getValue());
 							OpenScenario::oscPosition *oscPosition = privateAction->Position.getOrCreateObject();
 							OpenScenario::oscRoad *oscRoad = oscPosition->Road.getOrCreateObject();
-							SetOSCValuePropertiesCommand<std::string> *roadCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscRoad, "roadId", road->getID().toStdString());
+							SetOSCValuePropertiesCommand<std::string> *roadCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscRoad, "roadId", road->getID().writeString().toStdString());
 							getProjectGraph()->executeCommand(roadCommand);
 							SetOSCValuePropertiesCommand<double> *propertyCommand = new SetOSCValuePropertiesCommand<double>(oscElement, oscRoad, "s", s);
 							getProjectGraph()->executeCommand(propertyCommand);
@@ -1024,6 +1067,8 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			if (action)
 			{
 				// Save catalog //
+				oscCatalog_->addCatalogObjects(); // Load not already loaded objects
+			
 				oscCatalog_->writeCatalogsToDisk();
 
 

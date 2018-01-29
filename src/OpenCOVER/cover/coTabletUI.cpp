@@ -3649,6 +3649,13 @@ coTUIEditField::coTUIEditField(const std::string &n, int pID)
     immediate = false;
 }
 
+coTUIEditField::coTUIEditField(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_EDIT_FIELD)
+{
+    this->text = name;
+    immediate = false;
+}
+
 coTUIEditField::coTUIEditField(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_EDIT_FIELD)
 {
@@ -3715,6 +3722,13 @@ coTUIEditTextField::coTUIEditTextField(const std::string &n, int pID)
     immediate = false;
 }
 
+coTUIEditTextField::coTUIEditTextField(coTabletUI *tui, const std::string &n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_TEXT_EDIT_FIELD)
+{
+    text = name;
+    immediate = false;
+}
+
 coTUIEditTextField::coTUIEditTextField(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TEXT_EDIT_FIELD)
 {
@@ -3766,6 +3780,14 @@ void coTUIEditTextField::resend(bool create)
 
 coTUIEditIntField::coTUIEditIntField(const std::string &n, int pID, int def)
     : coTUIElement(n, pID, TABLET_INT_EDIT_FIELD)
+{
+    value = def;
+    immediate = 0;
+    setVal(value);
+}
+
+coTUIEditIntField::coTUIEditIntField(coTabletUI *tui, const std::string &n, int pID, int def)
+    : coTUIElement(tui, n, pID, TABLET_INT_EDIT_FIELD)
 {
     value = def;
     immediate = 0;
@@ -3840,6 +3862,14 @@ void coTUIEditIntField::resend(bool create)
 
 coTUIEditFloatField::coTUIEditFloatField(const std::string &n, int pID, float def)
     : coTUIElement(n, pID, TABLET_FLOAT_EDIT_FIELD)
+{
+    value = def;
+    setVal(value);
+    immediate = 0;
+}
+
+coTUIEditFloatField::coTUIEditFloatField(coTabletUI *tui, const std::string &n, int pID, float def)
+    : coTUIElement(tui, n, pID, TABLET_FLOAT_EDIT_FIELD)
 {
     value = def;
     setVal(value);
@@ -4213,12 +4243,19 @@ void coTUIFloatSlider::setOrientation(bool o)
     setVal(orientation);
 }
 
+void coTUIFloatSlider::setLogarithmic(bool val)
+{
+    logarithmic = val;
+    setVal(TABLET_SLIDER_SCALE, logarithmic ? TABLET_SLIDER_LOGARITHMIC : TABLET_SLIDER_LINEAR);
+}
+
 void coTUIFloatSlider::resend(bool create)
 {
     coTUIElement::resend(create);
     setVal(TABLET_MIN, minValue);
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_NUM_TICKS, ticks);
+    setVal(TABLET_SLIDER_SCALE, logarithmic ? TABLET_SLIDER_LOGARITHMIC : TABLET_SLIDER_LINEAR);
     setVal(actValue);
     setVal(orientation);
 }

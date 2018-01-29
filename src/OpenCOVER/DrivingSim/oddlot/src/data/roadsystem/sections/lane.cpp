@@ -187,7 +187,7 @@ Lane::setId(int id)
         QMap<int, Lane *> lanes = parentLaneSection_->getLanes();
         if (lanes.contains(id))
         {
-            qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID();
+            qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
             return;
         }
         LaneSection *parentLaneSection = parentLaneSection_;
@@ -315,7 +315,7 @@ Lane::getWidth(double sSection) const
     QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
     if (i == widths_.constBegin())
     {
-        qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID();
+        qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
         return 0.0;
     }
     else
@@ -333,7 +333,7 @@ Lane::getSlope(double sSection) const
     QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
     if (i == widths_.constBegin())
     {
-        qDebug() << "WARNING: Trying to get lane slope but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID();
+        qDebug() << "WARNING: Trying to get lane slope but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
         return 0.0;
     }
     else

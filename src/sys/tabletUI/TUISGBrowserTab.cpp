@@ -299,7 +299,7 @@ TUISGBrowserTab::~TUISGBrowserTab()
     delete restraint;
 }
 
-void TUISGBrowserTab::setValue(int type, covise::TokenBuffer &tb)
+void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     int texNumber;
     int width;
@@ -1347,9 +1347,10 @@ void TUISGBrowserTab::handleClient(covise::Message *msg)
         {
         case TABLET_SET_VALUE:
         {
-            int type;
-            tb >> type;
+            int typeInt;
+            tb >> typeInt;
             tb >> ID;
+            auto type = static_cast<TabletValue>(typeInt);
             this->setValue(type, tb);
         }
         break;

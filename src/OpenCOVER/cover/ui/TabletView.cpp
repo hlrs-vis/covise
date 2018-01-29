@@ -10,6 +10,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
+#include "Input.h"
 
 #include <cover/coVRPluginSupport.h>
 
@@ -49,6 +50,11 @@ TabletView::~TabletView()
     delete m_root->m_elem;
     m_root->m_elem = nullptr;
     delete m_root;
+}
+
+View::ViewType TabletView::typeBit() const
+{
+    return View::Tablet;
 }
 
 TabletViewElement *TabletView::tuiElement(const std::string &path) const
@@ -205,7 +211,7 @@ void TabletView::updateVisible(const Element *elem)
     auto te = ve->m_elem;
     if (!te)
         return;
-    te->setHidden(!elem->visible());
+    te->setHidden(!elem->visible(this));
 }
 
 void TabletView::updateText(const Element *elem)
@@ -283,6 +289,21 @@ void TabletView::updateIntegral(const Slider *slider)
 
 void TabletView::updateScale(const Slider *slider)
 {
+    auto ve = tuiElement(slider);
+    if (!ve)
+        return;
+    if (!slider->integral())
+    {
+        if (auto ts = dynamic_cast<coTUIFloatSlider *>(ve->m_elem))
+        {
+            ts->setLogarithmic(slider->scale() == Slider::Logarithmic);
+        }
+        else
+        {
+            std::cerr << "TabletView::updateScale: " << slider->path() << " not a coTUIFloatSlider" << std::endl;
+
+        }
+    }
     updateBounds(slider);
     updateValue(slider);
 }
@@ -292,9 +313,9 @@ void TabletView::updateValue(const Slider *slider)
     auto ve = tuiElement(slider);
     if (!ve)
         return;
-    if (auto vp = dynamic_cast<coTUIFloatSlider *>(ve->m_elem))
+    if (auto vs = dynamic_cast<coTUIFloatSlider *>(ve->m_elem))
     {
-        vp->setValue(slider->value());
+        vs->setValue(slider->value());
     }
     else if (auto vs = dynamic_cast<coTUISlider *>(ve->m_elem))
     {
@@ -314,6 +335,21 @@ void TabletView::updateBounds(const Slider *slider)
     else if (auto vs = dynamic_cast<coTUISlider *>(ve->m_elem))
     {
         vs->setRange(slider->min(), slider->max());
+    }
+}
+
+void TabletView::updateValue(const Input *input)
+{
+    auto ve = tuiElement(input);
+    if (!ve)
+        return;
+    if (auto vs = dynamic_cast<coTUIEditField *>(ve->m_elem))
+    {
+        vs->setText(input->value());
+    }
+    else if (auto vs = dynamic_cast<coTUIEditTextField *>(ve->m_elem))
+    {
+        vs->setText(input->value());
     }
 }
 
@@ -390,6 +426,22 @@ TabletViewElement *TabletView::elementFactoryImplementation(SelectionList *sl)
     ve->m_elem = tcb;
     add(ve, sl);
     return ve;
+}
+
+TabletViewElement *TabletView::elementFactoryImplementation(Input *input)
+{
+    auto ve = new TabletViewElement(input);
+    auto parent = tuiContainer(input);
+
+    auto te = new coTUIEditField(m_tui, input->path(), tuiContainerId(input));
+    ve->m_elem = te;
+    te->setText(input->value());
+
+    ve->m_elem->setLabel(input->text());
+
+    add(ve, input);
+    return ve;
+
 }
 
 TabletViewElement *TabletView::elementFactoryImplementation(Menu *menu)
@@ -486,6 +538,19 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
         {
             sl->select(tcb->getSelectedEntry());
             sl->trigger();
+        }
+    }
+    else if (auto in = dynamic_cast<Input *>(element))
+    {
+        if (auto te = dynamic_cast<coTUIEditTextField *>(elem))
+        {
+            in->setValue(te->getText());
+            in->trigger();
+        }
+        else if (auto te = dynamic_cast<coTUIEditField *>(elem))
+        {
+            in->setValue(te->getText());
+            in->trigger();
         }
     }
 }
