@@ -999,7 +999,12 @@ RoadSystem::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &
 
 	QVector2D normal = road->getGlobalNormal(s);
 
-	if (QVector2D::dotProduct(normal, vec) < 0)
+	double skalar = QVector2D::dotProduct(normal.normalized(), vec.normalized());
+	if (abs(skalar) < 1.0 - NUMERICAL_ZERO3) 
+	{
+		t = 0;
+	}
+	else if (skalar < 0)
 	{
 		t = -t;
 	}

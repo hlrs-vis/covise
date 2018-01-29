@@ -744,6 +744,7 @@ SET(ODDLOT_RESOURCES
    style/style.qrc
    icons/tools/tools.qrc
    ../../../../share/covise/signs/icons/signalIcons.qrc
+   ../../../../share/covise/icons/svg/svgIcons.qrc
 )
 SET(ODDLOT_OTHER_FILES
      prototypes/prototypes.odd
