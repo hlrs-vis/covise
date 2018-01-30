@@ -21,7 +21,6 @@ coButtonInteraction::coButtonInteraction(InteractionType type, const string &nam
     : coInteraction(type, name, priority)
 {
     //fprintf(stderr,"coButtonInteraction::coButtonInteraction \n");
-    oldState = Idle;
     wheelCount = 0;
     button = NULL;
     if (type == AllButtons)
@@ -53,7 +52,7 @@ bool coButtonInteraction::conditionMet() const
 {
     if (type == Wheel)
     {
-        if (button->getStatus() & vruiButtons::WHEEL)
+        if (button->getWheelCount() != 0)
             return true;
     }
     else
@@ -64,11 +63,11 @@ bool coButtonInteraction::conditionMet() const
     return false;
 }
 
-bool coButtonInteraction::conditionWasMet() const
+bool coButtonInteraction::conditionBecameMet() const
 {
     if (type == Wheel)
     {
-        if (button->getStatus() & vruiButtons::WHEEL)
+        if (button->getWheelCount() != 0)
             return true;
     }
     else
@@ -87,17 +86,18 @@ void coButtonInteraction::updateState(vruiButtons *button)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Idle\n");
         // here whe do the mapping between Interaction types and the button bitmask
-        if (conditionWasMet())
+        if (conditionBecameMet())
         {
             if (activate())
             {
                 //fprintf(stderr,"coButtonInteraction::update 1 StateStarted %s \n", name.c_str());
                 //fprintf(stderr,"coButtonInteraction (state == Idle) %d (type == ButtonA || type == AllButtons) %d buttonStatus == vruiButtons::ACTION_BUTTON %d state != Paused %d\n", (state == Idle), (type == ButtonA || type == AllButtons), (buttonStatus == vruiButtons::ACTION_BUTTON), state != Paused);
                 runningState = StateStarted;
-                startInteraction();
 
                 if (button && type == Wheel)
                     wheelCount = button->getWheelCount();
+
+                startInteraction();
             }
         }
     }
@@ -126,10 +126,20 @@ void coButtonInteraction::updateState(vruiButtons *button)
         }
         else
         {
-            //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
-            runningState = StateStopped;
-            stopInteraction();
-            state = Stopped;
+            if (type == Wheel)
+            {
+                //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
+                runningState = StateStopped;
+                stopInteraction();
+                state = Idle;
+            }
+            else
+            {
+                //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
+                runningState = StateStopped;
+                stopInteraction();
+                state = Stopped;
+            }
         }
     }
     else if (state == Stopped) // das soll einen Frame verzoegern

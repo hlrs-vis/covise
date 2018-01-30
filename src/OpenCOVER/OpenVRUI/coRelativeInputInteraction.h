@@ -24,7 +24,7 @@ public:
 
 protected:
     bool conditionMet() const override;
-    bool conditionWasMet() const override;
+    bool conditionBecameMet() const override;
 
     bool m_matIsIdentity = false, m_matWasIdentity = false;
 };

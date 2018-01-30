@@ -11,6 +11,7 @@
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventAdapter>
 
+#include <OpenVRUI/coMouseButtonInteraction.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
@@ -22,6 +23,8 @@ namespace ui {
 Manager::Manager()
 : Owner("Manager", this)
 {
+    m_wheelInteraction = new vrui::coMouseButtonInteraction(vrui::coInteraction::Wheel, "MouseWheel", vrui::coInteraction::Low);
+    vrui::coInteractionManager::the()->registerInteraction(m_wheelInteraction);
 }
 
 void Manager::add(Element *elem)
@@ -120,6 +123,16 @@ bool Manager::update()
         m_updateAllElements = false;
         for (auto elem: m_elements)
             elem.second->update();
+    }
+
+    if (m_wheelInteraction->wasStarted() || m_wheelInteraction->isRunning())
+    {
+        m_changed = true;
+        int c = cover->getMouseButton()->getWheel();
+        int pressed = c<0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;
+        int count = std::abs(c);
+        for (int i=0; i<count; ++i)
+            buttonEvent(pressed);
     }
 
     bool ret = m_changed;
@@ -310,7 +323,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 m_modifiers &= ~ModMeta;
         }
 
-        std::cerr << "key: ";
+        std::cerr << "key " << (down ? "down" : "up") << ": ";
 
         bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
         bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
@@ -339,9 +352,6 @@ bool Manager::keyEvent(int type, int mod, int keySym)
             std::cerr << "shift+";
         }
 
-        std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
-        //m_modifiers = modifiers;
-
         if (down)
         {
             if (shift && keySym < 255 && std::isupper(keySym))
@@ -366,6 +376,9 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 }
             }
         }
+
+        std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
+        //m_modifiers = modifiers;
     }
     else if (type == osgGA::GUIEventAdapter::RELEASE
              || type == osgGA::GUIEventAdapter::SCROLL)

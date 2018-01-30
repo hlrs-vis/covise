@@ -600,6 +600,7 @@ bool Input::update()
     bool changed = false;
 
     auto processWheel = [this](){
+        return;
 
         {
             int pressed = m_mouse->wheel(0) < 0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;

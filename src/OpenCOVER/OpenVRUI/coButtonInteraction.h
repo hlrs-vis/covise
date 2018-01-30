@@ -37,11 +37,10 @@ public:
 
 protected:
     virtual bool conditionMet() const;
-    virtual bool conditionWasMet() const;
+    virtual bool conditionBecameMet() const;
 
     void updateState(vruiButtons *button);
 
-    InteractionState oldState;
     int wheelCount;
     unsigned buttonmask;
 

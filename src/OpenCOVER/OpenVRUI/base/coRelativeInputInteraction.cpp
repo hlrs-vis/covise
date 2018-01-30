@@ -33,8 +33,6 @@ void coRelativeInputInteraction::update()
     m_matWasIdentity = m_matIsIdentity;
     m_matIsIdentity = vruiRendererInterface::the()->getRelativeMatrix()->isIdentity();
 
-    std::cerr << "coRelativeInputInteraction::update(): is identity=" << m_matIsIdentity << ", was identity=" << m_matWasIdentity << std::endl;
-
     button = vruiRendererInterface::the()->getRelativeButtons();
     coButtonInteraction::update();
 }
@@ -48,7 +46,7 @@ bool coRelativeInputInteraction::conditionMet() const
     return coButtonInteraction::conditionMet();
 }
 
-bool coRelativeInputInteraction::conditionWasMet() const
+bool coRelativeInputInteraction::conditionBecameMet() const
 {
     if (!conditionMet())
         return false;
@@ -56,7 +54,7 @@ bool coRelativeInputInteraction::conditionWasMet() const
         return false;
     if (type == NoButton)
         return true;
-    return coButtonInteraction::conditionWasMet();
+    return coButtonInteraction::conditionBecameMet();
 }
 
 }
