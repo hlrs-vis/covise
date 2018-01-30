@@ -54,21 +54,17 @@
 #include <input/coMousePointer.h>
 #include <OpenVRUI/coNavInteraction.h>
 #include <OpenVRUI/coMouseButtonInteraction.h>
+#include <OpenVRUI/coRelativeInputInteraction.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include "coVRAnimationManager.h"
-#ifdef VRUI
-#include <OpenVRUI/sginterface/vruiButtons.h>
-#include <OpenVRUI/coMouseButtonInteraction.h>
-#else
 #include <ui/Menu.h>
 #include <ui/Action.h>
 #include <ui/Button.h>
 #include <ui/ButtonGroup.h>
 #include <ui/Slider.h>
-#endif
 #include "coVRIntersectionInteractorManager.h"
 #include "coMeasurement.h"
 
@@ -77,6 +73,7 @@
 #include <osgUtil/IntersectVisitor>
 #include <osgDB/WriteFile>
 #include <osg/ShapeDrawable>
+#include <osg/io_utils>
 
 
 using namespace osg;
@@ -139,18 +136,11 @@ coVRNavigationManager::coVRNavigationManager()
     , rotationPointVisible(false)
     , rotationAxis(false)
     , guiTranslateFactor(-1.0)
-    , startFrame(-1)
     , actScaleFactor(0)
-    , curTypeYRot(50)
-    , curTypeZRot(50)
-    , curTypeDef(68)
-    , curTypeZTrans(43)
-    , curTypeContRot(23)
     , jsEnabled(true)
     , joystickActive(false)
     , navExp(2.0)
     , driveSpeed(1.0)
-    , navigating(false)
     , jump(true)
     , snapping(false)
     , snappingD(false)
@@ -160,7 +150,6 @@ coVRNavigationManager::coVRNavigationManager()
 {
     assert(!s_instance);
 
-    oldKeyMask = 0;
     oldSelectedNode_ = NULL;
     oldShowNamesNode_ = NULL;
 
@@ -220,6 +209,7 @@ coVRNavigationManager::~coVRNavigationManager()
     delete interactionMA;
     delete interactionMB;
     delete interactionMC;
+    delete interactionRel;
 
     s_instance = NULL;
 }
@@ -268,6 +258,7 @@ void coVRNavigationManager::initInteractionDevice()
     interactionMA = new coMouseButtonInteraction(coInteraction::ButtonA, "MouseNav");
     interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
     interactionMC = new coMouseButtonInteraction(coInteraction::ButtonC, "MouseNav");
+    interactionRel = new coRelativeInputInteraction("SpaceMouse");
 
     wiiNav = coVRConfig::instance()->useWiiNavigationVisenso();
     /*if (wiiNav)
@@ -358,7 +349,7 @@ void coVRNavigationManager::initMenu()
     scaleSlider_->setValue(cover->getScale());
     scaleSlider_->setCallback([this](double val, bool released){
         startMouseNav();
-        doScale(val);
+        doMouseScale(val);
         stopMouseNav();
     });
 
@@ -367,7 +358,7 @@ void coVRNavigationManager::initMenu()
     scaleUpAction_->setVisible(false);
     scaleUpAction_->setCallback([this](){
         startMouseNav();
-        doScale(cover->getScale() * 1.1f);
+        doMouseScale(cover->getScale() * 1.1f);
         stopMouseNav();
     });
     scaleUpAction_->setShortcut("=");
@@ -379,7 +370,7 @@ void coVRNavigationManager::initMenu()
     scaleDownAction_->setVisible(false);
     scaleDownAction_->setCallback([this](){
         startMouseNav();
-        doScale(cover->getScale() / 1.1f);
+        doMouseScale(cover->getScale() / 1.1f);
         stopMouseNav();
     });
     scaleDownAction_->setShortcut("-");
@@ -480,6 +471,25 @@ void coVRNavigationManager::initShowName()
     nameMenu_->setScale(scale * cover->getSceneSize() / 2500);
     nameButton_ = new coButtonMenuItem("-");
     nameMenu_->add(nameButton_);
+}
+
+Vec3 coVRNavigationManager::getCenter() const
+{
+    if (rotationPoint)
+    {
+        return rotPointVec;
+    }
+
+    if (isViewerPosRotation)
+    {
+        return cover->getViewerMat().getTrans();
+    }
+
+    osg::BoundingSphere bsphere = VRSceneGraph::instance()->getBoundingSphere();
+    if (bsphere.radius() == 0.f)
+        bsphere.radius() = 1.f;
+    osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
+    return originInWorld;
 }
 
 // process key events
@@ -703,8 +713,6 @@ coVRNavigationManager::update()
     osg::Vec3 dirAxis, rollAxis;
     //int collided[6] = {0, 0, 0, 0, 0, 0}; /* front,back,right,left,up,down */
     //static int numframes=0;
-
-    navigating = false;
 
     if (doMouseNav)
     {
@@ -946,31 +954,45 @@ coVRNavigationManager::update()
         stopXform();
     }
 
-    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    if (interactionRel->wasStarted())
+    {
+        switch (getMode())
+        {
+        case Scale:
+        {
+            startMouseNav();
+            break;
+        }
+
+        }
+    }
+
+    if (interactionRel->isRunning())
     {
         osg::Matrix relMat = Input::instance()->getRelativeMat();
         coCoord co(relMat);
         osg::Matrix tf = VRSceneGraph::instance()->getTransform()->getMatrix();
-        auto tr = relMat.getTrans();
-        for (int i=0; i<3; ++i)
-            tr[i] = 1000.*speedFactor(tr[i]);
+        auto tr = applySpeedFactor(relMat.getTrans());
 
         switch (getMode())
         {
+        case Scale:
+        {
+            double s = pow(1.03, co.hpr[0]);
+            doMouseScale(cover->getScale() * s);
+            break;
+        }
         case XForm:
         {
-            osg::BoundingSphere bsphere = VRSceneGraph::instance()->getBoundingSphere();
-            if (bsphere.radius() == 0.f)
-                bsphere.radius() = 1.f;
-            osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
+            osg::Vec3 center = getCenter();
 
             relMat.makeTranslate(-tr);
             tf *= relMat;
 
             MAKE_EULER_MAT(relMat, -co.hpr[0], -co.hpr[1], -co.hpr[2]);
             osg::Matrix originTrans, invOriginTrans;
-            originTrans.makeTranslate(originInWorld); // rotate arround the center of the objects in objectsRoot
-            invOriginTrans.makeTranslate(-originInWorld);
+            originTrans.makeTranslate(center); // rotate arround the center of the objects in objectsRoot
+            invOriginTrans.makeTranslate(-center);
             relMat = invOriginTrans * relMat * originTrans;
             tf *= relMat;
             break;
@@ -998,62 +1020,18 @@ coVRNavigationManager::update()
         }
     }
 
-#if 0
-        transformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
-        float speed = coVRNavigationManager::instance()->getDriveSpeed();
-        if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::XForm)
+    if (interactionRel->wasStopped())
+    {
+        switch (getMode())
         {
-
-            osg::BoundingSphere bsphere = VRSceneGraph::instance()->getBoundingSphere();
-            if (bsphere.radius() == 0.f)
-                bsphere.radius() = 1.f;
-
-            osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
-
-            osg::Matrix relMat;
-            relMat.makeTranslate(smd.tx * speed, smd.ty * speed, smd.tz * speed);
-            transformMat *= relMat;
-
-            //relMat.makeRotate(angle/500.0,rotX,rotY,rotZ);
-            MAKE_EULER_MAT(relMat, smd.h, smd.p, smd.r);
-            osg::Matrix originTrans, invOriginTrans;
-            originTrans.makeTranslate(originInWorld); // rotate arround the center of the objects in objectsRoot
-            invOriginTrans.makeTranslate(-originInWorld);
-            relMat = invOriginTrans * relMat * originTrans;
-            transformMat *= relMat;
+        case Scale:
+        {
+            stopMouseNav();
+            break;
         }
-        else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Fly)
-        {
 
-            osg::Matrix relMat;
-            relMat.makeTranslate(-smd.tx * speed, -smd.ty * speed, -smd.tz * speed);
-            transformMat *= relMat;
-
-            //relMat.makeRotate(-angle/5000.0,rotX,rotY,rotZ);
-            MAKE_EULER_MAT(relMat, -smd.h, -smd.p, -smd.r);
-
-            transformMat *= relMat;
-        }
-        else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Glide || coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Walk)
-        {
-            osg::Matrix relMat;
-            relMat.makeTranslate(-smd.tx * speed, -smd.ty * speed, -smd.tz * speed);
-            transformMat *= relMat;
-
-            relMat.makeRotate(-smd.h / 10.0, 0, 0, 1);
-            //MAKE_EULER_MAT(relMat,-smd.h, -smd.p, -smd.r);
-            transformMat *= relMat;
-
-            if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::Walk)
-            {
-                coVRNavigationManager::instance()->doWalkMoveToFloor();
-
-                for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
-                    coVRConfig::instance()->screens[i].xyz[2] += (smd.p * 10);
-            }
         }
     }
-#endif
 
     // was ist wenn mehrere Objekte geladen sind???
 
@@ -1217,7 +1195,6 @@ coVRNavigationManager::update()
                 if (!old_mat.invert(old_mat))
                     fprintf(stderr, "coVRNavigationManager::update old_mat is singular\n");
                 old_dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-                navigating = true;
             }
             // if xform in progress
 
@@ -1234,7 +1211,6 @@ coVRNavigationManager::update()
                 rel_mat.mult(old_mat, handMat); //erste handMat * aktualisierte handMat
                 dcs_mat.mult(old_dcs_mat, rel_mat);
                 //VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-                navigating = true;
                 coVRCollaboration::instance()->SyncXform();
             }
 
@@ -1380,7 +1356,6 @@ coVRNavigationManager::update()
                 dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
                 dcs_mat.postMult(osg::Matrix::translate(-AnalogX * driveSpeed, -AnalogY * driveSpeed, 0.0f));
                 VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-                navigating = true;
             }
         }
     }
@@ -1572,6 +1547,8 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
         }
         if (interactionMenu->isRegistered())
             coInteractionManager::the()->unregisterInteraction(interactionMenu);
+        if (interactionRel->isRegistered())
+            coInteractionManager::the()->unregisterInteraction(interactionRel);
     }
     else if (mode == Menu)
     {
@@ -1602,6 +1579,8 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
         }
         if (interactionMenu->isRegistered())
             coInteractionManager::the()->unregisterInteraction(interactionMenu);
+        if (!interactionRel->isRegistered())
+            coInteractionManager::the()->registerInteraction(interactionRel);
     }
 
     if (coVRConfig::instance()->isMenuModeOn() && oldNavMode == Menu && mode != Menu)
@@ -1770,7 +1749,6 @@ void coVRNavigationManager::doMouseFly()
     tmp.makeTranslate(velDir[0] * currentVelocity, velDir[1] * currentVelocity, velDir[2] * currentVelocity);
     dcs_mat.postMult(tmp);
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -1789,16 +1767,6 @@ void coVRNavigationManager::doMouseXform()
         if (!shiftMouseNav && !isViewerPosRotation) //Rotation um Weltursprung funktioniert
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::CycleCursor);
-
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
 
             float newx, newy; //newz;//relz0
             float heading, pitch, roll, rollVerti, rollHori;
@@ -1822,15 +1790,6 @@ void coVRNavigationManager::doMouseXform()
         else if (shiftMouseNav || isViewerPosRotation) //Rotation um beliebigen Punkt funktioniert
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::CycleCursor);
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
 
             osg::Matrix doTrans, rot, doRot, doRotObj;
             dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -1881,7 +1840,6 @@ void coVRNavigationManager::doMouseXform()
             doTrans.makeTranslate(transXRel, (transYRel), transZRel);
             doRotObj.mult(doRot, doTrans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doRotObj);
-            navigating = true;
         }
         coVRCollaboration::instance()->SyncXform();
     }
@@ -1900,16 +1858,6 @@ void coVRNavigationManager::doMouseXform()
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::HandCursor);
 
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
-
             float newxTrans = mouseX() - originX;
             float newyTrans = mouseY() - originY;
             float xTrans, yTrans;
@@ -1924,21 +1872,11 @@ void coVRNavigationManager::doMouseXform()
             //Weise perfekt hinbekommen
             doTrans.mult(actTransState, trans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doTrans);
-            navigating = true;
         }
 
         else if (shiftMouseNav) //Translation in der Tiefe
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::UpDownCursor);
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
 
             float newzTrans = mouseY() - originY;
             float zTrans;
@@ -1949,7 +1887,6 @@ void coVRNavigationManager::doMouseXform()
             trans.makeTranslate(0.0, 2.0 * zTrans, 0.0);
             doTrans.mult(actTransState, trans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doTrans);
-            navigating = true;
             coVRCollaboration::instance()->SyncXform();
             coVRCollaboration::instance()->SyncScale();
         }
@@ -1967,6 +1904,28 @@ void coVRNavigationManager::doMouseXform()
     }
 }
 
+void coVRNavigationManager::doMouseScale(float newScaleFactor)
+{
+    //getting the old translation and adjust it according to the new scale factor
+    osg::Vec3 center = mouseNavCenter;
+    //calculate the new translation matrix
+    //and move the objects by the new translation
+    osg::Vec3 delta2 = mat0.getTrans();
+    osg::Vec3 delta = delta2 - center;
+
+    delta *= (newScaleFactor / actScaleFactor);
+    delta += center;
+    delta -= delta2;
+    osg::Matrix tmp;
+    tmp.makeTranslate(delta[0], delta[1], delta[2]);
+    osg::Matrix xform_mat = mat0 * tmp;
+
+    VRSceneGraph::instance()->getTransform()->setMatrix(xform_mat);
+    VRSceneGraph::instance()->setScaleFactor(newScaleFactor);
+    coVRCollaboration::instance()->SyncXform();
+    coVRCollaboration::instance()->SyncScale();
+}
+
 void coVRNavigationManager::doMouseScale()
 {
     cover->setCurrentCursor(osgViewer::GraphicsWindow::UpDownCursor);
@@ -1975,7 +1934,7 @@ void coVRNavigationManager::doMouseScale()
 
     //calculate the new scale factor
     float newScaleFactor = actScaleFactor * exp(((rely0 - newScaleY) / ampl));
-    doScale(newScaleFactor);
+    doMouseScale(newScaleFactor);
 }
 
 void coVRNavigationManager::doMouseWalk()
@@ -2024,7 +1983,6 @@ void coVRNavigationManager::doMouseWalk()
          cover->getMouseButton(), (int)doMouseNav, handLocked);
 #endif
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -2046,12 +2004,13 @@ void coVRNavigationManager::startMouseNav()
 {
     shiftMouseNav = shiftEnabled;
 
-    osg::Matrix dcs_mat;
-    dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+    osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+    mat0 = dcs_mat;
+    mouseNavCenter = getCenter();
+
     actScaleFactor = cover->getScale();
     x0 = mx;
     y0 = my;
-    mat0 = dcs_mat;
     //cerr << "mouseNav" << endl;
     currentVelocity = 10;
 
@@ -2104,7 +2063,6 @@ void coVRNavigationManager::startXform()
         transformVec = rotPointVec * cover->getBaseMat();
         //fprintf(stderr, "****set TransformVec to %f %f %f\n",transformVec[0], transformVec[1], transformVec[2]);
     }
-    navigating = true;
 }
 
 void coVRNavigationManager::doXform()
@@ -2127,7 +2085,6 @@ void coVRNavigationManager::doXform()
     rel_mat.mult(old_mat, handMat); //erste handMat * aktualisierte handMat
     dcs_mat.mult(old_dcs_mat, rel_mat);
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
 
     coVRCollaboration::instance()->SyncXform();
 }
@@ -2154,7 +2111,6 @@ void coVRNavigationManager::doXformRotate()
     dcs_mat.mult(dcs_mat, trans_mat);
     // setzen der transformationsmatrix
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -2165,7 +2121,6 @@ void coVRNavigationManager::doXformTranslate()
     rel_mat.makeTranslate(rel_mat.getTrans()[0], rel_mat.getTrans()[1] / 5.0, rel_mat.getTrans()[2]);
     dcs_mat.mult(old_dcs_mat, rel_mat);
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -2178,8 +2133,6 @@ void coVRNavigationManager::stopXform()
 
 void coVRNavigationManager::startScale()
 {
-    navigating = true;
-
     // save start position
     startHandPos = handPos;
     startHandDir = handDir;
@@ -2187,25 +2140,6 @@ void coVRNavigationManager::startScale()
     oldDcsScaleFactor = VRSceneGraph::instance()->scaleFactor();
 
     old_xform_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-}
-
-void coVRNavigationManager::doScale(float newScaleFactor)
-{
-    //getting the old translation and adjust it according to the new scale factor
-    osg::Vec3 delta2 = mat0.getTrans();
-    osg::Vec3 delta = delta2 * newScaleFactor / actScaleFactor;
-    delta -= delta2;
-    //calculate the new translation matrix
-    osg::Matrix tmp;
-    tmp.makeTranslate(delta);
-    //and move the objects by the new translation
-    tmp.mult(mat0, tmp);
-    VRSceneGraph::instance()->getTransform()->setMatrix(tmp);
-    //set the new scale factor
-    cover->setScale(newScaleFactor);
-    navigating = true;
-    coVRCollaboration::instance()->SyncXform();
-    coVRCollaboration::instance()->SyncScale();
 }
 
 void coVRNavigationManager::doScale()
@@ -2288,10 +2222,7 @@ void coVRNavigationManager::doFly()
     dcs_mat.postMult(tmp);
 
     /* apply translation */
-    double l = speedFactor(delta.length());
-    delta.normalize();
-    delta *= l;
-    dcs_mat.postMult(osg::Matrix::translate(delta));
+    dcs_mat.postMult(applySpeedFactor(delta));
 
     /* apply direction change */
     if ((dirAxis[0] != 0.0) || (dirAxis[1] != 0.0) || (dirAxis[2] != 0.0))
@@ -2326,7 +2257,7 @@ void coVRNavigationManager::startDrive()
     ignoreCollision = false;
 }
 
-double coVRNavigationManager::speedFactor(double delta)
+double coVRNavigationManager::speedFactor(double delta) const
 {
     /*
    return pow(navExp, fmax(fabs(delta),0.0)/8.0)
@@ -2334,6 +2265,14 @@ double coVRNavigationManager::speedFactor(double delta)
        */
     return sign(delta) * pow((double)(fabs(delta) / 40.0), (double)navExp) * 40.0
            * driveSpeed * (cover->frameDuration() > 0.05 ? 0.05 : cover->frameDuration());
+}
+
+osg::Vec3 coVRNavigationManager::applySpeedFactor(osg::Vec3 vec) const
+{
+    double l = vec.length();
+    double s = speedFactor(l);
+    vec.normalize();
+    return vec * s;
 }
 
 void coVRNavigationManager::doDrive()
@@ -2356,10 +2295,7 @@ void coVRNavigationManager::doDrive()
     dcs_mat.postMult(osg::Matrix::translate(-viewerPos[0], -viewerPos[1], -viewerPos[2]));
 
     /* apply translation */
-    double l = speedFactor(delta.length());
-    delta.normalize();
-    delta *= l;
-    dcs_mat.postMult(osg::Matrix::translate(delta));
+    dcs_mat.postMult(osg::Matrix::translate(applySpeedFactor(delta)));
 
     /* apply direction change */
     osg::Matrix rot_mat;
@@ -2387,7 +2323,6 @@ void coVRNavigationManager::startWalk()
 {
     startDrive();
     ignoreCollision = false;
-    navigating = true;
     old_mat = handMat;
 
     /* get xform matrix */
@@ -2432,9 +2367,6 @@ void coVRNavigationManager::doWalk()
 
 void coVRNavigationManager::doWalkMoveToFloor()
 {
-
-    navigating = true;
-
     float floorHeight = VRSceneGraph::instance()->floorHeight();
 
     //  just adjust height here
@@ -2831,7 +2763,7 @@ void coVRNavigationManager::startMeasure()
     {
         if (measurements.size() > 0)
         {
-            delete measurements[measurements.size() - 1];
+            delete measurements.back();
             measurements.pop_back();
         }
     }
@@ -2851,7 +2783,7 @@ void coVRNavigationManager::doMeasure()
     }
     if (measurements.size() > 0)
     {
-        measurements[measurements.size() - 1]->update();
+        measurements.back()->update();
     }
 }
 
@@ -3013,8 +2945,6 @@ void coVRNavigationManager::processHotKeys(int keymask)
         fprintf(stderr, "ViewAll");
         VRSceneGraph::instance()->viewAll(false);
     }
-
-    oldKeyMask = keymask;
 }
 
 void coVRNavigationManager::setRotationPoint(float x, float y, float z, float size)
