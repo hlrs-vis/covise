@@ -116,19 +116,19 @@ public:
     void init();
     void update();
 
-    osg::MatrixTransform *getTransform()
+    osg::MatrixTransform *getTransform() const
     {
         return m_objectsTransform.get();
     }
-    osg::MatrixTransform *getScaleTransform()
+    osg::MatrixTransform *getScaleTransform() const
     {
         return (m_scaleTransform);
     }
-    osg::MatrixTransform *getHandTransform()
+    osg::MatrixTransform *getHandTransform() const
     {
         return (m_handTransform.get());
     }
-    osg::Vec3 getWorldPointOfInterest();
+    osg::Vec3 getWorldPointOfInterest() const;
     void getHandWorldPosition(float *, float *, float *);
     void addPointerIcon(osg::Node *node);
     void removePointerIcon(osg::Node *node);

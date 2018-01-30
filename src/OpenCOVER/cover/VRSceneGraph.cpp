@@ -1395,7 +1395,7 @@ VRSceneGraph::loadHandLine()
 }
 
 osg::Vec3
-VRSceneGraph::getWorldPointOfInterest()
+VRSceneGraph::getWorldPointOfInterest() const
 {
     osg::Vec3 pointOfInterest(0, 0, 0);
     pointOfInterest = m_pointerDepthTransform.get()->getMatrix().preMult(pointOfInterest);
