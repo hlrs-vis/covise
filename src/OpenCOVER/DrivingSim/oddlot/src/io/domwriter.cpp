@@ -55,6 +55,7 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneoffset.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
@@ -1475,6 +1476,18 @@ DomWriter::visit(LaneWidth *laneWidth)
     element.setAttribute("c", laneWidth->getC());
     element.setAttribute("d", laneWidth->getD());
     currentLaneElement_.appendChild(element);
+}
+
+void
+DomWriter::visit(LaneOffset *laneOffset)
+{
+	QDomElement element = doc_->createElement("laneOffset");
+	element.setAttribute("s", laneOffset->getSOffset());
+	element.setAttribute("a", laneOffset->getA());
+	element.setAttribute("b", laneOffset->getB());
+	element.setAttribute("c", laneOffset->getC());
+	element.setAttribute("d", laneOffset->getD());
+	currentLanesElement_.appendChild(element);
 }
 
 void

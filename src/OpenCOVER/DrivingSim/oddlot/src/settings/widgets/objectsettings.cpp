@@ -191,11 +191,11 @@ double ObjectSettings::
 
     if (t >= 0)
     {
-        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance;
+        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + object_->getParentRoad()->getLaneOffset(s) + roadDistance;
     }
     else
     {
-        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance;
+        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) + object_->getParentRoad()->getLaneOffset(s) - roadDistance;
     }
 
     return dist;

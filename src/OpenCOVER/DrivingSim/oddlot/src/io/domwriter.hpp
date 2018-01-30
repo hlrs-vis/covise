@@ -34,6 +34,7 @@ class Pool;
 
 class GeoReference;
 class TileSystem;
+class LaneOffset;
 
 
 class DomWriter : public Visitor
@@ -81,7 +82,8 @@ public:
 
     virtual void visit(LaneSection *);
     virtual void visit(Lane *);
-    virtual void visit(LaneWidth *);
+	virtual void visit(LaneWidth *);
+	virtual void visit(LaneOffset *);
 	virtual void visit(LaneBorder *);
     virtual void visit(LaneRoadMark *);
     virtual void visit(LaneSpeed *);

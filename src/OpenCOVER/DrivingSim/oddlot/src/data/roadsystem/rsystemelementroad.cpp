@@ -32,6 +32,7 @@
 #include "sections/crossfallsection.hpp"
 #include "sections/shapesection.hpp"
 #include "sections/lanesection.hpp"
+#include "sections/laneoffset.hpp"
 #include "sections/lane.hpp"
 #include "sections/objectobject.hpp"
 #include "sections/objectreference.hpp"
@@ -680,7 +681,7 @@ double
 RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
 {
     LaneSection *laneSection = getLaneSection(s);
-    double t = 0.0;
+    double t = getLaneOffset(s);
     double sSection = s - laneSection->getSStart();
     int i = 0;
     QVector2D normal = getGlobalNormal(s);
@@ -1904,6 +1905,185 @@ RSystemElementRoad::setLaneSections(QMap<double, LaneSection *> newSections)
     addRoadChanges(RSystemElementRoad::CRD_LaneSectionChange);
 }
 
+//###################//
+// road:laneOffset  //
+//###################//
+
+/** \brief Adds a lane section to this road.
+*
+*/
+void
+RSystemElementRoad::addLaneOffset(LaneOffset *section)
+{
+	// Notify section //
+	//
+	section->setParentRoad(this);
+
+	
+
+	// Insert and Notify //
+	//
+	laneOffsets_.insert(section->getSStart(), section);
+	addRoadChanges(RSystemElementRoad::CRD_LaneOffsetChange);
+}
+
+bool
+RSystemElementRoad::delLaneOffset(LaneOffset *section)
+{
+	double s = section->getSStart();
+
+	// Delete section //
+	//
+	bool success = delLaneOffset(s);
+	if (success)
+	{
+		
+	}
+	else
+	{
+		qDebug("WARNING 1007151040! Could not delete LaneOffset.");
+	}
+
+	return success;
+}
+
+bool
+RSystemElementRoad::delLaneOffset(double s)
+{
+	LaneOffset *section = laneOffsets_.value(s, NULL);
+	if (!section)
+	{
+		qDebug("WARNING 1006101713! Tried to delete a road LaneOffset that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		section->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		laneOffsets_.remove(s);
+		addRoadChanges(RSystemElementRoad::CRD_LaneOffsetChange);
+
+		return true;
+	}
+}
+
+/** \brief Returns the laneOffset containing s.
+*
+* If s is out of bounds, a NULL pointer will be returned.
+* Road coordinates [m].
+*/
+LaneOffset *
+RSystemElementRoad::getLaneOffsetObject(double s) const
+{
+		QMap<double, LaneOffset *>::const_iterator i = laneOffsets_.upperBound(s);
+		if (i == laneOffsets_.constBegin())
+		{
+			//		qDebug("WARNING 1003121649! Trying to get laneOffset but coordinate is out of bounds!");
+			return NULL;
+		}
+		else
+		{
+			--i;
+			return i.value();
+		}
+}
+
+double RSystemElementRoad::getLaneOffset(double s) const
+{
+	LaneOffset *lo = getLaneOffsetObject(s);
+	if (lo)
+		return lo->getOffset(s);
+	return 0.0;
+}
+
+LaneOffset *
+RSystemElementRoad::getLaneOffsetBefore(double s) const
+{
+	QMap<double, LaneOffset *>::const_iterator i = laneOffsets_.upperBound(s); // the second one after the one we want
+	if (i == laneOffsets_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	if (i == laneOffsets_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	return i.value();
+}
+
+LaneOffset *
+RSystemElementRoad::getLaneOffsetNext(double s) const
+{
+	QMap<double, LaneOffset *>::const_iterator i = laneOffsets_.upperBound(s);
+	if (i == laneOffsets_.constEnd())
+	{
+		return NULL;
+	}
+
+	return i.value();
+}
+
+
+bool
+RSystemElementRoad::moveLaneOffset(double oldS, double newS)
+{
+	// Section //
+	//
+	LaneOffset *section = laneOffsets_.value(oldS, NULL);
+	if (!section)
+	{
+		return false;
+	}
+
+	// Previous section //
+	//
+	double previousS = 0.0;
+	if (newS > section->getSStart())
+	{
+		// Expand previous section //
+		//
+		previousS = section->getSStart() - 0.001;
+	}
+	else
+	{
+		// Shrink previous section //
+		//
+		previousS = newS;
+	}
+
+	// Set and insert //
+	//
+	section->setSOffset(newS);
+	laneOffsets_.remove(oldS);
+	laneOffsets_.insert(newS, section);
+
+	return true;
+}
+
+void
+RSystemElementRoad::setLaneOffsets(QMap<double, LaneOffset *> newSections)
+{
+	foreach(LaneOffset *section, laneOffsets_)
+	{
+		section->setParentRoad(NULL);
+	}
+
+	foreach(LaneOffset *section, newSections)
+	{
+		section->setParentRoad(this);
+	}
+
+	laneOffsets_ = newSections;
+	addRoadChanges(RSystemElementRoad::CRD_LaneOffsetChange);
+}
 //#############################//
 // road:laneSection:lane:width //
 //#############################//
@@ -1928,7 +2108,7 @@ RSystemElementRoad::getMaxWidth(double s) const
     }
     else
     {
-        return laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), s);
+        return laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), s)+getLaneOffset(s);
     }
 }
 
@@ -1952,7 +2132,7 @@ RSystemElementRoad::getMinWidth(double s) const
     }
     else
     {
-        return -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), s);
+        return -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), s) + getLaneOffset(s);
     }
 }
 
@@ -2862,7 +3042,8 @@ RSystemElementRoad::acceptForChildNodes(Visitor *visitor)
     acceptForSensors(visitor);
     acceptForObjects(visitor);
 	acceptForObjectReferences(visitor);
-    acceptForBridges(visitor);
+	acceptForBridges(visitor);
+	acceptForLaneOffsets(visitor);
 }
 
 /*!
@@ -2959,6 +3140,17 @@ RSystemElementRoad::acceptForLaneSections(Visitor *visitor)
 {
     foreach (LaneSection *child, laneSections_)
         child->accept(visitor);
+}
+
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
+RSystemElementRoad::acceptForLaneOffsets(Visitor *visitor)
+{
+	foreach(LaneOffset *child, laneOffsets_)
+		child->accept(visitor);
 }
 
 /*!

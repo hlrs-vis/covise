@@ -47,6 +47,7 @@
 #include "src/data/roadsystem/sections/surfaceobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
+#include "src/data/roadsystem/sections/laneoffset.hpp"
 
 #include "src/data/roadsystem/roadlink.hpp"
 #include "src/data/roadsystem/junctionconnection.hpp"
@@ -1029,7 +1030,8 @@ DomParser::parseRoadElement(QDomElement &element)
 
     // 2.) Parse children //
     //
-    QDomElement child;
+	QDomElement child;
+	QDomElement lanes;
 
     // <link> <predecessor> (optional, max count: 1) //
     child = element.firstChildElement("link").firstChildElement("predecessor");
@@ -1189,10 +1191,10 @@ DomParser::parseRoadElement(QDomElement &element)
 
 
     // <lanes> //
-    child = element.firstChildElement("lanes");
-    if (!child.isNull())
+    lanes = element.firstChildElement("lanes");
+    if (!lanes.isNull())
     {
-        child = child.firstChildElement("laneSection");
+        child = lanes.firstChildElement("laneSection");
         if (child.isNull())
         {
 
@@ -1204,6 +1206,20 @@ DomParser::parseRoadElement(QDomElement &element)
             parseLaneSectionElement(child, road);
             child = child.nextSiblingElement("laneSection");
         }
+		child = lanes.firstChildElement("laneOffset"); // optional for id=0 (center)
+		while (!child.isNull())
+		{
+			double sOffset = parseToDouble(child, "s", 0.0, false); // mandatory
+			double a = parseToDouble(child, "a", 0.0, false); // mandatory
+			double b = parseToDouble(child, "b", 0.0, false); // mandatory
+			double c = parseToDouble(child, "c", 0.0, false); // mandatory
+			double d = parseToDouble(child, "d", 0.0, false); // mandatory
+
+			LaneOffset *offsetEntry = new LaneOffset(sOffset, a, b, c, d);
+			road->addLaneOffset(offsetEntry);
+
+			child = child.nextSiblingElement("laneOffset");
+		}
     }
     else
     {

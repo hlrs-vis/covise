@@ -83,6 +83,7 @@ SET(ODDLOT_SOURCES
 	 src/data/roadsystem/sections/lanesection.cpp
 	 src/data/roadsystem/sections/lane.cpp
 	 src/data/roadsystem/sections/lanewidth.cpp
+	 src/data/roadsystem/sections/laneoffset.cpp
 	 src/util/math/polynomial.cpp
 	 src/data/roadsystem/sections/laneroadmark.cpp
 	 src/data/roadsystem/sections/lanespeed.cpp
@@ -421,6 +422,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/data/roadsystem/sections/lanesection.hpp
 	 src/data/roadsystem/sections/lane.hpp
 	 src/data/roadsystem/sections/lanewidth.hpp
+	 src/data/roadsystem/sections/laneoffset.hpp
 	 src/util/math/polynomial.hpp
 	 src/data/roadsystem/sections/laneroadmark.hpp
 	 src/data/roadsystem/sections/lanespeed.hpp

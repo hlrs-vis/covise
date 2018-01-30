@@ -125,7 +125,7 @@ public:
     void createRoad(QList<RSystemElementRoad *>);
     RSystemElementRoad *createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road2, bool startContact1, bool startContact2, double offset1 = 0.0, double offset2 = 0.0);
 
-    double widthOffset(Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth); // calculates the offset of a lane from the center of the road
+    double widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth); // calculates the offset of a lane from the center of the road
 
 protected:
     virtual void init();

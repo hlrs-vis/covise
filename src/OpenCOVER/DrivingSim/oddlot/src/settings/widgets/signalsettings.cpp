@@ -207,11 +207,11 @@ double SignalSettings::
 
     if (t >= 0)
     {
-        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance;
+        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance + signal_->getParentRoad()->getLaneOffset(s);
     }
     else
     {
-        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance;
+        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance + signal_->getParentRoad()->getLaneOffset(s);
     }
 
     return dist;
