@@ -114,7 +114,7 @@ void OpenScenarioPlugin::preFrame()
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
-                    //Maneuver* currentManeuver = (*maneuver_iter);
+                    Maneuver* currentManeuver = (*maneuver_iter);
                     scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
                     if ((*maneuver_iter)->maneuverCondition == true)
                     {
@@ -122,15 +122,23 @@ void OpenScenarioPlugin::preFrame()
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
-                                //Trajectory* currentTrajectory = (*trajectory_iter);
+                                Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                                 {
                                     //Entity* currentEntity = (*activeEntity);
 
-                                    (*maneuver_iter)->setTargetPosition((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*trajectory_iter)->isRelVertice);
+                                    // check if Trajectory is about to start or Entity arrived at vertice
+                                    if((*maneuver_iter)->totalDistance == 0){
 
-                                    if((*trajectory_iter)->domain.getValue() == 0){
-                                       (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*maneuver_iter)->verticeStartPos, (*maneuver_iter)->targetPosition));
+                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next direction
+                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*maneuver_iter)->visitedVertices,(*activeEntity));
+
+                                        (*maneuver_iter)->setTargetPosition(nextTargetPos,(*activeEntity)->entityPosition,(*trajectory_iter));
+
+                                        if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
+                                            // calculate speed from trajectory vertices
+                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed());
+                                        }
                                     }
 
                                     (*activeEntity)->setDirection((*maneuver_iter)->totaldirectionVector);
@@ -640,9 +648,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                     oscVertex* vertex = ((oscVertex*)(*it));
 
                     if (vertex->Position->RelativeWorld.exists()) {
-                        if(it == trajectory->Vertex.begin()){
-
-                        }
 
                         osg::Vec3 polyVec_temp (vertex->Position->RelativeWorld->dx.getValue(),vertex->Position->RelativeWorld->dy.getValue(),vertex->Position->RelativeWorld->dz.getValue());
                         polylineVertices_temp.push_back(polyVec_temp);

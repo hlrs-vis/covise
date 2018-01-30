@@ -170,32 +170,28 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	aktivCar->setSpeed(targetSpeed);
 	}
 }
-osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 currentPos,vector<osg::Vec3> polylineVertices,vector<bool> isRelVertice){
-    verticesCounter = polylineVertices.size();
+osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition,Trajectory* currentTrajectory)
+{
+    // counter number of vertices in trajectory
+    verticesCounter = currentTrajectory->Vertex.size();
 
+    verticeStartPos = currentPosition;
 
-    if(totalDistance == 0){
+    // entity is heading to targetPosition
+    targetPosition = init_targetPosition;
+    totaldirectionVector = targetPosition - verticeStartPos;
 
-        verticeStartPos = currentPos;
-        if(isRelVertice[visitedVertices] == true){
-            polylineVertices[visitedVertices] = currentPos + polylineVertices[visitedVertices];
-        }
-        targetPosition = polylineVertices[visitedVertices];
-        totaldirectionVector = targetPosition - verticeStartPos;
-
-    }
-    //return targetPosition;
 }
 
 
-float &Maneuver::getTrajSpeed(osg::Vec3 verticeStartPos, osg::Vec3 targetPosition)
-{
-    if(totalDistance == 0)
-    {
-        // calculate speed
-        totaldirectionVectorLength = totaldirectionVector.length();
-        speed = totaldirectionVectorLength/deltat;
 
-    }
+float &Maneuver::getTrajSpeed()
+{
+
+    // calculate length of targetvector
+    totaldirectionVectorLength = totaldirectionVector.length();
+    speed = totaldirectionVectorLength/deltat;
+
+
     return speed;
 }

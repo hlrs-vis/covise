@@ -17,7 +17,8 @@ void Entity::setInitEntityPosition(osg::Vec3 initPos)
 
 void Entity::setInitEntityPosition(Road *r)
 {
-	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,r,inits,laneId,speed,1);
+    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,r,inits,laneId,speed,1);
+    // Road r; s inits;
 	auto vtrans = entityGeometry->getVehicleTransform();
 	osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 	entityPosition = pos;

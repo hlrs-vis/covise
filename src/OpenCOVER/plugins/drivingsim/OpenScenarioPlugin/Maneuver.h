@@ -57,8 +57,8 @@ public:
     osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float timer);
     osg::Vec3 &followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetPosition, float speed);
     void changeSpeedOfEntity(Entity *aktivCar, float dt);
-    float &getTrajSpeed(osg::Vec3 verticeStartPos, osg::Vec3 polylineVertices);
-    osg::Vec3 &setTargetPosition(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices,std::vector<bool> isRelVertice);
+    float &getTrajSpeed();
+    osg::Vec3 &setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition, Trajectory* currentTrajectory);
 
 };
 
