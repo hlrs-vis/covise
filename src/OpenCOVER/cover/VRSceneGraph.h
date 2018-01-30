@@ -94,12 +94,6 @@ public:
     void toggleHeadTracking(bool state);
     void setObjects(bool state);
 
-    // rotate world
-    int numFrames;
-    float frameAngle;
-    osg::Vec3 rotationAxis;
-    osg::Vec3 rotationPoint;
-
     // process key events
     bool keyEvent(int type, int keySym, int mod);
     osg::Group *getScene()
@@ -214,14 +208,6 @@ public:
     void toggleAxis(bool state);
     void toggleHighQuality(bool state);
     void viewAll(bool resetView = false);
-    float &joyStickX()
-    {
-        return m_joyStickX;
-    }
-    float &joyStickY()
-    {
-        return m_joyStickY;
-    }
     float floorHeight()
     {
         return m_floorHeight;
@@ -314,12 +300,6 @@ private:
     osg::Matrix m_oldInvBaseMatrix;
 
     int m_pointerType;
-    float m_joyStickX, m_joyStickY; //philip: allow access to anology x and y movement
-
-    // do we use one input device only for world transformation?
-    bool m_worldTransformer;
-    // is transforming the world enabled?
-    bool m_worldTransformerEnabled;
 
     // attribute SCALE attached to PerformerScene objects:
     // SCALE viewAll                        : scaleMode=1.0
@@ -348,9 +328,6 @@ private:
 
     bool menusAreHidden;
     osg::ref_ptr<osg::Program> emptyProgram_;
-
-    osg::Vec3 transTraversingInteractors;
-    bool isFirstTraversal;
 
     bool isScenegraphProtected_;
 

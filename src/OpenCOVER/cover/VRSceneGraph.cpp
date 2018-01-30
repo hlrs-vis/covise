@@ -122,8 +122,6 @@ VRSceneGraph::VRSceneGraph()
     , m_showMenu(true)
     , m_showObjects(true)
     , m_pointerType(0)
-    , m_worldTransformer(false)
-    , m_worldTransformerEnabled(true)
     , m_scaleMode(-1.0)
     , m_scaleFactor(1.0f)
     , m_scaleFactorButton(0.1f)
@@ -137,8 +135,6 @@ VRSceneGraph::VRSceneGraph()
     , m_transRestrictMaxZ(0.0f)
     , m_scalingAllObjects(false)
     , m_scaleTransform(NULL)
-    , transTraversingInteractors(Vec3(0, 0, 0))
-    , isFirstTraversal(true)
     , isScenegraphProtected_(false)
     , m_enableHighQualityOption(true)
     , m_switchToHighQuality(false)
@@ -278,12 +274,6 @@ VRSceneGraph::~VRSceneGraph()
 
 void VRSceneGraph::config()
 {
-    std::string line = coCoviseConfig::getEntry("COVER.Input.WorldXFormAddress");
-    if (!line.empty())
-    {
-        m_worldTransformer = true; //TODO: get information from somewhere else instead??
-    }
-
     // if menu mode is on -- hide menus
     if (coVRConfig::instance()->isMenuModeOn())
         setMenuMode(false);
@@ -309,18 +299,6 @@ int VRSceneGraph::readConfigFile()
     }
 
     m_coordAxis = coCoviseConfig::isOn("COVER.CoordAxis", false);
-
-    // TODO coConfig:vector
-    rotationAxis[0] = coCoviseConfig::getFloat("x", "COVER.RotationAxis", 1.0f);
-    rotationAxis[1] = coCoviseConfig::getFloat("y", "COVER.RotationAxis", 0.0f);
-    rotationAxis[2] = coCoviseConfig::getFloat("z", "COVER.RotationAxis", 0.0f);
-
-    // TODO coConfig:vector
-    rotationPoint[0] = coCoviseConfig::getFloat("x", "COVER.RotationPoint", 0.0f);
-    rotationPoint[1] = coCoviseConfig::getFloat("y", "COVER.RotationPoint", 0.0f);
-    rotationPoint[2] = coCoviseConfig::getFloat("z", "COVER.RotationPoint", 0.0f);
-
-    frameAngle = coCoviseConfig::getFloat("COVER.FrameAngle", 0.9);
 
     wiiPos = coCoviseConfig::getFloat("COVER.WiiPointerPos", -250.0);
 
@@ -514,11 +492,7 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
     }
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {
-        if (keySym == ' ')
-        {
-            m_worldTransformerEnabled = !m_worldTransformerEnabled;
-        }
-        else if (keySym == '%')
+        if (keySym == '%')
         {
             //matrixCorrect->separateColor = !matrixCorrect->separateColor;
             //fprintf(stderr,"separateColor = %d\n",matrixCorrect->separateColor);
@@ -955,19 +929,6 @@ VRSceneGraph::update()
         osg::Matrix newWorld = viewerTrans * VRTracker::instance()->getCameraMat();
         newWorld.invert(newWorld);
         m_objectsTransform->setMatrix(newWorld);
-    }
-
-    if (m_worldTransformer)
-    {
-        static osg::Matrix oldWorldTransform;
-        osg::Matrix newWorld = VRTracker::instance()->getWorldMat();
-        if (m_worldTransformerEnabled)
-        {
-            oldWorldTransform.invert(oldWorldTransform);
-            osg::Matrix incWorld = oldWorldTransform * newWorld;
-            m_objectsTransform->setMatrix(m_objectsTransform->getMatrix() * incWorld);
-        }
-        oldWorldTransform = newWorld;
     }
 #endif
 

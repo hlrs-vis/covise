@@ -804,6 +804,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         lod = currentLod;
     }
 
+#if 0
     // check for FRAME_ANGLE attribute
     if (geometry->getAttribute("FRAME_ANGLE") != NULL && geometry->isAssignedToMe())
     {
@@ -841,6 +842,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             }
         }
     }
+#endif
 
     if (texture && geometry->isAssignedToMe())
     {
