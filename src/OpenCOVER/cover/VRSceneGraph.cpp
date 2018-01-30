@@ -97,9 +97,6 @@ using namespace osg;
 using namespace opencover;
 using covise::coCoviseConfig;
 
-#define SYNC_MODE_GROUP 2
-#define NAVIGATION_GROUP 0
-
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -1613,20 +1610,6 @@ VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
 }
 #endif
 
-#ifdef VRUI
-void
-VRSceneGraph::viewallCallback(void *sceneGraph, buttonSpecCell *)
-{
-    ((VRSceneGraph *)sceneGraph)->viewAll();
-}
-
-void
-VRSceneGraph::resetviewCallback(void *sceneGraph, buttonSpecCell *)
-{
-    ((VRSceneGraph *)sceneGraph)->viewAll(true);
-}
-#endif
-
 void
 VRSceneGraph::viewAll(bool resetView)
 {
@@ -1637,34 +1620,6 @@ VRSceneGraph::viewAll(bool resetView)
     coVRCollaboration::instance()->SyncXform();
     coVRCollaboration::instance()->SyncScale();
 }
-
-#ifdef VRUI
-void
-VRSceneGraph::coordAxisCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleAxis(true);
-    }
-    else
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleAxis(false);
-    }
-}
-
-void
-VRSceneGraph::highQualityCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(true);
-    }
-    else
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(false);
-    }
-}
-#endif
 
 bool
 VRSceneGraph::isHighQuality() const
@@ -1707,32 +1662,6 @@ VRSceneGraph::saveScenegraph(bool storeWithMenu)
             std::cerr << "Not writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
     }
 }
-
-#ifdef VRUI
-void
-VRSceneGraph::reloadFileCallback(void *, buttonSpecCell *)
-{
-    coVRFileManager::instance()->reloadFile();
-}
-
-void
-VRSceneGraph::scalePlusCallback(void *sceneGraph, buttonSpecCell *)
-{
-    if (!sceneGraph)
-        return;
-
-    ((VRSceneGraph *)sceneGraph)->setScaleFromButton(1.0f);
-}
-
-void
-VRSceneGraph::scaleMinusCallback(void *sceneGraph, buttonSpecCell *)
-{
-    if (!sceneGraph)
-        return;
-
-    ((VRSceneGraph *)sceneGraph)->setScaleFromButton(-1.0f);
-}
-#endif
 
 void
 VRSceneGraph::setScaleFromButton(float direction)
