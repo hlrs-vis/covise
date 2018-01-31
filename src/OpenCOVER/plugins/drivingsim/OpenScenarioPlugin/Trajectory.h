@@ -20,12 +20,13 @@ public:
     Trajectory();
 	~Trajectory();
 	virtual void finishedParsing();
-    void initialize(std::vector<osg::Vec3> vec_temp, std::vector<bool> isRelVertice_temp);
+    void initialize(int verticesCounter);
     osg::Vec3 getAbsolute(int visitedVertices, Entity *currentEntity);
-    double getRefernce(int visitedVertices);
+    double getReference(int visitedVertices);
     double t0;
     double t1;
     double dt;
+    int verticesCounter;
 
 };
 

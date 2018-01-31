@@ -27,7 +27,7 @@ void Maneuver::finishedParsing()
 	name = oscManeuver::name.getValue();
 }
 
-osg::Vec3 &Maneuver::followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetPosition,float speed)
+osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, float speed, int verticesCounter)
 {
 
     //substract vectors
@@ -116,11 +116,8 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	aktivCar->setSpeed(targetSpeed);
 	}
 }
-osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition,Trajectory* currentTrajectory)
+osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition)
 {
-    // counter number of vertices in trajectory
-    verticesCounter = currentTrajectory->Vertex.size();
-
     verticeStartPos = currentPosition;
 
     // entity is heading to targetPosition

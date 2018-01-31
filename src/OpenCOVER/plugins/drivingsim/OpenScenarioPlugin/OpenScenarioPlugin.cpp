@@ -133,17 +133,19 @@ void OpenScenarioPlugin::preFrame()
                                         // read next vertice from trajectory, convert it to absolute coordinates and put it as next direction
                                         osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*maneuver_iter)->visitedVertices,(*activeEntity));
 
-                                        (*maneuver_iter)->setTargetPosition(nextTargetPos,(*activeEntity)->entityPosition,(*trajectory_iter));
+                                        (*maneuver_iter)->setTargetPosition(nextTargetPos,(*activeEntity)->entityPosition);
 
                                         if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed(0.1));
+                                            //(*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*trajectory_iter)->getReference((*maneuver_iter)->visitedVertices)));
+                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed(0.01));
                                         }
+
                                     }
 
                                     (*activeEntity)->setDirection((*maneuver_iter)->totaldirectionVector);
 
-                                    (*activeEntity)->setPosition((*maneuver_iter)->followTrajectoryRel((*activeEntity)->entityPosition,(*maneuver_iter)->targetPosition,(*activeEntity)->getSpeed()));
+                                    (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*activeEntity)->getSpeed(),(*trajectory_iter)->verticesCounter));
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -649,6 +651,10 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
                 Trajectory* traj = ((Trajectory*)(trajectoryClass));
                 (*maneuver_iter)->trajectoryList.push_back(traj);
+
+                int verticesCounter = traj->Vertex.size();
+                traj->initialize(verticesCounter);
+
             }
         }
     }
