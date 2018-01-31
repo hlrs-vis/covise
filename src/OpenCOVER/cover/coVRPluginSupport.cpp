@@ -576,15 +576,6 @@ void coVRPluginSupport::removePlugin(coVRPlugin *m)
     coVRPluginList::instance()->unload(m);
 }
 
-#if 0
-int coVRPluginSupport::createUniqueButtonGroupId()
-{
-    START("coVRPluginSupport::uniqueButtonGroup");
-    buttonGroup++;
-    return buttonGroup;
-}
-#endif
-
 int coVRPluginSupport::isPointerLocked()
 {
     //START("coVRPluginSupport::isPointerLocked");
@@ -994,44 +985,6 @@ int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int
 
     return 1;
 }
-
-#if 0
-void
-coVRPluginSupport::enableNavigation(const char *str)
-{
-    START("coVRPluginSupport::enableNavigation");
-    setBuiltInFunctionState(str, 1);
-}
-
-void
-coVRPluginSupport::disableNavigation(const char *str)
-{
-    START("coVRPluginSupport::disableNavigation");
-    setBuiltInFunctionState(str, 0);
-}
-
-void
-coVRPluginSupport::setNavigationValue(const char *str, float value)
-{
-    START("coVRPluginSupport::setNavigationValue");
-#if 0
-    buttonSpecCell buttonSpecifier;
-
-    strcpy(buttonSpecifier.name, str);
-    buttonSpecifier.state = value;
-    VRSceneGraph::instance()->manipulate(&buttonSpecifier);
-    if (strcmp(str, "DriveSpeed") == 0)
-    {
-        setBuiltInFunctionValue(str, value);
-        callBuiltInFunctionCallback(str);
-    }
-    else
-    {
-        VRPinboard::instance()->setButtonState(str, value);
-    }
-#endif
-}
-#endif
 
 osg::Node *coVRPluginSupport::getIntersectedNode() const
 {
