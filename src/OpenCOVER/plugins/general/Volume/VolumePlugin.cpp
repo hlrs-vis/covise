@@ -712,6 +712,10 @@ bool VolumePlugin::init()
     clipModeItem->setCallback([this](bool state){
         applyToVolumes([this, state](Volume &vol){
             vol.drawable->setSingleSliceClipping(state);
+            if (state)
+                vol.drawable->setLighting(false);
+            else
+                vol.drawable->setLighting(vol.lighting);
         });
     });
 
