@@ -12,7 +12,6 @@ ENDIF(SISL_INCLUDE_DIR)
 FIND_PATH(SISL_INCLUDE_DIR "sisl.h"
   PATHS
   $ENV{SISL_HOME}/include
-  $ENV{EXTERNLIBS}/SISL/usr/local/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include
   /usr/local/include
@@ -30,7 +29,6 @@ SET(SISL_DBG_NAMES sisl)
 FIND_LIBRARY(SISL_LIBRARY NAMES ${SISL_NAMES}
   PATHS
   $ENV{SISL_HOME}
-  $ENV{EXTERNLIBS}/SISL/usr/local/lib
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
@@ -50,7 +48,6 @@ IF(MSVC)
   FIND_LIBRARY(SISL_LIBRARY_DEBUG NAMES ${SISL_DBG_NAMES}
     PATHS
     $ENV{SISL_HOME}/lib
-    $ENV{EXTERNLIBS}/SISL/lib
     DOC "SISL - Library (Debug)"
   )
   
