@@ -143,7 +143,7 @@ void coButtonInteraction::updateState(vruiButtons *button)
             runningState = StateStopped;
             stopInteraction();
             state = Stopped;
-            if (type == WheelVertical || type == WheelHorizontal)
+            if (type == WheelVertical || type == WheelHorizontal || type == NoButton)
             {
                 state = Idle;
             }
