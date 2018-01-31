@@ -14,7 +14,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <sys\timeb.h>
+#include <sys/timeb.h>
 
 #include "captureART.h"
 DTrackSDK *dt; ///ART DTrack SDK class
