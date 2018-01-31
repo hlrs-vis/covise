@@ -261,7 +261,7 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-void Manager::updateValue(const Input *input) const
+void Manager::updateValue(const EditField *input) const
 {
     for (auto v: m_views)
     {

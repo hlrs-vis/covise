@@ -44,7 +44,7 @@ namespace ui {
 class Action;
 class Button;
 class Menu;
-class Input;
+class EditField;
 }
 }
 
@@ -98,7 +98,7 @@ private:
     //========================================================================================
     opencover::ui::Menu *editVPMenu_; //< Edit Viewpoint- menu
 
-    opencover::ui::Input *editNameInput_;
+    opencover::ui::EditField *editNameInput_;
     opencover::ui::Button *showViewpointCheck_;
     opencover::ui::Button *showTangentCheck_;
     opencover::ui::Button *showMoveInteractorsCheck_;

@@ -18,7 +18,7 @@ class Button;
 class Action;
 class Slider;
 class SelectionList;
-class Input;
+class EditField;
 
 //! abstract base class for all views onto the user interface elements handled by a Manager
 class COVER_UI_EXPORT View {
@@ -80,7 +80,7 @@ class COVER_UI_EXPORT View {
     //! reflect change of slider range in graphical representation
     virtual void updateBounds(const Slider *slider) = 0;
     //! reflect change of input field value in graphical representation
-    virtual void updateValue(const Input *input) = 0;
+    virtual void updateValue(const EditField *input) = 0;
 
     //! remove elem from View and delete associated data
     bool removeElement(Element *elem);
@@ -108,7 +108,7 @@ class COVER_UI_EXPORT View {
     //! implement to create graphical representation of a selection list
     virtual ViewElement *elementFactoryImplementation(SelectionList *sl) = 0;
     //! implement to create graphical representation of an input field
-    virtual ViewElement *elementFactoryImplementation(Input *input) = 0;
+    virtual ViewElement *elementFactoryImplementation(EditField *input) = 0;
 
  private:
     const std::string m_name;

@@ -54,7 +54,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! update allowed value range for slider on all attached views
    void updateBounds(const Slider *slider) const;
    //! update input value on all attached views
-   void updateValue(const Input *input) const;
+   void updateValue(const EditField *input) const;
 
    //! add elem to list of managed user interface items
    void add(Element *elem);

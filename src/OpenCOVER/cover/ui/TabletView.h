@@ -59,7 +59,7 @@ class COVER_UI_EXPORT TabletView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
-   void updateValue(const Input *input) override;
+   void updateValue(const EditField *input) override;
 
    TabletViewElement *elementFactoryImplementation(Menu *menu) override;
    TabletViewElement *elementFactoryImplementation(Group *group) override;
@@ -68,7 +68,7 @@ class COVER_UI_EXPORT TabletView: public View
    TabletViewElement *elementFactoryImplementation(Button *button) override;
    TabletViewElement *elementFactoryImplementation(Slider *slider) override;
    TabletViewElement *elementFactoryImplementation(SelectionList *sl) override;
-   TabletViewElement *elementFactoryImplementation(Input *input) override;
+   TabletViewElement *elementFactoryImplementation(EditField *input) override;
 
    TabletViewElement *m_root = nullptr;
 

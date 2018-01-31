@@ -178,7 +178,7 @@ SET(UI_HEADERS
     ui/SelectionList.h
     ui/ShortcutListener.h
     ui/Slider.h
-    ui/UIInput.h
+    ui/EditField.h
     ui/View.h
     ui/VruiView.h
     ui/TabletView.h
@@ -198,7 +198,7 @@ SET(UI_SOURCES
     ui/SelectionList.cpp
     ui/ShortcutListener.cpp
     ui/Slider.cpp
-    ui/UIInput.cpp
+    ui/EditField.cpp
     ui/View.cpp
     ui/VruiView.cpp
     ui/TabletView.cpp
