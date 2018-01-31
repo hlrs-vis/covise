@@ -22,7 +22,10 @@ public:
 	virtual void finishedParsing();
     void initialize(std::vector<osg::Vec3> vec_temp, std::vector<bool> isRelVertice_temp);
     osg::Vec3 getAbsolute(int visitedVertices, Entity *currentEntity);
-    double getRefernce();
+    double getRefernce(int visitedVertices);
+    double t0;
+    double t1;
+    double dt;
 
 };
 
