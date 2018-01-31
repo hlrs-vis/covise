@@ -21,19 +21,21 @@ coButtonInteraction::coButtonInteraction(InteractionType type, const string &nam
     : coInteraction(type, name, priority)
 {
     //fprintf(stderr,"coButtonInteraction::coButtonInteraction \n");
-    wheelCount = 0;
     button = NULL;
-    if (type == AllButtons)
+    switch (type)
     {
+    case AllButtons:
         buttonmask = ~0;
-    }
-    else if (type == Wheel)
-    {
+        break;
+    case NoButton:
+    case WheelVertical:
+    case WheelHorizontal:
+    case Joystick:
         buttonmask = 0;
-    }
-    else
-    {
+        break;
+    default:
         buttonmask = 1<<type;
+        break;
     }
 }
 
@@ -50,10 +52,19 @@ void coButtonInteraction::update()
 
 bool coButtonInteraction::conditionMet() const
 {
-    if (type == Wheel)
+    if (type == WheelVertical)
     {
-        if (button->getWheelCount() != 0)
+        if (button->getWheelCount(0) != 0)
+        {
             return true;
+        }
+    }
+    else if (type == WheelHorizontal)
+    {
+        if (button->getWheelCount(1) != 0)
+        {
+            return true;
+        }
     }
     else
     {
@@ -65,10 +76,9 @@ bool coButtonInteraction::conditionMet() const
 
 bool coButtonInteraction::conditionBecameMet() const
 {
-    if (type == Wheel)
+    if (type == WheelVertical || type == WheelHorizontal)
     {
-        if (button->getWheelCount() != 0)
-            return true;
+        return conditionMet();
     }
     else
     {
@@ -82,6 +92,15 @@ void coButtonInteraction::updateState(vruiButtons *button)
 {
     runningState = StateNotRunning;
 
+    wheelCount = 0;
+    if (button)
+    {
+        if (type == WheelVertical)
+            wheelCount = button->getWheelCount(0);
+        if (type == WheelHorizontal)
+            wheelCount = button->getWheelCount(1);
+    }
+
     if (state == Idle)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Idle\n");
@@ -93,9 +112,6 @@ void coButtonInteraction::updateState(vruiButtons *button)
                 //fprintf(stderr,"coButtonInteraction::update 1 StateStarted %s \n", name.c_str());
                 //fprintf(stderr,"coButtonInteraction (state == Idle) %d (type == ButtonA || type == AllButtons) %d buttonStatus == vruiButtons::ACTION_BUTTON %d state != Paused %d\n", (state == Idle), (type == ButtonA || type == AllButtons), (buttonStatus == vruiButtons::ACTION_BUTTON), state != Paused);
                 runningState = StateStarted;
-
-                if (button && type == Wheel)
-                    wheelCount = button->getWheelCount();
 
                 startInteraction();
             }
@@ -113,9 +129,6 @@ void coButtonInteraction::updateState(vruiButtons *button)
     else if (state == Active)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Active || state == Paused\n");
-         if (button && type == Wheel)
-                wheelCount = button->getWheelCount();
-
         if (conditionMet())
         {
             //fprintf(stderr,"coButtonInteraction::update 6 StateRunning %s \n", name.c_str());
@@ -126,19 +139,13 @@ void coButtonInteraction::updateState(vruiButtons *button)
         }
         else
         {
-            if (type == Wheel)
+            //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
+            runningState = StateStopped;
+            stopInteraction();
+            state = Stopped;
+            if (type == WheelVertical || type == WheelHorizontal)
             {
-                //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
-                runningState = StateStopped;
-                stopInteraction();
                 state = Idle;
-            }
-            else
-            {
-                //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
-                runningState = StateStopped;
-                stopInteraction();
-                state = Stopped;
             }
         }
     }
@@ -157,7 +164,6 @@ void coButtonInteraction::cancelInteraction()
         runningState = StateNotRunning;
         stopInteraction();
         state = Idle;
-        wheelCount = 0;
     }
 }
 
@@ -166,6 +172,11 @@ void coButtonInteraction::resetState()
     //fprintf(stderr,"coButtonInteraction::resetState\n");
     if (runningState != StateStopped)
         runningState = StateNotRunning;
+}
+
+int coButtonInteraction::getWheelCount() const
+{
+    return wheelCount;
 }
 
 void coButtonInteraction::startInteraction()

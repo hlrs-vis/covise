@@ -50,7 +50,7 @@ unsigned int VRVruiButtons::getOldStatus() const
     return button()->oldState();
 }
 
-int VRVruiButtons::getWheelCount() const
+int VRVruiButtons::getWheelCount(size_t idx) const
 {
-    return button()->getWheel();
+    return button()->getWheel(idx);
 }

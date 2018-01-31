@@ -457,6 +457,8 @@ void QtOsgWidget::wheelEvent(QWheelEvent *event)
 
     osgGA::GUIEventAdapter::ScrollingMotion motion =
             delta>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
+    if (event->orientation() == Qt::Horizontal)
+            motion = delta>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
     getEventQueue()->mouseScroll(motion);
 }
 

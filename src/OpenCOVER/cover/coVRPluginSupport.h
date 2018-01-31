@@ -146,20 +146,20 @@ public:
     ~coPointerButton();
     //! button state
     //! @return button press mask
-    unsigned int getState();
+    unsigned int getState() const;
     //! previous button state
     //! @return old button state
-    unsigned int oldState();
+    unsigned int oldState() const;
     //! buttons pressed since last frame
-    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
+    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
     //! buttons released since last frame
-    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
+    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
     //! is no button pressed
-    bool notPressed();
+    bool notPressed() const;
     //! accumulated number of wheel events
-    int getWheel();
+    int getWheel(size_t idx=0) const;
     //! set number wheel events
-    void setWheel(int);
+    void setWheel(size_t idx, int count);
     //! button name
     const std::string &name() const;
 
@@ -167,9 +167,9 @@ private:
     //! set button state
     void setState(unsigned int);
 
-    unsigned int buttonStatus;
-    unsigned int lastStatus;
-    int wheelCount;
+    unsigned int buttonStatus = 0;
+    unsigned int lastStatus = 0;
+    int wheelCount[2]={0,0};
     std::string m_name;
 };
 

@@ -23,8 +23,11 @@ namespace ui {
 Manager::Manager()
 : Owner("Manager", this)
 {
-    m_wheelInteraction = new vrui::coMouseButtonInteraction(vrui::coInteraction::Wheel, "MouseWheel", vrui::coInteraction::Low);
-    vrui::coInteractionManager::the()->registerInteraction(m_wheelInteraction);
+    m_wheelInteraction.push_back(new vrui::coMouseButtonInteraction(vrui::coInteraction::WheelVertical, "MouseWheel", vrui::coInteraction::Low));
+    m_wheelInteraction.push_back(new vrui::coMouseButtonInteraction(vrui::coInteraction::WheelHorizontal, "MouseWheel", vrui::coInteraction::Low));
+
+    for (auto &i: m_wheelInteraction)
+        vrui::coInteractionManager::the()->registerInteraction(i);
 }
 
 void Manager::add(Element *elem)
@@ -125,14 +128,19 @@ bool Manager::update()
             elem.second->update();
     }
 
-    if (m_wheelInteraction->wasStarted() || m_wheelInteraction->isRunning())
+    for (auto &inter: m_wheelInteraction)
     {
-        m_changed = true;
-        int c = cover->getMouseButton()->getWheel();
-        int pressed = c<0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;
-        int count = std::abs(c);
-        for (int i=0; i<count; ++i)
-            buttonEvent(pressed);
+        if (inter->wasStarted() || inter->isRunning())
+        {
+            m_changed = true;
+            int c = inter->getWheelCount();
+            int pressed = c<0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;
+            if (inter->getType() == vrui::coInteraction::WheelHorizontal)
+                pressed = c<0 ? vrui::vruiButtons::WHEEL_LEFT : vrui::vruiButtons::WHEEL_RIGHT;
+            int count = std::abs(c);
+            for (int i=0; i<count; ++i)
+                buttonEvent(pressed);
+        }
     }
 
     bool ret = m_changed;
@@ -413,6 +421,10 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 button = ScrollUp;
             if (mod == osgGA::GUIEventAdapter::SCROLL_DOWN)
                 button = ScrollDown;
+            if (mod == osgGA::GUIEventAdapter::SCROLL_LEFT)
+                button = ScrollLeft;
+            if (mod == osgGA::GUIEventAdapter::SCROLL_RIGHT)
+                button = ScrollRight;
         }
 
         switch (button)
@@ -460,6 +472,7 @@ bool Manager::buttonEvent(int button) const
 {
     bool handled = false;
 
+    //std::cerr << "ui::Manager::buttonEvent: button=0x" << std::hex << button << ", modifiers=" << m_modifiers << std::endl;
     for (auto &elemPair: m_elements)
     {
         auto &elem = elemPair.second;

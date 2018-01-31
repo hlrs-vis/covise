@@ -21,7 +21,9 @@ enum MouseButton {
     Middle = 2,
     Right = 4,
     ScrollUp = 8,
-    ScrollDown = 16
+    ScrollDown = 16,
+    ScrollLeft = 32,
+    ScrollRight = 64,
 };
 
 //! mix-in class for UI \ref Element "elements" reacting to keyboard shortcuts

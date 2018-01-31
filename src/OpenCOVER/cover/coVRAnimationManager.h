@@ -33,11 +33,6 @@ class Slider;
 }
 #include "ui/Owner.h"
 
-namespace vrui
-{
-class coTrackerButtonInteraction;
-}
-
 namespace osg
 {
 class Sequence;
@@ -120,10 +115,6 @@ private:
     int startFrame, stopFrame;
     float frameAngle;
     int oldFrame;
-
-    vrui::coTrackerButtonInteraction *animWheelInteraction;
-    ///< interaction for advancing timesteps
-    //with mouse wheel
 
     void initAnimMenu();
 

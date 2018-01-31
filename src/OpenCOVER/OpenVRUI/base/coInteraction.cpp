@@ -171,8 +171,6 @@ bool coInteraction::activate()
                 state = RemoteActive;
                 return false;
             }
-            if (type == Wheel)
-                std::cerr << "coInteraction::activate Wheel: " << name << std::endl;
             state = Active;
             return true;
         }

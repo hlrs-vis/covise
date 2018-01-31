@@ -30,10 +30,7 @@ public:
     virtual void cancelInteraction();
     virtual void resetState();
 
-    int getWheelCount()
-    {
-        return wheelCount;
-    }
+    int getWheelCount() const;
 
 protected:
     virtual bool conditionMet() const;
@@ -41,10 +38,10 @@ protected:
 
     void updateState(vruiButtons *button);
 
-    int wheelCount;
-    unsigned buttonmask;
+    unsigned buttonmask = 0;
+    int wheelCount = 0;
 
-    vruiButtons *button;
+    vruiButtons *button = nullptr;
 };
 }
 #endif

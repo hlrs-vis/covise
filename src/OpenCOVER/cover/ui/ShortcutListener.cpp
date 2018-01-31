@@ -96,6 +96,10 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
             sh.button = ScrollUp;;
         if (button == "scrolldown")
             sh.button = ScrollDown;;
+        if (button == "scrollleft")
+            sh.button = ScrollLeft;;
+        if (button == "scrollright")
+            sh.button = ScrollRight;;
     }
     else if (key.length()>7 && key.substr(0, 7) == "button:")
     {

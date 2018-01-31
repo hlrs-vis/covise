@@ -397,7 +397,8 @@ void coVRPluginSupport::update()
         handMat = Input::instance()->getHandMat();
     }
 
-    getMouseButton()->setWheel(Input::instance()->mouse()->wheel());
+    for (size_t i=0; i<2; ++i)
+        getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
     getMouseButton()->setState(Input::instance()->mouse()->buttonState());
 #if 0
    if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
@@ -406,7 +407,8 @@ void coVRPluginSupport::update()
     // don't overwrite mouse button state if only mouseTracking is used
     if (getPointerButton() != getMouseButton())
     {
-        getPointerButton()->setWheel(0);
+        for (size_t i=0; i<2; ++i)
+            getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
    if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
@@ -1051,7 +1053,7 @@ coPointerButton::coPointerButton(const std::string &name)
     START("coPointerButton::coPointerButton");
     buttonStatus = 0;
     lastStatus = 0;
-    wheelCount = 0;
+    wheelCount[0] = wheelCount[1] = 0;
 }
 
 coPointerButton::~coPointerButton()
@@ -1065,30 +1067,30 @@ const std::string &coPointerButton::name() const
     return m_name;
 }
 
-unsigned int coPointerButton::getState()
+unsigned int coPointerButton::getState() const
 {
     //START("coPointerButton::getButtonStatus")
     return buttonStatus;
 }
 
-unsigned int coPointerButton::oldState()
+unsigned int coPointerButton::oldState() const
 {
     START("coPointerButton::oldButtonStatus");
     return lastStatus;
 }
 
-bool coPointerButton::notPressed()
+bool coPointerButton::notPressed() const
 {
     START("coPointerButton::notPressed");
     return (buttonStatus == 0);
 }
 
-unsigned int coPointerButton::wasPressed(unsigned int buttonMask)
+unsigned int coPointerButton::wasPressed(unsigned int buttonMask) const
 {
     return buttonMask & ((getState() ^ oldState()) & getState());
 }
 
-unsigned int coPointerButton::wasReleased(unsigned int buttonMask)
+unsigned int coPointerButton::wasReleased(unsigned int buttonMask) const
 {
     return buttonMask & ((getState() ^ oldState()) & oldState());
 }
@@ -1100,14 +1102,18 @@ void coPointerButton::setState(unsigned int newButton) // called from
     buttonStatus = newButton;
 }
 
-int coPointerButton::getWheel()
+int coPointerButton::getWheel(size_t idx) const
 {
-    return wheelCount;
+    if (idx >= 2)
+        return 0;
+    return wheelCount[idx];
 }
 
-void coPointerButton::setWheel(int count)
+void coPointerButton::setWheel(size_t idx, int count)
 {
-    wheelCount = count;
+    if (idx >= 2)
+        return;
+    wheelCount[idx] = count;
 }
 
 int coVRPluginSupport::registerPlayer(vrml::Player *player)

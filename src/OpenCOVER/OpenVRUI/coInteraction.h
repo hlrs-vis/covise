@@ -62,7 +62,9 @@ public:
         ButtonPrevInter,
         ButtonNextPerson,
         ButtonPrevPerson,
-        Wheel, // = vruiButtons::WHEEL,
+        WheelHorizontal,
+        WheelVertical,
+        Wheel = WheelVertical,
         Joystick,
         AllButtons, // = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
         NoButton, // non-zero relative input
