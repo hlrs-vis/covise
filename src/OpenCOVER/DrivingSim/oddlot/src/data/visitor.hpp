@@ -84,6 +84,8 @@ class RSystemElementJunction;
 class RSystemElementJunctionGroup;
 
 class GeoReference;
+class RoadLink;
+class LaneOffset;
 
 //OpenScenario //
 //
@@ -222,9 +224,12 @@ public:
     virtual void visit(Lane *)
     {
     }
-    virtual void visit(LaneWidth *)
-    {
-    }
+	virtual void visit(LaneWidth *)
+	{
+	}
+	virtual void visit(LaneOffset *)
+	{
+	}
 	virtual void visit(LaneBorder *)
 	{
 	}
@@ -281,9 +286,12 @@ public:
     virtual void visit(VehicleGroup *)
     {
     }
-    virtual void visit(RoadVehicle *)
-    {
-    }
+	virtual void visit(RoadVehicle *)
+	{
+	}
+	virtual void visit(RoadLink *)
+	{
+	}
 
     // PedestrianSystem //
     //
