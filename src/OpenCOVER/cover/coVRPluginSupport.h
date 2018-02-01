@@ -650,7 +650,6 @@ private:
     bool wasHandValid = false;
     osg::Matrix baseMatrix;
     mutable osg::Matrix invBaseMatrix;
-    int buttonGroup;
     double lastFrameStartTime;
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;

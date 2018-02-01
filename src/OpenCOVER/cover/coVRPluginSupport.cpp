@@ -748,7 +748,6 @@ coVRPluginSupport::coVRPluginSupport()
 
     pointerButton = NULL;
     mouseButton = NULL;
-    buttonGroup = 40;
     baseMatrix.makeIdentity();
 
     invCalculated = false;
