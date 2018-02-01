@@ -202,8 +202,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
+
+#if QT_VERSION >= 0x050A00
+    bool sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
+    if (sRGB)
+    {
+        std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
+        format.setColorSpace(QSurfaceFormat::sRGBColorSpace);
+    }
+#endif
     QSurfaceFormat::setDefaultFormat(format);
     win.widget = new QtOsgWidget(win.window);
+#if QT_VERSION >= 0x050A00
+    if (sRGB)
+    {
+        win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
+    }
+#endif
     win.window->setCentralWidget(win.widget);
     win.widget->show();
     conf.windows[i].context = win.widget->graphicsWindow();
