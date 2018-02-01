@@ -38,7 +38,7 @@
 
 #include <cover/ui/Manager.h>
 #include <cover/ui/Menu.h>
-#include <cover/ui/Input.h>
+#include <cover/ui/UIInput.h>
 #include <cover/ui/Label.h>
 
 #include <osg/Matrix>

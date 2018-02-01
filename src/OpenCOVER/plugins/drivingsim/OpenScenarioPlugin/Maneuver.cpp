@@ -180,6 +180,7 @@ osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 
     // entity is heading to targetPosition
     targetPosition = init_targetPosition;
     totaldirectionVector = targetPosition - verticeStartPos;
+	return targetPosition;
 
 }
 

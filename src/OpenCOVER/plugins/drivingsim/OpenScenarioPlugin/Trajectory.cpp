@@ -30,6 +30,7 @@ osg::Vec3 Trajectory::getAbsolute(int visitedVertices, Entity *currentEntity){
 
         return absCoordinates;
     }
+	return osg::Vec3(0.0, 0.0, 0.0);
 //    auto coords = vert->Position->World;
 //    int a= 1;
 
@@ -38,4 +39,5 @@ osg::Vec3 Trajectory::getAbsolute(int visitedVertices, Entity *currentEntity){
 
 double Trajectory::getRefernce(){
     // to be implemented
+	return 0.0;
 }
