@@ -31,6 +31,7 @@
 #include <osg/TriangleFunctor>
 #include <osg/LightModel>
 #include <cover/VRSceneGraph.h>
+#include <osgDB/WriteFile>
 
 #include "sisl.h"
 #include "sisl_aux/sisl_aux.h"
@@ -110,7 +111,7 @@ NurbsSurface::NurbsSurface()
         osg::Vec3Array* normals = new osg::Vec3Array;
         osg::Vec4Array* colors = new osg::Vec4Array;
         osg::Vec4 _color;
-        _color.set(0.0, 0.0, 0.0, 1.0);
+        _color.set(1.0, 0.0, 0.0, 1.0);
 
         for (int j=0; j<result_surf->in1-1; j++)
         {
@@ -144,14 +145,14 @@ NurbsSurface::NurbsSurface()
         geode->addDrawable(polyGeom);
 
         // stateSet
-        osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::DIFFUSE);//polyGeom->getOrCreateStateSet();
-        osg::Material* matirial = new osg::Material; 
-        matirial->setColorMode(osg::Material::DIFFUSE); 
+        osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);//polyGeom->getOrCreateStateSet();
+        /*osg::Material* matirial = new osg::Material; 
+        matirial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE); 
         matirial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
         matirial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
         matirial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
         matirial->setShininess(osg::Material::FRONT_AND_BACK, 10.0f); 
-        stateSet->setAttributeAndModes (matirial,osg::StateAttribute::ON); 
+        stateSet->setAttributeAndModes (matirial,osg::StateAttribute::ON); */
         osg::LightModel* ltModel = new osg::LightModel; 
         ltModel->setTwoSided(true); 
         stateSet->setAttribute(ltModel); 
@@ -160,6 +161,10 @@ NurbsSurface::NurbsSurface()
 
         // add the points geomtry to the geode.
         cover->getObjectsRoot()->addChild(geode.get());
+
+        //write to file
+        osgDB::writeNodeFile(*geode, "test.obj");
+        osgDB::writeNodeFile(*geode, "test.stl");
 
         freeSurf(result_surf);
     }

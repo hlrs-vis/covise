@@ -19,7 +19,6 @@ public:
     std::string maneuverType;
     std::string routeCatalogReference;
     std::string trajectoryCatalogReference;
-    float deltat = 0.1;
     //conditions
     bool maneuverCondition;
     bool maneuverFinished;
@@ -32,12 +31,12 @@ public:
     float targetSpeed;
 
     //followTrajectory
+
     float totalDistance;
     float speed;
     osg::Vec3 totaldirectionVector;
     osg::Vec3 verticeStartPos;
     float totaldirectionVectorLength;
-    int verticesCounter;
     osg::Vec3 directionVector;
 
     std::list<Trajectory*> trajectoryList;
@@ -54,11 +53,10 @@ public:
     virtual void finishedParsing();
 
     std::string &getName();
-    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float timer);
-    osg::Vec3 &followTrajectoryRel(osg::Vec3 currentPos, osg::Vec3 targetPosition, float speed);
+    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, float speed, int verticesCounter);
     void changeSpeedOfEntity(Entity *aktivCar, float dt);
-    float &getTrajSpeed();
-    osg::Vec3 &setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition, Trajectory* currentTrajectory);
+    float &getTrajSpeed(float deltat);
+    osg::Vec3 &setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition);
 
 };
 

@@ -41,7 +41,7 @@ public:
     explicit ExportSettings();
     virtual ~ExportSettings();
 
-	ExportSettings::ExportIDVariants ExportSettings::ExportIDVariant();
+	ExportIDVariants ExportIDVariant();
 
     static ExportSettings *instance()
     {

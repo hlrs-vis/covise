@@ -19,6 +19,8 @@ ADD_COVISE_EXECUTABLE(captureART captureART.cpp captureART.h DTrackSDK.cpp  DTra
 ../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackDataTypes.h
 )
 
-TARGET_LINK_LIBRARIES(captureART ws2_32.lib ${EXTRA_LIBS})
+if (WIN32)
+    TARGET_LINK_LIBRARIES(captureART ws2_32.lib ${EXTRA_LIBS})
+endif()
 
 COVISE_INSTALL_TARGET(captureART)

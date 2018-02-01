@@ -10,10 +10,9 @@ Trajectory::~Trajectory(){}
 void Trajectory::finishedParsing()
 {
 }
-void Trajectory::initialize(vector<osg::Vec3> vec_temp, vector<bool> isRelVertice_temp)
+void Trajectory::initialize(int verticesCounter_temp)
 {
-	polylineVertices = vec_temp;
-    isRelVertice = isRelVertice_temp;
+    verticesCounter = verticesCounter_temp;
 
 }
 
@@ -31,13 +30,26 @@ osg::Vec3 Trajectory::getAbsolute(int visitedVertices, Entity *currentEntity){
         return absCoordinates;
     }
 	return osg::Vec3(0.0, 0.0, 0.0);
-//    auto coords = vert->Position->World;
-//    int a= 1;
-
 
 }
 
-double Trajectory::getRefernce(){
-    // to be implemented
-	return 0.0;
+double Trajectory::getReference(int visitedVertices){
+    /*
+    wie soll die Refernce in der Trajecotry definiert werden?
+    - für jeden Agenten wieder bei 0 starten?
+    - einfach immer nur das dt in die Reference schreiben?
+    */
+
+    t1 = Vertex[visitedVertices]->Shape->reference.getValue();
+
+    if(visitedVertices==verticesCounter){
+        t0 = Vertex[visitedVertices-1]->Shape->reference.getValue();
+    }
+    else{
+        t0 = Vertex[visitedVertices+1]->Shape->reference.getValue();
+    }
+    dt = t0-t1;
+
+    dt = (float) dt;
+    return dt;
 }

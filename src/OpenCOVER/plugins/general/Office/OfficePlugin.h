@@ -37,7 +37,7 @@ class Menu;
 class Label;
 class Group;
 class Button;
-class Input;
+class EditField;
 }
 }
 
@@ -59,7 +59,7 @@ public:
 private:
     
     ui::Group *myFrame = nullptr;
-    ui::Input *commandLine = nullptr;
+    ui::EditField *commandLine = nullptr;
     ui::Label *lastMessage = nullptr;
 };
 

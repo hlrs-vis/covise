@@ -36,7 +36,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
-#include <cover/ui/UIInput.h>
+#include <cover/ui/EditField.h>
 #include <OpenVRUI/coInteraction.h>
 
 using namespace osg;
@@ -305,7 +305,7 @@ void ViewDesc::createButtons(const char *name,
     editVPMenu_->setText(name);
     editMenu->add(editVPMenu_);
 
-    editNameInput_ = new ui::Input(editVPMenu_, "Name");
+    editNameInput_ = new ui::EditField(editVPMenu_, "Name");
     editNameInput_->setValue(name);
     editNameInput_->setCallback([this, master](const std::string &text){
         setName(text.c_str());

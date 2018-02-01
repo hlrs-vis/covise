@@ -38,7 +38,7 @@
 
 #include <cover/ui/Manager.h>
 #include <cover/ui/Menu.h>
-#include <cover/ui/UIInput.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 
 #include <osg/Matrix>
@@ -58,7 +58,7 @@ OfficeConnection::OfficeConnection(ServerConnection *to)
     myFrame = new ui::Group("Product", this);
     menu->add(myFrame);
 
-    commandLine = new ui::Input(myFrame, "CommandLine");
+    commandLine = new ui::EditField(myFrame, "CommandLine");
     commandLine->setText("Command line");
     commandLine->setCallback([this](const std::string &cmd){
         if(cmd.length()>0)

@@ -22,7 +22,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
-#include "UIInput.h"
+#include "EditField.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>
@@ -281,7 +281,7 @@ void VruiView::updateText(const Element *elem)
         {
             itemText += "...";
         }
-        else if (auto i = dynamic_cast<const Input *>(elem))
+        else if (auto i = dynamic_cast<const EditField *>(elem))
         {
             itemText += ": " + i->value();
         }
@@ -436,7 +436,7 @@ void VruiView::updateBounds(const Slider *slider)
     }
 }
 
-void VruiView::updateValue(const Input *input)
+void VruiView::updateValue(const EditField *input)
 {
     updateText(input);
 }
@@ -512,7 +512,7 @@ VruiViewElement *VruiView::elementFactoryImplementation(SelectionList *sl)
     return ve;
 }
 
-VruiViewElement *VruiView::elementFactoryImplementation(Input *input)
+VruiViewElement *VruiView::elementFactoryImplementation(EditField *input)
 {
     auto ve = new VruiViewElement(input);
     ve->m_menuItem = new coLabelMenuItem(input->text());
