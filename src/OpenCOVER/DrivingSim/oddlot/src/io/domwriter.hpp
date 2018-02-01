@@ -18,6 +18,7 @@
 
 #include "../data/acceptor.hpp"
 #include "../data/roadsystem/odrID.hpp"
+#include "src/gui/exportsettings.hpp"
 
 #include <QDomElement>
 #include <QMap>
@@ -33,6 +34,7 @@ class Pool;
 
 class GeoReference;
 class TileSystem;
+class LaneOffset;
 
 
 class DomWriter : public Visitor
@@ -80,7 +82,8 @@ public:
 
     virtual void visit(LaneSection *);
     virtual void visit(Lane *);
-    virtual void visit(LaneWidth *);
+	virtual void visit(LaneWidth *);
+	virtual void visit(LaneOffset *);
 	virtual void visit(LaneBorder *);
     virtual void visit(LaneRoadMark *);
     virtual void visit(LaneSpeed *);
@@ -138,6 +141,7 @@ private:
         : Visitor()
     {
     }
+	ExportSettings::ExportIDVariants exportIDvar;
 	///write original ID if possible, otherwise create a unique ID based on the original one
 	QString getIDString(const odrID &ID, const QString &name);
 

@@ -10,7 +10,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
-#include "Input.h"
+#include "EditField.h"
 
 #include <cover/coVRPluginSupport.h>
 
@@ -50,6 +50,11 @@ TabletView::~TabletView()
     delete m_root->m_elem;
     m_root->m_elem = nullptr;
     delete m_root;
+}
+
+View::ViewType TabletView::typeBit() const
+{
+    return View::Tablet;
 }
 
 TabletViewElement *TabletView::tuiElement(const std::string &path) const
@@ -206,7 +211,7 @@ void TabletView::updateVisible(const Element *elem)
     auto te = ve->m_elem;
     if (!te)
         return;
-    te->setHidden(!elem->visible());
+    te->setHidden(!elem->visible(this));
 }
 
 void TabletView::updateText(const Element *elem)
@@ -333,7 +338,7 @@ void TabletView::updateBounds(const Slider *slider)
     }
 }
 
-void TabletView::updateValue(const Input *input)
+void TabletView::updateValue(const EditField *input)
 {
     auto ve = tuiElement(input);
     if (!ve)
@@ -423,7 +428,7 @@ TabletViewElement *TabletView::elementFactoryImplementation(SelectionList *sl)
     return ve;
 }
 
-TabletViewElement *TabletView::elementFactoryImplementation(Input *input)
+TabletViewElement *TabletView::elementFactoryImplementation(EditField *input)
 {
     auto ve = new TabletViewElement(input);
     auto parent = tuiContainer(input);
@@ -535,7 +540,7 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
             sl->trigger();
         }
     }
-    else if (auto in = dynamic_cast<Input *>(element))
+    else if (auto in = dynamic_cast<EditField *>(element))
     {
         if (auto te = dynamic_cast<coTUIEditTextField *>(elem))
         {

@@ -35,6 +35,7 @@ class SuperelevationSection;
 class CrossfallSection;
 class ShapeSection;
 class LaneSection;
+class LaneOffset;
 class Object;
 class ObjectReference;
 class Crosswalk;
@@ -104,7 +105,8 @@ public:
         CRD_SurfaceChange = 0x20000,
         CRD_BridgeChange = 0x40000,
 		CRD_TunnelChange = 0x80000,
-		CRD_ObjectReferenceChange = 0x100000
+		CRD_ObjectReferenceChange = 0x100000,
+		CRD_LaneOffsetChange = 0x200000
     };
 
     //################//
@@ -264,6 +266,8 @@ public:
     bool moveLaneSection(double oldS, double newS);
     void setLaneSections(QMap<double, LaneSection *> newSections);
 
+
+
     LaneSection *getLaneSection(double s) const;
     LaneSection *getLaneSectionBefore(double s) const;
     LaneSection *getLaneSectionNext(double s) const;
@@ -273,10 +277,26 @@ public:
         return laneSections_;
     }
 
+
+	// road:laneOffset //
+	//
+	void addLaneOffset(LaneOffset *laneOffset);
+	bool delLaneOffset(LaneOffset *laneOffset);
+	bool moveLaneOffset(double oldS, double newS);
+	bool delLaneOffset(double s);
+	void setLaneOffsets(QMap<double, LaneOffset *> newOffsets);
+
+	LaneOffset *getLaneOffsetObject(double s) const;
+	double getLaneOffset(double s) const;
+	LaneOffset *getLaneOffsetBefore(double s) const;
+	LaneOffset *getLaneOffsetNext(double s) const;
+
+
     // road:laneSection:lane:width //
     //
     double getMaxWidth(double s) const;
     double getMinWidth(double s) const;
+
 
     // check if the lanes are linked at their ends
     //
@@ -392,6 +412,7 @@ public:
     virtual void acceptForSignals(Visitor *visitor);
 	virtual void acceptForSignalReferences(Visitor *visitor);
     virtual void acceptForSensors(Visitor *visitor);
+	virtual void acceptForLaneOffsets(Visitor *visitor);
     
     double updateLength();
 
@@ -460,6 +481,9 @@ private:
 
     // lanes //
     QMap<double, LaneSection *> laneSections_; // owned
+
+	// laneOffsets //
+	QMap<double, LaneOffset *> laneOffsets_; // owned
 
     // objects //
     QMap<double, Crosswalk *> crosswalks_; // owned

@@ -114,7 +114,6 @@
 
    <Input>
     <MouseNav value="ON" />
-    <TrackingSystem value="MOUSE" />
     <!--Keyboard terminal="on" evdev="/dev/input/coverkeys" /-->
    </Input>
 

@@ -8,14 +8,17 @@
 #ifndef _CO_VR_3D_ROT_CENTER_INTERACTOR_H
 #define _CO_VR_3D_ROT_CENTER_INTERACTOR_H
 
-#include "cover/coVRIntersectionInteractor.h"
+#include <cover/coVRIntersectionInteractor.h>
 #include <osg/Matrix>
 #include <osg/Vec3>
 // selectable cone which rotates according to hand around its origin
 // it can be places (not interactive) with pos
 // the cone is modeled in the origin (along z axis)
 
-class coVR3DRotCenterInteractor : public opencover::coVRIntersectionInteractor
+namespace opencover
+{
+
+class PLUGIN_UTILEXPORT coVR3DRotCenterInteractor : public opencover::coVRIntersectionInteractor
 {
 private:
     osg::Vec3 p_;
@@ -41,7 +44,7 @@ public:
     osg::Matrix getMatrix()
     {
         return m_;
-    };
+    }
     osg::Vec3 getPosition()
     {
         return p_;
@@ -49,7 +52,8 @@ public:
     osg::Matrix getFrameDiffMatrix()
     {
         return frameDiffMat_;
-    };
+    }
 };
 
+}
 #endif

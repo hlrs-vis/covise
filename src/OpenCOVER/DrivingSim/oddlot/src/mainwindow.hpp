@@ -50,6 +50,7 @@ class OsmImport;
 
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
+#include "src/gui/exportsettings.hpp"
 #include "src/gui/lodsettings.hpp"
 #include "src/gui/oscsettings.hpp"
 
@@ -189,7 +190,8 @@ private:
 
     ProjectionSettings *projectionSettings;
 	OSCSettings *oscSettings;
-    ImportSettings *importSettings;
+	ImportSettings *importSettings;
+	ExportSettings *exportSettings;
     LODSettings *lodSettings;
 
     // Program Settings //
@@ -250,7 +252,8 @@ private slots:
     void exportSpline();
     void changeSettings();
 	void changeOSCSettings();
-    void changeImportSettings();
+	void changeImportSettings();
+	void changeExportSettings();
     void importIntermapRoad();
     void importCarMakerRoad();
     void importCSVRoad();

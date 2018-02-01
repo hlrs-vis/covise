@@ -600,7 +600,7 @@ protected:
 class COVEREXPORT coTUIFunctionEditorTab : public coTUIElement
 {
 public:
-    static const uint32_t histogramBuckets = 256;
+    static const int histogramBuckets = 256;
     int *histogramData;
 
     // my transfer function parameters: what is needed?

@@ -114,6 +114,7 @@ class QtView: public QObject, public View
  public:
    QtView(QMenuBar *menubar, QToolBar *m_toolbar = nullptr);
    QtView(QToolBar *toolbar);
+   ViewType typeBit() const override;
 
    void setInsertPosition(QAction *item);
 
@@ -147,7 +148,7 @@ class QtView: public QObject, public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
-   void updateValue(const Input *input) override;
+   void updateValue(const EditField *input) override;
 
    QtViewElement *elementFactoryImplementation(Menu *menu) override;
    QtViewElement *elementFactoryImplementation(Group *group) override;
@@ -156,7 +157,7 @@ class QtView: public QObject, public View
    QtViewElement *elementFactoryImplementation(Button *button) override;
    QtViewElement *elementFactoryImplementation(Slider *slider) override;
    QtViewElement *elementFactoryImplementation(SelectionList *sl) override;
-   QtViewElement *elementFactoryImplementation(Input *input) override;
+   QtViewElement *elementFactoryImplementation(EditField *input) override;
 
    void updateContainer(const Element *elem);
    void updateMenu(const Menu *menu, const Group *subGroup);

@@ -39,6 +39,7 @@ namespace ui {
 
 class Container;
 class Group;
+class View;
 
 //! base class for UI elements: everything visible to the user derives from this class
 
@@ -102,10 +103,10 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     //! set text label of this item
     void setText(const std::string &text);
 
-    //! return item visibility
-    bool visible() const;
+    //! return whether item should be visible in a View
+    bool visible(const View *view=nullptr) const;
     //! set item visibility
-    void setVisible(bool flag);
+    void setVisible(bool flag, int viewBits=~0);
     //! return whether item is enabled
     bool enabled() const;
     //! enable or disable item
@@ -128,6 +129,7 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     bool m_enabled = true;
     Priority m_priority = Default;
     std::string m_iconName;
+    int m_viewBits = ~0;
  private:
     mutable int m_id = -1, m_order = -1; // initialized by Manager
 };

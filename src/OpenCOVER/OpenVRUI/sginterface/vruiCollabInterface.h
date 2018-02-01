@@ -13,7 +13,6 @@
 #include <list>
 #include <string>
 
-//class OPENVRUIEXPORT vruiCollabInterface;
 namespace vrui
 {
 class vruiCollabInterface;

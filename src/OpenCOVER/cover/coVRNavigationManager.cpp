@@ -318,6 +318,8 @@ int coVRNavigationManager::readConfigFile()
     }
     turntable = coCoviseConfig::isOn("COVER.Turntable", turntable);
 
+    m_restrict = coCoviseConfig::isOn("COVER.Restrict", m_restrict);
+
     return 0;
 }
 
@@ -349,9 +351,10 @@ void coVRNavigationManager::initMenu()
     m_resetView->setIcon("zoom-original");
 
     scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
+    scaleSlider_->setVisible(false, ui::View::VR);
     scaleSlider_->setText("Scale factor");
-    scaleSlider_->setScale(ui::Slider::Logarithmic);
     scaleSlider_->setBounds(1e-5, 1e5);
+    scaleSlider_->setScale(ui::Slider::Logarithmic);
     scaleSlider_->setValue(cover->getScale());
     scaleSlider_->setCallback([this](double val, bool released){
         startMouseNav();
@@ -420,17 +423,27 @@ void coVRNavigationManager::initMenu()
     traverseInteractorButton_->setVisible(false);
     navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
 
-    collisionButton_ = new ui::Button(navMenu_, "Collision");
-    collisionButton_->setState(collision);
-    collisionButton_->setCallback([this](bool state){collision = state;});
-    snapButton_ = new ui::Button(navMenu_, "Snap");
-    snapButton_->setState(snapping);
-    snapButton_->setCallback([this](bool state){snapping=state;});
     driveSpeedSlider_ = new ui::Slider(navMenu_, "DriveSpeed");
     driveSpeedSlider_->setText("Drive speed");
     driveSpeedSlider_->setBounds(0., 30.);
     driveSpeedSlider_->setValue(driveSpeed);;
     driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+    collisionButton_ = new ui::Button(navMenu_, "Collision");
+    collisionButton_->setState(collision);
+    collisionButton_->setCallback([this](bool state){collision = state;});
+
+    snapButton_ = new ui::Button(navMenu_, "Snap");
+    snapButton_->setState(snapping);
+    snapButton_->setCallback([this](bool state){snapping=state;});
+
+    auto restrictButton = new ui::Button(navMenu_, "Restrict");
+    restrictButton->setText("Restrict interactors");
+    restrictButton->setState(m_restrict);
+    restrictButton->setCallback([this](bool state){
+        m_restrict = state;
+    });
+    restrictButton->setVisible(true);
+    restrictButton->setVisible(false, ui::View::VR);
 
 #if 0
     ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
@@ -2165,9 +2178,10 @@ void coVRNavigationManager::doFly()
     dcs_mat.postMult(tmp);
 
     /* apply translation */
-    dcs_mat.postMult(osg::Matrix::translate(speedFactor(delta[0]),
-                                            speedFactor(delta[1]),
-                                            speedFactor(delta[2])));
+    double l = speedFactor(delta.length());
+    delta.normalize();
+    delta *= l;
+    dcs_mat.postMult(osg::Matrix::translate(delta));
 
     /* apply direction change */
     if ((dirAxis[0] != 0.0) || (dirAxis[1] != 0.0) || (dirAxis[2] != 0.0))
@@ -2232,9 +2246,10 @@ void coVRNavigationManager::doDrive()
     dcs_mat.postMult(osg::Matrix::translate(-viewerPos[0], -viewerPos[1], -viewerPos[2]));
 
     /* apply translation */
-    dcs_mat.postMult(osg::Matrix::translate(speedFactor(delta[0]),
-                                            speedFactor(delta[1]),
-                                            speedFactor(delta[2])));
+    double l = speedFactor(delta.length());
+    delta.normalize();
+    delta *= l;
+    dcs_mat.postMult(osg::Matrix::translate(delta));
 
     /* apply direction change */
     osg::Matrix rot_mat;
@@ -2847,6 +2862,11 @@ void coVRNavigationManager::enableDegreeSnapping(bool val, float degrees)
 {
     snapDegrees = degrees;
     snappingD = val;
+}
+
+bool coVRNavigationManager::restrictOn() const
+{
+    return m_restrict;
 }
 
 float coVRNavigationManager::snappingDegrees() const

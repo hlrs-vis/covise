@@ -422,12 +422,14 @@ int coWriteVolume::compute(const char *)
     bytesPerChannel = pchDataFormat->getValue();
     //cerr << "WriteVolume: volSize[0], volSize[1], volSize[2] " << volSize[0] << " " << volSize[1] << " " <<  volSize[2] << " " << bytesPerChannel  <<endl;
     vd = new vvVolDesc(newPath, volSize[0], volSize[1], volSize[2], 0, bytesPerChannel + 1, no_channels, NULL);
+    virvo::vec3 dist = vd->getDist();
     for (i = 0; i < 3; ++i)
     {
         position[i] = fabs(0.5f * (maxPos[i] + minPos[i]));
-        vd->dist[i] = (maxPos[i] - minPos[i]) / volSize[i];
+        dist[i] = (maxPos[i] - minPos[i]) / volSize[i];
     }
     vd->pos = position;
+    vd->setDist(dist);
 
     // Read timestep data from input port:
     if (haveRGBAData || haveVectorData)

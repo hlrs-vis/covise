@@ -164,11 +164,11 @@ OSCObjectItem::createPath()
 				{
 					if (object_->getT() < -NUMERICAL_ZERO3)
 					{
-						t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
+						t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d + road_->getLaneOffset(currentLaneSection->getSEnd());
 					}
 					else if (object_->getT() > NUMERICAL_ZERO3)
 					{
-						t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
+						t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d + road_->getLaneOffset(currentLaneSection->getSEnd());
 					}
 
 					currentLaneSection = road_->getLaneSectionNext(currentLaneSection->getSStart() + NUMERICAL_ZERO3);
@@ -180,29 +180,29 @@ OSCObjectItem::createPath()
 				currentLaneId = currentLaneSection->getLaneId(sSection, t);
 				if (object_->getT() < -NUMERICAL_ZERO3) 
 				{
-					if (fabs(t)  < currentLaneSection->getLaneSpanWidth( 0, currentLaneId + 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
+					if (fabs(t)  < currentLaneSection->getLaneSpanWidth( 0, currentLaneId + 1, currentS) + road_->getLaneOffset(currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
 					{
 						currentLaneId++;
 					}
-					d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + t;
+					d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + t + road_->getLaneOffset(currentS);
 				}
 				else if (object_->getT() > NUMERICAL_ZERO3) 
 				{
-					if (t < currentLaneSection->getLaneSpanWidth( 0, currentLaneId - 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
+					if (t < currentLaneSection->getLaneSpanWidth( 0, currentLaneId - 1, currentS) + road_->getLaneOffset(currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
 					{
 						currentLaneId--;
 					}
-					d = t  -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS);
+					d = t  -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + road_->getLaneOffset(currentS);
 				}
 			}
 
 			if (object_->getT() < -NUMERICAL_ZERO3)
 			{
-				t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+				t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d + road_->getLaneOffset(currentS);
 			}
 			else if (object_->getT() > NUMERICAL_ZERO3)
 			{
-				t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+				t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d + road_->getLaneOffset(currentS);
 			}
 			QPointF currentPos = road_->getGlobalPoint(currentS, t);
 

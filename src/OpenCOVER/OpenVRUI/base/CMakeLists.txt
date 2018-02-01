@@ -92,6 +92,20 @@ SET(BASE_SOURCES
 #  coLabelToggleButtonGeometry.cpp
 #  coLabelToggleButtonToolboxItem.cpp
 #  coLabelButtonToolboxItem.cpp
+   ../sginterface/vruiActionUserData.cpp
+   ../sginterface/vruiButtonProvider.cpp
+   ../sginterface/vruiButtons.cpp
+   ../sginterface/vruiCollabInterface.cpp
+   ../sginterface/vruiGroupNode.cpp
+   ../sginterface/vruiHit.cpp
+   ../sginterface/vruiMatrix.cpp
+   ../sginterface/vruiNode.cpp
+   ../sginterface/vruiPanelGeometryProvider.cpp
+   ../sginterface/vruiTexture.cpp
+   ../sginterface/vruiTransformNode.cpp
+   ../sginterface/vruiUIElementProvider.cpp
+   ../sginterface/vruiUserData.cpp
+   ../sginterface/vruiVec.cpp
 )
 
 SET(UTIL_HEADERS

@@ -1,5 +1,5 @@
-#ifndef UI_INPUT_H
-#define UI_INPUT_H
+#ifndef UI_EDITFIELD_H
+#define UI_EDITFIELD_H
 
 #include "Element.h"
 
@@ -10,7 +10,7 @@ namespace ui {
 
 //! a graphical Element allowing for keyboard input
 
-class COVER_UI_EXPORT Input: public Element {
+class COVER_UI_EXPORT EditField: public Element {
 
  public:
    enum UpdateMask: UpdateMaskType
@@ -18,9 +18,9 @@ class COVER_UI_EXPORT Input: public Element {
        UpdateValue = 0x100,
    };
 
-   Input(Group *parent, const std::string &name);
-   Input(const std::string &name, Owner *owner);
-   ~Input();
+   EditField(Group *parent, const std::string &name);
+   EditField(const std::string &name, Owner *owner);
+   virtual ~EditField();
 
    void setValue(const std::string &text);
    void setValue(double num);

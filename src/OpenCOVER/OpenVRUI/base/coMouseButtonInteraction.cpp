@@ -23,9 +23,7 @@ coMouseButtonInteraction::~coMouseButtonInteraction()
 
 void coMouseButtonInteraction::update()
 {
-    if (!button)
-        button = vruiRendererInterface::the()->getMouseButtons();
-
+    button = vruiRendererInterface::the()->getMouseButtons();
     coButtonInteraction::update();
 }
 }

@@ -185,7 +185,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                     {
                         numConn = junction->getConnections().size();
                     }
-                    newConnection = new JunctionConnection(QString("jc%1").arg(numConn), item->getParentRoad()->getID(), road->getID(), contactPoint, 1);
+                    newConnection = new JunctionConnection(QString("%1").arg(numConn), item->getParentRoad()->getID(), road->getID(), contactPoint, 1);
 
                     QMap<double, LaneSection *> lanes = road->getLaneSections();
                     LaneSection *lsC = *lanes.begin();

@@ -178,5 +178,6 @@ protected:
     float *orientations;
     bool record;
     bool doRemoteFetch;
+    int viewPointCount = 0;
 };
 #endif // SYSTEM_COVER_H

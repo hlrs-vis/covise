@@ -319,14 +319,14 @@ AddToJunctionCommand::AddToJunctionCommand(RoadSystem *roadSystem, RSystemElemen
     RoadLink * predecessor = road_->getPredecessor();
     if (predecessor)
     {
-        JunctionConnection * connection = new JunctionConnection(QString("jc%1").arg(junction->getConnections().size()), predecessor->getElementId(), road_->getID(), predecessor->getContactPoint(), 1);
+        JunctionConnection * connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), predecessor->getElementId(), road_->getID(), predecessor->getContactPoint(), 1);
         connections_.append(connection);
     }
 
     RoadLink * successor = road_->getSuccessor();
     if (successor)
     {
-        JunctionConnection * connection = new JunctionConnection(QString("jc%1").arg(junction->getConnections().size()), successor->getElementId(), road_->getID(), successor->getContactPoint(), 1);
+        JunctionConnection * connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), successor->getElementId(), road_->getID(), successor->getContactPoint(), 1);
         connections_.append(connection);
     }
 

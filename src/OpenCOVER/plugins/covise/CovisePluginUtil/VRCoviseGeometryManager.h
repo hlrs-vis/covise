@@ -157,10 +157,13 @@ public:
                        int no_of_texCoords, float *tx, float *ty, osg::Texture::WrapMode wm, osg::Texture::FilterMode minfm, osg::Texture::FilterMode magfm,
                        float linewidth);
 
-    osg::Node *addPoint(const char *object, int no_of_points,
+    osg::Node *addPoint(const char *object_name, int no_of_points,
                         float *x_c, float *y_c, float *z_c,
-                        int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc,
-                        coMaterial *, float pointsize);
+                        int no_of_colors, int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc,
+                        coMaterial *material,
+                        int texWidth, int texHeight, int pixelSize, unsigned char *image, int no_of_texCoords, float *tx, float *ty,
+                        osg::Texture::WrapMode wm, osg::Texture::FilterMode minfm, osg::Texture::FilterMode magfm,
+                        float pointsize);
 
     osg::Node *addSphere(const char *object_name, int no_of_points,
                          float *x_c, float *y_c, float *z_c,
@@ -170,7 +173,7 @@ public:
                          float *vax, float *vay, float *vaz,
                          coMaterial *material = NULL);
 
-	~GeometryManager();
+    ~GeometryManager();
 };
 }
 #endif

@@ -24,9 +24,9 @@ public:
 	ScenarioManager();
 	~ScenarioManager();
 	Entity* getEntityByName(string entityName);
-	void conditionControl();
-	void conditionControl(Act* act);
-	void conditionControl(Maneuver* maneuver);
+    bool conditionControl();
+    bool conditionControl(Act* act);
+    bool conditionControl(Maneuver* maneuver);
 
 };
 

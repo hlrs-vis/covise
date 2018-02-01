@@ -112,13 +112,13 @@ ShapeSectionPolynomialItems::createPath()
 	{
 		if (lane->getId() > 0)
 		{
-			pathRL.moveTo(laneSection->getLaneSpanWidth(0, lane->getId(), s), 0.0);
-			pathRL.lineTo(laneSection->getLaneSpanWidth(0, lane->getId(), s), shapeSection_->getLength());
+			pathRL.moveTo(laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), 0.0);
+			pathRL.lineTo(laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), shapeSection_->getLength());
 		}
 		else if (lane->getId() < 0)
 		{
-			pathRL.moveTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s), 0.0);
-			pathRL.lineTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s), shapeSection_->getLength());
+			pathRL.moveTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), 0.0);
+			pathRL.lineTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), shapeSection_->getLength());
 		}
 		else
 		{

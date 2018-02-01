@@ -99,7 +99,7 @@ void ButtonDevice::createButtonMap(const std::string &confbase)
         MB(JOYSTICK_UP);
 
         if (!handled)
-            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << ".MultiMap" << endl;
+            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << ".Map" << endl;
 
 #undef MB
     }

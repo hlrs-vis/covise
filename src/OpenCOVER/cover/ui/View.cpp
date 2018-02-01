@@ -8,7 +8,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
-#include "Input.h"
+#include "EditField.h"
 
 #include <iostream>
 #include <cassert>
@@ -70,7 +70,7 @@ View::ViewElement *View::elementFactory(Element *elem)
     {
         ve = elementFactoryImplementation(sl);
     }
-    else if (auto input = dynamic_cast<Input *>(elem))
+    else if (auto input = dynamic_cast<EditField *>(elem))
     {
         ve = elementFactoryImplementation(input);
     }

@@ -2,6 +2,7 @@
 #include "Element.h"
 #include "Group.h"
 #include "Manager.h"
+#include "View.h"
 
 #include <cassert>
 
@@ -97,14 +98,24 @@ const std::string &Element::text() const
     return m_label;
 }
 
-bool Element::visible() const
+bool Element::visible(const View *view) const
 {
-    return m_visible;
+    int bit = ~0;
+    if (view)
+        bit = view->typeBit();
+    return (bit & m_viewBits);
 }
 
-void Element::setVisible(bool flag)
+void Element::setVisible(bool flag, int viewBits)
 {
-    m_visible = flag;
+    if (flag)
+    {
+        m_viewBits |= viewBits;
+    }
+    else
+    {
+        m_viewBits &= ~viewBits;
+    }
     manager()->queueUpdate(this, UpdateVisible);
 }
 

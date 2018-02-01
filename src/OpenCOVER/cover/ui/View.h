@@ -18,13 +18,21 @@ class Button;
 class Action;
 class Slider;
 class SelectionList;
-class Input;
+class EditField;
 
 //! abstract base class for all views onto the user interface elements handled by a Manager
 class COVER_UI_EXPORT View {
     friend class Manager;
 
  public:
+    enum ViewType
+    {
+        Other = 1,
+        WindowMenu = 2,
+        VR = 4,
+        Tablet = 8,
+        Phone = 16,
+    };
     //! base class for objects where a view stores all the data for the graphical representation of an Element
     struct ViewElement
     {
@@ -41,6 +49,8 @@ class COVER_UI_EXPORT View {
     //! destroy view and all data from its ViewElements
     virtual ~View();
 
+    //! return a bit identifying this View type
+    virtual ViewType typeBit() const = 0;
     //! return name of this view
     const std::string &name() const;
     //! return manager this view is attached to
@@ -70,7 +80,7 @@ class COVER_UI_EXPORT View {
     //! reflect change of slider range in graphical representation
     virtual void updateBounds(const Slider *slider) = 0;
     //! reflect change of input field value in graphical representation
-    virtual void updateValue(const Input *input) = 0;
+    virtual void updateValue(const EditField *input) = 0;
 
     //! remove elem from View and delete associated data
     bool removeElement(Element *elem);
@@ -98,7 +108,7 @@ class COVER_UI_EXPORT View {
     //! implement to create graphical representation of a selection list
     virtual ViewElement *elementFactoryImplementation(SelectionList *sl) = 0;
     //! implement to create graphical representation of an input field
-    virtual ViewElement *elementFactoryImplementation(Input *input) = 0;
+    virtual ViewElement *elementFactoryImplementation(EditField *input) = 0;
 
  private:
     const std::string m_name;

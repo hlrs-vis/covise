@@ -19,41 +19,26 @@ Control::Control(TrafficLightSignal *signal_, const std::string &type_)
 void Control::switchGreenLight(bool state)
 {
     greenState = state;
-    switch (state)
-    {
-    case true:
+    if (state)
         signal->switchGreenSignal(TrafficLightSignal::ON);
-        break;
-    case false:
+    else
         signal->switchGreenSignal(TrafficLightSignal::OFF);
-        break;
-    }
 }
 
 void Control::switchYellowLight(bool state)
 {
     yellowState = state;
-    switch (state)
-    {
-    case true:
+    if (state)
         signal->switchYellowSignal(TrafficLightSignal::ON);
-        break;
-    case false:
-        signal->switchYellowSignal(TrafficLightSignal::OFF);
-        break;
-    }
+    else
+        signal->switchYellowSignal(TrafficLightSignal::ON);
 }
 
 void Control::switchRedLight(bool state)
 {
     redState = state;
-    switch (state)
-    {
-    case true:
+    if (state)
         signal->switchRedSignal(TrafficLightSignal::ON);
-        break;
-    case false:
+    else
         signal->switchRedSignal(TrafficLightSignal::OFF);
-        break;
-    }
 }

@@ -187,8 +187,8 @@ coVRConfig::coVRConfig()
     }
     pipes.resize(numPipes);
 
-    m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     glVersion = coCoviseConfig::getEntry("COVER.GLVersion");
+    m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
     m_stereoSeparation = 64.0f;
     string line = coCoviseConfig::getEntry("separation", "COVER.Stereo");
@@ -223,13 +223,6 @@ coVRConfig::coVRConfig()
 
     std::string msMode = coCoviseConfig::getEntry("mode", "COVER.Multisample", "FASTEST");
 
-    std::string lang = coCoviseConfig::getEntry("value", "COVER.Menu.Language", "ENGLISH");
-    if (lang == "GERMAN")
-        m_language = GERMAN;
-    else
-        m_language = ENGLISH;
-
-    m_restrict = coCoviseConfig::isOn("COVER.Restrict", false);
     if (msMode == "FASTEST")
     {
         multisampleMode = osg::Multisample::FASTEST;
@@ -673,6 +666,12 @@ coVRConfig::coVRConfig()
         bt.blendingTextureName = coCoviseConfig::getEntry("blendingTexture", str, "");
 
     }
+
+    std::string lang = coCoviseConfig::getEntry("value", "COVER.Menu.Language", "ENGLISH");
+    if (lang == "GERMAN")
+        m_language = GERMAN;
+    else
+        m_language = ENGLISH;
 }
 
 coVRConfig::~coVRConfig()

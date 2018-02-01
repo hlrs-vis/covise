@@ -100,7 +100,7 @@ public:
 
     void update();
 
-    void SyncXform()
+    void SyncXform() //! mark VRSceneGraph::m_objectsTransform as dirty
     {
         syncXform = true;
     }
@@ -108,7 +108,7 @@ public:
     {
         syncXform = false;
     }
-    void SyncScale()
+    void SyncScale() //! mark VRSceneGraph::m_scaleTransform as dirty
     {
         syncScale = true;
     }

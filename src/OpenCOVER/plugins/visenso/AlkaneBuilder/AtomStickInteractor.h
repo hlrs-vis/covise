@@ -30,15 +30,16 @@
 //                              |
 //                          cylinderGeode
 
-#ifndef _ATOM_STICK_INTERACTOR_H
-#define _ATOM_STICK_INTERACTOR_H
+#ifndef ATOM_STICK_INTERACTOR_H
+#define ATOM_STICK_INTERACTOR_H
 
 #include <osg/Vec3>
 #include <osg/MatrixTransform>
 
-#include "coVR3DRotCenterInteractor.h"
+#include <PluginUtil/coVR3DRotCenterInteractor.h>
+
 class Atom;
-class AtomStickInteractor : public coVR3DRotCenterInteractor
+class AtomStickInteractor : public opencover::coVR3DRotCenterInteractor
 {
 private:
     osg::Vec3 dir_; // direcion of connection when atom ist not transformed
@@ -53,7 +54,7 @@ private:
 
 public:
     AtomStickInteractor(std::string symbol, const char *interactorName, Atom *myAtom, osg::Matrix initialOrientation, osg::Vec3 initialPos, osg::Vec3 stickDir, float size, osg::Vec4 color);
-    ~AtomStickInteractor();
+    virtual ~AtomStickInteractor();
     virtual void preFrame();
     osg::Vec3 getDir();
     void resetPosition();

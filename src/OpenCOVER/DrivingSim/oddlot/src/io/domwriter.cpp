@@ -55,6 +55,7 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneoffset.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
@@ -104,6 +105,8 @@
 //
 #include "src/gui/projectwidget.hpp"
 
+#include "src/gui/exportsettings.hpp"
+
 // MainWindow //
 //
 #include "src/mainwindow.hpp"
@@ -127,6 +130,7 @@ DomWriter::runToTheHills()
 {
     // <?xml?> //
     //
+	exportIDvar = ExportSettings::instance()->ExportIDVariant();
     setlocale(LC_NUMERIC, "C");
     QDomNode xml = doc_->createProcessingInstruction("xml", "version=\"1.0\"");
     doc_->appendChild(xml);
@@ -185,26 +189,71 @@ QString DomWriter::getIDString(const odrID &ID, const QString &name)
 	}
 	if (ID.getID() == -1)
 		return("-1");
-    //write original ID if possible, otherwise create a unique ID based on the original one
-	IDS = ID.getName();
-	if (IDS == "")
+	
+	if(exportIDvar == ExportSettings::EXPORT_ORIGINAL)
 	{
-		IDS = name;
+		//write original ID if possible, otherwise create a unique ID based on the original one
+		IDS = ID.getName();
+		if (IDS == "")
+		{
+			IDS = name;
+		}
+		QString TileID;
+		if (ID.getTileID() > 0)
+		{
+			TileID = "_" + QString::number(ID.getTileID());
+		}
+		TileID += "_" + QString::number(ID.getID());
+		int counter = 0;
+		while (writtenIDStrings[ID.getType()].contains(IDS))
+		{
+			if (counter == 0)
+				IDS = ID.getName() + TileID;
+			else
+				IDS = ID.getName() + TileID + "_" + QString::number(counter);
+			counter++;
+		}
 	}
-	QString TileID;
-	if (ID.getTileID() > 0)
+	else if (exportIDvar == ExportSettings::EXPORT_NUMERICAL)
 	{
-		TileID = "_" + QString::number(ID.getTileID());
+		//write original ID if possible, otherwise create a unique ID based on the original one
+		IDS = QString::number(ID.getID());
+
+		if (writtenIDStrings[ID.getType()].contains(IDS))
+		{
+			IDS = QString::number(ID.getTileID()*1000.0 + ID.getID());
+			int counter = 0;
+			while (writtenIDStrings[ID.getType()].contains(IDS))
+			{
+
+				IDS = QString::number(ID.getTileID()*counter*(1000.0) + ID.getID());
+				counter++;
+			}
+		}
 	}
-	TileID += "_" + QString::number(ID.getID());
-	int counter=0;
-	while (writtenIDStrings[ID.getType()].contains(IDS))
+	else if (exportIDvar == ExportSettings::EXPORT_TILE_ID)
 	{
-		if(counter == 0)
-		    IDS = ID.getName()+TileID;
-		else
-			IDS = ID.getName() + TileID +"_"+ QString::number(counter);
-		counter++;
+		//write original ID if possible, otherwise create a unique ID based on the original one
+		IDS = ID.getName();
+		if (IDS == "")
+		{
+			IDS = name;
+		}
+		QString TileID;
+		if (ID.getTileID() > 0)
+		{
+			TileID = "_" + QString::number(ID.getTileID());
+		}
+		TileID += "_" + QString::number(ID.getID());
+		int counter = 0;
+		while (writtenIDStrings[ID.getType()].contains(IDS))
+		{
+			if (counter == 0)
+				IDS = ID.getName() + TileID;
+			else
+				IDS = ID.getName() + TileID + "_" + QString::number(counter);
+			counter++;
+		}
 	}
 	writtenIDs[ID.getType()].insert(ID,IDS);
 	writtenIDStrings[ID.getType()].insert(IDS);
@@ -1427,6 +1476,18 @@ DomWriter::visit(LaneWidth *laneWidth)
     element.setAttribute("c", laneWidth->getC());
     element.setAttribute("d", laneWidth->getD());
     currentLaneElement_.appendChild(element);
+}
+
+void
+DomWriter::visit(LaneOffset *laneOffset)
+{
+	QDomElement element = doc_->createElement("laneOffset");
+	element.setAttribute("s", laneOffset->getSOffset());
+	element.setAttribute("a", laneOffset->getA());
+	element.setAttribute("b", laneOffset->getB());
+	element.setAttribute("c", laneOffset->getC());
+	element.setAttribute("d", laneOffset->getD());
+	currentLanesElement_.appendChild(element);
 }
 
 void

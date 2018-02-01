@@ -9,7 +9,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
-#include <cover/ui/Input.h>
+#include <cover/ui/EditField.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -62,6 +62,11 @@ QtView::QtView(QToolBar *toolbar)
 : View("QtToolbar")
 , m_toolbar(toolbar)
 {
+}
+
+View::ViewType QtView::typeBit() const
+{
+    return View::WindowMenu;
 }
 
 void QtView::setInsertPosition(QAction *item)
@@ -324,7 +329,7 @@ QtViewElement *QtView::elementFactoryImplementation(SelectionList *sl)
     return ve;
 }
 
-QtViewElement *QtView::elementFactoryImplementation(Input *input)
+QtViewElement *QtView::elementFactoryImplementation(EditField *input)
 {
     auto parent = qtViewParent(input);
 
@@ -407,14 +412,14 @@ void QtView::updateVisible(const Element *elem)
         auto m = dynamic_cast<QMenu *>(w);
         if (!m)
         {
-            w->setVisible(elem->visible());
+            w->setVisible(elem->visible(this));
         }
     }
 
     if (auto ve = qtViewElement(elem))
     {
         if (auto a = ve->action)
-            a->setVisible(elem->visible());
+            a->setVisible(elem->visible(this));
     }
 }
 
@@ -426,7 +431,7 @@ void QtView::updateText(const Element *elem)
     auto o = qtObject(elem);
     auto t = QString::fromStdString(elem->text());
     t.replace('&', "&&");
-    if (auto i = dynamic_cast<const Input *>(elem))
+    if (auto i = dynamic_cast<const EditField *>(elem))
     {
         t += ": ";
         t += QString::fromStdString(i->value());
@@ -597,7 +602,7 @@ void QtView::updateBounds(const Slider *slider)
     }
 }
 
-void QtView::updateValue(const Input *input)
+void QtView::updateValue(const EditField *input)
 {
     updateText(input);
 }

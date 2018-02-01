@@ -10,7 +10,7 @@ namespace opencover {
 namespace ui {
 
 //! store the data for the representation of a UI Element within a TabletView
-struct TabletViewElement: public View::ViewElement, public coTUIListener
+struct COVER_UI_EXPORT TabletViewElement: public View::ViewElement, public coTUIListener
 {
    TabletViewElement(Element *elem);
    ~TabletViewElement();
@@ -31,12 +31,13 @@ struct TabletViewElement: public View::ViewElement, public coTUIListener
 };
 
 //! concrete implementation of View for showing user interface \ref Element "elements" in VR based on the OpenVRUI framework
-class TabletView: public View
+class COVER_UI_EXPORT TabletView: public View
 {
  public:
    TabletView(const std::string &name, coTabletUI *tui);
    TabletView(coTUITabFolder *root);
    ~TabletView();
+   ViewType typeBit() const override;
 
  private:
    TabletViewElement *tuiElement(const std::string &path) const;
@@ -58,7 +59,7 @@ class TabletView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
-   void updateValue(const Input *input) override;
+   void updateValue(const EditField *input) override;
 
    TabletViewElement *elementFactoryImplementation(Menu *menu) override;
    TabletViewElement *elementFactoryImplementation(Group *group) override;
@@ -67,7 +68,7 @@ class TabletView: public View
    TabletViewElement *elementFactoryImplementation(Button *button) override;
    TabletViewElement *elementFactoryImplementation(Slider *slider) override;
    TabletViewElement *elementFactoryImplementation(SelectionList *sl) override;
-   TabletViewElement *elementFactoryImplementation(Input *input) override;
+   TabletViewElement *elementFactoryImplementation(EditField *input) override;
 
    TabletViewElement *m_root = nullptr;
 

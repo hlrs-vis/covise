@@ -855,14 +855,14 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
             {
                 // if we want 2D TF but we have only one channel, use the
                 // first-order derivative as the second channel
-                if (vd->chan < 2)
+                if (vd->getChan() < 2)
                 {
                     vd->addGradient(0, vvVolDesc::GRADIENT_MAGNITUDE);
-                    assert(vd->chan >= 2);
-                    functionEditorTab->setDimension(vd->chan);
+                    assert(vd->getChan() >= 2);
+                    functionEditorTab->setDimension(vd->getChan());
 
                     // refresh the histogram
-                    unsigned int buckets[2];
+                    int buckets[2];
                     buckets[0] = coTUIFunctionEditorTab::histogramBuckets;
                     buckets[1] = coTUIFunctionEditorTab::histogramBuckets;
 
@@ -1541,9 +1541,9 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                 volDesc = new vvVolDesc("COVISEXX",
                                         sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
                 volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, minX+maxX) * .5f;
-                volDesc->dist[0] = (maxZ - minZ) / sizeZ;
-                volDesc->dist[1] = (maxY - minY) / sizeY;
-                volDesc->dist[2] = (maxX - minX) / sizeX;
+                volDesc->setDist((maxZ - minZ) / sizeZ,
+                                 (maxY - minY) / sizeY,
+                                 (maxX - minX) / sizeX);
             }
 
             if (packedColor)
@@ -1552,7 +1552,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                 volDesc->tf[0].setDefaultAlpha(0, 0., 1.);
             }
 
-            for (size_t c = 0; c < volDesc->chan; ++c)
+            for (size_t c = 0; c < volDesc->getChan(); ++c)
             {
                 volDesc->range(c)[0] = colorObj->getMin(c);
                 volDesc->range(c)[1] = colorObj->getMax(c);
@@ -1748,7 +1748,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
     {
         volumes[name].addToScene();
         volumes[name].filename = filename;
-        volumes[name].multiDimTF = vd->chan == 1;
+        volumes[name].multiDimTF = vd->getChan() == 1;
         volumes[name].preIntegration = preintItem->state();
         volumes[name].lighting = lightingItem->state();
         volumes[name].mapTF = mapTF;
@@ -1766,8 +1766,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         }
         else
         {
-            volumes[name].tf.resize(vd->chan);
-            if (vd->tf.empty() || vd->tf.size() != vd->chan)
+            volumes[name].tf.resize(vd->getChan());
+            if (vd->tf.empty() || vd->tf.size() != vd->getChan())
             {
                 for (int i = 0; i < volumes[name].tf.size(); ++i)
                 {
@@ -1780,9 +1780,9 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
                 volumes[name].tf = vd->tf;
             }
 
-            if (vd->channelWeights.size() != vd->chan)
+            if (vd->channelWeights.size() != vd->getChan())
             {
-                vd->channelWeights.resize(vd->chan);
+                vd->channelWeights.resize(vd->getChan());
                 std::fill(vd->channelWeights.begin(), vd->channelWeights.end(), 1.0f);
             }
             volumes[name].channelWeights = vd->channelWeights;
@@ -1908,11 +1908,11 @@ void VolumePlugin::updateTFEData()
                         editor->pinedit->setBackgroundType(0); // histogram
                     }
 
-                    editor->setNumChannels(vd->chan);
+                    editor->setNumChannels(vd->getChan());
 
                     editor->setTransferFuncs(currentVolume->second.tf);
 
-                    for (int c = 0; c < vd->chan; ++c)
+                    for (int c = 0; c < vd->getChan(); ++c)
                     {
                         editor->setActiveChannel(c);
                         editor->setMin(vd->range(c)[0]);
@@ -1933,18 +1933,18 @@ void VolumePlugin::updateTFEData()
                     //after loading data, if we have a tabletUI,
                     // 1) notify the tabletUI function editor of its dimensionality (channel number)
                     // 2) send it the histogram if the plugin is configured this way
-                    functionEditorTab->setDimension(vd->chan);
+                    functionEditorTab->setDimension(vd->getChan());
                     delete[] functionEditorTab -> histogramData;
                     functionEditorTab->histogramData = NULL;
 
-                    unsigned int buckets[2] = {
+                    int buckets[2] = {
                         coTUIFunctionEditorTab::histogramBuckets,
-                        vd->chan == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
+                        vd->getChan() == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
                     };
                     if (computeHistogram)
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
-                        if (vd->chan == 1)
+                        if (vd->getChan() == 1)
                             vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
                         else
                             //TODO: allow to pass in multiple min/max pairs
