@@ -141,10 +141,18 @@ CatalogWidget::onDeleteCatalogItem()
 			OSCElement *element = base_->getOSCElement(catalog_->getCatalogObject(refId));
 
 			RemoveOSCCatalogObjectCommand *command = new RemoveOSCCatalogObjectCommand(catalog_, refId, element);
-			projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
 
 			if (command->isValid())
 			{
+				if (!element)
+				{
+					projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
+					catalogTreeWidget_->createTree();
+				}
+				else
+				{
+					projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
+				}
 				deletedSomething = true;
 				break;
 			}
