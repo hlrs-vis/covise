@@ -104,19 +104,19 @@ void OpenScenarioPlugin::preFrame()
     list<Entity*> entityList_temp = scenarioManager->entityList;
     entityList_temp.sort();unusedEntity.sort();
 
-    scenarioManager->conditionControl();
-    if (scenarioManager->scenarioCondition == true)
+
+    if (scenarioManager->conditionControl())
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
-            scenarioManager->conditionControl((*act_iter));//check act start conditions
-            if ((*act_iter)->actCondition == true)
+            //check act start conditions
+            if (scenarioManager->conditionControl((*act_iter)))
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
                     Maneuver* currentManeuver = (*maneuver_iter);
-                    scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
-                    if ((*maneuver_iter)->maneuverCondition == true)
+                    //check maneuver start conditions
+                    if (scenarioManager->conditionControl((*maneuver_iter)))
                     {
                         if((*maneuver_iter)->maneuverType == "followTrajectory")
                         {
@@ -138,7 +138,7 @@ void OpenScenarioPlugin::preFrame()
                                         if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
                                             // calculate speed from trajectory vertices
                                             //(*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*trajectory_iter)->getReference((*maneuver_iter)->visitedVertices)));
-                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed(0.01));
+                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed(0.1));
                                         }
 
                                     }
