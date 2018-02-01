@@ -327,6 +327,7 @@ void QtOsgWidget::keyPressEvent(QKeyEvent *event)
 
 void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 {
+    setKeyboardModifiers(event);
 #if 0
     if( event->isAutoRepeat() )
     {
@@ -335,7 +336,6 @@ void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
     else
 #endif
     {
-        setKeyboardModifiers(event);
         int value = s_QtKeyboardMap.remapKey(event);
         getEventQueue()->keyRelease(value);
     }
@@ -343,12 +343,14 @@ void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 
 void QtOsgWidget::mouseMoveEvent(QMouseEvent *event )
 {
+    setKeyboardModifiers(event);
     auto pr = devicePixelRatio();
     getEventQueue()->mouseMotion(event->x()*pr, event->y()*pr);
 }
 
 void QtOsgWidget::mousePressEvent(QMouseEvent *event)
 {
+    setKeyboardModifiers(event);
     unsigned int button = 0;
     switch(event->button())
     {
@@ -374,6 +376,7 @@ void QtOsgWidget::mousePressEvent(QMouseEvent *event)
 
 void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
 {
+    setKeyboardModifiers(event);
     unsigned int button = 0;
     switch( event->button() )
     {
@@ -399,6 +402,7 @@ void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void QtOsgWidget::wheelEvent(QWheelEvent *event)
 {
+    setKeyboardModifiers(event);
     event->accept();
     int delta = event->delta();
 
