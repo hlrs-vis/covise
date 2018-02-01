@@ -6,11 +6,13 @@
  * License: LGPL 2+ */
 
 #include "LaneSection.h"
+#include "Road.h"
 
 #include <iostream>
 
-LaneSection::LaneSection(double s)
+LaneSection::LaneSection(Road *r, double s)
 {
+	road = r;
     start = s;
     laneMap[0] = (new Lane(0));
 
@@ -115,7 +117,7 @@ int LaneSection::searchLane(double s, double v)
 int LaneSection::searchLane(double s, double v, double &inDist, double &outDist)
 {
     s -= start;
-
+	v -= road->getLaneOffset(s);
     if (v < 0)
     {
         for (int laneIt = -1; laneIt >= -numLanesRight; --laneIt)
@@ -247,13 +249,13 @@ double LaneSection::getLaneWidthSlope(double s, int l)
 
 double LaneSection::getDistanceToLane(double s, int l)
 {
+	double d = 0;
     if (l == 0)
     {
-        return 0.0;
+        return d;
     }
 
-    s -= start;
-    double d = 0;
+    double sLocal = s - start;
 
     std::map<int, Lane *>::const_iterator laneIt = laneMap.find(l);
     if (l < 0)
@@ -261,20 +263,20 @@ double LaneSection::getDistanceToLane(double s, int l)
         laneIt++;
         while(laneIt->first < 0)
         {
-            d += laneIt->second->getWidth(s);
+            d += laneIt->second->getWidth(sLocal);
             laneIt++;
         }
-        return -d;
+        return road->getLaneOffset(s) -d;
     }
     else
     {
         laneIt--;
         while(laneIt->first > 0)
         {
-            d += laneIt->second->getWidth(s);
+            d += laneIt->second->getWidth(sLocal);
             laneIt--;
         }
-        return d;
+        return road->getLaneOffset(s) + d;
     }
 }
 
@@ -296,8 +298,7 @@ Vector2D LaneSection::getLaneCenter(int l, double s)
 void LaneSection::getRoadWidth(double s, double &left, double &right)
 {
     s -= start;
-    left = 0;
-    right = 0;
+    right = left = road->getLaneOffset(s);
 
     for (int i = 1; i <= numLanesLeft; ++i)
     {

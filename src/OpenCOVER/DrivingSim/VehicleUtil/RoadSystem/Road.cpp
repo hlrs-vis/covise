@@ -68,7 +68,7 @@ Road::Road(std::string id, std::string name, double l, Junction *junc)
 
     xyMap[0.0] = (new PlaneStraightLine(0.0));
     zMap[0.0] = (new Polynom(0.0));
-    laneSectionMap[0.0] = (new LaneSection(0.0));
+    laneSectionMap[0.0] = (new LaneSection(this,0.0));
     lateralProfileMap[0.0] = (new SuperelevationPolynom(0.0));
     roadTypeMap[0.0] = UNKNOWN;
     // Neu Andreas 27-11-2012
@@ -2399,4 +2399,23 @@ void Road::accept(RoadSystemVisitor *visitor)
 bool Road::compare(Road *r1, Road *r2)
 {
     return r1->getLength() < r2->getLength();
+}
+
+
+void Road::addLaneOffset(double s, double a, double b, double c, double d)
+{
+	laneOffsetMap[s] = (new Polynom(s, a, b, c, d));
+}
+double Road::getLaneOffset(double s)
+{
+	if (laneOffsetMap.size() == 0)
+		return 0.0;
+	return ((--laneOffsetMap.upper_bound(s))->second)->getValue(s);
+}
+
+double Road::getLaneOffsetSlope(double s)
+{
+	if (laneOffsetMap.size() == 0)
+		return 0.0;
+	return ((--laneOffsetMap.upper_bound(s))->second)->getSlopeAngle(s);
 }

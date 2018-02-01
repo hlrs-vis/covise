@@ -16,7 +16,7 @@
 class VEHICLEUTILEXPORT LaneSection
 {
 public:
-    LaneSection(double);
+    LaneSection(Road *road, double);
 
     double getStart();
 
@@ -64,6 +64,7 @@ public:
 
 protected:
     double start;
+	Road *road;
 
     std::map<int, Lane *> laneMap;
     std::map<int, Batter *> batterMap;
