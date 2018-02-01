@@ -959,11 +959,10 @@ coVRNavigationManager::update()
         switch (getMode())
         {
         case Scale:
-        {
             startMouseNav();
             break;
-        }
-
+        default:
+            break;
         }
     }
 
@@ -1011,6 +1010,10 @@ coVRNavigationManager::update()
             tf *= relMat;
             break;
         }
+        default:
+        {
+            break;
+        }
         }
 
         if (tf != VRSceneGraph::instance()->getTransform()->getMatrix())
@@ -1025,11 +1028,10 @@ coVRNavigationManager::update()
         switch (getMode())
         {
         case Scale:
-        {
             stopMouseNav();
             break;
-        }
-
+        default:
+            break;
         }
     }
 
