@@ -225,13 +225,10 @@ Tracelines::linesForATime()
         sprintf(buf, "_%d", covise_time_);
         name += buf;
     }
-    if (no_of_points)
-        lines_[covise_time_] = new coDoLines(name, no_of_points, no_of_points, no_ptasks_ - numEmpty);
-    else
+    lines_[covise_time_] = new coDoLines(name, no_of_points, no_of_points, no_ptasks_ - numEmpty);
+    if (no_of_points == 0)
     {
         // all lines are empty - probably all starting points outside
-        // TODO create at least one entry in the lines object so that Cover interactor can work
-        lines_[covise_time_] = NULL;
         return;
     }
 
